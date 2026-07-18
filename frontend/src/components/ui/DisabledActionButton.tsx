@@ -12,10 +12,12 @@ export function DisabledActionButton({
   className,
   ...props
 }: DisabledActionButtonProps) {
+  // w-full yalnızca mobil header grid CSS'inde (card #1676); masaüstünde w-full
+  // İptal/X hizasını bozuyordu (card #1680 reopen).
   return (
     <span
       title={hoverTitle}
-      className="inline-flex min-w-0 w-full cursor-not-allowed"
+      className="inline-flex min-w-0 cursor-not-allowed"
     >
       <Button
         {...props}

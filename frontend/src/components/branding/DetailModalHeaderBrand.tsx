@@ -1,21 +1,16 @@
-import { useAuth } from '../../context/AuthContext'
-import { useTenantTheme } from '../../context/ThemeContext'
-import { MunicipalitySeal } from './MunicipalitySeal'
+/** Login sayfasındaki resmi belediye logosu (card #1683 reopen). */
+const DETAIL_HEADER_LOGIN_LOGO_SRC = '/tire-belediyesi-logo.png'
 
-/** Detay popup başlık satırı ortası — sol menü logosu, küçültülmüş (card #1683). */
+/** Detay popup başlık satırı ortası — login page logosu, küçültülmüş. */
 export function DetailModalHeaderBrand() {
-  const { user } = useAuth()
-  const { appearance } = useTenantTheme()
-  const institutionName = user?.tenantName || 'Tire Belediyesi'
-  const logoUrl = appearance.logoUrl?.trim() || null
-
   return (
     <div className="detail-modal-header-brand" aria-hidden="true">
-      <MunicipalitySeal
-        bare
-        alt={`${institutionName} logo`}
-        src={logoUrl}
+      <img
+        src={DETAIL_HEADER_LOGIN_LOGO_SRC}
+        alt=""
         className="detail-modal-header-brand__img"
+        loading="lazy"
+        decoding="async"
       />
     </div>
   )

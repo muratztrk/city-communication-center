@@ -1,3 +1,9 @@
+## Round — #1683/#1684/#1685/#1680 reopen
+- #1683: Header logosu login page (`tire-belediyesi-logo.png`).
+- #1684: Süreç Onay Bekleyen metni küçültüldü.
+- #1685: Header şeridi = bölüm çizgisi (primary %40 transparan).
+- #1680 reopen: DisabledActionButton w-full kaldırıldı; logo absolute — İptal/X düzeltildi.
+
 ## Round — #1680/#1681/#1682/#1683 detay popup paketi
 - #1680: Birimdeki Görevler header butonları nowrap / tek satır.
 - #1681: Bölüm başlık çizgisi primary + transparan.

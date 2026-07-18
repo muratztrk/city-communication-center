@@ -279,9 +279,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geçişinde ara turuncu bant kullanılmaz; doğrudan yeşil→kırmızı akar.
   Ana kart `Talep Detayları` başlığı title-case, yeşil, orta boy ve bold görünür; CSS uppercase
   zorlaması uygulanmaz. Header satırında üst boşluk payı korunur; başlık modalın üst kenarına
-  yapışmaz. Detaylar popup sol üst başlığının altında footer Lumespec şeridiyle aynı
-  `--color-primary` boydan boya şerit kullanılır; kalınlık `2px` (card #1661; #1657 reopen
-  3px'den inceltti). Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;
+  yapışmaz.   Detaylar popup sol üst başlığının altında boydan boya şerit `2px` kalır (card #1661;
+  #1657 reopen); rengi bölüm başlık çizgisiyle aynı transparan primary'dir (card #1685). Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;
   açıklama editörü kompakt kalır (cards #1218/#1220/#1221/#1222/#1223/#1238/#1244).
   Talep başlığı yanındaki meta bloğu başlık metnine değil, sol kartın sağ border çizgisine hizalanır;
   en sağda iki satırdır: üstte talep no, altında `Birim İçi/Birim Dışı` rozeti.
@@ -794,10 +793,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`color-mix(... 40%, transparent)`, scrollbar ile aynı); gri slate değil.
 - **Detay popup boyutu (card #1682):** `.detail-modal-shell` / `--my-request` bir kademe
   daha küçük (`~63–67vw` / `~73–77dvh` bandı).
-- **Detay popup header logo (card #1683):** başlık satırı ortasında sol menüdeki kurum
-  logosu (küçük `MunicipalitySeal` bare); `detail-modal-header-layout` 3 kolon.
-- **Detay popup header aksiyonları (card #1680):** masaüstünde aksiyonlar `flex-nowrap`
-  — Yönlendir/İptal/Yazdır/X tek satırda kalır, aşağı kaymaz.
+- **Detay popup header logo (card #1683 reopen):** başlık satırı ortasında login page
+  logosu (`/tire-belediyesi-logo.png`); absolute ortalanır, aksiyonlar sıkışmaz.
+- **Detay popup header şeridi (card #1685):** `my-request-detail-header::after` rengi
+  bölüm başlık çizgisiyle aynı (`color-mix(primary 40%, transparent)`).
+- **Süreç Onay Bekleyen metni (card #1684):** timeline `Onay Bekleyen` değerleri
+  `0.625rem` (`job-process-timeline__pending-approval-text`).
+- **Detay popup header aksiyonları (card #1680 reopen):** masaüstünde aksiyonlar
+  `flex-nowrap`; `DisabledActionButton` span'ında kalıcı `w-full` yok (mobilde CSS
+  grid hücresi verir) — İptal/X bozulmaz.
 - **Grid "Yeni" rozeti (cards #589/#607/#1668):** yanıp sönen yeşil `Yeni` tarih kolonunun
   altındadır — Taleplerim/Birime Giden → `Talep Tarihi` (`createdAtUtc` bugün);
   Görevlerim/Birimdeki/Personelim → `Görev Tarihi` (`assignedAtUtc` bugün);

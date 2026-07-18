@@ -179,21 +179,29 @@
     border-bottom: 0;
   }
 
-  /* Başlık | logo | aksiyonlar — tek satır, butonlar aşağı kaymasın (cards #1680/#1683). */
+  /* Başlık + aksiyonlar; logo viewport ortasında absolute — sağ butonlar sıkışmaz
+     (cards #1680/#1683 reopen). */
   .detail-modal-header-layout {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    position: relative;
+    display: flex;
     align-items: center;
-    column-gap: 0.75rem;
+    justify-content: space-between;
+    gap: 0.75rem;
   }
 
   .detail-modal-header-layout > .detail-modal-header-title {
-    justify-self: start;
+    position: relative;
+    z-index: 1;
     min-width: 0;
+    flex: 0 1 auto;
   }
 
   .detail-modal-header-layout > .detail-modal-header-brand {
-    justify-self: center;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -201,16 +209,27 @@
   }
 
   .detail-modal-header-brand__img {
-    height: 2.25rem;
+    /* Login page logosu (card #1683 reopen). */
+    height: 2.5rem;
     width: auto;
-    max-width: 2.75rem;
+    max-width: 5.5rem;
     object-fit: contain;
   }
 
   .detail-modal-header-layout > .detail-modal-header-actions {
-    justify-self: end;
+    position: relative;
+    z-index: 1;
+    display: flex;
     flex-wrap: nowrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    flex: 0 1 auto;
     min-width: 0;
+  }
+
+  .detail-modal-header-layout .detail-modal-header-close {
+    flex-shrink: 0;
   }
 
   .my-request-detail-header::after {
@@ -218,8 +237,9 @@
     position: absolute;
     inset-inline: 0;
     bottom: 0;
+    /* Bölüm başlık alt çizgisiyle aynı transparan primary (card #1685). */
     height: 2px;
-    background: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 40%, transparent);
     pointer-events: none;
   }
 
@@ -437,6 +457,13 @@
   .detail-modal-shell--my-request .job-process-timeline__step-value .text-xs,
   .detail-modal-shell .job-process-timeline__step-value .text-xs {
     font-size: 0.6875rem;
+  }
+
+  /* Süreç "Onay Bekleyen" metinleri biraz daha küçük (card #1684). */
+  .detail-modal-shell .job-process-timeline__pending-approval-text {
+    font-size: 0.625rem;
+    font-weight: 600;
+    line-height: 1.25;
   }
 
   .detail-modal-shell .my-request-detail-main,
@@ -4507,16 +4534,14 @@
     }
 
     .detail-modal-header-mobile--actions-grid > .detail-modal-header-brand {
-      position: absolute;
-      left: 50%;
       top: 0.65rem;
-      transform: translateX(-50%);
+      transform: translate(-50%, 0);
       z-index: 1;
     }
 
     .detail-modal-header-mobile--actions-grid > .detail-modal-header-brand .detail-modal-header-brand__img {
-      height: 1.75rem;
-      max-width: 2.25rem;
+      height: 1.85rem;
+      max-width: 4rem;
     }
 
     .detail-modal-header-actions button,

@@ -773,6 +773,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `"O"`) ISO zamanlarını `dd.MM.yyyy HH:mm` (yerel) gösterir — özellikle `TaskDueDateUpdated`.
 - **Bildirim "Görev son tarihi güncellendi" başlığı (card #1669):** okunmuş olsa da tüm
   başlık metni `font-bold` kalır (yalnızca eylem kelimesi değil).
+- **Grid "Yeni" rozeti (cards #589/#607/#1668):** yanıp sönen yeşil `Yeni` tarih kolonunun
+  altındadır — Taleplerim/Birime Giden → `Talep Tarihi` (`createdAtUtc` bugün);
+  Görevlerim/Birimdeki/Personelim → `Görev Tarihi` (`assignedAtUtc` bugün);
+  Birime Gelen Onay Bekleyen → `Talep Tarihi`. Terminal (Completed/Cancelled/Rejected)
+  satırlarda gösterilmez (#606).
   Alanlarda `Görevi Atayan Yönetici` üstte, `Görevi Yapan` hemen alttadır (cards #1611/#1613).
   Durum Değiştir geçmişi Süreç timeline'ı altında, son işlemin gerçek nedeni hemen altındadır
   (cards #1619 reopen/#1624).

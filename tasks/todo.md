@@ -1,3 +1,6 @@
+## Round — #1668 grid Yeni rozeti tarih altına
+- [x] `6a5b2318` (#1668) — Taleplerim/Birime Giden: Yeni → Talep Tarihi; Birimdeki/Personelim: Yeni → Görev Tarihi.
+
 ## Round — #1665 reopen Süreç ikon hiza
 - [x] `6a5b20ca` (#1665 reopen) — Süreç (ve düz kart başlıkları) ikon kutusuyla düşey hiza.
 

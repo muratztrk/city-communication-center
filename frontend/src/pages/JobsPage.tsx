@@ -239,6 +239,18 @@ function formatDateTime(value: string | null, locale: string) {
   })
 }
 
+// Talebin oluşturulma günü = bugün mü? (Taleplerim / Birime Giden "Yeni" rozeti,
+// card #1668 — Birime Gelen Onay Bekleyen #607 ile aynı mantık).
+function isCreatedToday(value: string | null | undefined): boolean {
+  if (!value) return false
+  const created = new Date(value)
+  if (Number.isNaN(created.getTime())) return false
+  const now = new Date()
+  return created.getFullYear() === now.getFullYear()
+    && created.getMonth() === now.getMonth()
+    && created.getDate() === now.getDate()
+}
+
 function formatDueDateTime(value: string | null, locale: string) {
   if (!value) return locale.startsWith('tr') ? 'Onay Bekleyen' : 'Pending Approval'
   return formatDateTime(value, locale)
@@ -2001,7 +2013,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(job.priority)}`}>(Öncelik:{getPriorityLabel(t, job.priority)})</div>
                     </td>
                     )}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && <td><DateCell value={job.createdAtUtc ?? null} locale={locale} highlight={isReporterJob && Boolean(job.createdAtUtc)} /></td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && (
+                      <td>
+                        <DateCell value={job.createdAtUtc ?? null} locale={locale} highlight={isReporterJob && Boolean(job.createdAtUtc)} />
+                        {/* Bugün oluşturulan talepler: Talep Tarihi altında yanıp sönen "Yeni"
+                            (card #1668; terminal durumda gizlenir — Görevlerim #606 ile aynı). */}
+                        {!isTerminalJob && isCreatedToday(job.createdAtUtc) && (
+                          <div className="task-new-badge">{t('tasks.badges.new', 'Yeni')}</div>
+                        )}
+                      </td>
+                    )}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
                     <td className="font-semibold"><span className={`cell-title ${isReporterJob ? 'text-[#f97316]' : ''}`}>{job.title}</span></td>
                     {showTaskOwnerColumn && <td>{job.assignedUserDisplayName ?? '—'}</td>}

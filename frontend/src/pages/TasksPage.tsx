@@ -2978,9 +2978,9 @@ const pageKicker = isMyTasksView
                     </td>
                     <td>
                       <DateCell value={task.createdAtUtc} locale={locale} highlight={isReporterTask && Boolean(task.createdAtUtc)} />
-                      {/* Bugün atanan görevler için yanıp sönen yeşil "Yeni" rozeti (card 589).
-                          Tamamlanmış/İptal/İade (kapanmış) görevlerde gösterilmez (card 606). */}
-                      {isMyTasksView
+                      {/* Bugün atanan görevler: Görev Tarihi altında yanıp sönen yeşil "Yeni"
+                          (Görevlerim #589; Birimdeki/Personelim #1668). Terminalde gizlenir (#606). */}
+                      {(isMyTasksView || isDepartmentTasksView || isStaffTasksView)
                         && !['Completed', 'Cancelled', 'Rejected'].includes(task.currentStatus)
                         && isAssignedToday(task.assignedAtUtc) && (
                         <div className="task-new-badge">{t('tasks.badges.new', 'Yeni')}</div>

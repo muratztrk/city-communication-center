@@ -4150,7 +4150,8 @@
     white-space: nowrap;
   }
 
-  /* Görevlerim: bugün atanan görevler için Görev Tarihi'nin altında yanıp sönen yeşil "Yeni" (card 589). */
+  /* Grid "Yeni" rozeti: Görevlerim/Birimdeki/Personelim → Görev Tarihi (#589/#1668);
+     Taleplerim/Birime Giden → Talep Tarihi (#1668); Birime Gelen Onay Bekleyen → Talep Tarihi (#607). */
   .task-new-badge {
     margin-top: 0.25rem;
     text-align: center;

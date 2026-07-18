@@ -1,3 +1,7 @@
+## Round — #1686/#1687 detay tipografi
+- #1686: Detay popup bold kart/bölüm başlıkları 0.875→0.8125rem.
+- #1687: Talep/Görev Bilgileri etiket/değer + yönetici notu/ek boş metinleri küçültüldü.
+
 ## Round — #1683/#1684/#1685/#1680 reopen
 - #1683: Header logosu login page (`tire-belediyesi-logo.png`).
 - #1684: Süreç Onay Bekleyen metni küçültüldü.

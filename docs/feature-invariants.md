@@ -769,6 +769,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Detay kolon başlık altı border'ları metne biraz daha yakındır (`padding-bottom: 0.3rem`,
   grid `min-height: 3rem`; card #1665) — kolonlar arası hiza korunur.
   Süreç timeline listesi başlığın altında `0.9rem` üst boşlukla başlar (card #1672 reopen).
+  Detay popup bold kart/bölüm başlıkları `0.8125rem` (card #1686). Talep/Görev Bilgileri
+  etiket `0.6875rem`, değer `0.75rem`; yönetici notu / ek boş durum metinleri `0.75rem`
+  (card #1687).
 - **Onayla ve Personel Ata self-istek metni (card #1671):**
   `(Görevi kendisi yapmak istiyor)` — sonda nokta yok.
 - **Talep Son Tarih Değiştir (cards #1673/#1666):** Birime Gelen hedef birim yöneticisi

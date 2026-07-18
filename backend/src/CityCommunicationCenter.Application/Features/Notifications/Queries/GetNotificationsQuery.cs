@@ -512,8 +512,10 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             trimmed.StartsWith("Task was created", StringComparison.OrdinalIgnoreCase))
             return null;
 
+        // "O" round-trip (+00:00) ve Zulu (Z) ISO zamanları — TaskDueDateUpdated Notes
+        // "O" yazar; yalnızca Z eşleşmesi ham ISO bırakıyordu (card #1667).
         trimmed = System.Text.RegularExpressions.Regex.Replace(trimmed,
-            @"\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z\b",
+            @"\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})\b",
             match => DateTimeOffset.TryParse(match.Value, out var date)
                 ? date.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
                 : match.Value);

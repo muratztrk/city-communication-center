@@ -765,6 +765,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlığının sağ border'ına yaslanır; `Normal` bu yüzeyde emerald yeşilidir.
   Talep Bilgileri / Görev Bilgileri başlık altı border çizgisi, yanındaki başlık+meta / Süreç
   başlık border'ıyla aynı yatay hizada kalır (`min-height` on section headings; card #1660).
+  İlgili Görev Detayları'nda Görev Bilgileri ↔ Süreç border'ı da aynı hizada kalır
+  (`min-height: 3.75rem`; card #1664). Görev Bilgileri başlık metni ikonla dikey hizalıdır
+  (çok satırlı sağ meta ikonu ortalamaz; card #1665).
+- **Bildirim ISO tarih formatı (card #1667):** `FormatNote` hem `Z` hem `+00:00` (round-trip
+  `"O"`) ISO zamanlarını `dd.MM.yyyy HH:mm` (yerel) gösterir — özellikle `TaskDueDateUpdated`.
   Alanlarda `Görevi Atayan Yönetici` üstte, `Görevi Yapan` hemen alttadır (cards #1611/#1613).
   Durum Değiştir geçmişi Süreç timeline'ı altında, son işlemin gerçek nedeni hemen altındadır
   (cards #1619 reopen/#1624).

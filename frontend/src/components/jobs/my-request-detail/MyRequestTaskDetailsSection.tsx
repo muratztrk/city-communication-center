@@ -167,7 +167,8 @@ export function MyRequestTaskDetailsSection({
               <div className="flex h-full min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-4">
                 <MyRequestSectionHeading icon={Info} className="w-full">
                   <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-start gap-x-2 gap-y-1">
-                    <span className="min-w-0 leading-tight">{t('tasks.detail.taskInfo', 'Görev Bilgileri')}</span>
+                    {/* min-h ≈ ikon kutusu (1.05rem + 0.8rem padding); metin ikonla aynı hizada (card #1665). */}
+                    <span className="flex min-h-[1.85rem] min-w-0 items-center leading-tight">{t('tasks.detail.taskInfo', 'Görev Bilgileri')}</span>
                     <span className="ml-auto flex max-w-full flex-col items-end justify-start gap-1 text-right">
                       <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{taskNoText}</span>
                       <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">{taskTypeBadge}</span>

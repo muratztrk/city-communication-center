@@ -1,3 +1,8 @@
+## Round — #1664/#1665/#1667 görev detay hiza + bildirim tarih
+- [x] `6a5b2064` (#1664) — İlgili Görev Detayları Görev Bilgileri ↔ Süreç başlık border hizası.
+- [x] `6a5b20ca` (#1665) — Görev Bilgileri başlık metni ikonla dikey hiza.
+- [x] `6a5b2263` (#1667) — TaskDueDateUpdated bildirimde ISO (`+00:00`) → `dd.MM.yyyy HH:mm`.
+
 ## Round — #1662/#1658 dashboard dönem + Öncelik/Proje ayrımı
 - [x] `6a5a4cc0` (#1662) — Pie chart dönem filtresi: dönem dışı overdue OR kaldırıldı.
 - [x] `6a5a44d6` (#1658) — Görevlerim ailesi İlgili Talep: Öncelik / Proje mi ayrı satır.

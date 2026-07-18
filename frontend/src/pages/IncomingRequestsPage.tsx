@@ -44,7 +44,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
-import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, shouldShowGridNumberPriority, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone, formatOverdueInProgressStatus } from '../utils/localization'
+import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone, formatOverdueInProgressStatus } from '../utils/localization'
 import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
@@ -919,9 +919,7 @@ export function IncomingRequestsPage() {
                           <span className="font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                         ) : null}
                       </div>
-                      {shouldShowGridNumberPriority(row.priority) ? (
-                        <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
-                      ) : null}
+                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
                     </td>
                     <td>
                       <DateCell value={row.createdAtUtc} locale={locale} highlight={isReporterRow && Boolean(row.createdAtUtc)} />

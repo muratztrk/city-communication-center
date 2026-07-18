@@ -1,4 +1,8 @@
-## Round — #1678 grid Normal öncelik gizle
+## Round — #1678 reopen + #1679
+- #1678 reopen: Grid Normal öncelik gizleme geri alındı (yine tüm öncelikler görünür).
+- #1679: Detay bölüm başlık alt çizgisi `--color-primary` (popup şeridiyle aynı renk).
+
+## Round — #1678 grid Normal öncelik gizle (geri alındı)
 - Talep/Görev No altı `(Öncelik:Normal)` gizlenir; Yüksek/Çok Yüksek kalır.
 
 ## Round — #1677 talep son tarihi bildirimi

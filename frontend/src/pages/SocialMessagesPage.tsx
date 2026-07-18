@@ -16,7 +16,7 @@ import { ChannelIcon } from '../components/ui/channel-icon'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import type { JobSummary, SocialMessage } from '../types/platform'
-import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel, shouldShowGridNumberPriority } from '../utils/localization'
+import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
@@ -479,7 +479,7 @@ export function SocialMessagesPage() {
                         {message.channel !== 'WhatsApp' ? <ChannelIcon channel={message.channel} className="size-4 shrink-0" /> : null}
                         <span>{formatCitizenRequestNumber(message, locale)}</span>
                       </div>
-                      {linkedJob && shouldShowGridNumberPriority(linkedJob.priority) ? (
+                      {linkedJob ? (
                         <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(linkedJob.priority)}`}>
                           (Öncelik:{getPriorityLabel(t, linkedJob.priority)})
                         </div>

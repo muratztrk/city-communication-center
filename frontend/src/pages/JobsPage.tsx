@@ -35,7 +35,7 @@ import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJo
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { formatJobProjectLabel } from '../utils/jobProjectLabel'
-import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, shouldShowGridNumberPriority, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel, formatOverdueInProgressStatus } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel, formatOverdueInProgressStatus } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { getRequestEditPath } from '../utils/requestEditPath'
 import {
@@ -2012,9 +2012,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {(isMyRequestsView || isDepartmentOutgoingView) && (
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className={`table-number-cell__value ${reporterNumberClass}`}>{formatJobDisplayNumber(job)}</div>
-                      {shouldShowGridNumberPriority(job.priority) ? (
-                        <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(job.priority)}`}>(Öncelik:{getPriorityLabel(t, job.priority)})</div>
-                      ) : null}
+                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(job.priority)}`}>(Öncelik:{getPriorityLabel(t, job.priority)})</div>
                     </td>
                     )}
                     {(isMyRequestsView || isDepartmentOutgoingView) && (

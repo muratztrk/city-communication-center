@@ -788,12 +788,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep son tarihi bildirimi (card #1677):** `UpdateJob` Son Tarih değişince `JobDueDateUpdated`
   yazar; başlık `Talep son tarihi güncellendi`, gövde `T-… — başlık — dd.MM.yyyy HH:mm`
   (`TaskDueDateUpdated` ile aynı kalıp; genel `JobUpdated` / "Title updated" değil).
-- **Grid No altı Öncelik (card #1678):** Talep/Görev No altındaki `(Öncelik:…)` satırı
-  yalnızca `High` / `VeryHigh` / `Critical` için görünür; `Normal` gizlenir
-  (`shouldShowGridNumberPriority`).
 - **Bildirim "Görev son tarihi güncellendi" başlığı (card #1669):** okunmuş olsa da tüm
   başlık metni `font-bold` kalır (yalnızca eylem kelimesi değil). `/son tarihi güncellendi/`
   eşleşmesi talep başlığını da kapsar.
+- **Detay bölüm başlık çizgisi (card #1679):** popup içi `job-detail-section-heading`
+  alt çizgisi popup başlık şeridiyle aynı `--color-primary` (gri slate değil).
 - **Grid "Yeni" rozeti (cards #589/#607/#1668):** yanıp sönen yeşil `Yeni` tarih kolonunun
   altındadır — Taleplerim/Birime Giden → `Talep Tarihi` (`createdAtUtc` bugün);
   Görevlerim/Birimdeki/Personelim → `Görev Tarihi` (`assignedAtUtc` bugün);

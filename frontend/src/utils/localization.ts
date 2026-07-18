@@ -108,11 +108,6 @@ export function getPriorityColorClass(priority: string): string {
   return 'text-slate-400'
 }
 
-/** Grid Talep/Görev No altında (Öncelik:…) — Normal gizlenir; Yüksek/Çok Yüksek kalır (card #1678). */
-export function shouldShowGridNumberPriority(priority: string | null | undefined): boolean {
-  return priority === 'High' || priority === 'VeryHigh' || priority === 'Critical'
-}
-
 export function getSocialStatusLabel(t: TFunction, status: string): string {
   return t(`enum.socialStatus.${status}`, { defaultValue: status })
 }

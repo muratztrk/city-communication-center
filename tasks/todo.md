@@ -1,3 +1,9 @@
+## Round — #1680/#1681/#1682/#1683 detay popup paketi
+- #1680: Birimdeki Görevler header butonları nowrap / tek satır.
+- #1681: Bölüm başlık çizgisi primary + transparan.
+- #1682: Detay popup boyutları bir kademe küçültüldü.
+- #1683: Header ortasına kurum logosu.
+
 ## Round — #1678 reopen + #1679
 - #1678 reopen: Grid Normal öncelik gizleme geri alındı (yine tüm öncelikler görünür).
 - #1679: Detay bölüm başlık alt çizgisi `--color-primary` (popup şeridiyle aynı renk).

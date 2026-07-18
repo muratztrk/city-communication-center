@@ -285,10 +285,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açıklama editörü kompakt kalır (cards #1218/#1220/#1221/#1222/#1223/#1238/#1244).
   Talep başlığı yanındaki meta bloğu başlık metnine değil, sol kartın sağ border çizgisine hizalanır;
   en sağda iki satırdır: üstte talep no, altında `Birim İçi/Birim Dışı` rozeti.
-  Taleplerim detay popup gövdesi desktopta referans görseldeki gibi geniş ama kontrollü kalır:
-  yaklaşık `70.25vw` / `84.3rem` genişlik ve `80.7dvh` / `46.85rem` yükseklik.
-  JobsPage/TasksPage detay popupları da aynı ortak `.detail-modal-shell` ölçüsünü kullanır;
-  detay modal boyutlarını sayfa bazında yeniden ayrıştırma.
+  Taleplerim/görev detay popup gövdesi ortak `.detail-modal-shell` / `--my-request`
+  ölçülerini kullanır (card #1682 ile küçültülmüş band); sayfa bazında yeniden ayrıştırma.
   Taleplerim salt-okunur Talep Bilgileri listesinde `Proje mi` ayrı satırdır ve formdaki
   `Proje niteliğinde mi?` çevirisini kullanmaz; `Öncelik` ise Talep Bilgileri başlığının sağ
   sınırında etiketi üstte, değeri altta olacak biçimde gösterilir (cards #1586/#1599).
@@ -791,8 +789,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Bildirim "Görev son tarihi güncellendi" başlığı (card #1669):** okunmuş olsa da tüm
   başlık metni `font-bold` kalır (yalnızca eylem kelimesi değil). `/son tarihi güncellendi/`
   eşleşmesi talep başlığını da kapsar.
-- **Detay bölüm başlık çizgisi (card #1679):** popup içi `job-detail-section-heading`
-  alt çizgisi popup başlık şeridiyle aynı `--color-primary` (gri slate değil).
+- **Detay bölüm başlık çizgisi (cards #1679/#1681):** popup içi `job-detail-section-heading`
+  alt çizgisi `--color-primary` tonunda ve transparan
+  (`color-mix(... 32%, transparent)`); gri slate değil.
+- **Detay popup boyutu (card #1682):** `.detail-modal-shell` / `--my-request` bir kademe
+  daha küçük (`~63–67vw` / `~73–77dvh` bandı).
+- **Detay popup header logo (card #1683):** başlık satırı ortasında sol menüdeki kurum
+  logosu (küçük `MunicipalitySeal` bare); `detail-modal-header-layout` 3 kolon.
+- **Detay popup header aksiyonları (card #1680):** masaüstünde aksiyonlar `flex-nowrap`
+  — Yönlendir/İptal/Yazdır/X tek satırda kalır, aşağı kaymaz.
 - **Grid "Yeni" rozeti (cards #589/#607/#1668):** yanıp sönen yeşil `Yeni` tarih kolonunun
   altındadır — Taleplerim/Birime Giden → `Talep Tarihi` (`createdAtUtc` bugün);
   Görevlerim/Birimdeki/Personelim → `Görev Tarihi` (`assignedAtUtc` bugün);

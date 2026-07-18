@@ -153,10 +153,11 @@
   }
 
   .detail-modal-shell {
-    width: min(70.25vw, 84.3rem);
-    height: min(80.7dvh, 46.85rem);
+    /* Biraz daha kompakt detay popup (card #1682; önceki #1631 ölçüsünden ~%5). */
+    width: min(66.7vw, 80rem);
+    height: min(76.7dvh, 44.5rem);
     max-width: calc(100vw - 2rem);
-    max-height: min(80.7dvh, 46.85rem);
+    max-height: min(76.7dvh, 44.5rem);
   }
 
   .detail-modal-shell--notification {
@@ -164,12 +165,11 @@
   }
 
   /* Altı liste görünümünün (Taleplerim, Birime Gelen/Giden, Görevlerim, Birimdeki/
-     Personelimin Görevleri) detay popup'ı ~%5 küçültüldü (card #1631). Base
-     .detail-modal-shell (drilldown, vatandaş formu) bilinçli olarak eski ölçüde. */
+     Personelimin Görevleri) detay popup'ı — base ile aynı aile, biraz daha küçük (card #1682). */
   .detail-modal-shell--my-request {
-    width: min(66.75vw, 80rem);
-    height: min(76.7dvh, 44.5rem);
-    max-height: min(76.7dvh, 44.5rem);
+    width: min(63.4vw, 76rem);
+    height: min(72.9dvh, 42.3rem);
+    max-height: min(72.9dvh, 42.3rem);
   }
 
   /* Detaylar popup başlık altı: footer Lumespec şeridiyle aynı renk (`--color-primary`),
@@ -177,6 +177,40 @@
   .my-request-detail-header {
     position: relative;
     border-bottom: 0;
+  }
+
+  /* Başlık | logo | aksiyonlar — tek satır, butonlar aşağı kaymasın (cards #1680/#1683). */
+  .detail-modal-header-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: center;
+    column-gap: 0.75rem;
+  }
+
+  .detail-modal-header-layout > .detail-modal-header-title {
+    justify-self: start;
+    min-width: 0;
+  }
+
+  .detail-modal-header-layout > .detail-modal-header-brand {
+    justify-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  }
+
+  .detail-modal-header-brand__img {
+    height: 2.25rem;
+    width: auto;
+    max-width: 2.75rem;
+    object-fit: contain;
+  }
+
+  .detail-modal-header-layout > .detail-modal-header-actions {
+    justify-self: end;
+    flex-wrap: nowrap;
+    min-width: 0;
   }
 
   .my-request-detail-header::after {
@@ -322,8 +356,8 @@
 
   .detail-modal-shell .job-detail-section-heading {
     margin-bottom: 0.65rem;
-    /* Popup başlık şeridiyle aynı renk (card #1679); kalınlık/hizalar #1665/#1661. */
-    border-bottom: 1px solid var(--color-primary);
+    /* Primary ton, daha transparan (card #1681; #1679 rengi korunur). */
+    border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 32%, transparent);
     /* Border başlığa biraz daha yakın; kolon hizası korunur (card #1665). */
     padding-bottom: 0.3rem;
   }
@@ -4467,8 +4501,22 @@
     .detail-modal-header-mobile--actions-grid {
       position: relative;
       display: grid !important;
+      /* Başlık + aksiyonlar; logo absolute ortada (card #1683). */
       grid-template-columns: minmax(0, 1fr);
       align-items: stretch;
+    }
+
+    .detail-modal-header-mobile--actions-grid > .detail-modal-header-brand {
+      position: absolute;
+      left: 50%;
+      top: 0.65rem;
+      transform: translateX(-50%);
+      z-index: 1;
+    }
+
+    .detail-modal-header-mobile--actions-grid > .detail-modal-header-brand .detail-modal-header-brand__img {
+      height: 1.75rem;
+      max-width: 2.25rem;
     }
 
     .detail-modal-header-actions button,

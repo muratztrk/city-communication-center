@@ -22,6 +22,7 @@ import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeaderBrand'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
@@ -1825,13 +1826,14 @@ const pageKicker = isMyTasksView
             onClick={e => e.stopPropagation()}
           >
             {/* Sabit başlık — Taleplerim detay popup'ı ile birebir aynı tasarım dili (my-request-detail-header). */}
-            <div className="my-request-detail-header detail-modal-header-mobile detail-modal-header-mobile--actions-grid flex shrink-0 items-center justify-between gap-3 px-6 pb-3 pt-6">
+            <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-6 py-3">
               <div className="detail-modal-header-title min-w-0">
                 <div className="my-request-detail-header__title uppercase">
                   {detailScopeLabel}
                 </div>
               </div>
-              <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-wrap items-center justify-end gap-2">
+              <DetailModalHeaderBrand />
+              <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
                 {parentJobDetail
                   && isCitizenRequestJob(parentJobDetail)
                   && canShowCitizenWhatsAppConversation(parentJobDetail, citizenSourceMessage) && (

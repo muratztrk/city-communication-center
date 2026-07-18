@@ -1,5 +1,6 @@
 import { MessageSquareText, PenLine, Printer, X as XIcon, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { DetailModalHeaderBrand } from '../../branding/DetailModalHeaderBrand'
 import { Button } from '../../ui/button'
 import { DisabledActionButton } from '../../ui/DisabledActionButton'
 
@@ -39,13 +40,14 @@ export function MyRequestDetailHeader({
   const { t } = useTranslation()
 
   return (
-    <div className="my-request-detail-header detail-modal-header-mobile detail-modal-header-mobile--actions-grid flex shrink-0 items-center justify-between gap-3 px-6 pb-3 pt-6">
+    <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-6 py-3">
       <div className="detail-modal-header-title min-w-0">
         <div className="my-request-detail-header__title uppercase">
           {title}
         </div>
       </div>
-      <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-wrap items-center justify-end gap-2">
+      <DetailModalHeaderBrand />
+      <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
         {onGoToConversation && (
           <Button
             type="button"

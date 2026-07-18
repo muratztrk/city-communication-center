@@ -1429,7 +1429,7 @@
       "assignStaff": "Personel Ata",
       "assign": "Ata",
       "assignStaffHelp": "Bu talebe görev atayacağınız personeli seçin.",
-      "selfRequestedOwner": "(Görevi kendisi yapmak istiyor.)",
+      "selfRequestedOwner": "(Görevi kendisi yapmak istiyor)",
       "cancel": "İptal Et",
       "cancelJob": "Talebi İptal Et",
       "cancelJobHelp": "Talebi iptal etmek için neden belirtiniz.",

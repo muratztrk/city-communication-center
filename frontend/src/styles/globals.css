@@ -563,7 +563,8 @@
 
   .job-process-timeline__list {
     list-style: none;
-    margin: 0;
+    /* Süreç başlığının altında timeline biraz aşağıdan başlar (card #1672). */
+    margin: 0.4rem 0 0;
     padding: 0;
   }
 

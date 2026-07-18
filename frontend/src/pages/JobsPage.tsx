@@ -3112,7 +3112,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       {item.displayName}
                       {staffAssignModal.selfRequestedOwnerUserId === item.userId && (
                         <span className="ml-1 font-semibold text-emerald-700">
-                          {t('jobs.actions.selfRequestedOwner', '(Görevi kendisi yapmak istiyor.)')}
+                          {t('jobs.actions.selfRequestedOwner', '(Görevi kendisi yapmak istiyor)')}
                         </span>
                       )}
                     </span>

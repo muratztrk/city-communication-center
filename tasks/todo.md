@@ -1,3 +1,7 @@
+## Round — #1671/#1672 self-istek nokta + Süreç boşluk
+- [x] `6a5b2f5d` (#1671) — "(Görevi kendisi yapmak istiyor)" sonda nokta yok.
+- [x] `6a5b310e` (#1672) — Süreç timeline başlığın altında 0.4rem aşağıdan başlar.
+
 ## Round — #1665/#1670 border yukarı + Görev Oluştur
 - [x] `6a5b20ca` (#1665) — Detay kolon başlık border'ları biraz yukarı (padding/min-height).
 - [x] `6a5b2e9a` (#1670) — Rutin: "Görevi Oluştur" → "Görev Oluştur".

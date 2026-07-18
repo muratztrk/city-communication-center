@@ -356,8 +356,8 @@
 
   .detail-modal-shell .job-detail-section-heading {
     margin-bottom: 0.65rem;
-    /* Primary ton, daha transparan (card #1681; #1679 rengi korunur). */
-    border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 32%, transparent);
+    /* Scrollbar ile aynı primary transparan ton (card #1681; #1679 rengi korunur). */
+    border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 40%, transparent);
     /* Border başlığa biraz daha yakın; kolon hizası korunur (card #1665). */
     padding-bottom: 0.3rem;
   }

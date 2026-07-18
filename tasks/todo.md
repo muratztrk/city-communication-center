@@ -1,3 +1,6 @@
+## Round — #1665 reopen Süreç ikon hiza
+- [x] `6a5b20ca` (#1665 reopen) — Süreç (ve düz kart başlıkları) ikon kutusuyla düşey hiza.
+
 ## Round — #1664 reopen / #1669 border + bildirim bold
 - [x] `6a5b2064` (#1664 reopen) — Görev no/rozet absolute; border başlık altına yakın, Süreç ile hizalı.
 - [x] `6a5b2941` (#1669) — "Görev son tarihi güncellendi" tüm başlık her zaman bold.

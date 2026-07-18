@@ -337,6 +337,15 @@
   /* İlgili Görev Detayları: Görev Bilgileri ↔ Süreç border tek satır başlık
      yüksekliğinde hizalı; görev no/rozet absolute (card #1664 reopen). */
 
+  /* Kart başlık metni (Süreç vb.) ikon kutusuyla aynı düşey hizada (card #1665 reopen).
+     1.85rem = size-[1.05rem] + padding 0.4rem*2. */
+  .detail-modal-shell .job-detail-card-title > .job-detail-card-title__label {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.85rem;
+    line-height: 1.25;
+  }
+
   .detail-modal-shell .job-detail-section-heading:has(> .job-detail-section-title:not(.job-detail-section-title--muted)) {
     border-bottom: none;
     padding-bottom: 0;

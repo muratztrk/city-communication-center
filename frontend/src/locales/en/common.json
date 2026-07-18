@@ -1536,5 +1536,8 @@
     "streetPlaceholder": "e.g. Atatürk Avenue",
     "openAddressLabel": "Full Address",
     "openAddressPlaceholder": "Building no, floor, apartment..."
+  },
+  "routineTask": {
+    "submit": "Create Task"
   }
 }

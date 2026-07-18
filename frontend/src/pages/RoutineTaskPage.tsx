@@ -408,7 +408,7 @@ export function RoutineTaskPage() {
                 ? t('common.loading', 'Kaydediliyor...')
                 : isEditMode
                   ? t('common.update', 'Güncelle')
-                  : t('routineTask.submit', 'Görevi Oluştur')}
+                  : t('routineTask.submit', 'Görev Oluştur')}
             </Button>
           </div>
         </div>

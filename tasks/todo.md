@@ -1,3 +1,7 @@
+## Round — #1665/#1670 border yukarı + Görev Oluştur
+- [x] `6a5b20ca` (#1665) — Detay kolon başlık border'ları biraz yukarı (padding/min-height).
+- [x] `6a5b2e9a` (#1670) — Rutin: "Görevi Oluştur" → "Görev Oluştur".
+
 ## Round — #1668 grid Yeni rozeti tarih altına
 - [x] `6a5b2318` (#1668) — Taleplerim/Birime Giden: Yeni → Talep Tarihi; Birimdeki/Personelim: Yeni → Görev Tarihi.
 

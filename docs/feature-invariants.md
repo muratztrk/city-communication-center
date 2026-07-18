@@ -769,6 +769,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yüksekliğinde hizalıdır; görev no + tip rozeti absolute sağ üstte border'ı
   aşağı itmez (card #1664 reopen). Kart başlık metni (Süreç vb.) ikon kutusuyla
   aynı düşey hizadadır (`job-detail-card-title__label`; card #1665 reopen).
+  Detay kolon başlık altı border'ları metne biraz daha yakındır (`padding-bottom: 0.3rem`,
+  grid `min-height: 3rem`; card #1665) — kolonlar arası hiza korunur.
 - **Bildirim ISO tarih formatı (card #1667):** `FormatNote` hem `Z` hem `+00:00` (round-trip
   `"O"`) ISO zamanlarını `dd.MM.yyyy HH:mm` (yerel) gösterir — özellikle `TaskDueDateUpdated`.
 - **Bildirim "Görev son tarihi güncellendi" başlığı (card #1669):** okunmuş olsa da tüm

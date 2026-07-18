@@ -1572,5 +1572,8 @@
     "streetPlaceholder": "ör. Atatürk Caddesi",
     "openAddressLabel": "Açık Adres",
     "openAddressPlaceholder": "Bina no, kat, daire bilgisi giriniz..."
+  },
+  "routineTask": {
+    "submit": "Görev Oluştur"
   }
 }

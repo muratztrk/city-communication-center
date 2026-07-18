@@ -321,16 +321,18 @@
   }
 
   .detail-modal-shell .job-detail-section-heading {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.65rem;
     border-bottom: 1px solid rgb(226 232 240);
-    padding-bottom: 0.5rem;
+    /* Border başlığa biraz daha yakın; kolon hizası korunur (card #1665). */
+    padding-bottom: 0.3rem;
   }
 
   /* Talep Bilgileri / Görev Bilgileri başlık border'ı, yanındaki başlık+meta /
-     Süreç başlık border'ıyla aynı yatay hizada kalsın (card #1660). */
+     Süreç başlık border'ıyla aynı yatay hizada kalsın (card #1660).
+     min-height hafif düşürüldü — border yukarı, hiza bozulmaz (#1665). */
   .detail-modal-shell .my-request-detail-main__grid > * > .job-detail-section-heading,
   .detail-modal-shell .my-request-detail-main__grid .job-process-timeline > .job-detail-section-heading {
-    min-height: 3.25rem;
+    min-height: 3rem;
     box-sizing: border-box;
   }
 

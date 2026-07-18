@@ -791,7 +791,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   eşleşmesi talep başlığını da kapsar.
 - **Detay bölüm başlık çizgisi (cards #1679/#1681):** popup içi `job-detail-section-heading`
   alt çizgisi `--color-primary` tonunda ve transparan
-  (`color-mix(... 32%, transparent)`); gri slate değil.
+  (`color-mix(... 40%, transparent)`, scrollbar ile aynı); gri slate değil.
 - **Detay popup boyutu (card #1682):** `.detail-modal-shell` / `--my-request` bir kademe
   daha küçük (`~63–67vw` / `~73–77dvh` bandı).
 - **Detay popup header logo (card #1683):** başlık satırı ortasında sol menüdeki kurum

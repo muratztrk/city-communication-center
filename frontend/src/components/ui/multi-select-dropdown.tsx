@@ -43,7 +43,8 @@ export function MultiSelectDropdown({
   const updateMenuPosition = useCallback(() => {
     const rect = rootRef.current?.getBoundingClientRect()
     if (!rect) return
-    const width = Math.max(rect.width, 220)
+    // Trigger genişliğini kullan; tablo hücrelerinde min 220px zorlamak komşu sütuna taşıyordu (#1706).
+    const width = Math.max(rect.width, 140)
     const left = Math.min(rect.left, Math.max(8, window.innerWidth - width - 8))
     setMenuStyle({
       left,

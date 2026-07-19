@@ -715,8 +715,8 @@ export function UsersPage() {
                         <span>{user.email || t('common.none')}</span>
                       )}
                     </td>
-                    <td>
-                      <div className="grid min-w-[16rem] gap-2">
+                    <td className="w-[11rem] max-w-[11rem]">
+                      <div className="grid w-full gap-1.5">
                         <SingleSelectDropdown
                           options={departments.map(department => ({
                             value: department.departmentId,
@@ -730,7 +730,9 @@ export function UsersPage() {
                           }))}
                           placeholder={t('tasks.selectDepartment')}
                           emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
-                          triggerClassName="text-sm"
+                          className="w-full"
+                          triggerClassName="text-xs"
+                          menuClassName="max-w-[14rem]"
                         />
                         <MultiSelectDropdown
                           options={departments
@@ -740,12 +742,13 @@ export function UsersPage() {
                           onChange={additionalDepartmentIds => setEditForm(c => ({ ...c, additionalDepartmentIds }))}
                           placeholder={t('users.additionalDepartmentsShort', 'Ek birimler')}
                           emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
-                          triggerClassName="text-sm"
+                          className="w-full"
+                          triggerClassName="text-xs"
                         />
                       </div>
                     </td>
-                    <td>
-                      <div className="grid min-w-[14rem] gap-2">
+                    <td className="w-[9rem] max-w-[9rem]">
+                      <div className="grid w-full gap-1.5">
                         <SingleSelectDropdown
                           options={PRIMARY_ROLE_CODES.map(roleCode => ({
                             value: roleCode,
@@ -758,7 +761,9 @@ export function UsersPage() {
                             additionalRoleCodes: c.additionalRoleCodes.filter(role => role !== roleCode),
                           }))}
                           placeholder={t('users.role')}
-                          triggerClassName="text-sm"
+                          className="w-full"
+                          triggerClassName="text-xs"
+                          menuClassName="max-w-[12rem]"
                         />
                         <MultiSelectDropdown
                           options={ADDITIONAL_ROLE_CODES
@@ -768,7 +773,8 @@ export function UsersPage() {
                           onChange={additionalRoleCodes => setEditForm(c => ({ ...c, additionalRoleCodes }))}
                           placeholder={t('users.additionalRolesShort', 'Ek roller')}
                           emptyText={t('users.additionalRolesEmpty', 'Seçilebilir ek rol bulunmuyor.')}
-                          triggerClassName="text-sm"
+                          className="w-full"
+                          triggerClassName="text-xs"
                         />
                       </div>
                     </td>

@@ -1,3 +1,6 @@
+## Round — #1706 reopen
+- #1706 reopen: Kullanıcı düzenleme dept/rol dropdown hücreleri daraltıldı (11rem/9rem).
+
 ## Round — #1707 / #1708
 - #1707: Ayarlar’dan Vatandaş Akışı tab’ı kaldırıldı.
 - #1708: Ayarlar banner page-kicker = seçili tab metni.

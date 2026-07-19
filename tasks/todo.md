@@ -1,3 +1,6 @@
+## Round — #1704
+- #1704: Dashboard pie lejant scroll yalnız 6+ satırda (`> 6`).
+
 ## Round — #1703
 - #1703: Birime Gelen Onaylanmış gridinden Onayla kaldırıldı.
 

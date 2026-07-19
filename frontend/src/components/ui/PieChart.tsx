@@ -179,7 +179,8 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
         </text>
       </svg>
 
-      <ul className={`relative z-10 flex min-w-0 w-full flex-col gap-2 ${legendSlices.length > 5 ? 'max-h-40 overflow-y-auto pr-1 [scrollbar-gutter:stable]' : ''}`}>
+      {/* Lejant: 6 satırdan fazla → scroll; 6 ve altı (ör. 5) → scroll yok (card #1704). */}
+      <ul className={`relative z-10 flex min-w-0 w-full flex-col gap-2 ${legendSlices.length > 6 ? 'max-h-40 overflow-y-auto pr-1 [scrollbar-gutter:stable]' : ''}`}>
         {legendSlices.map(slice => (
           <LegendItem
             key={slice.label}

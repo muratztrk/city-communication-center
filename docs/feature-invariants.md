@@ -754,6 +754,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görevlerim ailesi ilgili talep öncelik/proje satırları (card #1658):** Görevlerim, Birimdeki
   Görevler ve Personelimin Görevleri popup'larında `Öncelik` ile `Proje mi` ayrı satırlardır;
   `Proje mi`, `Öncelik`in hemen altındadır (birleşik `Öncelik / Proje mi` kullanılmaz).
+- **Dashboard pie lejant scroll (card #1704):** tüm `PieChart` lejantlarında satır sayısı
+  `> 6` ise `overflow-y-auto`; 6 ve altı (ör. 5) scroll yok.
 - **Dashboard status pie chart dönem filtresi (card #1662):** pie chart sorguları üst kartlarla
   aynı şekilde yalnız `CreatedAtUtc` dönem aralığını uygular; dönem dışı açık/gecikmiş kayıtları
   OR ile eklemez.

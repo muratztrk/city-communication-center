@@ -176,7 +176,7 @@ export function MyRequestDetailBottomCards({
             attachments={detail.attachments ?? []}
             readOnly={!isEditing || !canEditJobAttachments}
             displayMode="rich-list"
-            emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
+            emptyText={t('attachments.requestEmpty', 'Talep için ek bulunmamaktadır.')}
             onUpload={isEditing && canEditJobAttachments ? onAttachmentUpload : undefined}
             onDelete={isEditing && canEditJobAttachments ? onAttachmentDelete : undefined}
             disabled={attachmentUploading}

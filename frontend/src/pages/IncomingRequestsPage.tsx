@@ -7,7 +7,8 @@ import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 function getScopeChipColorClass(value: string): string {
   if (value === 'pending-approval') return 'scope-chip--pending'
   if (value === 'approved') return 'scope-chip--approved'
-  if (value === 'overdue') return 'scope-chip--in-progress'
+  if (value === 'in-progress') return 'scope-chip--in-progress'
+  if (value === 'overdue') return 'scope-chip--overdue'
   if (value === 'completed') return 'scope-chip--completed'
   if (value === 'cancelled') return 'scope-chip--rejected'
   if (value === 'all') return 'scope-chip--all'
@@ -57,13 +58,14 @@ import { JobsPage } from './JobsPage'
 import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 
-type IncomingStatusFilter = 'pending-approval' | 'overdue' | 'approved' | 'completed' | 'cancelled' | 'all'
+type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-progress' | 'completed' | 'cancelled' | 'all'
 type IncomingKindFilter = 'all'
 
 const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback: string }[] = [
   { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApprovalRequests', fallback: 'Onay Bekleyen Talepler' },
-  { value: 'overdue', labelKey: 'jobs.scopes.overdue', fallback: 'Son Tarihi Geçmiş Talepler' },
   { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanmış Talepler' },
+  { value: 'in-progress', labelKey: 'jobs.outgoingViews.inProgress', fallback: 'Yapılmakta Olan Talepler' },
+  { value: 'overdue', labelKey: 'jobs.scopes.overdue', fallback: 'Son Tarihi Geçmiş Talepler' },
   { value: 'completed', labelKey: 'jobs.scopes.completed', fallback: 'Tamamlanmış Talepler' },
   { value: 'cancelled', labelKey: 'jobs.scopes.rejected', fallback: 'İptal Talepler' },
   { value: 'all', labelKey: 'jobs.scopes.all', fallback: 'Tümü' },
@@ -176,7 +178,14 @@ function getIncomingStatusPillClass(row: IncomingRequestRow): string {
 }
 
 function getIncomingStatusFilter(value: string | null): IncomingStatusFilter {
-  return value === 'overdue' || value === 'approved' || value === 'completed' || value === 'cancelled' || value === 'all' ? value : 'pending-approval'
+  return value === 'overdue'
+    || value === 'approved'
+    || value === 'in-progress'
+    || value === 'completed'
+    || value === 'cancelled'
+    || value === 'all'
+    ? value
+    : 'pending-approval'
 }
 
 function getIncomingKindFilter(): IncomingKindFilter {
@@ -205,14 +214,29 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
     return row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
   }
 
-  // Personel ataması bekleyenler yukarıda "Onay Bekleyen" altında gösterildi; burada tekrar etmesin.
-  return row.assignTargetDepartmentId == null && (
-    row.status === 'Active'
-    || row.status === 'Waiting'
+  // Personel ataması bekleyenler "Onay Bekleyen" altında; burada tekrar etmesin.
+  if (row.assignTargetDepartmentId != null) return false
+
+  const taskCount = row.taskCount ?? 0
+  const isActiveJob = row.statusDomain === 'job' && row.status === 'Active'
+  const isInProgressTask = row.statusDomain === 'task' && (
+    row.status === 'Waiting'
     || row.status === 'Assigned'
     || row.status === 'InProgress'
     || row.status === 'PendingCloseApproval'
   )
+
+  // Onaylanmış: aktif + henüz görev yok (card #1694/#1695 ayrımı).
+  if (filter === 'approved') {
+    return isActiveJob && taskCount === 0
+  }
+
+  // Yapılmakta: aktif + görev var / görev satırı (card #1695).
+  if (filter === 'in-progress') {
+    return (isActiveJob && taskCount > 0) || isInProgressTask
+  }
+
+  return false
 }
 
 function matchesKindFilter(filter: IncomingKindFilter): boolean {
@@ -411,7 +435,7 @@ export function IncomingRequestsPage() {
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
   const currentKindFilter = getIncomingKindFilter()
-  const showTaskOwnerColumn = ['approved', 'completed', 'cancelled'].includes(currentStatusFilter)
+  const showTaskOwnerColumn = ['approved', 'in-progress', 'completed', 'cancelled'].includes(currentStatusFilter)
   const incomingTableColumnCount = useMemo(() => {
     let count = 6
     if (showTaskOwnerColumn) count += 1
@@ -724,10 +748,11 @@ export function IncomingRequestsPage() {
       // Tamamlanmış/İptal görünümlerinde en yeni tamamlanma/iptal tarihli en üstte varsayılan sırala (card #722).
       const isCompleted = currentStatusFilter === 'completed'
       const isCancelled = currentStatusFilter === 'cancelled'
-      const base = (isCompleted || isCancelled)
+      const isApproved = currentStatusFilter === 'approved'
+      const base = (isCompleted || isCancelled || isApproved)
         ? [...columnFilteredRows].sort((a, b) => {
-            const av = isCompleted ? a.completedAtUtc : a.updatedAtUtc
-            const bv = isCompleted ? b.completedAtUtc : b.updatedAtUtc
+            const av = isCompleted ? a.completedAtUtc : isCancelled ? a.updatedAtUtc : a.approvedAtUtc
+            const bv = isCompleted ? b.completedAtUtc : isCancelled ? b.updatedAtUtc : b.approvedAtUtc
             return new Date(bv ?? 0).getTime() - new Date(av ?? 0).getTime()
           })
         : columnFilteredRows
@@ -875,7 +900,13 @@ export function IncomingRequestsPage() {
                   <FilterableTh filterKey="createdAtUtc" filterValue={incomingFilters['createdAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="createdAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.requestDate', 'Talep Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="createdBy" filterValue={incomingFilters['createdBy'] ?? ''} onFilter={setIncomingFilter} sortKey="createdBy" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}><span className="leading-tight">{t('incomingRequests.columns.requestLocation', 'Talep Yeri')}<br />{t('incomingRequests.columns.creator', 'Oluşturan')}</span></FilterableTh>
                   <FilterableTh filterKey="title" filterValue={incomingFilters['title'] ?? ''} onFilter={setIncomingFilter} sortKey="title" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.title', 'Başlık')}</FilterableTh>
-                  {showTaskOwnerColumn && <FilterableTh filterKey="taskOwnerDisplayName" filterValue={incomingFilters['taskOwnerDisplayName'] ?? ''} onFilter={setIncomingFilter} sortKey="taskOwnerDisplayName" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>}
+                  {showTaskOwnerColumn && (
+                    <FilterableTh filterKey="taskOwnerDisplayName" filterValue={incomingFilters['taskOwnerDisplayName'] ?? ''} onFilter={setIncomingFilter} sortKey="taskOwnerDisplayName" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>
+                      {currentStatusFilter === 'in-progress'
+                        ? t('tasks.columns.assignee', 'Görevi Yapan')
+                        : t('tasks.columns.owner', 'Görev Sahibi')}
+                    </FilterableTh>
+                  )}
                   {/* Tamamlanmış görünümünde Son Tarih sütunu gösterilmez (card #1384). */}
                   {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {currentStatusFilter === 'approved' && <FilterableTh filterKey="approvedAtUtc" filterValue={incomingFilters['approvedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="approvedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
@@ -983,30 +1014,28 @@ export function IncomingRequestsPage() {
                         <Button size="sm" variant="secondary" onClick={() => setDetailJobId(row.jobId)}>
                           {t('jobs.actions.details', 'Detaylar')}
                         </Button>
-                        {/* Onayla — onay bekleyen iş satırlarında */}
-                        {canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
+                        {/* Yapılmakta görünümünde yalnız Detaylar (card #1695). */}
+                        {currentStatusFilter !== 'in-progress' && canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveOwner(row.id)}>
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
-                        {canApproveRow(row) && row.statusDomain === 'job' && row.pendingTargetApprovalDepartmentId && (
+                        {currentStatusFilter !== 'in-progress' && canApproveRow(row) && row.statusDomain === 'job' && row.pendingTargetApprovalDepartmentId && (
                           <Button size="sm" variant="success" onClick={() => handleApproveTarget(row.id, row.pendingTargetApprovalDepartmentId!)}>
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
-                        {/* Birime düşen (Active) birim dışı taleplerde buton "Onayla" (farklı birimden gelen tüm talepler için). */}
-                        {canApproveRow(row) && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
+                        {currentStatusFilter !== 'in-progress' && canApproveRow(row) && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
                           <Button size="sm" variant="success" onClick={() => handleAssignStaff(row.id)}>
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
-                        {/* Onayla — kapanış onayı bekleyen görevlerde */}
-                        {canApproveRow(row) && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
+                        {currentStatusFilter !== 'in-progress' && canApproveRow(row) && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveClose(row.id)}>
                             {t('tasks.actions.approveClose', 'Onayla')}
                           </Button>
                         )}
-                        {shouldShowDisabledApprove(row) && (
+                        {currentStatusFilter !== 'in-progress' && shouldShowDisabledApprove(row) && (
                           <DisabledActionButton
                             size="sm"
                             variant="success"
@@ -1015,13 +1044,12 @@ export function IncomingRequestsPage() {
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </DisabledActionButton>
                         )}
-                        {/* İptal/İade — onay bekleyen, onaylanmış ve aktif iş/görev satırlarında */}
-                        {canCancelRow(row) && (
+                        {canCancelRow(row) && currentStatusFilter !== 'in-progress' && (
                           <Button size="sm" variant="destructive" onClick={() => openCancelReturn(row)}>
                             {t('jobs.actions.cancel', 'İptal Et')}
                           </Button>
                         )}
-                        {shouldShowDisabledCancel(row) && (
+                        {shouldShowDisabledCancel(row) && currentStatusFilter !== 'in-progress' && (
                           <DisabledActionButton
                             size="sm"
                             variant="destructive"

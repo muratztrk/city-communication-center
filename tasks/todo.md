@@ -1,3 +1,13 @@
+## Round — #1689–#1696 paket
+- #1690: ek/fotoğraf → ek; Dosya/Fotoğraf → Dosya/Görsel.
+- #1689: Birimden Giden detayda Dosya Ekle yok, boş ek metni.
+- #1691: Düzenle başlık textarea 28→16rem.
+- #1692: Sidebar marka metni büyütüldü, logo oval küçültüldü.
+- #1693: Yapılmakta chip mavi (Taleplerim + Giden).
+- #1694: Onaylanmış/Son Tarihi Geçmiş yer değiştirdi; Onay Tarihi desc.
+- #1695: Birime Gelen Yapılmakta sekmesi + grid.
+- #1696: Birime Gelen breadcrumb status ile güncellenir.
+
 ## Round — #1686 reopen / #1688 tipografi büyüt
 - #1686 reopen: Detay bold bölüm başlıkları 0.8125→0.875rem.
 - #1688: Talep/Görev Bilgileri etiket/değer 0.75 / 0.8125rem.

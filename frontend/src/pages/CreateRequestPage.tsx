@@ -559,7 +559,7 @@ export function CreateRequestPage() {
 
   const renderPhotoUpload = (className?: string) => (
     <div className={['job-field', className].filter(Boolean).join(' ')}>
-      <span className="job-field-label">{t('attachments.label', 'Dosya / Fotoğraf Ekle (opsiyonel)')}</span>
+      <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
       <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
         <div
           role="button"

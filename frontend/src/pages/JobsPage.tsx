@@ -130,8 +130,8 @@ const REQUEST_FLOW_FILTERS: { value: RequestFlowFilter; labelKey: string }[] = [
 
 const DEPARTMENT_OUTGOING_VIEWS: { value: DepartmentOutgoingView; labelKey: string }[] = [
   { value: 'pending', labelKey: 'jobs.outgoingViews.pending' },
-  { value: 'overdue', labelKey: 'jobs.outgoingViews.overdue' },
   { value: 'approved', labelKey: 'jobs.outgoingViews.approved' },
+  { value: 'overdue', labelKey: 'jobs.outgoingViews.overdue' },
   { value: 'in-progress', labelKey: 'jobs.outgoingViews.inProgress' },
   { value: 'completed', labelKey: 'jobs.outgoingViews.completed' },
   { value: 'rejected', labelKey: 'jobs.outgoingViews.rejected' },
@@ -142,7 +142,8 @@ function getScopeChipColorClass(value: string): string {
   if (value === 'pending' || value === 'pending-approval') return 'scope-chip--pending'
   if (value === 'external-pending') return 'scope-chip--external-pending'
   if (value === 'approved') return 'scope-chip--approved'
-  if (value === 'in-progress' || value === 'overdue') return 'scope-chip--in-progress'
+  if (value === 'in-progress') return 'scope-chip--in-progress'
+  if (value === 'overdue') return 'scope-chip--overdue'
   if (value === 'completed') return 'scope-chip--completed'
   if (value === 'rejected') return 'scope-chip--rejected'
   if (value === 'all') return 'scope-chip--all'
@@ -500,7 +501,7 @@ function printJobDetail(
   </div>
   <div class="section">
     <div class="section-title">Talep Ekleri (${(detail.attachments ?? []).length})</div>
-    ${attachItems ? `<ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul>` : '<p style="color:#888;font-size:11px">Talep için ek/fotoğraf bulunmamaktadır.</p>'}
+    ${attachItems ? `<ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul>` : '<p style="color:#888;font-size:11px">Talep için ek bulunmamaktadır.</p>'}
   </div>
   ${taskDetailSections}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
@@ -1108,9 +1109,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       // göre en yeni en üstte varsayılan sırala (card #722).
       const isCompletedView = (isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed'
       const isRejectedView = (isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected'
+      const isApprovedView = (isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved'
       const newestFirst = [...columnFilteredJobs].sort((a, b) => {
-        const av = isCompletedView ? a.completedAtUtc : isRejectedView ? a.updatedAtUtc : a.createdAtUtc
-        const bv = isCompletedView ? b.completedAtUtc : isRejectedView ? b.updatedAtUtc : b.createdAtUtc
+        const av = isCompletedView
+          ? a.completedAtUtc
+          : isRejectedView
+            ? a.updatedAtUtc
+            : isApprovedView
+              ? a.ownerDecidedAtUtc
+              : a.createdAtUtc
+        const bv = isCompletedView
+          ? b.completedAtUtc
+          : isRejectedView
+            ? b.updatedAtUtc
+            : isApprovedView
+              ? b.ownerDecidedAtUtc
+              : b.createdAtUtc
         return new Date(bv ?? 0).getTime() - new Date(av ?? 0).getTime()
       })
       return sortJobs(newestFirst).slice((jobsPage - 1) * jobsPageSize, jobsPage * jobsPageSize)
@@ -1854,7 +1868,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               <button
                 key={view.value}
                 type="button"
-                className={`scope-chip ${view.value === 'in-progress' && isManagerLike ? 'scope-chip--in-progress-yellow' : getScopeChipColorClass(view.value)}${view.value === currentMyRequestsView ? ' active' : ''}`}
+                className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentMyRequestsView ? ' active' : ''}`}
                 disabled={isDisabledExternalPending}
                 onClick={() => setMyRequestsView(view.value)}
               >
@@ -2715,12 +2729,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       // Ek/Fotoğraf ekleyebilir; kilit uyarısı yerine "Dosya ekle" gösterilir (card 646).
                       const canPresidencyEditAttachments = isPresidencyReporter && isMyRequestsView
                         && (currentMyRequestsView === 'pending' || currentMyRequestsView === 'in-progress' || currentMyRequestsView === 'overdue')
-                      const canEditJobAttachments = (isPreApprovalStatus(detail.status) && (isDepartmentOutgoingView || isMyRequestsView))
+                      const canEditJobAttachments = (isPreApprovalStatus(detail.status) && isMyRequestsView)
                         || canPresidencyEditAttachments
+                      // Birimden Giden detayda ek yükleme yok — boş metin + salt okunur (card #1689).
                       // Birime gelen (incoming) talepte kilit uyarısı yalnızca talep gerçekten kapandığında
                       // gösterilir; onay bekleyen/aktif incoming talepte "Talep onaylandığı için..." yer almasın (card 632).
                       const isTerminalRequestStatus = detail.status === 'Completed' || detail.status === 'Cancelled' || detail.status === 'Rejected'
-                      const showAttachmentLockNotice = !canEditJobAttachments
+                      const showAttachmentLockNotice = !canEditJobAttachments && !isDepartmentOutgoingView
                         && (isRequestDetailContext ? isTerminalRequestStatus : !isPreApprovalStatus(detail.status))
                       return (
                         <div className="my-request-detail-card my-request-detail-card--attachments rounded-xl border border-slate-200 bg-white p-4">
@@ -2731,7 +2746,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             attachments={detail.attachments ?? []}
                             readOnly={!canEditJobAttachments}
                             displayMode="rich-list"
-                            emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
+                            emptyText={t('attachments.requestEmpty', 'Talep için ek bulunmamaktadır.')}
                             onUpload={canEditJobAttachments ? async (file, onProgress) => {
                               setAttachmentUploading(true)
                               try {
@@ -2891,7 +2906,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       attachments={detail.attachments ?? []}
                       readOnly
                       displayMode="rich-list"
-                      emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
+                      emptyText={t('attachments.requestEmpty', 'Talep için ek bulunmamaktadır.')}
                     />
                     {showAttachmentLockNotice && (
                       <p className="mt-2 text-xs font-medium text-amber-600">
@@ -2919,7 +2934,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     attachments={detail.attachments ?? []}
                     readOnly={readOnlyRequestAttachments}
                     displayMode="rich-list"
-                    emptyText={readOnlyRequestAttachments ? t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.') : undefined}
+                    emptyText={readOnlyRequestAttachments ? t('attachments.requestEmpty', 'Talep için ek bulunmamaktadır.') : undefined}
                     onUpload={!readOnlyRequestAttachments ? async (file, onProgress) => {
                       setAttachmentUploading(true)
                       try {

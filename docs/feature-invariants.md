@@ -772,6 +772,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Detay popup bold kart/bölüm başlıkları `0.875rem` (card #1686 reopen — biraz büyüt,
   çok değil). Talep/Görev Bilgileri etiket `0.75rem`, değer `0.8125rem` (card #1688);
   yönetici notu / ek boş durum metinleri `0.75rem` (#1687).
+  Boş ek metni `Talep için ek bulunmamaktadır.`; yükleme etiketi `Dosya / Görsel Ekle (opsiyonel)`
+  (card #1690). Birimden Giden detayda ek yükleme yok — salt okunur + boş metin (card #1689).
+  Yapılmakta scope chip mavi (`scope-chip--in-progress`); Son Tarihi Geçmiş turuncu
+  (`scope-chip--overdue`) — cards #1693/#1695. Birime Gelen'de Onaylanmış → Yapılmakta →
+  Son Tarihi Geçmiş sırası; Onaylanmış grid `approvedAtUtc` desc (cards #1694/#1695).
+  Birime Gelen breadcrumb `?status=` ile sekme adını takip eder (card #1696).
 - **Onayla ve Personel Ata self-istek metni (card #1671):**
   `(Görevi kendisi yapmak istiyor)` — sonda nokta yok.
 - **Talep Son Tarih Değiştir (cards #1673/#1666):** Birime Gelen hedef birim yöneticisi
@@ -826,8 +832,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kutucuklar düzenlenebilir kalır; Yönetici Notu düzenleme kutusu standart kullanıcıya açılmaz ve
   dolu not düzenleme sırasında da Talep Bilgileri'nin son satırında kalır. (Round 251'deki geri alma, müşterinin 12 Tem 21:48 reopen'ıyla
   geçersizdir.)
-- **Talep detay düzenleme kontrolleri kompakttır (card #1601):** detay içi `Düzenle` modunda
-  Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı en fazla 20rem,
+- **Talep detay düzenleme kontrolleri kompakttır (card #1601/#1691):** detay içi `Düzenle` modunda
+  Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı en fazla 16rem,
   minimum 1.5rem ve 11px; Son Tarih kontrolü tam placeholder için en fazla 12rem/12px;
   `Dosya ekle` son görsel dengelemesinde 1.625rem/10.5px'tir (card #1601 fourth reopen).
   Bu ölçüler genel form/dropdown bileşenlerine yayılmaz.

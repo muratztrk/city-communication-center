@@ -263,6 +263,7 @@ export function AppShell() {
   const breadcrumbSegments = location.pathname.split('/').filter(Boolean)
 
   const viewParam = useMemo(() => new URLSearchParams(location.search).get('view') ?? '', [location.search])
+  const statusParam = useMemo(() => new URLSearchParams(location.search).get('status') ?? '', [location.search])
   const requestKindParam = useMemo(() => new URLSearchParams(location.search).get('kind') ?? '', [location.search])
 
   const myRequestsViewLabels: Record<string, string> = {
@@ -314,6 +315,26 @@ export function AppShell() {
     rejected: XCircle,
     all: Inbox,
   }
+  // Birime Gelen breadcrumb sekmeyi status query ile takip eder (card #1696).
+  const incomingRequestsStatusLabels: Record<string, string> = {
+    'pending-approval': t('jobs.scopes.pendingApprovalRequests', 'Onay Bekleyen Talepler'),
+    approved: t('jobs.scopes.departmentPool', 'Onaylanmış Talepler'),
+    'in-progress': t('jobs.outgoingViews.inProgress', 'Yapılmakta Olan Talepler'),
+    overdue: t('jobs.scopes.overdue', 'Son Tarihi Geçmiş Talepler'),
+    completed: t('jobs.scopes.completed', 'Tamamlanmış Talepler'),
+    cancelled: t('jobs.scopes.rejected', 'İptal Talepler'),
+    all: t('jobs.scopes.all', 'Tümü'),
+  }
+  const incomingRequestsStatusIcons: Record<string, typeof LayoutDashboard> = {
+    'pending-approval': Clock3,
+    approved: CheckCircle2,
+    'in-progress': Workflow,
+    overdue: Clock3,
+    completed: ClipboardCheck,
+    cancelled: XCircle,
+    all: Inbox,
+  }
+  const incomingStatusKey = statusParam || 'pending-approval'
   const flowParam = useMemo(() => new URLSearchParams(location.search).get('flow') ?? '', [location.search])
   const departmentTasksViewLabels: Record<string, string> = {
     internal: t('nav.departmentTasksInternal', 'Birim İçi Oluşan Görevler'),
@@ -345,7 +366,7 @@ export function AppShell() {
     'outgoing-requests': (viewParam && outgoingRequestsViewLabels[viewParam]) || t('nav.outgoingRequests', 'Birimden Giden Talepler'),
     'department-tasks': (flowParam && departmentTasksViewLabels[flowParam]) || t('nav.departmentTasks', 'Birimdeki Görevler'),
     'staff-tasks': t('nav.staffTasks', 'Personelimin Görevleri'),
-    'incoming-requests': t('nav.incomingRequestsAll', 'Birime Gelen Tüm Talepler'),
+    'incoming-requests': incomingRequestsStatusLabels[incomingStatusKey] || t('jobs.scopes.pendingApprovalRequests', 'Onay Bekleyen Talepler'),
     tasks: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     directorate: t('nav.jobs'),
     coordinated: t('nav.jobs'),
@@ -408,7 +429,7 @@ export function AppShell() {
     'outgoing-requests': (viewParam && outgoingRequestsViewIcons[viewParam]) || ArrowUpRight,
     'department-tasks': (flowParam && departmentTasksViewIcons[flowParam]) || SquareKanban,
     'staff-tasks': Users,
-    'incoming-requests': FolderKanban,
+    'incoming-requests': (incomingRequestsStatusIcons[incomingStatusKey]) || FolderKanban,
     tasks: SquareKanban,
     directorate: FolderKanban,
     coordinated: Workflow,
@@ -526,8 +547,12 @@ export function AppShell() {
           <div className="relative rounded-[var(--radius-xl)] p-2.5">
             {!isSidebarCollapsed ? (
               <div className="flex flex-col items-center gap-2">
-                <MunicipalitySeal alt={`${institutionName} logo`} src={logoUrl} className="w-full" />
-                <div className="min-w-0 w-full text-center text-xs font-bold leading-tight break-words text-white">{t('shell.subtitle', { municipalityName })}</div>
+                <MunicipalitySeal
+                  alt={`${institutionName} logo`}
+                  src={logoUrl}
+                  className="h-[5.25rem] w-[85%] max-w-[11.5rem] rounded-[1.65rem]"
+                />
+                <div className="min-w-0 w-full text-center text-sm font-bold leading-tight break-words text-white">{t('shell.subtitle', { municipalityName })}</div>
               </div>
             ) : (
               <div className="flex justify-center">

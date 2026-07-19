@@ -363,8 +363,9 @@
     width: 100%;
   }
 
+  /* Düzenle modu talep başlığı textarea — bir kademe dar (card #1691). */
   .detail-modal-shell--my-request .my-request-title-heading-edit__textarea {
-    width: min(100%, 28rem);
+    width: min(100%, 16rem);
     min-height: 2rem;
     max-height: 4.75rem;
     resize: none;
@@ -2999,21 +3000,23 @@
     box-shadow: 0 1px 4px rgba(15, 118, 110, 0.36);
   }
 
-  /* ── Yapılmakta Olan → Turuncu ─────────────── */
+  /* ── Yapılmakta Olan → Mavi (cards #1693/#1695) ─────────────── */
   .scope-chip--in-progress.active {
+    background: #0ea5e9;
+    border-color: #0284c7;
+    color: white;
+    box-shadow: 0 1px 4px rgba(14, 165, 233, 0.38);
+  }
+
+  /* ── Son Tarihi Geçmiş → Turuncu (eski in-progress tonu; overdue ayrıldı) ── */
+  .scope-chip--overdue.active {
     background: #f97316;
     border-color: #f97316;
     color: white;
     box-shadow: 0 1px 4px rgba(249, 115, 22, 0.38);
   }
 
-  /* ── Yapılmakta Olan Taleplerim (yönetici/Taleplerim) → Sarı (card 457) ── */
-  .scope-chip--in-progress-yellow.active {
-    background: #facc15;
-    border-color: #eab308;
-    color: #422006;
-    box-shadow: 0 1px 4px rgba(234, 179, 8, 0.25);
-  }
+  /* Eski sarı override artık kullanılmıyor; Yapılmakta mavi (#1693). */
 
   .scope-chip-divider {
     flex: 0 0 auto;

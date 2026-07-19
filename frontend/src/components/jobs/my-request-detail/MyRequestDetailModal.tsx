@@ -258,7 +258,7 @@ export function MyRequestDetailModal({
                 attachments={detail.attachments ?? []}
                 readOnly={!isEditing || !(canEditJobAttachments || isEditing)}
                 displayMode="rich-list"
-                emptyText={t('attachments.requestEmpty', 'Talep için ek/fotoğraf bulunmamaktadır.')}
+                emptyText={t('attachments.requestEmpty', 'Talep için ek bulunmamaktadır.')}
                 onUpload={isEditing && (canEditJobAttachments || isEditing) ? onAttachmentUpload : undefined}
                 onDelete={isEditing && (canEditJobAttachments || isEditing) ? onAttachmentDelete : undefined}
                 disabled={attachmentUploading}

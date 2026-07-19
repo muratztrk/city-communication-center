@@ -778,6 +778,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`scope-chip--overdue`) — cards #1693/#1695. Birime Gelen'de Onaylanmış → Yapılmakta →
   Son Tarihi Geçmiş sırası; Onaylanmış grid `approvedAtUtc` desc (cards #1694/#1695).
   Birime Gelen breadcrumb `?status=` ile sekme adını takip eder (card #1696).
+  Standart kullanıcı Taleplerim `Onaylanmış/Yapılmakta Taleplerim` chip'i mavidir
+  (`scope-chip--in-progress`, card #1698) — sarı `approved` chip'i yönetici Onaylanmış'ta kalır.
+  Birime Gelen Onaylanmış: `Active` + `taskCount === 0` (personel ataması bekleyen
+  `assignTargetDepartmentId` satırları dahil; card #1697).
 - **Onayla ve Personel Ata self-istek metni (card #1671):**
   `(Görevi kendisi yapmak istiyor)` — sonda nokta yok.
 - **Talep Son Tarih Değiştir (cards #1673/#1666):** Birime Gelen hedef birim yöneticisi

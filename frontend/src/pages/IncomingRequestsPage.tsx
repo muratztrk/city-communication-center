@@ -214,9 +214,6 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
     return row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
   }
 
-  // Personel ataması bekleyenler "Onay Bekleyen" altında; burada tekrar etmesin.
-  if (row.assignTargetDepartmentId != null) return false
-
   const taskCount = row.taskCount ?? 0
   const isActiveJob = row.statusDomain === 'job' && row.status === 'Active'
   const isInProgressTask = row.statusDomain === 'task' && (
@@ -226,10 +223,14 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
     || row.status === 'PendingCloseApproval'
   )
 
-  // Onaylanmış: aktif + henüz görev yok (card #1694/#1695 ayrımı).
+  // Onaylanmış: aktif + henüz görev yok — personel ataması bekleyenler dahil (card #1697).
+  // Onay Bekleyen'de de kalabilirler (assignTargetDepartmentId); "da" görünürler.
   if (filter === 'approved') {
     return isActiveJob && taskCount === 0
   }
+
+  // Personel ataması bekleyenler Onay Bekleyen'de; Yapılmakta'da tekrar etmesin.
+  if (row.assignTargetDepartmentId != null) return false
 
   // Yapılmakta: aktif + görev var / görev satırı (card #1695).
   if (filter === 'in-progress') {

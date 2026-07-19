@@ -1,3 +1,7 @@
+## Round — #1697/#1698
+- #1698: Standart kullanıcı Onaylanmış/Yapılmakta chip mavi.
+- #1697: Birime Gelen Onaylanmış'a personel ataması bekleyen Active talepler dahil.
+
 ## Round — #1689–#1696 paket
 - #1690: ek/fotoğraf → ek; Dosya/Fotoğraf → Dosya/Görsel.
 - #1689: Birimden Giden detayda Dosya Ekle yok, boş ek metni.

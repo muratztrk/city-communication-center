@@ -1864,11 +1864,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             const isDisabledExternalPending = isManagerLike
               && currentRequestFlowFilter === 'internal'
               && view.value === 'external-pending'
+            // Standart kullanıcı "Onaylanmış/Yapılmakta Taleplerim" → mavi (card #1698).
+            const chipColorClass = !isManagerLike && !isReporter && view.value === 'approved'
+              ? 'scope-chip--in-progress'
+              : getScopeChipColorClass(view.value)
             return (
               <button
                 key={view.value}
                 type="button"
-                className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentMyRequestsView ? ' active' : ''}`}
+                className={`scope-chip ${chipColorClass}${view.value === currentMyRequestsView ? ' active' : ''}`}
                 disabled={isDisabledExternalPending}
                 onClick={() => setMyRequestsView(view.value)}
               >

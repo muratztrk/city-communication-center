@@ -802,6 +802,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Log sayfası üç sekme:** Sistem Log (`Department`/`ApplicationUser`/`TenantSetting`/diğer),
   Talep Log (`Job`), Görev Log (`WorkTask`/`Task`); banner `page-kicker` seçili sekme (card #1710).
   Sekmeler `tab-bar`/`tab-button` kullanır; `scope-chip` ile aktif görünüm bozulmaz (card #1712).
+- **Log grid standart:** `FilterableTh` + kolon filtre/sort + `TablePagination` (card #1713).
+- **Yeni departman formu LDAP birim çekebilir:** LDAP açıksa Manual|LDAP segmented; LDAP modunda
+  dizin kullanıcısı seçilince birim adı `department` alanından dolar (card #1714).
 - **Departmanlar / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
   `SingleSelectDropdown` (card #1709). Kullanıcı düzenleme dept/rol menüsünde arama + kompakt satır (card #1706).
 - **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).

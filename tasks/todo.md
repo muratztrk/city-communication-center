@@ -1,3 +1,7 @@
+## Round — #1713 / #1714
+- #1713: Log grid FilterableTh + kolon filtre/sort + TablePagination.
+- #1714: Yeni Departman formu Manual|LDAP; LDAP’dan birim adı çekme.
+
 ## Round — #1706/#1709/#1711/#1712
 - #1706: Kullanıcı düzenleme dept/rol dropdown’da arama + küçük menü metni.
 - #1712: Log sekmeleri tab-bar (scope-chip bozulması giderildi).

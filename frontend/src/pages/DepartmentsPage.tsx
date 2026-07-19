@@ -1,5 +1,5 @@
 import { Building2, Layers3, PenLine, Trash2, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -7,15 +7,19 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { api } from '../api/client'
 import { invalidateDepartments } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
+import { AutocompleteField } from '../components/forms/AutocompleteField'
 import { Button } from '../components/ui/button'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
-import type { Department, User } from '../types/platform'
+import { useDebouncedValue } from '../hooks/useDebouncedValue'
+import type { Department, DirectoryUserLookup, User } from '../types/platform'
 import { userWorksInDepartment } from '../utils/userDepartments'
 import { getDepartmentTypeLabel } from '../utils/localization'
+
+type CreateMode = 'manual' | 'ldap'
 
 export function DepartmentsPage() {
   const { t } = useTranslation()
@@ -23,10 +27,14 @@ export function DepartmentsPage() {
   const queryClient = useQueryClient()
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
+  const [createMode, setCreateMode] = useState<CreateMode>('manual')
   const [newName, setNewName] = useState('')
   const [newType, setNewType] = useState('Müdürlük')
   const [newManagerUserId, setNewManagerUserId] = useState('')
   const [newResponsibleUserIds, setNewResponsibleUserIds] = useState<string[]>([])
+  const [directoryQuery, setDirectoryQuery] = useState('')
+  const [directoryResults, setDirectoryResults] = useState<DirectoryUserLookup[]>([])
+  const [selectedDirectoryUser, setSelectedDirectoryUser] = useState<DirectoryUserLookup | null>(null)
 
   const [editId, setEditId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
@@ -45,14 +53,83 @@ export function DepartmentsPage() {
     queryKey: queryKeys.users.list(),
     queryFn: () => api.getUsers().catch(() => [] as User[]),
   })
+  const managementContextQuery = useQuery({
+    queryKey: queryKeys.users.managementContext(),
+    queryFn: () => api.getUserManagementContext(),
+    enabled: user?.role === 'SystemAdmin',
+  })
   const departments = useMemo(() => departmentsQuery.data ?? [], [departmentsQuery.data])
   const users = useMemo(() => usersQuery.data ?? [], [usersQuery.data])
+  const managementContext = managementContextQuery.data ?? null
+  const ldapEnabled = !!managementContext?.ldapEnabled
   const loading = departmentsQuery.isLoading || usersQuery.isLoading
+  const debouncedDirectoryQuery = useDebouncedValue(directoryQuery)
+  const shouldSearchDirectory = showForm
+    && createMode === 'ldap'
+    && ldapEnabled
+    && debouncedDirectoryQuery.trim().length >= 2
+
+  useEffect(() => {
+    if (!ldapEnabled && createMode === 'ldap') {
+      setCreateMode('manual')
+    }
+  }, [createMode, ldapEnabled])
+
+  useEffect(() => {
+    if (!shouldSearchDirectory) {
+      return
+    }
+
+    let isActive = true
+
+    void api.searchDirectoryUsers(debouncedDirectoryQuery.trim())
+      .then(results => {
+        if (isActive) {
+          setDirectoryResults(results)
+        }
+      })
+      .catch(searchError => {
+        if (isActive) {
+          setError(searchError instanceof Error ? searchError.message : t('common.error'))
+        }
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [debouncedDirectoryQuery, shouldSearchDirectory, t])
+
+  const directoryOptions = useMemo(() => directoryResults.map(result => ({
+    id: result.externalIdentityId,
+    label: result.displayName || result.username,
+    description: [result.username, result.department].filter(Boolean).join(' · '),
+    badgeText: result.department?.trim() ? result.department.trim() : 'LDAP',
+  })), [directoryResults])
+
+  const resetCreateForm = () => {
+    setNewName('')
+    setNewType('Müdürlük')
+    setNewManagerUserId('')
+    setNewResponsibleUserIds([])
+    setDirectoryQuery('')
+    setDirectoryResults([])
+    setSelectedDirectoryUser(null)
+  }
+
+  const switchCreateMode = (mode: CreateMode) => {
+    setCreateMode(mode)
+    resetCreateForm()
+  }
 
   const handleCreate = async (event: React.FormEvent) => {
     event.preventDefault()
 
     if (!newName.trim()) {
+      return
+    }
+
+    if (createMode === 'ldap' && !selectedDirectoryUser?.department?.trim()) {
+      setError(t('departments.directoryDepartmentRequired'))
       return
     }
 
@@ -63,10 +140,7 @@ export function DepartmentsPage() {
         managerUserId: newManagerUserId || null,
         responsibleUserIds: newResponsibleUserIds,
       })
-      setNewName('')
-      setNewType('Müdürlük')
-      setNewManagerUserId('')
-      setNewResponsibleUserIds([])
+      resetCreateForm()
       setShowForm(false)
       invalidateDepartments(queryClient)
     } catch (createError) {
@@ -180,7 +254,19 @@ export function DepartmentsPage() {
             <h1 className="page-title">{t('departments.title')}</h1>
             <p className="page-subtitle">{t('departments.subtitle')}</p>
           </div>
-          <Button type="button" onClick={() => setShowForm(current => !current)}>
+          <Button
+            type="button"
+            onClick={() => {
+              setShowForm(current => {
+                const next = !current
+                if (!next) {
+                  resetCreateForm()
+                  setCreateMode(ldapEnabled && managementContext?.localUsersEnabled === false ? 'ldap' : 'manual')
+                }
+                return next
+              })
+            }}
+          >
             {showForm ? t('common.cancel') : t('departments.new')}
           </Button>
         </div>
@@ -225,6 +311,72 @@ export function DepartmentsPage() {
               <p className="helper-copy">{t('departments.newFormDescription')}</p>
             </div>
           </div>
+
+          {ldapEnabled ? (
+            <div className="grid gap-2">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('departments.createMode')}</span>
+                <div className="segmented-control">
+                  {managementContext?.localUsersEnabled !== false ? (
+                    <button className={createMode === 'manual' ? 'active' : ''} onClick={() => switchCreateMode('manual')} type="button">
+                      {t('departments.manualMode')}
+                    </button>
+                  ) : null}
+                  <button className={createMode === 'ldap' ? 'active' : ''} onClick={() => switchCreateMode('ldap')} type="button">
+                    {t('departments.ldapMode')}
+                  </button>
+                </div>
+              </label>
+              <p className="helper-copy">
+                {createMode === 'ldap' ? t('departments.sourceLdapHint') : t('departments.sourceManualHint')}
+              </p>
+            </div>
+          ) : null}
+
+          {createMode === 'ldap' && ldapEnabled ? (
+            <div className="section-card page-stack">
+              <div>
+                <h3 className="text-lg font-extrabold text-slate-950">{t('departments.directorySearch')}</h3>
+                <p className="helper-copy">{t('departments.directorySearchDescription')}</p>
+              </div>
+              <AutocompleteField
+                ariaLabel={t('departments.directorySearchAria')}
+                emptyMessage={t('departments.directorySearchEmpty')}
+                loadingMessage={t('departments.directorySearchLoading')}
+                options={directoryOptions}
+                placeholder={t('departments.directorySearchPlaceholder')}
+                value={directoryQuery}
+                onOptionSelect={option => {
+                  const selected = directoryResults.find(result => result.externalIdentityId === option.id) ?? null
+                  setSelectedDirectoryUser(selected)
+                  setDirectoryQuery(option.label)
+                  setNewName(selected?.department?.trim() ?? '')
+                }}
+                onValueChange={value => {
+                  setDirectoryQuery(value)
+                  if (value.trim().length < 2) {
+                    setDirectoryResults([])
+                  }
+                  if (!value.trim()) {
+                    setSelectedDirectoryUser(null)
+                    setNewName('')
+                  }
+                }}
+              />
+              {selectedDirectoryUser ? (
+                <div className="section-card">
+                  <div className="font-semibold text-slate-950">{selectedDirectoryUser.displayName}</div>
+                  <div className="mt-1 text-sm text-slate-500">
+                    {[selectedDirectoryUser.username, selectedDirectoryUser.department].filter(Boolean).join(' · ')}
+                  </div>
+                  {!selectedDirectoryUser.department?.trim() ? (
+                    <p className="helper-copy mt-2">{t('departments.directoryDepartmentMissing')}</p>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
           <div className="grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('departments.name')}</span>
@@ -233,6 +385,7 @@ export function DepartmentsPage() {
                 placeholder={t('departments.namePlaceholder')}
                 type="text"
                 value={newName}
+                disabled={createMode === 'ldap'}
                 onChange={event => setNewName(event.target.value)}
               />
             </label>
@@ -278,8 +431,22 @@ export function DepartmentsPage() {
             </div>
           </div>
           <div className="inline-actions">
-            <Button type="submit">{t('common.create')}</Button>
-            <Button type="button" variant="secondary" onClick={() => setShowForm(false)}>{t('common.cancel')}</Button>
+            <Button
+              type="submit"
+              disabled={createMode === 'ldap' && (!selectedDirectoryUser || !newName.trim())}
+            >
+              {t('common.create')}
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => {
+                resetCreateForm()
+                setShowForm(false)
+              }}
+            >
+              {t('common.cancel')}
+            </Button>
           </div>
         </form>
       ) : null}

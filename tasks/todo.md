@@ -1,3 +1,6 @@
+## Round — #1702
+- #1702: Birime Gelen Onaylanmış gridinden İptal Et kaldırıldı.
+
 ## Round — #1697 reopen / #1701
 - #1697: Gelen/Giden Onaylanmış = bir kez onaylanmış tüm talepler (kalıcı).
 - #1701: Görevler Son Tarihi Geçmiş chip turuncu (`scope-chip--overdue`).

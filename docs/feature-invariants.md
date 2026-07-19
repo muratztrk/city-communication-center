@@ -783,6 +783,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Birime Gelen Onaylanmış: `approvedAtUtc != null` — durum sonra değişse bile kalır
   (card #1697). Birimden Giden Onaylanmış: Owner `decidedAtUtc` dolu olan tüm talepler
   (card #1697). Yapılmakta / Tamamlanmış vb. sekmelerde de görünebilirler.
+  Birime Gelen Onaylanmış grid İşlemler'de `İptal Et` yok (card #1702).
   Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
   (card #1701; mavi `in-progress` değil).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`

@@ -1050,12 +1050,13 @@ export function IncomingRequestsPage() {
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </DisabledActionButton>
                         )}
-                        {canCancelRow(row) && currentStatusFilter !== 'in-progress' && (
+                        {/* Onaylanmış gridde İptal Et yok (card #1702); Yapılmakta'da da yok (#1695). */}
+                        {canCancelRow(row) && currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && (
                           <Button size="sm" variant="destructive" onClick={() => openCancelReturn(row)}>
                             {t('jobs.actions.cancel', 'İptal Et')}
                           </Button>
                         )}
-                        {shouldShowDisabledCancel(row) && currentStatusFilter !== 'in-progress' && (
+                        {shouldShowDisabledCancel(row) && currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && (
                           <DisabledActionButton
                             size="sm"
                             variant="destructive"

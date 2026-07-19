@@ -797,6 +797,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
   Birime Gelen / Birimden Giden banner `page-kicker` seçili scope chip metnidir;
   `page-title` bölüm adı kalır (card #1700; Taleplerim ile aynı).
+- **Ayarlar banner `page-kicker` seçili tab metnidir** (`Kurum`, `Görünüm`, …);
+  `page-title` `Ayarlar` kalır (card #1708). Ayarlar’da `Vatandaş Akışı` tab’ı yok (card #1707).
 - **Onayla ve Personel Ata self-istek metni (card #1671):**
   `(Görevi kendisi yapmak istiyor)` — sonda nokta yok.
 - **Talep Son Tarih Değiştir (cards #1673/#1666):** Birime Gelen hedef birim yöneticisi

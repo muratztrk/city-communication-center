@@ -5,7 +5,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { invalidateSettings, invalidateSocialMessages } from '../api/cacheInvalidation'
+import { invalidateSettings } from '../api/cacheInvalidation'
 import { API_ORIGIN } from '../api/config'
 import { IZMIR_DISTRICTS, getSavedDistrictId, saveDistrictId } from '../data/izmir-locations'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
@@ -49,7 +49,7 @@ import type {
 } from '../types/platform'
 import { getDeploymentModeLabel, getRoleLabel } from '../utils/localization'
 
-type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'citizen' | 'templates'
+type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates'
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email'
 type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
@@ -353,7 +353,16 @@ const EMPTY_TEMPLATE_FORM: Omit<WhatsAppMessageTemplate, 'templateId'> = {
 }
 
 function readTab(tab: string | null): SettingsTab {
-  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'citizen' || tab === 'templates' ? tab : 'tenant'
+  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'templates' ? tab : 'tenant'
+}
+
+const SETTINGS_TAB_LABEL_KEYS: Record<SettingsTab, string> = {
+  tenant: 'settings.tabs.organization',
+  appearance: 'settings.tabs.appearance',
+  roles: 'settings.tabs.roles',
+  social: 'settings.tabs.social',
+  routing: 'settings.tabs.routing',
+  templates: 'settings.tabs.templates',
 }
 
 function isMetaWhatsAppTemplate(template: Pick<WhatsAppMessageTemplate, 'channel'>) {
@@ -406,8 +415,6 @@ export function SettingsPage() {
   const [ruleForm, setRuleForm] = useState(EMPTY_RULE)
   const [testContent, setTestContent] = useState('')
   const [testResult, setTestResult] = useState<string | null>(null)
-  const [citizenForm, setCitizenForm] = useState({ channel: 'Other', citizenHandle: '', content: '', category: '' })
-  const [citizenFormSaving, setCitizenFormSaving] = useState(false)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
@@ -1057,27 +1064,6 @@ export function SettingsPage() {
     }
   }
 
-  const submitCitizenForm = async (event: FormEvent) => {
-    event.preventDefault()
-    setMessage(null)
-    setCitizenFormSaving(true)
-    try {
-      await api.createSocialMessage({
-        channel: citizenForm.channel,
-        citizenHandle: citizenForm.citizenHandle.trim(),
-        content: citizenForm.content.trim(),
-        category: citizenForm.category.trim() || undefined,
-      })
-      invalidateSocialMessages(queryClient)
-      setMessage({ type: 'success', text: t('settings.citizen.successMessage') })
-      setCitizenForm({ channel: 'Other', citizenHandle: '', content: '', category: '' })
-    } catch (submitError) {
-      setMessage({ type: 'error', text: submitError instanceof Error ? submitError.message : t('common.error') })
-    } finally {
-      setCitizenFormSaving(false)
-    }
-  }
-
   const updateSocialField = (channel: ChannelType, key: string, value: string) => {
     setSocialForms(current => ({
       ...current,
@@ -1304,7 +1290,7 @@ export function SettingsPage() {
           style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
         >
           <div className="space-y-1">
-            <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">{t('nav.settings', 'Yönetim')}</div>
+            <div className="page-kicker !text-white/70">{t(SETTINGS_TAB_LABEL_KEYS[activeTab])}</div>
             <h1 className="page-title !text-white">{t('settings.title')}</h1>
             <p className="max-w-3xl text-sm leading-6 text-white/82">{t('settings.subtitle')}</p>
           </div>
@@ -1327,11 +1313,8 @@ export function SettingsPage() {
             <button className={`tab-button ${activeTab === 'routing' ? 'active' : ''}`} onClick={() => setTab('routing')} type="button">
               {t('settings.tabs.routing')}
             </button>
-            <button className={`tab-button ${activeTab === 'citizen' ? 'active' : ''}`} onClick={() => setTab('citizen')} type="button">
-              {t('settings.tabs.citizen')}
-            </button>
             <button className={`tab-button ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setTab('templates')} type="button">
-              Taslak Mesajlar
+              {t('settings.tabs.templates')}
             </button>
           </div>
         </div>
@@ -2482,70 +2465,6 @@ export function SettingsPage() {
 
         </div>
       ) : null}
-      {activeTab === 'citizen' ? (
-        <form className="section-card page-stack" onSubmit={event => void submitCitizenForm(event)}>
-          <div>
-            <h2 className="text-xl font-extrabold text-slate-950">{t('settings.citizen.sectionTitle')}</h2>
-            <p className="helper-copy">{t('settings.citizen.sectionDescription')}</p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('settings.citizen.channel')}</span>
-              <select
-                className="field-select"
-                required
-                value={citizenForm.channel}
-                onChange={event => setCitizenForm(current => ({ ...current, channel: event.target.value }))}
-              >
-                {(['Facebook', 'Instagram', 'X', 'Email', 'WebForm', 'WhatsApp', 'Other'] as const).map(ch => (
-                  <option key={ch} value={ch}>{t(`settings.citizen.channels.${ch}`)}</option>
-                ))}
-              </select>
-            </label>
-
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('settings.citizen.citizenHandle')}</span>
-              <input
-                className="field-input"
-                placeholder={t('settings.citizen.citizenHandlePlaceholder')}
-                required
-                value={citizenForm.citizenHandle}
-                onChange={event => setCitizenForm(current => ({ ...current, citizenHandle: event.target.value }))}
-              />
-            </label>
-          </div>
-
-          <label className="grid gap-2 text-sm font-semibold text-slate-700">
-            <span>{t('settings.citizen.content')}</span>
-            <textarea
-              className="field-textarea"
-              placeholder={t('settings.citizen.contentPlaceholder')}
-              required
-              rows={4}
-              value={citizenForm.content}
-              onChange={event => setCitizenForm(current => ({ ...current, content: event.target.value }))}
-            />
-          </label>
-
-          <label className="grid gap-2 text-sm font-semibold text-slate-700">
-            <span>{t('settings.citizen.category')}</span>
-            <input
-              className="field-input"
-              placeholder={t('settings.citizen.categoryPlaceholder')}
-              value={citizenForm.category}
-              onChange={event => setCitizenForm(current => ({ ...current, category: event.target.value }))}
-            />
-          </label>
-
-          <div className="inline-actions">
-            <Button disabled={citizenFormSaving} type="submit">
-              {t('settings.citizen.submit')}
-            </Button>
-          </div>
-        </form>
-      ) : null}
-
       {activeTab === 'templates' ? (
         <div className="flex gap-4 min-h-[520px]">
           <div className="flex w-64 shrink-0 flex-col gap-2">

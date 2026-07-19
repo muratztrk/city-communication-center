@@ -1,3 +1,7 @@
+## Round — #1707 / #1708
+- #1707: Ayarlar’dan Vatandaş Akışı tab’ı kaldırıldı.
+- #1708: Ayarlar banner page-kicker = seçili tab metni.
+
 ## Round — #1705 / #1706
 - #1705: Yerel kullanıcı düzenlemede Ad Soyad/Ünvan/e-posta editable; birim+rol SingleSelect.
 - #1706: MultiSelectDropdown portal+fixed — tablo hücresinde iç içe/binme yok.

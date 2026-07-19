@@ -856,7 +856,7 @@
       "roles": "Role Permissions",
       "social": "Social Media",
       "routing": "Auto Routing",
-      "citizen": "Citizen Requests"
+      "templates": "Draft Messages"
     },
     "organizationName": "Organization Name",
     "domain": "Domain",

@@ -544,6 +544,7 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                             ManagerUserId = new Guid("4b1efb47-0311-4ef7-9a0c-f4c41dcb8b48"),
                             Name = "Sistem Yönetimi",
                             ResponsibleUserIdsJson = "[]",
+                            SourceType = "Manual",
                             TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
                         },
                         new
@@ -555,6 +556,7 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                             ManagerUserId = new Guid("d6fc7a5b-5cb2-4c59-8a82-7843041421a5"),
                             Name = "Fen İşleri Müdürlüğü",
                             ResponsibleUserIdsJson = "[]",
+                            SourceType = "Manual",
                             TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
                         },
                         new
@@ -565,6 +567,7 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                             DepartmentType = "Müdürlük",
                             Name = "Basın Yayın Müdürlüğü",
                             ResponsibleUserIdsJson = "[]",
+                            SourceType = "Manual",
                             TenantId = new Guid("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e")
                         });
                 });

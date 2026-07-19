@@ -1387,79 +1387,81 @@ export function SettingsPage() {
               </form>
             </section>
 
-            <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSlaWeekendSettings(event)}>
-              <div className="page-header-row">
-                <div>
-                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.slaWeekend.sectionTitle')}</h2>
-                  <p className="helper-copy">{t('settings.slaWeekend.sectionDescription')}</p>
-                </div>
-              </div>
-              <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-                <input
-                  className="field-checkbox"
-                  type="checkbox"
-                  checked={slaWeekendForm.excludeWeekends}
-                  onChange={event => setSlaWeekendForm(current => ({ ...current, excludeWeekends: event.target.checked }))}
-                />
-                {t('settings.slaWeekend.excludeWeekends')}
-              </label>
-              {slaWeekendForm.excludeWeekends && departments.length > 0 && (
-                <div className="field-row">
-                  <label className="field-label">{t('settings.slaWeekend.exemptDepartments')}</label>
-                  <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3">
-                    {departments.map(dept => (
-                      <label key={dept.departmentId} className="inline-flex items-center gap-2 text-sm text-slate-700">
-                        <input
-                          className="field-checkbox"
-                          type="checkbox"
-                          checked={slaWeekendForm.exemptDepartmentIds.includes(dept.departmentId)}
-                          onChange={event => {
-                            setSlaWeekendForm(current => ({
-                              ...current,
-                              exemptDepartmentIds: event.target.checked
-                                ? [...current.exemptDepartmentIds, dept.departmentId]
-                                : current.exemptDepartmentIds.filter(id => id !== dept.departmentId),
-                            }))
-                          }}
-                        />
-                        {dept.name}
-                      </label>
-                    ))}
+            <div className="page-stack gap-4">
+              <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={saveMunicipalityDistrict}>
+                <div className="page-header-row">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-950">{t('settings.municipalityLocation.sectionTitle', 'Kurum Konumu')}</h2>
+                    <p className="helper-copy">{t('settings.municipalityLocation.sectionDescription', 'Talep oluşturma ekranında gösterilecek mahalle listesini belirlemek için ilçe seçin.')}</p>
                   </div>
-                  <p className="helper-copy">{t('settings.slaWeekend.exemptDepartmentsHelp')}</p>
                 </div>
-              )}
-              <div className="inline-actions">
-                <Button type="submit">{t('settings.slaWeekend.save')}</Button>
-              </div>
-            </form>
-          </div>
+                <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
+                  <span>{t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}</span>
+                  <SingleSelectDropdown
+                    options={IZMIR_DISTRICTS.map(district => ({
+                      value: district.id,
+                      label: district.name,
+                    }))}
+                    value={selectedDistrictId}
+                    onChange={setSelectedDistrictId}
+                    placeholder={t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}
+                    searchable
+                    searchPlaceholder={t('common.search', 'Ara...')}
+                  />
+                </label>
+                <div className="inline-actions">
+                  <Button type="submit">{t('common.save')}</Button>
+                </div>
+              </form>
 
-          <form className="section-card page-stack" onSubmit={saveMunicipalityDistrict}>
-            <div className="page-header-row">
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.municipalityLocation.sectionTitle', 'Kurum Konumu')}</h2>
-                <p className="helper-copy">{t('settings.municipalityLocation.sectionDescription', 'Talep oluşturma ekranında gösterilecek mahalle listesini belirlemek için ilçe seçin.')}</p>
-              </div>
+              <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSlaWeekendSettings(event)}>
+                <div className="page-header-row">
+                  <div>
+                    <h2 className="text-xl font-extrabold text-slate-950">{t('settings.slaWeekend.sectionTitle')}</h2>
+                    <p className="helper-copy">{t('settings.slaWeekend.sectionDescription')}</p>
+                  </div>
+                </div>
+                <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+                  <input
+                    className="field-checkbox"
+                    type="checkbox"
+                    checked={slaWeekendForm.excludeWeekends}
+                    onChange={event => setSlaWeekendForm(current => ({ ...current, excludeWeekends: event.target.checked }))}
+                  />
+                  {t('settings.slaWeekend.excludeWeekends')}
+                </label>
+                {slaWeekendForm.excludeWeekends && departments.length > 0 && (
+                  <div className="field-row">
+                    <label className="field-label">{t('settings.slaWeekend.exemptDepartments')}</label>
+                    <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3">
+                      {departments.map(dept => (
+                        <label key={dept.departmentId} className="inline-flex items-center gap-2 text-sm text-slate-700">
+                          <input
+                            className="field-checkbox"
+                            type="checkbox"
+                            checked={slaWeekendForm.exemptDepartmentIds.includes(dept.departmentId)}
+                            onChange={event => {
+                              setSlaWeekendForm(current => ({
+                                ...current,
+                                exemptDepartmentIds: event.target.checked
+                                  ? [...current.exemptDepartmentIds, dept.departmentId]
+                                  : current.exemptDepartmentIds.filter(id => id !== dept.departmentId),
+                              }))
+                            }}
+                          />
+                          {dept.name}
+                        </label>
+                      ))}
+                    </div>
+                    <p className="helper-copy">{t('settings.slaWeekend.exemptDepartmentsHelp')}</p>
+                  </div>
+                )}
+                <div className="inline-actions">
+                  <Button type="submit">{t('settings.slaWeekend.save')}</Button>
+                </div>
+              </form>
             </div>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
-              <span>{t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}</span>
-              <SingleSelectDropdown
-                options={IZMIR_DISTRICTS.map(district => ({
-                  value: district.id,
-                  label: district.name,
-                }))}
-                value={selectedDistrictId}
-                onChange={setSelectedDistrictId}
-                placeholder={t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}
-                searchable
-                searchPlaceholder={t('common.search', 'Ara...')}
-              />
-            </label>
-            <div className="inline-actions">
-              <Button type="submit">{t('common.save')}</Button>
-            </div>
-          </form>
+          </div>
 
           <form className="section-card page-stack" onSubmit={event => void saveWorkingHours(event)}>
             <div className="page-header-row">

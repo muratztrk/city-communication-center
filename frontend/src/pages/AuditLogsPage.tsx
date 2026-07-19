@@ -190,17 +190,6 @@ export function AuditLogsPage() {
                   {t('audit.date')}
                 </FilterableTh>
                 <FilterableTh
-                  filterKey="entityType"
-                  filterValue={filters.entityType ?? ''}
-                  onFilter={handleFilter}
-                  sortKey="entityType"
-                  currentSortKey={sortKey}
-                  sortDir={sortDir}
-                  onSort={handleSort}
-                >
-                  {t('audit.entity')}
-                </FilterableTh>
-                <FilterableTh
                   filterKey="action"
                   filterValue={filters.action ?? ''}
                   onFilter={handleFilter}
@@ -229,19 +218,13 @@ export function AuditLogsPage() {
                 <tr key={log.auditLogId}>
                   <td>{log.dateText}</td>
                   <td>
-                    <div className="space-y-2">
-                      <StatusPill>{log.entityType}</StatusPill>
-                      <div className="text-xs text-slate-500">{log.entityId.slice(0, 8)}...</div>
-                    </div>
-                  </td>
-                  <td>
                     <StatusPill tone={getActionTone(log.action)}>{log.actionLabel}</StatusPill>
                   </td>
                   <td>{log.detailText}</td>
                 </tr>
               ))}
               {pagedRows.length === 0 ? (
-                <TableEmptyStateRows columnCount={4} message={t('audit.empty')} />
+                <TableEmptyStateRows columnCount={3} message={t('audit.empty')} />
               ) : null}
             </tbody>
           </table>

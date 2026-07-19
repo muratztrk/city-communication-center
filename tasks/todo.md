@@ -1,3 +1,8 @@
+## Round — #1713/#1714/#1715 reopen
+- #1713: Log’dan Varlık sütunu kaldırıldı; Talep/Görev İşlem etiketleri ActionTitle diline çekildi.
+- #1715: Kurum Konumu, Hafta Sonu SLA’nın üst satırına (sağ kolon).
+- #1714: LDAP listesinde yalnız birim; oluşturmada Tür/Müdür/Sorumlular yok.
+
 ## Round — #1715 / #1716
 - #1715: Ayarlar Kurum: Hafta Sonu SLA, Varsayılan SLA’nın sağına (2 kolon).
 - #1716: Vatandaş Talebi Oluştur WA gelen balonda isim veya telefon üst satırda.

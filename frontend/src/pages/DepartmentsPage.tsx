@@ -29,12 +29,9 @@ export function DepartmentsPage() {
   const [showForm, setShowForm] = useState(false)
   const [createMode, setCreateMode] = useState<CreateMode>('manual')
   const [newName, setNewName] = useState('')
-  const [newType, setNewType] = useState('Müdürlük')
-  const [newManagerUserId, setNewManagerUserId] = useState('')
-  const [newResponsibleUserIds, setNewResponsibleUserIds] = useState<string[]>([])
   const [directoryQuery, setDirectoryQuery] = useState('')
   const [directoryResults, setDirectoryResults] = useState<DirectoryUserLookup[]>([])
-  const [selectedDirectoryUser, setSelectedDirectoryUser] = useState<DirectoryUserLookup | null>(null)
+  const [selectedLdapDepartment, setSelectedLdapDepartment] = useState<string | null>(null)
 
   const [editId, setEditId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
@@ -99,21 +96,25 @@ export function DepartmentsPage() {
     }
   }, [debouncedDirectoryQuery, shouldSearchDirectory, t])
 
-  const directoryOptions = useMemo(() => directoryResults.map(result => ({
-    id: result.externalIdentityId,
-    label: result.displayName || result.username,
-    description: [result.username, result.department].filter(Boolean).join(' · '),
-    badgeText: result.department?.trim() ? result.department.trim() : 'LDAP',
-  })), [directoryResults])
+  const directoryOptions = useMemo(() => {
+    const map = new Map<string, string>()
+    for (const result of directoryResults) {
+      const name = result.department?.trim()
+      if (!name) continue
+      const key = name.toLocaleLowerCase('tr')
+      if (!map.has(key)) map.set(key, name)
+    }
+    const query = directoryQuery.trim().toLocaleLowerCase('tr')
+    return Array.from(map.values())
+      .filter(name => !query || name.toLocaleLowerCase('tr').includes(query))
+      .map(name => ({ id: name, label: name }))
+  }, [directoryQuery, directoryResults])
 
   const resetCreateForm = () => {
     setNewName('')
-    setNewType('Müdürlük')
-    setNewManagerUserId('')
-    setNewResponsibleUserIds([])
     setDirectoryQuery('')
     setDirectoryResults([])
-    setSelectedDirectoryUser(null)
+    setSelectedLdapDepartment(null)
   }
 
   const switchCreateMode = (mode: CreateMode) => {
@@ -128,7 +129,7 @@ export function DepartmentsPage() {
       return
     }
 
-    if (createMode === 'ldap' && !selectedDirectoryUser?.department?.trim()) {
+    if (createMode === 'ldap' && !selectedLdapDepartment) {
       setError(t('departments.directoryDepartmentRequired'))
       return
     }
@@ -136,9 +137,9 @@ export function DepartmentsPage() {
     try {
       await api.createDepartment({
         name: newName.trim(),
-        departmentType: newType,
-        managerUserId: newManagerUserId || null,
-        responsibleUserIds: newResponsibleUserIds,
+        departmentType: 'Müdürlük',
+        managerUserId: null,
+        responsibleUserIds: [],
       })
       resetCreateForm()
       setShowForm(false)
@@ -347,10 +348,9 @@ export function DepartmentsPage() {
                 placeholder={t('departments.directorySearchPlaceholder')}
                 value={directoryQuery}
                 onOptionSelect={option => {
-                  const selected = directoryResults.find(result => result.externalIdentityId === option.id) ?? null
-                  setSelectedDirectoryUser(selected)
+                  setSelectedLdapDepartment(option.label)
                   setDirectoryQuery(option.label)
-                  setNewName(selected?.department?.trim() ?? '')
+                  setNewName(option.label)
                 }}
                 onValueChange={value => {
                   setDirectoryQuery(value)
@@ -358,82 +358,36 @@ export function DepartmentsPage() {
                     setDirectoryResults([])
                   }
                   if (!value.trim()) {
-                    setSelectedDirectoryUser(null)
+                    setSelectedLdapDepartment(null)
                     setNewName('')
                   }
                 }}
               />
-              {selectedDirectoryUser ? (
+              {selectedLdapDepartment ? (
                 <div className="section-card">
-                  <div className="font-semibold text-slate-950">{selectedDirectoryUser.displayName}</div>
-                  <div className="mt-1 text-sm text-slate-500">
-                    {[selectedDirectoryUser.username, selectedDirectoryUser.department].filter(Boolean).join(' · ')}
-                  </div>
-                  {!selectedDirectoryUser.department?.trim() ? (
-                    <p className="helper-copy mt-2">{t('departments.directoryDepartmentMissing')}</p>
-                  ) : null}
+                  <div className="font-semibold text-slate-950">{selectedLdapDepartment}</div>
+                  <p className="helper-copy mt-1">{t('departments.directoryDepartmentSelected')}</p>
                 </div>
               ) : null}
             </div>
           ) : null}
 
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+          {createMode === 'manual' || !ldapEnabled ? (
+            <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-md">
               <span>{t('departments.name')}</span>
               <input
                 className="field-input"
                 placeholder={t('departments.namePlaceholder')}
                 type="text"
                 value={newName}
-                disabled={createMode === 'ldap'}
                 onChange={event => setNewName(event.target.value)}
               />
             </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('departments.type')}</span>
-              <SingleSelectDropdown
-                options={(['Müdürlük', 'Birim', 'Daire', 'Administration'] as const).map(type => ({
-                  value: type,
-                  label: getDepartmentTypeLabel(t, type),
-                }))}
-                value={newType}
-                onChange={setNewType}
-                placeholder={t('departments.type')}
-              />
-            </label>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('departments.manager', 'Müdür')}</span>
-              <SingleSelectDropdown
-                options={[
-                  { value: '', label: t('common.optional', '— Seçin (opsiyonel)') },
-                  ...users.filter(item => item.isActive).map(item => ({
-                    value: item.userId,
-                    label: item.displayName,
-                  })),
-                ]}
-                value={newManagerUserId}
-                onChange={setNewManagerUserId}
-                placeholder={t('common.optional', '— Seçin (opsiyonel)')}
-                searchable
-                searchPlaceholder={t('common.search', 'Ara...')}
-              />
-            </label>
-            <div className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
-              <span>{t('departments.responsibles', 'Sorumlular')}</span>
-              <MultiSelectDropdown
-                options={getUserOptions(users.filter(item => item.isActive))}
-                value={newResponsibleUserIds}
-                onChange={setNewResponsibleUserIds}
-                placeholder={t('departments.responsiblesPlaceholder', 'Sorumlu kullanıcı seçin')}
-                emptyText={t('departments.responsiblesEmpty', 'Aktif kullanıcı bulunmuyor.')}
-              />
-              <span className="helper-copy">{t('departments.responsiblesHelp', 'Birden fazla kullanıcı seçebilirsiniz.')}</span>
-            </div>
-          </div>
+          ) : null}
           <div className="inline-actions">
             <Button
               type="submit"
-              disabled={createMode === 'ldap' && (!selectedDirectoryUser || !newName.trim())}
+              disabled={createMode === 'ldap' && (!selectedLdapDepartment || !newName.trim())}
             >
               {t('common.create')}
             </Button>

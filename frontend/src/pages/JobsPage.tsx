@@ -71,6 +71,7 @@ import { printHtmlDocument } from '../utils/printDocument'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { richTextToPlainText } from '../utils/richText'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
+import { toDateTimePickerValue } from '../utils/dateTimePicker'
 
 interface ScopeChipFiltersProps {
   searchText: string
@@ -262,13 +263,6 @@ function formatDueDateTime(value: string | null, locale: string) {
 
 function formatApprovalDateText(value: string, approverName: string | null | undefined) {
   return approverName ? `${value} (${approverName})` : value
-}
-
-function toDateTimePickerValue(value: string | null | undefined): string {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  return date.toISOString().slice(0, 16)
 }
 
 function formatJobDisplayNumber(job: JobSummary): string {
@@ -1698,8 +1692,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       title: editableJob.title,
       description: editableJob.description ?? '',
       priority: editableJob.priority,
-      startDateUtc: editableJob.startDateUtc ? new Date(editableJob.startDateUtc).toISOString().slice(0, 16) : '',
-      dueDateUtc: editableJob.dueDateUtc ? new Date(editableJob.dueDateUtc).toISOString().slice(0, 16) : '',
+      startDateUtc: toDateTimePickerValue(editableJob.startDateUtc),
+      dueDateUtc: toDateTimePickerValue(editableJob.dueDateUtc),
     })
   }
 

@@ -246,6 +246,12 @@
 
 # Trello "Doing" list — implementation tracking
 
+## Round 380 — Başlık textbox + talep son tarih bildirimi
+- [x] `6a5c6daa` (#1691, 4. tur) — Talep Detayları başlık edit kutusu gerçekten küçüldü: 216×41 → 176×26 px (mobilde 120px). Önceki 3 turun görünmeme nedeni bulundu: kap inline-flex (shrink-to-fit) olduğundan `min(100%, 16rem)` hep %100'e çözülüyordu; sabit `width: 11rem` + kompakt padding gerekiyordu (harness computed-style kanıtlı).
+- [x] `6a5b5724` (#1677 reopen) — `UpdateJobCommand`: son tarih değiştiyse `JobDueDateUpdated` audit'i HER ZAMAN yazılır ("yalnızca son tarih" koşulu kaldırıldı — kozmetik alan farkı bildirimi yutuyordu); jenerik `JobUpdated` yalnız başka alan da değiştiyse. Kök nedenlerden biri de düzeltildi: `toDateTimePickerValue` UTC dilimi kullanıyordu → picker saati 3 saat erken gösterip her kayıtta son tarihi −3 saat kaydırıyordu; ortak `utils/dateTimePicker.ts` (yerel duvar-saati) JobsPage/TasksPage/RoutineTaskPage/myRequestEditDraft'a bağlandı.
+- [x] /review (adversarial subagent): 3 bulgu — mobil 11rem taşması düzeltildi (7.5rem), RoutineTaskPage kopya helper dedupe edildi, çift audit satırı bilinçli kabul (kart semantiği).
+- [x] Doğrulama: backend build + 46 test; frontend build + lint; picker round-trip ve textbox ölçüleri tarayıcıda computed-style ile kanıtlandı.
+
 ## Round 319 — Detay popup boyutu
 - [x] `6a588698` (#1631) — Altı liste görünümünün detay popup'ı ~%5 küçültüldü: `detail-modal-shell--my-request` 66.75vw/80rem × 76.7dvh/44.5rem (1920×900'de 1349×726 → 1280×690, harness'ta ölçüldü). Base shell (drilldown, vatandaş formu, bildirim) bilinçli eski ölçüde.
 - [x] /review: temiz (9 satır salt-CSS); doğrulama build + lint + derlenmiş CSS computed-style ölçümü.

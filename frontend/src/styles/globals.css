@@ -369,11 +369,21 @@
     width: 100%;
   }
 
-  /* Düzenle modu talep başlığı textarea — bir kademe dar (card #1691). */
+  /* Düzenle modu talep başlığı textarea — kompakt kutu (card #1691, 4. tur).
+     Önceki 16rem sınırı hiç devreye girmiyordu: kutu ~13.5rem'lik grid kolonunda
+     yaşadığı için min(100%, 16rem) her zaman %100'e düşüyordu ve base
+     .field-textarea padding'i (0.72rem/0.82rem) kutuyu 216×41px yapıyordu.
+     Görünür küçülme için kolondan dar sabit genişlik + sıkı padding şart. */
   .detail-modal-shell--my-request .my-request-title-heading-edit__textarea {
-    width: min(100%, 16rem);
-    min-height: 2rem;
-    max-height: 4.75rem;
+    /* Sabit genişlik şart: başlık kabı inline-flex (shrink-to-fit) olduğundan
+       yüzdeli width/max-width döngüsel çözülür ve kutu içerik kadar çöker
+       (min(100%,16rem)'in 3 turdur görünmemesinin nedeni). */
+    width: 11rem;
+    min-height: 1.65rem;
+    max-height: 4rem;
+    padding: 0.25rem 0.45rem;
+    font-size: 0.72rem;
+    border-radius: 0.5rem;
     resize: none;
     overflow-y: auto;
     white-space: pre-wrap;
@@ -4528,6 +4538,12 @@
 
     .detail-modal-shell {
       max-height: calc(100dvh - 1rem);
+    }
+
+    /* Telefonda 11rem başlık kutusu numara/rozet kolonuna biner; dar sabit
+       genişlik (yüzdeler shrink-to-fit başlıkta döngüsel — card #1691). */
+    .detail-modal-shell--my-request .my-request-title-heading-edit__textarea {
+      width: 7.5rem;
     }
 
     .detail-modal-shell > .flex-1 {

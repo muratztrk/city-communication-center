@@ -40,6 +40,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { DetailModalTitle } from '../utils/detailModalTitle'
 import { printHtmlDocument } from '../utils/printDocument'
 import { richTextToPlainText } from '../utils/richText'
+import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { lowercaseFileExtension } from '../utils/fileNameDisplay'
 
@@ -340,14 +341,6 @@ function isAssignedToday(value: string | null | undefined): boolean {
   return assigned.getFullYear() === now.getFullYear()
     && assigned.getMonth() === now.getMonth()
     && assigned.getDate() === now.getDate()
-}
-
-function toDateTimePickerValue(value: string | null | undefined): string {
-  if (!value) return ''
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return ''
-  const offsetMs = date.getTimezoneOffset() * 60_000
-  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16)
 }
 
 function getExtraTimeProposedDueDate(comment: string | null | undefined): string | null {

@@ -1,4 +1,5 @@
 import type { JobDetail } from '../../../types/platform'
+import { toDateTimePickerValue } from '../../../utils/dateTimePicker'
 
 export interface MyRequestEditDraft {
   title: string
@@ -15,9 +16,7 @@ export function buildMyRequestEditDraft(detail: JobDetail): MyRequestEditDraft {
     title: detail.title,
     description: detail.description ?? '',
     priority: detail.priority,
-    dueDateUtc: detail.dueDateUtc
-      ? new Date(detail.dueDateUtc).toISOString().slice(0, 16)
-      : '',
+    dueDateUtc: toDateTimePickerValue(detail.dueDateUtc),
     neighborhood: detail.neighborhood ?? '',
     street: detail.street ?? '',
     openAddress: detail.openAddress ?? '',

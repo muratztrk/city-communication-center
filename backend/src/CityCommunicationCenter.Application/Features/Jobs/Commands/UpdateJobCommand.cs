@@ -217,25 +217,28 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             }
         }
 
-        // Son tarih-only değişiklik: TaskDueDateUpdated ile aynı bildirim kalıbı (card #1677).
+        // Son tarih değişikliği: TaskDueDateUpdated ile aynı bildirim kalıbı (card #1677 reopen).
         // FE datetime-local dakika hassasiyeti → UtcTicks yerine dakika karşılaştırması.
+        // "Yalnızca son tarih değiştiyse" koşulu KULLANILMAZ: diğer alanlardaki kozmetik bir
+        // fark (ör. FE round-trip) bildirimi tamamen yutuyordu. Son tarih değiştiyse
+        // JobDueDateUpdated HER ZAMAN yazılır; jenerik JobUpdated yalnız başka alan da
+        // değiştiyse ek olarak yazılır.
         var dueDateChanged = DateChangedAtMinutePrecision(previousDueDateUtc, job.DueDateUtc);
-        var onlyDueDateChanged = dueDateChanged
-            && !targetsChanged
-            && string.Equals(previousTitle, job.Title, StringComparison.Ordinal)
-            && string.Equals(previousDescription, job.Description, StringComparison.Ordinal)
-            && string.Equals(previousPriority, job.Priority, StringComparison.Ordinal)
-            && !DateChangedAtMinutePrecision(previousStartDateUtc, job.StartDateUtc)
-            && previousLatitude == job.Latitude
-            && previousLongitude == job.Longitude
-            && previousNeighborhood == job.Neighborhood
-            && previousStreet == job.Street
-            && previousOpenAddress == job.OpenAddress
-            && previousCitizenName == job.CitizenName
-            && previousCitizenPhone == job.CitizenPhone
-            && previousIsProject == job.IsProject
-            && previousIsProjectCreatorRequested == job.IsProjectCreatorRequested;
-        if (onlyDueDateChanged)
+        var otherFieldsChanged = targetsChanged
+            || !string.Equals(previousTitle, job.Title, StringComparison.Ordinal)
+            || !string.Equals(previousDescription, job.Description, StringComparison.Ordinal)
+            || !string.Equals(previousPriority, job.Priority, StringComparison.Ordinal)
+            || DateChangedAtMinutePrecision(previousStartDateUtc, job.StartDateUtc)
+            || previousLatitude != job.Latitude
+            || previousLongitude != job.Longitude
+            || previousNeighborhood != job.Neighborhood
+            || previousStreet != job.Street
+            || previousOpenAddress != job.OpenAddress
+            || previousCitizenName != job.CitizenName
+            || previousCitizenPhone != job.CitizenPhone
+            || previousIsProject != job.IsProject
+            || previousIsProjectCreatorRequested != job.IsProjectCreatorRequested;
+        if (dueDateChanged)
         {
             _dbContext.AuditLogs.Add(new AuditLog
             {
@@ -250,7 +253,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
                 Details = job.DueDateUtc?.ToString("O"),
             });
         }
-        else
+        if (otherFieldsChanged || !dueDateChanged)
         {
             _dbContext.AuditLogs.Add(new AuditLog
             {

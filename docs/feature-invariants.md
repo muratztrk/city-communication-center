@@ -782,6 +782,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`scope-chip--in-progress`, card #1698) — sarı `approved` chip'i yönetici Onaylanmış'ta kalır.
   Birime Gelen Onaylanmış: `Active` + `taskCount === 0` (personel ataması bekleyen
   `assignTargetDepartmentId` satırları dahil; card #1697).
+  Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
+  ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
 - **Onayla ve Personel Ata self-istek metni (card #1671):**
   `(Görevi kendisi yapmak istiyor)` — sonda nokta yok.
 - **Talep Son Tarih Değiştir (cards #1673/#1666):** Birime Gelen hedef birim yöneticisi

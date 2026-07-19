@@ -546,13 +546,14 @@ export function AppShell() {
         <div className="flex h-full flex-col gap-2.5 rounded-[var(--radius-2xl)] border border-white/6 bg-[linear-gradient(180deg,rgba(255,255,255,0.03),rgba(255,255,255,0.01))] p-2.5">
           <div className="relative rounded-[var(--radius-xl)] p-2.5">
             {!isSidebarCollapsed ? (
-              <div className="flex flex-col items-center gap-2">
+              <div className="flex flex-col items-center gap-3.5">
                 <MunicipalitySeal
                   alt={`${institutionName} logo`}
                   src={logoUrl}
                   className="h-[5.25rem] w-[85%] max-w-[11.5rem] rounded-[1.65rem]"
                 />
-                <div className="min-w-0 w-full text-center text-sm font-bold leading-tight break-words text-white">{t('shell.subtitle', { municipalityName })}</div>
+                {/* Marka metni logo altına biraz boşlukla (card #1699). */}
+                <div className="min-w-0 w-full pt-0.5 text-center text-sm font-bold leading-tight break-words text-white">{t('shell.subtitle', { municipalityName })}</div>
               </div>
             ) : (
               <div className="flex justify-center">

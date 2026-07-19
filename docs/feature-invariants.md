@@ -350,6 +350,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 ## 3. WhatsApp / Sosyal mesaj — `ConversationPanel`, `CitizenRequestModal`, `WhatsAppConversationModal`
 
+- **Gelen WA balonunda üst satır gönderen etiketi:** isim varsa isim (+telefon), yoksa telefon;
+  `ConversationPanel` → `inboundSenderLabel` (card #1716). Vatandaş Talebi Oluştur dahil.
+
 - **Operatör WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091).**
   `ReplyToSocialMessageCommand` WhatsApp kanalında varsayılan olarak mesajı GÖNDERMEZ, `DeliveryStatus=Pending` entry
   oluşturur (diğer kanallar eskisi gibi anında gider). `ICitizenJobStatusNotifier` tarafından
@@ -799,6 +802,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `page-title` bölüm adı kalır (card #1700; Taleplerim ile aynı).
 - **Ayarlar banner `page-kicker` seçili tab metnidir** (`Kurum`, `Görünüm`, …);
   `page-title` `Ayarlar` kalır (card #1708). Ayarlar’da `Vatandaş Akışı` tab’ı yok (card #1707).
+- **Kurum sekmesinde Hafta Sonu SLA**, Varsayılan SLA içeren kurum kartının sağında
+  (`xl:grid-cols-2`) durur (card #1715).
 - **Log sayfası üç sekme:** Sistem Log (`Department`/`ApplicationUser`/`TenantSetting`/diğer),
   Talep Log (`Job`), Görev Log (`WorkTask`/`Task`); banner `page-kicker` seçili sekme (card #1710).
   Sekmeler `tab-bar`/`tab-button` kullanır; `scope-chip` ile aktif görünüm bozulmaz (card #1712).

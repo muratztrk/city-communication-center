@@ -224,6 +224,10 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const headerSubtitle = headerMode === 'phone'
     ? (registeredCitizenName ? `${registeredCitizenName} ${phoneForDisplay}` : phoneForDisplay)
     : citizenHandle
+  // Gelen balonda üst satır: isim varsa isim (+telefon), yoksa telefon (card #1716).
+  const inboundSenderLabel = registeredCitizenName
+    ? `${registeredCitizenName}${phoneForDisplay ? ` ${phoneForDisplay}` : ''}`
+    : (phoneForDisplay || null)
 
   const headerKicker = headerMode === 'phone'
     ? t('whatsapp.phoneNoHeader', 'Whatsapp Telefon No')
@@ -277,6 +281,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   citizenPhone={citizenPhone}
                   theme="light"
                   compact={compactBubbles}
+                  inboundSenderLabel={inboundSenderLabel}
                   onAddMediaAsAttachment={onAddMediaAsAttachment}
                   canSendPending={canSendPending}
                   onSendPending={() => handleSendPending(entry)}

@@ -1,3 +1,7 @@
+## Round — #1715 / #1716
+- #1715: Ayarlar Kurum: Hafta Sonu SLA, Varsayılan SLA’nın sağına (2 kolon).
+- #1716: Vatandaş Talebi Oluştur WA gelen balonda isim veya telefon üst satırda.
+
 ## Round — #1713 / #1714
 - #1713: Log grid FilterableTh + kolon filtre/sort + TablePagination.
 - #1714: Yeni Departman formu Manual|LDAP; LDAP’dan birim adı çekme.

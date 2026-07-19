@@ -23,10 +23,6 @@ import { getDepartmentTypeLabel } from '../utils/localization'
 
 type CreateMode = 'manual' | 'ldap'
 
-// Türkçe alfabenin tüm harfleri — LDAP dizinindeki tüm birimleri kapsayacak
-// şekilde tarama yapabilmek için tek tek sorgulanır (card #1720).
-const TURKISH_ALPHABET = ['a', 'b', 'c', 'ç', 'd', 'e', 'f', 'g', 'ğ', 'h', 'ı', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'ö', 'p', 'r', 's', 'ş', 't', 'u', 'ü', 'v', 'y', 'z']
-
 const EDITABLE_DEPARTMENT_TYPES = ['Birim', 'Administration'] as const
 
 export function DepartmentsPage() {
@@ -169,30 +165,28 @@ export function DepartmentsPage() {
     setError('')
 
     try {
-      const resultsByLetter = await Promise.all(
-        TURKISH_ALPHABET.map(letter => api.searchDirectoryUsers(letter).catch(() => [] as DirectoryUserLookup[])),
-      )
-
+      // OU + department attribute listesi — kullanıcı displayName limitine takılmaz (card #1730).
+      const departmentNames = await api.listDirectoryDepartments()
       const foundNamesByKey = new Map<string, string>()
       const listedResults: DirectoryUserLookup[] = []
-      for (const results of resultsByLetter) {
-        for (const result of results) {
-          const name = result.department?.trim()
-          if (!name) continue
-          const key = name.toLocaleLowerCase('tr')
-          if (!foundNamesByKey.has(key)) {
-            foundNamesByKey.set(key, name)
-            listedResults.push({
-              ...result,
-              department: name,
-              externalIdentityId: `ldap-unit:${key}`,
-              username: name,
-              displayName: name,
-              alreadyLinked: false,
-              existingUserId: null,
-            })
-          }
-        }
+
+      for (const rawName of departmentNames) {
+        const name = rawName.trim()
+        if (!name) continue
+        const key = name.toLocaleLowerCase('tr')
+        if (foundNamesByKey.has(key)) continue
+        foundNamesByKey.set(key, name)
+        listedResults.push({
+          externalIdentityId: `ldap-unit:${key}`,
+          username: name,
+          displayName: name,
+          email: null,
+          department: name,
+          alreadyLinked: false,
+          existingUserId: null,
+          title: null,
+          phone: null,
+        })
       }
 
       setDirectoryResults(listedResults)

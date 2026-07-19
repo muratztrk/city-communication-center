@@ -1496,6 +1496,28 @@
       padding: 0.32rem 0.62rem;
       font-size: 0.74rem;
     }
+
+    /* Ayarlar / Birimler / Kullanıcılar: kompakt shell üstü okunabilir metin (card #1733 reopen). */
+    .app-content-shell .admin-surface-page .helper-copy {
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .app-content-shell .admin-surface-page .field-input,
+    .app-content-shell .admin-surface-page .field-select {
+      min-height: 2.45rem;
+      font-size: 0.95rem;
+    }
+
+    .app-content-shell .admin-surface-page label.text-sm,
+    .app-content-shell .admin-surface-page .text-sm.font-semibold,
+    .app-content-shell .admin-surface-page span.text-sm.font-semibold {
+      font-size: 0.9rem;
+    }
+
+    .app-content-shell .admin-surface-page .field-select span {
+      font-size: 0.95rem;
+    }
   }
 
   .page-header-row {
@@ -2894,24 +2916,14 @@
     min-width: 13rem;
   }
 
-  /* Ayarlar / Birimler / Kullanıcılar: kompakt shell altında okunabilir metin (card #1733). */
-  .app-content-shell .admin-surface-page .helper-copy {
-    font-size: 0.8rem;
-  }
-
-  .app-content-shell .admin-surface-page .field-input,
-  .app-content-shell .admin-surface-page .field-select {
-    font-size: 0.875rem;
-  }
-
   .admin-surface-menu .dropdown-menu-item {
-    min-height: 2.45rem;
-    padding: 0.55rem 0.85rem;
-    font-size: 0.9rem;
+    min-height: 2.6rem;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.95rem;
   }
 
   .admin-surface-page .relative [role='listbox'] span.text-sm {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
 
   .role-matrix-toggle {

@@ -6,6 +6,9 @@ public interface ILdapAuthenticationService
 
     Task<IReadOnlyList<LdapDirectoryUser>> SearchUsersAsync(Guid tenantId, string query, CancellationToken cancellationToken = default);
 
+    /// <summary>LDAP'tan ayırt edici birim adlarını listeler (OU + department attribute). Senkron otomatik oluşturmaz.</summary>
+    Task<IReadOnlyList<string>> ListDepartmentNamesAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
     Task<LdapDirectoryUser?> FindUserByUsernameAsync(Guid tenantId, string username, CancellationToken cancellationToken = default);
 
     Task<LdapDirectoryUser?> FindUserByExternalIdentityAsync(Guid tenantId, string externalIdentityId, CancellationToken cancellationToken = default);

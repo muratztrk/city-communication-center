@@ -822,8 +822,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yeni birim formu LDAP birim çekebilir:** LDAP açıksa Manual|LDAP segmented; LDAP listesinde
   yalnız birim adları. Oluşturma formunda Tür/Müdür/Sorumlular yok — varsayılan tür `Birim`
   (card #1714/#1720). LDAP oluşturmada `SourceType=Ldap`. “Anlık LDAP Birim Senkronize Et”
-  yalnız listeyi yeniler / doldurur — kayıt **Oluştur** ile eklenir; senkron otomatik
-  `createDepartment` çağırmaz (cards #1717/#1730). LDAP birim düzenleme formu
+  yalnız listeyi yeniler / doldurur (`GET /users/directory-departments` — OU + department
+  attribute; kullanıcı displayName limitine takılmaz) — kayıt **Oluştur** ile eklenir;
+  senkron otomatik `createDepartment` çağırmaz (cards #1717/#1730). Dizin kullanıcı
+  araması `department` / `physicalDeliveryOfficeName` alanlarını da tarar. LDAP birim
+  düzenleme formu
   müdahale edilemez; Tür yalnız `Birim`/`Administration` (card #1719). Düzenle Tür
   default `Birim`, mevcut `Administration` korunur (card #1720). Yönetim seçilince müdür
   etiketi `Yönetici`.
@@ -840,8 +843,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   “Anlık LDAP Birim Senkronize Et”.
 - **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,
   satır adları solda (card #1726).
-- **Ayarlar/Birimler/Kullanıcılar (`admin-surface-page`):** helper-copy ve dropdown liste
-  metinleri kompakt shell’den büyük (card #1733).
+- **Ayarlar/Birimler/Kullanıcılar (`admin-surface-page`):** helper-copy, label, textbox ve
+  dropdown liste metinleri kompakt shell’den belirgin büyük (card #1733).
 - **Otomatik Yönlendirme:** Yönlendirme Kuralları ve Yönlendirme Testi UI yok (card #1727).
 - **Mobil detay popup başlığı:** title case (ALL CAPS değil); çok kelimede 2. satır; X sağ üst
   (card #1728).

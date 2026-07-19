@@ -52,6 +52,15 @@ public sealed class UsersController : ApiControllerBase
         return Ok(response);
     }
 
+    [HttpGet("directory-departments")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
+    [ProducesResponseType<IEnumerable<string>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<string>>> ListDirectoryDepartments(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new ListDirectoryDepartmentsQuery(), cancellationToken);
+        return Ok(response);
+    }
+
     [HttpPost("")]
     [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
     [ProducesResponseType<UserSummaryResponse>(StatusCodes.Status201Created)]

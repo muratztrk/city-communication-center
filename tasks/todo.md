@@ -1,3 +1,7 @@
+## Round 383 — #1730 reopen / #1733 reopen
+- #1730: LDAP birim listesi `directory-departments` (OU + department attr); senkron oluşturmaz; Emlak/İstimlak kaçırma fix.
+- #1733: admin-surface helper/label/textbox/dropdown metinleri daha da büyütüldü.
+
 ## Round 382 — #1723/#1729/#1730/#1720/#1733/#1718/#1726/#1732/#1731
 - #1723: Nav/UI Departmanlar → Birimler.
 - #1729/#1730: LDAP senkron otomatik oluşturmaz; Oluştur ile eklenir; kullanıcı seçiminde createDepartment yok.

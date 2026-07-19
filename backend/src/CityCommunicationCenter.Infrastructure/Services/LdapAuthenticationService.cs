@@ -1,4 +1,5 @@
 using System.DirectoryServices.Protocols;
+using System.Globalization;
 using System.Net;
 
 namespace CityCommunicationCenter.Infrastructure.Services;
@@ -78,6 +79,22 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         }
 
         return await Task.Run(() => SearchUsersInternal(settings, query), cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<string>> ListDepartmentNamesAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var settings = await _tenantLdapSettingsService.GetRuntimeSettingsAsync(tenantId, cancellationToken);
+        if (!settings.CanSearch)
+        {
+            return [];
+        }
+
+        if (settings.MockUsers.Count > 0 && string.IsNullOrWhiteSpace(settings.Host))
+        {
+            return [];
+        }
+
+        return await Task.Run(() => ListDepartmentNamesInternal(settings), cancellationToken);
     }
 
     public async Task<LdapDirectoryUser?> FindUserByUsernameAsync(Guid tenantId, string username, CancellationToken cancellationToken = default)
@@ -492,8 +509,112 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         string BuildFilterForTerm(string term)
         {
             var escaped = Escape(term);
-            return $"(|({userAttribute}=*{escaped}*)(sAMAccountName=*{escaped}*)(userPrincipalName=*{escaped}*)(displayName=*{escaped}*)(cn=*{escaped}*)(givenName=*{escaped}*)(sn=*{escaped}*)(mail=*{escaped}*))";
+            // Birim adı araması için department / office alanları da dahil (card #1730 — Emlak ve İstimlak).
+            return $"(|({userAttribute}=*{escaped}*)(sAMAccountName=*{escaped}*)(userPrincipalName=*{escaped}*)(displayName=*{escaped}*)(cn=*{escaped}*)(givenName=*{escaped}*)(sn=*{escaped}*)(mail=*{escaped}*)(department=*{escaped}*)(physicalDeliveryOfficeName=*{escaped}*))";
         }
+    }
+
+    private IReadOnlyList<string> ListDepartmentNamesInternal(TenantLdapRuntimeSettings settings)
+    {
+        if (string.IsNullOrWhiteSpace(settings.Host) || string.IsNullOrWhiteSpace(settings.SearchBase))
+        {
+            return [];
+        }
+
+        var names = new SortedSet<string>(StringComparer.Create(CultureInfo.GetCultureInfo("tr-TR"), CompareOptions.IgnoreCase));
+        var identifier = new LdapDirectoryIdentifier(settings.Host, settings.Port);
+        using var connection = CreateConnection(settings, identifier);
+
+        try
+        {
+            BindWithServiceAccount(connection, settings, "list directory departments");
+            CollectOrganizationalUnitNames(connection, settings.SearchBase, names);
+            CollectDepartmentNamesFromUsers(connection, settings.SearchBase, names);
+        }
+        catch (LdapException ex)
+        {
+            _logger.LogWarning(ex, "LDAP department listing failed");
+        }
+
+        return names.ToArray();
+    }
+
+    private void CollectOrganizationalUnitNames(LdapConnection connection, string searchBase, ISet<string> names)
+    {
+        try
+        {
+            var request = new SearchRequest(
+                searchBase,
+                "(objectClass=organizationalUnit)",
+                SearchScope.Subtree,
+                ["ou", "name", "distinguishedName"])
+            {
+                SizeLimit = 500,
+            };
+            var response = (SearchResponse)connection.SendRequest(request);
+            foreach (SearchResultEntry entry in response.Entries)
+            {
+                var ouName = GetAttribute(entry, "ou")
+                    ?? GetAttribute(entry, "name")
+                    ?? ExtractDepartmentFromDn(GetDistinguishedName(entry));
+                AddDepartmentName(names, ouName);
+            }
+        }
+        catch (LdapException ex) when (ex.ErrorCode == 4 /* SizeLimitExceeded */)
+        {
+            _logger.LogInformation(ex, "LDAP OU listing hit size limit; using partial results");
+        }
+        catch (LdapException ex)
+        {
+            _logger.LogWarning(ex, "LDAP OU listing failed");
+        }
+    }
+
+    private void CollectDepartmentNamesFromUsers(LdapConnection connection, string searchBase, ISet<string> names)
+    {
+        // Harf bazlı department/office öneki — kullanıcı displayName limitine takılmadan birimleri toplar.
+        const string letters = "abcçdefgğhıijklmnoöprsştuüvyz";
+        foreach (var letter in letters)
+        {
+            try
+            {
+                var escaped = Escape(letter.ToString());
+                var filter =
+                    $"(&(objectClass=user)(!(objectClass=computer))(!(sAMAccountName=*$))(|(department={escaped}*)(physicalDeliveryOfficeName={escaped}*)))";
+                var request = new SearchRequest(
+                    searchBase,
+                    filter,
+                    SearchScope.Subtree,
+                    ["distinguishedName", "physicalDeliveryOfficeName", "department"])
+                {
+                    SizeLimit = 100,
+                };
+                var response = (SearchResponse)connection.SendRequest(request);
+                foreach (SearchResultEntry entry in response.Entries)
+                {
+                    AddDepartmentName(names, ResolveDepartment(entry));
+                }
+            }
+            catch (LdapException ex) when (ex.ErrorCode == 4)
+            {
+                // Kısmi sonuç yeterli; sonraki harfle devam.
+            }
+            catch (LdapException ex)
+            {
+                _logger.LogDebug(ex, "LDAP department prefix search failed for '{Letter}'", letter);
+            }
+        }
+    }
+
+    private static void AddDepartmentName(ISet<string> names, string? value)
+    {
+        var trimmed = value?.Trim();
+        if (string.IsNullOrWhiteSpace(trimmed) || NonDepartmentOUs.Contains(trimmed))
+        {
+            return;
+        }
+
+        names.Add(trimmed);
     }
 
     private static IReadOnlyList<string> ExpandSearchTerms(string query)

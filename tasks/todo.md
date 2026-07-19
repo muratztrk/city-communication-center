@@ -1,3 +1,9 @@
+## Round — #1706/#1709/#1711/#1712
+- #1706: Kullanıcı düzenleme dept/rol dropdown’da arama + küçük menü metni.
+- #1712: Log sekmeleri tab-bar (scope-chip bozulması giderildi).
+- #1711: Vatandaş Talebi Oluştur WA balonları kompakt.
+- #1709: Departmanlar/Kullanıcılar/Ayarlar native select → SingleSelectDropdown.
+
 ## Round — #1710
 - #1710: Log = Sistem/Talep/Görev sekmeleri; User/TenantSettings audit yazılır; kicker=sekme.
 

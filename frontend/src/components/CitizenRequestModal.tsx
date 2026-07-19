@@ -516,6 +516,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               onSendInternal={handleSendInternal}
               sendingInternal={sendingInternal}
               compactActions
+              compactBubbles
             />
           </div>
 

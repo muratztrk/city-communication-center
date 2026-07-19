@@ -576,21 +576,22 @@ export function UsersPage() {
 
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('users.department')}</span>
-              <select
-                aria-label={t('users.department')}
-                className="field-select"
-                value={newUser.departmentId}
-                onChange={event => setNewUser(current => ({
-                  ...current,
-                  departmentId: event.target.value,
-                  additionalDepartmentIds: current.additionalDepartmentIds.filter(id => id !== event.target.value),
+              <SingleSelectDropdown
+                options={departments.map(department => ({
+                  value: department.departmentId,
+                  label: department.name,
                 }))}
-              >
-                <option value="">{t('tasks.selectDepartment')}</option>
-                {departments.map(department => (
-                  <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                ))}
-              </select>
+                value={newUser.departmentId}
+                onChange={departmentId => setNewUser(current => ({
+                  ...current,
+                  departmentId,
+                  additionalDepartmentIds: current.additionalDepartmentIds.filter(id => id !== departmentId),
+                }))}
+                placeholder={t('tasks.selectDepartment')}
+                emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
+                searchable
+                searchPlaceholder={t('common.search', 'Ara...')}
+              />
             </label>
           </div>
 
@@ -611,15 +612,21 @@ export function UsersPage() {
           <div className="grid gap-4 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:items-end">
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('users.role')}</span>
-              <select aria-label={t('users.role')} className="field-select" value={newUser.roleCode} onChange={event => setNewUser(current => ({
-                ...current,
-                roleCode: event.target.value,
-                additionalRoleCodes: current.additionalRoleCodes.filter(role => role !== event.target.value),
-              }))}>
-                {PRIMARY_ROLE_CODES.map(roleCode => (
-                  <option key={roleCode} value={roleCode}>{getRoleLabel(t, roleCode)}</option>
-                ))}
-              </select>
+              <SingleSelectDropdown
+                options={PRIMARY_ROLE_CODES.map(roleCode => ({
+                  value: roleCode,
+                  label: getRoleLabel(t, roleCode),
+                }))}
+                value={newUser.roleCode}
+                onChange={roleCode => setNewUser(current => ({
+                  ...current,
+                  roleCode,
+                  additionalRoleCodes: current.additionalRoleCodes.filter(role => role !== roleCode),
+                }))}
+                placeholder={t('users.role')}
+                searchable
+                searchPlaceholder={t('common.search', 'Ara...')}
+              />
             </label>
 
             <div className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -730,9 +737,12 @@ export function UsersPage() {
                           }))}
                           placeholder={t('tasks.selectDepartment')}
                           emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
+                          searchable
+                          searchPlaceholder={t('common.search', 'Ara...')}
                           className="w-full"
                           triggerClassName="text-xs"
-                          menuClassName="max-w-[14rem]"
+                          menuClassName="max-w-[14rem] users-edit-dropdown-menu"
+                          menuScrollClassName="users-edit-dropdown-menu-scroll"
                         />
                         <MultiSelectDropdown
                           options={departments
@@ -761,9 +771,12 @@ export function UsersPage() {
                             additionalRoleCodes: c.additionalRoleCodes.filter(role => role !== roleCode),
                           }))}
                           placeholder={t('users.role')}
+                          searchable
+                          searchPlaceholder={t('common.search', 'Ara...')}
                           className="w-full"
                           triggerClassName="text-xs"
-                          menuClassName="max-w-[12rem]"
+                          menuClassName="max-w-[12rem] users-edit-dropdown-menu"
+                          menuScrollClassName="users-edit-dropdown-menu-scroll"
                         />
                         <MultiSelectDropdown
                           options={ADDITIONAL_ROLE_CODES

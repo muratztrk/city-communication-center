@@ -68,41 +68,51 @@ export function AuditLogsPage() {
 
   return (
     <div className="page-stack desktop-page-shell">
-      <header className="sticky-page-header">
-        <div className="page-header-row">
-          <div className="space-y-1">
-            {/* Banner ilk satır = seçili log sekmesi (card #1710; #1700/#1708 ile aynı kalıp). */}
-            <div className="page-kicker">{scopeLabel}</div>
-            <h1 className="page-title">{t('audit.title')}</h1>
-            <p className="page-subtitle">{t('audit.subtitle')}</p>
+      <section className="section-card p-0">
+        <div className="sticky-page-header !rounded-b-none border-0 shadow-none">
+          <div className="page-header-row">
+            <div className="space-y-1">
+              {/* Banner ilk satır = seçili log sekmesi (card #1710). */}
+              <div className="page-kicker">{scopeLabel}</div>
+              <h1 className="page-title">{t('audit.title')}</h1>
+              <p className="page-subtitle">{t('audit.subtitle')}</p>
+            </div>
+            <StatusPill tone="info">{scopedLogs.length} {t('audit.recordCount')}</StatusPill>
           </div>
-          <StatusPill tone="info">{scopedLogs.length} {t('audit.recordCount')}</StatusPill>
         </div>
-      </header>
-
-      <nav className="scope-chips" aria-label={t('audit.title')}>
-        <button
-          type="button"
-          className={`scope-chip ${activeScope === 'system' ? 'active' : ''}`}
-          onClick={() => setScope('system')}
-        >
-          {t('audit.scopes.system')}
-        </button>
-        <button
-          type="button"
-          className={`scope-chip ${activeScope === 'job' ? 'active' : ''}`}
-          onClick={() => setScope('job')}
-        >
-          {t('audit.scopes.job')}
-        </button>
-        <button
-          type="button"
-          className={`scope-chip ${activeScope === 'task' ? 'active' : ''}`}
-          onClick={() => setScope('task')}
-        >
-          {t('audit.scopes.task')}
-        </button>
-      </nav>
+        {/* scope-chip yerine Ayarlar ile aynı tab-bar — aktif sekmede tasarım bozulmasın (card #1712). */}
+        <div className="sticky top-0 z-[12] border-t border-slate-100 bg-white">
+          <div className="tab-bar settings-tab-bar audit-log-tab-bar" role="tablist" aria-label={t('audit.title')}>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeScope === 'system'}
+              className={`tab-button ${activeScope === 'system' ? 'active' : ''}`}
+              onClick={() => setScope('system')}
+            >
+              {t('audit.scopes.system')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeScope === 'job'}
+              className={`tab-button ${activeScope === 'job' ? 'active' : ''}`}
+              onClick={() => setScope('job')}
+            >
+              {t('audit.scopes.job')}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={activeScope === 'task'}
+              className={`tab-button ${activeScope === 'task' ? 'active' : ''}`}
+              onClick={() => setScope('task')}
+            >
+              {t('audit.scopes.task')}
+            </button>
+          </div>
+        </div>
+      </section>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 

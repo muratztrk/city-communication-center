@@ -801,6 +801,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `page-title` `Ayarlar` kalır (card #1708). Ayarlar’da `Vatandaş Akışı` tab’ı yok (card #1707).
 - **Log sayfası üç sekme:** Sistem Log (`Department`/`ApplicationUser`/`TenantSetting`/diğer),
   Talep Log (`Job`), Görev Log (`WorkTask`/`Task`); banner `page-kicker` seçili sekme (card #1710).
+  Sekmeler `tab-bar`/`tab-button` kullanır; `scope-chip` ile aktif görünüm bozulmaz (card #1712).
+- **Departmanlar / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
+  `SingleSelectDropdown` (card #1709). Kullanıcı düzenleme dept/rol menüsünde arama + kompakt satır (card #1706).
+- **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).
 - **Onayla ve Personel Ata self-istek metni (card #1671):**
   `(Görevi kendisi yapmak istiyor)` — sonda nokta yok.
 - **Talep Son Tarih Değiştir (cards #1673/#1666):** Birime Gelen hedef birim yöneticisi

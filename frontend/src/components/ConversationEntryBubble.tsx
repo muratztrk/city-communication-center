@@ -40,6 +40,8 @@ interface ConversationEntryBubbleProps {
   onEditPending?: (entryId: string, content: string) => void | Promise<void>
   onShowTerminalNote?: (entry: ConversationEntryBubbleData) => void
   inboundSenderLabel?: string | null
+  /** Vatandaş Talebi Oluştur modalında balonları biraz küçült (card #1711). */
+  compact?: boolean
 }
 
 export function ConversationEntryBubble({
@@ -54,6 +56,7 @@ export function ConversationEntryBubble({
   onEditPending,
   onShowTerminalNote,
   inboundSenderLabel,
+  compact = false,
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
   const { t, i18n } = useTranslation()
@@ -84,7 +87,7 @@ export function ConversationEntryBubble({
     <div className={`flex flex-col ${isInbound ? 'items-start' : 'items-end'}`}>
       <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
         <div
-          className={`max-w-[min(72%,28rem)] rounded-2xl px-4 py-2.5 text-sm leading-relaxed shadow-md ${
+          className={`${compact ? 'max-w-[min(68%,22rem)] rounded-xl px-3 py-1.5 text-xs' : 'max-w-[min(72%,28rem)] rounded-2xl px-4 py-2.5 text-sm'} leading-relaxed shadow-md ${
             isInbound
               ? 'bg-white text-slate-800 rounded-tl-sm ring-1 ring-black/[0.04]'
               : 'rounded-tr-sm text-white ring-1 ring-white/10'

@@ -9,6 +9,7 @@ import { invalidateDepartments } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { Button } from '../components/ui/button'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
@@ -237,21 +238,32 @@ export function DepartmentsPage() {
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('departments.type')}</span>
-              <select className="field-select" value={newType} onChange={event => setNewType(event.target.value)}>
-                <option value="Müdürlük">{getDepartmentTypeLabel(t, 'Müdürlük')}</option>
-                <option value="Birim">{getDepartmentTypeLabel(t, 'Birim')}</option>
-                <option value="Daire">{getDepartmentTypeLabel(t, 'Daire')}</option>
-                <option value="Administration">{getDepartmentTypeLabel(t, 'Administration')}</option>
-              </select>
+              <SingleSelectDropdown
+                options={(['Müdürlük', 'Birim', 'Daire', 'Administration'] as const).map(type => ({
+                  value: type,
+                  label: getDepartmentTypeLabel(t, type),
+                }))}
+                value={newType}
+                onChange={setNewType}
+                placeholder={t('departments.type')}
+              />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('departments.manager', 'Müdür')}</span>
-              <select className="field-select" value={newManagerUserId} onChange={event => setNewManagerUserId(event.target.value)}>
-                <option value="">{t('common.optional', '— Seçin (opsiyonel)')}</option>
-                {users.filter(item => item.isActive).map(item => (
-                  <option key={item.userId} value={item.userId}>{item.displayName}</option>
-                ))}
-              </select>
+              <SingleSelectDropdown
+                options={[
+                  { value: '', label: t('common.optional', '— Seçin (opsiyonel)') },
+                  ...users.filter(item => item.isActive).map(item => ({
+                    value: item.userId,
+                    label: item.displayName,
+                  })),
+                ]}
+                value={newManagerUserId}
+                onChange={setNewManagerUserId}
+                placeholder={t('common.optional', '— Seçin (opsiyonel)')}
+                searchable
+                searchPlaceholder={t('common.search', 'Ara...')}
+              />
             </label>
             <div className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
               <span>{t('departments.responsibles', 'Sorumlular')}</span>
@@ -295,18 +307,22 @@ export function DepartmentsPage() {
                     <td><StatusPill>{getDepartmentTypeLabel(t, department.departmentType)}</StatusPill></td>
                     <td>
                       {isManagerAssigning ? (
-                        <select
-                          aria-label={t('departments.assignManager', 'Yönetici Ata')}
-                          className="field-select min-w-52"
+                        <SingleSelectDropdown
+                          options={[
+                            { value: '', label: t('departments.noManager', '— Müdür Yok —') },
+                            ...getManagerCandidates().map(item => ({
+                              value: item.userId,
+                              label: item.displayName,
+                            })),
+                          ]}
                           value={department.managerUserId ?? ''}
+                          onChange={value => void assignDepartmentManager(department, value || null)}
+                          placeholder={t('departments.assignManager', 'Yönetici Ata')}
                           disabled={isManagerSaving}
-                          onChange={event => void assignDepartmentManager(department, event.target.value || null)}
-                        >
-                          <option value="">{t('departments.noManager', '— Müdür Yok —')}</option>
-                          {getManagerCandidates().map(item => (
-                            <option key={item.userId} value={item.userId}>{item.displayName}</option>
-                          ))}
-                        </select>
+                          searchable
+                          searchPlaceholder={t('common.search', 'Ara...')}
+                          className="min-w-52"
+                        />
                       ) : (
                         getUserName(department.managerUserId)
                       )}
@@ -387,21 +403,32 @@ export function DepartmentsPage() {
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('departments.type')}</span>
-                <select className="field-select" value={editType} onChange={event => setEditType(event.target.value)}>
-                  <option value="Müdürlük">{getDepartmentTypeLabel(t, 'Müdürlük')}</option>
-                  <option value="Birim">{getDepartmentTypeLabel(t, 'Birim')}</option>
-                  <option value="Daire">{getDepartmentTypeLabel(t, 'Daire')}</option>
-                  <option value="Administration">{getDepartmentTypeLabel(t, 'Administration')}</option>
-                </select>
+                <SingleSelectDropdown
+                  options={(['Müdürlük', 'Birim', 'Daire', 'Administration'] as const).map(type => ({
+                    value: type,
+                    label: getDepartmentTypeLabel(t, type),
+                  }))}
+                  value={editType}
+                  onChange={setEditType}
+                  placeholder={t('departments.type')}
+                />
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
                 <span>{t('departments.manager', 'Müdür')}</span>
-                <select className="field-select" value={editManagerUserId} onChange={event => setEditManagerUserId(event.target.value)}>
-                  <option value="">{t('common.optional', '— Seçin (opsiyonel)')}</option>
-                  {getManagerCandidates().map(item => (
-                    <option key={item.userId} value={item.userId}>{item.displayName}</option>
-                  ))}
-                </select>
+                <SingleSelectDropdown
+                  options={[
+                    { value: '', label: t('common.optional', '— Seçin (opsiyonel)') },
+                    ...getManagerCandidates().map(item => ({
+                      value: item.userId,
+                      label: item.displayName,
+                    })),
+                  ]}
+                  value={editManagerUserId}
+                  onChange={setEditManagerUserId}
+                  placeholder={t('common.optional', '— Seçin (opsiyonel)')}
+                  searchable
+                  searchPlaceholder={t('common.search', 'Ara...')}
+                />
               </label>
               <div className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
                 <span>{t('departments.responsibles', 'Sorumlular')}</span>

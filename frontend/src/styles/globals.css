@@ -1873,6 +1873,19 @@
     color: var(--color-primary);
   }
 
+  /* Kullanıcı düzenleme dept/rol menü satırları kompakt (card #1706 reopen). */
+  .users-edit-dropdown-menu-scroll .dropdown-menu-item {
+    min-height: 1.75rem;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
+  .audit-log-tab-bar {
+    width: fit-content;
+    max-width: 100%;
+  }
+
   .field-textarea {
     min-height: 6.4rem;
     padding: 0.72rem 0.82rem;

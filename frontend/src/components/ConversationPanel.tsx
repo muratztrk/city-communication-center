@@ -39,6 +39,8 @@ interface ConversationPanelProps {
   sendingInternal?: boolean
   /** Talep Oluştur popup'ındaki yardımcı aksiyonları daha kompakt göster. */
   compactActions?: boolean
+  /** Vatandaş Talebi Oluştur modalında konuşma balonlarını küçült (card #1711). */
+  compactBubbles?: boolean
 }
 
 /** İsimden baş harfleri çıkarır (en fazla 2). Harf yoksa null döner. */
@@ -73,7 +75,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const locale = getLocale(i18n.language)
@@ -274,6 +276,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   socialMessageId={entry.socialMessageId ?? socialMessageId}
                   citizenPhone={citizenPhone}
                   theme="light"
+                  compact={compactBubbles}
                   onAddMediaAsAttachment={onAddMediaAsAttachment}
                   canSendPending={canSendPending}
                   onSendPending={() => handleSendPending(entry)}

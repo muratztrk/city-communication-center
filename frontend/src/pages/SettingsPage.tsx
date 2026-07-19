@@ -11,6 +11,7 @@ import { IZMIR_DISTRICTS, getSavedDistrictId, saveDistrictId } from '../data/izm
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
 import { DateTimePicker } from '../components/ui/date-time-picker'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { Toast } from '../components/ui/toast'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
@@ -1355,11 +1356,15 @@ export function SettingsPage() {
                   </label>
                   <label className="grid gap-2 text-sm font-semibold text-slate-700">
                     <span>{t('settings.deploymentMode')}</span>
-                    <select className="field-select" value={tenantSettings.deploymentMode} onChange={event => setTenantSettings(current => ({ ...current, deploymentMode: event.target.value }))}>
-                      {['OnPrem', 'Hosted', 'DedicatedHosted'].map(mode => (
-                        <option key={mode} value={mode}>{getDeploymentModeLabel(t, mode)}</option>
-                      ))}
-                    </select>
+                    <SingleSelectDropdown
+                      options={['OnPrem', 'Hosted', 'DedicatedHosted'].map(mode => ({
+                        value: mode,
+                        label: getDeploymentModeLabel(t, mode),
+                      }))}
+                      value={tenantSettings.deploymentMode}
+                      onChange={deploymentMode => setTenantSettings(current => ({ ...current, deploymentMode }))}
+                      placeholder={t('settings.deploymentMode')}
+                    />
                   </label>
                 </div>
                 <div className="grid gap-4 md:grid-cols-2">
@@ -1392,15 +1397,17 @@ export function SettingsPage() {
             </div>
             <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
               <span>{t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}</span>
-              <select
-                className="field-select"
+              <SingleSelectDropdown
+                options={IZMIR_DISTRICTS.map(district => ({
+                  value: district.id,
+                  label: district.name,
+                }))}
                 value={selectedDistrictId}
-                onChange={event => setSelectedDistrictId(event.target.value)}
-              >
-                {IZMIR_DISTRICTS.map(district => (
-                  <option key={district.id} value={district.id}>{district.name}</option>
-                ))}
-              </select>
+                onChange={setSelectedDistrictId}
+                placeholder={t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}
+                searchable
+                searchPlaceholder={t('common.search', 'Ara...')}
+              />
             </label>
             <div className="inline-actions">
               <Button type="submit">{t('common.save')}</Button>
@@ -1556,11 +1563,12 @@ export function SettingsPage() {
                     </div>
                   ))}
                   <div>
-                    <select
-                      className="field-select"
+                    <SingleSelectDropdown
+                      options={departments
+                        .filter(d => !workingHoursForm.departmentOverrides.some(o => o.departmentId === d.departmentId))
+                        .map(d => ({ value: d.departmentId, label: d.name }))}
                       value=""
-                      onChange={event => {
-                        const deptId = event.target.value
+                      onChange={deptId => {
                         if (!deptId) return
                         const dept = departments.find(d => d.departmentId === deptId)
                         if (!dept) return
@@ -1585,14 +1593,10 @@ export function SettingsPage() {
                           ],
                         } : current)
                       }}
-                    >
-                      <option value="">{t('settings.workingHours.addOverride')}</option>
-                      {departments
-                        .filter(d => !workingHoursForm.departmentOverrides.some(o => o.departmentId === d.departmentId))
-                        .map(d => (
-                          <option key={d.departmentId} value={d.departmentId}>{d.name}</option>
-                        ))}
-                    </select>
+                      placeholder={t('settings.workingHours.addOverride')}
+                      searchable
+                      searchPlaceholder={t('common.search', 'Ara...')}
+                    />
                   </div>
                 </div>
               </>
@@ -1622,16 +1626,17 @@ export function SettingsPage() {
               <>
                 <div className="field-row">
                   <label className="field-label">{t('settings.sms.provider')}</label>
-                  <select
-                    className="field-select"
+                  <SingleSelectDropdown
+                    options={[
+                      { value: 'NetGSM', label: t('settings.sms.providers.NetGSM') },
+                      { value: 'Iletimerkezi', label: t('settings.sms.providers.Iletimerkezi') },
+                      { value: 'Verimor', label: t('settings.sms.providers.Verimor') },
+                      { value: 'Custom', label: t('settings.sms.providers.Custom') },
+                    ]}
                     value={smsForm.provider}
-                    onChange={event => setSmsForm(current => ({ ...current, provider: event.target.value as SmsSettingsUpdate['provider'] }))}
-                  >
-                    <option value="NetGSM">{t('settings.sms.providers.NetGSM')}</option>
-                    <option value="Iletimerkezi">{t('settings.sms.providers.Iletimerkezi')}</option>
-                    <option value="Verimor">{t('settings.sms.providers.Verimor')}</option>
-                    <option value="Custom">{t('settings.sms.providers.Custom')}</option>
-                  </select>
+                    onChange={provider => setSmsForm(current => ({ ...current, provider: provider as SmsSettingsUpdate['provider'] }))}
+                    placeholder={t('settings.sms.provider')}
+                  />
                 </div>
                 {smsForm.provider === 'Custom' && (
                   <div className="field-row">
@@ -1715,10 +1720,15 @@ export function SettingsPage() {
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.protocol')}</span>
-                    <select className="field-select" value={fileStorageForm.nasProtocol} onChange={event => setFileStorageForm(current => ({ ...current, nasProtocol: event.target.value as FileStorageSettingsUpdate['nasProtocol'] }))}>
-                      <option value="SMB/CIFS">SMB/CIFS</option>
-                      <option value="NFS">NFS</option>
-                    </select>
+                    <SingleSelectDropdown
+                      options={[
+                        { value: 'SMB/CIFS', label: 'SMB/CIFS' },
+                        { value: 'NFS', label: 'NFS' },
+                      ]}
+                      value={fileStorageForm.nasProtocol}
+                      onChange={nasProtocol => setFileStorageForm(current => ({ ...current, nasProtocol: nasProtocol as FileStorageSettingsUpdate['nasProtocol'] }))}
+                      placeholder={t('settings.fileStorage.protocol')}
+                    />
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.username')}</span>
@@ -1751,11 +1761,16 @@ export function SettingsPage() {
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.protocol')}</span>
-                    <select className="field-select" value={fileStorageForm.ftpProtocol} onChange={event => setFileStorageForm(current => ({ ...current, ftpProtocol: event.target.value as FileStorageSettingsUpdate['ftpProtocol'] }))}>
-                      <option value="FTP">FTP</option>
-                      <option value="FTPS">FTPS</option>
-                      <option value="SFTP">SFTP</option>
-                    </select>
+                    <SingleSelectDropdown
+                      options={[
+                        { value: 'FTP', label: 'FTP' },
+                        { value: 'FTPS', label: 'FTPS' },
+                        { value: 'SFTP', label: 'SFTP' },
+                      ]}
+                      value={fileStorageForm.ftpProtocol}
+                      onChange={ftpProtocol => setFileStorageForm(current => ({ ...current, ftpProtocol: ftpProtocol as FileStorageSettingsUpdate['ftpProtocol'] }))}
+                      placeholder={t('settings.fileStorage.protocol')}
+                    />
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.username')}</span>
@@ -1818,25 +1833,27 @@ export function SettingsPage() {
                 </div>
                 <div className="field-row">
                   <label className="field-label">{t('settings.syslog.format')}</label>
-                  <select
-                    className="field-select"
+                  <SingleSelectDropdown
+                    options={[
+                      { value: 'Syslog', label: t('settings.syslog.formats.Syslog') },
+                      { value: 'CEF', label: t('settings.syslog.formats.CEF') },
+                    ]}
                     value={syslogForm.format}
-                    onChange={event => setSyslogForm(current => ({ ...current, format: event.target.value as SyslogSettingsUpdate['format'] }))}
-                  >
-                    <option value="Syslog">{t('settings.syslog.formats.Syslog')}</option>
-                    <option value="CEF">{t('settings.syslog.formats.CEF')}</option>
-                  </select>
+                    onChange={format => setSyslogForm(current => ({ ...current, format: format as SyslogSettingsUpdate['format'] }))}
+                    placeholder={t('settings.syslog.format')}
+                  />
                 </div>
                 <div className="field-row">
                   <label className="field-label">{t('settings.syslog.transport')}</label>
-                  <select
-                    className="field-select"
+                  <SingleSelectDropdown
+                    options={[
+                      { value: 'UDP', label: t('settings.syslog.transports.UDP') },
+                      { value: 'TCP', label: t('settings.syslog.transports.TCP') },
+                    ]}
                     value={syslogForm.transport}
-                    onChange={event => setSyslogForm(current => ({ ...current, transport: event.target.value as SyslogSettingsUpdate['transport'] }))}
-                  >
-                    <option value="UDP">{t('settings.syslog.transports.UDP')}</option>
-                    <option value="TCP">{t('settings.syslog.transports.TCP')}</option>
-                  </select>
+                    onChange={transport => setSyslogForm(current => ({ ...current, transport: transport as SyslogSettingsUpdate['transport'] }))}
+                    placeholder={t('settings.syslog.transport')}
+                  />
                 </div>
               </>
             )}
@@ -2039,19 +2056,27 @@ export function SettingsPage() {
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>{t('settings.authAutomaticSignInMode')}</span>
-                  <select aria-label={t('settings.authAutomaticSignInMode')} className="field-select" value={tenantAuthenticationPolicy.automaticSignInMode} onChange={event => setTenantAuthenticationPolicy(current => ({ ...current, automaticSignInMode: event.target.value }))}>
-                    {['Disabled', 'TrustedHeader', 'Negotiate'].map(mode => (
-                      <option key={mode} value={mode}>{t(`settings.authAutomaticSignInModes.${mode}`)}</option>
-                    ))}
-                  </select>
+                  <SingleSelectDropdown
+                    options={['Disabled', 'TrustedHeader', 'Negotiate'].map(mode => ({
+                      value: mode,
+                      label: t(`settings.authAutomaticSignInModes.${mode}`),
+                    }))}
+                    value={tenantAuthenticationPolicy.automaticSignInMode}
+                    onChange={automaticSignInMode => setTenantAuthenticationPolicy(current => ({ ...current, automaticSignInMode }))}
+                    placeholder={t('settings.authAutomaticSignInMode')}
+                  />
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>{t('settings.authSecondFactorProvider')}</span>
-                  <select aria-label={t('settings.authSecondFactorProvider')} className="field-select" value={tenantAuthenticationPolicy.secondFactorProvider} onChange={event => setTenantAuthenticationPolicy(current => ({ ...current, secondFactorProvider: event.target.value }))}>
-                    {['Disabled', 'Mock', 'Webhook'].map(provider => (
-                      <option key={provider} value={provider}>{t(`settings.authSecondFactorProviders.${provider}`)}</option>
-                    ))}
-                  </select>
+                  <SingleSelectDropdown
+                    options={['Disabled', 'Mock', 'Webhook'].map(provider => ({
+                      value: provider,
+                      label: t(`settings.authSecondFactorProviders.${provider}`),
+                    }))}
+                    value={tenantAuthenticationPolicy.secondFactorProvider}
+                    onChange={secondFactorProvider => setTenantAuthenticationPolicy(current => ({ ...current, secondFactorProvider }))}
+                    placeholder={t('settings.authSecondFactorProvider')}
+                  />
                 </label>
               </div>
               <div className="grid gap-4 md:grid-cols-2">
@@ -2388,12 +2413,17 @@ export function SettingsPage() {
                 <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_180px]">
                   <label className="grid gap-2 text-sm font-semibold text-slate-700">
                     <span>{t('settings.routing.targetDepartment')}</span>
-                    <select className="field-select" value={ruleForm.targetDepartmentId} onChange={event => setRuleForm(current => ({ ...current, targetDepartmentId: event.target.value }))}>
-                      <option value="">{t('tasks.selectDepartment')}</option>
-                      {departments.map(department => (
-                        <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                      ))}
-                    </select>
+                    <SingleSelectDropdown
+                      options={departments.map(department => ({
+                        value: department.departmentId,
+                        label: department.name,
+                      }))}
+                      value={ruleForm.targetDepartmentId}
+                      onChange={targetDepartmentId => setRuleForm(current => ({ ...current, targetDepartmentId }))}
+                      placeholder={t('tasks.selectDepartment')}
+                      searchable
+                      searchPlaceholder={t('common.search', 'Ara...')}
+                    />
                   </label>
                   <label className="grid gap-2 text-sm font-semibold text-slate-700">
                     <span>{t('settings.routing.priority')}</span>
@@ -2561,9 +2591,12 @@ export function SettingsPage() {
                   </div>
                   <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
                     <span>Şablon Türü</span>
-                    <select className="field-select" value={templateForm.channel} onChange={e => setTemplateForm(cur => ({ ...cur, channel: e.target.value }))}>
-                      {TEMPLATE_CHANNEL_OPTIONS.map(ch => <option key={ch} value={ch}>{ch}</option>)}
-                    </select>
+                    <SingleSelectDropdown
+                      options={TEMPLATE_CHANNEL_OPTIONS.map(ch => ({ value: ch, label: ch }))}
+                      value={templateForm.channel}
+                      onChange={channel => setTemplateForm(cur => ({ ...cur, channel }))}
+                      placeholder="Şablon Türü"
+                    />
                   </label>
                 </div>
                 ) : (
@@ -2731,9 +2764,12 @@ export function SettingsPage() {
                   {templateForm.autoReply ? (
                     <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
                       <span>Cevap Süresi</span>
-                      <select className="field-select" value={templateForm.replyDelaySecs} onChange={e => setTemplateForm(cur => ({ ...cur, replyDelaySecs: Number(e.target.value) }))}>
-                        {TEMPLATE_REPLY_DELAY_OPTIONS.map(s => <option key={s} value={s}>{s} saniye</option>)}
-                      </select>
+                      <SingleSelectDropdown
+                        options={TEMPLATE_REPLY_DELAY_OPTIONS.map(s => ({ value: String(s), label: `${s} saniye` }))}
+                        value={String(templateForm.replyDelaySecs)}
+                        onChange={value => setTemplateForm(cur => ({ ...cur, replyDelaySecs: Number(value) }))}
+                        placeholder="Cevap Süresi"
+                      />
                     </label>
                   ) : null}
                 </div>

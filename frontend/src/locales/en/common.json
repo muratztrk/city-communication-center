@@ -845,7 +845,12 @@
     "entity": "Entity",
     "action": "Action",
     "detail": "Detail",
-    "empty": "No records found yet"
+    "empty": "No records found yet",
+    "scopes": {
+      "system": "System Log",
+      "job": "Request Log",
+      "task": "Task Log"
+    }
   },
   "settings": {
     "title": "Settings",
@@ -1279,7 +1284,11 @@
       "DepartmentUpdated": "Department updated",
       "DepartmentDeleted": "Department deleted",
       "DirectorySyncRequested": "Directory sync requested",
-      "JobSupportAdded": "Support entry added"
+      "JobSupportAdded": "Support entry added",
+      "UserCreated": "User created",
+      "UserUpdated": "User updated",
+      "UserDeleted": "User deleted",
+      "TenantSettingsUpdated": "Organization settings updated"
     },
     "auditLog": {
       "title": "Audit Trail",

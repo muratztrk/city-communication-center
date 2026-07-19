@@ -1,16 +1,31 @@
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
+import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { StatusPill } from '../components/ui/status-pill'
+import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { formatAuditNotes, getAuditActionLabel, getLocale } from '../utils/localization'
+
+type AuditLogScope = 'system' | 'job' | 'task'
+
+function readScope(value: string | null): AuditLogScope {
+  return value === 'job' || value === 'task' ? value : 'system'
+}
+
+function resolveLogScope(entityType: string): AuditLogScope {
+  if (entityType === 'Job') return 'job'
+  if (entityType === 'WorkTask' || entityType === 'Task') return 'task'
+  return 'system'
+}
 
 function getActionTone(action: string) {
   if (action.includes('Created') || action.includes('Approved') || action.includes('Completed')) {
     return 'success' as const
   }
 
-  if (action.includes('Rejected')) {
+  if (action.includes('Rejected') || action.includes('Deleted') || action.includes('Cancelled')) {
     return 'danger' as const
   }
 
@@ -23,14 +38,29 @@ function getActionTone(action: string) {
 
 export function AuditLogsPage() {
   const { t, i18n } = useTranslation()
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeScope = readScope(searchParams.get('scope'))
+
   const auditLogsQuery = useQuery({
     queryKey: queryKeys.auditLogs.list(),
     queryFn: () => api.getAuditLogs(),
   })
-  const logs = auditLogsQuery.data ?? []
   const error = auditLogsQuery.error
     ? auditLogsQuery.error instanceof Error ? auditLogsQuery.error.message : t('common.error')
     : ''
+
+  const scopedLogs = useMemo(
+    () => (auditLogsQuery.data ?? []).filter(log => resolveLogScope(log.entityType) === activeScope),
+    [activeScope, auditLogsQuery.data],
+  )
+
+  const scopeLabel = t(`audit.scopes.${activeScope}`)
+
+  const setScope = (scope: AuditLogScope) => {
+    const next = new URLSearchParams(searchParams)
+    next.set('scope', scope)
+    setSearchParams(next, { replace: true })
+  }
 
   if (auditLogsQuery.isLoading) {
     return <div className="loading">{t('common.loading')}</div>
@@ -41,12 +71,38 @@ export function AuditLogsPage() {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
+            {/* Banner ilk satır = seçili log sekmesi (card #1710; #1700/#1708 ile aynı kalıp). */}
+            <div className="page-kicker">{scopeLabel}</div>
             <h1 className="page-title">{t('audit.title')}</h1>
             <p className="page-subtitle">{t('audit.subtitle')}</p>
           </div>
-          <StatusPill tone="info">{logs.length} {t('audit.recordCount')}</StatusPill>
+          <StatusPill tone="info">{scopedLogs.length} {t('audit.recordCount')}</StatusPill>
         </div>
       </header>
+
+      <nav className="scope-chips" aria-label={t('audit.title')}>
+        <button
+          type="button"
+          className={`scope-chip ${activeScope === 'system' ? 'active' : ''}`}
+          onClick={() => setScope('system')}
+        >
+          {t('audit.scopes.system')}
+        </button>
+        <button
+          type="button"
+          className={`scope-chip ${activeScope === 'job' ? 'active' : ''}`}
+          onClick={() => setScope('job')}
+        >
+          {t('audit.scopes.job')}
+        </button>
+        <button
+          type="button"
+          className={`scope-chip ${activeScope === 'task' ? 'active' : ''}`}
+          onClick={() => setScope('task')}
+        >
+          {t('audit.scopes.task')}
+        </button>
+      </nav>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 
@@ -62,7 +118,7 @@ export function AuditLogsPage() {
               </tr>
             </thead>
             <tbody>
-              {logs.map(log => (
+              {scopedLogs.map(log => (
                 <tr key={log.auditLogId}>
                   <td>{new Date(log.eventTimeUtc).toLocaleString(getLocale(i18n.language))}</td>
                   <td>
@@ -77,12 +133,8 @@ export function AuditLogsPage() {
                   <td>{log.details ? formatAuditNotes(t, log.details) : t('common.none')}</td>
                 </tr>
               ))}
-              {logs.length === 0 ? (
-                <tr>
-                  <td colSpan={4}>
-                    <div className="empty-state">{t('audit.empty')}</div>
-                  </td>
-                </tr>
+              {scopedLogs.length === 0 ? (
+                <TableEmptyStateRows columnCount={4} message={t('audit.empty')} />
               ) : null}
             </tbody>
           </table>

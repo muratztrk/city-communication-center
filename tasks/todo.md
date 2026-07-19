@@ -1,3 +1,6 @@
+## Round — #1710
+- #1710: Log = Sistem/Talep/Görev sekmeleri; User/TenantSettings audit yazılır; kicker=sekme.
+
 ## Round — #1706 reopen
 - #1706 reopen: Kullanıcı düzenleme dept/rol dropdown hücreleri daraltıldı (11rem/9rem).
 

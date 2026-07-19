@@ -109,6 +109,17 @@ public sealed class UpdateTenantSettingsCommandHandler : ICommandHandler<UpdateT
         settings.Domain = null;
         settings.DefaultSlaHours = request.DefaultSlaHours;
 
+        _dbContext.AuditLogs.Add(new AuditLog
+        {
+            AuditLogId = Guid.NewGuid(),
+            TenantId = request.TenantId,
+            EntityType = nameof(TenantSetting),
+            EntityId = settings.TenantSettingId.ToString(),
+            Action = "TenantSettingsUpdated",
+            ActorUserId = actorUserId,
+            Details = $"Tenant settings updated (displayName='{settings.DisplayName}', slaHours={settings.DefaultSlaHours}).",
+        });
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;
     }

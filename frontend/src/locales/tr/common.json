@@ -851,7 +851,12 @@
     "entity": "Varlık",
     "action": "İşlem",
     "detail": "Detay",
-    "empty": "Henüz kayıt bulunmuyor"
+    "empty": "Henüz kayıt bulunmuyor",
+    "scopes": {
+      "system": "Sistem Log",
+      "job": "Talep Log",
+      "task": "Görev Log"
+    }
   },
   "settings": {
     "title": "Ayarlar",
@@ -1314,7 +1319,11 @@
       "DepartmentUpdated": "Müdürlük güncellendi",
       "DepartmentDeleted": "Müdürlük silindi",
       "DirectorySyncRequested": "Dizin senkronizasyonu istendi",
-      "JobSupportAdded": "Destek kaydı eklendi"
+      "JobSupportAdded": "Destek kaydı eklendi",
+      "UserCreated": "Kullanıcı oluşturuldu",
+      "UserUpdated": "Kullanıcı güncellendi",
+      "UserDeleted": "Kullanıcı silindi",
+      "TenantSettingsUpdated": "Kurum ayarları güncellendi"
     },
     "auditLog": {
       "title": "Denetim İzi",

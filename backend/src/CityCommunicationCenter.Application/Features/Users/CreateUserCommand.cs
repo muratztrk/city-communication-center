@@ -267,6 +267,17 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             DateTimeOffset.UtcNow,
             cancellationToken);
 
+        _dbContext.AuditLogs.Add(new AuditLog
+        {
+            AuditLogId = Guid.NewGuid(),
+            TenantId = tenantId,
+            EntityType = nameof(ApplicationUser),
+            EntityId = user.UserId.ToString(),
+            Action = "UserCreated",
+            ActorUserId = context.UserId,
+            Details = $"User '{user.DisplayName}' created (role={user.RoleCode}).",
+        });
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         var departments = await UserDepartmentAccess.GetMembershipDepartmentSummariesAsync(
             _dbContext,

@@ -58,6 +58,17 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
                 setters => setters.SetProperty(task => task.AssignedUserId, (Guid?)null),
                 cancellationToken);
 
+        _dbContext.AuditLogs.Add(new AuditLog
+        {
+            AuditLogId = Guid.NewGuid(),
+            TenantId = tenantId,
+            EntityType = nameof(ApplicationUser),
+            EntityId = user.UserId.ToString(),
+            Action = "UserDeleted",
+            ActorUserId = currentUserId,
+            Details = $"User '{user.DisplayName}' deleted.",
+        });
+
         _dbContext.Users.Remove(user);
         await _dbContext.SaveChangesAsync(cancellationToken);
 

@@ -144,6 +144,17 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
             user.UpdatedAtUtc.Value,
             cancellationToken);
 
+        _dbContext.AuditLogs.Add(new AuditLog
+        {
+            AuditLogId = Guid.NewGuid(),
+            TenantId = tenantId,
+            EntityType = nameof(ApplicationUser),
+            EntityId = user.UserId.ToString(),
+            Action = "UserUpdated",
+            ActorUserId = context.UserId,
+            Details = $"User '{user.DisplayName}' updated (role={user.RoleCode}, active={user.IsActive}).",
+        });
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         var departments = await UserDepartmentAccess.GetMembershipDepartmentSummariesAsync(
             _dbContext,

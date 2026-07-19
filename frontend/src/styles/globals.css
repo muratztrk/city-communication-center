@@ -377,12 +377,16 @@
   .detail-modal-shell--my-request .my-request-title-heading-edit__textarea {
     /* Sabit genişlik şart: başlık kabı inline-flex (shrink-to-fit) olduğundan
        yüzdeli width/max-width döngüsel çözülür ve kutu içerik kadar çöker
-       (min(100%,16rem)'in 3 turdur görünmemesinin nedeni). */
-    width: 11rem;
+       (min(100%,16rem)'in 3 turdur görünmemesinin nedeni). 5. tur (#1691):
+       genişlik eski kutuyla aynı (13.5rem ≈ 216px), font bir kademe büyük;
+       kompakt yükseklik/padding korunur. */
+    width: 13.5rem;
     min-height: 1.65rem;
     max-height: 4rem;
     padding: 0.25rem 0.45rem;
-    font-size: 0.72rem;
+    /* !important şart: kısa-viewport bloğu (max-height:900) 0.75rem'i sonradan
+       uyguluyor; müşteri ekranında font büyümesi ancak böyle görünür (#1691 5. tur). */
+    font-size: 0.8125rem !important;
     border-radius: 0.5rem;
     resize: none;
     overflow-y: auto;

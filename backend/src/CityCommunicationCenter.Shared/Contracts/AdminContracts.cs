@@ -161,4 +161,10 @@ public sealed record AuditLogResponse(
     string Action,
     Guid? ActorUserId,
     DateTimeOffset EventTimeUtc,
-    string? Details);
+    string? Details,
+    // Log Detay sütunu bildirim gövdesiyle aynı kalıbı kurabilsin diye (card #1713):
+    // numara (T-/G-), başlık, aktör adı ve bildirimlerin kullandığı Notes alanı.
+    string? Notes = null,
+    string? ActorDisplayName = null,
+    string? EntityNumber = null,
+    string? EntityTitle = null);

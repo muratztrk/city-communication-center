@@ -590,6 +590,11 @@ export interface AuditLog {
   actorUserId: string | null;
   eventTimeUtc: string;
   details: string | null;
+  // Log Detay sütununun bildirim gövdesi kalıbı için (card #1713).
+  notes?: string | null;
+  actorDisplayName?: string | null;
+  entityNumber?: string | null;
+  entityTitle?: string | null;
 }
 
 export interface EntityAuditLogEntry {

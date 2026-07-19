@@ -285,6 +285,13 @@
 
 # Trello "Doing" list — implementation tracking
 
+## Round 388 — Başlık kutusu ayarı + Log Detay bildirim kalıbı + kullanıcı formu tek satır
+- [x] `6a5c6daa` (#1691, 5. tur) — Genişlik eski kutuya döndü (13.5rem = 216px), font 0.72→0.8125rem (`!important` şart: kısa-viewport bloğu 0.75rem'i sonradan eziyordu — harness'ta yakalandı), kompakt yükseklik korundu (216×28px/13px doğrulandı).
+- [x] `6a5cc16e` (#1713 reopen) — Log Detay sütunu bildirim gövdesi kalıbında: BE `GetAuditLogsQuery` numara/başlık/aktör/Notes ile zenginleştirildi (AsNoTracking + Take 5000, tenant filtreleri doğrulandı); FE `buildDetailText` "aktör — Talep No: T-yyyy-n — başlık — ifade" kurar; durum geçişleri etiketli, son tarihler dd.MM.yyyy HH:mm; teknik/İngilizce oluşturma notları bildirimdeki gibi bastırılır; Sistem Log eski formatta.
+- [x] `6a5d2b47` (#1739, 2. reopen) — Yeni Kullanıcı: Birim/Ek birimler/Rol/Ek roller/Aktif/Oluştur tek lg satırında 6 kolon; Aktif+Oluştur boş etiketle kontrol hizasında (harness: 6 hücre aynı satır, kontroller aynı y).
+- [x] /review: 5 bulgu — 3 düzeltildi (tracked unbounded load, not bastırma paritesi, locale anahtarı), 2 bilinçli atlandı (vatandaş-kökeni sapması: origin plumbing ayrı iş; mobil font sarması kabul).
+- [x] Doğrulama: backend build + 46 test; frontend build + lint; ölçüler/ISO çevirisi harness'ta computed-style ile.
+
 ## Round 380 — Başlık textbox + talep son tarih bildirimi
 - [x] `6a5c6daa` (#1691, 4. tur) — Talep Detayları başlık edit kutusu gerçekten küçüldü: 216×41 → 176×26 px (mobilde 120px). Önceki 3 turun görünmeme nedeni bulundu: kap inline-flex (shrink-to-fit) olduğundan `min(100%, 16rem)` hep %100'e çözülüyordu; sabit `width: 11rem` + kompakt padding gerekiyordu (harness computed-style kanıtlı).
 - [x] `6a5b5724` (#1677 reopen) — `UpdateJobCommand`: son tarih değiştiyse `JobDueDateUpdated` audit'i HER ZAMAN yazılır ("yalnızca son tarih" koşulu kaldırıldı — kozmetik alan farkı bildirimi yutuyordu); jenerik `JobUpdated` yalnız başka alan da değiştiyse. Kök nedenlerden biri de düzeltildi: `toDateTimePickerValue` UTC dilimi kullanıyordu → picker saati 3 saat erken gösterip her kayıtta son tarihi −3 saat kaydırıyordu; ortak `utils/dateTimePicker.ts` (yerel duvar-saati) JobsPage/TasksPage/RoutineTaskPage/myRequestEditDraft'a bağlandı.

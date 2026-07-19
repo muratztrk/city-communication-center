@@ -12,6 +12,44 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { AuditLog } from '../types/platform'
 import { formatAuditNotes, getAuditActionLabel, getLocale } from '../utils/localization'
+import type { TFunction } from 'i18next'
+
+/**
+ * Detay sütunu, Bildirimler'deki gövdeyle AYNI kalıbı kurar (card #1713 reopen):
+ * durum geçişi → "numara — başlık — Eski Durum -> Yeni Durum";
+ * son tarih → "numara — başlık — dd.MM.yyyy HH:mm";
+ * diğerleri → "aktör — [Talep No:] numara — başlık — insan-dili not".
+ */
+function buildDetailText(t: TFunction, log: AuditLog): string {
+  // Kart kapsamı Talep/Görev logları; Sistem Log satırları eski sade formatta kalır.
+  if (log.entityType !== 'Job' && log.entityType !== 'WorkTask' && log.entityType !== 'Task') {
+    return log.details ? (formatAuditNotes(t, log.details) || '—') : '—'
+  }
+
+  const source = log.notes?.trim() ? log.notes : (log.details ?? '')
+  const parts: string[] = []
+  const isDueDate = log.action === 'TaskDueDateUpdated' || log.action === 'JobDueDateUpdated'
+  const isTransition = log.action === 'TaskStatusChanged' && (log.details ?? '').includes('->')
+
+  if (isTransition || isDueDate) {
+    if (log.entityNumber) parts.push(log.entityNumber)
+    if (log.entityTitle) parts.push(log.entityTitle)
+    const note = formatAuditNotes(t, isTransition ? (log.details ?? '') : source)
+    if (note) parts.push(note)
+  } else {
+    if (log.actorDisplayName) parts.push(log.actorDisplayName)
+    if (log.entityNumber) {
+      parts.push(log.entityType === 'Job'
+        ? `${t('audit.jobNumberPrefix', 'Talep No')}: ${log.entityNumber}`
+        : log.entityNumber)
+    }
+    if (log.entityTitle) parts.push(log.entityTitle)
+    const note = formatAuditNotes(t, source)
+    if (note) parts.push(note)
+  }
+
+  return parts.length > 0 ? parts.join(' — ') : '—'
+}
 
 type AuditLogScope = 'system' | 'job' | 'task'
 
@@ -74,7 +112,7 @@ export function AuditLogsPage() {
       .map(log => ({
         ...log,
         actionLabel: getAuditActionLabel(t, log.action),
-        detailText: log.details ? (formatAuditNotes(t, log.details) || '—') : '—',
+        detailText: buildDetailText(t, log),
         dateText: new Date(log.eventTimeUtc).toLocaleString(locale),
       }))
     const filtered = rows.filter(row => matchesFilters(row, (key, item) => {

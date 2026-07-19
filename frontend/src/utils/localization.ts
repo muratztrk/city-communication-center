@@ -145,9 +145,26 @@ function formatAuditNoteValue(t: TFunction, key: string, value: string): string 
 const TECHNICAL_NOTE_KEYS = new Set(['Status', 'Targets', 'OwnerUsers', 'CreatedTasks', 'Dept'])
 const TASK_STATUS_TRANSITION_RE = /^([A-Za-z][A-Za-z0-9]*)\s*->\s*([A-Za-z][A-Za-z0-9]*)$/
 
+// Bildirim FormatNote'unun bastırdığı teknik/İngilizce oluşturma notları (card #1713 reopen):
+// bunlar Detay'da ham İngilizce + GUID olarak görünmemeli, bildirimdeki gibi hiç görünmemeli.
+const SUPPRESSED_NOTE_PREFIXES = [
+  'Routine task created',
+  'Created after job owner approval',
+  'Created from job owner user selection',
+  'Created task',
+  'Created a task',
+  'Task created',
+  'Task was created',
+]
+
 export function formatAuditNotes(t: TFunction, notes: string): string {
   const trimmedNotes = notes.trim()
   if (!trimmedNotes) return trimmedNotes
+
+  const lowerNotes = trimmedNotes.toLowerCase()
+  if (SUPPRESSED_NOTE_PREFIXES.some(prefix => lowerNotes.startsWith(prefix.toLowerCase()))) {
+    return ''
+  }
 
   const transitionMatch = trimmedNotes.match(TASK_STATUS_TRANSITION_RE)
   if (transitionMatch) {
@@ -199,7 +216,17 @@ export function formatAuditNotes(t: TFunction, notes: string): string {
     })
   }
 
-  return trimmedNotes
+  // Bildirimlerdeki FormatNote ile aynı ISO zaman çevirisi (card #1667 / #1713):
+  // "O" round-trip (+00:00) ve Zulu (Z) tarihleri yerel dd.MM.yyyy HH:mm olur.
+  return trimmedNotes.replace(
+    /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})\b/g,
+    match => {
+      const date = new Date(match)
+      if (Number.isNaN(date.getTime())) return match
+      const pad = (n: number) => String(n).padStart(2, '0')
+      return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()} ${pad(date.getHours())}:${pad(date.getMinutes())}`
+    },
+  )
 }
 
 export function getDeploymentModeLabel(t: TFunction, deploymentMode: string): string {

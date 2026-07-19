@@ -870,6 +870,7 @@
     "entity": "Entity",
     "action": "Action",
     "detail": "Detail",
+    "jobNumberPrefix": "Request No",
     "empty": "No records found yet",
     "scopes": {
       "system": "System Log",

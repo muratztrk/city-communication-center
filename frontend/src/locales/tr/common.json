@@ -876,6 +876,7 @@
     "entity": "Varlık",
     "action": "İşlem",
     "detail": "Detay",
+    "jobNumberPrefix": "Talep No",
     "empty": "Henüz kayıt bulunmuyor",
     "scopes": {
       "system": "Sistem Log",

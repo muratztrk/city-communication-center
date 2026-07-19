@@ -625,9 +625,9 @@ export function UsersPage() {
             </label>
           )}
 
-          {/* Sol: Birim + Ek birimler; sağ: Rol / Ek roller / Aktif / Oluştur (card #1739 reopen). */}
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)] lg:items-start">
-            <div className="grid gap-4">
+          {/* Birim / Ek birimler / Rol / Ek roller / Aktif / Oluştur TEK satırda yan yana
+              (card #1739 2. reopen); Aktif ve Oluştur boş etiketle kontrol hizasına oturur. */}
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)_auto_auto] lg:items-start">
               <div className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.department')}</span>
                 <SingleSelectDropdown
@@ -663,9 +663,7 @@ export function UsersPage() {
                 />
                 <span className="helper-copy">{t('users.additionalDepartmentsHelp', 'Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.')}</span>
               </div>
-            </div>
 
-            <div className="grid gap-4">
               <div className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.role')}</span>
                 <SingleSelectDropdown
@@ -701,15 +699,20 @@ export function UsersPage() {
                 <span className="helper-copy">{t('users.additionalRolesHelp', 'Kullanıcı birincil role ek olarak birden fazla yetki alabilir.')}</span>
               </div>
 
-              <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-                <input className="field-checkbox" checked={newUser.isActive} type="checkbox" onChange={event => setNewUser(current => ({ ...current, isActive: event.target.checked }))} />
-                {t('users.active')}
-              </label>
-
-              <div className="inline-actions">
-                <Button disabled={!ldapModeReady} type="submit">{t('common.create')}</Button>
+              <div className="grid gap-2">
+                <span aria-hidden="true" className="hidden text-sm font-semibold lg:block">&nbsp;</span>
+                <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+                  <input className="field-checkbox" checked={newUser.isActive} type="checkbox" onChange={event => setNewUser(current => ({ ...current, isActive: event.target.checked }))} />
+                  {t('users.active')}
+                </label>
               </div>
-            </div>
+
+              <div className="grid gap-2">
+                <span aria-hidden="true" className="hidden text-sm font-semibold lg:block">&nbsp;</span>
+                <div className="inline-actions">
+                  <Button disabled={!ldapModeReady} type="submit">{t('common.create')}</Button>
+                </div>
+              </div>
           </div>
 
           {newUser.roleCode === 'Manager' && newUser.departmentId && getDepartmentManager(newUser.departmentId) ? (

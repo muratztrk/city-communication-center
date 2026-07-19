@@ -8,7 +8,10 @@ public sealed record UpdateUserCommand(
     IReadOnlyCollection<Guid>? AdditionalDepartmentIds,
     string RoleCode,
     IReadOnlyCollection<string>? AdditionalRoleCodes,
-    bool IsActive) : ICommand<UserSummaryResponse>;
+    bool IsActive,
+    string? DisplayName = null,
+    string? Email = null,
+    string? Title = null) : ICommand<UserSummaryResponse>;
 
 public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
 {
@@ -26,6 +29,21 @@ public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCom
             .NotEmpty()
             .Must(value => Enum.TryParse<RoleCode>(value, true, out _))
             .WithMessage(localizer["ValidationRoleRequired"]);
+
+        RuleFor(command => command.DisplayName)
+            .NotEmpty()
+            .MaximumLength(200)
+            .When(command => command.DisplayName is not null)
+            .WithMessage(localizer["ValidationDisplayNameRequired"]);
+
+        RuleFor(command => command.Email)
+            .EmailAddress()
+            .When(command => !string.IsNullOrWhiteSpace(command.Email))
+            .WithMessage(localizer["ValidationEmailRequired"]);
+
+        RuleFor(command => command.Title)
+            .MaximumLength(200)
+            .When(command => command.Title is not null);
     }
 }
 
@@ -79,6 +97,16 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
                 request.DepartmentId,
                 user.UserId,
                 cancellationToken);
+        }
+
+        // Yerel (Manual) kullanıcıda Ad Soyad / Ünvan / e-posta güncellenir (card #1705).
+        // LDAP profil alanları dizin kaynağından gelir; burada değiştirilmez.
+        // FE Manual düzenlemede DisplayName gönderir; yoksa yalnız birim/rol/aktif güncellenir.
+        if (user.UserSource == UserSource.Manual && request.DisplayName is not null)
+        {
+            user.DisplayName = request.DisplayName.Trim();
+            user.Email = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
+            user.Title = string.IsNullOrWhiteSpace(request.Title) ? null : request.Title.Trim();
         }
 
         user.DepartmentId = request.DepartmentId;

@@ -320,6 +320,9 @@ export const api = {
     roleCode: string
     additionalRoleCodes?: string[]
     isActive: boolean
+    displayName?: string
+    email?: string | null
+    title?: string | null
   }): Promise<User> {
     const response = await fetchWithCredentials(`${API_BASE}/users/${userId}`, {
       method: 'PUT',

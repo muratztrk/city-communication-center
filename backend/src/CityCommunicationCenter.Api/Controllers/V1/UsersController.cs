@@ -96,7 +96,16 @@ public sealed class UsersController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var response = await _sender.Send(
-            new UpdateUserCommand(userId, request.DepartmentId, request.AdditionalDepartmentIds, request.RoleCode, request.AdditionalRoleCodes, request.IsActive),
+            new UpdateUserCommand(
+                userId,
+                request.DepartmentId,
+                request.AdditionalDepartmentIds,
+                request.RoleCode,
+                request.AdditionalRoleCodes,
+                request.IsActive,
+                request.DisplayName,
+                request.Email,
+                request.Title),
             cancellationToken);
 
         return Ok(response);

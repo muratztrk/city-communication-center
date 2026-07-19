@@ -57,7 +57,10 @@ public sealed record UpdateUserRequest(
     IReadOnlyCollection<Guid>? AdditionalDepartmentIds,
     string RoleCode,
     IReadOnlyCollection<string>? AdditionalRoleCodes,
-    bool IsActive);
+    bool IsActive,
+    string? DisplayName = null,
+    string? Email = null,
+    string? Title = null);
 
 public sealed record UserLookupResponse(
     Guid UserId,

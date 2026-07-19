@@ -1,3 +1,7 @@
+## Round — #1705 / #1706
+- #1705: Yerel kullanıcı düzenlemede Ad Soyad/Ünvan/e-posta editable; birim+rol SingleSelect.
+- #1706: MultiSelectDropdown portal+fixed — tablo hücresinde iç içe/binme yok.
+
 ## Round — #1704
 - #1704: Dashboard pie lejant scroll yalnız 6+ satırda (`> 6`).
 

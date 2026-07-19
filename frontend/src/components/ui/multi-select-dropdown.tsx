@@ -1,5 +1,6 @@
 import { Check, ChevronDown, X } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { cn } from '../../lib/cn'
 
 export interface MultiSelectOption {
@@ -34,14 +35,39 @@ export function MultiSelectDropdown({
 }: MultiSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
+  const [menuStyle, setMenuStyle] = useState<{ top?: number; bottom?: number; left: number; width: number }>({ left: 0, width: 0 })
   const selectedSet = useMemo(() => new Set(value), [value])
   const selectedOptions = useMemo(() => options.filter(option => selectedSet.has(option.value)), [options, selectedSet])
 
+  const updateMenuPosition = useCallback(() => {
+    const rect = rootRef.current?.getBoundingClientRect()
+    if (!rect) return
+    const width = Math.max(rect.width, 220)
+    const left = Math.min(rect.left, Math.max(8, window.innerWidth - width - 8))
+    setMenuStyle({
+      left,
+      width,
+      ...(openUp ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
+    })
+  }, [openUp])
+
+  useEffect(() => {
+    if (!open) return
+    window.addEventListener('scroll', updateMenuPosition, true)
+    window.addEventListener('resize', updateMenuPosition)
+    return () => {
+      window.removeEventListener('scroll', updateMenuPosition, true)
+      window.removeEventListener('resize', updateMenuPosition)
+    }
+  }, [open, updateMenuPosition])
+
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
-      if (rootRef.current && !rootRef.current.contains(event.target as Node)) {
-        setOpen(false)
-      }
+      const target = event.target as Node
+      if (rootRef.current?.contains(target)) return
+      if (menuRef.current?.contains(target)) return
+      setOpen(false)
     }
 
     document.addEventListener('pointerdown', handlePointerDown)
@@ -73,7 +99,10 @@ export function MultiSelectDropdown({
         )}
         aria-expanded={open}
         disabled={disabled}
-        onClick={() => setOpen(current => !current)}
+        onClick={() => {
+          if (!open) updateMenuPosition()
+          setOpen(current => !current)
+        }}
       >
         <span className="flex min-w-0 flex-1 flex-wrap gap-1.5">
           {selectedOptions.length === 0 ? (
@@ -94,11 +123,19 @@ export function MultiSelectDropdown({
         <ChevronDown className={cn('size-4 shrink-0 text-slate-400 transition-transform', open ? 'rotate-180' : '')} />
       </button>
 
-      {open ? (
-        <div className={cn(
-          'dropdown-menu-panel absolute left-0 right-0 z-40 flex max-h-72 flex-col',
-          openUp ? 'bottom-full mb-2' : 'mt-2',
-        )}>
+      {open ? createPortal(
+        <div
+          ref={menuRef}
+          // Tablo hücrelerinde absolute menü komşu sütunlara biniyordu (card #1706) —
+          // SingleSelect ile aynı portal + fixed katman.
+          className="dropdown-menu-panel fixed z-[9999] flex max-h-72 flex-col"
+          style={{
+            left: menuStyle.left,
+            top: menuStyle.top,
+            bottom: menuStyle.bottom,
+            width: menuStyle.width,
+          }}
+        >
           <div className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-3 py-1.5">
             <span className="text-xs font-semibold text-slate-500">{selectedOptions.length} / {options.length}</span>
             {selectedOptions.length > 0 ? (
@@ -107,7 +144,6 @@ export function MultiSelectDropdown({
               </button>
             ) : null}
           </div>
-          {/* Sadece personel listesi kayar; "Seç" butonu altta sabit kalır. */}
           {options.length === 0 ? (
             <div className="px-3 py-2 text-sm font-semibold text-slate-500">{emptyText}</div>
           ) : (
@@ -128,7 +164,6 @@ export function MultiSelectDropdown({
               })}
             </div>
           )}
-          {/* Sağ altta sabit: kırmızı "Çıkış" (seçim yapmadan kapat) + yeşil "Seç" butonu. */}
           <div className="flex shrink-0 justify-end gap-2 border-t border-slate-100 px-2 py-2">
             <button
               type="button"
@@ -145,7 +180,8 @@ export function MultiSelectDropdown({
               Seç
             </button>
           </div>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </div>
   )

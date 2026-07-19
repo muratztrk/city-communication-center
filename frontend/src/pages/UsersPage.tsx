@@ -14,6 +14,7 @@ import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
@@ -72,7 +73,16 @@ export function UsersPage() {
   const [error, setError] = useState('')
   const [newUser, setNewUser] = useState(DEFAULT_USER_FORM)
   const [editingUserId, setEditingUserId] = useState<string | null>(null)
-  const [editForm, setEditForm] = useState({ departmentId: '', additionalDepartmentIds: [] as string[], roleCode: '', additionalRoleCodes: [] as string[], isActive: true })
+  const [editForm, setEditForm] = useState({
+    displayName: '',
+    title: '',
+    email: '',
+    departmentId: '',
+    additionalDepartmentIds: [] as string[],
+    roleCode: '',
+    additionalRoleCodes: [] as string[],
+    isActive: true,
+  })
   const [directoryQuery, setDirectoryQuery] = useState('')
   const [directoryResults, setDirectoryResults] = useState<DirectoryUserLookup[]>([])
   const [selectedDirectoryUser, setSelectedDirectoryUser] = useState<DirectoryUserLookup | null>(null)
@@ -253,6 +263,9 @@ export function UsersPage() {
   const startEditing = (user: User) => {
     setEditingUserId(user.userId)
     setEditForm({
+      displayName: user.displayName ?? '',
+      title: user.title ?? '',
+      email: user.email ?? '',
       departmentId: user.departmentId,
       additionalDepartmentIds: getUserDepartmentIds(user).filter(id => id !== user.departmentId),
       roleCode: user.roleCode,
@@ -265,8 +278,14 @@ export function UsersPage() {
     setEditingUserId(null)
   }
 
-  const handleUpdateUser = async (userId: string) => {
+  const handleUpdateUser = async (userId: string, userSource: string) => {
     setError('')
+
+    const isManual = userSource === 'Manual'
+    if (isManual && !editForm.displayName.trim()) {
+      setError(t('users.displayNameRequired', 'Ad soyad zorunludur.'))
+      return
+    }
 
     if (editForm.roleCode === 'Manager' && editForm.departmentId) {
       const existingManager = getDepartmentManager(editForm.departmentId, userId)
@@ -277,7 +296,18 @@ export function UsersPage() {
     }
 
     try {
-      await api.updateUser(userId, editForm)
+      await api.updateUser(userId, {
+        departmentId: editForm.departmentId,
+        additionalDepartmentIds: editForm.additionalDepartmentIds,
+        roleCode: editForm.roleCode,
+        additionalRoleCodes: editForm.additionalRoleCodes,
+        isActive: editForm.isActive,
+        ...(isManual ? {
+          displayName: editForm.displayName.trim(),
+          email: editForm.email.trim() || null,
+          title: editForm.title.trim() || null,
+        } : {}),
+      })
       setEditingUserId(null)
       invalidateUsers(queryClient)
       loadData()
@@ -648,25 +678,60 @@ export function UsersPage() {
                   <tr key={user.userId} className="bg-slate-50">
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{index + 1}</td>
                     <td>{user.username || t('common.none')}</td>
-                    <td className="font-semibold">{user.displayName}</td>
-                    <td className="max-w-[10rem]"><span className="block truncate text-slate-500 text-sm" title={user.title ?? undefined}>{user.title || '-'}</span></td>
-                    <td>{user.email || t('common.none')}</td>
+                    <td>
+                      {user.userSource === 'Manual' ? (
+                        <input
+                          className="field-input min-w-[10rem] text-sm font-semibold"
+                          value={editForm.displayName}
+                          onChange={e => setEditForm(c => ({ ...c, displayName: e.target.value }))}
+                          aria-label={t('users.displayName')}
+                        />
+                      ) : (
+                        <span className="font-semibold">{user.displayName}</span>
+                      )}
+                    </td>
+                    <td className="max-w-[10rem]">
+                      {user.userSource === 'Manual' ? (
+                        <input
+                          className="field-input w-full text-sm"
+                          value={editForm.title}
+                          onChange={e => setEditForm(c => ({ ...c, title: e.target.value }))}
+                          aria-label={t('users.jobTitle')}
+                        />
+                      ) : (
+                        <span className="block truncate text-slate-500 text-sm" title={user.title ?? undefined}>{user.title || '-'}</span>
+                      )}
+                    </td>
+                    <td>
+                      {user.userSource === 'Manual' ? (
+                        <input
+                          className="field-input min-w-[12rem] text-sm"
+                          type="email"
+                          value={editForm.email}
+                          onChange={e => setEditForm(c => ({ ...c, email: e.target.value }))}
+                          aria-label={t('users.email')}
+                        />
+                      ) : (
+                        <span>{user.email || t('common.none')}</span>
+                      )}
+                    </td>
                     <td>
                       <div className="grid min-w-[16rem] gap-2">
-                        <select
-                          className="field-select text-sm"
-                          value={editForm.departmentId}
-                          onChange={e => setEditForm(c => ({
-                            ...c,
-                            departmentId: e.target.value,
-                            additionalDepartmentIds: c.additionalDepartmentIds.filter(id => id !== e.target.value),
+                        <SingleSelectDropdown
+                          options={departments.map(department => ({
+                            value: department.departmentId,
+                            label: department.name,
                           }))}
-                        >
-                          <option value="">{t('tasks.selectDepartment')}</option>
-                          {departments.map(department => (
-                            <option key={department.departmentId} value={department.departmentId}>{department.name}</option>
-                          ))}
-                        </select>
+                          value={editForm.departmentId}
+                          onChange={departmentId => setEditForm(c => ({
+                            ...c,
+                            departmentId,
+                            additionalDepartmentIds: c.additionalDepartmentIds.filter(id => id !== departmentId),
+                          }))}
+                          placeholder={t('tasks.selectDepartment')}
+                          emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
+                          triggerClassName="text-sm"
+                        />
                         <MultiSelectDropdown
                           options={departments
                             .filter(department => department.departmentId !== editForm.departmentId)
@@ -675,20 +740,26 @@ export function UsersPage() {
                           onChange={additionalDepartmentIds => setEditForm(c => ({ ...c, additionalDepartmentIds }))}
                           placeholder={t('users.additionalDepartmentsShort', 'Ek birimler')}
                           emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
+                          triggerClassName="text-sm"
                         />
                       </div>
                     </td>
                     <td>
                       <div className="grid min-w-[14rem] gap-2">
-                        <select className="field-select text-sm" value={editForm.roleCode} onChange={e => setEditForm(c => ({
-                          ...c,
-                          roleCode: e.target.value,
-                          additionalRoleCodes: c.additionalRoleCodes.filter(role => role !== e.target.value),
-                        }))}>
-                          {PRIMARY_ROLE_CODES.map(roleCode => (
-                            <option key={roleCode} value={roleCode}>{getRoleLabel(t, roleCode)}</option>
-                          ))}
-                        </select>
+                        <SingleSelectDropdown
+                          options={PRIMARY_ROLE_CODES.map(roleCode => ({
+                            value: roleCode,
+                            label: getRoleLabel(t, roleCode),
+                          }))}
+                          value={editForm.roleCode}
+                          onChange={roleCode => setEditForm(c => ({
+                            ...c,
+                            roleCode,
+                            additionalRoleCodes: c.additionalRoleCodes.filter(role => role !== roleCode),
+                          }))}
+                          placeholder={t('users.role')}
+                          triggerClassName="text-sm"
+                        />
                         <MultiSelectDropdown
                           options={ADDITIONAL_ROLE_CODES
                             .filter(roleCode => roleCode !== editForm.roleCode)
@@ -697,6 +768,7 @@ export function UsersPage() {
                           onChange={additionalRoleCodes => setEditForm(c => ({ ...c, additionalRoleCodes }))}
                           placeholder={t('users.additionalRolesShort', 'Ek roller')}
                           emptyText={t('users.additionalRolesEmpty', 'Seçilebilir ek rol bulunmuyor.')}
+                          triggerClassName="text-sm"
                         />
                       </div>
                     </td>
@@ -709,7 +781,7 @@ export function UsersPage() {
                     </td>
                     <td className="actions-column">
                       <div className="row-actions">
-                        <Button size="sm" type="button" onClick={() => handleUpdateUser(user.userId)}>{t('common.save')}</Button>
+                        <Button size="sm" type="button" onClick={() => handleUpdateUser(user.userId, user.userSource)}>{t('common.save')}</Button>
                         <Button size="sm" type="button" variant="secondary" onClick={cancelEditing}>{t('common.cancel')}</Button>
                         {editForm.roleCode === 'Manager' && editForm.departmentId && getDepartmentManager(editForm.departmentId, user.userId) ? (
                           <span className="text-xs font-medium text-amber-700" title={t('users.managerConflict', { name: getDepartmentManager(editForm.departmentId, user.userId)!.displayName })}>

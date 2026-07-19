@@ -1,3 +1,6 @@
+## Round 385 — #1740
+- #1740: Yeni kullanıcı E-posta placeholder `ornek@belediye.bel.tr`.
+
 ## Round 384 — #1733/#1735/#1737/#1738/#1739/#1729/#1736
 - #1733: Ayarlar tab buton metinleri büyütüldü.
 - #1735/#1737: LDAP başlık solda, Anlık senkron sağda (Kullanıcılar/Birimler).

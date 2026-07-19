@@ -843,7 +843,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   “LDAP Kullanıcı Çek” solda, “Anlık LDAP Kullanıcı Senkronize Et” sağda (card #1735);
   Birimler’de “LDAP Birim Çek” solda, senkron sağda (card #1737). LDAP dizin e-postası
   yalnız `mail` attribute’tur — boşsa form E-posta alanı boş kalır, UPN ile doldurulmaz
-  (card #1734). Ek görev birimleri placeholder “Ek birim seçiniz...”; multi-select’te
+  (card #1734). Yeni kullanıcı E-posta placeholder’ı `ornek@belediye.bel.tr` (card #1740).
+  Ek görev birimleri placeholder “Ek birim seçiniz...”; multi-select’te
   arama satırı var; Rol/Ek roller/Aktif/Oluştur ek birimler kolonunun sağında (card #1739).
   Birimi Düzenle dropdown’ları `<label>` ile sarılmaz — dış tıklayınca kapanır (card #1729).
 - **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,

@@ -507,9 +507,7 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("SourceType")
                         .IsRequired()
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("text")
-                        .HasDefaultValue("Manual")
                         .HasColumnName("sourcetype");
 
                     b.Property<Guid>("TenantId")

@@ -825,9 +825,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi `Yönetici` (card #1720).
 - **Kurum sekmesi sağ kolon:** üstte Kurum Konumu, altta Hafta Sonu SLA; sol Kurum Bilgisi ile
   alt border hizalı (`items-stretch` + sağ kolon `flex-1`) (card #1715).
-- **Departmanlar/Kullanıcılar grid:** FilterableTh + sort + TablePagination (card #1724).
-  Kullanıcılar Rol StatusPill metni ortalı; son sütun başlığı İşlemler; oluşturma İptal kırmızı
-  (cards #1721/#1722/#1725). Yeni kullanıcı Rol/Ek roller `items-start` hizalı (card #1718).
+- **Departmanlar/Kullanıcılar grid:** FilterableTh + sort + TablePagination; kolon genişlikleri
+  `users-table`/`departments-table` ile orantılı (card #1724). Kullanıcılar Rol StatusPill ortalı;
+  İşlemler’de kalem+Düzenle / çöp+Sil (cards #1722/#1725). Banner `+Yeni…` açıkken İptal
+  destructive kırmızı; form altındaki ekstra İptal yok (card #1721). Yeni kullanıcı Rol/Ek roller
+  `items-start` (card #1718). LDAP formunda başlığın solunda tıklanabilir
+  “Anlık LDAP Birim Senkronize Et” (departman toplu çek / kullanıcı anlık arama yenile —
+  cards #1717/#1730).
 - **Rol Sayfa Yetkileri:** standart header yüksekliği + TablePagination default 25 (card #1726).
 - **Otomatik Yönlendirme:** Yönlendirme Kuralları ve Yönlendirme Testi UI yok (card #1727).
 - **Mobil detay popup başlığı:** title case (ALL CAPS değil); çok kelimede 2. satır; X sağ üst

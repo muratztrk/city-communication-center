@@ -500,6 +500,8 @@
     "pullAllLdap": "Pull All LDAP Units",
     "pullAllLdapWorking": "Pulling LDAP units...",
     "pullAllLdapSuccess": "{{count}} new unit(s) created from LDAP.",
+    "liveLdapSync": "Sync LDAP Units Now",
+    "liveLdapSyncWorking": "Syncing LDAP units...",
     "ldapReadOnly": "LDAP unit — cannot be modified"
   },
   "users": {
@@ -543,6 +545,10 @@
     "directorySearch": "Directory Search",
     "directorySearchDescription": "Search the LDAP directory, pick a user, then assign department and role before linking.",
     "directoryLinkHint": "This flow creates a linked application user; only linked LDAP records can sign in.",
+    "liveLdapSync": "Sync LDAP Users Now",
+    "liveLdapSyncWorking": "Syncing LDAP users...",
+    "liveLdapSyncNeedQuery": "Type at least 2 characters in the search box to sync.",
+    "liveLdapSyncSuccess": "Refreshed {{count}} LDAP user(s).",
     "directorySearchAria": "Search directory user",
     "directorySearchPlaceholder": "Type at least 2 characters to search LDAP",
     "directorySearchEmpty": "No matching directory users were found",

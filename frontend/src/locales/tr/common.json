@@ -503,6 +503,8 @@
     "pullAllLdap": "LDAP Tüm Birimleri Çek",
     "pullAllLdapWorking": "LDAP birimleri çekiliyor...",
     "pullAllLdapSuccess": "{{count}} yeni birim LDAP'tan oluşturuldu.",
+    "liveLdapSync": "Anlık LDAP Birim Senkronize Et",
+    "liveLdapSyncWorking": "LDAP birimleri senkronize ediliyor...",
     "ldapReadOnly": "LDAP birimi — müdahale edilemez"
   },
   "users": {
@@ -546,6 +548,10 @@
     "directorySearch": "Dizin Araması",
     "directorySearchDescription": "LDAP dizininde arama yapın, kullanıcıyı seçin ve rol/müdürlük atayarak bağlayın.",
     "directoryLinkHint": "Bu akış yeni bir uygulama kullanıcısı bağlar; yalnızca bağlı LDAP kayıtları giriş yapabilir.",
+    "liveLdapSync": "Anlık LDAP Birim Senkronize Et",
+    "liveLdapSyncWorking": "LDAP dizini senkronize ediliyor...",
+    "liveLdapSyncNeedQuery": "Senkronize etmek için arama kutusuna en az 2 karakter yazın.",
+    "liveLdapSyncSuccess": "{{count}} LDAP kullanıcısı yenilendi.",
     "directorySearchAria": "Dizin kullanıcısı ara",
     "directorySearchPlaceholder": "LDAP aramak için en az 2 karakter yazın",
     "directorySearchEmpty": "Eşleşen dizin kullanıcısı bulunamadı",

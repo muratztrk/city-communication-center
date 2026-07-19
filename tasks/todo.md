@@ -1,3 +1,9 @@
+## Round 381 — #1721/#1724/#1725/#1717/#1730
+- #1721: Banner İptal kırmızı; formdaki yanlış İptal kaldırıldı.
+- #1725: Kullanıcılar İşlemler’de Düzenle/Sil metinleri.
+- #1724: users/departments tablo kolon genişlikleri ölçeklendi.
+- #1717/#1730: LDAP başlık solunda “Anlık LDAP Birim Senkronize Et” linki.
+
 ## Round 378 — #1713/#1715/#1717–#1728
 - #1721/#1725/#1722/#1718: İptal kırmızı; İşlemler; Rol pill ortalı; Rol/Ek roller hizası.
 - #1724: Departmanlar/Kullanıcılar FilterableTh+sort+paging.

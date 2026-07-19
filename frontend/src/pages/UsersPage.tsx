@@ -87,6 +87,8 @@ export function UsersPage() {
   const [directoryQuery, setDirectoryQuery] = useState('')
   const [directoryResults, setDirectoryResults] = useState<DirectoryUserLookup[]>([])
   const [selectedDirectoryUser, setSelectedDirectoryUser] = useState<DirectoryUserLookup | null>(null)
+  const [directorySyncLoading, setDirectorySyncLoading] = useState(false)
+  const [directorySyncMessage, setDirectorySyncMessage] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
   const canManageUsers = currentUser?.role === 'SystemAdmin'
@@ -175,6 +177,33 @@ export function UsersPage() {
       isActive = false
     }
   }, [debouncedDirectoryQuery, shouldSearchDirectory, t])
+
+  const handleLiveLdapUserSync = async () => {
+    if (!managementContext?.ldapEnabled) {
+      return
+    }
+
+    const query = directoryQuery.trim()
+    if (query.length < 2) {
+      setDirectorySyncMessage(t('users.liveLdapSyncNeedQuery'))
+      return
+    }
+
+    setDirectorySyncLoading(true)
+    setDirectorySyncMessage(t('users.liveLdapSyncWorking'))
+    setError('')
+
+    try {
+      const results = await api.searchDirectoryUsers(query)
+      setDirectoryResults(results)
+      setDirectorySyncMessage(t('users.liveLdapSyncSuccess', { count: results.length }))
+    } catch (syncError) {
+      setDirectorySyncMessage(null)
+      setError(syncError instanceof Error ? syncError.message : t('common.error'))
+    } finally {
+      setDirectorySyncLoading(false)
+    }
+  }
 
   useEffect(() => {
     if (!managementContext || !showForm) {
@@ -392,7 +421,11 @@ export function UsersPage() {
             <p className="page-subtitle">{t('users.subtitle')}</p>
           </div>
           {canManageUsers ? (
-            <Button type="button" onClick={showForm ? closeCreateForm : openCreateForm}>
+            <Button
+              type="button"
+              variant={showForm ? 'destructive' : 'primary'}
+              onClick={showForm ? closeCreateForm : openCreateForm}
+            >
               {showForm ? t('common.cancel') : t('users.new')}
             </Button>
           ) : null}
@@ -454,11 +487,20 @@ export function UsersPage() {
 
           {createMode === 'ldap' ? (
             <div className="section-card page-stack">
-              <div>
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <button
+                  type="button"
+                  className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
+                  disabled={directorySyncLoading}
+                  onClick={() => void handleLiveLdapUserSync()}
+                >
+                  {directorySyncLoading ? t('users.liveLdapSyncWorking') : t('users.liveLdapSync')}
+                </button>
                 <h3 className="text-lg font-extrabold text-slate-950">{t('users.directorySearch')}</h3>
-                <p className="helper-copy">{t('users.directorySearchDescription')}</p>
-                <p className="helper-copy">{t('users.directoryLinkHint')}</p>
               </div>
+              <p className="helper-copy">{t('users.directorySearchDescription')}</p>
+              <p className="helper-copy">{t('users.directoryLinkHint')}</p>
+              {directorySyncMessage ? <p className="helper-copy">{directorySyncMessage}</p> : null}
               <AutocompleteField
                 ariaLabel={t('users.directorySearchAria')}
                 emptyMessage={t('users.directorySearchEmpty')}
@@ -679,7 +721,6 @@ export function UsersPage() {
 
           <div className="inline-actions">
             <Button disabled={!ldapModeReady} type="submit">{t('common.create')}</Button>
-            <Button type="button" variant="destructive" onClick={closeCreateForm}>{t('common.cancel')}</Button>
           </div>
         </form>
       ) : null}
@@ -866,12 +907,14 @@ export function UsersPage() {
                     {canManageUsers ? (
                       <td className="actions-column">
                         <div className="row-actions">
-                          <button className="icon-action" title={t('common.edit')} aria-label={t('common.edit')} type="button" onClick={() => startEditing(user)}>
+                          <button className="icon-action icon-action--labeled" title={t('common.edit')} aria-label={t('common.edit')} type="button" onClick={() => startEditing(user)}>
                             <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                            <span>{t('common.edit')}</span>
                           </button>
                           {user.userId !== currentUser?.userId ? (
-                            <button className="icon-action danger" title={t('common.delete')} aria-label={t('common.delete')} type="button" onClick={() => handleDeleteUser(user)}>
+                            <button className="icon-action icon-action--labeled danger" title={t('common.delete')} aria-label={t('common.delete')} type="button" onClick={() => handleDeleteUser(user)}>
                               <Trash2 className="size-3.5" />
+                              <span>{t('common.delete')}</span>
                             </button>
                           ) : null}
                         </div>

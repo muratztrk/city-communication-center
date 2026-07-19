@@ -371,6 +371,7 @@ export function DepartmentsPage() {
           </div>
           <Button
             type="button"
+            variant={showForm ? 'destructive' : 'primary'}
             onClick={() => {
               setShowForm(current => {
                 const next = !current
@@ -450,45 +451,41 @@ export function DepartmentsPage() {
 
           {createMode === 'ldap' && ldapEnabled ? (
             <div className="section-card page-stack">
-              <div>
-                <h3 className="text-lg font-extrabold text-slate-950">{t('departments.directorySearch')}</h3>
-                <p className="helper-copy">{t('departments.directorySearchDescription')}</p>
-              </div>
-              <div className="flex flex-wrap items-start gap-3">
-                <Button
+              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <button
                   type="button"
-                  variant="secondary"
+                  className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
                   disabled={pullAllLdapLoading}
                   onClick={() => void handlePullAllLdapDepartments()}
                 >
-                  {pullAllLdapLoading ? t('departments.pullAllLdapWorking') : t('departments.pullAllLdap')}
-                </Button>
-                <div className="min-w-[16rem] flex-1">
-                  <AutocompleteField
-                    ariaLabel={t('departments.directorySearchAria')}
-                    emptyMessage={t('departments.directorySearchEmpty')}
-                    loadingMessage={t('departments.directorySearchLoading')}
-                    options={directoryOptions}
-                    placeholder={t('departments.directorySearchPlaceholder')}
-                    value={directoryQuery}
-                    onOptionSelect={option => {
-                      setSelectedLdapDepartment(option.label)
-                      setDirectoryQuery(option.label)
-                      setNewName(option.label)
-                    }}
-                    onValueChange={value => {
-                      setDirectoryQuery(value)
-                      if (value.trim().length < 2) {
-                        setDirectoryResults([])
-                      }
-                      if (!value.trim()) {
-                        setSelectedLdapDepartment(null)
-                        setNewName('')
-                      }
-                    }}
-                  />
-                </div>
+                  {pullAllLdapLoading ? t('departments.liveLdapSyncWorking') : t('departments.liveLdapSync')}
+                </button>
+                <h3 className="text-lg font-extrabold text-slate-950">{t('departments.directorySearch')}</h3>
               </div>
+              <p className="helper-copy">{t('departments.directorySearchDescription')}</p>
+              <AutocompleteField
+                ariaLabel={t('departments.directorySearchAria')}
+                emptyMessage={t('departments.directorySearchEmpty')}
+                loadingMessage={t('departments.directorySearchLoading')}
+                options={directoryOptions}
+                placeholder={t('departments.directorySearchPlaceholder')}
+                value={directoryQuery}
+                onOptionSelect={option => {
+                  setSelectedLdapDepartment(option.label)
+                  setDirectoryQuery(option.label)
+                  setNewName(option.label)
+                }}
+                onValueChange={value => {
+                  setDirectoryQuery(value)
+                  if (value.trim().length < 2) {
+                    setDirectoryResults([])
+                  }
+                  if (!value.trim()) {
+                    setSelectedLdapDepartment(null)
+                    setNewName('')
+                  }
+                }}
+              />
               {pullAllLdapMessage ? <p className="helper-copy">{pullAllLdapMessage}</p> : null}
               {selectedLdapDepartment ? (
                 <div className="section-card">
@@ -518,23 +515,13 @@ export function DepartmentsPage() {
             >
               {t('common.create')}
             </Button>
-            <Button
-              type="button"
-              variant="destructive"
-              onClick={() => {
-                resetCreateForm()
-                setShowForm(false)
-              }}
-            >
-              {t('common.cancel')}
-            </Button>
           </div>
         </form>
       ) : null}
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table">
+          <table className="data-table departments-table">
             <thead>
               <tr>
                 <FilterableTh

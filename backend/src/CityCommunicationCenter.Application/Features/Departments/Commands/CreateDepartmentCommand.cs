@@ -10,7 +10,8 @@ public sealed record CreateDepartmentCommand(
     Guid? ParentDepartmentId,
     Guid? ManagerUserId,
     Guid? DeputyManagerUserId,
-    IReadOnlyCollection<Guid>? ResponsibleUserIds) : ICommand<DepartmentResponse>;
+    IReadOnlyCollection<Guid>? ResponsibleUserIds,
+    string? SourceType = null) : ICommand<DepartmentResponse>;
 
 public sealed class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartmentCommand>
 {
@@ -39,6 +40,7 @@ public sealed class CreateDepartmentCommandHandler : ICommandHandler<CreateDepar
             TenantId = request.TenantId,
             Name = request.Name.Trim(),
             DepartmentType = request.DepartmentType.Trim(),
+            SourceType = NormalizeSourceType(request.SourceType),
             ParentDepartmentId = request.ParentDepartmentId,
             ManagerUserId = request.ManagerUserId,
             DeputyManagerUserId = request.DeputyManagerUserId,
@@ -60,5 +62,15 @@ public sealed class CreateDepartmentCommandHandler : ICommandHandler<CreateDepar
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         return DepartmentResponseFactory.Create(entity);
+    }
+
+    private static string NormalizeSourceType(string? sourceType)
+    {
+        if (string.Equals(sourceType, "Ldap", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Ldap";
+        }
+
+        return "Manual";
     }
 }

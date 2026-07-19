@@ -38,7 +38,8 @@ public sealed class DepartmentsController : ApiControllerBase
                 request.ParentDepartmentId,
                 request.ManagerUserId,
                 request.DeputyManagerUserId,
-                request.ResponsibleUserIds),
+                request.ResponsibleUserIds,
+                request.SourceType),
             cancellationToken);
 
         return CreatedAtAction(nameof(GetAll), response);

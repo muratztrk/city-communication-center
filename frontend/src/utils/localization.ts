@@ -139,16 +139,34 @@ function formatAuditNoteValue(t: TFunction, key: string, value: string): string 
   return value
 }
 
+// Bildirim akışındaki FormatNote (GetNotificationsQuery.cs) ile aynı mantık: Status=/Targets=/
+// OwnerUsers=/CreatedTasks=/Dept= gibi saf teknik notlar kullanıcıya "Durum: X, Hedefler: N" gibi
+// ham haliyle gösterilmez — Status varsa sadece durum etiketi, yoksa boş döner (card #1713).
+const TECHNICAL_NOTE_KEYS = new Set(['Status', 'Targets', 'OwnerUsers', 'CreatedTasks', 'Dept'])
+const TASK_STATUS_TRANSITION_RE = /^([A-Za-z][A-Za-z0-9]*)\s*->\s*([A-Za-z][A-Za-z0-9]*)$/
+
 export function formatAuditNotes(t: TFunction, notes: string): string {
   const trimmedNotes = notes.trim()
   if (!trimmedNotes) return trimmedNotes
+
+  const transitionMatch = trimmedNotes.match(TASK_STATUS_TRANSITION_RE)
+  if (transitionMatch) {
+    const [, fromStatus, toStatus] = transitionMatch
+    return `${getAuditStatusLabel(t, fromStatus)} -> ${getAuditStatusLabel(t, toStatus)}`
+  }
 
   const parts = trimmedNotes.split(/,\s*/)
   const keyValueParts = parts
     .map(part => part.match(/^([A-Za-z][A-Za-z0-9]*)=(.*)$/))
     .filter((match): match is RegExpMatchArray => Boolean(match))
 
-  if (keyValueParts.length === parts.length) {
+  if (keyValueParts.length === parts.length && keyValueParts.length > 0) {
+    const isAllTechnical = keyValueParts.every(match => TECHNICAL_NOTE_KEYS.has(match[1]))
+    if (isAllTechnical) {
+      const statusMatch = keyValueParts.find(match => match[1] === 'Status')
+      return statusMatch ? getAuditStatusLabel(t, statusMatch[2]) : ''
+    }
+
     return keyValueParts
       .map(match => {
         const [, key, rawValue] = match

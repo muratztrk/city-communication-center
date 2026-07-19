@@ -80,9 +80,14 @@ public sealed class UpdateDepartmentCommandHandler : ICommandHandler<UpdateDepar
             request.ResponsibleUserIds,
             cancellationToken);
 
+        var isLdapSourced = string.Equals(entity.SourceType, "Ldap", StringComparison.OrdinalIgnoreCase);
         var oldName = entity.Name;
-        entity.Name = request.Name.Trim();
-        entity.DepartmentType = request.DepartmentType.Trim();
+        if (!isLdapSourced)
+        {
+            entity.Name = request.Name.Trim();
+            entity.DepartmentType = request.DepartmentType.Trim();
+        }
+
         entity.ManagerUserId = request.ManagerUserId;
         entity.DeputyManagerUserId = request.DeputyManagerUserId;
         entity.ResponsibleUserIdsJson = DepartmentResponseFactory.SerializeResponsibleUserIds(request.ResponsibleUserIds);

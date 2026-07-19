@@ -17,6 +17,7 @@ import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
+import { TablePagination } from '../components/ui/table-pagination'
 import { useAuth } from '../context/AuthContext'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Department, DirectoryUserLookup, User, UserManagementContext } from '../types/platform'
@@ -351,6 +352,27 @@ export function UsersPage() {
     () => sortedUsers.filter(u => userMatchesFilters(u)),
     [sortedUsers, userMatchesFilters],
   )
+  const [usersPageSize, setUsersPageSize] = useState(25)
+  const [usersPage, setUsersPage] = useState(1)
+  const usersTotalCount = columnFilteredUsers.length
+  const usersTotalPages = Math.max(1, Math.ceil(usersTotalCount / usersPageSize) || 1)
+  const usersSafePage = Math.min(usersPage, usersTotalPages)
+  const pagedUsers = useMemo(() => {
+    const start = (usersSafePage - 1) * usersPageSize
+    return columnFilteredUsers.slice(start, start + usersPageSize)
+  }, [usersSafePage, usersPageSize, columnFilteredUsers])
+  const handleUserFilter = (key: string, value: string) => {
+    setUserFilter(key, value)
+    setUsersPage(1)
+  }
+  const handleUsersSort = (key: string) => {
+    toggleUsersSort(key)
+    setUsersPage(1)
+  }
+  const handleUsersPageSizeChange = (size: number) => {
+    setUsersPageSize(size)
+    setUsersPage(1)
+  }
   const summary = {
     total: users.length,
     active: users.filter(user => user.isActive).length,
@@ -609,7 +631,7 @@ export function UsersPage() {
             <span className="helper-copy">{t('users.additionalDepartmentsHelp', 'Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.')}</span>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:items-end">
+          <div className="grid gap-4 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:items-start">
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('users.role')}</span>
               <SingleSelectDropdown
@@ -657,7 +679,7 @@ export function UsersPage() {
 
           <div className="inline-actions">
             <Button disabled={!ldapModeReady} type="submit">{t('common.create')}</Button>
-            <Button type="button" variant="secondary" onClick={closeCreateForm}>{t('common.cancel')}</Button>
+            <Button type="button" variant="destructive" onClick={closeCreateForm}>{t('common.cancel')}</Button>
           </div>
         </form>
       ) : null}
@@ -668,22 +690,22 @@ export function UsersPage() {
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
-                <FilterableTh filterKey="username" filterValue={userFilters['username'] ?? ''} onFilter={setUserFilter} sortKey="username" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.username')}</FilterableTh>
-                <FilterableTh filterKey="displayName" filterValue={userFilters['displayName'] ?? ''} onFilter={setUserFilter} sortKey="displayName" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.displayName')}</FilterableTh>
-                <FilterableTh filterKey="title" filterValue={userFilters['title'] ?? ''} onFilter={setUserFilter} sortKey="title" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.jobTitle')}</FilterableTh>
-                <FilterableTh filterKey="email" filterValue={userFilters['email'] ?? ''} onFilter={setUserFilter} sortKey="email" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.email')}</FilterableTh>
-                <FilterableTh filterKey="departmentId" filterValue={userFilters['departmentId'] ?? ''} onFilter={setUserFilter}>{t('users.department')}</FilterableTh>
-                <FilterableTh filterKey="roleCode" filterValue={userFilters['roleCode'] ?? ''} onFilter={setUserFilter} sortKey="roleCode" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.role')}</FilterableTh>
-                <FilterableTh filterKey="userSource" filterValue={userFilters['userSource'] ?? ''} onFilter={setUserFilter} sortKey="userSource" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.source')}</FilterableTh>
-                <FilterableTh filterKey="isActive" filterValue={userFilters['isActive'] ?? ''} onFilter={setUserFilter} sortKey="isActive" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={toggleUsersSort}>{t('users.status')}</FilterableTh>
-                {canManageUsers ? <th className="actions-column" aria-label={t('common.actions')} /> : null}
+                <FilterableTh filterKey="username" filterValue={userFilters['username'] ?? ''} onFilter={handleUserFilter} sortKey="username" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.username')}</FilterableTh>
+                <FilterableTh filterKey="displayName" filterValue={userFilters['displayName'] ?? ''} onFilter={handleUserFilter} sortKey="displayName" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.displayName')}</FilterableTh>
+                <FilterableTh filterKey="title" filterValue={userFilters['title'] ?? ''} onFilter={handleUserFilter} sortKey="title" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.jobTitle')}</FilterableTh>
+                <FilterableTh filterKey="email" filterValue={userFilters['email'] ?? ''} onFilter={handleUserFilter} sortKey="email" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.email')}</FilterableTh>
+                <FilterableTh filterKey="departmentId" filterValue={userFilters['departmentId'] ?? ''} onFilter={handleUserFilter}>{t('users.department')}</FilterableTh>
+                <FilterableTh filterKey="roleCode" filterValue={userFilters['roleCode'] ?? ''} onFilter={handleUserFilter} sortKey="roleCode" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.role')}</FilterableTh>
+                <FilterableTh filterKey="userSource" filterValue={userFilters['userSource'] ?? ''} onFilter={handleUserFilter} sortKey="userSource" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.source')}</FilterableTh>
+                <FilterableTh filterKey="isActive" filterValue={userFilters['isActive'] ?? ''} onFilter={handleUserFilter} sortKey="isActive" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.status')}</FilterableTh>
+                {canManageUsers ? <th className="actions-column">{t('common.actions')}</th> : null}
               </tr>
             </thead>
             <tbody>
-              {columnFilteredUsers.map((user, index) => (
+              {pagedUsers.map((user, index) => (
                 editingUserId === user.userId ? (
                   <tr key={user.userId} className="bg-slate-50">
-                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{index + 1}</td>
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(usersSafePage - 1) * usersPageSize + index + 1}</td>
                     <td>{user.username || t('common.none')}</td>
                     <td>
                       {user.userSource === 'Manual' ? (
@@ -812,7 +834,7 @@ export function UsersPage() {
                   </tr>
                 ) : (
                   <tr key={user.userId}>
-                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{index + 1}</td>
+                    <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(usersSafePage - 1) * usersPageSize + index + 1}</td>
                     <td>{user.username || t('common.none')}</td>
                     <td className="font-semibold">{user.displayName}</td>
                     <td className="max-w-[10rem]"><span className="block truncate text-slate-500 text-sm" title={user.title ?? undefined}>{user.title || '-'}</span></td>
@@ -858,7 +880,7 @@ export function UsersPage() {
                   </tr>
                 )
               ))}
-              {columnFilteredUsers.length === 0 ? (
+              {pagedUsers.length === 0 ? (
                 <TableEmptyStateRows
                   columnCount={canManageUsers ? 10 : 9}
                   message={t('users.empty')}
@@ -867,6 +889,13 @@ export function UsersPage() {
             </tbody>
           </table>
         </div>
+        <TablePagination
+          totalCount={usersTotalCount}
+          pageSize={usersPageSize}
+          currentPage={usersSafePage}
+          onPageSizeChange={handleUsersPageSizeChange}
+          onPageChange={setUsersPage}
+        />
       </section>
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>

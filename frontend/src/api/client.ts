@@ -207,6 +207,7 @@ export const api = {
     departmentType: string
     managerUserId?: string | null
     responsibleUserIds?: string[]
+    sourceType?: string
   }): Promise<Department> {
     const response = await fetchWithCredentials(`${API_BASE}/departments`, {
       method: 'POST',
@@ -217,6 +218,7 @@ export const api = {
         parentDepartmentId: null,
         managerUserId: payload.managerUserId ?? null,
         responsibleUserIds: payload.responsibleUserIds ?? [],
+        sourceType: payload.sourceType ?? null,
       }),
     })
 

@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save, PenLine, RefreshCw } from 'lucide-react'
+import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save, RefreshCw } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -16,6 +16,7 @@ import { Toast } from '../components/ui/toast'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { StatusPill } from '../components/ui/status-pill'
+import { TablePagination } from '../components/ui/table-pagination'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
 import { DEFAULT_TENANT_APPEARANCE, resolveTenantAppearance } from '../lib/theme'
@@ -302,13 +303,6 @@ const EMPTY_TENANT_AUTH_POLICY: TenantAuthenticationPolicy = {
   canIssueSecondFactor: false,
 }
 
-const EMPTY_RULE = {
-  ruleName: '',
-  keywords: '',
-  targetDepartmentId: '',
-  priority: 50,
-}
-
 const EMPTY_SOCIAL_FORMS: ChannelForms = {
   x: { apiKey: '', apiSecret: '', accessToken: '', accessTokenSecret: '', bearerToken: '' },
   facebook: { appId: '', appSecret: '', pageAccessToken: '', pageId: '', webhookVerifyToken: '' },
@@ -411,11 +405,6 @@ export function SettingsPage() {
   const [loadedAppearance, setLoadedAppearance] = useState<TenantAppearanceInput>(appearanceForm)
   const [socialForms, setSocialForms] = useState<ChannelForms>(EMPTY_SOCIAL_FORMS)
   const [activeChannel, setActiveChannel] = useState<ChannelType | null>(null)
-  const [showRuleForm, setShowRuleForm] = useState(false)
-  const [editingRuleId, setEditingRuleId] = useState<string | null>(null)
-  const [ruleForm, setRuleForm] = useState(EMPTY_RULE)
-  const [testContent, setTestContent] = useState('')
-  const [testResult, setTestResult] = useState<string | null>(null)
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
@@ -429,6 +418,14 @@ export function SettingsPage() {
   const [ldapUserTest, setLdapUserTest] = useState({ username: '', password: '' })
   const [ldapUserTestStatus, setLdapUserTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [rolePageAccess, setRolePageAccess] = useState<RolePageAccessMatrix>(() => loadRolePageAccessMatrix())
+  const [rolesPageSize, setRolesPageSize] = useState(25)
+  const [rolesPage, setRolesPage] = useState(1)
+  const rolesTotalPages = Math.max(1, Math.ceil(PAGE_ACCESS_ITEMS.length / rolesPageSize) || 1)
+  const rolesSafePage = Math.min(rolesPage, rolesTotalPages)
+  const pagedPageAccessItems = useMemo(() => {
+    const start = (rolesSafePage - 1) * rolesPageSize
+    return PAGE_ACCESS_ITEMS.slice(start, start + rolesPageSize)
+  }, [rolesSafePage, rolesPageSize])
   const [workingHoursForm, setWorkingHoursForm] = useState<WorkingHoursSettings | null>(null)
   const [smsSettings, setSmsSettings] = useState<SmsSettings | null>(null)
   const [smsForm, setSmsForm] = useState<SmsSettingsUpdate>({
@@ -662,7 +659,6 @@ export function SettingsPage() {
     }
   }
 
-  const refreshRouting = async () => setRoutingConfig(await api.getRoutingConfig())
   const refreshSocial = async () => {
     const status = await api.getSocialSettingsStatus()
     setSocialStatus(status)
@@ -955,73 +951,6 @@ export function SettingsPage() {
       setMessage({ type: 'success', text: nextValue ? t('settings.routing.toggleOn') : t('settings.routing.toggleOff') })
     } catch (toggleError) {
       setMessage({ type: 'error', text: toggleError instanceof Error ? toggleError.message : t('common.error') })
-    }
-  }
-
-  const saveRule = async (event: FormEvent) => {
-    event.preventDefault()
-    setMessage(null)
-
-    try {
-      if (editingRuleId) {
-        await api.updateRoutingRule(editingRuleId, { ...ruleForm, isActive: true })
-        invalidateSettings(queryClient)
-        setMessage({ type: 'success', text: t('settings.routing.updated') })
-      } else {
-        await api.createRoutingRule(ruleForm)
-        invalidateSettings(queryClient)
-        setMessage({ type: 'success', text: t('settings.routing.saved') })
-      }
-
-      setRuleForm(EMPTY_RULE)
-      setEditingRuleId(null)
-      setShowRuleForm(false)
-      await refreshRouting()
-    } catch (saveError) {
-      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
-    }
-  }
-
-  const editRule = (rule: RoutingConfig['rules'][number]) => {
-    setRuleForm({
-      ruleName: rule.ruleName,
-      keywords: rule.keywords,
-      targetDepartmentId: rule.targetDepartmentId,
-      priority: rule.priority,
-    })
-    setEditingRuleId(rule.ruleId)
-    setShowRuleForm(true)
-  }
-
-  const removeRule = (ruleId: string) => {
-    setConfirmDialog({
-      message: t('settings.routing.deleteConfirm'),
-      variant: 'destructive',
-      onConfirm: async () => {
-        setMessage(null)
-        try {
-          await api.deleteRoutingRule(ruleId)
-          invalidateSettings(queryClient)
-          setMessage({ type: 'success', text: t('settings.routing.deleted') })
-          await refreshRouting()
-        } catch (deleteError) {
-          setMessage({ type: 'error', text: deleteError instanceof Error ? deleteError.message : t('common.error') })
-        }
-      },
-    })
-  }
-
-  const testRouting = async () => {
-    if (!testContent.trim()) {
-      return
-    }
-
-    setMessage(null)
-    try {
-      const result = await api.testRouting(testContent.trim())
-      setTestResult(result.targetDepartmentName ? t('settings.routing.testSuccess', { department: result.targetDepartmentName }) : t('settings.routing.testNoMatch'))
-    } catch (testError) {
-      setMessage({ type: 'error', text: testError instanceof Error ? testError.message : t('common.error') })
     }
   }
 
@@ -1329,7 +1258,7 @@ export function SettingsPage() {
 
       {activeTab === 'tenant' ? (
         <div className="page-stack">
-          <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
+          <div className="grid gap-4 xl:grid-cols-2 xl:items-stretch">
             <section className="section-card page-stack p-5 sm:p-6 lg:p-7">
               <div className="page-header-row">
                 <div>
@@ -1387,7 +1316,7 @@ export function SettingsPage() {
               </form>
             </section>
 
-            <div className="page-stack gap-4">
+            <div className="flex h-full flex-col gap-4">
               <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={saveMunicipalityDistrict}>
                 <div className="page-header-row">
                   <div>
@@ -1414,7 +1343,7 @@ export function SettingsPage() {
                 </div>
               </form>
 
-              <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSlaWeekendSettings(event)}>
+              <form className="section-card page-stack flex-1 p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSlaWeekendSettings(event)}>
                 <div className="page-header-row">
                   <div>
                     <h2 className="text-xl font-extrabold text-slate-950">{t('settings.slaWeekend.sectionTitle')}</h2>
@@ -2246,7 +2175,7 @@ export function SettingsPage() {
                 </tr>
               </thead>
               <tbody>
-                {PAGE_ACCESS_ITEMS.map(page => (
+                {pagedPageAccessItems.map(page => (
                   <tr key={page.key}>
                     <td className="font-semibold">{t(page.labelKey)}</td>
                     {ROLE_CODES.map(role => {
@@ -2270,6 +2199,13 @@ export function SettingsPage() {
               </tbody>
             </table>
           </div>
+          <TablePagination
+            totalCount={PAGE_ACCESS_ITEMS.length}
+            pageSize={rolesPageSize}
+            currentPage={rolesSafePage}
+            onPageSizeChange={size => { setRolesPageSize(size); setRolesPage(1) }}
+            onPageChange={setRolesPage}
+          />
           <p className="helper-copy">{t('settings.roles.note')}</p>
           <div className="inline-actions">
             <Button type="button" onClick={saveRolePages}>{t('common.save')}</Button>
@@ -2392,107 +2328,6 @@ export function SettingsPage() {
             <p className="text-xs font-medium text-slate-500">
               {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı ve {GönderilenBirim}.')}
             </p>
-          </section>
-
-          <section className="section-card page-stack">
-            <div className="page-header-row">
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.rules')}</h2>
-                <p className="helper-copy">{t('settings.routing.rulesDescription')}</p>
-              </div>
-              <Button type="button" onClick={() => {
-                setRuleForm(EMPTY_RULE)
-                setEditingRuleId(null)
-                setShowRuleForm(current => !current)
-              }}>{t('settings.routing.newRule')}</Button>
-            </div>
-            {showRuleForm ? (
-              <form className="page-stack" onSubmit={event => void saveRule(event)}>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('settings.routing.ruleName')}</span>
-                  <input className="field-input" placeholder={t('settings.routing.ruleNamePlaceholder')} value={ruleForm.ruleName} onChange={event => setRuleForm(current => ({ ...current, ruleName: event.target.value }))} />
-                </label>
-                <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_180px]">
-                  <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                    <span>{t('settings.routing.targetDepartment')}</span>
-                    <SingleSelectDropdown
-                      options={departments.map(department => ({
-                        value: department.departmentId,
-                        label: department.name,
-                      }))}
-                      value={ruleForm.targetDepartmentId}
-                      onChange={targetDepartmentId => setRuleForm(current => ({ ...current, targetDepartmentId }))}
-                      placeholder={t('tasks.selectDepartment')}
-                      searchable
-                      searchPlaceholder={t('common.search', 'Ara...')}
-                    />
-                  </label>
-                  <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                    <span>{t('settings.routing.priority')}</span>
-                    <input className="field-input" max={100} min={1} type="number" value={ruleForm.priority} onChange={event => setRuleForm(current => ({ ...current, priority: Number(event.target.value) || 1 }))} />
-                  </label>
-                </div>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('settings.routing.keywords')}</span>
-                  <input className="field-input" placeholder={t('settings.routing.keywordsPlaceholder')} value={ruleForm.keywords} onChange={event => setRuleForm(current => ({ ...current, keywords: event.target.value }))} />
-                </label>
-                <div className="inline-actions">
-                  <Button type="submit">{editingRuleId ? t('common.save') : t('common.create')}</Button>
-                  <Button type="button" variant="secondary" onClick={() => setShowRuleForm(false)}>{t('common.cancel')}</Button>
-                </div>
-              </form>
-            ) : null}
-            {routingConfig.rules.length === 0 ? (
-              <div className="empty-state">{t('settings.routing.empty')}</div>
-            ) : (
-              <div className="table-wrap">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>{t('settings.routing.ruleName')}</th>
-                      <th>{t('settings.routing.keywords')}</th>
-                      <th>{t('settings.routing.targetDepartment')}</th>
-                      <th>{t('settings.routing.priority')}</th>
-                      <th>{t('common.actions')}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {routingConfig.rules.map(rule => (
-                      <tr key={rule.ruleId}>
-                        <td className="font-semibold">{rule.ruleName}</td>
-                        <td>{rule.keywords}</td>
-                        <td>{rule.targetDepartmentName}</td>
-                        <td>{rule.priority}</td>
-                        <td>
-                          <div className="inline-actions">
-                            <Button size="sm" type="button" variant="ghost" className="inline-flex items-center gap-1.5" onClick={() => editRule(rule)}>
-                              <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                              {t('common.edit')}
-                            </Button>
-                            <Button size="sm" type="button" variant="danger" onClick={() => void removeRule(rule.ruleId)}>{t('common.delete')}</Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-
-          <section className="section-card page-stack">
-            <div>
-              <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.testTitle')}</h2>
-              <p className="helper-copy">{t('settings.routing.testDescription')}</p>
-            </div>
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('settings.routing.testTitle')}</span>
-              <textarea className="field-textarea" placeholder={t('settings.routing.testPlaceholder')} value={testContent} onChange={event => setTestContent(event.target.value)} />
-            </label>
-            <div className="inline-actions">
-              <Button type="button" onClick={() => void testRouting()}>{t('common.test')}</Button>
-            </div>
-            {testResult ? <StatusPill tone="info">{testResult}</StatusPill> : null}
           </section>
 
         </div>

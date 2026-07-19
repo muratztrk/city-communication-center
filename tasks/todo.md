@@ -1,3 +1,12 @@
+## Round 378 — #1713/#1715/#1717–#1728
+- #1721/#1725/#1722/#1718: İptal kırmızı; İşlemler; Rol pill ortalı; Rol/Ek roller hizası.
+- #1724: Departmanlar/Kullanıcılar FilterableTh+sort+paging.
+- #1726/#1727: Rol matrisi header+paging 25; yönlendirme kuralları/testi kaldırıldı.
+- #1717/#1719/#1720: LDAP tüm birimleri çek + SourceType; LDAP read-only; Tür Birim/Yönetim; Yönetici etiketi.
+- #1713: Log Detay FormatNote sadeleştirme.
+- #1715: Kurum sağ kolon alt border hizası.
+- #1728: Mobil detay title case + wrap + X sağ üst.
+
 ## Round — #1713/#1714/#1715 reopen
 - #1713: Log’dan Varlık sütunu kaldırıldı; Talep/Görev İşlem etiketleri ActionTitle diline çekildi.
 - #1715: Kurum Konumu, Hafta Sonu SLA’nın üst satırına (sağ kolon).

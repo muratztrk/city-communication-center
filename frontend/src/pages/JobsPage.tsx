@@ -65,6 +65,7 @@ import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProc
 import { pendingApprovalValueClassName } from '../components/jobs/my-request-detail/format'
 import { buildMyRequestEditDraft, type MyRequestEditDraft } from '../components/jobs/my-request-detail/myRequestEditDraft'
 import { TablePagination } from '../components/ui/table-pagination'
+import { DetailModalTitle } from '../utils/detailModalTitle'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
@@ -2246,8 +2247,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             {/* Fixed header */}
             <div className={`detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 ${isRequestDetailContext ? 'my-request-detail-header px-6 py-3' : 'border-b border-slate-100 px-4 py-2'}`}>
               <div className="detail-modal-header-title min-w-0">
-                <div className={isRequestDetailContext ? 'my-request-detail-header__title uppercase' : 'text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600'}>
-                  {detailHeaderTitle}
+                <div className={isRequestDetailContext ? 'my-request-detail-header__title' : 'text-[0.75rem] font-extrabold uppercase tracking-[0.18em] text-slate-600'}>
+                  {isRequestDetailContext ? <DetailModalTitle title={detailHeaderTitle} /> : detailHeaderTitle}
                 </div>
               </div>
               <DetailModalHeaderBrand />
@@ -2992,7 +2993,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         <td className="text-xs text-slate-500">{new Date(entry.eventTimeUtc).toLocaleString(locale)}</td>
                         <td className="font-semibold">{getAuditActionLabel(t, entry.action)}</td>
                         <td>{entry.actorDisplayName}</td>
-                        <td className="text-xs text-slate-500">{entry.notes ? formatAuditNotes(t, entry.notes) : '—'}</td>
+                        <td className="text-xs text-slate-500">{entry.notes ? (formatAuditNotes(t, entry.notes) || '—') : '—'}</td>
                       </tr>
                     ))}
                   </tbody>

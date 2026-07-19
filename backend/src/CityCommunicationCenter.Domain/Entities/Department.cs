@@ -8,6 +8,9 @@ public sealed class Department : AuditableTenantEntity, IHasDatabaseIndexDefinit
 
     public string DepartmentType { get; set; } = string.Empty;
 
+    /// <summary>Manual | Ldap — LDAP kaynaklı birimler düzenlenemez (card #1719).</summary>
+    public string SourceType { get; set; } = "Manual";
+
     public Guid? ParentDepartmentId { get; set; }
 
     public Guid? ManagerUserId { get; set; }

@@ -74,7 +74,7 @@ export function AuditLogsPage() {
       .map(log => ({
         ...log,
         actionLabel: getAuditActionLabel(t, log.action),
-        detailText: log.details ? formatAuditNotes(t, log.details) : t('common.none'),
+        detailText: log.details ? (formatAuditNotes(t, log.details) || '—') : '—',
         dateText: new Date(log.eventTimeUtc).toLocaleString(locale),
       }))
     const filtered = rows.filter(row => matchesFilters(row, (key, item) => {

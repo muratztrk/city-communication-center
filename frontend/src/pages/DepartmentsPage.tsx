@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
+import { useSortable } from '../hooks/useSortable'
 import { api } from '../api/client'
 import { invalidateDepartments } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
@@ -13,6 +14,7 @@ import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
+import { TablePagination } from '../components/ui/table-pagination'
 import { useAuth } from '../context/AuthContext'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Department, DirectoryUserLookup, User } from '../types/platform'
@@ -20,6 +22,12 @@ import { userWorksInDepartment } from '../utils/userDepartments'
 import { getDepartmentTypeLabel } from '../utils/localization'
 
 type CreateMode = 'manual' | 'ldap'
+
+// Türkçe alfabenin tüm harfleri — LDAP dizinindeki tüm birimleri kapsayacak
+// şekilde tarama yapabilmek için tek tek sorgulanır (card #1720).
+const TURKISH_ALPHABET = ['a', 'b', 'c', 'ç', 'd', 'e', 'f', 'g', 'ğ', 'h', 'ı', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'ö', 'p', 'r', 's', 'ş', 't', 'u', 'ü', 'v', 'y', 'z']
+
+const EDITABLE_DEPARTMENT_TYPES = ['Birim', 'Administration'] as const
 
 export function DepartmentsPage() {
   const { t } = useTranslation()
@@ -36,11 +44,16 @@ export function DepartmentsPage() {
   const [editId, setEditId] = useState<string | null>(null)
   const [editName, setEditName] = useState('')
   const [editType, setEditType] = useState('')
+  const [editTypeOriginal, setEditTypeOriginal] = useState('')
   const [editManagerUserId, setEditManagerUserId] = useState('')
   const [editResponsibleUserIds, setEditResponsibleUserIds] = useState<string[]>([])
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null)
   const [managerAssignId, setManagerAssignId] = useState<string | null>(null)
   const [managerAssignSavingId, setManagerAssignSavingId] = useState<string | null>(null)
+  const [pullAllLdapLoading, setPullAllLdapLoading] = useState(false)
+  const [pullAllLdapMessage, setPullAllLdapMessage] = useState<string | null>(null)
+  const [deptPageSize, setDeptPageSize] = useState(25)
+  const [deptPage, setDeptPage] = useState(1)
 
   const departmentsQuery = useQuery({
     queryKey: queryKeys.departments.list(),
@@ -137,9 +150,10 @@ export function DepartmentsPage() {
     try {
       await api.createDepartment({
         name: newName.trim(),
-        departmentType: 'Müdürlük',
+        departmentType: 'Birim',
         managerUserId: null,
         responsibleUserIds: [],
+        sourceType: createMode === 'ldap' ? 'Ldap' : 'Manual',
       })
       resetCreateForm()
       setShowForm(false)
@@ -149,10 +163,66 @@ export function DepartmentsPage() {
     }
   }
 
+  const handlePullAllLdapDepartments = async () => {
+    setPullAllLdapLoading(true)
+    setPullAllLdapMessage(t('departments.pullAllLdapWorking'))
+    setError('')
+
+    try {
+      const resultsByLetter = await Promise.all(
+        TURKISH_ALPHABET.map(letter => api.searchDirectoryUsers(letter).catch(() => [] as DirectoryUserLookup[])),
+      )
+
+      const foundNamesByKey = new Map<string, string>()
+      for (const results of resultsByLetter) {
+        for (const result of results) {
+          const name = result.department?.trim()
+          if (!name) continue
+          const key = name.toLocaleLowerCase('tr')
+          if (!foundNamesByKey.has(key)) {
+            foundNamesByKey.set(key, name)
+          }
+        }
+      }
+
+      const existingKeys = new Set(departments.map(department => department.name.toLocaleLowerCase('tr')))
+      const missingNames = Array.from(foundNamesByKey.values()).filter(name => !existingKeys.has(name.toLocaleLowerCase('tr')))
+
+      let createdCount = 0
+      for (const name of missingNames) {
+        try {
+          await api.createDepartment({
+            name,
+            departmentType: 'Birim',
+            managerUserId: null,
+            responsibleUserIds: [],
+            sourceType: 'Ldap',
+          })
+          createdCount += 1
+        } catch {
+          // Bir birim oluşturulamazsa diğerleriyle devam edilir; kullanıcı özet sayıyı görür.
+        }
+      }
+
+      if (createdCount > 0) {
+        invalidateDepartments(queryClient)
+      }
+
+      setPullAllLdapMessage(t('departments.pullAllLdapSuccess', { count: createdCount }))
+    } catch (pullError) {
+      setPullAllLdapMessage(null)
+      setError(pullError instanceof Error ? pullError.message : t('common.error'))
+    } finally {
+      setPullAllLdapLoading(false)
+    }
+  }
+
   const startEdit = (department: Department) => {
     setEditId(department.departmentId)
     setEditName(department.name)
-    setEditType(department.departmentType)
+    // Mevcut türü koru — legacy Müdürlük/Daire kaydetmede sessizce Birim'e düşmesin.
+    setEditTypeOriginal(department.departmentType)
+    setEditType(department.departmentType || 'Birim')
     setEditManagerUserId(department.managerUserId ?? '')
     setEditResponsibleUserIds(department.responsibleUserIds ?? [])
     setDeleteConfirmId(null)
@@ -163,9 +233,18 @@ export function DepartmentsPage() {
     setEditId(null)
     setEditName('')
     setEditType('')
+    setEditTypeOriginal('')
     setEditManagerUserId('')
     setEditResponsibleUserIds([])
   }
+
+  const editTypeOptions = useMemo(() => {
+    const base = [...EDITABLE_DEPARTMENT_TYPES]
+    if (editTypeOriginal && !(EDITABLE_DEPARTMENT_TYPES as readonly string[]).includes(editTypeOriginal)) {
+      return [editTypeOriginal, ...base]
+    }
+    return base
+  }, [editTypeOriginal])
 
   const handleUpdate = async (departmentId: string) => {
     if (!editName.trim()) {
@@ -175,7 +254,7 @@ export function DepartmentsPage() {
     try {
       await api.updateDepartment(departmentId, {
         name: editName.trim(),
-        departmentType: editType,
+        departmentType: editType || editTypeOriginal || 'Birim',
         managerUserId: editManagerUserId || null,
         responsibleUserIds: editResponsibleUserIds,
       })
@@ -227,12 +306,6 @@ export function DepartmentsPage() {
     }, {})
   }, [departments])
 
-  const { filters: deptFilters, setFilter: setDeptFilter, matchesFilters: deptMatchesFilters } = useColumnFilters()
-  const columnFilteredDepts = useMemo(
-    () => departments.filter(d => deptMatchesFilters(d)),
-    [departments, deptMatchesFilters],
-  )
-
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
   const getManagerCandidates = () => users.filter(item => item.isActive)
   const userBelongsToDepartment = (item: User, departmentId?: string) => {
@@ -242,6 +315,47 @@ export function DepartmentsPage() {
   const getDepartmentUsers = (departmentId?: string) => users.filter(item => item.isActive && userBelongsToDepartment(item, departmentId))
   const getUserOptions = (sourceUsers: User[]) => sourceUsers.map(item => ({ value: item.userId, label: item.displayName }))
   const canEditDepartment = (department: Department) => user?.role === 'SystemAdmin' || department.managerUserId === user?.userId
+
+  const { sortKey: deptSortKey, sortDir: deptSortDir, toggleSort: toggleDeptSort, sortItems: sortDepts } = useSortable()
+  const { filters: deptFilters, setFilter: setDeptFilter, matchesFilters: deptMatchesFilters } = useColumnFilters()
+
+  const departmentRows = useMemo(
+    () => departments.map(department => ({
+      ...department,
+      managerName: users.find(item => item.userId === department.managerUserId)?.displayName ?? '—',
+    })),
+    [departments, users],
+  )
+  const sortedDepts = useMemo(() => sortDepts(departmentRows), [departmentRows, sortDepts])
+  const columnFilteredDepts = useMemo(
+    () => sortedDepts.filter(d => deptMatchesFilters(d)),
+    [sortedDepts, deptMatchesFilters],
+  )
+
+  const handleDeptFilter = (key: string, value: string) => {
+    setDeptFilter(key, value)
+    setDeptPage(1)
+  }
+
+  const handleDeptSort = (key: string) => {
+    toggleDeptSort(key)
+    setDeptPage(1)
+  }
+
+  const handleDeptPageSizeChange = (size: number) => {
+    setDeptPageSize(size)
+    setDeptPage(1)
+  }
+
+  const deptTotalCount = columnFilteredDepts.length
+  const deptTotalPages = Math.max(1, Math.ceil(deptTotalCount / deptPageSize) || 1)
+  const deptSafePage = Math.min(deptPage, deptTotalPages)
+  const pagedDepts = useMemo(() => {
+    const start = (deptSafePage - 1) * deptPageSize
+    return columnFilteredDepts.slice(start, start + deptPageSize)
+  }, [deptSafePage, deptPageSize, columnFilteredDepts])
+  const editingDepartment = departments.find(department => department.departmentId === editId) ?? null
+  const isEditingLdapDepartment = editingDepartment?.sourceType === 'Ldap'
 
   if (loading) {
     return <div className="loading">{t('common.loading')}</div>
@@ -340,29 +454,42 @@ export function DepartmentsPage() {
                 <h3 className="text-lg font-extrabold text-slate-950">{t('departments.directorySearch')}</h3>
                 <p className="helper-copy">{t('departments.directorySearchDescription')}</p>
               </div>
-              <AutocompleteField
-                ariaLabel={t('departments.directorySearchAria')}
-                emptyMessage={t('departments.directorySearchEmpty')}
-                loadingMessage={t('departments.directorySearchLoading')}
-                options={directoryOptions}
-                placeholder={t('departments.directorySearchPlaceholder')}
-                value={directoryQuery}
-                onOptionSelect={option => {
-                  setSelectedLdapDepartment(option.label)
-                  setDirectoryQuery(option.label)
-                  setNewName(option.label)
-                }}
-                onValueChange={value => {
-                  setDirectoryQuery(value)
-                  if (value.trim().length < 2) {
-                    setDirectoryResults([])
-                  }
-                  if (!value.trim()) {
-                    setSelectedLdapDepartment(null)
-                    setNewName('')
-                  }
-                }}
-              />
+              <div className="flex flex-wrap items-start gap-3">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  disabled={pullAllLdapLoading}
+                  onClick={() => void handlePullAllLdapDepartments()}
+                >
+                  {pullAllLdapLoading ? t('departments.pullAllLdapWorking') : t('departments.pullAllLdap')}
+                </Button>
+                <div className="min-w-[16rem] flex-1">
+                  <AutocompleteField
+                    ariaLabel={t('departments.directorySearchAria')}
+                    emptyMessage={t('departments.directorySearchEmpty')}
+                    loadingMessage={t('departments.directorySearchLoading')}
+                    options={directoryOptions}
+                    placeholder={t('departments.directorySearchPlaceholder')}
+                    value={directoryQuery}
+                    onOptionSelect={option => {
+                      setSelectedLdapDepartment(option.label)
+                      setDirectoryQuery(option.label)
+                      setNewName(option.label)
+                    }}
+                    onValueChange={value => {
+                      setDirectoryQuery(value)
+                      if (value.trim().length < 2) {
+                        setDirectoryResults([])
+                      }
+                      if (!value.trim()) {
+                        setSelectedLdapDepartment(null)
+                        setNewName('')
+                      }
+                    }}
+                  />
+                </div>
+              </div>
+              {pullAllLdapMessage ? <p className="helper-copy">{pullAllLdapMessage}</p> : null}
               {selectedLdapDepartment ? (
                 <div className="section-card">
                   <div className="font-semibold text-slate-950">{selectedLdapDepartment}</div>
@@ -393,7 +520,7 @@ export function DepartmentsPage() {
             </Button>
             <Button
               type="button"
-              variant="secondary"
+              variant="destructive"
               onClick={() => {
                 resetCreateForm()
                 setShowForm(false)
@@ -410,15 +537,45 @@ export function DepartmentsPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <FilterableTh filterKey="name" filterValue={deptFilters['name'] ?? ''} onFilter={setDeptFilter}>{t('departments.name')}</FilterableTh>
-                <FilterableTh filterKey="departmentType" filterValue={deptFilters['departmentType'] ?? ''} onFilter={setDeptFilter}>{t('departments.type')}</FilterableTh>
-                <th>{t('departments.manager', 'Müdür')}</th>
+                <FilterableTh
+                  filterKey="name"
+                  filterValue={deptFilters['name'] ?? ''}
+                  onFilter={handleDeptFilter}
+                  sortKey="name"
+                  currentSortKey={deptSortKey}
+                  sortDir={deptSortDir}
+                  onSort={handleDeptSort}
+                >
+                  {t('departments.name')}
+                </FilterableTh>
+                <FilterableTh
+                  filterKey="departmentType"
+                  filterValue={deptFilters['departmentType'] ?? ''}
+                  onFilter={handleDeptFilter}
+                  sortKey="departmentType"
+                  currentSortKey={deptSortKey}
+                  sortDir={deptSortDir}
+                  onSort={handleDeptSort}
+                >
+                  {t('departments.type')}
+                </FilterableTh>
+                <FilterableTh
+                  filterKey="managerName"
+                  filterValue={deptFilters['managerName'] ?? ''}
+                  onFilter={handleDeptFilter}
+                  sortKey="managerName"
+                  currentSortKey={deptSortKey}
+                  sortDir={deptSortDir}
+                  onSort={handleDeptSort}
+                >
+                  {t('departments.manager', 'Müdür')}
+                </FilterableTh>
                 <th>{t('departments.responsibles', 'Sorumlular')}</th>
                 <th className="w-56">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
-              {columnFilteredDepts.map(department => {
+              {pagedDepts.map(department => {
                 const isManagerAssigning = managerAssignId === department.departmentId
                 const isManagerSaving = managerAssignSavingId === department.departmentId
 
@@ -497,12 +654,19 @@ export function DepartmentsPage() {
                   </tr>
                 )
               })}
-              {columnFilteredDepts.length === 0 ? (
+              {pagedDepts.length === 0 ? (
                 <TableEmptyStateRows columnCount={5} message={t('departments.empty')} />
               ) : null}
             </tbody>
           </table>
         </div>
+        <TablePagination
+          totalCount={deptTotalCount}
+          pageSize={deptPageSize}
+          currentPage={deptSafePage}
+          onPageSizeChange={handleDeptPageSizeChange}
+          onPageChange={setDeptPage}
+        />
       </section>
 
       {editId ? (
@@ -517,56 +681,69 @@ export function DepartmentsPage() {
                 <X className="size-4" />
               </button>
             </div>
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('departments.name')}</span>
-                <input className="field-input" type="text" value={editName} onChange={event => setEditName(event.target.value)} />
-              </label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('departments.type')}</span>
-                <SingleSelectDropdown
-                  options={(['Müdürlük', 'Birim', 'Daire', 'Administration'] as const).map(type => ({
-                    value: type,
-                    label: getDepartmentTypeLabel(t, type),
-                  }))}
-                  value={editType}
-                  onChange={setEditType}
-                  placeholder={t('departments.type')}
-                />
-              </label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
-                <span>{t('departments.manager', 'Müdür')}</span>
-                <SingleSelectDropdown
-                  options={[
-                    { value: '', label: t('common.optional', '— Seçin (opsiyonel)') },
-                    ...getManagerCandidates().map(item => ({
-                      value: item.userId,
-                      label: item.displayName,
-                    })),
-                  ]}
-                  value={editManagerUserId}
-                  onChange={setEditManagerUserId}
-                  placeholder={t('common.optional', '— Seçin (opsiyonel)')}
-                  searchable
-                  searchPlaceholder={t('common.search', 'Ara...')}
-                />
-              </label>
-              <div className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
-                <span>{t('departments.responsibles', 'Sorumlular')}</span>
-                <MultiSelectDropdown
-                  options={getUserOptions(getDepartmentUsers(editId))}
-                  value={editResponsibleUserIds}
-                  onChange={setEditResponsibleUserIds}
-                  placeholder={t('departments.responsiblesPlaceholder', 'Sorumlu kullanıcı seçin')}
-                  emptyText={t('departments.responsiblesEmpty', 'Aktif kullanıcı bulunmuyor.')}
-                />
-                <span className="helper-copy">{t('departments.responsiblesHelp', 'Birden fazla kullanıcı seçebilirsiniz.')}</span>
-              </div>
-            </div>
-            <div className="mt-5 flex justify-end gap-2">
-              <Button type="button" variant="secondary" onClick={cancelEdit}>{t('common.cancel')}</Button>
-              <Button type="submit">{t('common.save')}</Button>
-            </div>
+            {isEditingLdapDepartment ? (
+              <>
+                <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-semibold text-amber-800">
+                  {t('departments.ldapReadOnly')}
+                </div>
+                <div className="mt-5 flex justify-end gap-2">
+                  <Button type="button" variant="secondary" onClick={cancelEdit}>{t('common.close', 'Kapat')}</Button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                    <span>{t('departments.name')}</span>
+                    <input className="field-input" type="text" value={editName} onChange={event => setEditName(event.target.value)} />
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                    <span>{t('departments.type')}</span>
+                    <SingleSelectDropdown
+                      options={editTypeOptions.map(type => ({
+                        value: type,
+                        label: getDepartmentTypeLabel(t, type),
+                      }))}
+                      value={editType}
+                      onChange={setEditType}
+                      placeholder={t('departments.type')}
+                    />
+                  </label>
+                  <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                    <span>{editType === 'Administration' ? t('departments.administrator') : t('departments.manager', 'Müdür')}</span>
+                    <SingleSelectDropdown
+                      options={[
+                        { value: '', label: t('common.optional', '— Seçin (opsiyonel)') },
+                        ...getManagerCandidates().map(item => ({
+                          value: item.userId,
+                          label: item.displayName,
+                        })),
+                      ]}
+                      value={editManagerUserId}
+                      onChange={setEditManagerUserId}
+                      placeholder={t('common.optional', '— Seçin (opsiyonel)')}
+                      searchable
+                      searchPlaceholder={t('common.search', 'Ara...')}
+                    />
+                  </label>
+                  <div className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                    <span>{t('departments.responsibles', 'Sorumlular')}</span>
+                    <MultiSelectDropdown
+                      options={getUserOptions(getDepartmentUsers(editId))}
+                      value={editResponsibleUserIds}
+                      onChange={setEditResponsibleUserIds}
+                      placeholder={t('departments.responsiblesPlaceholder', 'Sorumlu kullanıcı seçin')}
+                      emptyText={t('departments.responsiblesEmpty', 'Aktif kullanıcı bulunmuyor.')}
+                    />
+                    <span className="helper-copy">{t('departments.responsiblesHelp', 'Birden fazla kullanıcı seçebilirsiniz.')}</span>
+                  </div>
+                </div>
+                <div className="mt-5 flex justify-end gap-2">
+                  <Button type="button" variant="secondary" onClick={cancelEdit}>{t('common.cancel')}</Button>
+                  <Button type="submit">{t('common.save')}</Button>
+                </div>
+              </>
+            )}
           </form>
         </div>
       ) : null}

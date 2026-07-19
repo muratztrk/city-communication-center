@@ -808,11 +808,23 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Log grid standart:** `FilterableTh` + kolon filtre/sort + `TablePagination`; **Varlık sütunu yok**
   (card #1713 reopen). Talep/Görev Log İşlem etiketleri bildirim `ActionTitle` ifadeleriyle aynı
   (`Görev atandı`, `Görev İptal Edildi`, `Rutin görev oluşturuldu` — ham action kodu yok).
+  Detay sütunu bildirim `FormatNote` ile aynı sadeleştirme: teknik `Status=/Targets=/CreatedTasks=`
+  ham dump yok; varsa yalnızca lokalize durum (card #1713 Detay).
 - **Yeni departman formu LDAP birim çekebilir:** LDAP açıksa Manual|LDAP segmented; LDAP listesinde
-  yalnız birim adları. Oluşturma formunda Tür/Müdür/Sorumlular yok — varsayılan tür `Müdürlük`
-  (card #1714 reopen).
-- **Kurum sekmesi sağ kolon:** üstte Kurum Konumu, altta Hafta Sonu SLA; sol Kurum Bilgisi
-  (card #1715 reopen).
+  yalnız birim adları. Oluşturma formunda Tür/Müdür/Sorumlular yok — varsayılan tür `Birim`
+  (card #1714/#1720). LDAP oluşturmada `SourceType=Ldap`; “LDAP Tüm Birimleri Çek” eksik birimleri
+  ekler, kullanıcı atanmış birimleri silmez (card #1717). LDAP birim düzenleme formu
+  müdahale edilemez; Tür yalnız `Birim`/`Administration` (card #1719). Yönetim seçilince müdür
+  etiketi `Yönetici` (card #1720).
+- **Kurum sekmesi sağ kolon:** üstte Kurum Konumu, altta Hafta Sonu SLA; sol Kurum Bilgisi ile
+  alt border hizalı (`items-stretch` + sağ kolon `flex-1`) (card #1715).
+- **Departmanlar/Kullanıcılar grid:** FilterableTh + sort + TablePagination (card #1724).
+  Kullanıcılar Rol StatusPill metni ortalı; son sütun başlığı İşlemler; oluşturma İptal kırmızı
+  (cards #1721/#1722/#1725). Yeni kullanıcı Rol/Ek roller `items-start` hizalı (card #1718).
+- **Rol Sayfa Yetkileri:** standart header yüksekliği + TablePagination default 25 (card #1726).
+- **Otomatik Yönlendirme:** Yönlendirme Kuralları ve Yönlendirme Testi UI yok (card #1727).
+- **Mobil detay popup başlığı:** title case (ALL CAPS değil); çok kelimede 2. satır; X sağ üst
+  (card #1728).
 - **Departmanlar / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
   `SingleSelectDropdown` (card #1709). Kullanıcı düzenleme dept/rol menüsünde arama + kompakt satır (card #1706).
 - **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).

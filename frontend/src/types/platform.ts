@@ -58,6 +58,7 @@ export interface Department {
   parentDepartmentId: string | null;
   managerUserId: string | null;
   responsibleUserIds: string[];
+  sourceType?: string;
 }
 
 export interface User {

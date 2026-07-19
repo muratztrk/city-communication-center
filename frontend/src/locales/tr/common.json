@@ -489,6 +489,7 @@
     "namePlaceholder": "Birim adı girin",
     "type": "Tür",
     "manager": "Müdür",
+    "administrator": "Yönetici",
     "assignManager": "Yönetici Ata",
     "noManager": "— Müdür Yok —",
     "responsibles": "Sorumlular",
@@ -498,7 +499,11 @@
     "empty": "Henüz departman bulunmuyor",
     "editFormTitle": "Departmanı Düzenle",
     "deleteConfirm": "\"{{name}}\" departmanını silmek istediğinize emin misiniz?",
-    "deleteHasUsers": "Bu departmana atanmış kullanıcılar var."
+    "deleteHasUsers": "Bu departmana atanmış kullanıcılar var.",
+    "pullAllLdap": "LDAP Tüm Birimleri Çek",
+    "pullAllLdapWorking": "LDAP birimleri çekiliyor...",
+    "pullAllLdapSuccess": "{{count}} yeni birim LDAP'tan oluşturuldu.",
+    "ldapReadOnly": "LDAP birimi — müdahale edilemez"
   },
   "users": {
     "title": "Kullanıcılar",

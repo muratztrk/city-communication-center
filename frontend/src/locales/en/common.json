@@ -486,6 +486,7 @@
     "namePlaceholder": "Enter unit name",
     "type": "Type",
     "manager": "Manager",
+    "administrator": "Administrator",
     "assignManager": "Assign Manager",
     "noManager": "— No Manager —",
     "responsibles": "Responsible Users",
@@ -495,7 +496,11 @@
     "empty": "No departments found yet",
     "editFormTitle": "Edit Department",
     "deleteConfirm": "Are you sure you want to delete \"{{name}}\"?",
-    "deleteHasUsers": "This department has assigned users."
+    "deleteHasUsers": "This department has assigned users.",
+    "pullAllLdap": "Pull All LDAP Units",
+    "pullAllLdapWorking": "Pulling LDAP units...",
+    "pullAllLdapSuccess": "{{count}} new unit(s) created from LDAP.",
+    "ldapReadOnly": "LDAP unit — cannot be modified"
   },
   "users": {
     "title": "Users",

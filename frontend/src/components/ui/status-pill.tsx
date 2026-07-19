@@ -2,7 +2,7 @@ import { cva, type VariantProps } from 'class-variance-authority'
 import type { HTMLAttributes } from 'react'
 import { cn } from '../../lib/cn'
 
-const statusPillVariants = cva('inline-flex items-center rounded-full px-2.5 py-1 text-[0.72rem] font-semibold ring-1', {
+const statusPillVariants = cva('inline-flex items-center justify-center text-center rounded-full px-2.5 py-1 text-[0.72rem] font-semibold ring-1', {
   variants: {
     tone: {
       neutral: 'bg-slate-100 text-slate-700 ring-slate-200',

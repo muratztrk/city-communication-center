@@ -244,12 +244,18 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-header__title {
-    /* Sol üst popup başlığı (TALEPLERİM / GÖREVLERİM …) kompakt (card #1632 reopen). */
+    /* Sol üst popup başlığı (Talep/Görev No — başlık) kompakt (card #1632 reopen).
+       Artık büyük harf değil (card #1728) — normal harfe uygun daha dar boşluk. */
     font-size: 0.7rem;
     font-weight: 800;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.02em;
     line-height: 1.2;
     color: rgb(71 85 105);
+  }
+
+  .detail-modal-title-rest {
+    /* Masaüstünde tek satır; mobilde ikinci satıra döker (card #1728). */
+    display: inline;
   }
 
   .job-detail-section-title {
@@ -2798,6 +2804,13 @@
     padding: 0.68rem 1rem;
   }
 
+  .role-matrix-table thead th {
+    /* Diğer veri tablolarıyla aynı başlık satır yüksekliği (card #1726). */
+    height: var(--table-chrome-row-min-height);
+    min-height: var(--table-chrome-row-min-height);
+    padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
+  }
+
   .role-matrix-table th,
   .role-matrix-table td {
     text-align: center;
@@ -4612,6 +4625,24 @@
 
     .detail-modal-header-actions .detail-print-action {
       display: none !important;
+    }
+
+    /* Kapatma (X) butonu her zaman modal başlığının sağ üstünde sabit kalsın —
+       aksiyon grid'inin akışına girip kaymasın (card #1728). */
+    .detail-modal-header-mobile--actions-grid > .detail-modal-header-actions {
+      position: static;
+    }
+
+    .detail-modal-header-mobile--actions-grid .detail-modal-header-close {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      z-index: 5;
+    }
+
+    .detail-modal-title-rest {
+      /* Çok kelimeli başlıklarda ilk kelime birinci satırda, kalanı ikincide (card #1728). */
+      display: block;
     }
 
     .detail-modal-shell--my-request .my-request-detail-main__grid {

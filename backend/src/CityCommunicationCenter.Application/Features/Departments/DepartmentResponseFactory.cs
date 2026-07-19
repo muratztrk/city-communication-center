@@ -14,7 +14,8 @@ internal static class DepartmentResponseFactory
             department.ParentDepartmentId,
             department.ManagerUserId,
             department.DeputyManagerUserId,
-            ParseResponsibleUserIds(department.ResponsibleUserIdsJson));
+            ParseResponsibleUserIds(department.ResponsibleUserIdsJson),
+            string.IsNullOrWhiteSpace(department.SourceType) ? "Manual" : department.SourceType);
     }
 
     public static string SerializeResponsibleUserIds(IEnumerable<Guid>? userIds)

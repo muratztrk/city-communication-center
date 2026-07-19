@@ -37,6 +37,7 @@ import type { AssignmentHistory, Department, JobDetail, SocialMessage, Task, Tas
 import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus, formatOverdueInProgressStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
+import { DetailModalTitle } from '../utils/detailModalTitle'
 import { printHtmlDocument } from '../utils/printDocument'
 import { richTextToPlainText } from '../utils/richText'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -1828,8 +1829,8 @@ const pageKicker = isMyTasksView
             {/* Sabit başlık — Taleplerim detay popup'ı ile birebir aynı tasarım dili (my-request-detail-header). */}
             <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-6 py-3">
               <div className="detail-modal-header-title min-w-0">
-                <div className="my-request-detail-header__title uppercase">
-                  {detailScopeLabel}
+                <div className="my-request-detail-header__title">
+                  <DetailModalTitle title={detailScopeLabel} />
                 </div>
               </div>
               <DetailModalHeaderBrand />

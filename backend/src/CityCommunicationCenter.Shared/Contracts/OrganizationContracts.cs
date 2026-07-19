@@ -6,7 +6,8 @@ public sealed record CreateDepartmentRequest(
     Guid? ParentDepartmentId,
     Guid? ManagerUserId,
     Guid? DeputyManagerUserId,
-    IReadOnlyCollection<Guid>? ResponsibleUserIds);
+    IReadOnlyCollection<Guid>? ResponsibleUserIds,
+    string? SourceType = null);
 
 public sealed record UpdateDepartmentRequest(
     string Name,
@@ -23,4 +24,5 @@ public sealed record DepartmentResponse(
     Guid? ParentDepartmentId,
     Guid? ManagerUserId,
     Guid? DeputyManagerUserId,
-    IReadOnlyCollection<Guid> ResponsibleUserIds);
+    IReadOnlyCollection<Guid> ResponsibleUserIds,
+    string SourceType = "Manual");

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { DetailModalHeaderBrand } from '../../branding/DetailModalHeaderBrand'
 import { Button } from '../../ui/button'
 import { DisabledActionButton } from '../../ui/DisabledActionButton'
+import { DetailModalTitle } from '../../../utils/detailModalTitle'
 
 interface MyRequestDetailHeaderProps {
   title: string
@@ -42,8 +43,8 @@ export function MyRequestDetailHeader({
   return (
     <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-6 py-3">
       <div className="detail-modal-header-title min-w-0">
-        <div className="my-request-detail-header__title uppercase">
-          {title}
+        <div className="my-request-detail-header__title">
+          <DetailModalTitle title={title} />
         </div>
       </div>
       <DetailModalHeaderBrand />

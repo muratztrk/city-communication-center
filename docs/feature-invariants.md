@@ -839,8 +839,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Aktif** Rol kolonunun altında (Ek roller satırını itmez) (card #1718). LDAP kullanıcı
   seçimi birimi otomatik oluşturmaz; kullanıcı/birim **Oluştur** ile eklenir; senkron yalnız
   dizin listesini yeniler (card #1729). `+Yeni Kullanıcı` açıkken grid görünür kalır
-  (`desktop-page-fill` form açıkken kapanır — card #1731). LDAP formunda başlığın solunda
-  “Anlık LDAP Birim Senkronize Et”.
+  (`desktop-page-fill` form açıkken kapanır — card #1731). Kullanıcılar LDAP formunda
+  “Anlık LDAP Kullanıcı Senkronize Et” / “LDAP Kullanıcı Çek” (card #1735); Birimler
+  formunda birim metinleri kalır. LDAP dizin e-postası yalnız `mail` attribute’tur —
+  boşsa form E-posta alanı boş kalır, UPN ile doldurulmaz (card #1734).
 - **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,
   satır adları solda (card #1726).
 - **Ayarlar/Birimler/Kullanıcılar (`admin-surface-page`):** helper-copy, label, textbox ve

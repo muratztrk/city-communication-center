@@ -301,10 +301,17 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 ?? GetAttribute(entry, "sAMAccountName")
                 ?? GetAttribute(entry, "userPrincipalName")
                 ?? string.Empty,
-            GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName"),
+            // E-posta yalnız LDAP mail attribute; UPN fallback yok (card #1734).
+            NormalizeDirectoryMail(GetAttribute(entry, "mail")),
             ResolveDepartment(entry),
             GetAttribute(entry, "description"),
             GetAttribute(entry, "telephoneNumber"));
+    }
+
+    private static string? NormalizeDirectoryMail(string? mail)
+    {
+        var trimmed = mail?.Trim();
+        return string.IsNullOrWhiteSpace(trimmed) ? null : trimmed;
     }
 
     private LdapDirectoryUser? FindUserByExternalIdentityInternal(TenantLdapRuntimeSettings settings, string externalIdentityId)
@@ -343,7 +350,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                     ?? GetAttribute(entry, "sAMAccountName")
                     ?? GetAttribute(entry, "userPrincipalName")
                     ?? externalIdentityId,
-                GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName"),
+                NormalizeDirectoryMail(GetAttribute(entry, "mail")),
                 ResolveDepartment(entry),
                 GetAttribute(entry, "description"),
                 GetAttribute(entry, "telephoneNumber"));
@@ -392,7 +399,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                     ?? GetAttribute(entry, "sAMAccountName")
                     ?? GetAttribute(entry, "userPrincipalName")
                     ?? username,
-                GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName"),
+                NormalizeDirectoryMail(GetAttribute(entry, "mail")),
                 ResolveDepartment(entry),
                 GetAttribute(entry, "description"),
                 GetAttribute(entry, "telephoneNumber"));

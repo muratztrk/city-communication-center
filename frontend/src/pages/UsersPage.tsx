@@ -527,7 +527,8 @@ export function UsersPage() {
                     ...current,
                     username: selected?.username ?? current.username,
                     displayName: selected?.displayName ?? current.displayName,
-                    email: selected?.email ?? current.email,
+                    // mail attribute yoksa boş bırak; UPN ile doldurma (card #1734).
+                    email: selected?.email?.trim() ?? '',
                     password: '',
                     externalIdentityId: selected?.externalIdentityId ?? null,
                     departmentId: matchedDepartmentId || current.departmentId,

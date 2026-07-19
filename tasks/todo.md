@@ -1,6 +1,8 @@
-## Round 383 — #1730 reopen / #1733 reopen
+## Round 383 — #1730/#1733 reopen + #1734/#1735
 - #1730: LDAP birim listesi `directory-departments` (OU + department attr); senkron oluşturmaz; Emlak/İstimlak kaçırma fix.
 - #1733: admin-surface helper/label/textbox/dropdown metinleri daha da büyütüldü.
+- #1734: LDAP e-posta yalnız `mail` attribute; boşsa form boş.
+- #1735: Kullanıcılar LDAP etiketleri “Kullanıcı Çek / Kullanıcı Senkronize Et”.
 
 ## Round 382 — #1723/#1729/#1730/#1720/#1733/#1718/#1726/#1732/#1731
 - #1723: Nav/UI Departmanlar → Birimler.

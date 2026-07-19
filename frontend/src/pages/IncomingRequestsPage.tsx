@@ -203,6 +203,11 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
       || row.assignTargetDepartmentId != null
   }
 
+  // Onaylanmış: yönetici onayladığı tüm talepler — durum sonra değişse bile kalır (card #1697).
+  if (filter === 'approved') {
+    return row.approvedAtUtc != null
+  }
+
   if (filter === 'overdue') return !isClosed && isOverdue
   if (isOverdue && !isClosed) return false
 
@@ -222,12 +227,6 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
     || row.status === 'InProgress'
     || row.status === 'PendingCloseApproval'
   )
-
-  // Onaylanmış: aktif + henüz görev yok — personel ataması bekleyenler dahil (card #1697).
-  // Onay Bekleyen'de de kalabilirler (assignTargetDepartmentId); "da" görünürler.
-  if (filter === 'approved') {
-    return isActiveJob && taskCount === 0
-  }
 
   // Personel ataması bekleyenler Onay Bekleyen'de; Yapılmakta'da tekrar etmesin.
   if (row.assignTargetDepartmentId != null) return false

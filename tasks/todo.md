@@ -1,3 +1,7 @@
+## Round — #1697 reopen / #1701
+- #1697: Gelen/Giden Onaylanmış = bir kez onaylanmış tüm talepler (kalıcı).
+- #1701: Görevler Son Tarihi Geçmiş chip turuncu (`scope-chip--overdue`).
+
 ## Round — #1700
 - #1700: Gelen/Giden banner page-kicker = seçili chip metni.
 

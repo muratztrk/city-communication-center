@@ -605,8 +605,10 @@ function filterDepartmentOutgoingRequests(jobs: JobSummary[], view: DepartmentOu
       job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
   }
 
+  // Onaylanmış: sahip yöneticinin onayladığı tüm talepler — durum sonra değişse bile (card #1697).
   if (view === 'approved') {
-    return jobs.filter(job => job.status === 'Active' && job.taskCount === 0 && !isJobOverdue(job))
+    return jobs.filter(job =>
+      job.departments?.some(department => department.role === 'Owner' && department.decidedAtUtc != null) ?? false)
   }
 
   if (view === 'in-progress') {

@@ -780,8 +780,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Birime Gelen breadcrumb `?status=` ile sekme adını takip eder (card #1696).
   Standart kullanıcı Taleplerim `Onaylanmış/Yapılmakta Taleplerim` chip'i mavidir
   (`scope-chip--in-progress`, card #1698) — sarı `approved` chip'i yönetici Onaylanmış'ta kalır.
-  Birime Gelen Onaylanmış: `Active` + `taskCount === 0` (personel ataması bekleyen
-  `assignTargetDepartmentId` satırları dahil; card #1697).
+  Birime Gelen Onaylanmış: `approvedAtUtc != null` — durum sonra değişse bile kalır
+  (card #1697). Birimden Giden Onaylanmış: Owner `decidedAtUtc` dolu olan tüm talepler
+  (card #1697). Yapılmakta / Tamamlanmış vb. sekmelerde de görünebilirler.
+  Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
+  (card #1701; mavi `in-progress` değil).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
   Birime Gelen / Birimden Giden banner `page-kicker` seçili scope chip metnidir;

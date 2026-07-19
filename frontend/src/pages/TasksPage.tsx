@@ -428,8 +428,8 @@ function getScopeChipColorClass(value: string): string {
   if (value === 'in-progress') return 'scope-chip--in-progress'
   if (value === 'completed') return 'scope-chip--completed'
   if (value === 'rejected') return 'scope-chip--rejected'
-  // Son Tarihi Geçmiş: Yapılmakta Olan ile aynı turuncu renk.
-  if (value === 'overdue') return 'scope-chip--in-progress'
+  // Son Tarihi Geçmiş: turuncu (card #1701) — mavi in-progress ile karışmasın.
+  if (value === 'overdue') return 'scope-chip--overdue'
   if (value === 'all') return 'scope-chip--all'
   return ''
 }

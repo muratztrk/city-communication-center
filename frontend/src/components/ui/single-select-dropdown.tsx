@@ -44,6 +44,7 @@ export function SingleSelectDropdown({
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
+  const [adminSurfaceMenu, setAdminSurfaceMenu] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   // Panel bir portal ile document.body'ye render edilir; overflow-y-auto/overflow-hidden
@@ -110,6 +111,7 @@ export function SingleSelectDropdown({
           if (open) {
             setSearch('')
           } else {
+            setAdminSurfaceMenu(Boolean(rootRef.current?.closest('.admin-surface-page')))
             updateMenuPosition()
           }
           setOpen(current => !current)
@@ -127,7 +129,11 @@ export function SingleSelectDropdown({
           // Portal artık document.body'ye render ediliyor; FilterableTh'nin col-filter-popover'ı
           // ile aynı üst katman kuralına uyar, modal içindeki kullanımlarda ModalBackdrop'ın
           // z-[200] katmanının üzerinde kalır (card #1509).
-          className={cn('dropdown-menu-panel fixed z-[9999]', menuClassName)}
+          className={cn(
+            'dropdown-menu-panel fixed z-[9999]',
+            adminSurfaceMenu && 'admin-surface-menu',
+            menuClassName,
+          )}
           style={{
             left: menuStyle.left,
             top: menuStyle.top,

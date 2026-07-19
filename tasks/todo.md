@@ -1,3 +1,13 @@
+## Round 382 — #1723/#1729/#1730/#1720/#1733/#1718/#1726/#1732/#1731
+- #1723: Nav/UI Departmanlar → Birimler.
+- #1729/#1730: LDAP senkron otomatik oluşturmaz; Oluştur ile eklenir; kullanıcı seçiminde createDepartment yok.
+- #1720: Düzenle Tür default Birim (Administration korunur).
+- #1733: admin-surface-page helper-copy + dropdown metin büyütme.
+- #1718: Aktif, Rol kolonunun altında.
+- #1726: Rol matrisi Sayfa th ortalı.
+- #1732: Birimler grid Düzenle/Sil etiketli + ortalı.
+- #1731: +Yeni Kullanıcı açıkken grid görünür.
+
 ## Round 381 — #1721/#1724/#1725/#1717/#1730
 - #1721: Banner İptal kırmızı; formdaki yanlış İptal kaldırıldı.
 - #1725: Kullanıcılar İşlemler’de Düzenle/Sil metinleri.

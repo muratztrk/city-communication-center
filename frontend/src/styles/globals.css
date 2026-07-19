@@ -2551,8 +2551,10 @@
   }
 
   .departments-table th:nth-child(5),
-  .departments-table td:nth-child(5) {
-    width: 12rem;
+  .departments-table td:nth-child(5),
+  .departments-table .actions-column {
+    width: 16.5rem;
+    min-width: 16.5rem;
   }
 
   .data-table .actions-column {
@@ -2881,10 +2883,35 @@
     vertical-align: middle;
   }
 
-  .role-matrix-table th:first-child,
+  .role-matrix-table th:first-child {
+    /* Yalnız "Sayfa" başlığı ortalı; satır etiketleri solda kalır (card #1726). */
+    text-align: center;
+    min-width: 13rem;
+  }
+
   .role-matrix-table td:first-child {
     text-align: left;
     min-width: 13rem;
+  }
+
+  /* Ayarlar / Birimler / Kullanıcılar: kompakt shell altında okunabilir metin (card #1733). */
+  .app-content-shell .admin-surface-page .helper-copy {
+    font-size: 0.8rem;
+  }
+
+  .app-content-shell .admin-surface-page .field-input,
+  .app-content-shell .admin-surface-page .field-select {
+    font-size: 0.875rem;
+  }
+
+  .admin-surface-menu .dropdown-menu-item {
+    min-height: 2.45rem;
+    padding: 0.55rem 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .admin-surface-page .relative [role='listbox'] span.text-sm {
+    font-size: 0.9rem;
   }
 
   .role-matrix-toggle {

@@ -34,6 +34,7 @@ export function MultiSelectDropdown({
   disabled = false,
 }: MultiSelectDropdownProps) {
   const [open, setOpen] = useState(false)
+  const [adminSurfaceMenu, setAdminSurfaceMenu] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [menuStyle, setMenuStyle] = useState<{ top?: number; bottom?: number; left: number; width: number }>({ left: 0, width: 0 })
@@ -101,7 +102,10 @@ export function MultiSelectDropdown({
         aria-expanded={open}
         disabled={disabled}
         onClick={() => {
-          if (!open) updateMenuPosition()
+          if (!open) {
+            setAdminSurfaceMenu(Boolean(rootRef.current?.closest('.admin-surface-page')))
+            updateMenuPosition()
+          }
           setOpen(current => !current)
         }}
       >
@@ -129,7 +133,10 @@ export function MultiSelectDropdown({
           ref={menuRef}
           // Tablo hücrelerinde absolute menü komşu sütunlara biniyordu (card #1706) —
           // SingleSelect ile aynı portal + fixed katman.
-          className="dropdown-menu-panel fixed z-[9999] flex max-h-72 flex-col"
+          className={cn(
+            'dropdown-menu-panel fixed z-[9999] flex max-h-72 flex-col',
+            adminSurfaceMenu && 'admin-surface-menu',
+          )}
           style={{
             left: menuStyle.left,
             top: menuStyle.top,

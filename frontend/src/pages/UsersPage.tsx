@@ -413,7 +413,7 @@ export function UsersPage() {
   }
 
   return (
-    <div className="page-stack desktop-page-shell">
+    <div className={`page-stack desktop-page-shell admin-surface-page${showForm ? ' shrink-0' : ''}`}>
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
@@ -460,7 +460,7 @@ export function UsersPage() {
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 
       {canManageUsers && showForm ? (
-        <form className="form-card page-stack" onSubmit={handleCreateUser}>
+        <form className="form-card page-stack shrink-0" onSubmit={handleCreateUser}>
           <div>
             <h2 className="text-xl font-extrabold text-slate-950">{t('users.newFormTitle')}</h2>
             <p className="helper-copy">{t('users.newFormDescription')}</p>
@@ -513,38 +513,25 @@ export function UsersPage() {
                   setSelectedDirectoryUser(selected)
                   setDirectoryQuery(option.label)
 
-                  // Auto-match or auto-create department from LDAP
-                  const resolveDepartment = async () => {
-                    let matchedDepartmentId = ''
-                    if (selected?.department) {
-                      const normalizedLdap = selected.department.toLocaleLowerCase('tr')
-                      const existing = departments.find(d => d.name.toLocaleLowerCase('tr') === normalizedLdap)
-                      if (existing) {
-                        matchedDepartmentId = existing.departmentId
-                      } else {
-                        try {
-                          const created = await api.createDepartment({ name: selected.department, departmentType: 'Müdürlük' })
-                          const refreshed = await api.getDepartments()
-                          setDepartments(refreshed)
-                          matchedDepartmentId = created.departmentId
-                        } catch {
-                          // Silently fall back — user can pick manually
-                        }
-                      }
+                  // LDAP seçiminde birim eşleştir; birim yoksa oluşturma — Oluştur + ldapDepartmentName (card #1729).
+                  let matchedDepartmentId = ''
+                  if (selected?.department) {
+                    const normalizedLdap = selected.department.toLocaleLowerCase('tr')
+                    const existing = departments.find(d => d.name.toLocaleLowerCase('tr') === normalizedLdap)
+                    if (existing) {
+                      matchedDepartmentId = existing.departmentId
                     }
-
-                    setNewUser(current => ({
-                      ...current,
-                      username: selected?.username ?? current.username,
-                      displayName: selected?.displayName ?? current.displayName,
-                      email: selected?.email ?? current.email,
-                      password: '',
-                      externalIdentityId: selected?.externalIdentityId ?? null,
-                      departmentId: matchedDepartmentId || current.departmentId,
-                    }))
                   }
 
-                  void resolveDepartment()
+                  setNewUser(current => ({
+                    ...current,
+                    username: selected?.username ?? current.username,
+                    displayName: selected?.displayName ?? current.displayName,
+                    email: selected?.email ?? current.email,
+                    password: '',
+                    externalIdentityId: selected?.externalIdentityId ?? null,
+                    departmentId: matchedDepartmentId || current.departmentId,
+                  }))
                 }}
                 onValueChange={value => {
                   setDirectoryQuery(value)
@@ -674,24 +661,31 @@ export function UsersPage() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:items-start">
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('users.role')}</span>
-              <SingleSelectDropdown
-                options={PRIMARY_ROLE_CODES.map(roleCode => ({
-                  value: roleCode,
-                  label: getRoleLabel(t, roleCode),
-                }))}
-                value={newUser.roleCode}
-                onChange={roleCode => setNewUser(current => ({
-                  ...current,
-                  roleCode,
-                  additionalRoleCodes: current.additionalRoleCodes.filter(role => role !== roleCode),
-                }))}
-                placeholder={t('users.role')}
-                searchable
-                searchPlaceholder={t('common.search', 'Ara...')}
-              />
-            </label>
+            <div className="grid gap-4">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('users.role')}</span>
+                <SingleSelectDropdown
+                  options={PRIMARY_ROLE_CODES.map(roleCode => ({
+                    value: roleCode,
+                    label: getRoleLabel(t, roleCode),
+                  }))}
+                  value={newUser.roleCode}
+                  onChange={roleCode => setNewUser(current => ({
+                    ...current,
+                    roleCode,
+                    additionalRoleCodes: current.additionalRoleCodes.filter(role => role !== roleCode),
+                  }))}
+                  placeholder={t('users.role')}
+                  searchable
+                  searchPlaceholder={t('common.search', 'Ara...')}
+                />
+              </label>
+
+              <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+                <input className="field-checkbox" checked={newUser.isActive} type="checkbox" onChange={event => setNewUser(current => ({ ...current, isActive: event.target.checked }))} />
+                {t('users.active')}
+              </label>
+            </div>
 
             <div className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('users.additionalRoles', 'Ek roller')}</span>
@@ -706,11 +700,6 @@ export function UsersPage() {
               />
               <span className="helper-copy">{t('users.additionalRolesHelp', 'Kullanıcı birincil role ek olarak birden fazla yetki alabilir.')}</span>
             </div>
-
-            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-              <input className="field-checkbox" checked={newUser.isActive} type="checkbox" onChange={event => setNewUser(current => ({ ...current, isActive: event.target.checked }))} />
-              {t('users.active')}
-            </label>
           </div>
 
           {newUser.roleCode === 'Manager' && newUser.departmentId && getDepartmentManager(newUser.departmentId) ? (
@@ -725,8 +714,8 @@ export function UsersPage() {
         </form>
       ) : null}
 
-      <section className="section-card desktop-page-fill">
-        <div className="table-wrap desktop-panel-scroll">
+      <section className={`section-card${showForm ? '' : ' desktop-page-fill'}`}>
+        <div className={`table-wrap${showForm ? '' : ' desktop-panel-scroll'}`}>
           <table className="data-table users-table">
             <thead>
               <tr>

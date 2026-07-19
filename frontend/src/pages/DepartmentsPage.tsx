@@ -165,7 +165,7 @@ export function DepartmentsPage() {
 
   const handlePullAllLdapDepartments = async () => {
     setPullAllLdapLoading(true)
-    setPullAllLdapMessage(t('departments.pullAllLdapWorking'))
+    setPullAllLdapMessage(t('departments.liveLdapSyncWorking'))
     setError('')
 
     try {
@@ -174,6 +174,7 @@ export function DepartmentsPage() {
       )
 
       const foundNamesByKey = new Map<string, string>()
+      const listedResults: DirectoryUserLookup[] = []
       for (const results of resultsByLetter) {
         for (const result of results) {
           const name = result.department?.trim()
@@ -181,34 +182,24 @@ export function DepartmentsPage() {
           const key = name.toLocaleLowerCase('tr')
           if (!foundNamesByKey.has(key)) {
             foundNamesByKey.set(key, name)
+            listedResults.push({
+              ...result,
+              department: name,
+              externalIdentityId: `ldap-unit:${key}`,
+              username: name,
+              displayName: name,
+              alreadyLinked: false,
+              existingUserId: null,
+            })
           }
         }
       }
 
-      const existingKeys = new Set(departments.map(department => department.name.toLocaleLowerCase('tr')))
-      const missingNames = Array.from(foundNamesByKey.values()).filter(name => !existingKeys.has(name.toLocaleLowerCase('tr')))
-
-      let createdCount = 0
-      for (const name of missingNames) {
-        try {
-          await api.createDepartment({
-            name,
-            departmentType: 'Birim',
-            managerUserId: null,
-            responsibleUserIds: [],
-            sourceType: 'Ldap',
-          })
-          createdCount += 1
-        } catch {
-          // Bir birim oluşturulamazsa diğerleriyle devam edilir; kullanıcı özet sayıyı görür.
-        }
-      }
-
-      if (createdCount > 0) {
-        invalidateDepartments(queryClient)
-      }
-
-      setPullAllLdapMessage(t('departments.pullAllLdapSuccess', { count: createdCount }))
+      setDirectoryResults(listedResults)
+      setDirectoryQuery('')
+      setSelectedLdapDepartment(null)
+      setNewName('')
+      setPullAllLdapMessage(t('departments.pullAllLdapSuccess', { count: foundNamesByKey.size }))
     } catch (pullError) {
       setPullAllLdapMessage(null)
       setError(pullError instanceof Error ? pullError.message : t('common.error'))
@@ -220,9 +211,9 @@ export function DepartmentsPage() {
   const startEdit = (department: Department) => {
     setEditId(department.departmentId)
     setEditName(department.name)
-    // Mevcut türü koru — legacy Müdürlük/Daire kaydetmede sessizce Birim'e düşmesin.
     setEditTypeOriginal(department.departmentType)
-    setEditType(department.departmentType || 'Birim')
+    // Tür default Birim; Yönetim ise koru (card #1720).
+    setEditType(department.departmentType === 'Administration' ? 'Administration' : 'Birim')
     setEditManagerUserId(department.managerUserId ?? '')
     setEditResponsibleUserIds(department.responsibleUserIds ?? [])
     setDeleteConfirmId(null)
@@ -362,7 +353,7 @@ export function DepartmentsPage() {
   }
 
   return (
-    <div className="page-stack desktop-page-shell">
+    <div className={`page-stack desktop-page-shell admin-surface-page${showForm ? ' shrink-0' : ''}`}>
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
@@ -420,7 +411,7 @@ export function DepartmentsPage() {
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
 
       {showForm ? (
-        <form className="form-card page-stack" onSubmit={handleCreate}>
+        <form className="form-card page-stack shrink-0" onSubmit={handleCreate}>
           <div className="page-header-row">
             <div>
               <h2 className="text-xl font-extrabold text-slate-950">{t('departments.newFormTitle')}</h2>
@@ -519,8 +510,8 @@ export function DepartmentsPage() {
         </form>
       ) : null}
 
-      <section className="section-card desktop-page-fill">
-        <div className="table-wrap desktop-panel-scroll">
+      <section className={`section-card${showForm ? '' : ' desktop-page-fill'}`}>
+        <div className={`table-wrap${showForm ? '' : ' desktop-panel-scroll'}`}>
           <table className="data-table departments-table">
             <thead>
               <tr>
@@ -558,7 +549,7 @@ export function DepartmentsPage() {
                   {t('departments.manager', 'Müdür')}
                 </FilterableTh>
                 <th>{t('departments.responsibles', 'Sorumlular')}</th>
-                <th className="w-56">{t('common.actions')}</th>
+                <th className="w-64 text-center">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -601,11 +592,11 @@ export function DepartmentsPage() {
                           : '—'}
                       </div>
                     </td>
-                    <td>
+                    <td className="actions-column text-center">
                         {deleteConfirmId === department.departmentId ? (
-                          <div className="flex flex-col gap-1">
+                          <div className="flex flex-col items-center gap-1">
                             <span className="text-xs text-red-600">{t('departments.deleteConfirm', { name: department.name })}</span>
-                            <div className="inline-actions">
+                            <div className="inline-actions justify-center">
                               <Button size="sm" variant="destructive" onClick={() => void handleDelete(department.departmentId)}>
                                 {t('common.delete')}
                               </Button>
@@ -615,7 +606,7 @@ export function DepartmentsPage() {
                             </div>
                           </div>
                         ) : (
-                          <div className="inline-actions justify-end">
+                          <div className="row-actions justify-center">
                             {canEditDepartment(department) ? (
                               <>
                                 {isManagerAssigning ? (
@@ -627,13 +618,15 @@ export function DepartmentsPage() {
                                     {t('departments.assignManager', 'Yönetici Ata')}
                                   </Button>
                                 )}
-                                <button className="icon-btn text-slate-500 hover:text-[color:var(--color-primary)]" title={t('common.edit')} type="button" onClick={() => startEdit(department)}>
-                                  <PenLine className="size-4" strokeWidth={1.75} aria-hidden="true" />
+                                <button className="icon-action icon-action--labeled" title={t('common.edit')} aria-label={t('common.edit')} type="button" onClick={() => startEdit(department)}>
+                                  <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                                  <span>{t('common.edit')}</span>
                                 </button>
                               </>
                             ) : null}
-                            <button className="icon-btn text-slate-400 hover:text-red-600" title={t('common.delete')} type="button" onClick={() => { setDeleteConfirmId(department.departmentId); setEditId(null); setManagerAssignId(null) }}>
-                              <Trash2 className="size-4" />
+                            <button className="icon-action icon-action--labeled danger" title={t('common.delete')} aria-label={t('common.delete')} type="button" onClick={() => { setDeleteConfirmId(department.departmentId); setEditId(null); setManagerAssignId(null) }}>
+                              <Trash2 className="size-3.5" />
+                              <span>{t('common.delete')}</span>
                             </button>
                           </div>
                         )}

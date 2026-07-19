@@ -817,26 +817,35 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`Görev atandı`, `Görev İptal Edildi`, `Rutin görev oluşturuldu` — ham action kodu yok).
   Detay sütunu bildirim `FormatNote` ile aynı sadeleştirme: teknik `Status=/Targets=/CreatedTasks=`
   ham dump yok; varsa yalnızca lokalize durum (card #1713 Detay).
-- **Yeni departman formu LDAP birim çekebilir:** LDAP açıksa Manual|LDAP segmented; LDAP listesinde
+- **Nav/UI “Birimler”:** `nav.departments` ve departments.* metinleri “Birimler/Birim”dir;
+  “Departmanlar” geri gelmez (card #1723).
+- **Yeni birim formu LDAP birim çekebilir:** LDAP açıksa Manual|LDAP segmented; LDAP listesinde
   yalnız birim adları. Oluşturma formunda Tür/Müdür/Sorumlular yok — varsayılan tür `Birim`
-  (card #1714/#1720). LDAP oluşturmada `SourceType=Ldap`; “LDAP Tüm Birimleri Çek” eksik birimleri
-  ekler, kullanıcı atanmış birimleri silmez (card #1717). LDAP birim düzenleme formu
-  müdahale edilemez; Tür yalnız `Birim`/`Administration` (card #1719). Yönetim seçilince müdür
-  etiketi `Yönetici` (card #1720).
+  (card #1714/#1720). LDAP oluşturmada `SourceType=Ldap`. “Anlık LDAP Birim Senkronize Et”
+  yalnız listeyi yeniler / doldurur — kayıt **Oluştur** ile eklenir; senkron otomatik
+  `createDepartment` çağırmaz (cards #1717/#1730). LDAP birim düzenleme formu
+  müdahale edilemez; Tür yalnız `Birim`/`Administration` (card #1719). Düzenle Tür
+  default `Birim`, mevcut `Administration` korunur (card #1720). Yönetim seçilince müdür
+  etiketi `Yönetici`.
 - **Kurum sekmesi sağ kolon:** üstte Kurum Konumu, altta Hafta Sonu SLA; sol Kurum Bilgisi ile
   alt border hizalı (`items-stretch` + sağ kolon `flex-1`) (card #1715).
-- **Departmanlar/Kullanıcılar grid:** FilterableTh + sort + TablePagination; kolon genişlikleri
+- **Birimler/Kullanıcılar grid:** FilterableTh + sort + TablePagination; kolon genişlikleri
   `users-table`/`departments-table` ile orantılı (card #1724). Kullanıcılar Rol StatusPill ortalı;
-  İşlemler’de kalem+Düzenle / çöp+Sil (cards #1722/#1725). Banner `+Yeni…` açıkken İptal
-  destructive kırmızı; form altındaki ekstra İptal yok (card #1721). Yeni kullanıcı Rol/Ek roller
-  `items-start` (card #1718). LDAP formunda başlığın solunda tıklanabilir
-  “Anlık LDAP Birim Senkronize Et” (departman toplu çek / kullanıcı anlık arama yenile —
-  cards #1717/#1730).
-- **Rol Sayfa Yetkileri:** standart header yüksekliği + TablePagination default 25 (card #1726).
+  İşlemler’de kalem+Düzenle / çöp+Sil ve satır ortalı (cards #1722/#1725/#1732). Banner `+Yeni…`
+  açıkken İptal destructive kırmızı; form altındaki ekstra İptal yok (card #1721). Yeni kullanıcı
+  **Aktif** Rol kolonunun altında (Ek roller satırını itmez) (card #1718). LDAP kullanıcı
+  seçimi birimi otomatik oluşturmaz; kullanıcı/birim **Oluştur** ile eklenir; senkron yalnız
+  dizin listesini yeniler (card #1729). `+Yeni Kullanıcı` açıkken grid görünür kalır
+  (`desktop-page-fill` form açıkken kapanır — card #1731). LDAP formunda başlığın solunda
+  “Anlık LDAP Birim Senkronize Et”.
+- **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,
+  satır adları solda (card #1726).
+- **Ayarlar/Birimler/Kullanıcılar (`admin-surface-page`):** helper-copy ve dropdown liste
+  metinleri kompakt shell’den büyük (card #1733).
 - **Otomatik Yönlendirme:** Yönlendirme Kuralları ve Yönlendirme Testi UI yok (card #1727).
 - **Mobil detay popup başlığı:** title case (ALL CAPS değil); çok kelimede 2. satır; X sağ üst
   (card #1728).
-- **Departmanlar / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
+- **Birimler / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
   `SingleSelectDropdown` (card #1709). Kullanıcı düzenleme dept/rol menüsünde arama + kompakt satır (card #1706).
 - **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).
 - **Onayla ve Personel Ata self-istek metni (card #1671):**

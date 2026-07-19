@@ -435,6 +435,11 @@ export function IncomingRequestsPage() {
   } | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
+  const currentStatusFilterMeta = STATUS_FILTERS.find(filter => filter.value === currentStatusFilter)
+  const currentStatusFilterLabel = t(
+    currentStatusFilterMeta?.labelKey ?? 'jobs.scopes.pendingApprovalRequests',
+    currentStatusFilterMeta?.fallback ?? 'Onay Bekleyen Talepler',
+  )
   const currentKindFilter = getIncomingKindFilter()
   const showTaskOwnerColumn = ['approved', 'in-progress', 'completed', 'cancelled'].includes(currentStatusFilter)
   const incomingTableColumnCount = useMemo(() => {
@@ -816,7 +821,8 @@ export function IncomingRequestsPage() {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
-            <div className="page-kicker">{t('nav.incomingRequests', 'Birime Gelen Talepler')}</div>
+            {/* Banner ilk satır = seçili sekme metni (card #1700; Taleplerim ile aynı kalıp). */}
+            <div className="page-kicker">{currentStatusFilterLabel}</div>
             <h1 className="page-title">{t('nav.incomingRequests', 'Birime Gelen Talepler')}</h1>
             <p className="page-subtitle">{t('incomingRequests.subtitle', 'Birim içi ve birim dışı gelen talepleri tek listede takip edin.')}</p>
           </div>

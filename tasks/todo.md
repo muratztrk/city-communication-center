@@ -1,3 +1,6 @@
+## Round — #1700
+- #1700: Gelen/Giden banner page-kicker = seçili chip metni.
+
 ## Round — #1699
 - #1699: Sidebar "Tire İletişim Merkezi" metni logo altına biraz aşağı alındı.
 

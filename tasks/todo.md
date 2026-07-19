@@ -1,3 +1,6 @@
+## Round — #1703
+- #1703: Birime Gelen Onaylanmış gridinden Onayla kaldırıldı.
+
 ## Round — #1702
 - #1702: Birime Gelen Onaylanmış gridinden İptal Et kaldırıldı.
 

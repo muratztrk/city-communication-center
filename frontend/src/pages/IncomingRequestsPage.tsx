@@ -1020,28 +1020,28 @@ export function IncomingRequestsPage() {
                         <Button size="sm" variant="secondary" onClick={() => setDetailJobId(row.jobId)}>
                           {t('jobs.actions.details', 'Detaylar')}
                         </Button>
-                        {/* Yapılmakta görünümünde yalnız Detaylar (card #1695). */}
-                        {currentStatusFilter !== 'in-progress' && canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
+                        {/* Yapılmakta / Onaylanmış: yalnız Detaylar (cards #1695/#1702/#1703). */}
+                        {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveOwner(row.id)}>
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
-                        {currentStatusFilter !== 'in-progress' && canApproveRow(row) && row.statusDomain === 'job' && row.pendingTargetApprovalDepartmentId && (
+                        {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'job' && row.pendingTargetApprovalDepartmentId && (
                           <Button size="sm" variant="success" onClick={() => handleApproveTarget(row.id, row.pendingTargetApprovalDepartmentId!)}>
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
-                        {currentStatusFilter !== 'in-progress' && canApproveRow(row) && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
+                        {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
                           <Button size="sm" variant="success" onClick={() => handleAssignStaff(row.id)}>
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
-                        {currentStatusFilter !== 'in-progress' && canApproveRow(row) && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
+                        {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
                           <Button size="sm" variant="success" onClick={() => handleApproveClose(row.id)}>
                             {t('tasks.actions.approveClose', 'Onayla')}
                           </Button>
                         )}
-                        {currentStatusFilter !== 'in-progress' && shouldShowDisabledApprove(row) && (
+                        {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && shouldShowDisabledApprove(row) && (
                           <DisabledActionButton
                             size="sm"
                             variant="success"

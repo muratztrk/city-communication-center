@@ -1,3 +1,6 @@
+## Round 386 — #1741
+- #1741: Birimler grid’inden Tür sütunu kaldırıldı (form + tür dağılımı kaldı).
+
 ## Round 385 — #1740
 - #1740: Yeni kullanıcı E-posta placeholder `ornek@belediye.bel.tr`.
 

@@ -521,17 +521,6 @@ export function DepartmentsPage() {
                   {t('departments.name')}
                 </FilterableTh>
                 <FilterableTh
-                  filterKey="departmentType"
-                  filterValue={deptFilters['departmentType'] ?? ''}
-                  onFilter={handleDeptFilter}
-                  sortKey="departmentType"
-                  currentSortKey={deptSortKey}
-                  sortDir={deptSortDir}
-                  onSort={handleDeptSort}
-                >
-                  {t('departments.type')}
-                </FilterableTh>
-                <FilterableTh
                   filterKey="managerName"
                   filterValue={deptFilters['managerName'] ?? ''}
                   onFilter={handleDeptFilter}
@@ -554,7 +543,6 @@ export function DepartmentsPage() {
                 return (
                   <tr key={department.departmentId}>
                     <td className="font-semibold">{department.name}</td>
-                    <td><StatusPill>{getDepartmentTypeLabel(t, department.departmentType)}</StatusPill></td>
                     <td>
                       {isManagerAssigning ? (
                         <SingleSelectDropdown
@@ -629,7 +617,7 @@ export function DepartmentsPage() {
                 )
               })}
               {pagedDepts.length === 0 ? (
-                <TableEmptyStateRows columnCount={5} message={t('departments.empty')} />
+                <TableEmptyStateRows columnCount={4} message={t('departments.empty')} />
               ) : null}
             </tbody>
           </table>

@@ -2570,29 +2570,24 @@
     min-width: 11.5rem;
   }
 
-  /* Birim Adı | Tür | Müdür | Sorumlular | İşlemler */
+  /* Birim Adı | Müdür | Sorumlular | İşlemler (Tür sütunu yok — card #1741) */
   .departments-table th:nth-child(1),
   .departments-table td:nth-child(1) {
-    width: 18rem;
+    width: 20rem;
   }
 
   .departments-table th:nth-child(2),
   .departments-table td:nth-child(2) {
-    width: 8rem;
+    width: 12rem;
   }
 
   .departments-table th:nth-child(3),
   .departments-table td:nth-child(3) {
-    width: 12rem;
-  }
-
-  .departments-table th:nth-child(4),
-  .departments-table td:nth-child(4) {
     width: 14rem;
   }
 
-  .departments-table th:nth-child(5),
-  .departments-table td:nth-child(5),
+  .departments-table th:nth-child(4),
+  .departments-table td:nth-child(4),
   .departments-table .actions-column {
     width: 16.5rem;
     min-width: 16.5rem;

@@ -1,3 +1,11 @@
+## Round 384 — #1733/#1735/#1737/#1738/#1739/#1729/#1736
+- #1733: Ayarlar tab buton metinleri büyütüldü.
+- #1735/#1737: LDAP başlık solda, Anlık senkron sağda (Kullanıcılar/Birimler).
+- #1738: Oluşturma Modu segmented + LDAP section title büyütüldü.
+- #1739: Ek birim seçiniz... + multi-select arama; Rol/Aktif/Oluştur sağ kolon.
+- #1729: Birimi Düzenle dropdown label sarımı kaldırıldı (dış tık kapanır).
+- #1736: Otomatik yönlendirme textarea metin boyutu admin-surface ile büyütüldü.
+
 ## Round 383 — #1730/#1733 reopen + #1734/#1735
 - #1730: LDAP birim listesi `directory-departments` (OU + department attr); senkron oluşturmaz; Emlak/İstimlak kaçırma fix.
 - #1733: admin-surface helper/label/textbox/dropdown metinleri daha da büyütüldü.

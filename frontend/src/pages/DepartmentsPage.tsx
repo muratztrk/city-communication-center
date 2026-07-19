@@ -437,6 +437,7 @@ export function DepartmentsPage() {
           {createMode === 'ldap' && ldapEnabled ? (
             <div className="section-card page-stack">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h3 className="ldap-section-title text-lg font-extrabold text-slate-950">{t('departments.directorySearch')}</h3>
                 <button
                   type="button"
                   className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
@@ -445,7 +446,6 @@ export function DepartmentsPage() {
                 >
                   {pullAllLdapLoading ? t('departments.liveLdapSyncWorking') : t('departments.liveLdapSync')}
                 </button>
-                <h3 className="text-lg font-extrabold text-slate-950">{t('departments.directorySearch')}</h3>
               </div>
               <p className="helper-copy">{t('departments.directorySearchDescription')}</p>
               <AutocompleteField
@@ -671,7 +671,8 @@ export function DepartmentsPage() {
                     <span>{t('departments.name')}</span>
                     <input className="field-input" type="text" value={editName} onChange={event => setEditName(event.target.value)} />
                   </label>
-                  <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                  {/* label yerine div: label tıklaması dropdown'ı yeniden açıyordu (card #1729). */}
+                  <div className="grid gap-2 text-sm font-semibold text-slate-700">
                     <span>{t('departments.type')}</span>
                     <SingleSelectDropdown
                       options={editTypeOptions.map(type => ({
@@ -682,8 +683,8 @@ export function DepartmentsPage() {
                       onChange={setEditType}
                       placeholder={t('departments.type')}
                     />
-                  </label>
-                  <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                  </div>
+                  <div className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
                     <span>{editType === 'Administration' ? t('departments.administrator') : t('departments.manager', 'Müdür')}</span>
                     <SingleSelectDropdown
                       options={[
@@ -699,7 +700,7 @@ export function DepartmentsPage() {
                       searchable
                       searchPlaceholder={t('common.search', 'Ara...')}
                     />
-                  </label>
+                  </div>
                   <div className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
                     <span>{t('departments.responsibles', 'Sorumlular')}</span>
                     <MultiSelectDropdown
@@ -708,6 +709,8 @@ export function DepartmentsPage() {
                       onChange={setEditResponsibleUserIds}
                       placeholder={t('departments.responsiblesPlaceholder', 'Sorumlu kullanıcı seçin')}
                       emptyText={t('departments.responsiblesEmpty', 'Aktif kullanıcı bulunmuyor.')}
+                      searchable
+                      searchPlaceholder={t('common.search', 'Ara...')}
                     />
                     <span className="helper-copy">{t('departments.responsiblesHelp', 'Birden fazla kullanıcı seçebilirsiniz.')}</span>
                   </div>

@@ -1497,16 +1497,21 @@
       font-size: 0.74rem;
     }
 
-    /* Ayarlar / Birimler / Kullanıcılar: kompakt shell üstü okunabilir metin (card #1733 reopen). */
+    /* Ayarlar / Birimler / Kullanıcılar: kompakt shell üstü okunabilir metin (card #1733/#1736/#1738). */
     .app-content-shell .admin-surface-page .helper-copy {
       font-size: 0.9rem;
       line-height: 1.5;
     }
 
     .app-content-shell .admin-surface-page .field-input,
-    .app-content-shell .admin-surface-page .field-select {
+    .app-content-shell .admin-surface-page .field-select,
+    .app-content-shell .admin-surface-page .field-textarea {
       min-height: 2.45rem;
       font-size: 0.95rem;
+    }
+
+    .app-content-shell .admin-surface-page .field-textarea {
+      min-height: 5.5rem;
     }
 
     .app-content-shell .admin-surface-page label.text-sm,
@@ -1517,6 +1522,20 @@
 
     .app-content-shell .admin-surface-page .field-select span {
       font-size: 0.95rem;
+    }
+
+    .app-content-shell .admin-surface-page .settings-tab-bar .tab-button {
+      min-height: 2.75rem;
+      padding: 0.7rem 1.1rem;
+      font-size: 0.95rem;
+    }
+
+    .app-content-shell .admin-surface-page .segmented-control button {
+      font-size: 0.9rem;
+    }
+
+    .app-content-shell .admin-surface-page .ldap-section-title {
+      font-size: 1.2rem;
     }
   }
 
@@ -2890,6 +2909,7 @@
   .settings-tab-bar .tab-button {
     min-height: 2.6rem;
     padding: 0.68rem 1rem;
+    font-size: 0.95rem;
   }
 
   .role-matrix-table thead th {

@@ -488,6 +488,7 @@ export function UsersPage() {
           {createMode === 'ldap' ? (
             <div className="section-card page-stack">
               <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                <h3 className="ldap-section-title text-lg font-extrabold text-slate-950">{t('users.directorySearch')}</h3>
                 <button
                   type="button"
                   className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
@@ -496,7 +497,6 @@ export function UsersPage() {
                 >
                   {directorySyncLoading ? t('users.liveLdapSyncWorking') : t('users.liveLdapSync')}
                 </button>
-                <h3 className="text-lg font-extrabold text-slate-950">{t('users.directorySearch')}</h3>
               </div>
               <p className="helper-copy">{t('users.directorySearchDescription')}</p>
               <p className="helper-copy">{t('users.directoryLinkHint')}</p>
@@ -626,7 +626,7 @@ export function UsersPage() {
               </label>
             )}
 
-            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+            <div className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('users.department')}</span>
               <SingleSelectDropdown
                 options={departments.map(department => ({
@@ -644,26 +644,29 @@ export function UsersPage() {
                 searchable
                 searchPlaceholder={t('common.search', 'Ara...')}
               />
-            </label>
+            </div>
           </div>
 
-          <div className="grid gap-2 text-sm font-semibold text-slate-700">
-            <span>{t('users.additionalDepartments', 'Ek görev yaptığı birimler')}</span>
-            <MultiSelectDropdown
-              options={departments
-                .filter(department => department.departmentId !== newUser.departmentId)
-                .map(department => ({ value: department.departmentId, label: department.name }))}
-              value={newUser.additionalDepartmentIds}
-              onChange={additionalDepartmentIds => setNewUser(current => ({ ...current, additionalDepartmentIds }))}
-              placeholder={t('users.additionalDepartmentsPlaceholder', 'Ek birim/müdürlük seçin')}
-              emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
-            />
-            <span className="helper-copy">{t('users.additionalDepartmentsHelp', 'Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.')}</span>
-          </div>
+          {/* Ek birimler sol; Rol / Ek roller / Aktif / Oluştur sağda hizalı (card #1739). */}
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)] lg:items-start">
+            <div className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('users.additionalDepartments', 'Ek görev yaptığı birimler')}</span>
+              <MultiSelectDropdown
+                options={departments
+                  .filter(department => department.departmentId !== newUser.departmentId)
+                  .map(department => ({ value: department.departmentId, label: department.name }))}
+                value={newUser.additionalDepartmentIds}
+                onChange={additionalDepartmentIds => setNewUser(current => ({ ...current, additionalDepartmentIds }))}
+                placeholder={t('users.additionalDepartmentsPlaceholder', 'Ek birim seçiniz...')}
+                emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
+                searchable
+                searchPlaceholder={t('common.search', 'Ara...')}
+              />
+              <span className="helper-copy">{t('users.additionalDepartmentsHelp', 'Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.')}</span>
+            </div>
 
-          <div className="grid gap-4 md:grid-cols-[minmax(0,260px)_minmax(0,1fr)] md:items-start">
             <div className="grid gap-4">
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <div className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.role')}</span>
                 <SingleSelectDropdown
                   options={PRIMARY_ROLE_CODES.map(roleCode => ({
@@ -680,26 +683,32 @@ export function UsersPage() {
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
                 />
-              </label>
+              </div>
+
+              <div className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('users.additionalRoles', 'Ek roller')}</span>
+                <MultiSelectDropdown
+                  options={ADDITIONAL_ROLE_CODES
+                    .filter(roleCode => roleCode !== newUser.roleCode)
+                    .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))}
+                  value={newUser.additionalRoleCodes}
+                  onChange={additionalRoleCodes => setNewUser(current => ({ ...current, additionalRoleCodes }))}
+                  placeholder={t('users.additionalRolesPlaceholder', 'Ek rol seçin')}
+                  emptyText={t('users.additionalRolesEmpty', 'Seçilebilir ek rol bulunmuyor.')}
+                  searchable
+                  searchPlaceholder={t('common.search', 'Ara...')}
+                />
+                <span className="helper-copy">{t('users.additionalRolesHelp', 'Kullanıcı birincil role ek olarak birden fazla yetki alabilir.')}</span>
+              </div>
 
               <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
                 <input className="field-checkbox" checked={newUser.isActive} type="checkbox" onChange={event => setNewUser(current => ({ ...current, isActive: event.target.checked }))} />
                 {t('users.active')}
               </label>
-            </div>
 
-            <div className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('users.additionalRoles', 'Ek roller')}</span>
-              <MultiSelectDropdown
-                options={ADDITIONAL_ROLE_CODES
-                  .filter(roleCode => roleCode !== newUser.roleCode)
-                  .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))}
-                value={newUser.additionalRoleCodes}
-                onChange={additionalRoleCodes => setNewUser(current => ({ ...current, additionalRoleCodes }))}
-                placeholder={t('users.additionalRolesPlaceholder', 'Ek rol seçin')}
-                emptyText={t('users.additionalRolesEmpty', 'Seçilebilir ek rol bulunmuyor.')}
-              />
-              <span className="helper-copy">{t('users.additionalRolesHelp', 'Kullanıcı birincil role ek olarak birden fazla yetki alabilir.')}</span>
+              <div className="inline-actions">
+                <Button disabled={!ldapModeReady} type="submit">{t('common.create')}</Button>
+              </div>
             </div>
           </div>
 
@@ -708,10 +717,6 @@ export function UsersPage() {
               ⚠ {t('users.managerConflict', { name: getDepartmentManager(newUser.departmentId)!.displayName })}
             </div>
           ) : null}
-
-          <div className="inline-actions">
-            <Button disabled={!ldapModeReady} type="submit">{t('common.create')}</Button>
-          </div>
         </form>
       ) : null}
 

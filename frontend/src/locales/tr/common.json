@@ -527,7 +527,7 @@
     "department": "Birim",
     "additionalDepartments": "Ek görev yaptığı birimler",
     "additionalDepartmentsShort": "Ek birimler",
-    "additionalDepartmentsPlaceholder": "Ek birim/müdürlük seçin",
+    "additionalDepartmentsPlaceholder": "Ek birim seçiniz...",
     "additionalDepartmentsEmpty": "Seçilebilir ek birim bulunmuyor.",
     "additionalDepartmentsHelp": "Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.",
     "additionalRoles": "Ek roller",

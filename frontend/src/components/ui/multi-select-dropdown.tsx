@@ -1,4 +1,4 @@
-import { Check, ChevronDown, X } from 'lucide-react'
+import { Check, ChevronDown, Search, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '../../lib/cn'
@@ -20,6 +20,9 @@ interface MultiSelectDropdownProps {
   /** Open the options panel upward (e.g. when the control sits near the bottom of a modal). */
   openUp?: boolean
   disabled?: boolean
+  /** Shows a "contains" search box as the first row of the options panel (card #1739). */
+  searchable?: boolean
+  searchPlaceholder?: string
 }
 
 export function MultiSelectDropdown({
@@ -32,14 +35,24 @@ export function MultiSelectDropdown({
   triggerClassName,
   openUp = false,
   disabled = false,
+  searchable = false,
+  searchPlaceholder = 'Ara...',
 }: MultiSelectDropdownProps) {
   const [open, setOpen] = useState(false)
+  const [search, setSearch] = useState('')
   const [adminSurfaceMenu, setAdminSurfaceMenu] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [menuStyle, setMenuStyle] = useState<{ top?: number; bottom?: number; left: number; width: number }>({ left: 0, width: 0 })
   const selectedSet = useMemo(() => new Set(value), [value])
   const selectedOptions = useMemo(() => options.filter(option => selectedSet.has(option.value)), [options, selectedSet])
+  const searchEnabled = searchable || options.length >= 7
+  const normalizedSearch = search.trim().toLocaleLowerCase('tr')
+  const visibleOptions = useMemo(() => (
+    searchEnabled && normalizedSearch
+      ? options.filter(option => option.label.toLocaleLowerCase('tr').includes(normalizedSearch))
+      : options
+  ), [options, searchEnabled, normalizedSearch])
 
   const updateMenuPosition = useCallback(() => {
     const rect = rootRef.current?.getBoundingClientRect()
@@ -70,6 +83,7 @@ export function MultiSelectDropdown({
       if (rootRef.current?.contains(target)) return
       if (menuRef.current?.contains(target)) return
       setOpen(false)
+      setSearch('')
     }
 
     document.addEventListener('pointerdown', handlePointerDown)
@@ -88,6 +102,7 @@ export function MultiSelectDropdown({
   const clearSelection = () => {
     onChange([])
     setOpen(false)
+    setSearch('')
   }
 
   return (
@@ -105,6 +120,8 @@ export function MultiSelectDropdown({
           if (!open) {
             setAdminSurfaceMenu(Boolean(rootRef.current?.closest('.admin-surface-page')))
             updateMenuPosition()
+          } else {
+            setSearch('')
           }
           setOpen(current => !current)
         }}
@@ -144,6 +161,20 @@ export function MultiSelectDropdown({
             width: menuStyle.width,
           }}
         >
+          {searchEnabled ? (
+            <div className="flex shrink-0 items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
+              <Search className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+              <input
+                type="text"
+                autoFocus
+                value={search}
+                onChange={event => setSearch(event.target.value)}
+                onClick={event => event.stopPropagation()}
+                placeholder={searchPlaceholder}
+                className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+              />
+            </div>
+          ) : null}
           <div className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-3 py-1.5">
             <span className="text-xs font-semibold text-slate-500">{selectedOptions.length} / {options.length}</span>
             {selectedOptions.length > 0 ? (
@@ -152,11 +183,11 @@ export function MultiSelectDropdown({
               </button>
             ) : null}
           </div>
-          {options.length === 0 ? (
+          {visibleOptions.length === 0 ? (
             <div className="px-3 py-2 text-sm font-semibold text-slate-500">{emptyText}</div>
           ) : (
             <div className="dropdown-menu-scroll min-h-0 flex-1 divide-y divide-slate-100">
-              {options.map(option => {
+              {visibleOptions.map(option => {
                 const checked = selectedSet.has(option.value)
                 return (
                   <button
@@ -176,14 +207,14 @@ export function MultiSelectDropdown({
             <button
               type="button"
               className="rounded-lg bg-[var(--color-destructive)] px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-[filter] hover:brightness-95"
-              onClick={() => setOpen(false)}
+              onClick={() => { setOpen(false); setSearch('') }}
             >
               Çıkış
             </button>
             <button
               type="button"
               className="rounded-lg bg-[color:var(--color-primary)] px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90"
-              onClick={() => setOpen(false)}
+              onClick={() => { setOpen(false); setSearch('') }}
             >
               Seç
             </button>

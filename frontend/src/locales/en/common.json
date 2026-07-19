@@ -524,7 +524,7 @@
     "department": "Unit",
     "additionalDepartments": "Additional units",
     "additionalDepartmentsShort": "Additional units",
-    "additionalDepartmentsPlaceholder": "Select additional units",
+    "additionalDepartmentsPlaceholder": "Select additional unit...",
     "additionalDepartmentsEmpty": "No additional units are available.",
     "additionalDepartmentsHelp": "The user can switch the active unit from the top-right selector.",
     "additionalRoles": "Additional roles",

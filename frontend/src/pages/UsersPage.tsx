@@ -603,66 +603,66 @@ export function UsersPage() {
             </label>
           </div>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {createMode === 'manual' ? (
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>
-                  {t('users.password')}{' '}
-                  <span className="text-xs font-normal text-slate-400">{t('users.passwordHint', '(Parola minimum 8 karakter, büyük harf, küçük harf, karakter, rakam içermelidir.)')}</span>
-                </span>
-                <input
-                  aria-label={t('users.password')}
-                  className="field-input"
-                  placeholder={t('users.passwordPlaceholder')}
-                  type="password"
-                  value={newUser.password}
-                  onChange={event => setNewUser(current => ({ ...current, password: event.target.value }))}
-                />
-              </label>
-            ) : (
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('users.externalIdentity')}</span>
-                <input aria-label={t('users.externalIdentity')} className="field-input" disabled value={selectedDirectoryUser?.username ?? t('users.directorySelectionRequired')} />
-              </label>
-            )}
-
-            <div className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('users.department')}</span>
-              <SingleSelectDropdown
-                options={departments.map(department => ({
-                  value: department.departmentId,
-                  label: department.name,
-                }))}
-                value={newUser.departmentId}
-                onChange={departmentId => setNewUser(current => ({
-                  ...current,
-                  departmentId,
-                  additionalDepartmentIds: current.additionalDepartmentIds.filter(id => id !== departmentId),
-                }))}
-                placeholder={t('tasks.selectDepartment')}
-                emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
-                searchable
-                searchPlaceholder={t('common.search', 'Ara...')}
+          {createMode === 'manual' ? (
+            <label className="grid gap-2 text-sm font-semibold text-slate-700 md:max-w-[calc(50%-0.5rem)]">
+              <span>
+                {t('users.password')}{' '}
+                <span className="text-xs font-normal text-slate-400">{t('users.passwordHint', '(Parola minimum 8 karakter, büyük harf, küçük harf, karakter, rakam içermelidir.)')}</span>
+              </span>
+              <input
+                aria-label={t('users.password')}
+                className="field-input"
+                placeholder={t('users.passwordPlaceholder')}
+                type="password"
+                value={newUser.password}
+                onChange={event => setNewUser(current => ({ ...current, password: event.target.value }))}
               />
-            </div>
-          </div>
+            </label>
+          ) : (
+            <label className="grid gap-2 text-sm font-semibold text-slate-700 md:max-w-[calc(50%-0.5rem)]">
+              <span>{t('users.externalIdentity')}</span>
+              <input aria-label={t('users.externalIdentity')} className="field-input" disabled value={selectedDirectoryUser?.username ?? t('users.directorySelectionRequired')} />
+            </label>
+          )}
 
-          {/* Ek birimler sol; Rol / Ek roller / Aktif / Oluştur sağda hizalı (card #1739). */}
+          {/* Sol: Birim + Ek birimler; sağ: Rol / Ek roller / Aktif / Oluştur (card #1739 reopen). */}
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(16rem,20rem)] lg:items-start">
-            <div className="grid gap-2 text-sm font-semibold text-slate-700">
-              <span>{t('users.additionalDepartments', 'Ek görev yaptığı birimler')}</span>
-              <MultiSelectDropdown
-                options={departments
-                  .filter(department => department.departmentId !== newUser.departmentId)
-                  .map(department => ({ value: department.departmentId, label: department.name }))}
-                value={newUser.additionalDepartmentIds}
-                onChange={additionalDepartmentIds => setNewUser(current => ({ ...current, additionalDepartmentIds }))}
-                placeholder={t('users.additionalDepartmentsPlaceholder', 'Ek birim seçiniz...')}
-                emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
-                searchable
-                searchPlaceholder={t('common.search', 'Ara...')}
-              />
-              <span className="helper-copy">{t('users.additionalDepartmentsHelp', 'Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.')}</span>
+            <div className="grid gap-4">
+              <div className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('users.department')}</span>
+                <SingleSelectDropdown
+                  options={departments.map(department => ({
+                    value: department.departmentId,
+                    label: department.name,
+                  }))}
+                  value={newUser.departmentId}
+                  onChange={departmentId => setNewUser(current => ({
+                    ...current,
+                    departmentId,
+                    additionalDepartmentIds: current.additionalDepartmentIds.filter(id => id !== departmentId),
+                  }))}
+                  placeholder={t('tasks.selectDepartment')}
+                  emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
+                  searchable
+                  searchPlaceholder={t('common.search', 'Ara...')}
+                />
+              </div>
+
+              <div className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('users.additionalDepartments', 'Ek görev yaptığı birimler')}</span>
+                <MultiSelectDropdown
+                  options={departments
+                    .filter(department => department.departmentId !== newUser.departmentId)
+                    .map(department => ({ value: department.departmentId, label: department.name }))}
+                  value={newUser.additionalDepartmentIds}
+                  onChange={additionalDepartmentIds => setNewUser(current => ({ ...current, additionalDepartmentIds }))}
+                  placeholder={t('users.additionalDepartmentsPlaceholder', 'Ek birim seçiniz...')}
+                  emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
+                  searchable
+                  searchPlaceholder={t('common.search', 'Ara...')}
+                />
+                <span className="helper-copy">{t('users.additionalDepartmentsHelp', 'Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.')}</span>
+              </div>
             </div>
 
             <div className="grid gap-4">

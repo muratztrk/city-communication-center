@@ -845,7 +845,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız `mail` attribute’tur — boşsa form E-posta alanı boş kalır, UPN ile doldurulmaz
   (card #1734). Yeni kullanıcı E-posta placeholder’ı `ornek@belediye.bel.tr` (card #1740).
   Ek görev birimleri placeholder “Ek birim seçiniz...”; multi-select’te
-  arama satırı var; Rol/Ek roller/Aktif/Oluştur ek birimler kolonunun sağında (card #1739).
+  arama satırı var; sol kolonda Birim+Ek birimler, sağda Rol/Ek roller/Aktif/Oluştur
+  hizalı (card #1739 reopen).
   Birimi Düzenle dropdown’ları `<label>` ile sarılmaz — dış tıklayınca kapanır (card #1729).
   Birimler grid’inde Tür sütunu yok; Tür yalnız düzenleme formunda ve özet “Tür Dağılımı”nda (card #1741).
 - **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,

@@ -1,3 +1,6 @@
+## Round 387 — #1739 reopen
+- #1739: Yeni kullanıcı formunda Birim+Ek birimler sol; Rol/Ek roller/Aktif/Oluştur sağ.
+
 ## Round 386 — #1741
 - #1741: Birimler grid’inden Tür sütunu kaldırıldı (form + tür dağılımı kaldı).
 

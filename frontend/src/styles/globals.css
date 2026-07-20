@@ -1537,11 +1537,13 @@
       font-size: 0.95rem;
     }
 
-    /* Ek roller: daha dar + küçük metin; Oluştur genişliği için yer (card #1739). */
+    /* Rol + Ek roller: dar kolon + küçük menü metni; Oluştur geniş ama alçak (card #1739). */
+    .app-content-shell .admin-surface-page .users-role-field,
     .app-content-shell .admin-surface-page .users-additional-roles-field {
       font-size: 0.75rem;
     }
 
+    .app-content-shell .admin-surface-page .users-role-field > span:first-child,
     .app-content-shell .admin-surface-page .users-additional-roles-field > span:first-child {
       font-size: 0.8rem;
     }
@@ -1551,14 +1553,18 @@
       line-height: 1.35;
     }
 
+    .app-content-shell .admin-surface-page .users-role-field .field-select,
+    .app-content-shell .admin-surface-page .users-role-dropdown button,
     .app-content-shell .admin-surface-page .users-additional-roles-field .field-select,
     .app-content-shell .admin-surface-page .users-additional-roles-dropdown button {
       min-height: 2.15rem;
       font-size: 0.75rem;
     }
 
+    /* Geniş ama daha alçak Oluştur (yükseklik küçült — card #1739 5. reopen). */
     .app-content-shell .admin-surface-page .users-create-submit {
-      min-height: 3rem;
+      min-height: 2.35rem;
+      height: 2.35rem;
       font-size: 1.05rem;
     }
 
@@ -2973,6 +2979,17 @@
     min-height: 2.6rem;
     padding: 0.6rem 0.9rem;
     font-size: 0.95rem;
+  }
+
+  /* Rol / Ek roller açılır liste — kompakt satır metni (card #1739). */
+  .admin-surface-menu.users-roles-compact-menu .dropdown-menu-item {
+    min-height: 2rem;
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
+  }
+
+  .admin-surface-menu.users-roles-compact-menu .dropdown-menu-scroll {
+    font-size: 0.75rem;
   }
 
   .admin-surface-page .relative [role='listbox'] span.text-sm {

@@ -17,6 +17,8 @@ interface MultiSelectDropdownProps {
   className?: string
   /** Extra classes for the trigger button (e.g. to shrink the placeholder font). */
   triggerClassName?: string
+  /** Extra classes for the portal menu panel (e.g. compact role menus — card #1739). */
+  menuClassName?: string
   /** Open the options panel upward (e.g. when the control sits near the bottom of a modal). */
   openUp?: boolean
   disabled?: boolean
@@ -33,6 +35,7 @@ export function MultiSelectDropdown({
   emptyText,
   className,
   triggerClassName,
+  menuClassName,
   openUp = false,
   disabled = false,
   searchable = false,
@@ -153,6 +156,7 @@ export function MultiSelectDropdown({
           className={cn(
             'dropdown-menu-panel fixed z-[9999] flex max-h-72 flex-col',
             adminSurfaceMenu && 'admin-surface-menu',
+            menuClassName,
           )}
           style={{
             left: menuStyle.left,

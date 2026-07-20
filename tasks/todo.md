@@ -1,3 +1,6 @@
+## Round 392 — #1739
+- #1739: Rol daraltıldı; Rol+Ek roller menü metni küçültüldü; Oluştur geniş + alçak.
+
 ## Round 391 — #1691
 - #1691: Başlık textarea 12.5 → 14.5rem (`min(...,100%)` ile numaraya binmez).
 

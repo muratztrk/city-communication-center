@@ -626,8 +626,8 @@ export function UsersPage() {
           )}
 
           {/* Birim / Ek birimler / Rol / Ek roller / Aktif / Oluştur TEK satırda.
-              Ek roller dar + küçük metin; Oluştur daha geniş (card #1739 4. reopen). */}
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,0.75fr)_minmax(0,0.5fr)_auto_minmax(11rem,auto)] lg:items-start">
+              Rol dar; Rol+Ek roller menü metni küçük; Oluştur geniş ama alçak (card #1739 5. reopen). */}
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,0.55fr)_minmax(0,0.5fr)_auto_minmax(13rem,auto)] lg:items-start">
               <div className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.department')}</span>
                 <SingleSelectDropdown
@@ -664,9 +664,12 @@ export function UsersPage() {
                 <span className="helper-copy">{t('users.additionalDepartmentsHelp', 'Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.')}</span>
               </div>
 
-              <div className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('users.role')}</span>
+              <div className="users-role-field grid gap-2 font-semibold text-slate-700">
+                <span className="text-sm">{t('users.role')}</span>
                 <SingleSelectDropdown
+                  className="users-role-dropdown"
+                  triggerClassName="text-xs"
+                  menuClassName="users-roles-compact-menu"
                   options={PRIMARY_ROLE_CODES.map(roleCode => ({
                     value: roleCode,
                     label: getRoleLabel(t, roleCode),
@@ -688,6 +691,7 @@ export function UsersPage() {
                 <MultiSelectDropdown
                   className="users-additional-roles-dropdown"
                   triggerClassName="text-xs"
+                  menuClassName="users-roles-compact-menu"
                   options={ADDITIONAL_ROLE_CODES
                     .filter(roleCode => roleCode !== newUser.roleCode)
                     .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))}
@@ -713,9 +717,8 @@ export function UsersPage() {
                 <span aria-hidden="true" className="hidden text-sm font-semibold lg:block">&nbsp;</span>
                 <div className="inline-actions">
                   <Button
-                    className="users-create-submit min-h-12 w-full min-w-[11rem] px-7 text-base"
+                    className="users-create-submit w-full min-w-[13rem] px-8 text-base"
                     disabled={!ldapModeReady}
-                    size="lg"
                     type="submit"
                   >
                     {t('common.create')}

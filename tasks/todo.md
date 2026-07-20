@@ -1,3 +1,6 @@
+## Round 397 — #1750
+- #1750: LDAP toplu ekle uyarısında birimi eksik kullanıcılar popup’ta listelenir.
+
 ## Round 396 — #1747/#1336/#1748
 - #1747: Detay popup sağ üst buton yüksekliği ~2.05rem (küçük mobil hariç).
 - #1336: Birimler “Tüm LDAP Birimlerini Ekle” + ConfirmDialog Ekle.

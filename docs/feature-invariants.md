@@ -843,8 +843,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   seçimi birimi otomatik oluşturmaz; kullanıcı/birim **Oluştur** ile eklenir; senkron yalnız
   dizin listesini yeniler (card #1729). “Tüm LDAP Kullanıcılarını Ekle” ConfirmDialog ile
   bağlı olmayanları Staff olarak ekler; herhangi birinin birimi sistemde yoksa **hiçbiri
-  eklenmez** ve önce tüm birimlerin eklenmesi uyarısı gösterilir (`GET /users/directory-users`,
-  card #1748). `+Yeni Kullanıcı` açıkken grid görünür kalır
+  eklenmez**, önce tüm birimlerin eklenmesi uyarısı gösterilir ve birimi eksik kullanıcılar
+  popup’ta listelenir (`GET /users/directory-users`, cards #1748/#1750). `+Yeni Kullanıcı` açıkken grid görünür kalır
   (`desktop-page-fill` form açıkken kapanır — card #1731). Kullanıcılar LDAP formunda
   “LDAP Kullanıcı Çek” solda, “Anlık LDAP Kullanıcı Senkronize Et” sağda (card #1735);
   Birimler’de “LDAP Birim Çek” solda, senkron sağda (card #1737). LDAP dizin e-postası

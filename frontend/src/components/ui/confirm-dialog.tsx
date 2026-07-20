@@ -17,6 +17,8 @@ export interface ConfirmDialogState {
   variant?: 'destructive' | 'primary' | 'success'
   hideCancel?: boolean
   banner?: ReactNode
+  /** Optional content under the message (ör. eksik birimli kullanıcı listesi). */
+  details?: ReactNode
   onConfirm: () => void | Promise<void>
 }
 
@@ -42,7 +44,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
   return createPortal(
     <ModalBackdrop>
       <div
-        className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl"
+        className={`relative w-full rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl ${state.details ? 'max-w-md' : 'max-w-sm'}`}
       >
         <button
           type="button"
@@ -60,7 +62,8 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
           </h2>
         )}
         {state.banner ? <div className="mb-3">{state.banner}</div> : null}
-        <p className="mb-6 mt-2 text-sm text-slate-700">{state.message}</p>
+        <p className={`mt-2 text-sm text-slate-700 ${state.details ? 'mb-3' : 'mb-6'}`}>{state.message}</p>
+        {state.details ? <div className="mb-6">{state.details}</div> : null}
         <div className="flex justify-end gap-2">
           {!state.hideCancel && (
             <Button type="button" variant="secondary" onClick={onClose}>

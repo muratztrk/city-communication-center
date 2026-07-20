@@ -222,19 +222,39 @@ export function UsersPage() {
         departments.map(item => [item.name.trim().toLocaleLowerCase('tr'), item.departmentId] as const),
       )
 
-      const missingDepartment = toAdd.some(item => {
+      const missingDeptUsers = toAdd.filter(item => {
         const deptName = item.department?.trim()
         if (!deptName) return true
         return !departmentByKey.has(deptName.toLocaleLowerCase('tr'))
       })
 
-      if (missingDepartment) {
+      if (missingDeptUsers.length > 0) {
         setConfirmDialog({
           title: t('users.addAllLdap'),
           titleDivider: true,
           titleCompact: true,
           titleTone: 'danger',
           message: t('users.addAllLdapDepartmentsRequired'),
+          details: (
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                {t('users.addAllLdapMissingUsersTitle', { count: missingDeptUsers.length })}
+              </p>
+              <ul className="max-h-48 space-y-1.5 overflow-y-auto text-sm text-slate-800 [scrollbar-gutter:stable]">
+                {missingDeptUsers.map(item => (
+                  <li key={item.externalIdentityId} className="leading-snug">
+                    <span className="font-semibold text-slate-950">{item.displayName || item.username}</span>
+                    <span className="text-slate-500">
+                      {' — '}
+                      {item.department?.trim()
+                        ? t('users.addAllLdapMissingDepartment', { department: item.department.trim() })
+                        : t('users.addAllLdapNoDepartment')}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ),
           confirmLabel: t('common.close', 'Kapat'),
           hideCancel: true,
           variant: 'primary',

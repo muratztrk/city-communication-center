@@ -846,7 +846,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1734). Yeni kullanıcı E-posta placeholder’ı `ornek@belediye.bel.tr` (card #1740).
   Ek görev birimleri placeholder “Ek birim seçiniz...”; multi-select’te
   arama satırı var; Birim+Ek birimler+Rol+Ek roller+Aktif+Oluştur tek satırda;
-  Ek birimler/Rol/Ek roller kolonları biraz dar, Oluştur butonu daha geniş (card #1739).
+  Ek roller kolonu daha dar + küçük metin, Oluştur butonu daha geniş (card #1739).
   Birimi Düzenle dropdown’ları `<label>` ile sarılmaz — dış tıklayınca kapanır (card #1729).
   Birimler grid’inde Tür sütunu yok; Tür yalnız düzenleme formunda ve özet “Tür Dağılımı”nda (card #1741).
 - **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,
@@ -919,8 +919,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dolu not düzenleme sırasında da Talep Bilgileri'nin son satırında kalır. (Round 251'deki geri alma, müşterinin 12 Tem 21:48 reopen'ıyla
   geçersizdir.)
 - **Talep detay düzenleme kontrolleri kompakttır (card #1601/#1691):** detay içi `Düzenle` modunda
-  Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı masaüstünde **16.5rem**
-  (card #1691 6. tur), mobilde 7.5rem; font 0.8125rem; Son Tarih kontrolü tam placeholder için
+  Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı masaüstünde
+  `min(12.5rem, 100%)` — talep numarası/rozet kolonuna binmez (card #1691 7. tur),
+  mobilde 7.5rem; font 0.8125rem; Son Tarih kontrolü tam placeholder için
   en fazla 12rem/12px; `Dosya ekle` son görsel dengelemesinde 1.625rem/10.5px'tir
   (card #1601 fourth reopen). Bu ölçüler genel form/dropdown bileşenlerine yayılmaz.
 - **Birime Gelen / Giden Talep Detayları kolon düzeni (card #1534):** Taleplerim ile aynı —

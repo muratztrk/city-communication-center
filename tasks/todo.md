@@ -1,3 +1,7 @@
+## Round 390 — #1691/#1739
+- #1691: Başlık textarea `min(12.5rem,100%)` — talep numarasına binmez; meta `shrink-0`.
+- #1739: Ek roller dar+küçük metin; Oluştur daha geniş.
+
 ## Round 389 — #1739/#1743/#1742/#1691
 - #1739: Ek birimler/Rol/Ek roller kolonları daraltıldı; Oluştur butonu büyütüldü.
 - #1743: Mobilde Talep Bilgileri etiket üstte / değer altta; StackedFieldValue sola.

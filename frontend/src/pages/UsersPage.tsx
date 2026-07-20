@@ -626,8 +626,8 @@ export function UsersPage() {
           )}
 
           {/* Birim / Ek birimler / Rol / Ek roller / Aktif / Oluştur TEK satırda.
-              Ek birimler+Rol+Ek roller biraz dar; Oluştur daha geniş (card #1739 3. reopen). */}
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.95fr)_minmax(0,0.7fr)_minmax(0,0.7fr)_auto_minmax(9rem,auto)] lg:items-start">
+              Ek roller dar + küçük metin; Oluştur daha geniş (card #1739 4. reopen). */}
+          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,0.75fr)_minmax(0,0.5fr)_auto_minmax(11rem,auto)] lg:items-start">
               <div className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.department')}</span>
                 <SingleSelectDropdown
@@ -683,9 +683,11 @@ export function UsersPage() {
                 />
               </div>
 
-              <div className="grid gap-2 text-sm font-semibold text-slate-700">
+              <div className="users-additional-roles-field grid gap-2 font-semibold text-slate-700">
                 <span>{t('users.additionalRoles', 'Ek roller')}</span>
                 <MultiSelectDropdown
+                  className="users-additional-roles-dropdown"
+                  triggerClassName="text-xs"
                   options={ADDITIONAL_ROLE_CODES
                     .filter(roleCode => roleCode !== newUser.roleCode)
                     .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))}
@@ -711,7 +713,7 @@ export function UsersPage() {
                 <span aria-hidden="true" className="hidden text-sm font-semibold lg:block">&nbsp;</span>
                 <div className="inline-actions">
                   <Button
-                    className="users-create-submit min-h-11 w-full min-w-[9rem] px-6 text-base"
+                    className="users-create-submit min-h-12 w-full min-w-[11rem] px-7 text-base"
                     disabled={!ldapModeReady}
                     size="lg"
                     type="submit"

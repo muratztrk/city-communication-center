@@ -383,12 +383,13 @@
     width: 100%;
   }
 
-  /* Düzenle modu talep başlığı textarea — kompakt kutu (card #1691).
-     6. tur: müşteri “biraz daha arttır” → 13.5rem → 16.5rem; mobil 7.5rem korunur. */
+  /* Düzenle modu talep başlığı textarea (card #1691).
+     7. tur: 16.5rem talep numarasına binmiş → hücreyi aşmayan genişlik.
+     Parent grid hücresi minmax(0,1fr); width:min(...,100%) taşmayı keser. */
   .detail-modal-shell--my-request .my-request-title-heading-edit__textarea {
-    /* Sabit genişlik şart: başlık kabı inline-flex (shrink-to-fit) olduğundan
-       yüzdeli width/max-width döngüsel çözülür ve kutu içerik kadar çöker. */
-    width: 16.5rem;
+    width: min(12.5rem, 100%);
+    max-width: 100%;
+    box-sizing: border-box;
     min-height: 1.65rem;
     max-height: 4rem;
     padding: 0.25rem 0.45rem;
@@ -1534,6 +1535,31 @@
 
     .app-content-shell .admin-surface-page .field-select span {
       font-size: 0.95rem;
+    }
+
+    /* Ek roller: daha dar + küçük metin; Oluştur genişliği için yer (card #1739). */
+    .app-content-shell .admin-surface-page .users-additional-roles-field {
+      font-size: 0.75rem;
+    }
+
+    .app-content-shell .admin-surface-page .users-additional-roles-field > span:first-child {
+      font-size: 0.8rem;
+    }
+
+    .app-content-shell .admin-surface-page .users-additional-roles-field .helper-copy {
+      font-size: 0.7rem;
+      line-height: 1.35;
+    }
+
+    .app-content-shell .admin-surface-page .users-additional-roles-field .field-select,
+    .app-content-shell .admin-surface-page .users-additional-roles-dropdown button {
+      min-height: 2.15rem;
+      font-size: 0.75rem;
+    }
+
+    .app-content-shell .admin-surface-page .users-create-submit {
+      min-height: 3rem;
+      font-size: 1.05rem;
     }
 
     .app-content-shell .admin-surface-page .settings-tab-bar .tab-button {

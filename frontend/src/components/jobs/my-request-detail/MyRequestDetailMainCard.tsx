@@ -368,13 +368,13 @@ export function MyRequestDetailMainCard({
           {!hideTitleText ? (
             <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
               <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
-                <span className="min-w-0">
+                <span className="min-w-0 overflow-hidden">
                   {isEditing && editDraft && onEditDraftChange ? (
                     <textarea
                       className="field-textarea my-request-title-heading-edit__textarea font-semibold"
                       value={editDraft.title}
                       maxLength={50}
-                      rows={Math.min(3, Math.max(1, Math.ceil((editDraft.title.length || 1) / 32)))}
+                      rows={Math.min(3, Math.max(1, Math.ceil((editDraft.title.length || 1) / 28)))}
                       onChange={e => onEditDraftChange({ title: e.target.value })}
                       required
                     />
@@ -382,7 +382,7 @@ export function MyRequestDetailMainCard({
                     normalizeTitleCaseField(detail.title)
                   )}
                 </span>
-                <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
+                <span className="ml-auto flex shrink-0 max-w-full flex-col items-end justify-center gap-1 text-right">
                   <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{requestNumberText}</span>
                   <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">{requestTypeText}</span>
                 </span>

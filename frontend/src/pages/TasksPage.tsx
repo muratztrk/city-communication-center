@@ -1990,13 +1990,13 @@ const pageKicker = isMyTasksView
                       <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">
                         <MyRequestSectionHeading icon={FileText} className="my-request-title-heading">
                           <span className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
-                            <span className={`min-w-0${isReporterCreated(selectedTask?.createdByRoleCode) ? ' text-[#f97316]' : ''}`}>
+                            <span className={`min-w-0 overflow-hidden${isReporterCreated(selectedTask?.createdByRoleCode) ? ' text-[#f97316]' : ''}`}>
                               {activeTaskEditDraft ? (
                                 <textarea
                                   className="field-textarea my-request-title-heading-edit__textarea font-semibold"
                                   value={activeTaskEditDraft.title}
                                   maxLength={50}
-                                  rows={Math.min(3, Math.max(1, Math.ceil((activeTaskEditDraft.title.length || 1) / 32)))}
+                                  rows={Math.min(3, Math.max(1, Math.ceil((activeTaskEditDraft.title.length || 1) / 28)))}
                                   onChange={e => updateActiveTaskEditDraft({ title: e.target.value })}
                                   required
                                 />
@@ -2004,7 +2004,7 @@ const pageKicker = isMyTasksView
                                 normalizeTitleCaseField(taskDetail.title)
                               )}
                             </span>
-                            <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
+                            <span className="ml-auto flex shrink-0 max-w-full flex-col items-end justify-center gap-1 text-right">
                               <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">{formatTaskDisplayNumber(selectedTask)}</span>
                               <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
                                 {taskDetail.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}

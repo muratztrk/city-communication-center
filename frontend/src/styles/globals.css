@@ -1568,10 +1568,11 @@
       font-size: 1.05rem;
     }
 
+    /* Ayarlar banner altı tab butonları — #1733 büyütmeden biraz küçült (card #1744). */
     .app-content-shell .admin-surface-page .settings-tab-bar .tab-button {
-      min-height: 2.75rem;
-      padding: 0.7rem 1.1rem;
-      font-size: 0.95rem;
+      min-height: 2.35rem;
+      padding: 0.5rem 0.85rem;
+      font-size: 0.84rem;
     }
 
     .app-content-shell .admin-surface-page .segmented-control button {
@@ -2946,9 +2947,10 @@
   }
 
   .settings-tab-bar .tab-button {
-    min-height: 2.6rem;
-    padding: 0.68rem 1rem;
-    font-size: 0.95rem;
+    /* Banner altı tablar — #1733 sonrası #1744 ile biraz küçültüldü. */
+    min-height: 2.35rem;
+    padding: 0.5rem 0.85rem;
+    font-size: 0.84rem;
   }
 
   .role-matrix-table thead th {

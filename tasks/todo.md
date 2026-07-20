@@ -1,3 +1,6 @@
+## Round 393 — #1744
+- #1744: Ayarlar banner altı tab butonları biraz küçültüldü (~2.35rem / 0.84rem).
+
 ## Round 392 — #1739
 - #1739: Rol daraltıldı; Rol+Ek roller menü metni küçültüldü; Oluştur geniş + alçak.
 

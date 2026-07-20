@@ -4554,19 +4554,20 @@
 }
 
 @layer components {
-  /* Tüm detay popup'larında sağ üstteki aksiyon butonları biraz kompakt (card #1632).
+  /* Tüm detay popup'larında sağ üstteki aksiyon butonları biraz kompakt (card #1632),
+     küçük mobil hariç yükseklik hafif artırıldı (card #1747).
      Button size utility'leri Tailwind v4 utilities katmanında olduğu için !important gerekir. */
   .detail-modal-header-actions button:not(.detail-modal-header-close),
   .detail-modal-header-actions a {
-    height: 1.875rem !important;
-    padding: 0 0.65rem !important;
-    font-size: 0.7rem !important;
+    height: 2.05rem !important;
+    padding: 0 0.7rem !important;
+    font-size: 0.72rem !important;
     line-height: 1.1 !important;
   }
 
   .detail-modal-header-actions .detail-modal-header-close {
-    width: 1.875rem !important;
-    height: 1.875rem !important;
+    width: 2.05rem !important;
+    height: 2.05rem !important;
   }
 
   .detail-modal-header-actions .detail-modal-header-close svg {

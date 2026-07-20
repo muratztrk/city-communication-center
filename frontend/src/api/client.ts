@@ -298,6 +298,12 @@ export const api = {
     return response.json() as Promise<string[]>
   },
 
+  async listDirectoryUsers(): Promise<DirectoryUserLookup[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/users/directory-users`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.directorySearchFailed'))
+    return response.json() as Promise<DirectoryUserLookup[]>
+  },
+
   async createUser(payload: {
     username: string | null
     displayName: string

@@ -10,6 +10,8 @@ import { invalidateDepartments } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { AutocompleteField } from '../components/forms/AutocompleteField'
 import { Button } from '../components/ui/button'
+import { ConfirmDialog } from '../components/ui/confirm-dialog'
+import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
@@ -48,6 +50,8 @@ export function DepartmentsPage() {
   const [managerAssignSavingId, setManagerAssignSavingId] = useState<string | null>(null)
   const [pullAllLdapLoading, setPullAllLdapLoading] = useState(false)
   const [pullAllLdapMessage, setPullAllLdapMessage] = useState<string | null>(null)
+  const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [deptPageSize, setDeptPageSize] = useState(25)
   const [deptPage, setDeptPage] = useState(1)
 
@@ -199,6 +203,71 @@ export function DepartmentsPage() {
       setError(pullError instanceof Error ? pullError.message : t('common.error'))
     } finally {
       setPullAllLdapLoading(false)
+    }
+  }
+
+  const handleAddAllLdapDepartmentsClick = async () => {
+    if (!ldapEnabled || addAllLdapLoading) return
+
+    setAddAllLdapLoading(true)
+    setError('')
+    setPullAllLdapMessage(null)
+
+    try {
+      const departmentNames = await api.listDirectoryDepartments()
+      const existingKeys = new Set(departments.map(item => item.name.trim().toLocaleLowerCase('tr')))
+      const toAdd: string[] = []
+      const seen = new Set<string>()
+
+      for (const rawName of departmentNames) {
+        const name = rawName.trim()
+        if (!name) continue
+        const key = name.toLocaleLowerCase('tr')
+        if (seen.has(key) || existingKeys.has(key)) continue
+        seen.add(key)
+        toAdd.push(name)
+      }
+
+      if (toAdd.length === 0) {
+        setPullAllLdapMessage(t('departments.addAllLdapNone'))
+        return
+      }
+
+      setConfirmDialog({
+        title: t('departments.addAllLdap'),
+        titleDivider: true,
+        titleCompact: true,
+        message: t('departments.addAllLdapConfirm', { count: toAdd.length }),
+        confirmLabel: t('common.add', 'Ekle'),
+        variant: 'primary',
+        onConfirm: async () => {
+          setAddAllLdapLoading(true)
+          setError('')
+          try {
+            let created = 0
+            for (const name of toAdd) {
+              await api.createDepartment({
+                name,
+                departmentType: 'Birim',
+                managerUserId: null,
+                responsibleUserIds: [],
+                sourceType: 'Ldap',
+              })
+              created += 1
+            }
+            invalidateDepartments(queryClient)
+            setPullAllLdapMessage(t('departments.addAllLdapSuccess', { count: created }))
+          } catch (createError) {
+            setError(createError instanceof Error ? createError.message : t('common.error'))
+          } finally {
+            setAddAllLdapLoading(false)
+          }
+        },
+      })
+    } catch (listError) {
+      setError(listError instanceof Error ? listError.message : t('common.error'))
+    } finally {
+      setAddAllLdapLoading(false)
     }
   }
 
@@ -445,6 +514,14 @@ export function DepartmentsPage() {
                   onClick={() => void handlePullAllLdapDepartments()}
                 >
                   {pullAllLdapLoading ? t('departments.liveLdapSyncWorking') : t('departments.liveLdapSync')}
+                </button>
+                <button
+                  type="button"
+                  className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
+                  disabled={addAllLdapLoading || pullAllLdapLoading}
+                  onClick={() => void handleAddAllLdapDepartmentsClick()}
+                >
+                  {addAllLdapLoading ? t('departments.addAllLdapWorking') : t('departments.addAllLdap')}
                 </button>
               </div>
               <p className="helper-copy">{t('departments.directorySearchDescription')}</p>
@@ -712,6 +789,8 @@ export function DepartmentsPage() {
           </form>
         </div>
       ) : null}
+
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </div>
   )
 }

@@ -89,6 +89,7 @@ export function UsersPage() {
   const [selectedDirectoryUser, setSelectedDirectoryUser] = useState<DirectoryUserLookup | null>(null)
   const [directorySyncLoading, setDirectorySyncLoading] = useState(false)
   const [directorySyncMessage, setDirectorySyncMessage] = useState<string | null>(null)
+  const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
   const canManageUsers = currentUser?.role === 'SystemAdmin'
@@ -202,6 +203,102 @@ export function UsersPage() {
       setError(syncError instanceof Error ? syncError.message : t('common.error'))
     } finally {
       setDirectorySyncLoading(false)
+    }
+  }
+
+  const handleAddAllLdapUsersClick = async () => {
+    if (!managementContext?.ldapEnabled || addAllLdapLoading) {
+      return
+    }
+
+    setAddAllLdapLoading(true)
+    setError('')
+    setDirectorySyncMessage(null)
+
+    try {
+      const results = await api.listDirectoryUsers()
+      const toAdd = results.filter(item => !item.alreadyLinked)
+      const departmentByKey = new Map(
+        departments.map(item => [item.name.trim().toLocaleLowerCase('tr'), item.departmentId] as const),
+      )
+
+      const missingDepartment = toAdd.some(item => {
+        const deptName = item.department?.trim()
+        if (!deptName) return true
+        return !departmentByKey.has(deptName.toLocaleLowerCase('tr'))
+      })
+
+      if (missingDepartment) {
+        setConfirmDialog({
+          title: t('users.addAllLdap'),
+          titleDivider: true,
+          titleCompact: true,
+          titleTone: 'danger',
+          message: t('users.addAllLdapDepartmentsRequired'),
+          confirmLabel: t('common.close', 'Kapat'),
+          hideCancel: true,
+          variant: 'primary',
+          onConfirm: () => {},
+        })
+        return
+      }
+
+      if (toAdd.length === 0) {
+        setDirectorySyncMessage(t('users.addAllLdapNone'))
+        return
+      }
+
+      setConfirmDialog({
+        title: t('users.addAllLdap'),
+        titleDivider: true,
+        titleCompact: true,
+        message: t('users.addAllLdapConfirm', { count: toAdd.length }),
+        confirmLabel: t('common.add', 'Ekle'),
+        variant: 'primary',
+        onConfirm: async () => {
+          setAddAllLdapLoading(true)
+          setError('')
+          try {
+            let created = 0
+            for (const item of toAdd) {
+              const deptName = item.department!.trim()
+              const departmentId = departmentByKey.get(deptName.toLocaleLowerCase('tr'))
+              if (!departmentId) {
+                throw new Error(t('users.addAllLdapDepartmentsRequired'))
+              }
+
+              await api.createUser({
+                username: item.username || null,
+                displayName: item.displayName,
+                email: item.email?.trim() || null,
+                password: null,
+                departmentId,
+                additionalDepartmentIds: [],
+                roleCode: 'Staff',
+                additionalRoleCodes: [],
+                isActive: true,
+                sourceType: 'Ldap',
+                externalIdentityId: item.externalIdentityId,
+                // Birim zaten eşleşti — backend otomatik birim oluşturmasın (card #1748).
+                ldapDepartmentName: null,
+              })
+              created += 1
+            }
+
+            setDirectorySyncMessage(t('users.addAllLdapSuccess', { count: created }))
+            invalidateUsers(queryClient)
+            loadData()
+          } catch (createError) {
+            setError(createError instanceof Error ? createError.message : t('common.error'))
+          } finally {
+            setAddAllLdapLoading(false)
+          }
+        },
+      })
+    } catch (listError) {
+      setError(listError instanceof Error ? listError.message : t('common.error'))
+    } finally {
+      setAddAllLdapLoading(false)
     }
   }
 
@@ -496,6 +593,14 @@ export function UsersPage() {
                   onClick={() => void handleLiveLdapUserSync()}
                 >
                   {directorySyncLoading ? t('users.liveLdapSyncWorking') : t('users.liveLdapSync')}
+                </button>
+                <button
+                  type="button"
+                  className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
+                  disabled={addAllLdapLoading || directorySyncLoading}
+                  onClick={() => void handleAddAllLdapUsersClick()}
+                >
+                  {addAllLdapLoading ? t('users.addAllLdapWorking') : t('users.addAllLdap')}
                 </button>
               </div>
               <p className="helper-copy">{t('users.directorySearchDescription')}</p>

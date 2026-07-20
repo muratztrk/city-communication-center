@@ -97,6 +97,31 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         return await Task.Run(() => ListDepartmentNamesInternal(settings), cancellationToken);
     }
 
+    public async Task<IReadOnlyList<LdapDirectoryUser>> ListUsersAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var settings = await _tenantLdapSettingsService.GetRuntimeSettingsAsync(tenantId, cancellationToken);
+        if (!settings.CanSearch)
+        {
+            return [];
+        }
+
+        if (settings.MockUsers.Count > 0 && string.IsNullOrWhiteSpace(settings.Host))
+        {
+            return settings.MockUsers
+                .Where(candidate => !IsMachineAccount(candidate.Username))
+                .OrderBy(candidate => candidate.DisplayName)
+                .Select(candidate => new LdapDirectoryUser(
+                    candidate.ExternalIdentityId,
+                    candidate.Username,
+                    candidate.DisplayName,
+                    candidate.Email,
+                    null))
+                .ToArray();
+        }
+
+        return await Task.Run(() => ListUsersInternal(settings), cancellationToken);
+    }
+
     public async Task<LdapDirectoryUser?> FindUserByUsernameAsync(Guid tenantId, string username, CancellationToken cancellationToken = default)
     {
         var settings = await _tenantLdapSettingsService.GetRuntimeSettingsAsync(tenantId, cancellationToken);
@@ -544,6 +569,75 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         }
 
         return names.ToArray();
+    }
+
+    private IReadOnlyList<LdapDirectoryUser> ListUsersInternal(TenantLdapRuntimeSettings settings)
+    {
+        if (string.IsNullOrWhiteSpace(settings.Host) || string.IsNullOrWhiteSpace(settings.SearchBase))
+        {
+            return [];
+        }
+
+        var byId = new Dictionary<string, LdapDirectoryUser>(StringComparer.OrdinalIgnoreCase);
+        var identifier = new LdapDirectoryIdentifier(settings.Host, settings.Port);
+        using var connection = CreateConnection(settings, identifier);
+
+        try
+        {
+            BindWithServiceAccount(connection, settings, "list directory users");
+            // Harf/rakam öneği — arama 50 limitine takılmadan toplu liste (card #1748).
+            const string prefixes = "abcçdefgğhıijklmnoöprsştuüvyz0123456789";
+            foreach (var prefix in prefixes)
+            {
+                try
+                {
+                    var escaped = Escape(prefix.ToString());
+                    var filter =
+                        $"(&(objectClass=user)(!(objectClass=computer))(!(sAMAccountName=*$))(|({settings.UserAttribute}={escaped}*)(sAMAccountName={escaped}*)(displayName={escaped}*)(cn={escaped}*)))";
+                    var request = new SearchRequest(
+                        settings.SearchBase,
+                        filter,
+                        SearchScope.Subtree,
+                        ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
+                         "cn", "givenName", "sn", "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"])
+                    {
+                        SizeLimit = 200,
+                    };
+                    var response = (SearchResponse)connection.SendRequest(request);
+                    foreach (SearchResultEntry entry in response.Entries)
+                    {
+                        if (IsMachineAccountEntry(entry))
+                        {
+                            continue;
+                        }
+
+                        var mapped = MapDirectoryUser(entry);
+                        if (string.IsNullOrWhiteSpace(mapped.ExternalIdentityId) || string.IsNullOrWhiteSpace(mapped.Username))
+                        {
+                            continue;
+                        }
+
+                        byId.TryAdd(mapped.ExternalIdentityId, mapped);
+                    }
+                }
+                catch (LdapException ex) when (ex.ErrorCode == 4)
+                {
+                    // Kısmi sonuç yeterli; sonraki önekle devam.
+                }
+                catch (LdapException ex)
+                {
+                    _logger.LogDebug(ex, "LDAP user prefix search failed for '{Prefix}'", prefix);
+                }
+            }
+        }
+        catch (LdapException ex)
+        {
+            _logger.LogWarning(ex, "LDAP user listing failed");
+        }
+
+        return byId.Values
+            .OrderBy(entry => entry.DisplayName, StringComparer.Create(CultureInfo.GetCultureInfo("tr-TR"), CompareOptions.IgnoreCase))
+            .ToArray();
     }
 
     private void CollectOrganizationalUnitNames(LdapConnection connection, string searchBase, ISet<string> names)

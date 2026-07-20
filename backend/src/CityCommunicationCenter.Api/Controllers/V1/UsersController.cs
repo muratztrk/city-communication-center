@@ -61,6 +61,15 @@ public sealed class UsersController : ApiControllerBase
         return Ok(response);
     }
 
+    [HttpGet("directory-users")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
+    [ProducesResponseType<IEnumerable<DirectoryUserLookupResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<DirectoryUserLookupResponse>>> ListDirectoryUsers(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new ListDirectoryUsersQuery(), cancellationToken);
+        return Ok(response);
+    }
+
     [HttpPost("")]
     [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
     [ProducesResponseType<UserSummaryResponse>(StatusCodes.Status201Created)]

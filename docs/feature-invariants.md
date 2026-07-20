@@ -566,7 +566,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi/kategorisini gösterir.
 - **Detay popup header aksiyonları:** Detaylar butonundan açılan iş/talep/görev detay popup'larında
   sağ üst aksiyon butonları (Düzenle/Tamamla/Yazdır vb.) ve kapatma (X) kompakt ölçülüdür
-  (~1.875rem yükseklik, ~0.7rem yazı; card #1632). Sol üst popup başlığı
+  (~2.05rem yükseklik, ~0.72rem yazı; card #1632 + #1747). Küçük mobil
+  (`max-width:767`) kompakt ölçüler korunur. Sol üst popup başlığı
   (`.my-request-detail-header__title`) de kompaktır (~0.7rem / 0.14em tracking; card #1632 reopen).
   768px üstü fakat viewport yüksekliği 900px ve altındaki dizüstü ekranlarda gövde/kart padding ve
   kontroller ayrıca kompaktlaşır; üçlü adres alanı iki kolona düşerek iç içe geçmez (card #1614).
@@ -825,7 +826,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1714/#1720). LDAP oluşturmada `SourceType=Ldap`. “Anlık LDAP Birim Senkronize Et”
   yalnız listeyi yeniler / doldurur (`GET /users/directory-departments` — OU + department
   attribute; kullanıcı displayName limitine takılmaz) — kayıt **Oluştur** ile eklenir;
-  senkron otomatik `createDepartment` çağırmaz (cards #1717/#1730). Dizin kullanıcı
+  senkron otomatik `createDepartment` çağırmaz (cards #1717/#1730). “Tüm LDAP Birimlerini Ekle”
+  ConfirmDialog (`Ekle`) ile eksik birimleri toplu oluşturur (card #1336). Dizin kullanıcı
   araması `department` / `physicalDeliveryOfficeName` alanlarını da tarar. LDAP birim
   düzenleme formu
   müdahale edilemez; Tür yalnız `Birim`/`Administration` (card #1719). Düzenle Tür
@@ -839,7 +841,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açıkken İptal destructive kırmızı; form altındaki ekstra İptal yok (card #1721). Yeni kullanıcı
   **Aktif** Rol kolonunun altında (Ek roller satırını itmez) (card #1718). LDAP kullanıcı
   seçimi birimi otomatik oluşturmaz; kullanıcı/birim **Oluştur** ile eklenir; senkron yalnız
-  dizin listesini yeniler (card #1729). `+Yeni Kullanıcı` açıkken grid görünür kalır
+  dizin listesini yeniler (card #1729). “Tüm LDAP Kullanıcılarını Ekle” ConfirmDialog ile
+  bağlı olmayanları Staff olarak ekler; herhangi birinin birimi sistemde yoksa **hiçbiri
+  eklenmez** ve önce tüm birimlerin eklenmesi uyarısı gösterilir (`GET /users/directory-users`,
+  card #1748). `+Yeni Kullanıcı` açıkken grid görünür kalır
   (`desktop-page-fill` form açıkken kapanır — card #1731). Kullanıcılar LDAP formunda
   “LDAP Kullanıcı Çek” solda, “Anlık LDAP Kullanıcı Senkronize Et” sağda (card #1735);
   Birimler’de “LDAP Birim Çek” solda, senkron sağda (card #1737). LDAP dizin e-postası

@@ -848,8 +848,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`GET /users/directory-users`, cards #1748/#1750/#1758/#1759). Popup kapanış **Çıkış**
   (kırmızı); eksik birim uyarısı: LDAP birim verisi gerekir / tümü eklendiyse başarı metni
   (cards #1759/#1760). Çekim sonrası buton sağında **Birimi LDAP’ta olmayan kullanıcılar**
-  dropdown’u (card #1752). LDAP formunda Dizin Hesabı alanı yok; Oluştur altında **İptal Et**
-  formu `resetForm` ile temizler (cards #1755/#1756). Sistemde talep/görev oluşturmuş kullanıcı
+  dropdown’u (card #1752). LDAP formunda Dizin Hesabı alanı yok; **İptal Et** yalnız LDAP
+  kullanıcısı seçiliyken Oluştur altında görünür (cards #1755/#1756). Anlık senkron otomatik
+  eklemez; mesaj `"LDAP Kullanıcı Senkronize Edildi"` (card #1754). Toplu ekle popup’ta eksik
+  birimlilerle birlikte eklenecek (birimi olan) kullanıcılar da listelenir (card #1761).
+  **Yeni Kullanıcı** başlığından önce “Birime atanmamış ve sistemde ekli kullanıcılar”
+  dropdown kutusu (geçerli birimi olmayan sistem kullanıcıları — card #1762). Sistemde
+  talep/görev oluşturmuş kullanıcı
   silinemez — `"Sistemi kullanmış olan personel silinemez"` (card #1753). `+Yeni Kullanıcı` açıkken grid görünür kalır
   (`desktop-page-fill` form açıkken kapanır — card #1731). Kullanıcılar LDAP formunda
   “LDAP Kullanıcı Çek” solda, “Anlık LDAP Kullanıcı Senkronize Et” sağda (card #1735);

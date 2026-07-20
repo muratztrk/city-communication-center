@@ -1,3 +1,9 @@
+## Round 400 — #1754/#1756/#1761/#1762
+- #1754: Anlık LDAP senkron otomatik eklemez; mesaj "LDAP Kullanıcı Senkronize Edildi".
+- #1756: İptal Et yalnız LDAP kullanıcı seçiliyken görünür.
+- #1761: Toplu ekle popup’ta eklenecek (birimi olan) kullanıcılar da listelenir.
+- #1762: Yeni Kullanıcı öncesi birime atanmamış sistem kullanıcıları dropdown’u.
+
 ## Round 399 — #1755/#1754/#1757/#1756/#1753/#1758/#1752/#1750/#1759/#1760
 - #1755: LDAP formundan Dizin Hesabı alanı kaldırıldı.
 - #1754/#1757: LDAP çekim/liste yalnız aktif (enabled) kullanıcılar.

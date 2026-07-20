@@ -1894,16 +1894,16 @@ export function SettingsPage() {
                   <input aria-label={t('settings.ldapBindDn')} className="field-input" value={tenantLdapSettings.bindDn ?? ''} onChange={event => setTenantLdapSettings(current => ({ ...current, bindDn: event.target.value || null }))} />
                 </label>
               </div>
-              <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_240px] md:items-end">
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('settings.ldapBindPassword')}</span>
+              <div className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('settings.ldapBindPassword')}</span>
+                <div className="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
                   <input aria-label={t('settings.ldapBindPassword')} className="field-input" placeholder={t('settings.ldapBindPasswordPlaceholder')} type="password" value={tenantLdapSettings.bindPassword} onChange={event => setTenantLdapSettings(current => ({ ...current, bindPassword: event.target.value, clearBindPassword: false }))} />
-                  <span className="helper-copy">{tenantLdapSettings.hasBindPassword ? t('settings.ldapPasswordStored') : t('settings.ldapPasswordMissing')}</span>
-                </label>
-                <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-                  <input className="field-checkbox" checked={tenantLdapSettings.clearBindPassword} disabled={!tenantLdapSettings.hasBindPassword} type="checkbox" onChange={event => setTenantLdapSettings(current => ({ ...current, clearBindPassword: event.target.checked, bindPassword: event.target.checked ? '' : current.bindPassword }))} />
-                  {t('settings.ldapClearPassword')}
-                </label>
+                  <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+                    <input className="field-checkbox" checked={tenantLdapSettings.clearBindPassword} disabled={!tenantLdapSettings.hasBindPassword} type="checkbox" onChange={event => setTenantLdapSettings(current => ({ ...current, clearBindPassword: event.target.checked, bindPassword: event.target.checked ? '' : current.bindPassword }))} />
+                    {t('settings.ldapClearPassword')}
+                  </label>
+                </div>
+                <span className="helper-copy">{tenantLdapSettings.hasBindPassword ? t('settings.ldapPasswordStored') : t('settings.ldapPasswordMissing')}</span>
               </div>
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">

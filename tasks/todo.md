@@ -1,3 +1,6 @@
+## Round 394 — #1745
+- #1745: LDAP “Kayıtlı bind şifresini temizle” Bind Şifresi textbox ile aynı satırda hizalandı.
+
 ## Round 393 — #1744
 - #1744: Ayarlar banner altı tab butonları biraz küçültüldü (~2.35rem / 0.84rem).
 

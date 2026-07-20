@@ -855,7 +855,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Ayarlar/Birimler/Kullanıcılar (`admin-surface-page`):** helper-copy, label, textbox,
   textarea, Oluşturma Modu segmented + LDAP başlıkları kompakt shell’den belirgin büyük
   (cards #1733/#1736/#1738). Ayarlar banner altı tab butonları #1733’ten sonra biraz
-  küçültüldü (card #1744: ~2.35rem / 0.84rem).
+  küçültüldü (card #1744: ~2.35rem / 0.84rem). LDAP “Kayıtlı bind şifresini temizle”
+  checkbox’ı Bind Şifresi textbox ile aynı satırda/hizada; helper-copy altında değil
+  (card #1745).
 - **Otomatik Yönlendirme:** Yönlendirme Kuralları ve Yönlendirme Testi UI yok (card #1727).
 - **Mobil detay popup başlığı:** title case (ALL CAPS değil); çok kelimede 2. satır; X sağ üst
   (card #1728). **Masaüstü** detay popup başlığı biraz büyük + `text-transform: uppercase`

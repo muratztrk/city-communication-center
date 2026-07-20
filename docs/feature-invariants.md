@@ -920,7 +920,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geçersizdir.)
 - **Talep detay düzenleme kontrolleri kompakttır (card #1601/#1691):** detay içi `Düzenle` modunda
   Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı masaüstünde
-  `min(12.5rem, 100%)` — talep numarası/rozet kolonuna binmez (card #1691 7. tur),
+  `min(14.5rem, 100%)` — talep numarası/rozet kolonuna binmez (card #1691 8. tur),
   mobilde 7.5rem; font 0.8125rem; Son Tarih kontrolü tam placeholder için
   en fazla 12rem/12px; `Dosya ekle` son görsel dengelemesinde 1.625rem/10.5px'tir
   (card #1601 fourth reopen). Bu ölçüler genel form/dropdown bileşenlerine yayılmaz.

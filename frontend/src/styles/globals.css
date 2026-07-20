@@ -384,10 +384,10 @@
   }
 
   /* Düzenle modu talep başlığı textarea (card #1691).
-     7. tur: 16.5rem talep numarasına binmiş → hücreyi aşmayan genişlik.
-     Parent grid hücresi minmax(0,1fr); width:min(...,100%) taşmayı keser. */
+     8. tur: 12.5rem dar kaldı → 14.5rem; max-width:100% + overflow-hidden
+     numaraya binmeyi önler (7. tur 16.5rem sabiti taşıyordu). */
   .detail-modal-shell--my-request .my-request-title-heading-edit__textarea {
-    width: min(12.5rem, 100%);
+    width: min(14.5rem, 100%);
     max-width: 100%;
     box-sizing: border-box;
     min-height: 1.65rem;

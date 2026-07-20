@@ -1,3 +1,6 @@
+## Round 391 — #1691
+- #1691: Başlık textarea 12.5 → 14.5rem (`min(...,100%)` ile numaraya binmez).
+
 ## Round 390 — #1691/#1739
 - #1691: Başlık textarea `min(12.5rem,100%)` — talep numarasına binmez; meta `shrink-0`.
 - #1739: Ek roller dar+küçük metin; Oluştur daha geniş.

@@ -21,7 +21,17 @@ public interface ILdapAuthenticationService
 
 public sealed record LdapAuthenticatedUser(string ExternalIdentityId, string Username, string? DisplayName, string? Email, string? Title = null, string? Phone = null);
 
-public sealed record LdapDirectoryUser(string ExternalIdentityId, string Username, string DisplayName, string? Email, string? Department, string? Title = null, string? Phone = null);
+/// <param name="Department">physicalDeliveryOfficeName / department attribute (OU değil — card #1763).</param>
+/// <param name="OrganizationalUnit">DN'den çıkarılan OU (card #1764).</param>
+public sealed record LdapDirectoryUser(
+    string ExternalIdentityId,
+    string Username,
+    string DisplayName,
+    string? Email,
+    string? Department,
+    string? Title = null,
+    string? Phone = null,
+    string? OrganizationalUnit = null);
 
 public sealed record LdapConnectivityTestParameters(
     string Host,

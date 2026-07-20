@@ -98,6 +98,8 @@ export interface DirectoryUserLookup {
   existingUserId: string | null;
   title: string | null;
   phone: string | null;
+  /** LDAP DN OU — birim attribute değil (card #1764). */
+  organizationalUnit?: string | null;
 }
 
 export interface UserManagementContext {

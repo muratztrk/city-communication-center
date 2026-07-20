@@ -87,7 +87,8 @@ public sealed class ListDirectoryUsersQueryHandler : IQueryHandler<ListDirectory
                     existing is not null,
                     existing?.UserId,
                     candidate.Title,
-                    candidate.Phone);
+                    candidate.Phone,
+                    candidate.OrganizationalUnit);
             })
             .ToArray();
     }

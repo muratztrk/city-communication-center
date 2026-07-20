@@ -316,8 +316,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
     private static LdapDirectoryUser MapDirectoryUser(SearchResultEntry entry)
     {
+        var dn = GetDistinguishedName(entry);
         return new LdapDirectoryUser(
-            GetDistinguishedName(entry) ?? string.Empty,
+            dn ?? string.Empty,
             GetAttribute(entry, "sAMAccountName")
                 ?? GetAttribute(entry, "userPrincipalName")
                 ?? GetAttribute(entry, "mail")
@@ -330,7 +331,8 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             NormalizeDirectoryMail(GetAttribute(entry, "mail")),
             ResolveDepartment(entry),
             GetAttribute(entry, "description"),
-            GetAttribute(entry, "telephoneNumber"));
+            GetAttribute(entry, "telephoneNumber"),
+            ExtractDepartmentFromDn(dn));
     }
 
     private static string? NormalizeDirectoryMail(string? mail)
@@ -365,20 +367,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             }
 
             var entry = response.Entries[0];
-            return new LdapDirectoryUser(
-                GetDistinguishedName(entry) ?? externalIdentityId,
-                GetAttribute(entry, "sAMAccountName")
-                    ?? GetAttribute(entry, "userPrincipalName")
-                    ?? GetAttribute(entry, "mail")
-                    ?? externalIdentityId,
-                GetAttribute(entry, "displayName")
-                    ?? GetAttribute(entry, "sAMAccountName")
-                    ?? GetAttribute(entry, "userPrincipalName")
-                    ?? externalIdentityId,
-                NormalizeDirectoryMail(GetAttribute(entry, "mail")),
-                ResolveDepartment(entry),
-                GetAttribute(entry, "description"),
-                GetAttribute(entry, "telephoneNumber"));
+            return MapDirectoryUser(entry);
         }
         catch (LdapException ex)
         {
@@ -414,20 +403,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             }
 
             var entry = response.Entries[0];
-            return new LdapDirectoryUser(
-                GetDistinguishedName(entry) ?? username,
-                GetAttribute(entry, "sAMAccountName")
-                    ?? GetAttribute(entry, "userPrincipalName")
-                    ?? GetAttribute(entry, "mail")
-                    ?? username,
-                GetAttribute(entry, "displayName")
-                    ?? GetAttribute(entry, "sAMAccountName")
-                    ?? GetAttribute(entry, "userPrincipalName")
-                    ?? username,
-                NormalizeDirectoryMail(GetAttribute(entry, "mail")),
-                ResolveDepartment(entry),
-                GetAttribute(entry, "description"),
-                GetAttribute(entry, "telephoneNumber"));
+            return MapDirectoryUser(entry);
         }
         catch (LdapException ex)
         {
@@ -909,9 +885,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
     private static string? ResolveDepartment(SearchResultEntry entry)
     {
+        // Birim eşlemesi yalnız office/department attribute — OU fallback yok (card #1763).
         return GetAttribute(entry, "physicalDeliveryOfficeName")
-            ?? GetAttribute(entry, "department")
-            ?? ExtractDepartmentFromDn(GetDistinguishedName(entry));
+            ?? GetAttribute(entry, "department");
     }
 
     private int GetSearchResultLimit()

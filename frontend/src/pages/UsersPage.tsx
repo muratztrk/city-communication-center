@@ -93,7 +93,6 @@ export function UsersPage() {
   /** LDAP'ta birim alanı boş kullanıcılar — buton sağındaki dropdown (card #1752). */
   const [ldapUsersWithoutDepartment, setLdapUsersWithoutDepartment] = useState<DirectoryUserLookup[]>([])
   const [ldapUsersWithoutDepartmentValue, setLdapUsersWithoutDepartmentValue] = useState('')
-  const [usersWithoutDepartmentValue, setUsersWithoutDepartmentValue] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
   const canManageUsers = currentUser?.role === 'SystemAdmin'
@@ -183,6 +182,71 @@ export function UsersPage() {
     }
   }, [debouncedDirectoryQuery, shouldSearchDirectory, t])
 
+  const localeCompareTr = (left: string, right: string) =>
+    left.localeCompare(right, 'tr', { sensitivity: 'base' })
+
+  const sortByOu = (items: DirectoryUserLookup[]) =>
+    [...items].sort((left, right) =>
+      localeCompareTr(
+        (left.organizationalUnit || left.department || left.displayName || '').trim(),
+        (right.organizationalUnit || right.department || right.displayName || '').trim(),
+      ))
+
+  const sortByDepartmentOrName = (items: DirectoryUserLookup[]) =>
+    [...items].sort((left, right) =>
+      localeCompareTr(
+        (left.department || left.displayName || '').trim(),
+        (right.department || right.displayName || '').trim(),
+      ))
+
+  type LdapListMetaMode = 'department' | 'ou' | 'none'
+
+  const renderLdapUserList = (title: string, items: DirectoryUserLookup[], metaMode: LdapListMetaMode) => (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</p>
+      <ul className="max-h-48 space-y-1.5 overflow-y-auto text-sm text-slate-800 [scrollbar-gutter:stable]">
+        {items.map(item => (
+          <li key={item.externalIdentityId} className="leading-snug">
+            <span className="font-semibold text-slate-950">{item.displayName || item.username}</span>
+            {metaMode === 'ou' ? (
+              <span className="text-slate-500">
+                {' — '}
+                {item.organizationalUnit?.trim()
+                  ? t('users.addAllLdapMissingOu', { ou: item.organizationalUnit.trim() })
+                  : t('users.addAllLdapNoOu')}
+              </span>
+            ) : null}
+            {metaMode === 'department' ? (
+              <span className="text-slate-500">
+                {' — '}
+                {item.department?.trim()
+                  ? t('users.addAllLdapMissingDepartment', { department: item.department.trim() })
+                  : t('users.addAllLdapNoDepartment')}
+              </span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+
+  const renderLdapUserLists = (...sections: Array<{ title: string; items: DirectoryUserLookup[]; metaMode: LdapListMetaMode } | null>) => {
+    const visible = sections.filter((section): section is { title: string; items: DirectoryUserLookup[]; metaMode: LdapListMetaMode } =>
+      !!section && section.items.length > 0)
+    if (visible.length === 0) {
+      return undefined
+    }
+    return (
+      <div className="space-y-3">
+        {visible.map(section => (
+          <div key={section.title}>
+            {renderLdapUserList(section.title, section.items, section.metaMode)}
+          </div>
+        ))}
+      </div>
+    )
+  }
+
   const handleLiveLdapUserSync = async () => {
     if (!managementContext?.ldapEnabled) {
       return
@@ -199,54 +263,34 @@ export function UsersPage() {
     setError('')
 
     try {
-      // Yalnız aktif LDAP; otomatik create yok — liste yenilenir (card #1754 reopen).
+      // Yalnız aktif LDAP; otomatik create yok — popup ile liste (card #1754).
       const results = await api.searchDirectoryUsers(query)
       setDirectoryResults(results)
-      setDirectorySyncMessage(t('users.liveLdapSyncDone'))
+      setDirectorySyncMessage(null)
+      setConfirmDialog({
+        title: t('users.liveLdapSync'),
+        titleDivider: true,
+        titleCompact: true,
+        titleTone: 'success',
+        message: t('users.liveLdapSyncDone'),
+        details: results.length > 0
+          ? renderLdapUserList(
+              t('users.addAllLdapNewlyPulledTitle', { count: results.length }),
+              sortByDepartmentOrName(results),
+              'department',
+            )
+          : undefined,
+        confirmLabel: t('common.exit', 'Çıkış'),
+        hideCancel: true,
+        variant: 'destructive',
+        onConfirm: () => {},
+      })
     } catch (syncError) {
       setDirectorySyncMessage(null)
       setError(syncError instanceof Error ? syncError.message : t('common.error'))
     } finally {
       setDirectorySyncLoading(false)
     }
-  }
-
-  const renderLdapUserList = (title: string, items: DirectoryUserLookup[], showDepartment: boolean) => (
-    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</p>
-      <ul className="max-h-48 space-y-1.5 overflow-y-auto text-sm text-slate-800 [scrollbar-gutter:stable]">
-        {items.map(item => (
-          <li key={item.externalIdentityId} className="leading-snug">
-            <span className="font-semibold text-slate-950">{item.displayName || item.username}</span>
-            {showDepartment ? (
-              <span className="text-slate-500">
-                {' — '}
-                {item.department?.trim()
-                  ? t('users.addAllLdapMissingDepartment', { department: item.department.trim() })
-                  : t('users.addAllLdapNoDepartment')}
-              </span>
-            ) : null}
-          </li>
-        ))}
-      </ul>
-    </div>
-  )
-
-  const renderLdapUserLists = (...sections: Array<{ title: string; items: DirectoryUserLookup[]; showDepartment: boolean } | null>) => {
-    const visible = sections.filter((section): section is { title: string; items: DirectoryUserLookup[]; showDepartment: boolean } =>
-      !!section && section.items.length > 0)
-    if (visible.length === 0) {
-      return undefined
-    }
-    return (
-      <div className="space-y-3">
-        {visible.map(section => (
-          <div key={section.title}>
-            {renderLdapUserList(section.title, section.items, section.showDepartment)}
-          </div>
-        ))}
-      </div>
-    )
   }
 
   const handleAddAllLdapUsersClick = async () => {
@@ -271,16 +315,10 @@ export function UsersPage() {
         departments.map(item => [item.name.trim().toLocaleLowerCase('tr'), item.departmentId] as const),
       )
 
-      const addable = candidates.filter(item => {
-        const deptName = item.department?.trim()
-        if (!deptName) return false
-        return departmentByKey.has(deptName.toLocaleLowerCase('tr'))
-      })
-      const missingDeptUsers = candidates.filter(item => {
-        const deptName = item.department?.trim()
-        if (!deptName) return true
-        return !departmentByKey.has(deptName.toLocaleLowerCase('tr'))
-      })
+      // PDO/department dolu → eklenebilir (sistemde yoksa ldapDepartmentName — card #1763).
+      // PDO boş → birimi eksik; listede OU (cards #1764/#1765).
+      const addable = sortByDepartmentOrName(candidates.filter(item => !!item.department?.trim()))
+      const missingDeptUsers = sortByOu(candidates.filter(item => !item.department?.trim()))
 
       if (candidates.length === 0) {
         setDirectorySyncMessage(t('users.addAllLdapNone'))
@@ -294,24 +332,21 @@ export function UsersPage() {
         try {
           for (const item of addable) {
             const deptName = item.department!.trim()
-            const departmentId = departmentByKey.get(deptName.toLocaleLowerCase('tr'))
-            if (!departmentId) {
-              continue
-            }
+            const departmentId = departmentByKey.get(deptName.toLocaleLowerCase('tr')) ?? null
 
             await api.createUser({
               username: item.username || null,
               displayName: item.displayName,
               email: item.email?.trim() || null,
               password: null,
-              departmentId,
+              departmentId: departmentId ?? '00000000-0000-0000-0000-000000000000',
               additionalDepartmentIds: [],
               roleCode: 'Staff',
               additionalRoleCodes: [],
               isActive: true,
               sourceType: 'Ldap',
               externalIdentityId: item.externalIdentityId,
-              ldapDepartmentName: null,
+              ldapDepartmentName: departmentId ? null : deptName,
             })
             createdUsers.push(item)
           }
@@ -336,8 +371,8 @@ export function UsersPage() {
             details: createdUsers.length > 0
               ? renderLdapUserList(
                   t('users.addAllLdapNewlyPulledTitle', { count: createdUsers.length }),
-                  createdUsers,
-                  false,
+                  sortByDepartmentOrName(createdUsers),
+                  'none',
                 )
               : undefined,
             confirmLabel: t('common.exit', 'Çıkış'),
@@ -362,7 +397,7 @@ export function UsersPage() {
           details: renderLdapUserLists({
             title: t('users.addAllLdapMissingUsersTitle', { count: missingDeptUsers.length }),
             items: missingDeptUsers,
-            showDepartment: true,
+            metaMode: 'ou',
           }),
           confirmLabel: t('common.exit', 'Çıkış'),
           hideCancel: true,
@@ -381,18 +416,17 @@ export function UsersPage() {
           missingDeptUsers.length > 0
             ? t('users.addAllLdapDepartmentsRequired')
             : t('users.addAllLdapConfirm', { count: addable.length }),
-        // Eksik birimli + eklenecek (birimi olan) kullanıcılar birlikte listelenir (card #1761).
         details: missingDeptUsers.length > 0
           ? renderLdapUserLists(
               {
                 title: t('users.addAllLdapMissingUsersTitle', { count: missingDeptUsers.length }),
                 items: missingDeptUsers,
-                showDepartment: true,
+                metaMode: 'ou',
               },
               {
                 title: t('users.addAllLdapWillAddTitle', { count: addable.length }),
                 items: addable,
-                showDepartment: true,
+                metaMode: 'department',
               },
             )
           : undefined,
@@ -578,11 +612,6 @@ export function UsersPage() {
 
   const ldapModeReady = createMode !== 'ldap' || !!newUser.externalIdentityId
   const getDepartmentName = (departmentId: string) => departments.find(department => department.departmentId === departmentId)?.name || t('common.none')
-  // Geçerli birime bağlı olmayan sistem kullanıcıları (card #1762).
-  const usersWithoutDepartment = useMemo(() => {
-    const knownIds = new Set(departments.map(department => department.departmentId))
-    return users.filter(user => !user.departmentId || !knownIds.has(user.departmentId))
-  }, [users, departments])
   const { sortKey: usersSortKey, sortDir: usersSortDir, toggleSort: toggleUsersSort, sortItems: sortUsers } = useSortable()
   const sortedUsers = useMemo(() => sortUsers(users), [users, sortUsers])
   const { filters: userFilters, setFilter: setUserFilter, matchesFilters: userMatchesFilters } = useColumnFilters()
@@ -667,26 +696,6 @@ export function UsersPage() {
       </section>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
-
-      {canManageUsers ? (
-        <div className="section-card">
-          <div className="grid gap-2 text-sm font-semibold text-slate-700 md:max-w-xl">
-            <span>{t('users.usersWithoutDepartment')}</span>
-            <SingleSelectDropdown
-              options={usersWithoutDepartment.map(user => ({
-                value: user.userId,
-                label: user.displayName || user.username || user.userId,
-              }))}
-              value={usersWithoutDepartmentValue}
-              onChange={setUsersWithoutDepartmentValue}
-              placeholder={t('users.usersWithoutDepartmentPlaceholder')}
-              emptyText={t('users.usersWithoutDepartmentEmpty')}
-              searchable
-              searchPlaceholder={t('common.search', 'Ara...')}
-            />
-          </div>
-        </div>
-      ) : null}
 
       {canManageUsers && showForm ? (
         <form className="form-card page-stack shrink-0" onSubmit={handleCreateUser}>

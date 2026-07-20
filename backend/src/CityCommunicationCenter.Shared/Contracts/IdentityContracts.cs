@@ -81,7 +81,8 @@ public sealed record DirectoryUserLookupResponse(
     bool AlreadyLinked,
     Guid? ExistingUserId,
     string? Title = null,
-    string? Phone = null);
+    string? Phone = null,
+    string? OrganizationalUnit = null);
 
 public sealed record UserManagementContextResponse(
     bool LocalUsersEnabled,

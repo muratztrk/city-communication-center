@@ -92,7 +92,8 @@ public sealed class SearchDirectoryUsersQueryHandler : IQueryHandler<SearchDirec
                     existing is not null,
                     existing?.UserId,
                     candidate.Title,
-                    candidate.Phone);
+                    candidate.Phone,
+                    candidate.OrganizationalUnit);
             })
             .ToArray();
     }

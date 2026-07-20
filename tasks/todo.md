@@ -1,3 +1,10 @@
+## Round 401 — #1762/#1765/#1754/#1764/#1763
+- #1762: Birime atanmamış kullanıcılar dropdown’u geri alındı.
+- #1763: Birim yalnız PDO/department; OU fallback kaldırıldı — PDO dolu kullanıcılar eksik listesinde değil.
+- #1764: Eksik listede "OU:" etiketi + organizationalUnit.
+- #1765: Eksikler OU’ya, eklenecekler birime göre alfabetik.
+- #1754: Anlık senkron ConfirmDialog + çekilen kullanıcı listesi.
+
 ## Round 400 — #1754/#1756/#1761/#1762
 - #1754: Anlık LDAP senkron otomatik eklemez; mesaj "LDAP Kullanıcı Senkronize Edildi".
 - #1756: İptal Et yalnız LDAP kullanıcı seçiliyken görünür.

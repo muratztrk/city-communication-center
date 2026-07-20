@@ -1,4 +1,4 @@
-import { CheckCheck, FileText, History, Info, ListChecks, MapPin, MessageSquareText, Paperclip, Printer, Route, Search, PenLine, X, XCircle } from 'lucide-react'
+import { ArrowRight, CheckCheck, FileText, History, Info, ListChecks, MapPin, MessageSquareText, Paperclip, Printer, Route, Search, PenLine, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -2092,6 +2092,37 @@ const pageKicker = isMyTasksView
                                 </span>
                               ),
                             },
+                            // Yönlendirme varsa: Durum Değişikliği ile aynı geçiş özeti; ayrı kart değil (card #1746).
+                            ...(taskDetail.jobSourceType !== 'Routine' && visibleAssignmentHistory.length > 0
+                              ? [{
+                                  label: t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi'),
+                                  value: (() => {
+                                    const latest = visibleAssignmentHistory[0]
+                                    const first = visibleAssignmentHistory[visibleAssignmentHistory.length - 1]
+                                    return (
+                                      <div className="task-process-status-change__transition">
+                                        <div className="task-process-status-change__side">
+                                          <div className="task-process-status-change__status text-slate-900">
+                                            {getUserName(first.toUserId)}
+                                          </div>
+                                          <div className="task-process-status-change__date">
+                                            {formatDateTime(first.actionDateUtc, locale)}
+                                          </div>
+                                        </div>
+                                        <ArrowRight className="task-process-status-change__arrow" aria-hidden="true" />
+                                        <div className="task-process-status-change__side">
+                                          <div className="task-process-status-change__status text-slate-900">
+                                            {getUserName(latest.toUserId)}
+                                          </div>
+                                          <div className="task-process-status-change__date">
+                                            {formatDateTime(latest.actionDateUtc, locale)}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )
+                                  })(),
+                                }]
+                              : []),
                             ...(() => {
                               const statusChangeWithReason = (taskDetail.statusChangeHistory ?? []).find(item => item.reason?.trim())
                               return statusChangeWithReason
@@ -2418,34 +2449,6 @@ const pageKicker = isMyTasksView
                       </div>
                     </div>
                   </section>
-
-                  {/* Görev Atama Geçmişi — Taleplerim alt kartlarıyla aynı kart dili.
-                      Durum Değişikliği özeti Süreç timeline'ının altında; nedeni ve Görev Ekleri
-                      Görev Bilgileri panelinde kalır (cards #1443/#1482/#1624/#1627). */}
-                  {taskDetail.jobSourceType !== 'Routine' && visibleAssignmentHistory.length > 0 && (
-                    <div className="my-request-detail-bottom mb-5 grid gap-4">
-                      <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
-                        <MyRequestSectionHeading icon={History}>
-                          {t('tasks.detail.taskAssignmentHistory', 'Görev Atama Geçmişi')}
-                        </MyRequestSectionHeading>
-                        <ul className="space-y-2 text-sm text-slate-700">
-                          {visibleAssignmentHistory.map(item => (
-                            <li key={item.assignmentId} className="flex gap-2">
-                              <span className="shrink-0 text-slate-500" aria-hidden>•</span>
-                              <div className="min-w-0">
-                                <div className="font-bold text-slate-950">
-                                  {getUserName(item.toUserId)}
-                                </div>
-                                <div className="text-xs text-slate-500">
-                                  {new Date(item.actionDateUtc).toLocaleString(locale)}
-                                </div>
-                              </div>
-                            </li>
-                          ))}
-                        </ul>
-                      </section>
-                    </div>
-                  )}
 
                   {/* Rutin görevlerde 2. satır: Adres Bilgileri + Ekler / Fotoğraflar (card 575) */}
                   {taskDetail.jobSourceType === 'Routine' && (() => {

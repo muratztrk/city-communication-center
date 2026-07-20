@@ -1,3 +1,6 @@
+## Round 395 — #1746
+- #1746: Görev Atama Geçmişi ayrı kutucuk kaldırıldı; Görev Bilgileri’nde Görevi Yapan altında Durum Değişikliği tarzı geçiş özeti.
+
 ## Round 394 — #1745
 - #1745: LDAP “Kayıtlı bind şifresini temizle” Bind Şifresi textbox ile aynı satırda hizalandı.
 

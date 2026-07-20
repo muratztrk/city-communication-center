@@ -156,7 +156,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görev Sahibi gösterimi:** `assignedUserDisplayName ?? ownerDisplayName` (yönlendirme
   sonrası güncel atanan). `AssignTask` `OwnerUserId`'i değiştirmez, sadece `AssignedUserId`.
 - **Görev Atama Geçmişi:** ilk atanan kullanıcıdan farklı bir kullanıcıya yönlendirme yoksa
-  gösterilmez; varsa Tasks detayındaki Görev Detayları kartında Açıklama'nın sağında sütun olarak görünür.
+  gösterilmez; varsa Görevlerim detayında `Görev Bilgileri` içinde `Görevi Yapan` satırının
+  hemen altında, `Durum Değişikliği` ile aynı geçiş özeti tasarımında (ilk atanan → son atanan +
+  tarihler) görünür — ayrı alt kart/kutucuk yok (card #1746).
 - **Görev Detayları durum değişikliği özeti:** Durum değiştiyse `Durum Değişikliği`, Görev Bilgileri
   içinden çıkar ve sağdaki `Süreç` timeline'ı bittikten sonra satır olarak görünür; okun iki yanındaki
   durum metinleri 12px kalır. `Durum Değişikliği Nedeni` ise `Görevi Yapan` satırının hemen altında,
@@ -164,8 +166,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hem `GetTaskByIdQuery` hem `JobQueries` projeksiyonunda `Notes`/`ActorDisplayName` taşır.
   Özet ilk durum → son durumdur; metinler normal ağırlıkta, tarihler saniyesiz ve durumların altında
   ortalıdır. `İptal`/iade kırmızı, `Yapılmakta` turuncu, `Tamamlanmış` yeşildir (cards #1624/#1619 reopen).
-- **Görev Detayları geçmiş kolonları:** Açıklama + Görev Atama Geçmişi birlikte görünürken sol
-  "Görev No/Talep No" bilgi kolonları dar tutulur; geçmiş başlıkları tek satır kalacak kadar sağ panel alanı bırakılır.
+- **Görev Detayları geçmiş kolonları (eski):** Açıklama yanında Atama Geçmişi sütunu kaldırıldı
+  (#1746); atama özeti artık Görev Bilgileri satırıdır.
 - **CitizenRequestManager `Birimdeki Görevler`:** müdürlük ilişkisiyle değil, çalışabildiği
   birimlerle scoped edilir; backend+frontend yalnızca `JobCitizenRequestHelper` citizen görevlerini
   gösterir ve CRM bu görevlerde yönetici aksiyonlarını kullanabilir (card #1071).
@@ -174,8 +176,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gibi normal geçişler de dahil. Mantık: audit'ler zaman sırasıyla gezilir, `StatusAtEvent` bir öncekinden
   farklıysa bir geçiş kaydı çıkar. Eski audit zinciri ilk kaydı doğrudan yeni durumla başlatırsa
   Atandı→ilk durum geçişi sentetik görünür. Sadece Görevlerim detayında, Açıklama'nın sağında ek sütun
-  (rutin görevlerde gizli); eski yalnız-durum+tarih kuralı #1619/#1624 ile geçersizdir. Atama Geçmişi ile
-  yan yana görünürse iki geçmiş başlığı da tek satıra sığacak şekilde geniş tutulur.
+  (rutin görevlerde gizli); eski yalnız-durum+tarih kuralı #1619/#1624 ile geçersizdir.
 - **Görev Ekleri sütunu (Tasks detay):** tamamlanmış rutin olmayan görevde yalnızca gerçek görev eki varsa
   görünür; ek yoksa boş "Görev Ekleri" alanı hiç oluşmaz.
 - **DateTimePicker NAİF yerel duvar-saati sözleşmesi (round 380, #1677):** `DateTimePicker` value'su

@@ -51,6 +51,16 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
             throw new ValidationException(_localizer["ValidationUserNotFound"]);
         }
 
+        // Talep/görev oluşturmuş personel silinemez (card #1753).
+        var hasCreatedJobs = await _dbContext.Jobs
+            .AnyAsync(job => job.TenantId == tenantId && job.CreatedByUserId == request.UserId, cancellationToken);
+        var hasCreatedTasks = await _dbContext.Tasks
+            .AnyAsync(task => task.TenantId == tenantId && task.CreatedByUserId == request.UserId, cancellationToken);
+        if (hasCreatedJobs || hasCreatedTasks)
+        {
+            throw new ValidationException(_localizer["ValidationCannotDeleteUserWhoUsedSystem"]);
+        }
+
         // Nullify references in tasks assigned to this user
         await _dbContext.Tasks
             .Where(task => task.TenantId == tenantId && task.AssignedUserId == request.UserId)

@@ -53,17 +53,25 @@ public sealed class SearchDirectoryUsersQueryHandler : IQueryHandler<SearchDirec
             .Where(email => !string.IsNullOrWhiteSpace(email))
             .Cast<string>()
             .ToArray();
+        var usernames = candidates
+            .Select(candidate => candidate.Username)
+            .Where(username => !string.IsNullOrWhiteSpace(username))
+            .Select(username => username.Trim().ToUpperInvariant())
+            .Distinct()
+            .ToArray();
 
         var existingUsers = await _dbContext.Users
             .Where(entity => entity.TenantId == tenantId)
             .Where(entity =>
                 (entity.ExternalIdentityId != null && externalIds.Contains(entity.ExternalIdentityId)) ||
-                (entity.Email != null && emails.Contains(entity.Email)))
+                (entity.Email != null && emails.Contains(entity.Email)) ||
+                (entity.Username != null && usernames.Contains(entity.Username.ToUpper())))
             .Select(entity => new
             {
                 entity.UserId,
                 entity.ExternalIdentityId,
                 entity.Email,
+                entity.Username,
             })
             .ToListAsync(cancellationToken);
 
@@ -72,7 +80,8 @@ public sealed class SearchDirectoryUsersQueryHandler : IQueryHandler<SearchDirec
             {
                 var existing = existingUsers.FirstOrDefault(entity =>
                     string.Equals(entity.ExternalIdentityId, candidate.ExternalIdentityId, StringComparison.OrdinalIgnoreCase) ||
-                    (!string.IsNullOrWhiteSpace(candidate.Email) && string.Equals(entity.Email, candidate.Email, StringComparison.OrdinalIgnoreCase)));
+                    (!string.IsNullOrWhiteSpace(candidate.Email) && string.Equals(entity.Email, candidate.Email, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrWhiteSpace(candidate.Username) && string.Equals(entity.Username, candidate.Username, StringComparison.OrdinalIgnoreCase)));
 
                 return new DirectoryUserLookupResponse(
                     candidate.ExternalIdentityId,

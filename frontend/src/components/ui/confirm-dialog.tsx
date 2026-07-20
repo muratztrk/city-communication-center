@@ -15,6 +15,8 @@ export interface ConfirmDialogState {
   confirmLabel?: string
   cancelLabel?: string
   variant?: 'destructive' | 'primary' | 'success'
+  /** İptal/Çıkış butonu stili — LDAP toplu ekle Çıkış kırmızı (card #1760). */
+  cancelVariant?: 'secondary' | 'destructive'
   hideCancel?: boolean
   banner?: ReactNode
   /** Optional content under the message (ör. eksik birimli kullanıcı listesi). */
@@ -66,7 +68,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
         {state.details ? <div className="mb-6">{state.details}</div> : null}
         <div className="flex justify-end gap-2">
           {!state.hideCancel && (
-            <Button type="button" variant="secondary" onClick={onClose}>
+            <Button type="button" variant={state.cancelVariant ?? 'secondary'} onClick={onClose}>
               {state.cancelLabel ?? t('common.cancel', 'İptal')}
             </Button>
           )}

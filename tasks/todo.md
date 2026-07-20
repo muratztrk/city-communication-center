@@ -1,3 +1,13 @@
+## Round 399 — #1755/#1754/#1757/#1756/#1753/#1758/#1752/#1750/#1759/#1760
+- #1755: LDAP formundan Dizin Hesabı alanı kaldırıldı.
+- #1754/#1757: LDAP çekim/liste yalnız aktif (enabled) kullanıcılar.
+- #1756: Oluştur altında İptal Et → form reset (LDAP ilk açılış gibi).
+- #1753: Talep/görev oluşturmuş kullanıcı silinemez.
+- #1758: sAMAccountName ile yeniden ekleme engeli; Yeni çekilen kullanıcılar (N) listesi.
+- #1752: Birimi LDAP'ta olmayan kullanıcılar dropdown (buton sağı).
+- #1750: Eksik birimliler atlanır; diğerleri Ekle ile eklenir.
+- #1759/#1760: Popup metinleri + Çıkış kırmızı.
+
 ## Round 398 — #1751
 - #1751: Detay popup logosu, sağ butonlar alanına girerse yalnızca o durumda sola kayar.
 

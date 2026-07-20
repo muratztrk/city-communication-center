@@ -529,7 +529,9 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
     private static string BuildDirectorySearchFilter(string userAttribute, IReadOnlyList<string> searchTerms)
     {
-        const string userAccountFilter = "(&(objectClass=user)(!(objectClass=computer))(!(sAMAccountName=*$)))";
+        // ACCOUNTDISABLE (2) bit'i kapalı kullanıcılar hariç — yalnız aktif hesaplar (cards #1754/#1757).
+        const string userAccountFilter =
+            "(&(objectClass=user)(!(objectClass=computer))(!(sAMAccountName=*$))(!(userAccountControl:1.2.840.113556.1.4.803:=2)))";
 
         if (searchTerms.Count == 0)
         {
@@ -593,7 +595,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 {
                     var escaped = Escape(prefix.ToString());
                     var filter =
-                        $"(&(objectClass=user)(!(objectClass=computer))(!(sAMAccountName=*$))(|({settings.UserAttribute}={escaped}*)(sAMAccountName={escaped}*)(displayName={escaped}*)(cn={escaped}*)))";
+                        $"(&(objectClass=user)(!(objectClass=computer))(!(sAMAccountName=*$))(!(userAccountControl:1.2.840.113556.1.4.803:=2))(|({settings.UserAttribute}={escaped}*)(sAMAccountName={escaped}*)(displayName={escaped}*)(cn={escaped}*)))";
                     var request = new SearchRequest(
                         settings.SearchBase,
                         filter,

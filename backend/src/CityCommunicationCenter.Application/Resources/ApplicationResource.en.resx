@@ -61,6 +61,7 @@
   <data name="ValidationUserIdRequired" xml:space="preserve"><value>User ID is required.</value></data>
   <data name="ValidationUserNotFound" xml:space="preserve"><value>User not found.</value></data>
   <data name="ValidationCannotDeleteSelf" xml:space="preserve"><value>You cannot delete your own account.</value></data>
+  <data name="ValidationCannotDeleteUserWhoUsedSystem" xml:space="preserve"><value>Staff who have used the system cannot be deleted.</value></data>
   <data name="ValidationCurrentPasswordRequired" xml:space="preserve"><value>Current password is required.</value></data>
   <data name="ValidationNewPasswordRequired" xml:space="preserve"><value>New password is required.</value></data>
   <data name="ValidationNewPasswordMismatch" xml:space="preserve"><value>New passwords do not match.</value></data>

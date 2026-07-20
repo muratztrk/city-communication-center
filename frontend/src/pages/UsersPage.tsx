@@ -90,6 +90,9 @@ export function UsersPage() {
   const [directorySyncLoading, setDirectorySyncLoading] = useState(false)
   const [directorySyncMessage, setDirectorySyncMessage] = useState<string | null>(null)
   const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
+  /** LDAP'ta birim alanı boş kullanıcılar — buton sağındaki dropdown (card #1752). */
+  const [ldapUsersWithoutDepartment, setLdapUsersWithoutDepartment] = useState<DirectoryUserLookup[]>([])
+  const [ldapUsersWithoutDepartmentValue, setLdapUsersWithoutDepartmentValue] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
 
   const canManageUsers = currentUser?.role === 'SystemAdmin'
@@ -206,6 +209,27 @@ export function UsersPage() {
     }
   }
 
+  const renderLdapUserList = (title: string, items: DirectoryUserLookup[], showDepartment: boolean) => (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</p>
+      <ul className="max-h-48 space-y-1.5 overflow-y-auto text-sm text-slate-800 [scrollbar-gutter:stable]">
+        {items.map(item => (
+          <li key={item.externalIdentityId} className="leading-snug">
+            <span className="font-semibold text-slate-950">{item.displayName || item.username}</span>
+            {showDepartment ? (
+              <span className="text-slate-500">
+                {' — '}
+                {item.department?.trim()
+                  ? t('users.addAllLdapMissingDepartment', { department: item.department.trim() })
+                  : t('users.addAllLdapNoDepartment')}
+              </span>
+            ) : null}
+          </li>
+        ))}
+      </ul>
+    </div>
+  )
+
   const handleAddAllLdapUsersClick = async () => {
     if (!managementContext?.ldapEnabled || addAllLdapLoading) {
       return
@@ -216,55 +240,116 @@ export function UsersPage() {
     setDirectorySyncMessage(null)
 
     try {
+      // Yalnızca aktif LDAP kullanıcıları (BE filter); ekleme ConfirmDialog Ekle ile (cards #1750/#1757).
       const results = await api.listDirectoryUsers()
-      const toAdd = results.filter(item => !item.alreadyLinked)
+      const withoutLdapDepartment = results.filter(item => !item.department?.trim())
+      setLdapUsersWithoutDepartment(withoutLdapDepartment)
+      setLdapUsersWithoutDepartmentValue('')
+
+      // alreadyLinked: externalId veya sAMAccountName (card #1758).
+      const candidates = results.filter(item => !item.alreadyLinked)
       const departmentByKey = new Map(
         departments.map(item => [item.name.trim().toLocaleLowerCase('tr'), item.departmentId] as const),
       )
 
-      const missingDeptUsers = toAdd.filter(item => {
+      const addable = candidates.filter(item => {
+        const deptName = item.department?.trim()
+        if (!deptName) return false
+        return departmentByKey.has(deptName.toLocaleLowerCase('tr'))
+      })
+      const missingDeptUsers = candidates.filter(item => {
         const deptName = item.department?.trim()
         if (!deptName) return true
         return !departmentByKey.has(deptName.toLocaleLowerCase('tr'))
       })
 
-      if (missingDeptUsers.length > 0) {
+      if (candidates.length === 0) {
+        setDirectorySyncMessage(t('users.addAllLdapNone'))
+        return
+      }
+
+      const runBulkAdd = async () => {
+        setAddAllLdapLoading(true)
+        setError('')
+        const createdUsers: DirectoryUserLookup[] = []
+        try {
+          for (const item of addable) {
+            const deptName = item.department!.trim()
+            const departmentId = departmentByKey.get(deptName.toLocaleLowerCase('tr'))
+            if (!departmentId) {
+              continue
+            }
+
+            await api.createUser({
+              username: item.username || null,
+              displayName: item.displayName,
+              email: item.email?.trim() || null,
+              password: null,
+              departmentId,
+              additionalDepartmentIds: [],
+              roleCode: 'Staff',
+              additionalRoleCodes: [],
+              isActive: true,
+              sourceType: 'Ldap',
+              externalIdentityId: item.externalIdentityId,
+              ldapDepartmentName: null,
+            })
+            createdUsers.push(item)
+          }
+
+          setDirectorySyncMessage(
+            missingDeptUsers.length === 0
+              ? t('users.addAllLdapAllSuccess')
+              : t('users.addAllLdapSuccess', { count: createdUsers.length }),
+          )
+          invalidateUsers(queryClient)
+          loadData()
+
+          setConfirmDialog({
+            title: t('users.addAllLdap'),
+            titleDivider: true,
+            titleCompact: true,
+            titleTone: 'success',
+            message:
+              missingDeptUsers.length === 0
+                ? t('users.addAllLdapAllSuccess')
+                : t('users.addAllLdapSuccess', { count: createdUsers.length }),
+            details: createdUsers.length > 0
+              ? renderLdapUserList(
+                  t('users.addAllLdapNewlyPulledTitle', { count: createdUsers.length }),
+                  createdUsers,
+                  false,
+                )
+              : undefined,
+            confirmLabel: t('common.exit', 'Çıkış'),
+            hideCancel: true,
+            variant: 'destructive',
+            onConfirm: () => {},
+          })
+        } catch (createError) {
+          setError(createError instanceof Error ? createError.message : t('common.error'))
+        } finally {
+          setAddAllLdapLoading(false)
+        }
+      }
+
+      if (addable.length === 0) {
         setConfirmDialog({
           title: t('users.addAllLdap'),
           titleDivider: true,
           titleCompact: true,
           titleTone: 'danger',
           message: t('users.addAllLdapDepartmentsRequired'),
-          details: (
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-                {t('users.addAllLdapMissingUsersTitle', { count: missingDeptUsers.length })}
-              </p>
-              <ul className="max-h-48 space-y-1.5 overflow-y-auto text-sm text-slate-800 [scrollbar-gutter:stable]">
-                {missingDeptUsers.map(item => (
-                  <li key={item.externalIdentityId} className="leading-snug">
-                    <span className="font-semibold text-slate-950">{item.displayName || item.username}</span>
-                    <span className="text-slate-500">
-                      {' — '}
-                      {item.department?.trim()
-                        ? t('users.addAllLdapMissingDepartment', { department: item.department.trim() })
-                        : t('users.addAllLdapNoDepartment')}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+          details: renderLdapUserList(
+            t('users.addAllLdapMissingUsersTitle', { count: missingDeptUsers.length }),
+            missingDeptUsers,
+            true,
           ),
-          confirmLabel: t('common.close', 'Kapat'),
+          confirmLabel: t('common.exit', 'Çıkış'),
           hideCancel: true,
-          variant: 'primary',
+          variant: 'destructive',
           onConfirm: () => {},
         })
-        return
-      }
-
-      if (toAdd.length === 0) {
-        setDirectorySyncMessage(t('users.addAllLdapNone'))
         return
       }
 
@@ -272,48 +357,23 @@ export function UsersPage() {
         title: t('users.addAllLdap'),
         titleDivider: true,
         titleCompact: true,
-        message: t('users.addAllLdapConfirm', { count: toAdd.length }),
+        titleTone: missingDeptUsers.length > 0 ? 'danger' : undefined,
+        message:
+          missingDeptUsers.length > 0
+            ? t('users.addAllLdapDepartmentsRequired')
+            : t('users.addAllLdapConfirm', { count: addable.length }),
+        details: missingDeptUsers.length > 0
+          ? renderLdapUserList(
+              t('users.addAllLdapMissingUsersTitle', { count: missingDeptUsers.length }),
+              missingDeptUsers,
+              true,
+            )
+          : undefined,
         confirmLabel: t('common.add', 'Ekle'),
+        cancelLabel: t('common.exit', 'Çıkış'),
+        cancelVariant: 'destructive',
         variant: 'primary',
-        onConfirm: async () => {
-          setAddAllLdapLoading(true)
-          setError('')
-          try {
-            let created = 0
-            for (const item of toAdd) {
-              const deptName = item.department!.trim()
-              const departmentId = departmentByKey.get(deptName.toLocaleLowerCase('tr'))
-              if (!departmentId) {
-                throw new Error(t('users.addAllLdapDepartmentsRequired'))
-              }
-
-              await api.createUser({
-                username: item.username || null,
-                displayName: item.displayName,
-                email: item.email?.trim() || null,
-                password: null,
-                departmentId,
-                additionalDepartmentIds: [],
-                roleCode: 'Staff',
-                additionalRoleCodes: [],
-                isActive: true,
-                sourceType: 'Ldap',
-                externalIdentityId: item.externalIdentityId,
-                // Birim zaten eşleşti — backend otomatik birim oluşturmasın (card #1748).
-                ldapDepartmentName: null,
-              })
-              created += 1
-            }
-
-            setDirectorySyncMessage(t('users.addAllLdapSuccess', { count: created }))
-            invalidateUsers(queryClient)
-            loadData()
-          } catch (createError) {
-            setError(createError instanceof Error ? createError.message : t('common.error'))
-          } finally {
-            setAddAllLdapLoading(false)
-          }
-        },
+        onConfirm: () => void runBulkAdd(),
       })
     } catch (listError) {
       setError(listError instanceof Error ? listError.message : t('common.error'))
@@ -604,24 +664,42 @@ export function UsersPage() {
 
           {createMode === 'ldap' ? (
             <div className="section-card page-stack">
-              <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <h3 className="ldap-section-title text-lg font-extrabold text-slate-950">{t('users.directorySearch')}</h3>
-                <button
-                  type="button"
-                  className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
-                  disabled={directorySyncLoading}
-                  onClick={() => void handleLiveLdapUserSync()}
-                >
-                  {directorySyncLoading ? t('users.liveLdapSyncWorking') : t('users.liveLdapSync')}
-                </button>
-                <button
-                  type="button"
-                  className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
-                  disabled={addAllLdapLoading || directorySyncLoading}
-                  onClick={() => void handleAddAllLdapUsersClick()}
-                >
-                  {addAllLdapLoading ? t('users.addAllLdapWorking') : t('users.addAllLdap')}
-                </button>
+              <div className="flex flex-wrap items-end gap-x-3 gap-y-2">
+                <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+                  <h3 className="ldap-section-title text-lg font-extrabold text-slate-950">{t('users.directorySearch')}</h3>
+                  <button
+                    type="button"
+                    className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
+                    disabled={directorySyncLoading}
+                    onClick={() => void handleLiveLdapUserSync()}
+                  >
+                    {directorySyncLoading ? t('users.liveLdapSyncWorking') : t('users.liveLdapSync')}
+                  </button>
+                  <button
+                    type="button"
+                    className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
+                    disabled={addAllLdapLoading || directorySyncLoading}
+                    onClick={() => void handleAddAllLdapUsersClick()}
+                  >
+                    {addAllLdapLoading ? t('users.addAllLdapWorking') : t('users.addAllLdap')}
+                  </button>
+                </div>
+                {ldapUsersWithoutDepartment.length > 0 ? (
+                  <div className="min-w-[16rem] max-w-md flex-1">
+                    <SingleSelectDropdown
+                      options={ldapUsersWithoutDepartment.map(item => ({
+                        value: item.externalIdentityId,
+                        label: item.displayName || item.username,
+                      }))}
+                      value={ldapUsersWithoutDepartmentValue}
+                      onChange={setLdapUsersWithoutDepartmentValue}
+                      placeholder={t('users.ldapUsersWithoutDepartment')}
+                      emptyText={t('users.ldapUsersWithoutDepartmentEmpty')}
+                      searchable
+                      searchPlaceholder={t('common.search', 'Ara...')}
+                    />
+                  </div>
+                ) : null}
               </div>
               <p className="helper-copy">{t('users.directorySearchDescription')}</p>
               <p className="helper-copy">{t('users.directoryLinkHint')}</p>
@@ -743,15 +821,11 @@ export function UsersPage() {
                 onChange={event => setNewUser(current => ({ ...current, password: event.target.value }))}
               />
             </label>
-          ) : (
-            <label className="grid gap-2 text-sm font-semibold text-slate-700 md:max-w-[calc(50%-0.5rem)]">
-              <span>{t('users.externalIdentity')}</span>
-              <input aria-label={t('users.externalIdentity')} className="field-input" disabled value={selectedDirectoryUser?.username ?? t('users.directorySelectionRequired')} />
-            </label>
-          )}
+          ) : null}
 
           {/* Birim / Ek birimler / Rol / Ek roller / Aktif / Oluştur TEK satırda.
-              Rol dar; Rol+Ek roller menü metni küçük; Oluştur geniş ama alçak (card #1739 5. reopen). */}
+              Rol dar; Rol+Ek roller menü metni küçük; Oluştur geniş ama alçak (card #1739 5. reopen).
+              LDAP Dizin Hesabı alanı kaldırıldı (card #1755). Oluştur altında İptal Et → resetForm (card #1756). */}
           <div className="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,0.55fr)_minmax(0,0.5fr)_auto_minmax(13rem,auto)] lg:items-start">
               <div className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.department')}</span>
@@ -840,13 +914,21 @@ export function UsersPage() {
 
               <div className="grid gap-2">
                 <span aria-hidden="true" className="hidden text-sm font-semibold lg:block">&nbsp;</span>
-                <div className="inline-actions">
+                <div className="inline-actions flex flex-col gap-2">
                   <Button
                     className="users-create-submit w-full min-w-[13rem] px-8 text-base"
                     disabled={!ldapModeReady}
                     type="submit"
                   >
                     {t('common.create')}
+                  </Button>
+                  <Button
+                    className="w-full min-w-[13rem] px-8 text-base"
+                    type="button"
+                    variant="destructive"
+                    onClick={() => resetForm()}
+                  >
+                    {t('common.cancelAction', 'İptal Et')}
                   </Button>
                 </div>
               </div>

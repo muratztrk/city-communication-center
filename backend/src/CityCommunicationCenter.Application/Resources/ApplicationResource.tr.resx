@@ -61,6 +61,7 @@
   <data name="ValidationUserIdRequired" xml:space="preserve"><value>Kullanıcı kimliği zorunludur.</value></data>
   <data name="ValidationUserNotFound" xml:space="preserve"><value>Kullanıcı bulunamadı.</value></data>
   <data name="ValidationCannotDeleteSelf" xml:space="preserve"><value>Kendi hesabınızı silemezsiniz.</value></data>
+  <data name="ValidationCannotDeleteUserWhoUsedSystem" xml:space="preserve"><value>Sistemi kullanmış olan personel silinemez.</value></data>
   <data name="ValidationCurrentPasswordRequired" xml:space="preserve"><value>Mevcut parola zorunludur.</value></data>
   <data name="ValidationNewPasswordRequired" xml:space="preserve"><value>Yeni parola zorunludur.</value></data>
   <data name="ValidationNewPasswordMismatch" xml:space="preserve"><value>Yeni parolalar eşleşmiyor.</value></data>

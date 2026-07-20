@@ -244,18 +244,32 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-header__title {
-    /* Sol üst popup başlığı (Talep/Görev No — başlık) kompakt (card #1632 reopen).
-       Artık büyük harf değil (card #1728) — normal harfe uygun daha dar boşluk. */
-    font-size: 0.7rem;
+    /* Sol üst popup başlığı (Talep/Görev No — başlık).
+       Masaüstü: biraz büyük + ALL CAPS (card #1742).
+       Mobil: title case + kompakt (card #1728) — aşağıda max-width:767 override. */
+    font-size: 0.85rem;
     font-weight: 800;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.08em;
     line-height: 1.2;
+    text-transform: uppercase;
     color: rgb(71 85 105);
   }
 
   .detail-modal-title-rest {
     /* Masaüstünde tek satır; mobilde ikinci satıra döker (card #1728). */
     display: inline;
+  }
+
+  /* Stacked birim/kişi değeri — masaüstü sağa, mobil sola (card #1743). */
+  .stacked-field-value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+  }
+
+  .stacked-field-value__secondary {
+    color: rgb(100 116 139);
   }
 
   .job-detail-section-title {
@@ -369,18 +383,12 @@
     width: 100%;
   }
 
-  /* Düzenle modu talep başlığı textarea — kompakt kutu (card #1691, 4. tur).
-     Önceki 16rem sınırı hiç devreye girmiyordu: kutu ~13.5rem'lik grid kolonunda
-     yaşadığı için min(100%, 16rem) her zaman %100'e düşüyordu ve base
-     .field-textarea padding'i (0.72rem/0.82rem) kutuyu 216×41px yapıyordu.
-     Görünür küçülme için kolondan dar sabit genişlik + sıkı padding şart. */
+  /* Düzenle modu talep başlığı textarea — kompakt kutu (card #1691).
+     6. tur: müşteri “biraz daha arttır” → 13.5rem → 16.5rem; mobil 7.5rem korunur. */
   .detail-modal-shell--my-request .my-request-title-heading-edit__textarea {
     /* Sabit genişlik şart: başlık kabı inline-flex (shrink-to-fit) olduğundan
-       yüzdeli width/max-width döngüsel çözülür ve kutu içerik kadar çöker
-       (min(100%,16rem)'in 3 turdur görünmemesinin nedeni). 5. tur (#1691):
-       genişlik eski kutuyla aynı (13.5rem ≈ 216px), font bir kademe büyük;
-       kompakt yükseklik/padding korunur. */
-    width: 13.5rem;
+       yüzdeli width/max-width döngüsel çözülür ve kutu içerik kadar çöker. */
+    width: 16.5rem;
     min-height: 1.65rem;
     max-height: 4rem;
     padding: 0.25rem 0.45rem;
@@ -4773,27 +4781,46 @@
       display: block;
     }
 
+    /* Mobil: popup başlığı title case + kompakt kalır — masaüstü ALL CAPS (#1742) uygulanmaz (card #1728/#1742). */
+    .detail-modal-shell--my-request .my-request-detail-header__title {
+      font-size: 0.7rem;
+      letter-spacing: 0.02em;
+      text-transform: none;
+    }
+
     .detail-modal-shell--my-request .my-request-detail-main__grid {
       display: grid;
       grid-template-columns: 1fr;
     }
 
+    /* Mobil: Talep Bilgileri etiket + değer alt alta (card #1743) — yan yana değil.
+       Tüm detail-modal-shell (my-request dahil/hariç) için. */
+    .detail-modal-shell .job-detail-field-row--request-info,
     .detail-modal-shell--my-request .job-detail-field-row--request-info {
       flex-direction: column;
       gap: 0.25rem;
       align-items: stretch;
     }
 
+    .detail-modal-shell .job-detail-field-row--request-info .job-detail-field-row__label,
+    .detail-modal-shell .job-detail-field-row--request-info .job-detail-field-row__value,
     .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__label,
     .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__value {
       width: auto;
+      max-width: none;
       text-align: left;
       white-space: normal;
+    }
+
+    .stacked-field-value {
+      align-items: flex-start;
+      text-align: left;
     }
 
     .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control {
       width: 100%;
       max-width: none;
+      margin-left: 0;
     }
 
     .scope-chips {

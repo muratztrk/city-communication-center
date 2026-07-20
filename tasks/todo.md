@@ -1,3 +1,9 @@
+## Round 388 — #1739/#1743/#1742/#1691
+- #1739: Ek birimler/Rol/Ek roller kolonları daraltıldı; Oluştur butonu büyütüldü.
+- #1743: Mobilde Talep Bilgileri etiket üstte / değer altta; StackedFieldValue sola.
+- #1742: Masaüstü detay popup başlığı büyütüldü + ALL CAPS; mobil #1728 korunur.
+- #1691: Düzenle başlık textarea 13.5rem → 16.5rem.
+
 ## Round 387 — #1739 reopen
 - #1739: Yeni kullanıcı formunda Birim+Ek birimler sol; Rol/Ek roller/Aktif/Oluştur sağ.
 

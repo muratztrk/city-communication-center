@@ -845,8 +845,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız `mail` attribute’tur — boşsa form E-posta alanı boş kalır, UPN ile doldurulmaz
   (card #1734). Yeni kullanıcı E-posta placeholder’ı `ornek@belediye.bel.tr` (card #1740).
   Ek görev birimleri placeholder “Ek birim seçiniz...”; multi-select’te
-  arama satırı var; sol kolonda Birim+Ek birimler, sağda Rol/Ek roller/Aktif/Oluştur
-  hizalı (card #1739 reopen).
+  arama satırı var; Birim+Ek birimler+Rol+Ek roller+Aktif+Oluştur tek satırda;
+  Ek birimler/Rol/Ek roller kolonları biraz dar, Oluştur butonu daha geniş (card #1739).
   Birimi Düzenle dropdown’ları `<label>` ile sarılmaz — dış tıklayınca kapanır (card #1729).
   Birimler grid’inde Tür sütunu yok; Tür yalnız düzenleme formunda ve özet “Tür Dağılımı”nda (card #1741).
 - **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,
@@ -856,7 +856,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   shell’den belirgin büyük (cards #1733/#1736/#1738).
 - **Otomatik Yönlendirme:** Yönlendirme Kuralları ve Yönlendirme Testi UI yok (card #1727).
 - **Mobil detay popup başlığı:** title case (ALL CAPS değil); çok kelimede 2. satır; X sağ üst
-  (card #1728).
+  (card #1728). **Masaüstü** detay popup başlığı biraz büyük + `text-transform: uppercase`
+  (card #1742) — mobil ölçüler bozulmaz.
+- **Mobil Talep Bilgileri satırları:** `Talep Yeri / Oluşturan` ve `Talebi Onaylayan` dahil
+  etiket üstte, değer alt satırda (yan yana değil); `StackedFieldValue` mobilde sola yaslı
+  (card #1743). Masaüstü sağa yaslı yan yana düzen korunur.
 - **Birimler / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
   `SingleSelectDropdown` (card #1709). Kullanıcı düzenleme dept/rol menüsünde arama + kompakt satır (card #1706).
 - **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).
@@ -915,10 +919,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dolu not düzenleme sırasında da Talep Bilgileri'nin son satırında kalır. (Round 251'deki geri alma, müşterinin 12 Tem 21:48 reopen'ıyla
   geçersizdir.)
 - **Talep detay düzenleme kontrolleri kompakttır (card #1601/#1691):** detay içi `Düzenle` modunda
-  Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı en fazla 16rem,
-  minimum 1.5rem ve 11px; Son Tarih kontrolü tam placeholder için en fazla 12rem/12px;
-  `Dosya ekle` son görsel dengelemesinde 1.625rem/10.5px'tir (card #1601 fourth reopen).
-  Bu ölçüler genel form/dropdown bileşenlerine yayılmaz.
+  Öncelik ve Mahalle dropdown seçenekleri 12px; başlık textarea'sı masaüstünde **16.5rem**
+  (card #1691 6. tur), mobilde 7.5rem; font 0.8125rem; Son Tarih kontrolü tam placeholder için
+  en fazla 12rem/12px; `Dosya ekle` son görsel dengelemesinde 1.625rem/10.5px'tir
+  (card #1601 fourth reopen). Bu ölçüler genel form/dropdown bileşenlerine yayılmaz.
 - **Birime Gelen / Giden Talep Detayları kolon düzeni (card #1534):** Taleplerim ile aynı —
   kolon1 = başlık + talep no/tip + açıklama metni; kolon2 = Talep Bilgileri; kolon3 = Süreç
   timeline. Ayrı `Açıklama` paneli ve Talep Bilgileri içindeki tekrarlayan başlık/no satırları yok.

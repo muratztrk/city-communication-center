@@ -1,3 +1,6 @@
+## Round 398 — #1751
+- #1751: Detay popup logosu, sağ butonlar alanına girerse yalnızca o durumda sola kayar.
+
 ## Round 397 — #1750
 - #1750: LDAP toplu ekle uyarısında birimi eksik kullanıcılar popup’ta listelenir.
 

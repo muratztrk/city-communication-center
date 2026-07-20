@@ -208,6 +208,11 @@
     pointer-events: none;
   }
 
+  /* Buton overlap’te JS sola kaydırır; transition yumuşak geçiş (card #1751). */
+  .detail-modal-header-brand--shift-left {
+    transition: transform 120ms ease-out;
+  }
+
   .detail-modal-header-brand__img {
     /* Login page logosu (card #1683 reopen). */
     height: 2.5rem;

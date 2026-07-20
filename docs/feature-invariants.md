@@ -898,8 +898,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`color-mix(... 40%, transparent)`, scrollbar ile aynı); gri slate değil.
 - **Detay popup boyutu (card #1682):** `.detail-modal-shell` / `--my-request` bir kademe
   daha küçük (`~63–67vw` / `~73–77dvh` bandı).
-- **Detay popup header logo (card #1683 reopen):** başlık satırı ortasında login page
-  logosu (`/tire-belediyesi-logo.png`); absolute ortalanır, aksiyonlar sıkışmaz.
+- **Detay popup header logo (card #1683 reopen / #1751):** başlık satırı ortasında login page
+  logosu (`/tire-belediyesi-logo.png`); absolute ortalanır. Sağ aksiyon butonları logo
+  alanına girerse logo yalnızca o koşulda biraz sola kayar (başlığa çarpmayacak kadar);
+  overlap yoksa merkezde kalır.
 - **Detay popup header şeridi (card #1685):** `my-request-detail-header::after` rengi
   bölüm başlık çizgisiyle aynı (`color-mix(primary 40%, transparent)`).
 - **Süreç Onay Bekleyen metni (card #1684 reopen):** onay adımı ve Son Tarih

@@ -1,4 +1,4 @@
-import { Building, FolderKanban, ListChecks, MessageSquareMore, Search, Users, X } from 'lucide-react'
+import { Building, ClipboardList, FolderKanban, ListChecks, MessageSquareMore, Search, SquareKanban, Users, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -8,44 +8,133 @@ import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../../lib/rolePageA
 import type { Department, JobSummary, SocialMessage, Task, User } from '../../types/platform'
 import { getTaskStatusLabel } from '../../utils/localization'
 
+type SearchCategory =
+  | 'myRequests'
+  | 'incomingRequests'
+  | 'outgoingRequests'
+  | 'myTasks'
+  | 'departmentTasks'
+  | 'staffTasks'
+  | 'social'
+  | 'users'
+  | 'departments'
+
 interface SearchResultItem {
   id: string
-  category: 'jobs' | 'tasks' | 'social' | 'users' | 'departments'
+  category: SearchCategory
   title: string
   subtitle: string
   path: string
 }
 
 interface SearchData {
-  jobs: JobSummary[]
-  tasks: Task[]
+  myRequestJobs: JobSummary[]
+  incomingJobs: JobSummary[]
+  outgoingJobs: JobSummary[]
+  myTasks: Task[]
+  departmentTasks: Task[]
+  staffTasks: Task[]
   social: SocialMessage[]
   users: User[]
   departments: Department[]
 }
 
 interface SearchCategoryAccess {
-  jobs: boolean
-  tasks: boolean
-  social: boolean
-  users: boolean
-  departments: boolean
   myRequests: boolean
   incomingRequests: boolean
   outgoingRequests: boolean
   myTasks: boolean
   departmentTasks: boolean
+  staffTasks: boolean
+  social: boolean
+  users: boolean
+  departments: boolean
 }
 
-const CATEGORY_ICONS = {
-  jobs: FolderKanban,
-  tasks: ListChecks,
+const CATEGORY_ICONS: Record<SearchCategory, typeof FolderKanban> = {
+  myRequests: ClipboardList,
+  incomingRequests: FolderKanban,
+  outgoingRequests: FolderKanban,
+  myTasks: ListChecks,
+  departmentTasks: SquareKanban,
+  staffTasks: Users,
   social: MessageSquareMore,
   users: Users,
   departments: Building,
-} as const
+}
 
 const MAX_PER_CATEGORY = 4
+
+function jobMatches(job: JobSummary, q: string): boolean {
+  return job.title.toLocaleLowerCase('tr').includes(q)
+    || job.citizenName?.toLocaleLowerCase('tr').includes(q)
+    || job.ownerDepartmentName?.toLocaleLowerCase('tr').includes(q)
+    || false
+}
+
+function jobSubtitle(job: JobSummary): string {
+  return [
+    job.ownerDepartmentName,
+    job.requestType === 'ExternalUnit' ? 'Birim Dışı' : job.requestType === 'Citizen' ? 'Vatandaş' : 'Birim İçi',
+  ].filter(Boolean).join(' · ')
+}
+
+function taskMatches(task: Task, q: string): boolean {
+  return task.title.toLocaleLowerCase('tr').includes(q)
+    || task.jobTitle?.toLocaleLowerCase('tr').includes(q)
+    || task.assignedUserDisplayName?.toLocaleLowerCase('tr').includes(q)
+    || task.assignedDepartmentName?.toLocaleLowerCase('tr').includes(q)
+    || false
+}
+
+function pushJobResults(
+  results: SearchResultItem[],
+  jobs: JobSummary[],
+  category: SearchCategory,
+  pathFor: (job: JobSummary) => string,
+  seenIds: Set<string>,
+  q: string,
+) {
+  let added = 0
+  for (const job of jobs) {
+    if (added >= MAX_PER_CATEGORY) break
+    if (seenIds.has(job.jobId) || !jobMatches(job, q)) continue
+    seenIds.add(job.jobId)
+    results.push({
+      id: `${category}-${job.jobId}`,
+      category,
+      title: job.title,
+      subtitle: jobSubtitle(job),
+      path: pathFor(job),
+    })
+    added += 1
+  }
+}
+
+function pushTaskResults(
+  results: SearchResultItem[],
+  tasks: Task[],
+  category: SearchCategory,
+  pathFor: (task: Task) => string,
+  seenIds: Set<string>,
+  q: string,
+  t: ReturnType<typeof useTranslation>['t'],
+) {
+  let added = 0
+  for (const task of tasks) {
+    if (added >= MAX_PER_CATEGORY) break
+    if (seenIds.has(task.taskId) || !taskMatches(task, q)) continue
+    seenIds.add(task.taskId)
+    results.push({
+      id: `${category}-${task.taskId}`,
+      category,
+      title: task.title,
+      subtitle: [task.jobTitle, getTaskStatusLabel(t, task.currentStatus)].filter(Boolean).join(' · '),
+      path: pathFor(task),
+    })
+    added += 1
+  }
+}
 
 function filterResults(
   data: SearchData,
@@ -57,52 +146,73 @@ function filterResults(
   if (q.length < 3) return []
 
   const results: SearchResultItem[] = []
+  const seenJobs = new Set<string>()
+  const seenTasks = new Set<string>()
 
-  if (access.jobs) {
-    data.jobs
-      .filter(job =>
-        job.title.toLocaleLowerCase('tr').includes(q)
-        || job.citizenName?.toLocaleLowerCase('tr').includes(q)
-        || job.ownerDepartmentName?.toLocaleLowerCase('tr').includes(q),
-      )
-      .slice(0, MAX_PER_CATEGORY)
-      .forEach(job => {
-        let path = '/dashboard'
-        if (access.incomingRequests) {
-          path = `/request-details?context=incoming&jobId=${job.jobId}`
-        } else if (access.myRequests) {
-          path = `/my-requests?view=all&jobId=${job.jobId}`
-        } else if (access.outgoingRequests) {
-          path = `/outgoing-requests?jobId=${job.jobId}`
-        }
-        results.push({
-          id: `job-${job.jobId}`,
-          category: 'jobs',
-          title: job.title,
-          subtitle: [job.ownerDepartmentName, job.requestType === 'ExternalUnit' ? 'Birim Dışı' : job.requestType === 'Citizen' ? 'Vatandaş' : 'Birim İçi'].filter(Boolean).join(' · '),
-          path,
-        })
-      })
+  // Önce menüdeki sayfa sırasına yakın: Taleplerim → Gelen → Giden (card #1783).
+  if (access.myRequests) {
+    pushJobResults(
+      results,
+      data.myRequestJobs,
+      'myRequests',
+      job => `/my-requests?view=all&jobId=${job.jobId}`,
+      seenJobs,
+      q,
+    )
+  }
+  if (access.incomingRequests) {
+    pushJobResults(
+      results,
+      data.incomingJobs,
+      'incomingRequests',
+      job => `/request-details?context=incoming&jobId=${job.jobId}`,
+      seenJobs,
+      q,
+    )
+  }
+  if (access.outgoingRequests) {
+    pushJobResults(
+      results,
+      data.outgoingJobs,
+      'outgoingRequests',
+      job => `/outgoing-requests?jobId=${job.jobId}`,
+      seenJobs,
+      q,
+    )
   }
 
-  if (access.tasks) {
-    data.tasks
-      .filter(task =>
-        task.title.toLocaleLowerCase('tr').includes(q)
-        || task.jobTitle?.toLocaleLowerCase('tr').includes(q)
-        || task.assignedUserDisplayName?.toLocaleLowerCase('tr').includes(q)
-        || task.assignedDepartmentName?.toLocaleLowerCase('tr').includes(q),
-      )
-      .slice(0, MAX_PER_CATEGORY)
-      .forEach(task => results.push({
-        id: `task-${task.taskId}`,
-        category: 'tasks',
-        title: task.title,
-        subtitle: [task.jobTitle, getTaskStatusLabel(t, task.currentStatus)].filter(Boolean).join(' · '),
-        path: access.myTasks
-          ? `/my-tasks?view=all&taskId=${task.taskId}`
-          : `/department-tasks?flow=all&taskId=${task.taskId}`,
-      }))
+  if (access.myTasks) {
+    pushTaskResults(
+      results,
+      data.myTasks,
+      'myTasks',
+      task => `/my-tasks?view=all&taskId=${task.taskId}`,
+      seenTasks,
+      q,
+      t,
+    )
+  }
+  if (access.departmentTasks) {
+    pushTaskResults(
+      results,
+      data.departmentTasks,
+      'departmentTasks',
+      task => `/department-tasks?flow=all&taskId=${task.taskId}`,
+      seenTasks,
+      q,
+      t,
+    )
+  }
+  if (access.staffTasks) {
+    pushTaskResults(
+      results,
+      data.staffTasks,
+      'staffTasks',
+      task => `/staff-tasks?taskId=${task.taskId}`,
+      seenTasks,
+      q,
+      t,
+    )
   }
 
   if (access.social) {
@@ -166,21 +276,19 @@ export function GlobalSearchBar() {
     const outgoingRequests = canAnyRoleAccessPage(roles, 'outgoingRequests')
     const myTasks = canAnyRoleAccessPage(roles, 'myTasks')
     const departmentTasks = canAnyRoleAccessPage(roles, 'departmentTasks')
-    // Yalnız sol menüde yetkili sayfaların veri kümeleri (card #1782) —
-    // createRequest / createRoutineTask tek başına tüm talep/görev havuzunu açmaz.
+    const staffTasks = user?.role === 'Manager' || user?.role === 'SystemAdmin'
     return {
-      jobs: myRequests || incomingRequests || outgoingRequests,
-      tasks: myTasks || departmentTasks,
-      social: canAnyRoleAccessPage(roles, 'social'),
-      users: canAnyRoleAccessPage(roles, 'users'),
-      departments: canAnyRoleAccessPage(roles, 'departments'),
       myRequests,
       incomingRequests,
       outgoingRequests,
       myTasks,
       departmentTasks,
+      staffTasks,
+      social: canAnyRoleAccessPage(roles, 'social'),
+      users: canAnyRoleAccessPage(roles, 'users'),
+      departments: canAnyRoleAccessPage(roles, 'departments'),
     }
-  }, [roles])
+  }, [roles, user?.role])
 
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -202,22 +310,21 @@ export function GlobalSearchBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Yetki değişince önbelleği sıfırla (cards #1766/#1782).
+  // Yetki değişince önbelleği sıfırla (cards #1766/#1782/#1783).
   useEffect(() => {
     fetchedRef.current = false
     setData(null)
     setResults([])
   }, [
-    access.jobs,
-    access.tasks,
-    access.social,
-    access.users,
-    access.departments,
     access.myRequests,
     access.incomingRequests,
     access.outgoingRequests,
     access.myTasks,
     access.departmentTasks,
+    access.staffTasks,
+    access.social,
+    access.users,
+    access.departments,
   ])
 
   const fetchData = useCallback(async (): Promise<SearchData | null> => {
@@ -225,43 +332,36 @@ export function GlobalSearchBar() {
     fetchedRef.current = true
     setIsLoading(true)
     try {
-      // Sayfa yetkisine göre scoped çek — yetkisiz menü sayfalarının ifadeleri çıkmaz (card #1782).
-      const jobFetches: Promise<JobSummary[]>[] = []
-      if (access.myRequests) jobFetches.push(api.getJobs('mine'))
-      if (access.incomingRequests) jobFetches.push(api.getJobs('my-department'))
-      if (access.outgoingRequests) jobFetches.push(api.getJobs('outgoing-department'))
-
-      const taskFetches: Promise<Task[]>[] = []
-      if (access.myTasks) taskFetches.push(api.getTasks('mine'))
-      if (access.departmentTasks) taskFetches.push(api.getTasks('department'))
-      // Personelimin Görevleri (ManagerOnlyGate) — Manager/SystemAdmin menüde görür.
-      if (user?.role === 'Manager' || user?.role === 'SystemAdmin') {
-        taskFetches.push(api.getTasks('all'))
-      }
-
-      const [jobsSettled, tasksSettled, socialSettled, usersSettled, depsSettled] = await Promise.all([
-        Promise.allSettled(jobFetches),
-        Promise.allSettled(taskFetches),
+      // Sayfa yetkisine göre ayrı bucket — kategori başlığı menü adıyla aynı (card #1783).
+      const [
+        myRequestJobs,
+        incomingJobs,
+        outgoingJobs,
+        myTasks,
+        departmentTasks,
+        staffTasks,
+        socialSettled,
+        usersSettled,
+        depsSettled,
+      ] = await Promise.all([
+        access.myRequests ? api.getJobs('mine').catch(() => [] as JobSummary[]) : Promise.resolve([] as JobSummary[]),
+        access.incomingRequests ? api.getJobs('my-department').catch(() => [] as JobSummary[]) : Promise.resolve([] as JobSummary[]),
+        access.outgoingRequests ? api.getJobs('outgoing-department').catch(() => [] as JobSummary[]) : Promise.resolve([] as JobSummary[]),
+        access.myTasks ? api.getTasks('mine').catch(() => [] as Task[]) : Promise.resolve([] as Task[]),
+        access.departmentTasks ? api.getTasks('department').catch(() => [] as Task[]) : Promise.resolve([] as Task[]),
+        access.staffTasks ? api.getTasks('all').catch(() => [] as Task[]) : Promise.resolve([] as Task[]),
         Promise.allSettled([access.social ? api.getSocialMessages() : Promise.resolve([] as SocialMessage[])]),
         Promise.allSettled([access.users ? api.getUsers() : Promise.resolve([] as User[])]),
         Promise.allSettled([access.departments ? api.getDepartments() : Promise.resolve([] as Department[])]),
       ])
 
-      const jobsById = new Map<string, JobSummary>()
-      for (const result of jobsSettled) {
-        if (result.status !== 'fulfilled') continue
-        for (const job of result.value) jobsById.set(job.jobId, job)
-      }
-
-      const tasksById = new Map<string, Task>()
-      for (const result of tasksSettled) {
-        if (result.status !== 'fulfilled') continue
-        for (const task of result.value) tasksById.set(task.taskId, task)
-      }
-
       const fetched: SearchData = {
-        jobs: [...jobsById.values()],
-        tasks: [...tasksById.values()],
+        myRequestJobs,
+        incomingJobs,
+        outgoingJobs,
+        myTasks,
+        departmentTasks,
+        staffTasks,
         social: socialSettled[0]?.status === 'fulfilled' ? socialSettled[0].value : [],
         users: usersSettled[0]?.status === 'fulfilled' ? usersSettled[0].value : [],
         departments: depsSettled[0]?.status === 'fulfilled' ? depsSettled[0].value : [],
@@ -282,9 +382,9 @@ export function GlobalSearchBar() {
     access.myTasks,
     access.outgoingRequests,
     access.social,
+    access.staffTasks,
     access.users,
     data,
-    user?.role,
   ])
 
   const handleInput = useCallback((value: string) => {
@@ -317,25 +417,40 @@ export function GlobalSearchBar() {
     setQuery('')
     setResults([])
     setIsOpen(false)
-    inputRef.current?.focus()
   }
 
-  const categoryLabels: Record<string, string> = {
-    jobs: t('nav.jobs', 'İşler'),
-    tasks: t('nav.tasks', 'Görevler'),
+  // Kategori başlığı = sol menü sayfa adı (card #1783; nav.jobs = "Birime Gelen…" kullanılmaz).
+  const categoryLabels: Record<SearchCategory, string> = {
+    myRequests: t('nav.myRequests', 'Taleplerim'),
+    incomingRequests: t('nav.incomingRequests', 'Birime Gelen Talepler'),
+    outgoingRequests: t('nav.outgoingRequests', 'Birimden Giden Talepler'),
+    myTasks: t('nav.myTasks', 'Görevlerim'),
+    departmentTasks: t('nav.departmentTasks', 'Birimdeki Görevler'),
+    staffTasks: t('nav.staffTasks', 'Personelimin Görevleri'),
     social: t('nav.social', 'Sosyal'),
     users: t('nav.users', 'Kullanıcılar'),
     departments: t('nav.departments', 'Birimler'),
   }
 
-  const groupedResults = results.reduce<Record<string, SearchResultItem[]>>((acc, item) => {
-    if (!acc[item.category]) acc[item.category] = []
-    acc[item.category].push(item)
-    return acc
-  }, {})
+  const categoryOrder: SearchCategory[] = [
+    'myRequests',
+    'incomingRequests',
+    'outgoingRequests',
+    'myTasks',
+    'departmentTasks',
+    'staffTasks',
+    'social',
+    'users',
+    'departments',
+  ]
+
+  const groupedResults = categoryOrder
+    .map(category => [category, results.filter(item => item.category === category)] as const)
+    .filter(([, items]) => items.length > 0)
 
   const hasResults = results.length > 0
   const showEmpty = isOpen && !isLoading && query.trim().length >= 3 && !hasResults
+  const showPanel = isOpen && (isLoading || hasResults || showEmpty)
 
   return (
     <div ref={containerRef} className="relative">
@@ -367,7 +482,7 @@ export function GlobalSearchBar() {
         ) : null}
       </div>
 
-      {(isOpen || showEmpty) ? (
+      {showPanel ? (
         <div className="absolute right-0 top-full z-50 mt-1.5 w-[26rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/5">
           {isLoading ? (
             <div className="px-4 py-4 text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>
@@ -375,8 +490,8 @@ export function GlobalSearchBar() {
             <div className="px-4 py-4 text-sm text-slate-400">{t('search.noResults', 'Sonuç bulunamadı')}</div>
           ) : (
             <div className="max-h-[28rem] overflow-y-auto">
-              {Object.entries(groupedResults).map(([category, items]) => {
-                const Icon = CATEGORY_ICONS[category as keyof typeof CATEGORY_ICONS]
+              {groupedResults.map(([category, items]) => {
+                const Icon = CATEGORY_ICONS[category]
                 return (
                   <div key={category}>
                     <div className="flex items-center gap-1.5 border-b border-slate-100 bg-slate-50 px-4 py-2">

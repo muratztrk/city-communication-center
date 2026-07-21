@@ -1,3 +1,6 @@
+## Round 410 — #1783
+- #1783: Sistemde ara grup başlığı menü adıyla aynı (standart kullanıcıda `Taleplerim`/`Görevlerim`; `nav.jobs`≠Birime Gelen).
+
 ## Round 409 — #1776/#1781/#1782
 - #1776: Personel Dahili No ara textbox yalnız harf+boşluk.
 - #1781: X temizleyince Personel paneli kapanır (stale focus/debounce).

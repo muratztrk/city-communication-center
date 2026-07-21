@@ -813,8 +813,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   X ile temizleyince “Personel” paneli kapanır (card #1781); sonuç `Ad - Dahili` /
   `Birim - Ünvan`; “Personel” başlığı büyük ve yeşil, birim/ünvan metni bir kademe büyük
   (card #1778). Sistemde ara yalnız sol menüde yetkili sayfa scope’larını çeker
-  (`mine` / `my-department` / `outgoing-department` / `mine` tasks / `department` tasks —
-  card #1782); talep/görev sonucuna tıklanınca `jobId`/`taskId` ile ilgili sayfada
+  ve sonuç grup başlığı menü adıyla aynıdır (`Taleplerim` / `Görevlerim` /
+  `Birime Gelen Talepler` … — `nav.jobs` kullanılmaz; cards #1782/#1783);
+  talep/görev sonucuna tıklanınca `jobId`/`taskId` ile ilgili sayfada
   detay popup açılır (card #1766).
   Birime Gelen / Birimden Giden banner `page-kicker` seçili scope chip metnidir;
   `page-title` bölüm adı kalır (card #1700; Taleplerim ile aynı).

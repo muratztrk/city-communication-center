@@ -156,9 +156,9 @@
   "search": {
     "placeholder": "Search system...",
     "label": "Search system",
-    "extensionPlaceholder": "Search extension...",
-    "extensionLabel": "Search extension",
-    "extensionResults": "Extension",
+    "extensionPlaceholder": "Search staff extension...",
+    "extensionLabel": "Search staff extension",
+    "extensionResults": "Staff",
     "noResults": "No results found"
   },
   "nav": {

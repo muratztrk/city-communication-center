@@ -1,3 +1,7 @@
+## Round 407 — #1776/#1777
+- #1776: Personel Dahili No ara isim/ünvan ile de eşleşir.
+- #1777: Placeholder `Personel Dahili No ara...`.
+
 ## Round 406 — #1766/#1775
 - #1766: Sistemde ara yalnız yetkili sayfa kategorilerini arar/çeker.
 - #1775: Kullanıcı Adı placeholder `ornekkullanici`.

@@ -80,7 +80,12 @@ export function ExtensionSearchBar() {
     if (q.length < 3) return []
 
     return list
-      .filter(userItem => matchesPhone(userItem.phone, q))
+      .filter(userItem =>
+        matchesPhone(userItem.phone, q)
+        || userItem.displayName.toLocaleLowerCase('tr').includes(q)
+        || userItem.username?.toLocaleLowerCase('tr').includes(q)
+        || userItem.title?.toLocaleLowerCase('tr').includes(q),
+      )
       .slice(0, MAX_RESULTS)
       .map(userItem => {
         const department = primaryDepartmentName(userItem)
@@ -150,9 +155,9 @@ export function ExtensionSearchBar() {
               setResults([])
             }
           }}
-          placeholder={t('search.extensionPlaceholder', 'Dahili No ara...')}
+          placeholder={t('search.extensionPlaceholder', 'Personel Dahili No ara...')}
           className="w-44 bg-transparent text-sm font-medium text-slate-700 placeholder:text-slate-400 outline-none"
-          aria-label={t('search.extensionLabel', 'Dahili No ara')}
+          aria-label={t('search.extensionLabel', 'Personel Dahili No ara')}
           autoComplete="off"
           spellCheck={false}
         />

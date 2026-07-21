@@ -807,12 +807,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1701; mavi `in-progress` değil).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
-  Header: **Personel Dahili No ara…** solda, **Sistemde ara…** sağda (aynı pill tasarım);
-  her ikisi de en az 3 karakterde arar; Personel sonuç satırı `Ad Soyad - Dahili`,
-  alt satır `Birim - Ünvan`; arama dahili no + personel adı/ünvan (cards #1770/#1774/#1776/#1777).
-  Sistemde ara yalnız kullanıcının
-  rol sayfa yetkisi olan kategorileri çeker/gösterir (card #1766); Personel Dahili No ara
-  yalnız `users` sayfa yetkisi olanlara görünür.
+  Header: **Personel Dahili No ara…** solda (tüm kullanıcılara görünür — card #1779),
+  **Sistemde ara…** sağda; her ikisi de en az 3 karakterde arar. Personel araması yalnız
+  `DisplayName` eşleşir (card #1780); sonuç `Ad - Dahili` / `Birim - Ünvan`; “Personel”
+  başlığı büyük ve yeşil, birim/ünvan metni bir kademe büyük (card #1778).
+  Sistemde ara yalnız yetkili kategorileri çeker; talep/görev sonucuna tıklanınca
+  `jobId`/`taskId` ile ilgili sayfada detay popup açılır (card #1766).
   Birime Gelen / Birimden Giden banner `page-kicker` seçili scope chip metnidir;
   `page-title` bölüm adı kalır (card #1700; Taleplerim ile aynı).
 - **Ayarlar banner `page-kicker` seçili tab metnidir** (`Kurum`, `Görünüm`, …);

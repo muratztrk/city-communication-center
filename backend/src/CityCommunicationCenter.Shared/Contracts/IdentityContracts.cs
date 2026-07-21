@@ -72,7 +72,9 @@ public sealed record UserLookupResponse(
     string? Email,
     string RoleCode,
     bool IsActive,
-    string UserSource);
+    string UserSource,
+    string? Title = null,
+    string? Phone = null);
 
 public sealed record DirectoryUserLookupResponse(
     string ExternalIdentityId,

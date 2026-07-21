@@ -86,6 +86,8 @@ export interface UserLookup {
   roleCode: string;
   isActive: boolean;
   userSource: string;
+  title?: string | null;
+  phone?: string | null;
 }
 
 export interface DirectoryUserLookup {

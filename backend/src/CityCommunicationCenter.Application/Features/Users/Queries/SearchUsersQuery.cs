@@ -1,6 +1,10 @@
 namespace CityCommunicationCenter.Application.Features.Users;
 
-public sealed record SearchUsersQuery(string? Query, Guid? DepartmentId) : IQuery<IReadOnlyList<UserLookupResponse>>;
+public sealed record SearchUsersQuery(
+    string? Query,
+    Guid? DepartmentId,
+    /// <summary>true ise yalnız DisplayName eşleşir (Personel Dahili No ara — card #1780).</summary>
+    bool DisplayNameOnly = false) : IQuery<IReadOnlyList<UserLookupResponse>>;
 
 public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, IReadOnlyList<UserLookupResponse>>
 {
@@ -50,10 +54,17 @@ public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, IR
 
         if (!string.IsNullOrWhiteSpace(normalizedQueryUpper))
         {
-            query = query.Where(item =>
-                item.User.DisplayName.ToUpper().Contains(normalizedQueryUpper) ||
-                (item.User.Email != null && item.User.Email.ToUpper().Contains(normalizedQueryUpper)) ||
-                (item.User.Username != null && item.User.Username.ToUpper().Contains(normalizedQueryUpper)));
+            if (request.DisplayNameOnly)
+            {
+                query = query.Where(item => item.User.DisplayName.ToUpper().Contains(normalizedQueryUpper));
+            }
+            else
+            {
+                query = query.Where(item =>
+                    item.User.DisplayName.ToUpper().Contains(normalizedQueryUpper) ||
+                    (item.User.Email != null && item.User.Email.ToUpper().Contains(normalizedQueryUpper)) ||
+                    (item.User.Username != null && item.User.Username.ToUpper().Contains(normalizedQueryUpper)));
+            }
         }
 
         return await query
@@ -67,7 +78,9 @@ public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, IR
                 item.User.Email,
                 item.User.RoleCode.ToString(),
                 item.User.IsActive,
-                item.User.UserSource.ToString()))
+                item.User.UserSource.ToString(),
+                item.User.Title,
+                item.User.Phone))
             .ToListAsync(cancellationToken);
     }
 }

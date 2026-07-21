@@ -268,7 +268,7 @@ export const api = {
     return response.json() as Promise<UserManagementContext>
   },
 
-  async searchUsers(query: string, departmentId?: string): Promise<UserLookup[]> {
+  async searchUsers(query: string, departmentId?: string, displayNameOnly = false): Promise<UserLookup[]> {
     const params = new URLSearchParams()
 
     if (query.trim()) {
@@ -277,6 +277,10 @@ export const api = {
 
     if (departmentId) {
       params.set('departmentId', departmentId)
+    }
+
+    if (displayNameOnly) {
+      params.set('displayNameOnly', 'true')
     }
 
     const suffix = params.toString()

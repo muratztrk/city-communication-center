@@ -68,14 +68,12 @@ function filterResults(
       .slice(0, MAX_PER_CATEGORY)
       .forEach(job => {
         let path = '/dashboard'
-        if (job.requestType === 'ExternalUnit' && access.incomingRequests) {
+        if (access.incomingRequests) {
           path = `/request-details?context=incoming&jobId=${job.jobId}`
-        } else if (access.incomingRequests) {
-          path = '/incoming-requests?kind=all'
         } else if (access.myRequests) {
-          path = '/my-requests?view=all'
+          path = `/my-requests?view=all&jobId=${job.jobId}`
         } else if (access.outgoingRequests) {
-          path = '/outgoing-requests'
+          path = `/outgoing-requests?jobId=${job.jobId}`
         }
         results.push({
           id: `job-${job.jobId}`,
@@ -101,7 +99,9 @@ function filterResults(
         category: 'tasks',
         title: task.title,
         subtitle: [task.jobTitle, getTaskStatusLabel(t, task.currentStatus)].filter(Boolean).join(' · '),
-        path: access.myTasks ? '/my-tasks?view=all' : '/department-tasks?flow=all',
+        path: access.myTasks
+          ? `/my-tasks?view=all&taskId=${task.taskId}`
+          : `/department-tasks?flow=all&taskId=${task.taskId}`,
       }))
   }
 

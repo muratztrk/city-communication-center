@@ -35,9 +35,10 @@ public sealed class UsersController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<UserLookupResponse>>> Search(
         [FromQuery] string? query,
         [FromQuery] Guid? departmentId,
-        CancellationToken cancellationToken)
+        [FromQuery] bool displayNameOnly = false,
+        CancellationToken cancellationToken = default)
     {
-        var response = await _sender.Send(new SearchUsersQuery(query, departmentId), cancellationToken);
+        var response = await _sender.Send(new SearchUsersQuery(query, departmentId, displayNameOnly), cancellationToken);
         return Ok(response);
     }
 

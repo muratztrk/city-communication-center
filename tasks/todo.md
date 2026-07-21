@@ -1,3 +1,9 @@
+## Round 408 — #1778/#1779/#1780/#1766
+- #1778: Personel başlığı büyük+yeşil; birim/ünvan metni büyütüldü.
+- #1779: Personel Dahili No ara tüm kullanıcılara açık (`GET /users/search`).
+- #1780: Arama yalnız DisplayName.
+- #1766: Sistemde ara talep/görev tıklanınca `jobId`/`taskId` ile detay popup.
+
 ## Round 407 — #1776/#1777
 - #1776: Personel Dahili No ara isim/ünvan ile de eşleşir.
 - #1777: Placeholder `Personel Dahili No ara...`.

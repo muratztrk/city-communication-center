@@ -209,6 +209,12 @@
     "logout": "Sign Out",
     "language": "Language selector"
   },
+  "sessionIdle": {
+    "title": "Your Session Is About To Expire!",
+    "message": "Do you want to extend the session?",
+    "extend": "Yes, extend now",
+    "decline": "No"
+  },
   "wallboard": {
     "kicker": "Live Display",
     "title": "Pending Tasks",
@@ -543,6 +549,9 @@
     "password": "Password",
     "passwordPlaceholder": "At least 8 characters",
     "passwordHint": "(Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a special character and a digit.)",
+    "passwordConfirm": "Confirm Password",
+    "passwordConfirmPlaceholder": "Re-enter password",
+    "passwordMismatch": "Passwords do not match",
     "createMode": "Create Mode",
     "manualMode": "Local User",
     "ldapMode": "LDAP User",
@@ -557,6 +566,7 @@
     "liveLdapSyncNeedQuery": "Type at least 2 characters in the search box to sync.",
     "liveLdapSyncSuccess": "{{count}} LDAP user(s) listed. Add with Create.",
     "liveLdapSyncDone": "LDAP users synchronized",
+    "liveLdapSyncNoNew": "No new users found",
     "addAllLdap": "Add All LDAP Users",
     "addAllLdapWorking": "Adding LDAP users...",
     "addAllLdapConfirm": "{{count}} LDAP user(s) will be added. Continue?",
@@ -574,7 +584,7 @@
     "ldapUsersWithoutDepartment": "Users without an LDAP unit",
     "ldapUsersWithoutDepartmentEmpty": "No users without an LDAP unit",
     "directorySearchAria": "Search directory user",
-    "directorySearchPlaceholder": "Type at least 2 characters to search LDAP",
+    "directorySearchPlaceholder": "Enter at least 3 characters to search LDAP users",
     "directorySearchEmpty": "No matching directory users were found",
     "directorySearchLoading": "Searching directory...",
     "alreadyLinked": "This directory user is already linked to an application user.",

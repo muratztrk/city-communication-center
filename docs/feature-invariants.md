@@ -845,16 +845,21 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   LDAP kullanıcılarını çeker (disable olanlar gelmez — cards #1754/#1757); ConfirmDialog’da
   birimi sistemde olmayanlar atlanır, kalanlar **Ekle** ile Staff olarak eklenir; sAMAccountName
   ile zaten bağlı olanlar yeniden eklenmez; başarıda **Yeni çekilen kullanıcılar (N)** listelenir
-  (`GET /users/directory-users`, cards #1748/#1750/#1758/#1759). Popup kapanış **Çıkış**
+  (`GET /users/directory-users`, cards #1748/#1750/#1758/#1759). PDO/`department` dolu
+  kullanıcılar eklenebilir (sistemde yoksa `ldapDepartmentName`); PDO boş olanlar “birimi eksik”
+  ve listede **OU:**; eksikler OU’ya, eklenecekler birime göre alfabetik (cards #1763/#1764/#1765/#1761).
+  Popup kapanış **Çıkış**
   (kırmızı); eksik birim uyarısı: LDAP birim verisi gerekir / tümü eklendiyse başarı metni
   (cards #1759/#1760). Çekim sonrası buton sağında **Birimi LDAP’ta olmayan kullanıcılar**
   dropdown’u (card #1752). LDAP formunda Dizin Hesabı alanı yok; **İptal Et** yalnız LDAP
-  kullanıcısı seçiliyken Oluştur altında görünür (cards #1755/#1756). Anlık senkron otomatik
-  eklemez; ConfirmDialog `"LDAP Kullanıcı Senkronize Edildi"` + çekilen kullanıcı listesi
-  (card #1754). Toplu ekle: `physicalDeliveryOfficeName`/`department` dolu kullanıcılar
-  eklenebilir (sistemde yoksa `ldapDepartmentName` ile); PDO boş olanlar “birimi eksik”tir ve
-  listede **OU:** gösterilir; eksik OU’ya, eklenecekler birime göre alfabetik (cards
-  #1763/#1764/#1765/#1761). Sistemde
+  kullanıcısı seçiliyken Oluştur altında görünür (cards #1755/#1756). Anlık senkron `listDirectoryUsers`
+  ile çalışır (arama zorunlu değil); ConfirmDialog `"LDAP Kullanıcı Senkronize Edildi"` + yalnız
+  sistemde olmayan kullanıcılar; yoksa `"Yeni kullanıcı bulunamadı"`; senkron sonrası birimi
+  LDAP’ta olmayanlar dropdown’u güncellenir (cards #1754/#1768). LDAP arama placeholder’ı
+  **en az 3 karakter** (card #1754). Eklenecek kullanıcılar satırında `birim:` etiketi yok —
+  `Ad — BirimAdı` (card #1767). Yerel kullanıcıda **Parola Onayla** alanı; uyuşmazsa kırmızı
+  uyarı ve Oluştur engeli (card #1762). Oturum: 1 dk hareketsizlik → uyarı popup (300 sn geri
+  sayım, Tekrar sorma yok); uzatılmazsa logout (card #1769). Sistemde
   talep/görev oluşturmuş kullanıcı
   silinemez — `"Sistemi kullanmış olan personel silinemez"` (card #1753). `+Yeni Kullanıcı` açıkken grid görünür kalır
   (`desktop-page-fill` form açıkken kapanır — card #1731). Kullanıcılar LDAP formunda

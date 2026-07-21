@@ -1,3 +1,10 @@
+## Round 402 — #1767/#1754/#1768/#1762/#1769
+- #1767: Eklenecek kullanıcılar satırında "birim:" etiketi kaldırıldı (`Ad — Birim`).
+- #1754: Senkron popup yalnız sistemde olmayanlar; yoksa "Yeni kullanıcı bulunamadı"; 3 karakter arama; need-query metni yok.
+- #1768: Anlık senkron birimi LDAP'ta olmayanlar dropdown'unu günceller.
+- #1762: Parola Onayla + uyuşmazlık uyarısı/engeli.
+- #1769: 1 dk idle → 300 sn oturum uyarısı; uzatılmazsa logout.
+
 ## Round 401 — #1762/#1765/#1754/#1764/#1763
 - #1762: Birime atanmamış kullanıcılar dropdown’u geri alındı.
 - #1763: Birim yalnız PDO/department; OU fallback kaldırıldı — PDO dolu kullanıcılar eksik listesinde değil.

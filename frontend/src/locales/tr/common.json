@@ -209,6 +209,12 @@
     "logout": "Çıkış",
     "language": "Dil seçici"
   },
+  "sessionIdle": {
+    "title": "Oturum Süreniz Dolmak Üzere!",
+    "message": "Oturum süresini uzatmak ister misiniz?",
+    "extend": "Evet, şimdi uzat",
+    "decline": "Hayır"
+  },
   "wallboard": {
     "kicker": "Canlı Ekran",
     "title": "Bekleyen Görevler",
@@ -546,6 +552,9 @@
     "password": "Parola",
     "passwordPlaceholder": "En az 8 karakter",
     "passwordHint": "(Parola minimum 8 karakter, büyük harf, küçük harf, karakter, rakam içermelidir.)",
+    "passwordConfirm": "Parola Onayla",
+    "passwordConfirmPlaceholder": "Parolayı tekrar girin",
+    "passwordMismatch": "Parolalar uyuşmamaktadır",
     "createMode": "Oluşturma Modu",
     "manualMode": "Yerel Kullanıcı",
     "ldapMode": "LDAP Kullanıcısı",
@@ -560,6 +569,7 @@
     "liveLdapSyncNeedQuery": "Senkronize etmek için arama kutusuna en az 2 karakter yazın.",
     "liveLdapSyncSuccess": "{{count}} LDAP kullanıcısı listelendi. Oluştur ile ekleyin.",
     "liveLdapSyncDone": "LDAP Kullanıcı Senkronize Edildi",
+    "liveLdapSyncNoNew": "Yeni kullanıcı bulunamadı",
     "addAllLdap": "Tüm LDAP Kullanıcılarını Ekle",
     "addAllLdapWorking": "LDAP kullanıcıları ekleniyor...",
     "addAllLdapConfirm": "{{count}} LDAP kullanıcısı sisteme eklenecek. Devam etmek istiyor musunuz?",
@@ -577,7 +587,7 @@
     "ldapUsersWithoutDepartment": "Birimi LDAP'ta olmayan kullanıcılar",
     "ldapUsersWithoutDepartmentEmpty": "Birimi LDAP'ta olmayan kullanıcı yok",
     "directorySearchAria": "Dizin kullanıcısı ara",
-    "directorySearchPlaceholder": "LDAP aramak için en az 2 karakter yazın",
+    "directorySearchPlaceholder": "LDAP kullanıcı aramak için en az 3 karakter girin",
     "directorySearchEmpty": "Eşleşen dizin kullanıcısı bulunamadı",
     "directorySearchLoading": "Dizin aranıyor...",
     "alreadyLinked": "Bu dizin kullanıcısı zaten bir uygulama kullanıcısına bağlı.",

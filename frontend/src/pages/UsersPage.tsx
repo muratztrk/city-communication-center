@@ -34,6 +34,7 @@ const DEFAULT_USER_FORM = {
   displayName: '',
   email: '',
   password: '',
+  passwordConfirm: '',
   departmentId: '',
   additionalDepartmentIds: [] as string[],
   roleCode: 'Staff',
@@ -102,7 +103,7 @@ export function UsersPage() {
   const shouldSearchDirectory = showForm
     && createMode === 'ldap'
     && !!managementContext?.ldapEnabled
-    && debouncedDirectoryQuery.trim().length >= 2
+    && debouncedDirectoryQuery.trim().length >= 3
 
   const getDepartmentManager = (departmentId: string, excludeUserId?: string): User | undefined => {
     if (!departmentId) return undefined
@@ -219,9 +220,7 @@ export function UsersPage() {
             {metaMode === 'department' ? (
               <span className="text-slate-500">
                 {' — '}
-                {item.department?.trim()
-                  ? t('users.addAllLdapMissingDepartment', { department: item.department.trim() })
-                  : t('users.addAllLdapNoDepartment')}
+                {item.department?.trim() || t('users.addAllLdapNoDepartment')}
               </span>
             ) : null}
           </li>
@@ -252,34 +251,35 @@ export function UsersPage() {
       return
     }
 
-    const query = directoryQuery.trim()
-    if (query.length < 2) {
-      setDirectorySyncMessage(t('users.liveLdapSyncNeedQuery'))
-      return
-    }
-
     setDirectorySyncLoading(true)
     setDirectorySyncMessage(t('users.liveLdapSyncWorking'))
     setError('')
 
     try {
-      // Yalnız aktif LDAP; otomatik create yok — popup ile liste (card #1754).
-      const results = await api.searchDirectoryUsers(query)
+      // Arama zorunluluğu yok; tüm aktif LDAP listelenir, otomatik create yok (card #1754/#1768).
+      const results = await api.listDirectoryUsers()
       setDirectoryResults(results)
+      const withoutLdapDepartment = results.filter(item => !item.department?.trim())
+      setLdapUsersWithoutDepartment(withoutLdapDepartment)
+      setLdapUsersWithoutDepartmentValue('')
       setDirectorySyncMessage(null)
+
+      const newUsers = sortByDepartmentOrName(results.filter(item => !item.alreadyLinked))
       setConfirmDialog({
         title: t('users.liveLdapSync'),
         titleDivider: true,
         titleCompact: true,
         titleTone: 'success',
         message: t('users.liveLdapSyncDone'),
-        details: results.length > 0
+        details: newUsers.length > 0
           ? renderLdapUserList(
-              t('users.addAllLdapNewlyPulledTitle', { count: results.length }),
-              sortByDepartmentOrName(results),
+              t('users.addAllLdapNewlyPulledTitle', { count: newUsers.length }),
+              newUsers,
               'department',
             )
-          : undefined,
+          : (
+              <p className="text-sm font-medium text-slate-700">{t('users.liveLdapSyncNoNew')}</p>
+            ),
         confirmLabel: t('common.exit', 'Çıkış'),
         hideCancel: true,
         variant: 'destructive',
@@ -495,6 +495,11 @@ export function UsersPage() {
   const handleCreateUser = async (event: FormEvent) => {
     event.preventDefault()
     setError('')
+
+    if (createMode === 'manual' && newUser.password !== newUser.passwordConfirm) {
+      setError(t('users.passwordMismatch'))
+      return
+    }
 
     if (newUser.roleCode === 'Manager' && newUser.departmentId) {
       const existingManager = getDepartmentManager(newUser.departmentId)
@@ -800,7 +805,7 @@ export function UsersPage() {
                 }}
                 onValueChange={value => {
                   setDirectoryQuery(value)
-                  if (value.trim().length < 2) {
+                  if (value.trim().length < 3) {
                     setDirectoryResults([])
                   }
                   if (!value.trim()) {
@@ -868,20 +873,38 @@ export function UsersPage() {
           </div>
 
           {createMode === 'manual' ? (
-            <label className="grid gap-2 text-sm font-semibold text-slate-700 md:max-w-[calc(50%-0.5rem)]">
-              <span>
-                {t('users.password')}{' '}
-                <span className="text-xs font-normal text-slate-400">{t('users.passwordHint', '(Parola minimum 8 karakter, büyük harf, küçük harf, karakter, rakam içermelidir.)')}</span>
-              </span>
-              <input
-                aria-label={t('users.password')}
-                className="field-input"
-                placeholder={t('users.passwordPlaceholder')}
-                type="password"
-                value={newUser.password}
-                onChange={event => setNewUser(current => ({ ...current, password: event.target.value }))}
-              />
-            </label>
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>
+                  {t('users.password')}{' '}
+                  <span className="text-xs font-normal text-slate-400">{t('users.passwordHint', '(Parola minimum 8 karakter, büyük harf, küçük harf, karakter, rakam içermelidir.)')}</span>
+                </span>
+                <input
+                  aria-label={t('users.password')}
+                  className="field-input"
+                  placeholder={t('users.passwordPlaceholder')}
+                  type="password"
+                  value={newUser.password}
+                  onChange={event => setNewUser(current => ({ ...current, password: event.target.value }))}
+                />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('users.passwordConfirm')}</span>
+                <input
+                  aria-label={t('users.passwordConfirm')}
+                  className="field-input"
+                  placeholder={t('users.passwordConfirmPlaceholder')}
+                  type="password"
+                  value={newUser.passwordConfirm}
+                  onChange={event => setNewUser(current => ({ ...current, passwordConfirm: event.target.value }))}
+                />
+                {newUser.passwordConfirm.length > 0 && newUser.password !== newUser.passwordConfirm ? (
+                  <span className="text-xs font-semibold text-[color:var(--color-destructive)]">
+                    {t('users.passwordMismatch')}
+                  </span>
+                ) : null}
+              </label>
+            </div>
           ) : null}
 
           {/* Birim / Ek birimler / Rol / Ek roller / Aktif / Oluştur TEK satırda.
@@ -978,7 +1001,7 @@ export function UsersPage() {
                 <div className="inline-actions flex flex-col gap-2">
                   <Button
                     className="users-create-submit w-full min-w-[13rem] px-8 text-base"
-                    disabled={!ldapModeReady}
+                    disabled={!ldapModeReady || (createMode === 'manual' && (!newUser.password || newUser.password !== newUser.passwordConfirm))}
                     type="submit"
                   >
                     {t('common.create')}

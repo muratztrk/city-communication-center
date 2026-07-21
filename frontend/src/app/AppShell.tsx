@@ -4,6 +4,7 @@ import { ScrollFab } from '../components/layout/ScrollFab'
 import { WhatsAppNotificationFab } from '../components/layout/WhatsAppNotificationFab'
 import { InternalMessagesFab } from '../components/layout/InternalMessagesFab'
 import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
+import { SessionIdleWarning } from '../components/ui/session-idle-warning'
 
 declare const __APP_VERSION__: string
 const SUPPORT_EMAIL = 'lumespecsoftware@gmail.com'
@@ -255,10 +256,10 @@ export function AppShell() {
     [user, accessVersion],
   )
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = useCallback(() => {
+    void logout()
     navigate('/')
-  }
+  }, [logout, navigate])
 
   const breadcrumbSegments = location.pathname.split('/').filter(Boolean)
 
@@ -452,6 +453,7 @@ export function AppShell() {
 
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-[color:var(--color-sidebar)]">
+      <SessionIdleWarning onLogout={handleLogout} />
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-900 focus:shadow-lg">
         Skip to content
       </a>

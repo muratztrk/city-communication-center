@@ -534,7 +534,7 @@
     "newFormTitle": "Yeni Kullanıcı",
     "newFormDescription": "Yerel kullanıcı oluşturun veya LDAP dizinindeki mevcut bir hesabı uygulamaya bağlayın.",
     "username": "Kullanıcı Adı",
-    "usernamePlaceholder": "ornek.kullanici",
+    "usernamePlaceholder": "ornekkullanici",
     "displayName": "Ad Soyad",
     "jobTitle": "Ünvan",
     "jobTitlePlaceholder": "Ünvan",

@@ -531,7 +531,7 @@
     "newFormTitle": "New User",
     "newFormDescription": "Create a local user or link an existing LDAP directory account to the application.",
     "username": "Username",
-    "usernamePlaceholder": "example.user",
+    "usernamePlaceholder": "exampleuser",
     "displayName": "Full Name",
     "jobTitle": "Job Title",
     "jobTitlePlaceholder": "Job title",

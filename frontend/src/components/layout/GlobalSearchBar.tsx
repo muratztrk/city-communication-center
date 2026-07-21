@@ -1,8 +1,10 @@
 import { Building, FolderKanban, ListChecks, MessageSquareMore, Search, Users, X } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../api/client'
+import { useAuth } from '../../context/AuthContext'
+import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../../lib/rolePageAccess'
 import type { Department, JobSummary, SocialMessage, Task, User } from '../../types/platform'
 import { getTaskStatusLabel } from '../../utils/localization'
 
@@ -22,6 +24,19 @@ interface SearchData {
   departments: Department[]
 }
 
+interface SearchCategoryAccess {
+  jobs: boolean
+  tasks: boolean
+  social: boolean
+  users: boolean
+  departments: boolean
+  myRequests: boolean
+  incomingRequests: boolean
+  outgoingRequests: boolean
+  myTasks: boolean
+  departmentTasks: boolean
+}
+
 const CATEGORY_ICONS = {
   jobs: FolderKanban,
   tasks: ListChecks,
@@ -36,83 +51,106 @@ function filterResults(
   data: SearchData,
   query: string,
   t: ReturnType<typeof useTranslation>['t'],
+  access: SearchCategoryAccess,
 ): SearchResultItem[] {
   const q = query.toLocaleLowerCase('tr').trim()
   if (q.length < 3) return []
 
   const results: SearchResultItem[] = []
 
-  data.jobs
-    .filter(job =>
-      job.title.toLocaleLowerCase('tr').includes(q)
-      || job.citizenName?.toLocaleLowerCase('tr').includes(q)
-      || job.ownerDepartmentName?.toLocaleLowerCase('tr').includes(q),
-    )
-    .slice(0, MAX_PER_CATEGORY)
-    .forEach(job => results.push({
-      id: `job-${job.jobId}`,
-      category: 'jobs',
-      title: job.title,
-      subtitle: [job.ownerDepartmentName, job.requestType === 'ExternalUnit' ? 'Birim Dışı' : job.requestType === 'Citizen' ? 'Vatandaş' : 'Birim İçi'].filter(Boolean).join(' · '),
-      path: job.requestType === 'ExternalUnit' ? `/request-details?context=incoming&jobId=${job.jobId}` : '/incoming-requests?kind=all',
-    }))
+  if (access.jobs) {
+    data.jobs
+      .filter(job =>
+        job.title.toLocaleLowerCase('tr').includes(q)
+        || job.citizenName?.toLocaleLowerCase('tr').includes(q)
+        || job.ownerDepartmentName?.toLocaleLowerCase('tr').includes(q),
+      )
+      .slice(0, MAX_PER_CATEGORY)
+      .forEach(job => {
+        let path = '/dashboard'
+        if (job.requestType === 'ExternalUnit' && access.incomingRequests) {
+          path = `/request-details?context=incoming&jobId=${job.jobId}`
+        } else if (access.incomingRequests) {
+          path = '/incoming-requests?kind=all'
+        } else if (access.myRequests) {
+          path = '/my-requests?view=all'
+        } else if (access.outgoingRequests) {
+          path = '/outgoing-requests'
+        }
+        results.push({
+          id: `job-${job.jobId}`,
+          category: 'jobs',
+          title: job.title,
+          subtitle: [job.ownerDepartmentName, job.requestType === 'ExternalUnit' ? 'Birim Dışı' : job.requestType === 'Citizen' ? 'Vatandaş' : 'Birim İçi'].filter(Boolean).join(' · '),
+          path,
+        })
+      })
+  }
 
-  data.tasks
-    .filter(task =>
-      task.title.toLocaleLowerCase('tr').includes(q)
-      || task.jobTitle?.toLocaleLowerCase('tr').includes(q)
-      || task.assignedUserDisplayName?.toLocaleLowerCase('tr').includes(q)
-      || task.assignedDepartmentName?.toLocaleLowerCase('tr').includes(q),
-    )
-    .slice(0, MAX_PER_CATEGORY)
-    .forEach(task => results.push({
-      id: `task-${task.taskId}`,
-      category: 'tasks',
-      title: task.title,
-      subtitle: [task.jobTitle, getTaskStatusLabel(t, task.currentStatus)].filter(Boolean).join(' · '),
-      path: '/my-tasks?view=all',
-    }))
+  if (access.tasks) {
+    data.tasks
+      .filter(task =>
+        task.title.toLocaleLowerCase('tr').includes(q)
+        || task.jobTitle?.toLocaleLowerCase('tr').includes(q)
+        || task.assignedUserDisplayName?.toLocaleLowerCase('tr').includes(q)
+        || task.assignedDepartmentName?.toLocaleLowerCase('tr').includes(q),
+      )
+      .slice(0, MAX_PER_CATEGORY)
+      .forEach(task => results.push({
+        id: `task-${task.taskId}`,
+        category: 'tasks',
+        title: task.title,
+        subtitle: [task.jobTitle, getTaskStatusLabel(t, task.currentStatus)].filter(Boolean).join(' · '),
+        path: access.myTasks ? '/my-tasks?view=all' : '/department-tasks?flow=all',
+      }))
+  }
 
-  data.social
-    .filter(msg =>
-      msg.citizenHandle.toLocaleLowerCase('tr').includes(q)
-      || msg.category?.toLocaleLowerCase('tr').includes(q)
-      || msg.assignedDepartmentName?.toLocaleLowerCase('tr').includes(q),
-    )
-    .slice(0, MAX_PER_CATEGORY)
-    .forEach(msg => results.push({
-      id: `social-${msg.socialMessageId}`,
-      category: 'social',
-      title: `@${msg.citizenHandle}`,
-      subtitle: [msg.channel, msg.category].filter(Boolean).join(' · '),
-      path: `/social?channel=${msg.channel}`,
-    }))
+  if (access.social) {
+    data.social
+      .filter(msg =>
+        msg.citizenHandle.toLocaleLowerCase('tr').includes(q)
+        || msg.category?.toLocaleLowerCase('tr').includes(q)
+        || msg.assignedDepartmentName?.toLocaleLowerCase('tr').includes(q),
+      )
+      .slice(0, MAX_PER_CATEGORY)
+      .forEach(msg => results.push({
+        id: `social-${msg.socialMessageId}`,
+        category: 'social',
+        title: `@${msg.citizenHandle}`,
+        subtitle: [msg.channel, msg.category].filter(Boolean).join(' · '),
+        path: `/social?channel=${msg.channel}`,
+      }))
+  }
 
-  data.users
-    .filter(user =>
-      user.displayName.toLocaleLowerCase('tr').includes(q)
-      || user.username?.toLocaleLowerCase('tr').includes(q)
-      || user.email?.toLocaleLowerCase('tr').includes(q),
-    )
-    .slice(0, MAX_PER_CATEGORY)
-    .forEach(user => results.push({
-      id: `user-${user.userId}`,
-      category: 'users',
-      title: user.displayName,
-      subtitle: [user.title, user.email].filter(Boolean).join(' · '),
-      path: '/users',
-    }))
+  if (access.users) {
+    data.users
+      .filter(user =>
+        user.displayName.toLocaleLowerCase('tr').includes(q)
+        || user.username?.toLocaleLowerCase('tr').includes(q)
+        || user.email?.toLocaleLowerCase('tr').includes(q),
+      )
+      .slice(0, MAX_PER_CATEGORY)
+      .forEach(user => results.push({
+        id: `user-${user.userId}`,
+        category: 'users',
+        title: user.displayName,
+        subtitle: [user.title, user.email].filter(Boolean).join(' · '),
+        path: '/users',
+      }))
+  }
 
-  data.departments
-    .filter(dept => dept.name.toLocaleLowerCase('tr').includes(q))
-    .slice(0, MAX_PER_CATEGORY)
-    .forEach(dept => results.push({
-      id: `dept-${dept.departmentId}`,
-      category: 'departments',
-      title: dept.name,
-      subtitle: dept.departmentType,
-      path: '/departments',
-    }))
+  if (access.departments) {
+    data.departments
+      .filter(dept => dept.name.toLocaleLowerCase('tr').includes(q))
+      .slice(0, MAX_PER_CATEGORY)
+      .forEach(dept => results.push({
+        id: `dept-${dept.departmentId}`,
+        category: 'departments',
+        title: dept.name,
+        subtitle: dept.departmentType,
+        path: '/departments',
+      }))
+  }
 
   return results
 }
@@ -120,6 +158,30 @@ function filterResults(
 export function GlobalSearchBar() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const roles = useMemo(() => getEffectiveUserRoles(user), [user])
+  const access = useMemo<SearchCategoryAccess>(() => {
+    const myRequests = canAnyRoleAccessPage(roles, 'myRequests')
+    const incomingRequests = canAnyRoleAccessPage(roles, 'incomingRequests')
+    const outgoingRequests = canAnyRoleAccessPage(roles, 'outgoingRequests')
+    const createRequest = canAnyRoleAccessPage(roles, 'createRequest')
+    const myTasks = canAnyRoleAccessPage(roles, 'myTasks')
+    const departmentTasks = canAnyRoleAccessPage(roles, 'departmentTasks')
+    const createRoutineTask = canAnyRoleAccessPage(roles, 'createRoutineTask')
+    return {
+      jobs: myRequests || incomingRequests || outgoingRequests || createRequest,
+      tasks: myTasks || departmentTasks || createRoutineTask,
+      social: canAnyRoleAccessPage(roles, 'social'),
+      users: canAnyRoleAccessPage(roles, 'users'),
+      departments: canAnyRoleAccessPage(roles, 'departments'),
+      myRequests,
+      incomingRequests,
+      outgoingRequests,
+      myTasks,
+      departmentTasks,
+    }
+  }, [roles])
+
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -140,17 +202,24 @@ export function GlobalSearchBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
+  // Yetki değişince önbelleği sıfırla (card #1766).
+  useEffect(() => {
+    fetchedRef.current = false
+    setData(null)
+    setResults([])
+  }, [access.jobs, access.tasks, access.social, access.users, access.departments])
+
   const fetchData = useCallback(async (): Promise<SearchData | null> => {
     if (fetchedRef.current && data) return data
     fetchedRef.current = true
     setIsLoading(true)
     try {
       const [jobsResult, tasksResult, socialResult, usersResult, depsResult] = await Promise.allSettled([
-        api.getJobs('all'),
-        api.getTasks('all'),
-        api.getSocialMessages(),
-        api.getUsers(),
-        api.getDepartments(),
+        access.jobs ? api.getJobs('all') : Promise.resolve([] as JobSummary[]),
+        access.tasks ? api.getTasks('all') : Promise.resolve([] as Task[]),
+        access.social ? api.getSocialMessages() : Promise.resolve([] as SocialMessage[]),
+        access.users ? api.getUsers() : Promise.resolve([] as User[]),
+        access.departments ? api.getDepartments() : Promise.resolve([] as Department[]),
       ])
       const fetched: SearchData = {
         jobs: jobsResult.status === 'fulfilled' ? jobsResult.value : [],
@@ -167,7 +236,7 @@ export function GlobalSearchBar() {
     } finally {
       setIsLoading(false)
     }
-  }, [data])
+  }, [access.departments, access.jobs, access.social, access.tasks, access.users, data])
 
   const handleInput = useCallback((value: string) => {
     setQuery(value)
@@ -184,9 +253,9 @@ export function GlobalSearchBar() {
     debounceRef.current = setTimeout(async () => {
       const current = data ?? await fetchData()
       if (!current) return
-      setResults(filterResults(current, value, t))
+      setResults(filterResults(current, value, t, access))
     }, 300)
-  }, [data, fetchData, t])
+  }, [access, data, fetchData, t])
 
   const handleSelect = (path: string) => {
     setIsOpen(false)

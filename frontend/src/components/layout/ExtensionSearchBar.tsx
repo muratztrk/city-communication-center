@@ -1,8 +1,10 @@
 import { Search, X } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../../api/client'
+import { useAuth } from '../../context/AuthContext'
+import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../../lib/rolePageAccess'
 import type { User } from '../../types/platform'
 
 interface ExtensionSearchResult {
@@ -31,6 +33,11 @@ function matchesPhone(phone: string | null | undefined, query: string): boolean 
 export function ExtensionSearchBar() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const { user } = useAuth()
+  const canSearchUsers = useMemo(
+    () => canAnyRoleAccessPage(getEffectiveUserRoles(user), 'users'),
+    [user],
+  )
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -52,6 +59,7 @@ export function ExtensionSearchBar() {
   }, [])
 
   const fetchUsers = useCallback(async (): Promise<User[] | null> => {
+    if (!canSearchUsers) return []
     if (fetchedRef.current && users) return users
     fetchedRef.current = true
     setIsLoading(true)
@@ -65,21 +73,21 @@ export function ExtensionSearchBar() {
     } finally {
       setIsLoading(false)
     }
-  }, [users])
+  }, [canSearchUsers, users])
 
   const filterUsers = useCallback((list: User[], value: string): ExtensionSearchResult[] => {
     const q = value.toLocaleLowerCase('tr').trim()
     if (q.length < 3) return []
 
     return list
-      .filter(user => matchesPhone(user.phone, q))
+      .filter(userItem => matchesPhone(userItem.phone, q))
       .slice(0, MAX_RESULTS)
-      .map(user => {
-        const department = primaryDepartmentName(user)
-        const titleParts = [user.displayName, user.phone].filter(Boolean)
-        const subtitleParts = [department, user.title].filter(Boolean)
+      .map(userItem => {
+        const department = primaryDepartmentName(userItem)
+        const titleParts = [userItem.displayName, userItem.phone].filter(Boolean)
+        const subtitleParts = [department, userItem.title].filter(Boolean)
         return {
-          userId: user.userId,
+          userId: userItem.userId,
           title: titleParts.join(' - '),
           subtitle: subtitleParts.join(' - '),
         }
@@ -90,7 +98,7 @@ export function ExtensionSearchBar() {
     setQuery(value)
     clearTimeout(debounceRef.current)
 
-    if (value.trim().length < 3) {
+    if (!canSearchUsers || value.trim().length < 3) {
       setResults([])
       setIsOpen(false)
       return
@@ -102,7 +110,11 @@ export function ExtensionSearchBar() {
       if (!list) return
       setResults(filterUsers(list, value))
     }, 300)
-  }, [fetchUsers, filterUsers, users])
+  }, [canSearchUsers, fetchUsers, filterUsers, users])
+
+  if (!canSearchUsers) {
+    return null
+  }
 
   const handleSelect = () => {
     setIsOpen(false)

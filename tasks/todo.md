@@ -1,3 +1,7 @@
+## Round 406 — #1766/#1775
+- #1766: Sistemde ara yalnız yetkili sayfa kategorilerini arar/çeker.
+- #1775: Kullanıcı Adı placeholder `ornekkullanici`.
+
 ## Round 405 — #1774/#1770/#1773
 - #1774: Sistemde ara en az 3 karakter (Türkçe locale).
 - #1770: Header’da Sistemde ara soluna “Dahili No ara…”; sonuç `Ad - Dahili` / `Birim - Ünvan`.

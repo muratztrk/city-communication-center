@@ -809,7 +809,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
   Header: **Dahili No ara…** solda, **Sistemde ara…** sağda (aynı pill tasarım);
   her ikisi de en az 3 karakterde arar; Dahili No sonuç satırı `Ad Soyad - Dahili`,
-  alt satır `Birim - Ünvan` (cards #1770/#1774).
+  alt satır `Birim - Ünvan` (cards #1770/#1774). Sistemde ara yalnız kullanıcının
+  rol sayfa yetkisi olan kategorileri çeker/gösterir (card #1766); Dahili No ara
+  yalnız `users` sayfa yetkisi olanlara görünür.
   Birime Gelen / Birimden Giden banner `page-kicker` seçili scope chip metnidir;
   `page-title` bölüm adı kalır (card #1700; Taleplerim ile aynı).
 - **Ayarlar banner `page-kicker` seçili tab metnidir** (`Kurum`, `Görünüm`, …);

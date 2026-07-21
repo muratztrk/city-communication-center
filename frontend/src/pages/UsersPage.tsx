@@ -35,6 +35,8 @@ const DEFAULT_USER_FORM = {
   email: '',
   password: '',
   passwordConfirm: '',
+  title: '',
+  phone: '',
   departmentId: '',
   additionalDepartmentIds: [] as string[],
   roleCode: 'Staff',
@@ -523,6 +525,8 @@ export function UsersPage() {
         sourceType: createMode === 'ldap' ? 'Ldap' : 'Manual',
         externalIdentityId: createMode === 'ldap' ? newUser.externalIdentityId : null,
         ldapDepartmentName: createMode === 'ldap' ? selectedDirectoryUser?.department ?? null : null,
+        title: newUser.title.trim() || null,
+        phone: newUser.phone.trim() || null,
       })
 
       closeCreateForm()
@@ -799,6 +803,8 @@ export function UsersPage() {
                     // mail attribute yoksa boş bırak; UPN ile doldurma (card #1734).
                     email: selected?.email?.trim() ?? '',
                     password: '',
+                    title: selected?.title?.trim() ?? '',
+                    phone: selected?.phone?.trim() ?? '',
                     externalIdentityId: selected?.externalIdentityId ?? null,
                     departmentId: matchedDepartmentId || current.departmentId,
                   }))
@@ -810,7 +816,15 @@ export function UsersPage() {
                   }
                   if (!value.trim()) {
                     setSelectedDirectoryUser(null)
-                    setNewUser(current => ({ ...current, username: '', displayName: '', email: '', externalIdentityId: null }))
+                    setNewUser(current => ({
+                      ...current,
+                      username: '',
+                      displayName: '',
+                      email: '',
+                      title: '',
+                      phone: '',
+                      externalIdentityId: null,
+                    }))
                   }
                 }}
               />
@@ -833,7 +847,8 @@ export function UsersPage() {
             </div>
           ) : null}
 
-          <div className="grid gap-4 lg:grid-cols-3">
+          {/* Kullanıcı Adı / Ad Soyad / Dahili No / Ünvan / E-posta tek satırda (card #1771). */}
+          <div className="grid gap-4 lg:grid-cols-5">
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('users.username')}</span>
               <input
@@ -856,6 +871,28 @@ export function UsersPage() {
                 type="text"
                 value={newUser.displayName}
                 onChange={event => setNewUser(current => ({ ...current, displayName: event.target.value }))}
+              />
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('users.internalPhone')}</span>
+              <input
+                aria-label={t('users.internalPhone')}
+                className="field-input"
+                placeholder={t('users.internalPhonePlaceholder')}
+                type="text"
+                value={newUser.phone}
+                onChange={event => setNewUser(current => ({ ...current, phone: event.target.value }))}
+              />
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('users.jobTitle')}</span>
+              <input
+                aria-label={t('users.jobTitle')}
+                className="field-input"
+                placeholder={t('users.jobTitlePlaceholder')}
+                type="text"
+                value={newUser.title}
+                onChange={event => setNewUser(current => ({ ...current, title: event.target.value }))}
               />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">

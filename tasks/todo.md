@@ -1,3 +1,6 @@
+## Round 403 — #1771
+- #1771: Yeni kullanıcı formunda Ad Soyad sonrası Dahili No + Ünvan; üst satır 5 kolon (Kullanıcı Adı / Ad Soyad / Dahili No / Ünvan / E-posta); create API title/phone.
+
 ## Round 402 — #1767/#1754/#1768/#1762/#1769
 - #1767: Eklenecek kullanıcılar satırında "birim:" etiketi kaldırıldı (`Ad — Birim`).
 - #1754: Senkron popup yalnız sistemde olmayanlar; yoksa "Yeni kullanıcı bulunamadı"; 3 karakter arama; need-query metni yok.

@@ -90,7 +90,9 @@ public sealed class UsersController : ApiControllerBase
                 request.IsActive,
                 request.SourceType,
                 request.ExternalIdentityId,
-                request.LdapDepartmentName),
+                request.LdapDepartmentName,
+                request.Title,
+                request.Phone),
             cancellationToken);
 
         return CreatedAtAction(nameof(GetAll), response);

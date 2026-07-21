@@ -317,6 +317,8 @@ export const api = {
     sourceType: string
     externalIdentityId: string | null
     ldapDepartmentName: string | null
+    title?: string | null
+    phone?: string | null
   }): Promise<User> {
     const response = await fetchWithCredentials(`${API_BASE}/users`, {
       method: 'POST',

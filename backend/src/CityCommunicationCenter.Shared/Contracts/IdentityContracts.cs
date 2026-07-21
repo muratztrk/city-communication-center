@@ -50,7 +50,9 @@ public sealed record CreateUserRequest(
     bool IsActive,
     string SourceType,
     string? ExternalIdentityId,
-    string? LdapDepartmentName);
+    string? LdapDepartmentName,
+    string? Title = null,
+    string? Phone = null);
 
 public sealed record UpdateUserRequest(
     Guid DepartmentId,

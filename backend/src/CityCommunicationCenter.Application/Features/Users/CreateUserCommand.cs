@@ -14,7 +14,9 @@ public sealed record CreateUserCommand(
     bool IsActive,
     string SourceType,
     string? ExternalIdentityId,
-    string? LdapDepartmentName) : ICommand<UserSummaryResponse>;
+    string? LdapDepartmentName,
+    string? Title = null,
+    string? Phone = null) : ICommand<UserSummaryResponse>;
 
 public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {
@@ -74,6 +76,14 @@ public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCom
             .NotEmpty()
             .When(command => string.Equals(command.SourceType, UserSource.Ldap.ToString(), StringComparison.OrdinalIgnoreCase))
             .WithMessage(localizer["ValidationLdapIdentifierRequired"]);
+
+        RuleFor(command => command.Title)
+            .MaximumLength(200)
+            .When(command => !string.IsNullOrWhiteSpace(command.Title));
+
+        RuleFor(command => command.Phone)
+            .MaximumLength(50)
+            .When(command => !string.IsNullOrWhiteSpace(command.Phone));
     }
 }
 
@@ -245,8 +255,8 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             RoleCode = roleCode,
             UserSource = sourceType,
             IsActive = request.IsActive,
-            Title = ldapTitle,
-            Phone = ldapPhone,
+            Title = string.IsNullOrWhiteSpace(request.Title) ? ldapTitle : request.Title.Trim(),
+            Phone = string.IsNullOrWhiteSpace(request.Phone) ? ldapPhone : request.Phone.Trim(),
             CreatedByUserId = context.UserId,
         };
 

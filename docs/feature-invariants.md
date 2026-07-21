@@ -870,7 +870,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Ek görev birimleri placeholder “Ek birim seçiniz...”; multi-select’te
   arama satırı var; Birim+Ek birimler+Rol+Ek roller+Aktif+Oluştur tek satırda;
   Rol kolonu dar; Rol+Ek roller menü satır metni kompakt; Oluştur geniş ama alçak
-  (card #1739).
+  (card #1739). Yeni kullanıcı üst satırı: Kullanıcı Adı / Ad Soyad / Dahili No /
+  Ünvan / E-posta tek satır (`lg:grid-cols-5`); create API `title`+`phone` alır;
+  LDAP seçiminde dizin title/phone prefills (card #1771).
   Birimi Düzenle dropdown’ları `<label>` ile sarılmaz — dış tıklayınca kapanır (card #1729).
   Birimler grid’inde Tür sütunu yok; Tür yalnız düzenleme formunda ve özet “Tür Dağılımı”nda (card #1741).
 - **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,

@@ -164,13 +164,13 @@ export function GlobalSearchBar() {
     const myRequests = canAnyRoleAccessPage(roles, 'myRequests')
     const incomingRequests = canAnyRoleAccessPage(roles, 'incomingRequests')
     const outgoingRequests = canAnyRoleAccessPage(roles, 'outgoingRequests')
-    const createRequest = canAnyRoleAccessPage(roles, 'createRequest')
     const myTasks = canAnyRoleAccessPage(roles, 'myTasks')
     const departmentTasks = canAnyRoleAccessPage(roles, 'departmentTasks')
-    const createRoutineTask = canAnyRoleAccessPage(roles, 'createRoutineTask')
+    // Yalnız sol menüde yetkili sayfaların veri kümeleri (card #1782) —
+    // createRequest / createRoutineTask tek başına tüm talep/görev havuzunu açmaz.
     return {
-      jobs: myRequests || incomingRequests || outgoingRequests || createRequest,
-      tasks: myTasks || departmentTasks || createRoutineTask,
+      jobs: myRequests || incomingRequests || outgoingRequests,
+      tasks: myTasks || departmentTasks,
       social: canAnyRoleAccessPage(roles, 'social'),
       users: canAnyRoleAccessPage(roles, 'users'),
       departments: canAnyRoleAccessPage(roles, 'departments'),
@@ -202,31 +202,69 @@ export function GlobalSearchBar() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Yetki değişince önbelleği sıfırla (card #1766).
+  // Yetki değişince önbelleği sıfırla (cards #1766/#1782).
   useEffect(() => {
     fetchedRef.current = false
     setData(null)
     setResults([])
-  }, [access.jobs, access.tasks, access.social, access.users, access.departments])
+  }, [
+    access.jobs,
+    access.tasks,
+    access.social,
+    access.users,
+    access.departments,
+    access.myRequests,
+    access.incomingRequests,
+    access.outgoingRequests,
+    access.myTasks,
+    access.departmentTasks,
+  ])
 
   const fetchData = useCallback(async (): Promise<SearchData | null> => {
     if (fetchedRef.current && data) return data
     fetchedRef.current = true
     setIsLoading(true)
     try {
-      const [jobsResult, tasksResult, socialResult, usersResult, depsResult] = await Promise.allSettled([
-        access.jobs ? api.getJobs('all') : Promise.resolve([] as JobSummary[]),
-        access.tasks ? api.getTasks('all') : Promise.resolve([] as Task[]),
-        access.social ? api.getSocialMessages() : Promise.resolve([] as SocialMessage[]),
-        access.users ? api.getUsers() : Promise.resolve([] as User[]),
-        access.departments ? api.getDepartments() : Promise.resolve([] as Department[]),
+      // Sayfa yetkisine göre scoped çek — yetkisiz menü sayfalarının ifadeleri çıkmaz (card #1782).
+      const jobFetches: Promise<JobSummary[]>[] = []
+      if (access.myRequests) jobFetches.push(api.getJobs('mine'))
+      if (access.incomingRequests) jobFetches.push(api.getJobs('my-department'))
+      if (access.outgoingRequests) jobFetches.push(api.getJobs('outgoing-department'))
+
+      const taskFetches: Promise<Task[]>[] = []
+      if (access.myTasks) taskFetches.push(api.getTasks('mine'))
+      if (access.departmentTasks) taskFetches.push(api.getTasks('department'))
+      // Personelimin Görevleri (ManagerOnlyGate) — Manager/SystemAdmin menüde görür.
+      if (user?.role === 'Manager' || user?.role === 'SystemAdmin') {
+        taskFetches.push(api.getTasks('all'))
+      }
+
+      const [jobsSettled, tasksSettled, socialSettled, usersSettled, depsSettled] = await Promise.all([
+        Promise.allSettled(jobFetches),
+        Promise.allSettled(taskFetches),
+        Promise.allSettled([access.social ? api.getSocialMessages() : Promise.resolve([] as SocialMessage[])]),
+        Promise.allSettled([access.users ? api.getUsers() : Promise.resolve([] as User[])]),
+        Promise.allSettled([access.departments ? api.getDepartments() : Promise.resolve([] as Department[])]),
       ])
+
+      const jobsById = new Map<string, JobSummary>()
+      for (const result of jobsSettled) {
+        if (result.status !== 'fulfilled') continue
+        for (const job of result.value) jobsById.set(job.jobId, job)
+      }
+
+      const tasksById = new Map<string, Task>()
+      for (const result of tasksSettled) {
+        if (result.status !== 'fulfilled') continue
+        for (const task of result.value) tasksById.set(task.taskId, task)
+      }
+
       const fetched: SearchData = {
-        jobs: jobsResult.status === 'fulfilled' ? jobsResult.value : [],
-        tasks: tasksResult.status === 'fulfilled' ? tasksResult.value : [],
-        social: socialResult.status === 'fulfilled' ? socialResult.value : [],
-        users: usersResult.status === 'fulfilled' ? usersResult.value : [],
-        departments: depsResult.status === 'fulfilled' ? depsResult.value : [],
+        jobs: [...jobsById.values()],
+        tasks: [...tasksById.values()],
+        social: socialSettled[0]?.status === 'fulfilled' ? socialSettled[0].value : [],
+        users: usersSettled[0]?.status === 'fulfilled' ? usersSettled[0].value : [],
+        departments: depsSettled[0]?.status === 'fulfilled' ? depsSettled[0].value : [],
       }
       setData(fetched)
       return fetched
@@ -236,7 +274,18 @@ export function GlobalSearchBar() {
     } finally {
       setIsLoading(false)
     }
-  }, [access.departments, access.jobs, access.social, access.tasks, access.users, data])
+  }, [
+    access.departments,
+    access.departmentTasks,
+    access.incomingRequests,
+    access.myRequests,
+    access.myTasks,
+    access.outgoingRequests,
+    access.social,
+    access.users,
+    data,
+    user?.role,
+  ])
 
   const handleInput = useCallback((value: string) => {
     setQuery(value)

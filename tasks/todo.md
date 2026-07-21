@@ -1,3 +1,8 @@
+## Round 409 — #1776/#1781/#1782
+- #1776: Personel Dahili No ara textbox yalnız harf+boşluk.
+- #1781: X temizleyince Personel paneli kapanır (stale focus/debounce).
+- #1782: Sistemde ara yalnız sol menü yetkili sayfa scope’ları (`mine`/`my-department`/`outgoing-department`/`mine`/`department`).
+
 ## Round 408 — #1778/#1779/#1780/#1766
 - #1778: Personel başlığı büyük+yeşil; birim/ünvan metni büyütüldü.
 - #1779: Personel Dahili No ara tüm kullanıcılara açık (`GET /users/search`).

@@ -10,6 +10,11 @@ interface ExtensionSearchResult {
   subtitle: string
 }
 
+/** Yalnız Unicode harf + boşluk (card #1776 reopen — rakam/noktalama yok). */
+function lettersOnly(value: string): string {
+  return value.replace(/[^\p{L}\s]/gu, '')
+}
+
 /** Header “Personel Dahili No ara…” — tüm kullanıcılara açık (cards #1770/#1779/#1780). */
 export function ExtensionSearchBar() {
   const { t } = useTranslation()
@@ -20,6 +25,7 @@ export function ExtensionSearchBar() {
   const containerRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(undefined)
+  const requestIdRef = useRef(0)
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -43,40 +49,50 @@ export function ExtensionSearchBar() {
     })
   ), [])
 
-  const handleInput = useCallback((value: string) => {
+  const handleInput = useCallback((raw: string) => {
+    const value = lettersOnly(raw)
     setQuery(value)
     clearTimeout(debounceRef.current)
 
     if (value.trim().length < 3) {
+      requestIdRef.current += 1
       setResults([])
       setIsOpen(false)
+      setIsLoading(false)
       return
     }
 
     setIsOpen(true)
     setIsLoading(true)
+    const requestId = ++requestIdRef.current
     debounceRef.current = setTimeout(async () => {
       try {
         // Yalnız DisplayName eşleşmesi (card #1780); tüm roller erişebilir (card #1779).
         const list = await api.searchUsers(value.trim(), undefined, true)
+        if (requestId !== requestIdRef.current) return
         setResults(mapResults(list))
       } catch {
+        if (requestId !== requestIdRef.current) return
         setResults([])
       } finally {
-        setIsLoading(false)
+        if (requestId === requestIdRef.current) setIsLoading(false)
       }
     }, 300)
   }, [mapResults])
 
   const clear = () => {
+    clearTimeout(debounceRef.current)
+    requestIdRef.current += 1
     setQuery('')
     setResults([])
     setIsOpen(false)
-    inputRef.current?.focus()
+    setIsLoading(false)
+    // focus() onFocus'ta stale results ile paneli yeniden açmasın (card #1781).
   }
 
   const hasResults = results.length > 0
   const showEmpty = isOpen && !isLoading && query.trim().length >= 3 && !hasResults
+  const showPanel = isOpen && (isLoading || hasResults || showEmpty)
 
   return (
     <div ref={containerRef} className="relative">
@@ -85,14 +101,20 @@ export function ExtensionSearchBar() {
         <input
           ref={inputRef}
           type="text"
+          inputMode="text"
           value={query}
           onChange={e => handleInput(e.target.value)}
-          onFocus={() => { if (results.length > 0) setIsOpen(true) }}
+          onFocus={() => {
+            if (query.trim().length >= 3 && results.length > 0) setIsOpen(true)
+          }}
           onKeyDown={e => {
             if (e.key === 'Escape') {
+              clearTimeout(debounceRef.current)
+              requestIdRef.current += 1
               setIsOpen(false)
               setQuery('')
               setResults([])
+              setIsLoading(false)
             }
           }}
           placeholder={t('search.extensionPlaceholder', 'Personel Dahili No ara...')}
@@ -108,7 +130,7 @@ export function ExtensionSearchBar() {
         ) : null}
       </div>
 
-      {(isOpen || showEmpty) ? (
+      {showPanel ? (
         <div className="absolute right-0 top-full z-50 mt-1.5 w-[26rem] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl ring-1 ring-black/5">
           {isLoading ? (
             <div className="px-4 py-4 text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>

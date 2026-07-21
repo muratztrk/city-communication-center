@@ -333,59 +333,108 @@ export function UsersPage() {
         setAddAllLdapLoading(true)
         setError('')
         const createdUsers: DirectoryUserLookup[] = []
+        const failedMessages: string[] = []
+        const seenEmails = new Set<string>()
         try {
           for (const item of addable) {
             const deptName = item.department!.trim()
             const departmentId = departmentByKey.get(deptName.toLocaleLowerCase('tr')) ?? null
+            const email = item.email?.trim() || null
+            if (email) {
+              const emailKey = email.toLocaleLowerCase('tr')
+              if (seenEmails.has(emailKey)) {
+                failedMessages.push(`${item.displayName}: ${t('users.addAllLdapDuplicateEmail', 'Bu e-posta toplu eklemede zaten kullanıldı.')}`)
+                continue
+              }
+              seenEmails.add(emailKey)
+            }
 
-            await api.createUser({
-              username: item.username || null,
-              displayName: item.displayName,
-              email: item.email?.trim() || null,
-              password: null,
-              departmentId: departmentId ?? '00000000-0000-0000-0000-000000000000',
-              additionalDepartmentIds: [],
-              roleCode: 'Staff',
-              additionalRoleCodes: [],
-              isActive: true,
-              sourceType: 'Ldap',
-              externalIdentityId: item.externalIdentityId,
-              ldapDepartmentName: departmentId ? null : deptName,
+            try {
+              await api.createUser({
+                username: item.username || null,
+                displayName: item.displayName || item.username || 'LDAP Kullanıcı',
+                email,
+                password: null,
+                departmentId,
+                additionalDepartmentIds: [],
+                roleCode: 'Staff',
+                additionalRoleCodes: [],
+                isActive: true,
+                sourceType: 'Ldap',
+                externalIdentityId: item.externalIdentityId,
+                ldapDepartmentName: departmentId ? null : deptName,
+                title: item.title?.trim() || null,
+                phone: item.phone?.trim() || null,
+              })
+              createdUsers.push(item)
+            } catch (createError) {
+              const message = createError instanceof Error ? createError.message : t('common.error')
+              failedMessages.push(`${item.displayName || item.username}: ${message}`)
+            }
+          }
+
+          invalidateUsers(queryClient)
+          loadData()
+
+          if (createdUsers.length === 0) {
+            setError(failedMessages[0] ?? t('common.error'))
+            setConfirmDialog({
+              title: t('users.addAllLdap'),
+              titleDivider: true,
+              titleCompact: true,
+              titleTone: 'danger',
+              message: failedMessages[0] ?? t('common.error'),
+              details: failedMessages.length > 1
+                ? (
+                    <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-600">
+                      {failedMessages.slice(0, 8).map(line => <li key={line}>{line}</li>)}
+                    </ul>
+                  )
+                : undefined,
+              confirmLabel: t('common.exit', 'Çıkış'),
+              hideCancel: true,
+              variant: 'destructive',
+              onConfirm: () => {},
             })
-            createdUsers.push(item)
+            return
           }
 
           setDirectorySyncMessage(
-            missingDeptUsers.length === 0
+            missingDeptUsers.length === 0 && failedMessages.length === 0
               ? t('users.addAllLdapAllSuccess')
               : t('users.addAllLdapSuccess', { count: createdUsers.length }),
           )
-          invalidateUsers(queryClient)
-          loadData()
 
           setConfirmDialog({
             title: t('users.addAllLdap'),
             titleDivider: true,
             titleCompact: true,
-            titleTone: 'success',
+            titleTone: failedMessages.length > 0 ? 'danger' : 'success',
             message:
-              missingDeptUsers.length === 0
+              missingDeptUsers.length === 0 && failedMessages.length === 0
                 ? t('users.addAllLdapAllSuccess')
                 : t('users.addAllLdapSuccess', { count: createdUsers.length }),
-            details: createdUsers.length > 0
-              ? renderLdapUserList(
-                  t('users.addAllLdapNewlyPulledTitle', { count: createdUsers.length }),
-                  sortByDepartmentOrName(createdUsers),
-                  'none',
-                )
-              : undefined,
+            details: (
+              <>
+                {createdUsers.length > 0
+                  ? renderLdapUserList(
+                      t('users.addAllLdapNewlyPulledTitle', { count: createdUsers.length }),
+                      sortByDepartmentOrName(createdUsers),
+                      'none',
+                    )
+                  : null}
+                {failedMessages.length > 0 ? (
+                  <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-red-600">
+                    {failedMessages.slice(0, 8).map(line => <li key={line}>{line}</li>)}
+                  </ul>
+                ) : null}
+              </>
+            ),
             confirmLabel: t('common.exit', 'Çıkış'),
             hideCancel: true,
             variant: 'destructive',
             onConfirm: () => {},
           })
-        } catch (createError) {
-          setError(createError instanceof Error ? createError.message : t('common.error'))
         } finally {
           setAddAllLdapLoading(false)
         }

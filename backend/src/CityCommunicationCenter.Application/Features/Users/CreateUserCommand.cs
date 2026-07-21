@@ -44,7 +44,9 @@ public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCom
 
         RuleFor(command => command.Email)
             .EmailAddress()
-            .When(command => !string.IsNullOrWhiteSpace(command.Email))
+            .When(command =>
+                !string.IsNullOrWhiteSpace(command.Email)
+                && !string.Equals(command.SourceType, UserSource.Ldap.ToString(), StringComparison.OrdinalIgnoreCase))
             .WithMessage(localizer["ValidationEmailRequired"]);
 
         RuleFor(command => command.Password)
@@ -81,9 +83,12 @@ public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCom
             .MaximumLength(200)
             .When(command => !string.IsNullOrWhiteSpace(command.Title));
 
+        // LDAP telephoneNumber bazen uzun/formatlı gelebilir — 50 karakteri aşanı handler kısaltır.
         RuleFor(command => command.Phone)
             .MaximumLength(50)
-            .When(command => !string.IsNullOrWhiteSpace(command.Phone));
+            .When(command =>
+                !string.IsNullOrWhiteSpace(command.Phone)
+                && !string.Equals(command.SourceType, UserSource.Ldap.ToString(), StringComparison.OrdinalIgnoreCase));
     }
 }
 
@@ -124,6 +129,12 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
         if (sourceType == UserSource.Ldap)
         {
             var directoryUser = await _ldapAuthenticationService.FindUserByExternalIdentityAsync(tenantId, externalIdentityId!, cancellationToken);
+            // DN filtre eşleşmesi başarısız olursa sAMAccountName ile dene (card #1784).
+            if (directoryUser is null && !string.IsNullOrWhiteSpace(username))
+            {
+                directoryUser = await _ldapAuthenticationService.FindUserByUsernameAsync(tenantId, username, cancellationToken);
+            }
+
             if (directoryUser is null)
             {
                 throw new ValidationException(_localizer["ValidationLdapUserNotFound"]);
@@ -132,11 +143,15 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             displayName = string.IsNullOrWhiteSpace(directoryUser.DisplayName)
                 ? directoryUser.Username
                 : directoryUser.DisplayName;
-            email = string.IsNullOrWhiteSpace(directoryUser.Email) ? null : directoryUser.Email.Trim();
+            email = NormalizeOptionalEmail(directoryUser.Email);
             externalIdentityId = directoryUser.ExternalIdentityId;
             username = directoryUser.Username.Trim();
-            ldapTitle = string.IsNullOrWhiteSpace(directoryUser.Title) ? null : directoryUser.Title.Trim();
-            ldapPhone = string.IsNullOrWhiteSpace(directoryUser.Phone) ? null : directoryUser.Phone.Trim();
+            ldapTitle = Truncate(directoryUser.Title, 200);
+            ldapPhone = Truncate(directoryUser.Phone, 50);
+        }
+        else
+        {
+            email = NormalizeOptionalEmail(email);
         }
 
         var departmentId = request.DepartmentId;
@@ -255,8 +270,8 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             RoleCode = roleCode,
             UserSource = sourceType,
             IsActive = request.IsActive,
-            Title = string.IsNullOrWhiteSpace(request.Title) ? ldapTitle : request.Title.Trim(),
-            Phone = string.IsNullOrWhiteSpace(request.Phone) ? ldapPhone : request.Phone.Trim(),
+            Title = Truncate(string.IsNullOrWhiteSpace(request.Title) ? ldapTitle : request.Title.Trim(), 200),
+            Phone = Truncate(string.IsNullOrWhiteSpace(request.Phone) ? ldapPhone : request.Phone.Trim(), 50),
             CreatedByUserId = context.UserId,
         };
 
@@ -309,5 +324,28 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             user.Phone,
             departments,
             UserRoleAccess.GetAdditionalRoleCodeStrings(user));
+    }
+
+    private static string? Truncate(string? value, int maxLength)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var trimmed = value.Trim();
+        return trimmed.Length <= maxLength ? trimmed : trimmed[..maxLength];
+    }
+
+    private static string? NormalizeOptionalEmail(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var trimmed = value.Trim();
+        // LDAP mail bazen geçersiz formatta gelir; uniqueness için geçerli olanları sakla (card #1784).
+        return trimmed.Contains('@', StringComparison.Ordinal) ? trimmed : null;
     }
 }

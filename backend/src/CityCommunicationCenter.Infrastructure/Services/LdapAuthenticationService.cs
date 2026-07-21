@@ -351,24 +351,47 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
         var identifier = new LdapDirectoryIdentifier(settings.Host, settings.Port);
         using var connection = CreateConnection(settings, identifier);
+        var dn = externalIdentityId.Trim();
+        string[] attributes =
+        [
+            "distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
+            "physicalDeliveryOfficeName", "department", "description", "telephoneNumber",
+        ];
 
         try
         {
             BindWithServiceAccount(connection, settings, "find user by external identity");
+
+            // DN için Base-scope arama daha güvenilir (filtre Escape DN eşleşmesini bozabiliyor — card #1784).
+            if (LooksLikeDistinguishedName(dn))
+            {
+                try
+                {
+                    var baseRequest = new SearchRequest(dn, "(objectClass=*)", SearchScope.Base, attributes);
+                    var baseResponse = (SearchResponse)connection.SendRequest(baseRequest);
+                    if (baseResponse.Entries.Count > 0)
+                    {
+                        return MapDirectoryUser(baseResponse.Entries[0]);
+                    }
+                }
+                catch (LdapException ex)
+                {
+                    _logger.LogDebug(ex, "LDAP base DN lookup failed for {ExternalIdentityId}; trying filter", dn);
+                }
+            }
+
             var request = new SearchRequest(
                 settings.SearchBase,
-                $"(distinguishedName={Escape(externalIdentityId.Trim())})",
+                $"(distinguishedName={Escape(dn)})",
                 SearchScope.Subtree,
-                ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
-                 "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"]);
+                attributes);
             var response = (SearchResponse)connection.SendRequest(request);
             if (response.Entries.Count == 0)
             {
                 return null;
             }
 
-            var entry = response.Entries[0];
-            return MapDirectoryUser(entry);
+            return MapDirectoryUser(response.Entries[0]);
         }
         catch (LdapException ex)
         {

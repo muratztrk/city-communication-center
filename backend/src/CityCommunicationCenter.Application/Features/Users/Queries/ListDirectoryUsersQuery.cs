@@ -47,6 +47,10 @@ public sealed class ListDirectoryUsersQueryHandler : IQueryHandler<ListDirectory
             .Where(email => !string.IsNullOrWhiteSpace(email))
             .Cast<string>()
             .ToArray();
+        var emailUppers = emails
+            .Select(email => email.Trim().ToUpperInvariant())
+            .Distinct()
+            .ToArray();
         var usernames = candidates
             .Select(candidate => candidate.Username)
             .Where(username => !string.IsNullOrWhiteSpace(username))
@@ -58,7 +62,7 @@ public sealed class ListDirectoryUsersQueryHandler : IQueryHandler<ListDirectory
             .Where(entity => entity.TenantId == tenantId)
             .Where(entity =>
                 (entity.ExternalIdentityId != null && externalIds.Contains(entity.ExternalIdentityId)) ||
-                (entity.Email != null && emails.Contains(entity.Email)) ||
+                (entity.Email != null && emailUppers.Contains(entity.Email.ToUpper())) ||
                 (entity.Username != null && usernames.Contains(entity.Username.ToUpper())))
             .Select(entity => new
             {
@@ -74,9 +78,11 @@ public sealed class ListDirectoryUsersQueryHandler : IQueryHandler<ListDirectory
             {
                 var existing = existingUsers.FirstOrDefault(entity =>
                     string.Equals(entity.ExternalIdentityId, candidate.ExternalIdentityId, StringComparison.OrdinalIgnoreCase) ||
-                    (!string.IsNullOrWhiteSpace(candidate.Email) && string.Equals(entity.Email, candidate.Email, StringComparison.OrdinalIgnoreCase)) ||
+                    (!string.IsNullOrWhiteSpace(candidate.Email)
+                        && string.Equals(entity.Email, candidate.Email, StringComparison.OrdinalIgnoreCase)) ||
                     // Yeniden eklemeyi sAMAccountName ile engelle (card #1758).
-                    (!string.IsNullOrWhiteSpace(candidate.Username) && string.Equals(entity.Username, candidate.Username, StringComparison.OrdinalIgnoreCase)));
+                    (!string.IsNullOrWhiteSpace(candidate.Username)
+                        && string.Equals(entity.Username, candidate.Username, StringComparison.OrdinalIgnoreCase)));
 
                 return new DirectoryUserLookupResponse(
                     candidate.ExternalIdentityId,

@@ -66,11 +66,19 @@ public sealed class ExceptionMiddleware
                 group => string.IsNullOrWhiteSpace(group.Key) ? "request" : group.Key,
                 group => group.Select(error => error.ErrorMessage).Distinct().ToArray());
 
+        // string-ctor ValidationException Errors boş bırakır — Message'ı detail'e taşı (card #1784).
+        var detailFromErrors = errors.Values.SelectMany(messages => messages).FirstOrDefault();
+        var detail = !string.IsNullOrWhiteSpace(detailFromErrors)
+            ? detailFromErrors
+            : !string.IsNullOrWhiteSpace(exception.Message)
+                ? exception.Message
+                : localizer["ValidationDetail"].Value;
+
         var payload = new
         {
             title = localizer["ValidationTitle"],
             status = StatusCodes.Status400BadRequest,
-            detail = errors.Values.SelectMany(messages => messages).FirstOrDefault() ?? localizer["ValidationDetail"],
+            detail,
             errors
         };
 

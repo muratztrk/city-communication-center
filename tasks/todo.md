@@ -1,3 +1,6 @@
+## Round 411 — #1784
+- #1784: Tüm LDAP Kullanıcılarını Ekle validation hatası — DN base lookup, username fallback, opaque ValidationException detail, bulk continue-on-error.
+
 ## Round 410 — #1783
 - #1783: Sistemde ara grup başlığı menü adıyla aynı (standart kullanıcıda `Taleplerim`/`Görevlerim`; `nav.jobs`≠Birime Gelen).
 

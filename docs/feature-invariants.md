@@ -857,8 +857,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sistemde olmayan kullanıcılar; yoksa `"Yeni kullanıcı bulunamadı"`; senkron sonrası birimi
   LDAP’ta olmayanlar dropdown’u güncellenir (cards #1754/#1768). LDAP arama placeholder’ı
   **en az 3 karakter** (card #1754). Eklenecek kullanıcılar satırında `birim:` etiketi yok —
-  `Ad — BirimAdı` (card #1767). Yerel kullanıcıda **Parola Onayla** alanı; uyuşmazsa kırmızı
-  uyarı ve Oluştur engeli (card #1762). Oturum: 1 dk hareketsizlik → uyarı popup (300 sn geri
+  `Ad — BirimAdı` (card #1767).   Yerel kullanıcıda **Parola Onayla** alanı; uyuşmazsa kırmızı
+  uyarı ve Oluştur engeli (card #1762). Parola / Parola Onayla textbox’larında login ile aynı
+  göz ikonu (göster/gizle) vardır (card #1772). Oturum: 1 saat hareketsizlik → uyarı popup (300 sn geri
   sayım, Tekrar sorma yok); uzatılmazsa logout (card #1769). Sistemde
   talep/görev oluşturmuş kullanıcı
   silinemez — `"Sistemi kullanmış olan personel silinemez"` (card #1753). `+Yeni Kullanıcı` açıkken grid görünür kalır

@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react'
-import { ShieldUser, PenLine, Trash2, Users } from 'lucide-react'
+import { Eye, EyeOff, ShieldUser, PenLine, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -76,6 +76,8 @@ export function UsersPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [newUser, setNewUser] = useState(DEFAULT_USER_FORM)
+  const [showNewPassword, setShowNewPassword] = useState(false)
+  const [showNewPasswordConfirm, setShowNewPasswordConfirm] = useState(false)
   const [editingUserId, setEditingUserId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({
     displayName: '',
@@ -474,6 +476,8 @@ export function UsersPage() {
 
   const resetForm = () => {
     setNewUser(DEFAULT_USER_FORM)
+    setShowNewPassword(false)
+    setShowNewPasswordConfirm(false)
     setDirectoryQuery('')
     setDirectoryResults([])
     setSelectedDirectoryUser(null)
@@ -916,25 +920,47 @@ export function UsersPage() {
                   {t('users.password')}{' '}
                   <span className="text-xs font-normal text-slate-400">{t('users.passwordHint', '(Parola minimum 8 karakter, büyük harf, küçük harf, karakter, rakam içermelidir.)')}</span>
                 </span>
-                <input
-                  aria-label={t('users.password')}
-                  className="field-input"
-                  placeholder={t('users.passwordPlaceholder')}
-                  type="password"
-                  value={newUser.password}
-                  onChange={event => setNewUser(current => ({ ...current, password: event.target.value }))}
-                />
+                <div className="relative">
+                  <input
+                    aria-label={t('users.password')}
+                    className="field-input pr-10"
+                    placeholder={t('users.passwordPlaceholder')}
+                    type={showNewPassword ? 'text' : 'password'}
+                    value={newUser.password}
+                    onChange={event => setNewUser(current => ({ ...current, password: event.target.value }))}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    onClick={() => setShowNewPassword(value => !value)}
+                    aria-label={showNewPassword ? t('login.hidePassword', 'Hide password') : t('login.showPassword', 'Show password')}
+                    tabIndex={-1}
+                  >
+                    {showNewPassword ? <EyeOff className="size-4.5" /> : <Eye className="size-4.5" />}
+                  </button>
+                </div>
               </label>
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.passwordConfirm')}</span>
-                <input
-                  aria-label={t('users.passwordConfirm')}
-                  className="field-input"
-                  placeholder={t('users.passwordConfirmPlaceholder')}
-                  type="password"
-                  value={newUser.passwordConfirm}
-                  onChange={event => setNewUser(current => ({ ...current, passwordConfirm: event.target.value }))}
-                />
+                <div className="relative">
+                  <input
+                    aria-label={t('users.passwordConfirm')}
+                    className="field-input pr-10"
+                    placeholder={t('users.passwordConfirmPlaceholder')}
+                    type={showNewPasswordConfirm ? 'text' : 'password'}
+                    value={newUser.passwordConfirm}
+                    onChange={event => setNewUser(current => ({ ...current, passwordConfirm: event.target.value }))}
+                  />
+                  <button
+                    type="button"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    onClick={() => setShowNewPasswordConfirm(value => !value)}
+                    aria-label={showNewPasswordConfirm ? t('login.hidePassword', 'Hide password') : t('login.showPassword', 'Show password')}
+                    tabIndex={-1}
+                  >
+                    {showNewPasswordConfirm ? <EyeOff className="size-4.5" /> : <Eye className="size-4.5" />}
+                  </button>
+                </div>
                 {newUser.passwordConfirm.length > 0 && newUser.password !== newUser.passwordConfirm ? (
                   <span className="text-xs font-semibold text-[color:var(--color-destructive)]">
                     {t('users.passwordMismatch')}

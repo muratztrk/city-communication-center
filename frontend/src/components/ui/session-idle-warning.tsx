@@ -5,8 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { Button } from './button'
 import { ModalBackdrop } from './modal-backdrop'
 
-/** 1 dk hareketsizlik → uyarı; 300 sn geri sayım sonrası logout (card #1769). */
-const IDLE_BEFORE_WARNING_MS = 60_000
+/** 1 saat hareketsizlik → uyarı; 300 sn geri sayım sonrası logout (card #1769 reopen). */
+const IDLE_BEFORE_WARNING_MS = 60 * 60_000
 const WARNING_COUNTDOWN_SECONDS = 300
 
 const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = [

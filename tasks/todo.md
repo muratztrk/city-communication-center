@@ -1,3 +1,7 @@
+## Round 404 — #1769/#1772
+- #1769: Oturum idle uyarısı tetikleyicisi 1 dk → 1 saat (geri sayım 300 sn aynı).
+- #1772: Yeni kullanıcı Parola / Parola Onayla’da login ile aynı göz ikonu.
+
 ## Round 403 — #1771
 - #1771: Yeni kullanıcı formunda Ad Soyad sonrası Dahili No + Ünvan; üst satır 5 kolon (Kullanıcı Adı / Ad Soyad / Dahili No / Ünvan / E-posta); create API title/phone.
 

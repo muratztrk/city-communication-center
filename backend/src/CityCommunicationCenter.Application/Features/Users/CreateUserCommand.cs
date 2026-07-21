@@ -200,7 +200,8 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             throw new ValidationException(_localizer["ValidationDepartmentNotFound"]);
         }
 
-        if (email is not null)
+        // LDAP'ta aynı e-posta birden fazla hesapta olabilir — uniqueness yalnız Manual (card #1785).
+        if (email is not null && sourceType == UserSource.Manual)
         {
             var normalizedEmailUpper = email.ToUpperInvariant();
             var emailExists = await _dbContext.Users

@@ -334,20 +334,11 @@ export function UsersPage() {
         setError('')
         const createdUsers: DirectoryUserLookup[] = []
         const failedMessages: string[] = []
-        const seenEmails = new Set<string>()
         try {
           for (const item of addable) {
             const deptName = item.department!.trim()
             const departmentId = departmentByKey.get(deptName.toLocaleLowerCase('tr')) ?? null
             const email = item.email?.trim() || null
-            if (email) {
-              const emailKey = email.toLocaleLowerCase('tr')
-              if (seenEmails.has(emailKey)) {
-                failedMessages.push(`${item.displayName}: ${t('users.addAllLdapDuplicateEmail', 'Bu e-posta toplu eklemede zaten kullanıldı.')}`)
-                continue
-              }
-              seenEmails.add(emailKey)
-            }
 
             try {
               await api.createUser({

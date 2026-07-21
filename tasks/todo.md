@@ -1,3 +1,6 @@
+## Round 412 — #1785
+- #1785: LDAP toplu/tek eklemede aynı e-posta hata değil; alreadyLinked yalnız DN/sAMAccountName.
+
 ## Round 411 — #1784
 - #1784: Tüm LDAP Kullanıcılarını Ekle validation hatası — DN base lookup, username fallback, opaque ValidationException detail, bulk continue-on-error.
 

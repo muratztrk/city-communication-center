@@ -855,12 +855,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   LDAP kullanıcılarını çeker (disable olanlar gelmez — cards #1754/#1757); ConfirmDialog’da
   birimi sistemde olmayanlar atlanır, kalanlar **Ekle** ile Staff olarak eklenir; sAMAccountName
   ile zaten bağlı olanlar yeniden eklenmez; başarıda **Yeni çekilen kullanıcılar (N)** listelenir
-  (`GET /users/directory-users`, cards #1748/#1750/#1758/#1759). PDO/`department` dolu
+  (`GET /users/directory-users`, cards #1748/#1750/#1758/#1759). Aynı LDAP e-postası birden fazla
+  hesapta olabilir — `alreadyLinked` e-postaya bakmaz; LDAP create e-posta uniqueness uygulamaz
+  (card #1785). PDO/`department` dolu
   kullanıcılar eklenebilir (sistemde yoksa `ldapDepartmentName`); PDO boş olanlar “birimi eksik”
   ve listede **OU:**; eksikler OU’ya, eklenecekler birime göre alfabetik (cards #1763/#1764/#1765/#1761).
   Toplu Ekle: LDAP DN base-lookup + username fallback; geçersiz mail/uzun phone engellemez;
-  e-posta eşleşmesi case-insensitive; tek kullanıcı hatası tüm batch’i düşürmez; string
-  ValidationException mesajı FE’ye `detail` olarak iner (card #1784).
+  tek kullanıcı hatası tüm batch’i düşürmez; string ValidationException mesajı FE’ye `detail`
+  olarak iner (card #1784).
   Popup kapanış **Çıkış**
   (kırmızı); eksik birim uyarısı: LDAP birim verisi gerekir / tümü eklendiyse başarı metni
   (cards #1759/#1760). Çekim sonrası buton sağında **Birimi LDAP’ta olmayan kullanıcılar**

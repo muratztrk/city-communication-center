@@ -807,6 +807,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1701; mavi `in-progress` değil).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
+  Header: **Dahili No ara…** solda, **Sistemde ara…** sağda (aynı pill tasarım);
+  her ikisi de en az 3 karakterde arar; Dahili No sonuç satırı `Ad Soyad - Dahili`,
+  alt satır `Birim - Ünvan` (cards #1770/#1774).
   Birime Gelen / Birimden Giden banner `page-kicker` seçili scope chip metnidir;
   `page-title` bölüm adı kalır (card #1700; Taleplerim ile aynı).
 - **Ayarlar banner `page-kicker` seçili tab metnidir** (`Kurum`, `Görünüm`, …);
@@ -873,7 +876,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Rol kolonu dar; Rol+Ek roller menü satır metni kompakt; Oluştur geniş ama alçak
   (card #1739). Yeni kullanıcı üst satırı: Kullanıcı Adı / Ad Soyad / Dahili No /
   Ünvan / E-posta tek satır (`lg:grid-cols-5`); create API `title`+`phone` alır;
-  LDAP seçiminde dizin title/phone prefills (card #1771).
+  LDAP seçiminde dizin title/phone prefills (card #1771). LDAP Title=`description`,
+  Phone=`telephoneNumber` attribute’larından gelir (card #1773).
   Birimi Düzenle dropdown’ları `<label>` ile sarılmaz — dış tıklayınca kapanır (card #1729).
   Birimler grid’inde Tür sütunu yok; Tür yalnız düzenleme formunda ve özet “Tür Dağılımı”nda (card #1741).
 - **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,

@@ -37,16 +37,16 @@ function filterResults(
   query: string,
   t: ReturnType<typeof useTranslation>['t'],
 ): SearchResultItem[] {
-  const q = query.toLowerCase().trim()
-  if (!q) return []
+  const q = query.toLocaleLowerCase('tr').trim()
+  if (q.length < 3) return []
 
   const results: SearchResultItem[] = []
 
   data.jobs
     .filter(job =>
-      job.title.toLowerCase().includes(q)
-      || job.citizenName?.toLowerCase().includes(q)
-      || job.ownerDepartmentName?.toLowerCase().includes(q),
+      job.title.toLocaleLowerCase('tr').includes(q)
+      || job.citizenName?.toLocaleLowerCase('tr').includes(q)
+      || job.ownerDepartmentName?.toLocaleLowerCase('tr').includes(q),
     )
     .slice(0, MAX_PER_CATEGORY)
     .forEach(job => results.push({
@@ -59,10 +59,10 @@ function filterResults(
 
   data.tasks
     .filter(task =>
-      task.title.toLowerCase().includes(q)
-      || task.jobTitle?.toLowerCase().includes(q)
-      || task.assignedUserDisplayName?.toLowerCase().includes(q)
-      || task.assignedDepartmentName?.toLowerCase().includes(q),
+      task.title.toLocaleLowerCase('tr').includes(q)
+      || task.jobTitle?.toLocaleLowerCase('tr').includes(q)
+      || task.assignedUserDisplayName?.toLocaleLowerCase('tr').includes(q)
+      || task.assignedDepartmentName?.toLocaleLowerCase('tr').includes(q),
     )
     .slice(0, MAX_PER_CATEGORY)
     .forEach(task => results.push({
@@ -75,9 +75,9 @@ function filterResults(
 
   data.social
     .filter(msg =>
-      msg.citizenHandle.toLowerCase().includes(q)
-      || msg.category?.toLowerCase().includes(q)
-      || msg.assignedDepartmentName?.toLowerCase().includes(q),
+      msg.citizenHandle.toLocaleLowerCase('tr').includes(q)
+      || msg.category?.toLocaleLowerCase('tr').includes(q)
+      || msg.assignedDepartmentName?.toLocaleLowerCase('tr').includes(q),
     )
     .slice(0, MAX_PER_CATEGORY)
     .forEach(msg => results.push({
@@ -90,9 +90,9 @@ function filterResults(
 
   data.users
     .filter(user =>
-      user.displayName.toLowerCase().includes(q)
-      || user.username?.toLowerCase().includes(q)
-      || user.email?.toLowerCase().includes(q),
+      user.displayName.toLocaleLowerCase('tr').includes(q)
+      || user.username?.toLocaleLowerCase('tr').includes(q)
+      || user.email?.toLocaleLowerCase('tr').includes(q),
     )
     .slice(0, MAX_PER_CATEGORY)
     .forEach(user => results.push({
@@ -104,7 +104,7 @@ function filterResults(
     }))
 
   data.departments
-    .filter(dept => dept.name.toLowerCase().includes(q))
+    .filter(dept => dept.name.toLocaleLowerCase('tr').includes(q))
     .slice(0, MAX_PER_CATEGORY)
     .forEach(dept => results.push({
       id: `dept-${dept.departmentId}`,
@@ -173,7 +173,8 @@ export function GlobalSearchBar() {
     setQuery(value)
     clearTimeout(debounceRef.current)
 
-    if (!value.trim()) {
+    const trimmed = value.trim()
+    if (trimmed.length < 3) {
       setResults([])
       setIsOpen(false)
       return
@@ -216,7 +217,7 @@ export function GlobalSearchBar() {
   }, {})
 
   const hasResults = results.length > 0
-  const showEmpty = isOpen && !isLoading && query.trim() && !hasResults
+  const showEmpty = isOpen && !isLoading && query.trim().length >= 3 && !hasResults
 
   return (
     <div ref={containerRef} className="relative">

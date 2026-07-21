@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
+import { ExtensionSearchBar } from '../components/layout/ExtensionSearchBar'
 import { GlobalSearchBar } from '../components/layout/GlobalSearchBar'
 import { NotificationBell, type NotificationDetailTarget } from '../components/layout/NotificationBell'
 import { TasksPage } from '../pages/TasksPage'
@@ -642,6 +643,7 @@ export function AppShell() {
             ) : null}
           </nav>
           <div className="flex items-center gap-3">
+            <ExtensionSearchBar />
             <GlobalSearchBar />
             <NotificationBell onOpenDetail={setNotificationDetailTarget} />
             <a

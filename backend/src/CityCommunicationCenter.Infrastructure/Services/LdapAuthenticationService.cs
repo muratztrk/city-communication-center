@@ -330,6 +330,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             // E-posta yalnız LDAP mail attribute; UPN fallback yok (card #1734).
             NormalizeDirectoryMail(GetAttribute(entry, "mail")),
             ResolveDepartment(entry),
+            // Ünvan = LDAP description; Dahili No = telephoneNumber (card #1773).
             GetAttribute(entry, "description"),
             GetAttribute(entry, "telephoneNumber"),
             ExtractDepartmentFromDn(dn));
@@ -493,6 +494,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                     ?? username,
                 GetAttribute(entry, "displayName") ?? username,
                 GetAttribute(entry, "mail") ?? GetAttribute(entry, "userPrincipalName") ?? NormalizeEmail(username),
+                // Ünvan = description; Dahili No = telephoneNumber (card #1773).
                 GetAttribute(entry, "description"),
                 GetAttribute(entry, "telephoneNumber"));
         }

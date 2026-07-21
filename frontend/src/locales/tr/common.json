@@ -156,6 +156,9 @@
   "search": {
     "placeholder": "Sistemde ara...",
     "label": "Sistemde ara",
+    "extensionPlaceholder": "Dahili No ara...",
+    "extensionLabel": "Dahili No ara",
+    "extensionResults": "Dahili No",
     "noResults": "Sonuç bulunamadı"
   },
   "nav": {

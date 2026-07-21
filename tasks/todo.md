@@ -1,3 +1,8 @@
+## Round 405 — #1774/#1770/#1773
+- #1774: Sistemde ara en az 3 karakter (Türkçe locale).
+- #1770: Header’da Sistemde ara soluna “Dahili No ara…”; sonuç `Ad - Dahili` / `Birim - Ünvan`.
+- #1773: LDAP Ünvan=`description`, Dahili No=`telephoneNumber` (map doğrulandı).
+
 ## Round 404 — #1769/#1772
 - #1769: Oturum idle uyarısı tetikleyicisi 1 dk → 1 saat (geri sayım 300 sn aynı).
 - #1772: Yeni kullanıcı Parola / Parola Onayla’da login ile aynı göz ikonu.

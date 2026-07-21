@@ -156,6 +156,9 @@
   "search": {
     "placeholder": "Search system...",
     "label": "Search system",
+    "extensionPlaceholder": "Search extension...",
+    "extensionLabel": "Search extension",
+    "extensionResults": "Extension",
     "noResults": "No results found"
   },
   "nav": {

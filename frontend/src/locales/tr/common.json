@@ -575,6 +575,7 @@
     "liveLdapSyncNeedQuery": "Senkronize etmek için arama kutusuna en az 2 karakter yazın.",
     "liveLdapSyncSuccess": "{{count}} LDAP kullanıcısı listelendi. Oluştur ile ekleyin.",
     "liveLdapSyncDone": "LDAP Kullanıcı Senkronize Edildi",
+    "liveLdapSyncUpdated": "{{count}} kullanıcının LDAP profili güncellendi.",
     "liveLdapSyncNoNew": "Yeni kullanıcı bulunamadı",
     "addAllLdap": "Tüm LDAP Kullanıcılarını Ekle",
     "addAllLdapWorking": "LDAP kullanıcıları ekleniyor...",

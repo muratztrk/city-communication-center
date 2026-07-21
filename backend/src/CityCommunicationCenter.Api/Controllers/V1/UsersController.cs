@@ -101,11 +101,11 @@ public sealed class UsersController : ApiControllerBase
 
     [HttpPost("sync/ad")]
     [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
-    [ProducesResponseType(StatusCodes.Status202Accepted)]
-    public async Task<IActionResult> SyncFromDirectory(CancellationToken cancellationToken)
+    [ProducesResponseType<SyncDirectoryResult>(StatusCodes.Status202Accepted)]
+    public async Task<ActionResult<SyncDirectoryResult>> SyncFromDirectory(CancellationToken cancellationToken)
     {
-        var message = await _sender.Send(new SyncDirectoryCommand(), cancellationToken);
-        return Accepted(new { message });
+        var result = await _sender.Send(new SyncDirectoryCommand(), cancellationToken);
+        return Accepted(result);
     }
 
     [HttpPut("{userId:guid}")]

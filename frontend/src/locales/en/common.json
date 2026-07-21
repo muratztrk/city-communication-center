@@ -572,6 +572,7 @@
     "liveLdapSyncNeedQuery": "Type at least 2 characters in the search box to sync.",
     "liveLdapSyncSuccess": "{{count}} LDAP user(s) listed. Add with Create.",
     "liveLdapSyncDone": "LDAP users synchronized",
+    "liveLdapSyncUpdated": "{{count}} LDAP user profiles were updated.",
     "liveLdapSyncNoNew": "No new users found",
     "addAllLdap": "Add All LDAP Users",
     "addAllLdapWorking": "Adding LDAP users...",

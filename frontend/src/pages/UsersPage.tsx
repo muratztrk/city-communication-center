@@ -260,13 +260,16 @@ export function UsersPage() {
     setError('')
 
     try {
-      // Arama zorunluluğu yok; tüm aktif LDAP listelenir, otomatik create yok (card #1754/#1768).
+      // Bağlı LDAP kullanıcılarının username/ad/ünvan/dahili/e-posta alanlarını güncelle (card #1787).
+      const syncResult = await api.syncDirectoryUsers()
       const results = await api.listDirectoryUsers()
       setDirectoryResults(results)
       const withoutLdapDepartment = results.filter(item => !item.department?.trim())
       setLdapUsersWithoutDepartment(withoutLdapDepartment)
       setLdapUsersWithoutDepartmentValue('')
       setDirectorySyncMessage(null)
+      invalidateUsers(queryClient)
+      loadData()
 
       const newUsers = sortByDepartmentOrName(results.filter(item => !item.alreadyLinked))
       setConfirmDialog({
@@ -274,16 +277,25 @@ export function UsersPage() {
         titleDivider: true,
         titleCompact: true,
         titleTone: 'success',
-        message: t('users.liveLdapSyncDone'),
-        details: newUsers.length > 0
-          ? renderLdapUserList(
-              t('users.addAllLdapNewlyPulledTitle', { count: newUsers.length }),
-              newUsers,
-              'department',
-            )
-          : (
-              <p className="text-sm font-medium text-slate-700">{t('users.liveLdapSyncNoNew')}</p>
-            ),
+        message: syncResult.message || t('users.liveLdapSyncDone'),
+        details: (
+          <>
+            {syncResult.updatedCount > 0 ? (
+              <p className="mb-2 text-sm font-medium text-slate-700">
+                {t('users.liveLdapSyncUpdated', { count: syncResult.updatedCount })}
+              </p>
+            ) : null}
+            {newUsers.length > 0
+              ? renderLdapUserList(
+                  t('users.addAllLdapNewlyPulledTitle', { count: newUsers.length }),
+                  newUsers,
+                  'department',
+                )
+              : (
+                  <p className="text-sm font-medium text-slate-700">{t('users.liveLdapSyncNoNew')}</p>
+                )}
+          </>
+        ),
         confirmLabel: t('common.exit', 'Çıkış'),
         hideCancel: true,
         variant: 'destructive',

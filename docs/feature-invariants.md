@@ -868,8 +868,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (cards #1759/#1760). Çekim sonrası buton sağında **Birimi LDAP’ta olmayan kullanıcılar**
   dropdown’u (card #1752). LDAP formunda Dizin Hesabı alanı yok; **İptal Et** yalnız LDAP
   kullanıcısı seçiliyken Oluştur altında görünür (cards #1755/#1756). Anlık senkron `listDirectoryUsers`
-  ile çalışır (arama zorunlu değil); ConfirmDialog `"LDAP Kullanıcı Senkronize Edildi"` + yalnız
-  sistemde olmayan kullanıcılar; yoksa `"Yeni kullanıcı bulunamadı"`; senkron sonrası birimi
+  ile çalışır (arama zorunlu değil); ConfirmDialog `"LDAP Kullanıcı Senkronize Edildi"` + bağlı
+  kullanıcıların username/ad/ünvan/dahili/e-posta güncellemesi (`POST /users/sync/ad` — card #1787);
+  sistemde olmayanlar ayrıca listelenir; yoksa `"Yeni kullanıcı bulunamadı"`; senkron sonrası birimi
   LDAP’ta olmayanlar dropdown’u güncellenir (cards #1754/#1768). LDAP arama placeholder’ı
   **en az 3 karakter** (card #1754). Eklenecek kullanıcılar satırında `birim:` etiketi yok —
   `Ad — BirimAdı` (card #1767).   Yerel kullanıcıda **Parola Onayla** alanı; uyuşmazsa kırmızı
@@ -890,6 +891,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Ünvan / E-posta tek satır (`lg:grid-cols-5`); create API `title`+`phone` alır;
   LDAP seçiminde dizin title/phone prefills (card #1771). LDAP Title=`description`,
   Phone=`telephoneNumber` attribute’larından gelir (card #1773).
+  Personel Dahili No sonuç paneli `left-0` ile sağa açılır (card #1786).
+  Talep oluştur ek listesinde dosya adı `text-sm`, uzantı küçük gri (card #1788).
   Birimi Düzenle dropdown’ları `<label>` ile sarılmaz — dış tıklayınca kapanır (card #1729).
   Birimler grid’inde Tür sütunu yok; Tür yalnız düzenleme formunda ve özet “Tür Dağılımı”nda (card #1741).
 - **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,

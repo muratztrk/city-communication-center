@@ -1,3 +1,8 @@
+## Round 413 — #1786/#1787/#1788
+- #1786: Personel Dahili No sonuç paneli sağa açılır (`left-0`).
+- #1787: Anlık LDAP sync bağlı kullanıcıların ad/ünvan/dahili/e-posta/username günceller.
+- #1788: Talep oluştur ek dosya adı büyük, uzantı küçük.
+
 ## Round 412 — #1785
 - #1785: LDAP toplu/tek eklemede aynı e-posta hata değil; alreadyLinked yalnız DN/sAMAccountName.
 

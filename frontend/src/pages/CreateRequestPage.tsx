@@ -604,15 +604,21 @@ export function CreateRequestPage() {
           {pendingFiles.length === 0 ? (
             <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
           ) : (
-            <ul className="space-y-1 text-xs">
+            <ul className="space-y-1">
               {pendingFiles.map((file, idx) => {
                 const Icon = pendingFileIcon(file.name)
+                const dot = file.name.lastIndexOf('.')
+                const baseName = dot > 0 ? file.name.slice(0, dot) : file.name
+                const extension = dot > 0 ? file.name.slice(dot) : ''
                 return (
                 <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
                   <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
                     <Icon className="size-3" aria-hidden="true" />
                   </span>
-                  <span className="min-w-0 flex-1 break-words text-[10px] font-normal text-slate-900">{file.name}</span>
+                  <span className="min-w-0 flex-1 break-words text-sm font-medium leading-snug text-slate-900">
+                    {baseName}
+                    {extension ? <span className="text-[10px] font-normal text-slate-400">{extension}</span> : null}
+                  </span>
                   <button
                     type="button"
                     className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"

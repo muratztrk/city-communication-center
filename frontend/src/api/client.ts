@@ -308,6 +308,25 @@ export const api = {
     return response.json() as Promise<DirectoryUserLookup[]>
   },
 
+  async syncDirectoryUsers(): Promise<{
+    updatedCount: number
+    unchangedCount: number
+    newDirectoryCount: number
+    message: string
+  }> {
+    const response = await fetchWithCredentials(`${API_BASE}/users/sync/ad`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.directorySearchFailed'))
+    return response.json() as Promise<{
+      updatedCount: number
+      unchangedCount: number
+      newDirectoryCount: number
+      message: string
+    }>
+  },
+
   async createUser(payload: {
     username: string | null
     displayName: string

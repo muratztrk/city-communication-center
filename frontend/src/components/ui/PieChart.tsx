@@ -172,7 +172,7 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
           )
         })}
         <text x={cx} y={cy - 6} textAnchor="middle" fontSize="18" fontWeight="700" fill="#0f172a">
-          {total}
+          {Number.isInteger(total) ? total : (Math.round(total * 10) / 10)}
         </text>
         <text x={cx} y={cy + 10} textAnchor="middle" fontSize="9" fill="#64748b">
           toplam

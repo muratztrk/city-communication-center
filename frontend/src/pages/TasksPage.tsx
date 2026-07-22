@@ -266,7 +266,7 @@ function printTaskDetail(
     ['Durum', getCitizenRequestStatusLabel(t, parentJob)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
     ...(shouldShowCitizenTargetApprovalDate(parentJob)
-      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApproval?.decidedAtUtc), getJobTargetApproverDisplayName(parentJob))]]
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(targetApproval?.decidedAtUtc, locale), getJobTargetApproverDisplayName(parentJob))]]
       : []),
     ['Son Tarih', fd(parentJob.dueDateUtc)],
   ] : [
@@ -279,9 +279,9 @@ function printTaskDetail(
     ['Proje mi', parentJob.isProject ? 'Evet' : 'Hayır'],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
-    ['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(ownerApproval?.decidedAtUtc), ownerApproval?.approvedByDisplayName)],
+    ['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(ownerApproval?.decidedAtUtc, locale), ownerApproval?.approvedByDisplayName)],
     ...(shouldShowCitizenTargetApprovalDate(parentJob)
-      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApproval?.decidedAtUtc), getJobTargetApproverDisplayName(parentJob))]]
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(targetApproval?.decidedAtUtc, locale), getJobTargetApproverDisplayName(parentJob))]]
       : []),
     ['Son Tarih', fd(parentJob.dueDateUtc)],
   ]).map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(String(value))}</td></tr>`).join('') : ''

@@ -434,9 +434,9 @@ function printJobDetail(
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
-    ...(isCitizenRequestJob(detail) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(ownerApprovalDate), ownerDepartment?.approvedByDisplayName)] as [string, string]]),
+    ...(isCitizenRequestJob(detail) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(ownerApprovalDate, locale), ownerDepartment?.approvedByDisplayName)] as [string, string]]),
     ...(shouldShowCitizenTargetApprovalDate(detail)
-      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(fd(targetApprovalDate), getJobTargetApproverDisplayName(detail))] as [string, string]]
+      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(targetApprovalDate, locale), getJobTargetApproverDisplayName(detail))] as [string, string]]
       : []),
     ...(detail.status === 'Completed'
       ? [['Tamamlanma Tarihi', fd(detail.completedAtUtc)] as [string, string]]
@@ -459,7 +459,12 @@ function printJobDetail(
   const managerNote = detail.managerNote?.trim()
   const description = stripHtmlTags(detail.description)
   const taskDetailSections = buildPrintTaskDetailSections(detail, locale, t)
-  const attachItems = (detail.attachments ?? []).map(a => `<li>${escHtml(a.fileName)} (${(a.fileSizeBytes / 1024).toFixed(1)} KB)</li>`).join('')
+  const attachItems = (detail.attachments ?? []).map(a => {
+    const name = a.fileName ?? ''
+    const dot = name.lastIndexOf('.')
+    const display = dot > 0 ? `${name.slice(0, dot)}${name.slice(dot).toLowerCase()}` : name
+    return `<li>${escHtml(display)}</li>`
+  }).join('')
   printHtmlDocument(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(jobDisplayNumber)}</title><style>
     @page{margin:0}
     body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
@@ -2456,7 +2461,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           ) : null}
                           <span className="flex flex-col items-end text-right leading-tight">
                             <span className="text-xs font-bold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
-                            <span className={`text-[11px] font-semibold ${detail.priority === 'Normal' ? 'text-emerald-700' : 'text-slate-900'}`}>
+                            <span className={`text-[11px] font-semibold ${detail.priority === 'Normal' ? 'text-emerald-700' : getPriorityColorClass(detail.priority)}`}>
                               {getPriorityLabel(t, detail.priority)}
                             </span>
                           </span>

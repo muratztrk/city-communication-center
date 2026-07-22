@@ -262,10 +262,10 @@ export function InternalMessagesFab() {
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight
   }, [chatDetail])
 
-  // Arama personel adına göre "contains" eşleşir (Türkçe locale-lowercase); sonuçlar 300ms debounce ile çekilir.
+  // Arama en az 3 karakter; personel adına contains (TR); 300ms debounce (card #1812).
   useEffect(() => {
     const trimmed = search.trim()
-    if (!trimmed) {
+    if (trimmed.length < 3) {
       setUserResults([])
       return
     }
@@ -277,7 +277,7 @@ export function InternalMessagesFab() {
 
   const rows = useMemo<MessageRow[]>(() => {
     const normalizedSearch = search.trim().toLocaleLowerCase('tr')
-    if (!normalizedSearch) {
+    if (!normalizedSearch || normalizedSearch.length < 3) {
       return conversations.map(toRow)
     }
     const merged = new Map<string, MessageRow>()
@@ -288,9 +288,10 @@ export function InternalMessagesFab() {
       .filter(u => u.userId !== currentUserId)
       .forEach(u => {
         if (!merged.has(u.userId)) {
+          const phone = u.phone?.trim()
           merged.set(u.userId, {
             otherUserId: u.userId,
-            displayName: u.displayName,
+            displayName: phone ? `${u.displayName} - ${phone}` : u.displayName,
             departmentName: u.departmentName,
             internalConversationId: null,
             lastMessagePreview: null,

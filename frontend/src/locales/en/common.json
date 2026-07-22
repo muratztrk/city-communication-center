@@ -573,6 +573,7 @@
     "liveLdapSyncSuccess": "{{count}} LDAP user(s) listed. Add with Create.",
     "liveLdapSyncDone": "LDAP users synchronized",
     "liveLdapSyncUpdated": "{{count}} LDAP user profiles were updated.",
+    "liveLdapSyncUpdatedProfiles": "Updated profiles",
     "liveLdapSyncNoNew": "No new users found",
     "addAllLdap": "Add All LDAP Users",
     "addAllLdapWorking": "Adding LDAP users...",
@@ -917,6 +918,7 @@
     "entity": "Entity",
     "action": "Action",
     "detail": "Detail",
+    "logId": "Log ID",
     "jobNumberPrefix": "Request No",
     "empty": "No records found yet",
     "scopes": {
@@ -1073,7 +1075,9 @@
       "password": "Password",
       "passwordPlaceholder": "Enter to replace the saved password",
       "clearPassword": "Clear saved password",
-      "saved": "File server settings saved."
+      "saved": "File server settings saved.",
+      "userTestOk": "Test user accepted: {{username}}",
+      "userTestMismatch": "Test username does not match the saved NAS/FTP username."
     },
     "slaWeekend": {
       "sectionTitle": "Weekend SLA",

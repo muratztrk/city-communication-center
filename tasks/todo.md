@@ -1,3 +1,9 @@
+## Round 418 — #1803–#1818 (15 kart)
+- #1803 ek listesi dropzone yüksekliği; #1804 SLA hariç birimler prune; #1805 file-storage bağlantı testi UI+API
+- #1806 rutin düzenleme log parse; #1807 Log ID; #1808 pie float; #1809 yeşil —; #1811 log banner search/tarih
+- #1812 kurum içi 3 karakter + dahili; #1813/#1815 LDAP sync diff + mükerrer mesaj; #1814 ek roller hint
+- #1816 yazdır onay Onay Bekleyen; #1817 yazdır ek uzantı/size; #1818 öncelik renk
+
 ## Round 417 — #1795/#1802/#1800/#1801
 - #1795: Görev Süreç İptal Tarihi — `TaskDetailResponse.UpdatedAtUtc` + TaskCancelled audit.
 - #1802: LDAP sil hint `sourceLdapHint` hemen ardından.

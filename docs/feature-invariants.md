@@ -176,6 +176,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   akışı burada yoktur. İptal Süreç tarihi için `TaskDetailResponse.UpdatedAtUtc` kullanılır; iptalde
   bu alan son `TaskCancelled` audit `EventTimeUtc` (yoksa entity `UpdatedAtUtc`) değeridir (card #1795).
   Sadece Görevlerim detayında, Açıklama'nın sağında ek sütun (rutin görevlerde gizli).
+- **Log Detay `RoutineTaskEditSnapshot`:** ham JSON/`\\u` kaçışları gösterilmez; başlık/öncelik/adres/
+  açıklama/ekler özetlenir (card #1806). Detayda `Log ID` (`auditLogId`) satırı vardır (card #1807).
+  Banner'da Jobs/Tasks ile aynı search + tarih aralığı vardır (card #1811); ayraç `—` yeşildir (#1809).
+- **Anlık LDAP sync popup:** `updatedUsers` eski→yeni alan farklarını listeler; özet mesaj tek satırdır
+  (cards #1813/#1815).
 - **Görev Ekleri sütunu (Tasks detay):** tamamlanmış rutin olmayan görevde yalnızca gerçek görev eki varsa
   görünür; ek yoksa boş "Görev Ekleri" alanı hiç oluşmaz.
 - **DateTimePicker NAİF yerel duvar-saati sözleşmesi (round 380, #1677):** `DateTimePicker` value'su

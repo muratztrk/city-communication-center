@@ -339,6 +339,22 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("tenants/{tenantId:guid}/file-storage-settings/test-connectivity")]
+    public async Task<ActionResult<TestFileStorageConnectivityResponse>> TestFileStorageConnectivity(
+        Guid tenantId,
+        [FromBody] TestFileStorageConnectivityRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(
+            new TestFileStorageConnectivityCommand(
+                tenantId,
+                request.NasHost,
+                request.FtpHost,
+                request.FtpPort),
+            cancellationToken);
+        return Ok(new TestFileStorageConnectivityResponse(result.Success, result.Message));
+    }
+
     [HttpGet("tenants/{tenantId:guid}/syslog-settings")]
     public async Task<ActionResult<SyslogSettingsResponse>> GetSyslogSettings(Guid tenantId, CancellationToken cancellationToken)
     {

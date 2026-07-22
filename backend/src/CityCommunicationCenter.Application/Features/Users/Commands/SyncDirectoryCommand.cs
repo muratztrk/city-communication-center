@@ -5,11 +5,22 @@ namespace CityCommunicationCenter.Application.Features.Users;
 
 public sealed record SyncDirectoryCommand() : ICommand<SyncDirectoryResult>;
 
+public sealed record SyncDirectoryProfileChange(
+    string Field,
+    string? OldValue,
+    string? NewValue);
+
+public sealed record SyncDirectoryUpdatedUser(
+    Guid UserId,
+    string DisplayName,
+    IReadOnlyList<SyncDirectoryProfileChange> Changes);
+
 public sealed record SyncDirectoryResult(
     int UpdatedCount,
     int UnchangedCount,
     int NewDirectoryCount,
-    string Message);
+    string Message,
+    IReadOnlyList<SyncDirectoryUpdatedUser> UpdatedUsers);
 
 public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryCommand, SyncDirectoryResult>
 {
@@ -71,6 +82,7 @@ public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryC
 
         var updatedCount = 0;
         var unchangedCount = 0;
+        var updatedUsers = new List<SyncDirectoryUpdatedUser>();
 
         foreach (var directoryUser in directoryUsers)
         {
@@ -91,24 +103,44 @@ public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryC
                 continue;
             }
 
-            var profileChanged = ApplyDirectoryProfile(linked, directoryUser);
+            var profileChanges = ApplyDirectoryProfile(linked, directoryUser);
             var departmentChanged = await TryApplyDirectoryDepartmentAsync(
                 linked,
                 directoryUser.Department,
                 departmentByName,
                 tenantId,
                 cancellationToken);
+            if (departmentChanged)
+            {
+                profileChanges.Add(new SyncDirectoryProfileChange(
+                    "Department",
+                    null,
+                    directoryUser.Department?.Trim()));
+            }
+
+            var previousRole = linked.RoleCode.ToString();
             var roleChanged = await TryApplyManagerRoleFromTitleAsync(
                 linked,
                 directoryUser.Title,
                 tenantId,
                 cancellationToken);
+            if (roleChanged)
+            {
+                profileChanges.Add(new SyncDirectoryProfileChange(
+                    "Role",
+                    previousRole,
+                    linked.RoleCode.ToString()));
+            }
 
-            if (profileChanged || departmentChanged || roleChanged)
+            if (profileChanges.Count > 0)
             {
                 linked.UpdatedAtUtc = DateTimeOffset.UtcNow;
                 linked.UpdatedByUserId = context.UserId;
                 updatedCount += 1;
+                updatedUsers.Add(new SyncDirectoryUpdatedUser(
+                    linked.UserId,
+                    linked.DisplayName,
+                    profileChanges));
             }
             else
             {
@@ -141,56 +173,56 @@ public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryC
             ? $"{updatedCount} kullanıcının LDAP profili güncellendi."
             : "Güncellenecek LDAP profili bulunamadı.";
 
-        return new SyncDirectoryResult(updatedCount, unchangedCount, newDirectoryCount, message);
+        return new SyncDirectoryResult(updatedCount, unchangedCount, newDirectoryCount, message, updatedUsers);
     }
 
-    private static bool ApplyDirectoryProfile(ApplicationUser user, LdapDirectoryUser directoryUser)
+    private static List<SyncDirectoryProfileChange> ApplyDirectoryProfile(ApplicationUser user, LdapDirectoryUser directoryUser)
     {
-        var changed = false;
+        var changes = new List<SyncDirectoryProfileChange>();
 
         if (!string.IsNullOrWhiteSpace(directoryUser.Username)
             && !string.Equals(user.Username, directoryUser.Username, StringComparison.Ordinal))
         {
+            changes.Add(new SyncDirectoryProfileChange("Username", user.Username, directoryUser.Username.Trim()));
             user.Username = directoryUser.Username.Trim();
-            changed = true;
         }
 
         if (!string.IsNullOrWhiteSpace(directoryUser.DisplayName)
             && !string.Equals(user.DisplayName, directoryUser.DisplayName, StringComparison.Ordinal))
         {
+            changes.Add(new SyncDirectoryProfileChange("DisplayName", user.DisplayName, directoryUser.DisplayName.Trim()));
             user.DisplayName = directoryUser.DisplayName.Trim();
-            changed = true;
         }
 
         var email = NormalizeOptionalEmail(directoryUser.Email);
         if (email is not null && !string.Equals(user.Email, email, StringComparison.OrdinalIgnoreCase))
         {
+            changes.Add(new SyncDirectoryProfileChange("Email", user.Email, email));
             user.Email = email;
-            changed = true;
         }
 
         var title = Truncate(directoryUser.Title, 200);
         if (title is not null && !string.Equals(user.Title, title, StringComparison.Ordinal))
         {
+            changes.Add(new SyncDirectoryProfileChange("Title", user.Title, title));
             user.Title = title;
-            changed = true;
         }
 
         var phone = Truncate(directoryUser.Phone, 50);
         if (phone is not null && !string.Equals(user.Phone, phone, StringComparison.Ordinal))
         {
+            changes.Add(new SyncDirectoryProfileChange("Phone", user.Phone, phone));
             user.Phone = phone;
-            changed = true;
         }
 
         if (!string.IsNullOrWhiteSpace(directoryUser.ExternalIdentityId)
             && !string.Equals(user.ExternalIdentityId, directoryUser.ExternalIdentityId, StringComparison.OrdinalIgnoreCase))
         {
+            changes.Add(new SyncDirectoryProfileChange("ExternalIdentityId", user.ExternalIdentityId, directoryUser.ExternalIdentityId));
             user.ExternalIdentityId = directoryUser.ExternalIdentityId;
-            changed = true;
         }
 
-        return changed;
+        return changes;
     }
 
     /// <summary>LDAP birim adını sistem birimiyle eşleştirip günceller (card #1787 reopen).</summary>

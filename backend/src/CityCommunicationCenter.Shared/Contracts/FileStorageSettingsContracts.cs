@@ -27,3 +27,12 @@ public sealed record UpdateFileStorageSettingsRequest(
     string? FtpUsername,
     string? FtpPassword,
     bool ClearFtpPassword);
+
+public sealed record TestFileStorageConnectivityRequest(
+    string? NasHost,
+    string? FtpHost,
+    int FtpPort);
+
+public sealed record TestFileStorageConnectivityResponse(
+    bool Success,
+    string? Message);

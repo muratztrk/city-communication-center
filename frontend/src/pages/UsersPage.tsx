@@ -221,7 +221,7 @@ export function UsersPage() {
             <span className="font-semibold text-slate-950">{item.displayName || item.username}</span>
             {metaMode === 'ou' ? (
               <span className="text-slate-500">
-                {' — '}
+                <span className="text-emerald-600">{' — '}</span>
                 {item.organizationalUnit?.trim()
                   ? t('users.addAllLdapMissingOu', { ou: item.organizationalUnit.trim() })
                   : t('users.addAllLdapNoOu')}
@@ -229,7 +229,7 @@ export function UsersPage() {
             ) : null}
             {metaMode === 'department' ? (
               <span className="text-slate-500">
-                {' — '}
+                <span className="text-emerald-600">{' — '}</span>
                 {item.department?.trim() || t('users.addAllLdapNoDepartment')}
               </span>
             ) : null}
@@ -278,18 +278,54 @@ export function UsersPage() {
       loadData()
 
       const newUsers = sortByDepartmentOrName(results.filter(item => !item.alreadyLinked))
+      const updatedUsers = syncResult.updatedUsers ?? []
+      const fieldLabel = (field: string) => {
+        switch (field) {
+          case 'Username': return t('users.columns.username', 'Kullanıcı Adı')
+          case 'DisplayName': return t('users.columns.displayName', 'Ad Soyad')
+          case 'Email': return t('users.columns.email', 'E-posta')
+          case 'Title': return t('users.columns.title', 'Ünvan')
+          case 'Phone': return t('users.columns.phone', 'Dahili')
+          case 'Department': return t('users.columns.department', 'Birim')
+          case 'Role': return t('users.columns.role', 'Rol')
+          default: return field
+        }
+      }
       setConfirmDialog({
         title: t('users.liveLdapSync'),
         titleDivider: true,
         titleCompact: true,
         titleTone: 'success',
-        message: syncResult.message || t('users.liveLdapSyncDone'),
+        // Tek satır özet — message ile details'ta mükerrer sayım yok (card #1815).
+        message: syncResult.updatedCount > 0
+          ? t('users.liveLdapSyncUpdated', { count: syncResult.updatedCount })
+          : (syncResult.message || t('users.liveLdapSyncDone')),
         details: (
           <>
-            {syncResult.updatedCount > 0 ? (
-              <p className="mb-2 text-sm font-medium text-slate-700">
-                {t('users.liveLdapSyncUpdated', { count: syncResult.updatedCount })}
-              </p>
+            {updatedUsers.length > 0 ? (
+              <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  {t('users.liveLdapSyncUpdatedProfiles', 'Güncellenen profiller')}
+                </p>
+                <ul className="max-h-48 space-y-2 overflow-y-auto text-sm text-slate-800 [scrollbar-gutter:stable]">
+                  {updatedUsers.map(user => (
+                    <li key={user.userId} className="leading-snug">
+                      <span className="font-semibold text-slate-950">{user.displayName}</span>
+                      <ul className="mt-1 space-y-0.5 pl-3 text-xs text-slate-600">
+                        {user.changes.map((change, idx) => (
+                          <li key={`${user.userId}-${change.field}-${idx}`}>
+                            <span className="font-medium text-slate-700">{fieldLabel(change.field)}</span>
+                            {': '}
+                            <span className="text-slate-500">{change.oldValue?.trim() || '—'}</span>
+                            <span className="mx-1 text-emerald-600">→</span>
+                            <span className="font-medium text-slate-800">{change.newValue?.trim() || '—'}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ) : null}
             {newUsers.length > 0
               ? renderLdapUserList(

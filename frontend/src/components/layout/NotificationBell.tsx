@@ -1,5 +1,5 @@
 import { Bell, CheckCheck, Search, X } from 'lucide-react'
-import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
+import { useState, useCallback, useEffect, useRef, Fragment, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -144,7 +144,14 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
           {n.titleTag ? <span className="font-semibold text-orange-500"> ({n.titleTag})</span> : null}
         </p>
         {n.message && (
-          <p className="mt-0.5 text-xs font-normal text-slate-500 line-clamp-2">{n.message}</p>
+          <p className="mt-0.5 text-xs font-normal text-slate-500 line-clamp-2">
+            {n.message.split(' — ').map((part, index) => (
+              <Fragment key={`${index}-${part.slice(0, 20)}`}>
+                {index > 0 ? <span className="text-emerald-600"> — </span> : null}
+                {part}
+              </Fragment>
+            ))}
+          </p>
         )}
         <div className="mt-1 flex items-center justify-between gap-3">
           <p className="text-[0.68rem] text-slate-400">

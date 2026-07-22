@@ -313,18 +313,18 @@ export const api = {
     unchangedCount: number
     newDirectoryCount: number
     message: string
+    updatedUsers?: Array<{
+      userId: string
+      displayName: string
+      changes: Array<{ field: string; oldValue: string | null; newValue: string | null }>
+    }>
   }> {
     const response = await fetchWithCredentials(`${API_BASE}/users/sync/ad`, {
       method: 'POST',
       headers: await getAuthHeaders(),
     })
     await ensureOk(response, i18n.t('errors.directorySearchFailed'))
-    return response.json() as Promise<{
-      updatedCount: number
-      unchangedCount: number
-      newDirectoryCount: number
-      message: string
-    }>
+    return response.json()
   },
 
   async deleteUnusedLdapUsers(): Promise<{ deletedCount: number; message: string }> {
@@ -578,6 +578,20 @@ export const api = {
       body: JSON.stringify(data),
     })
     await ensureOk(response, i18n.t('errors.fileStorageSettingsSaveFailed'))
+  },
+
+  async testFileStorageConnectivity(tenantId: string, data: {
+    nasHost: string | null
+    ftpHost: string | null
+    ftpPort: number
+  }): Promise<{ success: boolean; message: string | null }> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/file-storage-settings/test-connectivity`, {
+      method: 'POST',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.fileStorageSettingsLoadFailed'))
+    return response.json() as Promise<{ success: boolean; message: string | null }>
   },
 
   async getSyslogSettings(tenantId: string): Promise<SyslogSettings> {

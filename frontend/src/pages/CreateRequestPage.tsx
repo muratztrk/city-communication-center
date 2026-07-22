@@ -561,7 +561,7 @@ export function CreateRequestPage() {
   const renderPhotoUpload = (className?: string) => (
     <div className={['job-field', className].filter(Boolean).join(' ')}>
       <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
-      <div className="grid gap-3 lg:grid-cols-2 lg:items-start">
+      <div className="grid gap-3 lg:grid-cols-2 lg:items-stretch">
         <div
           role="button"
           tabIndex={saving ? -1 : 0}
@@ -601,7 +601,7 @@ export function CreateRequestPage() {
             }}
           />
         </div>
-        <div className="min-h-[4rem] rounded-2xl border border-slate-200 bg-white px-3 py-2">
+        <div className="flex h-full min-h-[4rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-2">
           {pendingFiles.length === 0 ? (
             <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
           ) : (

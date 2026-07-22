@@ -576,6 +576,7 @@
     "liveLdapSyncSuccess": "{{count}} LDAP kullanıcısı listelendi. Oluştur ile ekleyin.",
     "liveLdapSyncDone": "LDAP Kullanıcı Senkronize Edildi",
     "liveLdapSyncUpdated": "{{count}} kullanıcının LDAP profili güncellendi.",
+    "liveLdapSyncUpdatedProfiles": "Güncellenen profiller",
     "liveLdapSyncNoNew": "Yeni kullanıcı bulunamadı",
     "addAllLdap": "Tüm LDAP Kullanıcılarını Ekle",
     "addAllLdapWorking": "LDAP kullanıcıları ekleniyor...",
@@ -923,6 +924,7 @@
     "entity": "Varlık",
     "action": "İşlem",
     "detail": "Detay",
+    "logId": "Log ID",
     "jobNumberPrefix": "Talep No",
     "empty": "Henüz kayıt bulunmuyor",
     "scopes": {
@@ -1079,7 +1081,9 @@
       "password": "Parola",
       "passwordPlaceholder": "Kayıtlı parolayı değiştirmek için girin",
       "clearPassword": "Kayıtlı parolayı sil",
-      "saved": "Dosya sunucusu ayarları kaydedildi."
+      "saved": "Dosya sunucusu ayarları kaydedildi.",
+      "userTestOk": "Test kullanıcısı kabul edildi: {{username}}",
+      "userTestMismatch": "Test kullanıcı adı kayıtlı NAS/FTP kullanıcı adıyla eşleşmiyor."
     },
     "slaWeekend": {
       "sectionTitle": "Hafta Sonu SLA",

@@ -18,7 +18,7 @@ import { buildMyRequestDetailFields } from './myRequestDetailFields'
 import type { MyRequestDetailField } from './myRequestDetailFields'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { formatDateTime, pendingApprovalValueClassName } from './format'
-import { getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
+import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
 import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
 import { normalizeTitleCaseField } from '../../../utils/textNormalization'
@@ -435,7 +435,7 @@ export function MyRequestDetailMainCard({
                             placeholder={t('jobs.form.priority', 'Öncelik')}
                           />
                         ) : (
-                          <span className={`text-[11px] font-semibold ${detail.priority === 'Normal' ? 'text-emerald-700' : 'text-slate-900'}`}>
+                          <span className={`text-[11px] font-semibold ${detail.priority === 'Normal' ? 'text-emerald-700' : getPriorityColorClass(detail.priority)}`}>
                             {getPriorityLabel(t, detail.priority)}
                           </span>
                         )}

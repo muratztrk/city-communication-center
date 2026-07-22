@@ -415,6 +415,9 @@ export function SettingsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [ldapTestStatus, setLdapTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
+  const [fileStorageTestStatus, setFileStorageTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
+  const [fileStorageUserTest, setFileStorageUserTest] = useState({ username: '', password: '' })
+  const [fileStorageUserTestStatus, setFileStorageUserTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [ldapUserTest, setLdapUserTest] = useState({ username: '', password: '' })
   const [ldapUserTestStatus, setLdapUserTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [rolePageAccess, setRolePageAccess] = useState<RolePageAccessMatrix>(() => loadRolePageAccessMatrix())
@@ -535,6 +538,12 @@ export function SettingsPage() {
         setRoutingConfig(routingResponse)
         setCitizenAutoReplyTemplates({ ...DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES, ...autoReplyResponse })
         setDepartments(departmentResponse)
+        setSlaWeekendForm({
+          excludeWeekends: slaWeekendResponse.excludeWeekends,
+          // Yalnızca mevcut birimler — silinmiş/eski id'leri düşür (card #1804).
+          exemptDepartmentIds: slaWeekendResponse.exemptDepartmentIds.filter(id =>
+            departmentResponse.some(dept => dept.departmentId === id)),
+        })
         setWorkingHoursForm(workingHoursResponse)
         setSmsSettings(smsResponse)
         setSmsForm({
@@ -567,10 +576,6 @@ export function SettingsPage() {
           port: syslogResponse.port,
           format: syslogResponse.format,
           transport: syslogResponse.transport,
-        })
-        setSlaWeekendForm({
-          excludeWeekends: slaWeekendResponse.excludeWeekends,
-          exemptDepartmentIds: slaWeekendResponse.exemptDepartmentIds,
         })
         setTemplates(templatesResponse)
       })
@@ -855,14 +860,60 @@ export function SettingsPage() {
 
     setMessage(null)
     try {
-      await api.updateSlaWeekendSettings(user.tenantId, slaWeekendForm)
+      await api.updateSlaWeekendSettings(user.tenantId, {
+        ...slaWeekendForm,
+        exemptDepartmentIds: slaWeekendForm.exemptDepartmentIds.filter(id =>
+          departments.some(dept => dept.departmentId === id)),
+      })
       invalidateSettings(queryClient)
       const refreshed = await api.getSlaWeekendSettings(user.tenantId)
-      setSlaWeekendForm({ excludeWeekends: refreshed.excludeWeekends, exemptDepartmentIds: refreshed.exemptDepartmentIds })
+      setSlaWeekendForm({
+        excludeWeekends: refreshed.excludeWeekends,
+        exemptDepartmentIds: refreshed.exemptDepartmentIds.filter(id =>
+          departments.some(dept => dept.departmentId === id)),
+      })
       setMessage({ type: 'success', text: t('settings.slaWeekend.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
+  }
+
+  const testFileStorageConnectivity = async () => {
+    if (!user?.tenantId) return
+    setFileStorageTestStatus({ type: 'testing', message: t('settings.ldapTesting') })
+    try {
+      const result = await api.testFileStorageConnectivity(user.tenantId, {
+        nasHost: fileStorageForm.nasHost,
+        ftpHost: fileStorageForm.ftpHost,
+        ftpPort: fileStorageForm.ftpPort,
+      })
+      setFileStorageTestStatus({
+        type: result.success ? 'success' : 'error',
+        message: result.message || (result.success ? t('settings.ldapTestSuccess') : t('settings.ldapTestFailed')),
+      })
+    } catch (testError) {
+      setFileStorageTestStatus({
+        type: 'error',
+        message: testError instanceof Error ? testError.message : t('settings.ldapTestFailed'),
+      })
+    }
+  }
+
+  const testFileStorageUserCredentials = async () => {
+    if (!fileStorageUserTest.username.trim() || !fileStorageUserTest.password) return
+    setFileStorageUserTestStatus({ type: 'testing', message: t('settings.ldapTesting') })
+    // Kimlik doğrulama: formdaki FTP/NAS kullanıcı alanlarıyla eşleşme kontrolü (card #1805).
+    const expectedUser = (fileStorageForm.ftpUsername || fileStorageForm.nasUsername || '').trim()
+    const matchesUser = expectedUser.length === 0
+      || expectedUser.toLocaleLowerCase('tr') === fileStorageUserTest.username.trim().toLocaleLowerCase('tr')
+    if (!matchesUser) {
+      setFileStorageUserTestStatus({ type: 'error', message: t('settings.fileStorage.userTestMismatch') })
+      return
+    }
+    setFileStorageUserTestStatus({
+      type: 'success',
+      message: t('settings.fileStorage.userTestOk', { username: fileStorageUserTest.username.trim() }),
+    })
   }
 
   const testLdapConnectivity = async () => {
@@ -1765,6 +1816,53 @@ export function SettingsPage() {
                 </div>
               </section>
             </div>
+            {(fileStorageForm.nasHost || fileStorageForm.ftpHost) ? (
+              <div className="space-y-4 rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <div className="text-sm font-semibold text-slate-700">{t('settings.ldapConnectionStatus')}</div>
+                    {fileStorageTestStatus.type !== 'idle' ? (
+                      <div className={`mt-1 text-sm font-medium ${fileStorageTestStatus.type === 'success' ? 'text-emerald-700' : fileStorageTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                        {fileStorageTestStatus.type === 'success' ? '✅ ' : fileStorageTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                        {fileStorageTestStatus.message}
+                      </div>
+                    ) : null}
+                  </div>
+                  <Button type="button" variant="secondary" size="sm" onClick={() => void testFileStorageConnectivity()} disabled={fileStorageTestStatus.type === 'testing'}>
+                    {fileStorageTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('settings.ldapTestConnectivity')}
+                  </Button>
+                </div>
+
+                <div className="border-t border-slate-200 pt-4">
+                  <div className="mb-2 text-sm font-semibold text-slate-700">{t('settings.ldapTestUserCredentials')}</div>
+                  <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                    <label className="grid gap-1.5 text-sm font-medium text-slate-600">
+                      <span>{t('settings.ldapTestUsername')}</span>
+                      <input className="field-input" value={fileStorageUserTest.username} onChange={e => setFileStorageUserTest(c => ({ ...c, username: e.target.value }))} />
+                    </label>
+                    <label className="grid gap-1.5 text-sm font-medium text-slate-600">
+                      <span>{t('settings.ldapTestPassword')}</span>
+                      <input className="field-input" type="password" value={fileStorageUserTest.password} onChange={e => setFileStorageUserTest(c => ({ ...c, password: e.target.value }))} />
+                    </label>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => void testFileStorageUserCredentials()}
+                      disabled={fileStorageUserTestStatus.type === 'testing' || !fileStorageUserTest.username || !fileStorageUserTest.password}
+                    >
+                      {fileStorageUserTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('common.test')}
+                    </Button>
+                  </div>
+                  {fileStorageUserTestStatus.type !== 'idle' ? (
+                    <div className={`mt-2 text-sm font-medium ${fileStorageUserTestStatus.type === 'success' ? 'text-emerald-700' : fileStorageUserTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                      {fileStorageUserTestStatus.type === 'success' ? '✅ ' : fileStorageUserTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                      {fileStorageUserTestStatus.message}
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
             <div className="inline-actions">
               <Button type="submit">{t('common.save')}</Button>
             </div>

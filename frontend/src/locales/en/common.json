@@ -23,6 +23,8 @@
     "test": "Test",
     "status": "Status",
     "actions": "Actions",
+    "number": "No.",
+    "reset": "Clear",
     "none": "-",
     "notFound": "No records found yet",
     "enabled": "Enabled",
@@ -36,6 +38,22 @@
     "show": "Show",
     "today": "Today",
     "yesterday": "Yesterday"
+  },
+  "citizenDirectory": {
+    "eyebrow": "Citizen records",
+    "subtitle": "Citizen profiles saved by operators and their requests.",
+    "search": "Search name, phone, or address…",
+    "empty": "No citizen records found.",
+    "goToChat": "Go to conversation",
+    "ticketsTitle": "Citizen requests",
+    "noTickets": "No requests found for this citizen.",
+    "columns": {
+      "name": "Citizen name",
+      "phone": "Phone",
+      "neighborhood": "Neighborhood",
+      "street": "Street",
+      "openAddress": "Open address"
+    }
   },
   "userMenu": {
     "label": "User menu"
@@ -163,6 +181,9 @@
   },
   "nav": {
     "dashboard": "Dashboard",
+    "dashboardCitizen": "Citizen Dashboard",
+    "dashboardDepartments": "Departments Dashboard",
+    "citizenDirectory": "Citizen Directory",
     "edevletActivityPlan": "Create e-Government Daily Activity Plan",
     "edevletActivityPlansList": "e-Government Daily Activity Plans List",
     "createRequest": "Create Request",
@@ -408,6 +429,7 @@
       "externalRequestFulfillers": "Departments Completing Requests",
       "neighborhoodCompletedRequests": "Completed Requests by Neighborhood",
       "neighborhoodInProgressRequests": "In-Progress Requests by Neighborhood",
+      "neighborhoodProcessingRequests": "Processing-Received Requests by Neighborhood",
       "requestPriority": "Request Priority",
       "requestPriorityAll": "Request Priority Status",
       "requestTags": "Request Tags"

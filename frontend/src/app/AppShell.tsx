@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
+import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, Contact, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageSquareMore, ScrollText, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
 import { WhatsAppNotificationFab } from '../components/layout/WhatsAppNotificationFab'
@@ -202,7 +202,14 @@ export function AppShell() {
   type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean; children?: NavLinkConfig[]; iconImageSrc?: string; multilineLabel?: boolean }
 
   const navItemConfigs: NavLinkConfigEx[] = [
-    { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
+    ...(user?.role === 'Reporter' || user?.role === 'Operator'
+      ? [
+          { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Kontrol Paneli Vatandaş'), icon: LayoutDashboard },
+          { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Kontrol Paneli Birimler'), icon: LayoutDashboard, separatorAfter: true },
+        ]
+      : [
+          { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
+        ]),
     { pageKey: 'edevletActivityPlan' as const, path: '/edevlet/activity-plan', label: 'e-Devlet Günlük Faaliyet\nPlanı Oluştur', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'edevletActivityPlansList' as const, path: '/edevlet/activity-plans', label: 'e-Devlet Günlük Faaliyet\nPlanları Listesi', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: ClipboardPlus },
@@ -211,6 +218,9 @@ export function AppShell() {
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore, children: [
       { path: '/whatsapp', label: t('whatsapp.title', 'WhatsApp Konuşmaları'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true },
     ] },
+    ...((user?.role === 'Reporter' || user?.role === 'Operator' || user?.role === 'SystemAdmin')
+      ? [{ pageKey: 'social' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact }]
+      : []),
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
     { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight },
     { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck, separatorBefore: true },
@@ -360,7 +370,10 @@ export function AppShell() {
   }
 
   const breadcrumbLabels: Record<string, string> = {
-    dashboard: t('nav.dashboard'),
+    dashboard: user?.role === 'Reporter' || user?.role === 'Operator'
+      ? t('nav.dashboardCitizen', 'Kontrol Paneli Vatandaş')
+      : t('nav.dashboard'),
+    birimler: t('nav.dashboardDepartments', 'Kontrol Paneli Birimler'),
     requests: t('nav.createRequest', 'Talep Oluştur'),
     new: t('nav.createRequest', 'Talep Oluştur'),
     'my-tasks': (viewParam && myTasksViewLabels[viewParam]) || t('nav.myTasks', 'Görevlerim'),
@@ -376,6 +389,7 @@ export function AppShell() {
     display: t('nav.display'),
     social: t('nav.social'),
     whatsapp: 'WhatsApp',
+    'citizen-directory': t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'),
     departments: t('nav.departments'),
     users: t('nav.users'),
     audit: t('nav.audit'),

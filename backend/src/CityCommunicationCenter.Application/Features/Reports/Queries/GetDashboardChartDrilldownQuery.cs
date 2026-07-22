@@ -51,6 +51,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             "externalRequestFulfillers" => await BuildTargetDepartmentRowsAsync(tenantId, request, [JobStatus.Completed], cancellationToken),
             "neighborhoodCompletedRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Completed, cancellationToken),
             "neighborhoodInProgressRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Active, cancellationToken),
+            "neighborhoodProcessingRequests" => await BuildNeighborhoodProcessingRowsAsync(tenantId, request, cancellationToken),
             "citizenRequests" => await BuildCitizenRowsAsync(tenantId, request, cancellationToken),
             _ => new DashboardChartDrilldownResponse([]),
         };
@@ -209,6 +210,89 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                     .FirstOrDefault(),
             })
             .ToListAsync(cancellationToken);
+
+        return new DashboardChartDrilldownResponse(rows
+            .Select(row => new DashboardChartDrilldownRow(
+                row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
+                row.Status.ToString(), row.OwnerDepartmentName, row.Neighborhood,
+                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
+                row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel))
+            .ToList());
+    }
+
+    private async Task<DashboardChartDrilldownResponse> BuildNeighborhoodProcessingRowsAsync(
+        Guid tenantId,
+        GetDashboardChartDrilldownQuery request,
+        CancellationToken cancellationToken)
+    {
+        var neighborhood = request.SliceKey.Trim();
+        if (neighborhood.Length == 0)
+        {
+            return new DashboardChartDrilldownResponse([]);
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var candidates = await _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && job.SourceType != JobSourceType.Routine
+                && job.Neighborhood == neighborhood
+                && job.Status != JobStatus.Completed
+                && job.Status != JobStatus.Cancelled
+                && job.Status != JobStatus.Rejected
+                && job.Status != JobStatus.RevisionRequested
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            .OrderByDescending(job => job.CreatedAtUtc)
+            .Select(job => new
+            {
+                job.JobId,
+                job.JobNumber,
+                job.JobNumberYear,
+                job.Title,
+                job.CreatedAtUtc,
+                job.Status,
+                job.DueDateUtc,
+                job.CompletedAtUtc,
+                job.UpdatedAtUtc,
+                job.Neighborhood,
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+                OwnerDepartmentName = _dbContext.Departments
+                    .Where(department => department.DepartmentId == job.OwnerDepartmentId)
+                    .Select(department => (string?)department.Name)
+                    .FirstOrDefault(),
+                CitizenRequestNumber = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => message.CitizenRequestNumber)
+                    .FirstOrDefault(),
+                CitizenRequestNumberYear = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => message.CitizenRequestNumberYear)
+                    .FirstOrDefault(),
+                SourceChannel = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => (string?)message.Channel.ToString())
+                    .FirstOrDefault(),
+            })
+            .Take(MaxRows * 3)
+            .ToListAsync(cancellationToken);
+
+        var rows = candidates
+            .Where(job =>
+            {
+                if (job.DueDateUtc.HasValue && job.DueDateUtc.Value.Date < now.Date)
+                {
+                    return false;
+                }
+
+                if (job.Status == JobStatus.Active && job.TaskCount > 0)
+                {
+                    return false;
+                }
+
+                return true;
+            })
+            .Take(MaxRows)
+            .ToList();
 
         return new DashboardChartDrilldownResponse(rows
             .Select(row => new DashboardChartDrilldownRow(

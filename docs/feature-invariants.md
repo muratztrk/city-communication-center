@@ -1098,9 +1098,22 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   isim gösterilir), `prefix – dashboard.xxx` (çevrilebilir bileşik), ve düz literal metin (aynen basılır).
   Yeni bir grafik id'siz bir gruplama anahtarına (ör. mahalle adı) göre dilim üretecekse, `Label` alanına
   DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok.
+- **Vatandaş Bilgi Listesi (card #1836):** `/citizen-directory` yalnız `Reporter` /
+  `Operator` / `SystemAdmin`; grid `GET /citizen-conversations` + kanal ikonu (`SourceChannel`);
+  Detaylar → konuşma ticket listesi → salt-okunur `MyRequestDetailModal`; Yazışmaya Git →
+  `/whatsapp?phone=…`.
+- **Reporter/Operator kontrol paneli ayrımı (cards #1833/#1810):** Üst Düzey Yönetici
+  (`Reporter`) ve Vatandaş Talep Operatörü (`Operator`) sol menüde `Kontrol Paneli Vatandaş`
+  (`/dashboard`) + `Kontrol Paneli Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.
+  Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
+  vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
+  Vatandaş Talep Kanalları). Birimler sayfasında Reporter: Taleplerim + dış birim pie'ları +
+  Talep Öncelik Durumu; Operator: Görevlerim/Taleplerim/Birimdeki Görevler/Talep Önceliği.
+- **Mahallelerde İşleme Alınan Talepler pie:** `ClassifyCitizenJobStatus == ProcessingReceived`
+  mahalle kırılımı; drilldown `neighborhoodProcessingRequests` (Reporter/SystemAdmin).
 - **Reporter grafik dilimleri detay popup'ı açar (card #1343/#1338):** Üst Düzey Yönetici panosunda
-  Taleplerim HARİÇ 6 grafik (`citizenRequests`, `externalRequestCreators/Pending/Fulfillers`,
-  `neighborhoodCompletedRequests`, `neighborhoodInProgressRequests`) diliminde tıklama `DashboardChartDrilldownModal`'ı açar
+  Taleplerim HARİÇ 7 grafik (`citizenRequests`, `externalRequestCreators/Pending/Fulfillers`,
+  `neighborhoodCompletedRequests`, `neighborhoodInProgressRequests`, `neighborhoodProcessingRequests`) diliminde tıklama `DashboardChartDrilldownModal`'ı açar
   (`GET /reports/dashboard-chart-drilldown`, Reporter/SystemAdmin gate); popup Taleplerim detay modalıyla
   aynı `.detail-modal-shell` ölçüsünü kullanır, küçük grid text'i + ortak `TablePagination` kullanır. Son Tarih'ten
   önce terminal tarih kolonu gelir: tamamlandı diliminde `Tamamlanma Tarihi`, iptal/iade diliminde

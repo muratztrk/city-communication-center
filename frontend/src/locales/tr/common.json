@@ -23,6 +23,8 @@
     "test": "Test Et",
     "status": "Durum",
     "actions": "İşlemler",
+    "number": "Sıra",
+    "reset": "Temizle",
     "none": "-",
     "notFound": "Henüz kayıt bulunmuyor",
     "enabled": "Aktif",
@@ -36,6 +38,22 @@
     "show": "Göster",
     "today": "Bugün",
     "yesterday": "Dün"
+  },
+  "citizenDirectory": {
+    "eyebrow": "Vatandaş kayıtları",
+    "subtitle": "Operatörlerin kaydettiği vatandaş bilgileri ve talepleri.",
+    "search": "İsim, numara veya adres ara…",
+    "empty": "Kayıtlı vatandaş bulunamadı.",
+    "goToChat": "Yazışmaya Git",
+    "ticketsTitle": "Vatandaş Talepleri",
+    "noTickets": "Bu vatandaşa ait talep bulunamadı.",
+    "columns": {
+      "name": "Vatandaş İsmi",
+      "phone": "Numara",
+      "neighborhood": "Mahalle",
+      "street": "Cadde / Sokak / Bulvar",
+      "openAddress": "Açık Adres"
+    }
   },
   "filters": {
     "requestFlow": {
@@ -163,6 +181,9 @@
   },
   "nav": {
     "dashboard": "Kontrol Paneli",
+    "dashboardCitizen": "Kontrol Paneli Vatandaş",
+    "dashboardDepartments": "Kontrol Paneli Birimler",
+    "citizenDirectory": "Vatandaş Bilgi Listesi",
     "edevletActivityPlan": "e-Devlet Günlük Faaliyet Planı Oluştur",
     "edevletActivityPlansList": "e-Devlet Günlük Faaliyet Planları Listesi",
     "createRequest": "Talep Oluştur",
@@ -410,6 +431,7 @@
       "externalRequestFulfillers": "Talebi Tamamlayan Birimler",
       "neighborhoodCompletedRequests": "Mahallelerde Tamamlanan Talepler",
       "neighborhoodInProgressRequests": "Mahallelerde Yapılmakta Olan Talepler",
+      "neighborhoodProcessingRequests": "Mahallelerde İşleme Alınan Talepler",
       "requestPriority": "Talep Önceliği",
       "requestPriorityAll": "Talep Öncelik Durumu",
       "requestTags": "Talep Etiketi"

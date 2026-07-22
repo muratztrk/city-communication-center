@@ -216,7 +216,9 @@ public sealed record CitizenConversationSummaryDto(
     // Son mesaj vatandaş değil personel tarafından yazıldıysa (kurum içi ileti veya henüz
     // gönderilmemiş yanıt), bildirim çanında vatandaş yerine gönderenin birimi/adı gösterilir (card #1497/#1500).
     string? LastStaffSenderDepartment = null,
-    string? LastStaffSenderDisplayName = null);
+    string? LastStaffSenderDisplayName = null,
+    // Vatandaş Bilgi Listesi gridinde isim yanında kanal ikonu (card #1836).
+    string? SourceChannel = null);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,

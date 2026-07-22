@@ -21,6 +21,7 @@ const EDevletActivityPlanPage = lazy(() => import('../pages/EDevletActivityPlanP
 const EDevletActivityPlansListPage = lazy(() => import('../pages/EDevletActivityPlansListPage').then(module => ({ default: module.EDevletActivityPlansListPage })))
 const EDevletBasvurularPage = lazy(() => import('../pages/EDevletBasvurularPage').then(module => ({ default: module.EDevletBasvurularPage })))
 const RoutineTaskPage = lazy(() => import('../pages/RoutineTaskPage').then(module => ({ default: module.RoutineTaskPage })))
+const CitizenDirectoryPage = lazy(() => import('../pages/CitizenDirectoryPage').then(module => ({ default: module.CitizenDirectoryPage })))
 const WhatsAppConversationsPage = lazy(() => import('../pages/WhatsAppConversationsPage').then(module => ({ default: module.WhatsAppConversationsPage })))
 
 function LoadingScreen() {
@@ -70,6 +71,7 @@ export default function App() {
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" user={user}><DashboardPage /></PageAccessGate>} />
+          <Route path="/dashboard/birimler" element={<PageAccessGate pageKey="dashboard" user={user}><DashboardPage view="departments" /></PageAccessGate>} />
           <Route path="/edevlet/activity-plan" element={<PageAccessGate pageKey="edevletActivityPlan" user={user}><EDevletActivityPlanPage /></PageAccessGate>} />
           <Route path="/edevlet/activity-plans" element={<PageAccessGate pageKey="edevletActivityPlansList" user={user}><EDevletActivityPlansListPage /></PageAccessGate>} />
           <Route path="/edevlet/basvurular" element={<PageAccessGate pageKey="social" user={user}><EDevletBasvurularPage /></PageAccessGate>} />
@@ -87,6 +89,14 @@ export default function App() {
           <Route path="/incoming-requests" element={<PageAccessGate pageKey="incomingRequests" user={user}><IncomingRequestsPage /></PageAccessGate>} />
           <Route path="/social" element={<PageAccessGate pageKey="social" user={user}><SocialMessagesPage /></PageAccessGate>} />
           <Route path="/whatsapp" element={<PageAccessGate pageKey="social" user={user}><WhatsAppConversationsPage /></PageAccessGate>} />
+          <Route
+            path="/citizen-directory"
+            element={
+              user?.role === 'Reporter' || user?.role === 'Operator' || user?.role === 'SystemAdmin'
+                ? <PageAccessGate pageKey="social" user={user}><CitizenDirectoryPage /></PageAccessGate>
+                : <Navigate to="/dashboard" replace />
+            }
+          />
           <Route path="/departments" element={<PageAccessGate pageKey="departments" user={user}><DepartmentsPage /></PageAccessGate>} />
           <Route path="/users" element={<PageAccessGate pageKey="users" user={user}><UsersPage /></PageAccessGate>} />
           <Route path="/audit" element={<PageAccessGate pageKey="audit" user={user}><AuditLogsPage /></PageAccessGate>} />

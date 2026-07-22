@@ -18,7 +18,8 @@ function computeMenuStyle(button: HTMLDivElement, itemCount: number, menuAlign: 
   const rect = button.getBoundingClientRect()
   const menuWidth = 256
   const menuHeight = Math.min(256, itemCount * 56)
-  const openUp = rect.top >= menuHeight + 8
+  // Prefer opening downward; only flip up when the menu would overflow the viewport bottom.
+  const openUp = rect.bottom + menuHeight + 8 > window.innerHeight && rect.top >= menuHeight + 8
   const left = menuAlign === 'start'
     ? Math.min(rect.left, window.innerWidth - menuWidth - 8)
     : Math.max(8, rect.right - menuWidth)

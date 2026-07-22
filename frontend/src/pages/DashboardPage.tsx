@@ -54,7 +54,39 @@ const DRILLDOWN_CHART_KEYS = new Set([
   'dashboard.charts.externalRequestFulfillers',
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
+  'dashboard.charts.neighborhoodProcessingRequests',
 ])
+
+/** Split dashboard chart allowlists (Reporter / Operator — cards #1833/#1810). */
+const CITIZEN_DASHBOARD_CHART_KEYS = new Set([
+  'dashboard.charts.citizenRequests',
+  'dashboard.charts.requestTags',
+  'dashboard.charts.neighborhoodCompletedRequests',
+  'dashboard.charts.neighborhoodInProgressRequests',
+  'dashboard.charts.neighborhoodProcessingRequests',
+  'dashboard.citizenChannels.title',
+])
+
+const REPORTER_DEPARTMENT_CHART_KEYS = new Set([
+  'dashboard.charts.myRequests',
+  'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestCreators',
+  'dashboard.charts.externalRequestFulfillers',
+  'dashboard.charts.requestPriorityAll',
+])
+
+const OPERATOR_DEPARTMENT_CHART_KEYS = new Set([
+  'dashboard.charts.myTasks',
+  'dashboard.charts.myRequests',
+  'dashboard.charts.departmentTasks',
+  'dashboard.charts.requestPriority',
+])
+
+export type DashboardView = 'full' | 'citizen' | 'departments'
+
+interface DashboardPageProps {
+  view?: DashboardView
+}
 
 // Lejant dilim etiketi → hedef sayfadaki ilgili scope chip (card 797).
 const SLICE_VIEW: Record<string, string> = {
@@ -185,11 +217,15 @@ function getSliceRoute(
   return withQueryParams(base.split('?')[0], { view, ...dateParams })
 }
 
-export function DashboardPage() {
+export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const { user: currentUser } = useAuth()
   const role = currentUser?.role ?? ''
+  const isSplitDashboardRole = role === 'Reporter' || role === 'Operator'
+  const effectiveView: DashboardView = isSplitDashboardRole
+    ? (view === 'full' ? 'citizen' : view)
+    : 'full'
 
   const [period, setPeriod] = useState<Period>('yearly')
   const [customFrom, setCustomFrom] = useState('')
@@ -272,8 +308,9 @@ export function DashboardPage() {
   })
   // Üst Düzey Yönetici (Reporter) yalnızca talep oluşturur; "Bekleyen Görevlerim" gösterilmez.
   const isReporter = role === 'Reporter'
+  const hideMetricCards = effectiveView === 'citizen' || effectiveView === 'departments'
 
-  const managerRow1: MetricCard[] = isManagerOrAdmin && dashboardQuery.data
+  const managerRow1: MetricCard[] = !hideMetricCards && isManagerOrAdmin && dashboardQuery.data
     ? [
         {
           label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
@@ -328,7 +365,7 @@ export function DashboardPage() {
       ]
     : []
 
-  const managerRow2: MetricCard[] = isManagerOrAdmin && dashboardQuery.data
+  const managerRow2: MetricCard[] = !hideMetricCards && isManagerOrAdmin && dashboardQuery.data
     ? [
         {
           label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
@@ -341,7 +378,7 @@ export function DashboardPage() {
       ]
     : []
 
-  const staffMetrics: MetricCard[] = !isManagerOrAdmin && dashboardQuery.data
+  const staffMetrics: MetricCard[] = !hideMetricCards && !isManagerOrAdmin && dashboardQuery.data
     ? [
         {
           label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
@@ -370,10 +407,27 @@ export function DashboardPage() {
   const chartCards = [
     ...(statusChartsQuery.data?.charts ?? []),
     ...(canSeeCitizenChannels && citizenChannelQuery.data ? [citizenChannelQuery.data] : []),
-  ].filter(card => !isReporter || (
-    card.titleKey !== 'dashboard.charts.myTasks'
-    && card.titleKey !== 'dashboard.charts.departmentTasks'
-  ))
+  ].filter(card => {
+    if (effectiveView === 'citizen') {
+      return CITIZEN_DASHBOARD_CHART_KEYS.has(card.titleKey)
+    }
+    if (effectiveView === 'departments') {
+      if (isReporter) return REPORTER_DEPARTMENT_CHART_KEYS.has(card.titleKey)
+      if (role === 'Operator') return OPERATOR_DEPARTMENT_CHART_KEYS.has(card.titleKey)
+      return false
+    }
+    // Unified (non-split) dashboard: Reporter still hides task charts.
+    return !isReporter || (
+      card.titleKey !== 'dashboard.charts.myTasks'
+      && card.titleKey !== 'dashboard.charts.departmentTasks'
+    )
+  })
+
+  const pageTitle = effectiveView === 'citizen'
+    ? t('nav.dashboardCitizen', 'Kontrol Paneli Vatandaş')
+    : effectiveView === 'departments'
+      ? t('nav.dashboardDepartments', 'Kontrol Paneli Birimler')
+      : t('dashboard.title')
 
   function renderCard(metric: MetricCard) {
     const Icon = metric.icon
@@ -409,7 +463,7 @@ export function DashboardPage() {
         >
           <div className="space-y-1">
             <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">{t('dashboard.liveSummary')}</div>
-            <h1 className="page-title !text-white">{t('dashboard.title')}</h1>
+            <h1 className="page-title !text-white">{pageTitle}</h1>
             <p className="max-w-3xl text-sm leading-6 text-white/82">{t('dashboard.subtitle')}</p>
           </div>
           <div className="flex items-start justify-start lg:justify-end">
@@ -455,7 +509,7 @@ export function DashboardPage() {
           )}
         </div>
 
-        {isManagerOrAdmin ? (
+        {hideMetricCards ? null : isManagerOrAdmin ? (
           <div className="space-y-3 p-3.5">
             {dashboardQuery.isLoading
               ? (
@@ -524,6 +578,7 @@ export function DashboardPage() {
               || card.titleKey === 'dashboard.charts.externalRequestFulfillers'
               || card.titleKey === 'dashboard.charts.neighborhoodCompletedRequests'
               || card.titleKey === 'dashboard.charts.neighborhoodInProgressRequests'
+              || card.titleKey === 'dashboard.charts.neighborhoodProcessingRequests'
             const isRequestTagReadOnly = card.titleKey === 'dashboard.charts.requestTags'
             const isDepartmentTitleReadOnly = !canAccessDepartmentTasks && card.titleKey === 'dashboard.charts.departmentTasks'
             // Üst Düzey Yönetici'de Taleplerim hariç tüm grafik dilimleri detay popup'ı açar (card #1343).

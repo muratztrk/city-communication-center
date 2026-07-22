@@ -330,12 +330,18 @@ public sealed class GetDashboardStatusChartsQueryHandler
             charts.Add(await BuildRequestTagChartAsync(tenantId, request, cancellationToken));
         }
 
+        // Üst Düzey Yönetici + Vatandaş Operatörü mahalle kırılımlarını görür (cards #1833/#1810).
+        if (roleCode is "Reporter" or "Operator")
+        {
+            charts.Add(await BuildNeighborhoodCompletedRequestsChartAsync(tenantId, request, cancellationToken));
+            charts.Add(await BuildNeighborhoodInProgressRequestsChartAsync(tenantId, request, cancellationToken));
+            charts.Add(await BuildNeighborhoodProcessingRequestsChartAsync(tenantId, request, cancellationToken));
+        }
+
         // Üst Düzey Yönetici (Reporter) tenant genelinde birim-dışı talep dağılımını görür (card #835, #763).
         if (roleCode is "Reporter")
         {
             charts.AddRange(await BuildExternalUnitDepartmentChartsAsync(tenantId, request, cancellationToken));
-            charts.Add(await BuildNeighborhoodCompletedRequestsChartAsync(tenantId, request, cancellationToken));
-            charts.Add(await BuildNeighborhoodInProgressRequestsChartAsync(tenantId, request, cancellationToken));
             // Üst Düzey Yönetici tüm birimlerin talep önceliği dağılımını görür (card #1518).
             charts.Add(await BuildTenantWideRequestPriorityChartAsync(
                 tenantId, "dashboard.charts.requestPriorityAll", request, cancellationToken));
@@ -549,6 +555,53 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToListAsync(cancellationToken);
 
         return new DashboardChartResponse("dashboard.charts.neighborhoodInProgressRequests",
+            counts.Select((item, index) => new DashboardChartSlice(
+                item.Neighborhood,
+                item.Count,
+                StaffChartColors[index % StaffChartColors.Length]))
+                .ToList());
+    }
+
+    /// <summary>
+    /// "Mahallelerde İşleme Alınan Talepler" — vatandaş talep sınıflandırmasında İşleme Alındı
+    /// olan (terminal/overdue/yapılmakta olmayan) mahalleli talepler (cards #1833/#1810).
+    /// </summary>
+    private async Task<DashboardChartResponse> BuildNeighborhoodProcessingRequestsChartAsync(
+        Guid tenantId,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var rows = await _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && job.SourceType != JobSourceType.Routine
+                && job.Neighborhood != null
+                && job.Neighborhood != ""
+                && job.Status != JobStatus.Completed
+                && job.Status != JobStatus.Cancelled
+                && job.Status != JobStatus.Rejected
+                && job.Status != JobStatus.RevisionRequested
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            .Select(job => new
+            {
+                Neighborhood = job.Neighborhood!,
+                job.Status,
+                job.DueDateUtc,
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+            })
+            .ToListAsync(cancellationToken);
+
+        var counts = rows
+            .Where(row => ClassifyCitizenJobStatus(
+                new CitizenJobStatusItem(row.Status, row.DueDateUtc, row.TaskCount), now)
+                == CitizenJobDisplayStatus.ProcessingReceived)
+            .GroupBy(row => row.Neighborhood)
+            .Select(group => new { Neighborhood = group.Key, Count = group.Count() })
+            .OrderByDescending(item => item.Count)
+            .ToList();
+
+        return new DashboardChartResponse("dashboard.charts.neighborhoodProcessingRequests",
             counts.Select((item, index) => new DashboardChartSlice(
                 item.Neighborhood,
                 item.Count,

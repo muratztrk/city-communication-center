@@ -1813,7 +1813,7 @@ export function WhatsAppConversationsPage() {
               onReadMarked={handleReadMarked}
               onOpenCreateRequest={socialMessageId => { void handleOpenCreateRequest(socialMessageId) }}
               onOpenViewRequests={handleOpenViewRequests}
-              onProfileSaved={() => { void loadConversations() }}
+              onProfileSaved={() => { void silentRefreshConversations() }}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-[color:var(--color-muted-foreground)] gap-3">

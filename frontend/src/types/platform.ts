@@ -462,6 +462,8 @@ export interface CitizenConversationSummary {
   // gönderilmemiş yanıt), bildirim çanında vatandaş yerine gönderenin birimi/adı gösterilir (card #1497/#1500).
   lastStaffSenderDepartment?: string | null;
   lastStaffSenderDisplayName?: string | null;
+  /** Latest linked social message channel (WhatsApp, Phone, …) for directory icon. */
+  sourceChannel?: string | null;
 }
 
 // Kurum içi (personel-arası) mesajlaşma — card #1539.

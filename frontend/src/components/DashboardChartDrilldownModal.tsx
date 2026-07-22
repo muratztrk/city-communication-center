@@ -203,7 +203,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                       <tr key={row.jobId}>
                         <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(page - 1) * pageSize + index + 1}</td>
                         <td className="table-number-cell font-mono text-xs text-slate-600">
-                          <span className="inline-flex items-center gap-1.5">
+                          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
                             {row.citizenRequestNumber != null && row.sourceChannel ? (
                               <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" />
                             ) : null}

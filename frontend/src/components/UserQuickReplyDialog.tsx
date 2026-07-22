@@ -156,6 +156,7 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
                 {t('whatsapp.userQuickReplyList', 'Kayıtlı şablonlar')}
               </label>
               <SingleSelectDropdown
+                className="user-quick-reply-template-select"
                 options={templates.map(template => ({
                   value: template.templateId,
                   label: template.name,

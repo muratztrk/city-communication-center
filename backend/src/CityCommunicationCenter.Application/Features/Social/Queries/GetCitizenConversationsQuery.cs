@@ -107,6 +107,7 @@ public sealed class GetCitizenConversationsQueryHandler
                 m.JobId,
                 JobStatus = m.Job != null ? (JobStatus?)m.Job.Status : null,
                 Priority = m.Job != null ? m.Job.Priority : null,
+                Channel = m.Channel,
             })
             .ToListAsync(cancellationToken);
 
@@ -279,7 +280,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     pendingOutboundConversationIds.Contains(c.CitizenConversationId),
                     ticket?.SocialMessageId,
                     lastStaffSenderDepartment,
-                    lastStaffSenderDisplayName);
+                    lastStaffSenderDisplayName,
+                    ticket?.Channel.ToString());
             })
             .ToList();
     }

@@ -12,6 +12,7 @@ import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { getAuditStatusLabel, getLocale } from '../utils/localization'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { ChannelIcon } from './ui/channel-icon'
+import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 
 interface DashboardChartDrilldownModalProps {
   chartKey: string

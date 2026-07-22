@@ -809,7 +809,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
   Header: **Personel Dahili No ara…** solda (tüm kullanıcılara görünür — card #1779),
   **Sistemde ara…** sağda; her ikisi de en az 3 karakterde arar. Personel araması yalnız
-  `DisplayName` eşleşir (card #1780); textbox’a yalnız harf+boşluk (card #1776 reopen);
+  `DisplayName` eşleşir (card #1780); Türkçe karakter / i-ı katlamalı arama (card #1791);
+  textbox’a yalnız harf+boşluk (card #1776 reopen);
   X ile temizleyince “Personel” paneli kapanır (card #1781); sonuç `Ad - Dahili` /
   `Birim - Ünvan`; “Personel” başlığı büyük ve yeşil, birim/ünvan metni bir kademe büyük
   (card #1778). Sistemde ara yalnız sol menüde yetkili sayfa scope’larını çeker
@@ -870,7 +871,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanıcısı seçiliyken Oluştur altında görünür (cards #1755/#1756). Anlık senkron `listDirectoryUsers`
   ile çalışır (arama zorunlu değil); ConfirmDialog `"LDAP Kullanıcı Senkronize Edildi"` + bağlı
   kullanıcıların username/ad/ünvan/dahili/e-posta güncellemesi (`POST /users/sync/ad` — card #1787);
-  sistemde olmayanlar ayrıca listelenir; yoksa `"Yeni kullanıcı bulunamadı"`; senkron sonrası birimi
+  ayrıca LDAP birim adı sistemde eşleşiyorsa `DepartmentId` güncellenir; description/`Title`
+  içinde "Müdür" geçiyorsa (birim müdür kontenjanı uygunsa) rol `Manager` yapılır
+  (cards #1787 reopen/#1789). "Tüm LDAP Kullanıcılarını Sil" kırmızı link + ConfirmDialog;
+  yalnız talep/görev oluşturmamış LDAP kullanıcılarını siler (`POST /users/ldap/delete-unused`,
+  card #1790). sistemde olmayanlar ayrıca listelenir; yoksa `"Yeni kullanıcı bulunamadı"`; senkron sonrası birimi
   LDAP’ta olmayanlar dropdown’u güncellenir (cards #1754/#1768). LDAP arama placeholder’ı
   **en az 3 karakter** (card #1754). Eklenecek kullanıcılar satırında `birim:` etiketi yok —
   `Ad — BirimAdı` (card #1767).   Yerel kullanıcıda **Parola Onayla** alanı; uyuşmazsa kırmızı
@@ -1031,6 +1036,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 ## 5. Dashboard / Wallboard
 
 - **Banner buton sayımları client-side hesaplanır; dashboard'da bu aggregation YOK.**
+- **Yönetici `Vatandaş Talepleri` kartı:** `activeSocialMessageCount` — SystemAdmin/Operator
+  tenant geneli açık VT; Manager yalnız kapsam birimine atanmış / JobDepartment hedefi olan
+  açık sosyal mesajları sayar (card #1792).
 - **Yönetici `Personelimin Görevi Çözme Süresi` grafiği:** yalnız Manager rolünde ve yöneticinin
   kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
   (`CreatedAtUtc`) ile tamamlananda `CompletedAtUtc`, iptalde son `TaskCancelled` audit zamanı

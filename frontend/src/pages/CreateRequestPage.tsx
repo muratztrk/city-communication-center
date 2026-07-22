@@ -581,7 +581,7 @@ export function CreateRequestPage() {
         >
           <Paperclip className="mb-1 size-4 text-slate-400" />
           <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
-          <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, PDF, Office — maks. 5 MB')}</span>
+          <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, PDF, Office — max 5 MB')}</span>
           <input
             ref={fileInputRef}
             type="file"
@@ -615,13 +615,13 @@ export function CreateRequestPage() {
                   <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
                     <Icon className="size-3" aria-hidden="true" />
                   </span>
-                  <span className="min-w-0 flex-1 break-words text-sm font-medium leading-snug text-slate-900">
+                  <span className="min-w-0 flex-1 break-words text-[13px] font-medium leading-snug text-slate-900">
                     {baseName}
-                    {extension ? <span className="text-[10px] font-normal text-slate-400">{extension}</span> : null}
+                    {extension ? <span className="text-[13px] font-medium text-slate-900">{extension}</span> : null}
                   </span>
                   <button
                     type="button"
-                    className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
+                    className="shrink-0 text-xs font-medium text-red-500 hover:text-red-600"
                     onClick={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
                   >
                     {t('common.delete', 'Sil')}

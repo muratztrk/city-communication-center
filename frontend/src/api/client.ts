@@ -327,6 +327,15 @@ export const api = {
     }>
   },
 
+  async deleteUnusedLdapUsers(): Promise<{ deletedCount: number; message: string }> {
+    const response = await fetchWithCredentials(`${API_BASE}/users/ldap/delete-unused`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('common.error'))
+    return response.json() as Promise<{ deletedCount: number; message: string }>
+  },
+
   async createUser(payload: {
     username: string | null
     displayName: string

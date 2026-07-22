@@ -1,3 +1,12 @@
+## Round 414 — #1787/#1791/#1792/#1793/#1788/#1789/#1790
+- #1787: Anlık LDAP sync birim (`DepartmentId`) günceller.
+- #1791: Personel Dahili No ara Türkçe karakter / i-ı katlamalı.
+- #1792: Dashboard Vatandaş Talepleri Manager’da birim-scoped.
+- #1793: Ek yükleme ipucu `maks.` → `max`.
+- #1788: Ek dosya adı biraz küçültüldü; uzantı aynı stil; Sil biraz büyütüldü.
+- #1789: LDAP description’da "Müdür" → rol Manager (sync + toplu ekle).
+- #1790: Tüm LDAP Kullanıcılarını Sil (talep/görev oluşturmamışlar).
+
 ## Round 413 — #1786/#1787/#1788
 - #1786: Personel Dahili No sonuç paneli sağa açılır (`left-0`).
 - #1787: Anlık LDAP sync bağlı kullanıcıların ad/ünvan/dahili/e-posta/username günceller.

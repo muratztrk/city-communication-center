@@ -57,6 +57,11 @@ function readCreateMode(value: string | null, capabilities: UserManagementContex
   return 'manual'
 }
 
+/** LDAP description (Title) içinde "Müdür" geçiyorsa rol Müdür (card #1789). */
+function titleImpliesManager(title: string | null | undefined): boolean {
+  return (title ?? '').toLocaleLowerCase('tr').includes('müdür')
+}
+
 function resolveDataRequests(canManageUsers: boolean) {
   return Promise.all([
     api.getUsers(),
@@ -95,6 +100,7 @@ export function UsersPage() {
   const [directorySyncLoading, setDirectorySyncLoading] = useState(false)
   const [directorySyncMessage, setDirectorySyncMessage] = useState<string | null>(null)
   const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
+  const [deleteAllLdapLoading, setDeleteAllLdapLoading] = useState(false)
   /** LDAP'ta birim alanı boş kullanıcılar — buton sağındaki dropdown (card #1752). */
   const [ldapUsersWithoutDepartment, setLdapUsersWithoutDepartment] = useState<DirectoryUserLookup[]>([])
   const [ldapUsersWithoutDepartmentValue, setLdapUsersWithoutDepartmentValue] = useState('')
@@ -360,7 +366,7 @@ export function UsersPage() {
                 password: null,
                 departmentId,
                 additionalDepartmentIds: [],
-                roleCode: 'Staff',
+                roleCode: titleImpliesManager(item.title) ? 'Manager' : 'Staff',
                 additionalRoleCodes: [],
                 isActive: true,
                 sourceType: 'Ldap',
@@ -497,6 +503,56 @@ export function UsersPage() {
     } finally {
       setAddAllLdapLoading(false)
     }
+  }
+
+  const handleDeleteAllLdapUsersClick = () => {
+    if (!managementContext?.ldapEnabled || deleteAllLdapLoading) {
+      return
+    }
+
+    setConfirmDialog({
+      title: t('users.deleteAllLdap'),
+      titleDivider: true,
+      titleCompact: true,
+      titleTone: 'danger',
+      message: t('users.deleteAllLdapConfirm'),
+      confirmLabel: t('common.delete', 'Sil'),
+      cancelLabel: t('common.cancel', 'İptal'),
+      variant: 'destructive',
+      onConfirm: () => {
+        void (async () => {
+          setDeleteAllLdapLoading(true)
+          setError('')
+          try {
+            const result = await api.deleteUnusedLdapUsers()
+            invalidateUsers(queryClient)
+            loadData()
+            setDirectorySyncMessage(
+              result.deletedCount > 0
+                ? t('users.deleteAllLdapSuccess', { count: result.deletedCount })
+                : t('users.deleteAllLdapNone'),
+            )
+            setConfirmDialog({
+              title: t('users.deleteAllLdap'),
+              titleDivider: true,
+              titleCompact: true,
+              titleTone: result.deletedCount > 0 ? 'success' : 'danger',
+              message: result.deletedCount > 0
+                ? t('users.deleteAllLdapSuccess', { count: result.deletedCount })
+                : t('users.deleteAllLdapNone'),
+              confirmLabel: t('common.exit', 'Çıkış'),
+              hideCancel: true,
+              variant: 'destructive',
+              onConfirm: () => {},
+            })
+          } catch (deleteError) {
+            setError(deleteError instanceof Error ? deleteError.message : t('common.error'))
+          } finally {
+            setDeleteAllLdapLoading(false)
+          }
+        })()
+      },
+    })
   }
 
   useEffect(() => {
@@ -804,10 +860,18 @@ export function UsersPage() {
                   <button
                     type="button"
                     className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
-                    disabled={addAllLdapLoading || directorySyncLoading}
+                    disabled={addAllLdapLoading || directorySyncLoading || deleteAllLdapLoading}
                     onClick={() => void handleAddAllLdapUsersClick()}
                   >
                     {addAllLdapLoading ? t('users.addAllLdapWorking') : t('users.addAllLdap')}
+                  </button>
+                  <button
+                    type="button"
+                    className="text-sm font-bold text-red-600 underline-offset-2 hover:underline disabled:opacity-60"
+                    disabled={addAllLdapLoading || directorySyncLoading || deleteAllLdapLoading}
+                    onClick={handleDeleteAllLdapUsersClick}
+                  >
+                    {deleteAllLdapLoading ? t('users.deleteAllLdapWorking') : t('users.deleteAllLdap')}
                   </button>
                 </div>
                 {ldapUsersWithoutDepartment.length > 0 ? (
@@ -829,6 +893,7 @@ export function UsersPage() {
               </div>
               <p className="helper-copy">{t('users.directorySearchDescription')}</p>
               <p className="helper-copy">{t('users.directoryLinkHint')}</p>
+              <p className="helper-copy text-red-600/90">{t('users.deleteAllLdapHint')}</p>
               {directorySyncMessage ? <p className="helper-copy">{directorySyncMessage}</p> : null}
               <AutocompleteField
                 ariaLabel={t('users.directorySearchAria')}
@@ -863,6 +928,7 @@ export function UsersPage() {
                     phone: selected?.phone?.trim() ?? '',
                     externalIdentityId: selected?.externalIdentityId ?? null,
                     departmentId: matchedDepartmentId || current.departmentId,
+                    roleCode: titleImpliesManager(selected?.title) ? 'Manager' : 'Staff',
                   }))
                 }}
                 onValueChange={value => {

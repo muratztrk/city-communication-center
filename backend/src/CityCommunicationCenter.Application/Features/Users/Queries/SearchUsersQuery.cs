@@ -21,7 +21,6 @@ public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, IR
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
         var normalizedQuery = request.Query?.Trim();
-        var normalizedQueryUpper = normalizedQuery?.ToUpperInvariant();
         var requestedDepartmentName = request.DepartmentId.HasValue
             ? await _dbContext.Departments
                 .AsNoTracking()
@@ -52,35 +51,60 @@ public sealed class SearchUsersQueryHandler : IQueryHandler<SearchUsersQuery, IR
                     department.ManagerUserId == item.User.UserId));
         }
 
-        if (!string.IsNullOrWhiteSpace(normalizedQueryUpper))
-        {
-            if (request.DisplayNameOnly)
-            {
-                query = query.Where(item => item.User.DisplayName.ToUpper().Contains(normalizedQueryUpper));
-            }
-            else
-            {
-                query = query.Where(item =>
-                    item.User.DisplayName.ToUpper().Contains(normalizedQueryUpper) ||
-                    (item.User.Email != null && item.User.Email.ToUpper().Contains(normalizedQueryUpper)) ||
-                    (item.User.Username != null && item.User.Username.ToUpper().Contains(normalizedQueryUpper)));
-            }
-        }
-
-        return await query
+        // Türkçe karakter / i-ı eşlemesi için adayları çekip bellekte katla (card #1791).
+        var candidates = await query
             .OrderBy(item => item.User.DisplayName)
-            .Take(15)
-            .Select(item => new UserLookupResponse(
+            .Select(item => new CandidateRow(
                 item.User.UserId,
                 request.DepartmentId ?? item.User.DepartmentId,
                 requestedDepartmentName ?? item.Department.Name,
                 item.User.DisplayName,
                 item.User.Email,
+                item.User.Username,
                 item.User.RoleCode.ToString(),
                 item.User.IsActive,
                 item.User.UserSource.ToString(),
                 item.User.Title,
                 item.User.Phone))
             .ToListAsync(cancellationToken);
+
+        IEnumerable<CandidateRow> filtered = candidates;
+        if (!string.IsNullOrWhiteSpace(normalizedQuery))
+        {
+            filtered = request.DisplayNameOnly
+                ? candidates.Where(item => TurkishText.ContainsFolded(item.DisplayName, normalizedQuery))
+                : candidates.Where(item =>
+                    TurkishText.ContainsFolded(item.DisplayName, normalizedQuery)
+                    || TurkishText.ContainsFolded(item.Email, normalizedQuery)
+                    || TurkishText.ContainsFolded(item.Username, normalizedQuery));
+        }
+
+        return filtered
+            .Take(15)
+            .Select(item => new UserLookupResponse(
+                item.UserId,
+                item.DepartmentId,
+                item.DepartmentName,
+                item.DisplayName,
+                item.Email,
+                item.RoleCode,
+                item.IsActive,
+                item.UserSource,
+                item.Title,
+                item.Phone))
+            .ToList();
     }
+
+    private sealed record CandidateRow(
+        Guid UserId,
+        Guid DepartmentId,
+        string DepartmentName,
+        string DisplayName,
+        string? Email,
+        string? Username,
+        string RoleCode,
+        bool IsActive,
+        string UserSource,
+        string? Title,
+        string? Phone);
 }

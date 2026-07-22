@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Extensions.Localization;
 
 namespace CityCommunicationCenter.Application.Features.Users;
@@ -12,6 +13,8 @@ public sealed record SyncDirectoryResult(
 
 public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryCommand, SyncDirectoryResult>
 {
+    private static readonly CultureInfo Tr = CultureInfo.GetCultureInfo("tr-TR");
+
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ILdapAuthenticationService _ldapAuthenticationService;
@@ -47,6 +50,16 @@ public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryC
             .Where(user => user.TenantId == tenantId && user.UserSource == UserSource.Ldap)
             .ToListAsync(cancellationToken);
 
+        var departments = await _dbContext.Departments
+            .Where(department => department.TenantId == tenantId)
+            .ToListAsync(cancellationToken);
+        var departmentByName = departments
+            .GroupBy(department => department.Name.Trim(), StringComparer.Create(Tr, CompareOptions.IgnoreCase))
+            .ToDictionary(
+                group => group.Key,
+                group => group.First(),
+                StringComparer.Create(Tr, CompareOptions.IgnoreCase));
+
         var byExternalId = linkedUsers
             .Where(user => !string.IsNullOrWhiteSpace(user.ExternalIdentityId))
             .GroupBy(user => user.ExternalIdentityId!, StringComparer.OrdinalIgnoreCase)
@@ -78,7 +91,20 @@ public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryC
                 continue;
             }
 
-            if (ApplyDirectoryProfile(linked, directoryUser))
+            var profileChanged = ApplyDirectoryProfile(linked, directoryUser);
+            var departmentChanged = await TryApplyDirectoryDepartmentAsync(
+                linked,
+                directoryUser.Department,
+                departmentByName,
+                tenantId,
+                cancellationToken);
+            var roleChanged = await TryApplyManagerRoleFromTitleAsync(
+                linked,
+                directoryUser.Title,
+                tenantId,
+                cancellationToken);
+
+            if (profileChanged || departmentChanged || roleChanged)
             {
                 linked.UpdatedAtUtc = DateTimeOffset.UtcNow;
                 linked.UpdatedByUserId = context.UserId;
@@ -165,6 +191,81 @@ public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryC
         }
 
         return changed;
+    }
+
+    /// <summary>LDAP birim adını sistem birimiyle eşleştirip günceller (card #1787 reopen).</summary>
+    private async Task<bool> TryApplyDirectoryDepartmentAsync(
+        ApplicationUser user,
+        string? ldapDepartmentName,
+        IReadOnlyDictionary<string, Department> departmentByName,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(ldapDepartmentName))
+        {
+            return false;
+        }
+
+        var key = ldapDepartmentName.Trim();
+        if (!departmentByName.TryGetValue(key, out var department)
+            || department.DepartmentId == user.DepartmentId)
+        {
+            return false;
+        }
+
+        if (user.RoleCode == RoleCode.Manager)
+        {
+            try
+            {
+                await UserManagerQuotaValidator.EnsureSingleManagerPerDepartmentAsync(
+                    _dbContext,
+                    tenantId,
+                    department.DepartmentId,
+                    user.UserId,
+                    cancellationToken);
+            }
+            catch (ValidationException)
+            {
+                return false;
+            }
+        }
+
+        user.DepartmentId = department.DepartmentId;
+        return true;
+    }
+
+    private async Task<bool> TryApplyManagerRoleFromTitleAsync(
+        ApplicationUser user,
+        string? title,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        if (user.RoleCode is RoleCode.SystemAdmin or RoleCode.Manager)
+        {
+            return false;
+        }
+
+        if (!TurkishText.TitleImpliesManager(title ?? user.Title))
+        {
+            return false;
+        }
+
+        try
+        {
+            await UserManagerQuotaValidator.EnsureSingleManagerPerDepartmentAsync(
+                _dbContext,
+                tenantId,
+                user.DepartmentId,
+                user.UserId,
+                cancellationToken);
+        }
+        catch (ValidationException)
+        {
+            return false;
+        }
+
+        user.RoleCode = RoleCode.Manager;
+        return true;
     }
 
     private static string? Truncate(string? value, int maxLength)

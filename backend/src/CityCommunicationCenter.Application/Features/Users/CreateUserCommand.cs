@@ -249,6 +249,14 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
         }
 
         var roleCode = Enum.Parse<RoleCode>(request.RoleCode, true);
+        // LDAP description (Title) içinde "Müdür" geçiyorsa rol Müdür (card #1789).
+        if (sourceType == UserSource.Ldap
+            && roleCode != RoleCode.SystemAdmin
+            && TurkishText.TitleImpliesManager(string.IsNullOrWhiteSpace(request.Title) ? ldapTitle : request.Title))
+        {
+            roleCode = RoleCode.Manager;
+        }
+
         if (roleCode == RoleCode.Manager)
         {
             await UserManagerQuotaValidator.EnsureSingleManagerPerDepartmentAsync(

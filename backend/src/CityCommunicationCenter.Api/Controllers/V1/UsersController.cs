@@ -108,6 +108,15 @@ public sealed class UsersController : ApiControllerBase
         return Accepted(result);
     }
 
+    [HttpPost("ldap/delete-unused")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
+    [ProducesResponseType<DeleteUnusedLdapUsersResult>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<DeleteUnusedLdapUsersResult>> DeleteUnusedLdapUsers(CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new DeleteUnusedLdapUsersCommand(), cancellationToken);
+        return Ok(result);
+    }
+
     [HttpPut("{userId:guid}")]
     [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
     [ProducesResponseType<UserSummaryResponse>(StatusCodes.Status200OK)]

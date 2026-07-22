@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { UserQuickReplyTemplate } from '../types/platform'
 import { Button } from './ui/button'
+import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ModalBackdrop } from './ui/modal-backdrop'
 import { ModalCloseButton } from './ui/modal-close-button'
@@ -151,29 +152,28 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
             />
 
             <div className="space-y-1.5">
-              <label htmlFor="user-quick-reply-select" className="text-xs font-semibold text-slate-600">
+              <label className="text-xs font-semibold text-slate-600">
                 {t('whatsapp.userQuickReplyList', 'Kayıtlı şablonlar')}
               </label>
-              <select
-                id="user-quick-reply-select"
-                className="field-select w-full text-sm"
+              <SingleSelectDropdown
+                options={templates.map(template => ({
+                  value: template.templateId,
+                  label: template.name,
+                }))}
                 value={selectedId ?? ''}
-                disabled={loading}
-                onChange={event => handleSelectTemplate(event.target.value)}
-              >
-                <option value="">
-                  {loading
+                onChange={handleSelectTemplate}
+                placeholder={
+                  loading
                     ? t('common.loading', 'Yükleniyor…')
                     : templates.length === 0
                       ? t('whatsapp.noUserQuickReplies', 'Henüz kişisel şablon yok.')
-                      : t('whatsapp.selectUserQuickReply', 'Şablon seçin…')}
-                </option>
-                {templates.map(template => (
-                  <option key={template.templateId} value={template.templateId}>
-                    {template.name}
-                  </option>
-                ))}
-              </select>
+                      : t('whatsapp.selectUserQuickReply', 'Şablon seçin…')
+                }
+                emptyText={t('whatsapp.noUserQuickReplies', 'Henüz kişisel şablon yok.')}
+                disabled={loading}
+                searchable={templates.length >= 7}
+                searchPlaceholder={t('whatsapp.searchUserQuickReply', 'Şablon ara...')}
+              />
             </div>
 
             {error ? <p className="text-sm text-red-600">{error}</p> : null}

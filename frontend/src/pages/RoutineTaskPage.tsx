@@ -1,6 +1,6 @@
 import { ClipboardList, FileText, Paperclip, Send } from 'lucide-react'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -11,11 +11,14 @@ import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
+import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
+import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import type { UserQuickReplyTemplate } from '../types/platform'
 
 interface FormState {
   title: string
@@ -51,6 +54,20 @@ function pendingFileIcon(name: string) {
   return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name)) ? SimpleImageAttachmentIcon : FileText
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+}
+
+function templateToRichText(content: string): string {
+  const trimmed = content.trim()
+  if (!trimmed) return ''
+  if (trimmed.includes('<')) return trimmed
+  return `<p>${escapeHtml(trimmed).replace(/\n/g, '<br>')}</p>`
+}
+
 function validateFile(file: File): string | null {
   if (!ALLOWED_EXTENSIONS.includes(fileExtension(file.name))) {
     return 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'
@@ -74,10 +91,23 @@ export function RoutineTaskPage() {
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
+  const [userQuickReplies, setUserQuickReplies] = useState<UserQuickReplyTemplate[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
   const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
   const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
+
+  const loadUserQuickReplies = useCallback(async () => {
+    try {
+      setUserQuickReplies(await api.getUserQuickReplies())
+    } catch {
+      setUserQuickReplies([])
+    }
+  }, [])
+
+  useEffect(() => {
+    void loadUserQuickReplies()
+  }, [loadUserQuickReplies])
 
   useEffect(() => {
     if (!taskId) return
@@ -371,9 +401,20 @@ export function RoutineTaskPage() {
         {/* Sağ sütun: Açıklama */}
         <div className="grid content-start gap-3">
           <div className="job-field min-h-0">
-            <label className="job-field-label" htmlFor="routine-desc">
-              {t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span>
-            </label>
+            <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
+              <label className="job-field-label mb-0" htmlFor="routine-desc">
+                {t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span>
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                <WhatsAppTemplatePicker
+                  userQuickReplies={userQuickReplies}
+                  onSelect={template => set('description', templateToRichText(template.content))}
+                  menuAlign="end"
+                  compact
+                />
+                <UserQuickReplyAddButton compact onChanged={() => { void loadUserQuickReplies() }} />
+              </div>
+            </div>
             <RichTextEditor
               value={form.description}
               onChange={v => set('description', v)}

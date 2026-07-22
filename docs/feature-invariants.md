@@ -331,6 +331,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş Çağrı Talebi oluşturma popup'ında Şablon mesajlar/Şablon mesaj ekle/Kurum İçi İlet
   kontrolleri yalnız o popup'a özel kompakt 28px; `Birim seçin` de gerçek 28px yükseklik ve orta
   genişlikte (160px) kalır. Genel dropdown ölçüleri etkilenmez.
+  **Rutin Görev Oluştur (card #1821):** `Açıklama` başlığının sağında WhatsApp ile aynı
+  `Şablon mesajlar` + `Şablon mesaj ekle` bileşenleri; seçim açıklama RichText'e yazılır.
+  **Kişisel şablon popup (card #1822):** `Kayıtlı şablonlar` native `<select>` değil;
+  `SingleSelectDropdown` (portal + standart stil).
   Yanıt textarea'sının sağındaki ileti butonu textarea boyunca uzamaz; küçük buton olarak alt
   kenara hizalanır (`self-end`).
 - **Taleplerim adres detay etiketleri:** `Adres Bilgileri` altındaki `Mahalle`,

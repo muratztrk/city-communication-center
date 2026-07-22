@@ -92,7 +92,8 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
             ActorDisplayName = actor.DisplayName,
             StatusAtEvent = WorkflowTaskStatus.Cancelled.ToString(),
             Notes = request.Reason,
-            Details = request.Reason
+            Details = request.Reason,
+            EventTimeUtc = utcNow,
         });
 
         var parentJob = await _dbContext.Jobs.FirstOrDefaultAsync(

@@ -1,3 +1,9 @@
+## Round 417 — #1795/#1802/#1800/#1801
+- #1795: Görev Süreç İptal Tarihi — `TaskDetailResponse.UpdatedAtUtc` + TaskCancelled audit.
+- #1802: LDAP sil hint `sourceLdapHint` hemen ardından.
+- #1800: Talep oluştur pending ek uzantısı küçük harf.
+- #1801: Yönetici notu bildiriminde Talep No (+ ActorDisplayName).
+
 ## Round 416 — #1799 proje onay
 - Birimden Giden + proje: Onayla modalında proje teyidi.
 

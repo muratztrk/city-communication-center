@@ -18,6 +18,7 @@ import { useAuth } from '../context/AuthContext'
 import { userWorksInDepartment } from '../utils/userDepartments'
 import type { Department, RequestTag, User } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
+import { lowercaseFileExtension } from '../utils/fileNameDisplay'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { prioritySelectOptions, stringListSelectOptions, yesNoSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
@@ -607,9 +608,10 @@ export function CreateRequestPage() {
             <ul className="space-y-1">
               {pendingFiles.map((file, idx) => {
                 const Icon = pendingFileIcon(file.name)
-                const dot = file.name.lastIndexOf('.')
-                const baseName = dot > 0 ? file.name.slice(0, dot) : file.name
-                const extension = dot > 0 ? file.name.slice(dot) : ''
+                const displayName = lowercaseFileExtension(file.name)
+                const dot = displayName.lastIndexOf('.')
+                const baseName = dot > 0 ? displayName.slice(0, dot) : displayName
+                const extension = dot > 0 ? displayName.slice(dot) : ''
                 return (
                 <li key={`${file.name}-${idx}`} className="flex min-w-0 items-start gap-2">
                   <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">

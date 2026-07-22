@@ -2228,10 +2228,13 @@ const pageKicker = isMyTasksView
                             dateTimeUtc: taskDetail.dueDateUtc ?? null,
                             state: isCompletedTimelineTask || isCancelledTimelineTask ? 'completed' : 'upcoming',
                           }
+                          // CancelTask → TaskCancelled (StatusChangeHistory'de yok); detay UpdatedAtUtc
+                          // audit zamanını taşır (card #1795).
                           const cancelledAtUtc = taskDetail.statusChangeHistory?.find(entry =>
                             entry.toStatus === 'Cancelled' || entry.toStatus === 'Rejected'
                           )?.changedAtUtc
-                            ?? selectedTask.updatedAtUtc
+                            ?? taskDetail.updatedAtUtc
+                            ?? selectedTask?.updatedAtUtc
                             ?? null
                           const steps: JobProcessStep[] = [
                             {

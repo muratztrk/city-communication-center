@@ -105,14 +105,24 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
         // Durumu belirleyen son işlemi yapan kullanıcı (iptal eden / tamamlayan) denetim kaydından (card 642).
         var taskStatusStr = task.CurrentStatus.ToString();
         string? statusActorDisplayName = null;
-        if (taskStatusStr is "Cancelled" or "Completed")
+        // İptalde Süreç "İptal Tarihi": CancelTask → TaskCancelled audit zamanı; StatusChangeHistory
+        // yalnız ChangeTaskStatus geçişlerini taşır, bu yüzden oradan gelmez (card #1795).
+        DateTimeOffset? updatedAtUtc = task.UpdatedAtUtc;
+        if (taskStatusStr is "Cancelled" or "Completed" or "Rejected")
         {
             var statusAction = taskStatusStr == "Completed" ? "TaskCompleted" : "TaskCancelled";
-            statusActorDisplayName = await _dbContext.AuditLogs.AsNoTracking()
+            var terminalAudit = await _dbContext.AuditLogs.AsNoTracking()
                 .Where(a => a.TenantId == tenantId && a.EntityId == request.TaskId.ToString() && a.Action == statusAction)
                 .OrderByDescending(a => a.EventTimeUtc)
-                .Select(a => a.ActorDisplayName)
+                .Select(a => new { a.ActorDisplayName, a.EventTimeUtc })
                 .FirstOrDefaultAsync(cancellationToken);
+            statusActorDisplayName = terminalAudit?.ActorDisplayName;
+            if (taskStatusStr is "Cancelled" or "Rejected"
+                && terminalAudit is not null
+                && terminalAudit.EventTimeUtc.Year > 2000)
+            {
+                updatedAtUtc = terminalAudit.EventTimeUtc;
+            }
         }
 
         // Görevin durum değişiklikleri geçmişi: yalnızca "Durum Değiştir" (ChangeTaskStatusCommand) ile
@@ -169,6 +179,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             task.RevisionReason,
             createdByName,
             task.CreatedAtUtc,
+            updatedAtUtc,
             approvals
                 .OrderBy(entity => entity.StepOrder)
                 .Select(entity => new ApprovalStepResponse(

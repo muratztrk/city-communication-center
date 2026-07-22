@@ -842,6 +842,9 @@ export function UsersPage() {
               </div>
             </label>
             <p className="helper-copy">{createMode === 'ldap' ? t('users.sourceLdapHint') : t('users.sourceManualHint')}</p>
+            {createMode === 'ldap' ? (
+              <p className="helper-copy text-red-600/90">{t('users.deleteAllLdapHint')}</p>
+            ) : null}
           </div>
 
           {createMode === 'ldap' ? (
@@ -893,7 +896,6 @@ export function UsersPage() {
               </div>
               <p className="helper-copy">{t('users.directorySearchDescription')}</p>
               <p className="helper-copy">{t('users.directoryLinkHint')}</p>
-              <p className="helper-copy text-red-600/90">{t('users.deleteAllLdapHint')}</p>
               {directorySyncMessage ? <p className="helper-copy">{directorySyncMessage}</p> : null}
               <AutocompleteField
                 ariaLabel={t('users.directorySearchAria')}

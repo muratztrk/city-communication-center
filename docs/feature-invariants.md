@@ -172,11 +172,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   birimlerle scoped edilir; backend+frontend yalnızca `JobCitizenRequestHelper` citizen görevlerini
   gösterir ve CRM bu görevlerde yönetici aksiyonlarını kullanabilir (card #1071).
 - **Durum Değişikliği Geçmişi (TasksPage detayı, card #2/#1097):** `TaskDetailResponse.StatusChangeHistory`
-  görevin TÜM audit'lerindeki `StatusAtEvent`'ten türetilir — yalnızca "Durum Değiştir" değil, Atandı→Yapılmakta
-  gibi normal geçişler de dahil. Mantık: audit'ler zaman sırasıyla gezilir, `StatusAtEvent` bir öncekinden
-  farklıysa bir geçiş kaydı çıkar. Eski audit zinciri ilk kaydı doğrudan yeni durumla başlatırsa
-  Atandı→ilk durum geçişi sentetik görünür. Sadece Görevlerim detayında, Açıklama'nın sağında ek sütun
-  (rutin görevlerde gizli); eski yalnız-durum+tarih kuralı #1619/#1624 ile geçersizdir.
+  yalnız `ChangeTaskStatusCommand` (`TaskStatusChanged` audit) geçişleridir — normal Cancel/Complete
+  akışı burada yoktur. İptal Süreç tarihi için `TaskDetailResponse.UpdatedAtUtc` kullanılır; iptalde
+  bu alan son `TaskCancelled` audit `EventTimeUtc` (yoksa entity `UpdatedAtUtc`) değeridir (card #1795).
+  Sadece Görevlerim detayında, Açıklama'nın sağında ek sütun (rutin görevlerde gizli).
 - **Görev Ekleri sütunu (Tasks detay):** tamamlanmış rutin olmayan görevde yalnızca gerçek görev eki varsa
   görünür; ek yoksa boş "Görev Ekleri" alanı hiç oluşmaz.
 - **DateTimePicker NAİF yerel duvar-saati sözleşmesi (round 380, #1677):** `DateTimePicker` value'su
@@ -875,7 +874,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   içinde "Müdür" geçiyorsa (birim müdür kontenjanı uygunsa) rol `Manager` yapılır
   (cards #1787 reopen/#1789). "Tüm LDAP Kullanıcılarını Sil" kırmızı link + ConfirmDialog;
   yalnız talep/görev oluşturmamış LDAP kullanıcılarını siler (`POST /users/ldap/delete-unused`,
-  card #1790). sistemde olmayanlar ayrıca listelenir; yoksa `"Yeni kullanıcı bulunamadı"`; senkron sonrası birimi
+  card #1790). Kırmızı `deleteAllLdapHint` `sourceLdapHint`'ten hemen sonra gelir (çek
+  butonlarının altında değil). sistemde olmayanlar ayrıca listelenir; yoksa `"Yeni kullanıcı bulunamadı"`; senkron sonrası birimi
   LDAP’ta olmayanlar dropdown’u güncellenir (cards #1754/#1768). LDAP arama placeholder’ı
   **en az 3 karakter** (card #1754). Eklenecek kullanıcılar satırında `birim:` etiketi yok —
   `Ad — BirimAdı` (card #1767).   Yerel kullanıcıda **Parola Onayla** alanı; uyuşmazsa kırmızı
@@ -992,7 +992,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Shell `detail-modal-shell--my-request` taşır.
 - **Yönetici Notu limiti (card #1585):** yönetici detay popup'larındaki textarea ve
   `SetJobManagerNoteCommand` en fazla 100 karakter kabul eder; başlık yanında
-  `(max 100 karakter) *` gösterilir.
+  `(max 100 karakter) *` gösterilir. `JobManagerNoteAdded` bildiriminde açıklama
+  `Talep No: T-…` (yoksa `T-{yıl}-Onay Bekleyen`) içerir; audit `ActorDisplayName` yazılır.
 - **Terminal işlem notları 100 karakterdir:** Görevi Tamamla `Tamamlama Notu`, Görevi İptal Et
   `İptal Nedeni`, Talebi İptal Et `İptal Nedeni` ve Görev Durum Değişikliği nedeni frontend
   `maxLength` + açıklama metninde ve backend FluentValidation'da aynı 100 sınırını uygular

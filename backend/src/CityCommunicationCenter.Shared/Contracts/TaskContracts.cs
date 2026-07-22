@@ -156,6 +156,8 @@ public sealed record TaskDetailResponse(
     string? RevisionReason,
     string? CreatedByDisplayName,
     DateTimeOffset CreatedAtUtc,
+    // İptal/terminal Süreç tarihi — liste özetindeki UpdatedAtUtc ile aynı kaynak (card #1795).
+    DateTimeOffset? UpdatedAtUtc,
     IReadOnlyCollection<ApprovalStepResponse> Approvals,
     IReadOnlyCollection<AssignmentHistoryResponse> AssignmentHistory,
     string? OwnerDisplayName,

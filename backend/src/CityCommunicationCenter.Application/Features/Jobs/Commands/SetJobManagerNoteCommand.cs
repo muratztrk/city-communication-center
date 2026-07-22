@@ -78,6 +78,7 @@ public sealed class SetJobManagerNoteCommandHandler : ICommandHandler<SetJobMana
             EntityId = job.JobId.ToString(),
             Action = note is null ? "JobManagerNoteDeleted" : "JobManagerNoteAdded",
             ActorUserId = actor.UserId,
+            ActorDisplayName = actor.DisplayName,
             StatusAtEvent = job.Status.ToString(),
             Notes = note,
             Details = note,

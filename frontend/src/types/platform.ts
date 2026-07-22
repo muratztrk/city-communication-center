@@ -194,6 +194,8 @@ export interface TaskDetail {
   revisionReason: string | null;
   createdByDisplayName: string | null;
   createdAtUtc: string;
+  // İptal Süreç tarihi — CancelTask audit / UpdatedAtUtc (card #1795).
+  updatedAtUtc?: string | null;
   approvals: JobApprovalStep[];
   assignmentHistory: AssignmentHistory[];
   ownerDisplayName: string | null;

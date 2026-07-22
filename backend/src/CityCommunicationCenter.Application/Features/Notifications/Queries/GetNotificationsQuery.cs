@@ -78,7 +78,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     || managerJobIds.Contains(j.JobId)
                     || _dbContext.Tasks.Any(task => task.JobId == j.JobId
                         && (task.AssignedUserId == userId || task.OwnerUserId == userId))))
-                .Select(j => new { JobGuid = j.JobId, JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear })
+                .Select(j => new { JobGuid = j.JobId, JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear, j.CreatedAtUtc })
                 .ToListAsync(cancellationToken);
             var taskRecords = await _dbContext.Tasks.AsNoTracking()
                 .Where(t => t.TenantId == tenantId && (
@@ -253,6 +253,9 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                             entityNumber = $"Vatandaş Talep No: {citizenRequestNumber}";
                         else if (jobRec.JobNumber.HasValue)
                             entityNumber = $"Talep No: {FormatNumber("T", jobRec.JobNumber.Value, jobRec.JobNumberYear)}";
+                        else if (a.Action is "JobManagerNoteAdded" or "JobManagerNoteDeleted")
+                            // Onay öncesi taleplerde numara yok; bildirimde yine talep no alanı kalsın (card r417).
+                            entityNumber = $"Talep No: T-{jobRec.CreatedAtUtc.Year}-Onay Bekleyen";
                     }
 
                     var messageParts = new List<string>();
@@ -275,6 +278,15 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
                         var dueDateNote = FormatNote(!string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details);
                         if (!string.IsNullOrWhiteSpace(dueDateNote)) messageParts.Add(dueDateNote);
+                    }
+                    else if (a.Action is "JobManagerNoteAdded" or "JobManagerNoteDeleted")
+                    {
+                        // Yönetici notu: Talep No — başlık — not — aktör (talep no açıklamada zorunlu).
+                        if (!string.IsNullOrWhiteSpace(entityNumber)) messageParts.Add(entityNumber);
+                        if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
+                        var noteDetail = FormatNote(!string.IsNullOrWhiteSpace(a.Notes) ? a.Notes : a.Details);
+                        if (!string.IsNullOrWhiteSpace(noteDetail)) messageParts.Add(noteDetail);
+                        if (!string.IsNullOrWhiteSpace(a.ActorDisplayName)) messageParts.Add(a.ActorDisplayName);
                     }
                     else
                     {

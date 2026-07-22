@@ -7,6 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../../lib/rolePageAccess'
 import type { Department, JobSummary, SocialMessage, Task, User } from '../../types/platform'
 import { getTaskStatusLabel } from '../../utils/localization'
+import { includesFoldedTr } from '../../utils/textNormalization'
 
 type SearchCategory =
   | 'myRequests'
@@ -66,10 +67,9 @@ const CATEGORY_ICONS: Record<SearchCategory, typeof FolderKanban> = {
 const MAX_PER_CATEGORY = 4
 
 function jobMatches(job: JobSummary, q: string): boolean {
-  return job.title.toLocaleLowerCase('tr').includes(q)
-    || job.citizenName?.toLocaleLowerCase('tr').includes(q)
-    || job.ownerDepartmentName?.toLocaleLowerCase('tr').includes(q)
-    || false
+  return includesFoldedTr(job.title, q)
+    || includesFoldedTr(job.citizenName, q)
+    || includesFoldedTr(job.ownerDepartmentName, q)
 }
 
 function jobSubtitle(job: JobSummary): string {
@@ -80,11 +80,10 @@ function jobSubtitle(job: JobSummary): string {
 }
 
 function taskMatches(task: Task, q: string): boolean {
-  return task.title.toLocaleLowerCase('tr').includes(q)
-    || task.jobTitle?.toLocaleLowerCase('tr').includes(q)
-    || task.assignedUserDisplayName?.toLocaleLowerCase('tr').includes(q)
-    || task.assignedDepartmentName?.toLocaleLowerCase('tr').includes(q)
-    || false
+  return includesFoldedTr(task.title, q)
+    || includesFoldedTr(task.jobTitle, q)
+    || includesFoldedTr(task.assignedUserDisplayName, q)
+    || includesFoldedTr(task.assignedDepartmentName, q)
 }
 
 function pushJobResults(
@@ -218,9 +217,9 @@ function filterResults(
   if (access.social) {
     data.social
       .filter(msg =>
-        msg.citizenHandle.toLocaleLowerCase('tr').includes(q)
-        || msg.category?.toLocaleLowerCase('tr').includes(q)
-        || msg.assignedDepartmentName?.toLocaleLowerCase('tr').includes(q),
+        includesFoldedTr(msg.citizenHandle, q)
+        || includesFoldedTr(msg.category, q)
+        || includesFoldedTr(msg.assignedDepartmentName, q),
       )
       .slice(0, MAX_PER_CATEGORY)
       .forEach(msg => results.push({
@@ -235,9 +234,9 @@ function filterResults(
   if (access.users) {
     data.users
       .filter(user =>
-        user.displayName.toLocaleLowerCase('tr').includes(q)
-        || user.username?.toLocaleLowerCase('tr').includes(q)
-        || user.email?.toLocaleLowerCase('tr').includes(q),
+        includesFoldedTr(user.displayName, q)
+        || includesFoldedTr(user.username, q)
+        || includesFoldedTr(user.email, q),
       )
       .slice(0, MAX_PER_CATEGORY)
       .forEach(user => results.push({
@@ -251,7 +250,7 @@ function filterResults(
 
   if (access.departments) {
     data.departments
-      .filter(dept => dept.name.toLocaleLowerCase('tr').includes(q))
+      .filter(dept => includesFoldedTr(dept.name, q))
       .slice(0, MAX_PER_CATEGORY)
       .forEach(dept => results.push({
         id: `dept-${dept.departmentId}`,

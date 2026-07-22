@@ -2228,6 +2228,11 @@ const pageKicker = isMyTasksView
                             dateTimeUtc: taskDetail.dueDateUtc ?? null,
                             state: isCompletedTimelineTask || isCancelledTimelineTask ? 'completed' : 'upcoming',
                           }
+                          const cancelledAtUtc = taskDetail.statusChangeHistory?.find(entry =>
+                            entry.toStatus === 'Cancelled' || entry.toStatus === 'Rejected'
+                          )?.changedAtUtc
+                            ?? selectedTask.updatedAtUtc
+                            ?? null
                           const steps: JobProcessStep[] = [
                             {
                               id: 'requestDate',
@@ -2248,8 +2253,8 @@ const pageKicker = isMyTasksView
                                 ? [dueDateStep, {
                                     id: 'cancelDate' as const,
                                     label: t('tasks.columns.cancelledAt', 'İptal Tarihi'),
-                                    displayValue: formatDateTime(selectedTask.updatedAtUtc ?? null, locale),
-                                    dateTimeUtc: selectedTask.updatedAtUtc ?? null,
+                                    displayValue: formatDateTime(cancelledAtUtc, locale),
+                                    dateTimeUtc: cancelledAtUtc,
                                     state: 'terminal-danger' as const,
                                   }]
                                 : [

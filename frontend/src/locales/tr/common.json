@@ -937,7 +937,7 @@
     "tabs": {
       "organization": "Kurum",
       "appearance": "Görünüm",
-      "roles": "Rol Yetkileri",
+      "roles": "Sayfa Yetkileri",
       "social": "Sosyal Medya",
       "routing": "Otomatik Yönlendirme",
       "templates": "Taslak Mesajlar"
@@ -1132,7 +1132,7 @@
     "authWebhookUrlPlaceholder": "https://auth.example.com/send-code",
     "authSaveSuccess": "Kimlik politikası kaydedildi.",
     "roles": {
-      "title": "Rol Sayfa Yetkileri",
+      "title": "Sayfa Yetkileri",
       "description": "Her rolün uygulamada hangi sayfaları görebileceğini düzenleyin.",
       "page": "Sayfa",
       "note": "Bu matris arayüzdeki sayfa görünürlüğünü yönetir. Kontrol paneli herkes için açık kalır; sistem ayarları yalnızca Sistem Yöneticisi rolüne açıktır.",

@@ -931,7 +931,7 @@
     "tabs": {
       "organization": "Organization",
       "appearance": "Appearance",
-      "roles": "Role Permissions",
+      "roles": "Page Permissions",
       "social": "Social Media",
       "routing": "Auto Routing",
       "templates": "Draft Messages"
@@ -1116,7 +1116,7 @@
     "authWebhookUrlPlaceholder": "https://auth.example.com/send-code",
     "authSaveSuccess": "Authentication policy saved.",
     "roles": {
-      "title": "Role Page Permissions",
+      "title": "Page Permissions",
       "description": "Configure which application pages each role can see.",
       "page": "Page",
       "note": "This matrix controls page visibility in the user interface. Dashboard remains available to everyone; system settings stay limited to the System Administrator role.",

@@ -76,8 +76,15 @@ function buildTaskProcessSteps(
       {
         id: 'cancelDate',
         label: t('tasks.columns.cancelledAt', 'İptal Tarihi'),
-        displayValue: formatDateTime(task.updatedAtUtc ?? null, locale),
-        dateTimeUtc: task.updatedAtUtc ?? null,
+        displayValue: formatDateTime(
+          task.statusChangeHistory?.find(entry => entry.toStatus === 'Cancelled' || entry.toStatus === 'Rejected')?.changedAtUtc
+            ?? task.updatedAtUtc
+            ?? null,
+          locale,
+        ),
+        dateTimeUtc: task.statusChangeHistory?.find(entry => entry.toStatus === 'Cancelled' || entry.toStatus === 'Rejected')?.changedAtUtc
+          ?? task.updatedAtUtc
+          ?? null,
         state: 'terminal-danger',
       },
     ]

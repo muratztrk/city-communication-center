@@ -2083,7 +2083,7 @@ export function SettingsPage() {
                 <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>
                 <p className="mt-2 max-w-md text-sm leading-6 text-white/78">{t('settings.appearancePreviewBody')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {[
                   previewAppearance.primaryColor,
                   previewAppearance.secondaryColor,
@@ -2092,9 +2092,9 @@ export function SettingsPage() {
                   previewAppearance.surfaceColor,
                   previewAppearance.sidebarBackgroundColor,
                 ].map(color => (
-                  <div className="rounded-2xl border border-slate-200 bg-white p-3" key={color}>
-                    <div className="h-14 rounded-xl" style={{ backgroundColor: color }} />
-                    <div className="mt-2 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">{color}</div>
+                  <div className="rounded-xl border border-slate-200 bg-white p-2" key={color}>
+                    <div className="h-9 rounded-lg" style={{ backgroundColor: color }} />
+                    <div className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">{color}</div>
                   </div>
                 ))}
               </div>
@@ -2347,7 +2347,7 @@ export function SettingsPage() {
                 type="button"
                 onClick={() => void syncMetaTemplates()}
                 disabled={syncingMetaTemplates}
-                className="flex items-center justify-center gap-2 rounded-xl border border-orange-200 bg-orange-50 px-4 py-2.5 text-center text-sm font-bold text-orange-700 shadow-sm hover:bg-orange-100 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex items-center justify-center gap-2 rounded-xl border border-sky-200 bg-sky-600 px-4 py-2.5 text-center text-sm font-bold text-white shadow-sm hover:bg-sky-700 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 <RefreshCw className={`size-3.5 ${syncingMetaTemplates ? 'animate-spin' : ''}`} />
                 {syncingMetaTemplates ? 'Senkronize ediliyor…' : "Meta'dan Senkronize Et"}

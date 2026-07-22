@@ -1,3 +1,10 @@
+## Round 415 — Sistemde ara TR / iptal tarihi / Sayfa Yetkileri / Meta mavi / swatch
+- Sistemde ara Türkçe katlama (#1794-ish).
+- Görev Süreç İptal Tarihi statusChangeHistory / updatedAtUtc.
+- Rol Yetkileri → Sayfa Yetkileri.
+- Meta'dan Senkronize Et mavi.
+- Görünüm renk kutucukları küçültüldü.
+
 ## Round 414 — #1787/#1791/#1792/#1793/#1788/#1789/#1790
 - #1787: Anlık LDAP sync birim (`DepartmentId`) günceller.
 - #1791: Personel Dahili No ara Türkçe karakter / i-ı katlamalı.

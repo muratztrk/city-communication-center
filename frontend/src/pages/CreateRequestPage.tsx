@@ -11,6 +11,7 @@ import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { RequestTagAddButton, RequestTagPicker } from '../components/RequestTagDialog'
 import { DateTimePicker } from '../components/ui/date-time-picker'
+import { earliestDueDatePickerValue, clampDueDatePickerValue } from '../utils/dateTimePicker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
@@ -161,6 +162,11 @@ function isRequestKind(value: string | null): value is RequestKind {
 
 function toApiDateTime(value: string) {
   return value ? new Date(value).toISOString() : null
+}
+
+function toApiDueDateTime(value: string) {
+  if (!value) return null
+  return new Date(clampDueDatePickerValue(value)).toISOString()
 }
 
 function hasRichTextContent(value: string) {
@@ -784,7 +790,7 @@ export function CreateRequestPage() {
           description: internalForm.description.trim(),
           priority: internalForm.priority,
           startDateUtc: null,
-          dueDateUtc: toApiDateTime(internalForm.dueDateUtc),
+          dueDateUtc: toApiDueDateTime(internalForm.dueDateUtc),
           isProject: internalForm.isProject,
           neighborhood: internalForm.neighborhood || '',
           street: normalizeTitleCaseField(internalForm.street) ?? '',
@@ -804,7 +810,7 @@ export function CreateRequestPage() {
         priority: internalForm.priority,
         requestType: 'InternalUnit',
         isProject: internalForm.isProject,
-        dueDateUtc: toApiDateTime(internalForm.dueDateUtc),
+        dueDateUtc: toApiDueDateTime(internalForm.dueDateUtc),
         sourceType: 'InternalRequest',
         neighborhood: internalForm.neighborhood || null,
         street: normalizeTitleCaseField(internalForm.street),
@@ -859,7 +865,7 @@ export function CreateRequestPage() {
           description: externalForm.description.trim(),
           priority: externalForm.priority,
           startDateUtc: toApiDateTime(externalForm.startDateUtc),
-          dueDateUtc: toApiDateTime(externalForm.dueDateUtc),
+          dueDateUtc: toApiDueDateTime(externalForm.dueDateUtc),
           isProject: externalForm.isProject,
           neighborhood: normalizeTitleCaseField(externalForm.neighborhood) ?? '',
           street: normalizeTitleCaseField(externalForm.street) ?? '',
@@ -880,7 +886,7 @@ export function CreateRequestPage() {
         requestType: 'ExternalUnit',
         isProject: externalForm.isProject,
         startDateUtc: toApiDateTime(externalForm.startDateUtc),
-        dueDateUtc: toApiDateTime(externalForm.dueDateUtc),
+        dueDateUtc: toApiDueDateTime(externalForm.dueDateUtc),
         targetDepartmentIds,
         sourceType: 'Manual',
         neighborhood: normalizeTitleCaseField(externalForm.neighborhood),
@@ -963,7 +969,7 @@ export function CreateRequestPage() {
           description: citizenForm.content.trim(),
           priority: citizenForm.priority,
           startDateUtc: toApiDateTime(citizenForm.startDateUtc),
-          dueDateUtc: toApiDateTime(citizenForm.dueDateUtc),
+          dueDateUtc: toApiDueDateTime(citizenForm.dueDateUtc),
           isProject: false,
           citizenName: normalizedCitizenName,
           citizenPhone: trimmedPhone,
@@ -998,7 +1004,7 @@ export function CreateRequestPage() {
         targetDepartmentIds: [citizenForm.targetDepartmentId],
         isProject: false,
         startDateUtc: toApiDateTime(citizenForm.startDateUtc),
-        dueDateUtc: toApiDateTime(citizenForm.dueDateUtc),
+        dueDateUtc: toApiDueDateTime(citizenForm.dueDateUtc),
         neighborhood: citizenForm.neighborhood || null,
         street: normalizeTitleCaseField(citizenForm.street),
         openAddress: normalizeTitleCaseField(citizenForm.openAddress),
@@ -1156,7 +1162,7 @@ export function CreateRequestPage() {
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')}</span>
-                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: v }))} placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')} forceUp />
+                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v) }))} placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')} forceUp minDateTime={earliestDueDatePickerValue()} />
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</span>
@@ -1236,7 +1242,7 @@ export function CreateRequestPage() {
               </div>
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-due-date">{t('jobs.form.dueDate')}</label>
-                <DateTimePicker id="request-due-date" value={externalForm.dueDateUtc} onChange={v => setExternalForm(current => ({ ...current, dueDateUtc: v }))} />
+                <DateTimePicker id="request-due-date" value={externalForm.dueDateUtc} onChange={v => setExternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v) }))} minDateTime={earliestDueDatePickerValue()} />
               </div>
             </div>
             {renderAddressFields(externalForm, (field, value) => setExternalForm(current => ({ ...current, [field]: value })))}

@@ -17,6 +17,8 @@ interface DateTimePickerProps {
   autoOpen?: boolean
   /** Takvim seçim yapılmadan (dışarı tıklama / Escape) kapatıldığında çağrılır. */
   onClose?: () => void
+  /** "YYYY-MM-DDTHH:mm" — bundan erken seçim kabul edilmez (card #1819). */
+  minDateTime?: string
 }
 
 const DROPDOWN_WIDTH = 288  // w-72
@@ -55,7 +57,7 @@ function todayDateStr() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false, onClose }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false, onClose, minDateTime }: DateTimePickerProps) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState({ date: '', time: '' })
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
@@ -67,9 +69,13 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
   // Yıl seçici (card 531): yıla tıklanınca geçmiş yıllar da seçilebilsin.
   const [yearPickerOpen, setYearPickerOpen] = useState(false)
   const [yearBlockStart, setYearBlockStart] = useState(() => new Date().getFullYear() - 5)
+  const minDatePart = minDateTime?.slice(0, 10) ?? ''
 
   const handleOpen = useCallback(() => {
     const now = new Date()
+    const fallback = minDateTime && minDateTime.length >= 16
+      ? minDateTime
+      : `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`
     if (value) {
       const [datePart = '', timePart = ''] = value.split('T')
       setDraft({ date: datePart, time: timePart.slice(0, 5) })
@@ -79,15 +85,17 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
         setViewMonth(m - 1)
       }
     } else {
-      const date = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
-      const time = `${pad(now.getHours())}:${pad(now.getMinutes())}`
-      setDraft({ date, time })
-      setViewYear(now.getFullYear())
-      setViewMonth(now.getMonth())
+      const [datePart = '', timePart = ''] = fallback.split('T')
+      setDraft({ date: datePart, time: timePart.slice(0, 5) })
+      if (datePart) {
+        const [y, m] = datePart.split('-').map(Number)
+        setViewYear(y)
+        setViewMonth(m - 1)
+      }
     }
     setYearPickerOpen(false)
     setOpen(true)
-  }, [value])
+  }, [minDateTime, value])
 
   useEffect(() => {
     if (!autoOpen || autoOpenedRef.current) return
@@ -128,7 +136,9 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
 
   const handleConfirm = () => {
     if (draft.date) {
-      onChange(`${draft.date}T${draft.time || '00:00'}`)
+      let next = `${draft.date}T${draft.time || '00:00'}`
+      if (minDateTime && next < minDateTime) next = minDateTime
+      onChange(next)
     }
     setOpen(false)
   }
@@ -141,6 +151,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
 
   const handleDayClick = (day: number) => {
     const date = `${viewYear}-${pad(viewMonth + 1)}-${pad(day)}`
+    if (minDatePart && date < minDatePart) return
     setDraft(d => ({ ...d, date }))
   }
 
@@ -322,16 +333,19 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
                     const dateStr = `${viewYear}-${pad(viewMonth + 1)}-${pad(day)}`
                     const isSelected = draft.date === dateStr
                     const isToday = dateStr === today
+                    const isDisabled = Boolean(minDatePart && dateStr < minDatePart)
                     return (
                       <button
                         key={i}
                         type="button"
+                        disabled={isDisabled}
                         onClick={() => handleDayClick(day)}
                         className={cn(
                           'mx-auto flex size-8 items-center justify-center rounded-lg text-sm font-medium transition-colors',
-                          isSelected && 'bg-[color:var(--color-primary)] font-bold text-white shadow-sm',
-                          !isSelected && isToday && 'border border-[color:var(--color-primary)] font-bold text-[color:var(--color-primary)]',
-                          !isSelected && !isToday && 'text-slate-700 hover:bg-slate-100',
+                          isDisabled && 'cursor-not-allowed text-slate-300',
+                          !isDisabled && isSelected && 'bg-[color:var(--color-primary)] font-bold text-white shadow-sm',
+                          !isDisabled && !isSelected && isToday && 'border border-[color:var(--color-primary)] font-bold text-[color:var(--color-primary)]',
+                          !isDisabled && !isSelected && !isToday && 'text-slate-700 hover:bg-slate-100',
                         )}
                       >
                         {day}

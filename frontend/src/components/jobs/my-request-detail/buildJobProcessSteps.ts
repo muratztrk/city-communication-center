@@ -6,6 +6,7 @@ import {
 } from '../../../utils/citizenRequests'
 import { formatDateTime, formatDueDateTime } from './format'
 import { getJobTargetApproverDisplayName } from '../../../utils/jobDetails'
+import { isJobDueDateOverdue } from '../../../utils/dateTimePicker'
 
 export type JobProcessStepState = 'completed' | 'current' | 'pending' | 'upcoming' | 'terminal-success' | 'terminal-danger'
 
@@ -76,10 +77,12 @@ function isTerminalStatus(status: string): boolean {
   return status === 'Completed' || status === 'Cancelled' || status === 'Rejected'
 }
 
-/** Aktif talepte son tarih geçmişse Durum turuncu kalır (card #1644). */
+/** Aktif talepte son tarih geçmişse Durum turuncu kalır (card #1644).
+ * Onay bekleyen taleplerde aynı gün içinde saat aşımı "Son Tarihi Geçmiş" sayılmaz;
+ * takvim günü değişince geçerli olur (card #1819). */
 function isActiveJobOverdue(detail: JobDetail): boolean {
   if (isTerminalStatus(detail.status)) return false
-  return detail.dueDateUtc != null && new Date(detail.dueDateUtc).getTime() < Date.now()
+  return isJobDueDateOverdue(detail)
 }
 
 /**

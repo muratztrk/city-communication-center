@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import type { TFunction } from 'i18next'
 import { DateTimePicker } from '../../ui/date-time-picker'
+import { clampDueDatePickerValue, earliestDueDatePickerValue } from '../../../utils/dateTimePicker'
 import { Button } from '../../ui/button'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { RichTextEditor } from '../../ui/RichTextEditor'
@@ -266,9 +267,10 @@ export function MyRequestDetailMainCard({
     <div className="my-request-detail-edit-due-date">
       <DateTimePicker
         value={editDraft.dueDateUtc}
-        onChange={value => onEditDraftChange({ dueDateUtc: value })}
+        onChange={value => onEditDraftChange({ dueDateUtc: clampDueDatePickerValue(value) })}
         placeholder={t('jobs.form.dueDate', 'Son Tarih')}
         forceUp
+        minDateTime={earliestDueDatePickerValue()}
       />
     </div>
   ) : detailDueDateEdit?.jobId === detail.jobId ? (
@@ -280,6 +282,7 @@ export function MyRequestDetailMainCard({
         className={detailDueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
         forceUp
         autoOpen
+        minDateTime={earliestDueDatePickerValue()}
         onClose={detailDueDateEdit.mode === 'picking' ? onCloseDueDateEdit : undefined}
       />
       {detailDueDateEdit.mode === 'confirm' && (

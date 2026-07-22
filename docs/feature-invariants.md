@@ -928,6 +928,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep Son Tarih Değiştir (cards #1673/#1666):** Birime Gelen hedef birim yöneticisi
   `UpdateJob` ile Son Tarih kaydedebilir (Owner-only yetki 403 vermez). Birimden Giden sahip
   yöneticisi detay Süreç'te `Onay Bekleyen` yanında `Değiştir` görür.
+- **Talep son tarihi min + onay bekleyen overdue (card #1819):** Manuel Son Tarih seçimi
+  (oluşturma + Değiştir) en erken `şimdi + 2 saat`. Onay bekleyen (`PendingOwnerApproval` /
+  `PendingExternalApproval` / `PendingApproval`) talepler aynı gün içinde saat aşımında
+  "Son Tarihi Geçmiş" sayılmaz; takvim günü değişince overdue olur.
 - **Mobil detay header eşit butonlar (card #1676):** `DisabledActionButton` span sarmalayıcı
   da 2-kolon gridde `width: 100%` — pasif Yönlendir = İptal boyutu.
 - **Mobil login logo paneli (card #1675):** yeşil logo alanı Personel Girişi kartıyla aynı

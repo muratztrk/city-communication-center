@@ -593,7 +593,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   <button
                     type="button"
                     onClick={() => setIsOpen(false)}
-                    className="flex size-6 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow-sm transition-colors hover:bg-red-600 active:scale-95"
+                    className="flex size-6 shrink-0 items-center justify-center rounded-full bg-transparent text-slate-500 transition-colors hover:bg-red-500 hover:text-white active:scale-95"
                     aria-label={t('common.close', 'Kapat')}
                   >
                     <X className="size-3.5" strokeWidth={2.5} />
@@ -682,7 +682,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-transparent text-slate-500 transition-colors hover:bg-red-500 hover:text-white active:scale-95"
                 aria-label="Kapat"
               >
                 <X className="size-4" />

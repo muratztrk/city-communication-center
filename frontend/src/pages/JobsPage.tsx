@@ -71,7 +71,7 @@ import { printHtmlDocument } from '../utils/printDocument'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { richTextToPlainText } from '../utils/richText'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
-import { toDateTimePickerValue } from '../utils/dateTimePicker'
+import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue } from '../utils/dateTimePicker'
 
 interface ScopeChipFiltersProps {
   searchText: string
@@ -173,7 +173,7 @@ function isClosedJobStatus(status: string): boolean {
 }
 
 function isJobOverdue(job: JobSummary): boolean {
-  return job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()
+  return isJobDueDateOverdue(job)
 }
 
 function getJobStatusLabel(t: TFunction, status: string): string {
@@ -194,7 +194,7 @@ function getJobDisplayStatus(
   if (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval') {
     return t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
   }
-  if (job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()) {
+  if (isJobDueDateOverdue(job)) {
     return formatOverdueInProgressStatus(t)
   }
   const externalOwnerStatus = getExternalUnitOwnerDisplayStatus(t, job)
@@ -1311,7 +1311,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         description: detail.description ?? '',
         priority: detail.priority,
         startDateUtc: detail.startDateUtc,
-        dueDateUtc: detailDueDateEdit.value ? new Date(detailDueDateEdit.value).toISOString() : null,
+        dueDateUtc: detailDueDateEdit.value ? new Date(clampDueDatePickerValue(detailDueDateEdit.value)).toISOString() : null,
         latitude: detail.latitude,
         longitude: detail.longitude,
         isProject: detail.isProject,
@@ -2193,7 +2193,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               detailDueDateEdit={detailDueDateEdit}
               onOpenDueDateEdit={openDetailDueDateEdit}
               onCloseDueDateEdit={closeDetailDueDateEdit}
-              onDueDateChange={value => setDetailDueDateEdit(current => current ? { ...current, value, mode: 'confirm' } : current)}
+              onDueDateChange={value => setDetailDueDateEdit(current => current ? { ...current, value: clampDueDatePickerValue(value), mode: 'confirm' } : current)}
               onDueDateSave={() => void handleDetailDueDateSave()}
               jobExtraTimeReview={jobExtraTimeReview}
               onOpenExtraTimeReview={() => void openJobExtraTimeReview()}
@@ -2535,7 +2535,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         // Birime Gelen: Active + görev yok da UI'da Onay Bekleyen (card #1535).
                         unassignedActiveAsPending: isIncomingRequestDetail,
                       })
-                      const detailOverdue = detail.dueDateUtc != null && new Date(detail.dueDateUtc).getTime() < Date.now()
+                      const detailOverdue = isJobDueDateOverdue(detail)
                       const activeStatusLabel = detailOverdue
                         ? formatOverdueInProgressStatus(t)
                         : t('jobs.statusLabel.inProgress', 'Yapılmakta')
@@ -2563,11 +2563,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         <div className="mt-1 flex flex-col gap-1.5">
                           <DateTimePicker
                             value={detailDueDateEdit.value}
-                            onChange={dateValue => setDetailDueDateEdit(current => current ? { ...current, value: dateValue, mode: 'confirm' } : current)}
+                            onChange={dateValue => setDetailDueDateEdit(current => current ? { ...current, value: clampDueDatePickerValue(dateValue), mode: 'confirm' } : current)}
                             placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
                             className={detailDueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
                             forceUp
                             autoOpen
+                            minDateTime={earliestDueDatePickerValue()}
                             onClose={detailDueDateEdit.mode === 'picking' ? closeDetailDueDateEdit : undefined}
                           />
                           {detailDueDateEdit.mode === 'confirm' && (

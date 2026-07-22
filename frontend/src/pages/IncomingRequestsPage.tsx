@@ -57,6 +57,7 @@ import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../compo
 import { JobsPage } from './JobsPage'
 import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { matchesBannerSearch } from '../utils/bannerSearch'
+import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 
 type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-progress' | 'completed' | 'cancelled' | 'all'
 type IncomingKindFilter = 'all'
@@ -146,7 +147,7 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
   if (row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval') {
     return t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
   }
-  if (row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()) {
+  if (isJobDueDateOverdue(row)) {
     return formatOverdueInProgressStatus(t)
   }
   if (row.kind === 'external') {
@@ -165,7 +166,7 @@ function getIncomingStatusPillClass(row: IncomingRequestRow): string {
   // Vatandaş PendingExternalApproval satırları UI'da İşleme Alındı olabilir — pending tone kullanma (card #1650 reopen).
   if (row.isCitizenRequest && row.statusDomain === 'job') {
     const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
-    const overdue = row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()
+    const overdue = isJobDueDateOverdue({ status: normalizedStatus, dueDateUtc: row.dueDateUtc })
     if (normalizedStatus === 'Active' && (row.taskCount ?? 0) === 0 && !overdue) {
       return getStatusPillClass('processingReceived')
     }
@@ -194,7 +195,7 @@ function getIncomingKindFilter(): IncomingKindFilter {
 
 function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilter): boolean {
   if (filter === 'all') return true
-  const isOverdue = row.dueDateUtc != null && new Date(row.dueDateUtc).getTime() < Date.now()
+  const isOverdue = isJobDueDateOverdue(row)
   const isClosed = row.status === 'Completed' || row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
 
   if (filter === 'pending-approval') {

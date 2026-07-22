@@ -284,15 +284,18 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISocialMediaClientFactory _clientFactory;
+    private readonly string _uploadRootPath;
 
     public ReplyToSocialMessageAttachmentCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
-        ISocialMediaClientFactory clientFactory)
+        ISocialMediaClientFactory clientFactory,
+        Microsoft.Extensions.Options.IOptions<Attachments.AttachmentStorageOptions> attachmentStorageOptions)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _clientFactory = clientFactory;
+        _uploadRootPath = attachmentStorageOptions.Value.UploadRootPath;
     }
 
     public async ValueTask<bool> Handle(ReplyToSocialMessageAttachmentCommand request, CancellationToken cancellationToken)
@@ -327,6 +330,14 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
         string? externalEntryId = null;
         string? mediaId = null;
         string? deliveryError = null;
+        var entryId = Guid.NewGuid();
+        var localMediaId = ConversationLocalMediaStore.BuildLocalMediaId(tenantId, entryId, request.FileName);
+        await ConversationLocalMediaStore.SaveAsync(
+            _uploadRootPath,
+            localMediaId,
+            request.FileContent,
+            cancellationToken);
+        mediaId = localMediaId;
 
         if (request.SendImmediately)
         {
@@ -359,7 +370,7 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
                 if (sendResult.Success)
                 {
                     externalEntryId = sendResult.MessageId;
-                    mediaId = sendResult.MediaId;
+                    // Önizleme için yerel kopyayı koru (Graph medya ID süresi dolabilir — R421).
                     deliveryStatus = ConversationDeliveryStatus.Sent;
                 }
                 else
@@ -371,7 +382,7 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
 
         _dbContext.ConversationEntries.Add(new SocialConversationEntry
         {
-            EntryId = Guid.NewGuid(),
+            EntryId = entryId,
             SocialMessageId = request.SocialMessageId,
             Direction = ConversationEntryDirection.Outbound,
             Content = content,

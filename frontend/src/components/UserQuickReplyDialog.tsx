@@ -173,6 +173,7 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
                 disabled={loading}
                 searchable={templates.length >= 7}
                 searchPlaceholder={t('whatsapp.searchUserQuickReply', 'Şablon ara...')}
+                menuScrollClassName="user-quick-reply-menu-scroll"
               />
             </div>
 

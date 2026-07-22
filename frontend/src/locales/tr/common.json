@@ -583,7 +583,7 @@
     "deleteAllLdap": "Tüm LDAP Kullanıcılarını Sil",
     "deleteAllLdapWorking": "LDAP kullanıcıları siliniyor...",
     "deleteAllLdapHint": "Talep oluşturmamış tüm ldap kullanıcıları silinebilir.",
-    "deleteAllLdapConfirm": "Talep oluşturmamış tüm LDAP kullanıcıları silinecek. Bu işlem geri alınamaz.",
+    "deleteAllLdapConfirm": "Talep ve Görev oluşturmamış tüm LDAP kullanıcıları silinecek. Bu işlem geri alınamaz.",
     "deleteAllLdapSuccess": "{{count}} LDAP kullanıcısı silindi.",
     "deleteAllLdapNone": "Silinecek LDAP kullanıcısı bulunamadı.",
     "addAllLdapConfirm": "{{count}} LDAP kullanıcısı sisteme eklenecek. Devam etmek istiyor musunuz?",

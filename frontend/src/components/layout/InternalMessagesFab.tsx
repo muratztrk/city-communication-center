@@ -288,11 +288,10 @@ export function InternalMessagesFab() {
       .filter(u => u.userId !== currentUserId)
       .forEach(u => {
         if (!merged.has(u.userId)) {
-          const phone = u.phone?.trim()
           merged.set(u.userId, {
             otherUserId: u.userId,
-            displayName: phone ? `${u.displayName} - ${phone}` : u.displayName,
-            departmentName: u.departmentName,
+            displayName: u.displayName,
+            departmentName: [u.departmentName, u.title?.trim()].filter(Boolean).join(' - ') || null,
             internalConversationId: null,
             lastMessagePreview: null,
             lastMessageAtUtc: null,

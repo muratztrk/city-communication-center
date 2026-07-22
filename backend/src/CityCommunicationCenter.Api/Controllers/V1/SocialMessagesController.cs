@@ -13,15 +13,18 @@ public sealed class SocialMessagesController : ApiControllerBase
     private readonly IMediator _sender;
     private readonly ISocialMediaSettingsProvider _settingsProvider;
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IWebHostEnvironment _env;
 
     public SocialMessagesController(
         IMediator sender,
         ISocialMediaSettingsProvider settingsProvider,
-        IHttpClientFactory httpClientFactory)
+        IHttpClientFactory httpClientFactory,
+        IWebHostEnvironment env)
     {
         _sender = sender;
         _settingsProvider = settingsProvider;
         _httpClientFactory = httpClientFactory;
+        _env = env;
     }
 
     [HttpGet("")]
@@ -294,13 +297,23 @@ public sealed class SocialMessagesController : ApiControllerBase
         var tenantId = CurrentContext.TenantId ?? Guid.Empty;
         if (tenantId == Guid.Empty)
             return Unauthorized();
-        var settings = _settingsProvider.GetSettings(tenantId)?.WhatsApp;
-        if (string.IsNullOrWhiteSpace(settings?.AccessToken))
-            return NotFound();
 
         var entry = await _sender.Send(new GetSocialConversationQuery(messageId), cancellationToken);
         var target = entry.FirstOrDefault(e => e.EntryId == entryId);
         if (target is null || string.IsNullOrWhiteSpace(target.MediaId))
+            return NotFound();
+
+        // Yerel kopya varsa Graph'a gitmeden servis et (Pending / süresi dolmuş WA medya — R421).
+        var uploadRoot = Path.Combine(_env.ContentRootPath, "uploads");
+        var localPath = ConversationLocalMediaStore.ResolveFullPath(uploadRoot, target.MediaId);
+        if (localPath is not null)
+        {
+            var contentType = target.MediaMimeType ?? "application/octet-stream";
+            return PhysicalFile(localPath, contentType);
+        }
+
+        var settings = _settingsProvider.GetSettings(tenantId)?.WhatsApp;
+        if (string.IsNullOrWhiteSpace(settings?.AccessToken))
             return NotFound();
 
         var httpClient = _httpClientFactory.CreateClient("WhatsAppMedia");
@@ -322,9 +335,9 @@ public sealed class SocialMessagesController : ApiControllerBase
         var fileResp = await httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (!fileResp.IsSuccessStatusCode) return NotFound();
 
-        var contentType = target.MediaMimeType ?? fileResp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+        var graphContentType = target.MediaMimeType ?? fileResp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
         var stream = await fileResp.Content.ReadAsStreamAsync(cancellationToken);
-        return File(stream, contentType);
+        return File(stream, graphContentType);
     }
 }
 

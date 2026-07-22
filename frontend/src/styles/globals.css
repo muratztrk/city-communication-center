@@ -1554,8 +1554,9 @@
     }
 
     .app-content-shell .admin-surface-page .users-additional-roles-field .helper-copy {
-      font-size: 0.9rem;
-      line-height: 1.4;
+      font-size: 0.68rem;
+      line-height: 1.25;
+      max-width: 100%;
     }
 
     .app-content-shell .admin-surface-page .users-role-field .field-select,
@@ -1951,6 +1952,13 @@
     min-height: 2rem;
     padding: 0.4rem 0.65rem;
     font-size: 0.75rem;
+  }
+
+  .user-quick-reply-menu-scroll .dropdown-menu-item {
+    font-size: 0.72rem;
+    min-height: 1.85rem;
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
   }
 
   .dropdown-menu-item {

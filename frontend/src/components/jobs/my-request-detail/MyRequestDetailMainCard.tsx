@@ -102,7 +102,7 @@ export function MyRequestInfoFieldsList({
           {!hidePriorityRow ? (
             <div className="job-detail-field-row job-detail-field-row--request-info">
               <div className="job-detail-field-row__label">{t('jobs.columns.priority', 'Öncelik')}</div>
-              <div className="job-detail-field-row__value">{getPriorityLabel(t, detail.priority)}</div>
+              <div className={`job-detail-field-row__value ${detail.priority === 'High' || detail.priority === 'VeryHigh' ? 'font-extrabold' : ''}`}>{getPriorityLabel(t, detail.priority)}</div>
             </div>
           ) : null}
           {!hideProjectRow ? (
@@ -438,7 +438,7 @@ export function MyRequestDetailMainCard({
                             placeholder={t('jobs.form.priority', 'Öncelik')}
                           />
                         ) : (
-                          <span className={`text-[11px] font-semibold ${detail.priority === 'Normal' ? 'text-emerald-700' : getPriorityColorClass(detail.priority)}`}>
+                          <span className={`text-[11px] ${detail.priority === 'High' || detail.priority === 'VeryHigh' ? 'font-extrabold' : 'font-semibold'} ${detail.priority === 'Normal' ? 'text-emerald-700' : getPriorityColorClass(detail.priority)}`}>
                             {getPriorityLabel(t, detail.priority)}
                           </span>
                         )}

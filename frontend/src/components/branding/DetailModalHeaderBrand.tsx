@@ -4,8 +4,8 @@ import { useLayoutEffect, useRef, useState } from 'react'
 const DETAIL_HEADER_LOGIN_LOGO_SRC = '/tire-belediyesi-logo.png'
 
 const MIN_GAP_PX = 8
-/** Butonlar logo alanına girerse sola kaydırma üst sınırı (card #1751). */
-const MAX_SHIFT_PX = 48
+/** Butonlar logo alanına girerse sola kaydırma üst sınırı (card #1751 / R421 logo). */
+const MAX_SHIFT_PX = 160
 
 /** Detay popup başlık satırı ortası — login page logosu, küçültülmüş.
  *  Sağ aksiyonlar logo alanına girerse yalnızca o durumda logo biraz sola kayar (card #1751). */

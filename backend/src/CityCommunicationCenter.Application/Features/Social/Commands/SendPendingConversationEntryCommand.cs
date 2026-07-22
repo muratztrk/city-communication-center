@@ -1,4 +1,6 @@
+using CityCommunicationCenter.Application.Features.Attachments;
 using CityCommunicationCenter.Application.Features.Users;
+using Microsoft.Extensions.Options;
 
 namespace CityCommunicationCenter.Application.Features.Social;
 
@@ -17,15 +19,18 @@ public sealed class SendPendingConversationEntryCommandHandler
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISocialMediaClientFactory _clientFactory;
+    private readonly string _uploadRootPath;
 
     public SendPendingConversationEntryCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
-        ISocialMediaClientFactory clientFactory)
+        ISocialMediaClientFactory clientFactory,
+        IOptions<AttachmentStorageOptions> attachmentStorageOptions)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _clientFactory = clientFactory;
+        _uploadRootPath = attachmentStorageOptions.Value.UploadRootPath;
     }
 
     public async ValueTask<SendPendingConversationEntryResult> Handle(SendPendingConversationEntryCommand request, CancellationToken cancellationToken)
@@ -46,7 +51,6 @@ public sealed class SendPendingConversationEntryCommandHandler
             e => e.EntryId == request.EntryId && e.SocialMessageId == request.SocialMessageId, cancellationToken);
         if (entry is null) return new SendPendingConversationEntryResult(false, false);
 
-        // Yalnızca beklemedeki giden mesajlar iletilebilir.
         if (entry.Direction != ConversationEntryDirection.Outbound
             || entry.DeliveryStatus != ConversationDeliveryStatus.Pending)
         {
@@ -74,20 +78,41 @@ public sealed class SendPendingConversationEntryCommandHandler
                 return new SendPendingConversationEntryResult(true, false);
             }
 
-            var sendResult = !string.IsNullOrWhiteSpace(entry.WhatsAppTemplateName)
-                ? await SendWhatsAppTemplateOrFailAsync(
+            SocialMediaResult sendResult;
+            var localPath = ConversationLocalMediaStore.ResolveFullPath(_uploadRootPath, entry.MediaId);
+            if (localPath is not null && client is IWhatsAppMediaClient mediaClient)
+            {
+                var fileBytes = await File.ReadAllBytesAsync(localPath, cancellationToken);
+                var fileName = Path.GetFileName(localPath);
+                var caption = IsPlaceholderAttachmentContent(entry.Content) ? null : entry.Content;
+                sendResult = await mediaClient.SendUploadedMediaMessageAsync(new SendUploadedMediaMessageRequest
+                {
+                    RecipientId = recipientPhone,
+                    FileName = fileName,
+                    ContentType = string.IsNullOrWhiteSpace(entry.MediaMimeType) ? "application/octet-stream" : entry.MediaMimeType,
+                    Content = fileBytes,
+                    Caption = caption,
+                }, cancellationToken);
+            }
+            else if (!string.IsNullOrWhiteSpace(entry.WhatsAppTemplateName))
+            {
+                sendResult = await SendWhatsAppTemplateOrFailAsync(
                     tenantId,
                     recipientPhone,
                     entry.WhatsAppTemplateName,
                     entry.WhatsAppTemplateLanguage,
                     entry.Content,
                     client,
-                    cancellationToken)
-                : await client.SendMessageAsync(new SendMessageRequest
+                    cancellationToken);
+            }
+            else
+            {
+                sendResult = await client.SendMessageAsync(new SendMessageRequest
                 {
                     RecipientId = recipientPhone,
                     Message = entry.Content
                 }, cancellationToken);
+            }
 
             if (sendResult.Success)
             {
@@ -113,7 +138,6 @@ public sealed class SendPendingConversationEntryCommandHandler
         }
         else
         {
-            // İstemci yapılandırılmamışsa gönderildi say (diğer kanallarla tutarlı).
             entry.DeliveryStatus = ConversationDeliveryStatus.Sent;
             entry.DeliveryError = null;
         }
@@ -133,6 +157,10 @@ public sealed class SendPendingConversationEntryCommandHandler
         await _dbContext.SaveChangesAsync(cancellationToken);
         return new SendPendingConversationEntryResult(true, entry.DeliveryStatus != ConversationDeliveryStatus.Failed);
     }
+
+    private static bool IsPlaceholderAttachmentContent(string? content) =>
+        !string.IsNullOrWhiteSpace(content)
+        && content.StartsWith("[Dosya eki:", StringComparison.Ordinal);
 
     private async Task<SocialMediaResult> SendWhatsAppTemplateOrFailAsync(
         Guid tenantId,

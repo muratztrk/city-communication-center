@@ -372,9 +372,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Operatör WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091).**
   `ReplyToSocialMessageCommand` WhatsApp kanalında varsayılan olarak mesajı GÖNDERMEZ, `DeliveryStatus=Pending` entry
   oluşturur (diğer kanallar eskisi gibi anında gider). `ICitizenJobStatusNotifier` tarafından
-  üretilen İşleme Alındı/Yapılmakta/Tamamlandı/İptal Edildi mesajlarının dördü de operatör onayı
-  beklemeden WhatsApp'a doğrudan gönderilir; bu otomatik mesajlar `Pending` ve
-  `Düzenle`/`Mesaj Gönder` aksiyonu üretmez (card #1569).
+  üretilen İşleme Alındı/Yapılmakta mesajları operatör onayı beklemeden WhatsApp'a doğrudan
+  gönderilir. Tamamlandı/İptal otomatik mesajları `Pending` kuyruğa girer; operatör
+  `Mesajı Gönder` ile iletir (R421). Tamamlanmada görev ekleri + tamamlanma notu, iptalde
+  iptal notu da aynı kuyruğa eklenir. Bu otomatik mesajlar `Düzenle`/`Mesaj Gönder` üretir.
   Terminal not butonları yalnız diğer ilgili bekleyen mesaj terminal durumu
   (`Tamamlandı/Tamamlanmış` veya `İptal/İptal Edildi`) içeriyorsa görünür; ara durum
   (`İşleme Alındı`, `Yapılmakta`) mesajlarında görünmez. Gerçek gönderim `SendPendingConversationEntryCommand`

@@ -287,7 +287,6 @@ export function AuditLogsPage() {
                   forceDown
                 />
               </div>
-              <StatusPill tone="info">{totalCount} {t('audit.recordCount')}</StatusPill>
             </div>
           </div>
         </div>
@@ -376,7 +375,7 @@ export function AuditLogsPage() {
                   <td>
                     <div className="space-y-0.5">
                       <div className="text-[0.7rem] font-semibold text-slate-500">
-                        {t('audit.logId', 'Log ID')}: <span className="font-mono text-slate-700">{log.auditLogId}</span>
+                        {t('audit.logId', 'Log ID')}: <span className="font-mono text-slate-700" title={log.auditLogId}>{log.auditLogId.slice(0, 8)}</span>
                       </div>
                       <div>{joinWithGreenDash(log.detailParts)}</div>
                     </div>

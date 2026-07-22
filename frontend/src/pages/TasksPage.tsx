@@ -3229,14 +3229,14 @@ const pageKicker = isMyTasksView
                 {pendingCompletionAttachments.map(item => {
                   const Icon = completionAttachmentIcon(item.fileName)
                   return (
-                  <li key={item.attachmentId} className="inline-flex min-w-0 items-start gap-2">
+                  <li key={item.attachmentId} className="inline-flex min-w-0 items-center gap-2">
                     <span className="flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
                       <Icon className="size-3" aria-hidden="true" />
                     </span>
                     <span className="min-w-0 flex-1 break-words text-left text-[10px] font-normal leading-5 text-slate-700">{lowercaseFileExtension(item.fileName)}</span>
                     <button
                       type="button"
-                      className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
+                      className="shrink-0 self-center text-[11px] font-medium leading-5 text-red-500 hover:text-red-600"
                       disabled={completeSaving || completionAttachmentUploading}
                       onClick={() => {
                         void api.deleteAttachment(item.attachmentId).then(() => {

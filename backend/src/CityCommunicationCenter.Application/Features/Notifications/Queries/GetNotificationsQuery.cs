@@ -528,6 +528,10 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         if (trimmed.Equals("Unassigned (pool)", StringComparison.OrdinalIgnoreCase))
             return "Havuza eklendi";
 
+        // Eski kayıtlardaki İngilizce "Title updated:" ifadesi (card #1825 / R421).
+        if (trimmed.StartsWith("Title updated:", StringComparison.OrdinalIgnoreCase))
+            return "Başlık güncellendi:" + trimmed["Title updated:".Length..];
+
         if (trimmed.StartsWith("Routine task created", StringComparison.OrdinalIgnoreCase))
             return null;
 

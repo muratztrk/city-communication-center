@@ -265,7 +265,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
                 ActorUserId = actor.UserId,
                 ActorDisplayName = actor.DisplayName,
                 StatusAtEvent = job.Status.ToString(),
-                Notes = $"Title updated: {job.Title}",
+                Notes = $"Başlık güncellendi: {job.Title}",
                 Details = $"Title={job.Title}"
             });
         }

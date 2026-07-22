@@ -1,11 +1,13 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 using CityCommunicationCenter.Application.Features.Admin;
+using CityCommunicationCenter.Application.Features.Attachments;
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace CityCommunicationCenter.Infrastructure.Services;
 
@@ -15,18 +17,21 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     private readonly ITenantSmsSettingsService _smsSettingsService;
     private readonly INotificationPushService? _notificationPushService;
     private readonly ISocialMediaClientFactory _clientFactory;
+    private readonly string _uploadRootPath;
     private readonly ILogger<CitizenJobStatusNotifier> _logger;
 
     public CitizenJobStatusNotifier(
         IApplicationDbContext dbContext,
         ITenantSmsSettingsService smsSettingsService,
         ISocialMediaClientFactory clientFactory,
+        IOptions<AttachmentStorageOptions> attachmentStorageOptions,
         ILogger<CitizenJobStatusNotifier> logger,
         INotificationPushService? notificationPushService = null)
     {
         _dbContext = dbContext;
         _smsSettingsService = smsSettingsService;
         _clientFactory = clientFactory;
+        _uploadRootPath = attachmentStorageOptions.Value.UploadRootPath;
         _notificationPushService = notificationPushService;
         _logger = logger;
     }
@@ -129,8 +134,6 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 
         if (message.Channel == SocialChannel.WhatsApp)
         {
-            // Aynı vatandaş talebi + aynı durum için oluşturulan metin ikinci kez kuyruğa
-            // girmesin/gönderilmesin. Failed kayıt yeniden denemeyi engellemez.
             var alreadyCreated = await _dbContext.ConversationEntries
                 .AsNoTracking()
                 .AnyAsync(
@@ -151,7 +154,9 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             await SendWhatsAppAsync(
                 tenantId,
                 message,
+                job,
                 content,
+                statusLabel,
                 utcNow,
                 cancellationToken);
             return;
@@ -187,10 +192,15 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     private static bool IsSupportedAutoReplyStatus(string statusLabel) =>
         statusLabel is "İşleme Alındı" or "Yapılmakta" or "Tamamlanmış" or "Tamamlandı" or "İptal";
 
+    private static bool RequiresOperatorApproval(string statusLabel) =>
+        statusLabel is "Tamamlanmış" or "Tamamlandı" or "İptal";
+
     private async Task SendWhatsAppAsync(
         Guid tenantId,
         SocialMessage message,
+        Job job,
         string content,
+        string statusLabel,
         DateTimeOffset utcNow,
         CancellationToken cancellationToken)
     {
@@ -200,25 +210,30 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             .Select(t => t.MunicipalityName)
             .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
 
-        var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
-            _dbContext,
-            message,
-            cancellationToken);
-        var client = _clientFactory.GetClient(SocialChannel.WhatsApp, tenantId);
-        SocialMediaResult sendResult;
-        if (string.IsNullOrWhiteSpace(recipientPhone) || client is null)
+        var requireApproval = RequiresOperatorApproval(statusLabel);
+        SocialMediaResult? sendResult = null;
+
+        if (!requireApproval)
         {
-            sendResult = SocialMediaResult.Fail(string.IsNullOrWhiteSpace(recipientPhone)
-                ? "WhatsApp alıcı telefonu bulunamadı."
-                : "WhatsApp kanalı yapılandırılmadı.");
-        }
-        else
-        {
-            sendResult = await client.SendMessageAsync(new SendMessageRequest
+            var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
+                _dbContext,
+                message,
+                cancellationToken);
+            var client = _clientFactory.GetClient(SocialChannel.WhatsApp, tenantId);
+            if (string.IsNullOrWhiteSpace(recipientPhone) || client is null)
             {
-                RecipientId = recipientPhone,
-                Message = content,
-            }, cancellationToken);
+                sendResult = SocialMediaResult.Fail(string.IsNullOrWhiteSpace(recipientPhone)
+                    ? "WhatsApp alıcı telefonu bulunamadı."
+                    : "WhatsApp kanalı yapılandırılmadı.");
+            }
+            else
+            {
+                sendResult = await client.SendMessageAsync(new SendMessageRequest
+                {
+                    RecipientId = recipientPhone,
+                    Message = content,
+                }, cancellationToken);
+            }
         }
 
         _dbContext.ConversationEntries.Add(new SocialConversationEntry
@@ -228,16 +243,18 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             Direction = ConversationEntryDirection.Outbound,
             Content = content,
             SentAt = utcNow,
-            ExternalEntryId = sendResult.MessageId,
+            ExternalEntryId = sendResult?.MessageId,
             SenderLabel = tenantName,
-            DeliveryStatus = sendResult.Success
-                ? ConversationDeliveryStatus.Sent
-                : ConversationDeliveryStatus.Failed,
-            DeliveryError = sendResult.Success ? null : sendResult.Error,
+            DeliveryStatus = requireApproval
+                ? ConversationDeliveryStatus.Pending
+                : sendResult is { Success: true }
+                    ? ConversationDeliveryStatus.Sent
+                    : ConversationDeliveryStatus.Failed,
+            DeliveryError = requireApproval || sendResult is { Success: true } ? null : sendResult?.Error,
             DeliveryStatusUpdatedAtUtc = utcNow,
         });
 
-        if (sendResult.Success)
+        if (!requireApproval && sendResult is { Success: true })
         {
             message.ResponseContent = content;
             message.RespondedAtUtc = utcNow;
@@ -246,12 +263,17 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 message.Status = SocialMessageStatus.Responded;
             }
         }
-        else
+        else if (!requireApproval && sendResult is { Success: false })
         {
             _logger.LogWarning(
                 "Automatic WhatsApp status message failed for SocialMessage {SocialMessageId}: {Error}",
                 message.SocialMessageId,
                 sendResult.Error);
+        }
+
+        if (requireApproval)
+        {
+            await EnqueueTerminalFollowUpsAsync(tenantId, message, job, statusLabel, tenantName, utcNow, cancellationToken);
         }
 
         WhatsAppMessagePayload? pendingPush = null;
@@ -290,6 +312,146 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         }
     }
 
+    private async Task EnqueueTerminalFollowUpsAsync(
+        Guid tenantId,
+        SocialMessage message,
+        Job job,
+        string statusLabel,
+        string tenantName,
+        DateTimeOffset utcNow,
+        CancellationToken cancellationToken)
+    {
+        var isCancelled = statusLabel is "İptal";
+        string? terminalNote;
+        if (isCancelled)
+        {
+            terminalNote = !string.IsNullOrWhiteSpace(job.CancelReason)
+                ? job.CancelReason
+                : await _dbContext.Tasks
+                    .AsNoTracking()
+                    .Where(t => t.TenantId == tenantId
+                        && t.JobId == job.JobId
+                        && t.CurrentStatus == Domain.Enums.TaskStatus.Cancelled)
+                    .OrderByDescending(t => t.UpdatedAtUtc)
+                    .Select(t => t.RevisionReason)
+                    .FirstOrDefaultAsync(cancellationToken);
+        }
+        else
+        {
+            terminalNote = await _dbContext.Tasks
+                .AsNoTracking()
+                .Where(t => t.TenantId == tenantId && t.JobId == job.JobId && t.CompletedAtUtc != null)
+                .OrderByDescending(t => t.CompletedAtUtc)
+                .Select(t => t.Notes)
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
+        var completedTaskIds = await _dbContext.Tasks
+            .AsNoTracking()
+            .Where(t => t.TenantId == tenantId
+                && t.JobId == job.JobId
+                && t.CompletedAtUtc != null)
+            .Select(t => t.TaskId)
+            .ToListAsync(cancellationToken);
+
+        var attachmentRows = !isCancelled && completedTaskIds.Count > 0
+            ? await _dbContext.Attachments
+                .AsNoTracking()
+                .Where(a => a.TenantId == tenantId
+                    && a.EntityType == "Task"
+                    && completedTaskIds.Contains(a.EntityId))
+                .OrderBy(a => a.CreatedAtUtc)
+                .Select(a => new { a.FileName, a.ContentType, a.RelativeUrl })
+                .ToListAsync(cancellationToken)
+            : [];
+
+        if (attachmentRows.Count > 0)
+        {
+            for (var index = 0; index < attachmentRows.Count; index++)
+            {
+                var attachment = attachmentRows[index];
+                var entryId = Guid.NewGuid();
+                var localMediaId = ConversationLocalMediaStore.BuildLocalMediaId(tenantId, entryId, attachment.FileName);
+                var sourceFullPath = ResolveAttachmentFullPath(attachment.RelativeUrl);
+                if (sourceFullPath is null || !File.Exists(sourceFullPath))
+                {
+                    _logger.LogWarning(
+                        "Task attachment file missing for WhatsApp pending enqueue: {Url}",
+                        attachment.RelativeUrl);
+                    continue;
+                }
+
+                await ConversationLocalMediaStore.SaveFromFileAsync(
+                    _uploadRootPath,
+                    localMediaId,
+                    sourceFullPath,
+                    cancellationToken);
+
+                var isLast = index == attachmentRows.Count - 1;
+                _dbContext.ConversationEntries.Add(new SocialConversationEntry
+                {
+                    EntryId = entryId,
+                    SocialMessageId = message.SocialMessageId,
+                    Direction = ConversationEntryDirection.Outbound,
+                    Content = isLast && !string.IsNullOrWhiteSpace(terminalNote)
+                        ? terminalNote!
+                        : $"[Dosya eki: {attachment.FileName}]",
+                    SentAt = utcNow.AddMilliseconds(index + 1),
+                    SenderLabel = tenantName,
+                    MediaId = localMediaId,
+                    MediaMimeType = string.IsNullOrWhiteSpace(attachment.ContentType)
+                        ? "application/octet-stream"
+                        : attachment.ContentType,
+                    DeliveryStatus = ConversationDeliveryStatus.Pending,
+                    DeliveryStatusUpdatedAtUtc = utcNow,
+                });
+            }
+
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(terminalNote))
+        {
+            _dbContext.ConversationEntries.Add(new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = message.SocialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = terminalNote,
+                SentAt = utcNow.AddMilliseconds(1),
+                SenderLabel = tenantName,
+                DeliveryStatus = ConversationDeliveryStatus.Pending,
+                DeliveryStatusUpdatedAtUtc = utcNow,
+            });
+        }
+    }
+
+    private string? ResolveAttachmentFullPath(string relativeUrl)
+    {
+        if (string.IsNullOrWhiteSpace(relativeUrl))
+        {
+            return null;
+        }
+
+        var trimmed = relativeUrl.TrimStart('/');
+        // RelativeUrl: /uploads/{tenant}/... ; UploadRootPath: .../uploads
+        if (trimmed.StartsWith("uploads/", StringComparison.OrdinalIgnoreCase))
+        {
+            trimmed = trimmed["uploads/".Length..];
+        }
+
+        var candidate = Path.Combine(_uploadRootPath, trimmed.Replace('/', Path.DirectorySeparatorChar));
+        if (File.Exists(candidate))
+        {
+            return candidate;
+        }
+
+        var contentRootSibling = Path.Combine(
+            Path.GetDirectoryName(_uploadRootPath) ?? _uploadRootPath,
+            relativeUrl.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+        return File.Exists(contentRootSibling) ? contentRootSibling : candidate;
+    }
+
     private async Task SendSmsAsync(
         Guid tenantId,
         SocialMessage message,
@@ -306,7 +468,6 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return;
         }
 
-        // SMS API entegrasyonu tenant ayarları tamamlandığında burada gönderilecek (card #992).
         _logger.LogInformation(
             "SMS citizen status notification queued for SocialMessage {SocialMessageId} via {Provider}: {Content}",
             message.SocialMessageId,

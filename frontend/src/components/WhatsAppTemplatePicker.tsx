@@ -102,17 +102,19 @@ export function WhatsAppTemplatePicker({
           key={tpl.id}
           type="button"
           onClick={() => { onSelect(tpl.template); setOpen(false); setMenuStyle(null) }}
-          className="w-full text-left px-3 py-2 hover:bg-[color:var(--color-surface-raised)] transition-colors"
+          className="dropdown-menu-item !items-start !justify-start w-full text-left"
         >
-          <p className="flex items-center gap-1.5 text-xs font-semibold text-[color:var(--color-foreground)]">
-            <span className="min-w-0 truncate">{tpl.name}</span>
-            {tpl.source === 'meta' ? (
-              <span className="shrink-0 rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-700">
-                Meta
-              </span>
-            ) : null}
-          </p>
-          <p className="text-[11px] text-[color:var(--color-muted-foreground)] truncate mt-0.5">{tpl.content}</p>
+          <span className="min-w-0">
+            <p className="flex items-center gap-1.5 text-[11px] font-semibold text-[color:var(--color-foreground)]">
+              <span className="min-w-0 truncate">{tpl.name}</span>
+              {tpl.source === 'meta' ? (
+                <span className="shrink-0 rounded bg-emerald-100 px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide text-emerald-700">
+                  Meta
+                </span>
+              ) : null}
+            </p>
+            <p className="mt-0.5 truncate text-[10px] text-[color:var(--color-muted-foreground)]">{tpl.content}</p>
+          </span>
         </button>
       ))}
     </div>,

@@ -410,9 +410,8 @@ export function RoutineTaskPage() {
                   userQuickReplies={userQuickReplies}
                   onSelect={template => set('description', templateToRichText(template.content))}
                   menuAlign="end"
-                  compact
                 />
-                <UserQuickReplyAddButton compact onChanged={() => { void loadUserQuickReplies() }} />
+                <UserQuickReplyAddButton onChanged={() => { void loadUserQuickReplies() }} />
               </div>
             </div>
             <RichTextEditor

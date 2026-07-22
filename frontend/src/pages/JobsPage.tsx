@@ -2461,7 +2461,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           ) : null}
                           <span className="flex flex-col items-end text-right leading-tight">
                             <span className="text-xs font-bold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
-                            <span className={`text-[11px] font-semibold ${detail.priority === 'Normal' ? 'text-emerald-700' : getPriorityColorClass(detail.priority)}`}>
+                            <span className={`text-[11px] font-semibold ${detail.priority === 'Normal' ? 'text-emerald-700' : getPriorityColorClass(detail.priority)} ${detail.priority === 'High' || detail.priority === 'VeryHigh' ? 'font-extrabold' : ''}`}>
                               {getPriorityLabel(t, detail.priority)}
                             </span>
                           </span>

@@ -33,6 +33,7 @@ function localizeNotificationText(value: string): string {
     .replace(/task assigned/gi, 'Görev atandı')
     .replace(/job created/gi, 'Talep oluşturuldu')
     .replace(/job updated/gi, 'Talep güncellendi')
+    .replace(/Title updated:/gi, 'Başlık güncellendi:')
     // Teknik/İngilizce ifadeleri temizle (card 308).
     .replace(/\s*—?\s*Created after job owner approval\.?\s*AssignedUser=[0-9a-f-]+/gi, '')
     .replace(/\s*—?\s*Created from job owner user selection\.?\s*AssignedUser=[0-9a-f-]+/gi, '')

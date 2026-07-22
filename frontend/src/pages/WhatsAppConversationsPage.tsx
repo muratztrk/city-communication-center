@@ -732,6 +732,7 @@ function ConversationDetail({
   const [showChatSearch, setShowChatSearch] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileDraft, setProfileDraft] = useState<ConversationProfileDraft>(() => createProfileDraft(null, citizenPhone, citizenName))
+  const profileDirtyRef = useRef(false)
   const [profileSaving, setProfileSaving] = useState(false)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [pendingFileEditing, setPendingFileEditing] = useState(false)
@@ -755,8 +756,14 @@ function ConversationDetail({
   })
 
   useEffect(() => {
+    profileDirtyRef.current = false
+    setProfileDraft(createProfileDraft(null, citizenPhone, citizenName))
+  }, [conversationId, citizenName, citizenPhone])
+
+  useEffect(() => {
+    if (!detail || profileDirtyRef.current) return
     setProfileDraft(createProfileDraft(detail, citizenPhone, citizenName))
-  }, [citizenName, citizenPhone, detail])
+  }, [detail, citizenName, citizenPhone])
 
   useEffect(() => {
     if (!pendingFile) {
@@ -1429,7 +1436,10 @@ function ConversationDetail({
           detail={detail}
           draft={profileDraft}
           saving={profileSaving}
-          onDraftChange={patch => setProfileDraft(current => ({ ...current, ...patch }))}
+          onDraftChange={patch => {
+            profileDirtyRef.current = true
+            setProfileDraft(current => ({ ...current, ...patch }))
+          }}
           onLabelSelect={label => { void handleProfileLabelSelect(label) }}
           onSave={() => { void handleProfileSave() }}
           canCreateRequest={Boolean(primaryTicket)}

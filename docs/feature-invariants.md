@@ -1106,9 +1106,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`Reporter`) ve Vatandaş Talep Operatörü (`Operator`) sol menüde `Kontrol Paneli Vatandaş`
   (`/dashboard`) + `Kontrol Paneli Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.
   Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
+  Tire haritası (açık adresli İşleme Alındı / Yapılmakta pinleri, card #1834) +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
   Vatandaş Talep Kanalları). Birimler sayfasında Reporter: Taleplerim + dış birim pie'ları +
   Talep Öncelik Durumu; Operator: Görevlerim/Taleplerim/Birimdeki Görevler/Talep Önceliği.
+- **Vatandaş panosu Tire haritası (card #1834):** `GET /reports/dashboard-citizen-map-pins`
+  (Reporter/Operator/SystemAdmin); yalnız `RequestType=Citizen`, rutin dışı, boş olmayan
+  `OpenAddress`, display status `ProcessingReceived`/`InProgress` (dashboard classifier ile aynı);
+  pin koordinatı Job veya bağlı SocialMessage lat/lng; yoksa FE Nominatim geocode (localStorage
+  cache). Tag tıklanınca başlık popup; başlık tıklanınca salt-okunur `MyRequestDetailModal`
+  (pie drilldown ile aynı). Dönem filtresi pin sorgusunu sürer.
 - **Mahallelerde İşleme Alınan Talepler pie:** `ClassifyCitizenJobStatus == ProcessingReceived`
   mahalle kırılımı; drilldown `neighborhoodProcessingRequests` (Reporter/SystemAdmin).
 - **Reporter grafik dilimleri detay popup'ı açar (card #1343/#1338):** Üst Düzey Yönetici panosunda

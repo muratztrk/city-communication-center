@@ -51,6 +51,23 @@ export interface DashboardChartDrilldownResponse {
   rows: DashboardChartDrilldownRow[];
 }
 
+export interface CitizenDashboardMapPin {
+  jobId: string;
+  title: string;
+  neighborhood: string | null;
+  street: string | null;
+  openAddress: string;
+  latitude: number | null;
+  longitude: number | null;
+  citizenRequestNumber: number | null;
+  citizenRequestNumberYear: number | null;
+  displayStatus: 'processingReceived' | 'inProgress' | string;
+}
+
+export interface CitizenDashboardMapPinsResponse {
+  pins: CitizenDashboardMapPin[];
+}
+
 export interface Department {
   departmentId: string;
   tenantId: string;

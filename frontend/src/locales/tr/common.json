@@ -450,6 +450,12 @@
     "citizenChannels": {
       "title": "Vatandaş Talep Kanalları"
     },
+    "citizenMap": {
+      "title": "Tire Haritası — Açık Adresli Talepler",
+      "subtitle": "İşleme alınan ve yapılmakta olan talepler açık adresleriyle haritada gösterilir.",
+      "pinCount": "{{count}} konum",
+      "geocodeEmpty": "Açık adresler haritada konumlanamadı."
+    },
     "channel": {
       "Facebook": "Facebook",
       "Instagram": "Instagram",

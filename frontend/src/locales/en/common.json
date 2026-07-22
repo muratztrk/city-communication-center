@@ -448,6 +448,13 @@
     "citizenChannels": {
       "title": "Citizen Request Channels"
     },
+    "citizenMap": {
+      "title": "Tire Map — Requests with Open Address",
+      "subtitle": "Processing and in-progress requests with an open address are shown on the map.",
+      "pinCount": "{{count}} location",
+      "pinCount_other": "{{count}} locations",
+      "geocodeEmpty": "Open addresses could not be placed on the map."
+    },
     "channel": {
       "Facebook": "Facebook",
       "Instagram": "Instagram",

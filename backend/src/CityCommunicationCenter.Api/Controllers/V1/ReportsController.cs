@@ -62,6 +62,16 @@ public sealed class ReportsController : ApiControllerBase
         return Ok(response);
     }
 
+    [HttpGet("dashboard-citizen-map-pins")]
+    public async Task<ActionResult<CitizenDashboardMapPinsResponse>> GetCitizenDashboardMapPins(
+        [FromQuery] DateTimeOffset? from,
+        [FromQuery] DateTimeOffset? to,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetCitizenDashboardMapPinsQuery(from, to), cancellationToken);
+        return Ok(response);
+    }
+
     [HttpGet("sla")]
     public async Task<ActionResult<SlaReportResponse>> GetSla(CancellationToken cancellationToken)
     {

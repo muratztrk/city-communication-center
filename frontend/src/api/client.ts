@@ -6,6 +6,7 @@ import type {
   DashboardChartResponse,
   DashboardChartDrilldownResponse,
   DashboardStatusChartsResponse,
+  CitizenDashboardMapPinsResponse,
   Department,
   DepartmentSummary,
   DirectoryUserLookup,
@@ -183,6 +184,17 @@ export const api = {
     const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
     return response.json() as Promise<DashboardChartDrilldownResponse>
+  },
+
+  async getCitizenDashboardMapPins(from?: string, to?: string): Promise<CitizenDashboardMapPinsResponse> {
+    const params = new URLSearchParams()
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const qs = params.toString()
+    const url = `${API_BASE}/reports/dashboard-citizen-map-pins${qs ? `?${qs}` : ''}`
+    const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
+    return response.json() as Promise<CitizenDashboardMapPinsResponse>
   },
 
   async getCitizenChannelChart(from?: string, to?: string): Promise<DashboardChartResponse> {

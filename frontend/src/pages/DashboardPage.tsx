@@ -12,6 +12,7 @@ import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilld
 import { useAuth } from '../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
+import { CitizenDashboardMap } from '../components/CitizenDashboardMap'
 
 interface MetricCard {
   label: string
@@ -278,10 +279,17 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     refetchInterval: 60_000,
   })
   const canSeeCitizenChannels = role === 'SystemAdmin' || role === 'Manager' || role === 'Operator' || role === 'Reporter'
+  const canSeeCitizenMap = effectiveView === 'citizen' && (role === 'Reporter' || role === 'Operator' || role === 'SystemAdmin')
   const citizenChannelQuery = useQuery({
     queryKey: queryKeys.dashboard.citizenChannels({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
     queryFn: () => api.getCitizenChannelChart(activeFrom || undefined, activeTo || undefined),
     enabled: canSeeCitizenChannels,
+    refetchInterval: 60_000,
+  })
+  const citizenMapQuery = useQuery({
+    queryKey: queryKeys.dashboard.citizenMapPins({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
+    queryFn: () => api.getCitizenDashboardMapPins(activeFrom || undefined, activeTo || undefined),
+    enabled: canSeeCitizenMap,
     refetchInterval: 60_000,
   })
 
@@ -544,6 +552,13 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           </div>
         )}
       </section>
+
+      {canSeeCitizenMap ? (
+        <CitizenDashboardMap
+          pins={citizenMapQuery.data?.pins ?? []}
+          loading={citizenMapQuery.isLoading}
+        />
+      ) : null}
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {(statusChartsQuery.isLoading || dashboardQuery.isLoading) && chartCards.length === 0

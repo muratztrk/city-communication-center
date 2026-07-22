@@ -35,6 +35,7 @@ export const queryKeys = {
     chart: (range: DateRange = {}) => ['ccc', 'dashboard', 'chart', normalize(range)] as const,
     statusCharts: (range: DateRange = {}) => ['ccc', 'dashboard', 'status-charts', normalize(range)] as const,
     citizenChannels: (range: DateRange = {}) => ['ccc', 'dashboard', 'citizen-channels', normalize(range)] as const,
+    citizenMapPins: (range: DateRange = {}) => ['ccc', 'dashboard', 'citizen-map-pins', normalize(range)] as const,
     executive: (range: DateRange = {}) => ['ccc', 'dashboard', 'executive', normalize(range)] as const,
   },
   departments: {

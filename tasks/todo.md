@@ -1,3 +1,7 @@
+## Round 423 — #1834 Vatandaş panosu Tire haritası
+- Kontrol Paneli Vatandaş: açık adresli İşleme Alındı / Yapılmakta talepleri Leaflet haritasında pin; tag → başlık → salt-okunur detay modal.
+- `GET /reports/dashboard-citizen-map-pins` + Nominatim geocode (cache).
+
 ## Round 418 — #1803–#1818 (15 kart)
 - #1803 ek listesi dropzone yüksekliği; #1804 SLA hariç birimler prune; #1805 file-storage bağlantı testi UI+API
 - #1806 rutin düzenleme log parse; #1807 Log ID; #1808 pie float; #1809 yeşil —; #1811 log banner search/tarih

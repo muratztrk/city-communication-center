@@ -41,7 +41,8 @@ public sealed record DashboardChartDrilldownRow(
     DateTimeOffset? TerminalDateUtc,
     DateTimeOffset? DueDateUtc,
     int? CitizenRequestNumber,
-    int? CitizenRequestNumberYear);
+    int? CitizenRequestNumberYear,
+    string? SourceChannel = null);
 
 public sealed record DashboardChartDrilldownResponse(
     IReadOnlyList<DashboardChartDrilldownRow> Rows);

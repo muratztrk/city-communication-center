@@ -11,7 +11,7 @@ import { TablePagination } from './ui/table-pagination'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { getAuditStatusLabel, getLocale } from '../utils/localization'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
-import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
+import { ChannelIcon } from './ui/channel-icon'
 
 interface DashboardChartDrilldownModalProps {
   chartKey: string
@@ -201,7 +201,14 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
                     ) : rows.slice((page - 1) * pageSize, page * pageSize).map((row, index) => (
                       <tr key={row.jobId}>
                         <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(page - 1) * pageSize + index + 1}</td>
-                        <td className="table-number-cell font-mono text-xs text-slate-600">{formatDrilldownNumber(row)}</td>
+                        <td className="table-number-cell font-mono text-xs text-slate-600">
+                          <span className="inline-flex items-center gap-1.5">
+                            {row.citizenRequestNumber != null && row.sourceChannel ? (
+                              <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" />
+                            ) : null}
+                            {formatDrilldownNumber(row)}
+                          </span>
+                        </td>
                         <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
                         <td className="font-semibold">{row.title}</td>
                         <td>{row.departmentName ?? row.neighborhood ?? '—'}</td>

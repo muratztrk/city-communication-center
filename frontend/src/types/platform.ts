@@ -44,6 +44,7 @@ export interface DashboardChartDrilldownRow {
   dueDateUtc: string | null;
   citizenRequestNumber: number | null;
   citizenRequestNumberYear: number | null;
+  sourceChannel?: string | null;
 }
 
 export interface DashboardChartDrilldownResponse {

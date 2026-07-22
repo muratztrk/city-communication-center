@@ -203,6 +203,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                     .Where(message => message.JobId == job.JobId)
                     .Select(message => message.CitizenRequestNumberYear)
                     .FirstOrDefault(),
+                SourceChannel = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => (string?)message.Channel.ToString())
+                    .FirstOrDefault(),
             })
             .ToListAsync(cancellationToken);
 
@@ -211,7 +215,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
                 row.Status.ToString(), row.OwnerDepartmentName, row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
-                row.CitizenRequestNumber, row.CitizenRequestNumberYear))
+                row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel))
             .ToList());
     }
 
@@ -255,6 +259,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                     .Where(message => message.JobId == job.JobId)
                     .Select(message => message.CitizenRequestNumberYear)
                     .FirstOrDefault(),
+                SourceChannel = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => (string?)message.Channel.ToString())
+                    .FirstOrDefault(),
             })
             .ToListAsync(cancellationToken);
 
@@ -278,7 +286,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
             row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
             ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
-            row.CitizenRequestNumber, row.CitizenRequestNumberYear))
+            row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel))
         .ToList();
 
         return new DashboardChartDrilldownResponse(filtered);

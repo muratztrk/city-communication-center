@@ -624,7 +624,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
                     <SingleSelectDropdown
-                      openUp
                       searchable
                       options={neighborhoodOptions}
                       value={neighborhood}

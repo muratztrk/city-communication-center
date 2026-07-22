@@ -299,7 +299,7 @@ function NotificationEntityDetailModal({ detail, loading, error, locale, onClose
             <h2 className="text-base font-extrabold text-slate-900">{isTask ? t('tasks.detail.title', 'Görev Detayları') : t('jobs.detail.title', 'Talep Detayları')}</h2>
           </div>
           <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 items-center gap-2">
-            <button type="button" disabled={loading} onClick={onClose} className="detail-modal-header-close flex size-9 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 disabled:opacity-50" aria-label={t('common.close', 'Kapat')}>
+            <button type="button" disabled={loading} onClick={onClose} className="detail-modal-header-close flex size-9 items-center justify-center rounded-full bg-transparent text-slate-400 shadow-none transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50" aria-label={t('common.close', 'Kapat')}>
               <X className="size-5" />
             </button>
           </div>
@@ -594,7 +594,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   <button
                     type="button"
                     onClick={() => setIsOpen(false)}
-                    className="flex size-6 shrink-0 items-center justify-center rounded-full bg-transparent text-slate-500 transition-colors hover:bg-red-500 hover:text-white active:scale-95"
+                    className="flex size-6 shrink-0 items-center justify-center rounded-full bg-transparent text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 active:scale-95"
                     aria-label={t('common.close', 'Kapat')}
                   >
                     <X className="size-3.5" strokeWidth={2.5} />
@@ -683,7 +683,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-transparent text-slate-500 transition-colors hover:bg-red-500 hover:text-white active:scale-95"
+                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-transparent text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600 active:scale-95"
                 aria-label="Kapat"
               >
                 <X className="size-4" />

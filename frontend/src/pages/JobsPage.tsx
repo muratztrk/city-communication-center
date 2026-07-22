@@ -1504,6 +1504,25 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         })
         return
       }
+
+      // Birimden Giden + proje: personel atamadan yalnız proje teyidi + onay (card #1799).
+      if (jobDetail.status === 'PendingOwnerApproval' && skipOwnerStaffAssign && jobDetail.isProjectCreatorRequested) {
+        setStaffAssignModal({
+          jobId,
+          selectedUserIds: [],
+          users: [],
+          saving: false,
+          selfRequestedOwnerUserId: getSelfRequestedOwnerUserId(jobDetail),
+          approvalRequired: true,
+          targetApprovalRequired: false,
+          targetDepartmentId: null,
+          requiresProjectConfirmation: true,
+          showProjectNotice: false,
+          projectDecision: null,
+        })
+        return
+      }
+
       if (
         (jobDetail.requestType === 'ExternalUnit' || jobDetail.requestType === 'Citizen')
         && jobDetail.status === 'Active'
@@ -3097,7 +3116,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               <XIcon className="size-4" />
             </button>
             <h3 className="mb-3 border-b border-slate-200 pb-3 text-base font-bold text-slate-950">
-              {t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}
+              {staffAssignModal.approvalRequired && staffAssignModal.users.length === 0
+                ? t('jobs.actions.approveOwner', 'Onayla')
+                : t('jobs.actions.approveAndAssign', 'Onayla ve Personel Ata')}
             </h3>
             {staffAssignModal.requiresProjectConfirmation ? (
               <JobProjectConfirmationPrompt
@@ -3110,6 +3131,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             {staffAssignModal.showProjectNotice ? (
               <JobProjectDeclaredNotice t={t} />
             ) : null}
+            {staffAssignModal.approvalRequired && staffAssignModal.users.length === 0 ? (
+              <p className="mb-4 text-sm text-slate-600">
+                {t('jobs.approveOwnerConfirm', 'Bu talebi onaylamak istediğinizden emin misiniz?')}
+              </p>
+            ) : (
+              <>
             <p className="mb-4 text-sm text-slate-600">
               {t('jobs.actions.approveAndAssignHelp', 'Görevi atamak istediğiniz personeli seçin.')}
             </p>
@@ -3144,6 +3171,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   </label>
                 ))}
               </div>
+            )}
+              </>
             )}
             <div className="flex flex-col gap-2">
               <Button

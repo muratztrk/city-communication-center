@@ -1,3 +1,6 @@
+## Round 416 — #1799 proje onay
+- Birimden Giden + proje: Onayla modalında proje teyidi.
+
 ## Round 415 — Sistemde ara TR / iptal tarihi / Sayfa Yetkileri / Meta mavi / swatch
 - Sistemde ara Türkçe katlama (#1794-ish).
 - Görev Süreç İptal Tarihi statusChangeHistory / updatedAtUtc.

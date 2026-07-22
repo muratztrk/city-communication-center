@@ -67,7 +67,10 @@ public sealed class ExceptionMiddleware
                 group => group.Select(error => error.ErrorMessage).Distinct().ToArray());
 
         // string-ctor ValidationException Errors boş bırakır — Message'ı detail'e taşı (card #1784).
-        var detailFromErrors = errors.Values.SelectMany(messages => messages).FirstOrDefault();
+        // Boş ErrorMessage'ları atla (FirstOrDefault aksi halde "" döner ve Message'ı ezer — card #1824).
+        var detailFromErrors = errors.Values
+            .SelectMany(messages => messages)
+            .FirstOrDefault(message => !string.IsNullOrWhiteSpace(message));
         var detail = !string.IsNullOrWhiteSpace(detailFromErrors)
             ? detailFromErrors
             : !string.IsNullOrWhiteSpace(exception.Message)

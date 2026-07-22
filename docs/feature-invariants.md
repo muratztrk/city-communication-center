@@ -871,7 +871,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ve listede **OU:**; eksikler OU’ya, eklenecekler birime göre alfabetik (cards #1763/#1764/#1765/#1761).
   Toplu Ekle: LDAP DN base-lookup + username fallback; geçersiz mail/uzun phone engellemez;
   tek kullanıcı hatası tüm batch’i düşürmez; string ValidationException mesajı FE’ye `detail`
-  olarak iner (card #1784).
+  olarak iner (card #1784). Toplu Ekle her zaman `roleCode: Staff` gönderir; LDAP create’te
+  ünvan Müdür iken birim kontenjanı doluysa BE Personel’e düşer — batch generic validation
+  hatasıyla kesilmez (card #1824).
   Popup kapanış **Çıkış**
   (kırmızı); eksik birim uyarısı: LDAP birim verisi gerekir / tümü eklendiyse başarı metni
   (cards #1759/#1760). Çekim sonrası buton sağında **Birimi LDAP’ta olmayan kullanıcılar**

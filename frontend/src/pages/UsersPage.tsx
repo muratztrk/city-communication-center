@@ -402,7 +402,8 @@ export function UsersPage() {
                 password: null,
                 departmentId,
                 additionalDepartmentIds: [],
-                roleCode: titleImpliesManager(item.title) ? 'Manager' : 'Staff',
+                // Toplu eklemede her zaman Staff gönder; Müdür ünvanını BE kontenjanla yükseltir (card #1824).
+                roleCode: 'Staff',
                 additionalRoleCodes: [],
                 isActive: true,
                 sourceType: 'Ldap',

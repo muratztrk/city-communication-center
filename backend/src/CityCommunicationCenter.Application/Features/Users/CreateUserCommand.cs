@@ -137,7 +137,12 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
 
             if (directoryUser is null)
             {
-                throw new ValidationException(_localizer["ValidationLdapUserNotFound"]);
+                throw new ValidationException(
+                [
+                    new FluentValidation.Results.ValidationFailure(
+                        nameof(CreateUserCommand.ExternalIdentityId),
+                        _localizer["ValidationLdapUserNotFound"].Value),
+                ]);
             }
 
             displayName = string.IsNullOrWhiteSpace(directoryUser.DisplayName)
@@ -197,7 +202,12 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
 
         if (department is null)
         {
-            throw new ValidationException(_localizer["ValidationDepartmentNotFound"]);
+            throw new ValidationException(
+            [
+                new FluentValidation.Results.ValidationFailure(
+                    nameof(CreateUserCommand.DepartmentId),
+                    _localizer["ValidationDepartmentNotFound"].Value),
+            ]);
         }
 
         // LDAP'ta aynı e-posta birden fazla hesapta olabilir — uniqueness yalnız Manual (card #1785).
@@ -213,7 +223,12 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
 
             if (emailExists)
             {
-                throw new ValidationException(_localizer["ValidationUserEmailExists"]);
+                throw new ValidationException(
+                [
+                    new FluentValidation.Results.ValidationFailure(
+                        nameof(CreateUserCommand.Email),
+                        _localizer["ValidationUserEmailExists"].Value),
+                ]);
             }
         }
 
@@ -229,7 +244,12 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
 
             if (usernameExists)
             {
-                throw new ValidationException(_localizer["ValidationUserUsernameExists"]);
+                throw new ValidationException(
+                [
+                    new FluentValidation.Results.ValidationFailure(
+                        nameof(CreateUserCommand.Username),
+                        _localizer["ValidationUserUsernameExists"].Value),
+                ]);
             }
         }
 
@@ -244,7 +264,12 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
 
             if (externalIdentityExists)
             {
-                throw new ValidationException(_localizer["ValidationUserExternalIdentityExists"]);
+                throw new ValidationException(
+                [
+                    new FluentValidation.Results.ValidationFailure(
+                        nameof(CreateUserCommand.ExternalIdentityId),
+                        _localizer["ValidationUserExternalIdentityExists"].Value),
+                ]);
             }
         }
 
@@ -259,12 +284,30 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
 
         if (roleCode == RoleCode.Manager)
         {
-            await UserManagerQuotaValidator.EnsureSingleManagerPerDepartmentAsync(
+            // Toplu LDAP eklemede aynı birimde birden fazla "Müdür" ünvanlı kullanıcı olabilir;
+            // kontenjan doluysa Personel olarak ekle — tüm batch'i düşürme (card #1824).
+            var managerSeatTaken = await UserManagerQuotaValidator.IsManagerSeatTakenAsync(
                 _dbContext,
                 tenantId,
                 departmentId,
                 currentUserId: null,
                 cancellationToken);
+            if (managerSeatTaken)
+            {
+                if (sourceType == UserSource.Ldap)
+                {
+                    roleCode = RoleCode.Staff;
+                }
+                else
+                {
+                    await UserManagerQuotaValidator.EnsureSingleManagerPerDepartmentAsync(
+                        _dbContext,
+                        tenantId,
+                        departmentId,
+                        currentUserId: null,
+                        cancellationToken);
+                }
+            }
         }
 
         var user = new ApplicationUser

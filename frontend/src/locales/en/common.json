@@ -1635,6 +1635,7 @@
     "streetLabel": "Street / Avenue / Boulevard",
     "streetShortLabel": "Street / Avenue",
     "streetPlaceholder": "e.g. Atatürk Avenue",
+    "streetRequired": "Street is required when a neighborhood is selected.",
     "openAddressLabel": "Full Address",
     "openAddressPlaceholder": "Building no, floor, apartment..."
   },

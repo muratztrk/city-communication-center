@@ -2484,7 +2484,10 @@ const pageKicker = isMyTasksView
                                 />
                               </label>
                               <label className="grid gap-1">
-                                <span className="text-xs font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+                                <span className="text-xs font-semibold text-slate-500">
+                                  {t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
+                                  {editRoutineTaskModal.neighborhood ? <span className="text-red-500"> *</span> : null}
+                                </span>
                                 <input
                                   className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                                   placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
@@ -2492,6 +2495,7 @@ const pageKicker = isMyTasksView
                                   value={editRoutineTaskModal.street ?? ''}
                                   onChange={e => updateRoutineTaskAddressDraft({ street: e.target.value })}
                                   disabled={!editRoutineTaskModal.neighborhood}
+                                  required={Boolean(editRoutineTaskModal.neighborhood)}
                                 />
                               </label>
                               <label className="grid gap-1">

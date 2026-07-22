@@ -312,7 +312,10 @@ export function RoutineTaskPage() {
                   />
                 </div>
                 <div className="grid gap-1">
-                  <span className="text-sm font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+                  <span className="text-sm font-semibold text-slate-500">
+                    {t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
+                    {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+                  </span>
                   <input
                     className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                     placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
@@ -321,6 +324,7 @@ export function RoutineTaskPage() {
                     onChange={e => set('street', e.target.value)}
                     onBlur={() => set('street', normalizeTitleCaseField(form.street) ?? '')}
                     disabled={!hasNeighborhood}
+                    required={hasNeighborhood}
                   />
                 </div>
               </div>

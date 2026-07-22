@@ -352,6 +352,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       setError(t('tasks.newRequest.descriptionRequired', 'Açıklama gereklidir.'))
       return
     }
+    if (neighborhood.trim() && !street.trim()) {
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      return
+    }
 
     if (!confirmedSubmit) {
       setConfirmDialog({
@@ -635,7 +639,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     />
                   </label>
                   <label className="job-field grid gap-1">
-                    <span className="job-field-label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+                    <span className="job-field-label">
+                      {t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
+                      {neighborhood ? <span className="text-red-500"> *</span> : null}
+                    </span>
                     <input
                       className="field-input address-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
@@ -644,6 +651,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       onChange={event => setStreet(event.target.value)}
                       onBlur={() => setStreet(normalizeTitleCaseField(street) ?? '')}
                       disabled={!neighborhood}
+                      required={Boolean(neighborhood)}
                     />
                   </label>
                 </div>

@@ -68,9 +68,16 @@ function areConversationDetailsEqual(left: InternalConversationDetail | null, ri
 }
 
 function getInitials(displayName: string) {
-  const parts = displayName.trim().split(/\s+/).filter(Boolean)
+  // Telefon / tire parçalarını atla — "Ramazan Amaç – 1122" → RA (R421).
+  const parts = displayName
+    .trim()
+    .split(/[\s–—-]+/)
+    .map(part => part.trim())
+    .filter(part => part.length > 0 && /[^\d]/.test(part) && !/^\d+$/.test(part))
   if (parts.length === 0) return '—'
-  return `${parts[0][0] ?? ''}${parts.length > 1 ? parts[parts.length - 1][0] ?? '' : ''}`.toLocaleUpperCase('tr')
+  const first = parts[0]?.[0] ?? ''
+  const second = parts.length > 1 ? (parts[1]?.[0] ?? '') : ''
+  return `${first}${second}`.toLocaleUpperCase('tr')
 }
 
 function isSameCalendarDay(left: string, right: string) {

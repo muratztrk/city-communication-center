@@ -716,7 +716,10 @@ export function CreateRequestPage() {
             />
           </div>
           <div className="grid gap-1">
-            <span className="text-sm font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+            <span className="text-sm font-semibold text-slate-500">
+              {t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
+              {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+            </span>
             <input
               className="field-input address-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
               placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
@@ -725,6 +728,7 @@ export function CreateRequestPage() {
               onChange={e => setField('street', e.target.value)}
               onBlur={() => setField('street', normalizeTitleCaseField(form.street) ?? '')}
               disabled={!hasNeighborhood}
+              required={hasNeighborhood}
             />
           </div>
         </div>
@@ -759,6 +763,10 @@ export function CreateRequestPage() {
     }
     if (!hasRichTextContent(internalForm.description)) {
       setError(t('tasks.newRequest.descriptionRequired', 'Açıklama gereklidir.'))
+      return
+    }
+    if (internalForm.neighborhood.trim() && !internalForm.street.trim()) {
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
       return
     }
     // Yönetici/sorumlu için personel seçimi zorunludur (tek kişi).
@@ -838,6 +846,10 @@ export function CreateRequestPage() {
     }
     if (!hasRichTextContent(externalForm.description)) {
       setError(t('tasks.newRequest.descriptionRequired', 'Açıklama gereklidir.'))
+      return
+    }
+    if (externalForm.neighborhood.trim() && !externalForm.street.trim()) {
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
       return
     }
     if (confirmedKind !== 'external') {
@@ -931,6 +943,10 @@ export function CreateRequestPage() {
     }
     if (!trimmedPhone.startsWith('5')) {
       setError(t('settings.citizen.citizenPhoneMustStartWith5', 'Telefon numarası 5 ile başlamalıdır.'))
+      return
+    }
+    if (citizenForm.neighborhood.trim() && !citizenForm.street.trim()) {
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
       return
     }
     if (confirmedKind !== 'citizen') {

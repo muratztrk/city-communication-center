@@ -45,7 +45,10 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
           />
         </label>
         <label className="grid min-w-0 gap-1">
-          <span className="text-xs font-semibold text-slate-500">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</span>
+          <span className="text-xs font-semibold text-slate-500">
+            {t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
+            {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+          </span>
           <textarea
             className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
             placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
@@ -55,6 +58,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             onChange={e => onChange({ street: e.target.value })}
             onBlur={() => onChange({ street: normalizeTitleCaseField(draft.street) ?? '' })}
             disabled={!hasNeighborhood}
+            required={hasNeighborhood}
           />
         </label>
         <label className="grid min-w-0 gap-1">

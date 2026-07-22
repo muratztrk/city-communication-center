@@ -228,7 +228,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
   Cadde/Sokak/Bulvar ve Açık Adres alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
-  alt adres alanları da temizlenir. Taleplerim terminal talep notu süreç satırında tekil **Not**
+  alt adres alanları da temizlenir. Mahalle seçildikten sonra Cadde/Sokak/Bulvar zorunludur
+  (etikette `*`, `required`) — R421. Taleplerim terminal talep notu süreç satırında tekil **Not**
   linkidir; terminal tarih etiketinde `(İptal)`/durum parantezi basılmaz; Görev Detayları terminal
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Adres alan limitleri:** Cadde / Sokak / Bulvar tüm giriş yüzeylerinde en fazla 50 karakter,

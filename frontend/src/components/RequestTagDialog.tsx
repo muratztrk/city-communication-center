@@ -205,12 +205,12 @@ interface RequestTagPickerProps {
 
 function computeTagMenuStyle(button: HTMLDivElement) {
   const rect = button.getBoundingClientRect()
-  // Kompakt menü; her zaman aşağı açılır (card #1865).
-  const menuWidth = Math.min(180, Math.max(140, rect.width))
+  // Menü butondan biraz daha geniş; her zaman aşağı açılır (card #1865).
+  const menuWidth = Math.max(220, Math.min(280, Math.max(rect.width + 40, 220)))
   const left = Math.min(rect.left, window.innerWidth - menuWidth - 8)
   return {
     top: rect.bottom + 4,
-    left,
+    left: Math.max(8, left),
     width: menuWidth,
   }
 }
@@ -279,27 +279,27 @@ export function RequestTagPicker({ tags, onSelect, largeText = false }: RequestT
       style={{ top: menuStyle.top, left: menuStyle.left, width: menuStyle.width }}
     >
       {searchable ? (
-        <div className="flex items-center gap-1 border-b border-slate-100 px-2 py-1.5">
-          <Search className="size-3 shrink-0 text-slate-400" aria-hidden="true" />
+        <div className="flex items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
+          <Search className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
           <input
             type="text"
             autoFocus
             value={search}
             onChange={event => setSearch(event.target.value)}
             placeholder={t('common.search', 'Ara...')}
-            className="min-w-0 flex-1 bg-transparent text-[11px] text-slate-900 outline-none placeholder:text-slate-400"
+            className="min-w-0 flex-1 bg-transparent text-xs text-slate-900 outline-none placeholder:text-slate-400"
           />
         </div>
       ) : null}
-      <div className="max-h-40 overflow-y-auto divide-y divide-slate-100">
+      <div className="max-h-48 overflow-y-auto divide-y divide-slate-100">
         {visibleTags.length === 0 ? (
-          <p className="px-2.5 py-1.5 text-[11px] font-semibold text-slate-500">{t('common.noResults', 'Sonuç bulunamadı.')}</p>
+          <p className="px-3 py-2 text-xs font-semibold text-slate-500">{t('common.noResults', 'Sonuç bulunamadı.')}</p>
         ) : visibleTags.map(tag => (
           <button
             key={tag.tagId}
             type="button"
             onClick={() => { onSelect(tag.name); setOpen(false); setSearch(''); setMenuStyle(null) }}
-            className="w-full truncate px-2.5 py-1.5 text-left text-[11px] font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-[color:var(--color-surface-raised)]"
+            className="w-full truncate px-3 py-2 text-left text-xs font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-emerald-50 hover:text-emerald-900"
           >
             {tag.name}
           </button>

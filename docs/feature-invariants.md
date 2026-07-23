@@ -538,8 +538,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kaynak mesaj bir konuşmaya bağlıysa seçim conversation profile'a kaydedilir.
   Kayıtlı etiket sayısı 7 veya daha fazlaysa Etiketler menüsünün ilk satırında küçük puntolu arama gösterilir.
   `CitizenRequestModal` (WA Talep Oluştur) Etiketler/Etiket ekle kompakt (`h-7`, ~11px); menü her zaman
-  aşağı açılır ve max-h daha kısa (card #1865). CreateRequestPage Vatandaş Çağrı Talebi bloğunda
-  Etiketler/Etiket ekle bir kademe büyük (`largeText` → `text-sm`) kalır.
+  aşağı açılır, genişlik ~220–280px, satır `text-xs` + belirgin hover (`emerald-50`) (card #1865).
+  CreateRequestPage Vatandaş Çağrı Talebi bloğunda Etiketler/Etiket ekle bir kademe büyük
+  (`largeText` → `text-sm`) kalır.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
 - **Kurum İçi Mesajlar FAB ikonu:** yeşil yuvarlak butonda tek, 24px ve belirgin dolu konuşma
@@ -1164,8 +1165,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` ve `Tüm LDAP… Ekle` standart
   `ConfirmDialog` ile onay ister; sonuç/önizleme **aynı popup içinde** güncellenir
   (`closeOnConfirm: false`) ve Users LDAP gibi `details` içinde kaydırılabilir birim listesi
-  gösterir (listelenen / eklenecek / eklenen). İkinci popup açılmaz. Sonuçta `Çıkış` ile kapanır;
-  Oluştur butonu üstünde inline helper metin yok. Sil aynı kalıp.
+  gösterir (listelenen / eklenecek / eklenen). `Anlık LDAP…` sonuçta yalnız sistemde **olmayan**
+  yeni birimleri listeler; hiç yeni yoksa mesaj `Eklenecek yeni LDAP birimi yok; hepsi zaten
+  sistemde.` (`addAllLdapNone`) olur (card #1862 reopen). İkinci popup açılmaz. Sonuçta `Çıkış`
+  ile kapanır; Oluştur butonu üstünde inline helper metin yok. Sil aynı kalıp.
 - **Vatandaş dashboard pie'ları yalnız VT (Vatandaş Talebi) sayar (card #1845):** `citizenJobs`,
   `BuildRequestTagChartAsync` (Talep Etiketi) ve üç mahalle grafiği (`Tamamlanan`/`Yapılmakta`/
   `İşleme Alınan`) bir Job'ı yalnız bağlı `SocialMessage.CitizenRequestNumber != null` ise sayar

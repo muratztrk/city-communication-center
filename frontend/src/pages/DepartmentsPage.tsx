@@ -233,22 +233,40 @@ export function DepartmentsPage() {
       }
 
       const listedNames = [...foundNamesByKey.values()]
+      const existingKeys = new Set(departments.map(item => item.name.trim().toLocaleLowerCase('tr')))
+      const newNames = listedNames.filter(name => !existingKeys.has(name.toLocaleLowerCase('tr')))
+
       setDirectoryResults(listedResults)
       setDirectoryQuery('')
       setSelectedLdapDepartment(null)
       setNewName('')
+
+      // Yeni (sistemde olmayan) birim yoksa Users/Ekle ile aynı none mesajı; varsa yalnız onları listele (card #1862).
+      if (newNames.length === 0) {
+        setConfirmDialog({
+          title: t('departments.liveLdapSync'),
+          titleDivider: true,
+          titleCompact: true,
+          titleTone: 'danger',
+          message: t('departments.addAllLdapNone'),
+          confirmLabel: t('common.exit', 'Çıkış'),
+          hideCancel: true,
+          variant: 'destructive',
+          onConfirm: () => {},
+        })
+        return
+      }
+
       setConfirmDialog({
         title: t('departments.liveLdapSync'),
         titleDivider: true,
         titleCompact: true,
         titleTone: 'success',
-        message: t('departments.pullAllLdapSuccess', { count: listedNames.length }),
-        details: listedNames.length > 0
-          ? renderLdapDepartmentList(
-              t('departments.pullAllLdapListedTitle', { count: listedNames.length }),
-              listedNames,
-            )
-          : undefined,
+        message: t('departments.pullAllLdapSuccess', { count: newNames.length }),
+        details: renderLdapDepartmentList(
+          t('departments.pullAllLdapListedTitle', { count: newNames.length }),
+          newNames,
+        ),
         confirmLabel: t('common.exit', 'Çıkış'),
         hideCancel: true,
         variant: 'primary',

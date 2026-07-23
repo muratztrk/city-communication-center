@@ -204,8 +204,8 @@ export function AppShell() {
   const navItemConfigs: NavLinkConfigEx[] = [
     ...(user?.role === 'Reporter' || user?.role === 'Operator'
       ? [
-          { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Kontrol Paneli Vatandaş'), icon: LayoutDashboard },
-          { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Kontrol Paneli Birimler'), icon: LayoutDashboard, separatorAfter: true },
+          { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard },
+          { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorAfter: true },
         ]
       : [
           { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
@@ -371,9 +371,9 @@ export function AppShell() {
 
   const breadcrumbLabels: Record<string, string> = {
     dashboard: user?.role === 'Reporter' || user?.role === 'Operator'
-      ? t('nav.dashboardCitizen', 'Kontrol Paneli Vatandaş')
+      ? t('nav.dashboardCitizen', 'Anasayfa - Vatandaş')
       : t('nav.dashboard'),
-    birimler: t('nav.dashboardDepartments', 'Kontrol Paneli Birimler'),
+    birimler: t('nav.dashboardDepartments', 'Anasayfa - Birimler'),
     requests: t('nav.createRequest', 'Talep Oluştur'),
     new: t('nav.createRequest', 'Talep Oluştur'),
     'my-tasks': (viewParam && myTasksViewLabels[viewParam]) || t('nav.myTasks', 'Görevlerim'),

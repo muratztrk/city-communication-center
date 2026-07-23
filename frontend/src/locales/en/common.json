@@ -181,9 +181,9 @@
     "noResults": "No results found"
   },
   "nav": {
-    "dashboard": "Dashboard",
-    "dashboardCitizen": "Citizen Dashboard",
-    "dashboardDepartments": "Departments Dashboard",
+    "dashboard": "Home",
+    "dashboardCitizen": "Home - Citizen",
+    "dashboardDepartments": "Home - Departments",
     "citizenDirectory": "Citizen Directory",
     "edevletActivityPlan": "Create e-Government Daily Activity Plan",
     "edevletActivityPlansList": "e-Government Daily Activity Plans List",
@@ -450,7 +450,7 @@
       "title": "Citizen Request Channels"
     },
     "citizenMap": {
-      "title": "Tire Map — Requests with Open Address",
+      "title": "Tire Map - Requests with Open Address",
       "subtitle": "Processing and in-progress requests with an open address are shown on the map.",
       "pinCount": "{{count}} location",
       "pinCount_other": "{{count}} locations",
@@ -543,6 +543,8 @@
     "pullAllLdapSuccess": "{{count}} unit(s) listed from LDAP. Add with Create.",
     "liveLdapSync": "Sync LDAP Units Now",
     "liveLdapSyncWorking": "Syncing LDAP units...",
+    "liveLdapSyncConfirm": "Department list will be pulled from LDAP. Continue?",
+    "addAllLdapConfirmPrompt": "All LDAP units not yet in the system will be added. Continue?",
     "addAllLdap": "Add All LDAP Units",
     "addAllLdapWorking": "Adding LDAP units...",
     "addAllLdapConfirm": "{{count}} LDAP unit(s) will be added. Continue?",

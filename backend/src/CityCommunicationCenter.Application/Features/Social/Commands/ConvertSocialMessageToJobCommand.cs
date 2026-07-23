@@ -98,6 +98,19 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
         message.AssignedDepartmentId = ResolveDestinationDepartmentId(request.TargetDepartmentIds, request.OwnerDepartmentId);
         message.UpdatedByUserId = request.ActorUserId;
         message.UpdatedAtUtc = DateTimeOffset.UtcNow;
+
+        // Vatandaş Çağrı / operatör talepleri WhatsApp webhook'u geçmez; CitizenConversation
+        // upsert ile Vatandaş Bilgi Listesi'nde görünsün (card #1858).
+        await EnsureCitizenConversationAsync(
+            tenantId,
+            message,
+            ResolveCitizenName(request.CitizenName, message.CitizenHandle),
+            ResolveCitizenPhone(request.CitizenPhone, message.CitizenHandle),
+            request.Neighborhood,
+            request.Street,
+            request.OpenAddress,
+            cancellationToken);
+
         await _dbContext.SaveChangesAsync(cancellationToken);
 
         var job = await _dbContext.Jobs.FirstOrDefaultAsync(
@@ -140,6 +153,131 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
 
     private static string NormalizePhoneDigits(string value)
         => new(value.Where(char.IsDigit).ToArray());
+
+    private async Task EnsureCitizenConversationAsync(
+        Guid tenantId,
+        SocialMessage message,
+        string? citizenName,
+        string? citizenPhone,
+        string? neighborhood,
+        string? street,
+        string? openAddress,
+        CancellationToken cancellationToken)
+    {
+        if (message.CitizenConversationId.HasValue)
+        {
+            var existingLinked = await _dbContext.CitizenConversations
+                .FirstOrDefaultAsync(
+                    conversation => conversation.CitizenConversationId == message.CitizenConversationId.Value
+                        && conversation.TenantId == tenantId,
+                    cancellationToken);
+            if (existingLinked is not null)
+            {
+                ApplyConversationProfile(existingLinked, citizenName, neighborhood, street, openAddress);
+                existingLinked.LastMessageAt = DateTimeOffset.UtcNow;
+                return;
+            }
+        }
+
+        var normalizedPhone = NormalizeConversationPhone(citizenPhone);
+        if (normalizedPhone is null)
+        {
+            return;
+        }
+
+        var phoneVariants = ConversationPhoneVariants(normalizedPhone);
+        var conversation = await _dbContext.CitizenConversations
+            .FirstOrDefaultAsync(
+                item => item.TenantId == tenantId && phoneVariants.Contains(item.CitizenPhone),
+                cancellationToken);
+
+        if (conversation is null)
+        {
+            conversation = new CitizenConversation
+            {
+                CitizenConversationId = Guid.NewGuid(),
+                TenantId = tenantId,
+                CitizenPhone = normalizedPhone,
+                LastMessageAt = DateTimeOffset.UtcNow,
+                UnreadCount = 0,
+            };
+            _dbContext.CitizenConversations.Add(conversation);
+        }
+        else
+        {
+            conversation.LastMessageAt = DateTimeOffset.UtcNow;
+        }
+
+        ApplyConversationProfile(conversation, citizenName, neighborhood, street, openAddress);
+        message.CitizenConversationId = conversation.CitizenConversationId;
+    }
+
+    private static void ApplyConversationProfile(
+        CitizenConversation conversation,
+        string? citizenName,
+        string? neighborhood,
+        string? street,
+        string? openAddress)
+    {
+        if (!string.IsNullOrWhiteSpace(citizenName))
+        {
+            conversation.CitizenName = citizenName.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(neighborhood))
+        {
+            conversation.Neighborhood = neighborhood.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(street))
+        {
+            conversation.Street = street.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(openAddress))
+        {
+            conversation.OpenAddress = openAddress.Trim();
+        }
+    }
+
+    /// <summary>E.164 TR storage: 905XXXXXXXXX (WhatsApp CitizenConversation ile aynı).</summary>
+    private static string? NormalizeConversationPhone(string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            return null;
+        }
+
+        var digits = NormalizePhoneDigits(phone);
+        if (digits.Length == 10)
+        {
+            return "90" + digits;
+        }
+
+        if (digits.Length == 11 && digits.StartsWith('0'))
+        {
+            return "90" + digits[1..];
+        }
+
+        if (digits.Length == 12 && digits.StartsWith("90", StringComparison.Ordinal))
+        {
+            return digits;
+        }
+
+        return digits.Length is >= 10 and <= 15 ? digits : null;
+    }
+
+    private static IReadOnlyList<string> ConversationPhoneVariants(string normalizedPhone)
+    {
+        var variants = new HashSet<string>(StringComparer.Ordinal) { normalizedPhone };
+        if (normalizedPhone.Length == 12 && normalizedPhone.StartsWith("90", StringComparison.Ordinal))
+        {
+            variants.Add(normalizedPhone[2..]);
+            variants.Add("0" + normalizedPhone[2..]);
+        }
+
+        return variants.ToArray();
+    }
 
     private static Guid? ResolveDestinationDepartmentId(IReadOnlyList<Guid>? targetDepartmentIds, Guid ownerDepartmentId)
     {

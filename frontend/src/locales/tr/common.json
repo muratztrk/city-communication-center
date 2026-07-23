@@ -181,9 +181,9 @@
     "noResults": "Sonuç bulunamadı"
   },
   "nav": {
-    "dashboard": "Kontrol Paneli",
-    "dashboardCitizen": "Kontrol Paneli Vatandaş",
-    "dashboardDepartments": "Kontrol Paneli Birimler",
+    "dashboard": "Anasayfa",
+    "dashboardCitizen": "Anasayfa - Vatandaş",
+    "dashboardDepartments": "Anasayfa - Birimler",
     "citizenDirectory": "Vatandaş Bilgi Listesi",
     "edevletActivityPlan": "e-Devlet Günlük Faaliyet Planı Oluştur",
     "edevletActivityPlansList": "e-Devlet Günlük Faaliyet Planları Listesi",
@@ -452,7 +452,7 @@
       "title": "Vatandaş Talep Kanalları"
     },
     "citizenMap": {
-      "title": "Tire Haritası — Açık Adresli Talepler",
+      "title": "Tire Haritası - Açık Adresli Talepler",
       "subtitle": "İşleme alınan ve yapılmakta olan talepler açık adresleriyle haritada gösterilir.",
       "pinCount": "{{count}} konum",
       "geocodeEmpty": "Açık adresler haritada konumlanamadı."
@@ -545,6 +545,8 @@
     "pullAllLdapSuccess": "{{count}} birim LDAP'tan listelendi. Oluştur ile ekleyin.",
     "liveLdapSync": "Anlık LDAP Birim Senkronize Et",
     "liveLdapSyncWorking": "LDAP birimleri senkronize ediliyor...",
+    "liveLdapSyncConfirm": "LDAP dizininden birim listesi çekilecek. Devam etmek istiyor musunuz?",
+    "addAllLdapConfirmPrompt": "LDAP dizinindeki henüz eklenmemiş tüm birimler sisteme eklenecek. Devam etmek istiyor musunuz?",
     "addAllLdap": "Tüm LDAP Birimlerini Ekle",
     "addAllLdapWorking": "LDAP birimleri ekleniyor...",
     "addAllLdapConfirm": "{{count}} LDAP birimi sisteme eklenecek. Devam etmek istiyor musunuz?",

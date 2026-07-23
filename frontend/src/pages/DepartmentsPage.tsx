@@ -164,13 +164,26 @@ export function DepartmentsPage() {
     }
   }
 
+  const handlePullAllLdapDepartmentsClick = () => {
+    if (!ldapEnabled || pullAllLdapLoading) return
+    setConfirmDialog({
+      title: t('departments.liveLdapSync'),
+      titleDivider: true,
+      titleCompact: true,
+      message: t('departments.liveLdapSyncConfirm', 'LDAP dizininden birim listesi çekilecek. Devam etmek istiyor musunuz?'),
+      confirmLabel: t('common.yes', 'Evet'),
+      variant: 'primary',
+      onConfirm: () => { void handlePullAllLdapDepartments() },
+    })
+  }
+
   const handlePullAllLdapDepartments = async () => {
     setPullAllLdapLoading(true)
     setPullAllLdapMessage(t('departments.liveLdapSyncWorking'))
     setError('')
 
     try {
-      // OU + department attribute listesi — kullanıcı displayName limitine takılmaz (card #1730).
+      // physicalDeliveryOfficeName listesi — OU yok (card #1838).
       const departmentNames = await api.listDirectoryDepartments()
       const foundNamesByKey = new Map<string, string>()
       const listedResults: DirectoryUserLookup[] = []
@@ -207,9 +220,20 @@ export function DepartmentsPage() {
     }
   }
 
-  const handleAddAllLdapDepartmentsClick = async () => {
+  const handleAddAllLdapDepartmentsClick = () => {
     if (!ldapEnabled || addAllLdapLoading) return
+    setConfirmDialog({
+      title: t('departments.addAllLdap'),
+      titleDivider: true,
+      titleCompact: true,
+      message: t('departments.addAllLdapConfirmPrompt', 'LDAP dizinindeki henüz eklenmemiş tüm birimler sisteme eklenecek. Devam etmek istiyor musunuz?'),
+      confirmLabel: t('common.add', 'Ekle'),
+      variant: 'primary',
+      onConfirm: () => { void runAddAllLdapDepartments() },
+    })
+  }
 
+  const runAddAllLdapDepartments = async () => {
     setAddAllLdapLoading(true)
     setError('')
     setPullAllLdapMessage(null)
@@ -234,39 +258,21 @@ export function DepartmentsPage() {
         return
       }
 
-      setConfirmDialog({
-        title: t('departments.addAllLdap'),
-        titleDivider: true,
-        titleCompact: true,
-        message: t('departments.addAllLdapConfirm', { count: toAdd.length }),
-        confirmLabel: t('common.add', 'Ekle'),
-        variant: 'primary',
-        onConfirm: async () => {
-          setAddAllLdapLoading(true)
-          setError('')
-          try {
-            let created = 0
-            for (const name of toAdd) {
-              await api.createDepartment({
-                name,
-                departmentType: 'Birim',
-                managerUserId: null,
-                responsibleUserIds: [],
-                sourceType: 'Ldap',
-              })
-              created += 1
-            }
-            invalidateDepartments(queryClient)
-            setPullAllLdapMessage(t('departments.addAllLdapSuccess', { count: created }))
-          } catch (createError) {
-            setError(createError instanceof Error ? createError.message : t('common.error'))
-          } finally {
-            setAddAllLdapLoading(false)
-          }
-        },
-      })
-    } catch (listError) {
-      setError(listError instanceof Error ? listError.message : t('common.error'))
+      let created = 0
+      for (const name of toAdd) {
+        await api.createDepartment({
+          name,
+          departmentType: 'Birim',
+          managerUserId: null,
+          responsibleUserIds: [],
+          sourceType: 'Ldap',
+        })
+        created += 1
+      }
+      invalidateDepartments(queryClient)
+      setPullAllLdapMessage(t('departments.addAllLdapSuccess', { count: created }))
+    } catch (createError) {
+      setError(createError instanceof Error ? createError.message : t('common.error'))
     } finally {
       setAddAllLdapLoading(false)
     }
@@ -425,7 +431,12 @@ export function DepartmentsPage() {
     })),
     [departments, users],
   )
-  const sortedDepts = useMemo(() => sortDepts(departmentRows), [departmentRows, sortDepts])
+  const sortedDepts = useMemo(() => {
+    if (deptSortKey) return sortDepts(departmentRows)
+    // Varsayılan: birim adı alfabetik (TR) (card #1856).
+    return [...departmentRows].sort((a, b) =>
+      a.name.localeCompare(b.name, 'tr', { sensitivity: 'base' }))
+  }, [departmentRows, deptSortKey, sortDepts])
   const columnFilteredDepts = useMemo(
     () => sortedDepts.filter(d => deptMatchesFilters(d)),
     [sortedDepts, deptMatchesFilters],
@@ -559,7 +570,7 @@ export function DepartmentsPage() {
                   type="button"
                   className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
                   disabled={pullAllLdapLoading}
-                  onClick={() => void handlePullAllLdapDepartments()}
+                  onClick={() => handlePullAllLdapDepartmentsClick()}
                 >
                   {pullAllLdapLoading ? t('departments.liveLdapSyncWorking') : t('departments.liveLdapSync')}
                 </button>
@@ -567,7 +578,7 @@ export function DepartmentsPage() {
                   type="button"
                   className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
                   disabled={addAllLdapLoading || pullAllLdapLoading}
-                  onClick={() => void handleAddAllLdapDepartmentsClick()}
+                  onClick={() => handleAddAllLdapDepartmentsClick()}
                 >
                   {addAllLdapLoading ? t('departments.addAllLdapWorking') : t('departments.addAllLdap')}
                 </button>

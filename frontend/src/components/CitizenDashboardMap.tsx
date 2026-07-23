@@ -10,7 +10,7 @@ import type { CitizenDashboardMapPin, JobDetail, SocialMessage } from '../types/
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
-import { geocodeTireAddress, TIRE_MAP_CENTER, type LatLng } from '../utils/geocodeTireAddress'
+import { geocodeTireAddress, TIRE_MAP_BOUNDS, TIRE_MAP_CENTER, type LatLng } from '../utils/geocodeTireAddress'
 
 type ResolvedPin = CitizenDashboardMapPin & { position: LatLng }
 
@@ -21,16 +21,17 @@ function pinColor(displayStatus: string): string {
 function FitPins({ pins }: { pins: ResolvedPin[] }) {
   const map = useMap()
   useEffect(() => {
+    const districtBounds = L.latLngBounds(TIRE_MAP_BOUNDS)
     if (pins.length === 0) {
-      map.setView([TIRE_MAP_CENTER.lat, TIRE_MAP_CENTER.lng], 14)
+      map.fitBounds(districtBounds, { padding: [24, 24], maxZoom: 13 })
       return
     }
     if (pins.length === 1) {
       map.setView([pins[0].position.lat, pins[0].position.lng], 15)
       return
     }
-    const bounds = L.latLngBounds(pins.map(pin => [pin.position.lat, pin.position.lng] as [number, number]))
-    map.fitBounds(bounds, { padding: [36, 36], maxZoom: 15 })
+    const pinBounds = L.latLngBounds(pins.map(pin => [pin.position.lat, pin.position.lng] as [number, number]))
+    map.fitBounds(districtBounds.extend(pinBounds), { padding: [36, 36], maxZoom: 14 })
   }, [map, pins])
   return null
 }
@@ -136,14 +137,14 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
     <section className="section-card overflow-hidden p-0">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-border)] px-4 py-3 sm:px-5">
         <div>
-          <h2 className="text-sm font-semibold text-slate-800">
-            {t('dashboard.citizenMap.title', 'Tire Haritası — Açık Adresli Talepler')}
+          <h2 className="text-base font-bold text-slate-800 sm:text-lg">
+            {t('dashboard.citizenMap.title', 'Tire Haritası - Açık Adresli Talepler')}
           </h2>
-          <p className="mt-0.5 text-xs text-slate-500">
+          <p className="mt-0.5 text-sm text-slate-500">
             {t('dashboard.citizenMap.subtitle', 'İşleme alınan ve yapılmakta olan talepler açık adresleriyle haritada gösterilir.')}
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-slate-600">
+        <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
           {statusLegend.map(item => (
             <span key={item.key} className="inline-flex items-center gap-1.5">
               <span className={`size-2.5 rounded-full ${item.key === 'inProgress' ? 'bg-emerald-500' : 'bg-sky-500'}`} />
@@ -161,7 +162,7 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
       <div className="relative h-[min(28rem,55vh)] w-full bg-slate-100">
         <MapContainer
           center={[TIRE_MAP_CENTER.lat, TIRE_MAP_CENTER.lng]}
-          zoom={14}
+          zoom={13}
           className="size-full z-0"
           scrollWheelZoom
         >

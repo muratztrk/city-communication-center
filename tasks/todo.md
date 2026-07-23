@@ -1,3 +1,7 @@
+## Round 425 — #1856/#1848/#1857/#1858/#1843/#1859
+- Birimler alfabetik; harita başlık/zoom/Toki-İbni Melek; LDAP sync/ekle ConfirmDialog
+- Çağrı VT → CitizenConversation + backfill; numara 90'siz text-base; Anasayfa nav metinleri
+
 ## Round 424 — #1829–#1855 (15 kart)
 - #1839 şablon dropdown text-sm; #1847 şablon adı title-case; #1829 iptal notu WA chat'te yok
 - #1846 bildirim VT kanal ikonu; #1848 harita alt+zoom+yeşil/mavi; #1850 nav double-active

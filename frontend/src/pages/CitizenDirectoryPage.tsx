@@ -16,6 +16,7 @@ import { useSortable } from '../hooks/useSortable'
 import type { CitizenConversationDetail, CitizenConversationSummary, CitizenConversationTicket, JobDetail, SocialMessage } from '../types/platform'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getLocale, getSocialChannelLabel } from '../utils/localization'
+import { formatDirectoryPhone } from '../utils/phoneDisplay'
 
 type DirectoryRow = CitizenConversationSummary & {
   displayName: string
@@ -293,7 +294,7 @@ export function CitizenDirectoryPage() {
                   <td>
                     <span className="font-semibold text-slate-800">{row.displayName}</span>
                   </td>
-                  <td className="font-mono text-sm font-semibold text-slate-700">{row.citizenPhone || '—'}</td>
+                  <td className="font-mono text-base font-semibold tabular-nums text-slate-800">{formatDirectoryPhone(row.citizenPhone) || '—'}</td>
                   <td>
                     {row.sourceChannel ? (
                       <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
@@ -351,7 +352,7 @@ export function CitizenDirectoryPage() {
                   {t('citizenDirectory.ticketsTitle', 'Vatandaş Talepleri')}
                 </h2>
                 <p className="mt-0.5 text-sm text-slate-500">
-                  {[ticketModal.conversation.citizenName, ticketModal.conversation.citizenPhone].filter(Boolean).join(' · ')}
+                  {[ticketModal.conversation.citizenName, formatDirectoryPhone(ticketModal.conversation.citizenPhone)].filter(Boolean).join(' · ')}
                 </p>
               </div>
               <button type="button" className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700" onClick={() => setTicketModal(null)}>

@@ -28,6 +28,9 @@ public sealed class GetCitizenConversationsQueryHandler
         var canSeeAllConversations = Enum.TryParse<RoleCode>(context.RoleCode, true, out var roleCode)
             && roleCode is RoleCode.Operator or RoleCode.SystemAdmin;
 
+        // Operatör/çağrı ile oluşmuş VT'ler için eksik CitizenConversation satırlarını tamamla (card #1858).
+        await BackfillMissingCitizenConversationsAsync(tenantId, cancellationToken);
+
         var conversations = await _dbContext.CitizenConversations
             .AsNoTracking()
             .Where(c => c.TenantId == tenantId)
@@ -284,5 +287,159 @@ public sealed class GetCitizenConversationsQueryHandler
                     ticket?.Channel.ToString());
             })
             .ToList();
+    }
+
+    /// <summary>
+    /// Phone/operatör VT'lerinde CitizenConversation oluşmamış kayıtları bağlar (card #1858 / VT-2026-67).
+    /// </summary>
+    private async Task BackfillMissingCitizenConversationsAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var orphans = await _dbContext.SocialMessages
+            .Where(message => message.TenantId == tenantId
+                && message.CitizenConversationId == null
+                && message.CitizenRequestNumber != null)
+            .Select(message => new
+            {
+                message.SocialMessageId,
+                message.CitizenHandle,
+                JobCitizenPhone = message.JobId.HasValue
+                    ? _dbContext.Jobs
+                        .Where(job => job.JobId == message.JobId.Value)
+                        .Select(job => job.CitizenPhone)
+                        .FirstOrDefault()
+                    : null,
+                JobCitizenName = message.JobId.HasValue
+                    ? _dbContext.Jobs
+                        .Where(job => job.JobId == message.JobId.Value)
+                        .Select(job => job.CitizenName)
+                        .FirstOrDefault()
+                    : null,
+                JobNeighborhood = message.JobId.HasValue
+                    ? _dbContext.Jobs
+                        .Where(job => job.JobId == message.JobId.Value)
+                        .Select(job => job.Neighborhood)
+                        .FirstOrDefault()
+                    : null,
+                JobStreet = message.JobId.HasValue
+                    ? _dbContext.Jobs
+                        .Where(job => job.JobId == message.JobId.Value)
+                        .Select(job => job.Street)
+                        .FirstOrDefault()
+                    : null,
+                JobOpenAddress = message.JobId.HasValue
+                    ? _dbContext.Jobs
+                        .Where(job => job.JobId == message.JobId.Value)
+                        .Select(job => job.OpenAddress)
+                        .FirstOrDefault()
+                    : null,
+            })
+            .ToListAsync(cancellationToken);
+
+        if (orphans.Count == 0)
+        {
+            return;
+        }
+
+        var existingPhones = await _dbContext.CitizenConversations
+            .Where(conversation => conversation.TenantId == tenantId)
+            .Select(conversation => new { conversation.CitizenConversationId, conversation.CitizenPhone })
+            .ToListAsync(cancellationToken);
+        var byPhone = existingPhones
+            .GroupBy(item => item.CitizenPhone, StringComparer.Ordinal)
+            .ToDictionary(group => group.Key, group => group.First().CitizenConversationId, StringComparer.Ordinal);
+
+        var changed = false;
+        foreach (var orphan in orphans)
+        {
+            var normalized = NormalizeConversationPhone(orphan.JobCitizenPhone)
+                ?? NormalizeConversationPhone(orphan.CitizenHandle);
+            if (normalized is null)
+            {
+                continue;
+            }
+
+            if (!TryFindConversationId(byPhone, normalized, out var conversationId))
+            {
+                var conversation = new CitizenConversation
+                {
+                    CitizenConversationId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    CitizenPhone = normalized,
+                    CitizenName = string.IsNullOrWhiteSpace(orphan.JobCitizenName) ? null : orphan.JobCitizenName.Trim(),
+                    Neighborhood = string.IsNullOrWhiteSpace(orphan.JobNeighborhood) ? null : orphan.JobNeighborhood.Trim(),
+                    Street = string.IsNullOrWhiteSpace(orphan.JobStreet) ? null : orphan.JobStreet.Trim(),
+                    OpenAddress = string.IsNullOrWhiteSpace(orphan.JobOpenAddress) ? null : orphan.JobOpenAddress.Trim(),
+                    LastMessageAt = DateTimeOffset.UtcNow,
+                    UnreadCount = 0,
+                };
+                _dbContext.CitizenConversations.Add(conversation);
+                conversationId = conversation.CitizenConversationId;
+                byPhone[normalized] = conversationId;
+                changed = true;
+            }
+
+            var message = await _dbContext.SocialMessages
+                .FirstAsync(item => item.SocialMessageId == orphan.SocialMessageId, cancellationToken);
+            message.CitizenConversationId = conversationId;
+            changed = true;
+        }
+
+        if (changed)
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+    }
+
+    private static string? NormalizeConversationPhone(string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            return null;
+        }
+
+        var digits = new string(phone.Where(char.IsDigit).ToArray());
+        if (digits.Length == 10)
+        {
+            return "90" + digits;
+        }
+
+        if (digits.Length == 11 && digits.StartsWith('0'))
+        {
+            return "90" + digits[1..];
+        }
+
+        if (digits.Length == 12 && digits.StartsWith("90", StringComparison.Ordinal))
+        {
+            return digits;
+        }
+
+        return digits.Length is >= 10 and <= 15 ? digits : null;
+    }
+
+    private static bool TryFindConversationId(
+        IReadOnlyDictionary<string, Guid> byPhone,
+        string normalizedPhone,
+        out Guid conversationId)
+    {
+        foreach (var variant in ConversationPhoneVariants(normalizedPhone))
+        {
+            if (byPhone.TryGetValue(variant, out conversationId))
+            {
+                return true;
+            }
+        }
+
+        conversationId = default;
+        return false;
+    }
+
+    private static IEnumerable<string> ConversationPhoneVariants(string normalizedPhone)
+    {
+        yield return normalizedPhone;
+        if (normalizedPhone.Length == 12 && normalizedPhone.StartsWith("90", StringComparison.Ordinal))
+        {
+            yield return normalizedPhone[2..];
+            yield return "0" + normalizedPhone[2..];
+        }
     }
 }

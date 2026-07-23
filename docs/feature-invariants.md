@@ -1114,33 +1114,36 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   isim gösterilir), `prefix – dashboard.xxx` (çevrilebilir bileşik), ve düz literal metin (aynen basılır).
   Yeni bir grafik id'siz bir gruplama anahtarına (ör. mahalle adı) göre dilim üretecekse, `Label` alanına
   DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok.
-- **Vatandaş Bilgi Listesi (card #1836, kolon/buton düzeni #1843):** `/citizen-directory` yalnız
+- **Vatandaş Bilgi Listesi (card #1836, kolon/buton düzeni #1843/#1858):** `/citizen-directory` yalnız
   `Reporter` / `Operator` / `SystemAdmin`; grid `GET /citizen-conversations`. `Numara` sütunundan
   sonra ayrı `Talep Kanalı` sütunu gelir (`ChannelIcon` + `getSocialChannelLabel`); isim hücresinde
-  artık kanal ikonu YOK (tekrar etmesin diye #1843 ile taşındı). Telefon numarası `text-sm
-  font-semibold` ile büyük gösterilir. Detaylar → konuşma ticket listesi → salt-okunur
-  `MyRequestDetailModal`; listede `jobId` olmayan ama `citizenRequestNumber` taşıyan (job'a
-  dönüşmemiş VT) ticket'lar da gösterilir — filtre yalnız `jobId` şartına indirgenmez. Yazışmaya
-  Git → `/whatsapp?phone=…`, buton `MyRequestDetailHeader` ile aynı açık mavi stil
-  (`MessageSquareText` + `!bg-sky-400`).
-- **Reporter/Operator kontrol paneli ayrımı (cards #1833/#1810):** Üst Düzey Yönetici
-  (`Reporter`) ve Vatandaş Talep Operatörü (`Operator`) sol menüde `Kontrol Paneli Vatandaş`
-  (`/dashboard`) + `Kontrol Paneli Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.
-  Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
+  artık kanal ikonu YOK. Telefon `text-base font-semibold` + `formatDirectoryPhone` (baştaki `90`/`0`
+  gösterilmez — card #1843 reopen). Operatör/çağrı ile oluşturulan VT'ler `ConvertSocialMessageToJob`
+  sırasında `CitizenConversation` upsert eder; liste sorgusu eksik konuşmaları da backfill eder
+  (card #1858). Detaylar → konuşma ticket listesi → salt-okunur
+  `MyRequestDetailModal`; listede `jobId` olmayan ama `citizenRequestNumber` taşıyan ticket'lar da
+  gösterilir. Yazışmaya Git → `/whatsapp?phone=…`, açık mavi stil (`MessageSquareText` + `!bg-sky-400`).
+- **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859):** Üst Düzey Yönetici
+  (`Reporter`) ve Vatandaş Talep Operatörü (`Operator`) sol menüde `Anasayfa - Vatandaş`
+  (`/dashboard`) + `Anasayfa - Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.
+  Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   Tire haritası (açık adresli İşleme Alındı / Yapılmakta pinleri, card #1834) +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
   Vatandaş Talep Kanalları). Birimler sayfasında Reporter: Taleplerim + dış birim pie'ları +
-  Talep Öncelik Durumu; Operator: Görevlerim/Taleplerim/Birimdeki Görevler/Talep Önceliği.
-- **Vatandaş panosu Tire haritası (card #1834):** `GET /reports/dashboard-citizen-map-pins`
+  Talep Önceliği; Operator: Görevlerim/Taleplerim/Birimdeki Görevler/Talep Önceliği.
+- **Vatandaş panosu Tire haritası (card #1834/#1848):** `GET /reports/dashboard-citizen-map-pins`
   (Reporter/Operator/SystemAdmin); VT numaralı (`CitizenVtJobFilter.WhereHasCitizenRequestNumber`,
   card #1845), rutin dışı, boş olmayan
   `OpenAddress`, display status `ProcessingReceived`/`InProgress` (dashboard classifier ile aynı);
   pin koordinatı Job veya bağlı SocialMessage lat/lng; yoksa FE Nominatim geocode (localStorage
   cache). Tag tıklanınca başlık popup; başlık tıklanınca salt-okunur `MyRequestDetailModal`
-  (pie drilldown ile aynı). Dönem filtresi pin sorgusunu sürer. `InProgress` pin/lejant rengi
-  yeşil (`#22c55e`/`bg-emerald-500`, turuncu değil — card #1848); harita varsayılan zoom 14
-  (pinsiz durumda da).
-- **Mahallelerde İşleme Alınan Talepler pie:** `ClassifyCitizenJobStatus == ProcessingReceived`
+  (pie drilldown ile aynı). Dönem filtresi pin sorgusunu sürer. Başlık `Tire Haritası - Açık Adresli Talepler`
+  (`text-base`/`text-lg`); alt yazı + lejant `text-sm`. `InProgress` pin yeşil (`#22c55e`);
+  pinsiz/çok pin durumda `TIRE_MAP_BOUNDS` ile Toki + İbni Melek bölgesi çerçevede (zoom ~13).
+- **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
+  sort'u seçene kadar.
+- **LDAP birim senkron/ekle (card #1857):** `Anlık LDAP…` ve `Tüm LDAP… Ekle` standart
+  `ConfirmDialog` ile onay ister; sil ile aynı title/divider kalıbı.
   mahalle kırılımı; drilldown `neighborhoodProcessingRequests` (Reporter/Operator/SystemAdmin).
 - **Vatandaş dashboard pie'ları yalnız VT (Vatandaş Talebi) sayar (card #1845):** `citizenJobs`,
   `BuildRequestTagChartAsync` (Talep Etiketi) ve üç mahalle grafiği (`Tamamlanan`/`Yapılmakta`/

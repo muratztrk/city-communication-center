@@ -104,3 +104,12 @@ export function geocodeTireAddress(input: {
 
 /** Tire ilçe merkezi — varsayılan harita merkezi. */
 export const TIRE_MAP_CENTER: LatLng = { lat: 38.0885, lng: 27.7346 }
+
+/**
+ * Toki (kuzey-doğu) ve İbni Melek (güney) dahil Tire ilçe çerçevesi (card #1848).
+ * SW ≈ İbni Melek / güney mahalleler, NE ≈ Toki / kuzey-doğu.
+ */
+export const TIRE_MAP_BOUNDS: [[number, number], [number, number]] = [
+  [38.055, 27.695],
+  [38.125, 27.785],
+]

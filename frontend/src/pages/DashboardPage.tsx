@@ -433,9 +433,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   })
 
   const pageTitle = effectiveView === 'citizen'
-    ? t('nav.dashboardCitizen', 'Kontrol Paneli Vatandaş')
+    ? t('nav.dashboardCitizen', 'Anasayfa - Vatandaş')
     : effectiveView === 'departments'
-      ? t('nav.dashboardDepartments', 'Kontrol Paneli Birimler')
+      ? t('nav.dashboardDepartments', 'Anasayfa - Birimler')
       : t('dashboard.title')
 
   function renderCard(metric: MetricCard) {

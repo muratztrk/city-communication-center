@@ -1,5 +1,6 @@
-## Round 428 — #1867/#1868/#1861
+## Round 428 — #1867/#1868/#1861 + #1862
 - Tire haritası varsayılan daha yakın zoom; Çağrı satırında Yazışmaya Git pasif; terminal not ikonları
+- #1862 LDAP sonuç aynı ConfirmDialog içinde (ikinci popup yok)
 
 ## Round 427 — #1861–#1865 + #1867
 - #1862 LDAP sonuç ConfirmDialog; #1861 Talep İptal/Tamamlanma Notu + turkuaz

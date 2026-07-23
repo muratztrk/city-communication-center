@@ -18,6 +18,8 @@ export interface ConfirmDialogState {
   /** İptal/Çıkış butonu stili — LDAP toplu ekle Çıkış kırmızı (card #1760). */
   cancelVariant?: 'secondary' | 'destructive'
   hideCancel?: boolean
+  /** false ise onay sonrası popup kapanmaz; onConfirm aynı popup state'ini güncelleyebilir (card #1862 reopen). */
+  closeOnConfirm?: boolean
   banner?: ReactNode
   /** Optional content under the message (ör. eksik birimli kullanıcı listesi). */
   details?: ReactNode
@@ -34,8 +36,10 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
   if (!state) return null
 
   const handleConfirm = () => {
-    void Promise.resolve(state.onConfirm())
-    onClose()
+    const shouldClose = state.closeOnConfirm !== false
+    void Promise.resolve(state.onConfirm()).finally(() => {
+      if (shouldClose) onClose()
+    })
   }
   const titleToneClass = state.titleTone === 'danger'
     ? 'text-[color:var(--color-destructive)]'

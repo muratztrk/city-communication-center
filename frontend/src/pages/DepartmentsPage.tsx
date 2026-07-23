@@ -172,13 +172,24 @@ export function DepartmentsPage() {
       message: t('departments.liveLdapSyncConfirm', 'LDAP dizininden birim listesi çekilecek. Devam etmek istiyor musunuz?'),
       confirmLabel: t('common.yes', 'Evet'),
       variant: 'primary',
-      onConfirm: () => { void handlePullAllLdapDepartments() },
+      closeOnConfirm: false,
+      onConfirm: () => handlePullAllLdapDepartments(),
     })
   }
 
   const handlePullAllLdapDepartments = async () => {
     setPullAllLdapLoading(true)
     setError('')
+    setConfirmDialog(current => current
+      ? {
+          ...current,
+          message: t('departments.liveLdapSyncWorking'),
+          confirmLabel: t('common.yes', 'Evet'),
+          hideCancel: true,
+          closeOnConfirm: false,
+          onConfirm: () => {},
+        }
+      : current)
 
     try {
       // physicalDeliveryOfficeName listesi — OU yok (card #1838).
@@ -221,6 +232,7 @@ export function DepartmentsPage() {
         onConfirm: () => {},
       })
     } catch (pullError) {
+      setConfirmDialog(null)
       setError(pullError instanceof Error ? pullError.message : t('common.error'))
     } finally {
       setPullAllLdapLoading(false)
@@ -236,13 +248,23 @@ export function DepartmentsPage() {
       message: t('departments.addAllLdapConfirmPrompt', 'LDAP dizinindeki henüz eklenmemiş tüm birimler sisteme eklenecek. Devam etmek istiyor musunuz?'),
       confirmLabel: t('common.add', 'Ekle'),
       variant: 'primary',
-      onConfirm: () => { void runAddAllLdapDepartments() },
+      closeOnConfirm: false,
+      onConfirm: () => runAddAllLdapDepartments(),
     })
   }
 
   const runAddAllLdapDepartments = async () => {
     setAddAllLdapLoading(true)
     setError('')
+    setConfirmDialog(current => current
+      ? {
+          ...current,
+          message: t('departments.addAllLdapWorking'),
+          hideCancel: true,
+          closeOnConfirm: false,
+          onConfirm: () => {},
+        }
+      : current)
 
     try {
       const departmentNames = await api.listDirectoryDepartments()
@@ -298,6 +320,7 @@ export function DepartmentsPage() {
         onConfirm: () => {},
       })
     } catch (createError) {
+      setConfirmDialog(null)
       setError(createError instanceof Error ? createError.message : t('common.error'))
     } finally {
       setAddAllLdapLoading(false)
@@ -318,34 +341,45 @@ export function DepartmentsPage() {
       confirmLabel: t('common.delete', 'Sil'),
       cancelLabel: t('common.cancel', 'İptal'),
       variant: 'destructive',
-      onConfirm: () => {
-        void (async () => {
-          setDeleteAllLdapLoading(true)
-          setError('')
-          try {
-            const result = await api.deleteUnusedLdapDepartments()
-            invalidateDepartments(queryClient)
-            setConfirmDialog({
-              title: t('departments.deleteAllLdap'),
-              titleDivider: true,
-              titleCompact: true,
-              titleTone: result.deletedCount > 0 ? 'success' : 'danger',
-              message: result.deletedCount > 0
-                ? t('departments.deleteAllLdapSuccess', { count: result.deletedCount })
-                : t('departments.deleteAllLdapNone'),
-              confirmLabel: t('common.exit', 'Çıkış'),
-              hideCancel: true,
-              variant: 'destructive',
-              onConfirm: () => {},
-            })
-          } catch (deleteError) {
-            setError(deleteError instanceof Error ? deleteError.message : t('common.error'))
-          } finally {
-            setDeleteAllLdapLoading(false)
-          }
-        })()
-      },
+      closeOnConfirm: false,
+      onConfirm: () => runDeleteAllLdapDepartments(),
     })
+  }
+
+  const runDeleteAllLdapDepartments = async () => {
+    setDeleteAllLdapLoading(true)
+    setError('')
+    setConfirmDialog(current => current
+      ? {
+          ...current,
+          message: t('departments.deleteAllLdapWorking'),
+          hideCancel: true,
+          closeOnConfirm: false,
+          onConfirm: () => {},
+        }
+      : current)
+    try {
+      const result = await api.deleteUnusedLdapDepartments()
+      invalidateDepartments(queryClient)
+      setConfirmDialog({
+        title: t('departments.deleteAllLdap'),
+        titleDivider: true,
+        titleCompact: true,
+        titleTone: result.deletedCount > 0 ? 'success' : 'danger',
+        message: result.deletedCount > 0
+          ? t('departments.deleteAllLdapSuccess', { count: result.deletedCount })
+          : t('departments.deleteAllLdapNone'),
+        confirmLabel: t('common.exit', 'Çıkış'),
+        hideCancel: true,
+        variant: 'destructive',
+        onConfirm: () => {},
+      })
+    } catch (deleteError) {
+      setConfirmDialog(null)
+      setError(deleteError instanceof Error ? deleteError.message : t('common.error'))
+    } finally {
+      setDeleteAllLdapLoading(false)
+    }
   }
 
   const startEdit = (department: Department) => {

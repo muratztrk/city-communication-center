@@ -1161,8 +1161,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
 - **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` ve `Tüm LDAP… Ekle` standart
-  `ConfirmDialog` ile onay ister; sonuç mesajı (başarı / eklenecek yok) aynı popup içinde
-  `Çıkış` ile kapanır — Oluştur butonu üstünde inline helper metin yok. Sil ile aynı title/divider kalıbı.
+  `ConfirmDialog` ile onay ister; sonuç mesajı (başarı / eklenecek yok) **aynı popup içinde**
+  güncellenir (`closeOnConfirm: false`) — ikinci popup açılmaz (card #1862 reopen).
+  Sonuçta `Çıkış` ile kapanır; Oluştur butonu üstünde inline helper metin yok. Sil aynı kalıp.
 - **Vatandaş dashboard pie'ları yalnız VT (Vatandaş Talebi) sayar (card #1845):** `citizenJobs`,
   `BuildRequestTagChartAsync` (Talep Etiketi) ve üç mahalle grafiği (`Tamamlanan`/`Yapılmakta`/
   `İşleme Alınan`) bir Job'ı yalnız bağlı `SocialMessage.CitizenRequestNumber != null` ise sayar

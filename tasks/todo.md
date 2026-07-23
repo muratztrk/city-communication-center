@@ -1,7 +1,8 @@
-## Round 427 — #1861–#1865
-- #1862 LDAP sonuç mesajı ConfirmDialog; #1861 Talep İptal/Tamamlanma Notu + turkuaz
+## Round 427 — #1861–#1865 + #1867
+- #1862 LDAP sonuç ConfirmDialog; #1861 Talep İptal/Tamamlanma Notu + turkuaz
 - #1865 Talep Etiketi → Talep Oluştur popup (Açıklama üstü), profil paneli temiz
 - #1864 WA listesi yalnız WhatsApp kanalı; #1863 dizin Numara fontu diğer kolonlarla aynı
+- #1867 Tire haritası scroll-zoom yalnız tıklama sonrası
 
 ## Round 426 — #1861
 - İletilmiş İptal/Tamamlanma WA mesajında bilgi amaçlı İptal Notu / Tamamlanma Notu butonu + popup

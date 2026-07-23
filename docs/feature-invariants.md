@@ -1154,10 +1154,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   cache). Tag tıklanınca başlık popup; başlık tıklanınca salt-okunur `MyRequestDetailModal`
   (pie drilldown ile aynı). Dönem filtresi pin sorgusunu sürer. Başlık `Tire Haritası - Açık Adresli Talepler`
   (`text-base`/`text-lg`); alt yazı + lejant `text-sm`. `InProgress` pin yeşil (`#22c55e`);
-  pinsiz/çok pin durumda `TIRE_MAP_BOUNDS` ile Toki + İbni Melek bölgesi çerçevede
-  (varsayılan maxZoom ~14, tek pin 16 — card #1867 reopen).
-  Scroll-zoom varsayılan kapalı; harita alanına tıklanınca açılır, `mouseleave`'de tekrar kapanır
-  (card #1867 — sayfa kaydırırken yanlışlıkla zoom olmasın).
+  Pinsiz default `setView(TIRE_MAP_CENTER, 14)` — ekteki şehir merkezi ölçeği; `fitBounds(TIRE_MAP_BOUNDS)`
+  kısa haritada fazla açıldığı için kullanılmaz (card #1867 reopen). Çok pin: `TIRE_MAP_BOUNDS` + pin
+  bounds, maxZoom 15; tek pin zoom 16. Scroll-zoom varsayılan kapalı; harita alanına tıklanınca
+  açılır, `mouseleave`'de tekrar kapanır (card #1867 — sayfa kaydırırken yanlışlıkla zoom olmasın).
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
 - **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` ve `Tüm LDAP… Ekle` standart

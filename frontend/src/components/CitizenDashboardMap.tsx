@@ -23,8 +23,9 @@ function FitPins({ pins }: { pins: ResolvedPin[] }) {
   useEffect(() => {
     const districtBounds = L.latLngBounds(TIRE_MAP_BOUNDS)
     if (pins.length === 0) {
-      // Varsayılan daha yakın zoom (card #1867 reopen).
-      map.fitBounds(districtBounds, { padding: [16, 16], maxZoom: 14 })
+      // Pinsiz default: fitBounds kısa/geniş haritada ölçeği fazla açıyordu —
+      // ekteki şehir merkezi ölçeği için sabit zoom (card #1867 reopen).
+      map.setView([TIRE_MAP_CENTER.lat, TIRE_MAP_CENTER.lng], 14)
       return
     }
     if (pins.length === 1) {

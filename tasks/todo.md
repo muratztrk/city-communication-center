@@ -1,3 +1,6 @@
+## Round 430 — #1867
+- Tire haritası pinsiz default: `setView(center, 14)` (ekteki ölçek; fitBounds fazla açıyordu)
+
 ## Round 428 — #1867/#1868/#1861 + #1862
 - Tire haritası varsayılan daha yakın zoom; Çağrı satırında Yazışmaya Git pasif; terminal not ikonları
 - #1862 LDAP sonuç aynı ConfirmDialog içinde (ikinci popup yok)

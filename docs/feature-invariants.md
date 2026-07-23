@@ -624,6 +624,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Aynı SocialMessage/talep için aynı üretilmiş durum mesajı Pending/Sent/Delivered/Read olarak
   zaten varsa ikinci kez oluşturulmaz; yalnız Failed kayıt yeniden denemeye izin verir.
   (cards #1257/#1258).
+- **İletilmiş İptal/Tamamlanma WA mesajında bilgi notu butonu (card #1861):** Operatör `Mesajı Gönder`
+  ile ilettikten sonra da (Sent/Delivered/Read) ilgili otomatik şablon balonunun altında
+  `İptal Notu` / `Tamamlanma Notu` butonu bilgi amaçlı görünür; tıklanınca ConfirmDialog popup açılır.
+  BE `GetCitizenConversationDetailQuery` / `GetSocialConversationQuery` terminal metadata'yı yalnız
+  Pending değil, iletilmiş outbound entry'lere de ekler. Pending sıradaki Düzenle/Gönder aksiyonları
+  değişmez.
 - **Detay popup'tan açılan WhatsApp konuşması son mesajda açılır:** Jobs/Tasks
   `Yazışmaya Git` aksiyonlarının kullandığı `WhatsAppConversationModal`/`ConversationPanel`
   ilk yüklemede ve yeni entry geldiğinde konuşmayı en alta hizalar; eski üstten açılma geri gelmez.

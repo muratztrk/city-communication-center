@@ -65,6 +65,10 @@ export function ConversationEntryBubble({
   const [savingEdit, setSavingEdit] = useState(false)
   const isInbound = entry.direction === 'Inbound'
   const isPending = !isInbound && entry.deliveryStatus === 'Pending'
+  const isDeliveredOutbound = !isInbound
+    && (entry.deliveryStatus === 'Sent'
+      || entry.deliveryStatus === 'Delivered'
+      || entry.deliveryStatus === 'Read')
   const terminalNoteKind = entry.relatedJobTerminalStatus === 'Cancelled'
     ? 'cancelled'
     : entry.relatedJobTerminalStatus === 'Completed'
@@ -76,7 +80,12 @@ export function ConversationEntryBubble({
     : terminalNoteKind === 'completed'
       ? normalizedContent.includes('tamamlandı') || normalizedContent.includes('tamamlanmış')
       : false
-  const showTerminalNote = isPending && canSendPending && terminalNoteKind != null && entryMatchesTerminalStatus && Boolean(entry.relatedJobTerminalNote?.trim())
+  const hasTerminalNote = terminalNoteKind != null
+    && entryMatchesTerminalStatus
+    && Boolean(entry.relatedJobTerminalNote?.trim())
+  // Beklemede: operatör aksiyon satırında; iletildikten sonra bilgi amaçlı (card #1861).
+  const showTerminalNotePending = isPending && canSendPending && hasTerminalNote
+  const showTerminalNoteInfo = isDeliveredOutbound && hasTerminalNote
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
@@ -204,7 +213,7 @@ export function ConversationEntryBubble({
               <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
               {t('common.edit', 'Düzenle')}
             </button>
-            {showTerminalNote ? (
+            {showTerminalNotePending ? (
               <button
                 type="button"
                 onClick={() => onShowTerminalNote?.(entry)}
@@ -231,6 +240,22 @@ export function ConversationEntryBubble({
             </button>
           </div>
         )
+      ) : showTerminalNoteInfo ? (
+        <div className="mt-1 flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => onShowTerminalNote?.(entry)}
+            className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors ${
+              terminalNoteKind === 'cancelled'
+                ? 'bg-[color:var(--color-destructive)] hover:brightness-95'
+                : 'bg-[color:var(--color-success)] hover:brightness-95'
+            }`}
+          >
+            {terminalNoteKind === 'cancelled'
+              ? t('tasks.detail.cancelNote', 'İptal Notu')
+              : t('jobs.detail.completionResultNote', 'Tamamlanma Notu')}
+          </button>
+        </div>
       ) : null}
     </div>
   )

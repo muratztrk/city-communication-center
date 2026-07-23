@@ -1,6 +1,10 @@
-## Round 425 — #1856/#1848/#1857/#1858/#1843/#1859
+## Round 426 — #1861
+- İletilmiş İptal/Tamamlanma WA mesajında bilgi amaçlı İptal Notu / Tamamlanma Notu butonu + popup
+
+## Round 425 — #1856/#1848/#1857/#1858/#1843/#1859 + #1860
 - Birimler alfabetik; harita başlık/zoom/Toki-İbni Melek; LDAP sync/ekle ConfirmDialog
 - Çağrı VT → CitizenConversation + backfill; numara 90'siz text-base; Anasayfa nav metinleri
+- #1860 Talep Etiketi pie drilldown (mahalle popup kalıbı)
 
 ## Round 424 — #1829–#1855 (15 kart)
 - #1839 şablon dropdown text-sm; #1847 şablon adı title-case; #1829 iptal notu WA chat'te yok

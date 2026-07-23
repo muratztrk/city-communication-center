@@ -99,7 +99,7 @@ public sealed class GetSocialConversationQueryHandler
 
         var terminalInfoByMessageId = new Dictionary<Guid, TerminalInfo>();
         foreach (var entryMessageId in entries
-            .Where(e => e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString())
+            .Where(e => IsTerminalNoteEligibleDelivery(e.DeliveryStatus))
             .Select(e => e.SocialMessageId)
             .Distinct())
         {
@@ -113,7 +113,7 @@ public sealed class GetSocialConversationQueryHandler
         return entries.Select(e =>
         {
             TerminalInfo? terminalInfo = null;
-            var hasTerminalInfo = e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString()
+            var hasTerminalInfo = IsTerminalNoteEligibleDelivery(e.DeliveryStatus)
                 && terminalInfoByMessageId.TryGetValue(e.SocialMessageId, out terminalInfo);
             var terminalStatus = hasTerminalInfo ? terminalInfo?.Status : null;
             var terminalNote = hasTerminalInfo ? terminalInfo?.Note : null;
@@ -137,6 +137,15 @@ public sealed class GetSocialConversationQueryHandler
                 e.SocialMessageId);
         }).ToList();
     }
+
+    /// <summary>
+    /// Pending ve iletilmiş (Sent/Delivered/Read) giden mesajlarda terminal not metadata'sı (card #1861).
+    /// </summary>
+    private static bool IsTerminalNoteEligibleDelivery(string? deliveryStatus) =>
+        deliveryStatus is nameof(ConversationDeliveryStatus.Pending)
+            or nameof(ConversationDeliveryStatus.Sent)
+            or nameof(ConversationDeliveryStatus.Delivered)
+            or nameof(ConversationDeliveryStatus.Read);
 
     private async Task<TerminalInfo> ResolveRelatedTerminalInfoAsync(
         Guid tenantId,

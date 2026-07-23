@@ -103,8 +103,8 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     e.DeliveryStatus,
                     e.DeliveryError,
                     e.EditedAtUtc,
-                    e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString() ? terminalInfo?.Status : null,
-                    e.DeliveryStatus == ConversationDeliveryStatus.Pending.ToString() ? terminalInfo?.Note : null);
+                    IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Status : null,
+                    IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Note : null);
             })
             .ToList();
 
@@ -202,6 +202,16 @@ public sealed class GetCitizenConversationDetailQueryHandler
             timeline,
             tickets);
     }
+
+    /// <summary>
+    /// Pending (operatör onayı) ve iletilmiş (Sent/Delivered/Read) giden mesajlarda
+    /// İptal/Tamamlanma Notu butonu için terminal metadata taşınır (card #1861).
+    /// </summary>
+    private static bool IsTerminalNoteEligibleDelivery(string? deliveryStatus) =>
+        deliveryStatus is nameof(ConversationDeliveryStatus.Pending)
+            or nameof(ConversationDeliveryStatus.Sent)
+            or nameof(ConversationDeliveryStatus.Delivered)
+            or nameof(ConversationDeliveryStatus.Read);
 
     private async Task<Dictionary<Guid, TerminalInfo>> ResolveTerminalInfoByMessageIdAsync(
         Guid tenantId,

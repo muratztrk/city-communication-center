@@ -45,6 +45,7 @@
     "search": "Search name, phone, or address…",
     "empty": "No citizen records found.",
     "goToChat": "Go to conversation",
+    "goToChatUnavailable": "Call-channel records have no WhatsApp chat",
     "ticketsTitle": "Citizen requests",
     "noTickets": "No requests found for this citizen.",
     "columns": {

@@ -23,15 +23,16 @@ function FitPins({ pins }: { pins: ResolvedPin[] }) {
   useEffect(() => {
     const districtBounds = L.latLngBounds(TIRE_MAP_BOUNDS)
     if (pins.length === 0) {
-      map.fitBounds(districtBounds, { padding: [24, 24], maxZoom: 13 })
+      // Varsayılan daha yakın zoom (card #1867 reopen).
+      map.fitBounds(districtBounds, { padding: [16, 16], maxZoom: 14 })
       return
     }
     if (pins.length === 1) {
-      map.setView([pins[0].position.lat, pins[0].position.lng], 15)
+      map.setView([pins[0].position.lat, pins[0].position.lng], 16)
       return
     }
     const pinBounds = L.latLngBounds(pins.map(pin => [pin.position.lat, pin.position.lng] as [number, number]))
-    map.fitBounds(districtBounds.extend(pinBounds), { padding: [36, 36], maxZoom: 14 })
+    map.fitBounds(districtBounds.extend(pinBounds), { padding: [24, 24], maxZoom: 15 })
   }, [map, pins])
   return null
 }
@@ -181,7 +182,7 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
       <div className="relative h-[min(28rem,55vh)] w-full bg-slate-100">
         <MapContainer
           center={[TIRE_MAP_CENTER.lat, TIRE_MAP_CENTER.lng]}
-          zoom={13}
+          zoom={14}
           className="size-full z-0"
           scrollWheelZoom={false}
         >

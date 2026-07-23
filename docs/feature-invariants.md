@@ -630,7 +630,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **İletilmiş İptal/Tamamlanma WA mesajında bilgi notu butonu (card #1861):** Operatör `Mesajı Gönder`
   ile ilettikten sonra da (Sent/Delivered/Read) ilgili otomatik şablon balonunun altında
   `Talep İptal Notu` / `Talep Tamamlanma Notu` butonu bilgi amaçlı görünür; tamamlanma butonu
-  turkuaz (`teal-600`), iptal kırmızı; tıklanınca ConfirmDialog popup açılır.
+  turkuaz (`teal-600`) + `CheckCheck` ikonu, iptal kırmızı + `XCircle` ikonu (card #1861 reopen);
+  tıklanınca ConfirmDialog popup açılır.
   BE `GetCitizenConversationDetailQuery` / `GetSocialConversationQuery` terminal metadata'yı yalnız
   Pending değil, iletilmiş outbound entry'lere de ekler. Pending sıradaki Düzenle/Gönder aksiyonları
   değişmez.
@@ -1135,7 +1136,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kanal mesajı olan konuşmaları gösterir; çağrı VT numaraları bu listede yoktur (card #1864).
   Detaylar → konuşma ticket listesi → salt-okunur
   `MyRequestDetailModal`; listede `jobId` olmayan ama `citizenRequestNumber` taşıyan ticket'lar da
-  gösterilir. Yazışmaya Git → `/whatsapp?phone=…`, açık mavi stil (`MessageSquareText` + `!bg-sky-400`).
+  gösterilir. Yazışmaya Git → `/whatsapp?phone=…` yalnız WhatsApp kanalında aktif; `Phone`/Çağrı
+  satırında `DisabledActionButton` ile pasif (card #1868), açık mavi stil (`MessageSquareText` + `!bg-sky-400`).
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859):** Üst Düzey Yönetici
   (`Reporter`) ve Vatandaş Talep Operatörü (`Operator`) sol menüde `Anasayfa - Vatandaş`
   (`/dashboard`) + `Anasayfa - Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.
@@ -1152,7 +1154,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   cache). Tag tıklanınca başlık popup; başlık tıklanınca salt-okunur `MyRequestDetailModal`
   (pie drilldown ile aynı). Dönem filtresi pin sorgusunu sürer. Başlık `Tire Haritası - Açık Adresli Talepler`
   (`text-base`/`text-lg`); alt yazı + lejant `text-sm`. `InProgress` pin yeşil (`#22c55e`);
-  pinsiz/çok pin durumda `TIRE_MAP_BOUNDS` ile Toki + İbni Melek bölgesi çerçevede (zoom ~13).
+  pinsiz/çok pin durumda `TIRE_MAP_BOUNDS` ile Toki + İbni Melek bölgesi çerçevede
+  (varsayılan maxZoom ~14, tek pin 16 — card #1867 reopen).
   Scroll-zoom varsayılan kapalı; harita alanına tıklanınca açılır, `mouseleave`'de tekrar kapanır
   (card #1867 — sayfa kaydırırken yanlışlıkla zoom olmasın).
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun

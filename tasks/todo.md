@@ -1,3 +1,6 @@
+## Round 428 — #1867/#1868/#1861
+- Tire haritası varsayılan daha yakın zoom; Çağrı satırında Yazışmaya Git pasif; terminal not ikonları
+
 ## Round 427 — #1861–#1865 + #1867
 - #1862 LDAP sonuç ConfirmDialog; #1861 Talep İptal/Tamamlanma Notu + turkuaz
 - #1865 Talep Etiketi → Talep Oluştur popup (Açıklama üstü), profil paneli temiz

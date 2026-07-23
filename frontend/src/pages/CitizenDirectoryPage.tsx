@@ -6,6 +6,7 @@ import type { TFunction } from 'i18next'
 import { MessageSquareText, Search, X } from 'lucide-react'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
+import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
@@ -311,15 +312,27 @@ export function CitizenDirectoryPage() {
                       <Button type="button" size="sm" variant="secondary" onClick={() => void openTickets(row)}>
                         {t('jobs.actions.details', 'Detaylar')}
                       </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        className="inline-flex items-center gap-1.5 !bg-sky-400 !text-white hover:!bg-sky-500"
-                        onClick={() => goToConversation(row.citizenPhone)}
-                      >
-                        <MessageSquareText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                        {t('citizenDirectory.goToChat', 'Yazışmaya Git')}
-                      </Button>
+                      {row.sourceChannel === 'Phone' ? (
+                        <DisabledActionButton
+                          type="button"
+                          size="sm"
+                          className="inline-flex items-center gap-1.5 !bg-sky-400 !text-white"
+                          hoverTitle={t('citizenDirectory.goToChatUnavailable', 'Çağrı kanalında yazışma yoktur')}
+                        >
+                          <MessageSquareText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                          {t('citizenDirectory.goToChat', 'Yazışmaya Git')}
+                        </DisabledActionButton>
+                      ) : (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="inline-flex items-center gap-1.5 !bg-sky-400 !text-white hover:!bg-sky-500"
+                          onClick={() => goToConversation(row.citizenPhone)}
+                        >
+                          <MessageSquareText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                          {t('citizenDirectory.goToChat', 'Yazışmaya Git')}
+                        </Button>
+                      )}
                     </div>
                   </td>
                 </tr>

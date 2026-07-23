@@ -45,6 +45,7 @@
     "search": "İsim, numara veya adres ara…",
     "empty": "Kayıtlı vatandaş bulunamadı.",
     "goToChat": "Yazışmaya Git",
+    "goToChatUnavailable": "Çağrı kanalında yazışma yoktur",
     "ticketsTitle": "Vatandaş Talepleri",
     "noTickets": "Bu vatandaşa ait talep bulunamadı.",
     "columns": {

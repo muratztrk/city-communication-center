@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Loader2, Send, PenLine } from 'lucide-react'
+import { Loader2, Send, PenLine, CheckCheck, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
@@ -224,8 +224,11 @@ export function ConversationEntryBubble({
                 type="button"
                 onClick={() => onShowTerminalNote?.(entry)}
                 disabled={sendingPending}
-                className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${terminalNoteButtonClass}`}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${terminalNoteButtonClass}`}
               >
+                {terminalNoteKind === 'cancelled'
+                  ? <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                  : <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
                 {terminalNoteLabel}
               </button>
             ) : null}
@@ -245,8 +248,11 @@ export function ConversationEntryBubble({
           <button
             type="button"
             onClick={() => onShowTerminalNote?.(entry)}
-            className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors ${terminalNoteButtonClass}`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors ${terminalNoteButtonClass}`}
           >
+            {terminalNoteKind === 'cancelled'
+              ? <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+              : <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
             {terminalNoteLabel}
           </button>
         </div>

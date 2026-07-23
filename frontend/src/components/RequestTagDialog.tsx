@@ -183,9 +183,9 @@ export function RequestTagAddButton({ onChanged, largeText = false }: RequestTag
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${largeText ? 'text-sm' : 'text-xs'}`}
+        className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${largeText ? 'h-9 gap-1.5 px-3 text-sm' : 'h-7 px-2 text-[11px]'}`}
       >
-        <Plus className="size-3.5 text-emerald-600" aria-hidden="true" />
+        <Plus className={`${largeText ? 'size-3.5' : 'size-3'} text-emerald-600`} aria-hidden="true" />
         {t('whatsapp.addRequestTagButton', 'Etiket ekle')}
       </button>
       <RequestTagDialog
@@ -203,14 +203,13 @@ interface RequestTagPickerProps {
   largeText?: boolean
 }
 
-function computeTagMenuStyle(button: HTMLDivElement, itemCount: number, hasSearch: boolean) {
+function computeTagMenuStyle(button: HTMLDivElement) {
   const rect = button.getBoundingClientRect()
-  const menuWidth = 224
-  const menuHeight = Math.min(224, itemCount * 40) + (hasSearch ? 40 : 0)
-  const openUp = rect.top >= menuHeight + 8
+  // Kompakt menü; her zaman aşağı açılır (card #1865).
+  const menuWidth = Math.min(180, Math.max(140, rect.width))
   const left = Math.min(rect.left, window.innerWidth - menuWidth - 8)
   return {
-    top: openUp ? rect.top - menuHeight - 4 : rect.bottom + 4,
+    top: rect.bottom + 4,
     left,
     width: menuWidth,
   }
@@ -268,7 +267,7 @@ export function RequestTagPicker({ tags, onSelect, largeText = false }: RequestT
       return
     }
     if (buttonRef.current) {
-      setMenuStyle(computeTagMenuStyle(buttonRef.current, sorted.length, searchable))
+      setMenuStyle(computeTagMenuStyle(buttonRef.current))
     }
     setOpen(true)
   }
@@ -276,31 +275,31 @@ export function RequestTagPicker({ tags, onSelect, largeText = false }: RequestT
   const menu = open && menuStyle ? createPortal(
     <div
       ref={menuRef}
-      className="fixed z-[200] overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-lg"
+      className="fixed z-[200] overflow-hidden rounded-lg border border-[color:var(--color-border)] bg-[color:var(--color-surface)] shadow-lg"
       style={{ top: menuStyle.top, left: menuStyle.left, width: menuStyle.width }}
     >
       {searchable ? (
-        <div className="flex items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
-          <Search className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+        <div className="flex items-center gap-1 border-b border-slate-100 px-2 py-1.5">
+          <Search className="size-3 shrink-0 text-slate-400" aria-hidden="true" />
           <input
             type="text"
             autoFocus
             value={search}
             onChange={event => setSearch(event.target.value)}
             placeholder={t('common.search', 'Ara...')}
-            className="min-w-0 flex-1 bg-transparent text-xs text-slate-900 outline-none placeholder:text-slate-400"
+            className="min-w-0 flex-1 bg-transparent text-[11px] text-slate-900 outline-none placeholder:text-slate-400"
           />
         </div>
       ) : null}
-      <div className="max-h-56 overflow-y-auto divide-y divide-slate-100">
+      <div className="max-h-40 overflow-y-auto divide-y divide-slate-100">
         {visibleTags.length === 0 ? (
-          <p className="px-3 py-2 text-xs font-semibold text-slate-500">{t('common.noResults', 'Sonuç bulunamadı.')}</p>
+          <p className="px-2.5 py-1.5 text-[11px] font-semibold text-slate-500">{t('common.noResults', 'Sonuç bulunamadı.')}</p>
         ) : visibleTags.map(tag => (
           <button
             key={tag.tagId}
             type="button"
             onClick={() => { onSelect(tag.name); setOpen(false); setSearch(''); setMenuStyle(null) }}
-            className="w-full truncate px-3 py-2 text-left text-xs font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-[color:var(--color-surface-raised)]"
+            className="w-full truncate px-2.5 py-1.5 text-left text-[11px] font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-[color:var(--color-surface-raised)]"
           >
             {tag.name}
           </button>
@@ -311,18 +310,18 @@ export function RequestTagPicker({ tags, onSelect, largeText = false }: RequestT
   ) : null
 
   return (
-    <div className="relative min-w-0 flex-1" ref={buttonRef}>
+    <div className={`relative min-w-0 ${largeText ? 'flex-1' : 'w-[7.5rem] shrink-0'}`} ref={buttonRef}>
       <Button
         type="button"
         size="sm"
         variant="secondary"
         onClick={toggleOpen}
         disabled={isEmpty}
-        className={`h-9 w-full gap-1.5 disabled:opacity-50 ${largeText ? 'text-sm' : 'text-xs'}`}
+        className={`w-full gap-1 disabled:opacity-50 ${largeText ? 'h-9 text-sm' : 'h-7 px-2 text-[11px]'}`}
       >
-        <Tag className="size-3.5 text-emerald-600" />
+        <Tag className={`${largeText ? 'size-3.5' : 'size-3'} text-emerald-600`} />
         {t('whatsapp.requestTagsShort', 'Etiketler')}
-        <ChevronDown className={`size-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`${largeText ? 'size-3.5' : 'size-3'} shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
       </Button>
       {menu}
     </div>

@@ -163,6 +163,21 @@ export function DepartmentsPage() {
     }
   }
 
+  const localeCompareTr = (left: string, right: string) =>
+    left.localeCompare(right, 'tr', { sensitivity: 'base' })
+
+  /** Kullanıcı LDAP popup'larındaki iç liste kutusu — birim adları (card #1862). */
+  const renderLdapDepartmentList = (title: string, names: string[]) => (
+    <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">{title}</p>
+      <ul className="max-h-48 space-y-1.5 overflow-y-auto text-sm text-slate-800 [scrollbar-gutter:stable]">
+        {[...names].sort(localeCompareTr).map(name => (
+          <li key={name} className="leading-snug font-semibold text-slate-950">{name}</li>
+        ))}
+      </ul>
+    </div>
+  )
+
   const handlePullAllLdapDepartmentsClick = () => {
     if (!ldapEnabled || pullAllLdapLoading) return
     setConfirmDialog({
@@ -187,6 +202,7 @@ export function DepartmentsPage() {
           confirmLabel: t('common.yes', 'Evet'),
           hideCancel: true,
           closeOnConfirm: false,
+          details: undefined,
           onConfirm: () => {},
         }
       : current)
@@ -216,6 +232,7 @@ export function DepartmentsPage() {
         })
       }
 
+      const listedNames = [...foundNamesByKey.values()]
       setDirectoryResults(listedResults)
       setDirectoryQuery('')
       setSelectedLdapDepartment(null)
@@ -225,7 +242,13 @@ export function DepartmentsPage() {
         titleDivider: true,
         titleCompact: true,
         titleTone: 'success',
-        message: t('departments.pullAllLdapSuccess', { count: foundNamesByKey.size }),
+        message: t('departments.pullAllLdapSuccess', { count: listedNames.length }),
+        details: listedNames.length > 0
+          ? renderLdapDepartmentList(
+              t('departments.pullAllLdapListedTitle', { count: listedNames.length }),
+              listedNames,
+            )
+          : undefined,
         confirmLabel: t('common.exit', 'Çıkış'),
         hideCancel: true,
         variant: 'primary',
@@ -239,33 +262,11 @@ export function DepartmentsPage() {
     }
   }
 
-  const handleAddAllLdapDepartmentsClick = () => {
+  const handleAddAllLdapDepartmentsClick = async () => {
     if (!ldapEnabled || addAllLdapLoading) return
-    setConfirmDialog({
-      title: t('departments.addAllLdap'),
-      titleDivider: true,
-      titleCompact: true,
-      message: t('departments.addAllLdapConfirmPrompt', 'LDAP dizinindeki henüz eklenmemiş tüm birimler sisteme eklenecek. Devam etmek istiyor musunuz?'),
-      confirmLabel: t('common.add', 'Ekle'),
-      variant: 'primary',
-      closeOnConfirm: false,
-      onConfirm: () => runAddAllLdapDepartments(),
-    })
-  }
 
-  const runAddAllLdapDepartments = async () => {
     setAddAllLdapLoading(true)
     setError('')
-    setConfirmDialog(current => current
-      ? {
-          ...current,
-          message: t('departments.addAllLdapWorking'),
-          hideCancel: true,
-          closeOnConfirm: false,
-          onConfirm: () => {},
-        }
-      : current)
-
     try {
       const departmentNames = await api.listDirectoryDepartments()
       const existingKeys = new Set(departments.map(item => item.name.trim().toLocaleLowerCase('tr')))
@@ -296,32 +297,75 @@ export function DepartmentsPage() {
         return
       }
 
-      let created = 0
-      for (const name of toAdd) {
-        await api.createDepartment({
-          name,
-          departmentType: 'Birim',
-          managerUserId: null,
-          responsibleUserIds: [],
-          sourceType: 'Ldap',
-        })
-        created += 1
+      const runBulkAdd = async () => {
+        setAddAllLdapLoading(true)
+        setError('')
+        setConfirmDialog(current => current
+          ? {
+              ...current,
+              message: t('departments.addAllLdapWorking'),
+              hideCancel: true,
+              closeOnConfirm: false,
+              details: undefined,
+              onConfirm: () => {},
+            }
+          : current)
+        try {
+          const createdNames: string[] = []
+          for (const name of toAdd) {
+            await api.createDepartment({
+              name,
+              departmentType: 'Birim',
+              managerUserId: null,
+              responsibleUserIds: [],
+              sourceType: 'Ldap',
+            })
+            createdNames.push(name)
+          }
+          invalidateDepartments(queryClient)
+          setConfirmDialog({
+            title: t('departments.addAllLdap'),
+            titleDivider: true,
+            titleCompact: true,
+            titleTone: 'success',
+            message: t('departments.addAllLdapSuccess', { count: createdNames.length }),
+            details: renderLdapDepartmentList(
+              t('departments.addAllLdapAddedTitle', { count: createdNames.length }),
+              createdNames,
+            ),
+            confirmLabel: t('common.exit', 'Çıkış'),
+            hideCancel: true,
+            variant: 'primary',
+            onConfirm: () => {},
+          })
+        } catch (createError) {
+          setConfirmDialog(null)
+          setError(createError instanceof Error ? createError.message : t('common.error'))
+        } finally {
+          setAddAllLdapLoading(false)
+        }
       }
-      invalidateDepartments(queryClient)
+
+      // Kullanıcı LDAP ekle gibi: onay popup'ında eklenecek liste (card #1862).
       setConfirmDialog({
         title: t('departments.addAllLdap'),
         titleDivider: true,
         titleCompact: true,
-        titleTone: 'success',
-        message: t('departments.addAllLdapSuccess', { count: created }),
-        confirmLabel: t('common.exit', 'Çıkış'),
-        hideCancel: true,
+        message: t('departments.addAllLdapConfirm', { count: toAdd.length }),
+        details: renderLdapDepartmentList(
+          t('departments.addAllLdapWillAddTitle', { count: toAdd.length }),
+          toAdd,
+        ),
+        confirmLabel: t('common.add', 'Ekle'),
+        cancelLabel: t('common.exit', 'Çıkış'),
+        cancelVariant: 'destructive',
         variant: 'primary',
-        onConfirm: () => {},
+        closeOnConfirm: false,
+        onConfirm: () => void runBulkAdd(),
       })
-    } catch (createError) {
+    } catch (listError) {
       setConfirmDialog(null)
-      setError(createError instanceof Error ? createError.message : t('common.error'))
+      setError(listError instanceof Error ? listError.message : t('common.error'))
     } finally {
       setAddAllLdapLoading(false)
     }

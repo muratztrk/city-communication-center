@@ -537,8 +537,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   salt-okunur değer + Etiketler + Etiket Ekle bloğu bulunur (card #1561 reopen, 2026-07-13);
   kaynak mesaj bir konuşmaya bağlıysa seçim conversation profile'a kaydedilir.
   Kayıtlı etiket sayısı 7 veya daha fazlaysa Etiketler menüsünün ilk satırında küçük puntolu arama gösterilir.
-  Yalnız Talep Oluştur sayfasındaki Vatandaş Çağrı Talebi bloğunda Etiketler ve Etiket ekle
-  buton metinleri diğer WhatsApp profil yüzeyinden bir kademe büyük (`text-sm`) görünür.
+  `CitizenRequestModal` (WA Talep Oluştur) Etiketler/Etiket ekle kompakt (`h-7`, ~11px); menü her zaman
+  aşağı açılır ve max-h daha kısa (card #1865). CreateRequestPage Vatandaş Çağrı Talebi bloğunda
+  Etiketler/Etiket ekle bir kademe büyük (`largeText` → `text-sm`) kalır.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
   aşağı/yukarı scroll butonudur; scroll butonu Kurum İçi Mesajlar'ın üstüne/altına dönmez.
 - **Kurum İçi Mesajlar FAB ikonu:** yeşil yuvarlak butonda tek, 24px ve belirgin dolu konuşma
@@ -1161,9 +1162,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
 - **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` ve `Tüm LDAP… Ekle` standart
-  `ConfirmDialog` ile onay ister; sonuç mesajı (başarı / eklenecek yok) **aynı popup içinde**
-  güncellenir (`closeOnConfirm: false`) — ikinci popup açılmaz (card #1862 reopen).
-  Sonuçta `Çıkış` ile kapanır; Oluştur butonu üstünde inline helper metin yok. Sil aynı kalıp.
+  `ConfirmDialog` ile onay ister; sonuç/önizleme **aynı popup içinde** güncellenir
+  (`closeOnConfirm: false`) ve Users LDAP gibi `details` içinde kaydırılabilir birim listesi
+  gösterir (listelenen / eklenecek / eklenen). İkinci popup açılmaz. Sonuçta `Çıkış` ile kapanır;
+  Oluştur butonu üstünde inline helper metin yok. Sil aynı kalıp.
 - **Vatandaş dashboard pie'ları yalnız VT (Vatandaş Talebi) sayar (card #1845):** `citizenJobs`,
   `BuildRequestTagChartAsync` (Talep Etiketi) ve üç mahalle grafiği (`Tamamlanan`/`Yapılmakta`/
   `İşleme Alınan`) bir Job'ı yalnız bağlı `SocialMessage.CitizenRequestNumber != null` ise sayar

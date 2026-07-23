@@ -1,3 +1,7 @@
+## Round 432 — #1862/#1865
+- LDAP birim sync/ekle: ConfirmDialog içinde Users tarzı kaydırılabilir birim listesi
+- WA Talep Etiketi: Etiketler/Etiket ekle kompakt; menü her zaman aşağı açılır
+
 ## Round 431 — #1861
 - Talep Tamamlanma Notu butonu: metin önünde Info ikonu (CheckCheck yerine)
 

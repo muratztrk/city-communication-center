@@ -54,10 +54,16 @@ public sealed class ReportsController : ApiControllerBase
         [FromQuery] string sliceKey,
         [FromQuery] DateTimeOffset? from,
         [FromQuery] DateTimeOffset? to,
-        CancellationToken cancellationToken)
+        [FromQuery] RequestTagDashboardFilter requestTagStatus = RequestTagDashboardFilter.All,
+        CancellationToken cancellationToken = default)
     {
         var response = await _sender.Send(
-            new GetDashboardChartDrilldownQuery(chartKey ?? string.Empty, sliceKey ?? string.Empty, from, to),
+            new GetDashboardChartDrilldownQuery(
+                chartKey ?? string.Empty,
+                sliceKey ?? string.Empty,
+                from,
+                to,
+                requestTagStatus),
             cancellationToken);
         return Ok(response);
     }

@@ -19,6 +19,7 @@ interface DashboardChartDrilldownModalProps {
   sliceKey: string
   from?: string
   to?: string
+  requestTagStatus?: string
   onClose: () => void
 }
 
@@ -76,7 +77,7 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
  * Üst Düzey Yönetici panosunda pie chart dilimine tıklanınca açılan detay popup'ı (card #1343).
  * İçerik shell zoom stacking-context'inden kaçmak için body'ye portallanır.
  */
-export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onClose }: DashboardChartDrilldownModalProps) {
+export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, requestTagStatus, onClose }: DashboardChartDrilldownModalProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const [rows, setRows] = useState<DashboardChartDrilldownRow[] | null>(null)
@@ -94,7 +95,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
   // Modal her dilim seçiminde `key` ile yeniden mount edilir; state sıfırlama gerekmez.
   useEffect(() => {
     let cancelled = false
-    api.getDashboardChartDrilldown(chartKey, sliceKey, from, to)
+    api.getDashboardChartDrilldown(chartKey, sliceKey, from, to, requestTagStatus)
       .then(response => {
         if (!cancelled) setRows(response.rows)
       })
@@ -104,7 +105,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, onC
     return () => {
       cancelled = true
     }
-  }, [chartKey, sliceKey, from, to, t])
+  }, [chartKey, sliceKey, from, to, requestTagStatus, t])
 
   const loadCitizenSourceMessage = async (jobDetail: JobDetail): Promise<SocialMessage | null> => {
     if (!isCitizenRequestJob(jobDetail)) return null

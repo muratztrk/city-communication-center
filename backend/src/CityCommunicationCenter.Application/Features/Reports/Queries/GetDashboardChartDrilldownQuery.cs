@@ -10,7 +10,8 @@ public sealed record GetDashboardChartDrilldownQuery(
     string ChartKey,
     string SliceKey,
     DateTimeOffset? FromUtc,
-    DateTimeOffset? ToUtc) : IQuery<DashboardChartDrilldownResponse>;
+    DateTimeOffset? ToUtc,
+    RequestTagDashboardFilter RequestTagStatus = RequestTagDashboardFilter.All) : IQuery<DashboardChartDrilldownResponse>;
 
 public sealed class GetDashboardChartDrilldownQueryHandler
     : IQueryHandler<GetDashboardChartDrilldownQuery, DashboardChartDrilldownResponse>
@@ -53,6 +54,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             "neighborhoodInProgressRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Active, cancellationToken),
             "neighborhoodProcessingRequests" => await BuildNeighborhoodProcessingRowsAsync(tenantId, request, cancellationToken),
             "citizenRequests" => await BuildCitizenRowsAsync(tenantId, request, cancellationToken),
+            "requestTags" => await BuildRequestTagRowsAsync(tenantId, request, cancellationToken),
             _ => new DashboardChartDrilldownResponse([]),
         };
     }
@@ -297,6 +299,112 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             })
             .Take(MaxRows)
             .ToList();
+
+        return new DashboardChartDrilldownResponse(rows
+            .Select(row => new DashboardChartDrilldownRow(
+                row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
+                row.Status.ToString(), row.OwnerDepartmentName, row.Neighborhood,
+                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
+                row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel))
+            .ToList());
+    }
+
+    /// <summary>Talep Etiketi pie dilimi → aynı etiketli VT talepleri (card #1860).</summary>
+    private async Task<DashboardChartDrilldownResponse> BuildRequestTagRowsAsync(
+        Guid tenantId,
+        GetDashboardChartDrilldownQuery request,
+        CancellationToken cancellationToken)
+    {
+        var tag = request.SliceKey.Trim();
+        if (tag.Length == 0)
+        {
+            return new DashboardChartDrilldownResponse([]);
+        }
+
+        var jobs = _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value));
+        jobs = request.RequestTagStatus switch
+        {
+            RequestTagDashboardFilter.InProgress => jobs.Where(job => job.Status == JobStatus.Active),
+            RequestTagDashboardFilter.Completed => jobs.Where(job => job.Status == JobStatus.Completed),
+            _ => jobs,
+        };
+
+        var taggedRows = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(message => message.TenantId == tenantId
+                && message.JobId.HasValue
+                && message.CitizenRequestNumber != null)
+            .Join(
+                jobs,
+                message => message.JobId!.Value,
+                job => job.JobId,
+                (message, job) => new
+                {
+                    job.JobId,
+                    message.Category,
+                    ConversationLabel = message.CitizenConversationId.HasValue
+                        ? _dbContext.CitizenConversations
+                            .Where(conversation => conversation.CitizenConversationId == message.CitizenConversationId.Value)
+                            .Select(conversation => conversation.Label)
+                            .FirstOrDefault()
+                        : null,
+                })
+            .ToListAsync(cancellationToken);
+
+        var matchingJobIds = taggedRows
+            .Select(row => new
+            {
+                row.JobId,
+                Tag = string.IsNullOrWhiteSpace(row.Category) ? row.ConversationLabel : row.Category,
+            })
+            .Where(row => !string.IsNullOrWhiteSpace(row.Tag)
+                && string.Equals(row.Tag.Trim(), tag, StringComparison.OrdinalIgnoreCase))
+            .Select(row => row.JobId)
+            .Distinct()
+            .ToList();
+
+        if (matchingJobIds.Count == 0)
+        {
+            return new DashboardChartDrilldownResponse([]);
+        }
+
+        var rows = await _dbContext.Jobs.AsNoTracking()
+            .Where(job => matchingJobIds.Contains(job.JobId))
+            .OrderByDescending(job => job.CreatedAtUtc)
+            .Take(MaxRows)
+            .Select(job => new
+            {
+                job.JobId,
+                job.JobNumber,
+                job.JobNumberYear,
+                job.Title,
+                job.CreatedAtUtc,
+                job.Status,
+                job.DueDateUtc,
+                job.CompletedAtUtc,
+                job.UpdatedAtUtc,
+                job.Neighborhood,
+                OwnerDepartmentName = _dbContext.Departments
+                    .Where(department => department.DepartmentId == job.OwnerDepartmentId)
+                    .Select(department => (string?)department.Name)
+                    .FirstOrDefault(),
+                CitizenRequestNumber = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => message.CitizenRequestNumber)
+                    .FirstOrDefault(),
+                CitizenRequestNumberYear = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => message.CitizenRequestNumberYear)
+                    .FirstOrDefault(),
+                SourceChannel = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => (string?)message.Channel.ToString())
+                    .FirstOrDefault(),
+            })
+            .ToListAsync(cancellationToken);
 
         return new DashboardChartDrilldownResponse(rows
             .Select(row => new DashboardChartDrilldownRow(

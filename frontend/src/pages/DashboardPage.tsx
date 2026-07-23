@@ -50,6 +50,7 @@ const CHART_ROUTES: Record<string, string> = {
 // Üst Düzey Yönetici panosunda dilim tıklaması detay popup'ı açan grafikler (Taleplerim hariç, card #1343).
 const DRILLDOWN_CHART_KEYS = new Set([
   'dashboard.charts.citizenRequests',
+  'dashboard.charts.requestTags',
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
   'dashboard.charts.externalRequestFulfillers',
@@ -588,9 +589,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               || card.titleKey === 'dashboard.charts.neighborhoodCompletedRequests'
               || card.titleKey === 'dashboard.charts.neighborhoodInProgressRequests'
               || card.titleKey === 'dashboard.charts.neighborhoodProcessingRequests'
-            const isRequestTagReadOnly = card.titleKey === 'dashboard.charts.requestTags'
+              || card.titleKey === 'dashboard.charts.requestTags'
             const isDepartmentTitleReadOnly = !canAccessDepartmentTasks && card.titleKey === 'dashboard.charts.departmentTasks'
-            // Üst Düzey Yönetici'de Taleplerim hariç tüm grafik dilimleri detay popup'ı açar (card #1343).
+            // Üst Düzey Yönetici'de Taleplerim hariç tüm grafik dilimleri detay popup'ı açar (card #1343/#1860).
             const isDrilldownChart = isCitizenDashboardDrilldownRole && DRILLDOWN_CHART_KEYS.has(card.titleKey)
             const chartRoute = isDepartmentTitleReadOnly || isExternalDrilldownOnlyChart ? undefined : CHART_ROUTES[card.titleKey]
             const chartKey = card.titleKey as TaskChartKey
@@ -651,7 +652,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               </div>
               <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={isDrilldownChart ? slice => {
                 setChartDrilldown({ chartKey: card.titleKey, sliceKey: slice.label })
-              } : isExternalDrilldownOnlyChart || isRequestTagReadOnly ? undefined : slice => {
+              } : isExternalDrilldownOnlyChart ? undefined : slice => {
                 const route = getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange)
                 if (route) navigate(route)
               }} isSliceSelectable={isDrilldownChart || isExternalDrilldownOnlyChart
@@ -679,11 +680,12 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
 
       {chartDrilldown ? (
         <DashboardChartDrilldownModal
-          key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}`}
+          key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}|${requestTagChartFilter}`}
           chartKey={chartDrilldown.chartKey}
           sliceKey={chartDrilldown.sliceKey}
           from={activeFrom || undefined}
           to={activeTo || undefined}
+          requestTagStatus={chartDrilldown.chartKey === 'dashboard.charts.requestTags' ? requestTagChartFilter : undefined}
           onClose={() => setChartDrilldown(null)}
         />
       ) : null}

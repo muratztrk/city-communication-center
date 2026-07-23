@@ -176,12 +176,22 @@ export const api = {
     return response.json() as Promise<DashboardStatusChartsResponse>
   },
 
-  async getDashboardChartDrilldown(chartKey: string, sliceKey: string, from?: string, to?: string): Promise<DashboardChartDrilldownResponse> {
-    const params = new URLSearchParams({ chartKey, sliceKey })
+  async getDashboardChartDrilldown(
+    chartKey: string,
+    sliceKey: string,
+    from?: string,
+    to?: string,
+    requestTagStatus?: string,
+  ): Promise<DashboardChartDrilldownResponse> {
+    const params = new URLSearchParams()
+    params.set('chartKey', chartKey)
+    params.set('sliceKey', sliceKey)
     if (from) params.set('from', from)
     if (to) params.set('to', to)
-    const url = `${API_BASE}/reports/dashboard-chart-drilldown?${params.toString()}`
-    const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })
+    if (requestTagStatus) params.set('requestTagStatus', requestTagStatus)
+    const response = await fetchWithCredentials(`${API_BASE}/reports/dashboard-chart-drilldown?${params}`, {
+      headers: await getAuthHeaders(),
+    })
     await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
     return response.json() as Promise<DashboardChartDrilldownResponse>
   },

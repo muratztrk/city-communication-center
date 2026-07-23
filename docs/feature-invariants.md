@@ -1153,6 +1153,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (pie drilldown ile aynı). Dönem filtresi pin sorgusunu sürer. Başlık `Tire Haritası - Açık Adresli Talepler`
   (`text-base`/`text-lg`); alt yazı + lejant `text-sm`. `InProgress` pin yeşil (`#22c55e`);
   pinsiz/çok pin durumda `TIRE_MAP_BOUNDS` ile Toki + İbni Melek bölgesi çerçevede (zoom ~13).
+  Scroll-zoom varsayılan kapalı; harita alanına tıklanınca açılır, `mouseleave`'de tekrar kapanır
+  (card #1867 — sayfa kaydırırken yanlışlıkla zoom olmasın).
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
 - **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` ve `Tüm LDAP… Ekle` standart

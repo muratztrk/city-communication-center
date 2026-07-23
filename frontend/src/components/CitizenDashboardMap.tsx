@@ -36,6 +36,25 @@ function FitPins({ pins }: { pins: ResolvedPin[] }) {
   return null
 }
 
+/** Haritaya tıklanmadan scroll-zoom kapalı — sayfa kaydırırken zoom olmasın (card #1867). */
+function RequireClickForScrollZoom() {
+  const map = useMap()
+  useEffect(() => {
+    map.scrollWheelZoom.disable()
+    const container = map.getContainer()
+    const enable = () => { map.scrollWheelZoom.enable() }
+    const disable = () => { map.scrollWheelZoom.disable() }
+    container.addEventListener('click', enable)
+    container.addEventListener('mouseleave', disable)
+    return () => {
+      container.removeEventListener('click', enable)
+      container.removeEventListener('mouseleave', disable)
+      map.scrollWheelZoom.disable()
+    }
+  }, [map])
+  return null
+}
+
 function getDetailStatusClass(status: string): string {
   if (status === 'Completed') return 'text-emerald-600'
   if (status === 'Cancelled' || status === 'Rejected' || status === 'RevisionRequested') return 'text-red-600'
@@ -164,12 +183,13 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
           center={[TIRE_MAP_CENTER.lat, TIRE_MAP_CENTER.lng]}
           zoom={13}
           className="size-full z-0"
-          scrollWheelZoom
+          scrollWheelZoom={false}
         >
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
+          <RequireClickForScrollZoom />
           <FitPins pins={resolved} />
           {resolved.map(pin => (
             <CircleMarker

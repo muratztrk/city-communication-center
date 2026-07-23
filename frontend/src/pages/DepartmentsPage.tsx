@@ -51,6 +51,7 @@ export function DepartmentsPage() {
   const [pullAllLdapLoading, setPullAllLdapLoading] = useState(false)
   const [pullAllLdapMessage, setPullAllLdapMessage] = useState<string | null>(null)
   const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
+  const [deleteAllLdapLoading, setDeleteAllLdapLoading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [deptPageSize, setDeptPageSize] = useState(25)
   const [deptPage, setDeptPage] = useState(1)
@@ -269,6 +270,50 @@ export function DepartmentsPage() {
     } finally {
       setAddAllLdapLoading(false)
     }
+  }
+
+  const handleDeleteAllLdapDepartmentsClick = () => {
+    if (!ldapEnabled || deleteAllLdapLoading) {
+      return
+    }
+
+    setConfirmDialog({
+      title: t('departments.deleteAllLdap'),
+      titleDivider: true,
+      titleCompact: true,
+      titleTone: 'danger',
+      message: t('departments.deleteAllLdapConfirm'),
+      confirmLabel: t('common.delete', 'Sil'),
+      cancelLabel: t('common.cancel', 'İptal'),
+      variant: 'destructive',
+      onConfirm: () => {
+        void (async () => {
+          setDeleteAllLdapLoading(true)
+          setError('')
+          try {
+            const result = await api.deleteUnusedLdapDepartments()
+            invalidateDepartments(queryClient)
+            setConfirmDialog({
+              title: t('departments.deleteAllLdap'),
+              titleDivider: true,
+              titleCompact: true,
+              titleTone: result.deletedCount > 0 ? 'success' : 'danger',
+              message: result.deletedCount > 0
+                ? t('departments.deleteAllLdapSuccess', { count: result.deletedCount })
+                : t('departments.deleteAllLdapNone'),
+              confirmLabel: t('common.exit', 'Çıkış'),
+              hideCancel: true,
+              variant: 'destructive',
+              onConfirm: () => {},
+            })
+          } catch (deleteError) {
+            setError(deleteError instanceof Error ? deleteError.message : t('common.error'))
+          } finally {
+            setDeleteAllLdapLoading(false)
+          }
+        })()
+      },
+    })
   }
 
   const startEdit = (department: Department) => {
@@ -500,6 +545,9 @@ export function DepartmentsPage() {
               <p className="helper-copy">
                 {createMode === 'ldap' ? t('departments.sourceLdapHint') : t('departments.sourceManualHint')}
               </p>
+              {createMode === 'ldap' ? (
+                <p className="helper-copy text-red-600/90">{t('departments.deleteAllLdapHint')}</p>
+              ) : null}
             </div>
           ) : null}
 
@@ -522,6 +570,14 @@ export function DepartmentsPage() {
                   onClick={() => void handleAddAllLdapDepartmentsClick()}
                 >
                   {addAllLdapLoading ? t('departments.addAllLdapWorking') : t('departments.addAllLdap')}
+                </button>
+                <button
+                  type="button"
+                  className="text-sm font-bold text-red-600 underline-offset-2 hover:underline disabled:opacity-60"
+                  disabled={addAllLdapLoading || pullAllLdapLoading || deleteAllLdapLoading}
+                  onClick={handleDeleteAllLdapDepartmentsClick}
+                >
+                  {deleteAllLdapLoading ? t('departments.deleteAllLdapWorking') : t('departments.deleteAllLdap')}
                 </button>
               </div>
               <p className="helper-copy">{t('departments.directorySearchDescription')}</p>

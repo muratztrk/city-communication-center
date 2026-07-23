@@ -50,6 +50,7 @@
     "columns": {
       "name": "Citizen name",
       "phone": "Phone",
+      "sourceChannel": "Request channel",
       "neighborhood": "Neighborhood",
       "street": "Street",
       "openAddress": "Open address"
@@ -431,7 +432,7 @@
       "neighborhoodInProgressRequests": "In-Progress Requests by Neighborhood",
       "neighborhoodProcessingRequests": "Processing-Received Requests by Neighborhood",
       "requestPriority": "Request Priority",
-      "requestPriorityAll": "Request Priority Status",
+      "requestPriorityAll": "Request Priority",
       "requestTags": "Request Tags"
     },
     "taskFilter": {
@@ -547,7 +548,13 @@
     "addAllLdapConfirm": "{{count}} LDAP unit(s) will be added. Continue?",
     "addAllLdapSuccess": "{{count}} LDAP unit(s) added.",
     "addAllLdapNone": "No new LDAP units to add; all are already in the system.",
-    "ldapReadOnly": "LDAP unit — cannot be modified"
+    "ldapReadOnly": "LDAP unit — cannot be modified",
+    "deleteAllLdap": "Delete All LDAP Units",
+    "deleteAllLdapWorking": "Deleting LDAP units...",
+    "deleteAllLdapHint": "All LDAP units with no users and no requests can be deleted.",
+    "deleteAllLdapConfirm": "All LDAP units with no users and no requests will be deleted. This action cannot be undone.",
+    "deleteAllLdapSuccess": "{{count}} LDAP unit(s) deleted.",
+    "deleteAllLdapNone": "No LDAP units to delete."
   },
   "users": {
     "title": "Users",

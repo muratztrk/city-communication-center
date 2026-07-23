@@ -410,7 +410,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return;
         }
 
-        if (!string.IsNullOrWhiteSpace(terminalNote))
+        if (!isCancelled && !string.IsNullOrWhiteSpace(terminalNote))
         {
             _dbContext.ConversationEntries.Add(new SocialConversationEntry
             {

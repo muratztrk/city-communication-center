@@ -27,7 +27,10 @@ public sealed record NotificationResponse(
     // Talebi Üst Düzey Yönetici (Reporter) oluşturmuşsa birim adı; Vatandaş Talep Operatörü'nün
     // vatandaş talebiyse statik "Vatandaş Talebi" etiketi başlık yanında turuncu gösterilir
     // (cards #1072/#1078/#1087).
-    string? TitleTag = null);
+    string? TitleTag = null,
+    // Vatandaş Talebi TitleTag'i için kaynak sosyal kanal (SocialMessage.Channel) — bildirim
+    // başlığında TitleTag'in yanında kanal ikonu gösterilir (card #1846).
+    string? TitleTagChannel = null);
 
 public sealed record TestNotificationResponse(
     Guid NotificationId,

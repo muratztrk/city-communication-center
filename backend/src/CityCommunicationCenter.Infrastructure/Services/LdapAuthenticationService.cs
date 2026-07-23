@@ -563,7 +563,6 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         try
         {
             BindWithServiceAccount(connection, settings, "list directory departments");
-            CollectOrganizationalUnitNames(connection, settings.SearchBase, names);
             CollectDepartmentNamesFromUsers(connection, settings.SearchBase, names);
         }
         catch (LdapException ex)
@@ -643,40 +642,10 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             .ToArray();
     }
 
-    private void CollectOrganizationalUnitNames(LdapConnection connection, string searchBase, ISet<string> names)
-    {
-        try
-        {
-            var request = new SearchRequest(
-                searchBase,
-                "(objectClass=organizationalUnit)",
-                SearchScope.Subtree,
-                ["ou", "name", "distinguishedName"])
-            {
-                SizeLimit = 500,
-            };
-            var response = (SearchResponse)connection.SendRequest(request);
-            foreach (SearchResultEntry entry in response.Entries)
-            {
-                var ouName = GetAttribute(entry, "ou")
-                    ?? GetAttribute(entry, "name")
-                    ?? ExtractDepartmentFromDn(GetDistinguishedName(entry));
-                AddDepartmentName(names, ouName);
-            }
-        }
-        catch (LdapException ex) when (ex.ErrorCode == 4 /* SizeLimitExceeded */)
-        {
-            _logger.LogInformation(ex, "LDAP OU listing hit size limit; using partial results");
-        }
-        catch (LdapException ex)
-        {
-            _logger.LogWarning(ex, "LDAP OU listing failed");
-        }
-    }
-
     private void CollectDepartmentNamesFromUsers(LdapConnection connection, string searchBase, ISet<string> names)
     {
-        // Harf bazlı department/office öneki — kullanıcı displayName limitine takılmadan birimleri toplar.
+        // Harf bazlı office öneki — kullanıcı displayName limitine takılmadan birimleri toplar.
+        // Birim eşlemesi yalnız physicalDeliveryOfficeName; department attribute kullanılmaz (card #1838).
         const string letters = "abcçdefgğhıijklmnoöprsştuüvyz";
         foreach (var letter in letters)
         {
@@ -684,12 +653,12 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             {
                 var escaped = Escape(letter.ToString());
                 var filter =
-                    $"(&(objectClass=user)(!(objectClass=computer))(!(sAMAccountName=*$))(|(department={escaped}*)(physicalDeliveryOfficeName={escaped}*)))";
+                    $"(&(objectClass=user)(!(objectClass=computer))(!(sAMAccountName=*$))(physicalDeliveryOfficeName={escaped}*))";
                 var request = new SearchRequest(
                     searchBase,
                     filter,
                     SearchScope.Subtree,
-                    ["distinguishedName", "physicalDeliveryOfficeName", "department"])
+                    ["distinguishedName", "physicalDeliveryOfficeName"])
                 {
                     SizeLimit = 100,
                 };
@@ -910,9 +879,8 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
 
     private static string? ResolveDepartment(SearchResultEntry entry)
     {
-        // Birim eşlemesi yalnız office/department attribute — OU fallback yok (card #1763).
-        return GetAttribute(entry, "physicalDeliveryOfficeName")
-            ?? GetAttribute(entry, "department");
+        // Birim eşlemesi yalnız physicalDeliveryOfficeName — department/OU fallback yok (card #1838).
+        return GetAttribute(entry, "physicalDeliveryOfficeName");
     }
 
     private int GetSearchResultLimit()

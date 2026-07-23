@@ -50,6 +50,7 @@
     "columns": {
       "name": "Vatandaş İsmi",
       "phone": "Numara",
+      "sourceChannel": "Talep Kanalı",
       "neighborhood": "Mahalle",
       "street": "Cadde / Sokak / Bulvar",
       "openAddress": "Açık Adres"
@@ -433,7 +434,7 @@
       "neighborhoodInProgressRequests": "Mahallelerde Yapılmakta Olan Talepler",
       "neighborhoodProcessingRequests": "Mahallelerde İşleme Alınan Talepler",
       "requestPriority": "Talep Önceliği",
-      "requestPriorityAll": "Talep Öncelik Durumu",
+      "requestPriorityAll": "Talep Önceliği",
       "requestTags": "Talep Etiketi"
     },
     "taskFilter": {
@@ -549,7 +550,13 @@
     "addAllLdapConfirm": "{{count}} LDAP birimi sisteme eklenecek. Devam etmek istiyor musunuz?",
     "addAllLdapSuccess": "{{count}} LDAP birimi eklendi.",
     "addAllLdapNone": "Eklenecek yeni LDAP birimi yok; hepsi zaten sistemde.",
-    "ldapReadOnly": "LDAP birimi — müdahale edilemez"
+    "ldapReadOnly": "LDAP birimi — müdahale edilemez",
+    "deleteAllLdap": "Tüm LDAP Birimlerini Sil",
+    "deleteAllLdapWorking": "LDAP birimleri siliniyor...",
+    "deleteAllLdapHint": "Talep oluşturmamış ya da gönderilmemiş tüm ldap birimleri silinebilir.",
+    "deleteAllLdapConfirm": "Talep ve Görev oluşturulmayan tüm LDAP birimleri silinecek. Bu işlem geri alınamaz.",
+    "deleteAllLdapSuccess": "{{count}} LDAP birimi silindi.",
+    "deleteAllLdapNone": "Silinecek LDAP birimi bulunamadı."
   },
   "users": {
     "title": "Kullanıcılar",

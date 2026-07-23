@@ -316,6 +316,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   })
   // Üst Düzey Yönetici (Reporter) yalnızca talep oluşturur; "Bekleyen Görevlerim" gösterilmez.
   const isReporter = role === 'Reporter'
+  const isCitizenDashboardDrilldownRole = role === 'Reporter' || role === 'Operator' || role === 'SystemAdmin'
   const hideMetricCards = effectiveView === 'citizen' || effectiveView === 'departments'
 
   const managerRow1: MetricCard[] = !hideMetricCards && isManagerOrAdmin && dashboardQuery.data
@@ -553,13 +554,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         )}
       </section>
 
-      {canSeeCitizenMap ? (
-        <CitizenDashboardMap
-          pins={citizenMapQuery.data?.pins ?? []}
-          loading={citizenMapQuery.isLoading}
-        />
-      ) : null}
-
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {(statusChartsQuery.isLoading || dashboardQuery.isLoading) && chartCards.length === 0
           ? Array.from({ length: 2 }).map((_, i) => (
@@ -597,7 +591,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             const isRequestTagReadOnly = card.titleKey === 'dashboard.charts.requestTags'
             const isDepartmentTitleReadOnly = !canAccessDepartmentTasks && card.titleKey === 'dashboard.charts.departmentTasks'
             // Üst Düzey Yönetici'de Taleplerim hariç tüm grafik dilimleri detay popup'ı açar (card #1343).
-            const isDrilldownChart = isReporter && DRILLDOWN_CHART_KEYS.has(card.titleKey)
+            const isDrilldownChart = isCitizenDashboardDrilldownRole && DRILLDOWN_CHART_KEYS.has(card.titleKey)
             const chartRoute = isDepartmentTitleReadOnly || isExternalDrilldownOnlyChart ? undefined : CHART_ROUTES[card.titleKey]
             const chartKey = card.titleKey as TaskChartKey
             const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined
@@ -668,6 +662,13 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             )
           })}
       </section>
+
+      {canSeeCitizenMap ? (
+        <CitizenDashboardMap
+          pins={citizenMapQuery.data?.pins ?? []}
+          loading={citizenMapQuery.isLoading}
+        />
+      ) : null}
 
       {dashboardQuery.isError ? (
         <div className="error">{dashboardQuery.error instanceof Error ? dashboardQuery.error.message : t('common.error')}</div>

@@ -1,3 +1,10 @@
+## Round 424 — #1829–#1855 (15 kart)
+- #1839 şablon dropdown text-sm; #1847 şablon adı title-case; #1829 iptal notu WA chat'te yok
+- #1846 bildirim VT kanal ikonu; #1848 harita alt+zoom+yeşil/mavi; #1850 nav double-active
+- #1851 Vatandaş Talepleri Tümü varsayılan; #1831 Talep Önceliği; #1845/#1849 VT pie ayrımı
+- #1852 Operator pie drilldown; #1838 LDAP PDO only; #1843 vatandaş listesi kanal sütunu
+- #1853/#1855 LDAP birim sil + kırmızı hint
+
 ## Round 423 — #1834 Vatandaş panosu Tire haritası
 - Kontrol Paneli Vatandaş: açık adresli İşleme Alındı / Yapılmakta talepleri Leaflet haritasında pin; tag → başlık → salt-okunur detay modal.
 - `GET /reports/dashboard-citizen-map-pins` + Nominatim geocode (cache).

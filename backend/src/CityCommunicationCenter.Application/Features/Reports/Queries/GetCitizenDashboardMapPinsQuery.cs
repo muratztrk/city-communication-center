@@ -49,6 +49,8 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                 && job.Status != JobStatus.RevisionRequested
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            // Harita pinleri yalnız VT (Vatandaş Talebi) job'larını gösterir (card #1845).
+            .WhereHasCitizenRequestNumber(_dbContext)
             .Select(job => new
             {
                 job.JobId,

@@ -6,7 +6,7 @@ public interface ILdapAuthenticationService
 
     Task<IReadOnlyList<LdapDirectoryUser>> SearchUsersAsync(Guid tenantId, string query, CancellationToken cancellationToken = default);
 
-    /// <summary>LDAP'tan ayırt edici birim adlarını listeler (OU + department attribute). Senkron otomatik oluşturmaz.</summary>
+    /// <summary>LDAP'tan ayırt edici birim adlarını listeler (yalnız physicalDeliveryOfficeName attribute — card #1838). Senkron otomatik oluşturmaz.</summary>
     Task<IReadOnlyList<string>> ListDepartmentNamesAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
     /// <summary>LDAP'taki kullanıcı hesaplarını önek taramasıyla listeler (toplu ekleme). Otomatik kullanıcı oluşturmaz.</summary>
@@ -21,7 +21,7 @@ public interface ILdapAuthenticationService
 
 public sealed record LdapAuthenticatedUser(string ExternalIdentityId, string Username, string? DisplayName, string? Email, string? Title = null, string? Phone = null);
 
-/// <param name="Department">physicalDeliveryOfficeName / department attribute (OU değil — card #1763).</param>
+/// <param name="Department">yalnız physicalDeliveryOfficeName attribute (department/OU değil — card #1838).</param>
 /// <param name="OrganizationalUnit">DN'den çıkarılan OU (card #1764).</param>
 public sealed record LdapDirectoryUser(
     string ExternalIdentityId,

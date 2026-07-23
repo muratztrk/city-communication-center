@@ -1961,8 +1961,12 @@
     padding-bottom: 0.35rem;
   }
 
+  .user-quick-reply-template-select .field-select span {
+    font-size: 0.875rem;
+  }
+
   .user-quick-reply-template-select .field-select span.text-slate-400 {
-    font-size: 0.72rem;
+    font-size: 0.875rem;
   }
 
   .dropdown-menu-item {

@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Search, X } from 'lucide-react'
+import { MessageSquareText, Search, X } from 'lucide-react'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -15,7 +15,7 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { CitizenConversationDetail, CitizenConversationSummary, CitizenConversationTicket, JobDetail, SocialMessage } from '../types/platform'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
-import { getLocale } from '../utils/localization'
+import { getLocale, getSocialChannelLabel } from '../utils/localization'
 
 type DirectoryRow = CitizenConversationSummary & {
   displayName: string
@@ -174,7 +174,8 @@ export function CitizenDirectoryPage() {
     navigate(`/whatsapp?phone=${encodeURIComponent(phone)}`)
   }
 
-  const ticketsWithJobs = (ticketModal?.detail?.tickets ?? []).filter(ticket => ticket.jobId)
+  // Job'a dönüşmemiş ama VT numarası taşıyan talepler de listelenir (card #1843).
+  const ticketsWithJobs = (ticketModal?.detail?.tickets ?? []).filter(ticket => ticket.jobId || ticket.citizenRequestNumber != null)
 
   return (
     <div className="page-stack desktop-page-shell shrink-0">
@@ -242,6 +243,7 @@ export function CitizenDirectoryPage() {
                 >
                   {t('citizenDirectory.columns.phone', 'Numara')}
                 </FilterableTh>
+                <th>{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
                 <FilterableTh
                   filterKey="neighborhood"
                   filterValue={filters.neighborhood ?? ''}
@@ -280,21 +282,26 @@ export function CitizenDirectoryPage() {
             </thead>
             <tbody>
               {loading ? (
-                <TableEmptyStateRows columnCount={7} message={t('common.loading')} />
+                <TableEmptyStateRows columnCount={8} message={t('common.loading')} />
               ) : pageRows.length === 0 ? (
-                <TableEmptyStateRows columnCount={7} message={t('citizenDirectory.empty', 'Kayıtlı vatandaş bulunamadı.')} />
+                <TableEmptyStateRows columnCount={8} message={t('citizenDirectory.empty', 'Kayıtlı vatandaş bulunamadı.')} />
               ) : pageRows.map((row, index) => (
                 <tr key={row.citizenConversationId}>
                   <td className="text-center text-xs font-bold tabular-nums text-slate-400">
                     {(safePage - 1) * pageSize + index + 1}
                   </td>
                   <td>
-                    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-                      {row.sourceChannel ? <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" /> : null}
-                      <span className="font-semibold text-slate-800">{row.displayName}</span>
-                    </span>
+                    <span className="font-semibold text-slate-800">{row.displayName}</span>
                   </td>
-                  <td className="font-mono text-xs text-slate-600">{row.citizenPhone || '—'}</td>
+                  <td className="font-mono text-sm font-semibold text-slate-700">{row.citizenPhone || '—'}</td>
+                  <td>
+                    {row.sourceChannel ? (
+                      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                        <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" />
+                        {getSocialChannelLabel(t, row.sourceChannel)}
+                      </span>
+                    ) : '—'}
+                  </td>
                   <td>{row.neighborhood?.trim() || '—'}</td>
                   <td>{row.street?.trim() || '—'}</td>
                   <td>{row.openAddress?.trim() || '—'}</td>
@@ -303,7 +310,13 @@ export function CitizenDirectoryPage() {
                       <Button type="button" size="sm" variant="secondary" onClick={() => void openTickets(row)}>
                         {t('jobs.actions.details', 'Detaylar')}
                       </Button>
-                      <Button type="button" size="sm" variant="secondary" onClick={() => goToConversation(row.citizenPhone)}>
+                      <Button
+                        type="button"
+                        size="sm"
+                        className="inline-flex items-center gap-1.5 !bg-sky-400 !text-white hover:!bg-sky-500"
+                        onClick={() => goToConversation(row.citizenPhone)}
+                      >
+                        <MessageSquareText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                         {t('citizenDirectory.goToChat', 'Yazışmaya Git')}
                       </Button>
                     </div>

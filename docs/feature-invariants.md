@@ -612,6 +612,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   eski bitişik veya çok boşluklu kayıtlar okunurken/yazılırken tek boşluğa normalleştirilir
   ve mesaj üretilirken de gerçek hedef birim ile devam metni arasındaki tek boşluk son kez garanti
   edilir (card #1598 reopen). Kullanıcının ikinci textarea'da ayrıca başına boşluk yazması gerekmez.
+- **İptal terminal notu WA konuşmasında ayrı balon üretmez (card #1829):** `EnqueueTerminalFollowUpsAsync`
+  `isCancelled=true` olduğunda `terminalNote` içeriğiyle standalone `ConversationEntry`
+  eklemez (yalnız tamamlanmada, ek yoksa, notu ayrı balon olarak ekler) — otomatik İptal şablon
+  mesajı ve popup/terminal not metadatası (Süreç kartı, detay popup'ı) değişmeden kalır.
+  Tamamlanma yolunda ek varsa not son ek entry'sine iliştirilir; bu iptal yolunda hiç çalışmaz
+  (`attachmentRows` zaten `!isCancelled` şartlı).
   İptal alanının görsel
   chip'i ve giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.
   `İşleme Alındı` ve `Yapılmakta` chip'leri turuncu kalır (cards #1258/#1263/#1270/#1268-reopen).
@@ -845,8 +851,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yeni birim formu LDAP birim çekebilir:** LDAP açıksa Manual|LDAP segmented; LDAP listesinde
   yalnız birim adları. Oluşturma formunda Tür/Müdür/Sorumlular yok — varsayılan tür `Birim`
   (card #1714/#1720). LDAP oluşturmada `SourceType=Ldap`. “Anlık LDAP Birim Senkronize Et”
-  yalnız listeyi yeniler / doldurur (`GET /users/directory-departments` — OU + department
-  attribute; kullanıcı displayName limitine takılmaz) — kayıt **Oluştur** ile eklenir;
+  yalnız listeyi yeniler / doldurur (`GET /users/directory-departments` — **yalnız
+  `physicalDeliveryOfficeName` attribute**; OU ve `department` attribute'u artık dahil
+  değil — card #1838; kullanıcı displayName limitine takılmaz) — kayıt **Oluştur** ile eklenir;
   senkron otomatik `createDepartment` çağırmaz (cards #1717/#1730). “Tüm LDAP Birimlerini Ekle”
   ConfirmDialog (`Ekle`) ile eksik birimleri toplu oluşturur (card #1336). Dizin kullanıcı
   araması `department` / `physicalDeliveryOfficeName` alanlarını da tarar. LDAP birim
@@ -868,7 +875,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile zaten bağlı olanlar yeniden eklenmez; başarıda **Yeni çekilen kullanıcılar (N)** listelenir
   (`GET /users/directory-users`, cards #1748/#1750/#1758/#1759). Aynı LDAP e-postası birden fazla
   hesapta olabilir — `alreadyLinked` e-postaya bakmaz; LDAP create e-posta uniqueness uygulamaz
-  (card #1785). PDO/`department` dolu
+  (card #1785). PDO (`physicalDeliveryOfficeName`) dolu
   kullanıcılar eklenebilir (sistemde yoksa `ldapDepartmentName`); PDO boş olanlar “birimi eksik”
   ve listede **OU:**; eksikler OU’ya, eklenecekler birime göre alfabetik (cards #1763/#1764/#1765/#1761).
   Toplu Ekle: LDAP DN base-lookup + username fallback; geçersiz mail/uzun phone engellemez;
@@ -876,6 +883,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   olarak iner (card #1784). Toplu Ekle her zaman `roleCode: Staff` gönderir; LDAP create’te
   ünvan Müdür iken birim kontenjanı doluysa BE Personel’e düşer — batch generic validation
   hatasıyla kesilmez (card #1824).
+  `ResolveDepartment` yalnız `physicalDeliveryOfficeName` döner — `department` attribute
+  fallback'i kaldırıldı (card #1838); PDO boş kullanıcı "birimi eksik" sayılır, `department`
+  attribute'u dolu olması yeterli değildir.
+  "Tüm LDAP Birimlerini Sil" kırmızı link (Ekle butonundan sonra) + ConfirmDialog
+  (`POST /departments/ldap/delete-unused`, cards #1853/#1855); `DeleteUnusedLdapDepartmentsCommand`
+  yalnız `SourceType=Ldap`, hiç kullanıcısı ve hiç işi/görevi olmayan birimleri siler —
+  `DeleteDepartmentCommand` güvenlik kontrolleriyle aynı taşınabilirlik kurallarını uygular
+  (routing rule / job department referansları önce temizlenir). Kırmızı `deleteAllLdapHint`
+  LDAP oluşturma modunda "LDAP Birim Çek" yardım metninin altında görünür.
   Popup kapanış **Çıkış**
   (kırmızı); eksik birim uyarısı: LDAP birim verisi gerekir / tümü eklendiyse başarı metni
   (cards #1759/#1760). Çekim sonrası buton sağında **Birimi LDAP’ta olmayan kullanıcılar**
@@ -1098,10 +1114,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   isim gösterilir), `prefix – dashboard.xxx` (çevrilebilir bileşik), ve düz literal metin (aynen basılır).
   Yeni bir grafik id'siz bir gruplama anahtarına (ör. mahalle adı) göre dilim üretecekse, `Label` alanına
   DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok.
-- **Vatandaş Bilgi Listesi (card #1836):** `/citizen-directory` yalnız `Reporter` /
-  `Operator` / `SystemAdmin`; grid `GET /citizen-conversations` + kanal ikonu (`SourceChannel`);
-  Detaylar → konuşma ticket listesi → salt-okunur `MyRequestDetailModal`; Yazışmaya Git →
-  `/whatsapp?phone=…`.
+- **Vatandaş Bilgi Listesi (card #1836, kolon/buton düzeni #1843):** `/citizen-directory` yalnız
+  `Reporter` / `Operator` / `SystemAdmin`; grid `GET /citizen-conversations`. `Numara` sütunundan
+  sonra ayrı `Talep Kanalı` sütunu gelir (`ChannelIcon` + `getSocialChannelLabel`); isim hücresinde
+  artık kanal ikonu YOK (tekrar etmesin diye #1843 ile taşındı). Telefon numarası `text-sm
+  font-semibold` ile büyük gösterilir. Detaylar → konuşma ticket listesi → salt-okunur
+  `MyRequestDetailModal`; listede `jobId` olmayan ama `citizenRequestNumber` taşıyan (job'a
+  dönüşmemiş VT) ticket'lar da gösterilir — filtre yalnız `jobId` şartına indirgenmez. Yazışmaya
+  Git → `/whatsapp?phone=…`, buton `MyRequestDetailHeader` ile aynı açık mavi stil
+  (`MessageSquareText` + `!bg-sky-400`).
 - **Reporter/Operator kontrol paneli ayrımı (cards #1833/#1810):** Üst Düzey Yönetici
   (`Reporter`) ve Vatandaş Talep Operatörü (`Operator`) sol menüde `Kontrol Paneli Vatandaş`
   (`/dashboard`) + `Kontrol Paneli Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.
@@ -1111,17 +1132,35 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş Talep Kanalları). Birimler sayfasında Reporter: Taleplerim + dış birim pie'ları +
   Talep Öncelik Durumu; Operator: Görevlerim/Taleplerim/Birimdeki Görevler/Talep Önceliği.
 - **Vatandaş panosu Tire haritası (card #1834):** `GET /reports/dashboard-citizen-map-pins`
-  (Reporter/Operator/SystemAdmin); yalnız `RequestType=Citizen`, rutin dışı, boş olmayan
+  (Reporter/Operator/SystemAdmin); VT numaralı (`CitizenVtJobFilter.WhereHasCitizenRequestNumber`,
+  card #1845), rutin dışı, boş olmayan
   `OpenAddress`, display status `ProcessingReceived`/`InProgress` (dashboard classifier ile aynı);
   pin koordinatı Job veya bağlı SocialMessage lat/lng; yoksa FE Nominatim geocode (localStorage
   cache). Tag tıklanınca başlık popup; başlık tıklanınca salt-okunur `MyRequestDetailModal`
-  (pie drilldown ile aynı). Dönem filtresi pin sorgusunu sürer.
+  (pie drilldown ile aynı). Dönem filtresi pin sorgusunu sürer. `InProgress` pin/lejant rengi
+  yeşil (`#22c55e`/`bg-emerald-500`, turuncu değil — card #1848); harita varsayılan zoom 14
+  (pinsiz durumda da).
 - **Mahallelerde İşleme Alınan Talepler pie:** `ClassifyCitizenJobStatus == ProcessingReceived`
-  mahalle kırılımı; drilldown `neighborhoodProcessingRequests` (Reporter/SystemAdmin).
-- **Reporter grafik dilimleri detay popup'ı açar (card #1343/#1338):** Üst Düzey Yönetici panosunda
+  mahalle kırılımı; drilldown `neighborhoodProcessingRequests` (Reporter/Operator/SystemAdmin).
+- **Vatandaş dashboard pie'ları yalnız VT (Vatandaş Talebi) sayar (card #1845):** `citizenJobs`,
+  `BuildRequestTagChartAsync` (Talep Etiketi) ve üç mahalle grafiği (`Tamamlanan`/`Yapılmakta`/
+  `İşleme Alınan`) bir Job'ı yalnız bağlı `SocialMessage.CitizenRequestNumber != null` ise sayar
+  (`CitizenVtJobFilter.WhereHasCitizenRequestNumber`); `RequestType=Citizen` tek başına yeterli
+  değildir — manuel/rutin oluşturulan Citizen job'lar VT numarası taşımayabilir ve grafiğe girmemelidir.
+  Aynı filtre `GetDashboardChartDrilldownQuery` (mahalle + vatandaş satırları) ve
+  `GetCitizenDashboardMapPinsQuery` (harita pinleri) için de geçerlidir — üçü birbirinden
+  sapmamalıdır. (Not: `Vatandaş Talep Kanalları` pie'ı bu kuralın DIŞINDA kalır — kendi
+  `RequestType∈{...}` genişletilmiş adaylık mantığını korur, VT-only filtreye çevrilmedi.)
+- **Birim/departman odaklı dashboard pie'ları VT'yi dışlar (card #1849):** `Birimler` sayfasındaki
+  `Taleplerim` (`myRequests`, Reporter/Operator) ve tenant geneli `Talep Öncelik Durumu`
+  (`BuildTenantWideRequestPriorityChartAsync`) `RequestType == Citizen` olan job'ları hariç tutar;
+  Vatandaş Talebi kartları VT'yi zaten `#1845` ile ayrı gösterdiğinden Birimler pie'larında
+  tekrar görünmemelidir.
+- **Reporter/Operator grafik dilimleri detay popup'ı açar (card #1343/#1338, Operator erişimi
+  #1852):** Üst Düzey Yönetici panosunda
   Taleplerim HARİÇ 7 grafik (`citizenRequests`, `externalRequestCreators/Pending/Fulfillers`,
   `neighborhoodCompletedRequests`, `neighborhoodInProgressRequests`, `neighborhoodProcessingRequests`) diliminde tıklama `DashboardChartDrilldownModal`'ı açar
-  (`GET /reports/dashboard-chart-drilldown`, Reporter/SystemAdmin gate); popup Taleplerim detay modalıyla
+  (`GET /reports/dashboard-chart-drilldown`, Reporter/Operator/SystemAdmin gate); popup Taleplerim detay modalıyla
   aynı `.detail-modal-shell` ölçüsünü kullanır, küçük grid text'i + ortak `TablePagination` kullanır. Son Tarih'ten
   önce terminal tarih kolonu gelir: tamamlandı diliminde `Tamamlanma Tarihi`, iptal/iade diliminde
   `İptal Tarihi`; terminal olmayan satırlara terminal tarih değeri basılmaz. Son Tarih boşsa bu popup'ta
@@ -1203,6 +1242,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   birim adı yerine statik turuncu `Vatandaş Talebi` yazılır ve mesajda operatör adı + VT no +
   talep başlığı kullanılır. Lookup GUID üzerinden yapılır, `Guid.ToString()` DB filtresine dayanmaz
   (cards #1072/#1078/#1087).
+- **`titleTagChannel`** (NotificationResponse, card #1846): `titleTag` = `Vatandaş Talebi` olan
+  bildirimlerde bağlı `SocialMessage.Channel` de döner; `NotificationBell.tsx` bunu `titleTag`'in
+  hemen önünde `ChannelIcon` olarak basar. Birim adı gösteren (Reporter) `titleTag` satırlarında
+  `titleTagChannel` `null` kalır — kanal ikonu yalnız Vatandaş Talebi etiketiyle birlikte görünür.
 
 ## 6. Tenant / Auth
 

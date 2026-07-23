@@ -15,14 +15,14 @@ import { geocodeTireAddress, TIRE_MAP_CENTER, type LatLng } from '../utils/geoco
 type ResolvedPin = CitizenDashboardMapPin & { position: LatLng }
 
 function pinColor(displayStatus: string): string {
-  return displayStatus === 'inProgress' ? '#f97316' : '#0ea5e9'
+  return displayStatus === 'inProgress' ? '#22c55e' : '#0ea5e9'
 }
 
 function FitPins({ pins }: { pins: ResolvedPin[] }) {
   const map = useMap()
   useEffect(() => {
     if (pins.length === 0) {
-      map.setView([TIRE_MAP_CENTER.lat, TIRE_MAP_CENTER.lng], 13)
+      map.setView([TIRE_MAP_CENTER.lat, TIRE_MAP_CENTER.lng], 14)
       return
     }
     if (pins.length === 1) {
@@ -146,7 +146,7 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
         <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold text-slate-600">
           {statusLegend.map(item => (
             <span key={item.key} className="inline-flex items-center gap-1.5">
-              <span className={`size-2.5 rounded-full ${item.key === 'inProgress' ? 'bg-orange-500' : 'bg-sky-500'}`} />
+              <span className={`size-2.5 rounded-full ${item.key === 'inProgress' ? 'bg-emerald-500' : 'bg-sky-500'}`} />
               {item.label}
             </span>
           ))}
@@ -161,7 +161,7 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
       <div className="relative h-[min(28rem,55vh)] w-full bg-slate-100">
         <MapContainer
           center={[TIRE_MAP_CENTER.lat, TIRE_MAP_CENTER.lng]}
-          zoom={13}
+          zoom={14}
           className="size-full z-0"
           scrollWheelZoom
         >

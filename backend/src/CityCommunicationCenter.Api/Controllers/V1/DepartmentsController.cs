@@ -76,4 +76,13 @@ public sealed class DepartmentsController : ApiControllerBase
 
         return NoContent();
     }
+
+    [HttpPost("ldap/delete-unused")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
+    [ProducesResponseType<DeleteUnusedLdapDepartmentsResult>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<DeleteUnusedLdapDepartmentsResult>> DeleteUnusedLdapDepartments(CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new DeleteUnusedLdapDepartmentsCommand(), cancellationToken);
+        return Ok(result);
+    }
 }

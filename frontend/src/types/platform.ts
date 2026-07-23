@@ -943,4 +943,6 @@ export interface AppNotification {
   isHistorical?: boolean
   // Talebi Reporter oluşturmuşsa turuncu birim adı; Operator'ın vatandaş talebiyse turuncu "Vatandaş Talebi" etiketi (cards #1072/#1078/#1087).
   titleTag?: string | null
+  // titleTag "Vatandaş Talebi" olduğunda kaynak sosyal kanal — başlıkta kanal ikonu gösterilir (card #1846).
+  titleTagChannel?: string | null
 }

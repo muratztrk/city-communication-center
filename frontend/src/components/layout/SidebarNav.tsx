@@ -54,6 +54,10 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
     if (location.pathname === path) {
       return location.search === ''
     }
+    // /dashboard must not stay active under /dashboard/birimler (card #1850).
+    if (path === '/dashboard') {
+      return false
+    }
     return location.pathname.startsWith(`${path}/`)
   }, [location.pathname, location.search])
 

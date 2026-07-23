@@ -130,7 +130,7 @@ function canCancelLinkedJob(status: JobSummary['status'] | undefined) {
     || status === 'Active'
 }
 
-const DEFAULT_CHANNEL_FILTER = 'WhatsApp'
+const DEFAULT_CHANNEL_FILTER = ''
 const ALL_CHANNELS_FILTER = 'all'
 
 interface SocialMessageScopeFiltersProps {
@@ -170,12 +170,11 @@ export function SocialMessagesPage() {
   const locale = getLocale(i18n.language)
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
-  // The citizen-request inbox opens on WhatsApp, while an explicit `channel=all`
-  // keeps the All chip available as a distinct user-selected state.
+  // Vatandaş Talepleri varsayılanı Tümü; `channel=WhatsApp` vb. URL ile daraltılır (card #1851).
   const channelParam = searchParams.get('channel')
-  const channelFilter = channelParam === null
+  const channelFilter = channelParam === null || channelParam === ALL_CHANNELS_FILTER
     ? DEFAULT_CHANNEL_FILTER
-    : channelParam === ALL_CHANNELS_FILTER ? '' : channelParam
+    : channelParam
   const requestStatusParam = searchParams.get('requestStatus')
   const initialRequestStatus = isSocialRequestStatusFilter(requestStatusParam) ? requestStatusParam : 'all'
   const queryClient = useQueryClient()
@@ -284,12 +283,10 @@ export function SocialMessagesPage() {
   }), [messages, jobsById, locale, t])
 
   const filteredMessages = useMemo(() => {
-    const showAllChannels = channelParam === ALL_CHANNELS_FILTER
-    // Varsayılan görünümde WhatsApp; "Tümü" seçilince tüm kanallar (WhatsApp dahil).
+    // Varsayılan ve channel=all → Tümü (card #1851).
     let result = displayMessages.filter(message => {
       if (channelFilter) return message.channel === channelFilter
-      if (showAllChannels) return true
-      return message.channel !== 'WhatsApp'
+      return true
     })
 
     if (filterFrom || filterTo) {
@@ -326,7 +323,7 @@ export function SocialMessagesPage() {
     }
 
     return sortSocial(result)
-  }, [channelFilter, channelParam, displayMessages, filterFrom, filterTo, jobsById, locale, requestStatusFilter, searchText, sortSocial])
+  }, [channelFilter, displayMessages, filterFrom, filterTo, jobsById, locale, requestStatusFilter, searchText, sortSocial])
 
   useEffect(() => {
     const phoneParam = searchParams.get('phone')?.trim()
@@ -370,10 +367,10 @@ export function SocialMessagesPage() {
   )
 
   const channelQuickFilters: { value: string; label: string }[] = [
+    { value: '', label: t('nav.socialAll', 'Tümü') },
     { value: 'WhatsApp', label: 'WhatsApp' },
     { value: 'Phone', label: t('nav.socialPhone', 'Çağrı') },
     { value: 'EDevlet', label: t('settings.citizen.channels.EDevlet', 'e-Devlet') },
-    { value: '', label: t('nav.socialAll', 'Tümü') },
   ]
 
   const setChannelFilter = (channel: string) => {

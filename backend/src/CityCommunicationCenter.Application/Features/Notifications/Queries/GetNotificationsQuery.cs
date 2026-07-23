@@ -136,6 +136,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     JobId = message.JobId!.Value,
                     Number = message.CitizenRequestNumber!.Value,
                     Year = message.CitizenRequestNumberYear,
+                    message.Channel,
                 })
                 .ToListAsync(cancellationToken);
             var citizenNumberByJobId = citizenNumberRows
@@ -145,7 +146,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     group =>
                     {
                         var first = group.First();
-                        return new CitizenRequestNumberInfo(first.Number, first.Year);
+                        return new CitizenRequestNumberInfo(first.Number, first.Year, first.Channel);
                     });
             var originInfoByJobId = originRows.ToDictionary(
                 row => row.JobId,
@@ -159,7 +160,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         row.RequestType,
                         row.SourceType,
                         citizenNumber?.Number,
-                        citizenNumber?.Year);
+                        citizenNumber?.Year,
+                        citizenNumber?.Channel);
                 });
             var taskIdSet = taskRecords.Select(t => t.TaskId).ToHashSet();
             var entityIds = jobRecords.Select(j => j.JobId).Concat(taskRecords.Select(t => t.TaskId)).Distinct().ToList();
@@ -310,18 +312,23 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         || readAuditIds.Contains(a.AuditLogId);
 
                     string? titleTag = null;
+                    string? titleTagChannel = null;
                     if (isTask && IsTaskStatusChange(a)
                         && tasksById.TryGetValue(a.EntityId, out var tagTask))
                     {
-                        titleTag = originInfoByJobId.TryGetValue(tagTask.JobGuid, out var originInfo)
-                            ? ResolveOriginTitleTag(originInfo)
-                            : null;
+                        if (originInfoByJobId.TryGetValue(tagTask.JobGuid, out var originInfo))
+                        {
+                            titleTag = ResolveOriginTitleTag(originInfo);
+                            titleTagChannel = ResolveOriginTitleTagChannel(originInfo);
+                        }
                     }
                     else if (!isTask && jobsById.TryGetValue(a.EntityId, out var tagJob))
                     {
-                        titleTag = originInfoByJobId.TryGetValue(tagJob.JobGuid, out var originInfo)
-                            ? ResolveOriginTitleTag(originInfo)
-                            : null;
+                        if (originInfoByJobId.TryGetValue(tagJob.JobGuid, out var originInfo))
+                        {
+                            titleTag = ResolveOriginTitleTag(originInfo);
+                            titleTagChannel = ResolveOriginTitleTagChannel(originInfo);
+                        }
                     }
 
                     feed.Add(new NotificationResponse(
@@ -338,7 +345,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                             : $"/my-requests?jobId={a.EntityId}",
                         a.EventTimeUtc,
                         IsHistorical: true,
-                        TitleTag: titleTag));
+                        TitleTag: titleTag,
+                        TitleTagChannel: titleTagChannel));
                 }
             }
         }
@@ -465,6 +473,13 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             : null;
     }
 
+    // Vatandaş Talebi TitleTag'inin yanında gösterilecek kanal ikonu için kaynak sosyal kanal
+    // (card #1846). Yalnız Vatandaş Talebi etiketiyle birlikte anlamlıdır.
+    private static string? ResolveOriginTitleTagChannel(NotificationOriginInfo originInfo) =>
+        originInfo.RoleCode == RoleCode.Operator && IsCitizenRequestOrigin(originInfo)
+            ? originInfo.Channel?.ToString()
+            : null;
+
     private static string? FormatCitizenRequestNumber(NotificationOriginInfo? originInfo)
     {
         if (originInfo?.CitizenRequestNumber is not int number)
@@ -480,7 +495,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         || originInfo.RequestType == JobRequestType.Citizen
         || originInfo.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet;
 
-    private sealed record CitizenRequestNumberInfo(int Number, int? Year);
+    private sealed record CitizenRequestNumberInfo(int Number, int? Year, SocialChannel Channel);
 
     private sealed record NotificationOriginInfo(
         RoleCode RoleCode,
@@ -489,7 +504,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         JobRequestType RequestType,
         JobSourceType SourceType,
         int? CitizenRequestNumber,
-        int? CitizenRequestNumberYear);
+        int? CitizenRequestNumberYear,
+        SocialChannel? Channel);
 
     private static string FormatTaskStatusLabel(string status) => status switch
     {

@@ -34,9 +34,9 @@ public sealed class GetDashboardChartDrilldownQueryHandler
     {
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.RequireTenantId();
-        if (context.RoleCode is not ("Reporter" or "SystemAdmin"))
+        if (context.RoleCode is not ("Reporter" or "Operator" or "SystemAdmin"))
         {
-            throw new ForbiddenAccessException("Bu rapor detayına yalnızca Üst Düzey Yönetici erişebilir.");
+            throw new ForbiddenAccessException("Bu rapor detayına yalnızca Üst Düzey Yönetici veya Vatandaş Talep Operatörü erişebilir.");
         }
 
         var chartKey = request.ChartKey.Replace("dashboard.charts.", string.Empty, StringComparison.Ordinal);
@@ -178,6 +178,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 && job.Neighborhood == neighborhood
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            // Mahalle drilldown'ı yalnız VT (Vatandaş Talebi) job'larını gösterir (card #1845).
+            .WhereHasCitizenRequestNumber(_dbContext)
             .OrderByDescending(job => job.CreatedAtUtc)
             .Take(MaxRows)
             .Select(job => new
@@ -242,6 +244,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 && job.Status != JobStatus.RevisionRequested
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            // Mahalle drilldown'ı yalnız VT (Vatandaş Talebi) job'larını gösterir (card #1845).
+            .WhereHasCitizenRequestNumber(_dbContext)
             .OrderByDescending(job => job.CreatedAtUtc)
             .Select(job => new
             {
@@ -314,6 +318,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 && job.RequestType == JobRequestType.Citizen
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            // Vatandaş Talepleri drilldown'ı yalnız VT (Vatandaş Talebi) job'larını gösterir (card #1845).
+            .WhereHasCitizenRequestNumber(_dbContext)
             .OrderByDescending(job => job.CreatedAtUtc)
             .Select(job => new
             {

@@ -9,6 +9,7 @@ import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ModalBackdrop } from './ui/modal-backdrop'
 import { ModalCloseButton } from './ui/modal-close-button'
+import { normalizeTitleCaseField } from '../utils/textNormalization'
 
 interface UserQuickReplyDialogProps {
   open: boolean
@@ -54,7 +55,7 @@ export function UserQuickReplyDialog({ open, onClose, onChanged }: UserQuickRepl
   }, [open]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSave = async () => {
-    const trimmedName = name.trim()
+    const trimmedName = normalizeTitleCaseField(name) ?? name.trim()
     const trimmedContent = content.trim()
     if (!trimmedName || !trimmedContent) return
 

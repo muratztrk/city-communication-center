@@ -150,6 +150,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
     {
         var counts = await _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
+                // Birim odaklı öncelik grafiği VT (Vatandaş Talebi) taleplerini dışlar (card #1849).
+                && job.RequestType != JobRequestType.Citizen
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
             .GroupBy(job => job.Priority)
@@ -304,6 +306,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var jobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
             job.TenantId == tenantId
             && job.CreatedByUserId == userId
+            // Taleplerim (Birimler) grafiği VT (Vatandaş Talebi) taleplerini dışlar (card #1849).
+            && job.RequestType != JobRequestType.Citizen
             && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)), cancellationToken);
 
@@ -325,7 +329,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 job.TenantId == tenantId
                 && job.RequestType == JobRequestType.Citizen
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)), cancellationToken);
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+                .WhereHasCitizenRequestNumber(_dbContext), cancellationToken);
             charts.Add(BuildCitizenRequestsChart(citizenJobs, now));
             charts.Add(await BuildRequestTagChartAsync(tenantId, request, cancellationToken));
         }
@@ -382,7 +387,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
         var taggedRows = await _dbContext.SocialMessages
             .AsNoTracking()
-            .Where(message => message.TenantId == tenantId && message.JobId.HasValue)
+            // Talep Etiketi pie'ı yalnız VT (Vatandaş Talebi) mesajlarını sayar (card #1845).
+            .Where(message => message.TenantId == tenantId && message.JobId.HasValue && message.CitizenRequestNumber != null)
             .Join(
                 jobs,
                 message => message.JobId!.Value,
@@ -519,6 +525,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 && job.Neighborhood != ""
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            // Mahalle grafikleri yalnız VT (Vatandaş Talebi) job'larını sayar (card #1845).
+            .WhereHasCitizenRequestNumber(_dbContext)
             .GroupBy(job => job.Neighborhood)
             .Select(group => new { Neighborhood = group.Key!, Count = group.Count() })
             .OrderByDescending(item => item.Count)
@@ -549,6 +557,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 && job.Neighborhood != ""
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            // Mahalle grafikleri yalnız VT (Vatandaş Talebi) job'larını sayar (card #1845).
+            .WhereHasCitizenRequestNumber(_dbContext)
             .GroupBy(job => job.Neighborhood)
             .Select(group => new { Neighborhood = group.Key!, Count = group.Count() })
             .OrderByDescending(item => item.Count)
@@ -583,6 +593,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 && job.Status != JobStatus.RevisionRequested
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            // Mahalle grafikleri yalnız VT (Vatandaş Talebi) job'larını sayar (card #1845).
+            .WhereHasCitizenRequestNumber(_dbContext)
             .Select(job => new
             {
                 Neighborhood = job.Neighborhood!,

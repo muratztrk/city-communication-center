@@ -15,6 +15,7 @@ import { TablePagination } from '../ui/table-pagination'
 import { DateTimePicker } from '../ui/date-time-picker'
 import { RichTextContent } from '../ui/RichTextContent'
 import { GridExtraTimeMarkers } from '../ui/extra-time-markers'
+import { ChannelIcon } from '../ui/channel-icon'
 
 type NotifFilter = 'all' | 'unread'
 // scope: bildirim başkasına atanmış bir görevle ilgiliyse (ör. yöneticinin, personelinin ek süre
@@ -142,7 +143,14 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
       <div className="min-w-0 flex-1">
         <p className="text-sm leading-snug">
           <NotificationTitle title={n.title} isUnread={!n.isRead} />
-          {n.titleTag ? <span className="font-semibold text-orange-500"> ({n.titleTag})</span> : null}
+          {n.titleTag ? (
+            <span className="font-semibold text-orange-500">
+              {' '}
+              (
+              {n.titleTagChannel ? <ChannelIcon channel={n.titleTagChannel} className="mr-1 inline size-3.5 align-text-bottom" /> : null}
+              {n.titleTag})
+            </span>
+          ) : null}
         </p>
         {n.message && (
           <p className="mt-0.5 text-xs font-normal text-slate-500 line-clamp-2">

@@ -1,3 +1,7 @@
+## Round 434 — #1869/#1862
+- Rutin Görev: Şablon mesajlar menü sağa (`menuAlign=start`)
+- LDAP Anlık Senkronize: onay atlanır, doğrudan çalışır (Users gibi)
+
 ## Round 433 — #1862/#1865
 - LDAP sync: yalnız yeni birimler listelenir; yoksa `addAllLdapNone` mesajı
 - WA Etiketler menü: daha geniş + text-xs + emerald hover

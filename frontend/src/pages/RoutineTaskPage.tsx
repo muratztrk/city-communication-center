@@ -413,7 +413,7 @@ export function RoutineTaskPage() {
                 <WhatsAppTemplatePicker
                   userQuickReplies={userQuickReplies}
                   onSelect={template => set('description', templateToRichText(template.content))}
-                  menuAlign="end"
+                  menuAlign="start"
                 />
                 <UserQuickReplyAddButton onChanged={() => { void loadUserQuickReplies() }} />
               </div>

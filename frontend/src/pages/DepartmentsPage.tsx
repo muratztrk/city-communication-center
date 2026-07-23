@@ -178,34 +178,25 @@ export function DepartmentsPage() {
     </div>
   )
 
+  // Anlık LDAP Kullanıcı Senkronize Et gibi: onay sormadan doğrudan çalıştır (card #1862).
   const handlePullAllLdapDepartmentsClick = () => {
     if (!ldapEnabled || pullAllLdapLoading) return
-    setConfirmDialog({
-      title: t('departments.liveLdapSync'),
-      titleDivider: true,
-      titleCompact: true,
-      message: t('departments.liveLdapSyncConfirm', 'LDAP dizininden birim listesi çekilecek. Devam etmek istiyor musunuz?'),
-      confirmLabel: t('common.yes', 'Evet'),
-      variant: 'primary',
-      closeOnConfirm: false,
-      onConfirm: () => handlePullAllLdapDepartments(),
-    })
+    void handlePullAllLdapDepartments()
   }
 
   const handlePullAllLdapDepartments = async () => {
     setPullAllLdapLoading(true)
     setError('')
-    setConfirmDialog(current => current
-      ? {
-          ...current,
-          message: t('departments.liveLdapSyncWorking'),
-          confirmLabel: t('common.yes', 'Evet'),
-          hideCancel: true,
-          closeOnConfirm: false,
-          details: undefined,
-          onConfirm: () => {},
-        }
-      : current)
+    setConfirmDialog({
+      title: t('departments.liveLdapSync'),
+      titleDivider: true,
+      titleCompact: true,
+      message: t('departments.liveLdapSyncWorking'),
+      confirmLabel: t('common.yes', 'Evet'),
+      hideCancel: true,
+      closeOnConfirm: false,
+      onConfirm: () => {},
+    })
 
     try {
       // physicalDeliveryOfficeName listesi — OU yok (card #1838).

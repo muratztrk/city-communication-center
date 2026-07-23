@@ -332,8 +332,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş Çağrı Talebi oluşturma popup'ında Şablon mesajlar/Şablon mesaj ekle/Kurum İçi İlet
   kontrolleri yalnız o popup'a özel kompakt 28px; `Birim seçin` de gerçek 28px yükseklik ve orta
   genişlikte (160px) kalır. Genel dropdown ölçüleri etkilenmez.
-  **Rutin Görev Oluştur (card #1821):** `Açıklama` başlığının sağında WhatsApp ile aynı
+  **Rutin Görev Oluştur (card #1821/#1869):** `Açıklama` başlığının sağında WhatsApp ile aynı
   `Şablon mesajlar` + `Şablon mesaj ekle` bileşenleri; seçim açıklama RichText'e yazılır.
+  Şablon menü `menuAlign="start"` ile buton soluna hizalanıp **sağa doğru** açılır (card #1869).
   **Kişisel şablon popup (card #1822):** `Kayıtlı şablonlar` native `<select>` değil;
   `SingleSelectDropdown` (portal + standart stil).
   Yanıt textarea'sının sağındaki ileti butonu textarea boyunca uzamaz; küçük buton olarak alt
@@ -1162,13 +1163,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açılır, `mouseleave`'de tekrar kapanır (card #1867 — sayfa kaydırırken yanlışlıkla zoom olmasın).
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
-- **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` ve `Tüm LDAP… Ekle` standart
-  `ConfirmDialog` ile onay ister; sonuç/önizleme **aynı popup içinde** güncellenir
-  (`closeOnConfirm: false`) ve Users LDAP gibi `details` içinde kaydırılabilir birim listesi
-  gösterir (listelenen / eklenecek / eklenen). `Anlık LDAP…` sonuçta yalnız sistemde **olmayan**
-  yeni birimleri listeler; hiç yeni yoksa mesaj `Eklenecek yeni LDAP birimi yok; hepsi zaten
-  sistemde.` (`addAllLdapNone`) olur (card #1862 reopen). İkinci popup açılmaz. Sonuçta `Çıkış`
-  ile kapanır; Oluştur butonu üstünde inline helper metin yok. Sil aynı kalıp.
+- **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` Users senkronu gibi **onay
+  sormadan** doğrudan çalışır; çalışma/sonuç aynı `ConfirmDialog` içinde (`closeOnConfirm`
+  gerekmez — tıklanınca working popup açılır). `Tüm LDAP… Ekle` onay ister; sonuç/önizleme
+  Users LDAP gibi `details` içinde kaydırılabilir birim listesi gösterir (listelenen /
+  eklenecek / eklenen). `Anlık LDAP…` sonuçta yalnız sistemde **olmayan** yeni birimleri
+  listeler; hiç yeni yoksa mesaj `Eklenecek yeni LDAP birimi yok; hepsi zaten sistemde.`
+  (`addAllLdapNone`) olur (card #1862 reopen). İkinci popup açılmaz. Sonuçta `Çıkış` ile
+  kapanır; Oluştur butonu üstünde inline helper metin yok. Sil aynı kalıp.
 - **Vatandaş dashboard pie'ları yalnız VT (Vatandaş Talebi) sayar (card #1845):** `citizenJobs`,
   `BuildRequestTagChartAsync` (Talep Etiketi) ve üç mahalle grafiği (`Tamamlanan`/`Yapılmakta`/
   `İşleme Alınan`) bir Job'ı yalnız bağlı `SocialMessage.CitizenRequestNumber != null` ise sayar

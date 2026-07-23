@@ -9,7 +9,7 @@ interface WhatsAppTemplatePickerProps {
   userQuickReplies?: UserQuickReplyTemplate[]
   onSelect: (template: UserQuickReplyTemplate) => void
   tone?: 'default' | 'on-dark'
-  /** start = menu opens upward, aligned to button left (extends right); end = aligned to button right */
+  /** start = sola hizalı, sağa doğru uzanır; end = sağa hizalı, sola doğru uzanır */
   menuAlign?: 'start' | 'end'
   compact?: boolean
 }

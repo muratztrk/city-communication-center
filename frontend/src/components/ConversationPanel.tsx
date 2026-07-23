@@ -204,8 +204,8 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     const isCancelled = entry.relatedJobTerminalStatus === 'Cancelled'
     setConfirmDialog({
       title: isCancelled
-        ? t('tasks.detail.cancelNote', 'İptal Notu')
-        : t('jobs.detail.completionResultNote', 'Tamamlanma Notu'),
+        ? t('whatsapp.terminalNote.cancel', 'Talep İptal Notu')
+        : t('whatsapp.terminalNote.completion', 'Talep Tamamlanma Notu'),
       titleDivider: true,
       titleTone: isCancelled ? 'danger' : 'success',
       message: entry.relatedJobTerminalNote ?? '',

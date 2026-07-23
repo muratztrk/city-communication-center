@@ -951,7 +951,12 @@
       "delivered": "İletildi",
       "read": "Okundu",
       "failed": "İletilemedi"
-    }
+    },
+    "terminalNote": {
+      "cancel": "Talep İptal Notu",
+      "completion": "Talep Tamamlanma Notu"
+    },
+    "label": "Talep Etiketi"
   },
   "audit": {
     "title": "Log",

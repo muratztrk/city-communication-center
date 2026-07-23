@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { FileText, Paperclip, Send, X } from 'lucide-react'
 import { SimpleImageAttachmentIcon } from './ui/SimpleImageAttachmentIcon'
@@ -13,7 +13,8 @@ import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { ConversationPanel } from './ConversationPanel'
-import type { CitizenConversationDetail, Department, SocialMessage } from '../types/platform'
+import { RequestTagAddButton, RequestTagPicker } from './RequestTagDialog'
+import type { CitizenConversationDetail, Department, RequestTag, SocialMessage } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
@@ -172,6 +173,22 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const [conversationDetail, setConversationDetail] = useState<CitizenConversationDetail | null>(null)
   const [internalDepartmentId, setInternalDepartmentId] = useState('')
   const [sendingInternal, setSendingInternal] = useState(false)
+  const [requestLabel, setRequestLabel] = useState('')
+  const [requestTags, setRequestTags] = useState<RequestTag[]>([])
+  const canManageRequestTags = user?.role === 'Operator' || user?.role === 'SystemAdmin'
+
+  const loadRequestTags = useCallback(async () => {
+    try {
+      setRequestTags(await api.getRequestTags())
+    } catch {
+      // Etiket listesi boş kalabilir; form akışını bozma.
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!canManageRequestTags) return
+    void loadRequestTags()
+  }, [canManageRequestTags, loadRequestTags])
 
   useEffect(() => {
     if (!forceNewRequest || editJobId) return
@@ -187,9 +204,45 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     setPendingFiles([])
     setFileError(null)
     setError(null)
+    setRequestLabel('')
     setCitizenHandle(sanitizeCitizenName(message.citizenName))
     setCitizenPhone(resolveInitialCitizenPhone(message))
   }, [forceNewRequest, editJobId, message])
+
+  useEffect(() => {
+    if (!citizenConversationId) {
+      setConversationDetail(null)
+      return
+    }
+    let cancelled = false
+    void api.getCitizenConversationDetail(citizenConversationId)
+      .then(detail => {
+        if (!cancelled) {
+          setConversationDetail(detail)
+          setRequestLabel(detail.label?.trim() ?? '')
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setConversationDetail(null)
+        }
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [citizenConversationId])
+
+  const handleRequestLabelSelect = async (label: string) => {
+    const normalizedLabel = normalizeTitleCaseField(label) ?? ''
+    setRequestLabel(normalizedLabel)
+    if (!citizenConversationId) return
+    try {
+      await api.updateCitizenConversationProfile(citizenConversationId, { label: normalizedLabel })
+      invalidateConversations(queryClient, citizenConversationId)
+    } catch {
+      // Seçim UI'da kalır; kayıt hatası formu engellemez.
+    }
+  }
 
   useEffect(() => {
     if (!editJobId) {
@@ -233,24 +286,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
   // Konuşma penceresinde de diğer birimlere kurum içi ileti gönderilebilsin diye vatandaşın
   // güncel talep/birim bilgisi (ticket listesi) çekilir (card #1512).
-  useEffect(() => {
-    if (!citizenConversationId) {
-      setConversationDetail(null)
-      return
-    }
-    let cancelled = false
-    void api.getCitizenConversationDetail(citizenConversationId)
-      .then(detail => {
-        if (!cancelled) {
-          setConversationDetail(detail)
-        }
-      })
-      .catch(() => { if (!cancelled) setConversationDetail(null) })
-    return () => {
-      cancelled = true
-    }
-  }, [citizenConversationId])
-
+  // Talep Etiketi de aynı detaydan gelir (card #1865).
+  // (citizenConversationId effect above already loads conversationDetail + requestLabel)
   const internalDepartmentOptions = useMemo(() => {
     const activeStatuses = new Set(['Draft', 'PendingOwnerApproval', 'PendingExternalApproval', 'RevisionRequested', 'Active'])
     const options = new Map<string, string>()
@@ -611,6 +648,24 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     onChange={setPriority}
                     placeholder={t('jobs.form.priority', 'Öncelik')}
                   />
+                </div>
+              </div>
+
+              <div className="job-field">
+                <span className="job-field-label">{t('whatsapp.label', 'Talep Etiketi')}</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    className="field-input min-w-0 flex-1 text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                    value={requestLabel}
+                    readOnly
+                    disabled
+                  />
+                  {canManageRequestTags ? (
+                    <>
+                      <RequestTagPicker largeText tags={requestTags} onSelect={label => { void handleRequestLabelSelect(label) }} />
+                      <RequestTagAddButton largeText onChanged={() => { void loadRequestTags() }} />
+                    </>
+                  ) : null}
                 </div>
               </div>
 

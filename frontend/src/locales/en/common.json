@@ -946,7 +946,12 @@
       "delivered": "Delivered",
       "read": "Read",
       "failed": "Not delivered"
-    }
+    },
+    "terminalNote": {
+      "cancel": "Request Cancellation Note",
+      "completion": "Request Completion Note"
+    },
+    "label": "Request Tag"
   },
   "audit": {
     "title": "Audit",

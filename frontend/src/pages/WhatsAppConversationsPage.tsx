@@ -15,7 +15,6 @@ import type {
   Department,
   SocialMessage,
   UserQuickReplyTemplate,
-  RequestTag,
 } from '../types/platform'
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
@@ -23,7 +22,6 @@ import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
-import { RequestTagAddButton, RequestTagPicker } from '../components/RequestTagDialog'
 import { formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
@@ -559,7 +557,6 @@ function ConversationProfilePanel({
   draft,
   saving,
   onDraftChange,
-  onLabelSelect,
   onSave,
   onCreateRequest,
   canCreateRequest,
@@ -568,34 +565,14 @@ function ConversationProfilePanel({
   draft: ConversationProfileDraft
   saving: boolean
   onDraftChange: (patch: Partial<ConversationProfileDraft>) => void
-  onLabelSelect: (label: string) => void
   onSave: () => void
   onCreateRequest?: () => void
   canCreateRequest?: boolean
 }) {
   const { t } = useTranslation()
-  const { user } = useAuth()
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
   const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
   const hasNeighborhood = draft.neighborhood.trim().length > 0
-
-  // Talep Etiketi dropdown/butonu yalnızca Vatandaş Operatörü ve Sistem Yöneticisi görür (kart #1510).
-  const canManageRequestTags = user?.role === 'Operator' || user?.role === 'SystemAdmin'
-  const [requestTags, setRequestTags] = useState<RequestTag[]>([])
-
-  const loadRequestTags = useCallback(async () => {
-    try {
-      setRequestTags(await api.getRequestTags())
-    } catch {
-      // sessizce yut: etiket dropdown'ı boş kalır, ana profil formu etkilenmez
-    }
-  }, [])
-
-  useEffect(() => {
-    if (!canManageRequestTags) return
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- tek seferlik etiket listesi yüklemesi, döngüsel render yok
-    void loadRequestTags()
-  }, [canManageRequestTags, loadRequestTags])
 
   const fieldClass = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100'
   const disabledFieldClass = `${fieldClass} disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400`
@@ -640,16 +617,6 @@ function ConversationProfilePanel({
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.phoneNumber', 'Numara')}</span>
           <input className={disabledFieldClass} value={formatLocalProfilePhone(draft.citizenPhone)} readOnly disabled />
-        </label>
-        <label className="block space-y-1">
-          <span className={labelClass}>{t('whatsapp.label', 'Talep Etiketi')}</span>
-          <input className={disabledFieldClass} value={draft.label} readOnly disabled />
-          {canManageRequestTags && (
-            <div className="flex items-center gap-2 pt-1">
-              <RequestTagPicker tags={requestTags} onSelect={onLabelSelect} />
-              <RequestTagAddButton onChanged={() => void loadRequestTags()} />
-            </div>
-          )}
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('address.neighborhood', 'Mahalle')}</span>
@@ -989,20 +956,6 @@ function ConversationDetail({
     }
   }
 
-  const handleProfileLabelSelect = async (label: string) => {
-    if (!detail || profileSaving) return
-    const normalizedLabel = normalizeTitleCaseField(label) ?? ''
-    setProfileDraft(current => ({ ...current, label: normalizedLabel }))
-    setProfileSaving(true)
-    try {
-      await api.updateCitizenConversationProfile(detail.citizenConversationId, { label: normalizedLabel })
-      await refreshDetail()
-      onProfileSaved()
-    } finally {
-      setProfileSaving(false)
-    }
-  }
-
   const handleSendInternal = async () => {
     const text = replyText.trim()
     const targetTicket = detail?.tickets.find(ticket => ticket.departmentId === internalDepartmentId) ?? primaryTicket
@@ -1055,8 +1008,8 @@ function ConversationDetail({
     const isCancelled = entry.relatedJobTerminalStatus === 'Cancelled'
     setConfirmDialog({
       title: isCancelled
-        ? t('tasks.detail.cancelNote', 'İptal Notu')
-        : t('jobs.detail.completionResultNote', 'Tamamlanma Notu'),
+        ? t('whatsapp.terminalNote.cancel', 'Talep İptal Notu')
+        : t('whatsapp.terminalNote.completion', 'Talep Tamamlanma Notu'),
       titleDivider: true,
       titleTone: isCancelled ? 'danger' : 'success',
       message: entry.relatedJobTerminalNote ?? '',
@@ -1447,7 +1400,6 @@ function ConversationDetail({
             profileDirtyRef.current = true
             setProfileDraft(current => ({ ...current, ...patch }))
           }}
-          onLabelSelect={label => { void handleProfileLabelSelect(label) }}
           onSave={() => { void handleProfileSave() }}
           canCreateRequest={Boolean(primaryTicket)}
           onCreateRequest={primaryTicket ? () => onOpenCreateRequest(primaryTicket.socialMessageId) : undefined}
@@ -1487,7 +1439,7 @@ export function WhatsAppConversationsPage() {
     setLoading(true)
     try {
       const [convResult, quickReplyResult, metaTemplateResult, departmentResult] = await Promise.allSettled([
-        api.getCitizenConversations(),
+        api.getCitizenConversations({ whatsAppOnly: true }),
         api.getUserQuickReplies(),
         api.getWhatsAppTemplates(),
         api.getDepartments(),
@@ -1522,7 +1474,7 @@ export function WhatsAppConversationsPage() {
 
   const silentRefreshConversations = useCallback(async () => {
     try {
-      const data = await api.getCitizenConversations()
+      const data = await api.getCitizenConversations({ whatsAppOnly: true })
       setConversations(data)
     } catch {
       // Ignore background refresh failures.

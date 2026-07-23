@@ -86,6 +86,12 @@ export function ConversationEntryBubble({
   // Beklemede: operatör aksiyon satırında; iletildikten sonra bilgi amaçlı (card #1861).
   const showTerminalNotePending = isPending && canSendPending && hasTerminalNote
   const showTerminalNoteInfo = isDeliveredOutbound && hasTerminalNote
+  const terminalNoteLabel = terminalNoteKind === 'cancelled'
+    ? t('whatsapp.terminalNote.cancel', 'Talep İptal Notu')
+    : t('whatsapp.terminalNote.completion', 'Talep Tamamlanma Notu')
+  const terminalNoteButtonClass = terminalNoteKind === 'cancelled'
+    ? 'bg-[color:var(--color-destructive)] hover:brightness-95'
+    : 'bg-teal-600 hover:bg-teal-700'
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
@@ -218,15 +224,9 @@ export function ConversationEntryBubble({
                 type="button"
                 onClick={() => onShowTerminalNote?.(entry)}
                 disabled={sendingPending}
-                className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-                  terminalNoteKind === 'cancelled'
-                    ? 'bg-[color:var(--color-destructive)] hover:brightness-95'
-                    : 'bg-[color:var(--color-success)] hover:brightness-95'
-                }`}
+                className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${terminalNoteButtonClass}`}
               >
-                {terminalNoteKind === 'cancelled'
-                  ? t('tasks.detail.cancelNote', 'İptal Notu')
-                  : t('jobs.detail.completionResultNote', 'Tamamlanma Notu')}
+                {terminalNoteLabel}
               </button>
             ) : null}
             <button
@@ -245,15 +245,9 @@ export function ConversationEntryBubble({
           <button
             type="button"
             onClick={() => onShowTerminalNote?.(entry)}
-            className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors ${
-              terminalNoteKind === 'cancelled'
-                ? 'bg-[color:var(--color-destructive)] hover:brightness-95'
-                : 'bg-[color:var(--color-success)] hover:brightness-95'
-            }`}
+            className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors ${terminalNoteButtonClass}`}
           >
-            {terminalNoteKind === 'cancelled'
-              ? t('tasks.detail.cancelNote', 'İptal Notu')
-              : t('jobs.detail.completionResultNote', 'Tamamlanma Notu')}
+            {terminalNoteLabel}
           </button>
         </div>
       ) : null}

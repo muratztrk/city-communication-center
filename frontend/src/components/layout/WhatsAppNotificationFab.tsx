@@ -104,7 +104,7 @@ export function WhatsAppNotificationFab() {
 
   const fetchConversations = useCallback(async () => {
     try {
-      return await api.getCitizenConversations()
+      return await api.getCitizenConversations({ whatsAppOnly: true })
     } catch {
       return null
     }

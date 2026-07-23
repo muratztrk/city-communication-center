@@ -2,7 +2,12 @@ using CityCommunicationCenter.Application.Features.Users;
 
 namespace CityCommunicationCenter.Application.Features.Social;
 
-public sealed record GetCitizenConversationsQuery : IQuery<IReadOnlyList<CitizenConversationSummaryDto>>;
+/// <param name="WhatsAppOnly">
+/// true ise yalnız WhatsApp kanalında iletişimi olan konuşmalar döner (card #1864);
+/// çağrı/telefon VT ile oluşan numaralar WhatsApp listesinden çıkar.
+/// </param>
+public sealed record GetCitizenConversationsQuery(bool WhatsAppOnly = false)
+    : IQuery<IReadOnlyList<CitizenConversationSummaryDto>>;
 
 public sealed class GetCitizenConversationsQueryHandler
     : IQueryHandler<GetCitizenConversationsQuery, IReadOnlyList<CitizenConversationSummaryDto>>
@@ -215,7 +220,7 @@ public sealed class GetCitizenConversationsQueryHandler
             }
         }
 
-        return conversations
+        var results = conversations
             .Select(c =>
             {
                 latestTicketByConversation.TryGetValue(c.CitizenConversationId, out var ticket);
@@ -255,8 +260,9 @@ public sealed class GetCitizenConversationsQueryHandler
                     ? hasActiveJob || c.OpenTicketCount > 0
                     : conversationMessages.Any(m => m.JobId is Guid messageJobId && relevantJobIds.Contains(messageJobId)
                         && m.JobStatus is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected));
+                var hasWhatsAppChannel = conversationMessages.Any(m => m.Channel == SocialChannel.WhatsApp);
 
-                return new CitizenConversationSummaryDto(
+                var dto = new CitizenConversationSummaryDto(
                     c.CitizenConversationId,
                     c.CitizenPhone,
                     c.CitizenName,
@@ -285,8 +291,19 @@ public sealed class GetCitizenConversationsQueryHandler
                     lastStaffSenderDepartment,
                     lastStaffSenderDisplayName,
                     ticket?.Channel.ToString());
+
+                return (HasWhatsAppChannel: hasWhatsAppChannel, Dto: dto);
             })
             .ToList();
+
+        // WhatsApp Konuşmaları / FAB: yalnız gerçek WA iletişimi olan numaralar (card #1864).
+        IEnumerable<(bool HasWhatsAppChannel, CitizenConversationSummaryDto Dto)> filtered = results;
+        if (request.WhatsAppOnly)
+        {
+            filtered = results.Where(item => item.HasWhatsAppChannel);
+        }
+
+        return filtered.Select(item => item.Dto).ToList();
     }
 
     /// <summary>

@@ -49,7 +49,6 @@ export function DepartmentsPage() {
   const [managerAssignId, setManagerAssignId] = useState<string | null>(null)
   const [managerAssignSavingId, setManagerAssignSavingId] = useState<string | null>(null)
   const [pullAllLdapLoading, setPullAllLdapLoading] = useState(false)
-  const [pullAllLdapMessage, setPullAllLdapMessage] = useState<string | null>(null)
   const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
   const [deleteAllLdapLoading, setDeleteAllLdapLoading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
@@ -179,7 +178,6 @@ export function DepartmentsPage() {
 
   const handlePullAllLdapDepartments = async () => {
     setPullAllLdapLoading(true)
-    setPullAllLdapMessage(t('departments.liveLdapSyncWorking'))
     setError('')
 
     try {
@@ -211,9 +209,18 @@ export function DepartmentsPage() {
       setDirectoryQuery('')
       setSelectedLdapDepartment(null)
       setNewName('')
-      setPullAllLdapMessage(t('departments.pullAllLdapSuccess', { count: foundNamesByKey.size }))
+      setConfirmDialog({
+        title: t('departments.liveLdapSync'),
+        titleDivider: true,
+        titleCompact: true,
+        titleTone: 'success',
+        message: t('departments.pullAllLdapSuccess', { count: foundNamesByKey.size }),
+        confirmLabel: t('common.exit', 'Çıkış'),
+        hideCancel: true,
+        variant: 'primary',
+        onConfirm: () => {},
+      })
     } catch (pullError) {
-      setPullAllLdapMessage(null)
       setError(pullError instanceof Error ? pullError.message : t('common.error'))
     } finally {
       setPullAllLdapLoading(false)
@@ -236,7 +243,6 @@ export function DepartmentsPage() {
   const runAddAllLdapDepartments = async () => {
     setAddAllLdapLoading(true)
     setError('')
-    setPullAllLdapMessage(null)
 
     try {
       const departmentNames = await api.listDirectoryDepartments()
@@ -254,7 +260,17 @@ export function DepartmentsPage() {
       }
 
       if (toAdd.length === 0) {
-        setPullAllLdapMessage(t('departments.addAllLdapNone'))
+        setConfirmDialog({
+          title: t('departments.addAllLdap'),
+          titleDivider: true,
+          titleCompact: true,
+          titleTone: 'danger',
+          message: t('departments.addAllLdapNone'),
+          confirmLabel: t('common.exit', 'Çıkış'),
+          hideCancel: true,
+          variant: 'destructive',
+          onConfirm: () => {},
+        })
         return
       }
 
@@ -270,7 +286,17 @@ export function DepartmentsPage() {
         created += 1
       }
       invalidateDepartments(queryClient)
-      setPullAllLdapMessage(t('departments.addAllLdapSuccess', { count: created }))
+      setConfirmDialog({
+        title: t('departments.addAllLdap'),
+        titleDivider: true,
+        titleCompact: true,
+        titleTone: 'success',
+        message: t('departments.addAllLdapSuccess', { count: created }),
+        confirmLabel: t('common.exit', 'Çıkış'),
+        hideCancel: true,
+        variant: 'primary',
+        onConfirm: () => {},
+      })
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : t('common.error'))
     } finally {
@@ -615,7 +641,6 @@ export function DepartmentsPage() {
                   }
                 }}
               />
-              {pullAllLdapMessage ? <p className="helper-copy">{pullAllLdapMessage}</p> : null}
               {selectedLdapDepartment ? (
                 <div className="section-card">
                   <div className="font-semibold text-slate-950">{selectedLdapDepartment}</div>

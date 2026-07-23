@@ -527,9 +527,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bullet'ları metnin optik ortasında küçük kalır; personel/birim ve Okundu/İletildi-zaman bullet'ları
   aynı 2px ölçüdedir.
   Paging yazıları üst/alt border'a yapışmaz.
-- **WhatsApp talep etiketi (cards #1561/#1563):** profil Talep Etiketi input'u salt okunurdur;
-  seçim yalnız ortak Etiketler dropdown'undan yapılır ve anında kaydedilir. WhatsApp'tan açılan
+- **WhatsApp talep etiketi (cards #1561/#1563/#1865):** Talep Etiketi input'u salt okunurdur;
+  seçim yalnız ortak Etiketler dropdown'undan yapılır ve anında kaydedilir. WhatsApp profil
+  paneli (Vatandaş Bilgileri) Talep Etiketi bloğunu göstermez — blok `Talep Oluştur` popup'ında
+  (`CitizenRequestModal`) Açıklama alanının hemen üstündedir (card #1865). WhatsApp'tan açılan
   Vatandaş Çağrı Talebi oluşturma POPUP'ında Kanal/Talep Etiketi bloğu gösterilmez (card #1563);
+  CreateRequestPage (çağrı formu) Talep Kanalı yanındaki klonu korur.
   Talep Oluştur SAYFASINDAKİ Vatandaş Çağrı Talebi formunda ise Talep Kanalı'nın sağında aynı
   salt-okunur değer + Etiketler + Etiket Ekle bloğu bulunur (card #1561 reopen, 2026-07-13);
   kaynak mesaj bir konuşmaya bağlıysa seçim conversation profile'a kaydedilir.
@@ -626,7 +629,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (cards #1257/#1258).
 - **İletilmiş İptal/Tamamlanma WA mesajında bilgi notu butonu (card #1861):** Operatör `Mesajı Gönder`
   ile ilettikten sonra da (Sent/Delivered/Read) ilgili otomatik şablon balonunun altında
-  `İptal Notu` / `Tamamlanma Notu` butonu bilgi amaçlı görünür; tıklanınca ConfirmDialog popup açılır.
+  `Talep İptal Notu` / `Talep Tamamlanma Notu` butonu bilgi amaçlı görünür; tamamlanma butonu
+  turkuaz (`teal-600`), iptal kırmızı; tıklanınca ConfirmDialog popup açılır.
   BE `GetCitizenConversationDetailQuery` / `GetSocialConversationQuery` terminal metadata'yı yalnız
   Pending değil, iletilmiş outbound entry'lere de ekler. Pending sıradaki Düzenle/Gönder aksiyonları
   değişmez.
@@ -1123,10 +1127,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Bilgi Listesi (card #1836, kolon/buton düzeni #1843/#1858):** `/citizen-directory` yalnız
   `Reporter` / `Operator` / `SystemAdmin`; grid `GET /citizen-conversations`. `Numara` sütunundan
   sonra ayrı `Talep Kanalı` sütunu gelir (`ChannelIcon` + `getSocialChannelLabel`); isim hücresinde
-  artık kanal ikonu YOK. Telefon `text-base font-semibold` + `formatDirectoryPhone` (baştaki `90`/`0`
+  artık kanal ikonu YOK. Telefon hücresi diğer kolonlarla aynı font (`font-semibold text-slate-800`,
+  `font-mono`/`text-base` yok — card #1863) + `formatDirectoryPhone` (baştaki `90`/`0`
   gösterilmez — card #1843 reopen). Operatör/çağrı ile oluşturulan VT'ler `ConvertSocialMessageToJob`
   sırasında `CitizenConversation` upsert eder; liste sorgusu eksik konuşmaları da backfill eder
-  (card #1858). Detaylar → konuşma ticket listesi → salt-okunur
+  (card #1858). WhatsApp Konuşmaları listesi `whatsAppOnly=true` ile yalnız en az bir WhatsApp
+  kanal mesajı olan konuşmaları gösterir; çağrı VT numaraları bu listede yoktur (card #1864).
+  Detaylar → konuşma ticket listesi → salt-okunur
   `MyRequestDetailModal`; listede `jobId` olmayan ama `citizenRequestNumber` taşıyan ticket'lar da
   gösterilir. Yazışmaya Git → `/whatsapp?phone=…`, açık mavi stil (`MessageSquareText` + `!bg-sky-400`).
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859):** Üst Düzey Yönetici
@@ -1148,9 +1155,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   pinsiz/çok pin durumda `TIRE_MAP_BOUNDS` ile Toki + İbni Melek bölgesi çerçevede (zoom ~13).
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
-- **LDAP birim senkron/ekle (card #1857):** `Anlık LDAP…` ve `Tüm LDAP… Ekle` standart
-  `ConfirmDialog` ile onay ister; sil ile aynı title/divider kalıbı.
-  mahalle kırılımı; drilldown `neighborhoodProcessingRequests` (Reporter/Operator/SystemAdmin).
+- **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` ve `Tüm LDAP… Ekle` standart
+  `ConfirmDialog` ile onay ister; sonuç mesajı (başarı / eklenecek yok) aynı popup içinde
+  `Çıkış` ile kapanır — Oluştur butonu üstünde inline helper metin yok. Sil ile aynı title/divider kalıbı.
 - **Vatandaş dashboard pie'ları yalnız VT (Vatandaş Talebi) sayar (card #1845):** `citizenJobs`,
   `BuildRequestTagChartAsync` (Talep Etiketi) ve üç mahalle grafiği (`Tamamlanan`/`Yapılmakta`/
   `İşleme Alınan`) bir Job'ı yalnız bağlı `SocialMessage.CitizenRequestNumber != null` ise sayar

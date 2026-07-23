@@ -1177,8 +1177,14 @@ export const api = {
     return `${API_BASE}/social/messages/${socialMessageId}/conversation/media/${entryId}`
   },
 
-  async getCitizenConversations(): Promise<CitizenConversationSummary[]> {
-    const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations`, { headers: await getAuthHeaders() })
+  async getCitizenConversations(options?: { whatsAppOnly?: boolean }): Promise<CitizenConversationSummary[]> {
+    const params = new URLSearchParams()
+    if (options?.whatsAppOnly) params.set('whatsAppOnly', 'true')
+    const query = params.toString()
+    const response = await fetchWithCredentials(
+      `${API_BASE}/citizen-conversations${query ? `?${query}` : ''}`,
+      { headers: await getAuthHeaders() },
+    )
     await ensureOk(response, i18n.t('errors.socialMessagesLoadFailed'))
     return response.json() as Promise<CitizenConversationSummary[]>
   },

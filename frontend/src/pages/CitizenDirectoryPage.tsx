@@ -294,7 +294,7 @@ export function CitizenDirectoryPage() {
                   <td>
                     <span className="font-semibold text-slate-800">{row.displayName}</span>
                   </td>
-                  <td className="font-mono text-base font-semibold tabular-nums text-slate-800">{formatDirectoryPhone(row.citizenPhone) || '—'}</td>
+                  <td className="font-semibold text-slate-800 tabular-nums">{formatDirectoryPhone(row.citizenPhone) || '—'}</td>
                   <td>
                     {row.sourceChannel ? (
                       <span className="inline-flex items-center gap-1.5 whitespace-nowrap">

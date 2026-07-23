@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Loader2, Send, PenLine, CheckCheck, XCircle } from 'lucide-react'
+import { Loader2, Send, PenLine, Info, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
@@ -228,7 +228,7 @@ export function ConversationEntryBubble({
               >
                 {terminalNoteKind === 'cancelled'
                   ? <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                  : <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
+                  : <Info className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
                 {terminalNoteLabel}
               </button>
             ) : null}
@@ -252,7 +252,7 @@ export function ConversationEntryBubble({
           >
             {terminalNoteKind === 'cancelled'
               ? <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-              : <CheckCheck className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
+              : <Info className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
             {terminalNoteLabel}
           </button>
         </div>

@@ -1,3 +1,6 @@
+## Round 431 — #1861
+- Talep Tamamlanma Notu butonu: metin önünde Info ikonu (CheckCheck yerine)
+
 ## Round 430 — #1867
 - Tire haritası pinsiz default: `setView(center, 14)` (ekteki ölçek; fitBounds fazla açıyordu)
 

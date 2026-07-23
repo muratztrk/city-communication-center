@@ -630,8 +630,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **İletilmiş İptal/Tamamlanma WA mesajında bilgi notu butonu (card #1861):** Operatör `Mesajı Gönder`
   ile ilettikten sonra da (Sent/Delivered/Read) ilgili otomatik şablon balonunun altında
   `Talep İptal Notu` / `Talep Tamamlanma Notu` butonu bilgi amaçlı görünür; tamamlanma butonu
-  turkuaz (`teal-600`) + `CheckCheck` ikonu, iptal kırmızı + `XCircle` ikonu (card #1861 reopen);
-  tıklanınca ConfirmDialog popup açılır.
+  turkuaz (`teal-600`) + `Info` ikonu (metin önünde), iptal kırmızı + `XCircle` ikonu
+  (card #1861 reopen); tıklanınca ConfirmDialog popup açılır.
   BE `GetCitizenConversationDetailQuery` / `GetSocialConversationQuery` terminal metadata'yı yalnız
   Pending değil, iletilmiş outbound entry'lere de ekler. Pending sıradaki Düzenle/Gönder aksiyonları
   değişmez.

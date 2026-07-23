@@ -151,6 +151,10 @@ public sealed class DashboardRequestTagChartTests
         Category = category,
         CitizenConversationId = conversationId,
         JobId = jobId,
+        // Talep Etiketi pie yalnız VT numaralı mesajları sayar (card #1845).
+        CitizenRequestNumber = Random.Shared.Next(1, 9_999),
+        CitizenRequestNumberYear = 2026,
+        Channel = SocialChannel.WhatsApp,
     };
 
     private static RequestTag Tag(string name) => new()

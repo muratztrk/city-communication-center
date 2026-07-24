@@ -201,6 +201,8 @@ interface RequestTagPickerProps {
   tags: RequestTag[]
   onSelect: (name: string) => void
   largeText?: boolean
+  /** Seçili etiket adı — buton metni; yoksa "Etiketler" (card #1878 reopen). */
+  selectedName?: string | null
 }
 
 function computeTagMenuStyle(button: HTMLDivElement) {
@@ -217,13 +219,14 @@ function computeTagMenuStyle(button: HTMLDivElement) {
 
 // "Şablon mesajlar" (WhatsAppTemplatePicker) ile aynı buton+portal açılış davranışı — bir
 // SingleSelectDropdown yerine, seçim yapılınca kapanan basit bir menü butonu (kart #1510).
-export function RequestTagPicker({ tags, onSelect, largeText = false }: RequestTagPickerProps) {
+export function RequestTagPicker({ tags, onSelect, largeText = false, selectedName = null }: RequestTagPickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const buttonRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number } | null>(null)
+  const buttonLabel = selectedName?.trim() || t('whatsapp.requestTagsShort', 'Etiketler')
 
   const sorted = useMemo(
     () => [...tags].sort((left, right) => left.name.localeCompare(right.name, 'tr')),
@@ -310,17 +313,18 @@ export function RequestTagPicker({ tags, onSelect, largeText = false }: RequestT
   ) : null
 
   return (
-    <div className={`relative min-w-0 ${largeText ? 'flex-1' : 'w-[7.5rem] shrink-0'}`} ref={buttonRef}>
+    <div className={`relative min-w-0 ${largeText ? 'flex-1' : 'w-[8.5rem] shrink-0'}`} ref={buttonRef}>
       <Button
         type="button"
         size="sm"
         variant="secondary"
         onClick={toggleOpen}
         disabled={isEmpty}
+        title={buttonLabel}
         className={`w-full gap-1 disabled:opacity-50 ${largeText ? 'h-9 text-sm' : 'h-7 px-2 text-[11px]'}`}
       >
-        <Tag className={`${largeText ? 'size-3.5' : 'size-3'} text-emerald-600`} />
-        {t('whatsapp.requestTagsShort', 'Etiketler')}
+        <Tag className={`${largeText ? 'size-3.5' : 'size-3'} shrink-0 text-emerald-600`} />
+        <span className="min-w-0 flex-1 truncate text-left">{buttonLabel}</span>
         <ChevronDown className={`${largeText ? 'size-3.5' : 'size-3'} shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
       </Button>
       {menu}

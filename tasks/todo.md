@@ -1,3 +1,8 @@
+## Round 437 — #1880/#1878/#1882/#1876 reopen
+- Dizin: ticket+nested detay başlığı `Vatandaş Talep Bilgisi`; liste popup Taleplerim boyutu
+- VT grid: Etiketler butonu seçili metni gösterir; kategori durumdan bağımsız güncellenir
+- Adres: Cadde sola / Açık Adres sağa; kısa viewport 3 kolon kalır
+
 ## Round 436 — #1884/#1885
 - Vatandaş Bilgi Listesi Yazışmaya Git → `WhatsAppConversationModal` (yönetici/personel penceresi)
 - Detay header logo: başlık–aksiyon boşluğunun ortasına; onaysız talepte Yazışmaya Git ile çakışmaz

@@ -41,7 +41,28 @@ public sealed class UpdateSocialMessageCommandHandler : ICommandHandler<UpdateSo
             .FirstOrDefaultAsync(m => m.SocialMessageId == request.MessageId && m.TenantId == tenantId, cancellationToken);
         if (message is null) return false;
 
-        if (message.JobId.HasValue)
+        var nextCategory = string.IsNullOrWhiteSpace(request.Category) ? null : request.Category.Trim();
+        var nextHandle = request.CitizenHandle.Trim();
+        var nextContent = request.Content.Trim();
+        // Yalnız kategori değişiyorsa durumdan bağımsız izin ver (Vatandaş Talepleri grid — card #1878 reopen).
+        var isCategoryOnlyUpdate =
+            message.Channel == request.Channel
+            && string.Equals(message.CitizenHandle, nextHandle, StringComparison.Ordinal)
+            && string.Equals(message.Content, nextContent, StringComparison.Ordinal)
+            && Nullable.Equals(message.Latitude, request.Latitude)
+            && Nullable.Equals(message.Longitude, request.Longitude)
+            && !string.Equals(message.Category ?? string.Empty, nextCategory ?? string.Empty, StringComparison.Ordinal);
+
+        if (isCategoryOnlyUpdate)
+        {
+            if (actor.RoleCode is not (
+                RoleCode.Operator or RoleCode.Reporter or RoleCode.SystemAdmin
+                or RoleCode.Manager or RoleCode.CitizenRequestManager))
+            {
+                throw new ForbiddenAccessException("Bu vatandaş talebinin etiketini değiştirme yetkiniz yok.");
+            }
+        }
+        else if (message.JobId.HasValue)
         {
             var job = await _dbContext.Jobs
                 .FirstOrDefaultAsync(j => j.JobId == message.JobId.Value && j.TenantId == tenantId, cancellationToken);
@@ -58,18 +79,18 @@ public sealed class UpdateSocialMessageCommandHandler : ICommandHandler<UpdateSo
 
             if (!canOperatorEdit && actor.RoleCode != RoleCode.SystemAdmin)
             {
-                throw new ForbiddenAccessException("Bu vatandas talebini duzenleme yetkiniz yok.");
+                throw new ForbiddenAccessException("Bu vatandaş talebini düzenleme yetkiniz yok.");
             }
         }
         else if (actor.RoleCode is not (RoleCode.Operator or RoleCode.SystemAdmin))
         {
-            throw new ForbiddenAccessException("Bu vatandas talebini duzenleme yetkiniz yok.");
+            throw new ForbiddenAccessException("Bu vatandaş talebini düzenleme yetkiniz yok.");
         }
 
         message.Channel = request.Channel;
-        message.CitizenHandle = request.CitizenHandle.Trim();
-        message.Content = request.Content.Trim();
-        message.Category = string.IsNullOrWhiteSpace(request.Category) ? null : request.Category.Trim();
+        message.CitizenHandle = nextHandle;
+        message.Content = nextContent;
+        message.Category = nextCategory;
         message.Latitude = request.Latitude;
         message.Longitude = request.Longitude;
         message.UpdatedByUserId = actor.UserId;

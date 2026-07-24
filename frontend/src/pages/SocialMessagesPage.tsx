@@ -621,17 +621,11 @@ export function SocialMessagesPage() {
                       ) : null}
                     </td>
                     <td>
-                      <div className="flex min-w-[8.5rem] flex-col gap-1">
-                        {message.category?.trim() ? (
-                          <span className="text-xs font-semibold text-slate-600">{message.category}</span>
-                        ) : (
-                          <span className="text-xs font-medium text-slate-400">{t('social.selectTagPlaceholder', 'Etiket seçiniz...')}</span>
-                        )}
-                        <RequestTagPicker
-                          tags={requestTags}
-                          onSelect={name => { void handleCategorySelect(message, name) }}
-                        />
-                      </div>
+                      <RequestTagPicker
+                        tags={requestTags}
+                        selectedName={message.category}
+                        onSelect={name => { void handleCategorySelect(message, name) }}
+                      />
                     </td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">

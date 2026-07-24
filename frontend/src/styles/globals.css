@@ -547,11 +547,24 @@
     margin-bottom: 0;
   }
 
-  /* Uzun adres değeri kolonu karttan taşırmasın; değer alt satıra sararak kutu büyüsün (card #1360). */
+  /* Uzun adres değeri kolonu karttan taşırmasın; değer alt satıra sararak kutu büyüsün (card #1360).
+     Cadde biraz sola, Açık Adres biraz sağa — etiketler birbirine yapışmasın (card #1876 reopen). */
   .address-detail-my-request__grid--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: start;
-    gap: 1rem 1.25rem;
+    gap: 1rem 1.35rem;
+  }
+
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) {
+    padding-inline-end: 0.35rem;
+  }
+
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label {
+    margin-inline-start: -0.2rem;
+  }
+
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) {
+    padding-inline-start: 0.45rem;
   }
 
   .address-detail-my-request__grid--stacked {
@@ -4685,10 +4698,10 @@
     font-size: 0.75rem;
   }
 
+  /* Kısa viewport'ta da 3 kolon korunur; Cadde / Açık Adres hizası bozulmasın (card #1876 reopen). */
   .detail-modal-shell .address-detail-my-request__grid--three {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    justify-content: stretch;
-    gap: 0.55rem 0.75rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.55rem 1rem;
   }
 }
 

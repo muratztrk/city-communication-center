@@ -385,7 +385,7 @@ export function CitizenDirectoryPage() {
           onClick={() => setTicketModal(null)}
         >
           <div
-            className="detail-modal-shell detail-modal-shell--my-request flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className="detail-modal-shell detail-modal-shell--my-request flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={event => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3 border-b border-slate-200 px-5 py-4">
@@ -474,7 +474,7 @@ export function CitizenDirectoryPage() {
           {jobDetail ? (
             <MyRequestDetailModal
               detail={jobDetail}
-              title={t('nav.myRequests', 'Taleplerim')}
+              title={t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')}
               locale={locale}
               detailLoading={jobDetailLoading}
               citizenSourceMessage={citizenSourceMessage}

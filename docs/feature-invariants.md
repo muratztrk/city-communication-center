@@ -1172,9 +1172,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1877/#1878).
 - **Ayarlar Sosyal Medya Entegrasyonu:** tab adı bu; Web Formu + Mobil Uygulama statik kartlar
   (card #1873/#1874).
-- **Vatandaş Bilgi Listesi:** Talep Kanalı Sıra'dan hemen sonra; detay popup başlığı
-  `Vatandaş Talep Bilgisi`, Taleplerim boyutu (`detail-modal-shell--my-request`); grid'de Talep Tarihi
-  + Talep Başlığı (card #1880–#1883).
+- **Vatandaş Bilgi Listesi:** Talep listesi popup ve içindeki talep detay popup başlığı
+  `Vatandaş Talep Bilgisi` (Taleplerim değil); her iki shell da Taleplerim boyutunda
+  (`detail-modal-shell--my-request`, `w-full`/`max-h-[90vh]` ile ezilmez) (card #1880–#1883 reopen).
+  Grid'de Talep Tarihi + Talep Başlığı.
+- **Vatandaş Talepleri Talep Etiketi (card #1878 reopen):** grid hücresinde yalnız
+  `RequestTagPicker`; placeholder `Etiket seçiniz...` yok. Buton metni seçili etikettir,
+  yoksa `Etiketler`. Yalnız kategori güncellemesi talep durumundan bağımsızdır
+  (`UpdateSocialMessage` category-only path).
+- **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde etiketi hafif sola, Açık Adres hafif
+  sağa; kısa viewport'ta 2 kolona düşmez.
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
 - **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` Users senkronu gibi **onay

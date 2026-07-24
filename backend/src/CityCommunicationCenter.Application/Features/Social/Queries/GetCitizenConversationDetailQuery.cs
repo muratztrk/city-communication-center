@@ -166,7 +166,9 @@ public sealed class GetCitizenConversationDetailQueryHandler
                                 ? assignee.DisplayName
                                 : assignee.DisplayName + " (" + assignee.DepartmentName + ")")
                         .FirstOrDefault()
-                    : null))
+                    : null,
+                m.Channel.ToString(),
+                m.Job != null ? m.Job.Title : m.Content))
             .ToListAsync(cancellationToken);
 
         var statusCounts = await _dbContext.SocialMessages

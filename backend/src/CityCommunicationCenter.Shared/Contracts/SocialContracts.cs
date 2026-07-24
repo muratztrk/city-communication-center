@@ -281,7 +281,9 @@ public sealed record CitizenConversationTicketDto(
     int? JobNumberYear,
     Guid? DepartmentId,
     string? DepartmentName,
-    string? AssigneeDisplayName = null);
+    string? AssigneeDisplayName = null,
+    string? Channel = null,
+    string? Title = null);
 
 public sealed record WhatsAppMessageTemplateDto(
     Guid TemplateId,

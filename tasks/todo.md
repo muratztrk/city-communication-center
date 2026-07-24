@@ -1,3 +1,7 @@
+## Round 435 — 16 kart (#1862/#1869/#1870–#1883)
+- LDAP none mesajı; şablon text; Anasayfa banner; Mobil Uygulama kanal+badge+ayarlar
+- Harita: konuşma OpenAddress + overdue pin; Açık Adres grid; etiket dropdown; dizin popup
+
 ## Round 434 — #1869/#1862
 - Rutin Görev: Şablon mesajlar menü sağa (`menuAlign=start`)
 - LDAP Anlık Senkronize: onay atlanır, doğrudan çalışır (Users gibi)

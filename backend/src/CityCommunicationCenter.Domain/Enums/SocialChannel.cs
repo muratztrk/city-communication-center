@@ -9,6 +9,7 @@ public enum SocialChannel
     WebForm,
     WhatsApp,
     EDevlet,
+    MobileApp,
     Phone,
     Other
 }

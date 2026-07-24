@@ -1,4 +1,4 @@
-import { Globe, Mail, Phone } from 'lucide-react'
+import { Globe, Mail, Phone, Smartphone } from 'lucide-react'
 
 interface ChannelIconProps {
   channel: string
@@ -56,6 +56,8 @@ export function ChannelIcon({ channel, className = 'size-4' }: ChannelIconProps)
       return <Globe className={className} style={{ color: '#10b981' }} aria-label="Web Formu" />
     case 'EDevlet':
       return <img src="/icons/e-devlet.png" className={className} alt="e-Devlet" />
+    case 'MobileApp':
+      return <Smartphone className={className} style={{ color: '#7c3aed' }} aria-label="Mobil Uygulama" />
     default:
       return (
         <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label={channel}>

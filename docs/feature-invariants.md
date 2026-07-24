@@ -1161,6 +1161,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kısa haritada fazla açıldığı için kullanılmaz (card #1867 reopen). Çok pin: `TIRE_MAP_BOUNDS` + pin
   bounds, maxZoom 15; tek pin zoom 16. Scroll-zoom varsayılan kapalı; harita alanına tıklanınca
   açılır, `mouseleave`'de tekrar kapanır (card #1867 — sayfa kaydırırken yanlışlıkla zoom olmasın).
+  Açık adres Job veya bağlı `CitizenConversation.OpenAddress` olabilir; süresi geçmiş (Overdue)
+  aktif talepler de pinlenir (card #1875).
+- **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
+  (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
+  chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında
+  birim yoksa Gittiği Yer birim dropdown (`routeSocialMessage`); Talep Etiketi sütunu `RequestTagPicker`
+  (card #1877/#1878).
+- **Ayarlar Sosyal Medya Entegrasyonu:** tab adı bu; Web Formu + Mobil Uygulama statik kartlar
+  (card #1873/#1874).
+- **Vatandaş Bilgi Listesi:** Talep Kanalı Sıra'dan hemen sonra; detay popup başlığı
+  `Vatandaş Talep Bilgisi`, Taleplerim boyutu (`detail-modal-shell--my-request`); grid'de Talep Tarihi
+  + Talep Başlığı (card #1880–#1883).
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
 - **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` Users senkronu gibi **onay

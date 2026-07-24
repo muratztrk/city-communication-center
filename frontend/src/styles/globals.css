@@ -549,8 +549,9 @@
 
   /* Uzun adres değeri kolonu karttan taşırmasın; değer alt satıra sararak kutu büyüsün (card #1360). */
   .address-detail-my-request__grid--three {
-    grid-template-columns: repeat(3, minmax(0, auto));
-    justify-content: space-between;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    justify-content: start;
+    gap: 1rem 1.25rem;
   }
 
   .address-detail-my-request__grid--stacked {

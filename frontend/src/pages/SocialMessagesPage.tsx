@@ -11,16 +11,49 @@ import { useSearchParams, useNavigate } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
+import { RequestTagPicker } from '../components/RequestTagDialog'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
-import type { JobSummary, SocialMessage } from '../types/platform'
+import type { Department, JobSummary, RequestTag, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
 import { formatCitizenRequestNumber, getCitizenRequestStatusLabel } from '../utils/citizenRequests'
+
+const CHANNEL_BADGE_SEEN_PREFIX = 'ccc-social-channel-badge-seen-'
+const BADGE_CHANNELS = ['EDevlet', 'MobileApp'] as const
+
+function getChannelBadgeSeenAt(channel: string): string | null {
+  try {
+    return localStorage.getItem(`${CHANNEL_BADGE_SEEN_PREFIX}${channel}`)
+  } catch {
+    return null
+  }
+}
+
+function markChannelBadgeSeen(channel: string) {
+  try {
+    localStorage.setItem(`${CHANNEL_BADGE_SEEN_PREFIX}${channel}`, new Date().toISOString())
+  } catch {
+    // ignore quota / private mode
+  }
+}
+
+function isChannelBadgeCandidate(message: SocialMessage): boolean {
+  return message.status === 'New' || !message.jobId
+}
+
+function countChannelBadge(messages: SocialMessage[], channel: string, seenAt: string | null): number {
+  const seenMs = seenAt ? Date.parse(seenAt) : NaN
+  return messages.filter(message => {
+    if (message.channel !== channel || !isChannelBadgeCandidate(message)) return false
+    if (!Number.isFinite(seenMs)) return true
+    return Date.parse(message.receivedAtUtc) > seenMs
+  }).length
+}
 
 function hasLocation(message: SocialMessage) {
   return message.latitude != null && message.longitude != null
@@ -190,6 +223,10 @@ export function SocialMessagesPage() {
   const [messagesPage, setMessagesPage] = useState(1)
   const [messagesPageSize, setMessagesPageSize] = useState(10)
   const [requestStatusFilter, setRequestStatusFilter] = useState<SocialRequestStatusFilter>(initialRequestStatus)
+  const [requestTags, setRequestTags] = useState<RequestTag[]>([])
+  const [departments, setDepartments] = useState<Department[]>([])
+  const [badgeSeenTick, setBadgeSeenTick] = useState(0)
+  const [routingMessageId, setRoutingMessageId] = useState<string | null>(null)
 
   useEffect(() => {
     const nextStatus = searchParams.get('requestStatus')
@@ -204,14 +241,18 @@ export function SocialMessagesPage() {
     void Promise.all([
       api.getSocialMessages(),
       api.getJobs('all'),
+      api.getRequestTags().catch(() => [] as RequestTag[]),
+      api.getDepartments().catch(() => [] as Department[]),
     ])
-      .then(([messageList, jobList]) => {
+      .then(([messageList, jobList, tagList, departmentList]) => {
         if (!isActive) {
           return
         }
 
         setMessages(messageList)
         setJobsById(new Map(jobList.map(job => [job.jobId, job])))
+        setRequestTags(tagList)
+        setDepartments(departmentList)
       })
       .catch(loadError => {
         if (isActive) {
@@ -229,22 +270,61 @@ export function SocialMessagesPage() {
     }
   }, [t])
 
-  const reload = async () => {
-    setLoading(true)
+  const reload = async (options?: { quiet?: boolean }) => {
+    if (!options?.quiet) {
+      setLoading(true)
+    }
     setError('')
 
     try {
-      const [messageList, jobList] = await Promise.all([
+      const [messageList, jobList, tagList, departmentList] = await Promise.all([
         api.getSocialMessages(),
         api.getJobs('all'),
+        api.getRequestTags().catch(() => [] as RequestTag[]),
+        api.getDepartments().catch(() => [] as Department[]),
       ])
 
       setMessages(messageList)
       setJobsById(new Map(jobList.map(job => [job.jobId, job])))
+      setRequestTags(tagList)
+      setDepartments(departmentList)
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : t('common.error'))
     } finally {
-      setLoading(false)
+      if (!options?.quiet) {
+        setLoading(false)
+      }
+    }
+  }
+
+  const handleCategorySelect = async (message: SocialMessage, category: string) => {
+    try {
+      await api.updateSocialMessage(message.socialMessageId, {
+        channel: message.channel,
+        citizenHandle: message.citizenHandle,
+        content: message.content ?? '',
+        category,
+        latitude: message.latitude ?? undefined,
+        longitude: message.longitude ?? undefined,
+      })
+      invalidateSocialMessages(queryClient, message.socialMessageId)
+      await reload({ quiet: true })
+    } catch (updateError) {
+      setError(updateError instanceof Error ? updateError.message : t('common.error'))
+    }
+  }
+
+  const handleMobileAppDepartmentAssign = async (message: SocialMessage, departmentId: string) => {
+    if (!departmentId) return
+    setRoutingMessageId(message.socialMessageId)
+    try {
+      await api.routeSocialMessage(message.socialMessageId, departmentId)
+      invalidateSocialMessages(queryClient, message.socialMessageId)
+      await reload({ quiet: true })
+    } catch (routeError) {
+      setError(routeError instanceof Error ? routeError.message : t('common.error'))
+    } finally {
+      setRoutingMessageId(null)
     }
   }
 
@@ -366,14 +446,45 @@ export function SocialMessagesPage() {
     [columnFilteredMessages, messagesPage, messagesPageSize],
   )
 
-  const channelQuickFilters: { value: string; label: string }[] = [
+  const channelBadgeCounts = useMemo(() => {
+    void badgeSeenTick
+    return Object.fromEntries(
+      BADGE_CHANNELS.map(channel => [
+        channel,
+        countChannelBadge(messages, channel, getChannelBadgeSeenAt(channel)),
+      ]),
+    ) as Record<(typeof BADGE_CHANNELS)[number], number>
+  }, [badgeSeenTick, messages])
+
+  const channelQuickFilters: { value: string; label: string; badge?: number }[] = [
     { value: '', label: t('nav.socialAll', 'Tümü') },
     { value: 'WhatsApp', label: 'WhatsApp' },
     { value: 'Phone', label: t('nav.socialPhone', 'Çağrı') },
-    { value: 'EDevlet', label: t('settings.citizen.channels.EDevlet', 'e-Devlet') },
+    {
+      value: 'EDevlet',
+      label: t('settings.citizen.channels.EDevlet', 'e-Devlet'),
+      badge: channelBadgeCounts.EDevlet || undefined,
+    },
+    {
+      value: 'MobileApp',
+      label: t('settings.citizen.channels.MobileApp', 'Mobil Uygulama'),
+      badge: channelBadgeCounts.MobileApp || undefined,
+    },
   ]
 
+  const departmentOptions = useMemo(
+    () => departments
+      .slice()
+      .sort((left, right) => left.name.localeCompare(right.name, 'tr'))
+      .map(department => ({ value: department.departmentId, label: department.name })),
+    [departments],
+  )
+
   const setChannelFilter = (channel: string) => {
+    if (channel === 'EDevlet' || channel === 'MobileApp') {
+      markChannelBadgeSeen(channel)
+      setBadgeSeenTick(tick => tick + 1)
+    }
     const nextParams = new URLSearchParams(searchParams)
     nextParams.set('channel', channel || ALL_CHANNELS_FILTER)
     setSearchParams(nextParams)
@@ -416,6 +527,11 @@ export function SocialMessagesPage() {
           >
             {filter.value && <ChannelIcon channel={filter.value} className="size-3.5 shrink-0" />}
             {filter.label}
+            {filter.badge != null && filter.badge > 0 ? (
+              <span className="inline-flex min-w-[1rem] h-4 px-1 items-center justify-center rounded-full text-[10px] font-bold bg-red-500 text-white">
+                {filter.badge}
+              </span>
+            ) : null}
           </button>
         ))}
         <span className="scope-chip-divider" aria-hidden="true">|</span>
@@ -486,12 +602,37 @@ export function SocialMessagesPage() {
                     <td className="font-semibold">{message.citizenPhone}</td>
                     <td className="font-semibold">{message.citizenName}</td>
                     <td>
-                      <span className="font-semibold text-slate-700">{message.assignedDepartmentName ?? t('common.none')}</span>
+                      {message.channel === 'MobileApp' && !message.assignedDepartmentName ? (
+                        <SingleSelectDropdown
+                          className="w-full min-w-[10rem]"
+                          options={departmentOptions}
+                          value=""
+                          onChange={value => { void handleMobileAppDepartmentAssign(message, value) }}
+                          placeholder={routingMessageId === message.socialMessageId
+                            ? t('common.loading')
+                            : t('requests.create.targetDepartmentsPlaceholder', 'Birim seçiniz')}
+                          disabled={routingMessageId === message.socialMessageId}
+                        />
+                      ) : (
+                        <span className="font-semibold text-slate-700">{message.assignedDepartmentName ?? t('common.none')}</span>
+                      )}
                       {linkedJob?.assignedUserDisplayName ? (
-                        <span className="mt-0.5 block text-xs font-semibold text-slate-500">{linkedJob.assignedUserDisplayName}</span>
+                        <span className="mt-0.5 block text-sm font-semibold text-slate-500">{linkedJob.assignedUserDisplayName}</span>
                       ) : null}
                     </td>
-                    <td className="font-semibold text-slate-600">{message.category?.trim() || '—'}</td>
+                    <td>
+                      <div className="flex min-w-[8.5rem] flex-col gap-1">
+                        {message.category?.trim() ? (
+                          <span className="text-xs font-semibold text-slate-600">{message.category}</span>
+                        ) : (
+                          <span className="text-xs font-medium text-slate-400">{t('social.selectTagPlaceholder', 'Etiket seçiniz...')}</span>
+                        )}
+                        <RequestTagPicker
+                          tags={requestTags}
+                          onSelect={name => { void handleCategorySelect(message, name) }}
+                        />
+                      </div>
+                    </td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
                         <Button

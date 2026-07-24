@@ -46,7 +46,7 @@
     "empty": "Kayıtlı vatandaş bulunamadı.",
     "goToChat": "Yazışmaya Git",
     "goToChatUnavailable": "Çağrı kanalında yazışma yoktur",
-    "ticketsTitle": "Vatandaş Talepleri",
+    "ticketsTitle": "Vatandaş Talep Bilgisi",
     "noTickets": "Bu vatandaşa ait talep bulunamadı.",
     "columns": {
       "name": "Vatandaş İsmi",
@@ -373,7 +373,7 @@
     "editCredentials": "Geri Dön"
   },
   "dashboard": {
-    "title": "Kontrol Paneli",
+    "title": "Anasayfa",
     "subtitle": "Açık iş yükünü, son işleri ve gelen mesajları tek ekranda izleyin.",
     "liveSummary": "Canlı Özet",
     "cards": {
@@ -555,7 +555,7 @@
     "addAllLdapWillAddTitle": "Eklenecek birimler ({{count}})",
     "addAllLdapAddedTitle": "Eklenen birimler ({{count}})",
     "addAllLdapSuccess": "{{count}} LDAP birimi eklendi.",
-    "addAllLdapNone": "Eklenecek yeni LDAP birimi yok; hepsi zaten sistemde.",
+    "addAllLdapNone": "Eklenecek yeni LDAP birimi yok; hepsi zaten sistemde ekli durumdadır.",
     "ldapReadOnly": "LDAP birimi — müdahale edilemez",
     "deleteAllLdap": "Tüm LDAP Birimlerini Sil",
     "deleteAllLdapWorking": "LDAP birimleri siliniyor...",
@@ -986,7 +986,7 @@
       "organization": "Kurum",
       "appearance": "Görünüm",
       "roles": "Sayfa Yetkileri",
-      "social": "Sosyal Medya",
+      "social": "Sosyal Medya Entegrasyonu",
       "routing": "Otomatik Yönlendirme",
       "templates": "Taslak Mesajlar"
     },
@@ -1326,6 +1326,7 @@
         "WhatsApp": "WhatsApp",
         "Phone": "Çağrı",
         "EDevlet": "e-Devlet",
+        "MobileApp": "Mobil Uygulama",
         "Other": "Diğer"
       }
     },
@@ -1402,6 +1403,7 @@
       "Email": "e-Posta",
       "WebForm": "Web Formu",
       "EDevlet": "e-Devlet",
+      "MobileApp": "Mobil Uygulama",
       "Other": "Diğer"
     },
     "departmentType": {

@@ -2370,7 +2370,18 @@ export function SettingsPage() {
               <div className="page-header-row">
                 <div>
                   <h3 className="text-lg font-extrabold text-slate-950">Web Formu</h3>
-                  <p className="helper-copy">Vatandaş web formu kanalı için başvuru kaynak etiketi.</p>
+                  <p className="helper-copy">Vatandaş web formu talebi için başvuru talep kanalı</p>
+                </div>
+                <StatusPill tone="neutral">
+                  {t('settings.socialConfig.notConfigured')}
+                </StatusPill>
+              </div>
+            </section>
+            <section className="section-card page-stack">
+              <div className="page-header-row">
+                <div>
+                  <h3 className="text-lg font-extrabold text-slate-950">Mobil Uygulama</h3>
+                  <p className="helper-copy">Vatandaş mobil uygulama talebi için başvuru talep kanalı</p>
                 </div>
                 <StatusPill tone="neutral">
                   {t('settings.socialConfig.notConfigured')}

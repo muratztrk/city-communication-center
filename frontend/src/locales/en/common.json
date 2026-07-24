@@ -46,7 +46,7 @@
     "empty": "No citizen records found.",
     "goToChat": "Go to conversation",
     "goToChatUnavailable": "Call-channel records have no WhatsApp chat",
-    "ticketsTitle": "Citizen requests",
+    "ticketsTitle": "Citizen Request Info",
     "noTickets": "No requests found for this citizen.",
     "columns": {
       "name": "Citizen name",
@@ -371,7 +371,7 @@
     "editCredentials": "Go Back"
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Home",
     "subtitle": "Track open workload, recent tasks, and incoming messages on one screen.",
     "liveSummary": "Live Summary",
     "cards": {
@@ -981,7 +981,7 @@
       "organization": "Organization",
       "appearance": "Appearance",
       "roles": "Page Permissions",
-      "social": "Social Media",
+      "social": "Social Media Integration",
       "routing": "Auto Routing",
       "templates": "Draft Messages"
     },
@@ -1295,6 +1295,7 @@
         "Email": "E-Mail",
         "WebForm": "Web Form",
         "WhatsApp": "WhatsApp",
+        "MobileApp": "Mobile App",
         "Other": "Other"
       }
     },
@@ -1368,6 +1369,7 @@
       "Instagram": "Instagram",
       "WhatsApp": "WhatsApp",
       "Phone": "Call",
+      "MobileApp": "Mobile App",
       "Other": "Other"
     },
     "departmentType": {

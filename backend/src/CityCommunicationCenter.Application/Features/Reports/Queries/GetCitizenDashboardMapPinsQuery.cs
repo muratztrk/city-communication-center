@@ -41,14 +41,20 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
             .Where(job => job.TenantId == tenantId
                 && job.RequestType == JobRequestType.Citizen
                 && job.SourceType != JobSourceType.Routine
-                && job.OpenAddress != null
-                && job.OpenAddress != ""
                 && job.Status != JobStatus.Completed
                 && job.Status != JobStatus.Cancelled
                 && job.Status != JobStatus.Rejected
                 && job.Status != JobStatus.RevisionRequested
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)
+                // Job.OpenAddress veya bağlı konuşma açık adresi (card #1875).
+                && (
+                    (job.OpenAddress != null && job.OpenAddress != "")
+                    || _dbContext.SocialMessages.Any(message =>
+                        message.JobId == job.JobId
+                        && message.CitizenConversation != null
+                        && message.CitizenConversation.OpenAddress != null
+                        && message.CitizenConversation.OpenAddress != "")))
             // Harita pinleri yalnız VT (Vatandaş Talebi) job'larını gösterir (card #1845).
             .WhereHasCitizenRequestNumber(_dbContext)
             .Select(job => new
@@ -59,7 +65,15 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                 job.DueDateUtc,
                 job.Neighborhood,
                 job.Street,
-                job.OpenAddress,
+                OpenAddress = (job.OpenAddress != null && job.OpenAddress != "")
+                    ? job.OpenAddress
+                    : _dbContext.SocialMessages
+                        .Where(message => message.JobId == job.JobId
+                            && message.CitizenConversation != null
+                            && message.CitizenConversation.OpenAddress != null
+                            && message.CitizenConversation.OpenAddress != "")
+                        .Select(message => message.CitizenConversation!.OpenAddress)
+                        .FirstOrDefault(),
                 job.Latitude,
                 job.Longitude,
                 TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
@@ -84,24 +98,34 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
             .ToListAsync(cancellationToken);
 
         var pins = rows
+            .Where(row => !string.IsNullOrWhiteSpace(row.OpenAddress))
             .Where(row =>
             {
+                // Süresi geçmiş açık talepler de haritada kalsın (card #1875) — Overdue düşürme.
                 var display = Classify(row.Status, row.DueDateUtc, row.TaskCount, now);
-                return display is MapPinDisplayStatus.ProcessingReceived or MapPinDisplayStatus.InProgress;
+                return display is MapPinDisplayStatus.ProcessingReceived
+                    or MapPinDisplayStatus.InProgress
+                    or MapPinDisplayStatus.Overdue;
             })
-            .Select(row => new CitizenDashboardMapPin(
-                row.JobId,
-                row.Title,
-                row.Neighborhood,
-                row.Street,
-                row.OpenAddress!,
-                row.Latitude ?? row.MessageLatitude,
-                row.Longitude ?? row.MessageLongitude,
-                row.CitizenRequestNumber,
-                row.CitizenRequestNumberYear,
-                Classify(row.Status, row.DueDateUtc, row.TaskCount, now) == MapPinDisplayStatus.InProgress
+            .Select(row =>
+            {
+                var display = Classify(row.Status, row.DueDateUtc, row.TaskCount, now);
+                var pinStatus = display == MapPinDisplayStatus.InProgress
+                    || (display == MapPinDisplayStatus.Overdue && row.TaskCount > 0)
                     ? "inProgress"
-                    : "processingReceived"))
+                    : "processingReceived";
+                return new CitizenDashboardMapPin(
+                    row.JobId,
+                    row.Title,
+                    row.Neighborhood,
+                    row.Street,
+                    row.OpenAddress!,
+                    row.Latitude ?? row.MessageLatitude,
+                    row.Longitude ?? row.MessageLongitude,
+                    row.CitizenRequestNumber,
+                    row.CitizenRequestNumberYear,
+                    pinStatus);
+            })
             .OrderByDescending(pin => pin.Title)
             .ToList();
 

@@ -223,6 +223,7 @@ export function CitizenDirectoryPage() {
             <thead>
               <tr>
                 <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>
+                <th>{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
                 <FilterableTh
                   filterKey="displayName"
                   filterValue={filters.displayName ?? ''}
@@ -245,7 +246,6 @@ export function CitizenDirectoryPage() {
                 >
                   {t('citizenDirectory.columns.phone', 'Numara')}
                 </FilterableTh>
-                <th>{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
                 <FilterableTh
                   filterKey="neighborhood"
                   filterValue={filters.neighborhood ?? ''}
@@ -293,17 +293,17 @@ export function CitizenDirectoryPage() {
                     {(safePage - 1) * pageSize + index + 1}
                   </td>
                   <td>
-                    <span className="font-semibold text-slate-800">{row.displayName}</span>
-                  </td>
-                  <td className="font-semibold text-slate-800 tabular-nums">{formatDirectoryPhone(row.citizenPhone) || '—'}</td>
-                  <td>
                     {row.sourceChannel ? (
-                      <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                      <span className="inline-flex h-8 w-full items-center justify-start gap-1.5 whitespace-nowrap">
                         <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" />
-                        {getSocialChannelLabel(t, row.sourceChannel)}
+                        <span className="text-sm font-semibold text-slate-800">{getSocialChannelLabel(t, row.sourceChannel)}</span>
                       </span>
                     ) : '—'}
                   </td>
+                  <td>
+                    <span className="font-semibold text-slate-800">{row.displayName}</span>
+                  </td>
+                  <td className="font-semibold text-slate-800 tabular-nums">{formatDirectoryPhone(row.citizenPhone) || '—'}</td>
                   <td>{row.neighborhood?.trim() || '—'}</td>
                   <td>{row.street?.trim() || '—'}</td>
                   <td>{row.openAddress?.trim() || '—'}</td>
@@ -356,13 +356,13 @@ export function CitizenDirectoryPage() {
           onClick={() => setTicketModal(null)}
         >
           <div
-            className="detail-modal-shell flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
+            className="detail-modal-shell detail-modal-shell--my-request flex max-h-[90vh] w-full flex-col overflow-hidden rounded-2xl bg-white shadow-2xl"
             onClick={event => event.stopPropagation()}
           >
             <div className="flex items-start justify-between gap-3 border-b border-slate-200 px-5 py-4">
               <div>
                 <h2 className="text-base font-bold text-slate-900">
-                  {t('citizenDirectory.ticketsTitle', 'Vatandaş Talepleri')}
+                  {t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')}
                 </h2>
                 <p className="mt-0.5 text-sm text-slate-500">
                   {[ticketModal.conversation.citizenName, formatDirectoryPhone(ticketModal.conversation.citizenPhone)].filter(Boolean).join(' · ')}
@@ -379,11 +379,14 @@ export function CitizenDirectoryPage() {
                 ticketsWithJobs.length === 0 ? (
                   <p className="text-sm text-slate-500">{t('citizenDirectory.noTickets', 'Bu vatandaşa ait talep bulunamadı.')}</p>
                 ) : (
+                  <div className="table-scroll-shell">
                   <table className="data-table">
                     <thead>
                       <tr>
                         <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>
                         <th>{t('jobs.columns.parentRequestNoShort', 'Talep No')}</th>
+                        <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
+                        <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
                         <th>{t('jobs.columns.status', 'Durum')}</th>
                         <th>{t('users.department', 'Birim')}</th>
                         <th className="text-center">{t('common.actions', 'İşlemler')}</th>
@@ -393,7 +396,22 @@ export function CitizenDirectoryPage() {
                       {ticketsWithJobs.map((ticket, index) => (
                         <tr key={ticket.socialMessageId}>
                           <td className="text-center text-xs font-bold tabular-nums text-slate-400">{index + 1}</td>
-                          <td className="font-mono text-xs">{formatVt(ticket)}</td>
+                          <td className="table-number-cell font-mono text-xs text-slate-500">
+                            <div className="table-number-cell__value inline-flex items-center gap-1.5">
+                              {ticket.channel ? <ChannelIcon channel={ticket.channel} className="size-4 shrink-0" /> : null}
+                              <span>{formatVt(ticket)}</span>
+                            </div>
+                          </td>
+                          <td className="text-sm font-semibold text-slate-700">
+                            {new Date(ticket.receivedAtUtc).toLocaleString(locale, {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </td>
+                          <td className="font-semibold text-slate-800">{ticket.title?.trim() || '—'}</td>
                           <td>{ticket.jobStatus ? t(`enum.jobStatus.${ticket.jobStatus}`, { defaultValue: ticket.jobStatus }) : '—'}</td>
                           <td>{ticket.departmentName ?? '—'}</td>
                           <td className="actions-cell">
@@ -413,6 +431,7 @@ export function CitizenDirectoryPage() {
                       ))}
                     </tbody>
                   </table>
+                  </div>
                 )
               ) : null}
             </div>

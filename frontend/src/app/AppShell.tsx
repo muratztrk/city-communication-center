@@ -757,9 +757,12 @@ export function AppShell() {
           </div>
         </div>
         <main id="main-content" className="flex min-h-0 w-full max-w-none flex-1 flex-col overflow-y-auto px-3 py-3 sm:px-4 lg:px-5 lg:py-3 xl:px-6 2xl:px-7">
-          {breadcrumbSegments.length > 0 && location.pathname !== '/dashboard' ? (
+          {breadcrumbSegments.length > 0
+            && location.pathname !== '/dashboard'
+            && location.pathname !== '/dashboard/birimler' ? (
             // Geri butonunu banner'ın (desktop-page-shell) sol başlangıç hizasına getir:
             // aynı yatay iç boşluk (1 / 1.5 / 2rem) (card 661).
+            // Anasayfa - Birimler'de geri yok (card #1889).
             <div className="mb-2 px-4 sm:px-6 lg:px-8">
               <button type="button" className="back-button" onClick={() => navigate(-1)}>
                 ← {t('common.back', 'Geri')}

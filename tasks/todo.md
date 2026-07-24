@@ -1,3 +1,6 @@
+## Round 440 — #1889
+- Anasayfa - Birimler: banner üstü Geri butonu kaldırıldı
+
 ## Round 439 — #1862/#1885 reopen
 - LDAP Anlık Senkronize none metni: `hepsi sistemde ekli durumdadır`
 - Birime Gelen onaysız VT: logo ekstra sola (`preferLeftForBusyActions`)

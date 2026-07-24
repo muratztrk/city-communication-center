@@ -1146,6 +1146,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859):** Üst Düzey Yönetici
   (`Reporter`) ve Vatandaş Talep Operatörü (`Operator`) sol menüde `Anasayfa - Vatandaş`
   (`/dashboard`) + `Anasayfa - Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.
+  `/dashboard/birimler` sayfasında banner üstü Geri butonu gösterilmez (card #1889).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   Tire haritası (açık adresli İşleme Alındı / Yapılmakta pinleri, card #1834) +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,

@@ -1175,8 +1175,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1873/#1874).
 - **Vatandaş Bilgi Listesi:** Talep listesi popup Taleplerim header'ı (logo ortada + kırmızı
   yuvarlak X), sticky thead (sürekli gradient — `th` transparan), paging; nested detay başlığı
-  `Vatandaş Talep Bilgisi`. Ana grid: `Vatandaş Adı`; Talep Kanalı Numara'dan sonra ve ortalanmış
-  (card #1880–#1883 reopen).
+  `Vatandaş Talep Bilgisi`. Popup grid tipografisi Taleplerim ile aynı (`thead` 0.78rem /
+  `td` 0.9rem); alt başlık (ad·telefon) `text-xs` (card #1889). Ana grid: `Vatandaş Adı`;
+  Talep Kanalı Numara'dan sonra ve ortalanmış (card #1880–#1883 reopen).
 - **Grid thead rengi:** `.data-table` / Taleplerim / Birime Gelen `th` arka planı `transparent`
   kalır; renk `thead` üzerindeki tek continuous gradient'tedir — hücreye gradient koyma
   (card #1888, R438 regressyonu).
@@ -1185,8 +1186,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri Talep Etiketi (card #1878):** grid hücresinde yalnız `RequestTagPicker`;
   buton metni seçili etikettir (yoksa `Etiketler`), kapalı halde `text-xs`/`h-8`. Açık menü
   satırları + arama + boş sonuç ortalanır. Yalnız kategori güncellemesi durumdan bağımsız.
-- **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde / Açık Adres etiketleri kolon
-  genişliğine göre ortalanır; kısa viewport'ta 3 kolon kalır.
+- **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde etiketi biraz sola; Açık Adres kolon
+  ortasında; kısa viewport'ta 3 kolon kalır.
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
 - **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` Users senkronu gibi **onay

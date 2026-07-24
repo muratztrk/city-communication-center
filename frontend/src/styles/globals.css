@@ -548,14 +548,25 @@
   }
 
   /* Uzun adres değeri kolonu karttan taşırmasın; değer alt satıra sararak kutu büyüsün (card #1360).
-     Cadde / Açık Adres etiketleri kolon genişliğine göre ortalanır (card #1876 reopen). */
+     Cadde biraz sola; Açık Adres kolon ortasında kalır (card #1876 reopen). */
   .address-detail-my-request__grid--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: start;
     gap: 1rem 1.25rem;
   }
 
-  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    padding-inline-end: 0.75rem;
+  }
+
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label {
+    margin-inline-start: -0.35rem;
+  }
+
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) {
     display: flex;
     flex-direction: column;
@@ -563,7 +574,6 @@
     text-align: center;
   }
 
-  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label {
     margin-inline: auto;
   }
@@ -2177,6 +2187,20 @@
 
   .data-table thead th:last-child {
     border-right: 0;
+  }
+
+  /* Dizin talep popup grid'i Taleplerim (.app-content-shell) tipografisiyle aynı (card #1889). */
+  .detail-modal-shell .citizen-directory-tickets-table thead th {
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    font-family: var(--font-sans);
+  }
+
+  .detail-modal-shell .citizen-directory-tickets-table tbody td {
+    padding: 0.58rem 0.62rem;
+    font-size: 0.9rem;
+    font-family: var(--font-sans);
   }
 
   /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" grid başlığı, sayfa banner'ı ile aynı yeşil geçişi kullanır. */

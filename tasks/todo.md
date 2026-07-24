@@ -1,3 +1,7 @@
+## Round 443 — #1889/#1876 reopen
+- Dizin talep popup: Taleplerim grid tipografisi; alt başlık text-xs
+- Adres: Cadde etiketi biraz sola
+
 ## Round 442 — #1888
 - data-table / Taleplerim th arka planı tekrar transparent (sürekli thead gradient)
 

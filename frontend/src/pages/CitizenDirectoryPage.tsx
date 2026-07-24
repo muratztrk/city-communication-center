@@ -401,7 +401,7 @@ export function CitizenDirectoryPage() {
                 <div className="my-request-detail-header__title">
                   <DetailModalTitle title={t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')} />
                 </div>
-                <p className="mt-0.5 text-sm font-medium text-slate-500">
+                <p className="mt-0.5 text-xs font-medium text-slate-500">
                   {[ticketModal.conversation.citizenName, formatDirectoryPhone(ticketModal.conversation.citizenPhone)].filter(Boolean).join(' · ')}
                 </p>
               </div>

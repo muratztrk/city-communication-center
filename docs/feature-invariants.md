@@ -991,8 +991,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   daha küçük (`~63–67vw` / `~73–77dvh` bandı).
 - **Detay popup header logo (card #1683 reopen / #1751 / #1885):** başlık satırı ortasında login page
   logosu (`/tire-belediyesi-logo.png`); absolute. Logo, başlık ile sağ aksiyonlar arasındaki
-  boşluğun ortasına hizalanır (çok butonlu onaysız vatandaş talebi vb. — Yazışmaya Git ile
-  çakışmaz); boşluk yoksa sola kayar (`MAX_SHIFT_PX`).
+  boşluğun ortasına hizalanır. **Birime Gelen + onaysız vatandaş talebi** (`preferLeftForBusyActions`)
+  ekstra sola kayar — Yazışmaya Git ile çakışmaz.
 - **Detay popup header şeridi (card #1685):** `my-request-detail-header::after` rengi
   bölüm başlık çizgisiyle aynı (`color-mix(primary 40%, transparent)`).
 - **Süreç Onay Bekleyen metni (card #1684 reopen):** onay adımı ve Son Tarih
@@ -1189,7 +1189,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Users LDAP gibi `details` içinde kaydırılabilir birim listesi gösterir (listelenen /
   eklenecek / eklenen). `Anlık LDAP…` sonuçta yalnız sistemde **olmayan** yeni birimleri
   listeler; hiç yeni yoksa mesaj `Eklenecek yeni LDAP birimi yok; hepsi zaten sistemde.`
-  (`addAllLdapNone`) olur (card #1862 reopen). İkinci popup açılmaz. Sonuçta `Çıkış` ile
+  (`addAllLdapNone`) olur — metin: `Eklenecek yeni LDAP birimi yok; hepsi sistemde ekli durumdadır.`
+  (card #1862 reopen). İkinci popup açılmaz. Sonuçta `Çıkış` ile
   kapanır; Oluştur butonu üstünde inline helper metin yok. Sil aynı kalıp.
 - **Vatandaş dashboard pie'ları yalnız VT (Vatandaş Talebi) sayar (card #1845):** `citizenJobs`,
   `BuildRequestTagChartAsync` (Talep Etiketi) ve üç mahalle grafiği (`Tamamlanan`/`Yapılmakta`/

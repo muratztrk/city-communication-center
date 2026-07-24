@@ -1,3 +1,7 @@
+## Round 439 — #1862/#1885 reopen
+- LDAP Anlık Senkronize none metni: `hepsi sistemde ekli durumdadır`
+- Birime Gelen onaysız VT: logo ekstra sola (`preferLeftForBusyActions`)
+
 ## Round 438 — #1878/#188x/#1876 reopen
 - VT grid: Ad+Telefon tarih öncesi; etiket dropdown ortalı
 - Dizin: Vatandaş Adı; kanal Numara sonrası ortalı; ticket popup logo+kırmızı X+paging+sticky

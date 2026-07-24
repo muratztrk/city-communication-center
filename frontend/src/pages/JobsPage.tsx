@@ -2269,7 +2269,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   {isRequestDetailContext ? <DetailModalTitle title={detailHeaderTitle} /> : detailHeaderTitle}
                 </div>
               </div>
-              <DetailModalHeaderBrand />
+              <DetailModalHeaderBrand
+                preferLeftForBusyActions={
+                  isIncomingRequestDetail
+                  && isCitizenRequestDetail
+                  && detail != null
+                  && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval')
+                }
+              />
               <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center gap-2">
                 {isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage) && (
                   <Button

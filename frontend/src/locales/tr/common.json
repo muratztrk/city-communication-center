@@ -555,7 +555,7 @@
     "addAllLdapWillAddTitle": "Eklenecek birimler ({{count}})",
     "addAllLdapAddedTitle": "Eklenen birimler ({{count}})",
     "addAllLdapSuccess": "{{count}} LDAP birimi eklendi.",
-    "addAllLdapNone": "Eklenecek yeni LDAP birimi yok; hepsi zaten sistemde ekli durumdadır.",
+    "addAllLdapNone": "Eklenecek yeni LDAP birimi yok; hepsi sistemde ekli durumdadır.",
     "ldapReadOnly": "LDAP birimi — müdahale edilemez",
     "deleteAllLdap": "Tüm LDAP Birimlerini Sil",
     "deleteAllLdapWorking": "LDAP birimleri siliniyor...",

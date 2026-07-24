@@ -3,14 +3,21 @@ import { useLayoutEffect, useRef, useState } from 'react'
 /** Login sayfasındaki resmi belediye logosu (card #1683 reopen). */
 const DETAIL_HEADER_LOGIN_LOGO_SRC = '/tire-belediyesi-logo.png'
 
-const MIN_GAP_PX = 12
+const MIN_GAP_PX = 16
 /** Başlık–aksiyon arasındayken sola kaydırma üst sınırı (card #1751 / #1885). */
-const MAX_SHIFT_PX = 280
+const MAX_SHIFT_PX = 320
+/** Birime Gelen + onaysız vatandaş talebi: Yazışmaya Git ile çakışmayı açmak için ek sola (card #1885). */
+const INCOMING_PENDING_EXTRA_SHIFT_PX = 56
+
+type DetailModalHeaderBrandProps = {
+  /** true → Birime Gelen / onaysız VT: ekstra sola kaydır. */
+  preferLeftForBusyActions?: boolean
+}
 
 /** Detay popup başlık satırı ortası — login page logosu, küçültülmüş.
  *  Logo, başlık ile sağ aksiyonlar arasındaki boşluğun ortasına hizalanır;
- *  çok butonlu (ör. onaysız vatandaş talebi) header'da Yazışmaya Git ile çakışmaz (card #1885). */
-export function DetailModalHeaderBrand() {
+ *  çok butonlu header'da Yazışmaya Git ile çakışmaz (card #1885). */
+export function DetailModalHeaderBrand({ preferLeftForBusyActions = false }: DetailModalHeaderBrandProps) {
   const brandRef = useRef<HTMLDivElement>(null)
   const shiftRef = useRef(0)
   const [shiftLeftPx, setShiftLeftPx] = useState(0)
@@ -45,17 +52,18 @@ export function DetailModalHeaderBrand() {
       const layoutCenter = layoutRect.left + layoutRect.width / 2
       let targetCenter = layoutCenter
       if (freeWidth >= brandWidth) {
-        targetCenter = leftBound + freeWidth / 2
+        const bias = preferLeftForBusyActions ? Math.min(INCOMING_PENDING_EXTRA_SHIFT_PX, freeWidth / 4) : 0
+        targetCenter = leftBound + freeWidth / 2 - bias
       } else if (freeWidth > 0) {
-        // Dar boşluk: logoyu boşluğun soluna yasla (aksiyonlara değmesin).
         targetCenter = leftBound + brandWidth / 2
       } else {
-        // Boşluk yok: aksiyonların soluna MIN_GAP kadar bırak.
         targetCenter = actionsRect.left - MIN_GAP_PX - brandWidth / 2
       }
 
-      // Pozitif = sola kaydır (CSS translate(-50% - shift)).
       let nextShift = Math.max(0, layoutCenter - targetCenter)
+      if (preferLeftForBusyActions) {
+        nextShift = Math.max(nextShift, INCOMING_PENDING_EXTRA_SHIFT_PX)
+      }
       nextShift = Math.min(MAX_SHIFT_PX, nextShift)
 
       if (nextShift !== shiftRef.current) {
@@ -65,6 +73,7 @@ export function DetailModalHeaderBrand() {
     }
 
     measure()
+    const raf = window.requestAnimationFrame(measure)
 
     const resizeObserver = new ResizeObserver(() => {
       measure()
@@ -75,19 +84,24 @@ export function DetailModalHeaderBrand() {
       resizeObserver.observe(actions)
     }
 
-    // Buton seti değişince (ör. Yazışmaya Git) yeniden ölç.
     const mutationObserver = new MutationObserver(() => {
       measure()
     })
     mutationObserver.observe(layout, { childList: true, subtree: true, characterData: true })
 
+    const onImgLoad = () => measure()
+    const img = brand.querySelector('img')
+    img?.addEventListener('load', onImgLoad)
+
     window.addEventListener('resize', measure)
     return () => {
+      window.cancelAnimationFrame(raf)
       resizeObserver.disconnect()
       mutationObserver.disconnect()
+      img?.removeEventListener('load', onImgLoad)
       window.removeEventListener('resize', measure)
     }
-  }, [])
+  }, [preferLeftForBusyActions])
 
   return (
     <div

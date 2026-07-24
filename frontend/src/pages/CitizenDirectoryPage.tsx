@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { MessageSquareText, Search, X } from 'lucide-react'
@@ -11,6 +10,7 @@ import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
+import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
@@ -56,7 +56,6 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
 export function CitizenDirectoryPage() {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
-  const navigate = useNavigate()
 
   const [rows, setRows] = useState<CitizenConversationSummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -76,6 +75,12 @@ export function CitizenDirectoryPage() {
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const [jobDetailLoading, setJobDetailLoading] = useState(false)
   const [jobDetailError, setJobDetailError] = useState<string | null>(null)
+  // Birim yöneticisi / personel detayındaki aynı WhatsAppConversationModal (card #1884).
+  const [conversationModal, setConversationModal] = useState<{
+    socialMessageId: string
+    citizenHandle: string
+    citizenPhone: string
+  } | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -172,8 +177,32 @@ export function CitizenDirectoryPage() {
     setJobDetailLoading(false)
   }
 
-  function goToConversation(phone: string) {
-    navigate(`/whatsapp?phone=${encodeURIComponent(phone)}`)
+  async function goToConversation(row: CitizenConversationSummary) {
+    const openModal = (socialMessageId: string) => {
+      setConversationModal({
+        socialMessageId,
+        citizenHandle: row.citizenName?.trim() || row.citizenPhone,
+        citizenPhone: row.citizenPhone,
+      })
+    }
+
+    if (row.latestSocialMessageId) {
+      openModal(row.latestSocialMessageId)
+      return
+    }
+
+    try {
+      const detail = await api.getCitizenConversationDetail(row.citizenConversationId)
+      const socialMessageId = detail.tickets?.[0]?.socialMessageId
+        ?? detail.timeline?.find(entry => entry.socialMessageId)?.socialMessageId
+      if (socialMessageId) {
+        openModal(socialMessageId)
+        return
+      }
+      setError(t('citizenDirectory.goToChatUnavailable', 'Bu kayıt için açılacak yazışma bulunamadı.'))
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+    }
   }
 
   // Job'a dönüşmemiş ama VT numarası taşıyan talepler de listelenir (card #1843).
@@ -327,7 +356,7 @@ export function CitizenDirectoryPage() {
                           type="button"
                           size="sm"
                           className="inline-flex items-center gap-1.5 !bg-sky-400 !text-white hover:!bg-sky-500"
-                          onClick={() => goToConversation(row.citizenPhone)}
+                          onClick={() => void goToConversation(row)}
                         >
                           <MessageSquareText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('citizenDirectory.goToChat', 'Yazışmaya Git')}
@@ -487,6 +516,15 @@ export function CitizenDirectoryPage() {
           )}
         </div>,
         document.body,
+      ) : null}
+
+      {conversationModal ? (
+        <WhatsAppConversationModal
+          socialMessageId={conversationModal.socialMessageId}
+          citizenHandle={conversationModal.citizenHandle}
+          citizenPhone={conversationModal.citizenPhone}
+          onClose={() => setConversationModal(null)}
+        />
       ) : null}
     </div>
   )

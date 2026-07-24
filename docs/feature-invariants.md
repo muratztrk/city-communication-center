@@ -989,10 +989,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`color-mix(... 40%, transparent)`, scrollbar ile aynı); gri slate değil.
 - **Detay popup boyutu (card #1682):** `.detail-modal-shell` / `--my-request` bir kademe
   daha küçük (`~63–67vw` / `~73–77dvh` bandı).
-- **Detay popup header logo (card #1683 reopen / #1751):** başlık satırı ortasında login page
-  logosu (`/tire-belediyesi-logo.png`); absolute ortalanır. Sağ aksiyon butonları logo
-  alanına girerse logo yalnızca o koşulda biraz sola kayar (başlığa çarpmayacak kadar);
-  overlap yoksa merkezde kalır.
+- **Detay popup header logo (card #1683 reopen / #1751 / #1885):** başlık satırı ortasında login page
+  logosu (`/tire-belediyesi-logo.png`); absolute. Logo, başlık ile sağ aksiyonlar arasındaki
+  boşluğun ortasına hizalanır (çok butonlu onaysız vatandaş talebi vb. — Yazışmaya Git ile
+  çakışmaz); boşluk yoksa sola kayar (`MAX_SHIFT_PX`).
 - **Detay popup header şeridi (card #1685):** `my-request-detail-header::after` rengi
   bölüm başlık çizgisiyle aynı (`color-mix(primary 40%, transparent)`).
 - **Süreç Onay Bekleyen metni (card #1684 reopen):** onay adımı ve Son Tarih
@@ -1139,8 +1139,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kanal mesajı olan konuşmaları gösterir; çağrı VT numaraları bu listede yoktur (card #1864).
   Detaylar → konuşma ticket listesi → salt-okunur
   `MyRequestDetailModal`; listede `jobId` olmayan ama `citizenRequestNumber` taşıyan ticket'lar da
-  gösterilir. Yazışmaya Git → `/whatsapp?phone=…` yalnız WhatsApp kanalında aktif; `Phone`/Çağrı
-  satırında `DisabledActionButton` ile pasif (card #1868), açık mavi stil (`MessageSquareText` + `!bg-sky-400`).
+  gösterilir. Yazışmaya Git → birim yöneticisi/personel detayındaki aynı
+  `WhatsAppConversationModal` (`latestSocialMessageId` veya konuşma detayından) (card #1884);
+  `Phone`/Çağrı satırında `DisabledActionButton` ile pasif (card #1868), açık mavi stil
+  (`MessageSquareText` + `!bg-sky-400`).
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859):** Üst Düzey Yönetici
   (`Reporter`) ve Vatandaş Talep Operatörü (`Operator`) sol menüde `Anasayfa - Vatandaş`
   (`/dashboard`) + `Anasayfa - Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.

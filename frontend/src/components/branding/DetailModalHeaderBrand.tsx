@@ -3,12 +3,13 @@ import { useLayoutEffect, useRef, useState } from 'react'
 /** Login sayfasındaki resmi belediye logosu (card #1683 reopen). */
 const DETAIL_HEADER_LOGIN_LOGO_SRC = '/tire-belediyesi-logo.png'
 
-const MIN_GAP_PX = 8
-/** Butonlar logo alanına girerse sola kaydırma üst sınırı (card #1751 / R421 logo). */
-const MAX_SHIFT_PX = 160
+const MIN_GAP_PX = 12
+/** Başlık–aksiyon arasındayken sola kaydırma üst sınırı (card #1751 / #1885). */
+const MAX_SHIFT_PX = 280
 
 /** Detay popup başlık satırı ortası — login page logosu, küçültülmüş.
- *  Sağ aksiyonlar logo alanına girerse yalnızca o durumda logo biraz sola kayar (card #1751). */
+ *  Logo, başlık ile sağ aksiyonlar arasındaki boşluğun ortasına hizalanır;
+ *  çok butonlu (ör. onaysız vatandaş talebi) header'da Yazışmaya Git ile çakışmaz (card #1885). */
 export function DetailModalHeaderBrand() {
   const brandRef = useRef<HTMLDivElement>(null)
   const shiftRef = useRef(0)
@@ -31,23 +32,31 @@ export function DetailModalHeaderBrand() {
         return
       }
 
-      const brandRect = brand.getBoundingClientRect()
+      const layoutRect = layout.getBoundingClientRect()
       const actionsRect = actions.getBoundingClientRect()
-      // Mevcut kaydırmayı geri ekle → ortalanmış (kaydırmasız) sağ kenar.
-      const unshiftedRight = brandRect.right + shiftRef.current
-      const unshiftedLeft = brandRect.left + shiftRef.current
-      const overlap = unshiftedRight + MIN_GAP_PX - actionsRect.left
+      const title = layout.querySelector('.detail-modal-header-title')
+      const titleRect = title instanceof HTMLElement ? title.getBoundingClientRect() : null
+      const brandWidth = brand.getBoundingClientRect().width || 88
 
-      let nextShift = 0
-      if (overlap > 0) {
-        const title = layout.querySelector('.detail-modal-header-title')
-        let maxShift = MAX_SHIFT_PX
-        if (title instanceof HTMLElement) {
-          const titleRect = title.getBoundingClientRect()
-          maxShift = Math.max(0, Math.min(MAX_SHIFT_PX, unshiftedLeft - titleRect.right - MIN_GAP_PX))
-        }
-        nextShift = Math.min(overlap, maxShift)
+      const leftBound = (titleRect?.right ?? layoutRect.left) + MIN_GAP_PX
+      const rightBound = actionsRect.left - MIN_GAP_PX
+      const freeWidth = rightBound - leftBound
+
+      const layoutCenter = layoutRect.left + layoutRect.width / 2
+      let targetCenter = layoutCenter
+      if (freeWidth >= brandWidth) {
+        targetCenter = leftBound + freeWidth / 2
+      } else if (freeWidth > 0) {
+        // Dar boşluk: logoyu boşluğun soluna yasla (aksiyonlara değmesin).
+        targetCenter = leftBound + brandWidth / 2
+      } else {
+        // Boşluk yok: aksiyonların soluna MIN_GAP kadar bırak.
+        targetCenter = actionsRect.left - MIN_GAP_PX - brandWidth / 2
       }
+
+      // Pozitif = sola kaydır (CSS translate(-50% - shift)).
+      let nextShift = Math.max(0, layoutCenter - targetCenter)
+      nextShift = Math.min(MAX_SHIFT_PX, nextShift)
 
       if (nextShift !== shiftRef.current) {
         shiftRef.current = nextShift

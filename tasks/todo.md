@@ -1,3 +1,7 @@
+## Round 436 — #1884/#1885
+- Vatandaş Bilgi Listesi Yazışmaya Git → `WhatsAppConversationModal` (yönetici/personel penceresi)
+- Detay header logo: başlık–aksiyon boşluğunun ortasına; onaysız talepte Yazışmaya Git ile çakışmaz
+
 ## Round 435 — 16 kart (#1862/#1869/#1870–#1883)
 - LDAP none mesajı; şablon text; Anasayfa banner; Mobil Uygulama kanal+badge+ayarlar
 - Harita: konuşma OpenAddress + overdue pin; Açık Adres grid; etiket dropdown; dizin popup

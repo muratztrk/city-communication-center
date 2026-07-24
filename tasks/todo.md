@@ -1,3 +1,6 @@
+## Round 441 — #1878 reopen
+- VT Talep Etiketi: açık menü satır/arama ortalı; kapalı buton `text-xs`/`h-8`
+
 ## Round 440 — #1889
 - Anasayfa - Birimler: banner üstü Geri butonu kaldırıldı
 

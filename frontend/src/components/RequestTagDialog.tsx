@@ -302,7 +302,7 @@ export function RequestTagPicker({ tags, onSelect, largeText = false, selectedNa
             key={tag.tagId}
             type="button"
             onClick={() => { onSelect(tag.name); setOpen(false); setSearch(''); setMenuStyle(null) }}
-            className="w-full truncate px-3 py-2 text-left text-xs font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-emerald-50 hover:text-emerald-900"
+            className="w-full truncate px-3 py-2 text-center text-xs font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-emerald-50 hover:text-emerald-900"
           >
             {tag.name}
           </button>
@@ -321,10 +321,10 @@ export function RequestTagPicker({ tags, onSelect, largeText = false, selectedNa
         onClick={toggleOpen}
         disabled={isEmpty}
         title={buttonLabel}
-        className={`w-full gap-1 disabled:opacity-50 ${largeText ? 'h-9 text-sm' : 'h-7 px-2 text-[11px]'}`}
+        className={`w-full justify-center gap-1 disabled:opacity-50 ${largeText ? 'h-9 text-sm' : 'h-7 px-2 text-[11px]'}`}
       >
         <Tag className={`${largeText ? 'size-3.5' : 'size-3'} shrink-0 text-emerald-600`} />
-        <span className="min-w-0 flex-1 truncate text-left">{buttonLabel}</span>
+        <span className="min-w-0 truncate text-center">{buttonLabel}</span>
         <ChevronDown className={`${largeText ? 'size-3.5' : 'size-3'} shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
       </Button>
       {menu}

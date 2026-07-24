@@ -548,23 +548,24 @@
   }
 
   /* Uzun adres değeri kolonu karttan taşırmasın; değer alt satıra sararak kutu büyüsün (card #1360).
-     Cadde biraz sola, Açık Adres biraz sağa — etiketler birbirine yapışmasın (card #1876 reopen). */
+     Cadde / Açık Adres etiketleri kolon genişliğine göre ortalanır (card #1876 reopen). */
   .address-detail-my-request__grid--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: start;
-    gap: 1rem 1.35rem;
+    gap: 1rem 1.25rem;
   }
 
-  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) {
-    padding-inline-end: 0.35rem;
-  }
-
-  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label {
-    margin-inline-start: -0.2rem;
-  }
-
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) {
-    padding-inline-start: 0.45rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label {
+    margin-inline: auto;
   }
 
   .address-detail-my-request__grid--stacked {
@@ -2159,7 +2160,8 @@
     top: 0;
     z-index: 2;
     white-space: nowrap;
-    background: transparent;
+    /* Sticky th opak olmalı; yoksa satırlar başlığın üstüne taşar (card #1882 reopen). */
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     box-sizing: border-box;
     padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
     min-height: var(--table-chrome-row-min-height);
@@ -2180,7 +2182,7 @@
   /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" grid başlığı, sayfa banner'ı ile aynı yeşil geçişi kullanır. */
   .my-requests-table thead th,
   .incoming-requests-table thead th {
-    background: transparent;
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     border-right-color: rgba(255, 255, 255, 0.22);
     color: white;
   }

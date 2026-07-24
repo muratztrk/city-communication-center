@@ -566,15 +566,15 @@ export function SocialMessagesPage() {
                     <span>{t('social.citizenRequestNoHeader', 'Vatandaş Talep No')}</span>
                   </span>
                 </FilterableTh>
+                <FilterableTh filterKey="citizenName" filterValue={socialFilters['citizenName'] ?? ''} onFilter={setSocialFilter} sortKey="citizenName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenName', 'Vatandaş Adı')}</FilterableTh>
+                <FilterableTh filterKey="citizenPhone" filterValue={socialFilters['citizenPhone'] ?? ''} onFilter={setSocialFilter} sortKey="citizenPhone" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenPhone', 'Telefon Numarası')}</FilterableTh>
                 <FilterableTh filterKey="receivedAtUtc" filterValue={socialFilters['receivedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>
                   <span className="inline-flex whitespace-nowrap leading-tight">
                     <span>{t('social.citizenRequestDateHeader', 'Vatandaş Talep Tarihi')}</span>
                   </span>
                 </FilterableTh>
-                <FilterableTh filterKey="citizenPhone" filterValue={socialFilters['citizenPhone'] ?? ''} onFilter={setSocialFilter} sortKey="citizenPhone" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenPhone', 'Telefon Numarası')}</FilterableTh>
-                <FilterableTh filterKey="citizenName" filterValue={socialFilters['citizenName'] ?? ''} onFilter={setSocialFilter} sortKey="citizenName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenName', 'Vatandaş İsmi')}</FilterableTh>
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.destination', 'Gittiği Yer')}</FilterableTh>
-                <FilterableTh filterKey="labelSortText" filterValue={socialFilters['labelSortText'] ?? ''} onFilter={setSocialFilter} sortKey="labelSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('whatsapp.label', 'Etiket')}</FilterableTh>
+                <FilterableTh filterKey="labelSortText" filterValue={socialFilters['labelSortText'] ?? ''} onFilter={setSocialFilter} sortKey="labelSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('whatsapp.label', 'Talep Etiketi')}</FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
             </thead>
@@ -598,9 +598,9 @@ export function SocialMessagesPage() {
                         </div>
                       ) : null}
                     </td>
-                    <td><DateCell value={message.receivedAtUtc} locale={locale} /></td>
-                    <td className="font-semibold">{message.citizenPhone}</td>
                     <td className="font-semibold">{message.citizenName}</td>
+                    <td className="font-semibold">{message.citizenPhone}</td>
+                    <td><DateCell value={message.receivedAtUtc} locale={locale} /></td>
                     <td>
                       {message.channel === 'MobileApp' && !message.assignedDepartmentName ? (
                         <SingleSelectDropdown
@@ -620,12 +620,14 @@ export function SocialMessagesPage() {
                         <span className="mt-0.5 block text-sm font-semibold text-slate-500">{linkedJob.assignedUserDisplayName}</span>
                       ) : null}
                     </td>
-                    <td>
-                      <RequestTagPicker
-                        tags={requestTags}
-                        selectedName={message.category}
-                        onSelect={name => { void handleCategorySelect(message, name) }}
-                      />
+                    <td className="text-center">
+                      <div className="inline-flex w-full justify-center">
+                        <RequestTagPicker
+                          tags={requestTags}
+                          selectedName={message.category}
+                          onSelect={name => { void handleCategorySelect(message, name) }}
+                        />
+                      </div>
                     </td>
                     <td className="actions-cell">
                       <div className="request-actions justify-center">

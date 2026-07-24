@@ -2,8 +2,9 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { MessageSquareText, Search, X } from 'lucide-react'
+import { MessageSquareText, Search, X as XIcon } from 'lucide-react'
 import { api } from '../api/client'
+import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeaderBrand'
 import { Button } from '../components/ui/button'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -16,6 +17,7 @@ import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { CitizenConversationDetail, CitizenConversationSummary, CitizenConversationTicket, JobDetail, SocialMessage } from '../types/platform'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
+import { DetailModalTitle } from '../utils/detailModalTitle'
 import { getLocale, getSocialChannelLabel } from '../utils/localization'
 import { formatDirectoryPhone } from '../utils/phoneDisplay'
 
@@ -75,6 +77,8 @@ export function CitizenDirectoryPage() {
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const [jobDetailLoading, setJobDetailLoading] = useState(false)
   const [jobDetailError, setJobDetailError] = useState<string | null>(null)
+  const [ticketPage, setTicketPage] = useState(1)
+  const [ticketPageSize, setTicketPageSize] = useState(10)
   // Birim yöneticisi / personel detayındaki aynı WhatsAppConversationModal (card #1884).
   const [conversationModal, setConversationModal] = useState<{
     socialMessageId: string
@@ -135,6 +139,7 @@ export function CitizenDirectoryPage() {
   const pageRows = scopedRows.slice((safePage - 1) * pageSize, safePage * pageSize)
 
   async function openTickets(row: CitizenConversationSummary) {
+    setTicketPage(1)
     setTicketModal({ conversation: row, detail: null, loading: true, error: null })
     try {
       const detail = await api.getCitizenConversationDetail(row.citizenConversationId)
@@ -207,6 +212,9 @@ export function CitizenDirectoryPage() {
 
   // Job'a dönüşmemiş ama VT numarası taşıyan talepler de listelenir (card #1843).
   const ticketsWithJobs = (ticketModal?.detail?.tickets ?? []).filter(ticket => ticket.jobId || ticket.citizenRequestNumber != null)
+  const ticketTotalCount = ticketsWithJobs.length
+  const ticketSafePage = Math.min(ticketPage, Math.max(1, Math.ceil(ticketTotalCount / ticketPageSize) || 1))
+  const pagedTickets = ticketsWithJobs.slice((ticketSafePage - 1) * ticketPageSize, ticketSafePage * ticketPageSize)
 
   return (
     <div className="page-stack desktop-page-shell shrink-0">
@@ -252,7 +260,6 @@ export function CitizenDirectoryPage() {
             <thead>
               <tr>
                 <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>
-                <th>{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
                 <FilterableTh
                   filterKey="displayName"
                   filterValue={filters.displayName ?? ''}
@@ -262,7 +269,7 @@ export function CitizenDirectoryPage() {
                   sortDir={sortDir}
                   onSort={toggleSort}
                 >
-                  {t('citizenDirectory.columns.name', 'Vatandaş İsmi')}
+                  {t('citizenDirectory.columns.name', 'Vatandaş Adı')}
                 </FilterableTh>
                 <FilterableTh
                   filterKey="citizenPhone"
@@ -275,6 +282,7 @@ export function CitizenDirectoryPage() {
                 >
                   {t('citizenDirectory.columns.phone', 'Numara')}
                 </FilterableTh>
+                <th className="text-center">{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
                 <FilterableTh
                   filterKey="neighborhood"
                   filterValue={filters.neighborhood ?? ''}
@@ -322,17 +330,17 @@ export function CitizenDirectoryPage() {
                     {(safePage - 1) * pageSize + index + 1}
                   </td>
                   <td>
+                    <span className="font-semibold text-slate-800">{row.displayName}</span>
+                  </td>
+                  <td className="font-semibold text-slate-800 tabular-nums">{formatDirectoryPhone(row.citizenPhone) || '—'}</td>
+                  <td className="text-center">
                     {row.sourceChannel ? (
-                      <span className="inline-flex h-8 w-full items-center justify-start gap-1.5 whitespace-nowrap">
+                      <span className="inline-flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap">
                         <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" />
                         <span className="text-sm font-semibold text-slate-800">{getSocialChannelLabel(t, row.sourceChannel)}</span>
                       </span>
                     ) : '—'}
                   </td>
-                  <td>
-                    <span className="font-semibold text-slate-800">{row.displayName}</span>
-                  </td>
-                  <td className="font-semibold text-slate-800 tabular-nums">{formatDirectoryPhone(row.citizenPhone) || '—'}</td>
                   <td>{row.neighborhood?.trim() || '—'}</td>
                   <td>{row.street?.trim() || '—'}</td>
                   <td>{row.openAddress?.trim() || '—'}</td>
@@ -388,80 +396,99 @@ export function CitizenDirectoryPage() {
             className="detail-modal-shell detail-modal-shell--my-request flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
             onClick={event => event.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-3 border-b border-slate-200 px-5 py-4">
-              <div>
-                <h2 className="text-base font-bold text-slate-900">
-                  {t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')}
-                </h2>
-                <p className="mt-0.5 text-sm text-slate-500">
+            <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-6 py-3">
+              <div className="detail-modal-header-title min-w-0">
+                <div className="my-request-detail-header__title">
+                  <DetailModalTitle title={t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')} />
+                </div>
+                <p className="mt-0.5 text-sm font-medium text-slate-500">
                   {[ticketModal.conversation.citizenName, formatDirectoryPhone(ticketModal.conversation.citizenPhone)].filter(Boolean).join(' · ')}
                 </p>
               </div>
-              <button type="button" className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700" onClick={() => setTicketModal(null)}>
-                <X className="size-4" />
-              </button>
+              <DetailModalHeaderBrand />
+              <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTicketModal(null)}
+                  className="detail-modal-header-close flex size-9 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
+                  aria-label={t('common.close', 'Kapat')}
+                >
+                  <XIcon className="size-5" strokeWidth={1.75} />
+                </button>
+              </div>
             </div>
-            <div className="min-h-0 flex-1 overflow-auto p-4">
-              {ticketModal.loading ? <div className="loading">{t('common.loading')}</div> : null}
-              {ticketModal.error ? <div className="error">{ticketModal.error}</div> : null}
-              {!ticketModal.loading && !ticketModal.error ? (
-                ticketsWithJobs.length === 0 ? (
-                  <p className="text-sm text-slate-500">{t('citizenDirectory.noTickets', 'Bu vatandaşa ait talep bulunamadı.')}</p>
-                ) : (
-                  <div className="table-scroll-shell">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>
-                        <th>{t('jobs.columns.parentRequestNoShort', 'Talep No')}</th>
-                        <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
-                        <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
-                        <th>{t('jobs.columns.status', 'Durum')}</th>
-                        <th>{t('users.department', 'Birim')}</th>
-                        <th className="text-center">{t('common.actions', 'İşlemler')}</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {ticketsWithJobs.map((ticket, index) => (
-                        <tr key={ticket.socialMessageId}>
-                          <td className="text-center text-xs font-bold tabular-nums text-slate-400">{index + 1}</td>
-                          <td className="table-number-cell font-mono text-xs text-slate-500">
-                            <div className="table-number-cell__value inline-flex items-center gap-1.5">
-                              {ticket.channel ? <ChannelIcon channel={ticket.channel} className="size-4 shrink-0" /> : null}
-                              <span>{formatVt(ticket)}</span>
-                            </div>
-                          </td>
-                          <td className="text-sm font-semibold text-slate-700">
-                            {new Date(ticket.receivedAtUtc).toLocaleString(locale, {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric',
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </td>
-                          <td className="font-semibold text-slate-800">{ticket.title?.trim() || '—'}</td>
-                          <td>{ticket.jobStatus ? t(`enum.jobStatus.${ticket.jobStatus}`, { defaultValue: ticket.jobStatus }) : '—'}</td>
-                          <td>{ticket.departmentName ?? '—'}</td>
-                          <td className="actions-cell">
-                            <div className="request-actions justify-center">
-                              <Button
-                                type="button"
-                                size="sm"
-                                variant="secondary"
-                                disabled={jobDetailLoading || !ticket.jobId}
-                                onClick={() => ticket.jobId ? void openJobDetail(ticket.jobId, ticket.socialMessageId) : undefined}
-                              >
-                                {t('jobs.actions.details', 'Detaylar')}
-                              </Button>
-                            </div>
-                          </td>
+            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+              <div className="min-h-0 flex-1 overflow-auto px-4 pt-3">
+                {ticketModal.loading ? <div className="loading">{t('common.loading')}</div> : null}
+                {ticketModal.error ? <div className="error">{ticketModal.error}</div> : null}
+                {!ticketModal.loading && !ticketModal.error ? (
+                  ticketsWithJobs.length === 0 ? (
+                    <p className="text-sm text-slate-500">{t('citizenDirectory.noTickets', 'Bu vatandaşa ait talep bulunamadı.')}</p>
+                  ) : (
+                    <table className="data-table citizen-directory-tickets-table">
+                      <thead>
+                        <tr>
+                          <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>
+                          <th>{t('jobs.columns.parentRequestNoShort', 'Talep No')}</th>
+                          <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
+                          <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
+                          <th>{t('jobs.columns.status', 'Durum')}</th>
+                          <th>{t('users.department', 'Birim')}</th>
+                          <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  </div>
-                )
+                      </thead>
+                      <tbody>
+                        {pagedTickets.map((ticket, index) => (
+                          <tr key={ticket.socialMessageId}>
+                            <td className="text-center text-xs font-bold tabular-nums text-slate-400">
+                              {(ticketSafePage - 1) * ticketPageSize + index + 1}
+                            </td>
+                            <td className="table-number-cell font-mono text-xs text-slate-500">
+                              <div className="table-number-cell__value inline-flex items-center gap-1.5">
+                                {ticket.channel ? <ChannelIcon channel={ticket.channel} className="size-4 shrink-0" /> : null}
+                                <span>{formatVt(ticket)}</span>
+                              </div>
+                            </td>
+                            <td className="text-sm font-semibold text-slate-700">
+                              {new Date(ticket.receivedAtUtc).toLocaleString(locale, {
+                                day: '2-digit',
+                                month: '2-digit',
+                                year: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </td>
+                            <td className="font-semibold text-slate-800">{ticket.title?.trim() || '—'}</td>
+                            <td>{ticket.jobStatus ? t(`enum.jobStatus.${ticket.jobStatus}`, { defaultValue: ticket.jobStatus }) : '—'}</td>
+                            <td>{ticket.departmentName ?? '—'}</td>
+                            <td className="actions-cell">
+                              <div className="request-actions justify-center">
+                                <Button
+                                  type="button"
+                                  size="sm"
+                                  variant="secondary"
+                                  disabled={jobDetailLoading || !ticket.jobId}
+                                  onClick={() => ticket.jobId ? void openJobDetail(ticket.jobId, ticket.socialMessageId) : undefined}
+                                >
+                                  {t('jobs.actions.details', 'Detaylar')}
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )
+                ) : null}
+              </div>
+              {!ticketModal.loading && !ticketModal.error && ticketsWithJobs.length > 0 ? (
+                <TablePagination
+                  totalCount={ticketTotalCount}
+                  pageSize={ticketPageSize}
+                  currentPage={ticketSafePage}
+                  onPageSizeChange={size => { setTicketPageSize(size); setTicketPage(1) }}
+                  onPageChange={setTicketPage}
+                />
               ) : null}
             </div>
           </div>

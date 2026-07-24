@@ -1,3 +1,8 @@
+## Round 438 — #1878/#188x/#1876 reopen
+- VT grid: Ad+Telefon tarih öncesi; etiket dropdown ortalı
+- Dizin: Vatandaş Adı; kanal Numara sonrası ortalı; ticket popup logo+kırmızı X+paging+sticky
+- Adres: Cadde/Açık Adres kolon içinde ortalı
+
 ## Round 437 — #1880/#1878/#1882/#1876 reopen
 - Dizin: ticket+nested detay başlığı `Vatandaş Talep Bilgisi`; liste popup Taleplerim boyutu
 - VT grid: Etiketler butonu seçili metni gösterir; kategori durumdan bağımsız güncellenir

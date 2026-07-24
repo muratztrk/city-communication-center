@@ -49,7 +49,7 @@
     "ticketsTitle": "Vatandaş Talep Bilgisi",
     "noTickets": "Bu vatandaşa ait talep bulunamadı.",
     "columns": {
-      "name": "Vatandaş İsmi",
+      "name": "Vatandaş Adı",
       "phone": "Numara",
       "sourceChannel": "Talep Kanalı",
       "neighborhood": "Mahalle",

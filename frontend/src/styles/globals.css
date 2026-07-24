@@ -2160,8 +2160,8 @@
     top: 0;
     z-index: 2;
     white-space: nowrap;
-    /* Sticky th opak olmalı; yoksa satırlar başlığın üstüne taşar (card #1882 reopen). */
-    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    /* th transparan: sürekli thead gradient'i görünür; hücre başı gradient parçalanır (card #1888). */
+    background: transparent;
     box-sizing: border-box;
     padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
     min-height: var(--table-chrome-row-min-height);
@@ -2182,7 +2182,7 @@
   /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" grid başlığı, sayfa banner'ı ile aynı yeşil geçişi kullanır. */
   .my-requests-table thead th,
   .incoming-requests-table thead th {
-    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background: transparent;
     border-right-color: rgba(255, 255, 255, 0.22);
     color: white;
   }

@@ -1,3 +1,6 @@
+## Round 442 — #1888
+- data-table / Taleplerim th arka planı tekrar transparent (sürekli thead gradient)
+
 ## Round 441 — #1878 reopen
 - VT Talep Etiketi: açık menü satır/arama ortalı; kapalı buton `text-xs`/`h-8`
 

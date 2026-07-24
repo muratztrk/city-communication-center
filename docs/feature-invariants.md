@@ -1174,8 +1174,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Ayarlar Sosyal Medya Entegrasyonu:** tab adı bu; Web Formu + Mobil Uygulama statik kartlar
   (card #1873/#1874).
 - **Vatandaş Bilgi Listesi:** Talep listesi popup Taleplerim header'ı (logo ortada + kırmızı
-  yuvarlak X), sticky opaque thead, paging; nested detay başlığı `Vatandaş Talep Bilgisi`.
-  Ana grid: `Vatandaş Adı`; Talep Kanalı Numara'dan sonra ve ortalanmış (card #1880–#1883 reopen).
+  yuvarlak X), sticky thead (sürekli gradient — `th` transparan), paging; nested detay başlığı
+  `Vatandaş Talep Bilgisi`. Ana grid: `Vatandaş Adı`; Talep Kanalı Numara'dan sonra ve ortalanmış
+  (card #1880–#1883 reopen).
+- **Grid thead rengi:** `.data-table` / Taleplerim / Birime Gelen `th` arka planı `transparent`
+  kalır; renk `thead` üzerindeki tek continuous gradient'tedir — hücreye gradient koyma
+  (card #1888, R438 regressyonu).
 - **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → Telefon → Talep Tarihi →
   Gittiği Yer → Talep Etiketi → İşlemler. Etiket dropdown hücrede ortalanır (card #1878/#188x).
 - **Vatandaş Talepleri Talep Etiketi (card #1878):** grid hücresinde yalnız `RequestTagPicker`;

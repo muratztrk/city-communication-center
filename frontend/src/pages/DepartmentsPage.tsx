@@ -17,6 +17,7 @@ import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
+import { Toast } from '../components/ui/toast'
 import { useAuth } from '../context/AuthContext'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Department, DirectoryUserLookup, User } from '../types/platform'
@@ -52,6 +53,7 @@ export function DepartmentsPage() {
   const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
   const [deleteAllLdapLoading, setDeleteAllLdapLoading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [deptPageSize, setDeptPageSize] = useState(25)
   const [deptPage, setDeptPage] = useState(1)
 
@@ -178,7 +180,7 @@ export function DepartmentsPage() {
     </div>
   )
 
-  // Anlık LDAP Kullanıcı Senkronize Et gibi: onay sormadan doğrudan çalıştır (card #1862).
+  // Anlık LDAP: onay/sonuç popup yok — senkronize et + toast uyarı (card #1862 reopen).
   const handlePullAllLdapDepartmentsClick = () => {
     if (!ldapEnabled || pullAllLdapLoading) return
     void handlePullAllLdapDepartments()
@@ -187,16 +189,6 @@ export function DepartmentsPage() {
   const handlePullAllLdapDepartments = async () => {
     setPullAllLdapLoading(true)
     setError('')
-    setConfirmDialog({
-      title: t('departments.liveLdapSync'),
-      titleDivider: true,
-      titleCompact: true,
-      message: t('departments.liveLdapSyncWorking'),
-      confirmLabel: t('common.yes', 'Evet'),
-      hideCancel: true,
-      closeOnConfirm: false,
-      onConfirm: () => {},
-    })
 
     try {
       // physicalDeliveryOfficeName listesi — OU yok (card #1838).
@@ -232,40 +224,20 @@ export function DepartmentsPage() {
       setSelectedLdapDepartment(null)
       setNewName('')
 
-      // Yeni (sistemde olmayan) birim yoksa Users/Ekle ile aynı none mesajı; varsa yalnız onları listele (card #1862).
       if (newNames.length === 0) {
-        setConfirmDialog({
-          title: t('departments.liveLdapSync'),
-          titleDivider: true,
-          titleCompact: true,
-          titleTone: 'danger',
-          message: t('departments.addAllLdapNone'),
-          confirmLabel: t('common.exit', 'Çıkış'),
-          hideCancel: true,
-          variant: 'destructive',
-          onConfirm: () => {},
-        })
+        setToast({ type: 'error', message: t('departments.addAllLdapNone') })
         return
       }
 
-      setConfirmDialog({
-        title: t('departments.liveLdapSync'),
-        titleDivider: true,
-        titleCompact: true,
-        titleTone: 'success',
+      setToast({
+        type: 'success',
         message: t('departments.pullAllLdapSuccess', { count: newNames.length }),
-        details: renderLdapDepartmentList(
-          t('departments.pullAllLdapListedTitle', { count: newNames.length }),
-          newNames,
-        ),
-        confirmLabel: t('common.exit', 'Çıkış'),
-        hideCancel: true,
-        variant: 'primary',
-        onConfirm: () => {},
       })
     } catch (pullError) {
-      setConfirmDialog(null)
-      setError(pullError instanceof Error ? pullError.message : t('common.error'))
+      setToast({
+        type: 'error',
+        message: pullError instanceof Error ? pullError.message : t('common.error'),
+      })
     } finally {
       setPullAllLdapLoading(false)
     }
@@ -274,7 +246,7 @@ export function DepartmentsPage() {
   const handleAddAllLdapDepartmentsClick = async () => {
     if (!ldapEnabled || addAllLdapLoading) return
 
-    setAddAllLdapLoading(true)
+    // Listeleme sırasında buton metnini değiştirme — flicker yok (card #1890).
     setError('')
     try {
       const departmentNames = await api.listDirectoryDepartments()
@@ -375,8 +347,6 @@ export function DepartmentsPage() {
     } catch (listError) {
       setConfirmDialog(null)
       setError(listError instanceof Error ? listError.message : t('common.error'))
-    } finally {
-      setAddAllLdapLoading(false)
     }
   }
 
@@ -970,6 +940,13 @@ export function DepartmentsPage() {
       ) : null}
 
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
+      {toast ? (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      ) : null}
     </div>
   )
 }

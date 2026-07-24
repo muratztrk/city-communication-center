@@ -548,7 +548,8 @@
   }
 
   /* Uzun adres değeri kolonu karttan taşırmasın; değer alt satıra sararak kutu büyüsün (card #1360).
-     Cadde biraz sola; Açık Adres kolon ortasında kalır (card #1876 reopen). */
+     Cadde biraz sola; Açık Adres kolon ortasında. Değer varken etiket alt çizgisi değer
+     genişliğine uzar (card #1876 reopen). */
   .address-detail-my-request__grid--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: start;
@@ -560,10 +561,13 @@
     flex-direction: column;
     align-items: flex-start;
     text-align: left;
+    width: max-content;
+    max-width: 100%;
     padding-inline-end: 0.75rem;
   }
 
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label {
+    width: 100%;
     margin-inline-start: -0.35rem;
   }
 
@@ -572,10 +576,14 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
+    width: max-content;
+    max-width: 100%;
+    justify-self: center;
   }
 
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label {
-    margin-inline: auto;
+    width: 100%;
+    margin-inline: 0;
   }
 
   .address-detail-my-request__grid--stacked {
@@ -2195,6 +2203,8 @@
     letter-spacing: 0.06em;
     line-height: 1.2;
     font-family: var(--font-sans);
+    padding-block: calc(var(--table-chrome-row-py) + 0.2rem);
+    min-height: calc(var(--table-chrome-row-min-height) + 0.35rem);
   }
 
   .detail-modal-shell .citizen-directory-tickets-table tbody td {

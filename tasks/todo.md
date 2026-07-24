@@ -1,3 +1,10 @@
+## Round 444 — #1885/#1876/#1889/#1890/#1862/#1878
+- Birime Gelen onaysız VT logo ekstra sola (~128px); diğerlerinde yok
+- Cadde/Açık Adres etiket alt çizgisi değer genişliğine
+- Dizin popup: Yazdır; alt başlık aşağı; thead biraz yüksek
+- LDAP Anlık: toast only (popup yok); Tüm Ekle liste flicker yok
+- VT etiket menü satırları sola yaslı (ortalanmamalı)
+
 ## Round 443 — #1889/#1876 reopen
 - Dizin talep popup: Taleplerim grid tipografisi; alt başlık text-xs
 - Adres: Cadde etiketi biraz sola

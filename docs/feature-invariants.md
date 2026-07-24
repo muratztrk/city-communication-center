@@ -991,8 +991,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   daha küçük (`~63–67vw` / `~73–77dvh` bandı).
 - **Detay popup header logo (card #1683 reopen / #1751 / #1885):** başlık satırı ortasında login page
   logosu (`/tire-belediyesi-logo.png`); absolute. Logo, başlık ile sağ aksiyonlar arasındaki
-  boşluğun ortasına hizalanır. **Birime Gelen + onaysız vatandaş talebi** (`preferLeftForBusyActions`)
-  ekstra sola kayar — Yazışmaya Git ile çakışmaz.
+  boşluğun ortasına hizalanır. **Yalnız Birime Gelen + onaysız vatandaş talebi**
+  (`preferLeftForBusyActions`, ~128px ekstra sola) — Yazışmaya Git ile çakışmaz; diğer
+  sayfa/durumlarda ekstra kaydırma yok.
 - **Detay popup header şeridi (card #1685):** `my-request-detail-header::after` rengi
   bölüm başlık çizgisiyle aynı (`color-mix(primary 40%, transparent)`).
 - **Süreç Onay Bekleyen metni (card #1684 reopen):** onay adımı ve Son Tarih
@@ -1173,32 +1174,30 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1877/#1878).
 - **Ayarlar Sosyal Medya Entegrasyonu:** tab adı bu; Web Formu + Mobil Uygulama statik kartlar
   (card #1873/#1874).
-- **Vatandaş Bilgi Listesi:** Talep listesi popup Taleplerim header'ı (logo ortada + kırmızı
-  yuvarlak X), sticky thead (sürekli gradient — `th` transparan), paging; nested detay başlığı
-  `Vatandaş Talep Bilgisi`. Popup grid tipografisi Taleplerim ile aynı (`thead` 0.78rem /
-  `td` 0.9rem); alt başlık (ad·telefon) `text-xs` (card #1889). Ana grid: `Vatandaş Adı`;
-  Talep Kanalı Numara'dan sonra ve ortalanmış (card #1880–#1883 reopen).
+- **Vatandaş Bilgi Listesi:** Talep listesi popup Taleplerim header'ı (logo ortada + Yazdır +
+  kırmızı yuvarlak X), sticky thead (sürekli gradient — `th` transparan), paging; nested detay
+  başlığı `Vatandaş Talep Bilgisi`. Popup grid tipografisi Taleplerim ile aynı (`thead` 0.78rem /
+  `td` 0.9rem, thead biraz yüksek); alt başlık (ad·telefon) `text-xs` + biraz aşağı (card #1889).
+  Ana grid: `Vatandaş Adı`; Talep Kanalı Numara'dan sonra ve ortalanmış (card #1880–#1883 reopen).
 - **Grid thead rengi:** `.data-table` / Taleplerim / Birime Gelen `th` arka planı `transparent`
   kalır; renk `thead` üzerindeki tek continuous gradient'tedir — hücreye gradient koyma
   (card #1888, R438 regressyonu).
 - **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → Telefon → Talep Tarihi →
-  Gittiği Yer → Talep Etiketi → İşlemler. Etiket dropdown hücrede ortalanır (card #1878/#188x).
+  Gittiği Yer → Talep Etiketi → İşlemler. Etiket dropdown hücresinde buton ortalı; açık menü
+  satırları sola yaslı (card #1878 reopen — ortalanmamalı).
 - **Vatandaş Talepleri Talep Etiketi (card #1878):** grid hücresinde yalnız `RequestTagPicker`;
   buton metni seçili etikettir (yoksa `Etiketler`), kapalı halde `text-xs`/`h-8`. Açık menü
-  satırları + arama + boş sonuç ortalanır. Yalnız kategori güncellemesi durumdan bağımsız.
+  satırları `text-left`. Yalnız kategori güncellemesi durumdan bağımsız.
 - **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde etiketi biraz sola; Açık Adres kolon
-  ortasında; kısa viewport'ta 3 kolon kalır.
+  ortasında; Cadde/Açık Adres etiket alt çizgisi değer metni genişliğine uzar; kısa viewport'ta
+  3 kolon kalır.
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
-- **LDAP birim senkron/ekle (card #1857/#1862):** `Anlık LDAP…` Users senkronu gibi **onay
-  sormadan** doğrudan çalışır; çalışma/sonuç aynı `ConfirmDialog` içinde (`closeOnConfirm`
-  gerekmez — tıklanınca working popup açılır). `Tüm LDAP… Ekle` onay ister; sonuç/önizleme
-  Users LDAP gibi `details` içinde kaydırılabilir birim listesi gösterir (listelenen /
-  eklenecek / eklenen). `Anlık LDAP…` sonuçta yalnız sistemde **olmayan** yeni birimleri
-  listeler; hiç yeni yoksa mesaj `Eklenecek yeni LDAP birimi yok; hepsi zaten sistemde.`
-  (`addAllLdapNone`) olur — metin: `Eklenecek yeni LDAP birimi yok; hepsi sistemde ekli durumdadır.`
-  (card #1862 reopen). İkinci popup açılmaz. Sonuçta `Çıkış` ile
-  kapanır; Oluştur butonu üstünde inline helper metin yok. Sil aynı kalıp.
+- **LDAP birim senkron/ekle (card #1857/#1862/#1890):** `Anlık LDAP…` **popup açmaz** — senkron
+  sonrası yalnız toast uyarı (none/success). `Tüm LDAP… Ekle` onay ister; listeleme sırasında
+  buton metni değişmez (flicker yok — #1890); ekleme sırasında `addAllLdapWorking`. Sonuç/
+  önizleme `details` içinde kaydırılabilir birim listesi. None metin:
+  `Eklenecek yeni LDAP birimi yok; hepsi sistemde ekli durumdadır.` Sil aynı kalıp.
 - **Vatandaş dashboard pie'ları yalnız VT (Vatandaş Talebi) sayar (card #1845):** `citizenJobs`,
   `BuildRequestTagChartAsync` (Talep Etiketi) ve üç mahalle grafiği (`Tamamlanan`/`Yapılmakta`/
   `İşleme Alınan`) bir Job'ı yalnız bağlı `SocialMessage.CitizenRequestNumber != null` ise sayar

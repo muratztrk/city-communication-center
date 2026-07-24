@@ -7,7 +7,7 @@ const MIN_GAP_PX = 16
 /** Başlık–aksiyon arasındayken sola kaydırma üst sınırı (card #1751 / #1885). */
 const MAX_SHIFT_PX = 320
 /** Birime Gelen + onaysız vatandaş talebi: Yazışmaya Git ile çakışmayı açmak için ek sola (card #1885). */
-const INCOMING_PENDING_EXTRA_SHIFT_PX = 56
+const INCOMING_PENDING_EXTRA_SHIFT_PX = 128
 
 type DetailModalHeaderBrandProps = {
   /** true → Birime Gelen / onaysız VT: ekstra sola kaydır. */

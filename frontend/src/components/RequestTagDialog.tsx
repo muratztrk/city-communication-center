@@ -282,7 +282,7 @@ export function RequestTagPicker({ tags, onSelect, largeText = false, selectedNa
       style={{ top: menuStyle.top, left: menuStyle.left, width: menuStyle.width }}
     >
       {searchable ? (
-        <div className="flex items-center justify-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
+        <div className="flex items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
           <Search className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
           <input
             type="text"
@@ -290,19 +290,19 @@ export function RequestTagPicker({ tags, onSelect, largeText = false, selectedNa
             value={search}
             onChange={event => setSearch(event.target.value)}
             placeholder={t('common.search', 'Ara...')}
-            className="min-w-0 flex-1 bg-transparent text-center text-xs text-slate-900 outline-none placeholder:text-slate-400"
+            className="min-w-0 flex-1 bg-transparent text-xs text-slate-900 outline-none placeholder:text-slate-400"
           />
         </div>
       ) : null}
       <div className="max-h-48 overflow-y-auto divide-y divide-slate-100">
         {visibleTags.length === 0 ? (
-          <p className="px-3 py-2 text-center text-xs font-semibold text-slate-500">{t('common.noResults', 'Sonuç bulunamadı.')}</p>
+          <p className="px-3 py-2 text-left text-xs font-semibold text-slate-500">{t('common.noResults', 'Sonuç bulunamadı.')}</p>
         ) : visibleTags.map(tag => (
           <button
             key={tag.tagId}
             type="button"
             onClick={() => { onSelect(tag.name); setOpen(false); setSearch(''); setMenuStyle(null) }}
-            className="flex w-full items-center justify-center truncate px-3 py-2 text-center text-xs font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-emerald-50 hover:text-emerald-900"
+            className="flex w-full items-center justify-start truncate px-3 py-2 text-left text-xs font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-emerald-50 hover:text-emerald-900"
           >
             {tag.name}
           </button>

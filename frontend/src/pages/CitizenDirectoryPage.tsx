@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { MessageSquareText, Search, X as XIcon } from 'lucide-react'
+import { MessageSquareText, Printer, Search, X as XIcon } from 'lucide-react'
 import { api } from '../api/client'
 import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeaderBrand'
 import { Button } from '../components/ui/button'
@@ -49,6 +49,63 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
     return getCitizenRequestStatusLabel(t, detail)
   }
   return t(`enum.jobStatus.${detail.status}`, { defaultValue: detail.status })
+}
+
+function printCitizenTickets(
+  conversation: CitizenConversationSummary,
+  tickets: CitizenConversationTicket[],
+  locale: string,
+  t: TFunction,
+) {
+  const citizenLine = [conversation.citizenName, formatDirectoryPhone(conversation.citizenPhone)].filter(Boolean).join(' · ') || '—'
+  const rowsHtml = tickets.map((ticket, index) => {
+    const status = ticket.jobStatus
+      ? t(`enum.jobStatus.${ticket.jobStatus}`, { defaultValue: ticket.jobStatus })
+      : '—'
+    const date = new Date(ticket.receivedAtUtc).toLocaleString(locale, {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+    return `<tr>
+      <td>${index + 1}</td>
+      <td>${formatVt(ticket)}</td>
+      <td>${date}</td>
+      <td>${(ticket.title?.trim() || '—').replace(/</g, '&lt;')}</td>
+      <td>${status}</td>
+      <td>${(ticket.departmentName ?? '—').replace(/</g, '&lt;')}</td>
+    </tr>`
+  }).join('')
+
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')}</title>
+    <style>
+      body{font-family:system-ui,sans-serif;padding:24px;color:#0f172a}
+      h1{font-size:18px;margin:0 0 4px}
+      p{margin:0 0 16px;color:#64748b;font-size:13px}
+      table{width:100%;border-collapse:collapse;font-size:12px}
+      th,td{border:1px solid #cbd5e1;padding:8px;text-align:left}
+      th{background:#f1f5f9}
+    </style></head><body>
+    <h1>${t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')}</h1>
+    <p>${citizenLine.replace(/</g, '&lt;')}</p>
+    <table><thead><tr>
+      <th>${t('common.number', 'Sıra')}</th>
+      <th>${t('jobs.columns.parentRequestNoShort', 'Talep No')}</th>
+      <th>${t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
+      <th>${t('jobs.columns.title', 'Talep Başlığı')}</th>
+      <th>${t('jobs.columns.status', 'Durum')}</th>
+      <th>${t('users.department', 'Birim')}</th>
+    </tr></thead><tbody>${rowsHtml}</tbody></table>
+    </body></html>`
+
+  const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=960,height=720')
+  if (!printWindow) return
+  printWindow.document.write(html)
+  printWindow.document.close()
+  printWindow.focus()
+  printWindow.print()
 }
 
 /**
@@ -401,12 +458,24 @@ export function CitizenDirectoryPage() {
                 <div className="my-request-detail-header__title">
                   <DetailModalTitle title={t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')} />
                 </div>
-                <p className="mt-0.5 text-xs font-medium text-slate-500">
+                <p className="mt-2 text-xs font-medium text-slate-500">
                   {[ticketModal.conversation.citizenName, formatDirectoryPhone(ticketModal.conversation.citizenPhone)].filter(Boolean).join(' · ')}
                 </p>
               </div>
               <DetailModalHeaderBrand />
               <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="ghost"
+                  className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
+                  disabled={ticketModal.loading || ticketsWithJobs.length === 0}
+                  onClick={() => printCitizenTickets(ticketModal.conversation, ticketsWithJobs, locale, t)}
+                  aria-label={t('common.print', 'Yazdır')}
+                >
+                  <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                  {t('common.print', 'Yazdır')}
+                </Button>
                 <button
                   type="button"
                   onClick={() => setTicketModal(null)}

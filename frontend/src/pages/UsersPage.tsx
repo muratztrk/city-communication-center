@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react'
+import type { TFunction } from 'i18next'
 import { Eye, EyeOff, ShieldUser, PenLine, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
@@ -28,6 +29,22 @@ type CreateMode = 'manual' | 'ldap'
 
 const PRIMARY_ROLE_CODES = [...ROLE_CODES]
 const ADDITIONAL_ROLE_CODES = ['Operator', 'Staff', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
+/** UI-only rol seçeneği — kayıtta Manager'a map (card #1897). */
+const SORUMLU_ROLE_OPTION = 'Sorumlu'
+
+function resolvePrimaryRoleCode(roleCode: string): string {
+  return roleCode === SORUMLU_ROLE_OPTION ? 'Manager' : roleCode
+}
+
+function primaryRoleFormOptions(t: TFunction) {
+  return [
+    ...PRIMARY_ROLE_CODES.map(roleCode => ({
+      value: roleCode,
+      label: getRoleLabel(t, roleCode),
+    })),
+    { value: SORUMLU_ROLE_OPTION, label: t('enum.role.Sorumlu', 'Sorumlu') },
+  ]
+}
 
 const DEFAULT_USER_FORM = {
   username: '',
@@ -652,7 +669,8 @@ export function UsersPage() {
       return
     }
 
-    if (newUser.roleCode === 'Manager' && newUser.departmentId) {
+    const resolvedRoleCode = resolvePrimaryRoleCode(newUser.roleCode)
+    if (resolvedRoleCode === 'Manager' && newUser.departmentId) {
       const existingManager = getDepartmentManager(newUser.departmentId)
       if (existingManager) {
         setError(t('users.managerConflict', { name: existingManager.displayName }))
@@ -668,8 +686,8 @@ export function UsersPage() {
         password: createMode === 'manual' ? newUser.password : null,
         departmentId: newUser.departmentId || null,
         additionalDepartmentIds: newUser.additionalDepartmentIds.filter(id => id !== newUser.departmentId),
-        roleCode: newUser.roleCode,
-        additionalRoleCodes: newUser.additionalRoleCodes.filter(role => role !== newUser.roleCode),
+        roleCode: resolvedRoleCode,
+        additionalRoleCodes: newUser.additionalRoleCodes.filter(role => role !== resolvedRoleCode),
         isActive: newUser.isActive,
         sourceType: createMode === 'ldap' ? 'Ldap' : 'Manual',
         externalIdentityId: createMode === 'ldap' ? newUser.externalIdentityId : null,
@@ -713,7 +731,8 @@ export function UsersPage() {
       return
     }
 
-    if (editForm.roleCode === 'Manager' && editForm.departmentId) {
+    const resolvedRoleCode = resolvePrimaryRoleCode(editForm.roleCode)
+    if (resolvedRoleCode === 'Manager' && editForm.departmentId) {
       const existingManager = getDepartmentManager(editForm.departmentId, userId)
       if (existingManager) {
         setError(t('users.managerConflict', { name: existingManager.displayName }))
@@ -725,8 +744,8 @@ export function UsersPage() {
       await api.updateUser(userId, {
         departmentId: editForm.departmentId,
         additionalDepartmentIds: editForm.additionalDepartmentIds,
-        roleCode: editForm.roleCode,
-        additionalRoleCodes: editForm.additionalRoleCodes,
+        roleCode: resolvedRoleCode,
+        additionalRoleCodes: editForm.additionalRoleCodes.filter(role => role !== resolvedRoleCode),
         isActive: editForm.isActive,
         ...(isManual ? {
           displayName: editForm.displayName.trim(),
@@ -895,7 +914,7 @@ export function UsersPage() {
                     disabled={directorySyncLoading}
                     onClick={() => void handleLiveLdapUserSync()}
                   >
-                    {directorySyncLoading ? t('users.liveLdapSyncWorking') : t('users.liveLdapSync')}
+                    {t('users.liveLdapSync')}
                   </button>
                   <button
                     type="button"
@@ -1173,10 +1192,7 @@ export function UsersPage() {
                   className="users-role-dropdown"
                   triggerClassName="text-xs"
                   menuClassName="users-roles-compact-menu"
-                  options={PRIMARY_ROLE_CODES.map(roleCode => ({
-                    value: roleCode,
-                    label: getRoleLabel(t, roleCode),
-                  }))}
+                  options={primaryRoleFormOptions(t)}
                   value={newUser.roleCode}
                   onChange={roleCode => setNewUser(current => ({
                     ...current,
@@ -1240,7 +1256,7 @@ export function UsersPage() {
               </div>
           </div>
 
-          {newUser.roleCode === 'Manager' && newUser.departmentId && getDepartmentManager(newUser.departmentId) ? (
+          {resolvePrimaryRoleCode(newUser.roleCode) === 'Manager' && newUser.departmentId && getDepartmentManager(newUser.departmentId) ? (
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
               ⚠ {t('users.managerConflict', { name: getDepartmentManager(newUser.departmentId)!.displayName })}
             </div>
@@ -1346,10 +1362,7 @@ export function UsersPage() {
                     <td className="w-[9rem] max-w-[9rem]">
                       <div className="grid w-full gap-1.5">
                         <SingleSelectDropdown
-                          options={PRIMARY_ROLE_CODES.map(roleCode => ({
-                            value: roleCode,
-                            label: getRoleLabel(t, roleCode),
-                          }))}
+                          options={primaryRoleFormOptions(t)}
                           value={editForm.roleCode}
                           onChange={roleCode => setEditForm(c => ({
                             ...c,
@@ -1388,7 +1401,7 @@ export function UsersPage() {
                       <div className="row-actions">
                         <Button size="sm" type="button" onClick={() => handleUpdateUser(user.userId, user.userSource)}>{t('common.save')}</Button>
                         <Button size="sm" type="button" variant="secondary" onClick={cancelEditing}>{t('common.cancel')}</Button>
-                        {editForm.roleCode === 'Manager' && editForm.departmentId && getDepartmentManager(editForm.departmentId, user.userId) ? (
+                        {resolvePrimaryRoleCode(editForm.roleCode) === 'Manager' && editForm.departmentId && getDepartmentManager(editForm.departmentId, user.userId) ? (
                           <span className="text-xs font-medium text-amber-700" title={t('users.managerConflict', { name: getDepartmentManager(editForm.departmentId, user.userId)!.displayName })}>
                             ⚠ {getDepartmentManager(editForm.departmentId, user.userId)!.displayName}
                           </span>

@@ -1193,11 +1193,24 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   3 kolon kalır.
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
-- **LDAP birim senkron/ekle (card #1857/#1862/#1890):** `Anlık LDAP…` **popup açmaz** — senkron
-  sonrası yalnız toast uyarı (none/success). `Tüm LDAP… Ekle` onay ister; listeleme sırasında
-  buton metni değişmez (flicker yok — #1890); ekleme sırasında `addAllLdapWorking`. Sonuç/
-  önizleme `details` içinde kaydırılabilir birim listesi. None metin:
+- **LDAP birim senkron/ekle (card #1857/#1862/#1890):** `Anlık LDAP…` ConfirmDialog ile sonuç
+  gösterir (working → success/none); buton metni listeleme sırasında değişmez (flicker yok).
+  `Tüm LDAP… Ekle` onay ister; listeleme sırasında buton metni değişmez (#1890); ekleme sırasında
+  `addAllLdapWorking`. Sonuç/önizleme `details` içinde kaydırılabilir birim listesi. None:
   `Eklenecek yeni LDAP birimi yok; hepsi sistemde ekli durumdadır.` Sil aynı kalıp.
+- **Grid boş em-dash (card #1894):** data-table hücrelerinde `—` `EmptyCell` / `.empty-cell-dash`
+  ile transparan; layout korunur.
+- **Sayfa Yetkileri (card #1892/#1893):** `Vatandaş Bilgi Listesi` Vatandaş Talepleri’nden sonra;
+  Kaydet sağda geniş, Varsayılanlara Dön solda; kayıt/sıfırlama sonucu ConfirmDialog (banner değil).
+- **Kullanıcı Rol: Sorumlu (card #1897):** dropdown’da `Sorumlu`; kayıtta `roleCode=Manager`
+  (yeni RoleCode yok); sayfa yetkileri Manager ile aynı.
+- **Birimler Müdür sütunu (card #1854):** `managerUserId` boşsa birimdeki aktif Manager rolündeki
+  kullanıcının adı gösterilir.
+- **Vatandaş dizin talep popup (card #1889/#1895):** Durum StatusPill + öncelik Talep No altında;
+  Birim↔Durum kolon sırası; yazdırmada Talep Detayları tablosu.
+- **Talep Etiketi detay (card #1896):** Operator / CitizenRequestManager için Talep Bilgileri
+  sonunda `citizenSourceMessage.category` (yoksa —).
+- **Grid kişi metni (card #1891):** birim altındaki kişi satırı `text-sm font-semibold`.
 - **Vatandaş dashboard pie'ları yalnız VT (Vatandaş Talebi) sayar (card #1845):** `citizenJobs`,
   `BuildRequestTagChartAsync` (Talep Etiketi) ve üç mahalle grafiği (`Tamamlanan`/`Yapılmakta`/
   `İşleme Alınan`) bir Job'ı yalnız bağlı `SocialMessage.CitizenRequestNumber != null` ise sayar

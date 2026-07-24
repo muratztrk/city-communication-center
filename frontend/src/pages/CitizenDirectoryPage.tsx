@@ -7,8 +7,10 @@ import { api } from '../api/client'
 import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeaderBrand'
 import { Button } from '../components/ui/button'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
+import { EmptyCell } from '../components/ui/EmptyCell'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
+import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
@@ -18,8 +20,9 @@ import { useSortable } from '../hooks/useSortable'
 import type { CitizenConversationDetail, CitizenConversationSummary, CitizenConversationTicket, JobDetail, SocialMessage } from '../types/platform'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { DetailModalTitle } from '../utils/detailModalTitle'
-import { getLocale, getSocialChannelLabel } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, getJobStatusTone } from '../utils/localization'
 import { formatDirectoryPhone } from '../utils/phoneDisplay'
+import { printHtmlDocument } from '../utils/printDocument'
 
 type DirectoryRow = CitizenConversationSummary & {
   displayName: string
@@ -58,9 +61,10 @@ function printCitizenTickets(
   t: TFunction,
 ) {
   const citizenLine = [conversation.citizenName, formatDirectoryPhone(conversation.citizenPhone)].filter(Boolean).join(' · ') || '—'
+  const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   const rowsHtml = tickets.map((ticket, index) => {
     const status = ticket.jobStatus
-      ? t(`enum.jobStatus.${ticket.jobStatus}`, { defaultValue: ticket.jobStatus })
+      ? getCitizenRequestStatusLabel(t, { status: ticket.jobStatus, taskCount: 1 })
       : '—'
     const date = new Date(ticket.receivedAtUtc).toLocaleString(locale, {
       day: '2-digit',
@@ -71,41 +75,40 @@ function printCitizenTickets(
     })
     return `<tr>
       <td>${index + 1}</td>
-      <td>${formatVt(ticket)}</td>
-      <td>${date}</td>
-      <td>${(ticket.title?.trim() || '—').replace(/</g, '&lt;')}</td>
-      <td>${status}</td>
-      <td>${(ticket.departmentName ?? '—').replace(/</g, '&lt;')}</td>
+      <td>${escape(formatVt(ticket))}</td>
+      <td>${escape(ticket.title?.trim() || '—')}</td>
+      <td>${escape(date)}</td>
+      <td>${escape(ticket.departmentName ?? '—')}</td>
+      <td>${escape(status)}</td>
     </tr>`
   }).join('')
 
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')}</title>
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi'))}</title>
     <style>
       body{font-family:system-ui,sans-serif;padding:24px;color:#0f172a}
       h1{font-size:18px;margin:0 0 4px}
+      h2{font-size:14px;margin:18px 0 8px;border-bottom:1px solid #cbd5e1;padding-bottom:4px}
       p{margin:0 0 16px;color:#64748b;font-size:13px}
       table{width:100%;border-collapse:collapse;font-size:12px}
       th,td{border:1px solid #cbd5e1;padding:8px;text-align:left}
       th{background:#f1f5f9}
-    </style></head><body>
-    <h1>${t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')}</h1>
-    <p>${citizenLine.replace(/</g, '&lt;')}</p>
+      .footer{margin-top:16px;font-size:11px;color:#64748b}
+    </style></head><body onload="window.print()">
+    <h1>${escape(t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi'))}</h1>
+    <p>${escape(citizenLine)}</p>
+    <h2>${escape(t('jobs.detail.requestInfo', 'Talep Detayları'))}</h2>
     <table><thead><tr>
-      <th>${t('common.number', 'Sıra')}</th>
-      <th>${t('jobs.columns.parentRequestNoShort', 'Talep No')}</th>
-      <th>${t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
-      <th>${t('jobs.columns.title', 'Talep Başlığı')}</th>
-      <th>${t('jobs.columns.status', 'Durum')}</th>
-      <th>${t('users.department', 'Birim')}</th>
+      <th>${escape(t('common.number', 'Sıra'))}</th>
+      <th>${escape(t('jobs.columns.parentRequestNoShort', 'Talep No'))}</th>
+      <th>${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>
+      <th>${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
+      <th>${escape(t('users.department', 'Birim'))}</th>
+      <th>${escape(t('jobs.columns.status', 'Durum'))}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
+    <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
     </body></html>`
 
-  const printWindow = window.open('', '_blank', 'noopener,noreferrer,width=960,height=720')
-  if (!printWindow) return
-  printWindow.document.write(html)
-  printWindow.document.close()
-  printWindow.focus()
-  printWindow.print()
+  printHtmlDocument(html)
 }
 
 /**
@@ -389,18 +392,20 @@ export function CitizenDirectoryPage() {
                   <td>
                     <span className="font-semibold text-slate-800">{row.displayName}</span>
                   </td>
-                  <td className="font-semibold text-slate-800 tabular-nums">{formatDirectoryPhone(row.citizenPhone) || '—'}</td>
+                  <td className="font-semibold text-slate-800 tabular-nums">
+                    <EmptyCell value={formatDirectoryPhone(row.citizenPhone)} />
+                  </td>
                   <td className="text-center">
                     {row.sourceChannel ? (
                       <span className="inline-flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap">
                         <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" />
                         <span className="text-sm font-semibold text-slate-800">{getSocialChannelLabel(t, row.sourceChannel)}</span>
                       </span>
-                    ) : '—'}
+                    ) : <EmptyCell />}
                   </td>
-                  <td>{row.neighborhood?.trim() || '—'}</td>
-                  <td>{row.street?.trim() || '—'}</td>
-                  <td>{row.openAddress?.trim() || '—'}</td>
+                  <td><EmptyCell value={row.neighborhood} /></td>
+                  <td><EmptyCell value={row.street} /></td>
+                  <td><EmptyCell value={row.openAddress} /></td>
                   <td className="actions-cell">
                     <div className="request-actions justify-center gap-1.5">
                       <Button type="button" size="sm" variant="secondary" onClick={() => void openTickets(row)}>
@@ -501,13 +506,20 @@ export function CitizenDirectoryPage() {
                           <th>{t('jobs.columns.parentRequestNoShort', 'Talep No')}</th>
                           <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
                           <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
-                          <th>{t('jobs.columns.status', 'Durum')}</th>
                           <th>{t('users.department', 'Birim')}</th>
+                          <th>{t('jobs.columns.status', 'Durum')}</th>
                           <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                         </tr>
                       </thead>
                       <tbody>
-                        {pagedTickets.map((ticket, index) => (
+                        {pagedTickets.map((ticket, index) => {
+                          const statusLabel = ticket.jobStatus
+                            ? getCitizenRequestStatusLabel(t, {
+                                status: ticket.jobStatus,
+                                taskCount: 1,
+                              })
+                            : null
+                          return (
                           <tr key={ticket.socialMessageId}>
                             <td className="text-center text-xs font-bold tabular-nums text-slate-400">
                               {(ticketSafePage - 1) * ticketPageSize + index + 1}
@@ -517,6 +529,11 @@ export function CitizenDirectoryPage() {
                                 {ticket.channel ? <ChannelIcon channel={ticket.channel} className="size-4 shrink-0" /> : null}
                                 <span>{formatVt(ticket)}</span>
                               </div>
+                              {ticket.priority ? (
+                                <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(ticket.priority)}`}>
+                                  (Öncelik:{getPriorityLabel(t, ticket.priority)})
+                                </div>
+                              ) : null}
                             </td>
                             <td className="text-sm font-semibold text-slate-700">
                               {new Date(ticket.receivedAtUtc).toLocaleString(locale, {
@@ -527,9 +544,15 @@ export function CitizenDirectoryPage() {
                                 minute: '2-digit',
                               })}
                             </td>
-                            <td className="font-semibold text-slate-800">{ticket.title?.trim() || '—'}</td>
-                            <td>{ticket.jobStatus ? t(`enum.jobStatus.${ticket.jobStatus}`, { defaultValue: ticket.jobStatus }) : '—'}</td>
-                            <td>{ticket.departmentName ?? '—'}</td>
+                            <td className="font-semibold text-slate-800"><EmptyCell value={ticket.title} /></td>
+                            <td><EmptyCell value={ticket.departmentName} /></td>
+                            <td>
+                              {statusLabel && ticket.jobStatus ? (
+                                <StatusPill className={getStatusPillClass(getJobStatusTone({ status: ticket.jobStatus, dueDateUtc: null }))}>
+                                  {statusLabel}
+                                </StatusPill>
+                              ) : <EmptyCell />}
+                            </td>
                             <td className="actions-cell">
                               <div className="request-actions justify-center">
                                 <Button
@@ -544,7 +567,8 @@ export function CitizenDirectoryPage() {
                               </div>
                             </td>
                           </tr>
-                        ))}
+                          )
+                        })}
                       </tbody>
                     </table>
                   )

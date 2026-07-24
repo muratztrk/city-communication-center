@@ -1,3 +1,11 @@
+## Round 445 — #1894/#1893/#1892/#1891/#1876/#1895/#1889/#1896/#1862/#1854/#1897
+- Grid `—` transparan (`EmptyCell`)
+- Sayfa Yetkileri: Kaydet sağ+geniş, Varsayılanlara Dön sol; sonuç popup; Vatandaş Bilgi Listesi satırı
+- Gittiği Yer / Talep Yeri kişi metni büyütüldü; Cadde değeri ortalı
+- Dizin ticket: StatusPill+öncelik; Birim↔Durum swap; print Talep Detayları
+- Operator/CRM detayda Talep Etiketi; Anlık LDAP ConfirmDialog + flicker yok
+- Müdür sütunu Manager-rol fallback; Rol dropdown Sorumlu→Manager
+
 ## Round 444 — #1885/#1876/#1889/#1890/#1862/#1878
 - Birime Gelen onaysız VT logo ekstra sola (~128px); diğerlerinde yok
 - Cadde/Açık Adres etiket alt çizgisi değer genişliğine

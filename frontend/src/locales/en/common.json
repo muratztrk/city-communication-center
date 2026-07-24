@@ -1324,6 +1324,7 @@
     "role": {
       "SystemAdmin": "System Admin",
       "Manager": "Manager",
+      "Sorumlu": "Responsible",
       "Operator": "Operator",
       "Staff": "Staff",
       "Reporter": "Reporter",

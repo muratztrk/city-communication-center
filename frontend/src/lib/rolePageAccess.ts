@@ -14,6 +14,7 @@ export const PAGE_ACCESS_ITEMS = [
   { key: 'incomingRequests', path: '/incoming-requests', labelKey: 'nav.incomingRequests' },
   { key: 'outgoingRequests', path: '/outgoing-requests', labelKey: 'nav.outgoingRequests' },
   { key: 'social', path: '/social', labelKey: 'nav.social' },
+  { key: 'citizenDirectory', path: '/citizen-directory', labelKey: 'nav.citizenDirectory' },
   { key: 'display', path: '/display', labelKey: 'nav.display' },
   { key: 'departments', path: '/departments', labelKey: 'nav.departments' },
   { key: 'users', path: '/users', labelKey: 'nav.users' },
@@ -35,6 +36,11 @@ export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'
 
 export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce((matrix, role) => {
   matrix[role] = PAGE_ACCESS_ITEMS.reduce((pages, page) => {
+    if (page.key === 'citizenDirectory') {
+      // Vatandaş Bilgi Listesi: Operatör / Üst Düzey / Sistem (card #1892).
+      pages[page.key] = role === 'SystemAdmin' || role === 'Operator' || role === 'Reporter'
+      return pages
+    }
     if (role === 'EDevletActivityPlan') {
       pages[page.key] = page.key === 'dashboard'
         || EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
@@ -116,6 +122,8 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
     if (role === 'Manager' || role === 'SystemAdmin') {
       matrix[role].departmentTasks = true
     }
+    // Vatandaş Bilgi Listesi yalnız Operatör / Üst Düzey / Sistem (card #1892).
+    matrix[role].citizenDirectory = role === 'SystemAdmin' || role === 'Operator' || role === 'Reporter'
     return matrix
   }, {} as RolePageAccessMatrix)
 }

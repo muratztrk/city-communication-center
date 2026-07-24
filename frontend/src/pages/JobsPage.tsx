@@ -1785,7 +1785,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         <div className="text-center">
           <div className="font-medium text-slate-700">{job.ownerDepartmentName ?? '—'}</div>
           {job.assignedUserDisplayName ? (
-            <div className="text-xs text-slate-500">{job.assignedUserDisplayName}</div>
+            <div className="text-sm font-semibold text-slate-500">{job.assignedUserDisplayName}</div>
           ) : null}
         </div>
       )
@@ -2501,6 +2501,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: 'Talep Yapılan Birim',
                         value: formatJobDestinationsWithAssignees(detail, false, false),
                       },
+                      // Operatör / Vatandaş Talep Yöneticisi: Talep Etiketi en altta (card #1896).
+                      ...((user?.role === 'Operator' || hasCitizenRequestManagerRole(user)) ? [{
+                        label: t('social.label', 'Talep Etiketi'),
+                        value: citizenSourceMessage?.category?.trim() || '—',
+                      }] : []),
                     ] : [
                       {
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).

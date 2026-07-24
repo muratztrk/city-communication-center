@@ -630,7 +630,6 @@ export function SettingsPage() {
       return
     }
 
-    setMessage(null)
     try {
       const matrixJson = serializeRolePageAccessMatrix(rolePageAccess)
       const normalizedMatrix = parseRolePageAccessMatrix(matrixJson) ?? rolePageAccess
@@ -639,9 +638,29 @@ export function SettingsPage() {
       saveRolePageAccessMatrix(normalizedMatrix)
       setRolePageAccess(normalizedMatrix)
       setTenantSettings(current => ({ ...current, rolePageAccessJson: matrixJson }))
-      setMessage({ type: 'success', text: t('settings.roles.saveSuccess') })
+      setConfirmDialog({
+        title: t('settings.roles.title'),
+        titleDivider: true,
+        titleCompact: true,
+        titleTone: 'success',
+        message: t('settings.roles.saveSuccess'),
+        confirmLabel: t('common.exit', 'Çıkış'),
+        hideCancel: true,
+        variant: 'primary',
+        onConfirm: () => {},
+      })
     } catch (saveError) {
-      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+      setConfirmDialog({
+        title: t('settings.roles.title'),
+        titleDivider: true,
+        titleCompact: true,
+        titleTone: 'danger',
+        message: saveError instanceof Error ? saveError.message : t('common.error'),
+        confirmLabel: t('common.exit', 'Çıkış'),
+        hideCancel: true,
+        variant: 'destructive',
+        onConfirm: () => {},
+      })
     }
   }
 
@@ -650,7 +669,6 @@ export function SettingsPage() {
       return
     }
 
-    setMessage(null)
     try {
       const matrixJson = serializeRolePageAccessMatrix(DEFAULT_ROLE_PAGE_ACCESS)
       await api.updateRolePageAccess(user.tenantId, matrixJson)
@@ -658,9 +676,29 @@ export function SettingsPage() {
       setRolePageAccess(DEFAULT_ROLE_PAGE_ACCESS)
       saveRolePageAccessMatrix(DEFAULT_ROLE_PAGE_ACCESS)
       setTenantSettings(current => ({ ...current, rolePageAccessJson: matrixJson }))
-      setMessage({ type: 'success', text: t('settings.roles.resetSuccess') })
+      setConfirmDialog({
+        title: t('settings.roles.title'),
+        titleDivider: true,
+        titleCompact: true,
+        titleTone: 'success',
+        message: t('settings.roles.resetSuccess'),
+        confirmLabel: t('common.exit', 'Çıkış'),
+        hideCancel: true,
+        variant: 'primary',
+        onConfirm: () => {},
+      })
     } catch (saveError) {
-      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+      setConfirmDialog({
+        title: t('settings.roles.title'),
+        titleDivider: true,
+        titleCompact: true,
+        titleTone: 'danger',
+        message: saveError instanceof Error ? saveError.message : t('common.error'),
+        confirmLabel: t('common.exit', 'Çıkış'),
+        hideCancel: true,
+        variant: 'destructive',
+        onConfirm: () => {},
+      })
     }
   }
 
@@ -2305,9 +2343,13 @@ export function SettingsPage() {
             onPageChange={setRolesPage}
           />
           <p className="helper-copy">{t('settings.roles.note')}</p>
-          <div className="inline-actions">
-            <Button type="button" onClick={saveRolePages}>{t('common.save')}</Button>
-            <Button type="button" variant="secondary" onClick={resetRolePages}>{t('settings.roles.resetDefaults')}</Button>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <Button type="button" variant="secondary" onClick={() => void resetRolePages()}>
+              {t('settings.roles.resetDefaults')}
+            </Button>
+            <Button type="button" className="min-w-[10.5rem] px-8" onClick={() => void saveRolePages()}>
+              {t('common.save')}
+            </Button>
           </div>
         </section>
       ) : null}

@@ -12,6 +12,7 @@ import { AutocompleteField } from '../components/forms/AutocompleteField'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { EmptyCell } from '../components/ui/EmptyCell'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
@@ -180,7 +181,7 @@ export function DepartmentsPage() {
     </div>
   )
 
-  // Anlık LDAP: onay/sonuç popup yok — senkronize et + toast uyarı (card #1862 reopen).
+  // Anlık LDAP: ConfirmDialog sonuç; buton metni flicker yok (card #1862 reopen).
   const handlePullAllLdapDepartmentsClick = () => {
     if (!ldapEnabled || pullAllLdapLoading) return
     void handlePullAllLdapDepartments()
@@ -189,6 +190,16 @@ export function DepartmentsPage() {
   const handlePullAllLdapDepartments = async () => {
     setPullAllLdapLoading(true)
     setError('')
+    setConfirmDialog({
+      title: t('departments.liveLdapSync'),
+      titleDivider: true,
+      titleCompact: true,
+      message: t('departments.liveLdapSyncWorking'),
+      confirmLabel: t('common.yes', 'Evet'),
+      hideCancel: true,
+      closeOnConfirm: false,
+      onConfirm: () => {},
+    })
 
     try {
       // physicalDeliveryOfficeName listesi — OU yok (card #1838).
@@ -224,20 +235,40 @@ export function DepartmentsPage() {
       setSelectedLdapDepartment(null)
       setNewName('')
 
+      // Yeni (sistemde olmayan) birim yoksa Users/Ekle ile aynı none mesajı; varsa yalnız onları listele (card #1862).
       if (newNames.length === 0) {
-        setToast({ type: 'error', message: t('departments.addAllLdapNone') })
+        setConfirmDialog({
+          title: t('departments.liveLdapSync'),
+          titleDivider: true,
+          titleCompact: true,
+          titleTone: 'danger',
+          message: t('departments.addAllLdapNone'),
+          confirmLabel: t('common.exit', 'Çıkış'),
+          hideCancel: true,
+          variant: 'destructive',
+          onConfirm: () => {},
+        })
         return
       }
 
-      setToast({
-        type: 'success',
+      setConfirmDialog({
+        title: t('departments.liveLdapSync'),
+        titleDivider: true,
+        titleCompact: true,
+        titleTone: 'success',
         message: t('departments.pullAllLdapSuccess', { count: newNames.length }),
+        details: renderLdapDepartmentList(
+          t('departments.pullAllLdapListedTitle', { count: newNames.length }),
+          newNames,
+        ),
+        confirmLabel: t('common.exit', 'Çıkış'),
+        hideCancel: true,
+        variant: 'primary',
+        onConfirm: () => {},
       })
     } catch (pullError) {
-      setToast({
-        type: 'error',
-        message: pullError instanceof Error ? pullError.message : t('common.error'),
-      })
+      setConfirmDialog(null)
+      setError(pullError instanceof Error ? pullError.message : t('common.error'))
     } finally {
       setPullAllLdapLoading(false)
     }
@@ -494,7 +525,18 @@ export function DepartmentsPage() {
     }, {})
   }, [departments])
 
-  const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? '—'
+  const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? null
+  // managerUserId yoksa birimdeki Manager rolündeki kullanıcıyı göster (card #1854).
+  const getDepartmentManagerName = (department: Department) => {
+    if (department.managerUserId) {
+      return getUserName(department.managerUserId)
+    }
+    return users.find(item =>
+      item.departmentId === department.departmentId
+      && item.roleCode === 'Manager'
+      && item.isActive,
+    )?.displayName ?? null
+  }
   const getManagerCandidates = () => users.filter(item => item.isActive)
   const userBelongsToDepartment = (item: User, departmentId?: string) => {
     if (!departmentId) return true
@@ -508,10 +550,22 @@ export function DepartmentsPage() {
   const { filters: deptFilters, setFilter: setDeptFilter, matchesFilters: deptMatchesFilters } = useColumnFilters()
 
   const departmentRows = useMemo(
-    () => departments.map(department => ({
-      ...department,
-      managerName: users.find(item => item.userId === department.managerUserId)?.displayName ?? '—',
-    })),
+    () => departments.map(department => {
+      const assigned = department.managerUserId
+        ? users.find(item => item.userId === department.managerUserId)?.displayName
+        : null
+      const roleFallback = assigned
+        ? null
+        : users.find(item =>
+          item.departmentId === department.departmentId
+          && item.roleCode === 'Manager'
+          && item.isActive,
+        )?.displayName
+      return {
+        ...department,
+        managerName: assigned ?? roleFallback ?? '—',
+      }
+    }),
     [departments, users],
   )
   const sortedDepts = useMemo(() => {
@@ -655,15 +709,15 @@ export function DepartmentsPage() {
                   disabled={pullAllLdapLoading}
                   onClick={() => handlePullAllLdapDepartmentsClick()}
                 >
-                  {pullAllLdapLoading ? t('departments.liveLdapSyncWorking') : t('departments.liveLdapSync')}
+                  {t('departments.liveLdapSync')}
                 </button>
                 <button
                   type="button"
                   className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"
                   disabled={addAllLdapLoading || pullAllLdapLoading}
-                  onClick={() => handleAddAllLdapDepartmentsClick()}
+                  onClick={() => void handleAddAllLdapDepartmentsClick()}
                 >
-                  {addAllLdapLoading ? t('departments.addAllLdapWorking') : t('departments.addAllLdap')}
+                  {t('departments.addAllLdap')}
                 </button>
                 <button
                   type="button"
@@ -788,16 +842,16 @@ export function DepartmentsPage() {
                           className="min-w-52"
                         />
                       ) : (
-                        getUserName(department.managerUserId)
+                        <EmptyCell value={getDepartmentManagerName(department)} />
                       )}
                     </td>
                     <td>
                       <div className="flex flex-wrap gap-1">
                         {(department.responsibleUserIds ?? []).length > 0
                           ? department.responsibleUserIds.map(responsibleUserId => (
-                              <StatusPill key={responsibleUserId} tone="info">{getUserName(responsibleUserId)}</StatusPill>
+                              <StatusPill key={responsibleUserId} tone="info">{getUserName(responsibleUserId) ?? '—'}</StatusPill>
                             ))
-                          : '—'}
+                          : <EmptyCell />}
                       </div>
                     </td>
                     <td className="actions-column text-center">

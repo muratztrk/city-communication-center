@@ -1355,6 +1355,7 @@
     "role": {
       "SystemAdmin": "Sistem Yöneticisi",
       "Manager": "Müdür",
+      "Sorumlu": "Sorumlu",
       "Operator": "Vatandaş Talep Operatörü",
       "Staff": "Standart",
       "Reporter": "Üst Düzey Yönetici",

@@ -13,6 +13,7 @@ import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
 import { useAuth } from '../../../context/AuthContext'
 import { shouldShowJobStatusActorName } from '../../../utils/jobDetails'
+import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
 import { buildMyRequestDetailFields } from './myRequestDetailFields'
@@ -225,6 +226,7 @@ export function MyRequestDetailMainCard({
   const { t } = useTranslation()
   const { user } = useAuth()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  const showCitizenRequestLabel = user?.role === 'Operator' || hasCitizenRequestManagerRole(user)
   // Manager/Reporter Taleplerim'de sahip onayını gizler; görev popup İlgili Talep'te gösterilir (#1654).
   const hideOwnerApproval = forceShowOwnerApproval
     ? false
@@ -239,8 +241,8 @@ export function MyRequestDetailMainCard({
   const citizenRequestNoLabel = t('jobs.detail.citizenRequestNo', 'Vatandaş Talep No')
   const projectLabel = t('jobs.form.isProject', 'Proje mi')
   const fields = useMemo(
-    () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField, useMyRequestsFieldLayout),
-    [detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField, useMyRequestsFieldLayout],
+    () => buildMyRequestDetailFields(detail, t, locale, citizenSourceMessage, requestNumberSuffix, extraFields, includeAssigneeField, useMyRequestsFieldLayout, showCitizenRequestLabel),
+    [citizenSourceMessage, detail, extraFields, includeAssigneeField, locale, requestNumberSuffix, showCitizenRequestLabel, t, useMyRequestsFieldLayout],
   )
   const visibleFields = fields.filter(field => {
     if (field.label === titleLabel) return false

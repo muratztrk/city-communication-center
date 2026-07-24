@@ -91,11 +91,7 @@ export default function App() {
           <Route path="/whatsapp" element={<PageAccessGate pageKey="social" user={user}><WhatsAppConversationsPage /></PageAccessGate>} />
           <Route
             path="/citizen-directory"
-            element={
-              user?.role === 'Reporter' || user?.role === 'Operator' || user?.role === 'SystemAdmin'
-                ? <PageAccessGate pageKey="social" user={user}><CitizenDirectoryPage /></PageAccessGate>
-                : <Navigate to="/dashboard" replace />
-            }
+            element={<PageAccessGate pageKey="citizenDirectory" user={user}><CitizenDirectoryPage /></PageAccessGate>}
           />
           <Route path="/departments" element={<PageAccessGate pageKey="departments" user={user}><DepartmentsPage /></PageAccessGate>} />
           <Route path="/users" element={<PageAccessGate pageKey="users" user={user}><UsersPage /></PageAccessGate>} />

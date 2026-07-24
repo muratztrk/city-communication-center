@@ -32,6 +32,8 @@ export function buildMyRequestDetailFields(
   // Taleplerim'de hedef birim/görevi yapan ayrı alanlar olarak kalır. Konum/oluşturan bütün
   // tüketicilerde birim üstte, oluşturan altta gösterilir (cards #1460/#1592/#1593).
   useMyRequestsFieldLayout = false,
+  // Operatör / CRM: Talep Etiketi satırı (card #1896).
+  showCitizenRequestLabel = false,
 ): MyRequestDetailField[] {
   // Sadece Taleplerim'de "Talep Yapılan Birim / Görevi Yapan" iki ayrı başlığa bölünür; "Görevi
   // Yapan" satırı yalnızca talebin görevi oluşup bir personele atanmışsa gösterilir (card #1460).
@@ -79,6 +81,9 @@ export function buildMyRequestDetailFields(
               : formatJobDestinationsWithAssignees(detail, false, false),
           }]),
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
+      ...(showCitizenRequestLabel
+        ? [{ label: t('social.label', 'Talep Etiketi'), value: citizenSourceMessage?.category?.trim() || '—' }]
+        : []),
       ...extraFields,
     ]
   }

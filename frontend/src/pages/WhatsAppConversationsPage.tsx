@@ -1303,6 +1303,7 @@ function ConversationDetail({
 
           {openTicket || loading ? (
             <footer className="shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
+              {/* Şablon/Dosya + Birim/Kurum İçi tek satır; Birim sağa yaslı (#r468, create-modal ile aynı). */}
               <div className="flex flex-wrap items-center gap-2">
                 <input
                   ref={fileInputRef}
@@ -1345,29 +1346,31 @@ function ConversationDetail({
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <SingleSelectDropdown
-                  options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
-                  value={internalDepartmentId}
-                  onChange={setInternalDepartmentId}
-                  placeholder={t('departments.selectDepartment', 'Birim seçin')}
-                  emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
-                  searchPlaceholder={t('departments.search', 'Birim ara...')}
-                  openUp={internalDepartmentOptions.length >= 2}
-                  className="min-w-44"
-                  triggerClassName="h-9 rounded-full px-3 text-xs font-semibold"
-                  menuScrollClassName="whatsapp-department-menu-scroll"
-                />
-                <button
-                  type="button"
-                  onClick={() => void handleSendInternal()}
-                  disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-                  {t('whatsapp.sendInternalMessage', 'Kurum İçi İlet')}
-                </button>
+                <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+                  <SingleSelectDropdown
+                    options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
+                    value={internalDepartmentId}
+                    onChange={setInternalDepartmentId}
+                    placeholder={t('departments.selectDepartment', 'Birim seçin')}
+                    emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
+                    searchPlaceholder={t('departments.search', 'Birim ara...')}
+                    openUp={internalDepartmentOptions.length >= 2}
+                    clearable
+                    className="w-[8.75rem] min-w-0 max-w-[8.75rem]"
+                    triggerClassName="h-9 w-full rounded-full px-2.5 text-xs font-semibold"
+                    menuWidth={200}
+                    menuScrollClassName="whatsapp-department-menu-scroll"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void handleSendInternal()}
+                    disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
+                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+                    {t('whatsapp.sendInternalMessage', 'Kurum İçi İlet')}
+                  </button>
+                </div>
               </div>
               <div className="flex items-end gap-2">
                 <textarea

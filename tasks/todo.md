@@ -1,3 +1,6 @@
+## Round 468 — WA Konuşmaları Birim/Kurum İçi üst satır sağa
+- Footer: Birim + Kurum İçi şablon satırında `ml-auto`; menü 200px + clearable X
+
 ## Round 467 — paging fix, VT detail, print notes, dizin sort, Birim narrow
 - VT grid: sayfa tıklanınca filtre clear page'i 1'e çekmez
 - JobDetail + yazdır: CitizenRequestNumber / VT-…

@@ -3218,3 +3218,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a645f36` — Düzenle Birim/Rol panel genişliği = trigger; satır fontu ~0.6rem.
 
 ## STATUS: Round 456 complete — frontend build/lint green; shipping.
+
+## Round 457 (Doing — 2026-07-25, Kullanıcılar yarım aksiyon temizliği)
+- [x] `6a6479b1` — Yeni Kullanıcı / Düzenle / Sil birbirinin yarım durumunu temizler.
+
+## STATUS: Round 457 complete — frontend build/lint green; shipping.

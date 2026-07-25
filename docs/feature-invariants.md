@@ -1207,6 +1207,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ConfirmDialog (banner değil).
 - **Kullanıcılar düzenle Birim/Rol dropdown (card #r448/#r456):** sütun ~7.5rem / ~9rem; açık
   panel genişliği = trigger; menü satır fontu ~0.6rem (`users-edit-dropdown-menu-scroll`).
+- **Kullanıcılar yarım aksiyon (#r457):** Yeni Kullanıcı Ekle / Düzenle / Sil birbirinin açık
+  yarım durumunu temizler (düzenleme satırı + create form aynı anda kalmaz).
 - **Dış birim detay alanları (card #r449/#r455):** ExternalUnit detayda Talep Yeri / Talep Yapılan
   Birim yeşil StatusPill çerçeve **yok** — eski `StackedFieldValue` / düz destination metni (#r455).
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid

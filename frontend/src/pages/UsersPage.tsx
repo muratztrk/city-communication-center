@@ -673,6 +673,8 @@ export function UsersPage() {
   }
 
   const openCreateForm = () => {
+    // Yarım kalan satır düzenlemesini kapat (card #r457).
+    setEditingUserId(null)
     const initialMode = managementContext?.ldapEnabled ? 'ldap' : 'manual'
     updateSearchParams({ create: '1', mode: initialMode })
   }
@@ -728,6 +730,11 @@ export function UsersPage() {
   }
 
   const startEditing = (user: User) => {
+    // Yeni Kullanıcı formu açıksa kapat; başka satırın yarım düzenlemesi de değişir (#r457).
+    if (showForm) {
+      resetForm()
+      updateSearchParams({ create: null, mode: null })
+    }
     setEditingUserId(user.userId)
     setEditForm({
       displayName: user.displayName ?? '',
@@ -786,6 +793,12 @@ export function UsersPage() {
   }
 
   const handleDeleteUser = (user: User) => {
+    // Sil onayına geçerken açık düzenleme satırını bırakma (card #r457).
+    setEditingUserId(null)
+    if (showForm) {
+      resetForm()
+      updateSearchParams({ create: null, mode: null })
+    }
     setConfirmDialog({
       message: t('users.deleteConfirm', { name: user.displayName }),
       variant: 'destructive',

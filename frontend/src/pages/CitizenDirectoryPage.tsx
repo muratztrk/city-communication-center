@@ -340,7 +340,8 @@ export function CitizenDirectoryPage() {
 
       <section className="section-card overflow-hidden p-0">
         {error ? <div className="error m-4">{error}</div> : null}
-        <div className="table-scroll-shell">
+        {/* table-wrap: mobilde yatay kaydırma (#r482); eski table-scroll-shell CSS'sizdi. */}
+        <div className="table-wrap">
           <table className="data-table">
             <thead>
               <tr>

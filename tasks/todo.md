@@ -1,3 +1,7 @@
+## Round 482 — Mobil: dizin yatay scroll + WA FAB boyutu
+- CitizenDirectory: table-scroll-shell → table-wrap (overflow-x)
+- WhatsApp FAB: size-12 sm:size-14 (InternalMessages ile eşit)
+
 ## Round 481 — Talep Yapılan Birim " / -" kaldır
 - formatJobDestinationsWithAssignees: atanan yoksa yalnız birim (onay bekleyen)
 

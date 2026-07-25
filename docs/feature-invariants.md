@@ -1143,7 +1143,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gösterilir. Yazışmaya Git → birim yöneticisi/personel detayındaki aynı
   `WhatsAppConversationModal` (`latestSocialMessageId` veya konuşma detayından) (card #1884);
   `Phone`/Çağrı satırında `DisabledActionButton` ile pasif (card #1868), açık mavi stil
-  (`MessageSquareText` + `!bg-sky-400`).
+  (`MessageSquareText` + `!bg-sky-400`). Mobil grid `table-wrap` ile yatay kayar (#r482).
+- **FAB boyutları (#r482):** WhatsApp bildirim balonu mobil `size-12` / `sm:size-14` — Kurum İçi
+  Mesajlar FAB ile aynı.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859):** Üst Düzey Yönetici
   (`Reporter`) ve Vatandaş Talep Operatörü (`Operator`) sol menüde `Anasayfa - Vatandaş`
   (`/dashboard`) + `Anasayfa - Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.

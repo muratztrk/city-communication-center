@@ -666,7 +666,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   />
                   {canManageRequestTags ? (
                     <>
-                      <RequestTagPicker tags={requestTags} selectedName={requestLabel} onSelect={label => { void handleRequestLabelSelect(label) }} />
+                      <RequestTagPicker tags={requestTags} selectedName={requestLabel} onSelect={label => { void handleRequestLabelSelect(label) }} onClear={() => { void handleRequestLabelSelect('') }} />
                       <RequestTagAddButton onChanged={() => { void loadRequestTags() }} />
                     </>
                   ) : null}

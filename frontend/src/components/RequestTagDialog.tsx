@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { ChevronDown, Plus, Search, Tag, Trash2 } from 'lucide-react'
+import { ChevronDown, Plus, Search, Tag, Trash2, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { RequestTag } from '../types/platform'
@@ -200,6 +200,8 @@ export function RequestTagAddButton({ onChanged, largeText = false }: RequestTag
 interface RequestTagPickerProps {
   tags: RequestTag[]
   onSelect: (name: string) => void
+  /** Seçimi temizler → buton "Etiketler" default (#r461). */
+  onClear?: () => void
   largeText?: boolean
   /** Seçili etiket adı — buton metni; yoksa "Etiketler" (card #1878 reopen). */
   selectedName?: string | null
@@ -219,14 +221,16 @@ function computeTagMenuStyle(button: HTMLDivElement) {
 
 // "Şablon mesajlar" (WhatsAppTemplatePicker) ile aynı buton+portal açılış davranışı — bir
 // SingleSelectDropdown yerine, seçim yapılınca kapanan basit bir menü butonu (kart #1510).
-export function RequestTagPicker({ tags, onSelect, largeText = false, selectedName = null }: RequestTagPickerProps) {
+export function RequestTagPicker({ tags, onSelect, onClear, largeText = false, selectedName = null }: RequestTagPickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const buttonRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number } | null>(null)
-  const buttonLabel = selectedName?.trim() || t('whatsapp.requestTagsShort', 'Etiketler')
+  const trimmedSelected = selectedName?.trim() || ''
+  const buttonLabel = trimmedSelected || t('whatsapp.requestTagsShort', 'Etiketler')
+  const canClear = Boolean(onClear && trimmedSelected)
 
   const sorted = useMemo(
     () => [...tags].sort((left, right) => left.name.localeCompare(right.name, 'tr')),
@@ -313,20 +317,39 @@ export function RequestTagPicker({ tags, onSelect, largeText = false, selectedNa
   ) : null
 
   return (
-    <div className={`relative min-w-0 ${largeText ? 'flex-1' : 'w-[8.5rem] shrink-0'}`} ref={buttonRef}>
-      <Button
-        type="button"
-        size="sm"
-        variant="secondary"
-        onClick={toggleOpen}
-        disabled={isEmpty}
-        title={buttonLabel}
-        className={`w-full justify-center gap-1 disabled:opacity-50 ${largeText ? 'h-9 text-sm' : 'h-8 px-2.5 text-xs'}`}
-      >
-        <Tag className="size-3.5 shrink-0 text-emerald-600" />
-        <span className="min-w-0 truncate text-center">{buttonLabel}</span>
-        <ChevronDown className={`size-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
-      </Button>
+    <div className={`relative min-w-0 ${largeText ? 'flex-1' : canClear ? 'w-[10rem] shrink-0' : 'w-[8.5rem] shrink-0'}`} ref={buttonRef}>
+      <div className="flex min-w-0 items-center gap-1">
+        <Button
+          type="button"
+          size="sm"
+          variant="secondary"
+          onClick={toggleOpen}
+          disabled={isEmpty}
+          title={buttonLabel}
+          className={`min-w-0 flex-1 justify-center gap-1 disabled:opacity-50 ${largeText ? 'h-9 text-sm' : 'h-8 px-2.5 text-xs'}`}
+        >
+          <Tag className="size-3.5 shrink-0 text-emerald-600" />
+          <span className="min-w-0 truncate text-center">{buttonLabel}</span>
+          <ChevronDown className={`size-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
+        </Button>
+        {canClear ? (
+          <button
+            type="button"
+            onClick={event => {
+              event.stopPropagation()
+              setOpen(false)
+              setSearch('')
+              setMenuStyle(null)
+              onClear?.()
+            }}
+            className="inline-flex size-7 shrink-0 items-center justify-center rounded-full text-red-600 transition-colors hover:bg-red-50"
+            title={t('common.clear', 'Temizle')}
+            aria-label={t('common.clear', 'Temizle')}
+          >
+            <X className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
+          </button>
+        ) : null}
+      </div>
       {menu}
     </div>
   )

@@ -1187,9 +1187,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → Telefon → Talep Tarihi →
   Gittiği Yer → Talep Etiketi → İşlemler. Etiket dropdown hücresinde buton ortalı; açık menü
   satırları sola yaslı (card #1878 reopen — ortalanmamalı).
-- **Vatandaş Talepleri Talep Etiketi (card #1878):** grid hücresinde yalnız `RequestTagPicker`;
+- **Vatandaş Talepleri Talep Etiketi (card #1878/#r461):** grid hücresinde `RequestTagPicker`;
   buton metni seçili etikettir (yoksa `Etiketler`), kapalı halde `text-xs`/`h-8`. Açık menü
-  satırları `text-left`. Yalnız kategori güncellemesi durumdan bağımsız.
+  satırları `text-left`. Yalnız kategori güncellemesi durumdan bağımsız. Seçiliyken sağda kırmızı
+  `X` → kategori temizlenir (`Etiketler` default). Grid sayfa/page-size değişince kolon filtreleri
+  sıfırlanır (#r461).
 - **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde etiketi biraz sola; Açık Adres kolon
   ortasında; Cadde/Açık Adres etiket alt çizgisi değer metni genişliğine uzar; kısa viewport'ta
   3 kolon kalır.

@@ -1399,7 +1399,7 @@ export function CreateRequestPage() {
                   />
                   {canManageRequestTags && (
                     <>
-                      <RequestTagPicker largeText tags={requestTags} selectedName={citizenLabel} onSelect={label => void handleCitizenLabelSelect(label)} />
+                      <RequestTagPicker largeText tags={requestTags} selectedName={citizenLabel} onSelect={label => void handleCitizenLabelSelect(label)} onClear={() => void handleCitizenLabelSelect('')} />
                       <RequestTagAddButton largeText onChanged={() => void loadRequestTags()} />
                     </>
                   )}

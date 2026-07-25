@@ -1,3 +1,7 @@
+## Round 461 — Etiket picker X clear + sayfa değişince filtre reset
+- RequestTagPicker: seçiliyken kırmızı X → default `Etiketler` (grid/modal/create/edit)
+- Vatandaş Talepleri: sayfa/page-size değişince kolon filtreleri temizlenir
+
 ## Round 460 — print/about:blank, users font, description, WA etiket/footer, dizin title, açık adres zorunlu, print Başlık
 - Yazdır: `window.open(origin)` — about:blank / sol üst info yok
 - Kullanıcılar Birim/Rol dropdown satır ~0.52rem

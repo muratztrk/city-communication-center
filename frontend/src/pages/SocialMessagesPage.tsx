@@ -314,6 +314,10 @@ export function SocialMessagesPage() {
     }
   }
 
+  const handleCategoryClear = async (message: SocialMessage) => {
+    await handleCategorySelect(message, '')
+  }
+
   const handleMobileAppDepartmentAssign = async (message: SocialMessage, departmentId: string) => {
     if (!departmentId) return
     setRoutingMessageId(message.socialMessageId)
@@ -344,7 +348,7 @@ export function SocialMessagesPage() {
   }
 
   const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable()
-  const { filters: socialFilters, setFilter: setSocialFilter, matchesFilters: socialMatchesFilters } = useColumnFilters()
+  const { filters: socialFilters, setFilter: setSocialFilter, clearFilters: clearSocialFilters, matchesFilters: socialMatchesFilters } = useColumnFilters()
 
   const displayMessages = useMemo(() => messages.map(message => {
     const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
@@ -440,6 +444,18 @@ export function SocialMessagesPage() {
   useEffect(() => {
     setMessagesPage(1)
   }, [channelFilter, filterFrom, filterTo, requestStatusFilter, searchText, socialFilters])
+
+  // Sayfa değişince etiket/kolon filtreleri default'a döner (#r461).
+  const handleMessagesPageChange = (page: number) => {
+    if (page !== messagesPage) clearSocialFilters()
+    setMessagesPage(page)
+  }
+
+  const handleMessagesPageSizeChange = (size: number) => {
+    clearSocialFilters()
+    setMessagesPageSize(size)
+    setMessagesPage(1)
+  }
 
   const pagedMessages = useMemo(
     () => columnFilteredMessages.slice((messagesPage - 1) * messagesPageSize, messagesPage * messagesPageSize),
@@ -623,9 +639,11 @@ export function SocialMessagesPage() {
                     <td className="text-center">
                       <div className="inline-flex w-full justify-center">
                         <RequestTagPicker
+                          key={message.socialMessageId}
                           tags={requestTags}
                           selectedName={message.category}
                           onSelect={name => { void handleCategorySelect(message, name) }}
+                          onClear={() => { void handleCategoryClear(message) }}
                         />
                       </div>
                     </td>
@@ -678,8 +696,8 @@ export function SocialMessagesPage() {
           totalCount={columnFilteredMessages.length}
           pageSize={messagesPageSize}
           currentPage={messagesPage}
-          onPageSizeChange={setMessagesPageSize}
-          onPageChange={setMessagesPage}
+          onPageSizeChange={handleMessagesPageSizeChange}
+          onPageChange={handleMessagesPageChange}
         />
       </section>
 

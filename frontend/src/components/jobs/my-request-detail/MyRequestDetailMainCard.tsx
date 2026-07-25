@@ -108,6 +108,7 @@ export function MyRequestInfoFieldsList({
                   tags={requestTags}
                   selectedName={editDraft.category || null}
                   onSelect={name => onEditDraftChange({ category: name })}
+                  onClear={() => onEditDraftChange({ category: '' })}
                 />
               </div>
             ) : (

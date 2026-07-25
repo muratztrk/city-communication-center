@@ -85,7 +85,7 @@ function printCitizenTickets(
   }).join('')
 
   // onload print YOK — printHtmlDocument zaten bir kez print açar (card #r446 çift pencere).
-  // Başlık görünür + wrap + geniş kolon; blob penceresi yok (card #r450).
+  // Başlık kolonu yalnız rem (%% + rem karışımı daraltırdı, #r460); wrap açık.
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi'))}</title>
     <style>
       @page{margin:12mm}
@@ -96,12 +96,13 @@ function printCitizenTickets(
       table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
       th,td{border:1px solid #cbd5e1;padding:6px 7px;text-align:center;vertical-align:middle}
       th{background:#f1f5f9;white-space:nowrap}
-      .col-seq{width:2.4rem;white-space:nowrap}
-      .col-no{width:7rem;white-space:nowrap}
-      .col-title{width:34%;min-width:10rem;white-space:normal;word-break:break-word;overflow-wrap:break-word;hyphens:auto}
-      .col-date{width:8.25rem;white-space:nowrap}
-      .col-dept{width:10.5rem;white-space:normal;word-break:break-word}
-      .col-status{width:6.75rem;white-space:normal;word-break:break-word}
+      th.col-title{white-space:normal}
+      .col-seq{width:2.25rem;white-space:nowrap}
+      .col-no{width:6.75rem;white-space:nowrap}
+      .col-title{width:auto;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+      .col-date{width:8rem;white-space:nowrap}
+      .col-dept{width:9.5rem;white-space:normal;word-break:break-word}
+      .col-status{width:6.5rem;white-space:normal;word-break:break-word}
       .footer{margin-top:14px;font-size:10px;color:#64748b}
     </style></head><body>
     <h1>${escape(t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi'))}</h1>
@@ -471,7 +472,7 @@ export function CitizenDirectoryPage() {
             <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-6 py-3">
               <div className="detail-modal-header-title min-w-0">
                 <div className="my-request-detail-header__title">
-                  <DetailModalTitle title={t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')} />
+                  <DetailModalTitle title={t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')} />
                 </div>
                 <p className="mt-2 text-xs font-medium text-slate-500">
                   {[ticketModal.conversation.citizenName, formatDirectoryPhone(ticketModal.conversation.citizenPhone)].filter(Boolean).join(' · ')}

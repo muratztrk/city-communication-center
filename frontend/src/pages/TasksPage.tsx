@@ -2501,7 +2501,12 @@ const pageKicker = isMyTasksView
                                 />
                               </label>
                               <label className="grid gap-1">
-                                <span className="text-xs font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+                                <span className="text-xs font-semibold text-slate-500">
+                                  {t('address.openAddressLabel', 'Açık Adres')}
+                                  {editRoutineTaskModal.neighborhood ? (
+                                    <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '* max 100 karakter')}</span>
+                                  ) : null}
+                                </span>
                                 <textarea
                                   className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                                   placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
@@ -2509,6 +2514,7 @@ const pageKicker = isMyTasksView
                                   value={editRoutineTaskModal.openAddress ?? ''}
                                   onChange={e => updateRoutineTaskAddressDraft({ openAddress: e.target.value })}
                                   disabled={!editRoutineTaskModal.neighborhood}
+                                  required={Boolean(editRoutineTaskModal.neighborhood)}
                                 />
                               </label>
                             </div>

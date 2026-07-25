@@ -1,3 +1,13 @@
+## Round 460 — print/about:blank, users font, description, WA etiket/footer, dizin title, açık adres zorunlu, print Başlık
+- Yazdır: `window.open(origin)` — about:blank / sol üst info yok
+- Kullanıcılar Birim/Rol dropdown satır ~0.52rem
+- Detay Talep açıklaması ~13px
+- WA Etiket ekle biraz büyütüldü (h-8/text-xs)
+- Dizin Detaylar popup başlığı: Vatandaş Bilgi Listesi
+- WA chat: Birim seçin + Kurum İçi İlet şablon satırında sağa yaslı
+- Mahalle sonrası Açık Adres zorunlu + `* max 100 karakter` (talep oluştur + ilgili formlar)
+- Dizin yazdır Başlık kolonu rem/auto (%% karışımı kaldırıldı)
+
 ## Round 445 — #1894/#1893/#1892/#1891/#1876/#1895/#1889/#1896/#1862/#1854/#1897
 - Grid `—` transparan (`EmptyCell`)
 - Sayfa Yetkileri: Kaydet sağ+geniş, Varsayılanlara Dön sol; sonuç popup; Vatandaş Bilgi Listesi satırı

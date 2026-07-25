@@ -183,9 +183,9 @@ export function RequestTagAddButton({ onChanged, largeText = false }: RequestTag
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${largeText ? 'h-9 gap-1.5 px-3 text-sm' : 'h-7 px-2 text-[11px]'}`}
+        className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${largeText ? 'h-9 gap-1.5 px-3 text-sm' : 'h-8 px-2.5 text-xs'}`}
       >
-        <Plus className={`${largeText ? 'size-3.5' : 'size-3'} text-emerald-600`} aria-hidden="true" />
+        <Plus className="size-3.5 text-emerald-600" aria-hidden="true" />
         {t('whatsapp.addRequestTagButton', 'Etiket ekle')}
       </button>
       <RequestTagDialog

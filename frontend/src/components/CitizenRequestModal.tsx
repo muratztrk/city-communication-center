@@ -393,6 +393,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
       return
     }
+    if (neighborhood.trim() && !openAddress.trim()) {
+      setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
+      return
+    }
 
     if (!confirmedSubmit) {
       setConfirmDialog({
@@ -711,7 +715,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 </div>
                 <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-stretch">
                   <label className="job-field flex min-h-0 flex-col gap-1">
-                    <span className="job-field-label">{t('address.openAddressLabel', 'Açık Adres')}</span>
+                    <span className="job-field-label">
+                      {t('address.openAddressLabel', 'Açık Adres')}
+                      {neighborhood ? (
+                        <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '* max 100 karakter')}</span>
+                      ) : null}
+                    </span>
                     <textarea
                       className="field-textarea field-textarea--compact address-open-textarea min-h-[5.5rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
@@ -720,6 +729,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       onChange={event => setOpenAddress(event.target.value)}
                       onBlur={() => setOpenAddress(normalizeTitleCaseField(openAddress) ?? '')}
                       disabled={!neighborhood}
+                      required={Boolean(neighborhood)}
                     />
                   </label>
                   <div className="job-field flex min-h-0 flex-col gap-1">

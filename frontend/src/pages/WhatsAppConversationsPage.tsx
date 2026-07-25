@@ -639,7 +639,12 @@ function ConversationProfilePanel({
           <input className={disabledFieldClass} maxLength={ADDRESS_STREET_MAX_LENGTH} value={draft.street} onChange={event => onDraftChange({ street: event.target.value })} onBlur={() => onDraftChange({ street: normalizeTitleCaseField(draft.street) ?? '' })} disabled={!hasNeighborhood} required={hasNeighborhood} />
         </label>
         <label className="block space-y-1">
-          <span className={labelClass}>{t('address.openAddress', 'Açık Adres')}</span>
+          <span className={labelClass}>
+            {t('address.openAddress', 'Açık Adres')}
+            {hasNeighborhood ? (
+              <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '* max 100 karakter')}</span>
+            ) : null}
+          </span>
           <textarea
             rows={4}
             className={`${disabledFieldClass} min-h-[6rem] resize-none`}
@@ -648,6 +653,7 @@ function ConversationProfilePanel({
             onChange={event => onDraftChange({ openAddress: event.target.value })}
             onBlur={() => onDraftChange({ openAddress: normalizeTitleCaseField(draft.openAddress) ?? '' })}
             disabled={!hasNeighborhood}
+            required={hasNeighborhood}
           />
         </label>
         </div>
@@ -936,6 +942,10 @@ function ConversationDetail({
     if (!detail || profileSaving) return
     if (profileDraft.neighborhood.trim() && !profileDraft.street.trim()) {
       window.alert(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      return
+    }
+    if (profileDraft.neighborhood.trim() && !profileDraft.openAddress.trim()) {
+      window.alert(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
       return
     }
     const savedForConversationId = conversationId

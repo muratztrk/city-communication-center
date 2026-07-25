@@ -423,7 +423,7 @@ export function MyRequestDetailMainCard({
               <RichTextContent
                 value={detail.description}
                 emptyText={t('common.none')}
-                className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
+                className="rich-text-content mt-1.5 text-[13px] leading-5 text-slate-900"
               />
               )
           )}

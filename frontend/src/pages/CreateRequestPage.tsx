@@ -733,7 +733,12 @@ export function CreateRequestPage() {
         </div>
         <div className="grid gap-2">
           <label className="grid gap-1 min-h-0">
-            <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+            <span className="text-sm font-semibold text-slate-500">
+              {t('address.openAddressLabel', 'Açık Adres')}
+              {hasNeighborhood ? (
+                <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '* max 100 karakter')}</span>
+              ) : null}
+            </span>
             <textarea
               className="field-textarea address-open-textarea min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
               placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
@@ -742,6 +747,7 @@ export function CreateRequestPage() {
               onChange={e => setField('openAddress', e.target.value)}
               onBlur={() => setField('openAddress', normalizeTitleCaseField(form.openAddress) ?? '')}
               disabled={!hasNeighborhood}
+              required={hasNeighborhood}
             />
           </label>
           {renderPhotoUpload('min-h-0')}
@@ -766,6 +772,10 @@ export function CreateRequestPage() {
     }
     if (internalForm.neighborhood.trim() && !internalForm.street.trim()) {
       setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      return
+    }
+    if (internalForm.neighborhood.trim() && !internalForm.openAddress.trim()) {
+      setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
       return
     }
     // Yönetici/sorumlu için personel seçimi zorunludur (tek kişi).
@@ -849,6 +859,10 @@ export function CreateRequestPage() {
     }
     if (externalForm.neighborhood.trim() && !externalForm.street.trim()) {
       setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      return
+    }
+    if (externalForm.neighborhood.trim() && !externalForm.openAddress.trim()) {
+      setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
       return
     }
     if (confirmedKind !== 'external') {
@@ -946,6 +960,10 @@ export function CreateRequestPage() {
     }
     if (citizenForm.neighborhood.trim() && !citizenForm.street.trim()) {
       setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      return
+    }
+    if (citizenForm.neighborhood.trim() && !citizenForm.openAddress.trim()) {
+      setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
       return
     }
     if (confirmedKind !== 'citizen') {

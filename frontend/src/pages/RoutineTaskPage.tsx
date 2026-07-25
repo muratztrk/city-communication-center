@@ -196,6 +196,14 @@ export function RoutineTaskPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!form.title.trim() || !form.description.trim()) return
+    if (form.neighborhood.trim() && !form.street.trim()) {
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      return
+    }
+    if (form.neighborhood.trim() && !form.openAddress.trim()) {
+      setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
+      return
+    }
     setConfirmDialog({
       title: isEditMode
         ? t('routineTask.editTitle', 'Rutin Görev Düzenle')
@@ -330,7 +338,12 @@ export function RoutineTaskPage() {
               </div>
               <div className="grid gap-2 lg:grid-cols-2 lg:items-stretch">
                 <label className="grid min-h-0 gap-1">
-                  <span className="text-sm font-semibold text-slate-500">{t('address.openAddressLabel', 'Açık Adres')}</span>
+                  <span className="text-sm font-semibold text-slate-500">
+                    {t('address.openAddressLabel', 'Açık Adres')}
+                    {hasNeighborhood ? (
+                      <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '* max 100 karakter')}</span>
+                    ) : null}
+                  </span>
                   <textarea
                     className="field-textarea h-full min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                     placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
@@ -339,6 +352,7 @@ export function RoutineTaskPage() {
                     onChange={e => set('openAddress', e.target.value)}
                     onBlur={() => set('openAddress', normalizeTitleCaseField(form.openAddress) ?? '')}
                     disabled={!hasNeighborhood}
+                    required={hasNeighborhood}
                   />
                 </label>
 

@@ -25,12 +25,13 @@ function hardenPrintHtml(html: string): string {
 
 /**
  * Eski popup + document.write (card #r450 — blob penceresi geri alındı).
- * Adres çubuğunda blob:/about:blank yerine site origin gösterilir (card #r450).
+ * Pencere doğrudan site origin ile açılır; about:blank / sol üst info ikonu yok (#r460).
  */
 export function printHtmlDocument(html: string, options?: { width?: number; height?: number }): void {
   const width = options?.width ?? 820
   const height = options?.height ?? getVisibleDetailModalHeight()
-  const printWindow = window.open('', '_blank', getCenteredPopupFeatures(width, height))
+  const printUrl = `${window.location.origin}/`
+  const printWindow = window.open(printUrl, '_blank', getCenteredPopupFeatures(width, height))
   if (!printWindow) return
 
   try {
@@ -42,14 +43,6 @@ export function printHtmlDocument(html: string, options?: { width?: number; heig
   printWindow.document.open()
   printWindow.document.write(hardenPrintHtml(html))
   printWindow.document.close()
-
-  // blob: / about:blank yerine uygulama origin'i (yazdır header/footer URL, card #r450).
-  try {
-    const cleanUrl = `${window.location.origin}/`
-    printWindow.history.replaceState(null, '', cleanUrl)
-  } catch {
-    // replaceState bazı ortamlarda engelli olabilir; yazdırma yine çalışır.
-  }
 
   const script = printWindow.document.createElement('script')
   script.textContent = `

@@ -228,8 +228,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
   Cadde/Sokak/Bulvar ve Açık Adres alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
-  alt adres alanları da temizlenir. Mahalle seçildikten sonra Cadde/Sokak/Bulvar zorunludur
-  (etikette `*`, `required`) — R421. Taleplerim terminal talep notu süreç satırında tekil **Not**
+  alt adres alanları da temizlenir. Mahalle seçildikten sonra Cadde/Sokak/Bulvar **ve Açık Adres**
+  zorunludur (etikette `* max 100 karakter`, `required`) — R421 / #r460. Taleplerim terminal talep notu süreç satırında tekil **Not**
   linkidir; terminal tarih etiketinde `(İptal)`/durum parantezi basılmaz; Görev Detayları terminal
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Adres alan limitleri:** Cadde / Sokak / Bulvar tüm giriş yüzeylerinde en fazla 50 karakter,
@@ -1216,8 +1216,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
   `onMessageUpdated` ile category seçili kalır.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
-- **Dizin yazdır (#r449/#r450):** Başlık kolonu geniş (~34%) + wrap; eski popup
-  (`document.write`); adres çubuğu `history.replaceState` ile site origin (blob:/about:blank yok).
+- **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
+  (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);
+  `window.open(origin)` — about:blank / sol üst info ikonu yok (#r460).
+- **Yazdır popup origin (#r460):** `printHtmlDocument` boş URL yerine site origin ile açılır.
+- **Kullanıcılar Birim/Rol menü font (#r456/#r460):** `.users-edit-dropdown-menu*` satır ~0.52rem.
+- **Talep açıklaması detay (#r460):** Taleplerim/detay `RichTextContent` ~13px.
+- **WA Etiket ekle (#r460):** kompakt `RequestTagAddButton` `h-8` / `text-xs`.
+- **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).
+- **WA chat footer Birim/Kurum İçi (#r460):** şablon satırında `ml-auto` sağa yaslı (bir satır yukarı).
 - **Sayfa Yetkileri (#1893/#r449/#r451/#r453/#r455/#r459):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
   Kaydet FAB solunda (`--fab-inline-clearance - 3rem`); Kaydet `min-w-[13rem]` (#r455).
 - **Birimler Yönetici Ata (#r453):** Sorumlu/Müdür açılır panel genişliği trigger ile aynı

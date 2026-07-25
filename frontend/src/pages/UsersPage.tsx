@@ -910,7 +910,11 @@ export function UsersPage() {
               <span>{t('users.createMode')}</span>
               <div className="segmented-control">
                 {managementContext?.ldapEnabled ? (
-                  <button className={createMode === 'ldap' ? 'active' : ''} onClick={() => switchCreateMode('ldap')} type="button">
+                  <button
+                    className={createMode === 'ldap' ? 'active create-mode-ldap-pulse' : ''}
+                    onClick={() => switchCreateMode('ldap')}
+                    type="button"
+                  >
                     {t('users.ldapMode')}
                   </button>
                 ) : null}

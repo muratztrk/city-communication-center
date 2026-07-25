@@ -1215,7 +1215,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Sayfa Yetkileri (#1893/#r449/#r451):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
   Kaydet sağ kenarı WhatsApp bildirim FAB sol kenarına hizalı (`settings-roles-actions` /
   `--fab-inline-clearance`, FAB ile iç içe girmez).
-- **Oluşturma Modu varsayılan LDAP (#r449):** Kullanıcı/Birim yeni form.
+- **Oluşturma Modu varsayılan LDAP (#r449/#r452):** Kullanıcı/Birim yeni form; seçili LDAP
+  etiketi yanıp sönen yeşil (`create-mode-ldap-pulse` / `ccc-blink`).
+- **Ek görev birimler dropdown metin (#r452):** `users-dept-compact-menu` satır fontu ~0.78rem.
 - **Dahili/Ünvan (#r449):** Dahili yalnız rakam; Ünvan rakamsız.
 - **Yönetici Ata (#r449):** boşken “Müdür seçiniz...”; buton `sm`.
 - **Kullanıcı Rol: Sorumlu (card #1897/#1898):** dropdown’da `Sorumlu`; kayıtta `roleCode=Manager`

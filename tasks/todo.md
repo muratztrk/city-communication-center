@@ -3190,3 +3190,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a63491f` — Kaydet sağ kenarı WhatsApp bildirim FAB soluna hizalı (`settings-roles-actions`).
 
 ## STATUS: Round 451 complete — frontend build/lint green; shipping.
+
+## Round 452 (Doing — 2026-07-25, LDAP pulse + dept dropdown text)
+- [x] `6a6350cd` — Ek görev birimler dropdown satır fontu ~0.78rem.
+- [x] `6a6473f7` — Seçili LDAP oluşturma modu yanıp sönen yeşil.
+
+## STATUS: Round 452 complete — frontend build/lint green; shipping.

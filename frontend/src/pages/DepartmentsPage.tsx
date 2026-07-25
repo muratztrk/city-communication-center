@@ -694,7 +694,11 @@ export function DepartmentsPage() {
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('departments.createMode')}</span>
                 <div className="segmented-control">
-                  <button className={createMode === 'ldap' ? 'active' : ''} onClick={() => switchCreateMode('ldap')} type="button">
+                  <button
+                    className={createMode === 'ldap' ? 'active create-mode-ldap-pulse' : ''}
+                    onClick={() => switchCreateMode('ldap')}
+                    type="button"
+                  >
                     {t('departments.ldapMode')}
                   </button>
                   {managementContext?.localUsersEnabled !== false ? (

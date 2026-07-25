@@ -1,3 +1,6 @@
+## Round 469 — WA Konuşmaları Birim menü biraz geniş
+- Trigger ~9.5rem; açık menü ~240px
+
 ## Round 468 — WA Konuşmaları Birim/Kurum İçi üst satır sağa
 - Footer: Birim + Kurum İçi şablon satırında `ml-auto`; menü 200px + clearable X
 

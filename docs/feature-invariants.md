@@ -1208,7 +1208,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazdır not satırları (#r467):** iptal/tamamlamada `İptal Notu` / `Tamamlama Notu` Durum'dan
   sonra ayrı satır; boş Son Tarih = `Onay Bekleyen` (Belirsiz değil).
 - **Dizin ticket sıra (#r467):** VT yılı+numara azalan (en yüksek üstte).
-- **WA Birim panel (#r467/#r468):** açık menü ~200px + clearable X.
+- **WA Birim panel (#r467/#r468/#r469):** Konuşmalar sayfasında açık menü ~240px + clearable X;
+  trigger ~9.5rem. Create-modal ConversationPanel menü ~200px kalır.
 - **WA Konuşmaları footer (#r468):** Şablon/Dosya + Birim + Kurum İçi tek satır; Birim/Kurum
   İçi `ml-auto` sağa (create-modal ConversationPanel ile aynı).
 - **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde etiketi biraz sola; Açık Adres kolon

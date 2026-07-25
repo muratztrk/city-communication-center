@@ -48,15 +48,15 @@ function resolveOverflowTarget(eventTarget: Element): { anchor: HTMLElement; tex
 }
 
 /**
- * Global GridView hover: custom modern tooltip for clipped ellipsis / line-clamp
- * cells (replaces native browser title) (#r474, #r477, #r478).
+ * Global GridView hover tooltip for clipped cells (#r474–#r479).
+ * Opens below the cell, compact size, immediate response on every hover.
  */
 export function useDataTableOverflowTooltips() {
   useEffect(() => {
     let tip: HTMLDivElement | null = null
-    let showTimer: number | null = null
     let hideTimer: number | null = null
     let activeAnchor: HTMLElement | null = null
+    let activeText = ''
 
     const ensureTip = () => {
       if (tip) return tip
@@ -68,11 +68,7 @@ export function useDataTableOverflowTooltips() {
       return tip
     }
 
-    const clearTimers = () => {
-      if (showTimer != null) {
-        window.clearTimeout(showTimer)
-        showTimer = null
-      }
+    const clearHide = () => {
       if (hideTimer != null) {
         window.clearTimeout(hideTimer)
         hideTimer = null
@@ -80,18 +76,22 @@ export function useDataTableOverflowTooltips() {
     }
 
     const hide = () => {
-      clearTimers()
+      clearHide()
       if (tip) tip.dataset.open = 'false'
       activeAnchor = null
+      activeText = ''
     }
 
-    const place = (anchor: HTMLElement) => {
+    const placeBelow = (anchor: HTMLElement) => {
       const el = ensureTip()
       const rect = anchor.getBoundingClientRect()
       const tipRect = el.getBoundingClientRect()
-      const gap = 8
-      let top = rect.top - tipRect.height - gap
-      if (top < gap) top = rect.bottom + gap
+      const gap = 6
+      // Prefer below (#r479); only flip above when bottom would leave the viewport.
+      let top = rect.bottom + gap
+      if (top + tipRect.height > window.innerHeight - gap && rect.top - tipRect.height - gap >= gap) {
+        top = rect.top - tipRect.height - gap
+      }
       let left = rect.left + rect.width / 2 - tipRect.width / 2
       left = Math.max(gap, Math.min(left, window.innerWidth - tipRect.width - gap))
       el.style.top = `${Math.round(top)}px`
@@ -99,22 +99,23 @@ export function useDataTableOverflowTooltips() {
     }
 
     const show = (anchor: HTMLElement, text: string) => {
-      clearTimers()
-      // Avoid stacking with native browser tooltips.
+      clearHide()
       anchor.removeAttribute('title')
       const el = ensureTip()
-      el.textContent = text
+      const unchanged =
+        activeAnchor === anchor
+        && activeText === text
+        && el.dataset.open === 'true'
       activeAnchor = anchor
-      showTimer = window.setTimeout(() => {
-        place(anchor)
-        // Re-measure after text paint.
-        requestAnimationFrame(() => {
-          if (activeAnchor === anchor) {
-            place(anchor)
-            el.dataset.open = 'true'
-          }
-        })
-      }, 180)
+      activeText = text
+      if (!unchanged) el.textContent = text
+      placeBelow(anchor)
+      // Immediate open — no show delay (#r479).
+      requestAnimationFrame(() => {
+        if (activeAnchor !== anchor) return
+        placeBelow(anchor)
+        el.dataset.open = 'true'
+      })
     }
 
     const onOver = (event: Event) => {
@@ -122,24 +123,24 @@ export function useDataTableOverflowTooltips() {
       if (!(target instanceof Element)) return
       const hit = resolveOverflowTarget(target)
       if (!hit) {
-        if (activeAnchor && !activeAnchor.contains(target) && tip && !tip.contains(target)) {
-          hideTimer = window.setTimeout(hide, 80)
+        if (activeAnchor && !activeAnchor.contains(target)) {
+          clearHide()
+          hideTimer = window.setTimeout(hide, 40)
         }
         return
       }
-      if (activeAnchor === hit.anchor && tip?.dataset.open === 'true') return
       show(hit.anchor, hit.text)
     }
 
     const onOut = (event: Event) => {
       const related = (event as MouseEvent).relatedTarget
       if (related instanceof Node && activeAnchor?.contains(related)) return
-      if (related instanceof Node && tip?.contains(related)) return
-      hideTimer = window.setTimeout(hide, 80)
+      clearHide()
+      hideTimer = window.setTimeout(hide, 40)
     }
 
     const onScroll = () => {
-      if (activeAnchor && tip?.dataset.open === 'true') place(activeAnchor)
+      if (activeAnchor && tip?.dataset.open === 'true') placeBelow(activeAnchor)
       else hide()
     }
 
@@ -149,7 +150,7 @@ export function useDataTableOverflowTooltips() {
     window.addEventListener('resize', hide)
 
     return () => {
-      clearTimers()
+      clearHide()
       document.removeEventListener('mouseover', onOver, true)
       document.removeEventListener('mouseout', onOut, true)
       window.removeEventListener('scroll', onScroll, true)

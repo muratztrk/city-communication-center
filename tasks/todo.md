@@ -1,3 +1,6 @@
+## Round 479 — Grid tooltip küçült / alta / anında
+- Tooltip kompakt + aşağı açılır; show delay yok; hücre değişiminde anında güncelle
+
 ## Round 478 — Birim menü + modern grid tooltip
 - WA Birim menü 168→184 (çok az arttır)
 - Grid overflow: native title → emerald portal tooltip

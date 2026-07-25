@@ -630,7 +630,6 @@ export function DepartmentsPage() {
           </div>
           <Button
             type="button"
-            className="min-w-[12.5rem]"
             variant={showForm ? 'destructive' : 'primary'}
             onClick={() => {
               setShowForm(current => {
@@ -652,7 +651,11 @@ export function DepartmentsPage() {
               })
             }}
           >
-            {showForm ? t('common.cancel') : t('departments.new')}
+            {/* İptal = Yeni Birim Ekle genişliği (card #r459). */}
+            <span className="inline-grid place-items-center">
+              <span className="invisible col-start-1 row-start-1 whitespace-nowrap" aria-hidden="true">{t('departments.new')}</span>
+              <span className="col-start-1 row-start-1 whitespace-nowrap">{showForm ? t('common.cancel') : t('departments.new')}</span>
+            </span>
           </Button>
         </div>
       </header>

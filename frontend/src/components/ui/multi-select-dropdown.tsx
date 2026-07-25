@@ -19,6 +19,8 @@ interface MultiSelectDropdownProps {
   triggerClassName?: string
   /** Extra classes for the portal menu panel (e.g. compact role menus — card #1739). */
   menuClassName?: string
+  /** Fixed panel width (px); defaults to trigger width (card #r459). */
+  menuWidth?: number
   /** Open the options panel upward (e.g. when the control sits near the bottom of a modal). */
   openUp?: boolean
   disabled?: boolean
@@ -36,6 +38,7 @@ export function MultiSelectDropdown({
   className,
   triggerClassName,
   menuClassName,
+  menuWidth,
   openUp = false,
   disabled = false,
   searchable = false,
@@ -60,15 +63,15 @@ export function MultiSelectDropdown({
   const updateMenuPosition = useCallback(() => {
     const rect = rootRef.current?.getBoundingClientRect()
     if (!rect) return
-    // Trigger ile aynı genişlik — tablo hücrelerinde min zorlamak paneli şişiriyordu (#1706/#r456).
-    const width = Math.max(rect.width, 1)
+    // Trigger ile aynı genişlik (veya menuWidth) — #1706/#r456/#r459.
+    const width = menuWidth ?? Math.max(rect.width, 1)
     const left = Math.min(rect.left, Math.max(8, window.innerWidth - width - 8))
     setMenuStyle({
       left,
       width,
       ...(openUp ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
     })
-  }, [openUp])
+  }, [openUp, menuWidth])
 
   useEffect(() => {
     if (!open) return

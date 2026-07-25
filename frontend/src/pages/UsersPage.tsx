@@ -875,11 +875,14 @@ export function UsersPage() {
           {canManageUsers ? (
             <Button
               type="button"
-              className="min-w-[12.5rem]"
               variant={showForm ? 'destructive' : 'primary'}
               onClick={showForm ? closeCreateForm : openCreateForm}
             >
-              {showForm ? t('common.cancel') : t('users.new')}
+              {/* İptal = Yeni Kullanıcı Ekle genişliği (card #r459). */}
+              <span className="inline-grid place-items-center">
+                <span className="invisible col-start-1 row-start-1 whitespace-nowrap" aria-hidden="true">{t('users.new')}</span>
+                <span className="col-start-1 row-start-1 whitespace-nowrap">{showForm ? t('common.cancel') : t('users.new')}</span>
+              </span>
             </Button>
           ) : null}
         </div>
@@ -1397,7 +1400,8 @@ export function UsersPage() {
                           searchPlaceholder={t('common.search', 'Ara...')}
                           className="w-full min-w-0 max-w-full"
                           triggerClassName="text-xs !min-h-8 !px-2"
-                          // Panel genişliği = trigger; kompakt satır fontu (card #r456).
+                          // Panel: Birim → Ek roller sağ kenarı (7.5+9rem, card #r459).
+                          menuWidth={264}
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
                         />
                         <MultiSelectDropdown
@@ -1411,6 +1415,7 @@ export function UsersPage() {
                           className="w-full min-w-0 max-w-full"
                           triggerClassName="text-xs !min-h-8 !px-2"
                           menuClassName="users-edit-dropdown-menu-scroll"
+                          menuWidth={264}
                           searchable
                           searchPlaceholder={t('common.search', 'Ara...')}
                         />
@@ -1431,6 +1436,8 @@ export function UsersPage() {
                           searchPlaceholder={t('common.search', 'Ara...')}
                           className="w-full"
                           triggerClassName="text-xs"
+                          // Panel: Rol → LDAP (Kaynak) sonu (~9+5rem, card #r459).
+                          menuWidth={224}
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
                         />
                         <MultiSelectDropdown
@@ -1444,6 +1451,7 @@ export function UsersPage() {
                           className="w-full"
                           triggerClassName="text-xs"
                           menuClassName="users-edit-dropdown-menu-scroll"
+                          menuWidth={224}
                         />
                       </div>
                     </td>

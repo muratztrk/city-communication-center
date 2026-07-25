@@ -3228,3 +3228,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a6466fe` — Birimler/Kullanıcılar banner İptal `min-w-[12.5rem]`.
 
 ## STATUS: Round 458 complete — frontend build/lint green; shipping.
+
+## Round 459 (Doing — 2026-07-25, Kaydet/İptal/edit dropdown genişlikleri)
+- [x] `6a63491f` — Kaydet biraz sağa (FAB clearance -3rem).
+- [x] `6a6466fe` — Banner İptal = Yeni … Ekle genişliği (ölçüm grid).
+- [x] `6a647c2c` — Birim paneli Ek roller sağına (~16.5rem).
+- [x] `6a645f36` — Rol paneli LDAP sonuna (~14rem).
+
+## STATUS: Round 459 complete — frontend build/lint green; shipping.

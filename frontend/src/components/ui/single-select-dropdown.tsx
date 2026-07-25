@@ -25,6 +25,8 @@ interface SingleSelectDropdownProps {
   searchPlaceholder?: string
   /** Yalnız açılan panelin genişliğini özelleştirir; trigger genişliği değişmez (card #1344). */
   menuClassName?: string
+  /** Fixed panel width (px); defaults to trigger width when set without menuClassName (card #r459). */
+  menuWidth?: number
 }
 
 export function SingleSelectDropdown({
@@ -41,6 +43,7 @@ export function SingleSelectDropdown({
   searchable = false,
   searchPlaceholder = 'Ara...',
   menuClassName,
+  menuWidth,
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -63,16 +66,19 @@ export function SingleSelectDropdown({
   const updateMenuPosition = useCallback(() => {
     const rect = rootRef.current?.getBoundingClientRect()
     if (!rect) return
-    // menuClassName'li paneller (ör. max-w-[20rem]) trigger'dan geniş olabilir; sağ kenardan
-    // taşmasın diye olası genişlik varsayılarak left kırpılır (FilterableTh ile aynı desen).
-    const assumedWidth = menuClassName ? 320 : rect.width
+    // menuWidth / menuClassName panelleri trigger'dan geniş olabilir; sağ kenardan taşmasın.
+    const assumedWidth = menuWidth ?? (menuClassName ? 320 : rect.width)
     const left = Math.min(rect.left, Math.max(8, window.innerWidth - assumedWidth - 8))
     setMenuStyle({
       left,
       ...(openUp ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
-      ...(menuClassName ? { minWidth: rect.width } : { width: rect.width }),
+      ...(menuWidth
+        ? { width: menuWidth }
+        : menuClassName
+          ? { minWidth: rect.width }
+          : { width: rect.width }),
     })
-  }, [openUp, menuClassName])
+  }, [openUp, menuClassName, menuWidth])
 
   useEffect(() => {
     if (!open) return

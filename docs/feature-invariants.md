@@ -1205,12 +1205,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Sayfa Yetkileri (card #1892/#1893 reopen):** `Vatandaş Bilgi Listesi` Vatandaş Talepleri’nden
   sonra; sıra `Kaydet` → `Varsayılanlara Dön` (sağda, `justify-end`); kayıt/sıfırlama sonucu
   ConfirmDialog (banner değil).
-- **Kullanıcılar düzenle Birim/Rol dropdown (card #r448/#r456):** sütun ~7.5rem / ~9rem; açık
-  panel genişliği = trigger; menü satır fontu ~0.6rem (`users-edit-dropdown-menu-scroll`).
+- **Kullanıcılar düzenle Birim/Rol dropdown (card #r448/#r456/#r459):** sütun ~7.5rem / ~9rem;
+  Birim paneli Ek roller sağına (~16.5rem); Rol paneli LDAP sonuna (~14rem); satır fontu ~0.6rem.
 - **Kullanıcılar yarım aksiyon (#r457):** Yeni Kullanıcı Ekle / Düzenle / Sil birbirinin açık
   yarım durumunu temizler (düzenleme satırı + create form aynı anda kalmaz).
-- **Birimler/Kullanıcılar banner İptal (#r458):** form açıkken banner İptal `min-w-[12.5rem]`
-  (Yeni … Ekle ile aynı aile genişlik).
+- **Birimler/Kullanıcılar banner İptal (#r458/#r459):** İptal genişliği = Yeni … Ekle
+  (görünmez ölçüm grid’i; sabit min-w yok).
 - **Dış birim detay alanları (card #r449/#r455):** ExternalUnit detayda Talep Yeri / Talep Yapılan
   Birim yeşil StatusPill çerçeve **yok** — eski `StackedFieldValue` / düz destination metni (#r455).
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
@@ -1218,8 +1218,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450):** Başlık kolonu geniş (~34%) + wrap; eski popup
   (`document.write`); adres çubuğu `history.replaceState` ile site origin (blob:/about:blank yok).
-- **Sayfa Yetkileri (#1893/#r449/#r451/#r453/#r455):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
-  Kaydet, tam FAB yığını solunda kalır; Kaydet `min-w-[13rem]` (#r455).
+- **Sayfa Yetkileri (#1893/#r449/#r451/#r453/#r455/#r459):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
+  Kaydet FAB solunda (`--fab-inline-clearance - 3rem`); Kaydet `min-w-[13rem]` (#r455).
 - **Birimler Yönetici Ata (#r453):** Sorumlu/Müdür açılır panel genişliği trigger ile aynı
   (`users-edit-dropdown-menu` max-width yok); Yeni Birim Ekle açınca yarım kalan satır
   aksiyonları (Yönetici Ata/Sil/Düzenle) temizlenir.

@@ -1,3 +1,6 @@
+## Round 481 — Talep Yapılan Birim " / -" kaldır
+- formatJobDestinationsWithAssignees: atanan yoksa yalnız birim (onay bekleyen)
+
 ## Round 480 — Grid — gri; Rutin dosya boş metin boyutu
 - EmptyCell slate-400; Jobs/Tasks/Incoming bare — → EmptyCell
 - RoutineTask pendingEmpty text-sm (CreateRequest ile aynı)

@@ -119,6 +119,7 @@ export function getJobDestinationStacks(job: JobDetail): Array<{ departmentName:
 }
 
 export function formatJobDestinationsWithAssignees(job: JobDetail, showUnassignedPlaceholder = false, includeAssignee = true): string {
+  void showUnassignedPlaceholder // eski " / -" placeholder kaldırıldı (#r481)
   const destinations = sortJobDepartments(job.departments)
     .filter(department => department.role === 'Target' || department.role === 'Coordinating')
   const effectiveDestinations = destinations.length > 0
@@ -144,10 +145,11 @@ export function formatJobDestinationsWithAssignees(job: JobDetail, showUnassigne
           .filter((name): name is string => Boolean(name)),
       )]
       const departmentName = department.departmentName ?? job.ownerDepartmentName ?? '—'
+      // Atanan yoksa (onay bekleyen dahil) yalnız birim adı — " / -" gösterme (#r481).
       if (assignees.length > 0) {
         return `${departmentName} / ${assignees.join(', ')}`
       }
-      return showUnassignedPlaceholder ? `${departmentName} / -` : departmentName
+      return departmentName
     })
-    .join(', ') || (showUnassignedPlaceholder ? `${job.ownerDepartmentName || '—'} / -` : job.ownerDepartmentName || '—')
+    .join(', ') || job.ownerDepartmentName || '—'
 }

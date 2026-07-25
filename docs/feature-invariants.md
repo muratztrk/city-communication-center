@@ -1208,7 +1208,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazdır not satırları (#r467):** iptal/tamamlamada `İptal Notu` / `Tamamlama Notu` Durum'dan
   sonra ayrı satır; boş Son Tarih = `Onay Bekleyen` (Belirsiz değil).
 - **Dizin ticket sıra (#r467):** VT yılı+numara azalan (en yüksek üstte).
-- **WA Birim panel (#r467–#r471):** Konuşmalar trigger ~8.75rem / menü ~200px; create-modal
+- **WA Birim panel (#r467–#r472):** Konuşmalar trigger ~10rem / menü ~240px; create-modal
   menü ~168px; clearable X; placeholder `Birim seçiniz...`.
 - **WA Konuşmaları footer (#r468):** Şablon/Dosya + Birim + Kurum İçi tek satır; Birim/Kurum
   İçi `ml-auto` sağa (create-modal ConversationPanel ile aynı).
@@ -1216,7 +1216,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   için yalnızca Meta onaylı şablon mesaj gönderilebilir.`
 - **WA Şablon menü (#r471):** Konuşmalar sayfasında `menuAlign="start"` (sağa doğru açılır).
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
-- **Görev grid Görevi Yapan (#r471):** personel adı `text-sm font-semibold` (oluşturan ile aynı).
+- **Görev grid Görevi Yapan (#r471/#r472):** personel adı ~13px (`text-[0.8125rem] font-semibold`);
+  oluşturan `text-sm`'den biraz küçük.
 - **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde etiketi biraz sola; Açık Adres kolon
   ortasında; Cadde/Açık Adres etiket alt çizgisi değer metni genişliğine uzar; kısa viewport'ta
   3 kolon kalır.

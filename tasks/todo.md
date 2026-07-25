@@ -1,3 +1,7 @@
+## Round 472 — Görevi Yapan biraz küçült; WA Birim genişlet
+- Görev grid Görevi Yapan ~13px
+- WA Konuşmalar Birim ~10rem / menü 240px
+
 ## Round 471 — yazdır vatandaş adı; Birim daralt; Görevi Yapan sm; şablon sağa
 - Vatandaş yazdır: Talep No sonrası Ad/Telefon
 - Create-modal Birim menü ~168px

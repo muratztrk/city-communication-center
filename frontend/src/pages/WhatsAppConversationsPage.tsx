@@ -1357,9 +1357,9 @@ function ConversationDetail({
                     searchPlaceholder={t('departments.search', 'Birim ara...')}
                     openUp={internalDepartmentOptions.length >= 2}
                     clearable
-                    className="w-[8.75rem] min-w-0 max-w-[8.75rem]"
+                    className="w-[10rem] min-w-0 max-w-[10rem]"
                     triggerClassName="h-9 w-full rounded-full px-2.5 text-xs font-semibold"
-                    menuWidth={200}
+                    menuWidth={240}
                     menuScrollClassName="whatsapp-department-menu-scroll"
                   />
                   <button

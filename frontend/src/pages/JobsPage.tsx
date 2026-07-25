@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
+import { TruncatedText } from '../components/ui/TruncatedText'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -2111,7 +2112,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       </td>
                     )}
                     {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
-                    <td className="font-semibold"><span className={`cell-title ${isReporterJob ? 'text-[#f97316]' : ''}`}>{job.title}</span></td>
+                    <td className="font-semibold"><TruncatedText text={job.title} className={`cell-title ${isReporterJob ? 'text-[#f97316]' : ''}`} /></td>
                     {showTaskOwnerColumn && <td>{job.assignedUserDisplayName ?? '—'}</td>}
                     <td>
                       {isMyRequestsView || isDepartmentOutgoingView ? (
@@ -2942,7 +2943,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <tbody>
                     {detail.tasks.map(tk => (
                       <tr key={tk.taskId}>
-                        <td><span className="cell-title">{tk.title}</span></td>
+                        <td><TruncatedText text={tk.title} className="cell-title" /></td>
                         <td>{tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—'}</td>
                         <td>{tk.ownerDisplayName ?? '—'}</td>
                       </tr>

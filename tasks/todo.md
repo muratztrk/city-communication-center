@@ -1,3 +1,6 @@
+## Round 474 — Grid truncate hover tooltip
+- TruncatedText: Tasks/Jobs/Incoming Başlık (+ Görevi Yapan); taşınca title
+
 ## Round 473 — WA sayımlar iptalsiz; Birim menü daralt; 10dk auto-loop
 - Tümü + Talep Sayısı = intake+inProgress+completed (iptal yok)
 - WA Birim menü ~210px

@@ -2970,7 +2970,7 @@ const pageKicker = isMyTasksView
                     : ''
                   // Üst düzey (Reporter) talepten gelen atanmış görev: Başlık + Görevi Yapan turuncu (card #1648).
                   const reporterTitleClass = isReporterTask ? 'text-[#f97316]' : ''
-                  const reporterAssigneeClass = isReporterTask ? 'text-orange-500 font-semibold' : 'text-slate-600'
+                  const reporterAssigneeClass = isReporterTask ? 'text-orange-500' : 'text-slate-500'
 
                   return (
                   <tr key={task.taskId}>
@@ -3043,7 +3043,8 @@ const pageKicker = isMyTasksView
                           <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.82rem]">
                             {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
                           </StatusPill>
-                          <div className={`mt-1 truncate text-xs ${reporterAssigneeClass}`}>
+                          {/* Görevi Yapan = Talep Yeri oluşturan personel text-sm (#r471). */}
+                          <div className={`mt-1 truncate text-sm font-semibold ${reporterAssigneeClass}`}>
                             {task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}
                           </div>
                         </div>

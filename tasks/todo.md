@@ -1,3 +1,9 @@
+## Round 471 — yazdır vatandaş adı; Birim daralt; Görevi Yapan sm; şablon sağa
+- Vatandaş yazdır: Talep No sonrası Ad/Telefon
+- Create-modal Birim menü ~168px
+- Görev grid Görevi Yapan text-sm (oluşturan ile aynı)
+- WA Şablon menü menuAlign=start (sağa)
+
 ## Round 470 — WA Birim eşitle + placeholder + 24s metin
 - Konuşmalar Birim = create-modal (8.75rem / 200px)
 - Placeholder: Birim seçiniz... (her iki yer)

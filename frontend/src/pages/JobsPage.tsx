@@ -418,6 +418,10 @@ export function printJobDetail(
   const ownerDepartment = detail.departments.find(department => department.role === 'Owner')
   const requestDetailRows: Array<[string, string]> = [
     ['Talep No', jobDisplayNumber],
+    // Vatandaş yazdırmada Talep No sonrası ad/telefon (#r471).
+    ...(isCitizenPrint
+      ? [['Vatandaş Adı / Telefon No', [detail.citizenName, formatCitizenPhoneDisplay(detail.citizenPhone)].filter(Boolean).join(' / ') || '—'] as [string, string]]
+      : []),
     ['Talep Başlığı', detail.title],
     ['Talep Yeri / Oluşturan', [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     ...(options?.myRequestView || !shouldShowRequestApproverField(detail)

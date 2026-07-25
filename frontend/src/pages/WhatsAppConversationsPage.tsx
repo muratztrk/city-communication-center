@@ -1322,6 +1322,7 @@ function ConversationDetail({
                 />
                 <WhatsAppTemplatePicker
                   userQuickReplies={userQuickReplies}
+                  menuAlign="start"
                   onSelect={template => {
                     setReplyText(template.content)
                     if (template.source === 'meta') {

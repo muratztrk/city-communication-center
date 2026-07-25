@@ -1,6 +1,6 @@
 import { DateCell } from '../components/ui/date-cell'
 import { MapPin, Search, X } from 'lucide-react'
-import { Fragment, useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -441,13 +441,22 @@ export function SocialMessagesPage() {
     [filteredMessages, locale, socialMatchesFilters, t],
   )
 
+  // Sayfa numarası tıklanınca filtre temizliği socialFilters'ı değiştirir; o reset'i atla (#r467).
+  const skipPageResetRef = useRef(false)
   useEffect(() => {
+    if (skipPageResetRef.current) {
+      skipPageResetRef.current = false
+      return
+    }
     setMessagesPage(1)
   }, [channelFilter, filterFrom, filterTo, requestStatusFilter, searchText, socialFilters])
 
-  // Sayfa değişince etiket/kolon filtreleri default'a döner (#r461).
+  // Sayfa değişince etiket/kolon filtreleri default'a döner (#r461); paging bozulmaz (#r467).
   const handleMessagesPageChange = (page: number) => {
-    if (page !== messagesPage) clearSocialFilters()
+    if (page !== messagesPage) {
+      skipPageResetRef.current = true
+      clearSocialFilters()
+    }
     setMessagesPage(page)
   }
 

@@ -1202,6 +1202,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   vatandaşta `Proje mi` satırı yok.
 - **Vatandaş Talep Bilgisi popup (#r466):** `MyRequestDetailMainCard` vatandaşta `Proje mi` satırını
   gizler (`hideProjectRow`); dizin nested Detaylar dahil.
+- **Vatandaş Talepleri paging (#r467):** sayfa numarası tıklanınca kolon filtreleri temizlenir ama
+  sayfa 1'e sıfırlanmaz (filtre-clear → page-reset yarışı yok).
+- **JobDetail VT (#r467):** `GetJobById` / `JobDetailResponse` `CitizenRequestNumber` taşır; yazdır VT-…
+- **Yazdır not satırları (#r467):** iptal/tamamlamada `İptal Notu` / `Tamamlama Notu` Durum'dan
+  sonra ayrı satır; boş Son Tarih = `Onay Bekleyen` (Belirsiz değil).
+- **Dizin ticket sıra (#r467):** VT yılı+numara azalan (en yüksek üstte).
+- **WA Birim panel (#r467):** açık menü ~200px.
 - **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde etiketi biraz sola; Açık Adres kolon
   ortasında; Cadde/Açık Adres etiket alt çizgisi değer metni genişliğine uzar; kısa viewport'ta
   3 kolon kalır.

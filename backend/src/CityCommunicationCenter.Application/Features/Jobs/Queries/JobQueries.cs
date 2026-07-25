@@ -575,6 +575,14 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             }
         }
 
+        // Yazdır/detay VT- için linkli sosyal mesaj numarası (#r467).
+        var citizenRequest = await _dbContext.SocialMessages.AsNoTracking()
+            .Where(m => m.JobId == job.JobId && m.CitizenRequestNumber != null)
+            .OrderByDescending(m => m.CitizenRequestNumberYear)
+            .ThenByDescending(m => m.CitizenRequestNumber)
+            .Select(m => new { m.CitizenRequestNumber, m.CitizenRequestNumberYear })
+            .FirstOrDefaultAsync(cancellationToken);
+
         return new JobDetailResponse(
             job.JobId, job.TenantId, job.Title, job.Description,
             job.Status.ToString(), job.Priority,
@@ -589,6 +597,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             job.JobNumber, job.JobNumberYear,
             job.ManagerNote,
             depts, tasks, approvals, attachments,
-            jobStatusActorDisplayName, jobCompletionNote, job.UpdatedAtUtc, createdByRoleCode);
+            jobStatusActorDisplayName, jobCompletionNote, job.UpdatedAtUtc, createdByRoleCode,
+            citizenRequest?.CitizenRequestNumber, citizenRequest?.CitizenRequestNumberYear);
     }
 }

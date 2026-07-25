@@ -1,3 +1,10 @@
+## Round 467 — paging fix, VT detail, print notes, dizin sort, Birim narrow
+- VT grid: sayfa tıklanınca filtre clear page'i 1'e çekmez
+- JobDetail + yazdır: CitizenRequestNumber / VT-…
+- Yazdır: İptal/Tamamlama Notu ayrı satır; Son Tarih Belirsiz→Onay Bekleyen
+- Dizin ticket: en yüksek VT üstte
+- WA Birim açık menü ~200px
+
 ## Round 466 — Vatandaş Talep Bilgisi popup: Proje mi yok
 - MyRequestDetailMainCard: vatandaşta Proje mi satırı gizlenir (dizin nested Detaylar)
 

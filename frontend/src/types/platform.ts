@@ -406,6 +406,9 @@ export interface JobDetail {
   completionNote?: string | null;
   // Talebin son güncellenme zamanı — "Talep Detayları"nda iptal tarihi olarak kullanılır (card #715).
   updatedAtUtc?: string | null;
+  // Detay/yazdır VT- (liste özetiyle aynı, #r467).
+  citizenRequestNumber?: number | null;
+  citizenRequestNumberYear?: number | null;
 }
 
 export interface SocialConversationEntry {

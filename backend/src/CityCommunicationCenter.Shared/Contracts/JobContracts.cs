@@ -144,4 +144,7 @@ public sealed record JobDetailResponse(
     string? CompletionNote = null,
     // Talebin son güncellenme zamanı — "Talep Detayları"nda iptal tarihi olarak kullanılır (card #715).
     DateTimeOffset? UpdatedAtUtc = null,
-    string? CreatedByRoleCode = null);
+    string? CreatedByRoleCode = null,
+    // Detay/yazdır VT- numarası (liste özetindeki ile aynı kaynak, #r467).
+    int? CitizenRequestNumber = null,
+    int? CitizenRequestNumberYear = null);

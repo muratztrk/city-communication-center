@@ -235,6 +235,7 @@ function printTaskDetail(
   const taskDisplayNumber = taskSummary
     ? formatTaskDisplayNumber(taskSummary)
     : `G-${new Date().getFullYear()}-Onay Bekleyen`
+  // Durum sonrası ayrı İptal/Tamamlama Notu; boş Son Tarih = Onay Bekleyen (#r467).
   const taskDetailRows = [
     ['Görev No', taskDisplayNumber],
     ['Görev Başlığı', taskDetail.title],
@@ -244,18 +245,25 @@ function printTaskDetail(
     ['Görevi Yapan', taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—'],
     ['Görev Tipi', gorevTipi],
     ['Öncelik', getPriorityLabel(t, taskDetail.priority)],
-    ...(taskDetail.currentStatus === 'Completed' && taskDetail.notes
-      ? [['Görev Tamamlama Notu', richTextToPlainText(taskDetail.notes)]]
-      : []),
     ['Durum', getTaskDisplayStatus(t, taskDetail)],
+    ...((taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected')
+      ? [[t('tasks.detail.cancelNote', 'İptal Notu'), taskDetail.revisionReason?.trim() || '—']]
+      : []),
+    ...(taskDetail.currentStatus === 'Completed'
+      ? [[t('tasks.actions.completionNote', 'Tamamlama Notu'), richTextToPlainText(taskDetail.notes ?? '') || '—']]
+      : []),
     ['Görev Tarihi', fd(taskDetail.createdAtUtc)],
-    ['Son Tarih', fd(taskDetail.dueDateUtc)],
+    ['Son Tarih', formatDueDateTime(taskDetail.dueDateUtc, locale)],
   ].map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`).join('')
   const ownerApproval = parentJob?.departments.find(department => department.role === 'Owner')
   const targetApproval = parentJob?.departments.find(department => department.role === 'Target')
   const isCitizenParentJob = parentJob != null && isCitizenRequestJob(parentJob)
   const parentJobRows = parentJob ? (isCitizenParentJob ? [
-    ['Vatandaş Talep No', formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: parentJob.createdAtUtc }, locale)],
+    ['Vatandaş Talep No', formatCitizenRequestNumber(citizenSourceMessage ?? {
+      citizenRequestNumber: parentJob.citizenRequestNumber,
+      citizenRequestNumberYear: parentJob.citizenRequestNumberYear,
+      createdAtUtc: parentJob.createdAtUtc,
+    }, locale)],
     ['Vatandaş Adı / Telefon No', [parentJob.citizenName ?? citizenSourceMessage?.citizenHandle, formatCitizenPhoneDisplay(parentJob.citizenPhone ?? citizenSourceMessage?.citizenPhone)].filter(Boolean).join(' / ') || '—'],
     ['Talep Başlığı', parentJob.title],
     ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
@@ -269,7 +277,7 @@ function printTaskDetail(
     ...(shouldShowCitizenTargetApprovalDate(parentJob)
       ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(targetApproval?.decidedAtUtc, locale), getJobTargetApproverDisplayName(parentJob))]]
       : []),
-    ['Son Tarih', fd(parentJob.dueDateUtc)],
+    ['Son Tarih', formatDueDateTime(parentJob.dueDateUtc, locale)],
   ] : [
     ['Talep No', parentJob.jobNumber != null && parentJob.jobNumberYear != null ? `T-${parentJob.jobNumberYear}-${parentJob.jobNumber}` : '—'],
     ['Talep Başlığı', parentJob.title],
@@ -284,7 +292,7 @@ function printTaskDetail(
     ...(shouldShowCitizenTargetApprovalDate(parentJob)
       ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(targetApproval?.decidedAtUtc, locale), getJobTargetApproverDisplayName(parentJob))]]
       : []),
-    ['Son Tarih', fd(parentJob.dueDateUtc)],
+    ['Son Tarih', formatDueDateTime(parentJob.dueDateUtc, locale)],
   ]).map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(String(value))}</td></tr>`).join('') : ''
   printHtmlDocument(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(taskDisplayNumber)}</title><style>
     @page{margin:0}

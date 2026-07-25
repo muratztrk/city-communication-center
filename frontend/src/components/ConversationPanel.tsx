@@ -330,7 +330,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   clearable
                   className="w-[8.75rem] min-w-0 max-w-[8.75rem]"
                   triggerClassName={`${compactActions ? 'min-h-7 h-7 px-2 text-[11px]' : 'h-9 px-2.5 text-xs'} w-full rounded-full font-semibold`}
-                  menuWidth={240}
+                  menuWidth={200}
                   menuScrollClassName="whatsapp-department-menu-scroll"
                 />
                 <button

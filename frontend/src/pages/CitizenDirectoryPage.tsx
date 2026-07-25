@@ -284,7 +284,19 @@ export function CitizenDirectoryPage() {
   }
 
   // Job'a dönüşmemiş ama VT numarası taşıyan talepler de listelenir (card #1843).
-  const ticketsWithJobs = (ticketModal?.detail?.tickets ?? []).filter(ticket => ticket.jobId || ticket.citizenRequestNumber != null)
+  // En yüksek VT numarası üstte (#r467).
+  const ticketsWithJobs = useMemo(() => {
+    const tickets = (ticketModal?.detail?.tickets ?? []).filter(ticket => ticket.jobId || ticket.citizenRequestNumber != null)
+    return [...tickets].sort((a, b) => {
+      const yearA = a.citizenRequestNumberYear ?? 0
+      const yearB = b.citizenRequestNumberYear ?? 0
+      if (yearA !== yearB) return yearB - yearA
+      const numA = a.citizenRequestNumber ?? 0
+      const numB = b.citizenRequestNumber ?? 0
+      if (numA !== numB) return numB - numA
+      return new Date(b.receivedAtUtc).getTime() - new Date(a.receivedAtUtc).getTime()
+    })
+  }, [ticketModal?.detail?.tickets])
   const ticketTotalCount = ticketsWithJobs.length
   const ticketSafePage = Math.min(ticketPage, Math.max(1, Math.ceil(ticketTotalCount / ticketPageSize) || 1))
   const pagedTickets = ticketsWithJobs.slice((ticketSafePage - 1) * ticketPageSize, ticketSafePage * ticketPageSize)

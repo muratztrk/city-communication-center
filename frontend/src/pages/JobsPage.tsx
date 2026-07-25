@@ -337,12 +337,7 @@ function buildPrintJobStatusLabel(
   if (shouldShowJobStatusActorName(detail)) {
     status += ` (${detail.statusActorDisplayName})`
   }
-  if ((detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason) {
-    status += ` — İptal Notu: ${detail.cancelReason}`
-  }
-  if (detail.status === 'Completed' && detail.completionNote) {
-    status += ` — Tamamlama Notu: ${richTextToPlainText(detail.completionNote)}`
-  }
+  // İptal/Tamamlama notu Durum satırına gömülmez — ayrı satır (#r467).
   return status
 }
 
@@ -364,13 +359,7 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
       ? `G-${task.taskNumberYear ?? new Date().getFullYear()}-${task.taskNumber}`
       : '—'
     const owner = task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—'
-    let statusText = getTaskStatusLabel(t, task.currentStatus)
-    if (task.currentStatus === 'Cancelled' && task.revisionReason) {
-      statusText += ` — İptal Notu: ${task.revisionReason}`
-    }
-    if (task.currentStatus === 'Completed' && task.notes) {
-      statusText += ` — Tamamlama Notu: ${richTextToPlainText(task.notes)}`
-    }
+    const statusText = getTaskStatusLabel(t, task.currentStatus)
 
     const rows: Array<[string, string]> = [
       [t('tasks.columns.taskNo', 'Görev No'), taskNumber],
@@ -380,6 +369,12 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
       [t('tasks.columns.taskType', 'Görev Tipi'), taskType],
       [t('tasks.columns.priority', 'Öncelik'), getPriorityLabel(t, task.priority)],
       [t('tasks.columns.status', 'Durum'), statusText],
+      ...((task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected') && task.revisionReason
+        ? [[t('tasks.detail.cancelNote', 'İptal Notu'), task.revisionReason] as [string, string]]
+        : []),
+      ...(task.currentStatus === 'Completed' && task.notes
+        ? [[t('tasks.actions.completionNote', 'Tamamlama Notu'), richTextToPlainText(task.notes)] as [string, string]]
+        : []),
       [t('tasks.columns.taskDate', 'Görev Tarihi'), formatDateTime(task.createdAtUtc ?? null, locale)],
     ]
     if (task.currentStatus === 'Completed') {
@@ -387,7 +382,7 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
     } else if (task.currentStatus === 'Cancelled') {
       rows.push([t('tasks.columns.cancelledAt', 'İptal Tarihi'), formatDateTime(task.updatedAtUtc ?? null, locale)])
     }
-    rows.push([t('tasks.columns.dueDate', 'Son Tarih'), formatDateTime(task.dueDateUtc, locale)])
+    rows.push([t('tasks.columns.dueDate', 'Son Tarih'), formatDueDateTime(task.dueDateUtc, locale)])
 
     const tableRows = rows
       .map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`)
@@ -436,6 +431,12 @@ export function printJobDetail(
     ...(isCitizenPrint ? [] : [['Proje mi', formatJobProjectLabel(detail, t)] as [string, string]]),
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
+    ...((detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason
+      ? [['İptal Notu', detail.cancelReason] as [string, string]]
+      : []),
+    ...(detail.status === 'Completed' && detail.completionNote
+      ? [['Tamamlama Notu', richTextToPlainText(detail.completionNote)] as [string, string]]
+      : []),
     ['Talep Tarihi', fd(detail.createdAtUtc)],
     ...(isCitizenPrint ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(ownerApprovalDate, locale), ownerDepartment?.approvedByDisplayName)] as [string, string]]),
     ...(shouldShowCitizenTargetApprovalDate(detail)
@@ -446,7 +447,8 @@ export function printJobDetail(
       : detail.status === 'Cancelled'
         ? [['İptal Tarihi', fd(detail.updatedAtUtc ?? null)] as [string, string]]
         : []),
-    ['Son Tarih Bilgisi', fd(detail.dueDateUtc)],
+    // Boş son tarih yazdırmada "Belirsiz" değil "Onay Bekleyen" (#r467).
+    ['Son Tarih Bilgisi', formatDueDateTime(detail.dueDateUtc, locale)],
   ]
   const requestDetailTable = requestDetailRows
     .map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`)

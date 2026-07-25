@@ -35,6 +35,10 @@
   --fab-stack-gap: 0.875rem;
   --whatsapp-fab-size: 3.5rem;
   --scroll-fab-size: 2.75rem;
+  /* Content actions: end at WhatsApp FAB start (right-5 + scroll + gaps + internal). */
+  --fab-inline-clearance: calc(
+    1.25rem + var(--scroll-fab-size) + 0.75rem + var(--whatsapp-fab-size) + 0.75rem
+  );
   --wa-chat-bg: #ece5dd;
   --wa-chat-bg-dark: #0b141a;
 }

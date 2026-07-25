@@ -2342,8 +2342,8 @@ export function SettingsPage() {
             onPageSizeChange={size => { setRolesPageSize(size); setRolesPage(1) }}
             onPageChange={setRolesPage}
           />
-          {/* Not + butonlar aynı satır; Varsayılanlara Dön Kaydet solunda (FAB çakışmasın, card #r449). */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pb-2">
+          {/* Not + butonlar aynı satır; Kaydet sağ kenarı WhatsApp FAB soluna hizalı (card #r451). */}
+          <div className="settings-roles-actions flex flex-wrap items-center justify-between gap-3 pb-2">
             <p className="helper-copy m-0 min-w-0 flex-1">{t('settings.roles.note')}</p>
             <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-3">
               <Button type="button" variant="secondary" onClick={() => void resetRolePages()}>

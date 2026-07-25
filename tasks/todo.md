@@ -3185,3 +3185,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a6471aa` — Adres çubuğunda blob: kaldırıldı (origin replaceState).
 
 ## STATUS: Round 450 complete — frontend build/lint green; shipping.
+
+## Round 451 (Doing — 2026-07-25, Sayfa Yetkileri Kaydet FAB hizası)
+- [x] `6a63491f` — Kaydet sağ kenarı WhatsApp bildirim FAB soluna hizalı (`settings-roles-actions`).
+
+## STATUS: Round 451 complete — frontend build/lint green; shipping.

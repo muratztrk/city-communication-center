@@ -24,6 +24,7 @@ import { DetailModalTitle } from '../utils/detailModalTitle'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, getJobStatusTone } from '../utils/localization'
 import { formatDirectoryPhone } from '../utils/phoneDisplay'
 import { printHtmlDocument } from '../utils/printDocument'
+import { printJobDetail } from './JobsPage'
 
 type DirectoryRow = CitizenConversationSummary & {
   displayName: string
@@ -85,8 +86,9 @@ function printCitizenTickets(
   }).join('')
 
   // onload print YOK — printHtmlDocument zaten bir kez print açar (card #r446 çift pencere).
-  // Başlık kolonu yalnız rem (%% + rem karışımı daraltırdı, #r460); wrap açık.
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi'))}</title>
+  // Başlık kolonu geniş; diğer kolonlar dar rem (#r460/#r462). Başlık metni liste adı (#r462).
+  const listTitle = t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(listTitle)}</title>
     <style>
       @page{margin:12mm}
       body{font-family:system-ui,sans-serif;padding:22px;color:#0f172a}
@@ -96,16 +98,16 @@ function printCitizenTickets(
       table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
       th,td{border:1px solid #cbd5e1;padding:6px 7px;text-align:center;vertical-align:middle}
       th{background:#f1f5f9;white-space:nowrap}
-      th.col-title{white-space:normal}
-      .col-seq{width:2.25rem;white-space:nowrap}
-      .col-no{width:6.75rem;white-space:nowrap}
-      .col-title{width:auto;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
-      .col-date{width:8rem;white-space:nowrap}
-      .col-dept{width:9.5rem;white-space:normal;word-break:break-word}
-      .col-status{width:6.5rem;white-space:normal;word-break:break-word}
+      th.col-title,td.col-title{white-space:normal;text-align:left}
+      .col-seq{width:2rem;white-space:nowrap}
+      .col-no{width:5.75rem;white-space:nowrap}
+      .col-title{width:18rem;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+      .col-date{width:7.25rem;white-space:nowrap}
+      .col-dept{width:7.75rem;white-space:normal;word-break:break-word}
+      .col-status{width:5.5rem;white-space:normal;word-break:break-word}
       .footer{margin-top:14px;font-size:10px;color:#64748b}
     </style></head><body>
-    <h1>${escape(t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi'))}</h1>
+    <h1>${escape(listTitle)}</h1>
     <p>${escape(citizenLine)}</p>
     <h2>${escape(t('jobs.detail.requestInfo', 'Talep Detayları'))}</h2>
     <table><thead><tr>
@@ -622,7 +624,7 @@ export function CitizenDirectoryPage() {
               onDueDateChange={() => undefined}
               onDueDateSave={() => undefined}
               onClose={closeJobDetail}
-              onPrint={() => window.print()}
+              onPrint={() => printJobDetail(jobDetail, locale, t, { myRequestView: true })}
               showManagerNoteColumn={false}
               canEditManagerNote={false}
               canManageCoordination={false}

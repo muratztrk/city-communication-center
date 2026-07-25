@@ -1725,7 +1725,7 @@
     "streetRequired": "Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.",
     "openAddressRequired": "Mahalle seçildiğinde Açık Adres zorunludur.",
     "openAddressLabel": "Açık Adres",
-    "openAddressMaxHint": "* max 100 karakter",
+    "openAddressMaxHint": "(max 100 karakter)",
     "openAddressPlaceholder": "Bina no, kat, daire bilgisi giriniz..."
   },
   "routineTask": {

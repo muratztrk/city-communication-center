@@ -2023,7 +2023,7 @@ const pageKicker = isMyTasksView
                           <RichTextContent
                             value={resolveTaskDescription(taskDetail, parentJobDetail)}
                             emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                            className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
+                            className="rich-text-content mt-1.5 text-[13px] leading-5 text-slate-900"
                           />
                         )}
                       </div>
@@ -2504,7 +2504,10 @@ const pageKicker = isMyTasksView
                                 <span className="text-xs font-semibold text-slate-500">
                                   {t('address.openAddressLabel', 'Açık Adres')}
                                   {editRoutineTaskModal.neighborhood ? (
-                                    <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '* max 100 karakter')}</span>
+                                    <>
+                                      <span className="text-red-500"> *</span>
+                                      <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                                    </>
                                   ) : null}
                                 </span>
                                 <textarea

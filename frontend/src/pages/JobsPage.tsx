@@ -406,7 +406,9 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
   </div>`
 }
 
-function printJobDetail(
+/** Vatandaş Talepleri / dizin nested detay yazdırma — aynı tasarım (#r462). */
+// eslint-disable-next-line react-refresh/only-export-components -- shared print helper used by CitizenDirectoryPage
+export function printJobDetail(
   detail: JobDetail,
   locale: string,
   t: TFunction,

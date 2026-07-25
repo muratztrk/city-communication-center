@@ -639,7 +639,7 @@ export function SocialMessagesPage() {
                     <td className="text-center">
                       <div className="inline-flex w-full justify-center">
                         <RequestTagPicker
-                          key={message.socialMessageId}
+                          key={`${message.socialMessageId}-${messagesPage}`}
                           tags={requestTags}
                           selectedName={message.category}
                           onSelect={name => { void handleCategorySelect(message, name) }}

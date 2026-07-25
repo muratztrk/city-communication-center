@@ -666,7 +666,13 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   />
                   {canManageRequestTags ? (
                     <>
-                      <RequestTagPicker tags={requestTags} selectedName={requestLabel} onSelect={label => { void handleRequestLabelSelect(label) }} onClear={() => { void handleRequestLabelSelect('') }} />
+                      <RequestTagPicker
+                        tags={requestTags}
+                        selectedName={requestLabel}
+                        showSelectedOnButton={false}
+                        onSelect={label => { void handleRequestLabelSelect(label) }}
+                        onClear={() => { void handleRequestLabelSelect('') }}
+                      />
                       <RequestTagAddButton onChanged={() => { void loadRequestTags() }} />
                     </>
                   ) : null}
@@ -718,7 +724,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <span className="job-field-label">
                       {t('address.openAddressLabel', 'Açık Adres')}
                       {neighborhood ? (
-                        <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '* max 100 karakter')}</span>
+                        <>
+                          <span className="text-red-500"> *</span>
+                          <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                        </>
                       ) : null}
                     </span>
                     <textarea

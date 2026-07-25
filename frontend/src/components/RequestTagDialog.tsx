@@ -200,11 +200,16 @@ export function RequestTagAddButton({ onChanged, largeText = false }: RequestTag
 interface RequestTagPickerProps {
   tags: RequestTag[]
   onSelect: (name: string) => void
-  /** Seçimi temizler → buton "Etiketler" default (#r461). */
+  /** Seçimi temizler → buton "Etiketler" default (#r461/#r462). */
   onClear?: () => void
   largeText?: boolean
   /** Seçili etiket adı — buton metni; yoksa "Etiketler" (card #1878 reopen). */
   selectedName?: string | null
+  /**
+   * false: buton her zaman "Etiketler" (modal/create); seçim readonly alanda kalır.
+   * Sayfa/popup kapanınca önceki etiket butonda seçili kalmaz (#r462).
+   */
+  showSelectedOnButton?: boolean
 }
 
 function computeTagMenuStyle(button: HTMLDivElement) {
@@ -221,7 +226,14 @@ function computeTagMenuStyle(button: HTMLDivElement) {
 
 // "Şablon mesajlar" (WhatsAppTemplatePicker) ile aynı buton+portal açılış davranışı — bir
 // SingleSelectDropdown yerine, seçim yapılınca kapanan basit bir menü butonu (kart #1510).
-export function RequestTagPicker({ tags, onSelect, onClear, largeText = false, selectedName = null }: RequestTagPickerProps) {
+export function RequestTagPicker({
+  tags,
+  onSelect,
+  onClear,
+  largeText = false,
+  selectedName = null,
+  showSelectedOnButton = true,
+}: RequestTagPickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -229,7 +241,8 @@ export function RequestTagPicker({ tags, onSelect, onClear, largeText = false, s
   const menuRef = useRef<HTMLDivElement>(null)
   const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number } | null>(null)
   const trimmedSelected = selectedName?.trim() || ''
-  const buttonLabel = trimmedSelected || t('whatsapp.requestTagsShort', 'Etiketler')
+  const defaultLabel = t('whatsapp.requestTagsShort', 'Etiketler')
+  const buttonLabel = showSelectedOnButton && trimmedSelected ? trimmedSelected : defaultLabel
   const canClear = Boolean(onClear && trimmedSelected)
 
   const sorted = useMemo(
@@ -317,39 +330,50 @@ export function RequestTagPicker({ tags, onSelect, onClear, largeText = false, s
   ) : null
 
   return (
-    <div className={`relative min-w-0 ${largeText ? 'flex-1' : canClear ? 'w-[10rem] shrink-0' : 'w-[8.5rem] shrink-0'}`} ref={buttonRef}>
-      <div className="flex min-w-0 items-center gap-1">
-        <Button
-          type="button"
-          size="sm"
-          variant="secondary"
-          onClick={toggleOpen}
-          disabled={isEmpty}
-          title={buttonLabel}
-          className={`min-w-0 flex-1 justify-center gap-1 disabled:opacity-50 ${largeText ? 'h-9 text-sm' : 'h-8 px-2.5 text-xs'}`}
-        >
+    <div className={`relative min-w-0 ${largeText ? 'flex-1' : 'w-[8.5rem] shrink-0'}`} ref={buttonRef}>
+      <Button
+        type="button"
+        size="sm"
+        variant="secondary"
+        onClick={toggleOpen}
+        disabled={isEmpty}
+        title={trimmedSelected || buttonLabel}
+        className={`w-full justify-between gap-1 disabled:opacity-50 ${largeText ? 'h-9 text-sm' : 'h-8 px-2.5 text-xs'}`}
+      >
+        <span className="flex min-w-0 items-center gap-1">
           <Tag className="size-3.5 shrink-0 text-emerald-600" />
-          <span className="min-w-0 truncate text-center">{buttonLabel}</span>
+          <span className="min-w-0 truncate text-left">{buttonLabel}</span>
+        </span>
+        <span className="flex shrink-0 items-center gap-0.5">
+          {canClear ? (
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={event => {
+                event.stopPropagation()
+                event.preventDefault()
+                setOpen(false)
+                setSearch('')
+                setMenuStyle(null)
+                onClear?.()
+              }}
+              onKeyDown={event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.stopPropagation()
+                  event.preventDefault()
+                  onClear?.()
+                }
+              }}
+              className="inline-flex size-5 items-center justify-center rounded text-red-600 hover:bg-red-50"
+              title={t('common.clear', 'Temizle')}
+              aria-label={t('common.clear', 'Temizle')}
+            >
+              <X className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
+            </span>
+          ) : null}
           <ChevronDown className={`size-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
-        </Button>
-        {canClear ? (
-          <button
-            type="button"
-            onClick={event => {
-              event.stopPropagation()
-              setOpen(false)
-              setSearch('')
-              setMenuStyle(null)
-              onClear?.()
-            }}
-            className="inline-flex size-7 shrink-0 items-center justify-center rounded-full text-red-600 transition-colors hover:bg-red-50"
-            title={t('common.clear', 'Temizle')}
-            aria-label={t('common.clear', 'Temizle')}
-          >
-            <X className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
-          </button>
-        ) : null}
-      </div>
+        </span>
+      </Button>
       {menu}
     </div>
   )

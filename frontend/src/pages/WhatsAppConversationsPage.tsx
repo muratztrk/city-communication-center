@@ -642,7 +642,10 @@ function ConversationProfilePanel({
           <span className={labelClass}>
             {t('address.openAddress', 'Açık Adres')}
             {hasNeighborhood ? (
-              <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '* max 100 karakter')}</span>
+              <>
+                <span className="text-red-500"> *</span>
+                <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+              </>
             ) : null}
           </span>
           <textarea

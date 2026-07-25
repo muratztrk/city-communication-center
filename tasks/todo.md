@@ -1,3 +1,11 @@
+## Round 462 — WA Birim up/narrow, açık adres hint, dizin print, etiket X inside, görev açıklama
+- WA: Birim+Kurum İçi şablonun üst satırında sağa; Birim ~7.25rem
+- Açık Adres: kırmızı `*` + `(max 100 karakter)`
+- Dizin liste yazdır başlık: Vatandaş Bilgi Listesi; Başlık kolonu geniş
+- Dizin nested Detaylar Yazdır = printJobDetail
+- Etiket X buton içinde sağa; create modal buton hep Etiketler
+- Görev Detayları açıklama ~13px (Taleplerim ile aynı)
+
 ## Round 461 — Etiket picker X clear + sayfa değişince filtre reset
 - RequestTagPicker: seçiliyken kırmızı X → default `Etiketler` (grid/modal/create/edit)
 - Vatandaş Talepleri: sayfa/page-size değişince kolon filtreleri temizlenir

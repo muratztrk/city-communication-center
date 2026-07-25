@@ -736,7 +736,10 @@ export function CreateRequestPage() {
             <span className="text-sm font-semibold text-slate-500">
               {t('address.openAddressLabel', 'Açık Adres')}
               {hasNeighborhood ? (
-                <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '* max 100 karakter')}</span>
+                <>
+                  <span className="text-red-500"> *</span>
+                  <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                </>
               ) : null}
             </span>
             <textarea
@@ -1399,7 +1402,14 @@ export function CreateRequestPage() {
                   />
                   {canManageRequestTags && (
                     <>
-                      <RequestTagPicker largeText tags={requestTags} selectedName={citizenLabel} onSelect={label => void handleCitizenLabelSelect(label)} onClear={() => void handleCitizenLabelSelect('')} />
+                      <RequestTagPicker
+                        largeText
+                        tags={requestTags}
+                        selectedName={citizenLabel}
+                        showSelectedOnButton={false}
+                        onSelect={label => void handleCitizenLabelSelect(label)}
+                        onClear={() => void handleCitizenLabelSelect('')}
+                      />
                       <RequestTagAddButton largeText onChanged={() => void loadRequestTags()} />
                     </>
                   )}

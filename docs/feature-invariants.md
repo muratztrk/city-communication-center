@@ -1187,11 +1187,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → Telefon → Talep Tarihi →
   Gittiği Yer → Talep Etiketi → İşlemler. Etiket dropdown hücresinde buton ortalı; açık menü
   satırları sola yaslı (card #1878 reopen — ortalanmamalı).
-- **Vatandaş Talepleri Talep Etiketi (card #1878/#r461):** grid hücresinde `RequestTagPicker`;
+- **Vatandaş Talepleri Talep Etiketi (card #1878/#r461/#r462):** grid hücresinde `RequestTagPicker`;
   buton metni seçili etikettir (yoksa `Etiketler`), kapalı halde `text-xs`/`h-8`. Açık menü
-  satırları `text-left`. Yalnız kategori güncellemesi durumdan bağımsız. Seçiliyken sağda kırmızı
-  `X` → kategori temizlenir (`Etiketler` default). Grid sayfa/page-size değişince kolon filtreleri
-  sıfırlanır (#r461).
+  satırları `text-left`. Yalnız kategori güncellemesi durumdan bağımsız. Seçiliyken buton içinde
+  sağa yaslı kırmızı `X` → kategori temizlenir. Create/WA modal pickers `showSelectedOnButton=false`
+  (buton hep `Etiketler`; değer readonly alanda). Grid sayfa/page-size değişince kolon filtreleri
+  sıfırlanır (#r461/#r462).
+- **WA chat Birim/Kurum İçi (#r460/#r462):** şablon satırının bir üstünde sağa yaslı; Birim
+  dropdown ~7.25rem.
+- **Açık Adres zorunluluk etiketi (#r460/#r462):** mahalle sonrası kırmızı `*` + `(max 100 karakter)`.
+- **Dizin yazdır (#r462):** h1 `Vatandaş Bilgi Listesi`; Başlık kolonu ~18rem; nested Detaylar
+  Yazdır = `printJobDetail` (Vatandaş Talepleri ile aynı).
 - **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde etiketi biraz sola; Açık Adres kolon
   ortasında; Cadde/Açık Adres etiket alt çizgisi değer metni genişliğine uzar; kısa viewport'ta
   3 kolon kalır.

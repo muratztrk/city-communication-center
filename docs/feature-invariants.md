@@ -1203,6 +1203,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Sayfa Yetkileri (card #1892/#1893 reopen):** `Vatandaş Bilgi Listesi` Vatandaş Talepleri’nden
   sonra; sıra `Kaydet` → `Varsayılanlara Dön` (sağda, `justify-end`); kayıt/sıfırlama sonucu
   ConfirmDialog (banner değil).
+- **Kullanıcılar düzenle Birim dropdown (card #r448):** grid düzenlemede Birim/Ek birimler
+  sütunu ~7.5rem; açık menü `max-width: 9rem` + truncate.
 - **Kullanıcı Rol: Sorumlu (card #1897/#1898):** dropdown’da `Sorumlu`; kayıtta `roleCode=Manager`
   (yeni RoleCode yok) + `skipManagerQuota=true` → birim `ResponsibleUserIds`’e eklenir;
   müdür kontenjanı yalnız `ManagerUserId` / Sorumlu-olmayan Manager sayar; birden fazla Sorumlu OK;

@@ -3158,3 +3158,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a6458c7` — Vatandaş Talepleri grid scroll: sticky thead opak + z-index; satırlar başlığın üstüne binmez.
 
 ## STATUS: Round 447 complete — frontend build/lint green; shipping.
+
+## Round 448 (Doing — 2026-07-25, kullanıcı düzenle Birim dropdown genişliği)
+- [x] `6a645f36` — Düzenle satırında Birim/Ek birimler dropdown sütunu daraltıldı (~7.5rem / menü 9rem).
+
+## STATUS: Round 448 complete — frontend build/lint green; shipping.

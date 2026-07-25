@@ -2039,6 +2039,33 @@
     font-weight: 600;
   }
 
+  /* Düzenle → Birim / Ek birimler: dar sütun + truncate (card #r448). */
+  .users-table .users-edit-dept-cell {
+    width: 7.5rem;
+    max-width: 7.5rem;
+    overflow: hidden;
+  }
+
+  .users-table .users-edit-dept-cell .field-select {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .users-table .users-edit-dept-cell .field-select .rounded-full {
+    max-width: 5.25rem;
+  }
+
+  .users-edit-dropdown-menu {
+    max-width: 9rem;
+  }
+
+  .users-edit-dropdown-menu .dropdown-menu-item {
+    min-height: 1.75rem;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+
   .audit-log-tab-bar {
     width: fit-content;
     max-width: 100%;

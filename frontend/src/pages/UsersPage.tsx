@@ -1348,8 +1348,8 @@ export function UsersPage() {
                         <span>{user.email || t('common.none')}</span>
                       )}
                     </td>
-                    <td className="w-[11rem] max-w-[11rem]">
-                      <div className="grid w-full gap-1.5">
+                    <td className="users-edit-dept-cell w-[7.5rem] max-w-[7.5rem]">
+                      <div className="grid w-full min-w-0 gap-1.5">
                         <SingleSelectDropdown
                           options={departments.map(department => ({
                             value: department.departmentId,
@@ -1365,9 +1365,9 @@ export function UsersPage() {
                           emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
                           searchable
                           searchPlaceholder={t('common.search', 'Ara...')}
-                          className="w-full"
-                          triggerClassName="text-xs"
-                          menuClassName="max-w-[14rem] users-edit-dropdown-menu"
+                          className="w-full min-w-0 max-w-full"
+                          triggerClassName="text-xs !min-h-8 !px-2"
+                          menuClassName="max-w-[9rem] users-edit-dropdown-menu"
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
                         />
                         <MultiSelectDropdown
@@ -1378,8 +1378,11 @@ export function UsersPage() {
                           onChange={additionalDepartmentIds => setEditForm(c => ({ ...c, additionalDepartmentIds }))}
                           placeholder={t('users.additionalDepartmentsShort', 'Ek birimler')}
                           emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
-                          className="w-full"
-                          triggerClassName="text-xs"
+                          className="w-full min-w-0 max-w-full"
+                          triggerClassName="text-xs !min-h-8 !px-2"
+                          menuClassName="max-w-[9rem] users-edit-dropdown-menu"
+                          searchable
+                          searchPlaceholder={t('common.search', 'Ara...')}
                         />
                       </div>
                     </td>

@@ -1200,6 +1200,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Durum ~15%; nested Detaylar Yazdır = `printJobDetail`.
 - **Vatandaş Detaylar Yazdır (#r465):** `printJobDetail` Talep No = `formatJobDisplayNumber` (VT-…);
   vatandaşta `Proje mi` satırı yok.
+- **Vatandaş Talep Bilgisi popup (#r466):** `MyRequestDetailMainCard` vatandaşta `Proje mi` satırını
+  gizler (`hideProjectRow`); dizin nested Detaylar dahil.
 - **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde etiketi biraz sola; Açık Adres kolon
   ortasında; Cadde/Açık Adres etiket alt çizgisi değer metni genişliğine uzar; kısa viewport'ta
   3 kolon kalır.

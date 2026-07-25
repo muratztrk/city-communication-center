@@ -478,7 +478,8 @@ export function MyRequestDetailMainCard({
                 priorityOptions={priorityOptions}
                 separatePriorityProjectRows={separatePriorityProjectRows}
                 hidePriorityRow={priorityInInfoHeader}
-                hideProjectRow={hideProjectRow}
+                // Vatandaş talebinde Proje mi anlamsız — UI + yazdır (#r465/#r466).
+                hideProjectRow={hideProjectRow || isCitizenRequestJob(detail)}
                 extraTrailingRows={infoExtraTrailingRows}
               />
             </>

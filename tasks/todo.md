@@ -1,3 +1,6 @@
+## Round 466 — Vatandaş Talep Bilgisi popup: Proje mi yok
+- MyRequestDetailMainCard: vatandaşta Proje mi satırı gizlenir (dizin nested Detaylar)
+
 ## Round 465 — VT yazdır + Proje mi yok; Başlık %30; Birim clear X
 - Vatandaş Detaylar Yazdır: Talep No VT-…; Proje mi satırı yok
 - Dizin yazdır Başlık ~30%

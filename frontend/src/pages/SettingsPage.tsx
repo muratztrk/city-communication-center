@@ -2349,7 +2349,7 @@ export function SettingsPage() {
               <Button type="button" variant="secondary" onClick={() => void resetRolePages()}>
                 {t('settings.roles.resetDefaults')}
               </Button>
-              <Button type="button" className="min-w-[10.5rem] px-8" onClick={() => void saveRolePages()}>
+              <Button type="button" className="min-w-[13rem] px-10" onClick={() => void saveRolePages()}>
                 {t('common.save')}
               </Button>
             </div>

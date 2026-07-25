@@ -11,8 +11,6 @@ import {
 } from '../../../utils/citizenRequests'
 import { getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
 import { RequestNumberWithTypeLabel } from '../../../utils/requestDisplay'
-import { ExternalDestinationValue } from './ExternalDestinationValue'
-import { FramedDepartmentStack } from './FramedDepartmentStack'
 import { StackedFieldValue } from './StackedFieldValue'
 
 export interface MyRequestDetailField {
@@ -43,21 +41,13 @@ export function buildMyRequestDetailFields(
     detail.tasks.map(task => task.assignedUserDisplayName).filter((name): name is string => Boolean(name)),
   )]
   const isExternal = detail.requestType === 'ExternalUnit'
-  const locationCreatorValue = isExternal
-    ? (
-        <FramedDepartmentStack
-          departmentName={detail.ownerDepartmentName}
-          secondary={detail.createdByDisplayName}
-        />
-      )
-    : <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />
-  const destinationValue = isExternal
-    ? <ExternalDestinationValue detail={detail} framed />
-    : (
-        includeAssignee && !useMyRequestsFieldLayout
-          ? formatJobDestinationsWithAssignees(detail, true)
-          : formatJobDestinationsWithAssignees(detail, false, false)
-      )
+  // Dış birimde yeşil çerçeve kaldırıldı — eski StackedFieldValue / düz metin (card #r455).
+  const locationCreatorValue = (
+    <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />
+  )
+  const destinationValue = includeAssignee && !useMyRequestsFieldLayout
+    ? formatJobDestinationsWithAssignees(detail, true)
+    : formatJobDestinationsWithAssignees(detail, false, false)
 
   if (isCitizenRequestJob(detail)) {
     return [

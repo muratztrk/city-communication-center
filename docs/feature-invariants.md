@@ -1207,16 +1207,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ConfirmDialog (banner değil).
 - **Kullanıcılar düzenle Birim dropdown (card #r448):** grid düzenlemede Birim/Ek birimler
   sütunu ~7.5rem; açık menü `max-width: 9rem` + truncate; menü satır metni ~0.65rem (#r449).
-- **Dış birim çerçeve (card #r449):** ExternalUnit detayda Talep Yeri / Talep Yapılan Birim
-  StatusPill çerçeve; Gittiği Yer metni biraz büyük + atanan alt satırda.
+- **Dış birim detay alanları (card #r449/#r455):** ExternalUnit detayda Talep Yeri / Talep Yapılan
+  Birim yeşil StatusPill çerçeve **yok** — eski `StackedFieldValue` / düz destination metni (#r455).
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
   `onMessageUpdated` ile category seçili kalır.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450):** Başlık kolonu geniş (~34%) + wrap; eski popup
   (`document.write`); adres çubuğu `history.replaceState` ile site origin (blob:/about:blank yok).
-- **Sayfa Yetkileri (#1893/#r449/#r451/#r453):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
-  Kaydet, tam FAB yığını (scroll+kurum içi+WhatsApp) solunda kalır (`settings-roles-actions` /
-  `--fab-inline-clearance`).
+- **Sayfa Yetkileri (#1893/#r449/#r451/#r453/#r455):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
+  Kaydet, tam FAB yığını solunda kalır; Kaydet `min-w-[13rem]` (#r455).
 - **Birimler Yönetici Ata (#r453):** Sorumlu/Müdür açılır panel genişliği trigger ile aynı
   (`users-edit-dropdown-menu` max-width yok); Yeni Birim Ekle açınca yarım kalan satır
   aksiyonları (Yönetici Ata/Sil/Düzenle) temizlenir.

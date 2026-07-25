@@ -2046,15 +2046,8 @@ const pageKicker = isMyTasksView
                             ...(taskDetail.jobSourceType !== 'Routine'
                               ? [{
                                   label: 'Talep Yeri / Oluşturan',
-                                  // Dış birimde Gittiği Yer ile aynı çerçeve (card #r449).
-                                  value: parentJobDetail?.requestType === 'ExternalUnit'
-                                    ? (
-                                        <FramedDepartmentStack
-                                          departmentName={selectedTask.ownerDepartmentName}
-                                          secondary={selectedTask.createdByDisplayName}
-                                        />
-                                      )
-                                    : <StackedFieldValue top={selectedTask.ownerDepartmentName} bottom={selectedTask.createdByDisplayName} />,
+                                  // Dış birim yeşil çerçeve kaldırıldı — eski düz görünüm (card #r455).
+                                  value: <StackedFieldValue top={selectedTask.ownerDepartmentName} bottom={selectedTask.createdByDisplayName} />,
                                 }]
                               : []),
                             // Atayan yönetici üstte, görevi yapan hemen altında kalır (card #1613).

@@ -3207,3 +3207,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a647757` — Vatandaş Bilgi Listesi nested Detaylar popup biraz küçültüldü.
 
 ## STATUS: Round 454 complete — frontend build/lint green; shipping.
+
+## Round 455 (Doing — 2026-07-25, Kaydet genişlik + dış birim çerçeve geri alma)
+- [x] `6a63491f` — Sayfa Yetkileri Kaydet `min-w-[13rem]`.
+- [x] `6a64782c` — Detay popup Talep Yeri / Talep Yapılan Birim yeşil çerçeve kaldırıldı.
+
+## STATUS: Round 455 complete — frontend build/lint green; shipping.

@@ -34,7 +34,6 @@ import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDepartmentName, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { ExternalDestinationValue } from '../components/jobs/my-request-detail/ExternalDestinationValue'
-import { FramedDepartmentStack } from '../components/jobs/my-request-detail/FramedDepartmentStack'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { formatJobProjectLabel } from '../utils/jobProjectLabel'
@@ -2520,11 +2519,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       },
                       {
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
-                        // Dış birimde çerçeve tasarım (card #r449).
+                        // Dış birim yeşil çerçeve kaldırıldı — eski düz görünüm (card #r455).
                         label: 'Talep Yeri / Oluşturan',
-                        value: detail.requestType === 'ExternalUnit'
-                          ? <FramedDepartmentStack departmentName={detail.ownerDepartmentName} secondary={detail.createdByDisplayName} />
-                          : <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
+                        value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
@@ -2536,9 +2533,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       }] : []),
                       {
                         // Vatandaş talebinde de standart taleplerle tutarlı kalır — personel bilgisi
-                        // gösterilmez (codex review, cards #1544/#1546). Dış birim çerçeve (#r449).
+                        // gösterilmez (codex review, cards #1544/#1546).
                         label: 'Talep Yapılan Birim',
-                        value: <ExternalDestinationValue detail={detail} framed={detail.requestType === 'ExternalUnit'} />,
+                        value: <ExternalDestinationValue detail={detail} framed={false} />,
                       },
                       // Operatör / Vatandaş Talep Yöneticisi: Talep Etiketi en altta (card #1896).
                       ...((user?.role === 'Operator' || hasCitizenRequestManagerRole(user)) ? [{
@@ -2549,9 +2546,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       {
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
                         label: 'Talep Yeri / Oluşturan',
-                        value: detail.requestType === 'ExternalUnit'
-                          ? <FramedDepartmentStack departmentName={detail.ownerDepartmentName} secondary={detail.createdByDisplayName} />
-                          : <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
+                        value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
@@ -2563,9 +2558,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       }] : []),
                       {
                         // Birime Gelen/Birimden Giden'de personel bilgisi bu satırdan kaldırılır
-                        // (cards #1544/#1546). Dış birim çerçeve + atanan alt satır (#r449).
+                        // (cards #1544/#1546). Dış birim yeşil çerçeve yok (#r455).
                         label: 'Talep Yapılan Birim',
-                        value: <ExternalDestinationValue detail={detail} framed={detail.requestType === 'ExternalUnit'} />,
+                        value: <ExternalDestinationValue detail={detail} framed={false} />,
                       },
                       { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),

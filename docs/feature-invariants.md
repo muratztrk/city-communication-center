@@ -1212,8 +1212,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   aynı); clearable X; placeholder `Birim seçiniz...`.
 - **WA Tümü / Talep Sayısı (#r473):** yalnız İşleme Alınan + Yapılmakta + Tamamlandı toplamı
   (iptal dahil değil).
-- **Grid truncate tooltip (#r474):** `TruncatedText` — hücre taşınca (… / line-clamp)
-  native `title` ile tam metin; taşmıyorsa title yok.
+- **Grid truncate tooltip (#r474/#r477):** `TruncatedText` + AppShell
+  `useDataTableOverflowTooltips` — `.data-table` hücrelerinde … / line-clamp taşınca
+  native `title` ile tam metin (İşlemler sütunu hariç).
 - **WA Konuşmaları footer (#r468):** Şablon/Dosya + Birim + Kurum İçi tek satır; Birim/Kurum
   İçi `ml-auto` sağa (create-modal ConversationPanel ile aynı).
 - **WA 24s hata metni (#r470):** re-engagement → `Vatandaş son 24 saat içinde mesaj göndermediği

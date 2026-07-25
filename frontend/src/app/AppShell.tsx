@@ -35,6 +35,7 @@ import { canAnyRoleAccessPage, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, ty
 import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
 import { sortUserDepartments } from '../utils/departmentAccess'
+import { useDataTableOverflowTooltips } from '../hooks/useDataTableOverflowTooltips'
 
 
 function useResponsiveZoom() {
@@ -83,6 +84,7 @@ export function AppShell() {
   const { user, logout } = useAuth()
   const { appearance } = useTenantTheme()
   const zoom = useResponsiveZoom()
+  useDataTableOverflowTooltips()
   const [accessVersion, setAccessVersion] = useState(0)
   const [activeDepartmentVersion, setActiveDepartmentVersion] = useState(0)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)

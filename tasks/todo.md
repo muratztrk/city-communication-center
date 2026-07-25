@@ -1,3 +1,6 @@
+## Round 477 — Grid ellipsis hover (global)
+- useDataTableOverflowTooltips: tüm .data-table taşan hücrelerde title
+
 ## Round 476 — WA Birim menü yeniden daralt (reopen)
 - Konuşmalar Birim menü 210→168 (create-modal ile eşit)
 

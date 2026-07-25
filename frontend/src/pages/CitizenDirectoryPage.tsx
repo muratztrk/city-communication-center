@@ -101,9 +101,9 @@ function printCitizenTickets(
       th.col-title,td.col-title{white-space:normal;text-align:center;word-break:break-word;overflow-wrap:anywhere}
       .col-seq{width:4%;white-space:nowrap}
       .col-no{width:11%;white-space:nowrap}
-      .col-title{width:34%}
+      .col-title{width:30%}
       .col-date{width:14%;white-space:nowrap}
-      .col-dept{width:17%;white-space:normal;word-break:break-word}
+      .col-dept{width:19%;white-space:normal;word-break:break-word}
       .col-status{width:15%;white-space:normal;word-break:break-word}
       .footer{margin-top:14px;font-size:10px;color:#64748b}
     </style></head><body>

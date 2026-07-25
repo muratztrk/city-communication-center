@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Check, ChevronDown, Search } from 'lucide-react'
+import { Check, ChevronDown, Search, X } from 'lucide-react'
 import { cn } from '../../lib/cn'
 
 export interface SingleSelectOption {
@@ -27,6 +27,8 @@ interface SingleSelectDropdownProps {
   menuClassName?: string
   /** Fixed panel width (px); defaults to trigger width when set without menuClassName (card #r459). */
   menuWidth?: number
+  /** Seçiliyken chevron sonrası kırmızı X — temizler (#r465, Etiketler ile aynı). */
+  clearable?: boolean
 }
 
 export function SingleSelectDropdown({
@@ -44,6 +46,7 @@ export function SingleSelectDropdown({
   searchPlaceholder = 'Ara...',
   menuClassName,
   menuWidth,
+  clearable = false,
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -126,7 +129,36 @@ export function SingleSelectDropdown({
         <span className={cn('min-w-0 flex-1 truncate', selected ? 'text-slate-900' : 'text-slate-400')}>
           {selected ? selected.label : placeholder}
         </span>
-        <ChevronDown className={cn('size-4 shrink-0 text-slate-400 transition-transform', open ? 'rotate-180' : '')} />
+        <span className="flex shrink-0 items-center gap-0.5">
+          <ChevronDown className={cn('size-4 shrink-0 text-slate-400 transition-transform', open ? 'rotate-180' : '')} />
+          {clearable && selected ? (
+            <span
+              role="button"
+              tabIndex={0}
+              onClick={event => {
+                event.stopPropagation()
+                event.preventDefault()
+                setOpen(false)
+                setSearch('')
+                onChange('')
+              }}
+              onKeyDown={event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.stopPropagation()
+                  event.preventDefault()
+                  setOpen(false)
+                  setSearch('')
+                  onChange('')
+                }
+              }}
+              className="inline-flex size-5 items-center justify-center rounded text-red-600 hover:bg-red-50"
+              title="Temizle"
+              aria-label="Temizle"
+            >
+              <X className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
+            </span>
+          ) : null}
+        </span>
       </button>
 
       {open ? createPortal(

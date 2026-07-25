@@ -1,3 +1,8 @@
+## Round 465 — VT yazdır + Proje mi yok; Başlık %30; Birim clear X
+- Vatandaş Detaylar Yazdır: Talep No VT-…; Proje mi satırı yok
+- Dizin yazdır Başlık ~30%
+- WA Birim: ~8.75rem + panel 240px + chevron sonrası kırmızı X
+
 ## Round 464 — WA modal 50/50; dizin yazdır Başlık daralt+ortala, Durum genişlet
 - WA Talep Oluştur: konuşma alanı popup’ın yarısı (`grid-cols-2`)
 - Dizin yazdır: Başlık ~34% ortalı; Durum ~15%

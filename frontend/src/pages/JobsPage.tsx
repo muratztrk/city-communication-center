@@ -266,7 +266,7 @@ function formatApprovalDateText(value: string, approverName: string | null | und
   return approverName ? `${value} (${approverName})` : value
 }
 
-function formatJobDisplayNumber(job: JobSummary): string {
+function formatJobDisplayNumber(job: Pick<JobSummary, 'requestType' | 'sourceType' | 'jobNumber' | 'jobNumberYear' | 'citizenRequestNumber' | 'citizenRequestNumberYear'>): string {
   // Vatandaş talepleri her zaman VT- ile gösterilir; T-{jobNumber}'a dönüşemez (card #1077).
   if (isCitizenRequestJob(job)) {
     const year = job.citizenRequestNumberYear ?? job.jobNumberYear ?? new Date().getFullYear()
@@ -415,9 +415,9 @@ export function printJobDetail(
   options?: { incomingTargetView?: boolean; myRequestView?: boolean },
 ) {
   const fd = (d: string | null | undefined) => formatDateTime(d ?? null, locale)
-  const jobDisplayNumber = detail.jobNumber != null && detail.jobNumberYear != null
-    ? `T-${detail.jobNumberYear}-${detail.jobNumber}`
-    : `T-${detail.jobNumberYear ?? new Date().getFullYear()}-Onay Bekleyen`
+  // Vatandaş talebi yazdırmada VT-…; Proje mi satırı yok (#r465).
+  const jobDisplayNumber = formatJobDisplayNumber(detail)
+  const isCitizenPrint = isCitizenRequestJob(detail)
   const ownerApprovalDate = detail.departments.find(department => department.role === 'Owner')?.decidedAtUtc ?? null
   const targetApprovalDate = detail.departments.find(department => department.role === 'Target')?.decidedAtUtc ?? null
   const ownerDepartment = detail.departments.find(department => department.role === 'Owner')
@@ -433,11 +433,11 @@ export function printJobDetail(
     ['Talep Yapılan Birim', options?.myRequestView
       ? formatJobDestinationsWithAssignees(detail)
       : formatJobDestinationsWithAssignees(detail, false, false)],
-    ['Proje mi', formatJobProjectLabel(detail, t)],
+    ...(isCitizenPrint ? [] : [['Proje mi', formatJobProjectLabel(detail, t)] as [string, string]]),
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
     ['Talep Tarihi', fd(detail.createdAtUtc)],
-    ...(isCitizenRequestJob(detail) ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(ownerApprovalDate, locale), ownerDepartment?.approvedByDisplayName)] as [string, string]]),
+    ...(isCitizenPrint ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(ownerApprovalDate, locale), ownerDepartment?.approvedByDisplayName)] as [string, string]]),
     ...(shouldShowCitizenTargetApprovalDate(detail)
       ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(targetApprovalDate, locale), getJobTargetApproverDisplayName(detail))] as [string, string]]
       : []),

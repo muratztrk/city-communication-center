@@ -3178,3 +3178,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a646185` — Dahili yalnız rakam; Ünvan rakamsız.
 
 ## STATUS: Round 449 complete — frontend build/lint green; shipping.
+
+## Round 450 (Doing — 2026-07-25, dizin yazdır blob geri alma)
+- [x] `6a634c56` — Yazdır Başlık kolonu görünür/wrap/geniş; blob URL yok.
+- [x] `6a647200` — Yazdır penceresi eski document.write haline döndü.
+- [x] `6a6471aa` — Adres çubuğunda blob: kaldırıldı (origin replaceState).
+
+## STATUS: Round 450 complete — frontend build/lint green; shipping.

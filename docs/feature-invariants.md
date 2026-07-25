@@ -1208,13 +1208,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazdır not satırları (#r467):** iptal/tamamlamada `İptal Notu` / `Tamamlama Notu` Durum'dan
   sonra ayrı satır; boş Son Tarih = `Onay Bekleyen` (Belirsiz değil).
 - **Dizin ticket sıra (#r467):** VT yılı+numara azalan (en yüksek üstte).
-- **WA Birim panel (#r467–#r476):** Konuşmalar trigger ~10rem / menü ~168px (create-modal ile
-  aynı); clearable X; placeholder `Birim seçiniz...`.
+- **WA Birim panel (#r467–#r478):** Konuşmalar trigger ~10rem / menü ~184px; create-modal
+  menü ~168px; clearable X; placeholder `Birim seçiniz...`.
 - **WA Tümü / Talep Sayısı (#r473):** yalnız İşleme Alınan + Yapılmakta + Tamamlandı toplamı
   (iptal dahil değil).
-- **Grid truncate tooltip (#r474/#r477):** `TruncatedText` + AppShell
-  `useDataTableOverflowTooltips` — `.data-table` hücrelerinde … / line-clamp taşınca
-  native `title` ile tam metin (İşlemler sütunu hariç).
+- **Grid truncate tooltip (#r474/#r477/#r478):** AppShell `useDataTableOverflowTooltips` —
+  `.data-table` taşan hücrelerde emerald portal tooltip (native `title` değil; İşlemler hariç).
 - **WA Konuşmaları footer (#r468):** Şablon/Dosya + Birim + Kurum İçi tek satır; Birim/Kurum
   İçi `ml-auto` sağa (create-modal ConversationPanel ile aynı).
 - **WA 24s hata metni (#r470):** re-engagement → `Vatandaş son 24 saat içinde mesaj göndermediği

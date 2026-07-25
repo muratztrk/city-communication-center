@@ -1361,7 +1361,7 @@ function ConversationDetail({
                     clearable
                     className="w-[10rem] min-w-0 max-w-[10rem]"
                     triggerClassName="h-9 w-full rounded-full px-2.5 text-xs font-semibold"
-                    menuWidth={168}
+                    menuWidth={184}
                     menuScrollClassName="whatsapp-department-menu-scroll"
                   />
                   <button

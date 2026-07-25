@@ -1,3 +1,7 @@
+## Round 478 — Birim menü + modern grid tooltip
+- WA Birim menü 168→184 (çok az arttır)
+- Grid overflow: native title → emerald portal tooltip
+
 ## Round 477 — Grid ellipsis hover (global)
 - useDataTableOverflowTooltips: tüm .data-table taşan hücrelerde title
 

@@ -1,6 +1,7 @@
 import { MapPin, NotebookPen, Paperclip } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
+import { cn } from '../../../lib/cn'
 import { AttachmentSection } from '../../ui/AttachmentSection'
 import { AddressDetailFields } from '../../ui/AddressDetailFields'
 import type { ConfirmDialogState } from '../../ui/confirm-dialog'
@@ -72,6 +73,8 @@ export interface MyRequestDetailModalProps {
   useMyRequestsFieldLayout?: boolean
   hideTaskPlainDescription?: boolean
   forceCitizenDetailCards?: boolean
+  /** Shell boyutu override (ör. Vatandaş Bilgi Listesi nested Detaylar — card #r454). */
+  shellClassName?: string
 }
 
 export function MyRequestDetailModal({
@@ -131,6 +134,7 @@ export function MyRequestDetailModal({
   useMyRequestsFieldLayout = false,
   hideTaskPlainDescription = false,
   forceCitizenDetailCards = false,
+  shellClassName,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
 
@@ -140,7 +144,10 @@ export function MyRequestDetailModal({
 
   return (
     <section
-      className="detail-modal-shell detail-modal-shell--my-request flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+      className={cn(
+        'detail-modal-shell detail-modal-shell--my-request flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl',
+        shellClassName ?? 'max-h-[min(85dvh,52rem)]',
+      )}
       onClick={e => e.stopPropagation()}
     >
       <MyRequestDetailHeader

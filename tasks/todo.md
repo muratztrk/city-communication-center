@@ -3202,3 +3202,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a6466fe` — Sorumlu/Müdür panel = trigger genişliği; Yeni Birim Ekle yarım satır aksiyonlarını temizler.
 
 ## STATUS: Round 453 complete — frontend build/lint green; shipping.
+
+## Round 454 (Doing — 2026-07-25, nested Detaylar popup boyutu)
+- [x] `6a647757` — Vatandaş Bilgi Listesi nested Detaylar popup biraz küçültüldü.
+
+## STATUS: Round 454 complete — frontend build/lint green; shipping.

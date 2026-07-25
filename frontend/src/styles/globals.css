@@ -172,6 +172,13 @@
     max-height: min(72.9dvh, 42.3rem);
   }
 
+  /* Vatandaş Bilgi Listesi → Talep Bilgisi grid → Detaylar nested popup (card #r454). */
+  .detail-modal-shell--my-request.detail-modal-shell--citizen-directory-nested {
+    width: min(56vw, 68rem);
+    height: min(64dvh, 37.5rem);
+    max-height: min(64dvh, 37.5rem);
+  }
+
   /* Detaylar popup başlık altı: footer Lumespec şeridiyle aynı renk (`--color-primary`),
      biraz daha ince 2px (card #1661; #1657 reopen 3px'den inceltti). */
   .my-request-detail-header {

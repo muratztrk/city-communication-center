@@ -2129,8 +2129,11 @@
   .table-container thead th {
     position: sticky;
     top: 0;
-    z-index: 2;
-    background: transparent;
+    z-index: 5;
+    /* Opaque sticky fill — tbody satırları başlığın üstüne binmesin (card #r447). */
+    background-color: var(--color-header-from);
+    background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background-attachment: fixed;
     box-sizing: border-box;
     padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
     min-height: var(--table-chrome-row-min-height);
@@ -2171,17 +2174,20 @@
   .data-table thead {
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 4;
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
   }
 
   .data-table thead th {
     position: sticky;
     top: 0;
-    z-index: 2;
+    z-index: 5;
     white-space: nowrap;
-    /* th transparan: sürekli thead gradient'i görünür; hücre başı gradient parçalanır (card #1888). */
-    background: transparent;
+    /* Sticky th opak + viewport-fixed gradient: scroll'da satır başlığın üstüne binmez,
+       hücreler arası sürekli gradient korunur (card #1888 + #r447). */
+    background-color: var(--color-header-from);
+    background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background-attachment: fixed;
     box-sizing: border-box;
     padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
     min-height: var(--table-chrome-row-min-height);
@@ -2215,10 +2221,12 @@
     font-family: var(--font-sans);
   }
 
-  /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" grid başlığı, sayfa banner'ı ile aynı yeşil geçişi kullanır. */
+  /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" — banner ile aynı yeşil; sticky opak (#r447). */
   .my-requests-table thead th,
   .incoming-requests-table thead th {
-    background: transparent;
+    background-color: var(--color-header-from);
+    background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background-attachment: fixed;
     border-right-color: rgba(255, 255, 255, 0.22);
     color: white;
   }

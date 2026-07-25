@@ -3154,3 +3154,7 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 
 ## STATUS: Round 446 complete — backend+frontend build/lint green; shipping.
 
+## Round 447 (Doing — 2026-07-25, sticky grid header overlap)
+- [x] `6a6458c7` — Vatandaş Talepleri grid scroll: sticky thead opak + z-index; satırlar başlığın üstüne binmez.
+
+## STATUS: Round 447 complete — frontend build/lint green; shipping.

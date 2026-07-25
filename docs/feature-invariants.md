@@ -1179,9 +1179,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlığı `Vatandaş Talep Bilgisi`. Popup grid tipografisi Taleplerim ile aynı (`thead` 0.78rem /
   `td` 0.9rem, thead biraz yüksek); alt başlık (ad·telefon) `text-xs` + biraz aşağı (card #1889).
   Ana grid: `Vatandaş Adı`; Talep Kanalı Numara'dan sonra ve ortalanmış (card #1880–#1883 reopen).
-- **Grid thead rengi:** `.data-table` / Taleplerim / Birime Gelen `th` arka planı `transparent`
-  kalır; renk `thead` üzerindeki tek continuous gradient'tedir — hücreye gradient koyma
-  (card #1888, R438 regressyonu).
+- **Grid thead rengi + sticky örtü (card #1888 / #r447):** sticky `th` opak
+  (`background-color` + aynı linear-gradient, `background-attachment: fixed`) — scroll’da
+  tbody satırları başlığın üstüne binmez; hücreler arası sürekli gradient korunur. `z-index` ≥ 5.
 - **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → Telefon → Talep Tarihi →
   Gittiği Yer → Talep Etiketi → İşlemler. Etiket dropdown hücresinde buton ortalı; açık menü
   satırları sola yaslı (card #1878 reopen — ortalanmamalı).

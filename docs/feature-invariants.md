@@ -1212,9 +1212,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450):** Başlık kolonu geniş (~34%) + wrap; eski popup
   (`document.write`); adres çubuğu `history.replaceState` ile site origin (blob:/about:blank yok).
-- **Sayfa Yetkileri (#1893/#r449/#r451):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
-  Kaydet sağ kenarı WhatsApp bildirim FAB sol kenarına hizalı (`settings-roles-actions` /
-  `--fab-inline-clearance`, FAB ile iç içe girmez).
+- **Sayfa Yetkileri (#1893/#r449/#r451/#r453):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
+  Kaydet, tam FAB yığını (scroll+kurum içi+WhatsApp) solunda kalır (`settings-roles-actions` /
+  `--fab-inline-clearance`).
+- **Birimler Yönetici Ata (#r453):** Sorumlu/Müdür açılır panel genişliği trigger ile aynı
+  (`users-edit-dropdown-menu` max-width yok); Yeni Birim Ekle açınca yarım kalan satır
+  aksiyonları (Yönetici Ata/Sil/Düzenle) temizlenir.
 - **Oluşturma Modu varsayılan LDAP (#r449/#r452):** Kullanıcı/Birim yeni form; seçili LDAP
   etiketi yanıp sönen yeşil (`create-mode-ldap-pulse` / `ccc-blink`).
 - **Ek görev birimler dropdown metin (#r452):** `users-dept-compact-menu` satır fontu ~0.78rem.

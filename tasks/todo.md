@@ -3196,3 +3196,9 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a6473f7` — Seçili LDAP oluşturma modu yanıp sönen yeşil.
 
 ## STATUS: Round 452 complete — frontend build/lint green; shipping.
+
+## Round 453 (Doing — 2026-07-25, Kaydet FAB + Birimler Yönetici Ata)
+- [x] `6a63491f` — Kaydet daha sola; tam FAB yığını clearance.
+- [x] `6a6466fe` — Sorumlu/Müdür panel = trigger genişliği; Yeni Birim Ekle yarım satır aksiyonlarını temizler.
+
+## STATUS: Round 453 complete — frontend build/lint green; shipping.

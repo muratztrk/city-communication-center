@@ -639,6 +639,13 @@ export function DepartmentsPage() {
                 } else {
                   // Yeni Birim: varsayılan Oluşturma Modu LDAP (card #r449).
                   setCreateMode(ldapEnabled ? 'ldap' : 'manual')
+                  // Açık/yarım kalan satır aksiyonlarını kapat (Yönetici Ata / Sil / Düzenle) (#r453).
+                  setManagerAssignId(null)
+                  setManagerAssignSavingId(null)
+                  setEditManagerUserId('')
+                  setEditResponsibleUserIds([])
+                  setDeleteConfirmId(null)
+                  setEditId(null)
                 }
                 return next
               })
@@ -856,7 +863,7 @@ export function DepartmentsPage() {
                           searchPlaceholder={t('common.search', 'Ara...')}
                           className="min-w-52"
                           triggerClassName="text-xs"
-                          menuClassName="users-edit-dropdown-menu"
+                          // Panel genişliği = trigger (users-edit max-w-9rem kaldırıldı, card #r453).
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
                         />
                       ) : (
@@ -875,7 +882,6 @@ export function DepartmentsPage() {
                           searchPlaceholder={t('common.search', 'Ara...')}
                           className="min-w-52"
                           triggerClassName="text-xs"
-                          menuClassName="users-edit-dropdown-menu"
                           disabled={isManagerSaving}
                         />
                       ) : (

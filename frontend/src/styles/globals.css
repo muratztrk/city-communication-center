@@ -5191,9 +5191,9 @@
     bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap));
   }
 
-  /* Sayfa Yetkileri: Kaydet bitişi = WhatsApp FAB başlangıcı; shell+card inset düşülür (#r451). */
+  /* Sayfa Yetkileri: Kaydet WhatsApp FAB’ın solunda kalsın; shell inset hafif düşülür (#r451/#r453). */
   .settings-roles-actions {
-    padding-right: max(0px, calc(var(--fab-inline-clearance) - 3rem));
+    padding-right: max(0px, calc(var(--fab-inline-clearance) - 1.5rem));
   }
 
   .whatsapp-notification-fab-panel {

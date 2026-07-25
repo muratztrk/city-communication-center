@@ -875,6 +875,7 @@ export function UsersPage() {
           {canManageUsers ? (
             <Button
               type="button"
+              className="min-w-[12.5rem]"
               variant={showForm ? 'destructive' : 'primary'}
               onClick={showForm ? closeCreateForm : openCreateForm}
             >

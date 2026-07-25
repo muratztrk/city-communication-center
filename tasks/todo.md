@@ -3223,3 +3223,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a6479b1` — Yeni Kullanıcı / Düzenle / Sil birbirinin yarım durumunu temizler.
 
 ## STATUS: Round 457 complete — frontend build/lint green; shipping.
+
+## Round 458 (Doing — 2026-07-25, banner İptal genişlik)
+- [x] `6a6466fe` — Birimler/Kullanıcılar banner İptal `min-w-[12.5rem]`.
+
+## STATUS: Round 458 complete — frontend build/lint green; shipping.

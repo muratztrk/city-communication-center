@@ -1209,6 +1209,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   panel genişliği = trigger; menü satır fontu ~0.6rem (`users-edit-dropdown-menu-scroll`).
 - **Kullanıcılar yarım aksiyon (#r457):** Yeni Kullanıcı Ekle / Düzenle / Sil birbirinin açık
   yarım durumunu temizler (düzenleme satırı + create form aynı anda kalmaz).
+- **Birimler/Kullanıcılar banner İptal (#r458):** form açıkken banner İptal `min-w-[12.5rem]`
+  (Yeni … Ekle ile aynı aile genişlik).
 - **Dış birim detay alanları (card #r449/#r455):** ExternalUnit detayda Talep Yeri / Talep Yapılan
   Birim yeşil StatusPill çerçeve **yok** — eski `StackedFieldValue` / düz destination metni (#r455).
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid

@@ -2,7 +2,7 @@ import { Building2, FileText, Paperclip, Phone, Send, Workflow } from 'lucide-re
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateConversations, invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
@@ -210,6 +210,7 @@ export function CreateRequestPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
+  const location = useLocation()
   const [searchParams] = useSearchParams()
   const { user } = useAuth()
   const rawKindParam = searchParams.get('kind')
@@ -450,6 +451,12 @@ export function CreateRequestPage() {
     if (selectedKind !== 'citizen' || !canManageRequestTags) return
     void loadRequestTags()
   }, [selectedKind, canManageRequestTags, loadRequestTags])
+
+  // Sayfa/link/geri değişince Etiketler default (#r463); edit/social prefill sonra dolar.
+  useEffect(() => {
+    if (editJobId || socialMessageIdParam) return
+    setCitizenLabel('')
+  }, [location.key, editJobId, socialMessageIdParam, selectedKind])
 
   const handleCitizenLabelSelect = useCallback(async (label: string) => {
     setCitizenLabel(label)
@@ -737,8 +744,8 @@ export function CreateRequestPage() {
               {t('address.openAddressLabel', 'Açık Adres')}
               {hasNeighborhood ? (
                 <>
-                  <span className="text-red-500"> *</span>
                   <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                  <span className="text-red-500"> *</span>
                 </>
               ) : null}
             </span>
@@ -1406,7 +1413,6 @@ export function CreateRequestPage() {
                         largeText
                         tags={requestTags}
                         selectedName={citizenLabel}
-                        showSelectedOnButton={false}
                         onSelect={label => void handleCitizenLabelSelect(label)}
                         onClear={() => void handleCitizenLabelSelect('')}
                       />

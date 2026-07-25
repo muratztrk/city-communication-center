@@ -1,3 +1,9 @@
+## Round 463 — WA tek satır footer, etiket X after chevron + selected text, adres * sırası, Başlık %42, etiket reset
+- WA: Şablon/Ekle/Birim/Kurum İçi tek satır
+- Etiket: seçili metin butonda; X chevron sonrası; navigate/popup X → Etiketler
+- Açık Adres: `(max 100 karakter) *` (yıldız sonda)
+- Dizin yazdır Başlık ~42%
+
 ## Round 462 — WA Birim up/narrow, açık adres hint, dizin print, etiket X inside, görev açıklama
 - WA: Birim+Kurum İçi şablonun üst satırında sağa; Birim ~7.25rem
 - Açık Adres: kırmızı `*` + `(max 100 karakter)`

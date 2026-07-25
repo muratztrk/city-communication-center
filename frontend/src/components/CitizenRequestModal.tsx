@@ -219,7 +219,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       .then(detail => {
         if (!cancelled) {
           setConversationDetail(detail)
-          setRequestLabel(detail.label?.trim() ?? '')
+          // Yeni talep popup'ında önceki etiket butonda seçili kalmasın (#r463).
+          if (!(forceNewRequest && !editJobId)) {
+            setRequestLabel(detail.label?.trim() ?? '')
+          }
         }
       })
       .catch(() => {
@@ -230,7 +233,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     return () => {
       cancelled = true
     }
-  }, [citizenConversationId])
+  }, [citizenConversationId, editJobId, forceNewRequest])
 
   const handleRequestLabelSelect = async (label: string) => {
     const normalizedLabel = normalizeTitleCaseField(label) ?? ''
@@ -242,6 +245,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     } catch {
       // Seçim UI'da kalır; kayıt hatası formu engellemez.
     }
+  }
+
+  const handleClose = () => {
+    // Popup X / kapanış → Etiketler default (#r463).
+    setRequestLabel('')
+    onClose()
   }
 
   useEffect(() => {
@@ -533,7 +542,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           </div>
           <button
             type="button"
-            onClick={onClose}
+            onClick={handleClose}
             className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
             aria-label={t('common.close', 'Kapat')}
           >
@@ -550,7 +559,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               citizenName={savedCitizenName || undefined}
               headerMode="phone"
               showCloseButton={false}
-              onClose={onClose}
+              onClose={handleClose}
               // Yalnızca Vatandaş Operatörü beklemedeki mesajı vatandaşa iletebilir — card #1091.
               canSendPending={user?.role === 'Operator' || user?.role === 'SystemAdmin'}
               onReplySent={() => { /* talep oluşturma akışını etkilemez */ }}
@@ -669,7 +678,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       <RequestTagPicker
                         tags={requestTags}
                         selectedName={requestLabel}
-                        showSelectedOnButton={false}
                         onSelect={label => { void handleRequestLabelSelect(label) }}
                         onClear={() => { void handleRequestLabelSelect('') }}
                       />
@@ -725,8 +733,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       {t('address.openAddressLabel', 'Açık Adres')}
                       {neighborhood ? (
                         <>
-                          <span className="text-red-500"> *</span>
                           <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                          <span className="text-red-500"> *</span>
                         </>
                       ) : null}
                     </span>

@@ -66,8 +66,8 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             {t('address.openAddressLabel', 'Açık Adres')}
             {hasNeighborhood ? (
               <>
-                <span className="text-red-500"> *</span>
                 <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                <span className="text-red-500"> *</span>
               </>
             ) : null}
           </span>

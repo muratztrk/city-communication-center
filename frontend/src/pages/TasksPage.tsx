@@ -2505,8 +2505,8 @@ const pageKicker = isMyTasksView
                                   {t('address.openAddressLabel', 'Açık Adres')}
                                   {editRoutineTaskModal.neighborhood ? (
                                     <>
-                                      <span className="text-red-500"> *</span>
                                       <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                                      <span className="text-red-500"> *</span>
                                     </>
                                   ) : null}
                                 </span>

@@ -345,6 +345,7 @@ export function RequestTagPicker({
           <span className="min-w-0 truncate text-left">{buttonLabel}</span>
         </span>
         <span className="flex shrink-0 items-center gap-0.5">
+          <ChevronDown className={`size-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
           {canClear ? (
             <span
               role="button"
@@ -371,7 +372,6 @@ export function RequestTagPicker({
               <X className="size-3.5" strokeWidth={2.5} aria-hidden="true" />
             </span>
           ) : null}
-          <ChevronDown className={`size-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
         </span>
       </Button>
       {menu}

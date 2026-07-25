@@ -298,31 +298,6 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
 
       {canReply && (
         <div className="shrink-0 space-y-3 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-3">
-          {internalDepartmentOptions ? (
-            <div className="flex flex-wrap items-center justify-end gap-2">
-              <SingleSelectDropdown
-                options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
-                value={internalDepartmentId}
-                onChange={value => onInternalDepartmentIdChange?.(value)}
-                placeholder={t('departments.selectDepartment', 'Birim seçin')}
-                emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
-                searchPlaceholder={t('departments.search', 'Birim ara...')}
-                openUp={internalDepartmentOptions.length >= 2}
-                className="w-[7.25rem] min-w-0 max-w-[7.25rem]"
-                triggerClassName={`${compactActions ? 'min-h-7 h-7 px-2 text-[11px]' : 'h-9 px-2.5 text-xs'} w-full rounded-full font-semibold`}
-                menuScrollClassName="whatsapp-department-menu-scroll"
-              />
-              <button
-                type="button"
-                onClick={() => void handleSendInternalClick()}
-                disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                className={`inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50 ${compactActions ? 'h-7 px-2.5 text-[11px]' : 'h-9 px-4 text-sm'}`}
-              >
-                {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-                {t('whatsapp.sendInternalMessage', 'Kurum İçi İlet')}
-              </button>
-            </div>
-          ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <WhatsAppTemplatePicker
               userQuickReplies={userQuickReplies}
@@ -342,6 +317,31 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               compact={compactActions}
             />
             <UserQuickReplyAddButton compact={compactActions} onChanged={() => { void userQuickRepliesQuery.refetch() }} />
+            {internalDepartmentOptions ? (
+              <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+                <SingleSelectDropdown
+                  options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
+                  value={internalDepartmentId}
+                  onChange={value => onInternalDepartmentIdChange?.(value)}
+                  placeholder={t('departments.selectDepartment', 'Birim seçin')}
+                  emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
+                  searchPlaceholder={t('departments.search', 'Birim ara...')}
+                  openUp={internalDepartmentOptions.length >= 2}
+                  className="w-[7.25rem] min-w-0 max-w-[7.25rem]"
+                  triggerClassName={`${compactActions ? 'min-h-7 h-7 px-2 text-[11px]' : 'h-9 px-2.5 text-xs'} w-full rounded-full font-semibold`}
+                  menuScrollClassName="whatsapp-department-menu-scroll"
+                />
+                <button
+                  type="button"
+                  onClick={() => void handleSendInternalClick()}
+                  disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
+                  className={`inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50 ${compactActions ? 'h-7 px-2.5 text-[11px]' : 'h-9 px-4 text-sm'}`}
+                >
+                  {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+                  {t('whatsapp.sendInternalMessage', 'Kurum İçi İlet')}
+                </button>
+              </div>
+            ) : null}
           </div>
           <div className="flex items-end gap-2">
             <textarea

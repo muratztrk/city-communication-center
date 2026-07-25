@@ -99,12 +99,12 @@ function printCitizenTickets(
       th,td{border:1px solid #cbd5e1;padding:6px 7px;text-align:center;vertical-align:middle}
       th{background:#f1f5f9;white-space:nowrap}
       th.col-title,td.col-title{white-space:normal;text-align:left}
-      .col-seq{width:2rem;white-space:nowrap}
-      .col-no{width:5.75rem;white-space:nowrap}
-      .col-title{width:18rem;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
-      .col-date{width:7.25rem;white-space:nowrap}
-      .col-dept{width:7.75rem;white-space:normal;word-break:break-word}
-      .col-status{width:5.5rem;white-space:normal;word-break:break-word}
+      .col-seq{width:4%;white-space:nowrap}
+      .col-no{width:11%;white-space:nowrap}
+      .col-title{width:42%;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+      .col-date{width:14%;white-space:nowrap}
+      .col-dept{width:17%;white-space:normal;word-break:break-word}
+      .col-status{width:12%;white-space:normal;word-break:break-word}
       .footer{margin-top:14px;font-size:10px;color:#64748b}
     </style></head><body>
     <h1>${escape(listTitle)}</h1>

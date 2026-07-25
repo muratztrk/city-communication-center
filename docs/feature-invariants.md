@@ -1208,8 +1208,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazdır not satırları (#r467):** iptal/tamamlamada `İptal Notu` / `Tamamlama Notu` Durum'dan
   sonra ayrı satır; boş Son Tarih = `Onay Bekleyen` (Belirsiz değil).
 - **Dizin ticket sıra (#r467):** VT yılı+numara azalan (en yüksek üstte).
-- **WA Birim panel (#r467–#r473):** Konuşmalar trigger ~10rem / menü ~210px; create-modal
-  menü ~168px; clearable X; placeholder `Birim seçiniz...`.
+- **WA Birim panel (#r467–#r476):** Konuşmalar trigger ~10rem / menü ~168px (create-modal ile
+  aynı); clearable X; placeholder `Birim seçiniz...`.
 - **WA Tümü / Talep Sayısı (#r473):** yalnız İşleme Alınan + Yapılmakta + Tamamlandı toplamı
   (iptal dahil değil).
 - **Grid truncate tooltip (#r474):** `TruncatedText` — hücre taşınca (… / line-clamp)

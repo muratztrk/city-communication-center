@@ -1,3 +1,6 @@
+## Round 476 — WA Birim menü yeniden daralt (reopen)
+- Konuşmalar Birim menü 210→168 (create-modal ile eşit)
+
 ## Round 475 — Sidebar destek e-postası
 - Sol menü: destek@lumespec.com.tr
 

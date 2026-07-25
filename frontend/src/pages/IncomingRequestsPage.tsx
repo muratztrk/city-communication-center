@@ -29,6 +29,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TruncatedText } from '../components/ui/TruncatedText'
+import { EmptyCell } from '../components/ui/EmptyCell'
 import { StatusPill } from '../components/ui/status-pill'
 import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -975,7 +976,7 @@ export function IncomingRequestsPage() {
                       />
                     </td>
                     <td className="font-semibold"><TruncatedText text={row.title} className={`cell-title ${isReporterRow ? 'text-[#f97316]' : ''}`} /></td>
-                    {showTaskOwnerColumn && <td>{row.taskOwnerDisplayName ?? '—'}</td>}
+                    {showTaskOwnerColumn && <td><EmptyCell value={row.taskOwnerDisplayName} /></td>}
                     {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && (
                       <td>
                         <DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} highlightReporter={isReporterRow} />

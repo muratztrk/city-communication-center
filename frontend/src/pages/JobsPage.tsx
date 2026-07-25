@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TruncatedText } from '../components/ui/TruncatedText'
+import { EmptyCell } from '../components/ui/EmptyCell'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -2111,9 +2112,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         )}
                       </td>
                     )}
-                    {isDepartmentOutgoingView && <td>{job.createdByDisplayName ?? '—'}</td>}
+                    {isDepartmentOutgoingView && <td><EmptyCell value={job.createdByDisplayName} /></td>}
                     <td className="font-semibold"><TruncatedText text={job.title} className={`cell-title ${isReporterJob ? 'text-[#f97316]' : ''}`} /></td>
-                    {showTaskOwnerColumn && <td>{job.assignedUserDisplayName ?? '—'}</td>}
+                    {showTaskOwnerColumn && <td><EmptyCell value={job.assignedUserDisplayName} /></td>}
                     <td>
                       {isMyRequestsView || isDepartmentOutgoingView ? (
                         renderOutgoingDestination(job)
@@ -2894,11 +2895,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 <tbody>
                   {detail.departments.map(d => (
                     <tr key={d.jobDepartmentId}>
-                      <td>{d.departmentName ?? '—'}</td>
+                      <td><EmptyCell value={d.departmentName} /></td>
                       <td>{t(`jobs.roles.${d.role}`, d.role)}</td>
                       <td>{t(`jobs.approvalStatuses.${d.approvalStatus}`, d.approvalStatus)}</td>
                       <td>{formatDateTime(d.decidedAtUtc, locale)}</td>
-                      <td>{d.approvedByDisplayName ?? '—'}</td>
+                      <td><EmptyCell value={d.approvedByDisplayName} /></td>
                     </tr>
                   ))}
                 </tbody>
@@ -2944,8 +2945,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {detail.tasks.map(tk => (
                       <tr key={tk.taskId}>
                         <td><TruncatedText text={tk.title} className="cell-title" /></td>
-                        <td>{tk.assignedUserDisplayName ?? tk.assignedDepartmentName ?? '—'}</td>
-                        <td>{tk.ownerDisplayName ?? '—'}</td>
+                        <td><EmptyCell value={tk.assignedUserDisplayName ?? tk.assignedDepartmentName} /></td>
+                        <td><EmptyCell value={tk.ownerDisplayName} /></td>
                       </tr>
                     ))}
                   </tbody>

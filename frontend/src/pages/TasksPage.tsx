@@ -10,6 +10,7 @@ import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TruncatedText } from '../components/ui/TruncatedText'
+import { EmptyCell } from '../components/ui/EmptyCell'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -3044,12 +3045,16 @@ const pageKicker = isMyTasksView
                           <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.82rem]">
                             {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
                           </StatusPill>
-                          {/* Görevi Yapan: oluşturandan biraz küçük (#r472). */}
-                          <TruncatedText
-                            as="div"
-                            text={task.assignedUserDisplayName ?? task.ownerDisplayName ?? '—'}
-                            className={`mt-1 truncate text-[0.8125rem] font-semibold leading-snug ${reporterAssigneeClass}`}
-                          />
+                          {/* Görevi Yapan: oluşturandan biraz küçük (#r472). Boşsa gri — (#r480). */}
+                          {(task.assignedUserDisplayName ?? task.ownerDisplayName) ? (
+                            <TruncatedText
+                              as="div"
+                              text={(task.assignedUserDisplayName ?? task.ownerDisplayName)!}
+                              className={`mt-1 truncate text-[0.8125rem] font-semibold leading-snug ${reporterAssigneeClass}`}
+                            />
+                          ) : (
+                            <div className="mt-1"><EmptyCell /></div>
+                          )}
                         </div>
                       </td>
                     )}

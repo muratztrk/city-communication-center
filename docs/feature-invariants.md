@@ -1233,8 +1233,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Tüm LDAP… Ekle` onay ister; listeleme sırasında buton metni değişmez (#1890); ekleme sırasında
   `addAllLdapWorking`. Sonuç/önizleme `details` içinde kaydırılabilir birim listesi. None:
   `Eklenecek yeni LDAP birimi yok; hepsi sistemde ekli durumdadır.` Sil aynı kalıp.
-- **Grid boş em-dash (card #1894 reopen):** data-table hücrelerinde `—` `EmptyCell` /
-  `.empty-cell-dash` ile talep no gibi mono/slate görünür (transparan değil).
+- **Grid boş em-dash (#1894/#r480):** data-table `—` → `EmptyCell` / `.empty-cell-dash`
+  slate-400 gri (transparan değil).
+- **Rutin Görev ek dosya boş metni (#r480):** `Henüz dosya seçilmedi.` → CreateRequest ile
+  aynı `text-sm text-slate-500`.
 - **Sayfa Yetkileri (card #1892/#1893 reopen):** `Vatandaş Bilgi Listesi` Vatandaş Talepleri’nden
   sonra; sıra `Kaydet` → `Varsayılanlara Dön` (sağda, `justify-end`); kayıt/sıfırlama sonucu
   ConfirmDialog (banner değil).

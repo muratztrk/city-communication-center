@@ -1,3 +1,7 @@
+## Round 480 — Grid — gri; Rutin dosya boş metin boyutu
+- EmptyCell slate-400; Jobs/Tasks/Incoming bare — → EmptyCell
+- RoutineTask pendingEmpty text-sm (CreateRequest ile aynı)
+
 ## Round 479 — Grid tooltip küçült / alta / anında
 - Tooltip kompakt + aşağı açılır; show delay yok; hücre değişiminde anında güncelle
 

@@ -387,7 +387,7 @@ export function RoutineTaskPage() {
                     </div>
                     <div className="flex h-full min-h-[5.5rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-2">
                       {pendingFiles.length === 0 ? (
-                        <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
+                        <p className="text-sm text-slate-500">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
                       ) : (
                         <ul className="space-y-1 text-xs">
                           {pendingFiles.map((file, idx) => {

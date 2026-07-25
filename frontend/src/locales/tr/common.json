@@ -564,7 +564,10 @@
     "deleteAllLdapHint": "Talep oluşturmamış ya da gönderilmemiş tüm ldap birimleri silinebilir.",
     "deleteAllLdapConfirm": "Talep ve Görev oluşturulmayan tüm LDAP birimleri silinecek. Bu işlem geri alınamaz.",
     "deleteAllLdapSuccess": "{{count}} LDAP birimi silindi.",
-    "deleteAllLdapNone": "Silinecek LDAP birimi bulunamadı."
+    "deleteAllLdapNone": "Silinecek LDAP birimi bulunamadı.",
+    "selectDepartment": "Birim seçiniz...",
+    "noDepartments": "Birim bulunamadı.",
+    "search": "Birim ara..."
   },
   "users": {
     "title": "Kullanıcılar",

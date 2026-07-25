@@ -5,7 +5,7 @@ export function formatWhatsAppDeliveryError(error: string | null | undefined): s
   const lower = normalized.toLocaleLowerCase('tr')
 
   if (lower.includes('re-engagement')) {
-    return '24 saatlik yanıt penceresi kapalı. Vatandaş son 24 saatte yazmadıysa yalnızca onaylı şablon mesaj gönderilebilir.'
+    return 'Vatandaş son 24 saat içinde mesaj göndermediği için yalnızca Meta onaylı şablon mesaj gönderilebilir.'
   }
 
   if (lower.includes('phone number is malformed') || lower.includes('malformed')) {

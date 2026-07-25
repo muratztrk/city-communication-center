@@ -323,7 +323,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
                   value={internalDepartmentId}
                   onChange={value => onInternalDepartmentIdChange?.(value)}
-                  placeholder={t('departments.selectDepartment', 'Birim seçin')}
+                  placeholder={t('departments.selectDepartment', 'Birim seçiniz...')}
                   emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
                   searchPlaceholder={t('departments.search', 'Birim ara...')}
                   openUp={internalDepartmentOptions.length >= 2}

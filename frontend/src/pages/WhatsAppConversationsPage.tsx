@@ -1351,14 +1351,14 @@ function ConversationDetail({
                     options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
                     value={internalDepartmentId}
                     onChange={setInternalDepartmentId}
-                    placeholder={t('departments.selectDepartment', 'Birim seçin')}
+                    placeholder={t('departments.selectDepartment', 'Birim seçiniz...')}
                     emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
                     searchPlaceholder={t('departments.search', 'Birim ara...')}
                     openUp={internalDepartmentOptions.length >= 2}
                     clearable
-                    className="w-[9.5rem] min-w-0 max-w-[9.5rem]"
+                    className="w-[8.75rem] min-w-0 max-w-[8.75rem]"
                     triggerClassName="h-9 w-full rounded-full px-2.5 text-xs font-semibold"
-                    menuWidth={240}
+                    menuWidth={200}
                     menuScrollClassName="whatsapp-department-menu-scroll"
                   />
                   <button

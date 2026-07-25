@@ -1,3 +1,8 @@
+## Round 470 — WA Birim eşitle + placeholder + 24s metin
+- Konuşmalar Birim = create-modal (8.75rem / 200px)
+- Placeholder: Birim seçiniz... (her iki yer)
+- 24s delivery error: Meta onaylı şablon metni
+
 ## Round 469 — WA Konuşmaları Birim menü biraz geniş
 - Trigger ~9.5rem; açık menü ~240px
 

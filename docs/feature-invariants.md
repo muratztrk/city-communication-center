@@ -1194,8 +1194,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   önceki label yüklenmez). Grid sayfa/page-size değişince kolon filtreleri sıfırlanır.
 - **WA chat footer (#r463):** Şablon + Şablon ekle + Birim + Kurum İçi İlet tek satır; Birim ~7.25rem sağda.
 - **Açık Adres zorunluluk etiketi (#r463):** mahalle sonrası `(max 100 karakter)` sonra kırmızı `*`.
-- **Dizin yazdır (#r462/#r463):** h1 `Vatandaş Bilgi Listesi`; Başlık kolonu ~42%; nested Detaylar
-  Yazdır = `printJobDetail` (Vatandaş Talepleri ile aynı).
+- **WA Talep Oluştur popup (#r464):** konuşma + form `lg:grid-cols-2` (yarım / yarım).
+- **Dizin yazdır (#r462/#r463/#r464):** h1 `Vatandaş Bilgi Listesi`; Başlık ~34% + ortalı;
+  Durum ~15%; nested Detaylar Yazdır = `printJobDetail`.
 - **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde etiketi biraz sola; Açık Adres kolon
   ortasında; Cadde/Açık Adres etiket alt çizgisi değer metni genişliğine uzar; kısa viewport'ta
   3 kolon kalır.

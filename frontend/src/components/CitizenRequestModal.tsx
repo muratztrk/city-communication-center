@@ -550,7 +550,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           </button>
         </div>
 
-        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-[minmax(0,0.44fr)_minmax(0,0.56fr)]">
+        <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">
           <div className="min-h-0 border-b border-slate-200 lg:border-b-0 lg:border-r">
             <ConversationPanel
               socialMessageId={message.socialMessageId}

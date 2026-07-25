@@ -86,7 +86,7 @@ function printCitizenTickets(
   }).join('')
 
   // onload print YOK — printHtmlDocument zaten bir kez print açar (card #r446 çift pencere).
-  // Başlık kolonu geniş; diğer kolonlar dar rem (#r460/#r462). Başlık metni liste adı (#r462).
+  // Başlık biraz dar + ortalı; Durum biraz geniş (#r464). Başlık metni liste adı (#r462).
   const listTitle = t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(listTitle)}</title>
     <style>
@@ -98,13 +98,13 @@ function printCitizenTickets(
       table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
       th,td{border:1px solid #cbd5e1;padding:6px 7px;text-align:center;vertical-align:middle}
       th{background:#f1f5f9;white-space:nowrap}
-      th.col-title,td.col-title{white-space:normal;text-align:left}
+      th.col-title,td.col-title{white-space:normal;text-align:center;word-break:break-word;overflow-wrap:anywhere}
       .col-seq{width:4%;white-space:nowrap}
       .col-no{width:11%;white-space:nowrap}
-      .col-title{width:42%;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+      .col-title{width:34%}
       .col-date{width:14%;white-space:nowrap}
       .col-dept{width:17%;white-space:normal;word-break:break-word}
-      .col-status{width:12%;white-space:normal;word-break:break-word}
+      .col-status{width:15%;white-space:normal;word-break:break-word}
       .footer{margin-top:14px;font-size:10px;color:#64748b}
     </style></head><body>
     <h1>${escape(listTitle)}</h1>

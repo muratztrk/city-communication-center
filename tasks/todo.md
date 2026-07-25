@@ -1,3 +1,7 @@
+## Round 464 — WA modal 50/50; dizin yazdır Başlık daralt+ortala, Durum genişlet
+- WA Talep Oluştur: konuşma alanı popup’ın yarısı (`grid-cols-2`)
+- Dizin yazdır: Başlık ~34% ortalı; Durum ~15%
+
 ## Round 463 — WA tek satır footer, etiket X after chevron + selected text, adres * sırası, Başlık %42, etiket reset
 - WA: Şablon/Ekle/Birim/Kurum İçi tek satır
 - Etiket: seçili metin butonda; X chevron sonrası; navigate/popup X → Etiketler

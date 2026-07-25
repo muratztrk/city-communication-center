@@ -3213,3 +3213,8 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a64782c` — Detay popup Talep Yeri / Talep Yapılan Birim yeşil çerçeve kaldırıldı.
 
 ## STATUS: Round 455 complete — frontend build/lint green; shipping.
+
+## Round 456 (Doing — 2026-07-25, Kullanıcılar Birim/Rol panel = trigger)
+- [x] `6a645f36` — Düzenle Birim/Rol panel genişliği = trigger; satır fontu ~0.6rem.
+
+## STATUS: Round 456 complete — frontend build/lint green; shipping.

@@ -1383,7 +1383,7 @@ export function UsersPage() {
                           searchPlaceholder={t('common.search', 'Ara...')}
                           className="w-full min-w-0 max-w-full"
                           triggerClassName="text-xs !min-h-8 !px-2"
-                          menuClassName="max-w-[9rem] users-edit-dropdown-menu"
+                          // Panel genişliği = trigger; kompakt satır fontu (card #r456).
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
                         />
                         <MultiSelectDropdown
@@ -1396,7 +1396,7 @@ export function UsersPage() {
                           emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
                           className="w-full min-w-0 max-w-full"
                           triggerClassName="text-xs !min-h-8 !px-2"
-                          menuClassName="max-w-[9rem] users-edit-dropdown-menu"
+                          menuClassName="users-edit-dropdown-menu-scroll"
                           searchable
                           searchPlaceholder={t('common.search', 'Ara...')}
                         />
@@ -1417,7 +1417,6 @@ export function UsersPage() {
                           searchPlaceholder={t('common.search', 'Ara...')}
                           className="w-full"
                           triggerClassName="text-xs"
-                          menuClassName="max-w-[12rem] users-edit-dropdown-menu"
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
                         />
                         <MultiSelectDropdown
@@ -1430,6 +1429,7 @@ export function UsersPage() {
                           emptyText={t('users.additionalRolesEmpty', 'Seçilebilir ek rol bulunmuyor.')}
                           className="w-full"
                           triggerClassName="text-xs"
+                          menuClassName="users-edit-dropdown-menu-scroll"
                         />
                       </div>
                     </td>

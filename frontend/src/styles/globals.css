@@ -2056,14 +2056,6 @@
     color: var(--color-primary);
   }
 
-  /* Kullanıcı düzenleme dept/rol menü satırları kompakt (card #1706 reopen). */
-  .users-edit-dropdown-menu-scroll .dropdown-menu-item {
-    min-height: 1.75rem;
-    padding: 0.3rem 0.55rem;
-    font-size: 0.72rem;
-    font-weight: 600;
-  }
-
   /* Düzenle → Birim / Ek birimler: dar sütun + truncate (card #r448). */
   .users-table .users-edit-dept-cell {
     width: 7.5rem;
@@ -2080,19 +2072,13 @@
     max-width: 5.25rem;
   }
 
-  .users-edit-dropdown-menu {
-    max-width: 9rem;
-  }
-
+  /* Kullanıcı düzenleme Birim/Rol panel satırları — trigger genişliği + küçük font (#r456). */
+  .users-edit-dropdown-menu-scroll .dropdown-menu-item,
   .users-edit-dropdown-menu .dropdown-menu-item {
-    min-height: 1.65rem;
-    padding: 0.25rem 0.5rem;
-    font-size: 0.65rem;
+    min-height: 1.55rem;
+    padding: 0.22rem 0.45rem;
+    font-size: 0.6rem;
     font-weight: 600;
-  }
-
-  .users-edit-dropdown-menu-scroll .dropdown-menu-item {
-    font-size: 0.65rem;
   }
 
   .audit-log-tab-bar {

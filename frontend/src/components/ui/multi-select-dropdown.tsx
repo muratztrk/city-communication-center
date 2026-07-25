@@ -60,8 +60,8 @@ export function MultiSelectDropdown({
   const updateMenuPosition = useCallback(() => {
     const rect = rootRef.current?.getBoundingClientRect()
     if (!rect) return
-    // Trigger genişliğini kullan; tablo hücrelerinde min 220px zorlamak komşu sütuna taşıyordu (#1706).
-    const width = Math.max(rect.width, 140)
+    // Trigger ile aynı genişlik — tablo hücrelerinde min zorlamak paneli şişiriyordu (#1706/#r456).
+    const width = Math.max(rect.width, 1)
     const left = Math.min(rect.left, Math.max(8, window.innerWidth - width - 8))
     setMenuStyle({
       left,

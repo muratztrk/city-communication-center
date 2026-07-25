@@ -1205,8 +1205,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Sayfa Yetkileri (card #1892/#1893 reopen):** `Vatandaş Bilgi Listesi` Vatandaş Talepleri’nden
   sonra; sıra `Kaydet` → `Varsayılanlara Dön` (sağda, `justify-end`); kayıt/sıfırlama sonucu
   ConfirmDialog (banner değil).
-- **Kullanıcılar düzenle Birim dropdown (card #r448):** grid düzenlemede Birim/Ek birimler
-  sütunu ~7.5rem; açık menü `max-width: 9rem` + truncate; menü satır metni ~0.65rem (#r449).
+- **Kullanıcılar düzenle Birim/Rol dropdown (card #r448/#r456):** sütun ~7.5rem / ~9rem; açık
+  panel genişliği = trigger; menü satır fontu ~0.6rem (`users-edit-dropdown-menu-scroll`).
 - **Dış birim detay alanları (card #r449/#r455):** ExternalUnit detayda Talep Yeri / Talep Yapılan
   Birim yeşil StatusPill çerçeve **yok** — eski `StackedFieldValue` / düz destination metni (#r455).
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid

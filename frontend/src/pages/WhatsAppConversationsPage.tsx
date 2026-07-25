@@ -378,7 +378,8 @@ function ConversationListPanel({
     [conversations],
   )
 
-  const totalStatusCount = totalCounts.intake + totalCounts.inProgress + totalCounts.completed + totalCounts.cancelled
+  // Tümü = yalnız üç görünür durumun toplamı; iptal dahil değil (#r473).
+  const totalStatusCount = totalCounts.intake + totalCounts.inProgress + totalCounts.completed
 
   const statusChips: Array<{ value: ConversationStatusFilter; label: string; count: number; className: string }> = [
     { value: 'intake', label: t('whatsapp.intakeCountShort', 'İşleme Alınan'), count: totalCounts.intake, className: 'text-slate-600 hover:bg-slate-200' },
@@ -1063,8 +1064,9 @@ function ConversationDetail({
     : phoneForHeader
       ? formatPhone(phoneForHeader)
       : null
+  // Talep Sayısı = İşleme Alınan + Yapılmakta + Tamamlandı (iptal yok, #r473).
   const ticketLabel = detail
-    ? `Talep Sayısı: ${detail.intakeCount + detail.inProgressCount + detail.completedCount + detail.cancelledCount}`
+    ? `Talep Sayısı: ${detail.intakeCount + detail.inProgressCount + detail.completedCount}`
     : formatWhatsAppTicketLabel(primaryTicket)
   // Header'daki "Görev Sahibi" listesi yalnız Yapılmakta (Job Active) taleplerin görevlilerini
   // gösterir; tamamlanan/iptal edilen taleplerin personel adları düşer (card #1372).
@@ -1359,7 +1361,7 @@ function ConversationDetail({
                     clearable
                     className="w-[10rem] min-w-0 max-w-[10rem]"
                     triggerClassName="h-9 w-full rounded-full px-2.5 text-xs font-semibold"
-                    menuWidth={240}
+                    menuWidth={210}
                     menuScrollClassName="whatsapp-department-menu-scroll"
                   />
                   <button

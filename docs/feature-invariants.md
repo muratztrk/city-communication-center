@@ -1208,8 +1208,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazdır not satırları (#r467):** iptal/tamamlamada `İptal Notu` / `Tamamlama Notu` Durum'dan
   sonra ayrı satır; boş Son Tarih = `Onay Bekleyen` (Belirsiz değil).
 - **Dizin ticket sıra (#r467):** VT yılı+numara azalan (en yüksek üstte).
-- **WA Birim panel (#r467–#r472):** Konuşmalar trigger ~10rem / menü ~240px; create-modal
+- **WA Birim panel (#r467–#r473):** Konuşmalar trigger ~10rem / menü ~210px; create-modal
   menü ~168px; clearable X; placeholder `Birim seçiniz...`.
+- **WA Tümü / Talep Sayısı (#r473):** yalnız İşleme Alınan + Yapılmakta + Tamamlandı toplamı
+  (iptal dahil değil).
 - **WA Konuşmaları footer (#r468):** Şablon/Dosya + Birim + Kurum İçi tek satır; Birim/Kurum
   İçi `ml-auto` sağa (create-modal ConversationPanel ile aynı).
 - **WA 24s hata metni (#r470):** re-engagement → `Vatandaş son 24 saat içinde mesaj göndermediği

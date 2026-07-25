@@ -1,3 +1,8 @@
+## Round 473 — WA sayımlar iptalsiz; Birim menü daralt; 10dk auto-loop
+- Tümü + Talep Sayısı = intake+inProgress+completed (iptal yok)
+- WA Birim menü ~210px
+- launchd + Cursor loop 10dk kuruldu
+
 ## Round 472 — Görevi Yapan biraz küçült; WA Birim genişlet
 - Görev grid Görevi Yapan ~13px
 - WA Konuşmalar Birim ~10rem / menü 240px

@@ -11,6 +11,8 @@ import {
 } from '../../../utils/citizenRequests'
 import { getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
 import { RequestNumberWithTypeLabel } from '../../../utils/requestDisplay'
+import { ExternalDestinationValue } from './ExternalDestinationValue'
+import { FramedDepartmentStack } from './FramedDepartmentStack'
 import { StackedFieldValue } from './StackedFieldValue'
 
 export interface MyRequestDetailField {
@@ -40,6 +42,22 @@ export function buildMyRequestDetailFields(
   const assigneeNames = [...new Set(
     detail.tasks.map(task => task.assignedUserDisplayName).filter((name): name is string => Boolean(name)),
   )]
+  const isExternal = detail.requestType === 'ExternalUnit'
+  const locationCreatorValue = isExternal
+    ? (
+        <FramedDepartmentStack
+          departmentName={detail.ownerDepartmentName}
+          secondary={detail.createdByDisplayName}
+        />
+      )
+    : <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />
+  const destinationValue = isExternal
+    ? <ExternalDestinationValue detail={detail} framed />
+    : (
+        includeAssignee && !useMyRequestsFieldLayout
+          ? formatJobDestinationsWithAssignees(detail, true)
+          : formatJobDestinationsWithAssignees(detail, false, false)
+      )
 
   if (isCitizenRequestJob(detail)) {
     return [
@@ -63,22 +81,20 @@ export function buildMyRequestDetailFields(
       { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
       {
         label: t('jobs.detail.requestLocationCreator', 'Talep Yeri / Oluşturan'),
-        value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
+        value: locationCreatorValue,
       },
       ...(useMyRequestsFieldLayout
         ? [
-            { label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'), value: formatJobDestinationsWithAssignees(detail, false, false) },
-            ...(assigneeNames.length > 0
+            { label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'), value: destinationValue },
+            ...(!isExternal && assigneeNames.length > 0
               ? [{ label: t('jobs.detail.assignee', 'Görevi Yapan'), value: assigneeNames.join(', ') }]
               : []),
           ]
         : [{
-            label: includeAssignee
+            label: includeAssignee && !isExternal
               ? t('jobs.detail.targetDepartmentAssignee', 'Talep Yapılan Birim / Görevi Yapan')
               : t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'),
-            value: includeAssignee
-              ? formatJobDestinationsWithAssignees(detail, true)
-              : formatJobDestinationsWithAssignees(detail, false, false),
+            value: destinationValue,
           }]),
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
       ...(showCitizenRequestLabel
@@ -101,22 +117,20 @@ export function buildMyRequestDetailFields(
     { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
     {
       label: t('jobs.detail.requestLocationCreator', 'Talep Yeri / Oluşturan'),
-      value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
+      value: locationCreatorValue,
     },
     ...(useMyRequestsFieldLayout
       ? [
-          { label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'), value: formatJobDestinationsWithAssignees(detail, false, false) },
-          ...(assigneeNames.length > 0
+          { label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'), value: destinationValue },
+          ...(!isExternal && assigneeNames.length > 0
             ? [{ label: t('jobs.detail.assignee', 'Görevi Yapan'), value: assigneeNames.join(', ') }]
             : []),
         ]
       : [{
-          label: includeAssignee
+          label: includeAssignee && !isExternal
             ? t('jobs.detail.targetDepartmentAssignee', 'Talep Yapılan Birim / Görevi Yapan')
             : t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'),
-          value: includeAssignee
-            ? formatJobDestinationsWithAssignees(detail, true)
-            : formatJobDestinationsWithAssignees(detail, false, false),
+          value: destinationValue,
         }]),
     {
       label: t('jobs.form.isProject', 'Proje mi'),

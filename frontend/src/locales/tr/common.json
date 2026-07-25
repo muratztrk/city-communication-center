@@ -1187,7 +1187,7 @@
       "title": "Sayfa Yetkileri",
       "description": "Her rolün uygulamada hangi sayfaları görebileceğini düzenleyin.",
       "page": "Sayfa",
-      "note": "Bu matris arayüzdeki sayfa görünürlüğünü yönetir. Kontrol paneli herkes için açık kalır; sistem ayarları yalnızca Sistem Yöneticisi rolüne açıktır.",
+      "note": "Bu matris arayüzdeki sayfa görünürlüğünü yönetir. Anasayfa herkes için açık kalır; sistem ayarları yalnızca Sistem Yöneticisi rolüne açıktır.",
       "saveSuccess": "Rol sayfa yetkileri kaydedildi.",
       "resetSuccess": "Rol sayfa yetkileri varsayılanlara döndürüldü.",
       "resetDefaults": "Varsayılanlara Dön",

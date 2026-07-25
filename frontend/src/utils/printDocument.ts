@@ -23,12 +23,18 @@ function hardenPrintHtml(html: string): string {
   return html.replace(/<head([^>]*)>/i, `<head$1>${cspMeta}`)
 }
 
-/** Open a centered preview window and print once (HTML should include its own onload print hook). */
+/** Open a centered preview window and print once (blob URL — about:blank footer yok, card #r449). */
 export function printHtmlDocument(html: string, options?: { width?: number; height?: number }): void {
   const width = options?.width ?? 820
   const height = options?.height ?? getVisibleDetailModalHeight()
-  const printWindow = window.open('', '_blank', getCenteredPopupFeatures(width, height))
-  if (!printWindow) return
+  const hardened = hardenPrintHtml(html)
+  const blob = new Blob([hardened], { type: 'text/html;charset=utf-8' })
+  const blobUrl = URL.createObjectURL(blob)
+  const printWindow = window.open(blobUrl, '_blank', getCenteredPopupFeatures(width, height))
+  if (!printWindow) {
+    URL.revokeObjectURL(blobUrl)
+    return
+  }
 
   try {
     printWindow.opener = null
@@ -36,28 +42,33 @@ export function printHtmlDocument(html: string, options?: { width?: number; heig
     // Some browsers expose opener as read-only; the CSP below still isolates the print document's network surface.
   }
 
-  printWindow.document.open()
-  printWindow.document.write(hardenPrintHtml(html))
-  printWindow.document.close()
+  const cleanup = () => {
+    try { URL.revokeObjectURL(blobUrl) } catch { /* ignore */ }
+  }
 
-  const script = printWindow.document.createElement('script')
-  script.textContent = `
-    window.addEventListener('load', function () {
-      var closed = false;
-      function closePrintWindow() {
-        if (closed) return;
-        closed = true;
-        window.close();
-      }
-      window.onafterprint = closePrintWindow;
-      if (window.matchMedia) {
-        window.matchMedia('print').addEventListener('change', function (event) {
-          if (!event.matches) closePrintWindow();
-        });
-      }
-      window.setTimeout(closePrintWindow, 60_000);
-      window.print();
-    });
-  `
-  printWindow.document.body.appendChild(script)
+  const tryPrint = () => {
+    try {
+      printWindow.document.title = printWindow.document.title || 'Yazdır'
+      printWindow.focus()
+      printWindow.print()
+    } catch {
+      cleanup()
+    }
+  }
+
+  printWindow.addEventListener('afterprint', () => {
+    cleanup()
+    try { printWindow.close() } catch { /* ignore */ }
+  })
+  printWindow.setTimeout(() => {
+    cleanup()
+    try { printWindow.close() } catch { /* ignore */ }
+  }, 60_000)
+
+  // Blob belge yüklenene kadar bekle.
+  if (printWindow.document.readyState === 'complete') {
+    window.setTimeout(tryPrint, 50)
+  } else {
+    printWindow.addEventListener('load', () => window.setTimeout(tryPrint, 50))
+  }
 }

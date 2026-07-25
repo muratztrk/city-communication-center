@@ -74,11 +74,12 @@ const DEFAULT_USER_FORM = {
 }
 
 function readCreateMode(value: string | null, capabilities: UserManagementContext | null): CreateMode {
-  if (value === 'ldap' && capabilities?.ldapEnabled) {
-    return 'ldap'
+  if (value === 'manual' && capabilities?.localUsersEnabled) {
+    return 'manual'
   }
 
-  if (capabilities && !capabilities.localUsersEnabled && capabilities.ldapEnabled) {
+  // Varsayılan: LDAP (card #r449).
+  if (capabilities?.ldapEnabled) {
     return 'ldap'
   }
 
@@ -672,7 +673,7 @@ export function UsersPage() {
   }
 
   const openCreateForm = () => {
-    const initialMode = managementContext?.localUsersEnabled === false && managementContext?.ldapEnabled ? 'ldap' : 'manual'
+    const initialMode = managementContext?.ldapEnabled ? 'ldap' : 'manual'
     updateSearchParams({ create: '1', mode: initialMode })
   }
 
@@ -1083,8 +1084,14 @@ export function UsersPage() {
                 className="field-input"
                 placeholder={t('users.internalPhonePlaceholder')}
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={newUser.phone}
-                onChange={event => setNewUser(current => ({ ...current, phone: event.target.value }))}
+                onChange={event => setNewUser(current => ({
+                  ...current,
+                  // Dahili No: yalnız rakam (card #r449).
+                  phone: event.target.value.replace(/\D/g, ''),
+                }))}
               />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -1095,7 +1102,11 @@ export function UsersPage() {
                 placeholder={t('users.jobTitlePlaceholder')}
                 type="text"
                 value={newUser.title}
-                onChange={event => setNewUser(current => ({ ...current, title: event.target.value }))}
+                onChange={event => setNewUser(current => ({
+                  ...current,
+                  // Ünvan: rakam yok (card #r449).
+                  title: event.target.value.replace(/\d/g, ''),
+                }))}
               />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -1206,6 +1217,7 @@ export function UsersPage() {
                   emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
+                  menuClassName="users-dept-compact-menu users-roles-compact-menu"
                 />
                 <span className="helper-copy">{t('users.additionalDepartmentsHelp', 'Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.')}</span>
               </div>

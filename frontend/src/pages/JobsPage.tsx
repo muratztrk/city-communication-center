@@ -15,7 +15,7 @@ import { DateTimePicker } from '../components/ui/date-time-picker'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
-import { invalidateJobs, invalidateTasks } from '../api/cacheInvalidation'
+import { invalidateJobs, invalidateSocialMessages, invalidateTasks } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
@@ -33,6 +33,8 @@ import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDepartmentName, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { ExternalDestinationValue } from '../components/jobs/my-request-detail/ExternalDestinationValue'
+import { FramedDepartmentStack } from '../components/jobs/my-request-detail/FramedDepartmentStack'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { formatJobProjectLabel } from '../utils/jobProjectLabel'
@@ -646,6 +648,7 @@ interface JobsPageProps {
     editDisabledTitle?: string
     cancel?: () => void
     cancelDisabledTitle?: string
+    onMessageUpdated?: (patch: { socialMessageId: string; category: string | null }) => void
   }
 }
 
@@ -1371,6 +1374,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       })
       // Operator/CRM: Talep Etiketi sosyal mesaj kategorisinde saklanır (card #1896 reopen).
       if (citizenSourceMessage?.socialMessageId && (user?.role === 'Operator' || hasCitizenRequestManagerRole(user))) {
+        const nextCategory = myRequestEditDraft.category.trim() || null
         await api.updateSocialMessage(citizenSourceMessage.socialMessageId, {
           channel: citizenSourceMessage.channel,
           citizenHandle: citizenSourceMessage.citizenHandle,
@@ -1378,11 +1382,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             || citizenSourceMessage.citizenHandle?.trim()
             || detail.title?.trim()
             || '—',
-          category: myRequestEditDraft.category.trim() || undefined,
+          category: nextCategory || undefined,
         })
         setCitizenSourceMessage(current => current
-          ? { ...current, category: myRequestEditDraft.category.trim() || null }
+          ? { ...current, category: nextCategory }
           : current)
+        // Grid Etiketler dropdown seçili değeri senkron (card #1896 reopen / #r449).
+        socialActions?.onMessageUpdated?.({
+          socialMessageId: citizenSourceMessage.socialMessageId,
+          category: nextCategory,
+        })
+        invalidateSocialMessages(queryClient, citizenSourceMessage.socialMessageId)
       }
       invalidateJobs(queryClient, detail.jobId)
       setMyRequestEditing(false)
@@ -1808,15 +1818,26 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
     const visibleTargets = targetDepartments.slice(0, 3)
     const hiddenTargetCount = targetDepartments.length - visibleTargets.length
+    const enlargeExternal = job.requestType === 'ExternalUnit'
     return (
-      <div className="mx-auto flex min-w-[12rem] max-w-[24rem] flex-wrap justify-center gap-1.5">
-        {visibleTargets.map(department => (
-          <StatusPill key={department.jobDepartmentId} tone="success" className="max-w-[12rem]">
-            <span className="truncate">{department.departmentName ?? '—'}</span>
-          </StatusPill>
-        ))}
-        {hiddenTargetCount > 0 ? (
-          <StatusPill tone="neutral">{t('jobs.departmentsMore', { count: hiddenTargetCount, defaultValue: '+{{count}} müdürlük' })}</StatusPill>
+      <div className="mx-auto flex min-w-[12rem] max-w-[24rem] flex-col items-center gap-1">
+        <div className="flex flex-wrap justify-center gap-1.5">
+          {visibleTargets.map(department => (
+            <StatusPill
+              key={department.jobDepartmentId}
+              tone="success"
+              className={enlargeExternal ? 'max-w-[14rem] px-3 py-1.5 text-[0.82rem] font-bold' : 'max-w-[12rem]'}
+            >
+              <span className="truncate">{department.departmentName ?? '—'}</span>
+            </StatusPill>
+          ))}
+          {hiddenTargetCount > 0 ? (
+            <StatusPill tone="neutral">{t('jobs.departmentsMore', { count: hiddenTargetCount, defaultValue: '+{{count}} müdürlük' })}</StatusPill>
+          ) : null}
+        </div>
+        {/* Dış birimde atanmış personel çerçeve altında (card #r449). */}
+        {enlargeExternal && job.assignedUserDisplayName ? (
+          <div className="text-sm font-semibold text-slate-500">{job.assignedUserDisplayName}</div>
         ) : null}
       </div>
     )
@@ -2499,8 +2520,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       },
                       {
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
+                        // Dış birimde çerçeve tasarım (card #r449).
                         label: 'Talep Yeri / Oluşturan',
-                        value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
+                        value: detail.requestType === 'ExternalUnit'
+                          ? <FramedDepartmentStack departmentName={detail.ownerDepartmentName} secondary={detail.createdByDisplayName} />
+                          : <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
@@ -2512,9 +2536,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       }] : []),
                       {
                         // Vatandaş talebinde de standart taleplerle tutarlı kalır — personel bilgisi
-                        // gösterilmez (codex review, cards #1544/#1546).
+                        // gösterilmez (codex review, cards #1544/#1546). Dış birim çerçeve (#r449).
                         label: 'Talep Yapılan Birim',
-                        value: formatJobDestinationsWithAssignees(detail, false, false),
+                        value: <ExternalDestinationValue detail={detail} framed={detail.requestType === 'ExternalUnit'} />,
                       },
                       // Operatör / Vatandaş Talep Yöneticisi: Talep Etiketi en altta (card #1896).
                       ...((user?.role === 'Operator' || hasCitizenRequestManagerRole(user)) ? [{
@@ -2525,7 +2549,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       {
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
                         label: 'Talep Yeri / Oluşturan',
-                        value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
+                        value: detail.requestType === 'ExternalUnit'
+                          ? <FramedDepartmentStack departmentName={detail.ownerDepartmentName} secondary={detail.createdByDisplayName} />
+                          : <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
                         label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
@@ -2537,9 +2563,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       }] : []),
                       {
                         // Birime Gelen/Birimden Giden'de personel bilgisi bu satırdan kaldırılır
-                        // (cards #1544/#1546).
+                        // (cards #1544/#1546). Dış birim çerçeve + atanan alt satır (#r449).
                         label: 'Talep Yapılan Birim',
-                        value: formatJobDestinationsWithAssignees(detail, false, false),
+                        value: <ExternalDestinationValue detail={detail} framed={detail.requestType === 'ExternalUnit'} />,
                       },
                       { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),

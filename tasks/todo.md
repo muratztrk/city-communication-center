@@ -3163,3 +3163,18 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a645f36` — Düzenle satırında Birim/Ek birimler dropdown sütunu daraltıldı (~7.5rem / menü 9rem).
 
 ## STATUS: Round 448 complete — frontend build/lint green; shipping.
+
+## Round 449 (Doing — 2026-07-25, 11 kart)
+- [x] `6a3cd77f` — Dış birim Gittiği Yer çerçeve büyüt + atanan alt satır.
+- [x] `6a646b3a` — Dış birim Talep Yeri / Oluşturan çerçeve (Gittiği Yer ile aynı).
+- [x] `6a634fee` — Talep Etiketi edit → grid Etiketler senkron.
+- [x] `6a62feef` — Boş adres etiketleri ortalı, kısa alt çizgi.
+- [x] `6a634c56` — Yazdır Başlık/Durum taşması + about:blank (blob).
+- [x] `6a645f36` — Kullanıcı düzenle Birim/Rol menü text küçült.
+- [x] `6a6466fe` — Yönetici Ata: Müdür seçiniz... + buton küçült.
+- [x] `6a6350cd` — Ek birimler dropdown menü text küçült.
+- [x] `6a63491f` — Sayfa Yetkileri not + Varsayılanlara Dön Kaydet solunda aynı satır.
+- [x] `6a646103` — Oluşturma Modu varsayılan LDAP.
+- [x] `6a646185` — Dahili yalnız rakam; Ünvan rakamsız.
+
+## STATUS: Round 449 complete — frontend build/lint green; shipping.

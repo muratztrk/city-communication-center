@@ -35,7 +35,7 @@ export function DepartmentsPage() {
   const queryClient = useQueryClient()
   const [error, setError] = useState('')
   const [showForm, setShowForm] = useState(false)
-  const [createMode, setCreateMode] = useState<CreateMode>('manual')
+  const [createMode, setCreateMode] = useState<CreateMode>('ldap')
   const [newName, setNewName] = useState('')
   const [directoryQuery, setDirectoryQuery] = useState('')
   const [directoryResults, setDirectoryResults] = useState<DirectoryUserLookup[]>([])
@@ -85,8 +85,10 @@ export function DepartmentsPage() {
   useEffect(() => {
     if (!ldapEnabled && createMode === 'ldap') {
       setCreateMode('manual')
+    } else if (ldapEnabled && createMode === 'manual' && managementContext?.localUsersEnabled === false) {
+      setCreateMode('ldap')
     }
-  }, [createMode, ldapEnabled])
+  }, [createMode, ldapEnabled, managementContext?.localUsersEnabled])
 
   useEffect(() => {
     if (!shouldSearchDirectory) {
@@ -634,7 +636,9 @@ export function DepartmentsPage() {
                 const next = !current
                 if (!next) {
                   resetCreateForm()
-                  setCreateMode(ldapEnabled && managementContext?.localUsersEnabled === false ? 'ldap' : 'manual')
+                } else {
+                  // Yeni Birim: varsayılan Oluşturma Modu LDAP (card #r449).
+                  setCreateMode(ldapEnabled ? 'ldap' : 'manual')
                 }
                 return next
               })
@@ -836,13 +840,10 @@ export function DepartmentsPage() {
                     <td>
                       {isManagerAssigning ? (
                         <SingleSelectDropdown
-                          options={[
-                            { value: '', label: t('departments.noManager', '— Müdür Yok —') },
-                            ...getManagerCandidates().map(item => ({
-                              value: item.userId,
-                              label: item.displayName,
-                            })),
-                          ]}
+                          options={getManagerCandidates().map(item => ({
+                            value: item.userId,
+                            label: item.displayName,
+                          }))}
                           value={editManagerUserId}
                           onChange={value => setEditManagerUserId(value)}
                           placeholder={t('departments.selectManager', 'Müdür seçiniz...')}
@@ -850,6 +851,9 @@ export function DepartmentsPage() {
                           searchable
                           searchPlaceholder={t('common.search', 'Ara...')}
                           className="min-w-52"
+                          triggerClassName="text-xs"
+                          menuClassName="users-edit-dropdown-menu"
+                          menuScrollClassName="users-edit-dropdown-menu-scroll"
                         />
                       ) : (
                         <EmptyCell value={getDepartmentManagerName(department)} />
@@ -866,6 +870,8 @@ export function DepartmentsPage() {
                           searchable
                           searchPlaceholder={t('common.search', 'Ara...')}
                           className="min-w-52"
+                          triggerClassName="text-xs"
+                          menuClassName="users-edit-dropdown-menu"
                           disabled={isManagerSaving}
                         />
                       ) : (
@@ -905,7 +911,7 @@ export function DepartmentsPage() {
                                     </Button>
                                   </>
                                 ) : (
-                                  <Button size="default" variant="secondary" onClick={() => startManagerAssign(department)}>
+                                  <Button size="sm" variant="secondary" onClick={() => startManagerAssign(department)}>
                                     {t('departments.assignManager', 'Yönetici Ata')}
                                   </Button>
                                 )}

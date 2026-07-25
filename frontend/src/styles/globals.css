@@ -567,23 +567,41 @@
     justify-self: center;
   }
 
-  /* Adres yokken üç etiket kolon içinde tek satır ortalı (card #1876 reopen). */
+  /* Adres yokken üç etiket kolon içinde tek satır ortalı; alt çizgi kısa (card #1876 / #r449). */
+  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
+    align-items: start;
+  }
+
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
     display: flex;
     flex-direction: column;
     align-items: center;
     text-align: center;
     justify-self: center;
-    width: 100%;
+    width: auto;
+    max-width: 100%;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
-    width: auto;
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
+    width: fit-content;
     margin-inline: auto;
   }
 
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+  }
+
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label {
     width: 100%;
     margin-inline: 0;
   }
@@ -2060,10 +2078,14 @@
   }
 
   .users-edit-dropdown-menu .dropdown-menu-item {
-    min-height: 1.75rem;
-    padding: 0.3rem 0.55rem;
-    font-size: 0.72rem;
+    min-height: 1.65rem;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
     font-weight: 600;
+  }
+
+  .users-edit-dropdown-menu-scroll .dropdown-menu-item {
+    font-size: 0.65rem;
   }
 
   .audit-log-tab-bar {

@@ -711,6 +711,12 @@ export function SocialMessagesPage() {
               cancelDisabledTitle: message.jobId
                 ? t('jobs.actions.cancelUnavailable', 'Bu kayıt iptal edilemez')
                 : t('social.detailsUnavailable', 'Henüz talep oluşturulmadı'),
+              onMessageUpdated: patch => {
+                setMessages(current => current.map(item =>
+                  item.socialMessageId === patch.socialMessageId
+                    ? { ...item, category: patch.category }
+                    : item))
+              },
             }
           })()}
         />

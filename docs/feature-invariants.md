@@ -1204,7 +1204,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sonra; sıra `Kaydet` → `Varsayılanlara Dön` (sağda, `justify-end`); kayıt/sıfırlama sonucu
   ConfirmDialog (banner değil).
 - **Kullanıcılar düzenle Birim dropdown (card #r448):** grid düzenlemede Birim/Ek birimler
-  sütunu ~7.5rem; açık menü `max-width: 9rem` + truncate.
+  sütunu ~7.5rem; açık menü `max-width: 9rem` + truncate; menü satır metni ~0.65rem (#r449).
+- **Dış birim çerçeve (card #r449):** ExternalUnit detayda Talep Yeri / Talep Yapılan Birim
+  StatusPill çerçeve; Gittiği Yer metni biraz büyük + atanan alt satırda.
+- **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
+  `onMessageUpdated` ile category seçili kalır.
+- **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
+- **Dizin yazdır (#r449):** Başlık wrap + küçük font; blob URL (about:blank yok).
+- **Sayfa Yetkileri (#1893/#r449):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet.
+- **Oluşturma Modu varsayılan LDAP (#r449):** Kullanıcı/Birim yeni form.
+- **Dahili/Ünvan (#r449):** Dahili yalnız rakam; Ünvan rakamsız.
+- **Yönetici Ata (#r449):** boşken “Müdür seçiniz...”; buton `sm`.
 - **Kullanıcı Rol: Sorumlu (card #1897/#1898):** dropdown’da `Sorumlu`; kayıtta `roleCode=Manager`
   (yeni RoleCode yok) + `skipManagerQuota=true` → birim `ResponsibleUserIds`’e eklenir;
   müdür kontenjanı yalnız `ManagerUserId` / Sorumlu-olmayan Manager sayar; birden fazla Sorumlu OK;

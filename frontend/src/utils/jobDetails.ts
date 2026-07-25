@@ -88,6 +88,36 @@ export function shouldShowJobStatusActorName(job: {
   return shouldShowRequestApproverField(job)
 }
 
+/** Hedef birim + o birime atanmış personel (detay çerçeve satırı, card #r449). */
+export function getJobDestinationStacks(job: JobDetail): Array<{ departmentName: string; assignees: string[] }> {
+  const destinations = sortJobDepartments(job.departments)
+    .filter(department => department.role === 'Target' || department.role === 'Coordinating')
+  const effectiveDestinations = destinations.length > 0
+    ? destinations
+    : job.departments.filter(department => department.departmentId === job.ownerDepartmentId)
+
+  if (effectiveDestinations.length === 0) {
+    return job.ownerDepartmentName
+      ? [{ departmentName: job.ownerDepartmentName, assignees: [] }]
+      : []
+  }
+
+  return effectiveDestinations.map(department => {
+    const assignees = [...new Set(
+      job.tasks
+        .filter(task =>
+          task.assignedDepartmentId === department.departmentId
+          || task.assignedDepartmentName === department.departmentName)
+        .map(task => task.assignedUserDisplayName)
+        .filter((name): name is string => Boolean(name)),
+    )]
+    return {
+      departmentName: department.departmentName ?? job.ownerDepartmentName ?? '—',
+      assignees,
+    }
+  })
+}
+
 export function formatJobDestinationsWithAssignees(job: JobDetail, showUnassignedPlaceholder = false, includeAssignee = true): string {
   const destinations = sortJobDepartments(job.departments)
     .filter(department => department.role === 'Target' || department.role === 'Coordinating')

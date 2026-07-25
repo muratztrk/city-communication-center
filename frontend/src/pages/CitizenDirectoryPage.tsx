@@ -77,39 +77,42 @@ function printCitizenTickets(
     return `<tr>
       <td>${index + 1}</td>
       <td class="col-no">${escape(formatVt(ticket))}</td>
-      <td>${escape(ticket.title?.trim() || '—')}</td>
+      <td class="col-title">${escape(ticket.title?.trim() || '—')}</td>
       <td class="col-date">${escape(date)}</td>
       <td class="col-dept">${escape(ticket.departmentName ?? '—')}</td>
-      <td>${escape(status)}</td>
+      <td class="col-status">${escape(status)}</td>
     </tr>`
   }).join('')
 
   // onload print YOK — printHtmlDocument zaten bir kez print açar (card #r446 çift pencere).
+  // Başlık/Durum taşmasın: küçük font + Başlık wrap + geniş kolon (card #r449).
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi'))}</title>
     <style>
-      body{font-family:system-ui,sans-serif;padding:24px;color:#0f172a}
-      h1{font-size:18px;margin:0 0 4px}
-      h2{font-size:14px;margin:18px 0 8px;border-bottom:1px solid #cbd5e1;padding-bottom:4px}
-      p{margin:0 0 16px;color:#64748b;font-size:13px}
-      table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
-      th,td{border:1px solid #cbd5e1;padding:8px;text-align:center;vertical-align:middle;white-space:nowrap}
-      th{background:#f1f5f9}
-      td:nth-child(3){white-space:normal;text-align:center}
-      .col-no{width:7.5rem}
-      .col-date{width:9.5rem}
-      .col-dept{width:12rem}
-      .footer{margin-top:16px;font-size:11px;color:#64748b}
+      @page{margin:12mm}
+      body{font-family:system-ui,sans-serif;padding:20px;color:#0f172a}
+      h1{font-size:16px;margin:0 0 4px}
+      h2{font-size:13px;margin:16px 0 8px;border-bottom:1px solid #cbd5e1;padding-bottom:4px}
+      p{margin:0 0 14px;color:#64748b;font-size:12px}
+      table{width:100%;border-collapse:collapse;font-size:10px;table-layout:fixed}
+      th,td{border:1px solid #cbd5e1;padding:5px 6px;text-align:center;vertical-align:middle}
+      th{background:#f1f5f9;white-space:nowrap}
+      .col-no{width:6.5rem;white-space:nowrap}
+      .col-title{width:28%;white-space:normal;word-break:break-word;overflow-wrap:anywhere}
+      .col-date{width:8.5rem;white-space:nowrap}
+      .col-dept{width:11rem;white-space:normal;word-break:break-word}
+      .col-status{width:7.25rem;white-space:normal;word-break:break-word;font-size:9.5px}
+      .footer{margin-top:14px;font-size:10px;color:#64748b}
     </style></head><body>
     <h1>${escape(t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi'))}</h1>
     <p>${escape(citizenLine)}</p>
     <h2>${escape(t('jobs.detail.requestInfo', 'Talep Detayları'))}</h2>
     <table><thead><tr>
-      <th>${escape(t('common.number', 'Sıra'))}</th>
+      <th style="width:2.5rem">${escape(t('common.number', 'Sıra'))}</th>
       <th class="col-no">${escape(t('jobs.columns.parentRequestNoShort', 'Talep No'))}</th>
-      <th>${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>
+      <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>
       <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
       <th class="col-dept">${escape(t('users.department', 'Birim'))}</th>
-      <th>${escape(t('jobs.columns.status', 'Durum'))}</th>
+      <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
     <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
     </body></html>`

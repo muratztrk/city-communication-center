@@ -83,6 +83,7 @@ import { MyRequestDetailMainCard, MyRequestInfoFieldsList } from '../components/
 import { MyRequestDetailBottomCards } from '../components/jobs/my-request-detail/MyRequestDetailBottomCards'
 import { buildMyRequestDetailFields } from '../components/jobs/my-request-detail/myRequestDetailFields'
 import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
+import { FramedDepartmentStack } from '../components/jobs/my-request-detail/FramedDepartmentStack'
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import type { JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { StatusChangeTransition } from '../components/jobs/my-request-detail/StatusChangeTransition'
@@ -2045,7 +2046,15 @@ const pageKicker = isMyTasksView
                             ...(taskDetail.jobSourceType !== 'Routine'
                               ? [{
                                   label: 'Talep Yeri / Oluşturan',
-                                  value: <StackedFieldValue top={selectedTask.ownerDepartmentName} bottom={selectedTask.createdByDisplayName} />,
+                                  // Dış birimde Gittiği Yer ile aynı çerçeve (card #r449).
+                                  value: parentJobDetail?.requestType === 'ExternalUnit'
+                                    ? (
+                                        <FramedDepartmentStack
+                                          departmentName={selectedTask.ownerDepartmentName}
+                                          secondary={selectedTask.createdByDisplayName}
+                                        />
+                                      )
+                                    : <StackedFieldValue top={selectedTask.ownerDepartmentName} bottom={selectedTask.createdByDisplayName} />,
                                 }]
                               : []),
                             // Atayan yönetici üstte, görevi yapan hemen altında kalır (card #1613).
@@ -2997,15 +3006,24 @@ const pageKicker = isMyTasksView
                         <div className="task-new-badge">{t('tasks.badges.new', 'Yeni')}</div>
                       )}
                     </td>
-                    {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt), dar ve ortalı. */}
+                    {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt), dar ve ortalı.
+                        Dış birimde Gittiği Yer çerçevesi (card #r449). */}
                     <td>
-                      <div className="mx-auto max-w-[11rem]">
-                        <ReporterDepartmentCell
-                          departmentName={task.ownerDepartmentName}
-                          creatorName={task.createdByDisplayName}
-                          isReporter={isReporterCreated(task.createdByRoleCode)}
-                          align="center"
-                        />
+                      <div className="mx-auto max-w-[12rem]">
+                        {task.jobRequestType === 'ExternalUnit' ? (
+                          <FramedDepartmentStack
+                            departmentName={task.ownerDepartmentName}
+                            secondary={task.createdByDisplayName}
+                            align="center"
+                          />
+                        ) : (
+                          <ReporterDepartmentCell
+                            departmentName={task.ownerDepartmentName}
+                            creatorName={task.createdByDisplayName}
+                            isReporter={isReporterCreated(task.createdByRoleCode)}
+                            align="center"
+                          />
+                        )}
                       </div>
                     </td>
                     <td><span className={`cell-title ${reporterTitleClass}`}>{task.title}</span></td>

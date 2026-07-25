@@ -1172,7 +1172,7 @@
       "title": "Page Permissions",
       "description": "Configure which application pages each role can see.",
       "page": "Page",
-      "note": "This matrix controls page visibility in the user interface. Dashboard remains available to everyone; system settings stay limited to the System Administrator role.",
+      "note": "This matrix controls page visibility in the UI. Home stays open for everyone; system settings remain System Admin only.",
       "saveSuccess": "Role page permissions saved.",
       "resetSuccess": "Role page permissions reset to defaults.",
       "resetDefaults": "Reset Defaults",

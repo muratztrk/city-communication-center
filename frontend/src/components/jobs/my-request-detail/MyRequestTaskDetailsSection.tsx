@@ -9,6 +9,7 @@ import { formatDateTime, formatDueDateTime } from './format'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
+import { FramedDepartmentStack } from './FramedDepartmentStack'
 import { StackedFieldValue } from './StackedFieldValue'
 import { StatusChangeTransition } from './StatusChangeTransition'
 import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
@@ -185,8 +186,16 @@ export function MyRequestTaskDetailsSection({
                   {[
                     {
                       // Talep yeri (birim) üst, oluşturan personel alt satırda (card #1544).
+                      // Dış birimde çerçeve (card #r449).
                       label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'),
-                      value: <StackedFieldValue top={taskLocationDepartment} bottom={taskLocationCreator} />,
+                      value: detail.requestType === 'ExternalUnit'
+                        ? (
+                            <FramedDepartmentStack
+                              departmentName={taskLocationDepartment}
+                              secondary={taskLocationCreator}
+                            />
+                          )
+                        : <StackedFieldValue top={taskLocationDepartment} bottom={taskLocationCreator} />,
                     },
                     ...(task.jobSourceType !== 'Routine'
                       ? [{ label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'), value: task.assigningManagerDisplayName ?? '—' }]

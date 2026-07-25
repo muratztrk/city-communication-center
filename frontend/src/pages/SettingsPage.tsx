@@ -2342,14 +2342,17 @@ export function SettingsPage() {
             onPageSizeChange={size => { setRolesPageSize(size); setRolesPage(1) }}
             onPageChange={setRolesPage}
           />
-          <p className="helper-copy">{t('settings.roles.note')}</p>
-          <div className="flex flex-wrap items-center justify-end gap-3">
-            <Button type="button" className="min-w-[10.5rem] px-8" onClick={() => void saveRolePages()}>
-              {t('common.save')}
-            </Button>
-            <Button type="button" variant="secondary" onClick={() => void resetRolePages()}>
-              {t('settings.roles.resetDefaults')}
-            </Button>
+          {/* Not + butonlar aynı satır; Varsayılanlara Dön Kaydet solunda (FAB çakışmasın, card #r449). */}
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-2">
+            <p className="helper-copy m-0 min-w-0 flex-1">{t('settings.roles.note')}</p>
+            <div className="ml-auto flex shrink-0 flex-wrap items-center justify-end gap-3">
+              <Button type="button" variant="secondary" onClick={() => void resetRolePages()}>
+                {t('settings.roles.resetDefaults')}
+              </Button>
+              <Button type="button" className="min-w-[10.5rem] px-8" onClick={() => void saveRolePages()}>
+                {t('common.save')}
+              </Button>
+            </div>
           </div>
         </section>
       ) : null}

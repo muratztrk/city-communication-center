@@ -374,8 +374,8 @@ export function AuditLogsPage() {
                   </td>
                   <td>
                     <div className="space-y-0.5">
-                      <div className="text-[0.7rem] font-semibold text-slate-500">
-                        {t('audit.logId', 'Log ID')}: <span className="font-mono text-slate-700" title={log.auditLogId}>{log.auditLogId.slice(0, 8)}</span>
+                      <div className="text-sm font-semibold text-slate-600">
+                        {t('audit.logId', 'Log ID')}: <span className="font-mono text-base font-bold text-slate-800" title={log.auditLogId}>{log.auditLogId.slice(0, 8)}</span>
                       </div>
                       <div>{joinWithGreenDash(log.detailParts)}</div>
                     </div>

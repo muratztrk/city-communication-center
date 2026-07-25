@@ -494,16 +494,16 @@ export function DepartmentsPage() {
     }
   }
 
-  const assignDepartmentManager = async (department: Department, managerUserId: string | null) => {
+  // Yönetici Ata: Müdür + Sorumlular inline kaydı (card #1854 reopen / #r446).
+  const saveManagerAssign = async (department: Department) => {
     setManagerAssignSavingId(department.departmentId)
     setError('')
-
     try {
       const updated = await api.updateDepartment(department.departmentId, {
         name: department.name,
         departmentType: department.departmentType,
-        managerUserId,
-        responsibleUserIds: department.responsibleUserIds ?? [],
+        managerUserId: editManagerUserId || null,
+        responsibleUserIds: editResponsibleUserIds,
       })
       queryClient.setQueryData<Department[]>(
         queryKeys.departments.list(),
@@ -511,11 +511,21 @@ export function DepartmentsPage() {
       )
       invalidateDepartments(queryClient)
       setManagerAssignId(null)
+      setEditManagerUserId('')
+      setEditResponsibleUserIds([])
     } catch (assignError) {
       setError(assignError instanceof Error ? assignError.message : t('common.error'))
     } finally {
       setManagerAssignSavingId(null)
     }
+  }
+
+  const startManagerAssign = (department: Department) => {
+    setManagerAssignId(department.departmentId)
+    setEditManagerUserId(department.managerUserId ?? '')
+    setEditResponsibleUserIds(department.responsibleUserIds ?? [])
+    setEditId(null)
+    setDeleteConfirmId(null)
   }
 
   const typeSummary = useMemo(() => {
@@ -680,14 +690,14 @@ export function DepartmentsPage() {
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('departments.createMode')}</span>
                 <div className="segmented-control">
+                  <button className={createMode === 'ldap' ? 'active' : ''} onClick={() => switchCreateMode('ldap')} type="button">
+                    {t('departments.ldapMode')}
+                  </button>
                   {managementContext?.localUsersEnabled !== false ? (
                     <button className={createMode === 'manual' ? 'active' : ''} onClick={() => switchCreateMode('manual')} type="button">
                       {t('departments.manualMode')}
                     </button>
                   ) : null}
-                  <button className={createMode === 'ldap' ? 'active' : ''} onClick={() => switchCreateMode('ldap')} type="button">
-                    {t('departments.ldapMode')}
-                  </button>
                 </div>
               </label>
               <p className="helper-copy">
@@ -833,9 +843,9 @@ export function DepartmentsPage() {
                               label: item.displayName,
                             })),
                           ]}
-                          value={department.managerUserId ?? ''}
-                          onChange={value => void assignDepartmentManager(department, value || null)}
-                          placeholder={t('departments.assignManager', 'Yönetici Ata')}
+                          value={editManagerUserId}
+                          onChange={value => setEditManagerUserId(value)}
+                          placeholder={t('departments.selectManager', 'Müdür seçiniz...')}
                           disabled={isManagerSaving}
                           searchable
                           searchPlaceholder={t('common.search', 'Ara...')}
@@ -846,13 +856,27 @@ export function DepartmentsPage() {
                       )}
                     </td>
                     <td>
-                      <div className="flex flex-wrap gap-1">
-                        {(department.responsibleUserIds ?? []).length > 0
-                          ? department.responsibleUserIds.map(responsibleUserId => (
-                              <StatusPill key={responsibleUserId} tone="info">{getUserName(responsibleUserId) ?? '—'}</StatusPill>
-                            ))
-                          : <EmptyCell />}
-                      </div>
+                      {isManagerAssigning ? (
+                        <MultiSelectDropdown
+                          options={getUserOptions(getDepartmentUsers(department.departmentId))}
+                          value={editResponsibleUserIds}
+                          onChange={setEditResponsibleUserIds}
+                          placeholder={t('departments.selectResponsible', 'Sorumlu seçiniz...')}
+                          emptyText={t('departments.responsiblesEmpty', 'Seçilebilir sorumlu yok')}
+                          searchable
+                          searchPlaceholder={t('common.search', 'Ara...')}
+                          className="min-w-52"
+                          disabled={isManagerSaving}
+                        />
+                      ) : (
+                        <div className="flex flex-wrap gap-1">
+                          {(department.responsibleUserIds ?? []).length > 0
+                            ? department.responsibleUserIds.map(responsibleUserId => (
+                                <StatusPill key={responsibleUserId} tone="info">{getUserName(responsibleUserId) ?? '—'}</StatusPill>
+                              ))
+                            : <EmptyCell />}
+                        </div>
+                      )}
                     </td>
                     <td className="actions-column text-center">
                         {deleteConfirmId === department.departmentId ? (
@@ -872,22 +896,27 @@ export function DepartmentsPage() {
                             {canEditDepartment(department) ? (
                               <>
                                 {isManagerAssigning ? (
-                                  <Button size="sm" variant="secondary" onClick={() => setManagerAssignId(null)} disabled={isManagerSaving}>
-                                    {t('common.cancel')}
-                                  </Button>
+                                  <>
+                                    <Button size="default" variant="primary" onClick={() => void saveManagerAssign(department)} disabled={isManagerSaving}>
+                                      {t('common.save', 'Kaydet')}
+                                    </Button>
+                                    <Button size="default" variant="secondary" onClick={() => { setManagerAssignId(null); setEditManagerUserId(''); setEditResponsibleUserIds([]) }} disabled={isManagerSaving}>
+                                      {t('common.cancel')}
+                                    </Button>
+                                  </>
                                 ) : (
-                                  <Button size="sm" variant="secondary" onClick={() => { setManagerAssignId(department.departmentId); setEditId(null); setDeleteConfirmId(null) }}>
+                                  <Button size="default" variant="secondary" onClick={() => startManagerAssign(department)}>
                                     {t('departments.assignManager', 'Yönetici Ata')}
                                   </Button>
                                 )}
-                                <button className="icon-action icon-action--labeled" title={t('common.edit')} aria-label={t('common.edit')} type="button" onClick={() => startEdit(department)}>
-                                  <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                                <button className="icon-action icon-action--labeled icon-action--lg" title={t('common.edit')} aria-label={t('common.edit')} type="button" onClick={() => startEdit(department)}>
+                                  <PenLine className="size-4" strokeWidth={1.75} aria-hidden="true" />
                                   <span>{t('common.edit')}</span>
                                 </button>
                               </>
                             ) : null}
-                            <button className="icon-action icon-action--labeled danger" title={t('common.delete')} aria-label={t('common.delete')} type="button" onClick={() => { setDeleteConfirmId(department.departmentId); setEditId(null); setManagerAssignId(null) }}>
-                              <Trash2 className="size-3.5" />
+                            <button className="icon-action icon-action--labeled icon-action--lg danger" title={t('common.delete')} aria-label={t('common.delete')} type="button" onClick={() => { setDeleteConfirmId(department.departmentId); setEditId(null); setManagerAssignId(null) }}>
+                              <Trash2 className="size-4" />
                               <span>{t('common.delete')}</span>
                             </button>
                           </div>

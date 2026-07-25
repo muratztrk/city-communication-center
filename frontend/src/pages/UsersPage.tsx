@@ -36,6 +36,17 @@ function resolvePrimaryRoleCode(roleCode: string): string {
   return roleCode === SORUMLU_ROLE_OPTION ? 'Manager' : roleCode
 }
 
+/** Kayıtlı Manager + Responsible listesinde (müdür koltuğu değil) → UI Sorumlu (card #1898). */
+function resolveUiRoleCode(user: User, departments: Department[]): string {
+  if (user.roleCode !== 'Manager') return user.roleCode
+  const dept = departments.find(item => item.departmentId === user.departmentId)
+  if (!dept) return 'Manager'
+  const isResponsible = (dept.responsibleUserIds ?? []).includes(user.userId)
+  const isManagerSeat = dept.managerUserId === user.userId
+  if (isResponsible && !isManagerSeat) return SORUMLU_ROLE_OPTION
+  return 'Manager'
+}
+
 function primaryRoleFormOptions(t: TFunction) {
   return [
     ...PRIMARY_ROLE_CODES.map(roleCode => ({
@@ -134,7 +145,17 @@ export function UsersPage() {
 
   const getDepartmentManager = (departmentId: string, excludeUserId?: string): User | undefined => {
     if (!departmentId) return undefined
-    return users.find(u => u.departmentId === departmentId && u.roleCode === 'Manager' && u.userId !== excludeUserId)
+    const dept = departments.find(item => item.departmentId === departmentId)
+    if (dept?.managerUserId && dept.managerUserId !== excludeUserId) {
+      return users.find(u => u.userId === dept.managerUserId)
+    }
+    const responsibleIds = new Set(dept?.responsibleUserIds ?? [])
+    // Sorumlu (ResponsibleUserIds) müdür kontenjanına sayılmaz (card #1898).
+    return users.find(u =>
+      u.departmentId === departmentId
+      && u.roleCode === 'Manager'
+      && u.userId !== excludeUserId
+      && !responsibleIds.has(u.userId))
   }
 
   const getUserDepartmentIds = (item: User): string[] => {
@@ -670,7 +691,7 @@ export function UsersPage() {
     }
 
     const resolvedRoleCode = resolvePrimaryRoleCode(newUser.roleCode)
-    if (resolvedRoleCode === 'Manager' && newUser.departmentId) {
+    if (newUser.roleCode === 'Manager' && newUser.departmentId) {
       const existingManager = getDepartmentManager(newUser.departmentId)
       if (existingManager) {
         setError(t('users.managerConflict', { name: existingManager.displayName }))
@@ -689,6 +710,7 @@ export function UsersPage() {
         roleCode: resolvedRoleCode,
         additionalRoleCodes: newUser.additionalRoleCodes.filter(role => role !== resolvedRoleCode),
         isActive: newUser.isActive,
+        skipManagerQuota: newUser.roleCode === SORUMLU_ROLE_OPTION,
         sourceType: createMode === 'ldap' ? 'Ldap' : 'Manual',
         externalIdentityId: createMode === 'ldap' ? newUser.externalIdentityId : null,
         ldapDepartmentName: createMode === 'ldap' ? selectedDirectoryUser?.department ?? null : null,
@@ -712,7 +734,7 @@ export function UsersPage() {
       email: user.email ?? '',
       departmentId: user.departmentId,
       additionalDepartmentIds: getUserDepartmentIds(user).filter(id => id !== user.departmentId),
-      roleCode: user.roleCode,
+      roleCode: resolveUiRoleCode(user, departments),
       additionalRoleCodes: user.additionalRoleCodes ?? [],
       isActive: user.isActive,
     })
@@ -732,7 +754,7 @@ export function UsersPage() {
     }
 
     const resolvedRoleCode = resolvePrimaryRoleCode(editForm.roleCode)
-    if (resolvedRoleCode === 'Manager' && editForm.departmentId) {
+    if (editForm.roleCode === 'Manager' && editForm.departmentId) {
       const existingManager = getDepartmentManager(editForm.departmentId, userId)
       if (existingManager) {
         setError(t('users.managerConflict', { name: existingManager.displayName }))
@@ -747,6 +769,7 @@ export function UsersPage() {
         roleCode: resolvedRoleCode,
         additionalRoleCodes: editForm.additionalRoleCodes.filter(role => role !== resolvedRoleCode),
         isActive: editForm.isActive,
+        skipManagerQuota: editForm.roleCode === SORUMLU_ROLE_OPTION,
         ...(isManual ? {
           displayName: editForm.displayName.trim(),
           email: editForm.email.trim() || null,
@@ -885,14 +908,14 @@ export function UsersPage() {
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('users.createMode')}</span>
               <div className="segmented-control">
-                {managementContext?.localUsersEnabled !== false ? (
-                  <button className={createMode === 'manual' ? 'active' : ''} onClick={() => switchCreateMode('manual')} type="button">
-                    {t('users.manualMode')}
-                  </button>
-                ) : null}
                 {managementContext?.ldapEnabled ? (
                   <button className={createMode === 'ldap' ? 'active' : ''} onClick={() => switchCreateMode('ldap')} type="button">
                     {t('users.ldapMode')}
+                  </button>
+                ) : null}
+                {managementContext?.localUsersEnabled !== false ? (
+                  <button className={createMode === 'manual' ? 'active' : ''} onClick={() => switchCreateMode('manual')} type="button">
+                    {t('users.manualMode')}
                   </button>
                 ) : null}
               </div>
@@ -1167,6 +1190,7 @@ export function UsersPage() {
                   emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
+                  menuClassName="users-roles-compact-menu users-dept-compact-menu"
                 />
               </div>
 
@@ -1256,7 +1280,7 @@ export function UsersPage() {
               </div>
           </div>
 
-          {resolvePrimaryRoleCode(newUser.roleCode) === 'Manager' && newUser.departmentId && getDepartmentManager(newUser.departmentId) ? (
+          {newUser.roleCode === 'Manager' && newUser.departmentId && getDepartmentManager(newUser.departmentId) ? (
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-medium text-amber-800">
               ⚠ {t('users.managerConflict', { name: getDepartmentManager(newUser.departmentId)!.displayName })}
             </div>
@@ -1401,7 +1425,7 @@ export function UsersPage() {
                       <div className="row-actions">
                         <Button size="sm" type="button" onClick={() => handleUpdateUser(user.userId, user.userSource)}>{t('common.save')}</Button>
                         <Button size="sm" type="button" variant="secondary" onClick={cancelEditing}>{t('common.cancel')}</Button>
-                        {resolvePrimaryRoleCode(editForm.roleCode) === 'Manager' && editForm.departmentId && getDepartmentManager(editForm.departmentId, user.userId) ? (
+                        {editForm.roleCode === 'Manager' && editForm.departmentId && getDepartmentManager(editForm.departmentId, user.userId) ? (
                           <span className="text-xs font-medium text-amber-700" title={t('users.managerConflict', { name: getDepartmentManager(editForm.departmentId, user.userId)!.displayName })}>
                             ⚠ {getDepartmentManager(editForm.departmentId, user.userId)!.displayName}
                           </span>
@@ -1428,7 +1452,7 @@ export function UsersPage() {
                     </td>
                     <td>
                       <div className="grid gap-1">
-                        <StatusPill tone={user.roleCode === 'SystemAdmin' ? 'danger' : user.roleCode === 'Manager' ? 'warning' : 'info'}>{getRoleLabel(t, user.roleCode)}</StatusPill>
+                        <StatusPill tone={user.roleCode === 'SystemAdmin' ? 'danger' : user.roleCode === 'Manager' ? 'warning' : 'info'}>{getRoleLabel(t, resolveUiRoleCode(user, departments))}</StatusPill>
                         {(user.additionalRoleCodes ?? []).map(roleCode => (
                           <StatusPill key={roleCode} tone="neutral">{getRoleLabel(t, roleCode)}</StatusPill>
                         ))}

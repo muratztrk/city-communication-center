@@ -2343,12 +2343,12 @@ export function SettingsPage() {
             onPageChange={setRolesPage}
           />
           <p className="helper-copy">{t('settings.roles.note')}</p>
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <Button type="button" variant="secondary" onClick={() => void resetRolePages()}>
-              {t('settings.roles.resetDefaults')}
-            </Button>
+          <div className="flex flex-wrap items-center justify-end gap-3">
             <Button type="button" className="min-w-[10.5rem] px-8" onClick={() => void saveRolePages()}>
               {t('common.save')}
+            </Button>
+            <Button type="button" variant="secondary" onClick={() => void resetRolePages()}>
+              {t('settings.roles.resetDefaults')}
             </Button>
           </div>
         </section>

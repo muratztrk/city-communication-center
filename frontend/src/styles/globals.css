@@ -567,6 +567,21 @@
     justify-self: center;
   }
 
+  /* Adres yokken üç etiket kolon içinde tek satır ortalı (card #1876 reopen). */
+  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-self: center;
+    width: 100%;
+  }
+
+  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
+    width: auto;
+    margin-inline: auto;
+  }
+
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label {
     width: 100%;
@@ -2406,11 +2421,10 @@
     overflow-wrap: break-word;
   }
 
-  /* Boş hücre em-dash: görünür ama nötr (card #1894). */
+  /* Boş hücre em-dash: talep no gibi mono/slate (card #1894 reopen — transparan değil). */
   .data-table .empty-cell-dash,
   .table-container .empty-cell-dash {
-    color: transparent;
-    user-select: none;
+    color: rgb(100 116 139);
   }
 
   .dashboard-drilldown-table tbody td {
@@ -2753,6 +2767,13 @@
     line-height: 1.1;
   }
 
+  .icon-action--lg {
+    min-height: 2.35rem;
+    gap: 0.4rem;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.82rem;
+  }
+
   .icon-action:hover {
     background: #eef2f7;
     color: #0f172a;
@@ -3057,13 +3078,19 @@
 
   /* Rol / Ek roller açılır liste — kompakt satır metni (card #1739). */
   .admin-surface-menu.users-roles-compact-menu .dropdown-menu-item {
-    min-height: 2rem;
-    padding: 0.4rem 0.7rem;
-    font-size: 0.75rem;
+    min-height: 1.75rem;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.68rem;
   }
 
   .admin-surface-menu.users-roles-compact-menu .dropdown-menu-scroll {
-    font-size: 0.75rem;
+    font-size: 0.68rem;
+  }
+
+  .admin-surface-menu.users-dept-compact-menu .dropdown-menu-item {
+    min-height: 1.75rem;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.68rem;
   }
 
   .admin-surface-page .relative [role='listbox'] span.text-sm {

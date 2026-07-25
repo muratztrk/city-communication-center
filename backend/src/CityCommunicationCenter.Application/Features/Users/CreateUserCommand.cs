@@ -16,7 +16,8 @@ public sealed record CreateUserCommand(
     string? ExternalIdentityId,
     string? LdapDepartmentName,
     string? Title = null,
-    string? Phone = null) : ICommand<UserSummaryResponse>;
+    string? Phone = null,
+    bool SkipManagerQuota = false) : ICommand<UserSummaryResponse>;
 
 public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {
@@ -282,7 +283,8 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             roleCode = RoleCode.Manager;
         }
 
-        if (roleCode == RoleCode.Manager)
+        // Sorumlu (SkipManagerQuota): Manager sayfa yetkisi, müdür kontenjanına dahil değil (card #1897).
+        if (roleCode == RoleCode.Manager && !request.SkipManagerQuota)
         {
             // Toplu LDAP eklemede aynı birimde birden fazla "Müdür" ünvanlı kullanıcı olabilir;
             // kontenjan doluysa Personel olarak ekle — tüm batch'i düşürme (card #1824).
@@ -343,6 +345,17 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             context.UserId,
             DateTimeOffset.UtcNow,
             cancellationToken);
+
+        // Sorumlu: Manager rolü + birim ResponsibleUserIds (müdür kontenjanı dışı, card #1898).
+        if (roleCode == RoleCode.Manager && request.SkipManagerQuota)
+        {
+            await UserManagerQuotaValidator.MarkAsResponsibleAsync(
+                _dbContext,
+                tenantId,
+                departmentId,
+                user.UserId,
+                cancellationToken);
+        }
 
         _dbContext.AuditLogs.Add(new AuditLog
         {

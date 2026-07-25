@@ -21,9 +21,10 @@ export function AddressDetailFields({ neighborhood, street, openAddress, variant
   ]
 
   if (variant === 'my-request' || variant === 'stacked') {
+    const allEmpty = ![neighborhood, street, openAddress].some(value => value?.trim())
     return (
       <dl className="address-detail-my-request">
-        <div className={`address-detail-my-request__grid ${variant === 'stacked' ? 'address-detail-my-request__grid--stacked' : 'address-detail-my-request__grid--three'}`}>
+        <div className={`address-detail-my-request__grid ${variant === 'stacked' ? 'address-detail-my-request__grid--stacked' : `address-detail-my-request__grid--three${allEmpty ? ' address-detail-my-request__grid--empty' : ''}`}`}>
           <div className="address-detail-my-request__item">
             <dt className="address-detail-my-request__label">{t('address.neighborhoodLabel', 'Mahalle')}</dt>
             <dd className="address-detail-my-request__value">{displayAddressValue(neighborhood, '-')}</dd>

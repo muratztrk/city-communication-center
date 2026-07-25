@@ -283,7 +283,8 @@ public sealed record CitizenConversationTicketDto(
     string? DepartmentName,
     string? AssigneeDisplayName = null,
     string? Channel = null,
-    string? Title = null);
+    string? Title = null,
+    DateTimeOffset? DueDateUtc = null);
 
 public sealed record WhatsAppMessageTemplateDto(
     Guid TemplateId,

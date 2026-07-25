@@ -11,7 +11,8 @@ public sealed record UpdateUserCommand(
     bool IsActive,
     string? DisplayName = null,
     string? Email = null,
-    string? Title = null) : ICommand<UserSummaryResponse>;
+    string? Title = null,
+    bool SkipManagerQuota = false) : ICommand<UserSummaryResponse>;
 
 public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
 {
@@ -89,9 +90,18 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
         }
 
         var roleCode = Enum.Parse<RoleCode>(request.RoleCode, true);
-        if (roleCode == RoleCode.Manager)
+        if (roleCode == RoleCode.Manager && !request.SkipManagerQuota)
         {
             await UserManagerQuotaValidator.EnsureSingleManagerPerDepartmentAsync(
+                _dbContext,
+                tenantId,
+                request.DepartmentId,
+                user.UserId,
+                cancellationToken);
+        }
+        else if (roleCode == RoleCode.Manager && request.SkipManagerQuota)
+        {
+            await UserManagerQuotaValidator.MarkAsResponsibleAsync(
                 _dbContext,
                 tenantId,
                 request.DepartmentId,

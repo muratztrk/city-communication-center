@@ -507,7 +507,7 @@
   "departments": {
     "title": "Birimler",
     "subtitle": "Birim yapısını ve tür dağılımını yönetin.",
-    "new": "+ Yeni Birim",
+    "new": "Yeni Birim Ekle",
     "total": "Toplam Birim",
     "typeBreakdown": "Tür Dağılımı",
     "newFormTitle": "Yeni Birim",
@@ -531,6 +531,8 @@
     "type": "Tür",
     "manager": "Müdür",
     "administrator": "Yönetici",
+    "selectManager": "Müdür seçiniz...",
+    "selectResponsible": "Sorumlu seçiniz...",
     "assignManager": "Yönetici Ata",
     "noManager": "— Müdür Yok —",
     "responsibles": "Sorumlular",
@@ -567,7 +569,7 @@
   "users": {
     "title": "Kullanıcılar",
     "subtitle": "Yerel ve LDAP kullanıcılarını aynı ekrandan yönetin.",
-    "new": "+ Yeni Kullanıcı",
+    "new": "Yeni Kullanıcı Ekle",
     "summary": {
       "total": "Toplam Kullanıcı",
       "active": "Aktif"

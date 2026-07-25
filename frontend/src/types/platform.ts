@@ -544,6 +544,7 @@ export interface CitizenConversationTicket {
   assigneeDisplayName?: string | null;
   channel?: string | null;
   title?: string | null;
+  dueDateUtc?: string | null;
 }
 
 export interface CitizenConversationDetail {

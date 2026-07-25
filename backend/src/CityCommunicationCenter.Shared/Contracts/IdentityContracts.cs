@@ -52,7 +52,9 @@ public sealed record CreateUserRequest(
     string? ExternalIdentityId,
     string? LdapDepartmentName,
     string? Title = null,
-    string? Phone = null);
+    string? Phone = null,
+    // Sorumlu seçimi Manager rolüne map edilir ama müdür kontenjanına takılmaz (card #1897 reopen).
+    bool SkipManagerQuota = false);
 
 public sealed record UpdateUserRequest(
     Guid DepartmentId,
@@ -62,7 +64,8 @@ public sealed record UpdateUserRequest(
     bool IsActive,
     string? DisplayName = null,
     string? Email = null,
-    string? Title = null);
+    string? Title = null,
+    bool SkipManagerQuota = false);
 
 public sealed record UserLookupResponse(
     Guid UserId,

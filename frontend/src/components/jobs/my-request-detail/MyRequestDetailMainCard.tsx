@@ -1,5 +1,5 @@
 import { ClipboardList, FileText, Info } from 'lucide-react'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import type { TFunction } from 'i18next'
@@ -9,8 +9,10 @@ import { Button } from '../../ui/button'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { RichTextEditor } from '../../ui/RichTextEditor'
 import { SingleSelectDropdown } from '../../ui/single-select-dropdown'
+import { RequestTagPicker } from '../../RequestTagDialog'
+import { api } from '../../../api/client'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
-import type { JobDetail, SocialMessage } from '../../../types/platform'
+import type { JobDetail, RequestTag, SocialMessage } from '../../../types/platform'
 import { useAuth } from '../../../context/AuthContext'
 import { shouldShowJobStatusActorName } from '../../../utils/jobDetails'
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
@@ -75,6 +77,14 @@ export function MyRequestInfoFieldsList({
   extraTrailingRows,
 }: MyRequestInfoFieldsListProps) {
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
+  const categoryLabel = t('social.label', 'Talep Etiketi')
+  const [requestTags, setRequestTags] = useState<RequestTag[]>([])
+
+  useEffect(() => {
+    if (!isEditing) return
+    void api.getRequestTags().then(setRequestTags).catch(() => setRequestTags([]))
+  }, [isEditing])
+
   return (
     <div className="my-request-detail-fields divide-y divide-slate-100">
       {fields.filter(field => !(hidePriorityRow && field.label === priorityLabel)).map(field => (
@@ -92,6 +102,14 @@ export function MyRequestInfoFieldsList({
                 onChange={priority => onEditDraftChange({ priority })}
                 placeholder={t('jobs.form.priority', 'Öncelik')}
               />
+            ) : isEditing && editDraft && onEditDraftChange && field.label === categoryLabel ? (
+              <div className="ml-auto flex justify-end">
+                <RequestTagPicker
+                  tags={requestTags}
+                  selectedName={editDraft.category || null}
+                  onSelect={name => onEditDraftChange({ category: name })}
+                />
+              </div>
             ) : (
               field.value
             )}

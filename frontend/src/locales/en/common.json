@@ -505,7 +505,7 @@
   "departments": {
     "title": "Units",
     "subtitle": "Manage the unit structure and type distribution.",
-    "new": "+ New Unit",
+    "new": "Add New Department",
     "total": "Total Units",
     "typeBreakdown": "Type Breakdown",
     "newFormTitle": "New Unit",
@@ -529,6 +529,8 @@
     "type": "Type",
     "manager": "Manager",
     "administrator": "Administrator",
+    "selectManager": "Select manager...",
+    "selectResponsible": "Select responsible...",
     "assignManager": "Assign Manager",
     "noManager": "— No Manager —",
     "responsibles": "Responsible Users",
@@ -565,7 +567,7 @@
   "users": {
     "title": "Users",
     "subtitle": "Manage local and LDAP-linked users from one screen.",
-    "new": "+ New User",
+    "new": "Add New User",
     "summary": {
       "total": "Total Users",
       "active": "Active"

@@ -382,6 +382,7 @@ export const api = {
     ldapDepartmentName: string | null
     title?: string | null
     phone?: string | null
+    skipManagerQuota?: boolean
   }): Promise<User> {
     const response = await fetchWithCredentials(`${API_BASE}/users`, {
       method: 'POST',
@@ -402,6 +403,7 @@ export const api = {
     displayName?: string
     email?: string | null
     title?: string | null
+    skipManagerQuota?: boolean
   }): Promise<User> {
     const response = await fetchWithCredentials(`${API_BASE}/users/${userId}`, {
       method: 'PUT',

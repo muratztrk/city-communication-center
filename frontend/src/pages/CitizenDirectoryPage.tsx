@@ -8,6 +8,7 @@ import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeader
 import { Button } from '../components/ui/button'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { EmptyCell } from '../components/ui/EmptyCell'
+import { DueDatePill } from '../components/ui/due-date-pill'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { StatusPill } from '../components/ui/status-pill'
@@ -75,34 +76,39 @@ function printCitizenTickets(
     })
     return `<tr>
       <td>${index + 1}</td>
-      <td>${escape(formatVt(ticket))}</td>
+      <td class="col-no">${escape(formatVt(ticket))}</td>
       <td>${escape(ticket.title?.trim() || '—')}</td>
-      <td>${escape(date)}</td>
-      <td>${escape(ticket.departmentName ?? '—')}</td>
+      <td class="col-date">${escape(date)}</td>
+      <td class="col-dept">${escape(ticket.departmentName ?? '—')}</td>
       <td>${escape(status)}</td>
     </tr>`
   }).join('')
 
+  // onload print YOK — printHtmlDocument zaten bir kez print açar (card #r446 çift pencere).
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi'))}</title>
     <style>
       body{font-family:system-ui,sans-serif;padding:24px;color:#0f172a}
       h1{font-size:18px;margin:0 0 4px}
       h2{font-size:14px;margin:18px 0 8px;border-bottom:1px solid #cbd5e1;padding-bottom:4px}
       p{margin:0 0 16px;color:#64748b;font-size:13px}
-      table{width:100%;border-collapse:collapse;font-size:12px}
-      th,td{border:1px solid #cbd5e1;padding:8px;text-align:left}
+      table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed}
+      th,td{border:1px solid #cbd5e1;padding:8px;text-align:center;vertical-align:middle;white-space:nowrap}
       th{background:#f1f5f9}
+      td:nth-child(3){white-space:normal;text-align:center}
+      .col-no{width:7.5rem}
+      .col-date{width:9.5rem}
+      .col-dept{width:12rem}
       .footer{margin-top:16px;font-size:11px;color:#64748b}
-    </style></head><body onload="window.print()">
+    </style></head><body>
     <h1>${escape(t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi'))}</h1>
     <p>${escape(citizenLine)}</p>
     <h2>${escape(t('jobs.detail.requestInfo', 'Talep Detayları'))}</h2>
     <table><thead><tr>
       <th>${escape(t('common.number', 'Sıra'))}</th>
-      <th>${escape(t('jobs.columns.parentRequestNoShort', 'Talep No'))}</th>
+      <th class="col-no">${escape(t('jobs.columns.parentRequestNoShort', 'Talep No'))}</th>
       <th>${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>
-      <th>${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
-      <th>${escape(t('users.department', 'Birim'))}</th>
+      <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
+      <th class="col-dept">${escape(t('users.department', 'Birim'))}</th>
       <th>${escape(t('jobs.columns.status', 'Durum'))}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
     <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
@@ -508,6 +514,7 @@ export function CitizenDirectoryPage() {
                           <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
                           <th>{t('users.department', 'Birim')}</th>
                           <th>{t('jobs.columns.status', 'Durum')}</th>
+                          <th>{t('jobs.columns.dueDate', 'Son Tarih')}</th>
                           <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                         </tr>
                       </thead>
@@ -548,10 +555,13 @@ export function CitizenDirectoryPage() {
                             <td><EmptyCell value={ticket.departmentName} /></td>
                             <td>
                               {statusLabel && ticket.jobStatus ? (
-                                <StatusPill className={getStatusPillClass(getJobStatusTone({ status: ticket.jobStatus, dueDateUtc: null }))}>
+                                <StatusPill className={getStatusPillClass(getJobStatusTone({ status: ticket.jobStatus, dueDateUtc: ticket.dueDateUtc ?? null }))}>
                                   {statusLabel}
                                 </StatusPill>
                               ) : <EmptyCell />}
+                            </td>
+                            <td>
+                              <DueDatePill value={ticket.dueDateUtc ?? null} locale={locale} />
                             </td>
                             <td className="actions-cell">
                               <div className="request-actions justify-center">

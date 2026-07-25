@@ -1198,12 +1198,26 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Tüm LDAP… Ekle` onay ister; listeleme sırasında buton metni değişmez (#1890); ekleme sırasında
   `addAllLdapWorking`. Sonuç/önizleme `details` içinde kaydırılabilir birim listesi. None:
   `Eklenecek yeni LDAP birimi yok; hepsi sistemde ekli durumdadır.` Sil aynı kalıp.
-- **Grid boş em-dash (card #1894):** data-table hücrelerinde `—` `EmptyCell` / `.empty-cell-dash`
-  ile transparan; layout korunur.
-- **Sayfa Yetkileri (card #1892/#1893):** `Vatandaş Bilgi Listesi` Vatandaş Talepleri’nden sonra;
-  Kaydet sağda geniş, Varsayılanlara Dön solda; kayıt/sıfırlama sonucu ConfirmDialog (banner değil).
-- **Kullanıcı Rol: Sorumlu (card #1897):** dropdown’da `Sorumlu`; kayıtta `roleCode=Manager`
-  (yeni RoleCode yok); sayfa yetkileri Manager ile aynı.
+- **Grid boş em-dash (card #1894 reopen):** data-table hücrelerinde `—` `EmptyCell` /
+  `.empty-cell-dash` ile talep no gibi mono/slate görünür (transparan değil).
+- **Sayfa Yetkileri (card #1892/#1893 reopen):** `Vatandaş Bilgi Listesi` Vatandaş Talepleri’nden
+  sonra; sıra `Kaydet` → `Varsayılanlara Dön` (sağda, `justify-end`); kayıt/sıfırlama sonucu
+  ConfirmDialog (banner değil).
+- **Kullanıcı Rol: Sorumlu (card #1897/#1898):** dropdown’da `Sorumlu`; kayıtta `roleCode=Manager`
+  (yeni RoleCode yok) + `skipManagerQuota=true` → birim `ResponsibleUserIds`’e eklenir;
+  müdür kontenjanı yalnız `ManagerUserId` / Sorumlu-olmayan Manager sayar; birden fazla Sorumlu OK;
+  düzenlemede UI rolü Responsible listesinden `Sorumlu` geri map edilir; sayfa yetkileri Manager ile aynı.
+- **Yönetici Ata inline (card #1854 reopen):** Müdür/Sorumlular sütunlarında dropdown
+  (`Müdür seçiniz...` / `Sorumlu seçiniz...`); Kaydet/İptal; aksiyon butonları büyütülür.
+- **Adres boş etiket ortası (card #1876 reopen):** Adres Bilgileri tamamen boşsa üç alt etiket
+  kolon içinde ortalanır (`.address-detail-my-request__grid--empty`).
+- **Vatandaş dizin Son Tarih + yazdır (card #r446):** ticket DTO `dueDateUtc`; Durum sonrası
+  Son Tarih; yazdırma tek pencere (`printHtmlDocument` — HTML `onload` print yok), kolonlar ortalı,
+  Talep No/Tarih/Birim geniş.
+- **Talep Etiketi düzenleme (card #1896 reopen):** Operator/CRM edit modunda `RequestTagPicker`;
+  kayıt `updateSocialMessage` category.
+- **Oluşturma Modu sırası (card #r446):** Birimler/Kullanıcılar’da LDAP → Manuel.
+- **Buton metinleri (card #r446):** `Yeni Birim Ekle` / `Yeni Kullanıcı Ekle`.
 - **Birimler Müdür sütunu (card #1854):** `managerUserId` boşsa birimdeki aktif Manager rolündeki
   kullanıcının adı gösterilir.
 - **Vatandaş dizin talep popup (card #1889/#1895):** Durum StatusPill + öncelik Talep No altında;

@@ -3136,3 +3136,21 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
   okunun iki yanındaki durum metinleri 12px'e küçültüldü.
 
 ## STATUS: Round 316 complete — frontend build/lint passed (0 error, 4 existing hook warnings); cards ready to move to Done.
+
+## Round 446 (Doing — 2026-07-25, Sorumlu multi + UI rötuşları)
+- [x] `6a63a363` / #1898 — Sorumlu birden fazla olabilir; `skipManagerQuota` ile müdür kontenjanı yok.
+- [x] `6a63491f` / #1893 reopen — Sayfa Yetkileri: Varsayılanlara Dön Kaydet sağında.
+- [x] `6a64521c` — Yönetici Ata: Müdür/Sorumlular inline dropdown + büyük aksiyon butonları.
+- [x] `6a62feef` / #1876 reopen — Boş Adres Bilgileri alt etiketleri ortalı.
+- [x] `6a6453e2` — Audit Log ID metni büyütüldü.
+- [x] `6a6350cd` — Kullanıcı Rol/Birim dropdown menü metni küçültüldü.
+- [x] `6a632a5e` — Vatandaş dizin talep popup: Durum sonrası Son Tarih (`dueDateUtc`).
+- [x] `6a634c56` + `6a644f46` — Yazdır: ortalı/geniş kolonlar; çift print penceresi kaldırıldı.
+- [x] `6a645734` — Logo kaydırma yalnız Birime Gelen + onaysız VT (değişiklik yok / gated).
+- [x] `6a634fee` / #1896 reopen — Operator/CRM edit: Talep Etiketi RequestTagPicker + updateSocialMessage.
+- [x] `6a645351` — Yeni Birim Ekle / Yeni Kullanıcı Ekle buton metinleri.
+- [x] `6a6455ae` — Oluşturma Modu: LDAP → Manuel sırası.
+- [x] `6a634a04` / #1894 reopen — Grid `—` tekrar görünür (mono/slate, transparan değil).
+
+## STATUS: Round 446 complete — backend+frontend build/lint green; shipping.
+

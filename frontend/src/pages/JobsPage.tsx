@@ -1342,7 +1342,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const startMyRequestEdit = () => {
     if (!detail) return
     setDetailDueDateEdit(null)
-    setMyRequestEditDraft(buildMyRequestEditDraft(detail))
+    setMyRequestEditDraft(buildMyRequestEditDraft(detail, citizenSourceMessage))
     setMyRequestEditing(true)
   }
 
@@ -1369,6 +1369,21 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         street: myRequestEditDraft.street || null,
         openAddress: myRequestEditDraft.openAddress || null,
       })
+      // Operator/CRM: Talep Etiketi sosyal mesaj kategorisinde saklanır (card #1896 reopen).
+      if (citizenSourceMessage?.socialMessageId && (user?.role === 'Operator' || hasCitizenRequestManagerRole(user))) {
+        await api.updateSocialMessage(citizenSourceMessage.socialMessageId, {
+          channel: citizenSourceMessage.channel,
+          citizenHandle: citizenSourceMessage.citizenHandle,
+          content: citizenSourceMessage.content?.trim()
+            || citizenSourceMessage.citizenHandle?.trim()
+            || detail.title?.trim()
+            || '—',
+          category: myRequestEditDraft.category.trim() || undefined,
+        })
+        setCitizenSourceMessage(current => current
+          ? { ...current, category: myRequestEditDraft.category.trim() || null }
+          : current)
+      }
       invalidateJobs(queryClient, detail.jobId)
       setMyRequestEditing(false)
       setMyRequestEditDraft(null)

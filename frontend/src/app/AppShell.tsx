@@ -7,7 +7,7 @@ import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
 import { SessionIdleWarning } from '../components/ui/session-idle-warning'
 
 declare const __APP_VERSION__: string
-const SUPPORT_EMAIL = 'lumespecsoftware@gmail.com'
+const SUPPORT_EMAIL = 'destek@lumespec.com.tr'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'

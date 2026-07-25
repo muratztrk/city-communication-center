@@ -1,3 +1,6 @@
+## Round 475 — Sidebar destek e-postası
+- Sol menü: destek@lumespec.com.tr
+
 ## Round 474 — Grid truncate hover tooltip
 - TruncatedText: Tasks/Jobs/Incoming Başlık (+ Görevi Yapan); taşınca title
 

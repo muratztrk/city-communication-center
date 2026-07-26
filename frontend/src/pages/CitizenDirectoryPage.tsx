@@ -486,12 +486,22 @@ export function CitizenDirectoryPage() {
           >
             <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-6 py-3">
               <div className="detail-modal-header-title min-w-0">
-                <div className="my-request-detail-header__title">
-                  <DetailModalTitle title={t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')} />
+                {/* Mobil flex row başlığı yan yana sıkıştırıyordu — alt satırda isim + telefon (#r483). */}
+                <div className="citizen-directory-ticket-header-text flex min-w-0 flex-col items-start gap-0.5">
+                  <div className="my-request-detail-header__title">
+                    <DetailModalTitle title={t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')} />
+                  </div>
+                  {ticketModal.conversation.citizenName?.trim() ? (
+                    <p className="citizen-directory-ticket-subtitle text-[0.65rem] font-medium leading-tight text-slate-500">
+                      {ticketModal.conversation.citizenName.trim()}
+                    </p>
+                  ) : null}
+                  {formatDirectoryPhone(ticketModal.conversation.citizenPhone) ? (
+                    <p className="citizen-directory-ticket-subtitle text-[0.65rem] font-medium leading-tight text-slate-500 tabular-nums">
+                      {formatDirectoryPhone(ticketModal.conversation.citizenPhone)}
+                    </p>
+                  ) : null}
                 </div>
-                <p className="mt-2 text-xs font-medium text-slate-500">
-                  {[ticketModal.conversation.citizenName, formatDirectoryPhone(ticketModal.conversation.citizenPhone)].filter(Boolean).join(' · ')}
-                </p>
               </div>
               <DetailModalHeaderBrand />
               <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">

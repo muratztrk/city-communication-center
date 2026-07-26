@@ -1,3 +1,8 @@
+## Round 483 — Mobil detay popup’lar
+- Dizin: başlık altında isim/telefon + logo
+- my-request shell daha geniş (~100vw-0.5rem)
+- Adres Bilgileri mobilde alt alta
+
 ## Round 482 — Mobil: dizin yatay scroll + WA FAB boyutu
 - CitizenDirectory: table-scroll-shell → table-wrap (overflow-x)
 - WhatsApp FAB: size-12 sm:size-14 (InternalMessages ile eşit)

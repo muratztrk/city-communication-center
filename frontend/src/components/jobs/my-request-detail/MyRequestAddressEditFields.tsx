@@ -27,7 +27,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
     <div className="my-request-edit-fields grid gap-3">
       {/* Kolonlar min-w-0 ile daralabilir kalır; dar ekranda grid tek kolona iner,
           Mahalle seçimi komşu alanın üstüne binmez (card #1612). */}
-      <div className="my-request-edit-address-grid grid grid-cols-3 gap-3">
+      <div className="my-request-edit-address-grid grid grid-cols-1 gap-3 sm:grid-cols-3">
         <label className="grid min-w-0 gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
           <SingleSelectDropdown

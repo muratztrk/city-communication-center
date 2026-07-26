@@ -4895,8 +4895,51 @@
       width: 100%;
     }
 
+    /* Vatandaş Talep Bilgisi / Taleplerim detay: mobilde daha geniş (#r483). */
+    .detail-modal-shell--my-request,
+    .detail-modal-shell--my-request.detail-modal-shell--citizen-directory-nested {
+      width: calc(100vw - 0.5rem) !important;
+      max-width: calc(100vw - 0.5rem) !important;
+    }
+
     .detail-modal-shell {
       max-height: calc(100dvh - 1rem);
+    }
+
+    /* Adres Bilgileri: Mahalle / Cadde / Açık Adres alt alta (#r483). */
+    .address-detail-my-request__grid--three,
+    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.7rem;
+      justify-content: stretch;
+    }
+
+    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
+    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3),
+    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
+      align-items: flex-start;
+      text-align: left;
+      justify-self: stretch;
+      width: 100%;
+      max-width: none;
+    }
+
+    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
+    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label,
+    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label,
+    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
+      width: fit-content;
+      max-width: 100%;
+      margin-inline: 0;
+    }
+
+    .my-request-edit-address-grid {
+      grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    /* Dizin talep listesi: başlık altında isim/telefon (#r483). */
+    .detail-modal-header-title .citizen-directory-ticket-header-text {
+      width: 100%;
     }
 
     /* Telefonda 11rem başlık kutusu numara/rozet kolonuna biner; dar sabit

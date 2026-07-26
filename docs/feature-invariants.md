@@ -1225,9 +1225,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
 - **Görev grid Görevi Yapan (#r471/#r472):** personel adı ~13px (`text-[0.8125rem] font-semibold`);
   oluşturan `text-sm`'den biraz küçük.
-- **Adres Bilgileri 3 kolon (card #1876 reopen):** Cadde etiketi biraz sola; Açık Adres kolon
-  ortasında; Cadde/Açık Adres etiket alt çizgisi değer metni genişliğine uzar; kısa viewport'ta
-  3 kolon kalır.
+- **Adres Bilgileri 3 kolon (card #1876 / #r483):** Masaüstü: Cadde sola; Açık Adres ortada;
+  etiket alt çizgisi değer genişliğine. Mobil (≤767): Mahalle / Cadde / Açık Adres alt alta.
+- **Mobil dizin talep popup (#r483):** başlık altında isim + telefon (küçük); ortada kurum logosu.
+- **Mobil Vatandaş Talep Bilgisi genişlik (#r483):** `.detail-modal-shell--my-request`
+  ≈ `100vw - 0.5rem`.
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun
   sort'u seçene kadar.
 - **LDAP birim senkron/ekle (card #1857/#1862/#1890):** `Anlık LDAP…` ConfirmDialog ile sonuç

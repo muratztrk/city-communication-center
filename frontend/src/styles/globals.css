@@ -680,7 +680,8 @@
 
   .address-detail-my-request__value {
     margin: 0;
-    font-size: 0.875rem;
+    /* Detay popup Adres Bilgileri değerleri biraz küçük (#r501). */
+    font-size: 0.8rem;
     font-weight: 500;
     line-height: 1.45;
     color: rgb(15 23 42);
@@ -3036,6 +3037,15 @@
   .request-form--readable .field-textarea {
     min-height: 5.5rem;
     padding-block: 0.58rem;
+  }
+
+  .app-content-shell .routine-task-form--readable .field-textarea,
+  .app-content-shell .routine-task-form--readable .address-open-textarea,
+  .routine-task-form--readable .field-textarea,
+  .routine-task-form--readable .address-open-textarea {
+    /* Rutin Görev Oluştur Açık Adres: input + placeholder Cadde ile uyumlu büyüt (#r501). */
+    font-size: 1.05rem !important;
+    line-height: 1.5rem;
   }
 
   .request-form--readable .address-street-input,

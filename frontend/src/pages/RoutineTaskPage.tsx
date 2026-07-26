@@ -360,7 +360,7 @@ export function RoutineTaskPage() {
                     ) : null}
                   </span>
                   <textarea
-                    className="field-textarea h-full min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                    className="field-textarea address-open-textarea h-full min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                     placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                     maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
                     value={form.openAddress}

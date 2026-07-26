@@ -245,7 +245,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                 disabled={downloadingId === att.attachmentId}
                 onClick={() => void handleDownload(att)}
               >
-                <span className="block truncate text-[11px] font-normal text-sky-400 hover:text-sky-500">
+                <span className="block truncate text-[11px] font-normal text-teal-500 hover:text-teal-600">
                   {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : lowercaseFileExtension(att.fileName)}
                 </span>
               </button>
@@ -277,7 +277,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
               </span>
               <button
                 type="button"
-                className="min-w-0 flex-1 break-words text-left text-[10px] font-normal text-sky-400 hover:text-sky-500 disabled:cursor-wait"
+                className="min-w-0 flex-1 break-words text-left text-[10px] font-normal text-teal-500 hover:text-teal-600 disabled:cursor-wait"
                 disabled={downloadingId === att.attachmentId}
                 onClick={() => void handleDownload(att)}
               >

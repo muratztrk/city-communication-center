@@ -698,13 +698,13 @@
   .attachment-section--rich-edit .attachment-rich-list > li > button:first-of-type span,
   .attachment-section--rich-view .attachment-rich-list > li > button:first-of-type span {
     /* !important şart: span utility'si components katmanını ezer.
-       Yazışmaya Git ile aynı sky-400 (#r486; eski mavi #1617). */
-    color: rgb(56 189 248) !important;
+       Turkuaz (#r487; önceki sky-400 #r486 / mavi #1617). */
+    color: rgb(20 184 166) !important;
   }
 
-  /* WhatsApp kanal ikonu: marka webp biraz açık; Talep Bilgileri etiketiyle koyulaştır (#r486). */
+  /* WhatsApp kanal ikonu: marka webp açık kalmasın (#r486/#r487). */
   .channel-icon--whatsapp {
-    filter: brightness(0.88) saturate(1.08);
+    filter: brightness(0.78) saturate(1.1);
   }
 
   .attachment-section--rich-edit .attachment-rich-list > li > button:first-of-type {

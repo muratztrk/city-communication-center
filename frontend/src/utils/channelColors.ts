@@ -2,8 +2,8 @@
 export function getChannelLabelColor(channel: string): string {
   switch (channel) {
     case 'WhatsApp':
-      // Marka yeşili biraz koyu — Talep Bilgileri başlık etiketi (#r486).
-      return '#1EBE57'
+      // Marka yeşili daha koyu — Talep Bilgileri başlık etiketi (#r486 reopen).
+      return '#169A45'
     case 'Phone':
       return '#0ea5e9'
     case 'Email':

@@ -1,3 +1,6 @@
+## Round 487 — Ek adları turkuaz + WA daha koyu
+- Attachment/görev ek adları teal-500; WA etiketi #169A45 + brightness 0.78
+
 ## Round 486 — WA kanal koyu yeşil + ek dosya adı sky-400
 - getChannelLabelColor WhatsApp #1EBE57 + icon filter
 - Talep/Görev ek dosya adları Yazışmaya Git sky-400; görev ekleri biraz küçük

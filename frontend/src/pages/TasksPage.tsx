@@ -2173,7 +2173,7 @@ const pageKicker = isMyTasksView
                                           <button
                                             key={attachment.attachmentId}
                                             type="button"
-                                            className="inline-flex max-w-full items-center gap-1 text-[10px] text-sky-400 hover:text-sky-500"
+                                            className="inline-flex max-w-full items-center gap-1 text-[10px] text-teal-500 hover:text-teal-600"
                                             onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                           >
                                             <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />
@@ -2697,7 +2697,7 @@ const pageKicker = isMyTasksView
                                       <button
                                         key={attachment.attachmentId}
                                         type="button"
-                                        className="inline-flex max-w-full items-center gap-1 text-[10px] text-sky-400 hover:text-sky-500"
+                                        className="inline-flex max-w-full items-center gap-1 text-[10px] text-teal-500 hover:text-teal-600"
                                         onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                       >
                                         <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />

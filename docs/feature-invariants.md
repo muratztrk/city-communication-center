@@ -190,12 +190,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep son tarih bildirimi (round 380, #1677):** `UpdateJobCommand`'da son tarih değiştiyse
   `JobDueDateUpdated` audit'i KOŞULSUZ yazılır ("yalnızca son tarih değiştiyse" guard'ı geri getirme —
   kozmetik alan diff'leri bildirimi yutar); jenerik `JobUpdated` yalnız başka alan da değiştiyse eklenir.
-- **Ek listesi sunumu (round 317, #1614/#1617 / #r486):** Talep/Görev Ekleri listeleri view ve edit
-  modunda AYNI görünür: iki kolon, bordersız satır, dosya adı **Yazışmaya Git** ile aynı
-  `sky-400` (`rgb(56 189 248) !important` — utility ezmesin), Görev Bilgileri satırında ikon/metin
-  biraz küçük. İki satırı aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
-- **Talep Bilgileri WhatsApp etiketi (#r486):** kanal metni `#1EBE57`; ikon
-  `.channel-icon--whatsapp` ile hafif koyu (`brightness(0.88)`).
+- **Ek listesi sunumu (round 317, #1614/#1617 / #r487):** Talep/Görev Ekleri listeleri view ve edit
+  modunda AYNI görünür: iki kolon, bordersız satır, dosya adı **turkuaz** `teal-500`
+  (`rgb(20 184 166) !important`), Görev Bilgileri satırında ikon/metin biraz küçük. İki satırı
+  aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
+- **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
+  `.channel-icon--whatsapp` (`brightness(0.78)`).
 
 ## 2. Talepler (Jobs) — `pages/JobsPage.tsx`
 

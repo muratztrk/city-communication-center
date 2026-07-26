@@ -1411,8 +1411,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         dueDateUtc: editRoutineTaskModal.dueDateUtc ? new Date(editRoutineTaskModal.dueDateUtc).toISOString() : null,
         notes: null,
         neighborhood: editRoutineTaskModal.neighborhood,
-        street: editRoutineTaskModal.street,
-        openAddress: editRoutineTaskModal.openAddress,
+        street: normalizeTitleCaseField(editRoutineTaskModal.street),
+        openAddress: normalizeTitleCaseField(editRoutineTaskModal.openAddress),
       })
       invalidateTasks(queryClient, updated.taskId, updated.jobId)
       if (selectedTask?.taskId === editRoutineTaskModal.taskId) {
@@ -2527,6 +2527,9 @@ const pageKicker = isMyTasksView
                                   maxLength={ADDRESS_STREET_MAX_LENGTH}
                                   value={editRoutineTaskModal.street ?? ''}
                                   onChange={e => updateRoutineTaskAddressDraft({ street: e.target.value })}
+                                  onBlur={e => updateRoutineTaskAddressDraft({
+                                    street: normalizeTitleCaseField(e.target.value) ?? '',
+                                  })}
                                   disabled={!editRoutineTaskModal.neighborhood}
                                   required={Boolean(editRoutineTaskModal.neighborhood)}
                                 />
@@ -2547,6 +2550,9 @@ const pageKicker = isMyTasksView
                                   maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
                                   value={editRoutineTaskModal.openAddress ?? ''}
                                   onChange={e => updateRoutineTaskAddressDraft({ openAddress: e.target.value })}
+                                  onBlur={e => updateRoutineTaskAddressDraft({
+                                    openAddress: normalizeTitleCaseField(e.target.value) ?? '',
+                                  })}
                                   disabled={!editRoutineTaskModal.neighborhood}
                                   required={Boolean(editRoutineTaskModal.neighborhood)}
                                 />

@@ -238,7 +238,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Adres alan limitleri:** Cadde / Sokak tüm giriş yüzeylerinde en fazla 50 karakter,
   Açık Adres en fazla 100 karakterdir; backend komut validasyonları da aynı sınırı korur.
 - **Adres metni yazımı:** Cadde / Sokak ve Açık Adres değerleri Türkçe locale kurallarıyla
-  her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilerek kaydedilir.
+  her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilir
+  (`normalizeTitleCaseField` — onBlur + kayıt). Rutin görev detay Düzenle dahil tüm adres
+  giriş yüzeylerinde uygulanır (#r499).
 - **Ekler / Fotoğraflar ortak bileşendir:** Talepler detay popup'larında düzenlenebilir ek alanı
   kompakt ataç ikonlu **Dosya ekle** butonu + sağda dosya listesi (`rich-list`) düzenini
   kullanır; "Dosyayı buraya sürükleyin" dropzone metni popup/ortak bileşene tekrar eklenmez.

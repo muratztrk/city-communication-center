@@ -1,3 +1,7 @@
+## Round 499 — Rutin detay adres title-case
+- Görev detay Düzenle: Cadde/Açık Adres onBlur + kayıt `normalizeTitleCaseField`
+- Taleplerim kayıt yolu da aynı normalize
+
 ## Round 498 — Cadde sola + VT Öncelik geri al
 - Rutin dolu adres: Cadde/Sokak `translateX(-0.7rem)`
 - VT edit Öncelik sola/küçült CSS + w-24 geri alındı (w-28)

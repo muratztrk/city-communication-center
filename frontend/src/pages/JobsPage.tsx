@@ -1378,8 +1378,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         longitude: detail.longitude,
         isProject: detail.isProject,
         neighborhood: myRequestEditDraft.neighborhood || null,
-        street: myRequestEditDraft.street || null,
-        openAddress: myRequestEditDraft.openAddress || null,
+        street: normalizeTitleCaseField(myRequestEditDraft.street),
+        openAddress: normalizeTitleCaseField(myRequestEditDraft.openAddress),
       })
       // Operator/CRM: Talep Etiketi sosyal mesaj kategorisinde saklanır (card #1896 reopen).
       if (citizenSourceMessage?.socialMessageId && (user?.role === 'Operator' || hasCitizenRequestManagerRole(user))) {

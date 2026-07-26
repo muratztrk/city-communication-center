@@ -197,7 +197,7 @@ export function RoutineTaskPage() {
     e.preventDefault()
     if (!form.title.trim() || !form.description.trim()) return
     if (form.neighborhood.trim() && !form.street.trim()) {
-      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
     if (form.neighborhood.trim() && !form.openAddress.trim()) {
@@ -321,7 +321,7 @@ export function RoutineTaskPage() {
                 </div>
                 <div className="grid gap-1">
                   <span className="text-sm font-semibold text-slate-500">
-                    {t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
+                    {t('address.streetLabel', 'Cadde / Sokak')}
                     {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
                   </span>
                   <input

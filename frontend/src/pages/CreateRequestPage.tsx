@@ -723,7 +723,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid gap-1">
             <span className="text-sm font-semibold text-slate-500">
-              {t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
+              {t('address.streetLabel', 'Cadde / Sokak')}
               {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
             </span>
             <input
@@ -781,7 +781,7 @@ export function CreateRequestPage() {
       return
     }
     if (internalForm.neighborhood.trim() && !internalForm.street.trim()) {
-      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
     if (internalForm.neighborhood.trim() && !internalForm.openAddress.trim()) {
@@ -868,7 +868,7 @@ export function CreateRequestPage() {
       return
     }
     if (externalForm.neighborhood.trim() && !externalForm.street.trim()) {
-      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
     if (externalForm.neighborhood.trim() && !externalForm.openAddress.trim()) {
@@ -969,7 +969,7 @@ export function CreateRequestPage() {
       return
     }
     if (citizenForm.neighborhood.trim() && !citizenForm.street.trim()) {
-      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
     if (citizenForm.neighborhood.trim() && !citizenForm.openAddress.trim()) {

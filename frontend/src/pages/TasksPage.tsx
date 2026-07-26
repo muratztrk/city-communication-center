@@ -2173,7 +2173,7 @@ const pageKicker = isMyTasksView
                                           <button
                                             key={attachment.attachmentId}
                                             type="button"
-                                            className="inline-flex max-w-full items-center gap-1 text-[10px] text-teal-500 hover:text-teal-600"
+                                            className="inline-flex max-w-full items-center gap-1 text-[10px] text-teal-700 hover:text-teal-800"
                                             onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                           >
                                             <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />
@@ -2497,7 +2497,7 @@ const pageKicker = isMyTasksView
                               </label>
                               <label className="grid gap-1">
                                 <span className="text-xs font-semibold text-slate-500">
-                                  {t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
+                                  {t('address.streetLabel', 'Cadde / Sokak')}
                                   {editRoutineTaskModal.neighborhood ? <span className="text-red-500"> *</span> : null}
                                 </span>
                                 <input
@@ -2697,7 +2697,7 @@ const pageKicker = isMyTasksView
                                       <button
                                         key={attachment.attachmentId}
                                         type="button"
-                                        className="inline-flex max-w-full items-center gap-1 text-[10px] text-teal-500 hover:text-teal-600"
+                                        className="inline-flex max-w-full items-center gap-1 text-[10px] text-teal-700 hover:text-teal-800"
                                         onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                       >
                                         <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />

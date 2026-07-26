@@ -389,7 +389,7 @@ export function CitizenDirectoryPage() {
                   sortDir={sortDir}
                   onSort={toggleSort}
                 >
-                  {t('citizenDirectory.columns.street', 'Cadde / Sokak / Bulvar')}
+                  {t('citizenDirectory.columns.street', 'Cadde / Sokak')}
                 </FilterableTh>
                 <FilterableTh
                   filterKey="openAddress"

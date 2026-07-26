@@ -16,7 +16,7 @@ export function AddressDetailFields({ neighborhood, street, openAddress, variant
   const { t } = useTranslation()
   const fields = [
     { label: t('address.neighborhoodLabel', 'Mahalle'), value: neighborhood },
-    { label: t('address.streetLabel', 'Cadde / Sokak / Bulvar'), value: street },
+    { label: t('address.streetLabel', 'Cadde / Sokak'), value: street },
     { label: t('address.openAddressLabel', 'Açık Adres'), value: openAddress },
   ]
 
@@ -30,7 +30,7 @@ export function AddressDetailFields({ neighborhood, street, openAddress, variant
             <dd className="address-detail-my-request__value">{displayAddressValue(neighborhood, '-')}</dd>
           </div>
           <div className="address-detail-my-request__item">
-            <dt className="address-detail-my-request__label">{t('address.streetLabel', 'Cadde / Sokak / Bulvar')}</dt>
+            <dt className="address-detail-my-request__label">{t('address.streetLabel', 'Cadde / Sokak')}</dt>
             <dd className="address-detail-my-request__value">{displayAddressValue(street, '-')}</dd>
           </div>
           <div className="address-detail-my-request__item">

@@ -1687,7 +1687,7 @@
     "sectionTitle": "Address Information (Optional)",
     "neighborhoodLabel": "Neighborhood",
     "neighborhoodPlaceholder": "Select neighborhood",
-    "streetLabel": "Street / Avenue / Boulevard",
+    "streetLabel": "Street / Avenue",
     "streetShortLabel": "Street / Avenue",
     "streetPlaceholder": "e.g. Atatürk Avenue",
     "streetRequired": "Street is required when a neighborhood is selected.",

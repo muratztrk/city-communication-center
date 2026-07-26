@@ -399,7 +399,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       return
     }
     if (neighborhood.trim() && !street.trim()) {
-      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
     if (neighborhood.trim() && !openAddress.trim()) {
@@ -712,7 +712,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   </label>
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">
-                      {t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
+                      {t('address.streetLabel', 'Cadde / Sokak')}
                       {neighborhood ? <span className="text-red-500"> *</span> : null}
                     </span>
                     <input

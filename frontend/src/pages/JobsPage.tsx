@@ -461,7 +461,7 @@ export function printJobDetail(
     .join('')
   const addressFields: Array<[string, string | null | undefined]> = [
     ['Mahalle', detail.neighborhood],
-    ['Cadde / Sokak / Bulvar', detail.street],
+    ['Cadde / Sokak', detail.street],
     ['Açık Adres', detail.openAddress],
   ]
   const addressRows = addressFields

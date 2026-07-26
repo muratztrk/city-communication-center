@@ -53,7 +53,7 @@
       "phone": "Numara",
       "sourceChannel": "Talep Kanalı",
       "neighborhood": "Mahalle",
-      "street": "Cadde / Sokak / Bulvar",
+      "street": "Cadde / Sokak",
       "openAddress": "Açık Adres"
     }
   },
@@ -1722,10 +1722,10 @@
     "sectionTitle": "Adres Bilgisi (İsteğe Bağlı)",
     "neighborhoodLabel": "Mahalle",
     "neighborhoodPlaceholder": "Mahalle seçin",
-    "streetLabel": "Cadde / Sokak / Bulvar",
+    "streetLabel": "Cadde / Sokak",
     "streetShortLabel": "Cadde / Sokak",
     "streetPlaceholder": "ör. Atatürk Caddesi",
-    "streetRequired": "Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.",
+    "streetRequired": "Mahalle seçildiğinde Cadde / Sokak zorunludur.",
     "openAddressRequired": "Mahalle seçildiğinde Açık Adres zorunludur.",
     "openAddressLabel": "Açık Adres",
     "openAddressMaxHint": "(max 100 karakter)",

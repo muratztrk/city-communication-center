@@ -699,7 +699,7 @@
   .attachment-section--rich-view .attachment-rich-list > li > button:first-of-type span {
     /* !important şart: span utility'si components katmanını ezer.
        Turkuaz (#r487; önceki sky-400 #r486 / mavi #1617). */
-    color: rgb(20 184 166) !important;
+    color: rgb(15 118 110) !important;
   }
 
   /* WhatsApp kanal ikonu: marka webp açık kalmasın (#r486/#r487). */

@@ -276,7 +276,7 @@ export function EDevletActivityPlanPage() {
             </div>
             <div className="grid gap-1">
               <label className="text-sm font-semibold text-slate-500" htmlFor="activity-street">
-                {t('edevletActivityPlan.streetLabel', 'Cadde / Sokak / Bulvar')}
+                {t('edevletActivityPlan.streetLabel', 'Cadde / Sokak')}
                 <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.fieldMax50', '(max 50 Karakter)')}</span>
                 <span className="text-red-500"> *</span>
               </label>

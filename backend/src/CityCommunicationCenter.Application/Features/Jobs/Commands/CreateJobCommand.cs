@@ -35,7 +35,7 @@ public sealed class CreateJobCommandValidator : AbstractValidator<CreateJobComma
         RuleFor(c => c.OwnerDepartmentId).NotEmpty().WithMessage("Is sahibi mudurluk zorunludur.");
         RuleFor(c => c.Priority).NotEmpty().WithMessage("Oncelik zorunludur.");
         RuleFor(c => c.Street).MaximumLength(AddressFieldLimits.StreetMaxLength)
-            .WithMessage("Cadde / Sokak / Bulvar en fazla 50 karakter olabilir.");
+            .WithMessage("Cadde / Sokak en fazla 50 karakter olabilir.");
         RuleFor(c => c.OpenAddress).MaximumLength(AddressFieldLimits.OpenAddressMaxLength)
             .WithMessage("Açık Adres en fazla 100 karakter olabilir.");
     }

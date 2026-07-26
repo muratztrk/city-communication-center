@@ -46,7 +46,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
         </label>
         <label className="grid min-w-0 gap-1">
           <span className="text-xs font-semibold text-slate-500">
-            {t('address.streetLabel', 'Cadde / Sokak / Bulvar')}
+            {t('address.streetLabel', 'Cadde / Sokak')}
             {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
           </span>
           <textarea

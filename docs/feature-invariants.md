@@ -190,10 +190,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep son tarih bildirimi (round 380, #1677):** `UpdateJobCommand`'da son tarih değiştiyse
   `JobDueDateUpdated` audit'i KOŞULSUZ yazılır ("yalnızca son tarih değiştiyse" guard'ı geri getirme —
   kozmetik alan diff'leri bildirimi yutar); jenerik `JobUpdated` yalnız başka alan da değiştiyse eklenir.
-- **Ek listesi sunumu (round 317, #1614/#1617 / #r487):** Talep/Görev Ekleri listeleri view ve edit
-  modunda AYNI görünür: iki kolon, bordersız satır, dosya adı **turkuaz** `teal-500`
-  (`rgb(20 184 166) !important`), Görev Bilgileri satırında ikon/metin biraz küçük. İki satırı
-  aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
+- **Ek listesi sunumu (round 317, #1614/#1617 / #r488):** Talep/Görev Ekleri listeleri view ve edit
+  modunda AYNI görünür: iki kolon, bordersız satır, dosya adı **koyu turkuaz** `teal-700`
+  (`rgb(15 118 110) !important` — Birim Dışı chip ile aynı), Görev Bilgileri satırında ikon/metin
+  biraz küçük. İki satırı aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
+- **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
 
@@ -229,14 +230,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yanıp sönmez. Vatandaş create/edit akışı da seçili dosyaları oluşan job'a gerçekten yükler
   (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
-  Cadde/Sokak/Bulvar ve Açık Adres alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
-  alt adres alanları da temizlenir. Mahalle seçildikten sonra Cadde/Sokak/Bulvar **ve Açık Adres**
+  Cadde/Sokak ve Açık Adres alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
+  alt adres alanları da temizlenir. Mahalle seçildikten sonra Cadde/Sokak **ve Açık Adres**
   zorunludur (etikette `* max 100 karakter`, `required`) — R421 / #r460. Taleplerim terminal talep notu süreç satırında tekil **Not**
   linkidir; terminal tarih etiketinde `(İptal)`/durum parantezi basılmaz; Görev Detayları terminal
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
-- **Adres alan limitleri:** Cadde / Sokak / Bulvar tüm giriş yüzeylerinde en fazla 50 karakter,
+- **Adres alan limitleri:** Cadde / Sokak tüm giriş yüzeylerinde en fazla 50 karakter,
   Açık Adres en fazla 100 karakterdir; backend komut validasyonları da aynı sınırı korur.
-- **Adres metni yazımı:** Cadde / Sokak / Bulvar ve Açık Adres değerleri Türkçe locale kurallarıyla
+- **Adres metni yazımı:** Cadde / Sokak ve Açık Adres değerleri Türkçe locale kurallarıyla
   her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilerek kaydedilir.
 - **Ekler / Fotoğraflar ortak bileşendir:** Talepler detay popup'larında düzenlenebilir ek alanı
   kompakt ataç ikonlu **Dosya ekle** butonu + sağda dosya listesi (`rich-list`) düzenini
@@ -310,8 +311,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sınırında etiketi üstte, değeri altta olacak biçimde gösterilir (cards #1586/#1599).
 - **Taleplerim/Vatandaş Talebi detay alt kartları:** `Talebin Gittiği Birim / Görevi Yapan`
   etiketi tek satır kalır; atanmış kullanıcı yoksa yalnız birim adı (` / -` yok, #r481); `Adres Bilgileri`
-  içinde Mahalle, `Cadde / Sokak / Bulvar` ve `Açık Adres` üçlü yan yana durur; adres etiketleri
-  kendi içinde satır kırmaz (`Bulvar` alt satıra düşmez); `Ekler / Fotoğraflar`
+  içinde Mahalle, `Cadde / Sokak` ve `Açık Adres` üçlü yan yana durur; adres etiketleri
+  kendi içinde satır kırmaz (etiket tek satır); `Ekler / Fotoğraflar`
   kart zemini, Adres kartı değil, `Açıklama` paneliyle aynı soluk nötr yüzeyi kullanır (cards #1259/#1260/#1261).
   `İlgili Talep Detayları > Talep Bilgileri` başlığının sağındaki talep no ve `Birim İçi/Birim Dışı`
   meta bloğu başlık alt çizgisinin sağ sınırına hizalı kalır.
@@ -342,10 +343,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yanıt textarea'sının sağındaki ileti butonu textarea boyunca uzamaz; küçük buton olarak alt
   kenara hizalanır (`self-end`).
 - **Taleplerim adres detay etiketleri:** `Adres Bilgileri` altındaki `Mahalle`,
-  `Cadde / Sokak / Bulvar` ve `Açık Adres` etiketleri değerlerden bağımsız daha büyük okunur;
+  `Cadde / Sokak` ve `Açık Adres` etiketleri değerlerden bağımsız daha büyük okunur;
   adres değerlerinin font boyutu değiştirilmez (card #1246).
 - **Talep oluştur adres girişleri:** Birim içi, birim dışı ve vatandaş talebi oluşturma
-  formlarında `Cadde / Sokak / Bulvar` input değer fontu `Açık Adres` textarea değeriyle
+  formlarında `Cadde / Sokak` input değer fontu `Açık Adres` textarea değeriyle
   aynı okunurlukta kalır; açık adres değeri özellikle küçük düşürülmez (card #1247).
 - **Birim içi talep oluşturma alan sırası:** `Talep Başlığı`ndan sonra `Görevi Yapan Kişi/Birim`
   gelir; `Öncelik / Bitiş Tarihi / Proje niteliğinde mi?` satırı bunun altında kalır (card #1250).
@@ -659,7 +660,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   send-pending yolu serbest metin değil Cloud API `SendTemplateMessageAsync` kullanır; body
   değişkeni (`{{1}}` vb.) içeren şablonlar v1'de Türkçe validasyon ile reddedilir. 24s penceresi
   dışında yalnızca Meta şablon seçiliyken gönderim açılır.
-- **Taleplerim detay `Adres Bilgileri` etiketleri** (`Mahalle`, `Cadde / Sokak / Bulvar`,
+- **Taleplerim detay `Adres Bilgileri` etiketleri** (`Mahalle`, `Cadde / Sokak`,
   `Açık Adres`) üçlü yan yana düzende tek satır kalır; alt çizgi metin dekorasyonu değil,
   görseldeki gibi hafif açık gri label alt sınır çizgisidir. Boş değer çizgisi bu görünümde
   `-` karakteridir ve değer font ağırlığı düşük kalır (card #1260 reopen).
@@ -701,7 +702,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   menüleri büyütme (card #1085).
 - **WhatsApp `Şablon mesaj ekle` aksiyonunda yalnızca baştaki `+` ikonu yeşildir; buton metni
   nötr slate renginde kalır** (card #1245).
-- **Talep oluşturma formlarında adres `Cadde / Sokak / Bulvar` input metni aynı formdaki `Açık Adres`
+- **Talep oluşturma formlarında adres `Cadde / Sokak` input metni aynı formdaki `Açık Adres`
   textarea metin ölçüsüyle eşleşir**; ana oluşturma sayfası ve WhatsApp vatandaş modalı kompakt
   ölçüleri ayrı korunur (card #1247).
 - **Talep Oluştur > Vatandaş Çağrı Talebi Talep Etiketi değeri:** yalnız salt-okunur input metni

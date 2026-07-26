@@ -634,7 +634,7 @@ function ConversationProfilePanel({
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>
-            {t('address.street', 'Cadde / Sokak / Bulvar')}
+            {t('address.street', 'Cadde / Sokak')}
             {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
           </span>
           <input className={disabledFieldClass} maxLength={ADDRESS_STREET_MAX_LENGTH} value={draft.street} onChange={event => onDraftChange({ street: event.target.value })} onBlur={() => onDraftChange({ street: normalizeTitleCaseField(draft.street) ?? '' })} disabled={!hasNeighborhood} required={hasNeighborhood} />
@@ -945,7 +945,7 @@ function ConversationDetail({
   const handleProfileSave = async () => {
     if (!detail || profileSaving) return
     if (profileDraft.neighborhood.trim() && !profileDraft.street.trim()) {
-      window.alert(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak / Bulvar zorunludur.'))
+      window.alert(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
     if (profileDraft.neighborhood.trim() && !profileDraft.openAddress.trim()) {

@@ -1,3 +1,7 @@
+## Round 488 — Koyu turkuaz ek adı + Cadde/Sokak (Bulvar kaldır)
+- Ek dosya adları teal-700 (#0f766e)
+- Tüm Cadde/Sokak/Bulvar → Cadde/Sokak (FE i18n + BE mesajları)
+
 ## Round 487 — Ek adları turkuaz + WA daha koyu
 - Attachment/görev ek adları teal-500; WA etiketi #169A45 + brightness 0.78
 

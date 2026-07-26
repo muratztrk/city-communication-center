@@ -1,3 +1,7 @@
+## Round 497 — VT Öncelik sola+küçült + atanmış adres gap
+- Mobil VT edit: Öncelik translateX(-0.55rem) + dropdown w-24 / 5.75rem
+- Atanmış stacked adres: veri varken gap 1.35rem
+
 ## Round 496 — Rutin adres sola + VT Öncelik + atanmış adres stacked
 - Adres 3 kolon satırı `margin-inline-start: -0.85rem` (rutin görev detay)
 - VT edit mobil: info heading padding + Öncelik margin (border taşımasın)

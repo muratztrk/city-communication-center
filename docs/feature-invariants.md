@@ -1240,9 +1240,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
 - **Mobil paging (#r490/#r493):** Sayfa-boyutu seçici ≤767px DOM'dan çıkarılır; sabit `pageSize=10`.
 - **Mobil Talep No (#r490):** `.table-number-cell__value` / `__priority` mobilde küçültülür.
-- **VT edit mobil hiza (#r490/#r493/#r495/#r496):** Talep Etiketi kontrolü etiket altında sola; Öncelik
-  sağ üst meta. Düzenlemede mobilde info heading sağ padding + Öncelik `margin-inline-end` ile
-  border içi (transform yok).
+- **VT edit mobil hiza (#r490/#r493/#r495/#r497):** Talep Etiketi kontrolü etiket altında sola; Öncelik
+  sağ üst meta. Düzenlemede mobilde: info heading/meta sağ padding, Öncelik `translateX(-0.55rem)`,
+  dropdown `w-24` / ~5.75rem (border taşımasın).
+- **Atanmış görev adres stacked boşluk (#r496/#r497):** İlgili Talep Adres `variant="stacked"`;
+  en az bir alan doluysa satır arası `gap: 1.35rem` (`.address-detail-my-request__grid--spaced`).
 - **Mobil dizin talep popup (#r483 / #r485):** başlık altında isim · telefon yan yana (küçük
   bullet); ortada kurum logosu.
 - **Mobil Vatandaş Talep Bilgisi genişlik (#r483):** `.detail-modal-shell--my-request`

@@ -621,6 +621,11 @@
     gap: 0.85rem;
   }
 
+  /* Atanmış görev İlgili Talep adresi: veri varken satırlar arası daha ferah (#r497). */
+  .address-detail-my-request__grid--stacked.address-detail-my-request__grid--spaced {
+    gap: 1.35rem;
+  }
+
   .address-detail-my-request__item {
     min-width: 0;
   }
@@ -5131,17 +5136,32 @@
       width: 100%;
     }
 
-    /* VT edit: Öncelik sağ border'a taşmasın, biraz sola (#r495/#r496).
-       Transform yok; başlık satırına sağ padding + öncelik margin. */
+    /* VT edit: Öncelik border içi + sola (#r497 — önceki margin yetmedi).
+       Meta sağ padding + öncelik kaydırma; dropdown w-24 ile biraz dar. */
     .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-info-heading {
-      padding-inline-end: 0.35rem;
+      padding-inline-end: 0.65rem;
       box-sizing: border-box;
+      min-width: 0;
+    }
+
+    .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-info-heading__meta {
+      max-width: min(58%, 12.5rem);
+      min-width: 0;
+      gap: 0.45rem;
+      padding-inline-end: 0.15rem;
     }
 
     .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-priority-header {
-      margin-inline-end: 0.55rem;
-      max-width: min(7.25rem, calc(100% - 0.9rem));
+      flex-shrink: 0;
+      margin-inline-end: 0.25rem;
+      transform: translateX(-0.55rem);
+      max-width: 6.25rem;
       box-sizing: border-box;
+    }
+
+    .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-priority-header__control {
+      width: 5.75rem !important;
+      max-width: 100%;
     }
 
     /* Mobil grid: Talep No + altındaki öncelik küçült (#r490). */

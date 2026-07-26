@@ -3043,9 +3043,9 @@
   .app-content-shell .routine-task-form--readable .address-open-textarea,
   .routine-task-form--readable .field-textarea,
   .routine-task-form--readable .address-open-textarea {
-    /* Rutin Görev Oluştur Açık Adres: input + placeholder Cadde ile uyumlu büyüt (#r501). */
-    font-size: 1.05rem !important;
-    line-height: 1.5rem;
+    /* Rutin Görev Oluştur Açık Adres: Cadde / Sokak field-input ile aynı (#r502; #r501 1.05rem → 0.98rem). */
+    font-size: 0.98rem !important;
+    line-height: 1.55;
   }
 
   .request-form--readable .address-street-input,

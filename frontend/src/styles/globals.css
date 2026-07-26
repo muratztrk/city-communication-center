@@ -559,12 +559,11 @@
 
   /* Cadde / Açık Adres kolon içinde ortalı; Mahalle sol hizalı. Boş adres:
      üç etiket kolon içinde tek satır ortalı (#1876 / #r449; #r495 R489 geri).
-     Üç kolon satırı biraz sola (#r490 / #r496 rutin görev detay). */
+     Dolu adreste satır sola kaymaz — Mahalle kart padding'inde kalsın (#r497). */
   .address-detail-my-request__grid--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: start;
     gap: 1rem 1.25rem;
-    margin-inline-start: -0.85rem;
   }
 
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
@@ -580,6 +579,8 @@
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
     align-items: start;
+    /* Boşken üç etiket biraz sola (#r496); doluyken Mahalle kaymaz (#r497). */
+    margin-inline-start: -0.85rem;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {

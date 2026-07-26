@@ -1231,12 +1231,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Bildirim "(Vatandaş Talebi)" etiketi (#r491/#r492):** `titleTag` metin `text-[0.7rem]`, kanal ikonu
   `size-2.5`; ikon+metin `inline-flex items-center` (ikon text altına kaymasın).
 - **Ek toplam boyutu (#r491):** Entity / form başına tüm eklerin toplamı ≤ 5 MB (tek dosya da dahil); aşımda uyarı, yükleme yok. BE `UploadAttachmentCommand` mevcut ekleri toplar.
-- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r449 / #r495 / #r496):** Masaüstü: Mahalle sol
-  hizalı; Cadde / Açık Adres kolon içinde ortalı; boşsa üç etiket kolon ortalı
-  (`.address-detail-my-request__grid--empty`); üç kolon satırı biraz sola
-  (`margin-inline-start: -0.85rem`, rutin görev detay dahil). Mobil (≤767): alt alta, sola kaydırma yok.
-  Rutin görev detay = `variant="my-request"`; atanmış görev İlgili Talep Adres Bilgileri =
-  `variant="stacked"` (alt alta, yan yana değil — #r496).
+- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r449 / #r495 / #r496 / #r497):** Masaüstü:
+  Mahalle sol hizalı; Cadde / Açık Adres kolon içinde ortalı; boşsa üç etiket kolon ortalı +
+  satır biraz sola (`--empty` + `margin-inline-start: -0.85rem`). Dolu adreste sola kaydırma yok
+  (Mahalle kart padding'inde kalır — #r497). Mobil (≤767): alt alta, sola kaydırma yok.
+  Rutin = `variant="my-request"`; atanmış İlgili Talep = `variant="stacked"` (#r496).
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
 - **Mobil paging (#r490/#r493):** Sayfa-boyutu seçici ≤767px DOM'dan çıkarılır; sabit `pageSize=10`.
 - **Mobil Talep No (#r490):** `.table-number-cell__value` / `__priority` mobilde küçültülür.

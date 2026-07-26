@@ -1,3 +1,7 @@
+## Round 496 — Rutin adres sola + VT Öncelik inset güçlendir
+- Adres 3 kolon satırı `margin-inline-start: -0.85rem` (rutin görev detay)
+- VT edit mobil: info heading padding + Öncelik margin (border taşımasın)
+
 ## Round 495 — Öncelik border inset + adres R489 geri
 - VT edit mobil: R494 transform geri; Öncelik `margin-inline-end` ile border içi
 - Adres: Mahalle sol; Cadde/Açık Adres kolon ortası; boşta üç etiket ortalı (R489 tüm-ortası yok)

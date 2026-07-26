@@ -558,11 +558,13 @@
   }
 
   /* Cadde / Açık Adres kolon içinde ortalı; Mahalle sol hizalı. Boş adres:
-     üç etiket kolon içinde tek satır ortalı (#1876 / #r449; #r495 R489 geri). */
+     üç etiket kolon içinde tek satır ortalı (#1876 / #r449; #r495 R489 geri).
+     Üç kolon satırı biraz sola (#r490 / #r496 rutin görev detay). */
   .address-detail-my-request__grid--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: start;
     gap: 1rem 1.25rem;
+    margin-inline-start: -0.85rem;
   }
 
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
@@ -4929,6 +4931,7 @@
       grid-template-columns: minmax(0, 1fr);
       gap: 0.7rem;
       justify-content: stretch;
+      margin-inline-start: 0;
     }
 
     .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
@@ -5128,11 +5131,16 @@
       width: 100%;
     }
 
-    /* VT edit: Öncelik sağ kart border'ına taşmasın; hafif içeride (#r495).
-       transform ile kaydırma yok (#r494 geri alındı). */
+    /* VT edit: Öncelik sağ border'a taşmasın, biraz sola (#r495/#r496).
+       Transform yok; başlık satırına sağ padding + öncelik margin. */
+    .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-info-heading {
+      padding-inline-end: 0.35rem;
+      box-sizing: border-box;
+    }
+
     .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-priority-header {
-      margin-inline-end: 0.45rem;
-      max-width: min(7.5rem, calc(100% - 0.45rem));
+      margin-inline-end: 0.55rem;
+      max-width: min(7.25rem, calc(100% - 0.9rem));
       box-sizing: border-box;
     }
 

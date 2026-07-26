@@ -144,10 +144,10 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
         <p className="text-sm leading-snug">
           <NotificationTitle title={n.title} isUnread={!n.isRead} />
           {n.titleTag ? (
-            <span className="font-semibold text-orange-500">
+            <span className="text-[0.7rem] font-semibold text-orange-500">
               {' '}
               (
-              {n.titleTagChannel ? <ChannelIcon channel={n.titleTagChannel} className="mr-1 inline size-3.5 align-text-bottom" /> : null}
+              {n.titleTagChannel ? <ChannelIcon channel={n.titleTagChannel} className="mr-0.5 inline size-2.5 align-text-bottom" /> : null}
               {n.titleTag})
             </span>
           ) : null}

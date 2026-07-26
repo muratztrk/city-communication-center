@@ -83,6 +83,22 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.RequireTenantId();
 
+        var existingTotalBytes = await _dbContext.Attachments
+            .AsNoTracking()
+            .Where(attachment =>
+                attachment.TenantId == tenantId
+                && attachment.EntityType == request.EntityType
+                && attachment.EntityId == request.EntityId)
+            .SumAsync(attachment => (long?)attachment.FileSizeBytes, cancellationToken) ?? 0L;
+
+        if (existingTotalBytes + request.FileSizeBytes > MaxFileSizeBytes)
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(nameof(request.FileSizeBytes),
+                    "Dosyalarin toplam boyutu 5 MB'i asamaz.")
+            ]);
+        }
+
         var attachmentId = Guid.NewGuid();
         var storedFileName = $"{attachmentId}{ext}";
         var entityType = request.EntityType;

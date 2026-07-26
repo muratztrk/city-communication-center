@@ -18,6 +18,11 @@ import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDro
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import {
+  ATTACHMENT_MAX_TOTAL_BYTES,
+  exceedsAttachmentTotalLimit,
+  sumFileSizes,
+} from '../utils/attachmentLimits'
 import type { UserQuickReplyTemplate } from '../types/platform'
 
 interface FormState {
@@ -40,10 +45,10 @@ const INITIAL: FormState = {
   openAddress: '',
 }
 
-// Talep oluşturma formuyla aynı dosya kuralları (card 575).
+// Talep oluşturma formuyla aynı dosya kuralları (card 575 / #r491 toplam 5 MB).
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
 const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
-const MAX_FILE_SIZE = 5 * 1024 * 1024
+const MAX_FILE_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
 function fileExtension(name: string): string {
   const dot = name.lastIndexOf('.')
@@ -155,11 +160,18 @@ export function RoutineTaskPage() {
   const addFiles = (files: FileList | null) => {
     if (!files) return
     setFileError(null)
-    for (const file of Array.from(files)) {
-      const err = validateFile(file)
-      if (err) { setFileError(err); return }
-      setPendingFiles(prev => [...prev, file])
-    }
+    const incoming = Array.from(files)
+    setPendingFiles(prev => {
+      for (const file of incoming) {
+        const err = validateFile(file)
+        if (err) { setFileError(err); return prev }
+      }
+      if (exceedsAttachmentTotalLimit(sumFileSizes(prev), sumFileSizes(incoming))) {
+        setFileError('Dosyaların toplam boyutu 5 MB\'ı aşamaz.')
+        return prev
+      }
+      return [...prev, ...incoming]
+    })
   }
 
   const executeSave = async () => {

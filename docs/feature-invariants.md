@@ -1228,7 +1228,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
 - **Görev grid Görevi Yapan (#r471/#r472):** personel adı ~13px (`text-[0.8125rem] font-semibold`);
   oluşturan `text-sm`'den biraz küçük.
-- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r489 / #r490):** Masaüstü: Mahalle / Cadde / Açık Adres
+- **Bildirim "(Vatandaş Talebi)" etiketi (#r491):** `titleTag` metin `text-[0.7rem]`, kanal ikonu `size-2.5`.
+- **Ek toplam boyutu (#r491):** Entity / form başına tüm eklerin toplamı ≤ 5 MB (tek dosya da dahil); aşımda uyarı, yükleme yok. BE `UploadAttachmentCommand` mevcut ekleri toplar.
   kolon içinde ortalı; etiket alt çizgisi değer genişliğine; üç kolon satırı biraz sola
   (`margin-inline-start: -0.85rem`). Mobil (≤767): alt alta (sol hizalı), sola kaydırma yok.
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).

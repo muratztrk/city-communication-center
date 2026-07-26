@@ -4,13 +4,19 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
 import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
+import {
+  ATTACHMENT_MAX_TOTAL_BYTES,
+  exceedsAttachmentTotalLimit,
+  sumAttachmentBytes,
+  sumFileSizes,
+} from '../../utils/attachmentLimits'
 import { ConfirmDialog } from './confirm-dialog'
 import { SimpleImageAttachmentIcon } from './SimpleImageAttachmentIcon'
 
 // Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
 const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
-const MAX_SIZE = 5 * 1024 * 1024
+const MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
 function fileExtension(name: string): string {
   const dot = name.lastIndexOf('.')
@@ -89,6 +95,13 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
         if (fileInputRef.current) fileInputRef.current.value = ''
         return
       }
+    }
+    const existingBytes = sumAttachmentBytes(attachments)
+    const incomingBytes = sumFileSizes(selectedFiles)
+    if (exceedsAttachmentTotalLimit(existingBytes, incomingBytes)) {
+      setValidationError(t('attachments.errorTotalSize', 'Dosyaların toplam boyutu 5 MB\'ı aşamaz.'))
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      return
     }
     // Tek zamanlayıcı + dosyalar arası birleşik yüzde: her dosya tek başına 1 sn altında
     // yüklense bile toplam süre 1 sn'yi aşarsa progress bar görünür (card #1610 reopen).

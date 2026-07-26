@@ -22,6 +22,11 @@ import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
+import {
+  ATTACHMENT_MAX_TOTAL_BYTES,
+  exceedsAttachmentTotalLimit,
+  sumFileSizes,
+} from '../utils/attachmentLimits'
 
 interface CitizenRequestModalProps {
   message: SocialMessage
@@ -35,7 +40,7 @@ interface CitizenRequestModalProps {
 
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
 const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
-const MAX_FILE_SIZE = 5 * 1024 * 1024
+const MAX_FILE_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
 function fileExtension(name: string): string {
   const dot = name.lastIndexOf('.')
@@ -347,11 +352,15 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       setFileError(validationError)
       return
     }
-    setFileError(null)
     setPendingFiles(current => {
+      if (exceedsAttachmentTotalLimit(sumFileSizes(current), file.size)) {
+        setFileError('Dosyaların toplam boyutu 5 MB\'ı aşamaz.')
+        return current
+      }
       if (current.some(existing => existing.name === file.name && existing.size === file.size)) {
         return current
       }
+      setFileError(null)
       return [...current, file]
     })
   }

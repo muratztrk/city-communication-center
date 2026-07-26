@@ -24,6 +24,11 @@ import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-l
 import { prioritySelectOptions, stringListSelectOptions, yesNoSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import {
+  ATTACHMENT_MAX_TOTAL_BYTES,
+  exceedsAttachmentTotalLimit,
+  sumFileSizes,
+} from '../utils/attachmentLimits'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
 
@@ -135,7 +140,7 @@ function getRequestedOwnerUserIds(
 // Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
 const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
 const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
-const MAX_FILE_SIZE = 5 * 1024 * 1024
+const MAX_FILE_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
 function fileExtension(name: string): string {
   const dot = name.lastIndexOf('.')
@@ -152,6 +157,17 @@ function validateFile(file: File): string | null {
   }
   if (file.size > MAX_FILE_SIZE) {
     return 'Dosya boyutu 5 MB\'ı aşamaz.'
+  }
+  return null
+}
+
+function validatePendingBatch(existing: File[], incoming: File[]): string | null {
+  for (const file of incoming) {
+    const err = validateFile(file)
+    if (err) return err
+  }
+  if (exceedsAttachmentTotalLimit(sumFileSizes(existing), sumFileSizes(incoming))) {
+    return 'Dosyaların toplam boyutu 5 MB\'ı aşamaz.'
   }
   return null
 }
@@ -586,16 +602,17 @@ export function CreateRequestPage() {
             event.preventDefault()
             if (saving) return
             setFileError(null)
-            for (const file of Array.from(event.dataTransfer.files)) {
-              const err = validateFile(file)
-              if (err) { setFileError(err); return }
-              setPendingFiles(prev => [...prev, file])
-            }
+            const incoming = Array.from(event.dataTransfer.files)
+            setPendingFiles(prev => {
+              const err = validatePendingBatch(prev, incoming)
+              if (err) { setFileError(err); return prev }
+              return [...prev, ...incoming]
+            })
           }}
         >
           <Paperclip className="mb-1 size-4 text-slate-400" />
           <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
-          <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, PDF, Office — max 5 MB')}</span>
+          <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, PDF, Office — toplam max 5 MB')}</span>
           <input
             ref={fileInputRef}
             type="file"
@@ -605,11 +622,12 @@ export function CreateRequestPage() {
             disabled={saving}
             onChange={event => {
               setFileError(null)
-              for (const file of Array.from(event.target.files ?? [])) {
-                const err = validateFile(file)
-                if (err) { setFileError(err); return }
-                setPendingFiles(prev => [...prev, file])
-              }
+              const incoming = Array.from(event.target.files ?? [])
+              setPendingFiles(prev => {
+                const err = validatePendingBatch(prev, incoming)
+                if (err) { setFileError(err); return prev }
+                return [...prev, ...incoming]
+              })
               if (fileInputRef.current) fileInputRef.current.value = ''
             }}
           />

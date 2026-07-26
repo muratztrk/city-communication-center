@@ -1,3 +1,7 @@
+## Round 491 — Bildirim VT etiketi küçült + ek toplam 5 MB
+- Bildirimlerde "(Vatandaş Talebi)" text/ikon küçültüldü
+- Tüm yükleme yüzeylerinde dosya toplamı ≤ 5 MB (FE + BE)
+
 ## Round 490 — Adres sola + koyu mavi ek + mobil paging/grid/VT edit + idle 60sn
 - Adres 3 kolon satırı biraz sola; ek ad/ikon blue-700
 - Mobil: Sayfa Başına gizle (sabit 10); Talep No/öncelik küçült

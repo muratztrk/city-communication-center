@@ -45,10 +45,15 @@ import { richTextToPlainText } from '../utils/richText'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { lowercaseFileExtension } from '../utils/fileNameDisplay'
+import {
+  ATTACHMENT_MAX_TOTAL_BYTES,
+  exceedsAttachmentTotalLimit,
+  sumFileSizes,
+} from '../utils/attachmentLimits'
 
 const COMPLETION_ATTACHMENT_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
 const COMPLETION_ATTACHMENT_ACCEPT = COMPLETION_ATTACHMENT_EXTENSIONS.join(',')
-const COMPLETION_ATTACHMENT_MAX_SIZE = 5 * 1024 * 1024
+const COMPLETION_ATTACHMENT_MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
 function completionAttachmentExtension(name: string): string {
   const dot = name.lastIndexOf('.')
@@ -528,7 +533,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
   // Tamamlama işlemi henüz yapılmadan eklenen dosyalar, detay kapatılırsa
   // geçici işlemden arta kalmamalıdır (card #739).
-  const [pendingCompletionAttachments, setPendingCompletionAttachments] = useState<Array<{ attachmentId: string; fileName: string }>>([])
+  const [pendingCompletionAttachments, setPendingCompletionAttachments] = useState<Array<{ attachmentId: string; fileName: string; fileSizeBytes: number }>>([])
   const [completionAttachmentError, setCompletionAttachmentError] = useState<string | null>(null)
   const [completionAttachmentUploading, setCompletionAttachmentUploading] = useState(false)
   const completeFileInputRef = useRef<HTMLInputElement>(null)
@@ -978,20 +983,36 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     if (!completeModal || !files || files.length === 0) return
     setCompletionAttachmentError(null)
 
-    for (const file of Array.from(files)) {
+    const incoming = Array.from(files)
+    for (const file of incoming) {
       if (!COMPLETION_ATTACHMENT_EXTENSIONS.includes(completionAttachmentExtension(file.name))) {
         setCompletionAttachmentError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
-        continue
+        if (completeFileInputRef.current) completeFileInputRef.current.value = ''
+        return
       }
       if (file.size > COMPLETION_ATTACHMENT_MAX_SIZE) {
         setCompletionAttachmentError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
-        continue
+        if (completeFileInputRef.current) completeFileInputRef.current.value = ''
+        return
       }
+    }
 
+    const existingBytes = pendingCompletionAttachments.reduce((sum, item) => sum + item.fileSizeBytes, 0)
+    if (exceedsAttachmentTotalLimit(existingBytes, sumFileSizes(incoming))) {
+      setCompletionAttachmentError(t('attachments.errorTotalSize', 'Dosyaların toplam boyutu 5 MB\'ı aşamaz.'))
+      if (completeFileInputRef.current) completeFileInputRef.current.value = ''
+      return
+    }
+
+    for (const file of incoming) {
       setCompletionAttachmentUploading(true)
       try {
         const attachment = await api.uploadTaskAttachment(completeModal.taskId, file)
-        setPendingCompletionAttachments(current => [...current, { attachmentId: attachment.attachmentId, fileName: attachment.fileName }])
+        setPendingCompletionAttachments(current => [...current, {
+          attachmentId: attachment.attachmentId,
+          fileName: attachment.fileName,
+          fileSizeBytes: attachment.fileSizeBytes,
+        }])
       } catch (err) {
         setCompletionAttachmentError(err instanceof Error ? err.message : t('common.error'))
       } finally {

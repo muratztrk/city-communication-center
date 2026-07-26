@@ -1,3 +1,6 @@
+## Round 500 — Cadde/Açık Adres değer sola yaslı
+- Dolu adreste Cadde/Açık Adres değer text-align left (ortalanmasın; wrap da sol)
+
 ## Round 499 — Rutin detay adres title-case
 - Görev detay Düzenle: Cadde/Açık Adres onBlur + kayıt `normalizeTitleCaseField`
 - Taleplerim kayıt yolu da aynı normalize

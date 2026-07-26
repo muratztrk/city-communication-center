@@ -611,10 +611,31 @@
     margin-inline: auto;
   }
 
+  /* Dolu adreste Cadde / Açık Adres değerleri sola yaslı; satır kırılınca da sol (#r500).
+     Etiket kolon içi hizasını korur; değer ortalanmaz. */
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2),
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(3) {
+    align-items: stretch;
+    text-align: left;
+    width: 100%;
+    max-width: 100%;
+    justify-self: stretch;
+  }
+
   .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
   .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label {
-    width: 100%;
+    width: fit-content;
+    max-width: 100%;
     margin-inline: 0;
+    text-align: left;
+  }
+
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__value,
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__value {
+    width: 100%;
+    max-width: 100%;
+    margin-inline: 0;
+    text-align: left;
   }
 
   /* Dolu adreste Cadde / Sokak başlığı biraz sola (#r498). */

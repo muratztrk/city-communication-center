@@ -1,7 +1,10 @@
+import { useEffect } from 'react'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
 const PAGE_SIZE_OPTIONS = [10, 25, 50, 100]
+const MOBILE_FIXED_PAGE_SIZE = 10
+const MOBILE_MAX_WIDTH_MQ = '(max-width: 767px)'
 
 interface TablePaginationProps {
   totalCount: number
@@ -27,6 +30,21 @@ export function TablePagination({
   const from = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1
   const to = Math.min(currentPage * pageSize, totalCount)
 
+  // Mobil: sayfa boyutu seçici gizli; grid sabit 10 (#r490).
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
+    const mq = window.matchMedia(MOBILE_MAX_WIDTH_MQ)
+    const syncMobilePageSize = () => {
+      if (mq.matches && pageSize !== MOBILE_FIXED_PAGE_SIZE) {
+        onPageSizeChange(MOBILE_FIXED_PAGE_SIZE)
+        onPageChange(1)
+      }
+    }
+    syncMobilePageSize()
+    mq.addEventListener('change', syncMobilePageSize)
+    return () => mq.removeEventListener('change', syncMobilePageSize)
+  }, [pageSize, onPageSizeChange, onPageChange])
+
   return (
     <div className={`table-pagination-bar${className ? ` ${className}` : ''}`}>
       {/* Left: total + range */}
@@ -42,10 +60,10 @@ export function TablePagination({
       </span>
 
       {/* Divider */}
-      <span className="table-pagination-divider" />
+      <span className="table-pagination-divider table-pagination-divider--page-size" />
 
-      {/* Page size selector */}
-      <span className="table-pagination-info flex items-center gap-1.5">
+      {/* Page size selector (hidden on mobile — #r490) */}
+      <span className="table-pagination-info table-pagination-page-size flex items-center gap-1.5">
         <select
           className="table-pagination-select"
           value={pageSize}
@@ -59,7 +77,7 @@ export function TablePagination({
       </span>
 
       {/* Divider */}
-      <span className="table-pagination-divider" />
+      <span className="table-pagination-divider table-pagination-divider--page-size" />
 
       {/* Page navigation */}
       <span className="table-pagination-navigation flex items-center gap-1">

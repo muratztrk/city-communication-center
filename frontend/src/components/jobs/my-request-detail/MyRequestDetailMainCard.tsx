@@ -94,7 +94,7 @@ export function MyRequestInfoFieldsList({
             {isEditing && editDraft && onEditDraftChange && field.label === priorityLabel ? (
               <SingleSelectDropdown
                 openUp
-                className="my-request-detail-edit-control my-request-detail-edit-control--priority ml-auto"
+                className="my-request-detail-edit-control my-request-detail-edit-control--priority"
                 triggerClassName="font-semibold"
                 menuScrollClassName="dropdown-menu-scroll--compact my-request-edit-priority-menu"
                 options={priorityOptions ?? []}
@@ -103,7 +103,7 @@ export function MyRequestInfoFieldsList({
                 placeholder={t('jobs.form.priority', 'Öncelik')}
               />
             ) : isEditing && editDraft && onEditDraftChange && field.label === categoryLabel ? (
-              <div className="ml-auto flex justify-end">
+              <div className="my-request-detail-edit-control my-request-detail-edit-control--request-tag flex w-full justify-start">
                 <RequestTagPicker
                   tags={requestTags}
                   selectedName={editDraft.category || null}
@@ -433,9 +433,9 @@ export function MyRequestDetailMainCard({
           {middleColumnOverride ?? (
             <>
               <MyRequestSectionHeading icon={Info} className="job-detail-card-title--spread">
-                <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
+                <span className="my-request-detail-info-heading flex min-w-0 flex-1 items-center justify-between gap-2">
                   <span>{t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}</span>
-                  <span className="ml-auto flex shrink-0 items-center gap-3">
+                  <span className="my-request-detail-info-heading__meta ml-auto flex shrink-0 items-center gap-3">
                     {isCitizenRequestJob(detail) ? (
                       <span
                         className="inline-flex items-center gap-1 text-xs font-semibold"
@@ -446,11 +446,11 @@ export function MyRequestDetailMainCard({
                       </span>
                     ) : null}
                     {priorityInInfoHeader ? (
-                      <span className="flex flex-col items-end text-right leading-tight">
+                      <span className="my-request-detail-priority-header flex flex-col items-end text-right leading-tight">
                         <span className="text-xs font-bold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
                         {isEditing && editDraft && onEditDraftChange ? (
                           <SingleSelectDropdown
-                            className="mt-0.5 w-28"
+                            className="my-request-detail-priority-header__control mt-0.5 w-28"
                             triggerClassName="!min-h-7 !px-2 !py-1 text-[11px] font-semibold"
                             menuScrollClassName="dropdown-menu-scroll--compact my-request-edit-priority-menu"
                             options={priorityOptions}

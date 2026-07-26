@@ -186,7 +186,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
             disabled={isDisabled}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
+            <Paperclip className="size-3.5 text-blue-700" aria-hidden="true" />
             {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
           </button>
           {uploading && showUploadProgress && (
@@ -236,7 +236,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                 ? 'group flex min-w-0 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5'
                 : 'group flex min-w-0 items-center gap-0.5 px-1 py-1'}
             >
-              <div className={`flex size-5 shrink-0 items-center justify-center text-emerald-700 ${readOnly ? 'rounded-md border border-emerald-100 bg-emerald-50' : ''}`}>
+              <div className={`flex size-5 shrink-0 items-center justify-center text-blue-700 ${readOnly ? 'rounded-md border border-emerald-100 bg-emerald-50' : ''}`}>
                 <Icon className="size-3" aria-hidden="true" />
               </div>
               <button
@@ -245,7 +245,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                 disabled={downloadingId === att.attachmentId}
                 onClick={() => void handleDownload(att)}
               >
-                <span className="block truncate text-xs font-normal text-teal-700 hover:text-teal-800">
+                <span className="block truncate text-xs font-normal text-blue-700 hover:text-blue-800">
                   {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : lowercaseFileExtension(att.fileName)}
                 </span>
               </button>
@@ -272,12 +272,12 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
             const Icon = getAttachmentIcon(att.fileName)
             return (
             <li key={att.attachmentId} className="flex min-w-0 items-start gap-2">
-              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+              <span className="mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-blue-700">
                 <Icon className="size-3" aria-hidden="true" />
               </span>
               <button
                 type="button"
-                className="min-w-0 flex-1 break-words text-left text-[11px] font-normal text-teal-700 hover:text-teal-800 disabled:cursor-wait"
+                className="min-w-0 flex-1 break-words text-left text-[11px] font-normal text-blue-700 hover:text-blue-800 disabled:cursor-wait"
                 disabled={downloadingId === att.attachmentId}
                 onClick={() => void handleDownload(att)}
               >

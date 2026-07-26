@@ -557,11 +557,12 @@
     margin-bottom: 0;
   }
 
-  /* Üç adres başlığı kolon içinde ortalı; etiket alt çizgisi değer genişliğine (#1876 / #r489). */
+  /* Üç adres başlığı kolon içinde ortalı; satır biraz sola (#1876 / #r489 / #r490). */
   .address-detail-my-request__grid--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: start;
     gap: 1rem 1.25rem;
+    margin-inline-start: -0.85rem;
   }
 
   .address-detail-my-request__grid--three > .address-detail-my-request__item {
@@ -679,9 +680,14 @@
   .attachment-section--rich-edit .attachment-rich-list > li > button:first-of-type span,
   .attachment-section--rich-view .attachment-rich-list > li > button:first-of-type span {
     /* !important şart: span utility'si components katmanını ezer.
-       Koyu turkuaz (#r488); dosya adı biraz büyük (#r489). */
-    color: rgb(15 118 110) !important;
+       Koyu mavi (#r490); dosya adı boyutu (#r489). */
+    color: rgb(29 78 216) !important;
     font-size: 0.75rem !important;
+  }
+
+  .attachment-section--rich-edit .attachment-rich-list > li > div,
+  .attachment-section--rich-view .attachment-rich-list > li > div {
+    color: rgb(29 78 216) !important;
   }
 
   /* WhatsApp kanal ikonu: marka webp açık kalmasın (#r486/#r487). */
@@ -2575,6 +2581,11 @@
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--priority {
     max-width: 8.25rem;
+  }
+
+  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--request-tag {
+    max-width: none;
+    margin-left: 0;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-title-edit {
@@ -4900,6 +4911,7 @@
       grid-template-columns: minmax(0, 1fr);
       gap: 0.7rem;
       justify-content: stretch;
+      margin-inline-start: 0;
     }
 
     .address-detail-my-request__grid--three > .address-detail-my-request__item,
@@ -5088,6 +5100,49 @@
       width: 100%;
       max-width: none;
       margin-left: 0;
+    }
+
+    .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--request-tag {
+      display: flex;
+      justify-content: flex-start;
+      width: 100%;
+    }
+
+    /* VT edit: Öncelik sağa kaymasın; başlık meta sola hizalı (#r490). */
+    .detail-modal-shell--my-request .my-request-detail-info-heading {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.45rem;
+    }
+
+    .detail-modal-shell--my-request .my-request-detail-info-heading__meta {
+      margin-left: 0;
+      width: 100%;
+      justify-content: flex-start;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .detail-modal-shell--my-request .my-request-detail-priority-header {
+      align-items: flex-start;
+      text-align: left;
+    }
+
+    /* Mobil grid: Talep No + altındaki öncelik küçült (#r490). */
+    .table-number-cell__value {
+      font-size: 0.72rem;
+      line-height: 1.25;
+    }
+
+    .table-number-cell__priority {
+      font-size: 0.65rem;
+      line-height: 1.2;
+    }
+
+    /* Mobil: Sayfa Başına Kayıt seçici gizle; sabit 10 (#r490). */
+    .table-pagination-page-size,
+    .table-pagination-divider--page-size {
+      display: none;
     }
 
     .scope-chips {

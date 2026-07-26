@@ -1,3 +1,9 @@
+## Round 490 — Adres sola + koyu mavi ek + mobil paging/grid/VT edit + idle 60sn
+- Adres 3 kolon satırı biraz sola; ek ad/ikon blue-700
+- Mobil: Sayfa Başına gizle (sabit 10); Talep No/öncelik küçült
+- VT edit: Talep Etiketi/Öncelik sola hiza
+- Idle uyarı geri sayım 300→60 sn
+
 ## Round 489 — Ek adı büyüt + adres başlıkları ortalı
 - Attachment/görev ek adları 10/11px → 11/12px
 - Adres Bilgileri 3 etiket kolon ortası (Mahalle dahil)

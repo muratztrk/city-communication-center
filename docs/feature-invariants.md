@@ -190,10 +190,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep son tarih bildirimi (round 380, #1677):** `UpdateJobCommand`'da son tarih değiştiyse
   `JobDueDateUpdated` audit'i KOŞULSUZ yazılır ("yalnızca son tarih değiştiyse" guard'ı geri getirme —
   kozmetik alan diff'leri bildirimi yutar); jenerik `JobUpdated` yalnız başka alan da değiştiyse eklenir.
-- **Ek listesi sunumu (round 317, #1614/#1617 / #r488):** Talep/Görev Ekleri listeleri view ve edit
-  modunda AYNI görünür: iki kolon, bordersız satır, dosya adı **koyu turkuaz** `teal-700`
-  (`rgb(15 118 110) !important` — Birim Dışı chip ile aynı), Görev Bilgileri satırında ikon/metin
-  biraz küçük. İki satırı aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
+- **Ek listesi sunumu (round 317, #1614/#1617 / #r488/#r490):** Talep/Görev Ekleri listeleri view ve edit
+  modunda AYNI görünür: iki kolon, bordersız satır, dosya adı **koyu mavi** `blue-700`
+  (`#1d4ed8` / `rgb(29 78 216) !important`, ikon dahil); `!important` CSS kuralı utility layer'ı ezer.
+  Görev Bilgileri satırında ikon/metin biraz küçük. İki satırı aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -926,8 +926,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **en az 3 karakter** (card #1754). Eklenecek kullanıcılar satırında `birim:` etiketi yok —
   `Ad — BirimAdı` (card #1767).   Yerel kullanıcıda **Parola Onayla** alanı; uyuşmazsa kırmızı
   uyarı ve Oluştur engeli (card #1762). Parola / Parola Onayla textbox’larında login ile aynı
-  göz ikonu (göster/gizle) vardır (card #1772). Oturum: 1 saat hareketsizlik → uyarı popup (300 sn geri
-  sayım, Tekrar sorma yok); uzatılmazsa logout (card #1769). Sistemde
+  göz ikonu (göster/gizle) vardır (card #1772). Oturum: 1 saat hareketsizlik → uyarı popup (60 sn geri
+  sayım, Tekrar sorma yok); uzatılmazsa logout (card #1769 / #r490). Sistemde
   talep/görev oluşturmuş kullanıcı
   silinemez — `"Sistemi kullanmış olan personel silinemez"` (card #1753). `+Yeni Kullanıcı` açıkken grid görünür kalır
   (`desktop-page-fill` form açıkken kapanır — card #1731). Kullanıcılar LDAP formunda
@@ -1228,9 +1228,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
 - **Görev grid Görevi Yapan (#r471/#r472):** personel adı ~13px (`text-[0.8125rem] font-semibold`);
   oluşturan `text-sm`'den biraz küçük.
-- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r489):** Masaüstü: Mahalle / Cadde / Açık Adres
-  kolon içinde ortalı; etiket alt çizgisi değer genişliğine. Mobil (≤767): alt alta (sol hizalı).
-- **Ek dosya adı boyutu (#r489):** Talep/Görev ek adları biraz büyük (`~12px` / `text-[11px]`).
+- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r489 / #r490):** Masaüstü: Mahalle / Cadde / Açık Adres
+  kolon içinde ortalı; etiket alt çizgisi değer genişliğine; üç kolon satırı biraz sola
+  (`margin-inline-start: -0.85rem`). Mobil (≤767): alt alta (sol hizalı), sola kaydırma yok.
+- **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
+- **Mobil paging (#r490):** Sayfa-boyutu seçici ≤767px gizli; mobilde sabit `pageSize=10`.
+- **Mobil Talep No (#r490):** `.table-number-cell__value` / `__priority` mobilde küçültülür.
+- **VT edit mobil hiza (#r490):** Talep Etiketi kontrolü etiket altında sola; Öncelik header meta sola.
 - **Mobil dizin talep popup (#r483 / #r485):** başlık altında isim · telefon yan yana (küçük
   bullet); ortada kurum logosu.
 - **Mobil Vatandaş Talep Bilgisi genişlik (#r483):** `.detail-modal-shell--my-request`

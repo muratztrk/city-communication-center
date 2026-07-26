@@ -252,7 +252,7 @@ export function MyRequestTaskDetailsSection({
                                   <button
                                     key={attachment.attachmentId}
                                     type="button"
-                                    className="inline-flex max-w-full items-center gap-1 text-[10px] text-teal-700 hover:text-teal-800"
+                                    className="inline-flex max-w-full items-center gap-1 text-[11px] text-teal-700 hover:text-teal-800"
                                     onClick={() => onDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                   >
                                     <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />

@@ -557,15 +557,14 @@
     margin-bottom: 0;
   }
 
-  /* Cadde / Açık Adres kolon içinde ortalanır; etiket alt çizgisi değer genişliğine uzar (card #1876). */
+  /* Üç adres başlığı kolon içinde ortalı; etiket alt çizgisi değer genişliğine (#1876 / #r489). */
   .address-detail-my-request__grid--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: start;
     gap: 1rem 1.25rem;
   }
 
-  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
-  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) {
+  .address-detail-my-request__grid--three > .address-detail-my-request__item {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -575,41 +574,23 @@
     justify-self: center;
   }
 
-  /* Adres yokken üç etiket kolon içinde tek satır ortalı; alt çizgi kısa (card #1876 / #r449). */
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
     align-items: start;
   }
 
-  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    justify-self: center;
-    width: auto;
-    max-width: 100%;
-  }
-
-  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
+  .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label {
     width: fit-content;
     max-width: 100%;
     margin-inline: auto;
   }
 
-  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
-    width: fit-content;
-    margin-inline: auto;
-  }
-
-  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
-  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label {
+  .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value {
     width: fit-content;
     max-width: 100%;
     margin-inline: auto;
   }
 
-  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
-  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label {
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item .address-detail-my-request__label {
     width: 100%;
     margin-inline: 0;
   }
@@ -698,8 +679,9 @@
   .attachment-section--rich-edit .attachment-rich-list > li > button:first-of-type span,
   .attachment-section--rich-view .attachment-rich-list > li > button:first-of-type span {
     /* !important şart: span utility'si components katmanını ezer.
-       Turkuaz (#r487; önceki sky-400 #r486 / mavi #1617). */
+       Koyu turkuaz (#r488); dosya adı biraz büyük (#r489). */
     color: rgb(15 118 110) !important;
+    font-size: 0.75rem !important;
   }
 
   /* WhatsApp kanal ikonu: marka webp açık kalmasın (#r486/#r487). */
@@ -4920,8 +4902,7 @@
       justify-content: stretch;
     }
 
-    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
-    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3),
+    .address-detail-my-request__grid--three > .address-detail-my-request__item,
     .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
       align-items: flex-start;
       text-align: left;
@@ -4930,10 +4911,8 @@
       max-width: none;
     }
 
-    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
-    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label,
-    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label,
-    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
+    .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
+    .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value {
       width: fit-content;
       max-width: 100%;
       margin-inline: 0;

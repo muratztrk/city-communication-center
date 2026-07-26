@@ -1,3 +1,7 @@
+## Round 489 — Ek adı büyüt + adres başlıkları ortalı
+- Attachment/görev ek adları 10/11px → 11/12px
+- Adres Bilgileri 3 etiket kolon ortası (Mahalle dahil)
+
 ## Round 488 — Koyu turkuaz ek adı + Cadde/Sokak (Bulvar kaldır)
 - Ek dosya adları teal-700 (#0f766e)
 - Tüm Cadde/Sokak/Bulvar → Cadde/Sokak (FE i18n + BE mesajları)

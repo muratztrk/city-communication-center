@@ -1228,8 +1228,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
 - **Görev grid Görevi Yapan (#r471/#r472):** personel adı ~13px (`text-[0.8125rem] font-semibold`);
   oluşturan `text-sm`'den biraz küçük.
-- **Adres Bilgileri 3 kolon (card #1876 / #r483):** Masaüstü: Cadde sola; Açık Adres ortada;
-  etiket alt çizgisi değer genişliğine. Mobil (≤767): Mahalle / Cadde / Açık Adres alt alta.
+- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r489):** Masaüstü: Mahalle / Cadde / Açık Adres
+  kolon içinde ortalı; etiket alt çizgisi değer genişliğine. Mobil (≤767): alt alta (sol hizalı).
+- **Ek dosya adı boyutu (#r489):** Talep/Görev ek adları biraz büyük (`~12px` / `text-[11px]`).
 - **Mobil dizin talep popup (#r483 / #r485):** başlık altında isim · telefon yan yana (küçük
   bullet); ortada kurum logosu.
 - **Mobil Vatandaş Talep Bilgisi genişlik (#r483):** `.detail-modal-shell--my-request`

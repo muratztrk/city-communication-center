@@ -1231,15 +1231,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Bildirim "(Vatandaş Talebi)" etiketi (#r491/#r492):** `titleTag` metin `text-[0.7rem]`, kanal ikonu
   `size-2.5`; ikon+metin `inline-flex items-center` (ikon text altına kaymasın).
 - **Ek toplam boyutu (#r491):** Entity / form başına tüm eklerin toplamı ≤ 5 MB (tek dosya da dahil); aşımda uyarı, yükleme yok. BE `UploadAttachmentCommand` mevcut ekleri toplar.
-- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r489 / #r490 / #r493):** Masaüstü: Mahalle / Cadde / Açık Adres
-  kolon içinde ortalı; etiket alt çizgisi değer genişliğine; üç kolon satırı biraz sola
-  (`margin-inline-start: -0.85rem`). Mobil (≤767): alt alta (sol hizalı), sola kaydırma yok.
-  Rutin görev detay popup da Taleplerim ile aynı `variant="my-request"`.
+- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r449 / #r495):** Masaüstü: Mahalle sol hizalı;
+  Cadde / Açık Adres kolon içinde ortalı; adres tamamen boşsa üç etiket kolon içinde ortalı
+  (`.address-detail-my-request__grid--empty`). R489+ tüm-kolon ortası / satır sola kaydırma yok.
+  Mobil (≤767): alt alta sol hizalı. Rutin görev detay = Taleplerim `variant="my-request"`.
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
 - **Mobil paging (#r490/#r493):** Sayfa-boyutu seçici ≤767px DOM'dan çıkarılır; sabit `pageSize=10`.
 - **Mobil Talep No (#r490):** `.table-number-cell__value` / `__priority` mobilde küçültülür.
-- **VT edit mobil hiza (#r490/#r493/#r494):** Talep Etiketi kontrolü etiket altında sola; Öncelik sağ üst
-  meta kalır, düzenlemede mobilde ~0.65rem sola kayar (tam sola değil).
+- **VT edit mobil hiza (#r490/#r493/#r495):** Talep Etiketi kontrolü etiket altında sola; Öncelik sağ üst
+  meta kalır. Düzenlemede mobilde sağ border'a taşmasın diye `margin-inline-end` ile içeride
+  (transform kaydırma yok — #r494 geri).
 - **Mobil dizin talep popup (#r483 / #r485):** başlık altında isim · telefon yan yana (küçük
   bullet); ortada kurum logosu.
 - **Mobil Vatandaş Talep Bilgisi genişlik (#r483):** `.detail-modal-shell--my-request`

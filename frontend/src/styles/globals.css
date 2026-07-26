@@ -557,15 +557,16 @@
     margin-bottom: 0;
   }
 
-  /* Üç adres başlığı kolon içinde ortalı; satır biraz sola (#1876 / #r489 / #r490). */
+  /* Cadde / Açık Adres kolon içinde ortalı; Mahalle sol hizalı. Boş adres:
+     üç etiket kolon içinde tek satır ortalı (#1876 / #r449; #r495 R489 geri). */
   .address-detail-my-request__grid--three {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: start;
     gap: 1rem 1.25rem;
-    margin-inline-start: -0.85rem;
   }
 
-  .address-detail-my-request__grid--three > .address-detail-my-request__item {
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -579,19 +580,36 @@
     align-items: start;
   }
 
-  .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label {
+  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    justify-self: center;
+    width: auto;
+    max-width: 100%;
+  }
+
+  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
     width: fit-content;
     max-width: 100%;
     margin-inline: auto;
   }
 
-  .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value {
+  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
+    width: fit-content;
+    margin-inline: auto;
+  }
+
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label {
     width: fit-content;
     max-width: 100%;
     margin-inline: auto;
   }
 
-  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item .address-detail-my-request__label {
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label {
     width: 100%;
     margin-inline: 0;
   }
@@ -4911,10 +4929,10 @@
       grid-template-columns: minmax(0, 1fr);
       gap: 0.7rem;
       justify-content: stretch;
-      margin-inline-start: 0;
     }
 
-    .address-detail-my-request__grid--three > .address-detail-my-request__item,
+    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
+    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3),
     .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
       align-items: flex-start;
       text-align: left;
@@ -4923,8 +4941,10 @@
       max-width: none;
     }
 
-    .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
-    .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value {
+    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
+    .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label,
+    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label,
+    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
       width: fit-content;
       max-width: 100%;
       margin-inline: 0;
@@ -5108,9 +5128,12 @@
       width: 100%;
     }
 
-    /* VT edit: Öncelik başlığını biraz sola kaydır (#r494) — tam sola değil. */
+    /* VT edit: Öncelik sağ kart border'ına taşmasın; hafif içeride (#r495).
+       transform ile kaydırma yok (#r494 geri alındı). */
     .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-priority-header {
-      transform: translateX(-0.65rem);
+      margin-inline-end: 0.45rem;
+      max-width: min(7.5rem, calc(100% - 0.45rem));
+      box-sizing: border-box;
     }
 
     /* Mobil grid: Talep No + altındaki öncelik küçült (#r490). */

@@ -1,3 +1,7 @@
+## Round 495 — Öncelik border inset + adres R489 geri
+- VT edit mobil: R494 transform geri; Öncelik `margin-inline-end` ile border içi
+- Adres: Mahalle sol; Cadde/Açık Adres kolon ortası; boşta üç etiket ortalı (R489 tüm-ortası yok)
+
 ## Round 494 — VT edit Öncelik biraz sola (mobil)
 - Düzenle modunda Öncelik başlığı `translateX(-0.65rem)` — tam sola değil
 

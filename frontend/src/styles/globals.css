@@ -5108,26 +5108,6 @@
       width: 100%;
     }
 
-    /* VT edit: Öncelik sağa kaymasın; başlık meta sola hizalı (#r490). */
-    .detail-modal-shell--my-request .my-request-detail-info-heading {
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 0.45rem;
-    }
-
-    .detail-modal-shell--my-request .my-request-detail-info-heading__meta {
-      margin-left: 0;
-      width: 100%;
-      justify-content: flex-start;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
-
-    .detail-modal-shell--my-request .my-request-detail-priority-header {
-      align-items: flex-start;
-      text-align: left;
-    }
-
     /* Mobil grid: Talep No + altındaki öncelik küçült (#r490). */
     .table-number-cell__value {
       font-size: 0.72rem;
@@ -5139,10 +5119,10 @@
       line-height: 1.2;
     }
 
-    /* Mobil: Sayfa Başına Kayıt seçici gizle; sabit 10 (#r490). */
+    /* Mobil: Sayfa Başına Kayıt seçici gizle; sabit 10 (#r490/#r493). */
     .table-pagination-page-size,
     .table-pagination-divider--page-size {
-      display: none;
+      display: none !important;
     }
 
     .scope-chips {

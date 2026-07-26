@@ -1,3 +1,8 @@
+## Round 493 — Öncelik revert + paging DOM hide + rutin adres = Taleplerim
+- Mobil VT Öncelik sola çekme geri alındı
+- Paging: mobil sayfa-boyutu seçici DOM'dan çıkarılır (!important CSS yedek)
+- Rutin görev detay Adres Bilgileri `variant="my-request"` (3 kolon ortalı)
+
 ## Round 492 — Bildirim VT kanal ikonu yukarı hiza
 - titleTag: ChannelIcon + metin inline-flex items-center (align-text-bottom kaldırıldı)
 

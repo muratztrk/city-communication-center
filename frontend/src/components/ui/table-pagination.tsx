@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 
@@ -26,23 +26,26 @@ export function TablePagination({
   className,
 }: TablePaginationProps) {
   const { t } = useTranslation()
+  const [isMobile, setIsMobile] = useState(false)
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize))
   const from = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1
   const to = Math.min(currentPage * pageSize, totalCount)
 
-  // Mobil: sayfa boyutu seçici gizli; grid sabit 10 (#r490).
+  // Mobil: sayfa boyutu seçici DOM'dan çıkarılır; grid sabit 10 (#r490/#r493).
   useEffect(() => {
     if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
     const mq = window.matchMedia(MOBILE_MAX_WIDTH_MQ)
-    const syncMobilePageSize = () => {
-      if (mq.matches && pageSize !== MOBILE_FIXED_PAGE_SIZE) {
+    const syncMobile = () => {
+      const mobile = mq.matches
+      setIsMobile(mobile)
+      if (mobile && pageSize !== MOBILE_FIXED_PAGE_SIZE) {
         onPageSizeChange(MOBILE_FIXED_PAGE_SIZE)
         onPageChange(1)
       }
     }
-    syncMobilePageSize()
-    mq.addEventListener('change', syncMobilePageSize)
-    return () => mq.removeEventListener('change', syncMobilePageSize)
+    syncMobile()
+    mq.addEventListener('change', syncMobile)
+    return () => mq.removeEventListener('change', syncMobile)
   }, [pageSize, onPageSizeChange, onPageChange])
 
   return (
@@ -59,25 +62,26 @@ export function TablePagination({
         )}
       </span>
 
-      {/* Divider */}
-      <span className="table-pagination-divider table-pagination-divider--page-size" />
-
-      {/* Page size selector (hidden on mobile — #r490) */}
-      <span className="table-pagination-info table-pagination-page-size flex items-center gap-1.5">
-        <select
-          className="table-pagination-select"
-          value={pageSize}
-          onChange={e => { onPageSizeChange(Number(e.target.value)); onPageChange(1) }}
-        >
-          {pageSizeOptions.map(size => (
-            <option key={size} value={size}>{size}</option>
-          ))}
-        </select>
-        <span className="table-pagination-label">{t('pagination.perPage', 'Sayfa Başına Kayıt')}</span>
-      </span>
-
-      {/* Divider */}
-      <span className="table-pagination-divider table-pagination-divider--page-size" />
+      {!isMobile ? (
+        <>
+          <span className="table-pagination-divider table-pagination-divider--page-size" />
+          <span className="table-pagination-info table-pagination-page-size flex items-center gap-1.5">
+            <select
+              className="table-pagination-select"
+              value={pageSize}
+              onChange={e => { onPageSizeChange(Number(e.target.value)); onPageChange(1) }}
+            >
+              {pageSizeOptions.map(size => (
+                <option key={size} value={size}>{size}</option>
+              ))}
+            </select>
+            <span className="table-pagination-label">{t('pagination.perPage', 'Sayfa Başına Kayıt')}</span>
+          </span>
+          <span className="table-pagination-divider table-pagination-divider--page-size" />
+        </>
+      ) : (
+        <span className="table-pagination-divider" />
+      )}
 
       {/* Page navigation */}
       <span className="table-pagination-navigation flex items-center gap-1">

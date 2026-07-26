@@ -1,3 +1,6 @@
+## Round 494 — VT edit Öncelik biraz sola (mobil)
+- Düzenle modunda Öncelik başlığı `translateX(-0.65rem)` — tam sola değil
+
 ## Round 493 — Öncelik revert + paging DOM hide + rutin adres = Taleplerim
 - Mobil VT Öncelik sola çekme geri alındı
 - Paging: mobil sayfa-boyutu seçici DOM'dan çıkarılır (!important CSS yedek)

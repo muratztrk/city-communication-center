@@ -5108,6 +5108,11 @@
       width: 100%;
     }
 
+    /* VT edit: Öncelik başlığını biraz sola kaydır (#r494) — tam sola değil. */
+    .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-priority-header {
+      transform: translateX(-0.65rem);
+    }
+
     /* Mobil grid: Talep No + altındaki öncelik küçült (#r490). */
     .table-number-cell__value {
       font-size: 0.72rem;

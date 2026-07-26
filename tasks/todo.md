@@ -1,3 +1,6 @@
+## Round 484 — Detay popup logo animasyonsuz
+- `.detail-modal-header-brand` transform transition kaldırıldı
+
 ## Round 483 — Mobil detay popup’lar
 - Dizin: başlık altında isim/telefon + logo
 - my-request shell daha geniş (~100vw-0.5rem)

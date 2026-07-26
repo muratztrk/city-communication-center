@@ -213,11 +213,12 @@
     align-items: center;
     justify-content: center;
     pointer-events: none;
+    /* Kaydırma anında kayma animasyonu olmasın (#r484). */
+    transition: none;
   }
 
-  /* Buton overlap’te JS sola kaydırır; transition yumuşak geçiş (card #1751). */
   .detail-modal-header-brand--shift-left {
-    transition: transform 120ms ease-out;
+    transition: none;
   }
 
   .detail-modal-header-brand__img {

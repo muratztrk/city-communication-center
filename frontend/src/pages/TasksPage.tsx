@@ -2173,10 +2173,10 @@ const pageKicker = isMyTasksView
                                           <button
                                             key={attachment.attachmentId}
                                             type="button"
-                                            className="inline-flex max-w-full items-center gap-1 text-blue-600 hover:text-blue-700"
+                                            className="inline-flex max-w-full items-center gap-1 text-[10px] text-sky-400 hover:text-sky-500"
                                             onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                           >
-                                            <AttachmentIcon className="size-3.5 shrink-0 text-emerald-700" aria-hidden="true" />
+                                            <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />
                                             <span className="truncate">{lowercaseFileExtension(attachment.fileName)}</span>
                                           </button>
                                         )
@@ -2697,10 +2697,10 @@ const pageKicker = isMyTasksView
                                       <button
                                         key={attachment.attachmentId}
                                         type="button"
-                                        className="inline-flex max-w-full items-center gap-1 text-blue-600 hover:text-blue-700"
+                                        className="inline-flex max-w-full items-center gap-1 text-[10px] text-sky-400 hover:text-sky-500"
                                         onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                       >
-                                        <AttachmentIcon className="size-3.5 shrink-0 text-emerald-700" aria-hidden="true" />
+                                        <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />
                                         <span className="truncate">{lowercaseFileExtension(attachment.fileName)}</span>
                                       </button>
                                     )

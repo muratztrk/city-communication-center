@@ -1,3 +1,7 @@
+## Round 486 — WA kanal koyu yeşil + ek dosya adı sky-400
+- getChannelLabelColor WhatsApp #1EBE57 + icon filter
+- Talep/Görev ek dosya adları Yazışmaya Git sky-400; görev ekleri biraz küçük
+
 ## Round 485 — Dizin popup isim · telefon yan yana
 - CitizenDirectory ticket header: isim • telefon aynı satır
 

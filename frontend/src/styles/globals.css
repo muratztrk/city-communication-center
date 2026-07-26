@@ -697,9 +697,14 @@
 
   .attachment-section--rich-edit .attachment-rich-list > li > button:first-of-type span,
   .attachment-section--rich-view .attachment-rich-list > li > button:first-of-type span {
-    /* !important şart: span'daki text-slate-900 utility'si components katmanını eziyor
-       (#1617 reopen'ın kök nedeni — mavi Round 312'de hiç uygulanmamış). */
-    color: rgb(37 99 235) !important;
+    /* !important şart: span utility'si components katmanını ezer.
+       Yazışmaya Git ile aynı sky-400 (#r486; eski mavi #1617). */
+    color: rgb(56 189 248) !important;
+  }
+
+  /* WhatsApp kanal ikonu: marka webp biraz açık; Talep Bilgileri etiketiyle koyulaştır (#r486). */
+  .channel-icon--whatsapp {
+    filter: brightness(0.88) saturate(1.08);
   }
 
   .attachment-section--rich-edit .attachment-rich-list > li > button:first-of-type {

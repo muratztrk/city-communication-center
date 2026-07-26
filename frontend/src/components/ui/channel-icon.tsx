@@ -8,7 +8,14 @@ interface ChannelIconProps {
 export function ChannelIcon({ channel, className = 'size-4' }: ChannelIconProps) {
   switch (channel) {
     case 'WhatsApp':
-      return <img src="/icons/whatsapp.webp" className={className} alt="WhatsApp" />
+      // webp markası biraz açık kalıyordu; Talep Bilgileri ile aynı koyu ton (#r486).
+      return (
+        <img
+          src="/icons/whatsapp.webp"
+          className={`${className} channel-icon--whatsapp`.trim()}
+          alt="WhatsApp"
+        />
+      )
     case 'Instagram':
       return (
         <svg className={className} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Instagram">

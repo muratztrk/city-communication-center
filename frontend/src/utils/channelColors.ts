@@ -1,8 +1,9 @@
-/** Kanal adı metin rengi — ChannelIcon rengi ile aynı (card #1532). */
+/** Kanal adı metin rengi — ChannelIcon rengi ile aynı (card #1532 / #r486). */
 export function getChannelLabelColor(channel: string): string {
   switch (channel) {
     case 'WhatsApp':
-      return '#25D366'
+      // Marka yeşili biraz koyu — Talep Bilgileri başlık etiketi (#r486).
+      return '#1EBE57'
     case 'Phone':
       return '#0ea5e9'
     case 'Email':

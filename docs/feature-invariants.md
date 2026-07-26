@@ -1227,7 +1227,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   oluşturan `text-sm`'den biraz küçük.
 - **Adres Bilgileri 3 kolon (card #1876 / #r483):** Masaüstü: Cadde sola; Açık Adres ortada;
   etiket alt çizgisi değer genişliğine. Mobil (≤767): Mahalle / Cadde / Açık Adres alt alta.
-- **Mobil dizin talep popup (#r483):** başlık altında isim + telefon (küçük); ortada kurum logosu.
+- **Mobil dizin talep popup (#r483 / #r485):** başlık altında isim · telefon yan yana (küçük
+  bullet); ortada kurum logosu.
 - **Mobil Vatandaş Talep Bilgisi genişlik (#r483):** `.detail-modal-shell--my-request`
   ≈ `100vw - 0.5rem`.
 - **Birimler grid varsayılan sıralama (card #1856):** birim adı Türkçe alfabetik; kullanıcı sütun

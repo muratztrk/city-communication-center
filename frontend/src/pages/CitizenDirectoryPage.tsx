@@ -486,21 +486,27 @@ export function CitizenDirectoryPage() {
           >
             <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-6 py-3">
               <div className="detail-modal-header-title min-w-0">
-                {/* Mobil flex row başlığı yan yana sıkıştırıyordu — alt satırda isim + telefon (#r483). */}
+                {/* Başlık altında isim · telefon yan yana (#r483 reopen / #r485). */}
                 <div className="citizen-directory-ticket-header-text flex min-w-0 flex-col items-start gap-0.5">
                   <div className="my-request-detail-header__title">
                     <DetailModalTitle title={t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')} />
                   </div>
-                  {ticketModal.conversation.citizenName?.trim() ? (
-                    <p className="citizen-directory-ticket-subtitle text-[0.65rem] font-medium leading-tight text-slate-500">
-                      {ticketModal.conversation.citizenName.trim()}
-                    </p>
-                  ) : null}
-                  {formatDirectoryPhone(ticketModal.conversation.citizenPhone) ? (
-                    <p className="citizen-directory-ticket-subtitle text-[0.65rem] font-medium leading-tight text-slate-500 tabular-nums">
-                      {formatDirectoryPhone(ticketModal.conversation.citizenPhone)}
-                    </p>
-                  ) : null}
+                  {(() => {
+                    const name = ticketModal.conversation.citizenName?.trim() ?? ''
+                    const phone = formatDirectoryPhone(ticketModal.conversation.citizenPhone)
+                    if (!name && !phone) return null
+                    return (
+                      <p className="citizen-directory-ticket-subtitle flex min-w-0 flex-wrap items-center gap-x-1.5 text-[0.65rem] font-medium leading-tight text-slate-500">
+                        {name ? <span className="min-w-0 truncate">{name}</span> : null}
+                        {name && phone ? (
+                          <span className="shrink-0 text-[0.45rem] leading-none text-slate-400" aria-hidden="true">
+                            •
+                          </span>
+                        ) : null}
+                        {phone ? <span className="shrink-0 tabular-nums">{phone}</span> : null}
+                      </p>
+                    )
+                  })()}
                 </div>
               </div>
               <DetailModalHeaderBrand />

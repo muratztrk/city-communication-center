@@ -1,3 +1,6 @@
+## Round 485 — Dizin popup isim · telefon yan yana
+- CitizenDirectory ticket header: isim • telefon aynı satır
+
 ## Round 484 — Detay popup logo animasyonsuz
 - `.detail-modal-header-brand` transform transition kaldırıldı
 

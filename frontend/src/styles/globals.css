@@ -617,6 +617,11 @@
     margin-inline: 0;
   }
 
+  /* Dolu adreste Cadde / Sokak başlığı biraz sola (#r498). */
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) {
+    transform: translateX(-0.7rem);
+  }
+
   .address-detail-my-request__grid--stacked {
     grid-template-columns: minmax(0, 1fr);
     gap: 0.85rem;
@@ -4940,6 +4945,10 @@
       margin-inline-start: 0;
     }
 
+    .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) {
+      transform: none;
+    }
+
     .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
     .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3),
     .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
@@ -5137,33 +5146,7 @@
       width: 100%;
     }
 
-    /* VT edit: Öncelik border içi + sola (#r497 — önceki margin yetmedi).
-       Meta sağ padding + öncelik kaydırma; dropdown w-24 ile biraz dar. */
-    .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-info-heading {
-      padding-inline-end: 0.65rem;
-      box-sizing: border-box;
-      min-width: 0;
-    }
-
-    .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-info-heading__meta {
-      max-width: min(58%, 12.5rem);
-      min-width: 0;
-      gap: 0.45rem;
-      padding-inline-end: 0.15rem;
-    }
-
-    .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-priority-header {
-      flex-shrink: 0;
-      margin-inline-end: 0.25rem;
-      transform: translateX(-0.55rem);
-      max-width: 6.25rem;
-      box-sizing: border-box;
-    }
-
-    .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-priority-header__control {
-      width: 5.75rem !important;
-      max-width: 100%;
-    }
+    /* VT edit Öncelik sola/küçült istekleri geri alındı (#r498). */
 
     /* Mobil grid: Talep No + altındaki öncelik küçült (#r490). */
     .table-number-cell__value {

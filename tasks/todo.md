@@ -1,3 +1,7 @@
+## Round 498 — Cadde sola + VT Öncelik geri al
+- Rutin dolu adres: Cadde/Sokak `translateX(-0.7rem)`
+- VT edit Öncelik sola/küçült CSS + w-24 geri alındı (w-28)
+
 ## Round 497 — VT Öncelik + adres gap + rutin Mahalle kaymasın
 - Mobil VT edit: Öncelik translateX(-0.55rem) + dropdown w-24 / 5.75rem
 - Atanmış stacked adres: veri varken gap 1.35rem

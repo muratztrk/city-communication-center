@@ -1,6 +1,7 @@
-## Round 496 — Rutin adres sola + VT Öncelik inset güçlendir
+## Round 496 — Rutin adres sola + VT Öncelik + atanmış adres stacked
 - Adres 3 kolon satırı `margin-inline-start: -0.85rem` (rutin görev detay)
 - VT edit mobil: info heading padding + Öncelik margin (border taşımasın)
+- Atanmış görev İlgili Talep Adres Bilgileri `variant="stacked"` (alt alta)
 
 ## Round 495 — Öncelik border inset + adres R489 geri
 - VT edit mobil: R494 transform geri; Öncelik `margin-inline-end` ile border içi

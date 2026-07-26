@@ -1235,7 +1235,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hizalı; Cadde / Açık Adres kolon içinde ortalı; boşsa üç etiket kolon ortalı
   (`.address-detail-my-request__grid--empty`); üç kolon satırı biraz sola
   (`margin-inline-start: -0.85rem`, rutin görev detay dahil). Mobil (≤767): alt alta, sola kaydırma yok.
-  Rutin görev detay = Taleplerim `variant="my-request"`.
+  Rutin görev detay = `variant="my-request"`; atanmış görev İlgili Talep Adres Bilgileri =
+  `variant="stacked"` (alt alta, yan yana değil — #r496).
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
 - **Mobil paging (#r490/#r493):** Sayfa-boyutu seçici ≤767px DOM'dan çıkarılır; sabit `pageSize=10`.
 - **Mobil Talep No (#r490):** `.table-number-cell__value` / `__priority` mobilde küçültülür.

@@ -1,3 +1,6 @@
+## Round 492 — Bildirim VT kanal ikonu yukarı hiza
+- titleTag: ChannelIcon + metin inline-flex items-center (align-text-bottom kaldırıldı)
+
 ## Round 491 — Bildirim VT etiketi küçült + ek toplam 5 MB
 - Bildirimlerde "(Vatandaş Talebi)" text/ikon küçültüldü
 - Tüm yükleme yüzeylerinde dosya toplamı ≤ 5 MB (FE + BE)

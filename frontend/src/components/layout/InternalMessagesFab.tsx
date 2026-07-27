@@ -23,7 +23,7 @@ interface MessageRow {
   otherUserId: string
   displayName: string
   departmentName: string | null
-  /** Ünvan — birim satırında `Birim - Ünvan` (#r505). */
+  /** Ünvan — birimin altında ayrı satır (#r505/#r506). */
   title: string | null
   /** Personel aramasında gösterilir; konuşma listesinde yok (#r504). */
   phone: string | null
@@ -32,10 +32,6 @@ interface MessageRow {
   lastMessageAtUtc: string | null
   lastMessageSenderUserId: string | null
   unreadCount: number
-}
-
-function formatDepartmentWithTitle(departmentName: string | null | undefined, title: string | null | undefined) {
-  return [departmentName?.trim(), title?.trim()].filter(Boolean).join(' - ') || null
 }
 
 function toRow(conversation: InternalConversationSummary): MessageRow {
@@ -426,8 +422,13 @@ export function InternalMessagesFab() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-bold leading-tight text-[color:var(--color-foreground)]">{activeChat.displayName}</p>
                       <p className="mt-0.5 truncate text-xs text-[color:var(--color-muted-foreground)]">
-                        {formatDepartmentWithTitle(activeChat.departmentName, activeChat.title) ?? '—'}
+                        {activeChat.departmentName?.trim() || '—'}
                       </p>
+                      {activeChat.title?.trim() ? (
+                        <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
+                          {activeChat.title.trim()}
+                        </p>
+                      ) : null}
                     </div>
                   </div>
                   </>
@@ -615,12 +616,19 @@ export function InternalMessagesFab() {
                             </span>
                           ) : null}
                         </div>
-                        <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
-                          <p className="min-w-0 truncate text-xs text-[color:var(--color-muted-foreground)]">
-                            {formatDepartmentWithTitle(row.departmentName, row.title) ?? '—'}
-                          </p>
+                        <div className="mt-0.5 flex min-w-0 items-start justify-between gap-2">
+                          <div className="min-w-0 flex-1">
+                            <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
+                              {row.departmentName?.trim() || '—'}
+                            </p>
+                            {row.title?.trim() ? (
+                              <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
+                                {row.title.trim()}
+                              </p>
+                            ) : null}
+                          </div>
                           {hasStatus ? (
-                            <span className={`inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold ${isWaiting ? 'text-orange-700' : 'text-emerald-700'}`}>
+                            <span className={`inline-flex shrink-0 items-center gap-1 pt-0.5 text-[10px] font-semibold ${isWaiting ? 'text-orange-700' : 'text-emerald-700'}`}>
                               <span className={`size-1.5 rounded-full ${isWaiting ? 'bg-orange-500' : 'bg-emerald-500'}`} aria-hidden="true" />
                               {isWaiting
                                 ? t('internalMessages.waitingReply', 'Yanıt bekliyor')

@@ -1,3 +1,6 @@
+## Round 506 — Ünvan birimin altında
+- `6a675c8e` reopen — Kurum içi liste/sohbet: ünvan birimin altında ayrı satır (yan yana değil).
+
 ## Round 505 — Kurum içi konuşmada birim + ünvan
 - `6a675c8e` — Yazışmalı konuşma listesi/sohbet header: `Birim - Ünvan` (API `otherUserTitle`).
 

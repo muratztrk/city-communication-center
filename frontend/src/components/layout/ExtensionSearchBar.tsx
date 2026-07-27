@@ -39,9 +39,9 @@ export function ExtensionSearchBar() {
 
   const mapResults = useCallback((list: UserLookup[]): ExtensionSearchResult[] => (
     list.map(userItem => {
-      // Dahili yoksa "Dahili No yok" (card #r503 / berkeryilmaz örneği).
+      // Dahili yoksa "Dahili No Yok" (card #r503/#r504).
       const phoneLabel = userItem.phone?.trim()
-        || t('search.extensionMissing', 'Dahili No yok')
+        || t('search.extensionMissing', 'Dahili No Yok')
       const titleParts = [userItem.displayName, phoneLabel].filter(Boolean)
       const subtitleParts = [userItem.departmentName, userItem.title].filter(Boolean)
       return {

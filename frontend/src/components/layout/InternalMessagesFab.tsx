@@ -23,6 +23,8 @@ interface MessageRow {
   otherUserId: string
   displayName: string
   departmentName: string | null
+  /** Personel aramasında gösterilir; konuşma listesinde yok (#r504). */
+  phone: string | null
   internalConversationId: string | null
   lastMessagePreview: string | null
   lastMessageAtUtc: string | null
@@ -35,6 +37,7 @@ function toRow(conversation: InternalConversationSummary): MessageRow {
     otherUserId: conversation.otherUserId,
     displayName: conversation.otherUserDisplayName,
     departmentName: conversation.otherUserDepartmentName,
+    phone: null,
     internalConversationId: conversation.internalConversationId,
     lastMessagePreview: conversation.lastMessagePreview,
     lastMessageAtUtc: conversation.lastMessageAtUtc,
@@ -294,18 +297,28 @@ export function InternalMessagesFab() {
     userResults
       .filter(u => u.userId !== currentUserId)
       .forEach(u => {
-        if (!merged.has(u.userId)) {
+        const existing = merged.get(u.userId)
+        if (existing) {
+          // Konuşma satırına dahili bilgisini ekle (#r504).
           merged.set(u.userId, {
-            otherUserId: u.userId,
-            displayName: u.displayName,
-            departmentName: [u.departmentName, u.title?.trim()].filter(Boolean).join(' - ') || null,
-            internalConversationId: null,
-            lastMessagePreview: null,
-            lastMessageAtUtc: null,
-            lastMessageSenderUserId: null,
-            unreadCount: 0,
+            ...existing,
+            phone: u.phone?.trim() || null,
+            departmentName: existing.departmentName
+              ?? ([u.departmentName, u.title?.trim()].filter(Boolean).join(' - ') || null),
           })
+          return
         }
+        merged.set(u.userId, {
+          otherUserId: u.userId,
+          displayName: u.displayName,
+          departmentName: [u.departmentName, u.title?.trim()].filter(Boolean).join(' - ') || null,
+          phone: u.phone?.trim() || null,
+          internalConversationId: null,
+          lastMessagePreview: null,
+          lastMessageAtUtc: null,
+          lastMessageSenderUserId: null,
+          unreadCount: 0,
+        })
       })
     return Array.from(merged.values())
   }, [conversations, currentUserId, search, userResults])
@@ -326,6 +339,8 @@ export function InternalMessagesFab() {
 
   const currentPage = Math.min(page, Math.max(1, Math.ceil(filteredRows.length / PAGE_SIZE)))
   const pagedRows = filteredRows.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
+  const isPersonnelSearch = search.trim().length >= 3
+  const missingExtensionLabel = t('search.extensionMissing', 'Dahili No Yok')
 
   const openRow = (row: MessageRow) => {
     setActiveChat({ otherUserId: row.otherUserId, displayName: row.displayName, departmentName: row.departmentName })
@@ -560,7 +575,11 @@ export function InternalMessagesFab() {
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
-                          <p className="truncate text-sm font-semibold text-[color:var(--color-foreground)]">{row.displayName}</p>
+                          <p className="truncate text-sm font-semibold text-[color:var(--color-foreground)]">
+                            {isPersonnelSearch
+                              ? `${row.displayName} - ${row.phone?.trim() || missingExtensionLabel}`
+                              : row.displayName}
+                          </p>
                           {row.lastMessageAtUtc ? (
                             <span className="shrink-0 text-[11px] text-[color:var(--color-muted-foreground)]">
                               {formatConversationListTime(row.lastMessageAtUtc, locale, t)}

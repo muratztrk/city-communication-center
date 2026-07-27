@@ -847,13 +847,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `DisplayName` eşleşir (card #1780); Türkçe karakter / i-ı katlamalı arama (card #1791);
   textbox’a yalnız harf+boşluk (card #1776 reopen);
   X ile temizleyince “Personel” paneli kapanır (card #1781); sonuç `Ad - Dahili` /
-  `Birim - Ünvan` (dahili boşsa `Ad - Dahili No yok` — #r503); “Personel” başlığı büyük ve yeşil,
+  `Birim - Ünvan` (dahili boşsa `Ad - Dahili No Yok` — #r503/#r504); “Personel” başlığı büyük ve yeşil,
   birim/ünvan metni bir kademe büyük (card #1778). Sistemde ara yalnız sol menüde yetkili sayfa
   scope’larını çeker
   ve sonuç grup başlığı menü adıyla aynıdır (`Taleplerim` / `Görevlerim` /
   `Birime Gelen Talepler` … — `nav.jobs` kullanılmaz; cards #1782/#1783);
   talep/görev sonucuna tıklanınca `jobId`/`taskId` ile ilgili sayfada
   detay popup açılır (card #1766).
+  Kurum İçi Mesajlar personel aramasında (≥3 karakter) satır başlığı da `Ad - Dahili` /
+  `Ad - Dahili No Yok` (#r504).
   Birime Gelen / Birimden Giden banner `page-kicker` seçili scope chip metnidir;
   `page-title` bölüm adı kalır (card #1700; Taleplerim ile aynı).
 - **Ayarlar banner `page-kicker` seçili tab metnidir** (`Kurum`, `Görünüm`, …);

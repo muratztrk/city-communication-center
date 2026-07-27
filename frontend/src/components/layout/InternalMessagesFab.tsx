@@ -23,6 +23,8 @@ interface MessageRow {
   otherUserId: string
   displayName: string
   departmentName: string | null
+  /** Ünvan — birim satırında `Birim - Ünvan` (#r505). */
+  title: string | null
   /** Personel aramasında gösterilir; konuşma listesinde yok (#r504). */
   phone: string | null
   internalConversationId: string | null
@@ -32,11 +34,16 @@ interface MessageRow {
   unreadCount: number
 }
 
+function formatDepartmentWithTitle(departmentName: string | null | undefined, title: string | null | undefined) {
+  return [departmentName?.trim(), title?.trim()].filter(Boolean).join(' - ') || null
+}
+
 function toRow(conversation: InternalConversationSummary): MessageRow {
   return {
     otherUserId: conversation.otherUserId,
     displayName: conversation.otherUserDisplayName,
     departmentName: conversation.otherUserDepartmentName,
+    title: conversation.otherUserTitle?.trim() || null,
     phone: null,
     internalConversationId: conversation.internalConversationId,
     lastMessagePreview: conversation.lastMessagePreview,
@@ -56,6 +63,7 @@ function areConversationDetailsEqual(left: InternalConversationDetail | null, ri
     || left.otherUserId !== right.otherUserId
     || left.otherUserDisplayName !== right.otherUserDisplayName
     || left.otherUserDepartmentName !== right.otherUserDepartmentName
+    || left.otherUserTitle !== right.otherUserTitle
     || left.messages.length !== right.messages.length) {
     return false
   }
@@ -117,7 +125,12 @@ export function InternalMessagesFab() {
   const [userResults, setUserResults] = useState<UserLookup[]>([])
   const [listFilter, setListFilter] = useState<'all' | 'waiting'>('all')
   const [page, setPage] = useState(1)
-  const [activeChat, setActiveChat] = useState<{ otherUserId: string; displayName: string; departmentName: string | null } | null>(null)
+  const [activeChat, setActiveChat] = useState<{
+    otherUserId: string
+    displayName: string
+    departmentName: string | null
+    title: string | null
+  } | null>(null)
   const [chatDetail, setChatDetail] = useState<InternalConversationDetail | null>(null)
   const [chatLoading, setChatLoading] = useState(false)
   const [draft, setDraft] = useState('')
@@ -173,6 +186,14 @@ export function InternalMessagesFab() {
     try {
       const detail = await api.getInternalConversationWithUser(otherUserId)
       setChatDetail(detail)
+      setActiveChat(current => current && current.otherUserId === otherUserId
+        ? {
+            ...current,
+            displayName: detail.otherUserDisplayName || current.displayName,
+            departmentName: detail.otherUserDepartmentName ?? current.departmentName,
+            title: detail.otherUserTitle?.trim() || current.title,
+          }
+        : current)
       if (detail.internalConversationId) {
         void openConversationById(detail.internalConversationId)
       }
@@ -299,19 +320,20 @@ export function InternalMessagesFab() {
       .forEach(u => {
         const existing = merged.get(u.userId)
         if (existing) {
-          // Konuşma satırına dahili bilgisini ekle (#r504).
+          // Konuşma satırına dahili + ünvan bilgisini ekle (#r504/#r505).
           merged.set(u.userId, {
             ...existing,
-            phone: u.phone?.trim() || null,
-            departmentName: existing.departmentName
-              ?? ([u.departmentName, u.title?.trim()].filter(Boolean).join(' - ') || null),
+            phone: u.phone?.trim() || existing.phone,
+            title: u.title?.trim() || existing.title,
+            departmentName: existing.departmentName || u.departmentName || null,
           })
           return
         }
         merged.set(u.userId, {
           otherUserId: u.userId,
           displayName: u.displayName,
-          departmentName: [u.departmentName, u.title?.trim()].filter(Boolean).join(' - ') || null,
+          departmentName: u.departmentName || null,
+          title: u.title?.trim() || null,
           phone: u.phone?.trim() || null,
           internalConversationId: null,
           lastMessagePreview: null,
@@ -343,7 +365,12 @@ export function InternalMessagesFab() {
   const missingExtensionLabel = t('search.extensionMissing', 'Dahili No Yok')
 
   const openRow = (row: MessageRow) => {
-    setActiveChat({ otherUserId: row.otherUserId, displayName: row.displayName, departmentName: row.departmentName })
+    setActiveChat({
+      otherUserId: row.otherUserId,
+      displayName: row.displayName,
+      departmentName: row.departmentName,
+      title: row.title,
+    })
     setChatDetail(null)
     if (row.internalConversationId) {
       void openConversationById(row.internalConversationId)
@@ -398,7 +425,9 @@ export function InternalMessagesFab() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-bold leading-tight text-[color:var(--color-foreground)]">{activeChat.displayName}</p>
-                      <p className="mt-0.5 truncate text-xs text-[color:var(--color-muted-foreground)]">{activeChat.departmentName ?? '—'}</p>
+                      <p className="mt-0.5 truncate text-xs text-[color:var(--color-muted-foreground)]">
+                        {formatDepartmentWithTitle(activeChat.departmentName, activeChat.title) ?? '—'}
+                      </p>
                     </div>
                   </div>
                   </>
@@ -587,7 +616,9 @@ export function InternalMessagesFab() {
                           ) : null}
                         </div>
                         <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
-                          <p className="min-w-0 truncate text-xs text-[color:var(--color-muted-foreground)]">{row.departmentName ?? '—'}</p>
+                          <p className="min-w-0 truncate text-xs text-[color:var(--color-muted-foreground)]">
+                            {formatDepartmentWithTitle(row.departmentName, row.title) ?? '—'}
+                          </p>
                           {hasStatus ? (
                             <span className={`inline-flex shrink-0 items-center gap-1 text-[10px] font-semibold ${isWaiting ? 'text-orange-700' : 'text-emerald-700'}`}>
                               <span className={`size-1.5 rounded-full ${isWaiting ? 'bg-orange-500' : 'bg-emerald-500'}`} aria-hidden="true" />

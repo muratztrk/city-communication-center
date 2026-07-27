@@ -1,3 +1,6 @@
+## Round 505 — Kurum içi konuşmada birim + ünvan
+- `6a675c8e` — Yazışmalı konuşma listesi/sohbet header: `Birim - Ünvan` (API `otherUserTitle`).
+
 ## Round 504 — Dahili No Yok + Kurum İçi arama
 - `6a670e89` reopen — metin `Dahili No Yok`; Kurum İçi Mesajlar personel aramasında da `Ad - Dahili` / `Ad - Dahili No Yok`.
 

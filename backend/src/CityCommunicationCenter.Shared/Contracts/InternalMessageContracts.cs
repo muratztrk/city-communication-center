@@ -14,6 +14,7 @@ public sealed record InternalConversationSummaryResponse(
     Guid OtherUserId,
     string OtherUserDisplayName,
     string? OtherUserDepartmentName,
+    string? OtherUserTitle,
     string? LastMessagePreview,
     Guid? LastMessageSenderUserId,
     DateTimeOffset LastMessageAtUtc,
@@ -24,6 +25,7 @@ public sealed record InternalConversationDetailResponse(
     Guid OtherUserId,
     string OtherUserDisplayName,
     string? OtherUserDepartmentName,
+    string? OtherUserTitle,
     IReadOnlyList<InternalMessageResponse> Messages);
 
 public sealed record SendInternalMessageResponse(

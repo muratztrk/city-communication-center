@@ -492,6 +492,7 @@ export interface InternalConversationSummary {
   otherUserId: string;
   otherUserDisplayName: string;
   otherUserDepartmentName: string | null;
+  otherUserTitle?: string | null;
   lastMessagePreview: string | null;
   lastMessageSenderUserId: string | null;
   lastMessageAtUtc: string;
@@ -511,6 +512,7 @@ export interface InternalConversationDetail {
   otherUserId: string;
   otherUserDisplayName: string;
   otherUserDepartmentName: string | null;
+  otherUserTitle?: string | null;
   messages: InternalMessage[];
 }
 

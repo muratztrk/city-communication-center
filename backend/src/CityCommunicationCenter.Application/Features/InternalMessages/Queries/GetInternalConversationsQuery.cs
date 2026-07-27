@@ -41,7 +41,13 @@ public sealed class GetInternalConversationsQueryHandler
                 _dbContext.Departments,
                 user => user.DepartmentId,
                 department => department.DepartmentId,
-                (user, department) => new { user.UserId, user.DisplayName, DepartmentName = (string?)department.Name })
+                (user, department) => new
+                {
+                    user.UserId,
+                    user.DisplayName,
+                    user.Title,
+                    DepartmentName = (string?)department.Name,
+                })
             .ToDictionaryAsync(item => item.UserId, cancellationToken);
 
         var lastMessages = await _dbContext.InternalMessages
@@ -72,6 +78,7 @@ public sealed class GetInternalConversationsQueryHandler
                     otherUserId,
                     otherUser?.DisplayName ?? "—",
                     otherUser?.DepartmentName,
+                    otherUser?.Title,
                     lastMessage?.Content,
                     lastMessage?.SenderUserId,
                     c.LastMessageAtUtc,

@@ -30,7 +30,12 @@ public sealed class GetInternalConversationWithUserQueryHandler
                 _dbContext.Departments,
                 user => user.DepartmentId,
                 department => department.DepartmentId,
-                (user, department) => new { user.DisplayName, DepartmentName = (string?)department.Name })
+                (user, department) => new
+                {
+                    user.DisplayName,
+                    user.Title,
+                    DepartmentName = (string?)department.Name,
+                })
             .FirstOrDefaultAsync(cancellationToken);
         if (otherUser is null) return null;
 
@@ -42,7 +47,8 @@ public sealed class GetInternalConversationWithUserQueryHandler
 
         if (conversation is null)
         {
-            return new InternalConversationDetailResponse(null, request.OtherUserId, otherUser.DisplayName, otherUser.DepartmentName, []);
+            return new InternalConversationDetailResponse(
+                null, request.OtherUserId, otherUser.DisplayName, otherUser.DepartmentName, otherUser.Title, []);
         }
 
         // Sınırsız transkript yüklemesi, uzun süredir devam eden konuşmalarda tekrarlanan
@@ -59,6 +65,11 @@ public sealed class GetInternalConversationWithUserQueryHandler
         messages.Reverse();
 
         return new InternalConversationDetailResponse(
-            conversation.InternalConversationId, request.OtherUserId, otherUser.DisplayName, otherUser.DepartmentName, messages);
+            conversation.InternalConversationId,
+            request.OtherUserId,
+            otherUser.DisplayName,
+            otherUser.DepartmentName,
+            otherUser.Title,
+            messages);
     }
 }

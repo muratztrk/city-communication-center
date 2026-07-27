@@ -1,3 +1,6 @@
+## Round 503 — Personel aramada dahili yoksa metin
+- `6a670e89` — ExtensionSearchBar: dahili boşsa `Ad - Dahili No yok`. Pushed.
+
 ## Round 502 — Rutin Açık Adres = Cadde font
 - `6a66651e` — Açık Adres 1.05rem → 0.98rem (Cadde / Sokak ile aynı). Pushed `ba09b500`. Done.
 

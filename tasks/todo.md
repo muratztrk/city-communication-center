@@ -1,3 +1,6 @@
+## Round 504 — Dahili No Yok + Kurum İçi arama
+- `6a670e89` reopen — metin `Dahili No Yok`; Kurum İçi Mesajlar personel aramasında da `Ad - Dahili` / `Ad - Dahili No Yok`.
+
 ## Round 503 — Personel aramada dahili yoksa metin
 - `6a670e89` — ExtensionSearchBar: dahili boşsa `Ad - Dahili No yok`. Pushed.
 

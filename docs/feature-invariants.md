@@ -847,8 +847,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `DisplayName` eşleşir (card #1780); Türkçe karakter / i-ı katlamalı arama (card #1791);
   textbox’a yalnız harf+boşluk (card #1776 reopen);
   X ile temizleyince “Personel” paneli kapanır (card #1781); sonuç `Ad - Dahili` /
-  `Birim - Ünvan`; “Personel” başlığı büyük ve yeşil, birim/ünvan metni bir kademe büyük
-  (card #1778). Sistemde ara yalnız sol menüde yetkili sayfa scope’larını çeker
+  `Birim - Ünvan` (dahili boşsa `Ad - Dahili No yok` — #r503); “Personel” başlığı büyük ve yeşil,
+  birim/ünvan metni bir kademe büyük (card #1778). Sistemde ara yalnız sol menüde yetkili sayfa
+  scope’larını çeker
   ve sonuç grup başlığı menü adıyla aynıdır (`Taleplerim` / `Görevlerim` /
   `Birime Gelen Talepler` … — `nav.jobs` kullanılmaz; cards #1782/#1783);
   talep/görev sonucuna tıklanınca `jobId`/`taskId` ile ilgili sayfada

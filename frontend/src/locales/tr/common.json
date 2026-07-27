@@ -179,6 +179,7 @@
     "extensionPlaceholder": "Personel Dahili No ara...",
     "extensionLabel": "Personel Dahili No ara",
     "extensionResults": "Personel",
+    "extensionMissing": "Dahili No yok",
     "noResults": "Sonuç bulunamadı"
   },
   "nav": {

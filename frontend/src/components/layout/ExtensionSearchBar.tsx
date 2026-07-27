@@ -39,7 +39,10 @@ export function ExtensionSearchBar() {
 
   const mapResults = useCallback((list: UserLookup[]): ExtensionSearchResult[] => (
     list.map(userItem => {
-      const titleParts = [userItem.displayName, userItem.phone].filter(Boolean)
+      // Dahili yoksa "Dahili No yok" (card #r503 / berkeryilmaz örneği).
+      const phoneLabel = userItem.phone?.trim()
+        || t('search.extensionMissing', 'Dahili No yok')
+      const titleParts = [userItem.displayName, phoneLabel].filter(Boolean)
       const subtitleParts = [userItem.departmentName, userItem.title].filter(Boolean)
       return {
         userId: userItem.userId,
@@ -47,7 +50,7 @@ export function ExtensionSearchBar() {
         subtitle: subtitleParts.join(' - '),
       }
     })
-  ), [])
+  ), [t])
 
   const handleInput = useCallback((raw: string) => {
     const value = lettersOnly(raw)

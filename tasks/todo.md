@@ -1,6 +1,9 @@
+## Round 502 — Rutin Açık Adres = Cadde font
+- `6a66651e` — Açık Adres 1.05rem → 0.98rem (Cadde / Sokak ile aynı). Pushed `ba09b500`. Done.
+
 ## Round 501 — Adres değer küçült + rutin Açık Adres büyüt
 - Detay popup Adres değerleri ~0.8rem
-- Rutin Görev Oluştur Açık Adres textarea/placeholder ~1.05rem
+- Rutin Görev Oluştur Açık Adres textarea/placeholder ~1.05rem (R502 ile Cadde’ye eşitlendi)
 
 ## Round 500 — Cadde/Açık Adres değer sola yaslı
 - Dolu adreste Cadde/Açık Adres değer text-align left (ortalanmasın; wrap da sol)

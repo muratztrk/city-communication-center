@@ -179,6 +179,7 @@
     "extensionPlaceholder": "Search staff extension...",
     "extensionLabel": "Search staff extension",
     "extensionResults": "Staff",
+    "extensionMissing": "No extension",
     "noResults": "No results found"
   },
   "nav": {

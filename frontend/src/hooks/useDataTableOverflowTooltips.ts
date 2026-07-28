@@ -63,12 +63,13 @@ function resolveOverflowTarget(eventTarget: Element): { anchor: HTMLElement; tex
 
 /**
  * Global hover tooltip for clipped grid cells (#r474–#r479) and dropdown rows (#r517).
- * Opens below the cell, compact size, immediate response on every hover.
+ * Opens below the cell after ~1s hover (#r535 / #2008); compact size.
  */
 export function useDataTableOverflowTooltips() {
   useEffect(() => {
     let tip: HTMLDivElement | null = null
     let hideTimer: number | null = null
+    let showTimer: number | null = null
     let activeAnchor: HTMLElement | null = null
     let activeText = ''
 
@@ -89,8 +90,16 @@ export function useDataTableOverflowTooltips() {
       }
     }
 
+    const clearShow = () => {
+      if (showTimer != null) {
+        window.clearTimeout(showTimer)
+        showTimer = null
+      }
+    }
+
     const hide = () => {
       clearHide()
+      clearShow()
       if (tip) tip.dataset.open = 'false'
       activeAnchor = null
       activeText = ''
@@ -116,22 +125,31 @@ export function useDataTableOverflowTooltips() {
 
     const show = (anchor: HTMLElement, text: string) => {
       clearHide()
-      anchor.removeAttribute('title')
       const el = ensureTip()
-      const unchanged =
-        activeAnchor === anchor
-        && activeText === text
-        && el.dataset.open === 'true'
+      const same = activeAnchor === anchor && activeText === text
+
+      // Aynı hücrede zaten açık → yalnızca konum güncelle.
+      if (same && el.dataset.open === 'true') {
+        placeBelow(anchor)
+        return
+      }
+      // Aynı hücrede 1s gecikme sayacı çalışıyorsa yeniden başlatma.
+      if (same && showTimer != null) return
+
+      clearShow()
+      if (!same) el.dataset.open = 'false'
       activeAnchor = anchor
       activeText = text
-      if (!unchanged) el.textContent = text
+      anchor.removeAttribute('title')
+      el.textContent = text
       placeBelow(anchor)
-      // Immediate open — no show delay (#r479).
-      requestAnimationFrame(() => {
+      // 1 saniye hover sonrası göster (#r535 / card #2008).
+      showTimer = window.setTimeout(() => {
+        showTimer = null
         if (activeAnchor !== anchor) return
         placeBelow(anchor)
         el.dataset.open = 'true'
-      })
+      }, 1000)
     }
 
     const onOver = (event: Event) => {
@@ -141,6 +159,7 @@ export function useDataTableOverflowTooltips() {
       if (!hit) {
         if (activeAnchor && !activeAnchor.contains(target)) {
           clearHide()
+          clearShow()
           hideTimer = window.setTimeout(hide, 40)
         }
         return
@@ -152,6 +171,7 @@ export function useDataTableOverflowTooltips() {
       const related = (event as MouseEvent).relatedTarget
       if (related instanceof Node && activeAnchor?.contains(related)) return
       clearHide()
+      clearShow()
       hideTimer = window.setTimeout(hide, 40)
     }
 
@@ -167,6 +187,7 @@ export function useDataTableOverflowTooltips() {
 
     return () => {
       clearHide()
+      clearShow()
       document.removeEventListener('mouseover', onOver, true)
       document.removeEventListener('mouseout', onOut, true)
       window.removeEventListener('scroll', onScroll, true)

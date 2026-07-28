@@ -1238,11 +1238,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   menü ~168px; clearable X; placeholder `Birim seçiniz...`.
 - **WA Tümü / Talep Sayısı (#r473):** yalnız İşleme Alınan + Yapılmakta + Tamamlandı toplamı
   (iptal dahil değil).
-- **Grid truncate tooltip (#r474–#r479/#r517/#r522/#r524/#r529/#r530/#r531/#r533/#r534):** AppShell `useDataTableOverflowTooltips` —
+- **Grid truncate tooltip (#r474–#r479/#r517/#r522/#r524/#r529/#r530/#r531/#r533/#r534/#r535):** AppShell `useDataTableOverflowTooltips` —
   `.data-table` taşan hücrelerde + `.dropdown-menu-item` ellipsis satırlarında kompakt emerald
   portal tooltip; dropdown’da flex ölçüm fallback + native `title` yedek. Tooltip `z-index` 10050;
   yatayda ortalı + ~16px sağa (#2001); metin antrasit `#36454f`, tek satır `nowrap` (#2004);
-  arka plan açık yeşil (`#f0fdf4`→`#dcfce7`), border `#6ee7b7`, font ~0.68rem, `border-radius: 999px` (#r534/#2004).
+  arka plan açık yeşil (`#f0fdf4`→`#dcfce7`), border `#6ee7b7`, font ~0.68rem, `border-radius: 999px` (#r534/#2004);
+  **1 sn hover gecikmesi** sonrası açılır (#r535 / #2008) — anında açmaya geri alma.
 - **Grid personel adı boyutu (#2005/#r531):** Gittiği Yer / çerçeve altı personel `text-sm`
   (iç birim `text-sm` ile aynı; `text-xs` farkı kaldırıldı — `FramedDepartmentStack` secondary dahil).
 - **Görev Tipi Görevi Yapan (#2006/#r531):** personel adı `text-sm font-semibold` (önce ~0.8125rem).

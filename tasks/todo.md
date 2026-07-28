@@ -1,3 +1,13 @@
+## Round 542 — harita pin düşmesi + LDAP çift popup
+- `29787056` (#1875 reopen) — geocode kademeli (açık adres → cadde → mahalle); kaba varyant
+  `approximate` (kesik halka + InfoWindow uyarısı); çözülemeyenler harita altında sayıyla.
+  İlçe/il seviyesine DÜŞÜLMEZ. Cache v3.
+- `e80a53e6` (#1862) — LDAP birim senkronunda ara "çalışıyor" ConfirmDialog kaldırıldı
+  (Evet butonlu ilerleme kutusu + sonuç kutusu = "2 popup" algısı). Tek tık → tek sonuç;
+  bekleme inline, yalnız istek 250 ms'yi aşarsa (önceki round'un buton metni flicker'ı).
+- **Kapanmayan:** #1978 ve #1906 — ölçümle kod doğru çıktı / tekrar üretilemedi, Trello
+  ekran görüntüsü bekliyor. Doing'de bırakıldı.
+
 ## Round 541 — Lumespec footer logo
 - `AppFooter` markası yeni `/lumespec-logo.png` wordmark (Lume beyaz + spec mavi gradient);
   siyah zemin şeffaf. Login / AppShell / Wallboard ortak footer.

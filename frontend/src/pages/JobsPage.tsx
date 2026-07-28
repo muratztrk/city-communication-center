@@ -15,6 +15,7 @@ import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
+import { GoogleMapsEmbed } from '../components/ui/GoogleMapsEmbed'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { invalidateJobs, invalidateSocialMessages, invalidateTasks } from '../api/cacheInvalidation'
@@ -2915,12 +2916,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   {t('location.mapSectionTitle', 'Konum')}
                 </h3>
                 <div className="rounded-xl overflow-hidden border border-slate-200">
-                  <iframe
-                    src={`https://www.openstreetmap.org/export/embed.html?bbox=${(detail.longitude - 0.005).toFixed(6)},${(detail.latitude - 0.005).toFixed(6)},${(detail.longitude + 0.005).toFixed(6)},${(detail.latitude + 0.005).toFixed(6)}&layer=mapnik&marker=${detail.latitude},${detail.longitude}`}
-                    className="h-64 w-full"
-                    title={t('location.mapTitle', 'Konum Haritası')}
-                    allowFullScreen
-                  />
+                  <GoogleMapsEmbed latitude={detail.latitude} longitude={detail.longitude} />
                 </div>
                 <p className="mt-1 text-xs text-slate-500">
                   {detail.latitude.toFixed(6)}, {detail.longitude.toFixed(6)}

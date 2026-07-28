@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { cn } from '../../../lib/cn'
 import { AttachmentSection } from '../../ui/AttachmentSection'
 import { AddressDetailFields } from '../../ui/AddressDetailFields'
+import { GoogleMapsEmbed } from '../../ui/GoogleMapsEmbed'
 import type { ConfirmDialogState } from '../../ui/confirm-dialog'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
 import { MyRequestDetailBottomCards } from './MyRequestDetailBottomCards'
@@ -286,12 +287,7 @@ export function MyRequestDetailModal({
               {t('location.mapSectionTitle', 'Konum')}
             </h3>
             <div className="overflow-hidden rounded-xl border border-slate-200">
-              <iframe
-                src={`https://www.openstreetmap.org/export/embed.html?bbox=${(detail.longitude - 0.005).toFixed(6)},${(detail.latitude - 0.005).toFixed(6)},${(detail.longitude + 0.005).toFixed(6)},${(detail.latitude + 0.005).toFixed(6)}&layer=mapnik&marker=${detail.latitude},${detail.longitude}`}
-                className="h-64 w-full"
-                title={t('location.mapTitle', 'Konum Haritası')}
-                allowFullScreen
-              />
+              <GoogleMapsEmbed latitude={detail.latitude} longitude={detail.longitude} />
             </div>
             <p className="mt-1 text-xs text-slate-500">
               {detail.latitude.toFixed(6)}, {detail.longitude.toFixed(6)}

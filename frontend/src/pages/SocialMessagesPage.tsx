@@ -15,6 +15,7 @@ import { RequestTagPicker } from '../components/RequestTagDialog'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
+import { GoogleMapsEmbed } from '../components/ui/GoogleMapsEmbed'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import type { Department, JobSummary, RequestTag, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
@@ -57,10 +58,6 @@ function countChannelBadge(messages: SocialMessage[], channel: string, seenAt: s
 
 function hasLocation(message: SocialMessage) {
   return message.latitude != null && message.longitude != null
-}
-
-function getLocationMapUrl(latitude: number, longitude: number) {
-  return `https://www.openstreetmap.org/export/embed.html?bbox=${(longitude - 0.005).toFixed(6)},${(latitude - 0.005).toFixed(6)},${(longitude + 0.005).toFixed(6)},${(latitude + 0.005).toFixed(6)}&layer=mapnik&marker=${latitude},${longitude}`
 }
 
 function formatDateTime(value: string | null | undefined, locale: string): string {
@@ -683,10 +680,10 @@ export function SocialMessagesPage() {
                               {message.latitude!.toFixed(6)}, {message.longitude!.toFixed(6)}
                             </span>
                           </div>
-                          <iframe
-                            src={getLocationMapUrl(message.latitude!, message.longitude!)}
-                            className="h-52 w-full rounded-xl border border-slate-200"
-                            title={t('location.mapTitle', 'Konum Haritası')}
+                          <GoogleMapsEmbed
+                            latitude={message.latitude!}
+                            longitude={message.longitude!}
+                            className="h-52 rounded-xl border border-slate-200"
                           />
                         </section>
                       </td>

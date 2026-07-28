@@ -1,3 +1,10 @@
+## Round 540 — Google Maps geçişi
+- OSM/Leaflet/Nominatim kaldırıldı; Anasayfa Maps JS + detay Embed + `google.maps.Geocoder`.
+- Env: `VITE_GOOGLE_MAPS_API_KEY` / `CCC_GOOGLE_MAPS_API_KEY` (GCP: Maps JS, Embed, Geocoding).
+- Review düzeltmeleri: geocode REST web service yerine JS API Geocoder (referrer kısıtı
+  web service'te çalışmıyor); negatif cache yalnız `ZERO_RESULTS`; pin ikonu renk başına
+  memoize; geocode effect'i loader'a bağlandı.
+
 ## Round 539 — banner tarih chip saat geri
 - `6a69105b` (#2010) — Başlangıç/Bitiş saat bileşeni geri; chip ~11.5rem.
 

@@ -1,9 +1,21 @@
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v1'
-const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v2'
 
 export type LatLng = { lat: number; lng: number }
 
 type GeocodeCache = Record<string, LatLng | null>
+
+/**
+ * Maps JS API Geocoder — REST web service DEĞİL. Web service HTTP referrer kısıtını
+ * desteklemez (REQUEST_DENIED döner); JS API destekler, böylece tek referrer-kısıtlı
+ * anahtar Maps JS + Embed + geocode'un hepsini karşılar (#r540).
+ */
+let geocoder: google.maps.Geocoder | null = null
+
+function getGeocoder(): google.maps.Geocoder | null {
+  if (typeof google === 'undefined' || !google.maps?.Geocoder) return null
+  geocoder ??= new google.maps.Geocoder()
+  return geocoder
+}
 
 function readCache(): GeocodeCache {
   try {
@@ -31,7 +43,7 @@ function normalizeAddressKey(parts: Array<string | null | undefined>): string {
     .join('|')
 }
 
-/** Build a district-scoped address string for Nominatim. */
+/** Build a district-scoped address string for Google Geocoding. */
 export function buildTireGeocodeQuery(input: {
   neighborhood?: string | null
   street?: string | null
@@ -54,8 +66,8 @@ export function buildTireGeocodeQuery(input: {
 let geocodeQueue: Promise<void> = Promise.resolve()
 
 /**
- * Geocode an address via Nominatim with localStorage cache and ~1 req/s pacing.
- * Returns null when no match (caller should skip the pin).
+ * Geocode an address via the Maps JS API Geocoder with localStorage cache.
+ * Returns null when no match or the JS API isn't loaded (caller should skip the pin).
  */
 export function geocodeTireAddress(input: {
   neighborhood?: string | null
@@ -74,24 +86,32 @@ export function geocodeTireAddress(input: {
 
   const query = buildTireGeocodeQuery(input)
   const run = async () => {
-    // Pace requests to respect Nominatim usage policy.
-    await new Promise(resolve => window.setTimeout(resolve, 1100))
-    const url = `${NOMINATIM_URL}?format=json&limit=1&q=${encodeURIComponent(query)}`
-    const response = await fetch(url, {
-      headers: {
-        Accept: 'application/json',
-        // Nominatim requires a valid User-Agent / Referer identifying the app.
-      },
+    const client = getGeocoder()
+    // JS API henüz yüklü değil / anahtar yok: cache'e yazmadan geç, yüklenince tekrar denenir.
+    if (!client) return null
+
+    // Light client throttle between sequential pin geocodes.
+    await new Promise(resolve => window.setTimeout(resolve, 80))
+
+    // Callback formu status'u açıkça verir (promise formu non-OK'te reject eder ve
+    // reject şekli sürüme göre değişir) — status'a göre cache kararı vermek için gerekli.
+    const { status, results } = await new Promise<{
+      status: string
+      results: google.maps.GeocoderResult[] | null
+    }>(resolve => {
+      client.geocode({ address: query, region: 'tr' }, (geoResults, geoStatus) => {
+        resolve({ status: String(geoStatus), results: geoResults })
+      })
     })
-    if (!response.ok) {
-      cache[cacheKey] = null
-      writeCache(cache)
-      return null
-    }
-    const data = await response.json() as Array<{ lat: string; lon: string }>
-    const first = data[0]
-    const result = first
-      ? { lat: Number(first.lat), lng: Number(first.lon) }
+
+    // Yalnız ZERO_RESULTS gerçek "adres yok" demek. REQUEST_DENIED (yanlış/kısıtlı anahtar),
+    // OVER_QUERY_LIMIT, UNKNOWN_ERROR geçici/konfig hatası — bunları localStorage'a negatif
+    // yazarsak anahtar düzeltilse bile adres bir daha hiç sorgulanmaz (hasOwnProperty hit).
+    if (status !== 'OK' && status !== 'ZERO_RESULTS') return null
+
+    const location = status === 'OK' ? results?.[0]?.geometry?.location : undefined
+    const result = location
+      ? { lat: location.lat(), lng: location.lng() }
       : null
     if (result && (Number.isNaN(result.lat) || Number.isNaN(result.lng))) {
       cache[cacheKey] = null

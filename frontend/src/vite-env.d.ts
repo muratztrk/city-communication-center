@@ -4,6 +4,7 @@
 interface ImportMetaEnv {
   readonly VITE_API_ORIGIN?: string
   readonly VITE_TENANT_ID?: string
+  readonly VITE_GOOGLE_MAPS_API_KEY?: string
 }
 
 interface ImportMeta {

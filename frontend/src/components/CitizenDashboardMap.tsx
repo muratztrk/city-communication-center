@@ -1,10 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
-import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from 'react-leaflet'
-import L from 'leaflet'
+import { GoogleMap, InfoWindow, Marker, useJsApiLoader } from '@react-google-maps/api'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import 'leaflet/dist/leaflet.css'
 import { api } from '../api/client'
 import type { CitizenDashboardMapPin, JobDetail, SocialMessage } from '../types/platform'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
@@ -13,6 +11,7 @@ import { getLocale } from '../utils/localization'
 import { geocodeTireAddress, type LatLng } from '../utils/geocodeTireAddress'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
+import { getGoogleMapsApiKey, isGoogleMapsConfigured } from '../utils/googleMaps'
 
 type ResolvedPin = CitizenDashboardMapPin & { position: LatLng }
 
@@ -20,43 +19,23 @@ function pinColor(displayStatus: string): string {
   return displayStatus === 'inProgress' ? '#22c55e' : '#0ea5e9'
 }
 
-function FitPins({ pins, center, bounds }: { pins: ResolvedPin[]; center: LatLng; bounds: [[number, number], [number, number]] }) {
-  const map = useMap()
-  useEffect(() => {
-    const districtBounds = L.latLngBounds(bounds)
-    if (pins.length === 0) {
-      // Pinsiz default: fitBounds kısa/geniş haritada ölçeği fazla açıyordu —
-      // ekteki şehir merkezi ölçeği için sabit zoom (card #1867 reopen).
-      map.setView([center.lat, center.lng], 14)
-      return
-    }
-    if (pins.length === 1) {
-      map.setView([pins[0].position.lat, pins[0].position.lng], 16)
-      return
-    }
-    const pinBounds = L.latLngBounds(pins.map(pin => [pin.position.lat, pin.position.lng] as [number, number]))
-    map.fitBounds(districtBounds.extend(pinBounds), { padding: [24, 24], maxZoom: 15 })
-  }, [map, pins, center, bounds])
-  return null
-}
+// Marker `icon` shallow-compare edilir; her render'da yeni obje üretmek tüm pinlerde
+// gereksiz setIcon tetikler. Renk başına tek örnek tut (google.* yüklendikten sonra kurulur).
+const pinIconCache = new Map<string, google.maps.Icon>()
 
-/** Haritaya tıklanmadan scroll-zoom kapalı — sayfa kaydırırken zoom olmasın (card #1867). */
-function RequireClickForScrollZoom() {
-  const map = useMap()
-  useEffect(() => {
-    map.scrollWheelZoom.disable()
-    const container = map.getContainer()
-    const enable = () => { map.scrollWheelZoom.enable() }
-    const disable = () => { map.scrollWheelZoom.disable() }
-    container.addEventListener('click', enable)
-    container.addEventListener('mouseleave', disable)
-    return () => {
-      container.removeEventListener('click', enable)
-      container.removeEventListener('mouseleave', disable)
-      map.scrollWheelZoom.disable()
-    }
-  }, [map])
-  return null
+function pinSvgIcon(color: string): google.maps.Icon {
+  const cached = pinIconCache.get(color)
+  if (cached) return cached
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">
+    <circle cx="11" cy="11" r="8" fill="${color}" stroke="#ffffff" stroke-width="2"/>
+  </svg>`
+  const icon: google.maps.Icon = {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new google.maps.Size(22, 22),
+    anchor: new google.maps.Point(11, 11),
+  }
+  pinIconCache.set(color, icon)
+  return icon
 }
 
 function getDetailStatusClass(status: string): string {
@@ -87,22 +66,41 @@ interface CitizenDashboardMapProps {
   loading?: boolean
 }
 
+const MAP_CONTAINER_STYLE: CSSProperties = { width: '100%', height: '100%' }
+
 /**
  * Kontrol Paneli Vatandaş — Kurum Konumu ilçesine göre açık adresli İşleme Alındı / Yapılmakta pinleri (card #1834 / #r512).
+ * Google Maps JavaScript API (#r540).
  */
 export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const districtId = useMunicipalityDistrictId()
   const mapView = useMemo(() => getDistrictMapView(districtId), [districtId])
+  const mapsReady = isGoogleMapsConfigured()
+  const { isLoaded, loadError } = useJsApiLoader({
+    id: 'ccc-google-maps',
+    googleMapsApiKey: getGoogleMapsApiKey(),
+    language: 'tr',
+    region: 'TR',
+  })
   const [resolved, setResolved] = useState<ResolvedPin[]>([])
   const [resolving, setResolving] = useState(false)
   const [jobDetail, setJobDetail] = useState<JobDetail | null>(null)
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
+  const [activePinId, setActivePinId] = useState<string | null>(null)
+  const [gestureHandling, setGestureHandling] = useState<'none' | 'greedy'>('none')
+  const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
+
+  // Geocode JS API Geocoder'a bağlı: yüklenmeden koşarsak adresli pinler düşer ve
+  // effect bir daha tetiklenmez. Anahtar yok / yükleme hatasında da koş — o durumda
+  // sadece koordinatı hazır pinler kalır, `resolving` askıda bırakılmaz.
+  const geocodeReady = !mapsReady || loadError != null || isLoaded
 
   useEffect(() => {
+    if (!geocodeReady) return
     let cancelled = false
     setResolving(true)
     void (async () => {
@@ -129,12 +127,47 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
       }
     })()
     return () => { cancelled = true }
-  }, [pins, mapView.districtName])
+  }, [pins, mapView.districtName, geocodeReady])
+
+  // Fit view: pinsiz zoom 14; tek pin 16; çok pin ilçe+pin bounds maxZoom 15 (#1867).
+  useEffect(() => {
+    if (!mapInstance || !isLoaded) return
+    const [[swLat, swLng], [neLat, neLng]] = mapView.bounds
+    if (resolved.length === 0) {
+      mapInstance.setCenter({ lat: mapView.center.lat, lng: mapView.center.lng })
+      mapInstance.setZoom(14)
+      return
+    }
+    if (resolved.length === 1) {
+      mapInstance.setCenter({ lat: resolved[0].position.lat, lng: resolved[0].position.lng })
+      mapInstance.setZoom(16)
+      return
+    }
+    const bounds = new google.maps.LatLngBounds(
+      { lat: swLat, lng: swLng },
+      { lat: neLat, lng: neLng },
+    )
+    for (const pin of resolved) {
+      bounds.extend({ lat: pin.position.lat, lng: pin.position.lng })
+    }
+    mapInstance.fitBounds(bounds, 24)
+    const listener = google.maps.event.addListenerOnce(mapInstance, 'idle', () => {
+      const zoom = mapInstance.getZoom()
+      if (zoom != null && zoom > 15) mapInstance.setZoom(15)
+    })
+    return () => {
+      google.maps.event.removeListener(listener)
+    }
+  }, [mapInstance, isLoaded, resolved, mapView.bounds, mapView.center])
 
   const statusLegend = useMemo(() => ([
     { key: 'processingReceived', label: t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı') },
     { key: 'inProgress', label: t('dashboard.chart.inProgress', 'Yapılmakta Olan') },
   ]), [t])
+
+  const onMapLoad = useCallback((map: google.maps.Map) => {
+    setMapInstance(map)
+  }, [])
 
   async function openJobDetail(jobId: string) {
     setJobDetail(null)
@@ -158,6 +191,8 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
     setDetailError(null)
     setDetailLoading(false)
   }
+
+  const activePin = resolved.find(pin => pin.jobId === activePinId) ?? null
 
   return (
     <section className="section-card overflow-hidden p-0">
@@ -188,47 +223,63 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
         </div>
       </div>
 
-      <div className="relative h-[min(28rem,55vh)] w-full bg-slate-100">
-        <MapContainer
-          key={mapView.districtId}
-          center={[mapView.center.lat, mapView.center.lng]}
-          zoom={14}
-          className="size-full z-0"
-          scrollWheelZoom={false}
-        >
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
-          <RequireClickForScrollZoom />
-          <FitPins pins={resolved} center={mapView.center} bounds={mapView.bounds} />
-          {resolved.map(pin => (
-            <CircleMarker
-              key={pin.jobId}
-              center={[pin.position.lat, pin.position.lng]}
-              radius={9}
-              pathOptions={{
-                color: '#ffffff',
-                weight: 2,
-                fillColor: pinColor(pin.displayStatus),
-                fillOpacity: 0.95,
-              }}
-            >
-              <Popup>
-                <button
-                  type="button"
-                  className="max-w-[16rem] cursor-pointer text-left text-sm font-semibold text-[color:var(--color-primary)] underline-offset-2 hover:underline"
-                  onClick={() => void openJobDetail(pin.jobId)}
-                >
-                  {pin.title}
-                </button>
-                {pin.openAddress ? (
-                  <div className="mt-1 text-[11px] leading-snug text-slate-500">{pin.openAddress}</div>
-                ) : null}
-              </Popup>
-            </CircleMarker>
-          ))}
-        </MapContainer>
+      <div
+        className="relative h-[min(28rem,55vh)] w-full bg-slate-100"
+        onMouseLeave={() => setGestureHandling('none')}
+      >
+        {!mapsReady || loadError ? (
+          <div className="flex size-full items-center justify-center px-4 text-center text-sm font-medium text-slate-600">
+            {t('location.mapNotConfigured', 'Harita yapılandırılmadı. Google Maps API anahtarı gerekli.')}
+          </div>
+        ) : !isLoaded ? (
+          <div className="flex size-full items-center justify-center text-sm text-slate-500">
+            {t('common.loading', 'Yükleniyor...')}
+          </div>
+        ) : (
+          <GoogleMap
+            key={mapView.districtId}
+            mapContainerStyle={MAP_CONTAINER_STYLE}
+            center={{ lat: mapView.center.lat, lng: mapView.center.lng }}
+            zoom={14}
+            onLoad={onMapLoad}
+            onClick={() => setGestureHandling('greedy')}
+            options={{
+              gestureHandling,
+              streetViewControl: false,
+              mapTypeControl: false,
+              fullscreenControl: true,
+              clickableIcons: false,
+            }}
+          >
+            {resolved.map(pin => (
+              <Marker
+                key={pin.jobId}
+                position={{ lat: pin.position.lat, lng: pin.position.lng }}
+                icon={pinSvgIcon(pinColor(pin.displayStatus))}
+                onClick={() => setActivePinId(pin.jobId)}
+              />
+            ))}
+            {activePin ? (
+              <InfoWindow
+                position={{ lat: activePin.position.lat, lng: activePin.position.lng }}
+                onCloseClick={() => setActivePinId(null)}
+              >
+                <div className="max-w-[16rem]">
+                  <button
+                    type="button"
+                    className="cursor-pointer text-left text-sm font-semibold text-[color:var(--color-primary)] underline-offset-2 hover:underline"
+                    onClick={() => void openJobDetail(activePin.jobId)}
+                  >
+                    {activePin.title}
+                  </button>
+                  {activePin.openAddress ? (
+                    <div className="mt-1 text-[11px] leading-snug text-slate-500">{activePin.openAddress}</div>
+                  ) : null}
+                </div>
+              </InfoWindow>
+            ) : null}
+          </GoogleMap>
+        )}
         {!loading && !resolving && pins.length > 0 && resolved.length === 0 ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[500] flex justify-center px-4">
             <div className="rounded-lg bg-white/95 px-3 py-2 text-xs font-medium text-slate-600 shadow">

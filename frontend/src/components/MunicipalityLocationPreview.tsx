@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { getNeighborhoodsForDistrict, getDistrictName } from '../data/izmir-locations'
 
-/** Ayarlar → Kurum Konumu: seçili ilçeye göre mahalle listesi önizlemesi (#r512 / #r514 — harita Anasayfa’da). */
+/** Ayarlar → Kurum Konumu: seçili ilçeye göre mahalle listesi önizlemesi (#r512 / #r514 — harita Anasayfa’da, Google Maps). */
 export function MunicipalityLocationPreview({ districtId }: { districtId: string }) {
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
   const districtName = getDistrictName(districtId)

@@ -20,6 +20,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **`main` push = PRODUCTION auto-deploy** (yenitim.tire.bel.tr, gerçek Tire verisi). Riskli;
   hem `main` hem `master`'a push edilir.
+- **Harita sağlayıcı Google Maps Platform (#r540):** Anasayfa Maps JS API; talep/sosyal detay
+  Maps Embed API; adres → koordinat **Maps JS API `google.maps.Geocoder`**. Anahtar
+  `VITE_GOOGLE_MAPS_API_KEY` (Docker `CCC_GOOGLE_MAPS_API_KEY`). OSM/Leaflet/Nominatim kullanılmaz.
+  GCP’de HTTP referrer kısıtı zorunlu; anahtarsızda UI “Harita yapılandırılmadı” gösterir (crash yok).
+  ⚠️ Geocoding **REST web service'i kullanılmaz**: web service referrer kısıtını desteklemez
+  (`REQUEST_DENIED`), JS API destekler — bu yüzden tek referrer-kısıtlı anahtar üç API'yi de karşılar.
+  Anahtarı kısıtsız bırakıp REST'e dönmek fatura hırsızlığına açık kapı bırakır.
 - **Demo seed YOK** → doğrulama = `dotnet build` + FE `npm run build` + `npm run lint`.
   Veriye bağlı akışlar runtime'da E2E edilemiyor; kod + build + (varsa) ekran görseli.
 - **Türkçe casing tuzağı (tekrar eden bug):** arama/filtrede default `toLowerCase()` Türkçe
@@ -1184,18 +1191,23 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
   Vatandaş Talep Kanalları). Birimler sayfasında Reporter: Taleplerim + dış birim pie'ları +
   Talep Önceliği; Operator: Görevlerim/Taleplerim/Birimdeki Görevler/Talep Önceliği.
-- **Vatandaş panosu ilçe haritası (card #1834/#1848/#r512):** `GET /reports/dashboard-citizen-map-pins`
+- **Vatandaş panosu ilçe haritası (card #1834/#1848/#r512 / #r540):** `GET /reports/dashboard-citizen-map-pins`
   (Reporter/Operator/SystemAdmin); VT numaralı (`CitizenVtJobFilter.WhereHasCitizenRequestNumber`,
   card #1845), rutin dışı, boş olmayan
   `OpenAddress`, display status `ProcessingReceived`/`InProgress` (dashboard classifier ile aynı);
-  pin koordinatı Job veya bağlı SocialMessage lat/lng; yoksa FE Nominatim geocode (localStorage
-  cache, ilçe adı Kurum Konumu’ndan). Tag tıklanınca başlık popup; başlık tıklanınca salt-okunur `MyRequestDetailModal`
-  (pie drilldown ile aynı). Dönem filtresi pin sorgusunu sürer. Başlık `{{district}} Haritası - Açık Adresli Talepler`
+  pin koordinatı Job veya bağlı SocialMessage lat/lng; yoksa FE **`google.maps.Geocoder`**
+  (localStorage `ccc_geocode_cache_v2`; negatif cache YALNIZ `ZERO_RESULTS` için —
+  `REQUEST_DENIED`/`OVER_QUERY_LIMIT` yazılırsa anahtar düzeltilse bile adres bir daha
+  sorgulanmaz; ilçe adı Kurum Konumu’ndan). Harita **Google Maps JavaScript API**
+  (`@react-google-maps/api`); anahtar `VITE_GOOGLE_MAPS_API_KEY` / Docker `CCC_GOOGLE_MAPS_API_KEY`.
+  Anahtarsız ortamda “Harita yapılandırılmadı” uyarısı (crash yok). Tag tıklanınca başlık InfoWindow;
+  başlık tıklanınca salt-okunur `MyRequestDetailModal` (pie drilldown ile aynı). Dönem filtresi pin
+  sorgusunu sürer. Başlık `{{district}} Haritası - Açık Adresli Talepler`
   (`text-base`/`text-lg`); alt yazı + lejant `text-sm`. `InProgress` pin yeşil (`#22c55e`);
-  Pinsiz default `setView(districtCenter, 14)` — ekteki şehir merkezi ölçeği; `fitBounds` pinsiz
+  Pinsiz default merkez zoom 14 — ekteki şehir merkezi ölçeği; `fitBounds` pinsiz
   kısa haritada fazla açıldığı için kullanılmaz (card #1867 reopen). Çok pin: ilçe bounds + pin
-  bounds, maxZoom 15; tek pin zoom 16. Scroll-zoom varsayılan kapalı; harita alanına tıklanınca
-  açılır, `mouseleave`'de tekrar kapanır (card #1867 — sayfa kaydırırken yanlışlıkla zoom olmasın).
+  bounds, maxZoom 15; tek pin zoom 16. Scroll-zoom varsayılan kapalı (`gestureHandling: none`);
+  harita alanına tıklanınca `greedy`, `mouseleave`'de tekrar `none` (card #1867).
   Açık adres Job veya bağlı `CitizenConversation.OpenAddress` olabilir; süresi geçmiş (Overdue)
   aktif talepler de pinlenir (card #1875). Tire seçiliyken mevcut Tire merkez/bounds korunur.
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama

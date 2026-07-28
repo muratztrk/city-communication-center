@@ -2578,25 +2578,25 @@
     text-align: center;
   }
 
-  /* Grid / dropdown overflow tooltip — compact, opens below (#r478/#r479/#r517/#r529).
+  /* Grid / dropdown overflow tooltip — compact, opens below (#r478/#r479/#r517/#r529/#r530).
      z-index > dropdown portal (9999) so tooltip stays readable over open menus.
-     Antrasit metin + tek satır (#2004). */
+     Antrasit metin + tek satır (#2004); arka plan/border biraz koyu (#r530). */
   .ccc-grid-overflow-tooltip {
     position: fixed;
     z-index: 10050;
     max-width: min(42rem, calc(100vw - 1.5rem));
     padding: 0.35rem 0.55rem;
     border-radius: 0.65rem;
-    border: 1px solid #a7f3d0;
-    background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+    border: 1px solid #6ee7b7;
+    background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%);
     color: #36454f;
     font-size: 0.72rem;
     font-weight: 600;
     line-height: 1.35;
     letter-spacing: 0.01em;
     box-shadow:
-      0 8px 20px rgba(15, 23, 42, 0.12),
-      0 0 0 1px rgba(16, 185, 129, 0.06);
+      0 8px 20px rgba(15, 23, 42, 0.14),
+      0 0 0 1px rgba(16, 185, 129, 0.12);
     pointer-events: none;
     opacity: 0;
     transform: translateY(-3px) scale(0.98);

@@ -941,7 +941,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Ad — BirimAdı` (card #1767).   Yerel kullanıcıda **Parola Onayla** alanı; uyuşmazsa kırmızı
   uyarı ve Oluştur engeli (card #1762). Parola / Parola Onayla textbox’larında login ile aynı
   göz ikonu (göster/gizle) vardır (card #1772). Oturum: 1 saat hareketsizlik → uyarı popup (60 sn geri
-  sayım, Tekrar sorma yok); uzatılmazsa logout (card #1769 / #r490). Sistemde
+  sayım, Tekrar sorma yok); uzatılmazsa logout (card #1769 / #r490). Uyku/sekme sonrası duvar
+  saati ile kontrol edilir — `setTimeout` donmuş olsa bile uyanınca logout (#2003 / #r528). Sistemde
   talep/görev oluşturmuş kullanıcı
   silinemez — `"Sistemi kullanmış olan personel silinemez"` (card #1753). `+Yeni Kullanıcı` açıkken grid görünür kalır
   (`desktop-page-fill` form açıkken kapanır — card #1731). Kullanıcılar LDAP formunda
@@ -1299,8 +1300,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Grid Ek Roller/Ek birimler footer Çıkış/Seç ~0.85rem (#r526/#1994).
 - **Rol etiketi e-Devlet (#2000):** `enum.role.EDevletActivityPlan` → `e-Devlet Günlük Faaliyet`
   (eski “… Planı” kaldırıldı; RoleCode değişmez).
-- **Detay Öncelik rengi (#2002):** İlgili Talep Detayları / Talep Bilgileri Öncelik değeri
-  `getPriorityColorClass` — grid ile aynı (Normal sarı; emerald override yok).
+- **Detay Öncelik rengi (#2002/#r528):** İlgili Talep Detayları / Talep Bilgileri Öncelik değeri
+  `getPriorityColorClass` — grid ile aynı (Normal sarı, Yüksek turuncu, Çok Yüksek kırmızı).
+  Personelimin Görevleri `separatePriorityProjectRows` satırında da aynı sınıf (önce renk yoktu).
 - **Ayarlar Kurum Bilgisi (#r522):** başlık altı boşluk `!gap-1`.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
@@ -1310,6 +1312,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kullanıcılar Birim/Rol menü font (#r456/#r460/#r516/#r518/#r519/#r521/#r522/#r523):** geçmiş
   ölçüler ~0.52–0.92rem; create Rol/Ek Roller güncel #r527 (220px / ~0.82rem).
 - **Talep açıklaması detay (#r460):** Taleplerim/detay `RichTextContent` ~13px.
+- **Oturum idle uyku (#2003/#r528):** `SessionIdleWarning` lastActivity duvar saati +
+  visibility/focus/pageshow reconcile; 1 saat dolmuşsa uyanınca uyarı/logout.
 - **WA Etiket ekle (#r460):** kompakt `RequestTagAddButton` `h-8` / `text-xs`.
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).
 - **WA chat footer Birim/Kurum İçi (#r460):** şablon satırında `ml-auto` sağa yaslı (bir satır yukarı).

@@ -122,7 +122,11 @@ export function MyRequestInfoFieldsList({
           {!hidePriorityRow ? (
             <div className="job-detail-field-row job-detail-field-row--request-info">
               <div className="job-detail-field-row__label">{t('jobs.columns.priority', 'Öncelik')}</div>
-              <div className={`job-detail-field-row__value ${detail.priority === 'High' || detail.priority === 'VeryHigh' ? 'font-extrabold' : ''}`}>{getPriorityLabel(t, detail.priority)}</div>
+              <div className="job-detail-field-row__value">
+                <span className={`${getPriorityColorClass(detail.priority)} ${detail.priority === 'High' || detail.priority === 'VeryHigh' || detail.priority === 'Critical' ? 'font-extrabold' : 'font-semibold'}`}>
+                  {getPriorityLabel(t, detail.priority)}
+                </span>
+              </div>
             </div>
           ) : null}
           {!hideProjectRow ? (
@@ -137,7 +141,7 @@ export function MyRequestInfoFieldsList({
           <div className="job-detail-field-row__label">{t('jobs.detail.priorityProject', 'Öncelik / Proje mi')}</div>
           <div className="job-detail-field-row__value">
             <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-              <span>{getPriorityLabel(t, detail.priority)}</span>
+              <span className={`${getPriorityColorClass(detail.priority)} ${detail.priority === 'High' || detail.priority === 'VeryHigh' || detail.priority === 'Critical' ? 'font-extrabold' : ''}`}>{getPriorityLabel(t, detail.priority)}</span>
               <span className="job-process-timeline__datetime-bullet" aria-hidden="true" />
               <JobProjectValue job={detail} t={t} />
             </span>

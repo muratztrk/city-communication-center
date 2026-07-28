@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { Button } from './button'
 import { ModalBackdrop } from './modal-backdrop'
 
-/** 1 saat hareketsizlik → kısa uyarı; 60 sn içinde uzatılmazsa logout (#1769 / #r490). */
+/** 1 saat hareketsizlik → kısa uyarı; 60 sn içinde uzatılmazsa logout (#1769 / #r490 / #2003). */
 const IDLE_BEFORE_WARNING_MS = 60 * 60_000
 const WARNING_COUNTDOWN_SECONDS = 60
 
@@ -29,6 +29,11 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
   const idleTimerRef = useRef<number | null>(null)
   const countdownTimerRef = useRef<number | null>(null)
   const warningOpenRef = useRef(false)
+  /** Duvar saati — setTimeout uyku sırasında donduğu için (#2003 / #r528). */
+  const lastActivityAtRef = useRef(Date.now())
+  const warningOpenedAtRef = useRef<number | null>(null)
+  const onLogoutRef = useRef(onLogout)
+  onLogoutRef.current = onLogout
 
   const clearIdleTimer = () => {
     if (idleTimerRef.current !== null) {
@@ -44,49 +49,98 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
     }
   }
 
+  const openWarning = () => {
+    if (warningOpenRef.current) return
+    warningOpenRef.current = true
+    warningOpenedAtRef.current = Date.now()
+    setIsWarningOpen(true)
+    setSecondsLeft(WARNING_COUNTDOWN_SECONDS)
+  }
+
+  const forceLogout = () => {
+    clearIdleTimer()
+    clearCountdown()
+    warningOpenRef.current = false
+    warningOpenedAtRef.current = null
+    setIsWarningOpen(false)
+    onLogoutRef.current()
+  }
+
+  /** Uyku/sekme sonrası: gerçek geçen süreye bak (#2003). */
+  const reconcileIdleWithWallClock = () => {
+    const now = Date.now()
+    if (warningOpenRef.current) {
+      const openedAt = warningOpenedAtRef.current ?? now
+      const elapsedInWarning = now - openedAt
+      if (elapsedInWarning >= WARNING_COUNTDOWN_SECONDS * 1000) {
+        forceLogout()
+        return
+      }
+      const remaining = Math.max(1, WARNING_COUNTDOWN_SECONDS - Math.floor(elapsedInWarning / 1000))
+      setSecondsLeft(remaining)
+      return
+    }
+    if (now - lastActivityAtRef.current >= IDLE_BEFORE_WARNING_MS) {
+      clearIdleTimer()
+      openWarning()
+    }
+  }
+
   const startIdleTimer = () => {
     clearIdleTimer()
+    const remaining = Math.max(0, IDLE_BEFORE_WARNING_MS - (Date.now() - lastActivityAtRef.current))
     idleTimerRef.current = window.setTimeout(() => {
-      warningOpenRef.current = true
-      setIsWarningOpen(true)
-      setSecondsLeft(WARNING_COUNTDOWN_SECONDS)
-    }, IDLE_BEFORE_WARNING_MS)
+      openWarning()
+    }, remaining)
   }
 
   const resetIdleFromActivity = () => {
     if (warningOpenRef.current) {
       return
     }
+    lastActivityAtRef.current = Date.now()
     startIdleTimer()
   }
 
   const extendSession = () => {
     clearCountdown()
     warningOpenRef.current = false
+    warningOpenedAtRef.current = null
     setIsWarningOpen(false)
     setSecondsLeft(WARNING_COUNTDOWN_SECONDS)
+    lastActivityAtRef.current = Date.now()
     startIdleTimer()
   }
 
   const endSession = () => {
-    clearIdleTimer()
-    clearCountdown()
-    warningOpenRef.current = false
-    setIsWarningOpen(false)
-    onLogout()
+    forceLogout()
   }
 
   useEffect(() => {
+    lastActivityAtRef.current = Date.now()
     startIdleTimer()
     for (const eventName of ACTIVITY_EVENTS) {
       window.addEventListener(eventName, resetIdleFromActivity, { passive: true })
     }
+    const onWakeOrVisible = () => {
+      if (document.visibilityState === 'hidden') return
+      reconcileIdleWithWallClock()
+      if (!warningOpenRef.current) {
+        startIdleTimer()
+      }
+    }
+    document.addEventListener('visibilitychange', onWakeOrVisible)
+    window.addEventListener('focus', onWakeOrVisible)
+    window.addEventListener('pageshow', onWakeOrVisible)
     return () => {
       clearIdleTimer()
       clearCountdown()
       for (const eventName of ACTIVITY_EVENTS) {
         window.removeEventListener(eventName, resetIdleFromActivity)
       }
+      document.removeEventListener('visibilitychange', onWakeOrVisible)
+      window.removeEventListener('focus', onWakeOrVisible)
+      window.removeEventListener('pageshow', onWakeOrVisible)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- mount-only idle watchers
   }, [])
@@ -98,12 +152,12 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
     }
 
     countdownTimerRef.current = window.setInterval(() => {
+      reconcileIdleWithWallClock()
+      if (!warningOpenRef.current) return
       setSecondsLeft(current => {
         if (current <= 1) {
           clearCountdown()
-          warningOpenRef.current = false
-          setIsWarningOpen(false)
-          onLogout()
+          forceLogout()
           return 0
         }
         return current - 1
@@ -113,7 +167,8 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
     return () => {
       clearCountdown()
     }
-  }, [isWarningOpen, onLogout])
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- countdown tied to warning open
+  }, [isWarningOpen])
 
   if (!isWarningOpen) {
     return null

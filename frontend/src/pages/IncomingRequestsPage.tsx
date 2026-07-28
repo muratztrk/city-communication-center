@@ -53,6 +53,7 @@ import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequest
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
+import { FramedDepartmentStack } from '../components/jobs/my-request-detail/FramedDepartmentStack'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
@@ -88,6 +89,8 @@ type IncomingRequestRow = {
   status: string
   priority: string
   departmentName: string | null
+  /** Talep yeri birim id — kendi birim hariç yeşil çerçeve (#r520). */
+  departmentId: string | null
   createdBy: string | null
   taskOwnerDisplayName: string | null
   dueDateUtc: string | null
@@ -274,7 +277,8 @@ function toInternalRow(task: Task): IncomingRequestRow {
     title: task.title,
     status: task.currentStatus,
     priority: task.priority,
-    departmentName: task.assignedDepartmentName ?? null,
+    departmentName: task.ownerDepartmentName ?? task.assignedDepartmentName ?? null,
+    departmentId: null,
     createdBy: task.createdByDisplayName ?? null,
     taskOwnerDisplayName: task.assignedUserDisplayName ?? task.ownerDisplayName ?? null,
     dueDateUtc: task.dueDateUtc,
@@ -337,6 +341,7 @@ function toExternalRow(
     status: displayStatus,
     priority: job.priority,
     departmentName: job.ownerDepartmentName,
+    departmentId: job.ownerDepartmentId ?? null,
     createdBy: job.createdByDisplayName,
     taskOwnerDisplayName: job.assignedUserDisplayName ?? null,
     dueDateUtc: job.dueDateUtc,
@@ -385,6 +390,7 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     status: job.status,
     priority: job.priority,
     departmentName: job.ownerDepartmentName,
+    departmentId: job.ownerDepartmentId ?? null,
     createdBy: job.createdByDisplayName,
     taskOwnerDisplayName: job.assignedUserDisplayName ?? null,
     dueDateUtc: job.dueDateUtc,
@@ -969,11 +975,39 @@ export function IncomingRequestsPage() {
                       )}
                     </td>
                     <td>
-                      <ReporterDepartmentCell
-                        departmentName={row.departmentName}
-                        creatorName={row.createdBy}
-                        isReporter={isReporterCreated(row.createdByRoleCode)}
-                      />
+                      {(() => {
+                        const currentDeptId = activeDeptId ?? user?.departmentId ?? null
+                        const me = users.find(u => u.userId === user?.userId)
+                        const activeDeptName = me?.departments?.find(d => d.departmentId === currentDeptId)?.name
+                          ?? me?.departments?.find(d => d.isPrimary)?.name
+                          ?? user?.departmentName
+                          ?? null
+                        const isOwnDepartment = Boolean(
+                          (currentDeptId && row.departmentId && row.departmentId === currentDeptId)
+                          || (
+                            row.departmentName
+                            && activeDeptName
+                            && row.departmentName.trim().toLocaleLowerCase('tr') === activeDeptName.trim().toLocaleLowerCase('tr')
+                          ),
+                        )
+                        // Kendi birimi hariç Talep Yeri yeşil çerçeve (#r520 / #1998).
+                        if (!isOwnDepartment && row.departmentName) {
+                          return (
+                            <FramedDepartmentStack
+                              departmentName={row.departmentName}
+                              secondary={row.createdBy}
+                              align="start"
+                            />
+                          )
+                        }
+                        return (
+                          <ReporterDepartmentCell
+                            departmentName={row.departmentName}
+                            creatorName={row.createdBy}
+                            isReporter={isReporterCreated(row.createdByRoleCode)}
+                          />
+                        )
+                      })()}
                     </td>
                     <td className="font-semibold"><TruncatedText text={row.title} className={`cell-title ${isReporterRow ? 'text-[#f97316]' : ''}`} /></td>
                     {showTaskOwnerColumn && <td><EmptyCell value={row.taskOwnerDisplayName} /></td>}

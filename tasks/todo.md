@@ -1,3 +1,6 @@
+## Round 520 — Birime Gelen Talep Yeri yeşil çerçeve
+- `6a68af80` (#1998) — Talep Yeri / Oluşturan: kendi birim hariç yeşil çerçeve (FramedDepartmentStack).
+
 ## Round 519 — Rol menü/buton + Kurum Bilgisi boşluk (reopen)
 - `6a68a4b5` (#1994) — Gridview Rol dropdown metin gerçekten küçültüldü (admin-surface override fix).
 - `6a689e20` (#1988) — Ek Roller Çıkış/Seç butonları küçültüldü (Tailwind + CSS).

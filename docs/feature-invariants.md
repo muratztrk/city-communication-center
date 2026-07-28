@@ -1288,6 +1288,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yarım durumunu temizler (düzenleme satırı + create form aynı anda kalmaz).
 - **Birimler/Kullanıcılar banner İptal (#r458/#r459):** İptal genişliği = Yeni … Ekle
   (görünmez ölçüm grid’i; sabit min-w yok).
+- **Birime Gelen Talep Yeri çerçeve (#r520):** grid `Talep Yeri / Oluşturan` — aktif (kendi)
+  birim dışı talep yeri `FramedDepartmentStack` yeşil çerçeve; kendi birim `ReporterDepartmentCell`.
 - **Gittiği Yer yeşil çerçeve (#r516):** Taleplerim/Birimden Giden grid ve görev grid
   `FramedDepartmentStack` / destination StatusPill orta boy (`~0.76–0.78rem`, `px-2.5 py-1`).
   (#r515 aşırı küçültmeyi geri aldı.)

@@ -510,10 +510,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   alt satırda aynı sol başlangıca hizalanan personel avatarı + bilgi bloğu bulunur; iki satır da
   panelin solundan kontrollü 12px iç boşlukla biraz sağda durur;
   personel adı ana satırda,
-  birim altında, ünvan birimin altında ayrı satırda (varsa — #r505/#r506; yan yana `Birim - Ünvan` değil),
-  ünvan metni Talep No ile aynı font tipi (`font-mono text-xs text-slate-500` — #r507),
-  küçük `Kurum İçi Mesajlar` etiketi sağa yaslıdır. Liste satırında da yazışmalı konuşmalarda ünvan
-  birimin altında gösterilir (#r506).
+  sohbet header’da birim + ünvan aynı satırda `Birim - Ünvan` (ünvan `font-mono` — #r507/#r508),
+  liste satırında ünvan birimin altında ayrı satırda kalır (#r506),
+  küçük `Kurum İçi Mesajlar` etiketi sağa yaslıdır.
   Gelen balonda birim•ad etiketi siyahtır (turuncu değil); balon padding/font WhatsApp
   balonundan bir kademe küçüktür (`text-xs` / `px-2.5 py-1.5`).
 - **Kurum İçi Mesajlar kapatma hover'ı (card #1590):** panel sağ üst X butonu hover'da

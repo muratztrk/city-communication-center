@@ -423,12 +423,13 @@ export function InternalMessagesFab() {
                       <p className="truncate text-sm font-bold leading-tight text-[color:var(--color-foreground)]">{activeChat.displayName}</p>
                       <p className="mt-0.5 truncate text-xs text-[color:var(--color-muted-foreground)]">
                         {activeChat.departmentName?.trim() || '—'}
+                        {activeChat.title?.trim() ? (
+                          <>
+                            {' - '}
+                            <span className="font-mono text-slate-500">{activeChat.title.trim()}</span>
+                          </>
+                        ) : null}
                       </p>
-                      {activeChat.title?.trim() ? (
-                        <p className="truncate font-mono text-xs text-slate-500">
-                          {activeChat.title.trim()}
-                        </p>
-                      ) : null}
                     </div>
                   </div>
                   </>

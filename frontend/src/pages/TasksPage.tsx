@@ -2067,7 +2067,7 @@ const pageKicker = isMyTasksView
                             {parentJobDetail ? (
                               <span className="ml-auto flex flex-col items-end text-right text-[11px] leading-tight">
                                 <span className="font-semibold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
-                                <span className={`font-bold ${parentJobDetail.priority === 'Normal' ? 'text-emerald-700' : getPriorityColorClass(parentJobDetail.priority)}`}>
+                                <span className={`font-bold ${getPriorityColorClass(parentJobDetail.priority)}`}>
                                   {getPriorityLabel(t, parentJobDetail.priority)}
                                 </span>
                               </span>

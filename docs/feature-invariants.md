@@ -816,7 +816,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Personelimin Görevi Çözme Süresi (Saat)` (sonra Görevlerim / giden-gelen / öncelik).
 - **Görev Bilgileri üst metası ve alan sırası:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri
   detayında bağlı talebin `Öncelik` etiketi/değeri `job-detail-card-title--spread` ile Görev Bilgileri
-  başlığının sağ border'ına yaslanır; `Normal` bu yüzeyde emerald yeşilidir.
+  başlığının sağ border'ına yaslanır; renk `getPriorityColorClass` ile grid Talep No altı Öncelik
+  ile aynıdır (#2002): Normal sarı, Yüksek turuncu, Çok Yüksek/Kritik kırmızı.
   Talep Bilgileri / Görev Bilgileri başlık altı border çizgisi, yanındaki başlık+meta / Süreç
   başlık border'ıyla aynı yatay hizada kalır (`min-height` on section headings; card #1660).
   İlgili Görev Detayları'nda Görev Bilgileri ↔ Süreç border'ı tek satır başlık
@@ -1294,9 +1295,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `.truncate` satırlarında portal tooltip; flex ölçüm fallback + `title` attribute yedek (#1997).
 - **Kullanıcılar grid Rol menü font (#r523/#1994):** `.users-edit-dropdown-menu*` ~0.82rem
   (`!important` ile admin-surface ezilir). Create form Ek Roller (`users-roles-compact-menu`)
-  satır ~0.92rem; Çıkış/Seç ~0.85rem (#r525/#1988); menü `menuWidth={280}`.
+  satır ~0.92rem; Çıkış/Seç ~0.92rem; menü `menuWidth={240}` (#r526/#1988).
+  Grid Ek Roller/Ek birimler footer Çıkış/Seç ~0.85rem (#r526/#1994).
 - **Rol etiketi e-Devlet (#2000):** `enum.role.EDevletActivityPlan` → `e-Devlet Günlük Faaliyet`
   (eski “… Planı” kaldırıldı; RoleCode değişmez).
+- **Detay Öncelik rengi (#2002):** İlgili Talep Detayları / Talep Bilgileri Öncelik değeri
+  `getPriorityColorClass` — grid ile aynı (Normal sarı; emerald override yok).
 - **Ayarlar Kurum Bilgisi (#r522):** başlık altı boşluk `!gap-1`.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
@@ -1304,7 +1308,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `window.open(origin)` — about:blank / sol üst info ikonu yok (#r460).
 - **Yazdır popup origin (#r460):** `printHtmlDocument` boş URL yerine site origin ile açılır.
 - **Kullanıcılar Birim/Rol menü font (#r456/#r460/#r516/#r518/#r519/#r521/#r522/#r523):** geçmiş
-  ölçüler ~0.52–0.82rem; create Ek Roller güncel #r525 (~0.92rem / buton ~0.85rem).
+  ölçüler ~0.52–0.82rem; create Ek Roller güncel #r526 (menü 240px / buton ~0.92rem).
 - **Talep açıklaması detay (#r460):** Taleplerim/detay `RichTextContent` ~13px.
 - **WA Etiket ekle (#r460):** kompakt `RequestTagAddButton` `h-8` / `text-xs`.
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).

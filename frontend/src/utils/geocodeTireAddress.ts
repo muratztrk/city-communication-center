@@ -1,8 +1,18 @@
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v2'
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v3'
 
 export type LatLng = { lat: number; lng: number }
 
-type GeocodeCache = Record<string, LatLng | null>
+/**
+ * `address` = açık adres birebir bulundu. `approximate` = açık adres çözülemedi,
+ * cadde/mahalle seviyesine düşüldü (pin yaklaşık; gerçek metin InfoWindow'da görünür).
+ */
+export type GeocodePrecision = 'address' | 'approximate'
+
+export type GeocodeHit = { position: LatLng; precision: GeocodePrecision }
+
+type CachedHit = { lat: number; lng: number; approx?: true }
+
+type GeocodeCache = Record<string, CachedHit | null>
 
 /**
  * Maps JS API Geocoder — REST web service DEĞİL. Web service HTTP referrer kısıtını
@@ -63,63 +73,107 @@ export function buildTireGeocodeQuery(input: {
   return chunks.join(', ')
 }
 
+/**
+ * Aynı adres için kabadan inceye DEĞİL, inceden kabaya denenecek sorgular (card #1875 reopen).
+ * Vatandaş "açık adres" alanına çoğu zaman tarif yazıyor ("X marketin arkası") — tam string
+ * geocode edilemez. Tek sorguyla denenip vazgeçilirse pin sessizce düşüyordu; cadde/mahalle
+ * seviyesine inerek talebi haritada TUTUYORUZ (yaklaşık pin, gerçek metin InfoWindow'da).
+ */
+function buildGeocodeQueryVariants(input: {
+  neighborhood?: string | null
+  street?: string | null
+  openAddress?: string | null
+  districtName?: string | null
+}): string[] {
+  const district = input.districtName?.trim() || 'Tire'
+  const tail = [district, 'İzmir', 'Türkiye']
+  const openAddress = input.openAddress?.trim()
+  const street = input.street?.trim()
+  const neighborhood = input.neighborhood?.trim()
+
+  const variants = [
+    [openAddress, street, neighborhood, ...tail],
+    [street, neighborhood, ...tail],
+    [neighborhood, ...tail],
+  ]
+    .map(parts => parts.filter(Boolean).join(', '))
+    // İlçe+il+ülkeye kadar düşmeyi bilerek engelliyoruz: her talebi ilçe merkezine
+    // pinlemek "adres burada" yanılgısı yaratır, yoklukdan daha kötü.
+    .filter(query => query !== tail.join(', '))
+
+  return [...new Set(variants)]
+}
+
 let geocodeQueue: Promise<void> = Promise.resolve()
 
 /**
  * Geocode an address via the Maps JS API Geocoder with localStorage cache.
- * Returns null when no match or the JS API isn't loaded (caller should skip the pin).
+ * Açık adres çözülemezse cadde → mahalle seviyesine düşer (`precision: 'approximate'`).
+ * Returns null when nothing resolves or the JS API isn't loaded.
  */
 export function geocodeTireAddress(input: {
   neighborhood?: string | null
   street?: string | null
   openAddress?: string | null
   districtName?: string | null
-}): Promise<LatLng | null> {
+}): Promise<GeocodeHit | null> {
   const district = input.districtName?.trim() || 'Tire'
   const cacheKey = normalizeAddressKey([input.openAddress, input.street, input.neighborhood, district])
   if (!cacheKey) return Promise.resolve(null)
 
+  const toHit = (cached: CachedHit | null): GeocodeHit | null => (cached
+    ? { position: { lat: cached.lat, lng: cached.lng }, precision: cached.approx ? 'approximate' : 'address' }
+    : null)
+
   const cache = readCache()
   if (Object.prototype.hasOwnProperty.call(cache, cacheKey)) {
-    return Promise.resolve(cache[cacheKey] ?? null)
+    return Promise.resolve(toHit(cache[cacheKey] ?? null))
   }
 
-  const query = buildTireGeocodeQuery(input)
-  const run = async () => {
+  const variants = buildGeocodeQueryVariants(input)
+  const run = async (): Promise<GeocodeHit | null> => {
     const client = getGeocoder()
     // JS API henüz yüklü değil / anahtar yok: cache'e yazmadan geç, yüklenince tekrar denenir.
     if (!client) return null
 
-    // Light client throttle between sequential pin geocodes.
-    await new Promise(resolve => window.setTimeout(resolve, 80))
+    for (let index = 0; index < variants.length; index += 1) {
+      // Light client throttle between sequential pin geocodes.
+      await new Promise(resolve => window.setTimeout(resolve, 80))
 
-    // Callback formu status'u açıkça verir (promise formu non-OK'te reject eder ve
-    // reject şekli sürüme göre değişir) — status'a göre cache kararı vermek için gerekli.
-    const { status, results } = await new Promise<{
-      status: string
-      results: google.maps.GeocoderResult[] | null
-    }>(resolve => {
-      client.geocode({ address: query, region: 'tr' }, (geoResults, geoStatus) => {
-        resolve({ status: String(geoStatus), results: geoResults })
+      // Callback formu status'u açıkça verir (promise formu non-OK'te reject eder ve
+      // reject şekli sürüme göre değişir) — status'a göre cache kararı vermek için gerekli.
+      const { status, results } = await new Promise<{
+        status: string
+        results: google.maps.GeocoderResult[] | null
+      }>(resolve => {
+        client.geocode({ address: variants[index], region: 'tr' }, (geoResults, geoStatus) => {
+          resolve({ status: String(geoStatus), results: geoResults })
+        })
       })
-    })
 
-    // Yalnız ZERO_RESULTS gerçek "adres yok" demek. REQUEST_DENIED (yanlış/kısıtlı anahtar),
-    // OVER_QUERY_LIMIT, UNKNOWN_ERROR geçici/konfig hatası — bunları localStorage'a negatif
-    // yazarsak anahtar düzeltilse bile adres bir daha hiç sorgulanmaz (hasOwnProperty hit).
-    if (status !== 'OK' && status !== 'ZERO_RESULTS') return null
+      // Yalnız ZERO_RESULTS gerçek "adres yok" demek. REQUEST_DENIED (yanlış/kısıtlı anahtar),
+      // OVER_QUERY_LIMIT, UNKNOWN_ERROR geçici/konfig hatası — bunları localStorage'a negatif
+      // yazarsak anahtar düzeltilse bile adres bir daha hiç sorgulanmaz (hasOwnProperty hit).
+      // Kaba varyantlara da geçmiyoruz: hata adresin kötü olduğunu göstermiyor.
+      if (status !== 'OK' && status !== 'ZERO_RESULTS') return null
+      if (status === 'ZERO_RESULTS') continue
 
-    const location = status === 'OK' ? results?.[0]?.geometry?.location : undefined
-    const result = location
-      ? { lat: location.lat(), lng: location.lng() }
-      : null
-    if (result && (Number.isNaN(result.lat) || Number.isNaN(result.lng))) {
-      cache[cacheKey] = null
-    } else {
-      cache[cacheKey] = result
+      const location = results?.[0]?.geometry?.location
+      if (!location) continue
+      const lat = location.lat()
+      const lng = location.lng()
+      if (Number.isNaN(lat) || Number.isNaN(lng)) continue
+
+      const hit: CachedHit = index === 0 ? { lat, lng } : { lat, lng, approx: true }
+      cache[cacheKey] = hit
+      writeCache(cache)
+      return toHit(hit)
     }
+
+    // Tüm varyantlar ZERO_RESULTS: gerçekten bulunamıyor, negatifi cache'le.
+    cache[cacheKey] = null
     writeCache(cache)
-    return cache[cacheKey]
+    return null
   }
 
   const next = geocodeQueue.then(run, run)

@@ -1209,7 +1209,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bounds, maxZoom 15; tek pin zoom 16. Scroll-zoom varsayılan kapalı (`gestureHandling: none`);
   harita alanına tıklanınca `greedy`, `mouseleave`'de tekrar `none` (card #1867).
   Açık adres Job veya bağlı `CitizenConversation.OpenAddress` olabilir; süresi geçmiş (Overdue)
-  aktif talepler de pinlenir (card #1875). Tire seçiliyken mevcut Tire merkez/bounds korunur.
+  aktif talepler de pinlenir (card #1875).
+  **Geocode kademeli, pin sessizce düşmez (#1875 reopen):** vatandaş açık adres alanına tarif
+  yazdığında ("X marketin arkası") tam string çözülmez. Sıra: `açık adres+cadde+mahalle` →
+  `cadde+mahalle` → `mahalle`. İlçe+il+ülkeye DÜŞÜLMEZ (her talebi ilçe merkezine pinlemek
+  yanıltıcı). Kaba varyantla bulunan pin `approximate`: kesik halkalı ikon + InfoWindow'da
+  "Yaklaşık konum" uyarısı. Hiç çözülemeyenler harita altında sayıyla gösterilir — eski davranış
+  yalnız TÜM pinler düştüğünde uyarıyordu, tek talep düşerse kullanıcı hiçbir şey görmüyordu. Tire seçiliyken mevcut Tire merkez/bounds korunur.
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
   chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında

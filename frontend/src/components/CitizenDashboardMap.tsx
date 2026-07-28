@@ -13,7 +13,7 @@ import { getDistrictMapView } from '../data/izmir-district-maps'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { getGoogleMapsApiKey, isGoogleMapsConfigured } from '../utils/googleMaps'
 
-type ResolvedPin = CitizenDashboardMapPin & { position: LatLng }
+type ResolvedPin = CitizenDashboardMapPin & { position: LatLng; approximate: boolean }
 
 function pinColor(displayStatus: string): string {
   return displayStatus === 'inProgress' ? '#22c55e' : '#0ea5e9'
@@ -23,18 +23,25 @@ function pinColor(displayStatus: string): string {
 // gereksiz setIcon tetikler. Renk başına tek örnek tut (google.* yüklendikten sonra kurulur).
 const pinIconCache = new Map<string, google.maps.Icon>()
 
-function pinSvgIcon(color: string): google.maps.Icon {
-  const cached = pinIconCache.get(color)
+/**
+ * `approximate` pin (açık adres çözülemedi, mahalle/cadde seviyesine düşüldü — card #1875 reopen)
+ * kesik halkayla çizilir: operatör "adres tam burası" sanmasın.
+ */
+function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
+  const cacheKey = `${color}|${approximate ? 'approx' : 'exact'}`
+  const cached = pinIconCache.get(cacheKey)
   if (cached) return cached
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">
-    <circle cx="11" cy="11" r="8" fill="${color}" stroke="#ffffff" stroke-width="2"/>
-  </svg>`
+  const ring = approximate
+    ? `<circle cx="11" cy="11" r="9" fill="none" stroke="${color}" stroke-width="1.5" stroke-dasharray="3 2"/>
+       <circle cx="11" cy="11" r="5" fill="${color}" stroke="#ffffff" stroke-width="1.5"/>`
+    : `<circle cx="11" cy="11" r="8" fill="${color}" stroke="#ffffff" stroke-width="2"/>`
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">${ring}</svg>`
   const icon: google.maps.Icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
     scaledSize: new google.maps.Size(22, 22),
     anchor: new google.maps.Point(11, 11),
   }
-  pinIconCache.set(color, icon)
+  pinIconCache.set(cacheKey, icon)
   return icon
 }
 
@@ -85,6 +92,7 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
     region: 'TR',
   })
   const [resolved, setResolved] = useState<ResolvedPin[]>([])
+  const [unpinned, setUnpinned] = useState<string[]>([])
   const [resolving, setResolving] = useState(false)
   const [jobDetail, setJobDetail] = useState<JobDetail | null>(null)
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
@@ -105,24 +113,29 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
     setResolving(true)
     void (async () => {
       const next: ResolvedPin[] = []
+      const failed: string[] = []
       for (const pin of pins) {
         if (cancelled) return
         if (pin.latitude != null && pin.longitude != null) {
-          next.push({ ...pin, position: { lat: pin.latitude, lng: pin.longitude } })
+          next.push({ ...pin, position: { lat: pin.latitude, lng: pin.longitude }, approximate: false })
           continue
         }
-        const position = await geocodeTireAddress({
+        const hit = await geocodeTireAddress({
           neighborhood: pin.neighborhood,
           street: pin.street,
           openAddress: pin.openAddress,
           districtName: mapView.districtName,
         })
-        if (position) {
-          next.push({ ...pin, position })
+        if (hit) {
+          next.push({ ...pin, position: hit.position, approximate: hit.precision === 'approximate' })
+        } else {
+          // Sessizce düşürme (card #1875 reopen): kaç talebin haritaya giremediği görünür olmalı.
+          failed.push(pin.title)
         }
       }
       if (!cancelled) {
         setResolved(next)
+        setUnpinned(failed)
         setResolving(false)
       }
     })()
@@ -255,7 +268,7 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
               <Marker
                 key={pin.jobId}
                 position={{ lat: pin.position.lat, lng: pin.position.lng }}
-                icon={pinSvgIcon(pinColor(pin.displayStatus))}
+                icon={pinSvgIcon(pinColor(pin.displayStatus), pin.approximate)}
                 onClick={() => setActivePinId(pin.jobId)}
               />
             ))}
@@ -275,15 +288,32 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
                   {activePin.openAddress ? (
                     <div className="mt-1 text-[11px] leading-snug text-slate-500">{activePin.openAddress}</div>
                   ) : null}
+                  {activePin.approximate ? (
+                    <div className="mt-1 text-[11px] font-medium leading-snug text-amber-600">
+                      {t(
+                        'dashboard.citizenMap.approximatePin',
+                        'Yaklaşık konum — açık adres tam çözülemedi, mahalle/cadde seviyesinde gösteriliyor.',
+                      )}
+                    </div>
+                  ) : null}
                 </div>
               </InfoWindow>
             ) : null}
           </GoogleMap>
         )}
-        {!loading && !resolving && pins.length > 0 && resolved.length === 0 ? (
+        {!loading && !resolving && unpinned.length > 0 ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[500] flex justify-center px-4">
-            <div className="rounded-lg bg-white/95 px-3 py-2 text-xs font-medium text-slate-600 shadow">
-              {t('dashboard.citizenMap.geocodeEmpty', 'Açık adresler haritada konumlanamadı.')}
+            <div
+              className="max-w-full rounded-lg bg-white/95 px-3 py-2 text-xs font-medium text-slate-600 shadow"
+              title={unpinned.join('\n')}
+            >
+              {resolved.length === 0
+                ? t('dashboard.citizenMap.geocodeEmpty', 'Açık adresler haritada konumlanamadı.')
+                : t(
+                    'dashboard.citizenMap.geocodePartial',
+                    '{{count}} talep açık adresinden konumlanamadı.',
+                    { count: unpinned.length },
+                  )}
             </div>
           </div>
         ) : null}

@@ -1,5 +1,5 @@
 ## Round 535 — overflow tooltip 1 sn hover gecikmesi
-- `6a68a331` (#2008) — Ellipsis tooltip 1 saniye hover sonrası açılır.
+- `6a68a331` (#1992) — Ellipsis tooltip 1 saniye hover sonrası açılır.
 
 ## Round 534 — overflow tooltip biraz büyüt + pill köşe
 - `6a68f086` (#2004) — Tooltip font ~0.68rem; `border-radius: 999px` (daha yuvarlak).

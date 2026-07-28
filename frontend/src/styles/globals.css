@@ -3525,9 +3525,10 @@
     flex-shrink: 0;
   }
 
-  /* Filtredeki tarih seçici kompakt; satırın aşağı kaymasını önler. */
+  /* Filtredeki tarih seçici kompakt; satırın aşağı kaymasını önler.
+     9.5rem: dd.mm.yyyy + küçük takvim ikonu + temizle alanı taşmadan sığar (card #2007). */
   .scope-chip-date {
-    width: 8.5rem;
+    width: 9.5rem;
     flex: 0 0 auto;
   }
 
@@ -3589,9 +3590,15 @@
   .scope-chip-date .field-input {
     height: 1.875rem;
     min-height: 0;
-    padding: 0 0.6rem;
+    gap: 0.25rem;
+    padding: 0 0.5rem;
     font-size: 0.75rem;
     border-radius: 999px;
+  }
+
+  .scope-chip-date .field-input > svg {
+    width: 0.8125rem;
+    height: 0.8125rem;
   }
 
   .scope-chip-search-wrap {

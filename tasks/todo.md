@@ -1,3 +1,40 @@
+## Round 532 — tarih chip ikon küçült + tam tarih
+- `6a68fd98` (#2007) — Başlangıç/Bitiş: takvim ikonu küçültüldü; `.scope-chip-date` 9.5rem; `dd.mm.yyyy` tam görünür.
+
+## Round 531 — tooltip border + personel font hizası
+- `6a68f086` (#2004) — Overflow tooltip border `#059669` + bg koyulaştırıldı.
+- `6a68fb99` (#2005) — Grid personel adı hepsi `text-sm` (FramedDepartmentStack + Gittiği Yer).
+- `6a68fc0e` (#2006) — Görev Tipi altı Görevi Yapan `text-sm`.
+
+## Round 530 — ellipsis tooltip arka plan/border koyulaştır
+- `6a68f086` (#2004) — Overflow tooltip bg/border emerald tonları biraz koyu.
+
+## Round 529 — ellipsis tooltip antrasit + tek satır
+- `6a68f086` (#2004) — Overflow tooltip metin antrasit; `white-space: nowrap`.
+
+## Round 528 — idle uyku logout + Öncelik kırmızı
+- `6a68eda8` (#2003) — 1s idle: uyku sonrası duvar saati ile logout/uyarı.
+- `6a68cd95` (#2002) — Personelimin Görevleri Talep Bilgileri Öncelik `getPriorityColorClass` (kırmızı).
+
+## Round 527 — Create Rol/Ek Roller menü hizala
+- `6a689e20` (#1988) — Create Rol+Ek Roller menü 220px; metin ~0.82rem (aynı ölçü).
+
+## Round 526 — Users menü/buton + Öncelik rengi
+- `6a68a4b5` (#1994) — Grid Ek Roller/Ek birimler Çıkış/Seç ~0.85rem.
+- `6a68cd95` (#2002) — Detay Öncelik rengi grid ile aynı (`getPriorityColorClass`).
+- `6a689e20` (#1988) — Create Ek Roller menü 240px; Çıkış/Seç ~0.92rem.
+
+## Round 525 — Ek Roller menü/buton büyüt
+- `6a689e20` (#1988) — Create form Ek Roller satır ~0.92rem; Çıkış/Seç ~0.85rem.
+
+## Round 524 — ellipsis tooltip sağa kaydır
+- `6a68c497` (#2001) — Grid/dropdown taşan metin tooltip’i ortalı konumdan ~16px sağa açılır.
+
+## Round 523 — Rol menü büyüt + e-Devlet rol etiketi
+- `6a68a4b5` (#1994) — Gridview Rol dropdown metin ~0.82rem.
+- `6a689e20` (#1988) — Create form Ek Roller dropdown metin ~0.82rem.
+- `6a68c3d8` (#2000) — Rol etiketi: `e-Devlet Günlük Faaliyet` (Planı kaldırıldı).
+
 ## Round 522 — dropdown tooltip fix + rol menü/width + Kurum Bilgisi gap
 - `6a68ad44` (#1997) — Dropdown ellipsis tooltip: flex ölçüm + title yedek.
 - `6a68a4b5` (#1994) — Gridview Rol dropdown metin ~0.68rem.

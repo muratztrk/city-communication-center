@@ -211,13 +211,13 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
         type="button"
         onClick={handleOpen}
         className={cn(
-          'field-input flex w-full items-center gap-2 text-left',
+          'field-input flex w-full items-center gap-1.5 text-left',
           !display && 'text-[color:var(--color-muted-foreground)]',
-          value && 'pr-7',
+          value && 'pr-6',
         )}
       >
-        <CalendarClock className="size-4 shrink-0 opacity-60" />
-        <span className="flex-1 truncate">{display || placeholder}</span>
+        <CalendarClock className="size-3.5 shrink-0 opacity-60" />
+        <span className="min-w-0 flex-1 truncate">{display || placeholder}</span>
       </button>
       {value && (
         <button

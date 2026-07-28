@@ -1,3 +1,6 @@
+## Round 515 — Gittiği Yer yeşil çerçeve küçült
+- `6a68a17f` — Gridview Gittiği Yer yeşil çerçeve/pill boyutu biraz küçültüldü.
+
 ## Round 514 — Kurum harita düzeltmesi + rol sırası + Users/Birimler arama
 - `6a6899e7` reopen — Ayarlar’daki Kurum Konumu haritası kaldırıldı; Anasayfa haritası ilçeye bağlı kalır.
 - `6a689e20` — Users Rol dropdown metin küçültüldü; sıra Standart→Sorumlu→Müdür→…

@@ -1285,8 +1285,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yarım durumunu temizler (düzenleme satırı + create form aynı anda kalmaz).
 - **Birimler/Kullanıcılar banner İptal (#r458/#r459):** İptal genişliği = Yeni … Ekle
   (görünmez ölçüm grid’i; sabit min-w yok).
-- **Dış birim detay alanları (card #r449/#r455):** ExternalUnit detayda Talep Yeri / Talep Yapılan
-  Birim yeşil StatusPill çerçeve **yok** — eski `StackedFieldValue` / düz destination metni (#r455).
+- **Gittiği Yer yeşil çerçeve (#r515):** Taleplerim/Birimden Giden grid ve görev grid
+  `FramedDepartmentStack` / destination StatusPill biraz kompakt (`~0.7–0.72rem`, daha az padding).
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
   `onMessageUpdated` ile category seçili kalır.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.

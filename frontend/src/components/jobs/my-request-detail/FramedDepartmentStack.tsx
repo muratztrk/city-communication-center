@@ -30,15 +30,15 @@ export function FramedDepartmentStack({
         <StatusPill
           tone="success"
           className={cn(
-            'max-w-[16rem]',
-            enlarge ? 'px-3 py-1.5 text-[0.88rem] font-bold' : 'text-[0.78rem]',
+            'max-w-[14rem]',
+            enlarge ? 'px-2 py-0.5 text-[0.72rem] font-semibold' : 'px-2 py-0.5 text-[0.7rem]',
           )}
         >
           <span className="truncate">{name}</span>
         </StatusPill>
       ) : null}
       {secondary?.trim() ? (
-        <span className="text-sm font-semibold text-slate-500">{secondary.trim()}</span>
+        <span className="text-xs font-semibold text-slate-500">{secondary.trim()}</span>
       ) : null}
     </div>
   )

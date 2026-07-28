@@ -421,7 +421,8 @@ export function InternalMessagesFab() {
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-bold leading-tight text-[color:var(--color-foreground)]">{activeChat.displayName}</p>
-                      <p className="mt-0.5 truncate text-xs text-[color:var(--color-muted-foreground)]">
+                      {/* Birim - Ünvan tek satırda; truncate yok — ünvan tam görünsün (#r509). */}
+                      <p className="mt-0.5 break-words text-xs leading-snug text-[color:var(--color-muted-foreground)]">
                         {activeChat.departmentName?.trim() || '—'}
                         {activeChat.title?.trim() ? (
                           <>

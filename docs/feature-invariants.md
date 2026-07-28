@@ -510,7 +510,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   alt satırda aynı sol başlangıca hizalanan personel avatarı + bilgi bloğu bulunur; iki satır da
   panelin solundan kontrollü 12px iç boşlukla biraz sağda durur;
   personel adı ana satırda,
-  sohbet header’da birim + ünvan aynı satırda `Birim - Ünvan` (ünvan `font-mono` — #r507/#r508),
+  sohbet header’da birim + ünvan aynı satırda `Birim - Ünvan` (ünvan `font-mono` — #r507/#r508);
+  satır truncate edilmez, ünvan tam görünür (#r509),
   liste satırında ünvan birimin altında ayrı satırda kalır (#r506),
   küçük `Kurum İçi Mesajlar` etiketi sağa yaslıdır.
   Gelen balonda birim•ad etiketi siyahtır (turuncu değil); balon padding/font WhatsApp

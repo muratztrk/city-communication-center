@@ -1,3 +1,7 @@
+## Round 509 — Sohbet header ünvan tam görünür + loop restart
+- `6a675c8e` reopen — Header `Birim - Ünvan` truncate kaldırıldı (tam görünür).
+- Cursor 10dk wake loop yeniden başlatıldı (önceki süreç 26 Temmuz’da ölmüştü).
+
 ## Round 508 — Sohbet header Birim - Ünvan
 - `6a675c8e` reopen — Konuşma açılınca header’da `Birim - Ünvan` (ünvan mono); liste alt satır kalır.
 

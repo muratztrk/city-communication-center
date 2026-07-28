@@ -1,3 +1,6 @@
+## Round 536 — overflow tooltip 500 ms hover gecikmesi
+- `6a68a331` (#1992) — Ellipsis tooltip 500 ms hover sonrası açılır (1 sn → 500 ms).
+
 ## Round 535 — overflow tooltip 1 sn hover gecikmesi
 - `6a68a331` (#1992) — Ellipsis tooltip 1 saniye hover sonrası açılır.
 

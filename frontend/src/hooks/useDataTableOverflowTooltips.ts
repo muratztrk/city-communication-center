@@ -63,7 +63,7 @@ function resolveOverflowTarget(eventTarget: Element): { anchor: HTMLElement; tex
 
 /**
  * Global hover tooltip for clipped grid cells (#r474–#r479) and dropdown rows (#r517).
- * Opens below the cell after ~1s hover (#r535 / #2008); compact size.
+ * Opens below the cell after ~500ms hover (#r536 / #1992); compact size.
  */
 export function useDataTableOverflowTooltips() {
   useEffect(() => {
@@ -133,7 +133,7 @@ export function useDataTableOverflowTooltips() {
         placeBelow(anchor)
         return
       }
-      // Aynı hücrede 1s gecikme sayacı çalışıyorsa yeniden başlatma.
+      // Aynı hücrede gecikme sayacı çalışıyorsa yeniden başlatma.
       if (same && showTimer != null) return
 
       clearShow()
@@ -143,13 +143,13 @@ export function useDataTableOverflowTooltips() {
       anchor.removeAttribute('title')
       el.textContent = text
       placeBelow(anchor)
-      // 1 saniye hover sonrası göster (#r535 / card #2008).
+      // 500 ms hover sonrası göster (#r536 / card #1992).
       showTimer = window.setTimeout(() => {
         showTimer = null
         if (activeAnchor !== anchor) return
         placeBelow(anchor)
         el.dataset.open = 'true'
-      }, 1000)
+      }, 500)
     }
 
     const onOver = (event: Event) => {

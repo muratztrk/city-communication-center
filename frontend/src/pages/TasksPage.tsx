@@ -3075,12 +3075,12 @@ const pageKicker = isMyTasksView
                           <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.82rem]">
                             {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
                           </StatusPill>
-                          {/* Görevi Yapan: oluşturandan biraz küçük (#r472). Boşsa gri — (#r480). */}
+                          {/* Görevi Yapan: oluşturandan biraz küçük (#r472); biraz büyüt (#2006 / #r531). */}
                           {(task.assignedUserDisplayName ?? task.ownerDisplayName) ? (
                             <TruncatedText
                               as="div"
                               text={(task.assignedUserDisplayName ?? task.ownerDisplayName)!}
-                              className={`mt-1 truncate text-[0.8125rem] font-semibold leading-snug ${reporterAssigneeClass}`}
+                              className={`mt-1 truncate text-sm font-semibold leading-snug ${reporterAssigneeClass}`}
                             />
                           ) : (
                             <div className="mt-1"><EmptyCell /></div>

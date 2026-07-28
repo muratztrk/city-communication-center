@@ -1848,7 +1848,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         </div>
         {/* Dış birimde atanmış personel çerçeve altında (card #r449). */}
         {enlargeExternal && job.assignedUserDisplayName ? (
-          <div className="text-xs font-semibold text-slate-500">{job.assignedUserDisplayName}</div>
+          <div className="text-sm font-semibold text-slate-500">{job.assignedUserDisplayName}</div>
         ) : null}
       </div>
     )

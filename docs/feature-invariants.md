@@ -1234,11 +1234,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   menü ~168px; clearable X; placeholder `Birim seçiniz...`.
 - **WA Tümü / Talep Sayısı (#r473):** yalnız İşleme Alınan + Yapılmakta + Tamamlandı toplamı
   (iptal dahil değil).
-- **Grid truncate tooltip (#r474–#r479/#r517/#r522/#r524/#r529/#r530):** AppShell `useDataTableOverflowTooltips` —
+- **Grid truncate tooltip (#r474–#r479/#r517/#r522/#r524/#r529/#r530/#r531):** AppShell `useDataTableOverflowTooltips` —
   `.data-table` taşan hücrelerde + `.dropdown-menu-item` ellipsis satırlarında kompakt emerald
   portal tooltip; dropdown’da flex ölçüm fallback + native `title` yedek. Tooltip `z-index` 10050;
   yatayda ortalı + ~16px sağa (#2001); metin antrasit `#36454f`, tek satır `nowrap` (#2004);
-  arka plan/border emerald tonları biraz koyu (#r530).
+  arka plan/border emerald koyu (`border #059669`) (#r531).
+- **Grid personel adı boyutu (#2005/#r531):** Gittiği Yer / çerçeve altı personel `text-sm`
+  (iç birim `text-sm` ile aynı; `text-xs` farkı kaldırıldı — `FramedDepartmentStack` secondary dahil).
+- **Görev Tipi Görevi Yapan (#2006/#r531):** personel adı `text-sm font-semibold` (önce ~0.8125rem).
 - **WA Konuşmaları footer (#r468):** Şablon/Dosya + Birim + Kurum İçi tek satır; Birim/Kurum
   İçi `ml-auto` sağa (create-modal ConversationPanel ile aynı).
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
@@ -1247,8 +1250,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   için yalnızca Meta onaylı şablon mesaj gönderilebilir.`
 - **WA Şablon menü (#r471):** Konuşmalar sayfasında `menuAlign="start"` (sağa doğru açılır).
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
-- **Görev grid Görevi Yapan (#r471/#r472):** personel adı ~13px (`text-[0.8125rem] font-semibold`);
-  oluşturan `text-sm`'den biraz küçük.
+- **Görev grid Görevi Yapan (#r471/#r472/#r531):** personel adı `text-sm font-semibold` (#2006).
+  oluşturan `text-sm` ile hizalı.
 - **Bildirim "(Vatandaş Talebi)" etiketi (#r491/#r492):** `titleTag` metin `text-[0.7rem]`, kanal ikonu
   `size-2.5`; ikon+metin `inline-flex items-center` (ikon text altına kaymasın).
 - **Ek toplam boyutu (#r491):** Entity / form başına tüm eklerin toplamı ≤ 5 MB (tek dosya da dahil); aşımda uyarı, yükleme yok. BE `UploadAttachmentCommand` mevcut ekleri toplar.

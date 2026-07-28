@@ -2587,16 +2587,16 @@
     max-width: min(42rem, calc(100vw - 1.5rem));
     padding: 0.35rem 0.55rem;
     border-radius: 0.65rem;
-    border: 1px solid #6ee7b7;
-    background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%);
+    border: 1px solid #059669;
+    background: linear-gradient(180deg, #d1fae5 0%, #a7f3d0 100%);
     color: #36454f;
     font-size: 0.72rem;
     font-weight: 600;
     line-height: 1.35;
     letter-spacing: 0.01em;
     box-shadow:
-      0 8px 20px rgba(15, 23, 42, 0.14),
-      0 0 0 1px rgba(16, 185, 129, 0.12);
+      0 8px 20px rgba(15, 23, 42, 0.16),
+      0 0 0 1px rgba(5, 150, 105, 0.22);
     pointer-events: none;
     opacity: 0;
     transform: translateY(-3px) scale(0.98);

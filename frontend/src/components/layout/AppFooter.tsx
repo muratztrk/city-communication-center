@@ -1,14 +1,11 @@
 function LumespecLogo() {
   return (
-    <div className="flex items-center gap-1.5 text-white/30">
-      <svg width="16" height="16" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-        <rect x="1" y="1" width="7" height="7" rx="1.5" fill="currentColor" opacity="0.8" />
-        <rect x="10" y="1" width="7" height="7" rx="1.5" fill="currentColor" opacity="0.5" />
-        <rect x="1" y="10" width="7" height="7" rx="1.5" fill="currentColor" opacity="0.5" />
-        <rect x="10" y="10" width="7" height="7" rx="1.5" fill="currentColor" opacity="0.8" />
-      </svg>
-      <span className="text-[10.5px] font-bold uppercase tracking-[0.14em]">Lumespec</span>
-    </div>
+    <img
+      src="/lumespec-logo.png"
+      alt="Lumespec"
+      className="h-[14px] w-auto select-none"
+      draggable={false}
+    />
   )
 }
 

@@ -1,3 +1,7 @@
+## Round 541 — Lumespec footer logo
+- `AppFooter` markası yeni `/lumespec-logo.png` wordmark (Lume beyaz + spec mavi gradient);
+  siyah zemin şeffaf. Login / AppShell / Wallboard ortak footer.
+
 ## Round 540 — Google Maps geçişi
 - OSM/Leaflet/Nominatim kaldırıldı; Anasayfa Maps JS + detay Embed + `google.maps.Geocoder`.
 - Env: `VITE_GOOGLE_MAPS_API_KEY` / `CCC_GOOGLE_MAPS_API_KEY` (GCP: Maps JS, Embed, Geocoding).

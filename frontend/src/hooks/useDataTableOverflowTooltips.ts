@@ -25,6 +25,25 @@ function mayEllipsis(el: HTMLElement): boolean {
 }
 
 function resolveOverflowTarget(eventTarget: Element): { anchor: HTMLElement; text: string } | null {
+  // Dropdown list rows — truncated labels show full text on hover (#r517 / #1996).
+  const dropdownItem = eventTarget.closest('.dropdown-menu-item')
+  if (dropdownItem instanceof HTMLElement) {
+    let node: Element | null = eventTarget
+    while (node && node !== dropdownItem) {
+      if (node instanceof HTMLElement && mayEllipsis(node) && isClipped(node)) {
+        const text = cellText(node)
+        if (text) return { anchor: node, text }
+      }
+      node = node.parentElement
+    }
+    const label = dropdownItem.querySelector('.truncate')
+    if (label instanceof HTMLElement && isClipped(label)) {
+      const text = cellText(label)
+      if (text) return { anchor: label, text }
+    }
+    return null
+  }
+
   const td = eventTarget.closest('.data-table tbody td')
   if (!(td instanceof HTMLElement) || td.classList.contains('actions-cell')) return null
 
@@ -48,7 +67,7 @@ function resolveOverflowTarget(eventTarget: Element): { anchor: HTMLElement; tex
 }
 
 /**
- * Global GridView hover tooltip for clipped cells (#r474–#r479).
+ * Global hover tooltip for clipped grid cells (#r474–#r479) and dropdown rows (#r517).
  * Opens below the cell, compact size, immediate response on every hover.
  */
 export function useDataTableOverflowTooltips() {

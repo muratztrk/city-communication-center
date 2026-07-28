@@ -1233,11 +1233,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   menü ~168px; clearable X; placeholder `Birim seçiniz...`.
 - **WA Tümü / Talep Sayısı (#r473):** yalnız İşleme Alınan + Yapılmakta + Tamamlandı toplamı
   (iptal dahil değil).
-- **Grid truncate tooltip (#r474–#r479):** AppShell `useDataTableOverflowTooltips` —
-  `.data-table` taşan hücrelerde kompakt emerald portal tooltip; öncelik aşağı; anında
-  güncellenir (native `title` değil; İşlemler hariç).
+- **Grid truncate tooltip (#r474–#r479/#r517):** AppShell `useDataTableOverflowTooltips` —
+  `.data-table` taşan hücrelerde + `.dropdown-menu-item` ellipsis satırlarında kompakt emerald
+  portal tooltip; öncelik aşağı; anında güncellenir (native `title` değil; İşlemler hariç).
+  Tooltip `z-index` dropdown portal’ın üstünde (`10050`).
 - **WA Konuşmaları footer (#r468):** Şablon/Dosya + Birim + Kurum İçi tek satır; Birim/Kurum
   İçi `ml-auto` sağa (create-modal ConversationPanel ile aynı).
+- **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
+  `onMessageUpdated` ile category seçili kalır.
 - **WA 24s hata metni (#r470):** re-engagement → `Vatandaş son 24 saat içinde mesaj göndermediği
   için yalnızca Meta onaylı şablon mesaj gönderilebilir.`
 - **WA Şablon menü (#r471):** Konuşmalar sayfasında `menuAlign="start"` (sağa doğru açılır).

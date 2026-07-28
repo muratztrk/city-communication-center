@@ -2564,10 +2564,11 @@
     text-align: center;
   }
 
-  /* Grid overflow tooltip — compact, opens below (#r478/#r479). */
+  /* Grid / dropdown overflow tooltip — compact, opens below (#r478/#r479/#r517).
+     z-index > dropdown portal (9999) so tooltip stays readable over open menus. */
   .ccc-grid-overflow-tooltip {
     position: fixed;
-    z-index: 420;
+    z-index: 10050;
     max-width: min(14rem, calc(100vw - 1.5rem));
     padding: 0.35rem 0.55rem;
     border-radius: 0.65rem;

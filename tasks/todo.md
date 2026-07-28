@@ -1,3 +1,8 @@
+## Round 519 — Rol menü/buton + Kurum Bilgisi boşluk (reopen)
+- `6a68a4b5` (#1994) — Gridview Rol dropdown metin gerçekten küçültüldü (admin-surface override fix).
+- `6a689e20` (#1988) — Ek Roller Çıkış/Seç butonları küçültüldü (Tailwind + CSS).
+- `6a68a524` (#1995) — Kurum Bilgisi üç boşluk sıkılaştırıldı.
+
 ## Round 518 — Users rol menü küçült + Ek Roller butonları
 - `6a68a4b5` (#1994) — Gridview Rol dropdown metin ~0.58rem’e küçültüldü.
 - `6a689e20` (#1988) — Yeni kullanıcı Ek Roller menüsünde Çıkış/Seç butonları küçültüldü.

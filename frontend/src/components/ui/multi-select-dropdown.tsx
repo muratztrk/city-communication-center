@@ -210,17 +210,17 @@ export function MultiSelectDropdown({
               })}
             </div>
           )}
-          <div className="dropdown-menu-footer flex shrink-0 justify-end gap-2 border-t border-slate-100 px-2 py-2">
+          <div className="dropdown-menu-footer flex shrink-0 justify-end gap-1.5 border-t border-slate-100 px-1.5 py-1.5">
             <button
               type="button"
-              className="rounded-lg bg-[var(--color-destructive)] px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-[filter] hover:brightness-95"
+              className="rounded-md bg-[var(--color-destructive)] px-2.5 py-1 text-xs font-bold text-white shadow-sm transition-[filter] hover:brightness-95"
               onClick={() => { setOpen(false); setSearch('') }}
             >
               Çıkış
             </button>
             <button
               type="button"
-              className="rounded-lg bg-[color:var(--color-primary)] px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+              className="rounded-md bg-[color:var(--color-primary)] px-2.5 py-1 text-xs font-bold text-white shadow-sm transition-opacity hover:opacity-90"
               onClick={() => { setOpen(false); setSearch('') }}
             >
               Seç

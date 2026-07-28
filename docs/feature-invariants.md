@@ -889,10 +889,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi `Yönetici`.
 - **Kurum sekmesi sağ kolon:** üstte Kurum Konumu, altta Hafta Sonu SLA; sol Kurum Bilgisi ile
   alt border hizalı (`items-stretch` + sağ kolon `flex-1`) (card #1715).
-- **Kurum Konumu ilçe → mahalle + harita (#r512):** Ayarlar’da seçilen İlçe (İzmir) değişince
-  mahalle listesi önizlemesi ve harita önizlemesi güncellenir; Kaydet sonrası `ccc_municipality_district`
-  ile talep formu mahalle dropdown’ları ve vatandaş panosu haritası (merkez/bounds/başlık/geocode
-  ilçe adı) aynı ilçeyi kullanır. Tire için mevcut merkez/bounds korunur.
+- **Kurum Konumu ilçe → mahalle + harita (#r512/#r514):** Ayarlar’da seçilen İlçe (İzmir) mahalle
+  listesi önizlemesini günceller (Kurum Konumu altında harita yok — Anasayfa vatandaş haritası);
+  Kaydet sonrası `ccc_municipality_district` ile talep formu mahalle dropdown’ları ve Anasayfa
+  vatandaş haritası (merkez/bounds/başlık/geocode ilçe adı) aynı ilçeyi kullanır. Tire için mevcut
+  merkez/bounds korunur.
 - **Birimler/Kullanıcılar grid:** FilterableTh + sort + TablePagination; kolon genişlikleri
   `users-table`/`departments-table` ile orantılı (card #1724). Kullanıcılar Rol StatusPill ortalı;
   İşlemler’de kalem+Düzenle / çöp+Sil ve satır ortalı (cards #1722/#1725/#1732). Banner `+Yeni…`

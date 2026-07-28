@@ -1307,7 +1307,7 @@
     },
     "municipalityLocation": {
       "sectionTitle": "Municipality Location",
-      "sectionDescription": "Select a district to drive the create-request neighborhood list and the citizen dashboard map. Changing the selection updates the neighborhood list and map preview.",
+      "sectionDescription": "Select a district to drive the create-request neighborhood list and the home citizen map. Changing the selection updates the neighborhood list.",
       "districtLabel": "District (İzmir)",
       "saveSuccess": "Location setting saved."
     }

@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import type { TFunction } from 'i18next'
-import { Eye, EyeOff, ShieldUser, PenLine, Trash2, Users } from 'lucide-react'
+import { Eye, EyeOff, ShieldUser, PenLine, Search, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -23,11 +23,9 @@ import { useAuth } from '../context/AuthContext'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Department, DirectoryUserLookup, User, UserManagementContext } from '../types/platform'
 import { getRoleLabel, getUserSourceLabel } from '../utils/localization'
-import { ROLE_CODES } from '../lib/rolePageAccess'
 
 type CreateMode = 'manual' | 'ldap'
 
-const PRIMARY_ROLE_CODES = [...ROLE_CODES]
 const ADDITIONAL_ROLE_CODES = ['Operator', 'Staff', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
 /** UI-only rol seçeneği — kayıtta Manager'a map (card #1897). */
 const SORUMLU_ROLE_OPTION = 'Sorumlu'
@@ -48,13 +46,18 @@ function resolveUiRoleCode(user: User, departments: Department[]): string {
 }
 
 function primaryRoleFormOptions(t: TFunction) {
-  return [
-    ...PRIMARY_ROLE_CODES.map(roleCode => ({
-      value: roleCode,
-      label: getRoleLabel(t, roleCode),
-    })),
+  // Sıra: Standart → Sorumlu → Müdür → Operatör → CRM → Reporter → e-Devlet → SystemAdmin (#r514).
+  const ordered: Array<{ value: string; label: string }> = [
+    { value: 'Staff', label: getRoleLabel(t, 'Staff') },
     { value: SORUMLU_ROLE_OPTION, label: t('enum.role.Sorumlu', 'Sorumlu') },
+    { value: 'Manager', label: getRoleLabel(t, 'Manager') },
+    { value: 'Operator', label: getRoleLabel(t, 'Operator') },
+    { value: 'CitizenRequestManager', label: getRoleLabel(t, 'CitizenRequestManager') },
+    { value: 'Reporter', label: getRoleLabel(t, 'Reporter') },
+    { value: 'EDevletActivityPlan', label: getRoleLabel(t, 'EDevletActivityPlan') },
+    { value: 'SystemAdmin', label: getRoleLabel(t, 'SystemAdmin') },
   ]
+  return ordered
 }
 
 const DEFAULT_USER_FORM = {
@@ -830,11 +833,43 @@ export function UsersPage() {
   const getDepartmentName = (departmentId: string) => departments.find(department => department.departmentId === departmentId)?.name || t('common.none')
   const { sortKey: usersSortKey, sortDir: usersSortDir, toggleSort: toggleUsersSort, sortItems: sortUsers } = useSortable()
   const sortedUsers = useMemo(() => sortUsers(users), [users, sortUsers])
-  const { filters: userFilters, setFilter: setUserFilter, matchesFilters: userMatchesFilters } = useColumnFilters()
-  const columnFilteredUsers = useMemo(
-    () => sortedUsers.filter(u => userMatchesFilters(u)),
-    [sortedUsers, userMatchesFilters],
-  )
+  const { filters: userFilters, setFilter: setUserFilter, clearFilters: clearUserFilters, matchesFilters: userMatchesFilters } = useColumnFilters()
+  const [userSearchText, setUserSearchText] = useState('')
+  const columnFilteredUsers = useMemo(() => {
+    const searchNormalized = userSearchText.trim().toLocaleLowerCase('tr')
+    return sortedUsers.filter(user => {
+      if (searchNormalized) {
+        const departmentName = departments.find(d => d.departmentId === user.departmentId)?.name ?? ''
+        const roleLabel = getRoleLabel(t, resolveUiRoleCode(user, departments))
+        const haystack = [
+          user.username,
+          user.displayName,
+          user.title,
+          user.email,
+          user.phone,
+          departmentName,
+          roleLabel,
+          getUserSourceLabel(t, user.userSource),
+        ].map(part => String(part ?? '')).join(' ').toLocaleLowerCase('tr')
+        if (!haystack.includes(searchNormalized)) return false
+      }
+      return userMatchesFilters(user, (key, item) => {
+        if (key === 'departmentId') {
+          return departments.find(d => d.departmentId === item.departmentId)?.name ?? ''
+        }
+        if (key === 'roleCode') {
+          return getRoleLabel(t, resolveUiRoleCode(item, departments))
+        }
+        if (key === 'isActive') {
+          return item.isActive ? t('common.active', 'Aktif') : t('common.inactive', 'Pasif')
+        }
+        if (key === 'userSource') {
+          return getUserSourceLabel(t, item.userSource)
+        }
+        return String((item as unknown as Record<string, unknown>)[key] ?? '')
+      })
+    })
+  }, [sortedUsers, userMatchesFilters, userSearchText, departments, t])
   const [usersPageSize, setUsersPageSize] = useState(25)
   const [usersPage, setUsersPage] = useState(1)
   const usersTotalCount = columnFilteredUsers.length
@@ -848,6 +883,10 @@ export function UsersPage() {
     setUserFilter(key, value)
     setUsersPage(1)
   }
+
+  useEffect(() => {
+    setUsersPage(1)
+  }, [userSearchText])
   const handleUsersSort = (key: string) => {
     toggleUsersSort(key)
     setUsersPage(1)
@@ -1324,6 +1363,23 @@ export function UsersPage() {
       ) : null}
 
       <section className={`section-card${showForm ? '' : ' desktop-page-fill'}`}>
+        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-background)] px-4 py-2.5 sm:px-5">
+          <div className="relative min-w-[14rem] flex-1">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
+            <input
+              type="search"
+              value={userSearchText}
+              onChange={event => setUserSearchText(event.target.value)}
+              placeholder={t('users.search', 'İsim, kullanıcı adı, birim veya rol ara…')}
+              className="field-input w-full pl-8 text-sm"
+            />
+          </div>
+          {(userSearchText || Object.values(userFilters).some(Boolean)) ? (
+            <Button type="button" size="sm" variant="secondary" onClick={() => { setUserSearchText(''); clearUserFilters() }}>
+              {t('common.reset', 'Temizle')}
+            </Button>
+          ) : null}
+        </div>
         <div className={`table-wrap${showForm ? '' : ' desktop-panel-scroll'}`}>
           <table className="data-table users-table">
             <thead>

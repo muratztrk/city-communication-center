@@ -1338,7 +1338,7 @@
     },
     "municipalityLocation": {
       "sectionTitle": "Kurum Konumu",
-      "sectionDescription": "Talep oluşturma mahalle listesini ve vatandaş haritasını belirlemek için ilçe seçin. Seçim değişince mahalle listesi ve harita önizlemesi güncellenir.",
+      "sectionDescription": "Talep oluşturma mahalle listesini ve Anasayfa vatandaş haritasını belirlemek için ilçe seçin. Seçim değişince mahalle listesi güncellenir.",
       "districtLabel": "İlçe (İzmir)",
       "saveSuccess": "Konum ayarı kaydedildi."
     }

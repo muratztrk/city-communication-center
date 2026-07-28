@@ -1,4 +1,4 @@
-import { Building2, Layers3, PenLine, Trash2, X } from 'lucide-react'
+import { Building2, Layers3, PenLine, Search, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -562,7 +562,8 @@ export function DepartmentsPage() {
   const canEditDepartment = (department: Department) => user?.role === 'SystemAdmin' || department.managerUserId === user?.userId
 
   const { sortKey: deptSortKey, sortDir: deptSortDir, toggleSort: toggleDeptSort, sortItems: sortDepts } = useSortable()
-  const { filters: deptFilters, setFilter: setDeptFilter, matchesFilters: deptMatchesFilters } = useColumnFilters()
+  const { filters: deptFilters, setFilter: setDeptFilter, clearFilters: clearDeptFilters, matchesFilters: deptMatchesFilters } = useColumnFilters()
+  const [deptSearchText, setDeptSearchText] = useState('')
 
   const departmentRows = useMemo(
     () => departments.map(department => {
@@ -577,9 +578,14 @@ export function DepartmentsPage() {
           && item.isActive
           && !(department.responsibleUserIds ?? []).includes(item.userId),
         )?.displayName
+      const responsibleNames = (department.responsibleUserIds ?? [])
+        .map(id => users.find(item => item.userId === id)?.displayName)
+        .filter(Boolean)
+        .join(' ')
       return {
         ...department,
         managerName: assigned ?? roleFallback ?? '—',
+        responsibleNames,
       }
     }),
     [departments, users],
@@ -590,15 +596,30 @@ export function DepartmentsPage() {
     return [...departmentRows].sort((a, b) =>
       a.name.localeCompare(b.name, 'tr', { sensitivity: 'base' }))
   }, [departmentRows, deptSortKey, sortDepts])
-  const columnFilteredDepts = useMemo(
-    () => sortedDepts.filter(d => deptMatchesFilters(d)),
-    [sortedDepts, deptMatchesFilters],
-  )
+  const columnFilteredDepts = useMemo(() => {
+    const searchNormalized = deptSearchText.trim().toLocaleLowerCase('tr')
+    return sortedDepts.filter(department => {
+      if (searchNormalized) {
+        const haystack = [
+          department.name,
+          department.managerName,
+          department.responsibleNames,
+          department.departmentType,
+        ].join(' ').toLocaleLowerCase('tr')
+        if (!haystack.includes(searchNormalized)) return false
+      }
+      return deptMatchesFilters(department)
+    })
+  }, [sortedDepts, deptMatchesFilters, deptSearchText])
 
   const handleDeptFilter = (key: string, value: string) => {
     setDeptFilter(key, value)
     setDeptPage(1)
   }
+
+  useEffect(() => {
+    setDeptPage(1)
+  }, [deptSearchText])
 
   const handleDeptSort = (key: string) => {
     toggleDeptSort(key)
@@ -818,6 +839,23 @@ export function DepartmentsPage() {
       ) : null}
 
       <section className={`section-card${showForm ? '' : ' desktop-page-fill'}`}>
+        <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-background)] px-4 py-2.5 sm:px-5">
+          <div className="relative min-w-[14rem] flex-1">
+            <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
+            <input
+              type="search"
+              value={deptSearchText}
+              onChange={event => setDeptSearchText(event.target.value)}
+              placeholder={t('departments.search', 'Birim, müdür veya sorumlu ara…')}
+              className="field-input w-full pl-8 text-sm"
+            />
+          </div>
+          {(deptSearchText || Object.values(deptFilters).some(Boolean)) ? (
+            <Button type="button" size="sm" variant="secondary" onClick={() => { setDeptSearchText(''); clearDeptFilters() }}>
+              {t('common.reset', 'Temizle')}
+            </Button>
+          ) : null}
+        </div>
         <div className={`table-wrap${showForm ? '' : ' desktop-panel-scroll'}`}>
           <table className="data-table departments-table">
             <thead>

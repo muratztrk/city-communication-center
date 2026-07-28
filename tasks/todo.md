@@ -1,3 +1,8 @@
+## Round 514 — Kurum harita düzeltmesi + rol sırası + Users/Birimler arama
+- `6a6899e7` reopen — Ayarlar’daki Kurum Konumu haritası kaldırıldı; Anasayfa haritası ilçeye bağlı kalır.
+- `6a689e20` — Users Rol dropdown metin küçültüldü; sıra Standart→Sorumlu→Müdür→…
+- `6a689f9a` — Vatandaş dizin tarzı arama Users + Birimler grid üstüne eklendi.
+
 ## Round 513 — Yönetici Ata ↔ Kullanıcı Rol senkronu
 - `6a689c71` — Birimler Sorumlu/Müdür ataması Users rolünü günceller; Users Müdür/Sorumlu seçimi Birimler koltuklarını günceller.
 

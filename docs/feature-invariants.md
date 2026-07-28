@@ -889,11 +889,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi `Yönetici`.
 - **Kurum sekmesi sağ kolon:** üstte Kurum Konumu, altta Hafta Sonu SLA; sol Kurum Bilgisi ile
   alt border hizalı (`items-stretch` + sağ kolon `flex-1`) (card #1715).
-- **Kurum Konumu ilçe → mahalle + harita (#r512/#r514):** Ayarlar’da seçilen İlçe (İzmir) mahalle
-  listesi önizlemesini günceller (Kurum Konumu altında harita yok — Anasayfa vatandaş haritası);
-  Kaydet sonrası `ccc_municipality_district` ile talep formu mahalle dropdown’ları ve Anasayfa
-  vatandaş haritası (merkez/bounds/başlık/geocode ilçe adı) aynı ilçeyi kullanır. Tire için mevcut
-  merkez/bounds korunur.
+- **Kurum Konumu ilçe (#r512/#r514/#r521):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
+  önizlemesi Ayarlar’da gösterilmez (#r521). Kaydet sonrası `ccc_municipality_district` ile
+  talep formu mahalle dropdown’ları ve Anasayfa vatandaş haritası aynı ilçeyi kullanır.
+  Tire için mevcut merkez/bounds korunur.
 - **Birimler/Kullanıcılar grid:** FilterableTh + sort + TablePagination; kolon genişlikleri
   `users-table`/`departments-table` ile orantılı (card #1724). Kullanıcılar Rol StatusPill ortalı;
   İşlemler’de kalem+Düzenle / çöp+Sil ve satır ortalı (cards #1722/#1725/#1732). Banner `+Yeni…`
@@ -1288,23 +1287,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yarım durumunu temizler (düzenleme satırı + create form aynı anda kalmaz).
 - **Birimler/Kullanıcılar banner İptal (#r458/#r459):** İptal genişliği = Yeni … Ekle
   (görünmez ölçüm grid’i; sabit min-w yok).
-- **Birime Gelen Talep Yeri çerçeve (#r520):** grid `Talep Yeri / Oluşturan` — aktif (kendi)
-  birim dışı talep yeri `FramedDepartmentStack` yeşil çerçeve; kendi birim `ReporterDepartmentCell`.
-- **Gittiği Yer yeşil çerçeve (#r516):** Taleplerim/Birimden Giden grid ve görev grid
-  `FramedDepartmentStack` / destination StatusPill orta boy (`~0.76–0.78rem`, `px-2.5 py-1`).
-  (#r515 aşırı küçültmeyi geri aldı.)
-- **Kullanıcılar grid Rol menü font (#r519):** `.users-edit-dropdown-menu*` ~0.52rem;
-  `admin-surface-menu` 0.95rem override specificity ile ezilir. MultiSelect Çıkış/Seç
-  `text-xs` / compact footer (#1988).
-- **Ayarlar Kurum Bilgisi (#r519):** `.settings-org-card` sıkı padding/gap (`!p-3` / `!gap-1.5`);
-  başlık↔info-grid↔form arası beyaz boşluk azaltıldı.
+- **Birime Gelen Talep Yeri çerçeve (#r520/#r521):** grid `Talep Yeri / Oluşturan` — aktif (kendi)
+  birim dışı talep yeri `FramedDepartmentStack` yeşil çerçeve, sütunda ortalı (#r521);
+  kendi birim `ReporterDepartmentCell`.
+- **Kullanıcılar grid Rol menü font (#r521):** `.users-edit-dropdown-menu*` ~0.62rem.
+  Create form Ek Roller Çıkış/Seç ~0.72rem.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);
   `window.open(origin)` — about:blank / sol üst info ikonu yok (#r460).
 - **Yazdır popup origin (#r460):** `printHtmlDocument` boş URL yerine site origin ile açılır.
-- **Kullanıcılar Birim/Rol menü font (#r456/#r460/#r516/#r518/#r519):** grid
-  `.users-edit-dropdown-menu*` ~0.52rem (admin-surface override’ı specificity ile ezilir).
+- **Kullanıcılar Birim/Rol menü font (#r456/#r460/#r516/#r518/#r519/#r521):** grid
+  `.users-edit-dropdown-menu*` ~0.62rem (admin-surface override’ı specificity ile ezilir).
 - **Talep açıklaması detay (#r460):** Taleplerim/detay `RichTextContent` ~13px.
 - **WA Etiket ekle (#r460):** kompakt `RequestTagAddButton` `h-8` / `text-xs`.
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).

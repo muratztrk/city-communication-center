@@ -996,7 +996,7 @@ export function IncomingRequestsPage() {
                             <FramedDepartmentStack
                               departmentName={row.departmentName}
                               secondary={row.createdBy}
-                              align="start"
+                              align="center"
                             />
                           )
                         }

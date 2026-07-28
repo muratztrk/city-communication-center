@@ -8,7 +8,6 @@ import { api } from '../api/client'
 import { invalidateSettings } from '../api/cacheInvalidation'
 import { API_ORIGIN } from '../api/config'
 import { IZMIR_DISTRICTS, getSavedDistrictId, saveDistrictId } from '../data/izmir-locations'
-import { MunicipalityLocationPreview } from '../components/MunicipalityLocationPreview'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -1431,7 +1430,6 @@ export function SettingsPage() {
                     searchPlaceholder={t('common.search', 'Ara...')}
                   />
                 </label>
-                <MunicipalityLocationPreview districtId={selectedDistrictId} />
                 <div className="inline-actions">
                   <Button type="submit">{t('common.save')}</Button>
                 </div>

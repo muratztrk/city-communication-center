@@ -1,3 +1,9 @@
+## Round 521 — Kurum Konumu mahalle kaldır + rol menü/buton + Talep Yeri orta
+- `6a68a524` (#1995) — Ayarlar Kurum Konumu altındaki mahalle listesi önizlemesi kaldırıldı.
+- `6a689e20` (#1988) — Ek Roller Çıkış/Seç biraz büyütüldü.
+- `6a68a4b5` (#1994) — Gridview Rol dropdown metin ~0.62rem.
+- `6a68af80` (#1998) — Birime Gelen yeşil çerçeve Talep Yeri sütunda ortalandı.
+
 ## Round 520 — Birime Gelen Talep Yeri yeşil çerçeve
 - `6a68af80` (#1998) — Talep Yeri / Oluşturan: kendi birim hariç yeşil çerçeve (FramedDepartmentStack).
 

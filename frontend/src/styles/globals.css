@@ -3526,9 +3526,9 @@
   }
 
   /* Filtredeki tarih seçici kompakt; satırın aşağı kaymasını önler.
-     9.5rem: dd.mm.yyyy + küçük takvim ikonu + temizle alanı taşmadan sığar (card #2007). */
+     11.5rem: dd.mm.yyyy HH:mm + küçük takvim ikonu + temizle alanı (#r539 saat geri). */
   .scope-chip-date {
-    width: 9.5rem;
+    width: 11.5rem;
     flex: 0 0 auto;
   }
 

@@ -190,9 +190,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   "YYYY-MM-DDTHH:mm" yerel saattir; ISO'dan dönüşüm HER ZAMAN `utils/dateTimePicker.ts` içindeki
   `toDateTimePickerValue` ile yapılır. `toISOString().slice(0,16)` (UTC dilimi) YASAK — saati UTC
   ofseti kadar erken gösterir ve her kayıtta tarihi geriye kaydırır. Sayfa içi kopya helper yazma.
-- **Banner Başlangıç/Bitiş tarih chip'i (round 532/#2007, round 533/#r537/#r538):** `.scope-chip-date`
-  genişliği `≥9.5rem`; takvim ikonu `size-3.5` / chip içinde ~0.8125rem — `dd.mm.yyyy` truncate
-  olmamalı. `ScopeChipDateRange` → `DateTimePicker dateOnly`: saat UI yok, değer `YYYY-MM-DD`.
+- **Banner Başlangıç/Bitiş tarih chip'i (round 532–#r539):** `.scope-chip-date` genişliği `≥11.5rem`
+  (saat dahil `dd.mm.yyyy HH:mm` sığsın, #r539). Takvim ikonu `size-3.5` / chip ~0.8125rem.
+  `ScopeChipDateRange` saati gösterir (dateOnly YOK — #r539; #r533 dateOnly geri alındı).
   Takvim portalında sağ üst X: default çerçeve yok; hover'da kırmızı + yuvarlak (#r538 / #2008).
   Range: Başlangıç seçiliyse Bitiş'te önceki günler disable; Bitiş seçiliyse Başlangıç'ta sonraki
   günler disable (`minDateTime`/`maxDateTime`, #r538).

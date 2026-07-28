@@ -1,3 +1,6 @@
+## Round 539 — banner tarih chip saat geri
+- `6a69105b` (#2010) — Başlangıç/Bitiş saat bileşeni geri; chip ~11.5rem.
+
 ## Round 538 — tarih aralığı disable + takvim X hover
 - `6a690d02` (#2009) — Başlangıç/Bitiş: karşı uçtan önceki/sonraki günler disable.
 - `6a690cb2` (#2008) — Takvim X: default çerçeve yok; hover kırmızı + yuvarlak.

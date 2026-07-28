@@ -12,18 +12,18 @@ interface RichTextEditorProps {
   maxLength?: number
 }
 
-type RichTextCommand = 'bold' | 'italic' | 'underline' | 'insertUnorderedList' | 'insertOrderedList'
+type RichTextCommand = 'bold' | 'underline' | 'insertUnorderedList' | 'insertOrderedList'
 
-const ALLOWED_TAGS = new Set(['P', 'DIV', 'BR', 'UL', 'OL', 'LI', 'STRONG', 'B', 'EM', 'I', 'U', 'SPAN'])
+const ALLOWED_TAGS = new Set(['P', 'DIV', 'BR', 'UL', 'OL', 'LI', 'STRONG', 'B', 'U', 'SPAN'])
+const UNWRAPPED_TAGS = new Set(['EM', 'I']) // İtalik yok — etiket içeriği korunur (#r511)
 const DROPPED_TAGS = new Set(['SCRIPT', 'STYLE', 'IFRAME', 'OBJECT', 'EMBED', 'LINK', 'META', 'BASE', 'FORM', 'INPUT', 'BUTTON', 'TEXTAREA', 'SELECT', 'OPTION', 'SVG', 'MATH', 'IMG', 'VIDEO', 'AUDIO', 'CANVAS'])
-const RICH_TEXT_TAG_PATTERN = /<\/?(p|div|br|ul|ol|li|strong|b|em|i|u|span)\b/i
+const RICH_TEXT_TAG_PATTERN = /<\/?(p|div|br|ul|ol|li|strong|b|u|span)\b/i
 
 const SAFE_FONT_SIZE_RE = /^\d+(\.\d+)?(px|pt|em|rem)$/
 const SAFE_FONT_FAMILY_RE = /^[\w\s,'".-]+$/
 
 const TOOLBAR_COMMANDS: Array<{ command: RichTextCommand; label: string; icon?: LucideIcon; text?: string }> = [
   { command: 'bold', label: 'Kalın', text: 'K' },
-  { command: 'italic', label: 'İtalik', text: 'T' },
   { command: 'underline', label: 'Altı Çizgili', text: 'A' },
   { command: 'insertUnorderedList', label: 'Madde İşareti', icon: List },
   { command: 'insertOrderedList', label: 'Numaralı Liste', icon: ListOrdered },
@@ -38,6 +38,7 @@ function sanitizeSpanStyle(style: string): string {
     const val = decl.slice(idx + 1).trim()
     if (prop === 'font-size' && SAFE_FONT_SIZE_RE.test(val)) parts.push(`font-size: ${val}`)
     if (prop === 'font-family' && SAFE_FONT_FAMILY_RE.test(val)) parts.push(`font-family: ${val}`)
+    // font-style (italic) kasıtlı olarak atlanır (#r511)
   }
   return parts.join('; ')
 }
@@ -82,7 +83,7 @@ function sanitizeNode(parent: Node, documentRef: Document) {
 
     sanitizeNode(element, documentRef)
 
-    if (!ALLOWED_TAGS.has(element.tagName)) {
+    if (UNWRAPPED_TAGS.has(element.tagName) || !ALLOWED_TAGS.has(element.tagName)) {
       const fragment = documentRef.createDocumentFragment()
       while (element.firstChild) fragment.appendChild(element.firstChild)
       element.replaceWith(fragment)
@@ -137,7 +138,6 @@ function getSelectionCommands(editor: HTMLElement): Partial<Record<RichTextComma
   let element = getElementFromNode(selection.anchorNode)
   while (element && element !== editor) {
     if (element.tagName === 'B' || element.tagName === 'STRONG') commands.bold = true
-    if (element.tagName === 'I' || element.tagName === 'EM') commands.italic = true
     if (element.tagName === 'U') commands.underline = true
     if (element.tagName === 'UL') commands.insertUnorderedList = true
     if (element.tagName === 'OL') commands.insertOrderedList = true
@@ -252,7 +252,7 @@ export function RichTextEditor({
       <div className="rich-text-toolbar" aria-label="Rich text controls">
         {TOOLBAR_COMMANDS.map(({ command, label, icon: Icon, text }, index) => (
           <Fragment key={command}>
-            {index === 3 ? <span className="rich-text-toolbar-divider" aria-hidden="true" /> : null}
+            {index === 2 ? <span className="rich-text-toolbar-divider" aria-hidden="true" /> : null}
             <button
               type="button"
               className={`rich-text-toolbar-button ${activeCommands[command] ? 'active' : ''}`}
@@ -267,7 +267,7 @@ export function RichTextEditor({
               ) : (
                 <span
                   className={`inline-flex min-w-[1rem] items-center justify-center text-sm font-bold leading-none ${
-                    command === 'italic' ? 'italic' : command === 'underline' ? 'underline' : ''
+                    command === 'underline' ? 'underline' : ''
                   }`}
                 >
                   {text}
@@ -292,6 +292,12 @@ export function RichTextEditor({
         onBlur={emitChange}
         onBeforeInput={handleBeforeInput}
         onPaste={handlePaste}
+        onKeyDown={event => {
+          // Ctrl/Cmd+I tarayıcı italik kısayolunu engelle (#r511)
+          if ((event.ctrlKey || event.metaKey) && event.key.toLocaleLowerCase('tr') === 'i') {
+            event.preventDefault()
+          }
+        }}
       />
     </div>
   )

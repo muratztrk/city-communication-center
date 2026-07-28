@@ -1087,6 +1087,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açılan seçenekler 12px/2rem satır yüksekliğindedir ve uzun listede standart arama/scroll davranışı korunur.
 - **Açıklama alanı başlıkları:** talep/rutin/vatandaş/e-Devlet açıklama giriş başlıklarında
   `(max 400 karakter) *` ibaresi görünür; RichTextEditor zaten 400 düz-metin karakter sınırını uygular.
+- **Açıklama RichText toolbar (#r511):** italik (İ/T) yok — yalnız kalın, altı çizili, madde/numaralı
+  liste. Yapıştırılan `<em>`/`<i>` ve `font-style:italic` sanitize sırasında düşürülür; Ctrl/Cmd+I engellenir.
 - **Talep oluşturma Açıklama editörü yüksekliği (card #1533):** içerik aşağı uzayınca kutu
   büyümez; `min-height` = `max-height` + `overflow-y: auto` ile dikey scroll açılır
   (`RichTextEditor` ve e-Devlet dönüşüm textarea'sı).

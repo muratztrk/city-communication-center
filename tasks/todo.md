@@ -1,3 +1,6 @@
+## Round 511 — Açıklama editöründen italik kaldır
+- `6a689722` — Talep oluştur (ve tüm RichText açıklama) toolbar'ından İtalik (T) kaldırıldı; yapıştırma/Ctrl+I de düşürülür.
+
 ## Round 510 — Sohbet header Birim-Ünvan satır sonuna
 - `6a675c8e` reopen — Üst satır: Geri + panel başlığı + X; alt satırda `Birim - Ünvan` tam panel genişliği (sağ etiket sıkıştırmıyor, truncate yok).
 

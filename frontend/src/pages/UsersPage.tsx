@@ -1290,6 +1290,7 @@ export function UsersPage() {
                   className="users-role-dropdown"
                   triggerClassName="text-xs"
                   menuClassName="users-roles-compact-menu"
+                  menuWidth={220}
                   options={primaryRoleFormOptions(t)}
                   value={newUser.roleCode}
                   onChange={roleCode => setNewUser(current => ({
@@ -1309,7 +1310,7 @@ export function UsersPage() {
                   className="users-additional-roles-dropdown"
                   triggerClassName="text-xs"
                   menuClassName="users-roles-compact-menu"
-                  menuWidth={240}
+                  menuWidth={220}
                   options={ADDITIONAL_ROLE_CODES
                     .filter(roleCode => roleCode !== newUser.roleCode)
                     .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))

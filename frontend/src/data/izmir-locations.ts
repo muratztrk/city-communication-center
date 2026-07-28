@@ -329,13 +329,21 @@ export const IZMIR_DISTRICTS: IzmirDistrict[] = [
 ]
 
 export const MUNICIPALITY_DISTRICT_KEY = 'ccc_municipality_district'
+export const MUNICIPALITY_DISTRICT_CHANGED_EVENT = 'ccc-municipality-district-changed'
 
 export function getSavedDistrictId(): string {
   return localStorage.getItem(MUNICIPALITY_DISTRICT_KEY) ?? 'tire'
 }
 
+export function getDistrictName(districtId: string): string {
+  return IZMIR_DISTRICTS.find(d => d.id === districtId)?.name ?? 'Tire'
+}
+
 export function saveDistrictId(id: string): void {
   localStorage.setItem(MUNICIPALITY_DISTRICT_KEY, id)
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(MUNICIPALITY_DISTRICT_CHANGED_EVENT, { detail: id }))
+  }
 }
 
 export function getNeighborhoodsForDistrict(districtId: string): string[] {

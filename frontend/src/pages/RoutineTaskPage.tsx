@@ -13,7 +13,8 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
-import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
+import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
@@ -98,7 +99,8 @@ export function RoutineTaskPage() {
   const [fileError, setFileError] = useState<string | null>(null)
   const [userQuickReplies, setUserQuickReplies] = useState<UserQuickReplyTemplate[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+  const districtId = useMunicipalityDistrictId()
+  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
   const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
   const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
 

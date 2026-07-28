@@ -452,7 +452,7 @@
       "title": "Citizen Request Channels"
     },
     "citizenMap": {
-      "title": "Tire Map - Requests with Open Address",
+      "title": "{{district}} Map - Requests with Open Address",
       "subtitle": "Processing and in-progress requests with an open address are shown on the map.",
       "pinCount": "{{count}} location",
       "pinCount_other": "{{count}} locations",
@@ -1307,7 +1307,7 @@
     },
     "municipalityLocation": {
       "sectionTitle": "Municipality Location",
-      "sectionDescription": "Select a district to determine the neighborhood list shown in the create request screen.",
+      "sectionDescription": "Select a district to drive the create-request neighborhood list and the citizen dashboard map. Changing the selection updates the neighborhood list and map preview.",
       "districtLabel": "District (İzmir)",
       "saveSuccess": "Location setting saved."
     }

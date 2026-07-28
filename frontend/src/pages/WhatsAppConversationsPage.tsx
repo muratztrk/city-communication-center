@@ -26,7 +26,8 @@ import { formatConversationDisplayContent } from '../utils/socialConversationCon
 import { formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
-import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
+import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
@@ -571,7 +572,8 @@ function ConversationProfilePanel({
   canCreateRequest?: boolean
 }) {
   const { t } = useTranslation()
-  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+  const districtId = useMunicipalityDistrictId()
+  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
   const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
   const hasNeighborhood = draft.neighborhood.trim().length > 0
 

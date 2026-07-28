@@ -21,7 +21,8 @@ import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
-import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
+import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeaderBrand'
@@ -508,7 +509,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   } | null>(null)
   const [editJobSaving, setEditJobSaving] = useState(false)
   // Rutin görev düzenlemede Mahalle seçimi için (card #1489).
-  const neighborhoodOptions = useMemo(() => stringListSelectOptions(getNeighborhoodsForDistrict(getSavedDistrictId())), [])
+  const districtId = useMunicipalityDistrictId()
+  const neighborhoodOptions = useMemo(() => stringListSelectOptions(getNeighborhoodsForDistrict(districtId)), [districtId])
   // Rutin görev de ayrı sayfaya (Rutin Görev Düzenle) gitmeden aynı popup içinde düzenlenir (card #1494 reopen).
   const [editRoutineTaskModal, setEditRoutineTaskModal] = useState<{
     taskId: string

@@ -20,7 +20,8 @@ import { userWorksInDepartment } from '../utils/userDepartments'
 import type { Department, RequestTag, User } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { lowercaseFileExtension } from '../utils/fileNameDisplay'
-import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
+import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { prioritySelectOptions, stringListSelectOptions, yesNoSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
@@ -275,7 +276,8 @@ export function CreateRequestPage() {
     }
   }, [selectedKind, editJobId, socialMessageIdParam])
   const canCreateCitizenRequest = user?.role === 'Operator'
-  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+  const districtId = useMunicipalityDistrictId()
+  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
 
   const myDepartmentId = useMemo(() => {
     const me = users.find(item => item.userId === user?.userId)

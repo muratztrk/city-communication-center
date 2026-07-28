@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../../../data/izmir-locations'
+import { getNeighborhoodsForDistrict } from '../../../data/izmir-locations'
+import { useMunicipalityDistrictId } from '../../../hooks/useMunicipalityDistrictId'
 import { SingleSelectDropdown } from '../../ui/single-select-dropdown'
 import { stringListSelectOptions } from '../../../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../../../utils/addressLimits'
@@ -19,7 +20,8 @@ function autoGrowRows(value: string): number {
 
 export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddressEditFieldsProps) {
   const { t } = useTranslation()
-  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+  const districtId = useMunicipalityDistrictId()
+  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
   const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
   const hasNeighborhood = draft.neighborhood.trim().length > 0
 

@@ -10,7 +10,9 @@ import type { CitizenDashboardMapPin, JobDetail, SocialMessage } from '../types/
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
-import { geocodeTireAddress, TIRE_MAP_BOUNDS, TIRE_MAP_CENTER, type LatLng } from '../utils/geocodeTireAddress'
+import { geocodeTireAddress, type LatLng } from '../utils/geocodeTireAddress'
+import { getDistrictMapView } from '../data/izmir-district-maps'
+import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 
 type ResolvedPin = CitizenDashboardMapPin & { position: LatLng }
 
@@ -18,14 +20,14 @@ function pinColor(displayStatus: string): string {
   return displayStatus === 'inProgress' ? '#22c55e' : '#0ea5e9'
 }
 
-function FitPins({ pins }: { pins: ResolvedPin[] }) {
+function FitPins({ pins, center, bounds }: { pins: ResolvedPin[]; center: LatLng; bounds: [[number, number], [number, number]] }) {
   const map = useMap()
   useEffect(() => {
-    const districtBounds = L.latLngBounds(TIRE_MAP_BOUNDS)
+    const districtBounds = L.latLngBounds(bounds)
     if (pins.length === 0) {
       // Pinsiz default: fitBounds kısa/geniş haritada ölçeği fazla açıyordu —
       // ekteki şehir merkezi ölçeği için sabit zoom (card #1867 reopen).
-      map.setView([TIRE_MAP_CENTER.lat, TIRE_MAP_CENTER.lng], 14)
+      map.setView([center.lat, center.lng], 14)
       return
     }
     if (pins.length === 1) {
@@ -34,7 +36,7 @@ function FitPins({ pins }: { pins: ResolvedPin[] }) {
     }
     const pinBounds = L.latLngBounds(pins.map(pin => [pin.position.lat, pin.position.lng] as [number, number]))
     map.fitBounds(districtBounds.extend(pinBounds), { padding: [24, 24], maxZoom: 15 })
-  }, [map, pins])
+  }, [map, pins, center, bounds])
   return null
 }
 
@@ -86,11 +88,13 @@ interface CitizenDashboardMapProps {
 }
 
 /**
- * Kontrol Paneli Vatandaş — Tire haritasında açık adresli İşleme Alındı / Yapılmakta pinleri (card #1834).
+ * Kontrol Paneli Vatandaş — Kurum Konumu ilçesine göre açık adresli İşleme Alındı / Yapılmakta pinleri (card #1834 / #r512).
  */
 export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
+  const districtId = useMunicipalityDistrictId()
+  const mapView = useMemo(() => getDistrictMapView(districtId), [districtId])
   const [resolved, setResolved] = useState<ResolvedPin[]>([])
   const [resolving, setResolving] = useState(false)
   const [jobDetail, setJobDetail] = useState<JobDetail | null>(null)
@@ -113,6 +117,7 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
           neighborhood: pin.neighborhood,
           street: pin.street,
           openAddress: pin.openAddress,
+          districtName: mapView.districtName,
         })
         if (position) {
           next.push({ ...pin, position })
@@ -124,7 +129,7 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
       }
     })()
     return () => { cancelled = true }
-  }, [pins])
+  }, [pins, mapView.districtName])
 
   const statusLegend = useMemo(() => ([
     { key: 'processingReceived', label: t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı') },
@@ -159,7 +164,10 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-border)] px-4 py-3 sm:px-5">
         <div>
           <h2 className="text-base font-bold text-slate-800 sm:text-lg">
-            {t('dashboard.citizenMap.title', 'Tire Haritası - Açık Adresli Talepler')}
+            {t('dashboard.citizenMap.title', {
+              district: mapView.districtName,
+              defaultValue: '{{district}} Haritası - Açık Adresli Talepler',
+            })}
           </h2>
           <p className="mt-0.5 text-sm text-slate-500">
             {t('dashboard.citizenMap.subtitle', 'İşleme alınan ve yapılmakta olan talepler açık adresleriyle haritada gösterilir.')}
@@ -182,7 +190,8 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
 
       <div className="relative h-[min(28rem,55vh)] w-full bg-slate-100">
         <MapContainer
-          center={[TIRE_MAP_CENTER.lat, TIRE_MAP_CENTER.lng]}
+          key={mapView.districtId}
+          center={[mapView.center.lat, mapView.center.lng]}
           zoom={14}
           className="size-full z-0"
           scrollWheelZoom={false}
@@ -192,7 +201,7 @@ export function CitizenDashboardMap({ pins, loading }: CitizenDashboardMapProps)
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <RequireClickForScrollZoom />
-          <FitPins pins={resolved} />
+          <FitPins pins={resolved} center={mapView.center} bounds={mapView.bounds} />
           {resolved.map(pin => (
             <CircleMarker
               key={pin.jobId}

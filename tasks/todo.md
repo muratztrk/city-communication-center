@@ -1,3 +1,6 @@
+## Round 512 — Kurum Konumu ilçe → mahalle + harita
+- `6a6899e7` — Ayarlar İlçe seçimi mahalle listesi + harita önizlemesini günceller; kayıt sonrası talep mahalleleri ve vatandaş haritası aynı ilçeyi kullanır.
+
 ## Round 511 — Açıklama editöründen italik kaldır
 - `6a689722` — Talep oluştur (ve tüm RichText açıklama) toolbar'ından İtalik (T) kaldırıldı; yapıştırma/Ctrl+I de düşürülür.
 

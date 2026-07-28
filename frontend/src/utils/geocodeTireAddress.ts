@@ -31,17 +31,20 @@ function normalizeAddressKey(parts: Array<string | null | undefined>): string {
     .join('|')
 }
 
-/** Build a Tire-scoped address string for Nominatim. */
+/** Build a district-scoped address string for Nominatim. */
 export function buildTireGeocodeQuery(input: {
   neighborhood?: string | null
   street?: string | null
   openAddress?: string | null
+  /** Kurum Konumu ilçe adı; varsayılan Tire (#r512). */
+  districtName?: string | null
 }): string {
+  const district = input.districtName?.trim() || 'Tire'
   const chunks = [
     input.openAddress?.trim(),
     input.street?.trim(),
     input.neighborhood?.trim(),
-    'Tire',
+    district,
     'İzmir',
     'Türkiye',
   ].filter(Boolean)
@@ -58,8 +61,10 @@ export function geocodeTireAddress(input: {
   neighborhood?: string | null
   street?: string | null
   openAddress?: string | null
+  districtName?: string | null
 }): Promise<LatLng | null> {
-  const cacheKey = normalizeAddressKey([input.openAddress, input.street, input.neighborhood])
+  const district = input.districtName?.trim() || 'Tire'
+  const cacheKey = normalizeAddressKey([input.openAddress, input.street, input.neighborhood, district])
   if (!cacheKey) return Promise.resolve(null)
 
   const cache = readCache()
@@ -102,7 +107,7 @@ export function geocodeTireAddress(input: {
   return next
 }
 
-/** Tire ilçe merkezi — varsayılan harita merkezi. */
+/** Tire ilçe merkezi — varsayılan harita merkezi (geriye uyum). */
 export const TIRE_MAP_CENTER: LatLng = { lat: 38.0885, lng: 27.7346 }
 
 /**

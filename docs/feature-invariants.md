@@ -889,6 +889,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi `Yönetici`.
 - **Kurum sekmesi sağ kolon:** üstte Kurum Konumu, altta Hafta Sonu SLA; sol Kurum Bilgisi ile
   alt border hizalı (`items-stretch` + sağ kolon `flex-1`) (card #1715).
+- **Kurum Konumu ilçe → mahalle + harita (#r512):** Ayarlar’da seçilen İlçe (İzmir) değişince
+  mahalle listesi önizlemesi ve harita önizlemesi güncellenir; Kaydet sonrası `ccc_municipality_district`
+  ile talep formu mahalle dropdown’ları ve vatandaş panosu haritası (merkez/bounds/başlık/geocode
+  ilçe adı) aynı ilçeyi kullanır. Tire için mevcut merkez/bounds korunur.
 - **Birimler/Kullanıcılar grid:** FilterableTh + sort + TablePagination; kolon genişlikleri
   `users-table`/`departments-table` ile orantılı (card #1724). Kullanıcılar Rol StatusPill ortalı;
   İşlemler’de kalem+Düzenle / çöp+Sil ve satır ortalı (cards #1722/#1725/#1732). Banner `+Yeni…`
@@ -1165,24 +1169,24 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`/dashboard`) + `Anasayfa - Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.
   `/dashboard/birimler` sayfasında banner üstü Geri butonu gösterilmez (card #1889).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
-  Tire haritası (açık adresli İşleme Alındı / Yapılmakta pinleri, card #1834) +
+  Kurum Konumu ilçesine göre harita (açık adresli İşleme Alındı / Yapılmakta pinleri, card #1834 / #r512) +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
   Vatandaş Talep Kanalları). Birimler sayfasında Reporter: Taleplerim + dış birim pie'ları +
   Talep Önceliği; Operator: Görevlerim/Taleplerim/Birimdeki Görevler/Talep Önceliği.
-- **Vatandaş panosu Tire haritası (card #1834/#1848):** `GET /reports/dashboard-citizen-map-pins`
+- **Vatandaş panosu ilçe haritası (card #1834/#1848/#r512):** `GET /reports/dashboard-citizen-map-pins`
   (Reporter/Operator/SystemAdmin); VT numaralı (`CitizenVtJobFilter.WhereHasCitizenRequestNumber`,
   card #1845), rutin dışı, boş olmayan
   `OpenAddress`, display status `ProcessingReceived`/`InProgress` (dashboard classifier ile aynı);
   pin koordinatı Job veya bağlı SocialMessage lat/lng; yoksa FE Nominatim geocode (localStorage
-  cache). Tag tıklanınca başlık popup; başlık tıklanınca salt-okunur `MyRequestDetailModal`
-  (pie drilldown ile aynı). Dönem filtresi pin sorgusunu sürer. Başlık `Tire Haritası - Açık Adresli Talepler`
+  cache, ilçe adı Kurum Konumu’ndan). Tag tıklanınca başlık popup; başlık tıklanınca salt-okunur `MyRequestDetailModal`
+  (pie drilldown ile aynı). Dönem filtresi pin sorgusunu sürer. Başlık `{{district}} Haritası - Açık Adresli Talepler`
   (`text-base`/`text-lg`); alt yazı + lejant `text-sm`. `InProgress` pin yeşil (`#22c55e`);
-  Pinsiz default `setView(TIRE_MAP_CENTER, 14)` — ekteki şehir merkezi ölçeği; `fitBounds(TIRE_MAP_BOUNDS)`
-  kısa haritada fazla açıldığı için kullanılmaz (card #1867 reopen). Çok pin: `TIRE_MAP_BOUNDS` + pin
+  Pinsiz default `setView(districtCenter, 14)` — ekteki şehir merkezi ölçeği; `fitBounds` pinsiz
+  kısa haritada fazla açıldığı için kullanılmaz (card #1867 reopen). Çok pin: ilçe bounds + pin
   bounds, maxZoom 15; tek pin zoom 16. Scroll-zoom varsayılan kapalı; harita alanına tıklanınca
   açılır, `mouseleave`'de tekrar kapanır (card #1867 — sayfa kaydırırken yanlışlıkla zoom olmasın).
   Açık adres Job veya bağlı `CitizenConversation.OpenAddress` olabilir; süresi geçmiş (Overdue)
-  aktif talepler de pinlenir (card #1875).
+  aktif talepler de pinlenir (card #1875). Tire seçiliyken mevcut Tire merkez/bounds korunur.
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
   chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında

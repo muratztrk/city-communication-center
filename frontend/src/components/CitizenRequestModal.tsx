@@ -16,7 +16,8 @@ import { ConversationPanel } from './ConversationPanel'
 import { RequestTagAddButton, RequestTagPicker } from './RequestTagDialog'
 import type { CitizenConversationDetail, Department, RequestTag, SocialMessage } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
-import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
+import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
@@ -338,7 +339,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     [departments],
   )
 
-  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+  const districtId = useMunicipalityDistrictId()
+  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
   const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
   const targetDepartmentSelectOptions = useMemo(
     () => targetDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name })),

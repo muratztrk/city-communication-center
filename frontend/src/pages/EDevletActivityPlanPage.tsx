@@ -5,7 +5,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
-import { getNeighborhoodsForDistrict, getSavedDistrictId } from '../data/izmir-locations'
+import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
+import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 
@@ -45,7 +46,8 @@ export function EDevletActivityPlanPage() {
   const [loadingPlan, setLoadingPlan] = useState(Boolean(editingPlanId))
   const [error, setError] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
-  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(getSavedDistrictId()), [])
+  const districtId = useMunicipalityDistrictId()
+  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
 
   useEffect(() => {
     void api.getEDevletActivityTypes()

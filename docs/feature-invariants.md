@@ -1291,9 +1291,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Gittiği Yer yeşil çerçeve (#r516):** Taleplerim/Birimden Giden grid ve görev grid
   `FramedDepartmentStack` / destination StatusPill orta boy (`~0.76–0.78rem`, `px-2.5 py-1`).
   (#r515 aşırı küçültmeyi geri aldı.)
-- **Kullanıcılar grid Rol menü font (#r516):** `.users-edit-dropdown-menu*` ~0.72rem; create
-  form `.users-roles-compact-menu` ~0.68rem. Birincil rol sırası Standart→Sorumlu→Müdür→…
-  Ek roller `localeCompare('tr')` alfabetik.
+- **Kullanıcılar grid Rol menü font (#r518):** `.users-edit-dropdown-menu*` ~0.58rem
+  (#r516 büyütmesi geri alındı; 0.52’den biraz büyük). Create form Ek Roller Çıkış/Seç
+  butonları kompakt (`users-roles-compact-menu .dropdown-menu-footer`).
 - **Ayarlar Kurum Bilgisi (#r516):** Kurum sekmesi üst boşluk sıkı (`!gap-2`/`pt-3`); bölüm
   açıklama (`helper-copy`) yok.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
@@ -1301,8 +1301,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);
   `window.open(origin)` — about:blank / sol üst info ikonu yok (#r460).
 - **Yazdır popup origin (#r460):** `printHtmlDocument` boş URL yerine site origin ile açılır.
-- **Kullanıcılar Birim/Rol menü font (#r456/#r460/#r516):** grid `.users-edit-dropdown-menu*` ~0.72rem
-  (eski 0.52rem aşırı küçüktü).
+- **Kullanıcılar Birim/Rol menü font (#r456/#r460/#r516/#r518):** grid `.users-edit-dropdown-menu*` ~0.58rem.
 - **Talep açıklaması detay (#r460):** Taleplerim/detay `RichTextContent` ~13px.
 - **WA Etiket ekle (#r460):** kompakt `RequestTagAddButton` `h-8` / `text-xs`.
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).

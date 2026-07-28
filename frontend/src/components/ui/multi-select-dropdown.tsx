@@ -210,7 +210,7 @@ export function MultiSelectDropdown({
               })}
             </div>
           )}
-          <div className="flex shrink-0 justify-end gap-2 border-t border-slate-100 px-2 py-2">
+          <div className="dropdown-menu-footer flex shrink-0 justify-end gap-2 border-t border-slate-100 px-2 py-2">
             <button
               type="button"
               className="rounded-lg bg-[var(--color-destructive)] px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-[filter] hover:brightness-95"

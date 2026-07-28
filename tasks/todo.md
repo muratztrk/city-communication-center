@@ -1,3 +1,7 @@
+## Round 518 — Users rol menü küçült + Ek Roller butonları
+- `6a68a4b5` (#1994) — Gridview Rol dropdown metin ~0.58rem’e küçültüldü.
+- `6a689e20` (#1988) — Yeni kullanıcı Ek Roller menüsünde Çıkış/Seç butonları küçültüldü.
+
 ## Round 517 — Dropdown ellipsis tooltip
 - `6a68a9ba` (#1996) — Dropdown list satırlarında ellipsis taşan metin hover’da tam metin tooltip.
 

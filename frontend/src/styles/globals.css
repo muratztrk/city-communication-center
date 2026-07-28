@@ -2119,12 +2119,12 @@
     max-width: 5.25rem;
   }
 
-  /* Kullanıcı düzenleme Birim/Rol panel satırları — gridview rol menüsü (#r516). */
+  /* Kullanıcı düzenleme Birim/Rol panel satırları — gridview rol menüsü (#r518 küçült). */
   .users-edit-dropdown-menu-scroll .dropdown-menu-item,
   .users-edit-dropdown-menu .dropdown-menu-item {
-    min-height: 1.85rem;
-    padding: 0.32rem 0.55rem;
-    font-size: 0.72rem;
+    min-height: 1.55rem;
+    padding: 0.22rem 0.45rem;
+    font-size: 0.58rem;
     font-weight: 600;
   }
 
@@ -3228,6 +3228,19 @@
 
   .admin-surface-menu.users-roles-compact-menu .dropdown-menu-scroll {
     font-size: 0.68rem;
+  }
+
+  /* Yeni kullanıcı Ek Roller (ve diğer compact multi) Çıkış/Seç — küçült (#r518 / #1988). */
+  .admin-surface-menu.users-roles-compact-menu .dropdown-menu-footer {
+    gap: 0.35rem;
+    padding: 0.35rem 0.45rem;
+  }
+
+  .admin-surface-menu.users-roles-compact-menu .dropdown-menu-footer button {
+    padding: 0.2rem 0.55rem;
+    font-size: 0.68rem;
+    line-height: 1.2;
+    border-radius: 0.45rem;
   }
 
   /* Ek görev yaptığı birimler (ve birim) menü satırları — biraz büyütüldü (card #r452). */

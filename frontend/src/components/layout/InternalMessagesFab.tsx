@@ -403,9 +403,9 @@ export function InternalMessagesFab() {
       {isOpen ? (
         <div className="internal-messages-fab-panel absolute bottom-full right-0 z-10 mb-3 flex h-[min(78dvh,48rem)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl sm:h-[min(66dvh,42rem)]">
           <div className={`flex items-start justify-between gap-2 border-b border-[var(--color-border)] bg-emerald-700/10 py-3 pr-4 ${activeChat ? 'pl-3' : 'pl-4'}`}>
-              <div className={`min-w-0 flex-1 ${activeChat ? 'flex flex-col gap-1' : 'flex items-start'}`}>
-                {activeChat ? (
-                  <>
+            {activeChat ? (
+              <div className="flex min-w-0 flex-1 flex-col gap-1">
+                <div className="flex items-center justify-between gap-2">
                   <button
                     type="button"
                     onClick={() => { setActiveChat(null); setChatDetail(null) }}
@@ -415,42 +415,54 @@ export function InternalMessagesFab() {
                     <span aria-hidden="true" className="text-xs leading-none">←</span>
                     <span>{t('common.back', 'Geri')}</span>
                   </button>
-                  <div className="flex min-w-0 items-start gap-1.5">
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-800">
-                      {getInitials(activeChat.displayName)}
+                  <div className="flex shrink-0 items-center gap-1">
+                    <span className="text-right text-[10px] font-semibold text-teal-700">
+                      {t('internalMessages.panelTitle', 'Kurum İçi Mesajlar')}
                     </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-bold leading-tight text-[color:var(--color-foreground)]">{activeChat.displayName}</p>
-                      {/* Birim - Ünvan tek satırda; truncate yok — ünvan tam görünsün (#r509). */}
-                      <p className="mt-0.5 break-words text-xs leading-snug text-[color:var(--color-muted-foreground)]">
-                        {activeChat.departmentName?.trim() || '—'}
-                        {activeChat.title?.trim() ? (
-                          <>
-                            {' - '}
-                            <span className="font-mono text-slate-500">{activeChat.title.trim()}</span>
-                          </>
-                        ) : null}
-                      </p>
-                    </div>
+                    <button
+                      type="button"
+                      className="rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-600"
+                      aria-label={t('common.close', 'Kapat')}
+                      onClick={closePanel}
+                    >
+                      <X className="size-4" />
+                    </button>
                   </div>
-                  </>
-                ) : (
+                </div>
+                <div className="flex min-w-0 items-start gap-1.5">
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-[11px] font-bold text-emerald-800">
+                    {getInitials(activeChat.displayName)}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold leading-tight text-[color:var(--color-foreground)]">{activeChat.displayName}</p>
+                    {/* Tam panel genişliği — sağ etiket üst satırda; truncate yok (#r510). */}
+                    <p className="mt-0.5 break-words text-xs leading-snug text-[color:var(--color-muted-foreground)]">
+                      {activeChat.departmentName?.trim() || '—'}
+                      {activeChat.title?.trim() ? (
+                        <>
+                          {' - '}
+                          <span className="font-mono text-slate-500">{activeChat.title.trim()}</span>
+                        </>
+                      ) : null}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <>
+                <div className="flex min-w-0 flex-1 items-start">
                   <p className="truncate text-sm font-bold text-[color:var(--color-foreground)]">{t('internalMessages.panelTitle', 'Kurum İçi Mesajlar')}</p>
-                )}
-            </div>
-            {activeChat ? (
-              <span className="mt-0.5 shrink-0 text-right text-[10px] font-semibold text-teal-700">
-                {t('internalMessages.panelTitle', 'Kurum İçi Mesajlar')}
-              </span>
-            ) : null}
-            <button
-              type="button"
-              className="rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-600"
-              aria-label={t('common.close', 'Kapat')}
-              onClick={closePanel}
-            >
-              <X className="size-4" />
-            </button>
+                </div>
+                <button
+                  type="button"
+                  className="rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-red-50 hover:text-red-600"
+                  aria-label={t('common.close', 'Kapat')}
+                  onClick={closePanel}
+                >
+                  <X className="size-4" />
+                </button>
+              </>
+            )}
           </div>
 
           {activeChat ? (

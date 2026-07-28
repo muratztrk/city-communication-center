@@ -240,11 +240,20 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
         <div
           ref={dropdownRef}
           style={dropdownStyle}
-          className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+          className="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
         >
+          {/* Talebi iptal et popup X ile aynı: sağ üst, kapat = seçim yapmadan dismiss (#r537). */}
+          <button
+            type="button"
+            onClick={e => { e.stopPropagation(); dismiss() }}
+            aria-label="Kapat"
+            className="absolute right-3 top-3 z-10 flex size-7 items-center justify-center rounded-full bg-white/90 text-slate-400 shadow-sm transition-colors hover:bg-red-50 hover:text-red-600"
+          >
+            <X className="size-4" />
+          </button>
 
           {/* Coloured header */}
-          <div className="bg-[color:var(--color-primary)] px-4 pb-3 pt-3">
+          <div className="bg-[color:var(--color-primary)] px-4 pb-3 pt-3 pr-12">
             {/* "Tarih Seç" etiketi ile yıl bilgisi aynı yatay hizada ve sola yaslı (card 613).
                 Yıla tıklanınca yıl seçici açılır (card 531). */}
             <div className="mb-1 flex items-center gap-2">

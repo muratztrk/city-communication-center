@@ -1,3 +1,7 @@
+## Round 537 — İlgili Görev Öncelik + takvim kapat X
+- `6a68a200` — İlgili Görev Detayları: Görevi Yapan sonrası Öncelik (`getPriorityColorClass`).
+- `6a690cb2` — DateTimePicker takvim sağ üst X (iptal popup ile aynı dismiss).
+
 ## Round 536 — overflow tooltip 500 ms hover gecikmesi
 - `6a68a331` (#1992) — Ellipsis tooltip 500 ms hover sonrası açılır (1 sn → 500 ms).
 

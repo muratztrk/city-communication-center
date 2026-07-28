@@ -4,7 +4,7 @@ import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { SimpleImageAttachmentIcon } from '../../ui/SimpleImageAttachmentIcon'
 import type { JobDetail } from '../../../types/platform'
-import { getPriorityLabel, getTaskDisplayStatus, getTaskStatusTone } from '../../../utils/localization'
+import { getPriorityColorClass, getPriorityLabel, getTaskDisplayStatus, getTaskStatusTone } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime } from './format'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
@@ -193,6 +193,15 @@ export function MyRequestTaskDetailsSection({
                       ? [{ label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'), value: task.assigningManagerDisplayName ?? '—' }]
                       : []),
                     { label: t('tasks.columns.owner', 'Görevi Yapan'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
+                    {
+                      // İlgili Görev Detayları: Görevi Yapan sonrası Öncelik + renk (#r537).
+                      label: t('tasks.columns.priority', 'Öncelik'),
+                      value: (
+                        <span className={`${getPriorityColorClass(task.priority)} ${task.priority === 'High' || task.priority === 'VeryHigh' || task.priority === 'Critical' ? 'font-extrabold' : 'font-semibold'}`}>
+                          {getPriorityLabel(t, task.priority)}
+                        </span>
+                      ),
+                    },
                     ...(isCompletedTask
                       ? [{
                           label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
@@ -233,9 +242,6 @@ export function MyRequestTaskDetailsSection({
                           label: t('tasks.detail.statusChangeReason', 'Durum Değişikliği Nedeni'),
                           value: task.statusChangeHistory![0].reason ?? '—',
                         }]
-                      : []),
-                    ...(task.jobSourceType === 'Routine'
-                      ? [{ label: t('tasks.columns.priority', 'Öncelik'), value: getPriorityLabel(t, task.priority) }]
                       : []),
                     // Görevlerim'in kendi görünümünde rutin görevler için ayrı, her zaman görünen bir
                     // Ekler/Fotoğraflar kartı var; bu paylaşılan "Görev Detayları" bileşeninde öyle bir

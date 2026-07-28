@@ -141,8 +141,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `İlgili Görev Detayları`dır (card #1663); Görevlerim popup'ında kendi görev başlığı
   `Görev Detayları` kalır.
 - **Atanmış görev detay popup'ında `Öncelik` satırı gizlidir:** `Görev Tipi = Atanmış`
-  olduğunda `Görev Detayları` altındaki Öncelik etiketi ve değeri görünmez; rutin görevlerin
-  öncelik satırı korunur (card #1118).
+  olduğunda Görevlerim `Görev Detayları` altındaki Öncelik etiketi ve değeri görünmez; rutin
+  görevlerin öncelik satırı korunur (card #1118).
+  **İstisna (#r537):** Taleplerim / Birime Gelen / Birimden Giden `İlgili Görev Detayları`
+  (`MyRequestTaskDetailsSection`) içinde Öncelik, `Görevi Yapan` satırından hemen sonra her
+  görev tipinde görünür; renk `getPriorityColorClass`.
 - **AMA TasksPage "İlgili Talep Detayları" (üst-talep özeti) ile JobsPage "Talep Detayları"
   arasında "aynı tutulur" kuralı YOKTUR.** İkisi ayrı düşünülür.
 - **TasksPage "İlgili Talep Detayları" alanı Taleplerim detay kart düzenini kullanır:**
@@ -187,10 +190,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   "YYYY-MM-DDTHH:mm" yerel saattir; ISO'dan dönüşüm HER ZAMAN `utils/dateTimePicker.ts` içindeki
   `toDateTimePickerValue` ile yapılır. `toISOString().slice(0,16)` (UTC dilimi) YASAK — saati UTC
   ofseti kadar erken gösterir ve her kayıtta tarihi geriye kaydırır. Sayfa içi kopya helper yazma.
-- **Banner Başlangıç/Bitiş tarih chip'i (round 532/#2007, round 533):** `.scope-chip-date` genişliği
-  `≥9.5rem`; takvim ikonu `size-3.5` / chip içinde ~0.8125rem — `dd.mm.yyyy` truncate olmamalı.
-  `ScopeChipDateRange` → `DateTimePicker dateOnly`: saat UI yok, değer `YYYY-MM-DD`, tetikleyicide
-  saat gösterilmez. 8.5rem / datetime gösterimine geri alma.
+- **Banner Başlangıç/Bitiş tarih chip'i (round 532/#2007, round 533/#r537):** `.scope-chip-date`
+  genişliği `≥9.5rem`; takvim ikonu `size-3.5` / chip içinde ~0.8125rem — `dd.mm.yyyy` truncate
+  olmamalı. `ScopeChipDateRange` → `DateTimePicker dateOnly`: saat UI yok, değer `YYYY-MM-DD`.
+  Takvim portalında sağ üstte Talebi İptal Et ile aynı X (dismiss, seçim yok) (#r537).
+  8.5rem / datetime gösterimine / X'siz takvime geri alma.
 - **Talep son tarih bildirimi (round 380, #1677):** `UpdateJobCommand`'da son tarih değiştiyse
   `JobDueDateUpdated` audit'i KOŞULSUZ yazılır ("yalnızca son tarih değiştiyse" guard'ı geri getirme —
   kozmetik alan diff'leri bildirimi yutar); jenerik `JobUpdated` yalnız başka alan da değiştiyse eklenir.

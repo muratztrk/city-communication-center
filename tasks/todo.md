@@ -1,3 +1,6 @@
+## Round 510 — Sohbet header Birim-Ünvan satır sonuna
+- `6a675c8e` reopen — Üst satır: Geri + panel başlığı + X; alt satırda `Birim - Ünvan` tam panel genişliği (sağ etiket sıkıştırmıyor, truncate yok).
+
 ## Round 509 — Sohbet header ünvan tam görünür + loop restart
 - `6a675c8e` reopen — Header `Birim - Ünvan` truncate kaldırıldı (tam görünür).
 - Cursor 10dk wake loop yeniden başlatıldı (önceki süreç 26 Temmuz’da ölmüştü).

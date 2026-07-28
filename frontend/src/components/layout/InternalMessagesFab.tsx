@@ -425,7 +425,7 @@ export function InternalMessagesFab() {
                         {activeChat.departmentName?.trim() || '—'}
                       </p>
                       {activeChat.title?.trim() ? (
-                        <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
+                        <p className="truncate font-mono text-xs text-slate-500">
                           {activeChat.title.trim()}
                         </p>
                       ) : null}
@@ -622,7 +622,7 @@ export function InternalMessagesFab() {
                               {row.departmentName?.trim() || '—'}
                             </p>
                             {row.title?.trim() ? (
-                              <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
+                              <p className="truncate font-mono text-xs text-slate-500">
                                 {row.title.trim()}
                               </p>
                             ) : null}

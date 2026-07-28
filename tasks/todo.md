@@ -1,3 +1,7 @@
+## Round 507 — Ünvan mono + yönetici pie sırası
+- `6a675c8e` reopen — Kurum içi ünvan: Talep No font (`font-mono text-xs text-slate-500`).
+- `6a686599` — Yönetici pie: Birimdeki Görevler → Personelimin Görevleri → Çözme Süresi.
+
 ## Round 506 — Ünvan birimin altında
 - `6a675c8e` reopen — Kurum içi liste/sohbet: ünvan birimin altında ayrı satır (yan yana değil).
 

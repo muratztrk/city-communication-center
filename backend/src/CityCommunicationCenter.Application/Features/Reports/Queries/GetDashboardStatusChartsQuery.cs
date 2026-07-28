@@ -114,8 +114,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
         // Sadece personele (yöneticinin kendisi hariç) atanmış görevlerin öncelik dağılımı — birim
         // yöneticisi panosunda gösterilir (card #1516/#1487, "sadece personelin" ile düzeltildi).
         var requestPriorityChart = BuildTaskPriorityChart(staffTasks, "dashboard.charts.requestPriority");
+        // Yönetici pie sırası: Birimdeki Görevler → Personelimin Görevleri → Çözme Süresi (#r507).
         var charts = new List<DashboardChartResponse>
         {
+            BuildTaskChart("dashboard.charts.departmentTasks", FilterTasks(tasks, request.DepartmentTaskType), now),
             staffTasksChart,
         };
         if (staffResolutionTimeChart is not null)
@@ -124,7 +126,6 @@ public sealed class GetDashboardStatusChartsQueryHandler
         }
         charts.AddRange(
         [
-            BuildTaskChart("dashboard.charts.departmentTasks", FilterTasks(tasks, request.DepartmentTaskType), now),
             BuildTaskChart("dashboard.charts.myTasks", FilterTasks(tasks.Where(task => task.AssignedUserId == context.UserId.Value), request.MyTaskType), now),
             BuildJobChart("dashboard.charts.outgoingRequests", outgoingJobs, "dashboard.chart.pending", now, true),
             BuildJobChart("dashboard.charts.incomingRequests", incomingJobs, "dashboard.chart.pendingApproval", now, true),

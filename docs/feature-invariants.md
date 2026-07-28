@@ -511,6 +511,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   panelin solundan kontrollü 12px iç boşlukla biraz sağda durur;
   personel adı ana satırda,
   birim altında, ünvan birimin altında ayrı satırda (varsa — #r505/#r506; yan yana `Birim - Ünvan` değil),
+  ünvan metni Talep No ile aynı font tipi (`font-mono text-xs text-slate-500` — #r507),
   küçük `Kurum İçi Mesajlar` etiketi sağa yaslıdır. Liste satırında da yazışmalı konuşmalarda ünvan
   birimin altında gösterilir (#r506).
   Gelen balonda birim•ad etiketi siyahtır (turuncu değil); balon padding/font WhatsApp
@@ -812,6 +813,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dashboard status pie chart dönem filtresi (card #1662):** pie chart sorguları üst kartlarla
   aynı şekilde yalnız `CreatedAtUtc` dönem aralığını uygular; dönem dışı açık/gecikmiş kayıtları
   OR ile eklemez.
+- **Yönetici pie chart sırası (#r507):** `Birimdeki Görevler` → `Personelimin Görevleri` →
+  `Personelimin Görevi Çözme Süresi (Saat)` (sonra Görevlerim / giden-gelen / öncelik).
 - **Görev Bilgileri üst metası ve alan sırası:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri
   detayında bağlı talebin `Öncelik` etiketi/değeri `job-detail-card-title--spread` ile Görev Bilgileri
   başlığının sağ border'ına yaslanır; `Normal` bu yüzeyde emerald yeşilidir.

@@ -3232,29 +3232,29 @@
     font-size: 0.95rem;
   }
 
-  /* Rol / Ek roller açılır liste — create form (#r523 / #1988). */
+  /* Rol / Ek roller açılır liste — create form (#r525 / #1988). */
   .admin-surface-menu.users-roles-compact-menu .dropdown-menu-item {
-    min-height: 1.95rem;
-    padding: 0.35rem 0.6rem;
-    font-size: 0.82rem;
+    min-height: 2.1rem;
+    padding: 0.4rem 0.65rem;
+    font-size: 0.92rem;
     font-weight: 600;
   }
 
   .admin-surface-menu.users-roles-compact-menu .dropdown-menu-scroll {
-    font-size: 0.82rem;
+    font-size: 0.92rem;
   }
 
-  /* Yeni kullanıcı Ek Roller Çıkış/Seç — biraz büyüt (#r521 / #1988). */
+  /* Yeni kullanıcı Ek Roller Çıkış/Seç — biraz büyüt (#r525 / #1988). */
   .admin-surface-menu.users-roles-compact-menu .dropdown-menu-footer {
-    gap: 0.4rem;
-    padding: 0.4rem 0.5rem;
+    gap: 0.45rem;
+    padding: 0.45rem 0.55rem;
   }
 
   .admin-surface-menu.users-roles-compact-menu .dropdown-menu-footer button {
-    padding: 0.3rem 0.7rem !important;
-    font-size: 0.72rem !important;
-    line-height: 1.2;
-    border-radius: 0.45rem;
+    padding: 0.4rem 0.85rem !important;
+    font-size: 0.85rem !important;
+    line-height: 1.25;
+    border-radius: 0.5rem;
     min-height: 0;
   }
 

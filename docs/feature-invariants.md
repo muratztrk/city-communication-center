@@ -1294,7 +1294,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `.truncate` satırlarında portal tooltip; flex ölçüm fallback + `title` attribute yedek (#1997).
 - **Kullanıcılar grid Rol menü font (#r523/#1994):** `.users-edit-dropdown-menu*` ~0.82rem
   (`!important` ile admin-surface ezilir). Create form Ek Roller (`users-roles-compact-menu`)
-  aynı ~0.82rem; menü genişliği `menuWidth={280}` (#1988).
+  satır ~0.92rem; Çıkış/Seç ~0.85rem (#r525/#1988); menü `menuWidth={280}`.
 - **Rol etiketi e-Devlet (#2000):** `enum.role.EDevletActivityPlan` → `e-Devlet Günlük Faaliyet`
   (eski “… Planı” kaldırıldı; RoleCode değişmez).
 - **Ayarlar Kurum Bilgisi (#r522):** başlık altı boşluk `!gap-1`.
@@ -1303,8 +1303,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);
   `window.open(origin)` — about:blank / sol üst info ikonu yok (#r460).
 - **Yazdır popup origin (#r460):** `printHtmlDocument` boş URL yerine site origin ile açılır.
-- **Kullanıcılar Birim/Rol menü font (#r456/#r460/#r516/#r518/#r519/#r521/#r522):** geçmiş
-  ölçüler ~0.52–0.68rem; güncel kanonik #r523 (~0.82rem).
+- **Kullanıcılar Birim/Rol menü font (#r456/#r460/#r516/#r518/#r519/#r521/#r522/#r523):** geçmiş
+  ölçüler ~0.52–0.82rem; create Ek Roller güncel #r525 (~0.92rem / buton ~0.85rem).
 - **Talep açıklaması detay (#r460):** Taleplerim/detay `RichTextContent` ~13px.
 - **WA Etiket ekle (#r460):** kompakt `RequestTagAddButton` `h-8` / `text-xs`.
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).

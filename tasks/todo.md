@@ -1,3 +1,6 @@
+## Round 534 — overflow tooltip biraz büyüt + pill köşe
+- `6a68f086` (#2004) — Tooltip font ~0.68rem; `border-radius: 999px` (daha yuvarlak).
+
 ## Round 533 — tarih chip saatsiz + tooltip açık/küçük
 - `6a68fd98` (#2007) — Banner Başlangıç/Bitiş `dateOnly`: saat yok, yalnız `dd.mm.yyyy`.
 - `6a68f086` (#2004) — Overflow tooltip arka plan açıklaştırıldı; font/padding küçültüldü.

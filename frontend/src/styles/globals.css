@@ -2580,17 +2580,17 @@
 
   /* Grid / dropdown overflow tooltip — compact, opens below (#r478/#r479/#r517/#r529/#r530).
      z-index > dropdown portal (9999) so tooltip stays readable over open menus.
-     Antrasit metin + tek satır (#2004); arka plan biraz açık + boyut küçült (#r533/#2004). */
+     Antrasit metin + tek satır (#2004); açık bg (#r533); boyutu az büyüt + daha yuvarlak (#r534/#2004). */
   .ccc-grid-overflow-tooltip {
     position: fixed;
     z-index: 10050;
     max-width: min(42rem, calc(100vw - 1.5rem));
-    padding: 0.22rem 0.42rem;
-    border-radius: 0.5rem;
+    padding: 0.28rem 0.5rem;
+    border-radius: 999px;
     border: 1px solid #6ee7b7;
     background: linear-gradient(180deg, #f0fdf4 0%, #dcfce7 100%);
     color: #36454f;
-    font-size: 0.64rem;
+    font-size: 0.68rem;
     font-weight: 600;
     line-height: 1.3;
     letter-spacing: 0.01em;

@@ -1311,7 +1311,8 @@ export function UsersPage() {
                   menuClassName="users-roles-compact-menu"
                   options={ADDITIONAL_ROLE_CODES
                     .filter(roleCode => roleCode !== newUser.roleCode)
-                    .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))}
+                    .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))
+                    .sort((a, b) => a.label.localeCompare(b.label, 'tr'))}
                   value={newUser.additionalRoleCodes}
                   onChange={additionalRoleCodes => setNewUser(current => ({ ...current, additionalRoleCodes }))}
                   placeholder={t('users.additionalRolesPlaceholder', 'Ek rol seçin')}
@@ -1501,7 +1502,8 @@ export function UsersPage() {
                         <MultiSelectDropdown
                           options={ADDITIONAL_ROLE_CODES
                             .filter(roleCode => roleCode !== editForm.roleCode)
-                            .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))}
+                            .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))
+                            .sort((a, b) => a.label.localeCompare(b.label, 'tr'))}
                           value={editForm.additionalRoleCodes}
                           onChange={additionalRoleCodes => setEditForm(c => ({ ...c, additionalRoleCodes }))}
                           placeholder={t('users.additionalRolesShort', 'Ek roller')}

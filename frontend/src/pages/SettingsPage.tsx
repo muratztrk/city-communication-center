@@ -1303,7 +1303,7 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="page-stack desktop-page-shell admin-surface-page shrink-0">
+    <div className="page-stack desktop-page-shell admin-surface-page shrink-0 !gap-2">
       <section className="section-card p-0">
         <div
           className="grid gap-3 border-b border-white/10 px-4 py-3.5 text-white sm:px-5 lg:grid-cols-[minmax(0,1fr)_auto] rounded-t-[var(--radius-xl)] lg:rounded-t-[0.85rem]"
@@ -1347,13 +1347,12 @@ export function SettingsPage() {
       ) : null}
 
       {activeTab === 'tenant' ? (
-        <div className="page-stack">
+        <div className="page-stack !gap-3">
           <div className="grid gap-4 xl:grid-cols-2 xl:items-stretch">
-            <section className="section-card page-stack p-5 sm:p-6 lg:p-7">
+            <section className="section-card page-stack !gap-3 px-5 pb-5 pt-3 sm:px-6 sm:pb-6 sm:pt-3 lg:px-7 lg:pb-7 lg:pt-4">
               <div className="page-header-row">
                 <div>
                   <h2 className="text-xl font-extrabold text-slate-950">{t('settings.organizationSectionTitle')}</h2>
-                  <p className="helper-copy">{t('settings.organizationSectionDescription')}</p>
                 </div>
                 <StatusPill tone={tenantSettings.isActive ? 'success' : 'danger'}>
                   {tenantSettings.isActive ? t('common.enabled') : t('common.disabled')}
@@ -1371,7 +1370,11 @@ export function SettingsPage() {
                 <div className="grid gap-4 md:grid-cols-2">
                   <label className="grid gap-2 text-sm font-semibold text-slate-700">
                     <span>{t('settings.organizationName')}</span>
-                    <input className="field-input" value={tenantSettings.displayName} onChange={event => setTenantSettings(current => ({ ...current, displayName: event.target.value }))} />
+                    <input
+                      className="field-input"
+                      value={tenantSettings.displayName}
+                      onChange={event => setTenantSettings(current => ({ ...current, displayName: event.target.value }))}
+                    />
                   </label>
                   <label className="grid gap-2 text-sm font-semibold text-slate-700">
                     <span>{t('settings.deploymentMode')}</span>

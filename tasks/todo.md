@@ -1,3 +1,8 @@
+## Round 516 — Kurum Bilgisi spacing + rol menü + Gittiği Yer
+- `6a68a524` (#1995) — Ayarlar Kurum Bilgisi üst boşluk azaltıldı; bölüm açıklama metni kaldırıldı.
+- `6a68a4b5` (#1994) / `6a689e20` (#1988) — Users Rol dropdown metin büyütüldü; sıra korundu; Ek roller alfabetik.
+- `6a68a17f` (#1990) — Gittiği Yer yeşil çerçeve biraz büyütüldü (#r515 sonrası).
+
 ## Round 515 — Gittiği Yer yeşil çerçeve küçült
 - `6a68a17f` — Gridview Gittiği Yer yeşil çerçeve/pill boyutu biraz küçültüldü.
 

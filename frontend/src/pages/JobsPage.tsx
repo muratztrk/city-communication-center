@@ -1829,21 +1829,21 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     const hiddenTargetCount = targetDepartments.length - visibleTargets.length
     const enlargeExternal = job.requestType === 'ExternalUnit'
     return (
-      <div className="mx-auto flex min-w-[10rem] max-w-[20rem] flex-col items-center gap-0.5">
-        <div className="flex flex-wrap justify-center gap-1">
+      <div className="mx-auto flex min-w-[11rem] max-w-[22rem] flex-col items-center gap-1">
+        <div className="flex flex-wrap justify-center gap-1.5">
           {visibleTargets.map(department => (
             <StatusPill
               key={department.jobDepartmentId}
               tone="success"
               className={enlargeExternal
-                ? 'max-w-[12rem] px-2 py-0.5 text-[0.72rem] font-semibold'
-                : 'max-w-[10rem] px-2 py-0.5 text-[0.7rem]'}
+                ? 'max-w-[13rem] px-2.5 py-1 text-[0.78rem] font-semibold'
+                : 'max-w-[11rem] px-2.5 py-1 text-[0.76rem]'}
             >
               <span className="truncate">{department.departmentName ?? '—'}</span>
             </StatusPill>
           ))}
           {hiddenTargetCount > 0 ? (
-            <StatusPill tone="neutral" className="px-2 py-0.5 text-[0.7rem]">{t('jobs.departmentsMore', { count: hiddenTargetCount, defaultValue: '+{{count}} müdürlük' })}</StatusPill>
+            <StatusPill tone="neutral" className="px-2.5 py-1 text-[0.76rem]">{t('jobs.departmentsMore', { count: hiddenTargetCount, defaultValue: '+{{count}} müdürlük' })}</StatusPill>
           ) : null}
         </div>
         {/* Dış birimde atanmış personel çerçeve altında (card #r449). */}

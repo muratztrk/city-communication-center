@@ -31,7 +31,7 @@ export function FramedDepartmentStack({
           tone="success"
           className={cn(
             'max-w-[14rem]',
-            enlarge ? 'px-2 py-0.5 text-[0.72rem] font-semibold' : 'px-2 py-0.5 text-[0.7rem]',
+            enlarge ? 'px-2.5 py-1 text-[0.78rem] font-semibold' : 'px-2.5 py-1 text-[0.76rem]',
           )}
         >
           <span className="truncate">{name}</span>

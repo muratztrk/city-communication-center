@@ -1285,16 +1285,21 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yarım durumunu temizler (düzenleme satırı + create form aynı anda kalmaz).
 - **Birimler/Kullanıcılar banner İptal (#r458/#r459):** İptal genişliği = Yeni … Ekle
   (görünmez ölçüm grid’i; sabit min-w yok).
-- **Gittiği Yer yeşil çerçeve (#r515):** Taleplerim/Birimden Giden grid ve görev grid
-  `FramedDepartmentStack` / destination StatusPill biraz kompakt (`~0.7–0.72rem`, daha az padding).
-- **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
-  `onMessageUpdated` ile category seçili kalır.
+- **Gittiği Yer yeşil çerçeve (#r516):** Taleplerim/Birimden Giden grid ve görev grid
+  `FramedDepartmentStack` / destination StatusPill orta boy (`~0.76–0.78rem`, `px-2.5 py-1`).
+  (#r515 aşırı küçültmeyi geri aldı.)
+- **Kullanıcılar grid Rol menü font (#r516):** `.users-edit-dropdown-menu*` ~0.72rem; create
+  form `.users-roles-compact-menu` ~0.68rem. Birincil rol sırası Standart→Sorumlu→Müdür→…
+  Ek roller `localeCompare('tr')` alfabetik.
+- **Ayarlar Kurum Bilgisi (#r516):** Kurum sekmesi üst boşluk sıkı (`!gap-2`/`pt-3`); bölüm
+  açıklama (`helper-copy`) yok.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);
   `window.open(origin)` — about:blank / sol üst info ikonu yok (#r460).
 - **Yazdır popup origin (#r460):** `printHtmlDocument` boş URL yerine site origin ile açılır.
-- **Kullanıcılar Birim/Rol menü font (#r456/#r460):** `.users-edit-dropdown-menu*` satır ~0.52rem.
+- **Kullanıcılar Birim/Rol menü font (#r456/#r460/#r516):** grid `.users-edit-dropdown-menu*` ~0.72rem
+  (eski 0.52rem aşırı küçüktü).
 - **Talep açıklaması detay (#r460):** Taleplerim/detay `RichTextContent` ~13px.
 - **WA Etiket ekle (#r460):** kompakt `RequestTagAddButton` `h-8` / `text-xs`.
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).

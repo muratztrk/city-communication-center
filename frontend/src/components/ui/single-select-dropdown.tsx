@@ -207,7 +207,7 @@ export function SingleSelectDropdown({
                     className={cn('dropdown-menu-item', checked && 'dropdown-menu-item--selected')}
                     onClick={() => { onChange(option.value); setOpen(false); setSearch('') }}
                   >
-                    <span className="min-w-0 truncate">{option.label}</span>
+                    <span className="min-w-0 truncate" title={option.label}>{option.label}</span>
                     {checked ? <Check className="size-4 shrink-0" /> : null}
                   </button>
                 )

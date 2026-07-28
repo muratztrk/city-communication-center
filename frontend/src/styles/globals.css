@@ -2119,14 +2119,14 @@
     max-width: 5.25rem;
   }
 
-  /* Kullanıcı düzenleme Birim/Rol panel — specificity: admin-surface-menu üstüne yaz (#r521). */
+  /* Kullanıcı düzenleme Birim/Rol panel — specificity: admin-surface-menu üstüne yaz (#r522). */
   .admin-surface-menu.users-edit-dropdown-menu-scroll .dropdown-menu-item,
   .admin-surface-menu .users-edit-dropdown-menu-scroll .dropdown-menu-item,
   .users-edit-dropdown-menu-scroll .dropdown-menu-item,
   .users-edit-dropdown-menu .dropdown-menu-item {
-    min-height: 1.65rem;
-    padding: 0.24rem 0.5rem;
-    font-size: 0.62rem;
+    min-height: 1.75rem;
+    padding: 0.28rem 0.5rem;
+    font-size: 0.68rem;
     font-weight: 600;
   }
 
@@ -3258,12 +3258,12 @@
     min-height: 0;
   }
 
-  /* Gridview Rol menüsü — admin-surface override + biraz büyüt (#r521). */
+  /* Gridview Rol menüsü — admin-surface override + biraz büyüt (#r522). */
   .admin-surface-menu.users-edit-dropdown-menu-scroll .dropdown-menu-item,
   .admin-surface-menu .users-edit-dropdown-menu-scroll .dropdown-menu-item {
-    min-height: 1.65rem !important;
-    padding: 0.24rem 0.5rem !important;
-    font-size: 0.62rem !important;
+    min-height: 1.75rem !important;
+    padding: 0.28rem 0.5rem !important;
+    font-size: 0.68rem !important;
     font-weight: 600;
   }
 

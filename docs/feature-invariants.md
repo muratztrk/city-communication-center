@@ -1232,10 +1232,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   menü ~168px; clearable X; placeholder `Birim seçiniz...`.
 - **WA Tümü / Talep Sayısı (#r473):** yalnız İşleme Alınan + Yapılmakta + Tamamlandı toplamı
   (iptal dahil değil).
-- **Grid truncate tooltip (#r474–#r479/#r517):** AppShell `useDataTableOverflowTooltips` —
+- **Grid truncate tooltip (#r474–#r479/#r517/#r522):** AppShell `useDataTableOverflowTooltips` —
   `.data-table` taşan hücrelerde + `.dropdown-menu-item` ellipsis satırlarında kompakt emerald
-  portal tooltip; öncelik aşağı; anında güncellenir (native `title` değil; İşlemler hariç).
-  Tooltip `z-index` dropdown portal’ın üstünde (`10050`).
+  portal tooltip; dropdown’da flex ölçüm fallback + native `title` yedek. Tooltip `z-index` 10050.
 - **WA Konuşmaları footer (#r468):** Şablon/Dosya + Birim + Kurum İçi tek satır; Birim/Kurum
   İçi `ml-auto` sağa (create-modal ConversationPanel ile aynı).
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
@@ -1290,8 +1289,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birime Gelen Talep Yeri çerçeve (#r520/#r521):** grid `Talep Yeri / Oluşturan` — aktif (kendi)
   birim dışı talep yeri `FramedDepartmentStack` yeşil çerçeve, sütunda ortalı (#r521);
   kendi birim `ReporterDepartmentCell`.
-- **Kullanıcılar grid Rol menü font (#r521):** `.users-edit-dropdown-menu*` ~0.62rem.
-  Create form Ek Roller Çıkış/Seç ~0.72rem.
+- **Dropdown truncate tooltip (#r517/#r522):** `useDataTableOverflowTooltips` dropdown
+  `.truncate` satırlarında portal tooltip; flex ölçüm fallback + `title` attribute yedek (#1997).
+- **Kullanıcılar grid Rol menü font (#r522):** `.users-edit-dropdown-menu*` ~0.68rem.
+  Create form Ek Roller menü genişliği `menuWidth={280}` (sağa genişler, #1988).
+- **Ayarlar Kurum Bilgisi (#r522):** başlık altı boşluk `!gap-1`.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);

@@ -1,3 +1,9 @@
+## Round 522 — dropdown tooltip fix + rol menü/width + Kurum Bilgisi gap
+- `6a68ad44` (#1997) — Dropdown ellipsis tooltip: flex ölçüm + title yedek.
+- `6a68a4b5` (#1994) — Gridview Rol dropdown metin ~0.68rem.
+- `6a68ba30` (#1999) — Kurum Bilgisi başlık altı boşluk azaltıldı.
+- `6a689e20` (#1988) — Create form Ek Roller menü genişliği 280px.
+
 ## Round 521 — Kurum Konumu mahalle kaldır + rol menü/buton + Talep Yeri orta
 - `6a68a524` (#1995) — Ayarlar Kurum Konumu altındaki mahalle listesi önizlemesi kaldırıldı.
 - `6a689e20` (#1988) — Ek Roller Çıkış/Seç biraz büyütüldü.

@@ -25,21 +25,16 @@ function mayEllipsis(el: HTMLElement): boolean {
 }
 
 function resolveOverflowTarget(eventTarget: Element): { anchor: HTMLElement; text: string } | null {
-  // Dropdown list rows — truncated labels show full text on hover (#r517 / #1996).
+  // Dropdown list rows — truncated labels show full text on hover (#r517/#r522 / #1997).
   const dropdownItem = eventTarget.closest('.dropdown-menu-item')
   if (dropdownItem instanceof HTMLElement) {
-    let node: Element | null = eventTarget
-    while (node && node !== dropdownItem) {
-      if (node instanceof HTMLElement && mayEllipsis(node) && isClipped(node)) {
-        const text = cellText(node)
-        if (text) return { anchor: node, text }
-      }
-      node = node.parentElement
-    }
     const label = dropdownItem.querySelector('.truncate')
-    if (label instanceof HTMLElement && isClipped(label)) {
+    if (label instanceof HTMLElement) {
       const text = cellText(label)
-      if (text) return { anchor: label, text }
+      // Flex + truncate bazen scrollWidth≈clientWidth raporlar; buton genişliğiyle de kıyasla.
+      if (text && (isClipped(label) || label.scrollWidth > dropdownItem.clientWidth - 24)) {
+        return { anchor: label, text }
+      }
     }
     return null
   }

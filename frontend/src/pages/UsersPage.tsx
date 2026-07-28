@@ -1309,6 +1309,7 @@ export function UsersPage() {
                   className="users-additional-roles-dropdown"
                   triggerClassName="text-xs"
                   menuClassName="users-roles-compact-menu"
+                  menuWidth={280}
                   options={ADDITIONAL_ROLE_CODES
                     .filter(roleCode => roleCode !== newUser.roleCode)
                     .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))

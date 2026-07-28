@@ -347,9 +347,19 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             cancellationToken);
 
         // Sorumlu: Manager rolü + birim ResponsibleUserIds (müdür kontenjanı dışı, card #1898).
+        // Müdür: Manager rolü + birim ManagerUserId (#r513).
         if (roleCode == RoleCode.Manager && request.SkipManagerQuota)
         {
             await UserManagerQuotaValidator.MarkAsResponsibleAsync(
+                _dbContext,
+                tenantId,
+                departmentId,
+                user.UserId,
+                cancellationToken);
+        }
+        else if (roleCode == RoleCode.Manager && !request.SkipManagerQuota)
+        {
+            await UserManagerQuotaValidator.MarkAsManagerAsync(
                 _dbContext,
                 tenantId,
                 departmentId,

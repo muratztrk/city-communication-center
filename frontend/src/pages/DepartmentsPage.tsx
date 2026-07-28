@@ -6,7 +6,7 @@ import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import { api } from '../api/client'
-import { invalidateDepartments } from '../api/cacheInvalidation'
+import { invalidateDepartments, invalidateUsers } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { AutocompleteField } from '../components/forms/AutocompleteField'
 import { Button } from '../components/ui/button'
@@ -512,6 +512,7 @@ export function DepartmentsPage() {
         current => current?.map(item => item.departmentId === updated.departmentId ? updated : item) ?? [updated],
       )
       invalidateDepartments(queryClient)
+      invalidateUsers(queryClient)
       setManagerAssignId(null)
       setEditManagerUserId('')
       setEditResponsibleUserIds([])
@@ -538,15 +539,17 @@ export function DepartmentsPage() {
   }, [departments])
 
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? null
-  // managerUserId yoksa birimdeki Manager rolündeki kullanıcıyı göster (card #1854).
+  // managerUserId yoksa birimdeki Manager rolündeki (Sorumlu listesi dışı) kullanıcıyı göster (card #1854 / #r513).
   const getDepartmentManagerName = (department: Department) => {
     if (department.managerUserId) {
       return getUserName(department.managerUserId)
     }
+    const responsibleIds = new Set(department.responsibleUserIds ?? [])
     return users.find(item =>
       item.departmentId === department.departmentId
       && item.roleCode === 'Manager'
-      && item.isActive,
+      && item.isActive
+      && !responsibleIds.has(item.userId),
     )?.displayName ?? null
   }
   const getManagerCandidates = () => users.filter(item => item.isActive)
@@ -571,7 +574,8 @@ export function DepartmentsPage() {
         : users.find(item =>
           item.departmentId === department.departmentId
           && item.roleCode === 'Manager'
-          && item.isActive,
+          && item.isActive
+          && !(department.responsibleUserIds ?? []).includes(item.userId),
         )?.displayName
       return {
         ...department,

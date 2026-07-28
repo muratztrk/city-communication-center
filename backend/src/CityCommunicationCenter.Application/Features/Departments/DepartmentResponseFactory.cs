@@ -28,7 +28,7 @@ internal static class DepartmentResponseFactory
         return JsonSerializer.Serialize(distinctUserIds);
     }
 
-    private static IReadOnlyCollection<Guid> ParseResponsibleUserIds(string? json)
+    public static IReadOnlyCollection<Guid> ParseResponsibleUserIds(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))
         {

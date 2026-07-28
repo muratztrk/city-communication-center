@@ -98,6 +98,12 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
                 request.DepartmentId,
                 user.UserId,
                 cancellationToken);
+            await UserManagerQuotaValidator.MarkAsManagerAsync(
+                _dbContext,
+                tenantId,
+                request.DepartmentId,
+                user.UserId,
+                cancellationToken);
         }
         else if (roleCode == RoleCode.Manager && request.SkipManagerQuota)
         {
@@ -107,6 +113,24 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
                 request.DepartmentId,
                 user.UserId,
                 cancellationToken);
+        }
+        else
+        {
+            await UserManagerQuotaValidator.ClearUserFromDepartmentLeadershipAsync(
+                _dbContext,
+                tenantId,
+                request.DepartmentId,
+                user.UserId,
+                cancellationToken);
+            if (user.DepartmentId != request.DepartmentId)
+            {
+                await UserManagerQuotaValidator.ClearUserFromDepartmentLeadershipAsync(
+                    _dbContext,
+                    tenantId,
+                    user.DepartmentId,
+                    user.UserId,
+                    cancellationToken);
+            }
         }
 
         // Yerel (Manual) kullanıcıda Ad Soyad / Ünvan / e-posta güncellenir (card #1705).

@@ -1308,10 +1308,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Ek görev birimler dropdown metin (#r452):** `users-dept-compact-menu` satır fontu ~0.78rem.
 - **Dahili/Ünvan (#r449):** Dahili yalnız rakam; Ünvan rakamsız.
 - **Yönetici Ata (#r449):** boşken “Müdür seçiniz...”; buton `sm`.
-- **Kullanıcı Rol: Sorumlu (card #1897/#1898):** dropdown’da `Sorumlu`; kayıtta `roleCode=Manager`
+- **Kullanıcı Rol: Sorumlu (card #1897/#1898/#r513):** dropdown’da `Sorumlu`; kayıtta `roleCode=Manager`
   (yeni RoleCode yok) + `skipManagerQuota=true` → birim `ResponsibleUserIds`’e eklenir;
+  `skipManagerQuota=false` (Müdür) → birim `ManagerUserId` atanır ve Responsible listesinden çıkarılır;
   müdür kontenjanı yalnız `ManagerUserId` / Sorumlu-olmayan Manager sayar; birden fazla Sorumlu OK;
   düzenlemede UI rolü Responsible listesinden `Sorumlu` geri map edilir; sayfa yetkileri Manager ile aynı.
+- **Yönetici Ata ↔ Kullanıcı Rol senkronu (#r513):** Birimler’de Müdür/Sorumlular kaydı ilgili
+  kullanıcıları `RoleCode=Manager` yapar (Users’da Müdür / Sorumlu görünür); listeden çıkanlar
+  başka birimde lider değilse Personel’e düşer.
 - **Yönetici Ata inline (card #1854 reopen):** Müdür/Sorumlular sütunlarında dropdown
   (`Müdür seçiniz...` / `Sorumlu seçiniz...`); Kaydet/İptal; aksiyon butonları büyütülür.
 - **Adres boş etiket ortası (card #1876 reopen):** Adres Bilgileri tamamen boşsa üç alt etiket

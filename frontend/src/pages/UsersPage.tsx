@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
-import { invalidateUsers } from '../api/cacheInvalidation'
+import { invalidateDepartments, invalidateUsers } from '../api/cacheInvalidation'
 import { AutocompleteField } from '../components/forms/AutocompleteField'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
@@ -723,6 +723,7 @@ export function UsersPage() {
 
       closeCreateForm()
       invalidateUsers(queryClient)
+      invalidateDepartments(queryClient)
       loadData()
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : t('common.error'))
@@ -786,6 +787,7 @@ export function UsersPage() {
       })
       setEditingUserId(null)
       invalidateUsers(queryClient)
+      invalidateDepartments(queryClient)
       loadData()
     } catch (updateError) {
       setError(updateError instanceof Error ? updateError.message : t('common.error'))

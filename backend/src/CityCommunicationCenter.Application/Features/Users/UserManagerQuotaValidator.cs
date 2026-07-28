@@ -151,6 +151,179 @@ internal static class UserManagerQuotaValidator
         }
     }
 
+    /// <summary>
+    /// Müdür kaydı: ManagerUserId atar; ResponsibleUserIds'den çıkarır (#r513).
+    /// </summary>
+    public static async Task MarkAsManagerAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid departmentId,
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var department = await dbContext.Departments
+            .FirstOrDefaultAsync(
+                entity => entity.TenantId == tenantId && entity.DepartmentId == departmentId,
+                cancellationToken);
+
+        if (department is null)
+        {
+            return;
+        }
+
+        department.ManagerUserId = userId;
+
+        var responsibleUserIds = ParseResponsibleUserIds(department.ResponsibleUserIdsJson).ToList();
+        if (responsibleUserIds.Remove(userId))
+        {
+            department.ResponsibleUserIdsJson = DepartmentResponseFactory.SerializeResponsibleUserIds(responsibleUserIds);
+        }
+    }
+
+    /// <summary>
+    /// Kullanıcıyı birimin müdür/sorumlu koltuklarından çıkarır (#r513).
+    /// </summary>
+    public static async Task ClearUserFromDepartmentLeadershipAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid departmentId,
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        var department = await dbContext.Departments
+            .FirstOrDefaultAsync(
+                entity => entity.TenantId == tenantId && entity.DepartmentId == departmentId,
+                cancellationToken);
+
+        if (department is null)
+        {
+            return;
+        }
+
+        if (department.ManagerUserId == userId)
+        {
+            department.ManagerUserId = null;
+        }
+
+        var responsibleUserIds = ParseResponsibleUserIds(department.ResponsibleUserIdsJson).ToList();
+        if (responsibleUserIds.Remove(userId))
+        {
+            department.ResponsibleUserIdsJson = DepartmentResponseFactory.SerializeResponsibleUserIds(responsibleUserIds);
+        }
+    }
+
+    /// <summary>
+    /// Yönetici Ata: Müdür/Sorumlular listesine göre RoleCode=Manager yükseltir;
+    /// listeden çıkan eski liderleri (başka birimde lider değilse) Personel'e düşürür (#r513).
+    /// </summary>
+    public static async Task SyncDepartmentLeadershipRolesAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid departmentId,
+        Guid? previousManagerUserId,
+        IReadOnlyCollection<Guid> previousResponsibleUserIds,
+        Guid? nextManagerUserId,
+        IReadOnlyCollection<Guid>? nextResponsibleUserIds,
+        CancellationToken cancellationToken)
+    {
+        var nextResponsible = (nextResponsibleUserIds ?? [])
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToHashSet();
+        var nextLeaders = new HashSet<Guid>(nextResponsible);
+        if (nextManagerUserId.HasValue && nextManagerUserId.Value != Guid.Empty)
+        {
+            nextLeaders.Add(nextManagerUserId.Value);
+        }
+
+        if (nextLeaders.Count > 0)
+        {
+            var leaders = await dbContext.Users
+                .Where(user => user.TenantId == tenantId && nextLeaders.Contains(user.UserId))
+                .ToListAsync(cancellationToken);
+
+            foreach (var leader in leaders)
+            {
+                if (leader.RoleCode == RoleCode.SystemAdmin)
+                {
+                    continue;
+                }
+
+                leader.RoleCode = RoleCode.Manager;
+            }
+        }
+
+        var previousLeaders = previousResponsibleUserIds
+            .Where(id => id != Guid.Empty)
+            .ToHashSet();
+        if (previousManagerUserId.HasValue && previousManagerUserId.Value != Guid.Empty)
+        {
+            previousLeaders.Add(previousManagerUserId.Value);
+        }
+
+        var removedLeaderIds = previousLeaders.Where(id => !nextLeaders.Contains(id)).ToArray();
+        if (removedLeaderIds.Length == 0)
+        {
+            return;
+        }
+
+        foreach (var removedUserId in removedLeaderIds)
+        {
+            var stillLeaderElsewhere = await IsLeadershipSeatElsewhereAsync(
+                dbContext,
+                tenantId,
+                removedUserId,
+                excludeDepartmentId: departmentId,
+                cancellationToken);
+
+            if (stillLeaderElsewhere)
+            {
+                continue;
+            }
+
+            var user = await dbContext.Users
+                .FirstOrDefaultAsync(
+                    entity => entity.TenantId == tenantId && entity.UserId == removedUserId,
+                    cancellationToken);
+
+            if (user is null || user.RoleCode != RoleCode.Manager)
+            {
+                continue;
+            }
+
+            user.RoleCode = RoleCode.Staff;
+        }
+    }
+
+    private static async Task<bool> IsLeadershipSeatElsewhereAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid userId,
+        Guid excludeDepartmentId,
+        CancellationToken cancellationToken)
+    {
+        var departments = await dbContext.Departments
+            .AsNoTracking()
+            .Where(entity => entity.TenantId == tenantId && entity.DepartmentId != excludeDepartmentId)
+            .Select(entity => new { entity.ManagerUserId, entity.ResponsibleUserIdsJson })
+            .ToListAsync(cancellationToken);
+
+        foreach (var department in departments)
+        {
+            if (department.ManagerUserId == userId)
+            {
+                return true;
+            }
+
+            if (ParseResponsibleUserIds(department.ResponsibleUserIdsJson).Contains(userId))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private static IReadOnlyCollection<Guid> ParseResponsibleUserIds(string? json)
     {
         if (string.IsNullOrWhiteSpace(json))

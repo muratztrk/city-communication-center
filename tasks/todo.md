@@ -1,3 +1,6 @@
+## Round 513 — Yönetici Ata ↔ Kullanıcı Rol senkronu
+- `6a689c71` — Birimler Sorumlu/Müdür ataması Users rolünü günceller; Users Müdür/Sorumlu seçimi Birimler koltuklarını günceller.
+
 ## Round 512 — Kurum Konumu ilçe → mahalle + harita
 - `6a6899e7` — Ayarlar İlçe seçimi mahalle listesi + harita önizlemesini günceller; kayıt sonrası talep mahalleleri ve vatandaş haritası aynı ilçeyi kullanır.
 

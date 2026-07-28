@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Users;
 using Microsoft.Extensions.Localization;
 
 namespace CityCommunicationCenter.Application.Features.Departments;
@@ -88,11 +89,24 @@ public sealed class UpdateDepartmentCommandHandler : ICommandHandler<UpdateDepar
             entity.DepartmentType = request.DepartmentType.Trim();
         }
 
+        var previousManagerUserId = entity.ManagerUserId;
+        var previousResponsibleUserIds = DepartmentResponseFactory.ParseResponsibleUserIds(entity.ResponsibleUserIdsJson);
+
         entity.ManagerUserId = request.ManagerUserId;
         entity.DeputyManagerUserId = request.DeputyManagerUserId;
         entity.ResponsibleUserIdsJson = DepartmentResponseFactory.SerializeResponsibleUserIds(request.ResponsibleUserIds);
         entity.UpdatedAtUtc = DateTimeOffset.UtcNow;
         entity.UpdatedByUserId = context.UserId;
+
+        await UserManagerQuotaValidator.SyncDepartmentLeadershipRolesAsync(
+            _dbContext,
+            tenantId,
+            entity.DepartmentId,
+            previousManagerUserId,
+            previousResponsibleUserIds,
+            request.ManagerUserId,
+            request.ResponsibleUserIds,
+            cancellationToken);
 
         _dbContext.AuditLogs.Add(new AuditLog
         {

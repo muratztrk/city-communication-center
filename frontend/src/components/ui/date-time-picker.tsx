@@ -19,6 +19,8 @@ interface DateTimePickerProps {
   onClose?: () => void
   /** "YYYY-MM-DDTHH:mm" — bundan erken seçim kabul edilmez (card #1819). */
   minDateTime?: string
+  /** "YYYY-MM-DD" / datetime — bundan sonraki günler disable (range bitiş sınırı, #r538). */
+  maxDateTime?: string
   /** Yalnızca tarih: saat UI yok, değer `YYYY-MM-DD`, tetikleyicide saat gösterilmez (card #2007). */
   dateOnly?: boolean
 }
@@ -59,7 +61,7 @@ function todayDateStr() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false, onClose, minDateTime, dateOnly = false }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false, onClose, minDateTime, maxDateTime, dateOnly = false }: DateTimePickerProps) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState({ date: '', time: '' })
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
@@ -72,6 +74,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
   const [yearPickerOpen, setYearPickerOpen] = useState(false)
   const [yearBlockStart, setYearBlockStart] = useState(() => new Date().getFullYear() - 5)
   const minDatePart = minDateTime?.slice(0, 10) ?? ''
+  const maxDatePart = maxDateTime?.slice(0, 10) ?? ''
 
   const handleOpen = useCallback(() => {
     const now = new Date()
@@ -158,6 +161,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
   const handleDayClick = (day: number) => {
     const date = `${viewYear}-${pad(viewMonth + 1)}-${pad(day)}`
     if (minDatePart && date < minDatePart) return
+    if (maxDatePart && date > maxDatePart) return
     setDraft(d => ({ ...d, date }))
   }
 
@@ -242,12 +246,12 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
           style={dropdownStyle}
           className="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
         >
-          {/* Talebi iptal et popup X ile aynı: sağ üst, kapat = seçim yapmadan dismiss (#r537). */}
+          {/* Talebi iptal et popup X: default çerçevesiz; hover'da kırmızı + yuvarlak (#r538). */}
           <button
             type="button"
             onClick={e => { e.stopPropagation(); dismiss() }}
             aria-label="Kapat"
-            className="absolute right-3 top-3 z-10 flex size-7 items-center justify-center rounded-full bg-white/90 text-slate-400 shadow-sm transition-colors hover:bg-red-50 hover:text-red-600"
+            className="absolute right-3 top-3 z-10 flex size-7 items-center justify-center rounded-full text-white/75 transition-colors hover:bg-red-50 hover:text-red-600"
           >
             <X className="size-4" />
           </button>
@@ -348,7 +352,10 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
                     const dateStr = `${viewYear}-${pad(viewMonth + 1)}-${pad(day)}`
                     const isSelected = draft.date === dateStr
                     const isToday = dateStr === today
-                    const isDisabled = Boolean(minDatePart && dateStr < minDatePart)
+                    const isDisabled = Boolean(
+                      (minDatePart && dateStr < minDatePart)
+                      || (maxDatePart && dateStr > maxDatePart),
+                    )
                     return (
                       <button
                         key={i}

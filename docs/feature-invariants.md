@@ -190,11 +190,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   "YYYY-MM-DDTHH:mm" yerel saattir; ISO'dan dönüşüm HER ZAMAN `utils/dateTimePicker.ts` içindeki
   `toDateTimePickerValue` ile yapılır. `toISOString().slice(0,16)` (UTC dilimi) YASAK — saati UTC
   ofseti kadar erken gösterir ve her kayıtta tarihi geriye kaydırır. Sayfa içi kopya helper yazma.
-- **Banner Başlangıç/Bitiş tarih chip'i (round 532/#2007, round 533/#r537):** `.scope-chip-date`
+- **Banner Başlangıç/Bitiş tarih chip'i (round 532/#2007, round 533/#r537/#r538):** `.scope-chip-date`
   genişliği `≥9.5rem`; takvim ikonu `size-3.5` / chip içinde ~0.8125rem — `dd.mm.yyyy` truncate
   olmamalı. `ScopeChipDateRange` → `DateTimePicker dateOnly`: saat UI yok, değer `YYYY-MM-DD`.
-  Takvim portalında sağ üstte Talebi İptal Et ile aynı X (dismiss, seçim yok) (#r537).
-  8.5rem / datetime gösterimine / X'siz takvime geri alma.
+  Takvim portalında sağ üst X: default çerçeve yok; hover'da kırmızı + yuvarlak (#r538 / #2008).
+  Range: Başlangıç seçiliyse Bitiş'te önceki günler disable; Bitiş seçiliyse Başlangıç'ta sonraki
+  günler disable (`minDateTime`/`maxDateTime`, #r538).
 - **Talep son tarih bildirimi (round 380, #1677):** `UpdateJobCommand`'da son tarih değiştiyse
   `JobDueDateUpdated` audit'i KOŞULSUZ yazılır ("yalnızca son tarih değiştiyse" guard'ı geri getirme —
   kozmetik alan diff'leri bildirimi yutar); jenerik `JobUpdated` yalnız başka alan da değiştiyse eklenir.

@@ -1,3 +1,7 @@
+## Round 538 — tarih aralığı disable + takvim X hover
+- `6a690d02` (#2009) — Başlangıç/Bitiş: karşı uçtan önceki/sonraki günler disable.
+- `6a690cb2` (#2008) — Takvim X: default çerçeve yok; hover kırmızı + yuvarlak.
+
 ## Round 537 — İlgili Görev Öncelik + takvim kapat X
 - `6a68a200` — İlgili Görev Detayları: Görevi Yapan sonrası Öncelik (`getPriorityColorClass`).
 - `6a690cb2` — DateTimePicker takvim sağ üst X (iptal popup ile aynı dismiss).

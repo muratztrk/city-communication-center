@@ -51,6 +51,9 @@ export function DepartmentsPage() {
   const [managerAssignId, setManagerAssignId] = useState<string | null>(null)
   const [managerAssignSavingId, setManagerAssignSavingId] = useState<string | null>(null)
   const [pullAllLdapLoading, setPullAllLdapLoading] = useState(false)
+  // Anlık LDAP çalışma göstergesi yalnız istek 250ms'yi aşarsa görünür: hızlı yanıtta
+  // gösterge açılıp kapanmaz (önceki round'un buton metni flicker'ı — card #1862).
+  const [pullAllLdapSlow, setPullAllLdapSlow] = useState(false)
   const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
   const [deleteAllLdapLoading, setDeleteAllLdapLoading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
@@ -192,16 +195,11 @@ export function DepartmentsPage() {
   const handlePullAllLdapDepartments = async () => {
     setPullAllLdapLoading(true)
     setError('')
-    setConfirmDialog({
-      title: t('departments.liveLdapSync'),
-      titleDivider: true,
-      titleCompact: true,
-      message: t('departments.liveLdapSyncWorking'),
-      confirmLabel: t('common.yes', 'Evet'),
-      hideCancel: true,
-      closeOnConfirm: false,
-      onConfirm: () => {},
-    })
+    // Ara "çalışıyor" ConfirmDialog'u KALDIRILDI (card #1862): "Evet" butonlu bir ilerleme
+    // kutusu onay sorusu gibi görünüyor, sonra sonuç kutusuna dönüşünce kullanıcı iki ayrı
+    // popup açılmış sanıyordu. Tek tık → tek sonuç kutusu; bekleme inline gösterilir
+    // ("Tümünü Sil" butonundaki mevcut desenle aynı).
+    const slowTimer = window.setTimeout(() => setPullAllLdapSlow(true), 250)
 
     try {
       // physicalDeliveryOfficeName listesi — OU yok (card #1838).
@@ -272,6 +270,8 @@ export function DepartmentsPage() {
       setConfirmDialog(null)
       setError(pullError instanceof Error ? pullError.message : t('common.error'))
     } finally {
+      window.clearTimeout(slowTimer)
+      setPullAllLdapSlow(false)
       setPullAllLdapLoading(false)
     }
   }
@@ -765,6 +765,11 @@ export function DepartmentsPage() {
                 >
                   {t('departments.liveLdapSync')}
                 </button>
+                {pullAllLdapSlow ? (
+                  <span className="text-xs font-medium text-slate-500" role="status" aria-live="polite">
+                    {t('departments.liveLdapSyncWorking')}
+                  </span>
+                ) : null}
                 <button
                   type="button"
                   className="text-sm font-bold text-[color:var(--color-primary)] underline-offset-2 hover:underline disabled:opacity-60"

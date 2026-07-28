@@ -30,6 +30,7 @@ export function ScopeChipDateRange({
         className="scope-chip-date"
         forceDown={forceDown}
         forceUp={forceUp}
+        dateOnly
       />
       <span className="scope-chip-date-separator" aria-hidden="true">-</span>
       <DateTimePicker
@@ -39,6 +40,7 @@ export function ScopeChipDateRange({
         className="scope-chip-date"
         forceDown={forceDown}
         forceUp={forceUp}
+        dateOnly
       />
     </div>
   )

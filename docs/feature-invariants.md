@@ -187,8 +187,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   "YYYY-MM-DDTHH:mm" yerel saattir; ISO'dan dönüşüm HER ZAMAN `utils/dateTimePicker.ts` içindeki
   `toDateTimePickerValue` ile yapılır. `toISOString().slice(0,16)` (UTC dilimi) YASAK — saati UTC
   ofseti kadar erken gösterir ve her kayıtta tarihi geriye kaydırır. Sayfa içi kopya helper yazma.
-- **Banner Başlangıç/Bitiş tarih chip'i (round 532, #2007):** `.scope-chip-date` genişliği `≥9.5rem`;
-  takvim ikonu `size-3.5` / chip içinde ~0.8125rem — `dd.mm.yyyy` truncate olmamalı. 8.5rem'e geri alma.
+- **Banner Başlangıç/Bitiş tarih chip'i (round 532/#2007, round 533):** `.scope-chip-date` genişliği
+  `≥9.5rem`; takvim ikonu `size-3.5` / chip içinde ~0.8125rem — `dd.mm.yyyy` truncate olmamalı.
+  `ScopeChipDateRange` → `DateTimePicker dateOnly`: saat UI yok, değer `YYYY-MM-DD`, tetikleyicide
+  saat gösterilmez. 8.5rem / datetime gösterimine geri alma.
 - **Talep son tarih bildirimi (round 380, #1677):** `UpdateJobCommand`'da son tarih değiştiyse
   `JobDueDateUpdated` audit'i KOŞULSUZ yazılır ("yalnızca son tarih değiştiyse" guard'ı geri getirme —
   kozmetik alan diff'leri bildirimi yutar); jenerik `JobUpdated` yalnız başka alan da değiştiyse eklenir.
@@ -1236,11 +1238,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   menü ~168px; clearable X; placeholder `Birim seçiniz...`.
 - **WA Tümü / Talep Sayısı (#r473):** yalnız İşleme Alınan + Yapılmakta + Tamamlandı toplamı
   (iptal dahil değil).
-- **Grid truncate tooltip (#r474–#r479/#r517/#r522/#r524/#r529/#r530/#r531):** AppShell `useDataTableOverflowTooltips` —
+- **Grid truncate tooltip (#r474–#r479/#r517/#r522/#r524/#r529/#r530/#r531/#r533):** AppShell `useDataTableOverflowTooltips` —
   `.data-table` taşan hücrelerde + `.dropdown-menu-item` ellipsis satırlarında kompakt emerald
   portal tooltip; dropdown’da flex ölçüm fallback + native `title` yedek. Tooltip `z-index` 10050;
   yatayda ortalı + ~16px sağa (#2001); metin antrasit `#36454f`, tek satır `nowrap` (#2004);
-  arka plan/border emerald koyu (`border #059669`) (#r531).
+  arka plan açık yeşil (`#f0fdf4`→`#dcfce7`), border `#6ee7b7`, font ~0.64rem (#r533/#2004).
 - **Grid personel adı boyutu (#2005/#r531):** Gittiği Yer / çerçeve altı personel `text-sm`
   (iç birim `text-sm` ile aynı; `text-xs` farkı kaldırıldı — `FramedDepartmentStack` secondary dahil).
 - **Görev Tipi Görevi Yapan (#2006/#r531):** personel adı `text-sm font-semibold` (önce ~0.8125rem).

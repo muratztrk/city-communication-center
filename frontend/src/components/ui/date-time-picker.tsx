@@ -19,6 +19,8 @@ interface DateTimePickerProps {
   onClose?: () => void
   /** "YYYY-MM-DDTHH:mm" — bundan erken seçim kabul edilmez (card #1819). */
   minDateTime?: string
+  /** Yalnızca tarih: saat UI yok, değer `YYYY-MM-DD`, tetikleyicide saat gösterilmez (card #2007). */
+  dateOnly?: boolean
 }
 
 const DROPDOWN_WIDTH = 288  // w-72
@@ -31,13 +33,13 @@ function pad(n: number) {
   return String(n).padStart(2, '0')
 }
 
-function formatDisplay(value: string): string {
+function formatDisplay(value: string, dateOnly = false): string {
   if (!value) return ''
   const [datePart, timePart] = value.split('T')
   if (!datePart) return ''
   const [year, month, day] = datePart.split('-')
   const base = `${day}.${month}.${year}`
-  if (!timePart) return base
+  if (dateOnly || !timePart) return base
   const [h, m] = timePart.split(':')
   return `${base} ${h}:${m}`
 }
@@ -57,7 +59,7 @@ function todayDateStr() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false, onClose, minDateTime }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false, onClose, minDateTime, dateOnly = false }: DateTimePickerProps) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState({ date: '', time: '' })
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
@@ -136,9 +138,13 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
 
   const handleConfirm = () => {
     if (draft.date) {
-      let next = `${draft.date}T${draft.time || '00:00'}`
-      if (minDateTime && next < minDateTime) next = minDateTime
-      onChange(next)
+      if (dateOnly) {
+        onChange(draft.date)
+      } else {
+        let next = `${draft.date}T${draft.time || '00:00'}`
+        if (minDateTime && next < minDateTime) next = minDateTime
+        onChange(next)
+      }
     }
     setOpen(false)
   }
@@ -192,7 +198,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
     return () => document.removeEventListener('keydown', handler)
   }, [open, dismiss])
 
-  const display = formatDisplay(value)
+  const display = formatDisplay(value, dateOnly)
   const today = todayDateStr()
 
   // Build calendar cells (null = empty leading/trailing)
@@ -357,7 +363,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
             )}
           </div>
 
-          {/* Footer: Temizle | Saat input | Seç — hepsi aynı satırda */}
+          {/* Footer: Temizle | (Saat) | Seç — dateOnly'de saat yok (card #2007) */}
           <div className="flex items-center gap-2 border-t border-slate-100 px-3 py-2.5">
             {value ? (
               <button
@@ -369,16 +375,20 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
               </button>
             ) : <span className="shrink-0" />}
 
-            <div className="flex flex-1 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">
-              <Clock className="size-3.5 shrink-0 text-slate-400" />
-              <span className="text-xs font-semibold text-slate-500">Saat</span>
-              <input
-                type="time"
-                className="min-w-0 flex-1 bg-transparent text-xs font-semibold text-slate-700 outline-none"
-                value={draft.time}
-                onChange={e => setDraft(d => ({ ...d, time: e.target.value }))}
-              />
-            </div>
+            {dateOnly ? (
+              <span className="flex-1" />
+            ) : (
+              <div className="flex flex-1 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">
+                <Clock className="size-3.5 shrink-0 text-slate-400" />
+                <span className="text-xs font-semibold text-slate-500">Saat</span>
+                <input
+                  type="time"
+                  className="min-w-0 flex-1 bg-transparent text-xs font-semibold text-slate-700 outline-none"
+                  value={draft.time}
+                  onChange={e => setDraft(d => ({ ...d, time: e.target.value }))}
+                />
+              </div>
+            )}
 
             <button
               type="button"

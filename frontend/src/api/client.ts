@@ -1744,4 +1744,12 @@ export const api = {
     })
     await ensureOk(response, i18n.t('errors.citizenMessageApprovalReleaseFailed', 'Mesaj gönderilemedi.'))
   },
+
+  async reopenCitizenMessageJob(jobId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/citizen-message-approvals/${jobId}/reopen-to-in-progress`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.citizenMessageApprovalReopenFailed', 'Talep durumu değiştirilemedi.'))
+  },
 }

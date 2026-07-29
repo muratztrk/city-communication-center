@@ -896,20 +896,26 @@
     "actions": {
       "details": "Details",
       "release": "Send Message",
-      "editNote": "Edit Message"
+      "editNote": "Edit Note",
+      "changeStatus": "Change Request Status"
     },
     "emptyToSend": "There is no request awaiting a citizen message.",
     "emptySent": "There is no request awaiting a citizen message.",
     "emptyAll": "There is no request awaiting a citizen message.",
-    "editNoteTitle": "Edit Message",
+    "editNoteTitle": "Edit Note",
     "editNoteMessage": "Edit the completion/cancellation note that will be sent to the citizen. A note is required.",
     "editNotePlaceholder": "Completion/cancellation note...",
     "noteRequired": "A note is required.",
     "releaseTitle": "Send Message",
     "releaseConfirm": "The automatic status message and note for this request will be released to the operator's WhatsApp screen. Continue?",
-    "releaseNoteMissing": "Please enter a note using \"Edit Message\" before sending.",
+    "releaseNoteMissing": "Please enter a note using \"Edit Note\" before sending.",
     "released": "Message queued for sending.",
-    "noteSaved": "Note saved."
+    "noteSaved": "Note saved.",
+    "changeStatusTitle": "Change Request Status",
+    "changeStatusConfirmLead": "Do you confirm changing the request status to",
+    "changeStatusInProgress": "In Progress",
+    "changeStatusConfirmTrail": "?",
+    "statusChanged": "Request status updated to In Progress."
   },
   "social": {
     "title": "Citizen Request Flow",

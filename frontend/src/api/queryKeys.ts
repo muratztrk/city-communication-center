@@ -110,4 +110,9 @@ export const queryKeys = {
     all: ['ccc', 'user-quick-replies'] as const,
     list: () => ['ccc', 'user-quick-replies', 'list'] as const,
   },
+  citizenMessageApprovals: {
+    all: ['ccc', 'citizen-message-approvals'] as const,
+    list: (scope?: string) => ['ccc', 'citizen-message-approvals', 'list', scope ?? 'to-send'] as const,
+    pendingCount: () => ['ccc', 'citizen-message-approvals', 'pending-count'] as const,
+  },
 }

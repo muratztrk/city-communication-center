@@ -14,6 +14,8 @@ export interface SidebarNavLinkItem {
   newTab?: boolean
   /** Render label on two lines (e.g. long menu titles). */
   multilineLabel?: boolean
+  /** Optional count badge (WhatsApp FAB style) — shown after first line when multiline (card #2056). */
+  badgeCount?: number
   /** Slightly enlarge important nested links without changing the whole sidebar. */
   emphasized?: boolean
 }
@@ -120,7 +122,35 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
           <Icon className={cn('shrink-0', isEmphasizedNested ? 'size-5' : nested && !collapsed ? 'size-4' : 'size-4.5')} />
         ) : null}
         {!collapsed ? (
-          <span className={cn('min-w-0', isEmphasizedNested ? 'whitespace-nowrap' : item.multilineLabel ? 'whitespace-pre-line leading-snug' : 'truncate')}>{item.label}</span>
+          item.multilineLabel && item.badgeCount != null && item.badgeCount > 0 ? (
+            <span className="min-w-0 leading-snug">
+              {(() => {
+                const lines = item.label.split('\n')
+                const badgeLabel = item.badgeCount > 99 ? '99+' : String(item.badgeCount)
+                return (
+                  <>
+                    <span className="inline-flex max-w-full items-center gap-1.5">
+                      <span>{lines[0]}</span>
+                      <span
+                        className={`whatsapp-fab-badge shrink-0 ${badgeLabel.length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}
+                        aria-label={`${item.badgeCount}`}
+                      >
+                        {badgeLabel}
+                      </span>
+                    </span>
+                    {lines.length > 1 ? (
+                      <>
+                        <br />
+                        <span>{lines.slice(1).join('\n')}</span>
+                      </>
+                    ) : null}
+                  </>
+                )
+              })()}
+            </span>
+          ) : (
+            <span className={cn('min-w-0', isEmphasizedNested ? 'whitespace-nowrap' : item.multilineLabel ? 'whitespace-pre-line leading-snug' : 'truncate')}>{item.label}</span>
+          )
         ) : null}
       </NavLink>
     )

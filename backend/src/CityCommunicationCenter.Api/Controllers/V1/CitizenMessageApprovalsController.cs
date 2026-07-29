@@ -37,4 +37,14 @@ public sealed class CitizenMessageApprovalsController : ApiControllerBase
             cancellationToken);
         return ok ? NoContent() : NotFound();
     }
+
+    /// <summary>Talep Durumu Değiştir → Yapılmakta (card #2057).</summary>
+    [HttpPost("{jobId:guid}/reopen-to-in-progress")]
+    public async Task<IActionResult> ReopenToInProgress(Guid jobId, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new ReopenCitizenMessageJobCommand(jobId, CurrentContext.UserId),
+            cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
 }

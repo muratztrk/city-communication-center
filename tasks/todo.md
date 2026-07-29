@@ -1,3 +1,8 @@
+## Round 554 — Mesaj Onayı grid/detay polish (7 kart)
+- #2050 mobilde işlem butonları nowrap; #2051 Notu Düzenle; #2052 kanal ikonu;
+  #2053 turuncu Notu Düzenle; #2056 nav bekleyen rozeti; #2057 Talep Durumu Değiştir →
+  `reopen-to-in-progress` (Job Active + görevler InProgress); #2058 release sonrası sent chip.
+
 ## Round 551 — Vatandaşa Gönderilecek Mesaj Onayı (#2039, R550'den Doing devamı)
 - `Job.CitizenTerminalMessageReleasedAtUtc` + migration; `CitizenJobStatusNotifier` terminal
   (Tamamlandı/İptal) otomatik mesajını artık otomatik `Pending` kuyruğa atmıyor, deferral loglayıp

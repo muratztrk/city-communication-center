@@ -55,7 +55,7 @@ public sealed class ReleaseCitizenMessageApprovalCommandHandler : ICommandHandle
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(
                     nameof(request.JobId),
-                    "Vatandaşa gönderilecek mesajın notu boş olamaz. Lütfen önce Mesajı Düzenle ile bir not girin.")
+                    "Vatandaşa gönderilecek mesajın notu boş olamaz. Lütfen önce Notu Düzenle ile bir not girin.")
             ]);
         }
 

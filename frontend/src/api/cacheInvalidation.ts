@@ -71,6 +71,10 @@ export function invalidateSettings(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: queryKeys.whatsappTemplates.all })
 }
 
+export function invalidateCitizenMessageApprovals(queryClient: QueryClient) {
+  void queryClient.invalidateQueries({ queryKey: queryKeys.citizenMessageApprovals.all })
+}
+
 export function invalidateEverything(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: queryKeys.all })
 }

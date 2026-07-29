@@ -5,9 +5,10 @@ import { useSearchParams } from 'react-router-dom'
 import { createPortal } from 'react-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
-import { invalidateJobs } from '../api/cacheInvalidation'
+import { invalidateCitizenMessageApprovals, invalidateJobs } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { ChannelIcon } from '../components/ui/channel-icon'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { DateCell } from '../components/ui/date-cell'
@@ -177,6 +178,7 @@ export function CitizenMessageApprovalPage() {
     try {
       await api.editCitizenMessageApprovalNote(noteModal.jobId, noteModal.note.trim())
       invalidateJobs(queryClient, noteModal.jobId)
+      invalidateCitizenMessageApprovals(queryClient)
       showToast(t('citizenMessageApproval.noteSaved', 'Not kaydedildi.'))
       setNoteModal(null)
       await loadApprovals()
@@ -188,7 +190,7 @@ export function CitizenMessageApprovalPage() {
 
   const handleRelease = (row: CitizenMessageApprovalRow) => {
     if (!row.note?.trim()) {
-      showToast(t('citizenMessageApproval.releaseNoteMissing', 'Göndermeden önce lütfen "Mesajı Düzenle" ile bir not girin.'), 'error')
+      showToast(t('citizenMessageApproval.releaseNoteMissing', 'Göndermeden önce lütfen "Notu Düzenle" ile bir not girin.'), 'error')
       return
     }
     setConfirmDialog({
@@ -202,7 +204,39 @@ export function CitizenMessageApprovalPage() {
           try {
             await api.releaseCitizenMessageApproval(row.jobId)
             invalidateJobs(queryClient, row.jobId)
+            invalidateCitizenMessageApprovals(queryClient)
             showToast(t('citizenMessageApproval.released', 'Mesaj gönderime hazırlandı.'))
+            // Mesaj Gönderimi Onaylanan sekmesine geç (card #2058).
+            setScope('sent')
+          } catch (err) {
+            showToast(err instanceof Error ? err.message : t('common.error'), 'error')
+          }
+        })()
+      },
+    })
+  }
+
+  const handleChangeStatusToInProgress = (jobId: string) => {
+    setConfirmDialog({
+      title: t('citizenMessageApproval.changeStatusTitle', 'Talep Durumu Değiştir'),
+      message: (
+        <>
+          {t('citizenMessageApproval.changeStatusConfirmLead', 'Talep durumunu')}{' '}
+          <span className="font-semibold text-orange-500">{t('citizenMessageApproval.changeStatusInProgress', 'Yapılmakta')}</span>
+          {' '}{t('citizenMessageApproval.changeStatusConfirmTrail', 'olarak değiştirmeyi onaylıyor musunuz?')}
+        </>
+      ),
+      confirmLabel: t('common.yes', 'Evet'),
+      cancelLabel: t('common.dismiss', 'Vazgeç'),
+      variant: 'primary',
+      onConfirm: () => {
+        void (async () => {
+          try {
+            await api.reopenCitizenMessageJob(jobId)
+            invalidateJobs(queryClient, jobId)
+            invalidateCitizenMessageApprovals(queryClient)
+            showToast(t('citizenMessageApproval.statusChanged', 'Talep durumu Yapılmakta olarak güncellendi.'))
+            setDetailJobId(null)
             await loadApprovals()
           } catch (err) {
             showToast(err instanceof Error ? err.message : t('common.error'), 'error')
@@ -274,7 +308,7 @@ export function CitizenMessageApprovalPage() {
       ) : (
         <section className="section-card desktop-page-fill">
           <div className="table-wrap desktop-panel-scroll">
-            <table className="data-table jobs-table data-table--zebra">
+            <table className="data-table jobs-table data-table--zebra citizen-message-approval-table">
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -297,7 +331,8 @@ export function CitizenMessageApprovalPage() {
                   <tr key={row.jobId}>
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(currentPage - 1) * pageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
-                      <div className="table-number-cell__value">
+                      <div className="table-number-cell__value inline-flex flex-wrap items-center gap-1.5">
+                        {row.channel ? <ChannelIcon channel={row.channel} className="size-4 shrink-0" /> : null}
                         {formatCitizenRequestNumber({ citizenRequestNumber: row.citizenRequestNumber, citizenRequestNumberYear: row.citizenRequestNumberYear, receivedAtUtc: row.requestDateUtc }, locale)}
                       </div>
                     </td>
@@ -314,13 +349,18 @@ export function CitizenMessageApprovalPage() {
                     </td>
                     <td className="max-w-xs truncate" title={row.note ?? ''}>{row.note || <span className="text-slate-400">—</span>}</td>
                     <td className="actions-cell">
-                      <div className="flex flex-wrap justify-center gap-2">
+                      <div className="citizen-message-approval-actions flex justify-center gap-2">
                         <Button type="button" size="sm" variant="secondary" onClick={() => setDetailJobId(row.jobId)}>
                           {t('citizenMessageApproval.actions.details', 'Detaylar')}
                         </Button>
-                        <Button type="button" size="sm" variant="secondary" className="gap-1.5" onClick={() => openEditNote(row)}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
+                          onClick={() => openEditNote(row)}
+                        >
                           <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                          {t('citizenMessageApproval.actions.editNote', 'Mesajı Düzenle')}
+                          {t('citizenMessageApproval.actions.editNote', 'Notu Düzenle')}
                         </Button>
                         {!row.releasedAtUtc ? (
                           <Button type="button" size="sm" variant="success" className="gap-1.5" onClick={() => handleRelease(row)}>
@@ -359,7 +399,7 @@ export function CitizenMessageApprovalPage() {
             >
               <X className="size-4" />
             </button>
-            <h2 className="mb-2 text-lg font-bold text-slate-950">{t('citizenMessageApproval.editNoteTitle', 'Mesajı Düzenle')}</h2>
+            <h2 className="mb-2 text-lg font-bold text-slate-950">{t('citizenMessageApproval.editNoteTitle', 'Notu Düzenle')}</h2>
             <p className="mb-3 text-sm text-slate-700">{t('citizenMessageApproval.editNoteMessage', 'Vatandaşa gönderilecek tamamlama/iptal notunu düzenleyin. Not zorunludur.')}</p>
             <textarea
               className="w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-[color:var(--color-primary)] focus:outline-none"
@@ -401,6 +441,7 @@ export function CitizenMessageApprovalPage() {
           notificationJobId={detailJobId}
           detailContextOverride="incoming"
           onNotificationDetailClose={() => setDetailJobId(null)}
+          onChangeStatusToInProgress={handleChangeStatusToInProgress}
         />
       )}
     </div>

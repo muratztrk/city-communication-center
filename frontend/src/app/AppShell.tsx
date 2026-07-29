@@ -23,13 +23,13 @@ import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
 import { api } from '../api/client'
+import { queryKeys } from '../api/queryKeys'
 import {
   clearUsePrimaryDepartmentOnLoad,
   getActiveDepartmentId,
   setActiveDepartmentId,
   shouldUsePrimaryDepartmentOnLoad,
 } from '../api/http'
-import { queryKeys } from '../api/queryKeys'
 import { refreshRolePageAccessFromServer } from '../api/auth'
 import { canAnyRoleAccessPage, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
 import type { DepartmentSummary } from '../types/platform'
@@ -201,7 +201,25 @@ export function AppShell() {
     .toUpperCase()
   type NavLinkConfig = SidebarNavLinkItem & { pageKey?: PageAccessKey; requiredRole?: string }
 
-  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean; children?: NavLinkConfig[]; iconImageSrc?: string; multilineLabel?: boolean }
+  type NavLinkConfigEx = NavLinkConfig & { separatorAfter?: boolean; separatorBefore?: boolean; children?: NavLinkConfig[]; iconImageSrc?: string; multilineLabel?: boolean; badgeCount?: number }
+
+  const canSeeCitizenMessageApproval = useMemo(
+    () => canAnyRoleAccessPage(getEffectiveUserRoles(user), 'citizenMessageApproval'),
+    [user, accessVersion],
+  )
+
+  const pendingCitizenMessageApprovalQuery = useQuery({
+    queryKey: queryKeys.citizenMessageApprovals.pendingCount(),
+    queryFn: async () => {
+      const rows = await api.getCitizenMessageApprovals('to-send')
+      return rows.length
+    },
+    enabled: Boolean(user?.userId) && canSeeCitizenMessageApproval,
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  })
+
+  const pendingCitizenMessageApprovalCount = pendingCitizenMessageApprovalQuery.data ?? 0
 
   const navItemConfigs: NavLinkConfigEx[] = [
     ...(user?.role === 'Reporter' || user?.role === 'Operator'
@@ -223,7 +241,7 @@ export function AppShell() {
     { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
     { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight },
-    { pageKey: 'citizenMessageApproval' as const, path: '/citizen-message-approval', label: t('nav.citizenMessageApproval', 'Vatandaşa Gönderilecek\nMesaj Onayı'), icon: Send, multilineLabel: true },
+    { pageKey: 'citizenMessageApproval' as const, path: '/citizen-message-approval', label: t('nav.citizenMessageApproval', 'Vatandaşa Gönderilecek\nMesaj Onayı'), icon: Send, multilineLabel: true, badgeCount: pendingCitizenMessageApprovalCount },
     { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck, separatorBefore: true },
     { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks },
     { pageKey: 'departmentTasks' as const, path: '/department-tasks?flow=all', label: t('nav.departmentTasks', 'Birimdeki Görevler'), icon: SquareKanban },
@@ -255,7 +273,7 @@ export function AppShell() {
           })),
         })
       } else {
-        items.push({ path: item.path, label: item.label, icon: item.icon, iconImageSrc: item.iconImageSrc, multilineLabel: item.multilineLabel, newTab: item.newTab })
+        items.push({ path: item.path, label: item.label, icon: item.icon, iconImageSrc: item.iconImageSrc, multilineLabel: item.multilineLabel, badgeCount: item.badgeCount, newTab: item.newTab })
       }
       if (item.separatorAfter) items.push({ type: 'separator' })
     }

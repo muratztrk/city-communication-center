@@ -653,6 +653,8 @@ interface JobsPageProps {
   detailOnly?: boolean
   detailContextOverride?: 'incoming' | 'social'
   onNotificationDetailClose?: () => void
+  /** Vatandaşa Gönderilecek Mesaj Onayı detayında "Talep Durumu Değiştir" (card #2057). */
+  onChangeStatusToInProgress?: (jobId: string) => void
   socialActions?: {
     goToConversation?: () => void
     edit?: () => void
@@ -663,7 +665,7 @@ interface JobsPageProps {
   }
 }
 
-export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, socialActions }: JobsPageProps) {
+export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onChangeStatusToInProgress, socialActions }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -2437,6 +2439,18 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('jobs.actions.cancel', 'İptal Et')}
                   </DisabledActionButton>
                 )}
+                {onChangeStatusToInProgress
+                  && detail
+                  && (detail.status === 'Completed' || detail.status === 'Cancelled') ? (
+                  <Button
+                    type="button"
+                    size="lg"
+                    className="inline-flex items-center gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
+                    onClick={() => onChangeStatusToInProgress(detail.jobId)}
+                  >
+                    {t('citizenMessageApproval.actions.changeStatus', 'Talep Durumu Değiştir')}
+                  </Button>
+                ) : null}
                 <Button
                   type="button"
                   size="lg"

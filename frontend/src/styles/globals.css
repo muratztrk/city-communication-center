@@ -5521,4 +5521,26 @@
     min-width: 1.125rem;
     padding: 0 0.25rem;
   }
+
+  /* Mesaj Onayı grid — mobilde işlem butonları yan yana kalsın (card #2050). */
+  .citizen-message-approval-actions {
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 767px) {
+    .citizen-message-approval-table tbody td.actions-cell {
+      min-width: 16rem;
+    }
+
+    .citizen-message-approval-actions {
+      flex-wrap: nowrap;
+      align-items: center;
+    }
+
+    .citizen-message-approval-actions .btn,
+    .citizen-message-approval-actions button {
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+  }
 }

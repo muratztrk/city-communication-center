@@ -11,7 +11,8 @@ export interface ConfirmDialogState {
   /** Smaller title styling for compact confirmation popups. */
   titleCompact?: boolean
   titleTone?: 'danger' | 'success'
-  message: string
+  /** Plain string or rich content (ör. turuncu "Yapılmakta" — card #2057). */
+  message: ReactNode
   confirmLabel?: string
   cancelLabel?: string
   variant?: 'destructive' | 'primary' | 'success'
@@ -68,7 +69,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
           </h2>
         )}
         {state.banner ? <div className="mb-3">{state.banner}</div> : null}
-        <p className={`mt-2 text-sm text-slate-700 ${state.details ? 'mb-3' : 'mb-6'}`}>{state.message}</p>
+        <div className={`mt-2 text-sm text-slate-700 ${state.details ? 'mb-3' : 'mb-6'}`}>{state.message}</div>
         {state.details ? <div className="mb-6">{state.details}</div> : null}
         <div className="flex justify-end gap-2">
           {!state.hideCancel && (

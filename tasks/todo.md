@@ -1,3 +1,12 @@
+## Round 548 — Personel/mahalle pie 0-fill
+- `6a69df0f` (#2034) — Personelimin Görevleri: tüm birim personeli 0 olsa bile dilimde.
+- `6a69e020` (#2035) — Mahalle pie'ları (Tamamlanan/Yapılmakta/İşleme): Tire kataloğu + 0-fill.
+
+## Round 547 — Filtreyi sil sağa + yazdır sütun + boş adres tire
+- Filtreyi sil son chip'in **sağına** taşındı (#r546 soldu).
+- Drilldown yazdır `Tamamlanma Tarihi` → `col-completed` genişletildi.
+- Boş Adres `-` üst etiket genişliğinde ortalı.
+
 ## Round 546 — 4 Doing (drilldown Son Tarih, VT pie, Yazdır/X, Filtreyi sil)
 - Mahalle/etiket drilldown: Son Tarih kaldırıldı; Tamamlanma Tarihi (grid+yazdır).
 - Vatandaş Talepleri pie: VT sayısı RequestType şartı olmadan; dilim → `/social?requestStatus`.

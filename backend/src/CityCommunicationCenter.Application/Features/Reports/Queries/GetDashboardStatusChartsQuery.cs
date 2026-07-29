@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Common;
 using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Enums;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
@@ -102,7 +103,11 @@ public sealed class GetDashboardStatusChartsQueryHandler
             cancellationToken);
         var staffTasks = FilterTasks(tasks, request.StaffTaskType)
             .Where(task => task.AssignedUserId.HasValue && staffUserIds.Contains(task.AssignedUserId.Value));
-        var staffTasksChart = await BuildStaffTasksChartAsync(staffTasks, tenantId, cancellationToken);
+        var staffTasksChart = await BuildStaffTasksChartAsync(
+            staffTasks,
+            tenantId,
+            staffUserIds,
+            cancellationToken);
         var staffResolutionTimeChart = context.RoleCode == "Manager"
             ? await BuildStaffResolutionTimeChartAsync(
                 tenantId,
@@ -531,15 +536,11 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .WhereHasCitizenRequestNumber(_dbContext)
             .GroupBy(job => job.Neighborhood)
             .Select(group => new { Neighborhood = group.Key!, Count = group.Count() })
-            .OrderByDescending(item => item.Count)
             .ToListAsync(cancellationToken);
 
-        return new DashboardChartResponse("dashboard.charts.neighborhoodCompletedRequests",
-            counts.Select((item, index) => new DashboardChartSlice(
-                item.Neighborhood,
-                item.Count,
-                StaffChartColors[index % StaffChartColors.Length]))
-                .ToList());
+        return BuildNeighborhoodChartWithZeros(
+            "dashboard.charts.neighborhoodCompletedRequests",
+            counts.ToDictionary(item => item.Neighborhood, item => item.Count, StringComparer.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -563,15 +564,11 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .WhereHasCitizenRequestNumber(_dbContext)
             .GroupBy(job => job.Neighborhood)
             .Select(group => new { Neighborhood = group.Key!, Count = group.Count() })
-            .OrderByDescending(item => item.Count)
             .ToListAsync(cancellationToken);
 
-        return new DashboardChartResponse("dashboard.charts.neighborhoodInProgressRequests",
-            counts.Select((item, index) => new DashboardChartSlice(
-                item.Neighborhood,
-                item.Count,
-                StaffChartColors[index % StaffChartColors.Length]))
-                .ToList());
+        return BuildNeighborhoodChartWithZeros(
+            "dashboard.charts.neighborhoodInProgressRequests",
+            counts.ToDictionary(item => item.Neighborhood, item => item.Count, StringComparer.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -612,12 +609,38 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 == CitizenJobDisplayStatus.ProcessingReceived)
             .GroupBy(row => row.Neighborhood)
             .Select(group => new { Neighborhood = group.Key, Count = group.Count() })
-            .OrderByDescending(item => item.Count)
             .ToList();
 
-        return new DashboardChartResponse("dashboard.charts.neighborhoodProcessingRequests",
-            counts.Select((item, index) => new DashboardChartSlice(
-                item.Neighborhood,
+        return BuildNeighborhoodChartWithZeros(
+            "dashboard.charts.neighborhoodProcessingRequests",
+            counts.ToDictionary(item => item.Neighborhood, item => item.Count, StringComparer.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    /// Tire mahalle kataloğundaki tüm isimleri 0 sayıyla doldurur; geçmişte kullanılmış ama
+    /// katalogda olmayan mahalle adları kaybolmaz (Talep Etiketi pie ile aynı desen, R548).
+    /// </summary>
+    private static DashboardChartResponse BuildNeighborhoodChartWithZeros(
+        string titleKey,
+        IReadOnlyDictionary<string, int> countsByNeighborhood)
+    {
+        var labels = TireNeighborhoodCatalog.Names
+            .Select(name => name.Trim())
+            .Concat(countsByNeighborhood.Keys.Select(name => name.Trim()))
+            .Where(name => name.Length > 0)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .Select(label => new
+            {
+                Label = label,
+                Count = countsByNeighborhood.TryGetValue(label, out var count) ? count : 0,
+            })
+            .OrderByDescending(item => item.Count)
+            .ThenBy(item => item.Label, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+
+        return new DashboardChartResponse(titleKey,
+            labels.Select((item, index) => new DashboardChartSlice(
+                item.Label,
                 item.Count,
                 StaffChartColors[index % StaffChartColors.Length]))
                 .ToList());
@@ -640,23 +663,38 @@ public sealed class GetDashboardStatusChartsQueryHandler
     private async Task<DashboardChartResponse> BuildStaffTasksChartAsync(
         IEnumerable<TaskStatusItem> tasks,
         Guid tenantId,
+        IReadOnlyCollection<Guid> staffUserIds,
         CancellationToken cancellationToken)
     {
-        var counts = tasks
+        var countsByUser = tasks
             .Where(task => task.AssignedUserId.HasValue
                 && task.Status is not (WorkflowTaskStatus.Cancelled or WorkflowTaskStatus.Rejected))
             .GroupBy(task => task.AssignedUserId!.Value)
-            .Select(group => new { UserId = group.Key, Count = group.Count() })
+            .ToDictionary(group => group.Key, group => group.Count());
+
+        // Personelimin Görevleri: birimdeki tüm aktif personel dilimde kalır (0 olsa bile, R548).
+        var staffIds = staffUserIds.Distinct().ToArray();
+        var userNames = staffIds.Length == 0
+            ? new Dictionary<Guid, string>()
+            : await _dbContext.Users.AsNoTracking()
+                .Where(user => user.TenantId == tenantId && staffIds.Contains(user.UserId))
+                .ToDictionaryAsync(user => user.UserId, user => user.DisplayName, cancellationToken);
+
+        var ordered = staffIds
+            .Where(userId => userNames.ContainsKey(userId))
+            .Select(userId => new
+            {
+                UserId = userId,
+                Count = countsByUser.GetValueOrDefault(userId),
+                Name = userNames[userId],
+            })
             .OrderByDescending(item => item.Count)
+            .ThenBy(item => item.Name, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
-        var userIds = counts.Select(item => item.UserId).ToArray();
-        var userNames = await _dbContext.Users.AsNoTracking()
-            .Where(user => user.TenantId == tenantId && userIds.Contains(user.UserId))
-            .ToDictionaryAsync(user => user.UserId, user => user.DisplayName, cancellationToken);
 
         return new DashboardChartResponse("dashboard.charts.staffTasks",
-            counts.Select((item, index) => new DashboardChartSlice(
-                $"{item.UserId}|{userNames.GetValueOrDefault(item.UserId, "—")}",
+            ordered.Select((item, index) => new DashboardChartSlice(
+                $"{item.UserId}|{item.Name}",
                 item.Count,
                 StaffChartColors[index % StaffChartColors.Length]))
                 .ToList());

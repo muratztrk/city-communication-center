@@ -1,3 +1,10 @@
+## Round 550 — pie Ara hizası/X/backspace + Filtreyi sil blink; WA sayfası ertelendi
+- `6a69fea6` (#2041) — Ara... başlık satırı sağına.
+- `6a69ff82` (#2042) — X kırmızı; backspace (parent state); metin büyütüldü.
+- `6a69fd91` (#2040) — Personel / Çözme Süresi pie'larından Ara... kaldırıldı.
+- `6a69cfce` (#2029) — Filtreyi sil eski kırmızı metin + Yeni blink.
+- `6a69f0ae` (#2039) — **Doing'de bırakıldı** (ürün belirsizlikleri; Trello yorum).
+
 ## Round 549 — pie Ara... + Filtreyi sil buton + çözüm süresi sıralama
 - `6a69e0aa` (#2037) — listelenen pie'larda sağ lejant Ara... (banner stili).
 - `6a69cfce` (#2029 reopen) — Filtreyi sil: kırmızı bg + beyaz text buton.

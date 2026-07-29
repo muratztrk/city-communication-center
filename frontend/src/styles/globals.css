@@ -3654,6 +3654,25 @@
     cursor: pointer;
   }
 
+  /* Dashboard pie Ara... — biraz daha büyük metin; X her zaman kırmızı (R550 / #2042). */
+  .pie-legend-search .scope-chip-search-input {
+    font-size: 0.9rem;
+    width: 8.25rem;
+  }
+
+  .pie-legend-search .scope-chip-search-clear {
+    color: #dc2626;
+  }
+
+  .pie-legend-search .scope-chip-search-clear:hover {
+    color: #b91c1c;
+  }
+
+  /* Pie Filtreyi sil — eski metin görünümü + Yeni rozetiyle aynı yanıp sönme (R550 / #2029). */
+  .scope-chip-clear-pie {
+    animation: ccc-blink 2.2s ease-in-out infinite;
+  }
+
   .scope-chip-year-select {
     height: 1.875rem;
     border: 1px solid var(--color-border);
@@ -4784,7 +4803,8 @@
 
   @media (prefers-reduced-motion: reduce) {
     .task-new-badge,
-    .extra-time-pending-blink {
+    .extra-time-pending-blink,
+    .scope-chip-clear-pie {
       animation: none;
     }
   }

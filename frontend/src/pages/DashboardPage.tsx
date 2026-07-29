@@ -7,7 +7,7 @@ import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { getActiveDepartmentId } from '../api/http'
 import { StatusPill } from '../components/ui/status-pill'
-import { PieChart } from '../components/ui/PieChart'
+import { PieChart, PieLegendSearch } from '../components/ui/PieChart'
 import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilldownModal'
 import { useAuth } from '../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../lib/rolePageAccess'
@@ -51,10 +51,8 @@ const TASK_CHART_KEYS = new Set<TaskChartKey>([
   'dashboard.charts.myTasks',
 ])
 
-/** Banner Ara... ile aynı kutu; yalnız listedeki pie'larda (R549 / #2037). */
+/** Banner Ara... ile aynı kutu; personel pie'ları hariç listedeki pie'larda (R549/R550). */
 const PIE_LEGEND_SEARCH_KEYS = new Set([
-  'dashboard.charts.staffTasks',
-  'dashboard.charts.staffResolutionTime',
   'dashboard.charts.requestTags',
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
@@ -284,6 +282,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     'dashboard.charts.myTasks': 'all',
   })
   const [requestTagChartFilter, setRequestTagChartFilter] = useState<RequestTagChartFilter>('all')
+  const [pieLegendSearches, setPieLegendSearches] = useState<Record<string, string>>({})
   const [chartDrilldown, setChartDrilldown] = useState<{ chartKey: string; sliceKey: string } | null>(null)
   const activeDeptId = getActiveDepartmentId()
 
@@ -696,47 +695,56 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                 ) : (
                   <h2 className="border-b border-slate-200 pb-0.5 text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
                 )}
-                {/* Görev tipi filtre butonları standart kullanıcılarda da görünür (Görevlerim + Birimdeki Görevler) (card 762). */}
-                {TASK_CHART_KEYS.has(card.titleKey as TaskChartKey) && (
-                  <div className="flex shrink-0 items-center gap-1" role="group" aria-label={t('tasks.filters.taskType', 'Görev tipi')}>
-                    {(['assigned', 'routine', 'all'] as const).map(filter => {
-                      const active = taskChartFilters[chartKey] === filter
-                      return (
-                        <button
-                          key={filter}
-                          type="button"
-                          onClick={() => setTaskChartFilters(current => ({ ...current, [chartKey]: filter }))}
-                          className={`rounded-md px-2 py-1 text-[11px] font-semibold transition-colors ${active ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-                        >
-                          {t(`dashboard.taskFilter.${filter}`, { assigned: 'Atanmış', routine: 'Rutin', all: 'Tümü' }[filter])}
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
-                {card.titleKey === 'dashboard.charts.requestTags' && (
-                  <div className="flex shrink-0 items-center gap-1" role="group" aria-label={t('dashboard.requestTagFilter.label', 'Talep durumu')}>
-                    {(['inProgress', 'completed', 'all'] as const).map(filter => {
-                      const active = requestTagChartFilter === filter
-                      return (
-                        <button
-                          key={filter}
-                          type="button"
-                          onClick={() => setRequestTagChartFilter(filter)}
-                          className={`rounded-md px-2 py-1 text-[11px] font-semibold transition-colors ${active ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-                        >
-                          {t(`dashboard.requestTagFilter.${filter}`, { inProgress: 'Yapılmakta Olan', completed: 'Tamamlanan', all: 'Tümü' }[filter])}
-                        </button>
-                      )
-                    })}
-                  </div>
-                )}
+                <div className="flex shrink-0 items-center gap-2">
+                  {/* Görev tipi filtre butonları standart kullanıcılarda da görünür (Görevlerim + Birimdeki Görevler) (card 762). */}
+                  {TASK_CHART_KEYS.has(card.titleKey as TaskChartKey) && (
+                    <div className="flex shrink-0 items-center gap-1" role="group" aria-label={t('tasks.filters.taskType', 'Görev tipi')}>
+                      {(['assigned', 'routine', 'all'] as const).map(filter => {
+                        const active = taskChartFilters[chartKey] === filter
+                        return (
+                          <button
+                            key={filter}
+                            type="button"
+                            onClick={() => setTaskChartFilters(current => ({ ...current, [chartKey]: filter }))}
+                            className={`rounded-md px-2 py-1 text-[11px] font-semibold transition-colors ${active ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                          >
+                            {t(`dashboard.taskFilter.${filter}`, { assigned: 'Atanmış', routine: 'Rutin', all: 'Tümü' }[filter])}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {card.titleKey === 'dashboard.charts.requestTags' && (
+                    <div className="flex shrink-0 items-center gap-1" role="group" aria-label={t('dashboard.requestTagFilter.label', 'Talep durumu')}>
+                      {(['inProgress', 'completed', 'all'] as const).map(filter => {
+                        const active = requestTagChartFilter === filter
+                        return (
+                          <button
+                            key={filter}
+                            type="button"
+                            onClick={() => setRequestTagChartFilter(filter)}
+                            className={`rounded-md px-2 py-1 text-[11px] font-semibold transition-colors ${active ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                          >
+                            {t(`dashboard.requestTagFilter.${filter}`, { inProgress: 'Yapılmakta Olan', completed: 'Tamamlanan', all: 'Tümü' }[filter])}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {/* Ara... başlık satırının sağına (üst satır boşsa hizalı, R550 / #2041). */}
+                  {PIE_LEGEND_SEARCH_KEYS.has(card.titleKey) ? (
+                    <PieLegendSearch
+                      value={pieLegendSearches[card.titleKey] ?? ''}
+                      onChange={value => setPieLegendSearches(current => ({ ...current, [card.titleKey]: value }))}
+                    />
+                  ) : null}
+                </div>
               </div>
               <PieChart
                 slices={card.slices}
                 noDataLabel={t('dashboard.chart.noData')}
                 showZeroSlices
-                enableLegendSearch={PIE_LEGEND_SEARCH_KEYS.has(card.titleKey)}
+                legendSearch={pieLegendSearches[card.titleKey] ?? ''}
                 formatSliceLabel={
                   (role === 'Staff' || role === 'Operator') && card.titleKey === 'dashboard.charts.myRequests'
                     ? (raw, translate) => (raw === 'dashboard.chart.approved'

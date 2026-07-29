@@ -1449,15 +1449,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sütun `Birim`; **Son Tarih yok** — yerine `Tamamlanma Tarihi` (yazdırma dahil).
 - **Vatandaş Talepleri pie (#r546):** VT sayısı `WhereHasCitizenRequestNumber` (RequestType şartı yok);
   dilim tıklanınca drilldown değil `/social?requestStatus=…&fromPie=1`.
-- **Pie Filtreyi sil (#r546/#r547/#r549):** `fromPie=1` ile gelinen gridlerde scope-chip satırında
-  son butonun **sağında** kırmızı arka planlı / beyaz metinli `Filtreyi sil` butonu — tıklanınca
-  pathname'e (query yok) döner.
-- **Dashboard pie lejant Ara... (R549 / #2037):** Personelimin Görevleri, Çözme Süresi, Talep
-  Etiketi, üç mahalle pie'sı ve üç birim-dışı (oluşturan/bekleyen/tamamlayan) pie'sında sağ
-  lejant üstünde banner ile aynı `scope-chip-search-wrap` araması; yalnız o pie'nın dilimlerini
-  `toLocaleLowerCase('tr')` ile filtreler.
-- **Personelimin Görevi Çözme Süresi sırası (R549 / #2038):** 0 olmayan en küçük ortalama saatten
-  artan sıra; 0'lar sonda.
+- **Pie Filtreyi sil (#r546/#r547/#r549/#r550):** `fromPie=1` ile gelinen gridlerde scope-chip
+  satırında son butonun **sağında** kırmızı metin `Filtreyi sil` (buton/fill değil) + `ccc-blink`
+  (Yeni rozetiyle aynı yanıp sönme); tıklanınca pathname'e (query yok) döner.
+- **Dashboard pie lejant Ara... (R549/R550):** Talep Etiketi, üç mahalle ve üç birim-dışı pie'sında
+  Ara... **başlık satırının sağına** hizalanır (üst satır boşsa oraya). Personelimin Görevleri /
+  Çözme Süresi pie'larında Ara... yok. X ikonu kırmızı; metin ~0.9rem; arama state parent'ta —
+  boş eşleşmede input unmount olmaz (backspace odak kaybı yok).
 - **Drilldown yazdır Tamamlanma Tarihi (#r547):** `col-completed` ~18% / min 9.5rem — başlık
   hücre border'ından taşmaz.
 - **Boş Adres Bilgileri tire (#r547):** `-` değeri üst etiketin genişliğinde ortalanır

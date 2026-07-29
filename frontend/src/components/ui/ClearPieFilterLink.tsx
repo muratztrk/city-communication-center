@@ -1,7 +1,7 @@
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 
-/** Dashboard pie navigasyonu `fromPie=1` ile geldiyse banner chip satırında gösterilir (#r546). */
+/** Dashboard pie navigasyonu `fromPie=1` ile geldiyse banner chip satırında gösterilir (#r546/#r550). */
 export function ClearPieFilterLink() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -12,7 +12,7 @@ export function ClearPieFilterLink() {
   return (
     <button
       type="button"
-      className="scope-chip-clear-pie shrink-0 rounded-md bg-red-600 px-2.5 py-1 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+      className="scope-chip-clear-pie shrink-0 text-sm font-semibold text-red-600 transition-colors hover:text-red-700 hover:underline"
       onClick={() => navigate(location.pathname, { replace: true })}
     >
       {t('common.clearPieFilter', 'Filtreyi sil')}

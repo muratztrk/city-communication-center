@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Search, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { DashboardChartSlice } from '../../types/platform'
@@ -47,8 +47,11 @@ interface PieChartProps {
   slices: DashboardChartSlice[]
   noDataLabel?: string
   showZeroSlices?: boolean
-  /** Sağ lejant üstünde banner ile aynı "Ara..." kutusu; yalnız bu pie'nın dilimlerini filtreler (R549). */
-  enableLegendSearch?: boolean
+  /**
+   * Parent başlık satırındaki Ara... değeri; dilim/lejant filtreler (R550).
+   * Arama kutusu PieChart içinde değil — üst satır hizası + odak kaybı önlemi.
+   */
+  legendSearch?: string
   /** Sağlanırsa lejant metinleri tıklanabilir olur; tıklanan dilim ile çağrılır (card 759). */
   onSelect?: (slice: DashboardChartSlice) => void
   /** Dilim bazında tıklanabilirlik; false dönen dilim/lejant düz metin kalır (card #1337). */
@@ -104,7 +107,8 @@ function LegendItem({
   )
 }
 
-function PieLegendSearch({
+/** Banner ile aynı Ara... kutusu; pie başlık satırı / lejant için (R549/R550). */
+export function PieLegendSearch({
   value,
   onChange,
 }: {
@@ -113,7 +117,7 @@ function PieLegendSearch({
 }) {
   const { t } = useTranslation()
   return (
-    <div className="scope-chip-search-wrap shrink-0">
+    <div className="scope-chip-search-wrap pie-legend-search shrink-0">
       <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
       <input
         type="text"
@@ -127,7 +131,7 @@ function PieLegendSearch({
         <button
           type="button"
           onClick={() => onChange('')}
-          className="scope-chip-search-clear shrink-0 font-extrabold transition-colors"
+          className="scope-chip-search-clear shrink-0 font-extrabold text-red-600 transition-colors hover:text-red-700"
           aria-label={t('common.clear', 'Temizle')}
         >
           <X className="size-3.5" strokeWidth={3} />
@@ -141,13 +145,12 @@ export function PieChart({
   slices,
   noDataLabel = 'Veri yok',
   showZeroSlices = false,
-  enableLegendSearch = false,
+  legendSearch = '',
   onSelect,
   isSliceSelectable,
   formatSliceLabel,
 }: PieChartProps) {
   const { t } = useTranslation()
-  const [legendSearch, setLegendSearch] = useState('')
 
   const visibleSlices = useMemo(() => {
     const query = legendSearch.trim().toLocaleLowerCase('tr')
@@ -162,23 +165,7 @@ export function PieChart({
   const nonZero = visibleSlices.filter(s => s.value > 0)
   const shouldShowZeroChart = showZeroSlices && visibleSlices.length > 0
   const legendSlices = showZeroSlices ? visibleSlices : nonZero
-
-  if (nonZero.length === 0 && !shouldShowZeroChart) {
-    return (
-      <div className="flex flex-col items-stretch gap-3">
-        {enableLegendSearch ? (
-          <div className="flex justify-end">
-            <PieLegendSearch value={legendSearch} onChange={setLegendSearch} />
-          </div>
-        ) : null}
-        <div className="flex items-center justify-center py-10 text-sm text-[color:var(--color-muted-foreground)]">
-          {legendSearch.trim()
-            ? t('dashboard.chart.noSearchMatch', 'Eşleşen dilim yok.')
-            : noDataLabel}
-        </div>
-      </div>
-    )
-  }
+  const showEmpty = nonZero.length === 0 && !shouldShowZeroChart
 
   const cx = 80
   const cy = 80
@@ -189,98 +176,102 @@ export function PieChart({
 
   const segments: { path: string; color: string; slice: DashboardChartSlice }[] = []
 
-  if (nonZero.length === 0) {
-    segments.push({
-      path: buildArcPath(cx, cy, outerR, innerR, 0, 359.99),
-      color: '#e2e8f0',
-      slice: visibleSlices[0],
-    })
-  } else if (nonZero.length === 1) {
-    const color = getColor(nonZero[0].colorHint)
-    const p1 = polarToCartesian(cx, cy, outerR, 0)
-    const p2 = polarToCartesian(cx, cy, outerR, 180)
-    const i1 = polarToCartesian(cx, cy, innerR, 180)
-    const i2 = polarToCartesian(cx, cy, innerR, 0)
-    const path = [
-      `M ${p1.x} ${p1.y}`,
-      `A ${outerR} ${outerR} 0 1 1 ${p2.x} ${p2.y}`,
-      `A ${outerR} ${outerR} 0 1 1 ${p1.x} ${p1.y}`,
-      `L ${i2.x} ${i2.y}`,
-      `A ${innerR} ${innerR} 0 1 0 ${i1.x} ${i1.y}`,
-      `A ${innerR} ${innerR} 0 1 0 ${i2.x} ${i2.y}`,
-      'Z',
-    ].join(' ')
-    segments.push({ path, color, slice: nonZero[0] })
-  } else {
-    let currentDeg = 0
-    for (const slice of nonZero) {
-      const sweep = (slice.value / total) * 360
-      const endDeg = currentDeg + sweep
+  if (!showEmpty) {
+    if (nonZero.length === 0) {
       segments.push({
-        path: buildArcPath(cx, cy, outerR, innerR, currentDeg, endDeg),
-        color: getColor(slice.colorHint),
-        slice,
+        path: buildArcPath(cx, cy, outerR, innerR, 0, 359.99),
+        color: '#e2e8f0',
+        slice: visibleSlices[0],
       })
-      currentDeg = endDeg
+    } else if (nonZero.length === 1) {
+      const color = getColor(nonZero[0].colorHint)
+      const p1 = polarToCartesian(cx, cy, outerR, 0)
+      const p2 = polarToCartesian(cx, cy, outerR, 180)
+      const i1 = polarToCartesian(cx, cy, innerR, 180)
+      const i2 = polarToCartesian(cx, cy, innerR, 0)
+      const path = [
+        `M ${p1.x} ${p1.y}`,
+        `A ${outerR} ${outerR} 0 1 1 ${p2.x} ${p2.y}`,
+        `A ${outerR} ${outerR} 0 1 1 ${p1.x} ${p1.y}`,
+        `L ${i2.x} ${i2.y}`,
+        `A ${innerR} ${innerR} 0 1 0 ${i1.x} ${i1.y}`,
+        `A ${innerR} ${innerR} 0 1 0 ${i2.x} ${i2.y}`,
+        'Z',
+      ].join(' ')
+      segments.push({ path, color, slice: nonZero[0] })
+    } else {
+      let currentDeg = 0
+      for (const slice of nonZero) {
+        const sweep = (slice.value / total) * 360
+        const endDeg = currentDeg + sweep
+        segments.push({
+          path: buildArcPath(cx, cy, outerR, innerR, currentDeg, endDeg),
+          color: getColor(slice.colorHint),
+          slice,
+        })
+        currentDeg = endDeg
+      }
     }
   }
 
   return (
     <div className="relative flex min-w-0 flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
-      {/* SVG boş alanı komşu kartların lejantına binmesin diye pointer-events kapalı; yalnızca dilimler tıklanır. */}
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="pointer-events-none shrink-0">
-        {segments.map((seg, i) => {
-          const canSelectSegment = Boolean(onSelect && seg.slice.value > 0 && (isSliceSelectable?.(seg.slice) ?? true))
-          return (
-          <path
-            key={i}
-            d={seg.path}
-            fill={seg.color}
-            stroke="white"
-            strokeWidth="1.5"
-            className={canSelectSegment ? 'pointer-events-auto cursor-pointer transition-opacity hover:opacity-90' : undefined}
-            onClick={canSelectSegment ? () => onSelect?.(seg.slice) : undefined}
-            onKeyDown={canSelectSegment ? event => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault()
-                onSelect?.(seg.slice)
-              }
-            } : undefined}
-            role={canSelectSegment ? 'button' : undefined}
-            tabIndex={canSelectSegment ? 0 : undefined}
-            aria-label={canSelectSegment
-              ? (formatSliceLabel?.(seg.slice.label, t) ?? resolveSliceLabel(seg.slice.label, t))
-              : undefined}
-          />
-          )
-        })}
-        <text x={cx} y={cy - 6} textAnchor="middle" fontSize="18" fontWeight="700" fill="#0f172a">
-          {Number.isInteger(total) ? total : (Math.round(total * 10) / 10)}
-        </text>
-        <text x={cx} y={cy + 10} textAnchor="middle" fontSize="9" fill="#64748b">
-          toplam
-        </text>
-      </svg>
+      {showEmpty ? (
+        <div className="flex min-h-40 w-full items-center justify-center py-10 text-sm text-[color:var(--color-muted-foreground)]">
+          {legendSearch.trim()
+            ? t('dashboard.chart.noSearchMatch', 'Eşleşen dilim yok.')
+            : noDataLabel}
+        </div>
+      ) : (
+        <>
+          {/* SVG boş alanı komşu kartların lejantına binmesin diye pointer-events kapalı; yalnızca dilimler tıklanır. */}
+          <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="pointer-events-none shrink-0">
+            {segments.map((seg, i) => {
+              const canSelectSegment = Boolean(onSelect && seg.slice.value > 0 && (isSliceSelectable?.(seg.slice) ?? true))
+              return (
+              <path
+                key={i}
+                d={seg.path}
+                fill={seg.color}
+                stroke="white"
+                strokeWidth="1.5"
+                className={canSelectSegment ? 'pointer-events-auto cursor-pointer transition-opacity hover:opacity-90' : undefined}
+                onClick={canSelectSegment ? () => onSelect?.(seg.slice) : undefined}
+                onKeyDown={canSelectSegment ? event => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    onSelect?.(seg.slice)
+                  }
+                } : undefined}
+                role={canSelectSegment ? 'button' : undefined}
+                tabIndex={canSelectSegment ? 0 : undefined}
+                aria-label={canSelectSegment
+                  ? (formatSliceLabel?.(seg.slice.label, t) ?? resolveSliceLabel(seg.slice.label, t))
+                  : undefined}
+              />
+              )
+            })}
+            <text x={cx} y={cy - 6} textAnchor="middle" fontSize="18" fontWeight="700" fill="#0f172a">
+              {Number.isInteger(total) ? total : (Math.round(total * 10) / 10)}
+            </text>
+            <text x={cx} y={cy + 10} textAnchor="middle" fontSize="9" fill="#64748b">
+              toplam
+            </text>
+          </svg>
 
-      {/* Lejant + isteğe bağlı Ara... (R549): arama kutusu pie'nın en sağında. */}
-      <div className="relative z-10 flex min-w-0 w-full flex-col gap-2">
-        {enableLegendSearch ? (
-          <div className="flex justify-end">
-            <PieLegendSearch value={legendSearch} onChange={setLegendSearch} />
-          </div>
-        ) : null}
-        {/* Lejant: 6 satırdan fazla → scroll; 6 ve altı (ör. 5) → scroll yok (card #1704). */}
-        <ul className={`flex min-w-0 flex-col gap-2 ${legendSlices.length > 6 ? 'max-h-40 overflow-y-auto pr-1 [scrollbar-gutter:stable]' : ''}`}>
-          {legendSlices.map(slice => (
-            <LegendItem
-              key={slice.label}
-              slice={slice}
-              formatSliceLabel={formatSliceLabel}
-              onSelect={(isSliceSelectable?.(slice) ?? true) ? onSelect : undefined}
-            />
-          ))}
-        </ul>
-      </div>
+          {/* Lejant: 6 satırdan fazla → scroll; 6 ve altı (ör. 5) → scroll yok (card #1704). */}
+          <ul className={`relative z-10 flex min-w-0 w-full flex-col gap-2 ${legendSlices.length > 6 ? 'max-h-40 overflow-y-auto pr-1 [scrollbar-gutter:stable]' : ''}`}>
+            {legendSlices.map(slice => (
+              <LegendItem
+                key={slice.label}
+                slice={slice}
+                formatSliceLabel={formatSliceLabel}
+                onSelect={(isSliceSelectable?.(slice) ?? true) ? onSelect : undefined}
+              />
+            ))}
+          </ul>
+        </>
+      )}
     </div>
   )
 }

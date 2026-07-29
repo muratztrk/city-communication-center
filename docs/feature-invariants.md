@@ -1469,14 +1469,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gibi (`hover:bg-red-50 hover:text-red-600`); mahalle/etiket/birim-dışı pie Durum=`StatusPill`+`GridStatusLabel`;
   sütun `Birim` (mahalle/etiket); **Son Tarih yok** (mahalle/etiket); Tamamlanmış/İptal tarihi Durum pill
   **alt satırında** (Giden grid ile aynı — ayrı `Tamamlanma Tarihi` sütunu yok); yazdırmada `Tamamlanma Tarihi` sütunu kalır.
-- **Overflow tooltip (#r545/#2065/#2072):** hücre ortası; max-width ~18rem + ~0.78rem font — uzun başlık ~2 satır.
+- **Overflow tooltip (#r545/#2065/#2072/#2078):** hücre ortası; max-width ~18rem; 2. satır `text-align: center`.
 - **Mesaj Onayı Durum tarihi (#2067):** Completed→`completedAtUtc`, Cancelled→`updatedAtUtc` Durum pill altında.
 - **Mesaj Onayı banner (#2064):** “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).
-- **Mesaj Onayı Notu Düzenle modal (#2073):** `max-w-sm` + `p-5` (biraz kompakt).
+- **Mesaj Onayı Notu Düzenle modal (#2073/#2079):** `max-w-md` + `p-6` — Mesajı Onayla confirm ile aynı genişlik.
 - **Birimden Giden işlem gap (#2071):** `.my-requests-table .request-actions` gap `0.7rem`.
 - **Birim pie drilldown (#2070):** sütun `Birim`; Talep No `T-{yıl}-Onay Bekleyen` (+ Öncelik alt satır); Durum=StatusPill.
 - **Toast (#2074/#2075):** iptal başarı mesajı `error` (kırmızı); varsayılan auto-hide **5 sn**.
-- **Mesaj Onayı Başlık sütunu (#2076):** dar `cell-title` (9rem); overflow tooltip metin anchor'ı altında (tam satır değil).
+- **Mesaj Onayı / grid Başlık (#2076/#2077):** `cell-title` max-width ~11.5rem; overflow tooltip metin anchor'ı altında.
 - **Vatandaş Talepleri pie (#r546):** VT sayısı `WhereHasCitizenRequestNumber` (RequestType şartı yok);
   dilim tıklanınca drilldown değil `/social?requestStatus=…&fromPie=1`.
 - **Pie Filtreyi sil (#r546/#r547/#r549/#r550/#r552):** `fromPie=1` ile gelinen gridlerde scope-chip

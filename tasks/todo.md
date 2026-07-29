@@ -1,3 +1,6 @@
+## Round 565 — tooltip 2. satır ortalı + Başlık genişlik + Notu Düzenle = Onayla (#2078/#2077/#2079)
+- Overflow tooltip `text-align: center`; `cell-title` 11.5rem; Notu Düzenle modal `max-w-md` (Mesajı Onayla ile aynı).
+
 ## Round 564 — Mesaj Onayı Başlık dar + tooltip altında (#2076)
 - Başlık/not: `TruncatedText`+`cell-title`; dar sütun; tooltip hücre metni altında.
 

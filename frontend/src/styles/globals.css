@@ -2579,12 +2579,13 @@
      text-wrap: balance → uzun başlık satırlara yaklaşık eşit (yarı yarıya) bölünür; son satırda
      tek kelime sarkmaz (card 593). */
   .cell-title {
-    /* En fazla 2 satır: uzun başlık ~yarı yarıya bölünür (balance) ama 2. ek satıra inmez (card 597). */
+    /* En fazla 2 satır: uzun başlık ~yarı yarıya bölünür (balance) ama 2. ek satıra inmez (card 597).
+       Genişlik biraz artırıldı — alt satıra daha geç geçsin (#2077). */
     display: -webkit-box;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 2;
     line-clamp: 2;
-    max-width: 9rem;
+    max-width: 11.5rem;
     margin-inline: auto;
     overflow: hidden;
     overflow-wrap: break-word;
@@ -2595,7 +2596,7 @@
 
   /* Grid / dropdown overflow tooltip — compact, opens below (#r478/#r479/#r517/#r529/#r530).
      z-index > dropdown portal (9999) so tooltip stays readable over open menus.
-     Antrasit metin (#2004); açık bg (#r533); #2065/#2072: ~2 satır wrap, biraz küçült. */
+     Antrasit metin (#2004); açık bg (#r533); #2065/#2072: ~2 satır wrap; #2078: 2. satır ortalı. */
   .ccc-grid-overflow-tooltip {
     position: fixed;
     z-index: 10050;
@@ -2619,6 +2620,7 @@
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
+    text-align: center;
   }
 
   .ccc-grid-overflow-tooltip[data-open='true'] {
@@ -5565,16 +5567,16 @@
     flex-wrap: wrap;
   }
 
-  /* Başlık dar sütun: ellipsis erken; tooltip hücre metninin altında (#2076). */
+  /* Başlık dar sütun: ellipsis erken; tooltip hücre metninin altında (#2076/#2077). */
   .citizen-message-approval-table td.citizen-message-approval-title-cell,
   .citizen-message-approval-table td.citizen-message-approval-note-cell {
-    width: 9.5rem;
-    max-width: 9.5rem;
+    width: 12rem;
+    max-width: 12rem;
   }
 
   .citizen-message-approval-table td.citizen-message-approval-title-cell .cell-title,
   .citizen-message-approval-table td.citizen-message-approval-note-cell .cell-title {
-    max-width: 9rem;
+    max-width: 11.5rem;
   }
 
   @media (max-width: 767px) {

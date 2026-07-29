@@ -579,32 +579,35 @@
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
     align-items: start;
-    justify-items: stretch;
-    /* #r545 / #8 reopen: boş adreste etiketler biraz sola (tam ortalı değil). */
+    justify-items: start;
+    /* #r547: boş adreste etiket genişliğine göre tire ortalı; grup sola yaslı. */
     margin-inline-start: 0;
     width: 100%;
+    column-gap: 1.25rem;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
     text-align: left;
-    justify-self: stretch;
-    width: 100%;
+    justify-self: start;
+    width: fit-content;
     max-width: 100%;
-    padding-inline-start: 0.35rem;
+    padding-inline-start: 0;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
-    width: fit-content;
+    width: 100%;
     max-width: 100%;
     margin-inline: 0;
+    text-align: left;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
-    width: fit-content;
+    width: 100%;
     margin-inline: 0;
+    text-align: center;
   }
 
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
@@ -5059,10 +5062,20 @@
 
     .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
     .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label,
-    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label,
-    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
+    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
       width: fit-content;
       max-width: 100%;
+      margin-inline: 0;
+    }
+
+    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
+      width: fit-content;
+      align-items: stretch;
+    }
+
+    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
+      width: 100%;
+      text-align: center;
       margin-inline: 0;
     }
 

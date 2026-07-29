@@ -908,18 +908,7 @@ export function IncomingRequestsPage() {
       </header>
 
       <nav className="scope-chips" aria-label={t('nav.incomingRequests', 'Birime Gelen Talepler')}>
-        {STATUS_FILTERS.slice(0, -1).map(filter => (
-          <button
-            key={filter.value}
-            type="button"
-            className={`scope-chip ${getScopeChipColorClass(filter.value)}${filter.value === currentStatusFilter ? ' active' : ''}`}
-            onClick={() => setStatusFilter(filter.value)}
-          >
-            {t(filter.labelKey, filter.fallback)}
-          </button>
-        ))}
-        <ClearPieFilterLink />
-        {STATUS_FILTERS.slice(-1).map(filter => (
+        {STATUS_FILTERS.map(filter => (
           <button
             key={filter.value}
             type="button"
@@ -944,6 +933,7 @@ export function IncomingRequestsPage() {
             ))}
           </>
         ) : null}
+        <ClearPieFilterLink />
       </nav>
 
       {error ? <div className="error">{error}</div> : null}

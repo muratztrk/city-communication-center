@@ -558,7 +558,6 @@ export function SocialMessagesPage() {
           </button>
         ))}
         <span className="scope-chip-divider" aria-hidden="true">|</span>
-        <ClearPieFilterLink />
         <SingleSelectDropdown
           className="w-auto"
           triggerClassName="scope-chip-year-select w-auto"
@@ -575,6 +574,7 @@ export function SocialMessagesPage() {
           }}
           placeholder={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
         />
+        <ClearPieFilterLink />
       </nav>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}

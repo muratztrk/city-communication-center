@@ -143,7 +143,7 @@ function printDrilldownRows(
       <td class="col-title">${escape(row.title?.trim() || '—')}</td>
       <td class="col-dept">${escape(row.departmentName ?? row.neighborhood ?? '—')}</td>
       <td class="col-status">${escape(status)}</td>
-      <td class="col-date">${escape(formatDate(row.terminalDateUtc))}</td>
+      <td class="col-completed">${escape(formatDate(row.terminalDateUtc))}</td>
     </tr>`
   }).join('')
 
@@ -157,14 +157,16 @@ function printDrilldownRows(
       th,td{border:1px solid #cbd5e1;padding:6px 7px;text-align:center;vertical-align:middle}
       th{background:#f1f5f9;white-space:nowrap}
       th.col-title,td.col-title{white-space:normal;text-align:center;word-break:break-word;overflow-wrap:anywhere}
-      /* Talep Tarihi / Durum / Tamamlanma Tarihi hücre içi ortalı (#r545/#r546). */
-      th.col-date,td.col-date,th.col-status,td.col-status{text-align:center !important}
+      /* Tamamlanma Tarihi geniş sütun — başlık taşmasın (#r547). */
+      th.col-date,td.col-date,th.col-status,td.col-status,th.col-completed,td.col-completed{text-align:center !important}
       .col-seq{width:4%}
-      .col-no{width:12%;white-space:nowrap}
-      .col-title{width:28%}
-      .col-date{width:14%;white-space:nowrap}
-      .col-dept{width:16%}
-      .col-status{width:12%}
+      .col-no{width:11%;white-space:nowrap}
+      .col-title{width:22%}
+      .col-date{width:13%;white-space:nowrap}
+      .col-dept{width:15%}
+      .col-status{width:11%}
+      .col-completed{width:18%;white-space:nowrap;min-width:9.5rem}
+      th.col-completed,td.col-completed{padding:6px 10px}
       .footer{margin-top:14px;font-size:10px;color:#64748b}
     </style></head><body>
     <h1>${escape(chartTitle)}</h1>
@@ -176,7 +178,7 @@ function printDrilldownRows(
       <th class="col-title">${escape(t('jobs.columns.title', 'Başlık'))}</th>
       <th class="col-dept">${escape(t('jobs.columns.unitShort', 'Birim'))}</th>
       <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
-      <th class="col-date">${escape(t('jobs.columns.completedAt', 'Tamamlanma Tarihi'))}</th>
+      <th class="col-completed">${escape(t('jobs.columns.completedAt', 'Tamamlanma Tarihi'))}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
     <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
     </body></html>`

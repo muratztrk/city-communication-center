@@ -1934,7 +1934,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
       {isMyRequestsView ? (
         <nav className="scope-chips" aria-label={t('nav.myRequests', 'Taleplerim')}>
-          {(showRequestFlowFilters || isReporter ? myRequestViews : myRequestViews.slice(0, -1)).map(view => {
+          {myRequestViews.map(view => {
             const isDisabledExternalPending = isManagerLike
               && currentRequestFlowFilter === 'internal'
               && view.value === 'external-pending'
@@ -1957,18 +1957,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           {showRequestFlowFilters ? (
             <>
               <span className="scope-chip-divider" aria-hidden="true">|</span>
-              {REQUEST_FLOW_FILTERS.slice(0, -1).map(filter => (
-                <button
-                  key={filter.value}
-                  type="button"
-                  className={`scope-chip scope-chip--${filter.value}${filter.value === currentRequestFlowFilter ? ' active' : ''}`}
-                  onClick={() => setRequestFlowFilter(filter.value)}
-                >
-                  {t(filter.labelKey)}
-                </button>
-              ))}
-              <ClearPieFilterLink />
-              {REQUEST_FLOW_FILTERS.slice(-1).map(filter => (
+              {REQUEST_FLOW_FILTERS.map(filter => (
                 <button
                   key={filter.value}
                   type="button"
@@ -1983,7 +1972,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           {isReporter ? (
             <>
               <span className="scope-chip-divider" aria-hidden="true">|</span>
-              <ClearPieFilterLink />
               <label className="sr-only" htmlFor="reporter-department-filter">
                 {t('jobs.departmentFilter', 'Departman Seçimi')}
               </label>
@@ -2004,34 +1992,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               </select>
             </>
           ) : null}
-          {!showRequestFlowFilters && !isReporter ? (
-            <>
-              <ClearPieFilterLink />
-              {myRequestViews.slice(-1).map(view => {
-                const isDisabledExternalPending = isManagerLike
-                  && currentRequestFlowFilter === 'internal'
-                  && view.value === 'external-pending'
-                const chipColorClass = !isManagerLike && !isReporter && view.value === 'approved'
-                  ? 'scope-chip--in-progress'
-                  : getScopeChipColorClass(view.value)
-                return (
-                  <button
-                    key={view.value}
-                    type="button"
-                    className={`scope-chip ${chipColorClass}${view.value === currentMyRequestsView ? ' active' : ''}`}
-                    disabled={isDisabledExternalPending}
-                    onClick={() => setMyRequestsView(view.value)}
-                  >
-                    {t(view.labelKey)}
-                  </button>
-                )
-              })}
-            </>
-          ) : null}
+          <ClearPieFilterLink />
         </nav>
       ) : isDepartmentOutgoingView ? (
         <nav className="scope-chips" aria-label={t('nav.outgoingRequests', 'Birimden Giden Talepler')}>
-          {DEPARTMENT_OUTGOING_VIEWS.slice(0, -1).map(view => (
+          {DEPARTMENT_OUTGOING_VIEWS.map(view => (
             <button
               key={view.value}
               type="button"
@@ -2042,20 +2007,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             </button>
           ))}
           <ClearPieFilterLink />
-          {DEPARTMENT_OUTGOING_VIEWS.slice(-1).map(view => (
-            <button
-              key={view.value}
-              type="button"
-              className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentDepartmentOutgoingView ? ' active' : ''}`}
-              onClick={() => setDepartmentOutgoingView(view.value)}
-            >
-              {t(view.labelKey)}
-            </button>
-          ))}
         </nav>
       ) : !fixedScope ? (
         <nav className="scope-chips">
-          {EXTERNAL_SCOPES.slice(0, -1).map(s => (
+          {EXTERNAL_SCOPES.map(s => (
             <button
               key={s.value}
               type="button"
@@ -2066,16 +2021,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             </button>
           ))}
           <ClearPieFilterLink />
-          {EXTERNAL_SCOPES.slice(-1).map(s => (
-            <button
-              key={s.value}
-              type="button"
-              className={`scope-chip${s.value === scope ? ' active' : ''}`}
-              onClick={() => setSearchParams({ scope: s.value })}
-            >
-              {t(s.labelKey, s.value)}
-            </button>
-          ))}
         </nav>
       ) : null}
 

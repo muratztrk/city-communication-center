@@ -1,3 +1,6 @@
+## Round 559 — Vatandaş Telefon No başlık boyutu + boşluk (#2048)
+- Alt satır `0.9em` + `gap-1` (Adı ile dikey mesafe).
+
 ## Round 558 — banner + Mesajı Gönder confirm metin (#2064/#2060)
 - Ortak metin: "…kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin Tamamlanma/İptal durumu ve notu…"
 - Confirm dialog `wide` (max-w-md).

@@ -200,9 +200,10 @@ export function CitizenMessageApprovalPage() {
     setConfirmDialog({
       title: t('citizenMessageApproval.releaseTitle', 'Mesajı Gönder'),
       titleDivider: true,
+      wide: true,
       message: t(
         'citizenMessageApproval.releaseConfirm',
-        'Mesajı göndermeyi onayladığınızda kurumunuz yetkili operatörüne "Talep Notu" ve Talep "Durumu" vatandaşımıza iletilmek üzere gönderilecektir.',
+        'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin Tamamlanma/İptal durumu ve notu gönderilecektir.',
       ),
       confirmLabel: t('citizenMessageApproval.actions.release', 'Mesajı Gönder'),
       cancelLabel: t('common.dismiss', 'Vazgeç'),
@@ -267,7 +268,7 @@ export function CitizenMessageApprovalPage() {
             <p className="page-subtitle">
               {t(
                 'citizenMessageApproval.subtitle',
-                'Mesajı göndermeyi onayladığınızda kurumunuz yetkili operatörüne vatandaşımıza iletilmek üzere talebin Tamamlanma/İptal durumu ve Tamamlanma/İptal notu gönderilecektir.',
+                'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin Tamamlanma/İptal durumu ve notu gönderilecektir.',
               )}
             </p>
           </div>

@@ -24,6 +24,8 @@ export interface ConfirmDialogState {
   banner?: ReactNode
   /** Optional content under the message (ör. eksik birimli kullanıcı listesi). */
   details?: ReactNode
+  /** Biraz daha geniş dialog (ör. Mesajı Gönder confirm — card #2060). */
+  wide?: boolean
   onConfirm: () => void | Promise<void>
 }
 
@@ -51,7 +53,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
   return createPortal(
     <ModalBackdrop>
       <div
-        className={`relative w-full rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl ${state.details ? 'max-w-md' : 'max-w-sm'}`}
+        className={`relative w-full rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl ${state.details || state.wide ? 'max-w-md' : 'max-w-sm'}`}
       >
         <button
           type="button"

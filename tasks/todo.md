@@ -1,3 +1,7 @@
+## Round 558 — banner + Mesajı Gönder confirm metin (#2064/#2060)
+- Ortak metin: "…kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin Tamamlanma/İptal durumu ve notu…"
+- Confirm dialog `wide` (max-w-md).
+
 ## Round 557 — Not Found fix (ExternalUnit VT) + UI polish
 - Edit/Reopen/Release: liste ile aynı uygunluk (WA/Çağrı VT); RequestType Citizen şartı kaldırıldı (#2063/#2066).
 - Telefon başlık biraz küçült (#2048); birim dropdown 300 (#2045); overflow tooltip büyüt+wrap (#2065).

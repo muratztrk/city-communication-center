@@ -1,3 +1,7 @@
+## Round 555 — Notu Düzenle modal başlık çizgisi + metin (#2059)
+- Modal başlığının altına standart `border-b`; açıklama:
+  "Vatandaşa gönderilecek notu düzenleyin. Not ifadesi zorunludur."
+
 ## Round 554 — Mesaj Onayı grid/detay polish (7 kart)
 - #2050 mobilde işlem butonları nowrap; #2051 Notu Düzenle; #2052 kanal ikonu;
   #2053 turuncu Notu Düzenle; #2056 nav bekleyen rozeti; #2057 Talep Durumu Değiştir →

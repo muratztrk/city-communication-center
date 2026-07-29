@@ -903,7 +903,7 @@
     "emptySent": "There is no request awaiting a citizen message.",
     "emptyAll": "There is no request awaiting a citizen message.",
     "editNoteTitle": "Edit Note",
-    "editNoteMessage": "Edit the completion/cancellation note that will be sent to the citizen. A note is required.",
+    "editNoteMessage": "Edit the note that will be sent to the citizen. A note is required.",
     "editNotePlaceholder": "Completion/cancellation note...",
     "noteRequired": "A note is required.",
     "releaseTitle": "Send Message",

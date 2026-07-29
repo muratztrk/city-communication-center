@@ -399,8 +399,8 @@ export function CitizenMessageApprovalPage() {
             >
               <X className="size-4" />
             </button>
-            <h2 className="mb-2 text-lg font-bold text-slate-950">{t('citizenMessageApproval.editNoteTitle', 'Notu Düzenle')}</h2>
-            <p className="mb-3 text-sm text-slate-700">{t('citizenMessageApproval.editNoteMessage', 'Vatandaşa gönderilecek tamamlama/iptal notunu düzenleyin. Not zorunludur.')}</p>
+            <h2 className="mb-3 border-b border-slate-200 pb-2 text-lg font-bold text-slate-950">{t('citizenMessageApproval.editNoteTitle', 'Notu Düzenle')}</h2>
+            <p className="mb-3 text-sm text-slate-700">{t('citizenMessageApproval.editNoteMessage', 'Vatandaşa gönderilecek notu düzenleyin. Not ifadesi zorunludur.')}</p>
             <textarea
               className="w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-[color:var(--color-primary)] focus:outline-none"
               rows={4}

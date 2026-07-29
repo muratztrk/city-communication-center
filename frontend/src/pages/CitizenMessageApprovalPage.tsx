@@ -26,8 +26,8 @@ import { JobsPage } from './JobsPage'
 type ApprovalScope = 'toSend' | 'sent' | 'all'
 
 const SCOPE_FILTERS: Array<{ value: ApprovalScope; labelKey: string; fallback: string; chipClass: string; apiScope: 'to-send' | 'sent' | 'all' }> = [
-  { value: 'toSend', labelKey: 'citizenMessageApproval.scope.toSend', fallback: 'Mesajı Gönder', chipClass: 'scope-chip--pending', apiScope: 'to-send' },
-  { value: 'sent', labelKey: 'citizenMessageApproval.scope.sent', fallback: 'Gönderilen', chipClass: 'scope-chip--completed', apiScope: 'sent' },
+  { value: 'toSend', labelKey: 'citizenMessageApproval.scope.toSend', fallback: 'Mesaj Onayı Bekleyen', chipClass: 'scope-chip--pending', apiScope: 'to-send' },
+  { value: 'sent', labelKey: 'citizenMessageApproval.scope.sent', fallback: 'Mesaj Gönderimi Onaylanan', chipClass: 'scope-chip--completed', apiScope: 'sent' },
   { value: 'all', labelKey: 'citizenMessageApproval.scope.all', fallback: 'Tümü', chipClass: 'scope-chip--all', apiScope: 'all' },
 ]
 
@@ -97,7 +97,6 @@ export function CitizenMessageApprovalPage() {
     }
     if (key === 'requestDateUtc') return formatDateTime(row.requestDateUtc, locale)
     if (key === 'citizenPhone') return formatCitizenPhoneDisplay(row.citizenPhone)
-    if (key === 'dueDateUtc') return row.dueDateUtc ? formatDateTime(row.dueDateUtc, locale) : ''
     if (key === 'status') return getCitizenRequestStatusLabel(t, { status: row.status })
     return String((row as unknown as Record<string, unknown>)[key] ?? '')
   }, [locale, t])
@@ -114,7 +113,7 @@ export function CitizenMessageApprovalPage() {
     }
     if (searchText.trim()) {
       const query = searchText.toLocaleLowerCase('tr')
-      const searchKeys = ['requestNo', 'requestDateUtc', 'citizenName', 'citizenPhone', 'title', 'dueDateUtc', 'status', 'note'] as const
+      const searchKeys = ['requestNo', 'requestDateUtc', 'citizenName', 'citizenPhone', 'title', 'status', 'note'] as const
       result = result.filter(row =>
         searchKeys.some(key => getColumnValue(key, row).toLocaleLowerCase('tr').includes(query)),
       )
@@ -163,10 +162,10 @@ export function CitizenMessageApprovalPage() {
   }
 
   const emptyMessage = scope === 'toSend'
-    ? t('citizenMessageApproval.emptyToSend', 'Gönderilecek vatandaş mesajı bulunmuyor.')
+    ? t('citizenMessageApproval.emptyToSend', 'Vatandaşa mesaj gönderilecek talep bulunmamaktadır.')
     : scope === 'sent'
-      ? t('citizenMessageApproval.emptySent', 'Gönderilmiş vatandaş mesajı bulunmuyor.')
-      : t('citizenMessageApproval.emptyAll', 'Vatandaşa gönderilecek mesaj bulunmuyor.')
+      ? t('citizenMessageApproval.emptySent', 'Vatandaşa mesaj gönderilecek talep bulunmamaktadır.')
+      : t('citizenMessageApproval.emptyAll', 'Vatandaşa mesaj gönderilecek talep bulunmamaktadır.')
 
   const openEditNote = (row: CitizenMessageApprovalRow) => {
     setNoteModal({ jobId: row.jobId, note: row.note ?? '', saving: false })
@@ -281,9 +280,13 @@ export function CitizenMessageApprovalPage() {
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   <FilterableTh filterKey="requestNo" filterValue={filters['requestNo'] ?? ''} onFilter={setFilter} sortKey="citizenRequestNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.requestNo', 'Vatandaş Talep No')}</FilterableTh>
                   <FilterableTh filterKey="requestDateUtc" filterValue={filters['requestDateUtc'] ?? ''} onFilter={setFilter} sortKey="requestDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.requestDate', 'Talep Tarihi')}</FilterableTh>
-                  <FilterableTh filterKey="citizenName" filterValue={filters['citizenName'] ?? ''} onFilter={setFilter} sortKey="citizenName" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.citizenName', 'Vatandaş Adı')}</FilterableTh>
+                  <FilterableTh filterKey="citizenName" filterValue={filters['citizenName'] ?? ''} onFilter={setFilter} sortKey="citizenName" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>
+                    <span className="flex flex-col leading-tight">
+                      <span>{t('citizenMessageApproval.columns.citizenName', 'Vatandaş Adı')}</span>
+                      <span className="text-[0.7rem] font-semibold normal-case tracking-normal text-slate-500">{t('citizenMessageApproval.columns.citizenPhone', 'Vatandaş Telefon No')}</span>
+                    </span>
+                  </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={filters['title'] ?? ''} onFilter={setFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.title', 'Başlık')}</FilterableTh>
-                  <FilterableTh filterKey="dueDateUtc" filterValue={filters['dueDateUtc'] ?? ''} onFilter={setFilter} sortKey="dueDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.dueDate', 'Son Tarih')}</FilterableTh>
                   <FilterableTh filterKey="status" filterValue={filters['status'] ?? ''} onFilter={setFilter} sortKey="status" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.status', 'Durum')}</FilterableTh>
                   <FilterableTh filterKey="note" filterValue={filters['note'] ?? ''} onFilter={setFilter} sortKey="note" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.note', 'Talep Tamamlama/İptal Notu')}</FilterableTh>
                   <th className="text-center">{t('citizenMessageApproval.columns.actions', 'İşlemler')}</th>
@@ -304,7 +307,6 @@ export function CitizenMessageApprovalPage() {
                       <div className="text-xs text-slate-400">{formatCitizenPhoneDisplay(row.citizenPhone)}</div>
                     </td>
                     <td className="max-w-xs truncate" title={row.title}>{row.title}</td>
-                    <td>{row.dueDateUtc ? <DateCell value={row.dueDateUtc} locale={locale} /> : <span className="text-slate-400">—</span>}</td>
                     <td>
                       <StatusPill className={getStatusPillClass(getJobStatusTone({ status: row.status, dueDateUtc: row.dueDateUtc }))}>
                         {getCitizenRequestStatusLabel(t, { status: row.status })}
@@ -331,7 +333,7 @@ export function CitizenMessageApprovalPage() {
                   </tr>
                 ))}
                 {sortedRows.length === 0 ? (
-                  <TableEmptyStateRows columnCount={9} message={emptyMessage} />
+                  <TableEmptyStateRows columnCount={8} message={emptyMessage} />
                 ) : null}
               </tbody>
             </table>

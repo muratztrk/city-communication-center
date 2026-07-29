@@ -14,6 +14,10 @@
   confirm), locale tr/en, `api/client.ts` + `types/platform.ts` eklemeleri.
 - `docs/feature-invariants.md` §3 güncellendi (R421 terminal mesaj davranışı artık release'e bağlı).
 
+## Round 553 — Mesaj Onayı UI polish + VT grid kapsam
+- Nav iki satır; boş metin; chip etiketleri; Vatandaş Adı+Telefon No başlık; Son Tarih kaldırıldı.
+- Birim dropdown `menuWidth={360}`; liste SourceRefId + VT numarası ile genişletildi (#2036).
+
 ## Round 552 — Filtreyi sil punto + Talep Etiketi Ara alt satır
 - `6a69cfce` (#2029) — Filtreyi sil metni büyütüldü (`text-base`).
 - `6a6a13bf` (#2043) — Talep Etiketi Ara... filtre satırının bir altına sağa hizalandı.

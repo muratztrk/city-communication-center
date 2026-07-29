@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Application.Features.Users;
+using CityCommunicationCenter.Domain.Entities;
 
 namespace CityCommunicationCenter.Application.Features.CitizenMessageApprovals.Queries;
 
@@ -41,11 +42,13 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
         IQueryable<Job> q = _dbContext.Jobs
             .AsNoTracking()
             .Where(j => j.TenantId == tenantId
-                && j.RequestType == JobRequestType.Citizen
                 && (j.Status == JobStatus.Completed || j.Status == JobStatus.Cancelled)
+                // VT + WA/Çağrı: JobId veya SourceRefId ile bağlı SocialMessage (card #2036).
                 && _dbContext.SocialMessages.Any(m => m.TenantId == tenantId
-                    && m.JobId == j.JobId
-                    && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)));
+                    && m.CitizenRequestNumber != null
+                    && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
+                    && (m.JobId == j.JobId
+                        || (j.SourceRefId.HasValue && m.SocialMessageId == j.SourceRefId.Value))));
 
         var scope = (request.Scope ?? "to-send").Trim().ToLowerInvariant();
         q = scope switch
@@ -80,14 +83,30 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
         }
 
         var jobIds = jobs.Select(j => j.JobId).ToArray();
+        var sourceRefIds = jobs
+            .Where(j => j.SourceRefId.HasValue)
+            .Select(j => j.SourceRefId!.Value)
+            .Distinct()
+            .ToArray();
         var messages = await _dbContext.SocialMessages
             .AsNoTracking()
-            .Where(m => m.TenantId == tenantId && m.JobId.HasValue && jobIds.Contains(m.JobId.Value))
+            .Where(m => m.TenantId == tenantId
+                && ((m.JobId.HasValue && jobIds.Contains(m.JobId.Value))
+                    || sourceRefIds.Contains(m.SocialMessageId)))
             .OrderByDescending(m => m.ReceivedAtUtc)
             .ToListAsync(cancellationToken);
-        var messageByJobId = messages
-            .GroupBy(m => m.JobId!.Value)
-            .ToDictionary(g => g.Key, g => g.First());
+        var messageByJobId = new Dictionary<Guid, SocialMessage>();
+        foreach (var job in jobs)
+        {
+            var linked = messages.FirstOrDefault(m => m.JobId == job.JobId)
+                ?? (job.SourceRefId.HasValue
+                    ? messages.FirstOrDefault(m => m.SocialMessageId == job.SourceRefId.Value)
+                    : null);
+            if (linked is not null)
+            {
+                messageByJobId[job.JobId] = linked;
+            }
+        }
 
         var ownerNames = await _dbContext.Departments
             .AsNoTracking()

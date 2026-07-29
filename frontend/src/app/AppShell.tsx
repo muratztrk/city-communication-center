@@ -223,7 +223,7 @@ export function AppShell() {
     { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
     { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight },
-    { pageKey: 'citizenMessageApproval' as const, path: '/citizen-message-approval', label: t('nav.citizenMessageApproval', 'Vatandaşa Gönderilecek Mesaj Onayı'), icon: Send },
+    { pageKey: 'citizenMessageApproval' as const, path: '/citizen-message-approval', label: t('nav.citizenMessageApproval', 'Vatandaşa Gönderilecek\nMesaj Onayı'), icon: Send, multilineLabel: true },
     { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck, separatorBefore: true },
     { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks },
     { pageKey: 'departmentTasks' as const, path: '/department-tasks?flow=all', label: t('nav.departmentTasks', 'Birimdeki Görevler'), icon: SquareKanban },

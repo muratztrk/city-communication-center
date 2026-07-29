@@ -1,3 +1,19 @@
+## Round 551 — Vatandaşa Gönderilecek Mesaj Onayı (#2039, R550'den Doing devamı)
+- `Job.CitizenTerminalMessageReleasedAtUtc` + migration; `CitizenJobStatusNotifier` terminal
+  (Tamamlandı/İptal) otomatik mesajını artık otomatik `Pending` kuyruğa atmıyor, deferral loglayıp
+  dönüyor. Yeni `ReleaseTerminalMessagesAsync` Manager/CRM onayında eski davranışı (Pending +
+  `EnqueueTerminalFollowUpsAsync`) tetikliyor, idempotent.
+- Yeni `Application/Features/CitizenMessageApprovals/`: `GetCitizenMessageApprovalsQuery`
+  (`to-send`/`sent`/`all`, Manager departman scope + CRM `CanManageCitizenRequest`),
+  `EditCitizenMessageApprovalNoteCommand` (not zorunlu, `Job.CancelReason`/son tamamlanan
+  `WorkTask.Notes`), `ReleaseCitizenMessageApprovalCommand` (not boşsa reddeder).
+  Controller `api/v1/citizen-message-approvals`.
+- FE: `pageKey citizenMessageApproval` (Manager+CRM+SystemAdmin, Operator/Staff/Reporter kapalı),
+  `/citizen-message-approval` route + nav (Send ikonu), `CitizenMessageApprovalPage.tsx`
+  (Mesajı Gönder/Gönderilen/Tümü chip'leri, JobsPage detay embed, not düzenleme modalı, release
+  confirm), locale tr/en, `api/client.ts` + `types/platform.ts` eklemeleri.
+- `docs/feature-invariants.md` §3 güncellendi (R421 terminal mesaj davranışı artık release'e bağlı).
+
 ## Round 550 — pie Ara hizası/X/backspace + Filtreyi sil blink; WA sayfası ertelendi
 - `6a69fea6` (#2041) — Ara... başlık satırı sağına.
 - `6a69ff82` (#2042) — X kırmızı; backspace (parent state); metin büyütüldü.

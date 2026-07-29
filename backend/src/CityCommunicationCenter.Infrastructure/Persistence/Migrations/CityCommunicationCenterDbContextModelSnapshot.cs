@@ -1044,6 +1044,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("citizenphone");
 
+                    b.Property<DateTimeOffset?>("CitizenTerminalMessageReleasedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("citizenterminalmessagereleasedatutc");
+
                     b.Property<DateTimeOffset?>("CompletedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("completedatutc");

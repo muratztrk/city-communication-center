@@ -26,6 +26,7 @@ import type {
   JobSummary,
   JobDetail,
   EDevletBasvuruSummary,
+  CitizenMessageApprovalRow,
   JobListScope,
   UpdateJobRequest,
   TenantAppearance,
@@ -1715,5 +1716,32 @@ export const api = {
     })
     await ensureOk(response, i18n.t('errors.edevletBasvuruConvertFailed', 'e-Devlet başvurusu talebe dönüştürülemedi.'))
     return response.json()
+  },
+
+  async getCitizenMessageApprovals(scope?: 'to-send' | 'sent' | 'all'): Promise<CitizenMessageApprovalRow[]> {
+    const query = scope ? `?scope=${encodeURIComponent(scope)}` : ''
+    const response = await fetchWithCredentials(`${API_BASE}/citizen-message-approvals${query}`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.citizenMessageApprovalsLoadFailed', 'Vatandaşa gönderilecek mesajlar yüklenemedi.'))
+    return response.json()
+  },
+
+  async editCitizenMessageApprovalNote(jobId: string, note: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/citizen-message-approvals/${jobId}/note`, {
+      method: 'POST',
+      headers: {
+        ...(await getAuthHeaders()),
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ note }),
+    })
+    await ensureOk(response, i18n.t('errors.citizenMessageApprovalNoteSaveFailed', 'Not kaydedilemedi.'))
+  },
+
+  async releaseCitizenMessageApproval(jobId: string): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/citizen-message-approvals/${jobId}/release`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.citizenMessageApprovalReleaseFailed', 'Mesaj gönderilemedi.'))
   },
 }

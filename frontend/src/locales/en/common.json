@@ -207,6 +207,7 @@
     "incomingRequestsInternal": "Incoming Unit Requests",
     "incomingRequestsAll": "All Incoming Unit Requests",
     "outgoingRequests": "Outgoing Unit Requests",
+    "citizenMessageApproval": "Citizen Message Approval",
     "departmentTasks": "Unit Tasks",
     "departmentTasksInternal": "Internal Unit Tasks",
     "departmentTasksExternal": "External Unit Tasks",
@@ -871,6 +872,43 @@
       "creator": "Creator",
       "cancelReturnStatus": "Status"
     }
+  },
+  "citizenMessageApproval": {
+    "kicker": "Citizen Requests",
+    "title": "Citizen Message Approval",
+    "subtitle": "Approve the automatic status message sent to citizens for completed/cancelled WhatsApp and phone requests.",
+    "scope": {
+      "toSend": "Send Message",
+      "sent": "Sent",
+      "all": "All"
+    },
+    "columns": {
+      "requestNo": "Citizen Request No",
+      "requestDate": "Request Date",
+      "citizenName": "Citizen Name",
+      "title": "Title",
+      "dueDate": "Due Date",
+      "status": "Status",
+      "note": "Completion/Cancellation Note",
+      "actions": "Actions"
+    },
+    "actions": {
+      "details": "Details",
+      "release": "Send Message",
+      "editNote": "Edit Message"
+    },
+    "emptyToSend": "No citizen messages waiting to be sent.",
+    "emptySent": "No citizen messages have been sent yet.",
+    "emptyAll": "No citizen messages found.",
+    "editNoteTitle": "Edit Message",
+    "editNoteMessage": "Edit the completion/cancellation note that will be sent to the citizen. A note is required.",
+    "editNotePlaceholder": "Completion/cancellation note...",
+    "noteRequired": "A note is required.",
+    "releaseTitle": "Send Message",
+    "releaseConfirm": "The automatic status message and note for this request will be released to the operator's WhatsApp screen. Continue?",
+    "releaseNoteMissing": "Please enter a note using \"Edit Message\" before sending.",
+    "released": "Message queued for sending.",
+    "noteSaved": "Note saved."
   },
   "social": {
     "title": "Citizen Request Flow",

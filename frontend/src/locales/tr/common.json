@@ -207,6 +207,7 @@
     "incomingRequestsInternal": "Birime Gelen Talepler",
     "incomingRequestsAll": "Birime Gelen Tüm Talepler",
     "outgoingRequests": "Birimden Giden Talepler",
+    "citizenMessageApproval": "Vatandaşa Gönderilecek Mesaj Onayı",
     "departmentTasks": "Birimdeki Görevler",
     "departmentTasksInternal": "Birim İçi Görevler",
     "departmentTasksExternal": "Birim Dışı Görevler",
@@ -876,6 +877,43 @@
       "creator": "Oluşturan",
       "cancelReturnStatus": "Durum"
     }
+  },
+  "citizenMessageApproval": {
+    "kicker": "Vatandaş Talepleri",
+    "title": "Vatandaşa Gönderilecek Mesaj Onayı",
+    "subtitle": "Tamamlanmış/İptal olmuş WhatsApp ve çağrı taleplerinin vatandaşa gönderilecek otomatik durum mesajını onaylayın.",
+    "scope": {
+      "toSend": "Mesajı Gönder",
+      "sent": "Gönderilen",
+      "all": "Tümü"
+    },
+    "columns": {
+      "requestNo": "Vatandaş Talep No",
+      "requestDate": "Talep Tarihi",
+      "citizenName": "Vatandaş Adı",
+      "title": "Başlık",
+      "dueDate": "Son Tarih",
+      "status": "Durum",
+      "note": "Talep Tamamlama/İptal Notu",
+      "actions": "İşlemler"
+    },
+    "actions": {
+      "details": "Detaylar",
+      "release": "Mesajı Gönder",
+      "editNote": "Mesajı Düzenle"
+    },
+    "emptyToSend": "Gönderilecek vatandaş mesajı bulunmuyor.",
+    "emptySent": "Gönderilmiş vatandaş mesajı bulunmuyor.",
+    "emptyAll": "Vatandaşa gönderilecek mesaj bulunmuyor.",
+    "editNoteTitle": "Mesajı Düzenle",
+    "editNoteMessage": "Vatandaşa gönderilecek tamamlama/iptal notunu düzenleyin. Not zorunludur.",
+    "editNotePlaceholder": "Tamamlama/İptal notu...",
+    "noteRequired": "Not zorunludur.",
+    "releaseTitle": "Mesajı Gönder",
+    "releaseConfirm": "Bu talebin otomatik durum mesajı ve notu operatör WhatsApp ekranına gönderilmek üzere serbest bırakılacak. Devam edilsin mi?",
+    "releaseNoteMissing": "Göndermeden önce lütfen \"Mesajı Düzenle\" ile bir not girin.",
+    "released": "Mesaj gönderime hazırlandı.",
+    "noteSaved": "Not kaydedildi."
   },
   "social": {
     "title": "Vatandaş Talep Akışı",

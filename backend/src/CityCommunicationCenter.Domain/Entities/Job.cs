@@ -45,6 +45,10 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
 
     public string? CancelReason { get; set; }
 
+    /// <summary>Terminal (Tamamlanmış/İptal) vatandaş durum mesajının Manager/CRM tarafından
+    /// operatör WhatsApp ekranına serbest bırakıldığı zaman damgası — null iken mesaj bekliyor demektir (card #2039).</summary>
+    public DateTimeOffset? CitizenTerminalMessageReleasedAtUtc { get; set; }
+
     /// <summary>Talep sahibinin yöneticisinin, hedef birim onaylayana kadar eklediği not (card 453).</summary>
     public string? ManagerNote { get; set; }
 

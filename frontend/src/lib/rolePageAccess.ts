@@ -12,6 +12,7 @@ export const PAGE_ACCESS_ITEMS = [
   { key: 'departmentTasks', path: '/department-tasks', labelKey: 'nav.departmentTasks' },
   { key: 'myRequests', path: '/my-requests', labelKey: 'nav.myRequests' },
   { key: 'incomingRequests', path: '/incoming-requests', labelKey: 'nav.incomingRequests' },
+  { key: 'citizenMessageApproval', path: '/citizen-message-approval', labelKey: 'nav.citizenMessageApproval' },
   { key: 'outgoingRequests', path: '/outgoing-requests', labelKey: 'nav.outgoingRequests' },
   { key: 'social', path: '/social', labelKey: 'nav.social' },
   { key: 'citizenDirectory', path: '/citizen-directory', labelKey: 'nav.citizenDirectory' },
@@ -29,7 +30,7 @@ export type RolePageAccessMatrix = Record<RoleCode, Record<PageAccessKey, boolea
 export const EDEVLET_ROLE_PAGE_KEYS = ['edevletActivityPlan', 'edevletActivityPlansList'] as const satisfies readonly PageAccessKey[]
 
 /** Pages for the Vatandaş Talep Yöneticisi role column. */
-export const CITIZEN_REQUEST_MANAGER_PAGE_KEYS = ['createRequest', 'incomingRequests'] as const satisfies readonly PageAccessKey[]
+export const CITIZEN_REQUEST_MANAGER_PAGE_KEYS = ['createRequest', 'incomingRequests', 'citizenMessageApproval'] as const satisfies readonly PageAccessKey[]
 
 export const ROLE_PAGE_ACCESS_STORAGE_KEY = 'ccc_role_page_access_matrix'
 export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'
@@ -57,6 +58,7 @@ export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce(
         && page.key !== 'edevletActivityPlansList'
         && page.key !== 'outgoingRequests'
         && page.key !== 'departmentTasks'
+        && page.key !== 'citizenMessageApproval'
       return pages
     }
     if (role === 'Manager') {
@@ -104,12 +106,14 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
     }
     if (role === 'CitizenRequestManager') {
       matrix[role].incomingRequests = true
+      matrix[role].citizenMessageApproval = true
     }
     if (role === 'Operator' || role === 'Staff' || role === 'Reporter') {
       matrix[role].edevletActivityPlan = false
       matrix[role].edevletActivityPlansList = false
       matrix[role].outgoingRequests = false
       matrix[role].departmentTasks = false
+      matrix[role].citizenMessageApproval = false
     }
     if (role === 'EDevletActivityPlan') {
       matrix[role].outgoingRequests = false

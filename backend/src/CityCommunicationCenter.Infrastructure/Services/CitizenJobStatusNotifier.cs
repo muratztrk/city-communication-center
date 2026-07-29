@@ -89,6 +89,91 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         await NotifyCurrentStatusAsync(tenantId, message, job, taskCount, cancellationToken);
     }
 
+    public async Task ReleaseTerminalMessagesAsync(
+        Guid tenantId,
+        Guid jobId,
+        CancellationToken cancellationToken = default)
+    {
+        var job = await _dbContext.Jobs.FirstOrDefaultAsync(
+            entity => entity.JobId == jobId && entity.TenantId == tenantId,
+            cancellationToken);
+        if (job is null)
+        {
+            return;
+        }
+
+        if (job.CitizenTerminalMessageReleasedAtUtc is not null)
+        {
+            // Idempotent: zaten serbest bırakılmış.
+            return;
+        }
+
+        var utcNow = DateTimeOffset.UtcNow;
+        var taskCount = await _dbContext.Tasks
+            .AsNoTracking()
+            .CountAsync(entity => entity.JobId == job.JobId && entity.TenantId == tenantId, cancellationToken);
+        var statusLabel = CitizenJobStatusLabelHelper.GetDisplayStatus(job, taskCount, utcNow);
+        if (!RequiresOperatorApproval(statusLabel))
+        {
+            job.CitizenTerminalMessageReleasedAtUtc = utcNow;
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return;
+        }
+
+        var message = await _dbContext.SocialMessages.FirstOrDefaultAsync(
+            entity => entity.TenantId == tenantId
+                && (entity.JobId == job.JobId
+                    || (job.SourceRefId.HasValue && entity.SocialMessageId == job.SourceRefId.Value)),
+            cancellationToken);
+        if (message is not null && message.Channel is SocialChannel.WhatsApp or SocialChannel.Phone)
+        {
+            var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, cancellationToken);
+            if (template is not null)
+            {
+                var targetDepartmentNames = await _dbContext.JobDepartments
+                    .AsNoTracking()
+                    .Where(link => link.TenantId == tenantId
+                        && link.JobId == job.JobId
+                        && link.Role == JobDepartmentRole.Target
+                        && link.ApprovalStatus != JobApprovalStatus.Rejected)
+                    .OrderBy(link => link.Department.Name)
+                    .Select(link => link.Department.Name)
+                    .Distinct()
+                    .ToListAsync(cancellationToken);
+                var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
+                    message,
+                    job,
+                    taskCount,
+                    utcNow,
+                    template,
+                    string.Join(", ", targetDepartmentNames));
+
+                if (message.Channel == SocialChannel.WhatsApp)
+                {
+                    var alreadyCreated = await _dbContext.ConversationEntries
+                        .AsNoTracking()
+                        .AnyAsync(
+                            entry => entry.SocialMessageId == message.SocialMessageId
+                                && entry.Direction == ConversationEntryDirection.Outbound
+                                && entry.Content == content
+                                && entry.DeliveryStatus != ConversationDeliveryStatus.Failed,
+                            cancellationToken);
+                    if (!alreadyCreated)
+                    {
+                        await SendWhatsAppAsync(tenantId, message, job, content, statusLabel, utcNow, cancellationToken);
+                    }
+                }
+                else
+                {
+                    await SendSmsAsync(tenantId, message, content, cancellationToken);
+                }
+            }
+        }
+
+        job.CitizenTerminalMessageReleasedAtUtc = DateTimeOffset.UtcNow;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     private async Task NotifyCurrentStatusAsync(
         Guid tenantId,
         SocialMessage message,
@@ -107,6 +192,19 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         }
 
         var utcNow = DateTimeOffset.UtcNow;
+        var statusLabelForDeferralCheck = CitizenJobStatusLabelHelper.GetDisplayStatus(job, taskCount, utcNow);
+        if (RequiresOperatorApproval(statusLabelForDeferralCheck))
+        {
+            // Terminal (Tamamlanmış/İptal) otomatik mesajlar artık burada otomatik kuyruğa girmez;
+            // Manager/CRM "Vatandaşa Gönderilecek Mesaj Onayı" ekranından `Mesajı Gönder` ile
+            // ReleaseTerminalMessagesAsync çağırana kadar bekletilir (card #2039).
+            _logger.LogInformation(
+                "Deferring citizen terminal status message for Job {JobId} until Manager/CRM release ({StatusLabel})",
+                job.JobId,
+                statusLabelForDeferralCheck);
+            return;
+        }
+
         var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, cancellationToken);
         if (template is null)
         {

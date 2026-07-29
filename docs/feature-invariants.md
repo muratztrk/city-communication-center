@@ -396,14 +396,23 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `ReplyToSocialMessageCommand` WhatsApp kanalında varsayılan olarak mesajı GÖNDERMEZ, `DeliveryStatus=Pending` entry
   oluşturur (diğer kanallar eskisi gibi anında gider). `ICitizenJobStatusNotifier` tarafından
   üretilen İşleme Alındı/Yapılmakta mesajları operatör onayı beklemeden WhatsApp'a doğrudan
-  gönderilir. Tamamlandı/İptal otomatik mesajları `Pending` kuyruğa girer; operatör
-  `Mesajı Gönder` ile iletir (R421). Tamamlanmada görev ekleri + tamamlanma notu, iptalde
-  iptal notu da aynı kuyruğa eklenir. Bu otomatik mesajlar `Düzenle`/`Mesaj Gönder` üretir.
-  Terminal not butonları yalnız diğer ilgili bekleyen mesaj terminal durumu
-  (`Tamamlandı/Tamamlanmış` veya `İptal/İptal Edildi`) içeriyorsa görünür; ara durum
+  gönderilir. Tamamlandı/İptal otomatik mesajları artık job tamamlanır/iptal olur olmaz
+  **otomatik olarak** `Pending` kuyruğa girmez (R421 değişti — card #2039): `CitizenJobStatusNotifier`
+  terminal durumda erken `return` ile deferral loglar ve `Job.CitizenTerminalMessageReleasedAtUtc`
+  `null` kalır. Mesaj+not, Manager/CitizenRequestManager `Vatandaşa Gönderilecek Mesaj Onayı`
+  (`/citizen-message-approval`, yalnız WhatsApp/Çağrı kanallı vatandaş talepleri) ekranından
+  `Mesajı Gönder` ile `ReleaseCitizenMessageApprovalCommand` → `ICitizenJobStatusNotifier
+  .ReleaseTerminalMessagesAsync` çağırana kadar bekler; bu an itibariyle eskisi gibi `Pending`
+  kuyruğa girer ve `CitizenTerminalMessageReleasedAtUtc` doldurulur (idempotent). Tamamlanmada
+  görev ekleri + tamamlanma notu, iptalde iptal notu da aynı kuyruğa eklenir. Bu otomatik
+  mesajlar release edildikten sonra operatör tarafında yine `Düzenle`/`Mesaj Gönder` üretir; not
+  boşsa release reddedilir (Manager/CRM önce "Mesajı Düzenle" ile not girmelidir — `Job.CancelReason`
+  veya son tamamlanan `WorkTask.Notes`). Terminal not butonları yalnız diğer ilgili bekleyen mesaj
+  terminal durumu (`Tamamlandı/Tamamlanmış` veya `İptal/İptal Edildi`) içeriyorsa görünür; ara durum
   (`İşleme Alındı`, `Yapılmakta`) mesajlarında görünmez. Gerçek gönderim `SendPendingConversationEntryCommand`
   (`POST /social/messages/{id}/conversation/{entryId}/send`) ile yapılır; yetki = `Operator` veya
-  `SystemAdmin` (`ForbiddenAccessException`). Mesaj `Responded`'a yalnızca gerçek gönderimde geçer.
+  `SystemAdmin` (`ForbiddenAccessException`) — Manager/CRM yalnızca release eder, `SendPending` yapamaz.
+  Mesaj `Responded`'a yalnızca gerçek gönderimde geçer.
   İstisna: `/whatsapp` konuşma footer'ından vatandaş operatörünün yazdığı direkt mesaj
   `sendImmediately=true` ile gider ve balonda `Düzenle`/`Mesajı Gönder` bekleyen aksiyonları üretmez.
 - **WhatsApp `/whatsapp` dosya eki gerçek medya gönderimidir:** `Dosya ekle` seçimi yalnız dosya adını

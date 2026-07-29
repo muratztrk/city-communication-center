@@ -936,6 +936,25 @@ export interface EDevletBasvuruSummary {
   jobDisplayNumber: string | null
 }
 
+/** Vatandaşa Gönderilecek Mesaj Onayı grid satırı (card #2039). */
+export interface CitizenMessageApprovalRow {
+  jobId: string
+  socialMessageId: string
+  channel: string
+  citizenRequestNumber: number | null
+  citizenRequestNumberYear: number | null
+  requestDateUtc: string
+  citizenName: string | null
+  citizenPhone: string | null
+  title: string
+  dueDateUtc: string | null
+  status: string
+  note: string | null
+  ownerDepartmentId: string
+  ownerDepartmentName: string | null
+  releasedAtUtc: string | null
+}
+
 export interface AppNotification {
   notificationId: string
   taskId: string | null

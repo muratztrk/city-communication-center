@@ -16,4 +16,13 @@ public interface ICitizenJobStatusNotifier
         Guid jobId,
         string previousDisplayStatus,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Terminal (Tamamlanmış/İptal) vatandaş durum mesajını Manager/CRM onayıyla operatör
+    /// WhatsApp ekranına Pending olarak serbest bırakır (card #2039). Zaten serbest bırakılmışsa no-op.
+    /// </summary>
+    Task ReleaseTerminalMessagesAsync(
+        Guid tenantId,
+        Guid jobId,
+        CancellationToken cancellationToken = default);
 }

@@ -1456,6 +1456,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Ara... **başlık satırının sağına** hizalanır (üst satır boşsa oraya). Personelimin Görevleri /
   Çözme Süresi pie'larında Ara... yok. X ikonu kırmızı; metin ~0.9rem; arama state parent'ta —
   boş eşleşmede input unmount olmaz (backspace odak kaybı yok).
+- **Personelimin Görevi Çözme Süresi sırası (R549 / #2038):** 0 olmayan en küçük ortalama saatten
+  artan sıra; 0'lar sonda.
 - **Drilldown yazdır Tamamlanma Tarihi (#r547):** `col-completed` ~18% / min 9.5rem — başlık
   hücre border'ından taşmaz.
 - **Boş Adres Bilgileri tire (#r547):** `-` değeri üst etiketin genişliğinde ortalanır

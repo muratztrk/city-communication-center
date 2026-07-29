@@ -1,3 +1,6 @@
+## Round 570 — Yazışmaya Git WA balon/metin küçült (#2083)
+- `WhatsAppConversationModal`: `compactBubbles` + `compactActions` (#1711 kalıbı).
+
 ## Round 569 — Mesaj Onayı İşlemler FHD nowrap (#2082)
 - 3 buton yan yana: actions-cell ~18.5rem + flex nowrap (wrap kaldırıldı).
 

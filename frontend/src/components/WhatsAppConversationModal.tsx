@@ -33,6 +33,9 @@ export function WhatsAppConversationModal({
           // vatandaşa iletme yetkisi yalnızca operatördedir (canSendPending=false) — card #1091.
           canReply
           canSendPending={false}
+          // Yazışmaya Git popup: balon + metin küçült (#2083 / #1711 kalıbı).
+          compactBubbles
+          compactActions
         />
       </section>
     </div>,

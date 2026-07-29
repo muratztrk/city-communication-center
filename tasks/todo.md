@@ -14,12 +14,12 @@
   confirm), locale tr/en, `api/client.ts` + `types/platform.ts` eklemeleri.
 - `docs/feature-invariants.md` §3 güncellendi (R421 terminal mesaj davranışı artık release'e bağlı).
 
-## Round 550 — pie Ara hizası/X/backspace + Filtreyi sil blink; WA sayfası ertelendi
-- `6a69fea6` (#2041) — Ara... başlık satırı sağına.
-- `6a69ff82` (#2042) — X kırmızı; backspace (parent state); metin büyütüldü.
-- `6a69fd91` (#2040) — Personel / Çözme Süresi pie'larından Ara... kaldırıldı.
-- `6a69cfce` (#2029) — Filtreyi sil eski kırmızı metin + Yeni blink.
-- `6a69f0ae` (#2039) — **Doing'de bırakıldı** (ürün belirsizlikleri; Trello yorum).
+## Round 552 — Filtreyi sil punto + Talep Etiketi Ara alt satır
+- `6a69cfce` (#2029) — Filtreyi sil metni büyütüldü (`text-base`).
+- `6a6a13bf` (#2043) — Talep Etiketi Ara... filtre satırının bir altına sağa hizalandı.
+
+## Round 551 — Vatandaşa Gönderilecek Mesaj Onayı (#2039)
+- Terminal WA/Çağrı otomatik mesajı Manager/CRM release sonrası Pending; yeni sayfa + chips.
 
 ## Round 549 — pie Ara... + Filtreyi sil buton + çözüm süresi sıralama
 - `6a69e0aa` (#2037) — listelenen pie'larda sağ lejant Ara... (banner stili).

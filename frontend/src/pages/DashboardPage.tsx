@@ -731,8 +731,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                       })}
                     </div>
                   )}
-                  {/* Ara... başlık satırının sağına (üst satır boşsa hizalı, R550 / #2041). */}
-                  {PIE_LEGEND_SEARCH_KEYS.has(card.titleKey) ? (
+                  {/* Ara... başlık satırı sağı (R550). Talep Etiketi: 1 alt satırda (R552 / #2043). */}
+                  {PIE_LEGEND_SEARCH_KEYS.has(card.titleKey) && card.titleKey !== 'dashboard.charts.requestTags' ? (
                     <PieLegendSearch
                       value={pieLegendSearches[card.titleKey] ?? ''}
                       onChange={value => setPieLegendSearches(current => ({ ...current, [card.titleKey]: value }))}
@@ -740,6 +740,14 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                   ) : null}
                 </div>
               </div>
+              {card.titleKey === 'dashboard.charts.requestTags' ? (
+                <div className="relative z-10 mb-3 flex justify-end">
+                  <PieLegendSearch
+                    value={pieLegendSearches[card.titleKey] ?? ''}
+                    onChange={value => setPieLegendSearches(current => ({ ...current, [card.titleKey]: value }))}
+                  />
+                </div>
+              ) : null}
               <PieChart
                 slices={card.slices}
                 noDataLabel={t('dashboard.chart.noData')}

@@ -1458,13 +1458,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sütun `Birim`; **Son Tarih yok** — yerine `Tamamlanma Tarihi` (yazdırma dahil).
 - **Vatandaş Talepleri pie (#r546):** VT sayısı `WhereHasCitizenRequestNumber` (RequestType şartı yok);
   dilim tıklanınca drilldown değil `/social?requestStatus=…&fromPie=1`.
-- **Pie Filtreyi sil (#r546/#r547/#r549/#r550):** `fromPie=1` ile gelinen gridlerde scope-chip
+- **Pie Filtreyi sil (#r546/#r547/#r549/#r550/#r552):** `fromPie=1` ile gelinen gridlerde scope-chip
   satırında son butonun **sağında** kırmızı metin `Filtreyi sil` (buton/fill değil) + `ccc-blink`
-  (Yeni rozetiyle aynı yanıp sönme); tıklanınca pathname'e (query yok) döner.
-- **Dashboard pie lejant Ara... (R549/R550):** Talep Etiketi, üç mahalle ve üç birim-dışı pie'sında
-  Ara... **başlık satırının sağına** hizalanır (üst satır boşsa oraya). Personelimin Görevleri /
-  Çözme Süresi pie'larında Ara... yok. X ikonu kırmızı; metin ~0.9rem; arama state parent'ta —
-  boş eşleşmede input unmount olmaz (backspace odak kaybı yok).
+  (Yeni rozetiyle aynı yanıp sönme); punto `text-base`; tıklanınca pathname'e (query yok) döner.
+- **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık
+  satırının sağına**; **Talep Etiketi** pie'sında filtre butonlarının **bir alt satırında** sağa
+  hizalı. Personelimin Görevleri / Çözme Süresi pie'larında Ara... yok. X ikonu kırmızı; metin
+  ~0.9rem; arama state parent'ta — boş eşleşmede input unmount olmaz (backspace odak kaybı yok).
 - **Personelimin Görevi Çözme Süresi sırası (R549 / #2038):** 0 olmayan en küçük ortalama saatten
   artan sıra; 0'lar sonda.
 - **Drilldown yazdır Tamamlanma Tarihi (#r547):** `col-completed` ~18% / min 9.5rem — başlık

@@ -11,7 +11,9 @@ interface ToastProps {
 export function Toast({ message, type = 'success', onClose, duration = 5000 }: ToastProps) {
   // Parent her render'da yeni onClose verirse timer sıfırlanmasın (#2074 reopen).
   const onCloseRef = useRef(onClose)
-  onCloseRef.current = onClose
+  useEffect(() => {
+    onCloseRef.current = onClose
+  }, [onClose])
 
   useEffect(() => {
     const id = window.setTimeout(() => onCloseRef.current(), duration)

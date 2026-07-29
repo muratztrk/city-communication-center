@@ -876,7 +876,7 @@
   "citizenMessageApproval": {
     "kicker": "Citizen Requests",
     "title": "Citizen Message Approval",
-    "subtitle": "Approve the automatic status message sent to citizens for completed/cancelled WhatsApp and phone requests.",
+    "subtitle": "When you approve sending the message, the request completion/cancellation status and note will be sent to your authorized operator to forward to the citizen.",
     "scope": {
       "toSend": "Pending Message Approval",
       "sent": "Message Send Approved",
@@ -907,7 +907,7 @@
     "editNotePlaceholder": "Completion/cancellation note...",
     "noteRequired": "A note is required.",
     "releaseTitle": "Send Message",
-    "releaseConfirm": "The automatic status message and note for this request will be released to the operator's WhatsApp screen. Continue?",
+    "releaseConfirm": "When you approve sending the message, the \"Request Note\" and Request \"Status\" will be sent to your authorized operator to forward to the citizen.",
     "releaseNoteMissing": "Please enter a note using \"Edit Note\" before sending.",
     "released": "Message queued for sending.",
     "noteSaved": "Note saved.",

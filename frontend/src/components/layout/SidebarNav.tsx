@@ -127,23 +127,32 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
               {(() => {
                 const lines = item.label.split('\n')
                 const badgeLabel = item.badgeCount > 99 ? '99+' : String(item.badgeCount)
+                const firstLine = lines[0] ?? item.label
+                const restLines = lines.slice(1)
                 return (
                   <>
-                    <span className="inline-flex max-w-full items-center gap-1.5">
-                      <span>{lines[0]}</span>
+                    <span>{firstLine}</span>
+                    {restLines.length > 0 ? (
+                      <>
+                        <br />
+                        <span className="inline-flex max-w-full items-center gap-1.5">
+                          <span>{restLines.join('\n')}</span>
+                          <span
+                            className={`nav-pending-badge shrink-0 ${badgeLabel.length > 1 ? 'nav-pending-badge--wide' : ''}`}
+                            aria-label={`${item.badgeCount}`}
+                          >
+                            {badgeLabel}
+                          </span>
+                        </span>
+                      </>
+                    ) : (
                       <span
-                        className={`whatsapp-fab-badge shrink-0 ${badgeLabel.length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}
+                        className={`nav-pending-badge ml-1.5 inline-flex shrink-0 ${badgeLabel.length > 1 ? 'nav-pending-badge--wide' : ''}`}
                         aria-label={`${item.badgeCount}`}
                       >
                         {badgeLabel}
                       </span>
-                    </span>
-                    {lines.length > 1 ? (
-                      <>
-                        <br />
-                        <span>{lines.slice(1).join('\n')}</span>
-                      </>
-                    ) : null}
+                    )}
                   </>
                 )
               })()}

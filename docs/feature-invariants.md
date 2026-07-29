@@ -406,11 +406,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Mesajı Gönder` ile `ReleaseCitizenMessageApprovalCommand` → `ICitizenJobStatusNotifier
   .ReleaseTerminalMessagesAsync` çağırana kadar bekler; bu an itibariyle eskisi gibi `Pending`
   kuyruğa girer ve `CitizenTerminalMessageReleasedAtUtc` doldurulur (idempotent). FE release
-  sonrası `view=sent` chip'ine geçer (card #2058). Sol menüde "Gönderilecek" yanına bekleyen
-  sayı rozeti (`whatsapp-fab-badge`, card #2056). Detayda turuncu **Talep Durumu Değiştir** →
-  `ReopenCitizenMessageJobCommand` (`POST …/reopen-to-in-progress`) Job'u Active + terminal
-  görevleri InProgress yapar, release bayrağını temizler (card #2057). Grid: kanal ikonu (#2052),
-  **Notu Düzenle** turuncu (#2051/#2053), mobilde işlem butonları `nowrap` (#2050). Tamamlanmada
+  sonrası `view=sent` chip'ine geçer (card #2058). Release şablon yoksa da varsayılan metinle
+  Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
+  bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Detayda turuncu
+  **Talep Durumunu Değiştir** → `ReopenCitizenMessageJobCommand` (`POST …/reopen-to-in-progress`)
+  Job'u Active + terminal görevleri InProgress yapar, release bayrağını temizler (card #2057/#2062).
+  Grid: kanal ikonu (#2052), **Notu Düzenle** turuncu (#2051/#2053), mobilde işlem butonları
+  `nowrap` (#2050). Not kaydı Completed görevlerde `CompletedAtUtc` olmasa da çalışır (#2063).
+  Tamamlanmada
   görev ekleri + tamamlanma notu, iptalde iptal notu da aynı kuyruğa eklenir. Bu otomatik
   mesajlar release edildikten sonra operatör tarafında yine `Düzenle`/`Mesaj Gönder` üretir; not
   boşsa release reddedilir (Manager/CRM önce "Notu Düzenle" ile not girmelidir — `Job.CancelReason`

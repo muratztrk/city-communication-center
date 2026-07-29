@@ -392,7 +392,7 @@ export function WhatsAppNotificationFab() {
   // Panelin sağ kenarı yanındaki FAB'lara göre CSS'te viewport sınırına hizalanır
   // (cards #1543/#1553); scroll FAB yalnız scroll varsa render edildiği için offset koşulludur.
   return (
-    <div className="relative size-12 shrink-0 sm:size-14">
+    <div className="ccc-floating-fab relative size-12 shrink-0">
         {isOpen ? (
           <div className="whatsapp-notification-fab-panel absolute bottom-full z-20 mb-3 w-[min(22rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
           <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[#25D366]/10 px-4 py-3">
@@ -487,10 +487,10 @@ export function WhatsAppNotificationFab() {
           title={t('whatsapp.notificationFabLabel', 'WhatsApp bildirimleri')}
           aria-expanded={isOpen}
           onClick={() => setIsOpen(current => !current)}
-          className={`group relative flex size-12 cursor-pointer items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-shadow duration-300 hover:shadow-xl sm:size-14 ${isPulsing ? 'whatsapp-fab-pulse' : ''} ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
+          className={`ccc-floating-fab-btn group relative flex size-12 cursor-pointer items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${isPulsing ? 'whatsapp-fab-pulse' : ''} ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
         >
           <span className="absolute inset-0 rounded-full bg-[#25D366]/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />
-          <img src="/icons/whatsapp-fab.png" alt="" className="relative size-6 sm:size-8" aria-hidden="true" />
+          <img src="/icons/whatsapp-fab.png" alt="" className="ccc-floating-fab-icon relative size-6" aria-hidden="true" />
           {unreadTotal > 0 ? (
             <span className={`whatsapp-fab-badge pointer-events-none absolute -right-0.5 -top-0.5 ${badgeLabel.length > 1 ? 'whatsapp-fab-badge--wide' : ''}`}>
               {badgeLabel}

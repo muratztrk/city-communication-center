@@ -661,7 +661,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     value={targetDepartmentId}
                     onChange={setTargetDepartmentId}
                     placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
-                    menuWidth={360}
+                    menuWidth={330}
                   />
                 </div>
 

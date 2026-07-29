@@ -5522,6 +5522,31 @@
     padding: 0 0.25rem;
   }
 
+  /* Sol menü bekleyen sayı — WA FAB rozeti gibi ama beyaz çerçeve yok (card #2056 reopen). */
+  .nav-pending-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border-radius: 9999px;
+    border: 0;
+    background: #dc2626;
+    color: #fff;
+    font-size: 0.625rem;
+    font-weight: 800;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.18);
+    vertical-align: middle;
+  }
+
+  .nav-pending-badge--wide {
+    width: auto;
+    min-width: 1.125rem;
+    padding: 0 0.25rem;
+  }
+
   /* Mesaj Onayı grid — mobilde işlem butonları yan yana kalsın (card #2050). */
   .citizen-message-approval-actions {
     flex-wrap: wrap;
@@ -5537,10 +5562,28 @@
       align-items: center;
     }
 
-    .citizen-message-approval-actions .btn,
     .citizen-message-approval-actions button {
       white-space: nowrap;
       flex-shrink: 0;
+    }
+  }
+
+  /* Desktop FAB biraz küçült (mobil aynı kalsın — card #2055). Eski sm:size-14=3.5rem. */
+  @media (min-width: 640px) {
+    .ccc-floating-fab {
+      width: 3.25rem;
+      height: 3.25rem;
+    }
+
+    .ccc-floating-fab-btn {
+      width: 3.25rem;
+      height: 3.25rem;
+    }
+
+    .ccc-floating-fab-btn .ccc-floating-fab-icon,
+    .ccc-floating-fab-btn img.ccc-floating-fab-icon {
+      width: 1.75rem;
+      height: 1.75rem;
     }
   }
 }

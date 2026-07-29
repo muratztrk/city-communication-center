@@ -36,10 +36,18 @@ internal static class CitizenMessageApprovalNoteResolver
         {
             return await dbContext.Tasks
                 .AsNoTracking()
-                .Where(t => t.TenantId == tenantId && t.JobId == job.JobId && t.CompletedAtUtc != null)
-                .OrderByDescending(t => t.CompletedAtUtc)
+                .Where(t => t.TenantId == tenantId
+                    && t.JobId == job.JobId
+                    && (t.CompletedAtUtc != null || t.CurrentStatus == WorkflowTaskStatus.Completed))
+                .OrderByDescending(t => t.CompletedAtUtc ?? t.UpdatedAtUtc)
                 .Select(t => t.Notes)
-                .FirstOrDefaultAsync(cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken)
+                ?? await dbContext.Tasks
+                    .AsNoTracking()
+                    .Where(t => t.TenantId == tenantId && t.JobId == job.JobId)
+                    .OrderByDescending(t => t.UpdatedAtUtc)
+                    .Select(t => t.Notes)
+                    .FirstOrDefaultAsync(cancellationToken);
         }
 
         return null;

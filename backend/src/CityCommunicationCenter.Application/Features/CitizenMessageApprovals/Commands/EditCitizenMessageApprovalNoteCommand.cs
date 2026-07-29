@@ -1,10 +1,11 @@
 using CityCommunicationCenter.Application.Features.Jobs;
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.CitizenMessageApprovals.Commands;
 
 /// <summary>
 /// Vatandaşa Gönderilecek Mesaj Onayı — terminal notu (Tamamlanma/İptal Notu) Manager/CRM tarafından
-/// düzenlenir; not asla boş olamaz (card #2039).
+/// düzenlenir; not asla boş olamaz (card #2039 / #2063).
 /// </summary>
 public sealed record EditCitizenMessageApprovalNoteCommand(
     Guid JobId,
@@ -16,7 +17,7 @@ public sealed class EditCitizenMessageApprovalNoteCommandValidator : AbstractVal
     public EditCitizenMessageApprovalNoteCommandValidator()
     {
         RuleFor(command => command.Note)
-            .NotEmpty().WithMessage("Not zorunludur.")
+            .NotEmpty().WithMessage("Not ifadesi zorunludur.")
             .MaximumLength(100).WithMessage("Not en fazla 100 karakter olabilir.");
     }
 }
@@ -68,12 +69,23 @@ public sealed class EditCitizenMessageApprovalNoteCommandHandler : ICommandHandl
         else
         {
             var task = await _dbContext.Tasks
-                .Where(t => t.TenantId == tenantId && t.JobId == job.JobId && t.CompletedAtUtc != null)
-                .OrderByDescending(t => t.CompletedAtUtc)
-                .FirstOrDefaultAsync(cancellationToken);
+                .Where(t => t.TenantId == tenantId
+                    && t.JobId == job.JobId
+                    && (t.CompletedAtUtc != null || t.CurrentStatus == WorkflowTaskStatus.Completed))
+                .OrderByDescending(t => t.CompletedAtUtc ?? t.UpdatedAtUtc)
+                .FirstOrDefaultAsync(cancellationToken)
+                ?? await _dbContext.Tasks
+                    .Where(t => t.TenantId == tenantId && t.JobId == job.JobId)
+                    .OrderByDescending(t => t.UpdatedAtUtc)
+                    .FirstOrDefaultAsync(cancellationToken);
+
             if (task is null)
             {
-                return false;
+                throw new ValidationException([
+                    new FluentValidation.Results.ValidationFailure(
+                        nameof(request.Note),
+                        "Not kaydedilecek tamamlanmış görev bulunamadı.")
+                ]);
             }
 
             task.Notes = note;

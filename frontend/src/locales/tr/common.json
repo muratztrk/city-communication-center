@@ -881,7 +881,7 @@
   "citizenMessageApproval": {
     "kicker": "Vatandaş Talepleri",
     "title": "Vatandaşa Gönderilecek Mesaj Onayı",
-    "subtitle": "Tamamlanmış/İptal olmuş WhatsApp ve çağrı taleplerinin vatandaşa gönderilecek otomatik durum mesajını onaylayın.",
+    "subtitle": "Mesajı göndermeyi onayladığınızda kurumunuz yetkili operatörüne vatandaşımıza iletilmek üzere talebin Tamamlanma/İptal durumu ve Tamamlanma/İptal notu gönderilecektir.",
     "scope": {
       "toSend": "Mesaj Onayı Bekleyen",
       "sent": "Mesaj Gönderimi Onaylanan",
@@ -902,7 +902,7 @@
       "details": "Detaylar",
       "release": "Mesajı Gönder",
       "editNote": "Notu Düzenle",
-      "changeStatus": "Talep Durumu Değiştir"
+      "changeStatus": "Talep Durumunu Değiştir"
     },
     "emptyToSend": "Vatandaşa mesaj gönderilecek talep bulunmamaktadır.",
     "emptySent": "Vatandaşa mesaj gönderilecek talep bulunmamaktadır.",
@@ -912,11 +912,11 @@
     "editNotePlaceholder": "Tamamlama/İptal notu...",
     "noteRequired": "Not ifadesi zorunludur.",
     "releaseTitle": "Mesajı Gönder",
-    "releaseConfirm": "Bu talebin otomatik durum mesajı ve notu operatör WhatsApp ekranına gönderilmek üzere serbest bırakılacak. Devam edilsin mi?",
+    "releaseConfirm": "Mesajı göndermeyi onayladığınızda kurumunuz yetkili operatörüne \"Talep Notu\" ve Talep \"Durumu\" vatandaşımıza iletilmek üzere gönderilecektir.",
     "releaseNoteMissing": "Göndermeden önce lütfen \"Notu Düzenle\" ile bir not girin.",
     "released": "Mesaj gönderime hazırlandı.",
     "noteSaved": "Not kaydedildi.",
-    "changeStatusTitle": "Talep Durumu Değiştir",
+    "changeStatusTitle": "Talep Durumunu Değiştir",
     "changeStatusConfirmLead": "Talep durumunu",
     "changeStatusInProgress": "Yapılmakta",
     "changeStatusConfirmTrail": "olarak değiştirmeyi onaylıyor musunuz?",

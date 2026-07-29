@@ -120,53 +120,64 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return;
         }
 
-        var message = await _dbContext.SocialMessages.FirstOrDefaultAsync(
-            entity => entity.TenantId == tenantId
+        var message = await _dbContext.SocialMessages
+            .Where(entity => entity.TenantId == tenantId
                 && (entity.JobId == job.JobId
-                    || (job.SourceRefId.HasValue && entity.SocialMessageId == job.SourceRefId.Value)),
-            cancellationToken);
-        if (message is not null && message.Channel is SocialChannel.WhatsApp or SocialChannel.Phone)
+                    || (job.SourceRefId.HasValue && entity.SocialMessageId == job.SourceRefId.Value))
+                && (entity.Channel == SocialChannel.WhatsApp || entity.Channel == SocialChannel.Phone))
+            .OrderByDescending(entity => entity.ReceivedAtUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+        if (message is not null)
         {
+            // Şablon yoksa BuildStatusMessage varsayılan metni kullanır; release yine Pending
+            // kuyruğa düşmeli (card #2058 reopen — operatör WA ekranına iletilmeli).
             var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, cancellationToken);
-            if (template is not null)
-            {
-                var targetDepartmentNames = await _dbContext.JobDepartments
-                    .AsNoTracking()
-                    .Where(link => link.TenantId == tenantId
-                        && link.JobId == job.JobId
-                        && link.Role == JobDepartmentRole.Target
-                        && link.ApprovalStatus != JobApprovalStatus.Rejected)
-                    .OrderBy(link => link.Department.Name)
-                    .Select(link => link.Department.Name)
-                    .Distinct()
-                    .ToListAsync(cancellationToken);
-                var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
-                    message,
-                    job,
-                    taskCount,
-                    utcNow,
-                    template,
-                    string.Join(", ", targetDepartmentNames));
+            var targetDepartmentNames = await _dbContext.JobDepartments
+                .AsNoTracking()
+                .Where(link => link.TenantId == tenantId
+                    && link.JobId == job.JobId
+                    && link.Role == JobDepartmentRole.Target
+                    && link.ApprovalStatus != JobApprovalStatus.Rejected)
+                .OrderBy(link => link.Department.Name)
+                .Select(link => link.Department.Name)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+            var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
+                message,
+                job,
+                taskCount,
+                utcNow,
+                template,
+                string.Join(", ", targetDepartmentNames));
 
-                if (message.Channel == SocialChannel.WhatsApp)
+            if (message.Channel == SocialChannel.WhatsApp)
+            {
+                var alreadyCreated = await _dbContext.ConversationEntries
+                    .AsNoTracking()
+                    .AnyAsync(
+                        entry => entry.SocialMessageId == message.SocialMessageId
+                            && entry.Direction == ConversationEntryDirection.Outbound
+                            && entry.Content == content
+                            && entry.DeliveryStatus != ConversationDeliveryStatus.Failed,
+                        cancellationToken);
+                if (!alreadyCreated)
                 {
-                    var alreadyCreated = await _dbContext.ConversationEntries
-                        .AsNoTracking()
-                        .AnyAsync(
-                            entry => entry.SocialMessageId == message.SocialMessageId
-                                && entry.Direction == ConversationEntryDirection.Outbound
-                                && entry.Content == content
-                                && entry.DeliveryStatus != ConversationDeliveryStatus.Failed,
-                            cancellationToken);
-                    if (!alreadyCreated)
-                    {
-                        await SendWhatsAppAsync(tenantId, message, job, content, statusLabel, utcNow, cancellationToken);
-                    }
+                    await SendWhatsAppAsync(tenantId, message, job, content, statusLabel, utcNow, cancellationToken);
                 }
                 else
                 {
-                    await SendSmsAsync(tenantId, message, content, cancellationToken);
+                    // Durum mesajı zaten varsa not/ek follow-up yine kuyruğa alınsın.
+                    var tenantName = await _dbContext.Tenants
+                        .AsNoTracking()
+                        .Where(t => t.TenantId == tenantId)
+                        .Select(t => t.MunicipalityName)
+                        .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
+                    await EnqueueTerminalFollowUpsAsync(tenantId, message, job, statusLabel, tenantName, utcNow, cancellationToken);
                 }
+            }
+            else
+            {
+                await SendSmsAsync(tenantId, message, content, cancellationToken);
             }
         }
 
@@ -438,10 +449,18 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         {
             terminalNote = await _dbContext.Tasks
                 .AsNoTracking()
-                .Where(t => t.TenantId == tenantId && t.JobId == job.JobId && t.CompletedAtUtc != null)
-                .OrderByDescending(t => t.CompletedAtUtc)
+                .Where(t => t.TenantId == tenantId
+                    && t.JobId == job.JobId
+                    && (t.CompletedAtUtc != null || t.CurrentStatus == Domain.Enums.TaskStatus.Completed))
+                .OrderByDescending(t => t.CompletedAtUtc ?? t.UpdatedAtUtc)
                 .Select(t => t.Notes)
-                .FirstOrDefaultAsync(cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken)
+                ?? await _dbContext.Tasks
+                    .AsNoTracking()
+                    .Where(t => t.TenantId == tenantId && t.JobId == job.JobId)
+                    .OrderByDescending(t => t.UpdatedAtUtc)
+                    .Select(t => t.Notes)
+                    .FirstOrDefaultAsync(cancellationToken);
         }
 
         var completedTaskIds = await _dbContext.Tasks
@@ -508,7 +527,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return;
         }
 
-        if (!isCancelled && !string.IsNullOrWhiteSpace(terminalNote))
+        if (!string.IsNullOrWhiteSpace(terminalNote))
         {
             _dbContext.ConversationEntries.Add(new SocialConversationEntry
             {

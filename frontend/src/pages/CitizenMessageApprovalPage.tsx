@@ -174,10 +174,14 @@ export function CitizenMessageApprovalPage() {
 
   const handleSaveNote = async () => {
     if (!noteModal || !noteModal.note.trim()) return
+    const savedNote = noteModal.note.trim()
+    const jobId = noteModal.jobId
     setNoteModal(current => (current ? { ...current, saving: true } : current))
     try {
-      await api.editCitizenMessageApprovalNote(noteModal.jobId, noteModal.note.trim())
-      invalidateJobs(queryClient, noteModal.jobId)
+      await api.editCitizenMessageApprovalNote(jobId, savedNote)
+      // Grid anında güncellensin; popup kapansın (card #2063).
+      setRows(current => current.map(row => (row.jobId === jobId ? { ...row, note: savedNote } : row)))
+      invalidateJobs(queryClient, jobId)
       invalidateCitizenMessageApprovals(queryClient)
       showToast(t('citizenMessageApproval.noteSaved', 'Not kaydedildi.'))
       setNoteModal(null)
@@ -195,9 +199,13 @@ export function CitizenMessageApprovalPage() {
     }
     setConfirmDialog({
       title: t('citizenMessageApproval.releaseTitle', 'Mesajı Gönder'),
-      message: t('citizenMessageApproval.releaseConfirm', 'Bu talebin otomatik durum mesajı ve notu operatör WhatsApp ekranına gönderilmek üzere serbest bırakılacak. Devam edilsin mi?'),
+      titleDivider: true,
+      message: t(
+        'citizenMessageApproval.releaseConfirm',
+        'Mesajı göndermeyi onayladığınızda kurumunuz yetkili operatörüne "Talep Notu" ve Talep "Durumu" vatandaşımıza iletilmek üzere gönderilecektir.',
+      ),
       confirmLabel: t('citizenMessageApproval.actions.release', 'Mesajı Gönder'),
-      cancelLabel: t('common.back', 'Geri'),
+      cancelLabel: t('common.dismiss', 'Vazgeç'),
       variant: 'success',
       onConfirm: () => {
         void (async () => {
@@ -218,11 +226,14 @@ export function CitizenMessageApprovalPage() {
 
   const handleChangeStatusToInProgress = (jobId: string) => {
     setConfirmDialog({
-      title: t('citizenMessageApproval.changeStatusTitle', 'Talep Durumu Değiştir'),
+      title: t('citizenMessageApproval.changeStatusTitle', 'Talep Durumunu Değiştir'),
+      titleDivider: true,
       message: (
         <>
           {t('citizenMessageApproval.changeStatusConfirmLead', 'Talep durumunu')}{' '}
-          <span className="font-semibold text-orange-500">{t('citizenMessageApproval.changeStatusInProgress', 'Yapılmakta')}</span>
+          <span className="font-semibold text-orange-500">
+            &quot;{t('citizenMessageApproval.changeStatusInProgress', 'Yapılmakta')}&quot;
+          </span>
           {' '}{t('citizenMessageApproval.changeStatusConfirmTrail', 'olarak değiştirmeyi onaylıyor musunuz?')}
         </>
       ),
@@ -253,8 +264,11 @@ export function CitizenMessageApprovalPage() {
           <div className="space-y-1">
             <div className="page-kicker">{t('citizenMessageApproval.kicker', 'Vatandaş Talepleri')}</div>
             <h1 className="page-title">{t('citizenMessageApproval.title', 'Vatandaşa Gönderilecek Mesaj Onayı')}</h1>
-            <p className="page-subtitle text-base">
-              {t('citizenMessageApproval.subtitle', 'Tamamlanmış/İptal olmuş WhatsApp ve çağrı taleplerinin vatandaşa gönderilecek otomatik durum mesajını onaylayın.')}
+            <p className="page-subtitle">
+              {t(
+                'citizenMessageApproval.subtitle',
+                'Mesajı göndermeyi onayladığınızda kurumunuz yetkili operatörüne vatandaşımıza iletilmek üzere talebin Tamamlanma/İptal durumu ve Tamamlanma/İptal notu gönderilecektir.',
+              )}
             </p>
           </div>
           <div className="ml-auto mt-auto shrink-0">
@@ -315,9 +329,9 @@ export function CitizenMessageApprovalPage() {
                   <FilterableTh filterKey="requestNo" filterValue={filters['requestNo'] ?? ''} onFilter={setFilter} sortKey="citizenRequestNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.requestNo', 'Vatandaş Talep No')}</FilterableTh>
                   <FilterableTh filterKey="requestDateUtc" filterValue={filters['requestDateUtc'] ?? ''} onFilter={setFilter} sortKey="requestDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.requestDate', 'Talep Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="citizenName" filterValue={filters['citizenName'] ?? ''} onFilter={setFilter} sortKey="citizenName" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>
-                    <span className="flex flex-col leading-tight">
+                    <span className="inline-flex flex-col leading-tight">
                       <span>{t('citizenMessageApproval.columns.citizenName', 'Vatandaş Adı')}</span>
-                      <span className="text-[0.7rem] font-semibold normal-case tracking-normal text-slate-500">{t('citizenMessageApproval.columns.citizenPhone', 'Vatandaş Telefon No')}</span>
+                      <span>{t('citizenMessageApproval.columns.citizenPhone', 'Vatandaş Telefon No')}</span>
                     </span>
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={filters['title'] ?? ''} onFilter={setFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.title', 'Başlık')}</FilterableTh>
@@ -415,7 +429,7 @@ export function CitizenMessageApprovalPage() {
             </div>
             <div className="mt-4 flex justify-end gap-2">
               <Button type="button" variant="secondary" onClick={() => setNoteModal(null)}>
-                {t('common.cancel', 'İptal')}
+                {t('common.dismiss', 'Vazgeç')}
               </Button>
               <Button
                 type="button"

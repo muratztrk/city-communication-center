@@ -1,3 +1,9 @@
+## Round 556 — Mesaj Onayı polish + FAB + birim dropdown (10 kart)
+- #2061 Vazgeç; #2063 not kaydet→grid; #2062 Talep Durumunu Değiştir + tırnak;
+  #2056 rozet Onayı yanında (çerçevesiz); #2048 telefon başlık stili; #2045 menuWidth 330;
+  #2064 banner metin/boyut; #2058 release→WA Pending (şablon opsiyonel + iptal notu);
+  #2055 desktop FAB küçült; #2060 Mesajı Gönder confirm metin+çizgi.
+
 ## Round 555 — Notu Düzenle modal başlık çizgisi + metin (#2059)
 - Modal başlığının altına standart `border-b`; açıklama:
   "Vatandaşa gönderilecek notu düzenleyin. Not ifadesi zorunludur."

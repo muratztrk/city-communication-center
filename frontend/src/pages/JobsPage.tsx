@@ -2448,7 +2448,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     className="inline-flex items-center gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
                     onClick={() => onChangeStatusToInProgress(detail.jobId)}
                   >
-                    {t('citizenMessageApproval.actions.changeStatus', 'Talep Durumu Değiştir')}
+                    {t('citizenMessageApproval.actions.changeStatus', 'Talep Durumunu Değiştir')}
                   </Button>
                 ) : null}
                 <Button

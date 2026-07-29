@@ -63,4 +63,37 @@ internal static class CitizenMessageApprovalAccess
 
         return false;
     }
+
+    /// <summary>
+    /// Liste ile aynı uygunluk: Completed/Cancelled + WA/Çağrı VT bağı.
+    /// RequestType Citizen olmak zorunda değil — modal ExternalUnit yaratıyor (#2063/#2066).
+    /// </summary>
+    public static async Task<Job?> FindEligibleTerminalJobAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        bool track,
+        CancellationToken cancellationToken)
+    {
+        var query = track ? dbContext.Jobs : dbContext.Jobs.AsNoTracking();
+        var job = await query.FirstOrDefaultAsync(
+            j => j.JobId == jobId
+                && j.TenantId == tenantId
+                && (j.Status == JobStatus.Completed || j.Status == JobStatus.Cancelled),
+            cancellationToken);
+        if (job is null)
+        {
+            return null;
+        }
+
+        var hasCitizenRequestLink = await dbContext.SocialMessages.AsNoTracking().AnyAsync(
+            m => m.TenantId == tenantId
+                && m.CitizenRequestNumber != null
+                && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
+                && (m.JobId == job.JobId
+                    || (job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)),
+            cancellationToken);
+
+        return hasCitizenRequestLink ? job : null;
+    }
 }

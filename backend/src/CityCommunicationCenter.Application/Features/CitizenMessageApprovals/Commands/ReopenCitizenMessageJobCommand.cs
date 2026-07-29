@@ -30,12 +30,8 @@ public sealed class ReopenCitizenMessageJobCommandHandler : ICommandHandler<Reop
         var actor = await JobWorkflowAuthorization.RequireActorAsync(
             _dbContext, request.ActorUserId, tenantId, cancellationToken);
 
-        var job = await _dbContext.Jobs.FirstOrDefaultAsync(
-            j => j.JobId == request.JobId
-                && j.TenantId == tenantId
-                && j.RequestType == JobRequestType.Citizen
-                && (j.Status == JobStatus.Completed || j.Status == JobStatus.Cancelled),
-            cancellationToken);
+        var job = await CitizenMessageApprovalAccess.FindEligibleTerminalJobAsync(
+            _dbContext, tenantId, request.JobId, track: true, cancellationToken);
         if (job is null)
         {
             return false;

@@ -1,3 +1,7 @@
+## Round 557 — Not Found fix (ExternalUnit VT) + UI polish
+- Edit/Reopen/Release: liste ile aynı uygunluk (WA/Çağrı VT); RequestType Citizen şartı kaldırıldı (#2063/#2066).
+- Telefon başlık biraz küçült (#2048); birim dropdown 300 (#2045); overflow tooltip büyüt+wrap (#2065).
+
 ## Round 556b — pie Ara… yüksekliği (#2065)
 - Dashboard pie legend search min-height küçültüldü.
 

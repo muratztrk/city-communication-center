@@ -411,6 +411,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Detayda turuncu
   **Talep Durumunu Değiştir** → `ReopenCitizenMessageJobCommand` (`POST …/reopen-to-in-progress`)
   Job'u Active + terminal görevleri InProgress yapar, release bayrağını temizler (card #2057/#2062).
+  Edit/Release/Reopen uygunluğu liste ile aynıdır (`FindEligibleTerminalJobAsync`): Completed/Cancelled
+  + WA/Çağrı VT bağı — `RequestType` Citizen şartı yok (VT modal `ExternalUnit` yazar; #2063/#2066).
   Grid: kanal ikonu (#2052), **Notu Düzenle** turuncu (#2051/#2053), mobilde işlem butonları
   `nowrap` (#2050). Not kaydı Completed görevlerde `CompletedAtUtc` olmasa da çalışır (#2063).
   Tamamlanmada

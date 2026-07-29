@@ -20,7 +20,7 @@
 - **Kapanmayan:** #1978 ve #1906 — ölçümle kod doğru çıktı / tekrar üretilemedi, Trello
   ekran görüntüsü bekliyor. Doing'de bırakıldı.
 
-## Round 542 — 17 Doing kartı
+## Round 544 — 17 Doing kartı
 - Incoming pie `Yapılmakta Olan` → `status=in-progress` (3+16).
 - Sidebar `/outgoing-requests?view=*` aktif boyama (#11).
 - Yönetici kanal pie → Birime Gelen `channel=`; Vatandaş Talepleri kutusu → `citizen=1` (#12/#13).

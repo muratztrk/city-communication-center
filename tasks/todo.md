@@ -1,3 +1,15 @@
+## Round 543 — sticky başlık sızıntısı + dropdown punto + adres ortalama
+- `0fb957da` (#1906) — scroll kabındaki `pt-3` sticky başlığı 12px aşağı itiyordu; satırlar o
+  şeritten başlığın üstünde görünüyordu. Boşluk iç sarmalayıcıya alındı (ölçüm: 12.0px → 0.0px).
+  `DashboardChartDrilldownModal` aynı kurguda 16px sızdırıyordu, birlikte düzeltildi.
+- `0fb957da` (#1907) — dropdown öğeleri 0.82rem/600, grid hücreleri 0.9rem/normal: punto zaten
+  küçüktü, KALINLIK büyük gösteriyordu. Önceki turlar yalnız puntoyu kıstığı için kart 3 kez
+  döndü. Punto + ağırlık birlikte indirildi, kapsam `users-edit-dropdown-menu-scroll`.
+- `0fb957da` (#1876) — boş adreste `#r496`'nın `-0.85rem` kaydırması kaldırıldı; üç etiket tek
+  satırda kolon-ortalı (ölçüm: sol 79.4 / sağ 70.3px, kalan fark etiket genişliğinden).
+- Kart ekleri Trello API ile `tasks/card-images/`'a indirildi — asıl tıkanma buydu.
+- **Doing'de kalan 2:** #1805 (FTP bağlantı testi — backend özelliği), #1978 (ölçümde kod doğru).
+
 ## Round 542 — harita pin düşmesi + LDAP çift popup
 - `29787056` (#1875 reopen) — geocode kademeli (açık adres → cadde → mahalle); kaba varyant
   `approximate` (kesik halka + InfoWindow uyarısı); çözülemeyenler harita altında sayıyla.

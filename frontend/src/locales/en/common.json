@@ -208,6 +208,7 @@
     "incomingRequestsAll": "All Incoming Unit Requests",
     "outgoingRequests": "Outgoing Unit Requests",
     "citizenMessageApproval": "Citizen Message\nApproval",
+    "citizenMessageApprovalBreadcrumb": "Citizen Message Approval",
     "departmentTasks": "Unit Tasks",
     "departmentTasksInternal": "Internal Unit Tasks",
     "departmentTasksExternal": "External Unit Tasks",

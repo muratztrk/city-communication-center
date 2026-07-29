@@ -1,3 +1,9 @@
+## Round 572 — 8 Mesaj Onayı / pie / WA / breadcrumb kartı
+- Notu Düzenle biraz yüksek + küçük butonlar; WA Düzenlendi/Beklemede title case.
+- Vatandaş sütunu dar → İşlemler geniş; breadcrumb TR etiketi.
+- Pie drilldown thead dikdörtgen + küçük gövde + Yazdır büyüt.
+- Detay: Notu Düzenle/Mesajı Onayla + Route ikonu; Yazdır yok; grid ikonları.
+
 ## Round 571 — Mesaj Onayı Talep Durumunu Değiştir rengi (#2083)
 - JobsPage detay: `bg-orange-500` → `bg-[#007985]` (Görevi Yönlendir ile aynı).
 

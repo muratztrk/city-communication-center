@@ -306,7 +306,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                   type="button"
                   size="lg"
                   variant="ghost"
-                  className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
+                  className="detail-print-action inline-flex items-center gap-1.5 text-[0.95rem] text-slate-700 hover:bg-slate-100"
                   onClick={() => printDrilldownRows(chartTitle, sliceLabel, rows, locale, t)}
                   aria-label={t('common.print', 'Yazdır')}
                 >

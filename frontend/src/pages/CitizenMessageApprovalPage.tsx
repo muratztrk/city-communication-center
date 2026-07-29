@@ -1,4 +1,4 @@
-import { Search, X } from 'lucide-react'
+import { Check, PenLine, Search, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
@@ -203,6 +203,7 @@ export function CitizenMessageApprovalPage() {
       title: t('citizenMessageApproval.releaseTitle', 'Mesajı Onayla'),
       titleDivider: true,
       wide: true,
+      compactActions: true,
       message: t(
         'citizenMessageApproval.releaseConfirm',
         'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
@@ -219,6 +220,7 @@ export function CitizenMessageApprovalPage() {
             showToast(t('citizenMessageApproval.released', 'Mesaj gönderime hazırlandı.'))
             // Mesaj Gönderimi Onaylanan sekmesine geç (card #2058).
             setScope('sent')
+            setDetailJobId(null)
           } catch (err) {
             showToast(err instanceof Error ? err.message : t('common.error'), 'error')
           }
@@ -331,7 +333,7 @@ export function CitizenMessageApprovalPage() {
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                   <FilterableTh filterKey="requestNo" filterValue={filters['requestNo'] ?? ''} onFilter={setFilter} sortKey="citizenRequestNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.requestNo', 'Vatandaş Talep No')}</FilterableTh>
                   <FilterableTh filterKey="requestDateUtc" filterValue={filters['requestDateUtc'] ?? ''} onFilter={setFilter} sortKey="requestDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.requestDate', 'Talep Tarihi')}</FilterableTh>
-                  <FilterableTh filterKey="citizenName" filterValue={filters['citizenName'] ?? ''} onFilter={setFilter} sortKey="citizenName" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>
+                  <FilterableTh className="citizen-message-approval-citizen-col" filterKey="citizenName" filterValue={filters['citizenName'] ?? ''} onFilter={setFilter} sortKey="citizenName" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>
                     <span className="inline-flex flex-col gap-1 leading-tight">
                       <span>{t('citizenMessageApproval.columns.citizenName', 'Vatandaş Adı')}</span>
                       <span className="text-[0.9em] font-semibold leading-tight">{t('citizenMessageApproval.columns.citizenPhone', 'Vatandaş Telefon No')}</span>
@@ -354,7 +356,7 @@ export function CitizenMessageApprovalPage() {
                       </div>
                     </td>
                     <td><DateCell value={row.requestDateUtc} locale={locale} /></td>
-                    <td>
+                    <td className="citizen-message-approval-citizen-cell">
                       <div className="font-semibold">{row.citizenName ?? '—'}</div>
                       <div className="text-xs text-slate-400">{formatCitizenPhoneDisplay(row.citizenPhone)}</div>
                     </td>
@@ -392,13 +394,15 @@ export function CitizenMessageApprovalPage() {
                         <Button
                           type="button"
                           size="sm"
-                          className="bg-orange-500 text-white hover:bg-orange-600"
+                          className="inline-flex items-center gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
                           onClick={() => openEditNote(row)}
                         >
+                          <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('citizenMessageApproval.actions.editNote', 'Notu Düzenle')}
                         </Button>
                         {!row.releasedAtUtc ? (
-                          <Button type="button" size="sm" variant="success" onClick={() => handleRelease(row)}>
+                          <Button type="button" size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleRelease(row)}>
+                            <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('citizenMessageApproval.actions.release', 'Mesajı Onayla')}
                           </Button>
                         ) : null}
@@ -424,7 +428,7 @@ export function CitizenMessageApprovalPage() {
 
       {noteModal ? createPortal(
         <ModalBackdrop>
-          <div className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white px-6 py-4 shadow-2xl">
+          <div className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white px-6 py-5 shadow-2xl">
             <button
               type="button"
               onClick={() => setNoteModal(null)}
@@ -437,7 +441,7 @@ export function CitizenMessageApprovalPage() {
             <p className="mb-2 text-sm text-slate-700">{t('citizenMessageApproval.editNoteMessage', 'Vatandaşa gönderilecek notu düzenleyin. Not ifadesi zorunludur.')}</p>
             <textarea
               className="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-[color:var(--color-primary)] focus:outline-none"
-              rows={3}
+              rows={4}
               maxLength={NOTE_MAX_LENGTH}
               placeholder={t('citizenMessageApproval.editNotePlaceholder', 'Tamamlama/İptal notu...')}
               value={noteModal.note}
@@ -448,11 +452,12 @@ export function CitizenMessageApprovalPage() {
               <span>{noteModal.note.length}/{NOTE_MAX_LENGTH}</span>
             </div>
             <div className="mt-3 flex justify-end gap-2">
-              <Button type="button" variant="secondary" onClick={() => setNoteModal(null)}>
+              <Button type="button" size="sm" variant="secondary" onClick={() => setNoteModal(null)}>
                 {t('common.dismiss', 'Vazgeç')}
               </Button>
               <Button
                 type="button"
+                size="sm"
                 variant="success"
                 disabled={noteModal.saving || !noteModal.note.trim()}
                 onClick={() => void handleSaveNote()}
@@ -476,6 +481,17 @@ export function CitizenMessageApprovalPage() {
           detailContextOverride="incoming"
           onNotificationDetailClose={() => setDetailJobId(null)}
           onChangeStatusToInProgress={handleChangeStatusToInProgress}
+          messageApprovalActions={{
+            onEditNote: () => {
+              const row = rows.find(item => item.jobId === detailJobId)
+              if (row) openEditNote(row)
+            },
+            onRelease: () => {
+              const row = rows.find(item => item.jobId === detailJobId)
+              if (row) handleRelease(row)
+            },
+            canRelease: !(rows.find(item => item.jobId === detailJobId)?.releasedAtUtc),
+          }}
         />
       )}
     </div>

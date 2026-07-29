@@ -9,7 +9,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Check, ClipboardList, FileText, Info, MapPin, MessageSquareText, NotebookPen, Paperclip, Printer, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
+import { Check, ClipboardList, FileText, Info, MapPin, MessageSquareText, NotebookPen, Paperclip, Printer, Route, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -655,6 +655,12 @@ interface JobsPageProps {
   onNotificationDetailClose?: () => void
   /** Vatandaşa Gönderilecek Mesaj Onayı detayında "Talep Durumu Değiştir" (card #2057). */
   onChangeStatusToInProgress?: (jobId: string) => void
+  /** Mesaj Onayı Detaylar popup aksiyonları (#2088/#2089): Notu Düzenle / Mesajı Onayla; Yazdır gizlenir. */
+  messageApprovalActions?: {
+    onEditNote: () => void
+    onRelease: () => void
+    canRelease: boolean
+  }
   socialActions?: {
     goToConversation?: () => void
     edit?: () => void
@@ -665,7 +671,7 @@ interface JobsPageProps {
   }
 }
 
-export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onChangeStatusToInProgress, socialActions }: JobsPageProps) {
+export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onChangeStatusToInProgress, messageApprovalActions, socialActions }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -2439,6 +2445,31 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('jobs.actions.cancel', 'İptal Et')}
                   </DisabledActionButton>
                 )}
+                {messageApprovalActions ? (
+                  <>
+                    <Button
+                      type="button"
+                      size="lg"
+                      className="inline-flex items-center gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
+                      onClick={messageApprovalActions.onEditNote}
+                    >
+                      <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                      {t('citizenMessageApproval.actions.editNote', 'Notu Düzenle')}
+                    </Button>
+                    {messageApprovalActions.canRelease ? (
+                      <Button
+                        type="button"
+                        size="lg"
+                        variant="success"
+                        className="inline-flex items-center gap-1.5"
+                        onClick={messageApprovalActions.onRelease}
+                      >
+                        <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {t('citizenMessageApproval.actions.release', 'Mesajı Onayla')}
+                      </Button>
+                    ) : null}
+                  </>
+                ) : null}
                 {onChangeStatusToInProgress
                   && detail
                   && (detail.status === 'Completed' || detail.status === 'Cancelled') ? (
@@ -2448,20 +2479,23 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     className="inline-flex items-center gap-1.5 bg-[#007985] text-white shadow-sm hover:bg-[#006570]"
                     onClick={() => onChangeStatusToInProgress(detail.jobId)}
                   >
+                    <Route className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('citizenMessageApproval.actions.changeStatus', 'Talep Durumunu Değiştir')}
                   </Button>
                 ) : null}
-                <Button
-                  type="button"
-                  size="lg"
-                  variant="ghost"
-                  className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
-                  onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}
-                  aria-label={t('common.print', 'Yazdır')}
-                >
-                  <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                  {t('common.print', 'Yazdır')}
-                </Button>
+                {!messageApprovalActions ? (
+                  <Button
+                    type="button"
+                    size="lg"
+                    variant="ghost"
+                    className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
+                    onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}
+                    aria-label={t('common.print', 'Yazdır')}
+                  >
+                    <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                    {t('common.print', 'Yazdır')}
+                  </Button>
+                ) : null}
                 <button
                   type="button"
                   onClick={closeDetail}

@@ -26,6 +26,8 @@ export interface ConfirmDialogState {
   details?: ReactNode
   /** Biraz daha geniş dialog (ör. Mesajı Gönder confirm — card #2060). */
   wide?: boolean
+  /** Aksiyon butonları küçük (Mesaj Onayı Notu Düzenle / Mesajı Onayla — #2091). */
+  compactActions?: boolean
   onConfirm: () => void | Promise<void>
 }
 
@@ -75,11 +77,11 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
         {state.details ? <div className="mb-6">{state.details}</div> : null}
         <div className="flex justify-end gap-2">
           {!state.hideCancel && (
-            <Button type="button" variant={state.cancelVariant ?? 'secondary'} onClick={onClose}>
+            <Button type="button" size={state.compactActions ? 'sm' : 'default'} variant={state.cancelVariant ?? 'secondary'} onClick={onClose}>
               {state.cancelLabel ?? t('common.cancel', 'İptal')}
             </Button>
           )}
-          <Button type="button" variant={state.variant ?? 'destructive'} onClick={handleConfirm}>
+          <Button type="button" size={state.compactActions ? 'sm' : 'default'} variant={state.variant ?? 'destructive'} onClick={handleConfirm}>
             {state.confirmLabel ?? t('common.yes', 'Evet')}
           </Button>
         </div>

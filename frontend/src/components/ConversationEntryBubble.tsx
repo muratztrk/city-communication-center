@@ -156,9 +156,9 @@ export function ConversationEntryBubble({
             {isPending ? (
               <>
                 {entry.editedAtUtc ? (
-                  <span className="font-semibold uppercase tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
+                  <span className="font-semibold tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
                 ) : null}
-                <span className="font-semibold uppercase tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
+                <span className="font-semibold tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
               </>
             ) : !isInbound && entry.deliveryStatus ? (
               <WhatsAppDeliveryStatusIndicator

@@ -3654,9 +3654,15 @@
     cursor: pointer;
   }
 
-  /* Dashboard pie Ara... — biraz daha büyük metin; X her zaman kırmızı (R550 / #2042). */
+  /* Dashboard pie Ara... — biraz daha büyük metin; X her zaman kırmızı (R550 / #2042).
+     Yükseklik biraz küçültüldü (card #2065 / R556). */
+  .pie-legend-search.scope-chip-search-wrap {
+    min-height: 1.625rem;
+    padding: 0 0.55rem;
+  }
+
   .pie-legend-search .scope-chip-search-input {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     width: 8.25rem;
   }
 

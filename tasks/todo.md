@@ -1,3 +1,6 @@
+## Round 556b — pie Ara… yüksekliği (#2065)
+- Dashboard pie legend search min-height küçültüldü.
+
 ## Round 556 — Mesaj Onayı polish + FAB + birim dropdown (10 kart)
 - #2061 Vazgeç; #2063 not kaydet→grid; #2062 Talep Durumunu Değiştir + tırnak;
   #2056 rozet Onayı yanında (çerçevesiz); #2048 telefon başlık stili; #2045 menuWidth 330;

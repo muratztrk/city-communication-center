@@ -1473,6 +1473,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesaj Onayı Durum tarihi (#2067):** Completed→`completedAtUtc`, Cancelled→`updatedAtUtc` Durum pill altında.
 - **Mesaj Onayı banner (#2064):** “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).
 - **Mesaj Onayı Notu Düzenle modal (#2073/#2079/#2081):** genişlik `max-w-md` (Mesajı Onayla ile aynı); yükseklik kompakt (`py-4`, textarea `rows={3}`).
+- **Mesaj Onayı İşlemler (#2050/#2082):** Detaylar / Notu Düzenle / Mesajı Onayla FHD'de `nowrap`;
+  `actions-cell` min-width ~18.5rem.
 - **Pie drilldown grid tipografi (#2080):** Taleplerim ile aynı — `thead` 0.78rem + letter-spacing 0.06em + biraz yüksek; `td` 0.9rem (dizin popup #1889 kalıbı).
 - **Birimden Giden işlem gap (#2071):** `.my-requests-table .request-actions` gap `0.7rem`.
 - **Birim pie drilldown (#2070):** sütun `Birim`; Talep No `T-{yıl}-Onay Bekleyen` (+ Öncelik alt satır); Durum=StatusPill.

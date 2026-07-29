@@ -1,3 +1,6 @@
+## Round 569 — Mesaj Onayı İşlemler FHD nowrap (#2082)
+- 3 buton yan yana: actions-cell ~18.5rem + flex nowrap (wrap kaldırıldı).
+
 ## Round 568 — pie drilldown = Taleplerim thead + Notu Düzenle yükseklik (#2080/#2081)
 - Dashboard pie popup grid tipografisi Taleplerim/dizin ile aynı; Notu Düzenle modal yüksekliği düşürüldü.
 

@@ -5576,9 +5576,23 @@
     padding: 0 0.25rem;
   }
 
-  /* Mesaj Onayı grid — mobilde işlem butonları yan yana kalsın (card #2050). */
+  /* Mesaj Onayı İşlemler: FHD'de 3 buton yan yana (#2050/#2082). */
+  .citizen-message-approval-table tbody td.actions-cell {
+    min-width: 18.5rem;
+    width: 1%;
+    white-space: nowrap;
+  }
+
   .citizen-message-approval-actions {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+  }
+
+  .citizen-message-approval-actions button {
+    white-space: nowrap;
+    flex-shrink: 0;
   }
 
   /* Başlık dar sütun: ellipsis erken; tooltip hücre metninin altında (#2076/#2077). */
@@ -5596,16 +5610,6 @@
   @media (max-width: 767px) {
     .citizen-message-approval-table tbody td.actions-cell {
       min-width: 16rem;
-    }
-
-    .citizen-message-approval-actions {
-      flex-wrap: nowrap;
-      align-items: center;
-    }
-
-    .citizen-message-approval-actions button {
-      white-space: nowrap;
-      flex-shrink: 0;
     }
   }
 

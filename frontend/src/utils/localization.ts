@@ -100,11 +100,11 @@ export function getPriorityLabel(t: TFunction, priority: string): string {
   return t(`enum.priority.${priority}`, { defaultValue: priority })
 }
 
-// Öncelik renkleri: Normal sarı, Yüksek turuncu, Çok Yüksek kırmızı.
+// Öncelik renkleri: Normal yeşil, Yüksek turuncu, Çok Yüksek kırmızı (#r542).
 export function getPriorityColorClass(priority: string): string {
   if (priority === 'VeryHigh' || priority === 'Critical') return 'text-red-600'
   if (priority === 'High') return 'text-orange-500'
-  if (priority === 'Normal') return 'text-yellow-500'
+  if (priority === 'Normal') return 'text-emerald-600'
   return 'text-slate-400'
 }
 

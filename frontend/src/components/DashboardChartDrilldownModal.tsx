@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Info, X } from 'lucide-react'
+import { Info, Printer, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
@@ -8,11 +8,17 @@ import type { DashboardChartDrilldownRow, JobDetail, SocialMessage } from '../ty
 import { DateCell } from './ui/date-cell'
 import { Button } from './ui/button'
 import { TablePagination } from './ui/table-pagination'
+import { StatusPill } from './ui/status-pill'
+import { GridStatusLabel } from './ui/GridStatusLabel'
+import { DueDatePill } from './ui/due-date-pill'
+import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
-import { getAuditStatusLabel, getLocale } from '../utils/localization'
+import { getAuditStatusLabel, getJobStatusTone, getLocale, getStatusPillClass } from '../utils/localization'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { ChannelIcon } from './ui/channel-icon'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
+import { printHtmlDocument } from '../utils/printDocument'
+import { printJobDetail } from '../pages/JobsPage'
 
 interface DashboardChartDrilldownModalProps {
   chartKey: string
@@ -22,6 +28,19 @@ interface DashboardChartDrilldownModalProps {
   requestTagStatus?: string
   onClose: () => void
 }
+
+const PRINTABLE_CHART_KEYS = new Set([
+  'dashboard.charts.requestTags',
+  'dashboard.charts.neighborhoodCompletedRequests',
+  'dashboard.charts.neighborhoodInProgressRequests',
+  'dashboard.charts.neighborhoodProcessingRequests',
+])
+
+const NEIGHBORHOOD_CHART_KEYS = new Set([
+  'dashboard.charts.neighborhoodCompletedRequests',
+  'dashboard.charts.neighborhoodInProgressRequests',
+  'dashboard.charts.neighborhoodProcessingRequests',
+])
 
 function formatDrilldownNumber(row: DashboardChartDrilldownRow): string {
   if (row.citizenRequestNumber != null && row.citizenRequestNumberYear != null) {
@@ -47,13 +66,6 @@ function resolveTerminalDateHeader(rows: DashboardChartDrilldownRow[], t: TFunct
   return null
 }
 
-function getStatusTextClass(status: string): string {
-  if (status === 'Completed') return 'font-semibold text-emerald-600'
-  if (isCancelledLike(status)) return 'font-semibold text-red-600'
-  if (status === 'Active' || status === 'InProgress') return 'font-semibold text-orange-500'
-  return ''
-}
-
 function getDetailStatusClass(status: string): string {
   if (status === 'Completed') return 'text-emerald-600'
   if (status === 'Cancelled' || status === 'Rejected' || status === 'RevisionRequested') return 'text-red-600'
@@ -73,8 +85,99 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
   return t(`enum.jobStatus.${detail.status}`, { defaultValue: detail.status })
 }
 
+function getDrilldownStatusLabel(t: TFunction, row: DashboardChartDrilldownRow): string {
+  if (row.citizenRequestNumber != null) {
+    const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
+    return getCitizenRequestStatusLabel(t, {
+      status: normalizedStatus,
+      taskCount: normalizedStatus === 'Active' || normalizedStatus === 'Completed' ? 1 : 0,
+      dueDateUtc: row.dueDateUtc,
+    })
+  }
+  if (row.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (row.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
+  if (row.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
+  if (row.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
+  if (row.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  return getAuditStatusLabel(t, row.status)
+}
+
+function getDrilldownStatusPillClass(row: DashboardChartDrilldownRow): string {
+  if (row.citizenRequestNumber != null) {
+    const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
+    return getStatusPillClass(getJobStatusTone({ status: normalizedStatus, dueDateUtc: row.dueDateUtc }))
+  }
+  return getStatusPillClass(getJobStatusTone({ status: row.status, dueDateUtc: row.dueDateUtc }))
+}
+
+function printDrilldownRows(
+  chartTitle: string,
+  sliceLabel: string,
+  rows: DashboardChartDrilldownRow[],
+  locale: string,
+  t: TFunction,
+) {
+  const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  const formatDate = (value: string | null | undefined) => {
+    if (!value) return '—'
+    return new Date(value).toLocaleString(locale, {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+  const rowsHtml = rows.map((row, index) => {
+    const status = getDrilldownStatusLabel(t, row)
+    return `<tr>
+      <td>${index + 1}</td>
+      <td class="col-no">${escape(formatDrilldownNumber(row))}</td>
+      <td class="col-title">${escape(row.title?.trim() || '—')}</td>
+      <td class="col-date">${escape(formatDate(row.createdAtUtc))}</td>
+      <td class="col-dept">${escape(row.departmentName ?? row.neighborhood ?? '—')}</td>
+      <td class="col-status">${escape(status)}</td>
+      <td class="col-date">${escape(formatDate(row.dueDateUtc))}</td>
+    </tr>`
+  }).join('')
+
+  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(chartTitle)}</title>
+    <style>
+      @page{margin:12mm}
+      body{font-family:system-ui,sans-serif;padding:22px;color:#0f172a}
+      h1{font-size:17px;margin:0 0 4px}
+      p{margin:0 0 14px;color:#64748b;font-size:12px}
+      table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
+      th,td{border:1px solid #cbd5e1;padding:6px 7px;text-align:center;vertical-align:middle}
+      th{background:#f1f5f9;white-space:nowrap}
+      th.col-title,td.col-title{white-space:normal;text-align:center;word-break:break-word;overflow-wrap:anywhere}
+      .col-seq{width:4%}
+      .col-no{width:12%;white-space:nowrap}
+      .col-title{width:28%}
+      .col-date{width:14%;white-space:nowrap}
+      .col-dept{width:16%}
+      .col-status{width:12%}
+      .footer{margin-top:14px;font-size:10px;color:#64748b}
+    </style></head><body>
+    <h1>${escape(chartTitle)}</h1>
+    <p>${escape(sliceLabel)}</p>
+    <table><thead><tr>
+      <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
+      <th class="col-no">${escape(t('jobs.columns.parentRequestNoShort', 'Talep No'))}</th>
+      <th class="col-title">${escape(t('jobs.columns.title', 'Başlık'))}</th>
+      <th class="col-date">${escape(t('jobs.columns.requestDate', 'Talep Tarihi'))}</th>
+      <th class="col-dept">${escape(t('departments.name', 'Müdürlük'))}</th>
+      <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
+      <th class="col-date">${escape(t('jobs.columns.dueDate', 'Son Tarih'))}</th>
+    </tr></thead><tbody>${rowsHtml}</tbody></table>
+    <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
+    </body></html>`
+
+  printHtmlDocument(html)
+}
+
 /**
- * Üst Düzey Yönetici panosunda pie chart dilimine tıklanınca açılan detay popup'ı (card #1343).
+ * Üst Düzey Yönetici panosunda pie chart dilimine tıklanınca açılan detay popup'ı (card #1343 / #r542).
  * İçerik shell zoom stacking-context'inden kaçmak için body'ye portallanır.
  */
 export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, requestTagStatus, onClose }: DashboardChartDrilldownModalProps) {
@@ -90,9 +193,12 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const terminalDateHeader = rows ? resolveTerminalDateHeader(rows, t) : null
   const showTerminalDateColumn = Boolean(terminalDateHeader)
+  const useTaleplerimStatusStyle = NEIGHBORHOOD_CHART_KEYS.has(chartKey)
+  const showPrint = PRINTABLE_CHART_KEYS.has(chartKey)
+  const chartTitle = t(chartKey)
+  const sliceLabel = resolveSliceLabel(sliceKey, t)
   const drilldownColumnCount = showTerminalDateColumn ? 9 : 8
 
-  // Modal her dilim seçiminde `key` ile yeniden mount edilir; state sıfırlama gerekmez.
   useEffect(() => {
     let cancelled = false
     api.getDashboardChartDrilldown(chartKey, sliceKey, from, to, requestTagStatus)
@@ -150,29 +256,45 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     <>
       <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/45 p-4" onClick={onClose}>
         <div
-          className="detail-modal-shell flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+          className="detail-modal-shell detail-modal-shell--my-request flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
           onClick={event => event.stopPropagation()}
         >
-          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-5 py-3.5">
-            <h2 className="flex min-w-0 items-center gap-2 text-sm font-bold text-emerald-700">
-              <Info className="size-4 shrink-0" aria-hidden="true" />
-              <span className="min-w-0 truncate">
-                {t(chartKey)}
-                <span className="ml-2 font-semibold text-slate-500">{resolveSliceLabel(sliceKey, t)}</span>
-              </span>
-            </h2>
-            <button
-              type="button"
-              className="rounded-full p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
-              aria-label={t('common.close', 'Kapat')}
-              onClick={onClose}
-            >
-              <X className="size-4" />
-            </button>
+          <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-5 py-3.5">
+            <div className="detail-modal-header-title min-w-0">
+              <h2 className="flex min-w-0 items-start gap-2 text-sm font-bold text-emerald-700">
+                <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
+                <span className="min-w-0">
+                  <span className="block truncate">{chartTitle}</span>
+                  <span className="mt-0.5 block text-xs font-semibold text-slate-500">{sliceLabel}</span>
+                </span>
+              </h2>
+            </div>
+            <DetailModalHeaderBrand />
+            <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
+              {showPrint && rows ? (
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="secondary"
+                  className="inline-flex items-center gap-1.5"
+                  onClick={() => printDrilldownRows(chartTitle, sliceLabel, rows, locale, t)}
+                  aria-label={t('common.print', 'Yazdır')}
+                >
+                  <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                  {t('common.print', 'Yazdır')}
+                </Button>
+              ) : null}
+              <button
+                type="button"
+                className="detail-modal-header-close rounded-full p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                aria-label={t('common.close', 'Kapat')}
+                onClick={onClose}
+              >
+                <X className="size-4" />
+              </button>
+            </div>
           </div>
 
-          {/* Üst boşluk içeride: kapta kalırsa sticky tablo başlığı aşağı iner ve satırlar
-              üstündeki şeritten görünür (card #1906 ile aynı kök sebep). */}
           <div className="min-h-0 flex-1 overflow-auto px-4 pb-4">
             <div className="pt-4">
             {error ? (
@@ -203,7 +325,21 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                           {t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')}
                         </td>
                       </tr>
-                    ) : rows.slice((page - 1) * pageSize, page * pageSize).map((row, index) => (
+                    ) : rows.slice((page - 1) * pageSize, page * pageSize).map((row, index) => {
+                      const statusLabel = getDrilldownStatusLabel(t, row)
+                      const statusDate = !showTerminalDateColumn && (row.status === 'Completed' || isCancelledLike(row.status))
+                        ? row.terminalDateUtc
+                        : null
+                      const statusDateText = statusDate
+                        ? new Date(statusDate).toLocaleString(locale, {
+                          day: '2-digit',
+                          month: '2-digit',
+                          year: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
+                        : null
+                      return (
                       <tr key={row.jobId}>
                         <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(page - 1) * pageSize + index + 1}</td>
                         <td className="table-number-cell font-mono text-xs text-slate-600">
@@ -218,7 +354,22 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                         <td className="font-semibold">{row.title}</td>
                         <td>{row.departmentName ?? row.neighborhood ?? '—'}</td>
                         <td>
-                          <span className={getStatusTextClass(row.status)}>{getAuditStatusLabel(t, row.status)}</span>
+                          {useTaleplerimStatusStyle ? (
+                            <StatusPill className={getDrilldownStatusPillClass(row)}>
+                              <GridStatusLabel
+                                t={t}
+                                label={statusLabel}
+                                channel={row.sourceChannel}
+                                footer={statusDateText
+                                  ? <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{statusDateText}</span>
+                                  : undefined}
+                              />
+                            </StatusPill>
+                          ) : (
+                            <span className={row.status === 'Completed' ? 'font-semibold text-emerald-600' : isCancelledLike(row.status) ? 'font-semibold text-red-600' : row.status === 'Active' || row.status === 'InProgress' ? 'font-semibold text-orange-500' : ''}>
+                              {statusLabel}
+                            </span>
+                          )}
                         </td>
                         {showTerminalDateColumn ? (
                           <td>
@@ -232,11 +383,20 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                           </td>
                         ) : null}
                         <td>
-                          <DateCell
-                            value={row.dueDateUtc}
-                            locale={locale}
-                            emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
-                          />
+                          {useTaleplerimStatusStyle ? (
+                            <DueDatePill
+                              value={row.dueDateUtc}
+                              completedAtUtc={row.status === 'Completed' ? row.terminalDateUtc : null}
+                              locale={locale}
+                              emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
+                            />
+                          ) : (
+                            <DateCell
+                              value={row.dueDateUtc}
+                              locale={locale}
+                              emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
+                            />
+                          )}
                         </td>
                         <td className="actions-cell">
                           <div className="request-actions justify-center">
@@ -252,7 +412,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                           </div>
                         </td>
                       </tr>
-                    ))}
+                      )
+                    })}
                   </tbody>
                 </table>
                 </div>
@@ -288,7 +449,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
               onDueDateChange={() => undefined}
               onDueDateSave={() => undefined}
               onClose={closeJobDetail}
-              onPrint={() => window.print()}
+              onPrint={() => printJobDetail(detail, locale, t, { myRequestView: true })}
               showManagerNoteColumn={false}
               canEditManagerNote={false}
               canManageCoordination={false}

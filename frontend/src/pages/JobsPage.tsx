@@ -75,7 +75,7 @@ import { printHtmlDocument } from '../utils/printDocument'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { richTextToPlainText } from '../utils/richText'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
-import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue } from '../utils/dateTimePicker'
+import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue, toLocalDateKey } from '../utils/dateTimePicker'
 
 interface ScopeChipFiltersProps {
   searchText: string
@@ -732,8 +732,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     showProjectNotice: boolean
     projectDecision: boolean | null
   } | null>(null)
-  const [filterFrom, setFilterFrom] = useState(() => searchParams.get('from') ?? '')
-  const [filterTo, setFilterTo] = useState(() => searchParams.get('to') ?? '')
+  const [filterFrom, setFilterFrom] = useState(() => toDateTimePickerValue(searchParams.get('from') ?? '') || (searchParams.get('from') ?? ''))
+  const [filterTo, setFilterTo] = useState(() => toDateTimePickerValue(searchParams.get('to') ?? '') || (searchParams.get('to') ?? ''))
   const [searchText, setSearchText] = useState('')
 
   const isMyRequestsView = mode === 'myRequests'
@@ -1065,11 +1065,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       const useDueDatePeriod =
         (isMyRequestsView && currentMyRequestsView === 'overdue')
         || (isDepartmentOutgoingView && currentDepartmentOutgoingView === 'overdue')
+      const fromDay = toLocalDateKey(filterFrom)
+      const toDay = toLocalDateKey(filterTo)
       result = result.filter(job => {
-        const d = (useDueDatePeriod ? job.dueDateUtc : job.createdAtUtc)?.slice(0, 10)
-        if (!d) return false
-        if (filterFrom && d < filterFrom.slice(0, 10)) return false
-        if (filterTo && d > filterTo.slice(0, 10)) return false
+        const raw = useDueDatePeriod ? job.dueDateUtc : job.createdAtUtc
+        if (!raw) return false
+        const d = toLocalDateKey(raw)
+        if (fromDay && d < fromDay) return false
+        if (toDay && d > toDay) return false
         return true
       })
     }

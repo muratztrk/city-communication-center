@@ -43,7 +43,8 @@ function formatDisplay(value: string, dateOnly = false): string {
   const base = `${day}.${month}.${year}`
   if (dateOnly || !timePart) return base
   const [h, m] = timePart.split(':')
-  return `${base} ${h}:${m}`
+  // Tarih ile saat arasında ekstra boşluk — yıl ile saat birbirine yapışmasın (#r542 / #1)
+  return `${base}\u00A0\u00A0${h}:${m}`
 }
 
 function getDaysInMonth(year: number, month: number) {

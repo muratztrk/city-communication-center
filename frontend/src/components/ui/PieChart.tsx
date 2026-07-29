@@ -49,15 +49,30 @@ interface PieChartProps {
   onSelect?: (slice: DashboardChartSlice) => void
   /** Dilim bazında tıklanabilirlik; false dönen dilim/lejant düz metin kalır (card #1337). */
   isSliceSelectable?: (slice: DashboardChartSlice) => boolean
+  /** Opsiyonel etiket override; undefined → varsayılan resolveSliceLabel (#r542 / #15). */
+  formatSliceLabel?: (rawLabel: string, t: ReturnType<typeof useTranslation>['t']) => string | undefined
 }
 
-function useResolvedLabel(rawLabel: string): string {
+function useResolvedLabel(
+  rawLabel: string,
+  formatSliceLabel?: PieChartProps['formatSliceLabel'],
+): string {
   const { t } = useTranslation()
+  const override = formatSliceLabel?.(rawLabel, t)
+  if (override != null) return override
   return resolveSliceLabel(rawLabel, t)
 }
 
-function LegendItem({ slice, onSelect }: { slice: DashboardChartSlice; onSelect?: (slice: DashboardChartSlice) => void }) {
-  const label = useResolvedLabel(slice.label)
+function LegendItem({
+  slice,
+  onSelect,
+  formatSliceLabel,
+}: {
+  slice: DashboardChartSlice
+  onSelect?: (slice: DashboardChartSlice) => void
+  formatSliceLabel?: PieChartProps['formatSliceLabel']
+}) {
+  const label = useResolvedLabel(slice.label, formatSliceLabel)
   const content = (
     <>
       <span className="shrink-0 size-2.5 rounded-full" style={{ backgroundColor: getColor(slice.colorHint) }} />
@@ -85,7 +100,14 @@ function LegendItem({ slice, onSelect }: { slice: DashboardChartSlice; onSelect?
   )
 }
 
-export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = false, onSelect, isSliceSelectable }: PieChartProps) {
+export function PieChart({
+  slices,
+  noDataLabel = 'Veri yok',
+  showZeroSlices = false,
+  onSelect,
+  isSliceSelectable,
+  formatSliceLabel,
+}: PieChartProps) {
   const { t } = useTranslation()
   const nonZero = slices.filter(s => s.value > 0)
   const shouldShowZeroChart = showZeroSlices && slices.length > 0
@@ -167,7 +189,9 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
             } : undefined}
             role={canSelectSegment ? 'button' : undefined}
             tabIndex={canSelectSegment ? 0 : undefined}
-            aria-label={canSelectSegment ? resolveSliceLabel(seg.slice.label, t) : undefined}
+            aria-label={canSelectSegment
+              ? (formatSliceLabel?.(seg.slice.label, t) ?? resolveSliceLabel(seg.slice.label, t))
+              : undefined}
           />
           )
         })}
@@ -185,6 +209,7 @@ export function PieChart({ slices, noDataLabel = 'Veri yok', showZeroSlices = fa
           <LegendItem
             key={slice.label}
             slice={slice}
+            formatSliceLabel={formatSliceLabel}
             onSelect={(isSliceSelectable?.(slice) ?? true) ? onSelect : undefined}
           />
         ))}

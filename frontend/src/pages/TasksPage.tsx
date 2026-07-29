@@ -559,8 +559,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   // Bilgilendirme balonu: çoğu işlem yeşil (success); ek süre reddi gibi olumsuz sonuçlar kırmızı (error, card 627).
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type })
-  const [filterFrom, setFilterFrom] = useState(() => searchParams.get('from') ?? '')
-  const [filterTo, setFilterTo] = useState(() => searchParams.get('to') ?? '')
+  const [filterFrom, setFilterFrom] = useState(() => toDateTimePickerValue(searchParams.get('from') ?? '') || (searchParams.get('from') ?? ''))
+  const [filterTo, setFilterTo] = useState(() => toDateTimePickerValue(searchParams.get('to') ?? '') || (searchParams.get('to') ?? ''))
   const [searchText, setSearchText] = useState('')
   const dismissedAutoOpenTaskIdRef = useRef<string | null>(null)
   const autoOpenInFlightRef = useRef<string | null>(null)
@@ -770,11 +770,15 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
     if (filterFrom || filterTo) {
       const useDueDatePeriod = (isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'overdue'
+      const fromMs = filterFrom ? new Date(filterFrom).getTime() : Number.NaN
+      const toMs = filterTo ? new Date(filterTo).getTime() : Number.NaN
       result = result.filter(task => {
         const dateValue = useDueDatePeriod ? task.dueDateUtc : task.createdAtUtc
         if (!dateValue) return false
-        if (filterFrom && dateValue < filterFrom) return false
-        if (filterTo && dateValue > filterTo) return false
+        const rowMs = new Date(dateValue).getTime()
+        if (Number.isNaN(rowMs)) return false
+        if (filterFrom && !Number.isNaN(fromMs) && rowMs < fromMs) return false
+        if (filterTo && !Number.isNaN(toMs) && rowMs > toMs) return false
         return true
       })
     }
@@ -807,8 +811,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   useEffect(() => { setTasksPage(1) }, [taskFilters])
 
   useEffect(() => {
-    setFilterFrom(searchParams.get('from') ?? '')
-    setFilterTo(searchParams.get('to') ?? '')
+    setFilterFrom(toDateTimePickerValue(searchParams.get('from') ?? '') || (searchParams.get('from') ?? ''))
+    setFilterTo(toDateTimePickerValue(searchParams.get('to') ?? '') || (searchParams.get('to') ?? ''))
   }, [searchParams])
 
   useEffect(() => {

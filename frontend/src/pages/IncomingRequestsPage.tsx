@@ -60,7 +60,7 @@ import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../compo
 import { JobsPage } from './JobsPage'
 import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { matchesBannerSearch } from '../utils/bannerSearch'
-import { isJobDueDateOverdue } from '../utils/dateTimePicker'
+import { isJobDueDateOverdue, toDateTimePickerValue, toLocalDateKey } from '../utils/dateTimePicker'
 
 type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-progress' | 'completed' | 'cancelled' | 'all'
 type IncomingKindFilter = 'all'
@@ -425,8 +425,8 @@ export function IncomingRequestsPage() {
   const [error, setError] = useState<string | null>(null)
   const [incomingPage, setIncomingPage] = useState(1)
   const [incomingPageSize, setIncomingPageSize] = useState(10)
-  const [filterFrom, setFilterFrom] = useState(() => searchParams.get('from') ?? '')
-  const [filterTo, setFilterTo] = useState(() => searchParams.get('to') ?? '')
+  const [filterFrom, setFilterFrom] = useState(() => toDateTimePickerValue(searchParams.get('from') ?? '') || (searchParams.get('from') ?? ''))
+  const [filterTo, setFilterTo] = useState(() => toDateTimePickerValue(searchParams.get('to') ?? '') || (searchParams.get('to') ?? ''))
   const [searchText, setSearchText] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [cancelModal, setCancelModal] = useState<{ row: IncomingRequestRow; reason: string; saving: boolean } | null>(null)
@@ -443,6 +443,8 @@ export function IncomingRequestsPage() {
   } | null>(null)
   const [detailJobId, setDetailJobId] = useState<string | null>(null)
   const currentStatusFilter = getIncomingStatusFilter(searchParams.get('status'))
+  const channelFilter = searchParams.get('channel')?.trim() || null
+  const citizenOnly = searchParams.get('citizen') === '1'
   const currentStatusFilterMeta = STATUS_FILTERS.find(filter => filter.value === currentStatusFilter)
   const currentStatusFilterLabel = t(
     currentStatusFilterMeta?.labelKey ?? 'jobs.scopes.pendingApprovalRequests',
@@ -703,16 +705,23 @@ export function IncomingRequestsPage() {
     let result = rows
       .filter(row => matchesStatusFilter(row, currentStatusFilter))
       .filter(() => matchesKindFilter(currentKindFilter))
-    if (isCitizenRequestManager) {
+    if (isCitizenRequestManager || citizenOnly) {
       result = result.filter(row => row.isCitizenRequest)
+    }
+    if (channelFilter) {
+      const normalized = channelFilter.toLocaleLowerCase('tr')
+      result = result.filter(row => (row.sourceChannel ?? '').toLocaleLowerCase('tr') === normalized)
     }
     if (filterFrom || filterTo) {
       const useDueDatePeriod = currentStatusFilter === 'overdue'
+      const fromDay = toLocalDateKey(filterFrom)
+      const toDay = toLocalDateKey(filterTo)
       result = result.filter(row => {
-        const d = (useDueDatePeriod ? row.dueDateUtc : row.createdAtUtc)?.slice(0, 10)
-        if (!d) return false
-        if (filterFrom && d < filterFrom.slice(0, 10)) return false
-        if (filterTo && d > filterTo.slice(0, 10)) return false
+        const raw = useDueDatePeriod ? row.dueDateUtc : row.createdAtUtc
+        if (!raw) return false
+        const d = toLocalDateKey(raw)
+        if (fromDay && d < fromDay) return false
+        if (toDay && d > toDay) return false
         return true
       })
     }
@@ -724,7 +733,7 @@ export function IncomingRequestsPage() {
     }
     return result
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentKindFilter, currentStatusFilter, isCitizenRequestManager, rows, filterFrom, filterTo, searchText, getColumnValue])
+  }, [currentKindFilter, currentStatusFilter, isCitizenRequestManager, citizenOnly, channelFilter, rows, filterFrom, filterTo, searchText, getColumnValue])
 
   useEffect(() => { setIncomingPage(1) }, [filterFrom, filterTo, searchText])
 

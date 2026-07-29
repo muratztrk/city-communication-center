@@ -579,10 +579,11 @@
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
     align-items: start;
-    /* #1876: boş adreste üç etiket kutucukta ortalanır. `#r496`'nın eklediği
-       `margin-inline-start: -0.85rem` grubu sola kaydırıyordu ve kart bu yüzden
-       "ortalanmamış" diye geri geldi — en güncel kart talimatı kazanır. */
+    justify-items: center;
+    /* #1876 / #r542: boş adreste üç etiket üst çizgi genişliğine göre kolon ortalı.
+       Negatif margin grubu sola kaydırıyordu — kaldırıldı. */
     margin-inline-start: 0;
+    width: 100%;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
@@ -591,7 +592,7 @@
     align-items: center;
     text-align: center;
     justify-self: center;
-    width: auto;
+    width: 100%;
     max-width: 100%;
   }
 
@@ -3531,9 +3532,9 @@
   }
 
   /* Filtredeki tarih seçici kompakt; satırın aşağı kaymasını önler.
-     11.5rem: dd.mm.yyyy HH:mm + küçük takvim ikonu + temizle alanı (#r539 saat geri). */
+     12rem: dd.mm.yyyy + ekstra boşluk + HH:mm (#r542 saat sağa ferah). */
   .scope-chip-date {
-    width: 11.5rem;
+    width: 12rem;
     flex: 0 0 auto;
   }
 

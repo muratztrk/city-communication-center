@@ -7,10 +7,33 @@
  */
 export function toDateTimePickerValue(value: string | null | undefined): string {
   if (!value) return ''
+  // Zaten naif picker değeriyse olduğu gibi bırak (dashboard dönem / query param).
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(value)) return value
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return ''
   const offsetMs = date.getTimezoneOffset() * 60_000
   return new Date(date.getTime() - offsetMs).toISOString().slice(0, 16)
+}
+
+/** Yerel duvar-saati picker değerini API'nin beklediği ISO UTC'ye çevirir (#r542 / dönem TZ). */
+export function toApiDateParam(value: string | null | undefined): string | undefined {
+  if (!value) return undefined
+  if (value.endsWith('Z') || /[+-]\d{2}:\d{2}$/.test(value)) return value
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+  return date.toISOString()
+}
+
+/** Filtre gün karşılaştırması için yerel takvim günü `YYYY-MM-DD` (#r542). */
+export function toLocalDateKey(value: string | null | undefined): string {
+  if (!value) return ''
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value.slice(0, 10)
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
 }
 
 /** Talep son tarihi manuel seçiminde en erken şimdi + N saat (card #1819). */

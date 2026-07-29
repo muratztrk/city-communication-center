@@ -20,6 +20,14 @@
 - **Kapanmayan:** #1978 ve #1906 — ölçümle kod doğru çıktı / tekrar üretilemedi, Trello
   ekran görüntüsü bekliyor. Doing'de bırakıldı.
 
+## Round 542 — 17 Doing kartı
+- Incoming pie `Yapılmakta Olan` → `status=in-progress` (3+16).
+- Sidebar `/outgoing-requests?view=*` aktif boyama (#11).
+- Yönetici kanal pie → Birime Gelen `channel=`; Vatandaş Talepleri kutusu → `citizen=1` (#12/#13).
+- Dönem `from`/`to` yerel duvar-saati; API'ye ISO (#8). Dashboard scroll restore (#17).
+- Drilldown: logo + alt satır slice + Yazdır (etiket/mahalle) + mahalle Durum/Son Tarih Taleplerim stili (#2/#4/#5/#6).
+- Tarih-saat chip boşluk; birim `max-w-[11rem]`; boş adres ortala; Normal öncelik yeşil; Staff pie `Onaylanmış/Yapılmakta`; Birim İçi/Dışı etiketleri (#1/#7/#9/#10/#14/#15).
+
 ## Round 541 — Lumespec footer logo
 - `AppFooter` markası yeni `/lumespec-logo.png` wordmark (Lume beyaz + spec mavi gradient);
   siyah zemin şeffaf. Login / AppShell / Wallboard ortak footer.

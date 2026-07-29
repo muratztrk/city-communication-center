@@ -1,5 +1,5 @@
 import { ArrowUpRight, ChartBarBig, ClipboardList, ListChecks, Loader, MessageSquareMore, SquareKanban } from 'lucide-react'
-import { useState, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
@@ -13,6 +13,9 @@ import { useAuth } from '../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { CitizenDashboardMap } from '../components/CitizenDashboardMap'
+import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
+
+const DASHBOARD_SCROLL_KEY = 'ccc.dashboard.scrollTop'
 
 interface MetricCard {
   label: string
@@ -107,7 +110,8 @@ const INCOMING_SLICE_STATUS: Record<string, string> = {
   'dashboard.chart.pending': 'pending-approval',
   'dashboard.chart.overdue': 'overdue',
   'dashboard.chart.approved': 'approved',
-  'dashboard.chart.inProgress': 'approved',
+  // Yapılmakta Olan → mavi "Yapılmakta Olan Talepler" chip (#r542 / cards #3+#16)
+  'dashboard.chart.inProgress': 'in-progress',
   'dashboard.chart.completed': 'completed',
   'dashboard.chart.cancelled': 'cancelled',
 }
@@ -141,23 +145,42 @@ function periodQueryParams(from: string, to: string): Record<string, string | un
   return { from: from || undefined, to: to || undefined }
 }
 
+function saveDashboardScroll() {
+  const shell = document.querySelector('.app-content-shell')
+  if (shell instanceof HTMLElement) {
+    sessionStorage.setItem(DASHBOARD_SCROLL_KEY, String(shell.scrollTop))
+  }
+}
+
 // Bir dilime tıklanınca gidilecek, ilgili filtrelerle gridview rotası (card 797).
 function getSliceRoute(
   titleKey: string,
   sliceLabel: string,
   taskChartFilter?: TaskChartFilter,
   period?: { from: string; to: string },
+  options?: { citizenChannelsToIncoming?: boolean },
 ): string | undefined {
-  // Vatandaş kanalları: kanal dilimi → /social?channel=X
+  const dateParams = period ? periodQueryParams(period.from, period.to) : {}
+
+  // Vatandaş kanalları: yönetici → Birime Gelen + kanal; diğerleri → /social (#r542 / #12)
   if (titleKey === 'dashboard.citizenChannels.title') {
-    return sliceLabel.startsWith('channel.')
-      ? `/social?channel=${encodeURIComponent(sliceLabel.slice('channel.'.length))}`
+    const channel = sliceLabel.startsWith('channel.')
+      ? sliceLabel.slice('channel.'.length)
+      : undefined
+    if (options?.citizenChannelsToIncoming) {
+      return withQueryParams('/incoming-requests', {
+        status: 'all',
+        channel,
+        ...dateParams,
+      })
+    }
+    return channel
+      ? `/social?channel=${encodeURIComponent(channel)}`
       : '/social'
   }
 
   if (titleKey === 'dashboard.charts.citizenRequests') {
     const requestStatus = CITIZEN_SLICE_STATUS[sliceLabel]
-    const dateParams = period ? periodQueryParams(period.from, period.to) : {}
     return withQueryParams('/social', {
       channel: 'all',
       requestStatus,
@@ -166,7 +189,6 @@ function getSliceRoute(
   }
 
   const taskTypeParam = taskChartFilter && taskChartFilter !== 'all' ? taskChartFilter : undefined
-  const dateParams = period ? periodQueryParams(period.from, period.to) : {}
 
   if (titleKey === 'dashboard.charts.staffTasks') {
     return withQueryParams('/staff-tasks', {
@@ -242,29 +264,30 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const activeDeptId = getActiveDepartmentId()
 
   function getPeriodRange(p: Period): { from: string; to: string } {
+    // Yerel duvar-saati (YYYY-MM-DDTHH:mm) — chip'te UTC kayması olmasın (#r542 / #8).
     const now = new Date()
-    const toStr = now.toISOString()
+    const toStr = toDateTimePickerValue(now.toISOString())
     if (p === 'daily') {
       const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
-      return { from: start.toISOString(), to: toStr }
+      return { from: toDateTimePickerValue(start.toISOString()), to: toStr }
     }
     if (p === 'weekly') {
       const dayOfWeek = now.getDay()
       const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1
       const start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff, 0, 0, 0, 0)
-      return { from: start.toISOString(), to: toStr }
+      return { from: toDateTimePickerValue(start.toISOString()), to: toStr }
     }
     if (p === 'monthly') {
       const start = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0, 0)
-      return { from: start.toISOString(), to: toStr }
+      return { from: toDateTimePickerValue(start.toISOString()), to: toStr }
     }
     if (p === 'yearly') {
       const start = new Date(now.getFullYear(), 0, 1, 0, 0, 0, 0)
-      return { from: start.toISOString(), to: toStr }
+      return { from: toDateTimePickerValue(start.toISOString()), to: toStr }
     }
     return {
-      from: customFrom ? new Date(customFrom).toISOString() : '',
-      to: customTo ? new Date(customTo).toISOString() : '',
+      from: toDateTimePickerValue(customFrom) || customFrom,
+      to: toDateTimePickerValue(customTo) || customTo,
     }
   }
 
@@ -273,23 +296,40 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [period, customFrom, customTo],
   )
+  const apiFrom = toApiDateParam(activeFrom)
+  const apiTo = toApiDateParam(activeTo)
+
+  // Pie/kart navigasyonundan dönüşte scroll konumunu geri yükle (#r542 / #17).
+  useEffect(() => {
+    const raw = sessionStorage.getItem(DASHBOARD_SCROLL_KEY)
+    if (raw == null) return
+    sessionStorage.removeItem(DASHBOARD_SCROLL_KEY)
+    const top = Number(raw)
+    if (!Number.isFinite(top)) return
+    const restore = () => {
+      const shell = document.querySelector('.app-content-shell')
+      if (shell instanceof HTMLElement) shell.scrollTop = top
+    }
+    restore()
+    requestAnimationFrame(restore)
+  }, [])
 
   const dashboardQuery = useQuery({
     queryKey: queryKeys.dashboard.snapshot({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
-    queryFn: () => api.getDashboard(activeFrom || undefined, activeTo || undefined),
+    queryFn: () => api.getDashboard(apiFrom, apiTo),
     refetchInterval: 60_000,
   })
   const canSeeCitizenChannels = role === 'SystemAdmin' || role === 'Manager' || role === 'Operator' || role === 'Reporter'
   const canSeeCitizenMap = effectiveView === 'citizen' && (role === 'Reporter' || role === 'Operator' || role === 'SystemAdmin')
   const citizenChannelQuery = useQuery({
     queryKey: queryKeys.dashboard.citizenChannels({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
-    queryFn: () => api.getCitizenChannelChart(activeFrom || undefined, activeTo || undefined),
+    queryFn: () => api.getCitizenChannelChart(apiFrom, apiTo),
     enabled: canSeeCitizenChannels,
     refetchInterval: 60_000,
   })
   const citizenMapQuery = useQuery({
     queryKey: queryKeys.dashboard.citizenMapPins({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
-    queryFn: () => api.getCitizenDashboardMapPins(activeFrom || undefined, activeTo || undefined),
+    queryFn: () => api.getCitizenDashboardMapPins(apiFrom, apiTo),
     enabled: canSeeCitizenMap,
     refetchInterval: 60_000,
   })
@@ -306,7 +346,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       myTaskType: taskChartFilters['dashboard.charts.myTasks'],
       requestTagStatus: requestTagChartFilter,
     }),
-    queryFn: () => api.getDashboardStatusCharts(activeFrom || undefined, activeTo || undefined, {
+    queryFn: () => api.getDashboardStatusCharts(apiFrom, apiTo, {
       staff: taskChartFilters['dashboard.charts.staffTasks'],
       department: taskChartFilters['dashboard.charts.departmentTasks'],
       mine: taskChartFilters['dashboard.charts.myTasks'],
@@ -381,7 +421,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
           value: dashboardQuery.data.activeSocialMessageCount,
           icon: MessageSquareMore,
-          path: '/social',
+          // Yönetici: Birime Gelen'de tüm VT numaralı talepler (#r542 / #13)
+          path: '/incoming-requests?status=all&citizen=1',
           iconBg: 'bg-rose-100',
           iconColor: 'text-rose-600',
         },
@@ -446,7 +487,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         key={metric.label}
         type="button"
         className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-2 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
-        onClick={() => navigate(metric.path)}
+        onClick={() => {
+          saveDashboardScroll()
+          navigate(metric.path)
+        }}
       >
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -603,10 +647,13 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                 {chartRoute ? (
                   <button
                     type="button"
-                    onClick={() => navigate(withQueryParams(chartRoute, {
-                      taskType: taskFilter && taskFilter !== 'all' ? taskFilter : undefined,
-                      ...periodQueryParams(activeFrom, activeTo),
-                    }))}
+                    onClick={() => {
+                      saveDashboardScroll()
+                      navigate(withQueryParams(chartRoute, {
+                        taskType: taskFilter && taskFilter !== 'all' ? taskFilter : undefined,
+                        ...periodQueryParams(activeFrom, activeTo),
+                      }))
+                    }}
                     className="cursor-pointer border-b border-slate-200 pb-0.5 text-left text-sm font-semibold text-slate-700 transition-colors hover:text-[color:var(--color-primary)]"
                   >
                     {t(card.titleKey)}
@@ -650,15 +697,33 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                   </div>
                 )}
               </div>
-              <PieChart slices={card.slices} noDataLabel={t('dashboard.chart.noData')} showZeroSlices onSelect={isDrilldownChart ? slice => {
+              <PieChart
+                slices={card.slices}
+                noDataLabel={t('dashboard.chart.noData')}
+                showZeroSlices
+                formatSliceLabel={
+                  role === 'Staff' && card.titleKey === 'dashboard.charts.myRequests'
+                    ? (raw, translate) => (raw === 'dashboard.chart.approved'
+                      ? translate('dashboard.chart.approvedOrInProgress', 'Onaylanmış/Yapılmakta')
+                      : undefined)
+                    : undefined
+                }
+                onSelect={isDrilldownChart ? slice => {
                 setChartDrilldown({ chartKey: card.titleKey, sliceKey: slice.label })
               } : isExternalDrilldownOnlyChart ? undefined : slice => {
-                const route = getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange)
-                if (route) navigate(route)
+                const route = getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange, {
+                  citizenChannelsToIncoming: isManagerOrAdmin,
+                })
+                if (route) {
+                  saveDashboardScroll()
+                  navigate(route)
+                }
               }} isSliceSelectable={isDrilldownChart || isExternalDrilldownOnlyChart
                 ? undefined
                 // Rotası olmayan dilim (örn. Birimdeki Görevler) tıklanabilir görünmesin (card #1337).
-                : slice => Boolean(getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange))} />
+                : slice => Boolean(getSliceRoute(card.titleKey, slice.label, taskFilter, periodRange, {
+                  citizenChannelsToIncoming: isManagerOrAdmin,
+                }))} />
               </section>
             )
           })}
@@ -683,8 +748,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}|${requestTagChartFilter}`}
           chartKey={chartDrilldown.chartKey}
           sliceKey={chartDrilldown.sliceKey}
-          from={activeFrom || undefined}
-          to={activeTo || undefined}
+          from={apiFrom}
+          to={apiTo}
           requestTagStatus={chartDrilldown.chartKey === 'dashboard.charts.requestTags' ? requestTagChartFilter : undefined}
           onClose={() => setChartDrilldown(null)}
         />

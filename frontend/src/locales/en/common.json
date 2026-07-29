@@ -209,7 +209,7 @@
     "departmentTasks": "Unit Tasks",
     "departmentTasksInternal": "Internal Unit Tasks",
     "departmentTasksExternal": "External Unit Tasks",
-    "departmentTasksAll": "All Unit Tasks",
+    "departmentTasksAll": "Internal/External All Unit Tasks",
     "staffTasks": "My Staff Tasks",
     "tasks": "Tasks",
     "social": "Citizen Incoming Requests",
@@ -389,7 +389,7 @@
       "myTotalRequests": "All My Requests",
       "incomingTotal": "All Incoming Dept Requests",
       "outgoingTotal": "All Outgoing Dept Requests",
-      "deptTotalTasks": "All Dept Tasks",
+      "deptTotalTasks": "Internal/External All Unit Tasks",
       "internalExternalSub": "(Internal/External)"
     },
     "chart": {
@@ -407,6 +407,7 @@
       "overdue": "Overdue",
       "cancelled": "Cancelled",
       "approved": "Approved",
+      "approvedOrInProgress": "Approved/In Progress",
       "inProgress": "In Progress",
       "pendingApproval": "Pending Approval",
       "externalPendingApproval": "External Pending Approval",

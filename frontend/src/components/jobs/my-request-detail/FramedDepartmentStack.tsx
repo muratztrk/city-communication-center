@@ -30,7 +30,7 @@ export function FramedDepartmentStack({
         <StatusPill
           tone="success"
           className={cn(
-            'max-w-[14rem]',
+            'max-w-[11rem]',
             enlarge ? 'px-2.5 py-1 text-[0.78rem] font-semibold' : 'px-2.5 py-1 text-[0.76rem]',
           )}
         >

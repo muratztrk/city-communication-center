@@ -51,15 +51,17 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
       const [targetPath] = path.split('?')
       return location.pathname === targetPath
     }
+    // Query'siz nav path'ler (örn. /outgoing-requests): pathname eşleşince aktif —
+    // ?view=pending gibi query'ler menü vurgusunu bozmasın (#r542 / card #11).
     if (location.pathname === path) {
-      return location.search === ''
+      return true
     }
     // /dashboard must not stay active under /dashboard/birimler (card #1850).
     if (path === '/dashboard') {
       return false
     }
     return location.pathname.startsWith(`${path}/`)
-  }, [location.pathname, location.search])
+  }, [location.pathname])
 
   const getGroupPage = useCallback((label: string) => groupPages.get(label) ?? 0, [groupPages])
   const setGroupPage = useCallback((label: string, page: number) => {

@@ -1430,6 +1430,19 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **AppFooter Lumespec markası:** Tüm footer yüzeyleri (`AppShell`, login, wallboard) ortak
   `AppFooter` kullanır; marka `/lumespec-logo.png` wordmark'ıdır (eski 4-kare SVG + uppercase
   metin yok). Logo şeffaf arka planlı kalır ki sidebar rengi (`--color-sidebar`) görünsün.
+- **Birime Gelen pie Yapılmakta Olan (#r542):** `INCOMING_SLICE_STATUS.inProgress` →
+  `status=in-progress` (mavi chip); `approved` değil.
+- **Dashboard dönem TZ (#r542):** `getPeriodRange` yerel `YYYY-MM-DDTHH:mm` üretir; API çağrıları
+  `toApiDateParam` ile ISO'ya çevrilir — chip'te `31.12. 21:00` / −3 saat kayması olmaz.
+- **Sidebar outgoing aktif (#r542):** `/outgoing-requests` pathname eşleşince query yok sayılır
+  (`?view=pending` menüyü boyar); `/dashboard` istisnası korunur.
+- **Öncelik Normal rengi (#r542):** `getPriorityColorClass('Normal')` = `text-emerald-600`
+  (grid + detay ortak; sarı değil).
+- **Drilldown popup header (#r542):** ortada kurum logosu; slice başlığın alt satırında; Talep
+  Etiketi + mahalle pie'larında Yazdır; mahalle Durum=`StatusPill`+`GridStatusLabel`,
+  Son Tarih=`DueDatePill`.
+- **Dashboard scroll (#r542):** pie/kart navigasyonu öncesi `.app-content-shell` scrollTop
+  sessionStorage; dashboard dönüşte restore.
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
   açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş talebinde Oluşturan satırının
   başında kanal ikonu görünür; vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.

@@ -349,9 +349,9 @@ export function AppShell() {
   const incomingStatusKey = statusParam || 'pending-approval'
   const flowParam = useMemo(() => new URLSearchParams(location.search).get('flow') ?? '', [location.search])
   const departmentTasksViewLabels: Record<string, string> = {
-    internal: t('nav.departmentTasksInternal', 'Birim İçi Oluşan Görevler'),
-    external: t('nav.departmentTasksExternal', 'Birim Dışı Oluşan Görevler'),
-    all: t('nav.departmentTasksAll', 'Birimde Oluşan Tüm Görevler'),
+    internal: t('nav.departmentTasksInternal', 'Birim İçi Görevler'),
+    external: t('nav.departmentTasksExternal', 'Birim Dışı Görevler'),
+    all: t('nav.departmentTasksAll', 'Birim İçi/Dışı Tüm Görevler'),
   }
   const departmentTasksViewIcons: Record<string, typeof LayoutDashboard> = {
     internal: SquareKanban,

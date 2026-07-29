@@ -1,3 +1,6 @@
+## Round 566 — toast 5sn timer reset fix (#2074 reopen)
+- `Toast` onClose ref: parent re-render süresi sıfırlamaz; ≤5 sn kapanır.
+
 ## Round 565 — tooltip 2. satır ortalı + Başlık genişlik + Notu Düzenle = Onayla (#2078/#2077/#2079)
 - Overflow tooltip `text-align: center`; `cell-title` 11.5rem; Notu Düzenle modal `max-w-md` (Mesajı Onayla ile aynı).
 

@@ -1475,7 +1475,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesaj Onayı Notu Düzenle modal (#2073/#2079):** `max-w-md` + `p-6` — Mesajı Onayla confirm ile aynı genişlik.
 - **Birimden Giden işlem gap (#2071):** `.my-requests-table .request-actions` gap `0.7rem`.
 - **Birim pie drilldown (#2070):** sütun `Birim`; Talep No `T-{yıl}-Onay Bekleyen` (+ Öncelik alt satır); Durum=StatusPill.
-- **Toast (#2074/#2075):** iptal başarı mesajı `error` (kırmızı); varsayılan auto-hide **5 sn**.
+- **Toast (#2074/#2075 reopen):** iptal başarı mesajı `error` (kırmızı); auto-hide **≤5 sn**;
+  `onClose` ref ile sabitlenir (parent re-render timer’ı sıfırlamaz).
 - **Mesaj Onayı / grid Başlık (#2076/#2077):** `cell-title` max-width ~11.5rem; overflow tooltip metin anchor'ı altında.
 - **Vatandaş Talepleri pie (#r546):** VT sayısı `WhereHasCitizenRequestNumber` (RequestType şartı yok);
   dilim tıklanınca drilldown değil `/social?requestStatus=…&fromPie=1`.

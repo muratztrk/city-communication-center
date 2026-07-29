@@ -1,5 +1,5 @@
 import { CheckCircle2, XCircle, X } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 interface ToastProps {
   message: string
@@ -9,10 +9,14 @@ interface ToastProps {
 }
 
 export function Toast({ message, type = 'success', onClose, duration = 5000 }: ToastProps) {
+  // Parent her render'da yeni onClose verirse timer sıfırlanmasın (#2074 reopen).
+  const onCloseRef = useRef(onClose)
+  onCloseRef.current = onClose
+
   useEffect(() => {
-    const id = window.setTimeout(onClose, duration)
+    const id = window.setTimeout(() => onCloseRef.current(), duration)
     return () => window.clearTimeout(id)
-  }, [onClose, duration])
+  }, [message, type, duration])
 
   const isSuccess = type === 'success'
 

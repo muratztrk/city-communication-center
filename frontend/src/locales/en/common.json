@@ -890,7 +890,7 @@
       "title": "Title",
       "dueDate": "Due Date",
       "status": "Status",
-      "note": "Completion/Cancellation Note",
+      "note": "Request Status Note",
       "actions": "Actions"
     },
     "actions": {

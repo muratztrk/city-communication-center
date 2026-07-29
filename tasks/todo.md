@@ -1,3 +1,6 @@
+## Round 567 — Talep Durumu Notu sütun başlığı
+- Mesaj Onayı grid: `Talep Tamamlama/İptal Notu` → `Talep Durumu Notu`.
+
 ## Round 566 — toast 5sn timer reset fix (#2074 reopen)
 - `Toast` onClose ref: parent re-render süresi sıfırlamaz; ≤5 sn kapanır.
 

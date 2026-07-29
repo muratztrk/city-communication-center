@@ -895,7 +895,7 @@
       "title": "Başlık",
       "dueDate": "Son Tarih",
       "status": "Durum",
-      "note": "Talep Tamamlama/İptal Notu",
+      "note": "Talep Durumu Notu",
       "actions": "İşlemler"
     },
     "actions": {

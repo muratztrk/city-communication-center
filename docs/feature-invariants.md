@@ -1476,6 +1476,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birimden Giden işlem gap (#2071):** `.my-requests-table .request-actions` gap `0.7rem`.
 - **Birim pie drilldown (#2070):** sütun `Birim`; Talep No `T-{yıl}-Onay Bekleyen` (+ Öncelik alt satır); Durum=StatusPill.
 - **Toast (#2074/#2075):** iptal başarı mesajı `error` (kırmızı); varsayılan auto-hide **5 sn**.
+- **Mesaj Onayı Başlık sütunu (#2076):** dar `cell-title` (9rem); overflow tooltip metin anchor'ı altında (tam satır değil).
 - **Vatandaş Talepleri pie (#r546):** VT sayısı `WhereHasCitizenRequestNumber` (RequestType şartı yok);
   dilim tıklanınca drilldown değil `/social?requestStatus=…&fromPie=1`.
 - **Pie Filtreyi sil (#r546/#r547/#r549/#r550/#r552):** `fromPie=1` ile gelinen gridlerde scope-chip

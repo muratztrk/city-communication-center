@@ -5565,6 +5565,18 @@
     flex-wrap: wrap;
   }
 
+  /* Başlık dar sütun: ellipsis erken; tooltip hücre metninin altında (#2076). */
+  .citizen-message-approval-table td.citizen-message-approval-title-cell,
+  .citizen-message-approval-table td.citizen-message-approval-note-cell {
+    width: 9.5rem;
+    max-width: 9.5rem;
+  }
+
+  .citizen-message-approval-table td.citizen-message-approval-title-cell .cell-title,
+  .citizen-message-approval-table td.citizen-message-approval-note-cell .cell-title {
+    max-width: 9rem;
+  }
+
   @media (max-width: 767px) {
     .citizen-message-approval-table tbody td.actions-cell {
       min-width: 16rem;

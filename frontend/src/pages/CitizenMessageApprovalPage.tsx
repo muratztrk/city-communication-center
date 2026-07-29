@@ -18,6 +18,7 @@ import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { Toast } from '../components/ui/toast'
+import { TruncatedText } from '../components/ui/TruncatedText'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { CitizenMessageApprovalRow } from '../types/platform'
@@ -357,7 +358,9 @@ export function CitizenMessageApprovalPage() {
                       <div className="font-semibold">{row.citizenName ?? '—'}</div>
                       <div className="text-xs text-slate-400">{formatCitizenPhoneDisplay(row.citizenPhone)}</div>
                     </td>
-                    <td className="max-w-xs truncate" title={row.title}>{row.title}</td>
+                    <td className="citizen-message-approval-title-cell text-center">
+                      <TruncatedText text={row.title} className="cell-title" />
+                    </td>
                     <td>
                       {(() => {
                         const statusDate = row.status === 'Completed' ? row.completedAtUtc
@@ -376,7 +379,11 @@ export function CitizenMessageApprovalPage() {
                         )
                       })()}
                     </td>
-                    <td className="max-w-xs truncate" title={row.note ?? ''}>{row.note || <span className="text-slate-400">—</span>}</td>
+                    <td className="citizen-message-approval-note-cell text-center">
+                      {row.note
+                        ? <TruncatedText text={row.note} className="cell-title" />
+                        : <span className="text-slate-400">—</span>}
+                    </td>
                     <td className="actions-cell">
                       <div className="citizen-message-approval-actions flex justify-center gap-2">
                         <Button type="button" size="sm" variant="secondary" onClick={() => setDetailJobId(row.jobId)}>

@@ -1,3 +1,6 @@
+## Round 564 — Mesaj Onayı Başlık dar + tooltip altında (#2076)
+- Başlık/not: `TruncatedText`+`cell-title`; dar sütun; tooltip hücre metni altında.
+
 ## Round 563 — iptal toast kırmızı + 5sn auto-hide
 - Görev iptal toast `error` (kırmızı); Toast varsayılan süre 5sn.
 

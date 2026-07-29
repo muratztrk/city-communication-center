@@ -13,8 +13,9 @@ import { GridStatusLabel } from './ui/GridStatusLabel'
 import { DueDatePill } from './ui/due-date-pill'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
-import { getAuditStatusLabel, getJobStatusTone, getLocale, getStatusPillClass } from '../utils/localization'
+import { getAuditStatusLabel, getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass } from '../utils/localization'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
+import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { ChannelIcon } from './ui/channel-icon'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { printHtmlDocument } from '../utils/printDocument'
@@ -43,22 +44,23 @@ const NEIGHBORHOOD_CHART_KEYS = new Set([
 ])
 
 /** Mahalle + Talep Etiketi + birim-dışı pie'lar: Durum=StatusPill; terminal tarih alt satır (#r545/#2068). */
-const TALEPLERIM_STATUS_STYLE_CHART_KEYS = new Set([
-  ...NEIGHBORHOOD_CHART_KEYS,
-  'dashboard.charts.requestTags',
+const EXTERNAL_UNIT_CHART_KEYS = new Set([
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
   'dashboard.charts.externalRequestFulfillers',
 ])
 
-function formatDrilldownNumber(row: DashboardChartDrilldownRow): string {
+const TALEPLERIM_STATUS_STYLE_CHART_KEYS = new Set([
+  ...NEIGHBORHOOD_CHART_KEYS,
+  'dashboard.charts.requestTags',
+  ...EXTERNAL_UNIT_CHART_KEYS,
+])
+
+function formatDrilldownNumber(row: DashboardChartDrilldownRow, locale: string): string {
   if (row.citizenRequestNumber != null && row.citizenRequestNumberYear != null) {
     return `VT-${row.citizenRequestNumberYear}-${row.citizenRequestNumber}`
   }
-  if (row.jobNumber != null && row.jobNumberYear != null) {
-    return `T-${row.jobNumberYear}-${row.jobNumber}`
-  }
-  return '—'
+  return formatJobDisplayNumberText(row, locale)
 }
 
 function isCancelledLike(status: string): boolean {
@@ -108,6 +110,9 @@ function getDrilldownStatusLabel(t: TFunction, row: DashboardChartDrilldownRow):
   if (row.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (row.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
   if (row.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  if (row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval') {
+    return t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+  }
   return getAuditStatusLabel(t, row.status)
 }
 
@@ -141,7 +146,7 @@ function printDrilldownRows(
     const status = getDrilldownStatusLabel(t, row)
     return `<tr>
       <td class="col-seq">${index + 1}</td>
-      <td class="col-no">${escape(formatDrilldownNumber(row))}</td>
+      <td class="col-no">${escape(formatDrilldownNumber(row, locale))}</td>
       <td class="col-date">${escape(formatDate(row.createdAtUtc))}</td>
       <td class="col-title">${escape(row.title?.trim() || '—')}</td>
       <td class="col-dept">${escape(row.departmentName ?? row.neighborhood ?? '—')}</td>
@@ -216,7 +221,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     : (terminalDateHeader ?? t('jobs.columns.completedAt', 'Tamamlanma Tarihi'))
   const showPrint = PRINTABLE_CHART_KEYS.has(chartKey)
   const isRequestTagsChart = chartKey === 'dashboard.charts.requestTags'
-  const unitColumnLabel = isRequestTagsChart || NEIGHBORHOOD_CHART_KEYS.has(chartKey)
+  const isExternalUnitChart = EXTERNAL_UNIT_CHART_KEYS.has(chartKey)
+  const unitColumnLabel = isRequestTagsChart || NEIGHBORHOOD_CHART_KEYS.has(chartKey) || isExternalUnitChart
     ? t('jobs.columns.unitShort', 'Birim')
     : t('departments.name', 'Müdürlük')
   const chartTitle = t(chartKey)
@@ -368,12 +374,17 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                       <tr key={row.jobId}>
                         <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(page - 1) * pageSize + index + 1}</td>
                         <td className="table-number-cell font-mono text-xs text-slate-600">
-                          <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                          <div className="table-number-cell__value inline-flex items-center gap-1.5 whitespace-nowrap">
                             {row.citizenRequestNumber != null && row.sourceChannel ? (
                               <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" />
                             ) : null}
-                            {formatDrilldownNumber(row)}
-                          </span>
+                            {formatDrilldownNumber(row, locale)}
+                          </div>
+                          {isExternalUnitChart && row.priority ? (
+                            <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>
+                              (Öncelik:{getPriorityLabel(t, row.priority)})
+                            </div>
+                          ) : null}
                         </td>
                         <td className="text-center"><DateCell value={row.createdAtUtc} locale={locale} /></td>
                         <td className="font-semibold">{row.title}</td>

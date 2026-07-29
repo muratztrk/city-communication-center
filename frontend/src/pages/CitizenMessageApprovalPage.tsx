@@ -417,7 +417,7 @@ export function CitizenMessageApprovalPage() {
 
       {noteModal ? createPortal(
         <ModalBackdrop>
-          <div className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl">
+          <div className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-5 shadow-2xl">
             <button
               type="button"
               onClick={() => setNoteModal(null)}

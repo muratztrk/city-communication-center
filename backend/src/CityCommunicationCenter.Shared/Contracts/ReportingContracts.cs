@@ -42,7 +42,9 @@ public sealed record DashboardChartDrilldownRow(
     DateTimeOffset? DueDateUtc,
     int? CitizenRequestNumber,
     int? CitizenRequestNumberYear,
-    string? SourceChannel = null);
+    string? SourceChannel = null,
+    /// <summary>Talep No altındaki Öncelik satırı — birim pie drilldown (#2070).</summary>
+    string? Priority = null);
 
 public sealed record DashboardChartDrilldownResponse(
     IReadOnlyList<DashboardChartDrilldownRow> Rows);

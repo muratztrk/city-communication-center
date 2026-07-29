@@ -92,6 +92,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Title,
                 job.CreatedAtUtc,
                 job.Status,
+                job.Priority,
                 job.DueDateUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
@@ -108,7 +109,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             .Select(row => new DashboardChartDrilldownRow(
                 row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
                 row.Status.ToString(), departmentName, row.Neighborhood,
-                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc, null, null))
+                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
+                null, null, null, row.Priority))
             .ToList());
     }
 
@@ -141,6 +143,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 link.Job.Title,
                 link.Job.CreatedAtUtc,
                 link.Job.Status,
+                link.Job.Priority,
                 link.Job.DueDateUtc,
                 link.Job.CompletedAtUtc,
                 link.Job.UpdatedAtUtc,
@@ -157,7 +160,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             .Select(row => new DashboardChartDrilldownRow(
                 row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
                 row.Status.ToString(), departmentName, row.Neighborhood,
-                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc, null, null))
+                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
+                null, null, null, row.Priority))
             .ToList());
     }
 

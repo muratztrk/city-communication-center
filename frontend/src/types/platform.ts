@@ -45,6 +45,8 @@ export interface DashboardChartDrilldownRow {
   citizenRequestNumber: number | null;
   citizenRequestNumberYear: number | null;
   sourceChannel?: string | null;
+  /** Birim pie drilldown: Talep No altı Öncelik (#2070). */
+  priority?: string | null;
 }
 
 export interface DashboardChartDrilldownResponse {

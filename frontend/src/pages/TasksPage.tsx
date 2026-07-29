@@ -1166,7 +1166,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       closeReturnModal()
       // İptal onay popup'ı kapandıktan sonra detay popup alanlarını yenile (card #1656).
       await refreshOpenTaskDetailAfterAction(cancelledTaskId)
-      showToast(t('tasks.actions.cancelSuccess', 'Görev iptal edildi.'))
+      showToast(t('tasks.actions.cancelSuccess', 'Görev iptal edildi.'), 'error')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {

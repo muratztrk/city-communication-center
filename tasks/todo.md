@@ -1,3 +1,6 @@
+## Round 563 — iptal toast kırmızı + 5sn auto-hide
+- Görev iptal toast `error` (kırmızı); Toast varsayılan süre 5sn.
+
 ## Round 562 — outgoing gap + tooltip + note modal + birim pie (#2071/#2072/#2073/#2070)
 - Birimden Giden işlem buton gap `0.7rem`; overflow tooltip biraz küçült (~18rem).
 - Notu Düzenle modal `max-w-sm`.

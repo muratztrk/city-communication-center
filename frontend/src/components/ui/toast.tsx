@@ -8,7 +8,7 @@ interface ToastProps {
   duration?: number
 }
 
-export function Toast({ message, type = 'success', onClose, duration = 3500 }: ToastProps) {
+export function Toast({ message, type = 'success', onClose, duration = 5000 }: ToastProps) {
   useEffect(() => {
     const id = window.setTimeout(onClose, duration)
     return () => window.clearTimeout(id)

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Loader2, Send, PenLine, Info, XCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
@@ -24,6 +24,7 @@ export interface ConversationEntryBubbleData {
   editedAtUtc?: string | null
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null
   relatedJobTerminalNote?: string | null
+  relatedJobMessageApproverDisplayName?: string | null
 }
 
 interface ConversationEntryBubbleProps {
@@ -42,6 +43,50 @@ interface ConversationEntryBubbleProps {
   inboundSenderLabel?: string | null
   /** Vatandaş Talebi Oluştur modalında balonları biraz küçült (card #1711). */
   compact?: boolean
+}
+
+/** Hover 250ms sonra yönetici adını gösterir (card #2092). */
+function DelayedHoverTooltip({
+  label,
+  tooltip,
+  className,
+}: {
+  label: string
+  tooltip: string
+  className: string
+}) {
+  const [open, setOpen] = useState(false)
+  const timerRef = useRef<number | null>(null)
+
+  useEffect(() => () => {
+    if (timerRef.current != null) window.clearTimeout(timerRef.current)
+  }, [])
+
+  return (
+    <span
+      className="relative inline-flex"
+      onMouseEnter={() => {
+        timerRef.current = window.setTimeout(() => setOpen(true), 250)
+      }}
+      onMouseLeave={() => {
+        if (timerRef.current != null) window.clearTimeout(timerRef.current)
+        timerRef.current = null
+        setOpen(false)
+      }}
+    >
+      <span className={className} role="button" tabIndex={0}>
+        {label}
+      </span>
+      {open ? (
+        <span
+          role="tooltip"
+          className="absolute bottom-[calc(100%+0.35rem)] left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-md bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white shadow-lg"
+        >
+          {tooltip}
+        </span>
+      ) : null}
+    </span>
+  )
 }
 
 export function ConversationEntryBubble({
@@ -86,17 +131,41 @@ export function ConversationEntryBubble({
   // Beklemede: operatör aksiyon satırında; iletildikten sonra bilgi amaçlı (card #1861).
   const showTerminalNotePending = isPending && canSendPending && hasTerminalNote
   const showTerminalNoteInfo = isDeliveredOutbound && hasTerminalNote
-  const terminalNoteLabel = terminalNoteKind === 'cancelled'
-    ? t('whatsapp.terminalNote.cancel', 'Talep İptal Notu')
-    : t('whatsapp.terminalNote.completion', 'Talep Tamamlanma Notu')
+  // Kart #2093: buton metni her iki durumda da "Not"; renk türüne göre kırmızı/turkuaz.
+  const terminalNoteLabel = t('whatsapp.terminalNote.label', 'Not')
   const terminalNoteButtonClass = terminalNoteKind === 'cancelled'
     ? 'bg-[color:var(--color-destructive)] hover:brightness-95'
     : 'bg-teal-600 hover:bg-teal-700'
+  const messageApproverName = entry.relatedJobMessageApproverDisplayName?.trim() || null
+  const showMessageApprover = !isInbound && Boolean(messageApproverName)
+    && (isPending || isDeliveredOutbound)
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
   const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
+
+  const terminalNoteButton = (disabled = false) => (
+    <button
+      type="button"
+      onClick={() => onShowTerminalNote?.(entry)}
+      disabled={disabled}
+      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${terminalNoteButtonClass}`}
+    >
+      {terminalNoteKind === 'cancelled'
+        ? <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+        : <Info className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
+      {terminalNoteLabel}
+    </button>
+  )
+
+  const messageApproverButton = (
+    <DelayedHoverTooltip
+      label={t('whatsapp.messageApproverButton', 'Mesajı Onaylayan Yönetici')}
+      tooltip={messageApproverName ?? ''}
+      className="inline-flex cursor-default items-center rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm"
+    />
+  )
 
   return (
     <div className={`flex flex-col ${isInbound ? 'items-start' : 'items-end'}`}>
@@ -209,7 +278,7 @@ export function ConversationEntryBubble({
             </button>
           </div>
         ) : (
-          <div className="mt-1 flex items-center gap-1.5">
+          <div className="mt-1 flex flex-wrap items-center justify-end gap-1.5">
             <button
               type="button"
               onClick={() => { setDraft(entry.content); setIsEditing(true) }}
@@ -219,19 +288,8 @@ export function ConversationEntryBubble({
               <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
               {t('common.edit', 'Düzenle')}
             </button>
-            {showTerminalNotePending ? (
-              <button
-                type="button"
-                onClick={() => onShowTerminalNote?.(entry)}
-                disabled={sendingPending}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${terminalNoteButtonClass}`}
-              >
-                {terminalNoteKind === 'cancelled'
-                  ? <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                  : <Info className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
-                {terminalNoteLabel}
-              </button>
-            ) : null}
+            {showTerminalNotePending ? terminalNoteButton(sendingPending) : null}
+            {showMessageApprover ? messageApproverButton : null}
             <button
               type="button"
               onClick={() => onSendPending?.(entry.entryId)}
@@ -243,18 +301,10 @@ export function ConversationEntryBubble({
             </button>
           </div>
         )
-      ) : showTerminalNoteInfo ? (
-        <div className="mt-1 flex items-center gap-1.5">
-          <button
-            type="button"
-            onClick={() => onShowTerminalNote?.(entry)}
-            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors ${terminalNoteButtonClass}`}
-          >
-            {terminalNoteKind === 'cancelled'
-              ? <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-              : <Info className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
-            {terminalNoteLabel}
-          </button>
+      ) : (showTerminalNoteInfo || showMessageApprover) ? (
+        <div className="mt-1 flex flex-wrap items-center justify-end gap-1.5">
+          {showTerminalNoteInfo ? terminalNoteButton() : null}
+          {showMessageApprover ? messageApproverButton : null}
         </div>
       ) : null}
     </div>

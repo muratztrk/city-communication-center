@@ -1006,9 +1006,11 @@
       "failed": "Not delivered"
     },
     "terminalNote": {
-      "cancel": "Request Cancellation Note",
-      "completion": "Request Completion Note"
+      "label": "Note",
+      "cancel": "Note",
+      "completion": "Note"
     },
+    "messageApproverButton": "Approving Manager",
     "label": "Request Tag"
   },
   "audit": {

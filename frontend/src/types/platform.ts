@@ -426,6 +426,7 @@ export interface SocialConversationEntry {
   editedAtUtc?: string | null;
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;
   relatedJobTerminalNote?: string | null;
+  relatedJobMessageApproverDisplayName?: string | null;
   socialMessageId?: string | null;
 }
 
@@ -532,6 +533,7 @@ export interface CitizenConversationTimelineEntry {
   editedAtUtc?: string | null;
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;
   relatedJobTerminalNote?: string | null;
+  relatedJobMessageApproverDisplayName?: string | null;
 }
 
 export interface CitizenConversationTicket {

@@ -1011,9 +1011,11 @@
       "failed": "İletilemedi"
     },
     "terminalNote": {
-      "cancel": "Talep İptal Notu",
-      "completion": "Talep Tamamlanma Notu"
+      "label": "Not",
+      "cancel": "Not",
+      "completion": "Not"
     },
+    "messageApproverButton": "Mesajı Onaylayan Yönetici",
     "label": "Talep Etiketi"
   },
   "audit": {

@@ -117,6 +117,7 @@ public sealed class GetSocialConversationQueryHandler
                 && terminalInfoByMessageId.TryGetValue(e.SocialMessageId, out terminalInfo);
             var terminalStatus = hasTerminalInfo ? terminalInfo?.Status : null;
             var terminalNote = hasTerminalInfo ? terminalInfo?.Note : null;
+            var messageApprover = hasTerminalInfo ? terminalInfo?.MessageApproverDisplayName : null;
 
             return new SocialConversationEntryDto(
                 e.EntryId,
@@ -134,7 +135,8 @@ public sealed class GetSocialConversationQueryHandler
                 e.EditedAtUtc,
                 terminalStatus,
                 terminalNote,
-                e.SocialMessageId);
+                e.SocialMessageId,
+                messageApprover);
         }).ToList();
     }
 
@@ -167,6 +169,16 @@ public sealed class GetSocialConversationQueryHandler
             return TerminalInfo.Empty;
         }
 
+        var messageApproverDisplayName = await _dbContext.AuditLogs
+            .AsNoTracking()
+            .Where(a => a.TenantId == tenantId
+                && a.EntityType == nameof(Job)
+                && a.EntityId == job.JobId.ToString()
+                && a.Action == "CitizenMessageApprovalReleased")
+            .OrderByDescending(a => a.EventTimeUtc)
+            .Select(a => a.ActorDisplayName)
+            .FirstOrDefaultAsync(cancellationToken);
+
         if (job.Status == JobStatus.Completed)
         {
             var completionNote = await _dbContext.Tasks
@@ -176,7 +188,7 @@ public sealed class GetSocialConversationQueryHandler
                 .Select(t => t.Notes)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            return new TerminalInfo(JobStatus.Completed.ToString(), completionNote);
+            return new TerminalInfo(JobStatus.Completed.ToString(), completionNote, messageApproverDisplayName);
         }
 
         var cancelNote = !string.IsNullOrWhiteSpace(job.CancelReason)
@@ -190,11 +202,11 @@ public sealed class GetSocialConversationQueryHandler
                 .Select(t => t.RevisionReason)
                 .FirstOrDefaultAsync(cancellationToken);
 
-        return new TerminalInfo(JobStatus.Cancelled.ToString(), cancelNote);
+        return new TerminalInfo(JobStatus.Cancelled.ToString(), cancelNote, messageApproverDisplayName);
     }
 
-    private sealed record TerminalInfo(string? Status, string? Note)
+    private sealed record TerminalInfo(string? Status, string? Note, string? MessageApproverDisplayName)
     {
-        public static readonly TerminalInfo Empty = new(null, null);
+        public static readonly TerminalInfo Empty = new(null, null, null);
     }
 }

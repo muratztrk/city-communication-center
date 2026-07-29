@@ -66,6 +66,7 @@ public sealed class ReleaseCitizenMessageApprovalCommandHandler : ICommandHandle
             Action = "CitizenMessageApprovalReleased",
             ActorUserId = actor.UserId,
             ActorDisplayName = actor.DisplayName,
+            EventTimeUtc = DateTimeOffset.UtcNow,
             StatusAtEvent = job.Status.ToString(),
             Notes = note,
         });

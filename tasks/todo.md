@@ -1,3 +1,8 @@
+## Round 573 — WA Mesajı Onaylayan Yönetici + Not etiketi (#2092/#2093)
+- Timeline DTO: `relatedJobMessageApproverDisplayName` (Audit `CitizenMessageApprovalReleased`).
+- Yeşil "Mesajı Onaylayan Yönetici" butonu; hover 250ms tooltip = yönetici adı.
+- Terminal not butonu metni "Not"; iptal=kırmızı, tamamlanma=turkuaz.
+
 ## Round 572 — 8 Mesaj Onayı / pie / WA / breadcrumb kartı
 - Notu Düzenle biraz yüksek + küçük butonlar; WA Düzenlendi/Beklemede title case.
 - Vatandaş sütunu dar → İşlemler geniş; breadcrumb TR etiketi.

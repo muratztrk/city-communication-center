@@ -104,7 +104,8 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     e.DeliveryError,
                     e.EditedAtUtc,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Status : null,
-                    IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Note : null);
+                    IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Note : null,
+                    IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.MessageApproverDisplayName : null);
             })
             .ToList();
 
@@ -244,6 +245,16 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 continue;
             }
 
+            var messageApproverDisplayName = await _dbContext.AuditLogs
+                .AsNoTracking()
+                .Where(a => a.TenantId == tenantId
+                    && a.EntityType == nameof(Job)
+                    && a.EntityId == job.JobId.ToString()
+                    && a.Action == "CitizenMessageApprovalReleased")
+                .OrderByDescending(a => a.EventTimeUtc)
+                .Select(a => a.ActorDisplayName)
+                .FirstOrDefaultAsync(cancellationToken);
+
             if (job.Status == JobStatus.Completed)
             {
                 var completionNote = await _dbContext.Tasks
@@ -252,7 +263,10 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     .OrderByDescending(t => t.CompletedAtUtc)
                     .Select(t => t.Notes)
                     .FirstOrDefaultAsync(cancellationToken);
-                result[linkedMessage.SocialMessageId] = new TerminalInfo(JobStatus.Completed.ToString(), completionNote);
+                result[linkedMessage.SocialMessageId] = new TerminalInfo(
+                    JobStatus.Completed.ToString(),
+                    completionNote,
+                    messageApproverDisplayName);
                 continue;
             }
 
@@ -266,11 +280,14 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     .OrderByDescending(t => t.UpdatedAtUtc)
                     .Select(t => t.RevisionReason)
                     .FirstOrDefaultAsync(cancellationToken);
-            result[linkedMessage.SocialMessageId] = new TerminalInfo(JobStatus.Cancelled.ToString(), cancelNote);
+            result[linkedMessage.SocialMessageId] = new TerminalInfo(
+                JobStatus.Cancelled.ToString(),
+                cancelNote,
+                messageApproverDisplayName);
         }
 
         return result;
     }
 
-    private sealed record TerminalInfo(string? Status, string? Note);
+    private sealed record TerminalInfo(string? Status, string? Note, string? MessageApproverDisplayName);
 }

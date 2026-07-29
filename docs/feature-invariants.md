@@ -1484,6 +1484,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ikonu (#007985); Yazdır gizlenir.
 - **Breadcrumb (#2085):** `/citizen-message-approval` → "Vatandaşa Gönderilecek Mesaj Onayı" (slug değil).
 - **WA Düzenlendi/Beklemede (#2084):** title case (uppercase CSS yok).
+- **WA terminal Not (#2093):** buton/popup metni `Not`; iptal=kırmızı, tamamlanma=turkuaz.
+- **WA Mesajı Onaylayan Yönetici (#2092):** serbest bırakma audit'inden ad; yeşil buton; hover 250ms tooltip.
 - **Pie drilldown (#2087):** thead dikdörtgen (`border-radius: 0`); gövde ~0.82rem; Yazdır biraz büyük.
   `actions-cell` min-width ~18.5rem.
 - **Pie drilldown grid tipografi (#2080):** Taleplerim ile aynı — `thead` 0.78rem + letter-spacing 0.06em + biraz yüksek; `td` 0.9rem (dizin popup #1889 kalıbı).

@@ -174,7 +174,9 @@ public sealed record SocialConversationEntryDto(
     DateTimeOffset? EditedAtUtc = null,
     string? RelatedJobTerminalStatus = null,
     string? RelatedJobTerminalNote = null,
-    Guid? SocialMessageId = null);
+    Guid? SocialMessageId = null,
+    /// <summary>Vatandaşa Gönderilecek Mesaj Onayı serbest bırakan yönetici (card #2092).</summary>
+    string? RelatedJobMessageApproverDisplayName = null);
 
 public sealed record SocialReplyRequest(
     string Content,
@@ -265,7 +267,9 @@ public sealed record CitizenConversationTimelineEntryDto(
     string? DeliveryError,
     DateTimeOffset? EditedAtUtc = null,
     string? RelatedJobTerminalStatus = null,
-    string? RelatedJobTerminalNote = null);
+    string? RelatedJobTerminalNote = null,
+    /// <summary>Vatandaşa Gönderilecek Mesaj Onayı serbest bırakan yönetici (card #2092).</summary>
+    string? RelatedJobMessageApproverDisplayName = null);
 
 public sealed record CitizenConversationTicketDto(
     Guid SocialMessageId,

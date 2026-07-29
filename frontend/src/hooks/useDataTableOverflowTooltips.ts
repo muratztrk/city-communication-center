@@ -115,9 +115,8 @@ export function useDataTableOverflowTooltips() {
       if (top + tipRect.height > window.innerHeight - gap && rect.top - tipRect.height - gap >= gap) {
         top = rect.top - tipRect.height - gap
       }
-      // Ortalı konum + hafif sağa kaydır (#r524 / #2001).
-      const rightNudge = 16
-      let left = rect.left + rect.width / 2 - tipRect.width / 2 + rightNudge
+      // Ortalı konum — sağa kaydırma yok (#r545 / #3 reopen; #2001 nudge kaldırıldı).
+      let left = rect.left + rect.width / 2 - tipRect.width / 2
       left = Math.max(gap, Math.min(left, window.innerWidth - tipRect.width - gap))
       el.style.top = `${Math.round(top)}px`
       el.style.left = `${Math.round(left)}px`

@@ -42,6 +42,12 @@ const NEIGHBORHOOD_CHART_KEYS = new Set([
   'dashboard.charts.neighborhoodProcessingRequests',
 ])
 
+/** Mahalle + Talep Etiketi: Durum/Son Tarih Taleplerim grid stili (#r545). */
+const TALEPLERIM_STATUS_STYLE_CHART_KEYS = new Set([
+  ...NEIGHBORHOOD_CHART_KEYS,
+  'dashboard.charts.requestTags',
+])
+
 function formatDrilldownNumber(row: DashboardChartDrilldownRow): string {
   if (row.citizenRequestNumber != null && row.citizenRequestNumberYear != null) {
     return `VT-${row.citizenRequestNumberYear}-${row.citizenRequestNumber}`
@@ -131,10 +137,10 @@ function printDrilldownRows(
   const rowsHtml = rows.map((row, index) => {
     const status = getDrilldownStatusLabel(t, row)
     return `<tr>
-      <td>${index + 1}</td>
+      <td class="col-seq">${index + 1}</td>
       <td class="col-no">${escape(formatDrilldownNumber(row))}</td>
-      <td class="col-title">${escape(row.title?.trim() || '—')}</td>
       <td class="col-date">${escape(formatDate(row.createdAtUtc))}</td>
+      <td class="col-title">${escape(row.title?.trim() || '—')}</td>
       <td class="col-dept">${escape(row.departmentName ?? row.neighborhood ?? '—')}</td>
       <td class="col-status">${escape(status)}</td>
       <td class="col-date">${escape(formatDate(row.dueDateUtc))}</td>
@@ -151,6 +157,8 @@ function printDrilldownRows(
       th,td{border:1px solid #cbd5e1;padding:6px 7px;text-align:center;vertical-align:middle}
       th{background:#f1f5f9;white-space:nowrap}
       th.col-title,td.col-title{white-space:normal;text-align:center;word-break:break-word;overflow-wrap:anywhere}
+      /* Talep Tarihi / Durum / Son Tarih hücre içi ortalı (#r545 / #10). */
+      th.col-date,td.col-date,th.col-status,td.col-status{text-align:center !important}
       .col-seq{width:4%}
       .col-no{width:12%;white-space:nowrap}
       .col-title{width:28%}
@@ -164,9 +172,9 @@ function printDrilldownRows(
     <table><thead><tr>
       <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
       <th class="col-no">${escape(t('jobs.columns.parentRequestNoShort', 'Talep No'))}</th>
-      <th class="col-title">${escape(t('jobs.columns.title', 'Başlık'))}</th>
       <th class="col-date">${escape(t('jobs.columns.requestDate', 'Talep Tarihi'))}</th>
-      <th class="col-dept">${escape(t('departments.name', 'Müdürlük'))}</th>
+      <th class="col-title">${escape(t('jobs.columns.title', 'Başlık'))}</th>
+      <th class="col-dept">${escape(t('jobs.columns.unitShort', 'Birim'))}</th>
       <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
       <th class="col-date">${escape(t('jobs.columns.dueDate', 'Son Tarih'))}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
@@ -193,8 +201,12 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const terminalDateHeader = rows ? resolveTerminalDateHeader(rows, t) : null
   const showTerminalDateColumn = Boolean(terminalDateHeader)
-  const useTaleplerimStatusStyle = NEIGHBORHOOD_CHART_KEYS.has(chartKey)
+  const useTaleplerimStatusStyle = TALEPLERIM_STATUS_STYLE_CHART_KEYS.has(chartKey)
   const showPrint = PRINTABLE_CHART_KEYS.has(chartKey)
+  const isRequestTagsChart = chartKey === 'dashboard.charts.requestTags'
+  const unitColumnLabel = isRequestTagsChart || NEIGHBORHOOD_CHART_KEYS.has(chartKey)
+    ? t('jobs.columns.unitShort', 'Birim')
+    : t('departments.name', 'Müdürlük')
   const chartTitle = t(chartKey)
   const sliceLabel = resolveSliceLabel(sliceKey, t)
   const drilldownColumnCount = showTerminalDateColumn ? 9 : 8
@@ -309,12 +321,12 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                     <tr>
                       <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                       <th>{t('jobs.columns.requestNo', 'Talep No')}</th>
-                      <th>{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
+                      <th className="text-center">{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
                       <th>{t('jobs.columns.title', 'Başlık')}</th>
-                      <th>{t('departments.name', 'Müdürlük')}</th>
-                      <th>{t('jobs.columns.status', 'Durum')}</th>
-                      {showTerminalDateColumn ? <th>{terminalDateHeader}</th> : null}
-                      <th>{t('jobs.columns.dueDate', 'Son Tarih')}</th>
+                      <th>{unitColumnLabel}</th>
+                      <th className="text-center">{t('jobs.columns.status', 'Durum')}</th>
+                      {showTerminalDateColumn ? <th className="text-center">{terminalDateHeader}</th> : null}
+                      <th className="text-center">{t('jobs.columns.dueDate', 'Son Tarih')}</th>
                       <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                     </tr>
                   </thead>
@@ -350,10 +362,10 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                             {formatDrilldownNumber(row)}
                           </span>
                         </td>
-                        <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
+                        <td className="text-center"><DateCell value={row.createdAtUtc} locale={locale} /></td>
                         <td className="font-semibold">{row.title}</td>
                         <td>{row.departmentName ?? row.neighborhood ?? '—'}</td>
-                        <td>
+                        <td className="text-center">
                           {useTaleplerimStatusStyle ? (
                             <StatusPill className={getDrilldownStatusPillClass(row)}>
                               <GridStatusLabel
@@ -372,7 +384,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                           )}
                         </td>
                         {showTerminalDateColumn ? (
-                          <td>
+                          <td className="text-center">
                             {row.status === 'Completed' || isCancelledLike(row.status) ? (
                               <DateCell
                                 value={row.terminalDateUtc}
@@ -382,7 +394,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                             ) : '—'}
                           </td>
                         ) : null}
-                        <td>
+                        <td className="text-center">
                           {useTaleplerimStatusStyle ? (
                             <DueDatePill
                               value={row.dueDateUtc}

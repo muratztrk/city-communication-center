@@ -1,3 +1,10 @@
+## Round 545 — 10 reopen (R544 follow-up)
+- Talep Etiketi drilldown: Durum/Son Tarih = Taleplerim (`StatusPill`/`DueDatePill`); sütun `Birim`.
+- Operator Taleplerim dilimi `Onaylanmış/Yapılmakta`; overflow tooltip hücre ortası (nudge yok).
+- VT kutusu/kanal: unlinked SocialMessage → Phone (WhatsApp varsayımı yok); `citizen=1` + kanal alias.
+- Dashboard scroll: `main#main-content` + tekrarlı restore; tarih chip saat boşluğu; boş adres sola.
+- Yazdır: Talep Tarihi/Durum/Son Tarih ortalı; sütun sırası grid ile uyumlu.
+
 ## Round 543 — sticky başlık sızıntısı + dropdown punto + adres ortalama
 - `0fb957da` (#1906) — scroll kabındaki `pt-3` sticky başlığı 12px aşağı itiyordu; satırlar o
   şeritten başlığın üstünde görünüyordu. Boşluk iç sarmalayıcıya alındı (ölçüm: 12.0px → 0.0px).

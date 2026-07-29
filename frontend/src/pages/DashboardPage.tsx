@@ -17,6 +17,19 @@ import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
 
 const DASHBOARD_SCROLL_KEY = 'ccc.dashboard.scrollTop'
 
+function getDashboardScrollEl(): HTMLElement | null {
+  // Desktop: scroll `main#main-content` üzerinde; shell `md:overflow-visible` (#r545 / #17 reopen).
+  const main = document.getElementById('main-content')
+  if (main instanceof HTMLElement) return main
+  const shell = document.querySelector('.app-content-shell')
+  return shell instanceof HTMLElement ? shell : null
+}
+
+function saveDashboardScroll() {
+  const el = getDashboardScrollEl()
+  if (el) sessionStorage.setItem(DASHBOARD_SCROLL_KEY, String(el.scrollTop))
+}
+
 interface MetricCard {
   label: string
   sublabel?: string
@@ -145,13 +158,6 @@ function periodQueryParams(from: string, to: string): Record<string, string | un
   return { from: from || undefined, to: to || undefined }
 }
 
-function saveDashboardScroll() {
-  const shell = document.querySelector('.app-content-shell')
-  if (shell instanceof HTMLElement) {
-    sessionStorage.setItem(DASHBOARD_SCROLL_KEY, String(shell.scrollTop))
-  }
-}
-
 // Bir dilime tıklanınca gidilecek, ilgili filtrelerle gridview rotası (card 797).
 function getSliceRoute(
   titleKey: string,
@@ -162,7 +168,7 @@ function getSliceRoute(
 ): string | undefined {
   const dateParams = period ? periodQueryParams(period.from, period.to) : {}
 
-  // Vatandaş kanalları: yönetici → Birime Gelen + kanal; diğerleri → /social (#r542 / #12)
+  // Vatandaş kanalları: yönetici/admin → Birime Gelen + kanal (#r542/#r545 / #12/#7)
   if (titleKey === 'dashboard.citizenChannels.title') {
     const channel = sliceLabel.startsWith('channel.')
       ? sliceLabel.slice('channel.'.length)
@@ -170,6 +176,7 @@ function getSliceRoute(
     if (options?.citizenChannelsToIncoming) {
       return withQueryParams('/incoming-requests', {
         status: 'all',
+        citizen: '1',
         channel,
         ...dateParams,
       })
@@ -299,26 +306,37 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const apiFrom = toApiDateParam(activeFrom)
   const apiTo = toApiDateParam(activeTo)
 
-  // Pie/kart navigasyonundan dönüşte scroll konumunu geri yükle (#r542 / #17).
-  useEffect(() => {
-    const raw = sessionStorage.getItem(DASHBOARD_SCROLL_KEY)
-    if (raw == null) return
-    sessionStorage.removeItem(DASHBOARD_SCROLL_KEY)
-    const top = Number(raw)
-    if (!Number.isFinite(top)) return
-    const restore = () => {
-      const shell = document.querySelector('.app-content-shell')
-      if (shell instanceof HTMLElement) shell.scrollTop = top
-    }
-    restore()
-    requestAnimationFrame(restore)
-  }, [])
-
   const dashboardQuery = useQuery({
     queryKey: queryKeys.dashboard.snapshot({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
     queryFn: () => api.getDashboard(apiFrom, apiTo),
     refetchInterval: 60_000,
   })
+
+  // Pie/kart navigasyonundan dönüşte scroll konumunu geri yükle (#r545 / #17).
+  // Desktop scroll `main#main-content`; içerik boyu oturana kadar birkaç kez dene.
+  useEffect(() => {
+    const raw = sessionStorage.getItem(DASHBOARD_SCROLL_KEY)
+    if (raw == null) return
+    const top = Number(raw)
+    if (!Number.isFinite(top)) {
+      sessionStorage.removeItem(DASHBOARD_SCROLL_KEY)
+      return
+    }
+    const restore = () => {
+      const el = getDashboardScrollEl()
+      if (el) el.scrollTop = top
+    }
+    restore()
+    const timers = [0, 50, 120, 300, 600, 1000].map(ms => window.setTimeout(restore, ms))
+    const clearTimer = window.setTimeout(() => {
+      sessionStorage.removeItem(DASHBOARD_SCROLL_KEY)
+    }, 1200)
+    return () => {
+      timers.forEach(id => window.clearTimeout(id))
+      window.clearTimeout(clearTimer)
+    }
+  }, [dashboardQuery.isFetched, dashboardQuery.dataUpdatedAt])
+
   const canSeeCitizenChannels = role === 'SystemAdmin' || role === 'Manager' || role === 'Operator' || role === 'Reporter'
   const canSeeCitizenMap = effectiveView === 'citizen' && (role === 'Reporter' || role === 'Operator' || role === 'SystemAdmin')
   const citizenChannelQuery = useQuery({
@@ -702,7 +720,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                 noDataLabel={t('dashboard.chart.noData')}
                 showZeroSlices
                 formatSliceLabel={
-                  role === 'Staff' && card.titleKey === 'dashboard.charts.myRequests'
+                  (role === 'Staff' || role === 'Operator') && card.titleKey === 'dashboard.charts.myRequests'
                     ? (raw, translate) => (raw === 'dashboard.chart.approved'
                       ? translate('dashboard.chart.approvedOrInProgress', 'Onaylanmış/Yapılmakta')
                       : undefined)

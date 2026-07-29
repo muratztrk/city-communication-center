@@ -1438,11 +1438,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`?view=pending` menüyü boyar); `/dashboard` istisnası korunur.
 - **Öncelik Normal rengi (#r542):** `getPriorityColorClass('Normal')` = `text-emerald-600`
   (grid + detay ortak; sarı değil).
-- **Drilldown popup header (#r542):** ortada kurum logosu; slice başlığın alt satırında; Talep
-  Etiketi + mahalle pie'larında Yazdır; mahalle Durum=`StatusPill`+`GridStatusLabel`,
-  Son Tarih=`DueDatePill`.
-- **Dashboard scroll (#r542):** pie/kart navigasyonu öncesi `.app-content-shell` scrollTop
-  sessionStorage; dashboard dönüşte restore.
+- **Drilldown popup header (#r542/#r545):** ortada kurum logosu; slice başlığın alt satırında; Talep
+  Etiketi + mahalle pie'larında Yazdır; mahalle **ve** Talep Etiketi Durum=`StatusPill`+`GridStatusLabel`,
+  Son Tarih=`DueDatePill`; Talep Etiketi/mahalle sütun başlığı `Birim` (`jobs.columns.unitShort`);
+  yazdırma penceresinde Talep Tarihi/Durum/Son Tarih ortalı.
+- **Dashboard scroll (#r545):** pie/kart öncesi `main#main-content` (desktop; shell
+  `md:overflow-visible`) scrollTop sessionStorage; dönüşte içerik oturana kadar tekrarlı restore.
+- **Birime Gelen kanal (#r545):** VT satırında sosyal kanal yoksa unlinked `SocialMessage` → `Phone`
+  (chart ile aynı); `?? WhatsApp` varsayımı yok. `citizen=1` tüm VT; `channel=` alias eşleşmeli.
+- **Overflow tooltip (#r545):** hücre ortası — sağa `rightNudge` yok.
+- **Operator Taleplerim dilimi (#r545):** Staff gibi `Onaylanmış/Yapılmakta`.
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
   açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş talebinde Oluşturan satırının
   başında kanal ikonu görünür; vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.

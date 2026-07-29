@@ -579,9 +579,8 @@
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
     align-items: start;
-    justify-items: center;
-    /* #1876 / #r542: boş adreste üç etiket üst çizgi genişliğine göre kolon ortalı.
-       Negatif margin grubu sola kaydırıyordu — kaldırıldı. */
+    justify-items: stretch;
+    /* #r545 / #8 reopen: boş adreste etiketler biraz sola (tam ortalı değil). */
     margin-inline-start: 0;
     width: 100%;
   }
@@ -589,22 +588,23 @@
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    justify-self: center;
+    align-items: flex-start;
+    text-align: left;
+    justify-self: stretch;
     width: 100%;
     max-width: 100%;
+    padding-inline-start: 0.35rem;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
     width: fit-content;
     max-width: 100%;
-    margin-inline: auto;
+    margin-inline: 0;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
     width: fit-content;
-    margin-inline: auto;
+    margin-inline: 0;
   }
 
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
@@ -2560,6 +2560,12 @@
     font-size: 0.74rem;
   }
 
+  .dashboard-drilldown-table td.text-center .date-cell,
+  .dashboard-drilldown-table td.text-center .due-date-pill,
+  .dashboard-drilldown-table td.text-center .status-pill {
+    margin-inline: auto;
+  }
+
   .data-table tbody tr:hover td {
     background: rgba(248, 250, 252, 0.72);
   }
@@ -3532,9 +3538,9 @@
   }
 
   /* Filtredeki tarih seçici kompakt; satırın aşağı kaymasını önler.
-     12rem: dd.mm.yyyy + ekstra boşluk + HH:mm (#r542 saat sağa ferah). */
+     12.5rem: dd.mm.yyyy + geniş boşluk + HH:mm (#r545 saat sağa ferah). */
   .scope-chip-date {
-    width: 12rem;
+    width: 12.5rem;
     flex: 0 0 auto;
   }
 

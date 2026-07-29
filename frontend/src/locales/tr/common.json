@@ -1570,6 +1570,7 @@
     "columns": {
       "title": "Başlık",
       "requestNo": "Talep No",
+      "unitShort": "Birim",
       "ownerDepartment": "Talep Sahibi Birim/Müdürlük",
       "departments": "Müdürlükler",
       "status": "Durum",

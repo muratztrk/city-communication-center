@@ -62,6 +62,44 @@ import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { isJobDueDateOverdue, toDateTimePickerValue, toLocalDateKey } from '../utils/dateTimePicker'
 
+function resolveIncomingSourceChannel(
+  job: { sourceType?: string | null; requestType?: string | null },
+  social: SocialMessage | undefined,
+): string | null {
+  if (social?.channel) return social.channel
+  const source = job.sourceType ?? ''
+  if (source === 'EDevlet') return 'EDevlet'
+  if (source === 'MobileApp') return 'MobileApp'
+  if (source === 'Phone' || source === 'Call') return 'Phone'
+  if (source === 'Email') return 'Email'
+  if (source === 'WebForm') return 'WebForm'
+  // Sosyal mesaj linki yoksa: chart ile aynı — unlinked SocialMessage = Çağrı/Phone
+  // (GetCitizenChannelChartQuery.MapUnlinkedCitizenSourceToChannel). WhatsApp varsayma.
+  if (source === 'SocialMessage') return 'Phone'
+  if (job.requestType === 'Citizen') return null
+  return null
+}
+
+function channelsMatch(rowChannel: string | null | undefined, filter: string): boolean {
+  const a = (rowChannel ?? '').toLocaleLowerCase('tr')
+  const b = filter.toLocaleLowerCase('tr')
+  if (!b) return true
+  if (a === b) return true
+  // Dilim anahtarı / UI etiket alias'ları
+  const aliases: Record<string, string[]> = {
+    phone: ['phone', 'call', 'çağrı', 'cagri'],
+    whatsapp: ['whatsapp'],
+    edevlet: ['edevlet', 'e-devlet'],
+    mobileapp: ['mobileapp', 'mobil', 'mobile'],
+    email: ['email', 'e-posta', 'eposta'],
+    webform: ['webform', 'web formu', 'webform'],
+  }
+  for (const group of Object.values(aliases)) {
+    if (group.includes(a) && group.includes(b)) return true
+  }
+  return false
+}
+
 type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-progress' | 'completed' | 'cancelled' | 'all'
 type IncomingKindFilter = 'all'
 
@@ -323,7 +361,9 @@ function toExternalRow(
   const displayNumber = isCitizenRequestJob(job)
     ? formatCitizenRequestNumber(socialByJobId.get(job.jobId) ?? { createdAtUtc: job.createdAtUtc }, locale)
     : formatJobDisplayNumber(job)
-  const sourceChannel = isCitizenRequestJob(job) ? (socialByJobId.get(job.jobId)?.channel ?? 'WhatsApp') : null
+  const sourceChannel = isCitizenRequestJob(job)
+    ? resolveIncomingSourceChannel(job, socialByJobId.get(job.jobId))
+    : null
   const forwardSourceUser = activeTarget?.requestedByUserId
     ? users.find(user => user.userId === activeTarget.requestedByUserId)
     : null
@@ -709,8 +749,7 @@ export function IncomingRequestsPage() {
       result = result.filter(row => row.isCitizenRequest)
     }
     if (channelFilter) {
-      const normalized = channelFilter.toLocaleLowerCase('tr')
-      result = result.filter(row => (row.sourceChannel ?? '').toLocaleLowerCase('tr') === normalized)
+      result = result.filter(row => channelsMatch(row.sourceChannel, channelFilter))
     }
     if (filterFrom || filterTo) {
       const useDueDatePeriod = currentStatusFilter === 'overdue'

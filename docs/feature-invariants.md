@@ -400,7 +400,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **otomatik olarak** `Pending` kuyruğa girmez (R421 değişti — card #2039): `CitizenJobStatusNotifier`
   terminal durumda erken `return` ile deferral loglar ve `Job.CitizenTerminalMessageReleasedAtUtc`
   `null` kalır. Mesaj+not, Manager/CitizenRequestManager `Vatandaşa Gönderilecek Mesaj Onayı`
-  (`/citizen-message-approval`, yalnız WhatsApp/Çağrı kanallı vatandaş talepleri) ekranından
+  (`/citizen-message-approval`, yalnız WhatsApp/Çağrı kanallı VT — `CitizenRequestNumber` dolu;
+  `SocialMessage.JobId` veya `Job.SourceRefId` bağları, card #2036) ekranından
+  chip'ler **Mesaj Onayı Bekleyen** / **Mesaj Gönderimi Onaylanan** / **Tümü**;
   `Mesajı Gönder` ile `ReleaseCitizenMessageApprovalCommand` → `ICitizenJobStatusNotifier
   .ReleaseTerminalMessagesAsync` çağırana kadar bekler; bu an itibariyle eskisi gibi `Pending`
   kuyruğa girer ve `CitizenTerminalMessageReleasedAtUtc` doldurulur (idempotent). Tamamlanmada

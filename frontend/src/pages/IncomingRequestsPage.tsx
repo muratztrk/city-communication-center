@@ -3,6 +3,7 @@ import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
+import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 
 function getScopeChipColorClass(value: string): string {
   if (value === 'pending-approval') return 'scope-chip--pending'
@@ -907,7 +908,18 @@ export function IncomingRequestsPage() {
       </header>
 
       <nav className="scope-chips" aria-label={t('nav.incomingRequests', 'Birime Gelen Talepler')}>
-        {STATUS_FILTERS.map(filter => (
+        {STATUS_FILTERS.slice(0, -1).map(filter => (
+          <button
+            key={filter.value}
+            type="button"
+            className={`scope-chip ${getScopeChipColorClass(filter.value)}${filter.value === currentStatusFilter ? ' active' : ''}`}
+            onClick={() => setStatusFilter(filter.value)}
+          >
+            {t(filter.labelKey, filter.fallback)}
+          </button>
+        ))}
+        <ClearPieFilterLink />
+        {STATUS_FILTERS.slice(-1).map(filter => (
           <button
             key={filter.value}
             type="button"

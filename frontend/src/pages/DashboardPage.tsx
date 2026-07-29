@@ -63,9 +63,9 @@ const CHART_ROUTES: Record<string, string> = {
   'dashboard.charts.citizenRequests': '/social',
 }
 
-// Üst Düzey Yönetici panosunda dilim tıklaması detay popup'ı açan grafikler (Taleplerim hariç, card #1343).
+// Üst Düzey Yönetici panosunda dilim tıklaması detay popup'ı açan grafikler.
+// Vatandaş Talepleri → /social + requestStatus (drilldown değil, #r546).
 const DRILLDOWN_CHART_KEYS = new Set([
-  'dashboard.charts.citizenRequests',
   'dashboard.charts.requestTags',
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
@@ -153,6 +153,10 @@ function withQueryParams(basePath: string, params: Record<string, string | undef
   return `${path}?${existingQuery}&${search}`
 }
 
+function pieQueryParams(extra: Record<string, string | undefined> = {}): Record<string, string | undefined> {
+  return { fromPie: '1', ...extra }
+}
+
 function periodQueryParams(from: string, to: string): Record<string, string | undefined> {
   if (!from && !to) return {}
   return { from: from || undefined, to: to || undefined }
@@ -174,48 +178,48 @@ function getSliceRoute(
       ? sliceLabel.slice('channel.'.length)
       : undefined
     if (options?.citizenChannelsToIncoming) {
-      return withQueryParams('/incoming-requests', {
+      return withQueryParams('/incoming-requests', pieQueryParams({
         status: 'all',
         citizen: '1',
         channel,
         ...dateParams,
-      })
+      }))
     }
     return channel
-      ? `/social?channel=${encodeURIComponent(channel)}`
-      : '/social'
+      ? withQueryParams('/social', pieQueryParams({ channel }))
+      : withQueryParams('/social', pieQueryParams())
   }
 
   if (titleKey === 'dashboard.charts.citizenRequests') {
     const requestStatus = CITIZEN_SLICE_STATUS[sliceLabel]
-    return withQueryParams('/social', {
+    return withQueryParams('/social', pieQueryParams({
       channel: 'all',
       requestStatus,
       ...dateParams,
-    })
+    }))
   }
 
   const taskTypeParam = taskChartFilter && taskChartFilter !== 'all' ? taskChartFilter : undefined
 
   if (titleKey === 'dashboard.charts.staffTasks') {
-    return withQueryParams('/staff-tasks', {
+    return withQueryParams('/staff-tasks', pieQueryParams({
       userId: parseStaffSliceUserId(sliceLabel),
       taskType: taskTypeParam,
       ...dateParams,
-    })
+    }))
   }
 
   if (titleKey === 'dashboard.charts.incomingRequests') {
     const status = INCOMING_SLICE_STATUS[sliceLabel]
-    return withQueryParams('/incoming-requests', {
+    return withQueryParams('/incoming-requests', pieQueryParams({
       status: status === 'pending-approval' ? undefined : status,
       ...dateParams,
-    })
+    }))
   }
 
   // Standart kullanıcı "Birimdeki Görevler" 2 dilimli grafiği; "Benim Görevlerim" → Tüm Görevlerim (card #1345).
   if (sliceLabel === 'dashboard.chart.assignedToMe') {
-    return withQueryParams('/my-tasks', { view: 'all', taskType: taskTypeParam, ...dateParams })
+    return withQueryParams('/my-tasks', pieQueryParams({ view: 'all', taskType: taskTypeParam, ...dateParams }))
   }
   // "Birimdeki Görevler" dilimi/legend metni tıklanabilir değildir (card #1337).
   if (sliceLabel === 'dashboard.chart.departmentTotal') {
@@ -228,24 +232,24 @@ function getSliceRoute(
   const view = SLICE_VIEW[sliceLabel]
 
   if (titleKey === 'dashboard.charts.departmentTasks') {
-    return withQueryParams('/department-tasks', {
+    return withQueryParams('/department-tasks', pieQueryParams({
       flow: 'all',
       view,
       taskType: taskTypeParam,
       ...dateParams,
-    })
+    }))
   }
 
   if (titleKey === 'dashboard.charts.myTasks') {
-    return withQueryParams('/my-tasks', {
+    return withQueryParams('/my-tasks', pieQueryParams({
       view,
       taskType: taskTypeParam,
       ...dateParams,
-    })
+    }))
   }
 
-  if (!view) return withQueryParams(base.split('?')[0], dateParams)
-  return withQueryParams(base.split('?')[0], { view, ...dateParams })
+  if (!view) return withQueryParams(base.split('?')[0], pieQueryParams(dateParams))
+  return withQueryParams(base.split('?')[0], pieQueryParams({ view, ...dateParams }))
 }
 
 export function DashboardPage({ view = 'full' }: DashboardPageProps) {

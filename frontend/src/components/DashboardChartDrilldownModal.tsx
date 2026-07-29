@@ -143,7 +143,7 @@ function printDrilldownRows(
       <td class="col-title">${escape(row.title?.trim() || '—')}</td>
       <td class="col-dept">${escape(row.departmentName ?? row.neighborhood ?? '—')}</td>
       <td class="col-status">${escape(status)}</td>
-      <td class="col-date">${escape(formatDate(row.dueDateUtc))}</td>
+      <td class="col-date">${escape(formatDate(row.terminalDateUtc))}</td>
     </tr>`
   }).join('')
 
@@ -157,7 +157,7 @@ function printDrilldownRows(
       th,td{border:1px solid #cbd5e1;padding:6px 7px;text-align:center;vertical-align:middle}
       th{background:#f1f5f9;white-space:nowrap}
       th.col-title,td.col-title{white-space:normal;text-align:center;word-break:break-word;overflow-wrap:anywhere}
-      /* Talep Tarihi / Durum / Son Tarih hücre içi ortalı (#r545 / #10). */
+      /* Talep Tarihi / Durum / Tamamlanma Tarihi hücre içi ortalı (#r545/#r546). */
       th.col-date,td.col-date,th.col-status,td.col-status{text-align:center !important}
       .col-seq{width:4%}
       .col-no{width:12%;white-space:nowrap}
@@ -176,7 +176,7 @@ function printDrilldownRows(
       <th class="col-title">${escape(t('jobs.columns.title', 'Başlık'))}</th>
       <th class="col-dept">${escape(t('jobs.columns.unitShort', 'Birim'))}</th>
       <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
-      <th class="col-date">${escape(t('jobs.columns.dueDate', 'Son Tarih'))}</th>
+      <th class="col-date">${escape(t('jobs.columns.completedAt', 'Tamamlanma Tarihi'))}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
     <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
     </body></html>`
@@ -200,7 +200,12 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const [detailError, setDetailError] = useState<string | null>(null)
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const terminalDateHeader = rows ? resolveTerminalDateHeader(rows, t) : null
-  const showTerminalDateColumn = Boolean(terminalDateHeader)
+  const hideDueDateColumn = PRINTABLE_CHART_KEYS.has(chartKey)
+  // Mahalle/etiket: Son Tarih yok; Tamamlanma Tarihi her zaman (#r546).
+  const showTerminalDateColumn = hideDueDateColumn || Boolean(terminalDateHeader)
+  const terminalColumnHeader = hideDueDateColumn
+    ? t('jobs.columns.completedAt', 'Tamamlanma Tarihi')
+    : (terminalDateHeader ?? t('jobs.columns.completedAt', 'Tamamlanma Tarihi'))
   const useTaleplerimStatusStyle = TALEPLERIM_STATUS_STYLE_CHART_KEYS.has(chartKey)
   const showPrint = PRINTABLE_CHART_KEYS.has(chartKey)
   const isRequestTagsChart = chartKey === 'dashboard.charts.requestTags'
@@ -209,7 +214,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     : t('departments.name', 'Müdürlük')
   const chartTitle = t(chartKey)
   const sliceLabel = resolveSliceLabel(sliceKey, t)
-  const drilldownColumnCount = showTerminalDateColumn ? 9 : 8
+  const drilldownColumnCount = 7 + (showTerminalDateColumn ? 1 : 0) + (hideDueDateColumn ? 0 : 1)
 
   useEffect(() => {
     let cancelled = false
@@ -287,8 +292,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                 <Button
                   type="button"
                   size="lg"
-                  variant="secondary"
-                  className="inline-flex items-center gap-1.5"
+                  variant="ghost"
+                  className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
                   onClick={() => printDrilldownRows(chartTitle, sliceLabel, rows, locale, t)}
                   aria-label={t('common.print', 'Yazdır')}
                 >
@@ -298,11 +303,11 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
               ) : null}
               <button
                 type="button"
-                className="detail-modal-header-close rounded-full p-1 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                className="detail-modal-header-close flex size-9 items-center justify-center rounded-full bg-transparent text-slate-400 shadow-none transition-colors hover:bg-red-50 hover:text-red-600 active:scale-95"
                 aria-label={t('common.close', 'Kapat')}
                 onClick={onClose}
               >
-                <X className="size-4" />
+                <X className="size-4" strokeWidth={1.75} />
               </button>
             </div>
           </div>
@@ -325,8 +330,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                       <th>{t('jobs.columns.title', 'Başlık')}</th>
                       <th>{unitColumnLabel}</th>
                       <th className="text-center">{t('jobs.columns.status', 'Durum')}</th>
-                      {showTerminalDateColumn ? <th className="text-center">{terminalDateHeader}</th> : null}
-                      <th className="text-center">{t('jobs.columns.dueDate', 'Son Tarih')}</th>
+                      {showTerminalDateColumn ? <th className="text-center">{terminalColumnHeader}</th> : null}
+                      {!hideDueDateColumn ? <th className="text-center">{t('jobs.columns.dueDate', 'Son Tarih')}</th> : null}
                       <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                     </tr>
                   </thead>
@@ -394,22 +399,24 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                             ) : '—'}
                           </td>
                         ) : null}
-                        <td className="text-center">
-                          {useTaleplerimStatusStyle ? (
-                            <DueDatePill
-                              value={row.dueDateUtc}
-                              completedAtUtc={row.status === 'Completed' ? row.terminalDateUtc : null}
-                              locale={locale}
-                              emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
-                            />
-                          ) : (
-                            <DateCell
-                              value={row.dueDateUtc}
-                              locale={locale}
-                              emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
-                            />
-                          )}
-                        </td>
+                        {!hideDueDateColumn ? (
+                          <td className="text-center">
+                            {useTaleplerimStatusStyle ? (
+                              <DueDatePill
+                                value={row.dueDateUtc}
+                                completedAtUtc={row.status === 'Completed' ? row.terminalDateUtc : null}
+                                locale={locale}
+                                emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
+                              />
+                            ) : (
+                              <DateCell
+                                value={row.dueDateUtc}
+                                locale={locale}
+                                emptyLabel={t('dashboard.chart.pendingApproval', 'Onay Bekleyen')}
+                              />
+                            )}
+                          </td>
+                        ) : null}
                         <td className="actions-cell">
                           <div className="request-actions justify-center">
                             <Button

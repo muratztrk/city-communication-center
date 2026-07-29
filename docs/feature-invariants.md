@@ -1438,10 +1438,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`?view=pending` menüyü boyar); `/dashboard` istisnası korunur.
 - **Öncelik Normal rengi (#r542):** `getPriorityColorClass('Normal')` = `text-emerald-600`
   (grid + detay ortak; sarı değil).
-- **Drilldown popup header (#r542/#r545):** ortada kurum logosu; slice başlığın alt satırında; Talep
-  Etiketi + mahalle pie'larında Yazdır; mahalle **ve** Talep Etiketi Durum=`StatusPill`+`GridStatusLabel`,
-  Son Tarih=`DueDatePill`; Talep Etiketi/mahalle sütun başlığı `Birim` (`jobs.columns.unitShort`);
-  yazdırma penceresinde Talep Tarihi/Durum/Son Tarih ortalı.
+- **Drilldown popup header (#r542/#r545/#r546):** ortada kurum logosu; slice başlığın alt satırında; Talep
+  Etiketi + mahalle pie'larında Yazdır (Taleplerim `detail-print-action` ghost) + X hover bildirimler
+  gibi (`hover:bg-red-50 hover:text-red-600`); mahalle/etiket Durum=`StatusPill`+`GridStatusLabel`;
+  sütun `Birim`; **Son Tarih yok** — yerine `Tamamlanma Tarihi` (yazdırma dahil).
+- **Vatandaş Talepleri pie (#r546):** VT sayısı `WhereHasCitizenRequestNumber` (RequestType şartı yok);
+  dilim tıklanınca drilldown değil `/social?requestStatus=…&fromPie=1`.
+- **Pie Filtreyi sil (#r546):** `fromPie=1` ile gelinen gridlerde scope-chip satırında kırmızı
+  `Filtreyi sil` — tıklanınca pathname'e (query yok) döner.
 - **Dashboard scroll (#r545):** pie/kart öncesi `main#main-content` (desktop; shell
   `md:overflow-visible`) scrollTop sessionStorage; dönüşte içerik oturana kadar tekrarlı restore.
 - **Birime Gelen kanal (#r545):** VT satırında sosyal kanal yoksa unlinked `SocialMessage` → `Phone`

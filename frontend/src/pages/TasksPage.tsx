@@ -4,6 +4,7 @@ import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
+import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
@@ -1748,7 +1749,7 @@ const pageKicker = isMyTasksView
 
       {isMyTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.myTasks', 'Görevlerim')}>
-          {MY_TASK_VIEWS.map(view => (
+          {(showRequestFlowFilters ? MY_TASK_VIEWS : MY_TASK_VIEWS.slice(0, -1)).map(view => (
             <button
               key={view.value}
               type="button"
@@ -1761,7 +1762,18 @@ const pageKicker = isMyTasksView
           {showRequestFlowFilters ? (
             <>
               <span className="scope-chip-divider" aria-hidden="true">|</span>
-              {REQUEST_FLOW_FILTERS.map(filter => (
+              {REQUEST_FLOW_FILTERS.slice(0, -1).map(filter => (
+                <button
+                  key={filter.value}
+                  type="button"
+                  className={`scope-chip scope-chip--${filter.value}${filter.value === currentRequestFlowFilter ? ' active' : ''}`}
+                  onClick={() => setRequestFlowFilter(filter.value)}
+                >
+                  {t(filter.labelKey)}
+                </button>
+              ))}
+              <ClearPieFilterLink />
+              {REQUEST_FLOW_FILTERS.slice(-1).map(filter => (
                 <button
                   key={filter.value}
                   type="button"
@@ -1772,11 +1784,25 @@ const pageKicker = isMyTasksView
                 </button>
               ))}
             </>
-          ) : null}
+          ) : (
+            <>
+              <ClearPieFilterLink />
+              {MY_TASK_VIEWS.slice(-1).map(view => (
+                <button
+                  key={view.value}
+                  type="button"
+                  className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentMyTaskView ? ' active' : ''}`}
+                  onClick={() => setMyTaskView(view.value)}
+                >
+                  {t(view.labelKey)}
+                </button>
+              ))}
+            </>
+          )}
         </nav>
       ) : isDepartmentTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.departmentTasks', 'Birimdeki Görevler')}>
-          {DEPARTMENT_STATUS_VIEWS.map(view => (
+          {(showDepartmentTaskFlowFilters ? DEPARTMENT_STATUS_VIEWS : DEPARTMENT_STATUS_VIEWS.slice(0, -1)).map(view => (
             <button
               key={view.value}
               type="button"
@@ -1789,7 +1815,18 @@ const pageKicker = isMyTasksView
           {showDepartmentTaskFlowFilters ? (
             <>
               <span className="scope-chip-divider" aria-hidden="true">|</span>
-              {DEPARTMENT_TASK_FLOWS.map(flow => (
+              {DEPARTMENT_TASK_FLOWS.slice(0, -1).map(flow => (
+                <button
+                  key={flow.value}
+                  type="button"
+                  className={`scope-chip scope-chip--${flow.value}${flow.value === currentRequestFlowFilter ? ' active' : ''}`}
+                  onClick={() => setDepartmentTaskFlow(flow.value)}
+                >
+                  {t(flow.labelKey)}
+                </button>
+              ))}
+              <ClearPieFilterLink />
+              {DEPARTMENT_TASK_FLOWS.slice(-1).map(flow => (
                 <button
                   key={flow.value}
                   type="button"
@@ -1800,7 +1837,21 @@ const pageKicker = isMyTasksView
                 </button>
               ))}
             </>
-          ) : null}
+          ) : (
+            <>
+              <ClearPieFilterLink />
+              {DEPARTMENT_STATUS_VIEWS.slice(-1).map(view => (
+                <button
+                  key={view.value}
+                  type="button"
+                  className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentMyTaskView ? ' active' : ''}`}
+                  onClick={() => setMyTaskView(view.value)}
+                >
+                  {t(view.labelKey)}
+                </button>
+              ))}
+            </>
+          )}
         </nav>
       ) : isStaffTasksView ? (
         <nav className="scope-chips">
@@ -1822,7 +1873,18 @@ const pageKicker = isMyTasksView
             {t('tasks.staff.allStaff', 'Tüm Personel')}
           </button>
           <span className="scope-chip-divider" aria-hidden="true">|</span>
-          {TASK_TYPE_FILTERS.map(filter => (
+          {TASK_TYPE_FILTERS.slice(0, -1).map(filter => (
+            <button
+              key={filter.value}
+              type="button"
+              className={`scope-chip scope-chip--pending${filter.value === currentTaskTypeFilter ? ' active' : ''}`}
+              onClick={() => setTaskTypeFilter(filter.value)}
+            >
+              {t(filter.labelKey)}
+            </button>
+          ))}
+          <ClearPieFilterLink />
+          {TASK_TYPE_FILTERS.slice(-1).map(filter => (
             <button
               key={filter.value}
               type="button"
@@ -1835,7 +1897,18 @@ const pageKicker = isMyTasksView
         </nav>
       ) : (
         <nav className="scope-chips">
-          {scopes.map(scope => (
+          {scopes.slice(0, -1).map(scope => (
+            <button
+              key={scope}
+              type="button"
+              className={`scope-chip${scope === currentScope ? ' active' : ''}`}
+              onClick={() => setSearchParams({ scope })}
+            >
+              {t(SCOPES.find(s => s.value === scope)!.labelKey)}
+            </button>
+          ))}
+          <ClearPieFilterLink />
+          {scopes.slice(-1).map(scope => (
             <button
               key={scope}
               type="button"

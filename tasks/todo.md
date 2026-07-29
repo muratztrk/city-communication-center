@@ -1,3 +1,9 @@
+## Round 546 — 4 Doing (drilldown Son Tarih, VT pie, Yazdır/X, Filtreyi sil)
+- Mahalle/etiket drilldown: Son Tarih kaldırıldı; Tamamlanma Tarihi (grid+yazdır).
+- Vatandaş Talepleri pie: VT sayısı RequestType şartı olmadan; dilim → `/social?requestStatus`.
+- Yazdır = Taleplerim ghost; X hover = bildirim kırmızısı.
+- Pie navigasyonunda `fromPie=1` + kırmızı Filtreyi sil.
+
 ## Round 545 — 10 reopen (R544 follow-up)
 - Talep Etiketi drilldown: Durum/Son Tarih = Taleplerim (`StatusPill`/`DueDatePill`); sütun `Birim`.
 - Operator Taleplerim dilimi `Onaylanmış/Yapılmakta`; overflow tooltip hücre ortası (nudge yok).

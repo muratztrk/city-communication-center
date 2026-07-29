@@ -15,6 +15,7 @@ import { RequestTagPicker } from '../components/RequestTagDialog'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
+import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { GoogleMapsEmbed } from '../components/ui/GoogleMapsEmbed'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import type { Department, JobSummary, RequestTag, SocialMessage } from '../types/platform'
@@ -227,9 +228,9 @@ export function SocialMessagesPage() {
 
   useEffect(() => {
     const nextStatus = searchParams.get('requestStatus')
-    if (isSocialRequestStatusFilter(nextStatus)) {
-      setRequestStatusFilter(nextStatus)
-    }
+    setRequestStatusFilter(isSocialRequestStatusFilter(nextStatus) ? nextStatus : 'all')
+    setFilterFrom(searchParams.get('from') ?? '')
+    setFilterTo(searchParams.get('to') ?? '')
   }, [searchParams])
 
   useEffect(() => {
@@ -557,6 +558,7 @@ export function SocialMessagesPage() {
           </button>
         ))}
         <span className="scope-chip-divider" aria-hidden="true">|</span>
+        <ClearPieFilterLink />
         <SingleSelectDropdown
           className="w-auto"
           triggerClassName="scope-chip-year-select w-auto"

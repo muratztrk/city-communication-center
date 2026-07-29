@@ -328,9 +328,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
         {
             var citizenJobs = await ProjectCitizenJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
                 job.TenantId == tenantId
-                && job.RequestType == JobRequestType.Citizen
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+                // VT numarası kaynağıdır; RequestType=Citizen şartı etiket/kanal grafikleriyle
+                // uyumsuz sıfır dilim üretiyordu (#r546 / Vatandaş Talepleri pie).
                 .WhereHasCitizenRequestNumber(_dbContext), cancellationToken);
             charts.Add(BuildCitizenRequestsChart(citizenJobs, now));
             charts.Add(await BuildRequestTagChartAsync(tenantId, request, cancellationToken));

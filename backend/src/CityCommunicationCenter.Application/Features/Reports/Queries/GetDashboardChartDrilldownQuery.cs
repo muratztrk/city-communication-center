@@ -423,10 +423,9 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         var now = DateTimeOffset.UtcNow;
         var candidates = await _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
-                && job.RequestType == JobRequestType.Citizen
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
-            // Vatandaş Talepleri drilldown'ı yalnız VT (Vatandaş Talebi) job'larını gösterir (card #1845).
+            // Vatandaş Talepleri drilldown'ı yalnız VT numaralı job'ları gösterir (#r546).
             .WhereHasCitizenRequestNumber(_dbContext)
             .OrderByDescending(job => job.CreatedAtUtc)
             .Select(job => new

@@ -2280,7 +2280,7 @@
   }
 
   .dashboard-drilldown-table {
-    font-size: 0.78rem;
+    font-size: 0.9rem;
   }
 
   .data-table thead {
@@ -2548,8 +2548,8 @@
   }
 
   .dashboard-drilldown-table tbody td {
-    padding: 0.55rem 0.7rem;
-    font-size: 0.78rem;
+    padding: 0.58rem 0.62rem;
+    font-size: 0.9rem;
   }
 
   .dashboard-drilldown-table td.table-number-cell {
@@ -3884,14 +3884,28 @@
     --tw-ring-color: transparent;
   }
 
+  /* Pie drilldown popup grid = Taleplerim / dizin popup tipografisi (#2080, card #1889 kalıbı). */
+  .detail-modal-shell .dashboard-drilldown-table thead th,
   .data-table.dashboard-drilldown-table thead th {
-    height: var(--table-chrome-row-min-height);
-    min-height: var(--table-chrome-row-min-height);
-    padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
+    height: auto;
+    min-height: calc(var(--table-chrome-row-min-height) + 0.35rem);
+    padding: calc(var(--table-chrome-row-py) + 0.2rem) var(--table-chrome-row-px);
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     line-height: 1.2;
+    font-family: var(--font-sans);
+    text-transform: uppercase;
+  }
+
+  .detail-modal-shell .dashboard-drilldown-table tbody td {
+    padding: 0.58rem 0.62rem;
+    font-size: 0.9rem;
+    font-family: var(--font-sans);
+  }
+
+  .detail-modal-shell .dashboard-drilldown-table .date-cell {
+    font-size: 0.9rem;
   }
 
   /* ── Table Pagination ─────────────────────────────────────────── */

@@ -424,7 +424,7 @@ export function CitizenMessageApprovalPage() {
 
       {noteModal ? createPortal(
         <ModalBackdrop>
-          <div className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl">
+          <div className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white px-6 py-4 shadow-2xl">
             <button
               type="button"
               onClick={() => setNoteModal(null)}
@@ -433,11 +433,11 @@ export function CitizenMessageApprovalPage() {
             >
               <X className="size-4" />
             </button>
-            <h2 className="mb-3 border-b border-slate-200 pb-2 text-lg font-bold text-slate-950">{t('citizenMessageApproval.editNoteTitle', 'Notu Düzenle')}</h2>
-            <p className="mb-3 text-sm text-slate-700">{t('citizenMessageApproval.editNoteMessage', 'Vatandaşa gönderilecek notu düzenleyin. Not ifadesi zorunludur.')}</p>
+            <h2 className="mb-2 border-b border-slate-200 pb-1.5 text-base font-bold text-slate-950">{t('citizenMessageApproval.editNoteTitle', 'Notu Düzenle')}</h2>
+            <p className="mb-2 text-sm text-slate-700">{t('citizenMessageApproval.editNoteMessage', 'Vatandaşa gönderilecek notu düzenleyin. Not ifadesi zorunludur.')}</p>
             <textarea
-              className="w-full rounded-lg border border-slate-300 p-3 text-sm focus:border-[color:var(--color-primary)] focus:outline-none"
-              rows={4}
+              className="w-full rounded-lg border border-slate-300 p-2.5 text-sm focus:border-[color:var(--color-primary)] focus:outline-none"
+              rows={3}
               maxLength={NOTE_MAX_LENGTH}
               placeholder={t('citizenMessageApproval.editNotePlaceholder', 'Tamamlama/İptal notu...')}
               value={noteModal.note}
@@ -447,7 +447,7 @@ export function CitizenMessageApprovalPage() {
               <span>{!noteModal.note.trim() ? t('citizenMessageApproval.noteRequired', 'Not zorunludur.') : ''}</span>
               <span>{noteModal.note.length}/{NOTE_MAX_LENGTH}</span>
             </div>
-            <div className="mt-4 flex justify-end gap-2">
+            <div className="mt-3 flex justify-end gap-2">
               <Button type="button" variant="secondary" onClick={() => setNoteModal(null)}>
                 {t('common.dismiss', 'Vazgeç')}
               </Button>

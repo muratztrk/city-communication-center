@@ -1,3 +1,6 @@
+## Round 568 — pie drilldown = Taleplerim thead + Notu Düzenle yükseklik (#2080/#2081)
+- Dashboard pie popup grid tipografisi Taleplerim/dizin ile aynı; Notu Düzenle modal yüksekliği düşürüldü.
+
 ## Round 567 — Talep Durumu Notu sütun başlığı
 - Mesaj Onayı grid: `Talep Tamamlama/İptal Notu` → `Talep Durumu Notu`.
 

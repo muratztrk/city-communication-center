@@ -1,4 +1,7 @@
-## Round 570 — Yazışmaya Git WA balon/metin küçült (#2083)
+## Round 571 — Mesaj Onayı Talep Durumunu Değiştir rengi (#2083)
+- JobsPage detay: `bg-orange-500` → `bg-[#007985]` (Görevi Yönlendir ile aynı).
+
+## Round 570 — Yazışmaya Git WA balon/metin küçült (#2080)
 - `WhatsAppConversationModal`: `compactBubbles` + `compactActions` (#1711 kalıbı).
 
 ## Round 569 — Mesaj Onayı İşlemler FHD nowrap (#2082)

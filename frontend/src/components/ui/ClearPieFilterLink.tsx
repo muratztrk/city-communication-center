@@ -12,7 +12,7 @@ export function ClearPieFilterLink() {
   return (
     <button
       type="button"
-      className="scope-chip-clear-pie shrink-0 text-sm font-semibold text-red-600 transition-colors hover:text-red-700 hover:underline"
+      className="scope-chip-clear-pie shrink-0 rounded-md bg-red-600 px-2.5 py-1 text-sm font-semibold text-white transition-colors hover:bg-red-700"
       onClick={() => navigate(location.pathname, { replace: true })}
     >
       {t('common.clearPieFilter', 'Filtreyi sil')}

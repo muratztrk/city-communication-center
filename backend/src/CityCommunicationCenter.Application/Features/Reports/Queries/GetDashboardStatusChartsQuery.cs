@@ -763,7 +763,9 @@ public sealed class GetDashboardStatusChartsQueryHandler
                     group.Average(task => (task.TerminalAtUtc!.Value - task.CreatedAtUtc).TotalHours),
                     1),
             })
-            .OrderByDescending(item => item.AverageHours)
+            // 0 olmayan en küçük süreden itibaren artan sıra; 0'lar sonda (R549 / #2038).
+            .OrderBy(item => item.AverageHours <= 0 ? 1 : 0)
+            .ThenBy(item => item.AverageHours)
             .ToList();
 
         var userIds = averages.Select(item => item.UserId).ToArray();

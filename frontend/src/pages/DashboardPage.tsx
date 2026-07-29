@@ -51,6 +51,19 @@ const TASK_CHART_KEYS = new Set<TaskChartKey>([
   'dashboard.charts.myTasks',
 ])
 
+/** Banner Ara... ile aynı kutu; yalnız listedeki pie'larda (R549 / #2037). */
+const PIE_LEGEND_SEARCH_KEYS = new Set([
+  'dashboard.charts.staffTasks',
+  'dashboard.charts.staffResolutionTime',
+  'dashboard.charts.requestTags',
+  'dashboard.charts.neighborhoodCompletedRequests',
+  'dashboard.charts.neighborhoodInProgressRequests',
+  'dashboard.charts.neighborhoodProcessingRequests',
+  'dashboard.charts.externalRequestCreators',
+  'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestFulfillers',
+])
+
 // Pie chart başlığı + lejant metinleri tıklanınca gidilecek ilgili sayfa (card 759).
 const CHART_ROUTES: Record<string, string> = {
   'dashboard.charts.staffTasks': '/staff-tasks',
@@ -723,6 +736,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                 slices={card.slices}
                 noDataLabel={t('dashboard.chart.noData')}
                 showZeroSlices
+                enableLegendSearch={PIE_LEGEND_SEARCH_KEYS.has(card.titleKey)}
                 formatSliceLabel={
                   (role === 'Staff' || role === 'Operator') && card.titleKey === 'dashboard.charts.myRequests'
                     ? (raw, translate) => (raw === 'dashboard.chart.approved'

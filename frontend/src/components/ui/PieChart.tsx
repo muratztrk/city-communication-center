@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react'
+import { Search, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { DashboardChartSlice } from '../../types/platform'
 import { resolveSliceLabel } from '../../utils/chartSliceLabel'
@@ -45,6 +47,8 @@ interface PieChartProps {
   slices: DashboardChartSlice[]
   noDataLabel?: string
   showZeroSlices?: boolean
+  /** Sağ lejant üstünde banner ile aynı "Ara..." kutusu; yalnız bu pie'nın dilimlerini filtreler (R549). */
+  enableLegendSearch?: boolean
   /** Sağlanırsa lejant metinleri tıklanabilir olur; tıklanan dilim ile çağrılır (card 759). */
   onSelect?: (slice: DashboardChartSlice) => void
   /** Dilim bazında tıklanabilirlik; false dönen dilim/lejant düz metin kalır (card #1337). */
@@ -100,23 +104,78 @@ function LegendItem({
   )
 }
 
+function PieLegendSearch({
+  value,
+  onChange,
+}: {
+  value: string
+  onChange: (value: string) => void
+}) {
+  const { t } = useTranslation()
+  return (
+    <div className="scope-chip-search-wrap shrink-0">
+      <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
+      <input
+        type="text"
+        className="scope-chip-search-input"
+        placeholder={t('common.search', 'Ara...')}
+        value={value}
+        onChange={event => onChange(event.target.value)}
+        aria-label={t('common.search', 'Ara...')}
+      />
+      {value ? (
+        <button
+          type="button"
+          onClick={() => onChange('')}
+          className="scope-chip-search-clear shrink-0 font-extrabold transition-colors"
+          aria-label={t('common.clear', 'Temizle')}
+        >
+          <X className="size-3.5" strokeWidth={3} />
+        </button>
+      ) : null}
+    </div>
+  )
+}
+
 export function PieChart({
   slices,
   noDataLabel = 'Veri yok',
   showZeroSlices = false,
+  enableLegendSearch = false,
   onSelect,
   isSliceSelectable,
   formatSliceLabel,
 }: PieChartProps) {
   const { t } = useTranslation()
-  const nonZero = slices.filter(s => s.value > 0)
-  const shouldShowZeroChart = showZeroSlices && slices.length > 0
-  const legendSlices = showZeroSlices ? slices : nonZero
+  const [legendSearch, setLegendSearch] = useState('')
+
+  const visibleSlices = useMemo(() => {
+    const query = legendSearch.trim().toLocaleLowerCase('tr')
+    if (!query) return slices
+    return slices.filter(slice => {
+      const label = (formatSliceLabel?.(slice.label, t) ?? resolveSliceLabel(slice.label, t))
+        .toLocaleLowerCase('tr')
+      return label.includes(query)
+    })
+  }, [slices, legendSearch, formatSliceLabel, t])
+
+  const nonZero = visibleSlices.filter(s => s.value > 0)
+  const shouldShowZeroChart = showZeroSlices && visibleSlices.length > 0
+  const legendSlices = showZeroSlices ? visibleSlices : nonZero
 
   if (nonZero.length === 0 && !shouldShowZeroChart) {
     return (
-      <div className="flex items-center justify-center py-10 text-sm text-[color:var(--color-muted-foreground)]">
-        {noDataLabel}
+      <div className="flex flex-col items-stretch gap-3">
+        {enableLegendSearch ? (
+          <div className="flex justify-end">
+            <PieLegendSearch value={legendSearch} onChange={setLegendSearch} />
+          </div>
+        ) : null}
+        <div className="flex items-center justify-center py-10 text-sm text-[color:var(--color-muted-foreground)]">
+          {legendSearch.trim()
+            ? t('dashboard.chart.noSearchMatch', 'Eşleşen dilim yok.')
+            : noDataLabel}
+        </div>
       </div>
     )
   }
@@ -134,7 +193,7 @@ export function PieChart({
     segments.push({
       path: buildArcPath(cx, cy, outerR, innerR, 0, 359.99),
       color: '#e2e8f0',
-      slice: slices[0],
+      slice: visibleSlices[0],
     })
   } else if (nonZero.length === 1) {
     const color = getColor(nonZero[0].colorHint)
@@ -203,17 +262,25 @@ export function PieChart({
         </text>
       </svg>
 
-      {/* Lejant: 6 satırdan fazla → scroll; 6 ve altı (ör. 5) → scroll yok (card #1704). */}
-      <ul className={`relative z-10 flex min-w-0 w-full flex-col gap-2 ${legendSlices.length > 6 ? 'max-h-40 overflow-y-auto pr-1 [scrollbar-gutter:stable]' : ''}`}>
-        {legendSlices.map(slice => (
-          <LegendItem
-            key={slice.label}
-            slice={slice}
-            formatSliceLabel={formatSliceLabel}
-            onSelect={(isSliceSelectable?.(slice) ?? true) ? onSelect : undefined}
-          />
-        ))}
-      </ul>
+      {/* Lejant + isteğe bağlı Ara... (R549): arama kutusu pie'nın en sağında. */}
+      <div className="relative z-10 flex min-w-0 w-full flex-col gap-2">
+        {enableLegendSearch ? (
+          <div className="flex justify-end">
+            <PieLegendSearch value={legendSearch} onChange={setLegendSearch} />
+          </div>
+        ) : null}
+        {/* Lejant: 6 satırdan fazla → scroll; 6 ve altı (ör. 5) → scroll yok (card #1704). */}
+        <ul className={`flex min-w-0 flex-col gap-2 ${legendSlices.length > 6 ? 'max-h-40 overflow-y-auto pr-1 [scrollbar-gutter:stable]' : ''}`}>
+          {legendSlices.map(slice => (
+            <LegendItem
+              key={slice.label}
+              slice={slice}
+              formatSliceLabel={formatSliceLabel}
+              onSelect={(isSliceSelectable?.(slice) ?? true) ? onSelect : undefined}
+            />
+          ))}
+        </ul>
+      </div>
     </div>
   )
 }

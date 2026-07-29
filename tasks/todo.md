@@ -1,3 +1,8 @@
+## Round 549 — pie Ara... + Filtreyi sil buton + çözüm süresi sıralama
+- `6a69e0aa` (#2037) — listelenen pie'larda sağ lejant Ara... (banner stili).
+- `6a69cfce` (#2029 reopen) — Filtreyi sil: kırmızı bg + beyaz text buton.
+- `6a69e3fa` (#2038) — Çözme Süresi pie: 0 olmayan en küçükten artan; 0'lar sonda.
+
 ## Round 548 — Personel/mahalle pie 0-fill
 - `6a69df0f` (#2034) — Personelimin Görevleri: tüm birim personeli 0 olsa bile dilimde.
 - `6a69e020` (#2035) — Mahalle pie'ları (Tamamlanan/Yapılmakta/İşleme): Tire kataloğu + 0-fill.

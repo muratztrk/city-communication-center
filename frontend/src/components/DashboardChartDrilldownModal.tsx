@@ -42,10 +42,13 @@ const NEIGHBORHOOD_CHART_KEYS = new Set([
   'dashboard.charts.neighborhoodProcessingRequests',
 ])
 
-/** Mahalle + Talep Etiketi: Durum/Son Tarih Taleplerim grid stili (#r545). */
+/** Mahalle + Talep Etiketi + birim-dışı pie'lar: Durum=StatusPill; terminal tarih alt satır (#r545/#2068). */
 const TALEPLERIM_STATUS_STYLE_CHART_KEYS = new Set([
   ...NEIGHBORHOOD_CHART_KEYS,
   'dashboard.charts.requestTags',
+  'dashboard.charts.externalRequestCreators',
+  'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestFulfillers',
 ])
 
 function formatDrilldownNumber(row: DashboardChartDrilldownRow): string {
@@ -203,12 +206,14 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const terminalDateHeader = rows ? resolveTerminalDateHeader(rows, t) : null
   const hideDueDateColumn = PRINTABLE_CHART_KEYS.has(chartKey)
-  // Mahalle/etiket: Son Tarih yok; Tamamlanma Tarihi her zaman (#r546).
-  const showTerminalDateColumn = hideDueDateColumn || Boolean(terminalDateHeader)
+  const useTaleplerimStatusStyle = TALEPLERIM_STATUS_STYLE_CHART_KEYS.has(chartKey)
+  // Giden talepler gibi: Tamamlanmış/İptal tarihi Durum pill altında — ayrı sütun yok (#2068).
+  // Yazdırma HTML'inde Tamamlanma Tarihi sütunu korunur.
+  const showTerminalDateColumn = !useTaleplerimStatusStyle
+    && (hideDueDateColumn || Boolean(terminalDateHeader))
   const terminalColumnHeader = hideDueDateColumn
     ? t('jobs.columns.completedAt', 'Tamamlanma Tarihi')
     : (terminalDateHeader ?? t('jobs.columns.completedAt', 'Tamamlanma Tarihi'))
-  const useTaleplerimStatusStyle = TALEPLERIM_STATUS_STYLE_CHART_KEYS.has(chartKey)
   const showPrint = PRINTABLE_CHART_KEYS.has(chartKey)
   const isRequestTagsChart = chartKey === 'dashboard.charts.requestTags'
   const unitColumnLabel = isRequestTagsChart || NEIGHBORHOOD_CHART_KEYS.has(chartKey)
@@ -346,7 +351,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                       </tr>
                     ) : rows.slice((page - 1) * pageSize, page * pageSize).map((row, index) => {
                       const statusLabel = getDrilldownStatusLabel(t, row)
-                      const statusDate = !showTerminalDateColumn && (row.status === 'Completed' || isCancelledLike(row.status))
+                      const statusDate = (useTaleplerimStatusStyle || !showTerminalDateColumn)
+                        && (row.status === 'Completed' || isCancelledLike(row.status))
                         ? row.terminalDateUtc
                         : null
                       const statusDateText = statusDate

@@ -19,6 +19,10 @@ public sealed record CitizenMessageApprovalResponse(
     string? Note,
     Guid OwnerDepartmentId,
     string? OwnerDepartmentName,
-    DateTimeOffset? ReleasedAtUtc);
+    DateTimeOffset? ReleasedAtUtc,
+    /// <summary>Tamamlanmış taleplerde Durum alt satırı (#2067).</summary>
+    DateTimeOffset? CompletedAtUtc,
+    /// <summary>İptal taleplerde Durum alt satırı — Giden grid ile aynı (#2067).</summary>
+    DateTimeOffset? UpdatedAtUtc);
 
 public sealed record EditCitizenMessageApprovalNoteRequest(string Note);

@@ -1,3 +1,10 @@
+## Round 560 — tooltip 2 satır + Durum tarihleri + banner (#2065/#2068/#2067/#2064)
+- Overflow tooltip: max-width ~22rem + 0.85rem — uzun başlık ~2 satır (#2065).
+- Dashboard pie drilldown: Tamamlanmış/İptal tarihi Durum pill altında; ayrı sütun yok;
+  birim-dışı pie'lar da StatusPill (#2068).
+- Mesaj Onayı grid: `completedAtUtc`/`updatedAtUtc` API + Durum alt satırı (#2067).
+- Banner/confirm: “…talebin durumu ve notu…” (#2064 reopen).
+
 ## Round 559 — Vatandaş Telefon No başlık boyutu + boşluk (#2048)
 - Alt satır `0.9em` + `gap-1` (Adı ile dikey mesafe).
 

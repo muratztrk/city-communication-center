@@ -953,6 +953,10 @@ export interface CitizenMessageApprovalRow {
   ownerDepartmentId: string
   ownerDepartmentName: string | null
   releasedAtUtc: string | null
+  /** Tamamlanmış: Durum pill alt satırı (#2067). */
+  completedAtUtc: string | null
+  /** İptal: Durum pill alt satırı — Giden grid ile aynı (#2067). */
+  updatedAtUtc: string | null
 }
 
 export interface AppNotification {

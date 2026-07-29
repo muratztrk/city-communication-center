@@ -881,7 +881,7 @@
   "citizenMessageApproval": {
     "kicker": "Vatandaş Talepleri",
     "title": "Vatandaşa Gönderilecek Mesaj Onayı",
-    "subtitle": "Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin Tamamlanma/İptal durumu ve notu gönderilecektir.",
+    "subtitle": "Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.",
     "scope": {
       "toSend": "Mesaj Onayı Bekleyen",
       "sent": "Mesaj Gönderimi Onaylanan",
@@ -912,7 +912,7 @@
     "editNotePlaceholder": "Tamamlama/İptal notu...",
     "noteRequired": "Not ifadesi zorunludur.",
     "releaseTitle": "Mesajı Gönder",
-    "releaseConfirm": "Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin Tamamlanma/İptal durumu ve notu gönderilecektir.",
+    "releaseConfirm": "Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.",
     "releaseNoteMissing": "Göndermeden önce lütfen \"Notu Düzenle\" ile bir not girin.",
     "released": "Mesaj gönderime hazırlandı.",
     "noteSaved": "Not kaydedildi.",

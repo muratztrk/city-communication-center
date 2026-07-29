@@ -138,7 +138,9 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
                 note,
                 job.OwnerDepartmentId,
                 ownerNames.GetValueOrDefault(job.OwnerDepartmentId),
-                job.CitizenTerminalMessageReleasedAtUtc));
+                job.CitizenTerminalMessageReleasedAtUtc,
+                job.CompletedAtUtc,
+                job.UpdatedAtUtc));
         }
 
         return results;

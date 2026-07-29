@@ -14,6 +14,7 @@ import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { DateCell } from '../components/ui/date-cell'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { StatusPill } from '../components/ui/status-pill'
+import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { Toast } from '../components/ui/toast'
@@ -203,7 +204,7 @@ export function CitizenMessageApprovalPage() {
       wide: true,
       message: t(
         'citizenMessageApproval.releaseConfirm',
-        'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin Tamamlanma/İptal durumu ve notu gönderilecektir.',
+        'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
       ),
       confirmLabel: t('citizenMessageApproval.actions.release', 'Mesajı Gönder'),
       cancelLabel: t('common.dismiss', 'Vazgeç'),
@@ -268,7 +269,7 @@ export function CitizenMessageApprovalPage() {
             <p className="page-subtitle">
               {t(
                 'citizenMessageApproval.subtitle',
-                'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin Tamamlanma/İptal durumu ve notu gönderilecektir.',
+                'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
               )}
             </p>
           </div>
@@ -358,9 +359,22 @@ export function CitizenMessageApprovalPage() {
                     </td>
                     <td className="max-w-xs truncate" title={row.title}>{row.title}</td>
                     <td>
-                      <StatusPill className={getStatusPillClass(getJobStatusTone({ status: row.status, dueDateUtc: row.dueDateUtc }))}>
-                        {getCitizenRequestStatusLabel(t, { status: row.status })}
-                      </StatusPill>
+                      {(() => {
+                        const statusDate = row.status === 'Completed' ? row.completedAtUtc
+                          : row.status === 'Cancelled' ? row.updatedAtUtc
+                          : null
+                        return (
+                          <StatusPill className={getStatusPillClass(getJobStatusTone({ status: row.status, dueDateUtc: row.dueDateUtc }))}>
+                            <GridStatusLabel
+                              t={t}
+                              label={getCitizenRequestStatusLabel(t, { status: row.status })}
+                              footer={statusDate
+                                ? <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
+                                : undefined}
+                            />
+                          </StatusPill>
+                        )
+                      })()}
                     </td>
                     <td className="max-w-xs truncate" title={row.note ?? ''}>{row.note || <span className="text-slate-400">—</span>}</td>
                     <td className="actions-cell">

@@ -1464,10 +1464,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`?view=pending` menüyü boyar); `/dashboard` istisnası korunur.
 - **Öncelik Normal rengi (#r542):** `getPriorityColorClass('Normal')` = `text-emerald-600`
   (grid + detay ortak; sarı değil).
-- **Drilldown popup header (#r542/#r545/#r546):** ortada kurum logosu; slice başlığın alt satırında; Talep
+- **Drilldown popup header (#r542/#r545/#r546/#2068):** ortada kurum logosu; slice başlığın alt satırında; Talep
   Etiketi + mahalle pie'larında Yazdır (Taleplerim `detail-print-action` ghost) + X hover bildirimler
-  gibi (`hover:bg-red-50 hover:text-red-600`); mahalle/etiket Durum=`StatusPill`+`GridStatusLabel`;
-  sütun `Birim`; **Son Tarih yok** — yerine `Tamamlanma Tarihi` (yazdırma dahil).
+  gibi (`hover:bg-red-50 hover:text-red-600`); mahalle/etiket/birim-dışı pie Durum=`StatusPill`+`GridStatusLabel`;
+  sütun `Birim` (mahalle/etiket); **Son Tarih yok** (mahalle/etiket); Tamamlanmış/İptal tarihi Durum pill
+  **alt satırında** (Giden grid ile aynı — ayrı `Tamamlanma Tarihi` sütunu yok); yazdırmada `Tamamlanma Tarihi` sütunu kalır.
+- **Overflow tooltip (#r545/#2065):** hücre ortası; max-width ~22rem + ~0.85rem font — uzun başlık ~2 satır.
+- **Mesaj Onayı Durum tarihi (#2067):** Completed→`completedAtUtc`, Cancelled→`updatedAtUtc` Durum pill altında.
+- **Mesaj Onayı banner (#2064):** “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).
 - **Vatandaş Talepleri pie (#r546):** VT sayısı `WhereHasCitizenRequestNumber` (RequestType şartı yok);
   dilim tıklanınca drilldown değil `/social?requestStatus=…&fromPie=1`.
 - **Pie Filtreyi sil (#r546/#r547/#r549/#r550/#r552):** `fromPie=1` ile gelinen gridlerde scope-chip
@@ -1487,7 +1491,6 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `md:overflow-visible`) scrollTop sessionStorage; dönüşte içerik oturana kadar tekrarlı restore.
 - **Birime Gelen kanal (#r545):** VT satırında sosyal kanal yoksa unlinked `SocialMessage` → `Phone`
   (chart ile aynı); `?? WhatsApp` varsayımı yok. `citizen=1` tüm VT; `channel=` alias eşleşmeli.
-- **Overflow tooltip (#r545):** hücre ortası — sağa `rightNudge` yok.
 - **Operator Taleplerim dilimi (#r545):** Staff gibi `Onaylanmış/Yapılmakta`.
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
   açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş talebinde Oluşturan satırının

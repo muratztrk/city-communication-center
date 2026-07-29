@@ -900,7 +900,7 @@
     },
     "actions": {
       "details": "Detaylar",
-      "release": "Mesajı Gönder",
+      "release": "Mesajı Onayla",
       "editNote": "Notu Düzenle",
       "changeStatus": "Talep Durumunu Değiştir"
     },
@@ -911,7 +911,7 @@
     "editNoteMessage": "Vatandaşa gönderilecek notu düzenleyin. Not ifadesi zorunludur.",
     "editNotePlaceholder": "Tamamlama/İptal notu...",
     "noteRequired": "Not ifadesi zorunludur.",
-    "releaseTitle": "Mesajı Gönder",
+    "releaseTitle": "Mesajı Onayla",
     "releaseConfirm": "Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.",
     "releaseNoteMissing": "Göndermeden önce lütfen \"Notu Düzenle\" ile bir not girin.",
     "released": "Mesaj gönderime hazırlandı.",

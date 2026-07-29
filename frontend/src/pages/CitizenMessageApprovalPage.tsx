@@ -1,4 +1,4 @@
-import { PenLine, Search, Send, X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
@@ -199,14 +199,14 @@ export function CitizenMessageApprovalPage() {
       return
     }
     setConfirmDialog({
-      title: t('citizenMessageApproval.releaseTitle', 'Mesajı Gönder'),
+      title: t('citizenMessageApproval.releaseTitle', 'Mesajı Onayla'),
       titleDivider: true,
       wide: true,
       message: t(
         'citizenMessageApproval.releaseConfirm',
         'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
       ),
-      confirmLabel: t('citizenMessageApproval.actions.release', 'Mesajı Gönder'),
+      confirmLabel: t('citizenMessageApproval.actions.release', 'Mesajı Onayla'),
       cancelLabel: t('common.dismiss', 'Vazgeç'),
       variant: 'success',
       onConfirm: () => {
@@ -385,16 +385,14 @@ export function CitizenMessageApprovalPage() {
                         <Button
                           type="button"
                           size="sm"
-                          className="gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
+                          className="bg-orange-500 text-white hover:bg-orange-600"
                           onClick={() => openEditNote(row)}
                         >
-                          <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('citizenMessageApproval.actions.editNote', 'Notu Düzenle')}
                         </Button>
                         {!row.releasedAtUtc ? (
-                          <Button type="button" size="sm" variant="success" className="gap-1.5" onClick={() => handleRelease(row)}>
-                            <Send className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                            {t('citizenMessageApproval.actions.release', 'Mesajı Gönder')}
+                          <Button type="button" size="sm" variant="success" onClick={() => handleRelease(row)}>
+                            {t('citizenMessageApproval.actions.release', 'Mesajı Onayla')}
                           </Button>
                         ) : null}
                       </div>

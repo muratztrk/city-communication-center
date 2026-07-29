@@ -1,3 +1,6 @@
+## Round 561 — Notu Düzenle/Mesajı Onayla ikon + metin
+- Grid İşlemler: PenLine/Send ikonları kaldırıldı; `Mesajı Gönder` → `Mesajı Onayla`.
+
 ## Round 560 — tooltip 2 satır + Durum tarihleri + banner (#2065/#2068/#2067/#2064)
 - Overflow tooltip: max-width ~22rem + 0.85rem — uzun başlık ~2 satır (#2065).
 - Dashboard pie drilldown: Tamamlanmış/İptal tarihi Durum pill altında; ayrı sütun yok;

@@ -895,7 +895,7 @@
     },
     "actions": {
       "details": "Details",
-      "release": "Send Message",
+      "release": "Approve Message",
       "editNote": "Edit Note",
       "changeStatus": "Change Request Status"
     },
@@ -906,7 +906,7 @@
     "editNoteMessage": "Edit the note that will be sent to the citizen. A note is required.",
     "editNotePlaceholder": "Completion/cancellation note...",
     "noteRequired": "A note is required.",
-    "releaseTitle": "Send Message",
+    "releaseTitle": "Approve Message",
     "releaseConfirm": "When you approve sending the message, the request status and note will be sent to your operator to forward to the citizen.",
     "releaseNoteMissing": "Please enter a note using \"Edit Note\" before sending.",
     "released": "Message queued for sending.",

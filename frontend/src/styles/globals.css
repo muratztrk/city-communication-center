@@ -579,8 +579,10 @@
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
     align-items: start;
-    /* Boşken üç etiket biraz sola (#r496); doluyken Mahalle kaymaz (#r497). */
-    margin-inline-start: -0.85rem;
+    /* #1876: boş adreste üç etiket kutucukta ortalanır. `#r496`'nın eklediği
+       `margin-inline-start: -0.85rem` grubu sola kaydırıyordu ve kart bu yüzden
+       "ortalanmamış" diye geri geldi — en güncel kart talimatı kazanır. */
+    margin-inline-start: 0;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
@@ -2119,15 +2121,18 @@
     max-width: 5.25rem;
   }
 
-  /* Kullanıcı düzenleme Birim/Rol panel — specificity: admin-surface-menu üstüne yaz (#r523). */
+  /* Kullanıcı düzenleme Birim/Rol panel — specificity: admin-surface-menu üstüne yaz (#r523).
+     #1907: punto 0.82rem iken grid hücresinden (0.9rem) zaten küçüktü ama `font-weight: 600`
+     yüzünden görsel olarak DAHA BÜYÜK okunuyordu — önceki turlar yalnız puntoyu kısıp
+     ağırlığa dokunmadığı için kart 3 kez geri geldi. Punto + ağırlık birlikte düşürüldü. */
   .admin-surface-menu.users-edit-dropdown-menu-scroll .dropdown-menu-item,
   .admin-surface-menu .users-edit-dropdown-menu-scroll .dropdown-menu-item,
   .users-edit-dropdown-menu-scroll .dropdown-menu-item,
   .users-edit-dropdown-menu .dropdown-menu-item {
-    min-height: 1.95rem;
-    padding: 0.35rem 0.55rem;
-    font-size: 0.82rem;
-    font-weight: 600;
+    min-height: 1.8rem;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.76rem;
+    font-weight: 500;
   }
 
   .admin-surface-menu.users-edit-dropdown-menu-scroll .dropdown-menu-footer {

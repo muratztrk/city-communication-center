@@ -171,7 +171,10 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
             </button>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-auto p-4">
+          {/* Üst boşluk içeride: kapta kalırsa sticky tablo başlığı aşağı iner ve satırlar
+              üstündeki şeritten görünür (card #1906 ile aynı kök sebep). */}
+          <div className="min-h-0 flex-1 overflow-auto px-4 pb-4">
+            <div className="pt-4">
             {error ? (
               <div className="error">{error}</div>
             ) : rows === null ? (
@@ -262,6 +265,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                 />
               </div>
             )}
+            </div>
           </div>
         </div>
       </div>

@@ -534,7 +534,12 @@ export function CitizenDirectoryPage() {
               </div>
             </div>
             <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              <div className="min-h-0 flex-1 overflow-auto px-4 pt-3">
+              {/* Üst boşluk scroll kabında DEĞİL içeride: `pt-3` kapta kalırsa sticky başlık
+                  (top: 0 içerik kenarına yapışır) 12px aşağı iner ve satırlar o şeritten
+                  başlığın üstünde görünür (card #1906). İçeride kalınca boşluk kayar,
+                  başlık scrollport'un tam tepesine yapışır. */}
+              <div className="min-h-0 flex-1 overflow-auto px-4">
+                <div className="pt-3">
                 {ticketModal.loading ? <div className="loading">{t('common.loading')}</div> : null}
                 {ticketModal.error ? <div className="error">{ticketModal.error}</div> : null}
                 {!ticketModal.loading && !ticketModal.error ? (
@@ -619,6 +624,7 @@ export function CitizenDirectoryPage() {
                     </table>
                   )
                 ) : null}
+                </div>
               </div>
               {!ticketModal.loading && !ticketModal.error && ticketsWithJobs.length > 0 ? (
                 <TablePagination

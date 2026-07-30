@@ -1,3 +1,8 @@
+## Round 597 — Yanıt Verildi seçili konuşmada; Bildirim güncellendi gizle; tarih küçült
+- Yanıt Verildi İşaretle yalnız seçili konuşma yanıt bekliyorsa (#6a6bab12 reopen).
+- CitizenMessage* / Bildirim güncellendi feed+rozet dışı (#6a6bbc18).
+- Bildirim modal tarih pill 1.4rem; ikon/metin 0.7rem (#6a6bad5c reopen).
+
 ## Round 596 — Yanıt Verildi yalnız filtrede; rutin bildirim yok; banner/tarih
 - Yanıt Verildi İşaretle yalnız Yanıt bekliyor filtresi seçiliyken (#6a6bab12).
 - RoutineTaskCreated bildirim feed/rozet dışı (#6a6bba0d).

@@ -491,18 +491,14 @@ function ConversationListPanel({
               </button>
             ))}
           </div>
-          {/* Yalnız "Yanıt bekliyor" filtresi seçiliyken (#6a6bab12 reopen). */}
-          {unreadCount > 0 && listFilter === 'unread' ? (
+          {/* Yalnız seçili konuşma yanıt bekliyorsa (#6a6bab12 reopen). */}
+          {selectedId
+            && conversations.some(c => c.citizenConversationId === selectedId && isWaitingForConversationResponse(c)) ? (
             <button
               type="button"
               className="whatsapp-mark-waiting-replied shrink-0 text-[10px] font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline"
               onClick={() => {
-                const selectedWaiting = selectedId
-                  ? conversations.find(c => c.citizenConversationId === selectedId && isWaitingForConversationResponse(c))
-                  : null
-                const targetId = selectedWaiting?.citizenConversationId
-                  ?? conversations.find(c => isWaitingForConversationResponse(c))?.citizenConversationId
-                if (targetId) onMarkWaitingReplied(targetId)
+                if (selectedId) onMarkWaitingReplied(selectedId)
               }}
             >
               {t('whatsapp.markWaitingReplied', 'Yanıt Verildi İşaretle')}

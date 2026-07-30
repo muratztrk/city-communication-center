@@ -174,7 +174,9 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     .Where(a => a.TenantId == tenantId
                         && entityIds.Contains(a.EntityId)
                         // Rutin görev oluşturma bildirimi gösterilmez (#6a6bba0d).
-                        && a.Action != "RoutineTaskCreated")
+                        && a.Action != "RoutineTaskCreated"
+                        // Fallback başlık "Bildirim güncellendi" — CitizenMessage* vb. (#6a6bbc18).
+                        && !a.Action.StartsWith("CitizenMessage"))
                     .OrderByDescending(a => a.EventTimeUtc)
                     .Take(100)
                     .ToListAsync(cancellationToken);
@@ -217,6 +219,12 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     }
 
                     if (IsJobStatusSideEffectOfTaskChange(a))
+                    {
+                        continue;
+                    }
+
+                    // Eşleşmeyen audit aksiyonları "Bildirim güncellendi" olur; feed'de gösterme (#6a6bbc18).
+                    if (ActionTitle(a.Action) == "Bildirim güncellendi")
                     {
                         continue;
                     }

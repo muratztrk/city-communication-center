@@ -65,7 +65,7 @@ import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyReq
 import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
 import { MyRequestTaskDetailsSection } from '../components/jobs/my-request-detail/MyRequestTaskDetailsSection'
 import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
-import { buildJobProcessSteps, isJobRecoveredFromCancellation } from '../components/jobs/my-request-detail/buildJobProcessSteps'
+import { buildJobProcessSteps, isJobRecoveredFromCancellation, wasReopenedViaCitizenMessageApproval } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import { pendingApprovalValueClassName } from '../components/jobs/my-request-detail/format'
 import { buildMyRequestEditDraft, type MyRequestEditDraft } from '../components/jobs/my-request-detail/myRequestEditDraft'
@@ -761,7 +761,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const isIncomingRequestDetail = detailContext === 'incoming'
   const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || isIncomingRequestDetail
   const canManageCoordination = isManagerLike || isReporter
+  const hideIncomingActionsAfterMessageReopen = isIncomingRequestDetail
+    && detail != null
+    && wasReopenedViaCitizenMessageApproval(detail)
   const canApproveDetail = isRequestDetailContext && isManagerLike && detail?.status === 'PendingOwnerApproval'
+    && !hideIncomingActionsAfterMessageReopen
   const activeIncomingTarget = detail?.departments?.find(
     department => department.role === 'Target' && department.departmentId === activeDeptId,
   )
@@ -771,6 +775,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail.status === 'PendingExternalApproval'
     && activeIncomingTarget?.approvalStatus === 'Pending'
     && Boolean(activeDeptId)
+    && !hideIncomingActionsAfterMessageReopen
   // Birime düşmüş dış talepte görev henüz oluşmadıysa griddeki "Onayla" eylemi
   // personel atama penceresini açar. Detay popup'ı da aynı eylemi sunmalıdır.
   const canAssignIncomingDetail = isIncomingRequestDetail
@@ -778,6 +783,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
     && detail.status === 'Active'
     && (detail.tasks?.length ?? 0) === 0
+    && !hideIncomingActionsAfterMessageReopen
   // Yönlendirilmiş talebin sebebi hedef kaydın Notes alanında saklanır (card #1406).
   const forwardTarget = detail?.departments?.find(department => department.role === 'Target' && Boolean(department.notes?.trim())) ?? null
   const forwardReason = forwardTarget?.notes?.trim() ?? null
@@ -832,8 +838,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail != null
     && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
     && !isDepartmentOutgoingTargetApprovedDetail
-    // Mesaj Onayı "Talep Durumunu Değiştir" sonrası Birime Gelen'de İptal Et gizlenir (#2100).
-    && !(isIncomingRequestDetail && isCitizenRequestJob(detail) && isJobRecoveredFromCancellation(detail))
+    // Mesaj Onayı "Talep Durumunu Değiştir" sonrası Birime Gelen'de İptal Et gizlenir (#2100/#2108).
+    && !hideIncomingActionsAfterMessageReopen
   const shouldShowDisabledDepartmentOutgoingCancel = isDepartmentOutgoingTargetApprovedDetail
     && detail != null
     && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')

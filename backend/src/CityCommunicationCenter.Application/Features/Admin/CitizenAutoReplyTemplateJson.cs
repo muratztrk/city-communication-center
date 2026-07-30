@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CityCommunicationCenter.Application.Features.Social;
 
 namespace CityCommunicationCenter.Application.Features.Admin;
 
@@ -33,10 +34,10 @@ public static class CitizenAutoReplyTemplateJson
 
             var defaults = Defaults();
             return new CitizenAutoReplyTemplateModel(
-                EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.ProcessingReceived) ? defaults.ProcessingReceived : parsed.ProcessingReceived),
-                EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.InProgress) ? defaults.InProgress : parsed.InProgress),
-                EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Completed) ? defaults.Completed : parsed.Completed),
-                EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled));
+                EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.ProcessingReceived) ? defaults.ProcessingReceived : parsed.ProcessingReceived)),
+                EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.InProgress) ? defaults.InProgress : parsed.InProgress)),
+                EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Completed) ? defaults.Completed : parsed.Completed)),
+                EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled)));
         }
         catch (JsonException)
         {
@@ -46,10 +47,13 @@ public static class CitizenAutoReplyTemplateJson
 
     public static string Serialize(CitizenAutoReplyTemplateModel model) =>
         JsonSerializer.Serialize(new CitizenAutoReplyTemplateModel(
-            EnsureTargetDepartmentToken(model.ProcessingReceived),
-            EnsureTargetDepartmentToken(model.InProgress),
-            EnsureTargetDepartmentToken(model.Completed),
-            EnsureTargetDepartmentToken(model.Cancelled)));
+            EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.ProcessingReceived)),
+            EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.InProgress)),
+            EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.Completed)),
+            EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.Cancelled))));
+
+    private static string EnsureQuotedCitizenStatuses(string template) =>
+        CitizenJobStatusLabelHelper.EnsureQuotedCitizenStatuses(template);
 
     private static string EnsureTargetDepartmentToken(string template)
     {

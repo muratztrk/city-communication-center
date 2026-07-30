@@ -673,13 +673,21 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Aynı SocialMessage/talep için aynı üretilmiş durum mesajı Pending/Sent/Delivered/Read olarak
   zaten varsa ikinci kez oluşturulmaz; yalnız Failed kayıt yeniden denemeye izin verir.
   (cards #1257/#1258).
-- **İletilmiş İptal/Tamamlanma WA mesajında Not chip (card #1861/#2103):** Operatör `Mesajı Gönder`
-  ile ilettikten sonra da (Sent/Delivered/Read) ilgili otomatik şablon balonunun altında
-  `Not` butonu bilgi amaçlı görünür; stil `Mesajı Onaylayan Yönetici` ile aynı emerald + `User`
-  ikonu (card #2103); tıklanınca ConfirmDialog popup açılır.
+- **İletilmiş İptal/Tamamlanma WA mesajında Not chip yok (card #2109, #1861/#2103 supersede):**
+  Terminal not durum mesajına gömülü olduğu için ayrı `Not` butonu gösterilmez.
+  `Mesajı Onaylayan Yönetici` chip turkuaz (`teal-600`) + `User` ikonu.
   BE `GetCitizenConversationDetailQuery` / `GetSocialConversationQuery` terminal metadata'yı yalnız
   Pending değil, iletilmiş outbound entry'lere de ekler. Pending sıradaki Düzenle/Gönder aksiyonları
   değişmez.
+- **WA otomatik durum tırnakları (card #2104):** `BuildStatusMessage` / `ParseOrDefault` durum
+  etiketlerini `"İşleme Alındı"` / `"Yapılmakta"` / `"Tamamlandı"` / `"İptal Edildi"` olarak üretir
+  (eski tırnaksız şablonlar okunurken normalize edilir).
+- **Mesaj Onayı reopen scope (card #2108):** `wasReopenedViaCitizenMessageApproval` yalnız
+  vatandaş + Active + (completedAtUtc|cancelReason); Birime Gelen'de İptal Et / Onayla /
+  Talebi Yönlendir gizlenir. Diğer taleplere taşmaz. Timeline: İptal/Tamamlanma → Durum Yapılmakta;
+  İptal Tarihi etiketi kırmızı (`terminal-danger`).
+- **Yazışmaya Git Phone flash (card #2107):** SocialMessage kaynağında kanal yüklenmeden buton
+  gösterilmez; Phone/çağrı kanalında hiç görünmez.
 - **Detay popup'tan açılan WhatsApp konuşması son mesajda açılır:** Jobs/Tasks
   `Yazışmaya Git` aksiyonlarının kullandığı `WhatsAppConversationModal`/`ConversationPanel`
   ilk yüklemede ve yeni entry geldiğinde konuşmayı en alta hizalar; eski üstten açılma geri gelmez.

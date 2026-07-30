@@ -102,7 +102,7 @@ export function ConversationEntryBubble({
   onSendPending,
   sendingPending = false,
   onEditPending,
-  onShowTerminalNote,
+  onShowTerminalNote: _onShowTerminalNote,
   inboundSenderLabel,
   compact = false,
 }: ConversationEntryBubbleProps) {
@@ -117,25 +117,6 @@ export function ConversationEntryBubble({
     && (entry.deliveryStatus === 'Sent'
       || entry.deliveryStatus === 'Delivered'
       || entry.deliveryStatus === 'Read')
-  const terminalNoteKind = entry.relatedJobTerminalStatus === 'Cancelled'
-    ? 'cancelled'
-    : entry.relatedJobTerminalStatus === 'Completed'
-      ? 'completed'
-      : null
-  const normalizedContent = entry.content.toLocaleLowerCase('tr')
-  const entryMatchesTerminalStatus = terminalNoteKind === 'cancelled'
-    ? normalizedContent.includes('iptal')
-    : terminalNoteKind === 'completed'
-      ? normalizedContent.includes('tamamlandı') || normalizedContent.includes('tamamlanmış')
-      : false
-  const hasTerminalNote = terminalNoteKind != null
-    && entryMatchesTerminalStatus
-    && Boolean(entry.relatedJobTerminalNote?.trim())
-  // Beklemede: operatör aksiyon satırında; iletildikten sonra bilgi amaçlı (card #1861).
-  const showTerminalNotePending = isPending && canSendPending && hasTerminalNote
-  const showTerminalNoteInfo = isDeliveredOutbound && hasTerminalNote
-  // Kart #2103: "Not" = Mesajı Onaylayan Yönetici ile aynı emerald + User ikonu.
-  const terminalNoteLabel = t('whatsapp.terminalNote.label', 'Not')
   const messageApproverName = entry.relatedJobMessageApproverDisplayName?.trim() || null
   const showMessageApprover = !isInbound && Boolean(messageApproverName)
     && (isPending || isDeliveredOutbound)
@@ -144,25 +125,14 @@ export function ConversationEntryBubble({
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
   const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
-  const chipClassName = 'inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm'
-
-  const terminalNoteButton = (disabled = false) => (
-    <button
-      type="button"
-      onClick={() => onShowTerminalNote?.(entry)}
-      disabled={disabled}
-      className={`${chipClassName} transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60`}
-    >
-      <User className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-      {terminalNoteLabel}
-    </button>
-  )
+  // Kart #2109: Mesajı Onaylayan Yönetici — turkuaz arka plan; Not butonu kaldırıldı.
+  const approverChipClassName = 'inline-flex items-center gap-1.5 rounded-full bg-teal-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm'
 
   const messageApproverButton = (
     <DelayedHoverTooltip
       label={t('whatsapp.messageApproverButton', 'Mesajı Onaylayan Yönetici')}
       tooltip={messageApproverName ?? ''}
-      className={`${chipClassName} cursor-default`}
+      className={`${approverChipClassName} cursor-default`}
       icon={<User className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
     />
   )
@@ -288,7 +258,6 @@ export function ConversationEntryBubble({
               <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
               {t('common.edit', 'Düzenle')}
             </button>
-            {showTerminalNotePending ? terminalNoteButton(sendingPending) : null}
             {showMessageApprover ? messageApproverButton : null}
             <button
               type="button"
@@ -301,10 +270,9 @@ export function ConversationEntryBubble({
             </button>
           </div>
         )
-      ) : (showTerminalNoteInfo || showMessageApprover) ? (
+      ) : showMessageApprover ? (
         <div className="mt-1 flex flex-wrap items-center justify-end gap-1.5">
-          {showTerminalNoteInfo ? terminalNoteButton() : null}
-          {showMessageApprover ? messageApproverButton : null}
+          {messageApproverButton}
         </div>
       ) : null}
     </div>

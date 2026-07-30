@@ -39,14 +39,14 @@ public static class CitizenJobStatusLabelHelper
             message.CitizenRequestNumber,
             message.CitizenRequestNumberYear,
             message.ReceivedAtUtc);
-        var statusLabel = GetDisplayStatus(job, taskCount, utcNow);
+        var statusLabel = GetCitizenAutoReplyStatusLabel(job, taskCount, utcNow);
         var title = string.IsNullOrWhiteSpace(job.Title) ? "talebiniz" : job.Title.Trim();
         var targetDepartments = string.IsNullOrWhiteSpace(targetDepartmentNames)
             ? "İlgili birim"
             : targetDepartmentNames.Trim();
-        var messageTemplate = string.IsNullOrWhiteSpace(template)
-            ? "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu {VatandaşTalepDurumu}. {GönderilenBirim}"
-            : template;
+        var messageTemplate = EnsureQuotedCitizenStatuses(string.IsNullOrWhiteSpace(template)
+            ? "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"{VatandaşTalepDurumu}\". {GönderilenBirim}"
+            : template);
 
         var content = messageTemplate
             .Replace("{VatandaşTalepNo}", requestNumber, StringComparison.Ordinal)
@@ -57,6 +57,65 @@ public static class CitizenJobStatusLabelHelper
             .Replace("{Vatandaş Talep Durumu}", statusLabel, StringComparison.Ordinal);
 
         return ReplaceTargetDepartmentToken(content, targetDepartments).Trim();
+    }
+
+    /// <summary>WA otomatik mesajlarda vatandaşa gösterilen durum etiketi (#2104).</summary>
+    public static string GetCitizenAutoReplyStatusLabel(Job job, int taskCount, DateTimeOffset utcNow)
+    {
+        var display = GetDisplayStatus(job, taskCount, utcNow);
+        return display switch
+        {
+            "Tamamlanmış" => "Tamamlandı",
+            "İptal" => "İptal Edildi",
+            _ => display,
+        };
+    }
+
+    /// <summary>
+    /// Eski kayıtlarda tırnaksız durumları ("durumu Tamamlandı.") tırnaklıya çevirir (#2104).
+    /// </summary>
+    public static string EnsureQuotedCitizenStatuses(string template)
+    {
+        if (string.IsNullOrWhiteSpace(template))
+        {
+            return template;
+        }
+
+        string[] statuses =
+        [
+            "İşleme Alındı",
+            "Yapılmakta",
+            "Tamamlandı",
+            "Tamamlanmış",
+            "İptal Edildi",
+            "İptal",
+        ];
+
+        var result = template;
+        foreach (var status in statuses)
+        {
+            // durumu Tamamlandı. → durumu "Tamamlandı".
+            result = result.Replace(
+                $"durumu {status}",
+                $"durumu \"{status}\"",
+                StringComparison.Ordinal);
+            // Zaten tırnaklıysa çift tırnak oluşmasın.
+            result = result.Replace(
+                $"durumu \"\"{status}\"\"",
+                $"durumu \"{status}\"",
+                StringComparison.Ordinal);
+        }
+
+        result = result.Replace(
+            "durumu {VatandaşTalepDurumu}",
+            "durumu \"{VatandaşTalepDurumu}\"",
+            StringComparison.Ordinal);
+        result = result.Replace(
+            "durumu \"\"{VatandaşTalepDurumu}\"\"",
+            "durumu \"{VatandaşTalepDurumu}\"",
+            StringComparison.Ordinal);
+
+        return result;
     }
 
     private static string ReplaceTargetDepartmentToken(string template, string targetDepartments)

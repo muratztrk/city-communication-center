@@ -1,3 +1,9 @@
+## Round 577 — WA quotes / Not kaldır / reopen scope / Yazışmaya Git flash
+- WA auto-reply durumları tırnaklı (`"Tamamlandı"`); eski şablonlar normalize.
+- Not chip kaldırıldı; Mesajı Onaylayan Yönetici turkuaz.
+- Mesaj Onayı reopen: yalnız o taleplerde İptal/Onayla/Yönlendir gizlenir; İptal Tarihi kırmızı + Durum sonrası.
+- Phone/çağrı: Yazışmaya Git kanal yüklenmeden flash etmez.
+
 ## Round 576 — Mesaj Onayı İşlemler yükseklik + Telefon No bold
 - İşlemler butonları `h-8` → `2.125rem`; `Telefon No` başlığı `font-bold`.
 

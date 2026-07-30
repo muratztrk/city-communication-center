@@ -102,10 +102,20 @@ function hasRealTargetDecision(detail: JobDetail): boolean {
 }
 
 function wasRecoveredFromCancellation(detail: JobDetail): boolean {
-  if (detail.status !== 'Active' && detail.status !== 'Completed') return false
-  if (detail.cancelReason?.trim()) return true
-  // Mesaj Onayı reopen: Active iken completedAtUtc korunur (#2099).
-  return detail.status === 'Active' && Boolean(detail.completedAtUtc)
+  // Klasik iptalden geri alma: cancelReason + Active/Completed.
+  return Boolean(detail.cancelReason?.trim())
+    && (detail.status === 'Active' || detail.status === 'Completed')
+}
+
+/** Mesaj Onayı "Talep Durumunu Değiştir" ile Active'e dönen vatandaş talebi (#2099/#2108). */
+export function wasReopenedViaCitizenMessageApproval(detail: JobDetail): boolean {
+  if (!isCitizenRequestJob(detail) || detail.status !== 'Active') return false
+  // ReopenCommand: Completed → completedAtUtc korunur; Cancelled → cancelReason kalır.
+  return Boolean(detail.completedAtUtc) || Boolean(detail.cancelReason?.trim())
+}
+
+function isRecoveredTimeline(detail: JobDetail): boolean {
+  return wasRecoveredFromCancellation(detail) || wasReopenedViaCitizenMessageApproval(detail)
 }
 
 function resolveStepStates(
@@ -113,21 +123,22 @@ function resolveStepStates(
   detail: JobDetail,
   options?: BuildJobProcessStepsOptions,
 ): JobProcessStep[] {
-  if (wasRecoveredFromCancellation(detail)) {
+  if (isRecoveredTimeline(detail)) {
     let foundCurrent = false
     return steps.map(step => {
-      if (foundCurrent) {
-        return { ...step, state: 'upcoming' as const }
-      }
+      // İptal/Tamamlanma, Durum'tan önce gelse de sonra gelse terminal rengi korunsun (#2108).
       if (step.id === 'cancelDate') {
         return { ...step, state: 'terminal-danger' as const }
+      }
+      if (step.id === 'completionDate') {
+        return { ...step, state: 'terminal-success' as const }
+      }
+      if (foundCurrent) {
+        return { ...step, state: 'upcoming' as const }
       }
       if (step.id === 'status') {
         foundCurrent = true
         return { ...step, state: 'current' as const }
-      }
-      if (step.id === 'completionDate') {
-        return { ...step, state: 'terminal-success' as const }
       }
       if (step.id === 'dueDate') {
         return { ...step, state: 'upcoming' as const }
@@ -262,7 +273,7 @@ export function buildJobProcessSteps(
     && !isCitizenRequestJob(detail)
     && (detail.requestType === 'InternalUnit' || detail.requestType === 'ExternalUnit')
   const statusStepEarly = managerCreatedActive
-    && !wasRecoveredFromCancellation(detail)
+    && !isRecoveredTimeline(detail)
     && !(detail.requestType === 'ExternalUnit' && targetDecided)
     && !options?.ownerApprovalBeforeStatus
     && !hideStatusAwaitingTarget
@@ -278,8 +289,10 @@ export function buildJobProcessSteps(
   // Sahip onayı gizlenen eski tüketicilerde onay bekleyen Durum katmanını Talep Tarihi'nin
   // hemen arkasına koy — yönetici-oluşturmadıysa statusStepEarly kaçırırdı (card #1535).
   // Gelen/Giden yeni düzeninde ownerApprovalBeforeStatus bu adımı sahip onayının arkasına erteler.
+  // Mesaj Onayı reopen'da Durum, İptal/Tamamlanma'dan SONRA eklenir (#2108) — erken ekleme yok.
   if (!statusStepEarly && pendingStatusLayer && !options?.ownerApprovalBeforeStatus
-    && !hideStatusAwaitingTarget && !isTerminalStatus(detail.status)) {
+    && !hideStatusAwaitingTarget && !isTerminalStatus(detail.status)
+    && !isRecoveredTimeline(detail)) {
     steps.push({
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),
@@ -307,7 +320,8 @@ export function buildJobProcessSteps(
   // ve PendingExternalApproval için mavi Durum katmanı korunur — istisna: birim dışı +
   // hedef onay beklerken de gizlenir (cards #1652/#1653/#1655; yönetici veya standart kullanıcı).
   if (!statusStepEarly && pendingStatusLayer && options?.ownerApprovalBeforeStatus
-    && !hideStatusAwaitingTarget && !isTerminalStatus(detail.status)) {
+    && !hideStatusAwaitingTarget && !isTerminalStatus(detail.status)
+    && !isRecoveredTimeline(detail)) {
     const ownerStepShowsPendingApproval = !options?.hideOwnerApproval
       && !isCitizenRequestJob(detail)
       && detail.status === 'PendingOwnerApproval'
@@ -335,7 +349,7 @@ export function buildJobProcessSteps(
     })
   }
 
-  if (wasRecoveredFromCancellation(detail) && detail.status !== 'Cancelled' && detail.status !== 'Rejected') {
+  if (isRecoveredTimeline(detail) && detail.status !== 'Cancelled' && detail.status !== 'Rejected') {
     if (detail.cancelReason?.trim()) {
       steps.push({
         id: 'cancelDate',
@@ -370,11 +384,9 @@ export function buildJobProcessSteps(
   }
 
   // Vatandaş talebi Mesaj Onayı "Talep Durumunu Değiştir" ile Active'e dönünce
-  // İptal/Tamamlanma tarihinden sonra standart Yapılmakta katmanı (#2099).
+  // İptal/Tamamlanma tarihinden sonra standart Yapılmakta katmanı (#2099/#2108).
   if (
-    isCitizenRequestJob(detail)
-    && detail.status === 'Active'
-    && wasRecoveredFromCancellation(detail)
+    wasReopenedViaCitizenMessageApproval(detail)
     && !steps.some(step => step.id === 'status')
   ) {
     steps.push({
@@ -427,5 +439,5 @@ export function buildJobProcessSteps(
 }
 
 export function isJobRecoveredFromCancellation(detail: JobDetail): boolean {
-  return wasRecoveredFromCancellation(detail)
+  return isRecoveredTimeline(detail)
 }

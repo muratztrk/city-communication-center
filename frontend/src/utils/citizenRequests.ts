@@ -129,12 +129,16 @@ export function canShowCitizenWhatsAppConversation(
   } | null,
 ): boolean {
   if (!isCitizenRequestJob(job)) return false
-  // Çağrı (Phone) kanalında yazışma yok (#2101).
+
+  const hasSocialSource = job.sourceType === 'SocialMessage' && Boolean(job.sourceRefId)
+  // Flash önleme: SocialMessage kaynağında kanal yüklenmeden Yazışmaya Git gösterme (#2101/#2107).
+  if (hasSocialSource && !social?.channel) return false
+
   const channel = (social?.channel ?? '').toLocaleLowerCase('tr')
   if (channel === 'phone' || channel === 'call' || channel === 'çağrı' || channel === 'cagri') {
     return false
   }
-  if (job.sourceType === 'SocialMessage' && job.sourceRefId) return true
+  if (hasSocialSource) return true
   if (social?.socialMessageId) return true
   return resolveCitizenWhatsAppPhone(job, social) != null
 }

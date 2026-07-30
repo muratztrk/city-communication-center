@@ -207,7 +207,7 @@ export function CitizenMessageApprovalPage() {
       compactActionsLarge: true,
       message: t(
         'citizenMessageApproval.releaseConfirm',
-        'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
+        'Mesajı onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
       ),
       confirmLabel: t('citizenMessageApproval.actions.release', 'Mesajı Onayla'),
       cancelLabel: t('common.dismiss', 'Vazgeç'),
@@ -222,39 +222,6 @@ export function CitizenMessageApprovalPage() {
             // Mesaj Gönderimi Onaylanan sekmesine geç (card #2058).
             setScope('sent')
             setDetailJobId(null)
-          } catch (err) {
-            showToast(err instanceof Error ? err.message : t('common.error'), 'error')
-          }
-        })()
-      },
-    })
-  }
-
-  const handleChangeStatusToInProgress = (jobId: string) => {
-    setConfirmDialog({
-      title: t('citizenMessageApproval.changeStatusTitle', 'Talep Durumunu Değiştir'),
-      titleDivider: true,
-      message: (
-        <>
-          {t('citizenMessageApproval.changeStatusConfirmLead', 'Talep durumunu')}{' '}
-          <span className="font-semibold text-sky-500">
-            &quot;{t('citizenMessageApproval.changeStatusInProgress', 'İşleme Alındı')}&quot;
-          </span>
-          {' '}{t('citizenMessageApproval.changeStatusConfirmTrail', 'olarak değiştirmeyi onaylıyor musunuz?')}
-        </>
-      ),
-      confirmLabel: t('common.yes', 'Evet'),
-      cancelLabel: t('common.dismiss', 'Vazgeç'),
-      variant: 'primary',
-      onConfirm: () => {
-        void (async () => {
-          try {
-            await api.reopenCitizenMessageJob(jobId)
-            invalidateJobs(queryClient, jobId)
-            invalidateCitizenMessageApprovals(queryClient)
-            showToast(t('citizenMessageApproval.statusChanged', 'Talep durumu İşleme Alındı olarak güncellendi.'))
-            setDetailJobId(null)
-            await loadApprovals()
           } catch (err) {
             showToast(err instanceof Error ? err.message : t('common.error'), 'error')
           }
@@ -482,7 +449,6 @@ export function CitizenMessageApprovalPage() {
           notificationJobId={detailJobId}
           detailContextOverride="incoming"
           onNotificationDetailClose={() => setDetailJobId(null)}
-          onChangeStatusToInProgress={handleChangeStatusToInProgress}
           messageApprovalActions={{
             onEditNote: () => {
               const row = rows.find(item => item.jobId === detailJobId)

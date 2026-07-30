@@ -139,7 +139,8 @@ function resolveStepStates(
       }
       if (step.id === 'status') {
         foundCurrent = true
-        return { ...step, state: 'current' as const }
+        // Yapılmakta → mavi pending; Son Tarihi Geçmiş → turuncu current (#2107).
+        return { ...step, state: isActiveJobOverdue(detail) ? 'current' as const : 'pending' as const }
       }
       if (step.id === 'dueDate') {
         return { ...step, state: 'upcoming' as const }

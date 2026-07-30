@@ -2074,9 +2074,9 @@ const pageKicker = isMyTasksView
                           <span className="grid min-w-0 w-full flex-1 grid-cols-[minmax(0,1fr)_auto] items-center gap-x-2 gap-y-1">
                             <span className="min-w-0">{t('tasks.detail.infoFields', 'Görev Bilgileri')}</span>
                             {parentJobDetail ? (
-                              <span className="ml-auto flex flex-col items-end text-right text-[11px] leading-tight">
-                                <span className="font-semibold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
-                                <span className={`font-bold ${getPriorityColorClass(parentJobDetail.priority)}`}>
+                              <span className="ml-auto flex flex-col items-end text-right leading-tight">
+                                <span className="text-xs font-semibold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
+                                <span className={`text-sm font-bold ${getPriorityColorClass(parentJobDetail.priority)}`}>
                                   {getPriorityLabel(t, parentJobDetail.priority)}
                                 </span>
                               </span>

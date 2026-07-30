@@ -1,3 +1,7 @@
+## Round 583 — Mesaj Onayı UI + Öncelik + Yapılmakta mavi
+- Detaydan Talep Durumunu Değiştir kaldırıldı; Mesajı Onayla metni "Mesajı onayladığınızda…".
+- Görev/Talep Bilgileri Öncelik punto büyütüldü; recovered timeline Yapılmakta mavi (overdue turuncu).
+
 ## Round 582 — Açıklama punto + Mesajı Onayla genişlik
 - Talep detay Açıklama: `text-sm` (JobsPage / MyRequestDetailMainCard / TasksPage).
 - Mesajı Onayla ConfirmDialog: `max-w-md px-6 py-5` = Notu Düzenle.

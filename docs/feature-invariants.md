@@ -1501,13 +1501,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   textarea `rows={4}`; aksiyon butonları `size="sm"`.
 - **Mesajı Onayla ConfirmDialog genişliği:** `wide: true` → `max-w-md px-6 py-5` (Notu Düzenle ile aynı
   kutu boyutu; dar `max-w-sm p-6` kullanılmaz).
+- **Mesajı Onayla confirm metni:** `Mesajı onayladığınızda, …` (`göndermeyi onayladığınızda` değil).
 - **Talep detay Açıklama punto:** JobsPage / Taleplerim (`MyRequestDetailMainCard`) / Görevlerim ilgili talep
   özeti `text-sm leading-5` (eski `text-xs` / `text-[13px]` değil).
+- **Detay Öncelik başlık punto:** Görev Bilgileri / Talep Bilgileri başlığındaki Öncelik etiketi+değer
+  bir kademe büyük (`text-xs`/`text-sm`; eski `text-[11px]` değil).
+- **Recovered timeline Durum Yapılmakta:** mavi `pending` (Son Tarihi Geçmiş değilse); overdue → turuncu
+  `current` (görev reopen / Mesaj Onayı reopen sonrası Tamamlanma→Yapılmakta).
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106):** Detaylar / Notu Düzenle / Mesajı Onayla FHD'de `nowrap`;
   Vatandaş Adı/Telefon ~11rem, İşlemler geniş (~22rem); buton yüksekliği `2.125rem` (#2105);
   Telefon No başlığı `font-bold` (#2106); Notu Düzenle=`PenLine`, Mesajı Onayla=`Check`.
-- **Mesaj Onayı Detaylar (#2088/#2089):** header'da Notu Düzenle + Mesajı Onayla; Talep Durumunu Değiştir=`Route`
-  ikonu (#007985); Yazdır gizlenir.
+- **Mesaj Onayı Detaylar (#2088/#2089/#2106):** header'da Notu Düzenle + Mesajı Onayla; **Talep Durumunu
+  Değiştir yok** (süreç kaldırıldı). Yazdır gizlenir.
 - **Breadcrumb (#2085):** `/citizen-message-approval` → "Vatandaşa Gönderilecek Mesaj Onayı" (slug değil).
 - **WA Düzenlendi/Beklemede (#2084):** title case (uppercase CSS yok).
 - **WA terminal Not (#2093):** buton/popup metni `Not`; iptal=kırmızı, tamamlanma=turkuaz.

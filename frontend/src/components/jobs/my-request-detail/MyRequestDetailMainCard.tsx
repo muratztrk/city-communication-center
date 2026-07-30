@@ -451,11 +451,11 @@ export function MyRequestDetailMainCard({
                     ) : null}
                     {priorityInInfoHeader ? (
                       <span className="my-request-detail-priority-header flex flex-col items-end text-right leading-tight">
-                        <span className="text-xs font-bold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
+                        <span className="text-[13px] font-bold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
                         {isEditing && editDraft && onEditDraftChange ? (
                           <SingleSelectDropdown
                             className="my-request-detail-priority-header__control mt-0.5 w-28"
-                            triggerClassName="!min-h-7 !px-2 !py-1 text-[11px] font-semibold"
+                            triggerClassName="!min-h-7 !px-2 !py-1 text-xs font-semibold"
                             menuScrollClassName="dropdown-menu-scroll--compact my-request-edit-priority-menu"
                             options={priorityOptions}
                             value={editDraft.priority}
@@ -463,7 +463,7 @@ export function MyRequestDetailMainCard({
                             placeholder={t('jobs.form.priority', 'Öncelik')}
                           />
                         ) : (
-                          <span className={`text-[11px] font-semibold ${getPriorityColorClass(detail.priority)} ${detail.priority === 'High' || detail.priority === 'VeryHigh' || detail.priority === 'Critical' ? 'font-extrabold' : ''}`}>
+                          <span className={`text-xs font-semibold ${getPriorityColorClass(detail.priority)} ${detail.priority === 'High' || detail.priority === 'VeryHigh' || detail.priority === 'Critical' ? 'font-extrabold' : ''}`}>
                             {getPriorityLabel(t, detail.priority)}
                           </span>
                         )}

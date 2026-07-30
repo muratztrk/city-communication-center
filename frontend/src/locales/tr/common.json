@@ -913,7 +913,7 @@
     "editNotePlaceholder": "Tamamlama/İptal notu...",
     "noteRequired": "Not ifadesi zorunludur.",
     "releaseTitle": "Mesajı Onayla",
-    "releaseConfirm": "Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.",
+    "releaseConfirm": "Mesajı onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.",
     "releaseNoteMissing": "Göndermeden önce lütfen \"Notu Düzenle\" ile bir not girin.",
     "released": "Mesaj gönderime hazırlandı.",
     "noteSaved": "Not kaydedildi.",

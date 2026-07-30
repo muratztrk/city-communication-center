@@ -491,8 +491,8 @@ function ConversationListPanel({
               </button>
             ))}
           </div>
-          {/* Tümü / Yanıt bekliyor satırının sağ border'ına yaslı (#6a6bab12 reopen). */}
-          {unreadCount > 0 ? (
+          {/* Yalnız "Yanıt bekliyor" filtresi seçiliyken (#6a6bab12 reopen). */}
+          {unreadCount > 0 && listFilter === 'unread' ? (
             <button
               type="button"
               className="whatsapp-mark-waiting-replied shrink-0 text-[10px] font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline"

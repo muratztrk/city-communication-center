@@ -1127,9 +1127,9 @@
     color: #dc2626;
   }
 
-  /* Bildirim modalı banner biraz alçak; tarih pill biraz daha geniş (#6a6bad5c reopen). */
+  /* Bildirim modalı: banner biraz yükselt; tarih pill yüksekliği biraz düşür (#6a6bad5c). */
   .notification-modal-header.sticky-page-header {
-    padding-block: 0.55rem;
+    padding-block: 0.7rem;
   }
 
   .notification-modal-date-range.scope-chip-date-range {
@@ -1146,12 +1146,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 1.875rem;
+    min-height: 1.65rem;
     color: rgba(255, 255, 255, 0.75);
     font-weight: 600;
   }
 
   .notification-modal-date .field-input {
+    height: 1.65rem;
+    min-height: 0;
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.28);
     /* Tarih metni ve takvim ikonu, yanındaki "Ara" placeholder ile aynı renk (card 508).

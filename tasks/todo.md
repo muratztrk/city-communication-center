@@ -1,3 +1,8 @@
+## Round 596 — Yanıt Verildi yalnız filtrede; rutin bildirim yok; banner/tarih
+- Yanıt Verildi İşaretle yalnız Yanıt bekliyor filtresi seçiliyken (#6a6bab12).
+- RoutineTaskCreated bildirim feed/rozet dışı (#6a6bba0d).
+- Bildirim modal banner 0.7rem; tarih yüksekliği 1.65rem (#6a6bad5c).
+
 ## Round 595 — Görevlerim adres stacked geri; bildirim banner/tarih
 - Görevlerim İlgili Talep Adres tekrar `stacked` (#6a6baec9 reopen).
 - Bildirim modal: banner biraz alçak; tarih pill 8.5rem (#6a6bad5c reopen).

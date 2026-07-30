@@ -171,7 +171,10 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             if (entityIds.Count > 0)
             {
                 var logs = await _dbContext.AuditLogs.AsNoTracking()
-                    .Where(a => a.TenantId == tenantId && entityIds.Contains(a.EntityId))
+                    .Where(a => a.TenantId == tenantId
+                        && entityIds.Contains(a.EntityId)
+                        // Rutin görev oluşturma bildirimi gösterilmez (#6a6bba0d).
+                        && a.Action != "RoutineTaskCreated")
                     .OrderByDescending(a => a.EventTimeUtc)
                     .Take(100)
                     .ToListAsync(cancellationToken);

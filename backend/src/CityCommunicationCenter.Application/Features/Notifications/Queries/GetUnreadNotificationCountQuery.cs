@@ -61,6 +61,7 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
                     && entityIds.Contains(auditLog.EntityId)
                     && auditLog.EventTimeUtc > readThroughUtc
                     && auditLog.ActorUserId != request.UserId
+                    && auditLog.Action != "RoutineTaskCreated"
                     && !readAuditIds.Contains(auditLog.AuditLogId),
                 cancellationToken);
 

@@ -411,8 +411,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
   WhatsApp nav satırında `Yanıt bekliyor` rozeti yok (#6a6ba9ac); sayım yalnız sayfa içi
-  `Yanıt bekliyor` filtresinde. `Yanıt Verildi İşaretle` Tümü/Yanıt bekliyor chip satırının
-  en sağında (sağa yaslı, yanıp sönen yeşil) — konuşma satırında değil (#6a6bab12 reopen);
+  `Yanıt bekliyor` filtresinde.   `Yanıt Verildi İşaretle` yalnız `Yanıt bekliyor` filtresi seçiliyken chip satırının
+  en sağında (sağa yaslı, yanıp sönen yeşil) — konuşma satırında değil (#6a6bab12);
   `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`); yeni inbound webhook sıfırlar.
   **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
@@ -1601,6 +1601,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   için kalıcı `Notification` satırı yok; gerçek push bildirimleri ayrı). Yeni bildirim
   davranışı eklemek = audit→`NotificationResponse` projeksiyonunu değiştirmek. Başlık
   `ActionTitle(audit.Action)`'tan; mesaj `messageParts`'tan gelir.
+- **`RoutineTaskCreated` bildirimde yok (#6a6bba0d):** feed ve okunmamış sayaç
+  `Action != RoutineTaskCreated` ile elenir.
 - **Çok birimli müdür bildirim kapsamı (#6a6bafb7):** `NotificationAudience` yönetici birim
   genişlemesi `X-Active-Department-Id` ile daralır; feed + okunmamış rozet yalnız seçili
   birimin talep/görevlerine aittir. Kişisel atama/oluşturma bildirimleri birimden bağımsız kalır.

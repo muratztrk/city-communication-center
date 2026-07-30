@@ -1,3 +1,6 @@
+## Round 598 — Bildirim modal tarih pill bir kademe daha küçült
+- Tarih yüksekliği 1.25rem; font/ikon 0.65rem (#6a6bad5c reopen).
+
 ## Round 597 — Yanıt Verildi seçili konuşmada; Bildirim güncellendi gizle; tarih küçült
 - Yanıt Verildi İşaretle yalnız seçili konuşma yanıt bekliyorsa (#6a6bab12 reopen).
 - CitizenMessage* / Bildirim güncellendi feed+rozet dışı (#6a6bbc18).

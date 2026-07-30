@@ -1,3 +1,6 @@
+## Round 589 — Sms Onayı nav = WhatsApp hiza/punto + renkli ikon
+- Sms Onayı `emphasized` + `/icons/sms.svg` (WhatsApp alt başlığı gibi değil).
+
 ## Round 588 — SMS rozet, WA rozet sync, nav rename, konum, iptal ek
 - Sms Onayı nav rozeti (Mesaj Onayı Bekleyen / phone); WhatsApp/Sms Onayı kısa etiket.
 - Yanıt bekliyor 0 → WA nav rozeti anında kaybolur; konum balonu harita linki.

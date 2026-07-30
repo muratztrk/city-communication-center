@@ -766,9 +766,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil login logo çerçevesi yatayda geniş kalır:** kompakt login logo kartının yatay
   padding'i ve kart genişliği daraltılıp kare karta geri döndürülmez; panel viewport içinde biraz
   dışa taşarak genişler, logo etrafındaki beyaz alanda yatay nefes payı olur ve logo boyutu sabit kalır.
-- **Sol menüde `/whatsapp` alt linki `SidebarNavLinkItem.emphasized` ile biraz büyük ve sola
-  taşınmış kalır**; metin tam sığmalı, tüm sidebar font/zoom ölçeğini değiştirerek diğer
-  menüleri büyütme (card #1085).
+- **Sol menüde `/whatsapp` ve `/sms-delivery-approval` alt linkleri `SidebarNavLinkItem.emphasized`
+  ile aynı hiza/punto ve renkli ikonla kalır** (`whatsapp.webp` / `sms.svg`); Sms Onayı WhatsApp
+  alt başlığı gibi küçük/gri görünmez (card #1085 / #6a6b6c8e reopen).
 - **WhatsApp `Şablon mesaj ekle` aksiyonunda yalnızca baştaki `+` ikonu yeşildir; buton metni
   nötr slate renginde kalır** (card #1245).
 - **Talep oluşturma formlarında adres `Cadde / Sokak` input metni aynı formdaki `Açık Adres`
@@ -1521,7 +1521,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   İptal Et popup'ta açıklama `G-{yıl}-{no}` ile başlar ve Görev No kırmızıdır (`text-red-600`).
   İptal Et popup'ta Tamamla ile aynı **Dosya ekle** (geçici upload, Vazgeç'te silinir — #6a6b6c07).
 - **Sms Onayı (#2112/#6a6b6824/#6a6b6c8e):** `/sms-delivery-approval` — Vatandaş Talepleri altında
-  WhatsApp'ın altında; nav etiketi `Sms Onayı`; `pageKey smsDeliveryApproval` (Operator varsayılan
+  WhatsApp'ın hemen altında; nav etiketi `Sms Onayı`; WhatsApp ile aynı `emphasized` hiza/punto +
+  renkli `/icons/sms.svg` (reopen #6a6b6c8e). `pageKey smsDeliveryApproval` (Operator varsayılan
   açık, Staff/Reporter kapalı). Nav rozeti phone `to-send` sayısı. Banner altı chip'ler Mesaj
   Onayı ile aynı; liste `channel=phone`. Mesaj Onayı listesi `channel=whatsapp`.
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106/#2108):** `toSend` = Detaylar / Notu Düzenle /

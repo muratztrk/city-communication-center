@@ -51,6 +51,7 @@ import {
   formatCitizenPhoneDisplay,
   getCitizenRequestStatusLabel,
   shouldShowCitizenTargetApprovalDate,
+  countOpenWorkTasks,
 } from '../utils/citizenRequests'
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -777,11 +778,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   // Birime düşmüş dış talepte görev henüz oluşmadıysa griddeki "Onayla" eylemi
   // personel atama penceresini açar. Detay popup'ı da aynı eylemi sunmalıdır.
   // Mesaj Onayı reopen sonrası da aktif kalır — pasif/disabled Onayla gösterilmez (#6a6aecbc).
+  // Açık (terminal olmayan) görev yoksa atama Onayla görünür — reopen sonrası İşleme Alındı (#6a6ae7e2).
   const canAssignIncomingDetail = isIncomingRequestDetail
     && isManagerLike
     && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
     && detail.status === 'Active'
-    && (detail.tasks?.length ?? 0) === 0
+    && countOpenWorkTasks(detail) === 0
   // Yönlendirilmiş talebin sebebi hedef kaydın Notes alanında saklanır (card #1406).
   const forwardTarget = detail?.departments?.find(department => department.role === 'Target' && Boolean(department.notes?.trim())) ?? null
   const forwardReason = forwardTarget?.notes?.trim() ?? null
@@ -908,7 +910,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     || detail?.status === 'PendingExternalApproval'
     || (isIncomingRequestDetail
       && detail?.status === 'Active'
-      && (detail.tasks?.length ?? 0) === 0)
+      && countOpenWorkTasks(detail) === 0)
     ? 'text-sky-500'
     : detail?.status === 'Active'
     ? 'text-[#f97316]'
@@ -2667,7 +2669,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         : isIncomingRequestDetail
                           ? (
                             getExternalUnitTargetDisplayStatus(t, detail)
-                            ?? (detail.status === 'Active' && (detail.tasks?.length ?? 0) === 0
+                            ?? (detail.status === 'Active' && countOpenWorkTasks(detail) === 0
                               ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
                               : detail.status === 'Active'
                                 ? activeStatusLabel

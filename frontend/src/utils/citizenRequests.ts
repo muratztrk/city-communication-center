@@ -8,11 +8,24 @@ export function isCitizenRequestJob(job: { requestType?: string | null; sourceTy
     || job.sourceType === 'EDevlet'
 }
 
+const TERMINAL_TASK_STATUSES = new Set(['Completed', 'Cancelled', 'Rejected'])
+
+/** Açık (terminal olmayan) görev sayısı — Mesaj Onayı reopen sonrası İşleme Alındı için. */
+export function countOpenWorkTasks(job: {
+  taskCount?: number
+  tasks?: { currentStatus?: string }[] | null
+}): number {
+  if (job.tasks) {
+    return job.tasks.filter(task => !TERMINAL_TASK_STATUSES.has(task.currentStatus ?? '')).length
+  }
+  return job.taskCount ?? 0
+}
+
 type CitizenRequestStatusSource = {
   status: string
   dueDateUtc?: string | null
   taskCount?: number
-  tasks?: unknown[]
+  tasks?: { currentStatus?: string }[]
 }
 
 export function getCitizenRequestStatusLabel(
@@ -27,7 +40,7 @@ export function getCitizenRequestStatusLabel(
     return formatOverdueInProgressStatus(t)
   }
 
-  const taskCount = job.taskCount ?? job.tasks?.length ?? 0
+  const taskCount = countOpenWorkTasks(job)
   if (job.status === 'Active' && taskCount > 0) {
     return t('jobs.statusLabel.inProgress', 'Yapılmakta')
   }

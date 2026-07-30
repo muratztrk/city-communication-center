@@ -1,3 +1,7 @@
+## Round 581 — Reopen → İşleme Alındı + Durum ikon yok
+- Mesaj Onayı Talep Durumunu Değiştir: mavi `İşleme Alındı`; reopen görevleri InProgress yapmaz.
+- Grid Durum `İşleme Alındı` önünde kanal ikonu yok; liste taskCount yalnız açık görevler.
+
 ## Round 580 — Timeline çizgi geçişi + reopen Onayla aktif
 - Yeşil→gri / kırmızı→gri Süreç çizgilerinde gradient (#6a6b3b5b).
 - Mesaj Onayı reopen: Onayla (atama) tekrar aktif; pasif Onayla yok; hedef onay tarihi

@@ -237,8 +237,8 @@ export function CitizenMessageApprovalPage() {
       message: (
         <>
           {t('citizenMessageApproval.changeStatusConfirmLead', 'Talep durumunu')}{' '}
-          <span className="font-semibold text-orange-500">
-            &quot;{t('citizenMessageApproval.changeStatusInProgress', 'Yapılmakta')}&quot;
+          <span className="font-semibold text-sky-500">
+            &quot;{t('citizenMessageApproval.changeStatusInProgress', 'İşleme Alındı')}&quot;
           </span>
           {' '}{t('citizenMessageApproval.changeStatusConfirmTrail', 'olarak değiştirmeyi onaylıyor musunuz?')}
         </>
@@ -252,7 +252,7 @@ export function CitizenMessageApprovalPage() {
             await api.reopenCitizenMessageJob(jobId)
             invalidateJobs(queryClient, jobId)
             invalidateCitizenMessageApprovals(queryClient)
-            showToast(t('citizenMessageApproval.statusChanged', 'Talep durumu Yapılmakta olarak güncellendi.'))
+            showToast(t('citizenMessageApproval.statusChanged', 'Talep durumu İşleme Alındı olarak güncellendi.'))
             setDetailJobId(null)
             await loadApprovals()
           } catch (err) {

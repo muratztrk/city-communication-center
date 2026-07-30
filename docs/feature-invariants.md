@@ -682,6 +682,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA otomatik durum tırnakları (card #2104):** `BuildStatusMessage` / `ParseOrDefault` durum
   etiketlerini `"İşleme Alındı"` / `"Yapılmakta"` / `"Tamamlandı"` / `"İptal Edildi"` olarak üretir
   (eski tırnaksız şablonlar okunurken normalize edilir).
+- **Mesaj Onayı reopen → İşleme Alındı (card #6a6ae7e2):** `Talep Durumunu Değiştir` confirm
+  metninde mavi `İşleme Alındı` (turuncu Yapılmakta değil). Reopen terminal görevleri InProgress'e
+  almaz; job Active + açık görev yok → UI `İşleme Alındı`. Liste `taskCount` yalnız açık
+  (non-terminal) görevleri sayar.
+- **Grid Durum İşleme Alındı ikon yok (card #6a6b3e39):** `GridStatusLabel` Durum hücresinde
+  `İşleme Alındı` önünde kanal ikonu göstermez.
 - **Mesaj Onayı reopen scope (card #2108 / #6a6aecbc):** `wasReopenedViaCitizenMessageApproval`
   yalnız vatandaş + Active + (completedAtUtc|cancelReason). Birime Gelen'de **İptal Et** gizlenir;
   **Onayla** (hedef onay / personel atama) reopen sonrası aktif kalır — pasif/disabled Onayla

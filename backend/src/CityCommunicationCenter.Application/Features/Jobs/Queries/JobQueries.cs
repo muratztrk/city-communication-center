@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Features.Users;
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
@@ -140,7 +141,10 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
         var jobIds = rows.Select(r => r.Job.JobId).ToArray();
         var counts = await _dbContext.Tasks
             .AsNoTracking()
-            .Where(t => jobIds.Contains(t.JobId))
+            .Where(t => jobIds.Contains(t.JobId)
+                && t.CurrentStatus != WorkflowTaskStatus.Completed
+                && t.CurrentStatus != WorkflowTaskStatus.Cancelled
+                && t.CurrentStatus != WorkflowTaskStatus.Rejected)
             .GroupBy(t => t.JobId)
             .Select(g => new { JobId = g.Key, Count = g.Count() })
             .ToListAsync(cancellationToken);

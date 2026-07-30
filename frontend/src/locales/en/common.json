@@ -914,9 +914,9 @@
     "noteSaved": "Note saved.",
     "changeStatusTitle": "Change Request Status",
     "changeStatusConfirmLead": "Do you confirm changing the request status to",
-    "changeStatusInProgress": "In Progress",
+    "changeStatusInProgress": "Processing Received",
     "changeStatusConfirmTrail": "?",
-    "statusChanged": "Request status updated to In Progress."
+    "statusChanged": "Request status updated to Processing Received."
   },
   "social": {
     "title": "Citizen Request Flow",

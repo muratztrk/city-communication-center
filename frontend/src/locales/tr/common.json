@@ -919,9 +919,9 @@
     "noteSaved": "Not kaydedildi.",
     "changeStatusTitle": "Talep Durumunu Değiştir",
     "changeStatusConfirmLead": "Talep durumunu",
-    "changeStatusInProgress": "Yapılmakta",
+    "changeStatusInProgress": "İşleme Alındı",
     "changeStatusConfirmTrail": "olarak değiştirmeyi onaylıyor musunuz?",
-    "statusChanged": "Talep durumu Yapılmakta olarak güncellendi."
+    "statusChanged": "Talep durumu İşleme Alındı olarak güncellendi."
   },
   "social": {
     "title": "Vatandaş Talep Akışı",

@@ -3,6 +3,7 @@ import type { JobDetail } from '../../../types/platform'
 import {
   isCitizenRequestJob,
   shouldShowCitizenTargetApprovalDate,
+  countOpenWorkTasks,
 } from '../../../utils/citizenRequests'
 import { formatDateTime, formatDueDateTime } from './format'
 import { getJobTargetApproverDisplayName } from '../../../utils/jobDetails'
@@ -15,14 +16,14 @@ function isPendingApprovalJobStatus(status: string): boolean {
     || status === 'PendingExternalApproval'
 }
 
-/** Birime Gelen: Active + henüz görev yok → UI'da Onay Bekleyen (card #1535, vatandaş talebinde de card #1535 reopen). */
+/** Birime Gelen: Active + henüz açık görev yok → UI'da Onay Bekleyen (card #1535, vatandaş talebinde de card #1535 reopen). */
 function isUnassignedActivePending(
   detail: JobDetail,
   options?: BuildJobProcessStepsOptions,
 ): boolean {
   return Boolean(options?.unassignedActiveAsPending)
     && detail.status === 'Active'
-    && (detail.tasks?.length ?? 0) === 0
+    && countOpenWorkTasks(detail) === 0
 }
 
 function shouldShowPendingStatusLayer(

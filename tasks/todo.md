@@ -1,3 +1,6 @@
+## Round 578 — WA Onaylayan Yönetici etiketi
+- `Mesajı Onaylayan Yönetici` → `Onaylayan Yönetici` (operatör WA konuşma chip).
+
 ## Round 577 — WA quotes / Not kaldır / reopen scope / Yazışmaya Git flash
 - WA auto-reply durumları tırnaklı (`"Tamamlandı"`); eski şablonlar normalize.
 - Not chip kaldırıldı; Mesajı Onaylayan Yönetici turkuaz.

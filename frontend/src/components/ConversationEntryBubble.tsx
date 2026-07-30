@@ -130,7 +130,7 @@ export function ConversationEntryBubble({
 
   const messageApproverButton = (
     <DelayedHoverTooltip
-      label={t('whatsapp.messageApproverButton', 'Mesajı Onaylayan Yönetici')}
+      label={t('whatsapp.messageApproverButton', 'Onaylayan Yönetici')}
       tooltip={messageApproverName ?? ''}
       className={`${approverChipClassName} cursor-default`}
       icon={<User className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}

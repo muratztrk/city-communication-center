@@ -675,7 +675,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (cards #1257/#1258).
 - **İletilmiş İptal/Tamamlanma WA mesajında Not chip yok (card #2109, #1861/#2103 supersede):**
   Terminal not durum mesajına gömülü olduğu için ayrı `Not` butonu gösterilmez.
-  `Mesajı Onaylayan Yönetici` chip turkuaz (`teal-600`) + `User` ikonu.
+  `Onaylayan Yönetici` chip turkuaz (`teal-600`) + `User` ikonu (card #2109/#2110).
   BE `GetCitizenConversationDetailQuery` / `GetSocialConversationQuery` terminal metadata'yı yalnız
   Pending değil, iletilmiş outbound entry'lere de ekler. Pending sıradaki Düzenle/Gönder aksiyonları
   değişmez.
@@ -1492,7 +1492,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Breadcrumb (#2085):** `/citizen-message-approval` → "Vatandaşa Gönderilecek Mesaj Onayı" (slug değil).
 - **WA Düzenlendi/Beklemede (#2084):** title case (uppercase CSS yok).
 - **WA terminal Not (#2093):** buton/popup metni `Not`; iptal=kırmızı, tamamlanma=turkuaz.
-- **WA Mesajı Onaylayan Yönetici (#2092):** serbest bırakma audit'inden ad; yeşil buton; hover 250ms tooltip.
+- **WA Onaylayan Yönetici (#2092/#2110):** serbest bırakma audit'inden ad; turkuaz buton; etiket
+  `Onaylayan Yönetici` (eski: Mesajı Onaylayan Yönetici); hover 250ms tooltip.
 - **Pie drilldown (#2087):** thead dikdörtgen (`border-radius: 0`); gövde ~0.82rem; Yazdır biraz büyük.
   `actions-cell` min-width ~18.5rem.
 - **Pie drilldown grid tipografi (#2080):** Taleplerim ile aynı — `thead` 0.78rem + letter-spacing 0.06em + biraz yüksek; `td` 0.9rem (dizin popup #1889 kalıbı).

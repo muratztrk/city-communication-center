@@ -1127,9 +1127,24 @@
     color: #dc2626;
   }
 
-  /* Bildirim modalı tarih seçicileri — yeşil başlıkta camsı/translucent pill (arama ile aynı dil). */
-  .notification-modal-date {
-    width: 8rem;
+  /* Bildirim modalı tarih seçicileri — dar pill + ortalı "-" (#6a6bad5c). */
+  .notification-modal-date-range.scope-chip-date-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .notification-modal-filters .notification-modal-date.scope-chip-date {
+    width: 6.75rem;
+  }
+
+  .notification-modal-filters .scope-chip-date-separator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 1.875rem;
+    color: rgba(255, 255, 255, 0.75);
+    font-weight: 600;
   }
 
   .notification-modal-date .field-input {

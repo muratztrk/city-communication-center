@@ -2762,7 +2762,7 @@ const pageKicker = isMyTasksView
                           {t('address.detailSectionTitle', 'Adres Bilgileri')}
                         </MyRequestSectionHeading>
                         <AddressDetailFields
-                          variant="stacked"
+                          variant="my-request"
                           neighborhood={parentJobDetail.neighborhood}
                           street={parentJobDetail.street}
                           openAddress={parentJobDetail.openAddress}

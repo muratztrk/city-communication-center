@@ -410,12 +410,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sonrası `view=sent` chip'ine geçer (card #2058). Release şablon yoksa da varsayılan metinle
   Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
-  **WhatsApp** nav satırında `Yanıt bekliyor` sayısı için kullanılır
-  (`isWaitingForConversationResponse`, card #6a6b685d); sayı 0 olunca rozet anında kalkar
-  (liste sync / outbound yanıt / `Yanıt Verildi İşaretle`, card #6a6b6ec6/#6a6bab12).
-  Yanıt bekliyor satırında sağda yanıp sönen yeşil `Yanıt Verildi İşaretle` →
-  `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`); yeni inbound webhook sıfırlar
-  (#6a6bab12). **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
+  WhatsApp nav satırında `Yanıt bekliyor` rozeti yok (#6a6ba9ac); sayım yalnız sayfa içi
+  `Yanıt bekliyor` filtresinde. Yanıt bekliyor satırında sağda yanıp sönen yeşil
+  `Yanıt Verildi İşaretle` → `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`);
+  yeni inbound webhook sıfırlar (#6a6bab12). **Sms Onayı** nav satırında phone `to-send`
+  bekleyen sayısı (card #6a6b6824).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonda **Konum** + Haritada aç; enlem/boylam metni gösterilmez;
@@ -1343,14 +1342,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
 - **Görev grid Görevi Yapan (#r471/#r472/#r531):** personel adı `text-sm font-semibold` (#2006).
   oluşturan `text-sm` ile hizalı.
-- **Bildirim "(Vatandaş Talebi)" etiketi (#r491/#r492):** `titleTag` metin `text-[0.7rem]`, kanal ikonu
-  `size-2.5`; ikon+metin `inline-flex items-center` (ikon text altına kaymasın).
+- **Bildirim "(Vatandaş Talebi)" etiketi (#r491/#r492/#6a6bad16):** `titleTag` metin `text-[0.7rem]`
+  yeşil (`text-emerald-600`); kanal ikonu `size-2.5`; ikon+metin `inline-flex items-center`.
 - **Ek toplam boyutu (#r491):** Entity / form başına tüm eklerin toplamı ≤ 5 MB (tek dosya da dahil); aşımda uyarı, yükleme yok. BE `UploadAttachmentCommand` mevcut ekleri toplar.
 - **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r449 / #r495–#r501 / #6a6ba6ad):** Masaüstü: Mahalle sol
   hizalı; dolu adreste Cadde / Açık Adres etiket+değer sola yaslı (değer ortalanmaz, satır
   kırılınca da sol — #r500); değer fontu ~0.8rem (#r501); Cadde kolon biraz sola
   (`translateX(-0.7rem)` — #r498); boşsa üç kolon bölüm alt çizgisi altında ortalı (`--empty`,
-  #6a6ba6ad). Mobil (≤767): alt alta. Rutin = `variant="my-request"`; atanmış = `variant="stacked"` (#r496).
+  #6a6ba6ad/#6a6baec9). Mobil (≤767): alt alta. Rutin ve Görevlerim İlgili Talep =
+  `variant="my-request"` (#6a6baec9); eski stacked yalnız bilinçli dar kolonlarda.
 - **Rutin Görev Oluştur Açık Adres (#r501/#r502):** textarea `address-open-textarea`; font
   Cadde / Sokak `field-input` ile aynı (~0.98rem, değer + placeholder).
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
@@ -1358,8 +1358,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil Talep No (#r490):** `.table-number-cell__value` / `__priority` mobilde küçültülür.
 - **VT edit mobil hiza (#r490/#r498):** Talep Etiketi kontrolü etiket altında sola; Öncelik sağ üst
   meta, varsayılan `w-28` (Öncelik sola/küçült istekleri #r498'de geri alındı).
-- **Atanmış görev adres stacked boşluk (#r496/#r497):** İlgili Talep Adres `variant="stacked"`;
-  en az bir alan doluysa satır arası `gap: 1.35rem` (`.address-detail-my-request__grid--spaced`).
+- **Atanmış görev adres (#r496/#r497/#6a6baec9):** Görevlerim İlgili Talep Adres `my-request`
+  3 kolon (boşken bölüm çizgisi altında ortalı); stacked `gap` kuralı dolu stacked için durur.
 - **Mobil dizin talep popup (#r483 / #r485):** başlık altında isim · telefon yan yana (küçük
   bullet); ortada kurum logosu.
 - **Mobil Vatandaş Talep Bilgisi genişlik (#r483):** `.detail-modal-shell--my-request`

@@ -1,3 +1,9 @@
+## Round 592 — Bildirim etiketi yeşil, Görevlerim adres, WA rozet kaldır, tarih daralt
+- Bildirim titleTag (Vatandaş Talebi) emerald (#6a6bad16).
+- Görevlerim İlgili Talep Adres = my-request 3 kolon ortalı (#6a6baec9).
+- WhatsApp nav rozeti kaldırıldı (#6a6ba9ac).
+- Tüm Bildirimleri Gör: dar tarih + ortalı `-` (#6a6bad5c).
+
 ## Round 591 — Adres ortalama, Yanıt Verildi İşaretle, SMS ikon/rol, Konum MapPin
 - Boş Adres Bilgileri 3 kolon bölüm alt çizgisi altında ortalı (#6a6ba6ad).
 - WA liste: Yanıt Verildi İşaretle → WaitingReplyClearedAtUtc; inbound sıfırlar (#6a6bab12).

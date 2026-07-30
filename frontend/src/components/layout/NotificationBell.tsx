@@ -87,7 +87,7 @@ interface NotifItemProps {
   largeDetailButton?: boolean
 }
 
-// Başlıkta durum kelimesi varsa TÜM başlık o renge boyanır; "(Vatandaş Talebi)" etiketi ayrı turuncu kalır (card #1341).
+// Başlıkta durum kelimesi varsa TÜM başlık o renge boyanır; "(Vatandaş Talebi)" etiketi yeşil (#6a6bad16).
 function notificationTitleTone(title: string): string | null {
   if (/(reddedildi|iptal edildi|İptal Edildi)/i.test(title)) return 'text-red-600'
   if (/(onaylandı|tamamlandı)/i.test(title)) return 'text-emerald-600'
@@ -144,7 +144,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
         <p className="text-sm leading-snug">
           <NotificationTitle title={n.title} isUnread={!n.isRead} />
           {n.titleTag ? (
-            <span className="ml-1 inline-flex items-center gap-0.5 text-[0.7rem] font-semibold leading-none text-orange-500">
+            <span className="ml-1 inline-flex items-center gap-0.5 text-[0.7rem] font-semibold leading-none text-emerald-600">
               (
               {n.titleTagChannel ? <ChannelIcon channel={n.titleTagChannel} className="size-2.5 shrink-0" /> : null}
               {n.titleTag})
@@ -672,20 +672,25 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                     </button>
                   )}
                 </div>
-                <DateTimePicker
-                  value={modalDateFrom}
-                  onChange={handleModalDateFromChange}
-                  placeholder={t('filters.startDate', 'Başlangıç tarihi')}
-                  className="notification-modal-date scope-chip-date"
-                  forceDown
-                />
-                <DateTimePicker
-                  value={modalDateTo}
-                  onChange={handleModalDateToChange}
-                  placeholder={t('filters.endDate', 'Bitiş tarihi')}
-                  className="notification-modal-date scope-chip-date"
-                  forceDown
-                />
+                <div className="notification-modal-date-range scope-chip-date-range">
+                  <DateTimePicker
+                    value={modalDateFrom}
+                    onChange={handleModalDateFromChange}
+                    placeholder={t('filters.startDate', 'Başlangıç tarihi')}
+                    className="notification-modal-date scope-chip-date"
+                    forceDown
+                    maxDateTime={modalDateTo || undefined}
+                  />
+                  <span className="scope-chip-date-separator" aria-hidden="true">-</span>
+                  <DateTimePicker
+                    value={modalDateTo}
+                    onChange={handleModalDateToChange}
+                    placeholder={t('filters.endDate', 'Bitiş tarihi')}
+                    className="notification-modal-date scope-chip-date"
+                    forceDown
+                    minDateTime={modalDateFrom || undefined}
+                  />
+                </div>
               </div>
               <button
                 type="button"

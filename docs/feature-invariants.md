@@ -411,10 +411,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
   WhatsApp nav satırında `Yanıt bekliyor` rozeti yok (#6a6ba9ac); sayım yalnız sayfa içi
-  `Yanıt bekliyor` filtresinde. Yanıt bekliyor satırında sağda yanıp sönen yeşil
-  `Yanıt Verildi İşaretle` → `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`);
-  yeni inbound webhook sıfırlar (#6a6bab12). **Sms Onayı** nav satırında phone `to-send`
-  bekleyen sayısı (card #6a6b6824).
+  `Yanıt bekliyor` filtresinde. `Yanıt Verildi İşaretle` Tümü/Yanıt bekliyor chip satırının
+  en sağında (sağa yaslı, yanıp sönen yeşil) — konuşma satırında değil (#6a6bab12 reopen);
+  `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`); yeni inbound webhook sıfırlar.
+  **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonda **Konum** + Haritada aç; enlem/boylam metni gösterilmez;

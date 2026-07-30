@@ -1,3 +1,6 @@
+## Round 594 — Yanıt Verildi İşaretle filtre satırı sağına
+- WA: Yanıt Verildi İşaretle → Tümü/Yanıt bekliyor satırı en sağı (#6a6bab12 reopen).
+
 ## Round 593 — Çok birimli müdür bildirimleri aktif birime göre
 - NotificationAudience manager scope = X-Active-Department-Id (#6a6bafb7).
 - FE birim değişince bildirim listesi/rozet yenilenir.

@@ -206,12 +206,10 @@ function ConversationListItem({
   conv,
   selected,
   onClick,
-  onMarkWaitingReplied,
 }: {
   conv: CitizenConversationSummary
   selected: boolean
   onClick: () => void
-  onMarkWaitingReplied: (conversationId: string) => void
 }) {
   const { i18n, t } = useTranslation()
   const locale = getLocale(i18n.language)
@@ -303,27 +301,13 @@ function ConversationListItem({
             </div>
           </div>
 
-          {(conv.citizenName || responseStatus || waitingForResponse) ? (
+          {(conv.citizenName || responseStatus) ? (
             <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
               {conv.citizenName ? (
                 <p className="min-w-0 truncate text-[11px] font-medium text-slate-500">{phoneLabel}</p>
               ) : <span aria-hidden="true" />}
-              {(responseStatus || waitingForResponse) ? (
-                <div className="flex shrink-0 items-center gap-2">
-                  {responseStatus}
-                  {waitingForResponse ? (
-                    <button
-                      type="button"
-                      className="whatsapp-mark-waiting-replied text-[10px] font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline"
-                      onClick={event => {
-                        event.stopPropagation()
-                        onMarkWaitingReplied(conv.citizenConversationId)
-                      }}
-                    >
-                      {t('whatsapp.markWaitingReplied', 'Yanıt Verildi İşaretle')}
-                    </button>
-                  ) : null}
-                </div>
+              {responseStatus ? (
+                <div className="shrink-0">{responseStatus}</div>
               ) : null}
             </div>
           ) : null}
@@ -480,31 +464,50 @@ function ConversationListPanel({
           ) : null}
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {filterOptions.map(option => (
+        <div className="flex items-center gap-2 pb-0.5">
+          <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {filterOptions.map(option => (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  setConversationPage(1)
+                  onListFilterChange(option.value)
+                }}
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  listFilter === option.value
+                    ? 'bg-emerald-800 text-white'
+                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
+                }`}
+              >
+                {option.label}
+                {option.badge != null && option.badge > 0 ? (
+                  <span className={`inline-flex min-w-[1rem] h-4 px-1 items-center justify-center rounded-full text-[10px] font-bold ${
+                    listFilter === option.value ? 'bg-red-500 text-white' : 'bg-red-500 text-white'
+                  }`}>
+                    {option.badge}
+                  </span>
+                ) : null}
+              </button>
+            ))}
+          </div>
+          {/* Tümü / Yanıt bekliyor satırının sağ border'ına yaslı (#6a6bab12 reopen). */}
+          {unreadCount > 0 ? (
             <button
-              key={option.value}
               type="button"
+              className="whatsapp-mark-waiting-replied shrink-0 text-[10px] font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline"
               onClick={() => {
-                setConversationPage(1)
-                onListFilterChange(option.value)
+                const selectedWaiting = selectedId
+                  ? conversations.find(c => c.citizenConversationId === selectedId && isWaitingForConversationResponse(c))
+                  : null
+                const targetId = selectedWaiting?.citizenConversationId
+                  ?? conversations.find(c => isWaitingForConversationResponse(c))?.citizenConversationId
+                if (targetId) onMarkWaitingReplied(targetId)
               }}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                listFilter === option.value
-                  ? 'bg-emerald-800 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
-              }`}
             >
-              {option.label}
-              {option.badge != null && option.badge > 0 ? (
-                <span className={`inline-flex min-w-[1rem] h-4 px-1 items-center justify-center rounded-full text-[10px] font-bold ${
-                  listFilter === option.value ? 'bg-red-500 text-white' : 'bg-red-500 text-white'
-                }`}>
-                  {option.badge}
-                </span>
-              ) : null}
+              {t('whatsapp.markWaitingReplied', 'Yanıt Verildi İşaretle')}
             </button>
-          ))}
+          ) : null}
         </div>
       </div>
 
@@ -524,7 +527,6 @@ function ConversationListPanel({
               conv={conv}
               selected={conv.citizenConversationId === selectedId}
               onClick={() => onSelect(conv.citizenConversationId)}
-              onMarkWaitingReplied={onMarkWaitingReplied}
             />
           ))
         )}

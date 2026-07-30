@@ -209,6 +209,8 @@
     "outgoingRequests": "Outgoing Unit Requests",
     "citizenMessageApproval": "Citizen Message\nApproval",
     "citizenMessageApprovalBreadcrumb": "Citizen Message Approval",
+    "smsDeliveryApproval": "SMS Delivery Approval",
+    "smsDeliveryApprovalBreadcrumb": "SMS Delivery Approval",
     "departmentTasks": "Unit Tasks",
     "departmentTasksInternal": "Internal Unit Tasks",
     "departmentTasksExternal": "External Unit Tasks",
@@ -917,6 +919,14 @@
     "changeStatusInProgress": "Processing Received",
     "changeStatusConfirmTrail": "?",
     "statusChanged": "Request status updated to Processing Received."
+  },
+  "smsDeliveryApproval": {
+    "kicker": "Citizen Requests",
+    "title": "SMS Delivery Approval",
+    "subtitle": "Notify citizens by SMS for requests received via call.",
+    "emptyToSend": "There is no call request awaiting SMS notification.",
+    "emptySent": "There is no call request awaiting SMS notification.",
+    "emptyAll": "There is no call request awaiting SMS notification."
   },
   "social": {
     "title": "Citizen Request Flow",

@@ -540,7 +540,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [completionAttachmentError, setCompletionAttachmentError] = useState<string | null>(null)
   const [completionAttachmentUploading, setCompletionAttachmentUploading] = useState(false)
   const completeFileInputRef = useRef<HTMLInputElement>(null)
-  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'cancel' | 'return'; assignedDepartmentId: string | null; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean } | null>(null)
+  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'cancel' | 'return'; assignedDepartmentId: string | null; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean; displayNumber: string } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnDeptId, setReturnDeptId] = useState('')
   const [returnUserId, setReturnUserId] = useState('')
@@ -1127,7 +1127,15 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     const isReporterTask = task?.createdByRoleCode === 'Reporter' && !isManagerLike
     const useManagerReporterRedirectLabel =
       task?.createdByRoleCode === 'Reporter' && isManagerLike && task.assignedUserId === user?.userId
-    setReturnModal({ taskId, step: 'cancel', assignedDepartmentId: task?.assignedDepartmentId ?? null, isReporterTask, useManagerReporterRedirectLabel, directRoute: false })
+    setReturnModal({
+      taskId,
+      step: 'cancel',
+      assignedDepartmentId: task?.assignedDepartmentId ?? null,
+      isReporterTask,
+      useManagerReporterRedirectLabel,
+      directRoute: false,
+      displayNumber: task ? formatTaskDisplayNumber(task) : '',
+    })
     setCancelReason('')
     setReturnDeptId('')
     setReturnUserId('')
@@ -1143,6 +1151,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       isReporterTask: task?.createdByRoleCode === 'Reporter',
       useManagerReporterRedirectLabel: false,
       directRoute: true,
+      displayNumber: task ? formatTaskDisplayNumber(task) : '',
     })
     setCancelReason('')
     setReturnDeptId(departmentId ?? '')
@@ -3288,7 +3297,7 @@ const pageKicker = isMyTasksView
             </button>
             <h2 className="border-b border-slate-200 pb-2 text-xl font-extrabold text-slate-950">{t('tasks.actions.completeTitle', 'Görevi Tamamla')}</h2>
             <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
-              <span className="font-semibold text-orange-500">{completeModal.displayNumber}</span>
+              <span className="font-semibold text-emerald-600">{completeModal.displayNumber}</span>
               {' '}
               {t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}
             </p>
@@ -3391,7 +3400,11 @@ const pageKicker = isMyTasksView
             {returnModal.step === 'cancel' && (
               <>
                 <h2 className="border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">{t('tasks.actions.cancelTaskModalTitle', 'Görevi İptal Et')}</h2>
-                <p className="text-base font-medium leading-6 text-slate-700">{t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}</p>
+                <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
+                  <span className="font-semibold text-red-600">{returnModal.displayNumber}</span>
+                  {' '}
+                  {t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}
+                </p>
                 <label className="job-field">
                   <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
                   <textarea

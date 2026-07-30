@@ -1,3 +1,7 @@
+## Round 586 — Tamamla/İptal Görev No renk + Sms Gönderim Onayı
+- Görevi Tamamla: Görev No yeşil; Görevi İptal Et: Görev No kırmızı + başta.
+- Sms Gönderim Onayı sayfası (Phone VT); WA Mesaj Onayı yalnız WhatsApp.
+
 ## Round 585 — Öncelik hiza + Mesaj Onayı sent/all yalnız Detaylar
 - Görev Bilgileri Öncelik = Birime Gelen Talep Bilgileri punto (12px etiket / 11px değer).
 - Mesaj Onayı: `sent`/`all` grid ve detayda yalnız Detaylar (Notu Düzenle/Onayla yok).

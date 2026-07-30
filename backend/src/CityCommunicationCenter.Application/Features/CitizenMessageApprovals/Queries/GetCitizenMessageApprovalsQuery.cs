@@ -5,9 +5,11 @@ using CityCommunicationCenter.Domain.Entities;
 namespace CityCommunicationCenter.Application.Features.CitizenMessageApprovals.Queries;
 
 /// <summary>
-/// Vatandaşa Gönderilecek Mesaj Onayı listesi: scope `to-send` | `sent` | `all` (card #2039).
+/// Vatandaşa Gönderilecek Mesaj Onayı listesi: scope `to-send` | `sent` | `all`;
+/// channel `whatsapp` | `phone` | null=ikisi (card #2039 / #2112).
 /// </summary>
-public sealed record GetCitizenMessageApprovalsQuery(string? Scope) : IQuery<IReadOnlyList<CitizenMessageApprovalResponse>>;
+public sealed record GetCitizenMessageApprovalsQuery(string? Scope, string? Channel = null)
+    : IQuery<IReadOnlyList<CitizenMessageApprovalResponse>>;
 
 public sealed class GetCitizenMessageApprovalsQueryHandler
     : IQueryHandler<GetCitizenMessageApprovalsQuery, IReadOnlyList<CitizenMessageApprovalResponse>>
@@ -31,10 +33,14 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
         var tenantId = context.RequireTenantId();
         var userId = context.UserId;
 
+        var channelFilter = (request.Channel ?? string.Empty).Trim().ToLowerInvariant();
+        var smsMode = channelFilter is "phone" or "sms";
+        var whatsappOnly = channelFilter is "whatsapp" or "wa";
+
         var actor = userId.HasValue
             ? await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(u => u.UserId == userId.Value, cancellationToken)
             : null;
-        if (actor is null || !CitizenMessageApprovalAccess.CanAccessPage(actor))
+        if (actor is null || !CitizenMessageApprovalAccess.CanAccessPage(actor, smsMode))
         {
             return [];
         }
@@ -43,10 +49,13 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
             .AsNoTracking()
             .Where(j => j.TenantId == tenantId
                 && (j.Status == JobStatus.Completed || j.Status == JobStatus.Cancelled)
-                // VT + WA/Çağrı: JobId veya SourceRefId ile bağlı SocialMessage (card #2036).
                 && _dbContext.SocialMessages.Any(m => m.TenantId == tenantId
                     && m.CitizenRequestNumber != null
-                    && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
+                    && (whatsappOnly
+                        ? m.Channel == SocialChannel.WhatsApp
+                        : smsMode
+                            ? m.Channel == SocialChannel.Phone
+                            : (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone))
                     && (m.JobId == j.JobId
                         || (j.SourceRefId.HasValue && m.SocialMessageId == j.SourceRefId.Value))));
 
@@ -74,7 +83,7 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
                 && jd.Role == JobDepartmentRole.Target
                 && accessibleDepartmentIds.Contains(jd.DepartmentId)));
         }
-        // SystemAdmin: no additional scoping.
+        // SystemAdmin / Operator (sms): no additional department scoping.
 
         var jobs = await q.OrderByDescending(j => j.CreatedAtUtc).ToListAsync(cancellationToken);
         if (jobs.Count == 0)

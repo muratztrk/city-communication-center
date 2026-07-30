@@ -1718,8 +1718,14 @@ export const api = {
     return response.json()
   },
 
-  async getCitizenMessageApprovals(scope?: 'to-send' | 'sent' | 'all'): Promise<CitizenMessageApprovalRow[]> {
-    const query = scope ? `?scope=${encodeURIComponent(scope)}` : ''
+  async getCitizenMessageApprovals(
+    scope?: 'to-send' | 'sent' | 'all',
+    channel?: 'whatsapp' | 'phone',
+  ): Promise<CitizenMessageApprovalRow[]> {
+    const params = new URLSearchParams()
+    if (scope) params.set('scope', scope)
+    if (channel) params.set('channel', channel)
+    const query = params.size > 0 ? `?${params.toString()}` : ''
     const response = await fetchWithCredentials(`${API_BASE}/citizen-message-approvals${query}`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.citizenMessageApprovalsLoadFailed', 'Vatandaşa gönderilecek mesajlar yüklenemedi.'))
     return response.json()

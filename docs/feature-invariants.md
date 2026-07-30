@@ -1511,6 +1511,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Recovered timeline Durum Yapılmakta:** mavi `pending` (Son Tarihi Geçmiş değilse); overdue → turuncu
   `current` (görev reopen / Mesaj Onayı reopen sonrası Tamamlanma→Yapılmakta).
 - **Süreç Durum Değişikliği Yapılmakta:** `getStatusChangeTextClass` → `text-sky-500` (mavi).
+- **Görevi Tamamla / İptal Et yardım satırı:** Tamamla popup'ta Görev No yeşil (`text-emerald-600`);
+  İptal Et popup'ta açıklama `G-{yıl}-{no}` ile başlar ve Görev No kırmızıdır (`text-red-600`).
+- **Sms Gönderim Onayı (#2112):** `/sms-delivery-approval` — Vatandaş Talepleri altında WhatsApp'ın
+  altında; `pageKey smsDeliveryApproval` (Operator varsayılan açık, Staff/Reporter kapalı).
+  Banner altı chip'ler Mesaj Onayı ile aynı; liste `channel=phone`. Mesaj Onayı listesi
+  `channel=whatsapp` (çağrı kayıtları SMS sayfasına ayrıldı).
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106/#2108):** `toSend` = Detaylar / Notu Düzenle /
   Mesajı Onayla (`nowrap`); `sent` ve `all` = yalnız Detaylar. Detay popup: `toSend`'de Notu Düzenle +
   Mesajı Onayla; `sent`/`all`'da bu butonlar yok (Yazdır da gizli).

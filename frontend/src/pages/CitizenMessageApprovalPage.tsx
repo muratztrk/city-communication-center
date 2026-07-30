@@ -27,6 +27,7 @@ import { getJobStatusTone, getStatusPillClass, getLocale } from '../utils/locali
 import { JobsPage } from './JobsPage'
 
 type ApprovalScope = 'toSend' | 'sent' | 'all'
+type ApprovalChannelMode = 'whatsapp' | 'phone'
 
 const SCOPE_FILTERS: Array<{ value: ApprovalScope; labelKey: string; fallback: string; chipClass: string; apiScope: 'to-send' | 'sent' | 'all' }> = [
   { value: 'toSend', labelKey: 'citizenMessageApproval.scope.toSend', fallback: 'Mesaj Onayı Bekleyen', chipClass: 'scope-chip--pending', apiScope: 'to-send' },
@@ -48,12 +49,23 @@ function formatDateTime(value: string | null | undefined, locale: string): strin
 }
 
 export function CitizenMessageApprovalPage() {
+  return <TerminalCitizenMessageApprovalPage mode="whatsapp" />
+}
+
+/** Çağrı (Phone) VT'leri için Sms Gönderim Onayı (#2112). */
+export function SmsDeliveryApprovalPage() {
+  return <TerminalCitizenMessageApprovalPage mode="phone" />
+}
+
+function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMode }) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const [searchParams, setSearchParams] = useSearchParams()
   const locale = getLocale(i18n.language)
   const scopeParam = searchParams.get('view')
   const scope: ApprovalScope = scopeParam === 'sent' ? 'sent' : scopeParam === 'all' ? 'all' : 'toSend'
+  const isSms = mode === 'phone'
+  const i18nRoot = isSms ? 'smsDeliveryApproval' : 'citizenMessageApproval'
 
   const [rows, setRows] = useState<CitizenMessageApprovalRow[]>([])
   const [loading, setLoading] = useState(true)
@@ -79,13 +91,13 @@ export function CitizenMessageApprovalPage() {
     setLoading(true)
     setError(null)
     try {
-      setRows(await api.getCitizenMessageApprovals(apiScope))
+      setRows(await api.getCitizenMessageApprovals(apiScope, mode))
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
       setLoading(false)
     }
-  }, [apiScope, t])
+  }, [apiScope, mode, t])
 
   useEffect(() => {
     void loadApprovals()
@@ -165,10 +177,10 @@ export function CitizenMessageApprovalPage() {
   }
 
   const emptyMessage = scope === 'toSend'
-    ? t('citizenMessageApproval.emptyToSend', 'Vatandaşa mesaj gönderilecek talep bulunmamaktadır.')
+    ? t(`${i18nRoot}.emptyToSend`, isSms ? 'Sms ile bilgilendirilecek çağrı talebi bulunmamaktadır.' : 'Vatandaşa mesaj gönderilecek talep bulunmamaktadır.')
     : scope === 'sent'
-      ? t('citizenMessageApproval.emptySent', 'Vatandaşa mesaj gönderilecek talep bulunmamaktadır.')
-      : t('citizenMessageApproval.emptyAll', 'Vatandaşa mesaj gönderilecek talep bulunmamaktadır.')
+      ? t(`${i18nRoot}.emptySent`, isSms ? 'Sms ile bilgilendirilecek çağrı talebi bulunmamaktadır.' : 'Vatandaşa mesaj gönderilecek talep bulunmamaktadır.')
+      : t(`${i18nRoot}.emptyAll`, isSms ? 'Sms ile bilgilendirilecek çağrı talebi bulunmamaktadır.' : 'Vatandaşa mesaj gönderilecek talep bulunmamaktadır.')
 
   const openEditNote = (row: CitizenMessageApprovalRow) => {
     setNoteModal({ jobId: row.jobId, note: row.note ?? '', saving: false })
@@ -235,12 +247,14 @@ export function CitizenMessageApprovalPage() {
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
-            <div className="page-kicker">{t('citizenMessageApproval.kicker', 'Vatandaş Talepleri')}</div>
-            <h1 className="page-title">{t('citizenMessageApproval.title', 'Vatandaşa Gönderilecek Mesaj Onayı')}</h1>
+            <div className="page-kicker">{t(`${i18nRoot}.kicker`, 'Vatandaş Talepleri')}</div>
+            <h1 className="page-title">{t(`${i18nRoot}.title`, isSms ? 'Sms Gönderim Onayı' : 'Vatandaşa Gönderilecek Mesaj Onayı')}</h1>
             <p className="page-subtitle">
               {t(
-                'citizenMessageApproval.subtitle',
-                'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
+                `${i18nRoot}.subtitle`,
+                isSms
+                  ? 'Çağrı talebi ile gelen talepleri Sms aracılığıyla vatandaşları bilgilendirin.'
+                  : 'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
               )}
             </p>
           </div>
@@ -275,7 +289,7 @@ export function CitizenMessageApprovalPage() {
         </div>
       </header>
 
-      <nav className="scope-chips" aria-label={t('citizenMessageApproval.title', 'Vatandaşa Gönderilecek Mesaj Onayı')}>
+      <nav className="scope-chips" aria-label={t(`${i18nRoot}.title`, isSms ? 'Sms Gönderim Onayı' : 'Vatandaşa Gönderilecek Mesaj Onayı')}>
         {SCOPE_FILTERS.map(filter => (
           <button
             key={filter.value}

@@ -11,6 +11,7 @@ const DepartmentsPage = lazy(() => import('../pages/DepartmentsPage').then(modul
 const DashboardPage = lazy(() => import('../pages/DashboardPage').then(module => ({ default: module.DashboardPage })))
 const IncomingRequestsPage = lazy(() => import('../pages/IncomingRequestsPage').then(module => ({ default: module.IncomingRequestsPage })))
 const CitizenMessageApprovalPage = lazy(() => import('../pages/CitizenMessageApprovalPage').then(module => ({ default: module.CitizenMessageApprovalPage })))
+const SmsDeliveryApprovalPage = lazy(() => import('../pages/CitizenMessageApprovalPage').then(module => ({ default: module.SmsDeliveryApprovalPage })))
 const LoginPage = lazy(() => import('../pages/LoginPage').then(module => ({ default: module.LoginPage })))
 const SettingsPage = lazy(() => import('../pages/SettingsPage').then(module => ({ default: module.SettingsPage })))
 const SocialMessagesPage = lazy(() => import('../pages/SocialMessagesPage').then(module => ({ default: module.SocialMessagesPage })))
@@ -89,6 +90,7 @@ export default function App() {
           <Route path="/request-details" element={<PageAccessGate pageKey="incomingRequests" user={user}><JobsPage /></PageAccessGate>} />
           <Route path="/incoming-requests" element={<PageAccessGate pageKey="incomingRequests" user={user}><IncomingRequestsPage /></PageAccessGate>} />
           <Route path="/citizen-message-approval" element={<PageAccessGate pageKey="citizenMessageApproval" user={user}><CitizenMessageApprovalPage /></PageAccessGate>} />
+          <Route path="/sms-delivery-approval" element={<PageAccessGate pageKey="smsDeliveryApproval" user={user}><SmsDeliveryApprovalPage /></PageAccessGate>} />
           <Route path="/social" element={<PageAccessGate pageKey="social" user={user}><SocialMessagesPage /></PageAccessGate>} />
           <Route path="/whatsapp" element={<PageAccessGate pageKey="social" user={user}><WhatsAppConversationsPage /></PageAccessGate>} />
           <Route

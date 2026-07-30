@@ -14,8 +14,9 @@ public sealed class CitizenMessageApprovalsController : ApiControllerBase
     [HttpGet("")]
     public async Task<ActionResult<IEnumerable<CitizenMessageApprovalResponse>>> GetAll(
         [FromQuery] string? scope,
+        [FromQuery] string? channel,
         CancellationToken cancellationToken)
-        => Ok(await _sender.Send(new GetCitizenMessageApprovalsQuery(scope), cancellationToken));
+        => Ok(await _sender.Send(new GetCitizenMessageApprovalsQuery(scope, channel), cancellationToken));
 
     [HttpPost("{jobId:guid}/note")]
     public async Task<IActionResult> EditNote(

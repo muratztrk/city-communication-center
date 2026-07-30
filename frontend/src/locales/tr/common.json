@@ -209,6 +209,8 @@
     "outgoingRequests": "Birimden Giden Talepler",
     "citizenMessageApproval": "Vatandaşa Gönderilecek\nMesaj Onayı",
     "citizenMessageApprovalBreadcrumb": "Vatandaş Mesaj Onayı",
+    "smsDeliveryApproval": "Sms Gönderim Onayı",
+    "smsDeliveryApprovalBreadcrumb": "Sms Gönderim Onayı",
     "departmentTasks": "Birimdeki Görevler",
     "departmentTasksInternal": "Birim İçi Görevler",
     "departmentTasksExternal": "Birim Dışı Görevler",
@@ -922,6 +924,14 @@
     "changeStatusInProgress": "İşleme Alındı",
     "changeStatusConfirmTrail": "olarak değiştirmeyi onaylıyor musunuz?",
     "statusChanged": "Talep durumu İşleme Alındı olarak güncellendi."
+  },
+  "smsDeliveryApproval": {
+    "kicker": "Vatandaş Talepleri",
+    "title": "Sms Gönderim Onayı",
+    "subtitle": "Çağrı talebi ile gelen talepleri Sms aracılığıyla vatandaşları bilgilendirin.",
+    "emptyToSend": "Sms ile bilgilendirilecek çağrı talebi bulunmamaktadır.",
+    "emptySent": "Sms ile bilgilendirilecek çağrı talebi bulunmamaktadır.",
+    "emptyAll": "Sms ile bilgilendirilecek çağrı talebi bulunmamaktadır."
   },
   "social": {
     "title": "Vatandaş Talep Akışı",

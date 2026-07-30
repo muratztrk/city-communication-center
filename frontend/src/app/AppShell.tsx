@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, Contact, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MonitorUp, MessageSquareMore, ScrollText, Send, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
+import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, Contact, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MessageSquareText, MonitorUp, MessageSquareMore, ScrollText, Send, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
 import { WhatsAppNotificationFab } from '../components/layout/WhatsAppNotificationFab'
@@ -211,7 +211,7 @@ export function AppShell() {
   const pendingCitizenMessageApprovalQuery = useQuery({
     queryKey: queryKeys.citizenMessageApprovals.pendingCount(),
     queryFn: async () => {
-      const rows = await api.getCitizenMessageApprovals('to-send')
+      const rows = await api.getCitizenMessageApprovals('to-send', 'whatsapp')
       return rows.length
     },
     enabled: Boolean(user?.userId) && canSeeCitizenMessageApproval,
@@ -234,9 +234,10 @@ export function AppShell() {
     { pageKey: 'edevletActivityPlansList' as const, path: '/edevlet/activity-plans', label: 'e-Devlet Günlük Faaliyet\nPlanları Listesi', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: ClipboardPlus },
     { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
-    // Vatandaş Talepleri, "WhatsApp Konuşmaları" alt öğesiyle açılır bir grup olarak gösterilir (card 621).
+    // Vatandaş Talepleri grubu: WhatsApp + Sms Gönderim Onayı (#621 / #2112).
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore, children: [
       { path: '/whatsapp', label: t('whatsapp.title', 'WhatsApp Konuşmaları'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true },
+      { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Gönderim Onayı'), icon: MessageSquareText },
     ] },
     { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
@@ -254,16 +255,27 @@ export function AppShell() {
   ]
 
   const navItems = navItemConfigs.reduce<SidebarNavItem[]>((items, item) => {
-    const canUse = item.requiredRole ? user?.role === item.requiredRole : item.pageKey ? canAnyRoleAccessPage(getEffectiveUserRoles(user), item.pageKey) : false
+    const roles = getEffectiveUserRoles(user)
+    const canUseParent = item.requiredRole
+      ? user?.role === item.requiredRole
+      : item.pageKey
+        ? canAnyRoleAccessPage(roles, item.pageKey)
+        : false
+    const visibleChildren = (item.children ?? []).filter(child => {
+      if (child.pageKey) return canAnyRoleAccessPage(roles, child.pageKey)
+      return canUseParent
+    })
+    const canUse = canUseParent || visibleChildren.length > 0
     if (canUse) {
       if (item.separatorBefore && items.length > 0) items.push({ type: 'separator' })
       if (item.children && item.children.length > 0) {
+        if (visibleChildren.length === 0) return items
         items.push({
           type: 'group',
           label: item.label,
           icon: item.icon!,
           path: item.path,
-          children: item.children.map(child => ({
+          children: visibleChildren.map(child => ({
             path: child.path,
             label: child.label,
             icon: child.icon,
@@ -410,6 +422,7 @@ export function AppShell() {
     whatsapp: 'WhatsApp',
     'citizen-directory': t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'),
     'citizen-message-approval': t('nav.citizenMessageApprovalBreadcrumb', 'Vatandaş Mesaj Onayı'),
+    'sms-delivery-approval': t('nav.smsDeliveryApprovalBreadcrumb', 'Sms Gönderim Onayı'),
     departments: t('nav.departments'),
     users: t('nav.users'),
     audit: t('nav.audit'),
@@ -429,6 +442,7 @@ export function AppShell() {
     jobs: t('nav.incomingRequests', 'Birime Gelen Talepler'),
     display: t('nav.display'),
     whatsapp: t('nav.social', 'Vatandaş Talepleri'),
+    'sms-delivery-approval': t('nav.social', 'Vatandaş Talepleri'),
     departments: t('nav.groupAdmin'),
     users: t('nav.groupAdmin'),
     audit: t('nav.groupAdmin'),
@@ -448,6 +462,7 @@ export function AppShell() {
     jobs: FolderKanban,
     display: MonitorUp,
     whatsapp: MessageSquareMore,
+    'sms-delivery-approval': MessageSquareMore,
     departments: Building,
     users: Users,
     audit: ScrollText,
@@ -473,6 +488,7 @@ export function AppShell() {
     display: MonitorUp,
     social: MessageSquareMore,
     'citizen-message-approval': Send,
+    'sms-delivery-approval': MessageSquareText,
     departments: Building,
     users: Users,
     audit: ScrollText,

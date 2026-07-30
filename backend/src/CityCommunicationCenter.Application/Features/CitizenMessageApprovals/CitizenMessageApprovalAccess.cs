@@ -8,10 +8,11 @@ namespace CityCommunicationCenter.Application.Features.CitizenMessageApprovals;
 /// </summary>
 internal static class CitizenMessageApprovalAccess
 {
-    public static bool CanAccessPage(ApplicationUser actor) =>
+    public static bool CanAccessPage(ApplicationUser actor, bool smsDeliveryMode = false) =>
         actor.RoleCode == RoleCode.SystemAdmin
         || actor.RoleCode == RoleCode.Manager
-        || UserRoleAccess.IsCitizenRequestManager(actor);
+        || UserRoleAccess.IsCitizenRequestManager(actor)
+        || (smsDeliveryMode && actor.RoleCode == RoleCode.Operator);
 
     public static async Task<Guid[]?> GetVisibleDepartmentIdsForManagerAsync(
         IApplicationDbContext dbContext,
@@ -59,6 +60,18 @@ internal static class CitizenMessageApprovalAccess
         if (UserRoleAccess.IsCitizenRequestManager(actor))
         {
             return await UserRoleAccess.CanManageCitizenRequestAsync(dbContext, tenantId, actor, job, cancellationToken);
+        }
+
+        // Sms Gönderim Onayı: Operator yalnız çağrı (Phone) VT'lerine erişir (#2112).
+        if (actor.RoleCode == RoleCode.Operator)
+        {
+            return await dbContext.SocialMessages.AsNoTracking().AnyAsync(
+                m => m.TenantId == tenantId
+                    && m.CitizenRequestNumber != null
+                    && m.Channel == SocialChannel.Phone
+                    && (m.JobId == job.JobId
+                        || (job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)),
+                cancellationToken);
         }
 
         return false;

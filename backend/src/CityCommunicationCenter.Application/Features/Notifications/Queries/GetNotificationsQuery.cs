@@ -65,11 +65,13 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
             // kullanıcının oluşturduğu talepler + atandığı / sahibi olduğu / oluşturduğu görevler.
             // Ayrıca yöneticinin onayını bekleyen talepler de feed'e eklenir (card 440) — okunmamış
             // sayacıyla tutarlı kalması için aynı NotificationAudience mantığı kullanılır.
-            // Yönetilen birimlerin dahil olduğu talep/görevler de feed'e girer (card 541).
+            // Yönetilen birimlerin dahil olduğu talep/görevler de feed'e girer (card 541);
+            // çok birimli müdürde yalnız aktif birim (#6a6bafb7).
+            var activeDepartmentId = context.ActiveDepartmentId;
             var managerJobIds = await NotificationAudience.GetManagerInvolvedJobIdsAsync(
-                _dbContext, tenantId, userId, cancellationToken);
+                _dbContext, tenantId, userId, activeDepartmentId, cancellationToken);
             var managerTaskIds = await NotificationAudience.GetManagerDepartmentTaskIdsAsync(
-                _dbContext, tenantId, userId, cancellationToken);
+                _dbContext, tenantId, userId, activeDepartmentId, cancellationToken);
             var approvalTaskIds = await NotificationAudience.GetTaskRevisionApprovalTaskIdsAsync(
                 _dbContext, tenantId, userId, cancellationToken);
             var jobRecords = await _dbContext.Jobs.AsNoTracking()

@@ -1601,6 +1601,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   için kalıcı `Notification` satırı yok; gerçek push bildirimleri ayrı). Yeni bildirim
   davranışı eklemek = audit→`NotificationResponse` projeksiyonunu değiştirmek. Başlık
   `ActionTitle(audit.Action)`'tan; mesaj `messageParts`'tan gelir.
+- **Çok birimli müdür bildirim kapsamı (#6a6bafb7):** `NotificationAudience` yönetici birim
+  genişlemesi `X-Active-Department-Id` ile daralır; feed + okunmamış rozet yalnız seçili
+  birimin talep/görevlerine aittir. Kişisel atama/oluşturma bildirimleri birimden bağımsız kalır.
+  FE birim değişince `notifications` query invalidate.
 - **Ek süre/revizyon onaycısı bildirim kapsamı:** `TaskRevision` approval onaycısı, görevin atanmış/owner
   kullanıcısı olmasa bile audit-feed ve okunmamış rozet kapsamına dahildir; kalıcı `Notification` yazılmaz.
 - **Ek süre talebi bildirim Detay popup'ı (card #1394):** yöneticiye giden `TaskExtraTimeRequested`

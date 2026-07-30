@@ -32,8 +32,9 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
         //    uyarı vermeli (card 634): imleçten (NotificationReadCursor) sonraki ve kullanıcının kendi
         //    yapmadığı olaylar sayılır. Bunlar tek tek okunamaz; "Hepsini okundu yap" imleci ilerletir,
         //    böylece tek satıra tıklayınca sayının birden çok azalması sorunu da oluşmaz.
+        var activeDepartmentId = _tenantContextAccessor.GetCurrent().ActiveDepartmentId;
         var entityIds = await NotificationAudience.GetVisibleEntityIdsAsync(
-            _dbContext, tenantId, request.UserId, cancellationToken);
+            _dbContext, tenantId, request.UserId, activeDepartmentId, cancellationToken);
         if (entityIds.Count == 0)
         {
             return realUnread;

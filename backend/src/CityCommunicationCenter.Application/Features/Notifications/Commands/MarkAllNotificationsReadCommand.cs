@@ -37,7 +37,7 @@ public sealed class MarkAllNotificationsReadCommandHandler
                 cancellationToken);
 
         var entityIds = await NotificationAudience.GetVisibleEntityIdsAsync(
-            _dbContext, tenantId, userId, cancellationToken);
+            _dbContext, tenantId, userId, context.ActiveDepartmentId, cancellationToken);
         if (entityIds.Count == 0)
         {
             return updatedNotificationCount;

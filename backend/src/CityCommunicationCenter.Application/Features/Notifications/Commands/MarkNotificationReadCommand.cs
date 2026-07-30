@@ -36,7 +36,7 @@ public sealed class MarkNotificationReadCommandHandler : ICommandHandler<MarkNot
         }
 
         var entityIds = await NotificationAudience.GetVisibleEntityIdsAsync(
-            _dbContext, tenantId, userId, cancellationToken);
+            _dbContext, tenantId, userId, context.ActiveDepartmentId, cancellationToken);
         var auditLog = await _dbContext.AuditLogs
             .AsNoTracking()
             .SingleOrDefaultAsync(

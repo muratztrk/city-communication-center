@@ -1,3 +1,7 @@
+## Round 593 — Çok birimli müdür bildirimleri aktif birime göre
+- NotificationAudience manager scope = X-Active-Department-Id (#6a6bafb7).
+- FE birim değişince bildirim listesi/rozet yenilenir.
+
 ## Round 592 — Bildirim etiketi yeşil, Görevlerim adres, WA rozet kaldır, tarih daralt
 - Bildirim titleTag (Vatandaş Talebi) emerald (#6a6bad16).
 - Görevlerim İlgili Talep Adres = my-request 3 kolon ortalı (#6a6baec9).

@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
+import { getActiveDepartmentId } from '../../api/http'
 import { invalidateNotifications } from '../../api/cacheInvalidation'
 import { queryKeys } from '../../api/queryKeys'
 import type { AppNotification, JobDetail, TaskDetail } from '../../types/platform'
@@ -349,8 +350,19 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   const [notificationDetailError] = useState<string | null>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const markingNotificationIdsRef = useRef<Set<string>>(new Set())
+  // Çok birimli müdür: bildirimler aktif birime göre (card #6a6bafb7).
+  const [activeDeptId, setActiveDeptId] = useState(() => getActiveDepartmentId(user?.userId))
+  useEffect(() => {
+    const handler = () => {
+      setActiveDeptId(getActiveDepartmentId(user?.userId))
+      void queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all })
+    }
+    window.addEventListener('activeDepartmentChanged', handler)
+    return () => window.removeEventListener('activeDepartmentChanged', handler)
+  }, [queryClient, user?.userId])
+
   const unreadQuery = useQuery({
-    queryKey: queryKeys.notifications.unreadCount(),
+    queryKey: [...queryKeys.notifications.unreadCount(), activeDeptId],
     queryFn: () => api.getUnreadNotificationCount(),
     enabled: Boolean(user?.userId),
     refetchInterval: 30000,
@@ -358,7 +370,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   })
 
   const notifQuery = useQuery({
-    queryKey: queryKeys.notifications.list(),
+    queryKey: [...queryKeys.notifications.list(), activeDeptId],
     queryFn: () => api.getNotifications(),
     enabled: Boolean(user?.userId) && (isOpen || isModalOpen),
     refetchOnMount: 'always',

@@ -6,6 +6,7 @@ internal static class NotificationAudience
         IApplicationDbContext dbContext,
         Guid tenantId,
         Guid userId,
+        Guid? activeDepartmentId,
         CancellationToken cancellationToken)
     {
         var jobIds = await dbContext.Jobs
@@ -25,9 +26,11 @@ internal static class NotificationAudience
             .ToListAsync(cancellationToken);
 
         // Yöneticinin yönettiği birimlerin dahil olduğu tüm talepler ve görevler de ilgili kullanıcı
-        // sayılır; her değişiklik bu yöneticilerin bildirimlerinde görünür (card 541).
-        var managerJobIds = await GetManagerInvolvedJobIdsAsync(dbContext, tenantId, userId, cancellationToken);
-        var managerTaskIds = await GetManagerDepartmentTaskIdsAsync(dbContext, tenantId, userId, cancellationToken);
+        // sayılır; çok birimli müdürde yalnız aktif seçili birim (card #6a6bafb7 / card 541).
+        var managerJobIds = await GetManagerInvolvedJobIdsAsync(
+            dbContext, tenantId, userId, activeDepartmentId, cancellationToken);
+        var managerTaskIds = await GetManagerDepartmentTaskIdsAsync(
+            dbContext, tenantId, userId, activeDepartmentId, cancellationToken);
         var approvalTaskIds = await GetTaskRevisionApprovalTaskIdsAsync(dbContext, tenantId, userId, cancellationToken);
 
         return jobIds
@@ -39,11 +42,15 @@ internal static class NotificationAudience
             .ToList();
     }
 
-    /// <summary>Aktör yöneticiyse, yönettiği birimlerin Id'leri; değilse boş.</summary>
+    /// <summary>
+    /// Aktör yöneticiyse yönettiği birim Id'leri; aktif birim seçiliyse yalnız o birim
+    /// (çok müdürlüklü yönetici — card #6a6bafb7).
+    /// </summary>
     public static async Task<Guid[]> GetManagedDepartmentIdsAsync(
         IApplicationDbContext dbContext,
         Guid tenantId,
         Guid userId,
+        Guid? activeDepartmentId,
         CancellationToken cancellationToken)
     {
         var actor = await dbContext.Users
@@ -54,11 +61,20 @@ internal static class NotificationAudience
             return [];
         }
 
-        return await dbContext.Departments
+        var managedDepartmentIds = await dbContext.Departments
             .AsNoTracking()
             .Where(department => department.TenantId == tenantId && department.ManagerUserId == userId)
             .Select(department => department.DepartmentId)
             .ToArrayAsync(cancellationToken);
+
+        if (!activeDepartmentId.HasValue)
+        {
+            return managedDepartmentIds;
+        }
+
+        return managedDepartmentIds.Contains(activeDepartmentId.Value)
+            ? [activeDepartmentId.Value]
+            : [];
     }
 
     /// <summary>Yöneticinin birimlerinin sahip/hedef/koordine olduğu tüm talepler (her durum) (card 541).</summary>
@@ -66,9 +82,11 @@ internal static class NotificationAudience
         IApplicationDbContext dbContext,
         Guid tenantId,
         Guid userId,
+        Guid? activeDepartmentId,
         CancellationToken cancellationToken)
     {
-        var managedDepartmentIds = await GetManagedDepartmentIdsAsync(dbContext, tenantId, userId, cancellationToken);
+        var managedDepartmentIds = await GetManagedDepartmentIdsAsync(
+            dbContext, tenantId, userId, activeDepartmentId, cancellationToken);
         if (managedDepartmentIds.Length == 0)
         {
             return [];
@@ -92,9 +110,11 @@ internal static class NotificationAudience
         IApplicationDbContext dbContext,
         Guid tenantId,
         Guid userId,
+        Guid? activeDepartmentId,
         CancellationToken cancellationToken)
     {
-        var managedDepartmentIds = await GetManagedDepartmentIdsAsync(dbContext, tenantId, userId, cancellationToken);
+        var managedDepartmentIds = await GetManagedDepartmentIdsAsync(
+            dbContext, tenantId, userId, activeDepartmentId, cancellationToken);
         if (managedDepartmentIds.Length == 0)
         {
             return [];
@@ -137,21 +157,11 @@ internal static class NotificationAudience
         IApplicationDbContext dbContext,
         Guid tenantId,
         Guid userId,
+        Guid? activeDepartmentId,
         CancellationToken cancellationToken)
     {
-        var actor = await dbContext.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(user => user.UserId == userId && user.TenantId == tenantId, cancellationToken);
-        if (actor is not { RoleCode: RoleCode.Manager })
-        {
-            return [];
-        }
-
-        var managedDepartmentIds = await dbContext.Departments
-            .AsNoTracking()
-            .Where(department => department.TenantId == tenantId && department.ManagerUserId == userId)
-            .Select(department => department.DepartmentId)
-            .ToArrayAsync(cancellationToken);
+        var managedDepartmentIds = await GetManagedDepartmentIdsAsync(
+            dbContext, tenantId, userId, activeDepartmentId, cancellationToken);
         if (managedDepartmentIds.Length == 0)
         {
             return [];

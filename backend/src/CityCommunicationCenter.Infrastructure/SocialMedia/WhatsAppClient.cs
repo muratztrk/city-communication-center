@@ -455,9 +455,14 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
                         var name = TryGetString(location, "name");
                         var address = TryGetString(location, "address");
                         content = string.Join(" - ", new[] { name, address }.Where(value => !string.IsNullOrWhiteSpace(value)));
-                        if (string.IsNullOrWhiteSpace(content))
+                        if (string.IsNullOrWhiteSpace(content) && latitude is not null && longitude is not null)
                         {
-                            content = "[Location message]";
+                            content =
+                                $"[konum mesajı] {latitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)},{longitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+                        }
+                        else if (string.IsNullOrWhiteSpace(content))
+                        {
+                            content = "[konum mesajı]";
                         }
                     }
                     else

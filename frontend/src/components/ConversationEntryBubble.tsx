@@ -1,12 +1,18 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { Loader2, Send, PenLine, User } from 'lucide-react'
+import { Loader2, MapPin, Send, PenLine, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
 import { WhatsAppDeliveryStatusIndicator } from './WhatsAppDeliveryStatusIndicator'
 import { getLocale } from '../utils/localization'
 import { formatConversationSenderLabel } from '../utils/formatConversationSenderLabel'
-import { formatConversationDisplayContent, isPlaceholderBracketContent } from '../utils/socialConversationContent'
+import {
+  buildGoogleMapsOpenUrl,
+  formatConversationDisplayContent,
+  isLocationConversationContent,
+  isPlaceholderBracketContent,
+  parseConversationLocationCoords,
+} from '../utils/socialConversationContent'
 import { formatWhatsAppDeliveryError } from '../utils/formatWhatsAppDeliveryError'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 
@@ -25,6 +31,8 @@ export interface ConversationEntryBubbleData {
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null
   relatedJobTerminalNote?: string | null
   relatedJobMessageApproverDisplayName?: string | null
+  latitude?: number | null
+  longitude?: number | null
 }
 
 interface ConversationEntryBubbleProps {
@@ -121,6 +129,8 @@ export function ConversationEntryBubble({
   const showMessageApprover = !isInbound && Boolean(messageApproverName)
     && (isPending || isDeliveredOutbound)
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
+  const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
+  const isLocationMessage = Boolean(locationCoords) || isLocationConversationContent(entry.content)
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
@@ -181,6 +191,36 @@ export function ConversationEntryBubble({
               autoFocus
               className="w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
             />
+          ) : isLocationMessage ? (
+            <div className="grid gap-1.5">
+              <p className="inline-flex items-center gap-1.5 text-sm font-semibold leading-snug">
+                <MapPin className="size-3.5 shrink-0" aria-hidden="true" />
+                {t('whatsapp.locationMessage', 'Konum')}
+              </p>
+              {locationCoords ? (
+                <>
+                  <p className={`text-[11px] tabular-nums ${isInbound ? 'text-slate-500' : 'text-white/75'}`}>
+                    {locationCoords.latitude.toFixed(6)}, {locationCoords.longitude.toFixed(6)}
+                  </p>
+                  <a
+                    href={buildGoogleMapsOpenUrl(locationCoords.latitude, locationCoords.longitude)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex w-fit items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold underline-offset-2 hover:underline ${
+                      isInbound
+                        ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200'
+                        : 'bg-white/15 text-white ring-1 ring-white/25'
+                    }`}
+                  >
+                    {t('whatsapp.openLocation', 'Haritada aç')}
+                  </a>
+                </>
+              ) : (
+                <p className={`text-xs italic ${isInbound ? 'text-slate-500' : 'text-white/70'}`}>
+                  {t('whatsapp.locationUnavailable', 'Konum koordinatı alınamadı.')}
+                </p>
+              )}
+            </div>
           ) : (
             <>
               {entry.content && !isPlaceholderBracketContent(entry.content) && (

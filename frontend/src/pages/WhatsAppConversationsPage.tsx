@@ -1,6 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
 import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, FileText, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useQueryClient } from '@tanstack/react-query'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
@@ -34,6 +35,7 @@ import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
+import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -681,6 +683,7 @@ function ConversationDetail({
   onOpenCreateRequest,
   onOpenViewRequests,
   onProfileSaved,
+  onOutboundSent,
 }: {
   conversationId: string
   citizenName?: string | null
@@ -696,6 +699,8 @@ function ConversationDetail({
   onOpenCreateRequest: (socialMessageId: string) => void
   onOpenViewRequests: (citizenPhone: string) => void
   onProfileSaved: () => void
+  /** Vatandaşa giden yanıt sonrası liste/rozet anında güncellenir (card #6a6b6ec6). */
+  onOutboundSent?: () => void
 }) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
@@ -938,6 +943,7 @@ function ConversationDetail({
         setPendingFileEditing(false)
         setIsPinnedToBottom(true)
       }
+      onOutboundSent?.()
       await refreshDetail()
     } finally {
       if (latestConversationIdRef.current === sentForConversationId) setSending(false)
@@ -1434,6 +1440,7 @@ function ConversationDetail({
 export function WhatsAppConversationsPage() {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const [searchParams] = useSearchParams()
   const requestedPhone = searchParams.get('phone') ?? ''
   const requestedAt = searchParams.get('at') ?? ''
@@ -1453,6 +1460,11 @@ export function WhatsAppConversationsPage() {
   const [sortOrder, setSortOrder] = useState<ConversationSortOrder>('newest')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
+
+  // Yanıt bekliyor 0 olunca sol menü rozeti hemen kaybolsun (card #6a6b6ec6).
+  useEffect(() => {
+    syncWaitingWhatsAppReplyCount(queryClient, conversations)
+  }, [conversations, queryClient])
 
   const loadConversations = useCallback(async () => {
     setLoading(true)
@@ -1785,6 +1797,14 @@ export function WhatsAppConversationsPage() {
               onOpenCreateRequest={socialMessageId => { void handleOpenCreateRequest(socialMessageId) }}
               onOpenViewRequests={handleOpenViewRequests}
               onProfileSaved={() => { void silentRefreshConversations() }}
+              onOutboundSent={() => {
+                setConversations(prev => prev.map(c =>
+                  c.citizenConversationId === selectedId
+                    ? { ...c, lastMessageDirection: 'Outbound', lastMessageAt: new Date().toISOString() }
+                    : c,
+                ))
+                void silentRefreshConversations()
+              }}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-[color:var(--color-muted-foreground)] gap-3">

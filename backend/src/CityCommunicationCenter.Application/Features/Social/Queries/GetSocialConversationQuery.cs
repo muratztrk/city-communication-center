@@ -30,6 +30,8 @@ public sealed class GetSocialConversationQueryHandler
                 m.CitizenHandle,
                 m.JobId,
                 m.CitizenConversationId,
+                m.Latitude,
+                m.Longitude,
             })
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -53,11 +55,13 @@ public sealed class GetSocialConversationQueryHandler
                 .Select(m => m.SocialMessageId)
                 .ToListAsync(cancellationToken)
             : [request.SocialMessageId];
-        var messageJobIds = await _dbContext.SocialMessages
+        var messageMeta = await _dbContext.SocialMessages
             .AsNoTracking()
             .Where(m => m.TenantId == tenantId && messageIds.Contains(m.SocialMessageId))
-            .Select(m => new { m.SocialMessageId, m.JobId })
-            .ToDictionaryAsync(m => m.SocialMessageId, m => m.JobId, cancellationToken);
+            .Select(m => new { m.SocialMessageId, m.JobId, m.Latitude, m.Longitude })
+            .ToListAsync(cancellationToken);
+        var messageJobIds = messageMeta.ToDictionary(m => m.SocialMessageId, m => m.JobId);
+        var messageCoords = messageMeta.ToDictionary(m => m.SocialMessageId, m => (m.Latitude, m.Longitude));
 
         var entries = await _dbContext.ConversationEntries
             .AsNoTracking()
@@ -81,6 +85,9 @@ public sealed class GetSocialConversationQueryHandler
 
         if (entries.Count == 0 && !string.IsNullOrWhiteSpace(message.Content))
         {
+            var (fallbackLat, fallbackLon) = ConversationLocationHelper.Resolve(
+                message.Content,
+                (message.Latitude, message.Longitude));
             return [new SocialConversationEntryDto(
                 Guid.Empty,
                 "Inbound",
@@ -94,7 +101,10 @@ public sealed class GetSocialConversationQueryHandler
                 null,
                 null,
                 null,
-                request.SocialMessageId)];
+                request.SocialMessageId,
+                null,
+                fallbackLat,
+                fallbackLon)];
         }
 
         var terminalInfoByMessageId = new Dictionary<Guid, TerminalInfo>();
@@ -119,6 +129,9 @@ public sealed class GetSocialConversationQueryHandler
             var terminalNote = hasTerminalInfo ? terminalInfo?.Note : null;
             var messageApprover = hasTerminalInfo ? terminalInfo?.MessageApproverDisplayName : null;
 
+            var (latitude, longitude) = ConversationLocationHelper.Resolve(
+                e.Content,
+                messageCoords.GetValueOrDefault(e.SocialMessageId));
             return new SocialConversationEntryDto(
                 e.EntryId,
                 e.Direction,
@@ -136,7 +149,9 @@ public sealed class GetSocialConversationQueryHandler
                 terminalStatus,
                 terminalNote,
                 e.SocialMessageId,
-                messageApprover);
+                messageApprover,
+                latitude,
+                longitude);
         }).ToList();
     }
 

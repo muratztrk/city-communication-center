@@ -624,12 +624,21 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         {
             var name = GetString(location, "name");
             var address = GetString(location, "address");
+            var latitude = GetDouble(location, "latitude");
+            var longitude = GetDouble(location, "longitude");
             var contentText = string.Join(" - ", new[] { name, address }.Where(v => !string.IsNullOrWhiteSpace(v)));
-            return (
-                string.IsNullOrWhiteSpace(contentText) ? "[konum mesajı]" : contentText,
-                null, null,
-                GetDouble(location, "latitude"),
-                GetDouble(location, "longitude"));
+            // Koordinatları içerikte de sakla — entry şemasında lat/lng yok; balonda harita açılsın (#6a6b9fac).
+            if (string.IsNullOrWhiteSpace(contentText) && latitude is not null && longitude is not null)
+            {
+                contentText =
+                    $"[konum mesajı] {latitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)},{longitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+            }
+            else if (string.IsNullOrWhiteSpace(contentText))
+            {
+                contentText = "[konum mesajı]";
+            }
+
+            return (contentText, null, null, latitude, longitude);
         }
 
         if (type == "interactive" && message.TryGetProperty("interactive", out var interactive))

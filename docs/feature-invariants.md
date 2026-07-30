@@ -410,8 +410,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sonrası `view=sent` chip'ine geçer (card #2058). Release şablon yoksa da varsayılan metinle
   Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
-  **WhatsApp Konuşmaları** nav satırında `Yanıt bekliyor` sayısı için kullanılır
-  (`isWaitingForConversationResponse`, card #6a6b685d). Detayda turuncu
+  **WhatsApp** nav satırında `Yanıt bekliyor` sayısı için kullanılır
+  (`isWaitingForConversationResponse`, card #6a6b685d); sayı 0 olunca rozet anında kalkar
+  (liste sync / outbound yanıt, card #6a6b6ec6). **Sms Onayı** nav satırında phone
+  `to-send` bekleyen sayısı (card #6a6b6824). Sol menü etiketleri kısadır: `WhatsApp` /
+  `Sms Onayı` (card #6a6b6c8e). WhatsApp konum mesajı balonda koordinat + Haritada aç
+  (içerik/SocialMessage lat-lng, card #6a6b9fac). Detayda turuncu
   **Talep Durumunu Değiştir** → `ReopenCitizenMessageJobCommand` (`POST …/reopen-to-in-progress`)
   Job'u Active + terminal görevleri InProgress yapar, release bayrağını temizler (card #2057/#2062).
   Edit/Release/Reopen uygunluğu liste ile aynıdır (`FindEligibleTerminalJobAsync`): Completed/Cancelled
@@ -1515,10 +1519,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Süreç Durum Değişikliği Yapılmakta:** `getStatusChangeTextClass` → `text-sky-500` (mavi).
 - **Görevi Tamamla / İptal Et yardım satırı:** Tamamla popup'ta Görev No yeşil (`text-emerald-600`);
   İptal Et popup'ta açıklama `G-{yıl}-{no}` ile başlar ve Görev No kırmızıdır (`text-red-600`).
-- **Sms Gönderim Onayı (#2112):** `/sms-delivery-approval` — Vatandaş Talepleri altında WhatsApp'ın
-  altında; `pageKey smsDeliveryApproval` (Operator varsayılan açık, Staff/Reporter kapalı).
-  Banner altı chip'ler Mesaj Onayı ile aynı; liste `channel=phone`. Mesaj Onayı listesi
-  `channel=whatsapp` (çağrı kayıtları SMS sayfasına ayrıldı).
+  İptal Et popup'ta Tamamla ile aynı **Dosya ekle** (geçici upload, Vazgeç'te silinir — #6a6b6c07).
+- **Sms Onayı (#2112/#6a6b6824/#6a6b6c8e):** `/sms-delivery-approval` — Vatandaş Talepleri altında
+  WhatsApp'ın altında; nav etiketi `Sms Onayı`; `pageKey smsDeliveryApproval` (Operator varsayılan
+  açık, Staff/Reporter kapalı). Nav rozeti phone `to-send` sayısı. Banner altı chip'ler Mesaj
+  Onayı ile aynı; liste `channel=phone`. Mesaj Onayı listesi `channel=whatsapp`.
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106/#2108):** `toSend` = Detaylar / Notu Düzenle /
   Mesajı Onayla (`nowrap`); `sent` ve `all` = yalnız Detaylar. Detay popup: `toSend`'de Notu Düzenle +
   Mesajı Onayla; `sent`/`all`'da bu butonlar yok (Yazdır da gizli).

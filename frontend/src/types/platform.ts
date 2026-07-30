@@ -428,6 +428,8 @@ export interface SocialConversationEntry {
   relatedJobTerminalNote?: string | null;
   relatedJobMessageApproverDisplayName?: string | null;
   socialMessageId?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface SocialMessage {
@@ -534,6 +536,8 @@ export interface CitizenConversationTimelineEntry {
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;
   relatedJobTerminalNote?: string | null;
   relatedJobMessageApproverDisplayName?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 export interface CitizenConversationTicket {

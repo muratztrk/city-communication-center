@@ -540,6 +540,10 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [completionAttachmentError, setCompletionAttachmentError] = useState<string | null>(null)
   const [completionAttachmentUploading, setCompletionAttachmentUploading] = useState(false)
   const completeFileInputRef = useRef<HTMLInputElement>(null)
+  const [pendingCancelAttachments, setPendingCancelAttachments] = useState<Array<{ attachmentId: string; fileName: string; fileSizeBytes: number }>>([])
+  const [cancelAttachmentError, setCancelAttachmentError] = useState<string | null>(null)
+  const [cancelAttachmentUploading, setCancelAttachmentUploading] = useState(false)
+  const cancelFileInputRef = useRef<HTMLInputElement>(null)
   const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'cancel' | 'return'; assignedDepartmentId: string | null; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean; displayNumber: string } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnDeptId, setReturnDeptId] = useState('')
@@ -1137,6 +1141,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       displayNumber: task ? formatTaskDisplayNumber(task) : '',
     })
     setCancelReason('')
+    setPendingCancelAttachments([])
+    setCancelAttachmentError(null)
     setReturnDeptId('')
     setReturnUserId('')
   }
@@ -1159,10 +1165,57 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   }
 
   const closeReturnModal = () => {
+    cleanupPendingCompletionAttachments(pendingCancelAttachments)
+    setPendingCancelAttachments([])
+    setCancelAttachmentError(null)
     setReturnModal(null)
     setCancelReason('')
     setReturnDeptId('')
     setReturnUserId('')
+  }
+
+  const handleCancelFilesSelected = async (files: FileList | null) => {
+    if (!returnModal || returnModal.step !== 'cancel' || !files || files.length === 0) return
+    setCancelAttachmentError(null)
+
+    const incoming = Array.from(files)
+    for (const file of incoming) {
+      if (!COMPLETION_ATTACHMENT_EXTENSIONS.includes(completionAttachmentExtension(file.name))) {
+        setCancelAttachmentError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
+        if (cancelFileInputRef.current) cancelFileInputRef.current.value = ''
+        return
+      }
+      if (file.size > COMPLETION_ATTACHMENT_MAX_SIZE) {
+        setCancelAttachmentError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
+        if (cancelFileInputRef.current) cancelFileInputRef.current.value = ''
+        return
+      }
+    }
+
+    const existingBytes = pendingCancelAttachments.reduce((sum, item) => sum + item.fileSizeBytes, 0)
+    if (exceedsAttachmentTotalLimit(existingBytes, sumFileSizes(incoming))) {
+      setCancelAttachmentError(t('attachments.errorTotalSize', 'Dosyaların toplam boyutu 5 MB\'ı aşamaz.'))
+      if (cancelFileInputRef.current) cancelFileInputRef.current.value = ''
+      return
+    }
+
+    for (const file of incoming) {
+      setCancelAttachmentUploading(true)
+      try {
+        const attachment = await api.uploadTaskAttachment(returnModal.taskId, file)
+        setPendingCancelAttachments(current => [...current, {
+          attachmentId: attachment.attachmentId,
+          fileName: attachment.fileName,
+          fileSizeBytes: attachment.fileSizeBytes,
+        }])
+      } catch (err) {
+        setCancelAttachmentError(err instanceof Error ? err.message : t('common.error'))
+      } finally {
+        setCancelAttachmentUploading(false)
+      }
+    }
+
+    if (cancelFileInputRef.current) cancelFileInputRef.current.value = ''
   }
 
   const handleCancelTask = async () => {
@@ -1171,8 +1224,14 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     setReturnSaving(true)
     try {
       await api.cancelTask(cancelledTaskId, cancelReason.trim())
+      // İptal sonrası ekler görevde kalsın — pending listesini temizlemeden kapat.
+      setPendingCancelAttachments([])
+      setCancelAttachmentError(null)
       invalidateTasks(queryClient, cancelledTaskId, selectedTask?.jobId ?? taskDetail?.jobId)
-      closeReturnModal()
+      setReturnModal(null)
+      setCancelReason('')
+      setReturnDeptId('')
+      setReturnUserId('')
       // İptal onay popup'ı kapandıktan sonra detay popup alanlarını yenile (card #1656).
       await refreshOpenTaskDetailAfterAction(cancelledTaskId)
       showToast(t('tasks.actions.cancelSuccess', 'Görev iptal edildi.'), 'error')
@@ -1689,6 +1748,9 @@ const pageKicker = isMyTasksView
     cleanupPendingCompletionAttachments(pendingCompletionAttachments)
     setPendingCompletionAttachments([])
     setCompletionAttachmentError(null)
+    cleanupPendingCompletionAttachments(pendingCancelAttachments)
+    setPendingCancelAttachments([])
+    setCancelAttachmentError(null)
     dismissedAutoOpenTaskIdRef.current = autoOpenTaskId
     setSelectedTask(null)
     setTaskDetail(null)
@@ -3417,13 +3479,60 @@ const pageKicker = isMyTasksView
                     autoFocus
                   />
                 </label>
-                <div className="inline-actions justify-end">
-                  <Button type="button" variant="secondary" onClick={closeReturnModal}>
-                    {t('common.dismiss', 'Vazgeç')}
-                  </Button>
-                  <Button type="button" variant="destructive" disabled={returnSaving || !cancelReason.trim()} onClick={() => void handleCancelTask()}>
-                    {returnSaving ? t('common.loading') : t('tasks.actions.cancelTask', 'Görevi İptal Et')}
-                  </Button>
+                {pendingCancelAttachments.length > 0 ? (
+                  <ul className="completion-attachment-list rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs">
+                    {pendingCancelAttachments.map(item => {
+                      const Icon = completionAttachmentIcon(item.fileName)
+                      return (
+                        <li key={item.attachmentId} className="inline-flex min-w-0 items-center gap-2">
+                          <span className="flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700">
+                            <Icon className="size-3" aria-hidden="true" />
+                          </span>
+                          <span className="min-w-0 flex-1 break-words text-left text-[10px] font-normal leading-5 text-slate-700">{lowercaseFileExtension(item.fileName)}</span>
+                          <button
+                            type="button"
+                            className="shrink-0 self-center text-[11px] font-medium leading-5 text-red-500 hover:text-red-600"
+                            disabled={returnSaving || cancelAttachmentUploading}
+                            onClick={() => {
+                              void api.deleteAttachment(item.attachmentId).then(() => {
+                                setPendingCancelAttachments(current => current.filter(entry => entry.attachmentId !== item.attachmentId))
+                              }).catch(err => {
+                                setCancelAttachmentError(err instanceof Error ? err.message : t('common.error'))
+                              })
+                            }}
+                          >
+                            {t('common.delete', 'Sil')}
+                          </button>
+                        </li>
+                      )
+                    })}
+                  </ul>
+                ) : null}
+                {cancelAttachmentError ? (
+                  <p className="text-xs font-medium text-red-600">{cancelAttachmentError}</p>
+                ) : null}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${returnSaving || cancelAttachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
+                    <Paperclip className="size-3.5" />
+                    {t('attachments.addFile', 'Dosya ekle')}
+                    <input
+                      ref={cancelFileInputRef}
+                      type="file"
+                      accept={COMPLETION_ATTACHMENT_ACCEPT}
+                      multiple
+                      className="hidden"
+                      disabled={returnSaving || cancelAttachmentUploading}
+                      onChange={event => void handleCancelFilesSelected(event.target.files)}
+                    />
+                  </label>
+                  <div className="inline-actions justify-end">
+                    <Button type="button" variant="secondary" onClick={closeReturnModal} disabled={returnSaving || cancelAttachmentUploading}>
+                      {t('common.dismiss', 'Vazgeç')}
+                    </Button>
+                    <Button type="button" variant="destructive" disabled={returnSaving || cancelAttachmentUploading || !cancelReason.trim()} onClick={() => void handleCancelTask()}>
+                      {returnSaving ? t('common.loading') : t('tasks.actions.cancelTask', 'Görevi İptal Et')}
+                    </Button>
+                  </div>
                 </div>
               </>
             )}

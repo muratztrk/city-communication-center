@@ -209,6 +209,11 @@ export function AppShell() {
     [user, accessVersion],
   )
 
+  const canSeeSmsDeliveryApproval = useMemo(
+    () => canAnyRoleAccessPage(getEffectiveUserRoles(user), 'smsDeliveryApproval'),
+    [user, accessVersion],
+  )
+
   const canSeeWhatsAppConversations = useMemo(
     () => canAnyRoleAccessPage(getEffectiveUserRoles(user), 'social'),
     [user, accessVersion],
@@ -226,6 +231,19 @@ export function AppShell() {
   })
 
   const pendingCitizenMessageApprovalCount = pendingCitizenMessageApprovalQuery.data ?? 0
+
+  const pendingSmsDeliveryApprovalQuery = useQuery({
+    queryKey: queryKeys.citizenMessageApprovals.pendingSmsCount(),
+    queryFn: async () => {
+      const rows = await api.getCitizenMessageApprovals('to-send', 'phone')
+      return rows.length
+    },
+    enabled: Boolean(user?.userId) && canSeeSmsDeliveryApproval,
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  })
+
+  const pendingSmsDeliveryApprovalCount = pendingSmsDeliveryApprovalQuery.data ?? 0
 
   const waitingWhatsAppReplyQuery = useQuery({
     queryKey: queryKeys.conversations.waitingReplyCount(),
@@ -255,8 +273,8 @@ export function AppShell() {
     { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
     // Vatandaş Talepleri grubu: WhatsApp + Sms Gönderim Onayı (#621 / #2112).
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore, children: [
-      { path: '/whatsapp', label: t('whatsapp.title', 'WhatsApp Konuşmaları'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true, badgeCount: waitingWhatsAppReplyCount },
-      { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Gönderim Onayı'), icon: MessageSquareText },
+      { path: '/whatsapp', label: t('whatsapp.navTitle', 'WhatsApp'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true, badgeCount: waitingWhatsAppReplyCount },
+      { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Onayı'), icon: MessageSquareText, badgeCount: pendingSmsDeliveryApprovalCount },
     ] },
     { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
@@ -443,7 +461,7 @@ export function AppShell() {
     whatsapp: 'WhatsApp',
     'citizen-directory': t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'),
     'citizen-message-approval': t('nav.citizenMessageApprovalBreadcrumb', 'Vatandaş Mesaj Onayı'),
-    'sms-delivery-approval': t('nav.smsDeliveryApprovalBreadcrumb', 'Sms Gönderim Onayı'),
+    'sms-delivery-approval': t('nav.smsDeliveryApprovalBreadcrumb', 'Sms Onayı'),
     departments: t('nav.departments'),
     users: t('nav.users'),
     audit: t('nav.audit'),

@@ -1,3 +1,8 @@
+## Round 588 — SMS rozet, WA rozet sync, nav rename, konum, iptal ek
+- Sms Onayı nav rozeti (Mesaj Onayı Bekleyen / phone); WhatsApp/Sms Onayı kısa etiket.
+- Yanıt bekliyor 0 → WA nav rozeti anında kaybolur; konum balonu harita linki.
+- Görevi İptal Et popup: Tamamla ile aynı Dosya ekle.
+
 ## Round 587 — WhatsApp nav Yanıt bekliyor rozeti
 - Sol menü WhatsApp Konuşmaları: Mesaj Onayı ile aynı `nav-pending-badge`; sayı = Yanıt bekliyor.
 

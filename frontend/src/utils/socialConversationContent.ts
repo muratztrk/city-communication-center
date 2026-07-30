@@ -11,6 +11,41 @@ const BRACKET_LABELS: Record<string, string> = {
   voice: 'Sesli mesaj',
   contacts: 'Kişi kartı',
   location: 'Konum',
+  'location message': 'Konum',
+  'konum mesajı': 'Konum',
+}
+
+const LOCATION_COORDS_RE = /(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)/
+
+export function parseConversationLocationCoords(
+  content: string | null | undefined,
+  latitude?: number | null,
+  longitude?: number | null,
+): { latitude: number; longitude: number } | null {
+  if (latitude != null && longitude != null && Number.isFinite(latitude) && Number.isFinite(longitude)) {
+    return { latitude, longitude }
+  }
+  if (!content?.trim()) return null
+  const match = LOCATION_COORDS_RE.exec(content)
+  if (!match) return null
+  const lat = Number(match[1])
+  const lng = Number(match[2])
+  if (!Number.isFinite(lat) || !Number.isFinite(lng)) return null
+  if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null
+  return { latitude: lat, longitude: lng }
+}
+
+export function buildGoogleMapsOpenUrl(latitude: number, longitude: number): string {
+  return `https://www.google.com/maps?q=${encodeURIComponent(`${latitude},${longitude}`)}`
+}
+
+export function isLocationConversationContent(content: string | null | undefined): boolean {
+  if (!content?.trim()) return false
+  const normalized = content.trim().toLocaleLowerCase('tr')
+  return normalized.includes('[konum mesajı]')
+    || normalized.includes('[location message]')
+    || normalized.includes('[location]')
+    || normalized.includes('konum mesajı')
 }
 
 export function formatBracketContent(content: string): string {
@@ -68,5 +103,12 @@ export function formatConversationDisplayContent(content: string): string {
   const trimmed = content.trim()
   if (!trimmed) return ''
   if (isPlaceholderBracketContent(trimmed)) return formatBracketContent(trimmed)
+  // "[konum mesajı] 38.1,27.2" → liste önizlemesinde "Konum"
+  if (isLocationConversationContent(trimmed)) {
+    const withoutCoords = trimmed.replace(LOCATION_COORDS_RE, '').trim()
+    if (isPlaceholderBracketContent(withoutCoords) || withoutCoords.toLocaleLowerCase('tr').includes('konum')) {
+      return BRACKET_LABELS['konum mesajı'] ?? 'Konum'
+    }
+  }
   return richTextToPlainText(trimmed)
 }

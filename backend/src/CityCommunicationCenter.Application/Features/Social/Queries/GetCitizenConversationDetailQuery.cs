@@ -53,11 +53,15 @@ public sealed class GetCitizenConversationDetailQueryHandler
             conversation.CitizenPhone,
             conversation.CitizenPhone);
 
-        var messageIds = await _dbContext.SocialMessages
+        var messageRows = await _dbContext.SocialMessages
             .AsNoTracking()
             .Where(m => m.CitizenConversationId == request.CitizenConversationId)
-            .Select(m => m.SocialMessageId)
+            .Select(m => new { m.SocialMessageId, m.Latitude, m.Longitude })
             .ToListAsync(cancellationToken);
+        var messageIds = messageRows.Select(m => m.SocialMessageId).ToList();
+        var messageCoords = messageRows.ToDictionary(
+            m => m.SocialMessageId,
+            m => (m.Latitude, m.Longitude));
 
         var rawTimeline = await _dbContext.ConversationEntries
             .AsNoTracking()
@@ -88,6 +92,9 @@ public sealed class GetCitizenConversationDetailQueryHandler
             .Select(e =>
             {
                 terminalInfoByMessageId.TryGetValue(e.SocialMessageId, out var terminalInfo);
+                var (latitude, longitude) = ConversationLocationHelper.Resolve(
+                    e.Content,
+                    messageCoords.GetValueOrDefault(e.SocialMessageId));
                 return new CitizenConversationTimelineEntryDto(
                     e.EntryId,
                     e.Direction,
@@ -105,7 +112,9 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     e.EditedAtUtc,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Status : null,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Note : null,
-                    IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.MessageApproverDisplayName : null);
+                    IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.MessageApproverDisplayName : null,
+                    latitude,
+                    longitude);
             })
             .ToList();
 

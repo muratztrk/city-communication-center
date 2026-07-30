@@ -176,7 +176,10 @@ public sealed record SocialConversationEntryDto(
     string? RelatedJobTerminalNote = null,
     Guid? SocialMessageId = null,
     /// <summary>Vatandaşa Gönderilecek Mesaj Onayı serbest bırakan yönetici (card #2092).</summary>
-    string? RelatedJobMessageApproverDisplayName = null);
+    string? RelatedJobMessageApproverDisplayName = null,
+    /// <summary>WhatsApp konum mesajı koordinatları (card #6a6b9fac).</summary>
+    double? Latitude = null,
+    double? Longitude = null);
 
 public sealed record SocialReplyRequest(
     string Content,
@@ -269,7 +272,10 @@ public sealed record CitizenConversationTimelineEntryDto(
     string? RelatedJobTerminalStatus = null,
     string? RelatedJobTerminalNote = null,
     /// <summary>Vatandaşa Gönderilecek Mesaj Onayı serbest bırakan yönetici (card #2092).</summary>
-    string? RelatedJobMessageApproverDisplayName = null);
+    string? RelatedJobMessageApproverDisplayName = null,
+    /// <summary>WhatsApp konum mesajı koordinatları (card #6a6b9fac).</summary>
+    double? Latitude = null,
+    double? Longitude = null);
 
 public sealed record CitizenConversationTicketDto(
     Guid SocialMessageId,

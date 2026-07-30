@@ -116,5 +116,7 @@ export const queryKeys = {
     all: ['ccc', 'citizen-message-approvals'] as const,
     list: (scope?: string) => ['ccc', 'citizen-message-approvals', 'list', scope ?? 'to-send'] as const,
     pendingCount: () => ['ccc', 'citizen-message-approvals', 'pending-count'] as const,
+    /** Sms Onayı nav rozeti — Phone VT Mesaj Onayı Bekleyen (card #6a6b6824). */
+    pendingSmsCount: () => ['ccc', 'citizen-message-approvals', 'pending-sms-count'] as const,
   },
 }

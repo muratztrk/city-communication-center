@@ -47,7 +47,11 @@ public sealed class ReopenCitizenMessageJobCommandHandler : ICommandHandler<Reop
         var utcNow = DateTimeOffset.UtcNow;
 
         job.Status = JobStatus.Active;
-        job.CompletedAtUtc = null;
+        // Tamamlanma tarihini timeline için koru (Active + completedAt = reopen geçmişi — #2099).
+        if (previousStatus != JobStatus.Completed)
+        {
+            job.CompletedAtUtc = null;
+        }
         job.CitizenTerminalMessageReleasedAtUtc = null;
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;

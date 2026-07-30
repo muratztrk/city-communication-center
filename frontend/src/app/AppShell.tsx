@@ -409,7 +409,7 @@ export function AppShell() {
     social: t('nav.social'),
     whatsapp: 'WhatsApp',
     'citizen-directory': t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'),
-    'citizen-message-approval': t('nav.citizenMessageApprovalBreadcrumb', 'Vatandaşa Gönderilecek Mesaj Onayı'),
+    'citizen-message-approval': t('nav.citizenMessageApprovalBreadcrumb', 'Vatandaş Mesaj Onayı'),
     departments: t('nav.departments'),
     users: t('nav.users'),
     audit: t('nav.audit'),

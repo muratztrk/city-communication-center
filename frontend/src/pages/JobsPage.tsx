@@ -832,6 +832,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail != null
     && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
     && !isDepartmentOutgoingTargetApprovedDetail
+    // Mesaj Onayı "Talep Durumunu Değiştir" sonrası Birime Gelen'de İptal Et gizlenir (#2100).
+    && !(isIncomingRequestDetail && isCitizenRequestJob(detail) && isJobRecoveredFromCancellation(detail))
   const shouldShowDisabledDepartmentOutgoingCancel = isDepartmentOutgoingTargetApprovedDetail
     && detail != null
     && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')

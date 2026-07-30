@@ -37,6 +37,22 @@ const PRINTABLE_CHART_KEYS = new Set([
   'dashboard.charts.neighborhoodProcessingRequests',
 ])
 
+/** Anasayfa - Birimler pie drilldown: Son Tarih sütunu yok (#2097). */
+const HIDE_DUE_DATE_CHART_KEYS = new Set([
+  ...PRINTABLE_CHART_KEYS,
+  'dashboard.charts.myRequests',
+  'dashboard.charts.incomingRequests',
+  'dashboard.charts.outgoingRequests',
+  'dashboard.charts.requestPriorityAll',
+  'dashboard.charts.requestPriority',
+  'dashboard.charts.staffTasks',
+  'dashboard.charts.departmentTasks',
+  'dashboard.charts.myTasks',
+  'dashboard.charts.externalRequestCreators',
+  'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestFulfillers',
+])
+
 const NEIGHBORHOOD_CHART_KEYS = new Set([
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
@@ -210,7 +226,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const [detailError, setDetailError] = useState<string | null>(null)
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const terminalDateHeader = rows ? resolveTerminalDateHeader(rows, t) : null
-  const hideDueDateColumn = PRINTABLE_CHART_KEYS.has(chartKey)
+  const hideDueDateColumn = HIDE_DUE_DATE_CHART_KEYS.has(chartKey)
   const useTaleplerimStatusStyle = TALEPLERIM_STATUS_STYLE_CHART_KEYS.has(chartKey)
   // Giden talepler gibi: Tamamlanmış/İptal tarihi Durum pill altında — ayrı sütun yok (#2068).
   // Yazdırma HTML'inde Tamamlanma Tarihi sütunu korunur.

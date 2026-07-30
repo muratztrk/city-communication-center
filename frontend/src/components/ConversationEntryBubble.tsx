@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { Loader2, Send, PenLine, Info, XCircle } from 'lucide-react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { Loader2, Send, PenLine, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { SocialConversationMediaBubble } from './SocialConversationMediaBubble'
@@ -50,10 +50,12 @@ function DelayedHoverTooltip({
   label,
   tooltip,
   className,
+  icon,
 }: {
   label: string
   tooltip: string
   className: string
+  icon?: ReactNode
 }) {
   const [open, setOpen] = useState(false)
   const timerRef = useRef<number | null>(null)
@@ -75,6 +77,7 @@ function DelayedHoverTooltip({
       }}
     >
       <span className={className} role="button" tabIndex={0}>
+        {icon}
         {label}
       </span>
       {open ? (
@@ -131,11 +134,8 @@ export function ConversationEntryBubble({
   // Beklemede: operatör aksiyon satırında; iletildikten sonra bilgi amaçlı (card #1861).
   const showTerminalNotePending = isPending && canSendPending && hasTerminalNote
   const showTerminalNoteInfo = isDeliveredOutbound && hasTerminalNote
-  // Kart #2093: buton metni her iki durumda da "Not"; renk türüne göre kırmızı/turkuaz.
+  // Kart #2103: "Not" = Mesajı Onaylayan Yönetici ile aynı emerald + User ikonu.
   const terminalNoteLabel = t('whatsapp.terminalNote.label', 'Not')
-  const terminalNoteButtonClass = terminalNoteKind === 'cancelled'
-    ? 'bg-[color:var(--color-destructive)] hover:brightness-95'
-    : 'bg-teal-600 hover:bg-teal-700'
   const messageApproverName = entry.relatedJobMessageApproverDisplayName?.trim() || null
   const showMessageApprover = !isInbound && Boolean(messageApproverName)
     && (isPending || isDeliveredOutbound)
@@ -144,17 +144,16 @@ export function ConversationEntryBubble({
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
   const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
+  const chipClassName = 'inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm'
 
   const terminalNoteButton = (disabled = false) => (
     <button
       type="button"
       onClick={() => onShowTerminalNote?.(entry)}
       disabled={disabled}
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${terminalNoteButtonClass}`}
+      className={`${chipClassName} transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60`}
     >
-      {terminalNoteKind === 'cancelled'
-        ? <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-        : <Info className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
+      <User className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
       {terminalNoteLabel}
     </button>
   )
@@ -163,7 +162,8 @@ export function ConversationEntryBubble({
     <DelayedHoverTooltip
       label={t('whatsapp.messageApproverButton', 'Mesajı Onaylayan Yönetici')}
       tooltip={messageApproverName ?? ''}
-      className="inline-flex cursor-default items-center rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm"
+      className={`${chipClassName} cursor-default`}
+      icon={<User className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
     />
   )
 

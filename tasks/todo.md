@@ -1,3 +1,10 @@
+## Round 574 — Mesaj Onayı / pie / WA not gömme / timeline (11 kart)
+- Breadcrumb `Vatandaş Mesaj Onayı`; Vatandaş Adı sütunu ~11rem; Telefon No etiketi.
+- Filtreyi sil = kırmızı scope-chip; Birimler pie drilldown'da Son Tarih yok.
+- Reopen sonrası timeline'a Yapılmakta; Birime Gelen'de İptal Et gizlenir.
+- Modal butonları biraz büyük; Phone/çağrıda Yazışmaya Git yok; auto-reply tırnaklı durum.
+- WA: terminal not durum mesajına `\n\n` ile gömülür; Not chip = emerald + User (onaylayan ile aynı).
+
 ## Round 573 — WA Mesajı Onaylayan Yönetici + Not etiketi (#2092/#2093)
 - Timeline DTO: `relatedJobMessageApproverDisplayName` (Audit `CitizenMessageApprovalReleased`).
 - Yeşil "Mesajı Onaylayan Yönetici" butonu; hover 250ms tooltip = yönetici adı.

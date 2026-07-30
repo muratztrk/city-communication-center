@@ -204,6 +204,7 @@ export function CitizenMessageApprovalPage() {
       titleDivider: true,
       wide: true,
       compactActions: true,
+      compactActionsLarge: true,
       message: t(
         'citizenMessageApproval.releaseConfirm',
         'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
@@ -336,7 +337,7 @@ export function CitizenMessageApprovalPage() {
                   <FilterableTh className="citizen-message-approval-citizen-col" filterKey="citizenName" filterValue={filters['citizenName'] ?? ''} onFilter={setFilter} sortKey="citizenName" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>
                     <span className="inline-flex flex-col gap-1 leading-tight">
                       <span>{t('citizenMessageApproval.columns.citizenName', 'Vatandaş Adı')}</span>
-                      <span className="text-[0.9em] font-semibold leading-tight">{t('citizenMessageApproval.columns.citizenPhone', 'Vatandaş Telefon No')}</span>
+                      <span className="text-[0.9em] font-semibold leading-tight">{t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}</span>
                     </span>
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={filters['title'] ?? ''} onFilter={setFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.title', 'Başlık')}</FilterableTh>
@@ -452,12 +453,13 @@ export function CitizenMessageApprovalPage() {
               <span>{noteModal.note.length}/{NOTE_MAX_LENGTH}</span>
             </div>
             <div className="mt-3 flex justify-end gap-2">
-              <Button type="button" size="sm" variant="secondary" onClick={() => setNoteModal(null)}>
+              <Button type="button" size="sm" className="h-9 px-3.5 text-[0.8125rem]" variant="secondary" onClick={() => setNoteModal(null)}>
                 {t('common.dismiss', 'Vazgeç')}
               </Button>
               <Button
                 type="button"
                 size="sm"
+                className="h-9 px-3.5 text-[0.8125rem]"
                 variant="success"
                 disabled={noteModal.saving || !noteModal.note.trim()}
                 onClick={() => void handleSaveNote()}

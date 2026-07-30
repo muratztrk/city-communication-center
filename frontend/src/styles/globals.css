@@ -3683,9 +3683,23 @@
     color: #b91c1c;
   }
 
-  /* Pie Filtreyi sil — eski metin görünümü + Yeni rozetiyle aynı yanıp sönme (R550 / #2029). */
-  .scope-chip-clear-pie {
+  /* Pie Filtreyi sil — Birim İçi/Dışı chip kalıbı, kırmızı + yanıp sönme (#2096). */
+  .scope-chip.scope-chip--clear-pie,
+  .scope-chip--clear-pie {
+    background: #fecaca;
+    border-color: #f87171;
+    color: #991b1b;
     animation: ccc-blink 2.2s ease-in-out infinite;
+  }
+
+  .scope-chip.scope-chip--clear-pie.active,
+  .scope-chip--clear-pie.active,
+  .scope-chip.scope-chip--clear-pie:hover,
+  .scope-chip--clear-pie:hover {
+    background: #dc2626;
+    border-color: #b91c1c;
+    color: white;
+    box-shadow: 0 1px 4px rgba(220, 38, 38, 0.36);
   }
 
   .scope-chip-year-select {
@@ -5584,11 +5598,11 @@
     padding: 0 0.25rem;
   }
 
-  /* Vatandaş Adı/Telefon daralt → kazanılan alan İşlemler'e (#2086). */
+  /* Vatandaş Adı/Telefon — biraz daha geniş (#2095); kalan alan İşlemler'de. */
   .citizen-message-approval-table th.citizen-message-approval-citizen-col,
   .citizen-message-approval-table td.citizen-message-approval-citizen-cell {
-    width: 8.5rem;
-    max-width: 8.5rem;
+    width: 11rem;
+    max-width: 11rem;
   }
 
   /* Mesaj Onayı İşlemler: FHD'de 3 buton yan yana (#2050/#2082/#2086). */

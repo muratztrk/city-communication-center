@@ -120,9 +120,20 @@ export function canShowCitizenWhatsAppConversation(
     sourceRefId?: string | null
     citizenPhone?: string | null
   },
-  social?: { socialMessageId?: string | null; citizenPhone?: string | null; citizenHandle?: string | null; whatsAppPhone?: string | null } | null,
+  social?: {
+    socialMessageId?: string | null
+    citizenPhone?: string | null
+    citizenHandle?: string | null
+    whatsAppPhone?: string | null
+    channel?: string | null
+  } | null,
 ): boolean {
   if (!isCitizenRequestJob(job)) return false
+  // Çağrı (Phone) kanalında yazışma yok (#2101).
+  const channel = (social?.channel ?? '').toLocaleLowerCase('tr')
+  if (channel === 'phone' || channel === 'call' || channel === 'çağrı' || channel === 'cagri') {
+    return false
+  }
   if (job.sourceType === 'SocialMessage' && job.sourceRefId) return true
   if (social?.socialMessageId) return true
   return resolveCitizenWhatsAppPhone(job, social) != null

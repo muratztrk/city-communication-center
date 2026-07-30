@@ -662,23 +662,21 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   eski bitişik veya çok boşluklu kayıtlar okunurken/yazılırken tek boşluğa normalleştirilir
   ve mesaj üretilirken de gerçek hedef birim ile devam metni arasındaki tek boşluk son kez garanti
   edilir (card #1598 reopen). Kullanıcının ikinci textarea'da ayrıca başına boşluk yazması gerekmez.
-- **İptal terminal notu WA konuşmasında ayrı balon üretmez (card #1829):** `EnqueueTerminalFollowUpsAsync`
-  `isCancelled=true` olduğunda `terminalNote` içeriğiyle standalone `ConversationEntry`
-  eklemez (yalnız tamamlanmada, ek yoksa, notu ayrı balon olarak ekler) — otomatik İptal şablon
-  mesajı ve popup/terminal not metadatası (Süreç kartı, detay popup'ı) değişmeden kalır.
-  Tamamlanma yolunda ek varsa not son ek entry'sine iliştirilir; bu iptal yolunda hiç çalışmaz
-  (`attachmentRows` zaten `!isCancelled` şartlı).
+- **İptal/Tamamlanma terminal notu durum mesajına gömülür (card #2103, #1829 supersede):**
+  `SendWhatsAppAsync` terminal notu durum şablonunun altına `\n\n` ile ekler; `EnqueueTerminalFollowUpsAsync`
+  yalnız tamamlanma eklerini (medya) kuyruğa alır — not için standalone `ConversationEntry` üretmez
+  (eski: tamamlanmada ek yoksa not ayrı balondu). Popup/terminal not metadata (Not chip) korunur.
+  Otomatik İptal şablon mesajı ve Süreç kartı/detay popup notları değişmez.
   İptal alanının görsel
   chip'i ve giden/kaydedilen otomatik mesaj durumu `İptal Edildi` olarak üretilir.
   `İşleme Alındı` ve `Yapılmakta` chip'leri turuncu kalır (cards #1258/#1263/#1270/#1268-reopen).
   Aynı SocialMessage/talep için aynı üretilmiş durum mesajı Pending/Sent/Delivered/Read olarak
   zaten varsa ikinci kez oluşturulmaz; yalnız Failed kayıt yeniden denemeye izin verir.
   (cards #1257/#1258).
-- **İletilmiş İptal/Tamamlanma WA mesajında bilgi notu butonu (card #1861):** Operatör `Mesajı Gönder`
+- **İletilmiş İptal/Tamamlanma WA mesajında Not chip (card #1861/#2103):** Operatör `Mesajı Gönder`
   ile ilettikten sonra da (Sent/Delivered/Read) ilgili otomatik şablon balonunun altında
-  `Talep İptal Notu` / `Talep Tamamlanma Notu` butonu bilgi amaçlı görünür; tamamlanma butonu
-  turkuaz (`teal-600`) + `Info` ikonu (metin önünde), iptal kırmızı + `XCircle` ikonu
-  (card #1861 reopen); tıklanınca ConfirmDialog popup açılır.
+  `Not` butonu bilgi amaçlı görünür; stil `Mesajı Onaylayan Yönetici` ile aynı emerald + `User`
+  ikonu (card #2103); tıklanınca ConfirmDialog popup açılır.
   BE `GetCitizenConversationDetailQuery` / `GetSocialConversationQuery` terminal metadata'yı yalnız
   Pending değil, iletilmiş outbound entry'lere de ekler. Pending sıradaki Düzenle/Gönder aksiyonları
   değişmez.

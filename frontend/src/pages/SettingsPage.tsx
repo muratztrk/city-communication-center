@@ -57,10 +57,10 @@ type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
 
 const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
-  processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İşleme Alındı. {GönderilenBirim}",
-  inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Yapılmakta. {GönderilenBirim}",
-  completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu Tamamlandı. {GönderilenBirim}",
-  cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu İptal Edildi. {GönderilenBirim}",
+  processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\". {GönderilenBirim}",
+  inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Yapılmakta\". {GönderilenBirim}",
+  completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Tamamlandı\". {GönderilenBirim}",
+  cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İptal Edildi\". {GönderilenBirim}",
 }
 
 const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
@@ -76,7 +76,9 @@ function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string, su
   // {GönderilenBirim} sonrası otomatik ayraç yok: kullanıcı "'ne iletilmiştir." gibi bitişik metin
   // yazabilmeli; baştaki bilinçli boşluk da korunur, yalnız sondaki boşluk temizlenir (card #1598 2. reopen).
   const normalizedSuffix = normalize ? suffixText.trimEnd() : suffixText
-  return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${statusLabel}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix}`
+  // Durum etiketi tırnak içinde (#2102).
+  const quotedStatus = statusLabel.startsWith('"') ? statusLabel : `"${statusLabel}"`
+  return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix}`
 }
 
 function removeTemplateSeparatorSpaces(value: string) {
@@ -91,7 +93,10 @@ function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) 
   const afterTitle = titleIndex >= 0
     ? template.slice(titleIndex + CITIZEN_REQUEST_TITLE_TOKEN.length)
     : template
-  const fixedStatusIndex = afterTitle.indexOf(statusLabel)
+  const quotedStatus = statusLabel.startsWith('"') ? statusLabel : `"${statusLabel}"`
+  const fixedStatusIndex = afterTitle.indexOf(quotedStatus) >= 0
+    ? afterTitle.indexOf(quotedStatus)
+    : afterTitle.indexOf(statusLabel)
   const tokenStatusIndex = afterTitle.indexOf(CITIZEN_REQUEST_STATUS_TOKEN)
   const statusIndex = fixedStatusIndex >= 0 ? fixedStatusIndex : tokenStatusIndex
   const editableBody = statusIndex >= 0 ? afterTitle.slice(0, statusIndex) : afterTitle
@@ -143,7 +148,9 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
         ))}
       />
       <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
-        <span className={`rounded-md border px-2 py-1 font-bold ${statusToneClass}`}>{statusLabel}</span>
+        <span className={`rounded-md border px-2 py-1 font-bold ${statusToneClass}`}>
+          {statusLabel.startsWith('"') ? statusLabel : `"${statusLabel}"`}
+        </span>
         <span>.</span>
         <span className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 font-bold text-sky-700">{TARGET_DEPARTMENT_TOKEN}</span>
       </div>

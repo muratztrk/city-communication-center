@@ -102,8 +102,10 @@ function hasRealTargetDecision(detail: JobDetail): boolean {
 }
 
 function wasRecoveredFromCancellation(detail: JobDetail): boolean {
-  return Boolean(detail.cancelReason?.trim())
-    && (detail.status === 'Active' || detail.status === 'Completed')
+  if (detail.status !== 'Active' && detail.status !== 'Completed') return false
+  if (detail.cancelReason?.trim()) return true
+  // Mesaj Onayı reopen: Active iken completedAtUtc korunur (#2099).
+  return detail.status === 'Active' && Boolean(detail.completedAtUtc)
 }
 
 function resolveStepStates(
@@ -334,12 +336,21 @@ export function buildJobProcessSteps(
   }
 
   if (wasRecoveredFromCancellation(detail) && detail.status !== 'Cancelled' && detail.status !== 'Rejected') {
-    steps.push({
-      id: 'cancelDate',
-      label: t('jobs.detail.cancelledAt', 'İptal Tarihi'),
-      displayValue: formatDateTime(detail.updatedAtUtc ?? null, locale),
-      dateTimeUtc: detail.updatedAtUtc ?? null,
-    })
+    if (detail.cancelReason?.trim()) {
+      steps.push({
+        id: 'cancelDate',
+        label: t('jobs.detail.cancelledAt', 'İptal Tarihi'),
+        displayValue: formatDateTime(detail.updatedAtUtc ?? null, locale),
+        dateTimeUtc: detail.updatedAtUtc ?? null,
+      })
+    } else if (detail.completedAtUtc) {
+      steps.push({
+        id: 'completionDate',
+        label: t('jobs.detail.completedAt', 'Tamamlanma Tarihi'),
+        displayValue: formatDateTime(detail.completedAtUtc, locale),
+        dateTimeUtc: detail.completedAtUtc,
+      })
+    }
   }
 
   if (detail.status === 'Completed') {
@@ -355,6 +366,22 @@ export function buildJobProcessSteps(
       label: t('jobs.detail.cancelledAt', 'İptal Tarihi'),
       displayValue: formatDateTime(detail.updatedAtUtc ?? null, locale),
       dateTimeUtc: detail.updatedAtUtc ?? null,
+    })
+  }
+
+  // Vatandaş talebi Mesaj Onayı "Talep Durumunu Değiştir" ile Active'e dönünce
+  // İptal/Tamamlanma tarihinden sonra standart Yapılmakta katmanı (#2099).
+  if (
+    isCitizenRequestJob(detail)
+    && detail.status === 'Active'
+    && wasRecoveredFromCancellation(detail)
+    && !steps.some(step => step.id === 'status')
+  ) {
+    steps.push({
+      id: 'status',
+      label: t('jobs.columns.status', 'Durum'),
+      displayValue: statusDisplayValue,
+      dateTimeUtc: null,
     })
   }
 

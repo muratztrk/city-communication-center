@@ -827,6 +827,26 @@
     );
   }
 
+  .job-process-timeline__line--to-upcoming-from-completed {
+    background: linear-gradient(
+      to bottom,
+      rgb(4 120 87) 0%,
+      rgb(4 120 87) 42%,
+      rgb(203 213 225) 88%,
+      rgb(203 213 225) 100%
+    );
+  }
+
+  .job-process-timeline__line--to-upcoming-from-danger {
+    background: linear-gradient(
+      to bottom,
+      rgb(220 38 38) 0%,
+      rgb(220 38 38) 42%,
+      rgb(203 213 225) 88%,
+      rgb(203 213 225) 100%
+    );
+  }
+
   .job-process-timeline__line--to-pending {
     background: linear-gradient(
       to bottom,

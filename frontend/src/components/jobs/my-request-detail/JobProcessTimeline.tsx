@@ -14,6 +14,7 @@ function getLineClass(
   const stepDone = step.state === 'completed' || step.state === 'terminal-success'
   const nextDone = nextStep.state === 'completed' || nextStep.state === 'terminal-success'
   const nextIsActiveCurrent = nextStep.state === 'current' || nextStep.state === 'pending'
+  const nextIsUpcoming = nextStep.state === 'upcoming'
 
   if (stepDone && nextDone) return 'job-process-timeline__line--completed'
   if (stepDone && nextStep.state === 'pending') {
@@ -30,6 +31,10 @@ function getLineClass(
       : 'job-process-timeline__line--completed'
   }
   if (stepDone && nextStep.state === 'terminal-danger') return 'job-process-timeline__line--to-danger'
+  // Yeşil (tamamlanan) → gri (upcoming) renk geçişi (card #6a6b3b5b).
+  if (stepDone && nextIsUpcoming) {
+    return 'job-process-timeline__line--to-upcoming-from-completed'
+  }
   if (step.state === 'terminal-danger' && nextIsActiveCurrent && recoveredFromCancellation) {
     return nextStep.state === 'pending'
       ? 'job-process-timeline__line--to-pending-from-danger'
@@ -37,6 +42,10 @@ function getLineClass(
   }
   if (step.state === 'terminal-danger' && nextStep.state === 'terminal-success' && recoveredFromCancellation) {
     return 'job-process-timeline__line--to-success-from-danger'
+  }
+  // Kırmızı (iptal) → gri (upcoming) renk geçişi (card #6a6b3b5b).
+  if (step.state === 'terminal-danger' && nextIsUpcoming) {
+    return 'job-process-timeline__line--to-upcoming-from-danger'
   }
   if (step.state === 'terminal-danger') return 'job-process-timeline__line--from-danger'
   if (step.state === 'pending') return 'job-process-timeline__line--from-pending'

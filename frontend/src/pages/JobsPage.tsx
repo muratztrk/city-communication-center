@@ -761,11 +761,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const isIncomingRequestDetail = detailContext === 'incoming'
   const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || isIncomingRequestDetail
   const canManageCoordination = isManagerLike || isReporter
-  const hideIncomingActionsAfterMessageReopen = isIncomingRequestDetail
+  const hideIncomingCancelAfterMessageReopen = isIncomingRequestDetail
     && detail != null
     && wasReopenedViaCitizenMessageApproval(detail)
   const canApproveDetail = isRequestDetailContext && isManagerLike && detail?.status === 'PendingOwnerApproval'
-    && !hideIncomingActionsAfterMessageReopen
   const activeIncomingTarget = detail?.departments?.find(
     department => department.role === 'Target' && department.departmentId === activeDeptId,
   )
@@ -775,15 +774,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && detail.status === 'PendingExternalApproval'
     && activeIncomingTarget?.approvalStatus === 'Pending'
     && Boolean(activeDeptId)
-    && !hideIncomingActionsAfterMessageReopen
   // Birime düşmüş dış talepte görev henüz oluşmadıysa griddeki "Onayla" eylemi
   // personel atama penceresini açar. Detay popup'ı da aynı eylemi sunmalıdır.
+  // Mesaj Onayı reopen sonrası da aktif kalır — pasif/disabled Onayla gösterilmez (#6a6aecbc).
   const canAssignIncomingDetail = isIncomingRequestDetail
     && isManagerLike
     && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
     && detail.status === 'Active'
     && (detail.tasks?.length ?? 0) === 0
-    && !hideIncomingActionsAfterMessageReopen
   // Yönlendirilmiş talebin sebebi hedef kaydın Notes alanında saklanır (card #1406).
   const forwardTarget = detail?.departments?.find(department => department.role === 'Target' && Boolean(department.notes?.trim())) ?? null
   const forwardReason = forwardTarget?.notes?.trim() ?? null
@@ -839,7 +837,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
     && !isDepartmentOutgoingTargetApprovedDetail
     // Mesaj Onayı "Talep Durumunu Değiştir" sonrası Birime Gelen'de İptal Et gizlenir (#2100/#2108).
-    && !hideIncomingActionsAfterMessageReopen
+    // Onayla (atama/hedef onay) reopen sonrası aktif kalır — pasif Onayla yok (#6a6aecbc).
+    && !hideIncomingCancelAfterMessageReopen
   const shouldShowDisabledDepartmentOutgoingCancel = isDepartmentOutgoingTargetApprovedDetail
     && detail != null
     && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')

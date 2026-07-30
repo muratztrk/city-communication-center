@@ -1,3 +1,8 @@
+## Round 580 — Timeline çizgi geçişi + reopen Onayla aktif
+- Yeşil→gri / kırmızı→gri Süreç çizgilerinde gradient (#6a6b3b5b).
+- Mesaj Onayı reopen: Onayla (atama) tekrar aktif; pasif Onayla yok; hedef onay tarihi
+  decidedAtUtc veya görev atama zamanından (#6a6aecbc).
+
 ## Round 579 — Mesaj Onayı reopen hedef onay timeline (#6a6aecbc)
 - Reopen sonrası Süreç'te `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` geri gelir
   (tarih veya Onay Bekleyen); Talep Bilgileri `Talebi Onaylayan` silinmez; taskCount=0 gate reopen'da gevşetildi.

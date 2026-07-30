@@ -682,14 +682,19 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA otomatik durum tırnakları (card #2104):** `BuildStatusMessage` / `ParseOrDefault` durum
   etiketlerini `"İşleme Alındı"` / `"Yapılmakta"` / `"Tamamlandı"` / `"İptal Edildi"` olarak üretir
   (eski tırnaksız şablonlar okunurken normalize edilir).
-- **Mesaj Onayı reopen scope (card #2108):** `wasReopenedViaCitizenMessageApproval` yalnız
-  vatandaş + Active + (completedAtUtc|cancelReason); Birime Gelen'de İptal Et / Onayla /
-  Talebi Yönlendir gizlenir. Diğer taleplere taşmaz. Timeline: İptal/Tamamlanma → Durum Yapılmakta;
-  İptal Tarihi etiketi kırmızı (`terminal-danger`).
+- **Mesaj Onayı reopen scope (card #2108 / #6a6aecbc):** `wasReopenedViaCitizenMessageApproval`
+  yalnız vatandaş + Active + (completedAtUtc|cancelReason). Birime Gelen'de **İptal Et** gizlenir;
+  **Onayla** (hedef onay / personel atama) reopen sonrası aktif kalır — pasif/disabled Onayla
+  gösterilmez. Timeline: İptal/Tamamlanma → Durum Yapılmakta; İptal Tarihi kırmızı
+  (`terminal-danger`). Hedef onay adımı tarih varsa (decidedAtUtc veya hedef görev atama)
+  gösterilir, yoksa Onay Bekleyen.
 - **Mesaj Onayı reopen hedef onay adımı (card #6a6aecbc):** reopen sonrası Süreç'te
   `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` korunur (onaylıysa tarih; değilse
   `Onay Bekleyen`). `shouldShowCitizenTargetApprovalDate` reopen'da `taskCount === 0` iken de
   Approved+decidedAtUtc ile açılır; Talep Bilgileri `Talebi Onaylayan` Süreç öncesi silinmez.
+- **Süreç timeline çizgi geçişi (card #6a6b3b5b):** yeşil(completed)→gri(upcoming) ve
+  kırmızı(terminal-danger)→gri(upcoming) çizgilerde `linear-gradient` renk geçişi zorunlu;
+  düz gri/düz kırmızı tek renk kabul edilmez.
 - **Yazışmaya Git Phone flash (card #2107):** SocialMessage kaynağında kanal yüklenmeden buton
   gösterilmez; Phone/çağrı kanalında hiç görünmez.
 - **Detay popup'tan açılan WhatsApp konuşması son mesajda açılır:** Jobs/Tasks

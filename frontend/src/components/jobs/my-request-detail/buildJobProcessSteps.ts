@@ -358,17 +358,28 @@ export function buildJobProcessSteps(
     && !showPendingTargetApproval
     && !steps.some(step => step.id === 'targetApproval')
   ) {
-    // Mesaj Onayı reopen: Süreç'te hedef onay ifadesi kaybolmasın — onaylıysa tarih,
-    // değilse Onay Bekleyen (card #6a6aecbc).
-    const approved = targetDepartment.approvalStatus === 'Approved' && Boolean(targetDepartment.decidedAtUtc)
+    // Mesaj Onayı reopen: hedef onay tarihi varsa göster; yoksa görev atama zamanı;
+    // ikisi de yoksa Onay Bekleyen — Onayla ile atama sonrası tarih dolar (#6a6aecbc).
+    const decidedAt = targetDepartment.decidedAtUtc
+      ?? detail.tasks?.find(task =>
+        task.assignedDepartmentId === targetDepartment.departmentId
+        && Boolean(task.assignedAtUtc),
+      )?.assignedAtUtc
+      ?? null
+    const approverMeta = getJobTargetApproverDisplayName(detail)
+      ?? detail.tasks?.find(task =>
+        task.assignedDepartmentId === targetDepartment.departmentId
+        && Boolean(task.assigningManagerDisplayName),
+      )?.assigningManagerDisplayName
+      ?? undefined
     steps.push({
       id: 'targetApproval',
       label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),
-      displayValue: approved
-        ? formatDueDateTime(targetDepartment.decidedAtUtc, locale)
+      displayValue: decidedAt
+        ? formatDueDateTime(decidedAt, locale)
         : t('jobs.detail.pendingApproval', 'Onay Bekleyen'),
-      displayMeta: approved ? (getJobTargetApproverDisplayName(detail) ?? undefined) : undefined,
-      dateTimeUtc: approved ? targetDepartment.decidedAtUtc : null,
+      displayMeta: decidedAt ? approverMeta : undefined,
+      dateTimeUtc: decidedAt,
     })
   }
 

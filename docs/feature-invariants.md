@@ -1476,8 +1476,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesaj Onayı banner (#2064):** “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).
 - **Mesaj Onayı Notu Düzenle modal (#2073/#2079/#2081/#2084/#2091):** genişlik `max-w-md`; yükseklik `py-5` +
   textarea `rows={4}`; aksiyon butonları `size="sm"`.
-- **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088):** Detaylar / Notu Düzenle / Mesajı Onayla FHD'de `nowrap`;
-  Vatandaş Adı/Telefon dar (~8.5rem), İşlemler geniş (~22rem); Notu Düzenle=`PenLine`, Mesajı Onayla=`Check`.
+- **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106):** Detaylar / Notu Düzenle / Mesajı Onayla FHD'de `nowrap`;
+  Vatandaş Adı/Telefon ~11rem, İşlemler geniş (~22rem); buton yüksekliği `2.125rem` (#2105);
+  Telefon No başlığı `font-bold` (#2106); Notu Düzenle=`PenLine`, Mesajı Onayla=`Check`.
 - **Mesaj Onayı Detaylar (#2088/#2089):** header'da Notu Düzenle + Mesajı Onayla; Talep Durumunu Değiştir=`Route`
   ikonu (#007985); Yazdır gizlenir.
 - **Breadcrumb (#2085):** `/citizen-message-approval` → "Vatandaşa Gönderilecek Mesaj Onayı" (slug değil).

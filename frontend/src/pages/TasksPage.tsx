@@ -2065,7 +2065,7 @@ const pageKicker = isMyTasksView
                           <RichTextContent
                             value={resolveTaskDescription(taskDetail, parentJobDetail)}
                             emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                            className="rich-text-content mt-1.5 text-[13px] leading-5 text-slate-900"
+                            className="rich-text-content mt-1.5 text-sm leading-5 text-slate-900"
                           />
                         )}
                       </div>

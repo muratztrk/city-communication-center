@@ -1,3 +1,7 @@
+## Round 582 — Açıklama punto + Mesajı Onayla genişlik
+- Talep detay Açıklama: `text-sm` (JobsPage / MyRequestDetailMainCard / TasksPage).
+- Mesajı Onayla ConfirmDialog: `max-w-md px-6 py-5` = Notu Düzenle.
+
 ## Round 581 — Reopen → İşleme Alındı + Durum ikon yok
 - Mesaj Onayı Talep Durumunu Değiştir: mavi `İşleme Alındı`; reopen görevleri InProgress yapmaz.
 - Grid Durum `İşleme Alındı` önünde kanal ikonu yok; liste taskCount yalnız açık görevler.

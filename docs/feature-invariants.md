@@ -1499,6 +1499,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesaj Onayı banner (#2064):** “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).
 - **Mesaj Onayı Notu Düzenle modal (#2073/#2079/#2081/#2084/#2091):** genişlik `max-w-md`; yükseklik `py-5` +
   textarea `rows={4}`; aksiyon butonları `size="sm"`.
+- **Mesajı Onayla ConfirmDialog genişliği:** `wide: true` → `max-w-md px-6 py-5` (Notu Düzenle ile aynı
+  kutu boyutu; dar `max-w-sm p-6` kullanılmaz).
+- **Talep detay Açıklama punto:** JobsPage / Taleplerim (`MyRequestDetailMainCard`) / Görevlerim ilgili talep
+  özeti `text-sm leading-5` (eski `text-xs` / `text-[13px]` değil).
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106):** Detaylar / Notu Düzenle / Mesajı Onayla FHD'de `nowrap`;
   Vatandaş Adı/Telefon ~11rem, İşlemler geniş (~22rem); buton yüksekliği `2.125rem` (#2105);
   Telefon No başlığı `font-bold` (#2106); Notu Düzenle=`PenLine`, Mesajı Onayla=`Check`.

@@ -57,7 +57,11 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
   return createPortal(
     <ModalBackdrop>
       <div
-        className={`relative w-full rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl ${state.details || state.wide ? 'max-w-md' : 'max-w-sm'}`}
+        className={`relative w-full rounded-[var(--radius-2xl)] bg-white shadow-2xl ${
+          state.details || state.wide
+            ? 'max-w-md px-6 py-5'
+            : 'max-w-sm p-6'
+        }`}
       >
         <button
           type="button"

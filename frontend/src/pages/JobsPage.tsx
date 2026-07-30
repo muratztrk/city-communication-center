@@ -2560,7 +2560,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <RichTextContent
                       value={detail.description}
                       emptyText={t('common.none')}
-                      className="rich-text-content mt-1.5 text-xs leading-5 text-slate-900"
+                      className="rich-text-content mt-1.5 text-sm leading-5 text-slate-900"
                     />
                   </div>
                   <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">

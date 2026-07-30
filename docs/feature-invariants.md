@@ -1349,8 +1349,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hizalı; dolu adreste Cadde / Açık Adres etiket+değer sola yaslı (değer ortalanmaz, satır
   kırılınca da sol — #r500); değer fontu ~0.8rem (#r501); Cadde kolon biraz sola
   (`translateX(-0.7rem)` — #r498); boşsa üç kolon bölüm alt çizgisi altında ortalı (`--empty`,
-  #6a6ba6ad/#6a6baec9). Mobil (≤767): alt alta. Rutin ve Görevlerim İlgili Talep =
-  `variant="my-request"` (#6a6baec9); eski stacked yalnız bilinçli dar kolonlarda.
+  #6a6ba6ad). Mobil (≤767): alt alta. Rutin = `my-request`; Görevlerim İlgili Talep =
+  `stacked` alt alta (#6a6baec9 reopen — 3 kolon yapılmaz).
 - **Rutin Görev Oluştur Açık Adres (#r501/#r502):** textarea `address-open-textarea`; font
   Cadde / Sokak `field-input` ile aynı (~0.98rem, değer + placeholder).
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
@@ -1358,8 +1358,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil Talep No (#r490):** `.table-number-cell__value` / `__priority` mobilde küçültülür.
 - **VT edit mobil hiza (#r490/#r498):** Talep Etiketi kontrolü etiket altında sola; Öncelik sağ üst
   meta, varsayılan `w-28` (Öncelik sola/küçült istekleri #r498'de geri alındı).
-- **Atanmış görev adres (#r496/#r497/#6a6baec9):** Görevlerim İlgili Talep Adres `my-request`
-  3 kolon (boşken bölüm çizgisi altında ortalı); stacked `gap` kuralı dolu stacked için durur.
+- **Atanmış görev adres stacked (#r496/#r497/#6a6baec9):** Görevlerim İlgili Talep Adres
+  `variant="stacked"` (alt alta); doluysa `gap: 1.35rem`.
 - **Mobil dizin talep popup (#r483 / #r485):** başlık altında isim · telefon yan yana (küçük
   bullet); ortada kurum logosu.
 - **Mobil Vatandaş Talep Bilgisi genişlik (#r483):** `.detail-modal-shell--my-request`

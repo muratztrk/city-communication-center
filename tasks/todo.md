@@ -1,3 +1,7 @@
+## Round 595 — Görevlerim adres stacked geri; bildirim banner/tarih
+- Görevlerim İlgili Talep Adres tekrar `stacked` (#6a6baec9 reopen).
+- Bildirim modal: banner biraz alçak; tarih pill 8.5rem (#6a6bad5c reopen).
+
 ## Round 594 — Yanıt Verildi İşaretle filtre satırı sağına
 - WA: Yanıt Verildi İşaretle → Tümü/Yanıt bekliyor satırı en sağı (#6a6bab12 reopen).
 

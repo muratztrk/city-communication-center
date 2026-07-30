@@ -1127,7 +1127,11 @@
     color: #dc2626;
   }
 
-  /* Bildirim modalı tarih seçicileri — dar pill + ortalı "-" (#6a6bad5c). */
+  /* Bildirim modalı banner biraz alçak; tarih pill biraz daha geniş (#6a6bad5c reopen). */
+  .notification-modal-header.sticky-page-header {
+    padding-block: 0.55rem;
+  }
+
   .notification-modal-date-range.scope-chip-date-range {
     display: inline-flex;
     align-items: center;
@@ -1135,7 +1139,7 @@
   }
 
   .notification-modal-filters .notification-modal-date.scope-chip-date {
-    width: 6.75rem;
+    width: 8.5rem;
   }
 
   .notification-modal-filters .scope-chip-date-separator {

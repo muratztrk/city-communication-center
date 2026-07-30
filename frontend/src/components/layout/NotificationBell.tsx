@@ -657,7 +657,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
             onClick={e => e.stopPropagation()}
           >
             {/* Modal header */}
-            <div className="sticky-page-header flex shrink-0 items-center gap-3 rounded-none border-0 px-6 py-4 shadow-none">
+            <div className="sticky-page-header notification-modal-header flex shrink-0 items-center gap-3 rounded-none border-0 px-6 shadow-none">
               <Bell className="size-5 shrink-0 text-white/80" />
               <h2 className="min-w-0 flex-1 truncate text-base font-extrabold text-white">
                 {t('notifications.modalTitle', 'Bildirimler')}

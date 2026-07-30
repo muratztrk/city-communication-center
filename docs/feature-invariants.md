@@ -414,8 +414,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`isWaitingForConversationResponse`, card #6a6b685d); sayı 0 olunca rozet anında kalkar
   (liste sync / outbound yanıt, card #6a6b6ec6). **Sms Onayı** nav satırında phone
   `to-send` bekleyen sayısı (card #6a6b6824). Sol menü etiketleri kısadır: `WhatsApp` /
-  `Sms Onayı` (card #6a6b6c8e). WhatsApp konum mesajı balonda koordinat + Haritada aç
-  (içerik/SocialMessage lat-lng, card #6a6b9fac). Detayda turuncu
+  `Sms Onayı` (card #6a6b6c8e). WhatsApp konum mesajı balonda **Konum** + Haritada aç;
+  enlem/boylam metni gösterilmez (card #6a6b9fac). Detayda turuncu
   **Talep Durumunu Değiştir** → `ReopenCitizenMessageJobCommand` (`POST …/reopen-to-in-progress`)
   Job'u Active + terminal görevleri InProgress yapar, release bayrağını temizler (card #2057/#2062).
   Edit/Release/Reopen uygunluğu liste ile aynıdır (`FindEligibleTerminalJobAsync`): Completed/Cancelled

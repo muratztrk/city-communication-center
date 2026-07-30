@@ -1,3 +1,6 @@
+## Round 590 — Konum balonunda enlem/boylam text yok
+- WhatsApp konum balonu: yalnız Konum + Haritada aç (koordinat satırı yok).
+
 ## Round 589 — Sms Onayı nav = WhatsApp hiza/punto + renkli ikon
 - Sms Onayı `emphasized` + `/icons/sms.svg` (WhatsApp alt başlığı gibi değil).
 

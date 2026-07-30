@@ -198,23 +198,18 @@ export function ConversationEntryBubble({
                 {t('whatsapp.locationMessage', 'Konum')}
               </p>
               {locationCoords ? (
-                <>
-                  <p className={`text-[11px] tabular-nums ${isInbound ? 'text-slate-500' : 'text-white/75'}`}>
-                    {locationCoords.latitude.toFixed(6)}, {locationCoords.longitude.toFixed(6)}
-                  </p>
-                  <a
-                    href={buildGoogleMapsOpenUrl(locationCoords.latitude, locationCoords.longitude)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`inline-flex w-fit items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold underline-offset-2 hover:underline ${
-                      isInbound
-                        ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200'
-                        : 'bg-white/15 text-white ring-1 ring-white/25'
-                    }`}
-                  >
-                    {t('whatsapp.openLocation', 'Haritada aç')}
-                  </a>
-                </>
+                <a
+                  href={buildGoogleMapsOpenUrl(locationCoords.latitude, locationCoords.longitude)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex w-fit items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold underline-offset-2 hover:underline ${
+                    isInbound
+                      ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200'
+                      : 'bg-white/15 text-white ring-1 ring-white/25'
+                  }`}
+                >
+                  {t('whatsapp.openLocation', 'Haritada aç')}
+                </a>
               ) : (
                 <p className={`text-xs italic ${isInbound ? 'text-slate-500' : 'text-white/70'}`}>
                   {t('whatsapp.locationUnavailable', 'Konum koordinatı alınamadı.')}

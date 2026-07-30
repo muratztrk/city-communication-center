@@ -3683,13 +3683,20 @@
     color: #b91c1c;
   }
 
-  /* Pie Filtreyi sil — Birim İçi/Dışı chip kalıbı, kırmızı + yanıp sönme (#2096). */
+  /* Pie Filtreyi sil — Birim İçi/Dışı chip kalıbı, kırmızı + yanıp sönme (#2096/#2104). */
   .scope-chip.scope-chip--clear-pie,
   .scope-chip--clear-pie {
     background: #fecaca;
     border-color: #f87171;
     color: #991b1b;
+    font-size: 0.8rem;
+    font-weight: 700;
     animation: ccc-blink 2.2s ease-in-out infinite;
+  }
+
+  .app-content-shell .scope-chip.scope-chip--clear-pie,
+  .app-content-shell .scope-chip--clear-pie {
+    font-size: 0.8rem;
   }
 
   .scope-chip.scope-chip--clear-pie.active,

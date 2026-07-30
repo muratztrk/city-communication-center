@@ -1,3 +1,6 @@
+## Round 575 — Filtreyi sil punto (#2104 reopen)
+- `scope-chip--clear-pie` font-size `0.8rem` (komşu çipler ~0.68rem).
+
 ## Round 574 — Mesaj Onayı / pie / WA not gömme / timeline (11 kart)
 - Breadcrumb `Vatandaş Mesaj Onayı`; Vatandaş Adı sütunu ~11rem; Telefon No etiketi.
 - Filtreyi sil = kırmızı scope-chip; Birimler pie drilldown'da Son Tarih yok.

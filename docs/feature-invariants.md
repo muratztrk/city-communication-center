@@ -1494,9 +1494,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesaj Onayı / grid Başlık (#2076/#2077):** `cell-title` max-width ~11.5rem; overflow tooltip metin anchor'ı altında.
 - **Vatandaş Talepleri pie (#r546):** VT sayısı `WhereHasCitizenRequestNumber` (RequestType şartı yok);
   dilim tıklanınca drilldown değil `/social?requestStatus=…&fromPie=1`.
-- **Pie Filtreyi sil (#r546/#r547/#r549/#r550/#r552):** `fromPie=1` ile gelinen gridlerde scope-chip
-  satırında son butonun **sağında** kırmızı metin `Filtreyi sil` (buton/fill değil) + `ccc-blink`
-  (Yeni rozetiyle aynı yanıp sönme); punto `text-base`; tıklanınca pathname'e (query yok) döner.
+- **Pie Filtreyi sil (#r546/#r547/#r549/#r550/#r552/#2096/#2104):** `fromPie=1` ile gelinen gridlerde
+  scope-chip satırında son butonun **sağında** kırmızı `scope-chip--clear-pie` (Birim İçi/Dışı chip
+  kalıbı, aktif kırmızı fill + beyaz yazı) + `ccc-blink`; punto komşu çiplerden büyük (`0.8rem`,
+  card #2104); tıklanınca pathname'e (query yok) döner.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık
   satırının sağına**; **Talep Etiketi** pie'sında filtre butonlarının **bir alt satırında** sağa
   hizalı. Personelimin Görevleri / Çözme Süresi pie'larında Ara... yok. X ikonu kırmızı; metin

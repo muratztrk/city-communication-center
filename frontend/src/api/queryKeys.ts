@@ -101,6 +101,8 @@ export const queryKeys = {
     all: ['ccc', 'conversations'] as const,
     list: () => ['ccc', 'conversations', 'list'] as const,
     detail: (conversationId?: string | null) => ['ccc', 'conversations', 'detail', conversationId ?? 'none'] as const,
+    /** Sidebar "Yanıt bekliyor" badge for WhatsApp Konuşmaları (card #6a6b685d). */
+    waitingReplyCount: () => ['ccc', 'conversations', 'waiting-reply-count'] as const,
   },
   whatsappTemplates: {
     all: ['ccc', 'whatsapp-templates'] as const,

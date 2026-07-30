@@ -1,3 +1,6 @@
+## Round 587 — WhatsApp nav Yanıt bekliyor rozeti
+- Sol menü WhatsApp Konuşmaları: Mesaj Onayı ile aynı `nav-pending-badge`; sayı = Yanıt bekliyor.
+
 ## Round 586 — Tamamla/İptal Görev No renk + Sms Gönderim Onayı
 - Görevi Tamamla: Görev No yeşil; Görevi İptal Et: Görev No kırmızı + başta.
 - Sms Gönderim Onayı sayfası (Phone VT); WA Mesaj Onayı yalnız WhatsApp.

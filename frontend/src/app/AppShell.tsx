@@ -35,6 +35,7 @@ import { canAnyRoleAccessPage, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, ty
 import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
 import { sortUserDepartments } from '../utils/departmentAccess'
+import { isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 import { useDataTableOverflowTooltips } from '../hooks/useDataTableOverflowTooltips'
 
 
@@ -208,6 +209,11 @@ export function AppShell() {
     [user, accessVersion],
   )
 
+  const canSeeWhatsAppConversations = useMemo(
+    () => canAnyRoleAccessPage(getEffectiveUserRoles(user), 'social'),
+    [user, accessVersion],
+  )
+
   const pendingCitizenMessageApprovalQuery = useQuery({
     queryKey: queryKeys.citizenMessageApprovals.pendingCount(),
     queryFn: async () => {
@@ -220,6 +226,19 @@ export function AppShell() {
   })
 
   const pendingCitizenMessageApprovalCount = pendingCitizenMessageApprovalQuery.data ?? 0
+
+  const waitingWhatsAppReplyQuery = useQuery({
+    queryKey: queryKeys.conversations.waitingReplyCount(),
+    queryFn: async () => {
+      const rows = await api.getCitizenConversations({ whatsAppOnly: true })
+      return rows.filter(c => isWaitingForConversationResponse(c)).length
+    },
+    enabled: Boolean(user?.userId) && canSeeWhatsAppConversations,
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  })
+
+  const waitingWhatsAppReplyCount = waitingWhatsAppReplyQuery.data ?? 0
 
   const navItemConfigs: NavLinkConfigEx[] = [
     ...(user?.role === 'Reporter' || user?.role === 'Operator'
@@ -236,7 +255,7 @@ export function AppShell() {
     { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
     // Vatandaş Talepleri grubu: WhatsApp + Sms Gönderim Onayı (#621 / #2112).
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore, children: [
-      { path: '/whatsapp', label: t('whatsapp.title', 'WhatsApp Konuşmaları'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true },
+      { path: '/whatsapp', label: t('whatsapp.title', 'WhatsApp Konuşmaları'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true, badgeCount: waitingWhatsAppReplyCount },
       { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Gönderim Onayı'), icon: MessageSquareText },
     ] },
     { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
@@ -282,6 +301,8 @@ export function AppShell() {
             iconImageSrc: child.iconImageSrc,
             newTab: child.newTab,
             emphasized: child.emphasized,
+            multilineLabel: child.multilineLabel,
+            badgeCount: child.badgeCount,
           })),
         })
       } else {

@@ -409,7 +409,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kuyruğa girer ve `CitizenTerminalMessageReleasedAtUtc` doldurulur (idempotent). FE release
   sonrası `view=sent` chip'ine geçer (card #2058). Release şablon yoksa da varsayılan metinle
   Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
-  bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Detayda turuncu
+  bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
+  **WhatsApp Konuşmaları** nav satırında `Yanıt bekliyor` sayısı için kullanılır
+  (`isWaitingForConversationResponse`, card #6a6b685d). Detayda turuncu
   **Talep Durumunu Değiştir** → `ReopenCitizenMessageJobCommand` (`POST …/reopen-to-in-progress`)
   Job'u Active + terminal görevleri InProgress yapar, release bayrağını temizler (card #2057/#2062).
   Edit/Release/Reopen uygunluğu liste ile aynıdır (`FindEligibleTerminalJobAsync`): Completed/Cancelled

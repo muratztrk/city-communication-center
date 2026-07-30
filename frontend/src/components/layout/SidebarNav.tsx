@@ -14,7 +14,7 @@ export interface SidebarNavLinkItem {
   newTab?: boolean
   /** Render label on two lines (e.g. long menu titles). */
   multilineLabel?: boolean
-  /** Optional count badge (WhatsApp FAB style) — shown after first line when multiline (card #2056). */
+  /** Optional count badge (WhatsApp FAB style) — after label, or after second line when multiline (cards #2056 / #6a6b685d). */
   badgeCount?: number
   /** Slightly enlarge important nested links without changing the whole sidebar. */
   emphasized?: boolean
@@ -122,37 +122,41 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
           <Icon className={cn('shrink-0', isEmphasizedNested ? 'size-5' : nested && !collapsed ? 'size-4' : 'size-4.5')} />
         ) : null}
         {!collapsed ? (
-          item.multilineLabel && item.badgeCount != null && item.badgeCount > 0 ? (
-            <span className="min-w-0 leading-snug">
+          item.badgeCount != null && item.badgeCount > 0 ? (
+            <span className={cn('inline-flex min-w-0 max-w-full items-center gap-1.5', item.multilineLabel ? 'leading-snug' : '')}>
               {(() => {
                 const lines = item.label.split('\n')
                 const badgeLabel = item.badgeCount > 99 ? '99+' : String(item.badgeCount)
                 const firstLine = lines[0] ?? item.label
                 const restLines = lines.slice(1)
+                if (item.multilineLabel && restLines.length > 0) {
+                  return (
+                    <span className="min-w-0 leading-snug">
+                      <span>{firstLine}</span>
+                      <br />
+                      <span className="inline-flex max-w-full items-center gap-1.5">
+                        <span>{restLines.join('\n')}</span>
+                        <span
+                          className={`nav-pending-badge shrink-0 ${badgeLabel.length > 1 ? 'nav-pending-badge--wide' : ''}`}
+                          aria-label={`${item.badgeCount}`}
+                        >
+                          {badgeLabel}
+                        </span>
+                      </span>
+                    </span>
+                  )
+                }
                 return (
                   <>
-                    <span>{firstLine}</span>
-                    {restLines.length > 0 ? (
-                      <>
-                        <br />
-                        <span className="inline-flex max-w-full items-center gap-1.5">
-                          <span>{restLines.join('\n')}</span>
-                          <span
-                            className={`nav-pending-badge shrink-0 ${badgeLabel.length > 1 ? 'nav-pending-badge--wide' : ''}`}
-                            aria-label={`${item.badgeCount}`}
-                          >
-                            {badgeLabel}
-                          </span>
-                        </span>
-                      </>
-                    ) : (
-                      <span
-                        className={`nav-pending-badge ml-1.5 inline-flex shrink-0 ${badgeLabel.length > 1 ? 'nav-pending-badge--wide' : ''}`}
-                        aria-label={`${item.badgeCount}`}
-                      >
-                        {badgeLabel}
-                      </span>
-                    )}
+                    <span className={cn('min-w-0', isEmphasizedNested ? 'whitespace-nowrap' : item.multilineLabel ? 'whitespace-pre-line leading-snug' : 'truncate')}>
+                      {item.label}
+                    </span>
+                    <span
+                      className={`nav-pending-badge shrink-0 ${badgeLabel.length > 1 ? 'nav-pending-badge--wide' : ''}`}
+                      aria-label={`${item.badgeCount}`}
+                    >
+                      {badgeLabel}
+                    </span>
                   </>
                 )
               })()}

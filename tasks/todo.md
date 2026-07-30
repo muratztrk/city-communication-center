@@ -1,3 +1,7 @@
+## Round 579 — Mesaj Onayı reopen hedef onay timeline (#6a6aecbc)
+- Reopen sonrası Süreç'te `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` geri gelir
+  (tarih veya Onay Bekleyen); Talep Bilgileri `Talebi Onaylayan` silinmez; taskCount=0 gate reopen'da gevşetildi.
+
 ## Round 578 — WA Onaylayan Yönetici etiketi
 - `Mesajı Onaylayan Yönetici` → `Onaylayan Yönetici` (operatör WA konuşma chip).
 

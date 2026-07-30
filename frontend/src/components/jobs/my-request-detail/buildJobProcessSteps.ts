@@ -143,6 +143,10 @@ function resolveStepStates(
       if (step.id === 'dueDate') {
         return { ...step, state: 'upcoming' as const }
       }
+      // Reopen + henüz onaylanmamış hedef: yeşil completed değil, mavi pending (#6a6aecbc).
+      if (step.id === 'targetApproval' && !step.dateTimeUtc) {
+        return { ...step, state: 'pending' as const }
+      }
       return { ...step, state: 'completed' as const }
     })
   }
@@ -346,6 +350,25 @@ export function buildJobProcessSteps(
         : t('jobs.detail.pendingApproval', 'Onay Bekleyen'),
       displayMeta: getJobTargetApproverDisplayName(detail) ?? undefined,
       dateTimeUtc: targetDepartment?.decidedAtUtc ?? null,
+    })
+  } else if (
+    wasReopenedViaCitizenMessageApproval(detail)
+    && isCitizenRequestJob(detail)
+    && targetDepartment
+    && !showPendingTargetApproval
+    && !steps.some(step => step.id === 'targetApproval')
+  ) {
+    // Mesaj Onayı reopen: Süreç'te hedef onay ifadesi kaybolmasın — onaylıysa tarih,
+    // değilse Onay Bekleyen (card #6a6aecbc).
+    const approved = targetDepartment.approvalStatus === 'Approved' && Boolean(targetDepartment.decidedAtUtc)
+    steps.push({
+      id: 'targetApproval',
+      label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),
+      displayValue: approved
+        ? formatDueDateTime(targetDepartment.decidedAtUtc, locale)
+        : t('jobs.detail.pendingApproval', 'Onay Bekleyen'),
+      displayMeta: approved ? (getJobTargetApproverDisplayName(detail) ?? undefined) : undefined,
+      dateTimeUtc: approved ? targetDepartment.decidedAtUtc : null,
     })
   }
 

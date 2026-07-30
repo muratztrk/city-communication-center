@@ -68,14 +68,24 @@ export function shouldShowRequestApproverField(job: {
   status: string
   requestType?: string | null
   sourceType?: string | null
-  departments?: { role: string; approvalStatus?: string | null }[]
+  completedAtUtc?: string | null
+  cancelReason?: string | null
+  departments?: { role: string; approvalStatus?: string | null; decidedAtUtc?: string | null }[]
 }): boolean {
   if (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval') {
     return false
   }
   if (isCitizenRequestJob(job)) {
     const target = job.departments?.find(department => department.role === 'Target')
-    return target?.approvalStatus === 'Approved'
+    if (target?.approvalStatus === 'Approved') return true
+    // Mesaj Onayı reopen: hedef onay tarihi varsa Talep Bilgileri'ndeki "Talebi Onaylayan"
+    // Süreç öncesi ifadeler silinmesin (card #6a6aecbc).
+    if (job.status === 'Active'
+      && (Boolean(job.completedAtUtc) || Boolean(job.cancelReason?.trim()))
+      && Boolean(target?.decidedAtUtc)) {
+      return true
+    }
+    return false
   }
   return true
 }

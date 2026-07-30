@@ -686,6 +686,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   vatandaş + Active + (completedAtUtc|cancelReason); Birime Gelen'de İptal Et / Onayla /
   Talebi Yönlendir gizlenir. Diğer taleplere taşmaz. Timeline: İptal/Tamamlanma → Durum Yapılmakta;
   İptal Tarihi etiketi kırmızı (`terminal-danger`).
+- **Mesaj Onayı reopen hedef onay adımı (card #6a6aecbc):** reopen sonrası Süreç'te
+  `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` korunur (onaylıysa tarih; değilse
+  `Onay Bekleyen`). `shouldShowCitizenTargetApprovalDate` reopen'da `taskCount === 0` iken de
+  Approved+decidedAtUtc ile açılır; Talep Bilgileri `Talebi Onaylayan` Süreç öncesi silinmez.
 - **Yazışmaya Git Phone flash (card #2107):** SocialMessage kaynağında kanal yüklenmeden buton
   gösterilmez; Phone/çağrı kanalında hiç görünmez.
 - **Detay popup'tan açılan WhatsApp konuşması son mesajda açılır:** Jobs/Tasks

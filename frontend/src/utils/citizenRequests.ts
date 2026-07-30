@@ -71,6 +71,9 @@ export function shouldShowCitizenTargetApprovalDate(job: {
   requestType?: string | null
   sourceType?: string | null
   createdByRoleCode?: string | null
+  status?: string | null
+  completedAtUtc?: string | null
+  cancelReason?: string | null
   taskCount?: number
   tasks?: { taskId?: string }[]
   departments?: { role: string; approvalStatus?: string | null; decidedAtUtc?: string | null }[]
@@ -93,7 +96,13 @@ export function shouldShowCitizenTargetApprovalDate(job: {
     return false
   }
   const taskCount = job.taskCount ?? job.tasks?.length ?? 0
-  return taskCount > 0
+  if (taskCount > 0) return true
+  // Mesaj Onayı "Talep Durumunu Değiştir" sonrası Active + (completedAtUtc|cancelReason):
+  // görev henüz yok/atanmamış olsa da gerçek hedef onayı timeline + Talep Bilgileri'nde kalsın
+  // (card #6a6aecbc / Round 579). Otomatik damga + hiç görev yokken yanlış onaycı gösterme
+  // riski yalnızca bu reopen kapsamıyla sınırlı.
+  if (!isCitizenRequestJob(job) || job.status !== 'Active') return false
+  return Boolean(job.completedAtUtc) || Boolean(job.cancelReason?.trim())
 }
 
 export function resolveCitizenWhatsAppPhone(

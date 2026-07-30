@@ -5629,6 +5629,11 @@
   .citizen-message-approval-actions button {
     white-space: nowrap;
     flex-shrink: 0;
+    /* İşlem butonları biraz daha yüksek (#2105). */
+    min-height: 2.125rem;
+    height: 2.125rem;
+    padding-top: 0;
+    padding-bottom: 0;
   }
 
   /* Başlık dar sütun: ellipsis erken; tooltip hücre metninin altında (#2076/#2077). */

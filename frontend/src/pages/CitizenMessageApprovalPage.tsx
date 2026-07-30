@@ -337,7 +337,7 @@ export function CitizenMessageApprovalPage() {
                   <FilterableTh className="citizen-message-approval-citizen-col" filterKey="citizenName" filterValue={filters['citizenName'] ?? ''} onFilter={setFilter} sortKey="citizenName" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>
                     <span className="inline-flex flex-col gap-1 leading-tight">
                       <span>{t('citizenMessageApproval.columns.citizenName', 'Vatandaş Adı')}</span>
-                      <span className="text-[0.9em] font-semibold leading-tight">{t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}</span>
+                      <span className="text-[0.9em] font-bold leading-tight">{t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}</span>
                     </span>
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={filters['title'] ?? ''} onFilter={setFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.title', 'Başlık')}</FilterableTh>

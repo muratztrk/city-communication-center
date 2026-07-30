@@ -1,3 +1,6 @@
+## Round 576 — Mesaj Onayı İşlemler yükseklik + Telefon No bold
+- İşlemler butonları `h-8` → `2.125rem`; `Telefon No` başlığı `font-bold`.
+
 ## Round 575 — Filtreyi sil punto (#2104 reopen)
 - `scope-chip--clear-pie` font-size `0.8rem` (komşu çipler ~0.68rem).
 

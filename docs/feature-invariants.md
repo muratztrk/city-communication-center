@@ -412,10 +412,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
   **WhatsApp** nav satırında `Yanıt bekliyor` sayısı için kullanılır
   (`isWaitingForConversationResponse`, card #6a6b685d); sayı 0 olunca rozet anında kalkar
-  (liste sync / outbound yanıt, card #6a6b6ec6). **Sms Onayı** nav satırında phone
-  `to-send` bekleyen sayısı (card #6a6b6824). Sol menü etiketleri kısadır: `WhatsApp` /
-  `Sms Onayı` (card #6a6b6c8e). WhatsApp konum mesajı balonda **Konum** + Haritada aç;
-  enlem/boylam metni gösterilmez (card #6a6b9fac). Detayda turuncu
+  (liste sync / outbound yanıt / `Yanıt Verildi İşaretle`, card #6a6b6ec6/#6a6bab12).
+  Yanıt bekliyor satırında sağda yanıp sönen yeşil `Yanıt Verildi İşaretle` →
+  `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`); yeni inbound webhook sıfırlar
+  (#6a6bab12). **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
+  Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
+  (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
+  WhatsApp konum mesajı balonda **Konum** + Haritada aç; enlem/boylam metni gösterilmez;
+  MapPin rengi `var(--color-header-from)` (card #6a6b9fac). Detayda turuncu
   **Talep Durumunu Değiştir** → `ReopenCitizenMessageJobCommand` (`POST …/reopen-to-in-progress`)
   Job'u Active + terminal görevleri InProgress yapar, release bayrağını temizler (card #2057/#2062).
   Edit/Release/Reopen uygunluğu liste ile aynıdır (`FindEligibleTerminalJobAsync`): Completed/Cancelled
@@ -1342,11 +1346,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Bildirim "(Vatandaş Talebi)" etiketi (#r491/#r492):** `titleTag` metin `text-[0.7rem]`, kanal ikonu
   `size-2.5`; ikon+metin `inline-flex items-center` (ikon text altına kaymasın).
 - **Ek toplam boyutu (#r491):** Entity / form başına tüm eklerin toplamı ≤ 5 MB (tek dosya da dahil); aşımda uyarı, yükleme yok. BE `UploadAttachmentCommand` mevcut ekleri toplar.
-- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r449 / #r495–#r501):** Masaüstü: Mahalle sol
+- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r449 / #r495–#r501 / #6a6ba6ad):** Masaüstü: Mahalle sol
   hizalı; dolu adreste Cadde / Açık Adres etiket+değer sola yaslı (değer ortalanmaz, satır
   kırılınca da sol — #r500); değer fontu ~0.8rem (#r501); Cadde kolon biraz sola
-  (`translateX(-0.7rem)` — #r498); boşsa üç etiket kolon ortalı + satır biraz sola (`--empty`).
-  Mobil (≤767): alt alta. Rutin = `variant="my-request"`; atanmış = `variant="stacked"` (#r496).
+  (`translateX(-0.7rem)` — #r498); boşsa üç kolon bölüm alt çizgisi altında ortalı (`--empty`,
+  #6a6ba6ad). Mobil (≤767): alt alta. Rutin = `variant="my-request"`; atanmış = `variant="stacked"` (#r496).
 - **Rutin Görev Oluştur Açık Adres (#r501/#r502):** textarea `address-open-textarea`; font
   Cadde / Sokak `field-input` ile aynı (~0.98rem, değer + placeholder).
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
@@ -1522,9 +1526,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   İptal Et popup'ta Tamamla ile aynı **Dosya ekle** (geçici upload, Vazgeç'te silinir — #6a6b6c07).
 - **Sms Onayı (#2112/#6a6b6824/#6a6b6c8e):** `/sms-delivery-approval` — Vatandaş Talepleri altında
   WhatsApp'ın hemen altında; nav etiketi `Sms Onayı`; WhatsApp ile aynı `emphasized` hiza/punto +
-  renkli `/icons/sms.svg` (reopen #6a6b6c8e). `pageKey smsDeliveryApproval` (Operator varsayılan
-  açık, Staff/Reporter kapalı). Nav rozeti phone `to-send` sayısı. Banner altı chip'ler Mesaj
-  Onayı ile aynı; liste `channel=phone`. Mesaj Onayı listesi `channel=whatsapp`.
+  Lucide `MessageSquareText` (reopen #6a6b6c8e — renkli svg yok). `pageKey smsDeliveryApproval`
+  (Operator varsayılan açık; Staff/Reporter/Manager kapalı; BE SMS modunda Manager erişemez).
+  Nav rozeti phone `to-send` sayısı. Banner altı chip'ler Mesaj Onayı ile aynı; liste
+  `channel=phone`. Mesaj Onayı listesi `channel=whatsapp`.
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106/#2108):** `toSend` = Detaylar / Notu Düzenle /
   Mesajı Onayla (`nowrap`); `sent` ve `all` = yalnız Detaylar. Detay popup: `toSend`'de Notu Düzenle +
   Mesajı Onayla; `sent`/`all`'da bu butonlar yok (Yazdır da gizli).
@@ -1559,7 +1564,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   artan sıra; 0'lar sonda.
 - **Drilldown yazdır Tamamlanma Tarihi (#r547):** `col-completed` ~18% / min 9.5rem — başlık
   hücre border'ından taşmaz.
-- **Boş Adres Bilgileri tire (#r547):** `-` değeri üst etiketin genişliğinde ortalanır
+- **Boş Adres Bilgileri tire (#r547/#6a6ba6ad):** `-` değeri üst etiketin genişliğinde ortalanır;
+  üç boş kolon da Adres Bilgileri alt çizgisi altında ortalı
   (`width: fit-content` item + `text-align: center` value).
 - **Dashboard scroll (#r545):** pie/kart öncesi `main#main-content` (desktop; shell
   `md:overflow-visible`) scrollTop sessionStorage; dönüşte içerik oturana kadar tekrarlı restore.

@@ -104,6 +104,8 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             }
 
             conversation.UnreadCount += orderedMsgs.Length;
+            // Yeni inbound → manuel "Yanıt Verildi İşaretle" sıfırlanır (#6a6bab12).
+            conversation.WaitingReplyClearedAtUtc = null;
 
             // Find the most recent open SocialMessage thread for this citizen
             var thread = await _dbContext.SocialMessages

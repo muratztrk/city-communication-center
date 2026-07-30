@@ -223,7 +223,9 @@ public sealed record CitizenConversationSummaryDto(
     string? LastStaffSenderDepartment = null,
     string? LastStaffSenderDisplayName = null,
     // Vatandaş Bilgi Listesi gridinde isim yanında kanal ikonu (card #1836).
-    string? SourceChannel = null);
+    string? SourceChannel = null,
+    // Operatör "Yanıt Verildi İşaretle" — yeni inbound gelene kadar Yanıt bekliyor sayılmaz (#6a6bab12).
+    DateTimeOffset? WaitingReplyClearedAtUtc = null);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,

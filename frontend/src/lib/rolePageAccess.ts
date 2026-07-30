@@ -73,9 +73,11 @@ export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce(
       return pages
     }
     if (role === 'Manager') {
+      // Sms Onayı Manager'da varsayılan kapalı (card #6a6b6c8e reopen).
       pages[page.key] = page.key !== 'settings'
         && page.key !== 'edevletActivityPlan'
         && page.key !== 'edevletActivityPlansList'
+        && page.key !== 'smsDeliveryApproval'
       return pages
     }
     pages[page.key] = page.key !== 'settings' || role === 'SystemAdmin'
@@ -136,6 +138,10 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
     }
     if (role === 'Manager' || role === 'SystemAdmin') {
       matrix[role].departmentTasks = true
+    }
+    if (role === 'Manager') {
+      // Kayıtlı matriste açık olsa bile Manager Sms Onayı'na girmez (#6a6b6c8e).
+      matrix[role].smsDeliveryApproval = false
     }
     // Vatandaş Bilgi Listesi yalnız Operatör / Üst Düzey / Sistem (card #1892).
     matrix[role].citizenDirectory = role === 'SystemAdmin' || role === 'Operator' || role === 'Reporter'

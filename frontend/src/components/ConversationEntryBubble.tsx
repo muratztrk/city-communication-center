@@ -194,7 +194,14 @@ export function ConversationEntryBubble({
           ) : isLocationMessage ? (
             <div className="grid gap-1.5">
               <p className="inline-flex items-center gap-1.5 text-sm font-semibold leading-snug">
-                <MapPin className="size-3.5 shrink-0" aria-hidden="true" />
+                <MapPin
+                  className={`size-3.5 shrink-0 ${
+                    isInbound
+                      ? 'text-[color:var(--color-header-from)]'
+                      : 'text-white'
+                  }`}
+                  aria-hidden="true"
+                />
                 {t('whatsapp.locationMessage', 'Konum')}
               </p>
               {locationCoords ? (

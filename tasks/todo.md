@@ -1,3 +1,9 @@
+## Round 591 — Adres ortalama, Yanıt Verildi İşaretle, SMS ikon/rol, Konum MapPin
+- Boş Adres Bilgileri 3 kolon bölüm alt çizgisi altında ortalı (#6a6ba6ad).
+- WA liste: Yanıt Verildi İşaretle → WaitingReplyClearedAtUtc; inbound sıfırlar (#6a6bab12).
+- Sms Onayı: Lucide MessageSquareText; Manager varsayılan/zorla kapalı (#6a6b6c8e).
+- Konum MapPin = banner yeşili `--color-header-from` (#6a6b9fac).
+
 ## Round 590 — Konum balonunda enlem/boylam text yok
 - WhatsApp konum balonu: yalnız Konum + Haritada aç (koordinat satırı yok).
 

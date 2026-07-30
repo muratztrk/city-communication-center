@@ -9,10 +9,14 @@ namespace CityCommunicationCenter.Application.Features.CitizenMessageApprovals;
 internal static class CitizenMessageApprovalAccess
 {
     public static bool CanAccessPage(ApplicationUser actor, bool smsDeliveryMode = false) =>
-        actor.RoleCode == RoleCode.SystemAdmin
-        || actor.RoleCode == RoleCode.Manager
-        || UserRoleAccess.IsCitizenRequestManager(actor)
-        || (smsDeliveryMode && actor.RoleCode == RoleCode.Operator);
+        smsDeliveryMode
+            // Sms Onayı: Operator / CRM / SystemAdmin — Manager varsayılan yok (#6a6b6c8e).
+            ? actor.RoleCode == RoleCode.SystemAdmin
+              || UserRoleAccess.IsCitizenRequestManager(actor)
+              || actor.RoleCode == RoleCode.Operator
+            : actor.RoleCode == RoleCode.SystemAdmin
+              || actor.RoleCode == RoleCode.Manager
+              || UserRoleAccess.IsCitizenRequestManager(actor);
 
     public static async Task<Guid[]?> GetVisibleDepartmentIdsForManagerAsync(
         IApplicationDbContext dbContext,

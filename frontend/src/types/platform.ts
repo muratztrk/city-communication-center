@@ -489,6 +489,8 @@ export interface CitizenConversationSummary {
   lastStaffSenderDisplayName?: string | null;
   /** Latest linked social message channel (WhatsApp, Phone, …) for directory icon. */
   sourceChannel?: string | null;
+  /** Operator cleared waiting-reply until the next inbound message. */
+  waitingReplyClearedAtUtc?: string | null;
 }
 
 // Kurum içi (personel-arası) mesajlaşma — card #1539.

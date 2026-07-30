@@ -452,6 +452,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("updatedbyuserid");
 
+                    b.Property<DateTimeOffset?>("WaitingReplyClearedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("waitingreplyclearedatutc");
+
                     b.HasKey("CitizenConversationId");
 
                     b.HasIndex("TenantId", "CitizenPhone")

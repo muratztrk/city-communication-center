@@ -45,6 +45,16 @@ public sealed class CitizenConversationsController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("{conversationId:guid}/mark-waiting-replied")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> MarkWaitingReplied(Guid conversationId, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new MarkConversationWaitingRepliedCommand(conversationId), cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
     [HttpPut("{conversationId:guid}/profile")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

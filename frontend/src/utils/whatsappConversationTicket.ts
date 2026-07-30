@@ -22,9 +22,11 @@ export function isWaitingForConversationResponse(summary: {
   lastMessageDirection?: 'Inbound' | 'Outbound' | null
   openTicketCount: number
   latestTicketStatus?: string | null
+  waitingReplyClearedAtUtc?: string | null
 }): boolean {
   if (summary.openTicketCount <= 0) return false
   if (summary.latestTicketStatus === 'Closed') return false
+  if (summary.waitingReplyClearedAtUtc) return false
   return summary.lastMessageDirection === 'Inbound'
 }
 

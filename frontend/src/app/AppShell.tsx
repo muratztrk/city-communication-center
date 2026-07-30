@@ -274,7 +274,7 @@ export function AppShell() {
     // Vatandaş Talepleri grubu: WhatsApp + Sms Onayı — aynı emphasized hiza/punto (#621 / #6a6b6c8e).
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore, children: [
       { path: '/whatsapp', label: t('whatsapp.navTitle', 'WhatsApp'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true, badgeCount: waitingWhatsAppReplyCount },
-      { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Onayı'), iconImageSrc: '/icons/sms.svg', emphasized: true, badgeCount: pendingSmsDeliveryApprovalCount },
+      { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Onayı'), icon: MessageSquareText, emphasized: true, badgeCount: pendingSmsDeliveryApprovalCount },
     ] },
     { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },

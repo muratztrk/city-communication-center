@@ -206,10 +206,12 @@ function ConversationListItem({
   conv,
   selected,
   onClick,
+  onMarkWaitingReplied,
 }: {
   conv: CitizenConversationSummary
   selected: boolean
   onClick: () => void
+  onMarkWaitingReplied: (conversationId: string) => void
 }) {
   const { i18n, t } = useTranslation()
   const locale = getLocale(i18n.language)
@@ -301,13 +303,27 @@ function ConversationListItem({
             </div>
           </div>
 
-          {(conv.citizenName || responseStatus) ? (
+          {(conv.citizenName || responseStatus || waitingForResponse) ? (
             <div className="mt-0.5 flex min-w-0 items-center justify-between gap-2">
               {conv.citizenName ? (
                 <p className="min-w-0 truncate text-[11px] font-medium text-slate-500">{phoneLabel}</p>
               ) : <span aria-hidden="true" />}
-              {responseStatus ? (
-                <div className="shrink-0">{responseStatus}</div>
+              {(responseStatus || waitingForResponse) ? (
+                <div className="flex shrink-0 items-center gap-2">
+                  {responseStatus}
+                  {waitingForResponse ? (
+                    <button
+                      type="button"
+                      className="whatsapp-mark-waiting-replied text-[10px] font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline"
+                      onClick={event => {
+                        event.stopPropagation()
+                        onMarkWaitingReplied(conv.citizenConversationId)
+                      }}
+                    >
+                      {t('whatsapp.markWaitingReplied', 'Yanıt Verildi İşaretle')}
+                    </button>
+                  ) : null}
+                </div>
               ) : null}
             </div>
           ) : null}
@@ -340,6 +356,7 @@ function ConversationListPanel({
   onOpenStatusRequests,
   selectedId,
   onSelect,
+  onMarkWaitingReplied,
 }: {
   conversations: CitizenConversationSummary[]
   filtered: CitizenConversationSummary[]
@@ -354,6 +371,7 @@ function ConversationListPanel({
   onOpenStatusRequests: (value: ConversationStatusFilter) => void
   selectedId: string | null
   onSelect: (id: string) => void
+  onMarkWaitingReplied: (conversationId: string) => void
 }) {
   const { t } = useTranslation()
   const [conversationPage, setConversationPage] = useState(1)
@@ -506,6 +524,7 @@ function ConversationListPanel({
               conv={conv}
               selected={conv.citizenConversationId === selectedId}
               onClick={() => onSelect(conv.citizenConversationId)}
+              onMarkWaitingReplied={onMarkWaitingReplied}
             />
           ))
         )}
@@ -1641,6 +1660,18 @@ export function WhatsAppConversationsPage() {
     )
   }, [selectedId])
 
+  const handleMarkWaitingReplied = useCallback((conversationId: string) => {
+    const clearedAt = new Date().toISOString()
+    setConversations(prev =>
+      prev.map(c => c.citizenConversationId === conversationId
+        ? { ...c, waitingReplyClearedAtUtc: clearedAt }
+        : c),
+    )
+    void api.markConversationWaitingReplied(conversationId).catch(() => {
+      void silentRefreshConversations()
+    })
+  }, [silentRefreshConversations])
+
   useEffect(() => {
     const detail = selectedId
       ? {
@@ -1779,6 +1810,7 @@ export function WhatsAppConversationsPage() {
           onOpenStatusRequests={handleOpenStatusRequests}
           selectedId={selectedId}
           onSelect={handleSelectConversation}
+          onMarkWaitingReplied={handleMarkWaitingReplied}
         />
 
         {/* Right: conversation detail */}

@@ -52,6 +52,7 @@ public sealed class GetCitizenConversationsQueryHandler
                 c.LastMessageAt,
                 c.UnreadCount,
                 c.IsBlocked,
+                c.WaitingReplyClearedAtUtc,
                 OpenTicketCount = _dbContext.SocialMessages
                     .Count(m => m.CitizenConversationId == c.CitizenConversationId
                                 && m.Status != SocialMessageStatus.Closed),
@@ -290,7 +291,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     ticket?.SocialMessageId,
                     lastStaffSenderDepartment,
                     lastStaffSenderDisplayName,
-                    ticket?.Channel.ToString());
+                    ticket?.Channel.ToString(),
+                    c.WaitingReplyClearedAtUtc);
 
                 return (HasWhatsAppChannel: hasWhatsAppChannel, Dto: dto);
             })

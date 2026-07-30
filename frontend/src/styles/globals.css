@@ -579,9 +579,10 @@
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
     align-items: start;
-    justify-items: start;
-    /* #r547: boş adreste etiket genişliğine göre tire ortalı; grup sola yaslı. */
-    margin-inline-start: 0;
+    justify-items: center;
+    justify-content: center;
+    /* #r591 / #6a6ba6ad: boş Adres Bilgileri üç kolon, bölüm alt çizgisi altında ortalı. */
+    margin-inline: 0;
     width: 100%;
     column-gap: 1.25rem;
   }
@@ -589,9 +590,9 @@
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
-    text-align: left;
-    justify-self: start;
+    align-items: center;
+    text-align: center;
+    justify-self: center;
     width: fit-content;
     max-width: 100%;
     padding-inline-start: 0;
@@ -601,7 +602,7 @@
     width: 100%;
     max-width: 100%;
     margin-inline: 0;
-    text-align: left;
+    text-align: center;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
@@ -4874,6 +4875,11 @@
     animation: ccc-blink 2.2s ease-in-out infinite;
   }
 
+  /* WhatsApp liste: Yanıt Verildi İşaretle (#6a6bab12). */
+  .whatsapp-mark-waiting-replied {
+    animation: ccc-blink 2.2s ease-in-out infinite;
+  }
+
   @keyframes ccc-blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.18; }
@@ -4882,6 +4888,7 @@
   @media (prefers-reduced-motion: reduce) {
     .task-new-badge,
     .extra-time-pending-blink,
+    .whatsapp-mark-waiting-replied,
     .scope-chip-clear-pie {
       animation: none;
     }
@@ -5168,7 +5175,9 @@
 
     .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
       width: fit-content;
-      align-items: stretch;
+      align-items: flex-start;
+      text-align: left;
+      justify-self: stretch;
     }
 
     .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {

@@ -24,6 +24,12 @@ public sealed class CitizenConversation : AuditableTenantEntity, IHasDatabaseInd
     /// <summary>Citizen sent STOP/DUR — do not send outbound messages</summary>
     public bool IsBlocked { get; set; }
 
+    /// <summary>
+    /// Operator manually cleared "waiting for reply" while last message is still inbound.
+    /// Cleared again when a new inbound WhatsApp message arrives (card #6a6bab12).
+    /// </summary>
+    public DateTimeOffset? WaitingReplyClearedAtUtc { get; set; }
+
     public Tenant Tenant { get; set; } = null!;
 
     public ICollection<SocialMessage> SocialMessages { get; set; } = [];

@@ -175,7 +175,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   audit `Notes` alanındaki gerçek textbox verisini gösterir. Backend
   hem `GetTaskByIdQuery` hem `JobQueries` projeksiyonunda `Notes`/`ActorDisplayName` taşır.
   Özet ilk durum → son durumdur; metinler normal ağırlıkta, tarihler saniyesiz ve durumların altında
-  ortalıdır. `İptal`/iade kırmızı, `Yapılmakta` turuncu, `Tamamlanmış` yeşildir (cards #1624/#1619 reopen).
+  ortalıdır. `İptal`/iade kırmızı, `Yapılmakta` mavi (`text-sky-500`), `Tamamlanmış` yeşildir
+  (card #2105; eski turuncu #1624/#1619 geri alındı).
 - **Görev Detayları geçmiş kolonları (eski):** Açıklama yanında Atama Geçmişi sütunu kaldırıldı
   (#1746); atama özeti artık Görev Bilgileri satırıdır.
 - **CitizenRequestManager `Birimdeki Görevler`:** müdürlük ilişkisiyle değil, çalışabildiği
@@ -1505,9 +1506,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep detay Açıklama punto:** JobsPage / Taleplerim (`MyRequestDetailMainCard`) / Görevlerim ilgili talep
   özeti `text-sm leading-5` (eski `text-xs` / `text-[13px]` değil).
 - **Detay Öncelik başlık punto:** Görev Bilgileri / Talep Bilgileri başlığındaki Öncelik etiketi+değer
-  bir kademe büyük (`text-xs`/`text-sm`; eski `text-[11px]` değil).
+  kompakt kalır (`text-[11px]` / `text-xs`; #2108 büyütme geri alındı).
 - **Recovered timeline Durum Yapılmakta:** mavi `pending` (Son Tarihi Geçmiş değilse); overdue → turuncu
   `current` (görev reopen / Mesaj Onayı reopen sonrası Tamamlanma→Yapılmakta).
+- **Süreç Durum Değişikliği Yapılmakta:** `getStatusChangeTextClass` → `text-sky-500` (mavi).
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106):** Detaylar / Notu Düzenle / Mesajı Onayla FHD'de `nowrap`;
   Vatandaş Adı/Telefon ~11rem, İşlemler geniş (~22rem); buton yüksekliği `2.125rem` (#2105);
   Telefon No başlığı `font-bold` (#2106); Notu Düzenle=`PenLine`, Mesajı Onayla=`Check`.

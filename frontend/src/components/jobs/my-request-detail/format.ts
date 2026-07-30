@@ -45,7 +45,8 @@ export function pendingApprovalValueClassName(value: string | null | undefined):
 export function getStatusChangeTextClass(status: string) {
   if (status === 'Cancelled' || status === 'Rejected') return 'text-red-600'
   if (status === 'Completed') return 'text-emerald-600'
-  if (status === 'InProgress' || status === 'Active') return 'text-orange-600'
+  // Yapılmakta / Active → mavi (Süreç Durum Değişikliği; #2105 — eski turuncu #1624 geri alındı).
+  if (status === 'InProgress' || status === 'Active') return 'text-sky-500'
   return 'text-slate-900'
 }
 

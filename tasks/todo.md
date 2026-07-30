@@ -1,3 +1,7 @@
+## Round 584 — Durum Değişikliği Yapılmakta mavi + Öncelik revert
+- Süreç `Durum Değişikliği` Yapılmakta → mavi (`text-sky-500`).
+- #2108 Öncelik punto büyütmesi geri alındı.
+
 ## Round 583 — Mesaj Onayı UI + Öncelik + Yapılmakta mavi
 - Detaydan Talep Durumunu Değiştir kaldırıldı; Mesajı Onayla metni "Mesajı onayladığınızda…".
 - Görev/Talep Bilgileri Öncelik punto büyütüldü; recovered timeline Yapılmakta mavi (overdue turuncu).

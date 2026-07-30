@@ -359,20 +359,24 @@ export function CitizenMessageApprovalPage() {
                         <Button type="button" size="sm" variant="secondary" onClick={() => setDetailJobId(row.jobId)}>
                           {t('citizenMessageApproval.actions.details', 'Detaylar')}
                         </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          className="inline-flex items-center gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
-                          onClick={() => openEditNote(row)}
-                        >
-                          <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                          {t('citizenMessageApproval.actions.editNote', 'Notu Düzenle')}
-                        </Button>
-                        {!row.releasedAtUtc ? (
-                          <Button type="button" size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleRelease(row)}>
-                            <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                            {t('citizenMessageApproval.actions.release', 'Mesajı Onayla')}
-                          </Button>
+                        {scope === 'toSend' ? (
+                          <>
+                            <Button
+                              type="button"
+                              size="sm"
+                              className="inline-flex items-center gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
+                              onClick={() => openEditNote(row)}
+                            >
+                              <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                              {t('citizenMessageApproval.actions.editNote', 'Notu Düzenle')}
+                            </Button>
+                            {!row.releasedAtUtc ? (
+                              <Button type="button" size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleRelease(row)}>
+                                <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                                {t('citizenMessageApproval.actions.release', 'Mesajı Onayla')}
+                              </Button>
+                            ) : null}
+                          </>
                         ) : null}
                       </div>
                     </td>
@@ -449,17 +453,19 @@ export function CitizenMessageApprovalPage() {
           notificationJobId={detailJobId}
           detailContextOverride="incoming"
           onNotificationDetailClose={() => setDetailJobId(null)}
-          messageApprovalActions={{
-            onEditNote: () => {
-              const row = rows.find(item => item.jobId === detailJobId)
-              if (row) openEditNote(row)
-            },
-            onRelease: () => {
-              const row = rows.find(item => item.jobId === detailJobId)
-              if (row) handleRelease(row)
-            },
-            canRelease: !(rows.find(item => item.jobId === detailJobId)?.releasedAtUtc),
-          }}
+          messageApprovalActions={scope === 'toSend'
+            ? {
+                onEditNote: () => {
+                  const row = rows.find(item => item.jobId === detailJobId)
+                  if (row) openEditNote(row)
+                },
+                onRelease: () => {
+                  const row = rows.find(item => item.jobId === detailJobId)
+                  if (row) handleRelease(row)
+                },
+                canRelease: !(rows.find(item => item.jobId === detailJobId)?.releasedAtUtc),
+              }
+            : {}}
         />
       )}
     </div>

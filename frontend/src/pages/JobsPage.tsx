@@ -656,11 +656,12 @@ interface JobsPageProps {
   onNotificationDetailClose?: () => void
   /** Vatandaşa Gönderilecek Mesaj Onayı detayında "Talep Durumu Değiştir" (card #2057). */
   onChangeStatusToInProgress?: (jobId: string) => void
-  /** Mesaj Onayı Detaylar popup aksiyonları (#2088/#2089): Notu Düzenle / Mesajı Onayla; Yazdır gizlenir. */
+  /** Mesaj Onayı Detaylar popup aksiyonları (#2088/#2089): Notu Düzenle / Mesajı Onayla; Yazdır gizlenir.
+   *  sent/all scope'ta boş nesne → Yazdır gizlenir, Notu Düzenle/Onayla yok (#2108). */
   messageApprovalActions?: {
-    onEditNote: () => void
-    onRelease: () => void
-    canRelease: boolean
+    onEditNote?: () => void
+    onRelease?: () => void
+    canRelease?: boolean
   }
   socialActions?: {
     goToConversation?: () => void
@@ -2456,16 +2457,18 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 )}
                 {messageApprovalActions ? (
                   <>
-                    <Button
-                      type="button"
-                      size="lg"
-                      className="inline-flex items-center gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
-                      onClick={messageApprovalActions.onEditNote}
-                    >
-                      <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                      {t('citizenMessageApproval.actions.editNote', 'Notu Düzenle')}
-                    </Button>
-                    {messageApprovalActions.canRelease ? (
+                    {messageApprovalActions.onEditNote ? (
+                      <Button
+                        type="button"
+                        size="lg"
+                        className="inline-flex items-center gap-1.5 bg-orange-500 text-white hover:bg-orange-600"
+                        onClick={messageApprovalActions.onEditNote}
+                      >
+                        <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        {t('citizenMessageApproval.actions.editNote', 'Notu Düzenle')}
+                      </Button>
+                    ) : null}
+                    {messageApprovalActions.canRelease && messageApprovalActions.onRelease ? (
                       <Button
                         type="button"
                         size="lg"

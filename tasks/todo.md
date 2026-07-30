@@ -1,3 +1,7 @@
+## Round 585 — Öncelik hiza + Mesaj Onayı sent/all yalnız Detaylar
+- Görev Bilgileri Öncelik = Birime Gelen Talep Bilgileri punto (12px etiket / 11px değer).
+- Mesaj Onayı: `sent`/`all` grid ve detayda yalnız Detaylar (Notu Düzenle/Onayla yok).
+
 ## Round 584 — Durum Değişikliği Yapılmakta mavi + Öncelik revert
 - Süreç `Durum Değişikliği` Yapılmakta → mavi (`text-sky-500`).
 - #2108 Öncelik punto büyütmesi geri alındı.

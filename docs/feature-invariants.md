@@ -1137,11 +1137,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ve bu popup'ta seçili değer/placeholder ile menü seçenekleri 12px kalır (card #1612 reopen).
 - **Vatandaş kanalı Birime Gelen detayda (card #1532):** `Talep Bilgileri` başlık satırının sağında
   kanal ikonu + kanal adı; metin rengi ikon rengiyle aynı (`getChannelLabelColor`).
-- **Talep detay öncelik başlığı (card #1599):** Taleplerim, Birime Gelen ve Birimden Giden
+- **Talep detay öncelik başlığı (card #1599/#2109):** Taleplerim, Birime Gelen ve Birimden Giden
   detaylarında `Öncelik` Talep Bilgileri satır listesinden çıkar; başlığın sağ sınırında etiketi
-  üstte, değeri altta görünür. Etiket title-case (`Öncelik`) ve 12px kalır; yalnız değer önceki
-  görünümden biraz küçülerek 11px olur ve `Normal` değeri yeşildir. Vatandaş kanal ikonu/adı
-  varsa bu bloğun solunda kalır
+  üstte, değeri altta görünür. Etiket title-case (`Öncelik`) ve 12px (`text-xs font-bold`) kalır; değer
+  11px (`text-[11px] font-semibold`) olur ve `Normal` değeri yeşildir. Görevlerim / Birimdeki Görevler /
+  Personelimin Görevleri detayında Görev Bilgileri başlığı aynı puntoyu kullanır (#2109). Vatandaş kanal
+  ikonu/adı varsa bu bloğun solunda kalır
   (card #1599 reopen). Detay içi `Düzenle` modunda değer aynı başlık konumunda kompakt dropdown'a
   dönüşür; `Talep Yapılan Birim` satırının altında ikinci bir Öncelik alanı oluşmaz
   (cards #1587 reopen/#1600).
@@ -1505,15 +1506,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesajı Onayla confirm metni:** `Mesajı onayladığınızda, …` (`göndermeyi onayladığınızda` değil).
 - **Talep detay Açıklama punto:** JobsPage / Taleplerim (`MyRequestDetailMainCard`) / Görevlerim ilgili talep
   özeti `text-sm leading-5` (eski `text-xs` / `text-[13px]` değil).
-- **Detay Öncelik başlık punto:** Görev Bilgileri / Talep Bilgileri başlığındaki Öncelik etiketi+değer
-  kompakt kalır (`text-[11px]` / `text-xs`; #2108 büyütme geri alındı).
+- **Detay Öncelik başlık punto:** Görev Bilgileri / Talep Bilgileri başlığındaki Öncelik = etiket
+  `text-xs font-bold`, değer `text-[11px] font-semibold` (Birime Gelen Talep Bilgileri ile aynı — #2109).
 - **Recovered timeline Durum Yapılmakta:** mavi `pending` (Son Tarihi Geçmiş değilse); overdue → turuncu
   `current` (görev reopen / Mesaj Onayı reopen sonrası Tamamlanma→Yapılmakta).
 - **Süreç Durum Değişikliği Yapılmakta:** `getStatusChangeTextClass` → `text-sky-500` (mavi).
-- **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106):** Detaylar / Notu Düzenle / Mesajı Onayla FHD'de `nowrap`;
+- **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106/#2108):** `toSend` = Detaylar / Notu Düzenle /
+  Mesajı Onayla (`nowrap`); `sent` ve `all` = yalnız Detaylar. Detay popup: `toSend`'de Notu Düzenle +
+  Mesajı Onayla; `sent`/`all`'da bu butonlar yok (Yazdır da gizli).
   Vatandaş Adı/Telefon ~11rem, İşlemler geniş (~22rem); buton yüksekliği `2.125rem` (#2105);
   Telefon No başlığı `font-bold` (#2106); Notu Düzenle=`PenLine`, Mesajı Onayla=`Check`.
-- **Mesaj Onayı Detaylar (#2088/#2089/#2106):** header'da Notu Düzenle + Mesajı Onayla; **Talep Durumunu
+- **Mesaj Onayı Detaylar (#2088/#2089/#2106):** `toSend` header'da Notu Düzenle + Mesajı Onayla; **Talep Durumunu
   Değiştir yok** (süreç kaldırıldı). Yazdır gizlenir.
 - **Breadcrumb (#2085):** `/citizen-message-approval` → "Vatandaşa Gönderilecek Mesaj Onayı" (slug değil).
 - **WA Düzenlendi/Beklemede (#2084):** title case (uppercase CSS yok).

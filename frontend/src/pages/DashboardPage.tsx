@@ -12,7 +12,6 @@ import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilld
 import { useAuth } from '../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
-import { CitizenDashboardMap } from '../components/CitizenDashboardMap'
 import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
 
 const DASHBOARD_SCROLL_KEY = 'ccc.dashboard.scrollTop'
@@ -74,9 +73,9 @@ const CHART_ROUTES: Record<string, string> = {
   'dashboard.charts.citizenRequests': '/social',
 }
 
-// Üst Düzey Yönetici panosunda dilim tıklaması detay popup'ı açan grafikler.
-// Vatandaş Talepleri → /social + requestStatus (drilldown değil, #r546).
+// Üst Düzey Yönetici panosunda dilim tıklaması detay popup'ı açan grafikler (#6a6ceed0).
 const DRILLDOWN_CHART_KEYS = new Set([
+  'dashboard.charts.citizenRequests',
   'dashboard.charts.requestTags',
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
@@ -354,17 +353,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   }, [dashboardQuery.isFetched, dashboardQuery.dataUpdatedAt])
 
   const canSeeCitizenChannels = role === 'SystemAdmin' || role === 'Manager' || role === 'Operator' || role === 'Reporter'
-  const canSeeCitizenMap = effectiveView === 'citizen' && (role === 'Reporter' || role === 'Operator' || role === 'SystemAdmin')
   const citizenChannelQuery = useQuery({
     queryKey: queryKeys.dashboard.citizenChannels({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
     queryFn: () => api.getCitizenChannelChart(apiFrom, apiTo),
     enabled: canSeeCitizenChannels,
-    refetchInterval: 60_000,
-  })
-  const citizenMapQuery = useQuery({
-    queryKey: queryKeys.dashboard.citizenMapPins({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
-    queryFn: () => api.getCitizenDashboardMapPins(apiFrom, apiTo),
-    enabled: canSeeCitizenMap,
     refetchInterval: 60_000,
   })
 
@@ -661,7 +653,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             // özel birim-dışı dağılım grafikleri (card #835/#763) yalnızca bilgilendirme amaçlıdır;
             // dashboard'dan yönlendirme yapılmaz.
             const isExternalDrilldownOnlyChart =
-              card.titleKey === 'dashboard.charts.externalRequestCreators'
+              card.titleKey === 'dashboard.charts.citizenRequests'
+              || card.titleKey === 'dashboard.charts.externalRequestCreators'
               || card.titleKey === 'dashboard.charts.externalRequestPending'
               || card.titleKey === 'dashboard.charts.externalRequestFulfillers'
               || card.titleKey === 'dashboard.charts.neighborhoodCompletedRequests'
@@ -780,13 +773,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             )
           })}
       </section>
-
-      {canSeeCitizenMap ? (
-        <CitizenDashboardMap
-          pins={citizenMapQuery.data?.pins ?? []}
-          loading={citizenMapQuery.isLoading}
-        />
-      ) : null}
 
       {dashboardQuery.isError ? (
         <div className="error">{dashboardQuery.error instanceof Error ? dashboardQuery.error.message : t('common.error')}</div>

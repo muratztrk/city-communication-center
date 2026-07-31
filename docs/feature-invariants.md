@@ -1257,35 +1257,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`/dashboard`) + `Anasayfa - Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.
   `/dashboard/birimler` sayfasında banner üstü Geri butonu gösterilmez (card #1889).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
-  Kurum Konumu ilçesine göre harita (açık adresli İşleme Alındı / Yapılmakta pinleri, card #1834 / #r512) +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
-  Vatandaş Talep Kanalları). Birimler sayfasında Reporter: Taleplerim + dış birim pie'ları +
-  Talep Önceliği; Operator: Görevlerim/Taleplerim/Birimdeki Görevler/Talep Önceliği.
-- **Vatandaş panosu ilçe haritası (card #1834/#1848/#r512 / #r540):** `GET /reports/dashboard-citizen-map-pins`
-  (Reporter/Operator/SystemAdmin); VT numaralı (`CitizenVtJobFilter.WhereHasCitizenRequestNumber`,
-  card #1845), rutin dışı, boş olmayan
-  `OpenAddress`, display status `ProcessingReceived`/`InProgress` (dashboard classifier ile aynı);
-  pin koordinatı Job veya bağlı SocialMessage lat/lng; yoksa FE **`google.maps.Geocoder`**
-  (localStorage `ccc_geocode_cache_v2`; negatif cache YALNIZ `ZERO_RESULTS` için —
-  `REQUEST_DENIED`/`OVER_QUERY_LIMIT` yazılırsa anahtar düzeltilse bile adres bir daha
-  sorgulanmaz; ilçe adı Kurum Konumu’ndan). Harita **Google Maps JavaScript API**
-  (`@react-google-maps/api`); anahtar `VITE_GOOGLE_MAPS_API_KEY` / Docker `CCC_GOOGLE_MAPS_API_KEY`.
-  Anahtarsız ortamda “Harita yapılandırılmadı” uyarısı (crash yok). Tag tıklanınca başlık InfoWindow;
-  başlık tıklanınca salt-okunur `MyRequestDetailModal` (pie drilldown ile aynı). Dönem filtresi pin
-  sorgusunu sürer. Başlık `{{district}} Haritası - Açık Adresli Talepler`
-  (`text-base`/`text-lg`); alt yazı + lejant `text-sm`. `InProgress` pin yeşil (`#22c55e`);
-  Pinsiz default merkez zoom 14 — ekteki şehir merkezi ölçeği; `fitBounds` pinsiz
-  kısa haritada fazla açıldığı için kullanılmaz (card #1867 reopen). Çok pin: ilçe bounds + pin
-  bounds, maxZoom 15; tek pin zoom 16. Scroll-zoom varsayılan kapalı (`gestureHandling: none`);
-  harita alanına tıklanınca `greedy`, `mouseleave`'de tekrar `none` (card #1867).
-  Açık adres Job veya bağlı `CitizenConversation.OpenAddress` olabilir; süresi geçmiş (Overdue)
-  aktif talepler de pinlenir (card #1875).
-  **Geocode kademeli, pin sessizce düşmez (#1875 reopen):** vatandaş açık adres alanına tarif
-  yazdığında ("X marketin arkası") tam string çözülmez. Sıra: `açık adres+cadde+mahalle` →
-  `cadde+mahalle` → `mahalle`. İlçe+il+ülkeye DÜŞÜLMEZ (her talebi ilçe merkezine pinlemek
-  yanıltıcı). Kaba varyantla bulunan pin `approximate`: kesik halkalı ikon + InfoWindow'da
-  "Yaklaşık konum" uyarısı. Hiç çözülemeyenler harita altında sayıyla gösterilir — eski davranış
-  yalnız TÜM pinler düştüğünde uyarıyordu, tek talep düşerse kullanıcı hiçbir şey görmüyordu. Tire seçiliyken mevcut Tire merkez/bounds korunur.
+  Vatandaş Talep Kanalları). Harita alanı yok (#6a6cdf95). Birimler sayfasında Reporter: Taleplerim +
+  dış birim pie'ları + Talep Önceliği; Operator: Görevlerim/Taleplerim/Birimdeki Görevler/Talep Önceliği.
+- **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
+  popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
+- **Vatandaş panosu ilçe haritası (#6a6cdf95):** Anasayfa–Vatandaş’tan kaldırıldı (UI yok).
+  API `GET /reports/dashboard-citizen-map-pins` / `CitizenDashboardMap` arşivlenebilir.
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
   chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında
@@ -1565,8 +1543,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Toast (#2074/#2075 reopen):** iptal başarı mesajı `error` (kırmızı); auto-hide **≤5 sn**;
   `onClose` ref ile sabitlenir (parent re-render timer’ı sıfırlamaz).
 - **Mesaj Onayı / grid Başlık (#2076/#2077):** `cell-title` max-width ~11.5rem; overflow tooltip metin anchor'ı altında.
-- **Vatandaş Talepleri pie (#r546):** VT sayısı `WhereHasCitizenRequestNumber` (RequestType şartı yok);
-  dilim tıklanınca drilldown değil `/social?requestStatus=…&fromPie=1`.
+- **Vatandaş Talepleri pie (#r546/#6a6ceed0):** VT sayısı `WhereHasCitizenRequestNumber`;
+  dilim tıklanınca `DashboardChartDrilldownModal` (Reporter/Operator/SystemAdmin);
+  BE `BuildCitizenRowsAsync`.
 - **Pie Filtreyi sil (#r546/#r547/#r549/#r550/#r552/#2096/#2104):** `fromPie=1` ile gelinen gridlerde
   scope-chip satırında son butonun **sağında** kırmızı `scope-chip--clear-pie` (Birim İçi/Dışı chip
   kalıbı, aktif kırmızı fill + beyaz yazı) + `ccc-blink`; punto komşu çiplerden büyük (`0.8rem`,

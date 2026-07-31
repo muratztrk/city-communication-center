@@ -48,6 +48,7 @@ const HIDE_DUE_DATE_CHART_KEYS = new Set([
   'dashboard.charts.staffTasks',
   'dashboard.charts.departmentTasks',
   'dashboard.charts.myTasks',
+  'dashboard.charts.citizenRequests',
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
   'dashboard.charts.externalRequestFulfillers',
@@ -69,7 +70,16 @@ const EXTERNAL_UNIT_CHART_KEYS = new Set([
 const TALEPLERIM_STATUS_STYLE_CHART_KEYS = new Set([
   ...NEIGHBORHOOD_CHART_KEYS,
   'dashboard.charts.requestTags',
+  'dashboard.charts.citizenRequests',
   ...EXTERNAL_UNIT_CHART_KEYS,
+])
+
+/** Birim sütunu tek satır + overflow tooltip (#6a62fe79). */
+const TRUNCATE_UNIT_CHART_KEYS = new Set([
+  ...EXTERNAL_UNIT_CHART_KEYS,
+  ...NEIGHBORHOOD_CHART_KEYS,
+  'dashboard.charts.requestTags',
+  'dashboard.charts.citizenRequests',
 ])
 
 function formatDrilldownNumber(row: DashboardChartDrilldownRow, locale: string): string {
@@ -238,7 +248,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const showPrint = PRINTABLE_CHART_KEYS.has(chartKey)
   const isRequestTagsChart = chartKey === 'dashboard.charts.requestTags'
   const isExternalUnitChart = EXTERNAL_UNIT_CHART_KEYS.has(chartKey)
-  const unitColumnLabel = isRequestTagsChart || NEIGHBORHOOD_CHART_KEYS.has(chartKey) || isExternalUnitChart
+  const truncateUnitColumn = TRUNCATE_UNIT_CHART_KEYS.has(chartKey)
+  const unitColumnLabel = isRequestTagsChart || NEIGHBORHOOD_CHART_KEYS.has(chartKey) || isExternalUnitChart || chartKey === 'dashboard.charts.citizenRequests'
     ? t('jobs.columns.unitShort', 'Birim')
     : t('departments.name', 'Müdürlük')
   const chartTitle = t(chartKey)
@@ -404,7 +415,13 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                         </td>
                         <td className="text-center"><DateCell value={row.createdAtUtc} locale={locale} /></td>
                         <td className="font-semibold">{row.title}</td>
-                        <td>{row.departmentName ?? row.neighborhood ?? '—'}</td>
+                        <td className={truncateUnitColumn ? 'max-w-[12rem]' : undefined}>
+                          {truncateUnitColumn ? (
+                            (row.departmentName ?? row.neighborhood) ? (
+                              <span className="block truncate">{row.departmentName ?? row.neighborhood}</span>
+                            ) : '—'
+                          ) : (row.departmentName ?? row.neighborhood ?? '—')}
+                        </td>
                         <td className="text-center">
                           {useTaleplerimStatusStyle ? (
                             <StatusPill className={getDrilldownStatusPillClass(row)}>

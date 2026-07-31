@@ -1,3 +1,8 @@
+## Round 616 — Vatandaş pie drilldown; Birim truncate; harita kaldır
+- `#6a6ceed0`: Vatandaş Talepleri dilim → drilldown popup
+- `#6a62fe79`: pie popup Birim tek satır truncate+tooltip
+- `#6a6cdf95`: Tire Haritası - Açık Adresli Talepler UI kaldırıldı
+
 ## Round 615 — Dizin tarih=Son Tarih; Ad/Numara tipografi; Kurum gap-6
 - `#6a6cbf0e`: popup Talep Tarihi ikon/text = DueDatePill
 - `#6a6ce8f0`: dizin Adı/Numara = Gelen Talep Yeri text stilleri

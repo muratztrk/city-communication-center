@@ -1454,9 +1454,14 @@
       width: 8.25rem;
     }
 
-    .app-content-shell .my-requests-table .grid-col-location-creator,
-    .app-content-shell .incoming-requests-table .grid-col-location-creator {
+    .app-content-shell .my-requests-table .grid-col-location-creator {
       width: 10.5rem;
+    }
+
+    .app-content-shell .incoming-requests-table .grid-col-location-creator {
+      /* Talep Yeri / Oluşturan daha geniş alan (#6a6c72f4). */
+      width: 14.5rem;
+      min-width: 12.5rem;
     }
 
     .app-content-shell .my-requests-table .grid-col-title,

@@ -80,7 +80,17 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     || managerJobIds.Contains(j.JobId)
                     || _dbContext.Tasks.Any(task => task.JobId == j.JobId
                         && (task.AssignedUserId == userId || task.OwnerUserId == userId))))
-                .Select(j => new { JobGuid = j.JobId, JobId = j.JobId.ToString(), j.Title, j.JobNumber, j.JobNumberYear, j.CreatedAtUtc })
+                .Select(j => new
+                {
+                    JobGuid = j.JobId,
+                    JobId = j.JobId.ToString(),
+                    j.Title,
+                    j.JobNumber,
+                    j.JobNumberYear,
+                    j.CreatedAtUtc,
+                    j.RequestType,
+                    j.OwnerDepartmentId,
+                })
                 .ToListAsync(cancellationToken);
             var taskRecords = await _dbContext.Tasks.AsNoTracking()
                 .Where(t => t.TenantId == tenantId && (
@@ -94,6 +104,16 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
             var jobsById = jobRecords.ToDictionary(j => j.JobId);
             var tasksById = taskRecords.ToDictionary(t => t.TaskId);
+
+            var ownerDepartmentIds = jobRecords
+                .Select(j => j.OwnerDepartmentId)
+                .Distinct()
+                .ToList();
+            var ownerDepartmentNamesById = ownerDepartmentIds.Count == 0
+                ? new Dictionary<Guid, string>()
+                : await _dbContext.Departments.AsNoTracking()
+                    .Where(d => d.TenantId == tenantId && ownerDepartmentIds.Contains(d.DepartmentId))
+                    .ToDictionaryAsync(d => d.DepartmentId, d => d.Name, cancellationToken);
 
             // card #1072/#1078/#1087: Talebi Üst Düzey Yönetici (Reporter) oluşturmuşsa birim adını,
             // Vatandaş Talep Operatörü'nün vatandaş talebiyse statik "Vatandaş Talebi" etiketini
@@ -245,6 +265,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     string? entityTitle = null;
                     string? entityNumber = null;
                     NotificationOriginInfo? jobOriginInfo = null;
+                    JobRequestType? jobRequestType = null;
+                    string? ownerDepartmentName = null;
                     if (isTask && tasksById.TryGetValue(a.EntityId, out var taskRec))
                     {
                         entityTitle = taskRec.Title;
@@ -254,6 +276,8 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                     else if (!isTask && jobsById.TryGetValue(a.EntityId, out var jobRec))
                     {
                         entityTitle = jobRec.Title;
+                        jobRequestType = jobRec.RequestType;
+                        ownerDepartmentNamesById.TryGetValue(jobRec.OwnerDepartmentId, out ownerDepartmentName);
                         originInfoByJobId.TryGetValue(jobRec.JobGuid, out jobOriginInfo);
                         var citizenRequestNumber = FormatCitizenRequestNumber(jobOriginInfo);
                         // Son tarih bildirimi görev kalıbıyla aynı: T-yyyy-n — başlık — tarih (card #1677).
@@ -303,6 +327,13 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         if (!string.IsNullOrWhiteSpace(noteDetail)) messageParts.Add(noteDetail);
                         if (!string.IsNullOrWhiteSpace(a.ActorDisplayName)) messageParts.Add(a.ActorDisplayName);
                     }
+                    else if (a.Action == "JobOwnerApproved" && jobRequestType == JobRequestType.ExternalUnit)
+                    {
+                        // Dış birim: hedef müdür için sahip onayı = talep oluşumu; aktör yerine birim (#6a6c73f2).
+                        if (!string.IsNullOrWhiteSpace(ownerDepartmentName)) messageParts.Add(ownerDepartmentName);
+                        if (!string.IsNullOrWhiteSpace(entityNumber)) messageParts.Add(entityNumber);
+                        if (!string.IsNullOrWhiteSpace(entityTitle)) messageParts.Add(entityTitle);
+                    }
                     else
                     {
                         var actorDisplayName = jobOriginInfo?.RoleCode == RoleCode.Operator
@@ -344,13 +375,17 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         }
                     }
 
+                    var notificationTitle = a.Action == "JobOwnerApproved" && jobRequestType == JobRequestType.ExternalUnit
+                        ? "Talep oluşturuldu"
+                        : ResolveNotificationTitle(a, actorNamesById);
+
                     feed.Add(new NotificationResponse(
                         a.AuditLogId,
                         taskId,
                         userId,
                         "InApp",
                         "Sent",
-                        ResolveNotificationTitle(a, actorNamesById),
+                        notificationTitle,
                         string.Join(" — ", messageParts),
                         isHistoricalRead,
                         isTask

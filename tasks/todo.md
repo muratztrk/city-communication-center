@@ -1,3 +1,7 @@
+## Round 600 — Dış birim onay bildirimi; Gelen Talep Yeri kolon geniş
+- ExternalUnit JobOwnerApproved → "Talep oluşturuldu" + sahip birim adı (#6a6c73f2).
+- Birime Gelen Talep Yeri/Oluşturan kolon ~14.5rem (#6a6c72f4).
+
 ## Round 599 — Gelen filtre; dış birim bildirim; Yanıt Verildi Yap; tarih küçült
 - Birime Gelen Talep Yeri/Oluşturan filtresi birim+kişi (#6a6c52d8).
 - Hedef müdür PendingOwnerApproval bildirim görmez (#6a6c67cb).

@@ -1388,7 +1388,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birime Gelen Talep Yeri çerçeve (#r520/#r521):** grid `Talep Yeri / Oluşturan` — aktif (kendi)
   birim dışı talep yeri `FramedDepartmentStack` yeşil çerçeve, sütunda ortalı (#r521);
   kendi birim `ReporterDepartmentCell`. Kolon filtresi `createdBy` hem `departmentName` hem
-  oluşturan adını arar (#6a6c52d8).
+  oluşturan adını arar (#6a6c52d8). Gelen grid `grid-col-location-creator` ~14.5rem (#6a6c72f4).
 - **Dropdown truncate tooltip (#r517/#r522):** `useDataTableOverflowTooltips` dropdown
   `.truncate` satırlarında portal tooltip; flex ölçüm fallback + `title` attribute yedek (#1997).
 - **Kullanıcılar grid Rol menü font (#r523/#1994):** `.users-edit-dropdown-menu*` ~0.82rem
@@ -1614,6 +1614,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dış birim hedef müdür — sahip onayı öncesi bildirim yok (#6a6c67cb):** hedef/koordinasyon
   birimi `PendingOwnerApproval` taleplerini feed'e almaz; sahip onayından sonra görünür
   (Birime Gelen `isIncomingExternalForActiveDept` ile aynı kural).
+- **Dış birim sahip onayı bildirimi (#6a6c73f2):** `JobOwnerApproved` + `ExternalUnit` başlık
+  `Talep oluşturuldu`; açıklamada onaylayan kişi yerine sahip birim adı.
 - **Ek süre/revizyon onaycısı bildirim kapsamı:** `TaskRevision` approval onaycısı, görevin atanmış/owner
   kullanıcısı olmasa bile audit-feed ve okunmamış rozet kapsamına dahildir; kalıcı `Notification` yazılmaz.
 - **Ek süre talebi bildirim Detay popup'ı (card #1394):** yöneticiye giden `TaskExtraTimeRequested`

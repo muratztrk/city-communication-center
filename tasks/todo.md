@@ -1,3 +1,6 @@
+## Round 608 — Okundu bildirimde bold kalkar
+- Bildirim okununca başlık/aksiyon/titleTag bold → normal (#6a6ca25f).
+
 ## Round 607 — Oturum uyarısı eski oturuma; birim içi bildirim başlığı
 - Yeni login hemen takeover; popup yalnız eski oturumda (`session-superseded`, otomatik kapanmaz) (#6a6c805e).
 - InternalUnit JobCreated → "Birim İçi Talep oluşturuldu" (#6a6ca1d4).

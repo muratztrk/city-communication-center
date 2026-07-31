@@ -1074,9 +1074,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep son tarihi bildirimi (card #1677):** `UpdateJob` Son Tarih değişince `JobDueDateUpdated`
   yazar; başlık `Talep son tarihi güncellendi`, gövde `T-… — başlık — dd.MM.yyyy HH:mm`
   (`TaskDueDateUpdated` ile aynı kalıp; genel `JobUpdated` / "Title updated" değil).
-- **Bildirim "Görev son tarihi güncellendi" başlığı (card #1669):** okunmuş olsa da tüm
-  başlık metni `font-bold` kalır (yalnızca eylem kelimesi değil). `/son tarihi güncellendi/`
-  eşleşmesi talep başlığını da kapsar.
+- **Bildirim okundu → bold kalkar (#6a6ca25f):** okunmuş satırda başlık/aksiyon kelimeleri
+  / `Görev`·`Talep` / titleTag hepsi normal/medium ağırlığa döner (önceki #1669 “okunmuş
+  bold kalsın” kuralı geçersiz). Renkli durum tonları (yeşil/kırmızı) okunmuşta kalabilir.
 - **Detay bölüm başlık çizgisi (cards #1679/#1681):** popup içi `job-detail-section-heading`
   alt çizgisi `--color-primary` tonunda ve transparan
   (`color-mix(... 40%, transparent)`, scrollbar ile aynı); gri slate değil.
@@ -1638,9 +1638,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kapatma X'inin solundadır, yeşil metinlidir, çerçeveli buton gibi görünür ve iki satır metin
   (`Tümünü` / `Okundu yap`) arasında okunabilir boşluk kullanır;
   "Tüm bildirimleri gör" modal toolbar'ında da tek satır `Tümünü okundu yap` aksiyonu görünür.
-- **Bildirim başlığı vurguları:** başlıkta `güncellendi`, `oluşturuldu`, `atandı`, `yönlendirildi`, `Yönetici notu atandı`
-  ve `Ek süre talebi` gibi renksiz aksiyon kelimeleri de bold kalır; onay/red/tamamlandı/iptal renkli
-  bold davranışı korunur.
+- **Bildirim başlığı vurguları:** okunmamış satırda `güncellendi`, `oluşturuldu`, `atandı`,
+  `yönlendirildi`, `Yönetici notu atandı`, `Ek süre talebi` ve onay/red/tamamlandı/iptal
+  kelimeleri bold (+ renk); okununca ağırlık normale döner (#6a6ca25f).
 - **Bildirim alt mesaj metni:** başlığın altındaki mesaj alanında onay/red/tamamlandı kelimeleri
   kırmızı/yeşil renge boyanmaz ve bold yapılmaz; normal ağırlıkta nötr slate metin olarak kalır.
 - **Bildirim detay popup ek süre marker'ı:** bildirimden açılan görev/talep detay popup'ı, grid detaylarıyla

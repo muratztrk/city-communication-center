@@ -96,9 +96,8 @@ function notificationTitleTone(title: string): string | null {
 }
 
 function NotificationTitle({ title, isUnread }: { title: string; isUnread: boolean }) {
-  // "Görev son tarihi güncellendi" okunmuş olsa da tüm başlık bold kalır (card #1669).
-  const alwaysBoldTitle = /son tarihi güncellendi/i.test(title)
-  const mainWeight = (isUnread || alwaysBoldTitle) ? 'font-bold text-slate-900' : 'font-medium text-slate-700'
+  // Okununca tüm bold vurgular normale döner (#6a6ca25f); okunmamışta aksiyon kelimeleri bold.
+  const mainWeight = isUnread ? 'font-bold text-slate-900' : 'font-medium text-slate-700'
   const tone = notificationTitleTone(title)
   const match = title.match(/^(.+?)\s(\([^)]+\))$/)
   const mainText = match ? match[1] : title
@@ -106,12 +105,9 @@ function NotificationTitle({ title, isUnread }: { title: string; isUnread: boole
   return (
     <>
       {tone ? (
-        // Renkli (onaylandı/tamamlandı/reddedildi) başlıklar okunmuş olsa da bold kalır (cards #1344/#1401).
-        <span className={`font-bold ${tone}`}>{mainText}</span>
-      ) : alwaysBoldTitle ? (
-        <span className="font-bold text-slate-900">{mainText}</span>
+        <span className={`${isUnread ? 'font-bold' : 'font-medium'} ${tone}`}>{mainText}</span>
       ) : (
-        <NotificationTitleStatusText value={mainText} plainClassName={mainWeight} />
+        <NotificationTitleStatusText value={mainText} isUnread={isUnread} plainClassName={mainWeight} />
       )}
       {suffix ? <span className="font-normal text-slate-600"> {suffix}</span> : null}
     </>
@@ -145,7 +141,7 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
         <p className="text-sm leading-snug">
           <NotificationTitle title={n.title} isUnread={!n.isRead} />
           {n.titleTag ? (
-            <span className="ml-1 inline-flex items-center gap-0.5 text-[0.7rem] font-semibold leading-none text-emerald-600">
+            <span className={`ml-1 inline-flex items-center gap-0.5 text-[0.7rem] leading-none text-emerald-600 ${n.isRead ? 'font-medium' : 'font-semibold'}`}>
               (
               {n.titleTagChannel ? <ChannelIcon channel={n.titleTagChannel} className="size-2.5 shrink-0" /> : null}
               {n.titleTag})
@@ -183,27 +179,45 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
   )
 }
 
-function NotificationEntityLabelText({ value, plainClassName }: { value: string; plainClassName: string }) {
+function NotificationEntityLabelText({
+  value,
+  plainClassName,
+  isUnread,
+}: {
+  value: string
+  plainClassName: string
+  isUnread: boolean
+}) {
+  const entityWeight = isUnread ? 'font-bold text-slate-900' : plainClassName
   return value.split(/(Görev|Talep)/g).map((segment, index) => {
     if (!segment) return null
     if (segment === 'Görev' || segment === 'Talep') {
-      return <span key={index} className="font-bold text-slate-900">{segment}</span>
+      return <span key={index} className={entityWeight}>{segment}</span>
     }
     return <span key={index} className={plainClassName}>{segment}</span>
   })
 }
 
-function NotificationTitleStatusText({ value, plainClassName }: { value: string; plainClassName: string }) {
+function NotificationTitleStatusText({
+  value,
+  plainClassName,
+  isUnread,
+}: {
+  value: string
+  plainClassName: string
+  isUnread: boolean
+}) {
+  const emphasis = isUnread ? 'font-bold' : 'font-medium'
   return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi|güncellendi|oluşturuldu|atandı|yönlendirildi|Yönetici notu atandı|Ek süre talebi)/gi).map((part, index) => {
     if (!part) return null
-    if (/^onaylandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
-    if (/^tamamlandı$/i.test(part)) return <span key={index} className="font-bold text-emerald-600">{part}</span>
-    if (/^reddedildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
-    if (/^İptal Edildi$/i.test(part)) return <span key={index} className="font-bold text-red-600">{part}</span>
+    if (/^onaylandı$/i.test(part)) return <span key={index} className={`${emphasis} text-emerald-600`}>{part}</span>
+    if (/^tamamlandı$/i.test(part)) return <span key={index} className={`${emphasis} text-emerald-600`}>{part}</span>
+    if (/^reddedildi$/i.test(part)) return <span key={index} className={`${emphasis} text-red-600`}>{part}</span>
+    if (/^İptal Edildi$/i.test(part)) return <span key={index} className={`${emphasis} text-red-600`}>{part}</span>
     if (/^(güncellendi|oluşturuldu|atandı|yönlendirildi|Yönetici notu atandı|Ek süre talebi)$/i.test(part)) {
-      return <span key={index} className="font-bold">{part}</span>
+      return <span key={index} className={emphasis}>{part}</span>
     }
-    return <NotificationEntityLabelText key={index} value={part} plainClassName={plainClassName} />
+    return <NotificationEntityLabelText key={index} value={part} plainClassName={plainClassName} isUnread={isUnread} />
   })
 }
 

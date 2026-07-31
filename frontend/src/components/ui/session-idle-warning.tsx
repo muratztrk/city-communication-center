@@ -4,6 +4,7 @@ import { AlertCircle } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from './button'
 import { ModalBackdrop } from './modal-backdrop'
+import { isSessionSupersededPending } from '../../api/sessionFlags'
 
 /** 1 saat hareketsizlik → kısa uyarı; 60 sn içinde uzatılmazsa logout (#1769 / #r490 / #2003). */
 const IDLE_BEFORE_WARNING_MS = 60 * 60_000
@@ -58,6 +59,10 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
   }
 
   const forceLogout = () => {
+    // Tek oturum supersede popup'ı açıksa idle logout ekranı kapatmasın (#6a6c805e).
+    if (isSessionSupersededPending()) {
+      return
+    }
     clearIdleTimer()
     clearCountdown()
     warningOpenRef.current = false

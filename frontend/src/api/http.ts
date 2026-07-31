@@ -1,5 +1,9 @@
 import i18n from '../i18n'
 import { clearAuthSession, getStoredSession, getValidAccessToken } from './auth'
+import {
+  isSessionSupersededPending,
+  markSessionSupersededPending,
+} from './sessionFlags'
 
 const ACTIVE_DEPARTMENT_KEY = 'ccc_active_department_v2'
 const LEGACY_ACTIVE_DEPARTMENT_KEY = 'ccc_active_department_id'
@@ -36,7 +40,16 @@ export const SESSION_EXPIRED_EVENT = 'ccc:session-expired'
 /** Aynı kullanıcı başka yerden login — önce popup, sonra logout (#6a6c805e). */
 export const SESSION_SUPERSEDED_EVENT = 'ccc:session-superseded'
 
+export {
+  clearSessionSupersededPending,
+  isSessionSupersededPending,
+} from './sessionFlags'
+
 function notifySessionExpired(): void {
+  // Eski oturum ekranı popup görülene kadar açık kalsın (#6a6c805e reopen).
+  if (isSessionSupersededPending()) {
+    return
+  }
   clearAuthSession()
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
@@ -44,6 +57,7 @@ function notifySessionExpired(): void {
 }
 
 function notifySessionSuperseded(): void {
+  markSessionSupersededPending()
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event(SESSION_SUPERSEDED_EVENT))
   }

@@ -1,6 +1,7 @@
 import { API_BASE, API_ORIGIN, TENANT_ID } from './config'
 import i18n from '../i18n'
 import { parseRolePageAccessMatrix, saveRolePageAccessMatrix, DEFAULT_ROLE_PAGE_ACCESS } from '../lib/rolePageAccess'
+import { markSessionSupersededPending } from './sessionFlags'
 import type {
   AuthSession,
   AuthUser,
@@ -356,11 +357,12 @@ export async function restoreSessionFromCookie(): Promise<AuthSession | null> {
 
   if (response.status === 401 || response.status === 403) {
     if (response.headers.get('X-Auth-Failure') === 'session-superseded') {
-      // Popup SessionSupersededWarning tarafında gösterilir (#6a6c805e).
-      // http.ts ile döngüsel import olmasın diye event adı burada sabit.
+      // Popup SessionSupersededWarning; USER_KEY silinmez — UI popup kapanana kadar kalır (#6a6c805e).
+      markSessionSupersededPending()
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new Event('ccc:session-superseded'))
       }
+      return getStoredSession()
     }
     clearStoredValues()
     return null

@@ -1,3 +1,6 @@
+## Round 609 — Supersede popup ekranı kapatmadan; X→login
+- Eski oturum: cookie düşse bile UI açık; paralel 401 login'e atmaz; X/Tamam → login (#6a6c805e).
+
 ## Round 608 — Okundu bildirimde bold kalkar
 - Bildirim okununca başlık/aksiyon/titleTag bold → normal (#6a6ca25f).
 

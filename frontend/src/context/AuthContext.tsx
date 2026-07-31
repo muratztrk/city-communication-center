@@ -8,6 +8,7 @@ import {
 } from '../api/auth'
 import {
   clearUsePrimaryDepartmentOnLoad,
+  clearSessionSupersededPending,
   markUsePrimaryDepartmentOnNextLoad,
   SESSION_EXPIRED_EVENT,
   setActiveDepartmentId,
@@ -84,6 +85,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }, [])
 
   const establishSession = async (nextSession: AuthSession) => {
+    clearSessionSupersededPending()
     markUsePrimaryDepartmentOnNextLoad()
     setActiveDepartmentId(null, true)
     await queryClient.removeQueries({ queryKey: queryKeys.all })
@@ -112,6 +114,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   }
 
   const logout = async () => {
+    clearSessionSupersededPending()
     const currentUserId = session?.user.userId
     if (currentUserId) {
       setActiveDepartmentId(null, true, currentUserId)

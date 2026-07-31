@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { AlertCircle } from 'lucide-react'
+import { AlertCircle, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from './button'
 import { ModalBackdrop } from './modal-backdrop'
@@ -10,7 +10,8 @@ interface SessionSupersededWarningProps {
   onLogout: () => void
 }
 
-/** Aynı kullanıcı başka yerden login olunca önceki oturumda uyarı (#6a6c805e). */
+/** Aynı kullanıcı başka yerden login olunca önceki oturumda uyarı (#6a6c805e).
+ *  Ekran kapanmaz; X/Tamam ile login'e yönlenir. */
 export function SessionSupersededWarning({ onLogout }: SessionSupersededWarningProps) {
   const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
@@ -21,13 +22,26 @@ export function SessionSupersededWarning({ onLogout }: SessionSupersededWarningP
     return () => window.removeEventListener(SESSION_SUPERSEDED_EVENT, handleSuperseded)
   }, [])
 
+  const dismissToLogin = () => {
+    setIsOpen(false)
+    onLogout()
+  }
+
   if (!isOpen) {
     return null
   }
 
   return createPortal(
-    <ModalBackdrop>
+    <ModalBackdrop className="fixed inset-0 z-[300] flex items-center justify-center bg-black/40 p-4">
       <div className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white p-6 text-center shadow-2xl">
+        <button
+          type="button"
+          onClick={dismissToLogin}
+          aria-label={t('common.close', 'Kapat')}
+          className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600"
+        >
+          <X className="size-4" />
+        </button>
         <div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-amber-50 text-amber-500">
           <AlertCircle className="size-8" />
         </div>
@@ -44,10 +58,7 @@ export function SessionSupersededWarning({ onLogout }: SessionSupersededWarningP
           <Button
             type="button"
             variant="primary"
-            onClick={() => {
-              setIsOpen(false)
-              onLogout()
-            }}
+            onClick={dismissToLogin}
           >
             {t('sessionSuperseded.confirm', 'Tamam')}
           </Button>

@@ -1406,12 +1406,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Detay Öncelik rengi (#2002/#r528):** İlgili Talep Detayları / Talep Bilgileri Öncelik değeri
   `getPriorityColorClass` — grid ile aynı (Normal sarı, Yüksek turuncu, Çok Yüksek kırmızı).
   Personelimin Görevleri `separatePriorityProjectRows` satırında da aynı sınıf (önce renk yoktu).
-- **Ayarlar Kurum Bilgisi (#r522 / #6a6cbd61):** başlık `text-xl` (Kurum Konumu ile aynı);
-  Aktif pill, Alan Adı, Dağıtım Modu, Tema Anahtarı yok; kart yüksekliği buna göre küçülür.
+- **Ayarlar Kurum Bilgisi (#r522 / #6a6cbd61 / #6a6cd81e):** başlık `text-xl` (Kurum Konumu ile aynı);
+  Aktif pill, Alan Adı, Dağıtım Modu, Tema Anahtarı yok; kart `content-start` —
+  `xl:items-stretch` uzatınca satır aralarına boşluk basılmaz.
 - **Ayarlar Lisans sekmesi (#6a6cbc1e):** Taslak Mesajlar sonrası; Vatandaş Talep Modülü +
   Kurum İçi İş Takip Modülü lisans anahtarı alanları (tenant localStorage).
 - **Vatandaş Bilgi Listesi talep popup (#6a6cbef5/#6a6cbf0e):** Birim tek satır truncate +
-  overflow tooltip; Talep Tarihi `DateCell` (takvim ikonu) + nowrap.
+  overflow tooltip; Talep Tarihi `DateCell` — Son Tarih `DueDatePill` ile aynı font
+  (0.84rem / 600) ve takvim ikonu (inherit renk, `CalendarClock` size-3.5).
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);

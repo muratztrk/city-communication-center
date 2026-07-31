@@ -1422,22 +1422,23 @@ export function SettingsPage() {
       {activeTab === 'tenant' ? (
         <div className="page-stack !gap-2">
           <div className="grid gap-4 xl:grid-cols-2 xl:items-stretch">
-            <section className="section-card settings-org-card page-stack !gap-1 !p-3 sm:!p-3.5 lg:!p-4">
-              <div className="page-header-row !mb-0 !gap-1">
+            {/* content-start: xl:items-stretch kartı uzatınca page-stack satır aralarına boşluk basmasın (#6a6cd81e). */}
+            <section className="section-card settings-org-card page-stack content-start !gap-1 !p-3 sm:!p-3.5 lg:!p-4">
+              <div className="page-header-row !mb-0 !gap-0.5">
                 <div>
-                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.organizationSectionTitle')}</h2>
+                  <h2 className="text-xl font-extrabold leading-tight text-slate-950">{t('settings.organizationSectionTitle')}</h2>
                 </div>
               </div>
-              <div className="info-grid !gap-1.5 !mt-0">
+              <div className="info-grid !gap-1 !mt-0">
                 {organizationStats.map(item => (
                   <div className="info-item" key={item.label}>
                     <label>{item.label}</label>
-                    <strong className="!mt-0.5">{item.value}</strong>
+                    <strong className="!mt-0">{item.value}</strong>
                   </div>
                 ))}
               </div>
-              <form className="page-stack !gap-3 !mt-0" onSubmit={saveOrganization}>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <form className="page-stack !gap-2 !mt-0" onSubmit={saveOrganization}>
+                <label className="grid gap-1 text-sm font-semibold text-slate-700">
                   <span>{t('settings.organizationName')}</span>
                   <input
                     className="field-input"
@@ -1445,7 +1446,7 @@ export function SettingsPage() {
                     onChange={event => setTenantSettings(current => ({ ...current, displayName: event.target.value }))}
                   />
                 </label>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-[220px]">
+                <label className="grid gap-1 text-sm font-semibold text-slate-700 max-w-[220px]">
                   <span>{t('settings.sla')}</span>
                   <input className="field-input" min={1} type="number" value={tenantSettings.defaultSlaHours} onChange={event => setTenantSettings(current => ({ ...current, defaultSlaHours: Number(event.target.value) || 1 }))} />
                 </label>

@@ -4888,12 +4888,15 @@
     color: rgb(251 146 60);
   }
 
-  /* Takvim ikonlu tarih hücresi (Son Tarih dışındaki tüm tarih sütunları). */
+  /* Takvim ikonlu tarih hücresi (Son Tarih dışındaki tüm tarih sütunları).
+     Tipografi/ikon DueDatePill ile aynı — Vatandaş Bilgi Listesi Talep Tarihi (#6a6cbf0e). */
   .date-cell {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
     white-space: nowrap;
+    font-weight: 600;
+    font-size: 0.84rem;
   }
 
   /* Grid "Yeni" rozeti: Görevlerim/Birimdeki/Personelim → Görev Tarihi (#589/#1668);

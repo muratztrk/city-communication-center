@@ -31,13 +31,14 @@ export function DateCell({ value, locale, highlight = false, tone = 'default', e
       : highlight
         ? 'font-semibold text-orange-500'
         : ''
+  // Default ikon rengi DueDatePill ile aynı (inherit); ton/highlight override eder (#6a6cbf0e).
   const iconClass = tone === 'success'
     ? 'text-emerald-500'
     : tone === 'danger'
       ? 'text-red-500'
       : highlight
         ? 'text-orange-400'
-        : 'text-slate-400'
+        : undefined
 
   return (
     <span className={cn('date-cell', toneClass)}>

@@ -1,3 +1,7 @@
+## Round 612 — Dizin Talep Tarihi=Son Tarih tipografi; Kurum boşluk
+- `#6a6cbf0e`: DateCell font/ikon DueDatePill ile aynı (0.84rem/600, inherit ikon)
+- `#6a6cd81e`: Kurum Bilgisi `content-start` + sıkı gap (stretch satır boşluğu yok)
+
 ## Round 611 — Lisans sekmesi; dizin popup Birim/Tarih; Kurum sadeleştir
 - Ayarlar: Taslak sonrası Lisans (2 modül key) (#6a6cbc1e).
 - Vatandaş Bilgi Listesi popup: Birim truncate+tooltip (#6a6cbef5); Talep Tarihi DateCell (#6a6cbf0e).

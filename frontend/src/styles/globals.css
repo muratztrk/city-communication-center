@@ -1139,28 +1139,29 @@
     gap: 0.2rem;
   }
 
+  /* Tarih = yanındaki Ara textbox ile aynı yükseklik/font (#6a6c6a6d). */
   .notification-modal-filters .notification-modal-date.scope-chip-date {
-    width: 8.75rem;
+    width: 11.5rem;
   }
 
   .notification-modal-filters .scope-chip-date-separator {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 1.35rem;
+    min-height: 1.875rem;
     color: rgba(255, 255, 255, 0.75);
-    font-size: 0.65rem;
+    font-size: 0.82rem;
     font-weight: 600;
   }
 
-  /* Biraz büyütüldü — aşırı küçültme geri alındı (#6a6c6a6d). */
   .notification-modal-header .notification-modal-date.scope-chip-date .field-input {
-    height: 1.35rem !important;
-    min-height: 0 !important;
-    gap: 0.2rem;
-    padding: 0 0.4rem !important;
-    font-size: 0.68rem !important;
-    line-height: 1.1;
+    height: 1.875rem !important;
+    min-height: 1.875rem !important;
+    gap: 0.25rem;
+    padding: 0 0.5rem !important;
+    font-size: 0.82rem !important;
+    font-weight: 600;
+    line-height: 1.2;
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.28);
     color: rgba(255, 255, 255, 0.7) !important;
@@ -1174,9 +1175,9 @@
   }
 
   .notification-modal-header .notification-modal-date.scope-chip-date .field-input svg {
-    width: 0.7rem !important;
-    height: 0.7rem !important;
-    color: rgba(255, 255, 255, 0.7) !important;
+    width: 0.8125rem !important;
+    height: 0.8125rem !important;
+    color: rgba(255, 255, 255, 0.75) !important;
     opacity: 1 !important;
   }
 

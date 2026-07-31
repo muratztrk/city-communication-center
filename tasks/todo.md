@@ -1,3 +1,7 @@
+## Round 605 — Bildirim tarih=Ara; login öncesi oturum onay popup
+- Bildirim modal tarih Ara ile aynı 1.875rem / 0.82rem (#6a6c6a6d reopen).
+- Açık oturumda yeni login: 409 + onay popup (otomatik kapanmaz), sonra takeover (#6a6c805e reopen).
+
 ## Round 604 — Bildirim başlık; tek oturum; hedef müdür sızıntı; kolon; tarih
 - ExternalUnit JobOwnerApproved → "Birim Dışı Gelen Talep" (#6a6c80bf).
 - Aynı kullanıcı yeniden login: ActiveSessionId + popup + önceki oturum düşer (#6a6c805e).

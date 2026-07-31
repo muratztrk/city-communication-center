@@ -252,6 +252,12 @@
     "message": "Bu hesap başka bir oturumda giriş yaptığı için mevcut oturumunuz kapatıldı. Devam etmek için tekrar giriş yapın.",
     "confirm": "Tamam"
   },
+  "sessionTakeover": {
+    "title": "Mevcut Oturum Sonlandırılacak",
+    "message": "Bu hesap için açık bir oturum var. Devam ederseniz mevcut oturum sonlandırılacaktır.",
+    "confirm": "Devam et",
+    "cancel": "Vazgeç"
+  },
   "wallboard": {
     "kicker": "Canlı Ekran",
     "title": "Bekleyen Görevler",

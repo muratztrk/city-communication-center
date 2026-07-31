@@ -247,42 +247,6 @@ export async function refreshRolePageAccessFromServer(): Promise<boolean> {
   }
 }
 
-async function requestJson<T>(url: string, init: RequestInit, fallbackMessage: string): Promise<T> {
-  const response = await fetch(url, {
-    ...init,
-    credentials: 'include',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept-Language': i18n.resolvedLanguage ?? i18n.language ?? 'tr',
-      ...(init.headers ?? {}),
-    },
-  })
-
-  const rawBody = await response.text()
-  const data = rawBody ? tryParseJson<T>(rawBody) : null
-
-  if (!response.ok) {
-    if (data) {
-      const payload = data as { error?: unknown; error_description?: unknown; message?: unknown; detail?: unknown }
-      throw new Error(
-        readErrorMessage(payload.error_description)
-        || readErrorMessage(payload.message)
-        || readErrorMessage(payload.detail)
-        || readErrorMessage(payload.error)
-        || fallbackMessage,
-      )
-    }
-
-    throw new Error(rawBody || fallbackMessage)
-  }
-
-  if (!data) {
-    throw new Error(i18n.t('errors.invalidAuthResponse'))
-  }
-
-  return data
-}
-
 async function requestToken(params: URLSearchParams): Promise<TokenResponse> {
   const response = await fetch(TOKEN_ENDPOINT, {
     method: 'POST',
@@ -411,22 +375,69 @@ export async function restoreSessionFromCookie(): Promise<AuthSession | null> {
   return writeCookieSession(buildUserFromProfileResponse(profile, existingUser))
 }
 
+/** Açık oturum varken login onayı gerekir (#6a6c805e). */
+export class ExistingSessionError extends Error {
+  readonly code = 'existing_session' as const
+
+  constructor(message: string) {
+    super(message)
+    this.name = 'ExistingSessionError'
+  }
+}
+
 export async function loginWithPassword(
   username: string,
   password: string,
   tenantId: string,
   tenantName: string,
+  confirmEndExistingSession = false,
 ): Promise<AuthSession> {
-  const response = await requestJson<LoginResponse>(SESSION_LOGIN_ENDPOINT, {
+  const response = await fetch(SESSION_LOGIN_ENDPOINT, {
     method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept-Language': i18n.resolvedLanguage ?? i18n.language ?? 'tr',
+    },
     body: JSON.stringify({
       username,
       password,
       tenantId,
+      confirmEndExistingSession,
     }),
-  }, i18n.t('errors.authFailed'))
+  })
 
-  const user = buildUserFromLoginResponse({ ...response, tenantName: response.tenantName || tenantName })
+  const rawBody = await response.text()
+  const data = rawBody ? tryParseJson<LoginResponse & { error?: string; message?: string; detail?: string }>(rawBody) : null
+
+  if (response.status === 409 && data?.error === 'existing_session') {
+    throw new ExistingSessionError(
+      readErrorMessage(data.message)
+      || readErrorMessage(data.detail)
+      || i18n.t(
+        'sessionTakeover.message',
+        'Bu hesap için açık bir oturum var. Devam ederseniz mevcut oturum sonlandırılacaktır.',
+      ),
+    )
+  }
+
+  if (!response.ok) {
+    if (data) {
+      throw new Error(
+        readErrorMessage(data.error)
+        || readErrorMessage(data.message)
+        || readErrorMessage(data.detail)
+        || i18n.t('errors.authFailed'),
+      )
+    }
+    throw new Error(rawBody || i18n.t('errors.authFailed'))
+  }
+
+  if (!data) {
+    throw new Error(i18n.t('errors.invalidAuthResponse'))
+  }
+
+  const user = buildUserFromLoginResponse({ ...data, tenantName: data.tenantName || tenantName })
   writeCookieSession(user)
   return await restoreSessionFromCookie() ?? writeCookieSession(user)
 }
@@ -453,8 +464,9 @@ export async function exchangeInteractiveGrant(
   password: string,
   tenantId: string,
   tenantName: string,
+  confirmEndExistingSession = false,
 ): Promise<AuthSession> {
-  return loginWithPassword(username, password, tenantId, tenantName)
+  return loginWithPassword(username, password, tenantId, tenantName, confirmEndExistingSession)
 }
 
 export async function logoutSession(): Promise<void> {

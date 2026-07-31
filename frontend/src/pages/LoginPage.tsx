@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import {
+  ExistingSessionError,
   getTenantLoginContext,
   startInteractiveAuthentication,
   verifyInteractiveAuthentication,
@@ -14,6 +15,7 @@ import { AppFooter } from '../components/layout/AppFooter'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { LoginPasswordResetModal } from '../components/system/LoginPasswordResetModal'
 import { Button } from '../components/ui/button'
+import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
 import type { StartInteractiveAuthenticationResult, TenantLoginContext } from '../types/platform'
@@ -67,6 +69,8 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
   const [isResetOpen, setIsResetOpen] = useState(false)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const pendingSessionGrantRef = useRef<{ username: string; password: string } | null>(null)
 
   const credentialsForm = useForm<z.infer<typeof credentialsSchema>>({
     resolver: zodResolver(credentialsSchema),
@@ -167,6 +171,53 @@ export function LoginPage() {
       ?? ''
   }
 
+  const completeSignInWithGrant = async (
+    username: string,
+    password: string,
+    confirmEndExistingSession = false,
+  ) => {
+    await completeInteractiveSignIn(
+      username,
+      password,
+      selectedTenant,
+      getTenantDisplayName(),
+      confirmEndExistingSession,
+    )
+    setLoginSuccess(true)
+    await new Promise(resolve => setTimeout(resolve, 420))
+    navigate('/dashboard', { replace: true })
+  }
+
+  const promptEndExistingSession = (username: string, password: string, message: string) => {
+    pendingSessionGrantRef.current = { username, password }
+    setConfirmDialog({
+      title: t('sessionTakeover.title', 'Mevcut Oturum Sonlandırılacak'),
+      message: message || t(
+        'sessionTakeover.message',
+        'Bu hesap için açık bir oturum var. Devam ederseniz mevcut oturum sonlandırılacaktır.',
+      ),
+      confirmLabel: t('sessionTakeover.confirm', 'Devam et'),
+      cancelLabel: t('sessionTakeover.cancel', 'Vazgeç'),
+      variant: 'primary',
+      titleTone: 'danger',
+      titleDivider: true,
+      onConfirm: async () => {
+        const grant = pendingSessionGrantRef.current
+        if (!grant) return
+        setIsLoading(true)
+        setError('')
+        try {
+          await completeSignInWithGrant(grant.username, grant.password, true)
+        } catch (confirmError) {
+          setError(confirmError instanceof Error ? confirmError.message : t('common.error'))
+        } finally {
+          setIsLoading(false)
+          pendingSessionGrantRef.current = null
+        }
+      },
+    })
+  }
+
   const applyInteractiveResult = async (result: StartInteractiveAuthenticationResult) => {
     setSecurityState({
       secondFactorRequiredOnSuccess: result.secondFactorRequiredOnSuccess,
@@ -179,10 +230,15 @@ export function LoginPage() {
         throw new Error(t('errors.invalidAuthResponse'))
       }
 
-      await completeInteractiveSignIn(result.grant.username, result.grant.password, selectedTenant, getTenantDisplayName())
-      setLoginSuccess(true)
-      await new Promise(resolve => setTimeout(resolve, 420))
-      navigate('/dashboard', { replace: true })
+      try {
+        await completeSignInWithGrant(result.grant.username, result.grant.password, false)
+      } catch (signInError) {
+        if (signInError instanceof ExistingSessionError) {
+          promptEndExistingSession(result.grant.username, result.grant.password, signInError.message)
+          return
+        }
+        throw signInError
+      }
       return
     }
 
@@ -477,10 +533,15 @@ export function LoginPage() {
                           return
                         }
 
-                        await completeInteractiveSignIn(result.grant.username, result.grant.password, selectedTenant, getTenantDisplayName())
-                        setLoginSuccess(true)
-                        await new Promise(resolve => setTimeout(resolve, 420))
-                        navigate('/dashboard', { replace: true })
+                        try {
+                          await completeSignInWithGrant(result.grant.username, result.grant.password, false)
+                        } catch (signInError) {
+                          if (signInError instanceof ExistingSessionError) {
+                            promptEndExistingSession(result.grant.username, result.grant.password, signInError.message)
+                            return
+                          }
+                          throw signInError
+                        }
                       } catch (verifyError) {
                         if (requestId !== latestInteractiveRequestRef.current) {
                           return
@@ -685,6 +746,13 @@ export function LoginPage() {
           </div>
         </div>
       )}
+      <ConfirmDialog
+        state={confirmDialog}
+        onClose={() => {
+          pendingSessionGrantRef.current = null
+          setConfirmDialog(null)
+        }}
+      />
     </div>
   )
 }

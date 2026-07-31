@@ -24,8 +24,8 @@ interface AuthContextValue {
   isLoading: boolean
   session: AuthSession | null
   user: AuthUser | null
-  signIn: (username: string, password: string, tenantId: string, tenantName: string) => Promise<void>
-  completeInteractiveSignIn: (username: string, password: string, tenantId: string, tenantName: string) => Promise<void>
+  signIn: (username: string, password: string, tenantId: string, tenantName: string, confirmEndExistingSession?: boolean) => Promise<void>
+  completeInteractiveSignIn: (username: string, password: string, tenantId: string, tenantName: string, confirmEndExistingSession?: boolean) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -91,13 +91,25 @@ export function AuthProvider({ children }: PropsWithChildren) {
     setActiveDepartmentId(null, true, nextSession.user.userId)
   }
 
-  const signIn = async (username: string, password: string, tenantId: string, tenantName: string) => {
-    const nextSession = await loginWithPassword(username, password, tenantId, tenantName)
+  const signIn = async (
+    username: string,
+    password: string,
+    tenantId: string,
+    tenantName: string,
+    confirmEndExistingSession = false,
+  ) => {
+    const nextSession = await loginWithPassword(username, password, tenantId, tenantName, confirmEndExistingSession)
     await establishSession(nextSession)
   }
 
-  const completeInteractiveSignIn = async (username: string, password: string, tenantId: string, tenantName: string) => {
-    const nextSession = await exchangeInteractiveGrant(username, password, tenantId, tenantName)
+  const completeInteractiveSignIn = async (
+    username: string,
+    password: string,
+    tenantId: string,
+    tenantName: string,
+    confirmEndExistingSession = false,
+  ) => {
+    const nextSession = await exchangeInteractiveGrant(username, password, tenantId, tenantName, confirmEndExistingSession)
     await establishSession(nextSession)
   }
 

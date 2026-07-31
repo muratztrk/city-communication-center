@@ -3,7 +3,8 @@ namespace CityCommunicationCenter.Application.Features.Auth;
 public sealed record AuthenticateUserCommand(
     string Username,
     string Password,
-    string TenantId) : ICommand<AuthenticatedTokenPayload?>;
+    string TenantId,
+    bool ConfirmEndExistingSession = false) : ICommand<AuthenticatedTokenPayload?>;
 
 public sealed class AuthenticateUserCommandValidator : AbstractValidator<AuthenticateUserCommand>
 {
@@ -48,8 +49,6 @@ public sealed class AuthenticateUserCommandHandler : ICommandHandler<Authenticat
             return null;
         }
 
-        // Yeni login önceki oturumu düşürür (#6a6c805e).
-        var activeSessionId = Guid.NewGuid();
         var entity = await _dbContext.Users
             .FirstOrDefaultAsync(u => u.UserId == user.UserId && u.TenantId == user.TenantId, cancellationToken);
         if (entity is null)
@@ -57,6 +56,13 @@ public sealed class AuthenticateUserCommandHandler : ICommandHandler<Authenticat
             return null;
         }
 
+        // Açık oturum varken yeni login — önce onay (#6a6c805e).
+        if (entity.ActiveSessionId.HasValue && !request.ConfirmEndExistingSession)
+        {
+            throw new ExistingSessionConflictException();
+        }
+
+        var activeSessionId = Guid.NewGuid();
         entity.ActiveSessionId = activeSessionId;
         entity.UpdatedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);

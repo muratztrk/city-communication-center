@@ -20,9 +20,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **`main` push = PRODUCTION auto-deploy** (yenitim.tire.bel.tr, gerçek Tire verisi). Riskli;
   hem `main` hem `master`'a push edilir.
-- **Harita UI yok (#6a6cf0d1):** Uygulama içi Google Maps / OSM / Leaflet yok. Talep/sosyal
-  detayda varsa yalnız lat/lng metni; WhatsApp konum balonunda dış `maps.google.com` linki
-  kalabilir. `VITE_GOOGLE_MAPS_API_KEY` / map-pins API kaldırıldı.
+- **Harita / Konum UI (#6a6cf0d1/#6a6cdf95/#6a6cf3c0):** Uygulama içi Google Maps yok;
+  Vatandaş Talepleri grid’inde Konum satırı yok. Talep detayında lat/lng metni olabilir;
+  WhatsApp balonunda dış `maps.google.com` linki kalabilir.
 - **Demo seed YOK** → doğrulama = `dotnet build` + FE `npm run build` + `npm run lint`.
   Veriye bağlı akışlar runtime'da E2E edilemiyor; kod + build + (varsa) ekran görseli.
 - **Türkçe casing tuzağı (tekrar eden bug):** arama/filtrede default `toLowerCase()` Türkçe
@@ -1386,7 +1386,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kurum İçi İş Takip Modülü lisans anahtarı alanları (tenant localStorage).
 - **Vatandaş Bilgi Listesi (#6a6cbef5/#6a6cbf0e/#6a6ce8f0/#6a6cf14b):** popup Birim truncate;
   Talep Tarihi `DateCell` = Son Tarih `DueDatePill` (0.84rem/600, svg 0.875rem); ana grid
-  Adı/Numara = Gelen Talep Yeri tipografisi; popup Talep No `0.88rem`, Öncelik alt satır `0.64rem`.
+  Adı/Numara = Gelen Talep Yeri tipografisi; popup Talep No `0.76rem`, Öncelik alt satır `0.64rem`.
+- **Durum overdue 2 satır (#6a6cf4d4):** `GridStatusLabel` — `Yapılmakta` / `(Son Tarihi Geçmiş)`
+  `whitespace-nowrap`; tüm grid StatusPill’lerde kullanılır (dizin popup dahil).
+- **Vatandaş Talepleri pie Öncelik (#6a6cf439):** drilldown `BuildCitizenRowsAsync` Priority döner;
+  Talep No altında `(Öncelik:…)` diğer pie’larla aynı.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);

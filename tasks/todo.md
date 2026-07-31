@@ -1,3 +1,9 @@
+## Round 618 — VT Konum sil; Talep No küçült; Durum 2 satır; pie Öncelik
+- `#6a6cdf95`/`#6a6cf3c0`: Vatandaş Talepleri grid Konum satırı kaldırıldı
+- `#6a6cf14b`: dizin popup Talep No `0.76rem`
+- `#6a6cf4d4`: overdue Durum max 2 satır (`GridStatusLabel` nowrap + dizin)
+- `#6a6cf439`: Vatandaş Talepleri pie drilldown Priority alt satır
+
 ## Round 617 — Harita kaldır; dizin Talep No/Öncelik tipografi
 - `#6a6cf0d1`: Embed/Anasayfa Maps JS, map-pins API, `@react-google-maps/api`, Maps env kaldırıldı; detayda lat/lng; WA dış maps linki kaldı
 - `#6a6cf14b`: Vatandaş Bilgi Listesi popup Talep No `0.88rem`, Öncelik `0.64rem`

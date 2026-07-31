@@ -20,12 +20,11 @@ export function GridStatusLabel({
   if (label === overdueLabel) {
     const inProgress = t('jobs.statusLabel.inProgress', 'Yapılmakta')
     const overdue = t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+    // En fazla 2 satır: satır içi wrap ile 3. satıra kaçmasın (#6a6cf4d4).
     return (
-      <span className="flex flex-col items-center leading-tight text-center">
-        <span className="inline-flex items-center gap-1">
-          <span>{inProgress}</span>
-        </span>
-        <span className="text-[0.68rem] font-bold">({overdue})</span>
+      <span className="grid-status-label--overdue flex flex-col items-center leading-tight text-center">
+        <span className="whitespace-nowrap">{inProgress}</span>
+        <span className="whitespace-nowrap text-[0.68rem] font-bold">({overdue})</span>
         {footer}
       </span>
     )

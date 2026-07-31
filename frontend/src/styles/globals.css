@@ -2406,9 +2406,9 @@
     white-space: nowrap;
   }
 
-  /* #6a6cf14b: Talep No biraz büyüt; altındaki Öncelik küçült */
+  /* #6a6cf14b reopen: Talep No küçült; Öncelik daha da küçük kalsın */
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__value {
-    font-size: 0.88rem;
+    font-size: 0.76rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__priority {
@@ -2653,6 +2653,19 @@
   .dashboard-drilldown-table td.text-center .due-date-pill,
   .dashboard-drilldown-table td.text-center .status-pill {
     margin-inline: auto;
+  }
+
+  /* Yapılmakta (Son Tarihi Geçmiş): en fazla 2 satır; satır içi wrap yok (#6a6cf4d4). */
+  .data-table .status-pill .grid-status-label--overdue,
+  .dashboard-drilldown-table .status-pill .grid-status-label--overdue,
+  .detail-modal-shell .status-pill .grid-status-label--overdue {
+    max-width: 100%;
+  }
+
+  .data-table .status-pill .grid-status-label--overdue > span,
+  .dashboard-drilldown-table .status-pill .grid-status-label--overdue > span,
+  .detail-modal-shell .status-pill .grid-status-label--overdue > span {
+    white-space: nowrap;
   }
 
   .data-table tbody tr:hover td {

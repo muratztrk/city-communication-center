@@ -407,7 +407,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                             ) : null}
                             {formatDrilldownNumber(row, locale)}
                           </div>
-                          {isExternalUnitChart && row.priority ? (
+                          {row.priority ? (
                             <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>
                               (Öncelik:{getPriorityLabel(t, row.priority)})
                             </div>

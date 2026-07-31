@@ -13,6 +13,7 @@ import { DueDatePill } from '../components/ui/due-date-pill'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { StatusPill } from '../components/ui/status-pill'
+import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
@@ -598,7 +599,7 @@ export function CitizenDirectoryPage() {
                             <td>
                               {statusLabel && ticket.jobStatus ? (
                                 <StatusPill className={getStatusPillClass(getJobStatusTone({ status: ticket.jobStatus, dueDateUtc: ticket.dueDateUtc ?? null }))}>
-                                  {statusLabel}
+                                  <GridStatusLabel t={t} label={statusLabel} />
                                 </StatusPill>
                               ) : <EmptyCell />}
                             </td>

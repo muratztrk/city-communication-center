@@ -440,6 +440,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Title,
                 job.CreatedAtUtc,
                 job.Status,
+                job.Priority,
                 job.DueDateUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
@@ -487,7 +488,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
             row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
             ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
-            row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel))
+            row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
+            row.Priority))
         .ToList();
 
         return new DashboardChartDrilldownResponse(filtered);

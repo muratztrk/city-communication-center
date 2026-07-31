@@ -1,5 +1,5 @@
 import { DateCell } from '../components/ui/date-cell'
-import { MapPin, Search, X } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
@@ -54,10 +54,6 @@ function countChannelBadge(messages: SocialMessage[], channel: string, seenAt: s
     if (!Number.isFinite(seenMs)) return true
     return Date.parse(message.receivedAtUtc) > seenMs
   }).length
-}
-
-function hasLocation(message: SocialMessage) {
-  return message.latitude != null && message.longitude != null
 }
 
 function formatDateTime(value: string | null | undefined, locale: string): string {
@@ -670,21 +666,6 @@ export function SocialMessagesPage() {
                       </div>
                     </td>
                   </tr>
-                  {hasLocation(message) ? (
-                    <tr className="bg-slate-50/70">
-                      <td colSpan={8}>
-                        <section className="grid gap-2">
-                          <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-slate-600">
-                            <MapPin className="size-4 text-[color:var(--color-primary)]" />
-                            {t('location.mapSectionTitle', 'Konum')}
-                            <span className="font-semibold normal-case tracking-normal text-slate-500">
-                              {message.latitude!.toFixed(6)}, {message.longitude!.toFixed(6)}
-                            </span>
-                          </div>
-                        </section>
-                      </td>
-                    </tr>
-                  ) : null}
                 </Fragment>
                 )
               })}

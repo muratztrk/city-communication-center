@@ -1,3 +1,6 @@
+## Round 620 — Talep Etiketi pie: Öncelik + Vatandaş Adı/Telefon (#6a6c9fed)
+- Birim sütunu kaldırıldı; ad üstte telefon altta; Priority BE+FE
+
 ## Round 619 — Vatandaş Talep No başlığı; pie Öncelik/Durum
 - `#6a6cf14b`: dizin popup kolon başlığı → Vatandaş Talep No
 - `#6a6cf4d4`: pie drilldown aynı başlık; Öncelik `0.7rem`; Durum `11rem`

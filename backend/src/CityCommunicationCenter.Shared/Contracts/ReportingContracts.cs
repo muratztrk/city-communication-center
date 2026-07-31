@@ -44,7 +44,10 @@ public sealed record DashboardChartDrilldownRow(
     int? CitizenRequestNumberYear,
     string? SourceChannel = null,
     /// <summary>Talep No altındaki Öncelik satırı — birim pie drilldown (#2070).</summary>
-    string? Priority = null);
+    string? Priority = null,
+    /// <summary>Talep Etiketi pie: Birim yerine Vatandaş Adı / Telefon (#6a6c9fed).</summary>
+    string? CitizenName = null,
+    string? CitizenPhone = null);
 
 public sealed record DashboardChartDrilldownResponse(
     IReadOnlyList<DashboardChartDrilldownRow> Rows);

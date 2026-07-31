@@ -47,6 +47,9 @@ export interface DashboardChartDrilldownRow {
   sourceChannel?: string | null;
   /** Birim pie drilldown: Talep No altı Öncelik (#2070). */
   priority?: string | null;
+  /** Talep Etiketi pie: Birim yerine Vatandaş Adı / Telefon (#6a6c9fed). */
+  citizenName?: string | null;
+  citizenPhone?: string | null;
 }
 
 export interface DashboardChartDrilldownResponse {

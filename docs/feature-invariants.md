@@ -1392,6 +1392,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `whitespace-nowrap`; tüm grid StatusPill’lerde kullanılır (dizin popup dahil).
 - **Vatandaş Talepleri pie (#6a6cf439/#6a6cf4d4):** drilldown Priority alt satır; kolon başlığı
   `Vatandaş Talep No`; Öncelik `0.7rem`; Durum sütunu `min-width: 11rem`.
+- **Talep Etiketi pie (#6a6c9fed):** drilldown’da Birim yok; yerine Vatandaş Adı + alt satır
+  Telefon No; Talep No altında Öncelik (`Priority` + `CitizenName`/`CitizenPhone` BE).
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);

@@ -260,7 +260,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         ) : null}
       </div>
 
-      <div className="whatsapp-chat-bg min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4">
+      <div className="whatsapp-chat-bg min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-3">
         {conversationQuery.isLoading ? (
           <div className="flex h-full items-center justify-center">
             <Loader2 className="size-5 animate-spin text-slate-500" />

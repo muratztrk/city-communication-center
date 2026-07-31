@@ -1,3 +1,6 @@
+## Round 603 — WA mesaj balonları biraz küçült
+- Bubble: px-3 py-2 text-[13px]; chat alanı space-y/padding sıkı (#6a6c760b).
+
 ## Round 602 — Yanıt Verildi Yap daha büyük + daha az silik blink
 - Metin 11px; blink min opacity 0.58 (#6a6c3dca reopen).
 

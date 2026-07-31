@@ -25,10 +25,14 @@ public sealed class AuthenticateUserCommandValidator : AbstractValidator<Authent
 public sealed class AuthenticateUserCommandHandler : ICommandHandler<AuthenticateUserCommand, AuthenticatedTokenPayload?>
 {
     private readonly IUserAuthenticationService _userAuthenticationService;
+    private readonly IApplicationDbContext _dbContext;
 
-    public AuthenticateUserCommandHandler(IUserAuthenticationService userAuthenticationService)
+    public AuthenticateUserCommandHandler(
+        IUserAuthenticationService userAuthenticationService,
+        IApplicationDbContext dbContext)
     {
         _userAuthenticationService = userAuthenticationService;
+        _dbContext = dbContext;
     }
 
     public async ValueTask<AuthenticatedTokenPayload?> Handle(AuthenticateUserCommand request, CancellationToken cancellationToken)
@@ -44,6 +48,19 @@ public sealed class AuthenticateUserCommandHandler : ICommandHandler<Authenticat
             return null;
         }
 
+        // Yeni login önceki oturumu düşürür (#6a6c805e).
+        var activeSessionId = Guid.NewGuid();
+        var entity = await _dbContext.Users
+            .FirstOrDefaultAsync(u => u.UserId == user.UserId && u.TenantId == user.TenantId, cancellationToken);
+        if (entity is null)
+        {
+            return null;
+        }
+
+        entity.ActiveSessionId = activeSessionId;
+        entity.UpdatedAtUtc = DateTimeOffset.UtcNow;
+        await _dbContext.SaveChangesAsync(cancellationToken);
+
         return new AuthenticatedTokenPayload(
             user.UserId,
             user.TenantId,
@@ -54,6 +71,7 @@ public sealed class AuthenticateUserCommandHandler : ICommandHandler<Authenticat
             user.RoleCode,
             user.AdditionalRoleCodes,
             user.TenantName,
-            user.AuthenticationMode);
+            user.AuthenticationMode,
+            activeSessionId);
     }
 }

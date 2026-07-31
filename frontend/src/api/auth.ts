@@ -391,6 +391,13 @@ export async function restoreSessionFromCookie(): Promise<AuthSession | null> {
   })
 
   if (response.status === 401 || response.status === 403) {
+    if (response.headers.get('X-Auth-Failure') === 'session-superseded') {
+      // Popup SessionSupersededWarning tarafında gösterilir (#6a6c805e).
+      // http.ts ile döngüsel import olmasın diye event adı burada sabit.
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('ccc:session-superseded'))
+      }
+    }
     clearStoredValues()
     return null
   }

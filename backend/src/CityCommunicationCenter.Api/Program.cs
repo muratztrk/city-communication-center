@@ -1,10 +1,14 @@
+using System.Security.Claims;
 using System.Threading.RateLimiting;
 using System.Globalization;
 using System.Net;
 using CityCommunicationCenter.Application;
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Api.BelediyeSoap;
 using CityCommunicationCenter.Api.Hubs;
+using CityCommunicationCenter.Api.Security;
 using CityCommunicationCenter.Api.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -67,7 +71,8 @@ builder.Services.AddCors(options =>
 
         policy.AllowAnyHeader()
               .AllowAnyMethod()
-              .AllowCredentials();
+              .AllowCredentials()
+              .WithExposedHeaders("X-Auth-Failure");
     });
 });
 
@@ -146,6 +151,43 @@ builder.Services
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 return Task.CompletedTask;
+            },
+            // Aynı kullanıcı başka yerden login olursa önceki cookie oturumu düşer (#6a6c805e).
+            OnValidatePrincipal = async context =>
+            {
+                var principal = context.Principal;
+                if (principal?.Identity?.IsAuthenticated != true)
+                {
+                    return;
+                }
+
+                var userIdValue = principal.FindFirstValue(ClaimTypes.NameIdentifier)
+                    ?? principal.FindFirstValue("sub");
+                var sessionIdValue = principal.FindFirstValue("ccc_sid");
+                if (!Guid.TryParse(userIdValue, out var userId))
+                {
+                    return;
+                }
+
+                var db = context.HttpContext.RequestServices.GetRequiredService<IApplicationDbContext>();
+                var activeSessionId = await db.Users.AsNoTracking()
+                    .Where(user => user.UserId == userId)
+                    .Select(user => user.ActiveSessionId)
+                    .FirstOrDefaultAsync(context.HttpContext.RequestAborted);
+
+                // Henüz hiç login rotasyonu yoksa (migration sonrası ilk oturum) eski cookie geçerli kalsın.
+                if (!activeSessionId.HasValue)
+                {
+                    return;
+                }
+
+                if (!Guid.TryParse(sessionIdValue, out var cookieSessionId)
+                    || cookieSessionId != activeSessionId.Value)
+                {
+                    context.RejectPrincipal();
+                    await context.HttpContext.SignOutAsync(AuthorizationPolicies.SessionCookieScheme);
+                    context.HttpContext.Response.Headers["X-Auth-Failure"] = "session-superseded";
+                }
             }
         };
     })

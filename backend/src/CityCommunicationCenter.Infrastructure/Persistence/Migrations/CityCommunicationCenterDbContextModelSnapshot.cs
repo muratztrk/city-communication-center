@@ -33,6 +33,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("additionalrolecodesjson");
 
+                    b.Property<Guid?>("ActiveSessionId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("activesessionid");
+
                     b.Property<DateTimeOffset>("CreatedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("createdatutc");

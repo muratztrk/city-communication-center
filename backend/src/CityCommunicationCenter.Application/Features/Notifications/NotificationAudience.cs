@@ -96,17 +96,22 @@ internal static class NotificationAudience
             return [];
         }
 
+        // PendingOwnerApproval: yalnız sahip birim müdürü görür (hedef/koordinasyon asla).
+        // EF çevirisi için durum dallarını ayır — çok birimli personel A→B senaryosu (#6a6c7fb9).
         return await dbContext.Jobs
             .AsNoTracking()
             .Where(job =>
                 job.TenantId == tenantId
-                && (managedDepartmentIds.Contains(job.OwnerDepartmentId)
+                && (
+                    (job.Status == JobStatus.PendingOwnerApproval
+                        && managedDepartmentIds.Contains(job.OwnerDepartmentId))
                     || (job.Status != JobStatus.PendingOwnerApproval
-                        && dbContext.JobDepartments.Any(jobDepartment =>
-                            jobDepartment.JobId == job.JobId
-                            && managedDepartmentIds.Contains(jobDepartment.DepartmentId)
-                            && (jobDepartment.Role == JobDepartmentRole.Target
-                                || jobDepartment.Role == JobDepartmentRole.Coordinating)))))
+                        && (managedDepartmentIds.Contains(job.OwnerDepartmentId)
+                            || dbContext.JobDepartments.Any(jobDepartment =>
+                                jobDepartment.JobId == job.JobId
+                                && managedDepartmentIds.Contains(jobDepartment.DepartmentId)
+                                && (jobDepartment.Role == JobDepartmentRole.Target
+                                    || jobDepartment.Role == JobDepartmentRole.Coordinating))))))
             .Select(job => job.JobId)
             .ToListAsync(cancellationToken);
     }

@@ -30,8 +30,8 @@ export function FramedDepartmentStack({
         <StatusPill
           tone="success"
           className={cn(
-            'max-w-[11rem]',
-            enlarge ? 'px-2.5 py-1 text-[0.78rem] font-semibold' : 'px-2.5 py-1 text-[0.76rem]',
+            // Gelen taleplerde birim çerçevesi biraz daha geniş (#6a6c72f4).
+            enlarge ? 'max-w-[13.5rem] px-2.5 py-1 text-[0.78rem] font-semibold' : 'max-w-[12.75rem] px-2.5 py-1 text-[0.76rem]',
           )}
         >
           <span className="truncate">{name}</span>

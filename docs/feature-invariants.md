@@ -1614,8 +1614,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dış birim hedef müdür — sahip onayı öncesi bildirim yok (#6a6c67cb):** hedef/koordinasyon
   birimi `PendingOwnerApproval` taleplerini feed'e almaz; sahip onayından sonra görünür
   (Birime Gelen `isIncomingExternalForActiveDept` ile aynı kural).
-- **Dış birim sahip onayı bildirimi (#6a6c73f2):** `JobOwnerApproved` + `ExternalUnit` başlık
-  `Talep oluşturuldu`; açıklamada onaylayan kişi yerine sahip birim adı.
+- **Dış birim sahip onayı bildirimi (#6a6c73f2 / #6a6c80bf):** `JobOwnerApproved` + `ExternalUnit`
+  başlık `Birim Dışı Gelen Talep`; açıklamada onaylayan kişi yerine sahip birim adı.
+- **Tek aktif oturum (#6a6c805e):** yeni login `users.activesessionid` döner; cookie `ccc_sid`
+  eşleşmezse 401 + `X-Auth-Failure: session-superseded`; FE popup sonrası logout.
+- **Gelen Talep Yeri çerçevesi (#6a6c72f4):** kolon genişliği artırılmaz; birim yeşil çerçevesi
+  (`FramedDepartmentStack` max-width) biraz genişler.
 - **Ek süre/revizyon onaycısı bildirim kapsamı:** `TaskRevision` approval onaycısı, görevin atanmış/owner
   kullanıcısı olmasa bile audit-feed ve okunmamış rozet kapsamına dahildir; kalıcı `Notification` yazılmaz.
 - **Ek süre talebi bildirim Detay popup'ı (card #1394):** yöneticiye giden `TaskExtraTimeRequested`

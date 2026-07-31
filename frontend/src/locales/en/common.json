@@ -247,6 +247,11 @@
     "extend": "Yes, extend now",
     "decline": "No"
   },
+  "sessionSuperseded": {
+    "title": "Your Session Has Ended",
+    "message": "This account signed in elsewhere, so your current session was closed. Please sign in again to continue.",
+    "confirm": "OK"
+  },
   "wallboard": {
     "kicker": "Live Display",
     "title": "Pending Tasks",

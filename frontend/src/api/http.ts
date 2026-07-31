@@ -33,11 +33,19 @@ export function clearUsePrimaryDepartmentOnLoad(): void {
 // Oturum başka bir sekmede sonlandığında (logout) ya da sunucu 401 döndüğünde
 // tüm sekmelerin login ekranına düşmesi için yayınlanan olay.
 export const SESSION_EXPIRED_EVENT = 'ccc:session-expired'
+/** Aynı kullanıcı başka yerden login — önce popup, sonra logout (#6a6c805e). */
+export const SESSION_SUPERSEDED_EVENT = 'ccc:session-superseded'
 
 function notifySessionExpired(): void {
   clearAuthSession()
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT))
+  }
+}
+
+function notifySessionSuperseded(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(SESSION_SUPERSEDED_EVENT))
   }
 }
 
@@ -164,7 +172,11 @@ export async function getErrorMessage(response: Response, fallbackMessage: strin
 
 export async function ensureOk(response: Response, fallbackMessage: string): Promise<Response> {
   if (response.status === 401) {
-    notifySessionExpired()
+    if (response.headers.get('X-Auth-Failure') === 'session-superseded') {
+      notifySessionSuperseded()
+    } else {
+      notifySessionExpired()
+    }
   }
 
   if (!response.ok) {

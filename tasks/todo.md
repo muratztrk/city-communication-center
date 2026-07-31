@@ -1,3 +1,10 @@
+## Round 604 — Bildirim başlık; tek oturum; hedef müdür sızıntı; kolon; tarih
+- ExternalUnit JobOwnerApproved → "Birim Dışı Gelen Talep" (#6a6c80bf).
+- Aynı kullanıcı yeniden login: ActiveSessionId + popup + önceki oturum düşer (#6a6c805e).
+- PendingOwnerApproval hedef müdür bildirim yok — sorgu dalları netleştirildi (#6a6c7fb9).
+- Gelen Talep Yeri kolon geri alındı; birim çerçevesi genişledi (#6a6c72f4).
+- Bildirim modal tarih alanları biraz büyütüldü (#6a6c6a6d).
+
 ## Round 603 — WA mesaj balonları biraz küçült
 - Bubble: px-3 py-2 text-[13px]; chat alanı space-y/padding sıkı (#6a6c760b).
 

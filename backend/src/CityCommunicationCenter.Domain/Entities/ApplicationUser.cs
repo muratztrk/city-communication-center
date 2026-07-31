@@ -30,6 +30,11 @@ public sealed class ApplicationUser : AuditableTenantEntity, IHasDatabaseIndexDe
 
     public bool IsActive { get; set; } = true;
 
+    /// <summary>
+    /// Tek aktif oturum kimliği — yeni login önceki oturumu geçersiz kılar (#6a6c805e).
+    /// </summary>
+    public Guid? ActiveSessionId { get; set; }
+
     public Tenant Tenant { get; set; } = null!;
 
     public Department Department { get; set; } = null!;

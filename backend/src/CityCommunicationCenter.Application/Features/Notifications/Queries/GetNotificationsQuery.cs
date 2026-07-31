@@ -375,8 +375,9 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         }
                     }
 
+                    // Dış birim sahip onayı sonrası hedef müdür başlığı (#6a6c80bf).
                     var notificationTitle = a.Action == "JobOwnerApproved" && jobRequestType == JobRequestType.ExternalUnit
-                        ? "Talep oluşturuldu"
+                        ? "Birim Dışı Gelen Talep"
                         : ResolveNotificationTitle(a, actorNamesById);
 
                     feed.Add(new NotificationResponse(

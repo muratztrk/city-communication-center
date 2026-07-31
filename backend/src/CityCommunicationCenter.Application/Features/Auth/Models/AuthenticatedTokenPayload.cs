@@ -10,4 +10,5 @@ public sealed record AuthenticatedTokenPayload(
     string RoleCode,
     IReadOnlyList<string> AdditionalRoleCodes,
     string TenantName,
-    string AuthenticationMode);
+    string AuthenticationMode,
+    Guid ActiveSessionId);

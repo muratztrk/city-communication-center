@@ -247,6 +247,11 @@
     "extend": "Evet, şimdi uzat",
     "decline": "Hayır"
   },
+  "sessionSuperseded": {
+    "title": "Oturumunuz Sonlandırıldı",
+    "message": "Bu hesap başka bir oturumda giriş yaptığı için mevcut oturumunuz kapatıldı. Devam etmek için tekrar giriş yapın.",
+    "confirm": "Tamam"
+  },
   "wallboard": {
     "kicker": "Canlı Ekran",
     "title": "Bekleyen Görevler",

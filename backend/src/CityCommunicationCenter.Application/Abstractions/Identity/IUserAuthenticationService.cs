@@ -25,4 +25,5 @@ public sealed record AuthenticatedUserDescriptor(
     string RoleCode,
     IReadOnlyList<string> AdditionalRoleCodes,
     string TenantName,
-    string AuthenticationMode);
+    string AuthenticationMode,
+    Guid? ActiveSessionId = null);

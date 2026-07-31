@@ -373,6 +373,7 @@ public sealed class AuthController : ControllerBase
         identity.AddClaim(new Claim("tenantId", tenantId));
         identity.AddClaim(new Claim("tenant_name", payload.TenantName));
         identity.AddClaim(new Claim("department_id", departmentId));
+        identity.AddClaim(new Claim("ccc_sid", payload.ActiveSessionId.ToString()));
 
         if (!string.IsNullOrWhiteSpace(payload.Email))
         {
@@ -383,7 +384,7 @@ public sealed class AuthController : ControllerBase
         principal.SetAudiences(audience);
         principal.SetDestinations(static claim => claim.Type switch
         {
-            Claims.Name or ClaimTypes.NameIdentifier or Claims.Subject or Claims.Email or Claims.PreferredUsername or Claims.Role or "displayName" or "tenant_id" or "tenantId" or "tenant_name" or "department_id"
+            Claims.Name or ClaimTypes.NameIdentifier or Claims.Subject or Claims.Email or Claims.PreferredUsername or Claims.Role or "displayName" or "tenant_id" or "tenantId" or "tenant_name" or "department_id" or "ccc_sid"
                 => [Destinations.AccessToken, Destinations.IdentityToken],
             _ => []
         });

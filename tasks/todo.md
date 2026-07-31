@@ -1,3 +1,6 @@
+## Round 621 — Sol menü: dizin Anasayfa-Birimler sonrası (#6a6cfc0c)
+- Reporter/Operator: Vatandaş Bilgi Listesi → Birimler’in hemen altı
+
 ## Round 620 — Talep Etiketi pie: Öncelik + Vatandaş Adı/Telefon (#6a6c9fed)
 - Birim sütunu kaldırıldı; ad üstte telefon altta; Priority BE+FE
 

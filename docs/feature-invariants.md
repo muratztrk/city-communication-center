@@ -1230,6 +1230,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   isim gösterilir), `prefix – dashboard.xxx` (çevrilebilir bileşik), ve düz literal metin (aynen basılır).
   Yeni bir grafik id'siz bir gruplama anahtarına (ör. mahalle adı) göre dilim üretecekse, `Label` alanına
   DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok.
+- **Sol menü dizin sırası (#6a6cfc0c):** Üst Düzey/Operatör’de `Vatandaş Bilgi Listesi`,
+  `Anasayfa - Birimler`’den hemen sonraki satır (ayırıcı ondan sonra). Sistem Admin’de eski
+  konum (Vatandaş Talepleri grubundan sonra) korunur.
 - **Vatandaş Bilgi Listesi (card #1836, kolon/buton düzeni #1843/#1858):** `/citizen-directory` yalnız
   `Reporter` / `Operator` / `SystemAdmin`; grid `GET /citizen-conversations`. `Numara` sütunundan
   sonra ayrı `Talep Kanalı` sütunu gelir (`ChannelIcon` + `getSocialChannelLabel`); isim hücresinde

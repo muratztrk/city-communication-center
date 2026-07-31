@@ -240,11 +240,14 @@ export function AppShell() {
 
   const pendingSmsDeliveryApprovalCount = pendingSmsDeliveryApprovalQuery.data ?? 0
 
+  const isCitizenDashboardNav = user?.role === 'Reporter' || user?.role === 'Operator'
   const navItemConfigs: NavLinkConfigEx[] = [
-    ...(user?.role === 'Reporter' || user?.role === 'Operator'
+    ...(isCitizenDashboardNav
       ? [
           { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard },
-          { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorAfter: true },
+          { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard },
+          // Üst Düzey/Operatör: Anasayfa - Birimler’den hemen sonra (#6a6cfc0c).
+          { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact, separatorAfter: true },
         ]
       : [
           { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
@@ -258,7 +261,10 @@ export function AppShell() {
       { path: '/whatsapp', label: t('whatsapp.navTitle', 'WhatsApp'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true },
       { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Onayı'), icon: MessageSquareText, emphasized: true, badgeCount: pendingSmsDeliveryApprovalCount },
     ] },
-    { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
+    // Sistem Admin vb.: dizin Vatandaş Talepleri grubundan sonra (eski konum).
+    ...(!isCitizenDashboardNav
+      ? [{ pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact }]
+      : []),
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
     { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight },
     { pageKey: 'citizenMessageApproval' as const, path: '/citizen-message-approval', label: t('nav.citizenMessageApproval', 'Vatandaşa Gönderilecek\nMesaj Onayı'), icon: Send, multilineLabel: true, badgeCount: pendingCitizenMessageApprovalCount },

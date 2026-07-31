@@ -9,6 +9,7 @@ import { getActiveDepartmentId } from '../api/http'
 import { StatusPill } from '../components/ui/status-pill'
 import { PieChart, PieLegendSearch } from '../components/ui/PieChart'
 import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilldownModal'
+import { CitizenChannelMessagesModal } from '../components/CitizenChannelMessagesModal'
 import { useAuth } from '../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
@@ -83,6 +84,8 @@ const DRILLDOWN_CHART_KEYS = new Set([
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
   'dashboard.charts.neighborhoodProcessingRequests',
+  // Vatandaş Talep Kanalları → VT grid popup (#6a6d0181); ayrı modal.
+  'dashboard.citizenChannels.title',
 ])
 
 /** Split dashboard chart allowlists (Reporter / Operator — cards #1833/#1810). */
@@ -661,6 +664,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               || card.titleKey === 'dashboard.charts.neighborhoodInProgressRequests'
               || card.titleKey === 'dashboard.charts.neighborhoodProcessingRequests'
               || card.titleKey === 'dashboard.charts.requestTags'
+              || (isCitizenDashboardDrilldownRole && card.titleKey === 'dashboard.citizenChannels.title')
             const isDepartmentTitleReadOnly = !canAccessDepartmentTasks && card.titleKey === 'dashboard.charts.departmentTasks'
             // Üst Düzey Yönetici'de Taleplerim hariç tüm grafik dilimleri detay popup'ı açar (card #1343/#1860).
             const isDrilldownChart = isCitizenDashboardDrilldownRole && DRILLDOWN_CHART_KEYS.has(card.titleKey)
@@ -781,7 +785,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         <div className="error">{statusChartsQuery.error instanceof Error ? statusChartsQuery.error.message : t('common.error')}</div>
       ) : null}
 
-      {chartDrilldown ? (
+      {chartDrilldown?.chartKey === 'dashboard.citizenChannels.title' ? (
+        <CitizenChannelMessagesModal
+          key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}`}
+          sliceKey={chartDrilldown.sliceKey}
+          from={apiFrom}
+          to={apiTo}
+          onClose={() => setChartDrilldown(null)}
+        />
+      ) : chartDrilldown ? (
         <DashboardChartDrilldownModal
           key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}|${requestTagChartFilter}`}
           chartKey={chartDrilldown.chartKey}

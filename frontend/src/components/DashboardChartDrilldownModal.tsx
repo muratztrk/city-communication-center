@@ -214,7 +214,7 @@ function printDrilldownRows(
     <p>${escape(sliceLabel)}</p>
     <table><thead><tr>
       <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
-      <th class="col-no">${escape(t('jobs.columns.parentRequestNoShort', 'Talep No'))}</th>
+      <th class="col-no">${escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
       <th class="col-date">${escape(t('jobs.columns.requestDate', 'Talep Tarihi'))}</th>
       <th class="col-title">${escape(t('jobs.columns.title', 'Başlık'))}</th>
       <th class="col-dept">${escape(unitHeader)}</th>
@@ -255,14 +255,17 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const showPrint = PRINTABLE_CHART_KEYS.has(chartKey)
   const isRequestTagsChart = chartKey === 'dashboard.charts.requestTags'
   const isCitizenRequestsChart = chartKey === 'dashboard.charts.citizenRequests'
+  const isNeighborhoodChart = NEIGHBORHOOD_CHART_KEYS.has(chartKey)
   const isExternalUnitChart = EXTERNAL_UNIT_CHART_KEYS.has(chartKey)
   const truncateUnitColumn = TRUNCATE_UNIT_CHART_KEYS.has(chartKey)
-  const requestNoColumnLabel = isCitizenRequestsChart
+  // Anasayfa - Vatandaş pie popup'larında kolon başlığı her zaman VT (#6a6cff28).
+  const useCitizenRequestNoHeader = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart
+  const requestNoColumnLabel = useCitizenRequestNoHeader
     ? t('social.citizenRequestNo', 'Vatandaş Talep No')
     : t('jobs.columns.requestNo', 'Talep No')
   const unitColumnLabel = isRequestTagsChart
     ? null
-    : (NEIGHBORHOOD_CHART_KEYS.has(chartKey) || isExternalUnitChart || isCitizenRequestsChart
+    : (isNeighborhoodChart || isExternalUnitChart || isCitizenRequestsChart
       ? t('jobs.columns.unitShort', 'Birim')
       : t('departments.name', 'Müdürlük'))
   const chartTitle = t(chartKey)
@@ -441,9 +444,9 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                         <td className="font-semibold">{row.title}</td>
                         <td className={isRequestTagsChart ? 'text-center' : truncateUnitColumn ? 'max-w-[12rem]' : undefined}>
                           {isRequestTagsChart ? (
-                            <div className="inline-flex flex-col items-center leading-tight text-center">
+                            <div className="dashboard-drilldown-citizen-stack inline-flex flex-col items-center leading-tight text-center">
                               <div className="font-semibold text-slate-800">{row.citizenName?.trim() || '—'}</div>
-                              <div className="text-xs text-slate-400">
+                              <div className="dashboard-drilldown-citizen-stack__phone text-xs text-slate-400">
                                 {row.citizenPhone ? formatCitizenPhoneDisplay(row.citizenPhone) : '—'}
                               </div>
                             </div>

@@ -575,7 +575,7 @@ export function CitizenDirectoryPage() {
                             </td>
                             <td className="table-number-cell font-mono text-xs text-slate-500">
                               <div className="table-number-cell__value inline-flex items-center gap-1.5">
-                                {ticket.channel ? <ChannelIcon channel={ticket.channel} className="size-4 shrink-0" /> : null}
+                                {ticket.channel ? <ChannelIcon channel={ticket.channel} className="size-3.5 shrink-0" /> : null}
                                 <span>{formatVt(ticket)}</span>
                               </div>
                               {ticket.priority ? (

@@ -959,8 +959,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   müdahale edilemez; Tür yalnız `Birim`/`Administration` (card #1719). Düzenle Tür
   default `Birim`, mevcut `Administration` korunur (card #1720). Yönetim seçilince müdür
   etiketi `Yönetici`.
-- **Kurum sekmesi sağ kolon:** üstte Kurum Konumu, altta Hafta Sonu SLA; sol Kurum Bilgisi ile
-  alt border hizalı (`items-stretch` + sağ kolon `flex-1`) (card #1715).
+- **Kurum sekmesi 2×2 (#6a6cdcad):** Kurum Bilgisi | Kurum Konumu / SMS API | Hafta Sonu SLA
+  (`xl:grid-cols-2`, `items-start`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
 - **Kurum Konumu ilçe (#r512/#r514/#r521):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
   önizlemesi Ayarlar’da gösterilmez (#r521). Kaydet sonrası `ccc_municipality_district` ile
   talep formu mahalle dropdown’ları ve Anasayfa vatandaş haritası aynı ilçeyi kullanır.
@@ -1406,14 +1406,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Detay Öncelik rengi (#2002/#r528):** İlgili Talep Detayları / Talep Bilgileri Öncelik değeri
   `getPriorityColorClass` — grid ile aynı (Normal sarı, Yüksek turuncu, Çok Yüksek kırmızı).
   Personelimin Görevleri `separatePriorityProjectRows` satırında da aynı sınıf (önce renk yoktu).
-- **Ayarlar Kurum Bilgisi (#r522 / #6a6cbd61 / #6a6cd81e):** başlık `text-xl` (Kurum Konumu ile aynı);
-  Aktif pill, Alan Adı, Dağıtım Modu, Tema Anahtarı yok; kart `content-start` —
-  `xl:items-stretch` uzatınca satır aralarına boşluk basılmaz.
+- **Ayarlar Kurum Bilgisi (#r522 / #6a6cbd61 / #6a6cd81e / #6a6cdd37):** başlık `text-xl`;
+  Aktif/Alan Adı/Dağıtım/Tema yok; readonly KURUM ADI/SLA özet satırı yok (yalnız form).
 - **Ayarlar Lisans sekmesi (#6a6cbc1e):** Taslak Mesajlar sonrası; Vatandaş Talep Modülü +
   Kurum İçi İş Takip Modülü lisans anahtarı alanları (tenant localStorage).
-- **Vatandaş Bilgi Listesi talep popup (#6a6cbef5/#6a6cbf0e):** Birim tek satır truncate +
-  overflow tooltip; Talep Tarihi `DateCell` — Son Tarih `DueDatePill` ile aynı font
-  (0.84rem / 600) ve takvim ikonu (inherit renk, `CalendarClock` size-3.5).
+- **Vatandaş Bilgi Listesi talep popup (#6a6cbef5/#6a6cbf0e):** Birim truncate+tooltip;
+  Talep Tarihi `DateCell` ≈ DueDatePill tipografi; grid hücreleri ~0.78rem (#6a6cbf0e reopen).
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);

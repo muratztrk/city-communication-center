@@ -1,3 +1,8 @@
+## Round 613 — Dizin grid küçült; Kurum özet sil; SMS 2×2
+- `#6a6cbf0e`: dizin popup grid ~0.78rem
+- `#6a6cdd37`: readonly KURUM ADI/SLA özet satırı kaldırıldı
+- `#6a6cdcad`: SMS API | Hafta Sonu SLA (Kurum Bilgisi altında 2×2)
+
 ## Round 612 — Dizin Talep Tarihi=Son Tarih tipografi; Kurum boşluk
 - `#6a6cbf0e`: DateCell font/ikon DueDatePill ile aynı (0.84rem/600, inherit ikon)
 - `#6a6cd81e`: Kurum Bilgisi `content-start` + sıkı gap (stretch satır boşluğu yok)

@@ -631,11 +631,6 @@ export function SettingsPage() {
     ? `${API_ORIGIN}/api/v1/social/webhooks/whatsapp/${user.tenantId}`
     : ''
 
-  const organizationStats = useMemo(() => [
-    { label: t('settings.organizationName'), value: institutionName },
-    { label: t('settings.sla'), value: `${tenantSettings.defaultSlaHours} ${t('settings.hours')}` },
-  ], [institutionName, t, tenantSettings.defaultSlaHours])
-
   const setTab = (tab: SettingsTab) => {
     const next = new URLSearchParams(searchParams)
     next.set('tab', tab)
@@ -1421,21 +1416,13 @@ export function SettingsPage() {
 
       {activeTab === 'tenant' ? (
         <div className="page-stack !gap-2">
-          <div className="grid gap-4 xl:grid-cols-2 xl:items-stretch">
-            {/* content-start: xl:items-stretch kartı uzatınca page-stack satır aralarına boşluk basmasın (#6a6cd81e). */}
+          {/* 2×2: Kurum Bilgisi | Kurum Konumu / SMS API | Hafta Sonu SLA (#6a6cdcad, #6a6cdd37). */}
+          <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
             <section className="section-card settings-org-card page-stack content-start !gap-1 !p-3 sm:!p-3.5 lg:!p-4">
               <div className="page-header-row !mb-0 !gap-0.5">
                 <div>
                   <h2 className="text-xl font-extrabold leading-tight text-slate-950">{t('settings.organizationSectionTitle')}</h2>
                 </div>
-              </div>
-              <div className="info-grid !gap-1 !mt-0">
-                {organizationStats.map(item => (
-                  <div className="info-item" key={item.label}>
-                    <label>{item.label}</label>
-                    <strong className="!mt-0">{item.value}</strong>
-                  </div>
-                ))}
               </div>
               <form className="page-stack !gap-2 !mt-0" onSubmit={saveOrganization}>
                 <label className="grid gap-1 text-sm font-semibold text-slate-700">
@@ -1456,80 +1443,171 @@ export function SettingsPage() {
               </form>
             </section>
 
-            <div className="flex h-full flex-col gap-4">
-              <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={saveMunicipalityDistrict}>
-                <div className="page-header-row">
-                  <div>
-                    <h2 className="text-xl font-extrabold text-slate-950">{t('settings.municipalityLocation.sectionTitle', 'Kurum Konumu')}</h2>
-                    <p className="helper-copy">{t('settings.municipalityLocation.sectionDescription', 'Talep oluşturma ekranında gösterilecek mahalle listesini belirlemek için ilçe seçin.')}</p>
-                  </div>
+            <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={saveMunicipalityDistrict}>
+              <div className="page-header-row">
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.municipalityLocation.sectionTitle', 'Kurum Konumu')}</h2>
+                  <p className="helper-copy">{t('settings.municipalityLocation.sectionDescription', 'Talep oluşturma ekranında gösterilecek mahalle listesini belirlemek için ilçe seçin.')}</p>
                 </div>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
-                  <span>{t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}</span>
-                  <SingleSelectDropdown
-                    options={IZMIR_DISTRICTS.map(district => ({
-                      value: district.id,
-                      label: district.name,
-                    }))}
-                    value={selectedDistrictId}
-                    onChange={setSelectedDistrictId}
-                    placeholder={t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}
-                    searchable
-                    searchPlaceholder={t('common.search', 'Ara...')}
-                  />
-                </label>
-                <div className="inline-actions">
-                  <Button type="submit">{t('common.save')}</Button>
-                </div>
-              </form>
+              </div>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
+                <span>{t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}</span>
+                <SingleSelectDropdown
+                  options={IZMIR_DISTRICTS.map(district => ({
+                    value: district.id,
+                    label: district.name,
+                  }))}
+                  value={selectedDistrictId}
+                  onChange={setSelectedDistrictId}
+                  placeholder={t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}
+                  searchable
+                  searchPlaceholder={t('common.search', 'Ara...')}
+                />
+              </label>
+              <div className="inline-actions">
+                <Button type="submit">{t('common.save')}</Button>
+              </div>
+            </form>
 
-              <form className="section-card page-stack flex-1 p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSlaWeekendSettings(event)}>
-                <div className="page-header-row">
-                  <div>
-                    <h2 className="text-xl font-extrabold text-slate-950">{t('settings.slaWeekend.sectionTitle')}</h2>
-                    <p className="helper-copy">{t('settings.slaWeekend.sectionDescription')}</p>
-                  </div>
+            <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSmsSettings(event)}>
+              <div className="page-header-row">
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.sms.sectionTitle')}</h2>
+                  <p className="helper-copy">{t('settings.sms.sectionDescription')}</p>
                 </div>
-                <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-                  <input
-                    className="field-checkbox"
-                    type="checkbox"
-                    checked={slaWeekendForm.excludeWeekends}
-                    onChange={event => setSlaWeekendForm(current => ({ ...current, excludeWeekends: event.target.checked }))}
-                  />
-                  {t('settings.slaWeekend.excludeWeekends')}
-                </label>
-                {slaWeekendForm.excludeWeekends && departments.length > 0 && (
+              </div>
+              <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+                <input
+                  className="field-checkbox"
+                  type="checkbox"
+                  checked={smsForm.isEnabled}
+                  onChange={event => setSmsForm(current => ({ ...current, isEnabled: event.target.checked }))}
+                />
+                {t('settings.sms.isEnabled')}
+              </label>
+              {smsForm.isEnabled && (
+                <>
                   <div className="field-row">
-                    <label className="field-label">{t('settings.slaWeekend.exemptDepartments')}</label>
-                    <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3">
-                      {departments.map(dept => (
-                        <label key={dept.departmentId} className="inline-flex items-center gap-2 text-sm text-slate-700">
-                          <input
-                            className="field-checkbox"
-                            type="checkbox"
-                            checked={slaWeekendForm.exemptDepartmentIds.includes(dept.departmentId)}
-                            onChange={event => {
-                              setSlaWeekendForm(current => ({
-                                ...current,
-                                exemptDepartmentIds: event.target.checked
-                                  ? [...current.exemptDepartmentIds, dept.departmentId]
-                                  : current.exemptDepartmentIds.filter(id => id !== dept.departmentId),
-                              }))
-                            }}
-                          />
-                          {dept.name}
-                        </label>
-                      ))}
-                    </div>
-                    <p className="helper-copy">{t('settings.slaWeekend.exemptDepartmentsHelp')}</p>
+                    <label className="field-label">{t('settings.sms.provider')}</label>
+                    <SingleSelectDropdown
+                      options={[
+                        { value: 'NetGSM', label: t('settings.sms.providers.NetGSM') },
+                        { value: 'Iletimerkezi', label: t('settings.sms.providers.Iletimerkezi') },
+                        { value: 'Verimor', label: t('settings.sms.providers.Verimor') },
+                        { value: 'Custom', label: t('settings.sms.providers.Custom') },
+                      ]}
+                      value={smsForm.provider}
+                      onChange={provider => setSmsForm(current => ({ ...current, provider: provider as SmsSettingsUpdate['provider'] }))}
+                      placeholder={t('settings.sms.provider')}
+                    />
                   </div>
-                )}
-                <div className="inline-actions">
-                  <Button type="submit">{t('settings.slaWeekend.save')}</Button>
+                  {smsForm.provider === 'Custom' && (
+                    <div className="field-row">
+                      <label className="field-label">{t('settings.sms.apiUrl')}</label>
+                      <input
+                        className="field-input"
+                        type="url"
+                        placeholder={t('settings.sms.apiUrlPlaceholder')}
+                        value={smsForm.apiUrl ?? ''}
+                        onChange={event => setSmsForm(current => ({ ...current, apiUrl: event.target.value || null }))}
+                      />
+                    </div>
+                  )}
+                  <div className="field-row">
+                    <label className="field-label">{t('settings.sms.username')}</label>
+                    <input
+                      className="field-input"
+                      type="text"
+                      value={smsForm.username ?? ''}
+                      onChange={event => setSmsForm(current => ({ ...current, username: event.target.value || null }))}
+                    />
+                  </div>
+                  <div className="field-row">
+                    <label className="field-label">{t('settings.sms.password')}</label>
+                    <input
+                      className="field-input"
+                      type="password"
+                      placeholder={t('settings.sms.passwordPlaceholder')}
+                      value={smsForm.password ?? ''}
+                      onChange={event => setSmsForm(current => ({ ...current, password: event.target.value || null }))}
+                    />
+                    {smsSettings?.hasPassword && (
+                      <label className="inline-flex items-center gap-2 text-sm text-slate-600">
+                        <input
+                          className="field-checkbox"
+                          type="checkbox"
+                          checked={smsForm.clearPassword}
+                          onChange={event => setSmsForm(current => ({ ...current, clearPassword: event.target.checked }))}
+                        />
+                        {t('settings.sms.clearPassword')}
+                      </label>
+                    )}
+                  </div>
+                  <div className="field-row">
+                    <label className="field-label">{t('settings.sms.originator')}</label>
+                    <input
+                      className="field-input"
+                      type="text"
+                      maxLength={11}
+                      placeholder={t('settings.sms.originatorPlaceholder')}
+                      value={smsForm.originator ?? ''}
+                      onChange={event => setSmsForm(current => ({ ...current, originator: event.target.value || null }))}
+                    />
+                    <p className="helper-copy">{t('settings.sms.originatorHelp')}</p>
+                  </div>
+                </>
+              )}
+              <div className="inline-actions">
+                <Button type="submit">{t('settings.sms.save')}</Button>
+              </div>
+            </form>
+
+            <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSlaWeekendSettings(event)}>
+              <div className="page-header-row">
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.slaWeekend.sectionTitle')}</h2>
+                  <p className="helper-copy">{t('settings.slaWeekend.sectionDescription')}</p>
                 </div>
-              </form>
-            </div>
+              </div>
+              <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+                <input
+                  className="field-checkbox"
+                  type="checkbox"
+                  checked={slaWeekendForm.excludeWeekends}
+                  onChange={event => setSlaWeekendForm(current => ({ ...current, excludeWeekends: event.target.checked }))}
+                />
+                {t('settings.slaWeekend.excludeWeekends')}
+              </label>
+              {slaWeekendForm.excludeWeekends && departments.length > 0 && (
+                <div className="field-row">
+                  <label className="field-label">{t('settings.slaWeekend.exemptDepartments')}</label>
+                  <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3">
+                    {departments.map(dept => (
+                      <label key={dept.departmentId} className="inline-flex items-center gap-2 text-sm text-slate-700">
+                        <input
+                          className="field-checkbox"
+                          type="checkbox"
+                          checked={slaWeekendForm.exemptDepartmentIds.includes(dept.departmentId)}
+                          onChange={event => {
+                            setSlaWeekendForm(current => ({
+                              ...current,
+                              exemptDepartmentIds: event.target.checked
+                                ? [...current.exemptDepartmentIds, dept.departmentId]
+                                : current.exemptDepartmentIds.filter(id => id !== dept.departmentId),
+                            }))
+                          }}
+                        />
+                        {dept.name}
+                      </label>
+                    ))}
+                  </div>
+                  <p className="helper-copy">{t('settings.slaWeekend.exemptDepartmentsHelp')}</p>
+                </div>
+              )}
+              <div className="inline-actions">
+                <Button type="submit">{t('settings.slaWeekend.save')}</Button>
+              </div>
+            </form>
           </div>
 
           <form className="section-card page-stack" onSubmit={event => void saveWorkingHours(event)}>
@@ -1721,99 +1799,6 @@ export function SettingsPage() {
             )}
             <div className="inline-actions">
               <Button type="submit">{t('settings.workingHours.save')}</Button>
-            </div>
-          </form>
-
-          <form className="section-card page-stack" onSubmit={event => void saveSmsSettings(event)}>
-            <div className="page-header-row">
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.sms.sectionTitle')}</h2>
-                <p className="helper-copy">{t('settings.sms.sectionDescription')}</p>
-              </div>
-            </div>
-            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-              <input
-                className="field-checkbox"
-                type="checkbox"
-                checked={smsForm.isEnabled}
-                onChange={event => setSmsForm(current => ({ ...current, isEnabled: event.target.checked }))}
-              />
-              {t('settings.sms.isEnabled')}
-            </label>
-            {smsForm.isEnabled && (
-              <>
-                <div className="field-row">
-                  <label className="field-label">{t('settings.sms.provider')}</label>
-                  <SingleSelectDropdown
-                    options={[
-                      { value: 'NetGSM', label: t('settings.sms.providers.NetGSM') },
-                      { value: 'Iletimerkezi', label: t('settings.sms.providers.Iletimerkezi') },
-                      { value: 'Verimor', label: t('settings.sms.providers.Verimor') },
-                      { value: 'Custom', label: t('settings.sms.providers.Custom') },
-                    ]}
-                    value={smsForm.provider}
-                    onChange={provider => setSmsForm(current => ({ ...current, provider: provider as SmsSettingsUpdate['provider'] }))}
-                    placeholder={t('settings.sms.provider')}
-                  />
-                </div>
-                {smsForm.provider === 'Custom' && (
-                  <div className="field-row">
-                    <label className="field-label">{t('settings.sms.apiUrl')}</label>
-                    <input
-                      className="field-input"
-                      type="url"
-                      placeholder={t('settings.sms.apiUrlPlaceholder')}
-                      value={smsForm.apiUrl ?? ''}
-                      onChange={event => setSmsForm(current => ({ ...current, apiUrl: event.target.value || null }))}
-                    />
-                  </div>
-                )}
-                <div className="field-row">
-                  <label className="field-label">{t('settings.sms.username')}</label>
-                  <input
-                    className="field-input"
-                    type="text"
-                    value={smsForm.username ?? ''}
-                    onChange={event => setSmsForm(current => ({ ...current, username: event.target.value || null }))}
-                  />
-                </div>
-                <div className="field-row">
-                  <label className="field-label">{t('settings.sms.password')}</label>
-                  <input
-                    className="field-input"
-                    type="password"
-                    placeholder={t('settings.sms.passwordPlaceholder')}
-                    value={smsForm.password ?? ''}
-                    onChange={event => setSmsForm(current => ({ ...current, password: event.target.value || null }))}
-                  />
-                  {smsSettings?.hasPassword && (
-                    <label className="inline-flex items-center gap-2 text-sm text-slate-600">
-                      <input
-                        className="field-checkbox"
-                        type="checkbox"
-                        checked={smsForm.clearPassword}
-                        onChange={event => setSmsForm(current => ({ ...current, clearPassword: event.target.checked }))}
-                      />
-                      {t('settings.sms.clearPassword')}
-                    </label>
-                  )}
-                </div>
-                <div className="field-row">
-                  <label className="field-label">{t('settings.sms.originator')}</label>
-                  <input
-                    className="field-input"
-                    type="text"
-                    maxLength={11}
-                    placeholder={t('settings.sms.originatorPlaceholder')}
-                    value={smsForm.originator ?? ''}
-                    onChange={event => setSmsForm(current => ({ ...current, originator: event.target.value || null }))}
-                  />
-                  <p className="helper-copy">{t('settings.sms.originatorHelp')}</p>
-                </div>
-              </>
-            )}
-            <div className="inline-actions">
-              <Button type="submit">{t('settings.sms.save')}</Button>
             </div>
           </form>
 

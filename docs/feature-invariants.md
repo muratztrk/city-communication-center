@@ -20,13 +20,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **`main` push = PRODUCTION auto-deploy** (yenitim.tire.bel.tr, gerçek Tire verisi). Riskli;
   hem `main` hem `master`'a push edilir.
-- **Harita sağlayıcı Google Maps Platform (#r540):** Anasayfa Maps JS API; talep/sosyal detay
-  Maps Embed API; adres → koordinat **Maps JS API `google.maps.Geocoder`**. Anahtar
-  `VITE_GOOGLE_MAPS_API_KEY` (Docker `CCC_GOOGLE_MAPS_API_KEY`). OSM/Leaflet/Nominatim kullanılmaz.
-  GCP’de HTTP referrer kısıtı zorunlu; anahtarsızda UI “Harita yapılandırılmadı” gösterir (crash yok).
-  ⚠️ Geocoding **REST web service'i kullanılmaz**: web service referrer kısıtını desteklemez
-  (`REQUEST_DENIED`), JS API destekler — bu yüzden tek referrer-kısıtlı anahtar üç API'yi de karşılar.
-  Anahtarı kısıtsız bırakıp REST'e dönmek fatura hırsızlığına açık kapı bırakır.
+- **Harita UI yok (#6a6cf0d1):** Uygulama içi Google Maps / OSM / Leaflet yok. Talep/sosyal
+  detayda varsa yalnız lat/lng metni; WhatsApp konum balonunda dış `maps.google.com` linki
+  kalabilir. `VITE_GOOGLE_MAPS_API_KEY` / map-pins API kaldırıldı.
 - **Demo seed YOK** → doğrulama = `dotnet build` + FE `npm run build` + `npm run lint`.
   Veriye bağlı akışlar runtime'da E2E edilemiyor; kod + build + (varsa) ekran görseli.
 - **Türkçe casing tuzağı (tekrar eden bug):** arama/filtrede default `toLowerCase()` Türkçe
@@ -964,8 +960,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kaydet `mt-auto`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
 - **Kurum Konumu ilçe (#r512/#r514/#r521):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
   önizlemesi Ayarlar’da gösterilmez (#r521). Kaydet sonrası `ccc_municipality_district` ile
-  talep formu mahalle dropdown’ları ve Anasayfa vatandaş haritası aynı ilçeyi kullanır.
-  Tire için mevcut merkez/bounds korunur.
+  talep formu mahalle dropdown’ları aynı ilçeyi kullanır.
 - **Birimler/Kullanıcılar grid:** FilterableTh + sort + TablePagination; kolon genişlikleri
   `users-table`/`departments-table` ile orantılı (card #1724). Kullanıcılar Rol StatusPill ortalı;
   İşlemler’de kalem+Düzenle / çöp+Sil ve satır ortalı (cards #1722/#1725/#1732). Banner `+Yeni…`
@@ -1262,8 +1257,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dış birim pie'ları + Talep Önceliği; Operator: Görevlerim/Taleplerim/Birimdeki Görevler/Talep Önceliği.
 - **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
-- **Vatandaş panosu ilçe haritası (#6a6cdf95):** Anasayfa–Vatandaş’tan kaldırıldı (UI yok).
-  API `GET /reports/dashboard-citizen-map-pins` / `CitizenDashboardMap` arşivlenebilir.
+- **Harita kaldırma (#6a6cdf95 / #6a6cf0d1):** Anasayfa haritası, Embed bileşenleri,
+  `GET /reports/dashboard-citizen-map-pins`, `@react-google-maps/api` ve Maps env kaldırıldı.
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
   chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında
@@ -1389,9 +1384,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Aktif/Alan Adı/Dağıtım/Tema yok; readonly KURUM ADI/SLA özet satırı yok (yalnız form).
 - **Ayarlar Lisans sekmesi (#6a6cbc1e):** Taslak Mesajlar sonrası; Vatandaş Talep Modülü +
   Kurum İçi İş Takip Modülü lisans anahtarı alanları (tenant localStorage).
-- **Vatandaş Bilgi Listesi (#6a6cbef5/#6a6cbf0e/#6a6ce8f0):** popup Birim truncate; Talep Tarihi
-  `DateCell` = Son Tarih `DueDatePill` (0.84rem/600, svg 0.875rem); ana grid Adı/Numara =
-  Gelen Talep Yeri tipografisi (`font-semibold text-slate-700` / `text-sm … text-slate-500`).
+- **Vatandaş Bilgi Listesi (#6a6cbef5/#6a6cbf0e/#6a6ce8f0/#6a6cf14b):** popup Birim truncate;
+  Talep Tarihi `DateCell` = Son Tarih `DueDatePill` (0.84rem/600, svg 0.875rem); ana grid
+  Adı/Numara = Gelen Talep Yeri tipografisi; popup Talep No `0.88rem`, Öncelik alt satır `0.64rem`.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);
@@ -1446,10 +1441,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `İşleme Alınan`) bir Job'ı yalnız bağlı `SocialMessage.CitizenRequestNumber != null` ise sayar
   (`CitizenVtJobFilter.WhereHasCitizenRequestNumber`); `RequestType=Citizen` tek başına yeterli
   değildir — manuel/rutin oluşturulan Citizen job'lar VT numarası taşımayabilir ve grafiğe girmemelidir.
-  Aynı filtre `GetDashboardChartDrilldownQuery` (mahalle + vatandaş satırları) ve
-  `GetCitizenDashboardMapPinsQuery` (harita pinleri) için de geçerlidir — üçü birbirinden
-  sapmamalıdır. (Not: `Vatandaş Talep Kanalları` pie'ı bu kuralın DIŞINDA kalır — kendi
-  `RequestType∈{...}` genişletilmiş adaylık mantığını korur, VT-only filtreye çevrilmedi.)
+  Aynı filtre `GetDashboardChartDrilldownQuery` (mahalle + vatandaş satırları) için de
+  geçerlidir — birbirinden sapmamalıdır. (Not: `Vatandaş Talep Kanalları` pie'ı bu kuralın
+  DIŞINDA kalır — kendi `RequestType∈{...}` genişletilmiş adaylık mantığını korur,
+  VT-only filtreye çevrilmedi.)
 - **Birim/departman odaklı dashboard pie'ları VT'yi dışlar (card #1849):** `Birimler` sayfasındaki
   `Taleplerim` (`myRequests`, Reporter/Operator) ve tenant geneli `Talep Öncelik Durumu`
   (`BuildTenantWideRequestPriorityChartAsync`) `RequestType == Citizen` olan job'ları hariç tutar;

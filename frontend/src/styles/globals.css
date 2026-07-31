@@ -2406,12 +2406,13 @@
     white-space: nowrap;
   }
 
+  /* #6a6cf14b: Talep No biraz büyüt; altındaki Öncelik küçült */
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__value {
-    font-size: 0.82rem;
+    font-size: 0.88rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__priority {
-    font-size: 0.74rem;
+    font-size: 0.64rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table tbody td .truncate {

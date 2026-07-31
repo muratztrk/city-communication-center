@@ -4,7 +4,6 @@ import type { ReactNode } from 'react'
 import { cn } from '../../../lib/cn'
 import { AttachmentSection } from '../../ui/AttachmentSection'
 import { AddressDetailFields } from '../../ui/AddressDetailFields'
-import { GoogleMapsEmbed } from '../../ui/GoogleMapsEmbed'
 import type { ConfirmDialogState } from '../../ui/confirm-dialog'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
 import { MyRequestDetailBottomCards } from './MyRequestDetailBottomCards'
@@ -286,10 +285,7 @@ export function MyRequestDetailModal({
             <h3 className="job-detail-section-title mb-2">
               {t('location.mapSectionTitle', 'Konum')}
             </h3>
-            <div className="overflow-hidden rounded-xl border border-slate-200">
-              <GoogleMapsEmbed latitude={detail.latitude} longitude={detail.longitude} />
-            </div>
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="text-xs text-slate-500">
               {detail.latitude.toFixed(6)}, {detail.longitude.toFixed(6)}
             </p>
           </section>

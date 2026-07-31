@@ -16,7 +16,6 @@ import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
-import { GoogleMapsEmbed } from '../components/ui/GoogleMapsEmbed'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import type { Department, JobSummary, RequestTag, SocialMessage } from '../types/platform'
 import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
@@ -682,11 +681,6 @@ export function SocialMessagesPage() {
                               {message.latitude!.toFixed(6)}, {message.longitude!.toFixed(6)}
                             </span>
                           </div>
-                          <GoogleMapsEmbed
-                            latitude={message.latitude!}
-                            longitude={message.longitude!}
-                            className="h-52 rounded-xl border border-slate-200"
-                          />
                         </section>
                       </td>
                     </tr>

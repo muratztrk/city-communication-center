@@ -16,7 +16,6 @@ import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
-import { GoogleMapsEmbed } from '../components/ui/GoogleMapsEmbed'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { invalidateJobs, invalidateSocialMessages, invalidateTasks } from '../api/cacheInvalidation'
@@ -2982,10 +2981,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
                   {t('location.mapSectionTitle', 'Konum')}
                 </h3>
-                <div className="rounded-xl overflow-hidden border border-slate-200">
-                  <GoogleMapsEmbed latitude={detail.latitude} longitude={detail.longitude} />
-                </div>
-                <p className="mt-1 text-xs text-slate-500">
+                <p className="text-xs text-slate-500">
                   {detail.latitude.toFixed(6)}, {detail.longitude.toFixed(6)}
                 </p>
               </section>

@@ -501,7 +501,7 @@ function ConversationListPanel({
                 if (selectedId) onMarkWaitingReplied(selectedId)
               }}
             >
-              {t('whatsapp.markWaitingReplied', 'Yanıt Verildi İşaretle')}
+              {t('whatsapp.markWaitingReplied', 'Yanıt Verildi Yap')}
             </button>
           ) : null}
         </div>

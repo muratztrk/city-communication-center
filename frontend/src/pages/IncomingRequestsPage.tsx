@@ -730,6 +730,8 @@ export function IncomingRequestsPage() {
     if (key === 'cancelReturnStatus') return 'İptal'
     if (key === 'displayNumber') return r.displayNumber
     if (key === 'forwardReason') return [r.forwardSourceDepartmentName, r.forwardReason].filter(Boolean).join(' ')
+    // Talep Yeri + Oluşturan tek kolon — filtre ikisini de arasın (#6a6c52d8).
+    if (key === 'createdBy') return [r.departmentName, r.createdBy].filter(Boolean).join(' ')
     if (key === 'priority') return getPriorityLabel(t, r.priority)
     if (key === 'createdAtUtc') return formatDateTime(r.createdAtUtc, locale)
     if (key === 'dueDateUtc') return formatDateTime(r.dueDateUtc, locale)

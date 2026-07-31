@@ -77,7 +77,11 @@ internal static class NotificationAudience
             : [];
     }
 
-    /// <summary>Yöneticinin birimlerinin sahip/hedef/koordine olduğu tüm talepler (her durum) (card 541).</summary>
+    /// <summary>
+    /// Yöneticinin birimlerinin sahip/hedef/koordine olduğu talepler.
+    /// Hedef/koordinasyon birimi, sahip onayı öncesi (<c>PendingOwnerApproval</c>) dış birim
+    /// taleplerini görmez — Birime Gelen ile aynı görünürlük (#6a6c67cb).
+    /// </summary>
     public static async Task<IReadOnlyList<Guid>> GetManagerInvolvedJobIdsAsync(
         IApplicationDbContext dbContext,
         Guid tenantId,
@@ -97,10 +101,12 @@ internal static class NotificationAudience
             .Where(job =>
                 job.TenantId == tenantId
                 && (managedDepartmentIds.Contains(job.OwnerDepartmentId)
-                    || dbContext.JobDepartments.Any(jobDepartment =>
-                        jobDepartment.JobId == job.JobId
-                        && managedDepartmentIds.Contains(jobDepartment.DepartmentId)
-                        && (jobDepartment.Role == JobDepartmentRole.Target || jobDepartment.Role == JobDepartmentRole.Coordinating))))
+                    || (job.Status != JobStatus.PendingOwnerApproval
+                        && dbContext.JobDepartments.Any(jobDepartment =>
+                            jobDepartment.JobId == job.JobId
+                            && managedDepartmentIds.Contains(jobDepartment.DepartmentId)
+                            && (jobDepartment.Role == JobDepartmentRole.Target
+                                || jobDepartment.Role == JobDepartmentRole.Coordinating)))))
             .Select(job => job.JobId)
             .ToListAsync(cancellationToken);
     }
@@ -171,12 +177,14 @@ internal static class NotificationAudience
             .AsNoTracking()
             .Where(job =>
                 job.TenantId == tenantId
-                && (job.Status == JobStatus.PendingOwnerApproval || job.Status == JobStatus.PendingExternalApproval)
-                && (managedDepartmentIds.Contains(job.OwnerDepartmentId)
-                    || dbContext.JobDepartments.Any(jobDepartment =>
-                        jobDepartment.JobId == job.JobId
-                        && managedDepartmentIds.Contains(jobDepartment.DepartmentId)
-                        && jobDepartment.Role == JobDepartmentRole.Target)))
+                && (
+                    (job.Status == JobStatus.PendingOwnerApproval
+                        && managedDepartmentIds.Contains(job.OwnerDepartmentId))
+                    || (job.Status == JobStatus.PendingExternalApproval
+                        && dbContext.JobDepartments.Any(jobDepartment =>
+                            jobDepartment.JobId == job.JobId
+                            && managedDepartmentIds.Contains(jobDepartment.DepartmentId)
+                            && jobDepartment.Role == JobDepartmentRole.Target))))
             .Select(job => job.JobId)
             .ToListAsync(cancellationToken);
     }

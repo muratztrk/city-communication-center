@@ -1,3 +1,9 @@
+## Round 599 — Gelen filtre; dış birim bildirim; Yanıt Verildi Yap; tarih küçült
+- Birime Gelen Talep Yeri/Oluşturan filtresi birim+kişi (#6a6c52d8).
+- Hedef müdür PendingOwnerApproval bildirim görmez (#6a6c67cb).
+- WA: Yanıt Verildi Yap + yavaş blink (#6a6c3dca).
+- Bildirim modal tarih 1.1rem / 0.6rem (#6a6bad5c reopen).
+
 ## Round 598 — Bildirim modal tarih pill bir kademe daha küçült
 - Tarih yüksekliği 1.25rem; font/ikon 0.65rem (#6a6bad5c reopen).
 

@@ -411,8 +411,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
   WhatsApp nav satırında `Yanıt bekliyor` rozeti yok (#6a6ba9ac); sayım yalnız sayfa içi
-  `Yanıt bekliyor` filtresinde. `Yanıt Verildi İşaretle` yalnız **seçili konuşma yanıt bekliyorsa**
-  chip satırının en sağında (yanıp sönen yeşil) — filtre tek başına yetmez (#6a6bab12);
+  `Yanıt bekliyor` filtresinde. `Yanıt Verildi Yap` yalnız **seçili konuşma yanıt bekliyorsa**
+  chip satırının en sağında (yanıp sönen yeşil, yavaş blink) —
+  filtre tek başına yetmez (#6a6bab12/#6a6c3dca);
   `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`); yeni inbound webhook sıfırlar.
   **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
@@ -1386,7 +1387,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (görünmez ölçüm grid’i; sabit min-w yok).
 - **Birime Gelen Talep Yeri çerçeve (#r520/#r521):** grid `Talep Yeri / Oluşturan` — aktif (kendi)
   birim dışı talep yeri `FramedDepartmentStack` yeşil çerçeve, sütunda ortalı (#r521);
-  kendi birim `ReporterDepartmentCell`.
+  kendi birim `ReporterDepartmentCell`. Kolon filtresi `createdBy` hem `departmentName` hem
+  oluşturan adını arar (#6a6c52d8).
 - **Dropdown truncate tooltip (#r517/#r522):** `useDataTableOverflowTooltips` dropdown
   `.truncate` satırlarında portal tooltip; flex ölçüm fallback + `title` attribute yedek (#1997).
 - **Kullanıcılar grid Rol menü font (#r523/#1994):** `.users-edit-dropdown-menu*` ~0.82rem
@@ -1609,6 +1611,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   genişlemesi `X-Active-Department-Id` ile daralır; feed + okunmamış rozet yalnız seçili
   birimin talep/görevlerine aittir. Kişisel atama/oluşturma bildirimleri birimden bağımsız kalır.
   FE birim değişince `notifications` query invalidate.
+- **Dış birim hedef müdür — sahip onayı öncesi bildirim yok (#6a6c67cb):** hedef/koordinasyon
+  birimi `PendingOwnerApproval` taleplerini feed'e almaz; sahip onayından sonra görünür
+  (Birime Gelen `isIncomingExternalForActiveDept` ile aynı kural).
 - **Ek süre/revizyon onaycısı bildirim kapsamı:** `TaskRevision` approval onaycısı, görevin atanmış/owner
   kullanıcısı olmasa bile audit-feed ve okunmamış rozet kapsamına dahildir; kalıcı `Notification` yazılmaz.
 - **Ek süre talebi bildirim Detay popup'ı (card #1394):** yöneticiye giden `TaskExtraTimeRequested`

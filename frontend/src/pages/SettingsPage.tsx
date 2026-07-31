@@ -49,9 +49,9 @@ import type {
   SyslogSettingsUpdate,
   SlaWeekendSettingsUpdate,
 } from '../types/platform'
-import { getDeploymentModeLabel, getRoleLabel } from '../utils/localization'
+import { getRoleLabel } from '../utils/localization'
 
-type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates'
+type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates' | 'license'
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email'
 type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
@@ -355,7 +355,7 @@ const EMPTY_TEMPLATE_FORM: Omit<WhatsAppMessageTemplate, 'templateId'> = {
 }
 
 function readTab(tab: string | null): SettingsTab {
-  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'templates' ? tab : 'tenant'
+  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'templates' || tab === 'license' ? tab : 'tenant'
 }
 
 const SETTINGS_TAB_LABEL_KEYS: Record<SettingsTab, string> = {
@@ -365,6 +365,7 @@ const SETTINGS_TAB_LABEL_KEYS: Record<SettingsTab, string> = {
   social: 'settings.tabs.social',
   routing: 'settings.tabs.routing',
   templates: 'settings.tabs.templates',
+  license: 'settings.tabs.license',
 }
 
 function isMetaWhatsAppTemplate(template: Pick<WhatsAppMessageTemplate, 'channel'>) {
@@ -472,8 +473,27 @@ export function SettingsPage() {
   const [isNewTemplate, setIsNewTemplate] = useState(false)
   const [templateEditorMode, setTemplateEditorMode] = useState<'classic' | 'meta'>('classic')
   const [keywordInput, setKeywordInput] = useState('')
+  const [licenseForm, setLicenseForm] = useState({
+    citizenRequestModuleKey: '',
+    internalWorkTrackingModuleKey: '',
+  })
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [syncingMetaTemplates, setSyncingMetaTemplates] = useState(false)
+
+  useEffect(() => {
+    if (!user?.tenantId) return
+    try {
+      const raw = window.localStorage.getItem(`ccc_license_${user.tenantId}`)
+      if (!raw) return
+      const parsed = JSON.parse(raw) as { citizenRequestModuleKey?: string; internalWorkTrackingModuleKey?: string }
+      setLicenseForm({
+        citizenRequestModuleKey: parsed.citizenRequestModuleKey ?? '',
+        internalWorkTrackingModuleKey: parsed.internalWorkTrackingModuleKey ?? '',
+      })
+    } catch {
+      // ignore malformed cache
+    }
+  }, [user?.tenantId])
 
   useEffect(() => {
     if (!user?.tenantId) {
@@ -613,10 +633,8 @@ export function SettingsPage() {
 
   const organizationStats = useMemo(() => [
     { label: t('settings.organizationName'), value: institutionName },
-    { label: t('settings.domain'), value: tenantSettings.domain || t('settings.domainNotConfigured') },
-    { label: t('settings.deploymentMode'), value: getDeploymentModeLabel(t, tenantSettings.deploymentMode) },
     { label: t('settings.sla'), value: `${tenantSettings.defaultSlaHours} ${t('settings.hours')}` },
-  ], [institutionName, t, tenantSettings.defaultSlaHours, tenantSettings.deploymentMode, tenantSettings.domain])
+  ], [institutionName, t, tenantSettings.defaultSlaHours])
 
   const setTab = (tab: SettingsTab) => {
     const next = new URLSearchParams(searchParams)
@@ -757,6 +775,13 @@ export function SettingsPage() {
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
+  }
+
+  const saveLicenseSettings = (event: FormEvent) => {
+    event.preventDefault()
+    if (!user?.tenantId) return
+    window.localStorage.setItem(`ccc_license_${user.tenantId}`, JSON.stringify(licenseForm))
+    setMessage({ type: 'success', text: t('settings.license.saved', 'Lisans anahtarları kaydedildi.') })
   }
 
   const saveAppearanceSettings = async (event: FormEvent) => {
@@ -1381,6 +1406,9 @@ export function SettingsPage() {
             <button className={`tab-button ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setTab('templates')} type="button">
               {t('settings.tabs.templates')}
             </button>
+            <button className={`tab-button ${activeTab === 'license' ? 'active' : ''}`} onClick={() => setTab('license')} type="button">
+              {t('settings.tabs.license', 'Lisans')}
+            </button>
           </div>
         </div>
       </section>
@@ -1397,11 +1425,8 @@ export function SettingsPage() {
             <section className="section-card settings-org-card page-stack !gap-1 !p-3 sm:!p-3.5 lg:!p-4">
               <div className="page-header-row !mb-0 !gap-1">
                 <div>
-                  <h2 className="text-lg font-extrabold text-slate-950">{t('settings.organizationSectionTitle')}</h2>
+                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.organizationSectionTitle')}</h2>
                 </div>
-                <StatusPill tone={tenantSettings.isActive ? 'success' : 'danger'}>
-                  {tenantSettings.isActive ? t('common.enabled') : t('common.disabled')}
-                </StatusPill>
               </div>
               <div className="info-grid !gap-1.5 !mt-0">
                 {organizationStats.map(item => (
@@ -1412,38 +1437,14 @@ export function SettingsPage() {
                 ))}
               </div>
               <form className="page-stack !gap-3 !mt-0" onSubmit={saveOrganization}>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                    <span>{t('settings.organizationName')}</span>
-                    <input
-                      className="field-input"
-                      value={tenantSettings.displayName}
-                      onChange={event => setTenantSettings(current => ({ ...current, displayName: event.target.value }))}
-                    />
-                  </label>
-                  <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                    <span>{t('settings.deploymentMode')}</span>
-                    <SingleSelectDropdown
-                      options={['OnPrem', 'Hosted', 'DedicatedHosted'].map(mode => ({
-                        value: mode,
-                        label: getDeploymentModeLabel(t, mode),
-                      }))}
-                      value={tenantSettings.deploymentMode}
-                      onChange={deploymentMode => setTenantSettings(current => ({ ...current, deploymentMode }))}
-                      placeholder={t('settings.deploymentMode')}
-                    />
-                  </label>
-                </div>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                    <span>{t('settings.domain')}</span>
-                    <input className="field-input" placeholder={t('settings.domainPlaceholder')} value={tenantSettings.domain ?? ''} onChange={event => setTenantSettings(current => ({ ...current, domain: event.target.value || null }))} />
-                  </label>
-                  <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                    <span>{t('settings.themeKey')}</span>
-                    <input className="field-input" placeholder={t('settings.themeKeyPlaceholder')} value={tenantSettings.theme ?? ''} onChange={event => setTenantSettings(current => ({ ...current, theme: event.target.value || null }))} />
-                  </label>
-                </div>
+                <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                  <span>{t('settings.organizationName')}</span>
+                  <input
+                    className="field-input"
+                    value={tenantSettings.displayName}
+                    onChange={event => setTenantSettings(current => ({ ...current, displayName: event.target.value }))}
+                  />
+                </label>
                 <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-[220px]">
                   <span>{t('settings.sla')}</span>
                   <input className="field-input" min={1} type="number" value={tenantSettings.defaultSlaHours} onChange={event => setTenantSettings(current => ({ ...current, defaultSlaHours: Number(event.target.value) || 1 }))} />
@@ -2923,6 +2924,53 @@ export function SettingsPage() {
           </div>
         </div>
       ) : null}
+
+      {activeTab === 'license' ? (
+        <form className="section-card page-stack" onSubmit={saveLicenseSettings}>
+          <div className="page-header-row">
+            <div>
+              <h2 className="text-xl font-extrabold text-slate-950">{t('settings.license.title', 'Lisans')}</h2>
+              <p className="helper-copy">{t('settings.license.description', 'Modül lisans anahtarlarını buradan yönetin.')}</p>
+            </div>
+          </div>
+          <div className="grid gap-5 xl:grid-cols-2">
+            <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <h3 className="mb-4 text-base font-extrabold text-slate-900">
+                {t('settings.license.citizenRequestModule', 'Vatandaş Talep Modülü')}
+              </h3>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('settings.license.keyLabel', 'Lisans Anahtarı')}</span>
+                <input
+                  className="field-input font-mono"
+                  value={licenseForm.citizenRequestModuleKey}
+                  onChange={event => setLicenseForm(current => ({ ...current, citizenRequestModuleKey: event.target.value }))}
+                  placeholder={t('settings.license.keyPlaceholder', 'Lisans anahtarını girin')}
+                  autoComplete="off"
+                />
+              </label>
+            </section>
+            <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <h3 className="mb-4 text-base font-extrabold text-slate-900">
+                {t('settings.license.internalWorkTrackingModule', 'Kurum İçi İş Takip Modülü')}
+              </h3>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('settings.license.keyLabel', 'Lisans Anahtarı')}</span>
+                <input
+                  className="field-input font-mono"
+                  value={licenseForm.internalWorkTrackingModuleKey}
+                  onChange={event => setLicenseForm(current => ({ ...current, internalWorkTrackingModuleKey: event.target.value }))}
+                  placeholder={t('settings.license.keyPlaceholder', 'Lisans anahtarını girin')}
+                  autoComplete="off"
+                />
+              </label>
+            </section>
+          </div>
+          <div className="inline-actions">
+            <Button type="submit">{t('common.save')}</Button>
+          </div>
+        </form>
+      ) : null}
+
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
       {toast && (
         <Toast

@@ -1,3 +1,8 @@
+## Round 611 — Lisans sekmesi; dizin popup Birim/Tarih; Kurum sadeleştir
+- Ayarlar: Taslak sonrası Lisans (2 modül key) (#6a6cbc1e).
+- Vatandaş Bilgi Listesi popup: Birim truncate+tooltip (#6a6cbef5); Talep Tarihi DateCell (#6a6cbf0e).
+- Kurum Bilgisi: başlık=Kurum Konumu; Aktif/Alan/Dağıtım/Tema kaldırıldı (#6a6cbd61).
+
 ## Round 610 — Sayfa Yetkileri sıra; NAS/FTP ayrı test
 - Birimden Giden → Birime Gelen sonrası (#6a6ca355).
 - Vatandaş Talep Yöneticisi → Birim Yöneticisi/Sorumluları sonrası (#6a6cb6ea).

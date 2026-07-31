@@ -5,6 +5,7 @@ import type { TFunction } from 'i18next'
 import { MessageSquareText, Printer, Search, X as XIcon } from 'lucide-react'
 import { api } from '../api/client'
 import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeaderBrand'
+import { DateCell } from '../components/ui/date-cell'
 import { Button } from '../components/ui/button'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { EmptyCell } from '../components/ui/EmptyCell'
@@ -583,17 +584,17 @@ export function CitizenDirectoryPage() {
                                 </div>
                               ) : null}
                             </td>
-                            <td className="text-sm font-semibold text-slate-700">
-                              {new Date(ticket.receivedAtUtc).toLocaleString(locale, {
-                                day: '2-digit',
-                                month: '2-digit',
-                                year: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit',
-                              })}
+                            <td>
+                              <DateCell value={ticket.receivedAtUtc} locale={locale} />
                             </td>
                             <td className="font-semibold text-slate-800"><EmptyCell value={ticket.title} /></td>
-                            <td><EmptyCell value={ticket.departmentName} /></td>
+                            <td className="max-w-[12rem]">
+                              {ticket.departmentName ? (
+                                <span className="block truncate">{ticket.departmentName}</span>
+                              ) : (
+                                <EmptyCell />
+                              )}
+                            </td>
                             <td>
                               {statusLabel && ticket.jobStatus ? (
                                 <StatusPill className={getStatusPillClass(getJobStatusTone({ status: ticket.jobStatus, dueDateUtc: ticket.dueDateUtc ?? null }))}>

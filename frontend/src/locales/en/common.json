@@ -1058,7 +1058,8 @@
       "roles": "Page Permissions",
       "social": "Social Media Integration",
       "routing": "Auto Routing",
-      "templates": "Draft Messages"
+      "templates": "Draft Messages",
+      "license": "License"
     },
     "organizationName": "Organization Name",
     "domain": "Domain",
@@ -1070,7 +1071,16 @@
     "themeKey": "Theme Key",
     "themeKeyPlaceholder": "tire-default",
     "organizationSectionTitle": "Organization Info",
-    "organizationSectionDescription": "Update the display name, domain, and default service level from here.",
+    "organizationSectionDescription": "Update the display name and default service level from here.",
+    "license": {
+      "title": "License",
+      "description": "Manage module license keys here.",
+      "citizenRequestModule": "Citizen Request Module",
+      "internalWorkTrackingModule": "Internal Work Tracking Module",
+      "keyLabel": "License Key",
+      "keyPlaceholder": "Enter license key",
+      "saved": "License keys saved."
+    },
     "domainPlaceholder": "portal.tire.bel.tr",
     "appearancePreviewTitle": "Preview",
     "appearancePreviewDescription": "Review how the current color selection will look in the signed-in UI.",

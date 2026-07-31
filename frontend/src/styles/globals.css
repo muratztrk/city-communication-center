@@ -2386,6 +2386,14 @@
     font-family: var(--font-sans);
   }
 
+  .detail-modal-shell .citizen-directory-tickets-table tbody td .date-cell {
+    white-space: nowrap;
+  }
+
+  .detail-modal-shell .citizen-directory-tickets-table tbody td .truncate {
+    max-width: 12rem;
+  }
+
   /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" — banner ile aynı yeşil; sticky opak (#r447). */
   .my-requests-table thead th,
   .incoming-requests-table thead th {

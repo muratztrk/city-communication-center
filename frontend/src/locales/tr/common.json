@@ -1063,7 +1063,8 @@
       "roles": "Sayfa Yetkileri",
       "social": "Sosyal Medya Entegrasyonu",
       "routing": "Otomatik Yönlendirme",
-      "templates": "Taslak Mesajlar"
+      "templates": "Taslak Mesajlar",
+      "license": "Lisans"
     },
     "organizationName": "Kurum Adı",
     "domain": "Alan Adı",
@@ -1075,7 +1076,16 @@
     "themeKey": "Tema Anahtarı",
     "themeKeyPlaceholder": "tire-default",
     "organizationSectionTitle": "Kurum Bilgisi",
-    "organizationSectionDescription": "Görünen ad, alan adı ve varsayılan hizmet seviyesini buradan güncelleyin.",
+    "organizationSectionDescription": "Görünen ad ve varsayılan hizmet seviyesini buradan güncelleyin.",
+    "license": {
+      "title": "Lisans",
+      "description": "Modül lisans anahtarlarını buradan yönetin.",
+      "citizenRequestModule": "Vatandaş Talep Modülü",
+      "internalWorkTrackingModule": "Kurum İçi İş Takip Modülü",
+      "keyLabel": "Lisans Anahtarı",
+      "keyPlaceholder": "Lisans anahtarını girin",
+      "saved": "Lisans anahtarları kaydedildi."
+    },
     "domainPlaceholder": "portal.tire.bel.tr",
     "appearancePreviewTitle": "Önizleme",
     "appearancePreviewDescription": "Güncel renk seçiminin oturumlu arayüzde nasıl görüneceğini inceleyin.",

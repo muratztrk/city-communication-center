@@ -247,9 +247,13 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     : (terminalDateHeader ?? t('jobs.columns.completedAt', 'Tamamlanma Tarihi'))
   const showPrint = PRINTABLE_CHART_KEYS.has(chartKey)
   const isRequestTagsChart = chartKey === 'dashboard.charts.requestTags'
+  const isCitizenRequestsChart = chartKey === 'dashboard.charts.citizenRequests'
   const isExternalUnitChart = EXTERNAL_UNIT_CHART_KEYS.has(chartKey)
   const truncateUnitColumn = TRUNCATE_UNIT_CHART_KEYS.has(chartKey)
-  const unitColumnLabel = isRequestTagsChart || NEIGHBORHOOD_CHART_KEYS.has(chartKey) || isExternalUnitChart || chartKey === 'dashboard.charts.citizenRequests'
+  const requestNoColumnLabel = isCitizenRequestsChart
+    ? t('social.citizenRequestNo', 'Vatandaş Talep No')
+    : t('jobs.columns.requestNo', 'Talep No')
+  const unitColumnLabel = isRequestTagsChart || NEIGHBORHOOD_CHART_KEYS.has(chartKey) || isExternalUnitChart || isCitizenRequestsChart
     ? t('jobs.columns.unitShort', 'Birim')
     : t('departments.name', 'Müdürlük')
   const chartTitle = t(chartKey)
@@ -361,15 +365,15 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
             ) : (
               <div className="dashboard-drilldown-grid-shell">
                 <div className="dashboard-drilldown-table-wrap">
-                <table className="data-table data-table--zebra dashboard-drilldown-table">
+                <table className={`data-table data-table--zebra dashboard-drilldown-table${isCitizenRequestsChart ? ' dashboard-drilldown-table--citizen' : ''}`}>
                   <thead>
                     <tr>
                       <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
-                      <th>{t('jobs.columns.requestNo', 'Talep No')}</th>
+                      <th>{requestNoColumnLabel}</th>
                       <th className="text-center">{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
                       <th>{t('jobs.columns.title', 'Başlık')}</th>
                       <th>{unitColumnLabel}</th>
-                      <th className="text-center">{t('jobs.columns.status', 'Durum')}</th>
+                      <th className="grid-col-status text-center">{t('jobs.columns.status', 'Durum')}</th>
                       {showTerminalDateColumn ? <th className="text-center">{terminalColumnHeader}</th> : null}
                       {!hideDueDateColumn ? <th className="text-center">{t('jobs.columns.dueDate', 'Son Tarih')}</th> : null}
                       <th className="text-center">{t('common.actions', 'İşlemler')}</th>
@@ -422,7 +426,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                             ) : '—'
                           ) : (row.departmentName ?? row.neighborhood ?? '—')}
                         </td>
-                        <td className="text-center">
+                        <td className="grid-col-status text-center">
                           {useTaleplerimStatusStyle ? (
                             <StatusPill className={getDrilldownStatusPillClass(row)}>
                               <GridStatusLabel

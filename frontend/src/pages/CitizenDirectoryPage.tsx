@@ -114,7 +114,7 @@ function printCitizenTickets(
     <h2>${escape(t('jobs.detail.requestInfo', 'Talep Detayları'))}</h2>
     <table><thead><tr>
       <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
-      <th class="col-no">${escape(t('jobs.columns.parentRequestNoShort', 'Talep No'))}</th>
+      <th class="col-no">${escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
       <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>
       <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
       <th class="col-dept">${escape(t('users.department', 'Birim'))}</th>
@@ -552,7 +552,7 @@ export function CitizenDirectoryPage() {
                       <thead>
                         <tr>
                           <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>
-                          <th>{t('jobs.columns.parentRequestNoShort', 'Talep No')}</th>
+                          <th>{t('social.citizenRequestNo', 'Vatandaş Talep No')}</th>
                           <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
                           <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
                           <th>{t('users.department', 'Birim')}</th>

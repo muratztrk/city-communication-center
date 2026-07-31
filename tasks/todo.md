@@ -1,3 +1,7 @@
+## Round 619 — Vatandaş Talep No başlığı; pie Öncelik/Durum
+- `#6a6cf14b`: dizin popup kolon başlığı → Vatandaş Talep No
+- `#6a6cf4d4`: pie drilldown aynı başlık; Öncelik `0.7rem`; Durum `11rem`
+
 ## Round 618 — VT Konum sil; Talep No küçült; Durum 2 satır; pie Öncelik
 - `#6a6cdf95`/`#6a6cf3c0`: Vatandaş Talepleri grid Konum satırı kaldırıldı
 - `#6a6cf14b`: dizin popup Talep No `0.76rem`

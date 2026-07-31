@@ -1386,11 +1386,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kurum İçi İş Takip Modülü lisans anahtarı alanları (tenant localStorage).
 - **Vatandaş Bilgi Listesi (#6a6cbef5/#6a6cbf0e/#6a6ce8f0/#6a6cf14b):** popup Birim truncate;
   Talep Tarihi `DateCell` = Son Tarih `DueDatePill` (0.84rem/600, svg 0.875rem); ana grid
-  Adı/Numara = Gelen Talep Yeri tipografisi; popup Talep No `0.76rem`, Öncelik alt satır `0.64rem`.
+  Adı/Numara = Gelen Talep Yeri tipografisi; popup kolon başlığı `Vatandaş Talep No`;
+  Talep No `0.76rem`, Öncelik alt satır `0.64rem`.
 - **Durum overdue 2 satır (#6a6cf4d4):** `GridStatusLabel` — `Yapılmakta` / `(Son Tarihi Geçmiş)`
   `whitespace-nowrap`; tüm grid StatusPill’lerde kullanılır (dizin popup dahil).
-- **Vatandaş Talepleri pie Öncelik (#6a6cf439):** drilldown `BuildCitizenRowsAsync` Priority döner;
-  Talep No altında `(Öncelik:…)` diğer pie’larla aynı.
+- **Vatandaş Talepleri pie (#6a6cf439/#6a6cf4d4):** drilldown Priority alt satır; kolon başlığı
+  `Vatandaş Talep No`; Öncelik `0.7rem`; Durum sütunu `min-width: 11rem`.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);

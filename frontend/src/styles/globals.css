@@ -2645,6 +2645,17 @@
     max-width: none;
   }
 
+  /* Vatandaş Talepleri pie drilldown (#6a6cf4d4): Öncelik biraz küçük; Durum sütunu biraz geniş */
+  .dashboard-drilldown-table--citizen .table-number-cell__priority {
+    font-size: 0.7rem;
+  }
+
+  .dashboard-drilldown-table--citizen th.grid-col-status,
+  .dashboard-drilldown-table--citizen td.grid-col-status {
+    min-width: 11rem;
+    width: 11rem;
+  }
+
   .dashboard-drilldown-table .date-cell {
     font-size: 0.74rem;
   }

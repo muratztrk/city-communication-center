@@ -1,3 +1,11 @@
+## Round 623 — Kanal pie popup; VT başlık/öncelik; Çağrı; UI
+- `#6a6cfd34`: dizin popup Talep No `0.88rem`
+- `#6a6cfd82`: Talep Etiketi pie telefon biraz daha aşağı
+- `#6a6d0181`: WhatsApp/Çağrı → Vatandaş Talepleri grid popup
+- `#6a6cff28`: tüm Vatandaş pie popup’ları `Vatandaş Talep No` + mahalle Öncelik
+- `#6a6d0132`: lejant Telefon → Çağrı
+- `#6a6cffd1`: Talep Etiketi thead yüksekliği vatandaş pie kadar
+
 ## Round 622 — Talep Etiketi ortala; dizin Birimler üstü; Talep No büyüt
 - `#6a6cfd82`: Telefon No uppercase + ortalı (başlık+veri)
 - `#6a6cfc0c`: dizin → Anasayfa-Birimler’in üst satırı

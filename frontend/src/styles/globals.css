@@ -1127,7 +1127,8 @@
     color: #dc2626;
   }
 
-  /* Bildirim modalı: tarih pill / ikon / metin bir kademe daha küçült (#6a6bad5c reopen). */
+  /* Bildirim modalı tarih: genel .scope-chip-date .field-input (1.875rem) ve
+     Tailwind size-3.5 ikonu ezer — !important + daha spesifik seçici (#6a6bad5c). */
   .notification-modal-header.sticky-page-header {
     padding-block: 0.7rem;
   }
@@ -1139,43 +1140,41 @@
   }
 
   .notification-modal-filters .notification-modal-date.scope-chip-date {
-    width: 8rem;
+    width: 7.75rem;
   }
 
   .notification-modal-filters .scope-chip-date-separator {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 1.1rem;
+    min-height: 1rem;
     color: rgba(255, 255, 255, 0.75);
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     font-weight: 600;
   }
 
-  .notification-modal-date .field-input {
-    height: 1.1rem;
-    min-height: 0;
-    gap: 0.2rem;
-    padding-inline: 0.35rem;
-    font-size: 0.6rem;
+  .notification-modal-header .notification-modal-date.scope-chip-date .field-input {
+    height: 1rem !important;
+    min-height: 0 !important;
+    gap: 0.15rem;
+    padding: 0 0.3rem !important;
+    font-size: 0.55rem !important;
+    line-height: 1;
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.28);
-    /* Tarih metni ve takvim ikonu, yanındaki "Ara" placeholder ile aynı renk (card 508).
-       Placeholder durumunda DateTimePicker `text-[color:var(--color-muted-foreground)]`
-       utility'sini ekliyor; utilities katmanı components'tan sonra geldiği için !important şart. */
     color: rgba(255, 255, 255, 0.7) !important;
     box-shadow: none;
   }
 
-  .notification-modal-date .field-input:hover,
-  .notification-modal-date .field-input:focus {
+  .notification-modal-header .notification-modal-date.scope-chip-date .field-input:hover,
+  .notification-modal-header .notification-modal-date.scope-chip-date .field-input:focus {
     border-color: rgba(255, 255, 255, 0.45);
     box-shadow: none;
   }
 
-  .notification-modal-date .field-input svg {
-    width: 0.55rem;
-    height: 0.55rem;
+  .notification-modal-header .notification-modal-date.scope-chip-date .field-input svg {
+    width: 0.5rem !important;
+    height: 0.5rem !important;
     color: rgba(255, 255, 255, 0.7) !important;
     opacity: 1 !important;
   }

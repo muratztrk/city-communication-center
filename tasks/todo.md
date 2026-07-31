@@ -1,3 +1,6 @@
+## Round 601 — Bildirim tarih CSS specificity fix
+- Modal tarih: genel scope-chip-date 1.875rem eziliyordu; !important + daha spesifik seçici (#6a6bad5c).
+
 ## Round 600 — Dış birim onay bildirimi; Gelen Talep Yeri kolon geniş
 - ExternalUnit JobOwnerApproved → "Talep oluşturuldu" + sahip birim adı (#6a6c73f2).
 - Birime Gelen Talep Yeri/Oluşturan kolon ~14.5rem (#6a6c72f4).

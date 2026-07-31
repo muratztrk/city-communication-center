@@ -960,7 +960,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   default `Birim`, mevcut `Administration` korunur (card #1720). Yönetim seçilince müdür
   etiketi `Yönetici`.
 - **Kurum sekmesi 2×2 (#6a6cdcad):** Kurum Bilgisi | Kurum Konumu / SMS API | Hafta Sonu SLA
-  (`xl:grid-cols-2`, `items-start`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
+  (`xl:grid-cols-2`, `items-stretch` + `h-full` — satırda yükseklikler eşit; Kaydet `mt-auto`).
+  Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
 - **Kurum Konumu ilçe (#r512/#r514/#r521):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
   önizlemesi Ayarlar’da gösterilmez (#r521). Kaydet sonrası `ccc_municipality_district` ile
   talep formu mahalle dropdown’ları ve Anasayfa vatandaş haritası aynı ilçeyi kullanır.
@@ -1411,7 +1412,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Ayarlar Lisans sekmesi (#6a6cbc1e):** Taslak Mesajlar sonrası; Vatandaş Talep Modülü +
   Kurum İçi İş Takip Modülü lisans anahtarı alanları (tenant localStorage).
 - **Vatandaş Bilgi Listesi talep popup (#6a6cbef5/#6a6cbf0e):** Birim truncate+tooltip;
-  Talep Tarihi `DateCell` ≈ DueDatePill tipografi; grid hücreleri ~0.78rem (#6a6cbf0e reopen).
+  Talep Tarihi `DateCell` ≈ DueDatePill tipografi; grid hücreleri ~0.82rem (çok az bump).
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);

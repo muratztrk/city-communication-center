@@ -1416,15 +1416,15 @@ export function SettingsPage() {
 
       {activeTab === 'tenant' ? (
         <div className="page-stack !gap-2">
-          {/* 2×2: Kurum Bilgisi | Kurum Konumu / SMS API | Hafta Sonu SLA (#6a6cdcad, #6a6cdd37). */}
-          <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
-            <section className="section-card settings-org-card page-stack content-start !gap-1 !p-3 sm:!p-3.5 lg:!p-4">
+          {/* 2×2 stretch: satırda kart yükseklikleri eşit (#6a6cdcad). content-start: iç boşluk dağılmaz. */}
+          <div className="grid gap-4 xl:grid-cols-2 xl:items-stretch">
+            <section className="section-card settings-org-card page-stack content-start h-full !gap-1 p-5 sm:p-6 lg:p-7">
               <div className="page-header-row !mb-0 !gap-0.5">
                 <div>
                   <h2 className="text-xl font-extrabold leading-tight text-slate-950">{t('settings.organizationSectionTitle')}</h2>
                 </div>
               </div>
-              <form className="page-stack !gap-2 !mt-0" onSubmit={saveOrganization}>
+              <form className="page-stack content-start !gap-2 !mt-0" onSubmit={saveOrganization}>
                 <label className="grid gap-1 text-sm font-semibold text-slate-700">
                   <span>{t('settings.organizationName')}</span>
                   <input
@@ -1437,13 +1437,13 @@ export function SettingsPage() {
                   <span>{t('settings.sla')}</span>
                   <input className="field-input" min={1} type="number" value={tenantSettings.defaultSlaHours} onChange={event => setTenantSettings(current => ({ ...current, defaultSlaHours: Number(event.target.value) || 1 }))} />
                 </label>
-                <div className="inline-actions">
+                <div className="inline-actions mt-auto">
                   <Button type="submit">{t('common.save')}</Button>
                 </div>
               </form>
             </section>
 
-            <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={saveMunicipalityDistrict}>
+            <form className="section-card page-stack content-start h-full p-5 sm:p-6 lg:p-7" onSubmit={saveMunicipalityDistrict}>
               <div className="page-header-row">
                 <div>
                   <h2 className="text-xl font-extrabold text-slate-950">{t('settings.municipalityLocation.sectionTitle', 'Kurum Konumu')}</h2>
@@ -1464,12 +1464,12 @@ export function SettingsPage() {
                   searchPlaceholder={t('common.search', 'Ara...')}
                 />
               </label>
-              <div className="inline-actions">
+              <div className="inline-actions mt-auto">
                 <Button type="submit">{t('common.save')}</Button>
               </div>
             </form>
 
-            <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSmsSettings(event)}>
+            <form className="section-card page-stack content-start h-full p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSmsSettings(event)}>
               <div className="page-header-row">
                 <div>
                   <h2 className="text-xl font-extrabold text-slate-950">{t('settings.sms.sectionTitle')}</h2>
@@ -1557,12 +1557,12 @@ export function SettingsPage() {
                   </div>
                 </>
               )}
-              <div className="inline-actions">
+              <div className="inline-actions mt-auto">
                 <Button type="submit">{t('settings.sms.save')}</Button>
               </div>
             </form>
 
-            <form className="section-card page-stack p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSlaWeekendSettings(event)}>
+            <form className="section-card page-stack content-start h-full p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSlaWeekendSettings(event)}>
               <div className="page-header-row">
                 <div>
                   <h2 className="text-xl font-extrabold text-slate-950">{t('settings.slaWeekend.sectionTitle')}</h2>
@@ -1604,7 +1604,7 @@ export function SettingsPage() {
                   <p className="helper-copy">{t('settings.slaWeekend.exemptDepartmentsHelp')}</p>
                 </div>
               )}
-              <div className="inline-actions">
+              <div className="inline-actions mt-auto">
                 <Button type="submit">{t('settings.slaWeekend.save')}</Button>
               </div>
             </form>

@@ -2370,26 +2370,26 @@
     border-right: 0;
   }
 
-  /* Dizin talep popup grid — biraz küçültülmüş tipografi (#6a6cbf0e reopen). */
+  /* Dizin talep popup grid — hafif kompakt; reopen ile çok az büyütüldü (#6a6cbf0e). */
   .detail-modal-shell .citizen-directory-tickets-table thead th {
-    font-size: 0.7rem;
+    font-size: 0.72rem;
     letter-spacing: 0.06em;
     line-height: 1.2;
     font-family: var(--font-sans);
-    padding-block: calc(var(--table-chrome-row-py) + 0.05rem);
-    min-height: calc(var(--table-chrome-row-min-height) + 0.1rem);
+    padding-block: calc(var(--table-chrome-row-py) + 0.1rem);
+    min-height: calc(var(--table-chrome-row-min-height) + 0.15rem);
   }
 
   .detail-modal-shell .citizen-directory-tickets-table tbody td {
-    padding: 0.42rem 0.5rem;
-    font-size: 0.78rem;
+    padding: 0.48rem 0.55rem;
+    font-size: 0.82rem;
     font-family: var(--font-sans);
   }
 
   .detail-modal-shell .citizen-directory-tickets-table tbody td .date-cell,
   .detail-modal-shell .citizen-directory-tickets-table tbody td .due-date-pill,
   .detail-modal-shell .citizen-directory-tickets-table tbody td .status-pill {
-    font-size: 0.74rem;
+    font-size: 0.78rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table tbody td .date-cell {
@@ -2397,11 +2397,11 @@
   }
 
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__value {
-    font-size: 0.78rem;
+    font-size: 0.82rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__priority {
-    font-size: 0.7rem;
+    font-size: 0.74rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table tbody td .truncate {

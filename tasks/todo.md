@@ -1,3 +1,7 @@
+## Round 614 — Dizin grid az büyüt; Kurum 2×2 yükseklik eşit
+- `#6a6cbf0e`: dizin popup grid ~0.82rem (çok az artış)
+- `#6a6cdcad`: satır kartları `items-stretch` + `h-full` (Bilgi=Konum, SMS=Hafta Sonu)
+
 ## Round 613 — Dizin grid küçült; Kurum özet sil; SMS 2×2
 - `#6a6cbf0e`: dizin popup grid ~0.78rem
 - `#6a6cdd37`: readonly KURUM ADI/SLA özet satırı kaldırıldı

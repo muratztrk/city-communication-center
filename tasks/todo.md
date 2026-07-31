@@ -1,3 +1,6 @@
+## Round 602 — Yanıt Verildi Yap daha büyük + daha az silik blink
+- Metin 11px; blink min opacity 0.58 (#6a6c3dca reopen).
+
 ## Round 601 — Bildirim tarih CSS specificity fix
 - Modal tarih: genel scope-chip-date 1.875rem eziliyordu; !important + daha spesifik seçici (#6a6bad5c).
 

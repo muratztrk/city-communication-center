@@ -496,7 +496,7 @@ function ConversationListPanel({
             && conversations.some(c => c.citizenConversationId === selectedId && isWaitingForConversationResponse(c)) ? (
             <button
               type="button"
-              className="whatsapp-mark-waiting-replied shrink-0 text-[10px] font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline"
+              className="whatsapp-mark-waiting-replied shrink-0 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline"
               onClick={() => {
                 if (selectedId) onMarkWaitingReplied(selectedId)
               }}

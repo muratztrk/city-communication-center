@@ -1204,7 +1204,9 @@
       "clearPassword": "Kayıtlı parolayı sil",
       "saved": "Dosya sunucusu ayarları kaydedildi.",
       "userTestOk": "Test kullanıcısı kabul edildi: {{username}}",
-      "userTestMismatch": "Test kullanıcı adı kayıtlı NAS/FTP kullanıcı adıyla eşleşmiyor."
+      "userTestMismatch": "Test kullanıcı adı kayıtlı NAS/FTP kullanıcı adıyla eşleşmiyor.",
+      "userTestMismatchNas": "Test kullanıcı adı kayıtlı NAS kullanıcı adıyla eşleşmiyor.",
+      "userTestMismatchFtp": "Test kullanıcı adı kayıtlı FTP kullanıcı adıyla eşleşmiyor."
     },
     "slaWeekend": {
       "sectionTitle": "Hafta Sonu SLA",

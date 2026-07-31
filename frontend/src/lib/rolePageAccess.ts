@@ -1,4 +1,4 @@
-export const ROLE_CODES = ['SystemAdmin', 'Manager', 'Operator', 'Staff', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
+export const ROLE_CODES = ['SystemAdmin', 'Manager', 'CitizenRequestManager', 'Operator', 'Staff', 'Reporter', 'EDevletActivityPlan'] as const
 
 export type RoleCode = typeof ROLE_CODES[number]
 
@@ -12,9 +12,9 @@ export const PAGE_ACCESS_ITEMS = [
   { key: 'departmentTasks', path: '/department-tasks', labelKey: 'nav.departmentTasks' },
   { key: 'myRequests', path: '/my-requests', labelKey: 'nav.myRequests' },
   { key: 'incomingRequests', path: '/incoming-requests', labelKey: 'nav.incomingRequests' },
+  { key: 'outgoingRequests', path: '/outgoing-requests', labelKey: 'nav.outgoingRequests' },
   { key: 'citizenMessageApproval', path: '/citizen-message-approval', labelKey: 'nav.citizenMessageApproval' },
   { key: 'smsDeliveryApproval', path: '/sms-delivery-approval', labelKey: 'nav.smsDeliveryApproval' },
-  { key: 'outgoingRequests', path: '/outgoing-requests', labelKey: 'nav.outgoingRequests' },
   { key: 'social', path: '/social', labelKey: 'nav.social' },
   { key: 'citizenDirectory', path: '/citizen-directory', labelKey: 'nav.citizenDirectory' },
   { key: 'display', path: '/display', labelKey: 'nav.display' },

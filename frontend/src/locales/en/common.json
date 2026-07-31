@@ -1199,7 +1199,9 @@
       "clearPassword": "Clear saved password",
       "saved": "File server settings saved.",
       "userTestOk": "Test user accepted: {{username}}",
-      "userTestMismatch": "Test username does not match the saved NAS/FTP username."
+      "userTestMismatch": "Test username does not match the saved NAS/FTP username.",
+      "userTestMismatchNas": "Test username does not match the saved NAS username.",
+      "userTestMismatchFtp": "Test username does not match the saved FTP username."
     },
     "slaWeekend": {
       "sectionTitle": "Weekend SLA",

@@ -1,3 +1,8 @@
+## Round 610 — Sayfa Yetkileri sıra; NAS/FTP ayrı test
+- Birimden Giden → Birime Gelen sonrası (#6a6ca355).
+- Vatandaş Talep Yöneticisi → Birim Yöneticisi/Sorumluları sonrası (#6a6cb6ea).
+- NAS ve FTP kolonlarında ayrı bağlantı/kullanıcı test alanları (#6a6cb6ec).
+
 ## Round 609 — Supersede popup ekranı kapatmadan; X→login
 - Eski oturum: cookie düşse bile UI açık; paralel 401 login'e atmaz; X/Tamam → login (#6a6c805e).
 

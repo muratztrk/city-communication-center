@@ -1,3 +1,7 @@
+## Round 606 — Onay Bekleyen sıra; Onaylanmış Görevi Yapan yok
+- Birime Gelen Onay Bekleyen: dış birim `ownerApprovedAtUtc` desc, birim içi `createdAtUtc` desc (#6a6c9edc).
+- Onaylanmış grid: `Görevi Yapan` / `Görev Sahibi` sütunu kaldırıldı (#6a6ca0bc).
+
 ## Round 605 — Bildirim tarih=Ara; login öncesi oturum onay popup
 - Bildirim modal tarih Ara ile aynı 1.875rem / 0.82rem (#6a6c6a6d reopen).
 - Açık oturumda yeni login: 409 + onay popup (otomatik kapanmaz), sonra takeover (#6a6c805e reopen).

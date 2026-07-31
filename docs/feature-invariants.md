@@ -911,7 +911,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1697). Birimden Giden Onaylanmış: Owner `decidedAtUtc` dolu olan tüm talepler
   (card #1697). Yapılmakta / Tamamlanmış vb. sekmelerde de görünebilirler.
   Birime Gelen Onaylanmış grid İşlemler'de yalnız `Detaylar` — `İptal Et` ve `Onayla`
-  yok (cards #1702/#1703).
+  yok (cards #1702/#1703). Onaylanmış grid'de `Görevi Yapan` / `Görev Sahibi` sütunu yok
+  (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
+  birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
   (card #1701; mavi `in-progress` değil).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`

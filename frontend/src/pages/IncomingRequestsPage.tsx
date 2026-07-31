@@ -140,6 +140,8 @@ type IncomingRequestRow = {
   /** For coordinated external jobs awaiting this target department's approval */
   pendingTargetApprovalDepartmentId: string | null
   approvedAtUtc: string | null
+  /** Sahip birim yöneticisi onay zamanı — Onay Bekleyen dış birim sıralaması (#6a6c9edc). */
+  ownerApprovedAtUtc: string | null
   completedAtUtc: string | null
   updatedAtUtc: string | null
   createdByRoleCode: string | null
@@ -329,6 +331,7 @@ function toInternalRow(task: Task): IncomingRequestRow {
     assignTargetDepartmentId: null,
     pendingTargetApprovalDepartmentId: null,
     approvedAtUtc: task.createdAtUtc ?? null,
+    ownerApprovedAtUtc: null,
     completedAtUtc: task.completedAtUtc ?? null,
     updatedAtUtc: task.updatedAtUtc ?? null,
     createdByRoleCode: task.createdByRoleCode ?? null,
@@ -393,6 +396,7 @@ function toExternalRow(
     forwardReason: activeTarget?.notes?.trim() || null,
     forwardSourceDepartmentName,
     approvedAtUtc: activeTarget?.decidedAtUtc ?? ownerDept?.decidedAtUtc ?? null,
+    ownerApprovedAtUtc: ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
     createdByRoleCode: job.createdByRoleCode ?? null,
@@ -440,12 +444,21 @@ function toPendingInternalJobRow(job: JobSummary): IncomingRequestRow {
     assignTargetDepartmentId: null,
     pendingTargetApprovalDepartmentId: null,
     approvedAtUtc: ownerDept?.decidedAtUtc ?? null,
+    ownerApprovedAtUtc: ownerDept?.decidedAtUtc ?? null,
     completedAtUtc: job.completedAtUtc,
     updatedAtUtc: job.updatedAtUtc ?? null,
     createdByRoleCode: job.createdByRoleCode ?? null,
     hasPendingExtraTimeRequest: job.hasPendingExtraTimeRequest,
     lastExtraTimeRequestDecision: job.lastExtraTimeRequestDecision,
   }
+}
+
+/** Onay Bekleyen: dış birim → sahip onay tarihi; birim içi → talep tarihi (#6a6c9edc). */
+function getPendingApprovalSortTime(row: IncomingRequestRow): number {
+  const raw = row.kind === 'external'
+    ? (row.ownerApprovedAtUtc ?? row.approvedAtUtc ?? row.createdAtUtc)
+    : row.createdAtUtc
+  return raw ? new Date(raw).getTime() : 0
 }
 
 export function IncomingRequestsPage() {
@@ -492,7 +505,8 @@ export function IncomingRequestsPage() {
     currentStatusFilterMeta?.fallback ?? 'Onay Bekleyen Talepler',
   )
   const currentKindFilter = getIncomingKindFilter()
-  const showTaskOwnerColumn = ['approved', 'in-progress', 'completed', 'cancelled'].includes(currentStatusFilter)
+  // Onaylanmış grid'de Görevi Yapan/Sahibi sütunu yok (#6a6ca0bc).
+  const showTaskOwnerColumn = ['in-progress', 'completed', 'cancelled'].includes(currentStatusFilter)
   const incomingTableColumnCount = useMemo(() => {
     let count = 6
     if (showTaskOwnerColumn) count += 1
@@ -814,13 +828,20 @@ export function IncomingRequestsPage() {
       const isCompleted = currentStatusFilter === 'completed'
       const isCancelled = currentStatusFilter === 'cancelled'
       const isApproved = currentStatusFilter === 'approved'
-      const base = (isCompleted || isCancelled || isApproved)
-        ? [...columnFilteredRows].sort((a, b) => {
-            const av = isCompleted ? a.completedAtUtc : isCancelled ? a.updatedAtUtc : a.approvedAtUtc
-            const bv = isCompleted ? b.completedAtUtc : isCancelled ? b.updatedAtUtc : b.approvedAtUtc
-            return new Date(bv ?? 0).getTime() - new Date(av ?? 0).getTime()
-          })
-        : columnFilteredRows
+      const isPendingApproval = currentStatusFilter === 'pending-approval'
+      let base = columnFilteredRows
+      if (isCompleted || isCancelled || isApproved) {
+        base = [...columnFilteredRows].sort((a, b) => {
+          const av = isCompleted ? a.completedAtUtc : isCancelled ? a.updatedAtUtc : a.approvedAtUtc
+          const bv = isCompleted ? b.completedAtUtc : isCancelled ? b.updatedAtUtc : b.approvedAtUtc
+          return new Date(bv ?? 0).getTime() - new Date(av ?? 0).getTime()
+        })
+      } else if (isPendingApproval) {
+        // Dış birim: sahip onay tarihi; birim içi: talep tarihi — en yeni üstte (#6a6c9edc).
+        base = [...columnFilteredRows].sort(
+          (a, b) => getPendingApprovalSortTime(b) - getPendingApprovalSortTime(a),
+        )
+      }
       return sortIncoming(base).slice((incomingPage - 1) * incomingPageSize, incomingPage * incomingPageSize)
     },
     [columnFilteredRows, incomingPage, incomingPageSize, sortIncoming, currentStatusFilter],

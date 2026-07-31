@@ -375,22 +375,11 @@ export async function restoreSessionFromCookie(): Promise<AuthSession | null> {
   return writeCookieSession(buildUserFromProfileResponse(profile, existingUser))
 }
 
-/** Açık oturum varken login onayı gerekir (#6a6c805e). */
-export class ExistingSessionError extends Error {
-  readonly code = 'existing_session' as const
-
-  constructor(message: string) {
-    super(message)
-    this.name = 'ExistingSessionError'
-  }
-}
-
 export async function loginWithPassword(
   username: string,
   password: string,
   tenantId: string,
   tenantName: string,
-  confirmEndExistingSession = false,
 ): Promise<AuthSession> {
   const response = await fetch(SESSION_LOGIN_ENDPOINT, {
     method: 'POST',
@@ -403,23 +392,11 @@ export async function loginWithPassword(
       username,
       password,
       tenantId,
-      confirmEndExistingSession,
     }),
   })
 
   const rawBody = await response.text()
   const data = rawBody ? tryParseJson<LoginResponse & { error?: string; message?: string; detail?: string }>(rawBody) : null
-
-  if (response.status === 409 && data?.error === 'existing_session') {
-    throw new ExistingSessionError(
-      readErrorMessage(data.message)
-      || readErrorMessage(data.detail)
-      || i18n.t(
-        'sessionTakeover.message',
-        'Bu hesap için açık bir oturum var. Devam ederseniz mevcut oturum sonlandırılacaktır.',
-      ),
-    )
-  }
 
   if (!response.ok) {
     if (data) {
@@ -464,9 +441,8 @@ export async function exchangeInteractiveGrant(
   password: string,
   tenantId: string,
   tenantName: string,
-  confirmEndExistingSession = false,
 ): Promise<AuthSession> {
-  return loginWithPassword(username, password, tenantId, tenantName, confirmEndExistingSession)
+  return loginWithPassword(username, password, tenantId, tenantName)
 }
 
 export async function logoutSession(): Promise<void> {

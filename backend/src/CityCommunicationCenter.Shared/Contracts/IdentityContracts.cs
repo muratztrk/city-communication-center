@@ -98,9 +98,7 @@ public sealed record UserManagementContextResponse(
 public sealed record LoginRequest(
     string Username,
     string Password,
-    string? TenantId,
-    /// <summary>Açık oturumu sonlandırarak devam onayı (#6a6c805e).</summary>
-    bool ConfirmEndExistingSession = false);
+    string? TenantId);
 
 public sealed record LoginResponse(
     string UserId,

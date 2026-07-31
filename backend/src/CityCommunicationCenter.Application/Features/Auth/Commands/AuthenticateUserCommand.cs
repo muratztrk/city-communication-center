@@ -3,8 +3,7 @@ namespace CityCommunicationCenter.Application.Features.Auth;
 public sealed record AuthenticateUserCommand(
     string Username,
     string Password,
-    string TenantId,
-    bool ConfirmEndExistingSession = false) : ICommand<AuthenticatedTokenPayload?>;
+    string TenantId) : ICommand<AuthenticatedTokenPayload?>;
 
 public sealed class AuthenticateUserCommandValidator : AbstractValidator<AuthenticateUserCommand>
 {
@@ -56,12 +55,7 @@ public sealed class AuthenticateUserCommandHandler : ICommandHandler<Authenticat
             return null;
         }
 
-        // Açık oturum varken yeni login — önce onay (#6a6c805e).
-        if (entity.ActiveSessionId.HasValue && !request.ConfirmEndExistingSession)
-        {
-            throw new ExistingSessionConflictException();
-        }
-
+        // Yeni login önceki oturumu geçersiz kılar; uyarı eski oturumda (#6a6c805e).
         var activeSessionId = Guid.NewGuid();
         entity.ActiveSessionId = activeSessionId;
         entity.UpdatedAtUtc = DateTimeOffset.UtcNow;

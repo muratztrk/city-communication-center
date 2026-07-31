@@ -252,12 +252,6 @@
     "message": "This account signed in elsewhere, so your current session was closed. Please sign in again to continue.",
     "confirm": "OK"
   },
-  "sessionTakeover": {
-    "title": "Current Session Will End",
-    "message": "This account already has an open session. Continuing will end the existing session.",
-    "confirm": "Continue",
-    "cancel": "Cancel"
-  },
   "wallboard": {
     "kicker": "Live Display",
     "title": "Pending Tasks",

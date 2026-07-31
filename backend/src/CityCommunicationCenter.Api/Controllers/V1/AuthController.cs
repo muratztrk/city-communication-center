@@ -64,9 +64,8 @@ public sealed class AuthController : ControllerBase
             return Unauthorized(new { error = Errors.InvalidGrant, error_description = _localizer["AuthSecondFactorRequired"].Value });
         }
 
-        // Token grant API istemcileri için mevcut oturumu otomatik devralır.
         var result = await _sender.Send(
-            new AuthenticateUserCommand(request.Username, request.Password, tenantId, ConfirmEndExistingSession: true),
+            new AuthenticateUserCommand(request.Username, request.Password, tenantId),
             cancellationToken);
         if (result is null)
         {
@@ -132,8 +131,7 @@ public sealed class AuthController : ControllerBase
             new AuthenticateUserCommand(
                 request.Username,
                 request.Password,
-                tenantId,
-                request.ConfirmEndExistingSession),
+                tenantId),
             cancellationToken);
         if (result is null)
         {
@@ -171,8 +169,7 @@ public sealed class AuthController : ControllerBase
             new AuthenticateUserCommand(
                 request.Username,
                 request.Password,
-                tenantId,
-                request.ConfirmEndExistingSession),
+                tenantId),
             cancellationToken);
         if (result is null)
         {

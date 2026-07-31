@@ -29,17 +29,6 @@ public sealed class ExceptionMiddleware
         {
             await _next(context);
         }
-        catch (ExistingSessionConflictException exception)
-        {
-            context.Response.StatusCode = StatusCodes.Status409Conflict;
-            context.Response.ContentType = "application/json";
-            await context.Response.WriteAsync(JsonSerializer.Serialize(new
-            {
-                error = "existing_session",
-                message = exception.Message,
-                detail = exception.Message,
-            }, JsonOptions));
-        }
         catch (ForbiddenAccessException exception)
         {
             await WriteProblemResponseAsync(

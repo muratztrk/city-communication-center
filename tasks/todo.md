@@ -1,3 +1,7 @@
+## Round 607 — Oturum uyarısı eski oturuma; birim içi bildirim başlığı
+- Yeni login hemen takeover; popup yalnız eski oturumda (`session-superseded`, otomatik kapanmaz) (#6a6c805e).
+- InternalUnit JobCreated → "Birim İçi Talep oluşturuldu" (#6a6ca1d4).
+
 ## Round 606 — Onay Bekleyen sıra; Onaylanmış Görevi Yapan yok
 - Birime Gelen Onay Bekleyen: dış birim `ownerApprovedAtUtc` desc, birim içi `createdAtUtc` desc (#6a6c9edc).
 - Onaylanmış grid: `Görevi Yapan` / `Görev Sahibi` sütunu kaldırıldı (#6a6ca0bc).

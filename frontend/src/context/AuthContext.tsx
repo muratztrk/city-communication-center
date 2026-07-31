@@ -24,8 +24,8 @@ interface AuthContextValue {
   isLoading: boolean
   session: AuthSession | null
   user: AuthUser | null
-  signIn: (username: string, password: string, tenantId: string, tenantName: string, confirmEndExistingSession?: boolean) => Promise<void>
-  completeInteractiveSignIn: (username: string, password: string, tenantId: string, tenantName: string, confirmEndExistingSession?: boolean) => Promise<void>
+  signIn: (username: string, password: string, tenantId: string, tenantName: string) => Promise<void>
+  completeInteractiveSignIn: (username: string, password: string, tenantId: string, tenantName: string) => Promise<void>
   logout: () => Promise<void>
 }
 
@@ -96,9 +96,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     password: string,
     tenantId: string,
     tenantName: string,
-    confirmEndExistingSession = false,
   ) => {
-    const nextSession = await loginWithPassword(username, password, tenantId, tenantName, confirmEndExistingSession)
+    const nextSession = await loginWithPassword(username, password, tenantId, tenantName)
     await establishSession(nextSession)
   }
 
@@ -107,9 +106,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
     password: string,
     tenantId: string,
     tenantName: string,
-    confirmEndExistingSession = false,
   ) => {
-    const nextSession = await exchangeInteractiveGrant(username, password, tenantId, tenantName, confirmEndExistingSession)
+    const nextSession = await exchangeInteractiveGrant(username, password, tenantId, tenantName)
     await establishSession(nextSession)
   }
 

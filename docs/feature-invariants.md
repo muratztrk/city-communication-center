@@ -1618,9 +1618,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (Birime Gelen `isIncomingExternalForActiveDept` ile aynı kural).
 - **Dış birim sahip onayı bildirimi (#6a6c73f2 / #6a6c80bf):** `JobOwnerApproved` + `ExternalUnit`
   başlık `Birim Dışı Gelen Talep`; açıklamada onaylayan kişi yerine sahip birim adı.
-- **Tek aktif oturum (#6a6c805e):** açık `activesessionid` varken web login önce 409
-  `existing_session` + onay popup (otomatik kapanmaz); onayda `confirmEndExistingSession`
-  ile yeni `ccc_sid` yazılır. Eski cookie 401 + `session-superseded` popup sonrası logout.
+- **Tek aktif oturum (#6a6c805e):** yeni login hemen yeni `ccc_sid` yazar ve önceki
+  oturumu düşürür. Uyarı popup'ı (otomatik kapanmaz) yeni giriş yapanada değil, eski
+  oturumdaki kullanıcıya: 401 + `session-superseded` → `SessionSupersededWarning`.
+- **Birim içi JobCreated bildirim başlığı (#6a6ca1d4):** InternalUnit →
+  `Birim İçi Talep oluşturuldu` (yönetici feed).
 - **Bildirim modal tarih = Ara (#6a6c6a6d):** başlangıç/bitiş alanları Ara textbox ile aynı
   yükseklik (`1.875rem`) ve font (`0.82rem`).
 - **Gelen Talep Yeri çerçevesi (#6a6c72f4):** kolon genişliği artırılmaz; birim yeşil çerçevesi

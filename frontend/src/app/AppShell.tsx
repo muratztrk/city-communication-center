@@ -245,9 +245,9 @@ export function AppShell() {
     ...(isCitizenDashboardNav
       ? [
           { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard },
-          { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard },
-          // Üst Düzey/Operatör: Anasayfa - Birimler’den hemen sonra (#6a6cfc0c).
-          { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact, separatorAfter: true },
+          // Üst Düzey/Operatör: Anasayfa - Birimler’in bir üst satırı (#6a6cfc0c reopen).
+          { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
+          { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorAfter: true },
         ]
       : [
           { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },

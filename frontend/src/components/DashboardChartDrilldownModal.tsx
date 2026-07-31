@@ -376,18 +376,18 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
             ) : (
               <div className="dashboard-drilldown-grid-shell">
                 <div className="dashboard-drilldown-table-wrap">
-                <table className={`data-table data-table--zebra dashboard-drilldown-table${isCitizenRequestsChart ? ' dashboard-drilldown-table--citizen' : ''}`}>
+                <table className={`data-table data-table--zebra dashboard-drilldown-table${isCitizenRequestsChart ? ' dashboard-drilldown-table--citizen' : ''}${isRequestTagsChart ? ' dashboard-drilldown-table--request-tags' : ''}`}>
                   <thead>
                     <tr>
                       <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                       <th>{requestNoColumnLabel}</th>
                       <th className="text-center">{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
                       <th>{t('jobs.columns.title', 'Başlık')}</th>
-                      <th>
+                      <th className={isRequestTagsChart ? 'text-center' : undefined}>
                         {isRequestTagsChart ? (
-                          <span className="inline-flex flex-col items-start leading-tight">
+                          <span className="inline-flex flex-col items-center leading-tight text-center">
                             <span>{t('social.citizenName', 'Vatandaş Adı')}</span>
-                            <span className="text-[0.9em] font-bold normal-case tracking-normal">
+                            <span className="text-[0.9em] font-bold uppercase tracking-[0.06em]">
                               {t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}
                             </span>
                           </span>
@@ -439,9 +439,9 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                         </td>
                         <td className="text-center"><DateCell value={row.createdAtUtc} locale={locale} /></td>
                         <td className="font-semibold">{row.title}</td>
-                        <td className={truncateUnitColumn ? 'max-w-[12rem]' : undefined}>
+                        <td className={isRequestTagsChart ? 'text-center' : truncateUnitColumn ? 'max-w-[12rem]' : undefined}>
                           {isRequestTagsChart ? (
-                            <div className="text-left">
+                            <div className="inline-flex flex-col items-center leading-tight text-center">
                               <div className="font-semibold text-slate-800">{row.citizenName?.trim() || '—'}</div>
                               <div className="text-xs text-slate-400">
                                 {row.citizenPhone ? formatCitizenPhoneDisplay(row.citizenPhone) : '—'}

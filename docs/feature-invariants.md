@@ -1230,9 +1230,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   isim gösterilir), `prefix – dashboard.xxx` (çevrilebilir bileşik), ve düz literal metin (aynen basılır).
   Yeni bir grafik id'siz bir gruplama anahtarına (ör. mahalle adı) göre dilim üretecekse, `Label` alanına
   DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok.
-- **Sol menü dizin sırası (#6a6cfc0c):** Üst Düzey/Operatör’de `Vatandaş Bilgi Listesi`,
-  `Anasayfa - Birimler`’den hemen sonraki satır (ayırıcı ondan sonra). Sistem Admin’de eski
-  konum (Vatandaş Talepleri grubundan sonra) korunur.
+- **Sol menü dizin sırası (#6a6cfc0c):** Üst Düzey/Operatör’de sıra: Anasayfa - Vatandaş →
+  `Vatandaş Bilgi Listesi` → Anasayfa - Birimler (ayırıcı Birimler’den sonra). Sistem Admin’de
+  eski konum (Vatandaş Talepleri grubundan sonra) korunur.
 - **Vatandaş Bilgi Listesi (card #1836, kolon/buton düzeni #1843/#1858):** `/citizen-directory` yalnız
   `Reporter` / `Operator` / `SystemAdmin`; grid `GET /citizen-conversations`. `Numara` sütunundan
   sonra ayrı `Talep Kanalı` sütunu gelir (`ChannelIcon` + `getSocialChannelLabel`); isim hücresinde
@@ -1390,13 +1390,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Bilgi Listesi (#6a6cbef5/#6a6cbf0e/#6a6ce8f0/#6a6cf14b):** popup Birim truncate;
   Talep Tarihi `DateCell` = Son Tarih `DueDatePill` (0.84rem/600, svg 0.875rem); ana grid
   Adı/Numara = Gelen Talep Yeri tipografisi; popup kolon başlığı `Vatandaş Talep No`;
-  Talep No `0.76rem`, Öncelik alt satır `0.64rem`.
+  Talep No `0.82rem` (#6a6cfd34), Öncelik alt satır `0.64rem`.
 - **Durum overdue 2 satır (#6a6cf4d4):** `GridStatusLabel` — `Yapılmakta` / `(Son Tarihi Geçmiş)`
   `whitespace-nowrap`; tüm grid StatusPill’lerde kullanılır (dizin popup dahil).
 - **Vatandaş Talepleri pie (#6a6cf439/#6a6cf4d4):** drilldown Priority alt satır; kolon başlığı
   `Vatandaş Talep No`; Öncelik `0.7rem`; Durum sütunu `min-width: 11rem`.
-- **Talep Etiketi pie (#6a6c9fed):** drilldown’da Birim yok; yerine Vatandaş Adı + alt satır
-  Telefon No; Talep No altında Öncelik (`Priority` + `CitizenName`/`CitizenPhone` BE).
+- **Talep Etiketi pie (#6a6c9fed/#6a6cfd82):** drilldown’da Birim yok; Vatandaş Adı + alt satır
+  `TELEFON NO` (uppercase, ortalı); veri de ortalı; Talep No altında Öncelik.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);

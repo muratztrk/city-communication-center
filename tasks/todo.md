@@ -1,3 +1,8 @@
+## Round 622 — Talep Etiketi ortala; dizin Birimler üstü; Talep No büyüt
+- `#6a6cfd82`: Telefon No uppercase + ortalı (başlık+veri)
+- `#6a6cfc0c`: dizin → Anasayfa-Birimler’in üst satırı
+- `#6a6cfd34`: dizin popup Talep No `0.82rem`
+
 ## Round 621 — Sol menü: dizin Anasayfa-Birimler sonrası (#6a6cfc0c)
 - Reporter/Operator: Vatandaş Bilgi Listesi → Birimler’in hemen altı
 

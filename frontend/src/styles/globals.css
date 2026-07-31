@@ -2406,9 +2406,9 @@
     white-space: nowrap;
   }
 
-  /* #6a6cf14b reopen: Talep No küçült; Öncelik daha da küçük kalsın */
+  /* #6a6cfd34: Vatandaş Talep No biraz büyüt; Öncelik küçük kalsın */
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__value {
-    font-size: 0.76rem;
+    font-size: 0.82rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__priority {

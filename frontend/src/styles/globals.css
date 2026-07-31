@@ -2370,7 +2370,7 @@
     border-right: 0;
   }
 
-  /* Dizin talep popup grid — hafif kompakt; reopen ile çok az büyütüldü (#6a6cbf0e). */
+  /* Dizin talep popup: DateCell ≈ DueDatePill (0.84rem/600, aynı ikon) (#6a6cbf0e). */
   .detail-modal-shell .citizen-directory-tickets-table thead th {
     font-size: 0.72rem;
     letter-spacing: 0.06em;
@@ -2387,7 +2387,17 @@
   }
 
   .detail-modal-shell .citizen-directory-tickets-table tbody td .date-cell,
-  .detail-modal-shell .citizen-directory-tickets-table tbody td .due-date-pill,
+  .detail-modal-shell .citizen-directory-tickets-table tbody td .due-date-pill {
+    font-size: 0.84rem;
+    font-weight: 600;
+  }
+
+  .detail-modal-shell .citizen-directory-tickets-table tbody td .date-cell svg,
+  .detail-modal-shell .citizen-directory-tickets-table tbody td .due-date-pill svg {
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
   .detail-modal-shell .citizen-directory-tickets-table tbody td .status-pill {
     font-size: 0.78rem;
   }

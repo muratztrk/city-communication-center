@@ -1415,9 +1415,9 @@ export function SettingsPage() {
       ) : null}
 
       {activeTab === 'tenant' ? (
-        <div className="page-stack !gap-2">
-          {/* 2×2 stretch: satırda kart yükseklikleri eşit (#6a6cdcad). content-start: iç boşluk dağılmaz. */}
-          <div className="grid gap-4 xl:grid-cols-2 xl:items-stretch">
+        <div className="page-stack !gap-6">
+          {/* 2×2 stretch + eşit gap-6 (Mesai ile aynı düşey boşluk) (#6a6cdcad). */}
+          <div className="grid gap-6 xl:grid-cols-2 xl:items-stretch">
             <section className="section-card settings-org-card page-stack content-start h-full !gap-1 p-5 sm:p-6 lg:p-7">
               <div className="page-header-row !mb-0 !gap-0.5">
                 <div>

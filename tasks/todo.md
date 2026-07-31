@@ -1,3 +1,8 @@
+## Round 615 — Dizin tarih=Son Tarih; Ad/Numara tipografi; Kurum gap-6
+- `#6a6cbf0e`: popup Talep Tarihi ikon/text = DueDatePill
+- `#6a6ce8f0`: dizin Adı/Numara = Gelen Talep Yeri text stilleri
+- `#6a6cdcad`: Kurum kartları eşit `gap-6` düşey boşluk
+
 ## Round 614 — Dizin grid az büyüt; Kurum 2×2 yükseklik eşit
 - `#6a6cbf0e`: dizin popup grid ~0.82rem (çok az artış)
 - `#6a6cdcad`: satır kartları `items-stretch` + `h-full` (Bilgi=Konum, SMS=Hafta Sonu)

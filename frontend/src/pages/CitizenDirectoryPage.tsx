@@ -417,9 +417,9 @@ export function CitizenDirectoryPage() {
                     {(safePage - 1) * pageSize + index + 1}
                   </td>
                   <td>
-                    <span className="font-semibold text-slate-800">{row.displayName}</span>
+                    <span className="truncate font-semibold text-slate-700">{row.displayName}</span>
                   </td>
-                  <td className="font-semibold text-slate-800 tabular-nums">
+                  <td className="text-sm font-semibold text-slate-500 tabular-nums">
                     <EmptyCell value={formatDirectoryPhone(row.citizenPhone)} />
                   </td>
                   <td className="text-center">

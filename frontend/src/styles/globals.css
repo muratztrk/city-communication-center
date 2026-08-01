@@ -614,8 +614,10 @@
     padding-inline-start: 1.55rem;
   }
 
+  /* Aynı layout: Cadde / Sokak çok az sola (#2185 reopen). */
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2) {
-    transform: none;
+    transform: translateX(-0.4rem);
+    padding-inline-start: 1.15rem;
   }
 
   /* Aynı layout: Mahalle biraz daha sağa (#2185 reopen). */
@@ -630,7 +632,7 @@
 
   /* Yanında 2 kutucuk daha (3 kolon): boş Açık Adres çok az sola (#2187 reopen). */
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(3) {
-    padding-inline-start: 0.95rem;
+    padding-inline-start: 0.4rem;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {

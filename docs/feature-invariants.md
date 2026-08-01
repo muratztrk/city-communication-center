@@ -1413,8 +1413,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Boş Adres Bilgileri (#6a6dab1b/#2185):** yan yana üç kolon boşken sola yaslı (ortalı değil);
   Mahalle + Açık Adres `padding-inline-start: 0.7rem` ile biraz sağa; Cadde `translateX(-0.45rem)`
   ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) üç başlık
-  `1.55rem`; Mahalle `2.25rem`; Açık Adres `2.5rem` (#2185). Yanında 2 kutucuk daha
-  (`--three-cards`) iken boş Açık Adres `0.95rem` (#2187 — fazla sağa kaymasın).
+  `1.55rem`; Mahalle `2.25rem`; Cadde `1.15rem` + `translateX(-0.4rem)`; Açık Adres `2.5rem`
+  (#2185). Yanında 2 kutucuk daha (`--three-cards`) iken boş Açık Adres `0.4rem` (#2187).
 - **Dropdown ellipsis tooltip (#2188):** `useDataTableOverflowTooltips` dropdown satırında
   birden fazla `.truncate` varsa hover edilen / kesilmiş satırı gösterir (Şablon mesajlar adı+içerik).
 - **Pie drilldown Başlık/Durum (#6a6d9daf/#2180):** Başlık `cell-title` 2 satır + overflow tooltip;

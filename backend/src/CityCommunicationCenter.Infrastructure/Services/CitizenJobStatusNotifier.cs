@@ -613,6 +613,19 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return false;
         }
 
+        // Gerçek gönderim kapalı (simülasyon): sağlayıcıya çıkma, "gönderilecekti"yi logla.
+        // Bilinçli olarak hiçbir şey işaretlenmez — mesaj yanıtlanmış sayılmaz, terminal
+        // release açılmaz. Böylece anahtar açıldığında akış kaldığı yerden normal işler.
+        if (!smsSettings.LiveSendEnabled)
+        {
+            _logger.LogInformation(
+                "SMS SIMULATION (gerçek gönderim kapalı) — SocialMessage {SocialMessageId}, alıcı {Phone}, metin: {Content}",
+                message.SocialMessageId,
+                recipientPhone,
+                content);
+            return false;
+        }
+
         // Tekrar gönderimi ATOMİK olarak engelle: SMS ücretli ve vatandaşa gidiyor. Önce
         // koşullu UPDATE ile "bu metni ben gönderiyorum" hakkı alınır; iki eşzamanlı durum
         // bildiriminden yalnız biri satırı günceller, diğeri 0 satır görüp çıkar. (Oku-sonra-yaz

@@ -1175,9 +1175,12 @@
       "chargedNumber": "Charged Number (chargedParty)",
       "chargedNumberHelp": "The chargedParty value issued by Asistel. Leave empty if unknown; the provider errors if it is required.",
       "testTitle": "Send Test SMS",
-      "testHelp": "Sends a real SMS using the saved settings. Save first. Works even when SMS sending is disabled.",
+      "testHelp": "Sends a real SMS using the saved settings. Save first. This button always sends for real, even when both switches are off.",
       "testPhone": "Test Phone Number",
-      "testSend": "Send Test SMS"
+      "testSend": "Send Test SMS",
+      "liveSendEnabled": "Send for real (simulation when off)",
+      "liveSendOffHelp": "Simulation mode: when a request status changes no SMS is sent to the provider; the recipient and message body are only written to the server logs. Use this to verify templates and recipients without bothering citizens.",
+      "liveSendOnWarning": "Live sending is on: a billable SMS goes to the citizen whenever a request status changes."
     },
     "syslog": {
       "sectionTitle": "Syslog Server",

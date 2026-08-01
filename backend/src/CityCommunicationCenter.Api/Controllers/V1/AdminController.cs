@@ -293,6 +293,7 @@ public sealed class AdminController : ApiControllerBase
             new UpdateSmsSettingsCommand(
                 tenantId,
                 request.IsEnabled,
+                request.LiveSendEnabled,
                 request.Provider,
                 request.ApiUrl,
                 request.Username,

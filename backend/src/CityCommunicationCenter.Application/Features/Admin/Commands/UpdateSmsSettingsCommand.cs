@@ -3,6 +3,7 @@ namespace CityCommunicationCenter.Application.Features.Admin;
 public sealed record UpdateSmsSettingsCommand(
     Guid TenantId,
     bool IsEnabled,
+    bool LiveSendEnabled,
     string Provider,
     string? ApiUrl,
     string? Username,
@@ -73,6 +74,7 @@ public sealed class UpdateSmsSettingsCommandHandler : ICommandHandler<UpdateSmsS
             request.TenantId,
             new TenantSmsSettingsUpdate(
                 request.IsEnabled,
+                request.LiveSendEnabled,
                 provider,
                 request.ApiUrl,
                 request.Username,

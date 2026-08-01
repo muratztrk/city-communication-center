@@ -843,6 +843,8 @@ export const SMS_SENDABLE_PROVIDERS: SmsProvider[] = ['Asistel', 'JettMesaj'];
 
 export interface SmsSettings {
   isEnabled: boolean;
+  /** Kapalıyken otomatik vatandaş SMS'leri gönderilmez, yalnız loglanır (simülasyon). */
+  liveSendEnabled: boolean;
   provider: SmsProvider;
   apiUrl: string | null;
   username: string | null;
@@ -854,6 +856,7 @@ export interface SmsSettings {
 
 export interface SmsSettingsUpdate {
   isEnabled: boolean;
+  liveSendEnabled: boolean;
   provider: SmsProvider;
   apiUrl: string | null;
   username: string | null;

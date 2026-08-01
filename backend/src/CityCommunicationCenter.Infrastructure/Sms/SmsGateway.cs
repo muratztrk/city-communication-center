@@ -43,8 +43,9 @@ internal sealed class SmsGateway : ISmsGateway
         => SendInternalAsync(tenantId, phoneNumber, text, requireEnabled: true, cancellationToken);
 
     /// <summary>
-    /// Test gönderimi "SMS Gönderimi Aktif" kapalıyken de çalışır: yönetici ayarları
-    /// canlıya almadan önce kullanıcı adı/parola/başlık üçlüsünü doğrulayabilsin.
+    /// Test gönderimi "SMS Gönderimi Aktif" ve "Gerçek Gönderim" kapalıyken de GERÇEKTEN
+    /// gönderir: yönetici ayarları canlıya almadan önce kullanıcı adı/parola/başlık üçlüsünü
+    /// doğrulayabilsin. Tekil ve bilinçli bir aksiyon olduğu için simülasyon dışında tutuldu.
     /// </summary>
     public Task<SmsSendResult> SendTestAsync(
         Guid tenantId,

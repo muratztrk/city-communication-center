@@ -446,7 +446,7 @@ export function SettingsPage() {
   const [smsTestPhone, setSmsTestPhone] = useState('')
   const [smsTestStatus, setSmsTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [smsForm, setSmsForm] = useState<SmsSettingsUpdate>({
-    isEnabled: false, provider: 'Asistel', apiUrl: null,
+    isEnabled: false, liveSendEnabled: false, provider: 'Asistel', apiUrl: null,
     username: null, password: null, clearPassword: false, originator: null, chargedNumber: null,
   })
   const [syslogForm, setSyslogForm] = useState<SyslogSettingsUpdate>({
@@ -581,6 +581,7 @@ export function SettingsPage() {
         setSmsSettings(smsResponse)
         setSmsForm({
           isEnabled: smsResponse.isEnabled,
+          liveSendEnabled: smsResponse.liveSendEnabled,
           provider: smsResponse.provider,
           apiUrl: smsResponse.apiUrl,
           username: smsResponse.username,
@@ -1608,7 +1609,27 @@ export function SettingsPage() {
                       <p className="helper-copy">{t('settings.sms.chargedNumberHelp')}</p>
                     </div>
                   )}
-                  {/* Kayıtlı ayarlarla gerçek gönderim testi; "SMS Gönderimi Aktif" kapalıyken de çalışır. */}
+                  {/* Gerçek gönderim anahtarı: kapalıyken otomatik SMS'ler yalnız loglanır (#sms). */}
+                  <div className="space-y-2 border-t border-slate-200 pt-4">
+                    <label className="inline-flex items-start gap-3 text-sm font-semibold text-slate-700">
+                      <input
+                        className="field-checkbox mt-0.5"
+                        type="checkbox"
+                        checked={smsForm.liveSendEnabled}
+                        onChange={event => setSmsForm(current => ({ ...current, liveSendEnabled: event.target.checked }))}
+                      />
+                      <span>{t('settings.sms.liveSendEnabled')}</span>
+                    </label>
+                    <p className={`rounded-xl border px-3 py-2 text-sm font-medium ${smsForm.liveSendEnabled
+                      ? 'border-rose-200 bg-rose-50 text-rose-800'
+                      : 'border-sky-200 bg-sky-50 text-sky-800'}`}
+                    >
+                      {smsForm.liveSendEnabled
+                        ? t('settings.sms.liveSendOnWarning')
+                        : t('settings.sms.liveSendOffHelp')}
+                    </p>
+                  </div>
+                  {/* Kayıtlı ayarlarla gerçek gönderim testi; iki anahtar da kapalıyken çalışır. */}
                   <div className="space-y-3 border-t border-slate-200 pt-4">
                     <div className="text-sm font-extrabold text-slate-900">{t('settings.sms.testTitle')}</div>
                     <p className="helper-copy">{t('settings.sms.testHelp')}</p>

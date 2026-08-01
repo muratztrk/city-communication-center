@@ -1181,9 +1181,12 @@
       "chargedNumber": "Charged Number (chargedParty)",
       "chargedNumberHelp": "Asistel tarafından verilen chargedParty değeri. Bilmiyorsanız boş bırakın; sağlayıcı zorunlu tutuyorsa hata döner.",
       "testTitle": "Test SMS Gönder",
-      "testHelp": "Kayıtlı ayarlarla gerçek bir SMS gönderir. Önce Kaydet'e basın. \"SMS Gönderimi Aktif\" kapalıyken de çalışır.",
+      "testHelp": "Kayıtlı ayarlarla gerçek bir SMS gönderir. Önce Kaydet'e basın. Bu buton her zaman gerçekten gönderir — \"SMS Gönderimi Aktif\" ve \"Gerçek gönderim yap\" kapalı olsa bile.",
       "testPhone": "Test Telefon No",
-      "testSend": "Test SMS Gönder"
+      "testSend": "Test SMS Gönder",
+      "liveSendEnabled": "Gerçek gönderim yap (kapalıyken simülasyon)",
+      "liveSendOffHelp": "Simülasyon modu: talep durumu değiştiğinde SMS sağlayıcıya GÖNDERİLMEZ, hangi numaraya hangi metnin gideceği yalnız sunucu loglarına yazılır. Şablonları ve alıcıları vatandaşı rahatsız etmeden doğrulamak için kullanın.",
+      "liveSendOnWarning": "Gerçek gönderim açık: talep durumu değiştiğinde vatandaşa ücretli SMS gider."
     },
     "syslog": {
       "sectionTitle": "Syslog Sunucusu",

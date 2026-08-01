@@ -29,6 +29,7 @@ public sealed class GetSmsSettingsQueryHandler : IQueryHandler<GetSmsSettingsQue
 
         return new SmsSettingsResponse(
             settings.IsEnabled,
+            settings.LiveSendEnabled,
             settings.Provider.ToString(),
             settings.ApiUrl,
             settings.Username,

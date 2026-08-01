@@ -14,8 +14,15 @@ public interface ITenantSmsSettingsService
 
 public enum SmsProvider { NetGSM, Iletimerkezi, Verimor, Custom, Asistel, JettMesaj }
 
+/// <param name="LiveSendEnabled">
+/// Gerçek gönderim anahtarı. Kapalıyken otomatik vatandaş SMS'leri sağlayıcıya GÖNDERİLMEZ;
+/// yalnız "şu numaraya şu metin gidecekti" diye loglanır (simülasyon). Şablon/alıcı/zamanlama
+/// doğrulaması için. Ayarlar'daki "Test SMS Gönder" bilinçli tekil bir yönetici aksiyonu
+/// olduğu için bu anahtardan etkilenmez ve her zaman gerçekten gönderir.
+/// </param>
 public sealed record TenantSmsSettingsDescriptor(
     bool IsEnabled,
+    bool LiveSendEnabled,
     SmsProvider Provider,
     string? ApiUrl,
     string? Username,
@@ -25,6 +32,7 @@ public sealed record TenantSmsSettingsDescriptor(
 
 public sealed record TenantSmsSettingsUpdate(
     bool IsEnabled,
+    bool LiveSendEnabled,
     SmsProvider Provider,
     string? ApiUrl,
     string? Username,
@@ -35,6 +43,7 @@ public sealed record TenantSmsSettingsUpdate(
 
 public sealed record TenantSmsCredentials(
     bool IsEnabled,
+    bool LiveSendEnabled,
     SmsProvider Provider,
     string? ApiUrl,
     string? Username,

@@ -23,6 +23,7 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
 
         return new TenantSmsSettingsDescriptor(
             payload.IsEnabled,
+            payload.LiveSendEnabled,
             ParseProvider(payload.Provider),
             payload.ApiUrl,
             payload.Username,
@@ -37,6 +38,7 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
 
         return new TenantSmsCredentials(
             payload.IsEnabled,
+            payload.LiveSendEnabled,
             ParseProvider(payload.Provider),
             payload.ApiUrl,
             payload.Username,
@@ -60,6 +62,7 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
         var payload = new TenantSmsSettingsPayload
         {
             IsEnabled = settings.IsEnabled,
+            LiveSendEnabled = settings.LiveSendEnabled,
             Provider = settings.Provider.ToString(),
             ApiUrl = Normalize(settings.ApiUrl),
             Username = Normalize(settings.Username),
@@ -130,6 +133,14 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
     private sealed class TenantSmsSettingsPayload
     {
         public bool IsEnabled { get; set; }
+
+        /// <summary>
+        /// Varsayılan <c>false</c> = simülasyon. Mevcut kayıtlarda bu alan yok; JSON'dan
+        /// okunurken false gelir, yani entegrasyon canlıya alınmadan önce kimse farkında
+        /// olmadan vatandaşa SMS göndermeye başlamaz. Açmak bilinçli bir adımdır.
+        /// </summary>
+        public bool LiveSendEnabled { get; set; }
+
         public string Provider { get; set; } = nameof(SmsProvider.NetGSM);
         public string? ApiUrl { get; set; }
         public string? Username { get; set; }

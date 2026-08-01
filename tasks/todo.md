@@ -1,3 +1,6 @@
+## Round 637 — 3 kolon Açık Adres daha sola
+- `#6a6dbd2c`/#2187: 3 kolon boş Açık Adres `0.95rem`
+
 ## Round 636 — Adres hiza ince ayar
 - `#6a6dab1b`/#2185: yalnız Ekler → Mahalle biraz daha sağa
 - `#6a6dbd2c`/#2187: 3 kolon → Açık Adres çok az sola

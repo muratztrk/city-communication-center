@@ -298,10 +298,24 @@ public sealed class AdminController : ApiControllerBase
                 request.Username,
                 request.Password,
                 request.ClearPassword,
-                request.Originator),
+                request.Originator,
+                request.ChargedNumber),
             cancellationToken);
 
         return NoContent();
+    }
+
+    [HttpPost("tenants/{tenantId:guid}/sms-settings/test")]
+    public async Task<ActionResult<TestSmsResponse>> SendTestSms(
+        Guid tenantId,
+        [FromBody] TestSmsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(
+            new SendTestSmsCommand(tenantId, request.PhoneNumber, request.Text),
+            cancellationToken);
+
+        return Ok(new TestSmsResponse(result.Success, result.Message));
     }
 
     [HttpGet("tenants/{tenantId:guid}/file-storage-settings")]

@@ -1161,7 +1161,9 @@
         "NetGSM": "NetGSM",
         "Iletimerkezi": "İletimerkezi",
         "Verimor": "Verimor",
-        "Custom": "Özel (Custom)"
+        "Custom": "Özel (Custom)",
+        "Asistel": "Asistel / AsistSMS (Avea)",
+        "JettMesaj": "jeTTMesaj"
       },
       "apiUrl": "API URL",
       "apiUrlPlaceholder": "https://api.example.com/sms/send",
@@ -1173,7 +1175,15 @@
       "originatorPlaceholder": "BELEDIYE",
       "originatorHelp": "SMS'lerde görünecek gönderici adı veya numarası (max 11 karakter).",
       "save": "Kaydet",
-      "saved": "SMS API ayarları kaydedildi."
+      "saved": "SMS API ayarları kaydedildi.",
+      "providerNotImplemented": "Bu sağlayıcı için gönderim entegrasyonu henüz yok; SMS gönderilmez. Asistel veya jeTTMesaj seçin.",
+      "apiUrlOptionalHelp": "Boş bırakılırsa sağlayıcının varsayılan adresi kullanılır. Güvenlik gereği yalnız sağlayıcının kendi alan adları kabul edilir; başka bir adres yazılırsa yok sayılır.",
+      "chargedNumber": "Charged Number (chargedParty)",
+      "chargedNumberHelp": "Asistel tarafından verilen chargedParty değeri. Bilmiyorsanız boş bırakın; sağlayıcı zorunlu tutuyorsa hata döner.",
+      "testTitle": "Test SMS Gönder",
+      "testHelp": "Kayıtlı ayarlarla gerçek bir SMS gönderir. Önce Kaydet'e basın. \"SMS Gönderimi Aktif\" kapalıyken de çalışır.",
+      "testPhone": "Test Telefon No",
+      "testSend": "Test SMS Gönder"
     },
     "syslog": {
       "sectionTitle": "Syslog Sunucusu",

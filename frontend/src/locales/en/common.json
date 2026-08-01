@@ -1155,7 +1155,9 @@
         "NetGSM": "NetGSM",
         "Iletimerkezi": "Iletimerkezi",
         "Verimor": "Verimor",
-        "Custom": "Custom"
+        "Custom": "Custom",
+        "Asistel": "Asistel / AsistSMS (Avea)",
+        "JettMesaj": "jeTTMesaj"
       },
       "apiUrl": "API URL",
       "apiUrlPlaceholder": "https://api.example.com/sms/send",
@@ -1167,7 +1169,15 @@
       "originatorPlaceholder": "MUNICIPALITY",
       "originatorHelp": "Sender name or number shown on SMS messages (max 11 chars).",
       "save": "Save",
-      "saved": "SMS API settings saved."
+      "saved": "SMS API settings saved.",
+      "providerNotImplemented": "There is no send integration for this provider yet; no SMS will go out. Choose Asistel or jeTTMesaj.",
+      "apiUrlOptionalHelp": "Leave empty to use the provider's default endpoint. For security only the provider's own hosts are accepted; any other address is ignored.",
+      "chargedNumber": "Charged Number (chargedParty)",
+      "chargedNumberHelp": "The chargedParty value issued by Asistel. Leave empty if unknown; the provider errors if it is required.",
+      "testTitle": "Send Test SMS",
+      "testHelp": "Sends a real SMS using the saved settings. Save first. Works even when SMS sending is disabled.",
+      "testPhone": "Test Phone Number",
+      "testSend": "Send Test SMS"
     },
     "syslog": {
       "sectionTitle": "Syslog Server",

@@ -8,11 +8,16 @@ public sealed record UpdateSmsSettingsCommand(
     string? Username,
     string? Password,
     bool ClearPassword,
-    string? Originator) : ICommand<Unit>;
+    string? Originator,
+    string? ChargedNumber) : ICommand<Unit>;
 
 public sealed class UpdateSmsSettingsCommandValidator : AbstractValidator<UpdateSmsSettingsCommand>
 {
-    private static readonly string[] ValidProviders = ["NetGSM", "Iletimerkezi", "Verimor", "Custom"];
+    private static readonly string[] ValidProviders =
+        ["NetGSM", "Iletimerkezi", "Verimor", "Custom", "Asistel", "JettMesaj"];
+
+    /// <summary>Gerçek gönderim entegrasyonu yazılmış sağlayıcılar.</summary>
+    private static readonly string[] SendableProviders = ["Asistel", "JettMesaj"];
 
     public UpdateSmsSettingsCommandValidator()
     {
@@ -23,13 +28,25 @@ public sealed class UpdateSmsSettingsCommandValidator : AbstractValidator<Update
         {
             RuleFor(command => command.Provider)
                 .Must(p => ValidProviders.Contains(p))
-                .WithMessage("Provider must be one of: NetGSM, Iletimerkezi, Verimor, Custom.");
+                .WithMessage("Sağlayıcı şunlardan biri olmalı: NetGSM, İletimerkezi, Verimor, Özel, Asistel, jeTTMesaj.");
 
             When(command => command.Provider == "Custom", () =>
             {
                 RuleFor(command => command.ApiUrl)
                     .NotEmpty()
-                    .WithMessage("ApiUrl is required when Provider is Custom.");
+                    .WithMessage("Sağlayıcı 'Özel' seçildiğinde API URL zorunludur.");
+            });
+
+            // Başlık (alfaNumeric/sender) olmadan sağlayıcı 109 döndürür; kaydetmeden yakala.
+            When(command => SendableProviders.Contains(command.Provider), () =>
+            {
+                RuleFor(command => command.Originator)
+                    .NotEmpty()
+                    .WithMessage("Gönderici Adı (SMS başlığı) zorunludur; sağlayıcıda onaylı olmalıdır.");
+
+                RuleFor(command => command.Username)
+                    .NotEmpty()
+                    .WithMessage("SMS kullanıcı adı zorunludur.");
             });
         });
     }
@@ -61,7 +78,8 @@ public sealed class UpdateSmsSettingsCommandHandler : ICommandHandler<UpdateSmsS
                 request.Username,
                 request.Password,
                 request.ClearPassword,
-                request.Originator),
+                request.Originator,
+                request.ChargedNumber),
             _tenantContextAccessor.GetCurrent().UserId,
             cancellationToken);
 

@@ -15,6 +15,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantSmsSettingsService _smsSettingsService;
+    private readonly ISmsGateway _smsGateway;
     private readonly INotificationPushService? _notificationPushService;
     private readonly ISocialMediaClientFactory _clientFactory;
     private readonly string _uploadRootPath;
@@ -23,6 +24,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     public CitizenJobStatusNotifier(
         IApplicationDbContext dbContext,
         ITenantSmsSettingsService smsSettingsService,
+        ISmsGateway smsGateway,
         ISocialMediaClientFactory clientFactory,
         IOptions<AttachmentStorageOptions> attachmentStorageOptions,
         ILogger<CitizenJobStatusNotifier> logger,
@@ -30,6 +32,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     {
         _dbContext = dbContext;
         _smsSettingsService = smsSettingsService;
+        _smsGateway = smsGateway;
         _clientFactory = clientFactory;
         _uploadRootPath = attachmentStorageOptions.Value.UploadRootPath;
         _notificationPushService = notificationPushService;
@@ -180,7 +183,13 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             }
             else
             {
-                await SendSmsAsync(tenantId, message, content, cancellationToken);
+                // SMS gitmediyse release işaretlenmez; aksi halde operatör bir daha
+                // "Mesajı Gönder" diyemez ve vatandaş kapanış bilgisini hiç alamaz.
+                var smsSent = await SendSmsAsync(tenantId, message, content, cancellationToken);
+                if (!smsSent)
+                {
+                    return;
+                }
             }
         }
 
@@ -575,7 +584,8 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         return File.Exists(contentRootSibling) ? contentRootSibling : candidate;
     }
 
-    private async Task SendSmsAsync(
+    /// <returns>SMS gerçekten gönderildiyse <c>true</c>.</returns>
+    private async Task<bool> SendSmsAsync(
         Guid tenantId,
         SocialMessage message,
         string content,
@@ -585,16 +595,83 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         if (!smsSettings.IsEnabled)
         {
             _logger.LogInformation(
-                "SMS citizen status notification skipped (SMS disabled) for SocialMessage {SocialMessageId}: {Content}",
+                "SMS citizen status notification skipped (SMS disabled) for SocialMessage {SocialMessageId}",
+                message.SocialMessageId);
+            return false;
+        }
+
+        // WhatsApp ile aynı çözümleme sırası: vatandaş konuşmasındaki telefon → CitizenHandle.
+        var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
+            _dbContext,
+            message,
+            cancellationToken);
+        if (string.IsNullOrWhiteSpace(recipientPhone))
+        {
+            _logger.LogWarning(
+                "SMS citizen status notification has no recipient phone for SocialMessage {SocialMessageId}",
+                message.SocialMessageId);
+            return false;
+        }
+
+        // Tekrar gönderimi ATOMİK olarak engelle: SMS ücretli ve vatandaşa gidiyor. Önce
+        // koşullu UPDATE ile "bu metni ben gönderiyorum" hakkı alınır; iki eşzamanlı durum
+        // bildiriminden yalnız biri satırı günceller, diğeri 0 satır görüp çıkar. (Oku-sonra-yaz
+        // yapsaydık ikisi de kontrolü geçip iki SMS gönderebilirdi.)
+        var utcNow = DateTimeOffset.UtcNow;
+        var previousResponseContent = message.ResponseContent;
+        var previousRespondedAtUtc = message.RespondedAtUtc;
+        var claimed = await _dbContext.SocialMessages
+            .Where(entity => entity.SocialMessageId == message.SocialMessageId
+                && entity.TenantId == tenantId
+                && entity.ResponseContent != content)
+            .ExecuteUpdateAsync(
+                setters => setters
+                    .SetProperty(entity => entity.ResponseContent, content)
+                    .SetProperty(entity => entity.RespondedAtUtc, utcNow),
+                cancellationToken);
+
+        if (claimed == 0)
+        {
+            _logger.LogInformation(
+                "Skipping duplicate citizen status SMS for SocialMessage {SocialMessageId}",
+                message.SocialMessageId);
+            return false;
+        }
+
+        var result = await _smsGateway.SendAsync(tenantId, recipientPhone, content, cancellationToken);
+        if (!result.Success)
+        {
+            // Hak geri verilir ki operatör/işleyiş tekrar deneyebilsin.
+            await _dbContext.SocialMessages
+                .Where(entity => entity.SocialMessageId == message.SocialMessageId && entity.TenantId == tenantId)
+                .ExecuteUpdateAsync(
+                    setters => setters
+                        .SetProperty(entity => entity.ResponseContent, previousResponseContent)
+                        .SetProperty(entity => entity.RespondedAtUtc, previousRespondedAtUtc),
+                    cancellationToken);
+
+            // Gönderim hatası iş akışını durdurmaz; talep/görev akışı SMS'e bağlı değil.
+            _logger.LogWarning(
+                "SMS citizen status notification failed for SocialMessage {SocialMessageId}: {Message}",
                 message.SocialMessageId,
-                content);
-            return;
+                result.Message);
+            return false;
+        }
+
+        message.ResponseContent = content;
+        message.RespondedAtUtc = utcNow;
+        if (message.Status is SocialMessageStatus.New or SocialMessageStatus.Routed)
+        {
+            message.Status = SocialMessageStatus.Responded;
+            await _dbContext.SaveChangesAsync(cancellationToken);
         }
 
         _logger.LogInformation(
-            "SMS citizen status notification queued for SocialMessage {SocialMessageId} via {Provider}: {Content}",
+            "SMS citizen status notification sent for SocialMessage {SocialMessageId} via {Provider} ({Code})",
             message.SocialMessageId,
             smsSettings.Provider,
-            content);
+            result.ProviderCode);
+        return true;
     }
+
 }

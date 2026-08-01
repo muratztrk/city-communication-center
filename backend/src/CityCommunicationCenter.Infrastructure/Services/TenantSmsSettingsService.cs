@@ -23,12 +23,30 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
 
         return new TenantSmsSettingsDescriptor(
             payload.IsEnabled,
-            Enum.TryParse<SmsProvider>(payload.Provider, out var provider) ? provider : SmsProvider.NetGSM,
+            ParseProvider(payload.Provider),
             payload.ApiUrl,
             payload.Username,
             !string.IsNullOrWhiteSpace(payload.Password),
-            payload.Originator);
+            payload.Originator,
+            payload.ChargedNumber);
     }
+
+    public async Task<TenantSmsCredentials> GetCredentialsAsync(Guid tenantId, CancellationToken cancellationToken = default)
+    {
+        var payload = await GetPayloadAsync(tenantId, cancellationToken);
+
+        return new TenantSmsCredentials(
+            payload.IsEnabled,
+            ParseProvider(payload.Provider),
+            payload.ApiUrl,
+            payload.Username,
+            payload.Password,
+            payload.Originator,
+            payload.ChargedNumber);
+    }
+
+    private static SmsProvider ParseProvider(string? value) =>
+        Enum.TryParse<SmsProvider>(value, out var provider) ? provider : SmsProvider.NetGSM;
 
     public async Task SaveSettingsAsync(Guid tenantId, TenantSmsSettingsUpdate settings, Guid? actorUserId, CancellationToken cancellationToken = default)
     {
@@ -47,6 +65,7 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
             Username = Normalize(settings.Username),
             Password = password,
             Originator = Normalize(settings.Originator),
+            ChargedNumber = Normalize(settings.ChargedNumber),
         };
 
         var serializedPayload = _dataProtector.Protect(JsonSerializer.Serialize(payload, SerializerOptions));
@@ -116,5 +135,7 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
         public string? Username { get; set; }
         public string? Password { get; set; }
         public string? Originator { get; set; }
+        /// <summary>Asistel'in verdiği chargedParty; yalnız Asistel SOAP çağrısında kullanılır.</summary>
+        public string? ChargedNumber { get; set; }
     }
 }

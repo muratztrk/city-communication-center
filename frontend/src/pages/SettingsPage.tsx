@@ -49,6 +49,7 @@ import type {
   SyslogSettingsUpdate,
   SlaWeekendSettingsUpdate,
 } from '../types/platform'
+import { SMS_SENDABLE_PROVIDERS } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
 
 type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates' | 'license'
@@ -442,9 +443,11 @@ export function SettingsPage() {
   }, [rolesSafePage, rolesPageSize])
   const [workingHoursForm, setWorkingHoursForm] = useState<WorkingHoursSettings | null>(null)
   const [smsSettings, setSmsSettings] = useState<SmsSettings | null>(null)
+  const [smsTestPhone, setSmsTestPhone] = useState('')
+  const [smsTestStatus, setSmsTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [smsForm, setSmsForm] = useState<SmsSettingsUpdate>({
-    isEnabled: false, provider: 'NetGSM', apiUrl: null,
-    username: null, password: null, clearPassword: false, originator: null,
+    isEnabled: false, provider: 'Asistel', apiUrl: null,
+    username: null, password: null, clearPassword: false, originator: null, chargedNumber: null,
   })
   const [syslogForm, setSyslogForm] = useState<SyslogSettingsUpdate>({
     isEnabled: false, host: null, port: 514, format: 'Syslog', transport: 'UDP',
@@ -584,6 +587,7 @@ export function SettingsPage() {
           password: null,
           clearPassword: false,
           originator: smsResponse.originator,
+          chargedNumber: smsResponse.chargedNumber,
         })
         setFileStorageForm({
           nasHost: fileStorageResponse.nasHost,
@@ -882,6 +886,21 @@ export function SettingsPage() {
       setMessage({ type: 'success', text: t('settings.sms.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  // Kayıtlı ayarlarla gerçek gönderim; parola formda değil sunucudaki şifreli kayıttan okunur.
+  const sendTestSms = async () => {
+    if (!user?.tenantId || !smsTestPhone.trim()) return
+    setSmsTestStatus({ type: 'testing', message: t('settings.ldapTesting') })
+    try {
+      const result = await api.sendTestSms(user.tenantId, smsTestPhone.trim())
+      setSmsTestStatus({ type: result.success ? 'success' : 'error', message: result.message })
+    } catch (testError) {
+      setSmsTestStatus({
+        type: 'error',
+        message: testError instanceof Error ? testError.message : t('settings.ldapTestFailed'),
+      })
     }
   }
 
@@ -1499,6 +1518,8 @@ export function SettingsPage() {
                     <label className="field-label">{t('settings.sms.provider')}</label>
                     <SingleSelectDropdown
                       options={[
+                        { value: 'Asistel', label: t('settings.sms.providers.Asistel') },
+                        { value: 'JettMesaj', label: t('settings.sms.providers.JettMesaj') },
                         { value: 'NetGSM', label: t('settings.sms.providers.NetGSM') },
                         { value: 'Iletimerkezi', label: t('settings.sms.providers.Iletimerkezi') },
                         { value: 'Verimor', label: t('settings.sms.providers.Verimor') },
@@ -1509,16 +1530,28 @@ export function SettingsPage() {
                       placeholder={t('settings.sms.provider')}
                     />
                   </div>
-                  {smsForm.provider === 'Custom' && (
+                  {!SMS_SENDABLE_PROVIDERS.includes(smsForm.provider) && (
+                    <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
+                      {t('settings.sms.providerNotImplemented')}
+                    </p>
+                  )}
+                  {(smsForm.provider === 'Custom' || SMS_SENDABLE_PROVIDERS.includes(smsForm.provider)) && (
                     <div className="field-row">
                       <label className="field-label">{t('settings.sms.apiUrl')}</label>
                       <input
                         className="field-input"
                         type="url"
-                        placeholder={t('settings.sms.apiUrlPlaceholder')}
+                        placeholder={smsForm.provider === 'Asistel'
+                          ? 'http://92.42.35.50:16899/smswebservice.asmx'
+                          : smsForm.provider === 'JettMesaj'
+                            ? 'http://api.jettmesaj.com/'
+                            : t('settings.sms.apiUrlPlaceholder')}
                         value={smsForm.apiUrl ?? ''}
                         onChange={event => setSmsForm(current => ({ ...current, apiUrl: event.target.value || null }))}
                       />
+                      {SMS_SENDABLE_PROVIDERS.includes(smsForm.provider) && (
+                        <p className="helper-copy">{t('settings.sms.apiUrlOptionalHelp')}</p>
+                      )}
                     </div>
                   )}
                   <div className="field-row">
@@ -1562,6 +1595,50 @@ export function SettingsPage() {
                       onChange={event => setSmsForm(current => ({ ...current, originator: event.target.value || null }))}
                     />
                     <p className="helper-copy">{t('settings.sms.originatorHelp')}</p>
+                  </div>
+                  {smsForm.provider === 'Asistel' && (
+                    <div className="field-row">
+                      <label className="field-label">{t('settings.sms.chargedNumber')}</label>
+                      <input
+                        className="field-input"
+                        type="text"
+                        value={smsForm.chargedNumber ?? ''}
+                        onChange={event => setSmsForm(current => ({ ...current, chargedNumber: event.target.value || null }))}
+                      />
+                      <p className="helper-copy">{t('settings.sms.chargedNumberHelp')}</p>
+                    </div>
+                  )}
+                  {/* Kayıtlı ayarlarla gerçek gönderim testi; "SMS Gönderimi Aktif" kapalıyken de çalışır. */}
+                  <div className="space-y-3 border-t border-slate-200 pt-4">
+                    <div className="text-sm font-extrabold text-slate-900">{t('settings.sms.testTitle')}</div>
+                    <p className="helper-copy">{t('settings.sms.testHelp')}</p>
+                    <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
+                      <label className="grid gap-1.5 text-sm font-medium text-slate-600">
+                        <span>{t('settings.sms.testPhone')}</span>
+                        <input
+                          className="field-input"
+                          type="tel"
+                          placeholder="0555 123 45 67"
+                          value={smsTestPhone}
+                          onChange={event => setSmsTestPhone(event.target.value)}
+                        />
+                      </label>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => void sendTestSms()}
+                        disabled={smsTestStatus.type === 'testing' || !smsTestPhone.trim()}
+                      >
+                        {smsTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('settings.sms.testSend')}
+                      </Button>
+                    </div>
+                    {smsTestStatus.type !== 'idle' ? (
+                      <div className={`text-sm font-medium ${smsTestStatus.type === 'success' ? 'text-emerald-700' : smsTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                        {smsTestStatus.type === 'success' ? '✅ ' : smsTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                        {smsTestStatus.message}
+                      </div>
+                    ) : null}
                   </div>
                 </>
               )}

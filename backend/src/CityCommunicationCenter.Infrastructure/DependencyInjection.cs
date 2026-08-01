@@ -3,6 +3,7 @@ using CityCommunicationCenter.Application.Abstractions.BelediyeSoap;
 using CityCommunicationCenter.Infrastructure.BelediyeSoap;
 using CityCommunicationCenter.Infrastructure.Persistence.Interceptors;
 using CityCommunicationCenter.Infrastructure.Services;
+using CityCommunicationCenter.Infrastructure.Sms;
 using CityCommunicationCenter.Infrastructure.SocialMedia;
 using CityCommunicationCenter.Infrastructure.Tenancy;
 
@@ -49,6 +50,15 @@ public static class DependencyInjection
         services.AddScoped<ITenantAppearanceService, TenantAppearanceService>();
         services.AddScoped<ITenantWorkingHoursService, TenantWorkingHoursService>();
         services.AddScoped<ITenantSmsSettingsService, TenantSmsSettingsService>();
+
+        // SMS gateway: sağlayıcıya göre seçilen gönderici + ayrı timeout'lu HttpClient.
+        // RemoveAllLoggers ŞART: jeTTMesaj API'si parolayı query string'de taşıyor ve
+        // HttpClient'ın varsayılan logger'ı istek URI'sini olduğu gibi loga yazıyor.
+        services.AddHttpClient(SmsHttpClient.Name, client => client.Timeout = TimeSpan.FromSeconds(30))
+            .RemoveAllLoggers();
+        services.AddScoped<ISmsProviderSender, JettMesajSmsSender>();
+        services.AddScoped<ISmsProviderSender, AsistelSmsSender>();
+        services.AddScoped<ISmsGateway, SmsGateway>();
         services.AddScoped<ICitizenJobStatusNotifier, CitizenJobStatusNotifier>();
         services.AddScoped<ITenantFileStorageSettingsService, TenantFileStorageSettingsService>();
         services.AddScoped<ISyslogForwarderService, SyslogForwarderService>();

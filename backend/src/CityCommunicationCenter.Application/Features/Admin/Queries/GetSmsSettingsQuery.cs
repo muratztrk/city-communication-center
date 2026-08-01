@@ -33,6 +33,7 @@ public sealed class GetSmsSettingsQueryHandler : IQueryHandler<GetSmsSettingsQue
             settings.ApiUrl,
             settings.Username,
             settings.HasPassword,
-            settings.Originator);
+            settings.Originator,
+            settings.ChargedNumber);
     }
 }

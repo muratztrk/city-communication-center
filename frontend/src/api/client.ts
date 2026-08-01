@@ -39,6 +39,7 @@ import type {
   WorkingHoursSettings,
   SmsSettings,
   SmsSettingsUpdate,
+  TestSmsResult,
   FileStorageSettings,
   FileStorageSettingsUpdate,
   SyslogSettings,
@@ -585,6 +586,16 @@ export const api = {
       body: JSON.stringify(data),
     })
     await ensureOk(response, i18n.t('errors.smsSettingsSaveFailed'))
+  },
+
+  async sendTestSms(tenantId: string, phoneNumber: string, text?: string): Promise<TestSmsResult> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/sms-settings/test`, {
+      method: 'POST',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phoneNumber, text: text ?? null }),
+    })
+    await ensureOk(response, i18n.t('errors.smsSettingsSaveFailed'))
+    return response.json() as Promise<TestSmsResult>
   },
 
   async getFileStorageSettings(tenantId: string): Promise<FileStorageSettings> {

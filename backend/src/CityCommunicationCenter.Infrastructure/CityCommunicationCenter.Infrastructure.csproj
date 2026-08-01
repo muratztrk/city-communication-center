@@ -9,6 +9,11 @@
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- SMS numara normalizasyonu / endpoint allow-list gibi internal saf mantık test edilebilsin. -->
+    <InternalsVisibleTo Include="CityCommunicationCenter.Application.Tests" />
+  </ItemGroup>
   
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.7">

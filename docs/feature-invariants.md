@@ -1400,7 +1400,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Vatandaş Talep No` → hemen sonra Vatandaş Adı/`TELEFON NO` → Talep Tarihi; Birim = hedef birim;
   boş satır kompakt `TableEmptyStateRows`.
 - **Vatandaş Talep Kanalları (#6a6d0132/#6a6d0181/#6a6d8db3):** lejant `Çağrı`; dilim popup
-  drilldown; Telefon No, Vatandaş Adı alt satırında (ayrı kolon yok).
+  drilldown; Telefon No, Vatandaş Adı alt satırında; başlıklar `Talep Tarihi` + `Birim`
+  (VT sayfasındaki Gittiği Yer / Vatandaş Talep Tarihi değil).
 - **Mahalle pie yazdır (#6a6d8e2f/#6a6d92e8):** terminal kolon `Sonuç Tarihi`; vatandaş başlığı
   yazdırmada Ad üstte / Telefon No alt satır.
 - **Talep Etiketi pie (#6a6c9fed/#6a6cfd82/#6a6cffd1):** Birim yok; Vatandaş Adı/Telefon VT No sonrası;

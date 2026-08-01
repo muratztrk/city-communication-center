@@ -168,8 +168,8 @@ export function CitizenChannelMessagesModal({
                               </span>
                             </span>
                           </th>
-                          <th>{t('social.citizenRequestDateHeader', 'Vatandaş Talep Tarihi')}</th>
-                          <th>{t('social.destination', 'Gittiği Yer')}</th>
+                          <th>{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
+                          <th>{t('jobs.columns.unitShort', 'Birim')}</th>
                           <th>{t('whatsapp.label', 'Talep Etiketi')}</th>
                           <th>{t('common.actions')}</th>
                         </tr>

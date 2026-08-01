@@ -1,5 +1,6 @@
-## Round 626 — VT grid Talep Etiketi boş metin
-- `#6a6d8fe8`: Vatandaş Talepleri grid dropdown boş → `Etiketler` (diğer yerler Etiket seçiniz)
+## Round 626 — VT grid Etiketler; kanal pie başlıklar
+- `#6a6d8fe8`: Vatandaş Talepleri grid dropdown boş → `Etiketler`
+- `#6a6d8db3` reopen: kanal pie → `Talep Tarihi` + `Birim`
 
 ## Round 625 — Pie popup kolon sırası; boş satır; yazdır
 - `#6a6d8db3`: kanal pie — Telefon No, Vatandaş Adı alt satırında

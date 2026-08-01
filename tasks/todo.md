@@ -1,3 +1,10 @@
+## Round 625 — Pie popup kolon sırası; boş satır; yazdır
+- `#6a6d8db3`: kanal pie — Telefon No, Vatandaş Adı alt satırında
+- `#6a6d9411`: tüm pie — Vatandaş Adı/Telefon VT No’nun hemen sonrası
+- `#6a6d8c50`: empty-state yüksekliği azaltıldı
+- `#6a6d8e2f`: mahalle yazdır → Sonuç Tarihi
+- `#6a6d92e8`: yazdır — Telefon No, Vatandaş Adı altında (ayrı satır)
+
 ## Round 624b — Çağrı ad/tel editable; Etiket/Mahalle placeholder
 - `#6a6d903e`: Çağrı kanalı detay Düzenle → ad/telefon editable
 - `#6a6d8fe8`: Etiket seçiniz; Mahalle seçiniz

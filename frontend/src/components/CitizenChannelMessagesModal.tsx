@@ -160,8 +160,14 @@ export function CitizenChannelMessagesModal({
                         <tr>
                           <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
                           <th>{t('social.citizenRequestNoHeader', 'Vatandaş Talep No')}</th>
-                          <th>{t('social.citizenName', 'Vatandaş Adı')}</th>
-                          <th>{t('social.citizenPhone', 'Telefon Numarası')}</th>
+                          <th className="dashboard-drilldown-citizen-th text-center">
+                            <span className="inline-flex flex-col items-center justify-center leading-tight text-center">
+                              <span>{t('social.citizenName', 'Vatandaş Adı')}</span>
+                              <span className="text-[0.9em] font-bold uppercase tracking-[0.06em]">
+                                {t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}
+                              </span>
+                            </span>
+                          </th>
                           <th>{t('social.citizenRequestDateHeader', 'Vatandaş Talep Tarihi')}</th>
                           <th>{t('social.destination', 'Gittiği Yer')}</th>
                           <th>{t('whatsapp.label', 'Talep Etiketi')}</th>
@@ -170,7 +176,7 @@ export function CitizenChannelMessagesModal({
                       </thead>
                       <tbody>
                         {paged.length === 0 ? (
-                          <TableEmptyStateRows columnCount={8} message={t('social.empty')} />
+                          <TableEmptyStateRows columnCount={7} message={t('social.empty')} />
                         ) : paged.map((row, index) => (
                           <tr key={row.jobId}>
                             <td className="text-center text-xs font-bold text-slate-400 tabular-nums">
@@ -189,9 +195,13 @@ export function CitizenChannelMessagesModal({
                                 </div>
                               ) : null}
                             </td>
-                            <td className="font-semibold">{row.citizenName?.trim() || '—'}</td>
-                            <td className="font-semibold">
-                              {row.citizenPhone ? formatCitizenPhoneDisplay(row.citizenPhone) : '—'}
+                            <td className="text-center">
+                              <div className="dashboard-drilldown-citizen-stack inline-flex flex-col items-center leading-tight text-center">
+                                <div className="font-semibold text-slate-800">{row.citizenName?.trim() || '—'}</div>
+                                <div className="dashboard-drilldown-citizen-stack__phone text-xs text-slate-400">
+                                  {row.citizenPhone ? formatCitizenPhoneDisplay(row.citizenPhone) : '—'}
+                                </div>
+                              </div>
                             </td>
                             <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
                             <td>

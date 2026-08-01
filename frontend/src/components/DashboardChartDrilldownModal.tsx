@@ -159,7 +159,7 @@ function printDrilldownRows(
   options?: {
     showCitizenColumn?: boolean
     showUnitColumn?: boolean
-    /** Mahalle pie yazdır: Sonuçlanma Tarihi (#6a6d8e2f). */
+    /** Mahalle pie yazdır: Sonuç Tarihi (#6a6d8e2f). */
     terminalDateLabel?: string
   },
 ) {
@@ -180,15 +180,14 @@ function printDrilldownRows(
     ?? t('jobs.columns.completedAt', 'Tamamlanma Tarihi')
   const rowsHtml = rows.map((row, index) => {
     const status = getDrilldownStatusLabel(t, row)
-    const citizenCell = [row.citizenName?.trim(), formatCitizenPhoneDisplay(row.citizenPhone)]
-      .filter(Boolean)
-      .join(' / ') || '—'
+    const name = row.citizenName?.trim() || '—'
+    const phone = row.citizenPhone ? formatCitizenPhoneDisplay(row.citizenPhone) : '—'
     const unitCell = row.departmentName ?? row.neighborhood ?? '—'
     return `<tr>
       <td class="col-seq">${index + 1}</td>
       <td class="col-no">${escape(formatDrilldownNumber(row, locale))}</td>
+      ${showCitizen ? `<td class="col-citizen"><div class="citizen-stack"><div class="citizen-name">${escape(name)}</div><div class="citizen-phone">${escape(phone)}</div></div></td>` : ''}
       <td class="col-date">${escape(formatDate(row.createdAtUtc))}</td>
-      ${showCitizen ? `<td class="col-citizen">${escape(citizenCell)}</td>` : ''}
       <td class="col-title">${escape(row.title?.trim() || '—')}</td>
       ${showUnit ? `<td class="col-dept">${escape(unitCell)}</td>` : ''}
       <td class="col-status">${escape(status)}</td>
@@ -207,6 +206,10 @@ function printDrilldownRows(
       th{background:#f1f5f9;white-space:nowrap}
       th.col-title,td.col-title{white-space:normal;text-align:center;word-break:break-word;overflow-wrap:anywhere}
       th.col-date,td.col-date,th.col-status,td.col-status,th.col-completed,td.col-completed{text-align:center !important}
+      th.col-citizen .citizen-stack,td.col-citizen .citizen-stack{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2}
+      th.col-citizen .citizen-phone{font-size:0.9em;font-weight:700;text-transform:uppercase;letter-spacing:0.04em}
+      td.col-citizen .citizen-name{font-weight:600}
+      td.col-citizen .citizen-phone{font-size:10px;color:#64748b}
       .col-seq{width:4%}
       .col-no{width:11%;white-space:nowrap}
       .col-title{width:18%}
@@ -223,8 +226,8 @@ function printDrilldownRows(
     <table><thead><tr>
       <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
       <th class="col-no">${escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
+      ${showCitizen ? `<th class="col-citizen"><div class="citizen-stack"><div>${escape(t('social.citizenName', 'Vatandaş Adı'))}</div><div class="citizen-phone">${escape(t('citizenMessageApproval.columns.citizenPhone', 'Telefon No'))}</div></div></th>` : ''}
       <th class="col-date">${escape(t('jobs.columns.requestDate', 'Talep Tarihi'))}</th>
-      ${showCitizen ? `<th class="col-citizen">${escape(t('jobs.detail.citizenNamePhone', 'Vatandaş Adı / Telefon No'))}</th>` : ''}
       <th class="col-title">${escape(t('jobs.columns.title', 'Başlık'))}</th>
       ${showUnit ? `<th class="col-dept">${escape(t('jobs.columns.unitShort', 'Birim'))}</th>` : ''}
       <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
@@ -272,7 +275,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const requestNoColumnLabel = useCitizenRequestNoHeader
     ? t('social.citizenRequestNo', 'Vatandaş Talep No')
     : t('jobs.columns.requestNo', 'Talep No')
-  // Talep Tarihi sonrası Vatandaş Adı / Telefon No (#6a6d8ce5 / #6a6d8db3).
+  // VT No sonrası Vatandaş Adı / Telefon No (#6a6d9411).
   const showCitizenColumn = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart
   const showUnitColumn = !isRequestTagsChart
   const unitColumnLabel = !showUnitColumn
@@ -370,7 +373,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                     showCitizenColumn,
                     showUnitColumn,
                     terminalDateLabel: isNeighborhoodChart
-                      ? t('jobs.columns.outcomeAt', 'Sonuçlanma Tarihi')
+                      ? t('jobs.columns.outcomeAt', 'Sonuç Tarihi')
                       : undefined,
                   })}
                   aria-label={t('common.print', 'Yazdır')}
@@ -404,7 +407,6 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                     <tr>
                       <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
                       <th>{requestNoColumnLabel}</th>
-                      <th className="text-center">{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
                       {showCitizenColumn ? (
                         <th className="dashboard-drilldown-citizen-th text-center">
                           <span className="inline-flex flex-col items-center justify-center leading-tight text-center">
@@ -415,6 +417,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                           </span>
                         </th>
                       ) : null}
+                      <th className="text-center">{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
                       <th>{t('jobs.columns.title', 'Başlık')}</th>
                       {showUnitColumn && unitColumnLabel ? <th>{unitColumnLabel}</th> : null}
                       <th className="grid-col-status text-center">{t('jobs.columns.status', 'Durum')}</th>
@@ -460,7 +463,6 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                             </div>
                           ) : null}
                         </td>
-                        <td className="text-center"><DateCell value={row.createdAtUtc} locale={locale} /></td>
                         {showCitizenColumn ? (
                           <td className="text-center">
                             <div className="dashboard-drilldown-citizen-stack inline-flex flex-col items-center leading-tight text-center">
@@ -471,6 +473,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                             </div>
                           </td>
                         ) : null}
+                        <td className="text-center"><DateCell value={row.createdAtUtc} locale={locale} /></td>
                         <td className="font-semibold">{row.title}</td>
                         {showUnitColumn ? (
                           <td className={truncateUnitColumn ? 'max-w-[12rem]' : undefined}>

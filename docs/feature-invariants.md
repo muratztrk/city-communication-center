@@ -1395,15 +1395,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `whitespace-nowrap`; tüm grid StatusPill’lerde kullanılır (dizin popup dahil).
 - **Vatandaş Talepleri pie (#6a6cf439/#6a6cf4d4):** drilldown Priority alt satır; kolon başlığı
   `Vatandaş Talep No`; Öncelik `0.7rem`; Durum sütunu `min-width: 11rem`.
-- **Anasayfa - Vatandaş pie popup (#6a6cff28/#6a6d8ce5/#6a6d8a66/#6a6d8c50):** kolon
-  `Vatandaş Talep No`; Talep Tarihi sonrası Vatandaş Adı/`TELEFON NO`; Birim = hedef birim
-  (Talep Yapılan Birim); boş satır `TableEmptyStateRows` (Taleplerim empty-state).
-- **Vatandaş Talep Kanalları (#6a6d0132/#6a6d0181):** lejant `Çağrı`; dilim popup
-  `CitizenChannelMessagesModal` — veri `dashboard-chart-drilldown` (pie ile aynı kapsam;
-  Reporter’ın birim-kısıtlı `getSocialMessages` kullanılmaz).
-- **Mahalle pie yazdır (#6a6d8e2f):** yazdırma HTML’inde terminal kolon `Sonuçlanma Tarihi`.
-- **Talep Etiketi pie (#6a6c9fed/#6a6cfd82/#6a6cffd1/#6a6d8db3):** Birim yok; Vatandaş Adı/Telefon
-  Talep Tarihi’nin hemen sağında; telefon biraz aşağıda; Öncelik alt satır.
+- **Anasayfa - Vatandaş pie popup (#6a6cff28/#6a6d9411/#6a6d8a66/#6a6d8c50):** kolon
+  `Vatandaş Talep No` → hemen sonra Vatandaş Adı/`TELEFON NO` → Talep Tarihi; Birim = hedef birim;
+  boş satır kompakt `TableEmptyStateRows`.
+- **Vatandaş Talep Kanalları (#6a6d0132/#6a6d0181/#6a6d8db3):** lejant `Çağrı`; dilim popup
+  drilldown; Telefon No, Vatandaş Adı alt satırında (ayrı kolon yok).
+- **Mahalle pie yazdır (#6a6d8e2f/#6a6d92e8):** terminal kolon `Sonuç Tarihi`; vatandaş başlığı
+  yazdırmada Ad üstte / Telefon No alt satır.
+- **Talep Etiketi pie (#6a6c9fed/#6a6cfd82/#6a6cffd1):** Birim yok; Vatandaş Adı/Telefon VT No sonrası;
+  Öncelik alt satır.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.
 - **Dizin yazdır (#r449/#r450/#r460):** Başlık kolonu `width:auto` + rem sabit diğer kolonlar
   (`table-layout:fixed` içinde % karışımı yok); wrap açık; eski popup (`document.write`);

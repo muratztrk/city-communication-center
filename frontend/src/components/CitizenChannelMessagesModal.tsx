@@ -201,7 +201,7 @@ export function CitizenChannelMessagesModal({
                             </td>
                             <td className="text-center">
                               <span className="inline-flex min-h-8 items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-2.5 text-xs font-semibold text-slate-700">
-                                {row.title?.trim() || t('whatsapp.requestTagsShort', 'Etiketler')}
+                                  {row.title?.trim() || t('whatsapp.requestTagsShort', 'Etiket seçiniz')}
                               </span>
                             </td>
                             <td className="actions-cell">

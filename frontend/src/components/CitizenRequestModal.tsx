@@ -152,10 +152,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const ownerDepartmentId = getActiveDepartmentId() ?? user?.departmentId ?? message.assignedDepartmentId ?? ''
 
   // WhatsApp konuşmasından açıldığında telefon değiştirilemez; kayıtlı vatandaş adı varsa
-  // ad alanı dolu gelir ve o da değiştirilemez (card #1348).
+  // ad alanı dolu gelir ve o da değiştirilemez (card #1348). Çağrı kanalında düzenlemede
+  // ad/telefon düzenlenebilir (#6a6d903e).
   const savedCitizenName = sanitizeCitizenName(message.citizenName)
-  const citizenNameLocked = Boolean(savedCitizenName)
-  const citizenPhoneLocked = Boolean(resolveInitialCitizenPhone(message))
+  const isPhoneChannel = message.channel === 'Phone'
+  const citizenNameLocked = !isPhoneChannel && Boolean(savedCitizenName)
+  const citizenPhoneLocked = !isPhoneChannel && Boolean(resolveInitialCitizenPhone(message))
   const [citizenHandle, setCitizenHandle] = useState(() => (
     forceNewRequest && !editJobId ? savedCitizenName : resolveInitialCitizenName(message)
   ))

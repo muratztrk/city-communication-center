@@ -57,6 +57,8 @@ interface MyRequestInfoFieldsListProps {
   separatePriorityProjectRows?: boolean
   hidePriorityRow?: boolean
   hideProjectRow?: boolean
+  /** Çağrı kanalı: Vatandaş Adı / Telefon No düzenlenebilir (#6a6d903e). */
+  canEditCitizenContact?: boolean
   // Görevlerim popup'ında (İlgili Talep Detayları) Ekler/Fotoğraflar artık ayrı kart değil,
   // Öncelik/Proje mi? satırının hemen altında aynı hizada gösterilir (card #1481). Talep Ekleri'nden
   // sonra veri varsa Yönetici Notu satırı da aynı listede eklenebilir (card #1538).
@@ -74,10 +76,12 @@ export function MyRequestInfoFieldsList({
   separatePriorityProjectRows = false,
   hidePriorityRow = false,
   hideProjectRow = false,
+  canEditCitizenContact = false,
   extraTrailingRows,
 }: MyRequestInfoFieldsListProps) {
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
   const categoryLabel = t('social.label', 'Talep Etiketi')
+  const citizenContactLabel = t('jobs.detail.citizenNamePhone', 'Vatandaş Adı / Telefon No')
   const [requestTags, setRequestTags] = useState<RequestTag[]>([])
 
   useEffect(() => {
@@ -109,6 +113,27 @@ export function MyRequestInfoFieldsList({
                   selectedName={editDraft.category || null}
                   onSelect={name => onEditDraftChange({ category: name })}
                   onClear={() => onEditDraftChange({ category: '' })}
+                />
+              </div>
+            ) : isEditing && editDraft && onEditDraftChange && canEditCitizenContact && field.label === citizenContactLabel ? (
+              <div className="flex w-full flex-col gap-1.5">
+                <input
+                  className="field-input font-semibold"
+                  value={editDraft.citizenName}
+                  maxLength={50}
+                  placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş ismi')}
+                  onChange={event => onEditDraftChange({ citizenName: event.target.value })}
+                />
+                <input
+                  className="field-input text-sm text-slate-600"
+                  value={editDraft.citizenPhone}
+                  maxLength={10}
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  placeholder="5XXXXXXXXX"
+                  onChange={event => onEditDraftChange({
+                    citizenPhone: event.target.value.replace(/\D/g, '').slice(0, 10),
+                  })}
                 />
               </div>
             ) : (
@@ -484,6 +509,7 @@ export function MyRequestDetailMainCard({
                 hidePriorityRow={priorityInInfoHeader}
                 // Vatandaş talebinde Proje mi anlamsız — UI + yazdır (#r465/#r466).
                 hideProjectRow={hideProjectRow || isCitizenRequestJob(detail)}
+                canEditCitizenContact={citizenSourceMessage?.channel === 'Phone'}
                 extraTrailingRows={infoExtraTrailingRows}
               />
             </>

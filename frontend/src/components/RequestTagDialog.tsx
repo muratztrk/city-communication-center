@@ -241,7 +241,7 @@ export function RequestTagPicker({
   const menuRef = useRef<HTMLDivElement>(null)
   const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number } | null>(null)
   const trimmedSelected = selectedName?.trim() || ''
-  const defaultLabel = t('whatsapp.requestTagsShort', 'Etiketler')
+  const defaultLabel = t('whatsapp.requestTagsShort', 'Etiket seçiniz')
   const buttonLabel = showSelectedOnButton && trimmedSelected ? trimmedSelected : defaultLabel
   const canClear = Boolean(onClear && trimmedSelected)
 

@@ -1029,7 +1029,8 @@
       "completion": "Not"
     },
     "messageApproverButton": "Onaylayan Yönetici",
-    "label": "Talep Etiketi"
+    "label": "Talep Etiketi",
+    "requestTagsShort": "Etiket seçiniz"
   },
   "audit": {
     "title": "Log",
@@ -1799,7 +1800,7 @@
   "address": {
     "sectionTitle": "Adres Bilgisi (İsteğe Bağlı)",
     "neighborhoodLabel": "Mahalle",
-    "neighborhoodPlaceholder": "Mahalle seçin",
+    "neighborhoodPlaceholder": "Mahalle seçiniz",
     "streetLabel": "Cadde / Sokak",
     "streetShortLabel": "Cadde / Sokak",
     "streetPlaceholder": "ör. Atatürk Caddesi",

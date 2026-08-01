@@ -1390,6 +1390,25 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     setMyRequestEditSaving(true)
     setError(null)
     try {
+      const isPhoneCitizenEdit = citizenSourceMessage?.channel === 'Phone'
+      const nextCitizenName = isPhoneCitizenEdit
+        ? (myRequestEditDraft.citizenName.trim() || null)
+        : undefined
+      const nextCitizenPhoneDigits = isPhoneCitizenEdit
+        ? myRequestEditDraft.citizenPhone.replace(/\D/g, '')
+        : ''
+      if (isPhoneCitizenEdit) {
+        if (nextCitizenPhoneDigits.length !== 10 || !nextCitizenPhoneDigits.startsWith('5')) {
+          setError(t('settings.citizen.citizenPhoneInvalid', 'Vatandaş telefon numarası 10 haneli olmalıdır.'))
+          setMyRequestEditSaving(false)
+          return
+        }
+        if (!myRequestEditDraft.citizenName.trim()) {
+          setError(t('settings.citizen.citizenNameRequired', 'Vatandaş adı zorunludur.'))
+          setMyRequestEditSaving(false)
+          return
+        }
+      }
       await api.updateJob(detail.jobId, {
         title: myRequestEditDraft.title.trim(),
         description: myRequestEditDraft.description,
@@ -1402,13 +1421,20 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         neighborhood: myRequestEditDraft.neighborhood || null,
         street: normalizeTitleCaseField(myRequestEditDraft.street),
         openAddress: normalizeTitleCaseField(myRequestEditDraft.openAddress),
+        ...(isPhoneCitizenEdit ? {
+          citizenName: nextCitizenName,
+          citizenPhone: nextCitizenPhoneDigits,
+        } : {}),
       })
       // Operator/CRM: Talep Etiketi sosyal mesaj kategorisinde saklanır (card #1896 reopen).
-      if (citizenSourceMessage?.socialMessageId && (user?.role === 'Operator' || hasCitizenRequestManagerRole(user))) {
+      if (citizenSourceMessage?.socialMessageId && (user?.role === 'Operator' || hasCitizenRequestManagerRole(user) || isPhoneCitizenEdit)) {
         const nextCategory = myRequestEditDraft.category.trim() || null
+        const phoneHandle = isPhoneCitizenEdit && nextCitizenPhoneDigits.length === 10
+          ? `90${nextCitizenPhoneDigits}`
+          : citizenSourceMessage.citizenHandle
         await api.updateSocialMessage(citizenSourceMessage.socialMessageId, {
           channel: citizenSourceMessage.channel,
-          citizenHandle: citizenSourceMessage.citizenHandle,
+          citizenHandle: phoneHandle,
           content: citizenSourceMessage.content?.trim()
             || citizenSourceMessage.citizenHandle?.trim()
             || detail.title?.trim()
@@ -1416,7 +1442,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           category: nextCategory || undefined,
         })
         setCitizenSourceMessage(current => current
-          ? { ...current, category: nextCategory }
+          ? {
+            ...current,
+            category: nextCategory,
+            ...(isPhoneCitizenEdit ? {
+              citizenName: nextCitizenName,
+              citizenPhone: nextCitizenPhoneDigits,
+              citizenHandle: phoneHandle,
+            } : {}),
+          }
           : current)
         // Grid Etiketler dropdown seçili değeri senkron (card #1896 reopen / #r449).
         socialActions?.onMessageUpdated?.({

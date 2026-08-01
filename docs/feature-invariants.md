@@ -1275,7 +1275,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `td` 0.9rem, thead biraz yüksek); alt başlık (ad·telefon) `text-xs` + biraz aşağı (card #1889).
   Ana grid: `Vatandaş Adı`; Talep Kanalı Numara'dan sonra ve ortalanmış (card #1880–#1883 reopen).
   Nested İşlemler→Detaylar popup Taleplerim shell’den biraz küçük
-  (`detail-modal-shell--citizen-directory-nested`, card #r454).
+  (`detail-modal-shell--citizen-directory-nested`, card #r454). Anasayfa pie → Detaylar
+  aynı nested boyut (#6a6da278).
 - **Grid thead rengi + sticky örtü (card #1888 / #r447):** sticky `th` opak
   (`background-color` + aynı linear-gradient, `background-attachment: fixed`) — scroll’da
   tbody satırları başlığın üstüne binmez; hücreler arası sürekli gradient korunur. `z-index` ≥ 5.

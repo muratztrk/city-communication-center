@@ -1,3 +1,6 @@
+## Round 628 — Pie Detaylar = Vatandaş Talep Bilgisi boyutu
+- `#6a6da278`: Anasayfa pie Detaylar → `detail-modal-shell--citizen-directory-nested`
+
 ## Round 627 — Çağrı tel uyarısı; yazdır başlıklar
 - `#6a6d903e`: Çağrı Düzenle — 10 hane değilse uyarı modal içinde
 - `#6a6d92e8`: yazdır Telefon No title-case (Ad altında)

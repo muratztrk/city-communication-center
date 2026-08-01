@@ -610,6 +610,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
               onAttachmentUpload={async () => undefined}
               onAttachmentDelete={async () => undefined}
               onDownloadTaskAttachment={() => undefined}
+              /* Vatandaş Talep Bilgisi nested boyutu (#6a6da278). */
+              shellClassName="detail-modal-shell--citizen-directory-nested"
             />
           ) : (
             <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl" onClick={event => event.stopPropagation()}>

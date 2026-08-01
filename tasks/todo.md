@@ -1,3 +1,7 @@
+## Round 631 — Boş adres hiza; yazdır Durum ortalı
+- `#6a6dab1b`/#2185: boş Mahalle + Açık Adres biraz sağa
+- `#6a6db2e2`/#2186: pie yazdır Durum ortalı
+
 ## Round 630 — Adres sola; yazdır tarih; çağrı tel grid
 - `#6a6dab1b`: boş Adres Bilgileri üç kolon sola
 - `#6a6da028`: yazdır Talep/Sonuç Tarihi — saat yok

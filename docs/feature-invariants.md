@@ -1410,7 +1410,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Çağrı detay Düzenle telefon (#6a6d903e):** 10 hane değilse Kaydet → uyarı modal içinde
   (`editError`); kayıt sonrası VT grid `citizenPhone`/`citizenName` `onMessageUpdated` ile
   anında senkron.
-- **Boş Adres Bilgileri (#6a6dab1b):** yan yana üç kolon boşken sola yaslı (ortalı değil).
+- **Boş Adres Bilgileri (#6a6dab1b/#2185):** yan yana üç kolon boşken sola yaslı (ortalı değil);
+  Mahalle + Açık Adres `padding-inline-start: 0.7rem` ile biraz sağa (#2185 reopen).
+- **Pie yazdır Durum (#6a6db2e2):** Durum hücresi ortalı (`status-cell` + eşit padding); Sonuç Tarihi
+  kolonunda ekstra sağ padding/min-width yok (Durum sağa kaymasın).
 - **Pie yazdır tarih (#6a6da028):** Talep Tarihi / Sonuç Tarihi yalnızca gün (saat yok).
 - **Talep Etiketi pie (#6a6c9fed/#6a6cfd82/#6a6cffd1):** Birim yok; Vatandaş Adı/Telefon VT No sonrası;
   Öncelik alt satır.

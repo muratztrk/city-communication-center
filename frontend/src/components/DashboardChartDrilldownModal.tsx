@@ -197,7 +197,7 @@ function printDrilldownRows(
       <td class="col-date">${escape(formatDate(row.createdAtUtc))}</td>
       <td class="col-title">${escape(row.title?.trim() || '—')}</td>
       ${showUnit ? `<td class="col-dept">${escape(unitCell)}</td>` : ''}
-      <td class="col-status">${escape(status)}</td>
+      <td class="col-status"><span class="status-cell">${escape(status)}</span></td>
       <td class="col-completed">${escape(formatDate(row.terminalDateUtc))}</td>
     </tr>`
   }).join('')
@@ -213,6 +213,9 @@ function printDrilldownRows(
       th{background:#f1f5f9;white-space:nowrap}
       th.col-title,td.col-title{white-space:normal;text-align:center;word-break:break-word;overflow-wrap:anywhere}
       th.col-date,td.col-date,th.col-status,td.col-status,th.col-completed,td.col-completed{text-align:center !important}
+      /* Yazdır Durum: hücre ortası (#6a6db2e2 — sağa kaymasın). */
+      th.col-status,td.col-status{text-align:center !important;padding-left:6px;padding-right:6px}
+      td.col-status .status-cell{display:inline-block;width:100%;text-align:center}
       th.col-citizen .citizen-stack,td.col-citizen .citizen-stack,th.col-no .request-no-stack{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2}
       /* Yazdır: Telefon No title-case (uppercase değil) (#6a6d92e8). */
       th.col-citizen .citizen-phone{font-size:0.9em;font-weight:700;letter-spacing:0.02em}
@@ -225,9 +228,9 @@ function printDrilldownRows(
       .col-date{width:12%;white-space:nowrap}
       .col-citizen{width:14%}
       .col-dept{width:13%}
-      .col-status{width:11%}
-      .col-completed{width:16%;white-space:nowrap;min-width:9.5rem}
-      th.col-completed,td.col-completed{padding:6px 10px}
+      .col-status{width:12%}
+      .col-completed{width:14%;white-space:nowrap}
+      th.col-completed,td.col-completed{padding:6px 7px}
       .footer{margin-top:14px;font-size:10px;color:#64748b}
     </style></head><body>
     <h1>${escape(chartTitle)}</h1>

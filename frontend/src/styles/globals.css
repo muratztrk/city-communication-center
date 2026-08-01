@@ -577,7 +577,8 @@
     justify-self: center;
   }
 
-  /* Boş Adres Bilgileri: üç kolon sola yaslı (#6a6dab1b — ortalı/sağa kaymış olmasın). */
+  /* Boş Adres Bilgileri: üç kolon sola yaslı (#6a6dab1b — ortalı/sağa kaymış olmasın).
+     Mahalle + Açık Adres biraz sağa (#2185 reopen) — Cadde orta kolonda kalır. */
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
     align-items: start;
     justify-items: start;
@@ -596,6 +597,11 @@
     width: fit-content;
     max-width: 100%;
     padding-inline-start: 0;
+  }
+
+  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(1),
+  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(3) {
+    padding-inline-start: 0.7rem;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {

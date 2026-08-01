@@ -1,3 +1,6 @@
+## Round 634 — Açık Adres biraz daha sağa
+- `#6a6dab1b`/#2185: yalnız Ekler layout’ta boş Açık Adres `2.5rem` sağa
+
 ## Round 633 — Boş adres + yalnız Ekler: sağa
 - `#6a6dab1b`/#2185: yan kutuda yalnız Talep Ekleri → boş Mahalle/Cadde/Açık Adres sağa
 

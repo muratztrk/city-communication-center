@@ -168,14 +168,13 @@ function printDrilldownRows(
   },
 ) {
   const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  // Yazdır: Talep / Sonuç Tarihi — saat yok (#6a6da028).
   const formatDate = (value: string | null | undefined) => {
     if (!value) return '—'
-    return new Date(value).toLocaleString(locale, {
+    return new Date(value).toLocaleDateString(locale, {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
     })
   }
   const showCitizen = options?.showCitizenColumn === true

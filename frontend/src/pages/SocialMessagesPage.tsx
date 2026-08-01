@@ -716,7 +716,13 @@ export function SocialMessagesPage() {
               onMessageUpdated: patch => {
                 setMessages(current => current.map(item =>
                   item.socialMessageId === patch.socialMessageId
-                    ? { ...item, category: patch.category }
+                    ? {
+                      ...item,
+                      category: patch.category,
+                      ...(patch.citizenName !== undefined ? { citizenName: patch.citizenName } : {}),
+                      ...(patch.citizenPhone !== undefined ? { citizenPhone: patch.citizenPhone } : {}),
+                      ...(patch.citizenHandle !== undefined ? { citizenHandle: patch.citizenHandle ?? item.citizenHandle } : {}),
+                    }
                     : item))
               },
             }

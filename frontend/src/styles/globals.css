@@ -577,11 +577,11 @@
     justify-self: center;
   }
 
+  /* Boş Adres Bilgileri: üç kolon sola yaslı (#6a6dab1b — ortalı/sağa kaymış olmasın). */
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
     align-items: start;
-    justify-items: center;
-    justify-content: center;
-    /* #r591 / #6a6ba6ad: boş Adres Bilgileri üç kolon, bölüm alt çizgisi altında ortalı. */
+    justify-items: start;
+    justify-content: start;
     margin-inline: 0;
     width: 100%;
     column-gap: 1.25rem;
@@ -590,9 +590,9 @@
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    justify-self: center;
+    align-items: flex-start;
+    text-align: left;
+    justify-self: start;
     width: fit-content;
     max-width: 100%;
     padding-inline-start: 0;
@@ -602,13 +602,13 @@
     width: 100%;
     max-width: 100%;
     margin-inline: 0;
-    text-align: center;
+    text-align: left;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
     width: 100%;
     margin-inline: 0;
-    text-align: center;
+    text-align: left;
   }
 
   .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,

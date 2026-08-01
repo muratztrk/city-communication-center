@@ -668,7 +668,13 @@ interface JobsPageProps {
     editDisabledTitle?: string
     cancel?: () => void
     cancelDisabledTitle?: string
-    onMessageUpdated?: (patch: { socialMessageId: string; category: string | null }) => void
+    onMessageUpdated?: (patch: {
+      socialMessageId: string
+      category: string | null
+      citizenName?: string | null
+      citizenPhone?: string | null
+      citizenHandle?: string | null
+    }) => void
   }
 }
 
@@ -1458,10 +1464,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             } : {}),
           }
           : current)
-        // Grid Etiketler dropdown seçili değeri senkron (card #1896 reopen / #r449).
+        // Grid Etiket / Çağrı ad-telefon senkron (#1896 / #6a6d903e).
         socialActions?.onMessageUpdated?.({
           socialMessageId: citizenSourceMessage.socialMessageId,
           category: nextCategory,
+          ...(isPhoneCitizenEdit ? {
+            citizenName: nextCitizenName,
+            citizenPhone: nextCitizenPhoneDigits,
+            citizenHandle: phoneHandle,
+          } : {}),
         })
         invalidateSocialMessages(queryClient, citizenSourceMessage.socialMessageId)
       }

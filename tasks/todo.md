@@ -1,3 +1,8 @@
+## Round 630 — Adres sola; yazdır tarih; çağrı tel grid
+- `#6a6dab1b`: boş Adres Bilgileri üç kolon sola
+- `#6a6da028`: yazdır Talep/Sonuç Tarihi — saat yok
+- `#6a6d903e`: Çağrı tel kaydı → VT grid senkron
+
 ## Round 629 — Pie Detaylar başlıkları
 - `#6a6da49d`: Vatandaş pie Detaylar → `Vatandaş Talebi`
 - `#6a6da519`: Birimler pie Detaylar → `Talep`

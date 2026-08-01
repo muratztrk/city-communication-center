@@ -1412,7 +1412,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   anında senkron.
 - **Boş Adres Bilgileri (#6a6dab1b/#2185):** yan yana üç kolon boşken sola yaslı (ortalı değil);
   Mahalle + Açık Adres `padding-inline-start: 0.7rem` ile biraz sağa; Cadde `translateX(-0.45rem)`
-  ile çok az sola (#2185 reopen).
+  ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) üç başlık
+  `padding-inline-start: 1.55rem` ile biraz daha sağa (#2185 reopen).
 - **Pie drilldown Başlık/Durum (#6a6d9daf/#2180):** Başlık `cell-title` 2 satır + overflow tooltip;
   Durum sütunu ~12rem (2 satır StatusPill sığsın) — Vatandaş + Birimler pie popup’ları.
 - **Pie yazdır Durum (#6a6db2e2):** Durum hücresi ortalı (`status-cell` + eşit padding); Sonuç Tarihi

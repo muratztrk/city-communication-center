@@ -70,9 +70,11 @@ export function MyRequestDetailBottomCards({
 
   const visibleCardCount = (hideAddressCard ? 0 : 1) + (hideAttachmentsCard ? 0 : 1) + (showManagerNoteColumn ? 1 : 0)
   const gridClass = visibleCardCount >= 3 ? 'lg:grid-cols-3' : visibleCardCount === 2 ? 'lg:grid-cols-2' : ''
+  // Yan kutuda yalnız Talep Ekleri (Yönetici Notu yok): boş adres etiketleri biraz sağa (#2185).
+  const attachmentsOnlyBeside = !showManagerNoteColumn && !hideAttachmentsCard && !hideAddressCard
 
   return (
-    <div className={`my-request-detail-bottom grid gap-4 ${gridClass}`}>
+    <div className={`my-request-detail-bottom grid gap-4 ${gridClass}${attachmentsOnlyBeside ? ' my-request-detail-bottom--attachments-only' : ''}`}>
       {!hideAddressCard && (
         <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
           <MyRequestSectionHeading icon={MapPin}>

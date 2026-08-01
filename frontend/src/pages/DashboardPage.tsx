@@ -791,6 +791,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           sliceKey={chartDrilldown.sliceKey}
           from={apiFrom}
           to={apiTo}
+          jobDetailTitle={t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')}
           onClose={() => setChartDrilldown(null)}
         />
       ) : chartDrilldown ? (
@@ -801,6 +802,13 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           from={apiFrom}
           to={apiTo}
           requestTagStatus={chartDrilldown.chartKey === 'dashboard.charts.requestTags' ? requestTagChartFilter : undefined}
+          jobDetailTitle={
+            effectiveView === 'citizen'
+              ? t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')
+              : effectiveView === 'departments'
+                ? t('dashboard.pieJobDetailTitle', 'Talep')
+                : undefined
+          }
           onClose={() => setChartDrilldown(null)}
         />
       ) : null}

@@ -29,6 +29,8 @@ interface CitizenChannelMessagesModalProps {
   from?: string
   to?: string
   onClose: () => void
+  /** Pie → Detaylar nested başlık (#6a6da49d). */
+  jobDetailTitle?: string
 }
 
 const CHART_KEY = 'dashboard.citizenChannels.title'
@@ -48,6 +50,7 @@ export function CitizenChannelMessagesModal({
   sliceKey,
   from,
   to,
+  jobDetailTitle,
   onClose,
 }: CitizenChannelMessagesModalProps) {
   const { t, i18n } = useTranslation()
@@ -261,7 +264,7 @@ export function CitizenChannelMessagesModal({
           {detail ? (
             <MyRequestDetailModal
               detail={detail}
-              title={t('nav.social', 'Vatandaş Talepleri')}
+              title={jobDetailTitle ?? t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')}
               locale={locale}
               detailLoading={detailLoading}
               citizenSourceMessage={citizenSourceMessage}

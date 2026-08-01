@@ -384,6 +384,7 @@
   "dashboard": {
     "title": "Home",
     "subtitle": "Track open workload, recent tasks, and incoming messages on one screen.",
+    "pieJobDetailTitle": "Request",
     "liveSummary": "Live Summary",
     "cards": {
       "openTasks": "Pending Tasks",

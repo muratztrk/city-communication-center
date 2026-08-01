@@ -1,3 +1,7 @@
+## Round 629 — Pie Detaylar başlıkları
+- `#6a6da49d`: Vatandaş pie Detaylar → `Vatandaş Talebi`
+- `#6a6da519`: Birimler pie Detaylar → `Talep`
+
 ## Round 628 — Pie Detaylar = Vatandaş Talep Bilgisi boyutu
 - `#6a6da278`: Anasayfa pie Detaylar → `detail-modal-shell--citizen-directory-nested`
 

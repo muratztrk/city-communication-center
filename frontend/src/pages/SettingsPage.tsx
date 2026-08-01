@@ -992,8 +992,12 @@ export function SettingsPage() {
     if (!fileStorageNasUserTest.username.trim() || !fileStorageNasUserTest.password) return
     setFileStorageNasUserTestStatus({ type: 'testing', message: t('settings.ldapTesting') })
     const expectedUser = (fileStorageForm.nasUsername || '').trim()
-    const matchesUser = expectedUser.length === 0
-      || expectedUser.toLocaleLowerCase('tr') === fileStorageNasUserTest.username.trim().toLocaleLowerCase('tr')
+    // Kayıtlı kullanıcı adı yokken "kabul edildi" demek yanıltıcıydı: hiçbir şey doğrulanmıyor.
+    if (expectedUser.length === 0) {
+      setFileStorageNasUserTestStatus({ type: 'error', message: t('settings.fileStorage.userTestNoSavedUserNas') })
+      return
+    }
+    const matchesUser = expectedUser.toLocaleLowerCase('tr') === fileStorageNasUserTest.username.trim().toLocaleLowerCase('tr')
     if (!matchesUser) {
       setFileStorageNasUserTestStatus({ type: 'error', message: t('settings.fileStorage.userTestMismatchNas') })
       return
@@ -1008,8 +1012,12 @@ export function SettingsPage() {
     if (!fileStorageFtpUserTest.username.trim() || !fileStorageFtpUserTest.password) return
     setFileStorageFtpUserTestStatus({ type: 'testing', message: t('settings.ldapTesting') })
     const expectedUser = (fileStorageForm.ftpUsername || '').trim()
-    const matchesUser = expectedUser.length === 0
-      || expectedUser.toLocaleLowerCase('tr') === fileStorageFtpUserTest.username.trim().toLocaleLowerCase('tr')
+    // Kayıtlı kullanıcı adı yokken "kabul edildi" demek yanıltıcıydı: hiçbir şey doğrulanmıyor.
+    if (expectedUser.length === 0) {
+      setFileStorageFtpUserTestStatus({ type: 'error', message: t('settings.fileStorage.userTestNoSavedUserFtp') })
+      return
+    }
+    const matchesUser = expectedUser.toLocaleLowerCase('tr') === fileStorageFtpUserTest.username.trim().toLocaleLowerCase('tr')
     if (!matchesUser) {
       setFileStorageFtpUserTestStatus({ type: 'error', message: t('settings.fileStorage.userTestMismatchFtp') })
       return
@@ -1845,52 +1853,55 @@ export function SettingsPage() {
                     <input className="field-checkbox" type="checkbox" checked={fileStorageForm.clearNasPassword} onChange={event => setFileStorageForm(current => ({ ...current, clearNasPassword: event.target.checked, nasPassword: null }))} />
                     {t('settings.fileStorage.clearPassword')}
                   </label>
-                  {fileStorageForm.nasHost ? (
-                    <div className="space-y-3 border-t border-slate-200 pt-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <div className="text-sm font-semibold text-slate-700">{t('settings.ldapConnectionStatus')}</div>
-                          {fileStorageNasTestStatus.type !== 'idle' ? (
-                            <div className={`mt-1 text-sm font-medium ${fileStorageNasTestStatus.type === 'success' ? 'text-emerald-700' : fileStorageNasTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
-                              {fileStorageNasTestStatus.type === 'success' ? '✅ ' : fileStorageNasTestStatus.type === 'error' ? '❌ ' : '⏳ '}
-                              {fileStorageNasTestStatus.message}
-                            </div>
-                          ) : null}
-                        </div>
-                        <Button type="button" variant="secondary" size="sm" onClick={() => void testFileStorageNasConnectivity()} disabled={fileStorageNasTestStatus.type === 'testing'}>
-                          {fileStorageNasTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('settings.ldapTestConnectivity')}
-                        </Button>
-                      </div>
+                  {/* Test alanı IP boşken de görünür; buton devre dışı + ipucu (#6a6cb6ec). */}
+                  <div className="space-y-3 border-t border-slate-200 pt-4">
+                    <div className="text-sm font-extrabold text-slate-900">{t('settings.fileStorage.testTitleNas')}</div>
+                    <div className="flex items-center justify-between gap-3">
                       <div>
-                        <div className="mb-2 text-sm font-semibold text-slate-700">{t('settings.ldapTestUserCredentials')}</div>
-                        <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-                          <label className="grid gap-1.5 text-sm font-medium text-slate-600">
-                            <span>{t('settings.ldapTestUsername')}</span>
-                            <input className="field-input" value={fileStorageNasUserTest.username} onChange={e => setFileStorageNasUserTest(c => ({ ...c, username: e.target.value }))} />
-                          </label>
-                          <label className="grid gap-1.5 text-sm font-medium text-slate-600">
-                            <span>{t('settings.ldapTestPassword')}</span>
-                            <input className="field-input" type="password" value={fileStorageNasUserTest.password} onChange={e => setFileStorageNasUserTest(c => ({ ...c, password: e.target.value }))} />
-                          </label>
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => void testFileStorageNasUserCredentials()}
-                            disabled={fileStorageNasUserTestStatus.type === 'testing' || !fileStorageNasUserTest.username || !fileStorageNasUserTest.password}
-                          >
-                            {fileStorageNasUserTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('common.test')}
-                          </Button>
-                        </div>
-                        {fileStorageNasUserTestStatus.type !== 'idle' ? (
-                          <div className={`mt-2 text-sm font-medium ${fileStorageNasUserTestStatus.type === 'success' ? 'text-emerald-700' : fileStorageNasUserTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
-                            {fileStorageNasUserTestStatus.type === 'success' ? '✅ ' : fileStorageNasUserTestStatus.type === 'error' ? '❌ ' : '⏳ '}
-                            {fileStorageNasUserTestStatus.message}
+                        <div className="text-sm font-semibold text-slate-700">{t('settings.ldapConnectionStatus')}</div>
+                        {fileStorageNasTestStatus.type !== 'idle' ? (
+                          <div className={`mt-1 text-sm font-medium ${fileStorageNasTestStatus.type === 'success' ? 'text-emerald-700' : fileStorageNasTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                            {fileStorageNasTestStatus.type === 'success' ? '✅ ' : fileStorageNasTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                            {fileStorageNasTestStatus.message}
                           </div>
                         ) : null}
+                        {!fileStorageForm.nasHost?.trim() ? (
+                          <div className="mt-1 text-sm font-medium text-slate-500">{t('settings.fileStorage.hostRequiredNas')}</div>
+                        ) : null}
                       </div>
+                      <Button type="button" variant="secondary" size="sm" onClick={() => void testFileStorageNasConnectivity()} disabled={fileStorageNasTestStatus.type === 'testing' || !fileStorageForm.nasHost?.trim()}>
+                        {fileStorageNasTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('settings.ldapTestConnectivity')}
+                      </Button>
                     </div>
-                  ) : null}
+                    <div>
+                      <div className="mb-2 text-sm font-semibold text-slate-700">{t('settings.ldapTestUserCredentials')}</div>
+                      <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                        <label className="grid gap-1.5 text-sm font-medium text-slate-600">
+                          <span>{t('settings.ldapTestUsername')}</span>
+                          <input className="field-input" value={fileStorageNasUserTest.username} onChange={e => setFileStorageNasUserTest(c => ({ ...c, username: e.target.value }))} />
+                        </label>
+                        <label className="grid gap-1.5 text-sm font-medium text-slate-600">
+                          <span>{t('settings.ldapTestPassword')}</span>
+                          <input className="field-input" type="password" value={fileStorageNasUserTest.password} onChange={e => setFileStorageNasUserTest(c => ({ ...c, password: e.target.value }))} />
+                        </label>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => void testFileStorageNasUserCredentials()}
+                          disabled={fileStorageNasUserTestStatus.type === 'testing' || !fileStorageNasUserTest.username || !fileStorageNasUserTest.password}
+                        >
+                          {fileStorageNasUserTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('common.test')}
+                        </Button>
+                      </div>
+                      {fileStorageNasUserTestStatus.type !== 'idle' ? (
+                        <div className={`mt-2 text-sm font-medium ${fileStorageNasUserTestStatus.type === 'success' ? 'text-emerald-700' : fileStorageNasUserTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                          {fileStorageNasUserTestStatus.type === 'success' ? '✅ ' : fileStorageNasUserTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                          {fileStorageNasUserTestStatus.message}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
                 </div>
               </section>
               <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
@@ -1933,52 +1944,55 @@ export function SettingsPage() {
                     <input className="field-checkbox" type="checkbox" checked={fileStorageForm.clearFtpPassword} onChange={event => setFileStorageForm(current => ({ ...current, clearFtpPassword: event.target.checked, ftpPassword: null }))} />
                     {t('settings.fileStorage.clearPassword')}
                   </label>
-                  {fileStorageForm.ftpHost ? (
-                    <div className="space-y-3 border-t border-slate-200 pt-4">
-                      <div className="flex items-center justify-between gap-3">
-                        <div>
-                          <div className="text-sm font-semibold text-slate-700">{t('settings.ldapConnectionStatus')}</div>
-                          {fileStorageFtpTestStatus.type !== 'idle' ? (
-                            <div className={`mt-1 text-sm font-medium ${fileStorageFtpTestStatus.type === 'success' ? 'text-emerald-700' : fileStorageFtpTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
-                              {fileStorageFtpTestStatus.type === 'success' ? '✅ ' : fileStorageFtpTestStatus.type === 'error' ? '❌ ' : '⏳ '}
-                              {fileStorageFtpTestStatus.message}
-                            </div>
-                          ) : null}
-                        </div>
-                        <Button type="button" variant="secondary" size="sm" onClick={() => void testFileStorageFtpConnectivity()} disabled={fileStorageFtpTestStatus.type === 'testing'}>
-                          {fileStorageFtpTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('settings.ldapTestConnectivity')}
-                        </Button>
-                      </div>
+                  {/* Test alanı IP boşken de görünür; buton devre dışı + ipucu (#6a6cb6ec). */}
+                  <div className="space-y-3 border-t border-slate-200 pt-4">
+                    <div className="text-sm font-extrabold text-slate-900">{t('settings.fileStorage.testTitleFtp')}</div>
+                    <div className="flex items-center justify-between gap-3">
                       <div>
-                        <div className="mb-2 text-sm font-semibold text-slate-700">{t('settings.ldapTestUserCredentials')}</div>
-                        <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-                          <label className="grid gap-1.5 text-sm font-medium text-slate-600">
-                            <span>{t('settings.ldapTestUsername')}</span>
-                            <input className="field-input" value={fileStorageFtpUserTest.username} onChange={e => setFileStorageFtpUserTest(c => ({ ...c, username: e.target.value }))} />
-                          </label>
-                          <label className="grid gap-1.5 text-sm font-medium text-slate-600">
-                            <span>{t('settings.ldapTestPassword')}</span>
-                            <input className="field-input" type="password" value={fileStorageFtpUserTest.password} onChange={e => setFileStorageFtpUserTest(c => ({ ...c, password: e.target.value }))} />
-                          </label>
-                          <Button
-                            type="button"
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => void testFileStorageFtpUserCredentials()}
-                            disabled={fileStorageFtpUserTestStatus.type === 'testing' || !fileStorageFtpUserTest.username || !fileStorageFtpUserTest.password}
-                          >
-                            {fileStorageFtpUserTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('common.test')}
-                          </Button>
-                        </div>
-                        {fileStorageFtpUserTestStatus.type !== 'idle' ? (
-                          <div className={`mt-2 text-sm font-medium ${fileStorageFtpUserTestStatus.type === 'success' ? 'text-emerald-700' : fileStorageFtpUserTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
-                            {fileStorageFtpUserTestStatus.type === 'success' ? '✅ ' : fileStorageFtpUserTestStatus.type === 'error' ? '❌ ' : '⏳ '}
-                            {fileStorageFtpUserTestStatus.message}
+                        <div className="text-sm font-semibold text-slate-700">{t('settings.ldapConnectionStatus')}</div>
+                        {fileStorageFtpTestStatus.type !== 'idle' ? (
+                          <div className={`mt-1 text-sm font-medium ${fileStorageFtpTestStatus.type === 'success' ? 'text-emerald-700' : fileStorageFtpTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                            {fileStorageFtpTestStatus.type === 'success' ? '✅ ' : fileStorageFtpTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                            {fileStorageFtpTestStatus.message}
                           </div>
                         ) : null}
+                        {!fileStorageForm.ftpHost?.trim() ? (
+                          <div className="mt-1 text-sm font-medium text-slate-500">{t('settings.fileStorage.hostRequiredFtp')}</div>
+                        ) : null}
                       </div>
+                      <Button type="button" variant="secondary" size="sm" onClick={() => void testFileStorageFtpConnectivity()} disabled={fileStorageFtpTestStatus.type === 'testing' || !fileStorageForm.ftpHost?.trim()}>
+                        {fileStorageFtpTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('settings.ldapTestConnectivity')}
+                      </Button>
                     </div>
-                  ) : null}
+                    <div>
+                      <div className="mb-2 text-sm font-semibold text-slate-700">{t('settings.ldapTestUserCredentials')}</div>
+                      <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+                        <label className="grid gap-1.5 text-sm font-medium text-slate-600">
+                          <span>{t('settings.ldapTestUsername')}</span>
+                          <input className="field-input" value={fileStorageFtpUserTest.username} onChange={e => setFileStorageFtpUserTest(c => ({ ...c, username: e.target.value }))} />
+                        </label>
+                        <label className="grid gap-1.5 text-sm font-medium text-slate-600">
+                          <span>{t('settings.ldapTestPassword')}</span>
+                          <input className="field-input" type="password" value={fileStorageFtpUserTest.password} onChange={e => setFileStorageFtpUserTest(c => ({ ...c, password: e.target.value }))} />
+                        </label>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          onClick={() => void testFileStorageFtpUserCredentials()}
+                          disabled={fileStorageFtpUserTestStatus.type === 'testing' || !fileStorageFtpUserTest.username || !fileStorageFtpUserTest.password}
+                        >
+                          {fileStorageFtpUserTestStatus.type === 'testing' ? t('settings.ldapTesting') : t('common.test')}
+                        </Button>
+                      </div>
+                      {fileStorageFtpUserTestStatus.type !== 'idle' ? (
+                        <div className={`mt-2 text-sm font-medium ${fileStorageFtpUserTestStatus.type === 'success' ? 'text-emerald-700' : fileStorageFtpUserTestStatus.type === 'error' ? 'text-rose-700' : 'text-sky-700'}`}>
+                          {fileStorageFtpUserTestStatus.type === 'success' ? '✅ ' : fileStorageFtpUserTestStatus.type === 'error' ? '❌ ' : '⏳ '}
+                          {fileStorageFtpUserTestStatus.message}
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
                 </div>
               </section>
             </div>

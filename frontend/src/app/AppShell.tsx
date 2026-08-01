@@ -75,6 +75,12 @@ function useResponsiveZoom() {
       window.visualViewport?.removeEventListener('resize', onResize)
     }
   }, [compute])
+  // Body'ye portal edilen popup'lar içerik shell'inin `zoom`'unu almaz (scale 1.0). Aynı rem
+  // değerleri orada daha büyük görünür; popup grid'i sayfa grid'iyle aynı görsel ölçüde tutmak
+  // isteyen kurallar bu değişkenle çarpar (#6a6cffd1).
+  useEffect(() => {
+    document.documentElement.style.setProperty('--app-content-zoom', String(zoom.content))
+  }, [zoom.content])
   return zoom
 }
 

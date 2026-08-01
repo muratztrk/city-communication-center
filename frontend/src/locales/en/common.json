@@ -1207,7 +1207,13 @@
       "userTestOk": "Test user accepted: {{username}}",
       "userTestMismatch": "Test username does not match the saved NAS/FTP username.",
       "userTestMismatchNas": "Test username does not match the saved NAS username.",
-      "userTestMismatchFtp": "Test username does not match the saved FTP username."
+      "userTestMismatchFtp": "Test username does not match the saved FTP username.",
+      "testTitleNas": "NAS Connection Test",
+      "testTitleFtp": "FTP Connection Test",
+      "hostRequiredNas": "Enter the NAS IP address / server before testing.",
+      "hostRequiredFtp": "Enter the FTP IP address / server before testing.",
+      "userTestNoSavedUserNas": "No saved NAS username to compare against; enter and save one first.",
+      "userTestNoSavedUserFtp": "No saved FTP username to compare against; enter and save one first."
     },
     "slaWeekend": {
       "sectionTitle": "Weekend SLA",

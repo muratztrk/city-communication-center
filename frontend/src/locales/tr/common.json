@@ -1213,7 +1213,13 @@
       "userTestOk": "Test kullanıcısı kabul edildi: {{username}}",
       "userTestMismatch": "Test kullanıcı adı kayıtlı NAS/FTP kullanıcı adıyla eşleşmiyor.",
       "userTestMismatchNas": "Test kullanıcı adı kayıtlı NAS kullanıcı adıyla eşleşmiyor.",
-      "userTestMismatchFtp": "Test kullanıcı adı kayıtlı FTP kullanıcı adıyla eşleşmiyor."
+      "userTestMismatchFtp": "Test kullanıcı adı kayıtlı FTP kullanıcı adıyla eşleşmiyor.",
+      "testTitleNas": "NAS Bağlantı Testi",
+      "testTitleFtp": "FTP Bağlantı Testi",
+      "hostRequiredNas": "Test için önce NAS IP adresi / sunucu bilgisini girin.",
+      "hostRequiredFtp": "Test için önce FTP IP adresi / sunucu bilgisini girin.",
+      "userTestNoSavedUserNas": "Karşılaştırılacak kayıtlı NAS kullanıcı adı yok; önce kullanıcı adını girip kaydedin.",
+      "userTestNoSavedUserFtp": "Karşılaştırılacak kayıtlı FTP kullanıcı adı yok; önce kullanıcı adını girip kaydedin."
     },
     "slaWeekend": {
       "sectionTitle": "Hafta Sonu SLA",

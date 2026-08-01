@@ -2407,14 +2407,26 @@
     border-right: 0;
   }
 
-  /* Dizin talep popup: DateCell ≈ DueDatePill (0.84rem/600, aynı ikon) (#6a6cbf0e). */
+  /* Dizin talep popup: DateCell ≈ DueDatePill (0.84rem/600, aynı ikon) (#6a6cbf0e).
+     Başlık şeridi standart gridview gibi üstten kavisli ve aynı *görsel* yükseklikte olur:
+     popup body'ye portal edildiği için shell zoom'unu almaz → `--app-content-zoom` (#6a6cbf79). */
   .detail-modal-shell .citizen-directory-tickets-table thead th {
     font-size: 0.72rem;
     letter-spacing: 0.06em;
     line-height: 1.2;
     font-family: var(--font-sans);
-    padding-block: calc(var(--table-chrome-row-py) + 0.1rem);
-    min-height: calc(var(--table-chrome-row-min-height) + 0.15rem);
+    padding-block: 0.18rem;
+    min-height: 0;
+    height: calc(var(--table-header-row-height) * var(--app-content-zoom, 1));
+  }
+
+  /* Tablo kendi scroll kabında (sticky thead) — kavis wrap yerine uç başlıklara verilir. */
+  .detail-modal-shell .citizen-directory-tickets-table thead th:first-child {
+    border-top-left-radius: 0.9rem;
+  }
+
+  .detail-modal-shell .citizen-directory-tickets-table thead th:last-child {
+    border-top-right-radius: 0.9rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table tbody td {
@@ -4090,19 +4102,24 @@
     --tw-ring-color: transparent;
   }
 
-  /* Pie drilldown: başlık dikdörtgen (kavis yok), gövde metni biraz küçük (#2087). */
+  /* Pie drilldown: başlık şeridi standart gridview gibi üstten kavisli (#6a6a578d), gövde
+     metni biraz küçük (#2087). Kavis wrap'te; `overflow: hidden` th köşelerini kırpar. */
   .dashboard-drilldown-table-wrap {
-    border-radius: 0;
+    border-radius: 0.9rem 0.9rem 0 0;
     overflow: hidden;
     border: 1px solid rgb(226 232 240);
   }
 
-  /* Pie drilldown popup grid = Taleplerim / dizin popup tipografisi (#2080, card #1889 kalıbı). */
+  /* Pie drilldown popup grid = Taleplerim / dizin popup tipografisi (#2080, card #1889 kalıbı).
+     Başlık yüksekliği sayfa grid'iyle *görsel* olarak eşitlenir: popup body'ye portal edildiği
+     için shell zoom'unu almaz, bu yüzden ölçüler `--app-content-zoom` ile çarpılır (#6a6cffd1). */
   .detail-modal-shell .dashboard-drilldown-table thead th,
   .data-table.dashboard-drilldown-table thead th {
-    height: auto;
-    min-height: calc(var(--table-chrome-row-min-height) + 0.35rem);
-    padding: calc(var(--table-chrome-row-py) + 0.2rem) var(--table-chrome-row-px);
+    height: calc(var(--table-header-row-height) * var(--app-content-zoom, 1));
+    min-height: 0;
+    /* Küçük dikey padding yalnız iki satıra sarılan başlıkların kenara değmemesi için;
+       tek satırda yükseklik yukarıdaki `height` ile sabitlenir. */
+    padding: 0.18rem var(--table-chrome-row-px);
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.06em;
@@ -4129,6 +4146,11 @@
     --table-chrome-row-px: 1rem;
     --table-chrome-row-inner-height: 1.75rem;
     --table-chrome-row-min-height: calc(var(--table-chrome-row-py) * 2 + var(--table-chrome-row-inner-height));
+    /* Standart grid başlığının GERÇEK render yüksekliği: `min-height` table-cell'de yok sayılır,
+       yükseklik dikey padding + 0.98rem/normal tek satırın kutusundan (~0.9375rem) gelir.
+       Body'ye portal edilen popup grid'leri bunu `--app-content-zoom` ile çarparak sayfa
+       grid'iyle aynı görsel yüksekliği yakalar (#6a6cffd1). */
+    --table-header-row-height: calc(var(--table-chrome-row-py) * 2 + 0.9375rem);
   }
 
   /* Kurum İçi Mesajlar panelinin dar sohbet listesinde paging alanı standart grid'lerin

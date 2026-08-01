@@ -1305,6 +1305,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **JobDetail VT (#r467):** `GetJobById` / `JobDetailResponse` `CitizenRequestNumber` taşır; yazdır VT-…
 - **Yazdır not satırları (#r467):** iptal/tamamlamada `İptal Notu` / `Tamamlama Notu` Durum'dan
   sonra ayrı satır; boş Son Tarih = `Onay Bekleyen` (Belirsiz değil).
+- **Yazdır Talep Etiketi (#2189):** detayda etiket varsa `printJobDetail` `Talep Detayları`'nda
+  Durum sonrası `Talep Etiketi` satırı (`options.requestLabel` = sosyal `category`).
 - **Dizin ticket sıra (#r467):** VT yılı+numara azalan (en yüksek üstte).
 - **WA Birim panel (#r467–#r478):** Konuşmalar trigger ~10rem / menü ~184px; create-modal
   menü ~168px; clearable X; placeholder `Birim seçiniz...`.

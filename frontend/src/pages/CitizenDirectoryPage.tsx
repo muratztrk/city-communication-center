@@ -661,7 +661,10 @@ export function CitizenDirectoryPage() {
               onDueDateChange={() => undefined}
               onDueDateSave={() => undefined}
               onClose={closeJobDetail}
-              onPrint={() => printJobDetail(jobDetail, locale, t, { myRequestView: true })}
+              onPrint={() => printJobDetail(jobDetail, locale, t, {
+                myRequestView: true,
+                requestLabel: citizenSourceMessage?.category,
+              })}
               showManagerNoteColumn={false}
               canEditManagerNote={false}
               canManageCoordination={false}

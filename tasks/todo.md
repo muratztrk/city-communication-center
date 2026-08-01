@@ -1,3 +1,6 @@
+## Round 640 — Yazdır Talep Etiketi (#2189)
+- `#6a6e01ca`/#2189: Detaylar Yazdır → Talep Detayları'nda Durum sonrası Talep Etiketi (varsa)
+
 ## Round 639 — 3 kolon Açık Adres çok az sağa
 - `#6a6dbd2c`/#2187: 3 kolon boş Açık Adres `0.6rem`
 

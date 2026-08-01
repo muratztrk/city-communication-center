@@ -411,7 +411,12 @@ export function printJobDetail(
   detail: JobDetail,
   locale: string,
   t: TFunction,
-  options?: { incomingTargetView?: boolean; myRequestView?: boolean },
+  options?: {
+    incomingTargetView?: boolean
+    myRequestView?: boolean
+    /** Sosyal mesaj Talep Etiketi; doluysa Durum sonrası yazdırılır (#2189). */
+    requestLabel?: string | null
+  },
 ) {
   const fd = (d: string | null | undefined) => formatDateTime(d ?? null, locale)
   // Vatandaş talebi yazdırmada VT-…; Proje mi satırı yok (#r465).
@@ -439,6 +444,10 @@ export function printJobDetail(
     ...(isCitizenPrint ? [] : [['Proje mi', formatJobProjectLabel(detail, t)] as [string, string]]),
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
+    // Detayda Talep Etiketi varsa yazdırmada Durum sonrası (#2189).
+    ...(options?.requestLabel?.trim()
+      ? [['Talep Etiketi', options.requestLabel.trim()] as [string, string]]
+      : []),
     ...((detail.status === 'Cancelled' || detail.status === 'Rejected') && detail.cancelReason
       ? [['İptal Notu', detail.cancelReason] as [string, string]]
       : []),
@@ -2323,7 +2332,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               onExtraTimeDecision={decision => void handleJobExtraTimeDecision(decision)}
               onCancelExtraTimeReview={() => setJobExtraTimeReview(null)}
               onClose={closeDetail}
-              onPrint={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail, myRequestView: isMyRequestsView })}
+              onPrint={() => printJobDetail(detail, locale, t, {
+                incomingTargetView: isIncomingRequestDetail,
+                myRequestView: isMyRequestsView,
+                requestLabel: citizenSourceMessage?.category,
+              })}
               onCancel={socialActions?.cancel ?? (canCancelDetail ? () => handleCancel(detail.jobId) : undefined)}
               showCancelDisabled={Boolean(socialActions && !socialActions.cancel)}
               cancelDisabledTitle={socialActions?.cancelDisabledTitle}
@@ -2552,7 +2565,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     size="lg"
                     variant="ghost"
                     className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
-                    onClick={() => printJobDetail(detail, locale, t, { incomingTargetView: isIncomingRequestDetail })}
+                    onClick={() => printJobDetail(detail, locale, t, {
+                      incomingTargetView: isIncomingRequestDetail,
+                      requestLabel: citizenSourceMessage?.category,
+                    })}
                     aria-label={t('common.print', 'Yazdır')}
                   >
                     <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />

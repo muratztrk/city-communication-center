@@ -281,7 +281,10 @@ export function CitizenChannelMessagesModal({
                 setDetailError(null)
                 setCitizenSourceMessage(null)
               }}
-              onPrint={() => printJobDetail(detail, locale, t, { myRequestView: true })}
+              onPrint={() => printJobDetail(detail, locale, t, {
+                myRequestView: true,
+                requestLabel: citizenSourceMessage?.category,
+              })}
               showManagerNoteColumn={false}
               canEditManagerNote={false}
               canManageCoordination={false}

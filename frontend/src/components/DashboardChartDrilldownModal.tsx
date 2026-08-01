@@ -597,7 +597,10 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
               onDueDateChange={() => undefined}
               onDueDateSave={() => undefined}
               onClose={closeJobDetail}
-              onPrint={() => printJobDetail(detail, locale, t, { myRequestView: true })}
+              onPrint={() => printJobDetail(detail, locale, t, {
+                myRequestView: true,
+                requestLabel: citizenSourceMessage?.category,
+              })}
               showManagerNoteColumn={false}
               canEditManagerNote={false}
               canManageCoordination={false}

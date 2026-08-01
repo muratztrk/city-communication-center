@@ -203,13 +203,15 @@ interface RequestTagPickerProps {
   /** Seçimi temizler → buton "Etiketler" default (#r461/#r462). */
   onClear?: () => void
   largeText?: boolean
-  /** Seçili etiket adı — buton metni; yoksa "Etiketler" (card #1878 reopen). */
+  /** Seçili etiket adı — buton metni; yoksa emptyLabel / requestTagsShort. */
   selectedName?: string | null
   /**
    * false: buton her zaman "Etiketler" (modal/create); seçim readonly alanda kalır.
    * Sayfa/popup kapanınca önceki etiket butonda seçili kalmaz (#r462).
    */
   showSelectedOnButton?: boolean
+  /** Boş seçim buton metni. Vatandaş Talepleri grid → "Etiketler" (#6a6d8fe8). */
+  emptyLabel?: string
 }
 
 function computeTagMenuStyle(button: HTMLDivElement) {
@@ -233,6 +235,7 @@ export function RequestTagPicker({
   largeText = false,
   selectedName = null,
   showSelectedOnButton = true,
+  emptyLabel,
 }: RequestTagPickerProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -241,7 +244,7 @@ export function RequestTagPicker({
   const menuRef = useRef<HTMLDivElement>(null)
   const [menuStyle, setMenuStyle] = useState<{ top: number; left: number; width: number } | null>(null)
   const trimmedSelected = selectedName?.trim() || ''
-  const defaultLabel = t('whatsapp.requestTagsShort', 'Etiket seçiniz')
+  const defaultLabel = emptyLabel ?? t('whatsapp.requestTagsShort', 'Etiket seçiniz')
   const buttonLabel = showSelectedOnButton && trimmedSelected ? trimmedSelected : defaultLabel
   const canClear = Boolean(onClear && trimmedSelected)
 

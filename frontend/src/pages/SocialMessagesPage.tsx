@@ -645,6 +645,7 @@ export function SocialMessagesPage() {
                           key={`${message.socialMessageId}-${messagesPage}`}
                           tags={requestTags}
                           selectedName={message.category}
+                          emptyLabel={t('whatsapp.requestTagsGridEmpty', 'Etiketler')}
                           onSelect={name => { void handleCategorySelect(message, name) }}
                           onClear={() => { void handleCategoryClear(message) }}
                         />

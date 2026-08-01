@@ -1030,7 +1030,8 @@
     },
     "messageApproverButton": "Onaylayan Yönetici",
     "label": "Talep Etiketi",
-    "requestTagsShort": "Etiket seçiniz"
+    "requestTagsShort": "Etiket seçiniz",
+    "requestTagsGridEmpty": "Etiketler"
   },
   "audit": {
     "title": "Log",

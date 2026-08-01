@@ -1024,6 +1024,7 @@
     },
     "messageApproverButton": "Approving Manager",
     "requestTagsShort": "Select a tag",
+    "requestTagsGridEmpty": "Tags",
     "label": "Request Tag"
   },
   "audit": {

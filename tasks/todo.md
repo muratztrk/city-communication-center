@@ -1,3 +1,6 @@
+## Round 626 — VT grid Talep Etiketi boş metin
+- `#6a6d8fe8`: Vatandaş Talepleri grid dropdown boş → `Etiketler` (diğer yerler Etiket seçiniz)
+
 ## Round 625 — Pie popup kolon sırası; boş satır; yazdır
 - `#6a6d8db3`: kanal pie — Telefon No, Vatandaş Adı alt satırında
 - `#6a6d9411`: tüm pie — Vatandaş Adı/Telefon VT No’nun hemen sonrası

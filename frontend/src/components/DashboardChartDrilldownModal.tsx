@@ -180,7 +180,7 @@ function printDrilldownRows(
   const showUnit = options?.showUnitColumn !== false
   const stackRequestNo = options?.stackRequestNoHeader === true
   const terminalHeader = options?.terminalDateLabel
-    ?? t('jobs.columns.completedAt', 'Tamamlanma Tarihi')
+    ?? t('jobs.columns.outcomeAt', 'Sonuç Tarihi')
   const requestNoHeaderHtml = stackRequestNo
     ? `<div class="request-no-stack"><div>${escape(t('dashboard.citizen', 'Vatandaş'))}</div><div class="request-no-sub">${escape(t('jobs.columns.requestNo', 'Talep No'))}</div></div>`
     : escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))
@@ -380,9 +380,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                   onClick={() => printDrilldownRows(chartTitle, sliceLabel, rows, locale, t, {
                     showCitizenColumn,
                     showUnitColumn,
-                    terminalDateLabel: isNeighborhoodChart
-                      ? t('jobs.columns.outcomeAt', 'Sonuç Tarihi')
-                      : undefined,
+                    // Yazdır: Tamamlanma Tarihi → Sonuç Tarihi (#6a6da028).
+                    terminalDateLabel: t('jobs.columns.outcomeAt', 'Sonuç Tarihi'),
                     stackRequestNoHeader: isNeighborhoodChart,
                   })}
                   aria-label={t('common.print', 'Yazdır')}

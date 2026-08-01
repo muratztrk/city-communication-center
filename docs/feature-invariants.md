@@ -1402,8 +1402,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talep Kanalları (#6a6d0132/#6a6d0181/#6a6d8db3):** lejant `Çağrı`; dilim popup
   drilldown; Telefon No, Vatandaş Adı alt satırında; başlıklar `Talep Tarihi` + `Birim`
   (VT sayfasındaki Gittiği Yer / Vatandaş Talep Tarihi değil).
-- **Mahalle pie yazdır (#6a6d8e2f/#6a6d92e8):** terminal kolon `Sonuç Tarihi`; vatandaş başlığı
-  yazdırmada Ad üstte / Telefon No alt satır.
+- **Mahalle pie yazdır (#6a6d8e2f/#6a6d92e8):** terminal kolon `Sonuç Tarihi`; yazdırda
+  talep no başlığı `Vatandaş` / `Talep No` iki satır; vatandaş kolonunda Ad üstte /
+  `Telefon No` (title-case, uppercase değil) alt satır.
+- **Çağrı detay Düzenle telefon (#6a6d903e):** 10 hane değilse Kaydet → uyarı modal içinde
+  (`editError`); sayfa-altı `error` gizlenmez.
 - **Talep Etiketi pie (#6a6c9fed/#6a6cfd82/#6a6cffd1):** Birim yok; Vatandaş Adı/Telefon VT No sonrası;
   Öncelik alt satır.
 - **Adres boş (#1876/#r449):** boşken etiket `fit-content` ortalı; alt çizgi kısa.

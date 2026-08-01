@@ -69,6 +69,8 @@ export interface MyRequestDetailModalProps {
   editSaving?: boolean
   onSaveEdit?: () => void
   onCancelEdit?: () => void
+  /** Düzenle kaydet validasyon/uyarı — modal içinde görünür (#6a6d903e). */
+  editError?: string | null
   // Taleplerim'e özgü konum/oluşturan stack'i ve hedef birim/görevi yapan ayrımı (cards #1460/#1592).
   useMyRequestsFieldLayout?: boolean
   hideTaskPlainDescription?: boolean
@@ -131,6 +133,7 @@ export function MyRequestDetailModal({
   editSaving = false,
   onSaveEdit,
   onCancelEdit,
+  editError = null,
   useMyRequestsFieldLayout = false,
   hideTaskPlainDescription = false,
   forceCitizenDetailCards = false,
@@ -168,6 +171,9 @@ export function MyRequestDetailModal({
       />
 
       <div className="flex-1 overflow-y-auto p-6">
+        {editError ? (
+          <div className="error mb-4" role="alert">{editError}</div>
+        ) : null}
         <MyRequestDetailMainCard
           detail={detail}
           locale={locale}

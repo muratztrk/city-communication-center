@@ -1390,6 +1390,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     setMyRequestEditSaving(true)
     setError(null)
     try {
+      // Çağrı kanalı — 10 hane zorunlu; uyarı modal içinde (#6a6d903e).
       const isPhoneCitizenEdit = citizenSourceMessage?.channel === 'Phone'
       const nextCitizenName = isPhoneCitizenEdit
         ? (myRequestEditDraft.citizenName.trim() || null)
@@ -1398,8 +1399,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         ? myRequestEditDraft.citizenPhone.replace(/\D/g, '')
         : ''
       if (isPhoneCitizenEdit) {
-        if (nextCitizenPhoneDigits.length !== 10 || !nextCitizenPhoneDigits.startsWith('5')) {
+        if (nextCitizenPhoneDigits.length !== 10) {
           setError(t('settings.citizen.citizenPhoneInvalid', 'Vatandaş telefon numarası 10 haneli olmalıdır.'))
+          setMyRequestEditSaving(false)
+          return
+        }
+        if (!nextCitizenPhoneDigits.startsWith('5')) {
+          setError(t('settings.citizen.citizenPhoneMustStartWith5', 'Telefon numarası 5 ile başlamalıdır.'))
           setMyRequestEditSaving(false)
           return
         }
@@ -2360,6 +2366,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               editSaving={myRequestEditSaving}
               onSaveEdit={() => void handleSaveMyRequestEdit()}
               onCancelEdit={cancelMyRequestEdit}
+              editError={myRequestEditing ? error : null}
               useMyRequestsFieldLayout
               forceCitizenDetailCards={detailContext === 'social'}
             />

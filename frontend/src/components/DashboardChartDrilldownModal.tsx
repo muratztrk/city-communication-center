@@ -159,8 +159,10 @@ function printDrilldownRows(
   options?: {
     showCitizenColumn?: boolean
     showUnitColumn?: boolean
-    /** Mahalle pie yazdır: Sonuç Tarihi (#6a6d8e2f). */
+    /** Mahalle pie yazdır: Sonuç Tarihi. */
     terminalDateLabel?: string
+    /** Mahalle yazdır: Vatandaş / Talep No iki satır (#6a6d8e2f). */
+    stackRequestNoHeader?: boolean
   },
 ) {
   const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -176,8 +178,12 @@ function printDrilldownRows(
   }
   const showCitizen = options?.showCitizenColumn === true
   const showUnit = options?.showUnitColumn !== false
+  const stackRequestNo = options?.stackRequestNoHeader === true
   const terminalHeader = options?.terminalDateLabel
     ?? t('jobs.columns.completedAt', 'Tamamlanma Tarihi')
+  const requestNoHeaderHtml = stackRequestNo
+    ? `<div class="request-no-stack"><div>${escape(t('dashboard.citizen', 'Vatandaş'))}</div><div class="request-no-sub">${escape(t('jobs.columns.requestNo', 'Talep No'))}</div></div>`
+    : escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))
   const rowsHtml = rows.map((row, index) => {
     const status = getDrilldownStatusLabel(t, row)
     const name = row.citizenName?.trim() || '—'
@@ -206,8 +212,10 @@ function printDrilldownRows(
       th{background:#f1f5f9;white-space:nowrap}
       th.col-title,td.col-title{white-space:normal;text-align:center;word-break:break-word;overflow-wrap:anywhere}
       th.col-date,td.col-date,th.col-status,td.col-status,th.col-completed,td.col-completed{text-align:center !important}
-      th.col-citizen .citizen-stack,td.col-citizen .citizen-stack{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2}
-      th.col-citizen .citizen-phone{font-size:0.9em;font-weight:700;text-transform:uppercase;letter-spacing:0.04em}
+      th.col-citizen .citizen-stack,td.col-citizen .citizen-stack,th.col-no .request-no-stack{display:flex;flex-direction:column;align-items:center;gap:2px;line-height:1.2}
+      /* Yazdır: Telefon No title-case (uppercase değil) (#6a6d92e8). */
+      th.col-citizen .citizen-phone{font-size:0.9em;font-weight:700;letter-spacing:0.02em}
+      th.col-no .request-no-sub{font-size:0.9em;font-weight:700}
       td.col-citizen .citizen-name{font-weight:600}
       td.col-citizen .citizen-phone{font-size:10px;color:#64748b}
       .col-seq{width:4%}
@@ -225,7 +233,7 @@ function printDrilldownRows(
     <p>${escape(sliceLabel)}</p>
     <table><thead><tr>
       <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
-      <th class="col-no">${escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
+      <th class="col-no">${requestNoHeaderHtml}</th>
       ${showCitizen ? `<th class="col-citizen"><div class="citizen-stack"><div>${escape(t('social.citizenName', 'Vatandaş Adı'))}</div><div class="citizen-phone">${escape(t('citizenMessageApproval.columns.citizenPhone', 'Telefon No'))}</div></div></th>` : ''}
       <th class="col-date">${escape(t('jobs.columns.requestDate', 'Talep Tarihi'))}</th>
       <th class="col-title">${escape(t('jobs.columns.title', 'Başlık'))}</th>
@@ -375,6 +383,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                     terminalDateLabel: isNeighborhoodChart
                       ? t('jobs.columns.outcomeAt', 'Sonuç Tarihi')
                       : undefined,
+                    stackRequestNoHeader: isNeighborhoodChart,
                   })}
                   aria-label={t('common.print', 'Yazdır')}
                 >

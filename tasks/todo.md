@@ -1,3 +1,8 @@
+## Round 627 — Çağrı tel uyarısı; yazdır başlıklar
+- `#6a6d903e`: Çağrı Düzenle — 10 hane değilse uyarı modal içinde
+- `#6a6d92e8`: yazdır Telefon No title-case (Ad altında)
+- `#6a6d8e2f`: mahalle yazdır VT başlığı → Vatandaş / Talep No
+
 ## Round 626 — VT grid Etiketler; kanal pie başlıklar
 - `#6a6d8fe8`: Vatandaş Talepleri grid dropdown boş → `Etiketler`
 - `#6a6d8db3` reopen: kanal pie → `Talep Tarihi` + `Birim`

@@ -1411,7 +1411,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`editError`); kayıt sonrası VT grid `citizenPhone`/`citizenName` `onMessageUpdated` ile
   anında senkron.
 - **Boş Adres Bilgileri (#6a6dab1b/#2185):** yan yana üç kolon boşken sola yaslı (ortalı değil);
-  Mahalle + Açık Adres `padding-inline-start: 0.7rem` ile biraz sağa (#2185 reopen).
+  Mahalle + Açık Adres `padding-inline-start: 0.7rem` ile biraz sağa; Cadde `translateX(-0.45rem)`
+  ile çok az sola (#2185 reopen).
+- **Pie drilldown Başlık/Durum (#6a6d9daf/#2180):** Başlık `cell-title` 2 satır + overflow tooltip;
+  Durum sütunu ~12rem (2 satır StatusPill sığsın) — Vatandaş + Birimler pie popup’ları.
 - **Pie yazdır Durum (#6a6db2e2):** Durum hücresi ortalı (`status-cell` + eşit padding); Sonuç Tarihi
   kolonunda ekstra sağ padding/min-width yok (Durum sağa kaymasın).
 - **Pie yazdır tarih (#6a6da028):** Talep Tarihi / Sonuç Tarihi yalnızca gün (saat yok).

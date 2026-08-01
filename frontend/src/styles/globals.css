@@ -604,6 +604,11 @@
     padding-inline-start: 0.7rem;
   }
 
+  /* Boş Cadde / Sokak: çok az sola (#2185 reopen). */
+  .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2) {
+    transform: translateX(-0.45rem);
+  }
+
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
     width: 100%;
     max-width: 100%;
@@ -2651,15 +2656,21 @@
     max-width: none;
   }
 
-  /* Vatandaş Talepleri pie drilldown (#6a6cf4d4): Öncelik biraz küçük; Durum sütunu biraz geniş */
+  /* Vatandaş Talepleri pie drilldown (#6a6cf4d4): Öncelik biraz küçük */
   .dashboard-drilldown-table--citizen .table-number-cell__priority {
     font-size: 0.7rem;
   }
 
-  .dashboard-drilldown-table--citizen th.grid-col-status,
-  .dashboard-drilldown-table--citizen td.grid-col-status {
-    min-width: 11rem;
-    width: 11rem;
+  /* Pie drilldown: Durum 2 satır sığsın — sütun biraz geniş (#6a6d9daf / #2180). */
+  .dashboard-drilldown-table th.grid-col-status,
+  .dashboard-drilldown-table td.grid-col-status {
+    min-width: 12rem;
+    width: 12rem;
+  }
+
+  /* Pie drilldown Başlık: en fazla 2 satır + overflow tooltip (#2180). */
+  .dashboard-drilldown-table .cell-title {
+    max-width: 14rem;
   }
 
   /* Talep Etiketi / vatandaş pie: telefon adı biraz altında (#6a6cfd82) */
@@ -5286,7 +5297,8 @@
       margin-inline-start: 0;
     }
 
-    .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) {
+    .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2),
+    .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2) {
       transform: none;
     }
 

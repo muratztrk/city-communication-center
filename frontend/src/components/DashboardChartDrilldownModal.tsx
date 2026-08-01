@@ -18,6 +18,7 @@ import { getAuditStatusLabel, getJobStatusTone, getLocale, getPriorityColorClass
 import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { ChannelIcon } from './ui/channel-icon'
+import { TruncatedText } from './ui/TruncatedText'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { printHtmlDocument } from '../utils/printDocument'
 import { printJobDetail } from '../pages/JobsPage'
@@ -486,7 +487,9 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                           </td>
                         ) : null}
                         <td className="text-center"><DateCell value={row.createdAtUtc} locale={locale} /></td>
-                        <td className="font-semibold">{row.title}</td>
+                        <td className="font-semibold">
+                          <TruncatedText text={row.title?.trim() || '—'} className="cell-title" />
+                        </td>
                         {showUnitColumn ? (
                           <td className={truncateUnitColumn ? 'max-w-[12rem]' : undefined}>
                             {truncateUnitColumn ? (

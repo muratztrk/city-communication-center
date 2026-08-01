@@ -1,3 +1,7 @@
+## Round 632 — Cadde sola; pie Başlık 2 satır
+- `#6a6dab1b`/#2185: boş Cadde / Sokak çok az sola
+- `#6a6d9daf`/#2180: pie Başlık 2 satır + tooltip; Durum ~12rem
+
 ## Round 631 — Boş adres hiza; yazdır Durum ortalı
 - `#6a6dab1b`/#2185: boş Mahalle + Açık Adres biraz sağa
 - `#6a6db2e2`/#2186: pie yazdır Durum ortalı

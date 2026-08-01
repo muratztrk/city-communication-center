@@ -1,3 +1,7 @@
+## Round 624b — Çağrı ad/tel editable; Etiket/Mahalle placeholder
+- `#6a6d903e`: Çağrı kanalı detay Düzenle → ad/telefon editable
+- `#6a6d8fe8`: Etiket seçiniz; Mahalle seçiniz
+
 ## Round 624 — Kanal pie veri; Birim=hedef; vatandaş sütunu; empty/yazdır
 - `#6a6d0181`: kanal popup BE drilldown (Reporter boş grid düzeltmesi)
 - `#6a6d8a66`: pie Birim = Talep Yapılan Birim (hedef)

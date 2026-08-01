@@ -1,3 +1,14 @@
+## Round 641 — 8 kart: dashboard sırası, footer logo, popup grid başlıkları, NAS/FTP test, LNA
+- `#6a6e0287`: Anasayfa-Vatandaş grafik sırası — Talep Kanalları 3., mahalleler İşleme→Yapılmakta→Tamamlanan
+- `#6a65ac32`: Footer Lumespec lockup (katman ikonu + wordmark), 14→22px; FAB clearance 2.125rem
+- `#6a6cbf79` + `#6a6a578d`: Dizin ve pie drilldown popup grid başlıkları üstten kavisli (0.9rem)
+- `#6a6cffd1`: Popup grid başlık yüksekliği sayfa grid'iyle eşitlendi — `--app-content-zoom`
+  (portal popup shell zoom'unu almıyor; `min-height` th'de yok sayılıyor → `height`)
+- `#6a6cb6ec`: NAS/FTP test alanları IP boşken de görünür; kayıtlı kullanıcı yokken sahte başarı kaldırıldı
+- `#6a6e05c3`: Sms Onayı telefon no `slate-400` → `slate-600 font-medium`
+- `#6a6e1900` (Doing'de kaldı): LNA koruması http'de de çalışıyor + private-range genişletildi;
+  gerçek kaynak için prod'da `CCC_API_PUBLIC_ORIGIN` + DevTools Network kanıtı bekleniyor
+
 ## Round 640 — Yazdır Talep Etiketi (#2189)
 - `#6a6e01ca`/#2189: Detaylar Yazdır → Talep Detayları'nda Durum sonrası Talep Etiketi (varsa)
 

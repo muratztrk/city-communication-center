@@ -29,11 +29,27 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   "İ"yi bozar → **her zaman `toLocaleLowerCase('tr')`** (hem sorgu hem haystack). Bkz.
   `hooks/useColumnFilters.ts`.
 - **Tüm hata/validasyon mesajları Türkçe.**
+- **Tarayıcıdan yerel ağa istek atma (#6a6e1900):** herkese açık bir host'ta açılan sayfa
+  private-range bir adrese istek atarsa Chrome "Yerel ağınızdaki diğer cihazlara erişin" izni
+  sorar. `api/config.ts` bunu **şemadan bağımsız** engeller (http'de de) ve aynı origin'e düşer;
+  bu geri düşüş sayfanın origin'inin `/api`, `/connect`, `/hubs` proxy'lemesine dayanır (nginx
+  yapıyor). Frontend'de LAN'a giden tek yol `VITE_API_ORIGIN`'dir — yeni mutlak URL ekleme.
 - **Modallar `zoom` stacking-context içinde** (~0.81 scale). Tam ekran / her şeyin üstünde
   durması gerekenler `createPortal(..., document.body)`. Portal sonrası modal scale 1.0'a
   döner → **`max-h-[min(85dvh,52rem)]`** kullan, sabit `h-[..dvh]` DEĞİL (bkz. lessons.md).
   Özellikle Görevlerim iptal/tamamla/durum popup'ları da Taleplerim gibi body'ye portal
   edilmeli; aksi halde `.app-content-shell .form-card` kompakt stilleri popup'ı küçültür.
+- **Popup içi grid ölçüsünü sayfa grid'iyle eşitlerken aynı rem değerini KOPYALAMA (#6a6cffd1):**
+  portal edilen popup shell zoom'unu (0.76–0.90) almaz, aynı rem orada daha büyük görünür.
+  `AppShell` zoom'u `--app-content-zoom` olarak `documentElement`'e yazar; popup kuralları
+  `calc(... * var(--app-content-zoom, 1))` ile çarpmalı. Ayrıca **`min-height` table-cell'de
+  yok sayılır** — başlık yüksekliğini sabitlemek için `height` kullan (`--table-header-row-height`).
+- **Popup gridview başlık şeridi standart gridview gibi üstten kavislidir** (0.9rem): scroll kabı
+  olan tablolarda kavis `thead th:first-child/:last-child`'a verilir (araya `overflow:hidden` bir
+  sarmalayıcı koymak sticky thead'i bozar); ayrı wrap'i olanlarda (`.dashboard-drilldown-table-wrap`)
+  wrap'e verilir.
+- **Footer yüksekliği değişirse `--fab-footer-clearance` de güncellenmeli**, yoksa WhatsApp/scroll
+  FAB'ları footer'ın üstüne biner.
 - **Dropdown / DateTimePicker** overflow bar tarafından kırpılır → body'ye portal + `forceDown`.
 - **Tüm ortak dropdown'lar 7+ seçenekte otomatik arama gösterir:** çağıran ayrıca `searchable`
   vermese de `SingleSelectDropdown` ilk satıra Türkçe casing uyumlu arama alanı ekler.

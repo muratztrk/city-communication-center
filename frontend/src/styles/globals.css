@@ -5896,4 +5896,30 @@
       height: 1.75rem;
     }
   }
+
+  /* SADECE MOBİL — Vatandaş Talebi detay popup'ı, Düzenle modu (#6a664c6f).
+     Talep Bilgileri başlığındaki meta blok (kanal rozeti + Öncelik) `shrink-0` taşıdığı için
+     dar ekranda daralamıyor, kabuk `overflow-hidden` olduğundan "Öncelik" etiketi sağ border
+     çizgisinde kırpılıyordu. Meta daralabilir yapılır, Öncelik sütunu border'dan içeri alınır
+     ve dropdown bir tık küçültülür.
+
+     !important ZORUNLU: `shrink-0`, `gap-3` ve `w-28` Tailwind utility'leri; Tailwind v4'te
+     utilities katmanı @layer components'ı yener, importance olmadan bu kurallar hiç uygulanmaz
+     (kartın önceki denemelerinin sessizce etkisiz kalma nedeni budur). */
+  @media (max-width: 767px) {
+    .my-request-detail-info-heading__meta {
+      flex-shrink: 1 !important;
+      min-width: 0;
+      gap: 0.5rem !important;
+    }
+
+    .my-request-detail-priority-header {
+      min-width: 0;
+      padding-right: 0.3rem;
+    }
+
+    .my-request-detail-priority-header__control {
+      width: 6rem !important;
+    }
+  }
 }

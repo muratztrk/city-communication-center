@@ -50,6 +50,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   wrap'e verilir.
 - **Footer yüksekliği değişirse `--fab-footer-clearance` de güncellenmeli**, yoksa WhatsApp/scroll
   FAB'ları footer'ın üstüne biner.
+- **Tailwind utility'sini CSS'ten ezerken `!important` ŞART (#6a664c6f):** globals.css `@layer
+  components` içinde; Tailwind v4'te utilities katmanı bunu yener, importance'sız kural sessizce
+  hiç uygulanmaz. `w-*`, `shrink-0`, `gap-*` gibi bir utility'yi override eden her kuralda kullan
+  ve tarayıcıda computed value ile doğrula — "yazdım ama olmadı" kartlarının tipik nedeni budur.
 - **Dropdown / DateTimePicker** overflow bar tarafından kırpılır → body'ye portal + `forceDown`.
 - **Tüm ortak dropdown'lar 7+ seçenekte otomatik arama gösterir:** çağıran ayrıca `searchable`
   vermese de `SingleSelectDropdown` ilk satıra Türkçe casing uyumlu arama alanı ekler.

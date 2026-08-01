@@ -630,9 +630,9 @@
     padding-inline-start: 2.5rem;
   }
 
-  /* Yanında 2 kutucuk daha (3 kolon): boş Açık Adres çok az sola (#2187 reopen). */
+  /* Yanında 2 kutucuk daha (3 kolon): boş Açık Adres çok çok az sağa (#2187 reopen). */
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(3) {
-    padding-inline-start: 0.4rem;
+    padding-inline-start: 0.6rem;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {

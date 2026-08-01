@@ -1,3 +1,6 @@
+## Round 639 — 3 kolon Açık Adres çok az sağa
+- `#6a6dbd2c`/#2187: 3 kolon boş Açık Adres `0.6rem`
+
 ## Round 638 — Cadde sola; Açık Adres daha sola
 - `#6a6dab1b`/#2185: yalnız Ekler → Cadde çok az sola
 - `#6a6dbd2c`/#2187: 3 kolon Açık Adres `0.4rem`

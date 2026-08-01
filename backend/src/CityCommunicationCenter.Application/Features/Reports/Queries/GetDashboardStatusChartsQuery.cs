@@ -309,13 +309,36 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var departmentOtherTaskCount = departmentIds.Length == 0
             ? 0
             : await departmentTasksQuery.CountAsync(task => task.AssignedUserId != userId, cancellationToken);
-        var jobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
+        // Taleplerim pie = GET /jobs?scope=mine ile aynı aday küme (JobQueries): Routine yok,
+        // VT/Citizen yok; Operator/CRM'de SocialMessage/CitizenRequest/EDevlet yok; Reporter
+        // dışındaki roller aktif birim (OwnerDepartmentId) ile sınırlı. Aksi halde pie sayısı
+        // Taleplerim gridinden sapıyordu (ör. Operator overdue 63 vs liste 1).
+        var myRequestsQuery = _dbContext.Jobs.AsNoTracking().Where(job =>
             job.TenantId == tenantId
             && job.CreatedByUserId == userId
+            && job.SourceType != JobSourceType.Routine
             // Taleplerim (Birimler) grafiği VT (Vatandaş Talebi) taleplerini dışlar (card #1849).
             && job.RequestType != JobRequestType.Citizen
             && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)), cancellationToken);
+            && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value));
+        if (actor is not null && (actor.RoleCode == RoleCode.Operator || UserRoleAccess.IsCitizenRequestManager(actor)))
+        {
+            myRequestsQuery = myRequestsQuery.Where(job =>
+                job.SourceType != JobSourceType.SocialMessage
+                && job.SourceType != JobSourceType.CitizenRequest
+                && job.SourceType != JobSourceType.EDevlet);
+        }
+
+        if (roleCode == "Reporter")
+        {
+            // Reporter Taleplerim tüm oluşturduğu (VT hariç) talepleri görür; aktif birim filtresi yok.
+        }
+        else if (activeDepartmentId.HasValue)
+        {
+            myRequestsQuery = myRequestsQuery.Where(job => job.OwnerDepartmentId == activeDepartmentId.Value);
+        }
+
+        var jobs = await ProjectJobs(myRequestsQuery, cancellationToken);
 
         var charts = new List<DashboardChartResponse>
         {

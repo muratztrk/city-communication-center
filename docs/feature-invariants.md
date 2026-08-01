@@ -1505,6 +1505,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`BuildTenantWideRequestPriorityChartAsync`) `RequestType == Citizen` olan job'ları hariç tutar;
   Vatandaş Talebi kartları VT'yi zaten `#1845` ile ayrı gösterdiğinden Birimler pie'larında
   tekrar görünmemelidir.
+- **Taleplerim pie = `scope=mine` listesi:** Operator/CRM pie'da Routine + SocialMessage /
+  CitizenRequest / EDevlet yok; aktif birim `OwnerDepartmentId` ile sınırlı — aksi halde pie
+  (özellikle Son Tarihi Geçmiş) Taleplerim gridinden büyük çıkar.
 - **Reporter/Operator grafik dilimleri detay popup'ı açar (card #1343/#1338, Operator erişimi
   #1852):** Üst Düzey Yönetici panosunda
   Taleplerim HARİÇ 7 grafik (`citizenRequests`, `externalRequestCreators/Pending/Fulfillers`,

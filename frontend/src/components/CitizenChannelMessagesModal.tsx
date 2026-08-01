@@ -1,18 +1,28 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Info, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
-import type { JobSummary, SocialMessage } from '../types/platform'
+import type { DashboardChartDrilldownRow, JobDetail, SocialMessage } from '../types/platform'
 import { Button } from './ui/button'
 import { ChannelIcon } from './ui/channel-icon'
 import { DateCell } from './ui/date-cell'
 import { TablePagination } from './ui/table-pagination'
+import { TableEmptyStateRows } from './ui/table-empty-state-rows'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
-import { JobsPage } from '../pages/JobsPage'
-import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/citizenRequests'
+import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
+import { formatCitizenPhoneDisplay, formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
+import { formatJobDisplayNumberText } from '../utils/requestNumberText'
+import { printJobDetail } from '../pages/JobsPage'
+
+function getDetailStatusClass(status: string): string {
+  if (status === 'Completed') return 'text-emerald-600'
+  if (status === 'Cancelled' || status === 'Rejected' || status === 'RevisionRequested') return 'text-red-600'
+  if (status === 'Active' || status === 'PendingOwnerApproval' || status === 'PendingExternalApproval') return 'text-[#f97316]'
+  return 'text-slate-900'
+}
 
 interface CitizenChannelMessagesModalProps {
   sliceKey: string
@@ -21,29 +31,19 @@ interface CitizenChannelMessagesModalProps {
   onClose: () => void
 }
 
-function parseChannelFromSlice(sliceKey: string): string | null {
-  if (sliceKey.startsWith('channel.')) return sliceKey.slice('channel.'.length)
-  return null
+const CHART_KEY = 'dashboard.citizenChannels.title'
+
+function formatChannelNumber(row: DashboardChartDrilldownRow, locale: string): string {
+  if (row.citizenRequestNumber != null && row.citizenRequestNumberYear != null) {
+    return formatCitizenRequestNumber({
+      citizenRequestNumber: row.citizenRequestNumber,
+      citizenRequestNumberYear: row.citizenRequestNumberYear,
+    }, locale)
+  }
+  return formatJobDisplayNumberText(row, locale)
 }
 
-function looksLikePhone(value: string): boolean {
-  const digits = value.replace(/\D/g, '')
-  return digits.length >= 10 && digits.length <= 12
-}
-
-function getMessageCitizenName(message: SocialMessage): string {
-  if (message.citizenName?.trim()) return message.citizenName.trim()
-  if (looksLikePhone(message.citizenHandle)) return '—'
-  return message.citizenHandle.replace(/^@+/, '') || '—'
-}
-
-function getMessageCitizenPhone(message: SocialMessage): string {
-  if (message.citizenPhone?.trim()) return formatCitizenPhoneDisplay(message.citizenPhone)
-  if (looksLikePhone(message.citizenHandle)) return formatCitizenPhoneDisplay(message.citizenHandle)
-  return '—'
-}
-
-/** Anasayfa Vatandaş Talep Kanalları dilimi → Vatandaş Talepleri grid popup (#6a6d0181). */
+/** Anasayfa Vatandaş Talep Kanalları → VT grid popup; veri pie ile aynı BE drilldown (#6a6d0181). */
 export function CitizenChannelMessagesModal({
   sliceKey,
   from,
@@ -52,23 +52,22 @@ export function CitizenChannelMessagesModal({
 }: CitizenChannelMessagesModalProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
-  const channel = parseChannelFromSlice(sliceKey)
   const sliceLabel = resolveSliceLabel(sliceKey, t)
 
-  const [messages, setMessages] = useState<SocialMessage[] | null>(null)
-  const [jobsById, setJobsById] = useState<Map<string, JobSummary>>(new Map())
+  const [rows, setRows] = useState<DashboardChartDrilldownRow[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [detailJobId, setDetailJobId] = useState<string | null>(null)
+  const [detail, setDetail] = useState<JobDetail | null>(null)
+  const [detailLoading, setDetailLoading] = useState(false)
+  const [detailError, setDetailError] = useState<string | null>(null)
+  const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
 
   useEffect(() => {
     let cancelled = false
-    Promise.all([api.getSocialMessages(), api.getJobs()])
-      .then(([socialMessages, jobs]) => {
-        if (cancelled) return
-        setMessages(socialMessages)
-        setJobsById(new Map(jobs.map(job => [job.jobId, job])))
+    api.getDashboardChartDrilldown(CHART_KEY, sliceKey, from, to)
+      .then(response => {
+        if (!cancelled) setRows(response.rows)
       })
       .catch(loadError => {
         if (!cancelled) {
@@ -78,31 +77,44 @@ export function CitizenChannelMessagesModal({
     return () => {
       cancelled = true
     }
-  }, [t])
+  }, [sliceKey, from, to, t])
 
-  const filteredMessages = useMemo(() => {
-    if (!messages || !channel) return []
-    const fromMs = from ? Date.parse(from) : NaN
-    const toMs = to ? Date.parse(to) : NaN
-    return messages
-      .filter(message => {
-        if (message.channel !== channel) return false
-        if (message.citizenRequestNumber == null || !message.jobId) return false
-        const linkedJob = jobsById.get(message.jobId)
-        const createdMs = linkedJob
-          ? Date.parse(linkedJob.createdAtUtc)
-          : Date.parse(message.receivedAtUtc)
-        if (Number.isFinite(fromMs) && createdMs < fromMs) return false
-        if (Number.isFinite(toMs) && createdMs > toMs) return false
-        return true
-      })
-      .sort((a, b) => Date.parse(b.receivedAtUtc) - Date.parse(a.receivedAtUtc))
-  }, [messages, channel, from, to, jobsById])
-
-  // Parent remounts on slice change; clamp page if filtre sonucu kısalırsa.
-  const maxPage = Math.max(1, Math.ceil(filteredMessages.length / pageSize) || 1)
+  const maxPage = Math.max(1, Math.ceil((rows?.length ?? 0) / pageSize) || 1)
   const safePage = Math.min(page, maxPage)
-  const paged = filteredMessages.slice((safePage - 1) * pageSize, safePage * pageSize)
+  const paged = (rows ?? []).slice((safePage - 1) * pageSize, safePage * pageSize)
+
+  const loadCitizenSourceMessage = async (jobDetail: JobDetail): Promise<SocialMessage | null> => {
+    if (!isCitizenRequestJob(jobDetail)) return null
+    if (jobDetail.sourceType === 'SocialMessage' && jobDetail.sourceRefId) {
+      try {
+        return await api.getSocialMessageById(jobDetail.sourceRefId)
+      } catch {
+        // reverse JobId link fallback below
+      }
+    }
+    try {
+      const messages = await api.getSocialMessages()
+      return messages.find(message => message.jobId === jobDetail.jobId) ?? null
+    } catch {
+      return null
+    }
+  }
+
+  const openJobDetail = async (jobId: string) => {
+    setDetail(null)
+    setDetailLoading(true)
+    setDetailError(null)
+    setCitizenSourceMessage(null)
+    try {
+      const jobDetail = await api.getJobById(jobId)
+      setDetail(jobDetail)
+      setCitizenSourceMessage(await loadCitizenSourceMessage(jobDetail))
+    } catch (loadError) {
+      setDetailError(loadError instanceof Error ? loadError.message : t('common.error'))
+    } finally {
+      setDetailLoading(false)
+    }
+  }
 
   return createPortal(
     <>
@@ -138,7 +150,7 @@ export function CitizenChannelMessagesModal({
             <div className="pt-4">
               {error ? (
                 <div className="error">{error}</div>
-              ) : messages === null ? (
+              ) : rows === null ? (
                 <div className="loading">{t('common.loading')}</div>
               ) : (
                 <div className="dashboard-drilldown-grid-shell">
@@ -158,70 +170,59 @@ export function CitizenChannelMessagesModal({
                       </thead>
                       <tbody>
                         {paged.length === 0 ? (
-                          <tr>
-                            <td colSpan={8} className="py-6 text-center text-sm text-slate-500">
-                              {t('social.empty')}
+                          <TableEmptyStateRows columnCount={8} message={t('social.empty')} />
+                        ) : paged.map((row, index) => (
+                          <tr key={row.jobId}>
+                            <td className="text-center text-xs font-bold text-slate-400 tabular-nums">
+                              {(safePage - 1) * pageSize + index + 1}
+                            </td>
+                            <td className="table-number-cell font-mono text-xs text-slate-500">
+                              <div className="table-number-cell__value inline-flex items-center gap-1.5">
+                                {row.sourceChannel ? (
+                                  <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" />
+                                ) : null}
+                                <span>{formatChannelNumber(row, locale)}</span>
+                              </div>
+                              {row.priority ? (
+                                <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>
+                                  (Öncelik:{getPriorityLabel(t, row.priority)})
+                                </div>
+                              ) : null}
+                            </td>
+                            <td className="font-semibold">{row.citizenName?.trim() || '—'}</td>
+                            <td className="font-semibold">
+                              {row.citizenPhone ? formatCitizenPhoneDisplay(row.citizenPhone) : '—'}
+                            </td>
+                            <td><DateCell value={row.createdAtUtc} locale={locale} /></td>
+                            <td>
+                              <span className="font-semibold text-slate-700">
+                                {row.departmentName ?? t('common.none')}
+                              </span>
+                            </td>
+                            <td className="text-center">
+                              <span className="inline-flex min-h-8 items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-2.5 text-xs font-semibold text-slate-700">
+                                {row.title?.trim() || t('whatsapp.requestTagsShort', 'Etiketler')}
+                              </span>
+                            </td>
+                            <td className="actions-cell">
+                              <div className="request-actions justify-center">
+                                <Button
+                                  size="sm"
+                                  type="button"
+                                  variant="secondary"
+                                  onClick={() => { void openJobDetail(row.jobId) }}
+                                >
+                                  {t('jobs.actions.details', 'Detaylar')}
+                                </Button>
+                              </div>
                             </td>
                           </tr>
-                        ) : paged.map((message, index) => {
-                          const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
-                          return (
-                            <tr key={message.socialMessageId}>
-                              <td className="text-center text-xs font-bold text-slate-400 tabular-nums">
-                                {(safePage - 1) * pageSize + index + 1}
-                              </td>
-                              <td className="table-number-cell font-mono text-xs text-slate-500">
-                                <div className="table-number-cell__value inline-flex items-center gap-1.5">
-                                  <ChannelIcon channel={message.channel} className="size-4 shrink-0" />
-                                  <span>{formatCitizenRequestNumber(message, locale)}</span>
-                                </div>
-                                {linkedJob ? (
-                                  <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(linkedJob.priority)}`}>
-                                    (Öncelik:{getPriorityLabel(t, linkedJob.priority)})
-                                  </div>
-                                ) : null}
-                              </td>
-                              <td className="font-semibold">{getMessageCitizenName(message)}</td>
-                              <td className="font-semibold">{getMessageCitizenPhone(message)}</td>
-                              <td><DateCell value={message.receivedAtUtc} locale={locale} /></td>
-                              <td>
-                                <span className="font-semibold text-slate-700">
-                                  {message.assignedDepartmentName ?? t('common.none')}
-                                </span>
-                                {linkedJob?.assignedUserDisplayName ? (
-                                  <span className="mt-0.5 block text-sm font-semibold text-slate-500">
-                                    {linkedJob.assignedUserDisplayName}
-                                  </span>
-                                ) : null}
-                              </td>
-                              <td className="text-center">
-                                <span className="inline-flex min-h-8 items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-2.5 text-xs font-semibold text-slate-700">
-                                  {message.category?.trim() || t('whatsapp.requestTagsShort', 'Etiketler')}
-                                </span>
-                              </td>
-                              <td className="actions-cell">
-                                <div className="request-actions justify-center">
-                                  <Button
-                                    size="sm"
-                                    type="button"
-                                    variant="secondary"
-                                    disabled={!message.jobId}
-                                    onClick={() => {
-                                      if (message.jobId) setDetailJobId(message.jobId)
-                                    }}
-                                  >
-                                    {t('jobs.actions.details', 'Detaylar')}
-                                  </Button>
-                                </div>
-                              </td>
-                            </tr>
-                          )
-                        })}
+                        ))}
                       </tbody>
                     </table>
                   </div>
                   <TablePagination
-                    totalCount={filteredMessages.length}
+                    totalCount={rows.length}
                     pageSize={pageSize}
                     currentPage={safePage}
                     onPageSizeChange={size => {
@@ -237,15 +238,64 @@ export function CitizenChannelMessagesModal({
         </div>
       </div>
 
-      {detailJobId ? (
-        <JobsPage
-          mode="myRequests"
-          fixedScope="mine"
-          detailOnly
-          detailContextOverride="social"
-          notificationJobId={detailJobId}
-          onNotificationDetailClose={() => setDetailJobId(null)}
-        />
+      {(detail || detailLoading || detailError) ? (
+        <div
+          className="fixed inset-0 z-[140] flex items-center justify-center bg-black/40 p-4"
+          role="presentation"
+          onClick={() => {
+            setDetail(null)
+            setDetailError(null)
+            setCitizenSourceMessage(null)
+          }}
+        >
+          {detail ? (
+            <MyRequestDetailModal
+              detail={detail}
+              title={t('nav.social', 'Vatandaş Talepleri')}
+              locale={locale}
+              detailLoading={detailLoading}
+              citizenSourceMessage={citizenSourceMessage}
+              detailStatusClass={getDetailStatusClass(detail.status)}
+              statusContent={getCitizenRequestStatusLabel(t, detail)}
+              canChangeDueDate={false}
+              detailDueDateEdit={null}
+              onOpenDueDateEdit={() => undefined}
+              onCloseDueDateEdit={() => undefined}
+              onDueDateChange={() => undefined}
+              onDueDateSave={() => undefined}
+              onClose={() => {
+                setDetail(null)
+                setDetailError(null)
+                setCitizenSourceMessage(null)
+              }}
+              onPrint={() => printJobDetail(detail, locale, t, { myRequestView: true })}
+              showManagerNoteColumn={false}
+              canEditManagerNote={false}
+              canManageCoordination={false}
+              managerNoteDraft=""
+              managerNoteEditing={false}
+              managerNoteSaved={false}
+              managerNoteSaving={false}
+              onManagerNoteDraftChange={() => undefined}
+              onManagerNoteEditStart={() => undefined}
+              onManagerNoteSave={() => undefined}
+              onManagerNoteDeleteConfirm={() => undefined}
+              setConfirmDialog={() => undefined}
+              canEditJobAttachments={false}
+              showAttachmentLockNotice={false}
+              attachmentLockText=""
+              attachmentUploading={false}
+              onAttachmentUpload={async () => undefined}
+              onAttachmentDelete={async () => undefined}
+              onDownloadTaskAttachment={() => undefined}
+            />
+          ) : (
+            <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl" onClick={event => event.stopPropagation()}>
+              {detailLoading ? <div className="loading">{t('common.loading')}</div> : null}
+              {detailError ? <div className="error">{detailError}</div> : null}
+            </div>
+          )}
+        </div>
       ) : null}
     </>,
     document.body,

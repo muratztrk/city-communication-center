@@ -40,7 +40,9 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             throw new ForbiddenAccessException("Bu rapor detayına yalnızca Üst Düzey Yönetici veya Vatandaş Talep Operatörü erişebilir.");
         }
 
-        var chartKey = request.ChartKey.Replace("dashboard.charts.", string.Empty, StringComparison.Ordinal);
+        var chartKey = request.ChartKey
+            .Replace("dashboard.charts.", string.Empty, StringComparison.Ordinal)
+            .Replace("dashboard.citizenChannels.title", "citizenChannels", StringComparison.Ordinal);
         return chartKey switch
         {
             "externalRequestCreators" => await BuildOwnerDepartmentRowsAsync(tenantId, request, cancellationToken),
@@ -55,6 +57,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             "neighborhoodProcessingRequests" => await BuildNeighborhoodProcessingRowsAsync(tenantId, request, cancellationToken),
             "citizenRequests" => await BuildCitizenRowsAsync(tenantId, request, cancellationToken),
             "requestTags" => await BuildRequestTagRowsAsync(tenantId, request, cancellationToken),
+            "citizenChannels" => await BuildCitizenChannelRowsAsync(tenantId, request, cancellationToken),
             _ => new DashboardChartDrilldownResponse([]),
         };
     }
@@ -201,9 +204,15 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Neighborhood,
-                OwnerDepartmentName = _dbContext.Departments
-                    .Where(department => department.DepartmentId == job.OwnerDepartmentId)
-                    .Select(department => (string?)department.Name)
+                job.CitizenName,
+                job.CitizenPhone,
+                // Talep Yapılan Birim = hedef birim (#6a6d8a66).
+                TargetDepartmentName = _dbContext.JobDepartments
+                    .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
+                    .Join(_dbContext.Departments,
+                        link => link.DepartmentId,
+                        department => department.DepartmentId,
+                        (_, department) => (string?)department.Name)
                     .FirstOrDefault(),
                 CitizenRequestNumber = _dbContext.SocialMessages
                     .Where(message => message.JobId == job.JobId)
@@ -223,10 +232,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         return new DashboardChartDrilldownResponse(rows
             .Select(row => new DashboardChartDrilldownRow(
                 row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
-                row.Status.ToString(), row.OwnerDepartmentName, row.Neighborhood,
+                row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
                 row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-                row.Priority))
+                row.Priority, row.CitizenName, row.CitizenPhone))
             .ToList());
     }
 
@@ -268,10 +277,15 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Neighborhood,
+                job.CitizenName,
+                job.CitizenPhone,
                 TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
-                OwnerDepartmentName = _dbContext.Departments
-                    .Where(department => department.DepartmentId == job.OwnerDepartmentId)
-                    .Select(department => (string?)department.Name)
+                TargetDepartmentName = _dbContext.JobDepartments
+                    .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
+                    .Join(_dbContext.Departments,
+                        link => link.DepartmentId,
+                        department => department.DepartmentId,
+                        (_, department) => (string?)department.Name)
                     .FirstOrDefault(),
                 CitizenRequestNumber = _dbContext.SocialMessages
                     .Where(message => message.JobId == job.JobId)
@@ -310,10 +324,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         return new DashboardChartDrilldownResponse(rows
             .Select(row => new DashboardChartDrilldownRow(
                 row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
-                row.Status.ToString(), row.OwnerDepartmentName, row.Neighborhood,
+                row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
                 row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-                row.Priority))
+                row.Priority, row.CitizenName, row.CitizenPhone))
             .ToList());
     }
 
@@ -453,6 +467,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Neighborhood,
+                job.CitizenName,
+                job.CitizenPhone,
                 TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
                 TargetDepartmentName = _dbContext.JobDepartments
                     .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
@@ -497,10 +513,155 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
             ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
             row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-            row.Priority))
+            row.Priority, row.CitizenName, row.CitizenPhone))
         .ToList();
 
         return new DashboardChartDrilldownResponse(filtered);
+    }
+
+    /// <summary>
+    /// Vatandaş Talep Kanalları dilimi — pie ile aynı kapsam (Reporter birim filtresi yok) (#6a6d0181).
+    /// Title alanında Talep Etiketi (Category / ConversationLabel) taşınır.
+    /// </summary>
+    private async Task<DashboardChartDrilldownResponse> BuildCitizenChannelRowsAsync(
+        Guid tenantId,
+        GetDashboardChartDrilldownQuery request,
+        CancellationToken cancellationToken)
+    {
+        var channelName = request.SliceKey.StartsWith("channel.", StringComparison.Ordinal)
+            ? request.SliceKey["channel.".Length..]
+            : null;
+        if (string.IsNullOrWhiteSpace(channelName)
+            || !Enum.TryParse<SocialChannel>(channelName, ignoreCase: true, out var channel))
+        {
+            return new DashboardChartDrilldownResponse([]);
+        }
+
+        var linkedCitizenMessages = _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(message => message.TenantId == tenantId
+                && message.JobId.HasValue
+                && message.CitizenRequestNumber != null);
+
+        var linkedCitizenJobIds = linkedCitizenMessages.Select(message => message.JobId!.Value);
+
+        var citizenJobs = _dbContext.Jobs
+            .AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && (job.RequestType == JobRequestType.Citizen
+                    || job.SourceType == JobSourceType.SocialMessage
+                    || job.SourceType == JobSourceType.CitizenRequest
+                    || job.SourceType == JobSourceType.EDevlet
+                    || linkedCitizenJobIds.Contains(job.JobId))
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value));
+
+        var socialRows = await linkedCitizenMessages
+            .Where(message => message.Channel == channel)
+            .Join(
+                citizenJobs,
+                message => message.JobId!.Value,
+                job => job.JobId,
+                (message, job) => new
+                {
+                    job.JobId,
+                    job.JobNumber,
+                    job.JobNumberYear,
+                    job.Title,
+                    job.CreatedAtUtc,
+                    job.Status,
+                    job.Priority,
+                    job.DueDateUtc,
+                    job.CompletedAtUtc,
+                    job.UpdatedAtUtc,
+                    job.Neighborhood,
+                    job.CitizenName,
+                    job.CitizenPhone,
+                    message.CitizenRequestNumber,
+                    message.CitizenRequestNumberYear,
+                    SourceChannel = message.Channel.ToString(),
+                    Tag = string.IsNullOrWhiteSpace(message.Category)
+                        ? (message.CitizenConversationId.HasValue
+                            ? _dbContext.CitizenConversations
+                                .Where(conversation => conversation.CitizenConversationId == message.CitizenConversationId.Value)
+                                .Select(conversation => conversation.Label)
+                                .FirstOrDefault()
+                            : null)
+                        : message.Category,
+                    TargetDepartmentName = _dbContext.JobDepartments
+                        .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
+                        .Join(_dbContext.Departments,
+                            link => link.DepartmentId,
+                            department => department.DepartmentId,
+                            (_, department) => (string?)department.Name)
+                        .FirstOrDefault()
+                        ?? _dbContext.Departments
+                            .Where(department => department.DepartmentId == message.AssignedDepartmentId)
+                            .Select(department => (string?)department.Name)
+                            .FirstOrDefault(),
+                })
+            .OrderByDescending(row => row.CreatedAtUtc)
+            .Take(MaxRows)
+            .ToListAsync(cancellationToken);
+
+        // Grafikteki unlinked Phone eşlemesi (SocialMessage kaynağı → Çağrı).
+        if (channel == SocialChannel.Phone && socialRows.Count < MaxRows)
+        {
+            var linkedIds = socialRows.Select(row => row.JobId).ToHashSet();
+            var unlinked = await citizenJobs
+                .Where(job => !linkedCitizenMessages.Any(message => message.JobId == job.JobId)
+                    && job.SourceType == JobSourceType.SocialMessage
+                    && job.RequestType == JobRequestType.Citizen
+                    && !linkedIds.Contains(job.JobId))
+                .OrderByDescending(job => job.CreatedAtUtc)
+                .Take(MaxRows - socialRows.Count)
+                .Select(job => new
+                {
+                    job.JobId,
+                    job.JobNumber,
+                    job.JobNumberYear,
+                    job.Title,
+                    job.CreatedAtUtc,
+                    job.Status,
+                    job.Priority,
+                    job.DueDateUtc,
+                    job.CompletedAtUtc,
+                    job.UpdatedAtUtc,
+                    job.Neighborhood,
+                    job.CitizenName,
+                    job.CitizenPhone,
+                    CitizenRequestNumber = (int?)null,
+                    CitizenRequestNumberYear = (int?)null,
+                    SourceChannel = SocialChannel.Phone.ToString(),
+                    Tag = (string?)null,
+                    TargetDepartmentName = _dbContext.JobDepartments
+                        .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
+                        .Join(_dbContext.Departments,
+                            link => link.DepartmentId,
+                            department => department.DepartmentId,
+                            (_, department) => (string?)department.Name)
+                        .FirstOrDefault(),
+                })
+                .ToListAsync(cancellationToken);
+
+            socialRows = socialRows
+                .Concat(unlinked)
+                .OrderByDescending(row => row.CreatedAtUtc)
+                .Take(MaxRows)
+                .ToList();
+        }
+
+        return new DashboardChartDrilldownResponse(socialRows
+            .Select(row => new DashboardChartDrilldownRow(
+                row.JobId, row.JobNumber, row.JobNumberYear,
+                // VT grid Talep Etiketi sütunu için etiket; yoksa iş başlığı.
+                string.IsNullOrWhiteSpace(row.Tag) ? row.Title : row.Tag!.Trim(),
+                row.CreatedAtUtc,
+                row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
+                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
+                row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
+                row.Priority, row.CitizenName, row.CitizenPhone))
+            .ToList());
     }
 
     private static DateTimeOffset? ResolveTerminalDate(

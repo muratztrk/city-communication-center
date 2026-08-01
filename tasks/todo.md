@@ -1,3 +1,11 @@
+## Round 624 — Kanal pie veri; Birim=hedef; vatandaş sütunu; empty/yazdır
+- `#6a6d0181`: kanal popup BE drilldown (Reporter boş grid düzeltmesi)
+- `#6a6d8a66`: pie Birim = Talep Yapılan Birim (hedef)
+- `#6a6d8ce5`/`#6a6d8db3`: Talep Tarihi sonrası Vatandaş Adı/Telefon
+- `#6a6d8c50`: boş grid Taleplerim empty-state
+- `#6a6d8e2f`: mahalle yazdır → Sonuçlanma Tarihi
+- `#6a6cfd34`: dizin Talep No `0.95rem`
+
 ## Round 623 — Kanal pie popup; VT başlık/öncelik; Çağrı; UI
 - `#6a6cfd34`: dizin popup Talep No `0.88rem`
 - `#6a6cfd82`: Talep Etiketi pie telefon biraz daha aşağı

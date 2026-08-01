@@ -2406,9 +2406,9 @@
     white-space: nowrap;
   }
 
-  /* #6a6cfd34: Vatandaş Talep No çok az büyüt; Öncelik küçük kalsın */
+  /* #6a6cfd34: Vatandaş Talep No biraz büyüt; Öncelik küçük kalsın */
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__value {
-    font-size: 0.88rem;
+    font-size: 0.95rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__priority {
@@ -2656,25 +2656,29 @@
     width: 11rem;
   }
 
-  /* Talep Etiketi: telefon adı biraz altında (#6a6cfd82); thead yüksekliği vatandaş pie kadar (#6a6cffd1) */
-  .dashboard-drilldown-table--request-tags .dashboard-drilldown-citizen-stack {
+  /* Talep Etiketi / vatandaş pie: telefon adı biraz altında (#6a6cfd82) */
+  .dashboard-drilldown-citizen-stack {
     gap: 0.28rem;
   }
 
-  .dashboard-drilldown-table--request-tags .dashboard-drilldown-citizen-stack__phone {
+  .dashboard-drilldown-citizen-stack__phone {
     margin-top: 0;
   }
 
-  .detail-modal-shell .dashboard-drilldown-table--request-tags thead th,
-  .data-table.dashboard-drilldown-table--request-tags thead th {
-    min-height: calc(var(--table-chrome-row-min-height) + 0.1rem);
-    padding-block: calc(var(--table-chrome-row-py) + 0.05rem);
-    line-height: 1.1;
+  /* Vatandaş Adı/Telefon thead: Talep Tarihi sağında dikey ortalı (#6a6d8db3) */
+  .detail-modal-shell .dashboard-drilldown-table thead th.dashboard-drilldown-citizen-th,
+  .data-table.dashboard-drilldown-table thead th.dashboard-drilldown-citizen-th {
+    vertical-align: middle;
   }
 
-  .dashboard-drilldown-table--request-tags thead th span.inline-flex {
+  .dashboard-drilldown-table thead th.dashboard-drilldown-citizen-th span.inline-flex {
     line-height: 1.15;
     gap: 0.05rem;
+  }
+
+  /* Pie empty = Taleplerim empty-state (#6a6d8c50) */
+  .detail-modal-shell .dashboard-drilldown-table .empty-state {
+    font-size: 0.9rem;
   }
 
   .dashboard-drilldown-table .date-cell {

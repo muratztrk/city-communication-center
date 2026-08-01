@@ -2832,7 +2832,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   </div>
                 </div>
                 {isRequestDetailContext && canManageCoordination && (
-                  <div className={`my-request-detail-bottom mt-4 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}${!showManagerNoteColumn ? ' my-request-detail-bottom--attachments-only' : ''}`}>
+                  <div className={`my-request-detail-bottom mt-4 grid gap-4 ${showManagerNoteColumn ? 'lg:grid-cols-3 my-request-detail-bottom--three-cards' : 'lg:grid-cols-2 my-request-detail-bottom--attachments-only'}`}>
                     {/* Adres Bilgileri — talep oluştururken girilen opsiyonel adres alanları (card 442).
                         Section header Taleplerim detay ile aynı ikon + tipografi (MyRequestSectionHeading). */}
                     <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
@@ -3077,7 +3077,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   ? t('attachments.lockedCancelled', 'Talep iptal edildiği için sonradan Ek/Fotoğraf eklenemez.')
                   : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
               return (
-                <div className={`my-request-detail-bottom mb-5 grid gap-4 ${isCitizenRequestDetail ? 'lg:grid-cols-2' : 'lg:grid-cols-3'}`}>
+                <div className={`my-request-detail-bottom mb-5 grid gap-4 ${isCitizenRequestDetail ? 'lg:grid-cols-2 my-request-detail-bottom--attachments-only' : 'lg:grid-cols-3 my-request-detail-bottom--three-cards'}`}>
                   <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
                     <MyRequestSectionHeading icon={MapPin}>
                       {t('address.detailSectionTitle', 'Adres Bilgileri')}

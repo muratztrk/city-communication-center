@@ -1,3 +1,7 @@
+## Round 635 — Dropdown tooltip; 3 kolon Açık Adres
+- `#6a6dbdb7`/#2188: dropdown ellipsis tooltip (Şablon mesajlar çoklu truncate)
+- `#6a6dbd2c`/#2187: 3 kolon alt kartta boş Açık Adres sağa
+
 ## Round 634 — Açık Adres biraz daha sağa
 - `#6a6dab1b`/#2185: yalnız Ekler layout’ta boş Açık Adres `2.5rem` sağa
 

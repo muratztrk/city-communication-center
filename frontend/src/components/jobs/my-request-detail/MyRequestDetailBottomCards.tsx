@@ -72,9 +72,15 @@ export function MyRequestDetailBottomCards({
   const gridClass = visibleCardCount >= 3 ? 'lg:grid-cols-3' : visibleCardCount === 2 ? 'lg:grid-cols-2' : ''
   // Yan kutuda yalnız Talep Ekleri (Yönetici Notu yok): boş adres etiketleri biraz sağa (#2185).
   const attachmentsOnlyBeside = !showManagerNoteColumn && !hideAttachmentsCard && !hideAddressCard
+  const threeCards = visibleCardCount >= 3
+  const bottomLayoutClass = threeCards
+    ? ' my-request-detail-bottom--three-cards'
+    : attachmentsOnlyBeside
+      ? ' my-request-detail-bottom--attachments-only'
+      : ''
 
   return (
-    <div className={`my-request-detail-bottom grid gap-4 ${gridClass}${attachmentsOnlyBeside ? ' my-request-detail-bottom--attachments-only' : ''}`}>
+    <div className={`my-request-detail-bottom grid gap-4 ${gridClass}${bottomLayoutClass}`}>
       {!hideAddressCard && (
         <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
           <MyRequestSectionHeading icon={MapPin}>

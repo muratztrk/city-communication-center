@@ -623,6 +623,11 @@
     padding-inline-start: 2.5rem;
   }
 
+  /* Yanında 2 kutucuk daha (3 kolon): boş Açık Adres biraz sağa (#2187). */
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(3) {
+    padding-inline-start: 2.15rem;
+  }
+
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
     width: 100%;
     max-width: 100%;

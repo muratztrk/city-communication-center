@@ -2578,7 +2578,7 @@ const pageKicker = isMyTasksView
                     const isCompleted = taskDetail.currentStatus === 'Completed'
                     const isEditingThisRoutineTask = editRoutineTaskModal?.taskId === taskDetail.taskId
                     return (
-                      <section className="my-request-detail-bottom mb-5 grid gap-4 lg:grid-cols-3">
+                      <section className="my-request-detail-bottom my-request-detail-bottom--three-cards mb-5 grid gap-4 lg:grid-cols-3">
                         <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
                           <MyRequestSectionHeading icon={MapPin}>
                             {t('address.detailSectionTitle', 'Adres Bilgileri')}

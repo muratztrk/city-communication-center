@@ -25,15 +25,28 @@ function mayEllipsis(el: HTMLElement): boolean {
 }
 
 function resolveOverflowTarget(eventTarget: Element): { anchor: HTMLElement; text: string } | null {
-  // Dropdown list rows — truncated labels show full text on hover (#r517/#r522 / #1997).
+  // Dropdown list rows — truncated labels show full text on hover (#r517/#r522 / #1997 / #2188).
+  // Şablon mesajlar gibi satırda birden fazla `.truncate` olabilir; hover edilen (veya
+  // kesilmiş herhangi bir) satırı tercih et — yalnızca ilk `.truncate` yetmez.
   const dropdownItem = eventTarget.closest('.dropdown-menu-item')
   if (dropdownItem instanceof HTMLElement) {
-    const label = dropdownItem.querySelector('.truncate')
-    if (label instanceof HTMLElement) {
-      const text = cellText(label)
+    let node: Element | null = eventTarget
+    while (node && node !== dropdownItem) {
+      if (node instanceof HTMLElement && mayEllipsis(node)) {
+        const text = cellText(node)
+        if (text && (isClipped(node) || node.scrollWidth > dropdownItem.clientWidth - 24)) {
+          return { anchor: node, text }
+        }
+      }
+      node = node.parentElement
+    }
+    const candidates = dropdownItem.querySelectorAll('.truncate, .line-clamp-1, .line-clamp-2, .cell-title')
+    for (const candidate of candidates) {
+      if (!(candidate instanceof HTMLElement)) continue
+      const text = cellText(candidate)
       // Flex + truncate bazen scrollWidth≈clientWidth raporlar; buton genişliğiyle de kıyasla.
-      if (text && (isClipped(label) || label.scrollWidth > dropdownItem.clientWidth - 24)) {
-        return { anchor: label, text }
+      if (text && (isClipped(candidate) || candidate.scrollWidth > dropdownItem.clientWidth - 24)) {
+        return { anchor: candidate, text }
       }
     }
     return null

@@ -235,7 +235,7 @@ export function MyRequestDetailModal({
             onEditDraftChange={onEditDraftChange}
           />
         ) : (
-          <div className={`my-request-detail-bottom mb-5 grid gap-4 ${showManagerNoteColumn && !isStandardUser ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}${!(showManagerNoteColumn && !isStandardUser) ? ' my-request-detail-bottom--attachments-only' : ''}`}>
+          <div className={`my-request-detail-bottom mb-5 grid gap-4 ${showManagerNoteColumn && !isStandardUser ? 'lg:grid-cols-3 my-request-detail-bottom--three-cards' : 'lg:grid-cols-2 my-request-detail-bottom--attachments-only'}`}>
             <section className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
               <MyRequestSectionHeading icon={MapPin}>
                 {t('address.detailSectionTitle', 'Adres Bilgileri')}

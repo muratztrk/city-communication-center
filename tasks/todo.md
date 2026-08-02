@@ -1,3 +1,7 @@
+## Round 653 — Başlangıç=şimdi, Son Tarih=başlangıç+2h (#6a6f6301)
+- Talep Oluştur Başlangıç min: şimdi (artık +2h değil)
+- Başlangıç seçilince Son Tarih min: başlangıç+2s
+
 ## Round 652 — Dahili No bul, Başlangıç min, form placeholder (3 kart)
 - Header: `Personel Dahili No ara...` → `bul...`
 - Talep Oluştur Başlangıç: min şimdi+2h, geçmiş gün disable

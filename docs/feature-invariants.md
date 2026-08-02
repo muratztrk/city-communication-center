@@ -1111,8 +1111,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (oluşturma + Değiştir) en erken `şimdi + 2 saat`. Onay bekleyen (`PendingOwnerApproval` /
   `PendingExternalApproval` / `PendingApproval`) talepler aynı gün içinde saat aşımında
   "Son Tarihi Geçmiş" sayılmaz; takvim günü değişince overdue olur.
-- **Talep Oluştur Başlangıç tarihi min (card #6a6f5011):** Birim Dışı formda Başlangıç
-  DateTimePicker de en erken `şimdi + 2 saat`; geçmiş takvim günleri disable.
+- **Talep Oluştur Başlangıç / Son Tarih (card #6a6f6301, #6a6f5011 supersede):** Birim Dışı
+  formda Başlangıç en erken `şimdi` (geçmiş gün/saat disable). Başlangıç seçiliyse Son Tarih
+  en erken `başlangıç + 2 saat`; değilse Son Tarih min `şimdi + 2 saat` (#1819).
 - **Talep Oluştur placeholder’ları (card #6a6f49fd):** Başlık `Talep başlığı giriniz...`;
   Açıklama `Talebinizi detaylı olarak açıklayınız...`; Vatandaş Çağrı Açıklama
   `Vatandaş talebini detaylı olarak açıklayınız...`.

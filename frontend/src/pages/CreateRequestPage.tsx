@@ -11,7 +11,14 @@ import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { RequestTagAddButton, RequestTagPicker } from '../components/RequestTagDialog'
 import { DateTimePicker } from '../components/ui/date-time-picker'
-import { earliestDueDatePickerValue, clampDueDatePickerValue } from '../utils/dateTimePicker'
+import {
+  earliestDueDatePickerValue,
+  clampDueDatePickerValue,
+  earliestStartDatePickerValue,
+  clampStartDatePickerValue,
+  earliestDueDateRelativeToStart,
+  clampDueDateRelativeToStart,
+} from '../utils/dateTimePicker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
@@ -1339,17 +1346,31 @@ export function CreateRequestPage() {
               </div>
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-start-date">{t('jobs.form.startDate')}</label>
-                {/* Başlangıç: en erken bugün / şimdi+2 saat; geçmiş günler disable (#6a6f5011). */}
+                {/* Başlangıç ≥ şimdi; seçilirse Son Tarih ≥ başlangıç+2s (#6a6f6301). */}
                 <DateTimePicker
                   id="request-start-date"
                   value={externalForm.startDateUtc}
-                  onChange={v => setExternalForm(current => ({ ...current, startDateUtc: clampDueDatePickerValue(v) }))}
-                  minDateTime={earliestDueDatePickerValue()}
+                  onChange={v => setExternalForm(current => {
+                    const startDateUtc = clampStartDatePickerValue(v)
+                    const dueDateUtc = current.dueDateUtc
+                      ? clampDueDateRelativeToStart(current.dueDateUtc, startDateUtc)
+                      : current.dueDateUtc
+                    return { ...current, startDateUtc, dueDateUtc }
+                  })}
+                  minDateTime={earliestStartDatePickerValue()}
                 />
               </div>
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-due-date">{t('jobs.form.dueDate')}</label>
-                <DateTimePicker id="request-due-date" value={externalForm.dueDateUtc} onChange={v => setExternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v) }))} minDateTime={earliestDueDatePickerValue()} />
+                <DateTimePicker
+                  id="request-due-date"
+                  value={externalForm.dueDateUtc}
+                  onChange={v => setExternalForm(current => ({
+                    ...current,
+                    dueDateUtc: clampDueDateRelativeToStart(v, current.startDateUtc),
+                  }))}
+                  minDateTime={earliestDueDateRelativeToStart(externalForm.startDateUtc)}
+                />
               </div>
             </div>
             {renderAddressFields(externalForm, (field, value) => setExternalForm(current => ({ ...current, [field]: value })))}

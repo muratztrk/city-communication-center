@@ -177,8 +177,8 @@
   "search": {
     "placeholder": "Search system...",
     "label": "Search system",
-    "extensionPlaceholder": "Search staff extension...",
-    "extensionLabel": "Search staff extension",
+    "extensionPlaceholder": "Find staff extension...",
+    "extensionLabel": "Find staff extension",
     "extensionResults": "Staff",
     "extensionMissing": "No Extension",
     "noResults": "No results found"
@@ -1390,7 +1390,7 @@
       "citizenHandlePlaceholder": "e.g. @username or full name",
       "citizenHandleRequired": "Citizen / Sender is required.",
       "content": "Request Content",
-      "contentPlaceholder": "Enter the content of the citizen request...",
+      "contentPlaceholder": "Describe the citizen request in detail...",
       "category": "Category (optional)",
       "categoryPlaceholder": "e.g. Infrastructure, Environment",
       "submit": "Create Request",
@@ -1672,9 +1672,9 @@
     },
     "form": {
       "title": "Request Title",
-      "titlePlaceholder": "e.g. Park maintenance",
+      "titlePlaceholder": "Enter request title...",
       "description": "Description",
-      "descriptionPlaceholder": "Details...",
+      "descriptionPlaceholder": "Describe your request in detail...",
       "ownerDepartment": "Owner Department",
       "priority": "Priority",
       "startDate": "Start Date (optional)",

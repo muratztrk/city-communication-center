@@ -177,8 +177,8 @@
   "search": {
     "placeholder": "Sistemde ara...",
     "label": "Sistemde ara",
-    "extensionPlaceholder": "Personel Dahili No ara...",
-    "extensionLabel": "Personel Dahili No ara",
+    "extensionPlaceholder": "Personel Dahili No bul...",
+    "extensionLabel": "Personel Dahili No bul",
     "extensionResults": "Personel",
     "extensionMissing": "Dahili No Yok",
     "noResults": "Sonuç bulunamadı"
@@ -1419,7 +1419,7 @@
       "citizenHandlePlaceholder": "Vatandaş ismi ya da Telefon Numarası",
       "citizenHandleRequired": "Vatandaş / Gönderen gereklidir.",
       "content": "Açıklama",
-      "contentPlaceholder": "Vatandaş talebinin açıklamasını girin...",
+      "contentPlaceholder": "Vatandaş talebini detaylı olarak açıklayınız...",
       "contentRequired": "Açıklama gereklidir.",
       "category": "Kategori (isteğe bağlı)",
       "categoryPlaceholder": "ör. Altyapı, Çevre",
@@ -1708,9 +1708,9 @@
     },
     "form": {
       "title": "Talep Başlığı",
-      "titlePlaceholder": "Örn: Park bakımı organizasyonu",
+      "titlePlaceholder": "Talep başlığı giriniz...",
       "description": "Açıklama",
-      "descriptionPlaceholder": "Detaylar...",
+      "descriptionPlaceholder": "Talebinizi detaylı olarak açıklayınız...",
       "ownerDepartment": "Görevi Yapan Birim",
       "startDate": "Başlangıç Tarihi (opsiyonel)",
       "dueDate": "Son Tarih (opsiyonel)",

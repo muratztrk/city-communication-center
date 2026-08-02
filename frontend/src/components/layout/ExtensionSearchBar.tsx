@@ -15,7 +15,7 @@ function lettersOnly(value: string): string {
   return value.replace(/[^\p{L}\s]/gu, '')
 }
 
-/** Header “Personel Dahili No ara…” — tüm kullanıcılara açık (cards #1770/#1779/#1780). */
+/** Header “Personel Dahili No bul…” — tüm kullanıcılara açık (cards #1770/#1779/#1780/#6a6f51eb). */
 export function ExtensionSearchBar() {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
@@ -120,9 +120,9 @@ export function ExtensionSearchBar() {
               setIsLoading(false)
             }
           }}
-          placeholder={t('search.extensionPlaceholder', 'Personel Dahili No ara...')}
+          placeholder={t('search.extensionPlaceholder', 'Personel Dahili No bul...')}
           className="w-44 bg-transparent text-sm font-medium text-slate-700 placeholder:text-slate-400 outline-none"
-          aria-label={t('search.extensionLabel', 'Personel Dahili No ara')}
+          aria-label={t('search.extensionLabel', 'Personel Dahili No bul')}
           autoComplete="off"
           spellCheck={false}
         />

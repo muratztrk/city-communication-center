@@ -1111,6 +1111,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (oluşturma + Değiştir) en erken `şimdi + 2 saat`. Onay bekleyen (`PendingOwnerApproval` /
   `PendingExternalApproval` / `PendingApproval`) talepler aynı gün içinde saat aşımında
   "Son Tarihi Geçmiş" sayılmaz; takvim günü değişince overdue olur.
+- **Talep Oluştur Başlangıç tarihi min (card #6a6f5011):** Birim Dışı formda Başlangıç
+  DateTimePicker de en erken `şimdi + 2 saat`; geçmiş takvim günleri disable.
+- **Talep Oluştur placeholder’ları (card #6a6f49fd):** Başlık `Talep başlığı giriniz...`;
+  Açıklama `Talebinizi detaylı olarak açıklayınız...`; Vatandaş Çağrı Açıklama
+  `Vatandaş talebini detaylı olarak açıklayınız...`.
+- **Header Personel Dahili No (card #6a6f51eb):** placeholder/aria `Personel Dahili No bul...`.
 - **Mobil detay header eşit butonlar (card #1676):** `DisabledActionButton` span sarmalayıcı
   da 2-kolon gridde `width: 100%` — pasif Yönlendir = İptal boyutu.
 - **Mobil login logo paneli (card #1675):** yeşil logo alanı Personel Girişi kartıyla aynı

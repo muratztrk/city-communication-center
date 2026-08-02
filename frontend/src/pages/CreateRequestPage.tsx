@@ -1212,6 +1212,7 @@ export function CreateRequestPage() {
                 className="field-input"
                 required
                 maxLength={50}
+                placeholder={t('jobs.form.titlePlaceholder', 'Talep başlığı giriniz...')}
                 value={internalForm.title}
                 onChange={e => setInternalForm(current => ({ ...current, title: e.target.value }))}
                 onBlur={() => setInternalForm(current => ({ ...current, title: ensureLeadingCapitalTr(current.title) }))}
@@ -1272,6 +1273,7 @@ export function CreateRequestPage() {
                 onChange={description => setInternalForm(current => ({ ...current, description }))}
                 normalizeOnBlur={ensureLeadingCapitalRichText}
                 required
+                placeholder={t('jobs.form.descriptionPlaceholder', 'Talebinizi detaylı olarak açıklayınız...')}
                 minHeight="min-h-64"
               />
             </div>
@@ -1300,6 +1302,7 @@ export function CreateRequestPage() {
                 className="field-input"
                 type="text"
                 maxLength={50}
+                placeholder={t('jobs.form.titlePlaceholder', 'Talep başlığı giriniz...')}
                 value={externalForm.title}
                 onChange={e => setExternalForm(current => ({ ...current, title: e.target.value }))}
                 onBlur={() => setExternalForm(current => ({ ...current, title: ensureLeadingCapitalTr(current.title) }))}
@@ -1336,7 +1339,13 @@ export function CreateRequestPage() {
               </div>
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-start-date">{t('jobs.form.startDate')}</label>
-                <DateTimePicker id="request-start-date" value={externalForm.startDateUtc} onChange={v => setExternalForm(current => ({ ...current, startDateUtc: v }))} />
+                {/* Başlangıç: en erken bugün / şimdi+2 saat; geçmiş günler disable (#6a6f5011). */}
+                <DateTimePicker
+                  id="request-start-date"
+                  value={externalForm.startDateUtc}
+                  onChange={v => setExternalForm(current => ({ ...current, startDateUtc: clampDueDatePickerValue(v) }))}
+                  minDateTime={earliestDueDatePickerValue()}
+                />
               </div>
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-due-date">{t('jobs.form.dueDate')}</label>
@@ -1353,6 +1362,7 @@ export function CreateRequestPage() {
                 onChange={description => setExternalForm(current => ({ ...current, description }))}
                 normalizeOnBlur={ensureLeadingCapitalRichText}
                 required
+                placeholder={t('jobs.form.descriptionPlaceholder', 'Talebinizi detaylı olarak açıklayınız...')}
                 minHeight="min-h-48"
               />
             </div>
@@ -1383,6 +1393,7 @@ export function CreateRequestPage() {
                 className="field-input"
                 type="text"
                 maxLength={50}
+                placeholder={t('jobs.form.titlePlaceholder', 'Talep başlığı giriniz...')}
                 value={citizenForm.title}
                 onChange={event => setCitizenForm(current => ({ ...current, title: event.target.value }))}
                 onBlur={() => setCitizenForm(current => ({ ...current, title: ensureLeadingCapitalTr(current.title) }))}
@@ -1495,7 +1506,7 @@ export function CreateRequestPage() {
                 onChange={content => setCitizenForm(current => ({ ...current, content }))}
                 normalizeOnBlur={ensureLeadingCapitalRichText}
                 required
-                placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebinin açıklamasını girin...')}
+                placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebini detaylı olarak açıklayınız...')}
                 minHeight="min-h-48"
               />
             </div>

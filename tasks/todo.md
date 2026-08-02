@@ -1,3 +1,8 @@
+## Round 652 — Dahili No bul, Başlangıç min, form placeholder (3 kart)
+- Header: `Personel Dahili No ara...` → `bul...`
+- Talep Oluştur Başlangıç: min şimdi+2h, geçmiş gün disable
+- Başlık/Açıklama/Vatandaş açıklama placeholder metinleri
+
 ## Round 651b — Birim Dışı dropzone yüksekliği (#6a6f2982)
 - Dosya sürükle alanı min-h 4rem→3.25rem, py azaltıldı
 

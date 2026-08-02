@@ -36,7 +36,7 @@ export function toLocalDateKey(value: string | null | undefined): string {
   return `${y}-${m}-${d}`
 }
 
-/** Talep son tarihi manuel seçiminde en erken şimdi + N saat (card #1819). */
+/** Talep başlangıç/son tarihi manuel seçiminde en erken şimdi + N saat (cards #1819/#6a6f5011). */
 export function earliestDueDatePickerValue(hoursFromNow = 2): string {
   return toDateTimePickerValue(new Date(Date.now() + hoursFromNow * 60 * 60 * 1000).toISOString())
 }

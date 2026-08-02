@@ -182,16 +182,19 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 .Select(link => link.Department.Name)
                 .Distinct()
                 .ToListAsync(cancellationToken);
+            var departmentNames = string.Join(", ", targetDepartmentNames);
             var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
                 message,
                 job,
                 taskCount,
                 utcNow,
                 template,
-                string.Join(", ", targetDepartmentNames));
+                departmentNames);
 
             if (message.Channel == SocialChannel.WhatsApp)
             {
+                // Terminal WA: {GönderilenBirim} öncesi boş satır (#6a6f24e7 reopen).
+                content = EnsureBlankLineBeforeTargetDepartments(content, departmentNames);
                 var statusContentPrefix = content.TrimEnd();
                 var alreadyCreated = await _dbContext.ConversationEntries
                     .AsNoTracking()

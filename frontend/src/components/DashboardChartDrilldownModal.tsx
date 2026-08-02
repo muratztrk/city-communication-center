@@ -399,7 +399,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                     showUnitColumn,
                     // Yazdır: Tamamlanma Tarihi → Sonuç Tarihi (#6a6da028).
                     terminalDateLabel: t('jobs.columns.outcomeAt', 'Sonuç Tarihi'),
-                    stackRequestNoHeader: isNeighborhoodChart,
+                    // Yazdır: "Vatandaş" / "Talep No" iki satır (#6a6d8e2f / #6a6f46e6).
+                    stackRequestNoHeader: useCitizenRequestNoHeader,
                   })}
                   aria-label={t('common.print', 'Yazdır')}
                 >

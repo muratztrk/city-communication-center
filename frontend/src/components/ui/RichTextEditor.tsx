@@ -10,6 +10,8 @@ interface RichTextEditorProps {
   minHeight?: string
   /** Düz metin (görünen karakter) sınırı; tüm açıklama alanlarında varsayılan 400 (card #1351). */
   maxLength?: number
+  /** Blur'da HTML'i normalize et (ör. ilk harf büyük — #6a6f496e). */
+  normalizeOnBlur?: (value: string) => string
 }
 
 type RichTextCommand = 'bold' | 'underline' | 'insertUnorderedList' | 'insertOrderedList'
@@ -167,6 +169,7 @@ export function RichTextEditor({
   className,
   minHeight = 'min-h-72',
   maxLength = 400,
+  normalizeOnBlur,
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null)
   const lastCommittedHtmlRef = useRef<string | null>(null)
@@ -289,7 +292,16 @@ export function RichTextEditor({
         data-placeholder={placeholder}
         suppressContentEditableWarning
         onInput={emitChange}
-        onBlur={emitChange}
+        onBlur={() => {
+          if (normalizeOnBlur && editorRef.current) {
+            const current = isEditorEmpty(editorRef.current) ? '' : editorRef.current.innerHTML
+            const next = normalizeOnBlur(current)
+            if (next !== current) {
+              editorRef.current.innerHTML = next
+            }
+          }
+          emitChange()
+        }}
         onBeforeInput={handleBeforeInput}
         onPaste={handlePaste}
         onKeyDown={event => {

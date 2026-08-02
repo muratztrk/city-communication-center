@@ -23,7 +23,11 @@ import { lowercaseFileExtension } from '../utils/fileNameDisplay'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { prioritySelectOptions, stringListSelectOptions, yesNoSelectOptions } from '../utils/formDropdownOptions'
-import { normalizeTitleCaseField } from '../utils/textNormalization'
+import {
+  ensureLeadingCapitalRichText,
+  ensureLeadingCapitalTr,
+  normalizeTitleCaseField,
+} from '../utils/textNormalization'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 import {
   ATTACHMENT_MAX_TOTAL_BYTES,
@@ -832,10 +836,12 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
+      const internalTitle = ensureLeadingCapitalTr(internalForm.title.trim())
+      const internalDescription = ensureLeadingCapitalRichText(internalForm.description.trim())
       if (editJobId) {
         await api.updateJob(editJobId, {
-          title: internalForm.title.trim(),
-          description: internalForm.description.trim(),
+          title: internalTitle,
+          description: internalDescription,
           priority: internalForm.priority,
           startDateUtc: null,
           dueDateUtc: toApiDueDateTime(internalForm.dueDateUtc),
@@ -851,8 +857,8 @@ export function CreateRequestPage() {
       }
       const selectedOwnerUserIds = internalForm.ownerUserIds.filter(id => id.trim() !== '')
       const job = await api.createJob({
-        title: internalForm.title.trim(),
-        description: internalForm.description.trim(),
+        title: internalTitle,
+        description: internalDescription,
         ownerDepartmentId: effectiveOwnerDeptId,
         ownerUserIds: selectedOwnerUserIds,
         priority: internalForm.priority,
@@ -915,10 +921,13 @@ export function CreateRequestPage() {
     setError(null)
     try {
       const targetDepartmentIds = [externalForm.targetDepartmentId]
+      // Talep başlığı / açıklama: yalnız ilk harf büyük (#6a6f496e) — title-case değil.
+      const externalTitle = ensureLeadingCapitalTr(externalForm.title.trim())
+      const externalDescription = ensureLeadingCapitalRichText(externalForm.description.trim())
       if (editJobId) {
         await api.updateJob(editJobId, {
-          title: normalizeTitleCaseField(externalForm.title) ?? '',
-          description: externalForm.description.trim(),
+          title: externalTitle,
+          description: externalDescription,
           priority: externalForm.priority,
           startDateUtc: toApiDateTime(externalForm.startDateUtc),
           dueDateUtc: toApiDueDateTime(externalForm.dueDateUtc),
@@ -934,8 +943,8 @@ export function CreateRequestPage() {
         return
       }
       const job = await api.createJob({
-        title: normalizeTitleCaseField(externalForm.title) ?? '',
-        description: externalForm.description.trim(),
+        title: externalTitle,
+        description: externalDescription,
         ownerDepartmentId: externalForm.ownerDepartmentId,
         ownerUserIds: [],
         priority: externalForm.priority,
@@ -1028,17 +1037,17 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     const trimmedName = citizenForm.citizenHandle.trim()
-    // Vatandaş adı (Job.CitizenName) girilen casing'den bağımsız her kelimenin ilk harfi büyük
-    // kaydedilir; SocialMessage.CitizenHandle ham haliyle korunur — WhatsApp gibi diğer kanallarda
-    // bu alan telefon/kimlik türevi bir eşleşme anahtarıdır, isim gibi normalize edilmez
-    // (codex review, card #1547).
-    const normalizedCitizenName = normalizeTitleCaseField(trimmedName) ?? trimmedName
+    // Başlık / ad / açıklama: yalnız ilk harf büyük (#6a6f496e).
+    // SocialMessage.CitizenHandle ham haliyle korunur (card #1547).
+    const normalizedCitizenName = ensureLeadingCapitalTr(trimmedName)
+    const citizenTitle = ensureLeadingCapitalTr(citizenForm.title.trim()) || normalizedCitizenName
+    const citizenDescription = ensureLeadingCapitalRichText(citizenForm.content.trim())
     const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
     try {
       if (editJobId && linkedSocialMessageId) {
         await api.updateJob(editJobId, {
-          title: citizenForm.title.trim() || normalizedCitizenName,
-          description: citizenForm.content.trim(),
+          title: citizenTitle,
+          description: citizenDescription,
           priority: citizenForm.priority,
           startDateUtc: toApiDateTime(citizenForm.startDateUtc),
           dueDateUtc: toApiDueDateTime(citizenForm.dueDateUtc),
@@ -1053,7 +1062,7 @@ export function CreateRequestPage() {
         await api.updateSocialMessage(linkedSocialMessageId, {
           channel: citizenForm.channel,
           citizenHandle: trimmedName,
-          content: citizenForm.content.trim(),
+          content: citizenDescription,
           category: citizenLabel.trim() || undefined,
         })
         await uploadPendingFiles(editJobId)
@@ -1068,8 +1077,8 @@ export function CreateRequestPage() {
       }
 
       const convertPayload = {
-        title: citizenForm.title.trim() || normalizedCitizenName,
-        description: citizenForm.content.trim(),
+        title: citizenTitle,
+        description: citizenDescription,
         ownerDepartmentId: myDepartmentId,
         priority: citizenForm.priority,
         requestType: 'ExternalUnit' as const,
@@ -1088,7 +1097,7 @@ export function CreateRequestPage() {
         await api.updateSocialMessage(linkedSocialMessageId, {
           channel: citizenForm.channel,
           citizenHandle: trimmedName,
-          content: citizenForm.content.trim(),
+          content: citizenDescription,
           category: citizenLabel.trim() || undefined,
         })
         const job = await api.convertSocialMessageToJob(linkedSocialMessageId, convertPayload)
@@ -1098,7 +1107,7 @@ export function CreateRequestPage() {
         const socialMessageId = await api.createSocialMessage({
           channel: citizenForm.channel,
           citizenHandle: trimmedName,
-          content: citizenForm.content.trim(),
+          content: citizenDescription,
           category: citizenLabel.trim() || undefined,
         })
         const job = await api.convertSocialMessageToJob(socialMessageId, convertPayload)
@@ -1199,7 +1208,14 @@ export function CreateRequestPage() {
           <div className="grid content-start gap-3">
             <div className="job-field">
               <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
-              <input className="field-input" required maxLength={50} value={internalForm.title} onChange={e => setInternalForm(current => ({ ...current, title: e.target.value }))} />
+              <input
+                className="field-input"
+                required
+                maxLength={50}
+                value={internalForm.title}
+                onChange={e => setInternalForm(current => ({ ...current, title: e.target.value }))}
+                onBlur={() => setInternalForm(current => ({ ...current, title: ensureLeadingCapitalTr(current.title) }))}
+              />
             </div>
             <div className="job-field">
               <span className="job-field-label">
@@ -1254,6 +1270,7 @@ export function CreateRequestPage() {
               <RichTextEditor
                 value={internalForm.description}
                 onChange={description => setInternalForm(current => ({ ...current, description }))}
+                normalizeOnBlur={ensureLeadingCapitalRichText}
                 required
                 minHeight="min-h-64"
               />
@@ -1278,7 +1295,16 @@ export function CreateRequestPage() {
           <div className="grid content-start gap-3">
             <div className="job-field">
               <label className="job-field-label" htmlFor="request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
-              <input id="request-title" className="field-input" type="text" maxLength={50} value={externalForm.title} onChange={e => setExternalForm(current => ({ ...current, title: e.target.value }))} required />
+              <input
+                id="request-title"
+                className="field-input"
+                type="text"
+                maxLength={50}
+                value={externalForm.title}
+                onChange={e => setExternalForm(current => ({ ...current, title: e.target.value }))}
+                onBlur={() => setExternalForm(current => ({ ...current, title: ensureLeadingCapitalTr(current.title) }))}
+                required
+              />
             </div>
             <div className="job-field">
               <label className="job-field-label" htmlFor="request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
@@ -1325,6 +1351,7 @@ export function CreateRequestPage() {
               <RichTextEditor
                 value={externalForm.description}
                 onChange={description => setExternalForm(current => ({ ...current, description }))}
+                normalizeOnBlur={ensureLeadingCapitalRichText}
                 required
                 minHeight="min-h-48"
               />
@@ -1351,7 +1378,16 @@ export function CreateRequestPage() {
           <div className="grid content-start gap-3">
             <div className="job-field">
               <label className="job-field-label" htmlFor="citizen-request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
-              <input id="citizen-request-title" className="field-input" type="text" maxLength={50} value={citizenForm.title} onChange={event => setCitizenForm(current => ({ ...current, title: event.target.value }))} required />
+              <input
+                id="citizen-request-title"
+                className="field-input"
+                type="text"
+                maxLength={50}
+                value={citizenForm.title}
+                onChange={event => setCitizenForm(current => ({ ...current, title: event.target.value }))}
+                onBlur={() => setCitizenForm(current => ({ ...current, title: ensureLeadingCapitalTr(current.title) }))}
+                required
+              />
             </div>
             <div className="grid gap-3 md:grid-cols-2">
               <div className="job-field">
@@ -1386,6 +1422,7 @@ export function CreateRequestPage() {
                   placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş ismi')}
                   value={citizenForm.citizenHandle}
                   onChange={event => setCitizenForm(current => ({ ...current, citizenHandle: event.target.value }))}
+                  onBlur={() => setCitizenForm(current => ({ ...current, citizenHandle: ensureLeadingCapitalTr(current.citizenHandle) }))}
                 />
               </label>
               <label className="job-field">
@@ -1456,6 +1493,7 @@ export function CreateRequestPage() {
               <RichTextEditor
                 value={citizenForm.content}
                 onChange={content => setCitizenForm(current => ({ ...current, content }))}
+                normalizeOnBlur={ensureLeadingCapitalRichText}
                 required
                 placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebinin açıklamasını girin...')}
                 minHeight="min-h-48"

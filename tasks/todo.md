@@ -1,3 +1,8 @@
+## Round 651 — WA terminal birim boş satır, form ilk harf, pie yazdır VT No (3 kart)
+- WA tamamlandı/iptal: {GönderilenBirim} öncesi boş satır
+- Talep Oluştur başlık/ad/açıklama: blur+submit ilk harf TR büyük
+- Pie yazdır: Vatandaş / Talep No iki satır (birim VT pie dahil)
+
 ## Round 650 — SMS/WA not format, büyük harf, Reporter birim pie (5 kart)
 - Çağrı terminal SMS: "Not" etiketi kaldırıldı
 - İptal/tamamlama notu ilk harf TR büyük

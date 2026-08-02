@@ -991,7 +991,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `TurkishText.EnsureLeadingCapital` (TR kültürü); SMS/WA gönderiminde de uygulanır.
 - **WA non-terminal birim boş satırı (#6a6f2518):** İşleme Alındı/Yapılmakta WA mesajında
   birim adından önce `\n\n` (çağrı SMS ile aynı helper).
-- **WA terminal not (#6a6f24e7):** tamamlandı/iptal mesajından sonra `\n\n` + not metni.
+- **WA terminal not (#6a6f24e7):** tamamlandı/iptal mesajından sonra `\n\n` + not metni;
+  ayrıca `{GönderilenBirim}` öncesi `\n\n` (release yolu).
+- **Talep Oluştur ilk harf (#6a6f496e):** Birim İçi/Dışı/Çağrı formlarında başlık, vatandaş
+  adı ve açıklama blur/submit'te yalnız ilk harf TR büyük (`ensureLeadingCapitalTr` /
+  `ensureLeadingCapitalRichText`) — title-case değil.
+- **Pie yazdır VT No (#6a6f46e6):** Vatandaş Talep No kullanan pie yazdırlarında
+  `stackRequestNoHeader` → "Vatandaş" / "Talep No" iki satır.
 - **Reporter birim VT pie (#6a6cdec6):** Anasayfa-Vatandaş'ta "Birimlerde İşleme Alınan /
   Yapılmakta / Tamamlanan Talepler"; yalnız VT; dilim popup mahalle pie standardında.
 - **Talep Oluştur doğrulama (#6a6ef103):** kırmızı `.error` kutusu `error--create-request`
@@ -1448,7 +1454,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Reporter/SystemAdmin dilim → popup drilldown; **Operator dilim → popup yok**,
   `/social?channel=` grid (WhatsApp/Phone). Telefon No, Vatandaş Adı alt satırında; başlıklar
   `Talep Tarihi` + `Birim` (VT sayfasındaki Gittiği Yer / Vatandaş Talep Tarihi değil).
-- **Pie yazdır (#6a6d8e2f/#6a6d92e8/#6a6da028):** terminal kolon `Sonuç Tarihi` (Tamamlanma değil);
+- **Pie yazdır (#6a6d8e2f/#6a6d92e8/#6a6da028/#6a6f46e6):** terminal kolon `Sonuç Tarihi` (Tamamlanma değil);
+  VT No başlığı `stackRequestNoHeader` ile Vatandaş/Talep No iki satır (birim VT pie dahil);
   mahallede talep no başlığı `Vatandaş` / `Talep No` iki satır; vatandaş kolonunda Ad üstte /
   `Telefon No` (title-case) alt satır.
 - **Çağrı detay Düzenle telefon (#6a6d903e):** 10 hane değilse Kaydet → uyarı modal içinde

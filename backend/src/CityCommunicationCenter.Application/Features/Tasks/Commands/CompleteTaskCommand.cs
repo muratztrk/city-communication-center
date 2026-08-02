@@ -62,7 +62,7 @@ public sealed class CompleteTaskCommandHandler : ICommandHandler<CompleteTaskCom
         task.ActualHours = request.ActualHours ?? task.ActualHours;
         if (!string.IsNullOrWhiteSpace(request.ResultNote))
         {
-            task.Notes = request.ResultNote;
+            task.Notes = TurkishText.EnsureLeadingCapital(request.ResultNote);
         }
 
         task.UpdatedAtUtc = utcNow;
@@ -80,8 +80,8 @@ public sealed class CompleteTaskCommandHandler : ICommandHandler<CompleteTaskCom
             Action = "TaskCompleted",
             ActorUserId = request.ActorUserId,
             StatusAtEvent = WorkflowTaskStatus.Completed.ToString(),
-            Notes = request.ResultNote,
-            Details = request.ResultNote
+            Notes = task.Notes,
+            Details = task.Notes
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);

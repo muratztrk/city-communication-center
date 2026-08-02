@@ -373,6 +373,12 @@ public sealed class GetDashboardStatusChartsQueryHandler
             charts.Add(await BuildNeighborhoodProcessingRequestsChartAsync(tenantId, request, cancellationToken));
         }
 
+        // Üst Düzey Yönetici Anasayfa-Vatandaş: birim bazlı VT durum pie'ları (#6a6cdec6).
+        if (roleCode is "Reporter")
+        {
+            charts.AddRange(await BuildCitizenDepartmentStatusChartsAsync(tenantId, request, cancellationToken));
+        }
+
         // Üst Düzey Yönetici (Reporter) tenant genelinde birim-dışı talep dağılımını görür (card #835, #763).
         if (roleCode is "Reporter")
         {
@@ -471,6 +477,88 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToArray();
 
         return new DashboardChartResponse("dashboard.charts.requestTags", slices);
+    }
+
+    /// <summary>
+    /// Üst Düzey Yönetici Anasayfa-Vatandaş: hedef birime göre VT durum pie'ları (#6a6cdec6).
+    /// İşleme Alınan / Yapılmakta / Tamamlanan — ClassifyCitizenJobStatus ile aynı dilimler.
+    /// </summary>
+    private async Task<List<DashboardChartResponse>> BuildCitizenDepartmentStatusChartsAsync(
+        Guid tenantId,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var rows = await _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && job.SourceType != JobSourceType.Routine
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            .WhereHasCitizenRequestNumber(_dbContext)
+            .Select(job => new
+            {
+                job.Status,
+                job.DueDateUtc,
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+                TargetDepartmentId = _dbContext.JobDepartments
+                    .Where(link => link.JobId == job.JobId
+                        && link.TenantId == tenantId
+                        && link.Role == JobDepartmentRole.Target
+                        && link.ApprovalStatus != JobApprovalStatus.Rejected)
+                    .Select(link => (Guid?)link.DepartmentId)
+                    .FirstOrDefault(),
+            })
+            .ToListAsync(cancellationToken);
+
+        var processing = new Dictionary<Guid, int>();
+        var inProgress = new Dictionary<Guid, int>();
+        var completed = new Dictionary<Guid, int>();
+
+        foreach (var row in rows)
+        {
+            if (row.TargetDepartmentId is not Guid departmentId)
+            {
+                continue;
+            }
+
+            var display = ClassifyCitizenJobStatus(
+                new CitizenJobStatusItem(row.Status, row.DueDateUtc, row.TaskCount),
+                now);
+            var bucket = display switch
+            {
+                CitizenJobDisplayStatus.ProcessingReceived => processing,
+                CitizenJobDisplayStatus.InProgress => inProgress,
+                CitizenJobDisplayStatus.Completed => completed,
+                _ => null,
+            };
+            if (bucket is null)
+            {
+                continue;
+            }
+
+            bucket[departmentId] = bucket.GetValueOrDefault(departmentId) + 1;
+        }
+
+        var departmentIds = processing.Keys
+            .Concat(inProgress.Keys)
+            .Concat(completed.Keys)
+            .Distinct()
+            .ToArray();
+        var departmentNames = departmentIds.Length == 0
+            ? new Dictionary<Guid, string>()
+            : await _dbContext.Departments.AsNoTracking()
+                .Where(department => department.TenantId == tenantId && departmentIds.Contains(department.DepartmentId))
+                .ToDictionaryAsync(department => department.DepartmentId, department => department.Name, cancellationToken);
+
+        static IEnumerable<(Guid DepartmentId, int Count)> ToEntries(IReadOnlyDictionary<Guid, int> counts) =>
+            counts.Select(pair => (pair.Key, pair.Value));
+
+        return
+        [
+            BuildDepartmentChart("dashboard.charts.citizenDepartmentProcessingRequests", ToEntries(processing), departmentNames),
+            BuildDepartmentChart("dashboard.charts.citizenDepartmentInProgressRequests", ToEntries(inProgress), departmentNames),
+            BuildDepartmentChart("dashboard.charts.citizenDepartmentCompletedRequests", ToEntries(completed), departmentNames),
+        ];
     }
 
     /// <summary>

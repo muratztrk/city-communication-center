@@ -85,7 +85,7 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
             utcNow);
 
         job.Status = JobStatus.Cancelled;
-        job.CancelReason = request.Reason;
+        job.CancelReason = TurkishText.EnsureLeadingCapital(request.Reason);
         job.CompletionPercentage = 0;
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
@@ -100,8 +100,8 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
             ActorUserId = actor.UserId,
             ActorDisplayName = actor.DisplayName,
             StatusAtEvent = JobStatus.Cancelled.ToString(),
-            Notes = request.Reason,
-            Details = request.Reason
+            Notes = job.CancelReason,
+            Details = job.CancelReason
         });
 
         // Talep iptal edildiğinde, onaylanmış olsa bile devam eden tüm görevler de iptale düşer.
@@ -115,7 +115,7 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
         foreach (var task in activeTasks)
         {
             task.CurrentStatus = WorkflowTaskStatus.Cancelled;
-            task.RevisionReason = request.Reason;
+            task.RevisionReason = job.CancelReason;
             task.UpdatedAtUtc = utcNow;
             task.UpdatedByUserId = actor.UserId;
 

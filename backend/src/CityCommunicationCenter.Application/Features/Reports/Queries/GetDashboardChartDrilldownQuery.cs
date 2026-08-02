@@ -55,11 +55,127 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             "neighborhoodCompletedRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Completed, cancellationToken),
             "neighborhoodInProgressRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Active, cancellationToken),
             "neighborhoodProcessingRequests" => await BuildNeighborhoodProcessingRowsAsync(tenantId, request, cancellationToken),
+            "citizenDepartmentProcessingRequests" => await BuildCitizenDepartmentStatusRowsAsync(
+                tenantId, request, CitizenDepartmentDrilldownStatus.ProcessingReceived, cancellationToken),
+            "citizenDepartmentInProgressRequests" => await BuildCitizenDepartmentStatusRowsAsync(
+                tenantId, request, CitizenDepartmentDrilldownStatus.InProgress, cancellationToken),
+            "citizenDepartmentCompletedRequests" => await BuildCitizenDepartmentStatusRowsAsync(
+                tenantId, request, CitizenDepartmentDrilldownStatus.Completed, cancellationToken),
             "citizenRequests" => await BuildCitizenRowsAsync(tenantId, request, cancellationToken),
             "requestTags" => await BuildRequestTagRowsAsync(tenantId, request, cancellationToken),
             "citizenChannels" => await BuildCitizenChannelRowsAsync(tenantId, request, cancellationToken),
             _ => new DashboardChartDrilldownResponse([]),
         };
+    }
+
+    private enum CitizenDepartmentDrilldownStatus
+    {
+        ProcessingReceived,
+        InProgress,
+        Completed,
+    }
+
+    private async Task<DashboardChartDrilldownResponse> BuildCitizenDepartmentStatusRowsAsync(
+        Guid tenantId,
+        GetDashboardChartDrilldownQuery request,
+        CitizenDepartmentDrilldownStatus statusFilter,
+        CancellationToken cancellationToken)
+    {
+        if (ParseSliceDepartmentId(request.SliceKey) is not Guid departmentId)
+        {
+            return new DashboardChartDrilldownResponse([]);
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var candidates = await _dbContext.JobDepartments.AsNoTracking()
+            .Where(link => link.Role == JobDepartmentRole.Target
+                && link.DepartmentId == departmentId
+                && link.TenantId == tenantId
+                && link.ApprovalStatus != JobApprovalStatus.Rejected
+                && link.Job.TenantId == tenantId
+                && link.Job.SourceType != JobSourceType.Routine
+                && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
+            .Where(link => _dbContext.SocialMessages.Any(message =>
+                message.TenantId == tenantId
+                && message.CitizenRequestNumber != null
+                && (message.JobId == link.JobId
+                    || (link.Job.SourceRefId.HasValue && message.SocialMessageId == link.Job.SourceRefId.Value))))
+            .OrderByDescending(link => link.Job.CreatedAtUtc)
+            .Select(link => new
+            {
+                link.Job.JobId,
+                link.Job.JobNumber,
+                link.Job.JobNumberYear,
+                link.Job.Title,
+                link.Job.CreatedAtUtc,
+                link.Job.Status,
+                link.Job.Priority,
+                link.Job.DueDateUtc,
+                link.Job.CompletedAtUtc,
+                link.Job.UpdatedAtUtc,
+                link.Job.Neighborhood,
+                link.Job.CitizenName,
+                link.Job.CitizenPhone,
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == link.JobId),
+                CitizenRequestNumber = _dbContext.SocialMessages
+                    .Where(message => message.JobId == link.JobId)
+                    .Select(message => message.CitizenRequestNumber)
+                    .FirstOrDefault(),
+                CitizenRequestNumberYear = _dbContext.SocialMessages
+                    .Where(message => message.JobId == link.JobId)
+                    .Select(message => message.CitizenRequestNumberYear)
+                    .FirstOrDefault(),
+                SourceChannel = _dbContext.SocialMessages
+                    .Where(message => message.JobId == link.JobId)
+                    .Select(message => (string?)message.Channel.ToString())
+                    .FirstOrDefault(),
+            })
+            .Take(MaxRows * 3)
+            .ToListAsync(cancellationToken);
+
+        var departmentName = await _dbContext.Departments.AsNoTracking()
+            .Where(department => department.TenantId == tenantId && department.DepartmentId == departmentId)
+            .Select(department => department.Name)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var rows = candidates
+            .Where(job =>
+            {
+                if (job.Status == JobStatus.Completed)
+                {
+                    return statusFilter == CitizenDepartmentDrilldownStatus.Completed;
+                }
+
+                if (job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested)
+                {
+                    return false;
+                }
+
+                if (job.DueDateUtc.HasValue && job.DueDateUtc.Value.Date < now.Date)
+                {
+                    return false;
+                }
+
+                var inProgress = job.Status == JobStatus.Active && job.TaskCount > 0;
+                return statusFilter switch
+                {
+                    CitizenDepartmentDrilldownStatus.InProgress => inProgress,
+                    CitizenDepartmentDrilldownStatus.ProcessingReceived => !inProgress,
+                    _ => false,
+                };
+            })
+            .Take(MaxRows)
+            .ToList();
+
+        return new DashboardChartDrilldownResponse(rows
+            .Select(row => new DashboardChartDrilldownRow(
+                row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
+                row.Status.ToString(), departmentName, row.Neighborhood,
+                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
+                row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
+                row.Priority, row.CitizenName, row.CitizenPhone))
+            .ToList());
     }
 
     private static Guid? ParseSliceDepartmentId(string sliceKey)

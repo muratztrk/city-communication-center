@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
+using CityCommunicationCenter.Application.Common;
 using CityCommunicationCenter.Application.Features.Admin;
 using CityCommunicationCenter.Application.Features.Attachments;
 using CityCommunicationCenter.Application.Features.Social;
@@ -283,6 +284,8 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 
         if (message.Channel == SocialChannel.WhatsApp)
         {
+            // WA non-terminal: birim öncesi boş satır (#6a6f2518) — duplicate kontrolünden önce.
+            content = EnsureBlankLineBeforeTargetDepartments(content, departmentNames);
             var statusContentPrefix = content.TrimEnd();
             var alreadyCreated = await _dbContext.ConversationEntries
                 .AsNoTracking()
@@ -347,7 +350,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     }
 
     /// <summary>
-    /// Çağrı SMS terminal notu: boş satır + "Not" + not metni (#6a6f0814 / #6a6f0928).
+    /// Çağrı SMS terminal notu: boş satır + not metni (#6a6f234d — "Not" etiketi yok).
     /// </summary>
     internal static string AppendSmsTerminalNote(string content, string? note)
     {
@@ -356,7 +359,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return content;
         }
 
-        return $"{content.TrimEnd()}\n\nNot\n{note.Trim()}";
+        return $"{content.TrimEnd()}\n\n{TurkishText.EnsureLeadingCapital(note.Trim())}";
     }
 
     private async Task<string?> ResolveTemplateAsync(
@@ -407,15 +410,12 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         var requireApproval = RequiresOperatorApproval(statusLabel);
         SocialMediaResult? sendResult = null;
 
-        // Terminal notu durum mesajının altına 1 boş satırla ekle (#2103) — ayrı balon yok.
+        // Terminal notu durum mesajının altına 1 boş satırla ekle (#2103 / #6a6f24e7) — ayrı balon yok.
         var messageContent = content;
         if (requireApproval)
         {
             var terminalNote = await ResolveTerminalNoteAsync(tenantId, job, statusLabel, cancellationToken);
-            if (!string.IsNullOrWhiteSpace(terminalNote))
-            {
-                messageContent = $"{content.TrimEnd()}\n\n{terminalNote.Trim()}";
-            }
+            messageContent = AppendSmsTerminalNote(content, terminalNote);
         }
 
         if (!requireApproval)
@@ -524,9 +524,10 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         CancellationToken cancellationToken)
     {
         var isCancelled = statusLabel is "İptal";
+        string? note;
         if (isCancelled)
         {
-            return !string.IsNullOrWhiteSpace(job.CancelReason)
+            note = !string.IsNullOrWhiteSpace(job.CancelReason)
                 ? job.CancelReason
                 : await _dbContext.Tasks
                     .AsNoTracking()
@@ -537,21 +538,25 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                     .Select(t => t.RevisionReason)
                     .FirstOrDefaultAsync(cancellationToken);
         }
+        else
+        {
+            note = await _dbContext.Tasks
+                    .AsNoTracking()
+                    .Where(t => t.TenantId == tenantId
+                        && t.JobId == job.JobId
+                        && (t.CompletedAtUtc != null || t.CurrentStatus == Domain.Enums.TaskStatus.Completed))
+                    .OrderByDescending(t => t.CompletedAtUtc ?? t.UpdatedAtUtc)
+                    .Select(t => t.Notes)
+                    .FirstOrDefaultAsync(cancellationToken)
+                ?? await _dbContext.Tasks
+                    .AsNoTracking()
+                    .Where(t => t.TenantId == tenantId && t.JobId == job.JobId)
+                    .OrderByDescending(t => t.UpdatedAtUtc)
+                    .Select(t => t.Notes)
+                    .FirstOrDefaultAsync(cancellationToken);
+        }
 
-        return await _dbContext.Tasks
-                .AsNoTracking()
-                .Where(t => t.TenantId == tenantId
-                    && t.JobId == job.JobId
-                    && (t.CompletedAtUtc != null || t.CurrentStatus == Domain.Enums.TaskStatus.Completed))
-                .OrderByDescending(t => t.CompletedAtUtc ?? t.UpdatedAtUtc)
-                .Select(t => t.Notes)
-                .FirstOrDefaultAsync(cancellationToken)
-            ?? await _dbContext.Tasks
-                .AsNoTracking()
-                .Where(t => t.TenantId == tenantId && t.JobId == job.JobId)
-                .OrderByDescending(t => t.UpdatedAtUtc)
-                .Select(t => t.Notes)
-                .FirstOrDefaultAsync(cancellationToken);
+        return TurkishText.EnsureLeadingCapital(note);
     }
 
     private async Task EnqueueTerminalFollowUpsAsync(

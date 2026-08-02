@@ -39,6 +39,9 @@ const PRINTABLE_CHART_KEYS = new Set([
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
   'dashboard.charts.neighborhoodProcessingRequests',
+  'dashboard.charts.citizenDepartmentProcessingRequests',
+  'dashboard.charts.citizenDepartmentInProgressRequests',
+  'dashboard.charts.citizenDepartmentCompletedRequests',
 ])
 
 /** Anasayfa - Birimler pie drilldown: Son Tarih sütunu yok (#2097). */
@@ -71,17 +74,25 @@ const EXTERNAL_UNIT_CHART_KEYS = new Set([
   'dashboard.charts.externalRequestFulfillers',
 ])
 
+const CITIZEN_DEPARTMENT_CHART_KEYS = new Set([
+  'dashboard.charts.citizenDepartmentProcessingRequests',
+  'dashboard.charts.citizenDepartmentInProgressRequests',
+  'dashboard.charts.citizenDepartmentCompletedRequests',
+])
+
 const TALEPLERIM_STATUS_STYLE_CHART_KEYS = new Set([
   ...NEIGHBORHOOD_CHART_KEYS,
   'dashboard.charts.requestTags',
   'dashboard.charts.citizenRequests',
   ...EXTERNAL_UNIT_CHART_KEYS,
+  ...CITIZEN_DEPARTMENT_CHART_KEYS,
 ])
 
 /** Birim sütunu tek satır + overflow tooltip (#6a62fe79). Talep Etiketi → Vatandaş Adı (#6a6c9fed). */
 const TRUNCATE_UNIT_CHART_KEYS = new Set([
   ...EXTERNAL_UNIT_CHART_KEYS,
   ...NEIGHBORHOOD_CHART_KEYS,
+  ...CITIZEN_DEPARTMENT_CHART_KEYS,
   'dashboard.charts.citizenRequests',
 ])
 
@@ -282,18 +293,19 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const isCitizenRequestsChart = chartKey === 'dashboard.charts.citizenRequests'
   const isNeighborhoodChart = NEIGHBORHOOD_CHART_KEYS.has(chartKey)
   const isExternalUnitChart = EXTERNAL_UNIT_CHART_KEYS.has(chartKey)
+  const isCitizenDepartmentChart = CITIZEN_DEPARTMENT_CHART_KEYS.has(chartKey)
   const truncateUnitColumn = TRUNCATE_UNIT_CHART_KEYS.has(chartKey)
   // Anasayfa - Vatandaş pie popup'larında kolon başlığı her zaman VT (#6a6cff28).
-  const useCitizenRequestNoHeader = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart
+  const useCitizenRequestNoHeader = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart || isCitizenDepartmentChart
   const requestNoColumnLabel = useCitizenRequestNoHeader
     ? t('social.citizenRequestNo', 'Vatandaş Talep No')
     : t('jobs.columns.requestNo', 'Talep No')
   // VT No sonrası Vatandaş Adı / Telefon No (#6a6d9411).
-  const showCitizenColumn = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart
+  const showCitizenColumn = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart || isCitizenDepartmentChart
   const showUnitColumn = !isRequestTagsChart
   const unitColumnLabel = !showUnitColumn
     ? null
-    : (isNeighborhoodChart || isExternalUnitChart || isCitizenRequestsChart
+    : (isNeighborhoodChart || isExternalUnitChart || isCitizenRequestsChart || isCitizenDepartmentChart
       ? t('jobs.columns.unitShort', 'Birim')
       : t('departments.name', 'Müdürlük'))
   const chartTitle = t(chartKey)

@@ -76,8 +76,9 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
         }
 
         var utcNow = DateTimeOffset.UtcNow;
+        var normalizedReason = TurkishText.EnsureLeadingCapital(request.Reason);
         task.CurrentStatus = WorkflowTaskStatus.Cancelled;
-        task.RevisionReason = request.Reason;
+        task.RevisionReason = normalizedReason;
         task.UpdatedAtUtc = utcNow;
         task.UpdatedByUserId = request.ActorUserId;
 
@@ -91,8 +92,8 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
             ActorUserId = request.ActorUserId,
             ActorDisplayName = actor.DisplayName,
             StatusAtEvent = WorkflowTaskStatus.Cancelled.ToString(),
-            Notes = request.Reason,
-            Details = request.Reason,
+            Notes = normalizedReason,
+            Details = normalizedReason,
             EventTimeUtc = utcNow,
         });
 
@@ -115,7 +116,7 @@ public sealed class CancelTaskCommandHandler : ICommandHandler<CancelTaskCommand
             await TaskWorkflowAuthorization.RecomputeJobCompletionAsync(_dbContext, task.JobId, cancellationToken);
             if (parentJob.Status == JobStatus.Cancelled && string.IsNullOrWhiteSpace(parentJob.CancelReason))
             {
-                parentJob.CancelReason = request.Reason;
+                parentJob.CancelReason = normalizedReason;
             }
 
             if (parentJob.Status != previousStatus)

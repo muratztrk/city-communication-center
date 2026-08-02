@@ -445,6 +445,9 @@
       "neighborhoodCompletedRequests": "Completed Requests by Neighborhood",
       "neighborhoodInProgressRequests": "In-Progress Requests by Neighborhood",
       "neighborhoodProcessingRequests": "Processing-Received Requests by Neighborhood",
+      "citizenDepartmentProcessingRequests": "Processing-Received Requests by Department",
+      "citizenDepartmentInProgressRequests": "In-Progress Requests by Department",
+      "citizenDepartmentCompletedRequests": "Completed Requests by Department",
       "requestPriority": "Request Priority",
       "requestPriorityAll": "Request Priority",
       "requestTags": "Request Tags"

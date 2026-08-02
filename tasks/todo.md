@@ -1,3 +1,10 @@
+## Round 650 — SMS/WA not format, büyük harf, Reporter birim pie (5 kart)
+- Çağrı terminal SMS: "Not" etiketi kaldırıldı
+- İptal/tamamlama notu ilk harf TR büyük
+- WA İşleme Alındı/Yapılmakta: birim öncesi boş satır
+- WA terminal: mesaj sonrası boş satır + not
+- Reporter Anasayfa-Vatandaş: Birimlerde İşleme/Yapılmakta/Tamamlanan pie + popup
+
 ## Round 649 — çağrı SMS boş satır, Sms Onayı filtre, şablon nokta, WA profil (4 kart)
 - Non-terminal çağrı SMS: birim öncesi boş satır
 - Sms Onayı to-send: RespondedAtUtc < ReleasedAt (erken durum SMS'i engellemesin)

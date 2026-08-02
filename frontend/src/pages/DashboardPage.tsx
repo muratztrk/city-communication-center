@@ -57,6 +57,9 @@ const PIE_LEGEND_SEARCH_KEYS = new Set([
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
   'dashboard.charts.neighborhoodProcessingRequests',
+  'dashboard.charts.citizenDepartmentProcessingRequests',
+  'dashboard.charts.citizenDepartmentInProgressRequests',
+  'dashboard.charts.citizenDepartmentCompletedRequests',
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
   'dashboard.charts.externalRequestFulfillers',
@@ -84,6 +87,9 @@ const DRILLDOWN_CHART_KEYS = new Set([
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
   'dashboard.charts.neighborhoodProcessingRequests',
+  'dashboard.charts.citizenDepartmentProcessingRequests',
+  'dashboard.charts.citizenDepartmentInProgressRequests',
+  'dashboard.charts.citizenDepartmentCompletedRequests',
   // Vatandaş Talep Kanalları → VT grid popup (#6a6d0181); ayrı modal.
   'dashboard.citizenChannels.title',
 ])
@@ -95,6 +101,10 @@ const CITIZEN_DASHBOARD_CHART_KEYS = new Set([
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
   'dashboard.charts.neighborhoodProcessingRequests',
+  // Reporter-only birim VT durum pie'ları (#6a6cdec6).
+  'dashboard.charts.citizenDepartmentProcessingRequests',
+  'dashboard.charts.citizenDepartmentInProgressRequests',
+  'dashboard.charts.citizenDepartmentCompletedRequests',
   'dashboard.citizenChannels.title',
 ])
 
@@ -106,6 +116,9 @@ const CITIZEN_DASHBOARD_CHART_ORDER = [
   'dashboard.charts.neighborhoodProcessingRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
   'dashboard.charts.neighborhoodCompletedRequests',
+  'dashboard.charts.citizenDepartmentProcessingRequests',
+  'dashboard.charts.citizenDepartmentInProgressRequests',
+  'dashboard.charts.citizenDepartmentCompletedRequests',
 ]
 
 function citizenChartOrder(titleKey: string): number {
@@ -684,6 +697,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               || card.titleKey === 'dashboard.charts.neighborhoodCompletedRequests'
               || card.titleKey === 'dashboard.charts.neighborhoodInProgressRequests'
               || card.titleKey === 'dashboard.charts.neighborhoodProcessingRequests'
+              || card.titleKey === 'dashboard.charts.citizenDepartmentProcessingRequests'
+              || card.titleKey === 'dashboard.charts.citizenDepartmentInProgressRequests'
+              || card.titleKey === 'dashboard.charts.citizenDepartmentCompletedRequests'
               || card.titleKey === 'dashboard.charts.requestTags'
               // Operatör: kanal dilimi popup değil → Vatandaş Talepleri grid (#6a6eeb56).
               || (isCitizenDashboardDrilldownRole && role !== 'Operator' && card.titleKey === 'dashboard.citizenChannels.title')

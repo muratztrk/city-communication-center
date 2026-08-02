@@ -143,7 +143,7 @@ public class AsistelSendAtFormatTests
 public class CitizenSmsTerminalNoteFormatTests
 {
     [Fact]
-    public void Blank_line_before_department_and_Not_label()
+    public void Blank_line_before_department_and_note_without_Not_label()
     {
         var withDept = CitizenJobStatusNotifier.EnsureBlankLineBeforeTargetDepartments(
             "VT-2026-1 no'lu Başlık talebinizin durumu \"Tamamlandı\". Fen İşleri Müdürlüğü",
@@ -152,9 +152,9 @@ public class CitizenSmsTerminalNoteFormatTests
             "VT-2026-1 no'lu Başlık talebinizin durumu \"Tamamlandı\".\n\nFen İşleri Müdürlüğü",
             withDept);
 
-        var withNote = CitizenJobStatusNotifier.AppendSmsTerminalNote(withDept, "Sahada tamamlandı.");
+        var withNote = CitizenJobStatusNotifier.AppendSmsTerminalNote(withDept, "sahada tamamlandı.");
         Assert.Equal(
-            "VT-2026-1 no'lu Başlık talebinizin durumu \"Tamamlandı\".\n\nFen İşleri Müdürlüğü\n\nNot\nSahada tamamlandı.",
+            "VT-2026-1 no'lu Başlık talebinizin durumu \"Tamamlandı\".\n\nFen İşleri Müdürlüğü\n\nSahada tamamlandı.",
             withNote);
     }
 

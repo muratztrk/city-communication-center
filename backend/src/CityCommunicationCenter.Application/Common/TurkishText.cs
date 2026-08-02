@@ -3,9 +3,25 @@ using System.Globalization;
 namespace CityCommunicationCenter.Application.Common;
 
 /// <summary>Türkçe arama / eşleştirme yardımcıları (i/ı/İ, ş/ğ vb.).</summary>
-internal static class TurkishText
+public static class TurkishText
 {
     private static readonly CultureInfo Tr = CultureInfo.GetCultureInfo("tr-TR");
+
+    /// <summary>
+    /// Not metninin ilk harfini Türkçe büyük harfe çevirir (#6a6f233d).
+    /// Zaten büyükse veya boşsa aynen döner.
+    /// </summary>
+    public static string? EnsureLeadingCapital(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return value;
+        }
+
+        var trimmed = value.Trim();
+        var first = trimmed[..1].ToUpper(Tr);
+        return first + trimmed[1..];
+    }
 
     public static bool ContainsIgnoreCase(string? haystack, string? needle)
     {

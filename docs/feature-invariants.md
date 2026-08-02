@@ -985,8 +985,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Europe/Istanbul `ddMMyyyyHHmmss` gönderilir.
 - **Asistel başarı yanıtı (#6a60a552/#6a6f16da):** `100` ve `100:transactionId` başarıdır;
   kullanıcı metni `SMS başarıyla gönderildi.` (eski: sunucuya yüklendi).
-- **Çağrı terminal SMS notu (#6a6f0814/#6a6f0928):** Operatör Sms Onayı gönderiminde
-  `{GönderilenBirim}` değerinden önce `\n\n`; ardından `\n\nNot\n{not}`.
+- **Çağrı terminal SMS notu (#6a6f0814/#6a6f0928/#6a6f234d):** Operatör Sms Onayı gönderiminde
+  `{GönderilenBirim}` değerinden önce `\n\n`; ardından `\n\n{not}` ("Not" etiketi yok).
+- **Terminal not ilk harf (#6a6f233d):** talep iptal / görev tamamlama / görev iptal notu
+  `TurkishText.EnsureLeadingCapital` (TR kültürü); SMS/WA gönderiminde de uygulanır.
+- **WA non-terminal birim boş satırı (#6a6f2518):** İşleme Alındı/Yapılmakta WA mesajında
+  birim adından önce `\n\n` (çağrı SMS ile aynı helper).
+- **WA terminal not (#6a6f24e7):** tamamlandı/iptal mesajından sonra `\n\n` + not metni.
+- **Reporter birim VT pie (#6a6cdec6):** Anasayfa-Vatandaş'ta "Birimlerde İşleme Alınan /
+  Yapılmakta / Tamamlanan Talepler"; yalnız VT; dilim popup mahalle pie standardında.
 - **Talep Oluştur doğrulama (#6a6ef103):** kırmızı `.error` kutusu `error--create-request`
   ile `1rem` punto (global `.error` 0.88rem kalır).
 - **Kurum sekmesi 2×2 (#6a6cdcad):** Kurum Bilgisi | Kurum Konumu / SMS API | Hafta Sonu SLA

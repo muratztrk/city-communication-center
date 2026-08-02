@@ -49,7 +49,7 @@ import type {
   SyslogSettingsUpdate,
   SlaWeekendSettingsUpdate,
 } from '../types/platform'
-import { SMS_SENDABLE_PROVIDERS } from '../types/platform'
+import { SMS_PROVIDER_OPTIONS, SMS_SENDABLE_PROVIDERS } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
 
 type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates' | 'license'
@@ -879,7 +879,13 @@ export function SettingsPage() {
 
     setMessage(null)
     try {
-      await api.updateSmsSettings(user.tenantId, smsForm)
+      // API URL / chargedParty / simülasyon FE'de yok — kod varsayılanı: gerçek gönderim açık.
+      await api.updateSmsSettings(user.tenantId, {
+        ...smsForm,
+        apiUrl: null,
+        chargedNumber: null,
+        liveSendEnabled: true,
+      })
       invalidateSettings(queryClient)
       const refreshed = await api.getSmsSettings(user.tenantId)
       setSmsSettings(refreshed)
@@ -1519,15 +1525,24 @@ export function SettingsPage() {
                     <label className="field-label">{t('settings.sms.provider')}</label>
                     <SingleSelectDropdown
                       options={[
-                        { value: 'Asistel', label: t('settings.sms.providers.Asistel') },
-                        { value: 'JettMesaj', label: t('settings.sms.providers.JettMesaj') },
-                        { value: 'NetGSM', label: t('settings.sms.providers.NetGSM') },
-                        { value: 'Iletimerkezi', label: t('settings.sms.providers.Iletimerkezi') },
-                        { value: 'Verimor', label: t('settings.sms.providers.Verimor') },
-                        { value: 'Custom', label: t('settings.sms.providers.Custom') },
+                        ...SMS_PROVIDER_OPTIONS.map(provider => ({
+                          value: provider,
+                          label: t(`settings.sms.providers.${provider}`),
+                        })),
+                        // Kayıtlı eski JettMesaj değeri listede yoksa seçenek olarak kalsın.
+                        ...(smsForm.provider === 'JettMesaj'
+                          ? [{ value: 'JettMesaj' as const, label: t('settings.sms.providers.JettMesaj') }]
+                          : []),
                       ]}
                       value={smsForm.provider}
-                      onChange={provider => setSmsForm(current => ({ ...current, provider: provider as SmsSettingsUpdate['provider'] }))}
+                      onChange={provider => setSmsForm(current => ({
+                        ...current,
+                        provider: provider as SmsSettingsUpdate['provider'],
+                        // API URL / chargedParty FE'den kalktı — kod tarafı varsayılanları kullanılsın.
+                        apiUrl: null,
+                        chargedNumber: null,
+                        liveSendEnabled: true,
+                      }))}
                       placeholder={t('settings.sms.provider')}
                     />
                   </div>
@@ -1535,25 +1550,6 @@ export function SettingsPage() {
                     <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
                       {t('settings.sms.providerNotImplemented')}
                     </p>
-                  )}
-                  {(smsForm.provider === 'Custom' || SMS_SENDABLE_PROVIDERS.includes(smsForm.provider)) && (
-                    <div className="field-row">
-                      <label className="field-label">{t('settings.sms.apiUrl')}</label>
-                      <input
-                        className="field-input"
-                        type="url"
-                        placeholder={smsForm.provider === 'Asistel'
-                          ? 'http://92.42.35.50:16899/smswebservice.asmx'
-                          : smsForm.provider === 'JettMesaj'
-                            ? 'http://api.jettmesaj.com/'
-                            : t('settings.sms.apiUrlPlaceholder')}
-                        value={smsForm.apiUrl ?? ''}
-                        onChange={event => setSmsForm(current => ({ ...current, apiUrl: event.target.value || null }))}
-                      />
-                      {SMS_SENDABLE_PROVIDERS.includes(smsForm.provider) && (
-                        <p className="helper-copy">{t('settings.sms.apiUrlOptionalHelp')}</p>
-                      )}
-                    </div>
                   )}
                   <div className="field-row">
                     <label className="field-label">{t('settings.sms.username')}</label>
@@ -1597,39 +1593,7 @@ export function SettingsPage() {
                     />
                     <p className="helper-copy">{t('settings.sms.originatorHelp')}</p>
                   </div>
-                  {smsForm.provider === 'Asistel' && (
-                    <div className="field-row">
-                      <label className="field-label">{t('settings.sms.chargedNumber')}</label>
-                      <input
-                        className="field-input"
-                        type="text"
-                        value={smsForm.chargedNumber ?? ''}
-                        onChange={event => setSmsForm(current => ({ ...current, chargedNumber: event.target.value || null }))}
-                      />
-                      <p className="helper-copy">{t('settings.sms.chargedNumberHelp')}</p>
-                    </div>
-                  )}
-                  {/* Gerçek gönderim anahtarı: kapalıyken otomatik SMS'ler yalnız loglanır (#sms). */}
-                  <div className="space-y-2 border-t border-slate-200 pt-4">
-                    <label className="inline-flex items-start gap-3 text-sm font-semibold text-slate-700">
-                      <input
-                        className="field-checkbox mt-0.5"
-                        type="checkbox"
-                        checked={smsForm.liveSendEnabled}
-                        onChange={event => setSmsForm(current => ({ ...current, liveSendEnabled: event.target.checked }))}
-                      />
-                      <span>{t('settings.sms.liveSendEnabled')}</span>
-                    </label>
-                    <p className={`rounded-xl border px-3 py-2 text-sm font-medium ${smsForm.liveSendEnabled
-                      ? 'border-rose-200 bg-rose-50 text-rose-800'
-                      : 'border-sky-200 bg-sky-50 text-sky-800'}`}
-                    >
-                      {smsForm.liveSendEnabled
-                        ? t('settings.sms.liveSendOnWarning')
-                        : t('settings.sms.liveSendOffHelp')}
-                    </p>
-                  </div>
-                  {/* Kayıtlı ayarlarla gerçek gönderim testi; iki anahtar da kapalıyken çalışır. */}
+                  {/* API URL / Gerçek gönderim / Charged Number FE'de yok — kod varsayılanları (#6a6ed865). */}
                   <div className="space-y-3 border-t border-slate-200 pt-4">
                     <div className="text-sm font-extrabold text-slate-900">{t('settings.sms.testTitle')}</div>
                     <p className="helper-copy">{t('settings.sms.testHelp')}</p>
@@ -1915,10 +1879,10 @@ export function SettingsPage() {
                 <p className="helper-copy">{t('settings.fileStorage.sectionDescription')}</p>
               </div>
             </div>
-            <div className="grid gap-5 xl:grid-cols-2">
-              <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+            <div className="grid gap-5 xl:grid-cols-2 xl:items-stretch">
+              <section className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <h3 className="mb-4 text-base font-extrabold text-slate-900">{t('settings.fileStorage.nasTitle')}</h3>
-                <div className="grid gap-4">
+                <div className="grid flex-1 gap-4">
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.host')}</span>
                     <input className="field-input" placeholder="192.168.1.100" value={fileStorageForm.nasHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasHost: event.target.value || null }))} />
@@ -1951,8 +1915,8 @@ export function SettingsPage() {
                     <input className="field-checkbox" type="checkbox" checked={fileStorageForm.clearNasPassword} onChange={event => setFileStorageForm(current => ({ ...current, clearNasPassword: event.target.checked, nasPassword: null }))} />
                     {t('settings.fileStorage.clearPassword')}
                   </label>
-                  {/* Test alanı IP boşken de görünür; buton devre dışı + ipucu (#6a6cb6ec). */}
-                  <div className="space-y-3 border-t border-slate-200 pt-4">
+                  {/* Test başlığı FTP ile aynı yatay hizada — kolonlar stretch + mt-auto (#6a6edf3e). */}
+                  <div className="mt-auto space-y-3 border-t border-slate-200 pt-4">
                     <div className="text-sm font-extrabold text-slate-900">{t('settings.fileStorage.testTitleNas')}</div>
                     <div className="flex items-center justify-between gap-3">
                       <div>
@@ -2002,9 +1966,9 @@ export function SettingsPage() {
                   </div>
                 </div>
               </section>
-              <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+              <section className="flex h-full flex-col rounded-2xl border border-slate-200 bg-slate-50 p-4">
                 <h3 className="mb-4 text-base font-extrabold text-slate-900">{t('settings.fileStorage.ftpTitle')}</h3>
-                <div className="grid gap-4">
+                <div className="grid flex-1 gap-4">
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.host')}</span>
                     <input className="field-input" placeholder="ftp.example.com" value={fileStorageForm.ftpHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpHost: event.target.value || null }))} />
@@ -2042,8 +2006,7 @@ export function SettingsPage() {
                     <input className="field-checkbox" type="checkbox" checked={fileStorageForm.clearFtpPassword} onChange={event => setFileStorageForm(current => ({ ...current, clearFtpPassword: event.target.checked, ftpPassword: null }))} />
                     {t('settings.fileStorage.clearPassword')}
                   </label>
-                  {/* Test alanı IP boşken de görünür; buton devre dışı + ipucu (#6a6cb6ec). */}
-                  <div className="space-y-3 border-t border-slate-200 pt-4">
+                  <div className="mt-auto space-y-3 border-t border-slate-200 pt-4">
                     <div className="text-sm font-extrabold text-slate-900">{t('settings.fileStorage.testTitleFtp')}</div>
                     <div className="flex items-center justify-between gap-3">
                       <div>

@@ -30,6 +30,7 @@ import {
   exceedsAttachmentTotalLimit,
   sumFileSizes,
 } from '../utils/attachmentLimits'
+import { formatCitizenPhoneDisplay } from '../utils/citizenRequests'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
 
@@ -998,11 +999,16 @@ export function CreateRequestPage() {
     }
     if (confirmedKind !== 'citizen') {
       const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
+      const phoneDisplay = formatCitizenPhoneDisplay(citizenForm.citizenPhone) || citizenForm.citizenPhone.trim() || '—'
       setConfirmDialog({
         title: editJobId && linkedSocialMessageId ? 'Vatandaş Çağrı Talebi Güncelle' : 'Vatandaş Çağrı Talebi Oluştur',
         message: editJobId && linkedSocialMessageId
           ? 'Bu talebi güncellemek istediğinize emin misiniz?'
-          : 'Bu talebi oluşturmak istediğinize emin misiniz?',
+          : (
+            <span className="font-medium text-rose-600">
+              {`Bu talebi oluşturmak istediğinize emin misiniz? "${phoneDisplay}" numarasına, talebin işleme alındığına dair otomatik SMS gönderilecektir.`}
+            </span>
+          ),
         titleCompact: true,
         titleDivider: true,
         confirmLabel: editJobId && linkedSocialMessageId ? 'Güncelle' : 'Talep Oluştur',

@@ -341,7 +341,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                     <td className="citizen-message-approval-citizen-cell">
                       <div className="font-semibold">{row.citizenName ?? '—'}</div>
                       {/* Telefon no silik kalıyordu (#6a6e05c3) — kontrastı artırıldı. */}
-                      <div className="text-xs font-medium text-slate-600">{formatCitizenPhoneDisplay(row.citizenPhone)}</div>
+                      <div className="text-sm font-medium text-slate-600">{formatCitizenPhoneDisplay(row.citizenPhone)}</div>
                     </td>
                     <td className="citizen-message-approval-title-cell text-center">
                       <TruncatedText text={row.title} className="cell-title" />
@@ -385,10 +385,13 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                               <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                               {t('citizenMessageApproval.actions.editNote', 'Notu Düzenle')}
                             </Button>
-                            {!row.releasedAtUtc ? (
+                            {/* WA/Yönetici: release yokken onayla. Sms Onayı: yönetici release sonrası SMS gönder (#6a6ee0ee). */}
+                            {(!row.releasedAtUtc || isSms) ? (
                               <Button type="button" size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleRelease(row)}>
                                 <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                                {t('citizenMessageApproval.actions.release', 'Mesajı Onayla')}
+                                {isSms
+                                  ? t('smsDeliveryApproval.actions.release', 'SMS Gönder')
+                                  : t('citizenMessageApproval.actions.release', 'Mesajı Onayla')}
                               </Button>
                             ) : null}
                           </>
@@ -478,7 +481,8 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                   const row = rows.find(item => item.jobId === detailJobId)
                   if (row) handleRelease(row)
                 },
-                canRelease: !(rows.find(item => item.jobId === detailJobId)?.releasedAtUtc),
+                canRelease: isSms
+                  || !(rows.find(item => item.jobId === detailJobId)?.releasedAtUtc),
               }
             : {}}
         />

@@ -12,7 +12,7 @@ public interface ITenantSmsSettingsService
     Task<TenantSmsCredentials> GetCredentialsAsync(Guid tenantId, CancellationToken cancellationToken = default);
 }
 
-public enum SmsProvider { NetGSM, Iletimerkezi, Verimor, Custom, Asistel, JettMesaj }
+public enum SmsProvider { NetGSM, Iletimerkezi, Verimor, Custom, Asistel, JettMesaj, Infobip }
 
 /// <param name="LiveSendEnabled">
 /// Gerçek gönderim anahtarı. Kapalıyken otomatik vatandaş SMS'leri sağlayıcıya GÖNDERİLMEZ;

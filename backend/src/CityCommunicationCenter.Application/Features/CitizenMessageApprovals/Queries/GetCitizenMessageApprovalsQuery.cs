@@ -45,6 +45,8 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
             return [];
         }
 
+        // Yönetici "Vatandaşa Gönderilecek Mesaj Onayı" (whatsapp mode): WA + Çağrı.
+        // Operatör "Sms Onayı" (phone mode): yalnız Phone; yönetici release sonrası (#6a6ee0ee).
         IQueryable<Job> q = _dbContext.Jobs
             .AsNoTracking()
             .Where(j => j.TenantId == tenantId
@@ -52,7 +54,7 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
                 && _dbContext.SocialMessages.Any(m => m.TenantId == tenantId
                     && m.CitizenRequestNumber != null
                     && (whatsappOnly
-                        ? m.Channel == SocialChannel.WhatsApp
+                        ? (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
                         : smsMode
                             ? m.Channel == SocialChannel.Phone
                             : (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone))
@@ -60,12 +62,38 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
                         || (j.SourceRefId.HasValue && m.SocialMessageId == j.SourceRefId.Value))));
 
         var scope = (request.Scope ?? "to-send").Trim().ToLowerInvariant();
-        q = scope switch
+        if (smsMode)
         {
-            "sent" => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc != null),
-            "all" => q,
-            _ => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc == null),
-        };
+            // Sms Onayı: yönetici onayı (release) sonrası; SMS henüz gitmemiş = to-send.
+            // RespondedAtUtc, SendSmsAsync başarı bayrağıdır.
+            q = scope switch
+            {
+                "sent" => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc != null
+                    && _dbContext.SocialMessages.Any(m => m.TenantId == tenantId
+                        && m.Channel == SocialChannel.Phone
+                        && m.CitizenRequestNumber != null
+                        && m.RespondedAtUtc != null
+                        && (m.JobId == j.JobId
+                            || (j.SourceRefId.HasValue && m.SocialMessageId == j.SourceRefId.Value)))),
+                "all" => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc != null),
+                _ => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc != null
+                    && _dbContext.SocialMessages.Any(m => m.TenantId == tenantId
+                        && m.Channel == SocialChannel.Phone
+                        && m.CitizenRequestNumber != null
+                        && m.RespondedAtUtc == null
+                        && (m.JobId == j.JobId
+                            || (j.SourceRefId.HasValue && m.SocialMessageId == j.SourceRefId.Value)))),
+            };
+        }
+        else
+        {
+            q = scope switch
+            {
+                "sent" => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc != null),
+                "all" => q,
+                _ => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc == null),
+            };
+        }
 
         if (actor.RoleCode == RoleCode.Manager)
         {

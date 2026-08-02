@@ -837,7 +837,17 @@ export interface WorkingHoursSchedule { isAlwaysOpen: boolean; schedule: Working
 export interface WorkingHoursSettings { default: WorkingHoursSchedule; departmentOverrides: WorkingHoursDepartmentOverride[] }
 
 /** Asistel (SOAP) ve JettMesaj (GET) gerçek gönderim entegrasyonu olan sağlayıcılardır. */
-export type SmsProvider = 'NetGSM' | 'Iletimerkezi' | 'Verimor' | 'Custom' | 'Asistel' | 'JettMesaj';
+export type SmsProvider = 'NetGSM' | 'Iletimerkezi' | 'Verimor' | 'Custom' | 'Asistel' | 'JettMesaj' | 'Infobip';
+
+/** FE listesi alfabetik etiket sırası (kart #6a6ed75c); JettMesaj kayıtlı eski değer için tutulur. */
+export const SMS_PROVIDER_OPTIONS: SmsProvider[] = [
+  'Asistel',
+  'Infobip',
+  'Iletimerkezi',
+  'NetGSM',
+  'Custom',
+  'Verimor',
+];
 
 export const SMS_SENDABLE_PROVIDERS: SmsProvider[] = ['Asistel', 'JettMesaj'];
 

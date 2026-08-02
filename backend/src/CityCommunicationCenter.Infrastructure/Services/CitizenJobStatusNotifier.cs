@@ -105,12 +105,6 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return;
         }
 
-        if (job.CitizenTerminalMessageReleasedAtUtc is not null)
-        {
-            // Idempotent: zaten serbest bırakılmış.
-            return;
-        }
-
         var utcNow = DateTimeOffset.UtcNow;
         var taskCount = await _dbContext.Tasks
             .AsNoTracking()
@@ -118,8 +112,12 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         var statusLabel = CitizenJobStatusLabelHelper.GetDisplayStatus(job, taskCount, utcNow);
         if (!RequiresOperatorApproval(statusLabel))
         {
-            job.CitizenTerminalMessageReleasedAtUtc = utcNow;
-            await _dbContext.SaveChangesAsync(cancellationToken);
+            if (job.CitizenTerminalMessageReleasedAtUtc is null)
+            {
+                job.CitizenTerminalMessageReleasedAtUtc = utcNow;
+                await _dbContext.SaveChangesAsync(cancellationToken);
+            }
+
             return;
         }
 
@@ -130,6 +128,40 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 && (entity.Channel == SocialChannel.WhatsApp || entity.Channel == SocialChannel.Phone))
             .OrderByDescending(entity => entity.ReceivedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
+
+        // Çağrı (Phone) iki aşamalı: 1) Yönetici "Vatandaşa Gönderilecek Mesaj Onayı" → release
+        // bayrağı (SMS YOK). 2) Operatör "Sms Onayı" → gerçek SMS (#6a6ee0ee).
+        if (message?.Channel == SocialChannel.Phone
+            && job.CitizenTerminalMessageReleasedAtUtc is not null)
+        {
+            var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, cancellationToken);
+            var targetDepartmentNames = await _dbContext.JobDepartments
+                .AsNoTracking()
+                .Where(link => link.TenantId == tenantId
+                    && link.JobId == job.JobId
+                    && link.Role == JobDepartmentRole.Target
+                    && link.ApprovalStatus != JobApprovalStatus.Rejected)
+                .OrderBy(link => link.Department.Name)
+                .Select(link => link.Department.Name)
+                .Distinct()
+                .ToListAsync(cancellationToken);
+            var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
+                message,
+                job,
+                taskCount,
+                utcNow,
+                template,
+                string.Join(", ", targetDepartmentNames));
+            await SendSmsAsync(tenantId, message, content, cancellationToken);
+            return;
+        }
+
+        if (job.CitizenTerminalMessageReleasedAtUtc is not null)
+        {
+            // WhatsApp: zaten serbest bırakılmış (idempotent).
+            return;
+        }
+
         if (message is not null)
         {
             // Şablon yoksa BuildStatusMessage varsayılan metni kullanır; release yine Pending
@@ -181,16 +213,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                     await EnqueueTerminalFollowUpsAsync(tenantId, message, job, statusLabel, tenantName, utcNow, cancellationToken);
                 }
             }
-            else
-            {
-                // SMS gitmediyse release işaretlenmez; aksi halde operatör bir daha
-                // "Mesajı Gönder" diyemez ve vatandaş kapanış bilgisini hiç alamaz.
-                var smsSent = await SendSmsAsync(tenantId, message, content, cancellationToken);
-                if (!smsSent)
-                {
-                    return;
-                }
-            }
+            // Phone: yönetici onayı yalnız bayrağı basar; SMS operatör Sms Onayı'nda gider.
         }
 
         job.CitizenTerminalMessageReleasedAtUtc = DateTimeOffset.UtcNow;

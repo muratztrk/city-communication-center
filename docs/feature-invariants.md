@@ -1574,12 +1574,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görevi Tamamla / İptal Et yardım satırı:** Tamamla popup'ta Görev No yeşil (`text-emerald-600`);
   İptal Et popup'ta açıklama `G-{yıl}-{no}` ile başlar ve Görev No kırmızıdır (`text-red-600`).
   İptal Et popup'ta Tamamla ile aynı **Dosya ekle** (geçici upload, Vazgeç'te silinir — #6a6b6c07).
-- **Sms Onayı (#2112/#6a6b6824/#6a6b6c8e):** `/sms-delivery-approval` — Vatandaş Talepleri altında
+- **Sms Onayı (#2112/#6a6b6824/#6a6b6c8e/#6a6ee0ee):** `/sms-delivery-approval` — Vatandaş Talepleri altında
   WhatsApp'ın hemen altında; nav etiketi `Sms Onayı`; WhatsApp ile aynı `emphasized` hiza/punto +
   Lucide `MessageSquareText` (reopen #6a6b6c8e — renkli svg yok). `pageKey smsDeliveryApproval`
   (Operator varsayılan açık; Staff/Reporter/Manager kapalı; BE SMS modunda Manager erişemez).
   Nav rozeti phone `to-send` sayısı. Banner altı chip'ler Mesaj Onayı ile aynı; liste
-  `channel=phone`. Mesaj Onayı listesi `channel=whatsapp`.
+  `channel=phone`. Mesaj Onayı listesi `channel=whatsapp` **ve Phone** (iki aşamalı: yönetici
+  önce Phone terminal mesajını serbest bırakır — SMS gitmez; release sonrası Operatör Sms
+  Onayı to-send'te SMS gönderir).
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106/#2108):** `toSend` = Detaylar / Notu Düzenle /
   Mesajı Onayla (`nowrap`); `sent` ve `all` = yalnız Detaylar. Detay popup: `toSend`'de Notu Düzenle +
   Mesajı Onayla; `sent`/`all`'da bu butonlar yok (Yazdır da gizli).

@@ -1,3 +1,8 @@
+## Round 643 — SMS UI + çağrı onay akışı + grid/NAS (11 kart)
+- SMS Ayarlar: API URL / Gerçek gönderim / Charged Number FE'den kaldırıldı; sağlayıcı listesi alfabetik; gönderici metinleri; test help
+- Çağrı oluştur onay metni (kırmızı SMS uyarısı); Phone terminal → yönetici mesaj onayı → sonra Sms Onayı
+- Dizin + pie drilldown thead yüksekliği; Sms Onayı telefon punto; NAS/FTP test başlığı hizası
+
 ## Round 641 — 8 kart: dashboard sırası, footer logo, popup grid başlıkları, NAS/FTP test, LNA
 - `#6a6e0287`: Anasayfa-Vatandaş grafik sırası — Talep Kanalları 3., mahalleler İşleme→Yapılmakta→Tamamlanan
 - `#6a65ac32`: Footer Lumespec lockup (katman ikonu + wordmark), 14→22px; FAB clearance 2.125rem

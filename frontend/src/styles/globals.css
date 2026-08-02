@@ -2415,9 +2415,10 @@
     letter-spacing: 0.06em;
     line-height: 1.2;
     font-family: var(--font-sans);
-    padding-block: 0.18rem;
+    /* Yeşil başlık şeridi biraz daha yüksek; font sabit (#6a6ede32). */
+    padding-block: 0.42rem;
     min-height: 0;
-    height: calc(var(--table-header-row-height) * var(--app-content-zoom, 1));
+    height: calc((var(--table-header-row-height) + 0.48rem) * var(--app-content-zoom, 1));
   }
 
   /* Tablo kendi scroll kabında (sticky thead) — kavis wrap yerine uç başlıklara verilir. */
@@ -4115,11 +4116,10 @@
      için shell zoom'unu almaz, bu yüzden ölçüler `--app-content-zoom` ile çarpılır (#6a6cffd1). */
   .detail-modal-shell .dashboard-drilldown-table thead th,
   .data-table.dashboard-drilldown-table thead th {
-    height: calc(var(--table-header-row-height) * var(--app-content-zoom, 1));
+    /* Yeşil başlık şeridi biraz daha yüksek; font sabit (#6a6edec6 / #6a6ede32). */
+    height: calc((var(--table-header-row-height) + 0.48rem) * var(--app-content-zoom, 1));
     min-height: 0;
-    /* Küçük dikey padding yalnız iki satıra sarılan başlıkların kenara değmemesi için;
-       tek satırda yükseklik yukarıdaki `height` ile sabitlenir. */
-    padding: 0.18rem var(--table-chrome-row-px);
+    padding: 0.42rem var(--table-chrome-row-px);
     font-size: 0.78rem;
     font-weight: 700;
     letter-spacing: 0.06em;

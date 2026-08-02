@@ -1,3 +1,7 @@
+## Round 645 — Talep Oluştur hata punto + SMS Custom kaldırma (2 kart)
+- Create Request `.error` punto 0.88→1rem (`error--create-request`)
+- SMS dropdown'dan Özel(Custom) silindi; entegrasyon yok mesajı destek talebi
+
 ## Round 644 — çağrı onay satırları, SMS test help, Operator kanal navigate (3 kart)
 - Çağrı oluştur onay: ilk cümle siyah; SMS uyarısı alt satır kırmızı
 - SMS Test help: "…test amaçlı SMS gönderebilirsiniz."

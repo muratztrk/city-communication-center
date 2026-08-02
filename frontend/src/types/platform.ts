@@ -839,13 +839,13 @@ export interface WorkingHoursSettings { default: WorkingHoursSchedule; departmen
 /** Asistel (SOAP) ve JettMesaj (GET) gerçek gönderim entegrasyonu olan sağlayıcılardır. */
 export type SmsProvider = 'NetGSM' | 'Iletimerkezi' | 'Verimor' | 'Custom' | 'Asistel' | 'JettMesaj' | 'Infobip';
 
-/** FE listesi alfabetik etiket sırası (kart #6a6ed75c); JettMesaj kayıtlı eski değer için tutulur. */
+/** FE listesi alfabetik etiket sırası (kart #6a6ed75c); Custom kaldırıldı (#6a6ef1a7).
+ *  JettMesaj / Custom kayıtlı eski değer SettingsPage'de seçenek olarak eklenir. */
 export const SMS_PROVIDER_OPTIONS: SmsProvider[] = [
   'Asistel',
   'Infobip',
   'Iletimerkezi',
   'NetGSM',
-  'Custom',
   'Verimor',
 ];
 

@@ -1177,7 +1177,7 @@
       "originatorHelp": "SMS'lerde görünecek gönderici adı, SMS sağlayıcınız tarafından verilir.",
       "save": "Kaydet",
       "saved": "SMS API ayarları kaydedildi.",
-      "providerNotImplemented": "Bu sağlayıcı için gönderim entegrasyonu henüz yok; SMS gönderilmez. AsistSMS seçin.",
+      "providerNotImplemented": "Bu sağlayıcı için gönderim entegrasyonu henüz yok. Destek talebinde bulununuz.",
       "apiUrlOptionalHelp": "Boş bırakılırsa sağlayıcının varsayılan adresi kullanılır. Güvenlik gereği yalnız sağlayıcının kendi alan adları kabul edilir; başka bir adres yazılırsa yok sayılır.",
       "chargedNumber": "Charged Number (chargedParty)",
       "chargedNumberHelp": "Asistel tarafından verilen chargedParty değeri. Bilmiyorsanız boş bırakın; sağlayıcı zorunlu tutuyorsa hata döner.",

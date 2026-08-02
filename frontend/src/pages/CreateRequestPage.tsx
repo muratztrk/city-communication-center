@@ -1131,7 +1131,7 @@ export function CreateRequestPage() {
         </div>
       </header>
 
-      {error ? <div className="error">{error}</div> : null}
+      {error ? <div className="error error--create-request">{error}</div> : null}
 
       {!selectedKind ? (
         <section className={`grid gap-4 ${requestTypeOptions.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>

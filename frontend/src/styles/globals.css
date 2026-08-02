@@ -2093,6 +2093,11 @@
     color: #be123c;
   }
 
+  /* Talep Oluştur doğrulama uyarısı — biraz daha büyük punto (#6a6ef103). */
+  .error.error--create-request {
+    font-size: 1rem;
+  }
+
   .field-input,
   .field-select,
   .field-textarea {

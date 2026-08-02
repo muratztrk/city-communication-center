@@ -1171,7 +1171,7 @@
       "originatorHelp": "The sender name shown on SMS messages is issued by your SMS provider.",
       "save": "Save",
       "saved": "SMS API settings saved.",
-      "providerNotImplemented": "There is no send integration for this provider yet; no SMS will go out. Choose AsistSMS.",
+      "providerNotImplemented": "There is no send integration for this provider yet. Please submit a support request.",
       "apiUrlOptionalHelp": "Leave empty to use the provider's default endpoint. For security only the provider's own hosts are accepted; any other address is ignored.",
       "chargedNumber": "Charged Number (chargedParty)",
       "chargedNumberHelp": "The chargedParty value issued by Asistel. Leave empty if unknown; the provider errors if it is required.",

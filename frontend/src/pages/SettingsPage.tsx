@@ -1529,9 +1529,12 @@ export function SettingsPage() {
                           value: provider,
                           label: t(`settings.sms.providers.${provider}`),
                         })),
-                        // Kayıtlı eski JettMesaj değeri listede yoksa seçenek olarak kalsın.
+                        // Kayıtlı eski JettMesaj / Custom listede yoksa seçenek olarak kalsın.
                         ...(smsForm.provider === 'JettMesaj'
                           ? [{ value: 'JettMesaj' as const, label: t('settings.sms.providers.JettMesaj') }]
+                          : []),
+                        ...(smsForm.provider === 'Custom'
+                          ? [{ value: 'Custom' as const, label: t('settings.sms.providers.Custom') }]
                           : []),
                       ]}
                       value={smsForm.provider}

@@ -8,8 +8,8 @@ internal static class SmsProviderErrorCodes
 {
     private static readonly Dictionary<string, string> Messages = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["100"] = "SMS sunucuya başarıyla yüklendi.",
-        ["OK"] = "SMS sunucuya başarıyla yüklendi.",
+        ["100"] = "SMS başarıyla gönderildi.",
+        ["OK"] = "SMS başarıyla gönderildi.",
         ["101"] = "SMSC arızası.",
         ["102"] = "SMS Gateway arızası.",
         ["103"] = "SMS gönderim kotası aşılmış.",

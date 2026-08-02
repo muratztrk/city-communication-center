@@ -38,6 +38,6 @@ public sealed class SendTestSmsCommandHandler : ICommandHandler<SendTestSmsComma
 
         return new SendTestSmsResult(
             result.Success,
-            result.Message ?? (result.Success ? "SMS gönderildi." : "SMS gönderilemedi."));
+            result.Message ?? (result.Success ? "SMS başarıyla gönderildi." : "SMS gönderilemedi."));
     }
 }

@@ -983,8 +983,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (maske API'ye gitmez; null = mevcut şifre korunur). `Kayıtlı şifreyi sil` checkbox yok.
 - **Asistel gonderimTarihi (#6a6efc64):** boş string 108 hatası verir; anlık gönderimde
   Europe/Istanbul `ddMMyyyyHHmmss` gönderilir.
-- **Asistel başarı yanıtı (#6a60a552):** `100` ve `100:transactionId` başarıdır (SMS iletilmiş
-  olsa bile UI hata göstermez).
+- **Asistel başarı yanıtı (#6a60a552/#6a6f16da):** `100` ve `100:transactionId` başarıdır;
+  kullanıcı metni `SMS başarıyla gönderildi.` (eski: sunucuya yüklendi).
 - **Çağrı terminal SMS notu (#6a6f0814/#6a6f0928):** Operatör Sms Onayı gönderiminde
   `{GönderilenBirim}` değerinden önce `\n\n`; ardından `\n\nNot\n{not}`.
 - **Talep Oluştur doğrulama (#6a6ef103):** kırmızı `.error` kutusu `error--create-request`

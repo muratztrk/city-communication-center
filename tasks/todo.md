@@ -1,3 +1,6 @@
+## Round 648 — Test SMS başarı metni
+- "SMS sunucuya başarıyla yüklendi." → "SMS başarıyla gönderildi."
+
 ## Round 647 — SMS clear-pwd kaldır, Asistel 100:id, çağrı SMS Not (4 kart)
 - Kayıtlı şifreyi sil checkbox kaldırıldı
 - Asistel `100:transactionId` başarı

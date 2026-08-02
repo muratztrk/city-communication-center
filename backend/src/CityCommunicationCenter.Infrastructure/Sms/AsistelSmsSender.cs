@@ -97,7 +97,7 @@ internal sealed class AsistelSmsSender : ISmsProviderSender
         // dokümante edilmemiş 3 haneli bir hata kodu yanlışlıkla "gönderildi" olarak işaretlenmesin.
         if (code.Length >= 4 && long.TryParse(code, out _))
         {
-            return SmsSendResult.Ok(code, "SMS sunucuya yüklendi.");
+            return SmsSendResult.Ok(code, "SMS başarıyla gönderildi.");
         }
 
         _logger.LogWarning("Asistel beklenmeyen yanıt kodu: {Code}", Truncate(code));

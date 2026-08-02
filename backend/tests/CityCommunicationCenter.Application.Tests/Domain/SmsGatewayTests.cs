@@ -102,7 +102,7 @@ public class SmsProviderErrorCodeTests
     public void Success_with_transaction_id_describes_as_loaded()
     {
         Assert.Equal(
-            "SMS sunucuya başarıyla yüklendi.",
+            "SMS başarıyla gönderildi.",
             SmsProviderErrorCodes.Describe("100:107066193"));
         Assert.False(SmsProviderErrorCodes.IsKnownErrorCode("100:107066193"));
     }

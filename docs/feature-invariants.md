@@ -975,6 +975,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   müdahale edilemez; Tür yalnız `Birim`/`Administration` (card #1719). Düzenle Tür
   default `Birim`, mevcut `Administration` korunur (card #1720). Yönetim seçilince müdür
   etiketi `Yönetici`.
+- **SMS sağlayıcı dropdown (#6a6ef1a7):** listede `Custom` yok; entegrasyonu olmayan
+  sağlayıcı uyarısı: "…henüz yok. Destek talebinde bulununuz." (AsistSMS yönlendirmesi yok).
+  Kayıtlı `Custom`/`JettMesaj` hâlâ seçenek olarak görünür.
+- **Talep Oluştur doğrulama (#6a6ef103):** kırmızı `.error` kutusu `error--create-request`
+  ile `1rem` punto (global `.error` 0.88rem kalır).
 - **Kurum sekmesi 2×2 (#6a6cdcad):** Kurum Bilgisi | Kurum Konumu / SMS API | Hafta Sonu SLA
   (`xl:grid-cols-2`, `items-stretch` + `h-full`; dış/`grid` `gap-6` eşit düşey boşluk;
   Kaydet `mt-auto`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).

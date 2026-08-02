@@ -145,13 +145,17 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 .Select(link => link.Department.Name)
                 .Distinct()
                 .ToListAsync(cancellationToken);
+            var departmentNames = string.Join(", ", targetDepartmentNames);
             var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
                 message,
                 job,
                 taskCount,
                 utcNow,
                 template,
-                string.Join(", ", targetDepartmentNames));
+                departmentNames);
+            content = EnsureBlankLineBeforeTargetDepartments(content, departmentNames);
+            var terminalNote = await ResolveTerminalNoteAsync(tenantId, job, statusLabel, cancellationToken);
+            content = AppendSmsTerminalNote(content, terminalNote);
             await SendSmsAsync(tenantId, message, content, cancellationToken);
             return;
         }
@@ -309,7 +313,48 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return;
         }
 
+        // Phone non-terminal (İşleme Alındı / Yapılmakta) — not yok.
+        // Terminal Phone SMS bu yoldan gelmez (RequiresOperatorApproval defer); release yolunda not eklenir.
         await SendSmsAsync(tenantId, message, content, cancellationToken);
+    }
+
+    /// <summary>
+    /// Çağrı SMS: {GönderilenBirim} değerinden önce 1 boş satır (#6a6f0928).
+    /// </summary>
+    internal static string EnsureBlankLineBeforeTargetDepartments(string content, string? targetDepartments)
+    {
+        if (string.IsNullOrWhiteSpace(content) || string.IsNullOrWhiteSpace(targetDepartments))
+        {
+            return content;
+        }
+
+        var departments = targetDepartments.Trim();
+        var idx = content.LastIndexOf(departments, StringComparison.Ordinal);
+        if (idx <= 0)
+        {
+            return content;
+        }
+
+        var before = content[..idx].TrimEnd();
+        if (before.EndsWith('\n'))
+        {
+            return content;
+        }
+
+        return before + "\n\n" + content[idx..];
+    }
+
+    /// <summary>
+    /// Çağrı SMS terminal notu: boş satır + "Not" + not metni (#6a6f0814 / #6a6f0928).
+    /// </summary>
+    internal static string AppendSmsTerminalNote(string content, string? note)
+    {
+        if (string.IsNullOrWhiteSpace(note))
+        {
+            return content;
+        }
+
+        return $"{content.TrimEnd()}\n\nNot\n{note.Trim()}";
     }
 
     private async Task<string?> ResolveTemplateAsync(

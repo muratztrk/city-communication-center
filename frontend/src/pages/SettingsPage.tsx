@@ -1583,11 +1583,11 @@ export function SettingsPage() {
                       placeholder={t('settings.sms.passwordPlaceholder')}
                       value={
                         smsForm.password
-                        ?? (smsSettings?.hasPassword && !smsForm.clearPassword ? SMS_PASSWORD_MASK : '')
+                        ?? (smsSettings?.hasPassword ? SMS_PASSWORD_MASK : '')
                       }
                       onFocus={() => {
                         // Maske varken odaklanınca temizle; kullanıcı yeni şifre yazabilsin.
-                        if (!smsForm.password && smsSettings?.hasPassword && !smsForm.clearPassword) {
+                        if (!smsForm.password && smsSettings?.hasPassword) {
                           setSmsForm(current => ({ ...current, password: '' }))
                         }
                       }}
@@ -1605,21 +1605,6 @@ export function SettingsPage() {
                         }))
                       }}
                     />
-                    {smsSettings?.hasPassword && (
-                      <label className="inline-flex items-center gap-2 text-sm text-slate-600">
-                        <input
-                          className="field-checkbox"
-                          type="checkbox"
-                          checked={smsForm.clearPassword}
-                          onChange={event => setSmsForm(current => ({
-                            ...current,
-                            clearPassword: event.target.checked,
-                            password: event.target.checked ? null : current.password,
-                          }))}
-                        />
-                        {t('settings.sms.clearPassword')}
-                      </label>
-                    )}
                   </div>
                   <div className="field-row">
                     <label className="field-label">{t('settings.sms.originator')}</label>

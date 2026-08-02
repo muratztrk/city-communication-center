@@ -25,15 +25,36 @@ internal static class SmsProviderErrorCodes
         ["122"] = "Geçersiz format — numara 90XXXXXXXXXX olmalı.",
     };
 
-    public static bool IsSuccess(string? code) =>
-        !string.IsNullOrWhiteSpace(code)
-        && (string.Equals(code.Trim(), "OK", StringComparison.OrdinalIgnoreCase)
-            || string.Equals(code.Trim(), "100", StringComparison.Ordinal));
+    /// <summary>
+    /// Asistel bazen <c>100</c>, bazen <c>100:transactionId</c> döner (#6a60a552).
+    /// İki-nokta öncesi durum kodu alınır.
+    /// </summary>
+    public static string NormalizeStatusCode(string? code)
+    {
+        if (string.IsNullOrWhiteSpace(code))
+        {
+            return string.Empty;
+        }
 
-    public static bool IsKnownErrorCode(string? code) =>
-        !string.IsNullOrWhiteSpace(code)
-        && Messages.ContainsKey(code.Trim())
-        && !IsSuccess(code);
+        var trimmed = code.Trim();
+        var colon = trimmed.IndexOf(':');
+        return colon > 0 ? trimmed[..colon].Trim() : trimmed;
+    }
+
+    public static bool IsSuccess(string? code)
+    {
+        var status = NormalizeStatusCode(code);
+        return string.Equals(status, "OK", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(status, "100", StringComparison.Ordinal);
+    }
+
+    public static bool IsKnownErrorCode(string? code)
+    {
+        var status = NormalizeStatusCode(code);
+        return !string.IsNullOrEmpty(status)
+            && Messages.ContainsKey(status)
+            && !IsSuccess(status);
+    }
 
     public static string Describe(string? code)
     {
@@ -43,8 +64,12 @@ internal static class SmsProviderErrorCodes
         }
 
         var trimmed = code.Trim();
-        return Messages.TryGetValue(trimmed, out var message)
-            ? message
-            : $"Sağlayıcı beklenmeyen yanıt döndürdü: {trimmed}";
+        var status = NormalizeStatusCode(trimmed);
+        if (Messages.TryGetValue(status, out var message))
+        {
+            return message;
+        }
+
+        return $"Sağlayıcı beklenmeyen yanıt döndürdü: {trimmed}";
     }
 }

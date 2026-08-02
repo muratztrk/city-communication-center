@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Infrastructure.Services;
 using CityCommunicationCenter.Infrastructure.Sms;
 
 namespace CityCommunicationCenter.Application.Tests.Domain;
@@ -90,9 +91,20 @@ public class SmsProviderErrorCodeTests
     [InlineData("100")]
     [InlineData("OK")]
     [InlineData("ok")]
+    [InlineData("100:107066193")]
+    [InlineData("100:107066171")]
     public void Success_codes_are_recognized(string code)
     {
         Assert.True(SmsProviderErrorCodes.IsSuccess(code));
+    }
+
+    [Fact]
+    public void Success_with_transaction_id_describes_as_loaded()
+    {
+        Assert.Equal(
+            "SMS sunucuya başarıyla yüklendi.",
+            SmsProviderErrorCodes.Describe("100:107066193"));
+        Assert.False(SmsProviderErrorCodes.IsKnownErrorCode("100:107066193"));
     }
 
     [Theory]
@@ -125,5 +137,30 @@ public class AsistelSendAtFormatTests
         Assert.Equal(14, formatted.Length);
         Assert.Equal("02082026113045", formatted);
         Assert.True(formatted.All(char.IsDigit));
+    }
+}
+
+public class CitizenSmsTerminalNoteFormatTests
+{
+    [Fact]
+    public void Blank_line_before_department_and_Not_label()
+    {
+        var withDept = CitizenJobStatusNotifier.EnsureBlankLineBeforeTargetDepartments(
+            "VT-2026-1 no'lu Başlık talebinizin durumu \"Tamamlandı\". Fen İşleri Müdürlüğü",
+            "Fen İşleri Müdürlüğü");
+        Assert.Equal(
+            "VT-2026-1 no'lu Başlık talebinizin durumu \"Tamamlandı\".\n\nFen İşleri Müdürlüğü",
+            withDept);
+
+        var withNote = CitizenJobStatusNotifier.AppendSmsTerminalNote(withDept, "Sahada tamamlandı.");
+        Assert.Equal(
+            "VT-2026-1 no'lu Başlık talebinizin durumu \"Tamamlandı\".\n\nFen İşleri Müdürlüğü\n\nNot\nSahada tamamlandı.",
+            withNote);
+    }
+
+    [Fact]
+    public void Append_skips_empty_note()
+    {
+        Assert.Equal("metin", CitizenJobStatusNotifier.AppendSmsTerminalNote("metin", "  "));
     }
 }

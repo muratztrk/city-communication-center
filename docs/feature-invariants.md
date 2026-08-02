@@ -979,10 +979,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   boş → placeholder `SMS sağlayıcısı seçiniz` (`SmsProvider.Unspecified`, NetGSM'e düşmez).
   Entegrasyonu olmayan sağlayıcı uyarısı: "…Destek talebinde bulununuz."
   Kayıtlı `Custom`/`JettMesaj` hâlâ seçenek olarak görünür.
-- **SMS şifre alanı (#6a6efd02):** kayıtlı parola varken input değeri `********` (maske API'ye
-  gitmez; null = mevcut şifre korunur).
+- **SMS şifre alanı (#6a6efd02/#6a6f06f8):** kayıtlı parola varken input değeri `********`
+  (maske API'ye gitmez; null = mevcut şifre korunur). `Kayıtlı şifreyi sil` checkbox yok.
 - **Asistel gonderimTarihi (#6a6efc64):** boş string 108 hatası verir; anlık gönderimde
   Europe/Istanbul `ddMMyyyyHHmmss` gönderilir.
+- **Asistel başarı yanıtı (#6a60a552):** `100` ve `100:transactionId` başarıdır (SMS iletilmiş
+  olsa bile UI hata göstermez).
+- **Çağrı terminal SMS notu (#6a6f0814/#6a6f0928):** Operatör Sms Onayı gönderiminde
+  `{GönderilenBirim}` değerinden önce `\n\n`; ardından `\n\nNot\n{not}`.
 - **Talep Oluştur doğrulama (#6a6ef103):** kırmızı `.error` kutusu `error--create-request`
   ile `1rem` punto (global `.error` 0.88rem kalır).
 - **Kurum sekmesi 2×2 (#6a6cdcad):** Kurum Bilgisi | Kurum Konumu / SMS API | Hafta Sonu SLA

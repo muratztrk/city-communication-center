@@ -1,3 +1,8 @@
+## Round 647 — SMS clear-pwd kaldır, Asistel 100:id, çağrı SMS Not (4 kart)
+- Kayıtlı şifreyi sil checkbox kaldırıldı
+- Asistel `100:transactionId` başarı
+- Çağrı terminal SMS: boş satır + birim; boş satır + Not + not metni
+
 ## Round 646 — SMS provider placeholder, şifre maskesi, Asistel tarih (3 kart)
 - Dropdown varsayılan: "SMS sağlayıcısı seçiniz" (Unspecified; NetGSM default yok)
 - Kaydet sonrası şifre alanında ********

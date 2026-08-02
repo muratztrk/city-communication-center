@@ -1,3 +1,6 @@
+## Round 651b — Birim Dışı dropzone yüksekliği (#6a6f2982)
+- Dosya sürükle alanı min-h 4rem→3.25rem, py azaltıldı
+
 ## Round 651 — WA terminal birim boş satır, form ilk harf, pie yazdır VT No (3 kart)
 - WA tamamlandı/iptal: {GönderilenBirim} öncesi boş satır
 - Talep Oluştur başlık/ad/açıklama: blur+submit ilk harf TR büyük

@@ -994,6 +994,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA terminal not (#6a6f24e7):** tamamlandı/iptal mesajından sonra `\n\n` + not metni;
   ayrıca `{GönderilenBirim}` öncesi `\n\n` (release yolu).
 - **Talep Oluştur ilk harf (#6a6f496e):** Birim İçi/Dışı/Çağrı formlarında başlık, vatandaş
+- **Birim Dışı dosya dropzone (#6a6f2982):** `min-h` 4rem→3.25rem, dikey padding azaltıldı.
   adı ve açıklama blur/submit'te yalnız ilk harf TR büyük (`ensureLeadingCapitalTr` /
   `ensureLeadingCapitalRichText`) — title-case değil.
 - **Pie yazdır VT No (#6a6f46e6):** Vatandaş Talep No kullanan pie yazdırlarında

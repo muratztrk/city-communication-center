@@ -1,3 +1,9 @@
+## Round 649 — çağrı SMS boş satır, Sms Onayı filtre, şablon nokta, WA profil (4 kart)
+- Non-terminal çağrı SMS: birim öncesi boş satır
+- Sms Onayı to-send: RespondedAtUtc < ReleasedAt (erken durum SMS'i engellemesin)
+- Taslak Mesajlar: yeşil/kırmızı aktif nokta
+- Çağrı ad/telefon → CitizenConversation senkron; Job adı ayrı
+
 ## Round 648 — Test SMS başarı metni
 - "SMS sunucuya başarıyla yüklendi." → "SMS başarıyla gönderildi."
 

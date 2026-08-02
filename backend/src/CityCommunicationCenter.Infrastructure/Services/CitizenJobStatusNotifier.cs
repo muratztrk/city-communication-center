@@ -271,13 +271,14 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             .Select(link => link.Department.Name)
             .Distinct()
             .ToListAsync(cancellationToken);
+        var departmentNames = string.Join(", ", targetDepartmentNames);
         var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
             message,
             job,
             taskCount,
             utcNow,
             template,
-            string.Join(", ", targetDepartmentNames));
+            departmentNames);
         var statusLabel = CitizenJobStatusLabelHelper.GetDisplayStatus(job, taskCount, utcNow);
 
         if (message.Channel == SocialChannel.WhatsApp)
@@ -313,8 +314,9 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return;
         }
 
-        // Phone non-terminal (İşleme Alındı / Yapılmakta) — not yok.
+        // Phone non-terminal (İşleme Alındı / Yapılmakta) — not yok; birim öncesi boş satır (#6a6f19af).
         // Terminal Phone SMS bu yoldan gelmez (RequiresOperatorApproval defer); release yolunda not eklenir.
+        content = EnsureBlankLineBeforeTargetDepartments(content, departmentNames);
         await SendSmsAsync(tenantId, message, content, cancellationToken);
     }
 

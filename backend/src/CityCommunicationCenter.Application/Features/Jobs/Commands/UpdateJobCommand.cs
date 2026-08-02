@@ -270,8 +270,156 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             });
         }
 
+        // Çağrı talebi adı/telefonu değişince WhatsApp konuşma profilini eşleştir (#6a6f1d32).
+        // Job.CitizenName talep bazlı kalır; konuşma profili son form değerine güncellenir.
+        if (previousCitizenName != job.CitizenName || previousCitizenPhone != job.CitizenPhone)
+        {
+            await SyncCitizenConversationProfileAsync(
+                tenantId,
+                job,
+                utcNow,
+                actor.UserId,
+                cancellationToken);
+        }
+
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    private async Task SyncCitizenConversationProfileAsync(
+        Guid tenantId,
+        Job job,
+        DateTimeOffset utcNow,
+        Guid actorUserId,
+        CancellationToken cancellationToken)
+    {
+        var normalizedPhone = NormalizeConversationPhone(job.CitizenPhone);
+        if (normalizedPhone is null)
+        {
+            return;
+        }
+
+        var linkedMessages = await _dbContext.SocialMessages
+            .Where(message => message.JobId == job.JobId && message.TenantId == tenantId)
+            .ToListAsync(cancellationToken);
+
+        // Unique (TenantId, CitizenPhone): önce telefon sahibi; çakışmada eski konuşmanın
+        // numarasını ezme — mesajları doğru konuşmaya taşı (#6a6f1d32).
+        var phoneVariants = ConversationPhoneVariants(normalizedPhone);
+        var phoneOwner = await _dbContext.CitizenConversations
+            .FirstOrDefaultAsync(
+                item => item.TenantId == tenantId && phoneVariants.Contains(item.CitizenPhone),
+                cancellationToken);
+
+        CitizenConversation? linked = null;
+        var linkedConversationId = linkedMessages
+            .Select(message => message.CitizenConversationId)
+            .FirstOrDefault(id => id.HasValue);
+        if (linkedConversationId is Guid conversationId)
+        {
+            linked = await _dbContext.CitizenConversations
+                .FirstOrDefaultAsync(
+                    item => item.CitizenConversationId == conversationId && item.TenantId == tenantId,
+                    cancellationToken);
+        }
+
+        CitizenConversation conversation;
+        if (phoneOwner is not null)
+        {
+            conversation = phoneOwner;
+            if (!string.Equals(conversation.CitizenPhone, normalizedPhone, StringComparison.Ordinal))
+            {
+                conversation.CitizenPhone = normalizedPhone;
+            }
+        }
+        else if (linked is not null)
+        {
+            linked.CitizenPhone = normalizedPhone;
+            conversation = linked;
+        }
+        else
+        {
+            conversation = new CitizenConversation
+            {
+                CitizenConversationId = Guid.NewGuid(),
+                TenantId = tenantId,
+                CitizenPhone = normalizedPhone,
+                LastMessageAt = utcNow,
+                UnreadCount = 0,
+                CreatedByUserId = actorUserId,
+            };
+            _dbContext.CitizenConversations.Add(conversation);
+        }
+
+        if (!string.IsNullOrWhiteSpace(job.CitizenName))
+        {
+            conversation.CitizenName = job.CitizenName.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(job.Neighborhood))
+        {
+            conversation.Neighborhood = job.Neighborhood.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(job.Street))
+        {
+            conversation.Street = job.Street.Trim();
+        }
+
+        if (!string.IsNullOrWhiteSpace(job.OpenAddress))
+        {
+            conversation.OpenAddress = job.OpenAddress.Trim();
+        }
+
+        conversation.LastMessageAt = utcNow;
+        conversation.UpdatedAtUtc = utcNow;
+        conversation.UpdatedByUserId = actorUserId;
+
+        foreach (var message in linkedMessages)
+        {
+            message.CitizenConversationId = conversation.CitizenConversationId;
+            message.UpdatedAtUtc = utcNow;
+            message.UpdatedByUserId = actorUserId;
+        }
+    }
+
+    /// <summary>E.164 TR storage: 905XXXXXXXXX (ConvertSocialMessageToJob ile aynı).</summary>
+    private static string? NormalizeConversationPhone(string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone))
+        {
+            return null;
+        }
+
+        var digits = new string(phone.Where(char.IsDigit).ToArray());
+        if (digits.Length == 10)
+        {
+            return "90" + digits;
+        }
+
+        if (digits.Length == 11 && digits.StartsWith('0'))
+        {
+            return "90" + digits[1..];
+        }
+
+        if (digits.Length == 12 && digits.StartsWith("90", StringComparison.Ordinal))
+        {
+            return digits;
+        }
+
+        return digits.Length is >= 10 and <= 15 ? digits : null;
+    }
+
+    private static IReadOnlyList<string> ConversationPhoneVariants(string normalizedPhone)
+    {
+        var variants = new HashSet<string>(StringComparer.Ordinal) { normalizedPhone };
+        if (normalizedPhone.Length == 12 && normalizedPhone.StartsWith("90", StringComparison.Ordinal))
+        {
+            variants.Add(normalizedPhone[2..]);
+            variants.Add("0" + normalizedPhone[2..]);
+        }
+
+        return variants.ToArray();
     }
 
     private static bool DateChangedAtMinutePrecision(DateTimeOffset? previous, DateTimeOffset? next)

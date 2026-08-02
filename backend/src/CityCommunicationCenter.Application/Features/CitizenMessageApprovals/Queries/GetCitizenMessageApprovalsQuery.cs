@@ -64,8 +64,10 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
         var scope = (request.Scope ?? "to-send").Trim().ToLowerInvariant();
         if (smsMode)
         {
-            // Sms Onayı: yönetici onayı (release) sonrası; SMS henüz gitmemiş = to-send.
-            // RespondedAtUtc, SendSmsAsync başarı bayrağıdır.
+            // Sms Onayı: yönetici release sonrası.
+            // İşleme Alındı/Yapılmakta SMS'i RespondedAtUtc'yi erken set eder (#6a5e1e23) —
+            // terminal SMS bekleyen = RespondedAtUtc yok VEYA release'ten önce.
+            // Terminal SMS gönderilince RespondedAtUtc >= ReleasedAt olur.
             q = scope switch
             {
                 "sent" => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc != null
@@ -73,6 +75,7 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
                         && m.Channel == SocialChannel.Phone
                         && m.CitizenRequestNumber != null
                         && m.RespondedAtUtc != null
+                        && m.RespondedAtUtc >= j.CitizenTerminalMessageReleasedAtUtc
                         && (m.JobId == j.JobId
                             || (j.SourceRefId.HasValue && m.SocialMessageId == j.SourceRefId.Value)))),
                 "all" => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc != null),
@@ -80,7 +83,8 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
                     && _dbContext.SocialMessages.Any(m => m.TenantId == tenantId
                         && m.Channel == SocialChannel.Phone
                         && m.CitizenRequestNumber != null
-                        && m.RespondedAtUtc == null
+                        && (m.RespondedAtUtc == null
+                            || m.RespondedAtUtc < j.CitizenTerminalMessageReleasedAtUtc)
                         && (m.JobId == j.JobId
                             || (j.SourceRefId.HasValue && m.SocialMessageId == j.SourceRefId.Value)))),
             };

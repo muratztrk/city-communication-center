@@ -164,34 +164,45 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
         string? openAddress,
         CancellationToken cancellationToken)
     {
-        if (message.CitizenConversationId.HasValue)
-        {
-            var existingLinked = await _dbContext.CitizenConversations
-                .FirstOrDefaultAsync(
-                    conversation => conversation.CitizenConversationId == message.CitizenConversationId.Value
-                        && conversation.TenantId == tenantId,
-                    cancellationToken);
-            if (existingLinked is not null)
-            {
-                ApplyConversationProfile(existingLinked, citizenName, neighborhood, street, openAddress);
-                existingLinked.LastMessageAt = DateTimeOffset.UtcNow;
-                return;
-            }
-        }
-
         var normalizedPhone = NormalizeConversationPhone(citizenPhone);
         if (normalizedPhone is null)
         {
             return;
         }
 
+        // (TenantId, CitizenPhone) unique — önce telefon sahibi konuşmayı bul; çakışmada
+        // eski konuşmanın numarasını ezme, mesajı doğru konuşmaya taşı (#6a6f1d32).
         var phoneVariants = ConversationPhoneVariants(normalizedPhone);
-        var conversation = await _dbContext.CitizenConversations
+        var phoneOwner = await _dbContext.CitizenConversations
             .FirstOrDefaultAsync(
                 item => item.TenantId == tenantId && phoneVariants.Contains(item.CitizenPhone),
                 cancellationToken);
 
-        if (conversation is null)
+        CitizenConversation? linked = null;
+        if (message.CitizenConversationId.HasValue)
+        {
+            linked = await _dbContext.CitizenConversations
+                .FirstOrDefaultAsync(
+                    conversation => conversation.CitizenConversationId == message.CitizenConversationId.Value
+                        && conversation.TenantId == tenantId,
+                    cancellationToken);
+        }
+
+        CitizenConversation conversation;
+        if (phoneOwner is not null)
+        {
+            conversation = phoneOwner;
+            if (!string.Equals(conversation.CitizenPhone, normalizedPhone, StringComparison.Ordinal))
+            {
+                conversation.CitizenPhone = normalizedPhone;
+            }
+        }
+        else if (linked is not null)
+        {
+            linked.CitizenPhone = normalizedPhone;
+            conversation = linked;
+        }
+        else
         {
             conversation = new CitizenConversation
             {
@@ -203,12 +214,9 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             };
             _dbContext.CitizenConversations.Add(conversation);
         }
-        else
-        {
-            conversation.LastMessageAt = DateTimeOffset.UtcNow;
-        }
 
         ApplyConversationProfile(conversation, citizenName, neighborhood, street, openAddress);
+        conversation.LastMessageAt = DateTimeOffset.UtcNow;
         message.CitizenConversationId = conversation.CitizenConversationId;
     }
 

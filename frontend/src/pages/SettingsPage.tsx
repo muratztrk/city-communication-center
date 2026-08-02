@@ -2696,7 +2696,15 @@ export function SettingsPage() {
                   onClick={() => selectTemplate(tpl)}
                   className={`flex w-full items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors ${selectedTemplateId === tpl.templateId ? 'bg-[color:var(--color-primary)]/10 font-bold text-[color:var(--color-primary)]' : 'font-medium text-slate-700 hover:bg-slate-50'}`}
                 >
-                  <span className="min-w-0 truncate">{tpl.name}</span>
+                  <span className="flex min-w-0 items-center gap-2">
+                    {/* Aktif/pasif yuvarlak ikon (#6a6f1ab6): yeşil=aktif, kırmızı=pasif. */}
+                    <span
+                      className={`size-2.5 shrink-0 rounded-full ${tpl.isActive ? 'bg-emerald-500' : 'bg-rose-500'}`}
+                      title={tpl.isActive ? 'Aktif' : 'Pasif'}
+                      aria-label={tpl.isActive ? 'Aktif' : 'Pasif'}
+                    />
+                    <span className="min-w-0 truncate">{tpl.name}</span>
+                  </span>
                   {isMetaWhatsAppTemplate(tpl) ? (
                     <span className="shrink-0 rounded px-1.5 py-0.5 text-[9px] font-extrabold uppercase tracking-wide bg-emerald-100 text-emerald-700">
                       Meta

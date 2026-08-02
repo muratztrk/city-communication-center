@@ -1,3 +1,8 @@
+## Round 646 — SMS provider placeholder, şifre maskesi, Asistel tarih (3 kart)
+- Dropdown varsayılan: "SMS sağlayıcısı seçiniz" (Unspecified; NetGSM default yok)
+- Kaydet sonrası şifre alanında ********
+- Asistel Test SMS 108: gonderimTarihi = TR ddMMyyyyHHmmss
+
 ## Round 645 — Talep Oluştur hata punto + SMS Custom kaldırma (2 kart)
 - Create Request `.error` punto 0.88→1rem (`error--create-request`)
 - SMS dropdown'dan Özel(Custom) silindi; entegrasyon yok mesajı destek talebi

@@ -975,9 +975,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   müdahale edilemez; Tür yalnız `Birim`/`Administration` (card #1719). Düzenle Tür
   default `Birim`, mevcut `Administration` korunur (card #1720). Yönetim seçilince müdür
   etiketi `Yönetici`.
-- **SMS sağlayıcı dropdown (#6a6ef1a7):** listede `Custom` yok; entegrasyonu olmayan
-  sağlayıcı uyarısı: "…henüz yok. Destek talebinde bulununuz." (AsistSMS yönlendirmesi yok).
+- **SMS sağlayıcı dropdown (#6a6ef1a7/#6a6efa2c):** listede `Custom` yok; varsayılan seçim
+  boş → placeholder `SMS sağlayıcısı seçiniz` (`SmsProvider.Unspecified`, NetGSM'e düşmez).
+  Entegrasyonu olmayan sağlayıcı uyarısı: "…Destek talebinde bulununuz."
   Kayıtlı `Custom`/`JettMesaj` hâlâ seçenek olarak görünür.
+- **SMS şifre alanı (#6a6efd02):** kayıtlı parola varken input değeri `********` (maske API'ye
+  gitmez; null = mevcut şifre korunur).
+- **Asistel gonderimTarihi (#6a6efc64):** boş string 108 hatası verir; anlık gönderimde
+  Europe/Istanbul `ddMMyyyyHHmmss` gönderilir.
 - **Talep Oluştur doğrulama (#6a6ef103):** kırmızı `.error` kutusu `error--create-request`
   ile `1rem` punto (global `.error` 0.88rem kalır).
 - **Kurum sekmesi 2×2 (#6a6cdcad):** Kurum Bilgisi | Kurum Konumu / SMS API | Hafta Sonu SLA

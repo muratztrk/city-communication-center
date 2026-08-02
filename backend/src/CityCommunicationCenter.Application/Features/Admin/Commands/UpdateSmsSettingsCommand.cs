@@ -15,7 +15,7 @@ public sealed record UpdateSmsSettingsCommand(
 public sealed class UpdateSmsSettingsCommandValidator : AbstractValidator<UpdateSmsSettingsCommand>
 {
     private static readonly string[] ValidProviders =
-        ["NetGSM", "Iletimerkezi", "Verimor", "Custom", "Asistel", "JettMesaj"];
+        ["NetGSM", "Iletimerkezi", "Verimor", "Custom", "Asistel", "JettMesaj", "Infobip"];
 
     /// <summary>Gerçek gönderim entegrasyonu yazılmış sağlayıcılar.</summary>
     private static readonly string[] SendableProviders = ["Asistel", "JettMesaj"];
@@ -28,8 +28,8 @@ public sealed class UpdateSmsSettingsCommandValidator : AbstractValidator<Update
         When(command => command.IsEnabled, () =>
         {
             RuleFor(command => command.Provider)
-                .Must(p => ValidProviders.Contains(p))
-                .WithMessage("Sağlayıcı şunlardan biri olmalı: NetGSM, İletimerkezi, Verimor, Özel, Asistel, jeTTMesaj.");
+                .Must(p => !string.IsNullOrWhiteSpace(p) && ValidProviders.Contains(p))
+                .WithMessage("SMS sağlayıcısı seçiniz.");
 
             When(command => command.Provider == "Custom", () =>
             {
@@ -68,7 +68,11 @@ public sealed class UpdateSmsSettingsCommandHandler : ICommandHandler<UpdateSmsS
 
     public async ValueTask<Unit> Handle(UpdateSmsSettingsCommand request, CancellationToken cancellationToken)
     {
-        var provider = Enum.TryParse<SmsProvider>(request.Provider, out var parsed) ? parsed : SmsProvider.NetGSM;
+        var provider = !string.IsNullOrWhiteSpace(request.Provider)
+            && Enum.TryParse<SmsProvider>(request.Provider, ignoreCase: true, out var parsed)
+            && parsed != SmsProvider.Unspecified
+                ? parsed
+                : SmsProvider.Unspecified;
 
         await _tenantSmsSettingsService.SaveSettingsAsync(
             request.TenantId,

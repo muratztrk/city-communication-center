@@ -1151,6 +1151,7 @@
       "sectionDescription": "Configure the SMS API used by the system to send messages.",
       "isEnabled": "SMS Sending Enabled",
       "provider": "SMS Provider",
+      "providerPlaceholder": "Select an SMS provider",
       "providers": {
         "Asistel": "AsistSMS",
         "Infobip": "Infobip",

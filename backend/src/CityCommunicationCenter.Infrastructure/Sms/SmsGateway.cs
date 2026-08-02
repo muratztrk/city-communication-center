@@ -68,6 +68,11 @@ internal sealed class SmsGateway : ISmsGateway
             return SmsSendResult.Fail("SMS gönderimi Ayarlar'da kapalı.");
         }
 
+        if (credentials.Provider == SmsProvider.Unspecified)
+        {
+            return SmsSendResult.Fail("SMS sağlayıcısı seçilmedi. Ayarlar > SMS API'den seçin.");
+        }
+
         if (!_senders.TryGetValue(credentials.Provider, out var sender))
         {
             return SmsSendResult.Fail(

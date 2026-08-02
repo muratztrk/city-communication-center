@@ -27,10 +27,15 @@ public sealed class GetSmsSettingsQueryHandler : IQueryHandler<GetSmsSettingsQue
 
         var settings = await _tenantSmsSettingsService.GetSettingsAsync(request.TenantId, cancellationToken);
 
+        // Unspecified → FE dropdown placeholder "SMS sağlayıcısı seçiniz" (#6a6efa2c).
+        var provider = settings.Provider == SmsProvider.Unspecified
+            ? string.Empty
+            : settings.Provider.ToString();
+
         return new SmsSettingsResponse(
             settings.IsEnabled,
             settings.LiveSendEnabled,
-            settings.Provider.ToString(),
+            provider,
             settings.ApiUrl,
             settings.Username,
             settings.HasPassword,

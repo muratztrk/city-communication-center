@@ -49,7 +49,8 @@ import type {
   SyslogSettingsUpdate,
   SlaWeekendSettingsUpdate,
 } from '../types/platform'
-import { SMS_PROVIDER_OPTIONS, SMS_SENDABLE_PROVIDERS } from '../types/platform'
+import { SMS_PASSWORD_MASK, SMS_PROVIDER_OPTIONS, SMS_SENDABLE_PROVIDERS } from '../types/platform'
+import type { SmsProviderSelection } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
 
 type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates' | 'license'
@@ -446,7 +447,7 @@ export function SettingsPage() {
   const [smsTestPhone, setSmsTestPhone] = useState('')
   const [smsTestStatus, setSmsTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [smsForm, setSmsForm] = useState<SmsSettingsUpdate>({
-    isEnabled: false, liveSendEnabled: false, provider: 'Asistel', apiUrl: null,
+    isEnabled: false, liveSendEnabled: false, provider: '', apiUrl: null,
     username: null, password: null, clearPassword: false, originator: null, chargedNumber: null,
   })
   const [syslogForm, setSyslogForm] = useState<SyslogSettingsUpdate>({
@@ -582,7 +583,7 @@ export function SettingsPage() {
         setSmsForm({
           isEnabled: smsResponse.isEnabled,
           liveSendEnabled: smsResponse.liveSendEnabled,
-          provider: smsResponse.provider,
+          provider: (smsResponse.provider || '') as SmsProviderSelection,
           apiUrl: smsResponse.apiUrl,
           username: smsResponse.username,
           password: null,
@@ -879,9 +880,14 @@ export function SettingsPage() {
 
     setMessage(null)
     try {
+      // Maske değeri API'ye gitmesin — null = mevcut kayıtlı şifre korunur (#6a6efd02).
+      const passwordToSave = smsForm.password && smsForm.password !== SMS_PASSWORD_MASK
+        ? smsForm.password
+        : null
       // API URL / chargedParty / simülasyon FE'de yok — kod varsayılanı: gerçek gönderim açık.
       await api.updateSmsSettings(user.tenantId, {
         ...smsForm,
+        password: passwordToSave,
         apiUrl: null,
         chargedNumber: null,
         liveSendEnabled: true,
@@ -889,7 +895,12 @@ export function SettingsPage() {
       invalidateSettings(queryClient)
       const refreshed = await api.getSmsSettings(user.tenantId)
       setSmsSettings(refreshed)
-      setSmsForm(current => ({ ...current, password: null, clearPassword: false }))
+      setSmsForm(current => ({
+        ...current,
+        provider: (refreshed.provider || '') as SmsProviderSelection,
+        password: null,
+        clearPassword: false,
+      }))
       setMessage({ type: 'success', text: t('settings.sms.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
@@ -1540,16 +1551,17 @@ export function SettingsPage() {
                       value={smsForm.provider}
                       onChange={provider => setSmsForm(current => ({
                         ...current,
-                        provider: provider as SmsSettingsUpdate['provider'],
+                        provider: provider as SmsProviderSelection,
                         // API URL / chargedParty FE'den kalktı — kod tarafı varsayılanları kullanılsın.
                         apiUrl: null,
                         chargedNumber: null,
                         liveSendEnabled: true,
                       }))}
-                      placeholder={t('settings.sms.provider')}
+                      placeholder={t('settings.sms.providerPlaceholder', 'SMS sağlayıcısı seçiniz')}
+                      clearable
                     />
                   </div>
-                  {!SMS_SENDABLE_PROVIDERS.includes(smsForm.provider) && (
+                  {smsForm.provider && !SMS_SENDABLE_PROVIDERS.includes(smsForm.provider as typeof SMS_SENDABLE_PROVIDERS[number]) && (
                     <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800">
                       {t('settings.sms.providerNotImplemented')}
                     </p>
@@ -1569,8 +1581,29 @@ export function SettingsPage() {
                       className="field-input"
                       type="password"
                       placeholder={t('settings.sms.passwordPlaceholder')}
-                      value={smsForm.password ?? ''}
-                      onChange={event => setSmsForm(current => ({ ...current, password: event.target.value || null }))}
+                      value={
+                        smsForm.password
+                        ?? (smsSettings?.hasPassword && !smsForm.clearPassword ? SMS_PASSWORD_MASK : '')
+                      }
+                      onFocus={() => {
+                        // Maske varken odaklanınca temizle; kullanıcı yeni şifre yazabilsin.
+                        if (!smsForm.password && smsSettings?.hasPassword && !smsForm.clearPassword) {
+                          setSmsForm(current => ({ ...current, password: '' }))
+                        }
+                      }}
+                      onBlur={() => {
+                        if (smsForm.password === '') {
+                          setSmsForm(current => ({ ...current, password: null }))
+                        }
+                      }}
+                      onChange={event => {
+                        const next = event.target.value
+                        setSmsForm(current => ({
+                          ...current,
+                          password: next === SMS_PASSWORD_MASK ? null : (next || null),
+                          clearPassword: false,
+                        }))
+                      }}
                     />
                     {smsSettings?.hasPassword && (
                       <label className="inline-flex items-center gap-2 text-sm text-slate-600">
@@ -1578,7 +1611,11 @@ export function SettingsPage() {
                           className="field-checkbox"
                           type="checkbox"
                           checked={smsForm.clearPassword}
-                          onChange={event => setSmsForm(current => ({ ...current, clearPassword: event.target.checked }))}
+                          onChange={event => setSmsForm(current => ({
+                            ...current,
+                            clearPassword: event.target.checked,
+                            password: event.target.checked ? null : current.password,
+                          }))}
                         />
                         {t('settings.sms.clearPassword')}
                       </label>

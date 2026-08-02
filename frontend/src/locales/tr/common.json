@@ -1157,6 +1157,7 @@
       "sectionDescription": "Sistemin SMS göndermesi için kullanılacak API ayarlarını yapılandırın.",
       "isEnabled": "SMS Gönderimi Aktif",
       "provider": "SMS Sağlayıcısı",
+      "providerPlaceholder": "SMS sağlayıcısı seçiniz",
       "providers": {
         "Asistel": "AsistSMS",
         "Infobip": "Infobip",

@@ -37,8 +37,8 @@ internal sealed class AsistelSmsSender : ISmsProviderSender
         // ApiUrl yalnız sağlayıcının bilinen host'una işaret edebilir (bkz. SmsEndpointAllowList).
         var endpoint = SmsEndpointAllowList.Resolve(SmsProvider.Asistel, credentials.ApiUrl, DefaultEndpoint);
 
-        // gonderimTarihi boş = hemen gönder. Dolu gönderilirse ddMMyyyyHHmmss bekleniyor ve
-        // format tutmazsa 108 döner; anlık bildirimde tarih vermeye gerek yok.
+        // Boş gonderimTarihi Asistel'de 108 ("Tarih formatı yanlış") döndürüyor (#6a6efc64).
+        // Anlık gönderim için Europe/Istanbul saati ddMMyyyyHHmmss verilmeli.
         var envelope = new XDocument(
             new XElement(Soap + "Envelope",
                 new XAttribute(XNamespace.Xmlns + "soap", Soap.NamespaceName),
@@ -50,7 +50,7 @@ internal sealed class AsistelSmsSender : ISmsProviderSender
                             new XElement(Tempuri + "string", normalizedPhone)),
                         new XElement(Tempuri + "smsText",
                             new XElement(Tempuri + "string", text)),
-                        new XElement(Tempuri + "gonderimTarihi", string.Empty),
+                        new XElement(Tempuri + "gonderimTarihi", FormatImmediateSendAt()),
                         new XElement(Tempuri + "alfaNumeric", credentials.Originator ?? string.Empty),
                         new XElement(Tempuri + "chargedNumber", credentials.ChargedNumber ?? string.Empty),
                         // Tek metin tek/çok numaraya → false (her numaraya ayrı metin için true).
@@ -117,6 +117,31 @@ internal sealed class AsistelSmsSender : ISmsProviderSender
         catch (System.Xml.XmlException)
         {
             return null;
+        }
+    }
+
+    /// <summary>Asistel EK-A: gonderimTarihi = ddMMyyyyHHmmss (Türkiye saati).</summary>
+    internal static string FormatImmediateSendAt(DateTimeOffset? utcNow = null)
+    {
+        var utc = (utcNow ?? DateTimeOffset.UtcNow).UtcDateTime;
+        var tz = ResolveTurkeyTimeZone();
+        var local = TimeZoneInfo.ConvertTimeFromUtc(utc, tz);
+        return local.ToString("ddMMyyyyHHmmss");
+    }
+
+    private static TimeZoneInfo ResolveTurkeyTimeZone()
+    {
+        try
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById("Europe/Istanbul");
+        }
+        catch (TimeZoneNotFoundException)
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
+        }
+        catch (InvalidTimeZoneException)
+        {
+            return TimeZoneInfo.FindSystemTimeZoneById("Turkey Standard Time");
         }
     }
 

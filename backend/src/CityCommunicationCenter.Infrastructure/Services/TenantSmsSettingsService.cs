@@ -47,8 +47,13 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
             payload.ChargedNumber);
     }
 
+    /// <summary>Boş / bilinmeyen → <see cref="SmsProvider.Unspecified"/> (NetGSM'e düşme).</summary>
     private static SmsProvider ParseProvider(string? value) =>
-        Enum.TryParse<SmsProvider>(value, out var provider) ? provider : SmsProvider.NetGSM;
+        !string.IsNullOrWhiteSpace(value)
+        && Enum.TryParse<SmsProvider>(value, ignoreCase: true, out var provider)
+        && provider != SmsProvider.Unspecified
+            ? provider
+            : SmsProvider.Unspecified;
 
     public async Task SaveSettingsAsync(Guid tenantId, TenantSmsSettingsUpdate settings, Guid? actorUserId, CancellationToken cancellationToken = default)
     {
@@ -141,7 +146,8 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
         /// </summary>
         public bool LiveSendEnabled { get; set; }
 
-        public string Provider { get; set; } = nameof(SmsProvider.NetGSM);
+        /// <summary>Boş = henüz seçilmedi (#6a6efa2c); eski varsayılan NetGSM kaldırıldı.</summary>
+        public string Provider { get; set; } = string.Empty;
         public string? ApiUrl { get; set; }
         public string? Username { get; set; }
         public string? Password { get; set; }

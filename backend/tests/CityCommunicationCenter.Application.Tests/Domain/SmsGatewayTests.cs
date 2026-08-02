@@ -113,3 +113,17 @@ public class SmsProviderErrorCodeTests
         Assert.False(SmsProviderErrorCodes.IsSuccess("999"));
     }
 }
+
+public class AsistelSendAtFormatTests
+{
+    [Fact]
+    public void FormatImmediateSend_is_ddMMyyyyHHmmss()
+    {
+        // 2026-08-02 08:30:45 UTC → TR (UTC+3) 11:30:45 → 02082026113045
+        var utc = new DateTimeOffset(2026, 8, 2, 8, 30, 45, TimeSpan.Zero);
+        var formatted = AsistelSmsSender.FormatImmediateSendAt(utc);
+        Assert.Equal(14, formatted.Length);
+        Assert.Equal("02082026113045", formatted);
+        Assert.True(formatted.All(char.IsDigit));
+    }
+}

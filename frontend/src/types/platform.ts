@@ -839,6 +839,9 @@ export interface WorkingHoursSettings { default: WorkingHoursSchedule; departmen
 /** Asistel (SOAP) ve JettMesaj (GET) gerçek gönderim entegrasyonu olan sağlayıcılardır. */
 export type SmsProvider = 'NetGSM' | 'Iletimerkezi' | 'Verimor' | 'Custom' | 'Asistel' | 'JettMesaj' | 'Infobip';
 
+/** Boş = henüz seçilmedi; dropdown placeholder (#6a6efa2c). */
+export type SmsProviderSelection = SmsProvider | '';
+
 /** FE listesi alfabetik etiket sırası (kart #6a6ed75c); Custom kaldırıldı (#6a6ef1a7).
  *  JettMesaj / Custom kayıtlı eski değer SettingsPage'de seçenek olarak eklenir. */
 export const SMS_PROVIDER_OPTIONS: SmsProvider[] = [
@@ -851,11 +854,14 @@ export const SMS_PROVIDER_OPTIONS: SmsProvider[] = [
 
 export const SMS_SENDABLE_PROVIDERS: SmsProvider[] = ['Asistel', 'JettMesaj'];
 
+/** Kayıtlı şifre varken input'ta gösterilen maske; API'ye asla gönderilmez (#6a6efd02). */
+export const SMS_PASSWORD_MASK = '********';
+
 export interface SmsSettings {
   isEnabled: boolean;
   /** Kapalıyken otomatik vatandaş SMS'leri gönderilmez, yalnız loglanır (simülasyon). */
   liveSendEnabled: boolean;
-  provider: SmsProvider;
+  provider: SmsProviderSelection;
   apiUrl: string | null;
   username: string | null;
   hasPassword: boolean;
@@ -867,7 +873,7 @@ export interface SmsSettings {
 export interface SmsSettingsUpdate {
   isEnabled: boolean;
   liveSendEnabled: boolean;
-  provider: SmsProvider;
+  provider: SmsProviderSelection;
   apiUrl: string | null;
   username: string | null;
   password: string | null;

@@ -1423,9 +1423,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Anasayfa - Vatandaş pie popup (#6a6cff28/#6a6d9411/#6a6d8a66/#6a6d8c50):** kolon
   `Vatandaş Talep No` → hemen sonra Vatandaş Adı/`TELEFON NO` → Talep Tarihi; Birim = hedef birim;
   boş satır kompakt `TableEmptyStateRows`.
-- **Vatandaş Talep Kanalları (#6a6d0132/#6a6d0181/#6a6d8db3):** lejant `Çağrı`; dilim popup
-  drilldown; Telefon No, Vatandaş Adı alt satırında; başlıklar `Talep Tarihi` + `Birim`
-  (VT sayfasındaki Gittiği Yer / Vatandaş Talep Tarihi değil).
+- **Vatandaş Talep Kanalları (#6a6d0132/#6a6d0181/#6a6d8db3/#6a6eeb56):** lejant `Çağrı`;
+  Reporter/SystemAdmin dilim → popup drilldown; **Operator dilim → popup yok**,
+  `/social?channel=` grid (WhatsApp/Phone). Telefon No, Vatandaş Adı alt satırında; başlıklar
+  `Talep Tarihi` + `Birim` (VT sayfasındaki Gittiği Yer / Vatandaş Talep Tarihi değil).
 - **Pie yazdır (#6a6d8e2f/#6a6d92e8/#6a6da028):** terminal kolon `Sonuç Tarihi` (Tamamlanma değil);
   mahallede talep no başlığı `Vatandaş` / `Talep No` iki satır; vatandaş kolonunda Ad üstte /
   `Telefon No` (title-case) alt satır.

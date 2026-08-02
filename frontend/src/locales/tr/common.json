@@ -1182,7 +1182,7 @@
       "chargedNumber": "Charged Number (chargedParty)",
       "chargedNumberHelp": "Asistel tarafından verilen chargedParty değeri. Bilmiyorsanız boş bırakın; sağlayıcı zorunlu tutuyorsa hata döner.",
       "testTitle": "Test SMS Gönder",
-      "testHelp": "Kaydet butonuna basıp ayarları kaydettikten sonra, test amaçlı SMS göndermek için Test SMS Gönder butonuna basınız",
+      "testHelp": "Kaydet butonuna basıp ayarları kaydettikten sonra, test amaçlı SMS gönderebilirsiniz.",
       "testPhone": "Test Telefon No",
       "testSend": "Test SMS Gönder",
       "liveSendEnabled": "Gerçek gönderim yap (kapalıyken simülasyon)",

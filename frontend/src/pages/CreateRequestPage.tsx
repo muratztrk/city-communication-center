@@ -1005,8 +1005,11 @@ export function CreateRequestPage() {
         message: editJobId && linkedSocialMessageId
           ? 'Bu talebi güncellemek istediğinize emin misiniz?'
           : (
-            <span className="font-medium text-rose-600">
-              {`Bu talebi oluşturmak istediğinize emin misiniz? "${phoneDisplay}" numarasına, talebin işleme alındığına dair otomatik SMS gönderilecektir.`}
+            <span className="block space-y-2 font-medium">
+              <span className="block text-slate-900">Bu talebi oluşturmak istediğinize emin misiniz?</span>
+              <span className="block text-rose-600">
+                {`"${phoneDisplay}" numarasına, talebin işleme alındığına dair otomatik SMS gönderilecektir.`}
+              </span>
             </span>
           ),
         titleCompact: true,

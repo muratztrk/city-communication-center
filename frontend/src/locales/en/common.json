@@ -1176,7 +1176,7 @@
       "chargedNumber": "Charged Number (chargedParty)",
       "chargedNumberHelp": "The chargedParty value issued by Asistel. Leave empty if unknown; the provider errors if it is required.",
       "testTitle": "Send Test SMS",
-      "testHelp": "After pressing Save to store settings, press Send Test SMS to send a test message.",
+      "testHelp": "After pressing Save to store settings, you can send a test SMS.",
       "testPhone": "Test Phone Number",
       "testSend": "Send Test SMS",
       "liveSendEnabled": "Send for real (simulation when off)",

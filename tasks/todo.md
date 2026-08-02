@@ -1,3 +1,8 @@
+## Round 644 — çağrı onay satırları, SMS test help, Operator kanal navigate (3 kart)
+- Çağrı oluştur onay: ilk cümle siyah; SMS uyarısı alt satır kırmızı
+- SMS Test help: "…test amaçlı SMS gönderebilirsiniz."
+- Operator Anasayfa-Vatandaş kanal pie → Vatandaş Talepleri grid (popup yok)
+
 ## Round 643 — SMS UI + çağrı onay akışı + grid/NAS (11 kart)
 - SMS Ayarlar: API URL / Gerçek gönderim / Charged Number FE'den kaldırıldı; sağlayıcı listesi alfabetik; gönderici metinleri; test help
 - Çağrı oluştur onay metni (kırmızı SMS uyarısı); Phone terminal → yönetici mesaj onayı → sonra Sms Onayı

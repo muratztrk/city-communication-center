@@ -685,10 +685,14 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               || card.titleKey === 'dashboard.charts.neighborhoodInProgressRequests'
               || card.titleKey === 'dashboard.charts.neighborhoodProcessingRequests'
               || card.titleKey === 'dashboard.charts.requestTags'
-              || (isCitizenDashboardDrilldownRole && card.titleKey === 'dashboard.citizenChannels.title')
+              // Operatör: kanal dilimi popup değil → Vatandaş Talepleri grid (#6a6eeb56).
+              || (isCitizenDashboardDrilldownRole && role !== 'Operator' && card.titleKey === 'dashboard.citizenChannels.title')
             const isDepartmentTitleReadOnly = !canAccessDepartmentTasks && card.titleKey === 'dashboard.charts.departmentTasks'
             // Üst Düzey Yönetici'de Taleplerim hariç tüm grafik dilimleri detay popup'ı açar (card #1343/#1860).
-            const isDrilldownChart = isCitizenDashboardDrilldownRole && DRILLDOWN_CHART_KEYS.has(card.titleKey)
+            // Operatör kanal pie → navigate /social?channel= (#6a6eeb56); diğer roller drilldown popup.
+            const isDrilldownChart = isCitizenDashboardDrilldownRole
+              && DRILLDOWN_CHART_KEYS.has(card.titleKey)
+              && !(role === 'Operator' && card.titleKey === 'dashboard.citizenChannels.title')
             const chartRoute = isDepartmentTitleReadOnly || isExternalDrilldownOnlyChart ? undefined : CHART_ROUTES[card.titleKey]
             const chartKey = card.titleKey as TaskChartKey
             const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined

@@ -2,6 +2,7 @@ import { lazy, Suspense, type ReactNode } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
+import { LicenseModuleSync } from '../context/LicenseModuleContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles, type PageAccessKey } from '../lib/rolePageAccess'
 
 const AppShell = lazy(() => import('./AppShell').then(module => ({ default: module.AppShell })))
@@ -66,6 +67,7 @@ export default function App() {
   }
 
   return (
+    <LicenseModuleSync>
     <Suspense fallback={<LoadingScreen />}>
       <Routes>
         <Route path="/display" element={<PageAccessGate pageKey="display" user={user}><WallboardPage /></PageAccessGate>} />
@@ -108,5 +110,7 @@ export default function App() {
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Suspense>
+    </LicenseModuleSync>
   )
 }
+

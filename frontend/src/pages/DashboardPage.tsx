@@ -12,6 +12,7 @@ import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilld
 import { CitizenChannelMessagesModal } from '../components/CitizenChannelMessagesModal'
 import { useAuth } from '../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../lib/rolePageAccess'
+import { isModuleUsable } from '../lib/licenseModules'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
 
@@ -383,7 +384,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     }
   }, [dashboardQuery.isFetched, dashboardQuery.dataUpdatedAt])
 
-  const canSeeCitizenChannels = role === 'SystemAdmin' || role === 'Manager' || role === 'Operator' || role === 'Reporter'
+  // Modüler lisans (#WGDYIM79 / #MHrIEwuE): Anasayfa-Vatandaş bölümü Vatandaş modülüne, Atanmış/Rutin ayrımı Kurum İçi modülüne bağlı.
+  const isInternalModuleUsable = isModuleUsable('internal')
+  const canSeeCitizenChannels = isModuleUsable('citizen')
+    && (role === 'SystemAdmin' || role === 'Manager' || role === 'Operator' || role === 'Reporter')
   const citizenChannelQuery = useQuery({
     queryKey: queryKeys.dashboard.citizenChannels({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
     queryFn: () => api.getCitizenChannelChart(apiFrom, apiTo),
@@ -735,7 +739,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                 )}
                 <div className="flex shrink-0 items-center gap-2">
                   {/* Görev tipi filtre butonları standart kullanıcılarda da görünür (Görevlerim + Birimdeki Görevler) (card 762). */}
-                  {TASK_CHART_KEYS.has(card.titleKey as TaskChartKey) && (
+                  {/* Atanmış/Rutin ayrımı birim-içi iş takibine özgü — Vatandaş modülü tek başına lisanslıyken gizlenir (#MHrIEwuE). */}
+                  {isInternalModuleUsable && TASK_CHART_KEYS.has(card.titleKey as TaskChartKey) && (
                     <div className="flex shrink-0 items-center gap-1" role="group" aria-label={t('tasks.filters.taskType', 'Görev tipi')}>
                       {(['assigned', 'routine', 'all'] as const).map(filter => {
                         const active = taskChartFilters[chartKey] === filter

@@ -1,10 +1,11 @@
 import type { FormEvent } from 'react'
 import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save, RefreshCw } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
+import { queryKeys } from '../api/queryKeys'
 import { invalidateSettings } from '../api/cacheInvalidation'
 import { API_ORIGIN } from '../api/config'
 import { IZMIR_DISTRICTS, getSavedDistrictId, saveDistrictId } from '../data/izmir-locations'
@@ -25,6 +26,7 @@ import {
   PAGE_ACCESS_ITEMS,
   ROLE_CODES,
   loadRolePageAccessMatrix,
+  pageRequiresModule,
   parseRolePageAccessMatrix,
   saveRolePageAccessMatrix,
   serializeRolePageAccessMatrix,
@@ -32,6 +34,7 @@ import {
   type RoleCode,
   type RolePageAccessMatrix,
 } from '../lib/rolePageAccess'
+import { isModuleUsable } from '../lib/licenseModules'
 import type {
   Department,
   RoutingConfig,
@@ -385,6 +388,8 @@ export function SettingsPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
+  // Modüler lisans (#WGDYIM79): Vatandaş modülü lisanslı değilse sosyal/yönlendirme/şablon sekmeleri gizlenir.
+  const isCitizenModuleUsable = isModuleUsable('citizen')
   const { setAppearance } = useTenantTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = readTab(searchParams.get('tab'))
@@ -436,12 +441,20 @@ export function SettingsPage() {
   const [rolePageAccess, setRolePageAccess] = useState<RolePageAccessMatrix>(() => loadRolePageAccessMatrix())
   const [rolesPageSize, setRolesPageSize] = useState(25)
   const [rolesPage, setRolesPage] = useState(1)
-  const rolesTotalPages = Math.max(1, Math.ceil(PAGE_ACCESS_ITEMS.length / rolesPageSize) || 1)
+  // Modüler lisans (#WGDYIM79 / #MHrIEwuE): lisanssız modülün sayfaları Sayfa Yetkileri'nde de görünmez.
+  const visiblePageAccessItems = useMemo(
+    () => PAGE_ACCESS_ITEMS.filter(page => {
+      const requiredModule = pageRequiresModule(page.key)
+      return !requiredModule || isModuleUsable(requiredModule)
+    }),
+    [],
+  )
+  const rolesTotalPages = Math.max(1, Math.ceil(visiblePageAccessItems.length / rolesPageSize) || 1)
   const rolesSafePage = Math.min(rolesPage, rolesTotalPages)
   const pagedPageAccessItems = useMemo(() => {
     const start = (rolesSafePage - 1) * rolesPageSize
-    return PAGE_ACCESS_ITEMS.slice(start, start + rolesPageSize)
-  }, [rolesSafePage, rolesPageSize])
+    return visiblePageAccessItems.slice(start, start + rolesPageSize)
+  }, [visiblePageAccessItems, rolesSafePage, rolesPageSize])
   const [workingHoursForm, setWorkingHoursForm] = useState<WorkingHoursSettings | null>(null)
   const [smsSettings, setSmsSettings] = useState<SmsSettings | null>(null)
   const [smsTestPhone, setSmsTestPhone] = useState('')
@@ -477,27 +490,16 @@ export function SettingsPage() {
   const [isNewTemplate, setIsNewTemplate] = useState(false)
   const [templateEditorMode, setTemplateEditorMode] = useState<'classic' | 'meta'>('classic')
   const [keywordInput, setKeywordInput] = useState('')
-  const [licenseForm, setLicenseForm] = useState({
-    citizenRequestModuleKey: '',
-    internalWorkTrackingModuleKey: '',
-  })
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [syncingMetaTemplates, setSyncingMetaTemplates] = useState(false)
 
-  useEffect(() => {
-    if (!user?.tenantId) return
-    try {
-      const raw = window.localStorage.getItem(`ccc_license_${user.tenantId}`)
-      if (!raw) return
-      const parsed = JSON.parse(raw) as { citizenRequestModuleKey?: string; internalWorkTrackingModuleKey?: string }
-      setLicenseForm({
-        citizenRequestModuleKey: parsed.citizenRequestModuleKey ?? '',
-        internalWorkTrackingModuleKey: parsed.internalWorkTrackingModuleKey ?? '',
-      })
-    } catch {
-      // ignore malformed cache
-    }
-  }, [user?.tenantId])
+  // Gerçek lisans durumu (lumespec-license, Ed25519 imzalı) — bkz. LicenseModuleContext.
+  // Tenant SystemAdmin'i kendi modülünü açıp kapatamaz, yalnız durumu görür.
+  const licenseModulesQuery = useQuery({
+    queryKey: queryKeys.licensing.modules(),
+    queryFn: () => api.getLicenseModules(),
+    staleTime: 10 * 60 * 1000,
+  })
 
   useEffect(() => {
     if (!user?.tenantId) {
@@ -776,13 +778,6 @@ export function SettingsPage() {
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
-  }
-
-  const saveLicenseSettings = (event: FormEvent) => {
-    event.preventDefault()
-    if (!user?.tenantId) return
-    window.localStorage.setItem(`ccc_license_${user.tenantId}`, JSON.stringify(licenseForm))
-    setMessage({ type: 'success', text: t('settings.license.saved', 'Lisans anahtarları kaydedildi.') })
   }
 
   const saveAppearanceSettings = async (event: FormEvent) => {
@@ -1437,15 +1432,21 @@ export function SettingsPage() {
             <button className={`tab-button ${activeTab === 'roles' ? 'active' : ''}`} onClick={() => setTab('roles')} type="button">
               {t('settings.tabs.roles')}
             </button>
+            {isCitizenModuleUsable && (
             <button className={`tab-button ${activeTab === 'social' ? 'active' : ''}`} onClick={() => setTab('social')} type="button">
               {t('settings.tabs.social')}
             </button>
+            )}
+            {isCitizenModuleUsable && (
             <button className={`tab-button ${activeTab === 'routing' ? 'active' : ''}`} onClick={() => setTab('routing')} type="button">
               {t('settings.tabs.routing')}
             </button>
+            )}
+            {isCitizenModuleUsable && (
             <button className={`tab-button ${activeTab === 'templates' ? 'active' : ''}`} onClick={() => setTab('templates')} type="button">
               {t('settings.tabs.templates')}
             </button>
+            )}
             <button className={`tab-button ${activeTab === 'license' ? 'active' : ''}`} onClick={() => setTab('license')} type="button">
               {t('settings.tabs.license', 'Lisans')}
             </button>
@@ -2517,7 +2518,7 @@ export function SettingsPage() {
             </table>
           </div>
           <TablePagination
-            totalCount={PAGE_ACCESS_ITEMS.length}
+            totalCount={visiblePageAccessItems.length}
             pageSize={rolesPageSize}
             currentPage={rolesSafePage}
             onPageSizeChange={size => { setRolesPageSize(size); setRolesPage(1) }}
@@ -3020,49 +3021,47 @@ export function SettingsPage() {
       ) : null}
 
       {activeTab === 'license' ? (
-        <form className="section-card page-stack" onSubmit={saveLicenseSettings}>
+        <div className="section-card page-stack">
           <div className="page-header-row">
             <div>
               <h2 className="text-xl font-extrabold text-slate-950">{t('settings.license.title', 'Lisans')}</h2>
-              <p className="helper-copy">{t('settings.license.description', 'Modül lisans anahtarlarını buradan yönetin.')}</p>
+              <p className="helper-copy">{t('settings.license.description', 'Modül lisans durumunuz. Lisans süresi/modül değişikliği için Lumespec ile iletişime geçin.')}</p>
             </div>
           </div>
-          <div className="grid gap-5 xl:grid-cols-2">
-            <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <h3 className="mb-4 text-base font-extrabold text-slate-900">
-                {t('settings.license.citizenRequestModule', 'Vatandaş Talep Modülü')}
-              </h3>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('settings.license.keyLabel', 'Lisans Anahtarı')}</span>
-                <input
-                  className="field-input font-mono"
-                  value={licenseForm.citizenRequestModuleKey}
-                  onChange={event => setLicenseForm(current => ({ ...current, citizenRequestModuleKey: event.target.value }))}
-                  placeholder={t('settings.license.keyPlaceholder', 'Lisans anahtarını girin')}
-                  autoComplete="off"
-                />
-              </label>
-            </section>
-            <section className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-              <h3 className="mb-4 text-base font-extrabold text-slate-900">
-                {t('settings.license.internalWorkTrackingModule', 'Kurum İçi İş Takip Modülü')}
-              </h3>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('settings.license.keyLabel', 'Lisans Anahtarı')}</span>
-                <input
-                  className="field-input font-mono"
-                  value={licenseForm.internalWorkTrackingModuleKey}
-                  onChange={event => setLicenseForm(current => ({ ...current, internalWorkTrackingModuleKey: event.target.value }))}
-                  placeholder={t('settings.license.keyPlaceholder', 'Lisans anahtarını girin')}
-                  autoComplete="off"
-                />
-              </label>
-            </section>
-          </div>
-          <div className="inline-actions">
-            <Button type="submit">{t('common.save')}</Button>
-          </div>
-        </form>
+          {licenseModulesQuery.isLoading ? (
+            <p className="helper-copy">{t('common.loading')}</p>
+          ) : (
+            <div className="grid gap-5 xl:grid-cols-2">
+              {(['citizen', 'internal'] as const).map(moduleKey => {
+                const entry = licenseModulesQuery.data?.find(item => item.module === moduleKey)
+                const usable = entry?.usable ?? true
+                return (
+                  <section key={moduleKey} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+                    <h3 className="mb-3 text-base font-extrabold text-slate-900">
+                      {moduleKey === 'citizen'
+                        ? t('settings.license.citizenRequestModule', 'Vatandaş İş Takip Sistemi')
+                        : t('settings.license.internalWorkTrackingModule', 'Kurum İçi İş Takip Sistemi')}
+                    </h3>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <StatusPill tone={usable ? 'success' : 'danger'}>
+                        {usable
+                          ? t('settings.license.statusUsable', 'Kullanılabilir')
+                          : t('settings.license.statusBlocked', 'Kullanılamıyor')}
+                      </StatusPill>
+                      {entry?.status ? <span className="text-xs font-semibold text-slate-500">{entry.status}</span> : null}
+                    </div>
+                    {entry?.validUntil ? (
+                      <p className="mt-2 text-sm text-slate-600">
+                        {t('settings.license.validUntil', 'Geçerlilik tarihi')}: {new Date(entry.validUntil).toLocaleDateString('tr-TR')}
+                      </p>
+                    ) : null}
+                    {entry?.message ? <p className="mt-2 text-sm text-slate-600">{entry.message}</p> : null}
+                  </section>
+                )
+              })}
+            </div>
+          )}
+        </div>
       ) : null}
 
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />

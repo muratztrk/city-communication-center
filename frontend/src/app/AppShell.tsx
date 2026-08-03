@@ -33,6 +33,7 @@ import {
 } from '../api/http'
 import { refreshRolePageAccessFromServer } from '../api/auth'
 import { canAnyRoleAccessPage, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
+import { LICENSE_MODULES_EVENT } from '../lib/licenseModules'
 import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
 import { sortUserDepartments } from '../utils/departmentAccess'
@@ -164,9 +165,11 @@ export function AppShell() {
     const updateAccess = () => setAccessVersion(version => version + 1)
     window.addEventListener('storage', updateAccess)
     window.addEventListener(ROLE_PAGE_ACCESS_EVENT, updateAccess)
+    window.addEventListener(LICENSE_MODULES_EVENT, updateAccess)
     return () => {
       window.removeEventListener('storage', updateAccess)
       window.removeEventListener(ROLE_PAGE_ACCESS_EVENT, updateAccess)
+      window.removeEventListener(LICENSE_MODULES_EVENT, updateAccess)
     }
   }, [])
 

@@ -37,6 +37,7 @@ import { Toast } from '../components/ui/toast'
 import { StatusPill } from '../components/ui/status-pill'
 import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
+import { isModuleUsable } from '../lib/licenseModules'
 import type { AssignmentHistory, Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
 import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus, formatOverdueInProgressStatus } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -583,8 +584,9 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   // Vatandaş Talep Yöneticisi "Birimdeki Görevler"de yalnızca vatandaş taleplerinin görevlerini görür (card #1073).
   const isCitizenRequestManager = hasCitizenRequestManagerRole(user)
-  const showDepartmentTaskFlowFilters = isDepartmentTasksView && isManagerLike
-  const showRequestFlowFilters = isMyTasksView && user?.role !== 'SystemAdmin'
+  // Birim İçi/Dışı ayrımı birim-içi iş takibine özgü — Vatandaş modülü tek başına lisanslıyken gizlenir (#MHrIEwuE).
+  const showDepartmentTaskFlowFilters = isDepartmentTasksView && isManagerLike && isModuleUsable('internal')
+  const showRequestFlowFilters = isMyTasksView && user?.role !== 'SystemAdmin' && isModuleUsable('internal')
   const activeUsers = useMemo(() => users.filter(item => item.isActive), [users])
   const currentUserRecord = useMemo(() => activeUsers.find(item => item.userId === user?.userId) ?? null, [activeUsers, user?.userId])
   const managedDepartmentIds = useMemo(() => {
@@ -1895,17 +1897,21 @@ const pageKicker = isMyTasksView
           >
             {t('tasks.staff.allStaff', 'Tüm Personel')}
           </button>
-          <span className="scope-chip-divider" aria-hidden="true">|</span>
-          {TASK_TYPE_FILTERS.map(filter => (
-            <button
-              key={filter.value}
-              type="button"
-              className={`scope-chip scope-chip--pending${filter.value === currentTaskTypeFilter ? ' active' : ''}`}
-              onClick={() => setTaskTypeFilter(filter.value)}
-            >
-              {t(filter.labelKey)}
-            </button>
-          ))}
+          {isModuleUsable('internal') ? (
+            <>
+              <span className="scope-chip-divider" aria-hidden="true">|</span>
+              {TASK_TYPE_FILTERS.map(filter => (
+                <button
+                  key={filter.value}
+                  type="button"
+                  className={`scope-chip scope-chip--pending${filter.value === currentTaskTypeFilter ? ' active' : ''}`}
+                  onClick={() => setTaskTypeFilter(filter.value)}
+                >
+                  {t(filter.labelKey)}
+                </button>
+              ))}
+            </>
+          ) : null}
           <ClearPieFilterLink />
         </nav>
       ) : (

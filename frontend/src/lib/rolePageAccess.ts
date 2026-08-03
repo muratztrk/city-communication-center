@@ -1,3 +1,6 @@
+import { isModuleUsable } from './licenseModules'
+import type { LicenseModuleKey } from '../types/platform'
+
 export const ROLE_CODES = ['SystemAdmin', 'Manager', 'CitizenRequestManager', 'Operator', 'Staff', 'Reporter', 'EDevletActivityPlan'] as const
 
 export type RoleCode = typeof ROLE_CODES[number]
@@ -32,6 +35,29 @@ export const EDEVLET_ROLE_PAGE_KEYS = ['edevletActivityPlan', 'edevletActivityPl
 
 /** Pages for the Vatandaş Talep Yöneticisi role column. */
 export const CITIZEN_REQUEST_MANAGER_PAGE_KEYS = ['createRequest', 'incomingRequests', 'citizenMessageApproval', 'smsDeliveryApproval'] as const satisfies readonly PageAccessKey[]
+
+/**
+ * Modüler lisans (Trello #WGDYIM79 / #MHrIEwuE): bir sayfa yalnız belirli bir modül lisanslıyken
+ * görünür. Haritada olmayan sayfalar (dashboard, createRequest, myTasks, departmentTasks,
+ * incomingRequests, citizenMessageApproval, smsDeliveryApproval, departments, users, settings,
+ * audit) her iki modülde de ortak/yönetimsel sayfalardır — modül şartı yoktur.
+ */
+export const PAGE_LICENSE_MODULE: Partial<Record<PageAccessKey, LicenseModuleKey>> = {
+  // Kurum İçi İş Takip Sistemi'nde olmamalı (#WGDYIM79): vatandaş kanalları + e-Devlet faaliyet planı.
+  edevletActivityPlan: 'citizen',
+  edevletActivityPlansList: 'citizen',
+  social: 'citizen',
+  citizenDirectory: 'citizen',
+  // Vatandaş İş Takip Sistemi'nde olmamalı (#MHrIEwuE): birim-içi iş takibine özgü sayfalar.
+  myRequests: 'internal',
+  outgoingRequests: 'internal',
+  createRoutineTask: 'internal',
+  display: 'internal',
+}
+
+export function pageRequiresModule(pageKey: PageAccessKey): LicenseModuleKey | null {
+  return PAGE_LICENSE_MODULE[pageKey] ?? null
+}
 
 export const ROLE_PAGE_ACCESS_STORAGE_KEY = 'ccc_role_page_access_matrix'
 export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'
@@ -183,6 +209,11 @@ export function canRoleAccessPage(role: string | undefined, pageKey: PageAccessK
 }
 
 export function canAnyRoleAccessPage(roles: readonly (string | undefined)[] | undefined, pageKey: PageAccessKey): boolean {
+  const requiredModule = pageRequiresModule(pageKey)
+  if (requiredModule && !isModuleUsable(requiredModule)) {
+    return false
+  }
+
   const matrix = loadRolePageAccessMatrix()
   const effectiveRoles = (roles ?? [])
     .filter((role): role is RoleCode => !!role && isRoleCode(role))

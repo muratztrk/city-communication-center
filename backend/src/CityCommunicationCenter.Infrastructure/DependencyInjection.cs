@@ -1,6 +1,7 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Abstractions.BelediyeSoap;
 using CityCommunicationCenter.Infrastructure.BelediyeSoap;
+using CityCommunicationCenter.Infrastructure.Licensing;
 using CityCommunicationCenter.Infrastructure.Persistence.Interceptors;
 using CityCommunicationCenter.Infrastructure.Services;
 using CityCommunicationCenter.Infrastructure.Sms;
@@ -19,6 +20,8 @@ public static class DependencyInjection
             configuration.GetSection(TenantResolutionOptions.SectionName));
         services.Configure<AuthenticationOptions>(
             configuration.GetSection(AuthenticationOptions.SectionName));
+        services.Configure<LicensingOptions>(
+            configuration.GetSection(LicensingOptions.SectionName));
 
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
@@ -75,6 +78,14 @@ public static class DependencyInjection
         services.AddScoped<IUserManagementConfigurationProvider, UserAuthenticationService>();
 
         services.AddScoped<IBelediyeSoapOperations, BelediyeSoapOperations>();
+
+        // Lisans modülleri: lumespec-license'a (bkz. ~/Works/lumespec-license) tenant+modül başına soru sorar.
+        services.AddHttpClient(LicenseHttpClient.Name, (serviceProvider, client) =>
+        {
+            var licensingOptions = serviceProvider.GetRequiredService<IOptions<LicensingOptions>>().Value;
+            client.Timeout = TimeSpan.FromSeconds(Math.Max(1, licensingOptions.TimeoutSeconds));
+        });
+        services.AddSingleton<ILicenseServiceClient, LicenseServiceClient>();
 
         return services;
     }

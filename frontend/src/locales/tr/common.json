@@ -1079,12 +1079,12 @@
     "organizationSectionDescription": "Görünen ad ve varsayılan hizmet seviyesini buradan güncelleyin.",
     "license": {
       "title": "Lisans",
-      "description": "Modül lisans anahtarlarını buradan yönetin.",
-      "citizenRequestModule": "Vatandaş Talep Modülü",
-      "internalWorkTrackingModule": "Kurum İçi İş Takip Modülü",
-      "keyLabel": "Lisans Anahtarı",
-      "keyPlaceholder": "Lisans anahtarını girin",
-      "saved": "Lisans anahtarları kaydedildi."
+      "description": "Modül lisans durumunuz. Lisans süresi/modül değişikliği için Lumespec ile iletişime geçin.",
+      "citizenRequestModule": "Vatandaş İş Takip Sistemi",
+      "internalWorkTrackingModule": "Kurum İçi İş Takip Sistemi",
+      "statusUsable": "Kullanılabilir",
+      "statusBlocked": "Kullanılamıyor",
+      "validUntil": "Geçerlilik tarihi"
     },
     "domainPlaceholder": "portal.tire.bel.tr",
     "appearancePreviewTitle": "Önizleme",

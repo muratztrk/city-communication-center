@@ -23,6 +23,7 @@ import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { useAuth } from '../context/AuthContext'
+import { isModuleUsable } from '../lib/licenseModules'
 import { userWorksInDepartment } from '../utils/userDepartments'
 import type { Department, RequestTag, User } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
@@ -374,12 +375,16 @@ export function CreateRequestPage() {
 
 
   const requestTypeOptions = useMemo(() => {
-    const options: { value: RequestKind; label: string }[] = [
-      { value: 'internal' as const, label: t('requests.create.internalPluralTitle', 'Birim İçi Talepler') },
-      { value: 'external' as const, label: t('requests.create.externalPluralTitle', 'Birim Dışı Talepler') },
-    ]
+    const options: { value: RequestKind; label: string }[] = []
 
-    if (canCreateCitizenRequest) {
+    // Birim İçi/Dışı Talepler, Kurum İçi İş Takip modülüne özgü (#MHrIEwuE): yalnız Vatandaş
+    // modülü lisanslıyken Talep Oluştur'da sadece "Vatandaş Çağrı Talebi" görünür.
+    if (isModuleUsable('internal')) {
+      options.push({ value: 'internal' as const, label: t('requests.create.internalPluralTitle', 'Birim İçi Talepler') })
+      options.push({ value: 'external' as const, label: t('requests.create.externalPluralTitle', 'Birim Dışı Talepler') })
+    }
+
+    if (canCreateCitizenRequest && isModuleUsable('citizen')) {
       options.push({ value: 'citizen' as const, label: t('requests.create.citizenCallTitle', 'Vatandaş Çağrı Talebi') })
     }
 

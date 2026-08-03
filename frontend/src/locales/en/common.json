@@ -1073,12 +1073,12 @@
     "organizationSectionDescription": "Update the display name and default service level from here.",
     "license": {
       "title": "License",
-      "description": "Manage module license keys here.",
-      "citizenRequestModule": "Citizen Request Module",
-      "internalWorkTrackingModule": "Internal Work Tracking Module",
-      "keyLabel": "License Key",
-      "keyPlaceholder": "Enter license key",
-      "saved": "License keys saved."
+      "description": "Your module license status. Contact Lumespec to change your license term or modules.",
+      "citizenRequestModule": "Citizen Request Tracking System",
+      "internalWorkTrackingModule": "Internal Work Tracking System",
+      "statusUsable": "Usable",
+      "statusBlocked": "Unavailable",
+      "validUntil": "Valid until"
     },
     "domainPlaceholder": "portal.tire.bel.tr",
     "appearancePreviewTitle": "Preview",

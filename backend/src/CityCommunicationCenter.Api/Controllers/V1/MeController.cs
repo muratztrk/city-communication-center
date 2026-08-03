@@ -29,6 +29,14 @@ public sealed class MeController : ApiControllerBase
         return Ok(response);
     }
 
+    [HttpGet("license-modules")]
+    [ProducesResponseType<IReadOnlyList<LicenseModuleResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<LicenseModuleResponse>>> GetLicenseModules(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetLicenseModulesQuery(), cancellationToken);
+        return Ok(response);
+    }
+
     [HttpPost("change-password")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ChangePassword(

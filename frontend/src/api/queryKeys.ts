@@ -42,6 +42,10 @@ export const queryKeys = {
     list: () => ['ccc', 'departments', 'list'] as const,
     me: (userId?: string | null) => ['ccc', 'departments', 'me', userId ?? 'anonymous'] as const,
   },
+  licensing: {
+    all: ['ccc', 'licensing'] as const,
+    modules: () => ['ccc', 'licensing', 'modules'] as const,
+  },
   jobs: {
     all: ['ccc', 'jobs'] as const,
     lists: () => ['ccc', 'jobs', 'list'] as const,

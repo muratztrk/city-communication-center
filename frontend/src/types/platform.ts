@@ -741,6 +741,16 @@ export interface DepartmentSummary {
   isPrimary: boolean;
 }
 
+export type LicenseModuleKey = 'citizen' | 'internal';
+
+export interface LicenseModuleStatus {
+  module: LicenseModuleKey;
+  usable: boolean;
+  status: string;
+  validUntil: string | null;
+  message: string | null;
+}
+
 export interface AuthUser {
   userId: string;
   username: string;

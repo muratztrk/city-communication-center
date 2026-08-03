@@ -10,6 +10,7 @@ import type {
   DepartmentSummary,
   DirectoryUserLookup,
   EntityAuditLogEntry,
+  LicenseModuleStatus,
   RoutingConfig,
   RoutingRule,
   RoutingTestResult,
@@ -114,6 +115,12 @@ export const api = {
     const response = await fetchWithCredentials(`${API_BASE}/me/departments`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.departmentsLoadFailed', 'Birim bilgileri yüklenemedi'))
     return response.json() as Promise<DepartmentSummary[]>
+  },
+
+  async getLicenseModules(): Promise<LicenseModuleStatus[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/me/license-modules`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.licenseModulesLoadFailed', 'Lisans modül durumu yüklenemedi'))
+    return response.json() as Promise<LicenseModuleStatus[]>
   },
 
   async changeMyPassword(payload: { currentPassword: string; newPassword: string; confirmPassword: string }): Promise<void> {

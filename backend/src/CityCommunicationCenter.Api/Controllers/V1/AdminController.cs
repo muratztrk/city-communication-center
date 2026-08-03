@@ -382,6 +382,18 @@ public sealed class AdminController : ApiControllerBase
         return Ok(new TestFileStorageConnectivityResponse(result.Success, result.Message));
     }
 
+    [HttpPost("tenants/{tenantId:guid}/file-storage-settings/test-nas-user")]
+    public async Task<ActionResult<TestFileStorageNasUserResponse>> TestFileStorageNasUser(
+        Guid tenantId,
+        [FromBody] TestFileStorageNasUserRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(
+            new TestFileStorageNasUserCommand(tenantId, request.Username, request.Password),
+            cancellationToken);
+        return Ok(new TestFileStorageNasUserResponse(result.Success, result.Message));
+    }
+
     [HttpGet("tenants/{tenantId:guid}/syslog-settings")]
     public async Task<ActionResult<SyslogSettingsResponse>> GetSyslogSettings(Guid tenantId, CancellationToken cancellationToken)
     {

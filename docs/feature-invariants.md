@@ -1082,6 +1082,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hemen `Birim Yöneticisi/Sorumluları` sonrası (#6a6cb6ea).
 - **Dosya sunucusu test alanları (#6a6cb6ec):** NAS ve FTP kolonlarında ayrı bağlantı +
   kullanıcı giriş testi (ortak alt blok yok).
+- **NAS kullanıcı testi gerçek bir SMB bağlantısıdır (Round 657 / card #2226):** eskiden yalnız
+  kayıtlı `nasUsername` ile girilen adı string karşılaştırıyordu (sahte). Artık `SMBLibrary`
+  (Infrastructure/FileStorage/SmbNasConnectivityTester.cs, `INasConnectivityTester` abstraction)
+  ile kayıtlı host+paylaşıma test kullanıcı adı/şifresiyle bağlanıp gerçek bir test klasörü
+  oluşturup siliyor. Yalnız `SMB/CIFS` desteklenir, `NFS` seçiliyken "henüz desteklenmiyor" döner.
+  FTP kullanıcı testi (`testFileStorageFtpUserCredentials`) hâlâ eski sahte string-karşılaştırma —
+  kart yalnız NAS'ı istedi, FTP'ye dokunulmadı. **Doğrulanmadı:** gerçek bir NAS'a karşı test
+  edilmedi (kullanıcı "doğrulamadan push'la" dedi) — ilk canlı denemede sürpriz çıkabilir.
+  Ayrıca `SMB2Client.Connect` bağlantı için CancellationToken/timeout desteklemiyor; NAS
+  ulaşılamazsa istek TCP seviyesinde uzun sürebilir (mevcut 4sn'lik `TryConnectAsync` deseninden
+  farklı) — gerekirse ayrı bir `CancellationTokenSource.CancelAfter` + soket-seviyesi sarmalayıcı
+  eklenmeli.
 - **Ayarlar/Birimler/Kullanıcılar (`admin-surface-page`):** helper-copy, label, textbox,
   textarea, Oluşturma Modu segmented + LDAP başlıkları kompakt shell’den belirgin büyük
   (cards #1733/#1736/#1738). Ayarlar banner altı tab butonları #1733’ten sonra biraz

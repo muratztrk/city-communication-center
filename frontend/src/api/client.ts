@@ -651,6 +651,19 @@ export const api = {
     return response.json() as Promise<{ success: boolean; message: string | null }>
   },
 
+  async testFileStorageNasUser(tenantId: string, data: {
+    username: string
+    password: string
+  }): Promise<{ success: boolean; message: string }> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/file-storage-settings/test-nas-user`, {
+      method: 'POST',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.fileStorageSettingsLoadFailed'))
+    return response.json() as Promise<{ success: boolean; message: string }>
+  },
+
   async getSyslogSettings(tenantId: string): Promise<SyslogSettings> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/syslog-settings`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.syslogSettingsLoadFailed'))

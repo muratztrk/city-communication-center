@@ -25,6 +25,8 @@
     <PackageReference Include="System.DirectoryServices.Protocols" Version="10.0.7" />
     <!-- Lisans servisinin Ed25519/EdDSA imza doğrulaması için (System.Security.Cryptography'de yok). -->
     <PackageReference Include="BouncyCastle.Cryptography" Version="2.4.0" />
+    <!-- NAS bağlantı testinde gerçek SMB/CIFS kimlik doğrulama + klasör oluşturma için (.NET'te native SMB istemcisi yok). -->
+    <PackageReference Include="SMBLibrary" Version="1.5.7.1" />
   </ItemGroup>
 
   <PropertyGroup>

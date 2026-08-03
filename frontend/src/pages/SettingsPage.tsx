@@ -1051,23 +1051,22 @@ export function SettingsPage() {
   }
 
   const testFileStorageNasUserCredentials = async () => {
-    if (!fileStorageNasUserTest.username.trim() || !fileStorageNasUserTest.password) return
+    if (!user?.tenantId || !fileStorageNasUserTest.username.trim() || !fileStorageNasUserTest.password) return
     setFileStorageNasUserTestStatus({ type: 'testing', message: t('settings.ldapTesting') })
-    const expectedUser = (fileStorageForm.nasUsername || '').trim()
-    // Kayıtlı kullanıcı adı yokken "kabul edildi" demek yanıltıcıydı: hiçbir şey doğrulanmıyor.
-    if (expectedUser.length === 0) {
-      setFileStorageNasUserTestStatus({ type: 'error', message: t('settings.fileStorage.userTestNoSavedUserNas') })
-      return
+    try {
+      // Gerçek test: kayıtlı NAS host/paylaşımına bu kullanıcı ile bağlanır, bir test klasörü
+      // oluşturup siler (card #2226) — yalnızca kullanıcı adı karşılaştırması değil.
+      const result = await api.testFileStorageNasUser(user.tenantId, {
+        username: fileStorageNasUserTest.username.trim(),
+        password: fileStorageNasUserTest.password,
+      })
+      setFileStorageNasUserTestStatus({ type: result.success ? 'success' : 'error', message: result.message })
+    } catch (testError) {
+      setFileStorageNasUserTestStatus({
+        type: 'error',
+        message: testError instanceof Error ? testError.message : t('common.error'),
+      })
     }
-    const matchesUser = expectedUser.toLocaleLowerCase('tr') === fileStorageNasUserTest.username.trim().toLocaleLowerCase('tr')
-    if (!matchesUser) {
-      setFileStorageNasUserTestStatus({ type: 'error', message: t('settings.fileStorage.userTestMismatchNas') })
-      return
-    }
-    setFileStorageNasUserTestStatus({
-      type: 'success',
-      message: t('settings.fileStorage.userTestOk', { username: fileStorageNasUserTest.username.trim() }),
-    })
   }
 
   const testFileStorageFtpUserCredentials = async () => {

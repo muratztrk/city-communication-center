@@ -36,3 +36,11 @@ public sealed record TestFileStorageConnectivityRequest(
 public sealed record TestFileStorageConnectivityResponse(
     bool Success,
     string? Message);
+
+public sealed record TestFileStorageNasUserRequest(
+    string Username,
+    string Password);
+
+public sealed record TestFileStorageNasUserResponse(
+    bool Success,
+    string Message);

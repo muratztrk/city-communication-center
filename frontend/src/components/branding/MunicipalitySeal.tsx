@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react'
 import { cn } from '../../lib/cn'
+import { resolveAttachmentUrl } from '../../api/config'
 
 interface MunicipalitySealProps {
   className?: string
@@ -14,9 +15,12 @@ const FALLBACK_LOGO_SRC = '/favicon.jpeg'
 
 export function MunicipalitySeal({ className, imageClassName, compact = false, bare = false, alt = 'Municipality logo', src }: MunicipalitySealProps) {
   const [failedSrc, setFailedSrc] = useState<string | null>(null)
-  const currentSrc = src && failedSrc !== src ? src : FALLBACK_LOGO_SRC
+  // Ayarlar > Görünüm'de yüklenen kurum logosu /uploads/... göreli döner (card #2234) —
+  // API frontend'den farklı origin'deyse mutlak hale getirilmeli (bkz. resolveAttachmentUrl).
+  const resolvedSrc = src ? resolveAttachmentUrl(src) : null
+  const currentSrc = resolvedSrc && failedSrc !== resolvedSrc ? resolvedSrc : FALLBACK_LOGO_SRC
 
-  const handleError = () => { if (src) setFailedSrc(src) }
+  const handleError = () => { if (resolvedSrc) setFailedSrc(resolvedSrc) }
 
   if (bare) {
     return (

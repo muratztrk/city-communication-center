@@ -1460,6 +1460,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   formdan kaldırıldı, `deriveAppearanceFromPrimary` (lib/theme.ts, HSL kaydırma) ile otomatik türetilir.
   Önizlemedeki hex-kodlu küçük kutucuk ızgarası da kaldırıldı. Yeni bir renk alanı eklersen bu türetme
   fonksiyonunu güncellemeyi unutma — elle giriş formuna geri dönme.
+- **Kurum logosu artık dosya yükleme (Round 655 / card #2234):** Logo URL/Giriş Arka Plan textbox'ları
+  kaldırıldı; `POST /api/v1/admin/tenants/{id}/appearance/logo` göreli `/uploads/{tenant}/branding/logo.*`
+  döner. `MunicipalitySeal` bunu tek noktadan `resolveAttachmentUrl` ile mutlak URL'e çevirir — yeni bir
+  logo/kurum görseli tüketen bileşen eklersen `resolveAttachmentUrl` KULLAN, ham `src` verme. nginx'e
+  `/uploads/` proxy location'ı bu round'da eklendi (`frontend/nginx.conf`) — önceden yalnız `/api/`,
+  `/hubs/`, `/connect/`, `/health` proxy'liydi, aynı-origin dağıtımda `/uploads/...` SPA fallback'ine
+  düşüp index.html dönerdi (var olan ek-önizleme özellikleri için de gizli bir bug'dı).
+- **Anasayfa breadcrumb'ı kök rotalarda ikinci "Anasayfa" segmentini göstermez (card #2248):**
+  `AppShell.tsx`'teki `isDashboardRoot` (`/dashboard` veya `/dashboard/birimler`) `currentBreadcrumbSegment`'i
+  `undefined` yapar — "Ana Sayfa" (home butonu) zaten aynı yeri temsil ediyor, ikinci pill gereksiz tekrardı.
 - **Vatandaş Bilgi Listesi (#6a6cbef5/#6a6cbf0e/#6a6ce8f0/#6a6cf14b):** popup Birim truncate;
   Talep Tarihi `DateCell` = Son Tarih `DueDatePill` (0.84rem/600, svg 0.875rem); ana grid
   Adı/Numara = Gelen Talep Yeri tipografisi; popup kolon başlığı `Vatandaş Talep No`;

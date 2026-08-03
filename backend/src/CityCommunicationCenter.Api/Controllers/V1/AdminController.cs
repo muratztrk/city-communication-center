@@ -123,6 +123,18 @@ public sealed class AdminController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("tenants/{tenantId:guid}/appearance/logo")]
+    [RequestSizeLimit(2_000_000)]
+    public async Task<ActionResult<UploadTenantLogoResponse>> UploadTenantLogo(
+        Guid tenantId, IFormFile? file, CancellationToken cancellationToken)
+    {
+        if (file is null) return BadRequest("Dosya bulunamadi.");
+        var logoUrl = await _sender.Send(
+            new UploadTenantLogoCommand(tenantId, file.FileName, file.Length, file.OpenReadStream()),
+            cancellationToken);
+        return Ok(new UploadTenantLogoResponse(logoUrl));
+    }
+
     [HttpGet("tenants/{tenantId:guid}/working-hours")]
     public async Task<ActionResult<WorkingHoursResponse>> GetWorkingHours(Guid tenantId, CancellationToken cancellationToken)
     {

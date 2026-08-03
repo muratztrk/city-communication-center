@@ -531,7 +531,10 @@ export function AppShell() {
     settings: Settings2,
   }
   const visibleBreadcrumbSegments = breadcrumbSegments.filter(segment => !breadcrumbSkipSegments.has(segment))
-  const currentBreadcrumbSegment = visibleBreadcrumbSegments.at(-1)
+  // Anasayfa kökünde "Ana Sayfa" butonu zaten aynı yeri temsil ediyor; ikinci bir "Anasayfa"
+  // segmenti göstermek görsel tekrar yaratıyordu (card #2248).
+  const isDashboardRoot = location.pathname === '/dashboard' || location.pathname === '/dashboard/birimler'
+  const currentBreadcrumbSegment = isDashboardRoot ? undefined : visibleBreadcrumbSegments.at(-1)
   const requestKindBreadcrumbLabel = currentBreadcrumbSegment === 'new' ? requestKindLabels[requestKindParam] : null
   const currentBreadcrumbParent = currentBreadcrumbSegment ? (requestKindBreadcrumbLabel ? t('nav.createRequest', 'Talep Oluştur') : breadcrumbParent[currentBreadcrumbSegment]) : null
   const currentBreadcrumbLabel = currentBreadcrumbSegment ? requestKindBreadcrumbLabel || breadcrumbLabels[currentBreadcrumbSegment] || currentBreadcrumbSegment : null

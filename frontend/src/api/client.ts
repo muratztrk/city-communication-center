@@ -565,6 +565,23 @@ export const api = {
     await ensureOk(response, i18n.t('errors.tenantAppearanceSaveFailed'))
   },
 
+  async uploadTenantLogo(tenantId: string, file: File): Promise<string> {
+    const formData = new FormData()
+    formData.append('file', file)
+    const authHeaders = await getAuthHeaders() as Record<string, string>
+    const headers = Object.fromEntries(
+      Object.entries(authHeaders).filter(([key]) => key.toLowerCase() !== 'content-type'),
+    )
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/appearance/logo`, {
+      method: 'POST',
+      headers,
+      body: formData,
+    })
+    await ensureOk(response, i18n.t('errors.tenantLogoUploadFailed', 'Logo yüklenemedi'))
+    const result = await response.json() as { logoUrl: string }
+    return result.logoUrl
+  },
+
   async getWorkingHours(tenantId: string): Promise<WorkingHoursSettings> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/working-hours`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.workingHoursLoadFailed'))

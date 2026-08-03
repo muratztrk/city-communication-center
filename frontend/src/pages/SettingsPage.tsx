@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save, RefreshCw } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
@@ -407,6 +407,8 @@ export function SettingsPage() {
   const [citizenAutoReplyTemplates, setCitizenAutoReplyTemplates] = useState<CitizenAutoReplyTemplates>(DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES)
   const [citizenAutoReplySaving, setCitizenAutoReplySaving] = useState(false)
   const [departments, setDepartments] = useState<Department[]>([])
+  const logoFileInputRef = useRef<HTMLInputElement>(null)
+  const [logoUploading, setLogoUploading] = useState(false)
   const [appearanceForm, setAppearanceForm] = useState<TenantAppearanceInput>({
     themePreset: DEFAULT_TENANT_APPEARANCE.themePreset,
     primaryColor: DEFAULT_TENANT_APPEARANCE.primaryColor,
@@ -790,6 +792,21 @@ export function SettingsPage() {
       setMessage({ type: 'success', text: t('settings.organizationSaveSuccess') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const uploadLogo = async (file: File) => {
+    if (!user?.tenantId) return
+    setMessage(null)
+    setLogoUploading(true)
+    try {
+      const logoUrl = await api.uploadTenantLogo(user.tenantId, file)
+      // Önizleme anında güncellensin (card #2234); kalıcı kayıt yine "Kaydet" ile olur.
+      setAppearanceForm(current => ({ ...current, logoUrl }))
+    } catch (uploadError) {
+      setMessage({ type: 'error', text: uploadError instanceof Error ? uploadError.message : t('common.error') })
+    } finally {
+      setLogoUploading(false)
     }
   }
 
@@ -2467,8 +2484,6 @@ export function SettingsPage() {
                   [
                     ['themePreset', t('settings.themePreset')],
                     ['primaryColor', t('settings.primaryColor')],
-                    ['logoUrl', t('settings.logoUrl')],
-                    ['loginBackgroundImageUrl', t('settings.loginBackgroundImageUrl')],
                   ] as const
                 ).map(([field, label]) => (
                   <label className="grid gap-2 text-sm font-semibold text-slate-700" key={field}>
@@ -2476,7 +2491,6 @@ export function SettingsPage() {
                     <input
                       className="field-input"
                       type={field === 'primaryColor' ? 'color' : 'text'}
-                      placeholder={field === 'logoUrl' || field === 'loginBackgroundImageUrl' ? t('settings.urlPlaceholder') : undefined}
                       value={appearanceForm[field] ?? ''}
                       onChange={event => {
                         const nextValue = event.target.value
@@ -2485,18 +2499,34 @@ export function SettingsPage() {
                             // Diğer tüm tonlar Ana Renk'ten otomatik türetilir (card #2233) — kullanıcı seçmez.
                             return { ...current, primaryColor: nextValue, ...deriveAppearanceFromPrimary(nextValue) }
                           }
-                          return {
-                            ...current,
-                            [field]:
-                              field === 'logoUrl' || field === 'loginBackgroundImageUrl'
-                                ? (nextValue || null)
-                                : nextValue,
-                          }
+                          return { ...current, [field]: nextValue }
                         })
                       }}
                     />
                   </label>
                 ))}
+                <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                  <span>{t('settings.tenantLogo', 'Kurum Logosu')}</span>
+                  <input
+                    ref={logoFileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    className="hidden"
+                    onChange={event => {
+                      const file = event.target.files?.[0]
+                      event.target.value = ''
+                      if (file) void uploadLogo(file)
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={logoUploading}
+                    onClick={() => logoFileInputRef.current?.click()}
+                  >
+                    {logoUploading ? t('common.loading') : t('settings.tenantLogoAdd', 'Kurum Logosu Ekle')}
+                  </Button>
+                </label>
               </div>
               <div className="inline-actions">
                 <Button type="submit">{t('common.save')}</Button>

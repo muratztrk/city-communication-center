@@ -31,7 +31,8 @@ public sealed class SlaCalculatorService : ISlaCalculatorService
 
     private static bool ShouldExcludeWeekends(Domain.Entities.TenantSetting? setting, Guid? departmentId)
     {
-        if (setting?.SlaWeekendSettingsJson is null) return false;
+        // Varsayılan: hiç kaydedilmemişse hafta sonu SLA ilerlemesi durdurulmuş sayılır (card #2232).
+        if (setting?.SlaWeekendSettingsJson is null) return true;
 
         try
         {
@@ -45,7 +46,7 @@ public sealed class SlaCalculatorService : ISlaCalculatorService
         }
         catch
         {
-            return false;
+            return true;
         }
     }
 

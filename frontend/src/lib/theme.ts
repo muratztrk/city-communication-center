@@ -97,6 +97,82 @@ export const THEME_PRESETS: ThemePresetDefinition[] = [
   },
 ]
 
+function hexToHsl(hex: string): [number, number, number] | null {
+  const match = /^#?([0-9a-f]{6})$/i.exec(hex.trim())
+  if (!match) return null
+  const value = parseInt(match[1], 16)
+  const r = ((value >> 16) & 255) / 255
+  const g = ((value >> 8) & 255) / 255
+  const b = (value & 255) / 255
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  const l = (max + min) / 2
+  if (max === min) return [0, 0, l * 100]
+  const d = max - min
+  const s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+  let h: number
+  switch (max) {
+    case r: h = ((g - b) / d + (g < b ? 6 : 0)); break
+    case g: h = (b - r) / d + 2; break
+    default: h = (r - g) / d + 4; break
+  }
+  return [h * 60, s * 100, l * 100]
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  const sNorm = Math.min(100, Math.max(0, s)) / 100
+  const lNorm = Math.min(100, Math.max(0, l)) / 100
+  const hNorm = ((h % 360) + 360) % 360
+  const c = (1 - Math.abs(2 * lNorm - 1)) * sNorm
+  const x = c * (1 - Math.abs(((hNorm / 60) % 2) - 1))
+  const m = lNorm - c / 2
+  let [r, g, b] = [0, 0, 0]
+  if (hNorm < 60) [r, g, b] = [c, x, 0]
+  else if (hNorm < 120) [r, g, b] = [x, c, 0]
+  else if (hNorm < 180) [r, g, b] = [0, c, x]
+  else if (hNorm < 240) [r, g, b] = [0, x, c]
+  else if (hNorm < 300) [r, g, b] = [x, 0, c]
+  else [r, g, b] = [c, 0, x]
+  const toHex = (n: number) => Math.round((n + m) * 255).toString(16).padStart(2, '0')
+  return `#${toHex(r)}${toHex(g)}${toHex(b)}`.toUpperCase()
+}
+
+/**
+ * Görünüm sekmesi tek "Ana Renk" seçtirir (card #2233); diğer tüm tonlar buradan HSL
+ * kaydırmalarıyla türetilir — THEME_PRESETS'teki elle seçilmiş paletlerin izlediği örüntüyle
+ * (koyulaşan header gradyanı, çok koyu sidebar, çok açık arka plan) tutarlı kalacak şekilde.
+ */
+export function deriveAppearanceFromPrimary(primaryHex: string): Omit<TenantAppearance, 'themePreset' | 'isCustomized' | 'primaryColor' | 'logoUrl' | 'loginBackgroundImageUrl'> {
+  const hsl = hexToHsl(primaryHex)
+  if (!hsl) {
+    const fallback = DEFAULT_TENANT_APPEARANCE
+    return {
+      secondaryColor: fallback.secondaryColor,
+      accentColor: fallback.accentColor,
+      neutralColor: fallback.neutralColor,
+      surfaceColor: fallback.surfaceColor,
+      backgroundColor: fallback.backgroundColor,
+      headerGradientFrom: fallback.headerGradientFrom,
+      headerGradientTo: fallback.headerGradientTo,
+      sidebarBackgroundColor: fallback.sidebarBackgroundColor,
+      sidebarForegroundColor: fallback.sidebarForegroundColor,
+    }
+  }
+
+  const [h, s] = hsl
+  return {
+    secondaryColor: hslToHex(h, Math.min(100, s * 0.85), 52),
+    accentColor: hslToHex(h + 35, Math.min(100, s * 0.6), 45),
+    neutralColor: hslToHex(h, Math.min(100, s * 0.25), 36),
+    surfaceColor: '#FFFFFF',
+    backgroundColor: hslToHex(h, Math.min(100, s * 0.3), 96),
+    headerGradientFrom: hslToHex(h, s, 25),
+    headerGradientTo: hslToHex(h, Math.min(100, s * 0.7), 12),
+    sidebarBackgroundColor: hslToHex(h, Math.min(100, s * 0.4), 9),
+    sidebarForegroundColor: '#F7FAFC',
+  }
+}
+
 function resolvePresetAppearance(themePreset?: string | null) {
   return THEME_PRESETS.find(preset => preset.key === themePreset)?.appearance ?? DEFAULT_TENANT_APPEARANCE
 }

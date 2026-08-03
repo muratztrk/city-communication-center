@@ -9,11 +9,11 @@ internal sealed class TenantWorkingHoursService : ITenantWorkingHoursService
             false,
             new[]
             {
-                new WorkingHoursDaySchedule(1, "08:00", "17:00"),
-                new WorkingHoursDaySchedule(2, "08:00", "17:00"),
-                new WorkingHoursDaySchedule(3, "08:00", "17:00"),
-                new WorkingHoursDaySchedule(4, "08:00", "17:00"),
-                new WorkingHoursDaySchedule(5, "08:00", "17:00"),
+                new WorkingHoursDaySchedule(1, "08:30", "17:30"),
+                new WorkingHoursDaySchedule(2, "08:30", "17:30"),
+                new WorkingHoursDaySchedule(3, "08:30", "17:30"),
+                new WorkingHoursDaySchedule(4, "08:30", "17:30"),
+                new WorkingHoursDaySchedule(5, "08:30", "17:30"),
                 new WorkingHoursDaySchedule(6, null, null),
                 new WorkingHoursDaySchedule(0, null, null),
             }),

@@ -634,7 +634,7 @@ function ConversationProfilePanel({
         <div className="space-y-3">
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.citizenName', 'Vatandaş Adı')}</span>
-          <input className={fieldClass} value={draft.citizenName} onChange={event => onDraftChange({ citizenName: event.target.value })} />
+          <input className={disabledFieldClass} value={draft.citizenName} readOnly disabled />
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.phoneNumber', 'Numara')}</span>

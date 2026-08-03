@@ -8,7 +8,7 @@ import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { invalidateSettings } from '../api/cacheInvalidation'
 import { API_ORIGIN } from '../api/config'
-import { IZMIR_DISTRICTS, getSavedDistrictId, saveDistrictId } from '../data/izmir-locations'
+import { IZMIR_DISTRICTS, MUNICIPALITY_DISTRICT_KEY, saveDistrictId } from '../data/izmir-locations'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -20,7 +20,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { TablePagination } from '../components/ui/table-pagination'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
-import { DEFAULT_TENANT_APPEARANCE, resolveTenantAppearance } from '../lib/theme'
+import { DEFAULT_TENANT_APPEARANCE, deriveAppearanceFromPrimary, resolveTenantAppearance } from '../lib/theme'
 import {
   DEFAULT_ROLE_PAGE_ACCESS,
   PAGE_ACCESS_ITEMS,
@@ -48,6 +48,7 @@ import type {
   WorkingHoursSettings,
   SmsSettings,
   SmsSettingsUpdate,
+  FileStorageSettings,
   FileStorageSettingsUpdate,
   SyslogSettingsUpdate,
   SlaWeekendSettingsUpdate,
@@ -394,7 +395,11 @@ export function SettingsPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = readTab(searchParams.get('tab'))
   const [tenantSettings, setTenantSettings] = useState<TenantSettings>(EMPTY_TENANT_SETTINGS)
-  const [selectedDistrictId, setSelectedDistrictId] = useState<string>(getSavedDistrictId)
+  // Ayarlar formunda hiç kaydedilmemişse boş görünür (card #2236); adres formlarındaki paylaşılan
+  // varsayılan (getSavedDistrictId, "tire" fallback) buradan etkilenmez — kasıtlı olarak ayrık.
+  const [selectedDistrictId, setSelectedDistrictId] = useState<string>(
+    () => window.localStorage.getItem(MUNICIPALITY_DISTRICT_KEY) ?? '',
+  )
   const [tenantLdapSettings, setTenantLdapSettings] = useState<TenantLdapFormState>(EMPTY_TENANT_LDAP_SETTINGS)
   const [tenantAuthenticationPolicy, setTenantAuthenticationPolicy] = useState<TenantAuthenticationPolicy>(EMPTY_TENANT_AUTH_POLICY)
   const [socialStatus, setSocialStatus] = useState<SocialSettingsStatus | null>(null)
@@ -420,12 +425,18 @@ export function SettingsPage() {
   const [loadedAppearance, setLoadedAppearance] = useState<TenantAppearanceInput>(appearanceForm)
   const [socialForms, setSocialForms] = useState<ChannelForms>(EMPTY_SOCIAL_FORMS)
   const [activeChannel, setActiveChannel] = useState<ChannelType | null>(null)
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+  const [message, setMessageState] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
+  // Card #2230: her "Kaydet" bildirim mesajı aynı zamanda pop-up toast olarak da görünür —
+  // tek noktadan sarmalanır, tüm mevcut setMessage(...) çağrı yerlerini tek tek değiştirmeye gerek yok.
+  const setMessage = (value: { type: 'success' | 'error'; text: string } | null) => {
+    setMessageState(value)
+    if (value) setToast(value)
+  }
 
   const showToast = (type: 'success' | 'error', text: string) => {
     setMessage({ type, text })
-    setToast({ type, text })
   }
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -457,6 +468,7 @@ export function SettingsPage() {
   }, [visiblePageAccessItems, rolesSafePage, rolesPageSize])
   const [workingHoursForm, setWorkingHoursForm] = useState<WorkingHoursSettings | null>(null)
   const [smsSettings, setSmsSettings] = useState<SmsSettings | null>(null)
+  const [fileStorageSettings, setFileStorageSettings] = useState<FileStorageSettings | null>(null)
   const [smsTestPhone, setSmsTestPhone] = useState('')
   const [smsTestStatus, setSmsTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [smsForm, setSmsForm] = useState<SmsSettingsUpdate>({
@@ -482,7 +494,7 @@ export function SettingsPage() {
     clearFtpPassword: false,
   })
   const [slaWeekendForm, setSlaWeekendForm] = useState<SlaWeekendSettingsUpdate>({
-    excludeWeekends: false, exemptDepartmentIds: [],
+    excludeWeekends: true, exemptDepartmentIds: [],
   })
   const [templates, setTemplates] = useState<WhatsAppMessageTemplate[]>([])
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null)
@@ -593,6 +605,7 @@ export function SettingsPage() {
           originator: smsResponse.originator,
           chargedNumber: smsResponse.chargedNumber,
         })
+        setFileStorageSettings(fileStorageResponse)
         setFileStorageForm({
           nasHost: fileStorageResponse.nasHost,
           nasShareName: fileStorageResponse.nasShareName,
@@ -1505,7 +1518,7 @@ export function SettingsPage() {
                   }))}
                   value={selectedDistrictId}
                   onChange={setSelectedDistrictId}
-                  placeholder={t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}
+                  placeholder={t('settings.municipalityLocation.districtPlaceholder', 'İlçe seçiniz')}
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
                 />
@@ -1677,7 +1690,7 @@ export function SettingsPage() {
               {slaWeekendForm.excludeWeekends && departments.length > 0 && (
                 <div className="field-row">
                   <label className="field-label">{t('settings.slaWeekend.exemptDepartments')}</label>
-                  <div className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3">
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-2 rounded-2xl border border-slate-200 bg-white p-3">
                     {departments.map(dept => (
                       <label key={dept.departmentId} className="inline-flex items-center gap-2 text-sm text-slate-700">
                         <input
@@ -1935,11 +1948,30 @@ export function SettingsPage() {
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.password')}</span>
-                    <input className="field-input" type="password" placeholder={t('settings.fileStorage.passwordPlaceholder')} value={fileStorageForm.nasPassword ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasPassword: event.target.value || null, clearNasPassword: false }))} />
-                  </label>
-                  <label className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
-                    <input className="field-checkbox" type="checkbox" checked={fileStorageForm.clearNasPassword} onChange={event => setFileStorageForm(current => ({ ...current, clearNasPassword: event.target.checked, nasPassword: null }))} />
-                    {t('settings.fileStorage.clearPassword')}
+                    <input
+                      className="field-input"
+                      type="password"
+                      placeholder={t('settings.fileStorage.passwordPlaceholder')}
+                      value={fileStorageForm.nasPassword ?? (fileStorageSettings?.nasHasPassword ? SMS_PASSWORD_MASK : '')}
+                      onFocus={() => {
+                        if (!fileStorageForm.nasPassword && fileStorageSettings?.nasHasPassword) {
+                          setFileStorageForm(current => ({ ...current, nasPassword: '' }))
+                        }
+                      }}
+                      onBlur={() => {
+                        if (fileStorageForm.nasPassword === '') {
+                          setFileStorageForm(current => ({ ...current, nasPassword: null }))
+                        }
+                      }}
+                      onChange={event => {
+                        const next = event.target.value
+                        setFileStorageForm(current => ({
+                          ...current,
+                          nasPassword: next === SMS_PASSWORD_MASK ? null : (next || null),
+                          clearNasPassword: false,
+                        }))
+                      }}
+                    />
                   </label>
                   {/* Test başlığı FTP ile aynı yatay hizada — kolonlar stretch + mt-auto (#6a6edf3e). */}
                   <div className="mt-auto space-y-3 border-t border-slate-200 pt-4">
@@ -2026,11 +2058,30 @@ export function SettingsPage() {
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.password')}</span>
-                    <input className="field-input" type="password" placeholder={t('settings.fileStorage.passwordPlaceholder')} value={fileStorageForm.ftpPassword ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpPassword: event.target.value || null, clearFtpPassword: false }))} />
-                  </label>
-                  <label className="inline-flex items-center gap-2 text-sm font-semibold text-slate-700">
-                    <input className="field-checkbox" type="checkbox" checked={fileStorageForm.clearFtpPassword} onChange={event => setFileStorageForm(current => ({ ...current, clearFtpPassword: event.target.checked, ftpPassword: null }))} />
-                    {t('settings.fileStorage.clearPassword')}
+                    <input
+                      className="field-input"
+                      type="password"
+                      placeholder={t('settings.fileStorage.passwordPlaceholder')}
+                      value={fileStorageForm.ftpPassword ?? (fileStorageSettings?.ftpHasPassword ? SMS_PASSWORD_MASK : '')}
+                      onFocus={() => {
+                        if (!fileStorageForm.ftpPassword && fileStorageSettings?.ftpHasPassword) {
+                          setFileStorageForm(current => ({ ...current, ftpPassword: '' }))
+                        }
+                      }}
+                      onBlur={() => {
+                        if (fileStorageForm.ftpPassword === '') {
+                          setFileStorageForm(current => ({ ...current, ftpPassword: null }))
+                        }
+                      }}
+                      onChange={event => {
+                        const next = event.target.value
+                        setFileStorageForm(current => ({
+                          ...current,
+                          ftpPassword: next === SMS_PASSWORD_MASK ? null : (next || null),
+                          clearFtpPassword: false,
+                        }))
+                      }}
+                    />
                   </label>
                   <div className="mt-auto space-y-3 border-t border-slate-200 pt-4">
                     <div className="text-sm font-extrabold text-slate-900">{t('settings.fileStorage.testTitleFtp')}</div>
@@ -2401,21 +2452,6 @@ export function SettingsPage() {
                 <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>
                 <p className="mt-2 max-w-md text-sm leading-6 text-white/78">{t('settings.appearancePreviewBody')}</p>
               </div>
-              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                {[
-                  previewAppearance.primaryColor,
-                  previewAppearance.secondaryColor,
-                  previewAppearance.accentColor,
-                  previewAppearance.neutralColor,
-                  previewAppearance.surfaceColor,
-                  previewAppearance.sidebarBackgroundColor,
-                ].map(color => (
-                  <div className="rounded-xl border border-slate-200 bg-white p-2" key={color}>
-                    <div className="h-9 rounded-lg" style={{ backgroundColor: color }} />
-                    <div className="mt-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-500">{color}</div>
-                  </div>
-                ))}
-              </div>
             </section>
 
             <form className="section-card page-stack" onSubmit={saveAppearanceSettings}>
@@ -2431,15 +2467,6 @@ export function SettingsPage() {
                   [
                     ['themePreset', t('settings.themePreset')],
                     ['primaryColor', t('settings.primaryColor')],
-                    ['secondaryColor', t('settings.secondaryColor')],
-                    ['accentColor', t('settings.accentColor')],
-                    ['neutralColor', t('settings.neutralColor')],
-                    ['surfaceColor', t('settings.surfaceColor')],
-                    ['backgroundColor', t('settings.backgroundColor')],
-                    ['headerGradientFrom', t('settings.headerGradientFrom')],
-                    ['headerGradientTo', t('settings.headerGradientTo')],
-                    ['sidebarBackgroundColor', t('settings.sidebarBackgroundColor')],
-                    ['sidebarForegroundColor', t('settings.sidebarForegroundColor')],
                     ['logoUrl', t('settings.logoUrl')],
                     ['loginBackgroundImageUrl', t('settings.loginBackgroundImageUrl')],
                   ] as const
@@ -2448,17 +2475,24 @@ export function SettingsPage() {
                     <span>{label}</span>
                     <input
                       className="field-input"
+                      type={field === 'primaryColor' ? 'color' : 'text'}
                       placeholder={field === 'logoUrl' || field === 'loginBackgroundImageUrl' ? t('settings.urlPlaceholder') : undefined}
                       value={appearanceForm[field] ?? ''}
                       onChange={event => {
                         const nextValue = event.target.value
-                        setAppearanceForm(current => ({
-                          ...current,
-                          [field]:
-                            field === 'logoUrl' || field === 'loginBackgroundImageUrl'
-                              ? (nextValue || null)
-                              : nextValue,
-                        }))
+                        setAppearanceForm(current => {
+                          if (field === 'primaryColor') {
+                            // Diğer tüm tonlar Ana Renk'ten otomatik türetilir (card #2233) — kullanıcı seçmez.
+                            return { ...current, primaryColor: nextValue, ...deriveAppearanceFromPrimary(nextValue) }
+                          }
+                          return {
+                            ...current,
+                            [field]:
+                              field === 'logoUrl' || field === 'loginBackgroundImageUrl'
+                                ? (nextValue || null)
+                                : nextValue,
+                          }
+                        })
                       }}
                     />
                   </label>
@@ -2562,6 +2596,9 @@ export function SettingsPage() {
                   <div className="inline-actions">
                     <Button size="sm" type="button" variant="secondary" onClick={() => setActiveChannel(current => current === channel.id ? null : channel.id)}>{t('settings.socialConfig.configure')}</Button>
                     <Button size="sm" type="button" variant="ghost" onClick={() => void testChannel(channel.id)}>{t('common.test')}</Button>
+                    {activeChannel === channel.id ? (
+                      <Button size="sm" type="button" variant="ghost" onClick={() => setActiveChannel(null)}>{t('common.dismiss')}</Button>
+                    ) : null}
                     {status.configured ? <Button size="sm" type="button" variant="danger" onClick={() => void deleteChannel(channel.id)}>{t('common.delete')}</Button> : null}
                   </div>
                   {activeChannel === channel.id ? (

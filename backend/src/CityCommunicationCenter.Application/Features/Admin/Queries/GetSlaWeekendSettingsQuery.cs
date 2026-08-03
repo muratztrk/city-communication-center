@@ -20,19 +20,20 @@ public sealed class GetSlaWeekendSettingsQueryHandler : IQueryHandler<GetSlaWeek
             .AsNoTracking()
             .FirstOrDefaultAsync(s => s.TenantId == request.TenantId, cancellationToken);
 
+        // Varsayılan: hiç kaydedilmemişse checkbox işaretli görünür (card #2232).
         if (setting?.SlaWeekendSettingsJson is null)
-            return new SlaWeekendSettingsResponse(false, []);
+            return new SlaWeekendSettingsResponse(true, []);
 
         try
         {
             var payload = JsonSerializer.Deserialize<SlaWeekendPayload>(setting.SlaWeekendSettingsJson);
             return new SlaWeekendSettingsResponse(
-                payload?.ExcludeWeekends ?? false,
+                payload?.ExcludeWeekends ?? true,
                 payload?.ExemptDepartmentIds ?? []);
         }
         catch
         {
-            return new SlaWeekendSettingsResponse(false, []);
+            return new SlaWeekendSettingsResponse(true, []);
         }
     }
 

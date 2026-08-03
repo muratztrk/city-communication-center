@@ -268,7 +268,7 @@
     "noJob": "İş kaydı yok",
     "unassignedDepartment": "Müdürlük bekliyor",
     "unassignedUser": "Kişi ataması yok",
-    "empty": "Bekleyen iş bulunmuyor.",
+    "empty": "Bekleyen görev bulunmuyor.",
     "refreshInterval": "Otomatik yenile",
     "refreshOptions": {
       "oneMinute": "1 dakika",
@@ -1442,6 +1442,7 @@
       "sectionTitle": "Kurum Konumu",
       "sectionDescription": "Talep oluşturma mahalle listesini ve Anasayfa vatandaş haritasını belirlemek için ilçe seçin. Seçim değişince mahalle listesi güncellenir.",
       "districtLabel": "İlçe (İzmir)",
+      "districtPlaceholder": "İlçe seçiniz",
       "saveSuccess": "Konum ayarı kaydedildi."
     }
   },

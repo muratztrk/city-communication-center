@@ -34,6 +34,21 @@ public sealed class CreateDepartmentCommandHandler : ICommandHandler<CreateDepar
 
     public async ValueTask<DepartmentResponse> Handle(CreateDepartmentCommand request, CancellationToken cancellationToken)
     {
+        var trimmedName = request.Name.Trim();
+        var nameExists = await _dbContext.Departments
+            .Where(department => department.TenantId == request.TenantId)
+            .AnyAsync(department => department.Name.ToLower() == trimmedName.ToLower(), cancellationToken);
+
+        if (nameExists)
+        {
+            throw new ValidationException(
+            [
+                new FluentValidation.Results.ValidationFailure(
+                    "Name",
+                    $"'{trimmedName}' adında bir birim zaten mevcut."),
+            ]);
+        }
+
         var entity = new Department
         {
             DepartmentId = Guid.NewGuid(),

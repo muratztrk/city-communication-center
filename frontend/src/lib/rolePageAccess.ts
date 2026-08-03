@@ -151,26 +151,24 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
       matrix[role].edevletActivityPlan = false
       matrix[role].edevletActivityPlansList = false
       matrix[role].outgoingRequests = false
-      matrix[role].departmentTasks = false
       matrix[role].citizenMessageApproval = false
+      // departmentTasks (Birimdeki Görevler) rol matrisinden yapılandırılabilir (card #2242) — zorla kapatma.
     }
     if (role === 'EDevletActivityPlan') {
       matrix[role].outgoingRequests = false
-      matrix[role].departmentTasks = false
+      // departmentTasks (Birimdeki Görevler) rol matrisinden yapılandırılabilir (card #2242) — zorla kapatma.
     }
     if (role === 'CitizenRequestManager') {
       matrix[role].outgoingRequests = false
       // departmentTasks (Birimdeki Görevler) rol matrisinden yapılandırılabilir (card #1073) — zorla kapatma.
     }
-    if (role === 'Manager' || role === 'SystemAdmin') {
-      matrix[role].departmentTasks = true
-    }
     if (role === 'Manager') {
       // Kayıtlı matriste açık olsa bile Manager Sms Onayı'na girmez (#6a6b6c8e).
       matrix[role].smsDeliveryApproval = false
     }
-    // Vatandaş Bilgi Listesi yalnız Operatör / Üst Düzey / Sistem (card #1892).
-    matrix[role].citizenDirectory = role === 'SystemAdmin' || role === 'Operator' || role === 'Reporter'
+    // departmentTasks (Birimdeki Görevler) ve citizenDirectory (Vatandaş Bilgi Listesi) artık
+    // rol matrisinden yapılandırılabilir; zorla açma/kapatma yok (card #2242). Varsayılanlar
+    // (kayıt yokken) DEFAULT_ROLE_PAGE_ACCESS'te tanımlı.
     return matrix
   }, {} as RolePageAccessMatrix)
 }

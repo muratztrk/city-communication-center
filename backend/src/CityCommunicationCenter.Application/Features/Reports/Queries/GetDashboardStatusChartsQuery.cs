@@ -373,8 +373,9 @@ public sealed class GetDashboardStatusChartsQueryHandler
             charts.Add(await BuildNeighborhoodProcessingRequestsChartAsync(tenantId, request, cancellationToken));
         }
 
-        // Üst Düzey Yönetici Anasayfa-Vatandaş: birim bazlı VT durum pie'ları (#6a6cdec6).
-        if (roleCode is "Reporter")
+        // Üst Düzey Yönetici / Vatandaş Talep Operatörü Anasayfa-Vatandaş: birim bazlı VT durum
+        // pie'ları (#6a6cdec6, Operator'e genişletildi card #2245).
+        if (roleCode is "Reporter" or "Operator")
         {
             charts.AddRange(await BuildCitizenDepartmentStatusChartsAsync(tenantId, request, cancellationToken));
         }

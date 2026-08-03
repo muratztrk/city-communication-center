@@ -1445,8 +1445,21 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Personelimin Görevleri `separatePriorityProjectRows` satırında da aynı sınıf (önce renk yoktu).
 - **Ayarlar Kurum Bilgisi (#r522 / #6a6cbd61 / #6a6cd81e / #6a6cdd37):** başlık `text-xl`;
   Aktif/Alan Adı/Dağıtım/Tema yok; readonly KURUM ADI/SLA özet satırı yok (yalnız form).
-- **Ayarlar Lisans sekmesi (#6a6cbc1e):** Taslak Mesajlar sonrası; Vatandaş Talep Modülü +
-  Kurum İçi İş Takip Modülü lisans anahtarı alanları (tenant localStorage).
+- **Ayarlar Lisans sekmesi (Round 654 ile değişti):** artık kozmetik metin-anahtarı stub'ı DEĞİL —
+  lumespec-license'tan (Ed25519 imzalı) gerçek modül durumu (Kullanılabilir/Kullanılamıyor + geçerlilik
+  tarihi) salt okunur gösterilir. Tenant SystemAdmin'i kendi modülünü açıp kapatamaz. Modül lisansı
+  `frontend/src/lib/licenseModules.ts` + backend `LicenseServiceClient`; sayfa/menü gizleme
+  `PAGE_LICENSE_MODULE` haritası üzerinden `canAnyRoleAccessPage`'e entegre (bkz. rolePageAccess.ts).
+- **Sayfa Yetkileri artık `departmentTasks`/`citizenDirectory`'i zorla açıp kapatmıyor (card #2242):**
+  önceki kod bu iki sayfayı role göre unconditional force ediyordu (admin checkbox'ı hiç işe yaramıyordu);
+  `normalizeRolePageAccessMatrix`'e yeni bir zorlama eklerken kayıtlı admin tercihini ezmediğinden emin ol.
+- **Dosya sunucusu (NAS/FTP) parola alanları artık SMS API ile aynı maske deseni kullanır (card #2229):**
+  kayıtlıysa `********` gösterir, "Kayıtlı şifreyi sil" checkbox'ı yok — `frontend/src/lib/` yerine
+  doğrudan SettingsPage.tsx içinde SMS_PASSWORD_MASK reuse edilir (bkz. `fileStorageSettings` state).
+- **Ayarlar Görünüm sekmesi tek "Ana Renk" seçtirir (Round 654 / card #2233):** diğer 9 renk alanı
+  formdan kaldırıldı, `deriveAppearanceFromPrimary` (lib/theme.ts, HSL kaydırma) ile otomatik türetilir.
+  Önizlemedeki hex-kodlu küçük kutucuk ızgarası da kaldırıldı. Yeni bir renk alanı eklersen bu türetme
+  fonksiyonunu güncellemeyi unutma — elle giriş formuna geri dönme.
 - **Vatandaş Bilgi Listesi (#6a6cbef5/#6a6cbf0e/#6a6ce8f0/#6a6cf14b):** popup Birim truncate;
   Talep Tarihi `DateCell` = Son Tarih `DueDatePill` (0.84rem/600, svg 0.875rem); ana grid
   Adı/Numara = Gelen Talep Yeri tipografisi; popup kolon başlığı `Vatandaş Talep No`;

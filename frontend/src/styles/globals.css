@@ -4770,6 +4770,11 @@
     font-weight: 800;
   }
 
+  /* Card #2238: standart gridview boş-state gibi kalın olmasın. */
+  .wallboard-empty {
+    font-weight: 400;
+  }
+
   .wallboard-error {
     justify-content: flex-start;
     min-height: auto;

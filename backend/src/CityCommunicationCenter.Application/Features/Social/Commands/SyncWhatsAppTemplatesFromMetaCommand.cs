@@ -34,7 +34,7 @@ public sealed class SyncWhatsAppTemplatesFromMetaCommandHandler
             throw new ValidationException([
                 new ValidationFailure(
                     "WhatsApp",
-                    "WhatsApp Business Account ID ve Access Token ayarlanmadan Meta şablonları senkronize edilemez.")
+                    "WhatsApp Business Account ID ve Access Token ayarlanması için destek talebinde bulununuz.")
             ]);
         }
 

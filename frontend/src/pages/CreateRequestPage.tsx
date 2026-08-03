@@ -374,22 +374,21 @@ export function CreateRequestPage() {
   }, [internalOwnerUserOptions, isManagerLike, t])
 
 
-  const requestTypeOptions = useMemo(() => {
-    const options: { value: RequestKind; label: string }[] = []
+  // useMemo YOK: isModuleUsable() localStorage'dan senkron okur ve lisans verisi ilk
+  // render'dan SONRA gelebilir (bkz. LicenseModuleSync) — memoize edilirse deps değişmediği
+  // için stale kalır (#MHrIEwuE inceleme notu). Hesaplama ucuz, her render'da tazelenmesi sorun değil.
+  const requestTypeOptions: { value: RequestKind; label: string }[] = []
 
-    // Birim İçi/Dışı Talepler, Kurum İçi İş Takip modülüne özgü (#MHrIEwuE): yalnız Vatandaş
-    // modülü lisanslıyken Talep Oluştur'da sadece "Vatandaş Çağrı Talebi" görünür.
-    if (isModuleUsable('internal')) {
-      options.push({ value: 'internal' as const, label: t('requests.create.internalPluralTitle', 'Birim İçi Talepler') })
-      options.push({ value: 'external' as const, label: t('requests.create.externalPluralTitle', 'Birim Dışı Talepler') })
-    }
+  // Birim İçi/Dışı Talepler, Kurum İçi İş Takip modülüne özgü (#MHrIEwuE): yalnız Vatandaş
+  // modülü lisanslıyken Talep Oluştur'da sadece "Vatandaş Çağrı Talebi" görünür.
+  if (isModuleUsable('internal')) {
+    requestTypeOptions.push({ value: 'internal' as const, label: t('requests.create.internalPluralTitle', 'Birim İçi Talepler') })
+    requestTypeOptions.push({ value: 'external' as const, label: t('requests.create.externalPluralTitle', 'Birim Dışı Talepler') })
+  }
 
-    if (canCreateCitizenRequest && isModuleUsable('citizen')) {
-      options.push({ value: 'citizen' as const, label: t('requests.create.citizenCallTitle', 'Vatandaş Çağrı Talebi') })
-    }
-
-    return options
-  }, [canCreateCitizenRequest, t])
+  if (canCreateCitizenRequest && isModuleUsable('citizen')) {
+    requestTypeOptions.push({ value: 'citizen' as const, label: t('requests.create.citizenCallTitle', 'Vatandaş Çağrı Talebi') })
+  }
 
   const selectRequestKind = (kind: RequestKind) => {
     setError(null)

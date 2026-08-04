@@ -568,7 +568,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               {metric.label}
               {metric.sublabel ? <span className="block normal-case tracking-normal">{metric.sublabel}</span> : null}
             </div>
-            <div className="mt-0.5 text-2xl font-extrabold text-slate-950">{metric.value ?? '...'}</div>
+            {/* Sublabel'ı olmayan kartlarda değer bir tık yukarı çekilir — sublabel'lı
+                komşularıyla aynı hizada dursun (card #2261). */}
+            <div className={`text-2xl font-extrabold text-slate-950${metric.sublabel ? ' mt-0.5' : ''}`}>{metric.value ?? '...'}</div>
           </div>
           <div className={`flex size-9 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
             <Icon className="size-4" />

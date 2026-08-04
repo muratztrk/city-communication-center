@@ -40,16 +40,6 @@ import { sortUserDepartments } from '../utils/departmentAccess'
 import { useDataTableOverflowTooltips } from '../hooks/useDataTableOverflowTooltips'
 
 
-// Kullanıcı rozetindeki birim adı ("Fen İşleri Müdürlüğü" gibi) dar alana sığmayınca "Müd..."
-// olarak kısaltılsın — genel CSS truncate kelime ortasında rastgele bir yerden keser (card #2260).
-const DEPARTMENT_BADGE_TRUNCATE_LENGTH = 18
-function truncateDepartmentBadgeLabel(name: string): string {
-  if (name.length <= DEPARTMENT_BADGE_TRUNCATE_LENGTH) return name
-  const mudIndex = name.indexOf('Müd')
-  if (mudIndex === -1) return name
-  return `${name.slice(0, mudIndex + 3)}...`
-}
-
 function useResponsiveZoom() {
   const compute = useCallback(() => {
     const viewportWidth = window.visualViewport?.width ?? window.innerWidth
@@ -760,7 +750,7 @@ export function AppShell() {
               <button
                 type="button"
                 onClick={() => canOpenUserMenu && setIsUserMenuOpen(v => !v)}
-                className={`flex min-w-0 max-w-[17rem] items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 shadow-sm${canOpenUserMenu ? ' cursor-pointer transition-colors hover:border-slate-300 hover:shadow-md' : ' cursor-default'}`}
+                className={`flex min-w-0 max-w-[26rem] items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-2 py-1 shadow-sm${canOpenUserMenu ? ' cursor-pointer transition-colors hover:border-slate-300 hover:shadow-md' : ' cursor-default'}`}
                 title={`${userDisplayName} - ${user?.departmentName || userRoleLabel}`}
               >
                 <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[color:var(--color-primary)] text-xs font-black text-white">
@@ -768,12 +758,10 @@ export function AppShell() {
                 </div>
                 <div className="min-w-0">
                   <div className="truncate text-sm font-bold text-slate-900">{userDisplayName}</div>
-                  <div className="truncate text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-slate-500">
-                    {truncateDepartmentBadgeLabel(
-                      userDepartments.length > 1
-                        ? (userDepartments.find(d => d.departmentId === activeDeptId)?.name ?? user?.departmentName ?? userRoleLabel)
-                        : (user?.departmentName || userRoleLabel),
-                    )}
+                  <div className="whitespace-nowrap text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-slate-500">
+                    {userDepartments.length > 1
+                      ? (userDepartments.find(d => d.departmentId === activeDeptId)?.name ?? user?.departmentName ?? userRoleLabel)
+                      : (user?.departmentName || userRoleLabel)}
                   </div>
                 </div>
                 {canOpenUserMenu && (

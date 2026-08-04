@@ -424,7 +424,6 @@ export function SettingsPage() {
     logoUrl: DEFAULT_TENANT_APPEARANCE.logoUrl ?? null,
     loginBackgroundImageUrl: DEFAULT_TENANT_APPEARANCE.loginBackgroundImageUrl ?? null,
   })
-  const [loadedAppearance, setLoadedAppearance] = useState<TenantAppearanceInput>(appearanceForm)
   const [socialForms, setSocialForms] = useState<ChannelForms>(EMPTY_SOCIAL_FORMS)
   const [activeChannel, setActiveChannel] = useState<ChannelType | null>(null)
   const [message, setMessageState] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -570,7 +569,6 @@ export function SettingsPage() {
         })
         setTenantAuthenticationPolicy(authPolicyResponse)
         setAppearanceForm(nextAppearance)
-        setLoadedAppearance(nextAppearance)
         setSocialStatus(socialResponse)
         if (socialResponse.whatsAppPublic) {
           setSocialForms(current => ({
@@ -841,7 +839,57 @@ export function SettingsPage() {
       }
 
       setAppearanceForm(nextAppearance)
-      setLoadedAppearance(nextAppearance)
+      setAppearance(refreshed)
+      setMessage({ type: 'success', text: t('settings.appearanceSaveSuccess') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const resetAppearanceToDefault = async () => {
+    if (!user?.tenantId) {
+      return
+    }
+
+    setMessage(null)
+    const defaultPayload: TenantAppearanceInput = {
+      themePreset: DEFAULT_TENANT_APPEARANCE.themePreset,
+      primaryColor: DEFAULT_TENANT_APPEARANCE.primaryColor,
+      secondaryColor: DEFAULT_TENANT_APPEARANCE.secondaryColor,
+      accentColor: DEFAULT_TENANT_APPEARANCE.accentColor,
+      neutralColor: DEFAULT_TENANT_APPEARANCE.neutralColor,
+      surfaceColor: DEFAULT_TENANT_APPEARANCE.surfaceColor,
+      backgroundColor: DEFAULT_TENANT_APPEARANCE.backgroundColor,
+      headerGradientFrom: DEFAULT_TENANT_APPEARANCE.headerGradientFrom,
+      headerGradientTo: DEFAULT_TENANT_APPEARANCE.headerGradientTo,
+      sidebarBackgroundColor: DEFAULT_TENANT_APPEARANCE.sidebarBackgroundColor,
+      sidebarForegroundColor: DEFAULT_TENANT_APPEARANCE.sidebarForegroundColor,
+      logoUrl: DEFAULT_TENANT_APPEARANCE.logoUrl ?? null,
+      loginBackgroundImageUrl: null,
+    }
+
+    try {
+      await api.updateTenantAppearance(user.tenantId, defaultPayload)
+      invalidateSettings(queryClient)
+      const refreshed = await api.getTenantAppearance(user.tenantId)
+      const nextAppearance = {
+        themePreset: refreshed.themePreset,
+        primaryColor: refreshed.primaryColor,
+        secondaryColor: refreshed.secondaryColor,
+        accentColor: refreshed.accentColor,
+        neutralColor: refreshed.neutralColor,
+        surfaceColor: refreshed.surfaceColor,
+        backgroundColor: refreshed.backgroundColor,
+        headerGradientFrom: refreshed.headerGradientFrom,
+        headerGradientTo: refreshed.headerGradientTo,
+        sidebarBackgroundColor: refreshed.sidebarBackgroundColor,
+        sidebarForegroundColor: refreshed.sidebarForegroundColor,
+        logoUrl: refreshed.logoUrl ?? null,
+        loginBackgroundImageUrl: refreshed.loginBackgroundImageUrl ?? null,
+      }
+
+      setAppearanceForm(nextAppearance)
+      // Sidebar/giriş ekranı dahil tüm logo görselleri anında güncellensin (card #2261).
       setAppearance(refreshed)
       setMessage({ type: 'success', text: t('settings.appearanceSaveSuccess') })
     } catch (saveError) {
@@ -2532,7 +2580,7 @@ export function SettingsPage() {
               </div>
               <div className="inline-actions">
                 <Button type="submit">{t('common.save')}</Button>
-                <Button type="button" variant="secondary" onClick={() => setAppearanceForm(loadedAppearance)}>{t('settings.reset')}</Button>
+                <Button type="button" variant="secondary" onClick={() => void resetAppearanceToDefault()}>{t('settings.reset', 'Varsayılana Dön')}</Button>
               </div>
             </form>
           </div>

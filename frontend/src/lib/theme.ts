@@ -19,6 +19,9 @@ export const DEFAULT_TENANT_APPEARANCE: TenantAppearance = {
   headerGradientTo: '#1A1E1C',
   sidebarBackgroundColor: '#171A18',
   sidebarForegroundColor: '#F4FAF5',
+  // Kurum logosu hiç yüklenmemişse veya "Varsayılana Dön" ile sıfırlanmışsa gösterilen
+  // varsayılan logo (card #2261).
+  logoUrl: '/default-institution-logo.png',
   isCustomized: false,
 }
 

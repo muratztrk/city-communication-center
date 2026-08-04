@@ -16,7 +16,7 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
         "#1A1E1C",
         "#171A18",
         "#F4FAF5",
-        null,
+        "/default-institution-logo.png",
         null,
         false);
 

@@ -1820,13 +1820,30 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   güvenli, yenitim gibi gerçek veri içeren bir DB'ye deploy etmeden önce o departman/kullanıcı
   ID'lerinin hâlâ gerçek veriye bağlı olup olmadığını kontrol et**, aksi halde testtim'de yaşanan FK
   çakışmasının çok daha yıkıcı bir versiyonu prod'da tetiklenebilir).
-- **Kullanıcı rozetindeki birim adı "Müd..." kısaltması (card #2260):** `AppShell.tsx` içindeki
-  `truncateDepartmentBadgeLabel` — 18 karakterden uzun VE içinde "Müd" geçen birim adlarını
-  "...Müd..." olarak keser (CSS `truncate`'in kelime ortasından rastgele kesmesi yerine). Genel CSS
-  `truncate` class'ı hâlâ yedek olarak duruyor.
+- **Kullanıcı rozetindeki birim adı ARTIK kısaltılmıyor (card #2260 → #2264 reopen):** #2260'da
+  eklenen `truncateDepartmentBadgeLabel` ("Müd..." kısaltması) #2264'te kaldırıldı — kullanıcı
+  kısaltma yerine alanın genişletilmesini istedi. `AppShell.tsx`'teki rozet butonu artık
+  `max-w-[26rem]` + `whitespace-nowrap` (CSS `truncate` yok) ile tam birim adını gösterir. Yeniden
+  bir kısaltma ihtiyacı çıkarsa önce genişlik artırımını dene, "Müd..." desenine dönme.
 - **Anasayfa metrik kartlarında başlık/alt-başlık ayrımı `sublabel` alanıyla yapılır** (card #2259):
   `MetricCard.sublabel` alt satırda `normal-case tracking-normal` ile basılır — yeni bir metrik
   kartı eklerken uzun bileşik ifadeleri (`"X Y Z"`) `label`+`sublabel` olarak böl, tek satıra sıkıştırma.
+  `sublabel`sız kartlarda değer (`metric.value`) `mt-0.5` ALMAZ (card #2261/#2259 reopen) — sublabel'lı
+  komşularıyla dikey hizası böyle tutuluyor.
+- **Ayarlar > Görünüm "Varsayılana Dön" artık gerçekten fabrika ayarına döner ve anında kaydeder**
+  (card #2261, eskiden "Yüklü Değerlere Dön" = son kaydedilen değerlere dönerdi): `SettingsPage`
+  `resetAppearanceToDefault()` — `DEFAULT_TENANT_APPEARANCE` değerlerini (logo dahil) backend'e kaydeder,
+  `setAppearance(refreshed)` ile sidebar/giriş ekranı da anında güncellenir (aynı desen #2251).
+  Varsayılan logo `frontend/public/default-institution-logo.png` (Lumespec wordmark) — hem FE
+  `DEFAULT_TENANT_APPEARANCE.logoUrl` hem BE `TenantAppearanceService.DefaultAppearance` aynı yolu
+  kullanır; ikisi birlikte değişmeli. **Var olan/özelleştirilmiş tenant'ları etkilemez** —
+  `resolveTenantAppearance`'da `...appearance` spread'i `logoUrl: null` bile olsa default'u ezer,
+  bu default yalnız (a) hiç `TenantSetting` satırı olmayan yepyeni tenant'larda ve (b) "Varsayılana
+  Dön"e elle basılınca devreye girer.
+- **Yeni Kullanıcı/Yeni Birim formunda Oluşturma Modu üstü LDAP ipucu** (card #2263):
+  `!ldapEnabled` iken açıklama paragrafının altına ek bir `helper-copy` satırı
+  (`departments.ldapNotConfiguredHint` / `users.ldapNotConfiguredHint`) eklenir; LDAP
+  ayarlandığında kaybolur — statik `newFormDescription` metnine ASLA gömme, koşullu kalsın.
 
 ## 6. Tenant / Auth
 

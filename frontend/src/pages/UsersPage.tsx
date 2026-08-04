@@ -962,6 +962,9 @@ export function UsersPage() {
           <div>
             <h2 className="text-xl font-extrabold text-slate-950">{t('users.newFormTitle')}</h2>
             <p className="helper-copy">{t('users.newFormDescription')}</p>
+            {!managementContext?.ldapEnabled ? (
+              <p className="helper-copy">{t('users.ldapNotConfiguredHint', 'Ldap ayarı yaptıktan sonra veri çekilebilir.')}</p>
+            ) : null}
           </div>
 
           <div className="grid gap-2">

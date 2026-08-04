@@ -1762,6 +1762,12 @@
       max-width: 100%;
     }
 
+    /* Ek birim (aktif birim değiştirme) ipucu metni biraz küçültülür (card #2266). */
+    .app-content-shell .admin-surface-page .users-additional-departments-field .helper-copy {
+      font-size: 0.8rem;
+      line-height: 1.35;
+    }
+
     .app-content-shell .admin-surface-page .users-role-field .field-select,
     .app-content-shell .admin-surface-page .users-role-dropdown button,
     .app-content-shell .admin-surface-page .users-additional-roles-field .field-select,

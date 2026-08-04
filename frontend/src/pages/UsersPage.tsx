@@ -1271,7 +1271,7 @@ export function UsersPage() {
                 />
               </div>
 
-              <div className="grid gap-2 text-sm font-semibold text-slate-700">
+              <div className="users-additional-departments-field grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.additionalDepartments', 'Ek görev yaptığı birimler')}</span>
                 <MultiSelectDropdown
                   options={departments

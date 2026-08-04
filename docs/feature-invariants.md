@@ -1870,7 +1870,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bu default yalnız (a) hiç `TenantSetting` satırı olmayan yepyeni tenant'larda ve (b) "Varsayılana
   Dön"e elle basılınca devreye girer.
 - **Görünüm Önizleme logosu (#2276):** Yalnız Ayarlar > Görünüm önizlemesindeki çerçeve
-  `h-12 w-12`, iç logo yaklaşık `%88` olur; sidebar/login `MunicipalitySeal` ölçüleri etkilenmez.
+  `h-24 w-24`, iç logo yaklaşık `%88` olur; sidebar/login `MunicipalitySeal` ölçüleri etkilenmez.
+- **Birimler liste araması (#2283):** Birim ara kutusu yalnız birim adı, müdür ve sorumlu
+  adlarında arar; gridde görünmeyen `departmentType` (`Müdürlük` vb.) haystack'e dahil edilmez.
 - **Yeni Kullanıcı/Yeni Birim formunda Oluşturma Modu üstü LDAP ipucu** (card #2263):
   `!ldapEnabled` iken açıklama paragrafının altına ek bir `helper-copy` satırı
   (`departments.ldapNotConfiguredHint` / `users.ldapNotConfiguredHint`) eklenir; LDAP

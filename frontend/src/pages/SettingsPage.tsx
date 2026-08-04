@@ -645,7 +645,7 @@ export function SettingsPage() {
   }, [t, user?.tenantId])
 
   const previewAppearance = resolveTenantAppearance({ ...appearanceForm, isCustomized: true })
-  const institutionName = tenantSettings.displayName || tenantSettings.municipalityName || user?.tenantName || 'Tire Belediyesi'
+  const institutionName = tenantSettings.displayName || tenantSettings.municipalityName || user?.tenantName || 'Test İletişim Merkezi'
   const whatsAppWebhookUrl = user?.tenantId
     ? `${API_ORIGIN}/api/v1/social/webhooks/whatsapp/${user.tenantId}`
     : ''
@@ -2518,7 +2518,7 @@ export function SettingsPage() {
               >
                 <MunicipalitySeal
                   compact
-                  className="h-12 w-12 rounded-xl"
+                  className="h-24 w-24 rounded-xl"
                   imageClassName="h-[88%] w-[88%]"
                   src={previewAppearance.logoUrl ?? null}
                 />

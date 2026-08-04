@@ -611,7 +611,6 @@ export function DepartmentsPage() {
           department.name,
           department.managerName,
           department.responsibleNames,
-          department.departmentType,
         ].join(' ').toLocaleLowerCase('tr')
         if (!haystack.includes(searchNormalized)) return false
       }

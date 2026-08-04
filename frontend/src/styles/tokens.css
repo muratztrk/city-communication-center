@@ -31,9 +31,9 @@
   --radius-2xl: 1.25rem;
 
   /* Fixed FAB stack: WhatsApp above footer, scroll arrow above WhatsApp.
-     Footer, Lumespec lockup'ı (ikon + wordmark) taşıdığı için 24px logo + py-1 + 3px şerit
-     ≈ 35px; clearance bunun hemen üstünde kalır (#1960). */
-  --fab-footer-clearance: 2.25rem;
+     Footer, Lumespec lockup'ı (ikon + wordmark) taşıdığı için 28px logo + py-1 + 3px şerit
+     ≈ 39px; clearance bunun hemen üstünde kalır (#1960). */
+  --fab-footer-clearance: 2.5rem;
   --fab-stack-gap: 0.875rem;
   --whatsapp-fab-size: 3.5rem;
   --scroll-fab-size: 2.75rem;

@@ -4,7 +4,7 @@ function LumespecLogo() {
     <img
       src="/lumespec-logo.png"
       alt="Lumespec"
-      className="h-6 w-auto select-none"
+      className="h-7 w-auto select-none"
       draggable={false}
     />
   )

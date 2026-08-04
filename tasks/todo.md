@@ -1,3 +1,8 @@
+## Round 667 — Footer logo + Ayarlar toast doğrulama (#1960, #2275)
+- `#1960`: Ortak `AppFooter` Lumespec logosu `h-6` → `h-7`; `--fab-footer-clearance` 2.5rem.
+- `#2275`: Ayarlar sonuç mesajları zaten yalnız `Toast` popup'ında (Round 665); inline banner yok,
+  kart prod deploy gecikmesiyle yeniden açılmış — kod doğrulandı, Done.
+
 ## Round 666 follow-up — Birim arama + önizleme logo (#2283, #2276)
 - `#2283`: Birim ara haystack’inden gridde görünmeyen `departmentType` çıkarıldı; `müd` araması
   yalnız ad/müdür/sorumlu alanlarında eşleşir (`Müdürlük` türü yanlış pozitif vermez).

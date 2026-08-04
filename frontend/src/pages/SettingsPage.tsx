@@ -8,7 +8,7 @@ import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { invalidateSettings } from '../api/cacheInvalidation'
 import { API_ORIGIN } from '../api/config'
-import { IZMIR_DISTRICTS, MUNICIPALITY_DISTRICT_KEY, saveDistrictId } from '../data/izmir-locations'
+import { IZMIR_DISTRICTS, MUNICIPALITY_DISTRICT_KEY, normalizeDistrictId, saveDistrictId } from '../data/izmir-locations'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -398,7 +398,7 @@ export function SettingsPage() {
   // Ayarlar formunda hiç kaydedilmemişse boş görünür (card #2236); adres formlarındaki paylaşılan
   // varsayılan (getSavedDistrictId, "tire" fallback) buradan etkilenmez — kasıtlı olarak ayrık.
   const [selectedDistrictId, setSelectedDistrictId] = useState<string>(
-    () => window.localStorage.getItem(MUNICIPALITY_DISTRICT_KEY) ?? '',
+    () => normalizeDistrictId(window.localStorage.getItem(MUNICIPALITY_DISTRICT_KEY)) ?? '',
   )
   const [tenantLdapSettings, setTenantLdapSettings] = useState<TenantLdapFormState>(EMPTY_TENANT_LDAP_SETTINGS)
   const [tenantAuthenticationPolicy, setTenantAuthenticationPolicy] = useState<TenantAuthenticationPolicy>(EMPTY_TENANT_AUTH_POLICY)
@@ -767,7 +767,10 @@ export function SettingsPage() {
 
   const saveMunicipalityDistrict = (event: FormEvent) => {
     event.preventDefault()
-    saveDistrictId(selectedDistrictId)
+    if (!saveDistrictId(selectedDistrictId)) {
+      showToast('error', t('settings.municipalityLocation.districtRequired', 'Kaydetmek için bir ilçe seçin.'))
+      return
+    }
     showToast('success', t('settings.municipalityLocation.saveSuccess', 'Konum ayarı kaydedildi.'))
   }
 

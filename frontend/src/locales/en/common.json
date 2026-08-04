@@ -1419,6 +1419,7 @@
       "sectionDescription": "Select a district to drive the create-request neighborhood list and the home citizen map. Changing the selection updates the neighborhood list.",
       "districtLabel": "District (İzmir)",
       "districtPlaceholder": "Select district",
+      "districtRequired": "Select a district before saving.",
       "saveSuccess": "Location setting saved."
     }
   },

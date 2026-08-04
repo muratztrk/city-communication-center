@@ -331,19 +331,39 @@ export const IZMIR_DISTRICTS: IzmirDistrict[] = [
 export const MUNICIPALITY_DISTRICT_KEY = 'ccc_municipality_district'
 export const MUNICIPALITY_DISTRICT_CHANGED_EVENT = 'ccc-municipality-district-changed'
 
+export function normalizeDistrictId(value: string | null | undefined): string | null {
+  const trimmed = value?.trim()
+  if (!trimmed) return null
+
+  const lowercaseCandidates = new Set([
+    trimmed.toLowerCase(),
+    trimmed.toLocaleLowerCase('tr'),
+  ])
+  const district = IZMIR_DISTRICTS.find(item =>
+    lowercaseCandidates.has(item.id.toLowerCase())
+    || lowercaseCandidates.has(item.name.toLowerCase())
+    || lowercaseCandidates.has(item.name.toLocaleLowerCase('tr')),
+  )
+  return district?.id ?? null
+}
+
 export function getSavedDistrictId(): string {
-  return localStorage.getItem(MUNICIPALITY_DISTRICT_KEY) ?? 'tire'
+  return normalizeDistrictId(localStorage.getItem(MUNICIPALITY_DISTRICT_KEY)) ?? 'tire'
 }
 
 export function getDistrictName(districtId: string): string {
   return IZMIR_DISTRICTS.find(d => d.id === districtId)?.name ?? 'Tire'
 }
 
-export function saveDistrictId(id: string): void {
-  localStorage.setItem(MUNICIPALITY_DISTRICT_KEY, id)
+export function saveDistrictId(id: string): boolean {
+  const normalizedId = normalizeDistrictId(id)
+  if (!normalizedId) return false
+
+  localStorage.setItem(MUNICIPALITY_DISTRICT_KEY, normalizedId)
   if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent(MUNICIPALITY_DISTRICT_CHANGED_EVENT, { detail: id }))
+    window.dispatchEvent(new CustomEvent(MUNICIPALITY_DISTRICT_CHANGED_EVENT, { detail: normalizedId }))
   }
+  return true
 }
 
 export function getNeighborhoodsForDistrict(districtId: string): string[] {

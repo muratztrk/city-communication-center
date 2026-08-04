@@ -37,6 +37,22 @@ test('admin can see and open settings', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Yapilandir' }).first()).toBeVisible();
 });
 
+test('legacy municipality district value is normalized and persisted', async ({ page }) => {
+  await page.addInitScript(() => {
+    window.localStorage.setItem('ccc_municipality_district', ' Karşıyaka ');
+  });
+  await login(page, ADMIN_EMAIL, ADMIN_PASSWORD);
+
+  const locationForm = page.locator('form').filter({
+    has: page.getByRole('heading', { name: 'Kurum Konumu' }),
+  });
+  await expect(locationForm.getByRole('button', { name: 'Karşıyaka' })).toBeVisible();
+  await locationForm.getByRole('button', { name: 'Kaydet' }).click();
+  await expect.poll(() => page.evaluate(
+    () => window.localStorage.getItem('ccc_municipality_district'),
+  )).toBe('karsiyaka');
+});
+
 test('manager cannot see settings navigation', async ({ page }) => {
   await login(page, MANAGER_EMAIL, ADMIN_PASSWORD);
   await expect(page.getByRole('button', { name: 'Ayarlar' })).toHaveCount(0);

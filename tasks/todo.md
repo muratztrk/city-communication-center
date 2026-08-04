@@ -1,3 +1,8 @@
+## Round 664 — İlçe kalıcılığı geriye uyumluluk düzeltmesi (#2271 follow-up)
+- Eski ilçe adı, farklı büyük/küçük harf ve boşluklu localStorage değerleri canonical İzmir ilçe
+  ID’sine normalize edilir; Ayarlar dropdown’ı reload sonrası doğru seçimi gösterir.
+- Boş/geçersiz ilçe kaydı mevcut değerin üzerine yazamaz; Playwright regresyon senaryosu eklendi.
+
 ## Round 663 — LDAP kullanıcısının ana birimi salt okunur (#2274)
 - Kullanıcı gridinde LDAP kaynağındaki ana birim dropdown yerine salt metin gösterilir; ek birimler
   dropdown üzerinden düzenlenmeye devam eder.

@@ -1017,7 +1017,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kaydet `mt-auto`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
 - **Kurum Konumu ilçe (#r512/#r514/#r521):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
   önizlemesi Ayarlar’da gösterilmez (#r521). Kaydet sonrası `ccc_municipality_district` ile
-  talep formu mahalle dropdown’ları aynı ilçeyi kullanır.
+  talep formu mahalle dropdown’ları aynı ilçeyi kullanır. Eski ad/büyük-küçük harf/boşluklu
+  localStorage değerleri canonical ilçe ID’sine normalize edilir; boş/geçersiz seçim mevcut
+  değerin üzerine yazılamaz (card #2271 follow-up).
 - **Birimler/Kullanıcılar grid:** FilterableTh + sort + TablePagination; kolon genişlikleri
   `users-table`/`departments-table` ile orantılı (card #1724). Kullanıcılar Rol StatusPill ortalı;
   İşlemler’de kalem+Düzenle / çöp+Sil ve satır ortalı (cards #1722/#1725/#1732). Banner `+Yeni…`

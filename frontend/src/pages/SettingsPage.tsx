@@ -22,10 +22,9 @@ import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
 import { DEFAULT_TENANT_APPEARANCE, deriveAppearanceFromPrimary, resolveTenantAppearance } from '../lib/theme'
 import {
-  DEFAULT_ROLE_PAGE_ACCESS,
+  createDefaultRolePageAccessMatrix,
   PAGE_ACCESS_ITEMS,
   ROLE_CODES,
-  loadRolePageAccessMatrix,
   pageRequiresModule,
   parseRolePageAccessMatrix,
   saveRolePageAccessMatrix,
@@ -426,14 +425,11 @@ export function SettingsPage() {
   })
   const [socialForms, setSocialForms] = useState<ChannelForms>(EMPTY_SOCIAL_FORMS)
   const [activeChannel, setActiveChannel] = useState<ChannelType | null>(null)
-  const [message, setMessageState] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
 
-  // Card #2230: her "Kaydet" bildirim mesajı aynı zamanda pop-up toast olarak da görünür —
-  // tek noktadan sarmalanır, tüm mevcut setMessage(...) çağrı yerlerini tek tek değiştirmeye gerek yok.
+  // Ayarlar sonuç/uyarı mesajları yalnız popup toast'ta görünür; banner altında tekrar edilmez (#2275).
   const setMessage = (value: { type: 'success' | 'error'; text: string } | null) => {
-    setMessageState(value)
-    if (value) setToast(value)
+    setToast(value)
   }
 
   const showToast = (type: 'success' | 'error', text: string) => {
@@ -450,7 +446,7 @@ export function SettingsPage() {
   const [fileStorageFtpUserTestStatus, setFileStorageFtpUserTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [ldapUserTest, setLdapUserTest] = useState({ username: '', password: '' })
   const [ldapUserTestStatus, setLdapUserTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
-  const [rolePageAccess, setRolePageAccess] = useState<RolePageAccessMatrix>(() => loadRolePageAccessMatrix())
+  const [rolePageAccess, setRolePageAccess] = useState<RolePageAccessMatrix>(() => createDefaultRolePageAccessMatrix())
   const [rolesPageSize, setRolesPageSize] = useState(25)
   const [rolesPage, setRolesPage] = useState(1)
   // Modüler lisans (#WGDYIM79 / #MHrIEwuE): lisanssız modülün sayfaları Sayfa Yetkileri'nde de görünmez.
@@ -559,7 +555,9 @@ export function SettingsPage() {
         }
 
         setTenantSettings(tenantResponse)
-        const nextRolePageAccess = parseRolePageAccessMatrix(tenantResponse.rolePageAccessJson) ?? loadRolePageAccessMatrix()
+        // Sunucuda ayar yoksa eski/global localStorage yerine yazılımın güncel varsayılanı kullanılır (#2243).
+        const nextRolePageAccess = parseRolePageAccessMatrix(tenantResponse.rolePageAccessJson)
+          ?? createDefaultRolePageAccessMatrix()
         setRolePageAccess(nextRolePageAccess)
         saveRolePageAccessMatrix(nextRolePageAccess)
         setTenantLdapSettings({
@@ -714,11 +712,12 @@ export function SettingsPage() {
     }
 
     try {
-      const matrixJson = serializeRolePageAccessMatrix(DEFAULT_ROLE_PAGE_ACCESS)
+      const defaultMatrix = createDefaultRolePageAccessMatrix()
+      const matrixJson = serializeRolePageAccessMatrix(defaultMatrix)
       await api.updateRolePageAccess(user.tenantId, matrixJson)
       invalidateSettings(queryClient)
-      setRolePageAccess(DEFAULT_ROLE_PAGE_ACCESS)
-      saveRolePageAccessMatrix(DEFAULT_ROLE_PAGE_ACCESS)
+      setRolePageAccess(defaultMatrix)
+      saveRolePageAccessMatrix(defaultMatrix)
       setTenantSettings(current => ({ ...current, rolePageAccessJson: matrixJson }))
       setConfirmDialog({
         title: t('settings.roles.title'),
@@ -1537,12 +1536,6 @@ export function SettingsPage() {
         </div>
       </section>
 
-      {message ? (
-        <div className={message.type === 'success' ? 'rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-700' : 'rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700'}>
-          {message.text}
-        </div>
-      ) : null}
-
       {activeTab === 'tenant' ? (
         <div className="page-stack !gap-6">
           {/* 2×2 stretch + eşit gap-6 (Mesai ile aynı düşey boşluk) (#6a6cdcad). */}
@@ -1994,7 +1987,7 @@ export function SettingsPage() {
                 <div className="grid flex-1 gap-4">
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.host')}</span>
-                    <input className="field-input" placeholder="//sunucu/paylasim" value={fileStorageForm.nasHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasHost: event.target.value || null }))} />
+                    <input className="field-input" placeholder={'\\\\sunucu\\paylasim'} value={fileStorageForm.nasHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasHost: event.target.value || null }))} />
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.shareName')}</span>
@@ -2107,7 +2100,7 @@ export function SettingsPage() {
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.path')}</span>
-                    <input className="field-input" placeholder="//sunucu/paylasim" value={fileStorageForm.ftpPath ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpPath: event.target.value || null }))} />
+                    <input className="field-input" placeholder={'\\\\sunucu\\paylasim'} value={fileStorageForm.ftpPath ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpPath: event.target.value || null }))} />
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.protocol')}</span>
@@ -2518,7 +2511,12 @@ export function SettingsPage() {
                   backgroundBlendMode: previewAppearance.loginBackgroundImageUrl ? 'multiply' : undefined,
                 }}
               >
-                <MunicipalitySeal compact src={previewAppearance.logoUrl ?? null} />
+                <MunicipalitySeal
+                  compact
+                  className="h-12 w-12 rounded-xl"
+                  imageClassName="h-[82%] w-[82%]"
+                  src={previewAppearance.logoUrl ?? null}
+                />
                 <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>
                 <p className="mt-2 max-w-md text-sm leading-6 text-white/78">{t('settings.appearancePreviewBody')}</p>
               </div>

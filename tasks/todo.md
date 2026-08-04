@@ -1,3 +1,13 @@
+## Round 665 — Ayarlar/Birimler/Kullanıcılar UI düzeltmeleri (10 kart)
+- `#2243`: Sayfa Yetkileri, tenant ayarı yok/geçersizse stale global localStorage yerine
+  yazılımın fresh varsayılan matrisini gösterir; geçerli tenant özelleştirmesi korunur.
+- `#2275/#2276/#2268`: Ayarlar sonuçları yalnız toast popup’ında; Görünüm önizleme logo oranı
+  düzeltildi; NAS/FTP placeholder metinleri karttaki UNC örneğine getirildi.
+- `#2277/#2278/#2279`: Birim arama eşiği 3 karakter, toplam etiketi güncel, Tür Dağılımı adında
+  `Müdür` geçenleri Müdürlük sayar.
+- `#2280/#2281`: Kullanıcı arama placeholder’ı güncel; Aktif yanında Yerel ve LDAP sayıları var.
+- `#1960`: Ortak Lumespec footer logosu ve buna bağlı FAB clearance hafif büyütüldü.
+
 ## Round 664 — İlçe kalıcılığı geriye uyumluluk düzeltmesi (#2271 follow-up)
 - Eski ilçe adı, farklı büyük/küçük harf ve boşluklu localStorage değerleri canonical İzmir ilçe
   ID’sine normalize edilir; Ayarlar dropdown’ı reload sonrası doğru seçimi gösterir.

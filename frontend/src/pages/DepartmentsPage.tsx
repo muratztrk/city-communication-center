@@ -28,6 +28,7 @@ import { getDepartmentTypeLabel } from '../utils/localization'
 type CreateMode = 'manual' | 'ldap'
 
 const EDITABLE_DEPARTMENT_TYPES = ['Birim', 'Administration'] as const
+const MIN_DEPARTMENT_SEARCH_LENGTH = 3
 
 export function DepartmentsPage() {
   const { t } = useTranslation()
@@ -83,7 +84,7 @@ export function DepartmentsPage() {
   const shouldSearchDirectory = showForm
     && createMode === 'ldap'
     && ldapEnabled
-    && debouncedDirectoryQuery.trim().length >= 2
+    && debouncedDirectoryQuery.trim().length >= MIN_DEPARTMENT_SEARCH_LENGTH
 
   useEffect(() => {
     if (!ldapEnabled && createMode === 'ldap') {
@@ -532,10 +533,13 @@ export function DepartmentsPage() {
   }
 
   const typeSummary = useMemo(() => {
-    return departments.reduce<Record<string, number>>((summary, department) => {
-      summary[department.departmentType] = (summary[department.departmentType] ?? 0) + 1
-      return summary
-    }, {})
+    const directorateCount = departments.filter(department =>
+      department.name.normalize('NFC').toLocaleLowerCase('tr').includes('müdür'),
+    ).length
+    return {
+      Mudurluk: directorateCount,
+      Birim: departments.length - directorateCount,
+    }
   }, [departments])
 
   const getUserName = (userId?: string | null) => users.find(item => item.userId === userId)?.displayName ?? null
@@ -597,7 +601,10 @@ export function DepartmentsPage() {
       a.name.localeCompare(b.name, 'tr', { sensitivity: 'base' }))
   }, [departmentRows, deptSortKey, sortDepts])
   const columnFilteredDepts = useMemo(() => {
-    const searchNormalized = deptSearchText.trim().toLocaleLowerCase('tr')
+    const trimmedSearch = deptSearchText.trim()
+    const searchNormalized = trimmedSearch.length >= MIN_DEPARTMENT_SEARCH_LENGTH
+      ? trimmedSearch.toLocaleLowerCase('tr')
+      : ''
     return sortedDepts.filter(department => {
       if (searchNormalized) {
         const haystack = [
@@ -805,7 +812,7 @@ export function DepartmentsPage() {
                 }}
                 onValueChange={value => {
                   setDirectoryQuery(value)
-                  if (value.trim().length < 2) {
+                  if (value.trim().length < MIN_DEPARTMENT_SEARCH_LENGTH) {
                     setDirectoryResults([])
                   }
                   if (!value.trim()) {

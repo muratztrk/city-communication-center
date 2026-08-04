@@ -1,10 +1,10 @@
-/** Katman ikonu + wordmark lockup (#6a65ac32); ikon eklendiği için yükseklik 14→22px. */
+/** Katman ikonu + wordmark lockup (#6a65ac32); footer'larda ortak, hafif büyütülmüş ölçü. */
 function LumespecLogo() {
   return (
     <img
       src="/lumespec-logo.png"
       alt="Lumespec"
-      className="h-[22px] w-auto select-none"
+      className="h-6 w-auto select-none"
       draggable={false}
     />
   )

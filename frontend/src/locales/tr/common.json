@@ -522,7 +522,7 @@
     "title": "Birimler",
     "subtitle": "Birim yapısını ve tür dağılımını yönetin.",
     "new": "Yeni Birim Ekle",
-    "total": "Toplam Birim",
+    "total": "Toplam Müdürlük/Birim Sayısı",
     "typeBreakdown": "Tür Dağılımı",
     "newFormTitle": "Yeni Birim",
     "newFormDescription": "Yeni birim ekleyin veya LDAP dizininden birim adını çekin.",
@@ -535,7 +535,7 @@
     "directorySearch": "LDAP Birim Çek",
     "directorySearchDescription": "LDAP dizininde arama yapın; listede yalnız birim adları görünür.",
     "directorySearchAria": "LDAP birim araması",
-    "directorySearchPlaceholder": "Birim aramak için en az 2 karakter yazın",
+    "directorySearchPlaceholder": "Birim aramak için en az 3 karakter giriniz...",
     "directorySearchEmpty": "Eşleşen birim bulunamadı",
     "directorySearchLoading": "Birimler aranıyor...",
     "directoryDepartmentRequired": "Lütfen listeden bir birim seçin.",
@@ -582,7 +582,7 @@
     "deleteAllLdapNone": "Silinecek LDAP birimi bulunamadı.",
     "selectDepartment": "Birim seçiniz...",
     "noDepartments": "Birim bulunamadı.",
-    "search": "Birim ara..."
+    "search": "Birim aramak için en az 3 karakter giriniz..."
   },
   "users": {
     "title": "Kullanıcılar",
@@ -592,6 +592,7 @@
       "total": "Toplam Kullanıcı",
       "active": "Aktif"
     },
+    "search": "İsim, kullanıcı adı ara...",
     "newFormTitle": "Yeni Kullanıcı",
     "newFormDescription": "Yerel kullanıcı oluşturun veya LDAP dizinindeki mevcut bir hesabı uygulamaya bağlayın.",
     "ldapNotConfiguredHint": "Ldap ayarı yapıldıktan sonra LDAP'tan veri çekilebilir.",

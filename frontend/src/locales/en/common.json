@@ -519,7 +519,7 @@
     "title": "Units",
     "subtitle": "Manage the unit structure and type distribution.",
     "new": "Add New Department",
-    "total": "Total Units",
+    "total": "Total Directorate/Unit Count",
     "typeBreakdown": "Type Breakdown",
     "newFormTitle": "New Unit",
     "newFormDescription": "Add a new unit or pull the unit name from LDAP.",
@@ -532,7 +532,7 @@
     "directorySearch": "Pull Unit from LDAP",
     "directorySearchDescription": "Search the LDAP directory; only unit names appear in the list.",
     "directorySearchAria": "LDAP unit search",
-    "directorySearchPlaceholder": "Type at least 2 characters to search units",
+    "directorySearchPlaceholder": "Enter at least 3 characters to search units...",
     "directorySearchEmpty": "No matching units were found",
     "directorySearchLoading": "Searching units...",
     "directoryDepartmentRequired": "Please select a unit from the list.",
@@ -579,7 +579,7 @@
     "deleteAllLdapNone": "No LDAP units to delete.",
     "selectDepartment": "Select department...",
     "noDepartments": "No departments found.",
-    "search": "Search departments..."
+    "search": "Enter at least 3 characters to search units..."
   },
   "users": {
     "title": "Users",
@@ -589,6 +589,7 @@
       "total": "Total Users",
       "active": "Active"
     },
+    "search": "Search name or username...",
     "newFormTitle": "New User",
     "newFormDescription": "Create a local user or link an existing LDAP directory account to the application.",
     "ldapNotConfiguredHint": "Data can be pulled once LDAP is configured.",

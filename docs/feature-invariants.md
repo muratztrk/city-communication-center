@@ -1087,10 +1087,20 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talep oluştur ek listesinde dosya adı `text-sm`, uzantı küçük gri (card #1788).
   Birimi Düzenle dropdown’ları `<label>` ile sarılmaz — dış tıklayınca kapanır (card #1729).
   Birimler grid’inde Tür sütunu yok; Tür yalnız düzenleme formunda ve özet “Tür Dağılımı”nda (card #1741).
+- **Birim/Kullanıcı özet ve arama (#2277-#2281):** Birimler liste ve LDAP araması en az 3
+  karakterden sonra çalışır; Türkçe arama `toLocaleLowerCase('tr')` kullanır. Tür Dağılımı’nda
+  NFC-normalize adında `Müdür` geçenler Müdürlük, kalanların tamamı Birim sayılır ve sıfır
+  bucket da görünür. Kullanıcı özetinde Aktif yanında Yerel ve LDAP sayıları ayrı gösterilir;
+  liste placeholder’ı `İsim, kullanıcı adı ara...` kalır.
 - **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,
   satır adları solda (card #1726). Matris satır sırasında `Birimden Giden` hemen
   `Birime Gelen` sonrası (#6a6ca355). Rol kolon sırasında `Vatandaş Talep Yöneticisi`
-  hemen `Birim Yöneticisi/Sorumluları` sonrası (#6a6cb6ea).
+  hemen `Birim Yöneticisi/Sorumluları` sonrası (#6a6cb6ea). Tenant JSON yok/geçersizse Ayarlar
+  grid’i stale/global localStorage’a değil fresh `DEFAULT_ROLE_PAGE_ACCESS` matrisine düşer;
+  geçerli tenant özelleştirmesi korunur (card #2243). Default matris referans grid ile eşleşir:
+  SystemAdmin yalnız Ayarlar; CitizenRequestManager Anasayfa + talep/rutin oluştur + kendi/birim
+  görevleri + talepleri + gelen + vatandaş mesaj onayı; Operator/Staff/Reporter kapsamları
+  `DEFAULT_ALLOWED_PAGES_BY_ROLE` içinde açık allow-list’tir, gevşek “settings hariç hepsi” değildir.
 - **Dosya sunucusu test alanları (#6a6cb6ec):** NAS ve FTP kolonlarında ayrı bağlantı +
   kullanıcı giriş testi (ortak alt blok yok).
 - **NAS kullanıcı testi gerçek bir SMB bağlantısıdır (Round 657 / card #2226):** eskiden yalnız
@@ -1446,6 +1456,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sonra; sıra `Kaydet` → `Varsayılanlara Dön` (sağda, `justify-end`); kayıt/sıfırlama sonucu
   ConfirmDialog (banner değil). `e-Devlet Günlük Faaliyet Planı Oluştur` ve `… Listesi`
   grid sıralamasında `Log` (`audit`) satırından sonra gelir (card #2269).
+- **Ayarlar sonuç mesajları (#2275):** Kaydetme/uyarı sonuçları banner altındaki inline şeritte
+  tekrarlanmaz; ortak `Toast` popup’ında gösterilir. Bağlantı testi gibi alan-içi durum metinleri
+  kendi kartında kalır.
 - **Kullanıcılar düzenle Birim/Rol dropdown (card #r448/#r456/#r459):** sütun ~7.5rem / ~9rem;
   Birim paneli Ek roller sağına (~16.5rem); Rol paneli LDAP sonuna (~14rem); satır fontu ~0.6rem.
 - **Kullanıcılar yarım aksiyon (#r457):** Yeni Kullanıcı Ekle / Düzenle / Sil birbirinin açık
@@ -1639,7 +1652,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   viewport'un en alt kenarına tam satır/full-bleed oturur; sayfa padding'i footer'ı yukarıda veya dar bırakmaz.
 - **AppFooter Lumespec markası:** Tüm footer yüzeyleri (`AppShell`, login, wallboard) ortak
   `AppFooter` kullanır; marka `/lumespec-logo.png` wordmark'ıdır (eski 4-kare SVG + uppercase
-  metin yok). Logo şeffaf arka planlı kalır ki sidebar rengi (`--color-sidebar`) görünsün.
+  metin yok). Logo şeffaf arka planlı ve ortak `h-6` ölçüsünde kalır ki sidebar rengi
+  (`--color-sidebar`) görünsün; `--fab-footer-clearance: 2.25rem` bu 24px logolu footer’a
+  göre birlikte korunur (card #1960).
 - **Birime Gelen pie Yapılmakta Olan (#r542):** `INCOMING_SLICE_STATUS.inProgress` →
   `status=in-progress` (mavi chip); `approved` değil.
 - **Dashboard dönem TZ (#r542):** `getPeriodRange` yerel `YYYY-MM-DDTHH:mm` üretir; API çağrıları
@@ -1852,6 +1867,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `resolveTenantAppearance`'da `...appearance` spread'i `logoUrl: null` bile olsa default'u ezer,
   bu default yalnız (a) hiç `TenantSetting` satırı olmayan yepyeni tenant'larda ve (b) "Varsayılana
   Dön"e elle basılınca devreye girer.
+- **Görünüm Önizleme logosu (#2276):** Yalnız Ayarlar > Görünüm önizlemesindeki çerçeve
+  `h-12 w-12`, iç logo yaklaşık `%82` olur; sidebar/login `MunicipalitySeal` ölçüleri etkilenmez.
 - **Yeni Kullanıcı/Yeni Birim formunda Oluşturma Modu üstü LDAP ipucu** (card #2263):
   `!ldapEnabled` iken açıklama paragrafının altına ek bir `helper-copy` satırı
   (`departments.ldapNotConfiguredHint` / `users.ldapNotConfiguredHint`) eklenir; LDAP

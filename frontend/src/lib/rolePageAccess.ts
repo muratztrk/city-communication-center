@@ -34,7 +34,15 @@ export type RolePageAccessMatrix = Record<RoleCode, Record<PageAccessKey, boolea
 export const EDEVLET_ROLE_PAGE_KEYS = ['edevletActivityPlan', 'edevletActivityPlansList'] as const satisfies readonly PageAccessKey[]
 
 /** Pages for the Vatandaş Talep Yöneticisi role column. */
-export const CITIZEN_REQUEST_MANAGER_PAGE_KEYS = ['createRequest', 'incomingRequests', 'citizenMessageApproval', 'smsDeliveryApproval'] as const satisfies readonly PageAccessKey[]
+export const CITIZEN_REQUEST_MANAGER_PAGE_KEYS = [
+  'createRequest',
+  'createRoutineTask',
+  'myTasks',
+  'departmentTasks',
+  'myRequests',
+  'incomingRequests',
+  'citizenMessageApproval',
+] as const satisfies readonly PageAccessKey[]
 
 /**
  * Modüler lisans (Trello #WGDYIM79 / #MHrIEwuE): bir sayfa yalnız belirli bir modül lisanslıyken
@@ -62,52 +70,64 @@ export function pageRequiresModule(pageKey: PageAccessKey): LicenseModuleKey | n
 export const ROLE_PAGE_ACCESS_STORAGE_KEY = 'ccc_role_page_access_matrix'
 export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'
 
+const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> = {
+  SystemAdmin: ['settings'],
+  Manager: PAGE_ACCESS_ITEMS
+    .map(page => page.key)
+    .filter(pageKey =>
+      pageKey !== 'citizenDirectory'
+      && pageKey !== 'settings'
+      && pageKey !== 'edevletActivityPlan'
+      && pageKey !== 'edevletActivityPlansList'
+      && pageKey !== 'smsDeliveryApproval',
+    ),
+  CitizenRequestManager: [
+    'dashboard',
+    ...CITIZEN_REQUEST_MANAGER_PAGE_KEYS,
+  ],
+  Operator: [
+    'dashboard',
+    'createRequest',
+    'createRoutineTask',
+    'myTasks',
+    'myRequests',
+    'smsDeliveryApproval',
+    'social',
+    'citizenDirectory',
+    'display',
+    'departments',
+    'users',
+    'audit',
+  ],
+  Staff: [
+    'dashboard',
+    'createRequest',
+    'createRoutineTask',
+    'myTasks',
+    'myRequests',
+    'social',
+    'display',
+    'departments',
+    'users',
+    'audit',
+  ],
+  Reporter: [
+    'dashboard',
+    'createRequest',
+    'myRequests',
+    'social',
+    'citizenDirectory',
+    'display',
+    'departments',
+    'users',
+    'audit',
+  ],
+  EDevletActivityPlan: ['dashboard', 'edevletActivityPlan', 'edevletActivityPlansList'],
+}
+
 export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce((matrix, role) => {
   matrix[role] = PAGE_ACCESS_ITEMS.reduce((pages, page) => {
-    if (page.key === 'citizenDirectory') {
-      // Vatandaş Bilgi Listesi: Operatör / Üst Düzey / Sistem (card #1892).
-      pages[page.key] = role === 'SystemAdmin' || role === 'Operator' || role === 'Reporter'
-      return pages
-    }
-    if (role === 'EDevletActivityPlan') {
-      pages[page.key] = page.key === 'dashboard'
-        || EDEVLET_ROLE_PAGE_KEYS.includes(page.key as typeof EDEVLET_ROLE_PAGE_KEYS[number])
-      return pages
-    }
-    if (role === 'CitizenRequestManager') {
-      pages[page.key] = page.key === 'dashboard'
-        || CITIZEN_REQUEST_MANAGER_PAGE_KEYS.includes(page.key as typeof CITIZEN_REQUEST_MANAGER_PAGE_KEYS[number])
-      return pages
-    }
-    if (role === 'Operator') {
-      pages[page.key] = page.key !== 'settings'
-        && page.key !== 'edevletActivityPlan'
-        && page.key !== 'edevletActivityPlansList'
-        && page.key !== 'outgoingRequests'
-        && page.key !== 'departmentTasks'
-        && page.key !== 'citizenMessageApproval'
-      return pages
-    }
-    if (role === 'Staff' || role === 'Reporter') {
-      pages[page.key] = page.key !== 'settings'
-        && page.key !== 'edevletActivityPlan'
-        && page.key !== 'edevletActivityPlansList'
-        && page.key !== 'outgoingRequests'
-        && page.key !== 'departmentTasks'
-        && page.key !== 'citizenMessageApproval'
-        && page.key !== 'smsDeliveryApproval'
-      return pages
-    }
-    if (role === 'Manager') {
-      // Sms Onayı Manager'da varsayılan kapalı (card #6a6b6c8e reopen).
-      pages[page.key] = page.key !== 'settings'
-        && page.key !== 'edevletActivityPlan'
-        && page.key !== 'edevletActivityPlansList'
-        && page.key !== 'smsDeliveryApproval'
-      return pages
-    }
-    // Bu dal yalnız SystemAdmin için çalışır (diğer tüm roller yukarıda ele alınır).
-    pages[page.key] = page.key !== 'dashboard'
+    pages[page.key] = DEFAULT_ALLOWED_PAGES_BY_ROLE[role].includes(page.key)
     return pages
   }, {} as Record<PageAccessKey, boolean>)
   return matrix
@@ -174,6 +194,11 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
     // (kayıt yokken) DEFAULT_ROLE_PAGE_ACCESS'te tanımlı.
     return matrix
   }, {} as RolePageAccessMatrix)
+}
+
+/** Settings/reset flows need a fresh matrix, never a shared object or stale browser fallback. */
+export function createDefaultRolePageAccessMatrix(): RolePageAccessMatrix {
+  return normalizeRolePageAccessMatrix(DEFAULT_ROLE_PAGE_ACCESS)
 }
 
 export function loadRolePageAccessMatrix(): RolePageAccessMatrix {

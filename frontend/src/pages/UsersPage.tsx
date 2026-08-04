@@ -917,6 +917,7 @@ export function UsersPage() {
   const summary = {
     total: users.length,
     active: users.filter(user => user.isActive).length,
+    local: users.filter(user => user.userSource === 'Manual').length,
     ldap: users.filter(user => user.userSource === 'Ldap').length,
   }
 
@@ -967,6 +968,7 @@ export function UsersPage() {
             </div>
             <div className="inline-actions">
               <StatusPill tone="success">{summary.active} {t('users.summary.active')}</StatusPill>
+              <StatusPill>{summary.local} {getUserSourceLabel(t, 'Manual')}</StatusPill>
               <StatusPill tone="info">{summary.ldap} LDAP</StatusPill>
             </div>
           </div>

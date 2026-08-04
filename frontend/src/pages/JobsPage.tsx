@@ -2157,7 +2157,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       isMyRequestsView
                         ? t('jobs.myViews.empty', { view: currentMyRequestsViewLabel, defaultValue: `${currentMyRequestsViewLabel} bulunmuyor` })
                         : isDepartmentOutgoingView
-                          ? t('jobs.outgoingViews.empty', { view: currentDepartmentOutgoingViewLabel, defaultValue: `${currentDepartmentOutgoingViewLabel} bulunmuyor` })
+                          ? currentDepartmentOutgoingView === 'pending'
+                            ? t('jobs.outgoingViews.emptyPending', 'Birimden gidecek talep bulunmuyor')
+                            : t('jobs.outgoingViews.empty', { view: currentDepartmentOutgoingViewLabel, defaultValue: `${currentDepartmentOutgoingViewLabel} bulunmuyor` })
                           : t('jobs.empty')
                     }
                   />

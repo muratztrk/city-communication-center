@@ -1806,6 +1806,28 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hemen önünde `ChannelIcon` olarak basar. Birim adı gösteren (Reporter) `titleTag` satırlarında
   `titleTagChannel` `null` kalır — kanal ikonu yalnız Vatandaş Talebi etiketiyle birlikte görünür.
 
+- **Yeni Kullanıcı / Yeni Birim oluşturunca form kapanmaz (card #2258):** `UsersPage.handleCreateUser`
+  ve `DepartmentsPage.handleCreate` başarı sonrası artık `closeCreateForm()`/`setShowForm(false)`
+  ÇAĞIRMIYOR — yalnız `resetForm()`/`resetCreateForm()` (alanları temizler, `create=1` URL param'ı
+  kalır, form açık kalır). Yeni bir "oluştur" akışı eklersen aynı deseni izle.
+- **Sistem Yönetimi (`DepartmentType: "Administration"`) hiçbir birim listesinde görünmez (card
+  #2256):** filtre `GetDepartmentsQuery`'de (`WHERE DepartmentType != "Administration"`) — frontend'in
+  TÜM birim dropdown'ları/listeleri `api.getDepartments()` üzerinden bu query'ye çıkıyor, tek
+  noktadan gizleniyor. `GetMyDepartments` (department-switcher, kullanıcının kendi bağlamı) bu
+  filtreye dahil DEĞİL — kasıtlı, farklı semantik. Yeni bir tenant kurulumunda (`ApplyInstallSeedData`
+  + `BootstrapTenantCommand`) da sadece admin + Sistem Yönetimi oluşur; origin/Tire'de bu artık
+  demo reposuyla aynı desen (bkz. `RemoveSampleSeedData` migration'ı — **yalnız yeni/boş DB'lerde
+  güvenli, yenitim gibi gerçek veri içeren bir DB'ye deploy etmeden önce o departman/kullanıcı
+  ID'lerinin hâlâ gerçek veriye bağlı olup olmadığını kontrol et**, aksi halde testtim'de yaşanan FK
+  çakışmasının çok daha yıkıcı bir versiyonu prod'da tetiklenebilir).
+- **Kullanıcı rozetindeki birim adı "Müd..." kısaltması (card #2260):** `AppShell.tsx` içindeki
+  `truncateDepartmentBadgeLabel` — 18 karakterden uzun VE içinde "Müd" geçen birim adlarını
+  "...Müd..." olarak keser (CSS `truncate`'in kelime ortasından rastgele kesmesi yerine). Genel CSS
+  `truncate` class'ı hâlâ yedek olarak duruyor.
+- **Anasayfa metrik kartlarında başlık/alt-başlık ayrımı `sublabel` alanıyla yapılır** (card #2259):
+  `MetricCard.sublabel` alt satırda `normal-case tracking-normal` ile basılır — yeni bir metrik
+  kartı eklerken uzun bileşik ifadeleri (`"X Y Z"`) `label`+`sublabel` olarak böl, tek satıra sıkıştırma.
+
 ## 6. Tenant / Auth
 
 - **Tenant çözümleme önceliği:** `X-Tenant-Id` header > `CustomDomain` (Host) > `SingleTenant`

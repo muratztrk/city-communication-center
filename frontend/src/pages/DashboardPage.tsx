@@ -433,7 +433,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconColor: 'text-amber-600',
         },
         {
-          label: t('dashboard.cards.incomingPendingApproval', 'Birime Gelen Onay Bekleyen Talepler'),
+          label: t('dashboard.cards.incomingPendingApprovalTitle', 'Birime Gelen'),
+          sublabel: t('dashboard.cards.incomingPendingApprovalSub', 'Onay Bekleyen Talepler'),
           value: dashboardQuery.data.pendingApprovalCount,
           icon: ChartBarBig,
           path: '/incoming-requests',
@@ -441,7 +442,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconColor: 'text-orange-600',
         },
         {
-          label: t('dashboard.cards.outgoingPending', 'Birimden Giden Bekleyen Talepler'),
+          label: t('dashboard.cards.outgoingPendingTitle', 'Birimden Giden'),
+          sublabel: t('dashboard.cards.outgoingPendingSub', 'Bekleyen Talepler'),
           value: dashboardQuery.data.outgoingPendingCount,
           icon: ArrowUpRight,
           path: '/outgoing-requests?view=pending',
@@ -449,7 +451,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconColor: 'text-sky-600',
         },
         {
-          label: t('dashboard.cards.outgoingInProgress', 'Birimden Giden Yapılmakta Olan Talepler'),
+          label: t('dashboard.cards.outgoingInProgressTitle', 'Birimden Giden'),
+          sublabel: t('dashboard.cards.outgoingInProgressSub', 'Yapılmakta Olan Talepler'),
           value: dashboardQuery.data.outgoingInProgressCount,
           icon: Loader,
           path: '/outgoing-requests?view=in-progress',

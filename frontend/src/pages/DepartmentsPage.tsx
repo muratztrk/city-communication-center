@@ -163,8 +163,8 @@ export function DepartmentsPage() {
         responsibleUserIds: [],
         sourceType: createMode === 'ldap' ? 'Ldap' : 'Manual',
       })
+      // Oluşturunca form kapanıp listeye dönmesin — alanlar temizlenip form açık kalsın (card #2258).
       resetCreateForm()
-      setShowForm(false)
       invalidateDepartments(queryClient)
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : t('common.error'))
@@ -725,11 +725,11 @@ export function DepartmentsPage() {
             </div>
           </div>
 
-          {ldapEnabled ? (
-            <div className="grid gap-2">
-              <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('departments.createMode')}</span>
-                <div className="segmented-control">
+          <div className="grid gap-2">
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('departments.createMode')}</span>
+              <div className="segmented-control">
+                {ldapEnabled ? (
                   <button
                     className={createMode === 'ldap' ? 'active create-mode-ldap-pulse' : ''}
                     onClick={() => switchCreateMode('ldap')}
@@ -737,21 +737,21 @@ export function DepartmentsPage() {
                   >
                     {t('departments.ldapMode')}
                   </button>
-                  {managementContext?.localUsersEnabled !== false ? (
-                    <button className={createMode === 'manual' ? 'active' : ''} onClick={() => switchCreateMode('manual')} type="button">
-                      {t('departments.manualMode')}
-                    </button>
-                  ) : null}
-                </div>
-              </label>
-              <p className="helper-copy">
-                {createMode === 'ldap' ? t('departments.sourceLdapHint') : t('departments.sourceManualHint')}
-              </p>
-              {createMode === 'ldap' ? (
-                <p className="helper-copy text-red-600/90">{t('departments.deleteAllLdapHint')}</p>
-              ) : null}
-            </div>
-          ) : null}
+                ) : null}
+                {managementContext?.localUsersEnabled !== false ? (
+                  <button className={createMode === 'manual' ? 'active' : ''} onClick={() => switchCreateMode('manual')} type="button">
+                    {t('departments.manualMode')}
+                  </button>
+                ) : null}
+              </div>
+            </label>
+            <p className="helper-copy">
+              {createMode === 'ldap' ? t('departments.sourceLdapHint') : t('departments.sourceManualHint')}
+            </p>
+            {createMode === 'ldap' ? (
+              <p className="helper-copy text-red-600/90">{t('departments.deleteAllLdapHint')}</p>
+            ) : null}
+          </div>
 
           {createMode === 'ldap' && ldapEnabled ? (
             <div className="section-card page-stack">

@@ -395,9 +395,12 @@
       "activeMessages": "Vatandaş Talepleri",
       "rejectedOrCancelled": "İptal/Red Edilen Talep",
       "myPendingRequests": "Bekleyen Taleplerim",
-      "incomingPendingApproval": "Birime Gelen Onay Bekleyen Talepler",
-      "outgoingPending": "Birimden Giden Bekleyen Talepler",
-      "outgoingInProgress": "Birimden Giden Yapılmakta Olan Talepler",
+      "incomingPendingApprovalTitle": "Birime Gelen",
+      "incomingPendingApprovalSub": "Onay Bekleyen Talepler",
+      "outgoingPendingTitle": "Birimden Giden",
+      "outgoingPendingSub": "Bekleyen Talepler",
+      "outgoingInProgressTitle": "Birimden Giden",
+      "outgoingInProgressSub": "Yapılmakta Olan Talepler",
       "myPendingTasks": "Bekleyen Görevlerim",
       "deptPendingTasks": "Birimde Bekleyen Görevler",
       "myTotalRequests": "Tüm Taleplerim",
@@ -610,7 +613,7 @@
     "additionalRolesShort": "Ek roller",
     "additionalRolesPlaceholder": "Ek rol seçin",
     "additionalRolesEmpty": "Seçilebilir ek rol bulunmuyor.",
-    "additionalRolesHelp": "Kullanıcı birincil role ek olarak birden fazla yetki alabilir.",
+    "additionalRolesHelp": "Kullanıcıya ek olarak birden fazla rol verilebilir.",
     "role": "Rol",
     "password": "Parola",
     "passwordPlaceholder": "En az 8 karakter",
@@ -715,6 +718,7 @@
     "departmentTasksSubtitle": "Müdürlüğünüzde oluşan görevleri kaynak tipine göre takip edin.",
     "staffTasksSubtitle": "Personelinizin üzerindeki görevleri ve aşamalarını izleyin.",
     "departmentTasksEmpty": "{{view}} bulunmuyor",
+    "departmentTasksEmptyPending": "Birimde Bekleyen Görevler bulunmuyor",
     "summary": {
       "total": "Toplam İş",
       "pendingApproval": "Onay Bekleyen Talepler",
@@ -1670,7 +1674,8 @@
       "completed": "Tamamlanmış Talepler",
       "rejected": "İptal Talepler",
       "all": "Tümü",
-      "empty": "{{view}} bulunmuyor"
+      "empty": "{{view}} bulunmuyor",
+      "emptyPending": "Birimden gidecek talep bulunmuyor"
     },
     "columns": {
       "title": "Başlık",

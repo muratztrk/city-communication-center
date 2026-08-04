@@ -22,6 +22,9 @@ public sealed class GetDepartmentsQueryHandler : IQueryHandler<GetDepartmentsQue
         var departments = await _dbContext.Departments
             .AsNoTracking()
             .Where(department => department.TenantId == tenantId)
+            // Sistem Yönetimi (DepartmentType "Administration") teknik bir kapsayıcıdır — SystemAdmin
+            // hariç hiçbir birim listesinde/dropdown'da görünmemeli (card #2256).
+            .Where(department => department.DepartmentType != "Administration")
             .OrderBy(department => department.Name)
             .ToListAsync(cancellationToken);
 

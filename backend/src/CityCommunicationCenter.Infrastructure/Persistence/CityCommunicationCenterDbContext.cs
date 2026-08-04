@@ -178,25 +178,6 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
                 ManagerUserId = InitialData.AdminUserId,
                 CreatedAtUtc = InitialData.CreatedAtUtc,
                 CreatedByUserId = InitialData.AdminUserId,
-            },
-            new Department
-            {
-                DepartmentId = InitialData.PublicWorksDepartmentId,
-                TenantId = InitialData.TenantId,
-                Name = "Fen İşleri Müdürlüğü",
-                DepartmentType = "Müdürlük",
-                ManagerUserId = InitialData.PublicWorksManagerUserId,
-                CreatedAtUtc = InitialData.CreatedAtUtc,
-                CreatedByUserId = InitialData.AdminUserId,
-            },
-            new Department
-            {
-                DepartmentId = InitialData.CommunicationsDepartmentId,
-                TenantId = InitialData.TenantId,
-                Name = "Basın Yayın Müdürlüğü",
-                DepartmentType = "Müdürlük",
-                CreatedAtUtc = InitialData.CreatedAtUtc,
-                CreatedByUserId = InitialData.AdminUserId,
             });
 
         modelBuilder.Entity<ApplicationUser>().HasData(
@@ -210,52 +191,6 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
                 Email = "admin@tire.bel.tr",
                 PasswordHash = null,
                 RoleCode = RoleCode.SystemAdmin,
-                UserSource = UserSource.Manual,
-                IsActive = true,
-                CreatedAtUtc = InitialData.CreatedAtUtc,
-                CreatedByUserId = InitialData.AdminUserId,
-            },
-            new ApplicationUser
-            {
-                UserId = InitialData.PublicWorksManagerUserId,
-                TenantId = InitialData.TenantId,
-                DepartmentId = InitialData.PublicWorksDepartmentId,
-                Username = InitialData.PublicWorksManagerUsername,
-                DisplayName = "Zeynep Kara",
-                Email = "zeynep.kara@tire.bel.tr",
-                PasswordHash = null,
-                RoleCode = RoleCode.Manager,
-                UserSource = UserSource.Manual,
-                IsActive = true,
-                CreatedAtUtc = InitialData.CreatedAtUtc,
-                CreatedByUserId = InitialData.AdminUserId,
-            },
-            new ApplicationUser
-            {
-                UserId = InitialData.PublicWorksStaffUserId,
-                TenantId = InitialData.TenantId,
-                DepartmentId = InitialData.PublicWorksDepartmentId,
-                Username = InitialData.PublicWorksStaffUsername,
-                DisplayName = "Emre Çelik",
-                Email = "emre.celik@tire.bel.tr",
-                PasswordHash = null,
-                ManagerUserId = InitialData.PublicWorksManagerUserId,
-                RoleCode = RoleCode.Staff,
-                UserSource = UserSource.Manual,
-                IsActive = true,
-                CreatedAtUtc = InitialData.CreatedAtUtc,
-                CreatedByUserId = InitialData.AdminUserId,
-            },
-            new ApplicationUser
-            {
-                UserId = InitialData.CommunicationsStaffUserId,
-                TenantId = InitialData.TenantId,
-                DepartmentId = InitialData.CommunicationsDepartmentId,
-                Username = InitialData.CommunicationsStaffUsername,
-                DisplayName = "Ali Yıldız",
-                Email = "ali.yildiz@tire.bel.tr",
-                PasswordHash = null,
-                RoleCode = RoleCode.Operator,
                 UserSource = UserSource.Manual,
                 IsActive = true,
                 CreatedAtUtc = InitialData.CreatedAtUtc,
@@ -275,91 +210,6 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
                 AppearanceJson = InitialData.SeedTenantAppearanceJson,
                 CreatedAtUtc = InitialData.CreatedAtUtc,
                 CreatedByUserId = InitialData.AdminUserId,
-            });
-
-        modelBuilder.Entity<Job>().HasData(
-            new Job
-            {
-                JobId = InitialData.SampleJobId,
-                TenantId = InitialData.TenantId,
-                Title = "Örnek altyapı inceleme işi",
-                Description = "İlk kurulum sonrası arayüz kontrolü için eklenen örnek iş.",
-                OwnerDepartmentId = InitialData.PublicWorksDepartmentId,
-                Status = JobStatus.Active,
-                Priority = "Normal",
-                RequestType = JobRequestType.InternalUnit,
-                IsProject = false,
-                DueDateUtc = InitialData.SampleTaskDueDateUtc,
-                SourceType = JobSourceType.Manual,
-                IsCoordinated = false,
-                CreatedAtUtc = InitialData.CreatedAtUtc,
-                CreatedByUserId = InitialData.AdminUserId,
-            });
-
-        modelBuilder.Entity<JobDepartment>().HasData(
-            new JobDepartment
-            {
-                JobDepartmentId = InitialData.SampleJobOwnerDepartmentId,
-                TenantId = InitialData.TenantId,
-                JobId = InitialData.SampleJobId,
-                DepartmentId = InitialData.PublicWorksDepartmentId,
-                Role = JobDepartmentRole.Owner,
-                ApprovalStatus = JobApprovalStatus.Approved,
-                RequestedByUserId = InitialData.AdminUserId,
-                RequestedAtUtc = InitialData.CreatedAtUtc,
-                ApprovedByUserId = InitialData.PublicWorksManagerUserId,
-                DecidedAtUtc = InitialData.CreatedAtUtc,
-                CreatedAtUtc = InitialData.CreatedAtUtc,
-                CreatedByUserId = InitialData.AdminUserId,
-            });
-
-        modelBuilder.Entity<WorkTask>().HasData(
-            new WorkTask
-            {
-                TaskId = InitialData.SampleTaskId,
-                TenantId = InitialData.TenantId,
-                JobId = InitialData.SampleJobId,
-                Title = "Örnek altyapı inceleme görevi",
-                Description = "İlk kurulum sonrası arayüz kontrolü için eklenen örnek görev.",
-                AssignedDepartmentId = InitialData.PublicWorksDepartmentId,
-                AssignedUserId = InitialData.PublicWorksStaffUserId,
-                AssigningManagerId = InitialData.PublicWorksManagerUserId,
-                CurrentStatus = WorkflowTaskStatus.Assigned,
-                Priority = "Normal",
-                DueDateUtc = InitialData.SampleTaskDueDateUtc,
-                CreatedAtUtc = InitialData.CreatedAtUtc,
-                CreatedByUserId = InitialData.AdminUserId,
-            });
-
-        modelBuilder.Entity<SocialMessage>().HasData(
-            new SocialMessage
-            {
-                SocialMessageId = InitialData.SampleSocialMessageId,
-                TenantId = InitialData.TenantId,
-                Channel = SocialChannel.Instagram,
-                ExternalMessageId = "demo-instagram-message-1",
-                CitizenHandle = "tire.vatandas",
-                Content = "Yolda çukur var, ekip yönlendirebilir misiniz?",
-                Category = "Altyapı",
-                Tags = string.Empty,
-                Status = SocialMessageStatus.Routed,
-                AssignedDepartmentId = InitialData.PublicWorksDepartmentId,
-                ReceivedAtUtc = InitialData.SampleMessageReceivedAtUtc,
-                CreatedAtUtc = InitialData.CreatedAtUtc,
-                CreatedByUserId = InitialData.AdminUserId,
-            });
-
-        modelBuilder.Entity<RoutingRule>().HasData(
-            new RoutingRule
-            {
-                RuleId = InitialData.SampleRoutingRuleId,
-                TenantId = InitialData.TenantId,
-                RuleName = "Altyapı Talepleri",
-                Keywords = "altyapı,çukur,yol,asfalt",
-                TargetDepartmentId = InitialData.PublicWorksDepartmentId,
-                Priority = 90,
-                IsActive = true,
-                CreatedAtUtc = InitialData.CreatedAtUtc,
             });
     }
 

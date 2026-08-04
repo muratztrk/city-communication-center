@@ -724,7 +724,8 @@ export function UsersPage() {
         phone: newUser.phone.trim() || null,
       })
 
-      closeCreateForm()
+      // Oluşturunca form kapanıp listeye dönmesin — alanlar temizlenip form açık kalsın (card #2258).
+      resetForm()
       invalidateUsers(queryClient)
       invalidateDepartments(queryClient)
       loadData()
@@ -1322,7 +1323,7 @@ export function UsersPage() {
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
                 />
-                <span className="helper-copy">{t('users.additionalRolesHelp', 'Kullanıcı birincil role ek olarak birden fazla yetki alabilir.')}</span>
+                <span className="helper-copy">{t('users.additionalRolesHelp', 'Kullanıcıya ek olarak birden fazla rol verilebilir.')}</span>
               </div>
 
               <div className="grid gap-2">

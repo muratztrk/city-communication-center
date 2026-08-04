@@ -40,6 +40,16 @@ import { sortUserDepartments } from '../utils/departmentAccess'
 import { useDataTableOverflowTooltips } from '../hooks/useDataTableOverflowTooltips'
 
 
+// Kullanıcı rozetindeki birim adı ("Fen İşleri Müdürlüğü" gibi) dar alana sığmayınca "Müd..."
+// olarak kısaltılsın — genel CSS truncate kelime ortasında rastgele bir yerden keser (card #2260).
+const DEPARTMENT_BADGE_TRUNCATE_LENGTH = 18
+function truncateDepartmentBadgeLabel(name: string): string {
+  if (name.length <= DEPARTMENT_BADGE_TRUNCATE_LENGTH) return name
+  const mudIndex = name.indexOf('Müd')
+  if (mudIndex === -1) return name
+  return `${name.slice(0, mudIndex + 3)}...`
+}
+
 function useResponsiveZoom() {
   const compute = useCallback(() => {
     const viewportWidth = window.visualViewport?.width ?? window.innerWidth
@@ -275,7 +285,7 @@ export function AppShell() {
       ? [{ pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact }]
       : []),
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
-    { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight },
+    { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight, separatorAfter: true },
     { pageKey: 'citizenMessageApproval' as const, path: '/citizen-message-approval', label: t('nav.citizenMessageApproval', 'Vatandaşa Gönderilecek\nMesaj Onayı'), icon: Send, multilineLabel: true, badgeCount: pendingCitizenMessageApprovalCount },
     { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck, separatorBefore: true },
     { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks },
@@ -759,9 +769,11 @@ export function AppShell() {
                 <div className="min-w-0">
                   <div className="truncate text-sm font-bold text-slate-900">{userDisplayName}</div>
                   <div className="truncate text-[0.68rem] font-semibold uppercase tracking-[0.08em] text-slate-500">
-                    {userDepartments.length > 1
-                      ? (userDepartments.find(d => d.departmentId === activeDeptId)?.name ?? user?.departmentName ?? userRoleLabel)
-                      : (user?.departmentName || userRoleLabel)}
+                    {truncateDepartmentBadgeLabel(
+                      userDepartments.length > 1
+                        ? (userDepartments.find(d => d.departmentId === activeDeptId)?.name ?? user?.departmentName ?? userRoleLabel)
+                        : (user?.departmentName || userRoleLabel),
+                    )}
                   </div>
                 </div>
                 {canOpenUserMenu && (

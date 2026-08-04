@@ -3051,7 +3051,9 @@ const pageKicker = isMyTasksView
                       isMyTasksView
                         ? t('tasks.myViews.empty', { view: currentMyTaskViewLabel, defaultValue: `${currentMyTaskViewLabel} bulunmuyor` })
                         : isDepartmentTasksView
-                          ? t('tasks.departmentTasksEmpty', { view: currentDepartmentStatusViewLabel, defaultValue: `${currentDepartmentStatusViewLabel} bulunmuyor` })
+                          ? currentMyTaskView === 'pending'
+                            ? t('tasks.departmentTasksEmptyPending', 'Birimde Bekleyen Görevler bulunmuyor')
+                            : t('tasks.departmentTasksEmpty', { view: currentDepartmentStatusViewLabel, defaultValue: `${currentDepartmentStatusViewLabel} bulunmuyor` })
                           : isStaffTasksView
                             ? t('tasks.staff.empty', { staff: currentStaffUserLabel, defaultValue: `${currentStaffUserLabel} için görev bulunmuyor` })
                             : t('tasks.empty', 'No tasks')

@@ -64,7 +64,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yerel (Manual) kullanıcı düzenleme:** Kullanıcı Adı / Ad Soyad / Ünvan / e-posta satır içi
   düzenlenebilir; LDAP'da bu dört alan salt okunur. Login `Username OR Email` kullandığı için
   kullanıcı adı ve e-posta tenant içindeki iki alanın tamamında ortak benzersiz kalır.
-  Birim ve birincil rol `SingleSelectDropdown` kullanır (cards #1705/#2270).
+  Manual kullanıcının ana birimi `SingleSelectDropdown` kullanır; LDAP kullanıcısının ana birimi
+  dizinden geldiği için salt metindir ve backend değişikliği reddeder. LDAP kullanıcısına yalnız
+  `MultiSelectDropdown` üzerinden ek birim verilebilir. Birincil rol düzenlenebilir
+  (`SingleSelectDropdown`) kalır (cards #1705/#2270/#2274).
 - **Müdür ek rol kısıtı:** Birincil rolü `Manager` (UI'da Müdür/Sorumlu) olan kullanıcıya
   `Staff` veya `CitizenRequestManager` ek rolü verilemez; frontend seçenekleri gizler ve backend
   `UserRoleAccess.ApplyAdditionalRoleCodes` kuralı zorunlu uygular (card #2273).

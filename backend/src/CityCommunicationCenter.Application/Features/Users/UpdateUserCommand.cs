@@ -90,6 +90,11 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
             throw new ValidationException(_localizer["ValidationUserNotFound"]);
         }
 
+        if (user.UserSource == UserSource.Ldap && request.DepartmentId != user.DepartmentId)
+        {
+            throw new ValidationException(_localizer["ValidationLdapUserDepartmentReadOnly"]);
+        }
+
         var department = await _dbContext.Departments
             .FirstOrDefaultAsync(
                 entity => entity.DepartmentId == request.DepartmentId && entity.TenantId == tenantId,
@@ -145,7 +150,8 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
         }
 
         // Yerel (Manual) kullanıcıda Kullanıcı Adı / Ad Soyad / Ünvan / e-posta güncellenir.
-        // LDAP profil alanları dizin kaynağından gelir; burada değiştirilmez.
+        // LDAP profil alanları ve ana birim dizin kaynağından gelir; burada değiştirilmez.
+        // Ek birim üyelikleri yönetici tarafından ayrıca düzenlenebilir.
         // FE Manual düzenlemede profil alanlarını gönderir; yoksa yalnız birim/rol/aktif güncellenir.
         if (user.UserSource == UserSource.Manual && request.Username is not null)
         {

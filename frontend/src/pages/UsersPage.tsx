@@ -1477,27 +1477,36 @@ export function UsersPage() {
                     </td>
                     <td className="users-edit-dept-cell w-[7.5rem] max-w-[7.5rem]">
                       <div className="grid w-full min-w-0 gap-1.5">
-                        <SingleSelectDropdown
-                          options={departments.map(department => ({
-                            value: department.departmentId,
-                            label: department.name,
-                          }))}
-                          value={editForm.departmentId}
-                          onChange={departmentId => setEditForm(c => ({
-                            ...c,
-                            departmentId,
-                            additionalDepartmentIds: c.additionalDepartmentIds.filter(id => id !== departmentId),
-                          }))}
-                          placeholder={t('tasks.selectDepartment')}
-                          emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
-                          searchable
-                          searchPlaceholder={t('common.search', 'Ara...')}
-                          className="w-full min-w-0 max-w-full"
-                          triggerClassName="text-xs !min-h-8 !px-2"
-                          // Panel: Birim → Ek roller sağ kenarı (7.5+9rem, card #r459).
-                          menuWidth={264}
-                          menuScrollClassName="users-edit-dropdown-menu-scroll"
-                        />
+                        {user.userSource === 'Ldap' ? (
+                          <span
+                            className="block min-w-0 truncate rounded-lg border border-slate-200 bg-slate-100 px-2 py-1.5 text-xs text-slate-700"
+                            title={getDepartmentName(editForm.departmentId)}
+                          >
+                            {getDepartmentName(editForm.departmentId)}
+                          </span>
+                        ) : (
+                          <SingleSelectDropdown
+                            options={departments.map(department => ({
+                              value: department.departmentId,
+                              label: department.name,
+                            }))}
+                            value={editForm.departmentId}
+                            onChange={departmentId => setEditForm(c => ({
+                              ...c,
+                              departmentId,
+                              additionalDepartmentIds: c.additionalDepartmentIds.filter(id => id !== departmentId),
+                            }))}
+                            placeholder={t('tasks.selectDepartment')}
+                            emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
+                            searchable
+                            searchPlaceholder={t('common.search', 'Ara...')}
+                            className="w-full min-w-0 max-w-full"
+                            triggerClassName="text-xs !min-h-8 !px-2"
+                            // Panel: Birim → Ek roller sağ kenarı (7.5+9rem, card #r459).
+                            menuWidth={264}
+                            menuScrollClassName="users-edit-dropdown-menu-scroll"
+                          />
+                        )}
                         <MultiSelectDropdown
                           options={departments
                             .filter(department => department.departmentId !== editForm.departmentId)

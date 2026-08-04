@@ -1,3 +1,9 @@
+## Round 663 — LDAP kullanıcısının ana birimi salt okunur (#2274)
+- Kullanıcı gridinde LDAP kaynağındaki ana birim dropdown yerine salt metin gösterilir; ek birimler
+  dropdown üzerinden düzenlenmeye devam eder.
+- Backend, değiştirilmiş istemci/API çağrısıyla LDAP ana birimi değiştirme girişimini de reddeder;
+  regresyon testi eklendi.
+
 ## Round 662 — Login/Kullanıcı/Ayarlar/Marka düzeltmeleri (12 tamamlanan, 1 bekleyen)
 - `#2272` CAPTCHA: sağlayıcı/site key/secret kararı eksik; güvenlik gerekçesi Trello yorumuyla Doing'de bırakıldı.
 - `#2259/#2260/#2266/#2268/#2269`: ek birim ve LDAP metinleri, FTP/NAS placeholder'ları, sayfa yetkisi sırası.

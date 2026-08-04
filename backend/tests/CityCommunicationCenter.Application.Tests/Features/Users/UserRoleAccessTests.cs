@@ -15,6 +15,7 @@ public sealed class UserRoleAccessTests
 {
     private static readonly Guid TenantId = Guid.Parse("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e");
     private static readonly Guid DepartmentId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    private static readonly Guid OtherDepartmentId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
     [Theory]
     [InlineData(nameof(RoleCode.Staff))]
@@ -69,6 +70,93 @@ public sealed class UserRoleAccessTests
                     true,
                     "other@example.com"),
                 CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task UpdateUser_RejectsPrimaryDepartmentChangeForLdapUser()
+    {
+        await using var dbContext = CreateDbContext();
+        var user = await SeedUsersAsync(dbContext);
+        user.UserSource = UserSource.Ldap;
+        dbContext.Departments.Add(new Department
+        {
+            TenantId = TenantId,
+            DepartmentId = OtherDepartmentId,
+            Name = "Diğer Birim",
+            DepartmentType = "Unit",
+        });
+        await dbContext.SaveChangesAsync();
+
+        var handler = new UpdateUserCommandHandler(
+            dbContext,
+            new TestTenantContextAccessor(new TenantContext(
+                TenantId,
+                user.UserId,
+                user.DisplayName,
+                nameof(RoleCode.SystemAdmin),
+                true,
+                "test",
+                null,
+                true)),
+            new TestLocalizer());
+
+        var exception = await Assert.ThrowsAsync<ValidationException>(async () =>
+            await handler.Handle(
+                new UpdateUserCommand(
+                    user.UserId,
+                    OtherDepartmentId,
+                    [],
+                    nameof(RoleCode.Staff),
+                    [],
+                    true),
+                CancellationToken.None));
+
+        Assert.Contains("ValidationLdapUserDepartmentReadOnly", exception.Message, StringComparison.Ordinal);
+        Assert.Equal(DepartmentId, user.DepartmentId);
+    }
+
+    [Fact]
+    public async Task UpdateUser_AllowsAdditionalDepartmentChangeForLdapUser()
+    {
+        await using var dbContext = CreateDbContext();
+        var user = await SeedUsersAsync(dbContext);
+        user.UserSource = UserSource.Ldap;
+        dbContext.Departments.Add(new Department
+        {
+            TenantId = TenantId,
+            DepartmentId = OtherDepartmentId,
+            Name = "Diğer Birim",
+            DepartmentType = "Unit",
+        });
+        await dbContext.SaveChangesAsync();
+
+        var handler = new UpdateUserCommandHandler(
+            dbContext,
+            new TestTenantContextAccessor(new TenantContext(
+                TenantId,
+                user.UserId,
+                user.DisplayName,
+                nameof(RoleCode.SystemAdmin),
+                true,
+                "test",
+                null,
+                true)),
+            new TestLocalizer());
+
+        await handler.Handle(
+            new UpdateUserCommand(
+                user.UserId,
+                DepartmentId,
+                [OtherDepartmentId],
+                nameof(RoleCode.Staff),
+                [],
+                true),
+            CancellationToken.None);
+
+        var assignment = await dbContext.UserDepartmentAssignments.SingleAsync();
+        Assert.Equal(user.UserId, assignment.UserId);
+        Assert.Equal(OtherDepartmentId, assignment.DepartmentId);
+        Assert.Equal(DepartmentId, user.DepartmentId);
     }
 
     private static CityCommunicationCenterDbContext CreateDbContext() => new(

@@ -1987,7 +1987,7 @@ export function SettingsPage() {
                 <div className="grid flex-1 gap-4">
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.host')}</span>
-                    <input className="field-input" placeholder={'\\\\sunucu\\paylasim'} value={fileStorageForm.nasHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasHost: event.target.value || null }))} />
+                    <input className="field-input" placeholder="//sunucu/paylasim" value={fileStorageForm.nasHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasHost: event.target.value || null }))} />
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.shareName')}</span>
@@ -2092,7 +2092,7 @@ export function SettingsPage() {
                 <div className="grid flex-1 gap-4">
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.host')}</span>
-                    <input className="field-input" placeholder="ftp.example.com" value={fileStorageForm.ftpHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpHost: event.target.value || null }))} />
+                    <input className="field-input" placeholder={'\\\\sunucu\\paylasim'} value={fileStorageForm.ftpHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpHost: event.target.value || null }))} />
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.port')}</span>
@@ -2514,7 +2514,7 @@ export function SettingsPage() {
                 <MunicipalitySeal
                   compact
                   className="h-12 w-12 rounded-xl"
-                  imageClassName="h-[82%] w-[82%]"
+                  imageClassName="h-[88%] w-[88%]"
                   src={previewAppearance.logoUrl ?? null}
                 />
                 <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>

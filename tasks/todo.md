@@ -1,3 +1,10 @@
+## Round 666 — Sayfa Yetkileri grid etiketi (#2282); #2243 doğrulandı
+- `#2282`: Sayfa Yetkileri matrisinde `social` satırı `Vatandaş Talepleri (Whatsapp, Sms vb.)`
+  olarak gösterilir; sol menü `nav.social` değişmez.
+- `#2243`: Round 665’te uygulanmış (fresh default fallback + Varsayılanlara Dön); yeniden açılmış
+  kart kodda mevcut olduğu için Done’a taşındı.
+- `#2272` CAPTCHA: Turnstile site key/secret bekliyor; Trello yorumu eklendi, Doing’de kaldı.
+
 ## Round 665 — Ayarlar/Birimler/Kullanıcılar UI düzeltmeleri (10 kart)
 - `#2243`: Sayfa Yetkileri, tenant ayarı yok/geçersizse stale global localStorage yerine
   yazılımın fresh varsayılan matrisini gösterir; geçerli tenant özelleştirmesi korunur.

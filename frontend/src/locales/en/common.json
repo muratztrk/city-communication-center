@@ -1290,7 +1290,10 @@
       "saveSuccess": "Role page permissions saved.",
       "resetSuccess": "Role page permissions reset to defaults.",
       "resetDefaults": "Reset Defaults",
-      "managerLabel": "Unit Manager/Responsible"
+      "managerLabel": "Unit Manager/Responsible",
+      "pages": {
+        "social": "Citizen Incoming Requests (WhatsApp, SMS, etc.)"
+      }
     },
     "socialConfig": {
       "sectionTitle": "Social Integrations",

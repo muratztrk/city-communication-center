@@ -1101,6 +1101,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   SystemAdmin yalnız Ayarlar; CitizenRequestManager Anasayfa + talep/rutin oluştur + kendi/birim
   görevleri + talepleri + gelen + vatandaş mesaj onayı; Operator/Staff/Reporter kapsamları
   `DEFAULT_ALLOWED_PAGES_BY_ROLE` içinde açık allow-list’tir, gevşek “settings hariç hepsi” değildir.
+  Matris `social` satır etiketi menü metninden ayrıdır: `Vatandaş Talepleri (Whatsapp, Sms vb.)`
+  (#2282); sol menü `nav.social` değişmez.
 - **Dosya sunucusu test alanları (#6a6cb6ec):** NAS ve FTP kolonlarında ayrı bağlantı +
   kullanıcı giriş testi (ortak alt blok yok).
 - **NAS kullanıcı testi gerçek bir SMB bağlantısıdır (Round 657 / card #2226):** eskiden yalnız

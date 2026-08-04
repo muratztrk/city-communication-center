@@ -656,6 +656,11 @@ export function SettingsPage() {
     setSearchParams(next, { replace: true })
   }
 
+  const getRolePageLabel = (page: (typeof PAGE_ACCESS_ITEMS)[number]) =>
+    page.key === 'social'
+      ? t('settings.roles.pages.social', 'Vatandaş Talepleri (Whatsapp, Sms vb.)')
+      : t(page.labelKey)
+
   const toggleRolePageAccess = (role: RoleCode, pageKey: PageAccessKey) => {
     if (pageKey === 'dashboard' || pageKey === 'settings') return
     setRolePageAccess(current => ({
@@ -2610,7 +2615,7 @@ export function SettingsPage() {
               <tbody>
                 {pagedPageAccessItems.map(page => (
                   <tr key={page.key}>
-                    <td className="font-semibold">{t(page.labelKey)}</td>
+                    <td className="font-semibold">{getRolePageLabel(page)}</td>
                     {ROLE_CODES.map(role => {
                       const disabled = page.key === 'dashboard' || page.key === 'settings'
                       return (

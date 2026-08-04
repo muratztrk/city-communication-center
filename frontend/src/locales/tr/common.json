@@ -1307,7 +1307,10 @@
       "saveSuccess": "Rol sayfa yetkileri kaydedildi.",
       "resetSuccess": "Rol sayfa yetkileri varsayılanlara döndürüldü.",
       "resetDefaults": "Varsayılanlara Dön",
-      "managerLabel": "Birim Yöneticisi/Sorumluları"
+      "managerLabel": "Birim Yöneticisi/Sorumluları",
+      "pages": {
+        "social": "Vatandaş Talepleri (Whatsapp, Sms vb.)"
+      }
     },
     "socialConfig": {
       "sectionTitle": "Sosyal Entegrasyonlar",

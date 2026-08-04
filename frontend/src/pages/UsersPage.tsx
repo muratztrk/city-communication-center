@@ -34,6 +34,15 @@ function resolvePrimaryRoleCode(roleCode: string): string {
   return roleCode === SORUMLU_ROLE_OPTION ? 'Manager' : roleCode
 }
 
+function getAllowedAdditionalRoleCodes(primaryRoleCode: string) {
+  const resolvedPrimaryRoleCode = resolvePrimaryRoleCode(primaryRoleCode)
+  return ADDITIONAL_ROLE_CODES.filter(roleCode =>
+    roleCode !== resolvedPrimaryRoleCode
+    && !(resolvedPrimaryRoleCode === 'Manager'
+      && (roleCode === 'Staff' || roleCode === 'CitizenRequestManager')),
+  )
+}
+
 /** Kayıtlı Manager + Responsible listesinde (müdür koltuğu değil) → UI Sorumlu (card #1898). */
 function resolveUiRoleCode(user: User, departments: Department[]): string {
   if (user.roleCode !== 'Manager') return user.roleCode
@@ -117,6 +126,7 @@ export function UsersPage() {
   const [showNewPasswordConfirm, setShowNewPasswordConfirm] = useState(false)
   const [editingUserId, setEditingUserId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({
+    username: '',
     displayName: '',
     title: '',
     email: '',
@@ -740,15 +750,18 @@ export function UsersPage() {
       resetForm()
       updateSearchParams({ create: null, mode: null })
     }
+    const uiRoleCode = resolveUiRoleCode(user, departments)
     setEditingUserId(user.userId)
     setEditForm({
+      username: user.username ?? '',
       displayName: user.displayName ?? '',
       title: user.title ?? '',
       email: user.email ?? '',
       departmentId: user.departmentId,
       additionalDepartmentIds: getUserDepartmentIds(user).filter(id => id !== user.departmentId),
-      roleCode: resolveUiRoleCode(user, departments),
-      additionalRoleCodes: user.additionalRoleCodes ?? [],
+      roleCode: uiRoleCode,
+      additionalRoleCodes: (user.additionalRoleCodes ?? []).filter(role =>
+        getAllowedAdditionalRoleCodes(uiRoleCode).includes(role as typeof ADDITIONAL_ROLE_CODES[number])),
       isActive: user.isActive,
     })
   }
@@ -761,6 +774,10 @@ export function UsersPage() {
     setError('')
 
     const isManual = userSource === 'Manual'
+    if (isManual && !editForm.username.trim()) {
+      setError(t('users.usernameRequired', 'Kullanıcı adı zorunludur.'))
+      return
+    }
     if (isManual && !editForm.displayName.trim()) {
       setError(t('users.displayNameRequired', 'Ad soyad zorunludur.'))
       return
@@ -784,6 +801,7 @@ export function UsersPage() {
         isActive: editForm.isActive,
         skipManagerQuota: editForm.roleCode === SORUMLU_ROLE_OPTION,
         ...(isManual ? {
+          username: editForm.username.trim(),
           displayName: editForm.displayName.trim(),
           email: editForm.email.trim() || null,
           title: editForm.title.trim() || null,
@@ -963,7 +981,7 @@ export function UsersPage() {
             <h2 className="text-xl font-extrabold text-slate-950">{t('users.newFormTitle')}</h2>
             <p className="helper-copy">{t('users.newFormDescription')}</p>
             {!managementContext?.ldapEnabled ? (
-              <p className="helper-copy">{t('users.ldapNotConfiguredHint', 'Ldap ayarı yaptıktan sonra veri çekilebilir.')}</p>
+              <p className="helper-copy">{t('users.ldapNotConfiguredHint', "Ldap ayarı yapıldıktan sonra LDAP'tan veri çekilebilir.")}</p>
             ) : null}
           </div>
 
@@ -1285,7 +1303,7 @@ export function UsersPage() {
                   searchPlaceholder={t('common.search', 'Ara...')}
                   menuClassName="users-dept-compact-menu users-roles-compact-menu"
                 />
-                <span className="helper-copy">{t('users.additionalDepartmentsHelp', 'Kullanıcı bu birimler için sağ üstten aktif birimini değiştirebilir.')}</span>
+                <span className="helper-copy">{t('users.additionalDepartmentsHelp', 'Kullanıcı ek olarak birden fazla birimde çalışabilir.')}</span>
               </div>
 
               <div className="users-role-field grid gap-2 font-semibold text-slate-700">
@@ -1300,7 +1318,8 @@ export function UsersPage() {
                   onChange={roleCode => setNewUser(current => ({
                     ...current,
                     roleCode,
-                    additionalRoleCodes: current.additionalRoleCodes.filter(role => role !== roleCode),
+                    additionalRoleCodes: current.additionalRoleCodes.filter(role =>
+                      getAllowedAdditionalRoleCodes(roleCode).includes(role as typeof ADDITIONAL_ROLE_CODES[number])),
                   }))}
                   placeholder={t('users.role')}
                   searchable
@@ -1315,8 +1334,7 @@ export function UsersPage() {
                   triggerClassName="text-xs"
                   menuClassName="users-roles-compact-menu"
                   menuWidth={220}
-                  options={ADDITIONAL_ROLE_CODES
-                    .filter(roleCode => roleCode !== newUser.roleCode)
+                  options={getAllowedAdditionalRoleCodes(newUser.roleCode)
                     .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))
                     .sort((a, b) => a.label.localeCompare(b.label, 'tr'))}
                   value={newUser.additionalRoleCodes}
@@ -1408,7 +1426,18 @@ export function UsersPage() {
                 editingUserId === user.userId ? (
                   <tr key={user.userId} className="bg-slate-50">
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(usersSafePage - 1) * usersPageSize + index + 1}</td>
-                    <td>{user.username || t('common.none')}</td>
+                    <td>
+                      {user.userSource === 'Manual' ? (
+                        <input
+                          className="field-input min-w-[9rem] text-sm"
+                          value={editForm.username}
+                          onChange={e => setEditForm(c => ({ ...c, username: e.target.value }))}
+                          aria-label={t('users.username')}
+                        />
+                      ) : (
+                        <span>{user.username || t('common.none')}</span>
+                      )}
+                    </td>
                     <td>
                       {user.userSource === 'Manual' ? (
                         <input
@@ -1494,7 +1523,8 @@ export function UsersPage() {
                           onChange={roleCode => setEditForm(c => ({
                             ...c,
                             roleCode,
-                            additionalRoleCodes: c.additionalRoleCodes.filter(role => role !== roleCode),
+                            additionalRoleCodes: c.additionalRoleCodes.filter(role =>
+                              getAllowedAdditionalRoleCodes(roleCode).includes(role as typeof ADDITIONAL_ROLE_CODES[number])),
                           }))}
                           placeholder={t('users.role')}
                           searchable
@@ -1506,8 +1536,7 @@ export function UsersPage() {
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
                         />
                         <MultiSelectDropdown
-                          options={ADDITIONAL_ROLE_CODES
-                            .filter(roleCode => roleCode !== editForm.roleCode)
+                          options={getAllowedAdditionalRoleCodes(editForm.roleCode)
                             .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))
                             .sort((a, b) => a.label.localeCompare(b.label, 'tr'))}
                           value={editForm.additionalRoleCodes}

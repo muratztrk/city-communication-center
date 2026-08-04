@@ -397,6 +397,7 @@ export const api = {
     roleCode: string
     additionalRoleCodes?: string[]
     isActive: boolean
+    username?: string
     displayName?: string
     email?: string | null
     title?: string | null

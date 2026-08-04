@@ -1,3 +1,10 @@
+## Round 662 — Login/Kullanıcı/Ayarlar/Marka düzeltmeleri (12 tamamlanan, 1 bekleyen)
+- `#2272` CAPTCHA: sağlayıcı/site key/secret kararı eksik; güvenlik gerekçesi Trello yorumuyla Doing'de bırakıldı.
+- `#2259/#2260/#2266/#2268/#2269`: ek birim ve LDAP metinleri, FTP/NAS placeholder'ları, sayfa yetkisi sırası.
+- `#2263`: login sonrası role göre doğrudan varsayılan sayfa; SystemAdmin Ayarlar çift yükleme/flicker kaldırıldı.
+- `#2273/#2270`: Müdür için Staff/CRM ek rol yasağı (FE+BE) ve Manual kullanıcı adı/ad/ünvan/e-posta düzenleme.
+- `#1960/#2252/#2264/#2271`: güncel footer logosu, sabit kurum logo çerçevesi; dashboard hizası ve ilçe seçimi kalıcılığı doğrulandı.
+
 ## Round 653 — Başlangıç=şimdi, Son Tarih=başlangıç+2h (#6a6f6301)
 - Talep Oluştur Başlangıç min: şimdi (artık +2h değil)
 - Başlangıç seçilince Son Tarih min: başlangıç+2s

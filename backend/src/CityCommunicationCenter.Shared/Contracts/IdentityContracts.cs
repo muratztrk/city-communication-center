@@ -62,6 +62,7 @@ public sealed record UpdateUserRequest(
     string RoleCode,
     IReadOnlyCollection<string>? AdditionalRoleCodes,
     bool IsActive,
+    string? Username = null,
     string? DisplayName = null,
     string? Email = null,
     string? Title = null,

@@ -98,8 +98,13 @@ export async function login(page: Page, username: string, password: string) {
     await page.getByRole('button', { name: /dogrula/i }).click();
   }
 
-  await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
-  await expect(page.locator('main .page-title')).toContainText(/kontrol paneli|dashboard/i);
+  if (username === ADMIN_EMAIL) {
+    await expect(page).toHaveURL(/\/settings/, { timeout: 15_000 });
+    await expect(page.locator('main .page-title')).toContainText(/ayarlar/i);
+  } else {
+    await expect(page).toHaveURL(/\/dashboard/, { timeout: 15_000 });
+    await expect(page.locator('main .page-title')).toContainText(/kontrol paneli|dashboard|anasayfa/i);
+  }
 }
 
 export async function selectAutocompleteOption(scope: Page | Locator, label: string, query: string, optionText = query) {

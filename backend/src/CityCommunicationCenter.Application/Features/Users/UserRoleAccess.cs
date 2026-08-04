@@ -162,6 +162,19 @@ public static class UserRoleAccess
             ]);
         }
 
+        if (user.RoleCode == RoleCode.Manager
+            && normalized.Any(value =>
+                string.Equals(value, RoleCode.Staff.ToString(), StringComparison.OrdinalIgnoreCase)
+                || string.Equals(value, RoleCode.CitizenRequestManager.ToString(), StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new ValidationException(
+            [
+                new FluentValidation.Results.ValidationFailure(
+                    nameof(additionalRoleCodes),
+                    "Müdür rolüne Standart Kullanıcı veya Vatandaş Talep Yöneticisi ek rolü atanamaz.")
+            ]);
+        }
+
         user.AdditionalRoleCodesJson = SerializeAdditionalRoleCodes(normalized);
     }
 }

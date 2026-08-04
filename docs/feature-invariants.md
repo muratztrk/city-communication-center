@@ -61,8 +61,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   standardını (portal paneli, ortak satır/hover, gerektiğinde arama) kullan; yeni özel/native menü üretme.
 - **`MultiSelectDropdown` menüsü de body portal + fixed** (`SingleSelectDropdown` ile aynı); tablo
   hücresinde absolute panel komşu sütunlara binmez (card #1706).
-- **Yerel (Manual) kullanıcı düzenleme:** Ad Soyad / Ünvan / e-posta satır içi düzenlenebilir;
-  LDAP'da bu üç alan salt okunur. Birim ve birincil rol `SingleSelectDropdown` kullanır (card #1705).
+- **Yerel (Manual) kullanıcı düzenleme:** Kullanıcı Adı / Ad Soyad / Ünvan / e-posta satır içi
+  düzenlenebilir; LDAP'da bu dört alan salt okunur. Login `Username OR Email` kullandığı için
+  kullanıcı adı ve e-posta tenant içindeki iki alanın tamamında ortak benzersiz kalır.
+  Birim ve birincil rol `SingleSelectDropdown` kullanır (cards #1705/#2270).
+- **Müdür ek rol kısıtı:** Birincil rolü `Manager` (UI'da Müdür/Sorumlu) olan kullanıcıya
+  `Staff` veya `CitizenRequestManager` ek rolü verilemez; frontend seçenekleri gizler ve backend
+  `UserRoleAccess.ApplyAdditionalRoleCodes` kuralı zorunlu uygular (card #2273).
 - **Mobil genişliklerde (<1024 CSS px) desktop zoom uygulanmaz:** içerik/sidebar `zoom=1`
   kalmalı; aksi halde telefonlarda native dikey scroll ve form ölçekleri kırılır.
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
@@ -70,7 +75,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil login/sidebar marka alanı:** login logo kartı kullanılan koyu yeşil yüzeydir ve Atatürk
   silüeti kart border'ının içinde sol üstte kalır. Mobil drawer belediye logo çerçevesi logoya göre
   gereksiz büyük tutulmaz; logo çerçevenin içinde belirgin beyaz nefes payıyla daha küçük kalır.
-  Desktop etkilenmez.
+  Desktop etkilenmez. `MunicipalitySeal` dış çerçevesi `shrink-0` ve açık h/w ölçülü kalır;
+  yüklenen görselin intrinsic boyutu login/sidebar çerçevesini büyütemez (card #2252).
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
   `font-weight: 600` kullanır; Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
   `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
@@ -1433,7 +1439,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   aynı `text-sm text-slate-500`.
 - **Sayfa Yetkileri (card #1892/#1893 reopen):** `Vatandaş Bilgi Listesi` Vatandaş Talepleri’nden
   sonra; sıra `Kaydet` → `Varsayılanlara Dön` (sağda, `justify-end`); kayıt/sıfırlama sonucu
-  ConfirmDialog (banner değil).
+  ConfirmDialog (banner değil). `e-Devlet Günlük Faaliyet Planı Oluştur` ve `… Listesi`
+  grid sıralamasında `Log` (`audit`) satırından sonra gelir (card #2269).
 - **Kullanıcılar düzenle Birim/Rol dropdown (card #r448/#r456/#r459):** sütun ~7.5rem / ~9rem;
   Birim paneli Ek roller sağına (~16.5rem); Rol paneli LDAP sonuna (~14rem); satır fontu ~0.6rem.
 - **Kullanıcılar yarım aksiyon (#r457):** Yeni Kullanıcı Ekle / Düzenle / Sil birbirinin açık
@@ -1855,4 +1862,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Manager` = "Müdür". CRM scoped rol — detay [`authorization-matrix.md`](authorization-matrix.md) §1.1.
 - **CitizenRequestManager talep oluşturabilir:** birim içi/dışı taleplerde Staff gibi yalnızca kendi
   çalışabildiği sahip birimle açar ve sahip birim onayına düşer (card #1080).
+- **Login sonrası tek hedef navigasyon:** interactive giriş tamamlanınca `LoginPage` ayrıca bir
+  path'e gitmez; authenticated router `getDefaultLandingPath(session.user)` ile tek hedefi seçer.
+  Sonradan `/dashboard`'a gitmek SystemAdmin Ayarlar ekranını iki kez yükletir/flicker üretir (card #2263).
 - Detay: [`adaptive-auth-20260322.md`](adaptive-auth-20260322.md), [`authorization-matrix.md`](authorization-matrix.md).

@@ -1991,7 +1991,7 @@ export function SettingsPage() {
                 <div className="grid flex-1 gap-4">
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.host')}</span>
-                    <input className="field-input" placeholder="192.168.1.100" value={fileStorageForm.nasHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasHost: event.target.value || null }))} />
+                    <input className="field-input" placeholder="//sunucu/paylasim" value={fileStorageForm.nasHost ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasHost: event.target.value || null }))} />
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.shareName')}</span>
@@ -2104,7 +2104,7 @@ export function SettingsPage() {
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.path')}</span>
-                    <input className="field-input" placeholder="/attachments" value={fileStorageForm.ftpPath ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpPath: event.target.value || null }))} />
+                    <input className="field-input" placeholder="//sunucu/paylasim" value={fileStorageForm.ftpPath ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, ftpPath: event.target.value || null }))} />
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.protocol')}</span>

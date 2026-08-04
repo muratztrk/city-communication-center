@@ -134,6 +134,7 @@ public sealed class UsersController : ApiControllerBase
                 request.RoleCode,
                 request.AdditionalRoleCodes,
                 request.IsActive,
+                request.Username,
                 request.DisplayName,
                 request.Email,
                 request.Title,

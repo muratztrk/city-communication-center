@@ -9,6 +9,7 @@ public sealed record UpdateUserCommand(
     string RoleCode,
     IReadOnlyCollection<string>? AdditionalRoleCodes,
     bool IsActive,
+    string? Username = null,
     string? DisplayName = null,
     string? Email = null,
     string? Title = null,
@@ -30,6 +31,16 @@ public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCom
             .NotEmpty()
             .Must(value => Enum.TryParse<RoleCode>(value, true, out _))
             .WithMessage(localizer["ValidationRoleRequired"]);
+
+        RuleFor(command => command.Username)
+            .MaximumLength(100)
+            .When(command => !string.IsNullOrWhiteSpace(command.Username))
+            .WithMessage(localizer["ValidationUsernameTooLong"]);
+
+        RuleFor(command => command.Username)
+            .NotEmpty()
+            .When(command => command.Username is not null)
+            .WithMessage(localizer["ValidationUsernameRequired"]);
 
         RuleFor(command => command.DisplayName)
             .NotEmpty()
@@ -133,9 +144,29 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
             }
         }
 
-        // Yerel (Manual) kullanıcıda Ad Soyad / Ünvan / e-posta güncellenir (card #1705).
+        // Yerel (Manual) kullanıcıda Kullanıcı Adı / Ad Soyad / Ünvan / e-posta güncellenir.
         // LDAP profil alanları dizin kaynağından gelir; burada değiştirilmez.
-        // FE Manual düzenlemede DisplayName gönderir; yoksa yalnız birim/rol/aktif güncellenir.
+        // FE Manual düzenlemede profil alanlarını gönderir; yoksa yalnız birim/rol/aktif güncellenir.
+        if (user.UserSource == UserSource.Manual && request.Username is not null)
+        {
+            var nextUsername = request.Username.Trim();
+            var normalizedUsernameUpper = nextUsername.ToUpperInvariant();
+            var usernameExists = await _dbContext.Users
+                .AnyAsync(
+                    entity => entity.TenantId == tenantId
+                        && entity.UserId != user.UserId
+                        && ((entity.Username != null && entity.Username.ToUpper() == normalizedUsernameUpper)
+                            || (entity.Email != null && entity.Email.ToUpper() == normalizedUsernameUpper)),
+                    cancellationToken);
+
+            if (usernameExists)
+            {
+                throw new ValidationException(_localizer["ValidationUserUsernameExists"]);
+            }
+
+            user.Username = nextUsername;
+        }
+
         if (user.UserSource == UserSource.Manual && request.DisplayName is not null)
         {
             var nextEmail = string.IsNullOrWhiteSpace(request.Email) ? null : request.Email.Trim();
@@ -146,8 +177,8 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
                     .AnyAsync(
                         entity => entity.TenantId == tenantId
                             && entity.UserId != user.UserId
-                            && entity.Email != null
-                            && entity.Email.ToUpper() == normalizedEmailUpper,
+                            && ((entity.Email != null && entity.Email.ToUpper() == normalizedEmailUpper)
+                                || (entity.Username != null && entity.Username.ToUpper() == normalizedEmailUpper)),
                         cancellationToken);
 
                 if (emailExists)

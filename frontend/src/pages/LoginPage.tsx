@@ -3,7 +3,6 @@ import { Eye, EyeOff, MessageSquareMore, SquareKanban, X, ShieldCheck } from 'lu
 import { useEffect, useEffectEvent, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 import { z } from 'zod'
 import {
   getTenantLoginContext,
@@ -49,7 +48,6 @@ const LOGIN_LOGO_DARK_SRC = '/tire-belediyesi-logo.png'
 
 export function LoginPage() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const { completeInteractiveSignIn } = useAuth()
   const { setAppearance, resetAppearance } = useTenantTheme()
   const [tenantContext, setTenantContext] = useState<TenantLoginContext | null>(null)
@@ -178,8 +176,6 @@ export function LoginPage() {
       getTenantDisplayName(),
     )
     setLoginSuccess(true)
-    await new Promise(resolve => setTimeout(resolve, 420))
-    navigate('/dashboard', { replace: true })
   }
 
   const applyInteractiveResult = async (result: StartInteractiveAuthenticationResult) => {

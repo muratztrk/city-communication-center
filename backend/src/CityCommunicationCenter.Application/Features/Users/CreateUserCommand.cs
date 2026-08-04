@@ -218,8 +218,8 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             var emailExists = await _dbContext.Users
                 .AnyAsync(
                     entity => entity.TenantId == tenantId
-                        && entity.Email != null
-                        && entity.Email.ToUpper() == normalizedEmailUpper,
+                        && ((entity.Email != null && entity.Email.ToUpper() == normalizedEmailUpper)
+                            || (entity.Username != null && entity.Username.ToUpper() == normalizedEmailUpper)),
                     cancellationToken);
 
             if (emailExists)
@@ -239,8 +239,8 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             var usernameExists = await _dbContext.Users
                 .AnyAsync(
                     entity => entity.TenantId == tenantId
-                        && entity.Username != null
-                        && entity.Username.ToUpper() == normalizedUsernameUpper,
+                        && ((entity.Username != null && entity.Username.ToUpper() == normalizedUsernameUpper)
+                            || (entity.Email != null && entity.Email.ToUpper() == normalizedUsernameUpper)),
                     cancellationToken);
 
             if (usernameExists)

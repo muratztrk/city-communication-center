@@ -723,7 +723,7 @@ export function DepartmentsPage() {
               <h2 className="text-xl font-extrabold text-slate-950">{t('departments.newFormTitle')}</h2>
               <p className="helper-copy">{t('departments.newFormDescription')}</p>
               {!ldapEnabled ? (
-                <p className="helper-copy">{t('departments.ldapNotConfiguredHint', 'Ldap ayarı yaptıktan sonra veri çekilebilir.')}</p>
+                <p className="helper-copy">{t('departments.ldapNotConfiguredHint', "Ldap ayarı yapıldıktan sonra LDAP'tan veri çekilebilir.")}</p>
               ) : null}
             </div>
           </div>

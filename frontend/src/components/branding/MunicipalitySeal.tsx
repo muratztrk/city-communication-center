@@ -38,7 +38,7 @@ export function MunicipalitySeal({ className, imageClassName, compact = false, b
   return (
     <div
       className={cn(
-        'relative isolate overflow-hidden border border-white/20 bg-[linear-gradient(160deg,rgba(255,255,255,0.22),rgba(255,255,255,0.08))] shadow-[0_18px_48px_rgba(15,23,42,0.2)]',
+        'relative isolate shrink-0 overflow-hidden border border-white/20 bg-[linear-gradient(160deg,rgba(255,255,255,0.22),rgba(255,255,255,0.08))] shadow-[0_18px_48px_rgba(15,23,42,0.2)]',
         compact ? 'h-16 w-16 rounded-[1.35rem]' : 'h-24 w-24 rounded-[2rem]',
         className,
       )}

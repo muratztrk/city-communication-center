@@ -5,7 +5,7 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
 
     public static readonly TenantAppearanceDescriptor DefaultAppearance = new(
-        "tire-municipal-green",
+        "varsayılan-tema",
         "#0A8F3E",
         "#53B748",
         "#1F2328",

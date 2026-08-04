@@ -391,7 +391,7 @@ export function SettingsPage() {
   const { user } = useAuth()
   // Modüler lisans (#WGDYIM79): Vatandaş modülü lisanslı değilse sosyal/yönlendirme/şablon sekmeleri gizlenir.
   const isCitizenModuleUsable = isModuleUsable('citizen')
-  const { setAppearance } = useTenantTheme()
+  const { appearance: tenantAppearance, setAppearance } = useTenantTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = readTab(searchParams.get('tab'))
   const [tenantSettings, setTenantSettings] = useState<TenantSettings>(EMPTY_TENANT_SETTINGS)
@@ -803,6 +803,9 @@ export function SettingsPage() {
       const logoUrl = await api.uploadTenantLogo(user.tenantId, file)
       // Önizleme anında güncellensin (card #2234); kalıcı kayıt yine "Kaydet" ile olur.
       setAppearanceForm(current => ({ ...current, logoUrl }))
+      // Logo içeren tüm görseller (sidebar, giriş ekranı) anında güncellensin (card #2251) —
+      // "Kaydet"e basılmadan önce de ThemeContext'e yansıt; diğer renk/tema alanlarını koru.
+      setAppearance({ ...tenantAppearance, logoUrl })
     } catch (uploadError) {
       setMessage({ type: 'error', text: uploadError instanceof Error ? uploadError.message : t('common.error') })
     } finally {

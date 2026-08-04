@@ -1465,6 +1465,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Sayfa Yetkileri artık `departmentTasks`/`citizenDirectory`'i zorla açıp kapatmıyor (card #2242):**
   önceki kod bu iki sayfayı role göre unconditional force ediyordu (admin checkbox'ı hiç işe yaramıyordu);
   `normalizeRolePageAccessMatrix`'e yeni bir zorlama eklerken kayıtlı admin tercihini ezmediğinden emin ol.
+- **Sadece SystemAdmin rolüne sahip personelde Anasayfa gizli, varsayılan açılış sayfası Ayarlar'dır
+  (card #2249):** `rolePageAccess.ts`'te `matrix.SystemAdmin.dashboard` zorunlu `false` (diğer roller
+  `true`); `App.tsx`'teki tüm fallback `Navigate` hedefleri `getDefaultLandingPath(user)` kullanır, sabit
+  `"/dashboard"` YAZMA — yoksa SystemAdmin `PageAccessGate`'te kendine yönlendirilip sonsuz döngüye girer.
 - **Dosya sunucusu (NAS/FTP) parola alanları artık SMS API ile aynı maske deseni kullanır (card #2229):**
   kayıtlıysa `********` gösterir, "Kayıtlı şifreyi sil" checkbox'ı yok — `frontend/src/lib/` yerine
   doğrudan SettingsPage.tsx içinde SMS_PASSWORD_MASK reuse edilir (bkz. `fileStorageSettings` state).
@@ -1472,6 +1476,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   formdan kaldırıldı, `deriveAppearanceFromPrimary` (lib/theme.ts, HSL kaydırma) ile otomatik türetilir.
   Önizlemedeki hex-kodlu küçük kutucuk ızgarası da kaldırıldı. Yeni bir renk alanı eklersen bu türetme
   fonksiyonunu güncellemeyi unutma — elle giriş formuna geri dönme.
+- **Varsayılan tema adı `"varsayılan-tema"` (card #2250):** `DEFAULT_TENANT_APPEARANCE.themePreset`
+  (frontend `lib/theme.ts`) ve backend `TenantAppearanceService.DefaultAppearance` birlikte değişmeli —
+  ikisi ayrı sabitte tutuluyor, biri unutulursa yeni tenant'ın backend default'u eskisiyle uyuşmaz. Ana
+  renk zaten `#0A8F3E` (R10 G143 B62) — bu değeri değiştirme.
 - **Kurum logosu artık dosya yükleme (Round 655 / card #2234):** Logo URL/Giriş Arka Plan textbox'ları
   kaldırıldı; `POST /api/v1/admin/tenants/{id}/appearance/logo` göreli `/uploads/{tenant}/branding/logo.*`
   döner. `MunicipalitySeal` bunu tek noktadan `resolveAttachmentUrl` ile mutlak URL'e çevirir — yeni bir
@@ -1479,6 +1487,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `/uploads/` proxy location'ı bu round'da eklendi (`frontend/nginx.conf`) — önceden yalnız `/api/`,
   `/hubs/`, `/connect/`, `/health` proxy'liydi, aynı-origin dağıtımda `/uploads/...` SPA fallback'ine
   düşüp index.html dönerdi (var olan ek-önizleme özellikleri için de gizli bir bug'dı).
+- **Kurum Logosu "Ekle" ile seçilince tüm logo görselleri (sidebar, giriş ekranı) "Kaydet"e
+  basmadan anında güncellenir (card #2251):** `SettingsPage.uploadLogo` yalnız yerel `appearanceForm`'u
+  değil, `useTenantTheme().setAppearance({ ...tenantAppearance, logoUrl })` ile ThemeContext'i de günceller
+  (`AppShell`/`LoginPage`'deki `MunicipalitySeal` buradan okur). Yeni bir görünüm alanı eklersen aynı
+  anlık-yansıma deseninden emin ol.
 - **Anasayfa breadcrumb'ı kök rotalarda ikinci "Anasayfa" segmentini göstermez (card #2248):**
   `AppShell.tsx`'teki `isDashboardRoot` (`/dashboard` veya `/dashboard/birimler`) `currentBreadcrumbSegment`'i
   `undefined` yapar — "Ana Sayfa" (home butonu) zaten aynı yeri temsil ediyor, ikinci pill gereksiz tekrardı.

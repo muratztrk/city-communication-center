@@ -106,7 +106,8 @@ export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce(
         && page.key !== 'smsDeliveryApproval'
       return pages
     }
-    pages[page.key] = page.key !== 'settings' || role === 'SystemAdmin'
+    // Bu dal yalnız SystemAdmin için çalışır (diğer tüm roller yukarıda ele alınır).
+    pages[page.key] = page.key !== 'dashboard'
     return pages
   }, {} as Record<PageAccessKey, boolean>)
   return matrix
@@ -137,7 +138,9 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
       }
       return pages
     }, {} as Record<PageAccessKey, boolean>)
-    matrix[role].dashboard = true
+    // Anasayfa yalnız Sistem Yöneticisi için kapalı (card #2249) — SystemAdmin'in
+    // varsayılan açılış sayfası Ayarlar'dır (bkz. getDefaultLandingPath).
+    matrix[role].dashboard = role !== 'SystemAdmin'
     matrix[role].settings = role === 'SystemAdmin'
     if (role === 'EDevletActivityPlan') {
       matrix[role].edevletActivityPlan = true
@@ -233,4 +236,13 @@ export function getEffectiveUserRoles(user: { role?: string; additionalRoles?: s
     if (role && !roles.includes(role)) roles.push(role)
   }
   return roles
+}
+
+/**
+ * Sadece Sistem Yöneticisi yetkisine sahip personelde Anasayfa gizli olduğundan
+ * (card #2249) varsayılan açılış sayfası Ayarlar'dır; diğer tüm roller Anasayfa'ya açılır.
+ */
+export function getDefaultLandingPath(user: { role?: string; additionalRoles?: string[] } | null | undefined): string {
+  const roles = getEffectiveUserRoles(user)
+  return roles.length === 1 && roles[0] === 'SystemAdmin' ? '/settings' : '/dashboard'
 }

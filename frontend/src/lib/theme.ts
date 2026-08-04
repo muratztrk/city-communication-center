@@ -8,7 +8,7 @@ export interface ThemePresetDefinition {
 }
 
 export const DEFAULT_TENANT_APPEARANCE: TenantAppearance = {
-  themePreset: 'tire-municipal-green',
+  themePreset: 'varsayılan-tema',
   primaryColor: '#0A8F3E',
   secondaryColor: '#53B748',
   accentColor: '#1F2328',
@@ -24,11 +24,11 @@ export const DEFAULT_TENANT_APPEARANCE: TenantAppearance = {
 
 export const THEME_PRESETS: ThemePresetDefinition[] = [
   {
-    key: 'tire-municipal-green',
-    label: 'Tire Yeşil',
-    description: 'Tire Belediyesi logosundaki yeşil ve koyu tonlara uyarlanmış tema.',
+    key: 'varsayılan-tema',
+    label: 'Varsayılan Tema',
+    description: 'Yeşil ve koyu tonlara uyarlanmış varsayılan tema.',
     appearance: {
-      themePreset: 'tire-municipal-green',
+      themePreset: 'varsayılan-tema',
       primaryColor: '#0A8F3E',
       secondaryColor: '#53B748',
       accentColor: '#1F2328',

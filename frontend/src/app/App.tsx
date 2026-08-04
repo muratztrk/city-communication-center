@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import { LicenseModuleSync } from '../context/LicenseModuleContext'
-import { canAnyRoleAccessPage, getEffectiveUserRoles, type PageAccessKey } from '../lib/rolePageAccess'
+import { canAnyRoleAccessPage, getDefaultLandingPath, getEffectiveUserRoles, type PageAccessKey } from '../lib/rolePageAccess'
 
 const AppShell = lazy(() => import('./AppShell').then(module => ({ default: module.AppShell })))
 const AuditLogsPage = lazy(() => import('../pages/AuditLogsPage').then(module => ({ default: module.AuditLogsPage })))
@@ -41,11 +41,11 @@ function LoadingScreen() {
 }
 
 function PageAccessGate({ pageKey, user, children }: { pageKey: PageAccessKey; user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
-  return canAnyRoleAccessPage(getEffectiveUserRoles(user), pageKey) ? children : <Navigate to="/dashboard" replace />
+  return canAnyRoleAccessPage(getEffectiveUserRoles(user), pageKey) ? children : <Navigate to={getDefaultLandingPath(user)} replace />
 }
 
 function ManagerOnlyGate({ role, children }: { role?: string; children: ReactNode }) {
-  return role === 'Manager' ? children : <Navigate to="/dashboard" replace />
+  return role === 'Manager' ? children : <Navigate to={getDefaultLandingPath({ role })} replace />
 }
 
 export default function App() {
@@ -72,8 +72,8 @@ export default function App() {
       <Routes>
         <Route path="/display" element={<PageAccessGate pageKey="display" user={user}><WallboardPage /></PageAccessGate>} />
         <Route element={<AppShell />}>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/login" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<Navigate to={getDefaultLandingPath(user)} replace />} />
+          <Route path="/login" element={<Navigate to={getDefaultLandingPath(user)} replace />} />
           <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" user={user}><DashboardPage /></PageAccessGate>} />
           <Route path="/dashboard/birimler" element={<PageAccessGate pageKey="dashboard" user={user}><DashboardPage view="departments" /></PageAccessGate>} />
           <Route path="/edevlet/activity-plan" element={<PageAccessGate pageKey="edevletActivityPlan" user={user}><EDevletActivityPlanPage /></PageAccessGate>} />
@@ -104,10 +104,10 @@ export default function App() {
           <Route path="/audit" element={<PageAccessGate pageKey="audit" user={user}><AuditLogsPage /></PageAccessGate>} />
           <Route
             path="/settings"
-            element={user?.role === 'SystemAdmin' && canAnyRoleAccessPage(getEffectiveUserRoles(user), 'settings') ? <SettingsPage /> : <Navigate to="/dashboard" replace />}
+            element={user?.role === 'SystemAdmin' && canAnyRoleAccessPage(getEffectiveUserRoles(user), 'settings') ? <SettingsPage /> : <Navigate to={getDefaultLandingPath(user)} replace />}
           />
         </Route>
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        <Route path="*" element={<Navigate to={getDefaultLandingPath(user)} replace />} />
       </Routes>
     </Suspense>
     </LicenseModuleSync>

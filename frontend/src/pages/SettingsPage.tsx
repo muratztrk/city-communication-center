@@ -656,10 +656,18 @@ export function SettingsPage() {
     setSearchParams(next, { replace: true })
   }
 
-  const getRolePageLabel = (page: (typeof PAGE_ACCESS_ITEMS)[number]) =>
-    page.key === 'social'
-      ? t('settings.roles.pages.social', 'Vatandaş Talepleri (Whatsapp, Sms vb.)')
-      : t(page.labelKey)
+  const getRolePageLabel = (page: (typeof PAGE_ACCESS_ITEMS)[number]) => {
+    if (page.key === 'social') {
+      return t('settings.roles.pages.social', 'Vatandaş Talepleri (Whatsapp, Sms vb.)')
+    }
+    if (page.key === 'citizenMessageApproval') {
+      return t(
+        'settings.roles.pages.citizenMessageApproval',
+        'Vatandaşa Gönderilecek Mesaj Onayı (Personelin cevap kontrolü)',
+      )
+    }
+    return t(page.labelKey)
+  }
 
   const toggleRolePageAccess = (role: RoleCode, pageKey: PageAccessKey) => {
     if (pageKey === 'dashboard' || pageKey === 'settings') return
@@ -2518,8 +2526,8 @@ export function SettingsPage() {
               >
                 <MunicipalitySeal
                   compact
-                  className="h-24 w-24 rounded-xl"
-                  imageClassName="h-[88%] w-[88%]"
+                  className="h-20 w-20 rounded-xl"
+                  imageClassName="!h-[96%] !w-[96%]"
                   src={previewAppearance.logoUrl ?? null}
                 />
                 <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>

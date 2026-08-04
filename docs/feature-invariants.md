@@ -1102,7 +1102,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görevleri + talepleri + gelen + vatandaş mesaj onayı; Operator/Staff/Reporter kapsamları
   `DEFAULT_ALLOWED_PAGES_BY_ROLE` içinde açık allow-list’tir, gevşek “settings hariç hepsi” değildir.
   Matris `social` satır etiketi menü metninden ayrıdır: `Vatandaş Talepleri (Whatsapp, Sms vb.)`
-  (#2282); sol menü `nav.social` değişmez.
+  (#2282); `citizenMessageApproval` satırı `… (Personelin cevap kontrolü)` parantezini taşır
+  (#2284); sol menü `nav.*` etiketleri değişmez.
 - **Dosya sunucusu test alanları (#6a6cb6ec):** NAS ve FTP kolonlarında ayrı bağlantı +
   kullanıcı giriş testi (ortak alt blok yok).
 - **NAS kullanıcı testi gerçek bir SMB bağlantısıdır (Round 657 / card #2226):** eskiden yalnız
@@ -1870,7 +1871,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bu default yalnız (a) hiç `TenantSetting` satırı olmayan yepyeni tenant'larda ve (b) "Varsayılana
   Dön"e elle basılınca devreye girer.
 - **Görünüm Önizleme logosu (#2276):** Yalnız Ayarlar > Görünüm önizlemesindeki çerçeve
-  `h-24 w-24`, iç logo yaklaşık `%88` olur; sidebar/login `MunicipalitySeal` ölçüleri etkilenmez.
+  `h-20 w-20`, iç logo yaklaşık `%96` olur; sidebar/login `MunicipalitySeal` ölçüleri etkilenmez.
 - **Birimler liste araması (#2283):** Birim ara kutusu yalnız birim adı, müdür ve sorumlu
   adlarında arar; gridde görünmeyen `departmentType` (`Müdürlük` vb.) haystack'e dahil edilmez.
 - **Yeni Kullanıcı/Yeni Birim formunda Oluşturma Modu üstü LDAP ipucu** (card #2263):

@@ -1,3 +1,7 @@
+## Round 667 follow-up — Önizleme logo + mesaj onayı etiketi (#2276, #2284)
+- `#2276`: Görünüm önizleme çerçevesi `h-24` → `h-20`, iç logo `%96` (daha büyük logo, daha kısa çerçeve).
+- `#2284`: Sayfa Yetkileri gridinde `citizenMessageApproval` satırına `(Personelin cevap kontrolü)` eklendi.
+
 ## Round 667 — Footer logo + Ayarlar toast doğrulama (#1960, #2275)
 - `#1960`: Ortak `AppFooter` Lumespec logosu `h-6` → `h-7`; `--fab-footer-clearance` 2.5rem.
 - `#2275`: Ayarlar sonuç mesajları zaten yalnız `Toast` popup'ında (Round 665); inline banner yok,

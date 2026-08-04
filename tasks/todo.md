@@ -1,3 +1,8 @@
+## Round 666 follow-up — Birim arama + önizleme logo (#2283, #2276)
+- `#2283`: Birim ara haystack’inden gridde görünmeyen `departmentType` çıkarıldı; `müd` araması
+  yalnız ad/müdür/sorumlu alanlarında eşleşir (`Müdürlük` türü yanlış pozitif vermez).
+- `#2276`: Görünüm önizleme `MunicipalitySeal` çerçevesi `h-12` → `h-24` (2 kat).
+
 ## Round 666 — Sayfa Yetkileri grid etiketi (#2282); #2243 doğrulandı
 - `#2282`: Sayfa Yetkileri matrisinde `social` satırı `Vatandaş Talepleri (Whatsapp, Sms vb.)`
   olarak gösterilir; sol menü `nav.social` değişmez.

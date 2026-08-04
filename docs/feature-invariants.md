@@ -553,7 +553,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sosyal mesaj aynı `CitizenConversationId`'ye bağlıysa tüm ticket entry'lerini döndürür ve her entry kendi
   `socialMessageId`'sini taşır; medya indirme/gönder/düzenle aksiyonları entry'nin gerçek id'siyle çalışır.
 - **WhatsApp profil telefonu salt okunur:** sağ panelde `Numara` başındaki ülke kodu olmadan gösterilir,
-  kayıtta değiştirilemez; kaydedilen ad/etiket/adres metinleri Türkçe başlık biçimine normalize edilir.
+  kayıtta değiştirilemez; `Vatandaş Adı` düzenlenebilir ve yalnız `CitizenConversation` profiline
+  yazılır (`Job.CitizenName` talep bazlı ayrı kalır — card #2288). Kaydedilen ad/etiket/adres metinleri
+  Türkçe başlık biçimine normalize edilir.
 - **WhatsApp detay header sayaçları:** seçili konuşma header'ında durum kırılımları gösterilmez; yalnız
   seçili numaraya ait toplam `Talep Sayısı` hesaplanır ve tıklanınca Vatandaş Talepleri gridine telefon
   filtresiyle gider.
@@ -1870,9 +1872,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `resolveTenantAppearance`'da `...appearance` spread'i `logoUrl: null` bile olsa default'u ezer,
   bu default yalnız (a) hiç `TenantSetting` satırı olmayan yepyeni tenant'larda ve (b) "Varsayılana
   Dön"e elle basılınca devreye girer.
-- **Görünüm Önizleme logosu (#2276):** Yalnız Ayarlar > Görünüm önizlemesinde logo `bare`
-  `MunicipalitySeal` ile `h-20 w-20` sabit kalır; dekoratif çerçeve kullanılmaz. Sidebar/login
-  `MunicipalitySeal` ölçüleri etkilenmez.
+- **Görünüm Önizleme logosu (#2276):** Yalnız Ayarlar > Görünüm önizlemesinde logo çerçeveli
+  `MunicipalitySeal` ile `h-28 w-28` gösterilir; sidebar/login `MunicipalitySeal` ölçüleri etkilenmez.
+- **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
+  (`citizen-directory-tickets-table` scoped CSS).
 - **Vatandaş Bilgi Listesi Talep Kanalı (#2285):** `Talep Kanalı` sütunu `FilterableTh` ile
   filtrelenebilir ve sıralanabilir; etiket `sourceChannelLabel` üzerinden Türkçe kanal adıyla eşleşir.
 - **Birimler liste araması (#2283):** Birim ara kutusu yalnız birim adı, müdür ve sorumlu

@@ -2532,8 +2532,8 @@ export function SettingsPage() {
                 }}
               >
                 <MunicipalitySeal
-                  bare
-                  className="h-20 w-20 object-contain drop-shadow-[0_12px_24px_rgba(15,23,42,0.22)]"
+                  className="h-28 w-28 rounded-xl"
+                  imageClassName="h-[72%] w-[72%]"
                   src={previewAppearance.logoUrl ?? null}
                 />
                 <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>

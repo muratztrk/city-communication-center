@@ -2467,13 +2467,13 @@
     white-space: nowrap;
   }
 
-  /* #6a6cfd34: Vatandaş Talep No biraz büyüt; Öncelik küçük kalsın */
+  /* #2287: Vatandaş Talep No biraz küçült; Öncelik biraz büyüt */
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__value {
-    font-size: 0.95rem;
+    font-size: 0.86rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__priority {
-    font-size: 0.64rem;
+    font-size: 0.74rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table tbody td .truncate {
@@ -3475,7 +3475,7 @@
   .role-matrix-page-label-hint {
     display: block;
     margin-top: 0.1rem;
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     font-weight: 500;
     color: rgb(100 116 139);
   }

@@ -634,7 +634,14 @@ function ConversationProfilePanel({
         <div className="space-y-3">
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.citizenName', 'Vatandaş Adı')}</span>
-          <input className={disabledFieldClass} value={draft.citizenName} readOnly disabled />
+          <input
+            className={fieldClass}
+            maxLength={50}
+            value={draft.citizenName}
+            placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş adı')}
+            onChange={event => onDraftChange({ citizenName: event.target.value })}
+            onBlur={() => onDraftChange({ citizenName: normalizeTitleCaseField(draft.citizenName) ?? '' })}
+          />
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.phoneNumber', 'Numara')}</span>

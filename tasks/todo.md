@@ -1,3 +1,10 @@
+## Round 668 — Rol matris etiketleri, WA FAB, vatandaş listesi, footer logo (5 kart)
+- `#2284`: Sayfa Yetkileri social/mesaj onayı satırları iki satır + küçük parantez ipucu.
+- `#2276`: Görünüm önizleme logosu `bare` h-20 sabit; dekoratif çerçeve kaldırıldı.
+- `#1960`: Footer `/lumespec-logo.png` Trello’daki yeni siyah arka planlı wordmark ile güncellendi.
+- `#2286`: WhatsApp bildirim FAB yalnız `Operator` rolünde görünür.
+- `#2285`: Vatandaş Bilgi Listesi `Talep Kanalı` filtrelenebilir/sıralanabilir.
+
 ## Round 667 follow-up — Önizleme logo + mesaj onayı etiketi (#2276, #2284)
 - `#2276`: Görünüm önizleme çerçevesi `h-24` → `h-20`, iç logo `%96` (daha büyük logo, daha kısa çerçeve).
 - `#2284`: Sayfa Yetkileri gridinde `citizenMessageApproval` satırına `(Personelin cevap kontrolü)` eklendi.

@@ -30,9 +30,10 @@ import { printJobDetail } from './JobsPage'
 
 type DirectoryRow = CitizenConversationSummary & {
   displayName: string
+  sourceChannelLabel: string
 }
 
-const SEARCH_KEYS = ['displayName', 'citizenPhone', 'neighborhood', 'street', 'openAddress'] as const
+const SEARCH_KEYS = ['displayName', 'citizenPhone', 'sourceChannelLabel', 'neighborhood', 'street', 'openAddress'] as const
 
 function formatVt(ticket: CitizenConversationTicket): string {
   if (ticket.citizenRequestNumber != null && ticket.citizenRequestNumberYear != null) {
@@ -189,8 +190,9 @@ export function CitizenDirectoryPage() {
     () => rows.map(row => ({
       ...row,
       displayName: row.citizenName?.trim() || row.citizenPhone || '—',
+      sourceChannelLabel: row.sourceChannel ? getSocialChannelLabel(t, row.sourceChannel) : '',
     })),
-    [rows],
+    [rows, t],
   )
 
   const scopedRows = useMemo(() => {
@@ -370,7 +372,17 @@ export function CitizenDirectoryPage() {
                 >
                   {t('citizenDirectory.columns.phone', 'Numara')}
                 </FilterableTh>
-                <th className="text-center">{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
+                <FilterableTh
+                  filterKey="sourceChannelLabel"
+                  filterValue={filters.sourceChannelLabel ?? ''}
+                  onFilter={setFilter}
+                  sortKey="sourceChannelLabel"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={toggleSort}
+                >
+                  {t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}
+                </FilterableTh>
                 <FilterableTh
                   filterKey="neighborhood"
                   filterValue={filters.neighborhood ?? ''}

@@ -330,7 +330,7 @@ export function AppShell() {
   void accessVersion
 
   const canSeeWhatsAppNotifications = useMemo(
-    () => Boolean(user?.userId) || canAnyRoleAccessPage(getEffectiveUserRoles(user), 'social'),
+    () => getEffectiveUserRoles(user).includes('Operator'),
     [user, accessVersion],
   )
 

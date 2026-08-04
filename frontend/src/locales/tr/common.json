@@ -1309,8 +1309,10 @@
       "resetDefaults": "Varsayılanlara Dön",
       "managerLabel": "Birim Yöneticisi/Sorumluları",
       "pages": {
-        "social": "Vatandaş Talepleri (Whatsapp, Sms vb.)",
-        "citizenMessageApproval": "Vatandaşa Gönderilecek Mesaj Onayı (Personelin cevap kontrolü)"
+        "socialTitle": "Vatandaş Talepleri",
+        "socialHint": "(Whatsapp, Sms vb.)",
+        "citizenMessageApprovalTitle": "Vatandaşa Gönderilecek Mesaj Onayı",
+        "citizenMessageApprovalHint": "(Personelin cevap kontrolü)"
       }
     },
     "socialConfig": {

@@ -1292,8 +1292,10 @@
       "resetDefaults": "Reset Defaults",
       "managerLabel": "Unit Manager/Responsible",
       "pages": {
-        "social": "Citizen Incoming Requests (WhatsApp, SMS, etc.)",
-        "citizenMessageApproval": "Citizen Outbound Message Approval (Staff reply review)"
+        "socialTitle": "Citizen Incoming Requests",
+        "socialHint": "(WhatsApp, SMS, etc.)",
+        "citizenMessageApprovalTitle": "Citizen Outbound Message Approval",
+        "citizenMessageApprovalHint": "(Staff reply review)"
       }
     },
     "socialConfig": {

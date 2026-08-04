@@ -656,14 +656,21 @@ export function SettingsPage() {
     setSearchParams(next, { replace: true })
   }
 
-  const getRolePageLabel = (page: (typeof PAGE_ACCESS_ITEMS)[number]) => {
+  const renderRolePageLabel = (page: (typeof PAGE_ACCESS_ITEMS)[number]) => {
     if (page.key === 'social') {
-      return t('settings.roles.pages.social', 'Vatandaş Talepleri (Whatsapp, Sms vb.)')
+      return (
+        <span className="role-matrix-page-label">
+          <span className="role-matrix-page-label-title">{t('settings.roles.pages.socialTitle', 'Vatandaş Talepleri')}</span>
+          <span className="role-matrix-page-label-hint">{t('settings.roles.pages.socialHint', '(Whatsapp, Sms vb.)')}</span>
+        </span>
+      )
     }
     if (page.key === 'citizenMessageApproval') {
-      return t(
-        'settings.roles.pages.citizenMessageApproval',
-        'Vatandaşa Gönderilecek Mesaj Onayı (Personelin cevap kontrolü)',
+      return (
+        <span className="role-matrix-page-label">
+          <span className="role-matrix-page-label-title">{t('settings.roles.pages.citizenMessageApprovalTitle', 'Vatandaşa Gönderilecek Mesaj Onayı')}</span>
+          <span className="role-matrix-page-label-hint">{t('settings.roles.pages.citizenMessageApprovalHint', '(Personelin cevap kontrolü)')}</span>
+        </span>
       )
     }
     return t(page.labelKey)
@@ -2525,9 +2532,8 @@ export function SettingsPage() {
                 }}
               >
                 <MunicipalitySeal
-                  compact
-                  className="h-20 w-20 rounded-xl"
-                  imageClassName="!h-[96%] !w-[96%]"
+                  bare
+                  className="h-20 w-20 object-contain drop-shadow-[0_12px_24px_rgba(15,23,42,0.22)]"
                   src={previewAppearance.logoUrl ?? null}
                 />
                 <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>
@@ -2623,7 +2629,7 @@ export function SettingsPage() {
               <tbody>
                 {pagedPageAccessItems.map(page => (
                   <tr key={page.key}>
-                    <td className="font-semibold">{getRolePageLabel(page)}</td>
+                    <td className="font-semibold">{renderRolePageLabel(page)}</td>
                     {ROLE_CODES.map(role => {
                       const disabled = page.key === 'dashboard' || page.key === 'settings'
                       return (

@@ -3459,6 +3459,27 @@
     min-width: 13rem;
   }
 
+  .role-matrix-page-label {
+    display: block;
+    max-width: 13rem;
+    line-height: 1.25;
+  }
+
+  .role-matrix-page-label-title {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: rgb(15 23 42);
+  }
+
+  .role-matrix-page-label-hint {
+    display: block;
+    margin-top: 0.1rem;
+    font-size: 0.68rem;
+    font-weight: 500;
+    color: rgb(100 116 139);
+  }
+
   .admin-surface-menu .dropdown-menu-item {
     min-height: 2.6rem;
     padding: 0.6rem 0.9rem;

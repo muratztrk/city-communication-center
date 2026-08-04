@@ -533,9 +533,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Diğer sayaçlar `Tümü` satırının altındaki satırda kalır ve
   tıklanınca Vatandaş Talepleri gridini ilgili talep durumuyla (`requestStatus`) filtreler. Sol
   konuşma kartlarındaki aynı görünür durum kırılımı salt metin kalır.
-- **WhatsApp FAB ilgili kullanıcı görünürlüğü:** WhatsApp bildirim FAB'ı yalnız operatör/SistemAdmin için
-  aktif/açık konuşmalarda, diğer kullanıcılar için ise kendisine atanmış veya aktif departmanına yönlendirilmiş
-  terminal olmayan vatandaş taleplerinde görünür; tamamlandı/iptal/reddedilmiş konuşmalar ilgili kullanıcıdan gizlenir.
+- **WhatsApp FAB ilgili kullanıcı görünürlüğü (#2286):** WhatsApp bildirim FAB'ı yalnız
+  `Operator` (Vatandaş Talep Operatörü) rolünde görünür; SystemAdmin dahil diğer rollerde çıkmaz.
+  Konuşma listesi filtresi: aktif/açık konuşmalarda operatörler için; diğer kullanıcılar için
+  kendisine atanmış/aktif departmanına yönlendirilmiş terminal olmayan talepler (eski kural).
 - **WhatsApp birim içi konuşma notu:** `/whatsapp` footer'ındaki birim seçimi + `Birim İçi İlet` aksiyonu
   aynı konuşmaya iç mesaj kaydı ekler, vatandaşa WhatsApp gönderimi yapmaz; mesaj balonda iç mesaj etiketiyle
   görünür ve konuşma son mesaj zamanını günceller. Balondaki `Birim · Ad Soyad`, footer'da seçilen hedef
@@ -1101,9 +1102,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   SystemAdmin yalnız Ayarlar; CitizenRequestManager Anasayfa + talep/rutin oluştur + kendi/birim
   görevleri + talepleri + gelen + vatandaş mesaj onayı; Operator/Staff/Reporter kapsamları
   `DEFAULT_ALLOWED_PAGES_BY_ROLE` içinde açık allow-list’tir, gevşek “settings hariç hepsi” değildir.
-  Matris `social` satır etiketi menü metninden ayrıdır: `Vatandaş Talepleri (Whatsapp, Sms vb.)`
-  (#2282); `citizenMessageApproval` satırı `… (Personelin cevap kontrolü)` parantezini taşır
-  (#2284); sol menü `nav.*` etiketleri değişmez.
+  Matris `social` ve `citizenMessageApproval` satır etiketleri menü metninden ayrıdır; başlık +
+  küçük parantez ipucu iki satırda gösterilir (#2282/#2284); sol menü `nav.*` etiketleri değişmez.
 - **Dosya sunucusu test alanları (#6a6cb6ec):** NAS ve FTP kolonlarında ayrı bağlantı +
   kullanıcı giriş testi (ortak alt blok yok).
 - **NAS kullanıcı testi gerçek bir SMB bağlantısıdır (Round 657 / card #2226):** eskiden yalnız
@@ -1870,8 +1870,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `resolveTenantAppearance`'da `...appearance` spread'i `logoUrl: null` bile olsa default'u ezer,
   bu default yalnız (a) hiç `TenantSetting` satırı olmayan yepyeni tenant'larda ve (b) "Varsayılana
   Dön"e elle basılınca devreye girer.
-- **Görünüm Önizleme logosu (#2276):** Yalnız Ayarlar > Görünüm önizlemesindeki çerçeve
-  `h-20 w-20`, iç logo yaklaşık `%96` olur; sidebar/login `MunicipalitySeal` ölçüleri etkilenmez.
+- **Görünüm Önizleme logosu (#2276):** Yalnız Ayarlar > Görünüm önizlemesinde logo `bare`
+  `MunicipalitySeal` ile `h-20 w-20` sabit kalır; dekoratif çerçeve kullanılmaz. Sidebar/login
+  `MunicipalitySeal` ölçüleri etkilenmez.
+- **Vatandaş Bilgi Listesi Talep Kanalı (#2285):** `Talep Kanalı` sütunu `FilterableTh` ile
+  filtrelenebilir ve sıralanabilir; etiket `sourceChannelLabel` üzerinden Türkçe kanal adıyla eşleşir.
 - **Birimler liste araması (#2283):** Birim ara kutusu yalnız birim adı, müdür ve sorumlu
   adlarında arar; gridde görünmeyen `departmentType` (`Müdürlük` vb.) haystack'e dahil edilmez.
 - **Yeni Kullanıcı/Yeni Birim formunda Oluşturma Modu üstü LDAP ipucu** (card #2263):

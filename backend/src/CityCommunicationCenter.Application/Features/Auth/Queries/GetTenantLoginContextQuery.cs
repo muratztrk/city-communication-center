@@ -99,6 +99,7 @@ public sealed class GetTenantLoginContextQueryHandler : IQueryHandler<GetTenantL
                 settings.SidebarForegroundColor,
                 settings.LogoUrl,
                 settings.LoginBackgroundImageUrl,
+                settings.PreviousLogoUrl,
                 settings.IsCustomized);
         }
 

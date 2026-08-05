@@ -2286,9 +2286,9 @@
   }
 
   .departments-table .departments-manager-assign-actions-btn {
-    min-height: 1.95rem;
-    padding-inline: 0.75rem;
-    font-size: 0.75rem;
+    min-height: 1.85rem;
+    padding-inline: 0.65rem;
+    font-size: 0.6875rem;
   }
 
   .users-table thead,
@@ -2302,8 +2302,8 @@
   }
 
   .departments-table .departments-manager-assign-menu .dropdown-menu-item {
-    font-size: 0.75rem;
-    min-height: 1.65rem;
+    font-size: 0.8125rem;
+    min-height: 1.75rem;
   }
 
   .departments-table .departments-manager-assign-menu .dropdown-menu-footer button {

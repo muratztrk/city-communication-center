@@ -925,6 +925,7 @@ export function DepartmentsPage() {
                           searchPlaceholder={t('common.search', 'Ara...')}
                           className="min-w-52"
                           triggerClassName="text-xs"
+                          menuClassName="departments-manager-assign-menu"
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
                           menuPortal={false}
                         />

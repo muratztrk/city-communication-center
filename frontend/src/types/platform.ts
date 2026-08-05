@@ -659,6 +659,7 @@ export interface TenantAppearance {
   sidebarForegroundColor: string;
   logoUrl?: string | null;
   loginBackgroundImageUrl?: string | null;
+  previousLogoUrl?: string | null;
   isCustomized: boolean;
 }
 

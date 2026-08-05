@@ -583,6 +583,15 @@ export const api = {
     return result.logoUrl
   },
 
+  async restorePreviousTenantLogo(tenantId: string): Promise<TenantAppearance> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/appearance/logo/restore-previous`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.tenantLogoRestoreFailed', 'Önceki logo geri yüklenemedi.'))
+    return response.json() as Promise<TenantAppearance>
+  },
+
   async getWorkingHours(tenantId: string): Promise<WorkingHoursSettings> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/working-hours`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.workingHoursLoadFailed'))

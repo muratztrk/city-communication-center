@@ -135,6 +135,15 @@ public sealed class AdminController : ApiControllerBase
         return Ok(new UploadTenantLogoResponse(logoUrl));
     }
 
+    [HttpPost("tenants/{tenantId:guid}/appearance/logo/restore-previous")]
+    public async Task<ActionResult<TenantAppearanceResponse>> RestorePreviousTenantLogo(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        var appearance = await _sender.Send(new RestorePreviousTenantLogoCommand(tenantId), cancellationToken);
+        return Ok(appearance);
+    }
+
     [HttpGet("tenants/{tenantId:guid}/working-hours")]
     public async Task<ActionResult<WorkingHoursResponse>> GetWorkingHours(Guid tenantId, CancellationToken cancellationToken)
     {

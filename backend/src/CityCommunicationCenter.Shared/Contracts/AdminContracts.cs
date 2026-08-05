@@ -46,6 +46,7 @@ public sealed record TenantAppearanceResponse(
     string SidebarForegroundColor,
     string? LogoUrl,
     string? LoginBackgroundImageUrl,
+    string? PreviousLogoUrl,
     bool IsCustomized);
 
 public sealed record UpdateTenantAppearanceRequest(

@@ -390,7 +390,7 @@ export function SettingsPage() {
   const { user } = useAuth()
   // Modüler lisans (#WGDYIM79): Vatandaş modülü lisanslı değilse sosyal/yönlendirme/şablon sekmeleri gizlenir.
   const isCitizenModuleUsable = isModuleUsable('citizen')
-  const { appearance: tenantAppearance, setAppearance } = useTenantTheme()
+  const { setAppearance } = useTenantTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = readTab(searchParams.get('tab'))
   const [tenantSettings, setTenantSettings] = useState<TenantSettings>(EMPTY_TENANT_SETTINGS)
@@ -408,6 +408,8 @@ export function SettingsPage() {
   const [departments, setDepartments] = useState<Department[]>([])
   const logoFileInputRef = useRef<HTMLInputElement>(null)
   const [logoUploading, setLogoUploading] = useState(false)
+  const [previousLogoUrl, setPreviousLogoUrl] = useState<string | null>(null)
+  const [logoRestoring, setLogoRestoring] = useState(false)
   const [appearanceForm, setAppearanceForm] = useState<TenantAppearanceInput>({
     themePreset: DEFAULT_TENANT_APPEARANCE.themePreset,
     primaryColor: DEFAULT_TENANT_APPEARANCE.primaryColor,
@@ -567,6 +569,7 @@ export function SettingsPage() {
         })
         setTenantAuthenticationPolicy(authPolicyResponse)
         setAppearanceForm(nextAppearance)
+        setPreviousLogoUrl(appearanceResponse.previousLogoUrl ?? null)
         setSocialStatus(socialResponse)
         if (socialResponse.whatsAppPublic) {
           setSocialForms(current => ({
@@ -821,15 +824,45 @@ export function SettingsPage() {
     setLogoUploading(true)
     try {
       const logoUrl = await api.uploadTenantLogo(user.tenantId, file)
-      // Önizleme anında güncellensin (card #2234); kalıcı kayıt yine "Kaydet" ile olur.
+      // Yalnız önizleme formu güncellenir; sidebar/giriş logosu Kaydet sonrası (card #2312).
       setAppearanceForm(current => ({ ...current, logoUrl }))
-      // Logo içeren tüm görseller (sidebar, giriş ekranı) anında güncellensin (card #2251) —
-      // "Kaydet"e basılmadan önce de ThemeContext'e yansıt; diğer renk/tema alanlarını koru.
-      setAppearance({ ...tenantAppearance, logoUrl })
     } catch (uploadError) {
       setMessage({ type: 'error', text: uploadError instanceof Error ? uploadError.message : t('common.error') })
     } finally {
       setLogoUploading(false)
+    }
+  }
+
+  const restorePreviousLogo = async () => {
+    if (!user?.tenantId) return
+    setMessage(null)
+    setLogoRestoring(true)
+    try {
+      const refreshed = await api.restorePreviousTenantLogo(user.tenantId)
+      const nextAppearance = {
+        themePreset: refreshed.themePreset,
+        primaryColor: refreshed.primaryColor,
+        secondaryColor: refreshed.secondaryColor,
+        accentColor: refreshed.accentColor,
+        neutralColor: refreshed.neutralColor,
+        surfaceColor: refreshed.surfaceColor,
+        backgroundColor: refreshed.backgroundColor,
+        headerGradientFrom: refreshed.headerGradientFrom,
+        headerGradientTo: refreshed.headerGradientTo,
+        sidebarBackgroundColor: refreshed.sidebarBackgroundColor,
+        sidebarForegroundColor: refreshed.sidebarForegroundColor,
+        logoUrl: refreshed.logoUrl ?? null,
+        loginBackgroundImageUrl: refreshed.loginBackgroundImageUrl ?? null,
+      }
+      setAppearanceForm(nextAppearance)
+      setPreviousLogoUrl(refreshed.previousLogoUrl ?? null)
+      setAppearance(refreshed)
+      invalidateSettings(queryClient)
+      setMessage({ type: 'success', text: t('settings.previousLogoRestoreSuccess', 'Önceki logo geri yüklendi.') })
+    } catch (restoreError) {
+      setMessage({ type: 'error', text: restoreError instanceof Error ? restoreError.message : t('common.error') })
+    } finally {
+      setLogoRestoring(false)
     }
   }
 
@@ -861,6 +894,7 @@ export function SettingsPage() {
       }
 
       setAppearanceForm(nextAppearance)
+      setPreviousLogoUrl(refreshed.previousLogoUrl ?? null)
       setAppearance(refreshed)
       setMessage({ type: 'success', text: t('settings.appearanceSaveSuccess') })
     } catch (saveError) {
@@ -911,6 +945,7 @@ export function SettingsPage() {
       }
 
       setAppearanceForm(nextAppearance)
+      setPreviousLogoUrl(refreshed.previousLogoUrl ?? null)
       // Sidebar/giriş ekranı dahil tüm logo görselleri anında güncellensin (card #2261).
       setAppearance(refreshed)
       setMessage({ type: 'success', text: t('settings.appearanceSaveSuccess') })
@@ -2600,6 +2635,16 @@ export function SettingsPage() {
               </div>
               <div className="inline-actions">
                 <Button type="submit">{t('common.save')}</Button>
+                {previousLogoUrl ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={logoRestoring}
+                    onClick={() => void restorePreviousLogo()}
+                  >
+                    {logoRestoring ? t('common.loading') : t('settings.previousLogo', 'Önceki Kullanılan Logo')}
+                  </Button>
+                ) : null}
                 <Button type="button" variant="secondary" onClick={() => void resetAppearanceToDefault()}>{t('settings.reset', 'Varsayılana Dön')}</Button>
               </div>
             </form>

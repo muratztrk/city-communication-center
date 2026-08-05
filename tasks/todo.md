@@ -1,3 +1,10 @@
+## Round 675 — Logo kaydet + admin dropdown (5 kart)
+- `#2308`: Ek birimler/roller edit dropdown panel yüksekliği hafif arttı (`max-h-88` / `max-h-72`).
+- `#2311`: Birimler Yönetici Ata Müdür/Sorumlu dropdown metni büyütüldü.
+- `#2312`: Logo yükleme yalnız önizlemede; Kaydet'e kadar sidebar/giriş değişmez.
+- `#2313`: Kaydet sonrası Önceki Kullanılan Logo butonu + restore endpoint.
+- `#2295`: Birimler Yönetici Ata Kaydet/İptal biraz daha küçük.
+
 ## Round 674 — Users dropdown + arama temizleme + önizleme (3 kart)
 - `#2308`: Ek birimler trigger `min-h-8` + panel `max-h-80`; Ek roller trigger `min-h-7` + panel `max-h-64`.
 - `#1531`: Users/Birimler Yeni Ekle veya İptal → liste arama metni temizlenir.

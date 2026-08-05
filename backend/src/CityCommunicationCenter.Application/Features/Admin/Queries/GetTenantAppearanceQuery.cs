@@ -36,6 +36,7 @@ public sealed class GetTenantAppearanceQueryHandler : IQueryHandler<GetTenantApp
             settings.SidebarForegroundColor,
             settings.LogoUrl,
             settings.LoginBackgroundImageUrl,
+            settings.PreviousLogoUrl,
             settings.IsCustomized);
     }
 }

@@ -46,6 +46,8 @@ public sealed class UploadTenantLogoCommandHandler : ICommandHandler<UploadTenan
         var directory = Path.Combine(_uploadRootPath, request.TenantId.ToString(), "branding");
         Directory.CreateDirectory(directory);
 
+        BackupCurrentLogo(directory);
+
         // Sabit taban ad ("logo") — eski uzantılı dosyalar birikmesin diye önce temizlenir.
         foreach (var stale in Directory.EnumerateFiles(directory, "logo.*"))
         {
@@ -61,5 +63,26 @@ public sealed class UploadTenantLogoCommandHandler : ICommandHandler<UploadTenan
 
         // Sabit dosya adı tarayıcı önbelleğine takılmasın diye cache-bust query param.
         return $"/uploads/{request.TenantId}/branding/{storedFileName}?v={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
+    }
+
+    private static void BackupCurrentLogo(string directory)
+    {
+        var currentLogos = Directory.EnumerateFiles(directory, "logo.*")
+            .Where(path => !Path.GetFileName(path).StartsWith("logo-previous.", StringComparison.OrdinalIgnoreCase))
+            .ToList();
+
+        if (currentLogos.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var stale in Directory.EnumerateFiles(directory, "logo-previous.*"))
+        {
+            File.Delete(stale);
+        }
+
+        var currentLogo = currentLogos[0];
+        var backupPath = Path.Combine(directory, $"logo-previous{Path.GetExtension(currentLogo)}");
+        File.Copy(currentLogo, backupPath, overwrite: true);
     }
 }

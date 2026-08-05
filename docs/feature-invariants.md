@@ -1517,11 +1517,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `/uploads/` proxy location'ı bu round'da eklendi (`frontend/nginx.conf`) — önceden yalnız `/api/`,
   `/hubs/`, `/connect/`, `/health` proxy'liydi, aynı-origin dağıtımda `/uploads/...` SPA fallback'ine
   düşüp index.html dönerdi (var olan ek-önizleme özellikleri için de gizli bir bug'dı).
-- **Kurum Logosu "Ekle" ile seçilince tüm logo görselleri (sidebar, giriş ekranı) "Kaydet"e
-  basmadan anında güncellenir (card #2251):** `SettingsPage.uploadLogo` yalnız yerel `appearanceForm`'u
-  değil, `useTenantTheme().setAppearance({ ...tenantAppearance, logoUrl })` ile ThemeContext'i de günceller
-  (`AppShell`/`LoginPage`'deki `MunicipalitySeal` buradan okur). Yeni bir görünüm alanı eklersen aynı
-  anlık-yansıma deseninden emin ol.
+- **Kurum Logosu yükleme (#2312 / eski #2251 iptal):** `uploadLogo` yalnız `appearanceForm.logoUrl`
+  günceller (önizleme); sidebar/giriş logosu `ThemeContext` ancak Görünüm **Kaydet** veya
+  **Önceki Kullanılan Logo** sonrası güncellenir. Upload sırasında mevcut dosya `logo-previous.*`
+  olarak yedeklenir.
+- **Önceki logo (#2313):** logo değişikliği Kaydet sonrası `PreviousLogoUrl` saklanır; Kaydet yanında
+  **Önceki Kullanılan Logo** butonu görünür (`POST .../appearance/logo/restore-previous`).
 - **Anasayfa breadcrumb'ı kök rotalarda ikinci "Anasayfa" segmentini göstermez (card #2248):**
   `AppShell.tsx`'teki `isDashboardRoot` (`/dashboard` veya `/dashboard/birimler`) `currentBreadcrumbSegment`'i
   `undefined` yapar — "Ana Sayfa" (home butonu) zaten aynı yeri temsil ediyor, ikinci pill gereksiz tekrardı.
@@ -1905,16 +1906,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).
 - **Ayarlar önizleme (#2305 reopen):** logo dış oval çerçeve yüksekliği `h-22 w-36` (logo ~%88).
 - **Kullanıcı düzenle Ek birimler (#2308 reopen):** birincil birim hücresi gri; ek birimler dropdown
-  tetikleyicisi beyaz zemin + `min-h-8`; panel `max-h-80`. Ek roller tetikleyicisi `min-h-7`; panel
-  `max-h-64`.
+  tetikleyicisi beyaz zemin + `min-h-8`; panel `max-h-88`. Ek roller tetikleyicisi `min-h-7`; panel
+  `max-h-72`.
+- **Birimler Yönetici Ata dropdown (#2311):** Müdür/Sorumlu panel öğe metni `0.8125rem`.
+- **Birimler Yönetici Ata Kaydet/İptal (#2295 reopen):** `1.85rem` yükseklik, `0.6875rem` punto.
 - **Users/Birimler liste araması (#1531):** Yeni Kullanıcı/Birim Ekle veya İptal ile form
   açılıp/kapanırken `userSearchText` / `deptSearchText` temizlenir.
 - **Log birim audit metni (#2302 reopen):** `Department` entity logları Detay'da `Birim: {ad}` gösterir;
   güncellemede `Birim: eski → yeni`; ham `Department '…'` İngilizce metni kullanıcıya basılmaz.
   `GetAuditLogsQuery` silinen birim adını `Details`'ten parse eder.
 - **Birim sil onay (#2294 reopen):** Sil/İptal eşit genişlikte (`min-width: 4.75rem`).
-- **Users/Birimler düzenle butonları (#2295 reopen):** Users Kaydet/İptal hafif büyük (`2.12rem`);
-  Birimler Yönetici Ata Kaydet/İptal daha küçük (`1.95rem`, `0.75rem`).
+- **Users düzenle Kaydet/İptal (#2295):** hafif büyük (`2.12rem`).
 
 ## 6. Tenant / Auth
 

@@ -9,7 +9,10 @@
     <link rel="apple-touch-icon" href="/favicon.png" />
     <script>
       (function () {
-        var icon = location.hostname.indexOf('lumespec.com') >= 0 ? '/lumespec-icon.png' : '/favicon.png'
+        var host = location.hostname
+        var icon = host.indexOf('lumespec.com') >= 0 || host === 'testtim.tire.bel.tr'
+          ? '/lumespec-icon.png'
+          : '/favicon.png'
         document.querySelectorAll('link[rel="icon"], link[rel="shortcut icon"], link[rel="apple-touch-icon"]').forEach(function (link) {
           link.href = icon
           link.type = 'image/png'

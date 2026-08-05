@@ -210,6 +210,18 @@ export function applyTenantAppearance(appearance: TenantAppearance): void {
   root.dataset.themePreset = appearance.themePreset
 }
 
+const LUMESPEC_FAVICON_HOSTS = new Set([
+  'testtim.tire.bel.tr',
+])
+
+export function usesLumespecBrowserIcon(hostname: string): boolean {
+  if (hostname.includes('lumespec.com')) {
+    return true
+  }
+
+  return LUMESPEC_FAVICON_HOSTS.has(hostname)
+}
+
 export function resolveBrowserIconUrl(hostname?: string): string {
   const configured = (import.meta.env.VITE_FAVICON_URL ?? '').trim()
   if (configured) {
@@ -217,7 +229,7 @@ export function resolveBrowserIconUrl(hostname?: string): string {
   }
 
   const host = hostname ?? (typeof window !== 'undefined' ? window.location.hostname : '')
-  if (host.includes('lumespec.com')) {
+  if (usesLumespecBrowserIcon(host)) {
     return '/lumespec-icon.png'
   }
 

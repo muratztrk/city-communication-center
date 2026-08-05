@@ -1815,9 +1815,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dışında kaldığında login formunda gösterilir + `/connect/token`, `session/login`,
   `interactive/start` (kimlik bilgisi gönderildiğinde) sunucuda `siteverify` ile doğrulanır.
   Trusted ağ / exchange ticket (`auth-ticket:`) isteklerinde CAPTCHA zorunlu değildir.
-- **Tarayıcı sekmesi ikonu:** Prod (`*.tire.bel.tr`) Tire `favicon.png`; demo/Lumespec host
-  (`*.lumespec.com`) `lumespec-icon.png` (logo metni olmadan yalnız katman ikonu). İsteğe bağlı
-  build override: `VITE_FAVICON_URL`.
+- **Tarayıcı sekmesi ikonu:** Prod (`*.tire.bel.tr`, `testtim` hariç) Tire `favicon.png`; demo/Lumespec
+  host (`*.lumespec.com`, `testtim.tire.bel.tr`) `lumespec-icon.png` (logo metni olmadan yalnız katman
+  ikonu). İsteğe bağlı build override: `VITE_FAVICON_URL`.
 - **Birim içi JobCreated bildirim başlığı (#6a6ca1d4):** InternalUnit →
   `Birim İçi Talep oluşturuldu` (yönetici feed).
 - **Bildirim modal tarih = Ara (#6a6c6a6d):** başlangıç/bitiş alanları Ara textbox ile aynı

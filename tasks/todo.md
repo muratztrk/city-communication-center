@@ -1,4 +1,4 @@
-## Round 672 — Reopen düzeltmeleri + arama eşiği (8 kart)
+## Round 672 — Reopen düzeltmeleri + arama eşiği (9 kart)
 - `#2299`: WA beklemedeki mesaj Düzenle — balon yüksekliği kilit + sabit aksiyon satırı.
 - `#2300`: Kurum İçi FAB panel/liste/konuşma `whatsapp-chat-bg` zemini.
 - `#2303`: Yerel birim oluşturma başarı → ConfirmDialog popup (toast değil).

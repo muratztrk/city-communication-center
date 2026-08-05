@@ -2268,8 +2268,8 @@
   .users-table .users-edit-row-actions .btn,
   .users-table .users-edit-row-actions button,
   .users-table .users-edit-row-actions-btn {
-    min-height: 2.05rem;
-    padding-inline: 0.85rem;
+    min-height: 2.12rem;
+    padding-inline: 0.92rem;
     font-size: 0.8125rem;
   }
 
@@ -2286,9 +2286,9 @@
   }
 
   .departments-table .departments-manager-assign-actions-btn {
-    min-height: 2.15rem;
-    padding-inline: 0.95rem;
-    font-size: 0.875rem;
+    min-height: 2.05rem;
+    padding-inline: 0.85rem;
+    font-size: 0.8125rem;
   }
 
   .users-table thead,

@@ -36,7 +36,6 @@ import {
 import { isModuleUsable } from '../lib/licenseModules'
 import type {
   Department,
-  RoutingConfig,
   CitizenAutoReplyTemplates,
   SocialSettingsStatus,
   TenantAppearance,
@@ -424,7 +423,6 @@ export function SettingsPage() {
   const [tenantLdapSettings, setTenantLdapSettings] = useState<TenantLdapFormState>(EMPTY_TENANT_LDAP_SETTINGS)
   const [tenantAuthenticationPolicy, setTenantAuthenticationPolicy] = useState<TenantAuthenticationPolicy>(EMPTY_TENANT_AUTH_POLICY)
   const [socialStatus, setSocialStatus] = useState<SocialSettingsStatus | null>(null)
-  const [routingConfig, setRoutingConfig] = useState<RoutingConfig | null>(null)
   const [citizenAutoReplyTemplates, setCitizenAutoReplyTemplates] = useState<CitizenAutoReplyTemplates>(DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES)
   const [citizenAutoReplySaving, setCitizenAutoReplySaving] = useState(false)
   const [departments, setDepartments] = useState<Department[]>([])
@@ -432,9 +430,7 @@ export function SettingsPage() {
   const loginLogoFileInputRef = useRef<HTMLInputElement>(null)
   const popupLogoFileInputRef = useRef<HTMLInputElement>(null)
   const [logoUploading, setLogoUploading] = useState<TenantLogoKind | null>(null)
-  const [previousLogoUrl, setPreviousLogoUrl] = useState<string | null>(null)
-  const [previousLoginLogoUrl, setPreviousLoginLogoUrl] = useState<string | null>(null)
-  const [logoRestoring, setLogoRestoring] = useState<TenantLogoKind | null>(null)
+  const [menuLogoSelected, setMenuLogoSelected] = useState(false)
   const [pendingLogoFiles, setPendingLogoFiles] = useState<Partial<Record<'login' | 'popup', File>>>({})
   const [appearanceForm, setAppearanceForm] = useState<TenantAppearanceInput>({
     themePreset: DEFAULT_TENANT_APPEARANCE.themePreset,
@@ -553,7 +549,6 @@ export function SettingsPage() {
       api.getTenantAuthenticationPolicy(user.tenantId),
       api.getTenantAppearance(user.tenantId),
       api.getSocialSettingsStatus(),
-      api.getRoutingConfig(),
       api.getCitizenAutoReplyTemplates(user.tenantId),
       api.getDepartments(),
       api.getWorkingHours(user.tenantId),
@@ -563,7 +558,7 @@ export function SettingsPage() {
       api.getSlaWeekendSettings(user.tenantId),
       api.getWhatsAppTemplates(),
     ])
-      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, routingResponse, autoReplyResponse, departmentResponse, workingHoursResponse, smsResponse, fileStorageResponse, syslogResponse, slaWeekendResponse, templatesResponse]) => {
+      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, autoReplyResponse, departmentResponse, workingHoursResponse, smsResponse, fileStorageResponse, syslogResponse, slaWeekendResponse, templatesResponse]) => {
         if (!isActive) {
           return
         }
@@ -583,8 +578,7 @@ export function SettingsPage() {
         })
         setTenantAuthenticationPolicy(authPolicyResponse)
         setAppearanceForm(nextAppearance)
-        setPreviousLogoUrl(appearanceResponse.previousLogoUrl ?? null)
-        setPreviousLoginLogoUrl(appearanceResponse.previousLoginLogoUrl ?? null)
+        setMenuLogoSelected(false)
         setSocialStatus(socialResponse)
         if (socialResponse.whatsAppPublic) {
           setSocialForms(current => ({
@@ -599,7 +593,6 @@ export function SettingsPage() {
             },
           }))
         }
-        setRoutingConfig(routingResponse)
         setCitizenAutoReplyTemplates({ ...DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES, ...autoReplyResponse })
         setDepartments(departmentResponse)
         setSlaWeekendForm({
@@ -835,8 +828,7 @@ export function SettingsPage() {
 
   const applyAppearanceRefresh = (refreshed: TenantAppearance) => {
     setAppearanceForm(toAppearanceForm(refreshed))
-    setPreviousLogoUrl(refreshed.previousLogoUrl ?? null)
-    setPreviousLoginLogoUrl(refreshed.previousLoginLogoUrl ?? null)
+    setMenuLogoSelected(false)
     setAppearance(refreshed)
   }
 
@@ -886,6 +878,7 @@ export function SettingsPage() {
         ...current,
         logoUrl,
       }))
+      setMenuLogoSelected(true)
     } catch (uploadError) {
       setMessage({ type: 'error', text: uploadError instanceof Error ? uploadError.message : t('common.error') })
     } finally {
@@ -893,34 +886,28 @@ export function SettingsPage() {
     }
   }
 
-  const restorePreviousLogo = async (kind: TenantLogoKind) => {
-    if (!user?.tenantId) return
-    setMessage(null)
-    setLogoRestoring(kind)
-    try {
-      const refreshed = await api.restorePreviousTenantLogo(user.tenantId, kind)
-      if (kind === 'login' || kind === 'popup') {
-        setPendingLogoFiles(current => {
-          const next = { ...current }
-          delete next[kind]
-          return next
-        })
-      }
-      applyAppearanceRefresh(refreshed)
-      invalidateSettings(queryClient)
-      setMessage({
-        type: 'success',
-        text: kind === 'login'
-          ? t('settings.previousLoginLogoRestoreSuccess', 'Önceki login logosu geri yüklendi.')
-          : kind === 'popup'
-            ? t('settings.previousPopupLogoRestoreSuccess', 'Önceki popup logosu geri yüklendi.')
-            : t('settings.previousLogoRestoreSuccess', 'Önceki logo geri yüklendi.'),
-      })
-    } catch (restoreError) {
-      setMessage({ type: 'error', text: restoreError instanceof Error ? restoreError.message : t('common.error') })
-    } finally {
-      setLogoRestoring(null)
-    }
+  const confirmResetPopupLogo = () => {
+    setConfirmDialog({
+      title: t('settings.popupLogoDelete', 'Pop up Logosu Sil'),
+      titleDivider: true,
+      message: t('settings.popupLogoDeleteConfirm', 'Pop up logosu silinsin mi?'),
+      confirmLabel: t('common.delete', 'Sil'),
+      cancelLabel: t('common.cancel', 'İptal'),
+      variant: 'destructive',
+      onConfirm: () => void resetPopupLogo(),
+    })
+  }
+
+  const confirmResetAppearanceToDefault = () => {
+    setConfirmDialog({
+      title: t('settings.reset', 'Varsayılana Dön'),
+      titleDivider: true,
+      message: t('settings.appearanceResetConfirm', 'Görünüm ayarları varsayılana döndürülsün mü?'),
+      confirmLabel: t('settings.reset', 'Varsayılana Dön'),
+      cancelLabel: t('common.cancel', 'İptal'),
+      variant: 'destructive',
+      onConfirm: () => void resetAppearanceToDefault(),
+    })
   }
 
   const resetPopupLogo = async () => {
@@ -983,7 +970,7 @@ export function SettingsPage() {
       sidebarBackgroundColor: DEFAULT_TENANT_APPEARANCE.sidebarBackgroundColor,
       sidebarForegroundColor: DEFAULT_TENANT_APPEARANCE.sidebarForegroundColor,
       logoUrl: DEFAULT_TENANT_APPEARANCE.logoUrl ?? null,
-      loginLogoUrl: null,
+      loginLogoUrl: DEFAULT_TENANT_APPEARANCE.logoUrl ?? null,
       popupLogoUrl: null,
       loginBackgroundImageUrl: null,
     }
@@ -1311,23 +1298,6 @@ export function SettingsPage() {
       setMessage({ type: 'success', text: t('settings.authSaveSuccess') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
-    }
-  }
-
-  const toggleRouting = async () => {
-    if (!routingConfig) {
-      return
-    }
-
-    setMessage(null)
-    try {
-      const nextValue = !routingConfig.autoRoutingEnabled
-      await api.toggleAutoRouting(nextValue)
-      invalidateSettings(queryClient)
-      setRoutingConfig(current => current ? { ...current, autoRoutingEnabled: nextValue } : current)
-      setMessage({ type: 'success', text: nextValue ? t('settings.routing.toggleOn') : t('settings.routing.toggleOff') })
-    } catch (toggleError) {
-      setMessage({ type: 'error', text: toggleError instanceof Error ? toggleError.message : t('common.error') })
     }
   }
 
@@ -2612,7 +2582,7 @@ export function SettingsPage() {
                 }}
               >
                 <MunicipalitySeal
-                  className="h-22 w-36 rounded-[1.35rem]"
+                  className="h-22 w-40 rounded-[1.35rem]"
                   imageClassName="h-[88%] w-[88%]"
                   src={previewAppearance.logoUrl ?? null}
                 />
@@ -2674,7 +2644,11 @@ export function SettingsPage() {
                     disabled={logoUploading === 'institution'}
                     onClick={() => logoFileInputRef.current?.click()}
                   >
-                    {logoUploading === 'institution' ? t('common.loading') : t('settings.menuLogoAdd', 'Menü Logosu Ekle')}
+                    {logoUploading === 'institution'
+                      ? t('common.loading')
+                      : menuLogoSelected
+                        ? t('settings.menuLogoSelected', 'Menü logosu seçildi')
+                        : t('settings.menuLogoAdd', 'Menü Logosu Ekle')}
                   </Button>
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -2706,9 +2680,9 @@ export function SettingsPage() {
                     </Button>
                     <Button
                       type="button"
-                      variant="secondary"
+                      variant="destructive"
                       className="flex-1"
-                      onClick={() => void resetPopupLogo()}
+                      onClick={confirmResetPopupLogo}
                     >
                       {t('settings.popupLogoDelete', 'Pop up Logosu Sil')}
                     </Button>
@@ -2741,29 +2715,11 @@ export function SettingsPage() {
                   </Button>
                 </label>
               </div>
-              <div className="inline-actions flex-wrap">
+              <div className="flex flex-wrap items-center justify-end gap-3">
+                <Button type="button" variant="secondary" onClick={confirmResetAppearanceToDefault}>
+                  {t('settings.reset', 'Varsayılana Dön')}
+                </Button>
                 <Button type="submit">{t('common.save')}</Button>
-                {previousLogoUrl ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={logoRestoring === 'institution'}
-                    onClick={() => void restorePreviousLogo('institution')}
-                  >
-                    {logoRestoring === 'institution' ? t('common.loading') : t('settings.previousLogo', 'Önceki Kullanılan Logo')}
-                  </Button>
-                ) : null}
-                {previousLoginLogoUrl ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={logoRestoring === 'login'}
-                    onClick={() => void restorePreviousLogo('login')}
-                  >
-                    {logoRestoring === 'login' ? t('common.loading') : t('settings.previousLoginLogo', 'Önceki Kullanılan Login Page Logo')}
-                  </Button>
-                ) : null}
-                <Button type="button" variant="secondary" onClick={() => void resetAppearanceToDefault()}>{t('settings.reset', 'Varsayılana Dön')}</Button>
               </div>
             </form>
           </div>
@@ -2919,26 +2875,17 @@ export function SettingsPage() {
         </div>
       ) : null}
 
-      {activeTab === 'routing' && routingConfig ? (
+      {activeTab === 'routing' ? (
         <div className="page-stack">
           <section className="section-card page-stack">
-            <div className="page-header-row">
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.title')}</h2>
-                <p className="helper-copy">{t('settings.routing.description')}</p>
-              </div>
-              <Button type="button" variant="secondary" onClick={() => void toggleRouting()}>
-                {routingConfig.autoRoutingEnabled ? t('common.enabled') : t('common.disabled')}
-              </Button>
-            </div>
-          </section>
-
-          <section className="section-card page-stack flex flex-col">
             <div className="page-header-row">
               <div>
                 <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.autoRepliesTitle', 'Vatandaşa Giden Cevaplar')}</h2>
                 <p className="helper-copy">{t('settings.routing.autoRepliesDescription', 'Vatandaş talebi durumlarına göre otomatik gönderilecek taslak cevapları düzenleyin.')}</p>
               </div>
+              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySaving}>
+                {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              </Button>
             </div>
             <div className="grid gap-4 md:grid-cols-4">
               {([
@@ -2961,11 +2908,6 @@ export function SettingsPage() {
             <p className="text-xs font-medium text-slate-500">
               {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı ve {GönderilenBirim}.')}
             </p>
-            <div className="inline-actions mt-auto justify-end">
-              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySaving}>
-                {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
-              </Button>
-            </div>
           </section>
 
         </div>

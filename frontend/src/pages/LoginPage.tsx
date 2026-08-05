@@ -44,16 +44,10 @@ const EMPTY_SECURITY_STATE: SecurityState = {
 }
 
 const LOGIN_LOGO_LIGHT_SRC = '/tire-belediyesi-logo.png'
-const DEFAULT_INSTITUTION_LOGO_SRC = '/default-institution-logo.png'
 
 function resolveLoginLogoUrl(logoUrl?: string | null): string {
   const trimmed = logoUrl?.trim()
   if (!trimmed) {
-    return LOGIN_LOGO_LIGHT_SRC
-  }
-
-  const pathOnly = trimmed.split('?')[0]
-  if (pathOnly === DEFAULT_INSTITUTION_LOGO_SRC) {
     return LOGIN_LOGO_LIGHT_SRC
   }
 

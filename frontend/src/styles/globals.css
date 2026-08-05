@@ -2286,9 +2286,9 @@
   }
 
   .departments-table .departments-manager-assign-actions-btn {
-    min-height: 1.6rem;
-    padding-inline: 0.5rem;
-    font-size: 0.6rem;
+    min-height: 1.5rem;
+    padding-inline: 0.45rem;
+    font-size: 0.5625rem;
   }
 
   .users-table thead,
@@ -5865,7 +5865,7 @@
 
   /* Sayfa Yetkileri: Kaydet FAB solunda; biraz sağa alındı (#r451/#r453/#r459). */
   .settings-roles-actions {
-    padding-right: max(0px, calc(var(--fab-inline-clearance) - 3rem));
+    padding-right: max(0px, calc(var(--fab-inline-clearance) - 1rem));
   }
 
   .whatsapp-notification-fab-panel {

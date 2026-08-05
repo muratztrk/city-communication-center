@@ -788,9 +788,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1251).
 - **Vatandaş Talepleri breadcrumb:** `/social` sayfasında `Vatandaş İlişkileri` ara katmanı
   gösterilmez; breadcrumb doğrudan `Anasayfa > Vatandaş Talepleri` olur (card #1262).
-- **Login logosu (#2315 / #2318):** Login ekranı `appearance.loginLogoUrl` kullanır (kurum logosu
-  `logoUrl` değil); kayıtlı değer yoksa `/tire-belediyesi-logo.png`. Önizleme/yükleme anında değil,
-  Görünüm **Kaydet** veya **Önceki Kullanılan Login Page Logo** sonrası geçerli olur.
+- **Login logosu (#2315 / #2318 / #2326):** Login ekranı `appearance.loginLogoUrl` kullanır; boşsa
+  `/tire-belediyesi-logo.png`, kayıtlı `/default-institution-logo.png` lumespec wordmark. Login/popup upload
+  **Kaydet** sonrası uygulanır.
 - **Login logo oval çerçeve (#2316):** desktop `h-15 w-36` (`2xl:h-[4.25rem]`); mobil
   `h-[4.5rem]` (`sm:h-[6.25rem]`).
 - **Mobil login Atatürk görseli:** `/header-ataturk.png` (beyaz silüet) sayfa sol üst köşesinde
@@ -1521,20 +1521,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   location'ı bu round'da eklendi (`frontend/nginx.conf`) — önceden yalnız `/api/`, `/hubs/`, `/connect/`,
   `/health` proxy'liydi, aynı-origin dağıtımda `/uploads/...` SPA fallback'ine düşüp index.html dönerdi
   (var olan ek-önizleme özellikleri için de gizli bir bug'dı).
-- **Üç logo türü (#2318 / #2314 / #2322 / #2323):** `logoUrl` (sidebar/menü), `loginLogoUrl` (login),
+- **Üç logo türü (#2318 / #2322 / #2325 / #2326):** `logoUrl` (sidebar/menü), `loginLogoUrl` (login),
   `popupLogoUrl` (detay popup header). Ayarlar > Görünüm'de **Menü Logosu** | Pop up yan yana; Login Page
-  alt satırda. Popup: **Pop up Logosu Ekle** (yarım genişlik) + **Pop up Logosu Sil** (anında kaydeder);
-  önceki popup logo geri yükleme ve **Pop up Varsayılana Dön** kaldırıldı (#2322/#2323).
-- **Menü logosu etiketi (#2321):** Görünüm bölümünde kurum logosu UI metni **Menü Logosu** / **Menü Logosu
-  Ekle**; teknik alan hâlâ `logoUrl`.
-- **Kurum/Menü logosu yükleme (#2312 / eski #2251 iptal):** `uploadLogo(..., 'institution')` yalnız
-  `appearanceForm.logoUrl` günceller (önizleme); dosya seçiminde API'ye yüklenir. `ThemeContext` ancak
-  Görünüm **Kaydet** veya ilgili **Önceki Kullanılan … Logo** sonrası güncellenir.
-- **Login / Pop up logosu (#2318 reopen):** dosya seçimi yalnız `pendingLogoFiles` staging yapar; API
-  upload + DB kaydı **Kaydet** sonrası. Seçim anında login/popup ekranları değişmez.
-- **Önceki logo (#2313):** logo değişikliği Kaydet sonrası `PreviousLogoUrl` / `PreviousLoginLogoUrl` /
-  `PreviousPopupLogoUrl` saklanır; Kaydet yanında ilgili **Önceki Kullanılan … Logo** butonu görünür
-  (`POST .../appearance/logo/restore-previous?kind=...`).
+  alt satırda. Popup: **Pop up Logosu Ekle** + kırmızı **Pop up Logosu Sil** (onaylı). **Varsayılana Dön**
+  menü+login'i lumespec default'a ve popup'ı temizler; önceki logo geri yükleme butonları yok. Alt satır:
+  sağa yaslı `[Varsayılana Dön][Kaydet]` (ikisi de onaylı).
+- **Menü logosu etiketi (#2321 / #2327):** Görünüm'de **Menü Logosu** / **Menü Logosu Ekle**; dosya seçiminde
+  **Menü logosu seçildi**; teknik alan `logoUrl`.
+- **Kurum/Menü logosu yükleme (#2312):** `uploadLogo(..., 'institution')` form önizlemesi; `ThemeContext`
+  **Kaydet** sonrası.
+- **Login / Pop up logosu (#2318):** dosya seçimi staging; upload + DB **Kaydet** sonrası.
+- **Login logosu fallback (#2315 / #2326):** `loginLogoUrl` boşsa `/tire-belediyesi-logo.png`; kayıtlı
+  `/default-institution-logo.png` lumespec wordmark (tire'e map edilmez).
 - **Anasayfa breadcrumb'ı kök rotalarda ikinci "Anasayfa" segmentini göstermez (card #2248):**
   `AppShell.tsx`'teki `isDashboardRoot` (`/dashboard` veya `/dashboard/birimler`) `currentBreadcrumbSegment`'i
   `undefined` yapar — "Ana Sayfa" (home butonu) zaten aynı yeri temsil ediyor, ikinci pill gereksiz tekrardı.

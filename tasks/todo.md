@@ -1,3 +1,12 @@
+## Round 681 — Ayarlar görünüm/yönlendirme polish (7 kart)
+- `#2325`: Pop up Sil kırmızı + onay; Kaydet sağda, Varsayılana Dön solunda + onay.
+- `#2326`: Varsayılana Dön login=lumespec default + popup sil; önceki logo butonları kaldırıldı.
+- `#2327`: Menü logosu seçildi buton metni.
+- `#2328`: Önizleme çerçeve genişliği `w-40` (yükseklik/logo aynı).
+- `#2324`: Otomatik Yönlendirme kutusu kaldırıldı; Kaydet başlıkta.
+- `#2329`: Sayfa Yetkileri Kaydet FAB'a yaklaştırıldı.
+- `#2295`: Birimler Yönetici Ata Kaydet/İptal küçültüldü.
+
 ## Round 680 — Ayarlar görünüm/yönlendirme + admin UI (6 kart)
 - `#2321`: Görünüm'de Kurum Logosu → Menü Logosu metinleri.
 - `#2322`: Pop up önceki logo kaldırıldı; Ekle %50 genişlik + Pop up Logosu Sil.

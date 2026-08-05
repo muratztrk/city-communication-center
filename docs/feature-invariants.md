@@ -1872,8 +1872,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Anasayfa metrik kartlarında başlık/alt-başlık ayrımı `sublabel` alanıyla yapılır** (card #2259):
   `MetricCard.sublabel` alt satırda `normal-case tracking-normal` ile basılır — yeni bir metrik
   kartı eklerken uzun bileşik ifadeleri (`"X Y Z"`) `label`+`sublabel` olarak böl, tek satıra sıkıştırma.
-  `sublabel`sız kartlarda değer (`metric.value`) `mt-0.5` ALMAZ (card #2261/#2259 reopen) — sublabel'lı
-  komşularıyla dikey hizası böyle tutuluyor.
+  `sublabel`sız kartlarda da label bloğu `min-h-[2.75rem]` ile sublabel'lı komşularla aynı
+  yükseklikte kalır; değer ikinci grid satırında, ikon `row-span-2 self-center` ile ortalanır.
 - **Ayarlar > Görünüm "Varsayılana Dön" artık gerçekten fabrika ayarına döner ve anında kaydeder**
   (card #2261, eskiden "Yüklü Değerlere Dön" = son kaydedilen değerlere dönerdi): `SettingsPage`
   `resetAppearanceToDefault()` — `DEFAULT_TENANT_APPEARANCE` değerlerini (logo dahil) backend'e kaydeder,

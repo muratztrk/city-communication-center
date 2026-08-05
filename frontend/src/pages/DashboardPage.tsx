@@ -562,17 +562,13 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           navigate(metric.path)
         }}
       >
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
-              {metric.label}
-              {metric.sublabel ? <span className="block normal-case tracking-normal">{metric.sublabel}</span> : null}
-            </div>
-            {/* Sublabel'ı olmayan kartlarda değer bir tık yukarı çekilir — sublabel'lı
-                komşularıyla aynı hizada dursun (card #2261). */}
-            <div className={`text-2xl font-extrabold text-slate-950${metric.sublabel ? ' mt-0.5' : ''}`}>{metric.value ?? '...'}</div>
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-3 gap-y-0.5">
+          <div className="col-start-1 row-start-1 min-h-[2.75rem] text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
+            {metric.label}
+            {metric.sublabel ? <span className="block normal-case tracking-normal">{metric.sublabel}</span> : null}
           </div>
-          <div className={`flex size-9 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
+          <div className="col-start-1 row-start-2 text-2xl font-extrabold leading-none text-slate-950">{metric.value ?? '...'}</div>
+          <div className={`col-start-2 row-span-2 flex size-9 shrink-0 items-center justify-center self-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
             <Icon className="size-4" />
           </div>
         </div>

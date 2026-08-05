@@ -1586,7 +1586,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).
 - **WA chat footer Birim/Kurum İçi (#r460):** şablon satırında `ml-auto` sağa yaslı (bir satır yukarı).
 - **Sayfa Yetkileri (#1893/#r449/#r451/#r453/#r455/#r459):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
-  Kaydet FAB solunda (`--fab-inline-clearance - 3rem`); Kaydet `min-w-[13rem]` (#r455).
+  Kaydet Kurum İçi Mesajlar FAB solunda (`--fab-inline-clearance - 5rem`); Kaydet `min-w-[13rem]` (#r455).
 - **Birimler Yönetici Ata (#r453):** Sorumlu/Müdür açılır panel genişliği trigger ile aynı
   (`users-edit-dropdown-menu` max-width yok); Yeni Birim Ekle açınca yarım kalan satır
   aksiyonları (Yönetici Ata/Sil/Düzenle) temizlenir.
@@ -1884,7 +1884,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bu default yalnız (a) hiç `TenantSetting` satırı olmayan yepyeni tenant'larda ve (b) "Varsayılana
   Dön"e elle basılınca devreye girer.
 - **Görünüm Önizleme logosu (#2276/#2328):** Yalnız Ayarlar > Görünüm önizlemesinde logo çerçeveli
-  `MunicipalitySeal` ile gösterilir (`h-22 w-40` çerçeve; logo görseli `imageClassName` ~82%);
+  `MunicipalitySeal` ile gösterilir (`h-20 w-36` çerçeve; logo görseli `imageClassName` ~80%);
   sidebar/login ölçüleri etkilenmez.
 - **Vatandaş Çağrı Talebi vatandaş adı (#2331):** `CreateRequestPage` vatandaş adı alanı blur/submit'te
   `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.

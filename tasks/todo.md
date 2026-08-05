@@ -1,3 +1,7 @@
+## Round 683 — Ayarlar polish reopen (2 kart)
+- `#2328`: Görünüm önizleme çerçeve + logo küçültüldü (`h-20 w-36`, görsel ~80%).
+- `#2329`: Sayfa Yetkileri Kaydet Kurum İçi Mesajlar FAB'a yaklaştırıldı (`- 5rem`).
+
 ## Round 682 — Vatandaş çağrı + ayarlar polish (4 kart)
 - `#2329`: Sayfa Yetkileri Kaydet FAB hizası (`padding-right: var(--fab-inline-clearance)`).
 - `#2331`: Vatandaş Çağrı Talebi Oluştur — Vatandaş Adı title-case (`normalizeTitleCaseField`).

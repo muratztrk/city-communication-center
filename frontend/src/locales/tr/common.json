@@ -1058,6 +1058,7 @@
     "jobNumberPrefix": "Talep No",
     "userLabel": "Kullanıcı",
     "roleLabel": "Rol",
+    "departmentLabel": "Birim",
     "empty": "Henüz kayıt bulunmuyor",
     "scopes": {
       "system": "Sistem Log",
@@ -1612,7 +1613,7 @@
         "OwnerUsers": "Sahip kullanıcılar",
         "AssignedUser": "Atanan kullanıcı",
         "CreatedTasks": "Oluşan görevler",
-        "Dept": "Müdürlük",
+        "Dept": "Birim",
         "Title": "Başlık"
       },
       "notePhrases": {

@@ -1051,6 +1051,7 @@
     "jobNumberPrefix": "Request No",
     "userLabel": "User",
     "roleLabel": "Role",
+    "departmentLabel": "Unit",
     "empty": "No records found yet",
     "scopes": {
       "system": "System Log",

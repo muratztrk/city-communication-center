@@ -3,6 +3,7 @@
 - `#2307`: Yazıyor göstergesi header'da birim satırının altında.
 - `#2308`: Users düzenle Ek birimler dropdown trigger yüksekliği hafif küçültüldü (`min-h-7`).
 - `#2305`: Ayarlar önizleme logo oval çerçeve yüksekliği `h-24` (genişlik aynı).
+- `#2302`: Sistem logları Department entity → Detay'da `Birim: {ad}` (+ BE parse).
 
 ## Round 672 — Reopen düzeltmeleri + arama eşiği (9 kart)
 - `#2299`: WA beklemedeki mesaj Düzenle — balon yüksekliği kilit + sabit aksiyon satırı.

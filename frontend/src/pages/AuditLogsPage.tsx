@@ -76,6 +76,21 @@ function buildDetailParts(t: TFunction, log: AuditLog): string[] {
     return parts
   }
 
+  if (log.entityType === 'Department') {
+    const departmentLabel = t('audit.departmentLabel', 'Birim')
+    const updatedMatch = log.details?.match(/Department\s+'([^']+)'\s+updated\s+to\s+'([^']+)'\.?/i)
+    if (updatedMatch) {
+      return [`${departmentLabel}: ${updatedMatch[1]} → ${updatedMatch[2]}`]
+    }
+    const departmentName = log.entityTitle?.trim()
+      || log.details?.match(/Department\s+'([^']+)'/i)?.[1]
+    if (departmentName) {
+      return [`${departmentLabel}: ${departmentName}`]
+    }
+    const note = log.details ? formatAuditNotes(t, log.details) : null
+    return note?.trim() ? [note.trim()] : []
+  }
+
   if (log.entityType !== 'Job' && log.entityType !== 'WorkTask' && log.entityType !== 'Task') {
     const note = log.details ? formatAuditNotes(t, log.details) : null
     return note ? [note] : []

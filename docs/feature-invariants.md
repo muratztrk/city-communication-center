@@ -1905,8 +1905,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Ayarlar önizleme (#2305 reopen):** logo dış oval çerçeve yüksekliği `h-24 w-36` (logo ~%88).
 - **Kullanıcı düzenle Ek birimler (#2308 reopen):** birincil birim hücresi gri; ek birimler dropdown
   tetikleyicisi beyaz zemin + daha düşük trigger (`min-h-7`).
-- **Log birim audit metni (#2302 reopen):** `Department '…' created/updated/deleted` detayları
-  `formatAuditNotes` ile `birimi` Türkçe kalıbına çevrilir.
+- **Log birim audit metni (#2302 reopen):** `Department` entity logları Detay'da `Birim: {ad}` gösterir;
+  güncellemede `Birim: eski → yeni`; ham `Department '…'` İngilizce metni kullanıcıya basılmaz.
+  `GetAuditLogsQuery` silinen birim adını `Details`'ten parse eder.
 - **Birim sil onay (#2294 reopen):** Sil/İptal eşit genişlikte (`min-width: 4.75rem`).
 - **Users/Birimler düzenle butonları (#2295 reopen):** Users Kaydet/İptal hafif büyük (`2.12rem`);
   Birimler Yönetici Ata Kaydet/İptal hafif küçük (`2.05rem`, `0.8125rem`).

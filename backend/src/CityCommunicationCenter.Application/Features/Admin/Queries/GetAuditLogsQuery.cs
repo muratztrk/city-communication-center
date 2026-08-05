@@ -101,6 +101,10 @@ public sealed class GetAuditLogsQueryHandler : IQueryHandler<GetAuditLogsQuery, 
                         notes = TryParseAuditRoleCode(entity.Details);
                     }
                 }
+                else if (entity.EntityType == nameof(Department))
+                {
+                    entityTitle = TryParseDepartmentAuditName(entity.Details);
+                }
 
                 var actorDisplayName = entity.ActorDisplayName;
                 if (string.IsNullOrWhiteSpace(actorDisplayName) && entity.ActorUserId.HasValue)
@@ -153,6 +157,20 @@ public sealed class GetAuditLogsQueryHandler : IQueryHandler<GetAuditLogsQuery, 
         }
 
         var match = System.Text.RegularExpressions.Regex.Match(details, @"role=([A-Za-z]+)");
+        return match.Success ? match.Groups[1].Value : null;
+    }
+
+    private static string? TryParseDepartmentAuditName(string? details)
+    {
+        if (string.IsNullOrWhiteSpace(details))
+        {
+            return null;
+        }
+
+        var match = System.Text.RegularExpressions.Regex.Match(
+            details,
+            @"Department\s+'([^']+)'",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
         return match.Success ? match.Groups[1].Value : null;
     }
 }

@@ -1525,9 +1525,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (detay popup header). Ayarlar > Görünüm'de Kurum | Pop up yan yana; Login Page alt satırda. Her tür
   için ayrı yükleme, Kaydet, önceki geri yükleme; popup için **Pop up Varsayılana Dön** `popupLogoUrl`
   temizler (popup'ta logo gizlenir).
-- **Kurum Logosu yükleme (#2312 / eski #2251 iptal):** `uploadLogo(..., kind)` yalnız ilgili form
-  alanını günceller (önizleme); `ThemeContext` ancak Görünüm **Kaydet** veya ilgili **Önceki Kullanılan
-  … Logo** sonrası güncellenir. Upload sırasında mevcut dosya `{kind}-previous.*` olarak yedeklenir.
+- **Kurum Logosu yükleme (#2312 / eski #2251 iptal):** `uploadLogo(..., 'institution')` yalnız
+  `appearanceForm.logoUrl` günceller (önizleme); dosya seçiminde API'ye yüklenir. `ThemeContext` ancak
+  Görünüm **Kaydet** veya ilgili **Önceki Kullanılan … Logo** sonrası güncellenir.
+- **Login / Pop up logosu (#2318 reopen):** dosya seçimi yalnız `pendingLogoFiles` staging yapar; API
+  upload + DB kaydı **Kaydet** sonrası. Seçim anında login/popup ekranları değişmez.
 - **Önceki logo (#2313):** logo değişikliği Kaydet sonrası `PreviousLogoUrl` / `PreviousLoginLogoUrl` /
   `PreviousPopupLogoUrl` saklanır; Kaydet yanında ilgili **Önceki Kullanılan … Logo** butonu görünür
   (`POST .../appearance/logo/restore-previous?kind=...`).

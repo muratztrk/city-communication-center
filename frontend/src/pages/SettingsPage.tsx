@@ -436,6 +436,7 @@ export function SettingsPage() {
   const [previousLoginLogoUrl, setPreviousLoginLogoUrl] = useState<string | null>(null)
   const [previousPopupLogoUrl, setPreviousPopupLogoUrl] = useState<string | null>(null)
   const [logoRestoring, setLogoRestoring] = useState<TenantLogoKind | null>(null)
+  const [pendingLogoFiles, setPendingLogoFiles] = useState<Partial<Record<'login' | 'popup', File>>>({})
   const [appearanceForm, setAppearanceForm] = useState<TenantAppearanceInput>({
     themePreset: DEFAULT_TENANT_APPEARANCE.themePreset,
     primaryColor: DEFAULT_TENANT_APPEARANCE.primaryColor,
@@ -842,15 +843,51 @@ export function SettingsPage() {
     setAppearance(refreshed)
   }
 
+  const stageDeferredLogoFile = (file: File, kind: 'login' | 'popup') => {
+    setPendingLogoFiles(current => ({ ...current, [kind]: file }))
+  }
+
+  const uploadPendingLogos = async (form: TenantAppearanceInput): Promise<TenantAppearanceInput> => {
+    if (!user?.tenantId) {
+      return form
+    }
+
+    let nextForm = form
+    for (const kind of ['login', 'popup'] as const) {
+      const pendingFile = pendingLogoFiles[kind]
+      if (!pendingFile) {
+        continue
+      }
+
+      setLogoUploading(kind)
+      try {
+        const logoUrl = await api.uploadTenantLogo(user.tenantId, pendingFile, kind)
+        nextForm = {
+          ...nextForm,
+          ...(kind === 'login' ? { loginLogoUrl: logoUrl } : { popupLogoUrl: logoUrl }),
+        }
+      } finally {
+        setLogoUploading(null)
+      }
+    }
+
+    return nextForm
+  }
+
   const uploadLogo = async (file: File, kind: TenantLogoKind) => {
     if (!user?.tenantId) return
+    if (kind === 'login' || kind === 'popup') {
+      stageDeferredLogoFile(file, kind)
+      return
+    }
+
     setMessage(null)
     setLogoUploading(kind)
     try {
       const logoUrl = await api.uploadTenantLogo(user.tenantId, file, kind)
       setAppearanceForm(current => ({
         ...current,
-        ...(kind === 'institution' ? { logoUrl } : kind === 'login' ? { loginLogoUrl: logoUrl } : { popupLogoUrl: logoUrl }),
+        logoUrl,
       }))
     } catch (uploadError) {
       setMessage({ type: 'error', text: uploadError instanceof Error ? uploadError.message : t('common.error') })
@@ -865,6 +902,13 @@ export function SettingsPage() {
     setLogoRestoring(kind)
     try {
       const refreshed = await api.restorePreviousTenantLogo(user.tenantId, kind)
+      if (kind === 'login' || kind === 'popup') {
+        setPendingLogoFiles(current => {
+          const next = { ...current }
+          delete next[kind]
+          return next
+        })
+      }
       applyAppearanceRefresh(refreshed)
       invalidateSettings(queryClient)
       setMessage({
@@ -885,6 +929,11 @@ export function SettingsPage() {
   const resetPopupLogo = async () => {
     if (!user?.tenantId) return
     setMessage(null)
+    setPendingLogoFiles(current => {
+      const next = { ...current }
+      delete next.popup
+      return next
+    })
     const nextForm = { ...appearanceForm, popupLogoUrl: null }
     try {
       await api.updateTenantAppearance(user.tenantId, nextForm)
@@ -905,7 +954,9 @@ export function SettingsPage() {
 
     setMessage(null)
     try {
-      await api.updateTenantAppearance(user.tenantId, appearanceForm)
+      const formToSave = await uploadPendingLogos(appearanceForm)
+      await api.updateTenantAppearance(user.tenantId, formToSave)
+      setPendingLogoFiles({})
       invalidateSettings(queryClient)
       const refreshed = await api.getTenantAppearance(user.tenantId)
       applyAppearanceRefresh(refreshed)
@@ -921,6 +972,7 @@ export function SettingsPage() {
     }
 
     setMessage(null)
+    setPendingLogoFiles({})
     const defaultPayload: TenantAppearanceInput = {
       themePreset: DEFAULT_TENANT_APPEARANCE.themePreset,
       primaryColor: DEFAULT_TENANT_APPEARANCE.primaryColor,
@@ -2647,10 +2699,14 @@ export function SettingsPage() {
                     disabled={logoUploading === 'popup'}
                     onClick={() => popupLogoFileInputRef.current?.click()}
                   >
-                    {logoUploading === 'popup' ? t('common.loading') : t('settings.popupLogoAdd', 'Pop up Logosu Ekle')}
+                    {logoUploading === 'popup'
+                      ? t('common.loading')
+                      : pendingLogoFiles.popup
+                        ? t('settings.popupLogoSelected', 'Pop up logosu seçildi')
+                        : t('settings.popupLogoAdd', 'Pop up Logosu Ekle')}
                   </Button>
                 </label>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>{t('settings.loginPageLogo', 'Login Page Logosu')}</span>
                   <input
                     ref={loginLogoFileInputRef}
@@ -2669,7 +2725,11 @@ export function SettingsPage() {
                     disabled={logoUploading === 'login'}
                     onClick={() => loginLogoFileInputRef.current?.click()}
                   >
-                    {logoUploading === 'login' ? t('common.loading') : t('settings.loginPageLogoAdd', 'Login Page Logosu Ekle')}
+                    {logoUploading === 'login'
+                      ? t('common.loading')
+                      : pendingLogoFiles.login
+                        ? t('settings.loginPageLogoSelected', 'Login logosu seçildi')
+                        : t('settings.loginPageLogoAdd', 'Login Page Logosu Ekle')}
                   </Button>
                 </label>
               </div>

@@ -1,3 +1,7 @@
+## Round 679 — Logo Kaydet staging + login buton genişliği (2 kart)
+- `#2318`: Login/Pop up logosu dosya seçimi yalnız staging; upload + uygulama Kaydet sonrası.
+- `#2313`: Login Page Logosu Ekle buton genişliği Pop up ile aynı (grid yarım kolon).
+
 ## Round 678 — Admin grid edit micro-tuning (4 kart)
 - `#2311`: Birimler Yönetici Ata Müdür/Sorumlu dropdown metni biraz daha büyük (`0.9rem`).
 - `#2320`: Kullanıcılar düzenle Kaydet/İptal biraz büyütüldü (`2.2rem` / `0.84375rem`).

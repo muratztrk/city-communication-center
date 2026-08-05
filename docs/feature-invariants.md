@@ -788,8 +788,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1251).
 - **Vatandaş Talepleri breadcrumb:** `/social` sayfasında `Vatandaş İlişkileri` ara katmanı
   gösterilmez; breadcrumb doğrudan `Anasayfa > Vatandaş Talepleri` olur (card #1262).
-- **Login logosu HER ZAMAN `/tire-belediyesi-logo.png`** (LoginPage `LOGIN_LOGO_*_SRC`) —
-  tenant `appearance.logoUrl` ile override edilmez.
+- **Login logosu (#2315):** Kaydedilmiş kurum logosu (`appearance.logoUrl`, varsayılan
+  `/default-institution-logo.png` hariç) login ekranında gösterilir; aksi halde
+  `/tire-belediyesi-logo.png`. Önizleme/yükleme anında değil, Kaydet sonrası geçerli olur
+  (tenant login context + ThemeContext).
+- **Login logo oval çerçeve (#2316):** desktop `h-15 w-36` (`2xl:h-[4.25rem]`); mobil
+  `h-[4.5rem]` (`sm:h-[6.25rem]`).
 - **Mobil login Atatürk görseli:** `/header-ataturk.png` (beyaz silüet) sayfa sol üst köşesinde
   `lg:hidden` ile gösterilir; açık login zemininde görünürlük için `brightness-0` (koyu silüet)
   uygulanır. Desktop hero koyu zeminde beyaz silüet kalır.

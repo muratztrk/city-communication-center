@@ -1,3 +1,7 @@
+## Round 676 — Login logo + çerçeve (2 kart)
+- `#2315`: Kaydedilmiş kurum logosu login ekranında gösterilir (tenant appearance).
+- `#2316`: Login logo dış oval çerçeve yüksekliği hafif arttı.
+
 ## Round 675 — Logo kaydet + admin dropdown (5 kart)
 - `#2308`: Ek birimler/roller edit dropdown panel yüksekliği hafif arttı (`max-h-88` / `max-h-72`).
 - `#2311`: Birimler Yönetici Ata Müdür/Sorumlu dropdown metni büyütüldü.

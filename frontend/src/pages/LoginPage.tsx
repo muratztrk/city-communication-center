@@ -44,12 +44,26 @@ const EMPTY_SECURITY_STATE: SecurityState = {
 }
 
 const LOGIN_LOGO_LIGHT_SRC = '/tire-belediyesi-logo.png'
-const LOGIN_LOGO_DARK_SRC = '/tire-belediyesi-logo.png'
+const DEFAULT_INSTITUTION_LOGO_SRC = '/default-institution-logo.png'
+
+function resolveLoginLogoUrl(logoUrl?: string | null): string {
+  const trimmed = logoUrl?.trim()
+  if (!trimmed) {
+    return LOGIN_LOGO_LIGHT_SRC
+  }
+
+  const pathOnly = trimmed.split('?')[0]
+  if (pathOnly === DEFAULT_INSTITUTION_LOGO_SRC) {
+    return LOGIN_LOGO_LIGHT_SRC
+  }
+
+  return trimmed
+}
 
 export function LoginPage() {
   const { t } = useTranslation()
   const { completeInteractiveSignIn } = useAuth()
-  const { setAppearance, resetAppearance } = useTenantTheme()
+  const { appearance: themeAppearance, setAppearance, resetAppearance } = useTenantTheme()
   const [tenantContext, setTenantContext] = useState<TenantLoginContext | null>(null)
   const [selectedTenant, setSelectedTenant] = useState('')
   const [loginStep, setLoginStep] = useState<LoginStep>('credentials')
@@ -93,10 +107,9 @@ export function LoginPage() {
     ?? tenantContext?.resolvedTenant?.municipalityName
     ?? t('login.organizationFallback')
   const municipalityName = institutionName.replace(/\s+Belediyesi?$/i, '').trim()
-  // Login sayfasında her zaman resmi Tire Belediyesi logosu kullanılır
-  // (tenant görünüm logosu burada geçersiz kılınır).
-  const desktopLogoUrl = LOGIN_LOGO_LIGHT_SRC
-  const compactLogoUrl = LOGIN_LOGO_DARK_SRC
+  const loginLogoUrl = resolveLoginLogoUrl(tenantContext?.appearance?.logoUrl ?? themeAppearance.logoUrl)
+  const desktopLogoUrl = loginLogoUrl
+  const compactLogoUrl = loginLogoUrl
   const loginBackgroundImageUrl = tenantContext?.appearance?.loginBackgroundImageUrl?.trim() || null
   const loginHeroBackgroundStyle = loginBackgroundImageUrl
     ? {
@@ -296,13 +309,13 @@ export function LoginPage() {
                 <MunicipalitySeal
                   alt={`${institutionName} amblemi`}
                   src={desktopLogoUrl}
-                  className="h-14 w-36 shrink-0 rounded-[1.1rem] border-0 bg-transparent 2xl:h-16 2xl:w-44"
+                  className="h-15 w-36 shrink-0 rounded-[1.1rem] border-0 bg-transparent 2xl:h-[4.25rem] 2xl:w-44"
                   imageClassName="h-[82%] w-[90%] drop-shadow-none"
                 />
                 <h1 className="text-center text-xl font-semibold leading-[1.1] text-white 2xl:text-3xl">
                   {t('shell.subtitle', { municipalityName })}
                 </h1>
-                <span aria-hidden className="h-14 w-36 shrink-0 2xl:h-16 2xl:w-44" />
+                <span aria-hidden className="h-15 w-36 shrink-0 2xl:h-[4.25rem] 2xl:w-44" />
               </div>
               <p className="max-w-2xl text-[0.82rem] leading-6 text-white/86 xl:text-sm xl:leading-6 2xl:text-base 2xl:leading-7">{t('login.subtitle')}</p>
             </div>
@@ -353,7 +366,7 @@ export function LoginPage() {
               <MunicipalitySeal
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}
-                className="h-[4.25rem] w-48 border-0 sm:h-24 sm:w-64"
+                className="h-[4.5rem] w-48 border-0 sm:h-[6.25rem] sm:w-64"
                 imageClassName="h-[92%] w-[92%]"
               />
               <div className="min-w-0 text-center">

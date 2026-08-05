@@ -1,4 +1,9 @@
-## Round 673 — Kurum İçi FAB arka plan + Yazıyor hizası (2 kart)
+## Round 674 — Users dropdown + arama temizleme + önizleme (3 kart)
+- `#2308`: Ek birimler trigger `min-h-8` + panel `max-h-80`; Ek roller trigger `min-h-7` + panel `max-h-64`.
+- `#1531`: Users/Birimler Yeni Ekle veya İptal → liste arama metni temizlenir.
+- `#2305`: Ayarlar önizleme logo oval çerçeve `h-22`.
+
+## Round 673 — Kurum İçi FAB + audit Birim + admin polish (8 kart)
 - `#2300`: FAB panel kökü/liste standart zemin; yalnız aktif sohbet mesaj alanı `whatsapp-chat-bg`.
 - `#2307`: Yazıyor göstergesi header'da birim satırının altında.
 - `#2308`: Users düzenle Ek birimler dropdown trigger yüksekliği hafif küçültüldü (`min-h-7`).

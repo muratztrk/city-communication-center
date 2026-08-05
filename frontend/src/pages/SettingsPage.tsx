@@ -2532,7 +2532,7 @@ export function SettingsPage() {
                 }}
               >
                 <MunicipalitySeal
-                  className="h-24 w-36 rounded-[1.35rem]"
+                  className="h-22 w-36 rounded-[1.35rem]"
                   imageClassName="h-[88%] w-[88%]"
                   src={previewAppearance.logoUrl ?? null}
                 />

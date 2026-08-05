@@ -683,12 +683,14 @@ export function UsersPage() {
 
   const closeCreateForm = () => {
     resetForm()
+    setUserSearchText('')
     updateSearchParams({ create: null, mode: null })
   }
 
   const openCreateForm = () => {
     // Yarım kalan satır düzenlemesini kapat (card #r457).
     setEditingUserId(null)
+    setUserSearchText('')
     const initialMode = managementContext?.ldapEnabled ? 'ldap' : 'manual'
     updateSearchParams({ create: '1', mode: initialMode })
   }
@@ -1520,8 +1522,8 @@ export function UsersPage() {
                           placeholder={t('users.additionalDepartmentsShort', 'Ek birimler')}
                           emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
                           className="w-full min-w-0 max-w-full users-edit-additional-dept-trigger"
-                          triggerClassName="text-xs !min-h-7 !py-0.5 !px-2 !bg-white"
-                          menuClassName="users-edit-dropdown-menu-scroll"
+                          triggerClassName="text-xs !min-h-8 !py-0.5 !px-2 !bg-white"
+                          menuClassName="users-edit-dropdown-menu-scroll !max-h-80"
                           menuWidth={264}
                           searchable
                           searchPlaceholder={t('common.search', 'Ara...')}
@@ -1558,9 +1560,9 @@ export function UsersPage() {
                           onChange={additionalRoleCodes => setEditForm(c => ({ ...c, additionalRoleCodes }))}
                           placeholder={t('users.additionalRolesShort', 'Ek roller')}
                           emptyText={t('users.additionalRolesEmpty', 'Seçilebilir ek rol bulunmuyor.')}
-                          className="w-full"
-                          triggerClassName="text-xs"
-                          menuClassName="users-edit-dropdown-menu-scroll"
+                          className="w-full users-edit-additional-roles-trigger"
+                          triggerClassName="text-xs !min-h-7 !py-0.5"
+                          menuClassName="users-edit-dropdown-menu-scroll !max-h-64"
                           menuWidth={224}
                           menuPortal={false}
                         />

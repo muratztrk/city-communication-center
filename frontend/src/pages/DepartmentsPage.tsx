@@ -667,7 +667,9 @@ export function DepartmentsPage() {
                 const next = !current
                 if (!next) {
                   resetCreateForm()
+                  setDeptSearchText('')
                 } else {
+                  setDeptSearchText('')
                   // Yeni Birim: varsayılan Oluşturma Modu LDAP (card #r449).
                   setCreateMode(ldapEnabled ? 'ldap' : 'manual')
                   // Açık/yarım kalan satır aksiyonlarını kapat (Yönetici Ata / Sil / Düzenle) (#r453).

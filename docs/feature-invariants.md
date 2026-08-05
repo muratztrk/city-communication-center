@@ -1903,9 +1903,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yerel birim oluşturma (#2303/#2310):** başarı `ConfirmDialog` popup'ıdır; başlık altında ayraç
   çizgisi (`titleDivider`) ve `Tamam` butonu yeşil (`variant: success`).
 - **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).
-- **Ayarlar önizleme (#2305 reopen):** logo dış oval çerçeve yüksekliği `h-24 w-36` (logo ~%88).
+- **Ayarlar önizleme (#2305 reopen):** logo dış oval çerçeve yüksekliği `h-22 w-36` (logo ~%88).
 - **Kullanıcı düzenle Ek birimler (#2308 reopen):** birincil birim hücresi gri; ek birimler dropdown
-  tetikleyicisi beyaz zemin + daha düşük trigger (`min-h-7`).
+  tetikleyicisi beyaz zemin + `min-h-8`; panel `max-h-80`. Ek roller tetikleyicisi `min-h-7`; panel
+  `max-h-64`.
+- **Users/Birimler liste araması (#1531):** Yeni Kullanıcı/Birim Ekle veya İptal ile form
+  açılıp/kapanırken `userSearchText` / `deptSearchText` temizlenir.
 - **Log birim audit metni (#2302 reopen):** `Department` entity logları Detay'da `Birim: {ad}` gösterir;
   güncellemede `Birim: eski → yeni`; ham `Department '…'` İngilizce metni kullanıcıya basılmaz.
   `GetAuditLogsQuery` silinen birim adını `Details`'ten parse eder.

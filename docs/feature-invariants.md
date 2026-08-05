@@ -1467,8 +1467,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ConfirmDialog (banner değil). `e-Devlet Günlük Faaliyet Planı Oluştur` ve `… Listesi`
   grid sıralamasında `Log` (`audit`) satırından sonra gelir (card #2269).
 - **Ayarlar sonuç mesajları (#2275):** Kaydetme/uyarı sonuçları banner altındaki inline şeritte
-  tekrarlanmaz; ortak `Toast` popup’ında gösterilir. Bağlantı testi gibi alan-içi durum metinleri
-  kendi kartında kalır.
+  tekrarlanmaz; ortak `Toast` popup’ında gösterilir (`document.body` portal — zoom shell dışında).
+  Sayfa Yetkileri kayıt/sıfırlama sonucu `ConfirmDialog` popup’ıdır. Bağlantı testi gibi alan-içi
+  durum metinleri kendi kartında kalır.
 - **Kullanıcılar düzenle Birim/Rol dropdown (card #r448/#r456/#r459):** sütun ~7.5rem / ~9rem;
   Birim paneli Ek roller sağına (~16.5rem); Rol paneli LDAP sonuna (~14rem); satır fontu ~0.6rem.
 - **Kullanıcılar yarım aksiyon (#r457):** Yeni Kullanıcı Ekle / Düzenle / Sil birbirinin açık

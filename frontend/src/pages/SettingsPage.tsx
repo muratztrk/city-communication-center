@@ -1469,8 +1469,9 @@ export function SettingsPage() {
     }))
   }
 
-  const persistTemplate = async (successMessage = 'Şablon kaydedildi.') => {
+  const persistTemplate = async (successMessage?: string) => {
     if (!templateForm.name.trim() || !templateForm.content.trim()) return false
+    const creating = isNewTemplate
     const editingMeta = templateEditorMode === 'meta'
     const data = editingMeta
       ? {
@@ -1500,8 +1501,13 @@ export function SettingsPage() {
     invalidateSettings(queryClient)
     const updated = await api.getWhatsAppTemplates()
     setTemplates(updated)
-    setMessage({ type: 'success', text: successMessage })
-    if (isNewTemplate) {
+    showToast(
+      'success',
+      successMessage ?? (creating
+        ? t('settings.templates.createSuccess', 'Şablon oluşturuldu.')
+        : t('settings.templates.saveSuccess', 'Şablon kaydedildi.')),
+    )
+    if (creating) {
       setIsNewTemplate(false)
       setSelectedTemplateId(updated.find(t => t.name === data.name)?.templateId ?? null)
     }
@@ -1514,16 +1520,16 @@ export function SettingsPage() {
     try {
       await persistTemplate()
     } catch (saveError) {
-      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : 'Şablon kaydedilemedi.' })
+      showToast('error', saveError instanceof Error ? saveError.message : t('settings.templates.saveFailed', 'Şablon kaydedilemedi.'))
     }
   }
 
   const saveTemplateSchedule = async () => {
     setMessage(null)
     try {
-      await persistTemplate('Zamanlı yanıt saati kaydedildi.')
+      await persistTemplate(t('settings.templates.scheduleSaved', 'Zamanlı yanıt saati kaydedildi.'))
     } catch (saveError) {
-      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : 'Zamanlı yanıt saati kaydedilemedi.' })
+      showToast('error', saveError instanceof Error ? saveError.message : t('settings.templates.scheduleSaveFailed', 'Zamanlı yanıt saati kaydedilemedi.'))
     }
   }
 
@@ -1543,9 +1549,10 @@ export function SettingsPage() {
             setIsNewTemplate(false)
             setTemplateEditorMode('classic')
           }
-          setMessage({ type: 'success', text: 'Şablon silindi.' })
+          setMessage(null)
+          showToast('success', t('settings.templates.deleteSuccess', 'Şablon silindi.'))
         } catch (deleteError) {
-          setMessage({ type: 'error', text: deleteError instanceof Error ? deleteError.message : 'Şablon silinemedi.' })
+          showToast('error', deleteError instanceof Error ? deleteError.message : t('settings.templates.deleteFailed', 'Şablon silinemedi.'))
         }
       },
     })

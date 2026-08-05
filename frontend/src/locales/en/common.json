@@ -1325,6 +1325,15 @@
         "citizenMessageApprovalHint": "(Staff reply review)"
       }
     },
+    "templates": {
+      "createSuccess": "Template created.",
+      "saveSuccess": "Template saved.",
+      "saveFailed": "Template could not be saved.",
+      "deleteSuccess": "Template deleted.",
+      "deleteFailed": "Template could not be deleted.",
+      "scheduleSaved": "Scheduled reply time saved.",
+      "scheduleSaveFailed": "Scheduled reply time could not be saved."
+    },
     "socialConfig": {
       "sectionTitle": "Social Integrations",
       "sectionDescription": "Manage tenant-level credentials for each channel.",

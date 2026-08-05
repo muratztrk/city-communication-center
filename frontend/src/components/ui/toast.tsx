@@ -1,5 +1,6 @@
 import { CheckCircle2, XCircle, X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 interface ToastProps {
   message: string
@@ -22,7 +23,7 @@ export function Toast({ message, type = 'success', onClose, duration = 5000 }: T
 
   const isSuccess = type === 'success'
 
-  return (
+  return createPortal(
     <div
       role="status"
       aria-live="polite"
@@ -46,6 +47,7 @@ export function Toast({ message, type = 'success', onClose, duration = 5000 }: T
       >
         <X className="size-3.5" />
       </button>
-    </div>
+    </div>,
+    document.body,
   )
 }

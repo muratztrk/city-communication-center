@@ -1445,7 +1445,17 @@
       "saved": "Kural oluşturuldu",
       "updated": "Kural güncellendi",
       "deleted": "Kural silindi",
-      "deleteConfirm": "Bu kuralı silmek istediğinize emin misiniz?"
+      "deleteConfirm": "Bu kuralı silmek istediğinize emin misiniz?",
+      "autoRepliesSaved": "Vatandaşa giden cevaplar kaydedildi."
+    },
+    "templates": {
+      "createSuccess": "Şablon oluşturuldu.",
+      "saveSuccess": "Şablon kaydedildi.",
+      "saveFailed": "Şablon kaydedilemedi.",
+      "deleteSuccess": "Şablon silindi.",
+      "deleteFailed": "Şablon silinemedi.",
+      "scheduleSaved": "Zamanlı yanıt saati kaydedildi.",
+      "scheduleSaveFailed": "Zamanlı yanıt saati kaydedilemedi."
     },
     "citizen": {
       "sectionTitle": "Vatandaş Talebi Oluştur",

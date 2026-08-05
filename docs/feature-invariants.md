@@ -1521,11 +1521,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   location'ı bu round'da eklendi (`frontend/nginx.conf`) — önceden yalnız `/api/`, `/hubs/`, `/connect/`,
   `/health` proxy'liydi, aynı-origin dağıtımda `/uploads/...` SPA fallback'ine düşüp index.html dönerdi
   (var olan ek-önizleme özellikleri için de gizli bir bug'dı).
-- **Üç logo türü (#2318 / #2314):** `logoUrl` (sidebar/kurum), `loginLogoUrl` (login), `popupLogoUrl`
-  (detay popup header). Ayarlar > Görünüm'de Kurum | Pop up yan yana; Login Page alt satırda. Her tür
-  için ayrı yükleme, Kaydet, önceki geri yükleme; popup için **Pop up Varsayılana Dön** `popupLogoUrl`
-  temizler (popup'ta logo gizlenir).
-- **Kurum Logosu yükleme (#2312 / eski #2251 iptal):** `uploadLogo(..., 'institution')` yalnız
+- **Üç logo türü (#2318 / #2314 / #2322 / #2323):** `logoUrl` (sidebar/menü), `loginLogoUrl` (login),
+  `popupLogoUrl` (detay popup header). Ayarlar > Görünüm'de **Menü Logosu** | Pop up yan yana; Login Page
+  alt satırda. Popup: **Pop up Logosu Ekle** (yarım genişlik) + **Pop up Logosu Sil** (anında kaydeder);
+  önceki popup logo geri yükleme ve **Pop up Varsayılana Dön** kaldırıldı (#2322/#2323).
+- **Menü logosu etiketi (#2321):** Görünüm bölümünde kurum logosu UI metni **Menü Logosu** / **Menü Logosu
+  Ekle**; teknik alan hâlâ `logoUrl`.
+- **Kurum/Menü logosu yükleme (#2312 / eski #2251 iptal):** `uploadLogo(..., 'institution')` yalnız
   `appearanceForm.logoUrl` günceller (önizleme); dosya seçiminde API'ye yüklenir. `ThemeContext` ancak
   Görünüm **Kaydet** veya ilgili **Önceki Kullanılan … Logo** sonrası güncellenir.
 - **Login / Pop up logosu (#2318 reopen):** dosya seçimi yalnız `pendingLogoFiles` staging yapar; API

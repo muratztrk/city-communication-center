@@ -434,7 +434,6 @@ export function SettingsPage() {
   const [logoUploading, setLogoUploading] = useState<TenantLogoKind | null>(null)
   const [previousLogoUrl, setPreviousLogoUrl] = useState<string | null>(null)
   const [previousLoginLogoUrl, setPreviousLoginLogoUrl] = useState<string | null>(null)
-  const [previousPopupLogoUrl, setPreviousPopupLogoUrl] = useState<string | null>(null)
   const [logoRestoring, setLogoRestoring] = useState<TenantLogoKind | null>(null)
   const [pendingLogoFiles, setPendingLogoFiles] = useState<Partial<Record<'login' | 'popup', File>>>({})
   const [appearanceForm, setAppearanceForm] = useState<TenantAppearanceInput>({
@@ -586,7 +585,6 @@ export function SettingsPage() {
         setAppearanceForm(nextAppearance)
         setPreviousLogoUrl(appearanceResponse.previousLogoUrl ?? null)
         setPreviousLoginLogoUrl(appearanceResponse.previousLoginLogoUrl ?? null)
-        setPreviousPopupLogoUrl(appearanceResponse.previousPopupLogoUrl ?? null)
         setSocialStatus(socialResponse)
         if (socialResponse.whatsAppPublic) {
           setSocialForms(current => ({
@@ -839,7 +837,6 @@ export function SettingsPage() {
     setAppearanceForm(toAppearanceForm(refreshed))
     setPreviousLogoUrl(refreshed.previousLogoUrl ?? null)
     setPreviousLoginLogoUrl(refreshed.previousLoginLogoUrl ?? null)
-    setPreviousPopupLogoUrl(refreshed.previousPopupLogoUrl ?? null)
     setAppearance(refreshed)
   }
 
@@ -940,7 +937,7 @@ export function SettingsPage() {
       invalidateSettings(queryClient)
       const refreshed = await api.getTenantAppearance(user.tenantId)
       applyAppearanceRefresh(refreshed)
-      setMessage({ type: 'success', text: t('settings.popupLogoResetSuccess', 'Pop up logosu kaldırıldı.') })
+      setMessage({ type: 'success', text: t('settings.popupLogoDeleteSuccess', 'Pop up logosu silindi.') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
@@ -2659,7 +2656,7 @@ export function SettingsPage() {
                   </label>
                 ))}
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('settings.tenantLogo', 'Kurum Logosu')}</span>
+                  <span>{t('settings.menuLogo', 'Menü Logosu')}</span>
                   <input
                     ref={logoFileInputRef}
                     type="file"
@@ -2677,7 +2674,7 @@ export function SettingsPage() {
                     disabled={logoUploading === 'institution'}
                     onClick={() => logoFileInputRef.current?.click()}
                   >
-                    {logoUploading === 'institution' ? t('common.loading') : t('settings.tenantLogoAdd', 'Kurum Logosu Ekle')}
+                    {logoUploading === 'institution' ? t('common.loading') : t('settings.menuLogoAdd', 'Menü Logosu Ekle')}
                   </Button>
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -2693,18 +2690,29 @@ export function SettingsPage() {
                       if (file) void uploadLogo(file, 'popup')
                     }}
                   />
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={logoUploading === 'popup'}
-                    onClick={() => popupLogoFileInputRef.current?.click()}
-                  >
-                    {logoUploading === 'popup'
-                      ? t('common.loading')
-                      : pendingLogoFiles.popup
-                        ? t('settings.popupLogoSelected', 'Pop up logosu seçildi')
-                        : t('settings.popupLogoAdd', 'Pop up Logosu Ekle')}
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="w-1/2 shrink-0"
+                      disabled={logoUploading === 'popup'}
+                      onClick={() => popupLogoFileInputRef.current?.click()}
+                    >
+                      {logoUploading === 'popup'
+                        ? t('common.loading')
+                        : pendingLogoFiles.popup
+                          ? t('settings.popupLogoSelected', 'Pop up logosu seçildi')
+                          : t('settings.popupLogoAdd', 'Pop up Logosu Ekle')}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      className="flex-1"
+                      onClick={() => void resetPopupLogo()}
+                    >
+                      {t('settings.popupLogoDelete', 'Pop up Logosu Sil')}
+                    </Button>
+                  </div>
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>{t('settings.loginPageLogo', 'Login Page Logosu')}</span>
@@ -2755,19 +2763,6 @@ export function SettingsPage() {
                     {logoRestoring === 'login' ? t('common.loading') : t('settings.previousLoginLogo', 'Önceki Kullanılan Login Page Logo')}
                   </Button>
                 ) : null}
-                {previousPopupLogoUrl ? (
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={logoRestoring === 'popup'}
-                    onClick={() => void restorePreviousLogo('popup')}
-                  >
-                    {logoRestoring === 'popup' ? t('common.loading') : t('settings.previousPopupLogo', 'Önceki Kullanılan Pop up Logo')}
-                  </Button>
-                ) : null}
-                <Button type="button" variant="secondary" onClick={() => void resetPopupLogo()}>
-                  {t('settings.popupLogoReset', 'Pop up Varsayılana Dön')}
-                </Button>
                 <Button type="button" variant="secondary" onClick={() => void resetAppearanceToDefault()}>{t('settings.reset', 'Varsayılana Dön')}</Button>
               </div>
             </form>
@@ -2938,15 +2933,12 @@ export function SettingsPage() {
             </div>
           </section>
 
-          <section className="section-card page-stack">
+          <section className="section-card page-stack flex flex-col">
             <div className="page-header-row">
               <div>
                 <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.autoRepliesTitle', 'Vatandaşa Giden Cevaplar')}</h2>
                 <p className="helper-copy">{t('settings.routing.autoRepliesDescription', 'Vatandaş talebi durumlarına göre otomatik gönderilecek taslak cevapları düzenleyin.')}</p>
               </div>
-              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySaving}>
-                {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
-              </Button>
             </div>
             <div className="grid gap-4 md:grid-cols-4">
               {([
@@ -2969,6 +2961,11 @@ export function SettingsPage() {
             <p className="text-xs font-medium text-slate-500">
               {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı ve {GönderilenBirim}.')}
             </p>
+            <div className="inline-actions mt-auto justify-end">
+              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySaving}>
+                {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              </Button>
+            </div>
           </section>
 
         </div>

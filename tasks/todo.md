@@ -1,3 +1,11 @@
+## Round 680 — Ayarlar görünüm/yönlendirme + admin UI (6 kart)
+- `#2321`: Görünüm'de Kurum Logosu → Menü Logosu metinleri.
+- `#2322`: Pop up önceki logo kaldırıldı; Ekle %50 genişlik + Pop up Logosu Sil.
+- `#2323`: Pop up Varsayılana Dön butonu kaldırıldı.
+- `#2324`: Vatandaşa Giden Cevaplar Kaydet kutunun altında sağa yaslı.
+- `#2311`: Birimler Yönetici Ata dropdown metni biraz büyütüldü.
+- `#2320`: Users düzenle Kaydet/İptal biraz büyütüldü.
+
 ## Round 679 — Logo Kaydet staging + login buton genişliği (2 kart)
 - `#2318`: Login/Pop up logosu dosya seçimi yalnız staging; upload + uygulama Kaydet sonrası.
 - `#2313`: Login Page Logosu Ekle buton genişliği Pop up ile aynı (grid yarım kolon).

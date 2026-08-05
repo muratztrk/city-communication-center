@@ -1891,15 +1891,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kullanıcılar/Birimler grid dropdown (#2296):** satır içi düzenleme dropdown'ları `menuPortal={false}`
   ile satırla birlikte kayar; `.table-wrap` scroll'unda menü kapanır; thead z-index dropdown üstündedir.
 - **Kurum içi yazıyor göstergesi (#2307):** aktif sohbette karşı taraf yazarken SignalR
-  `ReceiveInternalMessageTyping` ile sol alt hizada `Yazıyor` + animasyonlu üç nokta gösterilir;
-  `POST /internal-messages/typing` yalnız alıcıya iletilir.
+  `ReceiveInternalMessageTyping` ile header'da birim satırının altında `Yazıyor` + animasyonlu
+  üç nokta gösterilir; `POST /internal-messages/typing` yalnız alıcıya iletilir.
 - **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter
   sonra filtreler (InternalMessagesFab ile aynı eşik).
 - **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.
 - **WA beklemedeki mesaj Düzenle (#2299 reopen):** düzenleme modunda balon yüksekliği `minHeight` ile
   kilitlenir; alt aksiyon satırı sabit `min-h` ile konuşma alanı kaymaz.
-- **Kurum İçi FAB zemin (#2300 reopen):** panel gövdesi ve liste/konuşma alanı WhatsApp ile aynı
-  `whatsapp-chat-bg` dokusunu kullanır; header/footer şeritleri beyaz kalır.
+- **Kurum İçi FAB zemin (#2300 reopen):** panel kökü ve konuşma listesi standart `color-background`;
+  yalnızca aktif sohbet mesaj scroll alanı WhatsApp `whatsapp-chat-bg` dokusunu kullanır.
 - **Yerel birim oluşturma (#2303 reopen):** başarı toast değil `ConfirmDialog` popup'ıdır.
 - **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).
 - **Ayarlar önizleme (#2305 reopen):** logo çerçevesi daha küçük (`h-28 w-36`, logo ~%88).

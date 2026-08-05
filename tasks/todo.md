@@ -1,3 +1,7 @@
+## Round 673 — Kurum İçi FAB arka plan + Yazıyor hizası (2 kart)
+- `#2300`: FAB panel kökü/liste standart zemin; yalnız aktif sohbet mesaj alanı `whatsapp-chat-bg`.
+- `#2307`: Yazıyor göstergesi header'da birim satırının altında.
+
 ## Round 672 — Reopen düzeltmeleri + arama eşiği (9 kart)
 - `#2299`: WA beklemedeki mesaj Düzenle — balon yüksekliği kilit + sabit aksiyon satırı.
 - `#2300`: Kurum İçi FAB panel/liste/konuşma `whatsapp-chat-bg` zemini.
@@ -7,6 +11,7 @@
 - `#2308`: Users düzenle Ek birimler dropdown beyaz zemin.
 - `#2302`: Audit log Department created/updated/deleted → Birim Türkçe metin.
 - `#2294`: Birim sil Sil/İptal eşit genişlik.
+- `#2295`: Users düzenle Kaydet/İptal hafif büyük; Birimler Yönetici Ata Kaydet/İptal hafif küçük.
 
 ## Round 671 — Audit log, arama kapsamı, grid dropdown, admin UI + typing (11 kart)
 - `#2301`: UserCreated detay → `Kullanıcı:` / `Rol:` etiketleri.

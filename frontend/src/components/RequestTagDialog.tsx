@@ -343,7 +343,7 @@ export function RequestTagPicker({
         title={trimmedSelected || buttonLabel}
         className={`w-full justify-between gap-1 disabled:opacity-50 ${largeText ? 'h-9 text-sm' : 'h-8 px-2.5 text-xs'}`}
       >
-        <span className="flex min-w-0 items-center gap-1">
+        <span className="flex min-w-0 items-center gap-1.5">
           <Tag className="size-3.5 shrink-0 text-emerald-600" />
           <span className="min-w-0 truncate text-left">{buttonLabel}</span>
         </span>

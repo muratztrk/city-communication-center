@@ -27,7 +27,6 @@ import { getDepartmentTypeLabel } from '../utils/localization'
 
 type CreateMode = 'manual' | 'ldap'
 
-const EDITABLE_DEPARTMENT_TYPES = ['Birim', 'Administration'] as const
 const MIN_DEPARTMENT_SEARCH_LENGTH = 3
 
 export function DepartmentsPage() {
@@ -460,14 +459,6 @@ export function DepartmentsPage() {
     setEditResponsibleUserIds([])
   }
 
-  const editTypeOptions = useMemo(() => {
-    const base = [...EDITABLE_DEPARTMENT_TYPES]
-    if (editTypeOriginal && !(EDITABLE_DEPARTMENT_TYPES as readonly string[]).includes(editTypeOriginal)) {
-      return [editTypeOriginal, ...base]
-    }
-    return base
-  }, [editTypeOriginal])
-
   const handleUpdate = async (departmentId: string) => {
     if (!editName.trim()) {
       return
@@ -556,13 +547,16 @@ export function DepartmentsPage() {
       && !responsibleIds.has(item.userId),
     )?.displayName ?? null
   }
-  const getManagerCandidates = () => users.filter(item => item.isActive)
+  const getManagerCandidates = () => [...users.filter(item => item.isActive)]
+    .sort((a, b) => localeCompareTr(a.displayName, b.displayName))
   const userBelongsToDepartment = (item: User, departmentId?: string) => {
     if (!departmentId) return true
     return userWorksInDepartment(item, departmentId)
   }
   const getDepartmentUsers = (departmentId?: string) => users.filter(item => item.isActive && userBelongsToDepartment(item, departmentId))
-  const getUserOptions = (sourceUsers: User[]) => sourceUsers.map(item => ({ value: item.userId, label: item.displayName }))
+  const getUserOptions = (sourceUsers: User[]) => sourceUsers
+    .map(item => ({ value: item.userId, label: item.displayName }))
+    .sort((a, b) => localeCompareTr(a.label, b.label))
   const canEditDepartment = (department: Department) => user?.role === 'SystemAdmin' || department.managerUserId === user?.userId
 
   const { sortKey: deptSortKey, sortDir: deptSortDir, toggleSort: toggleDeptSort, sortItems: sortDepts } = useSortable()
@@ -923,8 +917,8 @@ export function DepartmentsPage() {
                           searchPlaceholder={t('common.search', 'Ara...')}
                           className="min-w-52"
                           triggerClassName="text-xs"
-                          // Panel genişliği = trigger (users-edit max-w-9rem kaldırıldı, card #r453).
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
+                          menuPortal={false}
                         />
                       ) : (
                         <EmptyCell value={getDepartmentManagerName(department)} />
@@ -943,6 +937,8 @@ export function DepartmentsPage() {
                           className="min-w-52"
                           triggerClassName="text-xs"
                           disabled={isManagerSaving}
+                          menuClassName="departments-manager-assign-menu users-edit-dropdown-menu-scroll"
+                          menuPortal={false}
                         />
                       ) : (
                         <div className="flex flex-wrap gap-1">
@@ -973,10 +969,10 @@ export function DepartmentsPage() {
                               <>
                                 {isManagerAssigning ? (
                                   <>
-                                    <Button size="default" variant="primary" onClick={() => void saveManagerAssign(department)} disabled={isManagerSaving}>
+                                    <Button size="sm" variant="primary" onClick={() => void saveManagerAssign(department)} disabled={isManagerSaving}>
                                       {t('common.save', 'Kaydet')}
                                     </Button>
-                                    <Button size="default" variant="secondary" onClick={() => { setManagerAssignId(null); setEditManagerUserId(''); setEditResponsibleUserIds([]) }} disabled={isManagerSaving}>
+                                    <Button size="sm" variant="secondary" onClick={() => { setManagerAssignId(null); setEditManagerUserId(''); setEditResponsibleUserIds([]) }} disabled={isManagerSaving}>
                                       {t('common.cancel')}
                                     </Button>
                                   </>
@@ -1044,19 +1040,6 @@ export function DepartmentsPage() {
                     <span>{t('departments.name')}</span>
                     <input className="field-input" type="text" value={editName} onChange={event => setEditName(event.target.value)} />
                   </label>
-                  {/* label yerine div: label tıklaması dropdown'ı yeniden açıyordu (card #1729). */}
-                  <div className="grid gap-2 text-sm font-semibold text-slate-700">
-                    <span>{t('departments.type')}</span>
-                    <SingleSelectDropdown
-                      options={editTypeOptions.map(type => ({
-                        value: type,
-                        label: getDepartmentTypeLabel(t, type),
-                      }))}
-                      value={editType}
-                      onChange={setEditType}
-                      placeholder={t('departments.type')}
-                    />
-                  </div>
                   <div className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
                     <span>{editType === 'Administration' ? t('departments.administrator') : t('departments.manager', 'Müdür')}</span>
                     <SingleSelectDropdown

@@ -13,7 +13,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { AuditLog } from '../types/platform'
-import { formatAuditNotes, getAuditActionLabel, getLocale } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getLocale, getRoleLabel } from '../utils/localization'
 import type { RoutineTaskEditSnapshot } from '../utils/routineTaskEditHistory'
 import { richTextToPlainText } from '../utils/richText'
 import type { TFunction } from 'i18next'
@@ -64,6 +64,15 @@ function formatRoutineEditSnapshot(source: string): string | null {
  * RoutineTaskEditSnapshot ham JSON göstermez (card #1806).
  */
 function buildDetailParts(t: TFunction, log: AuditLog): string[] {
+  if (log.entityType === 'ApplicationUser') {
+    const parts: string[] = []
+    if (log.entityTitle?.trim()) parts.push(log.entityTitle.trim())
+    const roleCode = log.notes?.trim()
+      || log.details?.match(/role=([A-Za-z]+)/)?.[1]
+    if (roleCode) parts.push(getRoleLabel(t, roleCode))
+    return parts
+  }
+
   if (log.entityType !== 'Job' && log.entityType !== 'WorkTask' && log.entityType !== 'Task') {
     const note = log.details ? formatAuditNotes(t, log.details) : null
     return note ? [note] : []

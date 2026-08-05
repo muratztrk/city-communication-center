@@ -135,6 +135,7 @@ export function ConversationEntryBubble({
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
   const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
+  const editRowCount = Math.max(1, Math.min(8, (entry.content || '').split('\n').length))
   // Kart #2109: Mesajı Onaylayan Yönetici — turkuaz arka plan; Not butonu kaldırıldı.
   const approverChipClassName = 'inline-flex items-center gap-1.5 rounded-full bg-teal-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm'
 
@@ -183,13 +184,12 @@ export function ConversationEntryBubble({
             </div>
           )}
           {isEditing ? (
-            // Mesaj metni aynı balon üzerinde düzenlenir (card #1094).
             <textarea
               value={draft}
               onChange={e => setDraft(e.target.value)}
-              rows={3}
+              rows={editRowCount}
               autoFocus
-              className="w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
+              className="w-full resize-none rounded-lg bg-white/95 px-2 py-1.5 text-[13px] leading-snug text-slate-900 outline-none ring-1 ring-white/40"
             />
           ) : isLocationMessage ? (
             <div className="grid gap-1.5">
@@ -260,7 +260,7 @@ export function ConversationEntryBubble({
       </div>
       {isPending && canSendPending ? (
         isEditing ? (
-          <div className="mt-1 flex items-center gap-1.5">
+          <div className="mt-1 flex min-h-[1.875rem] items-center gap-1.5">
             <button
               type="button"
               onClick={() => { setIsEditing(false); setDraft(entry.content) }}
@@ -290,7 +290,7 @@ export function ConversationEntryBubble({
             </button>
           </div>
         ) : (
-          <div className="mt-1 flex flex-wrap items-center justify-end gap-1.5">
+          <div className="mt-1 flex min-h-[1.875rem] flex-wrap items-center justify-end gap-1.5">
             <button
               type="button"
               onClick={() => { setDraft(entry.content); setIsEditing(true) }}

@@ -2214,7 +2214,29 @@
   .users-table .users-edit-dept-cell {
     width: 7.5rem;
     max-width: 7.5rem;
-    overflow: hidden;
+    overflow: visible;
+  }
+
+  .users-table .users-editing-row td {
+    overflow: visible;
+  }
+
+  .users-table .users-edit-row-actions .btn,
+  .users-table .users-edit-row-actions button {
+    min-height: 2.35rem;
+    padding-inline: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .departments-table .departments-manager-assign-menu .dropdown-menu-item {
+    font-size: 0.75rem;
+    min-height: 1.65rem;
+  }
+
+  .departments-table .departments-manager-assign-menu .dropdown-menu-footer button {
+    min-height: 1.85rem;
+    padding-inline: 0.85rem;
+    font-size: 0.8125rem;
   }
 
   .users-table .users-edit-dept-cell .field-select {

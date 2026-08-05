@@ -375,7 +375,7 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             EntityId = user.UserId.ToString(),
             Action = "UserCreated",
             ActorUserId = context.UserId,
-            Details = $"User '{user.DisplayName}' created (role={user.RoleCode}).",
+            Details = $"User '{user.Username}' created (role={user.RoleCode}).",
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);

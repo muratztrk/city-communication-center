@@ -1873,7 +1873,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bu default yalnız (a) hiç `TenantSetting` satırı olmayan yepyeni tenant'larda ve (b) "Varsayılana
   Dön"e elle basılınca devreye girer.
 - **Görünüm Önizleme logosu (#2276):** Yalnız Ayarlar > Görünüm önizlemesinde logo çerçeveli
-  `MunicipalitySeal` ile `h-28 w-28` gösterilir; sidebar/login `MunicipalitySeal` ölçüleri etkilenmez.
+  `MunicipalitySeal` ile `h-56 w-56` gösterilir (sidebar çerçeve stili); sidebar/login ölçüleri etkilenmez.
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
   (`citizen-directory-tickets-table` scoped CSS).
 - **Vatandaş Bilgi Listesi Talep Kanalı (#2285):** `Talep Kanalı` sütunu `FilterableTh` ile
@@ -1884,6 +1884,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `!ldapEnabled` iken açıklama paragrafının altına ek bir `helper-copy` satırı
   (`departments.ldapNotConfiguredHint` / `users.ldapNotConfiguredHint`) eklenir; LDAP
   ayarlandığında kaybolur — statik `newFormDescription` metnine ASLA gömme, koşullu kalsın.
+- **Log UserCreated detayı (#2290):** `ApplicationUser` oluşturma logları Detay'da kullanıcı adı +
+  rol etiketi (i18n) gösterir; ham `role=Manager` İngilizce metni kullanıcıya basılmaz.
+- **Kullanıcılar/Birimler grid dropdown (#2296):** satır içi düzenleme dropdown'ları `menuPortal={false}`
+  ile grid scroll alanında kalır; portal menü yalnız modal/dış yüzeylerde.
+- **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter
+  sonra filtreler (InternalMessagesFab ile aynı eşik).
+- **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.
 
 ## 6. Tenant / Auth
 

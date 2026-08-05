@@ -38,6 +38,11 @@ public sealed class GetAuditLogsQueryHandler : IQueryHandler<GetAuditLogsQuery, 
             .Select(a => a.ActorUserId!.Value)
             .Distinct()
             .ToList();
+        var applicationUserIds = audits
+            .Where(a => a.EntityType == nameof(ApplicationUser) && Guid.TryParse(a.EntityId, out _))
+            .Select(a => Guid.Parse(a.EntityId))
+            .Distinct()
+            .ToList();
 
         var jobsById = (await _dbContext.Jobs
                 .Where(j => jobIds.Contains(j.JobId))
@@ -54,12 +59,18 @@ public sealed class GetAuditLogsQueryHandler : IQueryHandler<GetAuditLogsQuery, 
                 .Select(u => new { u.UserId, u.DisplayName })
                 .ToListAsync(cancellationToken))
             .ToDictionary(u => u.UserId, u => u.DisplayName);
+        var subjectUsersById = (await _dbContext.Users
+                .Where(u => applicationUserIds.Contains(u.UserId))
+                .Select(u => new { u.UserId, u.Username, u.RoleCode })
+                .ToListAsync(cancellationToken))
+            .ToDictionary(u => u.UserId);
 
         return audits
             .Select(entity =>
             {
                 string? entityNumber = null;
                 string? entityTitle = null;
+                string? notes = entity.Notes;
                 if (entity.EntityType == nameof(Job)
                     && Guid.TryParse(entity.EntityId, out var jobId)
                     && jobsById.TryGetValue(jobId, out var job))
@@ -75,6 +86,13 @@ public sealed class GetAuditLogsQueryHandler : IQueryHandler<GetAuditLogsQuery, 
                     entityTitle = task.Title;
                     if (task.TaskNumber.HasValue)
                         entityNumber = FormatEntityNumber("G", task.TaskNumber.Value, task.TaskNumberYear);
+                }
+                else if (entity.EntityType == nameof(ApplicationUser)
+                    && Guid.TryParse(entity.EntityId, out var subjectUserId)
+                    && subjectUsersById.TryGetValue(subjectUserId, out var subjectUser))
+                {
+                    entityTitle = subjectUser.Username;
+                    notes = subjectUser.RoleCode.ToString();
                 }
 
                 var actorDisplayName = entity.ActorDisplayName;
@@ -92,7 +110,7 @@ public sealed class GetAuditLogsQueryHandler : IQueryHandler<GetAuditLogsQuery, 
                     entity.ActorUserId,
                     entity.EventTimeUtc,
                     entity.Details,
-                    entity.Notes,
+                    notes,
                     actorDisplayName,
                     entityNumber,
                     entityTitle);

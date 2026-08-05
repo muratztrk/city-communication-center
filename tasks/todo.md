@@ -1,3 +1,10 @@
+## Round 669 — WA profil adı, ayarlar tipografi, footer geri al (#2284/#2288/#2287/#1960/#2276)
+- `#2284`: Rol matrisi parantez ipucu fontu 0.68→0.72rem (Personelin cevap kontrolü / Whatsapp Sms vb.).
+- `#2288`: WhatsApp Vatandaş Bilgileri `Vatandaş Adı` düzenlenebilir; profil kaydı Job'dan ayrı.
+- `#2287`: Vatandaş Bilgi Listesi detay popup VT No küçültüldü, Öncelik büyütüldü.
+- `#1960`: Footer logo Round 668 wordmark geri alındı (önceki `/lumespec-logo.png`).
+- `#2276`: Görünüm önizleme çerçeveli logo `h-28 w-28` (bare kaldırıldı).
+
 ## Round 668 — Rol matris etiketleri, WA FAB, vatandaş listesi, footer logo (5 kart)
 - `#2284`: Sayfa Yetkileri social/mesaj onayı satırları iki satır + küçük parantez ipucu.
 - `#2276`: Görünüm önizleme logosu `bare` h-20 sabit; dekoratif çerçeve kaldırıldı.

@@ -1613,14 +1613,17 @@ export function WhatsAppConversationsPage() {
   const normalizedSearchPhone = normalizePhone(search)
   const normalizedSearchName = search.trim().toLocaleLowerCase('tr')
   const normalizedSearchTicket = search.replace(/\D/g, '')
+  const searchActive = normalizedSearchPhone.length >= 3
+    || normalizedSearchName.length >= 3
+    || normalizedSearchTicket.length >= 3
   const filtered = useMemo(() => {
     const matches = conversations.filter(conversation => {
       const ticketNumber = conversation.latestCitizenRequestNumber?.toString() ?? ''
-      const matchesSearch = normalizedSearchPhone.length === 0 && normalizedSearchName.length === 0
+      const matchesSearch = !searchActive
         ? true
-        : (normalizedSearchPhone.length > 0 && normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone))
-          || (conversation.citizenName ?? '').toLocaleLowerCase('tr').includes(normalizedSearchName)
-          || (normalizedSearchTicket.length > 0 && ticketNumber.includes(normalizedSearchTicket))
+        : (normalizedSearchPhone.length >= 3 && normalizePhone(conversation.citizenPhone).includes(normalizedSearchPhone))
+          || (normalizedSearchName.length >= 3 && (conversation.citizenName ?? '').toLocaleLowerCase('tr').includes(normalizedSearchName))
+          || (normalizedSearchTicket.length >= 3 && ticketNumber.includes(normalizedSearchTicket))
       if (!matchesSearch) return false
       if (filterFrom || filterTo) {
         const date = conversation.lastMessageAt.slice(0, 10)
@@ -1640,7 +1643,7 @@ export function WhatsAppConversationsPage() {
       const bTime = new Date(b.lastMessageAt).getTime()
       return sortOrder === 'newest' ? bTime - aTime : aTime - bTime
     })
-  }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, sortOrder, statusFilter])
+  }, [conversations, filterFrom, filterTo, listFilter, normalizedSearchName, normalizedSearchPhone, normalizedSearchTicket, searchActive, sortOrder, statusFilter])
 
   // Sayfa açılışında sağ panel boş kalmasın diye ilk (en üstteki) konuşma otomatik seçilir —
   // tıklandığında açılan görünüm varsayılan olarak gelir. Bir kere tetiklenir; kullanıcının

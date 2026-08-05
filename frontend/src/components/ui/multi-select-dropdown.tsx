@@ -27,6 +27,8 @@ interface MultiSelectDropdownProps {
   /** Shows a "contains" search box as the first row of the options panel (card #1739). */
   searchable?: boolean
   searchPlaceholder?: string
+  /** false: menü portal yerine trigger altında absolute kalır (grid scroll — card #2296). */
+  menuPortal?: boolean
 }
 
 export function MultiSelectDropdown({
@@ -43,6 +45,7 @@ export function MultiSelectDropdown({
   disabled = false,
   searchable = false,
   searchPlaceholder = 'Ara...',
+  menuPortal = true,
 }: MultiSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -74,14 +77,14 @@ export function MultiSelectDropdown({
   }, [openUp, menuWidth])
 
   useEffect(() => {
-    if (!open) return
+    if (!open || !menuPortal) return
     window.addEventListener('scroll', updateMenuPosition, true)
     window.addEventListener('resize', updateMenuPosition)
     return () => {
       window.removeEventListener('scroll', updateMenuPosition, true)
       window.removeEventListener('resize', updateMenuPosition)
     }
-  }, [open, updateMenuPosition])
+  }, [open, menuPortal, updateMenuPosition])
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -110,6 +113,93 @@ export function MultiSelectDropdown({
     setOpen(false)
     setSearch('')
   }
+
+  const menuPanelClassName = cn(
+    'dropdown-menu-panel flex max-h-72 flex-col',
+    menuPortal ? 'fixed z-[9999]' : 'absolute z-[120]',
+    openUp && !menuPortal ? 'bottom-full mb-2' : !menuPortal ? 'top-full mt-2' : null,
+    adminSurfaceMenu && 'admin-surface-menu',
+    menuClassName,
+  )
+
+  const menuPanelStyle = menuPortal
+    ? {
+        left: menuStyle.left,
+        top: menuStyle.top,
+        bottom: menuStyle.bottom,
+        width: menuStyle.width,
+      }
+    : {
+        left: 0,
+        width: menuWidth ?? '100%',
+      }
+
+  const menuPanel = open ? (
+    <div
+      ref={menuRef}
+      className={menuPanelClassName}
+      style={menuPanelStyle}
+    >
+      {searchEnabled ? (
+        <div className="flex shrink-0 items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
+          <Search className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+          <input
+            type="text"
+            autoFocus
+            value={search}
+            onChange={event => setSearch(event.target.value)}
+            onClick={event => event.stopPropagation()}
+            placeholder={searchPlaceholder}
+            className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+          />
+        </div>
+      ) : null}
+      <div className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-3 py-1.5">
+        <span className="text-xs font-semibold text-slate-500">{selectedOptions.length} / {options.length}</span>
+        {selectedOptions.length > 0 ? (
+          <button type="button" className="icon-btn size-7 cursor-pointer text-slate-400 hover:text-red-600" onClick={clearSelection} aria-label="Clear selection">
+            <X className="size-3.5" />
+          </button>
+        ) : null}
+      </div>
+      {visibleOptions.length === 0 ? (
+        <div className="px-3 py-2 text-sm font-semibold text-slate-500">{emptyText}</div>
+      ) : (
+        <div className="dropdown-menu-scroll min-h-0 flex-1 divide-y divide-slate-100">
+          {visibleOptions.map(option => {
+            const checked = selectedSet.has(option.value)
+            return (
+              <button
+                key={option.value}
+                type="button"
+                className={cn('dropdown-menu-item', checked && 'dropdown-menu-item--selected')}
+                onClick={() => toggleOption(option.value)}
+              >
+                <span className="min-w-0 truncate" title={option.label}>{option.label}</span>
+                {checked ? <Check className="size-4 shrink-0" /> : null}
+              </button>
+            )
+          })}
+        </div>
+      )}
+      <div className="dropdown-menu-footer flex shrink-0 justify-end gap-1.5 border-t border-slate-100 px-1.5 py-1.5">
+        <button
+          type="button"
+          className="rounded-md bg-[var(--color-destructive)] px-2.5 py-1 text-xs font-bold text-white shadow-sm transition-[filter] hover:brightness-95"
+          onClick={() => { setOpen(false); setSearch('') }}
+        >
+          Çıkış
+        </button>
+        <button
+          type="button"
+          className="rounded-md bg-[color:var(--color-primary)] px-2.5 py-1 text-xs font-bold text-white shadow-sm transition-opacity hover:opacity-90"
+          onClick={() => { setOpen(false); setSearch('') }}
+        >
+          Seç
+        </button>
+      </div>
+    </div>
+  ) : null
 
   return (
     <div ref={rootRef} className={cn('relative', className)}>
@@ -151,84 +241,7 @@ export function MultiSelectDropdown({
         <ChevronDown className={cn('size-4 shrink-0 text-slate-400 transition-transform', open ? 'rotate-180' : '')} />
       </button>
 
-      {open ? createPortal(
-        <div
-          ref={menuRef}
-          // Tablo hücrelerinde absolute menü komşu sütunlara biniyordu (card #1706) —
-          // SingleSelect ile aynı portal + fixed katman.
-          className={cn(
-            'dropdown-menu-panel fixed z-[9999] flex max-h-72 flex-col',
-            adminSurfaceMenu && 'admin-surface-menu',
-            menuClassName,
-          )}
-          style={{
-            left: menuStyle.left,
-            top: menuStyle.top,
-            bottom: menuStyle.bottom,
-            width: menuStyle.width,
-          }}
-        >
-          {searchEnabled ? (
-            <div className="flex shrink-0 items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
-              <Search className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
-              <input
-                type="text"
-                autoFocus
-                value={search}
-                onChange={event => setSearch(event.target.value)}
-                onClick={event => event.stopPropagation()}
-                placeholder={searchPlaceholder}
-                className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
-              />
-            </div>
-          ) : null}
-          <div className="flex shrink-0 items-center justify-between gap-2 border-b border-slate-100 px-3 py-1.5">
-            <span className="text-xs font-semibold text-slate-500">{selectedOptions.length} / {options.length}</span>
-            {selectedOptions.length > 0 ? (
-              <button type="button" className="icon-btn size-7 cursor-pointer text-slate-400 hover:text-red-600" onClick={clearSelection} aria-label="Clear selection">
-                <X className="size-3.5" />
-              </button>
-            ) : null}
-          </div>
-          {visibleOptions.length === 0 ? (
-            <div className="px-3 py-2 text-sm font-semibold text-slate-500">{emptyText}</div>
-          ) : (
-            <div className="dropdown-menu-scroll min-h-0 flex-1 divide-y divide-slate-100">
-              {visibleOptions.map(option => {
-                const checked = selectedSet.has(option.value)
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={cn('dropdown-menu-item', checked && 'dropdown-menu-item--selected')}
-                    onClick={() => toggleOption(option.value)}
-                  >
-                    <span className="min-w-0 truncate" title={option.label}>{option.label}</span>
-                    {checked ? <Check className="size-4 shrink-0" /> : null}
-                  </button>
-                )
-              })}
-            </div>
-          )}
-          <div className="dropdown-menu-footer flex shrink-0 justify-end gap-1.5 border-t border-slate-100 px-1.5 py-1.5">
-            <button
-              type="button"
-              className="rounded-md bg-[var(--color-destructive)] px-2.5 py-1 text-xs font-bold text-white shadow-sm transition-[filter] hover:brightness-95"
-              onClick={() => { setOpen(false); setSearch('') }}
-            >
-              Çıkış
-            </button>
-            <button
-              type="button"
-              className="rounded-md bg-[color:var(--color-primary)] px-2.5 py-1 text-xs font-bold text-white shadow-sm transition-opacity hover:opacity-90"
-              onClick={() => { setOpen(false); setSearch('') }}
-            >
-              Seç
-            </button>
-          </div>
-        </div>,
-        document.body,
-      ) : null}
+      {menuPortal ? (menuPanel ? createPortal(menuPanel, document.body) : null) : menuPanel}
     </div>
   )
 }

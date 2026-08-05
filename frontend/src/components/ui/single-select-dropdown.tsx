@@ -29,6 +29,8 @@ interface SingleSelectDropdownProps {
   menuWidth?: number
   /** Seçiliyken chevron sonrası kırmızı X — temizler (#r465, Etiketler ile aynı). */
   clearable?: boolean
+  /** false: menü portal yerine trigger altında absolute kalır (grid scroll — card #2296). */
+  menuPortal?: boolean
 }
 
 export function SingleSelectDropdown({
@@ -47,6 +49,7 @@ export function SingleSelectDropdown({
   menuClassName,
   menuWidth,
   clearable = false,
+  menuPortal = true,
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -84,14 +87,14 @@ export function SingleSelectDropdown({
   }, [openUp, menuClassName, menuWidth])
 
   useEffect(() => {
-    if (!open) return
+    if (!open || !menuPortal) return
     window.addEventListener('scroll', updateMenuPosition, true)
     window.addEventListener('resize', updateMenuPosition)
     return () => {
       window.removeEventListener('scroll', updateMenuPosition, true)
       window.removeEventListener('resize', updateMenuPosition)
     }
-  }, [open, updateMenuPosition])
+  }, [open, menuPortal, updateMenuPosition])
 
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -104,6 +107,74 @@ export function SingleSelectDropdown({
     document.addEventListener('pointerdown', handlePointerDown)
     return () => document.removeEventListener('pointerdown', handlePointerDown)
   }, [])
+
+  const menuPanelClassName = cn(
+    'dropdown-menu-panel',
+    menuPortal ? 'fixed z-[9999]' : 'absolute z-[120]',
+    openUp && !menuPortal ? 'bottom-full mb-2' : !menuPortal ? 'top-full mt-2' : null,
+    adminSurfaceMenu && 'admin-surface-menu',
+    menuClassName,
+  )
+
+  const menuPanelStyle = menuPortal
+    ? {
+        left: menuStyle.left,
+        top: menuStyle.top,
+        bottom: menuStyle.bottom,
+        width: menuStyle.width,
+        minWidth: menuStyle.minWidth,
+      }
+    : {
+        left: 0,
+        ...(menuWidth
+          ? { width: menuWidth }
+          : menuClassName
+            ? { minWidth: '100%' }
+            : { width: '100%' }),
+      }
+
+  const menuPanel = open ? (
+    <div
+      ref={menuRef}
+      className={menuPanelClassName}
+      style={menuPanelStyle}
+    >
+      {searchEnabled ? (
+        <div className="flex items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
+          <Search className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
+          <input
+            type="text"
+            autoFocus
+            value={search}
+            onChange={event => setSearch(event.target.value)}
+            onClick={event => event.stopPropagation()}
+            placeholder={searchPlaceholder}
+            className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+          />
+        </div>
+      ) : null}
+      {visibleOptions.length === 0 ? (
+        <div className="px-3 py-2 text-sm font-semibold text-slate-500">{emptyText}</div>
+      ) : (
+        <div className={cn('dropdown-menu-scroll divide-y divide-slate-100', menuScrollClassName)}>
+          {visibleOptions.map(option => {
+            const checked = option.value === value
+            return (
+              <button
+                key={option.value}
+                type="button"
+                className={cn('dropdown-menu-item', checked && 'dropdown-menu-item--selected')}
+                onClick={() => { onChange(option.value); setOpen(false); setSearch('') }}
+              >
+                <span className="min-w-0 truncate" title={option.label}>{option.label}</span>
+                {checked ? <Check className="size-4 shrink-0" /> : null}
+              </button>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  ) : null
 
   return (
     <div ref={rootRef} className={cn('relative', className)}>
@@ -161,62 +232,7 @@ export function SingleSelectDropdown({
         </span>
       </button>
 
-      {open ? createPortal(
-        <div
-          ref={menuRef}
-          // Portal artık document.body'ye render ediliyor; FilterableTh'nin col-filter-popover'ı
-          // ile aynı üst katman kuralına uyar, modal içindeki kullanımlarda ModalBackdrop'ın
-          // z-[200] katmanının üzerinde kalır (card #1509).
-          className={cn(
-            'dropdown-menu-panel fixed z-[9999]',
-            adminSurfaceMenu && 'admin-surface-menu',
-            menuClassName,
-          )}
-          style={{
-            left: menuStyle.left,
-            top: menuStyle.top,
-            bottom: menuStyle.bottom,
-            width: menuStyle.width,
-            minWidth: menuStyle.minWidth,
-          }}
-        >
-          {searchEnabled ? (
-            <div className="flex items-center gap-1.5 border-b border-slate-100 px-2.5 py-2">
-              <Search className="size-3.5 shrink-0 text-slate-400" aria-hidden="true" />
-              <input
-                type="text"
-                autoFocus
-                value={search}
-                onChange={event => setSearch(event.target.value)}
-                onClick={event => event.stopPropagation()}
-                placeholder={searchPlaceholder}
-                className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
-              />
-            </div>
-          ) : null}
-          {visibleOptions.length === 0 ? (
-            <div className="px-3 py-2 text-sm font-semibold text-slate-500">{emptyText}</div>
-          ) : (
-            <div className={cn('dropdown-menu-scroll divide-y divide-slate-100', menuScrollClassName)}>
-              {visibleOptions.map(option => {
-                const checked = option.value === value
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    className={cn('dropdown-menu-item', checked && 'dropdown-menu-item--selected')}
-                    onClick={() => { onChange(option.value); setOpen(false); setSearch('') }}
-                  >
-                    <span className="min-w-0 truncate" title={option.label}>{option.label}</span>
-                    {checked ? <Check className="size-4 shrink-0" /> : null}
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>,
-        document.body,
-      ) : null}
+      {menuPortal ? (menuPanel ? createPortal(menuPanel, document.body) : null) : menuPanel}
     </div>
   )
 }

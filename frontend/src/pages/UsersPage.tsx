@@ -1273,10 +1273,12 @@ export function UsersPage() {
               <div className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.department')}</span>
                 <SingleSelectDropdown
-                  options={departments.map(department => ({
-                    value: department.departmentId,
-                    label: department.name,
-                  }))}
+                  options={[...departments]
+                    .map(department => ({
+                      value: department.departmentId,
+                      label: department.name,
+                    }))
+                    .sort((a, b) => localeCompareTr(a.label, b.label))}
                   value={newUser.departmentId}
                   onChange={departmentId => setNewUser(current => ({
                     ...current,
@@ -1294,9 +1296,10 @@ export function UsersPage() {
               <div className="users-additional-departments-field grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.additionalDepartments', 'Ek görev yaptığı birimler')}</span>
                 <MultiSelectDropdown
-                  options={departments
+                  options={[...departments]
                     .filter(department => department.departmentId !== newUser.departmentId)
-                    .map(department => ({ value: department.departmentId, label: department.name }))}
+                    .map(department => ({ value: department.departmentId, label: department.name }))
+                    .sort((a, b) => localeCompareTr(a.label, b.label))}
                   value={newUser.additionalDepartmentIds}
                   onChange={additionalDepartmentIds => setNewUser(current => ({ ...current, additionalDepartmentIds }))}
                   placeholder={t('users.additionalDepartmentsPlaceholder', 'Ek birim seçiniz...')}
@@ -1426,7 +1429,7 @@ export function UsersPage() {
             <tbody>
               {pagedUsers.map((user, index) => (
                 editingUserId === user.userId ? (
-                  <tr key={user.userId} className="bg-slate-50">
+                  <tr key={user.userId} className="users-editing-row bg-slate-50">
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(usersSafePage - 1) * usersPageSize + index + 1}</td>
                     <td>
                       {user.userSource === 'Manual' ? (
@@ -1481,17 +1484,19 @@ export function UsersPage() {
                       <div className="grid w-full min-w-0 gap-1.5">
                         {user.userSource === 'Ldap' ? (
                           <span
-                            className="block min-w-0 truncate rounded-lg border border-slate-200 bg-slate-100 px-2 py-1.5 text-xs text-slate-700"
+                            className="field-select flex min-h-8 w-full items-center truncate px-2 text-xs text-slate-700"
                             title={getDepartmentName(editForm.departmentId)}
                           >
                             {getDepartmentName(editForm.departmentId)}
                           </span>
                         ) : (
                           <SingleSelectDropdown
-                            options={departments.map(department => ({
-                              value: department.departmentId,
-                              label: department.name,
-                            }))}
+                            options={[...departments]
+                              .map(department => ({
+                                value: department.departmentId,
+                                label: department.name,
+                              }))
+                              .sort((a, b) => localeCompareTr(a.label, b.label))}
                             value={editForm.departmentId}
                             onChange={departmentId => setEditForm(c => ({
                               ...c,
@@ -1504,15 +1509,16 @@ export function UsersPage() {
                             searchPlaceholder={t('common.search', 'Ara...')}
                             className="w-full min-w-0 max-w-full"
                             triggerClassName="text-xs !min-h-8 !px-2"
-                            // Panel: Birim → Ek roller sağ kenarı (7.5+9rem, card #r459).
                             menuWidth={264}
                             menuScrollClassName="users-edit-dropdown-menu-scroll"
+                            menuPortal={false}
                           />
                         )}
                         <MultiSelectDropdown
-                          options={departments
+                          options={[...departments]
                             .filter(department => department.departmentId !== editForm.departmentId)
-                            .map(department => ({ value: department.departmentId, label: department.name }))}
+                            .map(department => ({ value: department.departmentId, label: department.name }))
+                            .sort((a, b) => localeCompareTr(a.label, b.label))}
                           value={editForm.additionalDepartmentIds}
                           onChange={additionalDepartmentIds => setEditForm(c => ({ ...c, additionalDepartmentIds }))}
                           placeholder={t('users.additionalDepartmentsShort', 'Ek birimler')}
@@ -1523,6 +1529,7 @@ export function UsersPage() {
                           menuWidth={264}
                           searchable
                           searchPlaceholder={t('common.search', 'Ara...')}
+                          menuPortal={false}
                         />
                       </div>
                     </td>
@@ -1545,11 +1552,12 @@ export function UsersPage() {
                           // Panel: Rol → LDAP (Kaynak) sonu (~9+5rem, card #r459).
                           menuWidth={224}
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
+                          menuPortal={false}
                         />
                         <MultiSelectDropdown
                           options={getAllowedAdditionalRoleCodes(editForm.roleCode)
                             .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))
-                            .sort((a, b) => a.label.localeCompare(b.label, 'tr'))}
+                            .sort((a, b) => localeCompareTr(a.label, b.label))}
                           value={editForm.additionalRoleCodes}
                           onChange={additionalRoleCodes => setEditForm(c => ({ ...c, additionalRoleCodes }))}
                           placeholder={t('users.additionalRolesShort', 'Ek roller')}
@@ -1558,6 +1566,7 @@ export function UsersPage() {
                           triggerClassName="text-xs"
                           menuClassName="users-edit-dropdown-menu-scroll"
                           menuWidth={224}
+                          menuPortal={false}
                         />
                       </div>
                     </td>
@@ -1569,9 +1578,9 @@ export function UsersPage() {
                       </label>
                     </td>
                     <td className="actions-column">
-                      <div className="row-actions">
-                        <Button size="sm" type="button" onClick={() => handleUpdateUser(user.userId, user.userSource)}>{t('common.save')}</Button>
-                        <Button size="sm" type="button" variant="secondary" onClick={cancelEditing}>{t('common.cancel')}</Button>
+                      <div className="row-actions users-edit-row-actions">
+                        <Button size="default" type="button" onClick={() => handleUpdateUser(user.userId, user.userSource)}>{t('common.save')}</Button>
+                        <Button size="default" type="button" variant="secondary" onClick={cancelEditing}>{t('common.cancel')}</Button>
                         {editForm.roleCode === 'Manager' && editForm.departmentId && getDepartmentManager(editForm.departmentId, user.userId) ? (
                           <span className="text-xs font-medium text-amber-700" title={t('users.managerConflict', { name: getDepartmentManager(editForm.departmentId, user.userId)!.displayName })}>
                             ⚠ {getDepartmentManager(editForm.departmentId, user.userId)!.displayName}

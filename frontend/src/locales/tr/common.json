@@ -1270,9 +1270,9 @@
     "ldapTesting": "Test ediliyor...",
     "ldapConnectionStatus": "Bağlantı Durumu",
     "authTitle": "Kimlik Politikası",
-    "authDescription": "ç ağ otomatik girişi ve dış ağ ikinci doğrulama kurallarını yönetin.",
+    "authDescription": "İç ağ otomatik girişi ve dış ağ ikinci doğrulama kurallarını yönetin.",
     "authAutomaticReady": "Otomatik Giriş",
-    "authSecondFactorReady": "kinci Doğrulama",
+    "authSecondFactorReady": "İkinci Doğrulama",
     "authAutomaticSignInEnabled": "Güvenilen ağlarda otomatik giriş açık",
     "authRequireSecondFactor": "Dış ağda ikinci doğrulama zorunlu",
     "authAutomaticSignInMode": "Otomatik Giriş Modu",
@@ -1281,7 +1281,7 @@
       "TrustedHeader": "Trusted Header",
       "Negotiate": "Negotiate"
     },
-    "authSecondFactorProvider": "kinci Doğrulama Sağlayıcısı",
+    "authSecondFactorProvider": "İkinci Doğrulama Sağlayıcısı",
     "authSecondFactorProviders": {
       "Disabled": "Kapalı",
       "Mock": "Mock",

@@ -5880,14 +5880,9 @@
     right: -7.75rem;
   }
 
-  /* WhatsApp-style chat surface: base color + subtle dot pattern (not Meta assets). */
+  /* Chat message scroll surfaces share the standard app background (Kurum İçi FAB panel ile aynı). */
   .whatsapp-chat-bg {
     background-color: var(--wa-chat-bg);
-    background-image:
-      radial-gradient(rgb(17 27 33 / 0.045) 0.75px, transparent 0.75px),
-      radial-gradient(rgb(17 27 33 / 0.025) 0.75px, transparent 0.75px);
-    background-size: 22px 22px, 22px 22px;
-    background-position: 0 0, 11px 11px;
   }
 
   .whatsapp-chat-bg--dark {

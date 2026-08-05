@@ -509,8 +509,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Formda kilitli telefon alanında `(başında 0 olmadan ekleyin)` ipucu gösterilmez. Talep Oluştur
   popup'ında dış kırmızı kapatma butonu varken iç konuşma header'ında mükerrer `X` gösterilmez.
 - **WhatsApp konuşma detay header zemini:** seçili konuşmanın üst bilgi şeridi breadcrumb `Anasayfa`
-  yüzeyiyle aynı açık `slate-50` zemininde kalır; chat mesaj alanı ayrı WhatsApp dokulu zemindir
-  (card #1252).
+  yüzeyiyle aynı açık `slate-50` zemininde kalır; chat mesaj alanı standart `color-background`
+  zemini kullanır (Kurum İçi FAB paneli ile aynı renk).
 - **WhatsApp breadcrumb ve konuşma başlığı:** Breadcrumb'daki `WhatsApp` pill'inin başında
   WhatsApp ikonu görünür; konuşma detay header'ında telefon altına `WhatsApp Konuşmaları`
   fallback subtitle'ı basılmaz (cards #1253/#1254).
@@ -1923,7 +1923,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA beklemedeki mesaj Düzenle (#2299 reopen):** düzenleme modunda balon yüksekliği `minHeight` ile
   kilitlenir; alt aksiyon satırı sabit `min-h` ile konuşma alanı kaymaz.
 - **Kurum İçi FAB zemin (#2300 reopen):** panel kökü ve konuşma listesi standart `color-background`;
-  yalnızca aktif sohbet mesaj scroll alanı WhatsApp `whatsapp-chat-bg` dokusunu kullanır.
+  aktif sohbet mesaj scroll alanı da aynı `color-background` / `whatsapp-chat-bg` token'ını kullanır.
 - **Yerel birim oluşturma (#2303/#2310):** başarı `ConfirmDialog` popup'ıdır; başlık altında ayraç
   çizgisi (`titleDivider`) ve `Tamam` butonu yeşil (`variant: success`).
 - **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).

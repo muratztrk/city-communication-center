@@ -44,6 +44,6 @@
     + var(--whatsapp-fab-size) + 0.75rem
     + var(--whatsapp-fab-size) + 0.75rem
   );
-  --wa-chat-bg: #ece5dd;
+  --wa-chat-bg: var(--color-background);
   --wa-chat-bg-dark: #0b141a;
 }

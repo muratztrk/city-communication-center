@@ -2276,8 +2276,13 @@
   .departments-table .departments-delete-confirm-actions .btn,
   .departments-table .departments-delete-confirm-actions button {
     min-height: 2.05rem;
-    padding-inline: 0.9rem;
+    min-width: 4.75rem;
+    padding-inline: 1rem;
     font-size: 0.8125rem;
+  }
+
+  .users-table .users-edit-dept-cell .users-edit-additional-dept-trigger.field-select {
+    background-color: #fff;
   }
 
   .departments-table .departments-manager-assign-actions-btn {

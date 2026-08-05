@@ -1620,7 +1620,10 @@
         "assignedToUser": "Atanan kullanıcı",
         "unassignedPool": "Atanmamış (havuz)",
         "titleUpdated": "Başlık güncellendi",
-        "jobDeleted": "'{{title}}' talebi silindi."
+        "jobDeleted": "'{{title}}' talebi silindi.",
+        "departmentDeleted": "'{{name}}' birimi silindi.",
+        "departmentCreated": "'{{name}}' birimi oluşturuldu.",
+        "departmentUpdated": "'{{oldName}}' birimi '{{newName}}' olarak güncellendi."
       }
     },
     "userSource": {

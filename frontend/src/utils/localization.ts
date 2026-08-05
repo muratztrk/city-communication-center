@@ -216,6 +216,31 @@ export function formatAuditNotes(t: TFunction, notes: string): string {
     })
   }
 
+  const deletedDepartmentMatch = trimmedNotes.match(/^Department '(.+)' deleted\.$/)
+  if (deletedDepartmentMatch) {
+    return t('enum.auditLog.notePhrases.departmentDeleted', {
+      name: deletedDepartmentMatch[1],
+      defaultValue: `'${deletedDepartmentMatch[1]}' birimi silindi.`,
+    })
+  }
+
+  const createdDepartmentMatch = trimmedNotes.match(/^Department '(.+)' created\.$/)
+  if (createdDepartmentMatch) {
+    return t('enum.auditLog.notePhrases.departmentCreated', {
+      name: createdDepartmentMatch[1],
+      defaultValue: `'${createdDepartmentMatch[1]}' birimi oluşturuldu.`,
+    })
+  }
+
+  const updatedDepartmentMatch = trimmedNotes.match(/^Department '(.+)' updated to '(.+)'\.$/)
+  if (updatedDepartmentMatch) {
+    return t('enum.auditLog.notePhrases.departmentUpdated', {
+      oldName: updatedDepartmentMatch[1],
+      newName: updatedDepartmentMatch[2],
+      defaultValue: `'${updatedDepartmentMatch[1]}' birimi '${updatedDepartmentMatch[2]}' olarak güncellendi.`,
+    })
+  }
+
   // Bildirimlerdeki FormatNote ile aynı ISO zaman çevirisi (card #1667 / #1713):
   // "O" round-trip (+00:00) ve Zulu (Z) tarihleri yerel dd.MM.yyyy HH:mm olur.
   return trimmedNotes.replace(

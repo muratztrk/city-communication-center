@@ -1,3 +1,13 @@
+## Round 672 — Reopen düzeltmeleri + arama eşiği (8 kart)
+- `#2299`: WA beklemedeki mesaj Düzenle — balon yüksekliği kilit + sabit aksiyon satırı.
+- `#2300`: Kurum İçi FAB panel/liste/konuşma `whatsapp-chat-bg` zemini.
+- `#2303`: Yerel birim oluşturma başarı → ConfirmDialog popup (toast değil).
+- `#2309`: Kullanıcılar arama min 3 karakter.
+- `#2305`: Ayarlar önizleme logo/çerçeve daha küçük (`h-28 w-36`).
+- `#2308`: Users düzenle Ek birimler dropdown beyaz zemin.
+- `#2302`: Audit log Department created/updated/deleted → Birim Türkçe metin.
+- `#2294`: Birim sil Sil/İptal eşit genişlik.
+
 ## Round 671 — Audit log, arama kapsamı, grid dropdown, admin UI + typing (11 kart)
 - `#2301`: UserCreated detay → `Kullanıcı:` / `Rol:` etiketleri.
 - `#2302`: UserDeleted detay → silinen kullanıcı adı + rol (Details parse + yeni kayıtlar).

@@ -27,6 +27,7 @@ import { getRoleLabel, getUserSourceLabel } from '../utils/localization'
 type CreateMode = 'manual' | 'ldap'
 
 const ADDITIONAL_ROLE_CODES = ['Operator', 'Staff', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
+const MIN_USER_SEARCH_LENGTH = 3
 /** UI-only rol seçeneği — kayıtta Manager'a map (card #1897). */
 const SORUMLU_ROLE_OPTION = 'Sorumlu'
 
@@ -855,7 +856,10 @@ export function UsersPage() {
   const { filters: userFilters, setFilter: setUserFilter, clearFilters: clearUserFilters, matchesFilters: userMatchesFilters } = useColumnFilters()
   const [userSearchText, setUserSearchText] = useState('')
   const columnFilteredUsers = useMemo(() => {
-    const searchNormalized = userSearchText.trim().toLocaleLowerCase('tr')
+    const trimmedSearch = userSearchText.trim()
+    const searchNormalized = trimmedSearch.length >= MIN_USER_SEARCH_LENGTH
+      ? trimmedSearch.toLocaleLowerCase('tr')
+      : ''
     return sortedUsers.filter(user => {
       if (searchNormalized) {
         const haystack = [
@@ -1515,8 +1519,8 @@ export function UsersPage() {
                           onChange={additionalDepartmentIds => setEditForm(c => ({ ...c, additionalDepartmentIds }))}
                           placeholder={t('users.additionalDepartmentsShort', 'Ek birimler')}
                           emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
-                          className="w-full min-w-0 max-w-full"
-                          triggerClassName="text-xs !min-h-8 !px-2"
+                          className="w-full min-w-0 max-w-full users-edit-additional-dept-trigger"
+                          triggerClassName="text-xs !min-h-8 !px-2 !bg-white"
                           menuClassName="users-edit-dropdown-menu-scroll"
                           menuWidth={264}
                           searchable

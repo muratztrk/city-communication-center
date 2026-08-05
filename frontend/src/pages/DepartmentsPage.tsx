@@ -18,7 +18,6 @@ import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { StatusPill } from '../components/ui/status-pill'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
-import { Toast } from '../components/ui/toast'
 import { useAuth } from '../context/AuthContext'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Department, DirectoryUserLookup, User } from '../types/platform'
@@ -57,7 +56,6 @@ export function DepartmentsPage() {
   const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
   const [deleteAllLdapLoading, setDeleteAllLdapLoading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [deptPageSize, setDeptPageSize] = useState(25)
   const [deptPage, setDeptPage] = useState(1)
 
@@ -168,7 +166,14 @@ export function DepartmentsPage() {
       resetCreateForm()
       invalidateDepartments(queryClient)
       if (createMode === 'manual') {
-        setToast({ message: t('departments.createSuccess', '{{name}} birimi oluşturuldu.', { name: createdName }), type: 'success' })
+        setConfirmDialog({
+          title: t('departments.createSuccessTitle', 'Birim oluşturuldu'),
+          titleTone: 'success',
+          message: t('departments.createSuccess', '{{name}} birimi oluşturuldu.', { name: createdName }),
+          confirmLabel: t('common.ok', 'Tamam'),
+          hideCancel: true,
+          onConfirm: () => {},
+        })
       }
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : t('common.error'))
@@ -1081,13 +1086,6 @@ export function DepartmentsPage() {
       ) : null}
 
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
-      {toast ? (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      ) : null}
     </div>
   )
 }

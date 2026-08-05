@@ -1896,6 +1896,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter
   sonra filtreler (InternalMessagesFab ile aynı eşik).
 - **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.
+- **WA beklemedeki mesaj Düzenle (#2299 reopen):** düzenleme modunda balon yüksekliği `minHeight` ile
+  kilitlenir; alt aksiyon satırı sabit `min-h` ile konuşma alanı kaymaz.
+- **Kurum İçi FAB zemin (#2300 reopen):** panel gövdesi ve liste/konuşma alanı WhatsApp ile aynı
+  `whatsapp-chat-bg` dokusunu kullanır; header/footer şeritleri beyaz kalır.
+- **Yerel birim oluşturma (#2303 reopen):** başarı toast değil `ConfirmDialog` popup'ıdır.
+- **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).
+- **Ayarlar önizleme (#2305 reopen):** logo çerçevesi daha küçük (`h-28 w-36`, logo ~%88).
+- **Kullanıcı düzenle Ek birimler (#2308):** birincil birim hücresi gri kalır; ek birimler dropdown
+  tetikleyicisi beyaz zemin (`users-edit-additional-dept-trigger`).
+- **Log birim audit metni (#2302 reopen):** `Department '…' created/updated/deleted` detayları
+  `formatAuditNotes` ile `birimi` Türkçe kalıbına çevrilir.
+- **Birim sil onay (#2294 reopen):** Sil/İptal eşit genişlikte (`min-width: 4.75rem`).
 
 ## 6. Tenant / Auth
 

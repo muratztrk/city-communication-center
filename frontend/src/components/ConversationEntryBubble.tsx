@@ -119,6 +119,8 @@ export function ConversationEntryBubble({
   const [isEditing, setIsEditing] = useState(false)
   const [draft, setDraft] = useState(entry.content)
   const [savingEdit, setSavingEdit] = useState(false)
+  const bubbleRef = useRef<HTMLDivElement>(null)
+  const [lockedBubbleMinHeight, setLockedBubbleMinHeight] = useState<number | undefined>()
   const isInbound = entry.direction === 'Inbound'
   const isPending = !isInbound && entry.deliveryStatus === 'Pending'
   const isDeliveredOutbound = !isInbound
@@ -136,6 +138,20 @@ export function ConversationEntryBubble({
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
   const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
   const editRowCount = Math.max(1, Math.min(8, (entry.content || '').split('\n').length))
+
+  const beginEdit = () => {
+    if (bubbleRef.current) {
+      setLockedBubbleMinHeight(bubbleRef.current.getBoundingClientRect().height)
+    }
+    setDraft(entry.content)
+    setIsEditing(true)
+  }
+
+  const cancelEdit = () => {
+    setIsEditing(false)
+    setDraft(entry.content)
+    setLockedBubbleMinHeight(undefined)
+  }
   // Kart #2109: Mesajı Onaylayan Yönetici — turkuaz arka plan; Not butonu kaldırıldı.
   const approverChipClassName = 'inline-flex items-center gap-1.5 rounded-full bg-teal-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm'
 
@@ -152,6 +168,7 @@ export function ConversationEntryBubble({
     <div className={`flex flex-col ${isInbound ? 'items-start' : 'items-end'}`}>
       <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
         <div
+          ref={bubbleRef}
           className={`${compact ? 'max-w-[min(68%,22rem)] rounded-xl px-3 py-1.5 text-xs' : 'max-w-[min(70%,26rem)] rounded-xl px-3 py-2 text-[13px]'} leading-relaxed shadow-md ${
             isInbound
               ? 'bg-white text-slate-800 rounded-tl-sm ring-1 ring-black/[0.04]'
@@ -159,10 +176,15 @@ export function ConversationEntryBubble({
           }`}
           style={
             isInbound
-              ? undefined
-              : theme === 'light'
-                ? { background: 'var(--color-header-from)' }
-                : { background: 'color-mix(in srgb, var(--color-header-from) 55%, #000)' }
+              ? lockedBubbleMinHeight != null
+                ? { minHeight: lockedBubbleMinHeight }
+                : undefined
+              : {
+                  ...(theme === 'light'
+                    ? { background: 'var(--color-header-from)' }
+                    : { background: 'color-mix(in srgb, var(--color-header-from) 55%, #000)' }),
+                  ...(lockedBubbleMinHeight != null ? { minHeight: lockedBubbleMinHeight } : {}),
+                }
           }
         >
           {isInbound && inboundSenderLabel ? (
@@ -260,10 +282,10 @@ export function ConversationEntryBubble({
       </div>
       {isPending && canSendPending ? (
         isEditing ? (
-          <div className="mt-1 flex min-h-[1.875rem] items-center gap-1.5">
+          <div className="mt-1 flex min-h-[2.125rem] items-center gap-1.5">
             <button
               type="button"
-              onClick={() => { setIsEditing(false); setDraft(entry.content) }}
+              onClick={cancelEdit}
               disabled={savingEdit}
               className="inline-flex items-center rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-300 disabled:opacity-60"
             >
@@ -277,7 +299,7 @@ export function ConversationEntryBubble({
                 setSavingEdit(true)
                 try {
                   await onEditPending?.(entry.entryId, text)
-                  setIsEditing(false)
+                  cancelEdit()
                 } finally {
                   setSavingEdit(false)
                 }
@@ -290,10 +312,10 @@ export function ConversationEntryBubble({
             </button>
           </div>
         ) : (
-          <div className="mt-1 flex min-h-[1.875rem] flex-wrap items-center justify-end gap-1.5">
+          <div className="mt-1 flex min-h-[2.125rem] flex-wrap items-center justify-end gap-1.5">
             <button
               type="button"
-              onClick={() => { setDraft(entry.content); setIsEditing(true) }}
+              onClick={beginEdit}
               disabled={sendingPending}
               className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
             >

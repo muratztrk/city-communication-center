@@ -645,13 +645,14 @@ export function AppShell() {
                   alt={`${institutionName} logo`}
                   src={logoUrl}
                   className="h-[5.25rem] w-[85%] max-w-[11.5rem] rounded-[1.65rem]"
+                  imageClassName="h-[86%] w-[86%]"
                 />
                 {/* Marka metni logo altına biraz boşlukla (card #1699). */}
                 <div className="min-w-0 w-full pt-0.5 text-center text-sm font-bold leading-tight break-words text-white">{t('shell.subtitle', { municipalityName })}</div>
               </div>
             ) : (
               <div className="flex justify-center">
-                <MunicipalitySeal compact alt={`${institutionName} logo`} src={logoUrl} />
+                <MunicipalitySeal compact alt={`${institutionName} logo`} src={logoUrl} imageClassName="h-[72%] w-[72%]" />
               </div>
             )}
           </div>

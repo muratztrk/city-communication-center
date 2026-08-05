@@ -78,7 +78,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil login/sidebar marka alanı:** login logo kartı kullanılan koyu yeşil yüzeydir ve Atatürk
   silüeti kart border'ının içinde sol üstte kalır. Mobil drawer belediye logo çerçevesi logoya göre
   gereksiz büyük tutulmaz; logo çerçevenin içinde belirgin beyaz nefes payıyla daha küçük kalır.
-  Desktop etkilenmez. `MunicipalitySeal` dış çerçevesi `shrink-0` ve açık h/w ölçülü kalır;
+  Desktop sidebar `MunicipalitySeal` çerçevesi `h-[5.25rem] w-[85%] max-w-[11.5rem]` sabit kalır;
+  logo görseli `imageClassName ~86%` ile çerçeve içinde büyütülür (çerçeve boyutu değişmez);
   yüklenen görselin intrinsic boyutu login/sidebar çerçevesini büyütemez (card #2252).
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
   `font-weight: 600` kullanır; Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)

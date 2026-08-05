@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { Loader2, MapPin, Send, PenLine, User } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
@@ -120,7 +120,8 @@ export function ConversationEntryBubble({
   const [draft, setDraft] = useState(entry.content)
   const [savingEdit, setSavingEdit] = useState(false)
   const bubbleRef = useRef<HTMLDivElement>(null)
-  const [lockedBubbleMinHeight, setLockedBubbleMinHeight] = useState<number | undefined>()
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [lockedBubbleSize, setLockedBubbleSize] = useState<{ width: number; height: number } | null>(null)
   const isInbound = entry.direction === 'Inbound'
   const isPending = !isInbound && entry.deliveryStatus === 'Pending'
   const isDeliveredOutbound = !isInbound
@@ -137,11 +138,24 @@ export function ConversationEntryBubble({
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
   const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
-  const editRowCount = Math.max(1, Math.min(8, (entry.content || '').split('\n').length))
+
+  const syncTextareaHeight = () => {
+    const textarea = textareaRef.current
+    if (!textarea) return
+    textarea.style.height = '0px'
+    textarea.style.height = `${textarea.scrollHeight}px`
+  }
+
+  useLayoutEffect(() => {
+    if (isEditing) {
+      syncTextareaHeight()
+    }
+  }, [isEditing, draft])
 
   const beginEdit = () => {
     if (bubbleRef.current) {
-      setLockedBubbleMinHeight(bubbleRef.current.getBoundingClientRect().height)
+      const rect = bubbleRef.current.getBoundingClientRect()
+      setLockedBubbleSize({ width: rect.width, height: rect.height })
     }
     setDraft(entry.content)
     setIsEditing(true)
@@ -150,7 +164,7 @@ export function ConversationEntryBubble({
   const cancelEdit = () => {
     setIsEditing(false)
     setDraft(entry.content)
-    setLockedBubbleMinHeight(undefined)
+    setLockedBubbleSize(null)
   }
   // Kart #2109: Mesajı Onaylayan Yönetici — turkuaz arka plan; Not butonu kaldırıldı.
   const approverChipClassName = 'inline-flex items-center gap-1.5 rounded-full bg-teal-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm'
@@ -176,14 +190,16 @@ export function ConversationEntryBubble({
           }`}
           style={
             isInbound
-              ? lockedBubbleMinHeight != null
-                ? { minHeight: lockedBubbleMinHeight }
+              ? lockedBubbleSize != null
+                ? { minHeight: lockedBubbleSize.height, minWidth: lockedBubbleSize.width }
                 : undefined
               : {
                   ...(theme === 'light'
                     ? { background: 'var(--color-header-from)' }
                     : { background: 'color-mix(in srgb, var(--color-header-from) 55%, #000)' }),
-                  ...(lockedBubbleMinHeight != null ? { minHeight: lockedBubbleMinHeight } : {}),
+                  ...(lockedBubbleSize != null
+                    ? { minHeight: lockedBubbleSize.height, minWidth: lockedBubbleSize.width }
+                    : {}),
                 }
           }
         >
@@ -207,11 +223,18 @@ export function ConversationEntryBubble({
           )}
           {isEditing ? (
             <textarea
+              ref={textareaRef}
               value={draft}
-              onChange={e => setDraft(e.target.value)}
-              rows={editRowCount}
+              onChange={event => {
+                setDraft(event.target.value)
+                syncTextareaHeight()
+              }}
               autoFocus
-              className="w-full resize-none rounded-lg bg-white/95 px-2 py-1.5 text-[13px] leading-snug text-slate-900 outline-none ring-1 ring-white/40"
+              className={`block w-full resize-none border-0 bg-transparent p-0 shadow-none outline-none ring-0 focus:outline-none focus:ring-0 ${
+                compact ? 'text-xs leading-relaxed' : 'text-[13px] leading-snug'
+              } ${
+                isInbound ? 'text-slate-800 caret-slate-900' : 'text-white caret-white'
+              }`}
             />
           ) : isLocationMessage ? (
             <div className="grid gap-1.5">

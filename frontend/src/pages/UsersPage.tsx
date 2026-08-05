@@ -858,17 +858,9 @@ export function UsersPage() {
     const searchNormalized = userSearchText.trim().toLocaleLowerCase('tr')
     return sortedUsers.filter(user => {
       if (searchNormalized) {
-        const departmentName = departments.find(d => d.departmentId === user.departmentId)?.name ?? ''
-        const roleLabel = getRoleLabel(t, resolveUiRoleCode(user, departments))
         const haystack = [
           user.username,
           user.displayName,
-          user.title,
-          user.email,
-          user.phone,
-          departmentName,
-          roleLabel,
-          getUserSourceLabel(t, user.userSource),
         ].map(part => String(part ?? '')).join(' ').toLocaleLowerCase('tr')
         if (!haystack.includes(searchNormalized)) return false
       }
@@ -1400,7 +1392,7 @@ export function UsersPage() {
               type="search"
               value={userSearchText}
               onChange={event => setUserSearchText(event.target.value)}
-              placeholder={t('users.search', 'İsim, kullanıcı adı, birim veya rol ara…')}
+              placeholder={t('users.search', 'İsim veya kullanıcı adı ara…')}
               className="field-input w-full pl-8 text-sm"
             />
           </div>
@@ -1484,7 +1476,7 @@ export function UsersPage() {
                       <div className="grid w-full min-w-0 gap-1.5">
                         {user.userSource === 'Ldap' ? (
                           <span
-                            className="field-select flex min-h-8 w-full items-center truncate px-2 text-xs text-slate-700"
+                            className="field-select flex min-h-9 w-full items-center truncate bg-slate-100 px-2 text-sm text-slate-700"
                             title={getDepartmentName(editForm.departmentId)}
                           >
                             {getDepartmentName(editForm.departmentId)}
@@ -1508,7 +1500,7 @@ export function UsersPage() {
                             searchable
                             searchPlaceholder={t('common.search', 'Ara...')}
                             className="w-full min-w-0 max-w-full"
-                            triggerClassName="text-xs !min-h-8 !px-2"
+                            triggerClassName="text-sm !min-h-9 !px-2 !bg-slate-100"
                             menuWidth={264}
                             menuScrollClassName="users-edit-dropdown-menu-scroll"
                             menuPortal={false}
@@ -1579,8 +1571,8 @@ export function UsersPage() {
                     </td>
                     <td className="actions-column">
                       <div className="row-actions users-edit-row-actions">
-                        <Button size="default" type="button" onClick={() => handleUpdateUser(user.userId, user.userSource)}>{t('common.save')}</Button>
-                        <Button size="default" type="button" variant="secondary" onClick={cancelEditing}>{t('common.cancel')}</Button>
+                        <Button size="sm" variant="primary" className="users-edit-row-actions-btn" type="button" onClick={() => handleUpdateUser(user.userId, user.userSource)}>{t('common.save')}</Button>
+                        <Button size="sm" variant="secondary" className="users-edit-row-actions-btn" type="button" onClick={cancelEditing}>{t('common.cancel')}</Button>
                         {editForm.roleCode === 'Manager' && editForm.departmentId && getDepartmentManager(editForm.departmentId, user.userId) ? (
                           <span className="text-xs font-medium text-amber-700" title={t('users.managerConflict', { name: getDepartmentManager(editForm.departmentId, user.userId)!.displayName })}>
                             ⚠ {getDepartmentManager(editForm.departmentId, user.userId)!.displayName}

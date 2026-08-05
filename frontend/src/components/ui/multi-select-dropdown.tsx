@@ -87,6 +87,18 @@ export function MultiSelectDropdown({
   }, [open, menuPortal, updateMenuPosition])
 
   useEffect(() => {
+    if (!open || menuPortal) return
+    const scrollRoot = rootRef.current?.closest('.table-wrap')
+    if (!scrollRoot) return
+    const handleScroll = () => {
+      setOpen(false)
+      setSearch('')
+    }
+    scrollRoot.addEventListener('scroll', handleScroll, { passive: true })
+    return () => scrollRoot.removeEventListener('scroll', handleScroll)
+  }, [open, menuPortal])
+
+  useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as Node
       if (rootRef.current?.contains(target)) return

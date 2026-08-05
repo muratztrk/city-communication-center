@@ -76,7 +76,7 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
             EntityId = user.UserId.ToString(),
             Action = "UserDeleted",
             ActorUserId = currentUserId,
-            Details = $"User '{user.DisplayName}' deleted.",
+            Details = $"User '{user.Username}' deleted (role={user.RoleCode}).",
         });
 
         _dbContext.Users.Remove(user);

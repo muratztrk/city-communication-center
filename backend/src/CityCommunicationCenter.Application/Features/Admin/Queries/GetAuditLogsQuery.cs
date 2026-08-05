@@ -88,11 +88,18 @@ public sealed class GetAuditLogsQueryHandler : IQueryHandler<GetAuditLogsQuery, 
                         entityNumber = FormatEntityNumber("G", task.TaskNumber.Value, task.TaskNumberYear);
                 }
                 else if (entity.EntityType == nameof(ApplicationUser)
-                    && Guid.TryParse(entity.EntityId, out var subjectUserId)
-                    && subjectUsersById.TryGetValue(subjectUserId, out var subjectUser))
+                    && Guid.TryParse(entity.EntityId, out var subjectUserId))
                 {
-                    entityTitle = subjectUser.Username;
-                    notes = subjectUser.RoleCode.ToString();
+                    if (subjectUsersById.TryGetValue(subjectUserId, out var subjectUser))
+                    {
+                        entityTitle = subjectUser.Username;
+                        notes = subjectUser.RoleCode.ToString();
+                    }
+                    else if (string.Equals(entity.Action, "UserDeleted", StringComparison.Ordinal))
+                    {
+                        entityTitle = TryParseAuditUsername(entity.Details);
+                        notes = TryParseAuditRoleCode(entity.Details);
+                    }
                 }
 
                 var actorDisplayName = entity.ActorDisplayName;
@@ -120,4 +127,32 @@ public sealed class GetAuditLogsQueryHandler : IQueryHandler<GetAuditLogsQuery, 
 
     private static string FormatEntityNumber(string prefix, int number, int? year) =>
         year.HasValue ? $"{prefix}-{year}-{number}" : $"{prefix}-{number}";
+
+    private static string? TryParseAuditUsername(string? details)
+    {
+        if (string.IsNullOrWhiteSpace(details))
+        {
+            return null;
+        }
+
+        var quoted = System.Text.RegularExpressions.Regex.Match(details, @"User\s+'([^']+)'");
+        if (quoted.Success)
+        {
+            return quoted.Groups[1].Value;
+        }
+
+        var keyed = System.Text.RegularExpressions.Regex.Match(details, @"username=([^;\s]+)", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        return keyed.Success ? keyed.Groups[1].Value : null;
+    }
+
+    private static string? TryParseAuditRoleCode(string? details)
+    {
+        if (string.IsNullOrWhiteSpace(details))
+        {
+            return null;
+        }
+
+        var match = System.Text.RegularExpressions.Regex.Match(details, @"role=([A-Za-z]+)");
+        return match.Success ? match.Groups[1].Value : null;
+    }
 }

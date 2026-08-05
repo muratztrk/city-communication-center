@@ -525,7 +525,7 @@
     "newFormDescription": "Add a new unit or pull the unit name from LDAP.",
     "ldapNotConfiguredHint": "Data can be pulled once LDAP is configured.",
     "createMode": "Create Mode",
-    "manualMode": "Manual",
+    "manualMode": "Local",
     "ldapMode": "LDAP",
     "sourceManualHint": "Create a unit by typing the unit name manually.",
     "sourceLdapHint": "Create a unit by picking a unit name from LDAP.",
@@ -579,7 +579,8 @@
     "deleteAllLdapNone": "No LDAP units to delete.",
     "selectDepartment": "Select department...",
     "noDepartments": "No departments found.",
-    "search": "Enter at least 3 characters to search units..."
+    "search": "Search unit name…",
+    "createSuccess": "Unit {{name}} was created."
   },
   "users": {
     "title": "Users",
@@ -589,7 +590,7 @@
       "total": "Total Users",
       "active": "Active"
     },
-    "search": "Search name or username...",
+    "search": "Search name or username…",
     "newFormTitle": "New User",
     "newFormDescription": "Create a local user or link an existing LDAP directory account to the application.",
     "ldapNotConfiguredHint": "Data can be pulled once LDAP is configured.",
@@ -1048,6 +1049,8 @@
     "detail": "Detail",
     "logId": "Log ID",
     "jobNumberPrefix": "Request No",
+    "userLabel": "User",
+    "roleLabel": "Role",
     "empty": "No records found yet",
     "scopes": {
       "system": "System Log",

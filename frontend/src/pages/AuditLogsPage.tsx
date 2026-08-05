@@ -66,10 +66,13 @@ function formatRoutineEditSnapshot(source: string): string | null {
 function buildDetailParts(t: TFunction, log: AuditLog): string[] {
   if (log.entityType === 'ApplicationUser') {
     const parts: string[] = []
-    if (log.entityTitle?.trim()) parts.push(log.entityTitle.trim())
+    const username = log.entityTitle?.trim()
+      || log.details?.match(/User\s+'([^']+)'/)?.[1]
+      || log.details?.match(/username=([^;\s]+)/i)?.[1]
     const roleCode = log.notes?.trim()
       || log.details?.match(/role=([A-Za-z]+)/)?.[1]
-    if (roleCode) parts.push(getRoleLabel(t, roleCode))
+    if (username) parts.push(`${t('audit.userLabel', 'Kullanıcı')}: ${username}`)
+    if (roleCode) parts.push(`${t('audit.roleLabel', 'Rol')}: ${getRoleLabel(t, roleCode)}`)
     return parts
   }
 

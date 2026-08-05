@@ -1,3 +1,26 @@
+## Round 671 — Audit log, arama kapsamı, grid dropdown ve admin UI (10 kart)
+- `#2301`: UserCreated detay → `Kullanıcı:` / `Rol:` etiketleri.
+- `#2302`: UserDeleted detay → silinen kullanıcı adı + rol (Details parse + yeni kayıtlar).
+- `#2306`: Kullanıcı araması yalnız kullanıcı adı + ad soyad.
+- `#2304`: Birim araması yalnız birim adı.
+- `#2303`: Birimler `Manuel` → `Yerel`; yerel oluşturma toast.
+- `#2296`: Grid dropdown scroll kapanışı + thead z-index.
+- `#2295`: Users Kaydet/İptal küçült; Birimler Yönetici Ata Kaydet/İptal büyüt.
+- `#2294`: Birimler Sil/İptal butonları hafif büyütüldü.
+- `#2293`: Users düzenle birim alanı gri arka plan + biraz büyük metin.
+- `#2305`: Ayarlar önizleme logo sabit, dış oval çerçeve küçültüldü.
+
+## Round 670 — Grid, audit log, i18n ve UI tipografi (13 kart)
+- `#2291`: Kimlik Politikası `İç ağ` / `İkinci` TR i18n.
+- `#2290`: UserCreated log → kullanıcı adı + rol etiketi.
+- `#2296`: Grid dropdown inline (`menuPortal={false}`).
+- `#2292`: Dropdown Türkçe alfabetik sıra.
+- `#2295`/`#2297`/`#2293`: Buton/liste tipografi ayarları.
+- `#2294`: Birim düzenle Tür alanı kaldırıldı.
+- `#1960`: WA arama min 3 karakter.
+- `#2276`: Önizleme logo h-56 çerçeveli.
+- `#2300`/`#2299`/`#2298`: Kurum içi arka plan, WA edit layout, Etiketler gap.
+
 ## Round 669 — WA profil adı, ayarlar tipografi, footer geri al (#2284/#2288/#2287/#1960/#2276)
 - `#2284`: Rol matrisi parantez ipucu fontu 0.68→0.72rem (Personelin cevap kontrolü / Whatsapp Sms vb.).
 - `#2288`: WhatsApp Vatandaş Bilgileri `Vatandaş Adı` düzenlenebilir; profil kaydı Job'dan ayrı.

@@ -2222,10 +2222,34 @@
   }
 
   .users-table .users-edit-row-actions .btn,
-  .users-table .users-edit-row-actions button {
-    min-height: 2.35rem;
-    padding-inline: 1rem;
+  .users-table .users-edit-row-actions button,
+  .users-table .users-edit-row-actions-btn {
+    min-height: 2.05rem;
+    padding-inline: 0.85rem;
+    font-size: 0.8125rem;
+  }
+
+  .departments-table .departments-delete-confirm-actions .btn,
+  .departments-table .departments-delete-confirm-actions button {
+    min-height: 2.05rem;
+    padding-inline: 0.9rem;
+    font-size: 0.8125rem;
+  }
+
+  .departments-table .departments-manager-assign-actions-btn {
+    min-height: 2.15rem;
+    padding-inline: 0.95rem;
     font-size: 0.875rem;
+  }
+
+  .users-table thead,
+  .departments-table thead {
+    z-index: 130;
+  }
+
+  .users-table thead th,
+  .departments-table thead th {
+    z-index: 131;
   }
 
   .departments-table .departments-manager-assign-menu .dropdown-menu-item {
@@ -2242,6 +2266,7 @@
   .users-table .users-edit-dept-cell .field-select {
     max-width: 100%;
     min-width: 0;
+    background-color: rgb(241 245 249);
   }
 
   .users-table .users-edit-dept-cell .field-select .rounded-full {

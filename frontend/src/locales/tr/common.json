@@ -528,7 +528,7 @@
     "newFormDescription": "Yeni birim ekleyin veya LDAP dizininden birim adını çekin.",
     "ldapNotConfiguredHint": "Ldap ayarı yapıldıktan sonra LDAP'tan veri çekilebilir.",
     "createMode": "Oluşturma Modu",
-    "manualMode": "Manuel",
+    "manualMode": "Yerel",
     "ldapMode": "LDAP",
     "sourceManualHint": "Birim adını elle girerek yeni birim oluşturun.",
     "sourceLdapHint": "LDAP dizininden birim adını seçerek yeni birim oluşturun.",
@@ -582,7 +582,8 @@
     "deleteAllLdapNone": "Silinecek LDAP birimi bulunamadı.",
     "selectDepartment": "Birim seçiniz...",
     "noDepartments": "Birim bulunamadı.",
-    "search": "Birim aramak için en az 3 karakter giriniz..."
+    "search": "Birim adı ara…",
+    "createSuccess": "{{name}} birimi oluşturuldu."
   },
   "users": {
     "title": "Kullanıcılar",
@@ -592,7 +593,7 @@
       "total": "Toplam Kullanıcı",
       "active": "Aktif"
     },
-    "search": "İsim, kullanıcı adı ara...",
+    "search": "İsim veya kullanıcı adı ara…",
     "newFormTitle": "Yeni Kullanıcı",
     "newFormDescription": "Yerel kullanıcı oluşturun veya LDAP dizinindeki mevcut bir hesabı uygulamaya bağlayın.",
     "ldapNotConfiguredHint": "Ldap ayarı yapıldıktan sonra LDAP'tan veri çekilebilir.",
@@ -1055,6 +1056,8 @@
     "detail": "Detay",
     "logId": "Log ID",
     "jobNumberPrefix": "Talep No",
+    "userLabel": "Kullanıcı",
+    "roleLabel": "Rol",
     "empty": "Henüz kayıt bulunmuyor",
     "scopes": {
       "system": "Sistem Log",

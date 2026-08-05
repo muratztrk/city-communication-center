@@ -1884,10 +1884,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `!ldapEnabled` iken açıklama paragrafının altına ek bir `helper-copy` satırı
   (`departments.ldapNotConfiguredHint` / `users.ldapNotConfiguredHint`) eklenir; LDAP
   ayarlandığında kaybolur — statik `newFormDescription` metnine ASLA gömme, koşullu kalsın.
-- **Log UserCreated detayı (#2290):** `ApplicationUser` oluşturma logları Detay'da kullanıcı adı +
-  rol etiketi (i18n) gösterir; ham `role=Manager` İngilizce metni kullanıcıya basılmaz.
+- **Log UserCreated detayı (#2290/#2301):** `ApplicationUser` oluşturma logları Detay'da `Kullanıcı:` +
+  `Rol:` etiketli satırlar gösterir; ham `role=Manager` İngilizce metni kullanıcıya basılmaz.
+- **Log UserDeleted detayı (#2302):** silinen kullanıcı artık DB'de olmadığından audit `Details`
+  alanında `username`/`role` saklanır; `GetAuditLogsQuery` geçmiş kayıtları parse ederek Detay'da gösterir.
 - **Kullanıcılar/Birimler grid dropdown (#2296):** satır içi düzenleme dropdown'ları `menuPortal={false}`
-  ile grid scroll alanında kalır; portal menü yalnız modal/dış yüzeylerde.
+  ile satırla birlikte kayar; `.table-wrap` scroll'unda menü kapanır; thead z-index dropdown üstündedir.
 - **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter
   sonra filtreler (InternalMessagesFab ile aynı eşik).
 - **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.

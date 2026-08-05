@@ -156,8 +156,9 @@ export function DepartmentsPage() {
     }
 
     try {
+      const createdName = newName.trim()
       await api.createDepartment({
-        name: newName.trim(),
+        name: createdName,
         departmentType: 'Birim',
         managerUserId: null,
         responsibleUserIds: [],
@@ -166,6 +167,9 @@ export function DepartmentsPage() {
       // Oluşturunca form kapanıp listeye dönmesin — alanlar temizlenip form açık kalsın (card #2258).
       resetCreateForm()
       invalidateDepartments(queryClient)
+      if (createMode === 'manual') {
+        setToast({ message: t('departments.createSuccess', '{{name}} birimi oluşturuldu.', { name: createdName }), type: 'success' })
+      }
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : t('common.error'))
     }
@@ -601,12 +605,7 @@ export function DepartmentsPage() {
       : ''
     return sortedDepts.filter(department => {
       if (searchNormalized) {
-        const haystack = [
-          department.name,
-          department.managerName,
-          department.responsibleNames,
-        ].join(' ').toLocaleLowerCase('tr')
-        if (!haystack.includes(searchNormalized)) return false
+        if (!department.name.toLocaleLowerCase('tr').includes(searchNormalized)) return false
       }
       return deptMatchesFilters(department)
     })
@@ -854,7 +853,7 @@ export function DepartmentsPage() {
               type="search"
               value={deptSearchText}
               onChange={event => setDeptSearchText(event.target.value)}
-              placeholder={t('departments.search', 'Birim, müdür veya sorumlu ara…')}
+              placeholder={t('departments.search', 'Birim adı ara…')}
               className="field-input w-full pl-8 text-sm"
             />
           </div>
@@ -954,7 +953,7 @@ export function DepartmentsPage() {
                         {deleteConfirmId === department.departmentId ? (
                           <div className="flex flex-col items-center gap-1">
                             <span className="text-xs text-red-600">{t('departments.deleteConfirm', { name: department.name })}</span>
-                            <div className="inline-actions justify-center">
+                            <div className="inline-actions departments-delete-confirm-actions justify-center">
                               <Button size="sm" variant="destructive" onClick={() => void handleDelete(department.departmentId)}>
                                 {t('common.delete')}
                               </Button>
@@ -969,10 +968,10 @@ export function DepartmentsPage() {
                               <>
                                 {isManagerAssigning ? (
                                   <>
-                                    <Button size="sm" variant="primary" onClick={() => void saveManagerAssign(department)} disabled={isManagerSaving}>
+                                    <Button size="default" variant="primary" className="departments-manager-assign-actions-btn" onClick={() => void saveManagerAssign(department)} disabled={isManagerSaving}>
                                       {t('common.save', 'Kaydet')}
                                     </Button>
-                                    <Button size="sm" variant="secondary" onClick={() => { setManagerAssignId(null); setEditManagerUserId(''); setEditResponsibleUserIds([]) }} disabled={isManagerSaving}>
+                                    <Button size="default" variant="secondary" className="departments-manager-assign-actions-btn" onClick={() => { setManagerAssignId(null); setEditManagerUserId(''); setEditResponsibleUserIds([]) }} disabled={isManagerSaving}>
                                       {t('common.cancel')}
                                     </Button>
                                   </>

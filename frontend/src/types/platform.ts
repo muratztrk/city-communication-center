@@ -679,6 +679,9 @@ export interface TenantLoginContext {
   resolutionMode: string;
   host: string | null;
   appearance: TenantAppearance | null;
+  isTrustedNetwork?: boolean;
+  requiresCaptcha?: boolean;
+  recaptchaSiteKey?: string | null;
 }
 
 export interface TenantLdapSettings {

@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Abstractions.BelediyeSoap;
+using CityCommunicationCenter.Application.Abstractions.Identity;
 using CityCommunicationCenter.Infrastructure.BelediyeSoap;
 using CityCommunicationCenter.Infrastructure.FileStorage;
 using CityCommunicationCenter.Infrastructure.Licensing;
@@ -7,6 +8,7 @@ using CityCommunicationCenter.Infrastructure.Persistence.Interceptors;
 using CityCommunicationCenter.Infrastructure.Services;
 using CityCommunicationCenter.Infrastructure.Sms;
 using CityCommunicationCenter.Infrastructure.SocialMedia;
+using CityCommunicationCenter.Infrastructure.Security;
 using CityCommunicationCenter.Infrastructure.Tenancy;
 
 namespace CityCommunicationCenter.Infrastructure;
@@ -23,6 +25,8 @@ public static class DependencyInjection
             configuration.GetSection(AuthenticationOptions.SectionName));
         services.Configure<LicensingOptions>(
             configuration.GetSection(LicensingOptions.SectionName));
+        services.Configure<RecaptchaOptions>(
+            configuration.GetSection(RecaptchaOptions.SectionName));
 
         services.AddHttpContextAccessor();
         services.AddMemoryCache();
@@ -73,6 +77,9 @@ public static class DependencyInjection
         services.AddScoped<ILdapAuthenticationService, LdapAuthenticationService>();
         services.AddScoped<IAuthenticationExchangeTicketService, AuthenticationExchangeTicketService>();
         services.AddScoped<IInteractiveAuthenticationService, InteractiveAuthenticationService>();
+        services.AddScoped<IRequestNetworkEvaluator, RequestNetworkEvaluator>();
+        services.AddSingleton<IRecaptchaVerificationService, RecaptchaVerificationService>();
+        services.AddHttpClient(nameof(RecaptchaVerificationService), client => client.Timeout = TimeSpan.FromSeconds(10));
         services.AddSingleton<ILocalUserPasswordService, LocalUserPasswordService>();
         services.AddScoped<IPasswordResetEmailSender, SocialEmailPasswordResetSender>();
         services.AddScoped<IUserAuthenticationService, UserAuthenticationService>();

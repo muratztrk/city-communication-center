@@ -18,6 +18,8 @@
   <data name="AuthTenantRequired" xml:space="preserve"><value>Municipality selection is required.</value></data>
   <data name="AuthInvalidCredentials" xml:space="preserve"><value>Invalid username or password.</value></data>
   <data name="AuthSecondFactorRequired" xml:space="preserve"><value>An access token cannot be issued for this network until second-factor verification is completed.</value></data>
+  <data name="AuthRecaptchaRequired" xml:space="preserve"><value>Security verification must be completed.</value></data>
+  <data name="AuthRecaptchaFailed" xml:space="preserve"><value>Security verification failed. Please try again.</value></data>
   <data name="BootstrapCompleted" xml:space="preserve"><value>Setup is already completed. The existing municipality record should be used.</value></data>
   <data name="UnexpectedErrorTitle" xml:space="preserve"><value>An unexpected error occurred.</value></data>
   <data name="UnexpectedErrorDetail" xml:space="preserve"><value>An unexpected error occurred while processing the request.</value></data>

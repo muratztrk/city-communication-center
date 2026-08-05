@@ -383,7 +383,8 @@
     "mockPreviewTitle": "Önizleme Kodu",
     "verify": "Doğrula",
     "verifying": "Doğrulanıyor...",
-    "editCredentials": "Geri Dön"
+    "editCredentials": "Geri Dön",
+    "recaptchaRequired": "Lütfen güvenlik doğrulamasını tamamlayın."
   },
   "dashboard": {
     "title": "Anasayfa",

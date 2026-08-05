@@ -381,7 +381,8 @@
     "mockPreviewTitle": "Preview Code",
     "verify": "Verify",
     "verifying": "Verifying...",
-    "editCredentials": "Go Back"
+    "editCredentials": "Go Back",
+    "recaptchaRequired": "Please complete the security verification."
   },
   "dashboard": {
     "title": "Home",

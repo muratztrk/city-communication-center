@@ -382,6 +382,7 @@ export async function loginWithPassword(
   password: string,
   tenantId: string,
   tenantName: string,
+  recaptchaToken?: string,
 ): Promise<AuthSession> {
   const response = await fetch(SESSION_LOGIN_ENDPOINT, {
     method: 'POST',
@@ -394,6 +395,7 @@ export async function loginWithPassword(
       username,
       password,
       tenantId,
+      recaptchaToken: recaptchaToken?.trim() || null,
     }),
   })
 
@@ -426,6 +428,7 @@ export async function loginWithPasswordToken(
   password: string,
   tenantId: string,
   tenantName: string,
+  recaptchaToken?: string,
 ): Promise<AuthSession> {
   const params = new URLSearchParams({
     grant_type: 'password',
@@ -433,6 +436,10 @@ export async function loginWithPasswordToken(
     password,
     tenant_id: tenantId,
   })
+
+  if (recaptchaToken?.trim()) {
+    params.set('recaptcha_token', recaptchaToken.trim())
+  }
 
   const tokenResponse = await requestToken(params)
   return writeSession(tokenResponse, tenantName)
@@ -489,12 +496,14 @@ export async function startInteractiveAuthentication(
   tenantId?: string,
   username?: string,
   password?: string,
+  recaptchaToken?: string,
 ): Promise<StartInteractiveAuthenticationResult> {
   try {
     return await requestInteractiveResponse<StartInteractiveAuthenticationResult>(INTERACTIVE_START_ENDPOINT, {
       tenantId: tenantId?.trim() || null,
       username: username?.trim() || null,
       password: password || null,
+      recaptchaToken: recaptchaToken?.trim() || null,
     })
   } catch (error) {
     if (error instanceof Error && error.message === 'NEGOTIATE_CHALLENGE') {

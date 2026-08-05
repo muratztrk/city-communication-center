@@ -1,8 +1,8 @@
 using CityCommunicationCenter.Application.Features.Auth;
+using CityCommunicationCenter.Application.Abstractions.Identity;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
-using System.Net;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
@@ -11,22 +11,27 @@ namespace CityCommunicationCenter.Api.Controllers.V1;
 [Route("api/v1/[controller]")]
 public sealed class AuthController : ControllerBase
 {
-    private const string ForwardedForHeader = "X-Forwarded-For";
     private const string PasswordGrantExchangeTicketPrefix = "auth-ticket:";
     private readonly IMediator _sender;
     private readonly IConfiguration _configuration;
     private readonly ITenantAuthenticationPolicyService _tenantAuthenticationPolicyService;
+    private readonly IRequestNetworkEvaluator _requestNetworkEvaluator;
+    private readonly IRecaptchaVerificationService _recaptchaVerificationService;
     private readonly IStringLocalizer<SharedResource> _localizer;
 
     public AuthController(
         IMediator sender,
         IConfiguration configuration,
         ITenantAuthenticationPolicyService tenantAuthenticationPolicyService,
+        IRequestNetworkEvaluator requestNetworkEvaluator,
+        IRecaptchaVerificationService recaptchaVerificationService,
         IStringLocalizer<SharedResource> localizer)
     {
         _sender = sender;
         _configuration = configuration;
         _tenantAuthenticationPolicyService = tenantAuthenticationPolicyService;
+        _requestNetworkEvaluator = requestNetworkEvaluator;
+        _recaptchaVerificationService = recaptchaVerificationService;
         _localizer = localizer;
     }
 
@@ -58,10 +63,22 @@ public sealed class AuthController : ControllerBase
             return BadRequest(new { error = Errors.InvalidRequest, error_description = _localizer["AuthTenantRequired"].Value });
         }
 
-        if (Guid.TryParse(tenantId, out var parsedTenantId)
-            && await RequiresSecondFactorAsync(parsedTenantId, request.Username, cancellationToken))
+        if (Guid.TryParse(tenantId, out var parsedTenantId))
         {
-            return Unauthorized(new { error = Errors.InvalidGrant, error_description = _localizer["AuthSecondFactorRequired"].Value });
+            var captchaFailure = await ValidateRecaptchaIfRequiredAsync(
+                parsedTenantId,
+                request.Username,
+                request.GetParameter("recaptcha_token")?.ToString(),
+                cancellationToken);
+            if (captchaFailure is not null)
+            {
+                return captchaFailure;
+            }
+
+            if (await RequiresSecondFactorAsync(parsedTenantId, request.Username, cancellationToken))
+            {
+                return Unauthorized(new { error = Errors.InvalidGrant, error_description = _localizer["AuthSecondFactorRequired"].Value });
+            }
         }
 
         var result = await _sender.Send(
@@ -121,10 +138,22 @@ public sealed class AuthController : ControllerBase
             return BadRequest(new { error = _localizer["AuthTenantRequired"].Value });
         }
 
-        if (Guid.TryParse(tenantId, out var parsedTenantId)
-            && await RequiresSecondFactorAsync(parsedTenantId, request.Username, cancellationToken))
+        if (Guid.TryParse(tenantId, out var parsedTenantId))
         {
-            return Unauthorized(new { error = _localizer["AuthSecondFactorRequired"].Value });
+            var captchaFailure = await ValidateRecaptchaIfRequiredAsync(
+                parsedTenantId,
+                request.Username,
+                request.RecaptchaToken,
+                cancellationToken);
+            if (captchaFailure is not null)
+            {
+                return captchaFailure;
+            }
+
+            if (await RequiresSecondFactorAsync(parsedTenantId, request.Username, cancellationToken))
+            {
+                return Unauthorized(new { error = _localizer["AuthSecondFactorRequired"].Value });
+            }
         }
 
         var result = await _sender.Send(
@@ -159,10 +188,22 @@ public sealed class AuthController : ControllerBase
             return BadRequest(new { error = _localizer["AuthTenantRequired"].Value });
         }
 
-        if (Guid.TryParse(tenantId, out var parsedTenantId)
-            && await RequiresSecondFactorAsync(parsedTenantId, request.Username, cancellationToken))
+        if (Guid.TryParse(tenantId, out var parsedTenantId))
         {
-            return Unauthorized(new { error = _localizer["AuthSecondFactorRequired"].Value });
+            var captchaFailure = await ValidateRecaptchaIfRequiredAsync(
+                parsedTenantId,
+                request.Username,
+                request.RecaptchaToken,
+                cancellationToken);
+            if (captchaFailure is not null)
+            {
+                return captchaFailure;
+            }
+
+            if (await RequiresSecondFactorAsync(parsedTenantId, request.Username, cancellationToken))
+            {
+                return Unauthorized(new { error = _localizer["AuthSecondFactorRequired"].Value });
+            }
         }
 
         var result = await _sender.Send(
@@ -230,6 +271,21 @@ public sealed class AuthController : ControllerBase
                 false));
         }
 
+        if (Guid.TryParse(tenantId, out var parsedTenantId)
+            && !string.IsNullOrWhiteSpace(request.Username)
+            && !string.IsNullOrWhiteSpace(request.Password))
+        {
+            var captchaFailure = await ValidateRecaptchaIfRequiredAsync(
+                parsedTenantId,
+                request.Username,
+                request.RecaptchaToken,
+                cancellationToken);
+            if (captchaFailure is not null)
+            {
+                return captchaFailure;
+            }
+        }
+
         var response = await _sender.Send(
             new StartInteractiveAuthenticationCommand(tenantId, request.Username, request.Password),
             cancellationToken);
@@ -274,7 +330,21 @@ public sealed class AuthController : ControllerBase
         var tenantIdHeader = Request.Headers["X-Tenant-Id"].FirstOrDefault();
         Guid? tenantId = Guid.TryParse(tenantIdHeader, out var parsedTenantId) ? parsedTenantId : null;
         var response = await _sender.Send(new GetTenantLoginContextQuery(GetRequestHost(), tenantId), cancellationToken);
-        return Ok(response);
+
+        if (response.ResolvedTenant is null)
+        {
+            return Ok(response);
+        }
+
+        var network = await _requestNetworkEvaluator.EvaluateAsync(response.ResolvedTenant.TenantId, cancellationToken);
+        var requiresCaptcha = _recaptchaVerificationService.IsRequired(network.IsTrustedNetwork);
+
+        return Ok(response with
+        {
+            IsTrustedNetwork = network.IsTrustedNetwork,
+            RequiresCaptcha = requiresCaptcha,
+            RecaptchaSiteKey = requiresCaptcha ? _recaptchaVerificationService.SiteKey : null,
+        });
     }
 
     [HttpPost("reset-local-password")]
@@ -429,106 +499,38 @@ public sealed class AuthController : ControllerBase
             return false;
         }
 
-        var effectiveClientIp = ResolveEffectiveClientIp(policy.TrustedProxyCidrs);
-        return effectiveClientIp is null || !IsMatch(effectiveClientIp, policy.TrustedNetworkCidrs);
+        var network = await _requestNetworkEvaluator.EvaluateAsync(tenantId, cancellationToken);
+        return !network.IsTrustedNetwork;
     }
 
-    private IPAddress? ResolveEffectiveClientIp(IReadOnlyList<string> trustedProxyCidrs)
+    private async Task<ActionResult?> ValidateRecaptchaIfRequiredAsync(
+        Guid tenantId,
+        string? username,
+        string? recaptchaToken,
+        CancellationToken cancellationToken)
     {
-        var remoteIp = HttpContext.Connection.RemoteIpAddress;
-        if (remoteIp is null)
+        if (!string.IsNullOrWhiteSpace(username)
+            && username.StartsWith(PasswordGrantExchangeTicketPrefix, StringComparison.Ordinal))
         {
             return null;
         }
 
-        if (!IsMatch(remoteIp, trustedProxyCidrs))
+        var network = await _requestNetworkEvaluator.EvaluateAsync(tenantId, cancellationToken);
+        if (!_recaptchaVerificationService.IsRequired(network.IsTrustedNetwork))
         {
-            return remoteIp;
+            return null;
         }
 
-        var forwardedFor = Request.Headers[ForwardedForHeader].ToString();
-        var forwardedIp = forwardedFor
-            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(value => IPAddress.TryParse(value, out var parsed) ? parsed : null)
-            .FirstOrDefault(parsed => parsed is not null);
-
-        return forwardedIp ?? remoteIp;
-    }
-
-    private static bool IsMatch(IPAddress address, IReadOnlyList<string> cidrs)
-    {
-        return cidrs.Any(cidr => IpCidrRange.TryParse(cidr, out var range) && range.Contains(address));
-    }
-
-    private sealed class IpCidrRange
-    {
-        private readonly byte[] _networkBytes;
-
-        private IpCidrRange(IPAddress networkAddress, int prefixLength)
+        if (string.IsNullOrWhiteSpace(recaptchaToken))
         {
-            NetworkAddress = networkAddress;
-            PrefixLength = prefixLength;
-            _networkBytes = networkAddress.GetAddressBytes();
+            return BadRequest(new { error = _localizer["AuthRecaptchaRequired"].Value });
         }
 
-        public IPAddress NetworkAddress { get; }
-
-        public int PrefixLength { get; }
-
-        public bool Contains(IPAddress address)
+        if (!await _recaptchaVerificationService.VerifyAsync(recaptchaToken, network.ClientIp, cancellationToken))
         {
-            var networkAddress = NetworkAddress.IsIPv4MappedToIPv6 ? NetworkAddress.MapToIPv4() : NetworkAddress;
-            var candidateAddress = address.IsIPv4MappedToIPv6 ? address.MapToIPv4() : address;
-            var networkBytes = networkAddress.GetAddressBytes();
-            var addressBytes = candidateAddress.GetAddressBytes();
-            if (addressBytes.Length != networkBytes.Length)
-            {
-                return false;
-            }
-
-            var fullBytes = PrefixLength / 8;
-            var remainingBits = PrefixLength % 8;
-
-            for (var index = 0; index < fullBytes; index += 1)
-            {
-                if (networkBytes[index] != addressBytes[index])
-                {
-                    return false;
-                }
-            }
-
-            if (remainingBits == 0)
-            {
-                return true;
-            }
-
-            var mask = (byte)(byte.MaxValue << (8 - remainingBits));
-            return (networkBytes[fullBytes] & mask) == (addressBytes[fullBytes] & mask);
+            return BadRequest(new { error = _localizer["AuthRecaptchaFailed"].Value });
         }
 
-        public static bool TryParse(string value, out IpCidrRange range)
-        {
-            range = null!;
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                return false;
-            }
-
-            var parts = value.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            if (!IPAddress.TryParse(parts[0], out var networkAddress))
-            {
-                return false;
-            }
-
-            var maxPrefixLength = networkAddress.GetAddressBytes().Length * 8;
-            var prefixLength = maxPrefixLength;
-            if (parts.Length == 2 && (!int.TryParse(parts[1], out prefixLength) || prefixLength < 0 || prefixLength > maxPrefixLength))
-            {
-                return false;
-            }
-
-            range = new IpCidrRange(networkAddress, prefixLength);
-            return true;
-        }
+        return null;
     }
 }

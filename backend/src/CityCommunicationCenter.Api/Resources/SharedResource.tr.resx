@@ -18,6 +18,8 @@
   <data name="AuthTenantRequired" xml:space="preserve"><value>Belediye seçimi gereklidir.</value></data>
   <data name="AuthInvalidCredentials" xml:space="preserve"><value>Geçersiz kullanıcı adı veya şifre.</value></data>
   <data name="AuthSecondFactorRequired" xml:space="preserve"><value>Bu ağ için ikinci doğrulama tamamlanmadan access token verilemez.</value></data>
+  <data name="AuthRecaptchaRequired" xml:space="preserve"><value>Güvenlik doğrulaması tamamlanmalıdır.</value></data>
+  <data name="AuthRecaptchaFailed" xml:space="preserve"><value>Güvenlik doğrulaması başarısız. Lütfen tekrar deneyin.</value></data>
   <data name="BootstrapCompleted" xml:space="preserve"><value>Kurulum zaten tamamlandı. Mevcut belediye kaydı kullanılmalıdır.</value></data>
   <data name="UnexpectedErrorTitle" xml:space="preserve"><value>Beklenmeyen bir hata oluştu.</value></data>
   <data name="UnexpectedErrorDetail" xml:space="preserve"><value>stek işlenirken beklenmeyen bir hata oluştu.</value></data>

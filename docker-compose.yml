@@ -36,6 +36,8 @@ services:
       - DataProtection__KeysDirectory=/var/lib/city-communication-center/dataprotection
       - SocialWebhooks__SharedSecret=${CCC_SOCIAL_WEBHOOK_SECRET:-}
       - RateLimiting__PermitLimit=${CCC_RATE_LIMIT:-500}
+      - Recaptcha__SiteKey=${CCC_RECAPTCHA_SITE_KEY:-}
+      - Recaptcha__SecretKey=${CCC_RECAPTCHA_SECRET_KEY:-}
       - ForwardedHeaders__KnownProxies__0=${CCC_KNOWN_PROXY_0:-}
       - ForwardedHeaders__KnownProxies__1=${CCC_KNOWN_PROXY_1:-}
       - ForwardedHeaders__KnownNetworks__0=${CCC_KNOWN_NETWORK_0:-}

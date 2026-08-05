@@ -1810,6 +1810,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   oturumu düşürür. Uyarı popup'ı (otomatik kapanmaz, X/Tamam) yeni giriş yapanada değil,
   eski oturumdaki kullanıcıya. Cookie düşse bile ekran açık kalır; paralel 401'ler
   `session-expired` ile login'e atmaz (`sessionSupersededPending`). X/Tamam → login.
+- **Login CAPTCHA (#2272):** Google reCAPTCHA v2 (checkbox); yalnız `Recaptcha:SiteKey` +
+  `Recaptcha:SecretKey` yapılandırıldığında ve istemci IP'si tenant `trustedNetworkCidrs`
+  dışında kaldığında login formunda gösterilir + `/connect/token`, `session/login`,
+  `interactive/start` (kimlik bilgisi gönderildiğinde) sunucuda `siteverify` ile doğrulanır.
+  Trusted ağ / exchange ticket (`auth-ticket:`) isteklerinde CAPTCHA zorunlu değildir.
 - **Birim içi JobCreated bildirim başlığı (#6a6ca1d4):** InternalUnit →
   `Birim İçi Talep oluşturuldu` (yönetici feed).
 - **Bildirim modal tarih = Ara (#6a6c6a6d):** başlangıç/bitiş alanları Ara textbox ile aynı

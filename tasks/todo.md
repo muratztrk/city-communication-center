@@ -1,3 +1,8 @@
+## Round 684 — Login CAPTCHA (#2272)
+- `#2272`: Google reCAPTCHA v2 (checkbox); trusted network dışı public IP'de login widget +
+  sunucu `siteverify`; anahtar yoksa devre dışı. Config: `Recaptcha:SiteKey/SecretKey` veya
+  `CCC_RECAPTCHA_SITE_KEY` / `CCC_RECAPTCHA_SECRET_KEY`.
+
 ## Round 683 — Ayarlar polish reopen (2 kart)
 - `#2328`: Görünüm önizleme çerçeve + logo küçültüldü (`h-20 w-36`, görsel ~80%).
 - `#2329`: Sayfa Yetkileri Kaydet Kurum İçi Mesajlar FAB'a yaklaştırıldı (`- 5rem`).

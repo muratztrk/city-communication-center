@@ -99,7 +99,8 @@ public sealed record UserManagementContextResponse(
 public sealed record LoginRequest(
     string Username,
     string Password,
-    string? TenantId);
+    string? TenantId,
+    string? RecaptchaToken = null);
 
 public sealed record LoginResponse(
     string UserId,
@@ -119,7 +120,8 @@ public sealed record ConnectTokenResponse(
 public sealed record StartInteractiveAuthenticationRequest(
     string? TenantId,
     string? Username,
-    string? Password);
+    string? Password,
+    string? RecaptchaToken = null);
 
 public sealed record VerifyInteractiveAuthenticationRequest(
     string? TenantId,
@@ -178,7 +180,10 @@ public sealed record TenantLoginContextResponse(
     bool RequireTenantSelection,
     string ResolutionMode,
     string? Host,
-    TenantAppearanceResponse? Appearance);
+    TenantAppearanceResponse? Appearance,
+    bool IsTrustedNetwork = false,
+    bool RequiresCaptcha = false,
+    string? RecaptchaSiteKey = null);
 
 public sealed record BootstrapTenantRequest(
     string MunicipalityName,

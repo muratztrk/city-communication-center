@@ -12,6 +12,7 @@ import {
 import { AppFooter } from '../components/layout/AppFooter'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { LoginPasswordResetModal } from '../components/system/LoginPasswordResetModal'
+import { RecaptchaWidget, type RecaptchaWidgetHandle } from '../components/auth/RecaptchaWidget'
 import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
@@ -73,6 +74,9 @@ export function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false)
   const [isResetOpen, setIsResetOpen] = useState(false)
+  const recaptchaRef = useRef<RecaptchaWidgetHandle | null>(null)
+
+  const requiresCaptcha = Boolean(tenantContext?.requiresCaptcha && tenantContext.recaptchaSiteKey)
 
   const credentialsForm = useForm<z.infer<typeof credentialsSchema>>({
     resolver: zodResolver(credentialsSchema),
@@ -418,10 +422,24 @@ export function LoginPage() {
                         return
                       }
 
+                      let recaptchaToken: string | undefined
+                      if (requiresCaptcha) {
+                        recaptchaToken = recaptchaRef.current?.getToken() ?? ''
+                        if (!recaptchaToken) {
+                          setError(t('login.recaptchaRequired'))
+                          return
+                        }
+                      }
+
                       const requestId = ++latestInteractiveRequestRef.current
                       setIsLoading(true)
                       try {
-                        const response = await startInteractiveAuthentication(selectedTenant, values.username, values.password)
+                        const response = await startInteractiveAuthentication(
+                          selectedTenant,
+                          values.username,
+                          values.password,
+                          recaptchaToken,
+                        )
                         if (requestId !== latestInteractiveRequestRef.current) {
                           return
                         }
@@ -433,6 +451,7 @@ export function LoginPage() {
                         }
 
                         setError(submitError instanceof Error ? submitError.message : t('common.error'))
+                        recaptchaRef.current?.reset()
                       } finally {
                         if (requestId === latestInteractiveRequestRef.current) {
                           setIsLoading(false)
@@ -456,6 +475,10 @@ export function LoginPage() {
                       </div>
                       {credentialsForm.formState.errors.password ? <span id="password-error" className="text-xs font-medium text-rose-600">{t('login.passwordRequired')}</span> : null}
                     </label>
+
+                    {requiresCaptcha && tenantContext?.recaptchaSiteKey ? (
+                      <RecaptchaWidget ref={recaptchaRef} siteKey={tenantContext.recaptchaSiteKey} />
+                    ) : null}
 
                     <Button type="submit" size="lg" className="mt-1 w-full" disabled={isLoading || !isTenantReady}>
                       {isLoading ? t('login.submitting') : t('login.submit')}

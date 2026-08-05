@@ -1902,9 +1902,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnızca aktif sohbet mesaj scroll alanı WhatsApp `whatsapp-chat-bg` dokusunu kullanır.
 - **Yerel birim oluşturma (#2303 reopen):** başarı toast değil `ConfirmDialog` popup'ıdır.
 - **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).
-- **Ayarlar önizleme (#2305 reopen):** logo çerçevesi daha küçük (`h-28 w-36`, logo ~%88).
-- **Kullanıcı düzenle Ek birimler (#2308):** birincil birim hücresi gri kalır; ek birimler dropdown
-  tetikleyicisi beyaz zemin (`users-edit-additional-dept-trigger`).
+- **Ayarlar önizleme (#2305 reopen):** logo dış oval çerçeve yüksekliği `h-24 w-36` (logo ~%88).
+- **Kullanıcı düzenle Ek birimler (#2308 reopen):** birincil birim hücresi gri; ek birimler dropdown
+  tetikleyicisi beyaz zemin + daha düşük trigger (`min-h-7`).
 - **Log birim audit metni (#2302 reopen):** `Department '…' created/updated/deleted` detayları
   `formatAuditNotes` ile `birimi` Türkçe kalıbına çevrilir.
 - **Birim sil onay (#2294 reopen):** Sil/İptal eşit genişlikte (`min-width: 4.75rem`).

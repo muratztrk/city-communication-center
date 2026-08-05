@@ -1,6 +1,8 @@
 ## Round 673 — Kurum İçi FAB arka plan + Yazıyor hizası (2 kart)
 - `#2300`: FAB panel kökü/liste standart zemin; yalnız aktif sohbet mesaj alanı `whatsapp-chat-bg`.
 - `#2307`: Yazıyor göstergesi header'da birim satırının altında.
+- `#2308`: Users düzenle Ek birimler dropdown trigger yüksekliği hafif küçültüldü (`min-h-7`).
+- `#2305`: Ayarlar önizleme logo oval çerçeve yüksekliği `h-24` (genişlik aynı).
 
 ## Round 672 — Reopen düzeltmeleri + arama eşiği (9 kart)
 - `#2299`: WA beklemedeki mesaj Düzenle — balon yüksekliği kilit + sabit aksiyon satırı.

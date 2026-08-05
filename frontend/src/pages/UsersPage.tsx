@@ -1520,7 +1520,7 @@ export function UsersPage() {
                           placeholder={t('users.additionalDepartmentsShort', 'Ek birimler')}
                           emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
                           className="w-full min-w-0 max-w-full users-edit-additional-dept-trigger"
-                          triggerClassName="text-xs !min-h-8 !px-2 !bg-white"
+                          triggerClassName="text-xs !min-h-7 !py-0.5 !px-2 !bg-white"
                           menuClassName="users-edit-dropdown-menu-scroll"
                           menuWidth={264}
                           searchable

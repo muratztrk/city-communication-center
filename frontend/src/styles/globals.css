@@ -2286,9 +2286,9 @@
   }
 
   .departments-table .departments-manager-assign-actions-btn {
-    min-height: 2.05rem;
-    padding-inline: 0.85rem;
-    font-size: 0.8125rem;
+    min-height: 1.95rem;
+    padding-inline: 0.75rem;
+    font-size: 0.75rem;
   }
 
   .users-table thead,

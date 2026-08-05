@@ -4,6 +4,8 @@
 - `#2308`: Users düzenle Ek birimler dropdown trigger yüksekliği hafif küçültüldü (`min-h-7`).
 - `#2305`: Ayarlar önizleme logo oval çerçeve yüksekliği `h-24` (genişlik aynı).
 - `#2302`: Sistem logları Department entity → Detay'da `Birim: {ad}` (+ BE parse).
+- `#2295`: Birimler Yönetici Ata Kaydet/İptal biraz daha küçük (`1.95rem`).
+- `#2310`: Yerel birim oluşturma popup — başlık altı çizgi + yeşil Tamam.
 
 ## Round 672 — Reopen düzeltmeleri + arama eşiği (9 kart)
 - `#2299`: WA beklemedeki mesaj Düzenle — balon yüksekliği kilit + sabit aksiyon satırı.

@@ -1900,7 +1900,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kilitlenir; alt aksiyon satırı sabit `min-h` ile konuşma alanı kaymaz.
 - **Kurum İçi FAB zemin (#2300 reopen):** panel kökü ve konuşma listesi standart `color-background`;
   yalnızca aktif sohbet mesaj scroll alanı WhatsApp `whatsapp-chat-bg` dokusunu kullanır.
-- **Yerel birim oluşturma (#2303 reopen):** başarı toast değil `ConfirmDialog` popup'ıdır.
+- **Yerel birim oluşturma (#2303/#2310):** başarı `ConfirmDialog` popup'ıdır; başlık altında ayraç
+  çizgisi (`titleDivider`) ve `Tamam` butonu yeşil (`variant: success`).
 - **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).
 - **Ayarlar önizleme (#2305 reopen):** logo dış oval çerçeve yüksekliği `h-24 w-36` (logo ~%88).
 - **Kullanıcı düzenle Ek birimler (#2308 reopen):** birincil birim hücresi gri; ek birimler dropdown
@@ -1910,7 +1911,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `GetAuditLogsQuery` silinen birim adını `Details`'ten parse eder.
 - **Birim sil onay (#2294 reopen):** Sil/İptal eşit genişlikte (`min-width: 4.75rem`).
 - **Users/Birimler düzenle butonları (#2295 reopen):** Users Kaydet/İptal hafif büyük (`2.12rem`);
-  Birimler Yönetici Ata Kaydet/İptal hafif küçük (`2.05rem`, `0.8125rem`).
+  Birimler Yönetici Ata Kaydet/İptal daha küçük (`1.95rem`, `0.75rem`).
 
 ## 6. Tenant / Auth
 

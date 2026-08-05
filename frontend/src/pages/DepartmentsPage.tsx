@@ -169,8 +169,10 @@ export function DepartmentsPage() {
         setConfirmDialog({
           title: t('departments.createSuccessTitle', 'Birim oluşturuldu'),
           titleTone: 'success',
+          titleDivider: true,
           message: t('departments.createSuccess', '{{name}} birimi oluşturuldu.', { name: createdName }),
           confirmLabel: t('common.ok', 'Tamam'),
+          variant: 'success',
           hideCancel: true,
           onConfirm: () => {},
         })

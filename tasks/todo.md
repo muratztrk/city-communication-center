@@ -1,4 +1,4 @@
-## Round 671 — Audit log, arama kapsamı, grid dropdown ve admin UI (10 kart)
+## Round 671 — Audit log, arama kapsamı, grid dropdown, admin UI + typing (11 kart)
 - `#2301`: UserCreated detay → `Kullanıcı:` / `Rol:` etiketleri.
 - `#2302`: UserDeleted detay → silinen kullanıcı adı + rol (Details parse + yeni kayıtlar).
 - `#2306`: Kullanıcı araması yalnız kullanıcı adı + ad soyad.
@@ -9,6 +9,7 @@
 - `#2294`: Birimler Sil/İptal butonları hafif büyütüldü.
 - `#2293`: Users düzenle birim alanı gri arka plan + biraz büyük metin.
 - `#2305`: Ayarlar önizleme logo sabit, dış oval çerçeve küçültüldü.
+- `#2307`: Kurum içi mesajlar `Yazıyor` göstergesi (SignalR + sol alt hiza).
 
 ## Round 670 — Grid, audit log, i18n ve UI tipografi (13 kart)
 - `#2291`: Kimlik Politikası `İç ağ` / `İkinci` TR i18n.

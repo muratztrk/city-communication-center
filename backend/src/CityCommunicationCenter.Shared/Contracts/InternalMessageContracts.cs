@@ -31,3 +31,5 @@ public sealed record InternalConversationDetailResponse(
 public sealed record SendInternalMessageResponse(
     Guid InternalConversationId,
     InternalMessageResponse Message);
+
+public sealed record NotifyInternalMessageTypingRequest(Guid RecipientUserId, bool IsTyping);

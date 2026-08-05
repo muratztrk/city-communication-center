@@ -35,10 +35,17 @@ export interface InternalMessagePayload {
   isReadReceipt?: boolean
 }
 
+export interface InternalMessageTypingPayload {
+  senderUserId: string
+  recipientUserId: string
+  isTyping: boolean
+}
+
 export interface SignalRHandlers {
   onNotification?: (payload: NotificationPayload) => void
   onWhatsAppMessage?: (payload: WhatsAppMessagePayload) => void
   onInternalMessage?: (payload: InternalMessagePayload) => void
+  onInternalMessageTyping?: (payload: InternalMessageTypingPayload) => void
   onReconnected?: () => void
   onConnectionStateChange?: (state: SignalRConnectionState) => void
 }
@@ -79,9 +86,18 @@ function mapInternalMessagePayload(raw: Record<string, unknown>): InternalMessag
   }
 }
 
+function mapInternalMessageTypingPayload(raw: Record<string, unknown>): InternalMessageTypingPayload {
+  return {
+    senderUserId: String(raw.senderUserId ?? raw.SenderUserId ?? ''),
+    recipientUserId: String(raw.recipientUserId ?? raw.RecipientUserId ?? ''),
+    isTyping: Boolean(raw.isTyping ?? raw.IsTyping ?? false),
+  }
+}
+
 const notificationHandlers = new Set<(payload: NotificationPayload) => void>()
 const whatsAppMessageHandlers = new Set<(payload: WhatsAppMessagePayload) => void>()
 const internalMessageHandlers = new Set<(payload: InternalMessagePayload) => void>()
+const internalMessageTypingHandlers = new Set<(payload: InternalMessageTypingPayload) => void>()
 const reconnectHandlers = new Set<() => void>()
 const connectionStateHandlers = new Set<(state: SignalRConnectionState) => void>()
 
@@ -105,6 +121,10 @@ function dispatchWhatsAppMessage(payload: WhatsAppMessagePayload) {
 
 function dispatchInternalMessage(payload: InternalMessagePayload) {
   internalMessageHandlers.forEach(handler => handler(payload))
+}
+
+function dispatchInternalMessageTyping(payload: InternalMessageTypingPayload) {
+  internalMessageTypingHandlers.forEach(handler => handler(payload))
 }
 
 function dispatchReconnect() {
@@ -148,6 +168,7 @@ function attachConnectionHandlers(nextConnection: signalR.HubConnection) {
   nextConnection.off('ReceiveNotification')
   nextConnection.off('ReceiveWhatsAppMessage')
   nextConnection.off('ReceiveInternalMessage')
+  nextConnection.off('ReceiveInternalMessageTyping')
   nextConnection.off('reconnected')
 
   nextConnection.on('ReceiveNotification', (payload: Record<string, unknown>) => {
@@ -160,6 +181,10 @@ function attachConnectionHandlers(nextConnection: signalR.HubConnection) {
 
   nextConnection.on('ReceiveInternalMessage', (payload: Record<string, unknown>) => {
     dispatchInternalMessage(mapInternalMessagePayload(payload))
+  })
+
+  nextConnection.on('ReceiveInternalMessageTyping', (payload: Record<string, unknown>) => {
+    dispatchInternalMessageTyping(mapInternalMessageTypingPayload(payload))
   })
 
   nextConnection.onreconnected(() => {
@@ -280,6 +305,9 @@ export function useSignalR(handlers?: SignalRHandlers) {
     const onInternalMessage = (payload: InternalMessagePayload) => {
       handlersRef.current?.onInternalMessage?.(payload)
     }
+    const onInternalMessageTyping = (payload: InternalMessageTypingPayload) => {
+      handlersRef.current?.onInternalMessageTyping?.(payload)
+    }
     const onReconnected = () => {
       handlersRef.current?.onReconnected?.()
     }
@@ -290,6 +318,7 @@ export function useSignalR(handlers?: SignalRHandlers) {
     notificationHandlers.add(onNotification)
     whatsAppMessageHandlers.add(onWhatsAppMessage)
     internalMessageHandlers.add(onInternalMessage)
+    internalMessageTypingHandlers.add(onInternalMessageTyping)
     reconnectHandlers.add(onReconnected)
     connectionStateHandlers.add(onConnectionStateChange)
     onConnectionStateChange(connectionState)
@@ -300,6 +329,7 @@ export function useSignalR(handlers?: SignalRHandlers) {
       notificationHandlers.delete(onNotification)
       whatsAppMessageHandlers.delete(onWhatsAppMessage)
       internalMessageHandlers.delete(onInternalMessage)
+      internalMessageTypingHandlers.delete(onInternalMessageTyping)
       reconnectHandlers.delete(onReconnected)
       connectionStateHandlers.delete(onConnectionStateChange)
     }

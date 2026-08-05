@@ -67,4 +67,21 @@ public sealed class SignalRNotificationPushService : INotificationPushService
             .Group($"user-{recipientUserId}")
             .SendAsync("ReceiveInternalMessage", payload, cancellationToken);
     }
+
+    public async Task SendInternalMessageTypingToUserAsync(
+        Guid tenantId,
+        Guid recipientUserId,
+        InternalMessageTypingPayload payload,
+        CancellationToken cancellationToken = default)
+    {
+        _logger.LogDebug(
+            "Sending internal typing indicator to user {UserId} in tenant {TenantId} from sender {SenderUserId}",
+            recipientUserId,
+            tenantId,
+            payload.SenderUserId);
+
+        await _hubContext.Clients
+            .Group($"user-{recipientUserId}")
+            .SendAsync("ReceiveInternalMessageTyping", payload, cancellationToken);
+    }
 }

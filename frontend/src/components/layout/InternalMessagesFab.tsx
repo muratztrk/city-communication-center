@@ -7,6 +7,7 @@ import {
   ensureSignalRConnected,
   useSignalR,
   type InternalMessagePayload,
+  type InternalMessageTypingPayload,
   type SignalRConnectionState,
 } from '../../hooks/useSignalR'
 import type { InternalConversationDetail, InternalConversationSummary, InternalMessage, UserLookup } from '../../types/platform'
@@ -18,6 +19,8 @@ const CONNECTED_POLL_INTERVAL_MS = 15_000
 const DISCONNECTED_POLL_INTERVAL_MS = 3_000
 const OPEN_CHAT_POLL_INTERVAL_MS = 1_000
 const PAGE_SIZE = 10
+const TYPING_NOTIFY_DEBOUNCE_MS = 350
+const TYPING_INDICATOR_TTL_MS = 3_000
 
 interface MessageRow {
   otherUserId: string
@@ -131,8 +134,12 @@ export function InternalMessagesFab() {
   const [chatLoading, setChatLoading] = useState(false)
   const [draft, setDraft] = useState('')
   const [sending, setSending] = useState(false)
+  const [otherUserTyping, setOtherUserTyping] = useState(false)
   const [signalRState, setSignalRState] = useState<SignalRConnectionState>('disconnected')
   const scrollRef = useRef<HTMLDivElement | null>(null)
+  const typingNotifyTimerRef = useRef<number | null>(null)
+  const typingActiveRef = useRef(false)
+  const otherTypingTimerRef = useRef<number | null>(null)
 
   const refreshConversations = useCallback(async () => {
     try {
@@ -201,6 +208,10 @@ export function InternalMessagesFab() {
   }, [openConversationById])
 
   const handleInternalMessage = useCallback((payload: InternalMessagePayload) => {
+    if (!payload.isReadReceipt && payload.senderUserId === activeChat?.otherUserId) {
+      setOtherUserTyping(false)
+    }
+
     // Rozet, API yanıtını beklemeden anında güncellenir (card #1608): konuşma listedeyse
     // unreadCount iyimser artırılır; refreshConversations hemen ardından sunucu doğrusunu getirir.
     // Açık sohbetin mesajı loadChat/markRead ile zaten okunacağı için artırılmaz.
@@ -242,11 +253,62 @@ export function InternalMessagesFab() {
     }
   }, [activeChat, chatDetail?.internalConversationId, currentUserId, loadChat, refreshConversations])
 
+  const handleInternalMessageTyping = useCallback((payload: InternalMessageTypingPayload) => {
+    if (!activeChat || payload.senderUserId !== activeChat.otherUserId) return
+    if (payload.isTyping) {
+      setOtherUserTyping(true)
+      if (otherTypingTimerRef.current) window.clearTimeout(otherTypingTimerRef.current)
+      otherTypingTimerRef.current = window.setTimeout(() => {
+        setOtherUserTyping(false)
+      }, TYPING_INDICATOR_TTL_MS)
+      return
+    }
+    setOtherUserTyping(false)
+  }, [activeChat])
+
+  const notifyTyping = useCallback((isTyping: boolean) => {
+    if (!activeChat) return
+    if (typingActiveRef.current === isTyping) return
+    typingActiveRef.current = isTyping
+    void api.notifyInternalMessageTyping(activeChat.otherUserId, isTyping).catch(() => {
+      // sessizce geç — gösterge kritik değil
+    })
+  }, [activeChat])
+
   useSignalR({
     onInternalMessage: handleInternalMessage,
+    onInternalMessageTyping: handleInternalMessageTyping,
     onReconnected: refreshConversations,
     onConnectionStateChange: setSignalRState,
   })
+
+  useEffect(() => {
+    if (!activeChat) {
+      setOtherUserTyping(false)
+      typingActiveRef.current = false
+      return
+    }
+
+    if (!draft.trim()) {
+      if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
+      notifyTyping(false)
+      return
+    }
+
+    if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
+    typingNotifyTimerRef.current = window.setTimeout(() => {
+      notifyTyping(true)
+    }, TYPING_NOTIFY_DEBOUNCE_MS)
+
+    return () => {
+      if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
+    }
+  }, [activeChat, draft, notifyTyping])
+
+  useEffect(() => () => {
+    if (otherTypingTimerRef.current) window.clearTimeout(otherTypingTimerRef.current)
+    if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
+  }, [])
 
   useEffect(() => {
     if (!isOpen || !activeChat) return
@@ -375,11 +437,13 @@ export function InternalMessagesFab() {
   }
 
   const closePanel = () => {
+    notifyTyping(false)
     setIsOpen(false)
     setActiveChat(null)
     setChatDetail(null)
     setSearch('')
     setDraft('')
+    setOtherUserTyping(false)
   }
 
   const handleSend = async () => {
@@ -387,6 +451,7 @@ export function InternalMessagesFab() {
     if (!content || !activeChat || sending) return
     setSending(true)
     try {
+      notifyTyping(false)
       await api.sendInternalMessage(activeChat.otherUserId, content)
       setDraft('')
       await loadChat(activeChat.otherUserId)
@@ -408,7 +473,12 @@ export function InternalMessagesFab() {
                 <div className="flex items-center justify-between gap-2">
                   <button
                     type="button"
-                    onClick={() => { setActiveChat(null); setChatDetail(null) }}
+                    onClick={() => {
+                      notifyTyping(false)
+                      setActiveChat(null)
+                      setChatDetail(null)
+                      setOtherUserTyping(false)
+                    }}
                     className="inline-flex h-5 w-fit shrink-0 items-center gap-1 rounded-md px-1 py-0.5 text-[10px] font-bold leading-none text-teal-700 transition-colors hover:bg-teal-50 hover:text-teal-800"
                     aria-label={t('common.back', 'Geri')}
                   >
@@ -516,6 +586,16 @@ export function InternalMessagesFab() {
                   })
                 )}
               </div>
+              {otherUserTyping ? (
+                <div className="internal-messages-typing-indicator shrink-0 px-3 pb-1">
+                  <span>{t('internalMessages.typing', 'Yazıyor')}</span>
+                  <span className="internal-messages-typing-dots" aria-hidden="true">
+                    <span />
+                    <span />
+                    <span />
+                  </span>
+                </div>
+              ) : null}
               <div className="flex shrink-0 items-center gap-2 border-t border-[var(--color-border)] bg-white px-3 py-2.5">
                 <input
                   type="text"

@@ -7,6 +7,7 @@ public interface INotificationPushService
     Task SendWhatsAppMessageToTenantAsync(Guid tenantId, WhatsAppMessagePayload payload, CancellationToken cancellationToken = default);
     // Kurum içi (personel-arası) mesaj — yalnızca alıcıya iletilir, tüm tenant'a değil (card #1539).
     Task SendInternalMessageToUserAsync(Guid tenantId, Guid recipientUserId, InternalMessagePayload payload, CancellationToken cancellationToken = default);
+    Task SendInternalMessageTypingToUserAsync(Guid tenantId, Guid recipientUserId, InternalMessageTypingPayload payload, CancellationToken cancellationToken = default);
 }
 
 public sealed record NotificationPayload(
@@ -39,3 +40,8 @@ public sealed record InternalMessagePayload(
     string MessagePreview,
     DateTimeOffset CreatedAtUtc,
     bool IsReadReceipt = false);
+
+public sealed record InternalMessageTypingPayload(
+    Guid SenderUserId,
+    Guid RecipientUserId,
+    bool IsTyping);

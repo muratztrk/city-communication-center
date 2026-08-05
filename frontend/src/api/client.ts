@@ -1284,6 +1284,15 @@ export const api = {
     await ensureOk(response, i18n.t('errors.internalMessagesLoadFailed', 'Kurum içi mesajlar yüklenemedi.'))
   },
 
+  async notifyInternalMessageTyping(recipientUserId: string, isTyping: boolean): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/internal-messages/typing`, {
+      method: 'POST',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ recipientUserId, isTyping }),
+    })
+    await ensureOk(response, i18n.t('errors.internalMessageSendFailed', 'Mesaj gönderilemedi.'))
+  },
+
   async updateCitizenConversationProfile(conversationId: string, payload: {
     citizenName?: string | null
     citizenPhone?: string | null

@@ -54,4 +54,16 @@ public sealed class InternalMessagesController : ApiControllerBase
         if (!ok) return NotFound();
         return NoContent();
     }
+
+    [HttpPost("typing")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> NotifyTyping(
+        [FromBody] NotifyInternalMessageTypingRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new NotifyInternalMessageTypingCommand(request.RecipientUserId, CurrentContext.UserId, request.IsTyping),
+            cancellationToken);
+        return NoContent();
+    }
 }

@@ -210,6 +210,20 @@ export function applyTenantAppearance(appearance: TenantAppearance): void {
   root.dataset.themePreset = appearance.themePreset
 }
 
+export function resolveBrowserIconUrl(hostname?: string): string {
+  const configured = (import.meta.env.VITE_FAVICON_URL ?? '').trim()
+  if (configured) {
+    return configured
+  }
+
+  const host = hostname ?? (typeof window !== 'undefined' ? window.location.hostname : '')
+  if (host.includes('lumespec.com')) {
+    return '/lumespec-icon.png'
+  }
+
+  return '/favicon.png'
+}
+
 export function applyTenantBrowserBranding(_appearance: TenantAppearance): void {
   if (typeof document === 'undefined') {
     return
@@ -217,7 +231,7 @@ export function applyTenantBrowserBranding(_appearance: TenantAppearance): void 
 
   // Browser icons are deployment assets, not tenant appearance assets. This
   // prevents a tenant's content logo URL from being requested by every tab.
-  const iconUrl = '/favicon.png'
+  const iconUrl = resolveBrowserIconUrl()
   const iconType = 'image/png'
   const ensureIconLink = (rel: string) => {
     let link = document.head.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`)

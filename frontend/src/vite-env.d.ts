@@ -4,6 +4,7 @@
 interface ImportMetaEnv {
   readonly VITE_API_ORIGIN?: string
   readonly VITE_TENANT_ID?: string
+  readonly VITE_FAVICON_URL?: string
 }
 
 interface ImportMeta {

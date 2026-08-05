@@ -24,7 +24,7 @@ export default defineConfig({
       devOptions: {
         enabled: false,
       },
-      includeAssets: ['favicon.jpeg', 'icon_black.jpeg', 'icon_white.jpeg'],
+      includeAssets: ['favicon.jpeg', 'favicon.png', 'lumespec-icon.png', 'icon_black.jpeg', 'icon_white.jpeg'],
       manifest: {
         name: 'Tire İletişim Merkezi',
         short_name: 'Tire İletişim',

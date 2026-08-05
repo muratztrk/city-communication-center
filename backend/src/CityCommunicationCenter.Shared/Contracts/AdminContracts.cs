@@ -45,8 +45,12 @@ public sealed record TenantAppearanceResponse(
     string SidebarBackgroundColor,
     string SidebarForegroundColor,
     string? LogoUrl,
+    string? LoginLogoUrl,
+    string? PopupLogoUrl,
     string? LoginBackgroundImageUrl,
     string? PreviousLogoUrl,
+    string? PreviousLoginLogoUrl,
+    string? PreviousPopupLogoUrl,
     bool IsCustomized);
 
 public sealed record UpdateTenantAppearanceRequest(
@@ -62,6 +66,8 @@ public sealed record UpdateTenantAppearanceRequest(
     string SidebarBackgroundColor,
     string SidebarForegroundColor,
     string? LogoUrl,
+    string? LoginLogoUrl,
+    string? PopupLogoUrl,
     string? LoginBackgroundImageUrl);
 
 public sealed record TenantLdapSettingsResponse(

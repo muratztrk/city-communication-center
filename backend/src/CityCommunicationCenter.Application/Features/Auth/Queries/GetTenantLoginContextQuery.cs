@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Common.Tenancy;
+using CityCommunicationCenter.Application.Features.Admin;
 
 namespace CityCommunicationCenter.Application.Features.Auth;
 
@@ -85,22 +86,7 @@ public sealed class GetTenantLoginContextQueryHandler : IQueryHandler<GetTenantL
         if (resolvedTenant is not null)
         {
             var settings = await _tenantAppearanceService.GetSettingsAsync(resolvedTenant.TenantId, cancellationToken);
-            appearance = new TenantAppearanceResponse(
-                settings.ThemePreset,
-                settings.PrimaryColor,
-                settings.SecondaryColor,
-                settings.AccentColor,
-                settings.NeutralColor,
-                settings.SurfaceColor,
-                settings.BackgroundColor,
-                settings.HeaderGradientFrom,
-                settings.HeaderGradientTo,
-                settings.SidebarBackgroundColor,
-                settings.SidebarForegroundColor,
-                settings.LogoUrl,
-                settings.LoginBackgroundImageUrl,
-                settings.PreviousLogoUrl,
-                settings.IsCustomized);
+            appearance = RestorePreviousTenantLogoCommandHandler.ToResponse(settings);
         }
 
         return new TenantLoginContextResponse(

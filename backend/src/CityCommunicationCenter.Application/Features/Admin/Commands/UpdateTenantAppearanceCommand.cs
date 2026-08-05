@@ -17,6 +17,8 @@ public sealed record UpdateTenantAppearanceCommand(
     string SidebarBackgroundColor,
     string SidebarForegroundColor,
     string? LogoUrl,
+    string? LoginLogoUrl,
+    string? PopupLogoUrl,
     string? LoginBackgroundImageUrl) : ICommand<Unit>;
 
 public sealed partial class UpdateTenantAppearanceCommandValidator : AbstractValidator<UpdateTenantAppearanceCommand>
@@ -80,6 +82,8 @@ public sealed class UpdateTenantAppearanceCommandHandler : ICommandHandler<Updat
                 request.SidebarBackgroundColor,
                 request.SidebarForegroundColor,
                 request.LogoUrl,
+                request.LoginLogoUrl,
+                request.PopupLogoUrl,
                 request.LoginBackgroundImageUrl),
             actorUserId,
             cancellationToken);

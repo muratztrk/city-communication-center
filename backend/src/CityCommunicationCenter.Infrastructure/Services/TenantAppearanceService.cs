@@ -24,6 +24,10 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
         "/default-institution-logo.png",
         null,
         null,
+        null,
+        null,
+        null,
+        null,
         false);
 
     private readonly IApplicationDbContext _dbContext;
@@ -70,14 +74,6 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
             existingPayload = JsonSerializer.Deserialize<TenantAppearancePayload>(tenantSetting.AppearanceJson, SerializerOptions);
         }
 
-        var oldLogo = StripCacheBust(Normalize(existingPayload?.LogoUrl));
-        var newLogo = StripCacheBust(Normalize(settings.LogoUrl));
-        string? previousLogoUrl = Normalize(existingPayload?.PreviousLogoUrl);
-        if (!string.Equals(oldLogo, newLogo, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(oldLogo))
-        {
-            previousLogoUrl = oldLogo;
-        }
-
         var payload = new TenantAppearancePayload
         {
             ThemePreset = Normalize(settings.ThemePreset) ?? DefaultAppearance.ThemePreset,
@@ -92,8 +88,12 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
             SidebarBackgroundColor = Normalize(settings.SidebarBackgroundColor) ?? DefaultAppearance.SidebarBackgroundColor,
             SidebarForegroundColor = Normalize(settings.SidebarForegroundColor) ?? DefaultAppearance.SidebarForegroundColor,
             LogoUrl = Normalize(settings.LogoUrl),
+            LoginLogoUrl = Normalize(settings.LoginLogoUrl),
+            PopupLogoUrl = Normalize(settings.PopupLogoUrl),
             LoginBackgroundImageUrl = Normalize(settings.LoginBackgroundImageUrl),
-            PreviousLogoUrl = previousLogoUrl,
+            PreviousLogoUrl = ResolvePreviousUrl(existingPayload?.LogoUrl, settings.LogoUrl, existingPayload?.PreviousLogoUrl),
+            PreviousLoginLogoUrl = ResolvePreviousUrl(existingPayload?.LoginLogoUrl, settings.LoginLogoUrl, existingPayload?.PreviousLoginLogoUrl),
+            PreviousPopupLogoUrl = ResolvePreviousUrl(existingPayload?.PopupLogoUrl, settings.PopupLogoUrl, existingPayload?.PreviousPopupLogoUrl),
         };
 
         if (tenantSetting is null)
@@ -119,7 +119,11 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
-    public async Task<TenantAppearanceDescriptor> RestorePreviousLogoAsync(Guid tenantId, Guid? actorUserId, CancellationToken cancellationToken = default)
+    public async Task<TenantAppearanceDescriptor> RestorePreviousLogoAsync(
+        Guid tenantId,
+        TenantLogoKind kind,
+        Guid? actorUserId,
+        CancellationToken cancellationToken = default)
     {
         var current = await GetSettingsAsync(tenantId, cancellationToken);
         var directory = Path.Combine(_uploadRootPath, tenantId.ToString(), "branding");
@@ -130,7 +134,8 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
             ]);
         }
 
-        var previousFiles = Directory.EnumerateFiles(directory, "logo-previous.*").ToList();
+        var (fileBaseName, previousFileBaseName) = kind.GetFileBaseNames();
+        var previousFiles = Directory.EnumerateFiles(directory, $"{previousFileBaseName}.*").ToList();
         if (previousFiles.Count == 0)
         {
             throw new ValidationException([
@@ -140,37 +145,36 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
 
         var previousFile = previousFiles[0];
         var previousExt = Path.GetExtension(previousFile);
-        var currentLogos = Directory.EnumerateFiles(directory, "logo.*")
-            .Where(path => !Path.GetFileName(path).StartsWith("logo-previous.", StringComparison.OrdinalIgnoreCase))
+        var currentFiles = Directory.EnumerateFiles(directory, $"{fileBaseName}.*")
+            .Where(path => !Path.GetFileName(path).StartsWith($"{previousFileBaseName}.", StringComparison.OrdinalIgnoreCase))
             .ToList();
 
-        byte[] previousBytes = await File.ReadAllBytesAsync(previousFile, cancellationToken);
+        var previousBytes = await File.ReadAllBytesAsync(previousFile, cancellationToken);
         byte[]? currentBytes = null;
         string? currentExt = null;
-        if (currentLogos.Count > 0)
+        if (currentFiles.Count > 0)
         {
-            currentBytes = await File.ReadAllBytesAsync(currentLogos[0], cancellationToken);
-            currentExt = Path.GetExtension(currentLogos[0]);
+            currentBytes = await File.ReadAllBytesAsync(currentFiles[0], cancellationToken);
+            currentExt = Path.GetExtension(currentFiles[0]);
         }
 
-        foreach (var stale in Directory.EnumerateFiles(directory, "logo.*")
-                     .Where(path => !Path.GetFileName(path).StartsWith("logo-previous.", StringComparison.OrdinalIgnoreCase)))
-        {
-            File.Delete(stale);
-        }
-
-        foreach (var stale in Directory.EnumerateFiles(directory, "logo-previous.*"))
+        foreach (var stale in currentFiles)
         {
             File.Delete(stale);
         }
 
-        await File.WriteAllBytesAsync(Path.Combine(directory, $"logo{previousExt}"), previousBytes, cancellationToken);
+        foreach (var stale in Directory.EnumerateFiles(directory, $"{previousFileBaseName}.*"))
+        {
+            File.Delete(stale);
+        }
+
+        await File.WriteAllBytesAsync(Path.Combine(directory, $"{fileBaseName}{previousExt}"), previousBytes, cancellationToken);
         if (currentBytes is not null && !string.IsNullOrEmpty(currentExt))
         {
-            await File.WriteAllBytesAsync(Path.Combine(directory, $"logo-previous{currentExt}"), currentBytes, cancellationToken);
+            await File.WriteAllBytesAsync(Path.Combine(directory, $"{previousFileBaseName}{currentExt}"), currentBytes, cancellationToken);
         }
 
-        var restoredLogoUrl = $"/uploads/{tenantId}/branding/logo{previousExt}?v={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
+        var restoredLogoUrl = $"/uploads/{tenantId}/branding/{fileBaseName}{previousExt}?v={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
         await SaveSettingsAsync(
             tenantId,
             new TenantAppearanceUpdate(
@@ -185,12 +189,26 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
                 current.HeaderGradientTo,
                 current.SidebarBackgroundColor,
                 current.SidebarForegroundColor,
-                restoredLogoUrl,
+                kind == TenantLogoKind.Institution ? restoredLogoUrl : current.LogoUrl,
+                kind == TenantLogoKind.Login ? restoredLogoUrl : current.LoginLogoUrl,
+                kind == TenantLogoKind.Popup ? restoredLogoUrl : current.PopupLogoUrl,
                 current.LoginBackgroundImageUrl),
             actorUserId,
             cancellationToken);
 
         return await GetSettingsAsync(tenantId, cancellationToken);
+    }
+
+    private static string? ResolvePreviousUrl(string? oldValue, string? newValue, string? existingPrevious)
+    {
+        var oldNormalized = StripCacheBust(Normalize(oldValue));
+        var newNormalized = StripCacheBust(Normalize(newValue));
+        if (!string.Equals(oldNormalized, newNormalized, StringComparison.OrdinalIgnoreCase) && !string.IsNullOrEmpty(oldNormalized))
+        {
+            return oldNormalized;
+        }
+
+        return Normalize(existingPrevious);
     }
 
     private static TenantAppearanceDescriptor ToDescriptor(TenantAppearancePayload payload, bool isCustomized)
@@ -207,8 +225,12 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
             Normalize(payload.SidebarBackgroundColor) ?? DefaultAppearance.SidebarBackgroundColor,
             Normalize(payload.SidebarForegroundColor) ?? DefaultAppearance.SidebarForegroundColor,
             Normalize(payload.LogoUrl),
+            Normalize(payload.LoginLogoUrl),
+            Normalize(payload.PopupLogoUrl),
             Normalize(payload.LoginBackgroundImageUrl),
             Normalize(payload.PreviousLogoUrl),
+            Normalize(payload.PreviousLoginLogoUrl),
+            Normalize(payload.PreviousPopupLogoUrl),
             isCustomized);
 
     private static string? Normalize(string? value)
@@ -252,8 +274,16 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
 
         public string? LogoUrl { get; set; }
 
+        public string? LoginLogoUrl { get; set; }
+
+        public string? PopupLogoUrl { get; set; }
+
         public string? LoginBackgroundImageUrl { get; set; }
 
         public string? PreviousLogoUrl { get; set; }
+
+        public string? PreviousLoginLogoUrl { get; set; }
+
+        public string? PreviousPopupLogoUrl { get; set; }
     }
 }

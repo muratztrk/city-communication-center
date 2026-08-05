@@ -117,6 +117,8 @@ public sealed class AdminController : ApiControllerBase
                 request.SidebarBackgroundColor,
                 request.SidebarForegroundColor,
                 request.LogoUrl,
+                request.LoginLogoUrl,
+                request.PopupLogoUrl,
                 request.LoginBackgroundImageUrl),
             cancellationToken);
 
@@ -126,11 +128,15 @@ public sealed class AdminController : ApiControllerBase
     [HttpPost("tenants/{tenantId:guid}/appearance/logo")]
     [RequestSizeLimit(2_000_000)]
     public async Task<ActionResult<UploadTenantLogoResponse>> UploadTenantLogo(
-        Guid tenantId, IFormFile? file, CancellationToken cancellationToken)
+        Guid tenantId,
+        IFormFile? file,
+        [FromQuery] string? kind,
+        CancellationToken cancellationToken)
     {
         if (file is null) return BadRequest("Dosya bulunamadi.");
+        var logoKind = ParseLogoKind(kind);
         var logoUrl = await _sender.Send(
-            new UploadTenantLogoCommand(tenantId, file.FileName, file.Length, file.OpenReadStream()),
+            new UploadTenantLogoCommand(tenantId, logoKind, file.FileName, file.Length, file.OpenReadStream()),
             cancellationToken);
         return Ok(new UploadTenantLogoResponse(logoUrl));
     }
@@ -138,11 +144,22 @@ public sealed class AdminController : ApiControllerBase
     [HttpPost("tenants/{tenantId:guid}/appearance/logo/restore-previous")]
     public async Task<ActionResult<TenantAppearanceResponse>> RestorePreviousTenantLogo(
         Guid tenantId,
+        [FromQuery] string? kind,
         CancellationToken cancellationToken)
     {
-        var appearance = await _sender.Send(new RestorePreviousTenantLogoCommand(tenantId), cancellationToken);
+        var appearance = await _sender.Send(
+            new RestorePreviousTenantLogoCommand(tenantId, ParseLogoKind(kind)),
+            cancellationToken);
         return Ok(appearance);
     }
+
+    private static TenantLogoKind ParseLogoKind(string? kind)
+        => kind?.Trim().ToLowerInvariant() switch
+        {
+            "login" => TenantLogoKind.Login,
+            "popup" => TenantLogoKind.Popup,
+            _ => TenantLogoKind.Institution,
+        };
 
     [HttpGet("tenants/{tenantId:guid}/working-hours")]
     public async Task<ActionResult<WorkingHoursResponse>> GetWorkingHours(Guid tenantId, CancellationToken cancellationToken)

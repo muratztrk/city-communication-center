@@ -6,7 +6,11 @@ public interface ITenantAppearanceService
 
     Task SaveSettingsAsync(Guid tenantId, TenantAppearanceUpdate settings, Guid? actorUserId, CancellationToken cancellationToken = default);
 
-    Task<TenantAppearanceDescriptor> RestorePreviousLogoAsync(Guid tenantId, Guid? actorUserId, CancellationToken cancellationToken = default);
+    Task<TenantAppearanceDescriptor> RestorePreviousLogoAsync(
+        Guid tenantId,
+        TenantLogoKind kind,
+        Guid? actorUserId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed record TenantAppearanceDescriptor(
@@ -22,8 +26,12 @@ public sealed record TenantAppearanceDescriptor(
     string SidebarBackgroundColor,
     string SidebarForegroundColor,
     string? LogoUrl,
+    string? LoginLogoUrl,
+    string? PopupLogoUrl,
     string? LoginBackgroundImageUrl,
     string? PreviousLogoUrl,
+    string? PreviousLoginLogoUrl,
+    string? PreviousPopupLogoUrl,
     bool IsCustomized);
 
 public sealed record TenantAppearanceUpdate(
@@ -39,4 +47,6 @@ public sealed record TenantAppearanceUpdate(
     string SidebarBackgroundColor,
     string SidebarForegroundColor,
     string? LogoUrl,
+    string? LoginLogoUrl,
+    string? PopupLogoUrl,
     string? LoginBackgroundImageUrl);

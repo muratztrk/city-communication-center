@@ -1,3 +1,11 @@
+## Round 677 — Üç logo türü + admin UI polish (6 kart)
+- `#2318`: Ayarlar > Login Page Logosu yükleme + Önceki Kullanılan Login Page Logo.
+- `#2313`: Kurum logosu Önceki Kullanılan Logo (reopen — üç tür için ayrı previous).
+- `#2314`: Pop up Logosu yükleme + önceki geri yükleme + Pop up Varsayılana Dön (popup'ta logo yok).
+- `#2308`: Users düzenle Ek birimler/roller dropdown yüksekliği biraz arttı (`max-h-96` / `max-h-80`).
+- `#2311`: Birimler Yönetici Ata Müdür/Sorumlu dropdown metni biraz büyütüldü (`0.875rem`).
+- `#2295`: Birimler Yönetici Ata Kaydet/İptal biraz daha küçük (`1.7rem` / `0.625rem`).
+
 ## Round 676 — Login logo + çerçeve (2 kart)
 - `#2315`: Kaydedilmiş kurum logosu login ekranında gösterilir (tenant appearance).
 - `#2316`: Login logo dış oval çerçeve yüksekliği hafif arttı.

@@ -22,21 +22,6 @@ public sealed class GetTenantAppearanceQueryHandler : IQueryHandler<GetTenantApp
         }
 
         var settings = await _tenantAppearanceService.GetSettingsAsync(request.TenantId, cancellationToken);
-        return new TenantAppearanceResponse(
-            settings.ThemePreset,
-            settings.PrimaryColor,
-            settings.SecondaryColor,
-            settings.AccentColor,
-            settings.NeutralColor,
-            settings.SurfaceColor,
-            settings.BackgroundColor,
-            settings.HeaderGradientFrom,
-            settings.HeaderGradientTo,
-            settings.SidebarBackgroundColor,
-            settings.SidebarForegroundColor,
-            settings.LogoUrl,
-            settings.LoginBackgroundImageUrl,
-            settings.PreviousLogoUrl,
-            settings.IsCustomized);
+        return RestorePreviousTenantLogoCommandHandler.ToResponse(settings);
     }
 }

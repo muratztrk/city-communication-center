@@ -1,7 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react'
-
-/** Login sayfasındaki resmi belediye logosu (card #1683 reopen). */
-const DETAIL_HEADER_LOGIN_LOGO_SRC = '/tire-belediyesi-logo.png'
+import { resolveAttachmentUrl } from '../../api/config'
+import { useTenantTheme } from '../../context/ThemeContext'
 
 const MIN_GAP_PX = 16
 /** Başlık–aksiyon arasındayken sola kaydırma üst sınırı (card #1751 / #1885). */
@@ -14,15 +13,23 @@ type DetailModalHeaderBrandProps = {
   preferLeftForBusyActions?: boolean
 }
 
-/** Detay popup başlık satırı ortası — login page logosu, küçültülmüş.
+/** Detay popup başlık satırı ortası — tenant popup logosu (card #2314).
  *  Logo, başlık ile sağ aksiyonlar arasındaki boşluğun ortasına hizalanır;
  *  çok butonlu header'da Yazışmaya Git ile çakışmaz (card #1885). */
 export function DetailModalHeaderBrand({ preferLeftForBusyActions = false }: DetailModalHeaderBrandProps) {
+  const { appearance } = useTenantTheme()
+  const popupLogoUrl = appearance.popupLogoUrl?.trim() || null
+  const resolvedSrc = popupLogoUrl ? resolveAttachmentUrl(popupLogoUrl) : null
+
   const brandRef = useRef<HTMLDivElement>(null)
   const shiftRef = useRef(0)
   const [shiftLeftPx, setShiftLeftPx] = useState(0)
 
   useLayoutEffect(() => {
+    if (!resolvedSrc) {
+      return
+    }
+
     const brand = brandRef.current
     const layout = brand?.closest('.detail-modal-header-layout')
     if (!brand || !(layout instanceof HTMLElement)) {
@@ -101,7 +108,11 @@ export function DetailModalHeaderBrand({ preferLeftForBusyActions = false }: Det
       img?.removeEventListener('load', onImgLoad)
       window.removeEventListener('resize', measure)
     }
-  }, [preferLeftForBusyActions])
+  }, [preferLeftForBusyActions, resolvedSrc])
+
+  if (!resolvedSrc) {
+    return null
+  }
 
   return (
     <div
@@ -111,7 +122,7 @@ export function DetailModalHeaderBrand({ preferLeftForBusyActions = false }: Det
       style={shiftLeftPx > 0 ? { transform: `translate(calc(-50% - ${shiftLeftPx}px), -50%)` } : undefined}
     >
       <img
-        src={DETAIL_HEADER_LOGIN_LOGO_SRC}
+        src={resolvedSrc}
         alt=""
         className="detail-modal-header-brand__img"
         loading="lazy"

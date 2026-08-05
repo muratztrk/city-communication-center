@@ -7,6 +7,7 @@ public sealed record UploadTenantLogoResponse(string LogoUrl);
 
 public sealed record UploadTenantLogoCommand(
     Guid TenantId,
+    TenantLogoKind Kind,
     string FileName,
     long FileSizeBytes,
     Stream FileStream) : ICommand<string>;
@@ -43,32 +44,32 @@ public sealed class UploadTenantLogoCommandHandler : ICommandHandler<UploadTenan
             ]);
         }
 
+        var (fileBaseName, previousFileBaseName) = request.Kind.GetFileBaseNames();
         var directory = Path.Combine(_uploadRootPath, request.TenantId.ToString(), "branding");
         Directory.CreateDirectory(directory);
 
-        BackupCurrentLogo(directory);
+        BackupCurrentLogo(directory, fileBaseName, previousFileBaseName);
 
-        // Sabit taban ad ("logo") — eski uzantılı dosyalar birikmesin diye önce temizlenir.
-        foreach (var stale in Directory.EnumerateFiles(directory, "logo.*"))
+        foreach (var stale in Directory.EnumerateFiles(directory, $"{fileBaseName}.*")
+                     .Where(path => !Path.GetFileName(path).StartsWith($"{previousFileBaseName}.", StringComparison.OrdinalIgnoreCase)))
         {
             File.Delete(stale);
         }
 
-        var storedFileName = $"logo{ext}";
+        var storedFileName = $"{fileBaseName}{ext}";
         var physicalPath = Path.Combine(directory, storedFileName);
         await using (var fs = File.Create(physicalPath))
         {
             await request.FileStream.CopyToAsync(fs, cancellationToken);
         }
 
-        // Sabit dosya adı tarayıcı önbelleğine takılmasın diye cache-bust query param.
         return $"/uploads/{request.TenantId}/branding/{storedFileName}?v={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
     }
 
-    private static void BackupCurrentLogo(string directory)
+    private static void BackupCurrentLogo(string directory, string fileBaseName, string previousFileBaseName)
     {
-        var currentLogos = Directory.EnumerateFiles(directory, "logo.*")
-            .Where(path => !Path.GetFileName(path).StartsWith("logo-previous.", StringComparison.OrdinalIgnoreCase))
+        var currentLogos = Directory.EnumerateFiles(directory, $"{fileBaseName}.*")
+            .Where(path => !Path.GetFileName(path).StartsWith($"{previousFileBaseName}.", StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         if (currentLogos.Count == 0)
@@ -76,13 +77,13 @@ public sealed class UploadTenantLogoCommandHandler : ICommandHandler<UploadTenan
             return;
         }
 
-        foreach (var stale in Directory.EnumerateFiles(directory, "logo-previous.*"))
+        foreach (var stale in Directory.EnumerateFiles(directory, $"{previousFileBaseName}.*"))
         {
             File.Delete(stale);
         }
 
         var currentLogo = currentLogos[0];
-        var backupPath = Path.Combine(directory, $"logo-previous{Path.GetExtension(currentLogo)}");
+        var backupPath = Path.Combine(directory, $"{previousFileBaseName}{Path.GetExtension(currentLogo)}");
         File.Copy(currentLogo, backupPath, overwrite: true);
     }
 }

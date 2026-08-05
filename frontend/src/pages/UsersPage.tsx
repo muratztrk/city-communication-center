@@ -1522,8 +1522,8 @@ export function UsersPage() {
                           placeholder={t('users.additionalDepartmentsShort', 'Ek birimler')}
                           emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir ek birim bulunmuyor.')}
                           className="w-full min-w-0 max-w-full users-edit-additional-dept-trigger"
-                          triggerClassName="text-xs !min-h-8 !py-0.5 !px-2 !bg-white"
-                          menuClassName="users-edit-dropdown-menu-scroll !max-h-88"
+                          triggerClassName="text-xs !min-h-9 !py-0.5 !px-2 !bg-white"
+                          menuClassName="users-edit-dropdown-menu-scroll !max-h-96"
                           menuWidth={264}
                           searchable
                           searchPlaceholder={t('common.search', 'Ara...')}
@@ -1561,8 +1561,8 @@ export function UsersPage() {
                           placeholder={t('users.additionalRolesShort', 'Ek roller')}
                           emptyText={t('users.additionalRolesEmpty', 'Seçilebilir ek rol bulunmuyor.')}
                           className="w-full users-edit-additional-roles-trigger"
-                          triggerClassName="text-xs !min-h-7 !py-0.5"
-                          menuClassName="users-edit-dropdown-menu-scroll !max-h-72"
+                          triggerClassName="text-xs !min-h-8 !py-0.5"
+                          menuClassName="users-edit-dropdown-menu-scroll !max-h-80"
                           menuWidth={224}
                           menuPortal={false}
                         />

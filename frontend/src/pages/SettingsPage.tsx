@@ -39,7 +39,9 @@ import type {
   RoutingConfig,
   CitizenAutoReplyTemplates,
   SocialSettingsStatus,
+  TenantAppearance,
   TenantAppearanceInput,
+  TenantLogoKind,
   TenantAuthenticationPolicy,
   TenantLdapSettings,
   TenantSettings,
@@ -384,6 +386,26 @@ function splitLines(value: string): string[] {
     .filter(Boolean)
 }
 
+function toAppearanceForm(response: TenantAppearance): TenantAppearanceInput {
+  return {
+    themePreset: response.themePreset,
+    primaryColor: response.primaryColor,
+    secondaryColor: response.secondaryColor,
+    accentColor: response.accentColor,
+    neutralColor: response.neutralColor,
+    surfaceColor: response.surfaceColor,
+    backgroundColor: response.backgroundColor,
+    headerGradientFrom: response.headerGradientFrom,
+    headerGradientTo: response.headerGradientTo,
+    sidebarBackgroundColor: response.sidebarBackgroundColor,
+    sidebarForegroundColor: response.sidebarForegroundColor,
+    logoUrl: response.logoUrl ?? null,
+    loginLogoUrl: response.loginLogoUrl ?? null,
+    popupLogoUrl: response.popupLogoUrl ?? null,
+    loginBackgroundImageUrl: response.loginBackgroundImageUrl ?? null,
+  }
+}
+
 export function SettingsPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
@@ -407,9 +429,13 @@ export function SettingsPage() {
   const [citizenAutoReplySaving, setCitizenAutoReplySaving] = useState(false)
   const [departments, setDepartments] = useState<Department[]>([])
   const logoFileInputRef = useRef<HTMLInputElement>(null)
-  const [logoUploading, setLogoUploading] = useState(false)
+  const loginLogoFileInputRef = useRef<HTMLInputElement>(null)
+  const popupLogoFileInputRef = useRef<HTMLInputElement>(null)
+  const [logoUploading, setLogoUploading] = useState<TenantLogoKind | null>(null)
   const [previousLogoUrl, setPreviousLogoUrl] = useState<string | null>(null)
-  const [logoRestoring, setLogoRestoring] = useState(false)
+  const [previousLoginLogoUrl, setPreviousLoginLogoUrl] = useState<string | null>(null)
+  const [previousPopupLogoUrl, setPreviousPopupLogoUrl] = useState<string | null>(null)
+  const [logoRestoring, setLogoRestoring] = useState<TenantLogoKind | null>(null)
   const [appearanceForm, setAppearanceForm] = useState<TenantAppearanceInput>({
     themePreset: DEFAULT_TENANT_APPEARANCE.themePreset,
     primaryColor: DEFAULT_TENANT_APPEARANCE.primaryColor,
@@ -423,6 +449,8 @@ export function SettingsPage() {
     sidebarBackgroundColor: DEFAULT_TENANT_APPEARANCE.sidebarBackgroundColor,
     sidebarForegroundColor: DEFAULT_TENANT_APPEARANCE.sidebarForegroundColor,
     logoUrl: DEFAULT_TENANT_APPEARANCE.logoUrl ?? null,
+    loginLogoUrl: null,
+    popupLogoUrl: null,
     loginBackgroundImageUrl: DEFAULT_TENANT_APPEARANCE.loginBackgroundImageUrl ?? null,
   })
   const [socialForms, setSocialForms] = useState<ChannelForms>(EMPTY_SOCIAL_FORMS)
@@ -540,21 +568,7 @@ export function SettingsPage() {
           return
         }
 
-        const nextAppearance = {
-          themePreset: appearanceResponse.themePreset,
-          primaryColor: appearanceResponse.primaryColor,
-          secondaryColor: appearanceResponse.secondaryColor,
-          accentColor: appearanceResponse.accentColor,
-          neutralColor: appearanceResponse.neutralColor,
-          surfaceColor: appearanceResponse.surfaceColor,
-          backgroundColor: appearanceResponse.backgroundColor,
-          headerGradientFrom: appearanceResponse.headerGradientFrom,
-          headerGradientTo: appearanceResponse.headerGradientTo,
-          sidebarBackgroundColor: appearanceResponse.sidebarBackgroundColor,
-          sidebarForegroundColor: appearanceResponse.sidebarForegroundColor,
-          logoUrl: appearanceResponse.logoUrl ?? null,
-          loginBackgroundImageUrl: appearanceResponse.loginBackgroundImageUrl ?? null,
-        }
+        const nextAppearance = toAppearanceForm(appearanceResponse)
 
         setTenantSettings(tenantResponse)
         // Sunucuda ayar yoksa eski/global localStorage yerine yazılımın güncel varsayılanı kullanılır (#2243).
@@ -570,6 +584,8 @@ export function SettingsPage() {
         setTenantAuthenticationPolicy(authPolicyResponse)
         setAppearanceForm(nextAppearance)
         setPreviousLogoUrl(appearanceResponse.previousLogoUrl ?? null)
+        setPreviousLoginLogoUrl(appearanceResponse.previousLoginLogoUrl ?? null)
+        setPreviousPopupLogoUrl(appearanceResponse.previousPopupLogoUrl ?? null)
         setSocialStatus(socialResponse)
         if (socialResponse.whatsAppPublic) {
           setSocialForms(current => ({
@@ -818,51 +834,66 @@ export function SettingsPage() {
     }
   }
 
-  const uploadLogo = async (file: File) => {
+  const applyAppearanceRefresh = (refreshed: TenantAppearance) => {
+    setAppearanceForm(toAppearanceForm(refreshed))
+    setPreviousLogoUrl(refreshed.previousLogoUrl ?? null)
+    setPreviousLoginLogoUrl(refreshed.previousLoginLogoUrl ?? null)
+    setPreviousPopupLogoUrl(refreshed.previousPopupLogoUrl ?? null)
+    setAppearance(refreshed)
+  }
+
+  const uploadLogo = async (file: File, kind: TenantLogoKind) => {
     if (!user?.tenantId) return
     setMessage(null)
-    setLogoUploading(true)
+    setLogoUploading(kind)
     try {
-      const logoUrl = await api.uploadTenantLogo(user.tenantId, file)
-      // Yalnız önizleme formu güncellenir; sidebar/giriş logosu Kaydet sonrası (card #2312).
-      setAppearanceForm(current => ({ ...current, logoUrl }))
+      const logoUrl = await api.uploadTenantLogo(user.tenantId, file, kind)
+      setAppearanceForm(current => ({
+        ...current,
+        ...(kind === 'institution' ? { logoUrl } : kind === 'login' ? { loginLogoUrl: logoUrl } : { popupLogoUrl: logoUrl }),
+      }))
     } catch (uploadError) {
       setMessage({ type: 'error', text: uploadError instanceof Error ? uploadError.message : t('common.error') })
     } finally {
-      setLogoUploading(false)
+      setLogoUploading(null)
     }
   }
 
-  const restorePreviousLogo = async () => {
+  const restorePreviousLogo = async (kind: TenantLogoKind) => {
     if (!user?.tenantId) return
     setMessage(null)
-    setLogoRestoring(true)
+    setLogoRestoring(kind)
     try {
-      const refreshed = await api.restorePreviousTenantLogo(user.tenantId)
-      const nextAppearance = {
-        themePreset: refreshed.themePreset,
-        primaryColor: refreshed.primaryColor,
-        secondaryColor: refreshed.secondaryColor,
-        accentColor: refreshed.accentColor,
-        neutralColor: refreshed.neutralColor,
-        surfaceColor: refreshed.surfaceColor,
-        backgroundColor: refreshed.backgroundColor,
-        headerGradientFrom: refreshed.headerGradientFrom,
-        headerGradientTo: refreshed.headerGradientTo,
-        sidebarBackgroundColor: refreshed.sidebarBackgroundColor,
-        sidebarForegroundColor: refreshed.sidebarForegroundColor,
-        logoUrl: refreshed.logoUrl ?? null,
-        loginBackgroundImageUrl: refreshed.loginBackgroundImageUrl ?? null,
-      }
-      setAppearanceForm(nextAppearance)
-      setPreviousLogoUrl(refreshed.previousLogoUrl ?? null)
-      setAppearance(refreshed)
+      const refreshed = await api.restorePreviousTenantLogo(user.tenantId, kind)
+      applyAppearanceRefresh(refreshed)
       invalidateSettings(queryClient)
-      setMessage({ type: 'success', text: t('settings.previousLogoRestoreSuccess', 'Önceki logo geri yüklendi.') })
+      setMessage({
+        type: 'success',
+        text: kind === 'login'
+          ? t('settings.previousLoginLogoRestoreSuccess', 'Önceki login logosu geri yüklendi.')
+          : kind === 'popup'
+            ? t('settings.previousPopupLogoRestoreSuccess', 'Önceki popup logosu geri yüklendi.')
+            : t('settings.previousLogoRestoreSuccess', 'Önceki logo geri yüklendi.'),
+      })
     } catch (restoreError) {
       setMessage({ type: 'error', text: restoreError instanceof Error ? restoreError.message : t('common.error') })
     } finally {
-      setLogoRestoring(false)
+      setLogoRestoring(null)
+    }
+  }
+
+  const resetPopupLogo = async () => {
+    if (!user?.tenantId) return
+    setMessage(null)
+    const nextForm = { ...appearanceForm, popupLogoUrl: null }
+    try {
+      await api.updateTenantAppearance(user.tenantId, nextForm)
+      invalidateSettings(queryClient)
+      const refreshed = await api.getTenantAppearance(user.tenantId)
+      applyAppearanceRefresh(refreshed)
+      setMessage({ type: 'success', text: t('settings.popupLogoResetSuccess', 'Pop up logosu kaldırıldı.') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
   }
 
@@ -877,25 +908,7 @@ export function SettingsPage() {
       await api.updateTenantAppearance(user.tenantId, appearanceForm)
       invalidateSettings(queryClient)
       const refreshed = await api.getTenantAppearance(user.tenantId)
-      const nextAppearance = {
-        themePreset: refreshed.themePreset,
-        primaryColor: refreshed.primaryColor,
-        secondaryColor: refreshed.secondaryColor,
-        accentColor: refreshed.accentColor,
-        neutralColor: refreshed.neutralColor,
-        surfaceColor: refreshed.surfaceColor,
-        backgroundColor: refreshed.backgroundColor,
-        headerGradientFrom: refreshed.headerGradientFrom,
-        headerGradientTo: refreshed.headerGradientTo,
-        sidebarBackgroundColor: refreshed.sidebarBackgroundColor,
-        sidebarForegroundColor: refreshed.sidebarForegroundColor,
-        logoUrl: refreshed.logoUrl ?? null,
-        loginBackgroundImageUrl: refreshed.loginBackgroundImageUrl ?? null,
-      }
-
-      setAppearanceForm(nextAppearance)
-      setPreviousLogoUrl(refreshed.previousLogoUrl ?? null)
-      setAppearance(refreshed)
+      applyAppearanceRefresh(refreshed)
       setMessage({ type: 'success', text: t('settings.appearanceSaveSuccess') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
@@ -921,6 +934,8 @@ export function SettingsPage() {
       sidebarBackgroundColor: DEFAULT_TENANT_APPEARANCE.sidebarBackgroundColor,
       sidebarForegroundColor: DEFAULT_TENANT_APPEARANCE.sidebarForegroundColor,
       logoUrl: DEFAULT_TENANT_APPEARANCE.logoUrl ?? null,
+      loginLogoUrl: null,
+      popupLogoUrl: null,
       loginBackgroundImageUrl: null,
     }
 
@@ -928,26 +943,7 @@ export function SettingsPage() {
       await api.updateTenantAppearance(user.tenantId, defaultPayload)
       invalidateSettings(queryClient)
       const refreshed = await api.getTenantAppearance(user.tenantId)
-      const nextAppearance = {
-        themePreset: refreshed.themePreset,
-        primaryColor: refreshed.primaryColor,
-        secondaryColor: refreshed.secondaryColor,
-        accentColor: refreshed.accentColor,
-        neutralColor: refreshed.neutralColor,
-        surfaceColor: refreshed.surfaceColor,
-        backgroundColor: refreshed.backgroundColor,
-        headerGradientFrom: refreshed.headerGradientFrom,
-        headerGradientTo: refreshed.headerGradientTo,
-        sidebarBackgroundColor: refreshed.sidebarBackgroundColor,
-        sidebarForegroundColor: refreshed.sidebarForegroundColor,
-        logoUrl: refreshed.logoUrl ?? null,
-        loginBackgroundImageUrl: refreshed.loginBackgroundImageUrl ?? null,
-      }
-
-      setAppearanceForm(nextAppearance)
-      setPreviousLogoUrl(refreshed.previousLogoUrl ?? null)
-      // Sidebar/giriş ekranı dahil tüm logo görselleri anında güncellensin (card #2261).
-      setAppearance(refreshed)
+      applyAppearanceRefresh(refreshed)
       setMessage({ type: 'success', text: t('settings.appearanceSaveSuccess') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
@@ -2620,31 +2616,98 @@ export function SettingsPage() {
                     onChange={event => {
                       const file = event.target.files?.[0]
                       event.target.value = ''
-                      if (file) void uploadLogo(file)
+                      if (file) void uploadLogo(file, 'institution')
                     }}
                   />
                   <Button
                     type="button"
                     variant="secondary"
-                    disabled={logoUploading}
+                    disabled={logoUploading === 'institution'}
                     onClick={() => logoFileInputRef.current?.click()}
                   >
-                    {logoUploading ? t('common.loading') : t('settings.tenantLogoAdd', 'Kurum Logosu Ekle')}
+                    {logoUploading === 'institution' ? t('common.loading') : t('settings.tenantLogoAdd', 'Kurum Logosu Ekle')}
+                  </Button>
+                </label>
+                <label className="grid gap-2 text-sm font-semibold text-slate-700">
+                  <span>{t('settings.popupLogo', 'Pop up Logosu')}</span>
+                  <input
+                    ref={popupLogoFileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    className="hidden"
+                    onChange={event => {
+                      const file = event.target.files?.[0]
+                      event.target.value = ''
+                      if (file) void uploadLogo(file, 'popup')
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={logoUploading === 'popup'}
+                    onClick={() => popupLogoFileInputRef.current?.click()}
+                  >
+                    {logoUploading === 'popup' ? t('common.loading') : t('settings.popupLogoAdd', 'Pop up Logosu Ekle')}
+                  </Button>
+                </label>
+                <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                  <span>{t('settings.loginPageLogo', 'Login Page Logosu')}</span>
+                  <input
+                    ref={loginLogoFileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    className="hidden"
+                    onChange={event => {
+                      const file = event.target.files?.[0]
+                      event.target.value = ''
+                      if (file) void uploadLogo(file, 'login')
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={logoUploading === 'login'}
+                    onClick={() => loginLogoFileInputRef.current?.click()}
+                  >
+                    {logoUploading === 'login' ? t('common.loading') : t('settings.loginPageLogoAdd', 'Login Page Logosu Ekle')}
                   </Button>
                 </label>
               </div>
-              <div className="inline-actions">
+              <div className="inline-actions flex-wrap">
                 <Button type="submit">{t('common.save')}</Button>
                 {previousLogoUrl ? (
                   <Button
                     type="button"
                     variant="secondary"
-                    disabled={logoRestoring}
-                    onClick={() => void restorePreviousLogo()}
+                    disabled={logoRestoring === 'institution'}
+                    onClick={() => void restorePreviousLogo('institution')}
                   >
-                    {logoRestoring ? t('common.loading') : t('settings.previousLogo', 'Önceki Kullanılan Logo')}
+                    {logoRestoring === 'institution' ? t('common.loading') : t('settings.previousLogo', 'Önceki Kullanılan Logo')}
                   </Button>
                 ) : null}
+                {previousLoginLogoUrl ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={logoRestoring === 'login'}
+                    onClick={() => void restorePreviousLogo('login')}
+                  >
+                    {logoRestoring === 'login' ? t('common.loading') : t('settings.previousLoginLogo', 'Önceki Kullanılan Login Page Logo')}
+                  </Button>
+                ) : null}
+                {previousPopupLogoUrl ? (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={logoRestoring === 'popup'}
+                    onClick={() => void restorePreviousLogo('popup')}
+                  >
+                    {logoRestoring === 'popup' ? t('common.loading') : t('settings.previousPopupLogo', 'Önceki Kullanılan Pop up Logo')}
+                  </Button>
+                ) : null}
+                <Button type="button" variant="secondary" onClick={() => void resetPopupLogo()}>
+                  {t('settings.popupLogoReset', 'Pop up Varsayılana Dön')}
+                </Button>
                 <Button type="button" variant="secondary" onClick={() => void resetAppearanceToDefault()}>{t('settings.reset', 'Varsayılana Dön')}</Button>
               </div>
             </form>

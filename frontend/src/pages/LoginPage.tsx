@@ -107,7 +107,9 @@ export function LoginPage() {
     ?? tenantContext?.resolvedTenant?.municipalityName
     ?? t('login.organizationFallback')
   const municipalityName = institutionName.replace(/\s+Belediyesi?$/i, '').trim()
-  const loginLogoUrl = resolveLoginLogoUrl(tenantContext?.appearance?.logoUrl ?? themeAppearance.logoUrl)
+  const loginLogoUrl = resolveLoginLogoUrl(
+    tenantContext?.appearance?.loginLogoUrl ?? themeAppearance.loginLogoUrl,
+  )
   const desktopLogoUrl = loginLogoUrl
   const compactLogoUrl = loginLogoUrl
   const loginBackgroundImageUrl = tenantContext?.appearance?.loginBackgroundImageUrl?.trim() || null

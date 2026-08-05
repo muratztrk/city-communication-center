@@ -788,10 +788,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1251).
 - **Vatandaş Talepleri breadcrumb:** `/social` sayfasında `Vatandaş İlişkileri` ara katmanı
   gösterilmez; breadcrumb doğrudan `Anasayfa > Vatandaş Talepleri` olur (card #1262).
-- **Login logosu (#2315):** Kaydedilmiş kurum logosu (`appearance.logoUrl`, varsayılan
-  `/default-institution-logo.png` hariç) login ekranında gösterilir; aksi halde
-  `/tire-belediyesi-logo.png`. Önizleme/yükleme anında değil, Kaydet sonrası geçerli olur
-  (tenant login context + ThemeContext).
+- **Login logosu (#2315 / #2318):** Login ekranı `appearance.loginLogoUrl` kullanır (kurum logosu
+  `logoUrl` değil); kayıtlı değer yoksa `/tire-belediyesi-logo.png`. Önizleme/yükleme anında değil,
+  Görünüm **Kaydet** veya **Önceki Kullanılan Login Page Logo** sonrası geçerli olur.
 - **Login logo oval çerçeve (#2316):** desktop `h-15 w-36` (`2xl:h-[4.25rem]`); mobil
   `h-[4.5rem]` (`sm:h-[6.25rem]`).
 - **Mobil login Atatürk görseli:** `/header-ataturk.png` (beyaz silüet) sayfa sol üst köşesinde
@@ -1179,9 +1178,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`color-mix(... 40%, transparent)`, scrollbar ile aynı); gri slate değil.
 - **Detay popup boyutu (card #1682):** `.detail-modal-shell` / `--my-request` bir kademe
   daha küçük (`~63–67vw` / `~73–77dvh` bandı).
-- **Detay popup header logo (card #1683 reopen / #1751 / #1885 / #r484):** başlık satırı ortasında
-  login page logosu (`/tire-belediyesi-logo.png`); absolute. Logo, başlık ile sağ aksiyonlar
-  arasındaki boşluğun ortasına hizalanır. **Yalnız Birime Gelen + onaysız vatandaş talebi**
+- **Detay popup header logo (card #1683 reopen / #1751 / #1885 / #r484 / #2314):** başlık satırı
+  ortasında `appearance.popupLogoUrl` (yoksa logo gösterilmez); absolute. Logo, başlık ile sağ
+  aksiyonlar arasındaki boşluğun ortasına hizalanır. **Yalnız Birime Gelen + onaysız vatandaş talebi**
   (`preferLeftForBusyActions`, ~128px ekstra sola) — Yazışmaya Git ile çakışmaz; diğer
   sayfa/durumlarda ekstra kaydırma yok. Kaydırma **animasyonsuz** (`transition: none`).
 - **Detay popup header şeridi (card #1685):** `my-request-detail-header::after` rengi
@@ -1515,18 +1514,23 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ikisi ayrı sabitte tutuluyor, biri unutulursa yeni tenant'ın backend default'u eskisiyle uyuşmaz. Ana
   renk zaten `#0A8F3E` (R10 G143 B62) — bu değeri değiştirme.
 - **Kurum logosu artık dosya yükleme (Round 655 / card #2234):** Logo URL/Giriş Arka Plan textbox'ları
-  kaldırıldı; `POST /api/v1/admin/tenants/{id}/appearance/logo` göreli `/uploads/{tenant}/branding/logo.*`
-  döner. `MunicipalitySeal` bunu tek noktadan `resolveAttachmentUrl` ile mutlak URL'e çevirir — yeni bir
-  logo/kurum görseli tüketen bileşen eklersen `resolveAttachmentUrl` KULLAN, ham `src` verme. nginx'e
-  `/uploads/` proxy location'ı bu round'da eklendi (`frontend/nginx.conf`) — önceden yalnız `/api/`,
-  `/hubs/`, `/connect/`, `/health` proxy'liydi, aynı-origin dağıtımda `/uploads/...` SPA fallback'ine
-  düşüp index.html dönerdi (var olan ek-önizleme özellikleri için de gizli bir bug'dı).
-- **Kurum Logosu yükleme (#2312 / eski #2251 iptal):** `uploadLogo` yalnız `appearanceForm.logoUrl`
-  günceller (önizleme); sidebar/giriş logosu `ThemeContext` ancak Görünüm **Kaydet** veya
-  **Önceki Kullanılan Logo** sonrası güncellenir. Upload sırasında mevcut dosya `logo-previous.*`
-  olarak yedeklenir.
-- **Önceki logo (#2313):** logo değişikliği Kaydet sonrası `PreviousLogoUrl` saklanır; Kaydet yanında
-  **Önceki Kullanılan Logo** butonu görünür (`POST .../appearance/logo/restore-previous`).
+  kaldırıldı; `POST /api/v1/admin/tenants/{id}/appearance/logo?kind=institution|login|popup` göreli
+  `/uploads/{tenant}/branding/{logo|login-logo|popup-logo}.*` döner. `MunicipalitySeal` kurum logosunu
+  (`logoUrl`) tek noktadan `resolveAttachmentUrl` ile mutlak URL'e çevirir — yeni bir logo/kurum görseli
+  tüketen bileşen eklersen `resolveAttachmentUrl` KULLAN, ham `src` verme. nginx'e `/uploads/` proxy
+  location'ı bu round'da eklendi (`frontend/nginx.conf`) — önceden yalnız `/api/`, `/hubs/`, `/connect/`,
+  `/health` proxy'liydi, aynı-origin dağıtımda `/uploads/...` SPA fallback'ine düşüp index.html dönerdi
+  (var olan ek-önizleme özellikleri için de gizli bir bug'dı).
+- **Üç logo türü (#2318 / #2314):** `logoUrl` (sidebar/kurum), `loginLogoUrl` (login), `popupLogoUrl`
+  (detay popup header). Ayarlar > Görünüm'de Kurum | Pop up yan yana; Login Page alt satırda. Her tür
+  için ayrı yükleme, Kaydet, önceki geri yükleme; popup için **Pop up Varsayılana Dön** `popupLogoUrl`
+  temizler (popup'ta logo gizlenir).
+- **Kurum Logosu yükleme (#2312 / eski #2251 iptal):** `uploadLogo(..., kind)` yalnız ilgili form
+  alanını günceller (önizleme); `ThemeContext` ancak Görünüm **Kaydet** veya ilgili **Önceki Kullanılan
+  … Logo** sonrası güncellenir. Upload sırasında mevcut dosya `{kind}-previous.*` olarak yedeklenir.
+- **Önceki logo (#2313):** logo değişikliği Kaydet sonrası `PreviousLogoUrl` / `PreviousLoginLogoUrl` /
+  `PreviousPopupLogoUrl` saklanır; Kaydet yanında ilgili **Önceki Kullanılan … Logo** butonu görünür
+  (`POST .../appearance/logo/restore-previous?kind=...`).
 - **Anasayfa breadcrumb'ı kök rotalarda ikinci "Anasayfa" segmentini göstermez (card #2248):**
   `AppShell.tsx`'teki `isDashboardRoot` (`/dashboard` veya `/dashboard/birimler`) `currentBreadcrumbSegment`'i
   `undefined` yapar — "Ana Sayfa" (home butonu) zaten aynı yeri temsil ediyor, ikinci pill gereksiz tekrardı.

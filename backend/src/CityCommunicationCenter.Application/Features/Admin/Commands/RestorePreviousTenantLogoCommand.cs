@@ -1,6 +1,6 @@
 namespace CityCommunicationCenter.Application.Features.Admin;
 
-public sealed record RestorePreviousTenantLogoCommand(Guid TenantId) : ICommand<TenantAppearanceResponse>;
+public sealed record RestorePreviousTenantLogoCommand(Guid TenantId, TenantLogoKind Kind) : ICommand<TenantAppearanceResponse>;
 
 public sealed class RestorePreviousTenantLogoCommandHandler : ICommandHandler<RestorePreviousTenantLogoCommand, TenantAppearanceResponse>
 {
@@ -18,9 +18,17 @@ public sealed class RestorePreviousTenantLogoCommandHandler : ICommandHandler<Re
     public async ValueTask<TenantAppearanceResponse> Handle(RestorePreviousTenantLogoCommand request, CancellationToken cancellationToken)
     {
         var actorUserId = _tenantContextAccessor.GetCurrent().UserId;
-        var settings = await _tenantAppearanceService.RestorePreviousLogoAsync(request.TenantId, actorUserId, cancellationToken);
+        var settings = await _tenantAppearanceService.RestorePreviousLogoAsync(
+            request.TenantId,
+            request.Kind,
+            actorUserId,
+            cancellationToken);
 
-        return new TenantAppearanceResponse(
+        return ToResponse(settings);
+    }
+
+    internal static TenantAppearanceResponse ToResponse(TenantAppearanceDescriptor settings)
+        => new(
             settings.ThemePreset,
             settings.PrimaryColor,
             settings.SecondaryColor,
@@ -33,8 +41,11 @@ public sealed class RestorePreviousTenantLogoCommandHandler : ICommandHandler<Re
             settings.SidebarBackgroundColor,
             settings.SidebarForegroundColor,
             settings.LogoUrl,
+            settings.LoginLogoUrl,
+            settings.PopupLogoUrl,
             settings.LoginBackgroundImageUrl,
             settings.PreviousLogoUrl,
+            settings.PreviousLoginLogoUrl,
+            settings.PreviousPopupLogoUrl,
             settings.IsCustomized);
-    }
 }

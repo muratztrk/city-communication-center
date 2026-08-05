@@ -31,6 +31,7 @@ import type {
   UpdateJobRequest,
   TenantAppearance,
   TenantAppearanceInput,
+  TenantLogoKind,
   TenantAuthenticationPolicy,
   TenantLdapSettings,
   TenantSettings,
@@ -566,14 +567,14 @@ export const api = {
     await ensureOk(response, i18n.t('errors.tenantAppearanceSaveFailed'))
   },
 
-  async uploadTenantLogo(tenantId: string, file: File): Promise<string> {
+  async uploadTenantLogo(tenantId: string, file: File, kind: TenantLogoKind = 'institution'): Promise<string> {
     const formData = new FormData()
     formData.append('file', file)
     const authHeaders = await getAuthHeaders() as Record<string, string>
     const headers = Object.fromEntries(
       Object.entries(authHeaders).filter(([key]) => key.toLowerCase() !== 'content-type'),
     )
-    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/appearance/logo`, {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/appearance/logo?kind=${kind}`, {
       method: 'POST',
       headers,
       body: formData,
@@ -583,8 +584,8 @@ export const api = {
     return result.logoUrl
   },
 
-  async restorePreviousTenantLogo(tenantId: string): Promise<TenantAppearance> {
-    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/appearance/logo/restore-previous`, {
+  async restorePreviousTenantLogo(tenantId: string, kind: TenantLogoKind = 'institution'): Promise<TenantAppearance> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/appearance/logo/restore-previous?kind=${kind}`, {
       method: 'POST',
       headers: await getAuthHeaders(),
     })

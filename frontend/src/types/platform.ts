@@ -658,10 +658,16 @@ export interface TenantAppearance {
   sidebarBackgroundColor: string;
   sidebarForegroundColor: string;
   logoUrl?: string | null;
+  loginLogoUrl?: string | null;
+  popupLogoUrl?: string | null;
   loginBackgroundImageUrl?: string | null;
   previousLogoUrl?: string | null;
+  previousLoginLogoUrl?: string | null;
+  previousPopupLogoUrl?: string | null;
   isCustomized: boolean;
 }
+
+export type TenantLogoKind = 'institution' | 'login' | 'popup';
 
 export type TenantAppearanceInput = Omit<TenantAppearance, 'isCustomized'>;
 

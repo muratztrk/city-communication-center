@@ -37,6 +37,20 @@ public sealed class MeController : ApiControllerBase
         return Ok(response);
     }
 
+    [HttpPut("license-modules/{module}")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
+    [ProducesResponseType<LicenseModuleResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<LicenseModuleResponse>> UpdateLicenseModuleToken(
+        string module,
+        [FromBody] UpdateLicenseModuleTokenRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new UpdateLicenseModuleTokenCommand(module, request.Token),
+            cancellationToken);
+        return Ok(response);
+    }
+
     [HttpPost("change-password")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<IActionResult> ChangePassword(

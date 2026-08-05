@@ -8,3 +8,5 @@ public sealed record UserQuickReplyTemplateResponse(
 public sealed record UserQuickReplyTemplateRequest(
     string Name,
     string Content);
+
+public sealed record UpdateLicenseModuleTokenRequest(string Token);

@@ -11,6 +11,7 @@ import type {
   DirectoryUserLookup,
   EntityAuditLogEntry,
   LicenseModuleStatus,
+  LicenseModuleKey,
   RoutingConfig,
   RoutingRule,
   RoutingTestResult,
@@ -122,6 +123,16 @@ export const api = {
     const response = await fetchWithCredentials(`${API_BASE}/me/license-modules`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.licenseModulesLoadFailed', 'Lisans modül durumu yüklenemedi'))
     return response.json() as Promise<LicenseModuleStatus[]>
+  },
+
+  async updateLicenseModuleToken(module: LicenseModuleKey, token: string): Promise<LicenseModuleStatus> {
+    const response = await fetchWithCredentials(`${API_BASE}/me/license-modules/${module}`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ token }),
+    })
+    await ensureOk(response, i18n.t('errors.licenseModuleSaveFailed', 'Lisans kodu kaydedilemedi'))
+    return response.json() as Promise<LicenseModuleStatus>
   },
 
   async changeMyPassword(payload: { currentPassword: string; newPassword: string; confirmPassword: string }): Promise<void> {

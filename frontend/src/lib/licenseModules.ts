@@ -37,8 +37,21 @@ export function loadLicenseModules(): LicenseModuleStatus[] {
   }
 }
 
-/** Durum henüz yüklenmediyse ya da modül bulunamadıysa fail-open: kullanılabilir sayılır. */
+/** Durum henüz yüklenmediyse geçici fail-open; senkronlandıktan sonra sunucu kararı uygulanır. */
 export function isModuleUsable(module: LicenseModuleKey): boolean {
-  const entry = loadLicenseModules().find(item => item.module === module)
-  return entry?.usable ?? true
+  const modules = loadLicenseModules()
+  const entry = modules.find(item => item.module === module)
+  if (!entry) {
+    return modules.length === 0
+  }
+
+  if (!entry.usable) {
+    return false
+  }
+
+  if (entry.expiresAt && new Date(entry.expiresAt).getTime() <= Date.now()) {
+    return false
+  }
+
+  return true
 }

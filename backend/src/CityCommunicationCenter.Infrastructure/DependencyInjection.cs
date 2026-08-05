@@ -94,7 +94,9 @@ public static class DependencyInjection
             var licensingOptions = serviceProvider.GetRequiredService<IOptions<LicensingOptions>>().Value;
             client.Timeout = TimeSpan.FromSeconds(Math.Max(1, licensingOptions.TimeoutSeconds));
         });
-        services.AddSingleton<ILicenseServiceClient, LicenseServiceClient>();
+        services.AddSingleton<ILicenseTokenVerifier, LicenseTokenVerifier>();
+        services.AddSingleton<IRemoteLicenseTokenClient, RemoteLicenseTokenClient>();
+        services.AddScoped<ILicenseModuleStatusService, LicenseModuleStatusService>();
 
         return services;
     }

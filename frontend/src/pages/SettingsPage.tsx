@@ -33,10 +33,11 @@ import {
   type RoleCode,
   type RolePageAccessMatrix,
 } from '../lib/rolePageAccess'
-import { isModuleUsable } from '../lib/licenseModules'
+import { isModuleUsable, loadLicenseModules, saveLicenseModules } from '../lib/licenseModules'
 import type {
   Department,
   CitizenAutoReplyTemplates,
+  LicenseModuleKey,
   SocialSettingsStatus,
   TenantAppearance,
   TenantAppearanceInput,
@@ -527,14 +528,40 @@ export function SettingsPage() {
   const [keywordInput, setKeywordInput] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [syncingMetaTemplates, setSyncingMetaTemplates] = useState(false)
+  const [licenseTokenDrafts, setLicenseTokenDrafts] = useState<Record<LicenseModuleKey, string>>({ citizen: '', internal: '' })
+  const [savingLicenseModule, setSavingLicenseModule] = useState<LicenseModuleKey | null>(null)
 
   // Gerçek lisans durumu (lumespec-license, Ed25519 imzalı) — bkz. LicenseModuleContext.
-  // Tenant SystemAdmin'i kendi modülünü açıp kapatamaz, yalnız durumu görür.
+  // SystemAdmin kapalı ağda Lumespec'ten aldığı JWT'yi buraya kaydeder.
   const licenseModulesQuery = useQuery({
     queryKey: queryKeys.licensing.modules(),
     queryFn: () => api.getLicenseModules(),
     staleTime: 10 * 60 * 1000,
   })
+
+  const handleSaveLicenseModule = async (moduleKey: LicenseModuleKey) => {
+    const token = licenseTokenDrafts[moduleKey].trim()
+    if (!token) {
+      showToast('error', t('settings.license.tokenRequired', 'Lisans kodu boş olamaz.'))
+      return
+    }
+
+    setSavingLicenseModule(moduleKey)
+    try {
+      const updated = await api.updateLicenseModuleToken(moduleKey, token)
+      const merged = (licenseModulesQuery.data ?? loadLicenseModules())
+        .filter(item => item.module !== moduleKey)
+        .concat(updated)
+      await queryClient.invalidateQueries({ queryKey: queryKeys.licensing.modules() })
+      saveLicenseModules(merged)
+      setLicenseTokenDrafts(current => ({ ...current, [moduleKey]: '' }))
+      showToast('success', t('settings.license.saveSuccess', 'Lisans kodu kaydedildi.'))
+    } catch (saveError) {
+      showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
+    } finally {
+      setSavingLicenseModule(null)
+    }
+  }
 
   useEffect(() => {
     if (!user?.tenantId) {
@@ -3276,7 +3303,7 @@ export function SettingsPage() {
           <div className="page-header-row">
             <div>
               <h2 className="text-xl font-extrabold text-slate-950">{t('settings.license.title', 'Lisans')}</h2>
-              <p className="helper-copy">{t('settings.license.description', 'Modül lisans durumunuz. Lisans süresi/modül değişikliği için Lumespec ile iletişime geçin.')}</p>
+              <p className="helper-copy">{t('settings.license.description', 'Modül lisans durumunuz. Kapalı ağ ortamında Lumespec\'ten aldığınız lisans kodunu (JWT) aşağıya yapıştırıp kaydedin. İnternet erişimi varsa geçerli lisans otomatik senkronlanır.')}</p>
             </div>
           </div>
           {licenseModulesQuery.isLoading ? (
@@ -3285,7 +3312,7 @@ export function SettingsPage() {
             <div className="grid gap-5 xl:grid-cols-2">
               {(['citizen', 'internal'] as const).map(moduleKey => {
                 const entry = licenseModulesQuery.data?.find(item => item.module === moduleKey)
-                const usable = entry?.usable ?? true
+                const usable = entry?.usable ?? false
                 return (
                   <section key={moduleKey} className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
                     <h3 className="mb-3 text-base font-extrabold text-slate-900">
@@ -3301,12 +3328,51 @@ export function SettingsPage() {
                       </StatusPill>
                       {entry?.status ? <span className="text-xs font-semibold text-slate-500">{entry.status}</span> : null}
                     </div>
+                    {entry?.bundleId ? (
+                      <p className="mt-2 text-xs text-slate-500">
+                        {t('settings.license.bundleId', 'Bundle ID')}: <span className="font-mono">{entry.bundleId}</span>
+                      </p>
+                    ) : null}
                     {entry?.validUntil ? (
                       <p className="mt-2 text-sm text-slate-600">
                         {t('settings.license.validUntil', 'Geçerlilik tarihi')}: {new Date(entry.validUntil).toLocaleDateString('tr-TR')}
                       </p>
                     ) : null}
+                    {entry?.expiresAt ? (
+                      <p className="mt-1 text-sm text-slate-600">
+                        {t('settings.license.expiresAt', 'Çevrimdışı süre sonu')}: {new Date(entry.expiresAt).toLocaleString('tr-TR')}
+                      </p>
+                    ) : null}
                     {entry?.message ? <p className="mt-2 text-sm text-slate-600">{entry.message}</p> : null}
+                    <div className="mt-4 space-y-2">
+                      <label className="text-sm font-semibold text-slate-700" htmlFor={`license-token-${moduleKey}`}>
+                        {t('settings.license.tokenLabel', 'Lisans kodu (JWT)')}
+                      </label>
+                      <textarea
+                        id={`license-token-${moduleKey}`}
+                        className="min-h-28 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-xs text-slate-800"
+                        placeholder={t('settings.license.tokenPlaceholder', 'Lumespec\'ten aldığınız imzalı lisans kodunu yapıştırın')}
+                        value={licenseTokenDrafts[moduleKey]}
+                        onChange={event => setLicenseTokenDrafts(current => ({ ...current, [moduleKey]: event.target.value }))}
+                      />
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Button
+                          type="button"
+                          onClick={() => void handleSaveLicenseModule(moduleKey)}
+                          disabled={savingLicenseModule === moduleKey}
+                        >
+                          <Save className="size-4" />
+                          {savingLicenseModule === moduleKey
+                            ? t('common.saving', 'Kaydediliyor…')
+                            : t('settings.license.saveToken', 'Lisans kodunu kaydet')}
+                        </Button>
+                        {entry?.hasStoredToken ? (
+                          <span className="text-xs font-semibold text-emerald-700">
+                            {t('settings.license.storedTokenPresent', 'Kayıtlı lisans kodu mevcut')}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
                   </section>
                 )
               })}

@@ -759,6 +759,10 @@ export interface LicenseModuleStatus {
   status: string;
   validUntil: string | null;
   message: string | null;
+  expiresAt: string | null;
+  bundleId: string;
+  hasStoredToken: boolean;
+  source: string;
 }
 
 export interface AuthUser {

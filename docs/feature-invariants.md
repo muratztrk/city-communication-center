@@ -1493,10 +1493,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Personelimin Görevleri `separatePriorityProjectRows` satırında da aynı sınıf (önce renk yoktu).
 - **Ayarlar Kurum Bilgisi (#r522 / #6a6cbd61 / #6a6cd81e / #6a6cdd37):** başlık `text-xl`;
   Aktif/Alan Adı/Dağıtım/Tema yok; readonly KURUM ADI/SLA özet satırı yok (yalnız form).
-- **Ayarlar Lisans sekmesi (Round 654 ile değişti):** artık kozmetik metin-anahtarı stub'ı DEĞİL —
-  lumespec-license'tan (Ed25519 imzalı) gerçek modül durumu (Kullanılabilir/Kullanılamıyor + geçerlilik
-  tarihi) salt okunur gösterilir. Tenant SystemAdmin'i kendi modülünü açıp kapatamaz. Modül lisansı
-  `frontend/src/lib/licenseModules.ts` + backend `LicenseServiceClient`; sayfa/menü gizleme
+- **Ayarlar Lisans sekmesi:** lumespec-license'tan (Ed25519 imzalı) gerçek modül durumu gösterilir.
+  SystemAdmin kapalı ağda Lumespec'ten aldığı JWT'yi modül başına kaydedebilir (`PUT /me/license-modules/{module}`).
+  Çözümleme sırası: kayıtlı token (geçerli exp + !blocked) → uzaktan servis → **fail-closed**.
+  `TenantSetting.LicenseModulesJson` kalıcı depo; online başarılı fetch otomatik persist eder.
+  `frontend/src/lib/licenseModules.ts` + backend `LicenseModuleStatusService`; sayfa/menü gizleme
   `PAGE_LICENSE_MODULE` haritası üzerinden `canAnyRoleAccessPage`'e entegre (bkz. rolePageAccess.ts).
 - **Sayfa Yetkileri artık `departmentTasks`/`citizenDirectory`'i zorla açıp kapatmıyor (card #2242):**
   önceki kod bu iki sayfayı role göre unconditional force ediyordu (admin checkbox'ı hiç işe yaramıyordu);

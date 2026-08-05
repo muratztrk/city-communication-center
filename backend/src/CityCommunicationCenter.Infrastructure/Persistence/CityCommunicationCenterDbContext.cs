@@ -242,6 +242,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(entity => entity.AppearanceJson).HasColumnType("text");
         builder.Property(entity => entity.WorkingHoursJson).HasColumnType("text");
         builder.Property(entity => entity.RolePageAccessJson).HasColumnType("text");
+        builder.Property(entity => entity.LicenseModulesJson).HasColumnType("text");
         builder.Property(entity => entity.BelediyeKodu).HasMaxLength(32);
         ApplyLowerCaseColumnNames(builder);
     }

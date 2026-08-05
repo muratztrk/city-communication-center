@@ -36,6 +36,9 @@ public sealed class TenantSetting : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public string? CitizenAutoReplyTemplatesJson { get; set; }
 
+    /// <summary>Tenant bazlı offline lisans JWT belgeleri (modül → imzalı token).</summary>
+    public string? LicenseModulesJson { get; set; }
+
     /// <summary>Türksat Belediye Standart V3 belediye kodu (tenant çözümleme).</summary>
     public string? BelediyeKodu { get; set; }
 

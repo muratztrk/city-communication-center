@@ -1836,6 +1836,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("ldapsettingsjson");
 
+                    b.Property<string>("LicenseModulesJson")
+                        .HasColumnType("text")
+                        .HasColumnName("licensemodulesjson");
+
                     b.Property<string>("RolePageAccessJson")
                         .HasColumnType("text")
                         .HasColumnName("rolepageaccessjson");

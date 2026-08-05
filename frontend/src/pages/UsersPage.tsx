@@ -1561,8 +1561,8 @@ export function UsersPage() {
                           placeholder={t('users.additionalRolesShort', 'Ek roller')}
                           emptyText={t('users.additionalRolesEmpty', 'Seçilebilir ek rol bulunmuyor.')}
                           className="w-full users-edit-additional-roles-trigger"
-                          triggerClassName="text-xs !min-h-8 !py-0.5"
-                          menuClassName="users-edit-dropdown-menu-scroll !max-h-80"
+                          triggerClassName="text-xs !min-h-9 !py-0.5"
+                          menuClassName="users-edit-dropdown-menu-scroll !max-h-88"
                           menuWidth={224}
                           menuPortal={false}
                         />

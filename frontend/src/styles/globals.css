@@ -2268,9 +2268,9 @@
   .users-table .users-edit-row-actions .btn,
   .users-table .users-edit-row-actions button,
   .users-table .users-edit-row-actions-btn {
-    min-height: 2.12rem;
-    padding-inline: 0.92rem;
-    font-size: 0.8125rem;
+    min-height: 2.2rem;
+    padding-inline: 0.98rem;
+    font-size: 0.84375rem;
   }
 
   .departments-table .departments-delete-confirm-actions .btn,
@@ -2286,9 +2286,9 @@
   }
 
   .departments-table .departments-manager-assign-actions-btn {
-    min-height: 1.7rem;
-    padding-inline: 0.55rem;
-    font-size: 0.625rem;
+    min-height: 1.6rem;
+    padding-inline: 0.5rem;
+    font-size: 0.6rem;
   }
 
   .users-table thead,
@@ -2302,8 +2302,8 @@
   }
 
   .departments-table .departments-manager-assign-menu .dropdown-menu-item {
-    font-size: 0.875rem;
-    min-height: 1.85rem;
+    font-size: 0.9rem;
+    min-height: 1.9rem;
   }
 
   .departments-table .departments-manager-assign-menu .dropdown-menu-footer button {

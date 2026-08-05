@@ -1,3 +1,9 @@
+## Round 678 — Admin grid edit micro-tuning (4 kart)
+- `#2311`: Birimler Yönetici Ata Müdür/Sorumlu dropdown metni biraz daha büyük (`0.9rem`).
+- `#2320`: Kullanıcılar düzenle Kaydet/İptal biraz büyütüldü (`2.2rem` / `0.84375rem`).
+- `#2295`: Birimler Yönetici Ata Kaydet/İptal biraz daha küçük (`1.6rem` / `0.6rem`).
+- `#2308`: Users düzenle yalnız Ek Roller dropdown yüksekliği arttı (`max-h-88`, trigger `min-h-9`).
+
 ## Round 677 — Üç logo türü + admin UI polish (6 kart)
 - `#2318`: Ayarlar > Login Page Logosu yükleme + Önceki Kullanılan Login Page Logo.
 - `#2313`: Kurum logosu Önceki Kullanılan Logo (reopen — üç tür için ayrı previous).

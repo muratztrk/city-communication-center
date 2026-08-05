@@ -5865,7 +5865,7 @@
 
   /* Sayfa Yetkileri: Kaydet FAB solunda; biraz sağa alındı (#r451/#r453/#r459). */
   .settings-roles-actions {
-    padding-right: max(0px, calc(var(--fab-inline-clearance) - 1rem));
+    padding-right: var(--fab-inline-clearance);
   }
 
   .whatsapp-notification-fab-panel {

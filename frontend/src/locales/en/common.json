@@ -1423,7 +1423,7 @@
       "channelPlaceholder": "Select channel",
       "citizenHandle": "Citizen / Sender",
       "citizenName": "Citizen Name / Sender",
-      "citizenNamePlaceholder": "Citizen name",
+      "citizenNamePlaceholder": "Enter citizen name...",
       "citizenPhone": "Citizen Phone No",
       "citizenPhoneHint": "(without leading 0)",
       "citizenPhoneInvalid": "Citizen phone number must be 10 digits.",

@@ -2583,7 +2583,7 @@ export function SettingsPage() {
               >
                 <MunicipalitySeal
                   className="h-22 w-40 rounded-[1.35rem]"
-                  imageClassName="h-[88%] w-[88%]"
+                  imageClassName="h-[82%] w-[82%]"
                   src={previewAppearance.logoUrl ?? null}
                 />
                 <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>

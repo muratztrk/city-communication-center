@@ -1453,7 +1453,7 @@
       "channelPlaceholder": "Kanal seçin",
       "citizenHandle": "Vatandaş / Gönderen",
       "citizenName": "Vatandaş Adı / Gönderen",
-      "citizenNamePlaceholder": "Vatandaş adı",
+      "citizenNamePlaceholder": "Vatandaş adı giriniz...",
       "citizenPhone": "Vatandaş Telefon No",
       "citizenPhoneHint": "(Başında 0 olmadan ekleyin)",
       "citizenPhoneInvalid": "Vatandaş telefon numarası 10 haneli olmalıdır.",

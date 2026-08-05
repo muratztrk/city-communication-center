@@ -1,4 +1,9 @@
-## Round 681 — Ayarlar görünüm/yönlendirme polish (7 kart)
+## Round 682 — Vatandaş çağrı + ayarlar polish (4 kart)
+- `#2329`: Sayfa Yetkileri Kaydet FAB hizası (`padding-right: var(--fab-inline-clearance)`).
+- `#2331`: Vatandaş Çağrı Talebi Oluştur — Vatandaş Adı title-case (`normalizeTitleCaseField`).
+- `#2315`: Vatandaş adı placeholder `Vatandaş adı giriniz...`.
+- `#2328`: Görünüm önizleme logo görseli biraz küçültüldü (`imageClassName` 82%).
+
 - `#2325`: Pop up Sil kırmızı + onay; Kaydet sağda, Varsayılana Dön solunda + onay.
 - `#2326`: Varsayılana Dön login=lumespec default + popup sil; önceki logo butonları kaldırıldı.
 - `#2327`: Menü logosu seçildi buton metni.

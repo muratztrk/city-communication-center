@@ -1883,8 +1883,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `resolveTenantAppearance`'da `...appearance` spread'i `logoUrl: null` bile olsa default'u ezer,
   bu default yalnız (a) hiç `TenantSetting` satırı olmayan yepyeni tenant'larda ve (b) "Varsayılana
   Dön"e elle basılınca devreye girer.
-- **Görünüm Önizleme logosu (#2276):** Yalnız Ayarlar > Görünüm önizlemesinde logo çerçeveli
-  `MunicipalitySeal` ile `h-56 w-56` gösterilir (sidebar çerçeve stili); sidebar/login ölçüleri etkilenmez.
+- **Görünüm Önizleme logosu (#2276/#2328):** Yalnız Ayarlar > Görünüm önizlemesinde logo çerçeveli
+  `MunicipalitySeal` ile gösterilir (`h-22 w-40` çerçeve; logo görseli `imageClassName` ~82%);
+  sidebar/login ölçüleri etkilenmez.
+- **Vatandaş Çağrı Talebi vatandaş adı (#2331):** `CreateRequestPage` vatandaş adı alanı blur/submit'te
+  `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
   (`citizen-directory-tickets-table` scoped CSS).
 - **Vatandaş Bilgi Listesi Talep Kanalı (#2285):** `Talep Kanalı` sütunu `FilterableTh` ile

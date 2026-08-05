@@ -1050,7 +1050,7 @@ export function CreateRequestPage() {
     const trimmedName = citizenForm.citizenHandle.trim()
     // Başlık / ad / açıklama: yalnız ilk harf büyük (#6a6f496e).
     // SocialMessage.CitizenHandle ham haliyle korunur (card #1547).
-    const normalizedCitizenName = ensureLeadingCapitalTr(trimmedName)
+    const normalizedCitizenName = normalizeTitleCaseField(trimmedName) ?? trimmedName
     const citizenTitle = ensureLeadingCapitalTr(citizenForm.title.trim()) || normalizedCitizenName
     const citizenDescription = ensureLeadingCapitalRichText(citizenForm.content.trim())
     const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
@@ -1455,10 +1455,10 @@ export function CreateRequestPage() {
                   className="field-input"
                   required
                   maxLength={50}
-                  placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş ismi')}
+                  placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş adı giriniz...')}
                   value={citizenForm.citizenHandle}
                   onChange={event => setCitizenForm(current => ({ ...current, citizenHandle: event.target.value }))}
-                  onBlur={() => setCitizenForm(current => ({ ...current, citizenHandle: ensureLeadingCapitalTr(current.citizenHandle) }))}
+                  onBlur={() => setCitizenForm(current => ({ ...current, citizenHandle: normalizeTitleCaseField(current.citizenHandle) ?? '' }))}
                 />
               </label>
               <label className="job-field">

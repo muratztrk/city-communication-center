@@ -3339,6 +3339,11 @@
     font-size: 0.82rem;
     min-height: 5.75rem;
     max-height: 5.75rem;
+    padding: 0.45rem 0.55rem;
+  }
+
+  .citizen-request-form .citizen-request-open-address {
+    padding: 0.45rem 0.55rem;
   }
 
   .request-actions button,

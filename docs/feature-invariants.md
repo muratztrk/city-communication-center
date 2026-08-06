@@ -558,15 +558,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   footer input'ta tutulur.
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.
 - **Medya balon Talep Eki hizası (#2401/#2410):** modalda görsel+doküman gelen eklerde Önizle · İndir · Talep Eki
-  **aynı satırda** (Talep Eki İndir'in sağında). Modal gelen görsel tam balon genişliği (#2413); modal
-  gelen doküman adı çerçevesi `text-[10px]` (#2411 reopen). Bekleyen giden görsel önizleme yüksekliği
-  kompakt `max-h-28`, normal `max-h-44` (#2414).
+  **aynı satırda** (Talep Eki İndir'in sağında). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
+  gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5` (#2411 reopen). Bekleyen giden görsel önizleme
+  yüksekliği kompakt `max-h-24`, normal `max-h-36` (#2414 reopen).
 - **Kurum İçi pending ek (#2395 reopen):** mime/boyut alt satırı basılmaz. Ek yüklendikten sonra alıcıya
   SignalR yenilemesi gider; indirme yalnızca konuşmanın gönderen/alıcı tarafına açıktır. Açık sohbet poll
   eşitliği `attachment.attachmentId` alanını da karşılaştırır — ek yüklendikten sonra UI güncellenmez
   regresyonu olmamalı (#2395 reopen).
 - **Kurum içi ek dosya adı (#2407):** pending, balon ve indirme adında uzantı küçük harf; upload sırasında
   normalize edilir.
+- **Kurum içi görsel ek önizlemesi (#2415):** iletilmiş görsel ekler gönderen ve alıcı balonunda thumbnail
+  (`max-h-32`) + dosya adı chip'i gösterir; indirme chip veya thumbnail tıklamasıyla.
 - **Kurum içi pending ek (#2409):** dosya seçimi otomatik iletmez; önizlemede birim · ad soyad + dosya adı,
   altında **Eki Gönder** butonu; footer Gönder yalnızca metin içindir.
 - **Gelen WA doküman ek adı (#2404 reopen):** vatandaştan gelen doküman balonunda dosya adı metni
@@ -687,7 +689,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Açık Adres
   ve Dosya/Fotoğraf alanı aynı satırda yan yana durur; dosya seçilmedi metni butonla aynı blokta
-  sığar (card #1088).
+  sığar (card #1088). Açıklama RichTextEditor ve Açık Adres textarea üst padding kompakt
+  (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6.25rem]` (#2396 reopen).
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
 - **Vatandaş `Yazışmaya Git` butonu:** Vatandaş Talepleri gridindeki aksiyon butonu mevcut teal
@@ -842,6 +845,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Sol menüde `/whatsapp` ve `/sms-delivery-approval` alt linkleri `SidebarNavLinkItem.emphasized`
   ile aynı hiza/punto ve renkli ikonla kalır** (`whatsapp.webp` / `sms.svg`); Sms Onayı WhatsApp
   alt başlığı gibi küçük/gri görünmez (card #1085 / #6a6b6c8e reopen).
+- **WhatsApp sayfa geçiş performansı (#2417):** `AppShell` içinde nested `Suspense` + in-content
+  `PageLoadingFallback` shell'i bloke etmez; sidebar hover'da route chunk prefetch; `CitizenRequestModal`
+  lazy; konuşma listesi ilk API turunda açılır, şablon/birim/hazır yanıt `requestIdleCallback` ile ertelenir.
 - **WhatsApp `Şablon mesaj ekle` aksiyonunda yalnızca baştaki `+` ikonu yeşildir; buton metni
   nötr slate renginde kalır** (card #1245).
 - **Talep oluşturma formlarında adres `Cadde / Sokak` input metni aynı formdaki `Açık Adres`

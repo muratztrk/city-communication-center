@@ -159,7 +159,7 @@ export function SocialConversationMediaBubble({
             alt={filename}
             className={`cursor-zoom-in ${
               requestAttachmentLayout
-                ? 'w-full max-w-full max-h-52 object-contain'
+                ? 'w-full max-w-[14rem] max-h-52 object-contain'
                 : 'max-w-[16rem] max-h-48 object-cover'
             }`}
           />
@@ -184,7 +184,7 @@ export function SocialConversationMediaBubble({
           className={`flex items-center rounded-xl bg-black/10 underline-offset-2 hover:underline ${
             direction === 'Inbound'
               ? requestAttachmentLayout
-                ? 'gap-1.5 px-2 py-1 text-[10px] font-medium'
+                ? 'gap-1.5 px-2.5 py-1.5 text-[11px] font-medium'
                 : 'gap-1.5 px-2 py-1 text-[10px] font-medium'
               : 'gap-2 px-3 py-2 text-sm font-semibold'
           }`}

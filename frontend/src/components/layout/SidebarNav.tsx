@@ -1,6 +1,7 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { ChevronLeft, ChevronRight, type LucideIcon } from 'lucide-react'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
+import { prefetchRouteChunk } from '../../app/routePrefetch'
 import { cn } from '../../lib/cn'
 
 const PAGE_SIZE = 10
@@ -114,6 +115,8 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
         className={className}
         target={item.newTab ? '_blank' : undefined}
         rel={item.newTab ? 'noopener noreferrer' : undefined}
+        onMouseEnter={() => prefetchRouteChunk(item.path)}
+        onFocus={() => prefetchRouteChunk(item.path)}
         onClick={() => onNavigate?.()}
       >
         {item.iconImageSrc ? (

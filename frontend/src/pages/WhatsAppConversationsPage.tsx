@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo, lazy, Suspense } from 'react'
 import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
@@ -7,7 +7,6 @@ import { api } from '../api/client'
 import { useAuth } from '../context/AuthContext'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { TablePagination } from '../components/ui/table-pagination'
-import { CitizenRequestModal } from '../components/CitizenRequestModal'
 import type {
   CitizenConversationSummary,
   CitizenConversationDetail,
@@ -40,6 +39,18 @@ import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
+
+const LazyCitizenRequestModal = lazy(() =>
+  import('../components/CitizenRequestModal').then(module => ({ default: module.CitizenRequestModal })),
+)
+
+function scheduleIdleTask(task: () => void) {
+  if (typeof window.requestIdleCallback === 'function') {
+    window.requestIdleCallback(() => task())
+    return
+  }
+  window.setTimeout(task, 0)
+}
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 
@@ -1478,24 +1489,28 @@ export function WhatsAppConversationsPage() {
   const [sortOrder, setSortOrder] = useState<ConversationSortOrder>('newest')
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detailRefreshKey, setDetailRefreshKey] = useState(0)
+  const mountedRef = useRef(true)
+
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
+      mountedRef.current = false
+    }
+  }, [])
 
   // Yanıt bekliyor 0 olunca sol menü rozeti hemen kaybolsun (card #6a6b6ec6).
   useEffect(() => {
     syncWaitingWhatsAppReplyCount(queryClient, conversations)
   }, [conversations, queryClient])
 
-  const loadConversations = useCallback(async () => {
-    setLoading(true)
+  const loadAuxiliaryData = useCallback(async (isActive: () => boolean) => {
     try {
-      const [convResult, quickReplyResult, metaTemplateResult, departmentResult] = await Promise.allSettled([
-        api.getCitizenConversations({ whatsAppOnly: true }),
+      const [quickReplyResult, metaTemplateResult, departmentResult] = await Promise.allSettled([
         api.getUserQuickReplies(),
         api.getWhatsAppTemplates(),
         api.getDepartments(),
       ])
-      if (convResult.status === 'fulfilled') {
-        setConversations(convResult.value)
-      }
+      if (!isActive()) return
       if (quickReplyResult.status === 'fulfilled') {
         const metaTemplates = metaTemplateResult.status === 'fulfilled'
           ? metaTemplateResult.value
@@ -1516,15 +1531,29 @@ export function WhatsAppConversationsPage() {
       if (departmentResult.status === 'fulfilled') {
         setDepartments(departmentResult.value)
       }
-    } finally {
-      setLoading(false)
+    } catch {
+      // Ignore background auxiliary load failures.
     }
   }, [])
+
+  const loadConversations = useCallback(async (isActive: () => boolean) => {
+    setLoading(true)
+    try {
+      const data = await api.getCitizenConversations({ whatsAppOnly: true })
+      if (!isActive()) return
+      setConversations(data)
+    } finally {
+      if (isActive()) setLoading(false)
+    }
+    scheduleIdleTask(() => {
+      if (isActive()) void loadAuxiliaryData(isActive)
+    })
+  }, [loadAuxiliaryData])
 
   const silentRefreshConversations = useCallback(async () => {
     try {
       const data = await api.getCitizenConversations({ whatsAppOnly: true })
-      setConversations(data)
+      if (mountedRef.current) setConversations(data)
     } catch {
       // Ignore background refresh failures.
     }
@@ -1593,7 +1622,12 @@ export function WhatsAppConversationsPage() {
   }, [])
 
   useEffect(() => {
-    void loadConversations()
+    let active = true
+    const isActive = () => active
+    void loadConversations(isActive)
+    return () => {
+      active = false
+    }
   }, [loadConversations])
 
   // ?phone= ile gelindiğinde arama kutusu doldurulmadan, doğrudan ilgili konuşma açılır (card #1494).
@@ -1744,7 +1778,7 @@ export function WhatsAppConversationsPage() {
     setRequestModalMessage(null)
     setRequestModalEditJobId(null)
     setRequestModalForceNew(false)
-    void loadConversations()
+    void loadConversations(() => true)
     setDetailRefreshKey(key => key + 1)
   }, [loadConversations])
 
@@ -1850,19 +1884,21 @@ export function WhatsAppConversationsPage() {
       </div>
 
       {requestModalMessage ? (
-        <CitizenRequestModal
-          message={requestModalMessage}
-          departments={departments}
-          editJobId={requestModalEditJobId}
-          forceNewRequest={requestModalForceNew}
-          citizenConversationId={selectedId}
-          onClose={() => {
-            setRequestModalMessage(null)
-            setRequestModalEditJobId(null)
-            setRequestModalForceNew(false)
-          }}
-          onCreated={handleRequestCreated}
-        />
+        <Suspense fallback={null}>
+          <LazyCitizenRequestModal
+            message={requestModalMessage}
+            departments={departments}
+            editJobId={requestModalEditJobId}
+            forceNewRequest={requestModalForceNew}
+            citizenConversationId={selectedId}
+            onClose={() => {
+              setRequestModalMessage(null)
+              setRequestModalEditJobId(null)
+              setRequestModalForceNew(false)
+            }}
+            onCreated={handleRequestCreated}
+          />
+        </Suspense>
       ) : null}
     </div>
   )

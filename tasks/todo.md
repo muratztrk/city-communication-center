@@ -1,3 +1,13 @@
+## Round 712 — modal medya ince ayar + kurum içi görsel ek + WA nav (8 kart)
+- `#2411` reopen: Modal gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5`.
+- `#2413` reopen: Modal gelen görsel `max-w-[14rem]`.
+- `#2414` reopen: Bekleyen giden görsel önizleme `max-h-24` / `max-h-36`.
+- `#2396` reopen: Dosya ekle butonu `w-[6.25rem]`.
+- `#2403` reopen: Açıklama RichTextEditor üst padding azaltıldı.
+- `#2416`: Açık Adres textarea üst padding azaltıldı.
+- `#2415`: Kurum içi iletilmiş görsel eklerde balon thumbnail önizlemesi (her iki taraf).
+- `#2417`: WA sayfa geçiş yavaşlığı — nested Suspense, lazy modal, idle deferred fetch, sidebar prefetch.
+
 ## Round 711 — modal medya boyutları (5 kart)
 - `#2403` reopen: Açıklama `min-h-24`, Açık Adres `min-h-[5rem]`.
 - `#2396` reopen: Dosya ekle butonu `w-[6.5rem]`.

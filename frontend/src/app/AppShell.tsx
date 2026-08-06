@@ -9,7 +9,7 @@ import { SessionSupersededWarning } from '../components/ui/session-superseded-wa
 
 declare const __APP_VERSION__: string
 const SUPPORT_EMAIL = 'destek@lumespec.com.tr'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -19,6 +19,7 @@ import { GlobalSearchBar } from '../components/layout/GlobalSearchBar'
 import { NotificationBell, type NotificationDetailTarget } from '../components/layout/NotificationBell'
 import { TasksPage } from '../pages/TasksPage'
 import { JobsPage } from '../pages/JobsPage'
+import { PageLoadingFallback } from '../components/layout/PageLoadingFallback'
 import { SidebarNav, type SidebarNavItem, type SidebarNavLinkItem } from '../components/layout/SidebarNav'
 import { Button } from '../components/ui/button'
 import { useAuth } from '../context/AuthContext'
@@ -864,7 +865,9 @@ export function AppShell() {
               </button>
             </div>
           ) : null}
-          <Outlet key={activeDepartmentVersion} />
+          <Suspense fallback={<PageLoadingFallback />}>
+            <Outlet key={activeDepartmentVersion} />
+          </Suspense>
         </main>
       </div>
       <AppFooter />

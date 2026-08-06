@@ -10,7 +10,8 @@ import {
   type InternalMessageTypingPayload,
   type SignalRConnectionState,
 } from '../../hooks/useSignalR'
-import type { InternalConversationDetail, InternalConversationSummary, InternalMessage, UserLookup } from '../../types/platform'
+import type { Attachment, InternalConversationDetail, InternalConversationSummary, InternalMessage, UserLookup } from '../../types/platform'
+import { SimpleImageAttachmentIcon } from '../ui/SimpleImageAttachmentIcon'
 import { formatConversationDayDivider } from '../../utils/conversationDayLabel'
 import { formatConversationListTime, formatConversationMessageTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
@@ -114,6 +115,70 @@ function isSameCalendarDay(left: string, right: string) {
   const a = new Date(left)
   const b = new Date(right)
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+}
+
+function InternalMessageAttachmentDisplay({ attachment, isMine }: { attachment: Attachment; isMine: boolean }) {
+  const isImage = attachment.contentType.startsWith('image/')
+  const [objectUrl, setObjectUrl] = useState<string | null>(null)
+  const displayName = lowercaseFileExtension(attachment.fileName)
+
+  const handleDownload = useCallback(() => {
+    void api.downloadAttachment(attachment.attachmentId).then(blob => {
+      const url = URL.createObjectURL(blob)
+      const anchor = document.createElement('a')
+      anchor.href = url
+      anchor.download = displayName
+      anchor.click()
+      URL.revokeObjectURL(url)
+    })
+  }, [attachment.attachmentId, displayName])
+
+  useEffect(() => {
+    if (!isImage) return
+    let cancelled = false
+    let created: string | null = null
+    void api.downloadAttachment(attachment.attachmentId)
+      .then(blob => {
+        if (cancelled) return
+        created = URL.createObjectURL(blob)
+        setObjectUrl(created)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+      if (created) URL.revokeObjectURL(created)
+    }
+  }, [attachment.attachmentId, isImage])
+
+  const chipClass = isMine
+    ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
+    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+
+  return (
+    <div className="mt-1 space-y-1">
+      {isImage && objectUrl ? (
+        <button
+          type="button"
+          onClick={handleDownload}
+          className={`block w-full overflow-hidden rounded-lg border ${isMine ? 'border-white/20' : 'border-slate-200'}`}
+        >
+          <img src={objectUrl} alt={displayName} className="max-h-32 w-full object-contain bg-white/95" />
+        </button>
+      ) : null}
+      <button
+        type="button"
+        className={`inline-flex max-w-full items-center gap-1.5 rounded-lg border px-2 py-1 text-[11px] font-semibold ${chipClass}`}
+        onClick={handleDownload}
+      >
+        {isImage ? (
+          <SimpleImageAttachmentIcon className="size-3.5 shrink-0" aria-hidden="true" />
+        ) : (
+          <FileText className="size-3.5 shrink-0" aria-hidden="true" />
+        )}
+        <span className="truncate">{displayName}</span>
+      </button>
+    </div>
+  )
 }
 
 function InternalMessagesIcon() {
@@ -673,28 +738,7 @@ export function InternalMessagesFab() {
                               <p className="whitespace-pre-wrap break-words text-xs leading-snug">{message.content}</p>
                             ) : null}
                             {message.attachment ? (
-                              <button
-                                type="button"
-                                className={`mt-1 inline-flex max-w-full items-center gap-1.5 rounded-lg border px-2 py-1 text-[11px] font-semibold ${
-                                  isMine
-                                    ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
-                                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
-                                }`}
-                                onClick={() => {
-                                  const attachmentName = lowercaseFileExtension(message.attachment!.fileName)
-                                  void api.downloadAttachment(message.attachment!.attachmentId).then(blob => {
-                                    const url = URL.createObjectURL(blob)
-                                    const anchor = document.createElement('a')
-                                    anchor.href = url
-                                    anchor.download = attachmentName
-                                    anchor.click()
-                                    URL.revokeObjectURL(url)
-                                  })
-                                }}
-                              >
-                                <FileText className="size-3.5 shrink-0" aria-hidden="true" />
-                                <span className="truncate">{lowercaseFileExtension(message.attachment.fileName)}</span>
-                              </button>
+                              <InternalMessageAttachmentDisplay attachment={message.attachment} isMine={isMine} />
                             ) : null}
                             <p className={`mt-0.5 flex items-center justify-end gap-1 text-[9px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
                               {isMine ? (

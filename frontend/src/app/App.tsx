@@ -44,11 +44,9 @@ function PageAccessGate({ pageKey, user, children }: { pageKey: PageAccessKey; u
   return canAnyRoleAccessPage(getEffectiveUserRoles(user), pageKey) ? children : <Navigate to={getDefaultLandingPath(user)} replace />
 }
 
-function CitizenDashboardGate({ user, children }: { user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
-  const roles = getEffectiveUserRoles(user)
-  const needsCitizenLicense = roles.includes('Operator') || roles.includes('Reporter')
-  if (needsCitizenLicense && !canAccessCitizenLicensedRoute('/dashboard')) {
-    return <Navigate to={roles.includes('Operator') ? '/dashboard/birimler' : getDefaultLandingPath(user)} replace />
+function CitizenDashboardGate({ children }: { user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
+  if (!canAccessCitizenLicensedRoute('/dashboard')) {
+    return <Navigate to="/dashboard/birimler" replace />
   }
   return children
 }

@@ -4,7 +4,7 @@ function LumespecLogo() {
     <img
       src="/lumespec-logo.png"
       alt="Lumespec"
-      className="h-8 w-auto select-none sm:h-9"
+      className="h-7 w-auto select-none sm:h-8"
       draggable={false}
     />
   )
@@ -21,11 +21,11 @@ export function AppFooter() {
     >
       <div className="flex items-center justify-between px-6 py-0">
         <LumespecLogo />
-        <div className="text-[10.5px] font-medium tracking-wide text-white/30">
+        <div className="text-[10px] font-medium tracking-wide text-white/30">
           © Her Hakkı Saklıdır – {year}
         </div>
       </div>
-      <div className="h-[2px] w-full bg-[color:var(--color-primary)]" />
+      <div className="h-px w-full bg-[color:var(--color-primary)]" />
     </footer>
   )
 }

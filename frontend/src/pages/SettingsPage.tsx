@@ -2741,17 +2741,7 @@ export function SettingsPage() {
                     />
                   </label>
                 ))}
-                <div className="hidden md:block" aria-hidden />
-                <label className="grid w-full gap-2 text-sm font-semibold text-slate-700 md:col-start-2 md:w-1/2">
-                  <span>{t('settings.loginPageDescription', 'Login Page Açıklama')}</span>
-                  <textarea
-                    className="field-input min-h-24 resize-y text-sm leading-6 placeholder:text-[0.9375rem] placeholder:leading-6"
-                    value={appearanceForm.loginPageDescription ?? ''}
-                    placeholder={t('login.subtitle')}
-                    onChange={event => setAppearanceForm(current => ({ ...current, loginPageDescription: event.target.value }))}
-                  />
-                </label>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-start-1 md:row-start-2">
                   <span>{t('settings.loginPageLogo', 'Login Page Logosu')}</span>
                   <input
                     ref={loginLogoFileInputRef}
@@ -2776,6 +2766,15 @@ export function SettingsPage() {
                         ? t('settings.loginPageLogoSelected', 'Login logosu seçildi')
                         : t('settings.loginPageLogoAdd', 'Login Page Logosu Ekle')}
                   </Button>
+                </label>
+                <label className="grid w-full gap-2 text-sm font-semibold text-slate-700 md:col-start-2 md:row-start-2">
+                  <span>{t('settings.loginPageDescription', 'Login Page Açıklama')}</span>
+                  <textarea
+                    className="field-input min-h-24 resize-y text-sm leading-6 placeholder:text-[0.9375rem] placeholder:leading-6"
+                    value={appearanceForm.loginPageDescription ?? ''}
+                    placeholder={t('login.subtitle')}
+                    onChange={event => setAppearanceForm(current => ({ ...current, loginPageDescription: event.target.value }))}
+                  />
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>{t('settings.menuLogo', 'Menü Logosu')}</span>

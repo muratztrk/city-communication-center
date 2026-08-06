@@ -1,3 +1,8 @@
+## Round 691 — Anasayfa menü + footer + Görünüm login layout (3 kart)
+- `#2362`: Citizen lisans kapalıyken Anasayfa menüsü `/dashboard/birimler`'e yönlenir; varsayılan açılış güncellendi.
+- `#2348` reopen: Footer daha kompakt (`h-7`, 1px şerit); `--fab-footer-clearance: 2rem`.
+- `#2363`: Login Logosu Tema Ön ayarı altında; Login Açıklama Ana Renk altında tam sütun genişliği.
+
 ## Round 690 — Sayfa Yetkileri lisans filtresi + Görünüm login layout (2 kart)
 - `#2360`: `visiblePageAccessItems` useMemo lisans durumuna bağlandı — citizen kapalıyken VT sayfaları gizli.
 - `#2361`: Login Page Açıklama Ana Renk altında yarım genişlik; Login Page Logosu tam satır.

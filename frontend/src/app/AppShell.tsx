@@ -252,21 +252,26 @@ export function AppShell() {
   const isReporterNav = user?.role === 'Reporter'
   const isOperatorNav = user?.role === 'Operator'
   const isCitizenDashboardNav = isReporterNav || isOperatorNav
+  const showCitizenDashboard = canAccessCitizenLicensedRoute('/dashboard')
   const navItemConfigs: NavLinkConfigEx[] = [
     ...(isOperatorNav
       ? [
           { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboard', 'Anasayfa'), icon: LayoutDashboard },
-          { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard },
+          ...(showCitizenDashboard
+            ? [{ pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard }]
+            : []),
           { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact, separatorAfter: true },
         ]
       : isReporterNav
         ? [
-            { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard },
+            ...(showCitizenDashboard
+              ? [{ pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard }]
+              : [{ pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboard', 'Anasayfa'), icon: LayoutDashboard }]),
             { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
             { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorAfter: true },
           ]
         : [
-            { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
+            { pageKey: 'dashboard' as const, path: showCitizenDashboard ? '/dashboard' : '/dashboard/birimler', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
           ]),
     { pageKey: 'edevletActivityPlan' as const, path: '/edevlet/activity-plan', label: 'e-Devlet Günlük Faaliyet\nPlanı Oluştur', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'edevletActivityPlansList' as const, path: '/edevlet/activity-plans', label: 'e-Devlet Günlük Faaliyet\nPlanları Listesi', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },

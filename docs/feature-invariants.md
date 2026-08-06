@@ -1359,8 +1359,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`Reporter`) sol menüde `Anasayfa - Vatandaş` (`/dashboard`) + `Anasayfa - Birimler`
   (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır. **Vatandaş Talep Operatörü**
   (`Operator`) menüde 1. sırada yalnız `Anasayfa` (`/dashboard/birimler`); altında Vatandaş
-  Bilgi Listesi ve `Anasayfa - Vatandaş`. **Operator varsayılan açılış** (`getDefaultLandingPath`) =
-  `/dashboard/birimler`, `/dashboard` değil (card #2349 reopen). Operator birim anasayfasında standart kullanıcı
+  Bilgi Listesi ve (citizen lisans açıkken) `Anasayfa - Vatandaş`. **Operator varsayılan açılış** (`getDefaultLandingPath`) =
+  `/dashboard/birimler`. Citizen lisans kapalıyken Anasayfa menüsü `/dashboard/birimler`'e yönlenir (#2362).
+  Operator birim anasayfasında standart kullanıcı
   kutucukları (Bekleyen Taleplerim / Bekleyen Görevlerim) gösterilir.
   `/dashboard/birimler` sayfasında banner üstü Geri butonu gösterilmez (card #1889).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
@@ -1520,9 +1521,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   boş `[]` ile cache'lenmez. balon altı yalnız HH:mm; gün ayraçlarında yıl
   her zaman (`formatConversationMessageTime`, `formatConversationDayDivider`). Kurum içi FAB sohbet
   arka planı bej `#ece5dd` (`internal-messages-chat-bg`), WhatsApp gri değil (#2300 reopen).
-- **Login görünüm açıklaması (#2345 / #2361):** `TenantAppearance.loginPageDescription` (appearance JSON);
-  boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm formunda alan Ana Renk sütununun altında
-  yarım genişlikte (`md:col-start-2 md:w-1/2`); Login Page Logosu eski tam satır hizasında (`md:col-span-2`).
+- **Login görünüm açıklaması (#2345 / #2361 / #2363):** `TenantAppearance.loginPageDescription` (appearance JSON);
+  boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol
+  sütun); Login Page Açıklama Ana Renk altında tam sütun genişliği (`md:col-start-2 md:row-start-2`).
 - **Sayfa Yetkileri artık `departmentTasks`/`citizenDirectory`'i zorla açıp kapatmıyor (card #2242):**
   önceki kod bu iki sayfayı role göre unconditional force ediyordu (admin checkbox'ı hiç işe yaramıyordu);
   `normalizeRolePageAccessMatrix`'e yeni bir zorlama eklerken kayıtlı admin tercihini ezmediğinden emin ol.
@@ -1697,7 +1698,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   viewport'un en alt kenarına tam satır/full-bleed oturur; sayfa padding'i footer'ı yukarıda veya dar bırakmaz.
 - **AppFooter Lumespec markası:** Tüm footer yüzeyleri (`AppShell`, login, wallboard) ortak
   `AppFooter` kullanır; marka `/lumespec-logo.png` wordmark'ıdır (eski 4-kare SVG + uppercase
-  metin yok). Logo `h-8 sm:h-9`, satır `py-0`, alt şerit `2px`; `--fab-footer-clearance: 2.25rem`
+  metin yok). Logo `h-7 sm:h-8`, satır `py-0`, alt şerit `1px`; `--fab-footer-clearance: 2rem`
   birlikte korunur (#2348 reopen / #1960).
 - **Birime Gelen pie Yapılmakta Olan (#r542):** `INCOMING_SLICE_STATUS.inProgress` →
   `status=in-progress` (mavi chip); `approved` değil.

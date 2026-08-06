@@ -1,3 +1,9 @@
+## Round 689 — Görünüm logo staging + Talep Oluştur lisans + footer (#2359–#2357, #2348)
+- `#2359`: Menü/Login/Pop up logo seçimi Kaydet'e kadar staging; sekme değişince atılır.
+- `#2358`: Varsayılana Dön onay metni güncellendi.
+- `#2357`: Talep Oluştur Vatandaş kartı citizen lisans kapalıyken gizlenir.
+- `#2348` reopen: Footer daha kompakt (`h-8`, `py-0`, 2px şerit); `--fab-footer-clearance: 2.25rem`.
+
 ## Round 688b — Citizen lisans askıya alma enforcement
 - Backend: uzaktan lisans servisi önce sorgulanır; HTTP reddi veya `blocked` JWT kayıtlı token'ı geçersiz kılar.
 - FE: `/dashboard` (Anasayfa-Vatandaş), mesaj onayı/SMS onayı sayfaları citizen modülüne bağlandı; menü/route gate.

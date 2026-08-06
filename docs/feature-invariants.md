@@ -683,6 +683,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız `Çağrı`dır, form ve onay aksiyon metni `Talep Oluştur` kalır ve oluşturulan kayıt Vatandaş
   Talepleri `Çağrı` filtresinde VT numarasıyla görünür. Tek `Çağrı` kanal butonu satırı dolduran
   yatay buton görünümünde kalır; form başlığındaki ikon, seçim kartındaki mavi zeminli telefon ikonuyla aynıdır.
+- **Talep Oluştur Vatandaş kartı lisans (#2357):** tür seçim ekranındaki `Vatandaş Çağrı Talebi`
+  kartı yalnız `Operator` rolü **ve** `citizen` modülü kullanılabilirken görünür (`canShowCitizenRequest`).
 - **Vatandaş Talebi detay düzenleme:** Detay popup'ta `Düzenle` aktifken `Ekler / Fotoğraflar`
   bölümünde `Dosya ekle` görünür; salt okunur modda ekleme aksiyonu gizli kalır (card #1256).
 - **Job status değişince `ICitizenJobStatusNotifier` otomatik vatandaş mesajı atar**
@@ -1550,9 +1552,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sağa yaslı `[Varsayılana Dön][Kaydet]` (ikisi de onaylı).
 - **Menü logosu etiketi (#2321 / #2327):** Görünüm'de **Menü Logosu** / **Menü Logosu Ekle**; dosya seçiminde
   **Menü logosu seçildi**; teknik alan `logoUrl`.
-- **Kurum/Menü logosu yükleme (#2312):** `uploadLogo(..., 'institution')` form önizlemesi; `ThemeContext`
-  **Kaydet** sonrası.
-- **Login / Pop up logosu (#2318):** dosya seçimi staging; upload + DB **Kaydet** sonrası.
+- **Kurum/Menü/Login/Pop up logosu staging (#2312 / #2318 / #2359):** üç logo türünde dosya
+  seçimi yalnızca form önizlemesini günceller (blob URL); upload + DB **Kaydet** sonrası.
+  Görünüm sekmesinden ayrılınca veya başka Ayarlar sekmesine geçilince pending seçimler atılır;
+  `ThemeContext` / sidebar **Kaydet** sonrası güncellenir.
 - **Login logosu fallback (#2315 / #2326):** `loginLogoUrl` boşsa `/tire-belediyesi-logo.png`; kayıtlı
   `/default-institution-logo.png` lumespec wordmark (tire'e map edilmez).
 - **Anasayfa breadcrumb'ı kök rotalarda ikinci "Anasayfa" segmentini göstermez (card #2248):**
@@ -1690,9 +1693,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   viewport'un en alt kenarına tam satır/full-bleed oturur; sayfa padding'i footer'ı yukarıda veya dar bırakmaz.
 - **AppFooter Lumespec markası:** Tüm footer yüzeyleri (`AppShell`, login, wallboard) ortak
   `AppFooter` kullanır; marka `/lumespec-logo.png` wordmark'ıdır (eski 4-kare SVG + uppercase
-  metin yok). Logo şeffaf arka planlı ve ortak `h-7` (28px) ölçüsünde kalır ki sidebar rengi
-  (`--color-sidebar`) görünsün; `--fab-footer-clearance: 2.5rem` bu logolu footer’a
-  göre birlikte korunur (card #1960).
+  metin yok). Logo `h-8 sm:h-9`, satır `py-0`, alt şerit `2px`; `--fab-footer-clearance: 2.25rem`
+  birlikte korunur (#2348 reopen / #1960).
 - **Birime Gelen pie Yapılmakta Olan (#r542):** `INCOMING_SLICE_STATUS.inProgress` →
   `status=in-progress` (mavi chip); `approved` değil.
 - **Dashboard dönem TZ (#r542):** `getPeriodRange` yerel `YYYY-MM-DDTHH:mm` üretir; API çağrıları

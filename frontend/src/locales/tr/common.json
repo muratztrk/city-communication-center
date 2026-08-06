@@ -1139,7 +1139,7 @@
     "popupLogoDelete": "Pop up Logosu Sil",
     "popupLogoDeleteSuccess": "Pop up logosu silindi.",
     "popupLogoDeleteConfirm": "Pop up logosu silinsin mi?",
-    "appearanceResetConfirm": "Görünüm ayarları varsayılana döndürülsün mü?",
+    "appearanceResetConfirm": "Görünüm ayarları yazılımın ilk kurulduğu varsayılana döndürülsün mü?",
     "previousPopupLogo": "Önceki Kullanılan Pop up Logo",
     "previousPopupLogoRestoreSuccess": "Önceki popup logosu geri yüklendi.",
     "popupLogoReset": "Pop up Varsayılana Dön",

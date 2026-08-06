@@ -289,6 +289,7 @@ export function CreateRequestPage() {
     }
   }, [selectedKind, editJobId, socialMessageIdParam])
   const canCreateCitizenRequest = user?.role === 'Operator'
+  const canShowCitizenRequest = canCreateCitizenRequest && isModuleUsable('citizen')
   const districtId = useMunicipalityDistrictId()
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
 
@@ -386,7 +387,7 @@ export function CreateRequestPage() {
     requestTypeOptions.push({ value: 'external' as const, label: t('requests.create.externalPluralTitle', 'Birim Dışı Talepler') })
   }
 
-  if (canCreateCitizenRequest && isModuleUsable('citizen')) {
+  if (canShowCitizenRequest) {
     requestTypeOptions.push({ value: 'citizen' as const, label: t('requests.create.citizenCallTitle', 'Vatandaş Çağrı Talebi') })
   }
 
@@ -592,10 +593,10 @@ export function CreateRequestPage() {
   }, [selectedKind, internalForm.ownerDepartmentId, ownerDepartmentOptions, myDepartmentId, editJobId])
 
   useEffect(() => {
-    if ((rawKindParam && !kindParam) || (kindParam === 'citizen' && !canCreateCitizenRequest)) {
+    if ((rawKindParam && !kindParam) || (kindParam === 'citizen' && !canShowCitizenRequest)) {
       navigate('/requests/new', { replace: true })
     }
-  }, [canCreateCitizenRequest, kindParam, navigate, rawKindParam])
+  }, [canShowCitizenRequest, kindParam, navigate, rawKindParam])
 
   // Üst Düzey Yönetici "Talep Oluştur"a tıkladığında doğrudan Birim Dışı formu açılır.
   useEffect(() => {
@@ -1187,7 +1188,7 @@ export function CreateRequestPage() {
             </div>
           </button>
 
-          {canCreateCitizenRequest ? (
+          {canShowCitizenRequest ? (
             <button
               type="button"
               className="section-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"

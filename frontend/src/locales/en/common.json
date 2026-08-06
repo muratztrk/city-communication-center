@@ -1132,7 +1132,7 @@
     "popupLogoDelete": "Remove Popup Logo",
     "popupLogoDeleteSuccess": "Popup logo removed.",
     "popupLogoDeleteConfirm": "Remove the popup logo?",
-    "appearanceResetConfirm": "Reset appearance settings to defaults?",
+    "appearanceResetConfirm": "Reset appearance settings to the software's initial installation defaults?",
     "previousPopupLogo": "Previously Used Popup Logo",
     "previousPopupLogoRestoreSuccess": "Previous popup logo restored.",
     "popupLogoReset": "Reset Popup Logo",

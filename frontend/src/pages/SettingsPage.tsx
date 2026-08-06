@@ -1,6 +1,6 @@
 import type { FormEvent } from 'react'
 import { Paintbrush, Settings2, ShieldCheck, UsersRound, Clock, Save, RefreshCw } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
@@ -433,9 +433,9 @@ export function SettingsPage() {
   const loginLogoFileInputRef = useRef<HTMLInputElement>(null)
   const popupLogoFileInputRef = useRef<HTMLInputElement>(null)
   const [logoUploading, setLogoUploading] = useState<TenantLogoKind | null>(null)
-  const [menuLogoSelected, setMenuLogoSelected] = useState(false)
-  const [pendingLogoFiles, setPendingLogoFiles] = useState<Partial<Record<'login' | 'popup', File>>>({})
-  const [appearanceForm, setAppearanceForm] = useState<TenantAppearanceInput>({
+  const [pendingLogoFiles, setPendingLogoFiles] = useState<Partial<Record<TenantLogoKind, File>>>({})
+  const pendingLogoPreviewUrlsRef = useRef<Partial<Record<TenantLogoKind, string>>>({})
+  const savedAppearanceFormRef = useRef<TenantAppearanceInput>({
     themePreset: DEFAULT_TENANT_APPEARANCE.themePreset,
     primaryColor: DEFAULT_TENANT_APPEARANCE.primaryColor,
     secondaryColor: DEFAULT_TENANT_APPEARANCE.secondaryColor,
@@ -453,6 +453,7 @@ export function SettingsPage() {
     loginBackgroundImageUrl: DEFAULT_TENANT_APPEARANCE.loginBackgroundImageUrl ?? null,
     loginPageDescription: null,
   })
+  const [appearanceForm, setAppearanceForm] = useState<TenantAppearanceInput>(() => savedAppearanceFormRef.current)
   const [socialForms, setSocialForms] = useState<ChannelForms>(EMPTY_SOCIAL_FORMS)
   const [activeChannel, setActiveChannel] = useState<ChannelType | null>(null)
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
@@ -628,7 +629,7 @@ export function SettingsPage() {
         })
         setTenantAuthenticationPolicy(authPolicyResponse)
         setAppearanceForm(nextAppearance)
-        setMenuLogoSelected(false)
+        savedAppearanceFormRef.current = nextAppearance
         setSocialStatus(socialResponse)
         if (socialResponse.whatsAppPublic) {
           setSocialForms(current => ({
@@ -712,10 +713,34 @@ export function SettingsPage() {
     : ''
 
   const setTab = (tab: SettingsTab) => {
+    if (activeTab === 'appearance' && tab !== 'appearance') {
+      discardPendingAppearanceLogos()
+    }
     const next = new URLSearchParams(searchParams)
     next.set('tab', tab)
     setSearchParams(next, { replace: true })
   }
+
+  const revokePendingLogoPreviews = useCallback(() => {
+    for (const url of Object.values(pendingLogoPreviewUrlsRef.current)) {
+      if (url) {
+        URL.revokeObjectURL(url)
+      }
+    }
+    pendingLogoPreviewUrlsRef.current = {}
+  }, [])
+
+  const discardPendingAppearanceLogos = useCallback(() => {
+    revokePendingLogoPreviews()
+    setPendingLogoFiles({})
+    setAppearanceForm({ ...savedAppearanceFormRef.current })
+  }, [revokePendingLogoPreviews])
+
+  useEffect(() => {
+    return () => {
+      revokePendingLogoPreviews()
+    }
+  }, [revokePendingLogoPreviews])
 
   const renderRolePageLabel = (page: (typeof PAGE_ACCESS_ITEMS)[number]) => {
     if (page.key === 'social') {
@@ -877,13 +902,31 @@ export function SettingsPage() {
   }
 
   const applyAppearanceRefresh = (refreshed: TenantAppearance) => {
-    setAppearanceForm(toAppearanceForm(refreshed))
-    setMenuLogoSelected(false)
+    revokePendingLogoPreviews()
+    setPendingLogoFiles({})
+    const form = toAppearanceForm(refreshed)
+    savedAppearanceFormRef.current = form
+    setAppearanceForm(form)
     setAppearance(refreshed)
   }
 
-  const stageDeferredLogoFile = (file: File, kind: 'login' | 'popup') => {
+  const stageDeferredLogoFile = (file: File, kind: TenantLogoKind) => {
+    const previousPreview = pendingLogoPreviewUrlsRef.current[kind]
+    if (previousPreview) {
+      URL.revokeObjectURL(previousPreview)
+    }
+
+    const previewUrl = URL.createObjectURL(file)
+    pendingLogoPreviewUrlsRef.current = { ...pendingLogoPreviewUrlsRef.current, [kind]: previewUrl }
     setPendingLogoFiles(current => ({ ...current, [kind]: file }))
+    setAppearanceForm(current => ({
+      ...current,
+      ...(kind === 'institution'
+        ? { logoUrl: previewUrl }
+        : kind === 'login'
+          ? { loginLogoUrl: previewUrl }
+          : { popupLogoUrl: previewUrl }),
+    }))
   }
 
   const uploadPendingLogos = async (form: TenantAppearanceInput): Promise<TenantAppearanceInput> => {
@@ -892,7 +935,7 @@ export function SettingsPage() {
     }
 
     let nextForm = form
-    for (const kind of ['login', 'popup'] as const) {
+    for (const kind of ['institution', 'login', 'popup'] as const) {
       const pendingFile = pendingLogoFiles[kind]
       if (!pendingFile) {
         continue
@@ -903,7 +946,11 @@ export function SettingsPage() {
         const logoUrl = await api.uploadTenantLogo(user.tenantId, pendingFile, kind)
         nextForm = {
           ...nextForm,
-          ...(kind === 'login' ? { loginLogoUrl: logoUrl } : { popupLogoUrl: logoUrl }),
+          ...(kind === 'institution'
+            ? { logoUrl }
+            : kind === 'login'
+              ? { loginLogoUrl: logoUrl }
+              : { popupLogoUrl: logoUrl }),
         }
       } finally {
         setLogoUploading(null)
@@ -913,27 +960,11 @@ export function SettingsPage() {
     return nextForm
   }
 
-  const uploadLogo = async (file: File, kind: TenantLogoKind) => {
-    if (!user?.tenantId) return
-    if (kind === 'login' || kind === 'popup') {
-      stageDeferredLogoFile(file, kind)
+  const uploadLogo = (file: File, kind: TenantLogoKind) => {
+    if (!user?.tenantId) {
       return
     }
-
-    setMessage(null)
-    setLogoUploading(kind)
-    try {
-      const logoUrl = await api.uploadTenantLogo(user.tenantId, file, kind)
-      setAppearanceForm(current => ({
-        ...current,
-        logoUrl,
-      }))
-      setMenuLogoSelected(true)
-    } catch (uploadError) {
-      setMessage({ type: 'error', text: uploadError instanceof Error ? uploadError.message : t('common.error') })
-    } finally {
-      setLogoUploading(null)
-    }
+    stageDeferredLogoFile(file, kind)
   }
 
   const confirmResetPopupLogo = () => {
@@ -952,7 +983,7 @@ export function SettingsPage() {
     setConfirmDialog({
       title: t('settings.reset', 'Varsayılana Dön'),
       titleDivider: true,
-      message: t('settings.appearanceResetConfirm', 'Görünüm ayarları varsayılana döndürülsün mü?'),
+      message: t('settings.appearanceResetConfirm', 'Görünüm ayarları yazılımın ilk kurulduğu varsayılana döndürülsün mü?'),
       confirmLabel: t('settings.reset', 'Varsayılana Dön'),
       cancelLabel: t('common.cancel', 'İptal'),
       variant: 'destructive',
@@ -2725,7 +2756,7 @@ export function SettingsPage() {
                     onChange={event => {
                       const file = event.target.files?.[0]
                       event.target.value = ''
-                      if (file) void uploadLogo(file, 'institution')
+                      if (file) uploadLogo(file, 'institution')
                     }}
                   />
                   <Button
@@ -2736,7 +2767,7 @@ export function SettingsPage() {
                   >
                     {logoUploading === 'institution'
                       ? t('common.loading')
-                      : menuLogoSelected
+                      : pendingLogoFiles.institution
                         ? t('settings.menuLogoSelected', 'Menü logosu seçildi')
                         : t('settings.menuLogoAdd', 'Menü Logosu Ekle')}
                   </Button>
@@ -2751,7 +2782,7 @@ export function SettingsPage() {
                     onChange={event => {
                       const file = event.target.files?.[0]
                       event.target.value = ''
-                      if (file) void uploadLogo(file, 'popup')
+                      if (file) uploadLogo(file, 'popup')
                     }}
                   />
                   <div className="flex gap-2">
@@ -2788,7 +2819,7 @@ export function SettingsPage() {
                     onChange={event => {
                       const file = event.target.files?.[0]
                       event.target.value = ''
-                      if (file) void uploadLogo(file, 'login')
+                      if (file) uploadLogo(file, 'login')
                     }}
                   />
                   <Button

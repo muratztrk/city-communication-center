@@ -1514,11 +1514,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `PAGE_LICENSE_MODULE` haritası üzerinden `canAnyRoleAccessPage`'e entegre (bkz. rolePageAccess.ts).
   SystemAdmin **geçici test pasifi** (`testDisabled` + `PUT /me/license-modules/{module}/test-disabled`)
   ile modülü fail-closed yapabilir; login context `licenseModules` hero chip filtrelemesi için anonim döner.
-- **WA / kurum içi mesaj zamanı (#2340/#2339):** balon altı yalnız HH:mm; gün ayraçlarında yıl
+- **Sayfa Yetkileri modül filtresi (#2360):** `visiblePageAccessItems` `PAGE_LICENSE_MODULE` +
+  `isModuleUsable` ile filtrelenir; citizen kapalıyken e-Devlet, Vatandaş Bilgi Listesi, Vatandaş
+  Talepleri, Sms Onayı, Mesaj Onayı satırları görünmez. `useMemo` lisans durumuna bağlı olmalı —
+  boş `[]` ile cache'lenmez. balon altı yalnız HH:mm; gün ayraçlarında yıl
   her zaman (`formatConversationMessageTime`, `formatConversationDayDivider`). Kurum içi FAB sohbet
   arka planı bej `#ece5dd` (`internal-messages-chat-bg`), WhatsApp gri değil (#2300 reopen).
-- **Login görünüm açıklaması (#2345):** `TenantAppearance.loginPageDescription` (appearance JSON);
-  boşsa i18n `login.subtitle` kullanılır.
+- **Login görünüm açıklaması (#2345 / #2361):** `TenantAppearance.loginPageDescription` (appearance JSON);
+  boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm formunda alan Ana Renk sütununun altında
+  yarım genişlikte (`md:col-start-2 md:w-1/2`); Login Page Logosu eski tam satır hizasında (`md:col-span-2`).
 - **Sayfa Yetkileri artık `departmentTasks`/`citizenDirectory`'i zorla açıp kapatmıyor (card #2242):**
   önceki kod bu iki sayfayı role göre unconditional force ediyordu (admin checkbox'ı hiç işe yaramıyordu);
   `normalizeRolePageAccessMatrix`'e yeni bir zorlama eklerken kayıtlı admin tercihini ezmediğinden emin ol.

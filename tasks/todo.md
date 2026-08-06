@@ -1,3 +1,7 @@
+## Round 690 — Sayfa Yetkileri lisans filtresi + Görünüm login layout (2 kart)
+- `#2360`: `visiblePageAccessItems` useMemo lisans durumuna bağlandı — citizen kapalıyken VT sayfaları gizli.
+- `#2361`: Login Page Açıklama Ana Renk altında yarım genişlik; Login Page Logosu tam satır.
+
 ## Round 689 — Görünüm logo staging + Talep Oluştur lisans + footer (#2359–#2357, #2348)
 - `#2359`: Menü/Login/Pop up logo seçimi Kaydet'e kadar staging; sekme değişince atılır.
 - `#2358`: Varsayılana Dön onay metni güncellendi.

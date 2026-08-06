@@ -412,8 +412,9 @@ export function SettingsPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
-  // Modüler lisans (#WGDYIM79): Vatandaş modülü lisanslı değilse sosyal/yönlendirme/şablon sekmeleri gizlenir.
+  // Modüler lisans (#WGDYIM79 / #MHrIEwuE): Vatandaş modülü lisanslı değilse sosyal/yönlendirme/şablon sekmeleri gizlenir.
   const isCitizenModuleUsable = isModuleUsable('citizen')
+  const isInternalModuleUsable = isModuleUsable('internal')
   const { setAppearance } = useTenantTheme()
   const [searchParams, setSearchParams] = useSearchParams()
   const activeTab = readTab(searchParams.get('tab'))
@@ -484,9 +485,12 @@ export function SettingsPage() {
   const visiblePageAccessItems = useMemo(
     () => PAGE_ACCESS_ITEMS.filter(page => {
       const requiredModule = pageRequiresModule(page.key)
-      return !requiredModule || isModuleUsable(requiredModule)
+      if (!requiredModule) {
+        return true
+      }
+      return requiredModule === 'citizen' ? isCitizenModuleUsable : isInternalModuleUsable
     }),
-    [],
+    [isCitizenModuleUsable, isInternalModuleUsable],
   )
   const rolesTotalPages = Math.max(1, Math.ceil(visiblePageAccessItems.length / rolesPageSize) || 1)
   const rolesSafePage = Math.min(rolesPage, rolesTotalPages)
@@ -2737,7 +2741,8 @@ export function SettingsPage() {
                     />
                   </label>
                 ))}
-                <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                <div className="hidden md:block" aria-hidden />
+                <label className="grid w-full gap-2 text-sm font-semibold text-slate-700 md:col-start-2 md:w-1/2">
                   <span>{t('settings.loginPageDescription', 'Login Page Açıklama')}</span>
                   <textarea
                     className="field-input min-h-24 resize-y text-sm leading-6 placeholder:text-[0.9375rem] placeholder:leading-6"
@@ -2745,6 +2750,32 @@ export function SettingsPage() {
                     placeholder={t('login.subtitle')}
                     onChange={event => setAppearanceForm(current => ({ ...current, loginPageDescription: event.target.value }))}
                   />
+                </label>
+                <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                  <span>{t('settings.loginPageLogo', 'Login Page Logosu')}</span>
+                  <input
+                    ref={loginLogoFileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    className="hidden"
+                    onChange={event => {
+                      const file = event.target.files?.[0]
+                      event.target.value = ''
+                      if (file) uploadLogo(file, 'login')
+                    }}
+                  />
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    disabled={logoUploading === 'login'}
+                    onClick={() => loginLogoFileInputRef.current?.click()}
+                  >
+                    {logoUploading === 'login'
+                      ? t('common.loading')
+                      : pendingLogoFiles.login
+                        ? t('settings.loginPageLogoSelected', 'Login logosu seçildi')
+                        : t('settings.loginPageLogoAdd', 'Login Page Logosu Ekle')}
+                  </Button>
                 </label>
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>{t('settings.menuLogo', 'Menü Logosu')}</span>
@@ -2808,32 +2839,6 @@ export function SettingsPage() {
                       {t('settings.popupLogoDelete', 'Pop up Logosu Sil')}
                     </Button>
                   </div>
-                </label>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('settings.loginPageLogo', 'Login Page Logosu')}</span>
-                  <input
-                    ref={loginLogoFileInputRef}
-                    type="file"
-                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                    className="hidden"
-                    onChange={event => {
-                      const file = event.target.files?.[0]
-                      event.target.value = ''
-                      if (file) uploadLogo(file, 'login')
-                    }}
-                  />
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    disabled={logoUploading === 'login'}
-                    onClick={() => loginLogoFileInputRef.current?.click()}
-                  >
-                    {logoUploading === 'login'
-                      ? t('common.loading')
-                      : pendingLogoFiles.login
-                        ? t('settings.loginPageLogoSelected', 'Login logosu seçildi')
-                        : t('settings.loginPageLogoAdd', 'Login Page Logosu Ekle')}
-                  </Button>
                 </label>
               </div>
               <div className="flex flex-wrap items-center justify-end gap-3">

@@ -280,16 +280,16 @@ export function ConversationEntryBubble({
               )}
             </>
           )}
-          <p className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
+          <p className={`mt-1.5 flex items-baseline justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
             {entry.editedAtUtc ? (
               editedByName ? (
                 <DelayedHoverTooltip
                   label={t('whatsapp.editedBadge', 'Düzenlendi')}
                   tooltip={editedByName}
-                  className="text-[11px] font-bold tracking-wide text-orange-400 cursor-default"
+                  className="text-[11px] font-bold leading-none tracking-wide text-orange-400 cursor-default"
                 />
               ) : (
-                <span className="text-[11px] font-bold tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
+                <span className="text-[11px] font-bold leading-none tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
               )
             ) : null}
             {isPending ? (

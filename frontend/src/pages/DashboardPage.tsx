@@ -428,7 +428,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
 
   const managerRow1: MetricCard[] = !hideMetricCards && isManagerOrAdmin && dashboardQuery.data
     ? [
-        {
+        ...(isInternalModuleUsable ? [{
           label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.myPendingRequestCount,
@@ -436,7 +436,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-requests?view=pending',
           iconBg: 'bg-amber-100',
           iconColor: 'text-amber-600',
-        },
+        }] : []),
         {
           label: t('dashboard.cards.incomingPendingApprovalTitle', 'Birime Gelen'),
           sublabel: t('dashboard.cards.incomingPendingApprovalSub', 'Onay Bekleyen Talepler'),
@@ -501,7 +501,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
 
   const staffMetrics: MetricCard[] = !hideMetricCards && !isManagerOrAdmin && dashboardQuery.data
     ? [
-        {
+        ...(isInternalModuleUsable ? [{
           label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.myPendingRequestCount,
@@ -509,7 +509,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-requests?view=pending',
           iconBg: 'bg-amber-100',
           iconColor: 'text-amber-600',
-        },
+        }] : []),
         ...(isReporter ? [] : [{
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
@@ -529,6 +529,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     ...(statusChartsQuery.data?.charts ?? []),
     ...(canSeeCitizenChannels && citizenChannelQuery.data ? [citizenChannelQuery.data] : []),
   ].filter(card => {
+    if (!isInternalModuleUsable && card.titleKey === 'dashboard.charts.myRequests') {
+      return false
+    }
     if (effectiveView === 'citizen') {
       return CITIZEN_DASHBOARD_CHART_KEYS.has(card.titleKey)
     }

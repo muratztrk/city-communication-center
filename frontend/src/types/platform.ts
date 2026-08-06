@@ -499,6 +499,7 @@ export interface InternalMessage {
   content: string;
   createdAtUtc: string;
   readAtUtc: string | null;
+  attachment?: Attachment | null;
 }
 
 export interface InternalConversationDetail {

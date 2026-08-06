@@ -1,5 +1,15 @@
+## Round 695 — Lisans gates + dosya ekle + UI (7 kart)
+- `#2368`: Kurum İçi kapalıyken `outgoingRequests` görünür; `createRequest` yalnız Operator (citizen VT).
+- `#2369`: Kurum İçi kapalıyken Anasayfa Bekleyen Taleplerim + myRequests pie gizli.
+- `#2336` reopen: WA Düzenlendi hizası `items-baseline` + `leading-none`.
+- `#2372`: WA Dosya ekle buton metni `text-xs`.
+- `#2373`: Dosya ekle input'ları filtreli accept (JPG/PNG/PDF/Office).
+- `#2370`: Kurum İçi Mesajlar FAB Dosya ekle + BE upload endpoint.
+- `#2367`: Görünüm Varsayılana Dön/Kaydet üstü `mt-4`.
+
 ## Round 694 — WhatsApp konuşma bej zemin (#2300 reopen)
 - `#2300` reopen: WhatsApp konuşma scroll alanı bej `#ece5dd` + nokta deseni (`--wa-chat-bg`); gri app zemininden geri alındı.
+- `#2344` reopen: Login logo/açıklama hizası Round 693'te vardı — Done.
 
 ## Round 693 — Görünüm login hizalama + Reporter menü (#2364, #2344, #2348)
 - `#2364` reopen: Login Page Açıklama başlığı `<label>` değil düz metin.

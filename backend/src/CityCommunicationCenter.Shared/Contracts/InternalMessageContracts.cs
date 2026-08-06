@@ -7,7 +7,8 @@ public sealed record InternalMessageResponse(
     Guid SenderUserId,
     string Content,
     DateTimeOffset CreatedAtUtc,
-    DateTimeOffset? ReadAtUtc);
+    DateTimeOffset? ReadAtUtc,
+    AttachmentResponse? Attachment = null);
 
 public sealed record InternalConversationSummaryResponse(
     Guid InternalConversationId,

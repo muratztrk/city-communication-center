@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application;
 using CityCommunicationCenter.Application.Features.Attachments;
+using Microsoft.EntityFrameworkCore;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
 
@@ -39,6 +40,27 @@ public sealed class AttachmentsController : ApiControllerBase
         if (file is null) return BadRequest("Dosya bulunamadi.");
         var command = new UploadAttachmentCommand(
             "Task", taskId, CurrentContext.UserId,
+            file.FileName, file.ContentType, file.Length, file.OpenReadStream());
+        var result = await _sender.Send(command, cancellationToken);
+        return StatusCode(StatusCodes.Status201Created, result);
+    }
+
+    [HttpPost("internal-messages/{messageId:guid}")]
+    [RequestSizeLimit(6_000_000)]
+    public async Task<ActionResult<AttachmentResponse>> UploadInternalMessageAttachment(
+        Guid messageId, IFormFile? file, CancellationToken cancellationToken)
+    {
+        if (file is null) return BadRequest("Dosya bulunamadi.");
+
+        var tenantId = CurrentContext.RequireTenantId();
+        var message = await _dbContext.InternalMessages
+            .AsNoTracking()
+            .FirstOrDefaultAsync(m => m.InternalMessageId == messageId && m.TenantId == tenantId, cancellationToken);
+        if (message is null) return NotFound();
+        if (message.SenderUserId != CurrentContext.UserId) return Forbid();
+
+        var command = new UploadAttachmentCommand(
+            "InternalMessage", messageId, CurrentContext.UserId,
             file.FileName, file.ContentType, file.Length, file.OpenReadStream());
         var result = await _sender.Send(command, cancellationToken);
         return StatusCode(StatusCodes.Status201Created, result);

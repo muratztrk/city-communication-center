@@ -60,9 +60,9 @@ export const PAGE_LICENSE_MODULE: Partial<Record<PageAccessKey, LicenseModuleKey
   smsDeliveryApproval: 'citizen',
   // Vatandaş İş Takip Sistemi'nde olmamalı (#MHrIEwuE): birim-içi iş takibine özgü sayfalar.
   myRequests: 'internal',
-  outgoingRequests: 'internal',
   createRoutineTask: 'internal',
   display: 'internal',
+  // outgoingRequests: internal lisans kapalıyken de görünür (#2368) — PAGE_LICENSE_MODULE'de yok.
 }
 
 export function pageRequiresModule(pageKey: PageAccessKey): LicenseModuleKey | null {
@@ -248,14 +248,20 @@ export function canRoleAccessPage(role: string | undefined, pageKey: PageAccessK
 }
 
 export function canAnyRoleAccessPage(roles: readonly (string | undefined)[] | undefined, pageKey: PageAccessKey): boolean {
+  const effectiveRoles = (roles ?? [])
+    .filter((role): role is RoleCode => !!role && isRoleCode(role))
+
+  // Kurum İçi lisans kapalıyken yalnız Operator Talep Oluştur'a girebilir (citizen VT) (#2368).
+  if (pageKey === 'createRequest' && !isModuleUsable('internal')) {
+    return effectiveRoles.includes('Operator') && isModuleUsable('citizen')
+  }
+
   const requiredModule = pageRequiresModule(pageKey)
   if (requiredModule && !isModuleUsable(requiredModule)) {
     return false
   }
 
   const matrix = loadRolePageAccessMatrix()
-  const effectiveRoles = (roles ?? [])
-    .filter((role): role is RoleCode => !!role && isRoleCode(role))
 
   if (EDEVLET_ROLE_PAGE_KEYS.includes(pageKey as typeof EDEVLET_ROLE_PAGE_KEYS[number])) {
     if (effectiveRoles.includes('SystemAdmin')) {

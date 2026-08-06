@@ -1618,6 +1618,10 @@ export const api = {
     return uploadAttachmentWithProgress(`${API_BASE}/attachments/tasks/${taskId}`, file, onProgress)
   },
 
+  async uploadInternalMessageAttachment(messageId: string, file: File, onProgress?: (percent: number) => void): Promise<Attachment> {
+    return uploadAttachmentWithProgress(`${API_BASE}/attachments/internal-messages/${messageId}`, file, onProgress)
+  },
+
   async deleteAttachment(attachmentId: string): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/attachments/${attachmentId}`, {
       method: 'DELETE',

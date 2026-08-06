@@ -24,6 +24,7 @@ import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { useAuth } from '../context/AuthContext'
 import { isModuleUsable } from '../lib/licenseModules'
+import { getDefaultLandingPath } from '../lib/rolePageAccess'
 import { userWorksInDepartment } from '../utils/userDepartments'
 import type { Department, RequestTag, User } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
@@ -593,10 +594,18 @@ export function CreateRequestPage() {
   }, [selectedKind, internalForm.ownerDepartmentId, ownerDepartmentOptions, myDepartmentId, editJobId])
 
   useEffect(() => {
+    if (!isModuleUsable('internal') && user?.role !== 'Operator') {
+      navigate(getDefaultLandingPath(user), { replace: true })
+      return
+    }
+    if (!isModuleUsable('internal') && user?.role === 'Operator' && (kindParam === 'internal' || kindParam === 'external')) {
+      navigate(canShowCitizenRequest ? '/requests/new?kind=citizen' : getDefaultLandingPath(user), { replace: true })
+      return
+    }
     if ((rawKindParam && !kindParam) || (kindParam === 'citizen' && !canShowCitizenRequest)) {
       navigate('/requests/new', { replace: true })
     }
-  }, [canShowCitizenRequest, kindParam, navigate, rawKindParam])
+  }, [canShowCitizenRequest, kindParam, navigate, rawKindParam, user])
 
   // Üst Düzey Yönetici "Talep Oluştur"a tıkladığında doğrudan Birim Dışı formu açılır.
   useEffect(() => {

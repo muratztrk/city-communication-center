@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { CheckCheck, Search, Send, X } from 'lucide-react'
+import { CheckCheck, FileText, Paperclip, Search, Send, X } from 'lucide-react'
 import { api } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import {
@@ -15,6 +15,16 @@ import { formatConversationDayDivider } from '../../utils/conversationDayLabel'
 import { formatConversationListTime, formatConversationMessageTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
 import { TablePagination } from '../ui/table-pagination'
+import { ATTACHMENT_MAX_TOTAL_BYTES } from '../../utils/attachmentLimits'
+import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
+
+const INTERNAL_MESSAGE_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
+const INTERNAL_MESSAGE_FILE_ACCEPT = INTERNAL_MESSAGE_FILE_EXTENSIONS.join(',')
+const INTERNAL_MESSAGE_FILE_MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
+
+function internalMessageFileExtension(name: string): string {
+  return lowercaseFileExtension(name)
+}
 
 const CONNECTED_POLL_INTERVAL_MS = 15_000
 const DISCONNECTED_POLL_INTERVAL_MS = 3_000
@@ -135,10 +145,13 @@ export function InternalMessagesFab() {
   const [chatDetail, setChatDetail] = useState<InternalConversationDetail | null>(null)
   const [chatLoading, setChatLoading] = useState(false)
   const [draft, setDraft] = useState('')
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [fileError, setFileError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
   const [otherUserTyping, setOtherUserTyping] = useState(false)
   const [signalRState, setSignalRState] = useState<SignalRConnectionState>('disconnected')
   const scrollRef = useRef<HTMLDivElement | null>(null)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const typingNotifyTimerRef = useRef<number | null>(null)
   const typingHeartbeatTimerRef = useRef<number | null>(null)
   const typingActiveRef = useRef(false)
@@ -465,18 +478,37 @@ export function InternalMessagesFab() {
     setChatDetail(null)
     setSearch('')
     setDraft('')
+    setPendingFile(null)
+    setFileError(null)
     setOtherUserTyping(false)
   }
 
   const handleSend = async () => {
     const content = draft.trim()
-    if (!content || !activeChat || sending) return
+    const file = pendingFile
+    if ((!content && !file) || !activeChat || sending) return
+    if (file) {
+      const ext = internalMessageFileExtension(file.name)
+      if (!INTERNAL_MESSAGE_FILE_EXTENSIONS.includes(ext)) {
+        setFileError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
+        return
+      }
+      if (file.size > INTERNAL_MESSAGE_FILE_MAX_SIZE) {
+        setFileError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
+        return
+      }
+    }
+    setFileError(null)
     setSending(true)
     try {
       notifyTyping(false)
       clearTypingHeartbeat()
-      await api.sendInternalMessage(activeChat.otherUserId, content)
+      const result = await api.sendInternalMessage(activeChat.otherUserId, content || file!.name)
+      if (file) {
+        await api.uploadInternalMessageAttachment(result.message.internalMessageId, file)
+      }
       setDraft('')
+      setPendingFile(null)
       await loadChat(activeChat.otherUserId)
       void refreshConversations()
     } catch {
@@ -602,7 +634,32 @@ export function InternalMessagesFab() {
                             <p className={`mb-0.5 text-[11px] font-semibold leading-snug ${isMine ? 'text-white/90' : 'text-slate-900'}`}>
                               {senderName} <span className="mx-0.5 inline-block size-[2px] translate-y-[-0.08em] rounded-full bg-current align-middle opacity-70" aria-hidden="true" /> {senderDepartment}
                             </p>
-                            <p className="whitespace-pre-wrap break-words text-xs leading-snug">{message.content}</p>
+                            {message.content && (!message.attachment || message.content !== message.attachment.fileName) ? (
+                              <p className="whitespace-pre-wrap break-words text-xs leading-snug">{message.content}</p>
+                            ) : null}
+                            {message.attachment ? (
+                              <button
+                                type="button"
+                                className={`mt-1 inline-flex max-w-full items-center gap-1.5 rounded-lg border px-2 py-1 text-[11px] font-semibold ${
+                                  isMine
+                                    ? 'border-white/20 bg-white/10 text-white hover:bg-white/15'
+                                    : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
+                                }`}
+                                onClick={() => {
+                                  void api.downloadAttachment(message.attachment!.attachmentId).then(blob => {
+                                    const url = URL.createObjectURL(blob)
+                                    const anchor = document.createElement('a')
+                                    anchor.href = url
+                                    anchor.download = message.attachment!.fileName
+                                    anchor.click()
+                                    URL.revokeObjectURL(url)
+                                  })
+                                }}
+                              >
+                                <FileText className="size-3.5 shrink-0" aria-hidden="true" />
+                                <span className="truncate">{message.attachment.fileName}</span>
+                              </button>
+                            ) : null}
                             <p className={`mt-0.5 flex items-center justify-end gap-1 text-[9px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
                               {isMine ? (
                                 <span className={`inline-flex items-center gap-0.5 ${message.readAtUtc ? 'text-sky-300' : 'text-emerald-100'}`}>
@@ -620,30 +677,68 @@ export function InternalMessagesFab() {
                   })
                 )}
               </div>
-              <div className="flex shrink-0 items-center gap-2 border-t border-[var(--color-border)] bg-white px-3 py-2.5">
-                <input
-                  type="text"
-                  value={draft}
-                  onChange={e => setDraft(e.target.value)}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault()
-                      void handleSend()
-                    }
-                  }}
-                  placeholder={t('internalMessages.messagePlaceholder', 'Mesaj yazın...')}
-                  className="field-input flex-1 py-2 text-sm"
-                  disabled={sending}
-                />
-                <button
-                  type="button"
-                  onClick={() => void handleSend()}
-                  disabled={sending || !draft.trim()}
-                  aria-label={t('common.send', 'Gönder')}
-                  className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <Send className="size-4" />
-                </button>
+              <div className="shrink-0 space-y-2 border-t border-[var(--color-border)] bg-white px-3 py-2.5">
+                {pendingFile ? (
+                  <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700">
+                    <FileText className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+                    <span className="min-w-0 flex-1 truncate">{pendingFile.name}</span>
+                    <button
+                      type="button"
+                      className="rounded p-0.5 text-slate-400 hover:text-slate-600"
+                      aria-label={t('common.clear', 'Temizle')}
+                      onClick={() => setPendingFile(null)}
+                    >
+                      <X className="size-3.5" />
+                    </button>
+                  </div>
+                ) : null}
+                {fileError ? <p className="text-xs font-semibold text-red-600">{fileError}</p> : null}
+                <div className="flex items-center gap-2">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={INTERNAL_MESSAGE_FILE_ACCEPT}
+                    className="hidden"
+                    onChange={event => {
+                      const file = event.target.files?.[0] ?? null
+                      event.target.value = ''
+                      setFileError(null)
+                      setPendingFile(file)
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={sending}
+                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+                    {t('attachments.addFile', 'Dosya ekle')}
+                  </button>
+                  <input
+                    type="text"
+                    value={draft}
+                    onChange={e => setDraft(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault()
+                        void handleSend()
+                      }
+                    }}
+                    placeholder={t('internalMessages.messagePlaceholder', 'Mesaj yazın...')}
+                    className="field-input min-w-0 flex-1 py-2 text-sm"
+                    disabled={sending}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void handleSend()}
+                    disabled={sending || (!draft.trim() && !pendingFile)}
+                    aria-label={t('common.send', 'Gönder')}
+                    className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    <Send className="size-4" />
+                  </button>
+                </div>
               </div>
             </>
           ) : (

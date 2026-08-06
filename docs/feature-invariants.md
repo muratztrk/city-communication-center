@@ -1514,6 +1514,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `TenantSetting.LicenseModulesJson` kalıcı depo; online başarılı fetch otomatik persist eder.
   `frontend/src/lib/licenseModules.ts` + backend `LicenseModuleStatusService`; sayfa/menü gizleme
   `PAGE_LICENSE_MODULE` haritası üzerinden `canAnyRoleAccessPage`'e entegre (bkz. rolePageAccess.ts).
+  **Kurum İçi kapalıyken (#2368/#2369):** `outgoingRequests` menüde kalır; `createRequest` yalnız
+  Operator + citizen lisans açıkken; Anasayfa `Bekleyen Taleplerim` kutucuğu ve `myRequests` pie gizlenir.
   Backend `testDisabled` API'si kalır; Ayarlar > Lisans UI'da geçici pasife al butonu yok (#2365).
 - **Sayfa Yetkileri modül filtresi (#2360):** `visiblePageAccessItems` `PAGE_LICENSE_MODULE` +
   `isModuleUsable` ile filtrelenir; citizen kapalıyken e-Devlet, Vatandaş Bilgi Listesi, Vatandaş
@@ -1524,6 +1526,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp konuşma zemin (#2300 reopen):** mesaj scroll alanı bej `#ece5dd` (`--wa-chat-bg`) +
   hafif nokta deseni (`whatsapp-chat-bg`); uygulama gri zeminine (`color-background`) çekilmez.
 - **Kurum içi FAB sohbet zemin:** aktif sohbet scroll alanı bej `#ece5dd` (`internal-messages-chat-bg`).
+- **Kurum içi mesaj dosya eki (#2370):** FAB sohbetinde `Dosya ekle` (Paperclip + filtreli accept);
+  `POST /attachments/internal-messages/{messageId}`; mesaj yanıtında `attachment` alanı.
+- **Dosya ekle accept filtresi (#2373):** Talep/görev/WA/kurum içi dosya seçimlerinde yalnız
+  JPG/PNG/PDF/Office uzantıları (`accept`); logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol
   sütun); Login Page Açıklama Ana Renk altında tam sütun genişliği. Başlıklar ayrı satır, logo Ekle butonu ile

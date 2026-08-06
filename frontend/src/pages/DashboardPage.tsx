@@ -304,14 +304,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     ? (view === 'full' ? 'citizen' : view)
     : 'full'
 
-  if (effectiveView === 'citizen' && !isModuleUsable('citizen')) {
-    return <Navigate to={role === 'Operator' ? '/dashboard/birimler' : '/citizen-directory'} replace />
-  }
-
-  if (effectiveView === 'departments' && role === 'Reporter' && !isModuleUsable('internal')) {
-    return <Navigate to={isModuleUsable('citizen') ? '/dashboard' : '/citizen-directory'} replace />
-  }
-
   const [period, setPeriod] = useState<Period>('yearly')
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
@@ -424,6 +416,16 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     enabled: true,
     refetchInterval: 60_000,
   })
+
+  // Hook'lardan sonra redirect — erken return rules-of-hooks bozar (CI lint).
+  if (effectiveView === 'citizen' && !isModuleUsable('citizen')) {
+    return <Navigate to={role === 'Operator' ? '/dashboard/birimler' : '/citizen-directory'} replace />
+  }
+
+  if (effectiveView === 'departments' && role === 'Reporter' && !isModuleUsable('internal')) {
+    return <Navigate to={isModuleUsable('citizen') ? '/dashboard' : '/citizen-directory'} replace />
+  }
+
   // Üst Düzey Yönetici (Reporter) yalnızca talep oluşturur; "Bekleyen Görevlerim" gösterilmez.
   const isReporter = role === 'Reporter'
   const isCitizenDashboardDrilldownRole = role === 'Reporter' || role === 'Operator' || role === 'SystemAdmin'

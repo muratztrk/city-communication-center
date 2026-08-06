@@ -1539,7 +1539,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile dosya WhatsApp konuşmasına gider (`replySocialMessageAttachment`); talep eklerine değil. Gelen medya
   balon aksiyonu `onAddMediaAsAttachment` talep eklerine kalır.
 - **Kurum İçi İlet buton metni (#2380):** `Sadece Kurum İçi İlet` (`whatsapp.sendInternalMessage`).
-- **WA footer düzeni (#2381):** Şablon/Dosya üst satır; Birim seç + Sadece Kurum İçi İlet alt satır sol.
+- **WA footer düzeni (#2381 / reopen):** `/whatsapp` sayfasında Birim + Sadece Kurum İçi İlet alt satır sol;
+  Vatandaş Talebi modal (`compactActions`) tek satır, Birim/Kurum İçi sağda (`ml-auto`).
+- **WA modal ek önizleme (#2385):** kompakt dosya balonu; PDF/mime alt satırı yok (yalnız dosya adı + görsel önizleme).
+- **Kurum içi dosya uzantısı (#2386):** `internalMessageFileExtension` yalnız `.ext` döner (`lowercaseFileExtension` değil).
 - **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.
 - **Kurum içi Dosya ekle (#2383):** kompakt buton; 5 MB; seçilen dosya sohbet alanında önizleme (WA gibi).
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-6`.

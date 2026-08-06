@@ -1,3 +1,10 @@
+## Round 699 — WA/kurum içi düzeltmeler (5 kart)
+- `#2381` reopen: Vatandaş Talebi modal Birim/Kurum İçi tek satır sağa geri alındı.
+- `#2386`: Kurum İçi dosya uzantı doğrulama düzeltmesi (yanlış tip uyarısı).
+- `#2383` reopen: 5 MB üstü dosyada uyarı (onChange).
+- `#2372` reopen: WA sayfası Dosya ekle hafif büyütüldü.
+- `#2385`: WA modal ek önizlemesi küçültüldü; PDF/mime alt satırı kaldırıldı.
+
 ## Round 698 — WA + Kurum İçi UI (7 kart)
 - `#2367` reopen: Görünüm Varsayılana Dön/Kaydet üstü `mt-6`.
 - `#2383`: Kurum İçi Dosya ekle küçük buton, 5 MB, sohbet alanında önizleme.

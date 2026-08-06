@@ -16,14 +16,15 @@ import { formatConversationListTime, formatConversationMessageTime } from '../..
 import { getLocale } from '../../utils/localization'
 import { TablePagination } from '../ui/table-pagination'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../../utils/attachmentLimits'
-import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
 
 const INTERNAL_MESSAGE_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
 const INTERNAL_MESSAGE_FILE_ACCEPT = INTERNAL_MESSAGE_FILE_EXTENSIONS.join(',')
 const INTERNAL_MESSAGE_FILE_MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
 function internalMessageFileExtension(name: string): string {
-  return lowercaseFileExtension(name)
+  const dot = name.lastIndexOf('.')
+  if (dot < 0) return ''
+  return name.slice(dot).toLowerCase()
 }
 
 function formatFileSize(bytes: number): string {

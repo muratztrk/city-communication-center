@@ -19,12 +19,6 @@ import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 
 const CONVERSATION_FILE_ACCEPT = '.jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
 interface ConversationPanelProps {
   socialMessageId: string
   citizenHandle: string
@@ -334,35 +328,29 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         )}
         {enableWhatsAppFileAttachment && pendingFile ? (
           <div className="flex flex-col items-end">
-            <div className="max-w-[min(72%,28rem)] rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm text-white shadow-md ring-1 ring-white/10" style={{ background: 'var(--color-header-from)' }}>
+            <div className={`rounded-2xl rounded-tr-sm text-white shadow-md ring-1 ring-white/10 ${compactActions ? 'max-w-[min(62%,20rem)] px-3 py-2 text-xs' : 'max-w-[min(72%,28rem)] px-4 py-2.5 text-sm'}`} style={{ background: 'var(--color-header-from)' }}>
               <div className="flex items-center gap-2">
-                <FileText className="size-4 shrink-0" aria-hidden="true" />
+                <FileText className={`shrink-0 ${compactActions ? 'size-3.5' : 'size-4'}`} aria-hidden="true" />
                 <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
                 <button
                   type="button"
                   onClick={() => setPendingFile(null)}
                   disabled={sending}
-                  className="ml-auto inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60"
+                  className={`ml-auto inline-flex shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60 ${compactActions ? 'size-5' : 'size-6'}`}
                   aria-label={t('common.dismiss', 'Vazgeç')}
                 >
-                  <X className="size-3.5" aria-hidden="true" />
+                  <X className={compactActions ? 'size-3' : 'size-3.5'} aria-hidden="true" />
                 </button>
               </div>
               {pendingFile.type.startsWith('image/') && pendingFilePreviewUrl ? (
                 <img
                   src={pendingFilePreviewUrl}
                   alt={pendingFile.name}
-                  className="mt-2 max-h-56 w-full rounded-xl border border-white/20 object-contain bg-white/95"
+                  className={`mt-1.5 w-full rounded-lg border border-white/20 object-contain bg-white/95 ${compactActions ? 'max-h-28' : 'max-h-56'}`}
                 />
-              ) : (
-                <div className="mt-2 flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2 text-xs font-semibold text-white/90">
-                  <FileText className="size-4 shrink-0" aria-hidden="true" />
-                  <span className="min-w-0 truncate">{pendingFile.type || t('attachments.file', 'Dosya')}</span>
-                  <span className="shrink-0 text-white/65">{formatFileSize(pendingFile.size)}</span>
-                </div>
-              )}
+              ) : null}
               {replyText.trim() ? (
-                <p className="mt-2 whitespace-pre-wrap break-words text-sm">{replyText.trim()}</p>
+                <p className={`mt-1.5 whitespace-pre-wrap break-words ${compactActions ? 'text-xs' : 'text-sm'}`}>{replyText.trim()}</p>
               ) : null}
             </div>
           </div>
@@ -414,9 +402,8 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 {t('attachments.addFile', 'Dosya ekle')}
               </button>
             ) : null}
-            </div>
-            {internalDepartmentOptions ? (
-              <div className="flex flex-wrap items-center gap-2">
+            {internalDepartmentOptions && compactActions ? (
+              <div className="ml-auto flex flex-wrap items-center gap-2">
                 <SingleSelectDropdown
                   options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
                   value={internalDepartmentId}
@@ -436,6 +423,34 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   onClick={() => void handleSendInternalClick()}
                   disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
                   className={`inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50 ${compactActions ? 'h-7 px-2.5 text-[11px]' : 'h-9 px-4 text-sm'}`}
+                >
+                  {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+                  {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
+                </button>
+              </div>
+            ) : null}
+            </div>
+            {internalDepartmentOptions && !compactActions ? (
+              <div className="flex flex-wrap items-center gap-2">
+                <SingleSelectDropdown
+                  options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
+                  value={internalDepartmentId}
+                  onChange={value => onInternalDepartmentIdChange?.(value)}
+                  placeholder={t('departments.selectDepartment', 'Birim seçiniz...')}
+                  emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
+                  searchPlaceholder={t('departments.search', 'Birim ara...')}
+                  openUp={internalDepartmentOptions.length >= 2}
+                  clearable
+                  className="w-[8.75rem] min-w-0 max-w-[8.75rem]"
+                  triggerClassName="h-9 w-full rounded-full px-2.5 text-xs font-semibold"
+                  menuWidth={168}
+                  menuScrollClassName="whatsapp-department-menu-scroll"
+                />
+                <button
+                  type="button"
+                  onClick={() => void handleSendInternalClick()}
+                  disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
                   {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}

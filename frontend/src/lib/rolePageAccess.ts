@@ -60,9 +60,9 @@ export const PAGE_LICENSE_MODULE: Partial<Record<PageAccessKey, LicenseModuleKey
   smsDeliveryApproval: 'citizen',
   // Vatandaş İş Takip Sistemi'nde olmamalı (#MHrIEwuE): birim-içi iş takibine özgü sayfalar.
   myRequests: 'internal',
+  outgoingRequests: 'internal',
   createRoutineTask: 'internal',
   display: 'internal',
-  // outgoingRequests: internal lisans kapalıyken de görünür (#2368) — PAGE_LICENSE_MODULE'de yok.
 }
 
 export function pageRequiresModule(pageKey: PageAccessKey): LicenseModuleKey | null {

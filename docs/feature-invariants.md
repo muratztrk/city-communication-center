@@ -1514,8 +1514,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `TenantSetting.LicenseModulesJson` kalıcı depo; online başarılı fetch otomatik persist eder.
   `frontend/src/lib/licenseModules.ts` + backend `LicenseModuleStatusService`; sayfa/menü gizleme
   `PAGE_LICENSE_MODULE` haritası üzerinden `canAnyRoleAccessPage`'e entegre (bkz. rolePageAccess.ts).
-  **Kurum İçi kapalıyken (#2368/#2369/#2376/#2377):** `outgoingRequests` menüde kalır; `createRequest` yalnız
-  Operator + citizen lisans açıkken; Anasayfa `Bekleyen Taleplerim` kutucuğu ve `myRequests` pie gizlenir.
+  **Kurum İçi kapalıyken (#2369/#2376/#2377/#2378):** `outgoingRequests` menü/arama/dashboard'dan gizlenir
+  (`PAGE_LICENSE_MODULE` → `internal`); `createRequest` yalnız Operator + citizen lisans açıkken;
+  Anasayfa `Bekleyen Taleplerim` kutucuğu ve `myRequests` pie gizlenir.
   Operator Talep Oluştur seçim ekranında yalnız Vatandaş Çağrı Talebi (`?kind=citizen` otomatik); Birim İçi/Dışı
   kartları gizlenir. Reporter menüden `Anasayfa - Birimler` kaldırılır; `/dashboard/birimler` doğrudan erişim
   citizen anasayfaya veya Vatandaş Bilgi Listesi'ne yönlendirilir; Reporter varsayılan açılış citizen açıksa

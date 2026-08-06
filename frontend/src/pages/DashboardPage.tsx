@@ -450,24 +450,26 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconBg: 'bg-orange-100',
           iconColor: 'text-orange-600',
         },
-        {
-          label: t('dashboard.cards.outgoingPendingTitle', 'Birimden Giden'),
-          sublabel: t('dashboard.cards.outgoingPendingSub', 'Bekleyen Talepler'),
-          value: dashboardQuery.data.outgoingPendingCount,
-          icon: ArrowUpRight,
-          path: '/outgoing-requests?view=pending',
-          iconBg: 'bg-sky-100',
-          iconColor: 'text-sky-600',
-        },
-        {
-          label: t('dashboard.cards.outgoingInProgressTitle', 'Birimden Giden'),
-          sublabel: t('dashboard.cards.outgoingInProgressSub', 'Yapılmakta Olan Talepler'),
-          value: dashboardQuery.data.outgoingInProgressCount,
-          icon: Loader,
-          path: '/outgoing-requests?view=in-progress',
-          iconBg: 'bg-cyan-100',
-          iconColor: 'text-cyan-600',
-        },
+        ...(isInternalModuleUsable ? [
+          {
+            label: t('dashboard.cards.outgoingPendingTitle', 'Birimden Giden'),
+            sublabel: t('dashboard.cards.outgoingPendingSub', 'Bekleyen Talepler'),
+            value: dashboardQuery.data.outgoingPendingCount,
+            icon: ArrowUpRight,
+            path: '/outgoing-requests?view=pending',
+            iconBg: 'bg-sky-100',
+            iconColor: 'text-sky-600',
+          },
+          {
+            label: t('dashboard.cards.outgoingInProgressTitle', 'Birimden Giden'),
+            sublabel: t('dashboard.cards.outgoingInProgressSub', 'Yapılmakta Olan Talepler'),
+            value: dashboardQuery.data.outgoingInProgressCount,
+            icon: Loader,
+            path: '/outgoing-requests?view=in-progress',
+            iconBg: 'bg-cyan-100',
+            iconColor: 'text-cyan-600',
+          },
+        ] as MetricCard[] : []),
         {
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
@@ -533,7 +535,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     ...(statusChartsQuery.data?.charts ?? []),
     ...(canSeeCitizenChannels && citizenChannelQuery.data ? [citizenChannelQuery.data] : []),
   ].filter(card => {
-    if (!isInternalModuleUsable && card.titleKey === 'dashboard.charts.myRequests') {
+    if (!isInternalModuleUsable && (
+      card.titleKey === 'dashboard.charts.myRequests'
+      || card.titleKey === 'dashboard.charts.outgoingRequests'
+    )) {
       return false
     }
     if (effectiveView === 'citizen') {

@@ -1,3 +1,6 @@
+## Round 697 — outgoingRequests internal lisans gate (#2378)
+- `#2378`: Kurum İçi kapalıyken Birimden Giden Talepler her yerden gizli (`PAGE_LICENSE_MODULE` + dashboard kart/pie).
+
 ## Round 696 — Kurum İçi lisans gates + WA/kurum içi UI (4 kart)
 - `#2377`: Kurum İçi kapalıyken Reporter `Anasayfa - Birimler` menüde yok; `/dashboard/birimler` redirect.
 - `#2376`: Kurum İçi kapalıyken Operator Talep Oluştur yalnız Vatandaş Çağrı Talebi (otomatik `?kind=citizen`).

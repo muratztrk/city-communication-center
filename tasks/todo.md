@@ -1,3 +1,8 @@
+## Round 692 — Ayarlar SMS/lisans/görünüm başlıkları (3 kart)
+- `#2366`: Kurum sekmesi SMS API kutucuğu citizen lisans kapalıyken gizli.
+- `#2365`: Lisans sekmesinden "Lisansı geçici pasife al" butonu kaldırıldı.
+- `#2364`: Görünüm alan başlıkları tıklanabilir label değil düz metin.
+
 ## Round 691 — Anasayfa menü + footer + Görünüm login layout (3 kart)
 - `#2362`: Citizen lisans kapalıyken Anasayfa menüsü `/dashboard/birimler`'e yönlenir; varsayılan açılış güncellendi.
 - `#2348` reopen: Footer daha kompakt (`h-7`, 1px şerit); `--fab-footer-clearance: 2rem`.

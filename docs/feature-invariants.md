@@ -1027,7 +1027,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yapılmakta / Tamamlanan Talepler"; yalnız VT; dilim popup mahalle pie standardında.
 - **Talep Oluştur doğrulama (#6a6ef103):** kırmızı `.error` kutusu `error--create-request`
   ile `1rem` punto (global `.error` 0.88rem kalır).
-- **Kurum sekmesi 2×2 (#6a6cdcad):** Kurum Bilgisi | Kurum Konumu / SMS API | Hafta Sonu SLA
+- **Kurum sekmesi 2×2 (#6a6cdcad / #2366):** Kurum Bilgisi | Kurum Konumu / (citizen lisans açıkken) SMS API |
+  Hafta Sonu SLA — SMS kutucuğu `isCitizenModuleUsable` ile gizlenir.
   (`xl:grid-cols-2`, `items-stretch` + `h-full`; dış/`grid` `gap-6` eşit düşey boşluk;
   Kaydet `mt-auto`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
 - **Kurum Konumu ilçe (#r512/#r514/#r521):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
@@ -1513,17 +1514,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `TenantSetting.LicenseModulesJson` kalıcı depo; online başarılı fetch otomatik persist eder.
   `frontend/src/lib/licenseModules.ts` + backend `LicenseModuleStatusService`; sayfa/menü gizleme
   `PAGE_LICENSE_MODULE` haritası üzerinden `canAnyRoleAccessPage`'e entegre (bkz. rolePageAccess.ts).
-  SystemAdmin **geçici test pasifi** (`testDisabled` + `PUT /me/license-modules/{module}/test-disabled`)
-  ile modülü fail-closed yapabilir; login context `licenseModules` hero chip filtrelemesi için anonim döner.
+  Backend `testDisabled` API'si kalır; Ayarlar > Lisans UI'da geçici pasife al butonu yok (#2365).
 - **Sayfa Yetkileri modül filtresi (#2360):** `visiblePageAccessItems` `PAGE_LICENSE_MODULE` +
   `isModuleUsable` ile filtrelenir; citizen kapalıyken e-Devlet, Vatandaş Bilgi Listesi, Vatandaş
   Talepleri, Sms Onayı, Mesaj Onayı satırları görünmez. `useMemo` lisans durumuna bağlı olmalı —
-  boş `[]` ile cache'lenmez. balon altı yalnız HH:mm; gün ayraçlarında yıl
+  boş `[]` ile cache'lenmez.
+- **WA / kurum içi mesaj zamanı (#2340/#2339):** balon altı yalnız HH:mm; gün ayraçlarında yıl
   her zaman (`formatConversationMessageTime`, `formatConversationDayDivider`). Kurum içi FAB sohbet
   arka planı bej `#ece5dd` (`internal-messages-chat-bg`), WhatsApp gri değil (#2300 reopen).
-- **Login görünüm açıklaması (#2345 / #2361 / #2363):** `TenantAppearance.loginPageDescription` (appearance JSON);
+- **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol
-  sütun); Login Page Açıklama Ana Renk altında tam sütun genişliği (`md:col-start-2 md:row-start-2`).
+  sütun); Login Page Açıklama Ana Renk altında tam sütun genişliği. Tema/Ana Renk/logo başlıkları `<label>`
+  değil düz metin — tıklanınca input tetiklenmez (#2364).
 - **Sayfa Yetkileri artık `departmentTasks`/`citizenDirectory`'i zorla açıp kapatmıyor (card #2242):**
   önceki kod bu iki sayfayı role göre unconditional force ediyordu (admin checkbox'ı hiç işe yaramıyordu);
   `normalizeRolePageAccessMatrix`'e yeni bir zorlama eklerken kayıtlı admin tercihini ezmediğinden emin ol.

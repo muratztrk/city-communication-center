@@ -538,7 +538,6 @@ export function SettingsPage() {
   const [syncingMetaTemplates, setSyncingMetaTemplates] = useState(false)
   const [licenseTokenDrafts, setLicenseTokenDrafts] = useState<Record<LicenseModuleKey, string>>({ citizen: '', internal: '' })
   const [savingLicenseModule, setSavingLicenseModule] = useState<LicenseModuleKey | null>(null)
-  const [togglingLicenseTestDisabled, setTogglingLicenseTestDisabled] = useState<LicenseModuleKey | null>(null)
 
   // Gerçek lisans durumu (lumespec-license, Ed25519 imzalı) — bkz. LicenseModuleContext.
   // SystemAdmin kapalı ağda Lumespec'ten aldığı JWT'yi buraya kaydeder.
@@ -569,25 +568,6 @@ export function SettingsPage() {
       showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
     } finally {
       setSavingLicenseModule(null)
-    }
-  }
-
-  const handleToggleLicenseTestDisabled = async (moduleKey: LicenseModuleKey, disabled: boolean) => {
-    setTogglingLicenseTestDisabled(moduleKey)
-    try {
-      const updated = await api.setLicenseModuleTestDisabled(moduleKey, disabled)
-      const merged = (licenseModulesQuery.data ?? loadLicenseModules())
-        .filter(item => item.module !== moduleKey)
-        .concat(updated)
-      await queryClient.invalidateQueries({ queryKey: queryKeys.licensing.modules() })
-      saveLicenseModules(merged)
-      showToast('success', disabled
-        ? t('settings.license.testDisabledOn', 'Lisans geçici olarak pasife alındı.')
-        : t('settings.license.testDisabledOff', 'Lisans test pasifi kaldırıldı.'))
-    } catch (toggleError) {
-      showToast('error', toggleError instanceof Error ? toggleError.message : t('common.error'))
-    } finally {
-      setTogglingLicenseTestDisabled(null)
     }
   }
 
@@ -1783,6 +1763,7 @@ export function SettingsPage() {
               </div>
             </form>
 
+            {isCitizenModuleUsable ? (
             <form className="section-card page-stack content-start h-full p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSmsSettings(event)}>
               <div className="page-header-row">
                 <div>
@@ -1925,6 +1906,7 @@ export function SettingsPage() {
                 <Button type="submit">{t('settings.sms.save')}</Button>
               </div>
             </form>
+            ) : null}
 
             <form className="section-card page-stack content-start h-full p-5 sm:p-6 lg:p-7" onSubmit={event => void saveSlaWeekendSettings(event)}>
               <div className="page-header-row">
@@ -2722,8 +2704,8 @@ export function SettingsPage() {
                     ['primaryColor', t('settings.primaryColor')],
                   ] as const
                 ).map(([field, label]) => (
-                  <label className="grid gap-2 text-sm font-semibold text-slate-700" key={field}>
-                    <span>{label}</span>
+                  <div className="grid gap-2 text-sm text-slate-700" key={field}>
+                    <span className="font-semibold">{label}</span>
                     <input
                       className="field-input"
                       type={field === 'primaryColor' ? 'color' : 'text'}
@@ -2739,10 +2721,10 @@ export function SettingsPage() {
                         })
                       }}
                     />
-                  </label>
+                  </div>
                 ))}
-                <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-start-1 md:row-start-2">
-                  <span>{t('settings.loginPageLogo', 'Login Page Logosu')}</span>
+                <div className="grid gap-2 text-sm text-slate-700 md:col-start-1 md:row-start-2">
+                  <span className="font-semibold">{t('settings.loginPageLogo', 'Login Page Logosu')}</span>
                   <input
                     ref={loginLogoFileInputRef}
                     type="file"
@@ -2766,7 +2748,7 @@ export function SettingsPage() {
                         ? t('settings.loginPageLogoSelected', 'Login logosu seçildi')
                         : t('settings.loginPageLogoAdd', 'Login Page Logosu Ekle')}
                   </Button>
-                </label>
+                </div>
                 <label className="grid w-full gap-2 text-sm font-semibold text-slate-700 md:col-start-2 md:row-start-2">
                   <span>{t('settings.loginPageDescription', 'Login Page Açıklama')}</span>
                   <textarea
@@ -2776,8 +2758,8 @@ export function SettingsPage() {
                     onChange={event => setAppearanceForm(current => ({ ...current, loginPageDescription: event.target.value }))}
                   />
                 </label>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('settings.menuLogo', 'Menü Logosu')}</span>
+                <div className="grid gap-2 text-sm text-slate-700">
+                  <span className="font-semibold">{t('settings.menuLogo', 'Menü Logosu')}</span>
                   <input
                     ref={logoFileInputRef}
                     type="file"
@@ -2801,9 +2783,9 @@ export function SettingsPage() {
                         ? t('settings.menuLogoSelected', 'Menü logosu seçildi')
                         : t('settings.menuLogoAdd', 'Menü Logosu Ekle')}
                   </Button>
-                </label>
-                <label className="grid gap-2 text-sm font-semibold text-slate-700">
-                  <span>{t('settings.popupLogo', 'Pop up Logosu')}</span>
+                </div>
+                <div className="grid gap-2 text-sm text-slate-700">
+                  <span className="font-semibold">{t('settings.popupLogo', 'Pop up Logosu')}</span>
                   <input
                     ref={popupLogoFileInputRef}
                     type="file"
@@ -2838,7 +2820,7 @@ export function SettingsPage() {
                       {t('settings.popupLogoDelete', 'Pop up Logosu Sil')}
                     </Button>
                   </div>
-                </label>
+                </div>
               </div>
               <div className="flex flex-wrap items-center justify-end gap-3">
                 <Button type="button" variant="secondary" className="min-w-[11.5rem]" onClick={confirmResetAppearanceToDefault}>
@@ -3466,20 +3448,6 @@ export function SettingsPage() {
                       </p>
                     ) : null}
                     {entry?.message ? <p className="mt-2 text-sm text-slate-600">{entry.message}</p> : null}
-                    <div className="mt-4 flex flex-wrap items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => void handleToggleLicenseTestDisabled(moduleKey, !(entry?.testDisabled ?? false))}
-                        disabled={togglingLicenseTestDisabled === moduleKey}
-                      >
-                        {togglingLicenseTestDisabled === moduleKey
-                          ? t('common.saving', 'Kaydediliyor…')
-                          : entry?.testDisabled
-                            ? t('settings.license.reactivateTest', 'Test pasifini kaldır')
-                            : t('settings.license.deactivateTest', 'Lisansı geçici pasife al')}
-                      </Button>
-                    </div>
                     <div className="mt-4 space-y-2">
                       <label className="text-sm font-semibold text-slate-700" htmlFor={`license-token-${moduleKey}`}>
                         {t('settings.license.tokenLabel', 'Lisans kodu')}

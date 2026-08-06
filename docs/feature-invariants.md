@@ -1333,6 +1333,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 ## 5. Dashboard / Wallboard
 
+- **Dashboard modül redirect'leri hook sonrası (CI):** `DashboardPage` içinde citizen/departments
+  `Navigate` early-return'leri tüm `useState`/`useQuery`/`useEffect` sonrasında olmalı;
+  hook öncesi return `react-hooks/rules-of-hooks` ile lint fail eder.
 - **Banner buton sayımları client-side hesaplanır; dashboard'da bu aggregation YOK.**
 - **Yönetici `Vatandaş Talepleri` kartı:** `activeSocialMessageCount` — onay bekleyen VT
   (CitizenRequestNumber dolu job'lar); SystemAdmin/Operator tenant geneli; Manager kapsam

@@ -11,7 +11,8 @@ public sealed record LicenseModuleResponse(
     DateTimeOffset? ExpiresAt,
     string BundleId,
     bool HasStoredToken,
-    string Source);
+    string Source,
+    bool TestDisabled);
 
 public sealed class GetLicenseModulesQueryHandler : IQueryHandler<GetLicenseModulesQuery, IReadOnlyList<LicenseModuleResponse>>
 {
@@ -58,5 +59,6 @@ public sealed class GetLicenseModulesQueryHandler : IQueryHandler<GetLicenseModu
             status.ExpiresAt,
             status.BundleId,
             status.HasStoredToken,
-            status.Source);
+            status.Source,
+            status.TestDisabled);
 }

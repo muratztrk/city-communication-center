@@ -419,7 +419,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   // Üst Düzey Yönetici (Reporter) yalnızca talep oluşturur; "Bekleyen Görevlerim" gösterilmez.
   const isReporter = role === 'Reporter'
   const isCitizenDashboardDrilldownRole = role === 'Reporter' || role === 'Operator' || role === 'SystemAdmin'
-  const hideMetricCards = effectiveView === 'citizen' || effectiveView === 'departments'
+  const hideMetricCards = effectiveView === 'citizen'
+    || (effectiveView === 'departments' && role !== 'Operator')
 
   const managerRow1: MetricCard[] = !hideMetricCards && isManagerOrAdmin && dashboardQuery.data
     ? [

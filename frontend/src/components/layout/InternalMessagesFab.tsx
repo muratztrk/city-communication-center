@@ -11,6 +11,7 @@ import {
   type SignalRConnectionState,
 } from '../../hooks/useSignalR'
 import type { InternalConversationDetail, InternalConversationSummary, InternalMessage, UserLookup } from '../../types/platform'
+import { formatConversationDayDivider } from '../../utils/conversationDayLabel'
 import { formatConversationListTime, formatConversationMessageTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
 import { TablePagination } from '../ui/table-pagination'
@@ -99,10 +100,6 @@ function isSameCalendarDay(left: string, right: string) {
   const a = new Date(left)
   const b = new Date(right)
   return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
-}
-
-function formatMessageDay(dateUtc: string, locale: string) {
-  return new Date(dateUtc).toLocaleDateString(locale, { day: 'numeric', month: 'long' })
 }
 
 function InternalMessagesIcon() {
@@ -574,7 +571,7 @@ export function InternalMessagesFab() {
 
           {activeChat ? (
             <>
-              <div ref={scrollRef} className="whatsapp-chat-bg min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3">
+              <div ref={scrollRef} className="internal-messages-chat-bg min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3">
                 {chatLoading && !chatDetail ? (
                   <p className="mt-8 text-center text-sm text-slate-400">{t('common.loading')}</p>
                 ) : (chatDetail?.messages.length ?? 0) === 0 ? (
@@ -592,7 +589,7 @@ export function InternalMessagesFab() {
                         {showDaySeparator ? (
                           <div className="my-3 flex justify-center">
                             <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] font-semibold text-slate-600 shadow-sm">
-                              {formatMessageDay(message.createdAtUtc, locale)}
+                              {formatConversationDayDivider(message.createdAtUtc, locale, t)}
                             </span>
                           </div>
                         ) : null}

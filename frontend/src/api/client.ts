@@ -135,6 +135,16 @@ export const api = {
     return response.json() as Promise<LicenseModuleStatus>
   },
 
+  async setLicenseModuleTestDisabled(module: LicenseModuleKey, disabled: boolean): Promise<LicenseModuleStatus> {
+    const response = await fetchWithCredentials(`${API_BASE}/me/license-modules/${module}/test-disabled`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ disabled }),
+    })
+    await ensureOk(response, i18n.t('errors.licenseModuleTestToggleFailed', 'Lisans test durumu güncellenemedi'))
+    return response.json() as Promise<LicenseModuleStatus>
+  },
+
   async changeMyPassword(payload: { currentPassword: string; newPassword: string; confirmPassword: string }): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/me/change-password`, {
       method: 'POST',

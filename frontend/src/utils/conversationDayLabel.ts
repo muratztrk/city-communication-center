@@ -5,7 +5,7 @@ function sameDay(a: Date, b: Date): boolean {
 }
 
 function formatLongDate(d: Date, locale: string): string {
-  return d.toLocaleDateString(locale, { day: 'numeric', month: 'long' })
+  return d.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' })
 }
 
 /** Gün ayracı: Bugün · 27 Haziran / Dün · 26 Haziran / tam tarih. */
@@ -23,12 +23,7 @@ export function formatConversationDayDivider(iso: string, locale: string, t: TFu
     return `${t('common.yesterday', 'Dün')} · ${datePart}`
   }
 
-  const includeYear = d.getFullYear() !== today.getFullYear()
-  return d.toLocaleDateString(locale, {
-    day: 'numeric',
-    month: 'long',
-    ...(includeYear ? { year: 'numeric' } : {}),
-  })
+  return formatLongDate(d, locale)
 }
 
 export function conversationSameDay(leftIso: string, rightIso: string): boolean {

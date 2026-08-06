@@ -1,3 +1,27 @@
+## Round 686 — WA/zaman + operatör anasayfa + lisans + NAS (13 kart)
+- `#2340`/`#2339`: Mesaj balonu yalnız HH:mm; gün ayraçlarında yıl her zaman.
+- `#2341`: Operator menü 1. sıra `Anasayfa` (`/dashboard/birimler`); birim anasayfada staff kutucukları.
+- `#2345`: Ayarlar Görünüm → Login Page Açıklama (`loginPageDescription` appearance JSON).
+- `#2344`: Lisans geçici pasife al (`testDisabled` + `PUT …/test-disabled`).
+- `#2346`: Login hero chip'leri tenant lisans modülüne göre (login context `licenseModules`).
+- `#2343`: Lisans UI — Bundle ID/JWT kaldır, placeholder büyük, kayıtlı kod üst satır.
+- `#2300`: Kurum içi mesaj FAB bej arka plan (`internal-messages-chat-bg`).
+- `#2336` reopen: Düzenlendi hover pending dışında da (delivered edited).
+- `#2348`: Footer `/lumespec-logo.png` güncellendi.
+- `#2342`: Filtreyi sil chip padding/letter-spacing.
+- `#2347`: NAS SMB domain parse (`DOMAIN\user`, UPN, host kısa adı + `.` fallback).
+- `#2329` reopen: Kaydet `- 2.25rem` FAB clearance.
+
+## Round 685 — Dashboard + WA + ayarlar polish (8 kart)
+- `#2336`: WA beklemede "Düzenlendi" hover → düzenleyen adı (250ms); BE `EditedByDisplayName` + migration.
+- `#2335`: Local parola sıfırla banner → uygulama header gradient.
+- `#2338`: Ayarlar reCAPTCHA tenant toggle (AuthPolicyJson) + Syslog yarım genişlik grid.
+- `#2329`: Sayfa Yetkileri Kaydet daha sağa (`- 1.5rem` FAB clearance).
+- `#2332`: Dashboard alt satır etiketleri; Vatandaş Talepleri yalnız onay bekleyen VT + filtre.
+- `#2337`: Sol menü logo görseli küçültüldü (`72%`).
+- `#2334`: Filtreyi Sil chip font-weight 600.
+- `#2333`: Dashboard kutucuk tıklama `fromPie=1` ile yanıp sönen chip.
+
 ## Round 684 — Login CAPTCHA (#2272)
 - `#2272`: Google reCAPTCHA v2 (checkbox); trusted network dışı public IP'de login widget +
   sunucu `siteverify`; anahtar yoksa devre dışı. Config: `Recaptcha:SiteKey/SecretKey` veya

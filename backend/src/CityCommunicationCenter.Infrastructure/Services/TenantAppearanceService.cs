@@ -28,6 +28,7 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
         null,
         null,
         null,
+        null,
         false);
 
     private readonly IApplicationDbContext _dbContext;
@@ -91,6 +92,7 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
             LoginLogoUrl = Normalize(settings.LoginLogoUrl),
             PopupLogoUrl = Normalize(settings.PopupLogoUrl),
             LoginBackgroundImageUrl = Normalize(settings.LoginBackgroundImageUrl),
+            LoginPageDescription = Normalize(settings.LoginPageDescription),
             PreviousLogoUrl = ResolvePreviousUrl(existingPayload?.LogoUrl, settings.LogoUrl, existingPayload?.PreviousLogoUrl),
             PreviousLoginLogoUrl = ResolvePreviousUrl(existingPayload?.LoginLogoUrl, settings.LoginLogoUrl, existingPayload?.PreviousLoginLogoUrl),
             PreviousPopupLogoUrl = ResolvePreviousUrl(existingPayload?.PopupLogoUrl, settings.PopupLogoUrl, existingPayload?.PreviousPopupLogoUrl),
@@ -192,7 +194,8 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
                 kind == TenantLogoKind.Institution ? restoredLogoUrl : current.LogoUrl,
                 kind == TenantLogoKind.Login ? restoredLogoUrl : current.LoginLogoUrl,
                 kind == TenantLogoKind.Popup ? restoredLogoUrl : current.PopupLogoUrl,
-                current.LoginBackgroundImageUrl),
+                current.LoginBackgroundImageUrl,
+                current.LoginPageDescription),
             actorUserId,
             cancellationToken);
 
@@ -228,6 +231,7 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
             Normalize(payload.LoginLogoUrl),
             Normalize(payload.PopupLogoUrl),
             Normalize(payload.LoginBackgroundImageUrl),
+            Normalize(payload.LoginPageDescription),
             Normalize(payload.PreviousLogoUrl),
             Normalize(payload.PreviousLoginLogoUrl),
             Normalize(payload.PreviousPopupLogoUrl),
@@ -279,6 +283,8 @@ internal sealed class TenantAppearanceService : ITenantAppearanceService
         public string? PopupLogoUrl { get; set; }
 
         public string? LoginBackgroundImageUrl { get; set; }
+
+        public string? LoginPageDescription { get; set; }
 
         public string? PreviousLogoUrl { get; set; }
 

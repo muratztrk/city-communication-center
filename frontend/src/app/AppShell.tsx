@@ -249,18 +249,25 @@ export function AppShell() {
 
   const pendingSmsDeliveryApprovalCount = pendingSmsDeliveryApprovalQuery.data ?? 0
 
-  const isCitizenDashboardNav = user?.role === 'Reporter' || user?.role === 'Operator'
+  const isReporterNav = user?.role === 'Reporter'
+  const isOperatorNav = user?.role === 'Operator'
+  const isCitizenDashboardNav = isReporterNav || isOperatorNav
   const navItemConfigs: NavLinkConfigEx[] = [
-    ...(isCitizenDashboardNav
+    ...(isOperatorNav
       ? [
-          { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard },
-          // Üst Düzey/Operatör: Anasayfa - Birimler’in bir üst satırı (#6a6cfc0c reopen).
+          { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboard', 'Anasayfa'), icon: LayoutDashboard },
           { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
-          { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorAfter: true },
+          { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard, separatorAfter: true },
         ]
-      : [
-          { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
-        ]),
+      : isReporterNav
+        ? [
+            { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard },
+            { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
+            { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorAfter: true },
+          ]
+        : [
+            { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
+          ]),
     { pageKey: 'edevletActivityPlan' as const, path: '/edevlet/activity-plan', label: 'e-Devlet Günlük Faaliyet\nPlanı Oluştur', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'edevletActivityPlansList' as const, path: '/edevlet/activity-plans', label: 'e-Devlet Günlük Faaliyet\nPlanları Listesi', iconImageSrc: '/icons/e-devlet.png', multilineLabel: true },
     { pageKey: 'createRequest' as const, path: '/requests/new', label: t('nav.createRequest', 'Talep Oluştur'), icon: ClipboardPlus },

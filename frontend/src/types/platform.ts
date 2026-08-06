@@ -663,6 +663,7 @@ export interface TenantAppearance {
   loginLogoUrl?: string | null;
   popupLogoUrl?: string | null;
   loginBackgroundImageUrl?: string | null;
+  loginPageDescription?: string | null;
   previousLogoUrl?: string | null;
   previousLoginLogoUrl?: string | null;
   previousPopupLogoUrl?: string | null;
@@ -681,6 +682,10 @@ export interface TenantLoginContext {
   resolutionMode: string;
   host: string | null;
   appearance: TenantAppearance | null;
+  licenseModules?: {
+    citizenUsable: boolean;
+    internalUsable: boolean;
+  } | null;
   isTrustedNetwork?: boolean;
   requiresCaptcha?: boolean;
   recaptchaSiteKey?: string | null;
@@ -766,6 +771,7 @@ export interface LicenseModuleStatus {
   bundleId: string;
   hasStoredToken: boolean;
   source: string;
+  testDisabled?: boolean;
 }
 
 export interface AuthUser {

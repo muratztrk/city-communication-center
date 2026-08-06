@@ -9,11 +9,16 @@ public sealed class GetTenantLoginContextQueryHandler : IQueryHandler<GetTenantL
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantAppearanceService _tenantAppearanceService;
+    private readonly ILicenseModuleStatusService _licenseModuleStatusService;
 
-    public GetTenantLoginContextQueryHandler(IApplicationDbContext dbContext, ITenantAppearanceService tenantAppearanceService)
+    public GetTenantLoginContextQueryHandler(
+        IApplicationDbContext dbContext,
+        ITenantAppearanceService tenantAppearanceService,
+        ILicenseModuleStatusService licenseModuleStatusService)
     {
         _dbContext = dbContext;
         _tenantAppearanceService = tenantAppearanceService;
+        _licenseModuleStatusService = licenseModuleStatusService;
     }
 
     public async ValueTask<TenantLoginContextResponse> Handle(GetTenantLoginContextQuery request, CancellationToken cancellationToken)
@@ -83,10 +88,23 @@ public sealed class GetTenantLoginContextQueryHandler : IQueryHandler<GetTenantL
             : [ToResponse(resolvedTenant)];
 
         TenantAppearanceResponse? appearance = null;
+        TenantLoginLicenseModulesResponse? licenseModules = null;
         if (resolvedTenant is not null)
         {
             var settings = await _tenantAppearanceService.GetSettingsAsync(resolvedTenant.TenantId, cancellationToken);
             appearance = RestorePreviousTenantLogoCommandHandler.ToResponse(settings);
+            var tenantSlug = TenantSlug.From(resolvedTenant.MunicipalityName);
+            var citizen = await _licenseModuleStatusService.GetModuleStatusAsync(
+                resolvedTenant.TenantId,
+                tenantSlug,
+                LicenseModule.Citizen,
+                cancellationToken);
+            var internalTracking = await _licenseModuleStatusService.GetModuleStatusAsync(
+                resolvedTenant.TenantId,
+                tenantSlug,
+                LicenseModule.Internal,
+                cancellationToken);
+            licenseModules = new TenantLoginLicenseModulesResponse(citizen.Usable, internalTracking.Usable);
         }
 
         return new TenantLoginContextResponse(
@@ -96,7 +114,8 @@ public sealed class GetTenantLoginContextQueryHandler : IQueryHandler<GetTenantL
             resolvedTenant is null,
             resolutionMode,
             normalizedHost,
-            appearance);
+            appearance,
+            LicenseModules: licenseModules);
     }
 
     private static TenantLookupResponse ToResponse(TenantCandidate tenant)

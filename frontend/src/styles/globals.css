@@ -4017,6 +4017,8 @@
     color: #991b1b;
     font-size: 0.8rem;
     font-weight: 600;
+    padding: 0.35rem 0.9rem;
+    letter-spacing: 0.01em;
     animation: ccc-blink 2.2s ease-in-out infinite;
   }
 
@@ -5865,7 +5867,11 @@
 
   /* Sayfa Yetkileri: Kaydet sağ kenarı Kurum İçi Mesajlar FAB soluna yakın (#2329 reopen). */
   .settings-roles-actions {
-    padding-right: max(0px, calc(var(--fab-inline-clearance) - 1.5rem));
+    padding-right: max(0px, calc(var(--fab-inline-clearance) - 2.25rem));
+  }
+
+  .internal-messages-chat-bg {
+    background-color: #ece5dd;
   }
 
   .whatsapp-notification-fab-panel {

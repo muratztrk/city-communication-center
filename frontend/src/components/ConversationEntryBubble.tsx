@@ -281,21 +281,19 @@ export function ConversationEntryBubble({
             </>
           )}
           <p className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
+            {entry.editedAtUtc ? (
+              editedByName ? (
+                <DelayedHoverTooltip
+                  label={t('whatsapp.editedBadge', 'Düzenlendi')}
+                  tooltip={editedByName}
+                  className="font-semibold tracking-wide text-orange-400 cursor-default"
+                />
+              ) : (
+                <span className="font-semibold tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
+              )
+            ) : null}
             {isPending ? (
-              <>
-                {entry.editedAtUtc ? (
-                  editedByName ? (
-                    <DelayedHoverTooltip
-                      label={t('whatsapp.editedBadge', 'Düzenlendi')}
-                      tooltip={editedByName}
-                      className="font-semibold tracking-wide text-orange-400 cursor-default"
-                    />
-                  ) : (
-                    <span className="font-semibold tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
-                  )
-                ) : null}
-                <span className="font-semibold tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
-              </>
+              <span className="font-semibold tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
             ) : !isInbound && entry.deliveryStatus ? (
               <WhatsAppDeliveryStatusIndicator
                 status={entry.deliveryStatus}

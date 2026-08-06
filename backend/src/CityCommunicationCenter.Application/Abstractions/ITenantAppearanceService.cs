@@ -29,6 +29,7 @@ public sealed record TenantAppearanceDescriptor(
     string? LoginLogoUrl,
     string? PopupLogoUrl,
     string? LoginBackgroundImageUrl,
+    string? LoginPageDescription,
     string? PreviousLogoUrl,
     string? PreviousLoginLogoUrl,
     string? PreviousPopupLogoUrl,
@@ -49,4 +50,5 @@ public sealed record TenantAppearanceUpdate(
     string? LogoUrl,
     string? LoginLogoUrl,
     string? PopupLogoUrl,
-    string? LoginBackgroundImageUrl);
+    string? LoginBackgroundImageUrl,
+    string? LoginPageDescription);

@@ -404,6 +404,7 @@ function toAppearanceForm(response: TenantAppearance): TenantAppearanceInput {
     loginLogoUrl: response.loginLogoUrl ?? null,
     popupLogoUrl: response.popupLogoUrl ?? null,
     loginBackgroundImageUrl: response.loginBackgroundImageUrl ?? null,
+    loginPageDescription: response.loginPageDescription ?? null,
   }
 }
 
@@ -450,6 +451,7 @@ export function SettingsPage() {
     loginLogoUrl: null,
     popupLogoUrl: null,
     loginBackgroundImageUrl: DEFAULT_TENANT_APPEARANCE.loginBackgroundImageUrl ?? null,
+    loginPageDescription: null,
   })
   const [socialForms, setSocialForms] = useState<ChannelForms>(EMPTY_SOCIAL_FORMS)
   const [activeChannel, setActiveChannel] = useState<ChannelType | null>(null)
@@ -531,6 +533,7 @@ export function SettingsPage() {
   const [syncingMetaTemplates, setSyncingMetaTemplates] = useState(false)
   const [licenseTokenDrafts, setLicenseTokenDrafts] = useState<Record<LicenseModuleKey, string>>({ citizen: '', internal: '' })
   const [savingLicenseModule, setSavingLicenseModule] = useState<LicenseModuleKey | null>(null)
+  const [togglingLicenseTestDisabled, setTogglingLicenseTestDisabled] = useState<LicenseModuleKey | null>(null)
 
   // Gerçek lisans durumu (lumespec-license, Ed25519 imzalı) — bkz. LicenseModuleContext.
   // SystemAdmin kapalı ağda Lumespec'ten aldığı JWT'yi buraya kaydeder.
@@ -561,6 +564,25 @@ export function SettingsPage() {
       showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
     } finally {
       setSavingLicenseModule(null)
+    }
+  }
+
+  const handleToggleLicenseTestDisabled = async (moduleKey: LicenseModuleKey, disabled: boolean) => {
+    setTogglingLicenseTestDisabled(moduleKey)
+    try {
+      const updated = await api.setLicenseModuleTestDisabled(moduleKey, disabled)
+      const merged = (licenseModulesQuery.data ?? loadLicenseModules())
+        .filter(item => item.module !== moduleKey)
+        .concat(updated)
+      await queryClient.invalidateQueries({ queryKey: queryKeys.licensing.modules() })
+      saveLicenseModules(merged)
+      showToast('success', disabled
+        ? t('settings.license.testDisabledOn', 'Lisans geçici olarak pasife alındı.')
+        : t('settings.license.testDisabledOff', 'Lisans test pasifi kaldırıldı.'))
+    } catch (toggleError) {
+      showToast('error', toggleError instanceof Error ? toggleError.message : t('common.error'))
+    } finally {
+      setTogglingLicenseTestDisabled(null)
     }
   }
 
@@ -1001,6 +1023,7 @@ export function SettingsPage() {
       loginLogoUrl: DEFAULT_TENANT_APPEARANCE.logoUrl ?? null,
       popupLogoUrl: null,
       loginBackgroundImageUrl: null,
+      loginPageDescription: null,
     }
 
     try {
@@ -2674,7 +2697,9 @@ export function SettingsPage() {
                   src={previewAppearance.logoUrl ?? null}
                 />
                 <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>
-                <p className="mt-2 max-w-md text-sm leading-6 text-white/78">{t('settings.appearancePreviewBody')}</p>
+                <p className="mt-2 max-w-md text-sm leading-6 text-white/78">
+                  {appearanceForm.loginPageDescription?.trim() || t('settings.appearancePreviewBody')}
+                </p>
               </div>
             </section>
 
@@ -2712,6 +2737,15 @@ export function SettingsPage() {
                     />
                   </label>
                 ))}
+                <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
+                  <span>{t('settings.loginPageDescription', 'Login Page Açıklama')}</span>
+                  <textarea
+                    className="field-input min-h-24 resize-y text-sm leading-6"
+                    value={appearanceForm.loginPageDescription ?? ''}
+                    placeholder={t('login.subtitle')}
+                    onChange={event => setAppearanceForm(current => ({ ...current, loginPageDescription: event.target.value }))}
+                  />
+                </label>
                 <label className="grid gap-2 text-sm font-semibold text-slate-700">
                   <span>{t('settings.menuLogo', 'Menü Logosu')}</span>
                   <input
@@ -3381,9 +3415,9 @@ export function SettingsPage() {
                       </StatusPill>
                       {entry?.status ? <span className="text-xs font-semibold text-slate-500">{entry.status}</span> : null}
                     </div>
-                    {entry?.bundleId ? (
-                      <p className="mt-2 text-xs text-slate-500">
-                        {t('settings.license.bundleId', 'Bundle ID')}: <span className="font-mono">{entry.bundleId}</span>
+                    {entry?.hasStoredToken ? (
+                      <p className="mt-2 text-xs font-semibold text-emerald-700">
+                        {t('settings.license.storedTokenPresent', 'Kayıtlı lisans kodu mevcut')}
                       </p>
                     ) : null}
                     {entry?.validUntil ? (
@@ -3397,13 +3431,27 @@ export function SettingsPage() {
                       </p>
                     ) : null}
                     {entry?.message ? <p className="mt-2 text-sm text-slate-600">{entry.message}</p> : null}
+                    <div className="mt-4 flex flex-wrap items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => void handleToggleLicenseTestDisabled(moduleKey, !(entry?.testDisabled ?? false))}
+                        disabled={togglingLicenseTestDisabled === moduleKey}
+                      >
+                        {togglingLicenseTestDisabled === moduleKey
+                          ? t('common.saving', 'Kaydediliyor…')
+                          : entry?.testDisabled
+                            ? t('settings.license.reactivateTest', 'Test pasifini kaldır')
+                            : t('settings.license.deactivateTest', 'Lisansı geçici pasife al')}
+                      </Button>
+                    </div>
                     <div className="mt-4 space-y-2">
                       <label className="text-sm font-semibold text-slate-700" htmlFor={`license-token-${moduleKey}`}>
-                        {t('settings.license.tokenLabel', 'Lisans kodu (JWT)')}
+                        {t('settings.license.tokenLabel', 'Lisans kodu')}
                       </label>
                       <textarea
                         id={`license-token-${moduleKey}`}
-                        className="min-h-28 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-xs text-slate-800"
+                        className="min-h-28 w-full rounded-xl border border-slate-300 bg-white px-3 py-2 font-mono text-sm text-slate-800 placeholder:text-sm"
                         placeholder={t('settings.license.tokenPlaceholder', 'Lumespec\'ten aldığınız imzalı lisans kodunu yapıştırın')}
                         value={licenseTokenDrafts[moduleKey]}
                         onChange={event => setLicenseTokenDrafts(current => ({ ...current, [moduleKey]: event.target.value }))}
@@ -3419,11 +3467,6 @@ export function SettingsPage() {
                             ? t('common.saving', 'Kaydediliyor…')
                             : t('settings.license.saveToken', 'Lisans kodunu kaydet')}
                         </Button>
-                        {entry?.hasStoredToken ? (
-                          <span className="text-xs font-semibold text-emerald-700">
-                            {t('settings.license.storedTokenPresent', 'Kayıtlı lisans kodu mevcut')}
-                          </span>
-                        ) : null}
                       </div>
                     </div>
                   </section>

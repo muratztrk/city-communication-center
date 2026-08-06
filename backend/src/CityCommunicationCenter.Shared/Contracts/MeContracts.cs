@@ -10,3 +10,5 @@ public sealed record UserQuickReplyTemplateRequest(
     string Content);
 
 public sealed record UpdateLicenseModuleTokenRequest(string Token);
+
+public sealed record SetLicenseModuleTestDisabledRequest(bool Disabled);

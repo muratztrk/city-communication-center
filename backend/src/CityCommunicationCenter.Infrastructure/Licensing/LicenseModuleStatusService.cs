@@ -99,6 +99,25 @@ internal sealed class LicenseModuleStatusService : ILicenseModuleStatusService
             .AsNoTracking()
             .FirstOrDefaultAsync(entity => entity.TenantId == tenantId, cancellationToken);
 
+        var testDisabled = TenantLicenseModulesJson.GetTestDisabled(settings?.LicenseModulesJson, moduleKey);
+        if (testDisabled)
+        {
+            var fullBundleIdDisabled = BuildFullBundleId(tenantSlug, module);
+            var disabledStatus = new ResolvedLicenseModuleStatus(
+                module,
+                Usable: false,
+                Status: "test-disabled",
+                ValidUntil: null,
+                Message: "Test için geçici olarak pasife alındı.",
+                ExpiresAt: null,
+                BundleId: fullBundleIdDisabled,
+                HasStoredToken: !string.IsNullOrWhiteSpace(TenantLicenseModulesJson.GetToken(settings?.LicenseModulesJson, moduleKey)),
+                Source: "test-disabled",
+                TestDisabled: true);
+            _cache.Set(cacheKey, disabledStatus, TimeSpan.FromMinutes(Math.Max(1, _options.CacheMinutes)));
+            return disabledStatus;
+        }
+
         var storedToken = TenantLicenseModulesJson.GetToken(settings?.LicenseModulesJson, moduleKey);
         var hasStoredToken = !string.IsNullOrWhiteSpace(storedToken);
         var storedVerified = storedToken is null ? null : _tokenVerifier.Verify(storedToken, fullBundleId);
@@ -189,6 +208,32 @@ internal sealed class LicenseModuleStatusService : ILicenseModuleStatusService
         settings.UpdatedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
 
+        _cache.Remove($"license-status:{tenantId:N}:{moduleKey}");
+    }
+
+    public async Task SetTestDisabledAsync(
+        Guid tenantId,
+        LicenseModule module,
+        bool disabled,
+        CancellationToken cancellationToken = default)
+    {
+        var moduleKey = ToModuleKey(module);
+        var settings = await _dbContext.TenantSettings
+            .FirstOrDefaultAsync(entity => entity.TenantId == tenantId, cancellationToken);
+
+        if (settings is null)
+        {
+            settings = new TenantSetting
+            {
+                TenantSettingId = Guid.NewGuid(),
+                TenantId = tenantId,
+            };
+            _dbContext.TenantSettings.Add(settings);
+        }
+
+        settings.LicenseModulesJson = TenantLicenseModulesJson.SetTestDisabled(settings.LicenseModulesJson, moduleKey, disabled);
+        settings.UpdatedAtUtc = DateTimeOffset.UtcNow;
+        await _dbContext.SaveChangesAsync(cancellationToken);
         _cache.Remove($"license-status:{tenantId:N}:{moduleKey}");
     }
 

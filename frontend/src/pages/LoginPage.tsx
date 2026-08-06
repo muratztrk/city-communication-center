@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Eye, EyeOff, MessageSquareMore, SquareKanban, X, ShieldCheck } from 'lucide-react'
-import { useEffect, useEffectEvent, useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useTranslation } from 'react-i18next'
 import { z } from 'zod'
@@ -121,6 +121,20 @@ export function LoginPage() {
     : {
       background: 'linear-gradient(145deg, var(--color-header-from), var(--color-header-to))',
     } as const
+
+  const loginDescription = tenantContext?.appearance?.loginPageDescription?.trim()
+    || themeAppearance.loginPageDescription?.trim()
+    || t('login.subtitle')
+
+  const loginHeroCards = useMemo(() => {
+    const modules = tenantContext?.licenseModules
+    const showCitizen = modules ? modules.citizenUsable : true
+    const showInternal = modules ? modules.internalUsable : true
+    return [
+      ...(showCitizen ? [{ icon: MessageSquareMore, title: t('login.heroCardCitizenRequests') }] : []),
+      ...(showInternal ? [{ icon: SquareKanban, title: t('login.heroCardInternalTracking') }] : []),
+    ]
+  }, [tenantContext?.licenseModules, t])
 
   const applyTenantContext = useEffectEvent((data: TenantLoginContext) => {
     const resolvedTenantId = data.resolvedTenant?.tenantId ?? data.tenants[0]?.tenantId ?? ''
@@ -317,13 +331,11 @@ export function LoginPage() {
                 </h1>
                 <span aria-hidden className="h-15 w-36 shrink-0 2xl:h-[4.25rem] 2xl:w-44" />
               </div>
-              <p className="max-w-2xl text-[0.82rem] leading-6 text-white/86 xl:text-sm xl:leading-6 2xl:text-base 2xl:leading-7">{t('login.subtitle')}</p>
+              <p className="max-w-2xl text-[0.82rem] leading-6 text-white/86 xl:text-sm xl:leading-6 2xl:text-base 2xl:leading-7">{loginDescription}</p>
             </div>
+            {loginHeroCards.length > 0 ? (
             <ul className="grid w-full gap-2.5 sm:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)] 2xl:max-w-[52rem] 2xl:gap-4">
-              {[
-                { icon: MessageSquareMore, title: t('login.heroCardCitizenRequests') },
-                { icon: SquareKanban, title: t('login.heroCardInternalTracking') },
-              ].map(item => {
+              {loginHeroCards.map(item => {
                 const Icon = item.icon
                 return (
                   <li
@@ -340,6 +352,7 @@ export function LoginPage() {
                 )
               })}
             </ul>
+            ) : null}
           </div>
 
           <div className="relative grid gap-3 rounded-[var(--radius-xl)] border border-white/12 bg-white/7 p-4 text-white/82">

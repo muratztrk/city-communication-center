@@ -119,7 +119,8 @@ public sealed class AdminController : ApiControllerBase
                 request.LogoUrl,
                 request.LoginLogoUrl,
                 request.PopupLogoUrl,
-                request.LoginBackgroundImageUrl),
+                request.LoginBackgroundImageUrl,
+                request.LoginPageDescription),
             cancellationToken);
 
         return NoContent();

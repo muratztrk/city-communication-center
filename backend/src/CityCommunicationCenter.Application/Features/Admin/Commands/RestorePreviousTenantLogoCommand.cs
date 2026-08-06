@@ -44,6 +44,7 @@ public sealed class RestorePreviousTenantLogoCommandHandler : ICommandHandler<Re
             settings.LoginLogoUrl,
             settings.PopupLogoUrl,
             settings.LoginBackgroundImageUrl,
+            settings.LoginPageDescription,
             settings.PreviousLogoUrl,
             settings.PreviousLoginLogoUrl,
             settings.PreviousPopupLogoUrl,

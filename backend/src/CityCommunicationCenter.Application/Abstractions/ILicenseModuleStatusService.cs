@@ -9,7 +9,8 @@ public sealed record ResolvedLicenseModuleStatus(
     DateTimeOffset? ExpiresAt,
     string BundleId,
     bool HasStoredToken,
-    string Source);
+    string Source,
+    bool TestDisabled = false);
 
 public interface ILicenseModuleStatusService
 {
@@ -24,5 +25,11 @@ public interface ILicenseModuleStatusService
         LicenseModule module,
         string tenantSlug,
         string token,
+        CancellationToken cancellationToken = default);
+
+    Task SetTestDisabledAsync(
+        Guid tenantId,
+        LicenseModule module,
+        bool disabled,
         CancellationToken cancellationToken = default);
 }

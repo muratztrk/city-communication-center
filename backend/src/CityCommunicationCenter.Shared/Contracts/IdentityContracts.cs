@@ -173,6 +173,8 @@ public sealed record TenantLookupResponse(
     string DeploymentMode,
     string? Domain);
 
+public sealed record TenantLoginLicenseModulesResponse(bool CitizenUsable, bool InternalUsable);
+
 public sealed record TenantLoginContextResponse(
     IReadOnlyList<TenantLookupResponse> Tenants,
     TenantLookupResponse? ResolvedTenant,
@@ -183,7 +185,8 @@ public sealed record TenantLoginContextResponse(
     TenantAppearanceResponse? Appearance,
     bool IsTrustedNetwork = false,
     bool RequiresCaptcha = false,
-    string? RecaptchaSiteKey = null);
+    string? RecaptchaSiteKey = null,
+    TenantLoginLicenseModulesResponse? LicenseModules = null);
 
 public sealed record BootstrapTenantRequest(
     string MunicipalityName,

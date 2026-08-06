@@ -1348,9 +1348,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`MessageSquareText` + `!bg-sky-400`). Mobil grid `table-wrap` ile yatay kayar (#r482).
 - **FAB boyutları (#r482):** WhatsApp bildirim balonu mobil `size-12` / `sm:size-14` — Kurum İçi
   Mesajlar FAB ile aynı.
-- **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859):** Üst Düzey Yönetici
-  (`Reporter`) ve Vatandaş Talep Operatörü (`Operator`) sol menüde `Anasayfa - Vatandaş`
-  (`/dashboard`) + `Anasayfa - Birimler` (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır.
+- **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341):** Üst Düzey Yönetici
+  (`Reporter`) sol menüde `Anasayfa - Vatandaş` (`/dashboard`) + `Anasayfa - Birimler`
+  (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır. **Vatandaş Talep Operatörü**
+  (`Operator`) menüde 1. sırada yalnız `Anasayfa` (`/dashboard/birimler`); altında Vatandaş
+  Bilgi Listesi ve `Anasayfa - Vatandaş`. Operator birim anasayfasında standart kullanıcı
+  kutucukları (Bekleyen Taleplerim / Bekleyen Görevlerim) gösterilir.
   `/dashboard/birimler` sayfasında banner üstü Geri butonu gösterilmez (card #1889).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
@@ -1499,6 +1502,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `TenantSetting.LicenseModulesJson` kalıcı depo; online başarılı fetch otomatik persist eder.
   `frontend/src/lib/licenseModules.ts` + backend `LicenseModuleStatusService`; sayfa/menü gizleme
   `PAGE_LICENSE_MODULE` haritası üzerinden `canAnyRoleAccessPage`'e entegre (bkz. rolePageAccess.ts).
+  SystemAdmin **geçici test pasifi** (`testDisabled` + `PUT /me/license-modules/{module}/test-disabled`)
+  ile modülü fail-closed yapabilir; login context `licenseModules` hero chip filtrelemesi için anonim döner.
+- **WA / kurum içi mesaj zamanı (#2340/#2339):** balon altı yalnız HH:mm; gün ayraçlarında yıl
+  her zaman (`formatConversationMessageTime`, `formatConversationDayDivider`). Kurum içi FAB sohbet
+  arka planı bej `#ece5dd` (`internal-messages-chat-bg`), WhatsApp gri değil (#2300 reopen).
+- **Login görünüm açıklaması (#2345):** `TenantAppearance.loginPageDescription` (appearance JSON);
+  boşsa i18n `login.subtitle` kullanılır.
 - **Sayfa Yetkileri artık `departmentTasks`/`citizenDirectory`'i zorla açıp kapatmıyor (card #2242):**
   önceki kod bu iki sayfayı role göre unconditional force ediyordu (admin checkbox'ı hiç işe yaramıyordu);
   `normalizeRolePageAccessMatrix`'e yeni bir zorlama eklerken kayıtlı admin tercihini ezmediğinden emin ol.

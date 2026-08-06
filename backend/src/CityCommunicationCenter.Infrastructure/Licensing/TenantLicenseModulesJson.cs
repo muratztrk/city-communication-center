@@ -19,6 +19,9 @@ internal sealed class TenantLicenseModuleEntry
 
     [JsonPropertyName("updatedAtUtc")]
     public DateTimeOffset UpdatedAtUtc { get; set; }
+
+    [JsonPropertyName("testDisabled")]
+    public bool TestDisabled { get; set; }
 }
 
 internal static class TenantLicenseModulesJson
@@ -68,10 +71,18 @@ internal static class TenantLicenseModulesJson
             document = new TenantLicenseModulesDocument();
         }
 
+        var existingEntry = moduleKey switch
+        {
+            "citizen" => document.Citizen,
+            "internal" => document.Internal,
+            _ => null,
+        };
+
         var entry = new TenantLicenseModuleEntry
         {
             Token = token.Trim(),
             UpdatedAtUtc = DateTimeOffset.UtcNow,
+            TestDisabled = existingEntry?.TestDisabled ?? false,
         };
 
         switch (moduleKey)
@@ -84,6 +95,67 @@ internal static class TenantLicenseModulesJson
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(moduleKey), moduleKey, "Geçersiz lisans modülü.");
+        }
+
+        return JsonSerializer.Serialize(document, JsonOptions);
+    }
+
+    public static bool GetTestDisabled(string? json, string moduleKey)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return false;
+        }
+
+        try
+        {
+            var document = JsonSerializer.Deserialize<TenantLicenseModulesDocument>(json, JsonOptions);
+            var entry = moduleKey switch
+            {
+                "citizen" => document?.Citizen,
+                "internal" => document?.Internal,
+                _ => null,
+            };
+
+            return entry?.TestDisabled ?? false;
+        }
+        catch (JsonException)
+        {
+            return false;
+        }
+    }
+
+    public static string SetTestDisabled(string? json, string moduleKey, bool disabled)
+    {
+        TenantLicenseModulesDocument document;
+        try
+        {
+            document = string.IsNullOrWhiteSpace(json)
+                ? new TenantLicenseModulesDocument()
+                : JsonSerializer.Deserialize<TenantLicenseModulesDocument>(json, JsonOptions) ?? new TenantLicenseModulesDocument();
+        }
+        catch (JsonException)
+        {
+            document = new TenantLicenseModulesDocument();
+        }
+
+        var entry = moduleKey switch
+        {
+            "citizen" => document.Citizen ?? new TenantLicenseModuleEntry(),
+            "internal" => document.Internal ?? new TenantLicenseModuleEntry(),
+            _ => throw new ArgumentOutOfRangeException(nameof(moduleKey), moduleKey, "Geçersiz lisans modülü."),
+        };
+
+        entry.TestDisabled = disabled;
+
+        switch (moduleKey)
+        {
+            case "citizen":
+                document.Citizen = entry;
+                break;
+            case "internal":
+                document.Internal = entry;
+                break;
         }
 
         return JsonSerializer.Serialize(document, JsonOptions);

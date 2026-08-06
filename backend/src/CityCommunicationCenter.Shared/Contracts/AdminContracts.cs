@@ -48,6 +48,7 @@ public sealed record TenantAppearanceResponse(
     string? LoginLogoUrl,
     string? PopupLogoUrl,
     string? LoginBackgroundImageUrl,
+    string? LoginPageDescription,
     string? PreviousLogoUrl,
     string? PreviousLoginLogoUrl,
     string? PreviousPopupLogoUrl,
@@ -68,7 +69,8 @@ public sealed record UpdateTenantAppearanceRequest(
     string? LogoUrl,
     string? LoginLogoUrl,
     string? PopupLogoUrl,
-    string? LoginBackgroundImageUrl);
+    string? LoginBackgroundImageUrl,
+    string? LoginPageDescription);
 
 public sealed record TenantLdapSettingsResponse(
     bool Enabled,

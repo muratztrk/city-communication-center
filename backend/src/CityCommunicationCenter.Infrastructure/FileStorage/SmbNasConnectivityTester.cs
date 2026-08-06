@@ -40,7 +40,13 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
                 return new NasUserTestResult(false, $"NAS sunucusuna bağlanılamadı ({host}). Adresi ve ağ erişimini kontrol edin.");
             }
 
-            var loginStatus = client.Login(string.Empty, username, password);
+            var (domain, loginUser) = ParseSmbCredentials(host, username);
+            var loginStatus = client.Login(domain, loginUser, password);
+            if (loginStatus != NTStatus.STATUS_SUCCESS && !string.Equals(domain, ".", StringComparison.Ordinal))
+            {
+                loginStatus = client.Login(".", loginUser, password);
+            }
+
             if (loginStatus != NTStatus.STATUS_SUCCESS)
             {
                 return new NasUserTestResult(false, $"Kullanıcı adı veya şifre hatalı ({loginStatus}).");
@@ -92,5 +98,26 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
         {
             client.Disconnect();
         }
+    }
+
+    private static (string Domain, string Username) ParseSmbCredentials(string host, string username)
+    {
+        var trimmed = username.Trim();
+        if (trimmed.Contains('\\', StringComparison.Ordinal))
+        {
+            var parts = trimmed.Split('\\', 2, StringSplitOptions.TrimEntries);
+            return (parts[0], parts.Length > 1 ? parts[1] : trimmed);
+        }
+
+        if (trimmed.Contains('@', StringComparison.Ordinal))
+        {
+            var parts = trimmed.Split('@', 2, StringSplitOptions.TrimEntries);
+            return (parts.Length > 1 ? parts[1] : ".", parts[0]);
+        }
+
+        var hostOnly = host.Split(':', StringSplitOptions.TrimEntries)[0];
+        var dotIndex = hostOnly.IndexOf('.');
+        var shortHost = dotIndex > 0 ? hostOnly[..dotIndex] : hostOnly;
+        return (string.IsNullOrWhiteSpace(shortHost) ? "." : shortHost, trimmed);
     }
 }

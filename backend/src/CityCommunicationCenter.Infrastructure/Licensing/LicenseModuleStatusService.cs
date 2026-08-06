@@ -92,12 +92,8 @@ internal sealed class LicenseModuleStatusService : ILicenseModuleStatusService
         var moduleKey = ToModuleKey(module);
         var fullBundleId = BuildFullBundleId(tenantSlug, module);
         var cacheKey = $"license-status:{tenantId:N}:{moduleKey}";
-
-        if (_cache.TryGetValue(cacheKey, out ResolvedLicenseModuleStatus? cached) && cached is not null && cached.Usable)
-        {
-            // Yalnızca geçerli (usable) sonuç cache'lenir; askıya alma/ yeniden açma anında yansısın.
-            return cached;
-        }
+        var cacheTtl = TimeSpan.FromMinutes(Math.Max(1, _options.CacheMinutes));
+        var offlineCacheTtl = cacheTtl;
 
         var settings = await _dbContext.TenantSettings
             .AsNoTracking()
@@ -118,7 +114,7 @@ internal sealed class LicenseModuleStatusService : ILicenseModuleStatusService
                 HasStoredToken: !string.IsNullOrWhiteSpace(TenantLicenseModulesJson.GetToken(settings?.LicenseModulesJson, moduleKey)),
                 Source: "test-disabled",
                 TestDisabled: true);
-            _cache.Set(cacheKey, disabledStatus, TimeSpan.FromMinutes(1));
+            _cache.Set(cacheKey, disabledStatus, cacheTtl);
             return disabledStatus;
         }
 
@@ -136,7 +132,7 @@ internal sealed class LicenseModuleStatusService : ILicenseModuleStatusService
             {
                 await PersistStoredTokenAsync(tenantId, moduleKey, remoteFetch.Token, cancellationToken);
                 var remoteStatus = ToResolvedStatus(module, remoteVerified, fullBundleId, true, "remote");
-                _cache.Set(cacheKey, remoteStatus, TimeSpan.FromMinutes(Math.Max(1, _options.CacheMinutes)));
+                _cache.Set(cacheKey, remoteStatus, cacheTtl);
                 return remoteStatus;
             }
 
@@ -156,14 +152,14 @@ internal sealed class LicenseModuleStatusService : ILicenseModuleStatusService
                 HasStoredToken: hasStoredToken,
                 Source: "remote-denied",
                 TestDisabled: false);
-            _cache.Set(cacheKey, suspendedStatus, TimeSpan.FromMinutes(1));
+            _cache.Set(cacheKey, suspendedStatus, cacheTtl);
             return suspendedStatus;
         }
 
         if (storedUsable && storedVerified is not null)
         {
             var storedStatus = ToResolvedStatus(module, storedVerified, fullBundleId, hasStoredToken, "stored");
-            _cache.Set(cacheKey, storedStatus, TimeSpan.FromMinutes(Math.Max(1, _options.CacheMinutes)));
+            _cache.Set(cacheKey, storedStatus, offlineCacheTtl);
             return storedStatus;
         }
 

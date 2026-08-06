@@ -5881,7 +5881,7 @@
   }
 
   .internal-messages-chat-bg {
-    background-color: #ece5dd;
+    background-color: var(--internal-messages-chat-bg);
   }
 
   .whatsapp-notification-fab-panel {
@@ -5896,7 +5896,7 @@
     right: -7.75rem;
   }
 
-  /* Chat message scroll surfaces share the standard app background (Kurum İçi FAB panel ile aynı). */
+  /* WhatsApp konuşma scroll alanı uygulama zeminini kullanır; Kurum İçi FAB sohbet alanı bej kalır (#2300). */
   .whatsapp-chat-bg {
     background-color: var(--wa-chat-bg);
   }

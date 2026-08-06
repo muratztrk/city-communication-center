@@ -1954,7 +1954,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA beklemedeki mesaj Düzenle (#2299 reopen):** düzenleme modunda balon yüksekliği `minHeight` ile
   kilitlenir; alt aksiyon satırı sabit `min-h` ile konuşma alanı kaymaz.
 - **Kurum İçi FAB zemin (#2300 reopen):** panel kökü ve konuşma listesi standart `color-background`;
-  aktif sohbet mesaj scroll alanı da aynı `color-background` / `whatsapp-chat-bg` token'ını kullanır.
+  aktif sohbet mesaj scroll alanı bej `#ece5dd` (`internal-messages-chat-bg`) — WhatsApp gri
+  (`whatsapp-chat-bg`) ile birleştirilmez.
 - **Yerel birim oluşturma (#2303/#2310):** başarı `ConfirmDialog` popup'ıdır; başlık altında ayraç
   çizgisi (`titleDivider`) ve `Tamam` butonu yeşil (`variant: success`).
 - **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).

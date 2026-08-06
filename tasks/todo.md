@@ -1,3 +1,6 @@
+## Round 694 — Kurum içi mesaj bej zemin (#2300 reopen)
+- `#2300` reopen: WA gri isteği geri alındı — aktif sohbet alanı bej `#ece5dd` (`--internal-messages-chat-bg`); invariant yorumları düzeltildi.
+
 ## Round 693 — Görünüm login hizalama + Reporter menü (#2364, #2344, #2348)
 - `#2364` reopen: Login Page Açıklama başlığı `<label>` değil düz metin.
 - `#2344`: Login logosu Ekle butonu ile açıklama textbox'ı aynı yatay hizada (başlıklar üst satır).

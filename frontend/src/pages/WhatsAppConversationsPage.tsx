@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
-import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, FileText, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
+import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, Loader2, MoreVertical, Paperclip, Save, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSearchParams, useNavigate } from 'react-router-dom'
@@ -33,6 +33,7 @@ import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
+import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
@@ -733,9 +734,6 @@ function ConversationDetail({
   const [profileDraft, setProfileDraft] = useState<ConversationProfileDraft>(() => createProfileDraft(null, citizenPhone, citizenName))
   const profileDirtyRef = useRef(false)
   const [profileSaving, setProfileSaving] = useState(false)
-  const [pendingFile, setPendingFile] = useState<File | null>(null)
-  const [pendingFileEditing, setPendingFileEditing] = useState(false)
-  const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
   const [internalDepartmentId, setInternalDepartmentId] = useState('')
   const [sendingInternal, setSendingInternal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -763,17 +761,6 @@ function ConversationDetail({
     if (!detail || profileDirtyRef.current) return
     setProfileDraft(createProfileDraft(detail, citizenPhone, citizenName))
   }, [detail, citizenName, citizenPhone])
-
-  useEffect(() => {
-    if (!pendingFile) {
-      setPendingFilePreviewUrl(null)
-      return
-    }
-
-    const objectUrl = URL.createObjectURL(pendingFile)
-    setPendingFilePreviewUrl(objectUrl)
-    return () => URL.revokeObjectURL(objectUrl)
-  }, [pendingFile])
 
   const updatePinnedToBottom = useCallback(() => {
     const container = scrollContainerRef.current
@@ -831,8 +818,6 @@ function ConversationDetail({
   useEffect(() => {
     setDetail(null)
     setReplyText('')
-    setPendingFile(null)
-    setPendingFileEditing(false)
     setChatSearch('')
     setShowChatSearch(false)
     setMenuOpen(false)
@@ -909,9 +894,12 @@ function ConversationDetail({
     return () => document.removeEventListener('mousedown', onPointerDown)
   }, [menuOpen])
 
-  const handleSend = async () => {
-    const text = replyText.trim()
-    if ((!text && !pendingFile) || sending || !detail) return
+  const sendAttachmentImmediately = async (file: File) => {
+    if (sending || !detail) return
+    if (file.size > ATTACHMENT_MAX_TOTAL_BYTES) {
+      window.alert(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
+      return
+    }
 
     const usingMetaTemplate = Boolean(selectedMetaTemplate)
     if (!is24hWindowOpen(detail.lastInboundAt ?? null) && !usingMetaTemplate) {
@@ -932,27 +920,57 @@ function ConversationDetail({
     const sentForConversationId = conversationId
     setSending(true)
     try {
-      if (pendingFile) {
-        await api.replySocialMessageAttachment(openTicket.socialMessageId, pendingFile, text, true)
-      } else {
-        await api.replySocialMessage(
-          openTicket.socialMessageId,
-          text,
-          true,
-          selectedMetaTemplate
-            ? {
-                whatsAppTemplateId: selectedMetaTemplate.templateId,
-                whatsAppTemplateName: selectedMetaTemplate.name,
-                whatsAppTemplateLanguage: selectedMetaTemplate.language,
-              }
-            : undefined,
-        )
-      }
+      await api.replySocialMessageAttachment(openTicket.socialMessageId, file, replyText.trim(), true)
       if (latestConversationIdRef.current === sentForConversationId) {
         setReplyText('')
         setSelectedMetaTemplate(null)
-        setPendingFile(null)
-        setPendingFileEditing(false)
+        setIsPinnedToBottom(true)
+      }
+      onOutboundSent?.()
+      await refreshDetail()
+    } finally {
+      if (latestConversationIdRef.current === sentForConversationId) setSending(false)
+    }
+  }
+
+  const handleSend = async () => {
+    const text = replyText.trim()
+    if (!text || sending || !detail) return
+
+    const usingMetaTemplate = Boolean(selectedMetaTemplate)
+    if (!is24hWindowOpen(detail.lastInboundAt ?? null) && !usingMetaTemplate) {
+      setConfirmDialog({
+        title: 'Meta Onaylı Şablon Mesajı',
+        titleDivider: true,
+        message: '24 saat geçtikten sonra vatandaş yeniden mesaj atmadıysa, sadece onaylanmış mesaj şablonu kullanarak konuşmayı yeniden başlatabilirsiniz.',
+        hideCancel: true,
+        confirmLabel: 'Çıkış',
+        onConfirm: () => {},
+      })
+      return
+    }
+
+    const openTicket = pickReplyTicket(detail.tickets)
+    if (!openTicket) return
+
+    const sentForConversationId = conversationId
+    setSending(true)
+    try {
+      await api.replySocialMessage(
+        openTicket.socialMessageId,
+        text,
+        true,
+        selectedMetaTemplate
+          ? {
+              whatsAppTemplateId: selectedMetaTemplate.templateId,
+              whatsAppTemplateName: selectedMetaTemplate.name,
+              whatsAppTemplateLanguage: selectedMetaTemplate.language,
+            }
+          : undefined,
+      )
+      if (latestConversationIdRef.current === sentForConversationId) {
+        setReplyText('')
+        setSelectedMetaTemplate(null)
         setIsPinnedToBottom(true)
       }
       onOutboundSent?.()
@@ -1141,13 +1159,12 @@ function ConversationDetail({
                 ACİL
               </span>
             ) : null}
-            {headerSubtitleParts.length === 0 ? ticketMeta : null}
           </div>
           {headerSubtitleParts.length > 0 ? (
-            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
-              <p className="truncate text-xs text-slate-500">{headerSubtitleParts.join(' · ')}</p>
-              {ticketMeta}
-            </div>
+            <p className="truncate text-xs text-slate-500">{headerSubtitleParts.join(' · ')}</p>
+          ) : null}
+          {ticketMeta ? (
+            <div className="mt-0.5">{ticketMeta}</div>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
@@ -1257,74 +1274,14 @@ function ConversationDetail({
                 )
               })
             )}
-            {pendingFile ? (
-              <div className="flex flex-col items-end">
-                <div className="max-w-[min(55%,16rem)] rounded-2xl rounded-tr-sm px-2.5 py-1.5 text-[11px] text-white shadow-md ring-1 ring-white/10" style={{ background: 'var(--color-header-from)' }}>
-                  <div className="flex items-center gap-2">
-                    <FileText className="size-3.5 shrink-0" aria-hidden="true" />
-                    <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPendingFile(null)
-                        setPendingFileEditing(false)
-                      }}
-                      disabled={sending}
-                      className="ml-auto inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60"
-                      aria-label={t('common.dismiss', 'Vazgeç')}
-                    >
-                      <X className="size-3" aria-hidden="true" />
-                    </button>
-                  </div>
-                  {pendingFile.type.startsWith('image/') && pendingFilePreviewUrl ? (
-                    <img
-                      src={pendingFilePreviewUrl}
-                      alt={pendingFile.name}
-                      className="mt-1.5 max-h-20 w-full rounded-lg border border-white/20 object-contain bg-white/95"
-                    />
-                  ) : null}
-                  {pendingFileEditing ? (
-                    <textarea
-                      rows={2}
-                      value={replyText}
-                      onChange={event => setReplyText(event.target.value)}
-                      placeholder={t('whatsapp.attachmentCaptionPlaceholder', 'Ek açıklaması yaz...')}
-                      className="mt-2 w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
-                    />
-                  ) : replyText.trim() ? (
-                    <p className="mt-2 whitespace-pre-wrap break-words text-sm">{replyText.trim()}</p>
-                  ) : null}
-                </div>
-                <div className="mt-1 flex items-center gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => setPendingFileEditing(current => !current)}
-                    disabled={sending}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                    {t('common.edit', 'Düzenle')}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => void handleSend()}
-                    disabled={sending}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {sending ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-                    {t('whatsapp.sendPendingMessage', 'Mesajı Gönder')}
-                  </button>
-                </div>
-              </div>
-            ) : null}
             <div ref={bottomRef} />
           </div>
 
           {openTicket || loading ? (
             <footer className="shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
-              {/* Şablon/Dosya üst satır; Birim/Sadece Kurum İçi İlet alt satır sol (#2381). */}
               <div className="space-y-2">
-                <div className="flex flex-wrap items-center gap-2">
+                <div className="grid grid-cols-[1fr_auto] items-center gap-2">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -1332,13 +1289,8 @@ function ConversationDetail({
                   className="hidden"
                   onChange={event => {
                     const file = event.target.files?.[0] ?? null
-                    setPendingFile(file)
-                    setPendingFileEditing(false)
-                    if (file) {
-                      setIsPinnedToBottom(true)
-                      window.setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
-                    }
                     if (event.target) event.target.value = ''
+                    if (file) void sendAttachmentImmediately(file)
                   }}
                 />
                 <WhatsAppTemplatePicker
@@ -1363,15 +1315,13 @@ function ConversationDetail({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex h-[2.125rem] items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                  disabled={sending}
+                  className="inline-flex h-[2.125rem] items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="grid w-full grid-cols-[1fr_auto] items-center gap-2">
-                    <div className="flex min-w-0 items-center justify-end gap-2">
+                    <div className="ml-auto flex items-center gap-2">
                       <SingleSelectDropdown
                         options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
                         value={internalDepartmentId}
@@ -1396,8 +1346,8 @@ function ConversationDetail({
                         {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
                       </button>
                     </div>
-                    <div className="size-11 invisible shrink-0 pointer-events-none" aria-hidden="true" />
                   </div>
+                  <div className="size-11 invisible shrink-0 pointer-events-none" aria-hidden="true" />
                 </div>
               </div>
               <div className="grid grid-cols-[1fr_auto] items-end gap-2">
@@ -1422,7 +1372,7 @@ function ConversationDetail({
                   type="button"
                   aria-label={t('common.send', 'Gönder')}
                   onClick={() => void handleSend()}
-                  disabled={(!replyText.trim() && !pendingFile) || sending}
+                  disabled={!replyText.trim() || sending}
                   className="flex size-11 shrink-0 items-center justify-center rounded-full text-white shadow-md transition-transform hover:scale-105 disabled:cursor-not-allowed disabled:opacity-50"
                   style={{ backgroundColor: 'var(--color-header-from)' }}
                 >

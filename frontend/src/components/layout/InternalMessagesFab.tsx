@@ -27,12 +27,6 @@ function internalMessageFileExtension(name: string): string {
   return name.slice(dot).toLowerCase()
 }
 
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) return `${bytes} B`
-  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
-}
-
 const CONNECTED_POLL_INTERVAL_MS = 15_000
 const DISCONNECTED_POLL_INTERVAL_MS = 3_000
 const OPEN_CHAT_POLL_INTERVAL_MS = 1_000
@@ -716,14 +710,6 @@ export function InternalMessagesFab() {
                           alt={pendingFile.name}
                           className="mt-1.5 max-h-40 w-full rounded-lg border border-white/20 object-contain bg-white/95"
                         />
-                      ) : (
-                        <div className="mt-1.5 flex items-center gap-1.5 rounded-lg bg-black/10 px-2 py-1 text-[10px] font-semibold text-white/90">
-                          <span className="min-w-0 truncate">{pendingFile.type || t('attachments.file', 'Dosya')}</span>
-                          <span className="shrink-0 text-white/65">{formatFileSize(pendingFile.size)}</span>
-                        </div>
-                      )}
-                      {draft.trim() ? (
-                        <p className="mt-1.5 whitespace-pre-wrap break-words text-xs leading-snug">{draft.trim()}</p>
                       ) : null}
                     </div>
                   </div>

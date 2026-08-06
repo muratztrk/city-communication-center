@@ -1,3 +1,15 @@
+## Round 703 — WA UX + performans + ek akışı (13 kart)
+- `#2400`: Talep Sayısı numara alt satırında.
+- `#2391`/`#2396`: Footer tek satır (şablon/dosya/birim/kurum içi).
+- `#2394`/`#2399`: Dosya ekle direkt iletim; giden ek chip görünümü.
+- `#2397`: Textarea gecikmesi — chat alanında reply mirror kaldırıldı.
+- `#2398`: Modal `Vatandaş Talep Akışı` kicker silindi.
+- `#2393`: Modal şablon picker kompakt ikon/metin.
+- `#2401`/`#2402`: Talep Eki buton hizası (görsel/doküman).
+- `#2385`: Doküman ek adı mesaj boyutu.
+- `#2395`: Kurum İçi pending ek mime/boyut satırı kaldırıldı.
+- `#2367` reopen: Görünüm butonları üstü `mt-12`.
+
 ## Round 702 — WA header hizası + profil köşe + footer dropdown (4 kart)
 - `#2384` reopen: Talep Sayısı numaranın hemen sağında (satır sonu değil).
 - `#2391` reopen: Profil paneli Talep Oluştur alanı `rounded-t-xl` (sol+sağ üst köşe).

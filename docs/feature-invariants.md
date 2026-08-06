@@ -542,9 +542,19 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Operator` (Vatandaş Talep Operatörü) rolünde görünür; SystemAdmin dahil diğer rollerde çıkmaz.
   Konuşma listesi filtresi: aktif/açık konuşmalarda operatörler için; diğer kullanıcılar için
   kendisine atanmış/aktif departmanına yönlendirilmiş terminal olmayan talepler (eski kural).
-- **WhatsApp footer birim/iç mesaj hizası (#2381/#2392):** `/whatsapp` ve Vatandaş Talebi modal
-  footer'ında birim dropdown'u `Sadece Kurum İçi İlet` butonunun hemen solunda kalır; butonun sağ kenarı
-  yanıt textarea'sının sağ kenarıyla hizalıdır (gönder butonu için grid spacer).
+- **WhatsApp footer birim/iç mesaj hizası (#2381/#2392/#2391 reopen):** `/whatsapp` ve Vatandaş Talebi modal
+  footer'ında şablon/dosya/birim/Sadece Kurum İçi İlet **tek üst satırda** kalır; birim dropdown'u butonun
+  hemen solunda; iç mesaj butonunun sağ kenarı textarea ile hizalıdır (grid spacer).
+- **WhatsApp operatör dosya eki (#2394):** Dosya ekle seçimi onay veya pending önizleme göstermeden doğrudan
+  iletilir (`replySocialMessageAttachment`, `sendImmediately=true`).
+- **WhatsApp giden ek balonu (#2399):** iletilmiş ekler pending önizleme ile aynı chip (dosya adı + ikon,
+  görselde küçük thumbnail) olarak gösterilir.
+- **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
+  footer input'ta tutulur.
+- **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.
+- **Medya balon Talep Eki hizası (#2401/#2402):** görselde Talep Eki Önizle alt satırında; dokümanda İndir
+  sağında.
+- **Kurum İçi pending ek (#2395):** mime/boyut alt satırı basılmaz (WA ile uyumlu).
 - **WhatsApp bekleyen dosya önizlemesi (#2385/#2389):** sohbet alanındaki pending-file balonu kompakt
   kalır; yalnız dosya adı + (görsel ise küçük thumbnail) gösterilir, mime/boyut alt satırı basılmaz.
 - **WhatsApp birim içi konuşma notu:** `/whatsapp` footer'ındaki birim seçimi + `Birim İçi İlet` aksiyonu
@@ -568,7 +578,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Türkçe başlık biçimine normalize edilir.
 - **WhatsApp detay header sayaçları:** seçili konuşma header'ında durum kırılımları gösterilmez; yalnız
   seçili numaraya ait toplam `Talep Sayısı` hesaplanır ve tıklanınca Vatandaş Talepleri gridine telefon
-  filtresiyle gider. `Talep Sayısı` numaranın hemen sağında (satır sonuna yaslanmadan) gösterilir (#2384).
+  filtresiyle gider. `Talep Sayısı` numara satırının **alt satırında** gösterilir (#2400).
 - **WhatsApp detay header görev sahibi:** konuşmadaki vatandaş talebinin görevi oluşmuş ve atanan
   personeli varsa `Talep Sayısı` yanında `| Görev Sahibi: Ad Soyad, Diğer Ad` olarak tüm benzersiz görev
   sahipleri virgülle gösterilir; yalnız `Active`/Yapılmakta talep görev sahipleri sayılır, tamamlanan/iptal
@@ -1553,7 +1563,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi dosya uzantısı (#2386):** `internalMessageFileExtension` yalnız `.ext` döner (`lowercaseFileExtension` değil).
 - **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.
 - **Kurum içi Dosya ekle (#2383):** kompakt buton; 5 MB; seçilen dosya sohbet alanında önizleme (WA gibi).
-- **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-8`.
+- **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
 - **Dosya ekle accept filtresi (#2373):** Talep/görev/WA/kurum içi dosya seçimlerinde yalnız
   JPG/PNG/PDF/Office uzantıları (`accept`); logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);

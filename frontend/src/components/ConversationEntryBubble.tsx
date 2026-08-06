@@ -220,6 +220,8 @@ export function ConversationEntryBubble({
                 direction={entry.direction}
                 citizenPhone={citizenPhone}
                 onAddAsAttachment={onAddMediaAsAttachment}
+                sentChip={entry.direction === 'Outbound'}
+                requestAttachmentLayout={Boolean(onAddMediaAsAttachment)}
               />
             </div>
           )}

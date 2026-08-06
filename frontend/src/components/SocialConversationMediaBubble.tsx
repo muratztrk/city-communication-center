@@ -13,6 +13,10 @@ interface SocialConversationMediaBubbleProps {
   direction?: 'Inbound' | 'Outbound'
   citizenPhone?: string | null
   onAddAsAttachment?: (file: File) => void
+  /** Gönderilmiş giden ek: pending önizleme gibi yalnız dosya adı + ikon (card #2399). */
+  sentChip?: boolean
+  /** Vatandaş Talebi modalında Talep Eki buton hizası (card #2401/#2402). */
+  requestAttachmentLayout?: boolean
 }
 
 export function SocialConversationMediaBubble({
@@ -22,6 +26,8 @@ export function SocialConversationMediaBubble({
   direction = 'Inbound',
   citizenPhone,
   onAddAsAttachment,
+  sentChip = false,
+  requestAttachmentLayout = false,
 }: SocialConversationMediaBubbleProps) {
   const { t } = useTranslation()
   const mime = mediaMimeType ?? 'application/octet-stream'
@@ -79,7 +85,7 @@ export function SocialConversationMediaBubble({
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 px-3 py-2 bg-black/10 rounded-xl text-xs">
+      <div className="flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2 text-xs">
         <Loader2 className="size-4 animate-spin" />
         {t('common.loading', 'Yükleniyor...')}
       </div>
@@ -98,14 +104,52 @@ export function SocialConversationMediaBubble({
     )
   }
 
-  const mediaLabel = mime.split('/')[1]?.toUpperCase() || t('attachments.file', 'Dosya')
+  const isImage = mime.startsWith('image/')
   const showAddAsAttachment = direction === 'Inbound' && Boolean(onAddAsAttachment)
     && !mime.startsWith('text/')
   const canPreviewInline = mime.startsWith('image/') || mime.startsWith('video/') || mime.startsWith('audio/')
 
+  const addAsAttachmentButton = showAddAsAttachment ? (
+    <Button type="button" size="sm" variant="success" className="h-7 px-2 text-[11px]" onClick={() => void handleAddAsAttachment()}>
+      {t('whatsapp.addAsRequestAttachment', 'Talep Eki Olarak Ekle')}
+    </Button>
+  ) : null
+
+  if (sentChip) {
+    return (
+      <div className="space-y-1.5">
+        <div className="flex items-center gap-2">
+          <FileText className="size-4 shrink-0" aria-hidden="true" />
+          <span className="min-w-0 truncate text-sm font-semibold">{filename}</span>
+        </div>
+        {isImage ? (
+          <button
+            type="button"
+            onClick={() => setPreviewOpen(true)}
+            className="block overflow-hidden rounded-lg border border-white/20"
+          >
+            <img
+              src={objectUrl}
+              alt={filename}
+              className="max-h-20 w-full object-contain bg-white/95"
+            />
+          </button>
+        ) : null}
+        <SocialConversationMediaPreview
+          open={previewOpen}
+          objectUrl={objectUrl}
+          mime={mime}
+          filename={filename}
+          onClose={() => setPreviewOpen(false)}
+          onDownload={() => void handleDownload()}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-1.5">
-      {mime.startsWith('image/') ? (
+      {isImage ? (
         <button
           type="button"
           onClick={() => setPreviewOpen(true)}
@@ -113,8 +157,8 @@ export function SocialConversationMediaBubble({
         >
           <img
             src={objectUrl}
-            alt={mediaLabel}
-            className="max-w-[16rem] max-h-48 object-cover cursor-zoom-in"
+            alt={filename}
+            className="max-w-[16rem] max-h-48 cursor-zoom-in object-cover"
           />
         </button>
       ) : mime.startsWith('video/') ? (
@@ -123,10 +167,10 @@ export function SocialConversationMediaBubble({
           onClick={() => setPreviewOpen(true)}
           className="block overflow-hidden rounded-xl border border-white/20"
         >
-          <video src={objectUrl} className="max-w-[16rem] max-h-48 pointer-events-none" />
+          <video src={objectUrl} className="pointer-events-none max-h-48 max-w-[16rem]" />
         </button>
       ) : mime.startsWith('audio/') ? (
-        <div className="flex items-center gap-2 px-3 py-2 bg-black/10 rounded-xl">
+        <div className="flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2">
           <Volume2 className="size-4 shrink-0" />
           <audio src={objectUrl} controls className="h-7" />
         </div>
@@ -134,29 +178,45 @@ export function SocialConversationMediaBubble({
         <button
           type="button"
           onClick={() => void handleDownload()}
-          className="flex items-center gap-2 px-3 py-2 bg-black/10 rounded-xl text-sm font-semibold underline-offset-2 hover:underline"
+          className="flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2 text-sm font-semibold underline-offset-2 hover:underline"
         >
           <FileText className="size-4 shrink-0" />
-          {mediaLabel}
+          <span className="min-w-0 truncate">{filename}</span>
         </button>
       )}
 
-      <div className="flex flex-wrap gap-1.5">
-        {canPreviewInline ? (
-          <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
-            {t('attachments.preview', 'Önizle')}
+      {requestAttachmentLayout && isImage && showAddAsAttachment ? (
+        <>
+          <div className="flex flex-wrap gap-1.5">
+            {canPreviewInline ? (
+              <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
+                {t('attachments.preview', 'Önizle')}
+              </Button>
+            ) : null}
+            <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => void handleDownload()}>
+              <Download className="size-3.5" />
+              {t('attachments.download', 'İndir')}
+            </Button>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {addAsAttachmentButton}
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-wrap gap-1.5">
+          {canPreviewInline ? (
+            <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
+              {t('attachments.preview', 'Önizle')}
+            </Button>
+          ) : null}
+          <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => void handleDownload()}>
+            <Download className="size-3.5" />
+            {t('attachments.download', 'İndir')}
           </Button>
-        ) : null}
-        <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => void handleDownload()}>
-          <Download className="size-3.5" />
-          {t('attachments.download', 'İndir')}
-        </Button>
-        {showAddAsAttachment ? (
-          <Button type="button" size="sm" variant="success" className="h-7 px-2 text-[11px]" onClick={() => void handleAddAsAttachment()}>
-            {t('whatsapp.addAsRequestAttachment', 'Talep Eki Olarak Ekle')}
-          </Button>
-        ) : null}
-      </div>
+          {requestAttachmentLayout && !isImage ? addAsAttachmentButton : null}
+          {!requestAttachmentLayout ? addAsAttachmentButton : null}
+        </div>
+      )}
 
       <SocialConversationMediaPreview
         open={previewOpen}

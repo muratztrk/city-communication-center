@@ -720,7 +720,7 @@ export function SettingsPage() {
   const renderRolePageLabel = (page: (typeof PAGE_ACCESS_ITEMS)[number]) => {
     if (page.key === 'social') {
       return (
-        <span className="role-matrix-page-label">
+        <span className="role-matrix-page-label role-matrix-page-label--emphasis">
           <span className="role-matrix-page-label-title">{t('settings.roles.pages.socialTitle', 'Vatandaş Talepleri')}</span>
           <span className="role-matrix-page-label-hint">{t('settings.roles.pages.socialHint', '(Whatsapp, Sms vb.)')}</span>
         </span>
@@ -728,7 +728,7 @@ export function SettingsPage() {
     }
     if (page.key === 'citizenMessageApproval') {
       return (
-        <span className="role-matrix-page-label">
+        <span className="role-matrix-page-label role-matrix-page-label--emphasis">
           <span className="role-matrix-page-label-title">{t('settings.roles.pages.citizenMessageApprovalTitle', 'Vatandaşa Gönderilecek Mesaj Onayı')}</span>
           <span className="role-matrix-page-label-hint">{t('settings.roles.pages.citizenMessageApprovalHint', '(Personelin cevap kontrolü)')}</span>
         </span>
@@ -2671,38 +2671,7 @@ export function SettingsPage() {
 
       {activeTab === 'appearance' ? (
         <div className="page-stack">
-          <div className="grid gap-4 xl:grid-cols-[0.95fr_1.05fr]">
-            <section className="section-card page-stack">
-              <div className="page-header-row">
-                <div>
-                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.appearancePreviewTitle')}</h2>
-                  <p className="helper-copy">{t('settings.appearancePreviewDescription')}</p>
-                </div>
-                <Paintbrush className="size-5 text-slate-400" />
-              </div>
-              <div
-                className="rounded-[var(--radius-xl)] p-6 text-white shadow-[var(--shadow-edge)]"
-                style={{
-                  backgroundImage: previewAppearance.loginBackgroundImageUrl
-                    ? `linear-gradient(135deg, ${previewAppearance.headerGradientFrom}, ${previewAppearance.headerGradientTo}), url("${previewAppearance.loginBackgroundImageUrl}")`
-                    : `linear-gradient(135deg, ${previewAppearance.headerGradientFrom}, ${previewAppearance.headerGradientTo})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
-                  backgroundBlendMode: previewAppearance.loginBackgroundImageUrl ? 'multiply' : undefined,
-                }}
-              >
-                <MunicipalitySeal
-                  className="h-20 w-36 rounded-[1.35rem]"
-                  imageClassName="h-[80%] w-[80%]"
-                  src={previewAppearance.logoUrl ?? null}
-                />
-                <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>
-                <p className="mt-2 max-w-md text-sm leading-6 text-white/78">
-                  {appearanceForm.loginPageDescription?.trim() || t('settings.appearancePreviewBody')}
-                </p>
-              </div>
-            </section>
-
+          <div className="grid items-start gap-4 xl:grid-cols-[1.05fr_0.95fr]">
             <form className="section-card page-stack" onSubmit={saveAppearanceSettings}>
               <div className="page-header-row">
                 <div>
@@ -2843,6 +2812,37 @@ export function SettingsPage() {
                 <Button type="submit" className="min-w-[11.5rem]">{t('common.save')}</Button>
               </div>
             </form>
+
+            <section className="section-card page-stack">
+              <div className="page-header-row">
+                <div>
+                  <h2 className="text-xl font-extrabold text-slate-950">{t('settings.appearancePreviewTitle')}</h2>
+                  <p className="helper-copy">{t('settings.appearancePreviewDescription')}</p>
+                </div>
+                <Paintbrush className="size-5 text-slate-400" />
+              </div>
+              <div
+                className="rounded-[var(--radius-xl)] p-6 text-white shadow-[var(--shadow-edge)]"
+                style={{
+                  backgroundImage: previewAppearance.loginBackgroundImageUrl
+                    ? `linear-gradient(135deg, ${previewAppearance.headerGradientFrom}, ${previewAppearance.headerGradientTo}), url("${previewAppearance.loginBackgroundImageUrl}")`
+                    : `linear-gradient(135deg, ${previewAppearance.headerGradientFrom}, ${previewAppearance.headerGradientTo})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundBlendMode: previewAppearance.loginBackgroundImageUrl ? 'multiply' : undefined,
+                }}
+              >
+                <MunicipalitySeal
+                  className="h-20 w-36 rounded-[1.35rem]"
+                  imageClassName="h-[80%] w-[80%]"
+                  src={previewAppearance.logoUrl ?? null}
+                />
+                <h3 className="mt-4 text-3xl font-extrabold">{institutionName}</h3>
+                <p className="mt-2 max-w-md text-sm leading-6 text-white/78">
+                  {appearanceForm.loginPageDescription?.trim() || t('settings.appearancePreviewBody')}
+                </p>
+              </div>
+            </section>
           </div>
         </div>
       ) : null}

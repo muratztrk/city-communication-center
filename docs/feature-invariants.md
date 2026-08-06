@@ -917,7 +917,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dashboard üst kart ↔ pie bekleyen dilimi (#2350):** `GetDashboardQuery` sayıları pie chart
   `pending` dilimiyle aynı kuralları kullanır — son tarihi geçmiş kayıtlar bekleyen sayısına
   dahil edilmez; talep bekleyen dilimi Draft/PendingOnay/Revision (yönetici dış onay dilimi
-  yalnız PendingOwner/PendingExternal).
+  yalnız PendingOwner/PendingExternal). **EF çeviri:** bu kurallar LINQ içinde satır içi
+  ifade olarak yazılmalı; `CountAsync` içinde statik yardımcı metot çağrısı kullanılmaz (#2350 reopen 500).
 - **Yönetici pie chart sırası (#r507):** `Birimdeki Görevler` → `Personelimin Görevleri` →
   `Personelimin Görevi Çözme Süresi (Saat)` (sonra Görevlerim / giden-gelen / öncelik).
 - **Görev Bilgileri üst metası ve alan sırası:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri
@@ -1356,7 +1357,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`Reporter`) sol menüde `Anasayfa - Vatandaş` (`/dashboard`) + `Anasayfa - Birimler`
   (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır. **Vatandaş Talep Operatörü**
   (`Operator`) menüde 1. sırada yalnız `Anasayfa` (`/dashboard/birimler`); altında Vatandaş
-  Bilgi Listesi ve `Anasayfa - Vatandaş`. Operator birim anasayfasında standart kullanıcı
+  Bilgi Listesi ve `Anasayfa - Vatandaş`. **Operator varsayılan açılış** (`getDefaultLandingPath`) =
+  `/dashboard/birimler`, `/dashboard` değil (card #2349 reopen). Operator birim anasayfasında standart kullanıcı
   kutucukları (Bekleyen Taleplerim / Bekleyen Görevlerim) gösterilir.
   `/dashboard/birimler` sayfasında banner üstü Geri butonu gösterilmez (card #1889).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +

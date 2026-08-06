@@ -1,3 +1,14 @@
+## Round 688 — Dashboard 500 fix + UI polish (9 kart)
+- `#2350` reopen: `GetDashboardQuery` EF çevrilebilir satır içi pending kuralları (500 fix).
+- `#2349` reopen: Operator `getDefaultLandingPath` → `/dashboard/birimler`.
+- `#2348` reopen: Footer yükseklik azaltıldı (`py-0.5`), logo boyutu sabit.
+- `#2342` reopen: Filtreyi sil chip biraz küçültüldü.
+- `#2356`: Birimler LDAP sil hint metni sadeleştirildi.
+- `#2355`: Ayarlar Görünüm — form sol, önizleme sağ; başlıklar hizalı.
+- `#2354`: Sayfa Yetkileri VT + mesaj onayı satır etiketleri büyütüldü.
+- `#2353`: Kurum içi mesaj typing göstergesi görünürlük iyileştirmesi.
+- `#2336` reopen: WA Düzenlendi `11px` + bold.
+
 ## Round 687 — Dashboard kart/pie hizası + UI polish (7 kart)
 - `#2349`: Operator menüde Anasayfa-Vatandaş ↔ Vatandaş Bilgi Listesi sırası değişti.
 - `#2350`: Dashboard üst kutucuk sayıları pie `pending` dilimiyle hizalandı (`DashboardMetricRules`).

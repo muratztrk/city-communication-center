@@ -576,7 +576,7 @@
     "ldapReadOnly": "LDAP unit — cannot be modified",
     "deleteAllLdap": "Delete All LDAP Units",
     "deleteAllLdapWorking": "Deleting LDAP units...",
-    "deleteAllLdapHint": "All LDAP units with no users and no requests can be deleted.",
+    "deleteAllLdapHint": "LDAP units that have not created any request can be deleted.",
     "deleteAllLdapConfirm": "All LDAP units with no users and no requests will be deleted. This action cannot be undone.",
     "deleteAllLdapSuccess": "{{count}} LDAP unit(s) deleted.",
     "deleteAllLdapNone": "No LDAP units to delete.",

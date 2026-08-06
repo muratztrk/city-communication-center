@@ -286,10 +286,10 @@ export function ConversationEntryBubble({
                 <DelayedHoverTooltip
                   label={t('whatsapp.editedBadge', 'Düzenlendi')}
                   tooltip={editedByName}
-                  className="font-semibold tracking-wide text-orange-400 cursor-default"
+                  className="text-[11px] font-bold tracking-wide text-orange-400 cursor-default"
                 />
               ) : (
-                <span className="font-semibold tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
+                <span className="text-[11px] font-bold tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
               )
             ) : null}
             {isPending ? (

@@ -19,7 +19,7 @@ export function AppFooter() {
       className="w-full shrink-0 select-none"
       style={{ background: 'var(--color-sidebar)' }}
     >
-      <div className="flex items-center justify-between px-6 py-1">
+      <div className="flex items-center justify-between px-6 py-0.5">
         <LumespecLogo />
         <div className="text-[10.5px] font-medium tracking-wide text-white/30">
           © Her Hakkı Saklıdır – {year}

@@ -269,5 +269,11 @@ export function getEffectiveUserRoles(user: { role?: string; additionalRoles?: s
  */
 export function getDefaultLandingPath(user: { role?: string; additionalRoles?: string[] } | null | undefined): string {
   const roles = getEffectiveUserRoles(user)
-  return roles.length === 1 && roles[0] === 'SystemAdmin' ? '/settings' : '/dashboard'
+  if (roles.length === 1 && roles[0] === 'SystemAdmin') {
+    return '/settings'
+  }
+  if (roles.includes('Operator')) {
+    return '/dashboard/birimler'
+  }
+  return '/dashboard'
 }

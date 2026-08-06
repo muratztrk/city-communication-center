@@ -24,6 +24,8 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
         var userId = context.UserId;
         var isManagerOrAdmin = context.RoleCode is "Manager" or "SystemAdmin";
         var now = DateTimeOffset.UtcNow;
+        var fromUtc = request.FromUtc;
+        var toUtc = request.ToUtc;
 
         var activeTasks = await _dbContext.Tasks.CountAsync(
             entity => entity.TenantId == tenantId
@@ -31,7 +33,8 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                 && entity.CurrentStatus != WorkflowTaskStatus.Cancelled
                 && entity.CurrentStatus != WorkflowTaskStatus.Rejected
                 && entity.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
-                && DashboardMetricRules.MatchesCreatedPeriod(entity.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                && (!fromUtc.HasValue || entity.CreatedAtUtc >= fromUtc.Value)
+                && (!toUtc.HasValue || entity.CreatedAtUtc <= toUtc.Value),
             cancellationToken);
 
         int pendingApprovals = 0;
@@ -59,8 +62,13 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             myPendingTaskCount = await _dbContext.Tasks.CountAsync(
                 task => task.TenantId == tenantId
                     && task.AssignedUserId == userId
-                    && DashboardMetricRules.IsTaskPendingSlice(task.CurrentStatus, task.DueDateUtc, now)
-                    && DashboardMetricRules.MatchesCreatedPeriod(task.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected
+                    && task.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
+                    && (!task.DueDateUtc.HasValue || task.DueDateUtc >= now)
+                    && (!fromUtc.HasValue || task.CreatedAtUtc >= fromUtc.Value)
+                    && (!toUtc.HasValue || task.CreatedAtUtc <= toUtc.Value),
                 cancellationToken);
 
             if (isManagerOrAdmin)
@@ -69,8 +77,13 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                     job => job.TenantId == tenantId
                         && job.RequestType == JobRequestType.ExternalUnit
                         && job.CreatedByUserId == userId
-                        && DashboardMetricRules.IsJobPendingSlice(job.Status, job.DueDateUtc, now, pendingApprovalOnly: false)
-                        && DashboardMetricRules.MatchesCreatedPeriod(job.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                        && (!job.DueDateUtc.HasValue || job.DueDateUtc >= now)
+                        && (job.Status == JobStatus.Draft
+                            || job.Status == JobStatus.PendingOwnerApproval
+                            || job.Status == JobStatus.PendingExternalApproval
+                            || job.Status == JobStatus.RevisionRequested)
+                        && (!fromUtc.HasValue || job.CreatedAtUtc >= fromUtc.Value)
+                        && (!toUtc.HasValue || job.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);
             }
             else
@@ -80,7 +93,8 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                     && job.CreatedByUserId == userId
                     && job.SourceType != JobSourceType.Routine
                     && job.RequestType != JobRequestType.Citizen
-                    && DashboardMetricRules.MatchesCreatedPeriod(job.CreatedAtUtc, request.FromUtc, request.ToUtc));
+                    && (!fromUtc.HasValue || job.CreatedAtUtc >= fromUtc.Value)
+                    && (!toUtc.HasValue || job.CreatedAtUtc <= toUtc.Value));
 
                 if (actor is not null && (actor.RoleCode == RoleCode.Operator || UserRoleAccess.IsCitizenRequestManager(actor)))
                 {
@@ -100,7 +114,11 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                 }
 
                 myPendingRequestCount = await myRequestsQuery.CountAsync(
-                    job => DashboardMetricRules.IsJobPendingSlice(job.Status, job.DueDateUtc, now, pendingApprovalOnly: false),
+                    job => (!job.DueDateUtc.HasValue || job.DueDateUtc >= now)
+                        && (job.Status == JobStatus.Draft
+                            || job.Status == JobStatus.PendingOwnerApproval
+                            || job.Status == JobStatus.PendingExternalApproval
+                            || job.Status == JobStatus.RevisionRequested),
                     cancellationToken);
             }
         }
@@ -120,14 +138,16 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                 j => j.TenantId == tenantId
                     && j.SourceType != JobSourceType.Routine
                     && (j.Status == JobStatus.Rejected || j.Status == JobStatus.Cancelled)
-                    && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                    && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
+                    && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value),
                 cancellationToken);
 
             myTotalRequestCount = await _dbContext.Jobs.CountAsync(
                 j => j.TenantId == tenantId
                     && j.SourceType != JobSourceType.Routine
                     && j.CreatedByUserId == userId
-                    && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                    && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
+                    && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value),
                 cancellationToken);
 
             if (scopedDepartmentIds.Length > 0)
@@ -135,20 +155,27 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                 pendingApprovals = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
                         && j.SourceType != JobSourceType.Routine
-                        && DashboardMetricRules.IsJobPendingSlice(j.Status, j.DueDateUtc, now, pendingApprovalOnly: true)
+                        && (!j.DueDateUtc.HasValue || j.DueDateUtc >= now)
+                        && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
                         && (scopedDepartmentIds.Contains(j.OwnerDepartmentId)
                             || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
                                 && jd.Role == JobDepartmentRole.Target
                                 && scopedDepartmentIds.Contains(jd.DepartmentId)))
-                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                        && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
+                        && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);
 
                 outgoingPendingCount = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
                         && j.RequestType == JobRequestType.ExternalUnit
-                        && DashboardMetricRules.IsJobPendingSlice(j.Status, j.DueDateUtc, now, pendingApprovalOnly: false)
+                        && (!j.DueDateUtc.HasValue || j.DueDateUtc >= now)
+                        && (j.Status == JobStatus.Draft
+                            || j.Status == JobStatus.PendingOwnerApproval
+                            || j.Status == JobStatus.PendingExternalApproval
+                            || j.Status == JobStatus.RevisionRequested)
                         && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
-                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                        && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
+                        && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);
 
                 outgoingInProgressCount = await _dbContext.Jobs.CountAsync(
@@ -159,31 +186,39 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                             && t.CurrentStatus != WorkflowTaskStatus.Completed
                             && t.CurrentStatus != WorkflowTaskStatus.Cancelled
                             && t.CurrentStatus != WorkflowTaskStatus.Rejected)
-                        && !DashboardMetricRules.IsPastDue(j.DueDateUtc, now)
+                        && (!j.DueDateUtc.HasValue || j.DueDateUtc >= now)
                         && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
-                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                        && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
+                        && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);
 
                 outgoingTotalCount = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
                         && j.RequestType == JobRequestType.ExternalUnit
                         && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
-                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                        && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
+                        && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);
 
                 deptPendingTaskCount = await _dbContext.Tasks.CountAsync(
                     t => t.TenantId == tenantId
                         && t.AssignedDepartmentId.HasValue
                         && scopedDepartmentIds.Contains(t.AssignedDepartmentId.Value)
-                        && DashboardMetricRules.IsTaskPendingSlice(t.CurrentStatus, t.DueDateUtc, now)
-                        && DashboardMetricRules.MatchesCreatedPeriod(t.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                        && t.CurrentStatus != WorkflowTaskStatus.Completed
+                        && t.CurrentStatus != WorkflowTaskStatus.Cancelled
+                        && t.CurrentStatus != WorkflowTaskStatus.Rejected
+                        && t.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
+                        && (!t.DueDateUtc.HasValue || t.DueDateUtc >= now)
+                        && (!fromUtc.HasValue || t.CreatedAtUtc >= fromUtc.Value)
+                        && (!toUtc.HasValue || t.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);
 
                 deptTotalTaskCount = await _dbContext.Tasks.CountAsync(
                     t => t.TenantId == tenantId
                         && t.AssignedDepartmentId.HasValue
                         && scopedDepartmentIds.Contains(t.AssignedDepartmentId.Value)
-                        && DashboardMetricRules.MatchesCreatedPeriod(t.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                        && (!fromUtc.HasValue || t.CreatedAtUtc >= fromUtc.Value)
+                        && (!toUtc.HasValue || t.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);
 
                 incomingTotalCount = await _dbContext.Jobs.CountAsync(
@@ -193,7 +228,8 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                             || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
                                 && jd.Role == JobDepartmentRole.Target
                                 && scopedDepartmentIds.Contains(jd.DepartmentId)))
-                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                        && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
+                        && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);
             }
         }
@@ -205,9 +241,11 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             openSocialMessages = await _dbContext.Jobs
                 .Where(j => j.TenantId == tenantId
                     && j.SourceType != JobSourceType.Routine
-                    && DashboardMetricRules.IsJobPendingSlice(j.Status, j.DueDateUtc, now, pendingApprovalOnly: true)
+                    && (!j.DueDateUtc.HasValue || j.DueDateUtc >= now)
+                    && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
                     && _dbContext.SocialMessages.Any(m => m.JobId == j.JobId && m.CitizenRequestNumber != null)
-                    && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc))
+                    && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
+                    && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value))
                 .CountAsync(cancellationToken);
         }
         else if (isManagerOrAdmin && userId.HasValue)
@@ -226,13 +264,15 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                 openSocialMessages = await _dbContext.Jobs
                     .Where(j => j.TenantId == tenantId
                         && j.SourceType != JobSourceType.Routine
-                        && DashboardMetricRules.IsJobPendingSlice(j.Status, j.DueDateUtc, now, pendingApprovalOnly: true)
+                        && (!j.DueDateUtc.HasValue || j.DueDateUtc >= now)
+                        && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
                         && _dbContext.SocialMessages.Any(m => m.JobId == j.JobId && m.CitizenRequestNumber != null)
                         && (socialDepartmentIds.Contains(j.OwnerDepartmentId)
                             || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
                                 && jd.Role == JobDepartmentRole.Target
                                 && socialDepartmentIds.Contains(jd.DepartmentId)))
-                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc))
+                        && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
+                        && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value))
                     .CountAsync(cancellationToken);
             }
         }
@@ -252,38 +292,5 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             incomingTotalCount,
             outgoingTotalCount,
             deptTotalTaskCount);
-    }
-}
-
-internal static class DashboardMetricRules
-{
-    internal static bool MatchesCreatedPeriod(DateTimeOffset createdAtUtc, DateTimeOffset? fromUtc, DateTimeOffset? toUtc) =>
-        (!fromUtc.HasValue || createdAtUtc >= fromUtc.Value)
-        && (!toUtc.HasValue || createdAtUtc <= toUtc.Value);
-
-    internal static bool IsPastDue(DateTimeOffset? dueDateUtc, DateTimeOffset now) =>
-        dueDateUtc.HasValue && dueDateUtc.Value < now;
-
-    internal static bool IsTaskPendingSlice(WorkflowTaskStatus status, DateTimeOffset? dueDateUtc, DateTimeOffset now) =>
-        status is not (
-            WorkflowTaskStatus.Completed
-            or WorkflowTaskStatus.Cancelled
-            or WorkflowTaskStatus.Rejected
-            or WorkflowTaskStatus.PendingCloseApproval)
-        && !IsPastDue(dueDateUtc, now);
-
-    internal static bool IsJobPendingSlice(JobStatus status, DateTimeOffset? dueDateUtc, DateTimeOffset now, bool pendingApprovalOnly)
-    {
-        if (IsPastDue(dueDateUtc, now))
-        {
-            return false;
-        }
-
-        return pendingApprovalOnly
-            ? status is JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval
-            : status is JobStatus.Draft
-                or JobStatus.PendingOwnerApproval
-                or JobStatus.PendingExternalApproval
-                or JobStatus.RevisionRequested;
     }
 }

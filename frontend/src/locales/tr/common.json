@@ -579,7 +579,7 @@
     "ldapReadOnly": "LDAP birimi — müdahale edilemez",
     "deleteAllLdap": "Tüm LDAP Birimlerini Sil",
     "deleteAllLdapWorking": "LDAP birimleri siliniyor...",
-    "deleteAllLdapHint": "Talep oluşturmamış ya da gönderilmemiş tüm ldap birimleri silinebilir.",
+    "deleteAllLdapHint": "Talep oluşturmamış tüm ldap birimleri silinebilir.",
     "deleteAllLdapConfirm": "Talep ve Görev oluşturulmayan tüm LDAP birimleri silinecek. Bu işlem geri alınamaz.",
     "deleteAllLdapSuccess": "{{count}} LDAP birimi silindi.",
     "deleteAllLdapNone": "Silinecek LDAP birimi bulunamadı.",

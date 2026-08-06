@@ -28,6 +28,7 @@ export interface ConversationEntryBubbleData {
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | string | null
   deliveryError?: string | null
   editedAtUtc?: string | null
+  editedByDisplayName?: string | null
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null
   relatedJobTerminalNote?: string | null
   relatedJobMessageApproverDisplayName?: string | null
@@ -129,6 +130,7 @@ export function ConversationEntryBubble({
       || entry.deliveryStatus === 'Delivered'
       || entry.deliveryStatus === 'Read')
   const messageApproverName = entry.relatedJobMessageApproverDisplayName?.trim() || null
+  const editedByName = entry.editedByDisplayName?.trim() || null
   const showMessageApprover = !isInbound && Boolean(messageApproverName)
     && (isPending || isDeliveredOutbound)
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
@@ -282,7 +284,15 @@ export function ConversationEntryBubble({
             {isPending ? (
               <>
                 {entry.editedAtUtc ? (
-                  <span className="font-semibold tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
+                  editedByName ? (
+                    <DelayedHoverTooltip
+                      label={t('whatsapp.editedBadge', 'Düzenlendi')}
+                      tooltip={editedByName}
+                      className="font-semibold tracking-wide text-orange-400 cursor-default"
+                    />
+                  ) : (
+                    <span className="font-semibold tracking-wide text-orange-400">{t('whatsapp.editedBadge', 'Düzenlendi')}</span>
+                  )
                 ) : null}
                 <span className="font-semibold tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
               </>

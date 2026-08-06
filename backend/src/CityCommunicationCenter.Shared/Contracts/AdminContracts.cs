@@ -133,6 +133,7 @@ public sealed record TenantAuthenticationPolicyResponse(
     int CodeTtlSeconds,
     bool AllowMockCodePreview,
     string? WebhookUrl,
+    bool RecaptchaEnabled,
     bool CanAttemptAutomaticSignIn,
     bool CanIssueSecondFactor);
 
@@ -147,7 +148,8 @@ public sealed record UpdateTenantAuthenticationPolicyRequest(
     int CodeLength,
     int CodeTtlSeconds,
     bool AllowMockCodePreview,
-    string? WebhookUrl);
+    string? WebhookUrl,
+    bool RecaptchaEnabled);
 
 public sealed record PublishWorkflowRequest(
     string WorkflowName,

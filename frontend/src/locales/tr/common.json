@@ -409,7 +409,8 @@
       "incomingTotal": "Birime Gelen Tüm Talepler",
       "outgoingTotal": "Birimden Giden Tüm Talepler",
       "deptTotalTasks": "Birim İçi/Dışı Tüm Görevler",
-      "internalExternalSub": "(Birim İçi/Birim Dışı)"
+      "internalExternalSub": "(Birim İçi/Birim Dışı)",
+      "citizenPendingApprovalSub": "(Vatandaştan Gelen Onay Bekleyen)"
     },
     "chart": {
       "titleDept": "Müdürlüklere Göre İş Dağılımı",
@@ -1249,6 +1250,13 @@
       },
       "save": "Kaydet",
       "saved": "Syslog ayarları kaydedildi."
+    },
+    "recaptcha": {
+      "sectionTitle": "reCAPTCHA",
+      "sectionDescription": "Güvenilir ağ dışından girişlerde Google reCAPTCHA doğrulamasını açın veya kapatın.",
+      "isEnabled": "reCAPTCHA kullan",
+      "save": "Kaydet",
+      "saved": "reCAPTCHA ayarı kaydedildi."
     },
     "fileStorage": {
       "sectionTitle": "Talep ve Görev Eklerini Barınacak Server Bilgileri",

@@ -61,6 +61,7 @@ public sealed class EditPendingConversationEntryCommandHandler
 
         entry.Content = request.Content.Trim();
         entry.EditedAtUtc = DateTimeOffset.UtcNow;
+        entry.EditedByDisplayName = actor.DisplayName.Trim();
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }

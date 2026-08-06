@@ -31,6 +31,7 @@ internal sealed class TenantAuthenticationPolicyService : ITenantAuthenticationP
             settings.CodeTtlSeconds,
             settings.AllowMockCodePreview,
             settings.WebhookUrl,
+            settings.RecaptchaEnabled,
             settings.CanAttemptAutomaticSignIn,
             settings.CanIssueSecondFactor);
     }
@@ -56,6 +57,7 @@ internal sealed class TenantAuthenticationPolicyService : ITenantAuthenticationP
             CodeTtlSeconds = Math.Clamp(settings.CodeTtlSeconds, 60, 900),
             AllowMockCodePreview = settings.AllowMockCodePreview,
             WebhookUrl = Normalize(settings.WebhookUrl),
+            RecaptchaEnabled = settings.RecaptchaEnabled,
         };
 
         var serializedPayload = _dataProtector.Protect(JsonSerializer.Serialize(payload, SerializerOptions));
@@ -139,6 +141,7 @@ internal sealed class TenantAuthenticationPolicyService : ITenantAuthenticationP
             Math.Clamp(payload.CodeTtlSeconds, 60, 900),
             payload.AllowMockCodePreview && secondFactorProvider == SecondFactorProviderType.Mock,
             webhookUrl,
+            payload.RecaptchaEnabled,
             canAttemptAutomaticSignIn,
             canIssueSecondFactor);
     }
@@ -194,5 +197,7 @@ internal sealed class TenantAuthenticationPolicyService : ITenantAuthenticationP
         public bool AllowMockCodePreview { get; set; }
 
         public string? WebhookUrl { get; set; }
+
+        public bool RecaptchaEnabled { get; set; } = true;
     }
 }

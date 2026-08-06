@@ -80,6 +80,7 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 DeliveryStatus = e.DeliveryStatus.HasValue ? e.DeliveryStatus.Value.ToString() : null,
                 e.DeliveryError,
                 e.EditedAtUtc,
+                e.EditedByDisplayName,
             })
             .ToListAsync(cancellationToken);
 
@@ -110,6 +111,7 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     e.DeliveryStatus,
                     e.DeliveryError,
                     e.EditedAtUtc,
+                    e.EditedByDisplayName,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Status : null,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Note : null,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.MessageApproverDisplayName : null,

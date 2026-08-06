@@ -303,7 +303,8 @@ public sealed class AdminController : ApiControllerBase
                 request.CodeLength,
                 request.CodeTtlSeconds,
                 request.AllowMockCodePreview,
-                request.WebhookUrl),
+                request.WebhookUrl,
+                request.RecaptchaEnabled),
             cancellationToken);
 
         return NoContent();

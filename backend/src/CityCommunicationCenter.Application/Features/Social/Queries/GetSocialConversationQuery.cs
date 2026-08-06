@@ -80,6 +80,7 @@ public sealed class GetSocialConversationQueryHandler
                 DeliveryStatus = e.DeliveryStatus.HasValue ? e.DeliveryStatus.Value.ToString() : null,
                 e.DeliveryError,
                 e.EditedAtUtc,
+                e.EditedByDisplayName,
             })
             .ToListAsync(cancellationToken);
 
@@ -96,6 +97,7 @@ public sealed class GetSocialConversationQueryHandler
                 null,
                 message.ReceivedAtUtc,
                 citizenPhoneLabel,
+                null,
                 null,
                 null,
                 null,
@@ -146,6 +148,7 @@ public sealed class GetSocialConversationQueryHandler
                 e.DeliveryStatus,
                 e.DeliveryError,
                 e.EditedAtUtc,
+                e.EditedByDisplayName,
                 terminalStatus,
                 terminalNote,
                 e.SocialMessageId,

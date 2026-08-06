@@ -172,6 +172,7 @@ public sealed record SocialConversationEntryDto(
     string? DeliveryStatus,
     string? DeliveryError,
     DateTimeOffset? EditedAtUtc = null,
+    string? EditedByDisplayName = null,
     string? RelatedJobTerminalStatus = null,
     string? RelatedJobTerminalNote = null,
     Guid? SocialMessageId = null,
@@ -271,6 +272,7 @@ public sealed record CitizenConversationTimelineEntryDto(
     string? DeliveryStatus,
     string? DeliveryError,
     DateTimeOffset? EditedAtUtc = null,
+    string? EditedByDisplayName = null,
     string? RelatedJobTerminalStatus = null,
     string? RelatedJobTerminalNote = null,
     /// <summary>Vatandaşa Gönderilecek Mesaj Onayı serbest bırakan yönetici (card #2092).</summary>

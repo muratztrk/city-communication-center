@@ -551,6 +551,7 @@ export const api = {
       codeTtlSeconds: number
       allowMockCodePreview: boolean
       webhookUrl: string | null
+      recaptchaEnabled: boolean
     },
   ): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/authentication-policy`, {

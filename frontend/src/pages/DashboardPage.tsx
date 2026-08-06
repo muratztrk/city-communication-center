@@ -470,6 +470,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         },
         {
           label: t('dashboard.cards.deptPendingTasks', 'Birimde Bekleyen Görevler'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.deptPendingTaskCount,
           icon: SquareKanban,
           path: '/department-tasks?flow=all',
@@ -483,10 +484,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     ? [
         {
           label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
+          sublabel: t('dashboard.cards.citizenPendingApprovalSub', '(Vatandaştan Gelen Onay Bekleyen)'),
           value: dashboardQuery.data.activeSocialMessageCount,
           icon: MessageSquareMore,
-          // Yönetici: Birime Gelen'de tüm VT numaralı talepler (#r542 / #13)
-          path: '/incoming-requests?status=all&citizen=1',
+          path: '/incoming-requests?status=pending-approval&citizen=1',
           iconBg: 'bg-rose-100',
           iconColor: 'text-rose-600',
         },
@@ -552,6 +553,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
 
   function renderCard(metric: MetricCard) {
     const Icon = metric.icon
+    const [basePath, queryString] = metric.path.split('?')
+    const existingParams = queryString
+      ? Object.fromEntries(new URLSearchParams(queryString).entries())
+      : {}
     return (
       <button
         key={metric.label}
@@ -559,7 +564,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-2 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
         onClick={() => {
           saveDashboardScroll()
-          navigate(metric.path)
+          navigate(withQueryParams(basePath, pieQueryParams(existingParams)))
         }}
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-3 gap-y-0.5">

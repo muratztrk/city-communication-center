@@ -14,7 +14,8 @@ public sealed record UpdateTenantAuthenticationPolicyCommand(
     int CodeLength,
     int CodeTtlSeconds,
     bool AllowMockCodePreview,
-    string? WebhookUrl) : ICommand<Unit>;
+    string? WebhookUrl,
+    bool RecaptchaEnabled) : ICommand<Unit>;
 
 public sealed class UpdateTenantAuthenticationPolicyCommandValidator : AbstractValidator<UpdateTenantAuthenticationPolicyCommand>
 {
@@ -86,7 +87,8 @@ public sealed class UpdateTenantAuthenticationPolicyCommandHandler : ICommandHan
                 request.CodeLength,
                 request.CodeTtlSeconds,
                 request.AllowMockCodePreview,
-                request.WebhookUrl),
+                request.WebhookUrl,
+                request.RecaptchaEnabled),
             _tenantContextAccessor.GetCurrent().UserId,
             cancellationToken);
 

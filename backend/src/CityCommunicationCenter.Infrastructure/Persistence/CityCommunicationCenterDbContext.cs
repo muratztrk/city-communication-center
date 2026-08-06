@@ -340,6 +340,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(e => e.SenderLabel).HasMaxLength(200);
         builder.Property(e => e.DeliveryStatus).HasConversion<string>();
         builder.Property(e => e.DeliveryError).HasMaxLength(500);
+        builder.Property(e => e.EditedByDisplayName).HasMaxLength(200);
         builder.Property(e => e.WhatsAppTemplateName).HasMaxLength(512);
         builder.Property(e => e.WhatsAppTemplateLanguage).HasMaxLength(20);
         builder.HasOne(e => e.SocialMessage)

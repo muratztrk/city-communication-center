@@ -38,6 +38,7 @@ public sealed class GetTenantAuthenticationPolicyQueryHandler : IQueryHandler<Ge
             settings.CodeTtlSeconds,
             settings.AllowMockCodePreview,
             settings.WebhookUrl,
+            settings.RecaptchaEnabled,
             settings.CanAttemptAutomaticSignIn,
             settings.CanIssueSecondFactor);
     }

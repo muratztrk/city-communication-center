@@ -32,6 +32,9 @@ public sealed class SocialConversationEntry
 
     public DateTimeOffset? EditedAtUtc { get; set; }
 
+    /// <summary>Bekleyen mesajı düzenleyen personelin görünen adı (card #2336).</summary>
+    public string? EditedByDisplayName { get; set; }
+
     /// <summary>WhatsApp Cloud API template name when outbound was queued/sent as type=template.</summary>
     public string? WhatsAppTemplateName { get; set; }
 

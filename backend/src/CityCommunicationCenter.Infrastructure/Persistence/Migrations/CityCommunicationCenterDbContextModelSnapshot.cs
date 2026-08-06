@@ -1553,6 +1553,11 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("editedatutc");
 
+                    b.Property<string>("EditedByDisplayName")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("editedbydisplayname");
+
                     b.Property<string>("ExternalEntryId")
                         .HasColumnType("text")
                         .HasColumnName("externalentryid");

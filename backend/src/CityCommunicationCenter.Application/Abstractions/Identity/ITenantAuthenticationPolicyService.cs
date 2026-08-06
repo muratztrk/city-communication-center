@@ -21,6 +21,7 @@ public sealed record TenantAuthenticationPolicyDescriptor(
     int CodeTtlSeconds,
     bool AllowMockCodePreview,
     string? WebhookUrl,
+    bool RecaptchaEnabled,
     bool CanAttemptAutomaticSignIn,
     bool CanIssueSecondFactor);
 
@@ -35,7 +36,8 @@ public sealed record TenantAuthenticationPolicyUpdate(
     int CodeLength,
     int CodeTtlSeconds,
     bool AllowMockCodePreview,
-    string? WebhookUrl);
+    string? WebhookUrl,
+    bool RecaptchaEnabled);
 
 public sealed record TenantAuthenticationPolicyRuntimeSettings(
     bool AutomaticSignInEnabled,
@@ -49,5 +51,6 @@ public sealed record TenantAuthenticationPolicyRuntimeSettings(
     int CodeTtlSeconds,
     bool AllowMockCodePreview,
     string? WebhookUrl,
+    bool RecaptchaEnabled,
     bool CanAttemptAutomaticSignIn,
     bool CanIssueSecondFactor);

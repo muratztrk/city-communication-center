@@ -55,7 +55,10 @@ export function LoginPasswordResetModal({ tenantId, onClose }: LoginPasswordRese
         onClick={event => event.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex shrink-0 items-center gap-3 bg-gradient-to-r from-[color:var(--color-primary)] to-[color:var(--color-secondary,var(--color-primary))] px-6 py-4">
+        <div
+          className="flex shrink-0 items-center gap-3 px-6 py-4 text-white"
+          style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
+        >
           <KeyRound className="size-5 shrink-0 text-white/80" />
           <h2 className="flex-1 text-base font-extrabold text-white">
             {t('passwordReset.title', 'Local Kullanıcı Parola Sıfırla')}

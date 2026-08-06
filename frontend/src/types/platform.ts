@@ -410,6 +410,7 @@ export interface SocialConversationEntry {
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | null;
   deliveryError?: string | null;
   editedAtUtc?: string | null;
+  editedByDisplayName?: string | null;
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;
   relatedJobTerminalNote?: string | null;
   relatedJobMessageApproverDisplayName?: string | null;
@@ -521,6 +522,7 @@ export interface CitizenConversationTimelineEntry {
   deliveryStatus?: 'Pending' | 'Sent' | 'Delivered' | 'Read' | 'Failed' | null;
   deliveryError?: string | null;
   editedAtUtc?: string | null;
+  editedByDisplayName?: string | null;
   relatedJobTerminalStatus?: 'Completed' | 'Cancelled' | string | null;
   relatedJobTerminalNote?: string | null;
   relatedJobMessageApproverDisplayName?: string | null;
@@ -711,6 +713,7 @@ export interface TenantAuthenticationPolicy {
   codeTtlSeconds: number;
   allowMockCodePreview: boolean;
   webhookUrl: string | null;
+  recaptchaEnabled: boolean;
   canAttemptAutomaticSignIn: boolean;
   canIssueSecondFactor: boolean;
 }

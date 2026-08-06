@@ -186,17 +186,19 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             }
         }
 
-        // Vatandaş Talepleri: SystemAdmin/Operator tenant geneli; Manager yalnız kendi birimi (card #1792).
+        // Vatandaş Talepleri: onay bekleyen VT kayıtları (card #2332).
         var openSocialMessages = 0;
         var roleCode = context.RoleCode;
         if (roleCode is "SystemAdmin" or "Operator")
         {
-            openSocialMessages = await _dbContext.SocialMessages.CountAsync(
-                entity => entity.TenantId == tenantId
-                    && entity.Status != SocialMessageStatus.Closed
-                    && (!request.FromUtc.HasValue || entity.CreatedAtUtc >= request.FromUtc.Value)
-                    && (!request.ToUtc.HasValue || entity.CreatedAtUtc <= request.ToUtc.Value),
-                cancellationToken);
+            openSocialMessages = await _dbContext.Jobs
+                .Where(j => j.TenantId == tenantId
+                    && j.SourceType != JobSourceType.Routine
+                    && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
+                    && _dbContext.SocialMessages.Any(m => m.JobId == j.JobId && m.CitizenRequestNumber != null)
+                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value))
+                .CountAsync(cancellationToken);
         }
         else if (isManagerOrAdmin && userId.HasValue)
         {
@@ -214,18 +216,18 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
 
             if (socialDepartmentIds.Length > 0)
             {
-                openSocialMessages = await _dbContext.SocialMessages.CountAsync(
-                    entity => entity.TenantId == tenantId
-                        && entity.Status != SocialMessageStatus.Closed
-                        && (
-                            (entity.AssignedDepartmentId.HasValue
-                                && socialDepartmentIds.Contains(entity.AssignedDepartmentId.Value))
-                            || (entity.JobId.HasValue && _dbContext.JobDepartments.Any(jd =>
-                                jd.JobId == entity.JobId
-                                && socialDepartmentIds.Contains(jd.DepartmentId))))
-                        && (!request.FromUtc.HasValue || entity.CreatedAtUtc >= request.FromUtc.Value)
-                        && (!request.ToUtc.HasValue || entity.CreatedAtUtc <= request.ToUtc.Value),
-                    cancellationToken);
+                openSocialMessages = await _dbContext.Jobs
+                    .Where(j => j.TenantId == tenantId
+                        && j.SourceType != JobSourceType.Routine
+                        && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
+                        && _dbContext.SocialMessages.Any(m => m.JobId == j.JobId && m.CitizenRequestNumber != null)
+                        && (socialDepartmentIds.Contains(j.OwnerDepartmentId)
+                            || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
+                                && jd.Role == JobDepartmentRole.Target
+                                && socialDepartmentIds.Contains(jd.DepartmentId)))
+                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
+                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value))
+                    .CountAsync(cancellationToken);
             }
         }
 

@@ -313,6 +313,7 @@ const EMPTY_TENANT_AUTH_POLICY: TenantAuthenticationPolicy = {
   codeTtlSeconds: 300,
   allowMockCodePreview: false,
   webhookUrl: null,
+  recaptchaEnabled: true,
   canAttemptAutomaticSignIn: false,
   canIssueSecondFactor: false,
 }
@@ -1114,6 +1115,34 @@ export function SettingsPage() {
     }
   }
 
+  const saveRecaptchaSettings = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!user?.tenantId) return
+
+    setMessage(null)
+    try {
+      await api.updateTenantAuthenticationPolicy(user.tenantId, {
+        automaticSignInEnabled: tenantAuthenticationPolicy.automaticSignInEnabled,
+        automaticSignInMode: tenantAuthenticationPolicy.automaticSignInMode,
+        trustedNetworkCidrs: tenantAuthenticationPolicy.trustedNetworkCidrs,
+        trustedProxyCidrs: tenantAuthenticationPolicy.trustedProxyCidrs,
+        identityHeaderName: tenantAuthenticationPolicy.identityHeaderName,
+        requireSecondFactorOutsideTrustedNetwork: tenantAuthenticationPolicy.requireSecondFactorOutsideTrustedNetwork,
+        secondFactorProvider: tenantAuthenticationPolicy.secondFactorProvider,
+        codeLength: tenantAuthenticationPolicy.codeLength,
+        codeTtlSeconds: tenantAuthenticationPolicy.codeTtlSeconds,
+        allowMockCodePreview: tenantAuthenticationPolicy.allowMockCodePreview,
+        webhookUrl: tenantAuthenticationPolicy.webhookUrl,
+        recaptchaEnabled: tenantAuthenticationPolicy.recaptchaEnabled,
+      })
+      invalidateSettings(queryClient)
+      setTenantAuthenticationPolicy(await api.getTenantAuthenticationPolicy(user.tenantId))
+      setMessage({ type: 'success', text: t('settings.recaptcha.saved') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
   const saveSyslogSettings = async (event: FormEvent) => {
     event.preventDefault()
     if (!user?.tenantId) return
@@ -1318,6 +1347,7 @@ export function SettingsPage() {
         codeTtlSeconds: tenantAuthenticationPolicy.codeTtlSeconds,
         allowMockCodePreview: tenantAuthenticationPolicy.allowMockCodePreview,
         webhookUrl: tenantAuthenticationPolicy.webhookUrl,
+        recaptchaEnabled: tenantAuthenticationPolicy.recaptchaEnabled,
       })
       invalidateSettings(queryClient)
 
@@ -2306,6 +2336,7 @@ export function SettingsPage() {
             </div>
           </form>
 
+          <div className="grid items-start gap-4 lg:grid-cols-2">
           <form className="section-card page-stack" onSubmit={event => void saveSyslogSettings(event)}>
             <div className="page-header-row">
               <div>
@@ -2375,6 +2406,28 @@ export function SettingsPage() {
               <Button type="submit">{t('settings.syslog.save')}</Button>
             </div>
           </form>
+
+          <form className="section-card page-stack" onSubmit={event => void saveRecaptchaSettings(event)}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.recaptcha.sectionTitle')}</h2>
+                <p className="helper-copy">{t('settings.recaptcha.sectionDescription')}</p>
+              </div>
+            </div>
+            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+              <input
+                className="field-checkbox"
+                type="checkbox"
+                checked={tenantAuthenticationPolicy.recaptchaEnabled}
+                onChange={event => setTenantAuthenticationPolicy(current => ({ ...current, recaptchaEnabled: event.target.checked }))}
+              />
+              {t('settings.recaptcha.isEnabled')}
+            </label>
+            <div className="inline-actions">
+              <Button type="submit">{t('settings.recaptcha.save')}</Button>
+            </div>
+          </form>
+          </div>
 
           <div className="grid gap-4 xl:grid-cols-2">
             <form className="section-card page-stack" onSubmit={saveTenantLdap}>

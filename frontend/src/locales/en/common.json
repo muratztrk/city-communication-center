@@ -407,7 +407,8 @@
       "incomingTotal": "All Incoming Dept Requests",
       "outgoingTotal": "All Outgoing Dept Requests",
       "deptTotalTasks": "Internal/External All Unit Tasks",
-      "internalExternalSub": "(Internal/External)"
+      "internalExternalSub": "(Internal/External)",
+      "citizenPendingApprovalSub": "(Citizen Requests Pending Approval)"
     },
     "chart": {
       "titleDept": "Task Distribution by Department",
@@ -1242,6 +1243,13 @@
       },
       "save": "Save",
       "saved": "Syslog settings saved."
+    },
+    "recaptcha": {
+      "sectionTitle": "reCAPTCHA",
+      "sectionDescription": "Enable or disable Google reCAPTCHA verification for sign-in from outside the trusted network.",
+      "isEnabled": "Use reCAPTCHA",
+      "save": "Save",
+      "saved": "reCAPTCHA setting saved."
     },
     "fileStorage": {
       "sectionTitle": "Server Information for Request and Task Attachments",

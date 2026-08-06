@@ -337,7 +337,9 @@ public sealed class AuthController : ControllerBase
         }
 
         var network = await _requestNetworkEvaluator.EvaluateAsync(response.ResolvedTenant.TenantId, cancellationToken);
-        var requiresCaptcha = _recaptchaVerificationService.IsRequired(network.IsTrustedNetwork);
+        var authPolicy = await _tenantAuthenticationPolicyService.GetRuntimeSettingsAsync(response.ResolvedTenant.TenantId, cancellationToken);
+        var requiresCaptcha = authPolicy.RecaptchaEnabled
+            && _recaptchaVerificationService.IsRequired(network.IsTrustedNetwork);
 
         return Ok(response with
         {
@@ -517,6 +519,12 @@ public sealed class AuthController : ControllerBase
 
         var network = await _requestNetworkEvaluator.EvaluateAsync(tenantId, cancellationToken);
         if (!_recaptchaVerificationService.IsRequired(network.IsTrustedNetwork))
+        {
+            return null;
+        }
+
+        var authPolicy = await _tenantAuthenticationPolicyService.GetRuntimeSettingsAsync(tenantId, cancellationToken);
+        if (!authPolicy.RecaptchaEnabled)
         {
             return null;
         }

@@ -58,7 +58,7 @@ export function WhatsAppOutboundAttachmentChip({
             <img
               src={previewUrl}
               alt={displayName}
-              className={`w-full cursor-zoom-in object-contain bg-white/95 ${compact ? 'max-h-20' : 'max-h-36'}`}
+              className={`w-full cursor-zoom-in object-contain bg-white/95 ${compact ? 'max-h-28' : 'max-h-44'}`}
             />
           </button>
         ) : (
@@ -66,7 +66,7 @@ export function WhatsAppOutboundAttachmentChip({
             <img
               src={previewUrl}
               alt={displayName}
-              className={`w-full object-contain bg-white/95 ${compact ? 'max-h-20' : 'max-h-36'}`}
+              className={`w-full object-contain bg-white/95 ${compact ? 'max-h-28' : 'max-h-44'}`}
             />
           </div>
         )

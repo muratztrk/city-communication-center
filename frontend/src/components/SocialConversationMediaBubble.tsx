@@ -152,12 +152,16 @@ export function SocialConversationMediaBubble({
         <button
           type="button"
           onClick={() => setPreviewOpen(true)}
-          className="block overflow-hidden rounded-xl border border-white/20"
+          className="block w-full overflow-hidden rounded-xl border border-white/20"
         >
           <img
             src={objectUrl}
             alt={filename}
-            className="max-w-[16rem] max-h-48 cursor-zoom-in object-cover"
+            className={`cursor-zoom-in ${
+              requestAttachmentLayout
+                ? 'w-full max-w-full max-h-52 object-contain'
+                : 'max-w-[16rem] max-h-48 object-cover'
+            }`}
           />
         </button>
       ) : mime.startsWith('video/') ? (
@@ -180,14 +184,14 @@ export function SocialConversationMediaBubble({
           className={`flex items-center rounded-xl bg-black/10 underline-offset-2 hover:underline ${
             direction === 'Inbound'
               ? requestAttachmentLayout
-                ? 'gap-1 px-1.5 py-0.5 text-[9px] font-medium'
+                ? 'gap-1.5 px-2 py-1 text-[10px] font-medium'
                 : 'gap-1.5 px-2 py-1 text-[10px] font-medium'
               : 'gap-2 px-3 py-2 text-sm font-semibold'
           }`}
         >
           <FileText className={`shrink-0 ${
             direction === 'Inbound'
-              ? requestAttachmentLayout ? 'size-2.5' : 'size-3'
+              ? requestAttachmentLayout ? 'size-3' : 'size-3'
               : 'size-4'
           }`} />
           <span className="min-w-0 truncate">{filename}</span>

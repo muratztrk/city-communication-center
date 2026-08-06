@@ -1,3 +1,10 @@
+## Round 711 — modal medya boyutları (5 kart)
+- `#2403` reopen: Açıklama `min-h-24`, Açık Adres `min-h-[5rem]`.
+- `#2396` reopen: Dosya ekle butonu `w-[6.5rem]`.
+- `#2413`: Modal gelen görsel tam balon genişliği.
+- `#2414`: Bekleyen giden görsel önizleme yüksekliği artırıldı.
+- `#2411` reopen: Modal gelen doküman adı çerçevesi hafif büyütüldü.
+
 ## Round 710 — modal medya + textarea (3 kart)
 - `#2410`: Gelen görsel ekte Talep Eki İndir'in sağında (aynı satır).
 - `#2411`: Modal gelen doküman ek adı çerçevesi daha kompakt.

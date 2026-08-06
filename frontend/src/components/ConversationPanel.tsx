@@ -15,14 +15,16 @@ import { ModalCloseButton } from './ui/modal-close-button'
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
+import {
+  ATTACHMENT_FILE_ACCEPT,
+  isAllowedAttachmentFileName,
+} from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
 import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { useAuth } from '../context/AuthContext'
 import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
-
-const CONVERSATION_FILE_ACCEPT = '.jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'
 
 interface ConversationPanelProps {
   socialMessageId: string
@@ -148,6 +150,10 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
 
   const handleWhatsAppFileSelected = (file: File | undefined) => {
     if (!file) return
+    if (!isAllowedAttachmentFileName(file.name)) {
+      setFileError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
+      return
+    }
     if (file.size > ATTACHMENT_MAX_TOTAL_BYTES) {
       setFileError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
       return
@@ -359,7 +365,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             <input
               ref={fileInputRef}
               type="file"
-              accept={CONVERSATION_FILE_ACCEPT}
+              accept={ATTACHMENT_FILE_ACCEPT}
               className="hidden"
               onChange={event => {
                 handleWhatsAppFileSelected(event.target.files?.[0])

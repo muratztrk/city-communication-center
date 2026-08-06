@@ -16,19 +16,13 @@ import { formatConversationDayDivider } from '../../utils/conversationDayLabel'
 import { formatConversationListTime, formatConversationMessageTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
 import { TablePagination } from '../ui/table-pagination'
+import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../../utils/attachmentLimits'
 import { formatStaffSenderLabel } from '../../utils/formatConversationSenderLabel'
 import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
 
-const INTERNAL_MESSAGE_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
-const INTERNAL_MESSAGE_FILE_ACCEPT = INTERNAL_MESSAGE_FILE_EXTENSIONS.join(',')
+const INTERNAL_MESSAGE_FILE_ACCEPT = ATTACHMENT_FILE_ACCEPT
 const INTERNAL_MESSAGE_FILE_MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
-
-function internalMessageFileExtension(name: string): string {
-  const dot = name.lastIndexOf('.')
-  if (dot < 0) return ''
-  return name.slice(dot).toLowerCase()
-}
 
 const CONNECTED_POLL_INTERVAL_MS = 15_000
 const DISCONNECTED_POLL_INTERVAL_MS = 3_000
@@ -587,8 +581,7 @@ export function InternalMessagesFab() {
     const content = draft.trim()
     const file = pendingFile
     if (!file || !activeChat || sending) return
-    const ext = internalMessageFileExtension(file.name)
-    if (!INTERNAL_MESSAGE_FILE_EXTENSIONS.includes(ext)) {
+    if (!isAllowedAttachmentFileName(file.name)) {
       setFileError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
       return
     }
@@ -809,8 +802,7 @@ export function InternalMessagesFab() {
                       setPendingFile(null)
                       return
                     }
-                    const ext = internalMessageFileExtension(file.name)
-                    if (!INTERNAL_MESSAGE_FILE_EXTENSIONS.includes(ext)) {
+                    if (!isAllowedAttachmentFileName(file.name)) {
                       setFileError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
                       return
                     }

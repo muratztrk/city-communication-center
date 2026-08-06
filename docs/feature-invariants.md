@@ -1155,9 +1155,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hemen `Birim Yöneticisi/Sorumluları` sonrası (#6a6cb6ea). Tenant JSON yok/geçersizse Ayarlar
   grid’i stale/global localStorage’a değil fresh `DEFAULT_ROLE_PAGE_ACCESS` matrisine düşer;
   geçerli tenant özelleştirmesi korunur (card #2243). Default matris referans grid ile eşleşir:
-  SystemAdmin yalnız Ayarlar; CitizenRequestManager Anasayfa + talep/rutin oluştur + kendi/birim
-  görevleri + talepleri + gelen + vatandaş mesaj onayı; Operator/Staff/Reporter kapsamları
-  `DEFAULT_ALLOWED_PAGES_BY_ROLE` içinde açık allow-list’tir, gevşek “settings hariç hepsi” değildir.
+  SystemAdmin yalnız Ayarlar; E-Devlet rolünde Anasayfa varsayılan Pasif (normalize Anasayfa’yı
+  diğer rollere zorla açmaz); CitizenRequestManager Anasayfa + talep/rutin + görev/talep + gelen +
+  vatandaş mesaj onayı; Operator/Staff’ta `departmentTasks` açık, `myTasks` varsayılan kapalı;
+  Reporter’da `createRequest`/`myRequests` kapalı, `departmentTasks` açık (#2243 reopen).
+  `DEFAULT_ALLOWED_PAGES_BY_ROLE` açık allow-list’tir.
   Matris `social` ve `citizenMessageApproval` satır etiketleri menü metninden ayrıdır; başlık +
   küçük parantez ipucu iki satırda gösterilir (#2282/#2284); sol menü `nav.*` etiketleri değişmez.
 - **Dosya sunucusu test alanları (#6a6cb6ec):** NAS ve FTP kolonlarında ayrı bağlantı +
@@ -1588,8 +1590,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.
 - **Kurum içi Dosya ekle (#2383):** kompakt buton; 5 MB; seçilen dosya sohbet alanında önizleme (WA gibi).
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
-- **Dosya ekle accept filtresi (#2373):** Talep/görev/WA/kurum içi dosya seçimlerinde yalnız
-  JPG/PNG/PDF/Office uzantıları (`accept`); logo yükleme (Ayarlar Görünüm) ayrı kalır.
+- **Dosya ekle accept filtresi (#2373 reopen):** Talep/görev/WA/kurum içi dosya seçimlerinde ortak
+  `ATTACHMENT_FILE_ACCEPT` (MIME + uzantı) kullanılır; yalnız JPG/PNG/PDF/Office. Windows diyalogunda
+  “Tüm dosyalar” varsayılanına düşmemek için MIME listesi şarttır; seçim sonrası uzantı doğrulaması
+  da yapılır. Logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol
   sütun); Login Page Açıklama Ana Renk altında tam sütun genişliği. Başlıklar ayrı satır, logo Ekle butonu ile
@@ -1599,9 +1603,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   önceki kod bu iki sayfayı role göre unconditional force ediyordu (admin checkbox'ı hiç işe yaramıyordu);
   `normalizeRolePageAccessMatrix`'e yeni bir zorlama eklerken kayıtlı admin tercihini ezmediğinden emin ol.
 - **Sadece SystemAdmin rolüne sahip personelde Anasayfa gizli, varsayılan açılış sayfası Ayarlar'dır
-  (card #2249):** `rolePageAccess.ts`'te `matrix.SystemAdmin.dashboard` zorunlu `false` (diğer roller
-  `true`); `App.tsx`'teki tüm fallback `Navigate` hedefleri `getDefaultLandingPath(user)` kullanır, sabit
-  `"/dashboard"` YAZMA — yoksa SystemAdmin `PageAccessGate`'te kendine yönlendirilip sonsuz döngüye girer.
+  (card #2249):** `rolePageAccess.ts`'te `matrix.SystemAdmin.dashboard` zorunlu `false`; E-Devlet
+  rolünde Anasayfa varsayılan allow-list’ten Pasif kalır (#2243 reopen — diğer rollere Anasayfa
+  zorla açılmaz). `App.tsx`'teki tüm fallback `Navigate` hedefleri `getDefaultLandingPath(user)`
+  kullanır, sabit `"/dashboard"` YAZMA — yoksa SystemAdmin `PageAccessGate`'te kendine yönlendirilip
+  sonsuz döngüye girer. Yalnız E-Devlet rolü `/edevlet/activity-plan` açılışına gider.
 - **Dosya sunucusu (NAS/FTP) parola alanları artık SMS API ile aynı maske deseni kullanır (card #2229):**
   kayıtlıysa `********` gösterir, "Kayıtlı şifreyi sil" checkbox'ı yok — `frontend/src/lib/` yerine
   doğrudan SettingsPage.tsx içinde SMS_PASSWORD_MASK reuse edilir (bkz. `fileStorageSettings` state).

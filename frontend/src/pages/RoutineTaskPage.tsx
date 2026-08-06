@@ -20,6 +20,11 @@ import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 import {
+  ATTACHMENT_FILE_ACCEPT,
+  attachmentFileExtension,
+  isAllowedAttachmentFileName,
+} from '../utils/attachmentAccept'
+import {
   ATTACHMENT_MAX_TOTAL_BYTES,
   exceedsAttachmentTotalLimit,
   sumFileSizes,
@@ -46,18 +51,10 @@ const INITIAL: FormState = {
   openAddress: '',
 }
 
-// Talep oluşturma formuyla aynı dosya kuralları (card 575 / #r491 toplam 5 MB).
-const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
-const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
 const MAX_FILE_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
-function fileExtension(name: string): string {
-  const dot = name.lastIndexOf('.')
-  return dot >= 0 ? name.slice(dot).toLowerCase() : ''
-}
-
 function pendingFileIcon(name: string) {
-  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name)) ? SimpleImageAttachmentIcon : FileText
+  return ['.jpg', '.jpeg', '.png'].includes(attachmentFileExtension(name)) ? SimpleImageAttachmentIcon : FileText
 }
 
 function escapeHtml(value: string): string {
@@ -75,7 +72,7 @@ function templateToRichText(content: string): string {
 }
 
 function validateFile(file: File): string | null {
-  if (!ALLOWED_EXTENSIONS.includes(fileExtension(file.name))) {
+  if (!isAllowedAttachmentFileName(file.name)) {
     return 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'
   }
   if (file.size > MAX_FILE_SIZE) {
@@ -389,7 +386,7 @@ export function RoutineTaskPage() {
                       <input
                         ref={fileInputRef}
                         type="file"
-                        accept={ACCEPT_ATTR}
+                        accept={ATTACHMENT_FILE_ACCEPT}
                         multiple
                         className="hidden"
                         disabled={submitting}

@@ -5,6 +5,11 @@ import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
 import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
 import {
+  ATTACHMENT_FILE_ACCEPT,
+  attachmentFileExtension,
+  isAllowedAttachmentFileName,
+} from '../../utils/attachmentAccept'
+import {
   ATTACHMENT_MAX_TOTAL_BYTES,
   exceedsAttachmentTotalLimit,
   sumAttachmentBytes,
@@ -13,18 +18,10 @@ import {
 import { ConfirmDialog } from './confirm-dialog'
 import { SimpleImageAttachmentIcon } from './SimpleImageAttachmentIcon'
 
-// Resim (JPG/PNG), PDF ve Office uzantıları; gif/webp kaldırıldı (card 539).
-const ALLOWED_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
-const ACCEPT_ATTR = ALLOWED_EXTENSIONS.join(',')
 const MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
-function fileExtension(name: string): string {
-  const dot = name.lastIndexOf('.')
-  return dot >= 0 ? name.slice(dot).toLowerCase() : ''
-}
-
 function isImageFile(name: string): boolean {
-  return ['.jpg', '.jpeg', '.png'].includes(fileExtension(name))
+  return ['.jpg', '.jpeg', '.png'].includes(attachmentFileExtension(name))
 }
 
 function getAttachmentIcon(fileName: string) {
@@ -74,7 +71,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   }, [])
 
   const validate = (file: File): string | null => {
-    if (!ALLOWED_EXTENSIONS.includes(fileExtension(file.name))) {
+    if (!isAllowedAttachmentFileName(file.name)) {
       return t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.')
     }
     if (file.size > MAX_SIZE) {
@@ -219,7 +216,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
           <input
             ref={fileInputRef}
             type="file"
-            accept={ACCEPT_ATTR}
+            accept={ATTACHMENT_FILE_ACCEPT}
             multiple
             className="hidden"
             disabled={isDisabled}

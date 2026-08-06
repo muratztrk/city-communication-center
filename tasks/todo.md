@@ -1,3 +1,7 @@
+## Round 714 — Sayfa Yetkileri default + Dosya ekle filtresi (2 kart)
+- `#2243` reopen: Default matris referans grid ile hizalandı; E-Devlet Anasayfa zorla açılmıyor; Operator/Staff/Reporter allow-list güncellendi.
+- `#2373` reopen: Ortak `ATTACHMENT_FILE_ACCEPT` (MIME+uzantı) + seçim doğrulaması tüm Dosya ekle yüzeylerinde.
+
 ## Round 713 — çağrı ↔ WA ayrımı (2 kart)
 - `#2288` reopen: Phone VT mevcut WA konuşmasına bağlanmaz; profil adı ezilmez.
 - `#2330`: Aynı numarayla çağrı talebi WA profil adını değiştirmez.

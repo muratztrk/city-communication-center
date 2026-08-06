@@ -35,6 +35,7 @@ import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
+import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
@@ -1335,13 +1336,18 @@ function ConversationDetail({
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx"
+                  accept={ATTACHMENT_FILE_ACCEPT}
                   className="hidden"
                   onChange={event => {
                     const file = event.target.files?.[0] ?? null
                     setPendingFile(file)
                     setPendingFileEditing(false)
                     if (file) {
+                      if (!isAllowedAttachmentFileName(file.name)) {
+                        window.alert(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
+                        setPendingFile(null)
+                        return
+                      }
                       if (file.size > ATTACHMENT_MAX_TOTAL_BYTES) {
                         window.alert(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
                         setPendingFile(null)

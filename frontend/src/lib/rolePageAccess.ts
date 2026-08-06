@@ -83,6 +83,7 @@ export function canAccessCitizenLicensedRoute(path: string): boolean {
 export const ROLE_PAGE_ACCESS_STORAGE_KEY = 'ccc_role_page_access_matrix'
 export const ROLE_PAGE_ACCESS_EVENT = 'ccc-role-page-access-updated'
 
+/** Referans grid (#2243): Ayarlar > Sayfa Yetkileri ekran görüntüsündeki Aktif hücreler. */
 const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> = {
   SystemAdmin: ['settings'],
   Manager: PAGE_ACCESS_ITEMS
@@ -102,7 +103,7 @@ const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> 
     'dashboard',
     'createRequest',
     'createRoutineTask',
-    'myTasks',
+    'departmentTasks',
     'myRequests',
     'smsDeliveryApproval',
     'social',
@@ -116,8 +117,7 @@ const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> 
     'dashboard',
     'createRequest',
     'createRoutineTask',
-    'myTasks',
-    'myRequests',
+    'departmentTasks',
     'social',
     'display',
     'departments',
@@ -126,8 +126,7 @@ const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> 
   ],
   Reporter: [
     'dashboard',
-    'createRequest',
-    'myRequests',
+    'departmentTasks',
     'social',
     'citizenDirectory',
     'display',
@@ -135,7 +134,7 @@ const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> 
     'users',
     'audit',
   ],
-  EDevletActivityPlan: ['dashboard', 'edevletActivityPlan', 'edevletActivityPlansList'],
+  EDevletActivityPlan: ['edevletActivityPlan', 'edevletActivityPlansList'],
 }
 
 export const DEFAULT_ROLE_PAGE_ACCESS: RolePageAccessMatrix = ROLE_CODES.reduce((matrix, role) => {
@@ -171,9 +170,12 @@ export function normalizeRolePageAccessMatrix(input: unknown): RolePageAccessMat
       }
       return pages
     }, {} as Record<PageAccessKey, boolean>)
-    // Anasayfa yalnız Sistem Yöneticisi için kapalı (card #2249) — SystemAdmin'in
-    // varsayılan açılış sayfası Ayarlar'dır (bkz. getDefaultLandingPath).
-    matrix[role].dashboard = role !== 'SystemAdmin'
+    // Anasayfa yalnız Sistem Yöneticisi için zorunlu kapalı (card #2249); diğer roller
+    // allow-list'ten gelir — E-Devlet rolünde Anasayfa varsayılan Pasif (#2243 reopen).
+    // SystemAdmin'in varsayılan açılış sayfası Ayarlar'dır (bkz. getDefaultLandingPath).
+    if (role === 'SystemAdmin') {
+      matrix[role].dashboard = false
+    }
     matrix[role].settings = role === 'SystemAdmin'
     if (role === 'EDevletActivityPlan') {
       matrix[role].edevletActivityPlan = true
@@ -293,6 +295,9 @@ export function getDefaultLandingPath(user: { role?: string; additionalRoles?: s
   }
   if (roles.includes('Operator')) {
     return '/dashboard/birimler'
+  }
+  if (roles.length === 1 && roles[0] === 'EDevletActivityPlan') {
+    return '/edevlet/activity-plan'
   }
   if (roles.includes('Reporter')) {
     if (isModuleUsable('citizen')) {

@@ -49,22 +49,20 @@ import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { lowercaseFileExtension } from '../utils/fileNameDisplay'
 import {
+  ATTACHMENT_FILE_ACCEPT,
+  attachmentFileExtension,
+  isAllowedAttachmentFileName,
+} from '../utils/attachmentAccept'
+import {
   ATTACHMENT_MAX_TOTAL_BYTES,
   exceedsAttachmentTotalLimit,
   sumFileSizes,
 } from '../utils/attachmentLimits'
 
-const COMPLETION_ATTACHMENT_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
-const COMPLETION_ATTACHMENT_ACCEPT = COMPLETION_ATTACHMENT_EXTENSIONS.join(',')
 const COMPLETION_ATTACHMENT_MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
-function completionAttachmentExtension(name: string): string {
-  const dot = name.lastIndexOf('.')
-  return dot >= 0 ? name.slice(dot).toLowerCase() : ''
-}
-
 function completionAttachmentIcon(name: string) {
-  return ['.jpg', '.jpeg', '.png'].includes(completionAttachmentExtension(name)) ? SimpleImageAttachmentIcon : FileText
+  return ['.jpg', '.jpeg', '.png'].includes(attachmentFileExtension(name)) ? SimpleImageAttachmentIcon : FileText
 }
 
 function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHistory[] {
@@ -998,7 +996,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
     const incoming = Array.from(files)
     for (const file of incoming) {
-      if (!COMPLETION_ATTACHMENT_EXTENSIONS.includes(completionAttachmentExtension(file.name))) {
+      if (!isAllowedAttachmentFileName(file.name)) {
         setCompletionAttachmentError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
         if (completeFileInputRef.current) completeFileInputRef.current.value = ''
         return
@@ -1182,7 +1180,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
     const incoming = Array.from(files)
     for (const file of incoming) {
-      if (!COMPLETION_ATTACHMENT_EXTENSIONS.includes(completionAttachmentExtension(file.name))) {
+      if (!isAllowedAttachmentFileName(file.name)) {
         setCancelAttachmentError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
         if (cancelFileInputRef.current) cancelFileInputRef.current.value = ''
         return
@@ -3422,7 +3420,7 @@ const pageKicker = isMyTasksView
                 <input
                   ref={completeFileInputRef}
                   type="file"
-                  accept={COMPLETION_ATTACHMENT_ACCEPT}
+                  accept={ATTACHMENT_FILE_ACCEPT}
                   multiple
                   className="hidden"
                   disabled={completeSaving || completionAttachmentUploading}
@@ -3526,7 +3524,7 @@ const pageKicker = isMyTasksView
                     <input
                       ref={cancelFileInputRef}
                       type="file"
-                      accept={COMPLETION_ATTACHMENT_ACCEPT}
+                      accept={ATTACHMENT_FILE_ACCEPT}
                       multiple
                       className="hidden"
                       disabled={returnSaving || cancelAttachmentUploading}

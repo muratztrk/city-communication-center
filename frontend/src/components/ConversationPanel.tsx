@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { FileText, Loader2, Paperclip, Send, X } from 'lucide-react'
+import { Loader2, Paperclip, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -17,6 +17,7 @@ import { conversationSameDay, formatConversationDayDivider } from '../utils/conv
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
+import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
 
 const CONVERSATION_FILE_ACCEPT = '.jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'
 
@@ -321,29 +322,16 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         {enableWhatsAppFileAttachment && pendingFile ? (
           <div className="flex flex-col items-end">
             <div className={`rounded-2xl rounded-tr-sm text-white shadow-md ring-1 ring-white/10 ${compactActions ? 'max-w-[min(55%,16rem)] px-2.5 py-1.5 text-[11px]' : 'max-w-[min(65%,22rem)] px-3 py-2 text-xs'}`} style={{ background: 'var(--color-header-from)' }}>
-              <div className="flex items-center gap-2">
-                <FileText className={`shrink-0 ${compactActions ? 'size-3.5' : 'size-4'}`} aria-hidden="true" />
-                <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
-                <button
-                  type="button"
-                  onClick={() => setPendingFile(null)}
-                  disabled={sending}
-                  className={`ml-auto inline-flex shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60 ${compactActions ? 'size-5' : 'size-6'}`}
-                  aria-label={t('common.dismiss', 'Vazgeç')}
-                >
-                  <X className={compactActions ? 'size-3' : 'size-3.5'} aria-hidden="true" />
-                </button>
-              </div>
-              {pendingFile.type.startsWith('image/') && pendingFilePreviewUrl ? (
-                <img
-                  src={pendingFilePreviewUrl}
-                  alt={pendingFile.name}
-                  className={`mt-1.5 w-full rounded-lg border border-white/20 object-contain bg-white/95 ${compactActions ? 'max-h-20' : 'max-h-36'}`}
-                />
-              ) : null}
-              {replyText.trim() ? (
-                <p className={`mt-1.5 whitespace-pre-wrap break-words ${compactActions ? 'text-xs' : 'text-sm'}`}>{replyText.trim()}</p>
-              ) : null}
+              <WhatsAppOutboundAttachmentChip
+                fileName={pendingFile.name}
+                isImage={pendingFile.type.startsWith('image/')}
+                previewUrl={pendingFilePreviewUrl}
+                compact={compactActions}
+                onDismiss={() => setPendingFile(null)}
+                dismissDisabled={sending}
+                dismissLabel={t('common.dismiss', 'Vazgeç')}
+                caption={replyText}
+              />
             </div>
           </div>
         ) : null}

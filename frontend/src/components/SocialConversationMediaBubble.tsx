@@ -3,9 +3,10 @@ import { Download, FileText, Loader2, Volume2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { Button } from './ui/button'
-import { SimpleImageAttachmentIcon } from './ui/SimpleImageAttachmentIcon'
 import { SocialConversationMediaPreview } from './SocialConversationMediaPreview'
+import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
 import { socialMediaFilename } from '../utils/socialConversationContent'
+import { lowercaseFileExtension } from '../utils/fileNameDisplay'
 
 interface SocialConversationMediaBubbleProps {
   socialMessageId: string
@@ -20,6 +21,8 @@ interface SocialConversationMediaBubbleProps {
   requestAttachmentLayout?: boolean
   /** Gönderim sırasındaki orijinal dosya adı — `[Dosya eki: …]` içeriğinden (card #2385). */
   displayFilename?: string | null
+  /** Modal/kompakt konuşmada giden ek adı daha küçük (#2209). */
+  compactChip?: boolean
 }
 
 export function SocialConversationMediaBubble({
@@ -32,10 +35,11 @@ export function SocialConversationMediaBubble({
   sentChip = false,
   requestAttachmentLayout = false,
   displayFilename,
+  compactChip = false,
 }: SocialConversationMediaBubbleProps) {
   const { t } = useTranslation()
   const mime = mediaMimeType ?? 'application/octet-stream'
-  const filename = displayFilename?.trim() || socialMediaFilename(entryId, mime, citizenPhone)
+  const filename = lowercaseFileExtension(displayFilename?.trim() || socialMediaFilename(entryId, mime, citizenPhone))
   const [objectUrl, setObjectUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -119,28 +123,16 @@ export function SocialConversationMediaBubble({
     </Button>
   ) : null
 
-  const SentFileIcon = isImage ? SimpleImageAttachmentIcon : FileText
-
   if (sentChip) {
     return (
-      <div className="space-y-1.5">
-        <div className="flex items-center gap-2">
-          <SentFileIcon className="size-4 shrink-0" aria-hidden="true" />
-          <span className="min-w-0 truncate text-sm font-semibold">{filename}</span>
-        </div>
-        {isImage ? (
-          <button
-            type="button"
-            onClick={() => setPreviewOpen(true)}
-            className="block overflow-hidden rounded-lg border border-white/20"
-          >
-            <img
-              src={objectUrl}
-              alt={filename}
-              className="max-h-20 w-full object-contain bg-white/95"
-            />
-          </button>
-        ) : null}
+      <>
+        <WhatsAppOutboundAttachmentChip
+          fileName={filename}
+          isImage={isImage}
+          previewUrl={isImage ? objectUrl : null}
+          compact={compactChip}
+          onImageClick={isImage ? () => setPreviewOpen(true) : undefined}
+        />
         <SocialConversationMediaPreview
           open={previewOpen}
           objectUrl={objectUrl}
@@ -149,7 +141,7 @@ export function SocialConversationMediaBubble({
           onClose={() => setPreviewOpen(false)}
           onDownload={() => void handleDownload()}
         />
-      </div>
+      </>
     )
   }
 

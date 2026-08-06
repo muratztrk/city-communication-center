@@ -548,7 +548,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp operatör dosya eki (#2394 reopen):** Dosya ekle seçimi pending önizleme gösterir; iletim
   `Mesajı Gönder` ile onaylanır (doğrudan gönderim yok).
 - **WhatsApp giden ek balonu (#2399 reopen):** iletilmiş ekler chip olarak gösterilir; görsel eklerde
-  görsel ikonu, dokümanda FileText; orijinal dosya adı `[Dosya eki: …]` içeriğinden okunur (#2385 reopen).
+  görsel ikonu, dokümanda FileText; orijinal dosya adı `[Dosya eki: …]` içeriğinden okunur (#2385 reopen);
+  uzantı küçük harf; modal/kompakt konuşmada ad metni `text-xs` (#2209). Bekleyen ek önizlemesi iletilmiş
+  ek ile aynı chip bileşenini kullanır (#2267).
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
   footer input'ta tutulur.
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.

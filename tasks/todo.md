@@ -1,3 +1,7 @@
+## Round 706 — WA ek chip hizalama (2 kart)
+- `#2209`: Modal giden ek adı `text-xs` + uzantı küçük harf.
+- `#2267`: Bekleyen ek önizlemesi iletilmiş ek chip tasarımıyla aynı (`WhatsAppOutboundAttachmentChip`).
+
 ## Round 705 — modal ince ayar + kurum içi ek indirme (4 kart)
 - `#2403` reopen: Modal Açıklama yüksekliği + Cadde/Sokak placeholder/input küçültüldü.
 - `#2396` reopen: Modal Dosya ekle buton genişliği azaltıldı.

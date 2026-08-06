@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo } from 'react'
-import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, FileText, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
+import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSearchParams, useNavigate } from 'react-router-dom'
@@ -20,6 +20,7 @@ import type {
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
+import { WhatsAppOutboundAttachmentChip } from '../components/WhatsAppOutboundAttachmentChip'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
@@ -1258,29 +1259,19 @@ function ConversationDetail({
             {pendingFile ? (
               <div className="flex flex-col items-end">
                 <div className="max-w-[min(55%,16rem)] rounded-2xl rounded-tr-sm px-2.5 py-1.5 text-[11px] text-white shadow-md ring-1 ring-white/10" style={{ background: 'var(--color-header-from)' }}>
-                  <div className="flex items-center gap-2">
-                    <FileText className="size-3.5 shrink-0" aria-hidden="true" />
-                    <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setPendingFile(null)
-                        setPendingFileEditing(false)
-                      }}
-                      disabled={sending}
-                      className="ml-auto inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60"
-                      aria-label={t('common.dismiss', 'Vazgeç')}
-                    >
-                      <X className="size-3" aria-hidden="true" />
-                    </button>
-                  </div>
-                  {pendingFile.type.startsWith('image/') && pendingFilePreviewUrl ? (
-                    <img
-                      src={pendingFilePreviewUrl}
-                      alt={pendingFile.name}
-                      className="mt-1.5 max-h-20 w-full rounded-lg border border-white/20 object-contain bg-white/95"
-                    />
-                  ) : null}
+                  <WhatsAppOutboundAttachmentChip
+                    fileName={pendingFile.name}
+                    isImage={pendingFile.type.startsWith('image/')}
+                    previewUrl={pendingFilePreviewUrl}
+                    compact
+                    onDismiss={() => {
+                      setPendingFile(null)
+                      setPendingFileEditing(false)
+                    }}
+                    dismissDisabled={sending}
+                    dismissLabel={t('common.dismiss', 'Vazgeç')}
+                    caption={pendingFileEditing ? undefined : replyText}
+                  />
                   {pendingFileEditing ? (
                     <textarea
                       rows={2}
@@ -1289,8 +1280,6 @@ function ConversationDetail({
                       placeholder={t('whatsapp.attachmentCaptionPlaceholder', 'Ek açıklaması yaz...')}
                       className="mt-2 w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
                     />
-                  ) : replyText.trim() ? (
-                    <p className="mt-2 whitespace-pre-wrap break-words text-sm">{replyText.trim()}</p>
                   ) : null}
                 </div>
                 <div className="mt-1 flex items-center gap-1.5">

@@ -224,6 +224,7 @@ export function ConversationEntryBubble({
                 sentChip={entry.direction === 'Outbound'}
                 requestAttachmentLayout={Boolean(onAddMediaAsAttachment)}
                 displayFilename={parseAttachmentFilenameFromContent(entry.content)}
+                compactChip={compact}
               />
             </div>
           )}

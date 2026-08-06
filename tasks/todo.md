@@ -1,3 +1,8 @@
+## Round 708 — modal textarea + kurum içi ek (3 kart)
+- `#2403` reopen: Modal Açıklama `min-h-20`, Açık Adres `min-h-[4rem]`.
+- `#2395` reopen: Kurum içi ek alıcıda görünmüyor — `areConversationDetailsEqual` attachment karşılaştırması.
+- `#2407`: Kurum içi ek dosya adı uzantısı küçük harf (FE+BE normalize).
+
 ## Round 707 — WA pending layout + gelen ek adı (4 kart)
 - `#2396` reopen: Modal Dosya ekle butonu `w-[6rem]`.
 - `#2406`: Gelen vatandaş eklerinde orijinal dosya adı (webhook filename → `[Dosya eki: …]`).

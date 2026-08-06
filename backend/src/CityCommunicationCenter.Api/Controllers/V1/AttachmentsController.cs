@@ -60,6 +60,7 @@ public sealed class AttachmentsController : ApiControllerBase
         if (file is null) return BadRequest("Dosya bulunamadi.");
 
         var tenantId = CurrentContext.RequireTenantId();
+        var uploadFileName = NormalizeAttachmentFileName(file.FileName);
         var message = await _dbContext.InternalMessages
             .AsNoTracking()
             .FirstOrDefaultAsync(m => m.InternalMessageId == messageId && m.TenantId == tenantId, cancellationToken);
@@ -68,7 +69,7 @@ public sealed class AttachmentsController : ApiControllerBase
 
         var command = new UploadAttachmentCommand(
             "InternalMessage", messageId, CurrentContext.UserId,
-            file.FileName, file.ContentType, file.Length, file.OpenReadStream());
+            uploadFileName, file.ContentType, file.Length, file.OpenReadStream());
         var result = await _sender.Send(command, cancellationToken);
 
         var conversation = await _dbContext.InternalConversations
@@ -92,7 +93,7 @@ public sealed class AttachmentsController : ApiControllerBase
                         conversation.InternalConversationId,
                         message.SenderUserId,
                         senderName,
-                        file.FileName,
+                        uploadFileName,
                         DateTimeOffset.UtcNow),
                     cancellationToken);
             }
@@ -103,6 +104,13 @@ public sealed class AttachmentsController : ApiControllerBase
         }
 
         return StatusCode(StatusCodes.Status201Created, result);
+    }
+
+    private static string NormalizeAttachmentFileName(string fileName)
+    {
+        var extensionIndex = fileName.LastIndexOf('.');
+        if (extensionIndex < 0) return fileName;
+        return $"{fileName[..extensionIndex]}{fileName[extensionIndex..].ToLowerInvariant()}";
     }
 
     [HttpDelete("{attachmentId:guid}")]

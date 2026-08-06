@@ -16,6 +16,7 @@ import { formatConversationListTime, formatConversationMessageTime } from '../..
 import { getLocale } from '../../utils/localization'
 import { TablePagination } from '../ui/table-pagination'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../../utils/attachmentLimits'
+import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
 
 const INTERNAL_MESSAGE_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
 const INTERNAL_MESSAGE_FILE_ACCEPT = INTERNAL_MESSAGE_FILE_EXTENSIONS.join(',')
@@ -91,6 +92,7 @@ function areConversationDetailsEqual(left: InternalConversationDetail | null, ri
       && message.content === nextMessage.content
       && message.createdAtUtc === nextMessage.createdAtUtc
       && message.readAtUtc === nextMessage.readAtUtc
+      && (message.attachment?.attachmentId ?? null) === (nextMessage.attachment?.attachmentId ?? null)
   })
 }
 
@@ -515,9 +517,13 @@ export function InternalMessagesFab() {
     try {
       notifyTyping(false)
       clearTypingHeartbeat()
-      const result = await api.sendInternalMessage(activeChat.otherUserId, content || file!.name)
+      const normalizedFileName = file ? lowercaseFileExtension(file.name) : ''
+      const result = await api.sendInternalMessage(activeChat.otherUserId, content || normalizedFileName)
       if (file) {
-        await api.uploadInternalMessageAttachment(result.message.internalMessageId, file)
+        const uploadFile = normalizedFileName === file.name
+          ? file
+          : new File([file], normalizedFileName, { type: file.type })
+        await api.uploadInternalMessageAttachment(result.message.internalMessageId, uploadFile)
       }
       setDraft('')
       setPendingFile(null)
@@ -646,7 +652,7 @@ export function InternalMessagesFab() {
                             <p className={`mb-0.5 text-[11px] font-semibold leading-snug ${isMine ? 'text-white/90' : 'text-slate-900'}`}>
                               {senderName} <span className="mx-0.5 inline-block size-[2px] translate-y-[-0.08em] rounded-full bg-current align-middle opacity-70" aria-hidden="true" /> {senderDepartment}
                             </p>
-                            {message.content && (!message.attachment || message.content !== message.attachment.fileName) ? (
+                            {message.content && (!message.attachment || message.content !== lowercaseFileExtension(message.attachment.fileName)) ? (
                               <p className="whitespace-pre-wrap break-words text-xs leading-snug">{message.content}</p>
                             ) : null}
                             {message.attachment ? (
@@ -658,18 +664,19 @@ export function InternalMessagesFab() {
                                     : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100'
                                 }`}
                                 onClick={() => {
+                                  const attachmentName = lowercaseFileExtension(message.attachment!.fileName)
                                   void api.downloadAttachment(message.attachment!.attachmentId).then(blob => {
                                     const url = URL.createObjectURL(blob)
                                     const anchor = document.createElement('a')
                                     anchor.href = url
-                                    anchor.download = message.attachment!.fileName
+                                    anchor.download = attachmentName
                                     anchor.click()
                                     URL.revokeObjectURL(url)
                                   })
                                 }}
                               >
                                 <FileText className="size-3.5 shrink-0" aria-hidden="true" />
-                                <span className="truncate">{message.attachment.fileName}</span>
+                                <span className="truncate">{lowercaseFileExtension(message.attachment.fileName)}</span>
                               </button>
                             ) : null}
                             <p className={`mt-0.5 flex items-center justify-end gap-1 text-[9px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
@@ -693,7 +700,7 @@ export function InternalMessagesFab() {
                     <div className="max-w-[min(72%,28rem)] rounded-xl rounded-tr-sm bg-emerald-700 px-2.5 py-1.5 text-xs text-white shadow-sm ring-1 ring-white/10">
                       <div className="flex items-center gap-1.5">
                         <FileText className="size-3.5 shrink-0" aria-hidden="true" />
-                        <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
+                        <span className="min-w-0 truncate font-semibold">{lowercaseFileExtension(pendingFile.name)}</span>
                         <button
                           type="button"
                           onClick={() => setPendingFile(null)}

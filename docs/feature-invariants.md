@@ -560,7 +560,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Medya balon Talep Eki hizası (#2401/#2402):** görselde Talep Eki Önizle alt satırında; dokümanda İndir
   sağında.
 - **Kurum İçi pending ek (#2395 reopen):** mime/boyut alt satırı basılmaz. Ek yüklendikten sonra alıcıya
-  SignalR yenilemesi gider; indirme yalnızca konuşmanın gönderen/alıcı tarafına açıktır.
+  SignalR yenilemesi gider; indirme yalnızca konuşmanın gönderen/alıcı tarafına açıktır. Açık sohbet poll
+  eşitliği `attachment.attachmentId` alanını da karşılaştırır — ek yüklendikten sonra UI güncellenmez
+  regresyonu olmamalı (#2395 reopen).
+- **Kurum içi ek dosya adı (#2407):** pending, balon ve indirme adında uzantı küçük harf; upload sırasında
+  normalize edilir.
 - **Gelen WA doküman ek adı (#2404 reopen):** vatandaştan gelen doküman balonunda dosya adı metni
   `text-[10px]` / ikon `size-3` / çerçeve `px-2 py-1`.
 - **WhatsApp bekleyen dosya önizlemesi (#2385/#2389):** sohbet alanındaki pending-file balonu kompakt

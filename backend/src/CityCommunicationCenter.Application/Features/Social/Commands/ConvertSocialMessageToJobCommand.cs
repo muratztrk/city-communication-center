@@ -178,6 +178,18 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
                 item => item.TenantId == tenantId && phoneVariants.Contains(item.CitizenPhone),
                 cancellationToken);
 
+        if (phoneOwner is not null
+            && await CitizenConversationLinkGuard.ShouldSkipPhoneLinkToConversationAsync(
+                _dbContext,
+                tenantId,
+                message.Channel,
+                phoneOwner.CitizenConversationId,
+                cancellationToken))
+        {
+            // Çağrı talebi WA profiline bağlanmaz / adını ezmez (#2288/#2330).
+            return;
+        }
+
         CitizenConversation? linked = null;
         if (message.CitizenConversationId.HasValue)
         {

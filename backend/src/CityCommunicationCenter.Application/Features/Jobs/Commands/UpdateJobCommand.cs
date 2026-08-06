@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Common;
+using CityCommunicationCenter.Application.Features.Social;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
@@ -270,8 +271,8 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             });
         }
 
-        // Çağrı talebi adı/telefonu değişince WhatsApp konuşma profilini eşleştir (#6a6f1d32).
-        // Job.CitizenName talep bazlı kalır; konuşma profili son form değerine güncellenir.
+        // Çağrı talebi adı/telefonu değişince yalnız phone-only konuşma profili eşleşir (#2288/#2330).
+        // Job.CitizenName talep bazlı kalır; WA konuşma profiline yazılmaz.
         if (previousCitizenName != job.CitizenName || previousCitizenPhone != job.CitizenPhone)
         {
             await SyncCitizenConversationProfileAsync(
@@ -303,6 +304,11 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             .Where(message => message.JobId == job.JobId && message.TenantId == tenantId)
             .ToListAsync(cancellationToken);
 
+        if (linkedMessages.Count == 0 || !linkedMessages.All(message => message.Channel == SocialChannel.Phone))
+        {
+            return;
+        }
+
         // Unique (TenantId, CitizenPhone): önce telefon sahibi; çakışmada eski konuşmanın
         // numarasını ezme — mesajları doğru konuşmaya taşı (#6a6f1d32).
         var phoneVariants = ConversationPhoneVariants(normalizedPhone);
@@ -310,6 +316,17 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             .FirstOrDefaultAsync(
                 item => item.TenantId == tenantId && phoneVariants.Contains(item.CitizenPhone),
                 cancellationToken);
+
+        if (phoneOwner is not null
+            && await CitizenConversationLinkGuard.ShouldSkipPhoneLinkToConversationAsync(
+                _dbContext,
+                tenantId,
+                SocialChannel.Phone,
+                phoneOwner.CitizenConversationId,
+                cancellationToken))
+        {
+            return;
+        }
 
         CitizenConversation? linked = null;
         var linkedConversationId = linkedMessages

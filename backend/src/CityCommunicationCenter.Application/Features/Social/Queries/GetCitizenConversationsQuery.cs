@@ -320,6 +320,7 @@ public sealed class GetCitizenConversationsQueryHandler
             .Select(message => new
             {
                 message.SocialMessageId,
+                message.Channel,
                 message.CitizenHandle,
                 JobCitizenPhone = message.JobId.HasValue
                     ? _dbContext.Jobs
@@ -395,6 +396,15 @@ public sealed class GetCitizenConversationsQueryHandler
                 conversationId = conversation.CitizenConversationId;
                 byPhone[normalized] = conversationId;
                 changed = true;
+            }
+            else if (await CitizenConversationLinkGuard.ShouldSkipPhoneLinkToConversationAsync(
+                _dbContext,
+                tenantId,
+                orphan.Channel,
+                conversationId,
+                cancellationToken))
+            {
+                continue;
             }
 
             var message = await _dbContext.SocialMessages

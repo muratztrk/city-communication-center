@@ -592,8 +592,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `socialMessageId`'sini taşır; medya indirme/gönder/düzenle aksiyonları entry'nin gerçek id'siyle çalışır.
 - **WhatsApp profil telefonu salt okunur:** sağ panelde `Numara` başındaki ülke kodu olmadan gösterilir,
   kayıtta değiştirilemez; `Vatandaş Adı` düzenlenebilir ve yalnız `CitizenConversation` profiline
-  yazılır (`Job.CitizenName` talep bazlı ayrı kalır — card #2288). Kaydedilen ad/etiket/adres metinleri
-  Türkçe başlık biçimine normalize edilir.
+  yazılır (`Job.CitizenName` talep bazlı ayrı kalır — card #2288). **Phone (çağrı) VT'leri aynı
+  numarada mevcut WhatsApp konuşmasına bağlanmaz / WA profil adını ezmez** — `CitizenConversationLinkGuard`
+  (#2288 reopen / #2330). Kaydedilen ad/etiket/adres metinleri Türkçe başlık biçimine normalize edilir.
 - **WhatsApp detay header sayaçları:** seçili konuşma header'ında durum kırılımları gösterilmez; yalnız
   seçili numaraya ait toplam `Talep Sayısı` hesaplanır ve tıklanınca Vatandaş Talepleri gridine telefon
   filtresiyle gider. `Talep Sayısı` numara satırının **alt satırında** gösterilir (#2400).
@@ -1686,7 +1687,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).
 - **WA chat footer Birim/Kurum İçi (#r460):** şablon satırında `ml-auto` sağa yaslı (bir satır yukarı).
 - **Sayfa Yetkileri (#1893/#r449/#r451/#r453/#r455/#r459):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
-  Kaydet Kurum İçi Mesajlar FAB solunda (`--fab-inline-clearance - 5rem`); Kaydet `min-w-[13rem]` (#r455).
+  Kaydet Kurum İçi Mesajlar FAB solunda (`--fab-inline-clearance - 6rem`); Kaydet `min-w-[13rem]` (#r455).
 - **Birimler Yönetici Ata (#r453):** Sorumlu/Müdür açılır panel genişliği trigger ile aynı
   (`users-edit-dropdown-menu` max-width yok); Yeni Birim Ekle açınca yarım kalan satır
   aksiyonları (Yönetici Ata/Sil/Düzenle) temizlenir.

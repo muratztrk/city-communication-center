@@ -1,3 +1,7 @@
+## Round 713 — çağrı ↔ WA ayrımı (2 kart)
+- `#2288` reopen: Phone VT mevcut WA konuşmasına bağlanmaz; profil adı ezilmez.
+- `#2330`: Aynı numarayla çağrı talebi WA profil adını değiştirmez.
+
 ## Round 712 — modal medya ince ayar + kurum içi görsel ek + WA nav (8 kart)
 - `#2411` reopen: Modal gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5`.
 - `#2413` reopen: Modal gelen görsel `max-w-[14rem]`.

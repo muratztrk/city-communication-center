@@ -678,6 +678,27 @@ export function InternalMessagesFab() {
                 )}
               </div>
               <div className="shrink-0 space-y-2 border-t border-[var(--color-border)] bg-white px-3 py-2.5">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={INTERNAL_MESSAGE_FILE_ACCEPT}
+                  className="hidden"
+                  onChange={event => {
+                    const file = event.target.files?.[0] ?? null
+                    event.target.value = ''
+                    setFileError(null)
+                    setPendingFile(file)
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={sending}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
+                >
+                  <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+                  {t('attachments.addFile', 'Dosya ekle')}
+                </button>
                 {pendingFile ? (
                   <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700">
                     <FileText className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
@@ -694,27 +715,6 @@ export function InternalMessagesFab() {
                 ) : null}
                 {fileError ? <p className="text-xs font-semibold text-red-600">{fileError}</p> : null}
                 <div className="flex items-center gap-2">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept={INTERNAL_MESSAGE_FILE_ACCEPT}
-                    className="hidden"
-                    onChange={event => {
-                      const file = event.target.files?.[0] ?? null
-                      event.target.value = ''
-                      setFileError(null)
-                      setPendingFile(file)
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={sending}
-                    className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
-                  >
-                    <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
-                    {t('attachments.addFile', 'Dosya ekle')}
-                  </button>
                   <input
                     type="text"
                     value={draft}

@@ -1727,7 +1727,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   viewport'un en alt kenarına tam satır/full-bleed oturur; sayfa padding'i footer'ı yukarıda veya dar bırakmaz.
 - **AppFooter Lumespec markası:** Tüm footer yüzeyleri (`AppShell`, login, wallboard) ortak
   `AppFooter` kullanır; marka `/lumespec-logo.png` wordmark'ıdır (eski 4-kare SVG + uppercase
-  metin yok). Logo `h-7 sm:h-8`, satır `py-0`, alt şerit `1px`; `--fab-footer-clearance: 2rem`
+  metin yok). Logo `h-7 sm:h-8`, satır `py-0`, alt şerit `3px`; `--fab-footer-clearance: 2rem`
   birlikte korunur (#2348 reopen / #1960).
 - **Birime Gelen pie Yapılmakta Olan (#r542):** `INCOMING_SLICE_STATUS.inProgress` →
   `status=in-progress` (mavi chip); `approved` değil.

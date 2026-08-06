@@ -1401,9 +1401,9 @@ function ConversationDetail({
                     type="button"
                     onClick={() => void handleSendInternal()}
                     disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                    className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="inline-flex h-8 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+                    {sendingInternal ? <Loader2 className="size-3 animate-spin" /> : <Send className="size-3" />}
                     {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
                   </button>
                 </div>

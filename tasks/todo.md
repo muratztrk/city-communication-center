@@ -1,3 +1,7 @@
+## Round 700 — Footer şerit + WA buton (2 kart)
+- `#2388`: AppFooter yeşil alt şerit `3px` (eskisi gibi).
+- `#2387`: WA sayfası Sadece Kurum İçi İlet butonu küçültüldü.
+
 ## Round 699 — WA/kurum içi düzeltmeler (5 kart)
 - `#2381` reopen: Vatandaş Talebi modal Birim/Kurum İçi tek satır sağa geri alındı.
 - `#2386`: Kurum İçi dosya uzantı doğrulama düzeltmesi (yanlış tip uyarısı).

@@ -25,7 +25,7 @@ export function AppFooter() {
           © Her Hakkı Saklıdır – {year}
         </div>
       </div>
-      <div className="h-px w-full bg-[color:var(--color-primary)]" />
+      <div className="h-[3px] w-full bg-[color:var(--color-primary)]" />
     </footer>
   )
 }

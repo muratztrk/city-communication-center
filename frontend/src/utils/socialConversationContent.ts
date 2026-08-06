@@ -93,6 +93,13 @@ export function socialMediaFilename(entryId: string, mime: string, citizenPhone?
   return `whatsapp-${entryId.slice(0, 8)}${extensionFromMimeType(mime)}`
 }
 
+/** `[Dosya eki: orijinal-ad.pdf]` içeriğinden gönderim dosya adını çıkarır (card #2385). */
+export function parseAttachmentFilenameFromContent(content: string | null | undefined): string | null {
+  if (!content?.trim()) return null
+  const match = /^\[Dosya eki:\s*(.+)\]$/i.exec(content.trim())
+  return match?.[1]?.trim() ?? null
+}
+
 export function isPlaceholderBracketContent(content: string): boolean {
   const trimmed = content.trim()
   return /^\[[^\]]+\]$/.test(trimmed) || /^<[^>/]+>$/.test(trimmed)

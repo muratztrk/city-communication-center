@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Loader2, Paperclip, Send } from 'lucide-react'
+import { FileText, Loader2, Paperclip, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -79,6 +79,8 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const [sending, setSending] = useState(false)
   const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -126,49 +128,50 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
       window.cancelAnimationFrame(frameId)
       window.clearTimeout(timeoutId)
     }
-  }, [lastEntryKey, scrollConversationToBottom, socialMessageId])
+  }, [lastEntryKey, scrollConversationToBottom, socialMessageId, pendingFile])
 
-  const sendAttachmentImmediately = async (file: File) => {
-    if (sending) return
+  useEffect(() => {
+    if (!pendingFile) {
+      setPendingFilePreviewUrl(null)
+      return
+    }
+    const objectUrl = URL.createObjectURL(pendingFile)
+    setPendingFilePreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [pendingFile])
+
+  const handleWhatsAppFileSelected = (file: File | undefined) => {
+    if (!file) return
     if (file.size > ATTACHMENT_MAX_TOTAL_BYTES) {
       setFileError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
       return
     }
     setFileError(null)
-    setSending(true)
-    try {
-      await api.replySocialMessageAttachment(socialMessageId, file, replyText.trim(), true)
-      setReplyText('')
-      setSelectedMetaTemplate(null)
-      invalidateSocialMessages(queryClient, socialMessageId)
-      onReplySent?.()
-    } finally {
-      setSending(false)
-    }
-  }
-
-  const handleWhatsAppFileSelected = (file: File | undefined) => {
-    if (!file) return
-    void sendAttachmentImmediately(file)
+    setPendingFile(file)
   }
 
   const handleSend = async () => {
     const text = replyText.trim()
-    if (!text || sending) return
+    if ((!text && !pendingFile) || sending) return
     setSending(true)
     try {
-      await api.replySocialMessage(
-        socialMessageId,
-        text,
-        false,
-        selectedMetaTemplate
-          ? {
-              whatsAppTemplateId: selectedMetaTemplate.templateId,
-              whatsAppTemplateName: selectedMetaTemplate.name,
-              whatsAppTemplateLanguage: selectedMetaTemplate.language,
-            }
-          : undefined,
-      )
+      if (pendingFile) {
+        await api.replySocialMessageAttachment(socialMessageId, pendingFile, text, true)
+        setPendingFile(null)
+      } else {
+        await api.replySocialMessage(
+          socialMessageId,
+          text,
+          false,
+          selectedMetaTemplate
+            ? {
+                whatsAppTemplateId: selectedMetaTemplate.templateId,
+                whatsAppTemplateName: selectedMetaTemplate.name,
+                whatsAppTemplateLanguage: selectedMetaTemplate.language,
+              }
+            : undefined,
+        )
+      }
       setReplyText('')
       setSelectedMetaTemplate(null)
       invalidateSocialMessages(queryClient, socialMessageId)
@@ -315,6 +318,35 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             )
           })
         )}
+        {enableWhatsAppFileAttachment && pendingFile ? (
+          <div className="flex flex-col items-end">
+            <div className={`rounded-2xl rounded-tr-sm text-white shadow-md ring-1 ring-white/10 ${compactActions ? 'max-w-[min(55%,16rem)] px-2.5 py-1.5 text-[11px]' : 'max-w-[min(65%,22rem)] px-3 py-2 text-xs'}`} style={{ background: 'var(--color-header-from)' }}>
+              <div className="flex items-center gap-2">
+                <FileText className={`shrink-0 ${compactActions ? 'size-3.5' : 'size-4'}`} aria-hidden="true" />
+                <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setPendingFile(null)}
+                  disabled={sending}
+                  className={`ml-auto inline-flex shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60 ${compactActions ? 'size-5' : 'size-6'}`}
+                  aria-label={t('common.dismiss', 'Vazgeç')}
+                >
+                  <X className={compactActions ? 'size-3' : 'size-3.5'} aria-hidden="true" />
+                </button>
+              </div>
+              {pendingFile.type.startsWith('image/') && pendingFilePreviewUrl ? (
+                <img
+                  src={pendingFilePreviewUrl}
+                  alt={pendingFile.name}
+                  className={`mt-1.5 w-full rounded-lg border border-white/20 object-contain bg-white/95 ${compactActions ? 'max-h-20' : 'max-h-36'}`}
+                />
+              ) : null}
+              {replyText.trim() ? (
+                <p className={`mt-1.5 whitespace-pre-wrap break-words ${compactActions ? 'text-xs' : 'text-sm'}`}>{replyText.trim()}</p>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
         <div ref={bottomRef} />
       </div>
 
@@ -409,7 +441,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               className="field-input min-w-0 resize-none min-h-[4.5rem] max-h-28 py-2 text-sm"
               style={{ height: 'auto' }}
             />
-            <Button size="sm" onClick={() => void handleSend()} disabled={!replyText.trim() || sending} className="self-end shrink-0">
+            <Button size="sm" onClick={() => void handleSend()} disabled={(!replyText.trim() && !pendingFile) || sending} className="self-end shrink-0">
               {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
             </Button>
           </div>

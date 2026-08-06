@@ -751,7 +751,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     />
                   </label>
                 </div>
-                <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-stretch">
+                <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-start">
                   <label className="job-field flex min-h-0 flex-col gap-1">
                     <span className="job-field-label">
                       {t('address.openAddressLabel', 'Açık Adres')}
@@ -763,7 +763,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       ) : null}
                     </span>
                     <textarea
-                      className="field-textarea field-textarea--compact address-open-textarea min-h-[5.5rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                      className="field-textarea field-textarea--compact address-open-textarea citizen-request-open-address min-h-[4.75rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
                       value={openAddress}
@@ -775,8 +775,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   </label>
                   <div className="job-field flex min-h-0 flex-col gap-1">
                     <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
-                    <div className="flex min-h-[5.5rem] items-stretch gap-2">
-                      <label className={`inline-flex h-[2.0625rem] w-[7.6rem] shrink-0 cursor-pointer items-center justify-center gap-1 self-end rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
+                    <div className="flex min-h-[4.75rem] items-start gap-2">
+                      <label className={`inline-flex h-[2.0625rem] w-[7.6rem] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
                         <Paperclip className="size-3.5 text-emerald-700" />
                         {t('attachments.addFile', 'Dosya ekle')}
                         <input
@@ -794,7 +794,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                           }}
                         />
                       </label>
-                      <div className="min-h-[5.5rem] max-h-[5.5rem] min-w-0 flex-1 overflow-y-auto rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                      <div className="min-h-[4.75rem] max-h-[4.75rem] min-w-0 flex-1 overflow-y-auto rounded-2xl border border-slate-200 bg-white px-3 py-2">
                         {pendingFiles.length === 0 ? (
                           <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
                         ) : (

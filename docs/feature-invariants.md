@@ -545,10 +545,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp footer birim/iç mesaj hizası (#2381/#2392/#2391 reopen):** `/whatsapp` ve Vatandaş Talebi modal
   footer'ında şablon/dosya/birim/Sadece Kurum İçi İlet **tek üst satırda** kalır; birim dropdown'u butonun
   hemen solunda; iç mesaj butonunun sağ kenarı textarea ile hizalıdır (grid spacer).
-- **WhatsApp operatör dosya eki (#2394):** Dosya ekle seçimi onay veya pending önizleme göstermeden doğrudan
-  iletilir (`replySocialMessageAttachment`, `sendImmediately=true`).
-- **WhatsApp giden ek balonu (#2399):** iletilmiş ekler pending önizleme ile aynı chip (dosya adı + ikon,
-  görselde küçük thumbnail) olarak gösterilir.
+- **WhatsApp operatör dosya eki (#2394 reopen):** Dosya ekle seçimi pending önizleme gösterir; iletim
+  `Mesajı Gönder` ile onaylanır (doğrudan gönderim yok).
+- **WhatsApp giden ek balonu (#2399 reopen):** iletilmiş ekler chip olarak gösterilir; görsel eklerde
+  görsel ikonu, dokümanda FileText; orijinal dosya adı `[Dosya eki: …]` içeriğinden okunur (#2385 reopen).
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
   footer input'ta tutulur.
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.

@@ -135,7 +135,7 @@ export function WhatsAppTemplatePicker({
         className={
           isOnDark
             ? 'h-9 gap-1.5 rounded-full border border-white/30 bg-transparent px-4 text-white hover:bg-white/10 hover:text-white disabled:opacity-50 disabled:hover:bg-transparent'
-            : `${compact ? 'h-7 gap-1 px-2 text-[11px]' : 'h-9'} gap-1 disabled:opacity-50`
+            : `${compact ? 'h-7 gap-1 px-2 text-[11px]' : 'h-9 px-2.5 text-xs'} gap-1 font-semibold disabled:opacity-50`
         }
       >
         <FileText className={`text-emerald-600 ${compact ? 'size-3' : 'size-3.5'}`} />

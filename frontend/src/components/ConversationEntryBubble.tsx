@@ -11,6 +11,7 @@ import {
   formatConversationDisplayContent,
   isLocationConversationContent,
   isPlaceholderBracketContent,
+  parseAttachmentFilenameFromContent,
   parseConversationLocationCoords,
 } from '../utils/socialConversationContent'
 import { formatWhatsAppDeliveryError } from '../utils/formatWhatsAppDeliveryError'
@@ -222,6 +223,7 @@ export function ConversationEntryBubble({
                 onAddAsAttachment={onAddMediaAsAttachment}
                 sentChip={entry.direction === 'Outbound'}
                 requestAttachmentLayout={Boolean(onAddMediaAsAttachment)}
+                displayFilename={parseAttachmentFilenameFromContent(entry.content)}
               />
             </div>
           )}

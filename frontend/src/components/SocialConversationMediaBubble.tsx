@@ -3,6 +3,7 @@ import { Download, FileText, Loader2, Volume2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { Button } from './ui/button'
+import { SimpleImageAttachmentIcon } from './ui/SimpleImageAttachmentIcon'
 import { SocialConversationMediaPreview } from './SocialConversationMediaPreview'
 import { socialMediaFilename } from '../utils/socialConversationContent'
 
@@ -17,6 +18,8 @@ interface SocialConversationMediaBubbleProps {
   sentChip?: boolean
   /** Vatandaş Talebi modalında Talep Eki buton hizası (card #2401/#2402). */
   requestAttachmentLayout?: boolean
+  /** Gönderim sırasındaki orijinal dosya adı — `[Dosya eki: …]` içeriğinden (card #2385). */
+  displayFilename?: string | null
 }
 
 export function SocialConversationMediaBubble({
@@ -28,10 +31,11 @@ export function SocialConversationMediaBubble({
   onAddAsAttachment,
   sentChip = false,
   requestAttachmentLayout = false,
+  displayFilename,
 }: SocialConversationMediaBubbleProps) {
   const { t } = useTranslation()
   const mime = mediaMimeType ?? 'application/octet-stream'
-  const filename = socialMediaFilename(entryId, mime, citizenPhone)
+  const filename = displayFilename?.trim() || socialMediaFilename(entryId, mime, citizenPhone)
   const [objectUrl, setObjectUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -115,11 +119,13 @@ export function SocialConversationMediaBubble({
     </Button>
   ) : null
 
+  const SentFileIcon = isImage ? SimpleImageAttachmentIcon : FileText
+
   if (sentChip) {
     return (
       <div className="space-y-1.5">
         <div className="flex items-center gap-2">
-          <FileText className="size-4 shrink-0" aria-hidden="true" />
+          <SentFileIcon className="size-4 shrink-0" aria-hidden="true" />
           <span className="min-w-0 truncate text-sm font-semibold">{filename}</span>
         </div>
         {isImage ? (

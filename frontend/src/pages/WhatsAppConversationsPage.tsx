@@ -591,7 +591,7 @@ function ConversationProfilePanel({
   return (
     <aside className="hidden min-h-0 w-72 shrink-0 flex-col overflow-hidden rounded-tr-xl border-l border-slate-200 bg-slate-50/80 lg:flex">
       <div
-        className="flex justify-center rounded-tr-xl border-b border-slate-200 p-4"
+        className="flex justify-center rounded-t-xl border-b border-slate-200 p-4"
         style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
       >
         <button
@@ -1109,6 +1109,24 @@ function ConversationDetail({
     )
   }, [detail, normalizedChatSearch])
 
+  const ticketMeta = ticketLabel ? (
+    <span className="shrink-0 truncate text-[11px] font-semibold text-slate-600">
+      <button
+        type="button"
+        className="font-bold text-slate-700 underline-offset-2 hover:text-emerald-700 hover:underline"
+        onClick={() => phoneForHeader && onOpenViewRequests(phoneForHeader)}
+      >
+        {ticketLabel}
+      </button>
+      {taskOwnerLabel ? (
+        <>
+          <span className="mx-1 text-slate-400">|</span>
+          <span>{t('tasks.columns.owner', 'Görev Sahibi')}: {taskOwnerLabel}</span>
+        </>
+      ) : null}
+    </span>
+  ) : null
+
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[color:var(--color-foreground)]">
       <header className="flex shrink-0 items-start gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3">
@@ -1116,51 +1134,19 @@ function ConversationDetail({
           {headerInitials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
         </div>
         <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-2">
+          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
             <p className="truncate text-[15px] font-semibold leading-tight text-slate-900">{headerTitle}</p>
             {showUrgentBadge ? (
               <span className="shrink-0 rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-950">
                 ACİL
               </span>
             ) : null}
-            {headerSubtitleParts.length === 0 && ticketLabel ? (
-              <span className="ml-auto shrink-0 truncate text-[11px] font-semibold text-slate-600">
-                <button
-                  type="button"
-                  className="font-bold text-slate-700 underline-offset-2 hover:text-emerald-700 hover:underline"
-                  onClick={() => phoneForHeader && onOpenViewRequests(phoneForHeader)}
-                >
-                  {ticketLabel}
-                </button>
-                {taskOwnerLabel ? (
-                  <>
-                    <span className="mx-1 text-slate-400">|</span>
-                    <span>{t('tasks.columns.owner', 'Görev Sahibi')}: {taskOwnerLabel}</span>
-                  </>
-                ) : null}
-              </span>
-            ) : null}
+            {headerSubtitleParts.length === 0 ? ticketMeta : null}
           </div>
           {headerSubtitleParts.length > 0 ? (
-            <div className="flex min-w-0 items-center justify-between gap-2">
+            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
               <p className="truncate text-xs text-slate-500">{headerSubtitleParts.join(' · ')}</p>
-              {ticketLabel ? (
-                <span className="shrink-0 truncate text-[11px] font-semibold text-slate-600">
-                  <button
-                    type="button"
-                    className="font-bold text-slate-700 underline-offset-2 hover:text-emerald-700 hover:underline"
-                    onClick={() => phoneForHeader && onOpenViewRequests(phoneForHeader)}
-                  >
-                    {ticketLabel}
-                  </button>
-                  {taskOwnerLabel ? (
-                    <>
-                      <span className="mx-1 text-slate-400">|</span>
-                      <span>{t('tasks.columns.owner', 'Görev Sahibi')}: {taskOwnerLabel}</span>
-                    </>
-                  ) : null}
-                </span>
-              ) : null}
+              {ticketMeta}
             </div>
           ) : null}
         </div>

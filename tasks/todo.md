@@ -1,3 +1,7 @@
+## Round 702 — WA header hizası + profil köşe (2 kart reopen)
+- `#2384` reopen: Talep Sayısı numaranın hemen sağında (satır sonu değil).
+- `#2391` reopen: Profil paneli Talep Oluştur alanı `rounded-t-xl` (sol+sağ üst köşe).
+
 ## Round 701 — WA header/footer hizası + modal başlık (8 kart)
 - `#2390`: Vatandaş Talebi modal başlığı altında küçük WA ikonu + ad/telefon; panel `Whatsapp Telefon No` header gizli.
 - `#2391`: WA profil paneli Talep Oluştur üst alanı `rounded-tr-xl`.

@@ -526,7 +526,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   detay header'ı telefon yerine adı öncelikli gösterir. Sol konuşma kartında isim varsa telefon
   numarası ismin alt satırında, yanıt durumu (`Yanıt verildi` vb.) ile aynı yatay satırda görünür.
   Sağ profil paneli üstündeki `Talep Oluştur` aksiyonu satır ortasında, büyük `h-10` buton olarak kalır;
-  yeşil gradient üst alan sağ panelin üst sağ köşesinde `rounded-tr-xl` ile ana kartın köşe motifine uyumlu kalır (#2391).
+  yeşil gradient üst alan sağ panelin üst köşelerinde `rounded-t-xl` ile ana kartın köşe motifine uyumlu kalır (#2391).
   Sol konuşma kartındaki `Talep Sayısı: N`
   satırı gösterilmez; `İşleme Alınan`, `Yapılmakta`, `Tamamlandı` durum kırılımı
   başlıksız olarak görünür kalır; `İptal` kart alt sayacında basılmaz.
@@ -568,7 +568,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Türkçe başlık biçimine normalize edilir.
 - **WhatsApp detay header sayaçları:** seçili konuşma header'ında durum kırılımları gösterilmez; yalnız
   seçili numaraya ait toplam `Talep Sayısı` hesaplanır ve tıklanınca Vatandaş Talepleri gridine telefon
-  filtresiyle gider. `Talep Sayısı` numara satırının sağında (aynı yatay hizada) gösterilir (#2384).
+  filtresiyle gider. `Talep Sayısı` numaranın hemen sağında (satır sonuna yaslanmadan) gösterilir (#2384).
 - **WhatsApp detay header görev sahibi:** konuşmadaki vatandaş talebinin görevi oluşmuş ve atanan
   personeli varsa `Talep Sayısı` yanında `| Görev Sahibi: Ad Soyad, Diğer Ad` olarak tüm benzersiz görev
   sahipleri virgülle gösterilir; yalnız `Active`/Yapılmakta talep görev sahipleri sayılır, tamamlanan/iptal

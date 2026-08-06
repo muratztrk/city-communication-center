@@ -16,6 +16,7 @@ import { formatConversationListTime, formatConversationMessageTime } from '../..
 import { getLocale } from '../../utils/localization'
 import { TablePagination } from '../ui/table-pagination'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../../utils/attachmentLimits'
+import { formatStaffSenderLabel } from '../../utils/formatConversationSenderLabel'
 import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
 
 const INTERNAL_MESSAGE_FILE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx']
@@ -132,6 +133,7 @@ export function InternalMessagesFab() {
   const locale = getLocale(i18n.language)
   const { user } = useAuth()
   const currentUserId = user?.userId ?? null
+  const pendingSenderLabel = formatStaffSenderLabel(user?.departmentName, user?.displayName)
 
   const [isOpen, setIsOpen] = useState(false)
   const [conversations, setConversations] = useState<InternalConversationSummary[]>([])
@@ -499,32 +501,47 @@ export function InternalMessagesFab() {
 
   const handleSend = async () => {
     const content = draft.trim()
+    if (!content || !activeChat || sending) return
+    setFileError(null)
+    setSending(true)
+    try {
+      notifyTyping(false)
+      clearTypingHeartbeat()
+      await api.sendInternalMessage(activeChat.otherUserId, content)
+      setDraft('')
+      await loadChat(activeChat.otherUserId)
+      void refreshConversations()
+    } catch {
+      // hata durumunda draft korunur, kullanıcı tekrar deneyebilir
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const handleSendAttachment = async () => {
+    const content = draft.trim()
     const file = pendingFile
-    if ((!content && !file) || !activeChat || sending) return
-    if (file) {
-      const ext = internalMessageFileExtension(file.name)
-      if (!INTERNAL_MESSAGE_FILE_EXTENSIONS.includes(ext)) {
-        setFileError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
-        return
-      }
-      if (file.size > INTERNAL_MESSAGE_FILE_MAX_SIZE) {
-        setFileError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
-        return
-      }
+    if (!file || !activeChat || sending) return
+    const ext = internalMessageFileExtension(file.name)
+    if (!INTERNAL_MESSAGE_FILE_EXTENSIONS.includes(ext)) {
+      setFileError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
+      return
+    }
+    if (file.size > INTERNAL_MESSAGE_FILE_MAX_SIZE) {
+      setFileError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
+      return
     }
     setFileError(null)
     setSending(true)
     try {
       notifyTyping(false)
       clearTypingHeartbeat()
-      const normalizedFileName = file ? lowercaseFileExtension(file.name) : ''
+      const normalizedFileName = lowercaseFileExtension(file.name)
       const result = await api.sendInternalMessage(activeChat.otherUserId, content || normalizedFileName)
-      if (file) {
-        const uploadFile = normalizedFileName === file.name
-          ? file
-          : new File([file], normalizedFileName, { type: file.type })
-        await api.uploadInternalMessageAttachment(result.message.internalMessageId, uploadFile)
-      }
+      const uploadFile = normalizedFileName === file.name
+        ? file
+        : new File([file], normalizedFileName, { type: file.type })
+      await api.uploadInternalMessageAttachment(result.message.internalMessageId, uploadFile)
       setDraft('')
       setPendingFile(null)
       await loadChat(activeChat.otherUserId)
@@ -696,8 +713,11 @@ export function InternalMessagesFab() {
                   })
                 )}
                 {pendingFile ? (
-                  <div className="flex justify-end">
+                  <div className="flex flex-col items-end gap-1">
                     <div className="max-w-[min(72%,28rem)] rounded-xl rounded-tr-sm bg-emerald-700 px-2.5 py-1.5 text-xs text-white shadow-sm ring-1 ring-white/10">
+                      {pendingSenderLabel ? (
+                        <p className="mb-0.5 text-[11px] font-semibold leading-snug text-white/90">{pendingSenderLabel}</p>
+                      ) : null}
                       <div className="flex items-center gap-1.5">
                         <FileText className="size-3.5 shrink-0" aria-hidden="true" />
                         <span className="min-w-0 truncate font-semibold">{lowercaseFileExtension(pendingFile.name)}</span>
@@ -719,6 +739,15 @@ export function InternalMessagesFab() {
                         />
                       ) : null}
                     </div>
+                    <button
+                      type="button"
+                      onClick={() => void handleSendAttachment()}
+                      disabled={sending}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <Send className="size-3.5" aria-hidden="true" />
+                      {t('internalMessages.sendAttachment', 'Eki Gönder')}
+                    </button>
                   </div>
                 ) : null}
               </div>
@@ -776,7 +805,7 @@ export function InternalMessagesFab() {
                   <button
                     type="button"
                     onClick={() => void handleSend()}
-                    disabled={sending || (!draft.trim() && !pendingFile)}
+                    disabled={sending || !draft.trim()}
                     aria-label={t('common.send', 'Gönder')}
                     className="flex size-9 shrink-0 items-center justify-center rounded-full bg-emerald-700 text-white transition-colors hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
                   >

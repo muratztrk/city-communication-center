@@ -565,6 +565,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   regresyonu olmamalı (#2395 reopen).
 - **Kurum içi ek dosya adı (#2407):** pending, balon ve indirme adında uzantı küçük harf; upload sırasında
   normalize edilir.
+- **Kurum içi pending ek (#2409):** dosya seçimi otomatik iletmez; önizlemede birim · ad soyad + dosya adı,
+  altında **Eki Gönder** butonu; footer Gönder yalnızca metin içindir.
 - **Gelen WA doküman ek adı (#2404 reopen):** vatandaştan gelen doküman balonunda dosya adı metni
   `text-[10px]` / ikon `size-3` / çerçeve `px-2 py-1`.
 - **WhatsApp bekleyen dosya önizlemesi (#2385/#2389):** sohbet alanındaki pending-file balonu kompakt

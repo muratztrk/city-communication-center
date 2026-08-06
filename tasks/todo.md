@@ -1,3 +1,6 @@
+## Round 709 — kurum içi Eki Gönder (1 kart)
+- `#2409`: Pending ek önizlemesinde birim·ad başlığı + altında Eki Gönder; footer Gönder yalnız metin.
+
 ## Round 708 — modal textarea + kurum içi ek (3 kart)
 - `#2403` reopen: Modal Açıklama `min-h-20`, Açık Adres `min-h-[4rem]`.
 - `#2395` reopen: Kurum içi ek alıcıda görünmüyor — `areConversationDetailsEqual` attachment karşılaştırması.

@@ -3,7 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { useAuth } from '../context/AuthContext'
 import { LicenseModuleSync } from '../context/LicenseModuleContext'
-import { canAnyRoleAccessPage, getDefaultLandingPath, getEffectiveUserRoles, type PageAccessKey } from '../lib/rolePageAccess'
+import { canAnyRoleAccessPage, canAccessCitizenLicensedRoute, getDefaultLandingPath, getEffectiveUserRoles, type PageAccessKey } from '../lib/rolePageAccess'
 
 const AppShell = lazy(() => import('./AppShell').then(module => ({ default: module.AppShell })))
 const AuditLogsPage = lazy(() => import('../pages/AuditLogsPage').then(module => ({ default: module.AuditLogsPage })))
@@ -44,6 +44,15 @@ function PageAccessGate({ pageKey, user, children }: { pageKey: PageAccessKey; u
   return canAnyRoleAccessPage(getEffectiveUserRoles(user), pageKey) ? children : <Navigate to={getDefaultLandingPath(user)} replace />
 }
 
+function CitizenDashboardGate({ user, children }: { user?: { role?: string; additionalRoles?: string[] } | null; children: ReactNode }) {
+  const roles = getEffectiveUserRoles(user)
+  const needsCitizenLicense = roles.includes('Operator') || roles.includes('Reporter')
+  if (needsCitizenLicense && !canAccessCitizenLicensedRoute('/dashboard')) {
+    return <Navigate to={roles.includes('Operator') ? '/dashboard/birimler' : getDefaultLandingPath(user)} replace />
+  }
+  return children
+}
+
 function ManagerOnlyGate({ role, children }: { role?: string; children: ReactNode }) {
   return role === 'Manager' ? children : <Navigate to={getDefaultLandingPath({ role })} replace />
 }
@@ -74,7 +83,7 @@ export default function App() {
         <Route element={<AppShell />}>
           <Route path="/" element={<Navigate to={getDefaultLandingPath(user)} replace />} />
           <Route path="/login" element={<Navigate to={getDefaultLandingPath(user)} replace />} />
-          <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" user={user}><DashboardPage /></PageAccessGate>} />
+          <Route path="/dashboard" element={<PageAccessGate pageKey="dashboard" user={user}><CitizenDashboardGate user={user}><DashboardPage /></CitizenDashboardGate></PageAccessGate>} />
           <Route path="/dashboard/birimler" element={<PageAccessGate pageKey="dashboard" user={user}><DashboardPage view="departments" /></PageAccessGate>} />
           <Route path="/edevlet/activity-plan" element={<PageAccessGate pageKey="edevletActivityPlan" user={user}><EDevletActivityPlanPage /></PageAccessGate>} />
           <Route path="/edevlet/activity-plans" element={<PageAccessGate pageKey="edevletActivityPlansList" user={user}><EDevletActivityPlansListPage /></PageAccessGate>} />

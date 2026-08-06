@@ -1504,7 +1504,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Aktif/Alan Adı/Dağıtım/Tema yok; readonly KURUM ADI/SLA özet satırı yok (yalnız form).
 - **Ayarlar Lisans sekmesi:** lumespec-license'tan (Ed25519 imzalı) gerçek modül durumu gösterilir.
   SystemAdmin kapalı ağda Lumespec'ten aldığı JWT'yi modül başına kaydedebilir (`PUT /me/license-modules/{module}`).
-  Çözümleme sırası: kayıtlı token (geçerli exp + !blocked) → uzaktan servis → **fail-closed**.
+  Çözümleme sırası: uzaktan servis (online) → kayıtlı token yalnızca servise **ulaşılamazsa**
+  (kapalı ağ) → **fail-closed**. Uzaktan HTTP reddi (askıya alma) varken eski kayıtlı JWT
+  kullanılmaz (#citizen-license-suspend).
   `TenantSetting.LicenseModulesJson` kalıcı depo; online başarılı fetch otomatik persist eder.
   `frontend/src/lib/licenseModules.ts` + backend `LicenseModuleStatusService`; sayfa/menü gizleme
   `PAGE_LICENSE_MODULE` haritası üzerinden `canAnyRoleAccessPage`'e entegre (bkz. rolePageAccess.ts).

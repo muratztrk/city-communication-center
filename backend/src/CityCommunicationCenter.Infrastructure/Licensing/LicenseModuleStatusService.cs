@@ -11,7 +11,7 @@ namespace CityCommunicationCenter.Infrastructure.Licensing;
 
 internal interface IRemoteLicenseTokenClient
 {
-    Task<string?> FetchTokenAsync(string fullBundleId, CancellationToken cancellationToken);
+    Task<RemoteLicenseFetchResult> FetchTokenAsync(string fullBundleId, CancellationToken cancellationToken);
 }
 
 internal sealed class RemoteLicenseTokenClient : IRemoteLicenseTokenClient
@@ -30,7 +30,7 @@ internal sealed class RemoteLicenseTokenClient : IRemoteLicenseTokenClient
         _logger = logger;
     }
 
-    public async Task<string?> FetchTokenAsync(string fullBundleId, CancellationToken cancellationToken)
+    public async Task<RemoteLicenseFetchResult> FetchTokenAsync(string fullBundleId, CancellationToken cancellationToken)
     {
         try
         {
@@ -39,18 +39,21 @@ internal sealed class RemoteLicenseTokenClient : IRemoteLicenseTokenClient
             using var response = await client.GetAsync(requestUri, cancellationToken);
             var token = (await response.Content.ReadAsStringAsync(cancellationToken)).Trim();
 
-            if (!response.IsSuccessStatusCode || string.IsNullOrEmpty(token))
+            if (response.IsSuccessStatusCode && !string.IsNullOrEmpty(token))
             {
-                _logger.LogWarning("Lisans servisi {BundleId} için HTTP {Status} döndürdü.", fullBundleId, (int)response.StatusCode);
-                return null;
+                return new RemoteLicenseFetchResult(RemoteLicenseFetchOutcome.Success, token);
             }
 
-            return token;
+            _logger.LogWarning(
+                "Lisans servisi {BundleId} için HTTP {Status} döndürdü (askıya alınmış veya tanımsız olabilir).",
+                fullBundleId,
+                (int)response.StatusCode);
+            return new RemoteLicenseFetchResult(RemoteLicenseFetchOutcome.Denied, null);
         }
         catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or OperationCanceledException)
         {
             _logger.LogWarning(ex, "Lisans servisine {BundleId} için ulaşılamadı.", fullBundleId);
-            return null;
+            return new RemoteLicenseFetchResult(RemoteLicenseFetchOutcome.Unreachable, null);
         }
     }
 }
@@ -123,26 +126,44 @@ internal sealed class LicenseModuleStatusService : ILicenseModuleStatusService
         var storedVerified = storedToken is null ? null : _tokenVerifier.Verify(storedToken, fullBundleId);
         var storedUsable = IsCurrentlyUsable(storedVerified);
 
-        if (storedUsable && storedVerified is not null)
-        {
-            var storedStatus = ToResolvedStatus(module, storedVerified, fullBundleId, hasStoredToken, "stored");
-            _cache.Set(cacheKey, storedStatus, TimeSpan.FromMinutes(Math.Max(1, _options.CacheMinutes)));
-            return storedStatus;
-        }
+        var remoteFetch = await _remoteLicenseTokenClient.FetchTokenAsync(fullBundleId, cancellationToken);
 
-        var remoteToken = await _remoteLicenseTokenClient.FetchTokenAsync(fullBundleId, cancellationToken);
-        if (!string.IsNullOrWhiteSpace(remoteToken))
+        if (remoteFetch.Outcome == RemoteLicenseFetchOutcome.Success && !string.IsNullOrWhiteSpace(remoteFetch.Token))
         {
-            var remoteVerified = _tokenVerifier.Verify(remoteToken, fullBundleId);
+            var remoteVerified = _tokenVerifier.Verify(remoteFetch.Token, fullBundleId);
             if (remoteVerified is not null)
             {
-                await PersistStoredTokenAsync(tenantId, moduleKey, remoteToken, cancellationToken);
+                await PersistStoredTokenAsync(tenantId, moduleKey, remoteFetch.Token, cancellationToken);
                 var remoteStatus = ToResolvedStatus(module, remoteVerified, fullBundleId, true, "remote");
                 _cache.Set(cacheKey, remoteStatus, TimeSpan.FromMinutes(Math.Max(1, _options.CacheMinutes)));
                 return remoteStatus;
             }
 
             _logger.LogWarning("Lisans servisi {BundleId} için geçersiz yanıt döndürdü.", fullBundleId);
+        }
+
+        if (remoteFetch.Outcome == RemoteLicenseFetchOutcome.Denied)
+        {
+            var suspendedStatus = new ResolvedLicenseModuleStatus(
+                module,
+                Usable: false,
+                Status: storedVerified?.Blocked == true ? storedVerified.Status : "suspended",
+                ValidUntil: storedVerified?.ValidUntil,
+                Message: storedVerified?.Message ?? "Modül lisansı askıya alındı veya geçersiz. Lütfen Lumespec yöneticinizle iletişime geçin.",
+                ExpiresAt: storedVerified?.ExpiresAt,
+                BundleId: fullBundleId,
+                HasStoredToken: hasStoredToken,
+                Source: "remote-denied",
+                TestDisabled: false);
+            _cache.Set(cacheKey, suspendedStatus, TimeSpan.FromMinutes(Math.Max(1, _options.CacheMinutes)));
+            return suspendedStatus;
+        }
+
+        if (storedUsable && storedVerified is not null)
+        {
+            var storedStatus = ToResolvedStatus(module, storedVerified, fullBundleId, hasStoredToken, "stored");
+            _cache.Set(cacheKey, storedStatus, TimeSpan.FromMinutes(Math.Max(1, _options.CacheMinutes)));
+            return storedStatus;
         }
 
         if (storedVerified is not null)
@@ -162,7 +183,7 @@ internal sealed class LicenseModuleStatusService : ILicenseModuleStatusService
         var missingStatus = new ResolvedLicenseModuleStatus(
             module,
             Usable: false,
-            Status: remoteToken is null ? "missing" : "invalid",
+            Status: "missing",
             ValidUntil: null,
             Message: "Modül lisansı tanımlı değil. Lumespec'ten aldığınız lisans kodunu Ayarlar > Lisans bölümüne kaydedin.",
             ExpiresAt: null,

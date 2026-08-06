@@ -1,3 +1,7 @@
+## Round 688b — Citizen lisans askıya alma enforcement
+- Backend: uzaktan lisans servisi önce sorgulanır; HTTP reddi veya `blocked` JWT kayıtlı token'ı geçersiz kılar.
+- FE: `/dashboard` (Anasayfa-Vatandaş), mesaj onayı/SMS onayı sayfaları citizen modülüne bağlandı; menü/route gate.
+
 ## Round 688 — Dashboard 500 fix + UI polish (9 kart)
 - `#2350` reopen: `GetDashboardQuery` EF çevrilebilir satır içi pending kuralları (500 fix).
 - `#2349` reopen: Operator `getDefaultLandingPath` → `/dashboard/birimler`.

@@ -56,6 +56,8 @@ export const PAGE_LICENSE_MODULE: Partial<Record<PageAccessKey, LicenseModuleKey
   edevletActivityPlansList: 'citizen',
   social: 'citizen',
   citizenDirectory: 'citizen',
+  citizenMessageApproval: 'citizen',
+  smsDeliveryApproval: 'citizen',
   // Vatandaş İş Takip Sistemi'nde olmamalı (#MHrIEwuE): birim-içi iş takibine özgü sayfalar.
   myRequests: 'internal',
   outgoingRequests: 'internal',
@@ -65,6 +67,17 @@ export const PAGE_LICENSE_MODULE: Partial<Record<PageAccessKey, LicenseModuleKey
 
 export function pageRequiresModule(pageKey: PageAccessKey): LicenseModuleKey | null {
   return PAGE_LICENSE_MODULE[pageKey] ?? null
+}
+
+/**
+ * Vatandaş modülü kapalıyken erişilememesi gereken rota yolları (Anasayfa - Vatandaş vb.).
+ */
+export function isCitizenLicensedRoute(path: string): boolean {
+  return path === '/dashboard'
+}
+
+export function canAccessCitizenLicensedRoute(path: string): boolean {
+  return !isCitizenLicensedRoute(path) || isModuleUsable('citizen')
 }
 
 export const ROLE_PAGE_ACCESS_STORAGE_KEY = 'ccc_role_page_access_matrix'

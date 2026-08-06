@@ -19,7 +19,8 @@ export function LicenseModuleSync({ children }: PropsWithChildren) {
     queryKey: queryKeys.licensing.modules(),
     queryFn: () => api.getLicenseModules(),
     enabled: isAuthenticated,
-    staleTime: 10 * 60 * 1000,
+    staleTime: 5 * 60 * 1000,
+    refetchOnWindowFocus: true,
     retry: false,
   })
 

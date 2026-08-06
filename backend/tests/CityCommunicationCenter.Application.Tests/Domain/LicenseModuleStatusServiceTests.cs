@@ -24,17 +24,17 @@ public class LicenseModuleStatusServiceTests
 
     private sealed class StubRemoteClient : IRemoteLicenseTokenClient
     {
-        private readonly string? _token;
+        private readonly RemoteLicenseFetchResult _result;
 
-        public StubRemoteClient(string? token) => _token = token;
+        public StubRemoteClient(RemoteLicenseFetchResult result) => _result = result;
 
-        public Task<string?> FetchTokenAsync(string fullBundleId, CancellationToken cancellationToken) =>
-            Task.FromResult(_token);
+        public Task<RemoteLicenseFetchResult> FetchTokenAsync(string fullBundleId, CancellationToken cancellationToken) =>
+            Task.FromResult(_result);
     }
 
     private static LicenseModuleStatusService CreateService(
         CityCommunicationCenterDbContext dbContext,
-        string? remoteToken,
+        RemoteLicenseFetchResult remoteResult,
         LicensingPublicKeyOptions[] publicKeys)
     {
         var options = Options.Create(new LicensingOptions
@@ -48,7 +48,7 @@ public class LicenseModuleStatusServiceTests
         return new LicenseModuleStatusService(
             dbContext,
             new LicenseTokenVerifier(options),
-            new StubRemoteClient(remoteToken),
+            new StubRemoteClient(remoteResult),
             new MemoryCache(new MemoryCacheOptions()),
             options,
             NullLogger<LicenseModuleStatusService>.Instance);
@@ -73,7 +73,7 @@ public class LicenseModuleStatusServiceTests
     }
 
     [Fact]
-    public async Task GetModuleStatusAsync_uses_stored_token_when_valid()
+    public async Task GetModuleStatusAsync_uses_stored_token_when_remote_unreachable()
     {
         await using var dbContext = await CreateDbContextAsync();
         dbContext.TenantSettings.Add(new TenantSetting
@@ -84,7 +84,10 @@ public class LicenseModuleStatusServiceTests
         });
         await dbContext.SaveChangesAsync();
 
-        var service = CreateService(dbContext, remoteToken: null, [new LicensingPublicKeyOptions { Kid = "k1", PublicKeyHex = RealPublicKeyHex }]);
+        var service = CreateService(
+            dbContext,
+            new RemoteLicenseFetchResult(RemoteLicenseFetchOutcome.Unreachable, null),
+            [new LicensingPublicKeyOptions { Kid = "k1", PublicKeyHex = RealPublicKeyHex }]);
 
         var status = await service.GetModuleStatusAsync(TenantId, "tirebelediyesi", LicenseModule.Citizen, CancellationToken.None);
 
@@ -95,22 +98,52 @@ public class LicenseModuleStatusServiceTests
     }
 
     [Fact]
-    public async Task GetModuleStatusAsync_fails_closed_when_no_stored_token_and_remote_unreachable()
+    public async Task GetModuleStatusAsync_fails_closed_when_remote_denied_even_with_stored_token()
     {
         await using var dbContext = await CreateDbContextAsync();
-        var service = CreateService(dbContext, remoteToken: null, [new LicensingPublicKeyOptions { Kid = "k1", PublicKeyHex = RealPublicKeyHex }]);
+        dbContext.TenantSettings.Add(new TenantSetting
+        {
+            TenantSettingId = Guid.NewGuid(),
+            TenantId = TenantId,
+            LicenseModulesJson = TenantLicenseModulesJson.SetToken(null, "citizen", RealSignedToken),
+        });
+        await dbContext.SaveChangesAsync();
+
+        var service = CreateService(
+            dbContext,
+            new RemoteLicenseFetchResult(RemoteLicenseFetchOutcome.Denied, null),
+            [new LicensingPublicKeyOptions { Kid = "k1", PublicKeyHex = RealPublicKeyHex }]);
 
         var status = await service.GetModuleStatusAsync(TenantId, "tirebelediyesi", LicenseModule.Citizen, CancellationToken.None);
 
         Assert.False(status.Usable);
-        Assert.Equal("missing", status.Status);
+        Assert.Equal("suspended", status.Status);
+        Assert.Equal("remote-denied", status.Source);
+    }
+
+    [Fact]
+    public async Task GetModuleStatusAsync_fails_closed_when_no_stored_token_and_remote_denied()
+    {
+        await using var dbContext = await CreateDbContextAsync();
+        var service = CreateService(
+            dbContext,
+            new RemoteLicenseFetchResult(RemoteLicenseFetchOutcome.Denied, null),
+            [new LicensingPublicKeyOptions { Kid = "k1", PublicKeyHex = RealPublicKeyHex }]);
+
+        var status = await service.GetModuleStatusAsync(TenantId, "tirebelediyesi", LicenseModule.Citizen, CancellationToken.None);
+
+        Assert.False(status.Usable);
+        Assert.Equal("suspended", status.Status);
     }
 
     [Fact]
     public async Task GetModuleStatusAsync_persists_remote_token_when_online()
     {
         await using var dbContext = await CreateDbContextAsync();
-        var service = CreateService(dbContext, remoteToken: RealSignedToken, [new LicensingPublicKeyOptions { Kid = "k1", PublicKeyHex = RealPublicKeyHex }]);
+        var service = CreateService(
+            dbContext,
+            new RemoteLicenseFetchResult(RemoteLicenseFetchOutcome.Success, RealSignedToken),
+            [new LicensingPublicKeyOptions { Kid = "k1", PublicKeyHex = RealPublicKeyHex }]);
 
         var status = await service.GetModuleStatusAsync(TenantId, "tirebelediyesi", LicenseModule.Citizen, CancellationToken.None);
 
@@ -125,7 +158,10 @@ public class LicenseModuleStatusServiceTests
     public async Task SaveStoredTokenAsync_rejects_invalid_token()
     {
         await using var dbContext = await CreateDbContextAsync();
-        var service = CreateService(dbContext, remoteToken: null, [new LicensingPublicKeyOptions { Kid = "k1", PublicKeyHex = RealPublicKeyHex }]);
+        var service = CreateService(
+            dbContext,
+            new RemoteLicenseFetchResult(RemoteLicenseFetchOutcome.Unreachable, null),
+            [new LicensingPublicKeyOptions { Kid = "k1", PublicKeyHex = RealPublicKeyHex }]);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
             service.SaveStoredTokenAsync(TenantId, LicenseModule.Citizen, "tirebelediyesi", "not-a-jwt", CancellationToken.None));

@@ -32,7 +32,7 @@ import {
   shouldUsePrimaryDepartmentOnLoad,
 } from '../api/http'
 import { refreshRolePageAccessFromServer } from '../api/auth'
-import { canAnyRoleAccessPage, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
+import { canAnyRoleAccessPage, canAccessCitizenLicensedRoute, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
 import { LICENSE_MODULES_EVENT } from '../lib/licenseModules'
 import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
@@ -303,9 +303,11 @@ export function AppShell() {
         ? canAnyRoleAccessPage(roles, item.pageKey)
         : false
     const visibleChildren = (item.children ?? []).filter(child => {
+      if (child.path && !canAccessCitizenLicensedRoute(child.path)) return false
       if (child.pageKey) return canAnyRoleAccessPage(roles, child.pageKey)
       return canUseParent
     })
+    if (item.path && !canAccessCitizenLicensedRoute(item.path)) return items
     const canUse = canUseParent || visibleChildren.length > 0
     if (canUse) {
       if (item.separatorBefore && items.length > 0) items.push({ type: 'separator' })

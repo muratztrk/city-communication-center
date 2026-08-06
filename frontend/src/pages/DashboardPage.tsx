@@ -2,7 +2,7 @@ import { ArrowUpRight, ChartBarBig, ClipboardList, ListChecks, Loader, MessageSq
 import { useEffect, useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
+import { Navigate, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { getActiveDepartmentId } from '../api/http'
@@ -303,6 +303,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const effectiveView: DashboardView = isSplitDashboardRole
     ? (view === 'full' ? 'citizen' : view)
     : 'full'
+
+  if (effectiveView === 'citizen' && !isModuleUsable('citizen')) {
+    return <Navigate to={role === 'Operator' ? '/dashboard/birimler' : '/dashboard/birimler'} replace />
+  }
 
   const [period, setPeriod] = useState<Period>('yearly')
   const [customFrom, setCustomFrom] = useState('')

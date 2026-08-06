@@ -1,3 +1,17 @@
+## Round 705 — modal ince ayar + kurum içi ek indirme (4 kart)
+- `#2403` reopen: Modal Açıklama yüksekliği + Cadde/Sokak placeholder/input küçültüldü.
+- `#2396` reopen: Modal Dosya ekle buton genişliği azaltıldı.
+- `#2404`: Gelen vatandaş doküman ek adı metni küçültüldü.
+- `#2395` reopen: Kurum içi mesaj ekleri gönderen/alıcı indirebilir; upload sonrası SignalR yenileme.
+
+## Round 704 — WA ek akışı geri al + modal ince ayar (6 kart)
+- `#2394` reopen: Dosya ekle pending önizleme + Mesajı Gönder onayı (doğrudan iletim geri alındı).
+- `#2399` reopen: Giden görsel eklerde chip ikonu görsel ikonu.
+- `#2385` reopen: Gönderilen ek adı orijinal dosya adı (`[Dosya eki: …]`).
+- `#2403`: Modal Açık Adres textarea/placeholder/input biraz küçültüldü.
+- `#2396` reopen: Modal Dosya ekle başlığın hemen alt satırında.
+- `#2393` reopen: Şablon mesajlar butonu font-semibold (Şablon mesaj ekle ile aynı).
+
 ## Round 703 — WA UX + performans + ek akışı (13 kart)
 - `#2400`: Talep Sayısı numara alt satırında.
 - `#2391`/`#2396`: Footer tek satır (şablon/dosya/birim/kurum içi).

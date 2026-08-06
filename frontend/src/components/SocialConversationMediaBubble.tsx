@@ -184,9 +184,11 @@ export function SocialConversationMediaBubble({
         <button
           type="button"
           onClick={() => void handleDownload()}
-          className="flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2 text-sm font-semibold underline-offset-2 hover:underline"
+          className={`flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2 underline-offset-2 hover:underline ${
+            direction === 'Inbound' ? 'text-xs font-semibold' : 'text-sm font-semibold'
+          }`}
         >
-          <FileText className="size-4 shrink-0" />
+          <FileText className={`shrink-0 ${direction === 'Inbound' ? 'size-3.5' : 'size-4'}`} />
           <span className="min-w-0 truncate">{filename}</span>
         </button>
       )}

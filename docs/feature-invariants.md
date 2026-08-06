@@ -554,7 +554,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.
 - **Medya balon Talep Eki hizası (#2401/#2402):** görselde Talep Eki Önizle alt satırında; dokümanda İndir
   sağında.
-- **Kurum İçi pending ek (#2395):** mime/boyut alt satırı basılmaz (WA ile uyumlu).
+- **Kurum İçi pending ek (#2395 reopen):** mime/boyut alt satırı basılmaz. Ek yüklendikten sonra alıcıya
+  SignalR yenilemesi gider; indirme yalnızca konuşmanın gönderen/alıcı tarafına açıktır.
+- **Gelen WA doküman ek adı (#2404):** vatandaştan gelen doküman balonunda dosya adı metni `text-xs`.
 - **WhatsApp bekleyen dosya önizlemesi (#2385/#2389):** sohbet alanındaki pending-file balonu kompakt
   kalır; yalnız dosya adı + (görsel ise küçük thumbnail) gösterilir, mime/boyut alt satırı basılmaz.
 - **WhatsApp birim içi konuşma notu:** `/whatsapp` footer'ındaki birim seçimi + `Birim İçi İlet` aksiyonu
@@ -1549,7 +1551,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp konuşma zemin (#2300 reopen):** mesaj scroll alanı bej `#ece5dd` (`--wa-chat-bg`) +
   hafif nokta deseni (`whatsapp-chat-bg`); uygulama gri zeminine (`color-background`) çekilmez.
 - **Kurum içi FAB sohbet zemin:** aktif sohbet scroll alanı bej `#ece5dd` (`internal-messages-chat-bg`).
-- **Kurum içi mesaj dosya eki (#2370):** FAB sohbetinde `Dosya ekle` (Paperclip + filtreli accept);
+- **Kurum içi mesaj dosya eki (#2370/#2395 reopen):** FAB sohbetinde `Dosya ekle` (Paperclip + filtreli accept);
+  gönderen ve alıcı indirebilir; upload sonrası alıcı SignalR ile sohbeti yeniler.
   `POST /attachments/internal-messages/{messageId}`; mesaj yanıtında `attachment` alanı.
 - **Kurum içi mesaj listesi önizleme boşluğu (#2374):** konuşma satırında ünvan (`title`) altındaki
   son mesaj önizlemesi `mt-2` ile ayrılır (sıkışık `mt-0.5` kullanılmaz).

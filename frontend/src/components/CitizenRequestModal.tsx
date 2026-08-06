@@ -713,7 +713,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
               <div className="job-field min-h-0">
                 <span className="job-field-label">{t('jobs.form.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
-                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-28" />
+                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-24" />
               </div>
 
               <div className="job-field">
@@ -740,7 +740,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       {neighborhood ? <span className="text-red-500"> *</span> : null}
                     </span>
                     <input
-                      className="field-input address-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                      className="field-input address-street-input citizen-request-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
                       maxLength={ADDRESS_STREET_MAX_LENGTH}
                       value={street}
@@ -776,7 +776,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   <div className="job-field flex min-h-0 flex-col gap-1">
                     <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
                     <div className="flex min-h-[4.75rem] items-start gap-2">
-                      <label className={`inline-flex h-[2.0625rem] w-[7.6rem] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
+                      <label className={`inline-flex h-[2.0625rem] w-[6.75rem] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
                         <Paperclip className="size-3.5 text-emerald-700" />
                         {t('attachments.addFile', 'Dosya ekle')}
                         <input

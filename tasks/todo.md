@@ -1,3 +1,8 @@
+## Round 710 — modal medya + textarea (3 kart)
+- `#2410`: Gelen görsel ekte Talep Eki İndir'in sağında (aynı satır).
+- `#2411`: Modal gelen doküman ek adı çerçevesi daha kompakt.
+- `#2403` reopen: Açıklama `min-h-[5.25rem]`, Açık Adres `min-h-[4.5rem]`.
+
 ## Round 709 — kurum içi Eki Gönder (1 kart)
 - `#2409`: Pending ek önizlemesinde birim·ad başlığı + altında Eki Gönder; footer Gönder yalnız metin.
 

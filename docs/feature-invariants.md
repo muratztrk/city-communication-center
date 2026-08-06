@@ -557,8 +557,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
   footer input'ta tutulur.
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.
-- **Medya balon Talep Eki hizası (#2401/#2402):** görselde Talep Eki Önizle alt satırında; dokümanda İndir
-  sağında.
+- **Medya balon Talep Eki hizası (#2401/#2410):** modalda görsel+doküman gelen eklerde Önizle · İndir · Talep Eki
+  **aynı satırda** (Talep Eki İndir'in sağında); görsel harici ek adı çerçevesi modalda daha kompakt (#2411).
 - **Kurum İçi pending ek (#2395 reopen):** mime/boyut alt satırı basılmaz. Ek yüklendikten sonra alıcıya
   SignalR yenilemesi gider; indirme yalnızca konuşmanın gönderen/alıcı tarafına açıktır. Açık sohbet poll
   eşitliği `attachment.attachmentId` alanını da karşılaştırır — ek yüklendikten sonra UI güncellenmez

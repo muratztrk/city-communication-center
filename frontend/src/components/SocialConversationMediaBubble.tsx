@@ -177,32 +177,36 @@ export function SocialConversationMediaBubble({
         <button
           type="button"
           onClick={() => void handleDownload()}
-          className={`flex items-center gap-1.5 rounded-xl bg-black/10 underline-offset-2 hover:underline ${
-            direction === 'Inbound' ? 'px-2 py-1 text-[10px] font-medium' : 'gap-2 px-3 py-2 text-sm font-semibold'
+          className={`flex items-center rounded-xl bg-black/10 underline-offset-2 hover:underline ${
+            direction === 'Inbound'
+              ? requestAttachmentLayout
+                ? 'gap-1 px-1.5 py-0.5 text-[9px] font-medium'
+                : 'gap-1.5 px-2 py-1 text-[10px] font-medium'
+              : 'gap-2 px-3 py-2 text-sm font-semibold'
           }`}
         >
-          <FileText className={`shrink-0 ${direction === 'Inbound' ? 'size-3' : 'size-4'}`} />
+          <FileText className={`shrink-0 ${
+            direction === 'Inbound'
+              ? requestAttachmentLayout ? 'size-2.5' : 'size-3'
+              : 'size-4'
+          }`} />
           <span className="min-w-0 truncate">{filename}</span>
         </button>
       )}
 
-      {requestAttachmentLayout && isImage && showAddAsAttachment ? (
-        <>
-          <div className="flex flex-wrap gap-1.5">
-            {canPreviewInline ? (
-              <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
-                {t('attachments.preview', 'Önizle')}
-              </Button>
-            ) : null}
-            <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => void handleDownload()}>
-              <Download className="size-3.5" />
-              {t('attachments.download', 'İndir')}
+      {requestAttachmentLayout && showAddAsAttachment ? (
+        <div className="flex flex-wrap gap-1.5">
+          {canPreviewInline ? (
+            <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
+              {t('attachments.preview', 'Önizle')}
             </Button>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {addAsAttachmentButton}
-          </div>
-        </>
+          ) : null}
+          <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => void handleDownload()}>
+            <Download className="size-3.5" />
+            {t('attachments.download', 'İndir')}
+          </Button>
+          {addAsAttachmentButton}
+        </div>
       ) : (
         <div className="flex flex-wrap gap-1.5">
           {canPreviewInline ? (
@@ -214,7 +218,6 @@ export function SocialConversationMediaBubble({
             <Download className="size-3.5" />
             {t('attachments.download', 'İndir')}
           </Button>
-          {requestAttachmentLayout && !isImage ? addAsAttachmentButton : null}
           {!requestAttachmentLayout ? addAsAttachmentButton : null}
         </div>
       )}

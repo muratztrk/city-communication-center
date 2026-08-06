@@ -1514,8 +1514,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `TenantSetting.LicenseModulesJson` kalıcı depo; online başarılı fetch otomatik persist eder.
   `frontend/src/lib/licenseModules.ts` + backend `LicenseModuleStatusService`; sayfa/menü gizleme
   `PAGE_LICENSE_MODULE` haritası üzerinden `canAnyRoleAccessPage`'e entegre (bkz. rolePageAccess.ts).
-  **Kurum İçi kapalıyken (#2368/#2369):** `outgoingRequests` menüde kalır; `createRequest` yalnız
+  **Kurum İçi kapalıyken (#2368/#2369/#2376/#2377):** `outgoingRequests` menüde kalır; `createRequest` yalnız
   Operator + citizen lisans açıkken; Anasayfa `Bekleyen Taleplerim` kutucuğu ve `myRequests` pie gizlenir.
+  Operator Talep Oluştur seçim ekranında yalnız Vatandaş Çağrı Talebi (`?kind=citizen` otomatik); Birim İçi/Dışı
+  kartları gizlenir. Reporter menüden `Anasayfa - Birimler` kaldırılır; `/dashboard/birimler` doğrudan erişim
+  citizen anasayfaya veya Vatandaş Bilgi Listesi'ne yönlendirilir; Reporter varsayılan açılış citizen açıksa
+  `/dashboard`, değilse `/citizen-directory`.
   Backend `testDisabled` API'si kalır; Ayarlar > Lisans UI'da geçici pasife al butonu yok (#2365).
 - **Sayfa Yetkileri modül filtresi (#2360):** `visiblePageAccessItems` `PAGE_LICENSE_MODULE` +
   `isModuleUsable` ile filtrelenir; citizen kapalıyken e-Devlet, Vatandaş Bilgi Listesi, Vatandaş
@@ -1528,6 +1532,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi FAB sohbet zemin:** aktif sohbet scroll alanı bej `#ece5dd` (`internal-messages-chat-bg`).
 - **Kurum içi mesaj dosya eki (#2370):** FAB sohbetinde `Dosya ekle` (Paperclip + filtreli accept);
   `POST /attachments/internal-messages/{messageId}`; mesaj yanıtında `attachment` alanı.
+- **Kurum içi mesaj listesi önizleme boşluğu (#2374):** konuşma satırında ünvan (`title`) altındaki
+  son mesaj önizlemesi `mt-2` ile ayrılır (sıkışık `mt-0.5` kullanılmaz).
+- **WA Vatandaş Talebi modal Dosya ekle (#2375):** `ConversationPanel` şablon mesaj ekle yanında kompakt
+  `Dosya ekle` (`onAddMediaAsAttachment` verildiğinde); CitizenRequestModal talep eklerine ekler.
 - **Dosya ekle accept filtresi (#2373):** Talep/görev/WA/kurum içi dosya seçimlerinde yalnız
   JPG/PNG/PDF/Office uzantıları (`accept`); logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);

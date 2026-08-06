@@ -305,7 +305,11 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     : 'full'
 
   if (effectiveView === 'citizen' && !isModuleUsable('citizen')) {
-    return <Navigate to={role === 'Operator' ? '/dashboard/birimler' : '/dashboard/birimler'} replace />
+    return <Navigate to={role === 'Operator' ? '/dashboard/birimler' : '/citizen-directory'} replace />
+  }
+
+  if (effectiveView === 'departments' && role === 'Reporter' && !isModuleUsable('internal')) {
+    return <Navigate to={isModuleUsable('citizen') ? '/dashboard' : '/citizen-directory'} replace />
   }
 
   const [period, setPeriod] = useState<Period>('yearly')

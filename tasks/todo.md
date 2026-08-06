@@ -1,3 +1,9 @@
+## Round 696 — Kurum İçi lisans gates + WA/kurum içi UI (4 kart)
+- `#2377`: Kurum İçi kapalıyken Reporter `Anasayfa - Birimler` menüde yok; `/dashboard/birimler` redirect.
+- `#2376`: Kurum İçi kapalıyken Operator Talep Oluştur yalnız Vatandaş Çağrı Talebi (otomatik `?kind=citizen`).
+- `#2375`: WA Vatandaş Talebi Oluştur — ConversationPanel şablon yanında kompakt Dosya ekle.
+- `#2374`: Kurum İçi Mesajlar listesi son mesaj önizlemesi `mt-2` boşluk.
+
 ## Round 695 — Lisans gates + dosya ekle + UI (7 kart)
 - `#2368`: Kurum İçi kapalıyken `outgoingRequests` görünür; `createRequest` yalnız Operator (citizen VT).
 - `#2369`: Kurum İçi kapalıyken Anasayfa Bekleyen Taleplerim + myRequests pie gizli.

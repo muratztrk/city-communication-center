@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Loader2, Send } from 'lucide-react'
+import { Loader2, Paperclip, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -15,6 +15,8 @@ import { ModalCloseButton } from './ui/modal-close-button'
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
+
+const CONVERSATION_FILE_ACCEPT = '.jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'
 
 interface ConversationPanelProps {
   socialMessageId: string
@@ -86,6 +88,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const conversationQuery = useQuery({
     queryKey: queryKeys.socialMessages.conversation(socialMessageId),
@@ -296,6 +299,21 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
 
       {canReply && (
         <div className="shrink-0 space-y-3 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-3">
+          {onAddMediaAsAttachment ? (
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={CONVERSATION_FILE_ACCEPT}
+              className="hidden"
+              onChange={event => {
+                const file = event.target.files?.[0]
+                event.target.value = ''
+                if (file) {
+                  onAddMediaAsAttachment(file)
+                }
+              }}
+            />
+          ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <WhatsAppTemplatePicker
               userQuickReplies={userQuickReplies}
@@ -315,6 +333,16 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               compact={compactActions}
             />
             <UserQuickReplyAddButton compact={compactActions} onChanged={() => { void userQuickRepliesQuery.refetch() }} />
+            {onAddMediaAsAttachment ? (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className={`inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${compactActions ? 'h-7 px-2.5 text-[11px]' : 'h-9 px-4 text-xs'}`}
+              >
+                <Paperclip className={`shrink-0 text-emerald-600 ${compactActions ? 'size-3' : 'size-3.5'}`} aria-hidden="true" />
+                {t('attachments.addFile', 'Dosya ekle')}
+              </button>
+            ) : null}
             {internalDepartmentOptions ? (
               <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
                 <SingleSelectDropdown

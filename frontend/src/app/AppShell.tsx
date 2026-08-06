@@ -33,7 +33,7 @@ import {
 } from '../api/http'
 import { refreshRolePageAccessFromServer } from '../api/auth'
 import { canAnyRoleAccessPage, canAccessCitizenLicensedRoute, getEffectiveUserRoles, ROLE_PAGE_ACCESS_EVENT, type PageAccessKey } from '../lib/rolePageAccess'
-import { LICENSE_MODULES_EVENT } from '../lib/licenseModules'
+import { isModuleUsable, LICENSE_MODULES_EVENT } from '../lib/licenseModules'
 import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
 import { sortUserDepartments } from '../utils/departmentAccess'
@@ -253,6 +253,7 @@ export function AppShell() {
   const isOperatorNav = user?.role === 'Operator'
   const isCitizenDashboardNav = isReporterNav || isOperatorNav
   const showCitizenDashboard = canAccessCitizenLicensedRoute('/dashboard')
+  const isInternalModuleUsable = isModuleUsable('internal')
   const navItemConfigs: NavLinkConfigEx[] = [
     ...(isOperatorNav
       ? [
@@ -267,8 +268,10 @@ export function AppShell() {
             ...(showCitizenDashboard
               ? [{ pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard }]
               : []),
-            { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
-            { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorAfter: true },
+            { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact, separatorAfter: !isInternalModuleUsable },
+            ...(isInternalModuleUsable
+              ? [{ pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorAfter: true }]
+              : []),
           ]
         : [
             { pageKey: 'dashboard' as const, path: showCitizenDashboard ? '/dashboard' : '/dashboard/birimler', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },

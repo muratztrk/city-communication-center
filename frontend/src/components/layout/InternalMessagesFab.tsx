@@ -850,7 +850,7 @@ export function InternalMessagesFab() {
                           ) : null}
                         </div>
                         {row.lastMessagePreview ? (
-                          <p className="mt-0.5 line-clamp-1 text-xs text-slate-500">{row.lastMessagePreview}</p>
+                          <p className="mt-2 line-clamp-1 text-xs text-slate-500">{row.lastMessagePreview}</p>
                         ) : null}
                       </div>
                       {row.unreadCount > 0 ? (

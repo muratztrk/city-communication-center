@@ -294,6 +294,12 @@ export function getDefaultLandingPath(user: { role?: string; additionalRoles?: s
   if (roles.includes('Operator')) {
     return '/dashboard/birimler'
   }
+  if (roles.includes('Reporter')) {
+    if (isModuleUsable('citizen')) {
+      return '/dashboard'
+    }
+    return '/citizen-directory'
+  }
   if (!isModuleUsable('citizen')) {
     return '/dashboard/birimler'
   }

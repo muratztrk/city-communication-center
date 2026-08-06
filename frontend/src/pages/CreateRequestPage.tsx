@@ -609,10 +609,17 @@ export function CreateRequestPage() {
 
   // Üst Düzey Yönetici "Talep Oluştur"a tıkladığında doğrudan Birim Dışı formu açılır.
   useEffect(() => {
-    if (isReporter && !selectedKind) {
+    if (isReporter && !selectedKind && isModuleUsable('internal')) {
       navigate('/requests/new?kind=external', { replace: true })
     }
   }, [isReporter, selectedKind, navigate])
+
+  // Operator + Kurum İçi kapalı: yalnız Vatandaş Çağrı Talebi (#2376).
+  useEffect(() => {
+    if (user?.role === 'Operator' && !selectedKind && !isModuleUsable('internal') && canShowCitizenRequest) {
+      navigate('/requests/new?kind=citizen', { replace: true })
+    }
+  }, [user?.role, selectedKind, canShowCitizenRequest, navigate])
 
 
   const renderPhotoUpload = (className?: string) => (
@@ -1164,38 +1171,42 @@ export function CreateRequestPage() {
       {error ? <div className="error error--create-request">{error}</div> : null}
 
       {!selectedKind ? (
-        <section className={`grid gap-4 ${requestTypeOptions.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-2'}`}>
-          <button
-            type="button"
-            className="section-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
-            onClick={() => selectRequestKind('internal')}
-          >
-            <div className="flex items-start gap-3">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
-                <Building2 className="size-5" />
-              </span>
-              <div>
-                <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
-                <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizde birim içi talep sürecini oluşturun.')}</p>
-              </div>
-            </div>
-          </button>
+        <section className={`grid gap-4 ${requestTypeOptions.length >= 3 ? 'lg:grid-cols-3' : requestTypeOptions.length === 1 ? 'max-w-xl' : 'lg:grid-cols-2'}`}>
+          {isModuleUsable('internal') ? (
+            <>
+              <button
+                type="button"
+                className="section-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
+                onClick={() => selectRequestKind('internal')}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
+                    <Building2 className="size-5" />
+                  </span>
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
+                    <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizde birim içi talep sürecini oluşturun.')}</p>
+                  </div>
+                </div>
+              </button>
 
-          <button
-            type="button"
-            className="section-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
-            onClick={() => selectRequestKind('external')}
-          >
-            <div className="flex items-start gap-3">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                <Workflow className="size-5" />
-              </span>
-              <div>
-                <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.externalTitle', 'Birim Dışı')}</h2>
-                <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.externalDescription', 'Başka bir birime gidecek talep sürecini oluşturun.')}</p>
-              </div>
-            </div>
-          </button>
+              <button
+                type="button"
+                className="section-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
+                onClick={() => selectRequestKind('external')}
+              >
+                <div className="flex items-start gap-3">
+                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                    <Workflow className="size-5" />
+                  </span>
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.externalTitle', 'Birim Dışı')}</h2>
+                    <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.externalDescription', 'Başka bir birime gidecek talep sürecini oluşturun.')}</p>
+                  </div>
+                </div>
+              </button>
+            </>
+          ) : null}
 
           {canShowCitizenRequest ? (
             <button

@@ -1,3 +1,8 @@
+## Round 693 — Görünüm login hizalama + Reporter menü (#2364, #2344, #2348)
+- `#2364` reopen: Login Page Açıklama başlığı `<label>` değil düz metin.
+- `#2344`: Login logosu Ekle butonu ile açıklama textbox'ı aynı yatay hizada (başlıklar üst satır).
+- `#2348` reopen: Reporter menüsünde genel `Anasayfa` kaldırıldı; yalnız `Anasayfa - Birimler` (+ citizen açıkken Vatandaş).
+
 ## Round 692 — Ayarlar SMS/lisans/görünüm başlıkları (3 kart)
 - `#2366`: Kurum sekmesi SMS API kutucuğu citizen lisans kapalıyken gizli.
 - `#2365`: Lisans sekmesinden "Lisansı geçici pasife al" butonu kaldırıldı.

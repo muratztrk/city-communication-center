@@ -657,7 +657,18 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             var mediaId = GetString(mediaObj, "id");
             var mimeType = GetString(mediaObj, "mime_type");
             var caption = GetString(mediaObj, "caption");
-            var displayContent = string.IsNullOrWhiteSpace(caption) ? $"[{type}]" : caption;
+            var filename = GetString(mediaObj, "filename");
+            string displayContent;
+            if (!string.IsNullOrWhiteSpace(filename))
+            {
+                var marker = $"[Dosya eki: {filename}]";
+                displayContent = string.IsNullOrWhiteSpace(caption) ? marker : $"{caption}\n{marker}";
+            }
+            else
+            {
+                displayContent = string.IsNullOrWhiteSpace(caption) ? $"[{type}]" : caption;
+            }
+
             return (displayContent, mediaId, mimeType, null, null);
         }
 

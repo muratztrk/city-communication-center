@@ -39,7 +39,8 @@ export function SocialConversationMediaBubble({
 }: SocialConversationMediaBubbleProps) {
   const { t } = useTranslation()
   const mime = mediaMimeType ?? 'application/octet-stream'
-  const filename = lowercaseFileExtension(displayFilename?.trim() || socialMediaFilename(entryId, mime, citizenPhone))
+  const rawFilename = displayFilename?.trim() || socialMediaFilename(entryId, mime, citizenPhone)
+  const filename = direction === 'Inbound' ? rawFilename : lowercaseFileExtension(rawFilename)
   const [objectUrl, setObjectUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -176,11 +177,11 @@ export function SocialConversationMediaBubble({
         <button
           type="button"
           onClick={() => void handleDownload()}
-          className={`flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2 underline-offset-2 hover:underline ${
-            direction === 'Inbound' ? 'text-xs font-semibold' : 'text-sm font-semibold'
+          className={`flex items-center gap-1.5 rounded-xl bg-black/10 underline-offset-2 hover:underline ${
+            direction === 'Inbound' ? 'px-2 py-1 text-[10px] font-medium' : 'gap-2 px-3 py-2 text-sm font-semibold'
           }`}
         >
-          <FileText className={`shrink-0 ${direction === 'Inbound' ? 'size-3.5' : 'size-4'}`} />
+          <FileText className={`shrink-0 ${direction === 'Inbound' ? 'size-3' : 'size-4'}`} />
           <span className="min-w-0 truncate">{filename}</span>
         </button>
       )}

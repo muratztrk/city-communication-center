@@ -18,6 +18,9 @@ import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
 import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
+import { ConversationSenderHeader } from './ConversationSenderHeader'
+import { useAuth } from '../context/AuthContext'
+import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 
 const CONVERSATION_FILE_ACCEPT = '.jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'
 
@@ -72,6 +75,7 @@ function DateDivider({ label }: { label: string }) {
 
 export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
+  const { user } = useAuth()
   const queryClient = useQueryClient()
   const locale = getLocale(i18n.language)
   const dayLabel = (iso: string) => formatConversationDayDivider(iso, locale, t)
@@ -112,6 +116,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     const personal = (userQuickRepliesQuery.data ?? []).map(template => ({ ...template, source: 'user' as const }))
     return [...metaTemplates, ...personal]
   }, [userQuickRepliesQuery.data, whatsAppTemplatesQuery.data])
+  const pendingSenderLabel = formatStaffSenderLabel(user?.departmentName, user?.displayName)
   const lastEntry = entries.length > 0 ? entries[entries.length - 1] : null
   const lastEntryKey = lastEntry
     ? `${lastEntry.entryId}-${lastEntry.sentAt}-${lastEntry.deliveryStatus ?? ''}`
@@ -321,7 +326,17 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         )}
         {enableWhatsAppFileAttachment && pendingFile ? (
           <div className="flex flex-col items-end">
-            <div className={`rounded-2xl rounded-tr-sm text-white shadow-md ring-1 ring-white/10 ${compactActions ? 'max-w-[min(55%,16rem)] px-2.5 py-1.5 text-[11px]' : 'max-w-[min(65%,22rem)] px-3 py-2 text-xs'}`} style={{ background: 'var(--color-header-from)' }}>
+            <div
+              className={`rounded-xl rounded-tr-sm text-white shadow-md ring-1 ring-white/10 ${
+                compactBubbles
+                  ? 'max-w-[min(68%,22rem)] px-3 py-1.5 text-xs'
+                  : 'max-w-[min(70%,26rem)] px-3 py-2 text-[13px]'
+              }`}
+              style={{ background: 'var(--color-header-from)' }}
+            >
+              {pendingSenderLabel ? (
+                <ConversationSenderHeader label={pendingSenderLabel} variant="inline" tone="outbound" />
+              ) : null}
               <WhatsAppOutboundAttachmentChip
                 fileName={pendingFile.name}
                 isImage={pendingFile.type.startsWith('image/')}

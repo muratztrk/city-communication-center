@@ -550,7 +550,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp giden ek balonu (#2399 reopen):** iletilmiş ekler chip olarak gösterilir; görsel eklerde
   görsel ikonu, dokümanda FileText; orijinal dosya adı `[Dosya eki: …]` içeriğinden okunur (#2385 reopen);
   uzantı küçük harf; modal/kompakt konuşmada ad metni `text-xs` (#2209). Bekleyen ek önizlemesi iletilmiş
-  ek ile aynı chip bileşenini kullanır (#2267).
+  ek ile aynı chip bileşenini kullanır (#2267); üstte birim · ad soyad başlığı, normal outbound balon
+  genişliği (`max-w-[min(70%,26rem)]` / kompakt `68%/22rem`), dar `16rem` sınırı yok.
+- **Gelen WA ek dosya adı (#2406):** webhook `document.filename` alanı `[Dosya eki: …]` olarak içerikte
+  saklanır; gelen ek adı orijinal büyük/küçük harf korunur (outbound gibi uzantı küçültme uygulanmaz).
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
   footer input'ta tutulur.
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.
@@ -558,7 +561,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sağında.
 - **Kurum İçi pending ek (#2395 reopen):** mime/boyut alt satırı basılmaz. Ek yüklendikten sonra alıcıya
   SignalR yenilemesi gider; indirme yalnızca konuşmanın gönderen/alıcı tarafına açıktır.
-- **Gelen WA doküman ek adı (#2404):** vatandaştan gelen doküman balonunda dosya adı metni `text-xs`.
+- **Gelen WA doküman ek adı (#2404 reopen):** vatandaştan gelen doküman balonunda dosya adı metni
+  `text-[10px]` / ikon `size-3` / çerçeve `px-2 py-1`.
 - **WhatsApp bekleyen dosya önizlemesi (#2385/#2389):** sohbet alanındaki pending-file balonu kompakt
   kalır; yalnız dosya adı + (görsel ise küçük thumbnail) gösterilir, mime/boyut alt satırı basılmaz.
 - **WhatsApp birim içi konuşma notu:** `/whatsapp` footer'ındaki birim seçimi + `Birim İçi İlet` aksiyonu

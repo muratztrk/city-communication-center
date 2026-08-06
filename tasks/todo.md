@@ -1,3 +1,9 @@
+## Round 707 — WA pending layout + gelen ek adı (4 kart)
+- `#2396` reopen: Modal Dosya ekle butonu `w-[6rem]`.
+- `#2406`: Gelen vatandaş eklerinde orijinal dosya adı (webhook filename → `[Dosya eki: …]`).
+- `#2267` reopen: Bekleyen ek önizlemesi birim·ad başlığı + tam balon genişliği (`/whatsapp` + modal).
+- `#2404` reopen: Gelen doküman ek adı daha küçük (`text-[10px]`).
+
 ## Round 706 — WA ek chip hizalama (2 kart)
 - `#2209`: Modal giden ek adı `text-xs` + uzantı küçük harf.
 - `#2267`: Bekleyen ek önizlemesi iletilmiş ek chip tasarımıyla aynı (`WhatsAppOutboundAttachmentChip`).

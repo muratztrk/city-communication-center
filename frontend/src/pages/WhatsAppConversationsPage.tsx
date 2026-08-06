@@ -20,7 +20,9 @@ import type {
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
+import { ConversationSenderHeader } from '../components/ConversationSenderHeader'
 import { WhatsAppOutboundAttachmentChip } from '../components/WhatsAppOutboundAttachmentChip'
+import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
@@ -722,6 +724,7 @@ function ConversationDetail({
   const dayLabel = (iso: string) => formatConversationDayDivider(iso, locale, t)
   // Beklemedeki mesajı yalnızca Vatandaş Operatörü (veya SystemAdmin) iletebilir — card #1091.
   const canSendPending = user?.role === 'Operator' || user?.role === 'SystemAdmin'
+  const pendingSenderLabel = formatStaffSenderLabel(user?.departmentName, user?.displayName)
   const [detail, setDetail] = useState<CitizenConversationDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [replyText, setReplyText] = useState('')
@@ -1258,7 +1261,13 @@ function ConversationDetail({
             )}
             {pendingFile ? (
               <div className="flex flex-col items-end">
-                <div className="max-w-[min(55%,16rem)] rounded-2xl rounded-tr-sm px-2.5 py-1.5 text-[11px] text-white shadow-md ring-1 ring-white/10" style={{ background: 'var(--color-header-from)' }}>
+                <div
+                  className="max-w-[min(70%,26rem)] rounded-xl rounded-tr-sm px-3 py-2 text-[13px] text-white shadow-md ring-1 ring-white/10"
+                  style={{ background: 'var(--color-header-from)' }}
+                >
+                  {pendingSenderLabel ? (
+                    <ConversationSenderHeader label={pendingSenderLabel} variant="inline" tone="outbound" />
+                  ) : null}
                   <WhatsAppOutboundAttachmentChip
                     fileName={pendingFile.name}
                     isImage={pendingFile.type.startsWith('image/')}

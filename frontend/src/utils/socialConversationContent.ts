@@ -93,11 +93,19 @@ export function socialMediaFilename(entryId: string, mime: string, citizenPhone?
   return `whatsapp-${entryId.slice(0, 8)}${extensionFromMimeType(mime)}`
 }
 
-/** `[Dosya eki: orijinal-ad.pdf]` içeriğinden gönderim dosya adını çıkarır (card #2385). */
+/** `[Dosya eki: orijinal-ad.pdf]` içeriğinden dosya adını çıkarır (giden #2385, gelen #2406). */
 export function parseAttachmentFilenameFromContent(content: string | null | undefined): string | null {
   if (!content?.trim()) return null
-  const match = /^\[Dosya eki:\s*(.+)\]$/i.exec(content.trim())
-  return match?.[1]?.trim() ?? null
+  const trimmed = content.trim()
+  const startMatch = /^\[Dosya eki:\s*(.+)\]$/i.exec(trimmed)
+  if (startMatch?.[1]) return startMatch[1].trim()
+  const embedMatch = /\[Dosya eki:\s*(.+?)\]/i.exec(trimmed)
+  return embedMatch?.[1]?.trim() ?? null
+}
+
+/** Görünen metinden dosya adı işaretleyicisini çıkarır (açıklama + `[Dosya eki: …]` birlikteyken). */
+export function stripAttachmentFilenameMarker(content: string): string {
+  return content.replace(/\n?\[Dosya eki:\s*.+?\]\s*$/i, '').trim()
 }
 
 export function isPlaceholderBracketContent(content: string): boolean {
@@ -117,5 +125,5 @@ export function formatConversationDisplayContent(content: string): string {
       return BRACKET_LABELS['konum mesajı'] ?? 'Konum'
     }
   }
-  return richTextToPlainText(trimmed)
+  return stripAttachmentFilenameMarker(richTextToPlainText(trimmed))
 }

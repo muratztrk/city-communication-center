@@ -1535,8 +1535,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `POST /attachments/internal-messages/{messageId}`; mesaj yanıtında `attachment` alanı.
 - **Kurum içi mesaj listesi önizleme boşluğu (#2374):** konuşma satırında ünvan (`title`) altındaki
   son mesaj önizlemesi `mt-2` ile ayrılır (sıkışık `mt-0.5` kullanılmaz).
-- **WA Vatandaş Talebi modal Dosya ekle (#2375):** `ConversationPanel` şablon mesaj ekle yanında kompakt
-  `Dosya ekle` (`onAddMediaAsAttachment` verildiğinde); CitizenRequestModal talep eklerine ekler.
+- **WA Vatandaş Talebi modal Dosya ekle (#2375 reopen):** `ConversationPanel` `enableWhatsAppFileAttachment`
+  ile dosya WhatsApp konuşmasına gider (`replySocialMessageAttachment`); talep eklerine değil. Gelen medya
+  balon aksiyonu `onAddMediaAsAttachment` talep eklerine kalır.
+- **Kurum İçi İlet buton metni (#2380):** `Sadece Kurum İçi İlet` (`whatsapp.sendInternalMessage`).
+- **WA footer düzeni (#2381):** Şablon/Dosya üst satır; Birim seç + Sadece Kurum İçi İlet alt satır sol.
+- **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.
+- **Kurum içi Dosya ekle (#2383):** kompakt buton; 5 MB; seçilen dosya sohbet alanında önizleme (WA gibi).
+- **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-6`.
 - **Dosya ekle accept filtresi (#2373):** Talep/görev/WA/kurum içi dosya seçimlerinde yalnız
   JPG/PNG/PDF/Office uzantıları (`accept`); logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);

@@ -1033,6 +1033,7 @@
     "replyPlaceholder": "Mesaj yazın...",
     "replySent": "Mesaj gönderildi",
     "replyFailed": "Mesaj gönderilemedi",
+    "sendInternalMessage": "Sadece Kurum İçi İlet",
     "delivery": {
       "sent": "Gönderildi",
       "delivered": "İletildi",

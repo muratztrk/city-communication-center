@@ -1026,6 +1026,7 @@
     "replyPlaceholder": "Type a message...",
     "replySent": "Message sent",
     "replyFailed": "Failed to send message",
+    "sendInternalMessage": "Internal Only",
     "delivery": {
       "sent": "Sent",
       "delivered": "Delivered",

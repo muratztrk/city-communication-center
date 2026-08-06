@@ -1335,8 +1335,9 @@ function ConversationDetail({
 
           {openTicket || loading ? (
             <footer className="shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
-              {/* Şablon/Dosya + Birim/Kurum İçi tek satır; Birim sağa yaslı (#r468, create-modal ile aynı). */}
-              <div className="flex flex-wrap items-center gap-2">
+              {/* Şablon/Dosya üst satır; Birim/Sadece Kurum İçi İlet alt satır sol (#2381). */}
+              <div className="space-y-2">
+                <div className="flex flex-wrap items-center gap-2">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -1375,12 +1376,13 @@ function ConversationDetail({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+                  className="inline-flex h-8 items-center gap-1 rounded-full border border-slate-200 bg-white px-3 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
                 >
-                  <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+                  <Paperclip className="size-3 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
-                <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
                   <SingleSelectDropdown
                     options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
                     value={internalDepartmentId}
@@ -1402,7 +1404,7 @@ function ConversationDetail({
                     className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-                    {t('whatsapp.sendInternalMessage', 'Kurum İçi İlet')}
+                    {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
                   </button>
                 </div>
               </div>

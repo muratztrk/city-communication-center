@@ -1,5 +1,14 @@
-## Round 697 — outgoingRequests internal lisans gate (#2378)
-- `#2378`: Kurum İçi kapalıyken Birimden Giden Talepler her yerden gizli (`PAGE_LICENSE_MODULE` + dashboard kart/pie).
+## Round 698 — WA + Kurum İçi UI (7 kart)
+- `#2367` reopen: Görünüm Varsayılana Dön/Kaydet üstü `mt-6`.
+- `#2383`: Kurum İçi Dosya ekle küçük buton, 5 MB, sohbet alanında önizleme.
+- `#2382`: Kurum İçi mesaj textarea çok satır + scroll.
+- `#2381`: WA modal Birim/Kurum İçi alt satır sol.
+- `#2380`: Kurum İçi İlet → Sadece Kurum İçi İlet.
+- `#2372` reopen: WA sayfası Dosya ekle biraz küçültüldü.
+- `#2375` reopen: Vatandaş Talebi modal Dosya ekle → WA konuşmasına (talep değil).
+
+## Round 697 — outgoingRequests internal lisans gate (#2378/#2379)
+- `#2378`/`#2379`: Kurum İçi kapalıyken Birimden Giden menü + Anasayfa kutucukları + outgoing pie gizli.
 
 ## Round 696 — Kurum İçi lisans gates + WA/kurum içi UI (4 kart)
 - `#2377`: Kurum İçi kapalıyken Reporter `Anasayfa - Birimler` menüde yok; `/dashboard/birimler` redirect.

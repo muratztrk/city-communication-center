@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Loader2, Paperclip, Send } from 'lucide-react'
+import { FileText, Loader2, Paperclip, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -15,8 +15,15 @@ import { ModalCloseButton } from './ui/modal-close-button'
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
+import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 
 const CONVERSATION_FILE_ACCEPT = '.jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
 
 interface ConversationPanelProps {
   socialMessageId: string
@@ -29,7 +36,10 @@ interface ConversationPanelProps {
   /** Beklemedeki giden mesajların yanında "Mesajı Gönder" butonu göster (yalnızca operatör) — card #1091. */
   canSendPending?: boolean
   onReplySent?: () => void
+  /** Gelen medyayı talep eklerine ekler (balon aksiyonu). */
   onAddMediaAsAttachment?: (file: File) => void
+  /** Dosya ekle butonu WhatsApp konuşmasına ek gönderir (talep eklerine değil) — card #2375. */
+  enableWhatsAppFileAttachment?: boolean
   /** Popup'ta telefon numarası başlığı göster (card 6a3f8858). */
   headerMode?: 'default' | 'phone'
   showCloseButton?: boolean
@@ -77,7 +87,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const locale = getLocale(i18n.language)
@@ -87,6 +97,9 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const [sending, setSending] = useState(false)
   const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
+  const [fileError, setFileError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -133,25 +146,50 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
       window.cancelAnimationFrame(frameId)
       window.clearTimeout(timeoutId)
     }
-  }, [lastEntryKey, scrollConversationToBottom, socialMessageId])
+  }, [lastEntryKey, scrollConversationToBottom, socialMessageId, pendingFile])
+
+  useEffect(() => {
+    if (!pendingFile) {
+      setPendingFilePreviewUrl(null)
+      return
+    }
+    const objectUrl = URL.createObjectURL(pendingFile)
+    setPendingFilePreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [pendingFile])
+
+  const handleWhatsAppFileSelected = (file: File | undefined) => {
+    if (!file) return
+    if (file.size > ATTACHMENT_MAX_TOTAL_BYTES) {
+      setFileError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
+      return
+    }
+    setFileError(null)
+    setPendingFile(file)
+  }
 
   const handleSend = async () => {
     const text = replyText.trim()
-    if (!text || sending) return
+    if ((!text && !pendingFile) || sending) return
     setSending(true)
     try {
-      await api.replySocialMessage(
-        socialMessageId,
-        text,
-        false,
-        selectedMetaTemplate
-          ? {
-              whatsAppTemplateId: selectedMetaTemplate.templateId,
-              whatsAppTemplateName: selectedMetaTemplate.name,
-              whatsAppTemplateLanguage: selectedMetaTemplate.language,
-            }
-          : undefined,
-      )
+      if (pendingFile) {
+        await api.replySocialMessageAttachment(socialMessageId, pendingFile, text, true)
+        setPendingFile(null)
+      } else {
+        await api.replySocialMessage(
+          socialMessageId,
+          text,
+          false,
+          selectedMetaTemplate
+            ? {
+                whatsAppTemplateId: selectedMetaTemplate.templateId,
+                whatsAppTemplateName: selectedMetaTemplate.name,
+                whatsAppTemplateLanguage: selectedMetaTemplate.language,
+              }
+            : undefined,
+        )
+      }
       setReplyText('')
       setSelectedMetaTemplate(null)
       invalidateSocialMessages(queryClient, socialMessageId)
@@ -294,28 +332,61 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             )
           })
         )}
+        {enableWhatsAppFileAttachment && pendingFile ? (
+          <div className="flex flex-col items-end">
+            <div className="max-w-[min(72%,28rem)] rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm text-white shadow-md ring-1 ring-white/10" style={{ background: 'var(--color-header-from)' }}>
+              <div className="flex items-center gap-2">
+                <FileText className="size-4 shrink-0" aria-hidden="true" />
+                <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
+                <button
+                  type="button"
+                  onClick={() => setPendingFile(null)}
+                  disabled={sending}
+                  className="ml-auto inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60"
+                  aria-label={t('common.dismiss', 'Vazgeç')}
+                >
+                  <X className="size-3.5" aria-hidden="true" />
+                </button>
+              </div>
+              {pendingFile.type.startsWith('image/') && pendingFilePreviewUrl ? (
+                <img
+                  src={pendingFilePreviewUrl}
+                  alt={pendingFile.name}
+                  className="mt-2 max-h-56 w-full rounded-xl border border-white/20 object-contain bg-white/95"
+                />
+              ) : (
+                <div className="mt-2 flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2 text-xs font-semibold text-white/90">
+                  <FileText className="size-4 shrink-0" aria-hidden="true" />
+                  <span className="min-w-0 truncate">{pendingFile.type || t('attachments.file', 'Dosya')}</span>
+                  <span className="shrink-0 text-white/65">{formatFileSize(pendingFile.size)}</span>
+                </div>
+              )}
+              {replyText.trim() ? (
+                <p className="mt-2 whitespace-pre-wrap break-words text-sm">{replyText.trim()}</p>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
         <div ref={bottomRef} />
       </div>
 
       {canReply && (
         <div className="shrink-0 space-y-3 border-t border-[color:var(--color-border)] bg-[color:var(--color-surface)] px-3 py-3">
-          {onAddMediaAsAttachment ? (
+          {enableWhatsAppFileAttachment ? (
             <input
               ref={fileInputRef}
               type="file"
               accept={CONVERSATION_FILE_ACCEPT}
               className="hidden"
               onChange={event => {
-                const file = event.target.files?.[0]
+                handleWhatsAppFileSelected(event.target.files?.[0])
                 event.target.value = ''
-                if (file) {
-                  onAddMediaAsAttachment(file)
-                }
               }}
             />
           ) : null}
-          <div className="flex flex-wrap items-center gap-2">
-            <WhatsAppTemplatePicker
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <WhatsAppTemplatePicker
               userQuickReplies={userQuickReplies}
               onSelect={template => {
                 setReplyText(template.content)
@@ -333,7 +404,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               compact={compactActions}
             />
             <UserQuickReplyAddButton compact={compactActions} onChanged={() => { void userQuickRepliesQuery.refetch() }} />
-            {onAddMediaAsAttachment ? (
+            {enableWhatsAppFileAttachment ? (
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
@@ -343,8 +414,9 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 {t('attachments.addFile', 'Dosya ekle')}
               </button>
             ) : null}
+            </div>
             {internalDepartmentOptions ? (
-              <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <SingleSelectDropdown
                   options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
                   value={internalDepartmentId}
@@ -366,10 +438,11 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   className={`inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50 ${compactActions ? 'h-7 px-2.5 text-[11px]' : 'h-9 px-4 text-sm'}`}
                 >
                   {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-                  {t('whatsapp.sendInternalMessage', 'Kurum İçi İlet')}
+                  {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
                 </button>
               </div>
             ) : null}
+            {fileError ? <p className="text-xs font-semibold text-red-600">{fileError}</p> : null}
           </div>
           <div className="flex items-end gap-2">
             <textarea
@@ -384,7 +457,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               className="field-input min-w-0 flex-1 resize-none min-h-[4.5rem] max-h-28 py-2 text-sm"
               style={{ height: 'auto' }}
             />
-            <Button size="sm" onClick={() => void handleSend()} disabled={!replyText.trim() || sending} className="self-end shrink-0">
+            <Button size="sm" onClick={() => void handleSend()} disabled={(!replyText.trim() && !pendingFile) || sending} className="self-end shrink-0">
               {sending ? <Loader2 className="size-4 animate-spin" /> : <Send className="size-4" />}
             </Button>
           </div>

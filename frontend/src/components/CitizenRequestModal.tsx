@@ -577,6 +577,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               canSendPending={user?.role === 'Operator' || user?.role === 'SystemAdmin'}
               onReplySent={() => { /* talep oluşturma akışını etkilemez */ }}
               onAddMediaAsAttachment={addPendingFile}
+              enableWhatsAppFileAttachment
               internalDepartmentOptions={citizenConversationId ? internalDepartmentOptions : undefined}
               internalDepartmentId={internalDepartmentId}
               onInternalDepartmentIdChange={setInternalDepartmentId}

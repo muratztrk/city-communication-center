@@ -26,6 +26,12 @@ function internalMessageFileExtension(name: string): string {
   return lowercaseFileExtension(name)
 }
 
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 const CONNECTED_POLL_INTERVAL_MS = 15_000
 const DISCONNECTED_POLL_INTERVAL_MS = 3_000
 const OPEN_CHAT_POLL_INTERVAL_MS = 1_000
@@ -146,6 +152,7 @@ export function InternalMessagesFab() {
   const [chatLoading, setChatLoading] = useState(false)
   const [draft, setDraft] = useState('')
   const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
   const [otherUserTyping, setOtherUserTyping] = useState(false)
@@ -383,7 +390,17 @@ export function InternalMessagesFab() {
   useEffect(() => {
     if (!scrollRef.current) return
     scrollRef.current.scrollTop = scrollRef.current.scrollHeight
-  }, [chatDetail])
+  }, [chatDetail, pendingFile])
+
+  useEffect(() => {
+    if (!pendingFile) {
+      setPendingFilePreviewUrl(null)
+      return
+    }
+    const objectUrl = URL.createObjectURL(pendingFile)
+    setPendingFilePreviewUrl(objectUrl)
+    return () => URL.revokeObjectURL(objectUrl)
+  }, [pendingFile])
 
   // Arama en az 3 karakter; personel adına contains (TR); 300ms debounce (card #1812).
   useEffect(() => {
@@ -676,6 +693,40 @@ export function InternalMessagesFab() {
                     )
                   })
                 )}
+                {pendingFile ? (
+                  <div className="flex justify-end">
+                    <div className="max-w-[min(72%,28rem)] rounded-xl rounded-tr-sm bg-emerald-700 px-2.5 py-1.5 text-xs text-white shadow-sm ring-1 ring-white/10">
+                      <div className="flex items-center gap-1.5">
+                        <FileText className="size-3.5 shrink-0" aria-hidden="true" />
+                        <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => setPendingFile(null)}
+                          disabled={sending}
+                          className="ml-auto inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 disabled:opacity-60"
+                          aria-label={t('common.dismiss', 'Vazgeç')}
+                        >
+                          <X className="size-3" aria-hidden="true" />
+                        </button>
+                      </div>
+                      {pendingFile.type.startsWith('image/') && pendingFilePreviewUrl ? (
+                        <img
+                          src={pendingFilePreviewUrl}
+                          alt={pendingFile.name}
+                          className="mt-1.5 max-h-40 w-full rounded-lg border border-white/20 object-contain bg-white/95"
+                        />
+                      ) : (
+                        <div className="mt-1.5 flex items-center gap-1.5 rounded-lg bg-black/10 px-2 py-1 text-[10px] font-semibold text-white/90">
+                          <span className="min-w-0 truncate">{pendingFile.type || t('attachments.file', 'Dosya')}</span>
+                          <span className="shrink-0 text-white/65">{formatFileSize(pendingFile.size)}</span>
+                        </div>
+                      )}
+                      {draft.trim() ? (
+                        <p className="mt-1.5 whitespace-pre-wrap break-words text-xs leading-snug">{draft.trim()}</p>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
               </div>
               <div className="shrink-0 space-y-2 border-t border-[var(--color-border)] bg-white px-3 py-2.5">
                 <input
@@ -687,6 +738,19 @@ export function InternalMessagesFab() {
                     const file = event.target.files?.[0] ?? null
                     event.target.value = ''
                     setFileError(null)
+                    if (!file) {
+                      setPendingFile(null)
+                      return
+                    }
+                    const ext = internalMessageFileExtension(file.name)
+                    if (!INTERNAL_MESSAGE_FILE_EXTENSIONS.includes(ext)) {
+                      setFileError(t('attachments.errorType', 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'))
+                      return
+                    }
+                    if (file.size > INTERNAL_MESSAGE_FILE_MAX_SIZE) {
+                      setFileError(t('attachments.errorSize', 'Dosya boyutu 5 MB\'ı aşamaz.'))
+                      return
+                    }
                     setPendingFile(file)
                   }}
                 />
@@ -694,29 +758,15 @@ export function InternalMessagesFab() {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   disabled={sending}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-4 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
+                  className="inline-flex h-7 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
                 >
-                  <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
+                  <Paperclip className="size-3 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
-                {pendingFile ? (
-                  <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1.5 text-xs text-slate-700">
-                    <FileText className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
-                    <span className="min-w-0 flex-1 truncate">{pendingFile.name}</span>
-                    <button
-                      type="button"
-                      className="rounded p-0.5 text-slate-400 hover:text-slate-600"
-                      aria-label={t('common.clear', 'Temizle')}
-                      onClick={() => setPendingFile(null)}
-                    >
-                      <X className="size-3.5" />
-                    </button>
-                  </div>
-                ) : null}
                 {fileError ? <p className="text-xs font-semibold text-red-600">{fileError}</p> : null}
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
+                <div className="flex items-end gap-2">
+                  <textarea
+                    rows={2}
                     value={draft}
                     onChange={e => setDraft(e.target.value)}
                     onKeyDown={e => {
@@ -726,7 +776,7 @@ export function InternalMessagesFab() {
                       }
                     }}
                     placeholder={t('internalMessages.messagePlaceholder', 'Mesaj yazın...')}
-                    className="field-input min-w-0 flex-1 py-2 text-sm"
+                    className="field-input min-h-[2.5rem] max-h-28 min-w-0 flex-1 resize-none overflow-y-auto py-2 text-sm leading-snug"
                     disabled={sending}
                   />
                   <button

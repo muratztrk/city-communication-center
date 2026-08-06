@@ -1176,6 +1176,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ulaşılamazsa istek TCP seviyesinde uzun sürebilir (mevcut 4sn'lik `TryConnectAsync` deseninden
   farklı) — gerekirse ayrı bir `CancellationTokenSource.CancelAfter` + soket-seviyesi sarmalayıcı
   eklenmeli.
+- **NAS SMB login domain (#2347):** IP host (`192.168.x.x`) FQDN gibi parse edilmez — ilk oktet
+  (`192`) domain adayı olmamalı. Domain sırası: açık `DOMAIN\user` / `user@domain` → `.` → `""`
+  → (yalnız hostname ise) short-host. Başarısız `Login` sonrası aynı client'ta `Logoff`+yeniden
+  `Login` yapılmaz (STATUS_USER_SESSION_DELETED); her domain denemesi fresh `Connect`.
 - **Ayarlar/Birimler/Kullanıcılar (`admin-surface-page`):** helper-copy, label, textbox,
   textarea, Oluşturma Modu segmented + LDAP başlıkları kompakt shell’den belirgin büyük
   (cards #1733/#1736/#1738). Ayarlar banner altı tab butonları #1733’ten sonra biraz

@@ -40,13 +40,7 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
                 return new NasUserTestResult(false, $"NAS sunucusuna bağlanılamadı ({host}). Adresi ve ağ erişimini kontrol edin.");
             }
 
-            var (domain, loginUser) = ParseSmbCredentials(host, username);
-            var loginStatus = client.Login(domain, loginUser, password);
-            if (loginStatus != NTStatus.STATUS_SUCCESS && !string.Equals(domain, ".", StringComparison.Ordinal))
-            {
-                loginStatus = client.Login(".", loginUser, password);
-            }
-
+            var (loginUser, loginStatus) = TryLogin(client, host, username, password);
             if (loginStatus != NTStatus.STATUS_SUCCESS)
             {
                 return new NasUserTestResult(false, $"Kullanıcı adı veya şifre hatalı ({loginStatus}).");
@@ -98,6 +92,63 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
         {
             client.Disconnect();
         }
+    }
+
+    private static (string LoginUser, NTStatus Status) TryLogin(
+        SMB2Client client,
+        string host,
+        string username,
+        string password)
+    {
+        var (primaryDomain, loginUser) = ParseSmbCredentials(host, username);
+        var domains = BuildDomainCandidates(host, primaryDomain);
+        NTStatus lastStatus = NTStatus.STATUS_LOGON_FAILURE;
+        var attemptedLogin = false;
+
+        foreach (var domain in domains)
+        {
+            if (attemptedLogin)
+            {
+                client.Logoff();
+            }
+
+            lastStatus = client.Login(domain, loginUser, password);
+            attemptedLogin = true;
+            if (lastStatus == NTStatus.STATUS_SUCCESS)
+            {
+                return (loginUser, lastStatus);
+            }
+        }
+
+        return (loginUser, lastStatus);
+    }
+
+    private static IReadOnlyList<string> BuildDomainCandidates(string host, string primaryDomain)
+    {
+        var hostOnly = host.Split(':', StringSplitOptions.TrimEntries)[0];
+        var dotIndex = hostOnly.IndexOf('.');
+        var shortHost = dotIndex > 0 ? hostOnly[..dotIndex] : hostOnly;
+
+        var candidates = new List<string>();
+        void Add(string? value)
+        {
+            if (value is null)
+            {
+                return;
+            }
+
+            if (!candidates.Contains(value, StringComparer.OrdinalIgnoreCase))
+            {
+                candidates.Add(value);
+            }
+        }
+
+        Add(primaryDomain);
+        Add(string.Empty);
+        Add(".");
+        Add(shortHost);
+
+        return candidates;
     }
 
     private static (string Domain, string Username) ParseSmbCredentials(string host, string username)

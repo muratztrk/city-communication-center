@@ -914,6 +914,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dashboard status pie chart dönem filtresi (card #1662):** pie chart sorguları üst kartlarla
   aynı şekilde yalnız `CreatedAtUtc` dönem aralığını uygular; dönem dışı açık/gecikmiş kayıtları
   OR ile eklemez.
+- **Dashboard üst kart ↔ pie bekleyen dilimi (#2350):** `GetDashboardQuery` sayıları pie chart
+  `pending` dilimiyle aynı kuralları kullanır — son tarihi geçmiş kayıtlar bekleyen sayısına
+  dahil edilmez; talep bekleyen dilimi Draft/PendingOnay/Revision (yönetici dış onay dilimi
+  yalnız PendingOwner/PendingExternal).
 - **Yönetici pie chart sırası (#r507):** `Birimdeki Görevler` → `Personelimin Görevleri` →
   `Personelimin Görevi Çözme Süresi (Saat)` (sonra Görevlerim / giden-gelen / öncelik).
 - **Görev Bilgileri üst metası ve alan sırası:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri

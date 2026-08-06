@@ -1,3 +1,12 @@
+## Round 687 — Dashboard kart/pie hizası + UI polish (7 kart)
+- `#2349`: Operator menüde Anasayfa-Vatandaş ↔ Vatandaş Bilgi Listesi sırası değişti.
+- `#2350`: Dashboard üst kutucuk sayıları pie `pending` dilimiyle hizalandı (`DashboardMetricRules`).
+- `#2347` reopen: NAS SMB çoklu domain denemesi (`""`, `.`, host) + retry Logoff.
+- `#2342` reopen: Filtreyi sil chip padding/line-height.
+- `#2348` reopen: Footer logo `h-9 sm:h-10`.
+- `#2352`: Görünüm Kaydet = Varsayılana Dön genişliği (`min-w-[11.5rem]`).
+- `#2351`: Login açıklama placeholder biraz büyütüldü.
+
 ## Round 686 — WA/zaman + operatör anasayfa + lisans + NAS (13 kart)
 - `#2340`/`#2339`: Mesaj balonu yalnız HH:mm; gün ayraçlarında yıl her zaman.
 - `#2341`: Operator menü 1. sıra `Anasayfa` (`/dashboard/birimler`); birim anasayfada staff kutucukları.

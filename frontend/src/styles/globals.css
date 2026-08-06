@@ -4017,8 +4017,10 @@
     color: #991b1b;
     font-size: 0.8rem;
     font-weight: 600;
-    padding: 0.35rem 0.9rem;
-    letter-spacing: 0.01em;
+    padding: 0.45rem 1.15rem;
+    line-height: 1.35;
+    letter-spacing: 0.015em;
+    min-height: 2rem;
     animation: ccc-blink 2.2s ease-in-out infinite;
   }
 

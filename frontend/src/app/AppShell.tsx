@@ -256,8 +256,8 @@ export function AppShell() {
     ...(isOperatorNav
       ? [
           { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboard', 'Anasayfa'), icon: LayoutDashboard },
-          { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
-          { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard, separatorAfter: true },
+          { pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard },
+          { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact, separatorAfter: true },
         ]
       : isReporterNav
         ? [

@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Features.Users;
+using CityCommunicationCenter.Domain.Enums;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Reports;
@@ -22,6 +23,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
         var tenantId = context.RequireTenantId();
         var userId = context.UserId;
         var isManagerOrAdmin = context.RoleCode is "Manager" or "SystemAdmin";
+        var now = DateTimeOffset.UtcNow;
 
         var activeTasks = await _dbContext.Tasks.CountAsync(
             entity => entity.TenantId == tenantId
@@ -29,8 +31,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                 && entity.CurrentStatus != WorkflowTaskStatus.Cancelled
                 && entity.CurrentStatus != WorkflowTaskStatus.Rejected
                 && entity.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
-                && (!request.FromUtc.HasValue || entity.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || entity.CreatedAtUtc <= request.ToUtc.Value),
+                && DashboardMetricRules.MatchesCreatedPeriod(entity.CreatedAtUtc, request.FromUtc, request.ToUtc),
             cancellationToken);
 
         int pendingApprovals = 0;
@@ -45,38 +46,67 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
         int outgoingTotalCount = 0;
         int deptTotalTaskCount = 0;
 
+        ApplicationUser? actor = null;
         if (userId.HasValue)
         {
-            // Card 1: My pending requests (internal + external combined) — for every user
-            myPendingRequestCount = await _dbContext.Jobs.CountAsync(
-                j => j.TenantId == tenantId
-                    && j.SourceType != JobSourceType.Routine
-                    && j.CreatedByUserId == userId
-                    && j.Status != JobStatus.Completed
-                    && j.Status != JobStatus.Cancelled
-                    && j.Status != JobStatus.Rejected
-                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+            actor = await _dbContext.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(u => u.UserId == userId.Value && u.TenantId == tenantId && u.IsActive, cancellationToken);
+        }
+
+        if (userId.HasValue)
+        {
+            myPendingTaskCount = await _dbContext.Tasks.CountAsync(
+                task => task.TenantId == tenantId
+                    && task.AssignedUserId == userId
+                    && DashboardMetricRules.IsTaskPendingSlice(task.CurrentStatus, task.DueDateUtc, now)
+                    && DashboardMetricRules.MatchesCreatedPeriod(task.CreatedAtUtc, request.FromUtc, request.ToUtc),
                 cancellationToken);
 
-            // Card 4: My pending tasks — for every user
-            myPendingTaskCount = await _dbContext.Tasks.CountAsync(
-                t => t.TenantId == tenantId
-                    && t.AssignedUserId == userId
-                    && t.CurrentStatus != WorkflowTaskStatus.Completed
-                    && t.CurrentStatus != WorkflowTaskStatus.Cancelled
-                    && t.CurrentStatus != WorkflowTaskStatus.Rejected
-                    && t.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
-                    && (!request.FromUtc.HasValue || t.CreatedAtUtc >= request.FromUtc.Value)
-                    && (!request.ToUtc.HasValue || t.CreatedAtUtc <= request.ToUtc.Value),
-                cancellationToken);
+            if (isManagerOrAdmin)
+            {
+                myPendingRequestCount = await _dbContext.Jobs.CountAsync(
+                    job => job.TenantId == tenantId
+                        && job.RequestType == JobRequestType.ExternalUnit
+                        && job.CreatedByUserId == userId
+                        && DashboardMetricRules.IsJobPendingSlice(job.Status, job.DueDateUtc, now, pendingApprovalOnly: false)
+                        && DashboardMetricRules.MatchesCreatedPeriod(job.CreatedAtUtc, request.FromUtc, request.ToUtc),
+                    cancellationToken);
+            }
+            else
+            {
+                var myRequestsQuery = _dbContext.Jobs.AsNoTracking().Where(job =>
+                    job.TenantId == tenantId
+                    && job.CreatedByUserId == userId
+                    && job.SourceType != JobSourceType.Routine
+                    && job.RequestType != JobRequestType.Citizen
+                    && DashboardMetricRules.MatchesCreatedPeriod(job.CreatedAtUtc, request.FromUtc, request.ToUtc));
+
+                if (actor is not null && (actor.RoleCode == RoleCode.Operator || UserRoleAccess.IsCitizenRequestManager(actor)))
+                {
+                    myRequestsQuery = myRequestsQuery.Where(job =>
+                        job.SourceType != JobSourceType.SocialMessage
+                        && job.SourceType != JobSourceType.CitizenRequest
+                        && job.SourceType != JobSourceType.EDevlet);
+                }
+
+                if (context.RoleCode == "Reporter")
+                {
+                    // Reporter tüm oluşturduğu (VT hariç) talepleri görür.
+                }
+                else if (context.ActiveDepartmentId.HasValue)
+                {
+                    myRequestsQuery = myRequestsQuery.Where(job => job.OwnerDepartmentId == context.ActiveDepartmentId.Value);
+                }
+
+                myPendingRequestCount = await myRequestsQuery.CountAsync(
+                    job => DashboardMetricRules.IsJobPendingSlice(job.Status, job.DueDateUtc, now, pendingApprovalOnly: false),
+                    cancellationToken);
+            }
         }
 
         if (isManagerOrAdmin && userId.HasValue)
         {
-            var actor = await _dbContext.Users
-                .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.UserId == userId.Value && u.TenantId == tenantId && u.IsActive, cancellationToken);
             var scopedDepartmentIds = actor is null
                 ? []
                 : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
@@ -90,89 +120,72 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                 j => j.TenantId == tenantId
                     && j.SourceType != JobSourceType.Routine
                     && (j.Status == JobStatus.Rejected || j.Status == JobStatus.Cancelled)
-                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                    && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
                 cancellationToken);
 
-            // Card 7: All my requests (total)
             myTotalRequestCount = await _dbContext.Jobs.CountAsync(
                 j => j.TenantId == tenantId
                     && j.SourceType != JobSourceType.Routine
                     && j.CreatedByUserId == userId
-                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                    && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
                 cancellationToken);
 
             if (scopedDepartmentIds.Length > 0)
             {
-                // Dashboard yalnızca yöneticinin aktif/kapsamındaki birime ait onayları
-                // göstermelidir; tenant genelindeki bekleyen kayıtlar yanıltıcıdır.
                 pendingApprovals = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
                         && j.SourceType != JobSourceType.Routine
-                        && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
+                        && DashboardMetricRules.IsJobPendingSlice(j.Status, j.DueDateUtc, now, pendingApprovalOnly: true)
                         && (scopedDepartmentIds.Contains(j.OwnerDepartmentId)
                             || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
                                 && jd.Role == JobDepartmentRole.Target
                                 && scopedDepartmentIds.Contains(jd.DepartmentId)))
-                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
                     cancellationToken);
 
-                // Card 3: Outgoing pending = external jobs from this dept still awaiting approval
                 outgoingPendingCount = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
                         && j.RequestType == JobRequestType.ExternalUnit
-                        && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
+                        && DashboardMetricRules.IsJobPendingSlice(j.Status, j.DueDateUtc, now, pendingApprovalOnly: false)
                         && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
-                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
                     cancellationToken);
 
-                // Outgoing in-progress = approved external jobs that already have tasks in flight
                 outgoingInProgressCount = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
                         && j.RequestType == JobRequestType.ExternalUnit
                         && j.Status == JobStatus.Active
-                        && _dbContext.Tasks.Any(t => t.JobId == j.JobId)
+                        && _dbContext.Tasks.Any(t => t.JobId == j.JobId
+                            && t.CurrentStatus != WorkflowTaskStatus.Completed
+                            && t.CurrentStatus != WorkflowTaskStatus.Cancelled
+                            && t.CurrentStatus != WorkflowTaskStatus.Rejected)
+                        && !DashboardMetricRules.IsPastDue(j.DueDateUtc, now)
                         && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
-                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
                     cancellationToken);
 
-                // Card 9: Outgoing total
                 outgoingTotalCount = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
                         && j.RequestType == JobRequestType.ExternalUnit
                         && scopedDepartmentIds.Contains(j.OwnerDepartmentId)
-                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
                     cancellationToken);
 
-                // Card 5: Dept pending tasks
                 deptPendingTaskCount = await _dbContext.Tasks.CountAsync(
                     t => t.TenantId == tenantId
                         && t.AssignedDepartmentId.HasValue
                         && scopedDepartmentIds.Contains(t.AssignedDepartmentId.Value)
-                        && t.CurrentStatus != WorkflowTaskStatus.Completed
-                        && t.CurrentStatus != WorkflowTaskStatus.Cancelled
-                        && t.CurrentStatus != WorkflowTaskStatus.Rejected
-                        && t.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
-                        && (!request.FromUtc.HasValue || t.CreatedAtUtc >= request.FromUtc.Value)
-                        && (!request.ToUtc.HasValue || t.CreatedAtUtc <= request.ToUtc.Value),
+                        && DashboardMetricRules.IsTaskPendingSlice(t.CurrentStatus, t.DueDateUtc, now)
+                        && DashboardMetricRules.MatchesCreatedPeriod(t.CreatedAtUtc, request.FromUtc, request.ToUtc),
                     cancellationToken);
 
-                // Card 10: Dept total tasks
                 deptTotalTaskCount = await _dbContext.Tasks.CountAsync(
                     t => t.TenantId == tenantId
                         && t.AssignedDepartmentId.HasValue
                         && scopedDepartmentIds.Contains(t.AssignedDepartmentId.Value)
-                        && (!request.FromUtc.HasValue || t.CreatedAtUtc >= request.FromUtc.Value)
-                        && (!request.ToUtc.HasValue || t.CreatedAtUtc <= request.ToUtc.Value),
+                        && DashboardMetricRules.MatchesCreatedPeriod(t.CreatedAtUtc, request.FromUtc, request.ToUtc),
                     cancellationToken);
 
-                // Birime gelen toplam: birimin kendi iç talep havuzu ile hedef olduğu
-                // dış talepler birlikte sayılır.
                 incomingTotalCount = await _dbContext.Jobs.CountAsync(
                     j => j.TenantId == tenantId
                         && j.SourceType != JobSourceType.Routine
@@ -180,13 +193,11 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                             || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
                                 && jd.Role == JobDepartmentRole.Target
                                 && scopedDepartmentIds.Contains(jd.DepartmentId)))
-                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value),
+                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc),
                     cancellationToken);
             }
         }
 
-        // Vatandaş Talepleri: onay bekleyen VT kayıtları (card #2332).
         var openSocialMessages = 0;
         var roleCode = context.RoleCode;
         if (roleCode is "SystemAdmin" or "Operator")
@@ -194,23 +205,19 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             openSocialMessages = await _dbContext.Jobs
                 .Where(j => j.TenantId == tenantId
                     && j.SourceType != JobSourceType.Routine
-                    && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
+                    && DashboardMetricRules.IsJobPendingSlice(j.Status, j.DueDateUtc, now, pendingApprovalOnly: true)
                     && _dbContext.SocialMessages.Any(m => m.JobId == j.JobId && m.CitizenRequestNumber != null)
-                    && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                    && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value))
+                    && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc))
                 .CountAsync(cancellationToken);
         }
         else if (isManagerOrAdmin && userId.HasValue)
         {
-            var actorForSocial = await _dbContext.Users
-                .AsNoTracking()
-                .FirstOrDefaultAsync(u => u.UserId == userId.Value && u.TenantId == tenantId && u.IsActive, cancellationToken);
-            var socialDepartmentIds = actorForSocial is null
+            var socialDepartmentIds = actor is null
                 ? Array.Empty<Guid>()
                 : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
                     _dbContext,
                     tenantId,
-                    actorForSocial,
+                    actor,
                     context.ActiveDepartmentId,
                     cancellationToken);
 
@@ -219,14 +226,13 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                 openSocialMessages = await _dbContext.Jobs
                     .Where(j => j.TenantId == tenantId
                         && j.SourceType != JobSourceType.Routine
-                        && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
+                        && DashboardMetricRules.IsJobPendingSlice(j.Status, j.DueDateUtc, now, pendingApprovalOnly: true)
                         && _dbContext.SocialMessages.Any(m => m.JobId == j.JobId && m.CitizenRequestNumber != null)
                         && (socialDepartmentIds.Contains(j.OwnerDepartmentId)
                             || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
                                 && jd.Role == JobDepartmentRole.Target
                                 && socialDepartmentIds.Contains(jd.DepartmentId)))
-                        && (!request.FromUtc.HasValue || j.CreatedAtUtc >= request.FromUtc.Value)
-                        && (!request.ToUtc.HasValue || j.CreatedAtUtc <= request.ToUtc.Value))
+                        && DashboardMetricRules.MatchesCreatedPeriod(j.CreatedAtUtc, request.FromUtc, request.ToUtc))
                     .CountAsync(cancellationToken);
             }
         }
@@ -246,5 +252,38 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             incomingTotalCount,
             outgoingTotalCount,
             deptTotalTaskCount);
+    }
+}
+
+internal static class DashboardMetricRules
+{
+    internal static bool MatchesCreatedPeriod(DateTimeOffset createdAtUtc, DateTimeOffset? fromUtc, DateTimeOffset? toUtc) =>
+        (!fromUtc.HasValue || createdAtUtc >= fromUtc.Value)
+        && (!toUtc.HasValue || createdAtUtc <= toUtc.Value);
+
+    internal static bool IsPastDue(DateTimeOffset? dueDateUtc, DateTimeOffset now) =>
+        dueDateUtc.HasValue && dueDateUtc.Value < now;
+
+    internal static bool IsTaskPendingSlice(WorkflowTaskStatus status, DateTimeOffset? dueDateUtc, DateTimeOffset now) =>
+        status is not (
+            WorkflowTaskStatus.Completed
+            or WorkflowTaskStatus.Cancelled
+            or WorkflowTaskStatus.Rejected
+            or WorkflowTaskStatus.PendingCloseApproval)
+        && !IsPastDue(dueDateUtc, now);
+
+    internal static bool IsJobPendingSlice(JobStatus status, DateTimeOffset? dueDateUtc, DateTimeOffset now, bool pendingApprovalOnly)
+    {
+        if (IsPastDue(dueDateUtc, now))
+        {
+            return false;
+        }
+
+        return pendingApprovalOnly
+            ? status is JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval
+            : status is JobStatus.Draft
+                or JobStatus.PendingOwnerApproval
+                or JobStatus.PendingExternalApproval
+                or JobStatus.RevisionRequested;
     }
 }

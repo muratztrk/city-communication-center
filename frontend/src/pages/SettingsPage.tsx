@@ -2740,7 +2740,7 @@ export function SettingsPage() {
                 <label className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">
                   <span>{t('settings.loginPageDescription', 'Login Page Açıklama')}</span>
                   <textarea
-                    className="field-input min-h-24 resize-y text-sm leading-6"
+                    className="field-input min-h-24 resize-y text-sm leading-6 placeholder:text-[0.9375rem] placeholder:leading-6"
                     value={appearanceForm.loginPageDescription ?? ''}
                     placeholder={t('login.subtitle')}
                     onChange={event => setAppearanceForm(current => ({ ...current, loginPageDescription: event.target.value }))}
@@ -2837,10 +2837,10 @@ export function SettingsPage() {
                 </label>
               </div>
               <div className="flex flex-wrap items-center justify-end gap-3">
-                <Button type="button" variant="secondary" onClick={confirmResetAppearanceToDefault}>
+                <Button type="button" variant="secondary" className="min-w-[11.5rem]" onClick={confirmResetAppearanceToDefault}>
                   {t('settings.reset', 'Varsayılana Dön')}
                 </Button>
-                <Button type="submit">{t('common.save')}</Button>
+                <Button type="submit" className="min-w-[11.5rem]">{t('common.save')}</Button>
               </div>
             </form>
           </div>

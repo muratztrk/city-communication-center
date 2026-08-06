@@ -1,3 +1,6 @@
+## Round 715 — NAS SMB kullanıcı testi (#2347)
+- `#2347`: IP host domain parse düzeltildi (`192` domain olmaz); başarısız Login sonrası fresh Connect; SESSION_DELETED mesajı.
+
 ## Round 714 — Sayfa Yetkileri default + Dosya ekle filtresi (2 kart)
 - `#2243` reopen: Default matris referans grid ile hizalandı; E-Devlet Anasayfa zorla açılmıyor; Operator/Staff/Reporter allow-list güncellendi.
 - `#2373` reopen: Ortak `ATTACHMENT_FILE_ACCEPT` (MIME+uzantı) + seçim doğrulaması tüm Dosya ekle yüzeylerinde.

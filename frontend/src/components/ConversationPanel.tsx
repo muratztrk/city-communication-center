@@ -397,7 +397,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             </div>
             {internalDepartmentOptions ? (
               <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-                <div className="flex min-w-0 items-center gap-2">
+                <div className="flex min-w-0 items-center justify-end gap-2">
                   <SingleSelectDropdown
                     options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
                     value={internalDepartmentId}
@@ -416,7 +416,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                     type="button"
                     onClick={() => void handleSendInternalClick()}
                     disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                    className={`ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50 ${compactActions ? 'h-7 px-2.5 text-[11px]' : 'h-8 px-3 text-xs'}`}
+                    className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50 ${compactActions ? 'h-7 px-2.5 text-[11px]' : 'h-8 px-3 text-xs'}`}
                   >
                     {sendingInternal ? <Loader2 className={`animate-spin ${compactActions ? 'size-3' : 'size-3.5'}`} /> : <Send className={compactActions ? 'size-3' : 'size-3.5'} />}
                     {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}

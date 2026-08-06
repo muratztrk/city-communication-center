@@ -543,8 +543,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Konuşma listesi filtresi: aktif/açık konuşmalarda operatörler için; diğer kullanıcılar için
   kendisine atanmış/aktif departmanına yönlendirilmiş terminal olmayan talepler (eski kural).
 - **WhatsApp footer birim/iç mesaj hizası (#2381/#2392):** `/whatsapp` ve Vatandaş Talebi modal
-  footer'ında `Sadece Kurum İçi İlet` butonunun sağ kenarı yanıt textarea'sının sağ kenarıyla aynı
-  hizada kalır (gönder butonu için grid spacer); birim dropdown sol tarafta kalır.
+  footer'ında birim dropdown'u `Sadece Kurum İçi İlet` butonunun hemen solunda kalır; butonun sağ kenarı
+  yanıt textarea'sının sağ kenarıyla hizalıdır (gönder butonu için grid spacer).
 - **WhatsApp bekleyen dosya önizlemesi (#2385/#2389):** sohbet alanındaki pending-file balonu kompakt
   kalır; yalnız dosya adı + (görsel ise küçük thumbnail) gösterilir, mime/boyut alt satırı basılmaz.
 - **WhatsApp birim içi konuşma notu:** `/whatsapp` footer'ındaki birim seçimi + `Birim İçi İlet` aksiyonu

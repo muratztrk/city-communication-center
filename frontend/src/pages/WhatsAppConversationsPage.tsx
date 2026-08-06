@@ -1371,7 +1371,7 @@ function ConversationDetail({
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="grid w-full grid-cols-[1fr_auto] items-center gap-2">
-                    <div className="flex min-w-0 items-center gap-2">
+                    <div className="flex min-w-0 items-center justify-end gap-2">
                       <SingleSelectDropdown
                         options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
                         value={internalDepartmentId}
@@ -1390,7 +1390,7 @@ function ConversationDetail({
                         type="button"
                         onClick={() => void handleSendInternal()}
                         disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                        className="ml-auto inline-flex h-8 shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {sendingInternal ? <Loader2 className="size-3 animate-spin" /> : <Send className="size-3" />}
                         {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}

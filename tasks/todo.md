@@ -1,3 +1,11 @@
+## Round 701 — WA header/footer hizası + modal başlık (8 kart)
+- `#2390`: Vatandaş Talebi modal başlığı altında küçük WA ikonu + ad/telefon; panel `Whatsapp Telefon No` header gizli.
+- `#2391`: WA profil paneli Talep Oluştur üst alanı `rounded-tr-xl`.
+- `#2384`: Detay header Talep Sayısı numara satırının sağında.
+- `#2392`/`#2381`: Footer Sadece Kurum İçi İlet sağ kenarı textarea ile hizalı (grid spacer).
+- `#2389`/`#2385`: Pending dosya önizlemesi küçültüldü; mime/boyut satırı kaldırıldı.
+- `#2367` reopen: Görünüm Kaydet/Varsayılana Dön üstü `mt-8`.
+
 ## Round 700 — Footer şerit + WA buton (2 kart)
 - `#2388`: AppFooter yeşil alt şerit `3px` (eskisi gibi).
 - `#2387`: WA sayfası Sadece Kurum İçi İlet butonu küçültüldü.

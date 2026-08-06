@@ -16,6 +16,7 @@ import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
+import { formatDisplayPhone } from '../utils/phoneNormalization'
 
 const CONVERSATION_FILE_ACCEPT = '.jpg,.jpeg,.png,.pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx'
 
@@ -47,6 +48,8 @@ interface ConversationPanelProps {
   compactActions?: boolean
   /** Vatandaş Talebi Oluştur modalında konuşma balonlarını küçült (card #1711). */
   compactBubbles?: boolean
+  /** Üst başlık satırını gizle (vatandaş bilgisi modal başlığında gösterilir — card #2390). */
+  hideHeader?: boolean
 }
 
 /** İsimden baş harfleri çıkarır (en fazla 2). Harf yoksa null döner. */
@@ -54,21 +57,6 @@ function getInitials(value: string): string | null {
   const words = value.trim().split(/\s+/).filter(w => /\p{L}/u.test(w))
   if (words.length === 0) return null
   return words.slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('')
-}
-
-/** Phone-header satırı: +90 önekli okunabilir numara (card #1555). */
-function formatConversationPanelPhone(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  const local = digits.length === 12 && digits.startsWith('90')
-    ? digits.slice(2)
-    : digits.length === 11 && digits.startsWith('0')
-      ? digits.slice(1)
-      : digits
-  if (local.length === 10) {
-    return `+90 ${local.slice(0, 3)} ${local.slice(3, 6)} ${local.slice(6, 8)} ${local.slice(8)}`
-  }
-  if (digits.length === 0) return phone
-  return digits.startsWith('90') ? `+${digits}` : `+90 ${digits}`
 }
 
 function DateDivider({ label }: { label: string }) {
@@ -81,7 +69,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const locale = getLocale(i18n.language)
@@ -252,8 +240,8 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const registeredCitizenName = citizenName?.trim() || null
   const phoneDigitsRaw = citizenPhone?.replace(/\D/g, '') || ''
   const phoneForDisplay = phoneDigitsRaw
-    ? formatConversationPanelPhone(citizenPhone!)
-    : (citizenHandle.replace(/\D/g, '').length >= 10 ? formatConversationPanelPhone(citizenHandle) : citizenHandle)
+    ? formatDisplayPhone(citizenPhone!)
+    : (citizenHandle.replace(/\D/g, '').length >= 10 ? formatDisplayPhone(citizenHandle) : citizenHandle)
   const headerSubtitle = headerMode === 'phone'
     ? (registeredCitizenName ? `${registeredCitizenName} ${phoneForDisplay}` : phoneForDisplay)
     : citizenHandle
@@ -268,32 +256,36 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
 
   const initials = getInitials(citizenHandle)
 
+  const sendButtonSpacerClass = compactActions ? 'h-8 w-10 shrink-0' : 'size-11 shrink-0'
+
   return (
     <div className="flex flex-col h-full">
-      <div
-        className="flex items-center gap-3 px-4 py-3 shrink-0 text-white"
-        style={{ backgroundColor: 'var(--color-header-from)' }}
-      >
-        {headerMode === 'phone' ? (
-          // Ortak WhatsApp asset; beyaz dış çerçeve yok (card #1555).
-          <img src="/icons/whatsapp.webp" alt="" className="size-6 shrink-0" aria-hidden="true" />
-        ) : (
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold" style={{ color: 'var(--color-header-from)' }}>
-            {initials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
+      {!hideHeader ? (
+        <div
+          className="flex items-center gap-3 px-4 py-3 shrink-0 text-white"
+          style={{ backgroundColor: 'var(--color-header-from)' }}
+        >
+          {headerMode === 'phone' ? (
+            // Ortak WhatsApp asset; beyaz dış çerçeve yok (card #1555).
+            <img src="/icons/whatsapp.webp" alt="" className="size-6 shrink-0" aria-hidden="true" />
+          ) : (
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-white text-sm font-bold" style={{ color: 'var(--color-header-from)' }}>
+              {initials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
+            </div>
+          )}
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">{headerKicker}</p>
+            <p className={`truncate font-semibold leading-tight ${headerMode === 'phone' ? 'text-xs' : 'text-[15px]'}`}>{headerSubtitle}</p>
           </div>
-        )}
-        <div className="min-w-0 flex-1">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">{headerKicker}</p>
-          <p className={`truncate font-semibold leading-tight ${headerMode === 'phone' ? 'text-xs' : 'text-[15px]'}`}>{headerSubtitle}</p>
+          {showCloseButton ? (
+            <ModalCloseButton
+              onClick={onClose}
+              label={t('common.close', 'Kapat')}
+              className="size-8 shrink-0 text-white/80 hover:bg-white/15 hover:text-white"
+            />
+          ) : null}
         </div>
-        {showCloseButton ? (
-          <ModalCloseButton
-            onClick={onClose}
-            label={t('common.close', 'Kapat')}
-            className="size-8 shrink-0 text-white/80 hover:bg-white/15 hover:text-white"
-          />
-        ) : null}
-      </div>
+      ) : null}
 
       <div className="whatsapp-chat-bg min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-3">
         {conversationQuery.isLoading ? (
@@ -328,7 +320,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         )}
         {enableWhatsAppFileAttachment && pendingFile ? (
           <div className="flex flex-col items-end">
-            <div className={`rounded-2xl rounded-tr-sm text-white shadow-md ring-1 ring-white/10 ${compactActions ? 'max-w-[min(62%,20rem)] px-3 py-2 text-xs' : 'max-w-[min(72%,28rem)] px-4 py-2.5 text-sm'}`} style={{ background: 'var(--color-header-from)' }}>
+            <div className={`rounded-2xl rounded-tr-sm text-white shadow-md ring-1 ring-white/10 ${compactActions ? 'max-w-[min(55%,16rem)] px-2.5 py-1.5 text-[11px]' : 'max-w-[min(65%,22rem)] px-3 py-2 text-xs'}`} style={{ background: 'var(--color-header-from)' }}>
               <div className="flex items-center gap-2">
                 <FileText className={`shrink-0 ${compactActions ? 'size-3.5' : 'size-4'}`} aria-hidden="true" />
                 <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
@@ -346,7 +338,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 <img
                   src={pendingFilePreviewUrl}
                   alt={pendingFile.name}
-                  className={`mt-1.5 w-full rounded-lg border border-white/20 object-contain bg-white/95 ${compactActions ? 'max-h-28' : 'max-h-56'}`}
+                  className={`mt-1.5 w-full rounded-lg border border-white/20 object-contain bg-white/95 ${compactActions ? 'max-h-20' : 'max-h-36'}`}
                 />
               ) : null}
               {replyText.trim() ? (
@@ -402,64 +394,40 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 {t('attachments.addFile', 'Dosya ekle')}
               </button>
             ) : null}
-            {internalDepartmentOptions && compactActions ? (
-              <div className="ml-auto flex flex-wrap items-center gap-2">
-                <SingleSelectDropdown
-                  options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
-                  value={internalDepartmentId}
-                  onChange={value => onInternalDepartmentIdChange?.(value)}
-                  placeholder={t('departments.selectDepartment', 'Birim seçiniz...')}
-                  emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
-                  searchPlaceholder={t('departments.search', 'Birim ara...')}
-                  openUp={internalDepartmentOptions.length >= 2}
-                  clearable
-                  className="w-[8.75rem] min-w-0 max-w-[8.75rem]"
-                  triggerClassName={`${compactActions ? 'min-h-7 h-7 px-2 text-[11px]' : 'h-9 px-2.5 text-xs'} w-full rounded-full font-semibold`}
-                  menuWidth={168}
-                  menuScrollClassName="whatsapp-department-menu-scroll"
-                />
-                <button
-                  type="button"
-                  onClick={() => void handleSendInternalClick()}
-                  disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                  className={`inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50 ${compactActions ? 'h-7 px-2.5 text-[11px]' : 'h-9 px-4 text-sm'}`}
-                >
-                  {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-                  {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
-                </button>
-              </div>
-            ) : null}
             </div>
-            {internalDepartmentOptions && !compactActions ? (
-              <div className="flex flex-wrap items-center gap-2">
-                <SingleSelectDropdown
-                  options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
-                  value={internalDepartmentId}
-                  onChange={value => onInternalDepartmentIdChange?.(value)}
-                  placeholder={t('departments.selectDepartment', 'Birim seçiniz...')}
-                  emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
-                  searchPlaceholder={t('departments.search', 'Birim ara...')}
-                  openUp={internalDepartmentOptions.length >= 2}
-                  clearable
-                  className="w-[8.75rem] min-w-0 max-w-[8.75rem]"
-                  triggerClassName="h-9 w-full rounded-full px-2.5 text-xs font-semibold"
-                  menuWidth={168}
-                  menuScrollClassName="whatsapp-department-menu-scroll"
-                />
-                <button
-                  type="button"
-                  onClick={() => void handleSendInternalClick()}
-                  disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                  className="inline-flex h-9 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {sendingInternal ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
-                  {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
-                </button>
+            {internalDepartmentOptions ? (
+              <div className="grid grid-cols-[1fr_auto] items-center gap-2">
+                <div className="flex min-w-0 items-center gap-2">
+                  <SingleSelectDropdown
+                    options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
+                    value={internalDepartmentId}
+                    onChange={value => onInternalDepartmentIdChange?.(value)}
+                    placeholder={t('departments.selectDepartment', 'Birim seçiniz...')}
+                    emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
+                    searchPlaceholder={t('departments.search', 'Birim ara...')}
+                    openUp={internalDepartmentOptions.length >= 2}
+                    clearable
+                    className={`min-w-0 max-w-[10rem] shrink-0 ${compactActions ? 'w-[8.75rem]' : 'w-[10rem]'}`}
+                    triggerClassName={`w-full rounded-full font-semibold ${compactActions ? 'min-h-7 h-7 px-2 text-[11px]' : 'h-9 px-2.5 text-xs'}`}
+                    menuWidth={compactActions ? 168 : 184}
+                    menuScrollClassName="whatsapp-department-menu-scroll"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void handleSendInternalClick()}
+                    disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
+                    className={`ml-auto inline-flex shrink-0 items-center gap-1.5 rounded-full border border-emerald-200 bg-emerald-50 font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50 ${compactActions ? 'h-7 px-2.5 text-[11px]' : 'h-8 px-3 text-xs'}`}
+                  >
+                    {sendingInternal ? <Loader2 className={`animate-spin ${compactActions ? 'size-3' : 'size-3.5'}`} /> : <Send className={compactActions ? 'size-3' : 'size-3.5'} />}
+                    {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
+                  </button>
+                </div>
+                <div className={`${sendButtonSpacerClass} invisible pointer-events-none`} aria-hidden="true" />
               </div>
             ) : null}
             {fileError ? <p className="text-xs font-semibold text-red-600">{fileError}</p> : null}
           </div>
-          <div className="flex items-end gap-2">
+          <div className="grid grid-cols-[1fr_auto] items-end gap-2">
             <textarea
               rows={3}
               value={replyText}
@@ -469,7 +437,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               }}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend() } }}
               placeholder={t('social.replyPlaceholder', 'Yanıt yaz…')}
-              className="field-input min-w-0 flex-1 resize-none min-h-[4.5rem] max-h-28 py-2 text-sm"
+              className="field-input min-w-0 resize-none min-h-[4.5rem] max-h-28 py-2 text-sm"
               style={{ height: 'auto' }}
             />
             <Button size="sm" onClick={() => void handleSend()} disabled={(!replyText.trim() && !pendingFile) || sending} className="self-end shrink-0">

@@ -23,6 +23,7 @@ import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
+import { formatDisplayPhone } from '../utils/phoneNormalization'
 import {
   ATTACHMENT_MAX_TOTAL_BYTES,
   exceedsAttachmentTotalLimit,
@@ -552,6 +553,16 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 ? t('social.whatsappCitizenRequestTitle', 'WhatsApp Konuşması - Vatandaş Talebi Oluştur')
                 : t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}
             </h2>
+            {message.channel === 'WhatsApp' ? (
+              <div className="mt-0.5 flex min-w-0 items-center gap-1.5 text-xs font-medium text-white/90">
+                <img src="/icons/whatsapp.webp" alt="" className="size-3.5 shrink-0" aria-hidden="true" />
+                <span className="truncate">
+                  {[savedCitizenName, citizenPhone.replace(/\D/g, '').length >= 10 ? formatDisplayPhone(citizenPhone) : null]
+                    .filter(Boolean)
+                    .join(' ')}
+                </span>
+              </div>
+            ) : null}
           </div>
           <button
             type="button"
@@ -571,6 +582,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               citizenPhone={citizenPhone}
               citizenName={savedCitizenName || undefined}
               headerMode="phone"
+              hideHeader
               showCloseButton={false}
               onClose={handleClose}
               // Yalnızca Vatandaş Operatörü beklemedeki mesajı vatandaşa iletebilir — card #1091.

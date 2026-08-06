@@ -2826,7 +2826,7 @@ export function SettingsPage() {
                   </div>
                 </div>
               </div>
-              <div className="mt-6 flex flex-wrap items-center justify-end gap-3">
+              <div className="mt-8 flex flex-wrap items-center justify-end gap-3">
                 <Button type="button" variant="secondary" className="min-w-[11.5rem]" onClick={confirmResetAppearanceToDefault}>
                   {t('settings.reset', 'Varsayılana Dön')}
                 </Button>

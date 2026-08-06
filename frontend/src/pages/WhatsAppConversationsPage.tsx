@@ -64,18 +64,6 @@ function formatLocalProfilePhone(phone: string): string {
   return digits
 }
 
-function formatFileSize(bytes: number): string {
-  if (!Number.isFinite(bytes) || bytes <= 0) return '0 KB'
-  const units = ['B', 'KB', 'MB', 'GB']
-  let value = bytes
-  let unitIndex = 0
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024
-    unitIndex += 1
-  }
-  return `${value >= 10 || unitIndex === 0 ? value.toFixed(0) : value.toFixed(1)} ${units[unitIndex]}`
-}
-
 /** İsimden baş harfleri çıkarır (en fazla 2). Harf yoksa null döner. */
 function getInitials(value: string): string | null {
   const words = value.trim().split(/\s+/).filter(w => /\p{L}/u.test(w))
@@ -601,9 +589,9 @@ function ConversationProfilePanel({
   const labelClass = 'text-[10px] font-bold uppercase tracking-wide text-slate-500'
 
   return (
-    <aside className="hidden min-h-0 w-72 shrink-0 flex-col overflow-y-auto border-l border-slate-200 bg-slate-50/80 lg:flex">
+    <aside className="hidden min-h-0 w-72 shrink-0 flex-col overflow-hidden rounded-tr-xl border-l border-slate-200 bg-slate-50/80 lg:flex">
       <div
-        className="flex justify-center border-b border-slate-200 p-4"
+        className="flex justify-center rounded-tr-xl border-b border-slate-200 p-4"
         style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
       >
         <button
@@ -617,7 +605,7 @@ function ConversationProfilePanel({
         </button>
       </div>
 
-      <div className="p-4">
+      <div className="overflow-y-auto p-4">
         <div className="mb-3 flex items-center justify-between gap-2">
           <h3 className="text-sm font-bold text-slate-900">{t('whatsapp.citizenProfile', 'Vatandaş Bilgileri')}</h3>
           <button
@@ -1135,26 +1123,45 @@ function ConversationDetail({
                 ACİL
               </span>
             ) : null}
+            {headerSubtitleParts.length === 0 && ticketLabel ? (
+              <span className="ml-auto shrink-0 truncate text-[11px] font-semibold text-slate-600">
+                <button
+                  type="button"
+                  className="font-bold text-slate-700 underline-offset-2 hover:text-emerald-700 hover:underline"
+                  onClick={() => phoneForHeader && onOpenViewRequests(phoneForHeader)}
+                >
+                  {ticketLabel}
+                </button>
+                {taskOwnerLabel ? (
+                  <>
+                    <span className="mx-1 text-slate-400">|</span>
+                    <span>{t('tasks.columns.owner', 'Görev Sahibi')}: {taskOwnerLabel}</span>
+                  </>
+                ) : null}
+              </span>
+            ) : null}
           </div>
           {headerSubtitleParts.length > 0 ? (
-            <p className="truncate text-xs text-slate-500">{headerSubtitleParts.join(' · ')}</p>
-          ) : null}
-          {ticketLabel ? (
-            <p className="mt-1 truncate text-[11px] font-semibold text-slate-600">
-              <button
-                type="button"
-                className="font-bold text-slate-700 underline-offset-2 hover:text-emerald-700 hover:underline"
-                onClick={() => phoneForHeader && onOpenViewRequests(phoneForHeader)}
-              >
-                {ticketLabel}
-              </button>
-              {taskOwnerLabel ? (
-                <>
-                  <span className="mx-1 text-slate-400">|</span>
-                  <span>{t('tasks.columns.owner', 'Görev Sahibi')}: {taskOwnerLabel}</span>
-                </>
+            <div className="flex min-w-0 items-center justify-between gap-2">
+              <p className="truncate text-xs text-slate-500">{headerSubtitleParts.join(' · ')}</p>
+              {ticketLabel ? (
+                <span className="shrink-0 truncate text-[11px] font-semibold text-slate-600">
+                  <button
+                    type="button"
+                    className="font-bold text-slate-700 underline-offset-2 hover:text-emerald-700 hover:underline"
+                    onClick={() => phoneForHeader && onOpenViewRequests(phoneForHeader)}
+                  >
+                    {ticketLabel}
+                  </button>
+                  {taskOwnerLabel ? (
+                    <>
+                      <span className="mx-1 text-slate-400">|</span>
+                      <span>{t('tasks.columns.owner', 'Görev Sahibi')}: {taskOwnerLabel}</span>
+                    </>
+                  ) : null}
+                </span>
               ) : null}
-            </p>
+            </div>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
@@ -1266,9 +1273,9 @@ function ConversationDetail({
             )}
             {pendingFile ? (
               <div className="flex flex-col items-end">
-                <div className="max-w-[min(72%,28rem)] rounded-2xl rounded-tr-sm px-4 py-2.5 text-sm text-white shadow-md ring-1 ring-white/10" style={{ background: 'var(--color-header-from)' }}>
+                <div className="max-w-[min(55%,16rem)] rounded-2xl rounded-tr-sm px-2.5 py-1.5 text-[11px] text-white shadow-md ring-1 ring-white/10" style={{ background: 'var(--color-header-from)' }}>
                   <div className="flex items-center gap-2">
-                    <FileText className="size-4 shrink-0" aria-hidden="true" />
+                    <FileText className="size-3.5 shrink-0" aria-hidden="true" />
                     <span className="min-w-0 truncate font-semibold">{pendingFile.name}</span>
                     <button
                       type="button"
@@ -1277,25 +1284,19 @@ function ConversationDetail({
                         setPendingFileEditing(false)
                       }}
                       disabled={sending}
-                      className="ml-auto inline-flex size-6 shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60"
+                      className="ml-auto inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60"
                       aria-label={t('common.dismiss', 'Vazgeç')}
                     >
-                      <X className="size-3.5" aria-hidden="true" />
+                      <X className="size-3" aria-hidden="true" />
                     </button>
                   </div>
                   {pendingFile.type.startsWith('image/') && pendingFilePreviewUrl ? (
                     <img
                       src={pendingFilePreviewUrl}
                       alt={pendingFile.name}
-                      className="mt-2 max-h-56 w-full rounded-xl border border-white/20 object-contain bg-white/95"
+                      className="mt-1.5 max-h-20 w-full rounded-lg border border-white/20 object-contain bg-white/95"
                     />
-                  ) : (
-                    <div className="mt-2 flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2 text-xs font-semibold text-white/90">
-                      <FileText className="size-4 shrink-0" aria-hidden="true" />
-                      <span className="min-w-0 truncate">{pendingFile.type || t('attachments.file', 'Dosya')}</span>
-                      <span className="shrink-0 text-white/65">{formatFileSize(pendingFile.size)}</span>
-                    </div>
-                  )}
+                  ) : null}
                   {pendingFileEditing ? (
                     <textarea
                       rows={2}
@@ -1383,32 +1384,37 @@ function ConversationDetail({
                 </button>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <SingleSelectDropdown
-                    options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
-                    value={internalDepartmentId}
-                    onChange={setInternalDepartmentId}
-                    placeholder={t('departments.selectDepartment', 'Birim seçiniz...')}
-                    emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
-                    searchPlaceholder={t('departments.search', 'Birim ara...')}
-                    openUp={internalDepartmentOptions.length >= 2}
-                    clearable
-                    className="w-[10rem] min-w-0 max-w-[10rem]"
-                    triggerClassName="h-9 w-full rounded-full px-2.5 text-xs font-semibold"
-                    menuWidth={184}
-                    menuScrollClassName="whatsapp-department-menu-scroll"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => void handleSendInternal()}
-                    disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                    className="inline-flex h-8 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    {sendingInternal ? <Loader2 className="size-3 animate-spin" /> : <Send className="size-3" />}
-                    {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
-                  </button>
+                  <div className="grid w-full grid-cols-[1fr_auto] items-center gap-2">
+                    <div className="flex min-w-0 items-center gap-2">
+                      <SingleSelectDropdown
+                        options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
+                        value={internalDepartmentId}
+                        onChange={setInternalDepartmentId}
+                        placeholder={t('departments.selectDepartment', 'Birim seçiniz...')}
+                        emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
+                        searchPlaceholder={t('departments.search', 'Birim ara...')}
+                        openUp={internalDepartmentOptions.length >= 2}
+                        clearable
+                        className="w-[10rem] min-w-0 max-w-[10rem] shrink-0"
+                        triggerClassName="h-9 w-full rounded-full px-2.5 text-xs font-semibold"
+                        menuWidth={184}
+                        menuScrollClassName="whatsapp-department-menu-scroll"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => void handleSendInternal()}
+                        disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
+                        className="ml-auto inline-flex h-8 shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {sendingInternal ? <Loader2 className="size-3 animate-spin" /> : <Send className="size-3" />}
+                        {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
+                      </button>
+                    </div>
+                    <div className="size-11 invisible shrink-0 pointer-events-none" aria-hidden="true" />
+                  </div>
                 </div>
               </div>
-              <div className="flex items-end gap-2">
+              <div className="grid grid-cols-[1fr_auto] items-end gap-2">
                 <textarea
                   rows={2}
                   value={replyText}
@@ -1424,7 +1430,7 @@ function ConversationDetail({
                   }}
                   placeholder={t('whatsapp.replyPlaceholder', 'Mesaj yazın...')}
                   disabled={!windowOpen && !hasSelectableTemplates}
-                  className="field-input min-h-[3.25rem] max-h-28 flex-1 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
+                  className="field-input min-h-[3.25rem] max-h-28 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
                 />
                 <button
                   type="button"

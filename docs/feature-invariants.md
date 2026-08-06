@@ -1918,7 +1918,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile satırla birlikte kayar; `.table-wrap` scroll'unda menü kapanır; thead z-index dropdown üstündedir.
 - **Kurum içi yazıyor göstergesi (#2307):** aktif sohbette karşı taraf yazarken SignalR
   `ReceiveInternalMessageTyping` ile header'da birim satırının altında `Yazıyor` + animasyonlu
-  üç nokta gösterilir; `POST /internal-messages/typing` yalnız alıcıya iletilir.
+  üç nokta gösterilir; `POST /internal-messages/typing` yalnız alıcıya iletilir. Gönderen yazmaya
+  devam ederken 2 sn heartbeat ile yenilenir; alıcı TTL 3 sn.
 - **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter
   sonra filtreler (InternalMessagesFab ile aynı eşik).
 - **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.

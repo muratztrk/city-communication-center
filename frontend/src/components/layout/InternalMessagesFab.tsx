@@ -21,6 +21,11 @@ const OPEN_CHAT_POLL_INTERVAL_MS = 1_000
 const PAGE_SIZE = 10
 const TYPING_NOTIFY_DEBOUNCE_MS = 350
 const TYPING_INDICATOR_TTL_MS = 3_000
+const TYPING_HEARTBEAT_MS = 2_000
+
+function normalizeUserId(userId: string) {
+  return userId.trim().toLowerCase()
+}
 
 interface MessageRow {
   otherUserId: string
@@ -138,6 +143,7 @@ export function InternalMessagesFab() {
   const [signalRState, setSignalRState] = useState<SignalRConnectionState>('disconnected')
   const scrollRef = useRef<HTMLDivElement | null>(null)
   const typingNotifyTimerRef = useRef<number | null>(null)
+  const typingHeartbeatTimerRef = useRef<number | null>(null)
   const typingActiveRef = useRef(false)
   const otherTypingTimerRef = useRef<number | null>(null)
 
@@ -254,7 +260,7 @@ export function InternalMessagesFab() {
   }, [activeChat, chatDetail?.internalConversationId, currentUserId, loadChat, refreshConversations])
 
   const handleInternalMessageTyping = useCallback((payload: InternalMessageTypingPayload) => {
-    if (!activeChat || payload.senderUserId !== activeChat.otherUserId) return
+    if (!activeChat || normalizeUserId(payload.senderUserId) !== normalizeUserId(activeChat.otherUserId)) return
     if (payload.isTyping) {
       setOtherUserTyping(true)
       if (otherTypingTimerRef.current) window.clearTimeout(otherTypingTimerRef.current)
@@ -266,14 +272,28 @@ export function InternalMessagesFab() {
     setOtherUserTyping(false)
   }, [activeChat])
 
-  const notifyTyping = useCallback((isTyping: boolean) => {
+  const notifyTyping = useCallback((isTyping: boolean, force = false) => {
     if (!activeChat) return
-    if (typingActiveRef.current === isTyping) return
+    if (!force && typingActiveRef.current === isTyping) return
     typingActiveRef.current = isTyping
     void api.notifyInternalMessageTyping(activeChat.otherUserId, isTyping).catch(() => {
       // sessizce geç — gösterge kritik değil
     })
   }, [activeChat])
+
+  const clearTypingHeartbeat = useCallback(() => {
+    if (typingHeartbeatTimerRef.current) {
+      window.clearInterval(typingHeartbeatTimerRef.current)
+      typingHeartbeatTimerRef.current = null
+    }
+  }, [])
+
+  const startTypingHeartbeat = useCallback(() => {
+    clearTypingHeartbeat()
+    typingHeartbeatTimerRef.current = window.setInterval(() => {
+      notifyTyping(true, true)
+    }, TYPING_HEARTBEAT_MS)
+  }, [clearTypingHeartbeat, notifyTyping])
 
   useSignalR({
     onInternalMessage: handleInternalMessage,
@@ -286,11 +306,13 @@ export function InternalMessagesFab() {
     if (!activeChat) {
       setOtherUserTyping(false)
       typingActiveRef.current = false
+      clearTypingHeartbeat()
       return
     }
 
     if (!draft.trim()) {
       if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
+      clearTypingHeartbeat()
       notifyTyping(false)
       return
     }
@@ -298,17 +320,19 @@ export function InternalMessagesFab() {
     if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
     typingNotifyTimerRef.current = window.setTimeout(() => {
       notifyTyping(true)
+      startTypingHeartbeat()
     }, TYPING_NOTIFY_DEBOUNCE_MS)
 
     return () => {
       if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
     }
-  }, [activeChat, draft, notifyTyping])
+  }, [activeChat, clearTypingHeartbeat, draft, notifyTyping, startTypingHeartbeat])
 
   useEffect(() => () => {
     if (otherTypingTimerRef.current) window.clearTimeout(otherTypingTimerRef.current)
     if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
-  }, [])
+    clearTypingHeartbeat()
+  }, [clearTypingHeartbeat])
 
   useEffect(() => {
     if (!isOpen || !activeChat) return
@@ -438,6 +462,7 @@ export function InternalMessagesFab() {
 
   const closePanel = () => {
     notifyTyping(false)
+    clearTypingHeartbeat()
     setIsOpen(false)
     setActiveChat(null)
     setChatDetail(null)
@@ -452,6 +477,7 @@ export function InternalMessagesFab() {
     setSending(true)
     try {
       notifyTyping(false)
+      clearTypingHeartbeat()
       await api.sendInternalMessage(activeChat.otherUserId, content)
       setDraft('')
       await loadChat(activeChat.otherUserId)
@@ -475,6 +501,7 @@ export function InternalMessagesFab() {
                     type="button"
                     onClick={() => {
                       notifyTyping(false)
+                      clearTypingHeartbeat()
                       setActiveChat(null)
                       setChatDetail(null)
                       setOtherUserTyping(false)

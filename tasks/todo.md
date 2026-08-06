@@ -1,5 +1,5 @@
-## Round 694 — Kurum içi mesaj bej zemin (#2300 reopen)
-- `#2300` reopen: WA gri isteği geri alındı — aktif sohbet alanı bej `#ece5dd` (`--internal-messages-chat-bg`); invariant yorumları düzeltildi.
+## Round 694 — WhatsApp konuşma bej zemin (#2300 reopen)
+- `#2300` reopen: WhatsApp konuşma scroll alanı bej `#ece5dd` + nokta deseni (`--wa-chat-bg`); gri app zemininden geri alındı.
 
 ## Round 693 — Görünüm login hizalama + Reporter menü (#2364, #2344, #2348)
 - `#2364` reopen: Login Page Açıklama başlığı `<label>` değil düz metin.

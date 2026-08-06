@@ -1520,8 +1520,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talepleri, Sms Onayı, Mesaj Onayı satırları görünmez. `useMemo` lisans durumuna bağlı olmalı —
   boş `[]` ile cache'lenmez.
 - **WA / kurum içi mesaj zamanı (#2340/#2339):** balon altı yalnız HH:mm; gün ayraçlarında yıl
-  her zaman (`formatConversationMessageTime`, `formatConversationDayDivider`). Kurum içi FAB sohbet
-  arka planı bej `#ece5dd` (`internal-messages-chat-bg`), WhatsApp gri değil (#2300 reopen).
+  her zaman (`formatConversationMessageTime`, `formatConversationDayDivider`).
+- **WhatsApp konuşma zemin (#2300 reopen):** mesaj scroll alanı bej `#ece5dd` (`--wa-chat-bg`) +
+  hafif nokta deseni (`whatsapp-chat-bg`); uygulama gri zeminine (`color-background`) çekilmez.
+- **Kurum içi FAB sohbet zemin:** aktif sohbet scroll alanı bej `#ece5dd` (`internal-messages-chat-bg`).
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol
   sütun); Login Page Açıklama Ana Renk altında tam sütun genişliği. Başlıklar ayrı satır, logo Ekle butonu ile
@@ -1953,9 +1955,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.
 - **WA beklemedeki mesaj Düzenle (#2299 reopen):** düzenleme modunda balon yüksekliği `minHeight` ile
   kilitlenir; alt aksiyon satırı sabit `min-h` ile konuşma alanı kaymaz.
-- **Kurum İçi FAB zemin (#2300 reopen):** panel kökü ve konuşma listesi standart `color-background`;
-  aktif sohbet mesaj scroll alanı bej `#ece5dd` (`internal-messages-chat-bg`) — WhatsApp gri
-  (`whatsapp-chat-bg`) ile birleştirilmez.
+- **Kurum İçi FAB zemin (#2300):** panel kökü ve konuşma listesi standart `color-background`;
+  aktif sohbet mesaj scroll alanı bej `#ece5dd` (`internal-messages-chat-bg`).
 - **Yerel birim oluşturma (#2303/#2310):** başarı `ConfirmDialog` popup'ıdır; başlık altında ayraç
   çizgisi (`titleDivider`) ve `Tamam` butonu yeşil (`variant: success`).
 - **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).

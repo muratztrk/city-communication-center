@@ -5896,9 +5896,14 @@
     right: -7.75rem;
   }
 
-  /* WhatsApp konuşma scroll alanı uygulama zeminini kullanır; Kurum İçi FAB sohbet alanı bej kalır (#2300). */
+  /* WhatsApp konuşma scroll alanı: bej zemin + hafif nokta deseni (#2300 reopen). */
   .whatsapp-chat-bg {
     background-color: var(--wa-chat-bg);
+    background-image:
+      radial-gradient(rgb(17 27 33 / 0.045) 0.75px, transparent 0.75px),
+      radial-gradient(rgb(17 27 33 / 0.025) 0.75px, transparent 0.75px);
+    background-size: 22px 22px, 22px 22px;
+    background-position: 0 0, 11px 11px;
   }
 
   .whatsapp-chat-bg--dark {

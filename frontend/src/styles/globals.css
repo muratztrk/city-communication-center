@@ -5891,7 +5891,7 @@
 
   /* Sayfa Yetkileri: Kaydet sağ kenarı Kurum İçi Mesajlar FAB soluna yakın (#2329 reopen). */
   .settings-roles-actions {
-    padding-right: max(0px, calc(var(--fab-inline-clearance) - 2.25rem));
+    padding-right: max(0px, calc(var(--fab-inline-clearance) - 6rem));
   }
 
   .internal-messages-chat-bg {

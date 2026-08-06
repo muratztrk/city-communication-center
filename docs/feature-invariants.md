@@ -1356,9 +1356,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`MessageSquareText` + `!bg-sky-400`). Mobil grid `table-wrap` ile yatay kayar (#r482).
 - **FAB boyutları (#r482):** WhatsApp bildirim balonu mobil `size-12` / `sm:size-14` — Kurum İçi
   Mesajlar FAB ile aynı.
-- **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341):** Üst Düzey Yönetici
-  (`Reporter`) sol menüde `Anasayfa - Vatandaş` (`/dashboard`) + `Anasayfa - Birimler`
-  (`/dashboard/birimler`) görür; varsayılan Vatandaş'tır. **Vatandaş Talep Operatörü**
+- **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici
+  (`Reporter`) sol menüde `Anasayfa - Vatandaş` (`/dashboard`, citizen lisans açıkken) + `Anasayfa - Birimler`
+  (`/dashboard/birimler`); genel `Anasayfa` etiketi gösterilmez — birim sayfası varsayılan (#2348). **Vatandaş Talep Operatörü**
   (`Operator`) menüde 1. sırada yalnız `Anasayfa` (`/dashboard/birimler`); altında Vatandaş
   Bilgi Listesi ve (citizen lisans açıkken) `Anasayfa - Vatandaş`. **Operator varsayılan açılış** (`getDefaultLandingPath`) =
   `/dashboard/birimler`. Citizen lisans kapalıyken Anasayfa menüsü `/dashboard/birimler`'e yönlenir (#2362).
@@ -1522,10 +1522,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA / kurum içi mesaj zamanı (#2340/#2339):** balon altı yalnız HH:mm; gün ayraçlarında yıl
   her zaman (`formatConversationMessageTime`, `formatConversationDayDivider`). Kurum içi FAB sohbet
   arka planı bej `#ece5dd` (`internal-messages-chat-bg`), WhatsApp gri değil (#2300 reopen).
-- **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364):** `TenantAppearance.loginPageDescription` (appearance JSON);
+- **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol
-  sütun); Login Page Açıklama Ana Renk altında tam sütun genişliği. Tema/Ana Renk/logo başlıkları `<label>`
-  değil düz metin — tıklanınca input tetiklenmez (#2364).
+  sütun); Login Page Açıklama Ana Renk altında tam sütun genişliği. Başlıklar ayrı satır, logo Ekle butonu ile
+  açıklama textbox'ı aynı yatay hizada (#2344). Tema/Ana Renk/logo başlıkları `<label>` değil düz metin —
+  tıklanınca input tetiklenmez (#2364).
 - **Sayfa Yetkileri artık `departmentTasks`/`citizenDirectory`'i zorla açıp kapatmıyor (card #2242):**
   önceki kod bu iki sayfayı role göre unconditional force ediyordu (admin checkbox'ı hiç işe yaramıyordu);
   `normalizeRolePageAccessMatrix`'e yeni bir zorlama eklerken kayıtlı admin tercihini ezmediğinden emin ol.

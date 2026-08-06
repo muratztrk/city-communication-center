@@ -2725,6 +2725,11 @@ export function SettingsPage() {
                 ))}
                 <div className="grid gap-2 text-sm text-slate-700 md:col-start-1 md:row-start-2">
                   <span className="font-semibold">{t('settings.loginPageLogo', 'Login Page Logosu')}</span>
+                </div>
+                <div className="grid gap-2 text-sm text-slate-700 md:col-start-2 md:row-start-2">
+                  <span className="font-semibold">{t('settings.loginPageDescription', 'Login Page Açıklama')}</span>
+                </div>
+                <div className="grid gap-2 md:col-start-1 md:row-start-3">
                   <input
                     ref={loginLogoFileInputRef}
                     type="file"
@@ -2749,15 +2754,14 @@ export function SettingsPage() {
                         : t('settings.loginPageLogoAdd', 'Login Page Logosu Ekle')}
                   </Button>
                 </div>
-                <label className="grid w-full gap-2 text-sm font-semibold text-slate-700 md:col-start-2 md:row-start-2">
-                  <span>{t('settings.loginPageDescription', 'Login Page Açıklama')}</span>
+                <div className="grid gap-2 md:col-start-2 md:row-start-3">
                   <textarea
                     className="field-input min-h-24 resize-y text-sm leading-6 placeholder:text-[0.9375rem] placeholder:leading-6"
                     value={appearanceForm.loginPageDescription ?? ''}
                     placeholder={t('login.subtitle')}
                     onChange={event => setAppearanceForm(current => ({ ...current, loginPageDescription: event.target.value }))}
                   />
-                </label>
+                </div>
                 <div className="grid gap-2 text-sm text-slate-700">
                   <span className="font-semibold">{t('settings.menuLogo', 'Menü Logosu')}</span>
                   <input

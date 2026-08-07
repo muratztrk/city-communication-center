@@ -1,3 +1,8 @@
+## Round 752 — Kurum içi Yazıyor göstergesi (#2353 + #2307)
+- Kök neden: cookie-only SPA oturumunda SignalR grup eşleşmesi + hub JWT; typing POST SignalR bağlantısına bekletiliyordu.
+- BE: hub grup normalize, RegisterPresence, typing cache + GET poll; FE: poll 1s yedek, typing POST hemen.
+- Canlı Playwright `internal-typing-live.spec.ts` prod yeşil; commit `451a83b9`; deploy OK.
+
 ## Round 750 — RichText Açıklama Windows (spellcheck + satır aralığı)
 - Enter `insertLineBreak`; boş `<p>` temizleme; WA form min-height kaldır; Edge spellcheck zorla kapalı.
 - Commit `a6bcbeeb`; deploy OK.

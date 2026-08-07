@@ -651,17 +651,15 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 return (GetString(lst, "title") ?? GetString(lst, "id") ?? "[liste yanıtı]", null, null, null, null);
         }
 
-        // Rehber kişi kartı (.vcf / contacts) — isim + numara (#6a75a9c2).
+        // Rehber kişi kartı (.vcf / contacts) — isim + numara (#6a75a9c2 / #6a75cccc).
         if (type == "contacts" && message.TryGetProperty("contacts", out var contactsEl)
             && contactsEl.ValueKind == JsonValueKind.Array)
         {
             var contactLines = FormatWhatsAppContacts(contactsEl);
-            return (
-                string.IsNullOrWhiteSpace(contactLines) ? "[kişi kartı]" : contactLines,
-                null,
-                null,
-                null,
-                null);
+            var display = string.IsNullOrWhiteSpace(contactLines)
+                ? "[kişi kartı]"
+                : $"[kişi kartı]\n{contactLines}";
+            return (display, null, null, null, null);
         }
 
         // Media types: image, video, audio, document, sticker
@@ -710,7 +708,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         return string.IsNullOrWhiteSpace(name) ? null : name.Trim();
     }
 
-    /// <summary>WhatsApp <c>contacts</c> payload → "Ad Soyad · telefon" satırları (#6a75a9c2).</summary>
+    /// <summary>WhatsApp <c>contacts</c> payload → "Ad Soyad - telefon" satırları (#6a75a9c2/#6a75cccc).</summary>
     internal static string FormatWhatsAppContacts(JsonElement contactsEl)
     {
         var lines = new List<string>();
@@ -746,7 +744,8 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             else if (phones.Count == 0)
                 lines.Add(name.Trim());
             else
-                lines.Add($"{name.Trim()} · {string.Join(", ", phones)}");
+                // Bullet (·) yok — isim ile numara arasında tire (#6a75cccc).
+                lines.Add($"{name.Trim()} - {string.Join(", ", phones)}");
         }
 
         return string.Join('\n', lines);

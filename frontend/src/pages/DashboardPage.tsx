@@ -483,7 +483,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         }] : []),
         {
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
-          sublabel: t('dashboard.cards.myPendingTasksSub', '(Birim İçi/Birim Dışı Bekleyen ve Son Tarihi Geçmiş)'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.myPendingTaskCount,
           icon: ListChecks,
           path: '/my-tasks?view=open',
@@ -511,7 +511,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     ? [
         ...(isReporter ? [] : [{
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
-          sublabel: t('dashboard.cards.myPendingTasksSub', '(Birim İçi/Birim Dışı Bekleyen ve Son Tarihi Geçmiş)'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.myPendingTaskCount,
           icon: ListChecks,
           path: '/my-tasks?view=open',

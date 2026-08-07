@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Download, FileText, Loader2, Volume2 } from 'lucide-react'
+import { Download, Eye, FileText, Loader2, Volume2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { Button } from './ui/button'
@@ -226,7 +226,8 @@ function SocialConversationMediaBubbleInner({
       {requestAttachmentLayout && showAddAsAttachment ? (
         <div className="flex flex-wrap gap-1.5">
           {canPreviewInline ? (
-            <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
+            <Button type="button" size="sm" variant="success" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
+              <Eye className="size-3.5" aria-hidden="true" />
               {t('attachments.preview', 'Önizle')}
             </Button>
           ) : null}
@@ -239,7 +240,8 @@ function SocialConversationMediaBubbleInner({
       ) : (
         <div className="flex flex-wrap gap-1.5">
           {canPreviewInline ? (
-            <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
+            <Button type="button" size="sm" variant="success" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
+              <Eye className="size-3.5" aria-hidden="true" />
               {t('attachments.preview', 'Önizle')}
             </Button>
           ) : null}

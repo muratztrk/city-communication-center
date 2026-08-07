@@ -1,3 +1,10 @@
+## Round 737 — bekleyen alt metin geri + VCF UI + Önizle (5 kart)
+- `#6a75c91c` reopen: Bekleyen Görevlerim alt metin geri → (Birim İçi/Birim Dışı).
+- `#6a75cccc`: Kişi kartı isim-numara arası bullet yok (` - `).
+- `#6a75ccfa`: Kişi kartında konum ikonu/Haritada aç yok.
+- `#6a75cc3f`: Önizle yeşil + Eye ikonu.
+- `#6a75cd3f`: Kişi kartı User ikonu (çerçeveli).
+
 ## Round 736 — sütun Filtreyi sil + bekleyen alt metin + WA contacts (3 kart)
 - `#6a75c994`: Sütun filtresi → yanıp sönen Filtreyi sil; sayfa/chip geçişinde temizle.
 - `#6a75c91c`: Bekleyen Görevlerim alt metin +Bekleyen ve Son Tarihi Geçmiş.

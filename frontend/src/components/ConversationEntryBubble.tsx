@@ -8,8 +8,10 @@ import { getLocale } from '../utils/localization'
 import { formatConversationSenderLabel } from '../utils/formatConversationSenderLabel'
 import {
   buildGoogleMapsOpenUrl,
+  formatContactDisplayContent,
   formatConversationDisplayContent,
   getLocationPlaceDescription,
+  isContactConversationContent,
   isLocationConversationContent,
   isPlaceholderBracketContent,
   parseAttachmentFilenameFromContent,
@@ -136,11 +138,13 @@ export function ConversationEntryBubble({
   const showMessageApprover = !isInbound && Boolean(messageApproverName)
     && (isPending || isDeliveredOutbound)
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
+  const isContactMessage = !hasMedia && isContactConversationContent(entry.content)
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
   const locationDescription = getLocationPlaceDescription(entry.content)
-  // Medya balonunda konum UI yok — [image]+Haritada aç yanlış pozitif (#6a74de2a reopen).
+  // Medya/kişi kartında konum UI yok — lat/lng sızıntısı yanlış pozitif (#6a74de2a / #6a75ccfa).
   const isLocationMessage =
     !hasMedia
+    && !isContactMessage
     && (
       isLocationConversationContent(entry.content)
       || (Boolean(locationCoords) && Boolean(locationDescription))
@@ -257,6 +261,21 @@ export function ConversationEntryBubble({
                 isInbound ? 'text-slate-800 caret-slate-900' : 'text-white caret-white'
               }`}
             />
+          ) : isContactMessage ? (
+            <p className="inline-flex items-start gap-1.5 text-sm font-semibold leading-snug">
+              <span
+                className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border ${
+                  isInbound
+                    ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
+                    : 'border-white/25 bg-white/15 text-white'
+                }`}
+              >
+                <User className="size-3" aria-hidden="true" />
+              </span>
+              <span className="min-w-0 whitespace-pre-wrap break-words">
+                {formatContactDisplayContent(entry.content)}
+              </span>
+            </p>
           ) : isLocationMessage ? (
             <div className="grid gap-1.5">
               <p className="inline-flex items-start gap-1.5 text-sm font-semibold leading-snug">

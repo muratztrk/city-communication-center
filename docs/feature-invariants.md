@@ -1935,8 +1935,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   filtresi varken scope-chip satırında (aynı konum) kırmızı yanıp sönen `Filtreyi sil`; tıklanınca
   sütun filtreleri + pie query temizlenir. Başka sayfaya geçince (`pathname`) sütun filtreleri
   sıfırlanır; chip/buton geçişlerinde de temizlenir.
-- **Dashboard Bekleyen Görevlerim alt metin (#6a75c91c):** `(Birim İçi/Birim Dışı Bekleyen ve Son Tarihi Geçmiş)`.
-- **WA kişi kartı / contacts (#6a75a9c2):** webhook `contacts` → içerikte `Ad · telefon` satırları.
+- **Dashboard Bekleyen Görevlerim alt metin (#6a75c91c reopen):** `(Birim İçi/Birim Dışı)` — "Bekleyen ve Son Tarihi Geçmiş" eklenmez (geri alındı).
+- **WA kişi kartı (#6a75a9c2/#6a75cccc/#6a75ccfa/#6a75cd3f):** webhook `contacts` → `[kişi kartı]\nAd - telefon` (bullet yok); balonda User ikonu (emerald çerçeve); konum MapPin/Haritada aç kişi kartında çıkmaz (thread lat/lng sızmaz).
+- **WA medya Önizle (#6a75cc3f):** gelen görsel/video/ses Önizle butonu yeşil (`variant=success`) + Eye ikonu.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık
   satırının sağına**; **Talep Etiketi** pie'sında filtre butonlarının **bir alt satırında** sağa
   hizalı. Personelimin Görevleri / Çözme Süresi pie'larında Ara... yok. X ikonu kırmızı; metin

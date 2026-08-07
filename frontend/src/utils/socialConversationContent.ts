@@ -42,6 +42,7 @@ export function buildGoogleMapsOpenUrl(latitude: number, longitude: number): str
 
 export function isLocationConversationContent(content: string | null | undefined): boolean {
   if (!content?.trim()) return false
+  if (isContactConversationContent(content)) return false
   const normalized = content.trim().toLocaleLowerCase('tr')
   return normalized.includes('[konum mesajı]')
     || normalized.includes('[location message]')
@@ -49,9 +50,51 @@ export function isLocationConversationContent(content: string | null | undefined
     || normalized.includes('konum mesajı')
 }
 
+const CONTACT_PHONE_HINT_RE = /(\+?\d[\d\s\-().]{6,}\d)/
+
+/** WhatsApp rehber / kişi kartı içeriği (#6a75a9c2 / #6a75ccfa / #6a75cd3f). */
+export function isContactConversationContent(content: string | null | undefined): boolean {
+  if (!content?.trim()) return false
+  const trimmed = content.trim()
+  const lower = trimmed.toLocaleLowerCase('tr')
+  if (
+    lower.includes('[kişi kartı]')
+    || lower.includes('[kisi karti]')
+    || lower.includes('[contacts]')
+    || lower === 'kişi kartı'
+    || lower === 'kisi karti'
+  ) {
+    return true
+  }
+  // Eski kayıt: "Ad · +90…" / "Ad - +90…" (konum marker'ı yok).
+  if (
+    CONTACT_PHONE_HINT_RE.test(trimmed)
+    && !lower.includes('[konum')
+    && !lower.includes('konum mesajı')
+    && !LOCATION_COORDS_RE.test(trimmed)
+  ) {
+    return true
+  }
+  return false
+}
+
+/** Kişi kartı görünen metin — `[kişi kartı]` marker ve eski bullet temizlenir (#6a75cccc). */
+export function formatContactDisplayContent(content: string | null | undefined): string {
+  if (!content?.trim()) return ''
+  let text = content.trim()
+    .replace(/\[kişi kartı\]/gi, '')
+    .replace(/\[kisi karti\]/gi, '')
+    .replace(/\[contacts\]/gi, '')
+    .trim()
+  // Eski "Ad · telefon" → "Ad - telefon"
+  text = text.replace(/\s*·\s*/g, ' - ')
+  return text || 'Kişi kartı'
+}
+
 /** Kayıtlı yer adı / adres metni — bracket etiketi ve koordinatlar temizlenir (#6a74de2a). */
 export function getLocationPlaceDescription(content: string | null | undefined): string | null {
   if (!content?.trim()) return null
+  if (isContactConversationContent(content)) return null
   const trimmed = content.trim()
   if (isPlaceholderBracketContent(trimmed) && !isLocationConversationContent(trimmed)) return null
   let text = trimmed
@@ -156,6 +199,7 @@ export function isPlaceholderBracketContent(content: string): boolean {
 export function formatConversationDisplayContent(content: string): string {
   const trimmed = content.trim()
   if (!trimmed) return ''
+  if (isContactConversationContent(trimmed)) return formatContactDisplayContent(trimmed)
   if (isPlaceholderBracketContent(trimmed)) return formatBracketContent(trimmed)
   // "[konum mesajı] 38.1,27.2" → liste önizlemesinde "Konum"; kayıtlı yer → yer adı (#6a74de2a)
   if (isLocationConversationContent(trimmed)) {

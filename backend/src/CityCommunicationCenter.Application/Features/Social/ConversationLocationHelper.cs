@@ -12,6 +12,11 @@ internal static class ConversationLocationHelper
         @"(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
+    // Kişi kartı / rehber paylaşımı — lat/lng sızmasın (#6a75ccfa).
+    private static readonly Regex PhoneHintRegex = new(
+        @"(\+?\d[\d\s\-().]{6,}\d)",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
     public static bool LooksLikeLocationContent(string? content)
     {
         if (string.IsNullOrWhiteSpace(content)) return false;
@@ -20,6 +25,28 @@ internal static class ConversationLocationHelper
             || trimmed.Contains("[Location message]", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("[location]", StringComparison.OrdinalIgnoreCase)
             || trimmed.Contains("konum mesajı", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool LooksLikeContactContent(string? content)
+    {
+        if (string.IsNullOrWhiteSpace(content)) return false;
+        var trimmed = content.Trim();
+        if (trimmed.Contains("[kişi kartı]", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("[kisi karti]", StringComparison.OrdinalIgnoreCase)
+            || trimmed.Contains("[contacts]", StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        // "Ad - +90 …" / "Ad · +90 …" rehber satırı (konum değil).
+        if (PhoneHintRegex.IsMatch(trimmed)
+            && !LooksLikeLocationContent(trimmed)
+            && !ContentCoordsRegex.IsMatch(trimmed))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public static (double? Latitude, double? Longitude) Resolve(
@@ -33,6 +60,12 @@ internal static class ConversationLocationHelper
         }
 
         if (messageCoords.Latitude is null || messageCoords.Longitude is null)
+        {
+            return (null, null);
+        }
+
+        // Kişi kartı / rehber — thread'deki konum lat/lng sızmasın (#6a75ccfa).
+        if (LooksLikeContactContent(content))
         {
             return (null, null);
         }
@@ -56,6 +89,7 @@ internal static class ConversationLocationHelper
     {
         var trimmed = content.Trim();
         if (trimmed.StartsWith("[Dosya eki:", StringComparison.OrdinalIgnoreCase)) return true;
+        if (LooksLikeContactContent(trimmed)) return true;
         if (LooksLikeLocationContent(trimmed)) return false;
         return trimmed.Length >= 3 && trimmed[0] == '[' && trimmed[^1] == ']';
     }

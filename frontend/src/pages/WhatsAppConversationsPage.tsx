@@ -21,7 +21,6 @@ import { conversationSameDay, formatConversationDayDivider } from '../utils/conv
 import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
 import { ConversationSenderHeader } from '../components/ConversationSenderHeader'
 import { WhatsAppOutboundAttachmentChip } from '../components/WhatsAppOutboundAttachmentChip'
-import { DeferredComposerInput } from '../components/ui/DeferredComposerInput'
 import { DeferredComposerTextarea } from '../components/ui/DeferredComposerTextarea'
 import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
@@ -640,13 +639,14 @@ function ConversationProfilePanel({
         <div className="space-y-3">
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.citizenName', 'Vatandaş Adı')}</span>
-          <DeferredComposerInput
+          {/* Senkron controlled input — DeferredComposer startTransition + stale blur Kaydet'i boş isimle ezer (#6a75c91c). */}
+          <input
             className={fieldClass}
             maxLength={50}
             value={draft.citizenName}
             placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş adı')}
-            onChange={citizenName => onDraftChange({ citizenName })}
-            onBlur={() => onDraftChange({ citizenName: normalizeTitleCaseField(draft.citizenName) ?? '' })}
+            onChange={event => onDraftChange({ citizenName: event.target.value })}
+            onBlur={event => onDraftChange({ citizenName: normalizeTitleCaseField(event.target.value) ?? '' })}
           />
         </label>
         <label className="block space-y-1">
@@ -673,7 +673,15 @@ function ConversationProfilePanel({
             {t('address.street', 'Cadde / Sokak')}
             {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
           </span>
-          <DeferredComposerInput className={disabledFieldClass} maxLength={ADDRESS_STREET_MAX_LENGTH} value={draft.street} onChange={street => onDraftChange({ street })} onBlur={() => onDraftChange({ street: normalizeTitleCaseField(draft.street) ?? '' })} disabled={!hasNeighborhood} required={hasNeighborhood} />
+          <input
+            className={disabledFieldClass}
+            maxLength={ADDRESS_STREET_MAX_LENGTH}
+            value={draft.street}
+            onChange={event => onDraftChange({ street: event.target.value })}
+            onBlur={event => onDraftChange({ street: normalizeTitleCaseField(event.target.value) ?? '' })}
+            disabled={!hasNeighborhood}
+            required={hasNeighborhood}
+          />
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>
@@ -685,13 +693,13 @@ function ConversationProfilePanel({
               </>
             ) : null}
           </span>
-          <DeferredComposerTextarea
+          <textarea
             rows={4}
             className={`${disabledFieldClass} min-h-[6rem] resize-none`}
             maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
             value={draft.openAddress}
-            onChange={openAddress => onDraftChange({ openAddress })}
-            onBlur={() => onDraftChange({ openAddress: normalizeTitleCaseField(draft.openAddress) ?? '' })}
+            onChange={event => onDraftChange({ openAddress: event.target.value })}
+            onBlur={event => onDraftChange({ openAddress: normalizeTitleCaseField(event.target.value) ?? '' })}
             disabled={!hasNeighborhood}
             required={hasNeighborhood}
           />
@@ -1006,6 +1014,7 @@ function ConversationDetail({
         street: normalizeTitleCaseField(profileDraft.street) ?? '',
         openAddress: normalizeTitleCaseField(profileDraft.openAddress) ?? '',
       })
+      profileDirtyRef.current = false
       await refreshDetail()
       onProfileSaved()
     } finally {

@@ -1,3 +1,6 @@
+## Round 740 — WA Vatandaş Adı Kaydet (1 kart)
+- `#6a75c91c`: profil paneli DeferredComposer stale blur → senkron input; Kaydet boş isim ezmez.
+
 ## Round 739 — WA kişi kartı ayraç yok (1 kart reopen)
 - `#6a75cccc` reopen: isim/numara arası bullet ve `-` yok; ayrı satır (FE eski kayıtları da kırar).
 

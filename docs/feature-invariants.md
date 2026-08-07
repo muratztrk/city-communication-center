@@ -533,7 +533,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   zaman alanı bugün saat:dakika, önceki takvim günü `Dün`, daha eskide `gg.aa.yyyy` değeridir.
 - **WhatsApp konuşma profil paneli:** `/whatsapp` detay sağ panelinde vatandaş adı, numara, etiket,
   mahalle, cadde/sokak/bulvar ve açık adres konuşma kaydında saklanır; isim kaydedilince sol liste ve
-  detay header'ı telefon yerine adı öncelikli gösterir. Sol konuşma kartında isim varsa telefon
+  detay header'ı telefon yerine adı öncelikli gösterir. Profil alanları senkron controlled
+  input/textarea kullanır — `DeferredComposer` + stale `draft` blur Kaydet'i boş isimle ezmez (#6a75c91c).
+  Sol konuşma kartında isim varsa telefon
   numarası ismin alt satırında, yanıt durumu (`Yanıt verildi` vb.) ile aynı yatay satırda görünür.
   Sağ profil paneli üstündeki `Talep Oluştur` aksiyonu satır ortasında, büyük `h-10` buton olarak kalır;
   yeşil gradient üst alan sağ panelin üst köşelerinde `rounded-t-xl` ile ana kartın köşe motifine uyumlu kalır (#2391).

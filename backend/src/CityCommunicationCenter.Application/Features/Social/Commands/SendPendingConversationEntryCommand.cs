@@ -83,8 +83,10 @@ public sealed class SendPendingConversationEntryCommandHandler
             if (localPath is not null && client is IWhatsAppMediaClient mediaClient)
             {
                 var fileBytes = await File.ReadAllBytesAsync(localPath, cancellationToken);
-                var fileName = Path.GetFileName(localPath);
-                var caption = IsPlaceholderAttachmentContent(entry.Content) ? null : entry.Content;
+                var fileName = TryParseOutboundAttachmentFileName(entry.Content)
+                    ?? Path.GetFileName(localPath);
+                var caption = StripOutboundAttachmentMarker(entry.Content);
+                if (IsPlaceholderAttachmentContent(entry.Content)) caption = null;
                 sendResult = await mediaClient.SendUploadedMediaMessageAsync(new SendUploadedMediaMessageRequest
                 {
                     RecipientId = recipientPhone,
@@ -160,7 +162,28 @@ public sealed class SendPendingConversationEntryCommandHandler
 
     private static bool IsPlaceholderAttachmentContent(string? content) =>
         !string.IsNullOrWhiteSpace(content)
-        && content.StartsWith("[Dosya eki:", StringComparison.Ordinal);
+        && content.TrimStart().StartsWith("[Dosya eki:", StringComparison.OrdinalIgnoreCase)
+        && !content.Contains('\n');
+
+    private static string? TryParseOutboundAttachmentFileName(string? content)
+    {
+        if (string.IsNullOrWhiteSpace(content)) return null;
+        var match = System.Text.RegularExpressions.Regex.Match(
+            content,
+            @"\[Dosya eki:\s*(.+?)\]",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        var name = match.Success ? match.Groups[1].Value.Trim() : null;
+        return string.IsNullOrWhiteSpace(name) ? null : Path.GetFileName(name);
+    }
+
+    private static string? StripOutboundAttachmentMarker(string? content)
+    {
+        if (string.IsNullOrWhiteSpace(content)) return null;
+        var stripped = System.Text.RegularExpressions.Regex
+            .Replace(content, @"\n?\[Dosya eki:\s*.+?\]\s*$", string.Empty, System.Text.RegularExpressions.RegexOptions.IgnoreCase)
+            .Trim();
+        return string.IsNullOrWhiteSpace(stripped) ? null : stripped;
+    }
 
     private async Task<SocialMediaResult> SendWhatsAppTemplateOrFailAsync(
         Guid tenantId,

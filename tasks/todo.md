@@ -1,3 +1,6 @@
+## Round 723 — WA modal ek orijinal dosya adı (1 kart)
+- `#6a75878c`: outbound attachment içeriğinde her zaman `[Dosya eki: orijinalAd]`; caption varsa altına eklenir.
+
 ## Round 722 — WA görsel adı üst + modal pending Düzenle/Gönder (2 kart)
 - `#6a7586af`: `WhatsAppOutboundAttachmentChip` görsel adı üst satır.
 - `#6a7586e9`: modal Dosya ekle → Düzenle + Mesajı Gönder (WA sayfasıyla aynı).

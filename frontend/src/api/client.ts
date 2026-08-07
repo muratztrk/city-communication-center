@@ -1199,7 +1199,7 @@ export const api = {
 
   async replySocialMessageAttachment(socialMessageId: string, file: File, content: string, sendImmediately = true): Promise<void> {
     const formData = new FormData()
-    formData.append('file', file)
+    formData.append('file', file, file.name)
     formData.append('content', content)
     formData.append('sendImmediately', String(sendImmediately))
 

@@ -322,16 +322,19 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
 
         var senderLabel = await ResolveStaffSenderLabelAsync(tenantId, request.ActorUserId, cancellationToken);
         var utcNow = DateTimeOffset.UtcNow;
-        var content = string.IsNullOrWhiteSpace(request.Content)
-            ? $"[Dosya eki: {request.FileName}]"
-            : request.Content.Trim();
+        var originalFileName = string.IsNullOrWhiteSpace(request.FileName)
+            ? "ek.bin"
+            : Path.GetFileName(request.FileName.Trim());
+        var userCaption = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content.Trim();
+        // Orijinal ad her zaman içerikte — caption varken de (UI fallback whatsapp-{tel} olmasın, #6a75878c).
+        var content = BuildOutboundAttachmentContent(originalFileName, userCaption);
 
         var deliveryStatus = ConversationDeliveryStatus.Pending;
         string? externalEntryId = null;
         string? mediaId = null;
         string? deliveryError = null;
         var entryId = Guid.NewGuid();
-        var localMediaId = ConversationLocalMediaStore.BuildLocalMediaId(tenantId, entryId, request.FileName);
+        var localMediaId = ConversationLocalMediaStore.BuildLocalMediaId(tenantId, entryId, originalFileName);
         await ConversationLocalMediaStore.SaveAsync(
             _uploadRootPath,
             localMediaId,
@@ -361,10 +364,10 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
                 var sendResult = await mediaClient.SendUploadedMediaMessageAsync(new SendUploadedMediaMessageRequest
                 {
                     RecipientId = recipientPhone,
-                    FileName = request.FileName,
+                    FileName = originalFileName,
                     ContentType = string.IsNullOrWhiteSpace(request.ContentType) ? "application/octet-stream" : request.ContentType,
                     Content = request.FileContent,
-                    Caption = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content.Trim()
+                    Caption = userCaption
                 }, cancellationToken);
 
                 if (sendResult.Success)
@@ -433,5 +436,14 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
         return actor is null
             ? "Belediye"
             : ConversationEntrySenderLabelHelper.FormatStaffLabel(actor.DepartmentName, actor.DisplayName);
+    }
+
+    internal static string BuildOutboundAttachmentContent(string originalFileName, string? userCaption)
+    {
+        var marker = $"[Dosya eki: {originalFileName}]";
+        if (string.IsNullOrWhiteSpace(userCaption)) return marker;
+        var trimmed = userCaption.Trim();
+        if (trimmed.Contains("[Dosya eki:", StringComparison.OrdinalIgnoreCase)) return trimmed;
+        return $"{trimmed}\n{marker}";
     }
 }

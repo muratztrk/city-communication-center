@@ -556,6 +556,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Mesajı Gönder` ile onaylanır (doğrudan gönderim yok).
 - **WhatsApp giden ek balonu (#2399 reopen):** iletilmiş ekler chip olarak gösterilir; görsel eklerde
   görsel ikonu, dokümanda FileText; orijinal dosya adı `[Dosya eki: …]` içeriğinden okunur (#2385 reopen);
+  caption varken de marker her zaman yazılır (#6a75878c — yoksa UI `whatsapp-{tel}` fallback).
   uzantı küçük harf; modal/kompakt konuşmada ad metni `text-xs` (#2209). Bekleyen ek önizlemesi iletilmiş
   ek ile aynı chip bileşenini kullanır (#2267); üstte birim · ad soyad başlığı, normal outbound balon
   genişliği (`max-w-[min(70%,26rem)]` / kompakt `68%/22rem`), dar `16rem` sınırı yok.

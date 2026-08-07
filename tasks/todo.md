@@ -1,3 +1,7 @@
+## Round 726 — WA görsel ikon çerçevesiz + X üst satır (2 kart)
+- `#6a7592b2`: görsel dosya adı yanındaki ikonda emerald çerçeve yok.
+- `#6a7586af` reopen: X görsel içinde overlay değil, üst satır sağda.
+
 ## Round 725 — MapPin rozet + aksiyon ikonları + Öncelik parantez + FilterableTh sıra (5 kart)
 - `#6a74de2a`: inbound konum MapPin = Taleplerim ek emerald rozet.
 - `#6a758f80`: Birime Gelen / Birimden Giden Detaylar/Onayla/İptal Et ikonları.

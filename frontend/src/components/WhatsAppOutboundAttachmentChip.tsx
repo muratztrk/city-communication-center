@@ -17,11 +17,11 @@ interface WhatsAppOutboundAttachmentChipProps {
   onImageClick?: () => void
 }
 
-/** Taleplerim detay ek ikon rozetiyle aynı çerçeve (#6a758a88). */
+/** Taleplerim detay ek ikon rozeti — yalnız doküman satırında (#6a758a88); görselde çerçeve yok (#6a7592b2). */
 const attachmentIconBadgeClass =
   'flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-blue-700'
 
-/** Giden WA ek chip — görselde ad alt satırda; X görsel sağ üstte (#6a7586af reopen). */
+/** Giden WA ek chip — görselde ad altta; X görsel üst satır sağında (#6a7586af reopen). */
 export function WhatsAppOutboundAttachmentChip({
   fileName,
   isImage,
@@ -38,6 +38,7 @@ export function WhatsAppOutboundAttachmentChip({
   const iconClass = 'size-3'
   const nameClass = compact ? 'text-xs font-semibold' : 'text-sm font-semibold'
   const [previewOpen, setPreviewOpen] = useState(false)
+  const dismissBtnClass = `inline-flex shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`
 
   const openPreview = () => {
     if (onImageClick) {
@@ -49,15 +50,32 @@ export function WhatsAppOutboundAttachmentChip({
 
   const nameRow = (
     <div className="flex min-w-0 items-center gap-2">
-      <span className={attachmentIconBadgeClass}>
-        <FileIcon className={iconClass} aria-hidden="true" />
-      </span>
+      {isImage ? (
+        <FileIcon className={`${iconClass} shrink-0 text-white/90`} aria-hidden="true" />
+      ) : (
+        <span className={attachmentIconBadgeClass}>
+          <FileIcon className={iconClass} aria-hidden="true" />
+        </span>
+      )}
       <span className={`min-w-0 truncate ${nameClass}`}>{displayName}</span>
     </div>
   )
 
+  const dismissButton = onDismiss ? (
+    <button
+      type="button"
+      onClick={onDismiss}
+      disabled={dismissDisabled}
+      className={dismissBtnClass}
+      aria-label={dismissLabel}
+    >
+      <X className={compact ? 'size-3' : 'size-3.5'} aria-hidden="true" />
+    </button>
+  ) : null
+
   const imagePreview = isImage && previewUrl ? (
-    <div className="relative">
+    <div className="space-y-1">
+      {dismissButton ? <div className="flex justify-end">{dismissButton}</div> : null}
       <button
         type="button"
         onClick={openPreview}
@@ -69,17 +87,6 @@ export function WhatsAppOutboundAttachmentChip({
           className={`w-full cursor-zoom-in object-contain bg-white/95 ${compact ? 'max-h-32' : 'max-h-44'}`}
         />
       </button>
-      {onDismiss ? (
-        <button
-          type="button"
-          onClick={onDismiss}
-          disabled={dismissDisabled}
-          className={`absolute right-1.5 top-1.5 inline-flex shrink-0 items-center justify-center rounded-full bg-black/55 text-white shadow-sm transition-colors hover:bg-black/70 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`}
-          aria-label={dismissLabel}
-        >
-          <X className={compact ? 'size-3' : 'size-3.5'} aria-hidden="true" />
-        </button>
-      ) : null}
     </div>
   ) : null
 
@@ -108,17 +115,7 @@ export function WhatsAppOutboundAttachmentChip({
       ) : (
         <div className="flex items-center gap-2">
           {nameRow}
-          {onDismiss ? (
-            <button
-              type="button"
-              onClick={onDismiss}
-              disabled={dismissDisabled}
-              className={`ml-auto inline-flex shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`}
-              aria-label={dismissLabel}
-            >
-              <X className={compact ? 'size-3' : 'size-3.5'} aria-hidden="true" />
-            </button>
-          ) : null}
+          {dismissButton ? <div className="ml-auto">{dismissButton}</div> : null}
         </div>
       )}
       {caption?.trim() ? (

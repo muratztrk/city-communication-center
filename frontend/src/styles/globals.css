@@ -3340,20 +3340,22 @@
     min-height: 6.35rem;
     max-height: 6.35rem;
     padding: 0.45rem 0.55rem;
-    line-height: 1.4;
+    line-height: 1.45;
   }
 
+  /* Enter satır aralığı eşit: yalnızca line-height; p/div karışımında ekstra margin yok (#6a74e697). */
   .citizen-request-form .rich-text-editable p,
   .citizen-request-form .rich-text-editable div {
     margin: 0;
     line-height: inherit;
+    min-height: 1.45em;
   }
 
   .citizen-request-form .rich-text-editable p + p,
   .citizen-request-form .rich-text-editable div + div,
   .citizen-request-form .rich-text-editable p + div,
   .citizen-request-form .rich-text-editable div + p {
-    margin-top: 0.25rem;
+    margin-top: 0;
   }
 
   .citizen-request-form .citizen-request-open-address {

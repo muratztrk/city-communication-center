@@ -32,9 +32,8 @@ internal static class ConversationLocationHelper
             return fromContent;
         }
 
-        if (LooksLikeLocationContent(content)
-            && messageCoords.Latitude is not null
-            && messageCoords.Longitude is not null)
+        // Kayıtlı yer adı ("Name - Address") [konum mesajı] içermez; SocialMessage lat/lng hâlâ geçerli (#6a74de2a).
+        if (messageCoords.Latitude is not null && messageCoords.Longitude is not null)
         {
             return messageCoords;
         }

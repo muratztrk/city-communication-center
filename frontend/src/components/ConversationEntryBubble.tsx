@@ -9,6 +9,7 @@ import { formatConversationSenderLabel } from '../utils/formatConversationSender
 import {
   buildGoogleMapsOpenUrl,
   formatConversationDisplayContent,
+  getLocationPlaceDescription,
   isLocationConversationContent,
   isPlaceholderBracketContent,
   parseAttachmentFilenameFromContent,
@@ -136,6 +137,7 @@ export function ConversationEntryBubble({
     && (isPending || isDeliveredOutbound)
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
+  const locationDescription = getLocationPlaceDescription(entry.content)
   const isLocationMessage = Boolean(locationCoords) || isLocationConversationContent(entry.content)
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
@@ -251,16 +253,18 @@ export function ConversationEntryBubble({
             />
           ) : isLocationMessage ? (
             <div className="grid gap-1.5">
-              <p className="inline-flex items-center gap-1.5 text-sm font-semibold leading-snug">
+              <p className="inline-flex items-start gap-1.5 text-sm font-semibold leading-snug">
                 <MapPin
-                  className={`size-3.5 shrink-0 ${
+                  className={`mt-0.5 size-3.5 shrink-0 ${
                     isInbound
                       ? 'text-[color:var(--color-header-from)]'
                       : 'text-white'
                   }`}
                   aria-hidden="true"
                 />
-                {t('whatsapp.locationMessage', 'Konum')}
+                <span className="min-w-0 whitespace-pre-wrap break-words">
+                  {locationDescription || t('whatsapp.locationMessage', 'Konum')}
+                </span>
               </p>
               {locationCoords ? (
                 <a

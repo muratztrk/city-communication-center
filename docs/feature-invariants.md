@@ -444,8 +444,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
-  WhatsApp konum mesajı balonda **Konum** + Haritada aç; enlem/boylam metni gösterilmez;
-  MapPin rengi `var(--color-header-from)` (card #6a6b9fac). Detayda turuncu
+  WhatsApp konum mesajı balonda MapPin + (yer açıklaması varsa açıklama, yoksa **Konum**)
+  + alt satırda Haritada aç; enlem/boylam metni gösterilmez; kayıtlı yer (`Name - Address`)
+  SocialMessage lat/lng ile tanınır (`ConversationLocationHelper` — #6a74de2a / #6a6b9fac).
+  MapPin rengi `var(--color-header-from)`. Detayda turuncu
   **Talep Durumunu Değiştir** → `ReopenCitizenMessageJobCommand` (`POST …/reopen-to-in-progress`)
   Job'u Active + terminal görevleri InProgress yapar, release bayrağını temizler (card #2057/#2062).
   Edit/Release/Reopen uygunluğu liste ile aynıdır (`FindEligibleTerminalJobAsync`): Completed/Cancelled
@@ -700,10 +702,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ve Dosya/Fotoğraf alanı aynı satırda yan yana durur; dosya seçilmedi metni butonla aynı blokta
   sığar (card #1088). Açıklama RichTextEditor ve Açık Adres textarea üst padding kompakt
   (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6.35rem] h-[1.875rem] text-[11px] whitespace-nowrap`
-  (Round 719). Açıklama Enter satır aralığı `.rich-text-editable p+p` ≈ `0.15–0.2rem`.
-  Açık Adres `min-h-[5.75rem]`. Açıklama editör `font-size: 0.8rem`, yükseklik `6.35rem`;
-  Enter satır aralığı eşit `margin-top: 0.25rem` (Round 719b).
-  Modal gelen görsel balon içinde `w-full` (Round 719).
+  (Round 719). Açıklama `spellCheck={false}`; Enter → `insertParagraph`; satır aralığı yalnız
+  `line-height` (p+p margin 0 — #6a74e697). Açık Adres `min-h-[5.75rem]`. Açıklama editör
+  `font-size: 0.8rem`, yükseklik `6.35rem`. Modal gelen görsel balon içinde `w-full` (Round 719).
+- **Görsel lightbox yüksekliği (Round 720):** `SocialConversationMediaPreview` kabuk
+  `max-h-[70vh]`, görsel/video `max-h-[56vh]` (WA + kurum içi — #6a75848c / #6a75722a).
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
 - **Vatandaş `Yazışmaya Git` butonu:** Vatandaş Talepleri gridindeki aksiyon butonu mevcut teal

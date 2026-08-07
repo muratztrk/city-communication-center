@@ -28,7 +28,7 @@ export function SocialConversationMediaPreview({
   return (
     <ModalBackdrop className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 p-4">
       <div
-        className="relative flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-2xl bg-slate-950/95 shadow-2xl ring-1 ring-white/10"
+        className="relative flex max-h-[70vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-slate-950/95 shadow-2xl ring-1 ring-white/10"
         role="dialog"
         aria-modal="true"
         aria-label={filename}
@@ -49,10 +49,10 @@ export function SocialConversationMediaPreview({
             <img
               src={objectUrl}
               alt={filename}
-              className="max-h-[78vh] max-w-full rounded-xl object-contain"
+              className="max-h-[56vh] max-w-full rounded-xl object-contain"
             />
           ) : mime.startsWith('video/') ? (
-            <video src={objectUrl} controls autoPlay className="max-h-[78vh] max-w-full rounded-xl" />
+            <video src={objectUrl} controls autoPlay className="max-h-[56vh] max-w-full rounded-xl" />
           ) : mime.startsWith('audio/') ? (
             <audio src={objectUrl} controls autoPlay className="w-full max-w-xl" />
           ) : (

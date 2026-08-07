@@ -48,6 +48,29 @@ export function isLocationConversationContent(content: string | null | undefined
     || normalized.includes('konum mesajı')
 }
 
+/** Kayıtlı yer adı / adres metni — bracket etiketi ve koordinatlar temizlenir (#6a74de2a). */
+export function getLocationPlaceDescription(content: string | null | undefined): string | null {
+  if (!content?.trim()) return null
+  let text = content
+    .replace(/\[konum mesajı\]/gi, '')
+    .replace(/\[location message\]/gi, '')
+    .replace(/\[location\]/gi, '')
+    .replace(LOCATION_COORDS_RE, '')
+    .trim()
+  text = text.replace(/^[-–—,\s]+|[-–—,\s]+$/g, '').trim()
+  if (!text) return null
+  const lower = text.toLocaleLowerCase('tr')
+  if (
+    lower === 'konum'
+    || lower === 'konum mesajı'
+    || lower === 'location'
+    || lower === 'location message'
+  ) {
+    return null
+  }
+  return text
+}
+
 export function formatBracketContent(content: string): string {
   const trimmed = content.trim()
   const bracketMatch = /^\[(.+)\]$/.exec(trimmed)
@@ -118,8 +141,10 @@ export function formatConversationDisplayContent(content: string): string {
   const trimmed = content.trim()
   if (!trimmed) return ''
   if (isPlaceholderBracketContent(trimmed)) return formatBracketContent(trimmed)
-  // "[konum mesajı] 38.1,27.2" → liste önizlemesinde "Konum"
+  // "[konum mesajı] 38.1,27.2" → liste önizlemesinde "Konum"; kayıtlı yer → yer adı (#6a74de2a)
   if (isLocationConversationContent(trimmed)) {
+    const place = getLocationPlaceDescription(trimmed)
+    if (place) return place
     const withoutCoords = trimmed.replace(LOCATION_COORDS_RE, '').trim()
     if (isPlaceholderBracketContent(withoutCoords) || withoutCoords.toLocaleLowerCase('tr').includes('konum')) {
       return BRACKET_LABELS['konum mesajı'] ?? 'Konum'

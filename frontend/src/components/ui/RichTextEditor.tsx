@@ -290,6 +290,7 @@ export function RichTextEditor({
         aria-multiline="true"
         aria-required={required}
         data-placeholder={placeholder}
+        spellCheck={false}
         suppressContentEditableWarning
         onInput={emitChange}
         onBlur={() => {
@@ -308,6 +309,12 @@ export function RichTextEditor({
           // Ctrl/Cmd+I tarayıcı italik kısayolunu engelle (#r511)
           if ((event.ctrlKey || event.metaKey) && event.key.toLocaleLowerCase('tr') === 'i') {
             event.preventDefault()
+          }
+          // Enter → her zaman aynı blok (p); tarayıcı div/br karışımını engelle (#6a74e697)
+          if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+            event.preventDefault()
+            document.execCommand('insertParagraph')
+            emitChange()
           }
         }}
       />

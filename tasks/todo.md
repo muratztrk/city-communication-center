@@ -1,3 +1,8 @@
+## Round 720 — lightbox kısalt + Açıklama spell/Enter + kayıtlı konum (4 kart)
+- `#6a75848c` / `#6a75722a`: `SocialConversationMediaPreview` 70vh / 56vh (WA + kurum içi).
+- `#6a74e697`: Açıklama `spellCheck={false}` + Enter `insertParagraph` + eşit satır aralığı.
+- `#6a74de2a`: kayıtlı yer → MapPin + açıklama + Haritada aç; backend lat/lng `Name - Address` için de döner.
+
 ## Round 719 — panel/Dosya ekle/inbound medya + Açıklama (5 kart)
 - Kurum içi panel Canlı Özet hizasına yükseltildi; modal Dosya ekle `h-[1.875rem]`.
 - Inbound görsel `w-full` (balon genişliği); WA doküman adı çerçevesi `w-full` + truncate.

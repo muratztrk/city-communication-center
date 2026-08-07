@@ -241,7 +241,9 @@
     "subtitle": "{{municipalityName}} İletişim Merkezi",
     "liveTenant": "Aktif Kullanıcı",
     "logout": "Çıkış",
-    "language": "Dil seçici"
+    "language": "Dil seçici",
+    "userGuide": "Kullanım Kılavuzu",
+    "supportLine": "Destek Hattı"
   },
   "sessionIdle": {
     "title": "Oturum Süreniz Dolmak Üzere!",

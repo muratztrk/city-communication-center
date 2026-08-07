@@ -6,9 +6,6 @@ import { InternalMessagesFab } from '../components/layout/InternalMessagesFab'
 import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
 import { SessionIdleWarning } from '../components/ui/session-idle-warning'
 import { SessionSupersededWarning } from '../components/ui/session-superseded-warning'
-
-declare const __APP_VERSION__: string
-const SUPPORT_EMAIL = 'destek@lumespec.com.tr'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -22,6 +19,7 @@ import { JobsPage } from '../pages/JobsPage'
 import { PageLoadingFallback } from '../components/layout/PageLoadingFallback'
 import { SidebarNav, type SidebarNavItem, type SidebarNavLinkItem } from '../components/layout/SidebarNav'
 import { Button } from '../components/ui/button'
+import { USER_GUIDE_URL } from '../config/externalLinks'
 import { useAuth } from '../context/AuthContext'
 import { useTenantTheme } from '../context/ThemeContext'
 import { api } from '../api/client'
@@ -40,6 +38,27 @@ import { getRoleLabel } from '../utils/localization'
 import { sortUserDepartments } from '../utils/departmentAccess'
 import { useDataTableOverflowTooltips } from '../hooks/useDataTableOverflowTooltips'
 
+declare const __APP_VERSION__: string
+const SUPPORT_EMAIL = 'destek@lumespec.com.tr'
+
+const userGuideLinkClassName =
+  'flex size-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 shadow-sm transition-colors hover:border-[color:var(--color-primary)]/40 hover:bg-[color:var(--color-primary)]/8 hover:text-[color:var(--color-primary)]'
+
+function UserGuideLink({ className = userGuideLinkClassName }: { className?: string }) {
+  const { t } = useTranslation()
+  return (
+    <a
+      href={USER_GUIDE_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      title={t('shell.userGuide')}
+      aria-label={t('shell.userGuide')}
+      className={className}
+    >
+      <BookOpen className="size-4" />
+    </a>
+  )
+}
 
 function useResponsiveZoom() {
   const compute = useCallback(() => {
@@ -590,10 +609,13 @@ export function AppShell() {
               <div className="truncate text-xs text-[color:var(--color-muted-foreground)]">{user?.displayName}</div>
             </div>
           </div>
-          <Button variant="destructive" onClick={handleLogout} className="gap-2 px-5">
-            <LogOut className="size-4.5" />
-            {t('shell.logout')}
-          </Button>
+          <div className="flex items-center gap-2">
+            <UserGuideLink />
+            <Button variant="destructive" onClick={handleLogout} className="gap-2 px-5">
+              <LogOut className="size-4.5" />
+              {t('shell.logout')}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -763,15 +785,7 @@ export function AppShell() {
             <ExtensionSearchBar />
             <GlobalSearchBar />
             <NotificationBell onOpenDetail={setNotificationDetailTarget} />
-            <a
-              href="https://lumespec.com/apps/city-communication-center/guide/"
-              target="_blank"
-              rel="noopener noreferrer"
-              title={t('shell.userGuide', 'Kullanım Kılavuzu')}
-              className="flex size-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 shadow-sm transition-colors hover:border-[color:var(--color-primary)]/40 hover:bg-[color:var(--color-primary)]/8 hover:text-[color:var(--color-primary)]"
-            >
-              <BookOpen className="size-4" />
-            </a>
+            <UserGuideLink />
             <div ref={userMenuRef} className="relative">
               <button
                 type="button"

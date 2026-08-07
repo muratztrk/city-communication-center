@@ -241,7 +241,9 @@
     "subtitle": "{{municipalityName}} Communication Center",
     "liveTenant": "Active User",
     "logout": "Sign Out",
-    "language": "Language selector"
+    "language": "Language selector",
+    "userGuide": "User Guide",
+    "supportLine": "Support Line"
   },
   "sessionIdle": {
     "title": "Your Session Is About To Expire!",

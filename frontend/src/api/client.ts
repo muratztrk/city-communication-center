@@ -1,4 +1,5 @@
 import i18n from '../i18n'
+import { getCachedSocialMediaBlob, setCachedSocialMediaBlob } from '../utils/socialMediaBlobCache'
 import type {
   AuditLog,
   Attachment,
@@ -105,12 +106,17 @@ export const api = {
   },
 
   async downloadSocialMedia(socialMessageId: string, entryId: string): Promise<Blob> {
+    const cached = getCachedSocialMediaBlob(socialMessageId, entryId)
+    if (cached) return cached
+
     const response = await fetchWithCredentials(
       `${API_BASE}/social/messages/${socialMessageId}/conversation/media/${entryId}`,
       { headers: await getAuthHeaders() },
     )
     await ensureOk(response, i18n.t('whatsapp.mediaLoadFailed', 'Medya indirilemedi'))
-    return response.blob()
+    const blob = await response.blob()
+    setCachedSocialMediaBlob(socialMessageId, entryId, blob)
+    return blob
   },
 
   async getMyDepartments(): Promise<DepartmentSummary[]> {

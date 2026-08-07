@@ -1,3 +1,6 @@
+## Round 727 — WA medya blob cache (1 kart)
+- `#6a758a88`: `socialMediaBlobCache` LRU; `downloadSocialMedia` cache’li; logout temizler.
+
 ## Round 726 — WA görsel ikon çerçevesiz + X üst satır (2 kart)
 - `#6a7592b2`: görsel dosya adı yanındaki ikonda emerald çerçeve yok.
 - `#6a7586af` reopen: X görsel içinde overlay değil, üst satır sağda.

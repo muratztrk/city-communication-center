@@ -16,6 +16,7 @@ import {
 import type { AuthSession, AuthUser } from '../types/platform'
 import { queryClient } from '../app/queryClient'
 import { queryKeys } from '../api/queryKeys'
+import { clearSocialMediaBlobCache } from '../utils/socialMediaBlobCache'
 
 // Sekmeler arası gerçek logout sinyali için ayrılmış localStorage anahtarı.
 const LOGOUT_BROADCAST_KEY = 'ccc_logout_broadcast'
@@ -123,6 +124,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
     clearUsePrimaryDepartmentOnLoad()
     await queryClient.removeQueries({ queryKey: queryKeys.all })
+    clearSocialMediaBlobCache()
     await logoutSession()
     setSession(null)
     // Diğer sekmelere gerçek logout sinyali gönder.

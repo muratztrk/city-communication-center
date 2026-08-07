@@ -25,7 +25,17 @@ interface SocialConversationMediaBubbleProps {
   compactChip?: boolean
 }
 
-export function SocialConversationMediaBubble({
+/** entry değişince state sıfırlansın diye key’li sarmalayıcı (#6a758a88 cache ile birlikte). */
+export function SocialConversationMediaBubble(props: SocialConversationMediaBubbleProps) {
+  return (
+    <SocialConversationMediaBubbleInner
+      key={`${props.socialMessageId}:${props.entryId}`}
+      {...props}
+    />
+  )
+}
+
+function SocialConversationMediaBubbleInner({
   socialMessageId,
   entryId,
   mediaMimeType,

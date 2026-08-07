@@ -579,6 +579,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `max-w-[18rem] object-contain` (bubble genişliği aynı kalır). WA gelen doküman adı çerçevesi
   `text-[11px] px-2.5 py-1.5`. Modal Dosya ekle pending: balon altında **Düzenle** + **Mesajı Gönder**
   (`ConversationPanel`, WA sayfasıyla aynı — #6a7586e9).
+  WA konuşma medyası (sayfa + Vatandaş Talebi popup) `socialMediaBlobCache` ile bellek içi LRU
+  önbelleğe alınır (max 40 / ~48MB); tekrar görüntülemede ağ isteği yok (#6a758a88). Logout cache temizler.
 - **Kurum İçi pending ek (#2395 reopen):** mime/boyut alt satırı basılmaz. Ek yüklendikten sonra alıcıya
   SignalR yenilemesi gider; indirme yalnızca konuşmanın gönderen/alıcı tarafına açıktır. Açık sohbet poll
   eşitliği `attachment.attachmentId` alanını da karşılaştırır — ek yüklendikten sonra UI güncellenmez

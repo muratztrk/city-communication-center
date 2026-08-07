@@ -262,7 +262,7 @@ export function ConversationEntryBubble({
               }`}
             />
           ) : isContactMessage ? (
-            <p className="inline-flex items-start gap-1.5 text-sm font-semibold leading-snug">
+            <p className="inline-flex items-start gap-1.5 text-xs font-medium leading-snug">
               <span
                 className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border ${
                   isInbound

@@ -1,3 +1,6 @@
+## Round 744 — WA kişi kartı tipografi (1 kart reopen)
+- `#6a75cccc` reopen: isim/numara text-xs font-medium (bold+size düşür).
+
 ## Round 743 — İptal/Tamamla popup tipografi (2 kart)
 - `#6a75d625`: Talebi İptal Et → form-card köşe + ortak başlık/textarea.
 - `#6a75d5eb`: Görevi Tamamla başlık/placeholder küçült (ortak 1.125rem / 0.9375rem).

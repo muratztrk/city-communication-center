@@ -1,8 +1,9 @@
 using Microsoft.AspNetCore.SignalR;
+using OpenIddict.Validation.AspNetCore;
 
 namespace CityCommunicationCenter.Api.Hubs;
 
-[Authorize]
+[Authorize(AuthenticationSchemes = AuthorizationPolicies.SessionCookieScheme + "," + OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)]
 public sealed class NotificationHub : Hub
 {
     private readonly ILogger<NotificationHub> _logger;

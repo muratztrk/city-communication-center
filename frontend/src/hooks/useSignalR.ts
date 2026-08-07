@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import * as signalR from '@microsoft/signalr'
 import { useAuth } from '../context/AuthContext'
 import { API_ORIGIN } from '../api/config'
-import { getSignalRAccessToken } from '../api/auth'
+import { getValidAccessToken } from '../api/auth'
 
 export interface NotificationPayload {
   notificationId: string
@@ -123,6 +123,19 @@ let initialRetryAttempt = 0
 let initialRetryTimer: number | null = null
 
 const INITIAL_RETRY_DELAYS_MS = [2_000, 5_000, 10_000, 30_000]
+
+async function buildHubConnectionOptions(): Promise<signalR.IHttpConnectionOptions> {
+  const options: signalR.IHttpConnectionOptions = {
+    withCredentials: true,
+  }
+
+  const localToken = await getValidAccessToken()
+  if (localToken) {
+    options.accessTokenFactory = async () => localToken
+  }
+
+  return options
+}
 
 function dispatchNotification(payload: NotificationPayload) {
   notificationHandlers.forEach(handler => handler(payload))
@@ -257,10 +270,7 @@ async function ensureConnection(active: boolean) {
     setConnectionState('connecting')
 
     const nextConnection = new signalR.HubConnectionBuilder()
-      .withUrl(`${API_ORIGIN}/hubs/notifications`, {
-        withCredentials: true,
-        accessTokenFactory: async () => await getSignalRAccessToken() ?? '',
-      })
+      .withUrl(`${API_ORIGIN}/hubs/notifications`, await buildHubConnectionOptions())
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(signalR.LogLevel.Warning)
       .build()

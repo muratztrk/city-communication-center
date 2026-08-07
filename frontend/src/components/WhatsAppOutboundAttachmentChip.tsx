@@ -36,7 +36,7 @@ export function WhatsAppOutboundAttachmentChip({
   const displayName = lowercaseFileExtension(fileName)
   const FileIcon = isImage ? SimpleImageAttachmentIcon : FileText
   const iconClass = 'size-3'
-  const nameClass = compact ? 'text-xs font-semibold' : 'text-sm font-semibold'
+  const nameClass = compact ? 'text-[11px] font-semibold' : 'text-xs font-semibold'
   const [previewOpen, setPreviewOpen] = useState(false)
   const dismissBtnClass = `inline-flex shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`
 

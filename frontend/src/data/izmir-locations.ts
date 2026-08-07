@@ -330,6 +330,17 @@ export const IZMIR_DISTRICTS: IzmirDistrict[] = [
 
 export const MUNICIPALITY_DISTRICT_KEY = 'ccc_municipality_district'
 export const MUNICIPALITY_DISTRICT_CHANGED_EVENT = 'ccc-municipality-district-changed'
+/** TenantSettings.Theme içinde kurum ilçesini sunucuda saklamak için (#6a75b1ae). */
+export const MUNICIPALITY_DISTRICT_THEME_PREFIX = 'ccc-district:'
+
+export function encodeMunicipalityDistrictTheme(districtId: string): string {
+  return `${MUNICIPALITY_DISTRICT_THEME_PREFIX}${districtId}`
+}
+
+export function parseMunicipalityDistrictTheme(theme: string | null | undefined): string | null {
+  if (!theme?.startsWith(MUNICIPALITY_DISTRICT_THEME_PREFIX)) return null
+  return normalizeDistrictId(theme.slice(MUNICIPALITY_DISTRICT_THEME_PREFIX.length))
+}
 
 export function normalizeDistrictId(value: string | null | undefined): string | null {
   const trimmed = value?.trim()

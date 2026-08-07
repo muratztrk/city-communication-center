@@ -8,7 +8,7 @@ import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { invalidateSettings } from '../api/cacheInvalidation'
 import { API_ORIGIN } from '../api/config'
-import { IZMIR_DISTRICTS, MUNICIPALITY_DISTRICT_KEY, normalizeDistrictId, saveDistrictId } from '../data/izmir-locations'
+import { IZMIR_DISTRICTS, MUNICIPALITY_DISTRICT_KEY, encodeMunicipalityDistrictTheme, normalizeDistrictId, parseMunicipalityDistrictTheme, saveDistrictId } from '../data/izmir-locations'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -601,6 +601,15 @@ export function SettingsPage() {
         const nextAppearance = toAppearanceForm(appearanceResponse)
 
         setTenantSettings(tenantResponse)
+        // Kurum Konumu: Theme'deki ccc-district:… değeri oturumlar arası kalıcı (#6a75b1ae).
+        const districtFromTheme = parseMunicipalityDistrictTheme(tenantResponse.theme)
+        if (districtFromTheme) {
+          saveDistrictId(districtFromTheme)
+          setSelectedDistrictId(districtFromTheme)
+        } else {
+          const localDistrict = normalizeDistrictId(window.localStorage.getItem(MUNICIPALITY_DISTRICT_KEY))
+          if (localDistrict) setSelectedDistrictId(localDistrict)
+        }
         // Sunucuda ayar yoksa eski/global localStorage yerine yazılımın güncel varsayılanı kullanılır (#2243).
         const nextRolePageAccess = parseRolePageAccessMatrix(tenantResponse.rolePageAccessJson)
           ?? createDefaultRolePageAccessMatrix()
@@ -854,13 +863,31 @@ export function SettingsPage() {
     }
   }
 
-  const saveMunicipalityDistrict = (event: FormEvent) => {
+  const saveMunicipalityDistrict = async (event: FormEvent) => {
     event.preventDefault()
     if (!saveDistrictId(selectedDistrictId)) {
       showToast('error', t('settings.municipalityLocation.districtRequired', 'Kaydetmek için bir ilçe seçin.'))
       return
     }
-    showToast('success', t('settings.municipalityLocation.saveSuccess', 'Konum ayarı kaydedildi.'))
+    if (!user?.tenantId) {
+      showToast('success', t('settings.municipalityLocation.saveSuccess', 'Konum ayarı kaydedildi.'))
+      return
+    }
+    try {
+      const districtTheme = encodeMunicipalityDistrictTheme(selectedDistrictId)
+      await api.updateTenantSettings(user.tenantId, {
+        displayName: tenantSettings.displayName,
+        deploymentMode: tenantSettings.deploymentMode,
+        theme: districtTheme,
+        domain: tenantSettings.domain,
+        defaultSlaHours: tenantSettings.defaultSlaHours,
+      })
+      setTenantSettings(current => ({ ...current, theme: districtTheme }))
+      invalidateSettings(queryClient)
+      showToast('success', t('settings.municipalityLocation.saveSuccess', 'Konum ayarı kaydedildi.'))
+    } catch (saveError) {
+      showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
+    }
   }
 
   const saveOrganization = async (event: FormEvent) => {
@@ -871,13 +898,18 @@ export function SettingsPage() {
 
     setMessage(null)
     try {
+      // Kurum Bilgisi kaydı Theme'deki ilçe kodunu silmesin (#6a75b1ae).
+      const preservedTheme = parseMunicipalityDistrictTheme(tenantSettings.theme)
+        ? tenantSettings.theme
+        : (selectedDistrictId ? encodeMunicipalityDistrictTheme(selectedDistrictId) : tenantSettings.theme)
       await api.updateTenantSettings(user.tenantId, {
         displayName: tenantSettings.displayName,
         deploymentMode: tenantSettings.deploymentMode,
-        theme: tenantSettings.theme,
+        theme: preservedTheme,
         domain: tenantSettings.domain,
         defaultSlaHours: tenantSettings.defaultSlaHours,
       })
+      setTenantSettings(current => ({ ...current, theme: preservedTheme }))
       invalidateSettings(queryClient)
       setMessage({ type: 'success', text: t('settings.organizationSaveSuccess') })
     } catch (saveError) {

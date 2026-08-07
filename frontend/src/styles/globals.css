@@ -2174,6 +2174,12 @@
     font-size: 0.75rem;
   }
 
+  .whatsapp-neighborhood-menu-scroll .dropdown-menu-item {
+    min-height: 1.85rem;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.72rem;
+  }
+
   .task-return-user-menu-scroll .dropdown-menu-item {
     min-height: 2rem;
     padding: 0.4rem 0.65rem;

@@ -653,7 +653,8 @@ function ConversationProfilePanel({
           <span className={labelClass}>{t('whatsapp.phoneNumber', 'Numara')}</span>
           <input className={disabledFieldClass} value={formatLocalProfilePhone(draft.citizenPhone)} readOnly disabled />
         </label>
-        <label className="block space-y-1">
+        {/* Mahalle başlığı tıklanınca dropdown açılmasın — label yerine div (#6a75b6c1). */}
+        <div className="block space-y-1">
           <span className={labelClass}>{t('address.neighborhood', 'Mahalle')}</span>
           <SingleSelectDropdown
             openUp
@@ -664,8 +665,9 @@ function ConversationProfilePanel({
               ? { neighborhood }
               : { neighborhood: '', street: '', openAddress: '' })}
             placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+            menuScrollClassName="whatsapp-neighborhood-menu-scroll"
           />
-        </label>
+        </div>
         <label className="block space-y-1">
           <span className={labelClass}>
             {t('address.street', 'Cadde / Sokak')}
@@ -678,7 +680,7 @@ function ConversationProfilePanel({
             {t('address.openAddress', 'Açık Adres')}
             {hasNeighborhood ? (
               <>
-                <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                <span className="ml-1 text-[9px] font-normal normal-case tracking-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
                 <span className="text-red-500"> *</span>
               </>
             ) : null}

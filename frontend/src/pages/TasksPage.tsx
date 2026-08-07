@@ -654,10 +654,12 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const showStatusColumn =
     ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'all')
     || isStaffTasksView
-  // Görev Tipi / Görevi Yapan: yalnız Personelimin Görevleri (#6a75a628 Görevlerim; #6a75a7b9 Birimdeki).
-  const showTaskTypeColumn = isStaffTasksView
-  // Son Tarih: Görevlerim terminal + Birimdeki tüm görünümler (#6a75a725/#6a75a790/#6a75a7b9).
-  const hideDueDateColumn = isDepartmentTasksView
+  // Görev Tipi / Görevi Yapan: Birimdeki'de sütun (#6a75a6ae); Personelimin/Görevlerim'de yok
+  // (#6a75af48 / #6a75a628). Görevlerim'de tip Görev Tarihi altında (#6a75969e).
+  const showTaskTypeColumn = isDepartmentTasksView
+  const showTaskTypeUnderDate = isMyTasksView
+  // Son Tarih: Birimdeki'de yalnız Son Tarihi Geçmiş (#6a75ad62); diğer birim görünümlerinde yok.
+  const hideDueDateColumn = (isDepartmentTasksView && currentMyTaskView !== 'overdue')
     || (isMyTasksView && (currentMyTaskView === 'rejected' || currentMyTaskView === 'completed'))
   const hasTerminalDateColumn = (isMyTasksView || isDepartmentTasksView) && (
     currentMyTaskView === 'completed' || currentMyTaskView === 'rejected'
@@ -3133,6 +3135,14 @@ const pageKicker = isMyTasksView
                         && !['Completed', 'Cancelled', 'Rejected'].includes(task.currentStatus)
                         && isAssignedToday(task.assignedAtUtc) && (
                         <div className="task-new-badge">{t('tasks.badges.new', 'Yeni')}</div>
+                      )}
+                      {/* Görevlerim: Görev Tipi, Görev Tarihi alt satırında (#6a75969e). */}
+                      {showTaskTypeUnderDate && (
+                        <div className="mt-1 flex justify-center">
+                          <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.72rem]">
+                            {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
+                          </StatusPill>
+                        </div>
                       )}
                     </td>
                     {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt), dar ve ortalı.

@@ -434,15 +434,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
 
   const managerRow1: MetricCard[] = !hideMetricCards && isManagerOrAdmin && dashboardQuery.data
     ? [
-        ...(isInternalModuleUsable ? [{
-          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
-          value: dashboardQuery.data.myPendingRequestCount,
-          icon: ClipboardList,
-          path: '/my-requests?view=pending',
-          iconBg: 'bg-amber-100',
-          iconColor: 'text-amber-600',
-        }] : []),
         {
           label: t('dashboard.cards.incomingPendingApprovalTitle', 'Birime Gelen'),
           sublabel: t('dashboard.cards.incomingPendingApprovalSub', 'Onay Bekleyen Talepler'),
@@ -451,6 +442,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/incoming-requests',
           iconBg: 'bg-orange-100',
           iconColor: 'text-orange-600',
+        },
+        {
+          label: t('dashboard.cards.deptPendingTasks', 'Birimde Bekleyen Görevler'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          value: dashboardQuery.data.deptPendingTaskCount,
+          icon: SquareKanban,
+          path: '/department-tasks?flow=all',
+          iconBg: 'bg-emerald-100',
+          iconColor: 'text-emerald-600',
         },
         ...(isInternalModuleUsable ? [
           {
@@ -472,6 +472,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             iconColor: 'text-cyan-600',
           },
         ] as MetricCard[] : []),
+        ...(isInternalModuleUsable ? [{
+          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          value: dashboardQuery.data.myPendingRequestCount,
+          icon: ClipboardList,
+          path: '/my-requests?view=pending',
+          iconBg: 'bg-amber-100',
+          iconColor: 'text-amber-600',
+        }] : []),
         {
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
@@ -480,15 +489,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-tasks?view=pending',
           iconBg: 'bg-violet-100',
           iconColor: 'text-violet-600',
-        },
-        {
-          label: t('dashboard.cards.deptPendingTasks', 'Birimde Bekleyen Görevler'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
-          value: dashboardQuery.data.deptPendingTaskCount,
-          icon: SquareKanban,
-          path: '/department-tasks?flow=all',
-          iconBg: 'bg-emerald-100',
-          iconColor: 'text-emerald-600',
         },
       ]
     : []

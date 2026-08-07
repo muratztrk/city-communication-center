@@ -1,3 +1,17 @@
+## Round 732 — WA form/CSS + grid + dashboard sıra + ilçe kalıcılık (12 kart)
+- `#6a75b6c1`: WA Mahalle başlığı tıklanabilir değil.
+- `#6a75be0b`: Rutin Dosya/Görsel başlık boyutu.
+- `#6a75b73a`: WA ek dosya adı text küçült.
+- `#6a75b6ed`: Mahalle dropdown seçenek boyutu.
+- `#6a75b7a4`: Açık Adres (max 100) küçük + lowercase.
+- `#6a75ad62`: Birimdeki overdue Son Tarih geri.
+- `#6a75b318`: Yönetici anasayfa kutucuk sırası.
+- `#6a75b7b0`: Vatandaş Talebi Açıklama (max 400) hint.
+- `#6a75b1ae`: Kurum Konumu ilçe Theme+localStorage kalıcı.
+- `#6a75969e`: Görevlerim tip → Görev Tarihi altı.
+- `#6a75af48`: Personelimin tip sütunu sil.
+- `#6a75a6ae`: Birimdeki tip sütunu geri.
+
 ## Round 731 — grid sütun + WA pending + Detaylar FileText + sohbet zemin (12 kart)
 - `#6a75994d` reopen: WA Konuşmaları sayfası Dosya ekle pending `Beklemede · HH:mm`.
 - `#6a75a725` / `#6a75a790` / `#6a75a7b9`: Birimdeki Son Tarih (+ Görev Tipi) sil.

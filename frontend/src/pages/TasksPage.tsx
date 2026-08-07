@@ -3027,7 +3027,7 @@ const pageKicker = isMyTasksView
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
                   {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
-                    <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="taskTypeCategory" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort} className="pl-10">
+                    <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="taskTypeCategory" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
                       <span className="inline-flex flex-col gap-0.5 leading-tight">
                         <span>{t('tasks.columns.taskType', 'Görev Tipi')}</span>
                         <span>{t('tasks.columns.owner', 'Görevi Yapan')}</span>
@@ -3122,7 +3122,7 @@ const pageKicker = isMyTasksView
                     </td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className={`table-number-cell__value ${reporterTaskNumberClass}`}>{taskDisplayNumber}</div>
-                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(task.priority)}`}>(Öncelik:{getPriorityLabel(t, task.priority)})</div>
+                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(task.priority)}`}>Öncelik:{getPriorityLabel(t, task.priority)}</div>
                     </td>
                     <td>
                       <DateCell value={task.createdAtUtc} locale={locale} highlight={isReporterTask && Boolean(task.createdAtUtc)} />

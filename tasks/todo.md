@@ -1,3 +1,10 @@
+## Round 725 — MapPin rozet + aksiyon ikonları + Öncelik parantez + FilterableTh sıra (5 kart)
+- `#6a74de2a`: inbound konum MapPin = Taleplerim ek emerald rozet.
+- `#6a758f80`: Birime Gelen / Birimden Giden Detaylar/Onayla/İptal Et ikonları.
+- `#6a75913e`: grid `(Öncelik:…)` → `Öncelik:…`.
+- `#6a759062`: FilterableTh başlık → sıralama → filtre; Görev Tipi `pl-10` kaldırıldı.
+- `#6a758fb1`: Mesaj Onayı Detaylar başına Eye.
+
 ## Round 724 — konum false-positive + ek ikon çerçeve + görsel ad alt (3 kart)
 - `#6a74de2a` reopen: medya/`[image]` mesajında MapPin+Haritada aç yok; BE coords yalnız konum içeriğinde.
 - `#6a758a88`: WA ek ikonları Taleplerim emerald rozet çerçevesi.

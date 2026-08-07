@@ -485,7 +485,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                           </div>
                           {row.priority ? (
                             <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>
-                              (Öncelik:{getPriorityLabel(t, row.priority)})
+                              Öncelik:{getPriorityLabel(t, row.priority)}
                             </div>
                           ) : null}
                         </td>

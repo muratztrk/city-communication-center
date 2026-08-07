@@ -9,7 +9,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Check, ClipboardList, FileText, Info, MapPin, MessageSquareText, NotebookPen, Paperclip, Printer, Route, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
+import { Check, ClipboardList, Eye, FileText, Info, MapPin, MessageSquareText, NotebookPen, Paperclip, Printer, Route, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -2188,7 +2188,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {(isMyRequestsView || isDepartmentOutgoingView) && (
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className={`table-number-cell__value ${reporterNumberClass}`}>{formatJobDisplayNumber(job)}</div>
-                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(job.priority)}`}>(Öncelik:{getPriorityLabel(t, job.priority)})</div>
+                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(job.priority)}`}>Öncelik:{getPriorityLabel(t, job.priority)}</div>
                     </td>
                     )}
                     {(isMyRequestsView || isDepartmentOutgoingView) && (
@@ -2255,16 +2255,28 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     })()}
                     <td className="actions-cell">
                       <div className="request-actions">
-                        <Button size="sm" variant="secondary" onClick={() => openDetail(job.jobId)}>{t('jobs.actions.details')}</Button>
+                        <Button size="sm" variant="secondary" className="inline-flex items-center gap-1.5" onClick={() => openDetail(job.jobId)}>
+                          <Eye className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                          {t('jobs.actions.details')}
+                        </Button>
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'PendingOwnerApproval' && (
-                          <Button size="sm" variant="success" onClick={() => void handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner')}</Button>
+                          <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => void handleApproveOwner(job.jobId)}>
+                            <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                            {t('jobs.actions.approveOwner')}
+                          </Button>
                         )}
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'Active' && (
-                          <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>{t('jobs.actions.cancel')}</Button>
+                          <Button size="sm" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => handleCancel(job.jobId)}>
+                            <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                            {t('jobs.actions.cancel')}
+                          </Button>
                         )}
                         {/* Birimden Giden → Bekleyen: Yönetici onayı. Onaylanınca hedef birimin havuzuna düşer. */}
                         {isDepartmentOutgoingView && currentDepartmentOutgoingView === 'pending' && isManagerLike && job.status === 'PendingOwnerApproval' && (
-                          <Button size="sm" variant="success" onClick={() => void handleApproveOwner(job.jobId)}>{t('jobs.actions.approveOwner', 'Onayla')}</Button>
+                          <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => void handleApproveOwner(job.jobId)}>
+                            <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                            {t('jobs.actions.approveOwner', 'Onayla')}
+                          </Button>
                         )}
                         {/* Birimden Giden → Bekleyen: İptal butonu */}
                         {isDepartmentOutgoingView && currentDepartmentOutgoingView === 'pending' && (
@@ -2277,13 +2289,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                                 size="sm"
                                 variant="destructive"
                                 disabled
+                                className="inline-flex items-center gap-1.5"
                                 style={{ pointerEvents: 'none' }}
                               >
+                                <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                                 {t('jobs.actions.cancel', 'İptal')}
                               </Button>
                             </span>
                           ) : (
-                            <Button size="sm" variant="destructive" onClick={() => handleCancel(job.jobId)}>
+                            <Button size="sm" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => handleCancel(job.jobId)}>
+                              <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                               {t('jobs.actions.cancel', 'İptal')}
                             </Button>
                           )

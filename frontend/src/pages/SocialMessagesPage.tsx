@@ -613,7 +613,7 @@ export function SocialMessagesPage() {
                       </div>
                       {linkedJob ? (
                         <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(linkedJob.priority)}`}>
-                          (Öncelik:{getPriorityLabel(t, linkedJob.priority)})
+                          Öncelik:{getPriorityLabel(t, linkedJob.priority)}
                         </div>
                       ) : null}
                     </td>

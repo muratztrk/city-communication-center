@@ -1,4 +1,4 @@
-import { Search, X } from 'lucide-react'
+import { Check, Eye, Search, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -1038,7 +1038,7 @@ export function IncomingRequestsPage() {
                           <span className="font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                         ) : null}
                       </div>
-                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>(Öncelik:{getPriorityLabel(t, row.priority)})</div>
+                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>Öncelik:{getPriorityLabel(t, row.priority)}</div>
                     </td>
                     <td>
                       <DateCell value={row.createdAtUtc} locale={locale} highlight={isReporterRow && Boolean(row.createdAtUtc)} />
@@ -1127,27 +1127,32 @@ export function IncomingRequestsPage() {
                     <td className="actions-cell">
                       <div className="flex justify-center gap-3">
                         {/* Detaylar — her zaman */}
-                        <Button size="sm" variant="secondary" onClick={() => setDetailJobId(row.jobId)}>
+                        <Button size="sm" variant="secondary" className="inline-flex items-center gap-1.5" onClick={() => setDetailJobId(row.jobId)}>
+                          <Eye className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('jobs.actions.details', 'Detaylar')}
                         </Button>
                         {/* Yapılmakta / Onaylanmış: yalnız Detaylar (cards #1695/#1702/#1703). */}
                         {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
-                          <Button size="sm" variant="success" onClick={() => handleApproveOwner(row.id)}>
+                          <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveOwner(row.id)}>
+                            <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
                         {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'job' && row.pendingTargetApprovalDepartmentId && (
-                          <Button size="sm" variant="success" onClick={() => handleApproveTarget(row.id, row.pendingTargetApprovalDepartmentId!)}>
+                          <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveTarget(row.id, row.pendingTargetApprovalDepartmentId!)}>
+                            <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
                         {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'job' && row.assignTargetDepartmentId && (
-                          <Button size="sm" variant="success" onClick={() => handleAssignStaff(row.id)}>
+                          <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleAssignStaff(row.id)}>
+                            <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </Button>
                         )}
                         {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'task' && row.status === 'PendingCloseApproval' && (
-                          <Button size="sm" variant="success" onClick={() => handleApproveClose(row.id)}>
+                          <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveClose(row.id)}>
+                            <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('tasks.actions.approveClose', 'Onayla')}
                           </Button>
                         )}
@@ -1155,14 +1160,17 @@ export function IncomingRequestsPage() {
                           <DisabledActionButton
                             size="sm"
                             variant="success"
+                            className="inline-flex items-center gap-1.5"
                             hoverTitle={t('jobs.actions.approveUnavailable', 'Bu kayıtta onay işlemi yapılamaz')}
                           >
+                            <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </DisabledActionButton>
                         )}
                         {/* Onaylanmış gridde İptal Et yok (card #1702); Yapılmakta'da da yok (#1695). */}
                         {canCancelRow(row) && currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && (
-                          <Button size="sm" variant="destructive" onClick={() => openCancelReturn(row)}>
+                          <Button size="sm" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openCancelReturn(row)}>
+                            <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('jobs.actions.cancel', 'İptal Et')}
                           </Button>
                         )}
@@ -1170,8 +1178,10 @@ export function IncomingRequestsPage() {
                           <DisabledActionButton
                             size="sm"
                             variant="destructive"
+                            className="inline-flex items-center gap-1.5"
                             hoverTitle={t('jobs.actions.cancelUnavailable', 'Bu kayıtta iptal işlemi yapılamaz')}
                           >
+                            <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                             {t('jobs.actions.cancel', 'İptal Et')}
                           </DisabledActionButton>
                         )}

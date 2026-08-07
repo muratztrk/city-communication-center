@@ -448,7 +448,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   + alt satırda Haritada aç; enlem/boylam metni gösterilmez; kayıtlı yer (`Name - Address`)
   SocialMessage lat/lng ile tanınır. Medya placeholder (`[image]` vb.) ve medya balonunda
   konum UI yok (#6a74de2a reopen / #6a6b9fac).
-  MapPin rengi `var(--color-header-from)`. Detayda turuncu
+  Inbound MapPin çerçevesi Taleplerim ek ikonuyla aynı emerald rozet
+  (`border-emerald-100 bg-emerald-50 text-blue-700`, `size-5` kutu + `size-3` ikon; #6a74de2a).
+  Detayda turuncu
   **Talep Durumunu Değiştir** → `ReopenCitizenMessageJobCommand` (`POST …/reopen-to-in-progress`)
   Job'u Active + terminal görevleri InProgress yapar, release bayrağını temizler (card #2057/#2062).
   Edit/Release/Reopen uygunluğu liste ile aynıdır (`FindEligibleTerminalJobAsync`): Completed/Cancelled
@@ -1349,7 +1351,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`RichTextEditor` ve e-Devlet dönüşüm textarea'sı).
 - **Grid başlık casing/padding:** TÜM gridview header'ları (`data-table`, `table-container`,
   `wallboard-table`) `text-transform: uppercase` kullanır (card #1342 — #1318'i tersine çevirdi);
-  `FilterableTh` label/ikon aralığı iki ayırıcı arasında dengeli olmalıdır.
+  `FilterableTh` iç sıra: başlık → sıralama ikonu → filtre (`MoreVertical`); sıralama label içinde
+  değil (#6a759062). Label/ikon aralığı dengeli kalır.
+- **Grid Öncelik alt satır metni:** `(Öncelik:…)` değil `Öncelik:…` — parantez yok (#6a75913e).
+- **Birime Gelen / Birimden Giden / Mesaj Onayı aksiyon ikonları:** Detaylar=`Eye`, Onayla=`Check`,
+  İptal Et=`XCircle`; butonlar `inline-flex items-center gap-1.5` (#6a758f80 / #6a758fb1).
 
 ## 5. Dashboard / Wallboard
 

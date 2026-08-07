@@ -107,16 +107,15 @@ export function FilterableTh({
       onClick={sortKey && onSort ? () => onSort(sortKey) : undefined}
     >
       <span className="filterable-th-content">
-        <span className="filterable-th-label">
-          {children}
-          {sortKey && (
-            isSortActive
-              ? sortDir === 'asc'
-                ? <ChevronUp className="sort-icon size-3" />
-                : <ChevronDown className="sort-icon size-3" />
-              : <ArrowDownUp className="sort-icon size-3" />
-          )}
-        </span>
+        <span className="filterable-th-label">{children}</span>
+        {/* Sıra: başlık → sıralama → filtre (#6a759062) */}
+        {sortKey ? (
+          isSortActive
+            ? sortDir === 'asc'
+              ? <ChevronUp className="sort-icon size-3" />
+              : <ChevronDown className="sort-icon size-3" />
+            : <ArrowDownUp className="sort-icon size-3" />
+        ) : null}
 
         <button
           ref={btnRef}

@@ -593,7 +593,7 @@ export function CitizenDirectoryPage() {
                               </div>
                               {ticket.priority ? (
                                 <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(ticket.priority)}`}>
-                                  (Öncelik:{getPriorityLabel(t, ticket.priority)})
+                                  Öncelik:{getPriorityLabel(t, ticket.priority)}
                                 </div>
                               ) : null}
                             </td>

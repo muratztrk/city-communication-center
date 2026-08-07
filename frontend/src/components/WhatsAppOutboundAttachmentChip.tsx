@@ -1,5 +1,7 @@
+import { useState } from 'react'
 import { FileText, X } from 'lucide-react'
 import { SimpleImageAttachmentIcon } from './ui/SimpleImageAttachmentIcon'
+import { SocialConversationMediaPreview } from './SocialConversationMediaPreview'
 import { lowercaseFileExtension } from '../utils/fileNameDisplay'
 
 interface WhatsAppOutboundAttachmentChipProps {
@@ -11,10 +13,11 @@ interface WhatsAppOutboundAttachmentChipProps {
   dismissDisabled?: boolean
   dismissLabel?: string
   caption?: string | null
+  /** Opsiyonel; verilmezse dahili lightbox açılır. */
   onImageClick?: () => void
 }
 
-/** Giden WA ek chip — görselde ad alt satırda (#görsel-ad); pending max-h artırıldı. */
+/** Giden WA ek chip — görselde ad alt satırda; hover büyüteç + tıklayınca lightbox. */
 export function WhatsAppOutboundAttachmentChip({
   fileName,
   isImage,
@@ -30,6 +33,15 @@ export function WhatsAppOutboundAttachmentChip({
   const FileIcon = isImage ? SimpleImageAttachmentIcon : FileText
   const iconClass = compact ? 'size-3.5' : 'size-4'
   const nameClass = compact ? 'text-xs font-semibold' : 'text-sm font-semibold'
+  const [previewOpen, setPreviewOpen] = useState(false)
+
+  const openPreview = () => {
+    if (onImageClick) {
+      onImageClick()
+      return
+    }
+    setPreviewOpen(true)
+  }
 
   const nameRow = (
     <div className="flex items-center gap-2">
@@ -49,37 +61,41 @@ export function WhatsAppOutboundAttachmentChip({
     </div>
   )
 
-  const imagePreview = isImage && previewUrl
-    ? (onImageClick ? (
-        <button
-          type="button"
-          onClick={onImageClick}
-          className="block overflow-hidden rounded-lg border border-white/20"
-        >
-          <img
-            src={previewUrl}
-            alt={displayName}
-            className={`w-full cursor-zoom-in object-contain bg-white/95 ${compact ? 'max-h-32' : 'max-h-44'}`}
-          />
-        </button>
-      ) : (
-        <div className="overflow-hidden rounded-lg border border-white/20">
-          <img
-            src={previewUrl}
-            alt={displayName}
-            className={`w-full object-contain bg-white/95 ${compact ? 'max-h-32' : 'max-h-44'}`}
-          />
-        </div>
-      ))
-    : null
+  const imagePreview = isImage && previewUrl ? (
+    <button
+      type="button"
+      onClick={openPreview}
+      className="block overflow-hidden rounded-lg border border-white/20"
+    >
+      <img
+        src={previewUrl}
+        alt={displayName}
+        className={`w-full cursor-zoom-in object-contain bg-white/95 ${compact ? 'max-h-32' : 'max-h-44'}`}
+      />
+    </button>
+  ) : null
 
   return (
     <div className="space-y-1.5">
-      {/* Görselde ad altta; dosyada ad (ve Vazgeç) üstte kalır. */}
       {isImage && previewUrl ? (
         <>
           {imagePreview}
           {nameRow}
+          {!onImageClick && previewUrl ? (
+            <SocialConversationMediaPreview
+              open={previewOpen}
+              objectUrl={previewUrl}
+              mime="image/*"
+              filename={displayName}
+              onClose={() => setPreviewOpen(false)}
+              onDownload={() => {
+                const anchor = document.createElement('a')
+                anchor.href = previewUrl
+                anchor.download = displayName
+                anchor.click()
+              }}
+            />
+          ) : null}
         </>
       ) : (
         nameRow

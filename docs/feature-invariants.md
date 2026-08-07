@@ -694,9 +694,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Açık Adres
   ve Dosya/Fotoğraf alanı aynı satırda yan yana durur; dosya seçilmedi metni butonla aynı blokta
   sığar (card #1088). Açıklama RichTextEditor ve Açık Adres textarea üst padding kompakt
-  (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6rem]` (Round 717). Açıklama Enter
-  satır aralığı `.rich-text-editable p+p` ≈ `0.15–0.2rem` (eşit satır boşluğu).
-  Açık Adres `min-h-[5.75rem]`.
+  (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6.35rem] text-[11px] whitespace-nowrap`
+  (Round 718). Açıklama Enter satır aralığı `.rich-text-editable p+p` ≈ `0.15–0.2rem`.
+  Açık Adres `min-h-[5.75rem]`. Açıklama editör `font-size: 0.76rem`, yükseklik `6.35rem` (Round 718).
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
 - **Vatandaş `Yazışmaya Git` butonu:** Vatandaş Talepleri gridindeki aksiyon butonu mevcut teal
@@ -1705,7 +1705,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).
 - **WA chat footer Birim/Kurum İçi (#r460):** şablon satırında `ml-auto` sağa yaslı (bir satır yukarı).
 - **Sayfa Yetkileri (#1893/#r449/#r451/#r453/#r455/#r459):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
-  Kaydet Kurum İçi Mesajlar FAB solunda (`--fab-inline-clearance - 3.5rem`); Kaydet `min-w-[13rem]` (Round 717).
+  Kaydet Kurum İçi Mesajlar FAB solunda (`--fab-inline-clearance - 8.5rem`); Kaydet `min-w-[13rem]` (Round 718).
 - **Birimler Yönetici Ata (#r453):** Sorumlu/Müdür açılır panel genişliği trigger ile aynı
   (`users-edit-dropdown-menu` max-width yok); Yeni Birim Ekle açınca yarım kalan satır
   aksiyonları (Yönetici Ata/Sil/Düzenle) temizlenir.
@@ -2037,8 +2037,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `isTyping:false`; notify öncesi `ensureSignalRConnected`.
 - **Kurum içi görsel lightbox (Round 717):** FAB sohbetinde görsel tıklanınca
   `SocialConversationMediaPreview` (büyüteç, dosya adı, İndir) — WA ile aynı.
-- **Kurum içi panel yüksekliği (Round 717):** `h-[min(86dvh,54rem)]` / `sm:h-[min(82dvh,52rem)]`
-  (banner üst border hizasına yaklaşır).
+- **Kurum içi panel yüksekliği (Round 718):** `h-[min(70dvh,42rem)]` / `sm:h-[min(58dvh,36rem)]`
+  (banner başlangıç hizası; Round 717 aşırı yükseklik geri alındı).
+- **WA pending görsel lightbox (Round 718):** `WhatsAppOutboundAttachmentChip` görselde
+  `cursor-zoom-in` + dahili `SocialConversationMediaPreview` (sayfa + modal).
 - **WA/modal textbox lag (Round 717):** `DeferredComposerInput` / `DeferredComposerTextarea`
   local state + `startTransition` parent update.
 - **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter

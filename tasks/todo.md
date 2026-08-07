@@ -1,3 +1,8 @@
+## Round 718 — WA pending lightbox + panel/Kaydet/Açıklama ince ayar (5 kart)
+- Pending/giden görsel: chip içinde büyüteç + lightbox.
+- Kurum içi panel yüksekliği azaltıldı (banner hizası).
+- Modal Dosya ekle tek satır `text-[11px]`; Açıklama font ↓ / yükseklik ↑; Kaydet FAB’a yaklaştı.
+
 ## Round 717 — WA/kurum içi UI + typing + Dosya ekle (13 kart)
 - Dosya ekle accept yalnız uzantı (mükerrer/pjp/jfif giderildi); Kaydet FAB’a yaklaştı.
 - WA görsel adı altta; pending max-h ↑; inbound genişlik ↑; doküman çerçevesi ↑.

@@ -3336,9 +3336,9 @@
   }
 
   .citizen-request-form .rich-text-editable {
-    font-size: 0.82rem;
-    min-height: 5.75rem;
-    max-height: 5.75rem;
+    font-size: 0.76rem;
+    min-height: 6.35rem;
+    max-height: 6.35rem;
     padding: 0.45rem 0.55rem;
     line-height: 1.35;
   }
@@ -5899,7 +5899,7 @@
 
   /* Sayfa Yetkileri: Kaydet sağ kenarı Kurum İçi Mesajlar FAB soluna yakın (#2329 reopen). */
   .settings-roles-actions {
-    padding-right: max(0px, calc(var(--fab-inline-clearance) - 3.5rem));
+    padding-right: max(0px, calc(var(--fab-inline-clearance) - 8.5rem));
   }
 
   .internal-messages-chat-bg {

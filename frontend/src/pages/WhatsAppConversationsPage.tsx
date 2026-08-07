@@ -680,7 +680,7 @@ function ConversationProfilePanel({
             {t('address.openAddress', 'Açık Adres')}
             {hasNeighborhood ? (
               <>
-                <span className="ml-1 text-[9px] font-normal normal-case tracking-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
                 <span className="text-red-500"> *</span>
               </>
             ) : null}

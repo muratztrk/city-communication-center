@@ -66,7 +66,6 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                     && task.CurrentStatus != WorkflowTaskStatus.Cancelled
                     && task.CurrentStatus != WorkflowTaskStatus.Rejected
                     && task.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
-                    && (!task.DueDateUtc.HasValue || task.DueDateUtc >= now)
                     && (!fromUtc.HasValue || task.CreatedAtUtc >= fromUtc.Value)
                     && (!toUtc.HasValue || task.CreatedAtUtc <= toUtc.Value),
                 cancellationToken);

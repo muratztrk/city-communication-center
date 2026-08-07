@@ -135,7 +135,7 @@ const SCOPES: { value: TaskListScope; labelKey: string }[] = [
   { value: 'all', labelKey: 'tasks.scopes.all' },
 ]
 
-type MyTaskView = 'pending' | 'completed' | 'rejected' | 'overdue' | 'all'
+type MyTaskView = 'pending' | 'completed' | 'rejected' | 'overdue' | 'all' | 'open'
 type RequestFlowFilter = 'internal' | 'external' | 'all'
 type TasksPageMode = 'default' | 'departmentTasks' | 'staffTasks'
 
@@ -426,7 +426,9 @@ function getCitizenTaskChannel(task: Task, socialByJobId: Map<string, SocialMess
 
 function getMyTaskView(value: string | null): MyTaskView {
   if (value === 'returned') return 'rejected'
-  return value === 'completed' || value === 'rejected' || value === 'overdue' || value === 'all' ? value : 'pending'
+  return value === 'completed' || value === 'rejected' || value === 'overdue' || value === 'all' || value === 'open'
+    ? value
+    : 'pending'
 }
 
 function getRequestFlowFilter(value: string | null): RequestFlowFilter {
@@ -471,6 +473,11 @@ function filterMyTasks(tasks: Task[], view: MyTaskView): Task[] {
 
   if (view === 'overdue') {
     return tasks.filter(task => !isClosedStatus(task.currentStatus) && isOverdue(task))
+  }
+
+  // Dashboard "Bekleyen Görevlerim" kartı: bekleyen + son tarihi geçmiş (#6a75c274).
+  if (view === 'open') {
+    return tasks.filter(task => !isClosedStatus(task.currentStatus))
   }
 
   // "Bekleyen" görünümü: aktif görevler — son tarihi geçmiş görevler hariç (onlar
@@ -652,12 +659,12 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   // Durum sütunu: Görevlerim/Birimdeki Görevler "Tüm Görevler" görünümünde (card 532) ve
   // Personelimin Görevleri'nin tüm görünümlerinde — "Tüm Personel" + belirli personel (card #730).
   const showStatusColumn =
-    ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'all')
+    ((isMyTasksView || isDepartmentTasksView) && (currentMyTaskView === 'all' || currentMyTaskView === 'open'))
     || isStaffTasksView
   // Görev Tipi / Görevi Yapan: Birimdeki'de sütun (#6a75a6ae); Personelimin/Görevlerim'de yok
-  // (#6a75af48 / #6a75a628). Görevlerim'de tip Görev Tarihi altında (#6a75969e).
+  // (#6a75af48 / #6a75a628). Tip rozeti Görev Tarihi altında: Görevlerim + Personelimin (#6a75969e / #6a75c4e8).
   const showTaskTypeColumn = isDepartmentTasksView
-  const showTaskTypeUnderDate = isMyTasksView
+  const showTaskTypeUnderDate = isMyTasksView || isStaffTasksView
   // Son Tarih: Birimdeki'de yalnız Son Tarihi Geçmiş (#6a75ad62); diğer birim görünümlerinde yok.
   const hideDueDateColumn = (isDepartmentTasksView && currentMyTaskView !== 'overdue')
     || (isMyTasksView && (currentMyTaskView === 'rejected' || currentMyTaskView === 'completed'))
@@ -728,7 +735,17 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       ? `${t('tasks.columns.routineTaskLabel', 'Rutin Görev')} ${t('tasks.columns.routineNoRequestNo', 'Talep No olmaz')}`
       : formatTaskJobDisplayNumber(row, socialByJobId, locale)
     if (key === 'taskNumber') return formatTaskDisplayNumber(row)
-    if (key === 'createdAtUtc') return formatDateTime(row.createdAtUtc, locale)
+    if (key === 'createdAtUtc') {
+      const dateText = formatDateTime(row.createdAtUtc, locale)
+      // Tip rozeti tarih altında: filtre "Atanmış"/"Rutin" harf araması (#6a75c435 / #6a75c4e8).
+      if (isMyTasksView || isStaffTasksView) {
+        const typeLabel = row.jobSourceType === 'Routine'
+          ? t('tasks.type.routine', 'Rutin')
+          : t('tasks.type.assigned', 'Atanmış')
+        return `${dateText} ${typeLabel}`
+      }
+      return dateText
+    }
     if (key === 'dueDateUtc') return formatDateTime(row.dueDateUtc, locale)
     if (key === 'completedAtUtc') return formatDateTime(row.completedAtUtc ?? null, locale)
     if (key === 'updatedAtUtc') return formatDateTime(row.updatedAtUtc ?? null, locale)
@@ -736,7 +753,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     if (key === 'jobSourceType') return row.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')
     if (key === 'taskOwnerDisplayName') return row.taskOwnerDisplayName ?? row.assignedUserDisplayName ?? row.ownerDisplayName ?? ''
     return String((row as unknown as Record<string, unknown>)[key] ?? '')
-  }, [t, locale, socialByJobId])
+  }, [t, locale, socialByJobId, isMyTasksView, isStaffTasksView])
 
   const visibleTasks = useMemo(() => {
     let result: typeof tasks
@@ -872,7 +889,9 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     [viewDefaultSortedTasks, tasksPage, tasksPageSize, sortTasks],
   )
 
-  const currentMyTaskViewLabel = t(MY_TASK_VIEWS.find(view => view.value === currentMyTaskView)?.labelKey ?? 'tasks.myViews.pending', 'Bekleyen Görevlerim')
+  const currentMyTaskViewLabel = currentMyTaskView === 'open'
+    ? t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim')
+    : t(MY_TASK_VIEWS.find(view => view.value === currentMyTaskView)?.labelKey ?? 'tasks.myViews.pending', 'Bekleyen Görevlerim')
   const currentDepartmentStatusViewLabel = t(
     DEPARTMENT_STATUS_VIEWS.find(view => view.value === currentMyTaskView)?.labelKey ?? 'tasks.departmentViews.pending',
     'Bekleyen Görevler',
@@ -3021,7 +3040,7 @@ const pageKicker = isMyTasksView
                     </span>
                   </FilterableTh>
                   <FilterableTh filterKey="taskNumber" filterValue={taskFilters['taskNumber'] ?? ''} onFilter={setTaskFilter} sortKey="taskNumber" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskNo', 'Görev No')}</FilterableTh>
-                  <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
+                  <FilterableTh filterKey="createdAtUtc" filterValue={taskFilters['createdAtUtc']} onFilter={setTaskFilter} sortKey="createdAtUtc" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort} allowLetters={isMyTasksView || isStaffTasksView}>{t('tasks.columns.taskDate', 'Görev Tarihi')}</FilterableTh>
                   <FilterableTh filterKey="ownerDepartmentName" filterValue={taskFilters['ownerDepartmentName']} onFilter={setTaskFilter} sortKey="ownerDepartmentName" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
                     <span className="inline-flex flex-col leading-tight">
                       <span>{t('tasks.columns.ownerDepartment', 'Görevin Talep Yeri')}</span>

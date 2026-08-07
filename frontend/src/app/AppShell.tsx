@@ -384,12 +384,16 @@ export function AppShell() {
 
   const myTasksViewLabels: Record<string, string> = {
     pending: t('nav.myTasksPending', 'Bekleyen Görevlerim'),
+    open: t('nav.myTasksPending', 'Bekleyen Görevlerim'),
+    overdue: t('tasks.myViews.overdue', 'Son Tarihi Geçmiş Görevlerim'),
     completed: t('nav.myTasksCompleted', 'Tamamlanmış Görevlerim'),
     rejected: t('nav.myTasksRejected', 'İptal Görevlerim'),
     all: t('nav.myTasksAll', 'Tüm Görevlerim'),
   }
   const myTasksViewIcons: Record<string, typeof LayoutDashboard> = {
     pending: Clock3,
+    open: Clock3,
+    overdue: Clock3,
     completed: ClipboardCheck,
     rejected: XCircle,
     all: Inbox,

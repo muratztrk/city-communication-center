@@ -1358,23 +1358,35 @@
       width: 4.5rem;
     }
 
+    /* Birimdeki: Sıra + Talep No daralt → Görev Tipi genişlet (#6a75c5d5). */
+    .app-content-shell .department-tasks-table .my-tasks-row-number-col {
+      width: 3.25rem;
+      min-width: 3rem;
+    }
+
     .app-content-shell .my-tasks-table .my-tasks-parent-request-col,
     .app-content-shell .my-tasks-all-table .my-tasks-parent-request-col,
     .app-content-shell .staff-tasks-table .my-tasks-parent-request-col {
       width: 12.5rem;
     }
 
-    /* Birimdeki: Bağlı Olduğu Talep No daralt (#6a75a6ae); tip sütunu kalkınca başlık genişler (#6a75a7b9). */
+    /* Birimdeki: Bağlı Olduğu Talep No dar (#6a75a6ae / #6a75c5d5). */
     .app-content-shell .department-tasks-table .my-tasks-parent-request-col {
-      width: 10rem;
-      min-width: 9rem;
-      max-width: 11rem;
+      width: 8.5rem;
+      min-width: 7.5rem;
+      max-width: 9.5rem;
     }
 
     .app-content-shell .department-tasks-table .my-tasks-title-col {
       width: 14rem;
       min-width: 12rem;
       max-width: 18rem;
+    }
+
+    .app-content-shell .department-tasks-table .my-tasks-type-col {
+      width: 10.5rem;
+      min-width: 9.5rem;
+      max-width: 12rem;
     }
 
     .app-content-shell .grid-col-request-no {
@@ -1419,6 +1431,13 @@
     .app-content-shell .department-tasks-table .my-tasks-type-col,
     .app-content-shell .staff-tasks-table .my-tasks-type-col {
       width: 7.5rem;
+    }
+
+    /* Birimdeki: Sıra/Talep No daraltmadan kalanı tip sütununa (#6a75c5d5). */
+    .app-content-shell .department-tasks-table .my-tasks-type-col {
+      width: 10.5rem;
+      min-width: 9.5rem;
+      max-width: 12rem;
     }
 
     .app-content-shell .my-tasks-table .my-tasks-due-col,

@@ -20,6 +20,8 @@ interface FilterableThProps {
 
   children: React.ReactNode
   className?: string
+  /** true: Utc kolonlarında harf girişine izin ver (ör. tarih altındaki tip rozeti — #6a75c435). */
+  allowLetters?: boolean
 }
 
 export function FilterableTh({
@@ -32,6 +34,7 @@ export function FilterableTh({
   onSort,
   children,
   className,
+  allowLetters = false,
 }: FilterableThProps) {
   const [open, setOpen] = useState(false)
   const [inputValue, setInputValue] = useState(filterValue)
@@ -88,7 +91,7 @@ export function FilterableTh({
   }
 
   const normalizeFilterInput = (raw: string) => {
-    if (filterKey.endsWith('Utc')) return raw.replace(/[^0-9.: ]/g, '')
+    if (filterKey.endsWith('Utc') && !allowLetters) return raw.replace(/[^0-9.: ]/g, '')
     if (filterKey === 'citizenPhone') return raw.replace(/\D/g, '')
     if (filterKey === 'channel') return raw.replace(/[0-9]/g, '')
     return raw

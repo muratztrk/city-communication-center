@@ -1,3 +1,10 @@
+## Round 734 — grid genişlik + tip/filtre + bekleyen sayı (5 kart)
+- `#6a75c5d5`: Birimdeki Sıra/Talep No dar → Tip geniş.
+- `#6a75c4e8`: Personelimin tip tarih altı + tarih filtre harf.
+- `#6a75c435`: Görevlerim tarih filtre harf.
+- `#6a75c274`: Bekleyen Görevlerim = pending+overdue; view=open.
+- `#6a75b7a4` reopen: Açık Adres hint biraz büyüt.
+
 ## Round 733 — staff kutucuk sıra + operatör banner (2 kart)
 - `#6a75bf14`: staff Dönem altında Bekleyen Görevlerim 1., Taleplerim 2.
 - `#6a75bed6`: Operatör birim anasayfa banner/breadcrumb = Anasayfa.

@@ -1384,8 +1384,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Görevler → Birimden Giden Bekleyen → Birimden Giden Yapılmakta → Bekleyen Taleplerim →
   Bekleyen Görevlerim → Vatandaş Talepleri.
 - **Personel/Operatör anasayfa kutucuk sırası (#6a75bf14):** Bekleyen Görevlerim → Bekleyen Taleplerim.
+- **Bekleyen Görevlerim kart sayısı (#6a75c274):** `myPendingTaskCount` = bekleyen + son tarihi geçmiş
+  (terminal hariç); tıklanınca `/my-tasks?view=open` (ikisini birden listeler, Durum sütunu açık).
 - **Operatör birim anasayfa banner (#6a75bed6):** `pageTitle` / breadcrumb `birimler` = `Anasayfa`
   (Anasayfa - Birimler değil).
+- **Görev Tarihi filtre harf (#6a75c435 / #6a75c4e8):** Görevlerim + Personelimin `createdAtUtc`
+  FilterableTh `allowLetters`; filtre değeri tarih + tip rozeti metnini kapsar.
+- **Personelimin Görev Tarihi altı tip (#6a75c4e8):** `showTaskTypeUnderDate` staff’ta da.
+- **Birimdeki kolon genişlik (#6a75c5d5):** Sıra + Talep No dar; Görev Tipi geniş (~10.5rem).
+- **WA Açık Adres hint (#6a75b7a4 reopen):** `(max 100 karakter)` `text-[10px]` normal-case.
 - **Kurum Konumu ilçe kalıcılığı (#6a75b1ae):** Kaydet → `TenantSettings.Theme = ccc-district:<id>`
   + localStorage; sonraki girişlerde Settings dropdown seçili gelir. Kurum Bilgisi Kaydet Theme’i silmez.
 - **WA Mahalle:** başlık tıklanabilir değil (div, label değil — #6a75b6c1); dropdown seçenekleri

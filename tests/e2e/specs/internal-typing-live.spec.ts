@@ -27,13 +27,6 @@ test('kurum içi yazıyor göstergesi — canlı iki oturum', async ({ browser }
   const pageA = await contextA.newPage()
   const pageB = await contextB.newPage()
 
-  const typingPosts: string[] = []
-  pageA.on('request', req => {
-    if (req.url().includes('/internal-messages/typing') && req.method() === 'POST') {
-      typingPosts.push(req.postData() ?? '')
-    }
-  })
-
   await loginProd(pageA, USER_A, PASS_A)
   await loginProd(pageB, USER_B, PASS_B)
 
@@ -60,32 +53,28 @@ test('kurum içi yazıyor göstergesi — canlı iki oturum', async ({ browser }
   await openChatWith(pageA, 'lumespec', 'lumespec')
   await openChatWith(pageB, 'Operatör', 'Vatandaş Operatörü')
 
-  const userA = await pageA.evaluate(() => JSON.parse(localStorage.getItem('ccc_user') || '{}'))
-  const userB = await pageB.evaluate(() => JSON.parse(localStorage.getItem('ccc_user') || '{}'))
-  console.log('userA:', userA.userId, userA.displayName)
-  console.log('userB:', userB.userId, userB.displayName)
-
-  // SignalR bağlantısı için kısa bekleme
+  // SignalR + poll yedek için kısa bekleme
   await pageA.waitForTimeout(2500)
   await pageB.waitForTimeout(2500)
 
+  const indicator = pageB.locator('.internal-messages-typing-indicator')
   const inputA = pageA.getByPlaceholder(/mesaj yazın/i)
+
+  const typingPost = pageA.waitForResponse(
+    res => res.url().includes('/internal-messages/typing') && res.request().method() === 'POST' && res.status() === 204,
+    { timeout: 12_000 },
+  )
+
   await inputA.click()
   await inputA.fill('canlı yazıyor testi — henüz gönderilmedi')
 
-  // debounce 200ms + heartbeat
-  await pageB.waitForTimeout(1500)
+  const typingResponse = await typingPost
+  const postBody = typingResponse.request().postData() ?? ''
+  expect(postBody).toContain('isTyping')
+  expect(postBody).toMatch(/recipientUserId/)
 
-  const indicator = pageB.locator('.internal-messages-typing-indicator')
-  const indicatorVisible = await indicator.isVisible()
-  const indicatorText = indicatorVisible ? await indicator.innerText() : ''
-
-  console.log('typing POST count (A):', typingPosts.length)
-  console.log('typing POST bodies:', typingPosts.slice(0, 3))
-  console.log('indicator visible (B):', indicatorVisible)
-  console.log('indicator text (B):', indicatorText)
-
-  await expect(indicator, 'Karşı tarafta Yazıyor göstergesi görünmeli').toBeVisible({ timeout: 8_000 })
+  await expect(indicator, 'Karşı tarafta Yazıyor göstergesi görünmeli').toBeVisible({ timeout: 6_000 })
+  await expect(indicator).toContainText(/yazıyor/i)
 
   await contextA.close()
   await contextB.close()

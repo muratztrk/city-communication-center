@@ -373,12 +373,10 @@ export function InternalMessagesFab() {
     if (!chat) return
     if (!force && typingActiveRef.current === isTyping) return
     typingActiveRef.current = isTyping
-    void ensureSignalRConnected()
-      .catch(() => undefined)
-      .then(() => api.notifyInternalMessageTyping(chat.otherUserId, isTyping))
-      .catch(() => {
-        // sessizce geç — gösterge kritik değil
-      })
+    void ensureSignalRConnected().catch(() => undefined)
+    void api.notifyInternalMessageTyping(chat.otherUserId, isTyping).catch(() => {
+      // sessizce geç — gösterge kritik değil
+    })
   }, [])
 
   const clearTypingHeartbeat = useCallback(() => {

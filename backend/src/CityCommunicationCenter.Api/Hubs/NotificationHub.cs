@@ -15,8 +15,19 @@ public sealed class NotificationHub : Hub
 
     public override async Task OnConnectedAsync()
     {
+        await JoinCurrentUserGroupsAsync();
+        await base.OnConnectedAsync();
+    }
+
+    public Task RegisterPresence()
+    {
+        return JoinCurrentUserGroupsAsync();
+    }
+
+    private async Task JoinCurrentUserGroupsAsync()
+    {
         var userId = Context.User?.FindFirst("sub")?.Value
-                     ?? Context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                     ?? Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         var tenantId = Context.User?.FindFirst("tenant_id")?.Value
                        ?? Context.User?.FindFirst("tenantId")?.Value;
 
@@ -32,14 +43,12 @@ public sealed class NotificationHub : Hub
 
         _logger.LogDebug("SignalR client connected: {ConnectionId}, User: {UserId}, Tenant: {TenantId}",
             Context.ConnectionId, userId, tenantId);
-
-        await base.OnConnectedAsync();
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
         var userId = Context.User?.FindFirst("sub")?.Value
-                     ?? Context.User?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                     ?? Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         _logger.LogDebug("SignalR client disconnected: {ConnectionId}, User: {UserId}",
             Context.ConnectionId, userId);
 

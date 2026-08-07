@@ -80,16 +80,19 @@ public sealed class SignalRNotificationPushService : INotificationPushService
             tenantId,
             payload.SenderUserId);
 
+        var typingPayload = new
+        {
+            senderUserId = payload.SenderUserId,
+            recipientUserId = payload.RecipientUserId,
+            isTyping = payload.IsTyping,
+        };
+
+        var recipientKey = recipientUserId.ToString("D").ToLowerInvariant();
         await _hubContext.Clients
             .Group(SignalRGroupNames.User(recipientUserId))
-            .SendAsync(
-                "ReceiveInternalMessageTyping",
-                new
-                {
-                    senderUserId = payload.SenderUserId,
-                    recipientUserId = payload.RecipientUserId,
-                    isTyping = payload.IsTyping,
-                },
-                cancellationToken);
+            .SendAsync("ReceiveInternalMessageTyping", typingPayload, cancellationToken);
+        await _hubContext.Clients
+            .User(recipientKey)
+            .SendAsync("ReceiveInternalMessageTyping", typingPayload, cancellationToken);
     }
 }

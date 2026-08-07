@@ -6,6 +6,7 @@ using CityCommunicationCenter.Application;
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Api.BelediyeSoap;
 using CityCommunicationCenter.Api.Hubs;
+using Microsoft.AspNetCore.SignalR;
 using CityCommunicationCenter.Api.Security;
 using CityCommunicationCenter.Api.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -292,6 +293,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<IUserIdProvider, CccUserIdProvider>();
 builder.Services.AddSingleton<SignalRAccessTokenIssuer>();
 builder.Services.AddScoped<INotificationPushService, SignalRNotificationPushService>();
 

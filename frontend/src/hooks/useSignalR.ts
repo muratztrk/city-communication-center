@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import * as signalR from '@microsoft/signalr'
 import { useAuth } from '../context/AuthContext'
 import { API_ORIGIN } from '../api/config'
-import { getValidAccessToken } from '../api/auth'
+import { getSignalRAccessToken, getValidAccessToken } from '../api/auth'
 
 export interface NotificationPayload {
   notificationId: string
@@ -132,6 +132,12 @@ async function buildHubConnectionOptions(): Promise<signalR.IHttpConnectionOptio
   const localToken = await getValidAccessToken()
   if (localToken) {
     options.accessTokenFactory = async () => localToken
+    return options
+  }
+
+  const hubToken = await getSignalRAccessToken()
+  if (hubToken) {
+    options.accessTokenFactory = async () => hubToken
   }
 
   return options
@@ -214,10 +220,15 @@ function attachConnectionHandlers(nextConnection: signalR.HubConnection) {
     dispatchInternalMessageTyping(mapInternalMessageTypingPayload(payload))
   })
 
-  nextConnection.onreconnected(() => {
+  nextConnection.onreconnected(async () => {
     initialRetryAttempt = 0
     clearInitialRetry()
     setConnectionState('connected')
+    try {
+      await nextConnection.invoke('RegisterPresence')
+    } catch {
+      // Bir sonraki reconnect veya poll ile eşitlenir.
+    }
     dispatchReconnect()
   })
 
@@ -280,6 +291,7 @@ async function ensureConnection(active: boolean) {
     connection = nextConnection
     try {
       await nextConnection.start()
+      await nextConnection.invoke('RegisterPresence')
     } catch (error) {
       if (connection === nextConnection) connection = null
       throw error

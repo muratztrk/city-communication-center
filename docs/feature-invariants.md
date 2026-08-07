@@ -563,8 +563,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   uzantı küçük harf; modal/kompakt konuşmada ad metni `text-xs` (#2209). Bekleyen ek önizlemesi iletilmiş
   ek ile aynı chip bileşenini kullanır (#2267); üstte birim · ad soyad başlığı, normal outbound balon
   genişliği (`max-w-[min(70%,26rem)]` / kompakt `68%/22rem`), dar `16rem` sınırı yok.
-- **Gelen WA ek dosya adı (#2406):** webhook `document.filename` alanı `[Dosya eki: …]` olarak içerikte
-  saklanır; gelen ek adı orijinal büyük/küçük harf korunur (outbound gibi uzantı küçültme uygulanmaz).
+- **Gelen WA ek dosya adı (#2406 / #6a75c6fa):** webhook `document.filename` alanı `[Dosya eki: …]` olarak
+  içerikte saklanır (path/encoding normalize, ad değiştirilmez); gelen ek adı orijinal büyük/küçük harf
+  korunur. Medya indirirken `X-Original-File-Name` + Content-Disposition orijinal adı taşır; UI
+  `whatsapp-{tel}` fallback'ini orijinal ad varken kullanmaz.
+- **Inbound video ortala (#6a75c6e8):** video balonu görsel gibi `w-full max-w-full object-contain`
+  (dik format sağ boşluk kapanır / ortalanır).
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
   footer input'ta tutulur.
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.

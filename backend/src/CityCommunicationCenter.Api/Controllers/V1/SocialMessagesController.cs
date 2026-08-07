@@ -303,13 +303,17 @@ public sealed class SocialMessagesController : ApiControllerBase
         if (target is null || string.IsNullOrWhiteSpace(target.MediaId))
             return NotFound();
 
+        var originalFileName = TryParseOutboundAttachmentFileName(target.Content);
+
         // Yerel kopya varsa Graph'a gitmeden servis et (Pending / süresi dolmuş WA medya — R421).
         var uploadRoot = Path.Combine(_env.ContentRootPath, "uploads");
         var localPath = ConversationLocalMediaStore.ResolveFullPath(uploadRoot, target.MediaId);
         if (localPath is not null)
         {
             var contentType = target.MediaMimeType ?? "application/octet-stream";
-            return PhysicalFile(localPath, contentType);
+            var localName = originalFileName ?? Path.GetFileName(localPath);
+            SetOriginalFileNameHeader(Response, localName);
+            return PhysicalFile(localPath, contentType, fileDownloadName: localName);
         }
 
         var settings = _settingsProvider.GetSettings(tenantId)?.WhatsApp;
@@ -331,13 +335,41 @@ public sealed class SocialMessagesController : ApiControllerBase
         var downloadUrl = doc.RootElement.TryGetProperty("url", out var urlProp) ? urlProp.GetString() : null;
         if (string.IsNullOrWhiteSpace(downloadUrl)) return NotFound();
 
-        // Step 2: Download and stream
+        // Step 2: Download and stream — Content-Disposition'daki orijinal adı koru (#6a75c6fa).
         var fileResp = await httpClient.GetAsync(downloadUrl, HttpCompletionOption.ResponseHeadersRead, cancellationToken);
         if (!fileResp.IsSuccessStatusCode) return NotFound();
 
         var graphContentType = target.MediaMimeType ?? fileResp.Content.Headers.ContentType?.MediaType ?? "application/octet-stream";
+        var graphFileName = fileResp.Content.Headers.ContentDisposition?.FileNameStar
+            ?? fileResp.Content.Headers.ContentDisposition?.FileName;
+        graphFileName = string.IsNullOrWhiteSpace(graphFileName)
+            ? null
+            : Path.GetFileName(graphFileName.Trim().Trim('"'));
+        var downloadName = originalFileName ?? graphFileName;
+        SetOriginalFileNameHeader(Response, downloadName);
+
         var stream = await fileResp.Content.ReadAsStreamAsync(cancellationToken);
-        return File(stream, graphContentType);
+        return File(stream, graphContentType, fileDownloadName: downloadName);
+    }
+
+    /// <summary>Konuşma içeriğindeki <c>[Dosya eki: …]</c> işaretinden orijinal adı okur.</summary>
+    private static string? TryParseOutboundAttachmentFileName(string? content)
+    {
+        if (string.IsNullOrWhiteSpace(content)) return null;
+        var match = System.Text.RegularExpressions.Regex.Match(
+            content.Trim(),
+            @"\[Dosya eki:\s*(.+?)\]",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.CultureInvariant);
+        if (!match.Success) return null;
+        var name = Path.GetFileName(match.Groups[1].Value.Trim());
+        return string.IsNullOrWhiteSpace(name) ? null : name;
+    }
+
+    private static void SetOriginalFileNameHeader(HttpResponse response, string? fileName)
+    {
+        if (string.IsNullOrWhiteSpace(fileName)) return;
+        // Non-ASCII dosya adları için URL-encode; FE decode eder (#6a75c6fa).
+        response.Headers["X-Original-File-Name"] = Uri.EscapeDataString(fileName.Trim());
     }
 }
 

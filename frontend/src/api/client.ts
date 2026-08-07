@@ -1,5 +1,29 @@
 import i18n from '../i18n'
-import { getCachedSocialMediaBlob, setCachedSocialMediaBlob } from '../utils/socialMediaBlobCache'
+import { getCachedSocialMediaBlob, getCachedSocialMediaFileName, setCachedSocialMediaBlob } from '../utils/socialMediaBlobCache'
+
+function parseContentDispositionFileName(header: string | null): string | null {
+  if (!header?.trim()) return null
+  const utfMatch = /filename\*\s*=\s*UTF-8''([^;]+)/i.exec(header)
+  if (utfMatch?.[1]) {
+    try {
+      return decodeURIComponent(utfMatch[1].trim().replace(/^"+|"+$/g, ''))
+    } catch {
+      return utfMatch[1].trim().replace(/^"+|"+$/g, '')
+    }
+  }
+  const plainMatch = /filename\s*=\s*([^;]+)/i.exec(header)
+  if (!plainMatch?.[1]) return null
+  return plainMatch[1].trim().replace(/^"+|"+$/g, '') || null
+}
+
+function decodeOriginalFileNameHeader(header: string | null): string | null {
+  if (!header?.trim()) return null
+  try {
+    return decodeURIComponent(header.trim())
+  } catch {
+    return header.trim()
+  }
+}
 import type {
   AuditLog,
   Attachment,
@@ -105,9 +129,11 @@ export const api = {
     return response.blob()
   },
 
-  async downloadSocialMedia(socialMessageId: string, entryId: string): Promise<Blob> {
+  async downloadSocialMedia(socialMessageId: string, entryId: string): Promise<{ blob: Blob; fileName: string | null }> {
     const cached = getCachedSocialMediaBlob(socialMessageId, entryId)
-    if (cached) return cached
+    if (cached) {
+      return { blob: cached, fileName: getCachedSocialMediaFileName(socialMessageId, entryId) }
+    }
 
     const response = await fetchWithCredentials(
       `${API_BASE}/social/messages/${socialMessageId}/conversation/media/${entryId}`,
@@ -115,8 +141,10 @@ export const api = {
     )
     await ensureOk(response, i18n.t('whatsapp.mediaLoadFailed', 'Medya indirilemedi'))
     const blob = await response.blob()
-    setCachedSocialMediaBlob(socialMessageId, entryId, blob)
-    return blob
+    const headerName = decodeOriginalFileNameHeader(response.headers.get('X-Original-File-Name'))
+      ?? parseContentDispositionFileName(response.headers.get('Content-Disposition'))
+    setCachedSocialMediaBlob(socialMessageId, entryId, blob, headerName)
+    return { blob, fileName: headerName?.trim() || null }
   },
 
   async getMyDepartments(): Promise<DepartmentSummary[]> {

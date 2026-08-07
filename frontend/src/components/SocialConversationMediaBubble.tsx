@@ -49,7 +49,8 @@ function SocialConversationMediaBubbleInner({
 }: SocialConversationMediaBubbleProps) {
   const { t } = useTranslation()
   const mime = mediaMimeType ?? 'application/octet-stream'
-  const rawFilename = displayFilename?.trim() || socialMediaFilename(entryId, mime, citizenPhone)
+  const [headerFileName, setHeaderFileName] = useState<string | null>(null)
+  const rawFilename = displayFilename?.trim() || headerFileName || socialMediaFilename(entryId, mime, citizenPhone)
   const filename = direction === 'Inbound' ? rawFilename : lowercaseFileExtension(rawFilename)
   const [objectUrl, setObjectUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -61,11 +62,15 @@ function SocialConversationMediaBubbleInner({
     let createdUrl: string | null = null
 
     void api.downloadSocialMedia(socialMessageId, entryId)
-      .then(blob => {
+      .then(({ blob, fileName: discoveredName }) => {
         if (cancelled) return
         createdUrl = URL.createObjectURL(blob)
         setObjectUrl(createdUrl)
         setError(null)
+        // Gelen ekte içerik marker yoksa Graph/Content-Disposition orijinal adını kullan (#6a75c6fa).
+        if (direction === 'Inbound' && !displayFilename?.trim() && discoveredName?.trim()) {
+          setHeaderFileName(discoveredName.trim())
+        }
       })
       .catch(loadError => {
         if (!cancelled) {
@@ -81,9 +86,12 @@ function SocialConversationMediaBubbleInner({
       cancelled = true
       if (createdUrl) URL.revokeObjectURL(createdUrl)
     }
-  }, [entryId, socialMessageId, t])
+  }, [direction, displayFilename, entryId, socialMessageId, t])
 
-  const downloadBlob = async () => api.downloadSocialMedia(socialMessageId, entryId)
+  const downloadBlob = async () => {
+    const { blob } = await api.downloadSocialMedia(socialMessageId, entryId)
+    return blob
+  }
 
   const handleDownload = async () => {
     const blob = await downloadBlob()
@@ -178,9 +186,14 @@ function SocialConversationMediaBubbleInner({
         <button
           type="button"
           onClick={() => setPreviewOpen(true)}
-          className="block overflow-hidden rounded-xl border border-white/20"
+          className="block w-full overflow-hidden rounded-xl border border-white/20"
         >
-          <video src={objectUrl} className="pointer-events-none max-h-48 max-w-[16rem]" />
+          <video
+            src={objectUrl}
+            className={`pointer-events-none mx-auto w-full max-w-full object-contain ${
+              requestAttachmentLayout ? 'max-h-56' : 'max-h-48'
+            }`}
+          />
         </button>
       ) : mime.startsWith('audio/') ? (
         <div className="flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2">

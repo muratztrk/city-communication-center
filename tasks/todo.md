@@ -1,3 +1,7 @@
+## Round 735 — WA video ortala + orijinal ek adı (2 kart)
+- `#6a75c6e8`: Inbound video balonu görsel gibi w-full object-contain (ortala).
+- `#6a75c6fa`: Gelen WA ek orijinal adı korunur (webhook normalize + X-Original-File-Name).
+
 ## Round 734 — grid genişlik + tip/filtre + bekleyen sayı (5 kart)
 - `#6a75c5d5`: Birimdeki Sıra/Talep No dar → Tip geniş.
 - `#6a75c4e8`: Personelimin tip tarih altı + tarih filtre harf.

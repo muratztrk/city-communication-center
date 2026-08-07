@@ -119,14 +119,26 @@ export function socialMediaFilename(entryId: string, mime: string, citizenPhone?
   return `whatsapp-${entryId.slice(0, 8)}${extensionFromMimeType(mime)}`
 }
 
-/** `[Dosya eki: orijinal-ad.pdf]` içeriğinden dosya adını çıkarır (giden #2385, gelen #2406). */
+/** `[Dosya eki: orijinal-ad.pdf]` içeriğinden dosya adını çıkarır (giden #2385, gelen #2406/#6a75c6fa). */
 export function parseAttachmentFilenameFromContent(content: string | null | undefined): string | null {
   if (!content?.trim()) return null
   const trimmed = content.trim()
   const startMatch = /^\[Dosya eki:\s*(.+)\]$/i.exec(trimmed)
   if (startMatch?.[1]) return startMatch[1].trim()
   const embedMatch = /\[Dosya eki:\s*(.+?)\]/i.exec(trimmed)
-  return embedMatch?.[1]?.trim() ?? null
+  if (embedMatch?.[1]) return embedMatch[1].trim()
+  // Marker yoksa ama içerik tek satır ham dosya adıysa orijinal adı koru (yeniden adlandırma).
+  if (
+    !trimmed.includes('\n')
+    && !trimmed.startsWith('[')
+    && !trimmed.startsWith('<')
+    && /^[^\\/:*?"<>|\s].+\.[A-Za-z0-9]{2,8}$/.test(trimmed)
+    && trimmed.length <= 240
+  ) {
+    const slash = Math.max(trimmed.lastIndexOf('/'), trimmed.lastIndexOf('\\'))
+    return (slash >= 0 ? trimmed.slice(slash + 1) : trimmed).trim() || null
+  }
+  return null
 }
 
 /** Görünen metinden dosya adı işaretleyicisini çıkarır (açıklama + `[Dosya eki: …]` birlikteyken). */

@@ -657,7 +657,8 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             var mediaId = GetString(mediaObj, "id");
             var mimeType = GetString(mediaObj, "mime_type");
             var caption = GetString(mediaObj, "caption");
-            var filename = GetString(mediaObj, "filename");
+            // Orijinal dosya adını koru — yeniden adlandırma / whatsapp-{tel} üretme (#2406, #6a75c6fa).
+            var filename = NormalizeInboundMediaFileName(GetString(mediaObj, "filename"));
             string displayContent;
             if (!string.IsNullOrWhiteSpace(filename))
             {
@@ -677,6 +678,24 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
     private static string? GetString(JsonElement el, string prop) =>
         el.TryGetProperty(prop, out var v) && v.ValueKind == JsonValueKind.String ? v.GetString() : null;
+
+    /// <summary>Webhook <c>filename</c> alanını path/encoding bozmadan orijinal ad olarak normalize eder.</summary>
+    internal static string? NormalizeInboundMediaFileName(string? rawFilename)
+    {
+        if (string.IsNullOrWhiteSpace(rawFilename)) return null;
+        var trimmed = rawFilename.Trim().Trim('"');
+        try
+        {
+            trimmed = Uri.UnescapeDataString(trimmed.Replace('+', ' '));
+        }
+        catch (UriFormatException)
+        {
+            // Ham adı koru.
+        }
+
+        var name = Path.GetFileName(trimmed.Replace('\\', '/'));
+        return string.IsNullOrWhiteSpace(name) ? null : name.Trim();
+    }
 
     private static double? GetDouble(JsonElement el, string prop)
     {

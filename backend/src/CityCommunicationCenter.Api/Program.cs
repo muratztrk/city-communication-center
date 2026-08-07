@@ -72,7 +72,7 @@ builder.Services.AddCors(options =>
         policy.AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials()
-              .WithExposedHeaders("X-Auth-Failure");
+              .WithExposedHeaders("X-Auth-Failure", "X-Original-File-Name", "Content-Disposition");
     });
 });
 

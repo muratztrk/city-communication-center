@@ -6,6 +6,8 @@ const MAX_TOTAL_BYTES = 48 * 1024 * 1024
 type CacheEntry = {
   blob: Blob
   size: number
+  /** Orijinal dosya adı — Content-Disposition / X-Original-File-Name (#6a75c6fa). */
+  fileName?: string | null
 }
 
 const cache = new Map<string, CacheEntry>()
@@ -41,7 +43,20 @@ export function getCachedSocialMediaBlob(socialMessageId: string, entryId: strin
   return entry.blob
 }
 
-export function setCachedSocialMediaBlob(socialMessageId: string, entryId: string, blob: Blob): void {
+export function getCachedSocialMediaFileName(socialMessageId: string, entryId: string): string | null {
+  const key = cacheKey(socialMessageId, entryId)
+  const entry = cache.get(key)
+  if (!entry?.fileName?.trim()) return null
+  touch(key, entry)
+  return entry.fileName.trim()
+}
+
+export function setCachedSocialMediaBlob(
+  socialMessageId: string,
+  entryId: string,
+  blob: Blob,
+  fileName?: string | null,
+): void {
   const key = cacheKey(socialMessageId, entryId)
   const size = blob.size
   const existing = cache.get(key)
@@ -50,7 +65,11 @@ export function setCachedSocialMediaBlob(socialMessageId: string, entryId: strin
     cache.delete(key)
   }
   evictIfNeeded(size)
-  cache.set(key, { blob, size })
+  cache.set(key, {
+    blob,
+    size,
+    fileName: fileName?.trim() || existing?.fileName || null,
+  })
   totalBytes += size
 }
 

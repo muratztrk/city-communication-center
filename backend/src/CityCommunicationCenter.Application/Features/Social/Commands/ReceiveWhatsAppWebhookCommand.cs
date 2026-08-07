@@ -708,7 +708,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         return string.IsNullOrWhiteSpace(name) ? null : name.Trim();
     }
 
-    /// <summary>WhatsApp <c>contacts</c> payload → "Ad Soyad - telefon" satırları (#6a75a9c2/#6a75cccc).</summary>
+    /// <summary>WhatsApp <c>contacts</c> payload → "Ad Soyad\ntelefon" (ayraç yok) (#6a75a9c2/#6a75cccc).</summary>
     internal static string FormatWhatsAppContacts(JsonElement contactsEl)
     {
         var lines = new List<string>();
@@ -740,15 +740,15 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
             if (string.IsNullOrWhiteSpace(name) && phones.Count == 0) continue;
             if (string.IsNullOrWhiteSpace(name))
-                lines.Add(string.Join(", ", phones));
+                lines.Add(string.Join('\n', phones));
             else if (phones.Count == 0)
                 lines.Add(name.Trim());
             else
-                // Bullet (·) yok — isim ile numara arasında tire (#6a75cccc).
-                lines.Add($"{name.Trim()} - {string.Join(", ", phones)}");
+                // İsim ile numara arasında bullet/tire/ayraç yok — ayrı satırlar (#6a75cccc reopen).
+                lines.Add($"{name.Trim()}\n{string.Join('\n', phones)}");
         }
 
-        return string.Join('\n', lines);
+        return string.Join("\n\n", lines);
     }
 
     private static double? GetDouble(JsonElement el, string prop)

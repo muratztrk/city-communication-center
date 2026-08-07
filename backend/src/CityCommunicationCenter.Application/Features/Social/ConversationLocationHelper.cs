@@ -38,7 +38,7 @@ internal static class ConversationLocationHelper
             return true;
         }
 
-        // "Ad - +90 …" / "Ad · +90 …" rehber satırı (konum değil).
+        // "Ad\n+90 …" / "Ad - +90 …" / "Ad · +90 …" rehber satırı (konum değil).
         if (PhoneHintRegex.IsMatch(trimmed)
             && !LooksLikeLocationContent(trimmed)
             && !ContentCoordsRegex.IsMatch(trimmed))

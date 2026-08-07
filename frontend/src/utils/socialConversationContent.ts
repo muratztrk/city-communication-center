@@ -66,7 +66,7 @@ export function isContactConversationContent(content: string | null | undefined)
   ) {
     return true
   }
-  // Eski kayıt: "Ad · +90…" / "Ad - +90…" (konum marker'ı yok).
+  // Eski kayıt: "Ad · +90…" / "Ad - +90…" / "Ad\n+90…" (konum marker'ı yok).
   if (
     CONTACT_PHONE_HINT_RE.test(trimmed)
     && !lower.includes('[konum')
@@ -78,7 +78,7 @@ export function isContactConversationContent(content: string | null | undefined)
   return false
 }
 
-/** Kişi kartı görünen metin — `[kişi kartı]` marker ve eski bullet temizlenir (#6a75cccc). */
+/** Kişi kartı görünen metin — marker + bullet/tire ayraçları temizlenir; isim/numara ayrı satır (#6a75cccc). */
 export function formatContactDisplayContent(content: string | null | undefined): string {
   if (!content?.trim()) return ''
   let text = content.trim()
@@ -86,8 +86,12 @@ export function formatContactDisplayContent(content: string | null | undefined):
     .replace(/\[kisi karti\]/gi, '')
     .replace(/\[contacts\]/gi, '')
     .trim()
-  // Eski "Ad · telefon" → "Ad - telefon"
-  text = text.replace(/\s*·\s*/g, ' - ')
+  // Eski "Ad · telefon" / "Ad - telefon" → satır kır (ayraç karakteri yok).
+  text = text
+    .replace(/\s*[·•]\s*/g, '\n')
+    .replace(/\s+-\s+(?=\+?\d)/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
   return text || 'Kişi kartı'
 }
 

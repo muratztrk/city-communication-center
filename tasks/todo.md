@@ -1,3 +1,6 @@
+## Round 739 — WA kişi kartı ayraç yok (1 kart reopen)
+- `#6a75cccc` reopen: isim/numara arası bullet ve `-` yok; ayrı satır (FE eski kayıtları da kırar).
+
 ## Round 738 — WA Talep Başlığı textarea wrap (1 kart)
 - `#6a75d11d`: CitizenRequestModal Talep Başlığı → saran textarea + dikey scroll.
 

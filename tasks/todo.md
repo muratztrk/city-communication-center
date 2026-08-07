@@ -1,3 +1,6 @@
+## Round 730 — pending Beklemede · saat (2 kart)
+- `#6a759a3e` / `#6a75994d` reopen: kurum içi + WA Dosya ekle balonunda `Beklemede · HH:mm`.
+
 ## Round 729 — Detaylar NotebookPen + Beklemede + yeşil ikon + User (6 kart)
 - `#6a758f80`: Detaylar = Açıklama `NotebookPen`.
 - `#6a759a3e` / `#6a75994d`: kurum içi + WA Dosya ekle pending balonunda Beklemede.

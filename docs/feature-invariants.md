@@ -1362,9 +1362,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   butonlar `inline-flex items-center gap-1.5` (#6a758f80 / #6a758fb1).
 - **Grid Öncelik alt satır boşluğu:** `.table-number-cell__priority` / `.wallboard-priority-text`
   `margin-top: 0.2rem` (#6a75913e reopen).
-- **WA / kurum içi pending ek balonu:** Dosya ekle önizlemesinde balon içinde `Beklemede`
-  durumu gösterilir (#6a75994d / #6a759a3e). Kurum içi iletilmiş satırda Okundu/İletildi satırı
-  `mt-1.5` (#6a759a81). Görsel dışı ek/konum ikon rengi çerçevede `text-emerald-700` (#6a75958d).
+- **WA / kurum içi pending ek balonu:** Dosya ekle önizlemesinde balon içinde `Beklemede · HH:mm`
+  (#6a75994d / #6a759a3e reopen — bullet + saat, giden mesaj satırıyla aynı). Kurum içi iletilmiş
+  satırda Okundu/İletildi satırı `mt-1.5` (#6a759a81). Görsel dışı ek/konum ikon rengi çerçevede
+  `text-emerald-700` (#6a75958d).
 - **Header Personel Dahili No bul:** input ikonu `User` (büyüteç değil — #6a759807).
 
 ## 5. Dashboard / Wallboard

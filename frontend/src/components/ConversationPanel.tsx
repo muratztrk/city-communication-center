@@ -14,6 +14,7 @@ import { WhatsAppTemplatePicker } from './WhatsAppTemplatePicker'
 import { ModalCloseButton } from './ui/modal-close-button'
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
+import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import {
   ATTACHMENT_FILE_ACCEPT,
@@ -93,6 +94,10 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const [fileError, setFileError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const pendingFileClock = useMemo(
+    () => (pendingFile ? formatConversationMessageTime(new Date().toISOString(), locale, t) : ''),
+    [pendingFile, locale, t],
+  )
 
   const conversationQuery = useQuery({
     queryKey: queryKeys.socialMessages.conversation(socialMessageId),
@@ -371,6 +376,8 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               ) : null}
               <p className={`mt-1.5 flex items-baseline justify-end gap-1 text-[10px] text-white/65 ${compactBubbles ? 'text-[9px]' : ''}`}>
                 <span className="font-semibold tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
+                <span aria-hidden="true">·</span>
+                <span>{pendingFileClock}</span>
               </p>
             </div>
             <div className={`mt-1 flex items-center gap-1.5 ${compactActions ? '' : ''}`}>

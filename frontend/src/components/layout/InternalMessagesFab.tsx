@@ -226,6 +226,10 @@ export function InternalMessagesFab() {
   const [pendingPreviewOpen, setPendingPreviewOpen] = useState(false)
   const [fileError, setFileError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
+  const pendingFileClock = useMemo(
+    () => (pendingFile ? formatConversationMessageTime(new Date().toISOString(), locale, t) : ''),
+    [pendingFile, locale, t],
+  )
   const [otherUserTyping, setOtherUserTyping] = useState(false)
   const [signalRState, setSignalRState] = useState<SignalRConnectionState>('disconnected')
   const scrollRef = useRef<HTMLDivElement | null>(null)
@@ -836,6 +840,8 @@ export function InternalMessagesFab() {
                       ) : null}
                       <p className="mt-1.5 flex items-baseline justify-end gap-1 text-[9px] text-emerald-100">
                         <span className="font-semibold tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
+                        <span aria-hidden="true">·</span>
+                        <span>{pendingFileClock}</span>
                       </p>
                     </div>
                     <button

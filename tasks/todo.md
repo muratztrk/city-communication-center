@@ -1,3 +1,7 @@
+## Round 743 — İptal/Tamamla popup tipografi (2 kart)
+- `#6a75d625`: Talebi İptal Et → form-card köşe + ortak başlık/textarea.
+- `#6a75d5eb`: Görevi Tamamla başlık/placeholder küçült (ortak 1.125rem / 0.9375rem).
+
 ## Round 742 — X hover + bildirim tarih genişlik (2 kart)
 - `#6a75d47c`: CitizenRequestModal X → ModalCloseButton (İptal Et hover).
 - `#6a75d499`: Bildirim modal Başlangıç/Bitiş genişliği = Ara (8.5rem).

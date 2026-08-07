@@ -732,16 +732,16 @@ export function SocialMessagesPage() {
 
       {cancelModal && createPortal(
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" role="presentation">
-          <section className="relative w-full max-w-md rounded-lg border border-slate-200 bg-white p-6 shadow-2xl" onClick={event => event.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="cancel-social-job-dialog-title">
+          <section className="form-card page-stack relative w-full max-w-md" onClick={event => event.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="cancel-social-job-dialog-title">
             <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <X className="size-4" />
             </button>
-            <h2 id="cancel-social-job-dialog-title" className="mb-3 border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
+            <h2 id="cancel-social-job-dialog-title" className="workflow-note-dialog__title">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
             <p className="mt-2 text-base font-medium leading-6 text-slate-700">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
             <label className="job-field mt-5">
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
-                className="field-textarea"
+                className="field-textarea workflow-note-dialog__textarea"
                 rows={3}
                 maxLength={100}
                 value={cancelModal.reason}

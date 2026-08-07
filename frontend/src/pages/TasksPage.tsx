@@ -3393,7 +3393,7 @@ const pageKicker = isMyTasksView
             >
               <X className="size-4" />
             </button>
-            <h2 className="border-b border-slate-200 pb-2 text-xl font-extrabold text-slate-950">{t('tasks.actions.completeTitle', 'Görevi Tamamla')}</h2>
+            <h2 className="workflow-note-dialog__title">{t('tasks.actions.completeTitle', 'Görevi Tamamla')}</h2>
             <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
               <span className="font-semibold text-emerald-600">{completeModal.displayNumber}</span>
               {' '}
@@ -3402,7 +3402,7 @@ const pageKicker = isMyTasksView
             <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
-                className="field-textarea"
+                className="field-textarea workflow-note-dialog__textarea"
                 rows={3}
                 maxLength={100}
                 value={completionNote}
@@ -3497,7 +3497,7 @@ const pageKicker = isMyTasksView
 
             {returnModal.step === 'cancel' && (
               <>
-                <h2 className="border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-950">{t('tasks.actions.cancelTaskModalTitle', 'Görevi İptal Et')}</h2>
+                <h2 className="workflow-note-dialog__title">{t('tasks.actions.cancelTaskModalTitle', 'Görevi İptal Et')}</h2>
                 <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
                   <span className="font-semibold text-red-600">{returnModal.displayNumber}</span>
                   {' '}
@@ -3506,7 +3506,7 @@ const pageKicker = isMyTasksView
                 <label className="job-field">
                   <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
                   <textarea
-                    className="field-textarea"
+                    className="field-textarea workflow-note-dialog__textarea"
                     rows={3}
                     maxLength={100}
                     value={cancelReason}

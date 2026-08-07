@@ -1896,6 +1896,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görevi Tamamla / İptal Et yardım satırı:** Tamamla popup'ta Görev No yeşil (`text-emerald-600`);
   İptal Et popup'ta açıklama `G-{yıl}-{no}` ile başlar ve Görev No kırmızıdır (`text-red-600`).
   İptal Et popup'ta Tamamla ile aynı **Dosya ekle** (geçici upload, Vazgeç'te silinir — #6a6b6c07).
+  Talebi İptal Et / Görevi Tamamla not popup'ları aynı `form-card` köşe + ortak başlık
+  (`1.125rem` extrabold) ve textarea punto (`0.9375rem` + placeholder) kullanır (#6a75d625 / #6a75d5eb).
 - **Sms Onayı (#2112/#6a6b6824/#6a6b6c8e/#6a6ee0ee/#6a5e1e23):** `/sms-delivery-approval` — Vatandaş Talepleri altında
   WhatsApp'ın hemen altında; nav etiketi `Sms Onayı`; WhatsApp ile aynı `emphasized` hiza/punto +
   Lucide `MessageSquareText` (reopen #6a6b6c8e — renkli svg yok). `pageKey smsDeliveryApproval`

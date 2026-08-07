@@ -115,7 +115,20 @@ function sanitizeRichTextHtml(value: string): string {
   if (!value.trim() || typeof DOMParser === 'undefined') return ''
   const documentRef = new DOMParser().parseFromString(value, 'text/html')
   sanitizeNode(documentRef.body, documentRef)
+  removeEmptyBlockParagraphs(documentRef.body)
   return documentRef.body.innerHTML
+}
+
+/** Kayıtta boş <p><br></p> blokları satır aralığını bozuyor (Windows Edge insertParagraph). */
+function removeEmptyBlockParagraphs(root: HTMLElement) {
+  for (const child of Array.from(root.children)) {
+    if (child instanceof HTMLElement && (child.tagName === 'P' || child.tagName === 'DIV')) {
+      const text = child.innerText.replace(/\u00a0/g, ' ').trim()
+      if (!text) {
+        child.remove()
+      }
+    }
+  }
 }
 
 function normalizeEditorValue(value: string): string {
@@ -192,6 +205,18 @@ export function RichTextEditor({
     editor.innerHTML = normalizedValue
     lastCommittedHtmlRef.current = normalizedValue
   }, [normalizedValue])
+
+  // Windows Edge/Türkçe IME: spellCheck={false} yetmez; attribute'ları açıkça kapat (#spellcheck-win).
+  useEffect(() => {
+    const editor = editorRef.current
+    if (!editor) return
+    editor.setAttribute('spellcheck', 'false')
+    editor.setAttribute('autocorrect', 'off')
+    editor.setAttribute('autocomplete', 'off')
+    editor.setAttribute('data-gramm', 'false')
+    editor.setAttribute('data-gramm_editor', 'false')
+    editor.setAttribute('data-enable-grammarly', 'false')
+  }, [])
 
   useEffect(() => {
     const editor = editorRef.current
@@ -291,6 +316,8 @@ export function RichTextEditor({
         aria-required={required}
         data-placeholder={placeholder}
         spellCheck={false}
+        autoCorrect="off"
+        autoCapitalize="off"
         suppressContentEditableWarning
         onInput={emitChange}
         onBlur={() => {
@@ -310,10 +337,16 @@ export function RichTextEditor({
           if ((event.ctrlKey || event.metaKey) && event.key.toLocaleLowerCase('tr') === 'i') {
             event.preventDefault()
           }
-          // Enter → her zaman aynı blok (p); tarayıcı div/br karışımını engelle (#6a74e697)
+          // Enter → satır içi <br> (eşit line-height); liste içinde tarayıcı varsayılanı (#6a74e697 / Windows).
           if (event.key === 'Enter' && !event.shiftKey && !event.ctrlKey && !event.metaKey && !event.altKey) {
+            const editor = editorRef.current
+            if (!editor) return
+            const inList = Boolean(
+              getSelectionCommands(editor).insertUnorderedList || getSelectionCommands(editor).insertOrderedList,
+            )
+            if (inList) return
             event.preventDefault()
-            document.execCommand('insertParagraph')
+            document.execCommand('insertLineBreak')
             emitChange()
           }
         }}

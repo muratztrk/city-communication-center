@@ -3446,7 +3446,6 @@
   .citizen-request-form .rich-text-editable div {
     margin: 0;
     line-height: inherit;
-    min-height: 1.45em;
   }
 
   .citizen-request-form .rich-text-editable p + p,

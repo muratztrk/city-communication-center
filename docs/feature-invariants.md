@@ -722,8 +722,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ve Dosya/Fotoğraf alanı aynı satırda yan yana durur; dosya seçilmedi metni butonla aynı blokta
   sığar (card #1088). Açıklama RichTextEditor ve Açık Adres textarea üst padding kompakt
   (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6.35rem] h-[1.875rem] text-[11px] whitespace-nowrap`
-  (Round 719). Açıklama `spellCheck={false}`; Enter → `insertParagraph`; satır aralığı yalnız
-  `line-height` (p+p margin 0 — #6a74e697). Açık Adres `min-h-[5.75rem]`. Açıklama editör
+  (Round 719). Açıklama `spellCheck={false}` + Windows autocorrect kapalı; Enter → `insertLineBreak`
+  (liste hariç); satır aralığı yalnız `line-height` (#6a74e697). Açık Adres `min-h-[5.75rem]`. Açıklama editör
   `font-size: 0.8rem`, yükseklik `6.35rem`. Modal gelen görsel balon içinde `w-full` (Round 719).
 - **Görsel lightbox yüksekliği (Round 720):** `SocialConversationMediaPreview` kabuk
   `max-h-[70vh]`, görsel/video `max-h-[56vh]` (WA + kurum içi — #6a75848c / #6a75722a).

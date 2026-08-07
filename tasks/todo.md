@@ -1,3 +1,12 @@
+## Round 750 — RichText Açıklama Windows (spellcheck + satır aralığı)
+- Enter `insertLineBreak`; boş `<p>` temizleme; WA form min-height kaldır; Edge spellcheck zorla kapalı.
+- Commit pending; deploy after push.
+
+## Round 749 — 10 Doing kart (detay/WA/çağrı/iptal)
+- [x] Son tarih edit font, Kaydet/Vazgeç genişlik, WA etiket/birim/ad, çağrı etiket UI
+- [x] teal-700 ek butonu, Yeni–tip gap, Incoming cancel popup hizası
+- Commit `1de9dee2`; deploy OK
+
 ## Round 748b — SMS LiveSend coerce + release fail visible
 - IsEnabled açıkken LiveSend true sayılır; Operatör SMS fail ValidationException.
 

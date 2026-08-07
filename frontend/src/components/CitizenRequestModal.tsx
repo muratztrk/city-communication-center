@@ -648,19 +648,20 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
 
               <div className="grid gap-2.5 md:grid-cols-3">
-                <div className="job-field">
+                <div className="job-field min-w-0">
                   <label className="job-field-label" htmlFor="citizen-req-title">
                     {t('tasks.newRequest.title', 'Talep Başlığı')}{' '}
                     <span className="field-hint">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </label>
-                  <DeferredComposerInput
+                  <DeferredComposerTextarea
                     id="citizen-req-title"
-                    className="field-input"
+                    className="field-textarea field-textarea--compact citizen-request-title-textarea"
                     value={title}
                     maxLength={50}
                     onChange={setTitle}
                     required
+                    rows={2}
                   />
                 </div>
 

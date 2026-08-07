@@ -1,3 +1,6 @@
+## Round 738 — WA Talep Başlığı textarea wrap (1 kart)
+- `#6a75d11d`: CitizenRequestModal Talep Başlığı → saran textarea + dikey scroll.
+
 ## Round 737 — bekleyen alt metin geri + VCF UI + Önizle (5 kart)
 - `#6a75c91c` reopen: Bekleyen Görevlerim alt metin geri → (Birim İçi/Birim Dışı).
 - `#6a75cccc`: Kişi kartı isim-numara arası bullet yok (` - `).

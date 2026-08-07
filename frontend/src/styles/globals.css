@@ -3351,6 +3351,24 @@
     line-height: 1.35;
   }
 
+  /* Talep Başlığı: genişliği aşınca alt satıra sarar + dikey scroll (WA Vatandaş Talebi modal). */
+  .citizen-request-form .citizen-request-title-textarea {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 100%;
+    min-height: 2.5rem;
+    max-height: 4.5rem;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.82rem;
+    line-height: 1.35;
+    resize: none;
+    overflow-x: hidden;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
   .citizen-request-form .field-input,
   .citizen-request-form .field-select {
     min-height: 2rem;

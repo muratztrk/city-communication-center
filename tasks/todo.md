@@ -1,6 +1,6 @@
 ## Round 750 — RichText Açıklama Windows (spellcheck + satır aralığı)
 - Enter `insertLineBreak`; boş `<p>` temizleme; WA form min-height kaldır; Edge spellcheck zorla kapalı.
-- Commit pending; deploy after push.
+- Commit `a6bcbeeb`; deploy OK.
 
 ## Round 749 — 10 Doing kart (detay/WA/çağrı/iptal)
 - [x] Son tarih edit font, Kaydet/Vazgeç genişlik, WA etiket/birim/ad, çağrı etiket UI

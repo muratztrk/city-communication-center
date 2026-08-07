@@ -1214,7 +1214,7 @@ export function IncomingRequestsPage() {
             <h2 id="cancel-incoming-job-dialog-title" className="workflow-note-dialog__title">
               {cancelModal.row.statusDomain === 'task' ? t('tasks.actions.cancelTask', 'Görevi İptal Et') : t('jobs.actions.cancelJob', 'Talebi İptal Et')}
             </h2>
-            <p className="mt-2 text-base font-medium leading-6 text-slate-700">
+            <p className="workflow-note-dialog__help">
               {cancelModal.row.statusDomain === 'task'
                 ? t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')
                 : t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}

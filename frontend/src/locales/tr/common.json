@@ -812,7 +812,7 @@
     "complete": "Tamamla",
     "actions": {
       "cancelTask": "İptal Et",
-      "cancelReason": "İptal Nedeni:",
+      "cancelReason": "İptal Nedeni",
       "routeTask": "Görevi Yönlendir",
       "route": "Görevi Yönlendir",
       "routeShort": "Yönlendir",
@@ -1769,7 +1769,7 @@
       "delete": "Sil",
       "edit": "Düzenle",
       "rejectReason": "Red nedeni:",
-      "cancelReason": "İptal Nedeni:",
+      "cancelReason": "İptal Nedeni",
       "new": "Yeni İş",
       "details": "Detaylar",
       "save": "Kaydet",

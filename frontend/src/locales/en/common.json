@@ -805,7 +805,7 @@
     "complete": "Complete",
     "actions": {
       "cancelTask": "Cancel",
-      "cancelReason": "Cancellation Reason:",
+      "cancelReason": "Cancellation Reason",
       "routeTask": "Route Task",
       "route": "Route",
       "routeShort": "Route",
@@ -1727,7 +1727,7 @@
       "delete": "Delete",
       "edit": "Edit",
       "rejectReason": "Reason:",
-      "cancelReason": "Cancel reason:",
+      "cancelReason": "Cancel reason",
       "new": "New Job",
       "details": "Details",
       "save": "Save",

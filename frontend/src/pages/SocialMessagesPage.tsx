@@ -737,7 +737,7 @@ export function SocialMessagesPage() {
               <X className="size-4" />
             </button>
             <h2 id="cancel-social-job-dialog-title" className="workflow-note-dialog__title">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
-            <p className="mt-2 text-base font-medium leading-6 text-slate-700">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
+            <p className="workflow-note-dialog__help">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
             <label className="job-field mt-5">
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea

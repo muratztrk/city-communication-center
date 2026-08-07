@@ -2105,9 +2105,17 @@
     padding-bottom: 0.5rem;
     padding-right: 2rem;
     font-size: 1.125rem;
-    font-weight: 800;
+    font-weight: 700; /* 800→700 hafif azalt (#6a75d625 reopen) */
     line-height: 1.3;
     color: #020617;
+  }
+
+  .workflow-note-dialog__help {
+    margin-top: 0.5rem;
+    font-size: 0.875rem; /* text-base→sm (#6a75d625 reopen) */
+    font-weight: 500;
+    line-height: 1.5;
+    color: rgb(51 65 85);
   }
 
   .workflow-note-dialog__textarea.field-textarea {

@@ -1,3 +1,6 @@
+## Round 747 — Talebi İptal Et tipografi ince ayar (1 kart reopen)
+- `#6a75d625`: help sm; title 700; cancelReason colon kaldır.
+
 ## Round 746 — WA kişi kartı bold hafif artır (1 kart reopen)
 - `#6a75cccc` reopen: text-xs font-semibold (medium→semibold).
 

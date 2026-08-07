@@ -39,7 +39,10 @@ public sealed record TestFileStorageConnectivityResponse(
 
 public sealed record TestFileStorageNasUserRequest(
     string Username,
-    string Password);
+    string Password,
+    string? NasHost = null,
+    string? NasShareName = null,
+    string? NasProtocol = null);
 
 public sealed record TestFileStorageNasUserResponse(
     bool Success,

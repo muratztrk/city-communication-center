@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using CityCommunicationCenter.Shared.FileStorage;
 using Microsoft.AspNetCore.DataProtection;
 
 namespace CityCommunicationCenter.Infrastructure.Services;
@@ -46,8 +47,8 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
         var current = await GetPayloadAsync(tenantId, cancellationToken);
         var payload = new TenantFileStorageSettingsPayload
         {
-            NasHost = Normalize(settings.NasHost),
-            NasShareName = Normalize(settings.NasShareName),
+            NasHost = NormalizeNasHost(settings.NasHost),
+            NasShareName = NormalizeNasShareName(settings.NasShareName),
             NasProtocol = settings.NasProtocol,
             NasUsername = Normalize(settings.NasUsername),
             NasPassword = ResolvePassword(
@@ -129,6 +130,12 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
 
     private static string? Normalize(string? value) =>
         string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private static string? NormalizeNasHost(string? value) =>
+        NasPathNormalizer.NormalizeHost(Normalize(value));
+
+    private static string? NormalizeNasShareName(string? value) =>
+        NasPathNormalizer.NormalizeShareName(Normalize(value));
 
     private sealed class TenantFileStorageSettingsPayload
     {

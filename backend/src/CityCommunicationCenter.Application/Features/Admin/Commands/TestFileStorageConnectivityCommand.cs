@@ -1,4 +1,5 @@
 using System.Net.Sockets;
+using CityCommunicationCenter.Shared.FileStorage;
 
 namespace CityCommunicationCenter.Application.Features.Admin;
 
@@ -24,10 +25,11 @@ public sealed class TestFileStorageConnectivityCommandHandler
         if (!string.IsNullOrWhiteSpace(request.NasHost))
         {
             anyAttempt = true;
-            var nasOk = await TryConnectAsync(request.NasHost.Trim(), 445, cancellationToken);
+            var nasHost = NasPathNormalizer.NormalizeHost(request.NasHost.Trim()) ?? request.NasHost.Trim();
+            var nasOk = await TryConnectAsync(nasHost, 445, cancellationToken);
             messages.Add(nasOk
-                ? $"NAS ({request.NasHost.Trim()}:445) erişilebilir."
-                : $"NAS ({request.NasHost.Trim()}:445) erişilemedi.");
+                ? $"NAS ({nasHost}:445) erişilebilir."
+                : $"NAS ({nasHost}:445) erişilemedi.");
             anySuccess |= nasOk;
         }
 

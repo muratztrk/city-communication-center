@@ -721,6 +721,9 @@ export const api = {
   async testFileStorageNasUser(tenantId: string, data: {
     username: string
     password: string
+    nasHost?: string | null
+    nasShareName?: string | null
+    nasProtocol?: string | null
   }): Promise<{ success: boolean; message: string }> {
     const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/file-storage-settings/test-nas-user`, {
       method: 'POST',

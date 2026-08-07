@@ -417,7 +417,13 @@ public sealed class AdminController : ApiControllerBase
         CancellationToken cancellationToken)
     {
         var result = await _sender.Send(
-            new TestFileStorageNasUserCommand(tenantId, request.Username, request.Password),
+            new TestFileStorageNasUserCommand(
+                tenantId,
+                request.Username,
+                request.Password,
+                request.NasHost,
+                request.NasShareName,
+                request.NasProtocol),
             cancellationToken);
         return Ok(new TestFileStorageNasUserResponse(result.Success, result.Message));
     }

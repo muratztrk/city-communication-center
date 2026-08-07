@@ -164,6 +164,10 @@
 - Modal Açık Adres/Açıklama satır boşluğu; Dosya ekle `w-[6rem]`; textbox lag `DeferredComposer*`.
 - Kurum içi: panel yükseklik ↑; görsel lightbox; Yazıyor TTL/heartbeat/ref + unmount stop.
 
+## Round 751 — NAS SMB bağlantı testi (#2347 reopen)
+- `#2347`: UNC paylaşım adı normalize (`\\host\share` → share); NetBIOS adıyla Connect + WORKGROUP
+  domain denemeleri; form host/paylaşım/protocol ile kaydetmeden test; bağlantı testi UNC host normalize.
+
 ## Round 715 — NAS SMB kullanıcı testi (#2347)
 - `#2347`: IP host domain parse düzeltildi (`192` domain olmaz); başarısız Login sonrası fresh Connect; SESSION_DELETED mesajı.
 

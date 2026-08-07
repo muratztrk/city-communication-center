@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Sockets;
+using CityCommunicationCenter.Shared.FileStorage;
 using SMBLibrary;
 using SMBLibrary.Client;
+using SMBLibrary.NetBios;
 
 namespace CityCommunicationCenter.Infrastructure.FileStorage;
 
@@ -18,113 +20,128 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
         string password,
         CancellationToken cancellationToken = default)
     {
-        return Task.Run(() => TestCreateFolder(host, shareName, username, password), cancellationToken);
+        var normalizedHost = NasPathNormalizer.NormalizeHost(host) ?? host.Trim();
+        var normalizedShare = NasPathNormalizer.NormalizeShareName(shareName) ?? shareName.Trim();
+        return Task.Run(
+            () => TestCreateFolder(normalizedHost, normalizedShare, username, password),
+            cancellationToken);
     }
 
-    private static NasUserTestResult TestCreateFolder(string host, string shareName, string username, string password)
+    private static NasUserTestResult TestCreateFolder(
+        string host,
+        string shareName,
+        string username,
+        string password)
     {
         var testFolder = $"CCC-Test-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}";
         var (explicitDomain, loginUser) = ParseSmbCredentials(username);
-        var domains = BuildDomainCandidates(host, explicitDomain);
+        var serverAddress = ResolveServerAddress(host);
+        var netBiosName = serverAddress is null ? null : TryGetNetBiosServerName(serverAddress);
+        var connectServerNames = BuildConnectServerNames(host, serverAddress, netBiosName);
 
         NTStatus lastLoginStatus = NTStatus.STATUS_LOGON_FAILURE;
         Exception? lastConnectError = null;
         var anyConnected = false;
 
-        foreach (var domain in domains)
+        foreach (var connectName in connectServerNames)
         {
-            // Başarısız Login sonrası aynı client'ta Logoff/Login STATUS_USER_SESSION_DELETED üretebiliyor
-            // (#2347) — her domain denemesi fresh Connect ile yapılır.
-            var client = new SMB2Client();
-            try
+            var domains = BuildDomainCandidates(host, connectName, explicitDomain, netBiosName);
+
+            foreach (var domain in domains)
             {
-                bool isConnected;
+                // Başarısız Login sonrası aynı client'ta Logoff/Login STATUS_USER_SESSION_DELETED üretebiliyor
+                // (#2347) — her domain denemesi fresh Connect ile yapılır.
+                var client = new SMB2Client();
                 try
                 {
-                    isConnected = client.Connect(host, SMBTransportType.DirectTCPTransport);
-                }
-                catch (Exception ex)
-                {
-                    lastConnectError = ex;
-                    continue;
-                }
-
-                if (!isConnected)
-                {
-                    continue;
-                }
-
-                anyConnected = true;
-
-                var loginStatus = client.Login(domain, loginUser, password);
-                lastLoginStatus = loginStatus;
-                if (loginStatus != NTStatus.STATUS_SUCCESS)
-                {
-                    continue;
-                }
-
-                try
-                {
-                    var fileStore = client.TreeConnect(shareName, out var treeStatus);
-                    if (treeStatus != NTStatus.STATUS_SUCCESS || fileStore is null)
+                    bool isConnected;
+                    try
                     {
-                        return new NasUserTestResult(
-                            false,
-                            $"Paylaşım adına ({shareName}) bağlanılamadı ({treeStatus}) — adı kontrol edin veya kullanıcının yetkisi olmayabilir.");
+                        isConnected = client.Connect(connectName, SMBTransportType.DirectTCPTransport);
+                    }
+                    catch (Exception ex)
+                    {
+                        lastConnectError = ex;
+                        continue;
+                    }
+
+                    if (!isConnected)
+                    {
+                        continue;
+                    }
+
+                    anyConnected = true;
+
+                    var loginStatus = client.Login(domain, loginUser, password);
+                    lastLoginStatus = loginStatus;
+                    if (loginStatus != NTStatus.STATUS_SUCCESS)
+                    {
+                        continue;
                     }
 
                     try
                     {
-                        var createStatus = fileStore.CreateFile(
-                            out var directoryHandle,
-                            out _,
-                            testFolder,
-                            AccessMask.GENERIC_WRITE | AccessMask.DELETE | AccessMask.SYNCHRONIZE,
-                            SMBLibrary.FileAttributes.Directory,
-                            ShareAccess.Read | ShareAccess.Write,
-                            CreateDisposition.FILE_CREATE,
-                            CreateOptions.FILE_DIRECTORY_FILE | CreateOptions.FILE_SYNCHRONOUS_IO_ALERT,
-                            null);
-
-                        if (createStatus != NTStatus.STATUS_SUCCESS || directoryHandle is null)
+                        var fileStore = client.TreeConnect(shareName, out var treeStatus);
+                        if (treeStatus != NTStatus.STATUS_SUCCESS || fileStore is null)
                         {
                             return new NasUserTestResult(
                                 false,
-                                $"Test klasörü oluşturulamadı ({createStatus}). Kullanıcının yazma yetkisi olmayabilir.");
+                                $"Paylaşım adına ({shareName}) bağlanılamadı ({treeStatus}) — adı kontrol edin veya kullanıcının yetkisi olmayabilir.");
                         }
 
-                        var deleteInfo = new FileDispositionInformation { DeletePending = true };
-                        fileStore.SetFileInformation(directoryHandle, deleteInfo);
-                        fileStore.CloseFile(directoryHandle);
+                        try
+                        {
+                            var createStatus = fileStore.CreateFile(
+                                out var directoryHandle,
+                                out _,
+                                testFolder,
+                                AccessMask.GENERIC_WRITE | AccessMask.DELETE | AccessMask.SYNCHRONIZE,
+                                SMBLibrary.FileAttributes.Directory,
+                                ShareAccess.Read | ShareAccess.Write,
+                                CreateDisposition.FILE_CREATE,
+                                CreateOptions.FILE_DIRECTORY_FILE | CreateOptions.FILE_SYNCHRONOUS_IO_ALERT,
+                                null);
 
-                        return new NasUserTestResult(true, "Test Başarılı — test klasörü oluşturuldu ve silindi.");
+                            if (createStatus != NTStatus.STATUS_SUCCESS || directoryHandle is null)
+                            {
+                                return new NasUserTestResult(
+                                    false,
+                                    $"Test klasörü oluşturulamadı ({createStatus}). Kullanıcının yazma yetkisi olmayabilir.");
+                            }
+
+                            var deleteInfo = new FileDispositionInformation { DeletePending = true };
+                            fileStore.SetFileInformation(directoryHandle, deleteInfo);
+                            fileStore.CloseFile(directoryHandle);
+
+                            return new NasUserTestResult(true, "Test Başarılı — test klasörü oluşturuldu ve silindi.");
+                        }
+                        finally
+                        {
+                            fileStore.Disconnect();
+                        }
                     }
                     finally
                     {
-                        fileStore.Disconnect();
+                        try
+                        {
+                            client.Logoff();
+                        }
+                        catch
+                        {
+                            // Login başarılıysa Logoff best-effort.
+                        }
                     }
                 }
                 finally
                 {
                     try
                     {
-                        client.Logoff();
+                        client.Disconnect();
                     }
                     catch
                     {
-                        // Login başarılıysa Logoff best-effort.
+                        // ignore
                     }
-                }
-            }
-            finally
-            {
-                try
-                {
-                    client.Disconnect();
-                }
-                catch
-                {
-                    // ignore
                 }
             }
         }
@@ -139,10 +156,10 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
             return new NasUserTestResult(false, $"NAS sunucusuna bağlanılamadı ({host}). Adresi ve ağ erişimini kontrol edin.");
         }
 
-        return new NasUserTestResult(false, FormatLoginFailureMessage(lastLoginStatus));
+        return new NasUserTestResult(false, FormatLoginFailureMessage(lastLoginStatus, netBiosName));
     }
 
-    private static string FormatLoginFailureMessage(NTStatus status)
+    private static string FormatLoginFailureMessage(NTStatus status, string? netBiosName)
     {
         if (status == NTStatus.STATUS_USER_SESSION_DELETED)
         {
@@ -151,13 +168,60 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
 
         if (status is NTStatus.STATUS_LOGON_FAILURE or NTStatus.STATUS_WRONG_PASSWORD)
         {
-            return $"Kullanıcı adı veya şifre hatalı ({status}).";
+            var domainHint = netBiosName is not null
+                ? $" DOMAIN\\{netBiosName}\\kullanıcı veya {netBiosName}\\kullanıcı biçimini deneyin."
+                : " DOMAIN\\kullanıcı biçimini deneyin.";
+            return $"Kullanıcı adı veya şifre hatalı ({status}).{domainHint}";
         }
 
         return $"NAS kullanıcı girişi başarısız ({status}).";
     }
 
-    private static IReadOnlyList<string> BuildDomainCandidates(string host, string? explicitDomain)
+    private static IReadOnlyList<string> BuildConnectServerNames(
+        string host,
+        IPAddress? serverAddress,
+        string? netBiosName)
+    {
+        var candidates = new List<string>();
+        void Add(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                return;
+            }
+
+            var trimmed = value.Trim();
+            if (!candidates.Contains(trimmed, StringComparer.OrdinalIgnoreCase))
+            {
+                candidates.Add(trimmed);
+            }
+        }
+
+        if (IsIpAddressHost(host))
+        {
+            // IP ile Connect NTLM SPN'i bozabilir (#2347) — önce NetBIOS / reverse DNS adı denenir.
+            Add(netBiosName);
+            if (serverAddress is not null)
+            {
+                Add(TryGetReverseDnsShortName(serverAddress));
+            }
+
+            Add(host);
+        }
+        else
+        {
+            Add(host);
+            Add(netBiosName);
+        }
+
+        return candidates;
+    }
+
+    private static IReadOnlyList<string> BuildDomainCandidates(
+        string host,
+        string connectName,
+        string? explicitDomain,
+        string? netBiosName)
     {
         var candidates = new List<string>();
         void Add(string? value)
@@ -176,7 +240,19 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
         // Açık domain (DOMAIN\user / user@domain) önce.
         Add(explicitDomain);
 
-        // Yerel / workgroup hesapları — IP host'ta FQDN short-name türetme YAPILMAZ (#2347).
+        // Yerel NAS / workgroup hesapları.
+        Add(netBiosName);
+        if (!string.IsNullOrWhiteSpace(connectName) &&
+            !IsIpAddressHost(connectName) &&
+            !string.Equals(connectName, netBiosName, StringComparison.OrdinalIgnoreCase))
+        {
+            var connectOnly = connectName.Split(':', StringSplitOptions.TrimEntries)[0];
+            var dotIndex = connectOnly.IndexOf('.');
+            var shortConnect = dotIndex > 0 ? connectOnly[..dotIndex] : connectOnly;
+            Add(shortConnect);
+        }
+
+        Add("WORKGROUP");
         Add(".");
         Add(string.Empty);
 
@@ -210,6 +286,59 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
         }
 
         return (null, trimmed);
+    }
+
+    private static IPAddress? ResolveServerAddress(string host)
+    {
+        var hostOnly = host.Split(':', StringSplitOptions.TrimEntries)[0].Trim();
+        if (IPAddress.TryParse(hostOnly, out var parsed))
+        {
+            return parsed;
+        }
+
+        try
+        {
+            var addresses = Dns.GetHostAddresses(hostOnly);
+            return addresses.Length > 0 ? addresses[0] : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? TryGetNetBiosServerName(IPAddress serverAddress)
+    {
+        try
+        {
+            var client = new NameServiceClient(serverAddress);
+            var serverName = client.GetServerName();
+            return string.IsNullOrWhiteSpace(serverName) ? null : serverName.Trim();
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? TryGetReverseDnsShortName(IPAddress serverAddress)
+    {
+        try
+        {
+            var entry = Dns.GetHostEntry(serverAddress);
+            var hostName = entry.HostName;
+            if (string.IsNullOrWhiteSpace(hostName))
+            {
+                return null;
+            }
+
+            var dotIndex = hostName.IndexOf('.');
+            return dotIndex > 0 ? hostName[..dotIndex] : hostName;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static bool IsIpAddressHost(string host)

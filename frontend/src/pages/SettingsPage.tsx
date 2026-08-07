@@ -1325,6 +1325,9 @@ export function SettingsPage() {
       const result = await api.testFileStorageNasUser(user.tenantId, {
         username: fileStorageNasUserTest.username.trim(),
         password: fileStorageNasUserTest.password,
+        nasHost: fileStorageForm.nasHost,
+        nasShareName: fileStorageForm.nasShareName,
+        nasProtocol: fileStorageForm.nasProtocol,
       })
       setFileStorageNasUserTestStatus({ type: result.success ? 'success' : 'error', message: result.message })
     } catch (testError) {

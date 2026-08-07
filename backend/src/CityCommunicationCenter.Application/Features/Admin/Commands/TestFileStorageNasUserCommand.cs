@@ -3,7 +3,10 @@ namespace CityCommunicationCenter.Application.Features.Admin;
 public sealed record TestFileStorageNasUserCommand(
     Guid TenantId,
     string Username,
-    string Password) : ICommand<NasUserTestResult>;
+    string Password,
+    string? NasHost = null,
+    string? NasShareName = null,
+    string? NasProtocol = null) : ICommand<NasUserTestResult>;
 
 public sealed class TestFileStorageNasUserCommandHandler : ICommandHandler<TestFileStorageNasUserCommand, NasUserTestResult>
 {
@@ -22,19 +25,30 @@ public sealed class TestFileStorageNasUserCommandHandler : ICommandHandler<TestF
     {
         var settings = await _fileStorageSettingsService.GetSettingsAsync(request.TenantId, cancellationToken);
 
-        if (string.IsNullOrWhiteSpace(settings.NasHost) || string.IsNullOrWhiteSpace(settings.NasShareName))
+        var nasHost = !string.IsNullOrWhiteSpace(request.NasHost)
+            ? request.NasHost
+            : settings.NasHost;
+        var nasShareName = !string.IsNullOrWhiteSpace(request.NasShareName)
+            ? request.NasShareName
+            : settings.NasShareName;
+
+        if (string.IsNullOrWhiteSpace(nasHost) || string.IsNullOrWhiteSpace(nasShareName))
         {
-            return new NasUserTestResult(false, "Önce NAS Sunucu Adresi ve Paylaşım Adı'nı kaydedin.");
+            return new NasUserTestResult(false, "Önce NAS Sunucu Adresi ve Paylaşım Adı'nı girin veya kaydedin.");
         }
 
-        if (!string.Equals(settings.NasProtocol, "SMB/CIFS", StringComparison.OrdinalIgnoreCase))
+        var nasProtocol = !string.IsNullOrWhiteSpace(request.NasProtocol)
+            ? request.NasProtocol.Trim()
+            : settings.NasProtocol;
+
+        if (!string.Equals(nasProtocol, "SMB/CIFS", StringComparison.OrdinalIgnoreCase))
         {
             return new NasUserTestResult(false, "NFS için otomatik klasör testi henüz desteklenmiyor.");
         }
 
         return await _nasConnectivityTester.TestCreateFolderAsync(
-            settings.NasHost.Trim(),
-            settings.NasShareName.Trim(),
+            nasHost.Trim(),
+            nasShareName.Trim(),
             request.Username,
             request.Password,
             cancellationToken);

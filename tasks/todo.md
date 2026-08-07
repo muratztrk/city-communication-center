@@ -1,3 +1,6 @@
+## Round 741 — Talep Etiketi textbox kaldır (1 kart)
+- `#6a75d1bf`: textbox yok; başlık dropdown satırında; Talep Başlığı yüksekliği arttı.
+
 ## Round 740 — WA Vatandaş Adı Kaydet (1 kart)
 - `#6a75c91c`: profil paneli DeferredComposer stale blur → senkron input; Kaydet boş isim ezmez.
 

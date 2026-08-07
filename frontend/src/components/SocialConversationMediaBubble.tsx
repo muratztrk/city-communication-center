@@ -157,10 +157,10 @@ export function SocialConversationMediaBubble({
           <img
             src={objectUrl}
             alt={filename}
-            className={`cursor-zoom-in ${
+            className={`cursor-zoom-in w-full max-w-full object-contain ${
               requestAttachmentLayout
-                ? 'w-full max-w-[15.5rem] max-h-56 object-contain'
-                : 'max-w-[18rem] max-h-52 object-contain'
+                ? 'max-h-56'
+                : 'max-h-52'
             }`}
           />
         </button>
@@ -184,8 +184,8 @@ export function SocialConversationMediaBubble({
           className={`flex items-center rounded-xl bg-black/10 underline-offset-2 hover:underline ${
             direction === 'Inbound'
               ? requestAttachmentLayout
-                ? 'gap-1.5 px-2.5 py-1.5 text-[11px] font-medium'
-                : 'gap-1.5 px-2.5 py-1.5 text-[11px] font-medium'
+                ? 'w-fit max-w-full gap-1.5 px-2.5 py-1.5 text-[11px] font-medium'
+                : 'w-full max-w-full gap-1.5 px-2.5 py-1.5 text-[11px] font-medium'
               : 'gap-2 px-3 py-2 text-sm font-semibold'
           }`}
         >

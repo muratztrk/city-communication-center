@@ -1,3 +1,7 @@
+## Round 719 — panel/Dosya ekle/inbound medya genişlik (4 kart)
+- Kurum içi panel Canlı Özet hizasına yükseltildi; modal Dosya ekle `h-[1.875rem]`.
+- Inbound görsel `w-full` (balon genişliği); WA doküman adı çerçevesi `w-full` + truncate.
+
 ## Round 718 — WA pending lightbox + panel/Kaydet/Açıklama + modal send (7 kart)
 - Pending/giden görsel: chip içinde büyüteç + lightbox.
 - Kurum içi panel yüksekliği azaltıldı (banner hizası).

@@ -699,9 +699,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Açık Adres
   ve Dosya/Fotoğraf alanı aynı satırda yan yana durur; dosya seçilmedi metni butonla aynı blokta
   sığar (card #1088). Açıklama RichTextEditor ve Açık Adres textarea üst padding kompakt
-  (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6.35rem] text-[11px] whitespace-nowrap`
-  (Round 718). Açıklama Enter satır aralığı `.rich-text-editable p+p` ≈ `0.15–0.2rem`.
+  (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6.35rem] h-[1.875rem] text-[11px] whitespace-nowrap`
+  (Round 719). Açıklama Enter satır aralığı `.rich-text-editable p+p` ≈ `0.15–0.2rem`.
   Açık Adres `min-h-[5.75rem]`. Açıklama editör `font-size: 0.76rem`, yükseklik `6.35rem` (Round 718).
+  Modal gelen görsel balon içinde `w-full` (Round 719).
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
 - **Vatandaş `Yazışmaya Git` butonu:** Vatandaş Talepleri gridindeki aksiyon butonu mevcut teal
@@ -2042,10 +2043,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `isTyping:false`; notify öncesi `ensureSignalRConnected`.
 - **Kurum içi görsel lightbox (Round 717):** FAB sohbetinde görsel tıklanınca
   `SocialConversationMediaPreview` (büyüteç, dosya adı, İndir) — WA ile aynı.
-- **Kurum içi panel yüksekliği (Round 718):** `h-[min(70dvh,42rem)]` / `sm:h-[min(58dvh,36rem)]`
-  (banner başlangıç hizası; Round 717 aşırı yükseklik geri alındı).
+- **Kurum içi panel yüksekliği (Round 719):** `h-[min(80dvh,50rem)]` / `sm:h-[min(74dvh,46rem)]`
+  (banner Canlı Özet üst hizası; Round 718 aşırı kısaltma geri alındı).
 - **WA pending görsel lightbox (Round 718):** `WhatsAppOutboundAttachmentChip` görselde
   `cursor-zoom-in` + dahili `SocialConversationMediaPreview` (sayfa + modal).
+- **Inbound görsel genişlik (Round 719):** balon içinde `w-full max-w-full object-contain`
+  (balon max-width değişmez; dik foto sağ boşluk kapanır).
+- **WA gelen doküman adı (Round 719):** yalnız `/whatsapp` — çerçeve `w-full`, isim `truncate`.
 - **WA/modal textbox lag (Round 717):** `DeferredComposerInput` / `DeferredComposerTextarea`
   local state + `startTransition` parent update.
 - **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter

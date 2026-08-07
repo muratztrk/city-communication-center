@@ -654,22 +654,23 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const showStatusColumn =
     ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'all')
     || isStaffTasksView
-  const hideDueDateColumn = (isMyTasksView || isDepartmentTasksView) && (
-    currentMyTaskView === 'rejected'
-    || (isMyTasksView && currentMyTaskView === 'completed')
-  )
+  // Görev Tipi / Görevi Yapan: yalnız Personelimin Görevleri (#6a75a628 Görevlerim; #6a75a7b9 Birimdeki).
+  const showTaskTypeColumn = isStaffTasksView
+  // Son Tarih: Görevlerim terminal + Birimdeki tüm görünümler (#6a75a725/#6a75a790/#6a75a7b9).
+  const hideDueDateColumn = isDepartmentTasksView
+    || (isMyTasksView && (currentMyTaskView === 'rejected' || currentMyTaskView === 'completed'))
   const hasTerminalDateColumn = (isMyTasksView || isDepartmentTasksView) && (
     currentMyTaskView === 'completed' || currentMyTaskView === 'rejected'
   )
   const tasksTableColumnCount = useMemo(() => {
     let count = 7
-    if (isStaffTasksView || isMyTasksView || isDepartmentTasksView) count += 1
+    if (showTaskTypeColumn) count += 1
     if (!hideDueDateColumn) count += 1
     if ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed') count += 1
     if ((isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected') count += 1
     if (showStatusColumn) count += 1
     return count
-  }, [currentMyTaskView, hideDueDateColumn, isDepartmentTasksView, isMyTasksView, isStaffTasksView, showStatusColumn])
+  }, [currentMyTaskView, hideDueDateColumn, isDepartmentTasksView, isMyTasksView, showStatusColumn, showTaskTypeColumn])
   const taskTypeParam = searchParams.get('taskType') ?? 'all'
   const currentTaskTypeFilter: 'all' | 'assigned' | 'routine' =
     taskTypeParam === 'assigned' || taskTypeParam === 'routine' ? taskTypeParam : 'all'
@@ -3000,7 +3001,7 @@ const pageKicker = isMyTasksView
                   <col className="grid-col-date" />
                   <col className="my-tasks-location-col" />
                   <col className="my-tasks-title-col grid-col-title" />
-                  {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && <col className="my-tasks-type-col" />}
+                  {showTaskTypeColumn && <col className="my-tasks-type-col" />}
                   {!hideDueDateColumn && <col className="my-tasks-due-col" />}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'completed' && <col className="task-grid-terminal-date-col" />}
                   {(isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'rejected' && <col className="task-grid-terminal-date-col" />}
@@ -3026,7 +3027,7 @@ const pageKicker = isMyTasksView
                     </span>
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={taskFilters['title']} onFilter={setTaskFilter} sortKey="title" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>{t('tasks.columns.title', 'Başlık')}</FilterableTh>
-                  {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
+                  {showTaskTypeColumn && (
                     <FilterableTh filterKey="jobSourceType" filterValue={taskFilters['jobSourceType'] ?? ''} onFilter={setTaskFilter} sortKey="taskTypeCategory" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
                       <span className="inline-flex flex-col gap-0.5 leading-tight">
                         <span>{t('tasks.columns.taskType', 'Görev Tipi')}</span>
@@ -3155,7 +3156,7 @@ const pageKicker = isMyTasksView
                       </div>
                     </td>
                     <td><TruncatedText text={task.title} className={`cell-title ${reporterTitleClass}`} /></td>
-                    {(isStaffTasksView || isMyTasksView || isDepartmentTasksView) && (
+                    {showTaskTypeColumn && (
                       <td>
                         <div className="mx-auto max-w-[11rem] text-center">
                           <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.82rem]">

@@ -755,6 +755,10 @@ function ConversationDetail({
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [pendingFileEditing, setPendingFileEditing] = useState(false)
   const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
+  const pendingFileClock = useMemo(
+    () => (pendingFile ? formatConversationMessageTime(new Date().toISOString(), locale, t) : ''),
+    [pendingFile, locale, t],
+  )
   const [internalDepartmentId, setInternalDepartmentId] = useState('')
   const [sendingInternal, setSendingInternal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -1304,6 +1308,11 @@ function ConversationDetail({
                       className="mt-2 w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
                     />
                   ) : null}
+                  <p className="mt-1.5 flex items-baseline justify-end gap-1 text-[10px] text-white/65">
+                    <span className="font-semibold tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
+                    <span aria-hidden="true">·</span>
+                    <span>{pendingFileClock}</span>
+                  </p>
                 </div>
                 <div className="mt-1 flex items-center gap-1.5">
                   <button

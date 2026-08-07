@@ -1360,9 +1360,21 @@
 
     .app-content-shell .my-tasks-table .my-tasks-parent-request-col,
     .app-content-shell .my-tasks-all-table .my-tasks-parent-request-col,
-    .app-content-shell .department-tasks-table .my-tasks-parent-request-col,
     .app-content-shell .staff-tasks-table .my-tasks-parent-request-col {
       width: 12.5rem;
+    }
+
+    /* Birimdeki: Bağlı Olduğu Talep No daralt (#6a75a6ae); tip sütunu kalkınca başlık genişler (#6a75a7b9). */
+    .app-content-shell .department-tasks-table .my-tasks-parent-request-col {
+      width: 10rem;
+      min-width: 9rem;
+      max-width: 11rem;
+    }
+
+    .app-content-shell .department-tasks-table .my-tasks-title-col {
+      width: 14rem;
+      min-width: 12rem;
+      max-width: 18rem;
     }
 
     .app-content-shell .grid-col-request-no {

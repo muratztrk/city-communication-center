@@ -1357,16 +1357,26 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `FilterableTh` iç sıra: başlık → sıralama ikonu → filtre (`MoreVertical`); sıralama label içinde
   değil (#6a759062). Label/ikon aralığı dengeli kalır.
 - **Grid Öncelik alt satır metni:** `(Öncelik:…)` değil `Öncelik:…` — parantez yok (#6a75913e).
-- **Birime Gelen / Birimden Giden / Mesaj Onayı aksiyon ikonları:** Detaylar=`NotebookPen`
-  (popup Açıklama başlığı ile aynı — #6a758f80 reopen), Onayla=`Check`, İptal Et=`XCircle`;
+- **Birime Gelen / Birimden Giden / Mesaj Onayı aksiyon ikonları:** Detaylar=`FileText`
+  (popup `Talep Detayları` title heading ile aynı — #6a758f80 reopen), Onayla=`Check`, İptal Et=`XCircle`;
   butonlar `inline-flex items-center gap-1.5` (#6a758f80 / #6a758fb1).
 - **Grid Öncelik alt satır boşluğu:** `.table-number-cell__priority` / `.wallboard-priority-text`
   `margin-top: 0.2rem` (#6a75913e reopen).
 - **WA / kurum içi pending ek balonu:** Dosya ekle önizlemesinde balon içinde `Beklemede · HH:mm`
-  (#6a75994d / #6a759a3e reopen — bullet + saat, giden mesaj satırıyla aynı). Kurum içi iletilmiş
-  satırda Okundu/İletildi satırı `mt-1.5` (#6a759a81). Görsel dışı ek/konum ikon rengi çerçevede
-  `text-emerald-700` (#6a75958d).
+  (#6a75994d / #6a759a3e reopen — bullet + saat, giden mesaj satırıyla aynı). **WA Konuşmaları
+  sayfası (`WhatsAppConversationsPage`) kendi pending UI’sini kullanır** — ConversationPanel
+  düzeltmesi yetmez (#6a75994d reopen). Kurum içi iletilmiş satırda Okundu/İletildi satırı
+  `mt-1.5` (#6a759a81). Görsel dışı ek/konum ikon rengi çerçevede `text-emerald-700` (#6a75958d).
 - **Header Personel Dahili No bul:** input ikonu `User` (büyüteç değil — #6a759807).
+- **Görevlerim grid:** `Görev Tipi / Görevi Yapan` sütunu yok (#6a75a628); Personelimin’de kalır.
+- **Birimdeki Görevler grid:** `Son Tarih` tüm görünümlerde yok; `Görev Tipi / Görevi Yapan` yok
+  (#6a75a7b9 / #6a75a725 / #6a75a790). Bağlı Olduğu Talep No dar (~10rem), başlık geniş (#6a75a6ae).
+- **Taleplerim / Birime Gelen / Birimden Giden `Tümü`:** Durum sütunu Son Tarih’ten önce
+  (#6a75a5fd / #6a75a5a3).
+- **Birimden Giden:** Onaylanmış + Yapılmakta’ta Son Tarih yok (#6a75a457); Tamamlanmış + İptal’de
+  Görevi Yapan / Görev Sahibi yok (#6a75a4ff).
+- **Kurum içi FAB sohbet zemin:** liste paneli ile aynı `bg-[color:var(--color-background)]`
+  (bej `#ece5dd` geri alındı — #6a75a09a).
 
 ## 5. Dashboard / Wallboard
 
@@ -1617,7 +1627,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   her zaman (`formatConversationMessageTime`, `formatConversationDayDivider`).
 - **WhatsApp konuşma zemin (#2300 reopen):** mesaj scroll alanı bej `#ece5dd` (`--wa-chat-bg`) +
   hafif nokta deseni (`whatsapp-chat-bg`); uygulama gri zeminine (`color-background`) çekilmez.
-- **Kurum içi FAB sohbet zemin:** aktif sohbet scroll alanı bej `#ece5dd` (`internal-messages-chat-bg`).
+- **Kurum içi FAB sohbet zemin:** aktif sohbet scroll alanı liste paneli ile aynı
+  `bg-[color:var(--color-background)]` (#6a75a09a — bej `#ece5dd` geri alındı).
 - **Kurum içi mesaj dosya eki (#2370/#2395 reopen):** FAB sohbetinde `Dosya ekle` (Paperclip + filtreli accept);
   gönderen ve alıcı indirebilir; upload sonrası alıcı SignalR ile sohbeti yeniler.
   `POST /attachments/internal-messages/{messageId}`; mesaj yanıtında `attachment` alanı.
@@ -2083,8 +2094,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.
 - **WA beklemedeki mesaj Düzenle (#2299 reopen):** düzenleme modunda balon yüksekliği `minHeight` ile
   kilitlenir; alt aksiyon satırı sabit `min-h` ile konuşma alanı kaymaz.
-- **Kurum İçi FAB zemin (#2300):** panel kökü ve konuşma listesi standart `color-background`;
-  aktif sohbet mesaj scroll alanı bej `#ece5dd` (`internal-messages-chat-bg`).
+- **Kurum İçi FAB zemin (#2300 / #6a75a09a):** panel kökü, konuşma listesi ve aktif sohbet scroll
+  alanı standart `color-background` (bej `#ece5dd` sohbet zemini geri alındı).
 - **Yerel birim oluşturma (#2303/#2310):** başarı `ConfirmDialog` popup'ıdır; başlık altında ayraç
   çizgisi (`titleDivider`) ve `Tamam` butonu yeşil (`variant: success`).
 - **Kullanıcılar arama (#2309):** liste araması en az 3 karakter sonra filtreler (Birimler ile aynı).

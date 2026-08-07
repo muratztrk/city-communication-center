@@ -1,4 +1,4 @@
-import { Check, NotebookPen, Search, X, XCircle } from 'lucide-react'
+import { Check, FileText, Search, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -974,11 +974,11 @@ export function IncomingRequestsPage() {
                 <col className="grid-col-location-creator" />
                 <col className="grid-col-title" />
                 {showTaskOwnerColumn && <col className="grid-col-task-owner" />}
+                {currentStatusFilter === 'all' && <col className="grid-col-status" />}
                 {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && <col className="grid-col-due" />}
                 {currentStatusFilter === 'approved' && <col className="grid-col-status-date" />}
                 {currentStatusFilter === 'completed' && <col className="grid-col-status-date incoming-completed-at-col" />}
                 {currentStatusFilter === 'cancelled' && <col className="grid-col-status-date" />}
-                {currentStatusFilter === 'all' && <col className="grid-col-status" />}
                 <col className="grid-col-actions" />
               </colgroup>
               <thead>
@@ -995,12 +995,12 @@ export function IncomingRequestsPage() {
                         : t('tasks.columns.owner', 'Görev Sahibi')}
                     </FilterableTh>
                   )}
+                  {currentStatusFilter === 'all' && <FilterableTh filterKey="status" filterValue={incomingFilters['status'] ?? ''} onFilter={setIncomingFilter} sortKey="status" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>}
                   {/* Tamamlanmış görünümünde Son Tarih sütunu gösterilmez (card #1384). */}
                   {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {currentStatusFilter === 'approved' && <FilterableTh filterKey="approvedAtUtc" filterValue={incomingFilters['approvedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="approvedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
                   {currentStatusFilter === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={incomingFilters['completedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="completedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort} className="incoming-completed-at-th">{t('incomingRequests.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
                   {currentStatusFilter === 'cancelled' && <FilterableTh filterKey="updatedAtUtc" filterValue={incomingFilters['updatedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="updatedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.cancelledAt', 'İptal Tarihi')}</FilterableTh>}
-                  {currentStatusFilter === 'all' && <FilterableTh filterKey="status" filterValue={incomingFilters['status'] ?? ''} onFilter={setIncomingFilter} sortKey="status" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>}
                   <th>{t('jobs.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
@@ -1084,25 +1084,6 @@ export function IncomingRequestsPage() {
                     </td>
                     <td className="font-semibold"><TruncatedText text={row.title} className={`cell-title ${isReporterRow ? 'text-[#f97316]' : ''}`} /></td>
                     {showTaskOwnerColumn && <td><EmptyCell value={row.taskOwnerDisplayName} /></td>}
-                    {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && (
-                      <td>
-                        <DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} highlightReporter={isReporterRow} />
-                        {!isTerminalRow && rowExtraTimeMarkers}
-                      </td>
-                    )}
-                    {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
-                    {currentStatusFilter === 'completed' && (
-                      <td className="incoming-completed-at-cell">
-                        <DateCell value={row.completedAtUtc} locale={locale} tone="success" />
-                        {rowExtraTimeMarkers}
-                      </td>
-                    )}
-                    {currentStatusFilter === 'cancelled' && (
-                      <td>
-                        <DateCell value={row.updatedAtUtc} locale={locale} tone="danger" />
-                        {rowExtraTimeMarkers}
-                      </td>
-                    )}
                     {currentStatusFilter === 'all' && (() => {
                       // Tarih durum pill'inin İÇİNDE alt satırda gösterilir (card #714).
                       const statusDate = row.status === 'Completed' ? row.completedAtUtc
@@ -1124,11 +1105,30 @@ export function IncomingRequestsPage() {
                         </td>
                       )
                     })()}
+                    {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && (
+                      <td>
+                        <DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} highlightReporter={isReporterRow} />
+                        {!isTerminalRow && rowExtraTimeMarkers}
+                      </td>
+                    )}
+                    {currentStatusFilter === 'approved' && <td><DateCell value={row.approvedAtUtc} locale={locale} /></td>}
+                    {currentStatusFilter === 'completed' && (
+                      <td className="incoming-completed-at-cell">
+                        <DateCell value={row.completedAtUtc} locale={locale} tone="success" />
+                        {rowExtraTimeMarkers}
+                      </td>
+                    )}
+                    {currentStatusFilter === 'cancelled' && (
+                      <td>
+                        <DateCell value={row.updatedAtUtc} locale={locale} tone="danger" />
+                        {rowExtraTimeMarkers}
+                      </td>
+                    )}
                     <td className="actions-cell">
                       <div className="flex justify-center gap-3">
                         {/* Detaylar — her zaman */}
                         <Button size="sm" variant="secondary" className="inline-flex items-center gap-1.5" onClick={() => setDetailJobId(row.jobId)}>
-                          <NotebookPen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                          <FileText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('jobs.actions.details', 'Detaylar')}
                         </Button>
                         {/* Yapılmakta / Onaylanmış: yalnız Detaylar (cards #1695/#1702/#1703). */}

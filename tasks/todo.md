@@ -1,3 +1,14 @@
+## Round 731 — grid sütun + WA pending + Detaylar FileText + sohbet zemin (12 kart)
+- `#6a75994d` reopen: WA Konuşmaları sayfası Dosya ekle pending `Beklemede · HH:mm`.
+- `#6a75a725` / `#6a75a790` / `#6a75a7b9`: Birimdeki Son Tarih (+ Görev Tipi) sil.
+- `#6a75a6ae`: Birimdeki Bağlı Olduğu Talep No daralt / başlık genişlet.
+- `#6a75a5fd` / `#6a75a5a3`: Taleplerim + Birime Gelen/Giden Tümü Durum↔Son Tarih yer değiştir.
+- `#6a75a628`: Görevlerim Görev Tipi/Görevi Yapan sil.
+- `#6a75a09a`: kurum içi sohbet zemin = liste paneli.
+- `#6a758f80` reopen: Detaylar = FileText (title heading).
+- `#6a75a457`: Birimden Giden Onaylanmış/Yapılmakta Son Tarih sil.
+- `#6a75a4ff`: Birimden Giden Tamamlanmış/İptal Görevi Yapan sil.
+
 ## Round 730 — pending Beklemede · saat (2 kart)
 - `#6a759a3e` / `#6a75994d` reopen: kurum içi + WA Dosya ekle balonunda `Beklemede · HH:mm`.
 

@@ -727,7 +727,7 @@ export function InternalMessagesFab() {
 
           {activeChat ? (
             <>
-              <div ref={scrollRef} className="internal-messages-chat-bg min-h-0 flex-1 space-y-2 overflow-y-auto px-3 py-3">
+              <div ref={scrollRef} className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-[color:var(--color-background)] px-3 py-3">
                 {chatLoading && !chatDetail ? (
                   <p className="mt-8 text-center text-sm text-slate-400">{t('common.loading')}</p>
                 ) : (chatDetail?.messages.length ?? 0) === 0 ? (

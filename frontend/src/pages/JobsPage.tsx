@@ -885,8 +885,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     ? 'in-progress'
     : rawMyRequestsView
   const activeJobView = isMyRequestsView ? currentMyRequestsView : currentDepartmentOutgoingView
-  const showTaskOwnerColumn = (isMyRequestsView || isDepartmentOutgoingView)
-    && ['in-progress', 'completed', 'rejected'].includes(activeJobView)
+  const showTaskOwnerColumn = isMyRequestsView
+    ? ['in-progress', 'completed', 'rejected'].includes(activeJobView)
+    : isDepartmentOutgoingView && activeJobView === 'in-progress'
+  const hideJobsDueDateColumn = (isMyRequestsView || isDepartmentOutgoingView) && (
+    activeJobView === 'rejected'
+    || activeJobView === 'completed'
+    || (isDepartmentOutgoingView && (activeJobView === 'approved' || activeJobView === 'in-progress'))
+  )
   const jobsTableColumnCount = useMemo(() => {
     let count = 1
     if (isMyRequestsView || isDepartmentOutgoingView) count += 2
@@ -895,14 +901,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     if (showTaskOwnerColumn) count += 1
     count += 1
     if (!(isMyRequestsView || isDepartmentOutgoingView)) count += 3
-    if (!((isMyRequestsView || isDepartmentOutgoingView) && (activeJobView === 'rejected' || activeJobView === 'completed'))) count += 1
+    if (!hideJobsDueDateColumn) count += 1
     if ((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved') count += 1
     if ((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed') count += 1
     if ((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected') count += 1
     if ((isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all') count += 1
     count += 1
     return count
-  }, [activeJobView, isDepartmentOutgoingView, isMyRequestsView, showTaskOwnerColumn])
+  }, [activeJobView, hideJobsDueDateColumn, isDepartmentOutgoingView, isMyRequestsView, showTaskOwnerColumn])
   // Yönetici/sorumlu: Bekleyen + Onaylanmış yerine tek "Yapılmakta Olan Taleplerim".
   const myRequestViews = isManagerLike
     ? MY_REQUEST_VIEWS.filter(view => view.value !== 'pending' && view.value !== 'approved')
@@ -2118,11 +2124,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <col className="grid-col-title" />
                   {showTaskOwnerColumn && <col className="grid-col-task-owner" />}
                   <col className="grid-col-destination" />
-                  {!((isMyRequestsView || isDepartmentOutgoingView) && (activeJobView === 'rejected' || activeJobView === 'completed')) && <col className="grid-col-due" />}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && <col className="grid-col-status" />}
+                  {!hideJobsDueDateColumn && <col className="grid-col-due" />}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <col className="grid-col-status-date" />}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <col className="grid-col-status-date" />}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <col className="grid-col-status-date" />}
-                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && <col className="grid-col-status" />}
                   <col className="grid-col-actions" />
                 </colgroup>
               )}
@@ -2141,11 +2147,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   {!(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="priority" filterValue={jobFilters['priority'] ?? ''} onFilter={setJobFilter} sortKey="priority" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.priority')}</FilterableTh>}
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.project', 'Proje mi')}</th>}
                   {!isMyRequestsView && !isDepartmentOutgoingView && <th>{t('jobs.columns.taskCount')}</th>}
-                  {!((isMyRequestsView || isDepartmentOutgoingView) && (activeJobView === 'rejected' || activeJobView === 'completed')) && <FilterableTh filterKey="dueDateUtc" filterValue={jobFilters['dueDateUtc'] ?? ''} onFilter={setJobFilter} sortKey="dueDateUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.dueDate')}</FilterableTh>}
+                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && <FilterableTh filterKey="status" filterValue={jobFilters['status'] ?? ''} onFilter={setJobFilter} sortKey="statusSortText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>}
+                  {!hideJobsDueDateColumn && <FilterableTh filterKey="dueDateUtc" filterValue={jobFilters['dueDateUtc'] ?? ''} onFilter={setJobFilter} sortKey="dueDateUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.dueDate')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <FilterableTh filterKey="ownerDecidedAtUtc" filterValue={jobFilters['ownerDecidedAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="ownerDecidedAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={jobFilters['completedAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="completedAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && <FilterableTh filterKey="updatedAtUtc" filterValue={jobFilters['updatedAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="updatedAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.cancelledAt', 'İptal Tarihi')}</FilterableTh>}
-                  {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && <FilterableTh filterKey="status" filterValue={jobFilters['status'] ?? ''} onFilter={setJobFilter} sortKey="statusSortText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>}
                   <th>{t('jobs.columns.actions')}</th>
                 </tr>
               </thead>
@@ -2214,25 +2220,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       <td><JobProjectValue job={job} t={t} /></td>
                     )}
                     {!isMyRequestsView && !isDepartmentOutgoingView && <td>{job.taskCount}</td>}
-                    {!((isMyRequestsView || isDepartmentOutgoingView) && (activeJobView === 'rejected' || activeJobView === 'completed')) && (
-                      <td>
-                        <DueDatePill value={job.dueDateUtc} completedAtUtc={job.completedAtUtc} locale={locale} highlightReporter={isReporterJob} />
-                        {!isTerminalJob && jobExtraTimeMarkers}
-                      </td>
-                    )}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td><DateCell value={job.ownerDecidedAtUtc} locale={locale} /></td>}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && (
-                      <td>
-                        <DateCell value={job.completedAtUtc} locale={locale} tone="success" />
-                        {jobExtraTimeMarkers}
-                      </td>
-                    )}
-                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && (
-                      <td>
-                        <DateCell value={job.updatedAtUtc ?? null} locale={locale} tone="danger" />
-                        {jobExtraTimeMarkers}
-                      </td>
-                    )}
                     {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && (() => {
                       // Tarih durum pill'inin İÇİNDE alt satırda gösterilir (card #714).
                       const statusDate = job.status === 'Completed' ? job.completedAtUtc
@@ -2253,10 +2240,29 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         </td>
                       )
                     })()}
+                    {!hideJobsDueDateColumn && (
+                      <td>
+                        <DueDatePill value={job.dueDateUtc} completedAtUtc={job.completedAtUtc} locale={locale} highlightReporter={isReporterJob} />
+                        {!isTerminalJob && jobExtraTimeMarkers}
+                      </td>
+                    )}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <td><DateCell value={job.ownerDecidedAtUtc} locale={locale} /></td>}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed' && (
+                      <td>
+                        <DateCell value={job.completedAtUtc} locale={locale} tone="success" />
+                        {jobExtraTimeMarkers}
+                      </td>
+                    )}
+                    {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected' && (
+                      <td>
+                        <DateCell value={job.updatedAtUtc ?? null} locale={locale} tone="danger" />
+                        {jobExtraTimeMarkers}
+                      </td>
+                    )}
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" className="inline-flex items-center gap-1.5" onClick={() => openDetail(job.jobId)}>
-                          <NotebookPen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                          <FileText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('jobs.actions.details')}
                         </Button>
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'PendingOwnerApproval' && (

@@ -458,7 +458,10 @@ export function AppShell() {
     dashboard: user?.role === 'Reporter' || user?.role === 'Operator'
       ? t('nav.dashboardCitizen', 'Anasayfa - Vatandaş')
       : t('nav.dashboard'),
-    birimler: t('nav.dashboardDepartments', 'Anasayfa - Birimler'),
+    // Operatör birim anasayfası: breadcrumb da "Anasayfa" (#6a75bed6).
+    birimler: user?.role === 'Operator'
+      ? t('nav.dashboard', 'Anasayfa')
+      : t('nav.dashboardDepartments', 'Anasayfa - Birimler'),
     requests: t('nav.createRequest', 'Talep Oluştur'),
     new: t('nav.createRequest', 'Talep Oluştur'),
     'my-tasks': (viewParam && myTasksViewLabels[viewParam]) || t('nav.myTasks', 'Görevlerim'),

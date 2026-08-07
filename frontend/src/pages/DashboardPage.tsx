@@ -509,15 +509,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
 
   const staffMetrics: MetricCard[] = !hideMetricCards && !isManagerOrAdmin && dashboardQuery.data
     ? [
-        ...(isInternalModuleUsable ? [{
-          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
-          value: dashboardQuery.data.myPendingRequestCount,
-          icon: ClipboardList,
-          path: '/my-requests?view=pending',
-          iconBg: 'bg-amber-100',
-          iconColor: 'text-amber-600',
-        }] : []),
         ...(isReporter ? [] : [{
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
@@ -527,6 +518,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconBg: 'bg-violet-100',
           iconColor: 'text-violet-600',
         }]),
+        ...(isInternalModuleUsable ? [{
+          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          value: dashboardQuery.data.myPendingRequestCount,
+          icon: ClipboardList,
+          path: '/my-requests?view=pending',
+          iconBg: 'bg-amber-100',
+          iconColor: 'text-amber-600',
+        }] : []),
       ]
     : []
 
@@ -567,7 +567,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const pageTitle = effectiveView === 'citizen'
     ? t('nav.dashboardCitizen', 'Anasayfa - Vatandaş')
     : effectiveView === 'departments'
-      ? t('nav.dashboardDepartments', 'Anasayfa - Birimler')
+      // Vatandaş operatörü: birim anasayfa banner = "Anasayfa" (#6a75bed6).
+      ? (role === 'Operator' ? t('nav.dashboard', 'Anasayfa') : t('nav.dashboardDepartments', 'Anasayfa - Birimler'))
       : t('dashboard.title')
 
   function renderCard(metric: MetricCard) {

@@ -1383,6 +1383,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yönetici anasayfa kutucuk sırası (#6a75b318):** Birime Gelen Onay Bekleyen → Birimde Bekleyen
   Görevler → Birimden Giden Bekleyen → Birimden Giden Yapılmakta → Bekleyen Taleplerim →
   Bekleyen Görevlerim → Vatandaş Talepleri.
+- **Personel/Operatör anasayfa kutucuk sırası (#6a75bf14):** Bekleyen Görevlerim → Bekleyen Taleplerim.
+- **Operatör birim anasayfa banner (#6a75bed6):** `pageTitle` / breadcrumb `birimler` = `Anasayfa`
+  (Anasayfa - Birimler değil).
 - **Kurum Konumu ilçe kalıcılığı (#6a75b1ae):** Kaydet → `TenantSettings.Theme = ccc-district:<id>`
   + localStorage; sonraki girişlerde Settings dropdown seçili gelir. Kurum Bilgisi Kaydet Theme’i silmez.
 - **WA Mahalle:** başlık tıklanabilir değil (div, label değil — #6a75b6c1); dropdown seçenekleri

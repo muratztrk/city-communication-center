@@ -1,3 +1,7 @@
+## Round 733 — staff kutucuk sıra + operatör banner (2 kart)
+- `#6a75bf14`: staff Dönem altında Bekleyen Görevlerim 1., Taleplerim 2.
+- `#6a75bed6`: Operatör birim anasayfa banner/breadcrumb = Anasayfa.
+
 ## Round 732 — WA form/CSS + grid + dashboard sıra + ilçe kalıcılık (12 kart)
 - `#6a75b6c1`: WA Mahalle başlığı tıklanabilir değil.
 - `#6a75be0b`: Rutin Dosya/Görsel başlık boyutu.

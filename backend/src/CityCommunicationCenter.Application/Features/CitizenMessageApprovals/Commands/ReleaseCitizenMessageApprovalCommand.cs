@@ -55,7 +55,15 @@ public sealed class ReleaseCitizenMessageApprovalCommandHandler : ICommandHandle
             ]);
         }
 
-        await _citizenJobStatusNotifier.ReleaseTerminalMessagesAsync(tenantId, job.JobId, cancellationToken);
+        var released = await _citizenJobStatusNotifier.ReleaseTerminalMessagesAsync(tenantId, job.JobId, cancellationToken);
+        if (!released)
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(
+                    nameof(request.JobId),
+                    "Vatandaşa SMS gönderilemedi. Ayarlar > SMS API (gönderim açık, sağlayıcı, alıcı telefon) ve sunucu loglarını kontrol edin.")
+            ]);
+        }
 
         _dbContext.AuditLogs.Add(new AuditLog
         {

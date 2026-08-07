@@ -1,3 +1,6 @@
+## Round 748b — SMS LiveSend coerce + release fail visible
+- IsEnabled açıkken LiveSend true sayılır; Operatör SMS fail ValidationException.
+
 ## Round 748 — 17 Doing kart (UI + SMS alıcı)
 - İptal colon/hiza, bildirim tarih X, Bekleyen Son Tarih, Taleplerim sütun swap, Yeni+Tip yan yana
 - Dizin telefon format, WA turkuaz ek, detay edit (bold/yeşil/Kaydet geniş), WA assignee terminal gizle

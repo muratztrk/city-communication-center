@@ -1950,6 +1950,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dizin telefon (#6a75e40c):** `formatDirectoryPhone` → `xxx xxx xx xx`.
 - **WA Talep Eki turkuaz (#6a75e2f0):** `SocialConversationMediaBubble` add-as-attachment `bg-teal-500`.
 - **SMS alıcı (#6a75eea2):** `WhatsAppRecipientResolver` Job.CitizenPhone fallback.
+- **SMS LiveSend (#6a75eea2):** Round 643 sonrası `IsEnabled` ⇒ gerçek gönderim (`EffectiveLiveSendEnabled`); Operatör release SMS fail → ValidationException.
 - **WA etiket revert (#6a75d1bf reopen):** Talep Etiketi readonly textbox geri; başlık min-height 2.5rem.
 - **WA medya Önizle (#6a75cc3f):** gelen görsel/video/ses Önizle butonu yeşil (`variant=success`) + Eye ikonu.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık

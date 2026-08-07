@@ -93,7 +93,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         await NotifyCurrentStatusAsync(tenantId, message, job, taskCount, cancellationToken);
     }
 
-    public async Task ReleaseTerminalMessagesAsync(
+    public async Task<bool> ReleaseTerminalMessagesAsync(
         Guid tenantId,
         Guid jobId,
         CancellationToken cancellationToken = default)
@@ -103,7 +103,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             cancellationToken);
         if (job is null)
         {
-            return;
+            return false;
         }
 
         var utcNow = DateTimeOffset.UtcNow;
@@ -119,7 +119,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 await _dbContext.SaveChangesAsync(cancellationToken);
             }
 
-            return;
+            return true;
         }
 
         var message = await _dbContext.SocialMessages
@@ -157,14 +157,13 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             content = EnsureBlankLineBeforeTargetDepartments(content, departmentNames);
             var terminalNote = await ResolveTerminalNoteAsync(tenantId, job, statusLabel, cancellationToken);
             content = AppendSmsTerminalNote(content, terminalNote);
-            await SendSmsAsync(tenantId, message, content, cancellationToken);
-            return;
+            return await SendSmsAsync(tenantId, message, content, cancellationToken);
         }
 
         if (job.CitizenTerminalMessageReleasedAtUtc is not null)
         {
             // WhatsApp: zaten serbest bırakılmış (idempotent).
-            return;
+            return true;
         }
 
         if (message is not null)
@@ -226,6 +225,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 
         job.CitizenTerminalMessageReleasedAtUtc = DateTimeOffset.UtcNow;
         await _dbContext.SaveChangesAsync(cancellationToken);
+        return true;
     }
 
     private async Task NotifyCurrentStatusAsync(

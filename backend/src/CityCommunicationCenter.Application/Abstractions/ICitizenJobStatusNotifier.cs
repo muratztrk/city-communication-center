@@ -20,8 +20,9 @@ public interface ICitizenJobStatusNotifier
     /// <summary>
     /// Terminal (Tamamlanmış/İptal) vatandaş durum mesajını Manager/CRM onayıyla operatör
     /// WhatsApp ekranına Pending olarak serbest bırakır (card #2039). Zaten serbest bırakılmışsa no-op.
+    /// Çağrı (Phone) ikinci aşamada gerçek SMS gönderir; başarısızsa <c>false</c> döner (#6a75eea2).
     /// </summary>
-    Task ReleaseTerminalMessagesAsync(
+    Task<bool> ReleaseTerminalMessagesAsync(
         Guid tenantId,
         Guid jobId,
         CancellationToken cancellationToken = default);

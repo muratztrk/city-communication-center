@@ -23,7 +23,7 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
 
         return new TenantSmsSettingsDescriptor(
             payload.IsEnabled,
-            payload.LiveSendEnabled,
+            EffectiveLiveSendEnabled(payload),
             ParseProvider(payload.Provider),
             payload.ApiUrl,
             payload.Username,
@@ -38,7 +38,7 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
 
         return new TenantSmsCredentials(
             payload.IsEnabled,
-            payload.LiveSendEnabled,
+            EffectiveLiveSendEnabled(payload),
             ParseProvider(payload.Provider),
             payload.ApiUrl,
             payload.Username,
@@ -46,6 +46,14 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
             payload.Originator,
             payload.ChargedNumber);
     }
+
+    /// <summary>
+    /// Round 643 FE'den simülasyon toggle'ını kaldırdı; kaydetme her zaman
+    /// <c>liveSendEnabled: true</c> yazar. Eski kayıtlarda alan false kaldıysa
+    /// <see cref="TenantSmsSettingsPayload.IsEnabled"/> açıkken gerçek gönderim kabul edilir (#6a75eea2).
+    /// </summary>
+    private static bool EffectiveLiveSendEnabled(TenantSmsSettingsPayload payload) =>
+        payload.IsEnabled;
 
     /// <summary>Boş / bilinmeyen → <see cref="SmsProvider.Unspecified"/> (NetGSM'e düşme).</summary>
     private static SmsProvider ParseProvider(string? value) =>
@@ -67,7 +75,8 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
         var payload = new TenantSmsSettingsPayload
         {
             IsEnabled = settings.IsEnabled,
-            LiveSendEnabled = settings.LiveSendEnabled,
+            // Round 643: ayrı simülasyon anahtarı yok; SMS açıkken gerçek gönderim.
+            LiveSendEnabled = settings.IsEnabled,
             Provider = settings.Provider.ToString(),
             ApiUrl = Normalize(settings.ApiUrl),
             Username = Normalize(settings.Username),
@@ -140,9 +149,8 @@ internal sealed class TenantSmsSettingsService : ITenantSmsSettingsService
         public bool IsEnabled { get; set; }
 
         /// <summary>
-        /// Varsayılan <c>false</c> = simülasyon. Mevcut kayıtlarda bu alan yok; JSON'dan
-        /// okunurken false gelir, yani entegrasyon canlıya alınmadan önce kimse farkında
-        /// olmadan vatandaşa SMS göndermeye başlamaz. Açmak bilinçli bir adımdır.
+        /// Legacy simülasyon bayrağı. Round 643 sonrası FE toggle yok; okumada
+        /// <see cref="EffectiveLiveSendEnabled"/> IsEnabled açıkken true sayar (#6a75eea2).
         /// </summary>
         public bool LiveSendEnabled { get; set; }
 

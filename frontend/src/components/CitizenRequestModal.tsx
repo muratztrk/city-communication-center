@@ -661,7 +661,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     maxLength={50}
                     onChange={setTitle}
                     required
-                    rows={2}
+                    rows={3}
                   />
                 </div>
 
@@ -690,14 +690,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
 
               <div className="job-field">
-                <span className="job-field-label">{t('whatsapp.label', 'Talep Etiketi')}</span>
-                <div className="flex items-center gap-2">
-                  <input
-                    className="field-input min-w-0 flex-1 text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-                    value={requestLabel}
-                    readOnly
-                    disabled
-                  />
+                {/* Salt-okunur textbox kaldırıldı; etiket yalnız dropdown'da. Başlık dropdown ile aynı satır (#6a75d1bf). */}
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-1.5">
+                  <span className="job-field-label shrink-0">{t('whatsapp.label', 'Talep Etiketi')}</span>
                   {canManageRequestTags ? (
                     <>
                       <RequestTagPicker
@@ -708,7 +703,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       />
                       <RequestTagAddButton onChanged={() => { void loadRequestTags() }} />
                     </>
-                  ) : null}
+                  ) : requestLabel.trim() ? (
+                    <span className="text-xs font-medium text-slate-700">{requestLabel}</span>
+                  ) : (
+                    <span className="text-xs text-slate-400">{t('whatsapp.requestTagsShort', 'Etiket seçiniz')}</span>
+                  )}
                 </div>
               </div>
 

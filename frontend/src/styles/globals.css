@@ -3351,13 +3351,14 @@
     line-height: 1.35;
   }
 
-  /* Talep Başlığı: genişliği aşınca alt satıra sarar + dikey scroll (WA Vatandaş Talebi modal). */
+  /* Talep Başlığı: genişliği aşınca alt satıra sarar + dikey scroll (WA Vatandaş Talebi modal).
+     Etiket textbox kaldırılınca boşalan dikey alan buraya eklendi — genişlik aynı (#6a75d1bf). */
   .citizen-request-form .citizen-request-title-textarea {
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
-    min-height: 2.5rem;
-    max-height: 4.5rem;
+    min-height: 4.25rem;
+    max-height: 6.5rem;
     padding: 0.3rem 0.5rem;
     font-size: 0.82rem;
     line-height: 1.35;

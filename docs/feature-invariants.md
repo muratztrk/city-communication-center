@@ -676,18 +676,19 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bullet'ları metnin optik ortasında küçük kalır; personel/birim ve Okundu/İletildi-zaman bullet'ları
   aynı 2px ölçüdedir.
   Paging yazıları üst/alt border'a yapışmaz.
-- **WhatsApp talep etiketi (cards #1561/#1563/#1865):** Talep Etiketi input'u salt okunurdur;
-  seçim yalnız ortak Etiketler dropdown'undan yapılır ve anında kaydedilir. WhatsApp profil
-  paneli (Vatandaş Bilgileri) Talep Etiketi bloğunu göstermez — blok `Talep Oluştur` popup'ında
-  (`CitizenRequestModal`) Açıklama alanının hemen üstündedir (card #1865). WhatsApp'tan açılan
-  Vatandaş Çağrı Talebi oluşturma POPUP'ında Kanal/Talep Etiketi bloğu gösterilmez (card #1563);
+- **WhatsApp talep etiketi (cards #1561/#1563/#1865/#6a75d1bf):** `CitizenRequestModal` içinde salt-okunur
+  etiket textbox'ı yoktur; seçim yalnız Etiketler dropdown (+ Etiket ekle) ile yapılır. `Talep Etiketi`
+  başlığı dropdown ile aynı satırda (üst hiza). Textbox'ın boşalttığı dikey alan `Talep Başlığı`
+  textarea yüksekliğine eklenir (genişlik değişmez). WhatsApp profil paneli Talep Etiketi bloğunu
+  göstermez — blok `Talep Oluştur` popup'ında Açıklama'nın hemen üstündedir (#1865). WhatsApp'tan
+  açılan Vatandaş Çağrı Talebi oluşturma POPUP'ında Kanal/Talep Etiketi bloğu gösterilmez (#1563);
   CreateRequestPage (çağrı formu) Talep Kanalı yanındaki klonu korur.
   Talep Oluştur SAYFASINDAKİ Vatandaş Çağrı Talebi formunda ise Talep Kanalı'nın sağında aynı
-  salt-okunur değer + Etiketler + Etiket Ekle bloğu bulunur (card #1561 reopen, 2026-07-13);
+  salt-okunur değer + Etiketler + Etiket Ekle bloğu bulunur (#1561 reopen);
   kaynak mesaj bir konuşmaya bağlıysa seçim conversation profile'a kaydedilir.
   Kayıtlı etiket sayısı 7 veya daha fazlaysa Etiketler menüsünün ilk satırında küçük puntolu arama gösterilir.
-  `CitizenRequestModal` (WA Talep Oluştur) Etiketler/Etiket ekle kompakt (`h-7`, ~11px); menü her zaman
-  aşağı açılır, genişlik ~220–280px, satır `text-xs` + belirgin hover (`emerald-50`) (card #1865).
+  `CitizenRequestModal` Etiketler/Etiket ekle kompakt (`h-7`, ~11px); menü her zaman
+  aşağı açılır, genişlik ~220–280px, satır `text-xs` + belirgin hover (`emerald-50`) (#1865).
   CreateRequestPage Vatandaş Çağrı Talebi bloğunda Etiketler/Etiket ekle bir kademe büyük
   (`largeText` → `text-sm`) kalır.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
@@ -712,9 +713,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   son konuşma/sıra olarak görünmeyebilir.
 - **Durum Değişikliği Geçmişi audit reason taşır:** #1095'te kaldırılan neden, #1619 reopen ile
   geri gelmiştir; veri `TaskStatusChanged` audit `Notes` alanından okunur ve Süreç altında gösterilir.
-- **`CitizenRequestModal` `Talep Başlığı`:** tek satır input değil; genişliği aşınca alt satıra
-  saran textarea + dikey scroll (`citizen-request-title-textarea`, max 50 karakter; yatay
-  taşma/scroll yok) (card #6a75d11d).
+- **`CitizenRequestModal` `Talep Başlığı`:** saran textarea + dikey scroll; etiket textbox kaldırılınca
+  yükseklik artar (`min-height` ~4.25rem), genişlik sabit (#6a75d11d / #6a75d1bf).
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Açık Adres

@@ -26,6 +26,21 @@ public static class WhatsAppRecipientResolver
             return NormalizePhoneDigits(message.CitizenHandle);
         }
 
+        // Çağrı / form taleplerinde konuşma telefonu yoksa Job.CitizenPhone (#6a75eea2).
+        if (message.JobId.HasValue)
+        {
+            var jobPhone = await dbContext.Jobs
+                .AsNoTracking()
+                .Where(job => job.JobId == message.JobId.Value)
+                .Select(job => job.CitizenPhone)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (LooksLikePhone(jobPhone))
+            {
+                return NormalizePhoneDigits(jobPhone!);
+            }
+        }
+
         return null;
     }
 

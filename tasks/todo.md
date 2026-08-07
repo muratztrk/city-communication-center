@@ -1,3 +1,8 @@
+## Round 748 — 17 Doing kart (UI + SMS alıcı)
+- İptal colon/hiza, bildirim tarih X, Bekleyen Son Tarih, Taleplerim sütun swap, Yeni+Tip yan yana
+- Dizin telefon format, WA turkuaz ek, detay edit (bold/yeşil/Kaydet geniş), WA assignee terminal gizle
+- Çağrı: Telefon No, etiket placeholder/punto; WA etiket textbox REVERT; SMS Job.CitizenPhone fallback
+
 ## Round 747 — Talebi İptal Et tipografi ince ayar (1 kart reopen)
 - `#6a75d625`: help sm; title 700; cancelReason colon kaldır.
 

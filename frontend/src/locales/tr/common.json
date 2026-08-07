@@ -1049,6 +1049,7 @@
     "messageApproverButton": "Onaylayan Yönetici",
     "label": "Talep Etiketi",
     "requestTagsShort": "Etiket seçiniz",
+      "requestTagPlaceholder": "Talep Etiketi seçiniz...",
     "requestTagsGridEmpty": "Etiketler"
   },
   "audit": {
@@ -1475,7 +1476,7 @@
       "citizenHandle": "Vatandaş / Gönderen",
       "citizenName": "Vatandaş Adı / Gönderen",
       "citizenNamePlaceholder": "Vatandaş adı giriniz...",
-      "citizenPhone": "Vatandaş Telefon No",
+      "citizenPhone": "Telefon No",
       "citizenPhoneHint": "(Başında 0 olmadan ekleyin)",
       "citizenPhoneInvalid": "Vatandaş telefon numarası 10 haneli olmalıdır.",
       "citizenPhoneMustStartWith5": "Telefon numarası 5 ile başlamalıdır.",

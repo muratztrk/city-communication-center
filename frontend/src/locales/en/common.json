@@ -1041,6 +1041,7 @@
     },
     "messageApproverButton": "Approving Manager",
     "requestTagsShort": "Select a tag",
+      "requestTagPlaceholder": "Select request tag...",
     "requestTagsGridEmpty": "Tags",
     "label": "Request Tag"
   },
@@ -1444,7 +1445,7 @@
       "citizenHandle": "Citizen / Sender",
       "citizenName": "Citizen Name / Sender",
       "citizenNamePlaceholder": "Enter citizen name...",
-      "citizenPhone": "Citizen Phone No",
+      "citizenPhone": "Phone No",
       "citizenPhoneHint": "(without leading 0)",
       "citizenPhoneInvalid": "Citizen phone number must be 10 digits.",
       "citizenPhoneMustStartWith5": "Phone number must start with 5.",

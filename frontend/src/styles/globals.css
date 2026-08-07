@@ -1198,10 +1198,10 @@
     height: 1.875rem !important;
     min-height: 1.875rem !important;
     gap: 0.2rem;
-    padding: 0 0.4rem !important;
-    font-size: 0.7rem !important;
+    padding: 0 1.35rem 0 0.35rem !important; /* X ile metin çakışmasın (#6a75d499) */
+    font-size: 0.65rem !important;
     font-weight: 600;
-    line-height: 1.2;
+    line-height: 1.15;
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.28);
     color: rgba(255, 255, 255, 0.7) !important;
@@ -1215,10 +1215,22 @@
   }
 
   .notification-modal-header .notification-modal-date.scope-chip-date .field-input svg {
-    width: 0.65rem !important;
-    height: 0.65rem !important;
+    width: 0.6rem !important;
+    height: 0.6rem !important;
     color: rgba(255, 255, 255, 0.75) !important;
     opacity: 1 !important;
+  }
+
+  /* Bildirim tarih clear (X): metinle çakışmasın, sağda sabit (#6a75d499). */
+  .notification-modal-header .notification-modal-date.scope-chip-date button[aria-label='Temizle'] {
+    right: 0.2rem;
+    width: 0.85rem;
+    height: 0.85rem;
+  }
+
+  .notification-modal-header .notification-modal-date.scope-chip-date button[aria-label='Temizle'] svg {
+    width: 0.55rem;
+    height: 0.55rem;
   }
 
   @media (min-width: 1024px) {
@@ -3382,14 +3394,13 @@
     line-height: 1.35;
   }
 
-  /* Talep Başlığı: genişliği aşınca alt satıra sarar + dikey scroll (WA Vatandaş Talebi modal).
-     Etiket textbox kaldırılınca boşalan dikey alan buraya eklendi — genişlik aynı (#6a75d1bf). */
+  /* Talep Başlığı: genişliği aşınca alt satıra sarar + dikey scroll (WA Vatandaş Talebi modal). */
   .citizen-request-form .citizen-request-title-textarea {
     box-sizing: border-box;
     width: 100%;
     max-width: 100%;
-    min-height: 4.25rem;
-    max-height: 6.5rem;
+    min-height: 2.5rem;
+    max-height: 4.5rem;
     padding: 0.3rem 0.5rem;
     font-size: 0.82rem;
     line-height: 1.35;

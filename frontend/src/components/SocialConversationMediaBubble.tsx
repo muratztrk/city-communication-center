@@ -137,7 +137,12 @@ function SocialConversationMediaBubbleInner({
   const canPreviewInline = mime.startsWith('image/') || mime.startsWith('video/') || mime.startsWith('audio/')
 
   const addAsAttachmentButton = showAddAsAttachment ? (
-    <Button type="button" size="sm" variant="success" className="h-7 px-2 text-[11px]" onClick={() => void handleAddAsAttachment()}>
+    <Button
+      type="button"
+      size="sm"
+      className="h-7 px-2 text-[11px] !bg-teal-500 !text-white hover:!bg-teal-600"
+      onClick={() => void handleAddAsAttachment()}
+    >
       {t('whatsapp.addAsRequestAttachment', 'Talep Eki Olarak Ekle')}
     </Button>
   ) : null

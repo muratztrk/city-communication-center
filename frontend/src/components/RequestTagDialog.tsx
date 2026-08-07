@@ -203,6 +203,8 @@ interface RequestTagPickerProps {
   /** Seçimi temizler → buton "Etiketler" default (#r461/#r462). */
   onClear?: () => void
   largeText?: boolean
+  /** Dropdown menü satır yazısını biraz küçült (Çağrı Talebi #6a75ed7e). */
+  compactMenuText?: boolean
   /** Seçili etiket adı — buton metni; yoksa emptyLabel / requestTagsShort. */
   selectedName?: string | null
   /**
@@ -233,6 +235,7 @@ export function RequestTagPicker({
   onSelect,
   onClear,
   largeText = false,
+  compactMenuText = false,
   selectedName = null,
   showSelectedOnButton = true,
   emptyLabel,
@@ -322,7 +325,7 @@ export function RequestTagPicker({
             key={tag.tagId}
             type="button"
             onClick={() => { onSelect(tag.name); setOpen(false); setSearch(''); setMenuStyle(null) }}
-            className="flex w-full items-center justify-start truncate px-3 py-2 text-left text-xs font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-emerald-50 hover:text-emerald-900"
+            className={`flex w-full items-center justify-start truncate px-3 py-2 text-left font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-emerald-50 hover:text-emerald-900 ${compactMenuText ? 'text-[11px]' : 'text-xs'}`}
           >
             {tag.name}
           </button>
@@ -341,7 +344,7 @@ export function RequestTagPicker({
         onClick={toggleOpen}
         disabled={isEmpty}
         title={trimmedSelected || buttonLabel}
-        className={`w-full justify-between gap-1 disabled:opacity-50 ${largeText ? 'h-9 text-sm' : 'h-8 px-2.5 text-xs'}`}
+        className={`w-full justify-between gap-1 disabled:opacity-50 ${largeText ? (compactMenuText ? 'h-9 text-[13px]' : 'h-9 text-sm') : 'h-8 px-2.5 text-xs'}`}
       >
         <span className="flex min-w-0 items-center gap-1.5">
           <Tag className="size-3.5 shrink-0 text-emerald-600" />

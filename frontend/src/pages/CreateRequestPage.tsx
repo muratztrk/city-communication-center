@@ -1480,7 +1480,7 @@ export function CreateRequestPage() {
                 />
               </label>
               <label className="job-field">
-                <span className="job-field-label normal-case">{t('settings.citizen.citizenPhone', 'Vatandaş Telefon No')} <span className="text-xs font-normal text-slate-400 normal-case">{t('settings.citizen.citizenPhoneHint', '(Başında 0 olmadan ekleyin)')}</span> <span className="text-red-500">*</span></span>
+                <span className="job-field-label">{t('settings.citizen.citizenPhone', 'Telefon No')} <span className="text-xs font-normal text-slate-400 normal-case">{t('settings.citizen.citizenPhoneHint', '(Başında 0 olmadan ekleyin)')}</span> <span className="text-red-500">*</span></span>
                 <input
                   className="field-input"
                   required
@@ -1526,11 +1526,13 @@ export function CreateRequestPage() {
                     value={citizenLabel}
                     readOnly
                     disabled
+                    placeholder={t('whatsapp.requestTagPlaceholder', 'Talep Etiketi seçiniz...')}
                   />
                   {canManageRequestTags && (
                     <>
                       <RequestTagPicker
                         largeText
+                        compactMenuText
                         tags={requestTags}
                         selectedName={citizenLabel}
                         onSelect={label => void handleCitizenLabelSelect(label)}

@@ -1118,10 +1118,11 @@ function ConversationDetail({
   const ticketLabel = detail
     ? `Talep Sayısı: ${detail.intakeCount + detail.inProgressCount + detail.completedCount}`
     : formatWhatsAppTicketLabel(primaryTicket)
-  // Header'daki "Görev Sahibi" listesi yalnız Yapılmakta (Job Active) taleplerin görevlilerini
-  // gösterir; tamamlanan/iptal edilen taleplerin personel adları düşer (card #1372).
+  // Header'daki "Görev Sahibi" yalnız aktif (Yapılmakta) taleplerin aktif görev atananlarını
+  // gösterir; talep/görev tamamlandı veya iptal ise düşer (#6a75ec71 / #1372).
   const taskOwnerLabel = detail?.tickets.reduce<string[]>((owners, ticket) => {
-    if (ticket.jobStatus !== 'Active') return owners
+    const status = ticket.jobStatus
+    if (status !== 'Active') return owners
     const assigneeName = ticket.jobId ? ticket.assigneeDisplayName?.trim() : null
     if (assigneeName && !owners.includes(assigneeName)) owners.push(assigneeName)
     return owners

@@ -157,7 +157,10 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     : m.AssignedDepartment != null ? m.AssignedDepartment.Name : null,
                 m.Job != null
                     ? m.Job.Tasks
-                        .Where(task => task.AssignedUserId != null)
+                        .Where(task => task.AssignedUserId != null
+                            && task.CurrentStatus != Domain.Enums.TaskStatus.Completed
+                            && task.CurrentStatus != Domain.Enums.TaskStatus.Cancelled
+                            && task.CurrentStatus != Domain.Enums.TaskStatus.Rejected)
                         .OrderByDescending(task => task.AssignedAtUtc ?? task.CreatedAtUtc)
                         .Select(task => new
                         {

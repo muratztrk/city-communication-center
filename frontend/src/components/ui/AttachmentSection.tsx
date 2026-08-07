@@ -196,7 +196,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
             disabled={isDisabled}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Paperclip className="size-3.5 text-blue-700" aria-hidden="true" />
+            <Paperclip className="size-3.5 text-emerald-600" aria-hidden="true" />
             {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
           </button>
           {uploading && showUploadProgress && (

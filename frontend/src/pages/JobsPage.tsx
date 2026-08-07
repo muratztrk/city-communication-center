@@ -743,7 +743,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const [myRequestEditDraft, setMyRequestEditDraft] = useState<MyRequestEditDraft | null>(null)
   const [myRequestEditSaving, setMyRequestEditSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
-  const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean } | null>(null)
+  const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean; displayNumber?: string } | null>(null)
   const [staffAssignModal, setStaffAssignModal] = useState<{
     jobId: string
     selectedUserIds: string[]
@@ -888,6 +888,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const showTaskOwnerColumn = isMyRequestsView
     ? ['in-progress', 'completed', 'rejected'].includes(activeJobView)
     : isDepartmentOutgoingView && activeJobView === 'in-progress'
+  // Tamamlanmış / İptal Taleplerim: Gittiği Yer, Görevi Yapan'dan önce (#6a75e470).
+  const destinationBeforeOwner = showTaskOwnerColumn
+    && isMyRequestsView
+    && (activeJobView === 'completed' || activeJobView === 'rejected')
   const hideJobsDueDateColumn = (isMyRequestsView || isDepartmentOutgoingView) && (
     activeJobView === 'rejected'
     || activeJobView === 'completed'
@@ -1589,7 +1593,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   }
 
   const handleCancel = (jobId: string) => {
-    setCancelModal({ jobId, reason: '', saving: false })
+    const fromList = jobs.find(j => j.jobId === jobId)
+    const fromDetail = detail?.jobId === jobId ? detail : null
+    const displayNumber = fromList
+      ? formatJobDisplayNumber(fromList)
+      : fromDetail
+        ? formatJobDisplayNumber(fromDetail)
+        : undefined
+    setCancelModal({ jobId, reason: '', saving: false, displayNumber })
   }
 
   const handleCancelConfirm = async () => {
@@ -2122,8 +2133,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   <col className="grid-col-date" />
                   {isDepartmentOutgoingView && <col className="grid-col-created-by" />}
                   <col className="grid-col-title" />
+                  {destinationBeforeOwner && <col className="grid-col-destination" />}
                   {showTaskOwnerColumn && <col className="grid-col-task-owner" />}
-                  <col className="grid-col-destination" />
+                  {!destinationBeforeOwner && <col className="grid-col-destination" />}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'all' && <col className="grid-col-status" />}
                   {!hideJobsDueDateColumn && <col className="grid-col-due" />}
                   {(isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'approved' && <col className="grid-col-status-date" />}
@@ -2139,9 +2151,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                   {(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="createdAtUtc" filterValue={jobFilters['createdAtUtc'] ?? ''} onFilter={setJobFilter} sortKey="createdAtUtc" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.requestDate', 'Talep Tarihi')}</FilterableTh>}
                   {isDepartmentOutgoingView && <FilterableTh filterKey="createdByDisplayName" filterValue={jobFilters['createdByDisplayName'] ?? ''} onFilter={setJobFilter} sortKey="createdByDisplayName" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.createdBy', 'Oluşturan')}</FilterableTh>}
                   <FilterableTh filterKey="title" filterValue={jobFilters['title'] ?? ''} onFilter={setJobFilter} sortKey="title" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.title')}</FilterableTh>
+                  {destinationBeforeOwner && (
+                    <FilterableTh filterKey="destinationText" filterValue={jobFilters['destinationText'] ?? ''} onFilter={setJobFilter} sortKey="destinationText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.destination', 'Gittiği Yer')}</FilterableTh>
+                  )}
                   {showTaskOwnerColumn && <FilterableTh filterKey="assignedUserDisplayName" filterValue={jobFilters['assignedUserDisplayName'] ?? ''} onFilter={setJobFilter} sortKey="assignedUserDisplayName" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('tasks.columns.owner', 'Görev Sahibi')}</FilterableTh>}
                   {(isMyRequestsView || isDepartmentOutgoingView)
-                    ? <FilterableTh filterKey="destinationText" filterValue={jobFilters['destinationText'] ?? ''} onFilter={setJobFilter} sortKey="destinationText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.destination', 'Gittiği Yer')}</FilterableTh>
+                    ? (!destinationBeforeOwner
+                      ? <FilterableTh filterKey="destinationText" filterValue={jobFilters['destinationText'] ?? ''} onFilter={setJobFilter} sortKey="destinationText" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.destination', 'Gittiği Yer')}</FilterableTh>
+                      : null)
                     : <th>{t('jobs.columns.departments')}</th>
                   }
                   {!(isMyRequestsView || isDepartmentOutgoingView) && <FilterableTh filterKey="priority" filterValue={jobFilters['priority'] ?? ''} onFilter={setJobFilter} sortKey="priority" currentSortKey={jobsSortKey} sortDir={jobsSortDir} onSort={toggleJobsSort}>{t('jobs.columns.priority')}</FilterableTh>}
@@ -2209,12 +2226,19 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     )}
                     {isDepartmentOutgoingView && <td><EmptyCell value={job.createdByDisplayName} /></td>}
                     <td className="font-semibold"><TruncatedText text={job.title} className={`cell-title ${isReporterJob ? 'text-[#f97316]' : ''}`} /></td>
+                    {destinationBeforeOwner && (
+                      <td>
+                        {renderOutgoingDestination(job)}
+                      </td>
+                    )}
                     {showTaskOwnerColumn && <td><EmptyCell value={job.assignedUserDisplayName} /></td>}
-                    <td>
-                      {isMyRequestsView || isDepartmentOutgoingView ? (
-                        renderOutgoingDestination(job)
-                      ) : renderJobDepartments(job)}
-                    </td>
+                    {!destinationBeforeOwner && (
+                      <td>
+                        {isMyRequestsView || isDepartmentOutgoingView ? (
+                          renderOutgoingDestination(job)
+                        ) : renderJobDepartments(job)}
+                      </td>
+                    )}
                     {!(isMyRequestsView || isDepartmentOutgoingView) && <td>{getPriorityLabel(t, job.priority)}</td>}
                     {!isMyRequestsView && !isDepartmentOutgoingView && (
                       <td><JobProjectValue job={job} t={t} /></td>
@@ -3470,7 +3494,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               <XIcon className="size-4" />
             </button>
             <h2 id="cancel-job-dialog-title" className="workflow-note-dialog__title">{t('jobs.actions.cancelJob', 'Talebi İptal Et')}</h2>
-            <p className="workflow-note-dialog__help">{t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}</p>
+            <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
+              {cancelModal.displayNumber ? (
+                <>
+                  <span className="font-semibold text-red-600">{cancelModal.displayNumber}</span>
+                  {' '}
+                </>
+              ) : null}
+              {t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
+            </p>
             <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
@@ -3483,13 +3515,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 autoFocus
               />
             </label>
-            <div className="inline-actions justify-end">
-              <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>
-                {t('common.dismiss', 'Vazgeç')}
-              </Button>
-              <Button type="button" variant="destructive" disabled={cancelModal.saving || !cancelModal.reason.trim()} onClick={() => void handleCancelConfirm()}>
-                {cancelModal.saving ? t('common.loading') : t('jobs.actions.cancel', 'İptal Et')}
-              </Button>
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <div className="inline-actions justify-end">
+                <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>
+                  {t('common.dismiss', 'Vazgeç')}
+                </Button>
+                <Button type="button" variant="destructive" disabled={cancelModal.saving || !cancelModal.reason.trim()} onClick={() => void handleCancelConfirm()}>
+                  {cancelModal.saving ? t('common.loading') : t('jobs.actions.cancel', 'İptal Et')}
+                </Button>
+              </div>
             </div>
           </section>
         </div>,

@@ -665,8 +665,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   // (#6a75af48 / #6a75a628). Tip rozeti Görev Tarihi altında: Görevlerim + Personelimin (#6a75969e / #6a75c4e8).
   const showTaskTypeColumn = isDepartmentTasksView
   const showTaskTypeUnderDate = isMyTasksView || isStaffTasksView
-  // Son Tarih: Birimdeki'de yalnız Son Tarihi Geçmiş (#6a75ad62); diğer birim görünümlerinde yok.
-  const hideDueDateColumn = (isDepartmentTasksView && currentMyTaskView !== 'overdue')
+  // Son Tarih: Birimdeki'de Bekleyen + Son Tarihi Geçmiş (#6a75e88c / #6a75ad62); diğer birim görünümlerinde yok.
+  const hideDueDateColumn = (isDepartmentTasksView && currentMyTaskView !== 'overdue' && currentMyTaskView !== 'pending')
     || (isMyTasksView && (currentMyTaskView === 'rejected' || currentMyTaskView === 'completed'))
   const hasTerminalDateColumn = (isMyTasksView || isDepartmentTasksView) && (
     currentMyTaskView === 'completed' || currentMyTaskView === 'rejected'
@@ -3148,21 +3148,25 @@ const pageKicker = isMyTasksView
                     </td>
                     <td>
                       <DateCell value={task.createdAtUtc} locale={locale} highlight={isReporterTask && Boolean(task.createdAtUtc)} />
-                      {/* Bugün atanan görevler: Görev Tarihi altında yanıp sönen yeşil "Yeni"
-                          (Görevlerim #589; Birimdeki/Personelim #1668). Terminalde gizlenir (#606). */}
-                      {(isMyTasksView || isDepartmentTasksView || isStaffTasksView)
-                        && !['Completed', 'Cancelled', 'Rejected'].includes(task.currentStatus)
-                        && isAssignedToday(task.assignedAtUtc) && (
-                        <div className="task-new-badge">{t('tasks.badges.new', 'Yeni')}</div>
-                      )}
-                      {/* Görevlerim: Görev Tipi, Görev Tarihi alt satırında (#6a75969e). */}
-                      {showTaskTypeUnderDate && (
-                        <div className="mt-1 flex justify-center">
-                          <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.72rem]">
-                            {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
-                          </StatusPill>
-                        </div>
-                      )}
+                      {/* Yeni + Görev Tipi aynı satırda yan yana (#6a75e10f); tip yoksa yalnız Yeni. */}
+                      {(() => {
+                        const showNew = (isMyTasksView || isDepartmentTasksView || isStaffTasksView)
+                          && !['Completed', 'Cancelled', 'Rejected'].includes(task.currentStatus)
+                          && isAssignedToday(task.assignedAtUtc)
+                        if (!showNew && !showTaskTypeUnderDate) return null
+                        return (
+                          <div className="mt-1 flex flex-wrap items-center justify-center gap-1.5">
+                            {showNew ? (
+                              <div className="task-new-badge !mt-0">{t('tasks.badges.new', 'Yeni')}</div>
+                            ) : null}
+                            {showTaskTypeUnderDate ? (
+                              <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.72rem]">
+                                {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
+                              </StatusPill>
+                            ) : null}
+                          </div>
+                        )
+                      })()}
                     </td>
                     {/* Talep eden müdürlük (üst) ve talebi oluşturan kullanıcı (alt), dar ve ortalı.
                         Dış birimde Gittiği Yer çerçevesi (card #r449). */}

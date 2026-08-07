@@ -1945,6 +1945,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sıfırlanır; chip/buton geçişlerinde de temizlenir.
 - **Dashboard Bekleyen Görevlerim alt metin (#6a75c91c reopen):** `(Birim İçi/Birim Dışı)` — "Bekleyen ve Son Tarihi Geçmiş" eklenmez (geri alındı).
 - **WA kişi kartı (#6a75a9c2/#6a75cccc/#6a75ccfa/#6a75cd3f):** webhook `contacts` → `[kişi kartı]\nAd\ntelefon` (bullet/tire/ayraç yok; isim ile numara ayrı satır); balonda User ikonu (emerald çerçeve); konum MapPin/Haritada aç kişi kartında çıkmaz (thread lat/lng sızmaz). FE eski `Ad ·/ - telefon` kayıtlarını da satır kırarak gösterir. İsim/numara metni `text-xs font-semibold` (sm değil; medium→semibold hafif bump — #6a75cccc).
+- **Birimdeki Bekleyen Son Tarih (#6a75e88c):** `hideDueDateColumn` false for department `pending` (overdue ile birlikte).
+- **Görev Tarihi Yeni+Tip (#6a75e10f):** Yeni rozeti ile Görev Tipi aynı satırda yan yana (`showTaskTypeUnderDate`).
+- **Dizin telefon (#6a75e40c):** `formatDirectoryPhone` → `xxx xxx xx xx`.
+- **WA Talep Eki turkuaz (#6a75e2f0):** `SocialConversationMediaBubble` add-as-attachment `bg-teal-500`.
+- **SMS alıcı (#6a75eea2):** `WhatsAppRecipientResolver` Job.CitizenPhone fallback.
+- **WA etiket revert (#6a75d1bf reopen):** Talep Etiketi readonly textbox geri; başlık min-height 2.5rem.
 - **WA medya Önizle (#6a75cc3f):** gelen görsel/video/ses Önizle butonu yeşil (`variant=success`) + Eye ikonu.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık
   satırının sağına**; **Talep Etiketi** pie'sında filtre butonlarının **bir alt satırında** sağa

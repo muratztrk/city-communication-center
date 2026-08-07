@@ -337,7 +337,7 @@ export function MyRequestDetailMainCard({
       />
       {detailDueDateEdit.mode === 'confirm' && (
         <div className="flex max-w-[18rem] flex-col gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-2">
-          <span className="text-xs font-semibold text-slate-900">
+          <span className="text-xs font-bold text-slate-900">
             {detailDueDateEdit.value
               ? formatDateTime(new Date(detailDueDateEdit.value).toISOString(), locale)
               : t('common.none')}

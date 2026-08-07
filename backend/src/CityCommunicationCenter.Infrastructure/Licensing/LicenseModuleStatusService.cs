@@ -95,6 +95,11 @@ internal sealed class LicenseModuleStatusService : ILicenseModuleStatusService
         var cacheTtl = TimeSpan.FromMinutes(Math.Max(1, _options.CacheMinutes));
         var offlineCacheTtl = cacheTtl;
 
+        if (_cache.TryGetValue(cacheKey, out ResolvedLicenseModuleStatus? cachedStatus))
+        {
+            return cachedStatus!;
+        }
+
         var settings = await _dbContext.TenantSettings
             .AsNoTracking()
             .FirstOrDefaultAsync(entity => entity.TenantId == tenantId, cancellationToken);

@@ -1642,6 +1642,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (kapalı ağ) → **fail-closed**. Uzaktan HTTP reddi (askıya alma) varken eski kayıtlı JWT
   kullanılmaz (#citizen-license-suspend).
   `TenantSetting.LicenseModulesJson` kalıcı depo; online başarılı fetch otomatik persist eder.
+  Uzaktan sorgu sıklığı: `Licensing:CacheMinutes` (prod **60**) + bellek önbelleği (okuma+TTL);
+  FE `LicenseModuleSync` refetch ~saat başı. Manuel token kaydı cache'i temizler.
   `frontend/src/lib/licenseModules.ts` + backend `LicenseModuleStatusService`; sayfa/menü gizleme
   `PAGE_LICENSE_MODULE` haritası üzerinden `canAnyRoleAccessPage`'e entegre (bkz. rolePageAccess.ts).
   **Kurum İçi kapalıyken (#2369/#2376/#2377/#2378):** `outgoingRequests` menü/arama/dashboard'dan gizlenir

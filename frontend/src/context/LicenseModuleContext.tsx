@@ -5,6 +5,9 @@ import { queryKeys } from '../api/queryKeys'
 import { clearLicenseModules, saveLicenseModules } from '../lib/licenseModules'
 import { useAuth } from './AuthContext'
 
+/** Uzaktan lisans servisi yükünü sınırla — backend CacheMinutes ile uyumlu (~saat başı). */
+const LICENSE_SYNC_INTERVAL_MS = 60 * 60 * 1000
+
 /**
  * Lisans modül durumunu login sonrası çeker ve `lib/licenseModules.ts`'e (rolePageAccess.ts'teki
  * rol-yetki matrisiyle aynı localStorage-senkron desen) yansıtır — böylece `canAnyRoleAccessPage`
@@ -19,9 +22,9 @@ export function LicenseModuleSync({ children }: PropsWithChildren) {
     queryKey: queryKeys.licensing.modules(),
     queryFn: () => api.getLicenseModules(),
     enabled: isAuthenticated,
-    staleTime: 60_000,
-    refetchInterval: 60_000,
-    refetchOnWindowFocus: true,
+    staleTime: LICENSE_SYNC_INTERVAL_MS,
+    refetchInterval: LICENSE_SYNC_INTERVAL_MS,
+    refetchOnWindowFocus: false,
     retry: false,
   })
 

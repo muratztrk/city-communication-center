@@ -32,10 +32,25 @@ public class LicenseModuleStatusServiceTests
             Task.FromResult(_result);
     }
 
+    private sealed class CountingRemoteClient : IRemoteLicenseTokenClient
+    {
+        public int CallCount { get; private set; }
+        private readonly RemoteLicenseFetchResult _result;
+
+        public CountingRemoteClient(RemoteLicenseFetchResult result) => _result = result;
+
+        public Task<RemoteLicenseFetchResult> FetchTokenAsync(string fullBundleId, CancellationToken cancellationToken)
+        {
+            CallCount++;
+            return Task.FromResult(_result);
+        }
+    }
+
     private static LicenseModuleStatusService CreateService(
         CityCommunicationCenterDbContext dbContext,
         RemoteLicenseFetchResult remoteResult,
-        LicensingPublicKeyOptions[] publicKeys)
+        LicensingPublicKeyOptions[] publicKeys,
+        IRemoteLicenseTokenClient? remoteClient = null)
     {
         var options = Options.Create(new LicensingOptions
         {
@@ -48,7 +63,7 @@ public class LicenseModuleStatusServiceTests
         return new LicenseModuleStatusService(
             dbContext,
             new LicenseTokenVerifier(options),
-            new StubRemoteClient(remoteResult),
+            remoteClient ?? new StubRemoteClient(remoteResult),
             new MemoryCache(new MemoryCacheOptions()),
             options,
             NullLogger<LicenseModuleStatusService>.Instance);
@@ -152,6 +167,24 @@ public class LicenseModuleStatusServiceTests
 
         var settings = await dbContext.TenantSettings.FirstAsync(entity => entity.TenantId == TenantId);
         Assert.Contains(RealSignedToken[..20], settings.LicenseModulesJson);
+    }
+
+    [Fact]
+    public async Task GetModuleStatusAsync_skips_remote_fetch_when_cached()
+    {
+        await using var dbContext = await CreateDbContextAsync();
+        var remoteClient = new CountingRemoteClient(
+            new RemoteLicenseFetchResult(RemoteLicenseFetchOutcome.Success, RealSignedToken));
+        var service = CreateService(
+            dbContext,
+            new RemoteLicenseFetchResult(RemoteLicenseFetchOutcome.Success, RealSignedToken),
+            [new LicensingPublicKeyOptions { Kid = "k1", PublicKeyHex = RealPublicKeyHex }],
+            remoteClient);
+
+        await service.GetModuleStatusAsync(TenantId, "tirebelediyesi", LicenseModule.Citizen, CancellationToken.None);
+        await service.GetModuleStatusAsync(TenantId, "tirebelediyesi", LicenseModule.Citizen, CancellationToken.None);
+
+        Assert.Equal(1, remoteClient.CallCount);
     }
 
     [Fact]

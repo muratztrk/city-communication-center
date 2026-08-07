@@ -449,7 +449,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   SocialMessage lat/lng ile tanınır. Medya placeholder (`[image]` vb.) ve medya balonunda
   konum UI yok (#6a74de2a reopen / #6a6b9fac).
   Inbound MapPin çerçevesi Taleplerim ek ikonuyla aynı emerald rozet
-  (`border-emerald-100 bg-emerald-50 text-blue-700`, `size-5` kutu + `size-3` ikon; #6a74de2a).
+  (`border-emerald-100 bg-emerald-50 text-emerald-700`, `size-5` kutu + `size-3` ikon; #6a74de2a / #6a75958d).
   Detayda turuncu
   **Talep Durumunu Değiştir** → `ReopenCitizenMessageJobCommand` (`POST …/reopen-to-in-progress`)
   Job'u Active + terminal görevleri InProgress yapar, release bayrağını temizler (card #2057/#2062).
@@ -574,11 +574,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yüksekliği kompakt `max-h-32`, normal `max-h-44` (Round 717). Görsel ek adı **alt** satırda;
   X görselin **üst satırında sağda** (görsel içinde overlay değil — #6a7586af reopen).
   Görsel dosya adı yanındaki küçük ikonda emerald çerçeve **yok** (#6a7592b2); doküman satırında
-  Taleplerim rozeti kalır: `rounded-md border-emerald-100 bg-emerald-50 text-blue-700` (#6a758a88).
-  Modal gelen görsel `max-w-[15.5rem]`; sayfa inbound
+  Taleplerim rozeti kalır: `rounded-md border-emerald-100 bg-emerald-50 text-emerald-700`
+  (#6a758a88 / #6a75958d). Modal gelen görsel `max-w-[15.5rem]`; sayfa inbound
   `max-w-[18rem] object-contain` (bubble genişliği aynı kalır). WA gelen doküman adı çerçevesi
   `text-[11px] px-2.5 py-1.5`. Modal Dosya ekle pending: balon altında **Düzenle** + **Mesajı Gönder**
-  (`ConversationPanel`, WA sayfasıyla aynı — #6a7586e9).
+  (`ConversationPanel`, WA sayfasıyla aynı — #6a7586e9); balon içinde **Beklemede** (#6a75994d).
   WA konuşma medyası (sayfa + Vatandaş Talebi popup) `socialMediaBlobCache` ile bellek içi LRU
   önbelleğe alınır (max 40 / ~48MB); tekrar görüntülemede ağ isteği yok (#6a758a88). Logout cache temizler.
 - **Kurum İçi pending ek (#2395 reopen):** mime/boyut alt satırı basılmaz. Ek yüklendikten sonra alıcıya
@@ -1357,11 +1357,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `FilterableTh` iç sıra: başlık → sıralama ikonu → filtre (`MoreVertical`); sıralama label içinde
   değil (#6a759062). Label/ikon aralığı dengeli kalır.
 - **Grid Öncelik alt satır metni:** `(Öncelik:…)` değil `Öncelik:…` — parantez yok (#6a75913e).
-- **Birime Gelen / Birimden Giden / Mesaj Onayı aksiyon ikonları:** Detaylar=`ClipboardList`
-  (Eye değil — #6a758f80 reopen), Onayla=`Check`, İptal Et=`XCircle`; butonlar
-  `inline-flex items-center gap-1.5` (#6a758f80 / #6a758fb1).
+- **Birime Gelen / Birimden Giden / Mesaj Onayı aksiyon ikonları:** Detaylar=`NotebookPen`
+  (popup Açıklama başlığı ile aynı — #6a758f80 reopen), Onayla=`Check`, İptal Et=`XCircle`;
+  butonlar `inline-flex items-center gap-1.5` (#6a758f80 / #6a758fb1).
 - **Grid Öncelik alt satır boşluğu:** `.table-number-cell__priority` / `.wallboard-priority-text`
   `margin-top: 0.2rem` (#6a75913e reopen).
+- **WA / kurum içi pending ek balonu:** Dosya ekle önizlemesinde balon içinde `Beklemede`
+  durumu gösterilir (#6a75994d / #6a759a3e). Kurum içi iletilmiş satırda Okundu/İletildi satırı
+  `mt-1.5` (#6a759a81). Görsel dışı ek/konum ikon rengi çerçevede `text-emerald-700` (#6a75958d).
+- **Header Personel Dahili No bul:** input ikonu `User` (büyüteç değil — #6a759807).
 
 ## 5. Dashboard / Wallboard
 

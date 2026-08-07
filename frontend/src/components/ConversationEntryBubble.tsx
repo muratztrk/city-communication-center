@@ -263,7 +263,7 @@ export function ConversationEntryBubble({
                 <span
                   className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border ${
                     isInbound
-                      ? 'border-emerald-100 bg-emerald-50 text-blue-700'
+                      ? 'border-emerald-100 bg-emerald-50 text-emerald-700'
                       : 'border-white/25 bg-white/15 text-white'
                   }`}
                 >

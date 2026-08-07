@@ -2256,7 +2256,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" className="inline-flex items-center gap-1.5" onClick={() => openDetail(job.jobId)}>
-                          <ClipboardList className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                          <NotebookPen className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('jobs.actions.details')}
                         </Button>
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'PendingOwnerApproval' && (

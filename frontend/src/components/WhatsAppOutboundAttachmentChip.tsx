@@ -17,9 +17,9 @@ interface WhatsAppOutboundAttachmentChipProps {
   onImageClick?: () => void
 }
 
-/** Taleplerim detay ek ikon rozeti — yalnız doküman satırında (#6a758a88); görselde çerçeve yok (#6a7592b2). */
+/** Taleplerim detay ek ikon rozeti — yalnız doküman satırında; ikon yeşil (#6a75958d). */
 const attachmentIconBadgeClass =
-  'flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-blue-700'
+  'flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700'
 
 /** Giden WA ek chip — görselde ad altta; X görsel üst satır sağında (#6a7586af reopen). */
 export function WhatsAppOutboundAttachmentChip({

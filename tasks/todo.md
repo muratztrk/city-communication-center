@@ -1,3 +1,14 @@
+## Round 729 — Detaylar NotebookPen + Beklemede + yeşil ikon + User (6 kart)
+- `#6a758f80`: Detaylar = Açıklama `NotebookPen`.
+- `#6a759a3e` / `#6a75994d`: kurum içi + WA Dosya ekle pending balonunda Beklemede.
+- `#6a759a81`: kurum içi Okundu/İletildi satırı `mt-1.5`.
+- `#6a75958d`: görsel dışı ek/konum ikon `text-emerald-700`.
+- `#6a759807`: Dahili No bul ikonu User.
+
+## Round 728 — Detaylar ClipboardList + Öncelik üst boşluk (2 kart)
+- `#6a758f80` reopen: Detaylar ikonu Eye → ClipboardList (Birime Gelen/Giden + Mesaj Onayı).
+- `#6a75913e` reopen: grid Öncelik `margin-top: 0.2rem`.
+
 ## Round 727 — WA medya blob cache (1 kart)
 - `#6a758a88`: `socialMediaBlobCache` LRU; `downloadSocialMedia` cache’li; logout temizler.
 

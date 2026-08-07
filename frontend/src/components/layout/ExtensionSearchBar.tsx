@@ -1,4 +1,4 @@
-import { Search, X } from 'lucide-react'
+import { User, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
@@ -100,7 +100,7 @@ export function ExtensionSearchBar() {
   return (
     <div ref={containerRef} className="relative">
       <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 shadow-sm transition-shadow focus-within:border-slate-300 focus-within:shadow-md">
-        <Search className="size-4 shrink-0 text-slate-400" />
+        <User className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
         <input
           ref={inputRef}
           type="text"
@@ -142,7 +142,7 @@ export function ExtensionSearchBar() {
           ) : (
             <div className="max-h-[28rem] overflow-y-auto">
               <div className="flex items-center gap-1.5 border-b border-slate-100 bg-slate-50 px-4 py-2.5">
-                <Search className="size-4 text-[color:var(--color-primary)]" />
+                <User className="size-4 text-[color:var(--color-primary)]" aria-hidden="true" />
                 <span className="text-sm font-bold tracking-[0.04em] text-[color:var(--color-primary)]">
                   {t('search.extensionResults', 'Personel')}
                 </span>

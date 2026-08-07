@@ -369,6 +369,9 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   className="mt-2 w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
                 />
               ) : null}
+              <p className={`mt-1.5 flex items-baseline justify-end gap-1 text-[10px] text-white/65 ${compactBubbles ? 'text-[9px]' : ''}`}>
+                <span className="font-semibold tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
+              </p>
             </div>
             <div className={`mt-1 flex items-center gap-1.5 ${compactActions ? '' : ''}`}>
               <button

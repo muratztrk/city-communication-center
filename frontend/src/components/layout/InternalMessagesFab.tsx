@@ -760,7 +760,7 @@ export function InternalMessagesFab() {
                             {message.attachment ? (
                               <InternalMessageAttachmentDisplay attachment={message.attachment} isMine={isMine} />
                             ) : null}
-                            <p className={`mt-0.5 flex items-center justify-end gap-1 text-[9px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
+                            <p className={`mt-1.5 flex items-center justify-end gap-1 text-[9px] ${isMine ? 'text-emerald-100' : 'text-slate-400'}`}>
                               {isMine ? (
                                 <span className={`inline-flex items-center gap-0.5 ${message.readAtUtc ? 'text-sky-300' : 'text-emerald-100'}`}>
                                   <CheckCheck className="size-3" aria-hidden="true" />
@@ -834,6 +834,9 @@ export function InternalMessagesFab() {
                           />
                         </>
                       ) : null}
+                      <p className="mt-1.5 flex items-baseline justify-end gap-1 text-[9px] text-emerald-100">
+                        <span className="font-semibold tracking-wide">{t('whatsapp.pendingBadge', 'Beklemede')}</span>
+                      </p>
                     </div>
                     <button
                       type="button"

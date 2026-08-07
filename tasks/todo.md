@@ -1,3 +1,6 @@
+## Round 746 — WA kişi kartı bold hafif artır (1 kart reopen)
+- `#6a75cccc` reopen: text-xs font-semibold (medium→semibold).
+
 ## Round 745 — bildirim tarih/ara tipografi + title tooltip (1 kart reopen)
 - `#6a75d499` reopen: tarih metin/ikon küçült; Ara placeholder küçült; DateTimePicker title overflow.
 

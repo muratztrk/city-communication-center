@@ -560,7 +560,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Medya balon Talep Eki hizası (#2401/#2410):** modalda görsel+doküman gelen eklerde Önizle · İndir · Talep Eki
   **aynı satırda** (Talep Eki İndir'in sağında). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
   gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5` (#2411 reopen). Bekleyen giden görsel önizleme
-  yüksekliği kompakt `max-h-24`, normal `max-h-36` (#2414 reopen).
+  yüksekliği kompakt `max-h-32`, normal `max-h-44` (Round 717). Görsel ek adı **alt** satırda
+  (`WhatsAppOutboundAttachmentChip`). Modal gelen görsel `max-w-[15.5rem]`; sayfa inbound
+  `max-w-[18rem] object-contain` (bubble genişliği aynı kalır). WA gelen doküman adı çerçevesi
+  `text-[11px] px-2.5 py-1.5`.
 - **Kurum İçi pending ek (#2395 reopen):** mime/boyut alt satırı basılmaz. Ek yüklendikten sonra alıcıya
   SignalR yenilemesi gider; indirme yalnızca konuşmanın gönderen/alıcı tarafına açıktır. Açık sohbet poll
   eşitliği `attachment.attachmentId` alanını da karşılaştırır — ek yüklendikten sonra UI güncellenmez
@@ -691,7 +694,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Açık Adres
   ve Dosya/Fotoğraf alanı aynı satırda yan yana durur; dosya seçilmedi metni butonla aynı blokta
   sığar (card #1088). Açıklama RichTextEditor ve Açık Adres textarea üst padding kompakt
-  (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6.25rem]` (#2396 reopen).
+  (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6rem]` (Round 717). Açıklama Enter
+  satır aralığı `.rich-text-editable p+p` ≈ `0.15–0.2rem` (eşit satır boşluğu).
+  Açık Adres `min-h-[5.75rem]`.
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
   üstünde turuncu ve altı çizili başlık olarak gösterilir (card #1083).
 - **Vatandaş `Yazışmaya Git` butonu:** Vatandaş Talepleri gridindeki aksiyon butonu mevcut teal
@@ -1597,8 +1602,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.
 - **Kurum içi Dosya ekle (#2383):** kompakt buton; 5 MB; seçilen dosya sohbet alanında önizleme (WA gibi).
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
-- **Dosya ekle accept filtresi (#2373 reopen):** Talep/görev/WA/kurum içi dosya seçimlerinde ortak
-  `ATTACHMENT_FILE_ACCEPT` (MIME + uzantı) kullanılır; yalnız JPG/PNG/PDF/Office. Windows diyalogunda
+- **Dosya ekle accept filtresi (#2373 reopen / Round 717):** Talep/görev/WA/kurum içi dosya seçimlerinde ortak
+  `ATTACHMENT_FILE_ACCEPT` **yalnız uzantı** listesi kullanır (MIME eklenmez — Windows diyalogunda
+  jpg/jpeg mükerrer ve pjp/jfif/dot eşlemeleri oluşmasın). Yalnız JPG/PNG/PDF/Office.
   “Tüm dosyalar” varsayılanına düşmemek için MIME listesi şarttır; seçim sonrası uzantı doğrulaması
   da yapılır. Logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
@@ -1700,7 +1706,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).
 - **WA chat footer Birim/Kurum İçi (#r460):** şablon satırında `ml-auto` sağa yaslı (bir satır yukarı).
 - **Sayfa Yetkileri (#1893/#r449/#r451/#r453/#r455/#r459):** not metni “Anasayfa…”; aynı satırda Varsayılanlara Dön ← Kaydet;
-  Kaydet Kurum İçi Mesajlar FAB solunda (`--fab-inline-clearance - 6rem`); Kaydet `min-w-[13rem]` (#r455).
+  Kaydet Kurum İçi Mesajlar FAB solunda (`--fab-inline-clearance - 3.5rem`); Kaydet `min-w-[13rem]` (Round 717).
 - **Birimler Yönetici Ata (#r453):** Sorumlu/Müdür açılır panel genişliği trigger ile aynı
   (`users-edit-dropdown-menu` max-width yok); Yeni Birim Ekle açınca yarım kalan satır
   aksiyonları (Yönetici Ata/Sil/Düzenle) temizlenir.
@@ -2025,10 +2031,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   alanında `username`/`role` saklanır; `GetAuditLogsQuery` geçmiş kayıtları parse ederek Detay'da gösterir.
 - **Kullanıcılar/Birimler grid dropdown (#2296):** satır içi düzenleme dropdown'ları `menuPortal={false}`
   ile satırla birlikte kayar; `.table-wrap` scroll'unda menü kapanır; thead z-index dropdown üstündedir.
-- **Kurum içi yazıyor göstergesi (#2307):** aktif sohbette karşı taraf yazarken SignalR
+- **Kurum içi yazıyor göstergesi (#2307 / Round 717):** aktif sohbette karşı taraf yazarken SignalR
   `ReceiveInternalMessageTyping` ile header'da birim satırının altında `Yazıyor` + animasyonlu
   üç nokta gösterilir; `POST /internal-messages/typing` yalnız alıcıya iletilir. Gönderen yazmaya
-  devam ederken 2 sn heartbeat ile yenilenir; alıcı TTL 3 sn.
+  devam ederken ~1.8 sn heartbeat ile yenilenir; alıcı TTL ~4.5 sn. `activeChatRef` + unmount'ta
+  `isTyping:false`; notify öncesi `ensureSignalRConnected`.
+- **Kurum içi görsel lightbox (Round 717):** FAB sohbetinde görsel tıklanınca
+  `SocialConversationMediaPreview` (büyüteç, dosya adı, İndir) — WA ile aynı.
+- **Kurum içi panel yüksekliği (Round 717):** `h-[min(86dvh,54rem)]` / `sm:h-[min(82dvh,52rem)]`
+  (banner üst border hizasına yaklaşır).
+- **WA/modal textbox lag (Round 717):** `DeferredComposerInput` / `DeferredComposerTextarea`
+  local state + `startTransition` parent update.
 - **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter
   sonra filtreler (InternalMessagesFab ile aynı eşik).
 - **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.

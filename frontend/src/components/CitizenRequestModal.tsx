@@ -9,6 +9,8 @@ import { invalidateJobs, invalidateConversations, invalidateSocialMessages } fro
 import { getActiveDepartmentId } from '../api/http'
 import { useAuth } from '../context/AuthContext'
 import { Button } from './ui/button'
+import { DeferredComposerInput } from './ui/DeferredComposerInput'
+import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
@@ -652,12 +654,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <span className="field-hint">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </label>
-                  <input
+                  <DeferredComposerInput
                     id="citizen-req-title"
                     className="field-input"
                     value={title}
                     maxLength={50}
-                    onChange={event => setTitle(event.target.value)}
+                    onChange={setTitle}
                     required
                   />
                 </div>
@@ -737,12 +739,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       {t('address.streetLabel', 'Cadde / Sokak')}
                       {neighborhood ? <span className="text-red-500"> *</span> : null}
                     </span>
-                    <input
+                    <DeferredComposerInput
                       className="field-input address-street-input citizen-request-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
                       maxLength={ADDRESS_STREET_MAX_LENGTH}
                       value={street}
-                      onChange={event => setStreet(event.target.value)}
+                      onChange={setStreet}
                       onBlur={() => setStreet(normalizeTitleCaseField(street) ?? '')}
                       disabled={!neighborhood}
                       required={Boolean(neighborhood)}
@@ -760,12 +762,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                         </>
                       ) : null}
                     </span>
-                    <textarea
-                      className="field-textarea field-textarea--compact address-open-textarea citizen-request-open-address min-h-[5rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                    <DeferredComposerTextarea
+                      className="field-textarea field-textarea--compact address-open-textarea citizen-request-open-address min-h-[5.75rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
                       value={openAddress}
-                      onChange={event => setOpenAddress(event.target.value)}
+                      onChange={setOpenAddress}
                       onBlur={() => setOpenAddress(normalizeTitleCaseField(openAddress) ?? '')}
                       disabled={!neighborhood}
                       required={Boolean(neighborhood)}
@@ -774,7 +776,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   <div className="job-field flex min-h-0 flex-col gap-1">
                     <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
                     <div className="flex min-h-[5rem] items-start gap-2">
-                      <label className={`inline-flex h-[2.0625rem] w-[6.25rem] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
+                      <label className={`inline-flex h-[2.0625rem] w-[6rem] shrink-0 cursor-pointer items-center justify-center gap-1 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
                         <Paperclip className="size-3.5 text-emerald-700" />
                         {t('attachments.addFile', 'Dosya ekle')}
                         <input

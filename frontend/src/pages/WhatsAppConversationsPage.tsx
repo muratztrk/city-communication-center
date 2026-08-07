@@ -21,6 +21,8 @@ import { conversationSameDay, formatConversationDayDivider } from '../utils/conv
 import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
 import { ConversationSenderHeader } from '../components/ConversationSenderHeader'
 import { WhatsAppOutboundAttachmentChip } from '../components/WhatsAppOutboundAttachmentChip'
+import { DeferredComposerInput } from '../components/ui/DeferredComposerInput'
+import { DeferredComposerTextarea } from '../components/ui/DeferredComposerTextarea'
 import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
@@ -638,12 +640,12 @@ function ConversationProfilePanel({
         <div className="space-y-3">
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.citizenName', 'Vatandaş Adı')}</span>
-          <input
+          <DeferredComposerInput
             className={fieldClass}
             maxLength={50}
             value={draft.citizenName}
             placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş adı')}
-            onChange={event => onDraftChange({ citizenName: event.target.value })}
+            onChange={citizenName => onDraftChange({ citizenName })}
             onBlur={() => onDraftChange({ citizenName: normalizeTitleCaseField(draft.citizenName) ?? '' })}
           />
         </label>
@@ -669,7 +671,7 @@ function ConversationProfilePanel({
             {t('address.street', 'Cadde / Sokak')}
             {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
           </span>
-          <input className={disabledFieldClass} maxLength={ADDRESS_STREET_MAX_LENGTH} value={draft.street} onChange={event => onDraftChange({ street: event.target.value })} onBlur={() => onDraftChange({ street: normalizeTitleCaseField(draft.street) ?? '' })} disabled={!hasNeighborhood} required={hasNeighborhood} />
+          <DeferredComposerInput className={disabledFieldClass} maxLength={ADDRESS_STREET_MAX_LENGTH} value={draft.street} onChange={street => onDraftChange({ street })} onBlur={() => onDraftChange({ street: normalizeTitleCaseField(draft.street) ?? '' })} disabled={!hasNeighborhood} required={hasNeighborhood} />
         </label>
         <label className="block space-y-1">
           <span className={labelClass}>
@@ -681,12 +683,12 @@ function ConversationProfilePanel({
               </>
             ) : null}
           </span>
-          <textarea
+          <DeferredComposerTextarea
             rows={4}
             className={`${disabledFieldClass} min-h-[6rem] resize-none`}
             maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
             value={draft.openAddress}
-            onChange={event => onDraftChange({ openAddress: event.target.value })}
+            onChange={openAddress => onDraftChange({ openAddress })}
             onBlur={() => onDraftChange({ openAddress: normalizeTitleCaseField(draft.openAddress) ?? '' })}
             disabled={!hasNeighborhood}
             required={hasNeighborhood}
@@ -1417,11 +1419,11 @@ function ConversationDetail({
                 </div>
               </div>
               <div className="grid grid-cols-[1fr_auto] items-end gap-2">
-                <textarea
+                <DeferredComposerTextarea
                   rows={2}
                   value={replyText}
-                  onChange={e => {
-                    setReplyText(e.target.value)
+                  onChange={value => {
+                    setReplyText(value)
                     setSelectedMetaTemplate(null)
                   }}
                   onKeyDown={e => {

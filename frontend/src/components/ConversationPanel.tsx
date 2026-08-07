@@ -23,6 +23,7 @@ import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
 import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
+import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
 import { useAuth } from '../context/AuthContext'
 import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 
@@ -438,11 +439,11 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             {fileError ? <p className="text-xs font-semibold text-red-600">{fileError}</p> : null}
           </div>
           <div className="grid grid-cols-[1fr_auto] items-end gap-2">
-            <textarea
+            <DeferredComposerTextarea
               rows={3}
               value={replyText}
-              onChange={e => {
-                setReplyText(e.target.value)
+              onChange={value => {
+                setReplyText(value)
                 setSelectedMetaTemplate(null)
               }}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend() } }}

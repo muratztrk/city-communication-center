@@ -159,8 +159,8 @@ export function SocialConversationMediaBubble({
             alt={filename}
             className={`cursor-zoom-in ${
               requestAttachmentLayout
-                ? 'w-full max-w-[14rem] max-h-52 object-contain'
-                : 'max-w-[16rem] max-h-48 object-cover'
+                ? 'w-full max-w-[15.5rem] max-h-56 object-contain'
+                : 'max-w-[18rem] max-h-52 object-contain'
             }`}
           />
         </button>
@@ -185,7 +185,7 @@ export function SocialConversationMediaBubble({
             direction === 'Inbound'
               ? requestAttachmentLayout
                 ? 'gap-1.5 px-2.5 py-1.5 text-[11px] font-medium'
-                : 'gap-1.5 px-2 py-1 text-[10px] font-medium'
+                : 'gap-1.5 px-2.5 py-1.5 text-[11px] font-medium'
               : 'gap-2 px-3 py-2 text-sm font-semibold'
           }`}
         >

@@ -1,4 +1,7 @@
-/** Ortak Dosya ekle filtresi — uzantı + MIME (Windows diyalogunda "Tüm dosyalar" varsayılan olmasın, #2373). */
+/** Ortak Dosya ekle filtresi — yalnız uzantı (#2373 / #dosya-mükerrer).
+ * MIME + uzantı birlikte Windows diyalogunda jpg/jpeg mükerrer ve pjp/jfif/dot gibi
+ * istenmeyen eşlemeler üretiyordu; accept yalnız uzantı listesi kullanır.
+ */
 export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.jpg',
   '.jpeg',
@@ -12,23 +15,8 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.pptx',
 ] as const
 
-const ATTACHMENT_ALLOWED_MIME_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'application/pdf',
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-powerpoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-] as const
-
-/** `<input type="file" accept=…>` değeri — MIME + uzantı birlikte. */
-export const ATTACHMENT_FILE_ACCEPT = [
-  ...ATTACHMENT_ALLOWED_MIME_TYPES,
-  ...ATTACHMENT_ALLOWED_EXTENSIONS,
-].join(',')
+/** `<input type="file" accept=…>` değeri — uzantılar (tekrarsız). */
+export const ATTACHMENT_FILE_ACCEPT = ATTACHMENT_ALLOWED_EXTENSIONS.join(',')
 
 export function attachmentFileExtension(fileName: string): string {
   const dot = fileName.lastIndexOf('.')

@@ -12,6 +12,7 @@ import {
 } from '../../hooks/useSignalR'
 import type { Attachment, InternalConversationDetail, InternalConversationSummary, InternalMessage, UserLookup } from '../../types/platform'
 import { SimpleImageAttachmentIcon } from '../ui/SimpleImageAttachmentIcon'
+import { SocialConversationMediaPreview } from '../SocialConversationMediaPreview'
 import { formatConversationDayDivider } from '../../utils/conversationDayLabel'
 import { formatConversationListTime, formatConversationMessageTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
@@ -28,9 +29,9 @@ const CONNECTED_POLL_INTERVAL_MS = 15_000
 const DISCONNECTED_POLL_INTERVAL_MS = 3_000
 const OPEN_CHAT_POLL_INTERVAL_MS = 1_000
 const PAGE_SIZE = 10
-const TYPING_NOTIFY_DEBOUNCE_MS = 350
-const TYPING_INDICATOR_TTL_MS = 3_000
-const TYPING_HEARTBEAT_MS = 2_000
+const TYPING_NOTIFY_DEBOUNCE_MS = 200
+const TYPING_INDICATOR_TTL_MS = 4_500
+const TYPING_HEARTBEAT_MS = 1_800
 
 function normalizeUserId(userId: string) {
   return userId.trim().toLowerCase()
@@ -114,6 +115,7 @@ function isSameCalendarDay(left: string, right: string) {
 function InternalMessageAttachmentDisplay({ attachment, isMine }: { attachment: Attachment; isMine: boolean }) {
   const isImage = attachment.contentType.startsWith('image/')
   const [objectUrl, setObjectUrl] = useState<string | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
   const displayName = lowercaseFileExtension(attachment.fileName)
 
   const handleDownload = useCallback(() => {
@@ -151,18 +153,28 @@ function InternalMessageAttachmentDisplay({ attachment, isMine }: { attachment: 
   return (
     <div className="mt-1 space-y-1">
       {isImage && objectUrl ? (
-        <button
-          type="button"
-          onClick={handleDownload}
-          className={`block w-full overflow-hidden rounded-lg border ${isMine ? 'border-white/20' : 'border-slate-200'}`}
-        >
-          <img src={objectUrl} alt={displayName} className="max-h-32 w-full object-contain bg-white/95" />
-        </button>
+        <>
+          <button
+            type="button"
+            onClick={() => setPreviewOpen(true)}
+            className={`block w-full overflow-hidden rounded-lg border ${isMine ? 'border-white/20' : 'border-slate-200'}`}
+          >
+            <img src={objectUrl} alt={displayName} className="max-h-32 w-full cursor-zoom-in object-contain bg-white/95" />
+          </button>
+          <SocialConversationMediaPreview
+            open={previewOpen}
+            objectUrl={objectUrl}
+            mime={attachment.contentType}
+            filename={displayName}
+            onClose={() => setPreviewOpen(false)}
+            onDownload={handleDownload}
+          />
+        </>
       ) : null}
       <button
         type="button"
         className={`inline-flex max-w-full items-center gap-1.5 rounded-lg border px-2 py-1 text-[11px] font-semibold ${chipClass}`}
-        onClick={handleDownload}
+        onClick={isImage ? () => setPreviewOpen(true) : handleDownload}
       >
         {isImage ? (
           <SimpleImageAttachmentIcon className="size-3.5 shrink-0" aria-hidden="true" />
@@ -211,6 +223,7 @@ export function InternalMessagesFab() {
   const [draft, setDraft] = useState('')
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
+  const [pendingPreviewOpen, setPendingPreviewOpen] = useState(false)
   const [fileError, setFileError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
   const [otherUserTyping, setOtherUserTyping] = useState(false)
@@ -221,6 +234,8 @@ export function InternalMessagesFab() {
   const typingHeartbeatTimerRef = useRef<number | null>(null)
   const typingActiveRef = useRef(false)
   const otherTypingTimerRef = useRef<number | null>(null)
+  const activeChatRef = useRef(activeChat)
+  activeChatRef.current = activeChat
 
   const refreshConversations = useCallback(async () => {
     try {
@@ -335,7 +350,8 @@ export function InternalMessagesFab() {
   }, [activeChat, chatDetail?.internalConversationId, currentUserId, loadChat, refreshConversations])
 
   const handleInternalMessageTyping = useCallback((payload: InternalMessageTypingPayload) => {
-    if (!activeChat || normalizeUserId(payload.senderUserId) !== normalizeUserId(activeChat.otherUserId)) return
+    const chat = activeChatRef.current
+    if (!chat || normalizeUserId(payload.senderUserId) !== normalizeUserId(chat.otherUserId)) return
     if (payload.isTyping) {
       setOtherUserTyping(true)
       if (otherTypingTimerRef.current) window.clearTimeout(otherTypingTimerRef.current)
@@ -345,16 +361,20 @@ export function InternalMessagesFab() {
       return
     }
     setOtherUserTyping(false)
-  }, [activeChat])
+  }, [])
 
   const notifyTyping = useCallback((isTyping: boolean, force = false) => {
-    if (!activeChat) return
+    const chat = activeChatRef.current
+    if (!chat) return
     if (!force && typingActiveRef.current === isTyping) return
     typingActiveRef.current = isTyping
-    void api.notifyInternalMessageTyping(activeChat.otherUserId, isTyping).catch(() => {
-      // sessizce geç — gösterge kritik değil
-    })
-  }, [activeChat])
+    void ensureSignalRConnected()
+      .catch(() => undefined)
+      .then(() => api.notifyInternalMessageTyping(chat.otherUserId, isTyping))
+      .catch(() => {
+        // sessizce geç — gösterge kritik değil
+      })
+  }, [])
 
   const clearTypingHeartbeat = useCallback(() => {
     if (typingHeartbeatTimerRef.current) {
@@ -407,6 +427,13 @@ export function InternalMessagesFab() {
     if (otherTypingTimerRef.current) window.clearTimeout(otherTypingTimerRef.current)
     if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
     clearTypingHeartbeat()
+    if (typingActiveRef.current) {
+      typingActiveRef.current = false
+      const chat = activeChatRef.current
+      if (chat) {
+        void api.notifyInternalMessageTyping(chat.otherUserId, false).catch(() => undefined)
+      }
+    }
   }, [clearTypingHeartbeat])
 
   useEffect(() => {
@@ -614,7 +641,7 @@ export function InternalMessagesFab() {
   return (
     <div className="ccc-floating-fab internal-messages-fab relative size-12 shrink-0">
       {isOpen ? (
-        <div className="internal-messages-fab-panel absolute bottom-full right-0 z-10 mb-3 flex h-[min(78dvh,48rem)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl sm:h-[min(66dvh,42rem)]">
+        <div className="internal-messages-fab-panel absolute bottom-full right-0 z-10 mb-3 flex h-[min(86dvh,54rem)] w-[min(24rem,calc(100vw-2.5rem))] flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl sm:h-[min(82dvh,52rem)]">
           <div className={`flex items-start justify-between gap-2 border-b border-[var(--color-border)] bg-emerald-700/10 py-3 pr-4 ${activeChat ? 'pl-3' : 'pl-4'}`}>
             {activeChat ? (
               <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -756,24 +783,56 @@ export function InternalMessagesFab() {
                         <p className="mb-0.5 text-[11px] font-semibold leading-snug text-white/90">{pendingSenderLabel}</p>
                       ) : null}
                       <div className="flex items-center gap-1.5">
-                        <FileText className="size-3.5 shrink-0" aria-hidden="true" />
-                        <span className="min-w-0 truncate font-semibold">{lowercaseFileExtension(pendingFile.name)}</span>
+                        {pendingFile.type.startsWith('image/') ? null : (
+                          <>
+                            <FileText className="size-3.5 shrink-0" aria-hidden="true" />
+                            <span className="min-w-0 truncate font-semibold">{lowercaseFileExtension(pendingFile.name)}</span>
+                          </>
+                        )}
                         <button
                           type="button"
-                          onClick={() => setPendingFile(null)}
+                          onClick={() => {
+                            setPendingFile(null)
+                            setPendingPreviewOpen(false)
+                          }}
                           disabled={sending}
-                          className="ml-auto inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 disabled:opacity-60"
+                          className={`${pendingFile.type.startsWith('image/') ? '' : 'ml-auto '}inline-flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25 disabled:opacity-60 ${pendingFile.type.startsWith('image/') ? 'ml-auto' : ''}`}
                           aria-label={t('common.dismiss', 'Vazgeç')}
                         >
                           <X className="size-3" aria-hidden="true" />
                         </button>
                       </div>
                       {pendingFile.type.startsWith('image/') && pendingFilePreviewUrl ? (
-                        <img
-                          src={pendingFilePreviewUrl}
-                          alt={pendingFile.name}
-                          className="mt-1.5 max-h-40 w-full rounded-lg border border-white/20 object-contain bg-white/95"
-                        />
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setPendingPreviewOpen(true)}
+                            className="mt-1.5 block w-full overflow-hidden rounded-lg border border-white/20"
+                          >
+                            <img
+                              src={pendingFilePreviewUrl}
+                              alt={pendingFile.name}
+                              className="max-h-40 w-full cursor-zoom-in object-contain bg-white/95"
+                            />
+                          </button>
+                          <div className="mt-1 flex items-center gap-1.5">
+                            <SimpleImageAttachmentIcon className="size-3.5 shrink-0" aria-hidden="true" />
+                            <span className="min-w-0 truncate font-semibold">{lowercaseFileExtension(pendingFile.name)}</span>
+                          </div>
+                          <SocialConversationMediaPreview
+                            open={pendingPreviewOpen}
+                            objectUrl={pendingFilePreviewUrl}
+                            mime={pendingFile.type || 'image/jpeg'}
+                            filename={lowercaseFileExtension(pendingFile.name)}
+                            onClose={() => setPendingPreviewOpen(false)}
+                            onDownload={() => {
+                              const anchor = document.createElement('a')
+                              anchor.href = pendingFilePreviewUrl
+                              anchor.download = lowercaseFileExtension(pendingFile.name)
+                              anchor.click()
+                            }}
+                          />
+                        </>
                       ) : null}
                     </div>
                     <button

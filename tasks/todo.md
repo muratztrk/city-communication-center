@@ -1,3 +1,9 @@
+## Round 717 — WA/kurum içi UI + typing + Dosya ekle (13 kart)
+- Dosya ekle accept yalnız uzantı (mükerrer/pjp/jfif giderildi); Kaydet FAB’a yaklaştı.
+- WA görsel adı altta; pending max-h ↑; inbound genişlik ↑; doküman çerçevesi ↑.
+- Modal Açık Adres/Açıklama satır boşluğu; Dosya ekle `w-[6rem]`; textbox lag `DeferredComposer*`.
+- Kurum içi: panel yükseklik ↑; görsel lightbox; Yazıyor TTL/heartbeat/ref + unmount stop.
+
 ## Round 715 — NAS SMB kullanıcı testi (#2347)
 - `#2347`: IP host domain parse düzeltildi (`192` domain olmaz); başarısız Login sonrası fresh Connect; SESSION_DELETED mesajı.
 

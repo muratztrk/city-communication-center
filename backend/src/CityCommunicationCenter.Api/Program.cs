@@ -292,6 +292,7 @@ builder.Services.AddOpenApi();
 builder.Services.AddInfrastructureServices(builder.Configuration);
 
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<SignalRAccessTokenIssuer>();
 builder.Services.AddScoped<INotificationPushService, SignalRNotificationPushService>();
 
 var app = builder.Build();

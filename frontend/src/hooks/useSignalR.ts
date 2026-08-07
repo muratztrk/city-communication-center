@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import * as signalR from '@microsoft/signalr'
 import { useAuth } from '../context/AuthContext'
 import { API_ORIGIN } from '../api/config'
-import { getValidAccessToken } from '../api/auth'
+import { getSignalRAccessToken } from '../api/auth'
 
 export interface NotificationPayload {
   notificationId: string
@@ -86,11 +86,25 @@ function mapInternalMessagePayload(raw: Record<string, unknown>): InternalMessag
   }
 }
 
-function mapInternalMessageTypingPayload(raw: Record<string, unknown>): InternalMessageTypingPayload {
+function mapInternalMessageTypingPayload(raw: Record<string, unknown> | unknown[]): InternalMessageTypingPayload {
+  if (Array.isArray(raw)) {
+    return {
+      senderUserId: String(raw[0] ?? ''),
+      recipientUserId: String(raw[1] ?? ''),
+      isTyping: raw[2] === true || raw[2] === 1 || raw[2] === 'true',
+    }
+  }
+
+  const record = raw as Record<string, unknown>
+  const isTypingRaw = record.isTyping ?? record.IsTyping
+  const isTyping = isTypingRaw === true
+    || isTypingRaw === 1
+    || isTypingRaw === 'true'
+
   return {
-    senderUserId: String(raw.senderUserId ?? raw.SenderUserId ?? ''),
-    recipientUserId: String(raw.recipientUserId ?? raw.RecipientUserId ?? ''),
-    isTyping: Boolean(raw.isTyping ?? raw.IsTyping ?? false),
+    senderUserId: String(record.senderUserId ?? record.SenderUserId ?? ''),
+    recipientUserId: String(record.recipientUserId ?? record.RecipientUserId ?? ''),
+    isTyping,
   }
 }
 
@@ -183,7 +197,7 @@ function attachConnectionHandlers(nextConnection: signalR.HubConnection) {
     dispatchInternalMessage(mapInternalMessagePayload(payload))
   })
 
-  nextConnection.on('ReceiveInternalMessageTyping', (payload: Record<string, unknown>) => {
+  nextConnection.on('ReceiveInternalMessageTyping', (payload: Record<string, unknown> | unknown[]) => {
     dispatchInternalMessageTyping(mapInternalMessageTypingPayload(payload))
   })
 
@@ -220,6 +234,9 @@ async function ensureConnection(active: boolean) {
 
   if (connection?.state === signalR.HubConnectionState.Connecting
     || connection?.state === signalR.HubConnectionState.Reconnecting) {
+    if (connectingPromise) {
+      await connectingPromise
+    }
     return
   }
 
@@ -242,7 +259,7 @@ async function ensureConnection(active: boolean) {
     const nextConnection = new signalR.HubConnectionBuilder()
       .withUrl(`${API_ORIGIN}/hubs/notifications`, {
         withCredentials: true,
-        accessTokenFactory: async () => await getValidAccessToken() ?? '',
+        accessTokenFactory: async () => await getSignalRAccessToken() ?? '',
       })
       .withAutomaticReconnect([0, 2000, 5000, 10000, 30000])
       .configureLogging(signalR.LogLevel.Warning)

@@ -22,7 +22,7 @@ public sealed class SignalRNotificationPushService : INotificationPushService
             userId, tenantId, payload.Title);
 
         await _hubContext.Clients
-            .Group($"user-{userId}")
+            .Group(SignalRGroupNames.User(userId))
             .SendAsync("ReceiveNotification", payload, cancellationToken);
     }
 
@@ -32,7 +32,7 @@ public sealed class SignalRNotificationPushService : INotificationPushService
             tenantId, payload.Title);
 
         await _hubContext.Clients
-            .Group($"tenant-{tenantId}")
+            .Group(SignalRGroupNames.Tenant(tenantId))
             .SendAsync("ReceiveNotification", payload, cancellationToken);
     }
 
@@ -47,7 +47,7 @@ public sealed class SignalRNotificationPushService : INotificationPushService
             payload.CitizenConversationId);
 
         await _hubContext.Clients
-            .Group($"tenant-{tenantId}")
+            .Group(SignalRGroupNames.Tenant(tenantId))
             .SendAsync("ReceiveWhatsAppMessage", payload, cancellationToken);
     }
 
@@ -64,7 +64,7 @@ public sealed class SignalRNotificationPushService : INotificationPushService
             payload.InternalConversationId);
 
         await _hubContext.Clients
-            .Group($"user-{recipientUserId}")
+            .Group(SignalRGroupNames.User(recipientUserId))
             .SendAsync("ReceiveInternalMessage", payload, cancellationToken);
     }
 
@@ -81,7 +81,15 @@ public sealed class SignalRNotificationPushService : INotificationPushService
             payload.SenderUserId);
 
         await _hubContext.Clients
-            .Group($"user-{recipientUserId}")
-            .SendAsync("ReceiveInternalMessageTyping", payload, cancellationToken);
+            .Group(SignalRGroupNames.User(recipientUserId))
+            .SendAsync(
+                "ReceiveInternalMessageTyping",
+                new
+                {
+                    senderUserId = payload.SenderUserId,
+                    recipientUserId = payload.RecipientUserId,
+                    isTyping = payload.IsTyping,
+                },
+                cancellationToken);
     }
 }

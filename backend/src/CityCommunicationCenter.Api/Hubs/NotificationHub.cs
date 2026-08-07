@@ -21,12 +21,12 @@ public sealed class NotificationHub : Hub
 
         if (!string.IsNullOrEmpty(userId))
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"user-{userId}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, SignalRGroupNames.User(userId));
         }
 
         if (!string.IsNullOrEmpty(tenantId))
         {
-            await Groups.AddToGroupAsync(Context.ConnectionId, $"tenant-{tenantId}");
+            await Groups.AddToGroupAsync(Context.ConnectionId, SignalRGroupNames.Tenant(tenantId));
         }
 
         _logger.LogDebug("SignalR client connected: {ConnectionId}, User: {UserId}, Tenant: {TenantId}",

@@ -117,6 +117,10 @@ public sealed record ConnectTokenResponse(
     string token_type,
     int expires_in);
 
+public sealed record SignalRAccessTokenResponse(
+    string AccessToken,
+    int ExpiresIn);
+
 public sealed record StartInteractiveAuthenticationRequest(
     string? TenantId,
     string? Username,

@@ -17,6 +17,7 @@ const INTERACTIVE_VERIFY_ENDPOINT = `${API_BASE}/auth/interactive/verify`
 const SESSION_LOGIN_ENDPOINT = `${API_BASE}/auth/session/login`
 const SESSION_LOGOUT_ENDPOINT = `${API_BASE}/auth/session/logout`
 const SESSION_ME_ENDPOINT = `${API_BASE}/auth/session/me`
+const SESSION_SIGNALR_ACCESS_TOKEN_ENDPOINT = `${API_BASE}/auth/session/signalr-access-token`
 
 const ACCESS_TOKEN_KEY = 'ccc_token'
 const TOKEN_EXPIRES_AT_KEY = 'ccc_token_expires_at'
@@ -186,6 +187,18 @@ function clearStoredValues(): void {
   localStorage.removeItem(ACCESS_TOKEN_KEY)
   localStorage.removeItem(TOKEN_EXPIRES_AT_KEY)
   localStorage.removeItem(USER_KEY)
+  clearCachedSignalRAccessToken()
+}
+
+let cachedSignalRAccessToken: { token: string; expiresAt: number } | null = null
+
+export function clearCachedSignalRAccessToken(): void {
+  cachedSignalRAccessToken = null
+}
+
+interface SignalRAccessTokenResponse {
+  accessToken: string
+  expiresIn: number
 }
 
 function writeSession(tokenResponse: TokenResponse, tenantNameOverride?: string): AuthSession {
@@ -545,6 +558,51 @@ export function isAccessTokenExpired(session: AuthSession | null, thresholdMs = 
   }
 
   return session.expiresAt <= Date.now() + thresholdMs
+}
+
+export async function getSignalRAccessToken(): Promise<string | null> {
+  const localToken = await getValidAccessToken()
+  if (localToken) {
+    return localToken
+  }
+
+  if (!getStoredSession()?.user) {
+    return null
+  }
+
+  const now = Date.now()
+  if (cachedSignalRAccessToken && cachedSignalRAccessToken.expiresAt > now + 60_000) {
+    return cachedSignalRAccessToken.token
+  }
+
+  const response = await fetch(SESSION_SIGNALR_ACCESS_TOKEN_ENDPOINT, {
+    method: 'POST',
+    credentials: 'include',
+    headers: {
+      'Accept-Language': i18n.resolvedLanguage ?? i18n.language ?? 'tr',
+    },
+  })
+
+  if (response.status === 401 || response.status === 403) {
+    clearCachedSignalRAccessToken()
+    return null
+  }
+
+  if (!response.ok) {
+    return null
+  }
+
+  const payload = await response.json() as SignalRAccessTokenResponse
+  if (!payload.accessToken) {
+    return null
+  }
+
+  const expiresInMs = Number.isFinite(payload.expiresIn) ? payload.expiresIn * 1000 : 8 * 60 * 60 * 1000
+  cachedSignalRAccessToken = {
+    token: payload.accessToken,
+    expiresAt: now + expiresInMs,
+  }
+  return cachedSignalRAccessToken.token
 }
 
 export async function getValidAccessToken(): Promise<string | null> {

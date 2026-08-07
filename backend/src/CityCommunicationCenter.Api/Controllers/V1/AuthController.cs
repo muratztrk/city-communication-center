@@ -1,5 +1,6 @@
-using CityCommunicationCenter.Application.Features.Auth;
+using CityCommunicationCenter.Api.Services;
 using CityCommunicationCenter.Application.Abstractions.Identity;
+using CityCommunicationCenter.Application.Features.Auth;
 using Microsoft.AspNetCore.Authentication.Negotiate;
 using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
@@ -18,6 +19,7 @@ public sealed class AuthController : ControllerBase
     private readonly IRequestNetworkEvaluator _requestNetworkEvaluator;
     private readonly IRecaptchaVerificationService _recaptchaVerificationService;
     private readonly IStringLocalizer<SharedResource> _localizer;
+    private readonly SignalRAccessTokenIssuer _signalRAccessTokenIssuer;
 
     public AuthController(
         IMediator sender,
@@ -25,7 +27,8 @@ public sealed class AuthController : ControllerBase
         ITenantAuthenticationPolicyService tenantAuthenticationPolicyService,
         IRequestNetworkEvaluator requestNetworkEvaluator,
         IRecaptchaVerificationService recaptchaVerificationService,
-        IStringLocalizer<SharedResource> localizer)
+        IStringLocalizer<SharedResource> localizer,
+        SignalRAccessTokenIssuer signalRAccessTokenIssuer)
     {
         _sender = sender;
         _configuration = configuration;
@@ -33,6 +36,7 @@ public sealed class AuthController : ControllerBase
         _requestNetworkEvaluator = requestNetworkEvaluator;
         _recaptchaVerificationService = recaptchaVerificationService;
         _localizer = localizer;
+        _signalRAccessTokenIssuer = signalRAccessTokenIssuer;
     }
 
     [HttpPost("/connect/token")]
@@ -245,6 +249,16 @@ public sealed class AuthController : ControllerBase
     {
         var response = await _sender.Send(new GetAuthenticatedUserProfileQuery(User), cancellationToken);
         return Ok(response);
+    }
+
+    [HttpPost("session/signalr-access-token")]
+    [Authorize(AuthenticationSchemes = AuthorizationPolicies.SessionCookieScheme)]
+    [ProducesResponseType<SignalRAccessTokenResponse>(StatusCodes.Status200OK)]
+    public ActionResult<SignalRAccessTokenResponse> IssueSignalRAccessToken()
+    {
+        var lifetime = TimeSpan.FromHours(8);
+        var accessToken = _signalRAccessTokenIssuer.CreateAccessToken(User, lifetime);
+        return Ok(new SignalRAccessTokenResponse(accessToken, (int)lifetime.TotalSeconds));
     }
 
     [HttpPost("interactive/start")]

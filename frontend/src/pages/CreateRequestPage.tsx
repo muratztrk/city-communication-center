@@ -1468,7 +1468,7 @@ export function CreateRequestPage() {
           <div className="grid content-start gap-3">
             <div className="grid gap-3 md:grid-cols-2">
               <label className="job-field">
-                <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş İsmi / Gönderen')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
+                <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş Adı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
                 <input
                   className="field-input"
                   required
@@ -1522,7 +1522,7 @@ export function CreateRequestPage() {
                 <span className="job-field-label">{t('whatsapp.label', 'Talep Etiketi')}</span>
                 <div className="flex items-center gap-2">
                   <input
-                    className="field-input min-w-0 flex-1 text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                    className="field-input min-w-0 flex-1 text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-600 disabled:placeholder:text-slate-600"
                     value={citizenLabel}
                     readOnly
                     disabled
@@ -1532,7 +1532,8 @@ export function CreateRequestPage() {
                     <>
                       <RequestTagPicker
                         largeText
-                        compactMenuText
+                        largeMenuText
+                        smallButtonText
                         tags={requestTags}
                         selectedName={citizenLabel}
                         onSelect={label => void handleCitizenLabelSelect(label)}

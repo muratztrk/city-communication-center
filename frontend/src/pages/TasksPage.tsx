@@ -3155,7 +3155,7 @@ const pageKicker = isMyTasksView
                           && isAssignedToday(task.assignedAtUtc)
                         if (!showNew && !showTaskTypeUnderDate) return null
                         return (
-                          <div className="mt-1 flex flex-wrap items-center justify-center gap-1.5">
+                          <div className="mt-1 flex flex-wrap items-center justify-center gap-3">
                             {showNew ? (
                               <div className="task-new-badge !mt-0">{t('tasks.badges.new', 'Yeni')}</div>
                             ) : null}

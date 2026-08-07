@@ -140,7 +140,7 @@ function SocialConversationMediaBubbleInner({
     <Button
       type="button"
       size="sm"
-      className="h-7 px-2 text-[11px] !bg-teal-500 !text-white hover:!bg-teal-600"
+      className="h-7 px-2 text-[11px] !bg-teal-700 !text-white hover:!bg-teal-800"
       onClick={() => void handleAddAsAttachment()}
     >
       {t('whatsapp.addAsRequestAttachment', 'Talep Eki Olarak Ekle')}

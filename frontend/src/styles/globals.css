@@ -3106,12 +3106,12 @@
     width: 100%;
     min-height: 1.75rem;
     padding: 0.25rem 0.4rem;
-    /* Placeholder + seçili değer daha küçük (card #1615). */
-    font-size: 0.6875rem;
+    /* Düzenleme modunda Son Tarih değeri biraz daha büyük (#6a75e041). */
+    font-size: 0.8125rem;
   }
 
   .detail-modal-shell--my-request .my-request-detail-edit-due-date .field-input span {
-    font-size: 0.6875rem;
+    font-size: 0.8125rem;
   }
 
   /* Adres düzenleme placeholder'ları (Mahalle / Cadde / Açık Adres) — card #1639 */

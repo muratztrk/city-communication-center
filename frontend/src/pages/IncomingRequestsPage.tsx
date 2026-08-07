@@ -27,6 +27,7 @@ function isCreatedToday(value: string | null | undefined): boolean {
     && created.getDate() === now.getDate()
 }
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TruncatedText } from '../components/ui/TruncatedText'
@@ -1205,8 +1206,8 @@ export function IncomingRequestsPage() {
         </section>
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
-      {cancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" role="presentation">
+      {cancelModal && createPortal(
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" role="presentation">
           <section className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="cancel-incoming-job-dialog-title">
             <button type="button" onClick={() => setCancelModal(null)} aria-label={t('common.close', 'Kapat')} className="absolute right-3 top-3 flex size-7 items-center justify-center rounded-full text-slate-400 transition-colors hover:bg-red-50 hover:text-red-600">
               <X className="size-4" />
@@ -1215,11 +1216,21 @@ export function IncomingRequestsPage() {
               {cancelModal.row.statusDomain === 'task' ? t('tasks.actions.cancelTask', 'Görevi İptal Et') : t('jobs.actions.cancelJob', 'Talebi İptal Et')}
             </h2>
             <p className="helper-copy text-left" style={{ fontSize: '0.85rem' }}>
-              {cancelModal.row.statusDomain === 'task'
-                ? t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')
-                : t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
+              {cancelModal.row.statusDomain === 'task' ? (
+                t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')
+              ) : (
+                <>
+                  {cancelModal.row.displayNumber ? (
+                    <>
+                      <span className="font-semibold text-red-600">{cancelModal.row.displayNumber}</span>
+                      {' '}
+                    </>
+                  ) : null}
+                  {t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
+                </>
+              )}
             </p>
-            <label className="job-field mt-5">
+            <label className="job-field">
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"
@@ -1231,16 +1242,19 @@ export function IncomingRequestsPage() {
                 autoFocus
               />
             </label>
-            <div className="mt-6 flex justify-end gap-2">
-              <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>
-                {t('common.dismiss', 'Vazgeç')}
-              </Button>
-              <Button type="button" variant="destructive" disabled={cancelModal.saving || !cancelModal.reason.trim()} onClick={() => void handleCancelConfirm()}>
-                {cancelModal.saving ? t('common.loading') : t('jobs.actions.cancel', 'İptal Et')}
-              </Button>
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              <div className="inline-actions justify-end">
+                <Button type="button" variant="secondary" onClick={() => setCancelModal(null)}>
+                  {t('common.dismiss', 'Vazgeç')}
+                </Button>
+                <Button type="button" variant="destructive" disabled={cancelModal.saving || !cancelModal.reason.trim()} onClick={() => void handleCancelConfirm()}>
+                  {cancelModal.saving ? t('common.loading') : t('jobs.actions.cancel', 'İptal Et')}
+                </Button>
+              </div>
             </div>
           </section>
-        </div>
+        </div>,
+        document.body,
       )}
       {staffAssignModal && (
         <div

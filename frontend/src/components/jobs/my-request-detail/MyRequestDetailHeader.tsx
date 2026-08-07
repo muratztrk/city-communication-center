@@ -62,10 +62,10 @@ export function MyRequestDetailHeader({
         )}
         {isEditing ? (
           <>
-            <Button type="button" size="lg" variant="success" className="min-w-[7.5rem]" disabled={editSaving} onClick={onSaveEdit}>
+            <Button type="button" size="lg" variant="success" className="min-w-[8.75rem]" disabled={editSaving} onClick={onSaveEdit}>
               {editSaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
             </Button>
-            <Button type="button" size="lg" variant="secondary" className="min-w-[7.5rem]" disabled={editSaving} onClick={onCancelEdit}>
+            <Button type="button" size="lg" variant="secondary" className="min-w-[8.75rem]" disabled={editSaving} onClick={onCancelEdit}>
               {t('common.cancel', 'Vazgeç')}
             </Button>
           </>

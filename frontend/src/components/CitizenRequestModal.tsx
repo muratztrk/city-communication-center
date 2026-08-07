@@ -608,7 +608,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               <div className="grid gap-2.5 md:grid-cols-2">
                 <label className="job-field">
                   <span className="job-field-label">
-                    {t('settings.citizen.citizenName', 'Vatandaş İsmi / Gönderen')}{' '}
+                    {t('settings.citizen.citizenName', 'Vatandaş Adı')}{' '}
                     <span className="field-hint">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </span>
@@ -665,7 +665,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
                 <div className="job-field">
                   <label className="job-field-label" htmlFor="citizen-req-target">
-                    {t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span>
+                    {t('jobs.form.destinationUnit', 'Gideceği Birim')} <span className="text-red-500">*</span>
                   </label>
                   <SingleSelectDropdown
                     options={targetDepartmentSelectOptions}
@@ -695,6 +695,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     value={requestLabel}
                     readOnly
                     disabled
+                    placeholder={t('whatsapp.requestTagPlaceholder', 'Talep Etiketi seçiniz...')}
                   />
                   {canManageRequestTags ? (
                     <>

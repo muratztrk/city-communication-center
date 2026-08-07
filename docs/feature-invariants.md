@@ -1357,8 +1357,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `FilterableTh` iç sıra: başlık → sıralama ikonu → filtre (`MoreVertical`); sıralama label içinde
   değil (#6a759062). Label/ikon aralığı dengeli kalır.
 - **Grid Öncelik alt satır metni:** `(Öncelik:…)` değil `Öncelik:…` — parantez yok (#6a75913e).
-- **Birime Gelen / Birimden Giden / Mesaj Onayı aksiyon ikonları:** Detaylar=`Eye`, Onayla=`Check`,
-  İptal Et=`XCircle`; butonlar `inline-flex items-center gap-1.5` (#6a758f80 / #6a758fb1).
+- **Birime Gelen / Birimden Giden / Mesaj Onayı aksiyon ikonları:** Detaylar=`ClipboardList`
+  (Eye değil — #6a758f80 reopen), Onayla=`Check`, İptal Et=`XCircle`; butonlar
+  `inline-flex items-center gap-1.5` (#6a758f80 / #6a758fb1).
+- **Grid Öncelik alt satır boşluğu:** `.table-number-cell__priority` / `.wallboard-priority-text`
+  `margin-top: 0.2rem` (#6a75913e reopen).
 
 ## 5. Dashboard / Wallboard
 

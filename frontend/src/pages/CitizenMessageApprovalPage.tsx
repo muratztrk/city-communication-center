@@ -1,4 +1,4 @@
-import { Check, Eye, PenLine, Search, X } from 'lucide-react'
+import { Check, ClipboardList, PenLine, Search, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSearchParams } from 'react-router-dom'
@@ -372,7 +372,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                     <td className="actions-cell">
                       <div className="citizen-message-approval-actions flex justify-center gap-2">
                         <Button type="button" size="sm" variant="secondary" className="inline-flex items-center gap-1.5" onClick={() => setDetailJobId(row.jobId)}>
-                          <Eye className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                          <ClipboardList className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('citizenMessageApproval.actions.details', 'Detaylar')}
                         </Button>
                         {scope === 'toSend' ? (

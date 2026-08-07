@@ -1,4 +1,4 @@
-import { Check, Eye, Search, X, XCircle } from 'lucide-react'
+import { Check, ClipboardList, Search, X, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -1128,7 +1128,7 @@ export function IncomingRequestsPage() {
                       <div className="flex justify-center gap-3">
                         {/* Detaylar — her zaman */}
                         <Button size="sm" variant="secondary" className="inline-flex items-center gap-1.5" onClick={() => setDetailJobId(row.jobId)}>
-                          <Eye className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                          <ClipboardList className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('jobs.actions.details', 'Detaylar')}
                         </Button>
                         {/* Yapılmakta / Onaylanmış: yalnız Detaylar (cards #1695/#1702/#1703). */}

@@ -9,7 +9,7 @@ import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { Check, ClipboardList, Eye, FileText, Info, MapPin, MessageSquareText, NotebookPen, Paperclip, Printer, Route, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
+import { Check, ClipboardList, FileText, Info, MapPin, MessageSquareText, NotebookPen, Paperclip, Printer, Route, Search, Send, PenLine, X as XIcon, XCircle } from 'lucide-react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -2256,7 +2256,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <td className="actions-cell">
                       <div className="request-actions">
                         <Button size="sm" variant="secondary" className="inline-flex items-center gap-1.5" onClick={() => openDetail(job.jobId)}>
-                          <Eye className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                          <ClipboardList className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('jobs.actions.details')}
                         </Button>
                         {!isMyRequestsView && !isDepartmentOutgoingView && isManagerLike && job.status === 'PendingOwnerApproval' && (

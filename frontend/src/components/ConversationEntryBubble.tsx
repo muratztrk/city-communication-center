@@ -170,14 +170,20 @@ export function ConversationEntryBubble({
     setLockedBubbleSize(null)
   }
   // Kart #2109: Mesajı Onaylayan Yönetici — turkuaz arka plan; Not butonu kaldırıldı.
-  const approverChipClassName = 'inline-flex items-center gap-1.5 rounded-full bg-teal-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm'
+  const actionBtnClass = compact
+    ? 'inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60'
+    : 'inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60'
+  const actionIconClass = compact ? 'size-3' : 'size-3.5'
+  const approverChipClassName = compact
+    ? 'inline-flex items-center gap-1 rounded-full bg-teal-600 px-2 py-1 text-[10px] font-semibold text-white shadow-sm'
+    : 'inline-flex items-center gap-1.5 rounded-full bg-teal-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm'
 
   const messageApproverButton = (
     <DelayedHoverTooltip
       label={t('whatsapp.messageApproverButton', 'Onaylayan Yönetici')}
       tooltip={messageApproverName ?? ''}
       className={`${approverChipClassName} cursor-default`}
-      icon={<User className="size-3.5" strokeWidth={1.75} aria-hidden="true" />}
+      icon={<User className={actionIconClass} strokeWidth={1.75} aria-hidden="true" />}
     />
   )
 
@@ -318,12 +324,12 @@ export function ConversationEntryBubble({
       </div>
       {isPending && canSendPending ? (
         isEditing ? (
-          <div className="mt-1 flex min-h-[2.125rem] items-center gap-1.5">
+          <div className={`mt-1 flex items-center gap-1.5 ${compact ? 'min-h-[1.75rem]' : 'min-h-[2.125rem]'}`}>
             <button
               type="button"
               onClick={cancelEdit}
               disabled={savingEdit}
-              className="inline-flex items-center rounded-full bg-slate-200 px-3 py-1 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-300 disabled:opacity-60"
+              className={`inline-flex items-center rounded-full bg-slate-200 font-semibold text-slate-700 transition-colors hover:bg-slate-300 disabled:opacity-60 ${compact ? 'px-2 py-1 text-[10px]' : 'px-3 py-1 text-xs'}`}
             >
               {t('common.dismiss', 'Vazgeç')}
             </button>
@@ -341,21 +347,21 @@ export function ConversationEntryBubble({
                 }
               }}
               disabled={savingEdit || !draft.trim()}
-              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:opacity-60"
+              className={`${actionBtnClass} bg-emerald-600 hover:bg-emerald-700`}
             >
-              {savingEdit ? <Loader2 className="size-3.5 animate-spin" /> : null}
+              {savingEdit ? <Loader2 className={`${actionIconClass} animate-spin`} /> : null}
               {t('common.save', 'Kaydet')}
             </button>
           </div>
         ) : (
-          <div className="mt-1 flex min-h-[2.125rem] flex-wrap items-center justify-end gap-1.5">
+          <div className={`mt-1 flex flex-wrap items-center justify-end gap-1.5 ${compact ? 'min-h-[1.75rem]' : 'min-h-[2.125rem]'}`}>
             <button
               type="button"
               onClick={beginEdit}
               disabled={sendingPending}
-              className="inline-flex items-center gap-1.5 rounded-full bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60"
+              className={`${actionBtnClass} bg-orange-500 hover:bg-orange-600`}
             >
-              <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+              <PenLine className={actionIconClass} strokeWidth={1.75} aria-hidden="true" />
               {t('common.edit', 'Düzenle')}
             </button>
             {showMessageApprover ? messageApproverButton : null}
@@ -363,9 +369,9 @@ export function ConversationEntryBubble({
               type="button"
               onClick={() => onSendPending?.(entry.entryId)}
               disabled={sendingPending}
-              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+              className={`${actionBtnClass} bg-emerald-600 hover:bg-emerald-700`}
             >
-              {sendingPending ? <Loader2 className="size-3.5 animate-spin" /> : <Send className="size-3.5" />}
+              {sendingPending ? <Loader2 className={`${actionIconClass} animate-spin`} /> : <Send className={actionIconClass} />}
               {t('whatsapp.sendPendingMessage', 'Mesajı Gönder')}
             </button>
           </div>

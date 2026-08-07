@@ -484,6 +484,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Sol listeden manuel konuşma seçimi eski `phone/at/messageId` deep-link anchor'ını temizler ve yeni
   konuşma her zaman son mesajda/en altta açılır. Telefon parametresiyle (`/whatsapp?phone=...`) açılan
   anchorsız konuşmalar da detay popup'taki `Yazışmaya Git` davranışı gibi son mesajda/en altta açılır.
+- **`ConversationPanel` vatandaş talebi modal gönderim (Round 718b):** metin yanıtı
+  `/whatsapp` ile aynı — `sendImmediately=true`; ilet butonu onay sormaz. Bekleyen kuyruk
+  mesajlarında `Mesajı Gönder` onay pop-up'ı korunur.
+- **Vatandaş Talebi modal pending aksiyon boyutu (Round 718b):** `compact` balonda
+  Düzenle / Onaylayan Yönetici / Mesajı Gönder `text-[10px] px-2 py-1`.
 - **"Mesajı Gönder" onay pop-up'ı + "Düzenle" (card #1094/#1096):** gönder butonu önce `ConfirmDialog`
   gösterir; başlıkta metin altı çizilmez, modal konvansiyonundaki başlık-altı ayraç çizgisi kullanılır.
   Onaylanınca iletir. Yanında turuncu "Düzenle" → balon metni

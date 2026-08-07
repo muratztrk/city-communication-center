@@ -175,7 +175,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         await api.replySocialMessage(
           socialMessageId,
           text,
-          false,
+          true,
           selectedMetaTemplate
             ? {
                 whatsAppTemplateId: selectedMetaTemplate.templateId,

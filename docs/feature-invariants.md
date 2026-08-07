@@ -1605,8 +1605,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dosya ekle accept filtresi (#2373 reopen / Round 717):** Talep/görev/WA/kurum içi dosya seçimlerinde ortak
   `ATTACHMENT_FILE_ACCEPT` **yalnız uzantı** listesi kullanır (MIME eklenmez — Windows diyalogunda
   jpg/jpeg mükerrer ve pjp/jfif/dot eşlemeleri oluşmasın). Yalnız JPG/PNG/PDF/Office.
-  “Tüm dosyalar” varsayılanına düşmemek için MIME listesi şarttır; seçim sonrası uzantı doğrulaması
-  da yapılır. Logo yükleme (Ayarlar Görünüm) ayrı kalır.
+  Seçim sonrası uzantı doğrulaması da yapılır. Logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol
   sütun); Login Page Açıklama Ana Renk altında tam sütun genişliği. Başlıklar ayrı satır, logo Ekle butonu ile

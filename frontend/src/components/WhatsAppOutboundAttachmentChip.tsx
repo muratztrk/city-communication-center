@@ -17,7 +17,7 @@ interface WhatsAppOutboundAttachmentChipProps {
   onImageClick?: () => void
 }
 
-/** Giden WA ek chip — görselde ad alt satırda; hover büyüteç + tıklayınca lightbox. */
+/** Giden WA ek chip — görselde ad üst satırda; hover büyüteç + tıklayınca lightbox. */
 export function WhatsAppOutboundAttachmentChip({
   fileName,
   isImage,
@@ -79,8 +79,8 @@ export function WhatsAppOutboundAttachmentChip({
     <div className="space-y-1.5">
       {isImage && previewUrl ? (
         <>
-          {imagePreview}
           {nameRow}
+          {imagePreview}
           {!onImageClick && previewUrl ? (
             <SocialConversationMediaPreview
               open={previewOpen}

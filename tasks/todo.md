@@ -1,3 +1,7 @@
+## Round 722 — WA görsel adı üst + modal pending Düzenle/Gönder (2 kart)
+- `#6a7586af`: `WhatsAppOutboundAttachmentChip` görsel adı üst satır.
+- `#6a7586e9`: modal Dosya ekle → Düzenle + Mesajı Gönder (WA sayfasıyla aynı).
+
 ## Round 721 — kurum içi Eki Gönder küçült (1 kart)
 - `#6a75721d`: pending ek altında `Eki Gönder` `h-6` / `text-[10px]` / ikon `size-2.5`.
 

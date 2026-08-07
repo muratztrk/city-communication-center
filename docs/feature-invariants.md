@@ -567,10 +567,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Medya balon Talep Eki hizası (#2401/#2410):** modalda görsel+doküman gelen eklerde Önizle · İndir · Talep Eki
   **aynı satırda** (Talep Eki İndir'in sağında). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
   gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5` (#2411 reopen). Bekleyen giden görsel önizleme
-  yüksekliği kompakt `max-h-32`, normal `max-h-44` (Round 717). Görsel ek adı **alt** satırda
-  (`WhatsAppOutboundAttachmentChip`). Modal gelen görsel `max-w-[15.5rem]`; sayfa inbound
+  yüksekliği kompakt `max-h-32`, normal `max-h-44` (Round 717). Görsel ek adı **üst** satırda
+  (`WhatsAppOutboundAttachmentChip` — #6a7586af). Modal gelen görsel `max-w-[15.5rem]`; sayfa inbound
   `max-w-[18rem] object-contain` (bubble genişliği aynı kalır). WA gelen doküman adı çerçevesi
-  `text-[11px] px-2.5 py-1.5`.
+  `text-[11px] px-2.5 py-1.5`. Modal Dosya ekle pending: balon altında **Düzenle** + **Mesajı Gönder**
+  (`ConversationPanel`, WA sayfasıyla aynı — #6a7586e9).
 - **Kurum İçi pending ek (#2395 reopen):** mime/boyut alt satırı basılmaz. Ek yüklendikten sonra alıcıya
   SignalR yenilemesi gider; indirme yalnızca konuşmanın gönderen/alıcı tarafına açıktır. Açık sohbet poll
   eşitliği `attachment.attachmentId` alanını da karşılaştırır — ek yüklendikten sonra UI güncellenmez

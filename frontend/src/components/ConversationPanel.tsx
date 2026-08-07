@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Loader2, Paperclip, Send } from 'lucide-react'
+import { Loader2, Paperclip, PenLine, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -88,6 +88,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const [sendingPendingId, setSendingPendingId] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
+  const [pendingFileEditing, setPendingFileEditing] = useState(false)
   const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
   const bottomRef = useRef<HTMLDivElement>(null)
@@ -161,6 +162,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     }
     setFileError(null)
     setPendingFile(file)
+    setPendingFileEditing(false)
   }
 
   const handleSend = async () => {
@@ -171,6 +173,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
       if (pendingFile) {
         await api.replySocialMessageAttachment(socialMessageId, pendingFile, text, true)
         setPendingFile(null)
+        setPendingFileEditing(false)
       } else {
         await api.replySocialMessage(
           socialMessageId,
@@ -349,11 +352,51 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 isImage={pendingFile.type.startsWith('image/')}
                 previewUrl={pendingFilePreviewUrl}
                 compact={compactActions}
-                onDismiss={() => setPendingFile(null)}
+                onDismiss={() => {
+                  setPendingFile(null)
+                  setPendingFileEditing(false)
+                }}
                 dismissDisabled={sending}
                 dismissLabel={t('common.dismiss', 'Vazgeç')}
-                caption={replyText}
+                caption={pendingFileEditing ? undefined : replyText}
               />
+              {pendingFileEditing ? (
+                <textarea
+                  rows={2}
+                  value={replyText}
+                  onChange={event => setReplyText(event.target.value)}
+                  placeholder={t('whatsapp.attachmentCaptionPlaceholder', 'Ek açıklaması yaz...')}
+                  className="mt-2 w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
+                />
+              ) : null}
+            </div>
+            <div className={`mt-1 flex items-center gap-1.5 ${compactActions ? '' : ''}`}>
+              <button
+                type="button"
+                onClick={() => setPendingFileEditing(current => !current)}
+                disabled={sending}
+                className={`inline-flex items-center gap-1 rounded-full bg-orange-500 font-semibold text-white shadow-sm transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-60 ${
+                  compactActions ? 'px-2 py-1 text-[10px]' : 'gap-1.5 px-3 py-1.5 text-xs'
+                }`}
+              >
+                <PenLine className={compactActions ? 'size-3' : 'size-3.5'} strokeWidth={1.75} aria-hidden="true" />
+                {t('common.edit', 'Düzenle')}
+              </button>
+              <button
+                type="button"
+                onClick={() => void handleSend()}
+                disabled={sending}
+                className={`inline-flex items-center gap-1 rounded-full bg-emerald-600 font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60 ${
+                  compactActions ? 'px-2 py-1 text-[10px]' : 'gap-1.5 px-3 py-1.5 text-xs'
+                }`}
+              >
+                {sending ? (
+                  <Loader2 className={`animate-spin ${compactActions ? 'size-3' : 'size-3.5'}`} />
+                ) : (
+                  <Send className={compactActions ? 'size-3' : 'size-3.5'} />
+                )}
+                {t('whatsapp.sendPendingMessage', 'Mesajı Gönder')}
+              </button>
             </div>
           </div>
         ) : null}

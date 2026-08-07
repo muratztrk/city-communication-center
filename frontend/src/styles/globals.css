@@ -3336,18 +3336,24 @@
   }
 
   .citizen-request-form .rich-text-editable {
-    font-size: 0.76rem;
+    font-size: 0.8rem;
     min-height: 6.35rem;
     max-height: 6.35rem;
     padding: 0.45rem 0.55rem;
-    line-height: 1.35;
+    line-height: 1.4;
+  }
+
+  .citizen-request-form .rich-text-editable p,
+  .citizen-request-form .rich-text-editable div {
+    margin: 0;
+    line-height: inherit;
   }
 
   .citizen-request-form .rich-text-editable p + p,
   .citizen-request-form .rich-text-editable div + div,
   .citizen-request-form .rich-text-editable p + div,
   .citizen-request-form .rich-text-editable div + p {
-    margin-top: 0.15rem;
+    margin-top: 0.25rem;
   }
 
   .citizen-request-form .citizen-request-open-address {

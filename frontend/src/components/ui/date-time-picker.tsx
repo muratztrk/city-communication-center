@@ -221,6 +221,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
         id={id}
         type="button"
         onClick={handleOpen}
+        title={display || undefined}
         className={cn(
           'field-input flex w-full items-center gap-1.5 text-left',
           !display && 'text-[color:var(--color-muted-foreground)]',

@@ -1,3 +1,6 @@
+## Round 745 — bildirim tarih/ara tipografi + title tooltip (1 kart reopen)
+- `#6a75d499` reopen: tarih metin/ikon küçült; Ara placeholder küçült; DateTimePicker title overflow.
+
 ## Round 744 — WA kişi kartı tipografi (1 kart reopen)
 - `#6a75cccc` reopen: isim/numara text-xs font-medium (bold+size düşür).
 

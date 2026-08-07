@@ -2018,8 +2018,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ikonu). İsteğe bağlı build override: `VITE_FAVICON_URL`.
 - **Birim içi JobCreated bildirim başlığı (#6a6ca1d4):** InternalUnit →
   `Birim İçi Talep oluşturuldu` (yönetici feed).
-- **Bildirim modal tarih = Ara (#6a6c6a6d / #6a75d499):** başlangıç/bitiş alanları Ara textbox ile aynı
-  yükseklik (`1.875rem`), font (`0.82rem`) ve genişlik (`8.5rem`).
+- **Bildirim modal tarih = Ara (#6a6c6a6d / #6a75d499 / #6a75d499 reopen):** başlangıç/bitiş = Ara
+  genişlik (`8.5rem`); tarih metin/ikon küçültülür (`~0.7rem` / `0.65rem`); Ara placeholder
+  `0.72rem`. Seçili tarih truncate olursa DateTimePicker `title` ile tam değer gösterilir.
 - **Gelen Talep Yeri çerçevesi (#6a6c72f4):** kolon genişliği artırılmaz; birim yeşil çerçevesi
   (`FramedDepartmentStack` max-width) biraz genişler.
 - **Ek süre/revizyon onaycısı bildirim kapsamı:** `TaskRevision` approval onaycısı, görevin atanmış/owner

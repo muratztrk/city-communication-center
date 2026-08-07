@@ -839,9 +839,9 @@ export function InternalMessagesFab() {
                       type="button"
                       onClick={() => void handleSendAttachment()}
                       disabled={sending}
-                      className="inline-flex items-center gap-1.5 rounded-full bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
+                      className="inline-flex h-6 items-center gap-1 rounded-full bg-emerald-600 px-2 text-[10px] font-semibold leading-none text-white shadow-sm transition-colors hover:bg-emerald-700 disabled:cursor-not-allowed disabled:opacity-60"
                     >
-                      <Send className="size-3.5" aria-hidden="true" />
+                      <Send className="size-2.5" aria-hidden="true" />
                       {t('internalMessages.sendAttachment', 'Eki Gönder')}
                     </button>
                   </div>

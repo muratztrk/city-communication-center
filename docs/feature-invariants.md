@@ -580,7 +580,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi görsel ek önizlemesi (#2415):** iletilmiş görsel ekler gönderen ve alıcı balonunda thumbnail
   (`max-h-32`) + dosya adı chip'i gösterir; indirme chip veya thumbnail tıklamasıyla.
 - **Kurum içi pending ek (#2409):** dosya seçimi otomatik iletmez; önizlemede birim · ad soyad + dosya adı,
-  altında **Eki Gönder** butonu; footer Gönder yalnızca metin içindir.
+  altında **Eki Gönder** butonu (`h-6` / `text-[10px]` — #6a75721d); footer Gönder yalnızca metin içindir.
 - **Gelen WA doküman ek adı (#2404 reopen):** vatandaştan gelen doküman balonunda dosya adı metni
   `text-[10px]` / ikon `size-3` / çerçeve `px-2 py-1`.
 - **WhatsApp bekleyen dosya önizlemesi (#2385/#2389):** sohbet alanındaki pending-file balonu kompakt

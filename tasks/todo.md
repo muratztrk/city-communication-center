@@ -1,3 +1,6 @@
+## Round 721 — kurum içi Eki Gönder küçült (1 kart)
+- `#6a75721d`: pending ek altında `Eki Gönder` `h-6` / `text-[10px]` / ikon `size-2.5`.
+
 ## Round 720 — lightbox kısalt + Açıklama spell/Enter + kayıtlı konum (4 kart)
 - `#6a75848c` / `#6a75722a`: `SocialConversationMediaPreview` 70vh / 56vh (WA + kurum içi).
 - `#6a74e697`: Açıklama `spellCheck={false}` + Enter `insertParagraph` + eşit satır aralığı.

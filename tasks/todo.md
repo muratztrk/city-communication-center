@@ -1,3 +1,8 @@
+## Round 753 — WA textbox lag + ek lazy load (#2418/#2397/#2486)
+- DeferredComposer tüm WA/modal alanları; blur flush; RichText rAF+transition; yazarken detail poll pause.
+- SocialConversationMediaBubble görünür alanda lazy indirme.
+- Commit `83e9389e`; deploy OK; #2397 duplicate Done.
+
 ## Round 752 — Kurum içi Yazıyor göstergesi (#2353 + #2307)
 - Kök neden: cookie-only SPA oturumunda SignalR grup eşleşmesi + hub JWT; typing POST SignalR bağlantısına bekletiliyordu.
 - BE: hub grup normalize, RegisterPresence, typing cache + GET poll; FE: poll 1s yedek, typing POST hemen.

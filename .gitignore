@@ -510,3 +510,4 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+.tmp-r737-*.png

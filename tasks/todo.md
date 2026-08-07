@@ -1,3 +1,7 @@
+## Round 742 — X hover + bildirim tarih genişlik (2 kart)
+- `#6a75d47c`: CitizenRequestModal X → ModalCloseButton (İptal Et hover).
+- `#6a75d499`: Bildirim modal Başlangıç/Bitiş genişliği = Ara (8.5rem).
+
 ## Round 741 — Talep Etiketi textbox kaldır (1 kart)
 - `#6a75d1bf`: textbox yok; başlık dropdown satırında; Talep Başlığı yüksekliği arttı.
 

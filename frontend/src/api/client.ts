@@ -1362,6 +1362,14 @@ export const api = {
     await ensureOk(response, i18n.t('errors.internalMessageSendFailed', 'Mesaj gönderilemedi.'))
   },
 
+  async getInternalTypingState(otherUserId: string): Promise<{ isTyping: boolean }> {
+    const response = await fetchWithCredentials(`${API_BASE}/internal-messages/typing/${otherUserId}`, {
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('errors.internalMessagesLoadFailed', 'Kurum içi mesajlar yüklenemedi.'))
+    return await response.json() as { isTyping: boolean }
+  },
+
   async updateCitizenConversationProfile(conversationId: string, payload: {
     citizenName?: string | null
     citizenPhone?: string | null

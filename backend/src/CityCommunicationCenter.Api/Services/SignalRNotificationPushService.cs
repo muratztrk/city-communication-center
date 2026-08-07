@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Api.Hubs;
+using CityCommunicationCenter.Application.Abstractions;
 using Microsoft.AspNetCore.SignalR;
 
 namespace CityCommunicationCenter.Api.Services;
@@ -6,13 +7,16 @@ namespace CityCommunicationCenter.Api.Services;
 public sealed class SignalRNotificationPushService : INotificationPushService
 {
     private readonly IHubContext<NotificationHub> _hubContext;
+    private readonly IInternalTypingStateCache _typingStateCache;
     private readonly ILogger<SignalRNotificationPushService> _logger;
 
     public SignalRNotificationPushService(
         IHubContext<NotificationHub> hubContext,
+        IInternalTypingStateCache typingStateCache,
         ILogger<SignalRNotificationPushService> logger)
     {
         _hubContext = hubContext;
+        _typingStateCache = typingStateCache;
         _logger = logger;
     }
 
@@ -79,6 +83,8 @@ public sealed class SignalRNotificationPushService : INotificationPushService
             recipientUserId,
             tenantId,
             payload.SenderUserId);
+
+        _typingStateCache.SetTyping(payload.SenderUserId, payload.RecipientUserId, payload.IsTyping);
 
         var typingPayload = new
         {

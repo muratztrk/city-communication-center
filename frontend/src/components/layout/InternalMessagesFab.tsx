@@ -32,6 +32,7 @@ const PAGE_SIZE = 10
 const TYPING_NOTIFY_DEBOUNCE_MS = 200
 const TYPING_INDICATOR_TTL_MS = 4_500
 const TYPING_HEARTBEAT_MS = 1_800
+const TYPING_POLL_INTERVAL_MS = 1_000
 
 function normalizeUserId(userId: string) {
   return userId.trim().toLowerCase()
@@ -439,6 +440,40 @@ export function InternalMessagesFab() {
       }
     }
   }, [clearTypingHeartbeat])
+
+  useEffect(() => {
+    if (!isOpen || !activeChat) return
+
+    let cancelled = false
+    const pollTyping = async () => {
+      if (cancelled || document.visibilityState !== 'visible') return
+      try {
+        const state = await api.getInternalTypingState(activeChat.otherUserId)
+        if (cancelled) return
+        if (state.isTyping) {
+          setOtherUserTyping(true)
+          if (otherTypingTimerRef.current) window.clearTimeout(otherTypingTimerRef.current)
+          otherTypingTimerRef.current = window.setTimeout(() => {
+            setOtherUserTyping(false)
+          }, TYPING_INDICATOR_TTL_MS)
+        } else {
+          setOtherUserTyping(false)
+        }
+      } catch {
+        // sessizce geç — SignalR veya sonraki poll denenecek
+      }
+    }
+
+    void pollTyping()
+    const timer = window.setInterval(() => {
+      void pollTyping()
+    }, TYPING_POLL_INTERVAL_MS)
+
+    return () => {
+      cancelled = true
+      window.clearInterval(timer)
+    }
+  }, [activeChat, isOpen])
 
   useEffect(() => {
     if (!isOpen || !activeChat) return

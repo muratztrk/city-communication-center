@@ -66,4 +66,16 @@ public sealed class InternalMessagesController : ApiControllerBase
             cancellationToken);
         return NoContent();
     }
+
+    [HttpGet("typing/{otherUserId:guid}")]
+    [ProducesResponseType<InternalTypingStateResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<InternalTypingStateResponse>> GetTypingState(
+        Guid otherUserId,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new GetInternalTypingStateQuery(otherUserId, CurrentContext.UserId),
+            cancellationToken);
+        return Ok(response);
+    }
 }

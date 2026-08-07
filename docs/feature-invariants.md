@@ -2131,8 +2131,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   üç nokta gösterilir; `POST /internal-messages/typing` yalnız alıcıya iletilir. Gönderen yazmaya
   devam ederken ~1.8 sn heartbeat ile yenilenir; alıcı TTL ~4.5 sn. `activeChatRef` + unmount'ta
   `isTyping:false`; notify öncesi `ensureSignalRConnected`. Cookie-only SPA oturumunda hub JWT
-  `POST /auth/session/signalr-access-token` ile üretilir (`getSignalRAccessToken`); hub grupları
-  `user-{guid}` küçük harf normalize (`SignalRGroupNames`).
+  `POST /auth/session/signalr-access-token` ile üretilir; hub grupları `user-{guid}` küçük harf
+  normalize (`SignalRGroupNames`); bağlantı sonrası `RegisterPresence`. SignalR kaçarsa açık
+  sohbette `GET /internal-messages/typing/{otherUserId}` 1 sn poll yedekler.
 - **Kurum içi görsel lightbox (Round 717):** FAB sohbetinde görsel tıklanınca
   `SocialConversationMediaPreview` (büyüteç, dosya adı, İndir) — WA ile aynı.
 - **Kurum içi panel yüksekliği (Round 719):** `h-[min(80dvh,50rem)]` / `sm:h-[min(74dvh,46rem)]`

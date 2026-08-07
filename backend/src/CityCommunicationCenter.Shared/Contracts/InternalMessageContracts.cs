@@ -34,3 +34,5 @@ public sealed record SendInternalMessageResponse(
     InternalMessageResponse Message);
 
 public sealed record NotifyInternalMessageTypingRequest(Guid RecipientUserId, bool IsTyping);
+
+public sealed record InternalTypingStateResponse(bool IsTyping);

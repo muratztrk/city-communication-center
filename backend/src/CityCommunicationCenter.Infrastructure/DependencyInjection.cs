@@ -38,7 +38,7 @@ public static class DependencyInjection
             throw new InvalidOperationException("Connection string 'CityCommunicationCenter' must be configured.");
         }
 
-        services.AddSingleton<AuditLogSyslogInterceptor>();
+        services.AddSingleton<IInternalTypingStateCache, InternalTypingStateCache>();
         services.AddDbContext<CityCommunicationCenterDbContext>((serviceProvider, options) =>
         {
             options.UseNpgsql(connectionString);

@@ -12,6 +12,7 @@ import { ChannelIcon } from '../components/ui/channel-icon'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { DateCell } from '../components/ui/date-cell'
+import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { StatusPill } from '../components/ui/status-pill'
 import { GridStatusLabel } from '../components/ui/GridStatusLabel'
@@ -83,7 +84,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
   const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type })
 
   const { sortKey, sortDir, toggleSort: toggleSortRaw, sortItems } = useSortable()
-  const { filters, setFilter, clearFilters, matchesFilters } = useColumnFilters()
+  const { filters, setFilter, clearFilters, matchesFilters, hasActiveFilters: hasActiveColumnFilters } = useColumnFilters()
 
   const apiScope = useMemo(() => SCOPE_FILTERS.find(filter => filter.value === scope)?.apiScope ?? 'to-send', [scope])
 
@@ -300,6 +301,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
             {t(filter.labelKey, filter.fallback)}
           </button>
         ))}
+              <ClearPieFilterLink hasColumnFilters={hasActiveColumnFilters} onClearColumnFilters={clearFilters} />
       </nav>
 
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}

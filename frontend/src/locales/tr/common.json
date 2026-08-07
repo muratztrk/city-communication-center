@@ -410,6 +410,7 @@
       "outgoingTotal": "Birimden Giden Tüm Talepler",
       "deptTotalTasks": "Birim İçi/Dışı Tüm Görevler",
       "internalExternalSub": "(Birim İçi/Birim Dışı)",
+      "myPendingTasksSub": "(Birim İçi/Birim Dışı Bekleyen ve Son Tarihi Geçmiş)",
       "citizenPendingApprovalSub": "(Vatandaştan Gelen Onay Bekleyen)"
     },
     "chart": {

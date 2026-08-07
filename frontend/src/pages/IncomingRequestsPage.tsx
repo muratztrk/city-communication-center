@@ -794,7 +794,7 @@ export function IncomingRequestsPage() {
   useEffect(() => { setIncomingPage(1) }, [filterFrom, filterTo, searchText])
 
   const { sortKey: incomingSortKey, sortDir: incomingSortDir, toggleSort: _toggleIncomingSort, sortItems: sortIncoming } = useSortable()
-  const { filters: incomingFilters, setFilter: setIncomingFilter, clearFilters: clearIncomingFilters, matchesFilters: incomingMatchesFilters } = useColumnFilters()
+  const { filters: incomingFilters, setFilter: setIncomingFilter, clearFilters: clearIncomingFilters, matchesFilters: incomingMatchesFilters, hasActiveFilters: hasActiveIncomingColumnFilters } = useColumnFilters()
 
   const columnFilteredRows = useMemo(
     // cancelReturnStatus'u satıra ekle ki sıralama (obj[sortKey]) çalışsın; filtre getColumnValue ile.
@@ -853,6 +853,7 @@ export function IncomingRequestsPage() {
     else nextParams.set('status', filter)
     setSearchParams(nextParams)
     setIncomingPage(1)
+    clearIncomingFilters()
   }
 
   const setKindFilter = (filter: IncomingKindFilter) => {
@@ -861,6 +862,7 @@ export function IncomingRequestsPage() {
     else nextParams.set('kind', filter)
     setSearchParams(nextParams)
     setIncomingPage(1)
+    clearIncomingFilters()
   }
 
   const canApproveRow = (row: IncomingRequestRow) =>
@@ -956,7 +958,7 @@ export function IncomingRequestsPage() {
             ))}
           </>
         ) : null}
-        <ClearPieFilterLink />
+        <ClearPieFilterLink hasColumnFilters={hasActiveIncomingColumnFilters} onClearColumnFilters={clearIncomingFilters} />
       </nav>
 
       {error ? <div className="error">{error}</div> : null}

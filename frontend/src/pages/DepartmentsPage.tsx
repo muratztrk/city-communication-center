@@ -2,6 +2,7 @@ import { Building2, Layers3, PenLine, Search, Trash2, X } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
@@ -571,7 +572,7 @@ export function DepartmentsPage() {
   const canEditDepartment = (department: Department) => user?.role === 'SystemAdmin' || department.managerUserId === user?.userId
 
   const { sortKey: deptSortKey, sortDir: deptSortDir, toggleSort: toggleDeptSort, sortItems: sortDepts } = useSortable()
-  const { filters: deptFilters, setFilter: setDeptFilter, clearFilters: clearDeptFilters, matchesFilters: deptMatchesFilters } = useColumnFilters()
+  const { filters: deptFilters, setFilter: setDeptFilter, clearFilters: clearDeptFilters, matchesFilters: deptMatchesFilters, hasActiveFilters: hasActiveDeptColumnFilters } = useColumnFilters()
   const [deptSearchText, setDeptSearchText] = useState('')
 
   const departmentRows = useMemo(
@@ -856,6 +857,7 @@ export function DepartmentsPage() {
 
       <section className={`section-card${showForm ? '' : ' desktop-page-fill'}`}>
         <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-background)] px-4 py-2.5 sm:px-5">
+          <ClearPieFilterLink hasColumnFilters={hasActiveDeptColumnFilters} onClearColumnFilters={clearDeptFilters} />
           <div className="relative min-w-[14rem] flex-1">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
             <input

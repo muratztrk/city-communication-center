@@ -651,8 +651,21 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 return (GetString(lst, "title") ?? GetString(lst, "id") ?? "[liste yanıtı]", null, null, null, null);
         }
 
+        // Rehber kişi kartı (.vcf / contacts) — isim + numara (#6a75a9c2).
+        if (type == "contacts" && message.TryGetProperty("contacts", out var contactsEl)
+            && contactsEl.ValueKind == JsonValueKind.Array)
+        {
+            var contactLines = FormatWhatsAppContacts(contactsEl);
+            return (
+                string.IsNullOrWhiteSpace(contactLines) ? "[kişi kartı]" : contactLines,
+                null,
+                null,
+                null,
+                null);
+        }
+
         // Media types: image, video, audio, document, sticker
-        if (message.TryGetProperty(type, out var mediaObj))
+        if (message.TryGetProperty(type, out var mediaObj) && mediaObj.ValueKind == JsonValueKind.Object)
         {
             var mediaId = GetString(mediaObj, "id");
             var mimeType = GetString(mediaObj, "mime_type");
@@ -695,6 +708,48 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
         var name = Path.GetFileName(trimmed.Replace('\\', '/'));
         return string.IsNullOrWhiteSpace(name) ? null : name.Trim();
+    }
+
+    /// <summary>WhatsApp <c>contacts</c> payload → "Ad Soyad · telefon" satırları (#6a75a9c2).</summary>
+    internal static string FormatWhatsAppContacts(JsonElement contactsEl)
+    {
+        var lines = new List<string>();
+        foreach (var contact in contactsEl.EnumerateArray())
+        {
+            string? name = null;
+            if (contact.TryGetProperty("name", out var nameObj) && nameObj.ValueKind == JsonValueKind.Object)
+            {
+                name = GetString(nameObj, "formatted_name");
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    var first = GetString(nameObj, "first_name");
+                    var last = GetString(nameObj, "last_name");
+                    name = string.Join(' ', new[] { first, last }.Where(v => !string.IsNullOrWhiteSpace(v)));
+                }
+            }
+
+            var phones = new List<string>();
+            if (contact.TryGetProperty("phones", out var phonesEl) && phonesEl.ValueKind == JsonValueKind.Array)
+            {
+                foreach (var phoneObj in phonesEl.EnumerateArray())
+                {
+                    if (phoneObj.ValueKind != JsonValueKind.Object) continue;
+                    var phone = GetString(phoneObj, "phone") ?? GetString(phoneObj, "wa_id");
+                    if (!string.IsNullOrWhiteSpace(phone))
+                        phones.Add(phone.Trim());
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(name) && phones.Count == 0) continue;
+            if (string.IsNullOrWhiteSpace(name))
+                lines.Add(string.Join(", ", phones));
+            else if (phones.Count == 0)
+                lines.Add(name.Trim());
+            else
+                lines.Add($"{name.Trim()} · {string.Join(", ", phones)}");
+        }
+
+        return string.Join('\n', lines);
     }
 
     private static double? GetDouble(JsonElement el, string prop)

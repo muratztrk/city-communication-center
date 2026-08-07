@@ -1127,7 +1127,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, enrichJobRow, filterFrom, filterTo, getJobColumnValue, hideCitizenRequestsFromMyRequests, isDepartmentOutgoingView, isManagerLike, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters])
 
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
-  const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters } = useColumnFilters()
+  const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters, hasActiveFilters: hasActiveJobColumnFilters } = useColumnFilters()
 
   const toggleJobsSort = (key: string) => {
     _toggleJobsSort(key)
@@ -2075,7 +2075,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               </select>
             </>
           ) : null}
-          <ClearPieFilterLink />
+          <ClearPieFilterLink hasColumnFilters={hasActiveJobColumnFilters} onClearColumnFilters={clearJobFilters} />
         </nav>
       ) : isDepartmentOutgoingView ? (
         <nav className="scope-chips" aria-label={t('nav.outgoingRequests', 'Birimden Giden Talepler')}>
@@ -2089,7 +2089,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               {t(view.labelKey)}
             </button>
           ))}
-          <ClearPieFilterLink />
+          <ClearPieFilterLink hasColumnFilters={hasActiveJobColumnFilters} onClearColumnFilters={clearJobFilters} />
         </nav>
       ) : !fixedScope ? (
         <nav className="scope-chips">
@@ -2103,7 +2103,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               {t(s.labelKey, s.value)}
             </button>
           ))}
-          <ClearPieFilterLink />
+          <ClearPieFilterLink hasColumnFilters={hasActiveJobColumnFilters} onClearColumnFilters={clearJobFilters} />
         </nav>
       ) : null}
 

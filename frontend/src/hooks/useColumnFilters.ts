@@ -1,6 +1,8 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 
 export function useColumnFilters() {
+  const location = useLocation()
   const [filters, setFilters] = useState<Record<string, string>>({})
 
   const setFilter = useCallback((key: string, value: string) => {
@@ -14,6 +16,11 @@ export function useColumnFilters() {
   }, [])
 
   const clearFilters = useCallback(() => setFilters({}), [])
+
+  // Başka sayfaya geçince sütun filtrelerini temizle (#6a75c994).
+  useEffect(() => {
+    setFilters({})
+  }, [location.pathname])
 
   /**
    * Returns true when `item` passes all active column filters.
@@ -35,5 +42,7 @@ export function useColumnFilters() {
     [filters],
   )
 
-  return { filters, setFilter, clearFilters, matchesFilters }
+  const hasActiveFilters = Object.keys(filters).length > 0
+
+  return { filters, setFilter, clearFilters, matchesFilters, hasActiveFilters }
 }

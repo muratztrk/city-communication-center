@@ -1931,10 +1931,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talepleri pie (#r546/#6a6ceed0):** VT sayısı `WhereHasCitizenRequestNumber`;
   dilim tıklanınca `DashboardChartDrilldownModal` (Reporter/Operator/SystemAdmin);
   BE `BuildCitizenRowsAsync`.
-- **Pie Filtreyi sil (#r546/#r547/#r549/#r550/#r552/#2096/#2104):** `fromPie=1` ile gelinen gridlerde
-  scope-chip satırında son butonun **sağında** kırmızı `scope-chip--clear-pie` (Birim İçi/Dışı chip
-  kalıbı, aktif kırmızı fill + beyaz yazı) + `ccc-blink`; punto komşu çiplerden büyük (`0.8rem`,
-  card #2104); tıklanınca pathname'e (query yok) döner.
+- **Pie / sütun Filtreyi sil (#r546/#2096/#6a75c994):** `fromPie=1` **veya** aktif sütun başlığı
+  filtresi varken scope-chip satırında (aynı konum) kırmızı yanıp sönen `Filtreyi sil`; tıklanınca
+  sütun filtreleri + pie query temizlenir. Başka sayfaya geçince (`pathname`) sütun filtreleri
+  sıfırlanır; chip/buton geçişlerinde de temizlenir.
+- **Dashboard Bekleyen Görevlerim alt metin (#6a75c91c):** `(Birim İçi/Birim Dışı Bekleyen ve Son Tarihi Geçmiş)`.
+- **WA kişi kartı / contacts (#6a75a9c2):** webhook `contacts` → içerikte `Ad · telefon` satırları.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık
   satırının sağına**; **Talep Etiketi** pie'sında filtre butonlarının **bir alt satırında** sağa
   hizalı. Personelimin Görevleri / Çözme Süresi pie'larında Ara... yok. X ikonu kırmızı; metin

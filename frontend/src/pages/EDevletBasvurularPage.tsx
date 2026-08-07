@@ -8,6 +8,7 @@ import { invalidateJobs } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { DateCell } from '../components/ui/date-cell'
+import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -84,7 +85,7 @@ export function EDevletBasvurularPage() {
   const [submitting, setSubmitting] = useState(false)
 
   const { sortKey, sortDir, toggleSort: _toggleSort, sortItems } = useSortable()
-  const { filters, setFilter, clearFilters, matchesFilters } = useColumnFilters()
+  const { filters, setFilter, clearFilters, matchesFilters, hasActiveFilters: hasActiveColumnFilters } = useColumnFilters()
 
   const loadRows = useCallback(async () => {
     setLoading(true)
@@ -280,6 +281,7 @@ export function EDevletBasvurularPage() {
             {t(filter.labelKey, filter.fallback)}
           </button>
         ))}
+              <ClearPieFilterLink hasColumnFilters={hasActiveColumnFilters} onClearColumnFilters={clearFilters} />
       </nav>
 
       {error ? <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div> : null}

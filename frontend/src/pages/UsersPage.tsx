@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next'
 import { Eye, EyeOff, ShieldUser, PenLine, Search, Trash2, Users } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useSortable } from '../hooks/useSortable'
+import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useTranslation } from 'react-i18next'
@@ -855,7 +856,7 @@ export function UsersPage() {
   const getDepartmentName = (departmentId: string) => departments.find(department => department.departmentId === departmentId)?.name || t('common.none')
   const { sortKey: usersSortKey, sortDir: usersSortDir, toggleSort: toggleUsersSort, sortItems: sortUsers } = useSortable()
   const sortedUsers = useMemo(() => sortUsers(users), [users, sortUsers])
-  const { filters: userFilters, setFilter: setUserFilter, clearFilters: clearUserFilters, matchesFilters: userMatchesFilters } = useColumnFilters()
+  const { filters: userFilters, setFilter: setUserFilter, clearFilters: clearUserFilters, matchesFilters: userMatchesFilters, hasActiveFilters: hasActiveUserColumnFilters } = useColumnFilters()
   const [userSearchText, setUserSearchText] = useState('')
   const columnFilteredUsers = useMemo(() => {
     const trimmedSearch = userSearchText.trim()
@@ -1392,6 +1393,7 @@ export function UsersPage() {
 
       <section className={`section-card${showForm ? '' : ' desktop-page-fill'}`}>
         <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-background)] px-4 py-2.5 sm:px-5">
+          <ClearPieFilterLink hasColumnFilters={hasActiveUserColumnFilters} onClearColumnFilters={clearUserFilters} />
           <div className="relative min-w-[14rem] flex-1">
             <Search className="pointer-events-none absolute left-2.5 top-1/2 size-3.5 -translate-y-1/2 text-slate-400" />
             <input

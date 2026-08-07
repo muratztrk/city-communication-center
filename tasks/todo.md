@@ -1,3 +1,8 @@
+## Round 736 — sütun Filtreyi sil + bekleyen alt metin + WA contacts (3 kart)
+- `#6a75c994`: Sütun filtresi → yanıp sönen Filtreyi sil; sayfa/chip geçişinde temizle.
+- `#6a75c91c`: Bekleyen Görevlerim alt metin +Bekleyen ve Son Tarihi Geçmiş.
+- `#6a75a9c2`: WA contacts kişi kartından isim+numara.
+
 ## Round 735 — WA video ortala + orijinal ek adı (2 kart)
 - `#6a75c6e8`: Inbound video balonu görsel gibi w-full object-contain (ortala).
 - `#6a75c6fa`: Gelen WA ek orijinal adı korunur (webhook normalize + X-Original-File-Name).

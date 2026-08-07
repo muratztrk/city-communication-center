@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { DateCell } from '../components/ui/date-cell'
+import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
@@ -85,7 +86,7 @@ export function EDevletActivityPlansListPage() {
   const [searchText, setSearchText] = useState('')
 
   const { sortKey: plansSortKey, sortDir: plansSortDir, toggleSort: _togglePlansSort, sortItems: sortPlans } = useSortable()
-  const { filters: planFilters, setFilter: setPlanFilter, clearFilters: clearPlanFilters, matchesFilters: planMatchesFilters } = useColumnFilters()
+  const { filters: planFilters, setFilter: setPlanFilter, clearFilters: clearPlanFilters, matchesFilters: planMatchesFilters, hasActiveFilters: hasActivePlanColumnFilters } = useColumnFilters()
 
   const loadPlans = useCallback(async () => {
     setLoading(true)
@@ -221,6 +222,7 @@ export function EDevletActivityPlansListPage() {
           </div>
           <div className="ml-auto mt-auto shrink-0">
             <div className="scope-chips-filters">
+          <ClearPieFilterLink hasColumnFilters={hasActivePlanColumnFilters} onClearColumnFilters={clearPlanFilters} />
               <div className="scope-chip-search-wrap">
                 <Search className="scope-chip-search-icon size-3 shrink-0 text-slate-400" aria-hidden="true" />
                 <input

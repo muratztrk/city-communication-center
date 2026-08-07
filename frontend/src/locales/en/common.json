@@ -408,6 +408,7 @@
       "outgoingTotal": "All Outgoing Dept Requests",
       "deptTotalTasks": "Internal/External All Unit Tasks",
       "internalExternalSub": "(Internal/External)",
+      "myPendingTasksSub": "(Internal/External Pending and Overdue)",
       "citizenPendingApprovalSub": "(Citizen Requests Pending Approval)"
     },
     "chart": {

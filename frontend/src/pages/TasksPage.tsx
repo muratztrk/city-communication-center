@@ -826,7 +826,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, getTaskColumnValue, isCitizenRequestManager, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchText, showRequestFlowFilters, staffUserIds, tasks])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
-  const { filters: taskFilters, setFilter: setTaskFilter, clearFilters: clearTaskFilters, matchesFilters: taskMatchesFilters } = useColumnFilters()
+  const { filters: taskFilters, setFilter: setTaskFilter, clearFilters: clearTaskFilters, matchesFilters: taskMatchesFilters, hasActiveFilters: hasActiveTaskColumnFilters } = useColumnFilters()
 
   const toggleTasksSort = (key: string) => {
     _toggleTasksSort(key)
@@ -1867,7 +1867,7 @@ const pageKicker = isMyTasksView
               ))}
             </>
           ) : null}
-          <ClearPieFilterLink />
+          <ClearPieFilterLink hasColumnFilters={hasActiveTaskColumnFilters} onClearColumnFilters={clearTaskFilters} />
         </nav>
       ) : isDepartmentTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.departmentTasks', 'Birimdeki Görevler')}>
@@ -1896,7 +1896,7 @@ const pageKicker = isMyTasksView
               ))}
             </>
           ) : null}
-          <ClearPieFilterLink />
+          <ClearPieFilterLink hasColumnFilters={hasActiveTaskColumnFilters} onClearColumnFilters={clearTaskFilters} />
         </nav>
       ) : isStaffTasksView ? (
         <nav className="scope-chips">
@@ -1932,7 +1932,7 @@ const pageKicker = isMyTasksView
               ))}
             </>
           ) : null}
-          <ClearPieFilterLink />
+          <ClearPieFilterLink hasColumnFilters={hasActiveTaskColumnFilters} onClearColumnFilters={clearTaskFilters} />
         </nav>
       ) : (
         <nav className="scope-chips">
@@ -1946,7 +1946,7 @@ const pageKicker = isMyTasksView
               {t(SCOPES.find(s => s.value === scope)!.labelKey)}
             </button>
           ))}
-          <ClearPieFilterLink />
+          <ClearPieFilterLink hasColumnFilters={hasActiveTaskColumnFilters} onClearColumnFilters={clearTaskFilters} />
         </nav>
       )}
 

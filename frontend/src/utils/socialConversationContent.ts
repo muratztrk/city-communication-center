@@ -10,6 +10,7 @@ const BRACKET_LABELS: Record<string, string> = {
   sticker: 'Çıkartma',
   voice: 'Sesli mesaj',
   contacts: 'Kişi kartı',
+  'kişi kartı': 'Kişi kartı',
   location: 'Konum',
   'location message': 'Konum',
   'konum mesajı': 'Konum',

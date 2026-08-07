@@ -341,7 +341,7 @@ export function SocialMessagesPage() {
   }
 
   const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable()
-  const { filters: socialFilters, setFilter: setSocialFilter, clearFilters: clearSocialFilters, matchesFilters: socialMatchesFilters } = useColumnFilters()
+  const { filters: socialFilters, setFilter: setSocialFilter, clearFilters: clearSocialFilters, matchesFilters: socialMatchesFilters, hasActiveFilters: hasActiveSocialColumnFilters } = useColumnFilters()
 
   const displayMessages = useMemo(() => messages.map(message => {
     const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
@@ -569,7 +569,7 @@ export function SocialMessagesPage() {
           }}
           placeholder={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
         />
-        <ClearPieFilterLink />
+        <ClearPieFilterLink hasColumnFilters={hasActiveSocialColumnFilters} onClearColumnFilters={clearSocialFilters} />
       </nav>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}

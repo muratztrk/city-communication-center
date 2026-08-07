@@ -17,7 +17,11 @@ interface WhatsAppOutboundAttachmentChipProps {
   onImageClick?: () => void
 }
 
-/** Giden WA ek chip — görselde ad üst satırda; hover büyüteç + tıklayınca lightbox. */
+/** Taleplerim detay ek ikon rozetiyle aynı çerçeve (#6a758a88). */
+const attachmentIconBadgeClass =
+  'flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-blue-700'
+
+/** Giden WA ek chip — görselde ad alt satırda; X görsel sağ üstte (#6a7586af reopen). */
 export function WhatsAppOutboundAttachmentChip({
   fileName,
   isImage,
@@ -31,7 +35,7 @@ export function WhatsAppOutboundAttachmentChip({
 }: WhatsAppOutboundAttachmentChipProps) {
   const displayName = lowercaseFileExtension(fileName)
   const FileIcon = isImage ? SimpleImageAttachmentIcon : FileText
-  const iconClass = compact ? 'size-3.5' : 'size-4'
+  const iconClass = 'size-3'
   const nameClass = compact ? 'text-xs font-semibold' : 'text-sm font-semibold'
   const [previewOpen, setPreviewOpen] = useState(false)
 
@@ -44,43 +48,47 @@ export function WhatsAppOutboundAttachmentChip({
   }
 
   const nameRow = (
-    <div className="flex items-center gap-2">
-      <FileIcon className={`${iconClass} shrink-0`} aria-hidden="true" />
+    <div className="flex min-w-0 items-center gap-2">
+      <span className={attachmentIconBadgeClass}>
+        <FileIcon className={iconClass} aria-hidden="true" />
+      </span>
       <span className={`min-w-0 truncate ${nameClass}`}>{displayName}</span>
+    </div>
+  )
+
+  const imagePreview = isImage && previewUrl ? (
+    <div className="relative">
+      <button
+        type="button"
+        onClick={openPreview}
+        className="block w-full overflow-hidden rounded-lg border border-white/20"
+      >
+        <img
+          src={previewUrl}
+          alt={displayName}
+          className={`w-full cursor-zoom-in object-contain bg-white/95 ${compact ? 'max-h-32' : 'max-h-44'}`}
+        />
+      </button>
       {onDismiss ? (
         <button
           type="button"
           onClick={onDismiss}
           disabled={dismissDisabled}
-          className={`ml-auto inline-flex shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`}
+          className={`absolute right-1.5 top-1.5 inline-flex shrink-0 items-center justify-center rounded-full bg-black/55 text-white shadow-sm transition-colors hover:bg-black/70 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`}
           aria-label={dismissLabel}
         >
           <X className={compact ? 'size-3' : 'size-3.5'} aria-hidden="true" />
         </button>
       ) : null}
     </div>
-  )
-
-  const imagePreview = isImage && previewUrl ? (
-    <button
-      type="button"
-      onClick={openPreview}
-      className="block overflow-hidden rounded-lg border border-white/20"
-    >
-      <img
-        src={previewUrl}
-        alt={displayName}
-        className={`w-full cursor-zoom-in object-contain bg-white/95 ${compact ? 'max-h-32' : 'max-h-44'}`}
-      />
-    </button>
   ) : null
 
   return (
     <div className="space-y-1.5">
       {isImage && previewUrl ? (
         <>
-          {nameRow}
           {imagePreview}
+          {nameRow}
           {!onImageClick && previewUrl ? (
             <SocialConversationMediaPreview
               open={previewOpen}
@@ -98,7 +106,20 @@ export function WhatsAppOutboundAttachmentChip({
           ) : null}
         </>
       ) : (
-        nameRow
+        <div className="flex items-center gap-2">
+          {nameRow}
+          {onDismiss ? (
+            <button
+              type="button"
+              onClick={onDismiss}
+              disabled={dismissDisabled}
+              className={`ml-auto inline-flex shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`}
+              aria-label={dismissLabel}
+            >
+              <X className={compact ? 'size-3' : 'size-3.5'} aria-hidden="true" />
+            </button>
+          ) : null}
+        </div>
       )}
       {caption?.trim() ? (
         <p className={`whitespace-pre-wrap break-words ${compact ? 'text-xs' : 'text-sm'}`}>{caption.trim()}</p>

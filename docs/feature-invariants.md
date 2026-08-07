@@ -446,7 +446,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonda MapPin + (yer açıklaması varsa açıklama, yoksa **Konum**)
   + alt satırda Haritada aç; enlem/boylam metni gösterilmez; kayıtlı yer (`Name - Address`)
-  SocialMessage lat/lng ile tanınır (`ConversationLocationHelper` — #6a74de2a / #6a6b9fac).
+  SocialMessage lat/lng ile tanınır. Medya placeholder (`[image]` vb.) ve medya balonunda
+  konum UI yok (#6a74de2a reopen / #6a6b9fac).
   MapPin rengi `var(--color-header-from)`. Detayda turuncu
   **Talep Durumunu Değiştir** → `ReopenCitizenMessageJobCommand` (`POST …/reopen-to-in-progress`)
   Job'u Active + terminal görevleri InProgress yapar, release bayrağını temizler (card #2057/#2062).
@@ -568,8 +569,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Medya balon Talep Eki hizası (#2401/#2410):** modalda görsel+doküman gelen eklerde Önizle · İndir · Talep Eki
   **aynı satırda** (Talep Eki İndir'in sağında). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
   gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5` (#2411 reopen). Bekleyen giden görsel önizleme
-  yüksekliği kompakt `max-h-32`, normal `max-h-44` (Round 717). Görsel ek adı **üst** satırda
-  (`WhatsAppOutboundAttachmentChip` — #6a7586af). Modal gelen görsel `max-w-[15.5rem]`; sayfa inbound
+  yüksekliği kompakt `max-h-32`, normal `max-h-44` (Round 717). Görsel ek adı **alt** satırda,
+  X görselin sağ üstünde (`WhatsAppOutboundAttachmentChip` — #6a7586af reopen).
+  Ek ikon rozeti Taleplerim detay ile aynı: `rounded-md border-emerald-100 bg-emerald-50 text-blue-700`
+  (#6a758a88). Modal gelen görsel `max-w-[15.5rem]`; sayfa inbound
   `max-w-[18rem] object-contain` (bubble genişliği aynı kalır). WA gelen doküman adı çerçevesi
   `text-[11px] px-2.5 py-1.5`. Modal Dosya ekle pending: balon altında **Düzenle** + **Mesajı Gönder**
   (`ConversationPanel`, WA sayfasıyla aynı — #6a7586e9).

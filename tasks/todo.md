@@ -1,3 +1,8 @@
+## Round 724 — konum false-positive + ek ikon çerçeve + görsel ad alt (3 kart)
+- `#6a74de2a` reopen: medya/`[image]` mesajında MapPin+Haritada aç yok; BE coords yalnız konum içeriğinde.
+- `#6a758a88`: WA ek ikonları Taleplerim emerald rozet çerçevesi.
+- `#6a7586af` reopen: görsel adı altta; X görsel sağ üstte.
+
 ## Round 723 — WA modal ek orijinal dosya adı (1 kart)
 - `#6a75878c`: outbound attachment içeriğinde her zaman `[Dosya eki: orijinalAd]`; caption varsa altına eklenir.
 

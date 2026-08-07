@@ -51,7 +51,9 @@ export function isLocationConversationContent(content: string | null | undefined
 /** Kayıtlı yer adı / adres metni — bracket etiketi ve koordinatlar temizlenir (#6a74de2a). */
 export function getLocationPlaceDescription(content: string | null | undefined): string | null {
   if (!content?.trim()) return null
-  let text = content
+  const trimmed = content.trim()
+  if (isPlaceholderBracketContent(trimmed) && !isLocationConversationContent(trimmed)) return null
+  let text = trimmed
     .replace(/\[konum mesajı\]/gi, '')
     .replace(/\[location message\]/gi, '')
     .replace(/\[location\]/gi, '')
@@ -59,6 +61,7 @@ export function getLocationPlaceDescription(content: string | null | undefined):
     .trim()
   text = text.replace(/^[-–—,\s]+|[-–—,\s]+$/g, '').trim()
   if (!text) return null
+  if (isPlaceholderBracketContent(text)) return null
   const lower = text.toLocaleLowerCase('tr')
   if (
     lower === 'konum'

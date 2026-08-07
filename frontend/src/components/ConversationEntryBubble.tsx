@@ -138,7 +138,13 @@ export function ConversationEntryBubble({
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
   const locationDescription = getLocationPlaceDescription(entry.content)
-  const isLocationMessage = Boolean(locationCoords) || isLocationConversationContent(entry.content)
+  // Medya balonunda konum UI yok — [image]+Haritada aç yanlış pozitif (#6a74de2a reopen).
+  const isLocationMessage =
+    !hasMedia
+    && (
+      isLocationConversationContent(entry.content)
+      || (Boolean(locationCoords) && Boolean(locationDescription))
+    )
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)

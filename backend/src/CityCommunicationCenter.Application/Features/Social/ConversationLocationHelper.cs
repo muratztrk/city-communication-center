@@ -32,13 +32,32 @@ internal static class ConversationLocationHelper
             return fromContent;
         }
 
-        // Kayıtlı yer adı ("Name - Address") [konum mesajı] içermez; SocialMessage lat/lng hâlâ geçerli (#6a74de2a).
-        if (messageCoords.Latitude is not null && messageCoords.Longitude is not null)
+        if (messageCoords.Latitude is null || messageCoords.Longitude is null)
+        {
+            return (null, null);
+        }
+
+        // SocialMessage lat/lng yalnız gerçek konum içeriğinde — [image]/medya placeholder'ına sızmasın (#6a74de2a reopen).
+        if (LooksLikeLocationContent(content))
         {
             return messageCoords;
         }
 
+        if (!string.IsNullOrWhiteSpace(content) && !IsNonLocationBracketOrAttachment(content))
+        {
+            // Kayıtlı yer adı ("Name - Address") — [konum mesajı] yok ama coords var.
+            return messageCoords;
+        }
+
         return (null, null);
+    }
+
+    private static bool IsNonLocationBracketOrAttachment(string content)
+    {
+        var trimmed = content.Trim();
+        if (trimmed.StartsWith("[Dosya eki:", StringComparison.OrdinalIgnoreCase)) return true;
+        if (LooksLikeLocationContent(trimmed)) return false;
+        return trimmed.Length >= 3 && trimmed[0] == '[' && trimmed[^1] == ']';
     }
 
     private static (double? Latitude, double? Longitude) TryParseFromContent(string? content)

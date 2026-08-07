@@ -189,11 +189,13 @@ export function SocialConversationMediaBubble({
               : 'gap-2 px-3 py-2 text-sm font-semibold'
           }`}
         >
-          <FileText className={`shrink-0 ${
-            direction === 'Inbound'
-              ? requestAttachmentLayout ? 'size-3' : 'size-3'
-              : 'size-4'
-          }`} />
+          <span className="flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-blue-700">
+            <FileText className={`shrink-0 ${
+              direction === 'Inbound'
+                ? requestAttachmentLayout ? 'size-3' : 'size-3'
+                : 'size-3'
+            }`} />
+          </span>
           <span className="min-w-0 truncate">{filename}</span>
         </button>
       )}

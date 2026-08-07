@@ -22,6 +22,10 @@ export function DeferredComposerInput({ value, onChange, ...rest }: Props) {
         setLocalValue(next)
         startTransition(() => onChange(next))
       }}
+      onBlur={event => {
+        onChange(localValue)
+        rest.onBlur?.(event)
+      }}
     />
   )
 }

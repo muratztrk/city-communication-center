@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Download, Eye, FileText, Loader2, Volume2 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
@@ -35,6 +35,39 @@ export function SocialConversationMediaBubble(props: SocialConversationMediaBubb
   )
 }
 
+function MediaPlaceholder({
+  filename,
+  mime,
+  direction,
+  requestAttachmentLayout,
+}: {
+  filename: string
+  mime: string
+  direction: 'Inbound' | 'Outbound'
+  requestAttachmentLayout?: boolean
+}) {
+  const isImage = mime.startsWith('image/')
+  return (
+    <div
+      className={`flex items-center gap-2 rounded-xl bg-black/10 text-xs ${
+        direction === 'Inbound'
+          ? requestAttachmentLayout
+            ? 'w-fit max-w-full px-2.5 py-1.5'
+            : 'w-full max-w-full px-2.5 py-1.5'
+          : 'px-3 py-2'
+      }`}
+      aria-hidden="true"
+    >
+      {isImage ? (
+        <span className="inline-block size-10 shrink-0 rounded-md bg-black/10" />
+      ) : (
+        <FileText className="size-4 shrink-0 opacity-80" />
+      )}
+      <span className="min-w-0 truncate font-medium">{filename}</span>
+    </div>
+  )
+}
+
 function SocialConversationMediaBubbleInner({
   socialMessageId,
   entryId,
@@ -53,11 +86,32 @@ function SocialConversationMediaBubbleInner({
   const rawFilename = displayFilename?.trim() || headerFileName || socialMediaFilename(entryId, mime, citizenPhone)
   const filename = direction === 'Inbound' ? rawFilename : lowercaseFileExtension(rawFilename)
   const [objectUrl, setObjectUrl] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [previewOpen, setPreviewOpen] = useState(false)
+  const [inView, setInView] = useState(false)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const awaitingMedia = inView && objectUrl === null && error === null
 
   useEffect(() => {
+    const el = containerRef.current
+    if (!el || inView) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true)
+          observer.disconnect()
+        }
+      },
+      { rootMargin: '280px 0px' },
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [inView])
+
+  useEffect(() => {
+    if (!inView) return
+
     let cancelled = false
     let createdUrl: string | null = null
 
@@ -67,7 +121,6 @@ function SocialConversationMediaBubbleInner({
         createdUrl = URL.createObjectURL(blob)
         setObjectUrl(createdUrl)
         setError(null)
-        // Gelen ekte içerik marker yoksa Graph/Content-Disposition orijinal adını kullan (#6a75c6fa).
         if (direction === 'Inbound' && !displayFilename?.trim() && discoveredName?.trim()) {
           setHeaderFileName(discoveredName.trim())
         }
@@ -78,15 +131,12 @@ function SocialConversationMediaBubbleInner({
           setError(loadError instanceof Error ? loadError.message : t('common.error'))
         }
       })
-      .finally(() => {
-        if (!cancelled) setLoading(false)
-      })
 
     return () => {
       cancelled = true
       if (createdUrl) URL.revokeObjectURL(createdUrl)
     }
-  }, [direction, displayFilename, entryId, socialMessageId, t])
+  }, [direction, displayFilename, entryId, inView, socialMessageId, t])
 
   const downloadBlob = async () => {
     const { blob } = await api.downloadSocialMedia(socialMessageId, entryId)
@@ -110,9 +160,33 @@ function SocialConversationMediaBubbleInner({
     onAddAsAttachment(file)
   }
 
-  if (loading) {
+  if (!inView) {
+    if (sentChip) {
+      return (
+        <div ref={containerRef}>
+          <WhatsAppOutboundAttachmentChip
+            fileName={filename}
+            isImage={mime.startsWith('image/')}
+            compact={compactChip}
+          />
+        </div>
+      )
+    }
     return (
-      <div className="flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2 text-xs">
+      <div ref={containerRef}>
+        <MediaPlaceholder
+          filename={filename}
+          mime={mime}
+          direction={direction}
+          requestAttachmentLayout={requestAttachmentLayout}
+        />
+      </div>
+    )
+  }
+
+  if (awaitingMedia) {
+    return (
+      <div ref={containerRef} className="flex items-center gap-2 rounded-xl bg-black/10 px-3 py-2 text-xs">
         <Loader2 className="size-4 animate-spin" />
         {t('common.loading', 'Yükleniyor...')}
       </div>
@@ -121,7 +195,7 @@ function SocialConversationMediaBubbleInner({
 
   if (error || !objectUrl) {
     return (
-      <div className="flex flex-wrap items-center gap-2">
+      <div ref={containerRef} className="flex flex-wrap items-center gap-2">
         <span className="text-xs italic opacity-80">{t('whatsapp.mediaLoadFailed', 'Medya yüklenemedi')}</span>
         <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => void handleDownload()}>
           <Download className="size-3.5" />
@@ -149,7 +223,7 @@ function SocialConversationMediaBubbleInner({
 
   if (sentChip) {
     return (
-      <>
+      <div ref={containerRef}>
         <WhatsAppOutboundAttachmentChip
           fileName={filename}
           isImage={isImage}
@@ -165,12 +239,12 @@ function SocialConversationMediaBubbleInner({
           onClose={() => setPreviewOpen(false)}
           onDownload={() => void handleDownload()}
         />
-      </>
+      </div>
     )
   }
 
   return (
-    <div className="space-y-1.5">
+    <div ref={containerRef} className="space-y-1.5">
       {isImage ? (
         <button
           type="button"

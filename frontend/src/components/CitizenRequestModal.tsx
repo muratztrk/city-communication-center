@@ -612,14 +612,14 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <span className="field-hint">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </span>
-                  <input
+                  <DeferredComposerInput
                     className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
                     value={citizenHandle}
                     maxLength={50}
                     required
                     disabled={citizenNameLocked}
                     placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş ismi')}
-                    onChange={event => setCitizenHandle(event.target.value)}
+                    onChange={setCitizenHandle}
                   />
                 </label>
                 <label className="job-field">
@@ -631,7 +631,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     ) : null}{' '}
                     <span className="text-red-500">*</span>
                   </span>
-                  <input
+                  <DeferredComposerInput
                     className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
                     value={citizenPhone}
                     maxLength={10}
@@ -640,7 +640,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     inputMode="numeric"
                     pattern="[0-9]*"
                     placeholder="5XXXXXXXXX"
-                    onChange={event => setCitizenPhone(event.target.value.replace(/\D/g, '').slice(0, 10))}
+                    onChange={value => setCitizenPhone(value.replace(/\D/g, '').slice(0, 10))}
                   />
                 </label>
               </div>

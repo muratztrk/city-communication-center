@@ -534,8 +534,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   zaman alanı bugün saat:dakika, önceki takvim günü `Dün`, daha eskide `gg.aa.yyyy` değeridir.
 - **WhatsApp konuşma profil paneli:** `/whatsapp` detay sağ panelinde vatandaş adı, numara, etiket,
   mahalle, cadde/sokak/bulvar ve açık adres konuşma kaydında saklanır; isim kaydedilince sol liste ve
-  detay header'ı telefon yerine adı öncelikli gösterir. Profil alanları senkron controlled
-  input/textarea kullanır — `DeferredComposer` + stale `draft` blur Kaydet'i boş isimle ezmez (#6a75c91c).
+  detay header'ı telefon yerine adı öncelikli gösterir. Profil alanları `DeferredComposer` + blur'da
+  senkron flush (Kaydet stale draft #6a75c91c); yazarken 8 sn detail poll atlanır.
   Sol konuşma kartında isim varsa telefon
   numarası ismin alt satırında, yanıt durumu (`Yanıt verildi` vb.) ile aynı yatay satırda görünür.
   Sağ profil paneli üstündeki `Talep Oluştur` aksiyonu satır ortasında, büyük `h-10` buton olarak kalır;
@@ -2144,8 +2144,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Inbound görsel genişlik (Round 719):** balon içinde `w-full max-w-full object-contain`
   (balon max-width değişmez; dik foto sağ boşluk kapanır).
 - **WA gelen doküman adı (Round 719):** yalnız `/whatsapp` — çerçeve `w-full`, isim `truncate`.
-- **WA/modal textbox lag (Round 717):** `DeferredComposerInput` / `DeferredComposerTextarea`
-  local state + `startTransition` parent update.
+- **WA/modal textbox lag (Round 717 / #2418):** `DeferredComposerInput` / `DeferredComposerTextarea`
+  local state + `startTransition` parent update; blur'da senkron flush. WA liste/konuşma arama, profil
+  alanları, ek caption, modal ad/telefon kapsamda. `RichTextEditor` rAF + `startTransition`.
+- **WA ek lazy load (#2486):** `SocialConversationMediaBubble` görünür alana girdikten sonra medya indirir;
+  görünür değilken dosya adı placeholder.
 - **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter
   sonra filtreler (InternalMessagesFab ile aynı eşik).
 - **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.

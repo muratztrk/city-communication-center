@@ -1,5 +1,5 @@
 import { List, ListOrdered, type LucideIcon } from 'lucide-react'
-import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Fragment, startTransition, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 interface RichTextEditorProps {
   value: string
@@ -190,13 +190,21 @@ export function RichTextEditor({
   const [activeCommands, setActiveCommands] = useState<Partial<Record<RichTextCommand, boolean>>>({})
   const maxHeight = useMemo(() => toMaxHeightClass(minHeight), [minHeight])
 
+  const emitRafRef = useRef<number | null>(null)
+
   const emitChange = useCallback(() => {
-    const editor = editorRef.current
-    if (!editor) return
-    const sanitizedHtml = isEditorEmpty(editor) ? '' : sanitizeRichTextHtml(editor.innerHTML)
-    const nextHtml = normalizeEditorValue(sanitizedHtml)
-    lastCommittedHtmlRef.current = nextHtml
-    onChange(nextHtml)
+    if (emitRafRef.current != null) {
+      window.cancelAnimationFrame(emitRafRef.current)
+    }
+    emitRafRef.current = window.requestAnimationFrame(() => {
+      emitRafRef.current = null
+      const editor = editorRef.current
+      if (!editor) return
+      const sanitizedHtml = isEditorEmpty(editor) ? '' : sanitizeRichTextHtml(editor.innerHTML)
+      const nextHtml = normalizeEditorValue(sanitizedHtml)
+      lastCommittedHtmlRef.current = nextHtml
+      startTransition(() => onChange(nextHtml))
+    })
   }, [onChange])
 
   useEffect(() => {
@@ -328,7 +336,16 @@ export function RichTextEditor({
               editorRef.current.innerHTML = next
             }
           }
-          emitChange()
+          if (emitRafRef.current != null) {
+            window.cancelAnimationFrame(emitRafRef.current)
+            emitRafRef.current = null
+          }
+          const editor = editorRef.current
+          if (!editor) return
+          const sanitizedHtml = isEditorEmpty(editor) ? '' : sanitizeRichTextHtml(editor.innerHTML)
+          const nextHtml = normalizeEditorValue(sanitizedHtml)
+          lastCommittedHtmlRef.current = nextHtml
+          onChange(nextHtml)
         }}
         onBeforeInput={handleBeforeInput}
         onPaste={handlePaste}

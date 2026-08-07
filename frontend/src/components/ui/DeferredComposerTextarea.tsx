@@ -25,6 +25,10 @@ export function DeferredComposerTextarea({ value, onChange, ...rest }: Props) {
         setLocalValue(next)
         startTransition(() => onChange(next))
       }}
+      onBlur={event => {
+        onChange(localValue)
+        rest.onBlur?.(event)
+      }}
     />
   )
 }

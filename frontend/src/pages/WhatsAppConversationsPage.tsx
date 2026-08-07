@@ -22,6 +22,7 @@ import { ConversationEntryBubble } from '../components/ConversationEntryBubble'
 import { ConversationSenderHeader } from '../components/ConversationSenderHeader'
 import { WhatsAppOutboundAttachmentChip } from '../components/WhatsAppOutboundAttachmentChip'
 import { DeferredComposerTextarea } from '../components/ui/DeferredComposerTextarea'
+import { DeferredComposerInput } from '../components/ui/DeferredComposerInput'
 import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
@@ -444,12 +445,12 @@ function ConversationListPanel({
 
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" aria-hidden="true" />
-          <input
+          <DeferredComposerInput
             type="text"
             value={search}
-            onChange={event => {
+            onChange={value => {
               setConversationPage(1)
-              onSearchChange(event.target.value)
+              onSearchChange(value)
             }}
             placeholder={t('whatsapp.searchPlaceholderExtended', 'Telefon no, vatandaş adı…')}
             className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600/40"
@@ -639,13 +640,12 @@ function ConversationProfilePanel({
         <div className="space-y-3">
         <label className="block space-y-1">
           <span className={labelClass}>{t('whatsapp.citizenName', 'Vatandaş Adı')}</span>
-          {/* Senkron controlled input — DeferredComposer startTransition + stale blur Kaydet'i boş isimle ezer (#6a75c91c). */}
-          <input
+          <DeferredComposerInput
             className={fieldClass}
             maxLength={50}
             value={draft.citizenName}
             placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş adı')}
-            onChange={event => onDraftChange({ citizenName: event.target.value })}
+            onChange={value => onDraftChange({ citizenName: value })}
             onBlur={event => onDraftChange({ citizenName: normalizeTitleCaseField(event.target.value) ?? '' })}
           />
         </label>
@@ -673,11 +673,11 @@ function ConversationProfilePanel({
             {t('address.street', 'Cadde / Sokak')}
             {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
           </span>
-          <input
+          <DeferredComposerInput
             className={disabledFieldClass}
             maxLength={ADDRESS_STREET_MAX_LENGTH}
             value={draft.street}
-            onChange={event => onDraftChange({ street: event.target.value })}
+            onChange={value => onDraftChange({ street: value })}
             onBlur={event => onDraftChange({ street: normalizeTitleCaseField(event.target.value) ?? '' })}
             disabled={!hasNeighborhood}
             required={hasNeighborhood}
@@ -693,12 +693,12 @@ function ConversationProfilePanel({
               </>
             ) : null}
           </span>
-          <textarea
+          <DeferredComposerTextarea
             rows={4}
             className={`${disabledFieldClass} min-h-[6rem] resize-none`}
             maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
             value={draft.openAddress}
-            onChange={event => onDraftChange({ openAddress: event.target.value })}
+            onChange={value => onDraftChange({ openAddress: value })}
             onBlur={event => onDraftChange({ openAddress: normalizeTitleCaseField(event.target.value) ?? '' })}
             disabled={!hasNeighborhood}
             required={hasNeighborhood}
@@ -783,6 +783,16 @@ function ConversationDetail({
   // yanıtı geldiğinde hâlâ o an ekranda gösterilen konuşmaya mı ait olduğunu buradan kontrol
   // ederiz — aksi halde eski konuşmanın verisi yanlışlıkla yeni açık konuşmanın üzerine yazılır.
   const latestConversationIdRef = useRef(conversationId)
+  const composerBusyRef = useRef(false)
+  const composerBusyTimerRef = useRef<number | null>(null)
+  const markComposerBusy = useCallback(() => {
+    composerBusyRef.current = true
+    if (composerBusyTimerRef.current) window.clearTimeout(composerBusyTimerRef.current)
+    composerBusyTimerRef.current = window.setTimeout(() => {
+      composerBusyRef.current = false
+      composerBusyTimerRef.current = null
+    }, 2500)
+  }, [])
   useEffect(() => {
     latestConversationIdRef.current = conversationId
   })
@@ -843,6 +853,7 @@ function ConversationDetail({
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
+      if (composerBusyRef.current) return
       void refreshDetail()
     }, 8000)
     return () => window.clearInterval(intervalId)
@@ -995,6 +1006,9 @@ function ConversationDetail({
 
   const handleProfileSave = async () => {
     if (!detail || profileSaving) return
+    const active = document.activeElement
+    if (active instanceof HTMLElement) active.blur()
+    await new Promise<void>(resolve => window.requestAnimationFrame(() => resolve()))
     if (profileDraft.neighborhood.trim() && !profileDraft.street.trim()) {
       window.alert(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
@@ -1239,10 +1253,13 @@ function ConversationDetail({
         <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           {showChatSearch ? (
             <div className="shrink-0 border-b border-slate-200 bg-white px-4 py-2">
-              <input
+              <DeferredComposerInput
                 type="search"
                 value={chatSearch}
-                onChange={event => setChatSearch(event.target.value)}
+                onChange={value => {
+                  markComposerBusy()
+                  setChatSearch(value)
+                }}
                 placeholder={t('whatsapp.searchInConversation', 'Konuşmada ara…')}
                 className="field-input w-full py-2 text-sm"
               />
@@ -1312,10 +1329,13 @@ function ConversationDetail({
                     caption={pendingFileEditing ? undefined : replyText}
                   />
                   {pendingFileEditing ? (
-                    <textarea
+                    <DeferredComposerTextarea
                       rows={2}
                       value={replyText}
-                      onChange={event => setReplyText(event.target.value)}
+                      onChange={value => {
+                        markComposerBusy()
+                        setReplyText(value)
+                      }}
                       placeholder={t('whatsapp.attachmentCaptionPlaceholder', 'Ek açıklaması yaz...')}
                       className="mt-2 w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
                     />
@@ -1444,6 +1464,7 @@ function ConversationDetail({
                   rows={2}
                   value={replyText}
                   onChange={value => {
+                    markComposerBusy()
                     setReplyText(value)
                     setSelectedMetaTemplate(null)
                   }}
@@ -1480,6 +1501,7 @@ function ConversationDetail({
           draft={profileDraft}
           saving={profileSaving}
           onDraftChange={patch => {
+            markComposerBusy()
             profileDirtyRef.current = true
             setProfileDraft(current => ({ ...current, ...patch }))
           }}

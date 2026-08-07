@@ -1176,9 +1176,9 @@
     gap: 0.2rem;
   }
 
-  /* Tarih = yanındaki Ara textbox ile aynı yükseklik/font (#6a6c6a6d). */
+  /* Tarih = yanındaki Ara textbox ile aynı genişlik (#6a75d499). */
   .notification-modal-filters .notification-modal-date.scope-chip-date {
-    width: 11.5rem;
+    width: 8.5rem;
   }
 
   .notification-modal-filters .scope-chip-date-separator {

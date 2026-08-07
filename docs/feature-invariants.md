@@ -519,7 +519,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş Talebi Oluştur modalında vatandaş adı/telefon modal gradient başlığında (küçük WA ikonu
   ile) gösterilir; `ConversationPanel` iç header `hideHeader` ile gizlenir.
   Formda kilitli telefon alanında `(başında 0 olmadan ekleyin)` ipucu gösterilmez. Talep Oluştur
-  popup'ında dış kırmızı kapatma butonu varken iç konuşma header'ında mükerrer `X` gösterilmez.
+  popup kapatma X'i Talebi İptal Et ile aynı ghost stil + kırmızı hover (`ModalCloseButton`);
+  dolu kırmızı yuvarlak X kullanılmaz (#6a75d47c). İç konuşma header'ında mükerrer `X` yok.
 - **WhatsApp konuşma detay header zemini:** seçili konuşmanın üst bilgi şeridi breadcrumb `Anasayfa`
   yüzeyiyle aynı açık `slate-50` zemininde kalır; chat mesaj alanı standart `color-background`
   zemini kullanır (Kurum İçi FAB paneli ile aynı renk).
@@ -2015,8 +2016,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ikonu). İsteğe bağlı build override: `VITE_FAVICON_URL`.
 - **Birim içi JobCreated bildirim başlığı (#6a6ca1d4):** InternalUnit →
   `Birim İçi Talep oluşturuldu` (yönetici feed).
-- **Bildirim modal tarih = Ara (#6a6c6a6d):** başlangıç/bitiş alanları Ara textbox ile aynı
-  yükseklik (`1.875rem`) ve font (`0.82rem`).
+- **Bildirim modal tarih = Ara (#6a6c6a6d / #6a75d499):** başlangıç/bitiş alanları Ara textbox ile aynı
+  yükseklik (`1.875rem`), font (`0.82rem`) ve genişlik (`8.5rem`).
 - **Gelen Talep Yeri çerçevesi (#6a6c72f4):** kolon genişliği artırılmaz; birim yeşil çerçevesi
   (`FramedDepartmentStack` max-width) biraz genişler.
 - **Ek süre/revizyon onaycısı bildirim kapsamı:** `TaskRevision` approval onaycısı, görevin atanmış/owner

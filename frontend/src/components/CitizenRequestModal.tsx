@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { FileText, Paperclip, Send, X } from 'lucide-react'
+import { FileText, Paperclip, Send } from 'lucide-react'
 import { SimpleImageAttachmentIcon } from './ui/SimpleImageAttachmentIcon'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
@@ -12,6 +12,7 @@ import { Button } from './ui/button'
 import { DeferredComposerInput } from './ui/DeferredComposerInput'
 import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
+import { ModalCloseButton } from './ui/modal-close-button'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { ConversationPanel } from './ConversationPanel'
@@ -561,14 +562,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
             ) : null}
           </div>
-          <button
-            type="button"
+          <ModalCloseButton
             onClick={handleClose}
-            className="flex size-8 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
-            aria-label={t('common.close', 'Kapat')}
-          >
-            <X className="size-4" />
-          </button>
+            label={t('common.close', 'Kapat')}
+            className="size-7 shrink-0 text-white/80 hover:bg-red-50 hover:text-red-600"
+          />
         </div>
 
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">

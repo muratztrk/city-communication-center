@@ -1,3 +1,7 @@
+## Round 758 — 6 Doing UI reopen (#2511, #2503, #2512, #2500, #2484, #2506)
+- Banner weight; Görevlerim priority; typing 3s; incoming actions; create form max hints.
+- Commit `5d69621a`; push main+master; deploy OK.
+
 ## Round 757 — 3 Doing UI reopen (#2503, #2440, #2504)
 - Görevlerim priority edit sizing; WA modal open address height; tag picker menu text.
 - Commit `fca5185e`; push main+master; deploy OK.

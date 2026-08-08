@@ -1,6 +1,6 @@
 ## Round 754b — NAS paylaşım adı ASCII normalize (#2347)
 - `NasPathNormalizer.ToAsciiShareName`: İ→I, ş→s vb.; Tire İletisim → Tire Iletisim SMB uyumu.
-- Commit pending; push + deploy.
+- Commit `3801df2b`; push + deploy.
 
 ## Round 754 — 13 Doing UI polish (#2498–#2512 batch)
 - Grid öncelik alt satırı yalnız Yüksek/Çok Yüksek/Kritik; video dosya ekle; typing 2s TTL küçük.

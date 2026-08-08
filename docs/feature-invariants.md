@@ -2153,8 +2153,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   alanları, ek caption, modal ad/telefon kapsamda. `RichTextEditor` rAF + `startTransition`.
 - **WA ek lazy load (#2486):** `SocialConversationMediaBubble` görünür alana girdikten sonra medya indirir;
   görünür değilken dosya adı placeholder.
-- **Parantez max ipucu (#2506):** alan yanındaki `(Max …)` ipuçlarında parantez içi yalnızca ilk harf
-  büyük (`Max 50 karakter`); `text-transform: lowercase` ile tümünü küçültme yapılmaz.
+- **Parantez max ipucu (#2506):** Talep Oluştur formlarında `(max …)` küçük harf; diğer sayfalarda
+  `(Max …)` ilk harf büyük kalabilir (card reopen).
 - **Talep Oluştur native doğrulama (#2353 reopen):** formlarda `noValidate` — tarayıcı hover tooltip'i
   çıkmaz; zorunluluk uygulama onayı/RichText ile kalır.
 - **Birime Gelen İşlemler yüksekliği (#2484):** actions hücresi `request-actions` sınıfını kullanır

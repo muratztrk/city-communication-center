@@ -1,3 +1,7 @@
+## Round 755 — 4 Doing UI (#2506 reopen, #2440 reopen, #2412, #2498 reopen)
+- Talep Oluştur `(max …)` küçük harf; WA modal açık adres 5rem; RichText backspace imleç; etiket dropdown X/text.
+- Commit pending; push + deploy; 4 kart Done.
+
 ## Round 754b — NAS paylaşım adı ASCII normalize (#2347)
 - `NasPathNormalizer.ToAsciiShareName`: İ→I, ş→s vb.; Tire İletisim → Tire Iletisim SMB uyumu.
 - Commit `3801df2b`; push + deploy.

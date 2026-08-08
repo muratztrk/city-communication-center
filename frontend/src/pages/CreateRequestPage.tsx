@@ -794,7 +794,7 @@ export function CreateRequestPage() {
               {t('address.openAddressLabel', 'Açık Adres')}
               {hasNeighborhood ? (
                 <>
-                  <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
+                  <span className="ml-1 text-xs font-normal text-slate-400">(max 100 karakter)</span>
                   <span className="text-red-500"> *</span>
                 </>
               ) : null}
@@ -1236,7 +1236,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">
-              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(Max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
               <input
                 className="field-input"
                 required
@@ -1296,7 +1296,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
-              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(Max 400 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={internalForm.description}
                 onChange={description => setInternalForm(current => ({ ...current, description }))}
@@ -1325,7 +1325,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">
-              <label className="job-field-label" htmlFor="request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(Max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
+              <label className="job-field-label" htmlFor="request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
               <input
                 id="request-title"
                 className="field-input"
@@ -1399,7 +1399,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
-              <span className="job-field-label">{t('jobs.form.description')} <span className="text-xs font-normal text-slate-400">(Max 400 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('jobs.form.description')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={externalForm.description}
                 onChange={description => setExternalForm(current => ({ ...current, description }))}
@@ -1430,7 +1430,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">
-              <label className="job-field-label" htmlFor="citizen-request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(Max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
+              <label className="job-field-label" htmlFor="citizen-request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
               <input
                 id="citizen-request-title"
                 className="field-input"
@@ -1468,7 +1468,7 @@ export function CreateRequestPage() {
           <div className="grid content-start gap-3">
             <div className="grid gap-3 md:grid-cols-2">
               <label className="job-field">
-                <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş Adı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(Max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
+                <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş Adı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
                 <input
                   className="field-input"
                   required
@@ -1531,7 +1531,6 @@ export function CreateRequestPage() {
                   {canManageRequestTags && (
                     <>
                       <RequestTagPicker
-                        compactMenuText
                         largeText
                         largeMenuText
                         smallButtonText
@@ -1547,7 +1546,7 @@ export function CreateRequestPage() {
               </div>
             </div>
             <div className="job-field min-h-0">
-              <span className="job-field-label">{t('settings.citizen.content', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(Max 400 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('settings.citizen.content', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={citizenForm.content}
                 onChange={content => setCitizenForm(current => ({ ...current, content }))}

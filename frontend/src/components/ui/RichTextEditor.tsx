@@ -210,6 +210,8 @@ export function RichTextEditor({
   useEffect(() => {
     const editor = editorRef.current
     if (!editor || lastCommittedHtmlRef.current === normalizedValue) return
+    // Seri backspace sırasında parent value → innerHTML senkronu imleci satır başına atıyordu (#2412).
+    if (editor.contains(document.activeElement)) return
     editor.innerHTML = normalizedValue
     lastCommittedHtmlRef.current = normalizedValue
   }, [normalizedValue])

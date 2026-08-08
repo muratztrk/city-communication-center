@@ -357,7 +357,7 @@ export function RequestTagPicker({
           <Tag className="size-3.5 shrink-0 text-emerald-600" />
           <span className="min-w-0 truncate text-left">{buttonLabel}</span>
         </span>
-        <span className="flex shrink-0 items-center gap-0.5">
+        <span className="flex shrink-0 items-center gap-0.5 pr-0.5">
           <ChevronDown className={`size-3.5 shrink-0 transition-transform ${open ? 'rotate-180' : ''}`} />
           {canClear ? (
             <span
@@ -378,7 +378,7 @@ export function RequestTagPicker({
                   onClear?.()
                 }
               }}
-              className="inline-flex size-5 items-center justify-center rounded text-red-600 hover:bg-red-50"
+              className="inline-flex size-5 translate-x-0.5 items-center justify-center rounded text-red-600 hover:bg-red-50"
               title={t('common.clear', 'Temizle')}
               aria-label={t('common.clear', 'Temizle')}
             >

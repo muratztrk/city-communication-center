@@ -83,7 +83,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yüklenen görselin intrinsic boyutu login/sidebar çerçevesini büyütemez (card #2252).
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
   `font-weight: 500` kullanır; Anasayfa / Vatandaş Bilgi Listesi gradient banner
-  `.section-card > .grid.border-b .page-title` `font-weight: 600` (#2511 reopen). Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
+  `.section-card > .grid.border-b .page-title` da `font-weight: 500` (#2511 reopen). Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
   `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama

@@ -4403,7 +4403,7 @@
 
   /* Anasayfa / Vatandaş Bilgi Listesi banner page-title (#2511 reopen). */
   .section-card > .grid.border-b .page-title {
-    font-weight: 600;
+    font-weight: 500;
   }
 
   .sticky-page-header .page-subtitle {

@@ -1,3 +1,7 @@
+## Round 757 — 3 Doing UI reopen (#2503, #2440, #2504)
+- Görevlerim priority edit sizing; WA modal open address height; tag picker menu text.
+- Commit `fca5185e`; push main+master; deploy OK.
+
 ## Round 756 — 5 Doing UI (#2512, #2500, #2484, #2503, #2511)
 - Kurum İçi typing dots + idle TTL; Birime Gelen actions height; Görevlerim priority dropdown; banner title weight.
 - Commit `0f40759e`; push main+master; deploy OK.

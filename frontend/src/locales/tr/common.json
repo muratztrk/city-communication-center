@@ -1868,7 +1868,7 @@
     "dragHint": "Dosyayı buraya sürükleyin veya tıklayın",
     "errorSize": "Dosya boyutu 5 MB'ı aşamaz.",
     "errorTotalSize": "Dosyaların toplam boyutu 5 MB'ı aşamaz.",
-    "errorType": "Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.",
+    "errorType": "Yalnızca resim (JPG, PNG), video (MP4, MOV, WEBM), PDF ve Office dosyaları yüklenebilir.",
     "deleteConfirm": "Bu eki silmek istediğinize emin misiniz?",
     "download": "İndir",
     "preview": "Önizle",
@@ -1906,7 +1906,7 @@
     "streetRequired": "Mahalle seçildiğinde Cadde / Sokak zorunludur.",
     "openAddressRequired": "Mahalle seçildiğinde Açık Adres zorunludur.",
     "openAddressLabel": "Açık Adres",
-    "openAddressMaxHint": "(max 100 karakter)",
+    "openAddressMaxHint": "(Max 100 karakter)",
     "openAddressPlaceholder": "Bina no, kat, daire bilgisi giriniz..."
   },
   "routineTask": {

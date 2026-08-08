@@ -332,6 +332,7 @@ export function RequestTagPicker({
             type="button"
             onClick={() => { onSelect(tag.name); setOpen(false); setSearch(''); setMenuStyle(null) }}
             className={`flex w-full items-center justify-start truncate px-3 py-2 text-left font-semibold text-[color:var(--color-foreground)] transition-colors hover:bg-emerald-50 hover:text-emerald-900 ${largeMenuText ? 'text-sm' : compactMenuText ? 'text-[11px]' : 'text-xs'}`}
+            title={tag.name}
           >
             {tag.name}
           </button>

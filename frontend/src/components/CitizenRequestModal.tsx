@@ -56,7 +56,7 @@ function pendingFileIcon(name: string) {
 
 function validateFile(file: File): string | null {
   if (!isAllowedAttachmentFileName(file.name)) {
-    return 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'
+    return 'Yalnızca resim (JPG, PNG), video (MP4, MOV, WEBM), PDF ve Office dosyaları yüklenebilir.'
   }
   if (file.size > MAX_FILE_SIZE) {
     return 'Dosya boyutu 5 MB\'ı aşamaz.'
@@ -609,7 +609,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 <label className="job-field">
                   <span className="job-field-label">
                     {t('settings.citizen.citizenName', 'Vatandaş Adı')}{' '}
-                    <span className="field-hint">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
+                    <span className="field-hint">{t('tasks.newRequest.maxChars', '(Max 50 karakter)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </span>
                   <DeferredComposerInput
@@ -649,7 +649,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 <div className="job-field min-w-0">
                   <label className="job-field-label" htmlFor="citizen-req-title">
                     {t('tasks.newRequest.title', 'Talep Başlığı')}{' '}
-                    <span className="field-hint">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
+                    <span className="field-hint">{t('tasks.newRequest.maxChars', '(Max 50 karakter)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </label>
                   <DeferredComposerTextarea
@@ -691,7 +691,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 <span className="job-field-label">{t('whatsapp.label', 'Talep Etiketi')}</span>
                 <div className="flex items-center gap-2">
                   <input
-                    className="field-input min-w-0 flex-1 text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                    className="field-input citizen-request-tag-input min-w-0 flex-1 text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                     value={requestLabel}
                     readOnly
                     disabled
@@ -700,6 +700,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   {canManageRequestTags ? (
                     <>
                       <RequestTagPicker
+                        compactMenuText
+                        smallButtonText
                         tags={requestTags}
                         selectedName={requestLabel}
                         onSelect={label => { void handleRequestLabelSelect(label) }}
@@ -712,7 +714,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
 
               <div className="job-field min-h-0">
-                <span className="job-field-label">{t('jobs.form.description', 'Açıklama')} <span className="field-hint">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
+                <span className="job-field-label">{t('jobs.form.description', 'Açıklama')} <span className="field-hint">(Max 400 karakter)</span> <span className="text-red-500">*</span></span>
                 <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-24" />
               </div>
 
@@ -757,13 +759,13 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       {t('address.openAddressLabel', 'Açık Adres')}
                       {neighborhood ? (
                         <>
-                          <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                          <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
                           <span className="text-red-500"> *</span>
                         </>
                       ) : null}
                     </span>
                     <DeferredComposerTextarea
-                      className="field-textarea field-textarea--compact address-open-textarea citizen-request-open-address min-h-[5.75rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                      className="field-textarea field-textarea--compact address-open-textarea citizen-request-open-address min-h-0 flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
                       value={openAddress}

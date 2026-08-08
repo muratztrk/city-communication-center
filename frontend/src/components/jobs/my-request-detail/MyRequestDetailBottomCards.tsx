@@ -104,7 +104,7 @@ export function MyRequestDetailBottomCards({
           <MyRequestSectionHeading icon={NotebookPen}>
             <span>
               {t('jobs.managerNote.title', 'Yönetici Notu')}{' '}
-              <span className="text-xs font-normal text-slate-400">(max 100 karakter)</span>{' '}
+              <span className="text-xs font-normal text-slate-400">(Max 100 karakter)</span>{' '}
               <span className="text-red-500">*</span>
             </span>
           </MyRequestSectionHeading>

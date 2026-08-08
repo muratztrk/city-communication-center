@@ -108,6 +108,13 @@ export function getPriorityColorClass(priority: string): string {
   return 'text-slate-400'
 }
 
+/** Grid Talep/Görev No alt satırı: yalnız Yüksek / Çok Yüksek / Kritik (#2509). */
+export function shouldShowGridPrioritySubline(priority: string | null | undefined): boolean {
+  const normalized = priority?.trim()
+  if (!normalized) return false
+  return normalized === 'High' || normalized === 'VeryHigh' || normalized === 'Critical'
+}
+
 export function getSocialStatusLabel(t: TFunction, status: string): string {
   return t(`enum.socialStatus.${status}`, { defaultValue: status })
 }

@@ -165,7 +165,7 @@ function pendingFileIcon(name: string) {
 
 function validateFile(file: File): string | null {
   if (!isAllowedAttachmentFileName(file.name)) {
-    return 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'
+    return 'Yalnızca resim (JPG, PNG), video (MP4, MOV, WEBM), PDF ve Office dosyaları yüklenebilir.'
   }
   if (file.size > MAX_FILE_SIZE) {
     return 'Dosya boyutu 5 MB\'ı aşamaz.'
@@ -794,7 +794,7 @@ export function CreateRequestPage() {
               {t('address.openAddressLabel', 'Açık Adres')}
               {hasNeighborhood ? (
                 <>
-                  <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                  <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
                   <span className="text-red-500"> *</span>
                 </>
               ) : null}
@@ -1226,7 +1226,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'internal' ? (
-        <form id="internal-request-form" className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-2" onSubmit={handleCreateInternal}>
+        <form id="internal-request-form" noValidate className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-2" onSubmit={handleCreateInternal}>
           <div className="xl:col-span-2">
             <h2 className="inline-flex items-center gap-2 text-xl font-extrabold text-slate-950">
               <Building2 className="size-5 text-[color:var(--color-primary)]" />
@@ -1236,7 +1236,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">
-              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(Max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
               <input
                 className="field-input"
                 required
@@ -1296,7 +1296,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
-              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(Max 400 karakter)</span> <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={internalForm.description}
                 onChange={description => setInternalForm(current => ({ ...current, description }))}
@@ -1315,7 +1315,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'external' ? (
-        <form id="external-request-form" className="section-card request-form request-form--readable grid gap-3 xl:grid-cols-2" onSubmit={handleCreateExternal}>
+        <form id="external-request-form" noValidate className="section-card request-form request-form--readable grid gap-3 xl:grid-cols-2" onSubmit={handleCreateExternal}>
           <div className="xl:col-span-2">
             <h2 className="inline-flex items-center gap-2 text-xl font-extrabold text-slate-950">
               <Workflow className="size-5 text-emerald-700" />
@@ -1325,7 +1325,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">
-              <label className="job-field-label" htmlFor="request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
+              <label className="job-field-label" htmlFor="request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(Max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
               <input
                 id="request-title"
                 className="field-input"
@@ -1399,7 +1399,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
-              <span className="job-field-label">{t('jobs.form.description')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('jobs.form.description')} <span className="text-xs font-normal text-slate-400">(Max 400 karakter)</span> <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={externalForm.description}
                 onChange={description => setExternalForm(current => ({ ...current, description }))}
@@ -1418,7 +1418,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'citizen' ? (
-        <form id="citizen-request-form" className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
+        <form id="citizen-request-form" noValidate className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
           <div className="xl:col-span-2">
             <h2 className="inline-flex items-center gap-2 text-xl font-extrabold text-slate-950">
               <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
@@ -1430,7 +1430,7 @@ export function CreateRequestPage() {
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field">
-              <label className="job-field-label" htmlFor="citizen-request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
+              <label className="job-field-label" htmlFor="citizen-request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(Max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
               <input
                 id="citizen-request-title"
                 className="field-input"
@@ -1468,7 +1468,7 @@ export function CreateRequestPage() {
           <div className="grid content-start gap-3">
             <div className="grid gap-3 md:grid-cols-2">
               <label className="job-field">
-                <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş Adı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
+                <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş Adı')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(Max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
                 <input
                   className="field-input"
                   required
@@ -1522,7 +1522,7 @@ export function CreateRequestPage() {
                 <span className="job-field-label">{t('whatsapp.label', 'Talep Etiketi')}</span>
                 <div className="flex items-center gap-2">
                   <input
-                    className="field-input min-w-0 flex-1 text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-600 disabled:placeholder:text-slate-600"
+                    className="field-input citizen-request-tag-input min-w-0 flex-1 text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-600 disabled:placeholder:text-slate-600"
                     value={citizenLabel}
                     readOnly
                     disabled
@@ -1531,6 +1531,7 @@ export function CreateRequestPage() {
                   {canManageRequestTags && (
                     <>
                       <RequestTagPicker
+                        compactMenuText
                         largeText
                         largeMenuText
                         smallButtonText
@@ -1546,7 +1547,7 @@ export function CreateRequestPage() {
               </div>
             </div>
             <div className="job-field min-h-0">
-              <span className="job-field-label">{t('settings.citizen.content', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('settings.citizen.content', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(Max 400 karakter)</span> <span className="text-red-500">*</span></span>
               <RichTextEditor
                 value={citizenForm.content}
                 onChange={content => setCitizenForm(current => ({ ...current, content }))}

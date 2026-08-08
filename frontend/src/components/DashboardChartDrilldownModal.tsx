@@ -14,7 +14,7 @@ import { GridStatusLabel } from './ui/GridStatusLabel'
 import { DueDatePill } from './ui/due-date-pill'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
-import { getAuditStatusLabel, getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass } from '../utils/localization'
+import { getAuditStatusLabel, getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline } from '../utils/localization'
 import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { ChannelIcon } from './ui/channel-icon'
@@ -483,9 +483,9 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                             ) : null}
                             {formatDrilldownNumber(row, locale)}
                           </div>
-                          {row.priority ? (
-                            <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>
-                              Öncelik:{getPriorityLabel(t, row.priority)}
+                          {shouldShowGridPrioritySubline(row.priority) ? (
+                            <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority!)}`}>
+                              Öncelik:{getPriorityLabel(t, row.priority!)}
                             </div>
                           ) : null}
                         </td>

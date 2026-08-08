@@ -23,7 +23,8 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
     private static readonly HashSet<string> AllowedExtensions =
     [
         ".jpg", ".jpeg", ".png", ".pdf",
-        ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx"
+        ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx",
+        ".mp4", ".mov", ".webm", ".3gp"
     ];
 
     // Yürütülebilir/arşiv/paketleyici gibi tehlikeli uzantılar açıkça reddedilir (card 581).
@@ -68,7 +69,7 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(request.FileName),
-                    "Yalnizca resim (JPG, PNG), PDF ve Office dosyalari yuklenebilir.")
+                    "Yalnizca resim (JPG, PNG), video (MP4, MOV, WEBM), PDF ve Office dosyalari yuklenebilir.")
             ]);
         }
 

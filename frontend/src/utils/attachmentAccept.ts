@@ -13,6 +13,10 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.xlsx',
   '.ppt',
   '.pptx',
+  '.mp4',
+  '.mov',
+  '.webm',
+  '.3gp',
 ] as const
 
 /** `<input type="file" accept=…>` değeri — uzantılar (tekrarsız). */

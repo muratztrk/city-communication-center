@@ -1373,6 +1373,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `FilterableTh` iç sıra: başlık → sıralama ikonu → filtre (`MoreVertical`); sıralama label içinde
   değil (#6a759062). Label/ikon aralığı dengeli kalır.
 - **Grid Öncelik alt satır metni:** `(Öncelik:…)` değil `Öncelik:…` — parantez yok (#6a75913e).
+- **Grid Öncelik alt satır görünürlüğü (#2509):** Talep/Görev No altındaki öncelik satırı yalnız
+  `High` / `VeryHigh` / `Critical` için gösterilir; `Normal`/`Low` gizlenir — `shouldShowGridPrioritySubline`.
 - **Birime Gelen / Birimden Giden / Mesaj Onayı aksiyon ikonları:** Detaylar=`FileText`
   (popup `Talep Detayları` title heading ile aynı — #6a758f80 reopen), Onayla=`Check`, İptal Et=`XCircle`;
   butonlar `inline-flex items-center gap-1.5` (#6a758f80 / #6a758fb1).
@@ -1687,7 +1689,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
 - **Dosya ekle accept filtresi (#2373 reopen / Round 717):** Talep/görev/WA/kurum içi dosya seçimlerinde ortak
   `ATTACHMENT_FILE_ACCEPT` **yalnız uzantı** listesi kullanır (MIME eklenmez — Windows diyalogunda
-  jpg/jpeg mükerrer ve pjp/jfif/dot eşlemeleri oluşmasın). Yalnız JPG/PNG/PDF/Office.
+  jpg/jpeg mükerrer ve pjp/jfif/dot eşlemeleri oluşmasın). JPG/PNG/PDF/Office + video (mp4/mov/webm/3gp).
   Seçim sonrası uzantı doğrulaması da yapılır. Logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol
@@ -2129,7 +2131,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi yazıyor göstergesi (#2307 / #2353 / Round 717):** aktif sohbette karşı taraf yazarken SignalR
   `ReceiveInternalMessageTyping` ile header'da birim satırının altında `Yazıyor` + animasyonlu
   üç nokta gösterilir; `POST /internal-messages/typing` yalnız alıcıya iletilir. Gönderen yazmaya
-  devam ederken ~1.8 sn heartbeat ile yenilenir; alıcı TTL ~4.5 sn. `activeChatRef` + unmount'ta
+  devam ederken ~1.8 sn heartbeat ile yenilenir; alıcı TTL ~2 sn, gösterge biraz küçük (#2512).
+  `activeChatRef` + unmount'ta
   `isTyping:false`; `POST` SignalR bağlantısına bekletilmez (`ensureSignalRConnected` paralel).
   Cookie-only SPA oturumunda hub JWT
   `POST /auth/session/signalr-access-token` ile üretilir; hub grupları `user-{guid}` küçük harf
@@ -2149,6 +2152,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   alanları, ek caption, modal ad/telefon kapsamda. `RichTextEditor` rAF + `startTransition`.
 - **WA ek lazy load (#2486):** `SocialConversationMediaBubble` görünür alana girdikten sonra medya indirir;
   görünür değilken dosya adı placeholder.
+- **Parantez max ipucu (#2506):** alan yanındaki `(Max …)` ipuçlarında parantez içi yalnızca ilk harf
+  büyük (`Max 50 karakter`); `text-transform: lowercase` ile tümünü küçültme yapılmaz.
+- **Talep Oluştur native doğrulama (#2353 reopen):** formlarda `noValidate` — tarayıcı hover tooltip'i
+  çıkmaz; zorunluluk uygulama onayı/RichText ile kalır.
+- **Birime Gelen İşlemler yüksekliği (#2484):** actions hücresi `request-actions` sınıfını kullanır
+  (Birimden Giden ile aynı buton ölçüsü).
 - **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter
   sonra filtreler (InternalMessagesFab ile aynı eşik).
 - **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.

@@ -23,7 +23,7 @@ import { useSortable } from '../hooks/useSortable'
 import type { CitizenConversationDetail, CitizenConversationSummary, CitizenConversationTicket, JobDetail, SocialMessage } from '../types/platform'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { DetailModalTitle } from '../utils/detailModalTitle'
-import { getLocale, getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, getJobStatusTone } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, getJobStatusTone, shouldShowGridPrioritySubline } from '../utils/localization'
 import { formatDirectoryPhone } from '../utils/phoneDisplay'
 import { printHtmlDocument } from '../utils/printDocument'
 import { printJobDetail } from './JobsPage'
@@ -591,9 +591,9 @@ export function CitizenDirectoryPage() {
                                 {ticket.channel ? <ChannelIcon channel={ticket.channel} className="size-3.5 shrink-0" /> : null}
                                 <span>{formatVt(ticket)}</span>
                               </div>
-                              {ticket.priority ? (
-                                <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(ticket.priority)}`}>
-                                  Öncelik:{getPriorityLabel(t, ticket.priority)}
+                              {shouldShowGridPrioritySubline(ticket.priority) ? (
+                                <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(ticket.priority!)}`}>
+                                  Öncelik:{getPriorityLabel(t, ticket.priority!)}
                                 </div>
                               ) : null}
                             </td>

@@ -73,7 +73,7 @@ function templateToRichText(content: string): string {
 
 function validateFile(file: File): string | null {
   if (!isAllowedAttachmentFileName(file.name)) {
-    return 'Yalnızca resim (JPG, PNG), PDF ve Office dosyaları yüklenebilir.'
+    return 'Yalnızca resim (JPG, PNG), video (MP4, MOV, WEBM), PDF ve Office dosyaları yüklenebilir.'
   }
   if (file.size > MAX_FILE_SIZE) {
     return 'Dosya boyutu 5 MB\'ı aşamaz.'
@@ -274,7 +274,7 @@ export function RoutineTaskPage() {
         <div className="grid content-start gap-3">
           <div className="job-field">
             <label className="job-field-label" htmlFor="routine-title">
-              {t('tasks.newRequest.title', 'Başlık')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span>
+              {t('tasks.newRequest.title', 'Başlık')} <span className="text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(Max 50 karakter)')}</span> <span className="text-red-500">*</span>
             </label>
             <input
               id="routine-title"
@@ -353,7 +353,7 @@ export function RoutineTaskPage() {
                     {t('address.openAddressLabel', 'Açık Adres')}
                     {hasNeighborhood ? (
                       <>
-                        <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                        <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
                         <span className="text-red-500"> *</span>
                       </>
                     ) : null}
@@ -435,7 +435,7 @@ export function RoutineTaskPage() {
           <div className="job-field min-h-0">
             <div className="mb-1.5 flex flex-wrap items-center justify-between gap-2">
               <label className="job-field-label mb-0" htmlFor="routine-desc">
-                {t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span>
+                {t('tasks.newRequest.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(Max 400 karakter)</span> <span className="text-red-500">*</span>
               </label>
               <div className="flex flex-wrap items-center gap-2">
                 <WhatsAppTemplatePicker

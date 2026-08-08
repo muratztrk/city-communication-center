@@ -1826,7 +1826,7 @@
     "dragHint": "Drop file here or click to browse",
     "errorSize": "File size must not exceed 5 MB.",
     "errorTotalSize": "Total size of all files must not exceed 5 MB.",
-    "errorType": "Only image (JPG, PNG), PDF and Office files are allowed.",
+    "errorType": "Only image (JPG, PNG), video (MP4, MOV, WEBM), PDF and Office files are allowed.",
     "deleteConfirm": "Are you sure you want to delete this attachment?",
     "download": "Download",
     "preview": "Preview",
@@ -1864,7 +1864,7 @@
     "streetRequired": "Street is required when a neighborhood is selected.",
     "openAddressRequired": "Full address is required when a neighborhood is selected.",
     "openAddressLabel": "Full Address",
-    "openAddressMaxHint": "(max 100 characters)",
+    "openAddressMaxHint": "(Max 100 characters)",
     "openAddressPlaceholder": "Building no, floor, apartment..."
   },
   "routineTask": {

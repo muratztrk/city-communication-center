@@ -40,7 +40,7 @@ import { ExternalDestinationValue } from '../components/jobs/my-request-detail/E
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
 import { formatJobProjectLabel } from '../utils/jobProjectLabel'
-import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel, formatOverdueInProgressStatus } from '../utils/localization'
+import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel, formatOverdueInProgressStatus, shouldShowGridPrioritySubline } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { getRequestEditPath } from '../utils/requestEditPath'
 import {
@@ -2211,7 +2211,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {(isMyRequestsView || isDepartmentOutgoingView) && (
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className={`table-number-cell__value ${reporterNumberClass}`}>{formatJobDisplayNumber(job)}</div>
-                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(job.priority)}`}>Öncelik:{getPriorityLabel(t, job.priority)}</div>
+                      {shouldShowGridPrioritySubline(job.priority) ? (
+                        <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(job.priority)}`}>Öncelik:{getPriorityLabel(t, job.priority)}</div>
+                      ) : null}
                     </td>
                     )}
                     {(isMyRequestsView || isDepartmentOutgoingView) && (
@@ -2910,7 +2912,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         <MyRequestSectionHeading icon={NotebookPen}>
                           <span>
                             {t('jobs.managerNote.title', 'Yönetici Notu')}{' '}
-                            <span className="text-xs font-normal text-slate-400">(max 100 karakter)</span>{' '}
+                            <span className="text-xs font-normal text-slate-400">(Max 100 karakter)</span>{' '}
                             <span className="text-red-500">*</span>
                           </span>
                         </MyRequestSectionHeading>
@@ -3293,7 +3295,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 />
               </div>
               <div className="form-group">
-                <label className="form-label">{t('jobs.form.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></label>
+                <label className="form-label">{t('jobs.form.description', 'Açıklama')} <span className="text-xs font-normal text-slate-400">(Max 400 karakter)</span> <span className="text-red-500">*</span></label>
                 <RichTextEditor
                   value={editModal.description}
                   onChange={val => setEditModal(m => m && ({ ...m, description: val }))}
@@ -3504,7 +3506,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               {t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"
                 rows={3}

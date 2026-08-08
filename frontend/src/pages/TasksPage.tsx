@@ -39,7 +39,7 @@ import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import { isModuleUsable } from '../lib/licenseModules'
 import type { AssignmentHistory, Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
-import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus, formatOverdueInProgressStatus } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus, formatOverdueInProgressStatus, shouldShowGridPrioritySubline } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { DetailModalTitle } from '../utils/detailModalTitle'
@@ -1983,10 +1983,10 @@ const pageKicker = isMyTasksView
                 )}
                 {isEditingTaskDetail ? (
                   <>
-                    <Button type="button" size="lg" variant="success" disabled={isSavingTaskEdit} onClick={handleSaveActiveTaskEdit}>
+                    <Button type="button" size="lg" variant="success" className="!min-w-[6.75rem]" disabled={isSavingTaskEdit} onClick={handleSaveActiveTaskEdit}>
                       {isSavingTaskEdit ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
                     </Button>
-                    <Button type="button" size="lg" variant="secondary" disabled={isSavingTaskEdit} onClick={handleCancelActiveTaskEdit}>
+                    <Button type="button" size="lg" variant="secondary" className="!min-w-[6.75rem]" disabled={isSavingTaskEdit} onClick={handleCancelActiveTaskEdit}>
                       {t('common.cancel', 'Vazgeç')}
                     </Button>
                   </>
@@ -2318,17 +2318,21 @@ const pageKicker = isMyTasksView
                               ? [{
                                   label: t('tasks.newRequest.priority', 'Öncelik'),
                                   value: (
-                                    <select
-                                      className="field-select ml-auto w-auto"
+                                    <SingleSelectDropdown
+                                      className="ml-auto w-auto max-w-[11rem]"
+                                      triggerClassName="text-xs font-medium"
+                                      menuClassName="max-w-[11rem]"
+                                      options={[
+                                        ...(editJobModal ? [{ value: 'Low', label: t('enum.priority.Low', 'Düşük') }] : []),
+                                        { value: 'Normal', label: t('enum.priority.Normal', 'Normal') },
+                                        { value: 'High', label: t('enum.priority.High', 'Yüksek') },
+                                        { value: 'VeryHigh', label: t('enum.priority.VeryHigh', 'Çok Yüksek') },
+                                        { value: 'Critical', label: t('enum.priority.Critical', 'Kritik') },
+                                      ]}
                                       value={activeTaskEditDraft.priority}
-                                      onChange={e => updateActiveTaskEditDraft({ priority: e.target.value })}
-                                    >
-                                      {editJobModal && <option value="Low">{t('enum.priority.Low', 'Düşük')}</option>}
-                                      <option value="Normal">{t('enum.priority.Normal', 'Normal')}</option>
-                                      <option value="High">{t('enum.priority.High', 'Yüksek')}</option>
-                                      <option value="VeryHigh">{t('enum.priority.VeryHigh', 'Çok Yüksek')}</option>
-                                      <option value="Critical">{t('enum.priority.Critical', 'Kritik')}</option>
-                                    </select>
+                                      onChange={priority => updateActiveTaskEditDraft({ priority })}
+                                      placeholder={t('tasks.newRequest.priority', 'Öncelik')}
+                                    />
                                   ),
                                 }]
                               : []),
@@ -2647,7 +2651,7 @@ const pageKicker = isMyTasksView
                                   {t('address.openAddressLabel', 'Açık Adres')}
                                   {editRoutineTaskModal.neighborhood ? (
                                     <>
-                                      <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(max 100 karakter)')}</span>
+                                      <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
                                       <span className="text-red-500"> *</span>
                                     </>
                                   ) : null}
@@ -3144,7 +3148,9 @@ const pageKicker = isMyTasksView
                     </td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className={`table-number-cell__value ${reporterTaskNumberClass}`}>{taskDisplayNumber}</div>
-                      <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(task.priority)}`}>Öncelik:{getPriorityLabel(t, task.priority)}</div>
+                      {shouldShowGridPrioritySubline(task.priority) ? (
+                        <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(task.priority)}`}>Öncelik:{getPriorityLabel(t, task.priority)}</div>
+                      ) : null}
                     </td>
                     <td>
                       <DateCell value={task.createdAtUtc} locale={locale} highlight={isReporterTask && Boolean(task.createdAtUtc)} />
@@ -3404,7 +3410,7 @@ const pageKicker = isMyTasksView
               {t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"
                 rows={3}
@@ -3508,7 +3514,7 @@ const pageKicker = isMyTasksView
                   {t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}
                 </p>
                 <label className="job-field">
-                  <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
+                  <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
                   <textarea
                     className="field-textarea workflow-note-dialog__textarea"
                     rows={3}
@@ -3643,7 +3649,7 @@ const pageKicker = isMyTasksView
               {t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea"
                 rows={3}

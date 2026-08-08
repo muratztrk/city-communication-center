@@ -12,7 +12,7 @@ import { TableEmptyStateRows } from './ui/table-empty-state-rows'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { formatCitizenPhoneDisplay, formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
-import { getLocale, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, shouldShowGridPrioritySubline } from '../utils/localization'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { printJobDetail } from '../pages/JobsPage'
@@ -192,9 +192,9 @@ export function CitizenChannelMessagesModal({
                                 ) : null}
                                 <span>{formatChannelNumber(row, locale)}</span>
                               </div>
-                              {row.priority ? (
-                                <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority)}`}>
-                                  Öncelik:{getPriorityLabel(t, row.priority)}
+                              {shouldShowGridPrioritySubline(row.priority) ? (
+                                <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(row.priority!)}`}>
+                                  Öncelik:{getPriorityLabel(t, row.priority!)}
                                 </div>
                               ) : null}
                             </td>

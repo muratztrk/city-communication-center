@@ -18,7 +18,7 @@ import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import type { Department, JobSummary, RequestTag, SocialMessage } from '../types/platform'
-import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel } from '../utils/localization'
+import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel, shouldShowGridPrioritySubline } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
@@ -611,7 +611,7 @@ export function SocialMessagesPage() {
                         {message.channel !== 'WhatsApp' ? <ChannelIcon channel={message.channel} className="size-4 shrink-0" /> : null}
                         <span>{formatCitizenRequestNumber(message, locale)}</span>
                       </div>
-                      {linkedJob ? (
+                      {linkedJob && shouldShowGridPrioritySubline(linkedJob.priority) ? (
                         <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(linkedJob.priority)}`}>
                           Öncelik:{getPriorityLabel(t, linkedJob.priority)}
                         </div>
@@ -741,7 +741,7 @@ export function SocialMessagesPage() {
               {t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
             </p>
             <label className="job-field mt-5">
-              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(max 100 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"
                 rows={3}

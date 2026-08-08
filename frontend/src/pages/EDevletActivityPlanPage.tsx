@@ -207,7 +207,7 @@ export function EDevletActivityPlanPage() {
             <div className="grid gap-1">
               <span className="job-field-label">
                 {t('edevletActivityPlan.manageTypes', 'Faaliyet Tipi Ekle/Düzenle/Sil')}
-                <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.fieldMax50', '(max 50 Karakter)')}</span>
+                <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.fieldMax50', '(Max 50 Karakter)')}</span>
               </span>
               <div className="flex flex-wrap items-center gap-2">
                 <input
@@ -279,7 +279,7 @@ export function EDevletActivityPlanPage() {
             <div className="grid gap-1">
               <label className="text-sm font-semibold text-slate-500" htmlFor="activity-street">
                 {t('edevletActivityPlan.streetLabel', 'Cadde / Sokak')}
-                <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.fieldMax50', '(max 50 Karakter)')}</span>
+                <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.fieldMax50', '(Max 50 Karakter)')}</span>
                 <span className="text-red-500"> *</span>
               </label>
               <input
@@ -301,7 +301,7 @@ export function EDevletActivityPlanPage() {
           <div className="job-field">
             <label className="job-field-label" htmlFor="activity-description">
               {t('tasks.detail.description', 'Açıklama')}
-              <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.descriptionMax', '(max 100 karakter)')}</span>
+              <span className="text-xs font-normal text-slate-400"> {t('edevletActivityPlan.descriptionMax', '(Max 100 karakter)')}</span>
               <span className="text-red-500"> *</span>
             </label>
             <textarea

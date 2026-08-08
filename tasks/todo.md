@@ -1,3 +1,9 @@
+## Round 754 — 13 Doing UI polish (#2498–#2512 batch)
+- Grid öncelik alt satırı yalnız Yüksek/Çok Yüksek/Kritik; video dosya ekle; typing 2s TTL küçük.
+- WA modal label/etiket CSS; Görevlerim edit Kaydet/Vazgeç geniş; Öncelik SingleSelectDropdown.
+- Birime Gelen request-actions; max ipucu `(Max …)`; Talep Oluştur noValidate.
+- Build/lint yeşil; deploy + 13 kart Done.
+
 ## Round 753 — WA textbox lag + ek lazy load (#2418/#2397/#2486)
 - DeferredComposer tüm WA/modal alanları; blur flush; RichText rAF+transition; yazarken detail poll pause.
 - SocialConversationMediaBubble görünür alanda lazy indirme.

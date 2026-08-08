@@ -1477,6 +1477,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
     && isAssignee(task as Task)
   const showOnlyDetailsInTaskGridActions = isMyTasksView || isDepartmentTasksView
+  const normalizeEditPriority = (priority: string) => priority === 'Critical' ? 'VeryHigh' : priority
+
   const openRoutineTaskEdit = async (taskId: string) => {
     const detail = await api.getTaskById(taskId).catch(() => null)
     if (!detail) return
@@ -1490,7 +1492,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       taskId,
       title: detail.title,
       description: detail.description,
-      priority: detail.priority,
+      priority: normalizeEditPriority(detail.priority),
       dueDateUtc: toDateTimePickerValue(detail.dueDateUtc),
       neighborhood: job?.neighborhood ?? null,
       street: job?.street ?? null,
@@ -1538,7 +1540,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       jobId: job.jobId,
       title: job.title,
       description: job.description ?? '',
-      priority: job.priority,
+      priority: normalizeEditPriority(job.priority),
       startDateUtc: toDateTimePickerValue(job.startDateUtc),
       dueDateUtc: toDateTimePickerValue(job.dueDateUtc),
     })
@@ -2319,7 +2321,6 @@ const pageKicker = isMyTasksView
                                   label: t('tasks.newRequest.priority', 'Öncelik'),
                                   value: (
                                     <SingleSelectDropdown
-                                      openUp
                                       className="my-request-detail-edit-control my-request-detail-edit-control--priority"
                                       triggerClassName="text-xs font-medium"
                                       menuScrollClassName="dropdown-menu-scroll--compact my-request-edit-priority-menu"
@@ -2328,7 +2329,6 @@ const pageKicker = isMyTasksView
                                         { value: 'Normal', label: t('enum.priority.Normal', 'Normal') },
                                         { value: 'High', label: t('enum.priority.High', 'Yüksek') },
                                         { value: 'VeryHigh', label: t('enum.priority.VeryHigh', 'Çok Yüksek') },
-                                        { value: 'Critical', label: t('enum.priority.Critical', 'Kritik') },
                                       ]}
                                       value={activeTaskEditDraft.priority}
                                       onChange={priority => updateActiveTaskEditDraft({ priority })}

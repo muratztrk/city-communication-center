@@ -1965,7 +1965,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA etiket revert (#6a75d1bf reopen):** Talep Etiketi readonly textbox geri; başlık min-height 2.5rem.
 - **WA modal etiket menü (#2504):** `RequestTagPicker` menü metni `text-xs` (compactMenuText yok).
 - **Görevlerim detay Öncelik düzenle (#2503 reopen):** `my-request-detail-edit-control--priority`
-  7.5rem; trigger/menu kompakt (`1.75rem` satır).
+  6.5rem; aşağı açılır; Kritik seçeneği yok; menü trigger genişliğinde, sağ boşluk/check yok.
 - **WA medya Önizle (#6a75cc3f):** gelen görsel/video/ses Önizle butonu yeşil (`variant=success`) + Eye ikonu.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık
   satırının sağına**; **Talep Etiketi** pie'sında filtre butonlarının **bir alt satırında** sağa
@@ -2136,7 +2136,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi yazıyor göstergesi (#2307 / #2353 / Round 717):** aktif sohbette karşı taraf yazarken SignalR
   `ReceiveInternalMessageTyping` ile header'da birim satırının altında `Yazıyor` + animasyonlu
   üç nokta gösterilir; `POST /internal-messages/typing` yalnız alıcıya iletilir. Gönderen yazmaya
-  devam ederken ~1.8 sn heartbeat ile yenilenir; alıcı TTL ~2 sn, gösterge biraz küçük (#2512).
+  devam ederken ~1.8 sn heartbeat ile yenilenir; alıcı/gönderen idle TTL ~3 sn (#2500 reopen),
+  gösterge biraz küçük (#2512).
   `activeChatRef` + unmount'ta
   `isTyping:false`; yazma durduğunda (draft dolu olsa bile) ~2 sn sonra heartbeat durur ve
   `isTyping:false` gönderilir (#2500). `POST` SignalR bağlantısına bekletilmez (`ensureSignalRConnected` paralel).
@@ -2158,12 +2159,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   alanları, ek caption, modal ad/telefon kapsamda. `RichTextEditor` rAF + `startTransition`.
 - **WA ek lazy load (#2486):** `SocialConversationMediaBubble` görünür alana girdikten sonra medya indirir;
   görünür değilken dosya adı placeholder.
-- **Parantez max ipucu (#2506):** Talep Oluştur formlarında `(max …)` küçük harf; diğer sayfalarda
-  `(Max …)` ilk harf büyük kalabilir (card reopen).
+- **Parantez max ipucu (#2506):** Talep Oluştur formlarında `(max …)` küçük harf; `job-field-label`
+  uppercase ipucu metnini bozmaz (`normal-case` + CSS). Diğer sayfalarda `(Max …)` kalabilir.
 - **Talep Oluştur native doğrulama (#2353 reopen):** formlarda `noValidate` — tarayıcı hover tooltip'i
   çıkmaz; zorunluluk uygulama onayı/RichText ile kalır.
 - **Birime Gelen İşlemler yüksekliği (#2484):** actions hücresi `request-actions` sınıfını kullanır;
-  butonlar `min-height: 2.125rem` (Birimden Giden ile aynı sınıf, hafif daha yüksek).
+  butonlar `min-height: 2.2rem`.
 - **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter
   sonra filtreler (InternalMessagesFab ile aynı eşik).
 - **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.

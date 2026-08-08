@@ -1262,7 +1262,7 @@
 
     /* Banner 2. satır (page-title) bold biraz daha ince (#2511). */
     .app-content-shell .sticky-page-header .page-title {
-      font-weight: 550;
+      font-weight: 500;
     }
 
     .app-content-shell .page-subtitle {
@@ -1624,8 +1624,8 @@
 
     /* Birime Gelen İşlemler butonları hafif daha yüksek (#2484). */
     .app-content-shell .incoming-requests-table .request-actions button {
-      min-height: 2.125rem;
-      padding-block: 0.3rem;
+      min-height: 2.2rem;
+      padding-block: 0.32rem;
     }
 
     /* Görev gridlerinde tek "Detaylar" kaldığında actions kolonu dar ve ortalı kalır. */
@@ -3064,13 +3064,22 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--priority {
-    max-width: 7.5rem;
+    max-width: 6.5rem;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--priority .field-select {
     min-height: 1.75rem;
     padding: 0.28rem 0.45rem;
     font-size: 0.75rem;
+  }
+
+  .detail-modal-shell--my-request .my-request-edit-priority-menu .dropdown-menu-item {
+    justify-content: flex-start;
+    padding-right: 0.45rem;
+  }
+
+  .detail-modal-shell--my-request .my-request-edit-priority-menu .dropdown-menu-item svg {
+    display: none;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--request-tag {
@@ -3499,6 +3508,14 @@
   .request-form--readable .job-field-label,
   .routine-task-form--readable .job-field-label {
     font-size: 0.9rem;
+  }
+
+  /* Parantez max ipuçları job-field-label uppercase'den etkilenmesin (#2506). */
+  .request-form--readable .job-field-label .normal-case,
+  .request-form--readable .job-field-label span.text-slate-400,
+  .request-form--readable .job-field-label span.text-xs {
+    text-transform: none;
+    letter-spacing: normal;
   }
 
   .request-form--readable .field-input,
@@ -4372,7 +4389,7 @@
   }
 
   .sticky-page-header .page-title {
-    font-weight: 550;
+    font-weight: 500;
   }
 
   .sticky-page-header .page-subtitle {

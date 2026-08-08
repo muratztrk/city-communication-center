@@ -17,6 +17,10 @@ import {
 } from '../../utils/attachmentLimits'
 import { ConfirmDialog } from './confirm-dialog'
 import { SimpleImageAttachmentIcon } from './SimpleImageAttachmentIcon'
+import {
+  ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS,
+  AttachmentUploadProgressBar,
+} from './attachment-upload-progress'
 
 const MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
@@ -100,22 +104,23 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
-    // Tek zamanlayıcı + dosyalar arası birleşik yüzde: her dosya tek başına 1 sn altında
-    // yüklense bile toplam süre 1 sn'yi aşarsa progress bar görünür (card #1610 reopen).
+    // Tek zamanlayıcı + dosyalar arası birleşik yüzde; ilk progress event veya 200 ms sonra bar görünür.
     const totalBytes = selectedFiles.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
     setUploading(true)
     setUploadProgress(0)
     setShowUploadProgress(false)
     clearUploadProgressDelay()
+    const revealUploadProgress = () => setShowUploadProgress(true)
     uploadProgressDelayRef.current = window.setTimeout(() => {
       uploadProgressDelayRef.current = null
-      setShowUploadProgress(true)
-    }, 1_000)
+      revealUploadProgress()
+    }, ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS)
     try {
       for (const file of selectedFiles) {
         try {
           await onUpload?.(file, percent => {
+            revealUploadProgress()
             setUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
           })
         } catch (err) {
@@ -199,20 +204,9 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
             <Paperclip className="size-3.5 text-emerald-600" aria-hidden="true" />
             {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
           </button>
-          {uploading && showUploadProgress && (
-            <div className="mt-2 w-36" aria-label={t('attachments.uploadProgress', 'Yükleme ilerlemesi')}>
-              <div className="mb-1 flex items-center justify-between text-[10px] font-medium text-slate-500">
-                <span>{t('attachments.uploading', 'Yükleniyor...')}</span>
-                <span>%{uploadProgress}</span>
-              </div>
-              <div className="overflow-hidden rounded-full bg-slate-200">
-                <div
-                  className="h-1.5 rounded-full bg-[color:var(--color-primary)] transition-[width] duration-150"
-                  style={{ width: `${Math.max(uploadProgress, 4)}%` }}
-                />
-              </div>
-            </div>
-          )}
+          {uploading && showUploadProgress ? (
+            <AttachmentUploadProgressBar progress={uploadProgress} className="mt-2" />
+          ) : null}
           <input
             ref={fileInputRef}
             type="file"

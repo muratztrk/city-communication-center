@@ -269,10 +269,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep oluşturma yetki hatalarında kullanıcı metni "talep" der, "iş" değil**
   (`CreateJobCommand`, card #1079).
 - **Talep Oluştur ek yükleme ilerlemesi:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının
-  seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; toplam yükleme
-  1 saniyeyi aşarsa tüm dosyalar için birleşik yüzdeli progress bar görünür, hızlı yüklemede
-  yanıp sönmez. Vatandaş create/edit akışı da seçili dosyaları oluşan job'a gerçekten yükler
-  (card #1610 create-form reopen).
+  seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar
+  ilk XHR progress event'inde veya 200 ms sonra görünür (hızlı yüklemelerde yanıp sönmez),
+  tüm dosyalar için birleşik yüzde gösterilir. Vatandaş create/edit akışı da seçili dosyaları
+  oluşan job'a gerçekten yükler (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
   Cadde/Sokak ve Açık Adres alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
   alt adres alanları da temizlenir. Mahalle seçildikten sonra Cadde/Sokak **ve Açık Adres**
@@ -300,9 +300,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanır: son görsel dengede 1.75rem/11px `Dosya ekle` solda, mevcut ekler sağ kart
   sınırına yaslıdır; bu scope Taleplerim/Talep Ekleri buton ölçüsünü değiştirmez
   (card #1601 sixth reopen).
-  Detay popup düzenleme yüzeylerindeki yükleme 1 saniyeden uzun sürerse yüzde metinli progress bar
-  gösterilir; daha hızlı yüklemelerde gösterge yanıp sönmez. XHR progress callback'i korunur
-  (card #1610).
+  Detay popup düzenleme yüzeylerindeki yükleme progress bar'ı ilk XHR progress event'inde veya
+  200 ms sonra görünür; daha hızlı yüklemelerde gösterge yanıp sönmez. XHR progress callback'i
+  korunur. Görevi Tamamla / Görevi İptal Et popup'larındaki `Dosya ekle` anlık yüklemesi de aynı
+  ortak progress bileşenini kullanır (card #1610).
   Düzenleme modundaki `rich-list` ekleri yatay sarılır; dosya kutusu border/zemin taşımaz, dosya
   adı mavi ve uzantısı küçük harftir. Yükleme butonu yalnız doğal genişliğini alır, liste kalan
   yatay alanın tamamını kullanır ve `display:grid !important` ile iki eşit kolondur;

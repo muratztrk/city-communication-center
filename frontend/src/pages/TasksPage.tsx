@@ -19,6 +19,10 @@ import { api } from '../api/client'
 import { invalidateTasks, invalidateNotifications } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
+import {
+  ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS,
+  AttachmentUploadProgressBar,
+} from '../components/ui/attachment-upload-progress'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
@@ -545,10 +549,14 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [pendingCompletionAttachments, setPendingCompletionAttachments] = useState<Array<{ attachmentId: string; fileName: string; fileSizeBytes: number }>>([])
   const [completionAttachmentError, setCompletionAttachmentError] = useState<string | null>(null)
   const [completionAttachmentUploading, setCompletionAttachmentUploading] = useState(false)
+  const [completionUploadProgress, setCompletionUploadProgress] = useState(0)
+  const [showCompletionUploadProgress, setShowCompletionUploadProgress] = useState(false)
   const completeFileInputRef = useRef<HTMLInputElement>(null)
   const [pendingCancelAttachments, setPendingCancelAttachments] = useState<Array<{ attachmentId: string; fileName: string; fileSizeBytes: number }>>([])
   const [cancelAttachmentError, setCancelAttachmentError] = useState<string | null>(null)
   const [cancelAttachmentUploading, setCancelAttachmentUploading] = useState(false)
+  const [cancelUploadProgress, setCancelUploadProgress] = useState(0)
+  const [showCancelUploadProgress, setShowCancelUploadProgress] = useState(false)
   const cancelFileInputRef = useRef<HTMLInputElement>(null)
   const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'cancel' | 'return'; assignedDepartmentId: string | null; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean; displayNumber: string } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
@@ -1037,21 +1045,39 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       return
     }
 
+    const totalBytes = incoming.reduce((sum, file) => sum + file.size, 0) || 1
+    let uploadedBytes = 0
+    setCompletionAttachmentUploading(true)
+    setCompletionUploadProgress(0)
+    setShowCompletionUploadProgress(false)
+    let revealTimer: number | null = window.setTimeout(() => {
+      revealTimer = null
+      setShowCompletionUploadProgress(true)
+    }, ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS)
+    const revealProgress = () => setShowCompletionUploadProgress(true)
+
     for (const file of incoming) {
-      setCompletionAttachmentUploading(true)
       try {
-        const attachment = await api.uploadTaskAttachment(completeModal.taskId, file)
+        const attachment = await api.uploadTaskAttachment(completeModal.taskId, file, percent => {
+          revealProgress()
+          setCompletionUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
+        })
         setPendingCompletionAttachments(current => [...current, {
           attachmentId: attachment.attachmentId,
           fileName: attachment.fileName,
           fileSizeBytes: attachment.fileSizeBytes,
         }])
+        uploadedBytes += file.size
+        setCompletionUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)))
       } catch (err) {
         setCompletionAttachmentError(err instanceof Error ? err.message : t('common.error'))
-      } finally {
-        setCompletionAttachmentUploading(false)
       }
     }
+
+    if (revealTimer !== null) window.clearTimeout(revealTimer)
+    setShowCompletionUploadProgress(false)
+    setCompletionUploadProgress(0)
+    setCompletionAttachmentUploading(false)
 
     if (completeFileInputRef.current) completeFileInputRef.current.value = ''
   }
@@ -1221,21 +1247,39 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       return
     }
 
+    const totalBytes = incoming.reduce((sum, file) => sum + file.size, 0) || 1
+    let uploadedBytes = 0
+    setCancelAttachmentUploading(true)
+    setCancelUploadProgress(0)
+    setShowCancelUploadProgress(false)
+    let revealTimer: number | null = window.setTimeout(() => {
+      revealTimer = null
+      setShowCancelUploadProgress(true)
+    }, ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS)
+    const revealProgress = () => setShowCancelUploadProgress(true)
+
     for (const file of incoming) {
-      setCancelAttachmentUploading(true)
       try {
-        const attachment = await api.uploadTaskAttachment(returnModal.taskId, file)
+        const attachment = await api.uploadTaskAttachment(returnModal.taskId, file, percent => {
+          revealProgress()
+          setCancelUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
+        })
         setPendingCancelAttachments(current => [...current, {
           attachmentId: attachment.attachmentId,
           fileName: attachment.fileName,
           fileSizeBytes: attachment.fileSizeBytes,
         }])
+        uploadedBytes += file.size
+        setCancelUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)))
       } catch (err) {
         setCancelAttachmentError(err instanceof Error ? err.message : t('common.error'))
-      } finally {
-        setCancelAttachmentUploading(false)
       }
     }
+
+    if (revealTimer !== null) window.clearTimeout(revealTimer)
+    setShowCancelUploadProgress(false)
+    setCancelUploadProgress(0)
+    setCancelAttachmentUploading(false)
 
     if (cancelFileInputRef.current) cancelFileInputRef.current.value = ''
   }
@@ -3455,19 +3499,24 @@ const pageKicker = isMyTasksView
               <p className="text-xs font-medium text-red-600">{completionAttachmentError}</p>
             ) : null}
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${completeSaving || completionAttachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
-                <Paperclip className="size-3.5" />
-                {t('attachments.addFile', 'Dosya ekle')}
-                <input
-                  ref={completeFileInputRef}
-                  type="file"
-                  accept={ATTACHMENT_FILE_ACCEPT}
-                  multiple
-                  className="hidden"
-                  disabled={completeSaving || completionAttachmentUploading}
-                  onChange={event => void handleCompletionFilesSelected(event.target.files)}
-                />
-              </label>
+              <div className="flex flex-col gap-2">
+                <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${completeSaving || completionAttachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
+                  <Paperclip className="size-3.5" />
+                  {t('attachments.addFile', 'Dosya ekle')}
+                  <input
+                    ref={completeFileInputRef}
+                    type="file"
+                    accept={ATTACHMENT_FILE_ACCEPT}
+                    multiple
+                    className="hidden"
+                    disabled={completeSaving || completionAttachmentUploading}
+                    onChange={event => void handleCompletionFilesSelected(event.target.files)}
+                  />
+                </label>
+                {completionAttachmentUploading && showCompletionUploadProgress ? (
+                  <AttachmentUploadProgressBar progress={completionUploadProgress} />
+                ) : null}
+              </div>
               <div className="inline-actions justify-end">
                 <Button type="button" variant="secondary" onClick={closeCompleteModal} disabled={completeSaving || completionAttachmentUploading}>
                   {t('common.dismiss', 'Vazgeç')}
@@ -3559,19 +3608,24 @@ const pageKicker = isMyTasksView
                   <p className="text-xs font-medium text-red-600">{cancelAttachmentError}</p>
                 ) : null}
                 <div className="flex flex-wrap items-center justify-between gap-3">
-                  <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${returnSaving || cancelAttachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
-                    <Paperclip className="size-3.5" />
-                    {t('attachments.addFile', 'Dosya ekle')}
-                    <input
-                      ref={cancelFileInputRef}
-                      type="file"
-                      accept={ATTACHMENT_FILE_ACCEPT}
-                      multiple
-                      className="hidden"
-                      disabled={returnSaving || cancelAttachmentUploading}
-                      onChange={event => void handleCancelFilesSelected(event.target.files)}
-                    />
-                  </label>
+                  <div className="flex flex-col gap-2">
+                    <label className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${returnSaving || cancelAttachmentUploading ? 'pointer-events-none opacity-60' : ''}`}>
+                      <Paperclip className="size-3.5" />
+                      {t('attachments.addFile', 'Dosya ekle')}
+                      <input
+                        ref={cancelFileInputRef}
+                        type="file"
+                        accept={ATTACHMENT_FILE_ACCEPT}
+                        multiple
+                        className="hidden"
+                        disabled={returnSaving || cancelAttachmentUploading}
+                        onChange={event => void handleCancelFilesSelected(event.target.files)}
+                      />
+                    </label>
+                    {cancelAttachmentUploading && showCancelUploadProgress ? (
+                      <AttachmentUploadProgressBar progress={cancelUploadProgress} />
+                    ) : null}
+                  </div>
                   <div className="inline-actions justify-end">
                     <Button type="button" variant="secondary" onClick={closeReturnModal} disabled={returnSaving || cancelAttachmentUploading}>
                       {t('common.dismiss', 'Vazgeç')}

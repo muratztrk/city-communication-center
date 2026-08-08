@@ -21,6 +21,10 @@ import {
 } from '../utils/dateTimePicker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
+import {
+  ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS,
+  AttachmentUploadProgressBar,
+} from '../components/ui/attachment-upload-progress'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { useAuth } from '../context/AuthContext'
 import { isModuleUsable } from '../lib/licenseModules'
@@ -699,18 +703,7 @@ export function CreateRequestPage() {
         </div>
       </div>
       {saving && showAttachmentUploadProgress ? (
-        <div className="mt-2" aria-label={t('attachments.uploadProgress', 'Yükleme ilerlemesi')}>
-          <div className="mb-1 flex items-center justify-between text-[10px] font-medium text-slate-500">
-            <span>{t('attachments.uploading', 'Yükleniyor...')}</span>
-            <span>%{attachmentUploadProgress}</span>
-          </div>
-          <div className="overflow-hidden rounded-full bg-slate-200">
-            <div
-              className="h-1.5 rounded-full bg-[color:var(--color-primary)] transition-[width] duration-150"
-              style={{ width: `${Math.max(attachmentUploadProgress, 4)}%` }}
-            />
-          </div>
-        </div>
+        <AttachmentUploadProgressBar progress={attachmentUploadProgress} className="mt-2" />
       ) : null}
       {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
     </div>
@@ -722,14 +715,16 @@ export function CreateRequestPage() {
     setAttachmentUploadProgress(0)
     setShowAttachmentUploadProgress(false)
     if (attachmentUploadDelayRef.current !== null) window.clearTimeout(attachmentUploadDelayRef.current)
+    const revealUploadProgress = () => setShowAttachmentUploadProgress(true)
     attachmentUploadDelayRef.current = window.setTimeout(() => {
       attachmentUploadDelayRef.current = null
-      setShowAttachmentUploadProgress(true)
-    }, 1_000)
+      revealUploadProgress()
+    }, ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS)
 
     try {
       for (const [index, file] of pendingFiles.entries()) {
         await api.uploadJobAttachment(jobId, file, fileProgress => {
+          revealUploadProgress()
           const overallProgress = Math.round(((index + fileProgress / 100) / pendingFiles.length) * 100)
           setAttachmentUploadProgress(overallProgress)
         })

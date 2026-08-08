@@ -3416,6 +3416,15 @@
     color: rgb(148 163 184);
   }
 
+  /* WA Vatandaş Talebi max ipuçları job-field-label uppercase'den etkilenmesin (#2506). */
+  .citizen-request-form .job-field-label .field-hint,
+  .citizen-request-form .job-field-label .normal-case,
+  .citizen-request-form .job-field-label span.text-slate-400,
+  .citizen-request-form .job-field-label span.text-xs {
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
   .citizen-request-form .field-textarea--compact {
     font-size: 0.75rem;
     line-height: 1.35;
@@ -4390,6 +4399,11 @@
 
   .sticky-page-header .page-title {
     font-weight: 500;
+  }
+
+  /* Anasayfa / Vatandaş Bilgi Listesi banner page-title (#2511 reopen). */
+  .section-card > .grid.border-b .page-title {
+    font-weight: 600;
   }
 
   .sticky-page-header .page-subtitle {

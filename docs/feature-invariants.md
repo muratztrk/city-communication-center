@@ -82,7 +82,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   logo görseli `imageClassName ~86%` ile çerçeve içinde büyütülür (çerçeve boyutu değişmez);
   yüklenen görselin intrinsic boyutu login/sidebar çerçevesini büyütemez (card #2252).
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
-  `font-weight: 600` kullanır; Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
+  `font-weight: 500` kullanır; Anasayfa / Vatandaş Bilgi Listesi gradient banner
+  `.section-card > .grid.border-b .page-title` `font-weight: 600` (#2511 reopen). Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
   `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
@@ -1986,6 +1987,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Wallboard görev kaynağı:** "Ekrana Yansıt" listesinde rutin görevler gösterilmez; yalnız
   açık durumdaki numaralı rutin olmayan görevler listelenir. Vatandaş talebinde Oluşturan satırının
   başında kanal ikonu görünür; vatandaş satırı için özel renk veya sıra numarası şeridi kullanılmaz.
+- **Wallboard Görev No alt öncelik (#2122):** Normal öncelik gösterilmez; yalnız Yüksek / Çok Yüksek /
+  Kritik (`shouldShowGridPrioritySubline` ile grid ile aynı kural).
 - **Wallboard Reporter vurgusu:** Üst Düzey Yönetici talebi satırında talep yeri altında oluşturan adı
   ayrı satırda kalır; "Üst Düzey Yönetici" oluşturan metni ve Görev Sahibi metni turuncu kalır.
   Başlık fontu normal ağırlıkta kalır, Görev Sahibi normal satırda Görevin Talep Yeri verisiyle aynı
@@ -2159,8 +2162,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   alanları, ek caption, modal ad/telefon kapsamda. `RichTextEditor` rAF + `startTransition`.
 - **WA ek lazy load (#2486):** `SocialConversationMediaBubble` görünür alana girdikten sonra medya indirir;
   görünür değilken dosya adı placeholder.
-- **Parantez max ipucu (#2506):** Talep Oluştur formlarında `(max …)` küçük harf; `job-field-label`
-  uppercase ipucu metnini bozmaz (`normal-case` + CSS). Diğer sayfalarda `(Max …)` kalabilir.
+- **Parantez max ipucu (#2506):** Talep Oluştur ve WA `CitizenRequestModal` formlarında `(max …)` küçük harf;
+  `job-field-label` uppercase ipucu metnini bozmaz (`normal-case` + CSS). Diğer sayfalarda `(Max …)` kalabilir.
 - **Talep Oluştur native doğrulama (#2353 reopen):** formlarda `noValidate` — tarayıcı hover tooltip'i
   çıkmaz; zorunluluk uygulama onayı/RichText ile kalır.
 - **Birime Gelen İşlemler yüksekliği (#2484):** actions hücresi `request-actions` sınıfını kullanır;

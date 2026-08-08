@@ -1966,7 +1966,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA etiket revert (#6a75d1bf reopen):** Talep Etiketi readonly textbox geri; başlık min-height 2.5rem.
 - **WA modal etiket menü (#2504):** `RequestTagPicker` menü metni `text-xs` (compactMenuText yok).
 - **Görevlerim detay Öncelik düzenle (#2503 reopen):** `my-request-detail-edit-control--priority`
-  6.5rem; aşağı açılır; Kritik seçeneği yok; menü trigger genişliğinde, sağ boşluk/check yok.
+  `fit-content` (max 6.5rem); trigger `justify-between` yerine sıkı gap; aşağı açılır; Kritik seçeneği yok;
+  menü trigger genişliğinde, sağ boşluk/check yok.
 - **WA medya Önizle (#6a75cc3f):** gelen görsel/video/ses Önizle butonu yeşil (`variant=success`) + Eye ikonu.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık
   satırının sağına**; **Talep Etiketi** pie'sında filtre butonlarının **bir alt satırında** sağa

@@ -2134,7 +2134,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   üç nokta gösterilir; `POST /internal-messages/typing` yalnız alıcıya iletilir. Gönderen yazmaya
   devam ederken ~1.8 sn heartbeat ile yenilenir; alıcı TTL ~2 sn, gösterge biraz küçük (#2512).
   `activeChatRef` + unmount'ta
-  `isTyping:false`; `POST` SignalR bağlantısına bekletilmez (`ensureSignalRConnected` paralel).
+  `isTyping:false`; yazma durduğunda (draft dolu olsa bile) ~2 sn sonra heartbeat durur ve
+  `isTyping:false` gönderilir (#2500). `POST` SignalR bağlantısına bekletilmez (`ensureSignalRConnected` paralel).
   Cookie-only SPA oturumunda hub JWT
   `POST /auth/session/signalr-access-token` ile üretilir; hub grupları `user-{guid}` küçük harf
   normalize (`SignalRGroupNames`); bağlantı sonrası `RegisterPresence`. SignalR kaçarsa açık
@@ -2157,8 +2158,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `(Max …)` ilk harf büyük kalabilir (card reopen).
 - **Talep Oluştur native doğrulama (#2353 reopen):** formlarda `noValidate` — tarayıcı hover tooltip'i
   çıkmaz; zorunluluk uygulama onayı/RichText ile kalır.
-- **Birime Gelen İşlemler yüksekliği (#2484):** actions hücresi `request-actions` sınıfını kullanır
-  (Birimden Giden ile aynı buton ölçüsü).
+- **Birime Gelen İşlemler yüksekliği (#2484):** actions hücresi `request-actions` sınıfını kullanır;
+  butonlar `min-height: 2.125rem` (Birimden Giden ile aynı sınıf, hafif daha yüksek).
 - **WhatsApp konuşma listesi arama (#1960 reopen):** telefon/ad/talep no araması en az 3 karakter
   sonra filtreler (InternalMessagesFab ile aynı eşik).
 - **Birimler düzenle popup (#2294):** `Tür` alanı UI'da yok; mevcut `departmentType` kayıtta korunur.

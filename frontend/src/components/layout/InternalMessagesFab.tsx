@@ -237,6 +237,7 @@ export function InternalMessagesFab() {
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const typingNotifyTimerRef = useRef<number | null>(null)
   const typingHeartbeatTimerRef = useRef<number | null>(null)
+  const typingIdleTimerRef = useRef<number | null>(null)
   const typingActiveRef = useRef(false)
   const otherTypingTimerRef = useRef<number | null>(null)
   const activeChatRef = useRef(activeChat)
@@ -404,12 +405,14 @@ export function InternalMessagesFab() {
     if (!activeChat) {
       setOtherUserTyping(false)
       typingActiveRef.current = false
+      if (typingIdleTimerRef.current) window.clearTimeout(typingIdleTimerRef.current)
       clearTypingHeartbeat()
       return
     }
 
     if (!draft.trim()) {
       if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
+      if (typingIdleTimerRef.current) window.clearTimeout(typingIdleTimerRef.current)
       clearTypingHeartbeat()
       notifyTyping(false)
       return
@@ -421,14 +424,22 @@ export function InternalMessagesFab() {
       startTypingHeartbeat()
     }, TYPING_NOTIFY_DEBOUNCE_MS)
 
+    if (typingIdleTimerRef.current) window.clearTimeout(typingIdleTimerRef.current)
+    typingIdleTimerRef.current = window.setTimeout(() => {
+      clearTypingHeartbeat()
+      notifyTyping(false)
+    }, TYPING_INDICATOR_TTL_MS)
+
     return () => {
       if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
+      if (typingIdleTimerRef.current) window.clearTimeout(typingIdleTimerRef.current)
     }
   }, [activeChat, clearTypingHeartbeat, draft, notifyTyping, startTypingHeartbeat])
 
   useEffect(() => () => {
     if (otherTypingTimerRef.current) window.clearTimeout(otherTypingTimerRef.current)
     if (typingNotifyTimerRef.current) window.clearTimeout(typingNotifyTimerRef.current)
+    if (typingIdleTimerRef.current) window.clearTimeout(typingIdleTimerRef.current)
     clearTypingHeartbeat()
     if (typingActiveRef.current) {
       typingActiveRef.current = false

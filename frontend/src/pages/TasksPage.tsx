@@ -2319,9 +2319,9 @@ const pageKicker = isMyTasksView
                                   label: t('tasks.newRequest.priority', 'Öncelik'),
                                   value: (
                                     <SingleSelectDropdown
-                                      className="ml-auto w-auto max-w-[11rem]"
+                                      className="ml-auto w-auto max-w-[9.25rem]"
                                       triggerClassName="text-xs font-medium"
-                                      menuClassName="max-w-[11rem]"
+                                      menuClassName="max-w-[9.25rem]"
                                       options={[
                                         ...(editJobModal ? [{ value: 'Low', label: t('enum.priority.Low', 'Düşük') }] : []),
                                         { value: 'Normal', label: t('enum.priority.Normal', 'Normal') },

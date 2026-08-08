@@ -35,7 +35,7 @@ hangi dosyayı açacağını buradan bul.**
 | [`deployment-guide.md`](deployment-guide.md) | Kurulum / deployment | 2026-06-18 | 🟢 güncel |
 | [`operations-admin-guide.md`](operations-admin-guide.md) | Operasyon / admin | 2026-06-26 | 🟢 güncel |
 | [`troubleshooting-guide.md`](troubleshooting-guide.md) | Bakım / sorun giderme | 2026-06-18 | 🟢 güncel |
-| [`user-manual.md`](user-manual.md) | Son kullanıcı kılavuzu (921 satır) | 2026-06-26 | 🟢 güncel |
+| [`user-manual.md`](user-manual.md) | Son kullanıcı kılavuzu; **Kİ** / **VT** lisans yüzleri, Playwright ekran görüntüleri (`user-manual/screenshots/`) | 2026-08-08 | 🟢 güncel |
 | [`mobile-reporting-app/`](mobile-reporting-app/) | Mobil raporlama uygulaması notları | — | 🟢 |
 
 **Tazelik anahtarı:** 🟢 güncel · 🟡 eski, koddan doğrula · ⚪ tarihsel arşiv (güncel sanma).

@@ -1,3 +1,8 @@
+## Round 760 — Dosya ekle upload progress bar
+- Ortak `AttachmentUploadProgressBar`; 200ms + ilk XHR progress event'te gösterim.
+- AttachmentSection, CreateRequestPage, Görevi Tamamla/İptal modalları.
+- Prod canlı test: önce bar görünmüyordu; deploy sonrası doğrulanacak.
+
 ## Round 759+ — Görevlerim edit Öncelik dropdown (#2503)
 - Priority trigger fit-content; sağ boşluk kaldırıldı.
 - Commit `37181b9e`; push main+master; deploy OK.

@@ -1,3 +1,7 @@
+## Round 759+ — Görevlerim edit Öncelik dropdown (#2503)
+- Priority trigger fit-content; sağ boşluk kaldırıldı.
+- Commit `37181b9e`; push main+master; deploy OK.
+
 ## Round 759 — 4 Doing UI (#2511 reopen, #2506 reopen, #2122, #2512 reopen)
 - Anasayfa banner weight; WA modal max hints; wallboard priority; typing dots wave.
 - Commits `01db8eb5` + `d94607c2`; push main+master; deploy OK.

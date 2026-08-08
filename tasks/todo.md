@@ -1,3 +1,7 @@
+## Round 756 — 5 Doing UI (#2512, #2500, #2484, #2503, #2511)
+- Kurum İçi typing dots + idle TTL; Birime Gelen actions height; Görevlerim priority dropdown; banner title weight.
+- Commit `0f40759e`; push main+master; deploy OK.
+
 ## Round 755 — 4 Doing UI (#2506 reopen, #2440 reopen, #2412, #2498 reopen)
 - Talep Oluştur `(max …)` küçük harf; WA modal açık adres 5rem; RichText backspace imleç; etiket dropdown X/text.
 - Commit `dc0936ee`; push + deploy; 4 kart Done.

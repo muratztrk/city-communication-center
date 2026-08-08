@@ -2140,7 +2140,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `ReceiveInternalMessageTyping` ile header'da birim satırının altında `Yazıyor` + animasyonlu
   üç nokta gösterilir; `POST /internal-messages/typing` yalnız alıcıya iletilir. Gönderen yazmaya
   devam ederken ~1.8 sn heartbeat ile yenilenir; alıcı/gönderen idle TTL ~3 sn (#2500 reopen),
-  gösterge biraz küçük (#2512).
+  gösterge biraz küçük (#2512); dalga dikey hareketi orijinal `-0.22rem` yerine
+  `-0.055rem` (container `0.5rem`, `align-items: center` — #2512 reopen).
   `activeChatRef` + unmount'ta
   `isTyping:false`; yazma durduğunda (draft dolu olsa bile) ~2 sn sonra heartbeat durur ve
   `isTyping:false` gönderilir (#2500). `POST` SignalR bağlantısına bekletilmez (`ensureSignalRConnected` paralel).

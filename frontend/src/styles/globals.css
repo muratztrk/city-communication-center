@@ -3064,7 +3064,13 @@
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--priority {
-    max-width: 8.25rem;
+    max-width: 7.5rem;
+  }
+
+  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--priority .field-select {
+    min-height: 1.75rem;
+    padding: 0.28rem 0.45rem;
+    font-size: 0.75rem;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--request-tag {
@@ -3167,9 +3173,9 @@
 
   .my-request-edit-priority-menu .dropdown-menu-item,
   .my-request-edit-neighborhood-menu .dropdown-menu-item {
-    min-height: 2rem;
-    padding: 0.4rem 0.65rem;
-    font-size: 0.75rem;
+    min-height: 1.75rem;
+    padding: 0.32rem 0.55rem;
+    font-size: 0.72rem;
   }
 
   .reporter-department-text {
@@ -3470,6 +3476,8 @@
   .citizen-request-form .citizen-request-open-address {
     padding: 0.45rem 0.55rem;
     min-height: 5rem;
+    height: 5rem;
+    box-sizing: border-box;
   }
 
   .request-actions button,

@@ -2121,7 +2121,7 @@ const pageKicker = isMyTasksView
                   {/* Görev bilgi kutusu — Taleplerim detay popup'ı ile birebir aynı tasarım dili:
                       solda başlık + açıklama, ortada Görev Bilgileri, sağda Süreç timeline'ı
                       (MyRequestDetailMainCard düzeni). */}
-                  <section className="my-request-detail-main form-card page-stack mb-5">
+                  <section className={`my-request-detail-main form-card page-stack mb-5${isEditingTaskDetail ? ' my-request-detail-main--editing' : ''}`}>
                     {/* Sol menüdeki "Görevlerim" ikonuyla aynı (ListChecks) — card #1429. */}
                     <MyRequestSectionHeading icon={ListChecks} tone="primary">
                       {t('tasks.detail.title', 'Görev Detayları')}
@@ -2319,9 +2319,10 @@ const pageKicker = isMyTasksView
                                   label: t('tasks.newRequest.priority', 'Öncelik'),
                                   value: (
                                     <SingleSelectDropdown
-                                      className="ml-auto w-auto max-w-[9.25rem]"
+                                      openUp
+                                      className="my-request-detail-edit-control my-request-detail-edit-control--priority"
                                       triggerClassName="text-xs font-medium"
-                                      menuClassName="max-w-[9.25rem]"
+                                      menuScrollClassName="dropdown-menu-scroll--compact my-request-edit-priority-menu"
                                       options={[
                                         ...(editJobModal ? [{ value: 'Low', label: t('enum.priority.Low', 'Düşük') }] : []),
                                         { value: 'Normal', label: t('enum.priority.Normal', 'Normal') },

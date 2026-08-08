@@ -700,7 +700,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   {canManageRequestTags ? (
                     <>
                       <RequestTagPicker
-                        compactMenuText
                         smallButtonText
                         tags={requestTags}
                         selectedName={requestLabel}
@@ -753,7 +752,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     />
                   </label>
                 </div>
-                <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-start">
+                <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-stretch">
                   <label className="job-field flex min-h-0 flex-col gap-1">
                     <span className="job-field-label">
                       {t('address.openAddressLabel', 'Açık Adres')}
@@ -765,7 +764,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       ) : null}
                     </span>
                     <DeferredComposerTextarea
-                      className="field-textarea field-textarea--compact address-open-textarea citizen-request-open-address min-h-0 flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                      className="field-textarea field-textarea--compact address-open-textarea citizen-request-open-address h-[5rem] min-h-[5rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
                       maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
                       value={openAddress}

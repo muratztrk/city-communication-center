@@ -1,3 +1,7 @@
+## Round 759 — 3 Doing UI (#2511 reopen, #2506 reopen, #2122)
+- Anasayfa banner weight; WA modal max hints; wallboard priority filter.
+- Commit `01db8eb5`; push main+master; deploy OK.
+
 ## Round 758 — 6 Doing UI reopen (#2511, #2503, #2512, #2500, #2484, #2506)
 - Banner weight; Görevlerim priority; typing 3s; incoming actions; create form max hints.
 - Commit `5d69621a`; push main+master; deploy OK.

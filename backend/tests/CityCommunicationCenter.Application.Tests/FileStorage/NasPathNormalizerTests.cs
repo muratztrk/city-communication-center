@@ -5,9 +5,11 @@ namespace CityCommunicationCenter.Application.Tests.FileStorage;
 public sealed class NasPathNormalizerTests
 {
     [Theory]
-    [InlineData(@"\\192.168.0.10\Tire İletisim Merkezi", "Tire İletisim Merkezi")]
+    [InlineData(@"\\192.168.0.10\Tire İletisim Merkezi", "Tire Iletisim Merkezi")]
     [InlineData("//192.168.0.10/share", "share")]
     [InlineData("plain-share", "plain-share")]
+    [InlineData("Tire İletisim Merkezi", "Tire Iletisim Merkezi")]
+    [InlineData("Şehir Paylaşım", "Sehir Paylasim")]
     [InlineData(null, null)]
     public void NormalizeShareName_ExtractsShareFromUnc(string? input, string? expected)
     {

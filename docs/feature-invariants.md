@@ -1217,7 +1217,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   → connect adı short-host → `WORKGROUP` → `.` → `""` → (yalnız hostname ise) host short-host.
   IP ile `Connect` NTLM SPN bozabilir; önce NetBIOS (`NameServiceClient`) ve reverse-DNS short
   adıyla `Connect`, sonra IP fallback. Paylaşım alanına tam UNC (`\\host\share`) girilse
-  `NasPathNormalizer` kayıt ve testte yalnız share adını çıkarır. NAS kullanıcı testi formdaki
+  `NasPathNormalizer` kayıt ve testte yalnız share adını çıkarır; paylaşım adı Türkçe karakterler
+  ASCII'ye katlanır (`Tire İletisim Merkezi` → `Tire Iletisim Merkezi`). NAS kullanıcı testi formdaki
   host/paylaşım değerlerini de kabul eder (kaydetmeden test). Başarısız `Login` sonrası aynı
   client'ta `Logoff`+yeniden `Login` yapılmaz (STATUS_USER_SESSION_DELETED); her domain denemesi
   fresh `Connect`.

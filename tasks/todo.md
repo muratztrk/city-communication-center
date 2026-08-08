@@ -1,8 +1,12 @@
+## Round 754b — NAS paylaşım adı ASCII normalize (#2347)
+- `NasPathNormalizer.ToAsciiShareName`: İ→I, ş→s vb.; Tire İletisim → Tire Iletisim SMB uyumu.
+- Commit pending; push + deploy.
+
 ## Round 754 — 13 Doing UI polish (#2498–#2512 batch)
 - Grid öncelik alt satırı yalnız Yüksek/Çok Yüksek/Kritik; video dosya ekle; typing 2s TTL küçük.
 - WA modal label/etiket CSS; Görevlerim edit Kaydet/Vazgeç geniş; Öncelik SingleSelectDropdown.
 - Birime Gelen request-actions; max ipucu `(Max …)`; Talep Oluştur noValidate.
-- Build/lint yeşil; deploy + 13 kart Done.
+- Build/lint yeşil; commit `527894bc`; push OK; deploy SSH timeout; 13 kart Done.
 
 ## Round 753 — WA textbox lag + ek lazy load (#2418/#2397/#2486)
 - DeferredComposer tüm WA/modal alanları; blur flush; RichText rAF+transition; yazarken detail poll pause.

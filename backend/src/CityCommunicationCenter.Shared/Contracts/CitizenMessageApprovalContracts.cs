@@ -20,6 +20,8 @@ public sealed record CitizenMessageApprovalResponse(
     Guid OwnerDepartmentId,
     string? OwnerDepartmentName,
     DateTimeOffset? ReleasedAtUtc,
+    /// <summary>WA: Mesajı Onayla anı; SMS: operatör SMS gönderim onayı (RespondedAtUtc).</summary>
+    DateTimeOffset? MessageApprovedAtUtc,
     /// <summary>Tamamlanmış taleplerde Durum alt satırı (#2067).</summary>
     DateTimeOffset? CompletedAtUtc,
     /// <summary>İptal taleplerde Durum alt satırı — Giden grid ile aynı (#2067).</summary>

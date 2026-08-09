@@ -164,6 +164,7 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
             }
 
             var note = await CitizenMessageApprovalNoteResolver.ResolveAsync(_dbContext, tenantId, job, cancellationToken);
+            var messageApprovedAtUtc = ResolveMessageApprovedAtUtc(job, message, smsMode);
             results.Add(new CitizenMessageApprovalResponse(
                 job.JobId,
                 message.SocialMessageId,
@@ -180,10 +181,28 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
                 job.OwnerDepartmentId,
                 ownerNames.GetValueOrDefault(job.OwnerDepartmentId),
                 job.CitizenTerminalMessageReleasedAtUtc,
+                messageApprovedAtUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc));
         }
 
         return results;
+    }
+
+    private static DateTimeOffset? ResolveMessageApprovedAtUtc(Job job, SocialMessage message, bool smsMode)
+    {
+        if (smsMode)
+        {
+            if (job.CitizenTerminalMessageReleasedAtUtc is null
+                || message.RespondedAtUtc is null
+                || message.RespondedAtUtc < job.CitizenTerminalMessageReleasedAtUtc)
+            {
+                return null;
+            }
+
+            return message.RespondedAtUtc;
+        }
+
+        return job.CitizenTerminalMessageReleasedAtUtc;
     }
 }

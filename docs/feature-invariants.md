@@ -1934,6 +1934,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mesajı Onayla; `sent`/`all`'da bu butonlar yok (Yazdır da gizli).
   Vatandaş Adı/Telefon ~11rem, İşlemler geniş (~22rem); buton yüksekliği `2.125rem` (#2105);
   Telefon No başlığı `font-bold` (#2106); Notu Düzenle=`PenLine`, Mesajı Onayla=`Check`.
+- **Mesaj/SMS onay tarihi sütunu (#2512/#2514):** `sent` ve `all` görünümlerinde Talep Durumu Notu
+  sonrası — Mesaj Onayı: `MessageApprovedAtUtc` = `CitizenTerminalMessageReleasedAtUtc`;
+  Sms Onayı: `MessageApprovedAtUtc` = terminal SMS `RespondedAtUtc` (release sonrası).
 - **Mesaj Onayı Detaylar (#2088/#2089/#2106):** `toSend` header'da Notu Düzenle + Mesajı Onayla; **Talep Durumunu
   Değiştir yok** (süreç kaldırıldı). Yazdır gizlenir.
 - **Breadcrumb (#2085):** `/citizen-message-approval` → "Vatandaşa Gönderilecek Mesaj Onayı" (slug değil).

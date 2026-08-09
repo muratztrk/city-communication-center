@@ -917,6 +917,7 @@
       "dueDate": "Son Tarih",
       "status": "Durum",
       "note": "Talep Durumu Notu",
+      "messageApprovedAt": "Mesaj Onay Tarihi",
       "actions": "İşlemler"
     },
     "actions": {
@@ -949,7 +950,10 @@
     "subtitle": "Çağrı talebi ile gelen talepleri Sms aracılığıyla vatandaşları bilgilendirin.",
     "emptyToSend": "Sms ile bilgilendirilecek çağrı talebi bulunmamaktadır.",
     "emptySent": "Sms ile bilgilendirilecek çağrı talebi bulunmamaktadır.",
-    "emptyAll": "Sms ile bilgilendirilecek çağrı talebi bulunmamaktadır."
+    "emptyAll": "Sms ile bilgilendirilecek çağrı talebi bulunmamaktadır.",
+    "columns": {
+      "smsApprovedAt": "SMS Onay Tarihi"
+    }
   },
   "social": {
     "title": "Vatandaş Talep Akışı",

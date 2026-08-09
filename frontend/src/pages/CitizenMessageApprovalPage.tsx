@@ -87,6 +87,8 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
   const { filters, setFilter, clearFilters, matchesFilters, hasActiveFilters: hasActiveColumnFilters } = useColumnFilters()
 
   const apiScope = useMemo(() => SCOPE_FILTERS.find(filter => filter.value === scope)?.apiScope ?? 'to-send', [scope])
+  const showApprovalDateColumn = scope === 'sent' || scope === 'all'
+  const tableColumnCount = showApprovalDateColumn ? 9 : 8
 
   const loadApprovals = useCallback(async () => {
     setLoading(true)
@@ -112,6 +114,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
       )
     }
     if (key === 'requestDateUtc') return formatDateTime(row.requestDateUtc, locale)
+    if (key === 'messageApprovedAtUtc') return formatDateTime(row.messageApprovedAtUtc, locale)
     if (key === 'citizenPhone') return formatCitizenPhoneDisplay(row.citizenPhone)
     if (key === 'status') return getCitizenRequestStatusLabel(t, { status: row.status })
     return String((row as unknown as Record<string, unknown>)[key] ?? '')
@@ -129,13 +132,15 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
     }
     if (searchText.trim()) {
       const query = searchText.toLocaleLowerCase('tr')
-      const searchKeys = ['requestNo', 'requestDateUtc', 'citizenName', 'citizenPhone', 'title', 'status', 'note'] as const
+      const searchKeys = showApprovalDateColumn
+        ? ['requestNo', 'requestDateUtc', 'citizenName', 'citizenPhone', 'title', 'status', 'note', 'messageApprovedAtUtc'] as const
+        : ['requestNo', 'requestDateUtc', 'citizenName', 'citizenPhone', 'title', 'status', 'note'] as const
       result = result.filter(row =>
         searchKeys.some(key => getColumnValue(key, row).toLocaleLowerCase('tr').includes(query)),
       )
     }
     return result
-  }, [rows, filterFrom, filterTo, searchText, getColumnValue])
+  }, [rows, filterFrom, filterTo, searchText, getColumnValue, showApprovalDateColumn])
 
   const columnFilteredRows = useMemo(
     () => visibleRows.filter(row => matchesFilters(row, getColumnValue)),
@@ -326,6 +331,21 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                   <FilterableTh filterKey="title" filterValue={filters['title'] ?? ''} onFilter={setFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.title', 'Başlık')}</FilterableTh>
                   <FilterableTh filterKey="status" filterValue={filters['status'] ?? ''} onFilter={setFilter} sortKey="status" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.status', 'Durum')}</FilterableTh>
                   <FilterableTh filterKey="note" filterValue={filters['note'] ?? ''} onFilter={setFilter} sortKey="note" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.note', 'Talep Durumu Notu')}</FilterableTh>
+                  {showApprovalDateColumn ? (
+                    <FilterableTh
+                      filterKey="messageApprovedAtUtc"
+                      filterValue={filters['messageApprovedAtUtc'] ?? ''}
+                      onFilter={setFilter}
+                      sortKey="messageApprovedAtUtc"
+                      currentSortKey={sortKey}
+                      sortDir={sortDir}
+                      onSort={toggleSort}
+                    >
+                      {isSms
+                        ? t('smsDeliveryApproval.columns.smsApprovedAt', 'SMS Onay Tarihi')
+                        : t('citizenMessageApproval.columns.messageApprovedAt', 'Mesaj Onay Tarihi')}
+                    </FilterableTh>
+                  ) : null}
                   <th className="text-center">{t('citizenMessageApproval.columns.actions', 'İşlemler')}</th>
                 </tr>
               </thead>
@@ -371,6 +391,13 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                         ? <TruncatedText text={row.note} className="cell-title" />
                         : <span className="text-slate-400">—</span>}
                     </td>
+                    {showApprovalDateColumn ? (
+                      <td className="text-center">
+                        {row.messageApprovedAtUtc
+                          ? <DateCell value={row.messageApprovedAtUtc} locale={locale} />
+                          : <span className="text-slate-400">—</span>}
+                      </td>
+                    ) : null}
                     <td className="actions-cell">
                       <div className="citizen-message-approval-actions flex justify-center gap-2">
                         <Button type="button" size="sm" variant="secondary" className="inline-flex items-center gap-1.5" onClick={() => setDetailJobId(row.jobId)}>
@@ -404,7 +431,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                   </tr>
                 ))}
                 {sortedRows.length === 0 ? (
-                  <TableEmptyStateRows columnCount={8} message={emptyMessage} />
+                  <TableEmptyStateRows columnCount={tableColumnCount} message={emptyMessage} />
                 ) : null}
               </tbody>
             </table>

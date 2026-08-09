@@ -910,6 +910,7 @@
       "dueDate": "Due Date",
       "status": "Status",
       "note": "Request Status Note",
+      "messageApprovedAt": "Message Approval Date",
       "actions": "Actions"
     },
     "actions": {
@@ -942,7 +943,10 @@
     "subtitle": "Notify citizens by SMS for requests received via call.",
     "emptyToSend": "There is no call request awaiting SMS notification.",
     "emptySent": "There is no call request awaiting SMS notification.",
-    "emptyAll": "There is no call request awaiting SMS notification."
+    "emptyAll": "There is no call request awaiting SMS notification.",
+    "columns": {
+      "smsApprovedAt": "SMS Approval Date"
+    }
   },
   "social": {
     "title": "Citizen Request Flow",

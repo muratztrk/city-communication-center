@@ -5,6 +5,21 @@ namespace CityCommunicationCenter.Application.Features.Social;
 /// </summary>
 internal static class CitizenConversationLinkGuard
 {
+    public static async Task<bool> HasWhatsAppMessagesOnConversationAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid conversationId,
+        CancellationToken cancellationToken)
+    {
+        return await dbContext.SocialMessages
+            .AsNoTracking()
+            .AnyAsync(
+                message => message.TenantId == tenantId
+                    && message.CitizenConversationId == conversationId
+                    && message.Channel == SocialChannel.WhatsApp,
+                cancellationToken);
+    }
+
     public static async Task<bool> ShouldSkipPhoneLinkToConversationAsync(
         IApplicationDbContext dbContext,
         Guid tenantId,
@@ -17,12 +32,10 @@ internal static class CitizenConversationLinkGuard
             return false;
         }
 
-        return await dbContext.SocialMessages
-            .AsNoTracking()
-            .AnyAsync(
-                message => message.TenantId == tenantId
-                    && message.CitizenConversationId == conversationId
-                    && message.Channel == SocialChannel.WhatsApp,
-                cancellationToken);
+        return await HasWhatsAppMessagesOnConversationAsync(
+            dbContext,
+            tenantId,
+            conversationId,
+            cancellationToken);
     }
 }

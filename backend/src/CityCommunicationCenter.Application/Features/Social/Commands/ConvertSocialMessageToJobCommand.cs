@@ -227,6 +227,17 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             _dbContext.CitizenConversations.Add(conversation);
         }
 
+        if (message.Channel == SocialChannel.Phone
+            && await CitizenConversationLinkGuard.HasWhatsAppMessagesOnConversationAsync(
+                _dbContext,
+                tenantId,
+                conversation.CitizenConversationId,
+                cancellationToken))
+        {
+            // Çağrı talebi aynı numaradaki WA konuşma profilini ezmez (#2288/#2513).
+            return;
+        }
+
         ApplyConversationProfile(conversation, citizenName, neighborhood, street, openAddress);
         conversation.LastMessageAt = DateTimeOffset.UtcNow;
         message.CitizenConversationId = conversation.CitizenConversationId;

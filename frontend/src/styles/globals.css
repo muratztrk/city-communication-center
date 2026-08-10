@@ -3055,7 +3055,7 @@
     min-height: 4.5rem;
   }
 
-  .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control {
+  .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control:not(.my-request-detail-edit-control--priority) {
     display: block;
     width: 100%;
     min-width: 0;
@@ -3063,7 +3063,8 @@
     margin-left: auto;
   }
 
-  .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--priority {
+  .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control--priority {
+    display: block;
     width: fit-content;
     max-width: 6.5rem;
     margin-left: auto;
@@ -5884,13 +5885,14 @@
       text-align: left;
     }
 
-    .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control {
+    .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control:not(.my-request-detail-edit-control--priority) {
       width: 100%;
       max-width: none;
       margin-left: 0;
     }
 
     .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control--priority {
+      display: block;
       width: fit-content;
       max-width: 6.5rem;
       margin-left: auto;

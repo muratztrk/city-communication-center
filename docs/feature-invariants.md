@@ -1924,9 +1924,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Çağrı non-terminal SMS birim boş satırı (#6a6f19af):** İşleme Alındı/Yapılmakta SMS'inde
   `{GönderilenBirim}` değerinden önce 1 boş satır (`EnsureBlankLineBeforeTargetDepartments`) —
   terminal SMS ile aynı.
-- **Çağrı formu ↔ WA profil (#6a6f1d32):** Convert/UpdateJob formdaki ad+telefonu
-  `CitizenConversation` profiline yazar; `Job.CitizenName` talep bazlı ayrı kalır (aynı
-  numaradan farklı isimle talep açılabilir).
+- **Çağrı formu ↔ WA profil (#6a6f1d32 / #2513):** Phone (çağrı) VT oluşturma/güncelleme
+  `Job.CitizenName` ve adres alanlarını talep bazlı tutar; aynı numarada WhatsApp mesajı olan
+  `CitizenConversation` profiline **yazılmaz** (`CitizenConversationLinkGuard` + Convert/UpdateJob
+  profil sync). WA sağ panelde kaydedilen Vatandaş Bilgileri çağrı talebi veya dizin kaydıyla
+  ezilmez. WA convert formu profili güncelleyebilir (kanal WhatsApp).
 - **Taslak Mesajlar liste ikonu (#6a6f1ab6):** şablon listesinde yeşil=aktif / kırmızı=pasif
   yuvarlak nokta (`tpl.isActive`).
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106/#2108):** `toSend` = Detaylar / Notu Düzenle /
@@ -1969,9 +1971,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **SMS LiveSend (#6a75eea2):** Round 643 sonrası `IsEnabled` ⇒ gerçek gönderim (`EffectiveLiveSendEnabled`); Operatör release SMS fail → ValidationException.
 - **WA etiket revert (#6a75d1bf reopen):** Talep Etiketi readonly textbox geri; başlık min-height 2.5rem.
 - **WA modal etiket menü (#2504):** `RequestTagPicker` menü metni `text-xs` (compactMenuText yok).
-- **Görevlerim detay Öncelik düzenle (#2503 reopen):** `my-request-detail-edit-control--priority`
-  `fit-content` (max 6.5rem); trigger `justify-between` yerine sıkı gap; aşağı açılır; Kritik seçeneği yok;
-  menü trigger genişliğinde, sağ boşluk/check yok.
+- **Görevlerim detay Öncelik düzenle (#2503):** düzenle modunda Öncelik dropdown sağa dayalı
+  (`job-detail-field-row__value .my-request-detail-edit-control--priority` margin-left:auto;
+  genel edit `width:100%` kuralı `:not(--priority)` ile ayrılır). Trigger `fit-content` (max 6.5rem);
+  aşağı açılır; Kritik seçeneği yok; menü trigger genişliğinde.
 - **WA medya Önizle (#6a75cc3f):** gelen görsel/video/ses Önizle butonu yeşil (`variant=success`) + Eye ikonu.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık
   satırının sağına**; **Talep Etiketi** pie'sında filtre butonlarının **bir alt satırında** sağa

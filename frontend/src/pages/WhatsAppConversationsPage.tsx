@@ -800,12 +800,14 @@ function ConversationDetail({
   useEffect(() => {
     profileDirtyRef.current = false
     setProfileDraft(createProfileDraft(null, citizenPhone, citizenName))
-  }, [conversationId, citizenName, citizenPhone])
+    // citizenName/citizenPhone deps omitted — list refresh must not reset WA profile draft (#2513).
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
+  }, [conversationId])
 
   useEffect(() => {
     if (!detail || profileDirtyRef.current) return
-    setProfileDraft(createProfileDraft(detail, citizenPhone, citizenName))
-  }, [detail, citizenName, citizenPhone])
+    setProfileDraft(createProfileDraft(detail))
+  }, [detail])
 
   const updatePinnedToBottom = useCallback(() => {
     const container = scrollContainerRef.current

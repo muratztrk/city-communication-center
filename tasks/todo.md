@@ -1,3 +1,8 @@
+## Round 769 — 4 Doing reopen (#2532 #2536 #2503 #2525)
+- [x] Kutucuk yükseklik ↑, sayı `text-lg`; pie Talep Etiketi `Tag` (yeşil), mahalle/birim grafikleri `ClipboardList`.
+- [x] Görevlerim düzenle Öncelik dropdown +50% (21rem); Son Tarihi Geçmiş rozet küçük, chip sağ üst köşe.
+- Commit `01a928b6`; push main+master; 4 kart Done.
+
 ## Round 768 — 2 Doing (#2525 #2535)
 - [x] Son Tarihi Geçmiş scope chip rozetleri (zil rozeti stili) — Görevlerim, Birimdeki, Taleplerim, Birimden Giden, Birime Gelen.
 - [x] Pie chart başlık ikonları sol menü ile hizalı (`getDashboardChartTitleIcon`).

@@ -1,3 +1,9 @@
+## Round 771 — 6 Doing reopen (#2532 #2503 #2541 #2525 #2537 #2542)
+- [x] Dönem kutucukları yatay gap ↑ (`gap-5`); Talep Etiketi pie ikonu yalnız Staff'ta yeşil.
+- [x] Görevlerim Öncelik menü 504px, yatay scroll kapalı; Birim İçi Yönlendir etiketi `users.department` (Birim).
+- [x] Overdue rozet hafif yukarı; WA 24h dışı bekleyen mesaj düzenleme/gönder engeli + popup.
+- Commit `851b096d`; push main+master; 6 kart Done.
+
 ## Round 770 — 6 Doing (#2537 #2538 #2503 #2541 #2525 #2520)
 - [x] WhatsApp re-engagement: popup on Mesajı Gönder/Düzenle, düzenleme engeli, Onaylayan Yönetici chip.
 - [x] Dashboard Bildirimler kartı standart bildirim listesi (`NotificationPreviewList`).

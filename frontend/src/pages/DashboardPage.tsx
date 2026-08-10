@@ -591,7 +591,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       <button
         key={metric.label}
         type="button"
-        className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-2.5 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
+        className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-3 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
         onClick={() => {
           saveDashboardScroll()
           navigate(withQueryParams(basePath, pieQueryParams(existingParams)))
@@ -606,7 +606,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               <span className="text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
                 {metric.label}
               </span>
-              <span className="ml-2.5 shrink-0 text-xl font-bold leading-none tabular-nums text-slate-900">{metric.value ?? '...'}</span>
+              <span className="ml-2.5 shrink-0 text-lg font-bold leading-none tabular-nums text-slate-900">{metric.value ?? '...'}</span>
             </div>
             {metric.sublabel ? (
               <div className="-mt-0.5 text-[0.72rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
@@ -762,6 +762,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             const periodRange = { from: activeFrom, to: activeTo }
             const chartTitleIcon = getDashboardChartTitleIcon(card.titleKey)
             const ChartTitleIcon = chartTitleIcon
+            const chartTitleIconClass = card.titleKey === 'dashboard.charts.requestTags'
+              ? 'size-3.5 shrink-0 text-emerald-600'
+              : 'size-3.5 shrink-0 text-slate-500'
             return (
             <section key={card.titleKey} className="section-card relative overflow-hidden p-4 sm:p-5">
               <div className="relative z-10 mb-4 flex items-center justify-between gap-3">
@@ -777,12 +780,12 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                     }}
                     className="flex cursor-pointer items-center gap-1.5 border-b border-slate-200 pb-0.5 text-left text-sm font-semibold text-slate-700 transition-colors hover:text-[color:var(--color-primary)]"
                   >
-                    {ChartTitleIcon ? <ChartTitleIcon className="size-3.5 shrink-0 text-slate-500" aria-hidden="true" /> : null}
+                    {ChartTitleIcon ? <ChartTitleIcon className={chartTitleIconClass} aria-hidden="true" /> : null}
                     <span>{t(card.titleKey)}</span>
                   </button>
                 ) : (
                   <h2 className="flex items-center gap-1.5 border-b border-slate-200 pb-0.5 text-sm font-semibold text-slate-700">
-                    {ChartTitleIcon ? <ChartTitleIcon className="size-3.5 shrink-0 text-slate-500" aria-hidden="true" /> : null}
+                    {ChartTitleIcon ? <ChartTitleIcon className={chartTitleIconClass} aria-hidden="true" /> : null}
                     <span>{t(card.titleKey)}</span>
                   </h2>
                 )}

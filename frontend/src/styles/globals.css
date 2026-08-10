@@ -3067,14 +3067,14 @@
   .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control--priority {
     display: block;
     width: fit-content;
-    max-width: 14rem;
+    max-width: 21rem;
     margin-left: auto;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--priority .field-select {
     width: fit-content;
     min-width: 5.25rem;
-    max-width: 14rem;
+    max-width: 21rem;
     min-height: 1.75rem;
     padding: 0.28rem 0.35rem 0.28rem 0.45rem;
     font-size: 0.75rem;
@@ -3192,7 +3192,7 @@
   .my-request-edit-priority-menu .dropdown-menu-item,
   .my-request-edit-neighborhood-menu .dropdown-menu-item {
     min-height: 1.75rem;
-    min-width: 7.5rem;
+    min-width: 11.25rem;
     padding: 0.32rem 0.55rem;
     font-size: 0.72rem;
   }
@@ -3976,17 +3976,18 @@
   .scope-chip-overdue-badge {
     pointer-events: none;
     position: absolute;
-    right: -0.35rem;
-    top: -0.35rem;
+    right: 0;
+    top: 0;
+    transform: translate(40%, -40%);
     display: flex;
-    height: 1.15rem;
-    min-width: 1.15rem;
+    height: 0.95rem;
+    min-width: 0.95rem;
     align-items: center;
     justify-content: center;
     border-radius: 9999px;
     background: #dc2626;
-    padding: 0 0.25rem;
-    font-size: 0.7rem;
+    padding: 0 0.2rem;
+    font-size: 0.58rem;
     font-weight: 800;
     line-height: 1;
     color: #fff;
@@ -3996,8 +3997,8 @@
 
   .scope-chip-overdue-badge--wide {
     width: auto;
-    min-width: 1.15rem;
-    padding: 0 0.2rem;
+    min-width: 0.95rem;
+    padding: 0 0.15rem;
   }
 
   .scope-chip--pending.active {
@@ -5927,7 +5928,7 @@
     .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control--priority {
       display: block;
       width: fit-content;
-      max-width: 10rem;
+      max-width: 15rem;
       margin-left: auto;
     }
 

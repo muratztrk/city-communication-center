@@ -7,10 +7,11 @@ import {
   MessageSquareMore,
   Send,
   SquareKanban,
+  Tag,
   Users,
 } from 'lucide-react'
 
-/** Pie chart başlık ikonları — sol menü ile hizalı (card #2535). */
+/** Pie chart başlık ikonları — sol menü ile hizalı (card #2535 / #2536). */
 export function getDashboardChartTitleIcon(titleKey: string): LucideIcon | null {
   if (titleKey === 'dashboard.charts.myRequests') return ClipboardList
   if (titleKey === 'dashboard.charts.myTasks') return ListChecks
@@ -20,14 +21,13 @@ export function getDashboardChartTitleIcon(titleKey: string): LucideIcon | null 
   if (titleKey === 'dashboard.citizenChannels.title') return Send
   if (titleKey === 'dashboard.charts.departmentTasks') return SquareKanban
   if (titleKey === 'dashboard.charts.citizenRequests') return MessageSquareMore
-  if (titleKey.startsWith('dashboard.charts.externalRequest') || titleKey === 'dashboard.charts.requestTags') {
-    return ClipboardList
-  }
+  if (titleKey === 'dashboard.charts.requestTags') return Tag
+  if (titleKey.startsWith('dashboard.charts.externalRequest')) return ClipboardList
   if (
     titleKey.includes('neighborhood')
     || titleKey.includes('citizenDepartment')
   ) {
-    return MessageSquareMore
+    return ClipboardList
   }
   return null
 }

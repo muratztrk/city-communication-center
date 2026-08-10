@@ -52,7 +52,9 @@ interface ConversationEntryBubbleProps {
   sendingPending?: boolean
   /** Beklemedeki mesaj metnini düzenler (yalnızca operatör) — card #1094. */
   onEditPending?: (entryId: string, content: string) => void | Promise<void>
-  /** 24 saat re-engagement: düzenleme engeli + uyarı popup (card #2537). */
+  /** 24 saat penceresi kapalıysa bekleyen giden mesaj düzenlemesini engelle (card #2537). */
+  conversationOutside24hWindow?: boolean
+  /** 24 saat re-engagement / şablon uyarısı popup (card #2537). */
   onReEngagementBlocked?: () => void
   onShowTerminalNote?: (entry: ConversationEntryBubbleData) => void
   inboundSenderLabel?: string | null
@@ -118,6 +120,7 @@ export function ConversationEntryBubble({
   sendingPending = false,
   onEditPending,
   onReEngagementBlocked,
+  conversationOutside24hWindow = false,
   onShowTerminalNote: _onShowTerminalNote,
   inboundSenderLabel,
   compact = false,
@@ -175,7 +178,7 @@ export function ConversationEntryBubble({
   }, [isEditing, draft])
 
   const beginEdit = () => {
-    if (isReEngagementFailure) {
+    if (isReEngagementFailure || (conversationOutside24hWindow && isPending)) {
       onReEngagementBlocked?.()
       return
     }

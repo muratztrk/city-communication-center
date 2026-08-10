@@ -2409,6 +2409,7 @@ const pageKicker = isMyTasksView
                                       className="my-request-detail-edit-control my-request-detail-edit-control--priority"
                                       triggerClassName="text-xs font-medium"
                                       menuScrollClassName="dropdown-menu-scroll--compact my-request-edit-priority-menu"
+                                      menuWidth={504}
                                       options={[
                                         ...(editJobModal ? [{ value: 'Low', label: t('enum.priority.Low', 'Düşük') }] : []),
                                         { value: 'Normal', label: t('enum.priority.Normal', 'Normal') },
@@ -3687,7 +3688,7 @@ const pageKicker = isMyTasksView
                 </h2>
                 <p className="helper-copy" style={{ fontSize: '0.85rem' }}>{t('tasks.actions.returnUnitHelp', 'Görev sadece aynı birim içinde yönlendirilebilir.')}</p>
                 <div className="job-field">
-                  <span className="job-field-label">{t('tasks.department', 'Birim')}</span>
+                  <span className="job-field-label">{t('users.department', 'Birim')}</span>
                   <div className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-semibold text-slate-700">
                     {departments.find(d => d.departmentId === returnModal.assignedDepartmentId)?.name ?? '—'}
                   </div>

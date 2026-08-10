@@ -675,12 +675,12 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             {dashboardQuery.isLoading
               ? (
                 <>
-                  <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="mx-auto grid max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     {Array.from({ length: 4 }).map((_, i) => (
                       <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                     ))}
                   </div>
-                  <div className="mx-auto mt-3 grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="mx-auto mt-3 grid max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
                     {Array.from({ length: 4 }).map((_, i) => (
                       <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                     ))}
@@ -688,14 +688,14 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                 </>
               )
               : (
-                <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mx-auto grid max-w-6xl gap-5 sm:grid-cols-2 lg:grid-cols-4">
                   {[...managerRow1, ...managerRow2].map(renderCard)}
                 </div>
               )}
           </div>
         ) : (
           <div className="px-5 py-3.5 sm:px-8">
-            <div className="mx-auto grid max-w-3xl gap-3 sm:grid-cols-2">
+            <div className="mx-auto grid max-w-3xl gap-5 sm:grid-cols-2">
               {dashboardQuery.isLoading
                 ? Array.from({ length: 2 }).map((_, i) => (
                     <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
@@ -758,7 +758,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             const periodRange = { from: activeFrom, to: activeTo }
             const chartTitleIcon = getDashboardChartTitleIcon(card.titleKey)
             const ChartTitleIcon = chartTitleIcon
-            const chartTitleIconClass = card.titleKey === 'dashboard.charts.requestTags' && !isManagerOrAdmin
+            const chartTitleIconClass = card.titleKey === 'dashboard.charts.requestTags' && role === 'Staff'
               ? 'size-3.5 shrink-0 text-emerald-600'
               : 'size-3.5 shrink-0 text-slate-500'
             return (

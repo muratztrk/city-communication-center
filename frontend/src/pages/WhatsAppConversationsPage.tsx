@@ -1089,7 +1089,7 @@ function ConversationDetail({
   }
 
   const handleSendPending = (entry: CitizenConversationTimelineEntry) => {
-    if (isReEngagementEntry(entry)) {
+    if (isReEngagementEntry(entry) || (!windowOpen && entry.direction === 'Outbound' && entry.deliveryStatus === 'Pending')) {
       showReEngagementWarningDialog()
       return
     }
@@ -1324,6 +1324,7 @@ function ConversationDetail({
                         sendingPending={sendingPendingId === entry.entryId}
                         onEditPending={(_entryId, content) => handleEditPending(entry, content)}
                         onReEngagementBlocked={showReEngagementWarningDialog}
+                        conversationOutside24hWindow={!windowOpen}
                         onShowTerminalNote={() => handleShowTerminalNote(entry)}
                       />
                     </div>

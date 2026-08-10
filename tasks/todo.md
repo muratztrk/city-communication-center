@@ -1,3 +1,11 @@
+## Round 766 — 4 Doing reopen (#2515 #2503 #2520 #2530)
+- Bitiş tarihi farklı gün → mevcut saat; anasayfa kutucuk hizası; öncelik 12rem; bildirim sıra no.
+- Commit `95773612`; push main+master.
+
+## Round 765 — 6 Doing reopen (#2503 #2515–#2523)
+- Bildirimler tüm anasayfalarda (3 kayıt, sıra no, header link); kutucuk ikon solda + sayı başlık yanında; nav rozet overdue hariç; bitiş tarihi gün değişince saat; görevlerim edit CSS reopen.
+- Commit `7d600960`; push main+master; deploy SSH timeout; 6 kart Done.
+
 ## Round 764 — Pie chart kaldır (#2521)
 - Tüm anasayfalardan Birimdeki Görevler + Talep Önceliği pie chart'ları kaldırıldı (FE filter + BE üretim).
 - Commit `095468a5`; push main+master; deploy SSH timeout; 1 kart Done.

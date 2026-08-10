@@ -580,25 +580,25 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       <button
         key={metric.label}
         type="button"
-        className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-2 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
+        className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-1.5 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
         onClick={() => {
           saveDashboardScroll()
           navigate(withQueryParams(basePath, pieQueryParams(existingParams)))
         }}
       >
-        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-0.5">
+        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3">
           <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
             <Icon className="size-4" />
           </div>
-          <div className="min-w-0">
-            <div className="flex min-h-[2.75rem] flex-wrap items-center gap-x-2 gap-y-0.5">
+          <div className="min-w-0 -mt-0.5">
+            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0">
               <span className="text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
                 {metric.label}
               </span>
-              <span className="shrink-0 text-2xl font-extrabold leading-none tabular-nums text-slate-950">{metric.value ?? '...'}</span>
+              <span className="ml-1 shrink-0 text-xl font-bold leading-none tabular-nums text-slate-900">{metric.value ?? '...'}</span>
             </div>
             {metric.sublabel ? (
-              <div className="text-[0.72rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
+              <div className="-mt-0.5 text-[0.72rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
                 {metric.sublabel}
               </div>
             ) : null}

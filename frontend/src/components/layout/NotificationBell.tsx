@@ -88,6 +88,7 @@ interface NotifItemProps {
   onNavigate?: (url: string, title?: string) => void
   locale: string
   largeDetailButton?: boolean
+  listIndex?: number
 }
 
 // Başlıkta durum kelimesi varsa TÜM başlık o renge boyanır; "(Vatandaş Talebi)" etiketi yeşil (#6a6bad16).
@@ -116,7 +117,7 @@ function NotificationTitle({ title, isUnread }: { title: string; isUnread: boole
   )
 }
 
-function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton = false }: NotifItemProps) {
+function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton = false, listIndex }: NotifItemProps) {
   const { t } = useTranslation()
   // Satıra tıklamak bildirimi okundu yapar; ilgili detay sadece "Detay" butonuyla açılır (card 439/445).
   // Geçmiş (AuditLog) satırlarında da çalışır: MarkNotificationRead audit id'yi okuma imlecini
@@ -141,6 +142,9 @@ function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton 
 
       <div className="min-w-0 flex-1">
         <p className="text-sm leading-snug">
+          {listIndex != null ? (
+            <span className="mr-1.5 text-slate-500">{listIndex + 1}.</span>
+          ) : null}
           <NotificationTitle title={n.title} isUnread={!n.isRead} />
           {n.titleTag ? (
             <span className={`ml-1 inline-flex items-center gap-0.5 text-[0.7rem] leading-none text-emerald-600 ${n.isRead ? 'font-medium' : 'font-semibold'}`}>
@@ -234,9 +238,10 @@ interface NotifListProps {
   onNavigate?: (url: string, title?: string) => void
   locale: string
   largeDetailButton?: boolean
+  indexOffset?: number
 }
 
-function NotifList({ items, onMarkRead, onNavigate, locale, largeDetailButton = false }: NotifListProps) {
+function NotifList({ items, onMarkRead, onNavigate, locale, largeDetailButton = false, indexOffset = 0 }: NotifListProps) {
   const { t } = useTranslation()
   if (items.length === 0) {
     return (
@@ -247,7 +252,7 @@ function NotifList({ items, onMarkRead, onNavigate, locale, largeDetailButton = 
   }
   return (
     <ul className="divide-y divide-slate-100">
-      {items.map(n => (
+      {items.map((n, index) => (
         <NotifItem
           key={n.notificationId}
           item={n}
@@ -255,6 +260,7 @@ function NotifList({ items, onMarkRead, onNavigate, locale, largeDetailButton = 
           onNavigate={onNavigate}
           locale={locale}
           largeDetailButton={largeDetailButton}
+          listIndex={indexOffset + index}
         />
       ))}
     </ul>
@@ -772,7 +778,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
               {notifQuery.isLoading ? (
                 <div className="py-12 text-center text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>
               ) : (
-                <NotifList items={pagedModal} onMarkRead={markRead} onNavigate={handleOpenNotificationDetail} locale={locale} largeDetailButton />
+                <NotifList items={pagedModal} onMarkRead={markRead} onNavigate={handleOpenNotificationDetail} locale={locale} largeDetailButton indexOffset={(modalPage - 1) * modalPageSize} />
               )}
             </div>
             {!notifQuery.isLoading && (

@@ -164,9 +164,11 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
     if (minDatePart && date < minDatePart) return
     if (maxDatePart && date > maxDatePart) return
     const todayKey = todayDateStr()
+    const now = new Date()
+    const currentTime = `${pad(now.getHours())}:${pad(now.getMinutes())}`
     const nextTime = date === todayKey
-      ? (minDateTime && minDateTime.startsWith(date) ? minDateTime.slice(11, 16) : draft.time || '00:00')
-      : '00:00'
+      ? (minDateTime && minDateTime.startsWith(date) ? minDateTime.slice(11, 16) : draft.time || currentTime)
+      : currentTime
     setDraft(d => ({ ...d, date, time: nextTime }))
   }
 

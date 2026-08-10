@@ -44,13 +44,25 @@ export function isSameLocalCalendarDayAsNow(pickerValue: string | null | undefin
   return selectedDay === todayDay
 }
 
-/** Manuel tarih seçiminde en erken şimdi + N saat (card #1819; N=0 → şu an).
- * Farklı takvim günü seçildiğinde N saat kuralı uygulanmaz (#2515). */
-export function earliestDueDatePickerValue(hoursFromNow = 2, pickerValue?: string | null): string {
-  if (pickerValue && pickerValue.length >= 10 && !isSameLocalCalendarDayAsNow(pickerValue)) {
-    return `${pickerValue.slice(0, 10)}T00:00`
+/** Yerel duvar saati `HH:mm` (card #2515 reopen). */
+export function currentLocalTimeHm(): string {
+  const now = new Date()
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`
+}
+
+/** Farklı takvim günü: mevcut saat; aynı gün: now+N saat (#2515). */
+function dueDateMinForPickerDay(pickerValue: string, hoursFromNow = 2): string {
+  if (pickerValue.length >= 10 && !isSameLocalCalendarDayAsNow(pickerValue)) {
+    return `${pickerValue.slice(0, 10)}T${currentLocalTimeHm()}`
   }
   return toDateTimePickerValue(new Date(Date.now() + hoursFromNow * 60 * 60 * 1000).toISOString())
+}
+
+export function earliestDueDatePickerValue(hoursFromNow = 2, pickerValue?: string | null): string {
+  if (pickerValue && pickerValue.length >= 10) {
+    return dueDateMinForPickerDay(pickerValue, hoursFromNow)
+  }
+  return dueDateMinForPickerDay(toLocalDateKey(new Date().toISOString()), hoursFromNow)
 }
 
 export function clampDueDatePickerValue(value: string, hoursFromNow = 2): string {
@@ -80,7 +92,7 @@ export function earliestDueDateRelativeToStart(
   duePickerValue?: string | null,
 ): string {
   if (duePickerValue && duePickerValue.length >= 10 && !isSameLocalCalendarDayAsNow(duePickerValue)) {
-    return `${duePickerValue.slice(0, 10)}T00:00`
+    return `${duePickerValue.slice(0, 10)}T${currentLocalTimeHm()}`
   }
   if (startPickerValue && startPickerValue.length >= 16) {
     const startMs = new Date(startPickerValue).getTime()

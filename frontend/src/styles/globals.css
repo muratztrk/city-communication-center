@@ -3067,14 +3067,14 @@
   .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control--priority {
     display: block;
     width: fit-content;
-    max-width: 10rem;
+    max-width: 12rem;
     margin-left: auto;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--priority .field-select {
     width: fit-content;
     min-width: 5.25rem;
-    max-width: 10rem;
+    max-width: 12rem;
     min-height: 1.75rem;
     padding: 0.28rem 0.35rem 0.28rem 0.45rem;
     font-size: 0.75rem;

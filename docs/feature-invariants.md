@@ -902,8 +902,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birim içi talep oluşturma `Bitiş Tarihi` picker'ı yukarı açılır**; diğer tarih picker'larının
   yönü kart istemeden değiştirilmez (card #1248).
 - **Talep oluşturma/düzenleme Bitiş Tarihi minimumu:** seçilen gün **bugünle aynı takvim günü**
-  ise `now+2s`; farklı gün seçildiğinde yalnız o günün başlangıcı — +2s kuralı günler arası
-  taşınmaz (card #2515).
+  ise `now+2s`; farklı gün seçildiğinde saat **mevcut duvar saati** — +2s kuralı günler arası
+  taşınmaz (card #2515 reopen).
 - **Taleplerim detayında düzenleme modundaki `Talep Başlığı` çok satırlı textarea olarak sarar ve
   aşağı doğru büyür; Talep Bilgileri listesine taşınmaz, sol kartta başlığın görüntülendiği yerde
   açılır. Yatay scroll/input kayması geri getirilmez** (card #1232/#1355).
@@ -1427,7 +1427,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA pending ek dosya adı:** `text-[11px]` / `text-xs` (#6a75b73a).
 - **Vatandaş Talebi Açıklama hint:** `field-hint` (#6a75b7b0). Rutin Dosya/Görsel başlık
   biraz küçük (#6a75be0b).
-- **Anasayfa kutucuk sayıları (#2520):** ikon solda; sayı başlık metninin hemen sağında; alt satırda sublabel.
+- **Anasayfa kutucuk sayıları (#2520):** ikon solda; sayı başlık metninin hemen sağında (hafif
+  sağa, `font-bold`/`text-xl`); başlık+sublabel bir satır yukarı hizalı.
 - **Reporter vatandaş anasayfa (#2519):** pie grid son kutusu `Bildirimler` — son 3 bildirim (sıra no),
   mesaj `line-clamp-1` + `title` tooltip; başlık satırında `Tüm bildirimleri gör`. Tüm anasayfalarda
   pie bölümü sonunda (#2519 reopen).
@@ -1436,7 +1437,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi mesaj ünvan (#2518):** `TenantSetting.InternalMessagesSettingsJson`;
   `showUserTitleInMessages` varsayılan `false`; Ayarlar > reCAPTCHA altında checkbox; FAB liste ve
   sohbet başlığında ünvan yalnız açıkken.
-- **Görevlerim düzenle Öncelik dropdown (#2503 reopen):** `max-width: 10rem`.
+- **Görevlerim düzenle Öncelik dropdown (#2503 reopen):** `max-width: 12rem`.
 - **Görevlerim düzenle başlık textarea (#2522 reopen):** dikey ortalı görünüm (`padding` + `min-height: 2rem`).
 
 ## 5. Dashboard / Wallboard
@@ -2080,6 +2081,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `TasksPage mode=departmentTasks`). Audit-feed actionUrl da `/my-tasks` değil `/department-tasks`
   üretir; FE başlık eşleşmesi eski yanlış URL'leri de department scope'a zorlar. Görevlerim popup'ı
   kullanılmaz — onay/red "Ek süre talebini gör" bu yüzeyde görünür.
+- **Bildirim listesi sıra no (#2530):** Bildirimler modalı ve dropdown'da başlık önünde `1.` sıra
+  numarası; sayfalı modalda `indexOffset` ile devam eder.
 - **Bildirim dropdown okundu aksiyonu:** "Tümünü Okundu yap" butonu küçük bildirim dropdown'unda
   kapatma X'inin solundadır, yeşil metinlidir, çerçeveli buton gibi görünür ve iki satır metin
   (`Tümünü` / `Okundu yap`) arasında okunabilir boşluk kullanır;

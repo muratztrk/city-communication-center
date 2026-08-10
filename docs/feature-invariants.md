@@ -1507,8 +1507,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sırasında `CitizenConversation` upsert eder; liste sorgusu eksik konuşmaları da backfill eder
   (card #1858). WhatsApp Konuşmaları listesi `whatsAppOnly=true` ile yalnız en az bir WhatsApp
   kanal mesajı olan konuşmaları gösterir; çağrı VT numaraları bu listede yoktur (card #1864).
-  Detaylar → konuşma ticket listesi (aynı telefon tüm kanallar — BE `GetCitizenConversationDetail`
-  phone union, card #2543) → salt-okunur
+  Detaylar → konuşma ticket listesi (aynı telefon tüm kanallar — BE konuşma birleşimi +
+  orphan Phone VT telefon eşlemesi, card #2543/#2546) → salt-okunur
   `MyRequestDetailModal`; listede `jobId` olmayan ama `citizenRequestNumber` taşıyan ticket'lar da
   gösterilir. Yazışmaya Git → birim yöneticisi/personel detayındaki aynı
   `WhatsAppConversationModal` (`latestSocialMessageId` veya konuşma detayından) (card #1884);

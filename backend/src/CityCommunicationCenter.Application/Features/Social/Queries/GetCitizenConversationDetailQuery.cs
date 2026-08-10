@@ -141,10 +141,42 @@ public sealed class GetCitizenConversationDetailQueryHandler
             relatedConversationIds = [request.CitizenConversationId];
         }
 
+        var linkedMessageIds = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(m => m.TenantId == tenantId
+                && m.CitizenRequestNumber != null
+                && m.CitizenConversationId != null
+                && relatedConversationIds.Contains(m.CitizenConversationId.Value))
+            .Select(m => m.SocialMessageId)
+            .ToListAsync(cancellationToken);
+
+        // Çağrı (Phone) VT'leri WA konuşmasına bağlanmazsa orphan kalır (#2288) — aynı telefon
+        // eşleşmesiyle popup'ta tüm kanallar görünsün (card #2546).
+        var unlinkedCandidates = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(m => m.TenantId == tenantId
+                && m.CitizenRequestNumber != null
+                && (m.CitizenConversationId == null
+                    || !relatedConversationIds.Contains(m.CitizenConversationId.Value)))
+            .Select(m => new
+            {
+                m.SocialMessageId,
+                m.CitizenHandle,
+                JobPhone = m.Job != null ? m.Job.CitizenPhone : null,
+            })
+            .ToListAsync(cancellationToken);
+
+        var ticketMessageIds = linkedMessageIds
+            .Concat(unlinkedCandidates
+                .Where(m => CitizenConversationPhoneNormalizer.MatchesConversationPhone(m.JobPhone, conversation.CitizenPhone)
+                    || CitizenConversationPhoneNormalizer.MatchesConversationPhone(m.CitizenHandle, conversation.CitizenPhone))
+                .Select(m => m.SocialMessageId))
+            .Distinct()
+            .ToList();
+
         var tickets = await _dbContext.SocialMessages
             .AsNoTracking()
-            .Where(m => m.CitizenConversationId != null
-                && relatedConversationIds.Contains(m.CitizenConversationId.Value))
+            .Where(m => ticketMessageIds.Contains(m.SocialMessageId))
             .OrderBy(m => m.ReceivedAtUtc)
             .Select(m => new CitizenConversationTicketDto(
                 m.SocialMessageId,

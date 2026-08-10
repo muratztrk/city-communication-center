@@ -1,3 +1,7 @@
+## Round 775 — #2546 Çağrı VT popup'ta görünür
+
+- [x] GetCitizenConversationDetail: orphan Phone VT aynı telefon eşlemesi.
+
 ## Round 774 — #2544/#2545/#2503 WA bubble + Görevlerim Öncelik
 
 - [x] Onaylayan Yönetici yalnız Pending/re-engagement; İletildi hizası; Öncelik trigger 7rem, panel 504px kaldırıldı.

@@ -54,4 +54,23 @@ internal static class CitizenConversationPhoneNormalizer
         conversationId = default;
         return false;
     }
+
+    public static bool MatchesConversationPhone(string? phone, string conversationPhone)
+    {
+        var normalized = Normalize(phone);
+        if (normalized is null)
+        {
+            return false;
+        }
+
+        foreach (var variant in Variants(conversationPhone))
+        {
+            if (normalized == variant)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

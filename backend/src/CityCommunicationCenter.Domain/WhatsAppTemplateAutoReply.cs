@@ -1,5 +1,6 @@
 using System.Text.Json;
 using CityCommunicationCenter.Domain.Entities;
+using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Domain;
 
@@ -90,6 +91,18 @@ public static class WhatsAppTemplateAutoReply
 
         return generalMatches.Take(1).ToList();
     }
+
+    /// <summary>Zaman ayarlı şablon otomatik yanıtı — giden iletilmiş mesaj (card #2545).</summary>
+    public static bool IsAutomaticTimedReplyEntry(
+        string direction,
+        string? deliveryStatus,
+        string content,
+        IReadOnlySet<string> timedAutoReplyContents) =>
+        direction == nameof(ConversationEntryDirection.Outbound)
+        && deliveryStatus is nameof(ConversationDeliveryStatus.Sent)
+            or nameof(ConversationDeliveryStatus.Delivered)
+            or nameof(ConversationDeliveryStatus.Read)
+        && timedAutoReplyContents.Contains(content);
 
     private static IReadOnlyList<string> ParseKeywords(string json)
     {

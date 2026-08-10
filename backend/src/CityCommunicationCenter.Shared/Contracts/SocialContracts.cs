@@ -180,7 +180,9 @@ public sealed record SocialConversationEntryDto(
     string? RelatedJobMessageApproverDisplayName = null,
     /// <summary>WhatsApp konum mesajı koordinatları (card #6a6b9fac).</summary>
     double? Latitude = null,
-    double? Longitude = null);
+    double? Longitude = null,
+    /// <summary>Zaman ayarlı şablon otomatik yanıtı (card #2545).</summary>
+    bool IsAutomaticMessage = false);
 
 public sealed record SocialReplyRequest(
     string Content,
@@ -279,7 +281,9 @@ public sealed record CitizenConversationTimelineEntryDto(
     string? RelatedJobMessageApproverDisplayName = null,
     /// <summary>WhatsApp konum mesajı koordinatları (card #6a6b9fac).</summary>
     double? Latitude = null,
-    double? Longitude = null);
+    double? Longitude = null,
+    /// <summary>Zaman ayarlı şablon otomatik yanıtı (card #2545).</summary>
+    bool IsAutomaticMessage = false);
 
 public sealed record CitizenConversationTicketDto(
     Guid SocialMessageId,

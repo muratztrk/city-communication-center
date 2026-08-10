@@ -531,6 +531,7 @@ export interface CitizenConversationTimelineEntry {
   relatedJobMessageApproverDisplayName?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  isAutomaticMessage?: boolean;
 }
 
 export interface CitizenConversationTicket {

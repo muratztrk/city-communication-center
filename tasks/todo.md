@@ -1,3 +1,7 @@
+## Round 777 — #2547/#2545/#2532/#2525 SMS not + WA otomatik + gap + rozet
+
+- [x] SMS citizenOutboundMessage: düzenlenmiş/düzenlenmemiş Talep Durum Notu; WA zamanlı otomatik `Otomatik Mesaj`; gap-8; overdue rozet overlap.
+
 ## Round 776 — #2532/#2525 Dashboard gap + overdue rozet
 
 - [x] Dönem altı metrik kutucukları `gap-7`; Son Tarihi Geçmiş rozet yukarı + scope-chips padding/overflow.

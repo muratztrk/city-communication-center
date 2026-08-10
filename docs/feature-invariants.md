@@ -1040,9 +1040,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
   birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
-  (card #1701; mavi `in-progress` değil). Overdue sayı rozeti `translate(50%, -68%)` ile chip
-  sağ üst köşede; `.scope-chips` `padding-block: 0.55rem` + `overflow-y: visible` — beyaz
-  çerçeve üstten kesilmez (cards #2525 reopen).
+  (card #1701; mavi `in-progress` değil). Overdue sayı rozeti chip üst kenarına
+  `top: -0.14rem` + `translateX(50%)` + `z-index: 2` — beyaz halka üst boşluğu kapatır
+  (cards #2525 reopen).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
   Header: **Personel Dahili No ara…** solda (tüm kullanıcılara görünür — card #1779),
@@ -1474,7 +1474,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yüksekliğinde kalır; daha çok dilimde yalnız sağ lejant dikey scroll olur. Donut ve dashboard grid
   kartı uzun etiket listesi yüzünden aşağı doğru büyümemelidir.
 - **Dashboard dönem altı metrik kutucukları (card #2532 reopen):** `DashboardPage` metrik grid
-  `gap-7` (yatay boşluk `gap-5`'ten geniş); kutucuklar sıkışık görünmemeli.
+  `gap-8` (yatay boşluk; sıkışık görünmemeli).
 - **Talep Etiketi pie chart'ı (card #1591):** yalnız Üst Düzey Yönetici (`Reporter`) ve Vatandaş
   Operatörü (`Operator`) dashboard'larında görünür. Tenant ve seçili tarih aralığındaki talebi
   `SocialMessage.JobId` üzerinden tek kez sayar; etiket kaynağı önce `SocialMessage.Category`, boşsa
@@ -1520,8 +1520,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`MessageSquareText` + `!bg-sky-400`). Mobil grid `table-wrap` ile yatay kayar (#r482).
   İç içe detay popup'ta (`MyRequestDetailModal`) İlgili Görev Detayları → Tamamlama/İptal Notu
   altında yalnız `Reporter` / `SystemAdmin` / `Operator` için `Vatandaşa Giden Mesaj` (`citizenOutboundMessage`
-  — SMS: operatör SMS gönderdikten sonra Talep Durum Notu; WA: mesaj onaylandıktan sonra düzenlenmiş
-  veya iletilen terminal not; card #2539).
+  — SMS: operatör SMS gönderdikten sonra Talep Durum Notu (`ResolveAsync` — düzenlendiyse
+  güncel not, düzenlenmediyse onay ekranındaki not; card #2547); WA: mesaj onaylandıktan sonra
+  düzenlenmiş veya iletilen terminal not; card #2539).
 - **FAB boyutları (#r482):** WhatsApp bildirim balonu mobil `size-12` / `sm:size-14` — Kurum İçi
   Mesajlar FAB ile aynı.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici
@@ -2002,7 +2003,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görevlerim detay Öncelik düzenle (#2503 reopen):** trigger `min-width: 7rem` / `max-width: 14rem`;
   açılır panel trigger genişliğinde (`menuWidth` yok); menü öğeleri `max-width: 14rem`.
 - **WA otomatik zamanlı yanıt (#2545):** şablon auto-reply `Sent` mesajlarında `Onaylayan Yönetici`
-  chip gösterilmez; yalnız `Pending` terminal ve `Failed` re-engagement.
+  chip gösterilmez; yalnız `Pending` terminal ve `Failed` re-engagement. Zaman ayarlı otomatik
+  yanıt balonunun altında `Otomatik Mesaj` etiketi (`isAutomaticMessage` / şablon içerik eşlemesi).
 - **WA balon saat satırı (#2544):** `İletildi` / `Düzenlendi` ve saat `items-center` + `leading-none`.
 - **WA medya Önizle (#6a75cc3f):** gelen görsel/video/ses Önizle butonu yeşil (`variant=success`) + Eye ikonu.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık

@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Domain;
+
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record GetCitizenConversationDetailQuery(Guid CitizenConversationId)
@@ -48,6 +50,12 @@ public sealed class GetCitizenConversationDetailQueryHandler
             .Where(t => t.TenantId == tenantId)
             .Select(t => t.MunicipalityName)
             .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
+
+        var timedAutoReplyContents = await _dbContext.WhatsAppTemplates
+            .AsNoTracking()
+            .Where(t => t.TenantId == tenantId && t.IsActive && t.AutoReply && t.TimedReplyEnabled && t.ReplyDelaySecs > 0)
+            .Select(t => t.Content)
+            .ToHashSetAsync(cancellationToken);
 
         var citizenPhoneLabel = ConversationEntrySenderLabelHelper.FormatCitizenPhone(
             conversation.CitizenPhone,
@@ -119,7 +127,12 @@ public sealed class GetCitizenConversationDetailQueryHandler
                         ? terminalInfo?.MessageApproverDisplayName
                         : null,
                     latitude,
-                    longitude);
+                    longitude,
+                    WhatsAppTemplateAutoReply.IsAutomaticTimedReplyEntry(
+                        e.Direction,
+                        e.DeliveryStatus,
+                        e.Content,
+                        timedAutoReplyContents));
             })
             .ToList();
 

@@ -38,6 +38,7 @@ export interface ConversationEntryBubbleData {
   relatedJobMessageApproverDisplayName?: string | null
   latitude?: number | null
   longitude?: number | null
+  isAutomaticMessage?: boolean
 }
 
 interface ConversationEntryBubbleProps {
@@ -364,6 +365,11 @@ export function ConversationEntryBubble({
           ) : null}
         </div>
       </div>
+      {!isInbound && entry.isAutomaticMessage ? (
+        <span className={`mt-0.5 text-[10px] font-semibold leading-none ${theme === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>
+          {t('whatsapp.automaticMessage', 'Otomatik Mesaj')}
+        </span>
+      ) : null}
       {showPendingActions ? (
         isEditing ? (
           <div className={`mt-1 flex items-center gap-1.5 ${compact ? 'min-h-[1.75rem]' : 'min-h-[2.125rem]'}`}>

@@ -79,9 +79,11 @@ internal static class CitizenMessageApprovalNoteResolver
             return await ResolveAsync(dbContext, tenantId, job, cancellationToken);
         }
 
-        if (channel == SocialChannel.Phone && !string.IsNullOrWhiteSpace(responseContent))
+        // SMS: düzenlenmediyse onay ekranındaki Talep Durum Notu (gönderimdeki terminal not);
+        // düzenlendiyse yukarıdaki ResolveAsync dalı (#2547).
+        if (channel == SocialChannel.Phone)
         {
-            return ExtractTrailingTerminalNote(responseContent);
+            return await ResolveAsync(dbContext, tenantId, job, cancellationToken);
         }
 
         if (channel == SocialChannel.WhatsApp)

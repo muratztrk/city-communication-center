@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Domain;
+
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public sealed record GetSocialConversationQuery(Guid SocialMessageId) : IQuery<IReadOnlyList<SocialConversationEntryDto>>;
@@ -46,6 +48,12 @@ public sealed class GetSocialConversationQueryHandler
             .Where(t => t.TenantId == tenantId)
             .Select(t => t.MunicipalityName)
             .FirstOrDefaultAsync(cancellationToken) ?? "Belediye";
+
+        var timedAutoReplyContents = await _dbContext.WhatsAppTemplates
+            .AsNoTracking()
+            .Where(t => t.TenantId == tenantId && t.IsActive && t.AutoReply && t.TimedReplyEnabled && t.ReplyDelaySecs > 0)
+            .Select(t => t.Content)
+            .ToHashSetAsync(cancellationToken);
 
         var messageIds = message.CitizenConversationId.HasValue
             ? await _dbContext.SocialMessages
@@ -106,7 +114,8 @@ public sealed class GetSocialConversationQueryHandler
                 request.SocialMessageId,
                 null,
                 fallbackLat,
-                fallbackLon)];
+                fallbackLon,
+                false)];
         }
 
         var terminalInfoByMessageId = new Dictionary<Guid, TerminalInfo>();
@@ -158,7 +167,12 @@ public sealed class GetSocialConversationQueryHandler
                 e.SocialMessageId,
                 messageApprover,
                 latitude,
-                longitude);
+                longitude,
+                WhatsAppTemplateAutoReply.IsAutomaticTimedReplyEntry(
+                    e.Direction,
+                    e.DeliveryStatus,
+                    e.Content,
+                    timedAutoReplyContents));
         }).ToList();
     }
 

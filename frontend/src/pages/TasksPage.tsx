@@ -5,6 +5,7 @@ import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
+import { ScopeChipButton } from '../components/ui/ScopeChipButton'
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
@@ -835,6 +836,41 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
     return result
   }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, getTaskColumnValue, isCitizenRequestManager, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchText, showRequestFlowFilters, staffUserIds, tasks])
+
+  const myTasksOverdueCount = useMemo(() => {
+    if (!isMyTasksView) return 0
+    let result = filterMyTasks(tasks, 'overdue')
+    if (showRequestFlowFilters) {
+      result = result.filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
+    }
+    return result.length
+  }, [isMyTasksView, tasks, showRequestFlowFilters, currentRequestFlowFilter])
+
+  const departmentTasksOverdueCount = useMemo(() => {
+    if (!isDepartmentTasksView) return 0
+    let departmentTasks = tasks.filter(task =>
+      task.assignedDepartmentId != null && managedDepartmentIds.has(task.assignedDepartmentId))
+    departmentTasks = filterMyTasks(departmentTasks, 'overdue')
+    if (isCitizenRequestManager) {
+      departmentTasks = departmentTasks.filter(task =>
+        isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType }))
+    } else {
+      departmentTasks = departmentTasks.filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
+    }
+    if (currentTaskTypeFilter === 'routine') {
+      departmentTasks = departmentTasks.filter(task => task.jobSourceType === 'Routine')
+    } else if (currentTaskTypeFilter === 'assigned') {
+      departmentTasks = departmentTasks.filter(task => task.jobSourceType !== 'Routine')
+    }
+    return departmentTasks.length
+  }, [
+    isDepartmentTasksView,
+    tasks,
+    managedDepartmentIds,
+    isCitizenRequestManager,
+    currentRequestFlowFilter,
+    currentTaskTypeFilter,
+  ])
 
   const { sortKey: tasksSortKey, sortDir: tasksSortDir, toggleSort: _toggleTasksSort, sortItems: sortTasks } = useSortable()
   const { filters: taskFilters, setFilter: setTaskFilter, clearFilters: clearTaskFilters, matchesFilters: taskMatchesFilters, hasActiveFilters: hasActiveTaskColumnFilters } = useColumnFilters()
@@ -1892,14 +1928,15 @@ const pageKicker = isMyTasksView
       {isMyTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.myTasks', 'Görevlerim')}>
           {MY_TASK_VIEWS.map(view => (
-            <button
+            <ScopeChipButton
               key={view.value}
               type="button"
               className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentMyTaskView ? ' active' : ''}`}
+              badgeCount={view.value === 'overdue' ? myTasksOverdueCount : 0}
               onClick={() => setMyTaskView(view.value)}
             >
               {t(view.labelKey)}
-            </button>
+            </ScopeChipButton>
           ))}
           {showRequestFlowFilters ? (
             <>
@@ -1921,14 +1958,15 @@ const pageKicker = isMyTasksView
       ) : isDepartmentTasksView ? (
         <nav className="scope-chips" aria-label={t('nav.departmentTasks', 'Birimdeki Görevler')}>
           {DEPARTMENT_STATUS_VIEWS.map(view => (
-            <button
+            <ScopeChipButton
               key={view.value}
               type="button"
               className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentMyTaskView ? ' active' : ''}`}
+              badgeCount={view.value === 'overdue' ? departmentTasksOverdueCount : 0}
               onClick={() => setMyTaskView(view.value)}
             >
               {t(view.labelKey)}
-            </button>
+            </ScopeChipButton>
           ))}
           {showDepartmentTaskFlowFilters ? (
             <>

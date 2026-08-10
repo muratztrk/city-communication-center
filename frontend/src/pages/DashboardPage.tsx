@@ -15,6 +15,7 @@ import { useAuth } from '../context/AuthContext'
 import { isModuleUsable } from '../lib/licenseModules'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
+import { getDashboardChartTitleIcon } from '../utils/dashboardChartIcons'
 
 const DASHBOARD_SCROLL_KEY = 'ccc.dashboard.scrollTop'
 
@@ -759,6 +760,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             const chartKey = card.titleKey as TaskChartKey
             const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined
             const periodRange = { from: activeFrom, to: activeTo }
+            const chartTitleIcon = getDashboardChartTitleIcon(card.titleKey)
+            const ChartTitleIcon = chartTitleIcon
             return (
             <section key={card.titleKey} className="section-card relative overflow-hidden p-4 sm:p-5">
               <div className="relative z-10 mb-4 flex items-center justify-between gap-3">
@@ -772,12 +775,16 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                         ...periodQueryParams(activeFrom, activeTo),
                       }))
                     }}
-                    className="cursor-pointer border-b border-slate-200 pb-0.5 text-left text-sm font-semibold text-slate-700 transition-colors hover:text-[color:var(--color-primary)]"
+                    className="flex cursor-pointer items-center gap-1.5 border-b border-slate-200 pb-0.5 text-left text-sm font-semibold text-slate-700 transition-colors hover:text-[color:var(--color-primary)]"
                   >
-                    {t(card.titleKey)}
+                    {ChartTitleIcon ? <ChartTitleIcon className="size-3.5 shrink-0 text-slate-500" aria-hidden="true" /> : null}
+                    <span>{t(card.titleKey)}</span>
                   </button>
                 ) : (
-                  <h2 className="border-b border-slate-200 pb-0.5 text-sm font-semibold text-slate-700">{t(card.titleKey)}</h2>
+                  <h2 className="flex items-center gap-1.5 border-b border-slate-200 pb-0.5 text-sm font-semibold text-slate-700">
+                    {ChartTitleIcon ? <ChartTitleIcon className="size-3.5 shrink-0 text-slate-500" aria-hidden="true" /> : null}
+                    <span>{t(card.titleKey)}</span>
+                  </h2>
                 )}
                 <div className="flex shrink-0 items-center gap-2">
                   {/* Görev tipi filtre butonları standart kullanıcılarda da görünür (Görevlerim + Birimdeki Görevler) (card 762). */}

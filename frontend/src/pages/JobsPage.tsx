@@ -16,6 +16,7 @@ import { DateCell } from '../components/ui/date-cell'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
+import { ScopeChipButton } from '../components/ui/ScopeChipButton'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { api } from '../api/client'
 import { invalidateJobs, invalidateSocialMessages, invalidateTasks } from '../api/cacheInvalidation'
@@ -1130,6 +1131,28 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     return result
   }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, enrichJobRow, filterFrom, filterTo, getJobColumnValue, hideCitizenRequestsFromMyRequests, isDepartmentOutgoingView, isManagerLike, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters])
 
+  const myRequestsOverdueCount = useMemo(() => {
+    if (!isMyRequestsView) return 0
+    const base = jobs.filter(job => !hideCitizenRequestsFromMyRequests || !isCitizenRequestJob(job))
+    const scoped = showRequestFlowFilters
+      ? base.filter(job => matchesRequestFlow(job.requestType, currentRequestFlowFilter))
+      : base
+    return filterMyRequests(scoped, 'overdue', isReporter, isManagerLike).length
+  }, [
+    isMyRequestsView,
+    jobs,
+    hideCitizenRequestsFromMyRequests,
+    showRequestFlowFilters,
+    currentRequestFlowFilter,
+    isReporter,
+    isManagerLike,
+  ])
+
+  const outgoingOverdueCount = useMemo(() => {
+    if (!isDepartmentOutgoingView) return 0
+    return filterDepartmentOutgoingRequests(jobs, 'overdue').length
+  }, [isDepartmentOutgoingView, jobs])
+
   const { sortKey: jobsSortKey, sortDir: jobsSortDir, toggleSort: _toggleJobsSort, sortItems: sortJobs } = useSortable()
   const { filters: jobFilters, setFilter: setJobFilter, clearFilters: clearJobFilters, matchesFilters: jobMatchesFilters, hasActiveFilters: hasActiveJobColumnFilters } = useColumnFilters()
 
@@ -2037,15 +2060,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               ? 'scope-chip--in-progress'
               : getScopeChipColorClass(view.value)
             return (
-              <button
+              <ScopeChipButton
                 key={view.value}
                 type="button"
                 className={`scope-chip ${chipColorClass}${view.value === currentMyRequestsView ? ' active' : ''}`}
+                badgeCount={view.value === 'overdue' ? myRequestsOverdueCount : 0}
                 disabled={isDisabledExternalPending}
                 onClick={() => setMyRequestsView(view.value)}
               >
                 {t(view.labelKey)}
-              </button>
+              </ScopeChipButton>
             )
           })}
           {showRequestFlowFilters ? (
@@ -2091,14 +2115,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       ) : isDepartmentOutgoingView ? (
         <nav className="scope-chips" aria-label={t('nav.outgoingRequests', 'Birimden Giden Talepler')}>
           {DEPARTMENT_OUTGOING_VIEWS.map(view => (
-            <button
+            <ScopeChipButton
               key={view.value}
               type="button"
               className={`scope-chip ${getScopeChipColorClass(view.value)}${view.value === currentDepartmentOutgoingView ? ' active' : ''}`}
+              badgeCount={view.value === 'overdue' ? outgoingOverdueCount : 0}
               onClick={() => setDepartmentOutgoingView(view.value)}
             >
               {t(view.labelKey)}
-            </button>
+            </ScopeChipButton>
           ))}
           <ClearPieFilterLink hasColumnFilters={hasActiveJobColumnFilters} onClearColumnFilters={clearJobFilters} />
         </nav>

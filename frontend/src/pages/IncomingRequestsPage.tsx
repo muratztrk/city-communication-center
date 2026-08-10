@@ -4,6 +4,7 @@ import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
+import { ScopeChipButton } from '../components/ui/ScopeChipButton'
 
 function getScopeChipColorClass(value: string): string {
   if (value === 'pending-approval') return 'scope-chip--pending'
@@ -792,6 +793,17 @@ export function IncomingRequestsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentKindFilter, currentStatusFilter, isCitizenRequestManager, citizenOnly, channelFilter, rows, filterFrom, filterTo, searchText, getColumnValue])
 
+  const incomingOverdueCount = useMemo(() => {
+    let result = rows.filter(row => matchesStatusFilter(row, 'overdue'))
+    if (isCitizenRequestManager || citizenOnly) {
+      result = result.filter(row => row.isCitizenRequest)
+    }
+    if (channelFilter) {
+      result = result.filter(row => channelsMatch(row.sourceChannel, channelFilter))
+    }
+    return result.length
+  }, [rows, isCitizenRequestManager, citizenOnly, channelFilter])
+
   useEffect(() => { setIncomingPage(1) }, [filterFrom, filterTo, searchText])
 
   const { sortKey: incomingSortKey, sortDir: incomingSortDir, toggleSort: _toggleIncomingSort, sortItems: sortIncoming } = useSortable()
@@ -935,14 +947,15 @@ export function IncomingRequestsPage() {
 
       <nav className="scope-chips" aria-label={t('nav.incomingRequests', 'Birime Gelen Talepler')}>
         {STATUS_FILTERS.map(filter => (
-          <button
+          <ScopeChipButton
             key={filter.value}
             type="button"
             className={`scope-chip ${getScopeChipColorClass(filter.value)}${filter.value === currentStatusFilter ? ' active' : ''}`}
+            badgeCount={filter.value === 'overdue' ? incomingOverdueCount : 0}
             onClick={() => setStatusFilter(filter.value)}
           >
             {t(filter.labelKey, filter.fallback)}
-          </button>
+          </ScopeChipButton>
         ))}
         {KIND_FILTERS.length > 1 ? (
           <>

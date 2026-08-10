@@ -1,3 +1,12 @@
+## Round 770 — 6 Doing (#2537 #2538 #2503 #2541 #2525 #2520)
+- [x] WhatsApp re-engagement: popup on Mesajı Gönder/Düzenle, düzenleme engeli, Onaylayan Yönetici chip.
+- [x] Dashboard Bildirimler kartı standart bildirim listesi (`NotificationPreviewList`).
+- [x] Görevlerim düzenle Öncelik dropdown +50% (31.5rem / menü 16.875rem).
+- [x] Üst düzey pie Talep Etiketi ikonu gri (emerald sadece personel).
+- [x] Son Tarihi Geçmiş chip rozeti biraz büyük, çerçeve dışı sağ üst.
+- [x] Anasayfa dönem kutucukları: sayı sağda, satır ortalı + yan boşluk.
+- Commit `8e1dc26a`; push main+master; 6 kart Done.
+
 ## Round 769 — 4 Doing reopen (#2532 #2536 #2503 #2525)
 - [x] Kutucuk yükseklik ↑, sayı `text-lg`; pie Talep Etiketi `Tag` (yeşil), mahalle/birim grafikleri `ClipboardList`.
 - [x] Görevlerim düzenle Öncelik dropdown +50% (21rem); Son Tarihi Geçmiş rozet küçük, chip sağ üst köşe.

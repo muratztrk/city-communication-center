@@ -53,6 +53,7 @@ import type {
   FileStorageSettingsUpdate,
   SyslogSettingsUpdate,
   SlaWeekendSettingsUpdate,
+  InternalMessagesSettings,
 } from '../types/platform'
 import { SMS_PASSWORD_MASK, SMS_PROVIDER_OPTIONS, SMS_SENDABLE_PROVIDERS } from '../types/platform'
 import type { SmsProviderSelection } from '../types/platform'
@@ -510,6 +511,9 @@ export function SettingsPage() {
   const [syslogForm, setSyslogForm] = useState<SyslogSettingsUpdate>({
     isEnabled: false, host: null, port: 514, format: 'Syslog', transport: 'UDP',
   })
+  const [internalMessagesSettings, setInternalMessagesSettings] = useState<InternalMessagesSettings>({
+    showUserTitleInMessages: false,
+  })
   const [fileStorageForm, setFileStorageForm] = useState<FileStorageSettingsUpdate>({
     nasHost: null,
     nasShareName: null,
@@ -592,8 +596,9 @@ export function SettingsPage() {
       api.getSyslogSettings(user.tenantId),
       api.getSlaWeekendSettings(user.tenantId),
       api.getWhatsAppTemplates(),
+      api.getInternalMessagesSettings(user.tenantId),
     ])
-      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, autoReplyResponse, departmentResponse, workingHoursResponse, smsResponse, fileStorageResponse, syslogResponse, slaWeekendResponse, templatesResponse]) => {
+      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, autoReplyResponse, departmentResponse, workingHoursResponse, smsResponse, fileStorageResponse, syslogResponse, slaWeekendResponse, templatesResponse, internalMessagesResponse]) => {
         if (!isActive) {
           return
         }
@@ -682,6 +687,7 @@ export function SettingsPage() {
           transport: syslogResponse.transport,
         })
         setTemplates(templatesResponse)
+        setInternalMessagesSettings(internalMessagesResponse)
       })
       .catch(loadError => {
         if (isActive) {
@@ -1208,6 +1214,24 @@ export function SettingsPage() {
       invalidateSettings(queryClient)
       setTenantAuthenticationPolicy(await api.getTenantAuthenticationPolicy(user.tenantId))
       setMessage({ type: 'success', text: t('settings.recaptcha.saved') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const saveInternalMessagesSettings = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!user?.tenantId) return
+
+    setMessage(null)
+    try {
+      await api.updateInternalMessagesSettings(user.tenantId, {
+        showUserTitleInMessages: internalMessagesSettings.showUserTitleInMessages,
+      })
+      invalidateSettings(queryClient)
+      queryClient.invalidateQueries({ queryKey: queryKeys.settings.internalMessages(user.tenantId) })
+      setInternalMessagesSettings(await api.getInternalMessagesSettings(user.tenantId))
+      setMessage({ type: 'success', text: t('settings.internalMessages.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
@@ -2500,6 +2524,30 @@ export function SettingsPage() {
             </label>
             <div className="inline-actions">
               <Button type="submit">{t('settings.recaptcha.save')}</Button>
+            </div>
+          </form>
+
+          <form className="section-card page-stack" onSubmit={event => void saveInternalMessagesSettings(event)}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.internalMessages.sectionTitle')}</h2>
+                <p className="helper-copy">{t('settings.internalMessages.sectionDescription')}</p>
+              </div>
+            </div>
+            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+              <input
+                className="field-checkbox"
+                type="checkbox"
+                checked={internalMessagesSettings.showUserTitleInMessages}
+                onChange={event => setInternalMessagesSettings(current => ({
+                  ...current,
+                  showUserTitleInMessages: event.target.checked,
+                }))}
+              />
+              {t('settings.internalMessages.showUserTitle')}
+            </label>
+            <div className="inline-actions">
+              <Button type="submit">{t('settings.internalMessages.save')}</Button>
             </div>
           </form>
           </div>

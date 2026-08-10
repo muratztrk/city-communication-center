@@ -406,7 +406,7 @@
     width: min(14.5rem, 100%);
     max-width: 100%;
     box-sizing: border-box;
-    min-height: 1.65rem;
+    min-height: 2rem;
     max-height: 4rem;
     padding: 0.25rem 0.45rem;
     /* !important şart: kısa-viewport bloğu (max-height:900) 0.75rem'i sonradan
@@ -3066,14 +3066,14 @@
   .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control--priority {
     display: block;
     width: fit-content;
-    max-width: 6.5rem;
+    max-width: 8rem;
     margin-left: auto;
   }
 
   .detail-modal-shell--my-request .my-request-detail-main--editing .my-request-detail-edit-control--priority .field-select {
     width: fit-content;
-    min-width: 4.75rem;
-    max-width: 6.5rem;
+    min-width: 5.25rem;
+    max-width: 8rem;
     min-height: 1.75rem;
     padding: 0.28rem 0.35rem 0.28rem 0.45rem;
     font-size: 0.75rem;
@@ -5894,7 +5894,7 @@
     .detail-modal-shell--my-request .my-request-detail-main--editing .job-detail-field-row__value .my-request-detail-edit-control--priority {
       display: block;
       width: fit-content;
-      max-width: 6.5rem;
+      max-width: 8rem;
       margin-left: auto;
     }
 

@@ -981,6 +981,14 @@ export interface SlaWeekendSettingsUpdate {
   exemptDepartmentIds: string[]
 }
 
+export interface InternalMessagesSettings {
+  showUserTitleInMessages: boolean
+}
+
+export interface InternalMessagesSettingsUpdate {
+  showUserTitleInMessages: boolean
+}
+
 export interface EDevletBasvuruSummary {
   basvuruId: string
   takipNo: string

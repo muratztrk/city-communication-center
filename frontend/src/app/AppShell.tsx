@@ -269,6 +269,16 @@ export function AppShell() {
 
   const pendingSmsDeliveryApprovalCount = pendingSmsDeliveryApprovalQuery.data ?? 0
 
+  const navCountsQuery = useQuery({
+    queryKey: queryKeys.dashboard.snapshot({ departmentId: activeDeptId }),
+    queryFn: () => api.getDashboard(),
+    enabled: Boolean(user?.userId),
+    refetchInterval: 60_000,
+    staleTime: 30_000,
+  })
+
+  const navDashboardCounts = navCountsQuery.data
+
   const isReporterNav = user?.role === 'Reporter'
   const isOperatorNav = user?.role === 'Operator'
   const isCitizenDashboardNav = isReporterNav || isOperatorNav
@@ -309,11 +319,11 @@ export function AppShell() {
     ...(!isCitizenDashboardNav
       ? [{ pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact }]
       : []),
-    { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban },
-    { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight, separatorAfter: true },
+    { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban, badgeCount: navDashboardCounts?.pendingApprovalCount ?? 0 },
+    { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight, separatorAfter: true, badgeCount: navDashboardCounts?.outgoingPendingCount ?? 0 },
     { pageKey: 'citizenMessageApproval' as const, path: '/citizen-message-approval', label: t('nav.citizenMessageApproval', 'Vatandaşa Gönderilecek\nMesaj Onayı'), icon: Send, multilineLabel: true, badgeCount: pendingCitizenMessageApprovalCount },
     { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck, separatorBefore: true },
-    { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks },
+    { pageKey: 'myTasks' as const, path: '/my-tasks?view=pending', label: t('nav.myTasks', 'Görevlerim'), icon: ListChecks, badgeCount: navDashboardCounts?.myPendingTaskCount ?? 0 },
     { pageKey: 'departmentTasks' as const, path: '/department-tasks?flow=all', label: t('nav.departmentTasks', 'Birimdeki Görevler'), icon: SquareKanban },
     { path: '/staff-tasks', label: t('nav.staffTasks', 'Personelimin Görevleri'), icon: Users, requiredRole: 'Manager' },
     { pageKey: 'display' as const, path: '/display', label: t('nav.display'), icon: MonitorUp, newTab: true, separatorBefore: true, separatorAfter: true },

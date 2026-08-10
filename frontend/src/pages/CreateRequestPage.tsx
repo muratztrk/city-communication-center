@@ -1275,7 +1275,7 @@ export function CreateRequestPage() {
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')}</span>
-                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v) }))} placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')} forceUp minDateTime={earliestDueDatePickerValue()} />
+                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v) }))} placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')} forceUp minDateTime={earliestDueDatePickerValue(2, internalForm.dueDateUtc)} />
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</span>
@@ -1386,7 +1386,7 @@ export function CreateRequestPage() {
                     ...current,
                     dueDateUtc: clampDueDateRelativeToStart(v, current.startDateUtc),
                   }))}
-                  minDateTime={earliestDueDateRelativeToStart(externalForm.startDateUtc)}
+                  minDateTime={earliestDueDateRelativeToStart(externalForm.startDateUtc, 2, externalForm.dueDateUtc)}
                 />
               </div>
             </div>

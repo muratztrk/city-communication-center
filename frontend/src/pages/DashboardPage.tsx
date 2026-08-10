@@ -9,6 +9,7 @@ import { getActiveDepartmentId } from '../api/http'
 import { StatusPill } from '../components/ui/status-pill'
 import { PieChart, PieLegendSearch } from '../components/ui/PieChart'
 import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilldownModal'
+import { DashboardNotificationsCard } from '../components/DashboardNotificationsCard'
 import { CitizenChannelMessagesModal } from '../components/CitizenChannelMessagesModal'
 import { useAuth } from '../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../lib/rolePageAccess'
@@ -588,11 +589,17 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         }}
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-3 gap-y-0.5">
-          <div className="col-start-1 row-start-1 min-h-[2.75rem] text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
-            {metric.label}
-            {metric.sublabel ? <span className="block normal-case tracking-normal">{metric.sublabel}</span> : null}
+          <div className="col-start-1 row-start-1 flex min-h-[2.75rem] items-center justify-between gap-2">
+            <span className="min-w-0 text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
+              {metric.label}
+            </span>
+            <span className="shrink-0 text-2xl font-extrabold leading-none tabular-nums text-slate-950">{metric.value ?? '...'}</span>
           </div>
-          <div className="col-start-1 row-start-2 text-2xl font-extrabold leading-none text-slate-950">{metric.value ?? '...'}</div>
+          {metric.sublabel ? (
+            <div className="col-start-1 row-start-2 text-[0.72rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
+              {metric.sublabel}
+            </div>
+          ) : null}
           <div className={`col-start-2 row-span-2 flex size-9 shrink-0 items-center justify-center self-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
             <Icon className="size-4" />
           </div>
@@ -848,6 +855,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               </section>
             )
           })}
+        {isReporter && effectiveView === 'citizen' ? <DashboardNotificationsCard /> : null}
       </section>
 
       {dashboardQuery.isError ? (

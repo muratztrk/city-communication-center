@@ -1260,6 +1260,13 @@
       "save": "Save",
       "saved": "reCAPTCHA setting saved."
     },
+    "internalMessages": {
+      "sectionTitle": "Internal Messages",
+      "sectionDescription": "Control whether staff titles appear in the internal messages list and chat header.",
+      "showUserTitle": "Show staff title in internal messages",
+      "save": "Save",
+      "saved": "Internal messages settings saved."
+    },
     "fileStorage": {
       "sectionTitle": "Server Information for Request and Task Attachments",
       "sectionDescription": "Configure the local network or FTP server used to store request and task attachments.",

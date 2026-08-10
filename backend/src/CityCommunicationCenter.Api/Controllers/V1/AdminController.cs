@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Features.Admin;
+using CityCommunicationCenter.Application.Features.InternalMessages;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
 
@@ -469,6 +470,25 @@ public sealed class AdminController : ApiControllerBase
     {
         await _sender.Send(
             new UpdateSlaWeekendSettingsCommand(tenantId, request.ExcludeWeekends, request.ExemptDepartmentIds),
+            cancellationToken);
+        return NoContent();
+    }
+
+    [HttpGet("tenants/{tenantId:guid}/internal-messages-settings")]
+    public async Task<ActionResult<InternalMessagesSettingsResponse>> GetInternalMessagesSettings(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetInternalMessagesSettingsQuery(), cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPut("tenants/{tenantId:guid}/internal-messages-settings")]
+    public async Task<IActionResult> UpdateInternalMessagesSettings(
+        Guid tenantId,
+        [FromBody] UpdateInternalMessagesSettingsRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new UpdateInternalMessagesSettingsCommand(tenantId, request.ShowUserTitleInMessages),
             cancellationToken);
         return NoContent();
     }

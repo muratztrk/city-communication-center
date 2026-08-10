@@ -36,14 +36,26 @@ export function toLocalDateKey(value: string | null | undefined): string {
   return `${y}-${m}-${d}`
 }
 
-/** Manuel tarih seçiminde en erken şimdi + N saat (card #1819; N=0 → şu an). */
-export function earliestDueDatePickerValue(hoursFromNow = 2): string {
+/** Seçilen picker değeri bugünün yerel takvim gününde mi? */
+export function isSameLocalCalendarDayAsNow(pickerValue: string | null | undefined): boolean {
+  if (!pickerValue || pickerValue.length < 10) return true
+  const selectedDay = pickerValue.slice(0, 10)
+  const todayDay = toLocalDateKey(new Date().toISOString())
+  return selectedDay === todayDay
+}
+
+/** Manuel tarih seçiminde en erken şimdi + N saat (card #1819; N=0 → şu an).
+ * Farklı takvim günü seçildiğinde N saat kuralı uygulanmaz (#2515). */
+export function earliestDueDatePickerValue(hoursFromNow = 2, pickerValue?: string | null): string {
+  if (pickerValue && pickerValue.length >= 10 && !isSameLocalCalendarDayAsNow(pickerValue)) {
+    return `${pickerValue.slice(0, 10)}T00:00`
+  }
   return toDateTimePickerValue(new Date(Date.now() + hoursFromNow * 60 * 60 * 1000).toISOString())
 }
 
 export function clampDueDatePickerValue(value: string, hoursFromNow = 2): string {
   if (!value) return value
-  const min = earliestDueDatePickerValue(hoursFromNow)
+  const min = earliestDueDatePickerValue(hoursFromNow, value)
   return value < min ? min : value
 }
 
@@ -65,14 +77,18 @@ export function clampStartDatePickerValue(value: string): string {
 export function earliestDueDateRelativeToStart(
   startPickerValue: string | null | undefined,
   hoursAfter = 2,
+  duePickerValue?: string | null,
 ): string {
+  if (duePickerValue && duePickerValue.length >= 10 && !isSameLocalCalendarDayAsNow(duePickerValue)) {
+    return `${duePickerValue.slice(0, 10)}T00:00`
+  }
   if (startPickerValue && startPickerValue.length >= 16) {
     const startMs = new Date(startPickerValue).getTime()
     if (!Number.isNaN(startMs)) {
       return toDateTimePickerValue(new Date(startMs + hoursAfter * 60 * 60 * 1000).toISOString())
     }
   }
-  return earliestDueDatePickerValue(hoursAfter)
+  return earliestDueDatePickerValue(hoursAfter, duePickerValue)
 }
 
 export function clampDueDateRelativeToStart(
@@ -81,7 +97,7 @@ export function clampDueDateRelativeToStart(
   hoursAfter = 2,
 ): string {
   if (!value) return value
-  const min = earliestDueDateRelativeToStart(startPickerValue, hoursAfter)
+  const min = earliestDueDateRelativeToStart(startPickerValue, hoursAfter, value)
   return value < min ? min : value
 }
 

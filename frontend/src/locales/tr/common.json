@@ -1267,6 +1267,13 @@
       "save": "Kaydet",
       "saved": "reCAPTCHA ayarı kaydedildi."
     },
+    "internalMessages": {
+      "sectionTitle": "Kurum İçi Mesajlar",
+      "sectionDescription": "Kurum içi mesajlarda personel ünvanının listede ve sohbet başlığında gösterilmesini yönetin.",
+      "showUserTitle": "Kurum içi mesajlarda ünvan göster",
+      "save": "Kaydet",
+      "saved": "Kurum içi mesaj ayarları kaydedildi."
+    },
     "fileStorage": {
       "sectionTitle": "Talep ve Görev Eklerini Barınacak Server Bilgileri",
       "sectionDescription": "Talep ve görev eklerinin saklanacağı yerel ağ veya FTP sunucusu bağlantı bilgilerini tanımlayın.",

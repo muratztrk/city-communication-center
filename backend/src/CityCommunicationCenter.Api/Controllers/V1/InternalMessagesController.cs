@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Features.InternalMessages;
+using CityCommunicationCenter.Shared.Contracts;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
 
@@ -11,6 +12,14 @@ public sealed class InternalMessagesController : ApiControllerBase
     public InternalMessagesController(IMediator sender)
     {
         _sender = sender;
+    }
+
+    [HttpGet("settings")]
+    [ProducesResponseType<InternalMessagesSettingsResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<InternalMessagesSettingsResponse>> GetSettings(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetInternalMessagesSettingsQuery(), cancellationToken);
+        return Ok(response);
     }
 
     [HttpGet("conversations")]

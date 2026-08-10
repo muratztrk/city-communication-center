@@ -320,7 +320,7 @@ export function MyRequestDetailMainCard({
         onChange={value => onEditDraftChange({ dueDateUtc: clampDueDatePickerValue(value) })}
         placeholder={t('jobs.form.dueDate', 'Son Tarih')}
         forceUp
-        minDateTime={earliestDueDatePickerValue()}
+        minDateTime={earliestDueDatePickerValue(2, editDraft.dueDateUtc)}
       />
     </div>
   ) : detailDueDateEdit?.jobId === detail.jobId ? (
@@ -332,7 +332,7 @@ export function MyRequestDetailMainCard({
         className={detailDueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
         forceUp
         autoOpen
-        minDateTime={earliestDueDatePickerValue()}
+        minDateTime={earliestDueDatePickerValue(2, detailDueDateEdit.value ?? detail.dueDateUtc)}
         onClose={detailDueDateEdit.mode === 'picking' ? onCloseDueDateEdit : undefined}
       />
       {detailDueDateEdit.mode === 'confirm' && (

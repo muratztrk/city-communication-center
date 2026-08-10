@@ -444,6 +444,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   filtre tek başına yetmez (#6a6bab12/#6a6c3dca);
   `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`); yeni inbound webhook sıfırlar.
   **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
+  **Görevlerim / Birime Gelen / Birimden Giden** nav satırlarında da aynı `nav-pending-badge`
+  rozeti: Görevlerim = `myPendingTaskCount`, Birime Gelen = `pendingApprovalCount`, Birimden Giden =
+  `outgoingPendingCount` (dashboard snapshot; Sms Onayı stili — card #2516).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonda MapPin + (yer açıklaması varsa açıklama, yoksa **Konum**)
@@ -898,6 +901,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   tutulur**; genel `.field-input` / `.field-select` ölçeği bu istek için değiştirilmez (card #1249).
 - **Birim içi talep oluşturma `Bitiş Tarihi` picker'ı yukarı açılır**; diğer tarih picker'larının
   yönü kart istemeden değiştirilmez (card #1248).
+- **Talep oluşturma/düzenleme Bitiş Tarihi minimumu:** seçilen gün **bugünle aynı takvim günü**
+  ise `now+2s`; farklı gün seçildiğinde yalnız o günün başlangıcı — +2s kuralı günler arası
+  taşınmaz (card #2515).
 - **Taleplerim detayında düzenleme modundaki `Talep Başlığı` çok satırlı textarea olarak sarar ve
   aşağı doğru büyür; Talep Bilgileri listesine taşınmaz, sol kartta başlığın görüntülendiği yerde
   açılır. Yatay scroll/input kayması geri getirilmez** (card #1232/#1355).
@@ -1421,6 +1427,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA pending ek dosya adı:** `text-[11px]` / `text-xs` (#6a75b73a).
 - **Vatandaş Talebi Açıklama hint:** `field-hint` (#6a75b7b0). Rutin Dosya/Görsel başlık
   biraz küçük (#6a75be0b).
+- **Anasayfa kutucuk sayıları (#2520):** metrik kartlarda sayı başlıkla aynı satırda sağda.
+- **Reporter vatandaş anasayfa (#2519):** pie grid son kutusu `Bildirimler` — son 5 bildirim +
+  `Tüm bildirimleri gör` → bildirim modalı (`OPEN_NOTIFICATIONS_MODAL_EVENT`).
+- **Kurum içi mesaj ünvan (#2518):** `TenantSetting.InternalMessagesSettingsJson`;
+  `showUserTitleInMessages` varsayılan `false`; Ayarlar > reCAPTCHA altında checkbox; FAB liste ve
+  sohbet başlığında ünvan yalnız açıkken.
+- **Görevlerim düzenle Öncelik dropdown (#2503 reopen):** `max-width: 8rem` (genişlik artırıldı).
+- **Görevlerim düzenle başlık textarea (#2522):** `min-height: 2rem` (biraz daha yüksek).
 
 ## 5. Dashboard / Wallboard
 

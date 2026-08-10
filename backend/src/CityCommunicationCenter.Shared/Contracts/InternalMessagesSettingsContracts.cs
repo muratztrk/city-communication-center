@@ -1,0 +1,5 @@
+namespace CityCommunicationCenter.Shared.Contracts;
+
+public sealed record InternalMessagesSettingsResponse(bool ShowUserTitleInMessages);
+
+public sealed record UpdateInternalMessagesSettingsRequest(bool ShowUserTitleInMessages);

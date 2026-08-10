@@ -74,6 +74,8 @@ import type {
   SyslogSettingsUpdate,
   SlaWeekendSettings,
   SlaWeekendSettingsUpdate,
+  InternalMessagesSettings,
+  InternalMessagesSettingsUpdate,
   AppNotification,
   CitizenConversationSummary,
   CitizenConversationDetail,
@@ -762,6 +764,23 @@ export const api = {
       body: JSON.stringify(data),
     })
     await ensureOk(response, i18n.t('errors.slaWeekendSettingsSaveFailed'))
+  },
+
+  async getInternalMessagesSettings(tenantId?: string): Promise<InternalMessagesSettings> {
+    const response = tenantId
+      ? await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/internal-messages-settings`, { headers: await getAuthHeaders() })
+      : await fetchWithCredentials(`${API_BASE}/internal-messages/settings`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.internalMessagesSettingsLoadFailed', 'Kurum içi mesaj ayarları alınamadı.'))
+    return response.json() as Promise<InternalMessagesSettings>
+  },
+
+  async updateInternalMessagesSettings(tenantId: string, data: InternalMessagesSettingsUpdate): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/internal-messages-settings`, {
+      method: 'PUT',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.internalMessagesSettingsSaveFailed', 'Kurum içi mesaj ayarları kaydedilemedi.'))
   },
 
   async getTasks(scope?: TaskListScope): Promise<Task[]> {

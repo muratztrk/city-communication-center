@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { CheckCheck, FileText, Paperclip, Search, Send, X } from 'lucide-react'
 import { api } from '../../api/client'
+import { queryKeys } from '../../api/queryKeys'
 import { useAuth } from '../../context/AuthContext'
 import {
   ensureSignalRConnected,
@@ -206,6 +208,14 @@ export function InternalMessagesFab() {
   const { user } = useAuth()
   const currentUserId = user?.userId ?? null
   const pendingSenderLabel = formatStaffSenderLabel(user?.departmentName, user?.displayName)
+
+  const internalMessagesSettingsQuery = useQuery({
+    queryKey: queryKeys.settings.internalMessages(user?.tenantId),
+    queryFn: () => api.getInternalMessagesSettings(),
+    enabled: Boolean(user?.userId),
+    staleTime: 60_000,
+  })
+  const showUserTitleInMessages = internalMessagesSettingsQuery.data?.showUserTitleInMessages ?? false
 
   const [isOpen, setIsOpen] = useState(false)
   const [conversations, setConversations] = useState<InternalConversationSummary[]>([])
@@ -732,7 +742,7 @@ export function InternalMessagesFab() {
                     {/* Tam panel genişliği — sağ etiket üst satırda; truncate yok (#r510). */}
                     <p className="mt-0.5 break-words text-xs leading-snug text-[color:var(--color-muted-foreground)]">
                       {activeChat.departmentName?.trim() || '—'}
-                      {activeChat.title?.trim() ? (
+                      {showUserTitleInMessages && activeChat.title?.trim() ? (
                         <>
                           {' - '}
                           <span className="font-mono text-slate-500">{activeChat.title.trim()}</span>
@@ -1055,7 +1065,7 @@ export function InternalMessagesFab() {
                             <p className="truncate text-xs text-[color:var(--color-muted-foreground)]">
                               {row.departmentName?.trim() || '—'}
                             </p>
-                            {row.title?.trim() ? (
+                            {showUserTitleInMessages && row.title?.trim() ? (
                               <p className="truncate font-mono text-xs text-slate-500">
                                 {row.title.trim()}
                               </p>

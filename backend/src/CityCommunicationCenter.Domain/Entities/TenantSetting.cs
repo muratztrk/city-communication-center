@@ -32,6 +32,8 @@ public sealed class TenantSetting : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public string? SlaWeekendSettingsJson { get; set; }
 
+    public string? InternalMessagesSettingsJson { get; set; }
+
     public string? RolePageAccessJson { get; set; }
 
     public string? CitizenAutoReplyTemplatesJson { get; set; }

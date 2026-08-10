@@ -24,6 +24,8 @@ type NotifFilter = 'all' | 'unread'
 // "mine" — Görevlerim başlığıyla (card #1394).
 export type NotificationDetailTarget = { kind: 'task' | 'job'; id: string; scope?: 'mine' | 'department' }
 
+export const OPEN_NOTIFICATIONS_MODAL_EVENT = 'ccc:open-notifications-modal'
+
 interface NotificationBellProps {
   onOpenDetail?: (target: NotificationDetailTarget) => void
 }
@@ -558,6 +560,12 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
     setModalDateTo('')
     setIsModalOpen(true)
   }
+
+  useEffect(() => {
+    const openFromDashboard = () => openModal()
+    window.addEventListener(OPEN_NOTIFICATIONS_MODAL_EVENT, openFromDashboard)
+    return () => window.removeEventListener(OPEN_NOTIFICATIONS_MODAL_EVENT, openFromDashboard)
+  }, [])
 
   return (
     <>

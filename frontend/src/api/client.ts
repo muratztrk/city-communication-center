@@ -225,13 +225,13 @@ export const api = {
     return response.json() as Promise<DashboardChartResponse>
   },
 
-  async getDashboardStatusCharts(from?: string, to?: string, filters?: { staff: string; department: string; mine: string; requestTagStatus?: string }): Promise<DashboardStatusChartsResponse> {
+  async getDashboardStatusCharts(from?: string, to?: string, filters?: { staff: string; department?: string; mine: string; requestTagStatus?: string }): Promise<DashboardStatusChartsResponse> {
     const params = new URLSearchParams()
     if (from) params.set('from', from)
     if (to) params.set('to', to)
     if (filters) {
       params.set('staffTaskType', filters.staff)
-      params.set('departmentTaskType', filters.department)
+      if (filters.department) params.set('departmentTaskType', filters.department)
       params.set('myTaskType', filters.mine)
       if (filters.requestTagStatus) params.set('requestTagStatus', filters.requestTagStatus)
     }

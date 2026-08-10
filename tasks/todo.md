@@ -1,3 +1,7 @@
+## Round 763 — 7 Doing UI (#2503 reopen #2515–#2522)
+- Nav rozetleri, anasayfa sayı hizası, Reporter bildirim kutusu, bitiş tarihi +2s kuralı, Kİ ünvan ayarı, görevlerim edit CSS.
+- Commit `cbf0553d`; push main+master; deploy SSH timeout; 7 kart Done.
+
 ## Round 760 — Dosya ekle upload progress bar
 - Ortak `AttachmentUploadProgressBar`; 200ms + ilk XHR progress event'te gösterim.
 - AttachmentSection, CreateRequestPage, Görevi Tamamla/İptal modalları.

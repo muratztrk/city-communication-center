@@ -118,11 +118,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
             : null;
         // Sadece personele (yöneticinin kendisi hariç) atanmış görevlerin öncelik dağılımı — birim
         // yöneticisi panosunda gösterilir (card #1516/#1487, "sadece personelin" ile düzeltildi).
-        var requestPriorityChart = BuildTaskPriorityChart(staffTasks, "dashboard.charts.requestPriority");
-        // Yönetici pie sırası: Birimdeki Görevler → Personelimin Görevleri → Çözme Süresi (#r507).
+        // Yönetici pie sırası: Personelimin Görevleri → Çözme Süresi (#r507).
+        // Birimdeki Görevler + Talep Önceliği pie'ları kaldırıldı (card #2521).
         var charts = new List<DashboardChartResponse>
         {
-            BuildTaskChart("dashboard.charts.departmentTasks", FilterTasks(tasks, request.DepartmentTaskType), now),
             staffTasksChart,
         };
         if (staffResolutionTimeChart is not null)
@@ -135,36 +134,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
             BuildJobChart("dashboard.charts.outgoingRequests", outgoingJobs, "dashboard.chart.pending", now, true),
             BuildJobChart("dashboard.charts.incomingRequests", incomingJobs, "dashboard.chart.pendingApproval", now, true),
             BuildJobChart("dashboard.charts.myRequests", myExternalJobs, "dashboard.chart.externalPendingApproval", now, true),
-            requestPriorityChart,
         ]);
 
         return new DashboardStatusChartsResponse(charts);
 
-    }
-
-    /// <summary>
-    /// Tüm tenant genelindeki taleplerin (Job) öncelik dağılımı — Üst Düzey Yönetici panosunda
-    /// tüm birimleri kapsayacak şekilde gösterilir (card #1518). Birim/personel bazlı öncelik
-    /// dağılımı için <see cref="BuildTaskPriorityChart"/>/<see cref="BuildPriorityChartFromCounts"/>
-    /// kullanılır (card #1516/#1487).
-    /// </summary>
-    private async Task<DashboardChartResponse> BuildTenantWideRequestPriorityChartAsync(
-        Guid tenantId,
-        string titleKey,
-        GetDashboardStatusChartsQuery request,
-        CancellationToken cancellationToken)
-    {
-        var counts = await _dbContext.Jobs.AsNoTracking()
-            .Where(job => job.TenantId == tenantId
-                // Birim odaklı öncelik grafiği VT (Vatandaş Talebi) taleplerini dışlar (card #1849).
-                && job.RequestType != JobRequestType.Citizen
-                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
-            .GroupBy(job => job.Priority)
-            .Select(group => new { Priority = group.Key, Count = group.Count() })
-            .ToDictionaryAsync(item => item.Priority, item => item.Count, cancellationToken);
-
-        return BuildPriorityChartFromCounts(counts, titleKey);
     }
 
     private async Task<List<CitizenJobStatusItem>> ProjectCitizenJobs(IQueryable<Job> jobs, CancellationToken cancellationToken)
@@ -276,39 +249,6 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var actor = await _dbContext.Users.AsNoTracking().FirstOrDefaultAsync(
             user => user.TenantId == tenantId && user.UserId == userId && user.IsActive,
             cancellationToken);
-        var departmentIds = actor is null
-            ? []
-            : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
-                _dbContext, tenantId, actor, activeDepartmentId, cancellationToken, includeManagedDepartments: false);
-        // "Birimdeki Görevler" 2 dilimli grafiği görev tipine göre filtrelenir (card 762).
-        var departmentTasksQuery = _dbContext.Tasks.Where(task => task.TenantId == tenantId
-            && task.AssignedDepartmentId.HasValue
-            && departmentIds.Contains(task.AssignedDepartmentId.Value)
-            && (!request.FromUtc.HasValue || task.CreatedAtUtc >= request.FromUtc.Value)
-            && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value));
-        departmentTasksQuery = request.DepartmentTaskType switch
-        {
-            TaskDashboardFilter.Assigned => departmentTasksQuery.Where(task =>
-                _dbContext.Jobs.Any(job => job.TenantId == tenantId
-                    && job.JobId == task.JobId
-                    && job.SourceType != JobSourceType.Routine)),
-            TaskDashboardFilter.Routine => departmentTasksQuery.Where(task =>
-                _dbContext.Jobs.Any(job => job.TenantId == tenantId
-                    && job.JobId == task.JobId
-                    && job.SourceType == JobSourceType.Routine)),
-            _ => departmentTasksQuery,
-        };
-        departmentTasksQuery = departmentTasksQuery.Where(task =>
-            task.CurrentStatus != WorkflowTaskStatus.Cancelled
-            && task.CurrentStatus != WorkflowTaskStatus.Rejected);
-        var ownDepartmentTaskCount = departmentIds.Length == 0
-            ? 0
-            : await departmentTasksQuery.CountAsync(task => task.AssignedUserId == userId, cancellationToken);
-        // Pie dilimleri birbirini dışlamalıdır: "Benim Görevlerim" birim toplamının
-        // içinde tekrar sayılırsa grafik toplamı griddeki kayıt sayısını aşar.
-        var departmentOtherTaskCount = departmentIds.Length == 0
-            ? 0
-            : await departmentTasksQuery.CountAsync(task => task.AssignedUserId != userId, cancellationToken);
         // Taleplerim pie = GET /jobs?scope=mine ile aynı aday küme (JobQueries): Routine yok,
         // VT/Citizen yok; Operator/CRM'de SocialMessage/CitizenRequest/EDevlet yok; Reporter
         // dışındaki roller aktif birim (OwnerDepartmentId) ile sınırlı. Aksi halde pie sayısı
@@ -345,11 +285,6 @@ public sealed class GetDashboardStatusChartsQueryHandler
             // "Görevlerim" grafiği görev tipine göre filtrelenir (card 762).
             BuildTaskChart("dashboard.charts.myTasks", FilterTasks(tasks, request.MyTaskType), now),
             BuildJobChart("dashboard.charts.myRequests", jobs, "dashboard.chart.pending", now, false),
-            new DashboardChartResponse("dashboard.charts.departmentTasks",
-            [
-                new DashboardChartSlice("dashboard.chart.assignedToMe", ownDepartmentTaskCount, "primary"),
-                new DashboardChartSlice("dashboard.chart.departmentTotal", departmentOtherTaskCount, "info"),
-            ]),
         };
 
         if (roleCode is "Reporter" or "Operator")
@@ -384,23 +319,6 @@ public sealed class GetDashboardStatusChartsQueryHandler
         if (roleCode is "Reporter")
         {
             charts.AddRange(await BuildExternalUnitDepartmentChartsAsync(tenantId, request, cancellationToken));
-            // Üst Düzey Yönetici tüm birimlerin talep önceliği dağılımını görür (card #1518).
-            charts.Add(await BuildTenantWideRequestPriorityChartAsync(
-                tenantId, "dashboard.charts.requestPriorityAll", request, cancellationToken));
-        }
-        else
-        {
-            // Standart yetkideki kullanıcıda SADECE KENDİNE atanmış görevlerin öncelik dağılımı —
-            // birim geneli değil (card #1516 3. reopen, "sadece kendine atanmış taleplerdeki
-            // durumlar olmalı" ile düzeltildi; önceki hali yanlışlıkla tüm birimi sayıyordu).
-            var departmentTaskPriorityCounts = departmentIds.Length == 0
-                ? new Dictionary<string, int>()
-                : await departmentTasksQuery
-                    .Where(task => task.AssignedUserId == userId)
-                    .GroupBy(task => task.Priority)
-                    .Select(group => new { Priority = group.Key, Count = group.Count() })
-                    .ToDictionaryAsync(item => item.Priority, item => item.Count, cancellationToken);
-            charts.Add(BuildPriorityChartFromCounts(departmentTaskPriorityCounts, "dashboard.charts.requestPriority"));
         }
 
         return new DashboardStatusChartsResponse(charts);
@@ -988,31 +906,6 @@ public sealed class GetDashboardStatusChartsQueryHandler
                    task.DueDateUtc,
                    job.SourceType,
                    task.Priority);
-    }
-
-    /// <summary>
-    /// Personele atanmış görevlerin öncelik dağılımı (card #1516/#1487 — "sadece personelin talep
-    /// öncelik durumu"). Job değil, her görevin KENDİ Priority'si esas alınır.
-    /// </summary>
-    private static DashboardChartResponse BuildTaskPriorityChart(IEnumerable<TaskStatusItem> tasks, string titleKey) =>
-        BuildPriorityChartFromCounts(
-            tasks.GroupBy(task => task.Priority).ToDictionary(group => group.Key, group => group.Count()),
-            titleKey);
-
-    private static DashboardChartResponse BuildPriorityChartFromCounts(IReadOnlyDictionary<string, int> counts, string titleKey)
-    {
-        int CountFor(string priority) => counts.GetValueOrDefault(priority);
-        // Priority serbest metin bir alan; bazı eski/özel formlarda hâlâ seçilebilen "Low"/"Critical"
-        // değerleri en yakın kovaya toplanır, aksi halde bu kayıtlar hiçbir dilimde görünmez (card #1516).
-        var normalCount = CountFor("Normal") + CountFor("Low");
-        var veryHighCount = CountFor("VeryHigh") + CountFor("Critical");
-
-        return new DashboardChartResponse(titleKey,
-        [
-            new DashboardChartSlice("dashboard.chart.priorityNormal", normalCount, "warning"),
-            new DashboardChartSlice("dashboard.chart.priorityHigh", CountFor("High"), "orange"),
-            new DashboardChartSlice("dashboard.chart.priorityVeryHigh", veryHighCount, "danger"),
-        ]);
     }
 
     private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc, JobSourceType SourceType, string Priority);

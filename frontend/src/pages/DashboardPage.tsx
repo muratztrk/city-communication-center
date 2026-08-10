@@ -12,7 +12,6 @@ import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilld
 import { DashboardNotificationsCard } from '../components/DashboardNotificationsCard'
 import { CitizenChannelMessagesModal } from '../components/CitizenChannelMessagesModal'
 import { useAuth } from '../context/AuthContext'
-import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { isModuleUsable } from '../lib/licenseModules'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
@@ -45,12 +44,18 @@ interface MetricCard {
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom'
 type TaskChartFilter = 'all' | 'assigned' | 'routine'
 type RequestTagChartFilter = 'all' | 'inProgress' | 'completed'
-type TaskChartKey = 'dashboard.charts.staffTasks' | 'dashboard.charts.departmentTasks' | 'dashboard.charts.myTasks'
+type TaskChartKey = 'dashboard.charts.staffTasks' | 'dashboard.charts.myTasks'
 
 const TASK_CHART_KEYS = new Set<TaskChartKey>([
   'dashboard.charts.staffTasks',
-  'dashboard.charts.departmentTasks',
   'dashboard.charts.myTasks',
+])
+
+/** Pie chart bölümünden kaldırılan grafikler (card #2521). */
+const REMOVED_PIE_CHART_KEYS = new Set([
+  'dashboard.charts.departmentTasks',
+  'dashboard.charts.requestPriority',
+  'dashboard.charts.requestPriorityAll',
 ])
 
 /** Banner Ara... ile aynı kutu; personel pie'ları hariç listedeki pie'larda (R549/R550). */
@@ -133,14 +138,11 @@ const REPORTER_DEPARTMENT_CHART_KEYS = new Set([
   'dashboard.charts.externalRequestPending',
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestFulfillers',
-  'dashboard.charts.requestPriorityAll',
 ])
 
 const OPERATOR_DEPARTMENT_CHART_KEYS = new Set([
   'dashboard.charts.myTasks',
   'dashboard.charts.myRequests',
-  'dashboard.charts.departmentTasks',
-  'dashboard.charts.requestPriority',
 ])
 
 export type DashboardView = 'full' | 'citizen' | 'departments'
@@ -310,7 +312,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const [customTo, setCustomTo] = useState('')
   const [taskChartFilters, setTaskChartFilters] = useState<Record<TaskChartKey, TaskChartFilter>>({
     'dashboard.charts.staffTasks': 'all',
-    'dashboard.charts.departmentTasks': 'all',
     'dashboard.charts.myTasks': 'all',
   })
   const [requestTagChartFilter, setRequestTagChartFilter] = useState<RequestTagChartFilter>('all')
@@ -397,20 +398,17 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   })
 
   const isManagerOrAdmin = role === 'Manager' || role === 'SystemAdmin'
-  const canAccessDepartmentTasks = canAnyRoleAccessPage(getEffectiveUserRoles(currentUser), 'departmentTasks')
   const statusChartsQuery = useQuery({
     queryKey: queryKeys.dashboard.statusCharts({
       from: activeFrom,
       to: activeTo,
       departmentId: activeDeptId,
       staffTaskType: taskChartFilters['dashboard.charts.staffTasks'],
-      departmentTaskType: taskChartFilters['dashboard.charts.departmentTasks'],
       myTaskType: taskChartFilters['dashboard.charts.myTasks'],
       requestTagStatus: requestTagChartFilter,
     }),
     queryFn: () => api.getDashboardStatusCharts(apiFrom, apiTo, {
       staff: taskChartFilters['dashboard.charts.staffTasks'],
-      department: taskChartFilters['dashboard.charts.departmentTasks'],
       mine: taskChartFilters['dashboard.charts.myTasks'],
       requestTagStatus: requestTagChartFilter,
     }),
@@ -538,6 +536,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     ...(statusChartsQuery.data?.charts ?? []),
     ...(canSeeCitizenChannels && citizenChannelQuery.data ? [citizenChannelQuery.data] : []),
   ].filter(card => {
+    if (REMOVED_PIE_CHART_KEYS.has(card.titleKey)) {
+      return false
+    }
     if (!isInternalModuleUsable && (
       card.titleKey === 'dashboard.charts.myRequests'
       || card.titleKey === 'dashboard.charts.outgoingRequests'
@@ -553,10 +554,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       return false
     }
     // Unified (non-split) dashboard: Reporter still hides task charts.
-    return !isReporter || (
-      card.titleKey !== 'dashboard.charts.myTasks'
-      && card.titleKey !== 'dashboard.charts.departmentTasks'
-    )
+    return !isReporter || card.titleKey !== 'dashboard.charts.myTasks'
   })
 
   // Anasayfa - Vatandaş grafik sırası kart isteğiyle sabitlendi (#6a6e0287): Talep Kanalları
@@ -740,13 +738,12 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               || card.titleKey === 'dashboard.charts.requestTags'
               // Operatör: kanal dilimi popup değil → Vatandaş Talepleri grid (#6a6eeb56).
               || (isCitizenDashboardDrilldownRole && role !== 'Operator' && card.titleKey === 'dashboard.citizenChannels.title')
-            const isDepartmentTitleReadOnly = !canAccessDepartmentTasks && card.titleKey === 'dashboard.charts.departmentTasks'
             // Üst Düzey Yönetici'de Taleplerim hariç tüm grafik dilimleri detay popup'ı açar (card #1343/#1860).
             // Operatör kanal pie → navigate /social?channel= (#6a6eeb56); diğer roller drilldown popup.
             const isDrilldownChart = isCitizenDashboardDrilldownRole
               && DRILLDOWN_CHART_KEYS.has(card.titleKey)
               && !(role === 'Operator' && card.titleKey === 'dashboard.citizenChannels.title')
-            const chartRoute = isDepartmentTitleReadOnly || isExternalDrilldownOnlyChart ? undefined : CHART_ROUTES[card.titleKey]
+            const chartRoute = isExternalDrilldownOnlyChart ? undefined : CHART_ROUTES[card.titleKey]
             const chartKey = card.titleKey as TaskChartKey
             const taskFilter = TASK_CHART_KEYS.has(chartKey) ? taskChartFilters[chartKey] : undefined
             const periodRange = { from: activeFrom, to: activeTo }

@@ -1006,8 +1006,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dahil edilmez; talep bekleyen dilimi Draft/PendingOnay/Revision (yönetici dış onay dilimi
   yalnız PendingOwner/PendingExternal). **EF çeviri:** bu kurallar LINQ içinde satır içi
   ifade olarak yazılmalı; `CountAsync` içinde statik yardımcı metot çağrısı kullanılmaz (#2350 reopen 500).
-- **Yönetici pie chart sırası (#r507):** `Birimdeki Görevler` → `Personelimin Görevleri` →
-  `Personelimin Görevi Çözme Süresi (Saat)` (sonra Görevlerim / giden-gelen / öncelik).
+- **Yönetici pie chart sırası (#r507):** `Personelimin Görevleri` → `Personelimin Görevi Çözme Süresi (Saat)`
+  (sonra Görevlerim / giden-gelen). `Birimdeki Görevler` ve `Talep Önceliği` pie'ları kaldırıldı (#2521).
 - **Görev Bilgileri üst metası ve alan sırası:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri
   detayında bağlı talebin `Öncelik` etiketi/değeri `job-detail-card-title--spread` ile Görev Bilgileri
   başlığının sağ border'ına yaslanır; renk `getPriorityColorClass` ile grid Talep No altı Öncelik
@@ -1523,7 +1523,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
   Vatandaş Talep Kanalları). Harita alanı yok (#6a6cdf95). Birimler sayfasında Reporter: Taleplerim +
-  dış birim pie'ları + Talep Önceliği; Operator: Görevlerim/Taleplerim/Birimdeki Görevler/Talep Önceliği.
+  dış birim pie'ları. Operator: Görevlerim/Taleplerim. `Birimdeki Görevler` ve `Talep Önceliği`
+  pie'ları tüm anasayfalardan kaldırıldı (#2521).
 - **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
 - **Harita kaldırma (#6a6cdf95 / #6a6cf0d1):** Anasayfa haritası, Embed bileşenleri,

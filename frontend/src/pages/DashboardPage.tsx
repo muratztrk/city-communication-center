@@ -675,27 +675,34 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             {dashboardQuery.isLoading
               ? (
                 <>
-                  <div className="mx-auto grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="mx-auto grid max-w-6xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
                     {Array.from({ length: 4 }).map((_, i) => (
                       <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                     ))}
                   </div>
-                  <div className="mx-auto mt-3 grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
+                  <div className="mx-auto mt-2 flex max-w-6xl flex-wrap justify-center gap-x-12">
+                    {Array.from({ length: 2 }).map((_, i) => (
+                      <div key={i} className="h-[72px] w-full max-w-[calc(25%-0.75rem)] min-w-[14rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:w-[calc(50%-1.5rem)] lg:w-[calc(25%-2.25rem)]" />
                     ))}
                   </div>
                 </>
               )
               : (
-                <div className="mx-auto grid max-w-6xl gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                  {[...managerRow1, ...managerRow2].map(renderCard)}
-                </div>
+                <>
+                  <div className="mx-auto grid max-w-6xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
+                    {managerRow1.map(renderCard)}
+                  </div>
+                  {managerRow2.length > 0 ? (
+                    <div className="mx-auto mt-2 flex max-w-6xl flex-wrap justify-center gap-x-12 [&>button]:w-full [&>button]:sm:max-w-[calc((100%-3rem)/2)] [&>button]:lg:max-w-[calc((100%-9rem)/4)]">
+                      {managerRow2.map(renderCard)}
+                    </div>
+                  ) : null}
+                </>
               )}
           </div>
         ) : (
           <div className="px-5 py-3.5 sm:px-8">
-            <div className="mx-auto grid max-w-3xl gap-8 sm:grid-cols-2">
+            <div className="mx-auto grid max-w-3xl gap-x-12 gap-y-2 sm:grid-cols-2">
               {dashboardQuery.isLoading
                 ? Array.from({ length: 2 }).map((_, i) => (
                     <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />

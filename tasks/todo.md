@@ -1,3 +1,7 @@
+## Round 778 — #2532/#2545/#2525 reopen (gap satır orta + mavi Otomatik Mesaj + rozet)
+
+- [x] Metrik `gap-x-12 gap-y-2`, 2. satır ortalı; Otomatik Mesaj mavi chip; overdue turuncu halka.
+
 ## Round 777 — #2547/#2545/#2532/#2525 SMS not + WA otomatik + gap + rozet
 
 - [x] SMS citizenOutboundMessage: düzenlenmiş/düzenlenmemiş Talep Durum Notu; WA zamanlı otomatik `Otomatik Mesaj`; gap-8; overdue rozet overlap.

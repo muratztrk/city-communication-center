@@ -366,7 +366,11 @@ export function ConversationEntryBubble({
         </div>
       </div>
       {!isInbound && entry.isAutomaticMessage ? (
-        <span className={`mt-0.5 text-[10px] font-semibold leading-none ${theme === 'light' ? 'text-slate-500' : 'text-slate-400'}`}>
+        <span
+          className={`mt-1 inline-flex rounded-md px-2 py-0.5 text-[10px] font-semibold leading-none text-white shadow-sm ${
+            theme === 'light' ? 'bg-[color:var(--color-primary)]' : 'bg-sky-600'
+          }`}
+        >
           {t('whatsapp.automaticMessage', 'Otomatik Mesaj')}
         </span>
       ) : null}

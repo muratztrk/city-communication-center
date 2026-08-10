@@ -1323,7 +1323,7 @@
     /* Filtre butonları (çipler) için biraz daha dikey nefes payı: 15.6" / yüksek zoom'da banner ile
        gridview arasında sıkışıp üst üste binmiş görünmesinler (card 610/637). */
     .app-content-shell .desktop-page-shell > .scope-chips {
-      padding-block: 0.45rem;
+      padding-block: 0.6rem;
       position: relative;
     }
 
@@ -3994,9 +3994,9 @@
     pointer-events: none;
     position: absolute;
     right: 0;
-    top: -0.14rem;
-    z-index: 2;
-    transform: translateX(50%);
+    top: 0;
+    z-index: 3;
+    transform: translate(50%, -58%);
     display: flex;
     height: 1.05rem;
     min-width: 1.05rem;
@@ -4010,7 +4010,15 @@
     line-height: 1;
     color: #fff;
     font-variant-numeric: tabular-nums;
-    box-shadow: 0 1px 4px rgb(0 0 0 / 0.18), 0 0 0 2px #fff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.22);
+  }
+
+  .scope-chip--overdue .scope-chip-overdue-badge {
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.22), 0 0 0 2px #f97316;
+  }
+
+  .scope-chip--overdue.active .scope-chip-overdue-badge {
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.22), 0 0 0 2px #ea580c;
   }
 
   .scope-chip-overdue-badge--wide {

@@ -3887,9 +3887,10 @@
     gap: 0.375rem;
     align-items: center;
     overflow-x: auto;
+    overflow-y: visible;
     scrollbar-width: none;
-    /* overflow-x:auto dikeyde de kırpıyor; aktif çiplerin gölgesi üst/alttan kesilmesin (card 534). */
-    padding-block: 0.3rem;
+    /* overflow-x:auto dikeyde de kırpıyor; aktif çiplerin gölgesi + overdue rozeti üstten kesilmesin. */
+    padding-block: 0.55rem;
   }
 
   .scope-chips::-webkit-scrollbar {
@@ -3994,7 +3995,7 @@
     position: absolute;
     right: 0;
     top: 0;
-    transform: translate(50%, -58%);
+    transform: translate(50%, -68%);
     display: flex;
     height: 1.05rem;
     min-width: 1.05rem;

@@ -1,3 +1,7 @@
+## Round 776 — #2532/#2525 Dashboard gap + overdue rozet
+
+- [x] Dönem altı metrik kutucukları `gap-7`; Son Tarihi Geçmiş rozet yukarı + scope-chips padding/overflow.
+
 ## Round 775 — #2546 Çağrı VT popup'ta görünür
 
 - [x] GetCitizenConversationDetail: orphan Phone VT aynı telefon eşlemesi.

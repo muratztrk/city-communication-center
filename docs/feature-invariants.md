@@ -1040,7 +1040,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
   birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
-  (card #1701; mavi `in-progress` değil).
+  (card #1701; mavi `in-progress` değil). Overdue sayı rozeti `translate(50%, -68%)` ile chip
+  sağ üst köşede; `.scope-chips` `padding-block: 0.55rem` + `overflow-y: visible` — beyaz
+  çerçeve üstten kesilmez (cards #2525 reopen).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
   Header: **Personel Dahili No ara…** solda (tüm kullanıcılara görünür — card #1779),
@@ -1471,6 +1473,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dashboard pie lejant yüksekliği (card #1597):** ortak `PieChart` lejantı en fazla 5 satır
   yüksekliğinde kalır; daha çok dilimde yalnız sağ lejant dikey scroll olur. Donut ve dashboard grid
   kartı uzun etiket listesi yüzünden aşağı doğru büyümemelidir.
+- **Dashboard dönem altı metrik kutucukları (card #2532 reopen):** `DashboardPage` metrik grid
+  `gap-7` (yatay boşluk `gap-5`'ten geniş); kutucuklar sıkışık görünmemeli.
 - **Talep Etiketi pie chart'ı (card #1591):** yalnız Üst Düzey Yönetici (`Reporter`) ve Vatandaş
   Operatörü (`Operator`) dashboard'larında görünür. Tenant ve seçili tarih aralığındaki talebi
   `SocialMessage.JobId` üzerinden tek kez sayar; etiket kaynağı önce `SocialMessage.Category`, boşsa

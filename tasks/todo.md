@@ -1,3 +1,12 @@
+## Round 767 — 10 Doing (#2527 #2517 #2533–#2534 #2503 reopen #2528 #2526 #2532–#2531 #2529)
+- [x] WhatsApp 24h şablon uyarısında Düzenle/Mesajı Gönder butonları (`ConversationEntryBubble` re-engagement failure).
+- [x] Birim İçi **Son Tarih**; tarih placeholder **Tarih ve saat seçiniz**; talep başlığı title case on blur.
+- [x] Görevlerim düzenle Öncelik dropdown 14rem / Çok Yüksek okunur.
+- [x] Vatandaş Bilgi Listesi detay: **Vatandaşa Giden Mesaj** (Reporter/SystemAdmin, BE `citizenOutboundMessage`).
+- [x] Yönetici pie: **Personelimin Son Tarihi Geçmiş Görevleri** + `view=overdue` drilldown.
+- [x] Anasayfa kutucuk yükseklik/sayı hizası; Vatandaş Talepleri **Onay Bekleyen**; Bildirimler başlık altı çizgi.
+- Commit `ab77a8a8`; push main+master; 10 kart Done.
+
 ## Round 766 — 4 Doing reopen (#2515 #2503 #2520 #2530)
 - Bitiş tarihi farklı gün → mevcut saat; anasayfa kutucuk hizası; öncelik 12rem; bildirim sıra no.
 - Commit `d042b993`; push main+master.

@@ -1,3 +1,7 @@
+## Round 772 — #2539 Vatandaşa Giden Mesaj (Vatandaş Bilgi Listesi detay)
+
+- [x] BE `GetJobById`: `citizenOutboundMessage` Reporter/SystemAdmin/Operator; SMS `RespondedAtUtc>=release`; WA release sonrası; düzenlenmiş/iletilen not ayrımı.
+
 ## Round 771 — 6 Doing reopen (#2532 #2503 #2541 #2525 #2537 #2542)
 - [x] Dönem kutucukları yatay gap ↑ (`gap-5`); Talep Etiketi pie ikonu yalnız Staff'ta yeşil.
 - [x] Görevlerim Öncelik menü 504px, yatay scroll kapalı; Birim İçi Yönlendir etiketi `users.department` (Birim).

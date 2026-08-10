@@ -589,7 +589,9 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             .FirstOrDefaultAsync(cancellationToken);
 
         string? citizenOutboundMessage = null;
-        if (context.RoleCode is nameof(RoleCode.Reporter) or nameof(RoleCode.SystemAdmin))
+        if (context.RoleCode is nameof(RoleCode.Reporter)
+            or nameof(RoleCode.SystemAdmin)
+            or nameof(RoleCode.Operator))
         {
             var eligible = await CitizenMessageApprovalAccess.FindEligibleTerminalJobAsync(
                 _dbContext, tenantId, job.JobId, track: false, cancellationToken);
@@ -601,18 +603,38 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                         && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
                         && (m.JobId == job.JobId
                             || (job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)))
-                    .Select(m => new { m.Channel })
-                    .FirstOrDefaultAsync(cancellationToken);
-                var note = await CitizenMessageApprovalNoteResolver.ResolveAsync(
-                    _dbContext, tenantId, eligible, cancellationToken);
-                if (!string.IsNullOrWhiteSpace(note))
-                {
-                    var smsSent = linkedMessage?.Channel == SocialChannel.Phone
-                        && eligible.CitizenTerminalMessageReleasedAtUtc.HasValue;
-                    var nonSms = linkedMessage?.Channel != SocialChannel.Phone;
-                    if (smsSent || nonSms)
+                    .Select(m => new
                     {
-                        citizenOutboundMessage = note;
+                        m.Channel,
+                        m.SocialMessageId,
+                        m.RespondedAtUtc,
+                        m.ResponseContent,
+                    })
+                    .FirstOrDefaultAsync(cancellationToken);
+
+                if (linkedMessage is not null)
+                {
+                    var smsSent = linkedMessage.Channel == SocialChannel.Phone
+                        && eligible.CitizenTerminalMessageReleasedAtUtc.HasValue
+                        && linkedMessage.RespondedAtUtc.HasValue
+                        && linkedMessage.RespondedAtUtc >= eligible.CitizenTerminalMessageReleasedAtUtc;
+                    var waReleased = linkedMessage.Channel == SocialChannel.WhatsApp
+                        && eligible.CitizenTerminalMessageReleasedAtUtc.HasValue;
+
+                    if (smsSent || waReleased)
+                    {
+                        var note = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+                            _dbContext,
+                            tenantId,
+                            eligible,
+                            linkedMessage.Channel,
+                            linkedMessage.SocialMessageId,
+                            linkedMessage.ResponseContent,
+                            cancellationToken);
+                        if (!string.IsNullOrWhiteSpace(note))
+                        {
+                            citizenOutboundMessage = note;
+                        }
                     }
                 }
             }

@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Domain.Enums;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.CitizenMessageApprovals;
@@ -51,5 +52,71 @@ internal static class CitizenMessageApprovalNoteResolver
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Vatandaş Bilgi Listesi detay popup'ında "Vatandaşa Giden Mesaj" alanı — onay ekranında
+    /// düzenlenmiş not veya iletilen terminal not (SMS <c>ResponseContent</c> / WA konuşma kaydı).
+    /// </summary>
+    public static async Task<string?> ResolveOutboundDisplayNoteAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Job job,
+        SocialChannel channel,
+        Guid socialMessageId,
+        string? responseContent,
+        CancellationToken cancellationToken)
+    {
+        var noteEdited = await dbContext.AuditLogs.AsNoTracking().AnyAsync(
+            audit => audit.TenantId == tenantId
+                && audit.EntityId == job.JobId.ToString()
+                && (audit.Action == "CitizenMessageApprovalCompletionNoteEdited"
+                    || audit.Action == "CitizenMessageApprovalCancelNoteEdited"),
+            cancellationToken);
+
+        if (noteEdited)
+        {
+            return await ResolveAsync(dbContext, tenantId, job, cancellationToken);
+        }
+
+        if (channel == SocialChannel.Phone && !string.IsNullOrWhiteSpace(responseContent))
+        {
+            return ExtractTrailingTerminalNote(responseContent);
+        }
+
+        if (channel == SocialChannel.WhatsApp)
+        {
+            var outboundContents = await dbContext.ConversationEntries.AsNoTracking()
+                .Where(entry => entry.SocialMessageId == socialMessageId
+                    && entry.Direction == ConversationEntryDirection.Outbound
+                    && entry.DeliveryStatus != ConversationDeliveryStatus.Failed)
+                .OrderByDescending(entry => entry.SentAt)
+                .Select(entry => entry.Content)
+                .ToListAsync(cancellationToken);
+
+            foreach (var content in outboundContents)
+            {
+                var transmitted = ExtractTrailingTerminalNote(content);
+                if (!string.IsNullOrWhiteSpace(transmitted))
+                {
+                    return transmitted;
+                }
+            }
+        }
+
+        return await ResolveAsync(dbContext, tenantId, job, cancellationToken);
+    }
+
+    private static string? ExtractTrailingTerminalNote(string content)
+    {
+        var trimmed = content.TrimEnd();
+        var separatorIndex = trimmed.LastIndexOf("\n\n", StringComparison.Ordinal);
+        if (separatorIndex < 0)
+        {
+            return null;
+        }
+
+        var tail = trimmed[(separatorIndex + 2)..].Trim();
+        return string.IsNullOrWhiteSpace(tail) ? null : tail;
     }
 }

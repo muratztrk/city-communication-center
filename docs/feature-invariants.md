@@ -1513,6 +1513,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `WhatsAppConversationModal` (`latestSocialMessageId` veya konuşma detayından) (card #1884);
   `Phone`/Çağrı satırında `DisabledActionButton` ile pasif (card #1868), açık mavi stil
   (`MessageSquareText` + `!bg-sky-400`). Mobil grid `table-wrap` ile yatay kayar (#r482).
+  İç içe detay popup'ta (`MyRequestDetailModal`) İlgili Görev Detayları → Tamamlama/İptal Notu
+  altında yalnız `Reporter` / `SystemAdmin` / `Operator` için `Vatandaşa Giden Mesaj` (`citizenOutboundMessage`
+  — SMS: operatör SMS gönderdikten sonra Talep Durum Notu; WA: mesaj onaylandıktan sonra düzenlenmiş
+  veya iletilen terminal not; card #2539).
 - **FAB boyutları (#r482):** WhatsApp bildirim balonu mobil `size-12` / `sm:size-14` — Kurum İçi
   Mesajlar FAB ile aynı.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici

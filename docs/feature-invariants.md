@@ -1499,15 +1499,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Vatandaş Bilgi Listesi` → Anasayfa - Birimler (ayırıcı Birimler’den sonra). Sistem Admin’de
   eski konum (Vatandaş Talepleri grubundan sonra) korunur.
 - **Vatandaş Bilgi Listesi (card #1836, kolon/buton düzeni #1843/#1858):** `/citizen-directory` yalnız
-  `Reporter` / `Operator` / `SystemAdmin`; grid `GET /citizen-conversations`. `Numara` sütunundan
-  sonra ayrı `Talep Kanalı` sütunu gelir (`ChannelIcon` + `getSocialChannelLabel`); isim hücresinde
-  artık kanal ikonu YOK. Telefon hücresi diğer kolonlarla aynı font (`font-semibold text-slate-800`,
+  `Reporter` / `Operator` / `SystemAdmin`; grid `GET /citizen-conversations`. Ana gridde `Talep Kanalı`
+  sütunu yok (#2543); kanal yalnız detay popup talep listesinde `Talep Tarihi` sonrası (#2540).
+  Telefon hücresi diğer kolonlarla aynı font (`font-semibold text-slate-800`,
   `font-mono`/`text-base` yok — card #1863) + `formatDirectoryPhone` (baştaki `90`/`0`
   gösterilmez — card #1843 reopen). Operatör/çağrı ile oluşturulan VT'ler `ConvertSocialMessageToJob`
   sırasında `CitizenConversation` upsert eder; liste sorgusu eksik konuşmaları da backfill eder
   (card #1858). WhatsApp Konuşmaları listesi `whatsAppOnly=true` ile yalnız en az bir WhatsApp
   kanal mesajı olan konuşmaları gösterir; çağrı VT numaraları bu listede yoktur (card #1864).
-  Detaylar → konuşma ticket listesi → salt-okunur
+  Detaylar → konuşma ticket listesi (aynı telefon tüm kanallar — BE `GetCitizenConversationDetail`
+  phone union, card #2543) → salt-okunur
   `MyRequestDetailModal`; listede `jobId` olmayan ama `citizenRequestNumber` taşıyan ticket'lar da
   gösterilir. Yazışmaya Git → birim yöneticisi/personel detayındaki aynı
   `WhatsAppConversationModal` (`latestSocialMessageId` veya konuşma detayından) (card #1884);

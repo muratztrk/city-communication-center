@@ -9,7 +9,6 @@ import { DateCell } from '../components/ui/date-cell'
 import { Button } from '../components/ui/button'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { EmptyCell } from '../components/ui/EmptyCell'
-import { DueDatePill } from '../components/ui/due-date-pill'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
 import { StatusPill } from '../components/ui/status-pill'
@@ -30,10 +29,9 @@ import { printJobDetail } from './JobsPage'
 
 type DirectoryRow = CitizenConversationSummary & {
   displayName: string
-  sourceChannelLabel: string
 }
 
-const SEARCH_KEYS = ['displayName', 'citizenPhone', 'sourceChannelLabel', 'neighborhood', 'street', 'openAddress'] as const
+const SEARCH_KEYS = ['displayName', 'citizenPhone', 'neighborhood', 'street', 'openAddress'] as const
 
 function formatVt(ticket: CitizenConversationTicket): string {
   if (ticket.citizenRequestNumber != null && ticket.citizenRequestNumberYear != null) {
@@ -190,9 +188,8 @@ export function CitizenDirectoryPage() {
     () => rows.map(row => ({
       ...row,
       displayName: row.citizenName?.trim() || row.citizenPhone || '—',
-      sourceChannelLabel: row.sourceChannel ? getSocialChannelLabel(t, row.sourceChannel) : '',
     })),
-    [rows, t],
+    [rows],
   )
 
   const scopedRows = useMemo(() => {
@@ -373,17 +370,6 @@ export function CitizenDirectoryPage() {
                   {t('citizenDirectory.columns.phone', 'Numara')}
                 </FilterableTh>
                 <FilterableTh
-                  filterKey="sourceChannelLabel"
-                  filterValue={filters.sourceChannelLabel ?? ''}
-                  onFilter={setFilter}
-                  sortKey="sourceChannelLabel"
-                  currentSortKey={sortKey}
-                  sortDir={sortDir}
-                  onSort={toggleSort}
-                >
-                  {t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}
-                </FilterableTh>
-                <FilterableTh
                   filterKey="neighborhood"
                   filterValue={filters.neighborhood ?? ''}
                   onFilter={setFilter}
@@ -421,9 +407,9 @@ export function CitizenDirectoryPage() {
             </thead>
             <tbody>
               {loading ? (
-                <TableEmptyStateRows columnCount={8} message={t('common.loading')} />
+                <TableEmptyStateRows columnCount={7} message={t('common.loading')} />
               ) : pageRows.length === 0 ? (
-                <TableEmptyStateRows columnCount={8} message={t('citizenDirectory.empty', 'Kayıtlı vatandaş bulunamadı.')} />
+                <TableEmptyStateRows columnCount={7} message={t('citizenDirectory.empty', 'Kayıtlı vatandaş bulunamadı.')} />
               ) : pageRows.map((row, index) => (
                 <tr key={row.citizenConversationId}>
                   <td className="text-center text-xs font-bold tabular-nums text-slate-400">
@@ -434,14 +420,6 @@ export function CitizenDirectoryPage() {
                   </td>
                   <td className="text-sm font-semibold text-slate-500 tabular-nums">
                     <EmptyCell value={formatDirectoryPhone(row.citizenPhone)} />
-                  </td>
-                  <td className="text-center">
-                    {row.sourceChannel ? (
-                      <span className="inline-flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap">
-                        <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" />
-                        <span className="text-sm font-semibold text-slate-800">{getSocialChannelLabel(t, row.sourceChannel)}</span>
-                      </span>
-                    ) : <EmptyCell />}
                   </td>
                   <td><EmptyCell value={row.neighborhood} /></td>
                   <td><EmptyCell value={row.street} /></td>
@@ -566,10 +544,10 @@ export function CitizenDirectoryPage() {
                           <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>
                           <th>{t('social.citizenRequestNo', 'Vatandaş Talep No')}</th>
                           <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
+                          <th>{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
                           <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
                           <th>{t('users.department', 'Birim')}</th>
                           <th>{t('jobs.columns.status', 'Durum')}</th>
-                          <th>{t('jobs.columns.dueDate', 'Son Tarih')}</th>
                           <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                         </tr>
                       </thead>
@@ -587,8 +565,7 @@ export function CitizenDirectoryPage() {
                               {(ticketSafePage - 1) * ticketPageSize + index + 1}
                             </td>
                             <td className="table-number-cell font-mono text-xs text-slate-500">
-                              <div className="table-number-cell__value inline-flex items-center gap-1.5">
-                                {ticket.channel ? <ChannelIcon channel={ticket.channel} className="size-3.5 shrink-0" /> : null}
+                              <div className="table-number-cell__value">
                                 <span>{formatVt(ticket)}</span>
                               </div>
                               {shouldShowGridPrioritySubline(ticket.priority) ? (
@@ -599,6 +576,14 @@ export function CitizenDirectoryPage() {
                             </td>
                             <td>
                               <DateCell value={ticket.receivedAtUtc} locale={locale} />
+                            </td>
+                            <td className="text-center">
+                              {ticket.channel ? (
+                                <span className="inline-flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap">
+                                  <ChannelIcon channel={ticket.channel} className="size-3.5 shrink-0" />
+                                  <span className="text-sm font-semibold text-slate-800">{getSocialChannelLabel(t, ticket.channel)}</span>
+                                </span>
+                              ) : <EmptyCell />}
                             </td>
                             <td className="font-semibold text-slate-800"><EmptyCell value={ticket.title} /></td>
                             <td className="max-w-[12rem]">
@@ -614,9 +599,6 @@ export function CitizenDirectoryPage() {
                                   <GridStatusLabel t={t} label={statusLabel} />
                                 </StatusPill>
                               ) : <EmptyCell />}
-                            </td>
-                            <td>
-                              <DueDatePill value={ticket.dueDateUtc ?? null} locale={locale} />
                             </td>
                             <td className="actions-cell">
                               <div className="request-actions justify-center">

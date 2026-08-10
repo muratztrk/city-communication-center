@@ -125,9 +125,23 @@ public sealed class GetCitizenConversationDetailQueryHandler
             .Select(e => (DateTimeOffset?)e.SentAt)
             .LastOrDefault();
 
+        var phoneVariants = CitizenConversationPhoneNormalizer.Variants(conversation.CitizenPhone).ToList();
+        var relatedConversationIds = phoneVariants.Count == 0
+            ? [request.CitizenConversationId]
+            : await _dbContext.CitizenConversations
+                .AsNoTracking()
+                .Where(c => c.TenantId == tenantId && phoneVariants.Contains(c.CitizenPhone))
+                .Select(c => c.CitizenConversationId)
+                .ToListAsync(cancellationToken);
+        if (relatedConversationIds.Count == 0)
+        {
+            relatedConversationIds = [request.CitizenConversationId];
+        }
+
         var tickets = await _dbContext.SocialMessages
             .AsNoTracking()
-            .Where(m => m.CitizenConversationId == request.CitizenConversationId)
+            .Where(m => m.CitizenConversationId != null
+                && relatedConversationIds.Contains(m.CitizenConversationId.Value))
             .OrderBy(m => m.ReceivedAtUtc)
             .Select(m => new CitizenConversationTicketDto(
                 m.SocialMessageId,

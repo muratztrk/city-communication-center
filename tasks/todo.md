@@ -1,3 +1,7 @@
+## Round 773 — #2540/#2543 Vatandaş Bilgi Listesi kolon düzeni
+
+- [x] Ana grid: Talep Kanalı kaldırıldı; detay popup: Son Tarih kaldır, Talep Kanalı eklendi; BE tüm kanal talepleri.
+
 ## Round 772 — #2539 Vatandaşa Giden Mesaj (Vatandaş Bilgi Listesi detay)
 
 - [x] BE `GetJobById`: `citizenOutboundMessage` Reporter/SystemAdmin/Operator; SMS `RespondedAtUtc>=release`; WA release sonrası; düzenlenmiş/iletilen not ayrımı.

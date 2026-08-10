@@ -14,6 +14,7 @@ import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { ExtensionSearchBar } from '../components/layout/ExtensionSearchBar'
 import { GlobalSearchBar } from '../components/layout/GlobalSearchBar'
 import { NotificationBell, type NotificationDetailTarget } from '../components/layout/NotificationBell'
+import { OPEN_NOTIFICATION_DETAIL_EVENT, parseNotificationDetailTarget } from '../utils/notificationShared'
 import { TasksPage } from '../pages/TasksPage'
 import { JobsPage } from '../pages/JobsPage'
 import { PageLoadingFallback } from '../components/layout/PageLoadingFallback'
@@ -163,6 +164,21 @@ export function AppShell() {
     window.addEventListener('activeDepartmentChanged', handler)
     return () => window.removeEventListener('activeDepartmentChanged', handler)
   }, [user?.userId])
+
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const detail = (event as CustomEvent<{ url: string; title?: string }>).detail
+      if (!detail?.url) return
+      const target = parseNotificationDetailTarget(detail.url)
+      if (target.kind === 'unsupported' || !target.id) return
+      const scope = target.kind === 'task' && /^Ek süre talebi$/i.test(detail.title?.trim() ?? '')
+        ? 'department'
+        : target.scope
+      setNotificationDetailTarget({ kind: target.kind, id: target.id, scope })
+    }
+    window.addEventListener(OPEN_NOTIFICATION_DETAIL_EVENT, handler)
+    return () => window.removeEventListener(OPEN_NOTIFICATION_DETAIL_EVENT, handler)
+  }, [])
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {

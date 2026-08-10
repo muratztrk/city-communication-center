@@ -1,5 +1,5 @@
 import { Bell, CheckCheck, Search, X } from 'lucide-react'
-import { useState, useCallback, useEffect, useRef, Fragment, type ReactNode } from 'react'
+import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -16,7 +16,13 @@ import { TablePagination } from '../ui/table-pagination'
 import { DateTimePicker } from '../ui/date-time-picker'
 import { RichTextContent } from '../ui/RichTextContent'
 import { GridExtraTimeMarkers } from '../ui/extra-time-markers'
-import { ChannelIcon } from '../ui/channel-icon'
+import { NotificationPreviewList } from '../notifications/NotificationPreviewList'
+import {
+  OPEN_NOTIFICATIONS_MODAL_EVENT,
+  formatNotifDate,
+  localizeNotificationText,
+  parseNotificationDetailTarget,
+} from '../../utils/notificationShared'
 
 type NotifFilter = 'all' | 'unread'
 // scope: bildirim başkasına atanmış bir görevle ilgiliyse (ör. yöneticinin, personelinin ek süre
@@ -24,247 +30,13 @@ type NotifFilter = 'all' | 'unread'
 // "mine" — Görevlerim başlığıyla (card #1394).
 export type NotificationDetailTarget = { kind: 'task' | 'job'; id: string; scope?: 'mine' | 'department' }
 
-export const OPEN_NOTIFICATIONS_MODAL_EVENT = 'ccc:open-notifications-modal'
-
 interface NotificationBellProps {
   onOpenDetail?: (target: NotificationDetailTarget) => void
-}
-function localizeNotificationText(value: string): string {
-  return value
-    .replace(/routine[\s\u00a0]+task[\s\u00a0]+created/giu, 'Rutin görev oluşturuldu')
-    .replace(/created[\s\u00a0]+(?:a[\s\u00a0]+)?task/giu, 'Görev oluşturuldu')
-    .replace(/task[\s\u00a0]+(?:was[\s\u00a0]+)?created/giu, 'Görev oluşturuldu')
-    .replace(/task assigned/gi, 'Görev atandı')
-    .replace(/job created/gi, 'Talep oluşturuldu')
-    .replace(/job updated/gi, 'Talep güncellendi')
-    .replace(/Title updated:/gi, 'Başlık güncellendi:')
-    // Teknik/İngilizce ifadeleri temizle (card 308).
-    .replace(/\s*—?\s*Created after job owner approval\.?\s*AssignedUser=[0-9a-f-]+/gi, '')
-    .replace(/\s*—?\s*Created from job owner user selection\.?\s*AssignedUser=[0-9a-f-]+/gi, '')
-    .replace(/\s*—?\s*Created task\b[^—]*/gi, '')
-    .replace(/\s*—?\s*Created a task\b[^—]*/gi, '')
-    .replace(/\s*—?\s*Task (?:was )?created\b[^—]*/gi, '')
-    .replace(/\s*—?\s*Targets=\d+,?\s*OwnerUsers=\d+/gi, '')
-    .replace(/\s*—?\s*Status=[^—]*/gi, '')
-    .replace(/Assigned to user\s+[0-9a-f-]+/gi, 'Bir personele atandı')
-    .replace(/Assigned to:/gi, 'Atanan:')
-    .replace(/Unassigned \(pool\)/gi, 'Havuza eklendi')
-    .replace(/\s+—\s*$/, '')
-    .trim()
-}
-
-function formatNotifDate(value: string | null | undefined, locale: string) {
-  if (!value) return ''
-  return new Date(value).toLocaleString(locale, {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  })
-}
-
-function parseNotificationDetailTarget(url: string): { kind: 'task' | 'job' | 'unsupported'; id?: string; scope?: 'mine' | 'department' } {
-  try {
-    const parsed = new URL(url, window.location.origin)
-    const taskId = parsed.searchParams.get('taskId')
-    const jobId = parsed.searchParams.get('jobId')
-    // actionUrl'in path'i bildirimin kimin görev listesini hedeflediğini zaten taşıyor
-    // (ör. yöneticiye giden "ek süre talebi" bildirimi /department-tasks?taskId=... kullanır) —
-    // önceden bu bilgi atılıp her zaman "Görevlerim" açılıyordu (card #1394).
-    const scope: 'mine' | 'department' = /^\/department-tasks(\/|$)/.test(parsed.pathname) ? 'department' : 'mine'
-    if (taskId) return { kind: 'task', id: taskId, scope }
-    if (jobId) return { kind: 'job', id: jobId }
-  } catch {
-    const taskMatch = url.match(/[?&]taskId=([^&]+)/)
-    const jobMatch = url.match(/[?&]jobId=([^&]+)/)
-    const scope: 'mine' | 'department' = /^\/department-tasks(\/|\?|$)/.test(url) ? 'department' : 'mine'
-    if (taskMatch) return { kind: 'task', id: decodeURIComponent(taskMatch[1]), scope }
-    if (jobMatch) return { kind: 'job', id: decodeURIComponent(jobMatch[1]) }
-  }
-  return { kind: 'unsupported' }
-}
-
-interface NotifItemProps {
-  item: AppNotification
-  onMarkRead: (id: string) => void
-  onNavigate?: (url: string, title?: string) => void
-  locale: string
-  largeDetailButton?: boolean
-  listIndex?: number
-}
-
-// Başlıkta durum kelimesi varsa TÜM başlık o renge boyanır; "(Vatandaş Talebi)" etiketi yeşil (#6a6bad16).
-function notificationTitleTone(title: string): string | null {
-  if (/(reddedildi|iptal edildi|İptal Edildi)/i.test(title)) return 'text-red-600'
-  if (/(onaylandı|tamamlandı)/i.test(title)) return 'text-emerald-600'
-  return null
-}
-
-function NotificationTitle({ title, isUnread }: { title: string; isUnread: boolean }) {
-  // Okununca tüm bold vurgular normale döner (#6a6ca25f); okunmamışta aksiyon kelimeleri bold.
-  const mainWeight = isUnread ? 'font-bold text-slate-900' : 'font-medium text-slate-700'
-  const tone = notificationTitleTone(title)
-  const match = title.match(/^(.+?)\s(\([^)]+\))$/)
-  const mainText = match ? match[1] : title
-  const suffix = match ? match[2] : null
-  return (
-    <>
-      {tone ? (
-        <span className={`${isUnread ? 'font-bold' : 'font-medium'} ${tone}`}>{mainText}</span>
-      ) : (
-        <NotificationTitleStatusText value={mainText} isUnread={isUnread} plainClassName={mainWeight} />
-      )}
-      {suffix ? <span className="font-normal text-slate-600"> {suffix}</span> : null}
-    </>
-  )
-}
-
-function NotifItem({ item: n, onMarkRead, onNavigate, locale, largeDetailButton = false, listIndex }: NotifItemProps) {
-  const { t } = useTranslation()
-  // Satıra tıklamak bildirimi okundu yapar; ilgili detay sadece "Detay" butonuyla açılır (card 439/445).
-  // Geçmiş (AuditLog) satırlarında da çalışır: MarkNotificationRead audit id'yi okuma imlecini
-  // o olayın zamanına ilerleterek işler (o olay + daha eskiler okundu olur) (card 640).
-  const canMarkRead = !n.isRead
-  const handleRowClick = () => {
-    if (canMarkRead) onMarkRead(n.notificationId)
-  }
-  const handleOpenDetail = () => {
-    if (canMarkRead) onMarkRead(n.notificationId)
-    if (n.actionUrl && onNavigate) onNavigate(n.actionUrl, n.title)
-  }
-
-  return (
-    <li
-      className="group relative flex cursor-pointer gap-3 bg-white px-4 py-3 transition-colors duration-150 hover:bg-slate-50"
-      onClick={handleRowClick}
-    >
-      {/* Unread accent bar */}
-      <div className={`mt-1 w-1 shrink-0 self-stretch rounded-full transition-colors
-        ${!n.isRead ? 'bg-slate-300 group-hover:bg-slate-400' : 'bg-emerald-500'}`} />
-
-      <div className="min-w-0 flex-1">
-        <p className="text-sm leading-snug">
-          {listIndex != null ? (
-            <span className="mr-1.5 text-slate-500">{listIndex + 1}.</span>
-          ) : null}
-          <NotificationTitle title={n.title} isUnread={!n.isRead} />
-          {n.titleTag ? (
-            <span className={`ml-1 inline-flex items-center gap-0.5 text-[0.7rem] leading-none text-emerald-600 ${n.isRead ? 'font-medium' : 'font-semibold'}`}>
-              (
-              {n.titleTagChannel ? <ChannelIcon channel={n.titleTagChannel} className="size-2.5 shrink-0" /> : null}
-              {n.titleTag})
-            </span>
-          ) : null}
-        </p>
-        {n.message && (
-          <p className="mt-0.5 text-xs font-normal text-slate-500 line-clamp-2">
-            {n.message.split(' — ').map((part, index) => (
-              <Fragment key={`${index}-${part.slice(0, 20)}`}>
-                {index > 0 ? <span className="text-emerald-600"> — </span> : null}
-                {part}
-              </Fragment>
-            ))}
-          </p>
-        )}
-        <div className="mt-1 flex items-center justify-between gap-3">
-          <p className="text-[0.68rem] text-slate-400">
-            {formatNotifDate(n.sentAtUtc, locale)}
-          </p>
-          {n.actionUrl && onNavigate && (
-            <button
-              type="button"
-              onClick={e => { e.stopPropagation(); handleOpenDetail() }}
-              className={`ml-auto rounded-md bg-emerald-500 font-bold text-white shadow-sm transition-colors hover:bg-emerald-600 ${
-                largeDetailButton ? 'px-4 py-2 text-sm' : 'px-2 py-1 text-[0.7rem]'
-              }`}
-            >
-              {t('common.detail', 'Detay')}
-            </button>
-          )}
-        </div>
-      </div>
-    </li>
-  )
-}
-
-function NotificationEntityLabelText({
-  value,
-  plainClassName,
-  isUnread,
-}: {
-  value: string
-  plainClassName: string
-  isUnread: boolean
-}) {
-  const entityWeight = isUnread ? 'font-bold text-slate-900' : plainClassName
-  return value.split(/(Görev|Talep)/g).map((segment, index) => {
-    if (!segment) return null
-    if (segment === 'Görev' || segment === 'Talep') {
-      return <span key={index} className={entityWeight}>{segment}</span>
-    }
-    return <span key={index} className={plainClassName}>{segment}</span>
-  })
-}
-
-function NotificationTitleStatusText({
-  value,
-  plainClassName,
-  isUnread,
-}: {
-  value: string
-  plainClassName: string
-  isUnread: boolean
-}) {
-  const emphasis = isUnread ? 'font-bold' : 'font-medium'
-  return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi|güncellendi|oluşturuldu|atandı|yönlendirildi|Yönetici notu atandı|Ek süre talebi)/gi).map((part, index) => {
-    if (!part) return null
-    if (/^onaylandı$/i.test(part)) return <span key={index} className={`${emphasis} text-emerald-600`}>{part}</span>
-    if (/^tamamlandı$/i.test(part)) return <span key={index} className={`${emphasis} text-emerald-600`}>{part}</span>
-    if (/^reddedildi$/i.test(part)) return <span key={index} className={`${emphasis} text-red-600`}>{part}</span>
-    if (/^İptal Edildi$/i.test(part)) return <span key={index} className={`${emphasis} text-red-600`}>{part}</span>
-    if (/^(güncellendi|oluşturuldu|atandı|yönlendirildi|Yönetici notu atandı|Ek süre talebi)$/i.test(part)) {
-      return <span key={index} className={emphasis}>{part}</span>
-    }
-    return <NotificationEntityLabelText key={index} value={part} plainClassName={plainClassName} isUnread={isUnread} />
-  })
 }
 
 function hasExtraTimeMarker(source: Pick<TaskDetail, 'hasPendingExtraTimeRequest' | 'lastExtraTimeRequestDecision'> | Pick<TaskDetail, 'hasPendingExtraTimeRequest' | 'lastExtraTimeRequestDecision'>[]): boolean {
   const items = Array.isArray(source) ? source : [source]
   return items.some(item => item.hasPendingExtraTimeRequest || item.lastExtraTimeRequestDecision)
-}
-
-interface NotifListProps {
-  items: AppNotification[]
-  onMarkRead: (id: string) => void
-  onNavigate?: (url: string, title?: string) => void
-  locale: string
-  largeDetailButton?: boolean
-  indexOffset?: number
-}
-
-function NotifList({ items, onMarkRead, onNavigate, locale, largeDetailButton = false, indexOffset = 0 }: NotifListProps) {
-  const { t } = useTranslation()
-  if (items.length === 0) {
-    return (
-      <div className="py-8 text-center text-sm text-slate-400">
-        {t('notifications.empty', 'Bildirim yok')}
-      </div>
-    )
-  }
-  return (
-    <ul className="divide-y divide-slate-100">
-      {items.map((n, index) => (
-        <NotifItem
-          key={n.notificationId}
-          item={n}
-          onMarkRead={onMarkRead}
-          onNavigate={onNavigate}
-          locale={locale}
-          largeDetailButton={largeDetailButton}
-          listIndex={indexOffset + index}
-        />
-      ))}
-    </ul>
-  )
 }
 
 interface NotificationEntityDetailModalProps {
@@ -655,7 +427,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
               {notifQuery.isLoading ? (
                 <div className="py-6 text-center text-xs text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>
               ) : (
-                <NotifList items={previewItems} onMarkRead={markRead} onNavigate={handleOpenNotificationDetail} locale={locale} />
+                <NotificationPreviewList items={previewItems} onMarkRead={markRead} onNavigate={handleOpenNotificationDetail} locale={locale} />
               )}
             </div>
 
@@ -778,7 +550,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
               {notifQuery.isLoading ? (
                 <div className="py-12 text-center text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>
               ) : (
-                <NotifList items={pagedModal} onMarkRead={markRead} onNavigate={handleOpenNotificationDetail} locale={locale} largeDetailButton indexOffset={(modalPage - 1) * modalPageSize} />
+                <NotificationPreviewList items={pagedModal} onMarkRead={markRead} onNavigate={handleOpenNotificationDetail} locale={locale} largeDetailButton indexOffset={(modalPage - 1) * modalPageSize} />
               )}
             </div>
             {!notifQuery.isLoading && (

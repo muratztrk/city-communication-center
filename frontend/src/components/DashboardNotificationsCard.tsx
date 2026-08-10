@@ -1,29 +1,25 @@
 import { Bell } from 'lucide-react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
+import { invalidateNotifications } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { getLocale } from '../utils/localization'
-import { OPEN_NOTIFICATIONS_MODAL_EVENT } from './layout/NotificationBell'
+import {
+  OPEN_NOTIFICATION_DETAIL_EVENT,
+  OPEN_NOTIFICATIONS_MODAL_EVENT,
+  localizeNotificationText,
+} from '../utils/notificationShared'
+import { NotificationPreviewList } from './notifications/NotificationPreviewList'
 import type { AppNotification } from '../types/platform'
-
-function formatPreviewDate(value: string, locale: string): string {
-  try {
-    return new Intl.DateTimeFormat(locale, {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    }).format(new Date(value))
-  } catch {
-    return value
-  }
-}
 
 export function DashboardNotificationsCard() {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
+  const queryClient = useQueryClient()
+  const markingNotificationIdsRef = useRef<Set<string>>(new Set())
+  const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
 
   const notifQuery = useQuery({
     queryKey: queryKeys.notifications.list(),
@@ -32,52 +28,74 @@ export function DashboardNotificationsCard() {
     staleTime: 30_000,
   })
 
-  const items = (notifQuery.data ?? []).slice(0, 3)
+  const displayNotifications = (notifQuery.data ?? []).map(notification => ({
+    ...notification,
+    title: localizeNotificationText(notification.title),
+    message: localizeNotificationText(notification.message),
+    isRead: notification.isRead || viewedNotificationIds.has(notification.notificationId),
+  }))
+
+  const items = displayNotifications.slice(0, 3)
+
+  const markRead = async (id: string) => {
+    if (markingNotificationIdsRef.current.has(id)) return
+    markingNotificationIdsRef.current.add(id)
+
+    setViewedNotificationIds(prev => new Set(prev).add(id))
+    queryClient.setQueryData<number>(queryKeys.notifications.unreadCount(), current => Math.max(0, (current ?? 0) - 1))
+    queryClient.setQueryData<AppNotification[]>(queryKeys.notifications.list(), current =>
+      current?.map(notification => notification.notificationId === id ? { ...notification, isRead: true } : notification),
+    )
+
+    try {
+      await api.markNotificationRead(id)
+      invalidateNotifications(queryClient)
+    } catch {
+      setViewedNotificationIds(prev => {
+        const next = new Set(prev)
+        next.delete(id)
+        return next
+      })
+      invalidateNotifications(queryClient)
+    } finally {
+      markingNotificationIdsRef.current.delete(id)
+    }
+  }
+
+  const handleNavigate = (url: string, title?: string) => {
+    window.dispatchEvent(new CustomEvent(OPEN_NOTIFICATION_DETAIL_EVENT, { detail: { url, title } }))
+  }
 
   return (
-    <div className="section-card flex min-h-[18rem] flex-col p-4 sm:p-5">
-      <div className="mb-3 border-b border-slate-100 pb-3">
+    <div className="section-card flex min-h-[18rem] flex-col overflow-hidden p-0">
+      <div className="border-b border-slate-100 px-4 py-3 sm:px-5">
         <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
-            <Bell className="size-4" aria-hidden="true" />
-          </span>
-          <h2 className="text-sm font-extrabold text-slate-900">{t('notifications.bell', 'Bildirimler')}</h2>
-        </div>
-        <button
-          type="button"
-          className="shrink-0 text-xs font-bold text-[color:var(--color-primary)] transition-colors hover:text-[color:var(--color-primary)]/80"
-          onClick={() => window.dispatchEvent(new CustomEvent(OPEN_NOTIFICATIONS_MODAL_EVENT))}
-        >
-          {t('notifications.seeAll', 'Tüm bildirimleri gör')} →
-        </button>
+          <div className="flex min-w-0 items-center gap-2">
+            <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
+              <Bell className="size-4" aria-hidden="true" />
+            </span>
+            <h2 className="text-sm font-extrabold text-slate-900">{t('notifications.bell', 'Bildirimler')}</h2>
+          </div>
+          <button
+            type="button"
+            className="shrink-0 text-xs font-bold text-[color:var(--color-primary)] transition-colors hover:text-[color:var(--color-primary)]/80"
+            onClick={() => window.dispatchEvent(new CustomEvent(OPEN_NOTIFICATIONS_MODAL_EVENT))}
+          >
+            {t('notifications.seeAll', 'Tüm bildirimleri gör')} →
+          </button>
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 overflow-y-auto">
+      <div className="min-h-0 flex-1 overflow-y-auto bg-white">
         {notifQuery.isLoading ? (
-          <p className="py-4 text-center text-xs text-slate-400">{t('common.loading')}</p>
-        ) : items.length === 0 ? (
-          <p className="py-4 text-center text-xs text-slate-400">{t('notifications.empty', 'Bildirim yok')}</p>
+          <p className="py-8 text-center text-sm text-slate-400">{t('common.loading')}</p>
         ) : (
-          <ul className="divide-y divide-slate-100">
-            {items.map((item: AppNotification, index: number) => (
-              <li key={item.notificationId} className="py-2.5">
-                <p className="text-sm font-semibold leading-snug text-slate-900">
-                  <span className="mr-1.5 text-slate-500">{index + 1}.</span>
-                  {item.title}
-                </p>
-                {item.message ? (
-                  <p className="mt-0.5 text-xs text-slate-500 line-clamp-1" title={item.message}>
-                    {item.message}
-                  </p>
-                ) : null}
-                <p className="mt-1 text-[0.68rem] text-slate-400">
-                  {item.sentAtUtc ? formatPreviewDate(item.sentAtUtc, locale) : ''}
-                </p>
-              </li>
-            ))}
-          </ul>
+          <NotificationPreviewList
+            items={items}
+            onMarkRead={markRead}
+            onNavigate={handleNavigate}
+            locale={locale}
+          />
         )}
       </div>
     </div>

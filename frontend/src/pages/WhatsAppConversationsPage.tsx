@@ -28,6 +28,7 @@ import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { formatConversationDisplayContent } from '../utils/socialConversationContent'
+import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
@@ -1070,7 +1071,28 @@ function ConversationDetail({
   }
 
   // "Mesajı Gönder" önce onay pop-up'ı gösterir; onaylanınca vatandaşa iletilir (card #1096).
+  const isReEngagementEntry = (entry: CitizenConversationTimelineEntry) =>
+    entry.direction === 'Outbound'
+    && entry.deliveryStatus === 'Failed'
+    && isWhatsAppReEngagementError(entry.deliveryError)
+
+  const showReEngagementWarningDialog = () => {
+    setConfirmDialog({
+      title: t('whatsapp.reEngagementWarningTitle', 'Meta şablon mesajı gerekli'),
+      titleDivider: true,
+      message: WHATSAPP_RE_ENGAGEMENT_WARNING,
+      hideCancel: true,
+      confirmLabel: t('common.close', 'Kapat'),
+      variant: 'destructive',
+      onConfirm: () => {},
+    })
+  }
+
   const handleSendPending = (entry: CitizenConversationTimelineEntry) => {
+    if (isReEngagementEntry(entry)) {
+      showReEngagementWarningDialog()
+      return
+    }
     setConfirmDialog({
       title: t('whatsapp.sendPendingConfirmTitle', 'Mesajı Gönder'),
       titleDivider: true,
@@ -1301,6 +1323,7 @@ function ConversationDetail({
                         onSendPending={() => handleSendPending(entry)}
                         sendingPending={sendingPendingId === entry.entryId}
                         onEditPending={(_entryId, content) => handleEditPending(entry, content)}
+                        onReEngagementBlocked={showReEngagementWarningDialog}
                         onShowTerminalNote={() => handleShowTerminalNote(entry)}
                       />
                     </div>

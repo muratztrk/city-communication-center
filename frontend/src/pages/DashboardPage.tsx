@@ -591,30 +591,26 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       <button
         key={metric.label}
         type="button"
-        className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-3 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
+        className="flex w-full items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-3 text-left shadow-[var(--shadow-edge)] transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
         onClick={() => {
           saveDashboardScroll()
           navigate(withQueryParams(basePath, pieQueryParams(existingParams)))
         }}
       >
-        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-3">
-          <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
-            <Icon className="size-4" />
-          </div>
-          <div className="min-w-0 -mt-0.5">
-            <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0">
-              <span className="text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
-                {metric.label}
-              </span>
-              <span className="ml-2.5 shrink-0 text-lg font-bold leading-none tabular-nums text-slate-900">{metric.value ?? '...'}</span>
-            </div>
-            {metric.sublabel ? (
-              <div className="-mt-0.5 text-[0.72rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
-                {metric.sublabel}
-              </div>
-            ) : null}
-          </div>
+        <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
+          <Icon className="size-4" />
         </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
+            {metric.label}
+          </div>
+          {metric.sublabel ? (
+            <div className="text-[0.72rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
+              {metric.sublabel}
+            </div>
+          ) : null}
+        </div>
+        <span className="shrink-0 text-lg font-bold leading-none tabular-nums text-slate-900">{metric.value ?? '...'}</span>
       </button>
     )
   }
@@ -675,16 +671,16 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         </div>
 
         {hideMetricCards ? null : isManagerOrAdmin ? (
-          <div className="space-y-3 p-3.5">
+          <div className="px-5 py-3.5 sm:px-8">
             {dashboardQuery.isLoading
               ? (
                 <>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {Array.from({ length: 4 }).map((_, i) => (
                       <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                     ))}
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="mx-auto mt-3 grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {Array.from({ length: 4 }).map((_, i) => (
                       <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                     ))}
@@ -692,20 +688,20 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                 </>
               )
               : (
-                // Tek grid: Vatandaş Talepleri ayrı satıra taşmadan Birimde Bekleyen
-                // Görevler'in yanında akar.
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="mx-auto grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-4">
                   {[...managerRow1, ...managerRow2].map(renderCard)}
                 </div>
               )}
           </div>
         ) : (
-          <div className="grid gap-3 p-3.5 sm:grid-cols-2">
-            {dashboardQuery.isLoading
-              ? Array.from({ length: 2 }).map((_, i) => (
-                  <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
-                ))
-              : staffMetrics.map(renderCard)}
+          <div className="px-5 py-3.5 sm:px-8">
+            <div className="mx-auto grid max-w-3xl gap-3 sm:grid-cols-2">
+              {dashboardQuery.isLoading
+                ? Array.from({ length: 2 }).map((_, i) => (
+                    <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
+                  ))
+                : staffMetrics.map(renderCard)}
+            </div>
           </div>
         )}
       </section>
@@ -762,7 +758,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             const periodRange = { from: activeFrom, to: activeTo }
             const chartTitleIcon = getDashboardChartTitleIcon(card.titleKey)
             const ChartTitleIcon = chartTitleIcon
-            const chartTitleIconClass = card.titleKey === 'dashboard.charts.requestTags'
+            const chartTitleIconClass = card.titleKey === 'dashboard.charts.requestTags' && !isManagerOrAdmin
               ? 'size-3.5 shrink-0 text-emerald-600'
               : 'size-3.5 shrink-0 text-slate-500'
             return (

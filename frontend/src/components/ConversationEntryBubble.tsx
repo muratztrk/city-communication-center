@@ -17,7 +17,7 @@ import {
   parseAttachmentFilenameFromContent,
   parseConversationLocationCoords,
 } from '../utils/socialConversationContent'
-import { formatWhatsAppDeliveryError } from '../utils/formatWhatsAppDeliveryError'
+import { formatWhatsAppDeliveryError, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 
 export interface ConversationEntryBubbleData {
@@ -52,6 +52,8 @@ interface ConversationEntryBubbleProps {
   sendingPending?: boolean
   /** Beklemedeki mesaj metnini düzenler (yalnızca operatör) — card #1094. */
   onEditPending?: (entryId: string, content: string) => void | Promise<void>
+  /** 24 saat re-engagement: düzenleme engeli + uyarı popup (card #2537). */
+  onReEngagementBlocked?: () => void
   onShowTerminalNote?: (entry: ConversationEntryBubbleData) => void
   inboundSenderLabel?: string | null
   /** Vatandaş Talebi Oluştur modalında balonları biraz küçült (card #1711). */
@@ -115,6 +117,7 @@ export function ConversationEntryBubble({
   onSendPending,
   sendingPending = false,
   onEditPending,
+  onReEngagementBlocked,
   onShowTerminalNote: _onShowTerminalNote,
   inboundSenderLabel,
   compact = false,
@@ -135,8 +138,12 @@ export function ConversationEntryBubble({
       || entry.deliveryStatus === 'Read')
   const messageApproverName = entry.relatedJobMessageApproverDisplayName?.trim() || null
   const editedByName = entry.editedByDisplayName?.trim() || null
+  const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
+  const isReEngagementFailure = !isInbound
+    && entry.deliveryStatus === 'Failed'
+    && isWhatsAppReEngagementError(entry.deliveryError)
   const showMessageApprover = !isInbound && Boolean(messageApproverName)
-    && (isPending || isDeliveredOutbound)
+    && (isPending || isDeliveredOutbound || isReEngagementFailure)
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const isContactMessage = !hasMedia && isContactConversationContent(entry.content)
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
@@ -152,10 +159,6 @@ export function ConversationEntryBubble({
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
-  const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
-  const isReEngagementFailure = !isInbound
-    && entry.deliveryStatus === 'Failed'
-    && (entry.deliveryError?.toLocaleLowerCase('tr').includes('re-engagement') ?? false)
   const showPendingActions = (isPending || isReEngagementFailure) && canSendPending
 
   const syncTextareaHeight = () => {
@@ -172,6 +175,10 @@ export function ConversationEntryBubble({
   }, [isEditing, draft])
 
   const beginEdit = () => {
+    if (isReEngagementFailure) {
+      onReEngagementBlocked?.()
+      return
+    }
     if (bubbleRef.current) {
       const rect = bubbleRef.current.getBoundingClientRect()
       setLockedBubbleSize({ width: rect.width, height: rect.height })

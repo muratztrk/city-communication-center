@@ -22,6 +22,7 @@ import {
 } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
+import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
@@ -224,7 +225,28 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     }
   }
 
+  const isReEngagementEntry = (entry: ConversationEntryBubbleData) =>
+    entry.direction === 'Outbound'
+    && entry.deliveryStatus === 'Failed'
+    && isWhatsAppReEngagementError(entry.deliveryError)
+
+  const showReEngagementWarningDialog = () => {
+    setConfirmDialog({
+      title: t('whatsapp.reEngagementWarningTitle', 'Meta şablon mesajı gerekli'),
+      titleDivider: true,
+      message: WHATSAPP_RE_ENGAGEMENT_WARNING,
+      hideCancel: true,
+      confirmLabel: t('common.close', 'Kapat'),
+      variant: 'destructive',
+      onConfirm: () => {},
+    })
+  }
+
   const handleSendPending = (entry: ConversationEntryBubbleData) => {
+    if (isReEngagementEntry(entry)) {
+      showReEngagementWarningDialog()
+      return
+    }
     setConfirmDialog({
       title: t('whatsapp.sendPendingConfirmTitle', 'Mesajı Gönder'),
       titleDivider: true,
@@ -333,6 +355,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   onSendPending={() => handleSendPending(entry)}
                   sendingPending={sendingPendingId === entry.entryId}
                   onEditPending={(_, content) => handleEditPending(entry, content)}
+                  onReEngagementBlocked={showReEngagementWarningDialog}
                   onShowTerminalNote={handleShowTerminalNote}
                 />
               </Fragment>

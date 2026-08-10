@@ -1,3 +1,10 @@
+export const WHATSAPP_RE_ENGAGEMENT_WARNING =
+  'Vatandaş son 24 saat içinde mesaj göndermediği için yalnızca Meta onaylı şablon mesaj gönderilebilir.'
+
+export function isWhatsAppReEngagementError(error: string | null | undefined): boolean {
+  return error?.toLocaleLowerCase('tr').includes('re-engagement') ?? false
+}
+
 export function formatWhatsAppDeliveryError(error: string | null | undefined): string | null {
   if (!error?.trim()) return null
 
@@ -5,7 +12,7 @@ export function formatWhatsAppDeliveryError(error: string | null | undefined): s
   const lower = normalized.toLocaleLowerCase('tr')
 
   if (lower.includes('re-engagement')) {
-    return 'Vatandaş son 24 saat içinde mesaj göndermediği için yalnızca Meta onaylı şablon mesaj gönderilebilir.'
+    return WHATSAPP_RE_ENGAGEMENT_WARNING
   }
 
   if (lower.includes('phone number is malformed') || lower.includes('malformed')) {

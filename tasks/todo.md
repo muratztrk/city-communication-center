@@ -1,3 +1,8 @@
+## Round 768 — 2 Doing (#2525 #2535)
+- [x] Son Tarihi Geçmiş scope chip rozetleri (zil rozeti stili) — Görevlerim, Birimdeki, Taleplerim, Birimden Giden, Birime Gelen.
+- [x] Pie chart başlık ikonları sol menü ile hizalı (`getDashboardChartTitleIcon`).
+- Commit `9e2f0889`; push main+master; 2 kart Done.
+
 ## Round 767 — 10 Doing (#2527 #2517 #2533–#2534 #2503 reopen #2528 #2526 #2532–#2531 #2529)
 - [x] WhatsApp 24h şablon uyarısında Düzenle/Mesajı Gönder butonları (`ConversationEntryBubble` re-engagement failure).
 - [x] Birim İçi **Son Tarih**; tarih placeholder **Tarih ve saat seçiniz**; talep başlığı title case on blur.

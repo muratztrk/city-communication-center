@@ -32,15 +32,24 @@ export function DashboardNotificationsCard() {
     staleTime: 30_000,
   })
 
-  const items = (notifQuery.data ?? []).slice(0, 5)
+  const items = (notifQuery.data ?? []).slice(0, 3)
 
   return (
     <div className="section-card flex min-h-[18rem] flex-col p-4 sm:p-5">
-      <div className="mb-3 flex items-center gap-2">
-        <span className="flex size-8 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
-          <Bell className="size-4" aria-hidden="true" />
-        </span>
-        <h2 className="text-sm font-extrabold text-slate-900">{t('notifications.bell', 'Bildirimler')}</h2>
+      <div className="mb-3 flex items-center justify-between gap-2">
+        <div className="flex min-w-0 items-center gap-2">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
+            <Bell className="size-4" aria-hidden="true" />
+          </span>
+          <h2 className="text-sm font-extrabold text-slate-900">{t('notifications.bell', 'Bildirimler')}</h2>
+        </div>
+        <button
+          type="button"
+          className="shrink-0 text-xs font-bold text-[color:var(--color-primary)] transition-colors hover:text-[color:var(--color-primary)]/80"
+          onClick={() => window.dispatchEvent(new CustomEvent(OPEN_NOTIFICATIONS_MODAL_EVENT))}
+        >
+          {t('notifications.seeAll', 'Tüm bildirimleri gör')} →
+        </button>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">
@@ -50,11 +59,16 @@ export function DashboardNotificationsCard() {
           <p className="py-4 text-center text-xs text-slate-400">{t('notifications.empty', 'Bildirim yok')}</p>
         ) : (
           <ul className="divide-y divide-slate-100">
-            {items.map((item: AppNotification) => (
+            {items.map((item: AppNotification, index: number) => (
               <li key={item.notificationId} className="py-2.5">
-                <p className="text-sm font-semibold leading-snug text-slate-900 line-clamp-2">{item.title}</p>
+                <p className="text-sm font-semibold leading-snug text-slate-900">
+                  <span className="mr-1.5 text-slate-500">{index + 1}.</span>
+                  {item.title}
+                </p>
                 {item.message ? (
-                  <p className="mt-0.5 text-xs text-slate-500 line-clamp-2">{item.message}</p>
+                  <p className="mt-0.5 text-xs text-slate-500 line-clamp-1" title={item.message}>
+                    {item.message}
+                  </p>
                 ) : null}
                 <p className="mt-1 text-[0.68rem] text-slate-400">
                   {item.sentAtUtc ? formatPreviewDate(item.sentAtUtc, locale) : ''}
@@ -64,14 +78,6 @@ export function DashboardNotificationsCard() {
           </ul>
         )}
       </div>
-
-      <button
-        type="button"
-        className="mt-3 w-full border-t border-slate-100 pt-2.5 text-center text-xs font-bold text-[color:var(--color-primary)] transition-colors hover:text-[color:var(--color-primary)]/80"
-        onClick={() => window.dispatchEvent(new CustomEvent(OPEN_NOTIFICATIONS_MODAL_EVENT))}
-      >
-        {t('notifications.seeAll', 'Tüm bildirimleri gör')} →
-      </button>
     </div>
   )
 }

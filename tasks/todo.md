@@ -1,3 +1,7 @@
+## Round 764 — Pie chart kaldır (#2521)
+- Tüm anasayfalardan Birimdeki Görevler + Talep Önceliği pie chart'ları kaldırıldı (FE filter + BE üretim).
+- Commit `095468a5`; push main+master; deploy SSH timeout; 1 kart Done.
+
 ## Round 763 — 7 Doing UI (#2503 reopen #2515–#2522)
 - Nav rozetleri, anasayfa sayı hizası, Reporter bildirim kutusu, bitiş tarihi +2s kuralı, Kİ ünvan ayarı, görevlerim edit CSS.
 - Commit `cbf0553d`; push main+master; deploy SSH timeout; 7 kart Done.

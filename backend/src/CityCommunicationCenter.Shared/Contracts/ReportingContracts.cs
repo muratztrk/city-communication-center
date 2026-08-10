@@ -11,6 +11,7 @@ public sealed record DashboardResponse(
     int OutgoingPendingCount,
     int OutgoingInProgressCount,
     int MyPendingTaskCount,
+    int MyPendingTaskNavBadgeCount,
     int DeptPendingTaskCount,
     int MyTotalRequestCount,
     int IncomingTotalCount,

@@ -163,7 +163,11 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
     const date = `${viewYear}-${pad(viewMonth + 1)}-${pad(day)}`
     if (minDatePart && date < minDatePart) return
     if (maxDatePart && date > maxDatePart) return
-    setDraft(d => ({ ...d, date }))
+    const todayKey = todayDateStr()
+    const nextTime = date === todayKey
+      ? (minDateTime && minDateTime.startsWith(date) ? minDateTime.slice(11, 16) : draft.time || '00:00')
+      : '00:00'
+    setDraft(d => ({ ...d, date, time: nextTime }))
   }
 
   const prevMonth = () => {

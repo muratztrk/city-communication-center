@@ -1427,14 +1427,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA pending ek dosya adı:** `text-[11px]` / `text-xs` (#6a75b73a).
 - **Vatandaş Talebi Açıklama hint:** `field-hint` (#6a75b7b0). Rutin Dosya/Görsel başlık
   biraz küçük (#6a75be0b).
-- **Anasayfa kutucuk sayıları (#2520):** metrik kartlarda sayı başlıkla aynı satırda sağda.
-- **Reporter vatandaş anasayfa (#2519):** pie grid son kutusu `Bildirimler` — son 5 bildirim +
-  `Tüm bildirimleri gör` → bildirim modalı (`OPEN_NOTIFICATIONS_MODAL_EVENT`).
+- **Anasayfa kutucuk sayıları (#2520):** ikon solda; sayı başlık metninin hemen sağında; alt satırda sublabel.
+- **Reporter vatandaş anasayfa (#2519):** pie grid son kutusu `Bildirimler` — son 3 bildirim (sıra no),
+  mesaj `line-clamp-1` + `title` tooltip; başlık satırında `Tüm bildirimleri gör`. Tüm anasayfalarda
+  pie bölümü sonunda (#2519 reopen).
+- **Sol menü rozetleri (#2523):** `myPendingTaskNavBadgeCount` son tarihi geçmiş görevleri saymaz;
+  job rozetleri `DueDateUtc >= now` ile zaten filtreli.
 - **Kurum içi mesaj ünvan (#2518):** `TenantSetting.InternalMessagesSettingsJson`;
   `showUserTitleInMessages` varsayılan `false`; Ayarlar > reCAPTCHA altında checkbox; FAB liste ve
   sohbet başlığında ünvan yalnız açıkken.
-- **Görevlerim düzenle Öncelik dropdown (#2503 reopen):** `max-width: 8rem` (genişlik artırıldı).
-- **Görevlerim düzenle başlık textarea (#2522):** `min-height: 2rem` (biraz daha yüksek).
+- **Görevlerim düzenle Öncelik dropdown (#2503 reopen):** `max-width: 10rem`.
+- **Görevlerim düzenle başlık textarea (#2522 reopen):** dikey ortalı görünüm (`padding` + `min-height: 2rem`).
 
 ## 5. Dashboard / Wallboard
 

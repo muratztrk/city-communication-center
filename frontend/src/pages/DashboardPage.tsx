@@ -586,20 +586,22 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           navigate(withQueryParams(basePath, pieQueryParams(existingParams)))
         }}
       >
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] grid-rows-[auto_auto] items-center gap-x-3 gap-y-0.5">
-          <div className="col-start-1 row-start-1 flex min-h-[2.75rem] items-center justify-between gap-2">
-            <span className="min-w-0 text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
-              {metric.label}
-            </span>
-            <span className="shrink-0 text-2xl font-extrabold leading-none tabular-nums text-slate-950">{metric.value ?? '...'}</span>
-          </div>
-          {metric.sublabel ? (
-            <div className="col-start-1 row-start-2 text-[0.72rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
-              {metric.sublabel}
-            </div>
-          ) : null}
-          <div className={`col-start-2 row-span-2 flex size-9 shrink-0 items-center justify-center self-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
+        <div className="grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-3 gap-y-0.5">
+          <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
             <Icon className="size-4" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex min-h-[2.75rem] flex-wrap items-center gap-x-2 gap-y-0.5">
+              <span className="text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
+                {metric.label}
+              </span>
+              <span className="shrink-0 text-2xl font-extrabold leading-none tabular-nums text-slate-950">{metric.value ?? '...'}</span>
+            </div>
+            {metric.sublabel ? (
+              <div className="text-[0.72rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
+                {metric.sublabel}
+              </div>
+            ) : null}
           </div>
         </div>
       </button>
@@ -852,7 +854,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               </section>
             )
           })}
-        {isReporter && effectiveView === 'citizen' ? <DashboardNotificationsCard /> : null}
+        {effectiveView !== 'full' || chartCards.length > 0 || statusChartsQuery.isLoading || dashboardQuery.isLoading
+          ? <DashboardNotificationsCard />
+          : null}
       </section>
 
       {dashboardQuery.isError ? (

@@ -43,6 +43,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
         int outgoingPendingCount = 0;
         int outgoingInProgressCount = 0;
         int myPendingTaskCount = 0;
+        int myPendingTaskNavBadgeCount = 0;
         int deptPendingTaskCount = 0;
         int myTotalRequestCount = 0;
         int incomingTotalCount = 0;
@@ -66,6 +67,18 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                     && task.CurrentStatus != WorkflowTaskStatus.Cancelled
                     && task.CurrentStatus != WorkflowTaskStatus.Rejected
                     && task.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
+                    && (!fromUtc.HasValue || task.CreatedAtUtc >= fromUtc.Value)
+                    && (!toUtc.HasValue || task.CreatedAtUtc <= toUtc.Value),
+                cancellationToken);
+
+            myPendingTaskNavBadgeCount = await _dbContext.Tasks.CountAsync(
+                task => task.TenantId == tenantId
+                    && task.AssignedUserId == userId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected
+                    && task.CurrentStatus != WorkflowTaskStatus.PendingCloseApproval
+                    && (!task.DueDateUtc.HasValue || task.DueDateUtc >= now)
                     && (!fromUtc.HasValue || task.CreatedAtUtc >= fromUtc.Value)
                     && (!toUtc.HasValue || task.CreatedAtUtc <= toUtc.Value),
                 cancellationToken);
@@ -286,6 +299,7 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             outgoingPendingCount,
             outgoingInProgressCount,
             myPendingTaskCount,
+            myPendingTaskNavBadgeCount,
             deptPendingTaskCount,
             myTotalRequestCount,
             incomingTotalCount,

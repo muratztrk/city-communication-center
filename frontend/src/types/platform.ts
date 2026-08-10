@@ -9,6 +9,7 @@ export interface DashboardSnapshot {
   outgoingPendingCount: number;
   outgoingInProgressCount: number;
   myPendingTaskCount: number;
+  myPendingTaskNavBadgeCount: number;
   deptPendingTaskCount: number;
   myTotalRequestCount: number;
   incomingTotalCount: number;

@@ -114,7 +114,10 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     e.EditedByDisplayName,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Status : null,
                     IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.Note : null,
-                    IsTerminalNoteEligibleDelivery(e.DeliveryStatus) ? terminalInfo?.MessageApproverDisplayName : null,
+                    (e.DeliveryStatus is nameof(ConversationDeliveryStatus.Pending)
+                        or nameof(ConversationDeliveryStatus.Failed))
+                        ? terminalInfo?.MessageApproverDisplayName
+                        : null,
                     latitude,
                     longitude);
             })

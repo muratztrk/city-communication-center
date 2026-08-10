@@ -26,8 +26,7 @@ export function WhatsAppDeliveryStatusIndicator({
 
   if (status === 'Failed') {
     return (
-      <span
-        className={`inline-flex max-w-full items-center gap-0.5 ${failClass}`}
+      <span className={`inline-flex max-w-full items-center gap-0.5 leading-none ${failClass}`}
         title={formattedError ?? t('whatsapp.delivery.failed', 'İletilemedi')}
       >
         <AlertCircle className="size-3 shrink-0" />
@@ -38,7 +37,7 @@ export function WhatsAppDeliveryStatusIndicator({
 
   if (status === 'Read') {
     return (
-      <span className={`inline-flex items-center gap-0.5 ${readClass}`} title={t('whatsapp.delivery.read', 'Okundu')}>
+      <span className={`inline-flex items-center gap-0.5 leading-none ${readClass}`} title={t('whatsapp.delivery.read', 'Okundu')}>
         <CheckCheck className="size-3 shrink-0" />
         <span>{t('whatsapp.delivery.read', 'Okundu')}</span>
       </span>
@@ -47,7 +46,7 @@ export function WhatsAppDeliveryStatusIndicator({
 
   if (status === 'Delivered') {
     return (
-      <span className={`inline-flex items-center gap-0.5 ${baseClass}`} title={t('whatsapp.delivery.delivered', 'İletildi')}>
+      <span className={`inline-flex items-center gap-0.5 leading-none ${baseClass}`} title={t('whatsapp.delivery.delivered', 'İletildi')}>
         <CheckCheck className="size-3 shrink-0" />
         <span>{t('whatsapp.delivery.delivered', 'İletildi')}</span>
       </span>
@@ -56,7 +55,7 @@ export function WhatsAppDeliveryStatusIndicator({
 
   if (status === 'Sent') {
     return (
-      <span className={`inline-flex items-center gap-0.5 ${baseClass}`} title={t('whatsapp.delivery.sent', 'Gönderildi')}>
+      <span className={`inline-flex items-center gap-0.5 leading-none ${baseClass}`} title={t('whatsapp.delivery.sent', 'Gönderildi')}>
         <Check className="size-3 shrink-0" />
         <span>{t('whatsapp.delivery.sent', 'Gönderildi')}</span>
       </span>

@@ -1995,10 +1995,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **SMS LiveSend (#6a75eea2):** Round 643 sonrası `IsEnabled` ⇒ gerçek gönderim (`EffectiveLiveSendEnabled`); Operatör release SMS fail → ValidationException.
 - **WA etiket revert (#6a75d1bf reopen):** Talep Etiketi readonly textbox geri; başlık min-height 2.5rem.
 - **WA modal etiket menü (#2504):** `RequestTagPicker` menü metni `text-xs` (compactMenuText yok).
-- **Görevlerim detay Öncelik düzenle (#2503):** düzenle modunda Öncelik dropdown sağa dayalı
-  (`job-detail-field-row__value .my-request-detail-edit-control--priority` margin-left:auto;
-  genel edit `width:100%` kuralı `:not(--priority)` ile ayrılır). Trigger `fit-content` (max 6.5rem);
-  aşağı açılır; Kritik seçeneği yok; menü trigger genişliğinde.
+- **Görevlerim detay Öncelik düzenle (#2503 reopen):** trigger `min-width: 7rem` / `max-width: 14rem`;
+  açılır panel trigger genişliğinde (`menuWidth` yok); menü öğeleri `max-width: 14rem`.
+- **WA otomatik zamanlı yanıt (#2545):** şablon auto-reply `Sent` mesajlarında `Onaylayan Yönetici`
+  chip gösterilmez; yalnız `Pending` terminal ve `Failed` re-engagement.
+- **WA balon saat satırı (#2544):** `İletildi` / `Düzenlendi` ve saat `items-center` + `leading-none`.
 - **WA medya Önizle (#6a75cc3f):** gelen görsel/video/ses Önizle butonu yeşil (`variant=success`) + Eye ikonu.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık
   satırının sağına**; **Talep Etiketi** pie'sında filtre butonlarının **bir alt satırında** sağa

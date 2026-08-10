@@ -135,18 +135,16 @@ export function ConversationEntryBubble({
   const [lockedBubbleSize, setLockedBubbleSize] = useState<{ width: number; height: number } | null>(null)
   const isInbound = entry.direction === 'Inbound'
   const isPending = !isInbound && entry.deliveryStatus === 'Pending'
-  const isDeliveredOutbound = !isInbound
-    && (entry.deliveryStatus === 'Sent'
-      || entry.deliveryStatus === 'Delivered'
-      || entry.deliveryStatus === 'Read')
   const messageApproverName = entry.relatedJobMessageApproverDisplayName?.trim() || null
   const editedByName = entry.editedByDisplayName?.trim() || null
   const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
   const isReEngagementFailure = !isInbound
     && entry.deliveryStatus === 'Failed'
     && isWhatsAppReEngagementError(entry.deliveryError)
+  // Onaylayan Yönetici yalnız bekleyen terminal / re-engagement hatalarında — otomatik
+  // zamanlı şablon yanıtları (Sent) dahil değil (card #2545).
   const showMessageApprover = !isInbound && Boolean(messageApproverName)
-    && (isPending || isDeliveredOutbound || isReEngagementFailure)
+    && (isPending || isReEngagementFailure)
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
   const isContactMessage = !hasMedia && isContactConversationContent(entry.content)
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
@@ -335,7 +333,7 @@ export function ConversationEntryBubble({
               )}
             </>
           )}
-          <p className={`mt-1.5 flex items-baseline justify-end gap-1 text-[10px] ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
+          <p className={`mt-1.5 flex items-center justify-end gap-1 text-[10px] leading-none ${isInbound ? 'text-slate-400' : 'text-white/65'}`}>
             {entry.editedAtUtc ? (
               editedByName ? (
                 <DelayedHoverTooltip

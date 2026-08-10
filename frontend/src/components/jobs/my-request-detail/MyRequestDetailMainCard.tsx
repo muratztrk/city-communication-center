@@ -479,7 +479,7 @@ export function MyRequestDetailMainCard({
                         <span className="text-xs font-bold text-slate-500">{t('jobs.columns.priority', 'Öncelik')}</span>
                         {isEditing && editDraft && onEditDraftChange ? (
                           <SingleSelectDropdown
-                            className="my-request-detail-priority-header__control mt-0.5 w-28"
+                            className="my-request-detail-priority-header__control mt-0.5 w-[7.5rem]"
                             triggerClassName="!min-h-7 !px-2 !py-1 text-[11px] font-semibold"
                             menuScrollClassName="dropdown-menu-scroll--compact my-request-edit-priority-menu"
                             options={priorityOptions}

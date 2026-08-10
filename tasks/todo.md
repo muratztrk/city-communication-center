@@ -1,3 +1,7 @@
+## Round 774 — #2544/#2545/#2503 WA bubble + Görevlerim Öncelik
+
+- [x] Onaylayan Yönetici yalnız Pending/re-engagement; İletildi hizası; Öncelik trigger 7rem, panel 504px kaldırıldı.
+
 ## Round 773 — #2540/#2543 Vatandaş Bilgi Listesi kolon düzeni
 
 - [x] Ana grid: Talep Kanalı kaldırıldı; detay popup: Son Tarih kaldır, Talep Kanalı eklendi; BE tüm kanal talepleri.

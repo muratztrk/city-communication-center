@@ -129,7 +129,11 @@ public sealed class GetSocialConversationQueryHandler
                 && terminalInfoByMessageId.TryGetValue(e.SocialMessageId, out terminalInfo);
             var terminalStatus = hasTerminalInfo ? terminalInfo?.Status : null;
             var terminalNote = hasTerminalInfo ? terminalInfo?.Note : null;
-            var messageApprover = hasTerminalInfo ? terminalInfo?.MessageApproverDisplayName : null;
+            var messageApprover = hasTerminalInfo
+                && e.DeliveryStatus is nameof(ConversationDeliveryStatus.Pending)
+                    or nameof(ConversationDeliveryStatus.Failed)
+                ? terminalInfo?.MessageApproverDisplayName
+                : null;
 
             var (latitude, longitude) = ConversationLocationHelper.Resolve(
                 e.Content,

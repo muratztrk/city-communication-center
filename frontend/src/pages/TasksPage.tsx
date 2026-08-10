@@ -2409,7 +2409,6 @@ const pageKicker = isMyTasksView
                                       className="my-request-detail-edit-control my-request-detail-edit-control--priority"
                                       triggerClassName="text-xs font-medium"
                                       menuScrollClassName="dropdown-menu-scroll--compact my-request-edit-priority-menu"
-                                      menuWidth={504}
                                       options={[
                                         ...(editJobModal ? [{ value: 'Low', label: t('enum.priority.Low', 'Düşük') }] : []),
                                         { value: 'Normal', label: t('enum.priority.Normal', 'Normal') },

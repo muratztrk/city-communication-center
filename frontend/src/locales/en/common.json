@@ -8,6 +8,7 @@
   },
   "common": {
     "loading": "Loading...",
+    "dateTimePickerPlaceholder": "Select date and time",
     "refreshing": "Refreshing live data",
     "error": "Something went wrong.",
     "save": "Save",
@@ -49,6 +50,7 @@
     "goToChatUnavailable": "Call-channel records have no WhatsApp chat",
     "ticketsTitle": "Citizen Request Info",
     "noTickets": "No requests found for this citizen.",
+    "citizenOutboundMessage": "Message Sent to Citizen",
     "columns": {
       "name": "Citizen name",
       "phone": "Phone",
@@ -411,7 +413,7 @@
       "deptTotalTasks": "Internal/External All Unit Tasks",
       "internalExternalSub": "(Internal/External)",
       "myPendingTasksSub": "(Internal/External Pending and Overdue)",
-      "citizenPendingApprovalSub": "(Citizen Requests Pending Approval)"
+      "citizenPendingApprovalSub": "Pending Approval"
     },
     "chart": {
       "titleDept": "Task Distribution by Department",
@@ -442,6 +444,7 @@
     },
     "charts": {
       "staffTasks": "My Staff's Tasks",
+      "staffOverdueTasks": "My Staff's Overdue Tasks",
       "staffResolutionTime": "My Staff Task Resolution Time (Hours)",
       "departmentTasks": "Department Tasks",
       "myTasks": "My Tasks",

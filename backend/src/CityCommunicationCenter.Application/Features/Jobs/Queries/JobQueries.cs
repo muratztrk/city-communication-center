@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.CitizenMessageApprovals;
 using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -587,6 +588,36 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             .Select(m => new { m.CitizenRequestNumber, m.CitizenRequestNumberYear })
             .FirstOrDefaultAsync(cancellationToken);
 
+        string? citizenOutboundMessage = null;
+        if (context.RoleCode is nameof(RoleCode.Reporter) or nameof(RoleCode.SystemAdmin))
+        {
+            var eligible = await CitizenMessageApprovalAccess.FindEligibleTerminalJobAsync(
+                _dbContext, tenantId, job.JobId, track: false, cancellationToken);
+            if (eligible is not null)
+            {
+                var linkedMessage = await _dbContext.SocialMessages.AsNoTracking()
+                    .Where(m => m.TenantId == tenantId
+                        && m.CitizenRequestNumber != null
+                        && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
+                        && (m.JobId == job.JobId
+                            || (job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)))
+                    .Select(m => new { m.Channel })
+                    .FirstOrDefaultAsync(cancellationToken);
+                var note = await CitizenMessageApprovalNoteResolver.ResolveAsync(
+                    _dbContext, tenantId, eligible, cancellationToken);
+                if (!string.IsNullOrWhiteSpace(note))
+                {
+                    var smsSent = linkedMessage?.Channel == SocialChannel.Phone
+                        && eligible.CitizenTerminalMessageReleasedAtUtc.HasValue;
+                    var nonSms = linkedMessage?.Channel != SocialChannel.Phone;
+                    if (smsSent || nonSms)
+                    {
+                        citizenOutboundMessage = note;
+                    }
+                }
+            }
+        }
+
         return new JobDetailResponse(
             job.JobId, job.TenantId, job.Title, job.Description,
             job.Status.ToString(), job.Priority,
@@ -602,6 +633,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             job.ManagerNote,
             depts, tasks, approvals, attachments,
             jobStatusActorDisplayName, jobCompletionNote, job.UpdatedAtUtc, createdByRoleCode,
-            citizenRequest?.CitizenRequestNumber, citizenRequest?.CitizenRequestNumberYear);
+            citizenRequest?.CitizenRequestNumber, citizenRequest?.CitizenRequestNumberYear,
+            citizenOutboundMessage);
     }
 }

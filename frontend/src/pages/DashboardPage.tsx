@@ -75,6 +75,7 @@ const PIE_LEGEND_SEARCH_KEYS = new Set([
 // Pie chart başlığı + lejant metinleri tıklanınca gidilecek ilgili sayfa (card 759).
 const CHART_ROUTES: Record<string, string> = {
   'dashboard.charts.staffTasks': '/staff-tasks',
+  'dashboard.charts.staffOverdueTasks': '/staff-tasks',
   'dashboard.charts.departmentTasks': '/department-tasks?flow=all',
   'dashboard.charts.myTasks': '/my-tasks',
   'dashboard.charts.myRequests': '/my-requests',
@@ -249,6 +250,15 @@ function getSliceRoute(
   if (titleKey === 'dashboard.charts.staffTasks') {
     return withQueryParams('/staff-tasks', pieQueryParams({
       userId: parseStaffSliceUserId(sliceLabel),
+      taskType: taskTypeParam,
+      ...dateParams,
+    }))
+  }
+
+  if (titleKey === 'dashboard.charts.staffOverdueTasks') {
+    return withQueryParams('/staff-tasks', pieQueryParams({
+      userId: parseStaffSliceUserId(sliceLabel),
+      view: 'overdue',
       taskType: taskTypeParam,
       ...dateParams,
     }))
@@ -496,7 +506,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     ? [
         {
           label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
-          sublabel: t('dashboard.cards.citizenPendingApprovalSub', '(Vatandaştan Gelen Onay Bekleyen)'),
+          sublabel: t('dashboard.cards.citizenPendingApprovalSub', 'Onay Bekleyen'),
           value: dashboardQuery.data.activeSocialMessageCount,
           icon: MessageSquareMore,
           path: '/incoming-requests?status=pending-approval&citizen=1',
@@ -580,7 +590,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       <button
         key={metric.label}
         type="button"
-        className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-1.5 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
+        className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-2.5 shadow-[var(--shadow-edge)] text-left transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
         onClick={() => {
           saveDashboardScroll()
           navigate(withQueryParams(basePath, pieQueryParams(existingParams)))
@@ -595,7 +605,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               <span className="text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
                 {metric.label}
               </span>
-              <span className="ml-1 shrink-0 text-xl font-bold leading-none tabular-nums text-slate-900">{metric.value ?? '...'}</span>
+              <span className="ml-2.5 shrink-0 text-xl font-bold leading-none tabular-nums text-slate-900">{metric.value ?? '...'}</span>
             </div>
             {metric.sublabel ? (
               <div className="-mt-0.5 text-[0.72rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">

@@ -108,6 +108,14 @@ public sealed class GetDashboardStatusChartsQueryHandler
             tenantId,
             staffUserIds,
             cancellationToken);
+        var staffOverdueTasks = staffTasks.Where(task =>
+            IsOpenOverdueTask(task.Status, task.DueDateUtc, now));
+        var staffOverdueTasksChart = await BuildStaffTasksChartAsync(
+            staffOverdueTasks,
+            tenantId,
+            staffUserIds,
+            cancellationToken,
+            "dashboard.charts.staffOverdueTasks");
         var staffResolutionTimeChart = context.RoleCode == "Manager"
             ? await BuildStaffResolutionTimeChartAsync(
                 tenantId,
@@ -123,6 +131,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var charts = new List<DashboardChartResponse>
         {
             staffTasksChart,
+            staffOverdueTasksChart,
         };
         if (staffResolutionTimeChart is not null)
         {
@@ -694,7 +703,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
         IEnumerable<TaskStatusItem> tasks,
         Guid tenantId,
         IReadOnlyCollection<Guid> staffUserIds,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        string titleKey = "dashboard.charts.staffTasks")
     {
         var countsByUser = tasks
             .Where(task => task.AssignedUserId.HasValue
@@ -722,7 +732,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ThenBy(item => item.Name, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
 
-        return new DashboardChartResponse("dashboard.charts.staffTasks",
+        return new DashboardChartResponse(titleKey,
             ordered.Select((item, index) => new DashboardChartSlice(
                 $"{item.UserId}|{item.Name}",
                 item.Count,

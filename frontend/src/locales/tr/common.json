@@ -8,6 +8,7 @@
   },
   "common": {
     "loading": "Yükleniyor...",
+    "dateTimePickerPlaceholder": "Tarih ve saat seçiniz",
     "refreshing": "Canlı veriler yenileniyor",
     "error": "Bir hata oluştu.",
     "save": "Kaydet",
@@ -49,6 +50,7 @@
     "goToChatUnavailable": "Çağrı kanalında yazışma yoktur",
     "ticketsTitle": "Vatandaş Talep Bilgisi",
     "noTickets": "Bu vatandaşa ait talep bulunamadı.",
+    "citizenOutboundMessage": "Vatandaşa Giden Mesaj",
     "columns": {
       "name": "Vatandaş Adı",
       "phone": "Numara",
@@ -413,7 +415,7 @@
       "deptTotalTasks": "Birim İçi/Dışı Tüm Görevler",
       "internalExternalSub": "(Birim İçi/Birim Dışı)",
       "myPendingTasksSub": "(Birim İçi/Birim Dışı Bekleyen ve Son Tarihi Geçmiş)",
-      "citizenPendingApprovalSub": "(Vatandaştan Gelen Onay Bekleyen)"
+      "citizenPendingApprovalSub": "Onay Bekleyen"
     },
     "chart": {
       "titleDept": "Müdürlüklere Göre İş Dağılımı",
@@ -444,6 +446,7 @@
     },
     "charts": {
       "staffTasks": "Personelimin Görevleri",
+      "staffOverdueTasks": "Personelimin Son Tarihi Geçmiş Görevleri",
       "staffResolutionTime": "Personelimin Görevi Çözme Süresi (Saat)",
       "departmentTasks": "Birimdeki Görevler",
       "myTasks": "Görevlerim",

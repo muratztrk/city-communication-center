@@ -147,4 +147,6 @@ public sealed record JobDetailResponse(
     string? CreatedByRoleCode = null,
     // Detay/yazdır VT- numarası (liste özetindeki ile aynı kaynak, #r467).
     int? CitizenRequestNumber = null,
-    int? CitizenRequestNumberYear = null);
+    int? CitizenRequestNumberYear = null,
+  /// <summary>Üst düzey yetkili — vatandaşa iletilen/gönderilecek terminal mesaj (#2528).</summary>
+    string? CitizenOutboundMessage = null);

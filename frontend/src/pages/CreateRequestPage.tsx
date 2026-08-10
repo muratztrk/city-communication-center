@@ -1239,7 +1239,7 @@ export function CreateRequestPage() {
                 placeholder={t('jobs.form.titlePlaceholder', 'Talep başlığı giriniz...')}
                 value={internalForm.title}
                 onChange={e => setInternalForm(current => ({ ...current, title: e.target.value }))}
-                onBlur={() => setInternalForm(current => ({ ...current, title: ensureLeadingCapitalTr(current.title) }))}
+                onBlur={() => setInternalForm(current => ({ ...current, title: normalizeTitleCaseField(current.title) ?? '' }))}
               />
             </div>
             <div className="job-field">
@@ -1274,8 +1274,8 @@ export function CreateRequestPage() {
                 />
               </div>
               <div className="job-field">
-                <span className="job-field-label">{t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')}</span>
-                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v) }))} placeholder={t('tasks.newRequest.dueDate', 'Bitiş Tarihi (opsiyonel)')} forceUp minDateTime={earliestDueDatePickerValue(2, internalForm.dueDateUtc)} />
+                <span className="job-field-label">{t('jobs.form.dueDate', 'Son Tarih')}</span>
+                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v) }))} placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')} forceUp minDateTime={earliestDueDatePickerValue(2, internalForm.dueDateUtc)} />
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</span>
@@ -1329,7 +1329,7 @@ export function CreateRequestPage() {
                 placeholder={t('jobs.form.titlePlaceholder', 'Talep başlığı giriniz...')}
                 value={externalForm.title}
                 onChange={e => setExternalForm(current => ({ ...current, title: e.target.value }))}
-                onBlur={() => setExternalForm(current => ({ ...current, title: ensureLeadingCapitalTr(current.title) }))}
+                onBlur={() => setExternalForm(current => ({ ...current, title: normalizeTitleCaseField(current.title) ?? '' }))}
                 required
               />
             </div>
@@ -1375,6 +1375,7 @@ export function CreateRequestPage() {
                     return { ...current, startDateUtc, dueDateUtc }
                   })}
                   minDateTime={earliestStartDatePickerValue()}
+                  placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')}
                 />
               </div>
               <div className="job-field">
@@ -1387,6 +1388,7 @@ export function CreateRequestPage() {
                     dueDateUtc: clampDueDateRelativeToStart(v, current.startDateUtc),
                   }))}
                   minDateTime={earliestDueDateRelativeToStart(externalForm.startDateUtc, 2, externalForm.dueDateUtc)}
+                  placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')}
                 />
               </div>
             </div>
@@ -1434,7 +1436,7 @@ export function CreateRequestPage() {
                 placeholder={t('jobs.form.titlePlaceholder', 'Talep başlığı giriniz...')}
                 value={citizenForm.title}
                 onChange={event => setCitizenForm(current => ({ ...current, title: event.target.value }))}
-                onBlur={() => setCitizenForm(current => ({ ...current, title: ensureLeadingCapitalTr(current.title) }))}
+                onBlur={() => setCitizenForm(current => ({ ...current, title: normalizeTitleCaseField(current.title) ?? '' }))}
                 required
               />
             </div>

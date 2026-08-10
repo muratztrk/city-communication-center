@@ -776,6 +776,9 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       if (currentTaskTypeFilter === 'routine') byUser = byUser.filter(task => task.jobSourceType === 'Routine')
       else if (currentTaskTypeFilter === 'assigned') byUser = byUser.filter(task => task.jobSourceType !== 'Routine')
       result = byUser
+      if (currentMyTaskView === 'overdue') {
+        result = filterMyTasks(result, 'overdue')
+      }
     } else if (isDepartmentTasksView) {
       // Kontrol paneli "Birimdeki Görevler" grafiği yalnızca birime atanmış görevleri sayar.
       const departmentTasks = tasks.filter(task =>
@@ -802,7 +805,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
 
     if (filterFrom || filterTo) {
-      const useDueDatePeriod = (isMyTasksView || isDepartmentTasksView) && currentMyTaskView === 'overdue'
+      const useDueDatePeriod = (isMyTasksView || isDepartmentTasksView || isStaffTasksView) && currentMyTaskView === 'overdue'
       const fromMs = filterFrom ? new Date(filterFrom).getTime() : Number.NaN
       const toMs = filterTo ? new Date(filterTo).getTime() : Number.NaN
       result = result.filter(task => {

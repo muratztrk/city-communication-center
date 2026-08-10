@@ -19,6 +19,7 @@ interface MyRequestTaskDetailsSectionProps {
   locale: string
   onDownloadTaskAttachment: (attachmentId: string, fileName: string) => void
   hidePlainDescription?: boolean
+  citizenOutboundMessage?: string | null
   // Taleplerim'de standart kullanıcı için Adres Bilgileri, Süreç'in önünde ikinci kolon
   // olarak buraya taşınır; Süreç, Açıklama'nın yerine kayar (card #1549).
   addressColumnContent?: ReactNode
@@ -118,6 +119,7 @@ export function MyRequestTaskDetailsSection({
   locale,
   onDownloadTaskAttachment,
   hidePlainDescription = false,
+  citizenOutboundMessage,
   addressColumnContent,
 }: MyRequestTaskDetailsSectionProps) {
   const { t } = useTranslation()
@@ -217,6 +219,12 @@ export function MyRequestTaskDetailsSection({
                             tone: 'cancel' as const,
                           }]
                         : []),
+                    ...(citizenOutboundMessage && task.taskId === detail.tasks[0]?.taskId
+                      ? [{
+                          label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+                          value: citizenOutboundMessage,
+                        }]
+                      : []),
                     ...(task.jobSourceType !== 'Routine' && (task.statusChangeHistory?.length ?? 0) > 0
                       ? [{
                           label: t('tasks.detail.statusChangeHistory', 'Durum Değişikliği'),

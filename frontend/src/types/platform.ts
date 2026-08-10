@@ -398,6 +398,7 @@ export interface JobDetail {
   // Detay/yazdır VT- (liste özetiyle aynı, #r467).
   citizenRequestNumber?: number | null;
   citizenRequestNumberYear?: number | null;
+  citizenOutboundMessage?: string | null;
 }
 
 export interface SocialConversationEntry {

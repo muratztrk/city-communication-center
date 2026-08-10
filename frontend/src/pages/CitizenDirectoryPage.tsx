@@ -697,6 +697,7 @@ export function CitizenDirectoryPage() {
               onAttachmentDelete={async () => undefined}
               onDownloadTaskAttachment={() => undefined}
               shellClassName="detail-modal-shell--citizen-directory-nested"
+              citizenOutboundMessage={jobDetail.citizenOutboundMessage}
             />
           ) : (
             <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl" onClick={event => event.stopPropagation()}>

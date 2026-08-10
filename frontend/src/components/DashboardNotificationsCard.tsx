@@ -36,7 +36,8 @@ export function DashboardNotificationsCard() {
 
   return (
     <div className="section-card flex min-h-[18rem] flex-col p-4 sm:p-5">
-      <div className="mb-3 flex items-center justify-between gap-2">
+      <div className="mb-3 border-b border-slate-100 pb-3">
+        <div className="flex items-center justify-between gap-2">
         <div className="flex min-w-0 items-center gap-2">
           <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-violet-100 text-violet-600">
             <Bell className="size-4" aria-hidden="true" />
@@ -50,6 +51,7 @@ export function DashboardNotificationsCard() {
         >
           {t('notifications.seeAll', 'Tüm bildirimleri gör')} →
         </button>
+        </div>
       </div>
 
       <div className="min-h-0 flex-1 overflow-y-auto">

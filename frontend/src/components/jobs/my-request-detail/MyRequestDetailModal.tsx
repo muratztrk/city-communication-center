@@ -77,6 +77,8 @@ export interface MyRequestDetailModalProps {
   forceCitizenDetailCards?: boolean
   /** Shell boyutu override (ör. Vatandaş Bilgi Listesi nested Detaylar — card #r454). */
   shellClassName?: string
+  /** Vatandaş Bilgi Listesi — üst düzey yetkili terminal mesaj (#2528). */
+  citizenOutboundMessage?: string | null
 }
 
 export function MyRequestDetailModal({
@@ -138,6 +140,7 @@ export function MyRequestDetailModal({
   hideTaskPlainDescription = false,
   forceCitizenDetailCards = false,
   shellClassName,
+  citizenOutboundMessage,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
 
@@ -302,6 +305,7 @@ export function MyRequestDetailModal({
           locale={locale}
           onDownloadTaskAttachment={onDownloadTaskAttachment}
           hidePlainDescription={hideTaskPlainDescription || (isStandardUser && !isEditing)}
+          citizenOutboundMessage={citizenOutboundMessage}
         />
       </div>
     </section>

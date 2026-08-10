@@ -153,6 +153,10 @@ export function ConversationEntryBubble({
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
   const deliveryErrorMessage = formatWhatsAppDeliveryError(entry.deliveryError)
+  const isReEngagementFailure = !isInbound
+    && entry.deliveryStatus === 'Failed'
+    && (entry.deliveryError?.toLocaleLowerCase('tr').includes('re-engagement') ?? false)
+  const showPendingActions = (isPending || isReEngagementFailure) && canSendPending
 
   const syncTextareaHeight = () => {
     const textarea = textareaRef.current
@@ -352,7 +356,7 @@ export function ConversationEntryBubble({
           ) : null}
         </div>
       </div>
-      {isPending && canSendPending ? (
+      {showPendingActions ? (
         isEditing ? (
           <div className={`mt-1 flex items-center gap-1.5 ${compact ? 'min-h-[1.75rem]' : 'min-h-[2.125rem]'}`}>
             <button

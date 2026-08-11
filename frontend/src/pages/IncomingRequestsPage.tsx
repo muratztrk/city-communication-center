@@ -912,7 +912,7 @@ export function IncomingRequestsPage() {
     canManageIncomingActions && currentStatusFilter === 'all' && !canCancelRow(row)
 
   return (
-    <div className="page-stack desktop-page-shell">
+    <div className="page-stack desktop-page-shell incoming-requests-page">
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">

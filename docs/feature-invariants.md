@@ -1040,8 +1040,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
   birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
-  (card #1701; mavi `in-progress` değil). Overdue rozeti `translate(50%, -78%)` + yalnız kırmızı
-  çerçeve; `.scope-chips` z-index 2 + hafif negatif margin (cards #2525 reopen Birime Gelen).
+  (card #1701; mavi `in-progress` değil). Overdue rozeti `translate(50%, -70%)` + yalnız kırmızı
+  çerçeve; `.scope-chips` z-index 2 + hafif negatif margin (#2549). Birime Gelen sayfasında
+  `incoming-requests-page` daha sıkı `page-stack` gap + çip `margin-top: -0.5rem` (#2525 reopen).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
   Header: **Personel Dahili No ara…** solda (tüm kullanıcılara görünür — card #1779),

@@ -1253,6 +1253,15 @@
       gap: 0.8rem;
     }
 
+    /* Birime Gelen: banner–çip arası boşluk rozet üst çerçevesiyle kapanır (#2525 reopen). */
+    .app-content-shell .incoming-requests-page.page-stack {
+      gap: 0.45rem;
+    }
+
+    .app-content-shell .incoming-requests-page > .scope-chips {
+      margin-top: -0.5rem;
+    }
+
     .app-content-shell .page-header-row {
       gap: 0.6rem;
     }
@@ -4000,7 +4009,7 @@
     right: 0;
     top: 0;
     z-index: 10;
-    transform: translate(50%, -78%);
+    transform: translate(50%, -70%);
     display: flex;
     height: 1.05rem;
     min-width: 1.05rem;

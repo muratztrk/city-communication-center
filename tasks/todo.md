@@ -1,3 +1,7 @@
+## Round 783 — #2525/#2549 overdue rozet konum
+
+- [x] Global rozet `-70%`; Birime Gelen `incoming-requests-page` sıkı gap + çip margin.
+
 ## Round 782 — #2532/#2525 reopen (son satır orta + overdue banner overlap)
 
 - [x] Metrik son satır ortalı; overdue rozet `-78%`, scope-chips z-index + negatif margin.

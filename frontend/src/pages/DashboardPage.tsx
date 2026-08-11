@@ -463,8 +463,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconColor: 'text-rose-600',
         },
         {
-          label: t('dashboard.cards.deptPendingTasks', 'Birimde Bekleyen Görevler'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          label: t('dashboard.cards.deptPendingTasks', 'Birimdeki Görevler'),
+          sublabel: t('dashboard.cards.deptPendingTasksSub', 'Bekleyen Görevler'),
           value: dashboardQuery.data.deptPendingTaskCount,
           icon: SquareKanban,
           path: '/department-tasks?flow=all',

@@ -1040,7 +1040,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
   birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
-  (card #1701; mavi `in-progress` değil). Overdue rozeti `translate(50%, -75%)` + yalnız kırmızı
+  (card #1701; mavi `in-progress` değil). Overdue rozeti `translate(50%, -68%)` + yalnız kırmızı
   çerçeve (turuncu halka yok); `.scope-chips` üst padding (cards #2525 reopen).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
@@ -1408,9 +1408,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Görevi Yapan / Görev Sahibi yok (#6a75a4ff).
 - **Kurum içi FAB sohbet zemin:** liste paneli ile aynı `bg-[color:var(--color-background)]`
   (bej `#ece5dd` geri alındı — #6a75a09a).
-- **Yönetici anasayfa kutucuk sırası (#6a75b318):** Birime Gelen Onay Bekleyen → Birimde Bekleyen
-  Görevler → Birimden Giden Bekleyen → Birimden Giden Yapılmakta → Bekleyen Taleplerim →
-  Bekleyen Görevlerim → Vatandaş Talepleri.
+- **Yönetici anasayfa kutucuk sırası (#6a75b318):** Birime Gelen Onay Bekleyen → Vatandaş Talepleri
+  → Birimdeki Görevler (Bekleyen Görevler) → Birimden Giden Bekleyen → Birimden Giden Yapılmakta
+  → Bekleyen Taleplerim → Bekleyen Görevlerim (#2550 metin güncellemesi).
 - **Personel/Operatör anasayfa kutucuk sırası (#6a75bf14):** Bekleyen Görevlerim → Bekleyen Taleplerim.
 - **Bekleyen Görevlerim kart sayısı (#6a75c274):** `myPendingTaskCount` = bekleyen + son tarihi geçmiş
   (terminal hariç); tıklanınca `/my-tasks?view=open` (ikisini birden listeler, Durum sütunu açık).
@@ -2003,8 +2003,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açılır panel trigger genişliğinde (`menuWidth` yok); menü öğeleri `max-width: 14rem`.
 - **WA otomatik zamanlı yanıt (#2545):** şablon auto-reply `Sent` mesajlarında `Onaylayan Yönetici`
   chip gösterilmez; yalnız `Pending` terminal ve `Failed` re-engagement. Zaman ayarlı otomatik
-  yanıt balonunun altında mavi arka planlı `Otomatik Mesaj` etiketi (`isAutomaticMessage`;
-  `text-xs`, `px-2.5 py-1`).
+  yanıt balonunun altında mavi `rounded-full` `Otomatik Mesaj` etiketi (`isAutomaticMessage`;
+  Onaylayan Yönetici chip boyutu/çerçevesi).
 - **WA balon saat satırı (#2544):** `İletildi` / `Düzenlendi` ve saat `items-center` + `leading-none`.
 - **WA medya Önizle (#6a75cc3f):** gelen görsel/video/ses Önizle butonu yeşil (`variant=success`) + Eye ikonu.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık

@@ -1,3 +1,7 @@
+## Round 780 — #2525/#2550/#2545 reopen (rozet aşağı + kutucuk metin + Otomatik Mesaj chip)
+
+- [x] Overdue rozet `-68%`; Birimdeki Görevler / Bekleyen Görevler kutucuk; Otomatik Mesaj rounded-full Onaylayan Yönetici boyutu.
+
 ## Round 779 — #2532/#2545/#2525 reopen (üst satır + geniş kutucuk + kırmızı rozet)
 
 - [x] Vatandaş Talepleri üst satır; `max-w-7xl` + `min-w-[15.5rem]`; Otomatik Mesaj `text-xs`; overdue rozet `-75%` yalnız kırmızı.

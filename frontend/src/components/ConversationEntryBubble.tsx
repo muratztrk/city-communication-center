@@ -202,6 +202,13 @@ export function ConversationEntryBubble({
   const approverChipClassName = compact
     ? 'inline-flex items-center gap-1 rounded-full bg-teal-600 px-2 py-1 text-[10px] font-semibold text-white shadow-sm'
     : 'inline-flex items-center gap-1.5 rounded-full bg-teal-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm'
+  const automaticMessageChipClassName = compact
+    ? `inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold text-white shadow-sm ${
+        theme === 'light' ? 'bg-[color:var(--color-primary)]' : 'bg-sky-600'
+      }`
+    : `inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold text-white shadow-sm ${
+        theme === 'light' ? 'bg-[color:var(--color-primary)]' : 'bg-sky-600'
+      }`
 
   const messageApproverButton = (
     <DelayedHoverTooltip
@@ -366,11 +373,7 @@ export function ConversationEntryBubble({
         </div>
       </div>
       {!isInbound && entry.isAutomaticMessage ? (
-        <span
-          className={`mt-1 inline-flex rounded-md px-2.5 py-1 text-xs font-semibold leading-none text-white shadow-sm ${
-            theme === 'light' ? 'bg-[color:var(--color-primary)]' : 'bg-sky-600'
-          }`}
-        >
+        <span className={`mt-1 ${automaticMessageChipClassName}`}>
           {t('whatsapp.automaticMessage', 'Otomatik Mesaj')}
         </span>
       ) : null}

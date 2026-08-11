@@ -399,6 +399,8 @@ export interface JobDetail {
   citizenRequestNumber?: number | null;
   citizenRequestNumberYear?: number | null;
   citizenOutboundMessage?: string | null;
+  /** Mesajı Gönder anındaki onay notu — Tamamlama Notu (#2528). */
+  citizenApprovalReleasedNote?: string | null;
 }
 
 export interface SocialConversationEntry {

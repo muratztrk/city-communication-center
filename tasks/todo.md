@@ -1,3 +1,11 @@
+## Round 784 — #2528/#2548/#2551/#2553/#2524 (VT not ayrımı + rutin yönlendirme + rozet + menü + yazdır kanal)
+
+- [x] `6a79c3a8` — Tamamlama Notu = `citizenApprovalReleasedNote` (Mesajı Gönder audit); düzenlenen metin yalnız Vatandaşa Giden Mesaj.
+- [x] `6a7a37ac` — Rutin görev oluşturma sonrası `/my-tasks?view=pending`.
+- [x] `6a7af1dd` — Overdue rozet `translate(50%, -65%)`.
+- [x] `6a7b19af` — Manager sidebar `compactLabels` + `overflow-x-hidden`.
+- [x] `6a79b0b1` — Vatandaş yazdırmada Talep Yapılan Birim sonrası Talep Kanalı.
+
 ## Round 783 — #2525/#2549 overdue rozet konum
 
 - [x] Global rozet `-70%`; Birime Gelen `incoming-requests-page` sıkı gap + çip margin.

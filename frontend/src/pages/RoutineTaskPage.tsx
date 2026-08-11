@@ -196,7 +196,7 @@ export function RoutineTaskPage() {
         await api.uploadTaskAttachment(task.taskId, file)
       }
       invalidateTasks(queryClient, task.taskId, task.jobId)
-      navigate(isEditMode ? '/my-tasks?view=pending' : '/my-tasks?view=all')
+      navigate('/my-tasks?view=pending')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {

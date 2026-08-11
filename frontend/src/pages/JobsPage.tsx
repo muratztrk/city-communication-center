@@ -417,6 +417,8 @@ export function printJobDetail(
     myRequestView?: boolean
     /** Sosyal mesaj Talep Etiketi; doluysa Durum sonrası yazdırılır (#2189). */
     requestLabel?: string | null
+    /** Vatandaş talebi yazdırmada Talep Kanalı (#2524). */
+    sourceChannel?: string | null
   },
 ) {
   const fd = (d: string | null | undefined) => formatDateTime(d ?? null, locale)
@@ -442,6 +444,9 @@ export function printJobDetail(
     ['Talep Yapılan Birim', options?.myRequestView
       ? formatJobDestinationsWithAssignees(detail)
       : formatJobDestinationsWithAssignees(detail, false, false)],
+    ...(isCitizenPrint && options?.sourceChannel
+      ? [['Talep Kanalı', getSocialChannelLabel(t, options.sourceChannel)] as [string, string]]
+      : []),
     ...(isCitizenPrint ? [] : [['Proje mi', formatJobProjectLabel(detail, t)] as [string, string]]),
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],

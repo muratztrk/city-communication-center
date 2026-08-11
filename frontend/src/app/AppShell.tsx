@@ -674,7 +674,7 @@ export function AppShell() {
               </button>
             </div>
             <div className="sidebar-scroll-area mt-3 flex-1 overflow-y-auto">
-              <SidebarNav items={navItems} onNavigate={() => setIsMobileNavOpen(false)} />
+              <SidebarNav items={navItems} onNavigate={() => setIsMobileNavOpen(false)} compactLabels={user?.role === 'Manager'} />
             </div>
             <div className="shrink-0 pt-2">
               <div className="rounded-[var(--radius-xl)] border border-white/8 bg-white/6 px-3 py-2.5">
@@ -739,10 +739,11 @@ export function AppShell() {
             {isSidebarCollapsed ? <ChevronRight className="size-3.5" /> : <ChevronLeft className="size-3.5" />}
           </button>
 
-          <div className="sidebar-scroll-area flex-1 overflow-y-auto">
+          <div className="sidebar-scroll-area flex-1 overflow-x-hidden overflow-y-auto">
             <SidebarNav
               items={navItems}
               collapsed={isSidebarCollapsed}
+              compactLabels={user?.role === 'Manager'}
             />
           </div>
 

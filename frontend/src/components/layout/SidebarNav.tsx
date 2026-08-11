@@ -40,9 +40,11 @@ interface SidebarNavProps {
   collapsed?: boolean
   defaultActivePaths?: string[]
   onNavigate?: () => void
+  /** Birim yöneticisi menüsünde uzun başlıklar yatay taşmayı önler (#2553). */
+  compactLabels?: boolean
 }
 
-export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], onNavigate }: SidebarNavProps) {
+export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], onNavigate, compactLabels = false }: SidebarNavProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const [groupPages, setGroupPages] = useState<Map<string, number>>(() => new Map())
@@ -91,17 +93,24 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
     const isActive = isPathActive(item.path) || forceActive
     const Icon = item.icon
     const isEmphasizedNested = nested && item.emphasized && !collapsed
+    const useCompactEmphasis = compactLabels && isEmphasizedNested
     const className = cn(
       'flex w-full min-w-0 items-center rounded-xl border text-left font-semibold transition-colors duration-150',
       collapsed
         ? 'justify-center gap-0 px-0 py-2.5 text-sm'
-        : isEmphasizedNested
-          ? '-ml-3 w-[calc(100%+0.75rem)] gap-2 px-2.5 py-2 text-[0.82rem] font-bold'
-          : nested
-            ? 'gap-2.5 px-3 py-1.5 text-xs'
-            : item.multilineLabel
-              ? 'gap-3 px-3 py-2 text-sm leading-snug'
-              : 'gap-3 px-3 py-2 text-sm',
+        : useCompactEmphasis
+          ? 'gap-2 px-2.5 py-1.5 text-[0.68rem] font-bold leading-snug'
+          : isEmphasizedNested
+            ? '-ml-3 w-[calc(100%+0.75rem)] gap-2 px-2.5 py-2 text-[0.82rem] font-bold'
+            : nested
+              ? (compactLabels && item.multilineLabel
+                ? 'gap-2 px-2.5 py-1.5 text-[0.68rem] leading-snug'
+                : 'gap-2.5 px-3 py-1.5 text-xs')
+              : item.multilineLabel
+                ? (compactLabels
+                  ? 'gap-2.5 px-3 py-1.5 text-[0.68rem] leading-snug'
+                  : 'gap-3 px-3 py-2 text-sm leading-snug')
+                : 'gap-3 px-3 py-2 text-sm',
       isActive
         ? 'border-white/10 bg-white text-slate-950 shadow-sm'
         : 'border-transparent text-[color:var(--color-sidebar-foreground)]/78 hover:border-white/8 hover:bg-white/8 hover:text-white',
@@ -151,7 +160,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
                 }
                 return (
                   <>
-                    <span className={cn('min-w-0', isEmphasizedNested ? 'whitespace-nowrap' : item.multilineLabel ? 'whitespace-pre-line leading-snug' : 'truncate')}>
+                    <span className={cn('min-w-0', (isEmphasizedNested && !compactLabels) ? 'whitespace-nowrap' : item.multilineLabel ? 'whitespace-pre-line leading-snug' : 'truncate')}>
                       {item.label}
                     </span>
                     <span
@@ -165,7 +174,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
               })()}
             </span>
           ) : (
-            <span className={cn('min-w-0', isEmphasizedNested ? 'whitespace-nowrap' : item.multilineLabel ? 'whitespace-pre-line leading-snug' : 'truncate')}>{item.label}</span>
+            <span className={cn('min-w-0', (isEmphasizedNested && !compactLabels) ? 'whitespace-nowrap' : item.multilineLabel ? 'whitespace-pre-line leading-snug' : 'truncate')}>{item.label}</span>
           )
         ) : null}
       </NavLink>

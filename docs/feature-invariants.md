@@ -384,6 +384,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   genişlikte (160px) kalır. Genel dropdown ölçüleri etkilenmez.
   **Rutin Görev Oluştur (card #1821/#1869):** `Açıklama` başlığının sağında WhatsApp ile aynı
   `Şablon mesajlar` + `Şablon mesaj ekle` bileşenleri; seçim açıklama RichText'e yazılır.
+  Kayıt sonrası yönlendirme `/my-tasks?view=pending` (Bekleyen Görevlerim — card #2548).
   Şablon menü `menuAlign="start"` ile buton soluna hizalanıp **sağa doğru** açılır (card #1869).
   **Kişisel şablon popup (card #1822):** `Kayıtlı şablonlar` native `<select>` değil;
   `SingleSelectDropdown` (portal + standart stil).
@@ -1040,11 +1041,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
   birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
-  (card #1701; mavi `in-progress` değil). Overdue rozeti `translate(50%, -70%)` + yalnız kırmızı
+  (card #1701; mavi `in-progress` değil). Overdue rozeti `translate(50%, -65%)` + yalnız kırmızı
   çerçeve; `.scope-chips` z-index 2 + hafif negatif margin (#2549). Birime Gelen sayfasında
   `incoming-requests-page` daha sıkı `page-stack` gap + çip `margin-top: -0.5rem` (#2525 reopen).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
+  **Birim yöneticisi menüsü (#2553):** `SidebarNav` `compactLabels` — uzun çok satırlı başlıklar
+  küçük punto + satır kırılımı; emphasized nested linkler negatif margin genişletmesi yapmaz;
+  scroll alanı `overflow-x-hidden`.
   Header: **Personel Dahili No ara…** solda (tüm kullanıcılara görünür — card #1779),
   **Sistemde ara…** sağda; her ikisi de en az 3 karakterde arar. Personel araması yalnız
   `DisplayName` eşleşir (card #1780); Türkçe karakter / i-ı katlamalı arama (card #1791);
@@ -1519,11 +1523,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `WhatsAppConversationModal` (`latestSocialMessageId` veya konuşma detayından) (card #1884);
   `Phone`/Çağrı satırında `DisabledActionButton` ile pasif (card #1868), açık mavi stil
   (`MessageSquareText` + `!bg-sky-400`). Mobil grid `table-wrap` ile yatay kayar (#r482).
-  İç içe detay popup'ta (`MyRequestDetailModal`) İlgili Görev Detayları → Tamamlama/İptal Notu
-  altında yalnız `Reporter` / `SystemAdmin` / `Operator` için `Vatandaşa Giden Mesaj` (`citizenOutboundMessage`
-  — SMS: operatör SMS gönderdikten sonra Talep Durum Notu (`ResolveAsync` — düzenlendiyse
-  güncel not, düzenlenmediyse onay ekranındaki not; card #2547); WA: mesaj onaylandıktan sonra
-  düzenlenmiş veya iletilen terminal not; card #2539).
+  İç içe detay popup'ta (`MyRequestDetailModal`) İlgili Görev Detayları → Tamamlama Notu
+  `citizenApprovalReleasedNote` (Mesajı Gönder audit `CitizenMessageApprovalReleased.Notes`) —
+  operatör notu düzenlese bile değişmez (#2528); düzenlenmiş metin yalnız `citizenOutboundMessage`
+  ile farklıysa `Vatandaşa Giden Mesaj` satırında gösterilir. SMS/WA terminal not çözümü (#2547/#2539)
+  outbound alanı için geçerlidir.
 - **FAB boyutları (#r482):** WhatsApp bildirim balonu mobil `size-12` / `sm:size-14` — Kurum İçi
   Mesajlar FAB ile aynı.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici
@@ -1589,6 +1593,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sonra ayrı satır; boş Son Tarih = `Onay Bekleyen` (Belirsiz değil).
 - **Yazdır Talep Etiketi (#2189):** detayda etiket varsa `printJobDetail` `Talep Detayları`'nda
   Durum sonrası `Talep Etiketi` satırı (`options.requestLabel` = sosyal `category`).
+- **Yazdır Talep Kanalı (#2524):** vatandaş talebi yazdırmada `Talep Yapılan Birim` sonrası
+  `Talep Kanalı` (`options.sourceChannel` → `getSocialChannelLabel`).
 - **Dizin ticket sıra (#r467):** VT yılı+numara azalan (en yüksek üstte).
 - **WA Birim panel (#r467–#r478):** Konuşmalar trigger ~10rem / menü ~184px; create-modal
   menü ~168px; clearable X; placeholder `Birim seçiniz...`.

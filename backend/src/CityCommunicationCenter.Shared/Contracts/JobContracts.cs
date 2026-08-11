@@ -149,4 +149,6 @@ public sealed record JobDetailResponse(
     int? CitizenRequestNumber = null,
     int? CitizenRequestNumberYear = null,
   /// <summary>Üst düzey yetkili — vatandaşa iletilen/gönderilecek terminal mesaj (#2528).</summary>
-    string? CitizenOutboundMessage = null);
+    string? CitizenOutboundMessage = null,
+    /// <summary>Mesajı Gönder anındaki onay notu — Tamamlama Notu olarak gösterilir (#2528).</summary>
+    string? CitizenApprovalReleasedNote = null);

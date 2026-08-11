@@ -658,6 +658,7 @@ export function CitizenDirectoryPage() {
               onPrint={() => printJobDetail(jobDetail, locale, t, {
                 myRequestView: true,
                 requestLabel: citizenSourceMessage?.category,
+                sourceChannel: citizenSourceMessage?.channel,
               })}
               showManagerNoteColumn={false}
               canEditManagerNote={false}
@@ -680,6 +681,7 @@ export function CitizenDirectoryPage() {
               onDownloadTaskAttachment={() => undefined}
               shellClassName="detail-modal-shell--citizen-directory-nested"
               citizenOutboundMessage={jobDetail.citizenOutboundMessage}
+              citizenApprovalReleasedNote={jobDetail.citizenApprovalReleasedNote}
             />
           ) : (
             <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl" onClick={event => event.stopPropagation()}>

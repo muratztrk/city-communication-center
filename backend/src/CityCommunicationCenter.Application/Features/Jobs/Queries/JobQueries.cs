@@ -589,6 +589,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             .FirstOrDefaultAsync(cancellationToken);
 
         string? citizenOutboundMessage = null;
+        string? citizenApprovalReleasedNote = null;
         if (context.RoleCode is nameof(RoleCode.Reporter)
             or nameof(RoleCode.SystemAdmin)
             or nameof(RoleCode.Operator))
@@ -597,6 +598,8 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 _dbContext, tenantId, job.JobId, track: false, cancellationToken);
             if (eligible is not null)
             {
+                citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
+                    _dbContext, tenantId, job.JobId, cancellationToken);
                 var linkedMessage = await _dbContext.SocialMessages.AsNoTracking()
                     .Where(m => m.TenantId == tenantId
                         && m.CitizenRequestNumber != null
@@ -656,6 +659,6 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             depts, tasks, approvals, attachments,
             jobStatusActorDisplayName, jobCompletionNote, job.UpdatedAtUtc, createdByRoleCode,
             citizenRequest?.CitizenRequestNumber, citizenRequest?.CitizenRequestNumberYear,
-            citizenOutboundMessage);
+            citizenOutboundMessage, citizenApprovalReleasedNote);
     }
 }

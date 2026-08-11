@@ -55,6 +55,25 @@ internal static class CitizenMessageApprovalNoteResolver
     }
 
     /// <summary>
+    /// Yöneticinin "Mesajı Gönder" anındaki onay notu — operatör düzenlemesi sonrası görev notu
+    /// değişse bile Tamamlama Notu olarak sabit kalır (#2528).
+    /// </summary>
+    public static async Task<string?> ResolveReleasedApprovalNoteAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        CancellationToken cancellationToken)
+    {
+        return await dbContext.AuditLogs.AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityId == jobId.ToString()
+                && audit.Action == "CitizenMessageApprovalReleased")
+            .OrderByDescending(audit => audit.EventTimeUtc)
+            .Select(audit => audit.Notes)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    /// <summary>
     /// Vatandaş Bilgi Listesi detay popup'ında "Vatandaşa Giden Mesaj" alanı — onay ekranında
     /// düzenlenmiş not veya iletilen terminal not (SMS <c>ResponseContent</c> / WA konuşma kaydı).
     /// </summary>

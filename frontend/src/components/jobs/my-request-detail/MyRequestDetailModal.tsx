@@ -79,6 +79,8 @@ export interface MyRequestDetailModalProps {
   shellClassName?: string
   /** Vatandaş Bilgi Listesi — üst düzey yetkili terminal mesaj (#2528). */
   citizenOutboundMessage?: string | null
+  /** Mesajı Gönder anındaki onay notu — Tamamlama Notu (#2528). */
+  citizenApprovalReleasedNote?: string | null
 }
 
 export function MyRequestDetailModal({
@@ -141,6 +143,7 @@ export function MyRequestDetailModal({
   forceCitizenDetailCards = false,
   shellClassName,
   citizenOutboundMessage,
+  citizenApprovalReleasedNote,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
 
@@ -306,6 +309,7 @@ export function MyRequestDetailModal({
           onDownloadTaskAttachment={onDownloadTaskAttachment}
           hidePlainDescription={hideTaskPlainDescription || (isStandardUser && !isEditing)}
           citizenOutboundMessage={citizenOutboundMessage}
+          citizenApprovalReleasedNote={citizenApprovalReleasedNote}
         />
       </div>
     </section>

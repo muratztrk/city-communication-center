@@ -20,6 +20,8 @@ interface MyRequestTaskDetailsSectionProps {
   onDownloadTaskAttachment: (attachmentId: string, fileName: string) => void
   hidePlainDescription?: boolean
   citizenOutboundMessage?: string | null
+  /** Mesajı Gönder anındaki onay notu — Tamamlama Notu (#2528). */
+  citizenApprovalReleasedNote?: string | null
   // Taleplerim'de standart kullanıcı için Adres Bilgileri, Süreç'in önünde ikinci kolon
   // olarak buraya taşınır; Süreç, Açıklama'nın yerine kayar (card #1549).
   addressColumnContent?: ReactNode
@@ -120,6 +122,7 @@ export function MyRequestTaskDetailsSection({
   onDownloadTaskAttachment,
   hidePlainDescription = false,
   citizenOutboundMessage,
+  citizenApprovalReleasedNote,
   addressColumnContent,
 }: MyRequestTaskDetailsSectionProps) {
   const { t } = useTranslation()
@@ -160,6 +163,15 @@ export function MyRequestTaskDetailsSection({
 
           const isCompletedTask = task.currentStatus === 'Completed'
           const isCancelledTask = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
+          const completionNoteDisplay = isCompletedTask
+            ? (citizenApprovalReleasedNote?.trim()
+              || richTextToPlainText(task.notes)
+              || '—')
+            : ''
+          const outboundDiffersFromCompletion = Boolean(
+            citizenOutboundMessage?.trim()
+            && citizenOutboundMessage.trim() !== (citizenApprovalReleasedNote?.trim() || richTextToPlainText(task.notes).trim()),
+          )
           const showDescriptionCard = !hidePlainDescription
           // Açıklama yokken Görev Bilgileri + Süreç eşit kolonlarda; kartlar düşeyde eşit
           // yükseklikte (items-stretch) ve başlıklar üstte hizalı (cards #1634/#1635).
@@ -207,7 +219,7 @@ export function MyRequestTaskDetailsSection({
                     ...(isCompletedTask
                       ? [{
                           label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
-                          value: richTextToPlainText(task.notes) || '—',
+                          value: completionNoteDisplay,
                           // Etiket + değer yeşil (card #1638).
                           tone: 'completion' as const,
                         }]
@@ -219,7 +231,7 @@ export function MyRequestTaskDetailsSection({
                             tone: 'cancel' as const,
                           }]
                         : []),
-                    ...(citizenOutboundMessage && task.taskId === detail.tasks[0]?.taskId
+                    ...(outboundDiffersFromCompletion && task.taskId === detail.tasks[0]?.taskId
                       ? [{
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
                           value: citizenOutboundMessage,

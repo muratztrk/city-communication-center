@@ -1,3 +1,7 @@
+## Round 779 — #2532/#2545/#2525 reopen (üst satır + geniş kutucuk + kırmızı rozet)
+
+- [x] Vatandaş Talepleri üst satır; `max-w-7xl` + `min-w-[15.5rem]`; Otomatik Mesaj `text-xs`; overdue rozet `-75%` yalnız kırmızı.
+
 ## Round 778 — #2532/#2545/#2525 reopen (gap satır orta + mavi Otomatik Mesaj + rozet)
 
 - [x] Metrik `gap-x-12 gap-y-2`, 2. satır ortalı; Otomatik Mesaj mavi chip; overdue turuncu halka.

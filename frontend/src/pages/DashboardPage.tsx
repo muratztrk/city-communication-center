@@ -454,6 +454,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconColor: 'text-orange-600',
         },
         {
+          label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
+          sublabel: t('dashboard.cards.citizenPendingApprovalSub', 'Onay Bekleyen'),
+          value: dashboardQuery.data.activeSocialMessageCount,
+          icon: MessageSquareMore,
+          path: '/incoming-requests?status=pending-approval&citizen=1',
+          iconBg: 'bg-rose-100',
+          iconColor: 'text-rose-600',
+        },
+        {
           label: t('dashboard.cards.deptPendingTasks', 'Birimde Bekleyen Görevler'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: dashboardQuery.data.deptPendingTaskCount,
@@ -499,20 +508,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-tasks?view=open',
           iconBg: 'bg-violet-100',
           iconColor: 'text-violet-600',
-        },
-      ]
-    : []
-
-  const managerRow2: MetricCard[] = !hideMetricCards && isManagerOrAdmin && dashboardQuery.data
-    ? [
-        {
-          label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
-          sublabel: t('dashboard.cards.citizenPendingApprovalSub', 'Onay Bekleyen'),
-          value: dashboardQuery.data.activeSocialMessageCount,
-          icon: MessageSquareMore,
-          path: '/incoming-requests?status=pending-approval&citizen=1',
-          iconBg: 'bg-rose-100',
-          iconColor: 'text-rose-600',
         },
       ]
     : []
@@ -591,7 +586,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       <button
         key={metric.label}
         type="button"
-        className="flex w-full items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-3.5 py-3 text-left shadow-[var(--shadow-edge)] transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
+        className="flex w-full min-w-[15.5rem] items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-4 py-3 text-left shadow-[var(--shadow-edge)] transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
         onClick={() => {
           saveDashboardScroll()
           navigate(withQueryParams(basePath, pieQueryParams(existingParams)))
@@ -674,30 +669,16 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <div className="px-5 py-3.5 sm:px-8">
             {dashboardQuery.isLoading
               ? (
-                <>
-                  <div className="mx-auto grid max-w-6xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
-                    {Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
-                    ))}
-                  </div>
-                  <div className="mx-auto mt-2 flex max-w-6xl flex-wrap justify-center gap-x-12">
-                    {Array.from({ length: 2 }).map((_, i) => (
-                      <div key={i} className="h-[72px] w-full max-w-[calc(25%-0.75rem)] min-w-[14rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:w-[calc(50%-1.5rem)] lg:w-[calc(25%-2.25rem)]" />
-                    ))}
-                  </div>
-                </>
+                <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <div key={i} className="h-[72px] min-w-[15.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
+                  ))}
+                </div>
               )
               : (
-                <>
-                  <div className="mx-auto grid max-w-6xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
-                    {managerRow1.map(renderCard)}
-                  </div>
-                  {managerRow2.length > 0 ? (
-                    <div className="mx-auto mt-2 flex max-w-6xl flex-wrap justify-center gap-x-12 [&>button]:w-full [&>button]:sm:max-w-[calc((100%-3rem)/2)] [&>button]:lg:max-w-[calc((100%-9rem)/4)]">
-                      {managerRow2.map(renderCard)}
-                    </div>
-                  ) : null}
-                </>
+                <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
+                  {managerRow1.map(renderCard)}
+                </div>
               )}
           </div>
         ) : (

@@ -367,7 +367,7 @@ export function ConversationEntryBubble({
       </div>
       {!isInbound && entry.isAutomaticMessage ? (
         <span
-          className={`mt-1 inline-flex rounded-md px-2 py-0.5 text-[10px] font-semibold leading-none text-white shadow-sm ${
+          className={`mt-1 inline-flex rounded-md px-2.5 py-1 text-xs font-semibold leading-none text-white shadow-sm ${
             theme === 'light' ? 'bg-[color:var(--color-primary)]' : 'bg-sky-600'
           }`}
         >

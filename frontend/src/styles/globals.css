@@ -1323,7 +1323,7 @@
     /* Filtre butonları (çipler) için biraz daha dikey nefes payı: 15.6" / yüksek zoom'da banner ile
        gridview arasında sıkışıp üst üste binmiş görünmesinler (card 610/637). */
     .app-content-shell .desktop-page-shell > .scope-chips {
-      padding-block: 0.6rem;
+      padding-block: 0.75rem 0.6rem;
       position: relative;
     }
 
@@ -3890,7 +3890,7 @@
     overflow-y: visible;
     scrollbar-width: none;
     /* overflow-x:auto dikeyde de kırpıyor; aktif çiplerin gölgesi + overdue rozeti üstten kesilmesin. */
-    padding-block: 0.55rem;
+    padding-block: 0.75rem 0.55rem;
   }
 
   .scope-chips::-webkit-scrollbar {
@@ -3995,8 +3995,8 @@
     position: absolute;
     right: 0;
     top: 0;
-    z-index: 3;
-    transform: translate(50%, -58%);
+    z-index: 5;
+    transform: translate(50%, -75%);
     display: flex;
     height: 1.05rem;
     min-width: 1.05rem;
@@ -4004,6 +4004,7 @@
     justify-content: center;
     border-radius: 9999px;
     background: #dc2626;
+    border: 2px solid #dc2626;
     padding: 0 0.22rem;
     font-size: 0.65rem;
     font-weight: 800;
@@ -4011,14 +4012,6 @@
     color: #fff;
     font-variant-numeric: tabular-nums;
     box-shadow: 0 1px 3px rgb(0 0 0 / 0.22);
-  }
-
-  .scope-chip--overdue .scope-chip-overdue-badge {
-    box-shadow: 0 1px 3px rgb(0 0 0 / 0.22), 0 0 0 2px #f97316;
-  }
-
-  .scope-chip--overdue.active .scope-chip-overdue-badge {
-    box-shadow: 0 1px 3px rgb(0 0 0 / 0.22), 0 0 0 2px #ea580c;
   }
 
   .scope-chip-overdue-badge--wide {

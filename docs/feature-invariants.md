@@ -1408,9 +1408,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Görevi Yapan / Görev Sahibi yok (#6a75a4ff).
 - **Kurum içi FAB sohbet zemin:** liste paneli ile aynı `bg-[color:var(--color-background)]`
   (bej `#ece5dd` geri alındı — #6a75a09a).
-- **Yönetici anasayfa kutucuk sırası (#6a75b318):** Birime Gelen Onay Bekleyen → Vatandaş Talepleri
+- **Yönetici anasayfa kutucuk sırası (#6a75b318 / #2532 reopen):** Birime Gelen Onay Bekleyen
   → Birimdeki Görevler (Bekleyen Görevler) → Birimden Giden Bekleyen → Birimden Giden Yapılmakta
-  → Bekleyen Taleplerim → Bekleyen Görevlerim (#2550 metin güncellemesi).
+  → Bekleyen Taleplerim → Bekleyen Görevlerim → Vatandaş Talepleri (en son).
 - **Personel/Operatör anasayfa kutucuk sırası (#6a75bf14):** Bekleyen Görevlerim → Bekleyen Taleplerim.
 - **Bekleyen Görevlerim kart sayısı (#6a75c274):** `myPendingTaskCount` = bekleyen + son tarihi geçmiş
   (terminal hariç); tıklanınca `/my-tasks?view=open` (ikisini birden listeler, Durum sütunu açık).
@@ -1473,7 +1473,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yüksekliğinde kalır; daha çok dilimde yalnız sağ lejant dikey scroll olur. Donut ve dashboard grid
   kartı uzun etiket listesi yüzünden aşağı doğru büyümemelidir.
 - **Dashboard dönem altı metrik kutucukları (card #2532 reopen):** `DashboardPage` tek grid
-  `max-w-7xl gap-x-12 gap-y-2`; `Vatandaş Talepleri` üst satırda; kutucuk `min-w-[15.5rem]`.
+  `max-w-7xl gap-x-12 gap-y-2`; `Vatandaş Talepleri` Bekleyen Görevlerimden sonra (en son); kutucuk `min-w-[15.5rem]`.
 - **Talep Etiketi pie chart'ı (card #1591):** yalnız Üst Düzey Yönetici (`Reporter`) ve Vatandaş
   Operatörü (`Operator`) dashboard'larında görünür. Tenant ve seçili tarih aralığındaki talebi
   `SocialMessage.JobId` üzerinden tek kez sayar; etiket kaynağı önce `SocialMessage.Category`, boşsa

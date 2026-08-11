@@ -1,3 +1,7 @@
+## Round 781 — #2532 reopen (Vatandaş Talepleri en sona)
+
+- [x] Yönetici metrik kutucuk sırası: Vatandaş Talepleri Bekleyen Görevlerimden sonra.
+
 ## Round 780 — #2525/#2550/#2545 reopen (rozet aşağı + kutucuk metin + Otomatik Mesaj chip)
 
 - [x] Overdue rozet `-68%`; Birimdeki Görevler / Bekleyen Görevler kutucuk; Otomatik Mesaj rounded-full Onaylayan Yönetici boyutu.

@@ -454,15 +454,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconColor: 'text-orange-600',
         },
         {
-          label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
-          sublabel: t('dashboard.cards.citizenPendingApprovalSub', 'Onay Bekleyen'),
-          value: dashboardQuery.data.activeSocialMessageCount,
-          icon: MessageSquareMore,
-          path: '/incoming-requests?status=pending-approval&citizen=1',
-          iconBg: 'bg-rose-100',
-          iconColor: 'text-rose-600',
-        },
-        {
           label: t('dashboard.cards.deptPendingTasks', 'Birimdeki Görevler'),
           sublabel: t('dashboard.cards.deptPendingTasksSub', 'Bekleyen Görevler'),
           value: dashboardQuery.data.deptPendingTaskCount,
@@ -508,6 +499,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-tasks?view=open',
           iconBg: 'bg-violet-100',
           iconColor: 'text-violet-600',
+        },
+        {
+          label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
+          sublabel: t('dashboard.cards.citizenPendingApprovalSub', 'Onay Bekleyen'),
+          value: dashboardQuery.data.activeSocialMessageCount,
+          icon: MessageSquareMore,
+          path: '/incoming-requests?status=pending-approval&citizen=1',
+          iconBg: 'bg-rose-100',
+          iconColor: 'text-rose-600',
         },
       ]
     : []

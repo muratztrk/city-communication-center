@@ -512,6 +512,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       ]
     : []
 
+  const managerTailCount = isInternalModuleUsable ? 3 : 2
+  const managerRowHead = managerRow1.slice(0, Math.max(0, managerRow1.length - managerTailCount))
+  const managerRowTail = managerRow1.slice(-managerTailCount)
+
   const staffMetrics: MetricCard[] = !hideMetricCards && !isManagerOrAdmin && dashboardQuery.data
     ? [
         ...(isReporter ? [] : [{
@@ -669,16 +673,30 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <div className="px-5 py-3.5 sm:px-8">
             {dashboardQuery.isLoading
               ? (
-                <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="h-[72px] min-w-[15.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
-                  ))}
-                </div>
+                <>
+                  <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div key={i} className="h-[72px] min-w-[15.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
+                    ))}
+                  </div>
+                  <div className="mx-auto mt-2 flex max-w-7xl flex-wrap justify-center gap-x-12">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <div key={i} className="h-[72px] w-full min-w-[15.5rem] max-w-[calc((100%-9rem)/4)] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:max-w-[calc((100%-3rem)/2)]" />
+                    ))}
+                  </div>
+                </>
               )
               : (
-                <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
-                  {managerRow1.map(renderCard)}
-                </div>
+                <>
+                  <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
+                    {managerRowHead.map(renderCard)}
+                  </div>
+                  {managerRowTail.length > 0 ? (
+                    <div className="mx-auto mt-2 flex max-w-7xl flex-wrap justify-center gap-x-12 [&>button]:w-full [&>button]:min-w-[15.5rem] [&>button]:sm:max-w-[calc((100%-3rem)/2)] [&>button]:lg:max-w-[calc((100%-9rem)/4)]">
+                      {managerRowTail.map(renderCard)}
+                    </div>
+                  ) : null}
+                </>
               )}
           </div>
         ) : (

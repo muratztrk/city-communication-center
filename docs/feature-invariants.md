@@ -1040,8 +1040,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
   birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
-  (card #1701; mavi `in-progress` değil). Overdue rozeti `translate(50%, -68%)` + yalnız kırmızı
-  çerçeve (turuncu halka yok); `.scope-chips` üst padding (cards #2525 reopen).
+  (card #1701; mavi `in-progress` değil). Overdue rozeti `translate(50%, -78%)` + yalnız kırmızı
+  çerçeve; `.scope-chips` z-index 2 + hafif negatif margin (cards #2525 reopen Birime Gelen).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
   Header: **Personel Dahili No ara…** solda (tüm kullanıcılara görünür — card #1779),
@@ -1472,8 +1472,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dashboard pie lejant yüksekliği (card #1597):** ortak `PieChart` lejantı en fazla 5 satır
   yüksekliğinde kalır; daha çok dilimde yalnız sağ lejant dikey scroll olur. Donut ve dashboard grid
   kartı uzun etiket listesi yüzünden aşağı doğru büyümemelidir.
-- **Dashboard dönem altı metrik kutucukları (card #2532 reopen):** `DashboardPage` tek grid
-  `max-w-7xl gap-x-12 gap-y-2`; `Vatandaş Talepleri` Bekleyen Görevlerimden sonra (en son); kutucuk `min-w-[15.5rem]`.
+- **Dashboard dönem altı metrik kutucukları (card #2532 reopen):** `DashboardPage` üst grid
+  + alt satır `justify-center` (Bekleyen Taleplerim / Bekleyen Görevlerim / Vatandaş Talepleri);
+  `max-w-7xl gap-x-12`; kutucuk `min-w-[15.5rem]`.
 - **Talep Etiketi pie chart'ı (card #1591):** yalnız Üst Düzey Yönetici (`Reporter`) ve Vatandaş
   Operatörü (`Operator`) dashboard'larında görünür. Tenant ve seçili tarih aralığındaki talebi
   `SocialMessage.JobId` üzerinden tek kez sayar; etiket kaynağı önce `SocialMessage.Category`, boşsa

@@ -1,3 +1,7 @@
+## Round 782 — #2532/#2525 reopen (son satır orta + overdue banner overlap)
+
+- [x] Metrik son satır ortalı; overdue rozet `-78%`, scope-chips z-index + negatif margin.
+
 ## Round 781 — #2532 reopen (Vatandaş Talepleri en sona)
 
 - [x] Yönetici metrik kutucuk sırası: Vatandaş Talepleri Bekleyen Görevlerimden sonra.

@@ -1041,14 +1041,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
   birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
-  (card #1701; mavi `in-progress` değil). Overdue rozeti `translate(50%, -65%)` + yalnız kırmızı
-  çerçeve; `.scope-chips` z-index 2 + hafif negatif margin (#2549). Birime Gelen sayfasında
+  (card #1701; mavi `in-progress` değil). Overdue rozeti `translate(50%, -58%)` + `z-index: 30`;
+  `.scope-chips` z-index 3 — banner üstüne taşan rozet banner'ı ezer (#2555).
   `incoming-requests-page` daha sıkı `page-stack` gap + çip `margin-top: -0.5rem` (#2525 reopen).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
   **Birim yöneticisi menüsü (#2553):** `SidebarNav` `compactLabels` — uzun çok satırlı başlıklar
-  küçük punto + satır kırılımı; emphasized nested linkler negatif margin genişletmesi yapmaz;
-  scroll alanı `overflow-x-hidden`.
+  küçük punto + satır kırılımı; `/citizen-message-approval` biraz büyük (`0.74rem`); emphasized
+  nested linkler negatif margin genişletmesi yapmaz; scroll alanı `overflow-x-hidden`.
   Header: **Personel Dahili No ara…** solda (tüm kullanıcılara görünür — card #1779),
   **Sistemde ara…** sağda; her ikisi de en az 3 karakterde arar. Personel araması yalnız
   `DisplayName` eşleşir (card #1780); Türkçe karakter / i-ı katlamalı arama (card #1791);
@@ -1527,7 +1527,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `citizenApprovalReleasedNote` (Mesajı Gönder audit `CitizenMessageApprovalReleased.Notes`) —
   operatör notu düzenlese bile değişmez (#2528); düzenlenmiş metin yalnız `citizenOutboundMessage`
   ile farklıysa `Vatandaşa Giden Mesaj` satırında gösterilir. SMS/WA terminal not çözümü (#2547/#2539)
-  outbound alanı için geçerlidir.
+  outbound alanı için geçerlidir. Tamamlama ile outbound farklıysa outbound değeri kırmızı (#2557).
+  JobsPage ve tüm `MyRequestDetailModal` yüzeylerinde `citizenApprovalReleasedNote` / `citizenOutboundMessage` taşınır (#2556).
 - **FAB boyutları (#r482):** WhatsApp bildirim balonu mobil `size-12` / `sm:size-14` — Kurum İçi
   Mesajlar FAB ile aynı.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici
@@ -1614,7 +1615,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep Etiketi edit senkron (card #1896/#r449):** detay kaydı sonrası sosyal grid
   `onMessageUpdated` ile category seçili kalır.
 - **WA 24s hata metni (#r470):** re-engagement → `Vatandaş son 24 saat içinde mesaj göndermediği
-  için yalnızca Meta onaylı şablon mesaj gönderilebilir.`
+  için yalnızca Meta onaylı şablon mesaj gönderilebilir.` Vatandaş yeniden yazdığında pencere
+  açıksa bekleyen/hatalı terminal mesaj Düzenle + Mesajı Gönder serbest (#2552).
 - **WA Şablon menü (#r471):** Konuşmalar sayfasında `menuAlign="start"` (sağa doğru açılır).
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
 - **Görev grid Görevi Yapan (#r471/#r472/#r531):** personel adı `text-sm font-semibold` (#2006).

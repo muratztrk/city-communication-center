@@ -23,6 +23,7 @@ import {
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
 import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
+import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
@@ -242,8 +243,16 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     })
   }
 
+  const lastInboundAt = useMemo(() => {
+    for (let i = entries.length - 1; i >= 0; i -= 1) {
+      if (entries[i].direction === 'Inbound') return entries[i].sentAt
+    }
+    return null
+  }, [entries])
+  const windowOpen = isWhatsApp24hWindowOpen(lastInboundAt)
+
   const handleSendPending = (entry: ConversationEntryBubbleData) => {
-    if (isReEngagementEntry(entry)) {
+    if (isReEngagementEntry(entry) && !windowOpen) {
       showReEngagementWarningDialog()
       return
     }
@@ -356,6 +365,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   sendingPending={sendingPendingId === entry.entryId}
                   onEditPending={(_, content) => handleEditPending(entry, content)}
                   onReEngagementBlocked={showReEngagementWarningDialog}
+                  conversationOutside24hWindow={!windowOpen}
                   onShowTerminalNote={handleShowTerminalNote}
                 />
               </Fragment>

@@ -29,6 +29,7 @@ import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
+import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
@@ -550,14 +551,6 @@ function ConversationListPanel({
   )
 }
 
-// ─── 24h window check ────────────────────────────────────────────────────────
-
-function is24hWindowOpen(lastInboundAt: string | null): boolean {
-  if (!lastInboundAt) return false
-  const diffMs = Date.now() - new Date(lastInboundAt).getTime()
-  return diffMs < 24 * 60 * 60 * 1000
-}
-
 // ─── right panel: conversation detail ────────────────────────────────────────
 
 type ConversationProfileDraft = {
@@ -959,7 +952,7 @@ function ConversationDetail({
     if ((!text && !pendingFile) || sending || !detail) return
 
     const usingMetaTemplate = Boolean(selectedMetaTemplate)
-    if (!is24hWindowOpen(detail.lastInboundAt ?? null) && !usingMetaTemplate) {
+    if (!isWhatsApp24hWindowOpen(detail.lastInboundAt ?? null) && !usingMetaTemplate) {
       setConfirmDialog({
         title: 'Meta Onaylı Şablon Mesajı',
         titleDivider: true,
@@ -1089,7 +1082,9 @@ function ConversationDetail({
   }
 
   const handleSendPending = (entry: CitizenConversationTimelineEntry) => {
-    if (isReEngagementEntry(entry) || (!windowOpen && entry.direction === 'Outbound' && entry.deliveryStatus === 'Pending')) {
+    const outsideWindow = !windowOpen
+    if ((isReEngagementEntry(entry) && outsideWindow)
+      || (outsideWindow && entry.direction === 'Outbound' && entry.deliveryStatus === 'Pending')) {
       showReEngagementWarningDialog()
       return
     }
@@ -1141,7 +1136,7 @@ function ConversationDetail({
     }
   }, [internalDepartmentId, internalDepartmentOptions])
 
-  const windowOpen = is24hWindowOpen(detail?.lastInboundAt ?? null)
+  const windowOpen = isWhatsApp24hWindowOpen(detail?.lastInboundAt ?? null)
   const hasSelectableTemplates = userQuickReplies.length > 0
 
   const phoneForHeader = citizenPhone ?? detail?.citizenPhone ?? null

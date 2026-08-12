@@ -742,12 +742,15 @@ export function CreateRequestPage() {
   const renderAddressFields = (
     form: { neighborhood: string; street: string; openAddress: string },
     setField: (field: 'neighborhood' | 'street' | 'openAddress', value: string) => void,
+    options?: { sectionTitle?: string; includePhotoUpload?: boolean },
   ) => {
     const hasNeighborhood = form.neighborhood.trim().length > 0
+    const sectionTitle = options?.sectionTitle ?? t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')
+    const includePhotoUpload = options?.includePhotoUpload ?? true
 
     return (
     <div className="job-field">
-      <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
+      <span className="job-field-label">{sectionTitle}</span>
       <div className="grid gap-2">
         <div className="grid gap-2 md:grid-cols-2">
           <div className="grid gap-1">
@@ -805,7 +808,7 @@ export function CreateRequestPage() {
               required={hasNeighborhood}
             />
           </label>
-          {renderPhotoUpload('min-h-0')}
+          {includePhotoUpload ? renderPhotoUpload('min-h-0') : null}
         </div>
       </div>
     </div>
@@ -1460,7 +1463,7 @@ export function CreateRequestPage() {
                 />
               </div>
             </div>
-            {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
+            {renderPhotoUpload('min-h-0')}
           </div>
           <div className="grid content-start gap-3">
             <div className="grid gap-3 md:grid-cols-2">
@@ -1542,6 +1545,14 @@ export function CreateRequestPage() {
                 </div>
               </div>
             </div>
+            {renderAddressFields(
+              citizenForm,
+              (field, value) => setCitizenForm(current => ({ ...current, [field]: value })),
+              {
+                sectionTitle: t('requests.create.citizenAddressSection', 'Vatandaş Adres Bilgisi (İsteğe Bağlı)'),
+                includePhotoUpload: false,
+              },
+            )}
             <div className="job-field min-h-0">
               <span className="job-field-label">{t('settings.citizen.content', 'Açıklama')} <span className="normal-case text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
               <RichTextEditor

@@ -1,3 +1,13 @@
+## Round 785 — #2524 reopen/#2551/#2552/#2554/#2556/#2557/#2555/#2553 reopen
+
+- [x] `6a79b0b1` — Tüm vatandaş detay yazdırma yollarında `sourceChannel`.
+- [x] `6a7af1dd` — Overdue rozet `-58%`.
+- [x] `6a7b147` — 24h penceresi yeniden açıldığında pending/re-engagement düzenle+gönder.
+- [x] `6a7b4464` — Çağrı talebi sağ kolon Vatandaş Adres Bilgisi.
+- [x] `6a7c0c15`/`6a7c0d39` — JobsPage outbound not + kırmızı farklı metin.
+- [x] `6a7c06c2` — Overdue rozet z-index 30, scope-chips z-index 3.
+- [x] `6a7b19af` — Manager menü Mesaj Onayı `0.74rem`.
+
 ## Round 784 — #2528/#2548/#2551/#2553/#2524 (VT not ayrımı + rutin yönlendirme + rozet + menü + yazdır kanal)
 
 - [x] `6a79c3a8` — Tamamlama Notu = `citizenApprovalReleasedNote` (Mesajı Gönder audit); düzenlenen metin yalnız Vatandaşa Giden Mesaj.

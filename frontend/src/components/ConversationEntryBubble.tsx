@@ -177,7 +177,7 @@ export function ConversationEntryBubble({
   }, [isEditing, draft])
 
   const beginEdit = () => {
-    if (isReEngagementFailure || (conversationOutside24hWindow && isPending)) {
+    if ((isReEngagementFailure && conversationOutside24hWindow) || (conversationOutside24hWindow && isPending)) {
       onReEngagementBlocked?.()
       return
     }

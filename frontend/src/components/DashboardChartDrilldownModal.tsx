@@ -613,6 +613,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
               onPrint={() => printJobDetail(detail, locale, t, {
                 myRequestView: true,
                 requestLabel: citizenSourceMessage?.category,
+                sourceChannel: citizenSourceMessage?.channel,
               })}
               showManagerNoteColumn={false}
               canEditManagerNote={false}
@@ -635,6 +636,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
               onDownloadTaskAttachment={() => undefined}
               /* Vatandaş Talep Bilgisi nested boyutu (#6a6da278). */
               shellClassName="detail-modal-shell--citizen-directory-nested"
+              citizenOutboundMessage={detail.citizenOutboundMessage}
+              citizenApprovalReleasedNote={detail.citizenApprovalReleasedNote}
             />
           ) : (
             <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl" onClick={event => event.stopPropagation()}>

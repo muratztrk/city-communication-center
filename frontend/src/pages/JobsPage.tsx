@@ -2415,6 +2415,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 incomingTargetView: isIncomingRequestDetail,
                 myRequestView: isMyRequestsView,
                 requestLabel: citizenSourceMessage?.category,
+                sourceChannel: citizenSourceMessage?.channel,
               })}
               onCancel={socialActions?.cancel ?? (canCancelDetail ? () => handleCancel(detail.jobId) : undefined)}
               showCancelDisabled={Boolean(socialActions && !socialActions.cancel)}
@@ -2472,6 +2473,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               editError={myRequestEditing ? error : null}
               useMyRequestsFieldLayout
               forceCitizenDetailCards={detailContext === 'social'}
+              citizenOutboundMessage={detail.citizenOutboundMessage}
+              citizenApprovalReleasedNote={detail.citizenApprovalReleasedNote}
             />
           ) : (
           <section
@@ -2647,6 +2650,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     onClick={() => printJobDetail(detail, locale, t, {
                       incomingTargetView: isIncomingRequestDetail,
                       requestLabel: citizenSourceMessage?.category,
+                      sourceChannel: citizenSourceMessage?.channel,
                     })}
                     aria-label={t('common.print', 'Yazdır')}
                   >
@@ -3294,6 +3298,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 locale={locale}
                 onDownloadTaskAttachment={(attachmentId, fileName) => void handleDownloadTaskAttachment(attachmentId, fileName)}
                 hidePlainDescription={isIncomingRequestDetail || (isDepartmentOutgoingView && activeJobView === 'completed')}
+                citizenOutboundMessage={detail.citizenOutboundMessage}
+                citizenApprovalReleasedNote={detail.citizenApprovalReleasedNote}
               />
             )}
            </div>

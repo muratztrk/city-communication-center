@@ -1616,7 +1616,7 @@ export function CreateRequestPage() {
                 normalizeOnBlur={ensureLeadingCapitalRichText}
                 required
                 placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebini detaylı olarak açıklayınız...')}
-                minHeight="min-h-32"
+                minHeight="min-h-28"
               />
             </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">

@@ -427,6 +427,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     refetchInterval: 60_000,
   })
 
+  const myPendingRequestsMetricValue = useMemo(() => {
+    if (!dashboardQuery.data) return undefined
+    const chart = statusChartsQuery.data?.charts.find(item => item.titleKey === 'dashboard.charts.myRequests')
+    if (!chart) return dashboardQuery.data.myPendingRequestCount
+    const pending = chart.slices.find(slice => slice.label === 'dashboard.chart.pending')?.value ?? 0
+    const overdue = chart.slices.find(slice => slice.label === 'dashboard.chart.overdue')?.value ?? 0
+    return pending + overdue
+  }, [dashboardQuery.data, statusChartsQuery.data])
+
   // Hook'lardan sonra redirect — erken return rules-of-hooks bozar (CI lint).
   if (effectiveView === 'citizen' && !isModuleUsable('citizen')) {
     return <Navigate to={role === 'Operator' ? '/dashboard/birimler' : '/citizen-directory'} replace />
@@ -485,7 +494,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         ...(isInternalModuleUsable ? [{
           label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
-          value: dashboardQuery.data.myPendingRequestCount,
+          value: myPendingRequestsMetricValue ?? dashboardQuery.data.myPendingRequestCount,
           icon: ClipboardList,
           path: '/my-requests?view=pending',
           iconBg: 'bg-amber-100',
@@ -530,7 +539,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         ...(isInternalModuleUsable ? [{
           label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
-          value: dashboardQuery.data.myPendingRequestCount,
+          value: myPendingRequestsMetricValue ?? dashboardQuery.data.myPendingRequestCount,
           icon: ClipboardList,
           path: '/my-requests?view=pending',
           iconBg: 'bg-amber-100',

@@ -1510,7 +1510,6 @@ export function CreateRequestPage() {
               </div>
             </div>
             {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
-            {renderPhotoUpload('min-h-0')}
           </div>
           <div className="grid content-start gap-3">
             <div className="grid gap-3 md:grid-cols-2">
@@ -1617,7 +1616,7 @@ export function CreateRequestPage() {
                 normalizeOnBlur={ensureLeadingCapitalRichText}
                 required
                 placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebini detaylı olarak açıklayınız...')}
-                minHeight="min-h-48"
+                minHeight="min-h-32"
               />
             </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">

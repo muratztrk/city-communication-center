@@ -51,15 +51,25 @@ public sealed class SendPendingConversationEntryCommandHandler
             e => e.EntryId == request.EntryId && e.SocialMessageId == request.SocialMessageId, cancellationToken);
         if (entry is null) return new SendPendingConversationEntryResult(false, false);
 
-        if (entry.Direction != ConversationEntryDirection.Outbound
-            || entry.DeliveryStatus != ConversationDeliveryStatus.Pending)
+        var utcNow = DateTimeOffset.UtcNow;
+        var windowOpen = message.Channel == SocialChannel.WhatsApp
+            && WhatsAppServiceWindow.IsWindowOpen(
+                await WhatsAppServiceWindow.GetLastInboundAtUtcAsync(_dbContext, tenantId, message, cancellationToken),
+                utcNow);
+
+        if (!WhatsAppServiceWindow.IsRetryableOutboundEntry(entry, windowOpen))
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(request.EntryId), "Bu mesaj zaten iletilmiş veya gönderilebilir durumda değil.")
             ]);
         }
 
-        var utcNow = DateTimeOffset.UtcNow;
+        if (entry.DeliveryStatus == ConversationDeliveryStatus.Failed)
+        {
+            entry.DeliveryStatus = ConversationDeliveryStatus.Pending;
+            entry.DeliveryError = null;
+        }
+
         var client = _clientFactory.GetClient(message.Channel, tenantId);
 
         if (message.Channel == SocialChannel.WhatsApp && client is not null)

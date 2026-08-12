@@ -787,6 +787,18 @@ function ConversationDetail({
       composerBusyTimerRef.current = null
     }, 2500)
   }, [])
+  const handleComposerEngaged = useCallback(() => {
+    markComposerBusy()
+    void api.markConversationRead(conversationId)
+      .then(() => onReadMarked?.())
+      .catch(() => onReadMarked?.())
+    window.dispatchEvent(new CustomEvent('ccc:whatsapp-composer-engaged', {
+      detail: {
+        citizenConversationId: conversationId,
+        citizenPhone: citizenPhone ?? detail?.citizenPhone ?? '',
+      },
+    }))
+  }, [conversationId, citizenPhone, detail?.citizenPhone, markComposerBusy, onReadMarked])
   useEffect(() => {
     latestConversationIdRef.current = conversationId
   })
@@ -1354,9 +1366,10 @@ function ConversationDetail({
                       rows={2}
                       value={replyText}
                       onChange={value => {
-                        markComposerBusy()
+                        handleComposerEngaged()
                         setReplyText(value)
                       }}
+                      onFocus={() => handleComposerEngaged()}
                       placeholder={t('whatsapp.attachmentCaptionPlaceholder', 'Ek açıklaması yaz...')}
                       className="mt-2 w-full min-w-[14rem] resize-none rounded-lg bg-white/95 px-2 py-1.5 text-sm leading-snug text-slate-900 outline-none ring-1 ring-white/40"
                     />
@@ -1485,10 +1498,11 @@ function ConversationDetail({
                   rows={2}
                   value={replyText}
                   onChange={value => {
-                    markComposerBusy()
+                    handleComposerEngaged()
                     setReplyText(value)
                     setSelectedMetaTemplate(null)
                   }}
+                  onFocus={() => handleComposerEngaged()}
                   onKeyDown={e => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault()
@@ -1522,7 +1536,7 @@ function ConversationDetail({
           draft={profileDraft}
           saving={profileSaving}
           onDraftChange={patch => {
-            markComposerBusy()
+            handleComposerEngaged()
             profileDirtyRef.current = true
             setProfileDraft(current => ({ ...current, ...patch }))
           }}

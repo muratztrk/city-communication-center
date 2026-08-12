@@ -1,3 +1,12 @@
+## Round 787 — #2528/#2561/#2552 reopen/#2551 reopen/#2559/#2560
+
+- [x] `6a79c3a8` — WA sayfasında mesaj kutusu odak → baloncuk bildirimi temizlenir (#2528).
+- [x] `6a7c580d` — Anasayfa Bekleyen Taleplerim = pie bekleyen + son tarihi geçmiş (#2561).
+- [x] `6a7b1472` — 24h penceresi açıkken Failed re-engagement düzenle/gönder (BE) (#2552 reopen).
+- [x] `6a7af1dd` — Overdue rozet `top: -0.45rem` (#2551 reopen).
+- [x] `6a7c4c5f` — Çağrı formu mükerrer Dosya Ekle kaldırıldı (#2559).
+- [x] `6a7c4c8d` — Çağrı formu Açıklama `min-h-32` (#2560).
+
 ## Round 786 — #2554 reopen/#2555 reopen/#2558/#2551 reopen/#2553 reopen
 
 - [x] `6a7b4464` — Sol kolon talep Adres Bilgisi; sağ kolon konuşma profili Vatandaş Adres Bilgisi (#2554 reopen).

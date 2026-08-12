@@ -50,9 +50,13 @@ public sealed class EditPendingConversationEntryCommandHandler
             e => e.EntryId == request.EntryId && e.SocialMessageId == request.SocialMessageId, cancellationToken);
         if (entry is null) return false;
 
-        // Yalnızca beklemedeki giden mesaj düzenlenebilir.
-        if (entry.Direction != ConversationEntryDirection.Outbound
-            || entry.DeliveryStatus != ConversationDeliveryStatus.Pending)
+        var utcNow = DateTimeOffset.UtcNow;
+        var windowOpen = message.Channel == SocialChannel.WhatsApp
+            && WhatsAppServiceWindow.IsWindowOpen(
+                await WhatsAppServiceWindow.GetLastInboundAtUtcAsync(_dbContext, tenantId, message, cancellationToken),
+                utcNow);
+
+        if (!WhatsAppServiceWindow.IsRetryableOutboundEntry(entry, windowOpen))
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(nameof(request.EntryId), "Bu mesaj düzenlenebilir durumda değil.")

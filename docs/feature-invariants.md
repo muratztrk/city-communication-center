@@ -711,6 +711,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp FAB bildirimi aynı son mesaj için geri dirilmez:** kendi gönderdiğin kurum içi ileti
   veya FAB satırına tıklama, kullanıcı bazlı `conversationId + lastMessageAt` bastırması yapar;
   polling aynı son mesajı yeniden rozet/panel satırı olarak göstermez, yeni mesaj zamanı değişirse bildirim geri gelir.
+- **WA konuşma mesaj kutusu odak (#2528):** `/whatsapp` açık konuşmada yanıt kutusuna odaklanıldığında
+  `mark-read` + `ccc:whatsapp-composer-engaged` ile sağ alt WhatsApp baloncuk rozeti temizlenir.
 - **WhatsApp teslim durumu status-only webhook ile de canlı yenilenir:** `sent/delivered/read`
   güncellemesi açık konuşmaya `isStatusUpdate` payload'ı yollar; istemci konuşmayı yeniler ama
   bunu yeni mesaj gibi `mark-read` yapmaz.
@@ -763,7 +765,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız `Çağrı`dır, form ve onay aksiyon metni `Talep Oluştur` kalır ve oluşturulan kayıt Vatandaş
   Talepleri `Çağrı` filtresinde VT numarasıyla görünür. Sol kolonda talep **Adres Bilgisi** (job
   alanları); sağ kolonda konuşma profili **Vatandaş Adres Bilgisi (İsteğe Bağlı)** — Mahalle /
-  Cadde / Açık Adres ayrı kaynaklardan (#2554). Tek `Çağrı` kanal butonu satırı dolduran
+  Cadde / Açık Adres ayrı kaynaklardan (#2554). Dosya Ekle yalnız sol adres bölümünde bir kez
+  (`renderAddressFields`); mükerrer blok yok (#2559). Açıklama editörü `min-h-32` (#2560). Tek `Çağrı` kanal butonu satırı dolduran
   yatay buton görünümünde kalır; form başlığındaki ikon, seçim kartındaki mavi zeminli telefon ikonuyla aynıdır.
 - **Talep Oluştur Vatandaş kartı lisans (#2357):** tür seçim ekranındaki `Vatandaş Çağrı Talebi`
   kartı yalnız `Operator` rolü **ve** `citizen` modülü kullanılabilirken görünür (`canShowCitizenRequest`).
@@ -1044,7 +1047,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
   (card #1701; mavi `in-progress` değil). Overdue rozeti bildirim zili rozeti gibi köşede
-  (`right/top: -0.35rem`, `z-index: 30`; `transform` yok — #2551 reopen);
+  (`right/top: -0.35rem` / `top: -0.45rem` hafif yukarı — #2551 reopen), `z-index: 30`;
   `.scope-chips` z-index 3 — banner üstüne taşan rozet banner'ı ezer (#2555).
   `incoming-requests-page` daha sıkı `page-stack` gap + çip `margin-top: 0.2rem` (#2555 reopen).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
@@ -1542,7 +1545,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Bilgi Listesi ve (citizen lisans açıkken) `Anasayfa - Vatandaş`. **Operator varsayılan açılış** (`getDefaultLandingPath`) =
   `/dashboard/birimler`. Citizen lisans kapalıyken Anasayfa menüsü `/dashboard/birimler`'e yönlenir (#2362).
   Operator birim anasayfasında standart kullanıcı
-  kutucukları (Bekleyen Taleplerim / Bekleyen Görevlerim) gösterilir.
+  kutucukları (Bekleyen Taleplerim / Bekleyen Görevlerim) gösterilir. **Bekleyen Taleplerim**
+  kutucuk değeri = `myRequests` pie `Bekleyen` + `Son Tarihi Geçmiş` dilim toplamı (#2561).
   `/dashboard/birimler` sayfasında banner üstü Geri butonu gösterilmez (card #1889).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
@@ -1620,7 +1624,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `onMessageUpdated` ile category seçili kalır.
 - **WA 24s hata metni (#r470):** re-engagement → `Vatandaş son 24 saat içinde mesaj göndermediği
   için yalnızca Meta onaylı şablon mesaj gönderilebilir.` Vatandaş yeniden yazdığında pencere
-  açıksa bekleyen/hatalı terminal mesaj Düzenle + Mesajı Gönder serbest (#2552).
+  açıksa bekleyen/hatalı re-engagement mesaj Düzenle + Mesajı Gönder serbest; BE `Failed`
+  re-engagement girişlerini pencere açıkken düzenle/gönder kabul eder (#2552 reopen).
 - **WA Şablon menü (#r471):** Konuşmalar sayfasında `menuAlign="start"` (sağa doğru açılır).
 - **Vatandaş yazdır (#r471):** Talep No sonrası `Vatandaş Adı / Telefon No` satırı.
 - **Görev grid Görevi Yapan (#r471/#r472/#r531):** personel adı `text-sm font-semibold` (#2006).

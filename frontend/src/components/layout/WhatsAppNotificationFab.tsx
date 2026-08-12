@@ -272,6 +272,20 @@ export function WhatsAppNotificationFab() {
   }, [dismissNotificationsForPhone])
 
   useEffect(() => {
+    const onComposerEngaged = (event: Event) => {
+      const detail = (event as CustomEvent<{ citizenConversationId: string; citizenPhone?: string }>).detail
+      if (!detail?.citizenConversationId) return
+      const conversation = conversations.find(item => item.citizenConversationId === detail.citizenConversationId)
+      dismissConversationNotification(detail.citizenConversationId, conversation?.lastMessageAt)
+      if (detail.citizenPhone) {
+        dismissNotificationsForPhone(detail.citizenPhone)
+      }
+    }
+    window.addEventListener('ccc:whatsapp-composer-engaged', onComposerEngaged)
+    return () => window.removeEventListener('ccc:whatsapp-composer-engaged', onComposerEngaged)
+  }, [conversations, dismissConversationNotification, dismissNotificationsForPhone])
+
+  useEffect(() => {
     if (document.visibilityState !== 'visible') return
     const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible') {

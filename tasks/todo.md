@@ -1,3 +1,7 @@
+## Round 788 — #2560 reopen (Açıklama min-h-28)
+
+- [x] `6a7c4c8d` — Çağrı formu Açıklama textbox bir kademe daha kısa (`min-h-28`).
+
 ## Round 787 — #2528/#2561/#2552 reopen/#2551 reopen/#2559/#2560
 
 - [x] `6a79c3a8` — WA sayfasında mesaj kutusu odak → baloncuk bildirimi temizlenir (#2528).

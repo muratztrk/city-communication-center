@@ -78,6 +78,13 @@ public sealed class GetCitizenConversationsQueryHandler
                     .OrderByDescending(e => e.SentAt)
                     .Select(e => e.SenderLabel)
                     .FirstOrDefault(),
+                LastMessageDeliveryStatus = _dbContext.ConversationEntries
+                    .Where(e => _dbContext.SocialMessages
+                        .Any(m => m.CitizenConversationId == c.CitizenConversationId
+                                  && m.SocialMessageId == e.SocialMessageId))
+                    .OrderByDescending(e => e.SentAt)
+                    .Select(e => e.DeliveryStatus == null ? null : e.DeliveryStatus.ToString())
+                    .FirstOrDefault(),
             })
             .ToListAsync(cancellationToken);
 
@@ -262,6 +269,10 @@ public sealed class GetCitizenConversationsQueryHandler
                     : conversationMessages.Any(m => m.JobId is Guid messageJobId && relevantJobIds.Contains(messageJobId)
                         && m.JobStatus is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected));
                 var hasWhatsAppChannel = conversationMessages.Any(m => m.Channel == SocialChannel.WhatsApp);
+                var lastMessageIsAutomaticOutbound = ConversationEntrySenderLabelHelper.IsDeliveredAutomaticOutbound(
+                    c.LastMessageDirection,
+                    c.LastMessageDeliveryStatus,
+                    c.LastMessageSenderLabel);
 
                 var dto = new CitizenConversationSummaryDto(
                     c.CitizenConversationId,
@@ -292,7 +303,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     lastStaffSenderDepartment,
                     lastStaffSenderDisplayName,
                     ticket?.Channel.ToString(),
-                    c.WaitingReplyClearedAtUtc);
+                    c.WaitingReplyClearedAtUtc,
+                    lastMessageIsAutomaticOutbound);
 
                 return (HasWhatsAppChannel: hasWhatsAppChannel, Dto: dto);
             })

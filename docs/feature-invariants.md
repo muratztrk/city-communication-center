@@ -711,15 +711,20 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp FAB bildirimi aynı son mesaj için geri dirilmez:** kendi gönderdiğin kurum içi ileti
   veya FAB satırına tıklama, kullanıcı bazlı `conversationId + lastMessageAt` bastırması yapar;
   polling aynı son mesajı yeniden rozet/panel satırı olarak göstermez, yeni mesaj zamanı değişirse bildirim geri gelir.
+- **WA FAB otomatik giden mesaj (#2562):** sistem otomatik iletilen durum şablonu / zamanlı WA yanıtı
+  (`Sent` giden, personel `Birim · Ad` etiketi değil) WhatsApp baloncuk rozet/panel/pulse tetiklemez;
+  `CitizenJobStatusNotifier` bu iletilerde `UnreadCount` artırmaz; SignalR `IsAutomaticOutbound`;
+  özet `LastMessageIsAutomaticOutbound` + `getWhatsAppFabUnreadCount` eski sayaçları düşer.
 - **WA konuşma mesaj kutusu odak (#2528):** `/whatsapp` açık konuşmada yanıt kutusuna odaklanıldığında
   `mark-read` + `ccc:whatsapp-composer-engaged` ile sağ alt WhatsApp baloncuk rozeti temizlenir.
 - **WhatsApp teslim durumu status-only webhook ile de canlı yenilenir:** `sent/delivered/read`
   güncellemesi açık konuşmaya `isStatusUpdate` payload'ı yollar; istemci konuşmayı yeniler ama
   bunu yeni mesaj gibi `mark-read` yapmaz.
 - **Otomatik vatandaş durum mesajı konuşma kuyruğunu da günceller:** `ICitizenJobStatusNotifier`
-  WhatsApp `Sent`/`Failed` entry eklediğinde ilgili `CitizenConversation.LastMessageAt/UnreadCount`
-  değerlerini ve SignalR WhatsApp payload'ını da günceller; aksi halde mesaj operatör listesinde
-  son konuşma/sıra olarak görünmeyebilir.
+  WhatsApp `Sent`/`Failed` entry eklediğinde ilgili `CitizenConversation.LastMessageAt` güncellenir
+  ve SignalR WhatsApp payload'ı yollar; otomatik **iletilmiş** (`Sent`) durum şablonları `UnreadCount`
+  artırmaz (FAB #2562). Onay bekleyen terminal (`Pending`) ve başarısız gönderimler bildirim sayacını
+  artırabilir; aksi halde mesaj operatör listesinde son konuşma/sıra olarak görünmeyebilir.
 - **Durum Değişikliği Geçmişi audit reason taşır:** #1095'te kaldırılan neden, #1619 reopen ile
   geri gelmiştir; veri `TaskStatusChanged` audit `Notes` alanından okunur ve Süreç altında gösterilir.
 - **`CitizenRequestModal` `Talep Başlığı`:** saran textarea + dikey scroll; etiket textbox kaldırılınca
@@ -766,7 +771,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talepleri `Çağrı` filtresinde VT numarasıyla görünür. Sol kolonda talep **Adres Bilgisi** (job
   alanları); sağ kolonda konuşma profili **Vatandaş Adres Bilgisi (İsteğe Bağlı)** — Mahalle /
   Cadde / Açık Adres ayrı kaynaklardan (#2554). Dosya Ekle yalnız sol adres bölümünde bir kez
-  (`renderAddressFields`); mükerrer blok yok (#2559). Açıklama editörü `min-h-28` (#2560 reopen). Tek `Çağrı` kanal butonu satırı dolduran
+  (`renderAddressFields`); mükerrer blok yok (#2559). Açıklama editörü `min-h-24` (#2560 reopen).
+  Vatandaş Adı / Telefon / Cadde-Sokak / Açık Adres placeholder `0.72rem` (#2560 reopen). Tek `Çağrı` kanal butonu satırı dolduran
   yatay buton görünümünde kalır; form başlığındaki ikon, seçim kartındaki mavi zeminli telefon ikonuyla aynıdır.
 - **Talep Oluştur Vatandaş kartı lisans (#2357):** tür seçim ekranındaki `Vatandaş Çağrı Talebi`
   kartı yalnız `Operator` rolü **ve** `citizen` modülü kullanılabilirken görünür (`canShowCitizenRequest`).

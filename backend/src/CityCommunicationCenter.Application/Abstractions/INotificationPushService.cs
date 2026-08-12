@@ -31,7 +31,9 @@ public sealed record WhatsAppMessagePayload(
     bool IsStatusUpdate = false,
     // Birim içi mesajı gönderen kullanıcı — istemci kendi gönderdiği mesaj için bildirim/pulse
     // göstermesin diye (card #1495).
-    Guid? SenderUserId = null);
+    Guid? SenderUserId = null,
+    // Sistem otomatik giden mesaj (durum şablonu / zamanlı WA yanıtı) — FAB pulse/rozet tetiklemesin (#2562).
+    bool IsAutomaticOutbound = false);
 
 public sealed record InternalMessagePayload(
     Guid InternalConversationId,

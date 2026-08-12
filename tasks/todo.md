@@ -1,3 +1,8 @@
+## Round 789 — #2562/#2560 reopen
+
+- [x] `6a7c7ae6` — WA FAB: otomatik giden mesajlar rozet/panel/pulse tetiklemez (#2562).
+- [x] `6a7c4c8d` — Çağrı formu Açıklama `min-h-24`; Vatandaş Adı/Telefon/Cadde/Açık Adres placeholder küçült (#2560 reopen).
+
 ## Round 788 — #2560 reopen (Açıklama min-h-28)
 
 - [x] `6a7c4c8d` — Çağrı formu Açıklama textbox bir kademe daha kısa (`min-h-28`).

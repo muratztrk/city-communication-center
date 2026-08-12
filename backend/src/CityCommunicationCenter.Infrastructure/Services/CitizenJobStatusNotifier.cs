@@ -498,14 +498,20 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                     conversation.LastMessageAt = utcNow;
                 }
 
-                conversation.UnreadCount += 1;
+                var isAutomaticOutbound = !requireApproval && sendResult is { Success: true };
+                if (!isAutomaticOutbound)
+                {
+                    conversation.UnreadCount += 1;
+                }
+
                 pendingPush = new WhatsAppMessagePayload(
                     conversation.CitizenConversationId,
                     conversation.CitizenPhone,
                     conversation.CitizenName,
                     messageContent,
                     conversation.UnreadCount,
-                    conversation.LastMessageAt);
+                    conversation.LastMessageAt,
+                    IsAutomaticOutbound: isAutomaticOutbound);
             }
         }
 

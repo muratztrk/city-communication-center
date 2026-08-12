@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Domain.Enums;
+
 namespace CityCommunicationCenter.Application.Features.Social;
 
 public static class ConversationEntrySenderLabelHelper
@@ -39,6 +41,26 @@ public static class ConversationEntrySenderLabelHelper
         var name = string.IsNullOrWhiteSpace(municipalityName) ? "Belediye" : municipalityName.Trim();
         return $"{name} (Telefon)";
     }
+
+    /// <summary>
+    /// Kurum içi ileti, personel yanıtı veya telefon kanalı değil; sistem otomatik giden mesaj etiketi
+    /// (durum şablonu, zamanlı WA şablon yanıtı — card #2562).
+    /// </summary>
+    public static bool IsSystemAutomaticOutboundSenderLabel(string? senderLabel) =>
+        !string.IsNullOrWhiteSpace(senderLabel)
+        && !senderLabel.StartsWith("Kurum İçi Mesaj", StringComparison.Ordinal)
+        && !senderLabel.Contains(" · ")
+        && !senderLabel.EndsWith("(Telefon)", StringComparison.Ordinal);
+
+    public static bool IsDeliveredAutomaticOutbound(
+        string? direction,
+        string? deliveryStatus,
+        string? senderLabel) =>
+        direction == nameof(ConversationEntryDirection.Outbound)
+        && deliveryStatus is nameof(ConversationDeliveryStatus.Sent)
+            or nameof(ConversationDeliveryStatus.Delivered)
+            or nameof(ConversationDeliveryStatus.Read)
+        && IsSystemAutomaticOutboundSenderLabel(senderLabel);
 
     public static string FormatCitizenRequestNumber(int? number, int? year, DateTimeOffset? fallbackDate)
     {

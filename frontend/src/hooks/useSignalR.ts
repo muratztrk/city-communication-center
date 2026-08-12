@@ -24,6 +24,8 @@ export interface WhatsAppMessagePayload {
   isStatusUpdate?: boolean
   /** Birim içi mesajı gönderen kullanıcı — kendi gönderdiği mesaj bildirim/pulse tetiklemesin (card #1495). */
   senderUserId?: string | null
+  /** Sistem otomatik giden mesaj — FAB pulse/rozet tetiklemesin (#2562). */
+  isAutomaticOutbound?: boolean
 }
 
 export interface InternalMessagePayload {
@@ -72,6 +74,7 @@ function mapWhatsAppPayload(raw: Record<string, unknown>): WhatsAppMessagePayloa
     isInternal: Boolean(raw.isInternal ?? raw.IsInternal ?? false),
     isStatusUpdate: Boolean(raw.isStatusUpdate ?? raw.IsStatusUpdate ?? false),
     senderUserId: (raw.senderUserId ?? raw.SenderUserId) as string | null | undefined,
+    isAutomaticOutbound: Boolean(raw.isAutomaticOutbound ?? raw.IsAutomaticOutbound ?? false),
   }
 }
 

@@ -10,6 +10,7 @@ import type { CitizenConversationSummary } from '../../types/platform'
 import { formatConversationDisplayContent } from '../../utils/socialConversationContent'
 import { formatConversationListTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
+import { getWhatsAppFabUnreadCount } from '../../utils/whatsappFabNotification'
 import { matchesPhone } from '../../utils/phoneNormalization'
 import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
 
@@ -212,7 +213,7 @@ export function WhatsAppNotificationFab() {
     void refreshConversations()
     // Teslim durumu güncellemesi (operatörün kendi gönderdiği mesajın iletildi/okundu bilgisi)
     // ve kendi gönderdiğimiz birim içi mesaj bildirim/pulse tetiklemesin (card #1495).
-    if (!payload.isStatusUpdate && !selfSent) {
+    if (!payload.isStatusUpdate && !selfSent && !payload.isAutomaticOutbound) {
       triggerPulse()
     }
   }, [dismissConversationNotification, isPayloadForActiveConversation, isSelfSentPayload, refreshConversations, triggerPulse, zeroUnreadForConversation])
@@ -249,7 +250,7 @@ export function WhatsAppNotificationFab() {
         return
       }
       void refreshConversations()
-      if (!payload.isStatusUpdate && !selfSent && (payload.isInternal || payload.unreadCount > 0)) {
+      if (!payload.isStatusUpdate && !selfSent && !payload.isAutomaticOutbound && (payload.isInternal || payload.unreadCount > 0)) {
         triggerPulse()
       }
     }
@@ -331,6 +332,8 @@ export function WhatsAppNotificationFab() {
         // "BEKLEMEDE" durumunda gönderilmemiş giden mesaj varsa, okunmamış mesaj olmasa
         // bile bildirimde görünsün (card #1472).
         if (conversation.unreadCount <= 0 && !conversation.hasPendingOutboundMessage) return false
+        const fabUnread = getWhatsAppFabUnreadCount(conversation)
+        if (fabUnread <= 0 && !conversation.hasPendingOutboundMessage) return false
         if (location.pathname === '/whatsapp' && activeConversation) {
           if (conversation.citizenConversationId === activeConversation.id) return false
           if (activeConversation.phone && matchesPhone(conversation.citizenPhone, activeConversation.phone)) {
@@ -345,7 +348,10 @@ export function WhatsAppNotificationFab() {
 
   const unreadTotal = useMemo(
     () => unreadConversations.reduce(
-      (sum, conversation) => sum + Math.max(conversation.unreadCount, conversation.hasPendingOutboundMessage ? 1 : 0),
+      (sum, conversation) => sum + Math.max(
+        getWhatsAppFabUnreadCount(conversation),
+        conversation.hasPendingOutboundMessage ? 1 : 0,
+      ),
       0,
     ),
     [unreadConversations],
@@ -474,7 +480,7 @@ export function WhatsAppNotificationFab() {
                   ) : null}
                 </div>
                 <span className={`whatsapp-fab-badge mt-1 ${conversation.unreadCount > 9 ? 'whatsapp-fab-badge--wide' : ''}`}>
-                  {formatBadgeCount(Math.max(conversation.unreadCount, conversation.hasPendingOutboundMessage ? 1 : 0))}
+                  {formatBadgeCount(Math.max(getWhatsAppFabUnreadCount(conversation), conversation.hasPendingOutboundMessage ? 1 : 0))}
                 </span>
               </button>
             ))}

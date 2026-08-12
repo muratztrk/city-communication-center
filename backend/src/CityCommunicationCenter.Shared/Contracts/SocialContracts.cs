@@ -228,7 +228,9 @@ public sealed record CitizenConversationSummaryDto(
     // Vatandaş Bilgi Listesi gridinde isim yanında kanal ikonu (card #1836).
     string? SourceChannel = null,
     // Operatör "Yanıt Verildi İşaretle" — yeni inbound gelene kadar Yanıt bekliyor sayılmaz (#6a6bab12).
-    DateTimeOffset? WaitingReplyClearedAtUtc = null);
+    DateTimeOffset? WaitingReplyClearedAtUtc = null,
+    // Son mesaj sistem otomatik giden (durum şablonu / zamanlı WA yanıtı) — FAB bildirim sayacından düşülür (#2562).
+    bool LastMessageIsAutomaticOutbound = false);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,

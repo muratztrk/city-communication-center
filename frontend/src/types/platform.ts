@@ -482,6 +482,8 @@ export interface CitizenConversationSummary {
   sourceChannel?: string | null;
   /** Operator cleared waiting-reply until the next inbound message. */
   waitingReplyClearedAtUtc?: string | null;
+  /** Son mesaj sistem otomatik giden ileti — FAB bildirim sayacından düşülür (#2562). */
+  lastMessageIsAutomaticOutbound?: boolean;
 }
 
 // Kurum içi (personel-arası) mesajlaşma — card #1539.

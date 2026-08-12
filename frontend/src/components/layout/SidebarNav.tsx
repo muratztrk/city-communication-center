@@ -103,16 +103,12 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
           : isEmphasizedNested
             ? '-ml-3 w-[calc(100%+0.75rem)] gap-2 px-2.5 py-2 text-[0.82rem] font-bold'
             : nested
-              ? (compactLabels && item.multilineLabel
-                ? (item.path === '/citizen-message-approval'
-                  ? 'gap-2.5 px-2.5 py-1.5 text-[0.74rem] leading-snug'
-                  : 'gap-2 px-2.5 py-1.5 text-[0.68rem] leading-snug')
+              ? (compactLabels && item.multilineLabel && item.path !== '/citizen-message-approval'
+                ? 'gap-2 px-2.5 py-1.5 text-[0.68rem] leading-snug'
                 : 'gap-2.5 px-3 py-1.5 text-xs')
               : item.multilineLabel
-                ? (compactLabels
-                  ? (item.path === '/citizen-message-approval'
-                    ? 'gap-2.5 px-3 py-1.5 text-[0.74rem] leading-snug'
-                    : 'gap-2.5 px-3 py-1.5 text-[0.68rem] leading-snug')
+                ? (compactLabels && item.path !== '/citizen-message-approval'
+                  ? 'gap-2.5 px-3 py-1.5 text-[0.68rem] leading-snug'
                   : 'gap-3 px-3 py-2 text-sm leading-snug')
                 : 'gap-3 px-3 py-2 text-sm',
       isActive

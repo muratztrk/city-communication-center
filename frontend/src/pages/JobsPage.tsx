@@ -432,7 +432,12 @@ export function printJobDetail(
     ['Talep No', jobDisplayNumber],
     // Vatandaş yazdırmada Talep No sonrası ad/telefon (#r471).
     ...(isCitizenPrint
-      ? [['Vatandaş Adı / Telefon No', [detail.citizenName, formatCitizenPhoneDisplay(detail.citizenPhone)].filter(Boolean).join(' / ') || '—'] as [string, string]]
+      ? [
+          ['Vatandaş Adı / Telefon No', [detail.citizenName, formatCitizenPhoneDisplay(detail.citizenPhone)].filter(Boolean).join(' / ') || '—'] as [string, string],
+          ...(options?.sourceChannel
+            ? [['Talep Kanalı', getSocialChannelLabel(t, options.sourceChannel)] as [string, string]]
+            : []),
+        ]
       : []),
     ['Talep Başlığı', detail.title],
     ['Talep Yeri / Oluşturan', [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
@@ -444,9 +449,6 @@ export function printJobDetail(
     ['Talep Yapılan Birim', options?.myRequestView
       ? formatJobDestinationsWithAssignees(detail)
       : formatJobDestinationsWithAssignees(detail, false, false)],
-    ...(isCitizenPrint && options?.sourceChannel
-      ? [['Talep Kanalı', getSocialChannelLabel(t, options.sourceChannel)] as [string, string]]
-      : []),
     ...(isCitizenPrint ? [] : [['Proje mi', formatJobProjectLabel(detail, t)] as [string, string]]),
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],

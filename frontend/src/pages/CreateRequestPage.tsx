@@ -93,6 +93,9 @@ interface CitizenFormState {
   neighborhood: string
   street: string
   openAddress: string
+  citizenNeighborhood: string
+  citizenStreet: string
+  citizenOpenAddress: string
 }
 
 const EMPTY_INTERNAL_FORM: InternalFormState = {
@@ -132,6 +135,9 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
   neighborhood: '',
   street: '',
   openAddress: '',
+  citizenNeighborhood: '',
+  citizenStreet: '',
+  citizenOpenAddress: '',
 }
 
 const CITIZEN_CHANNELS = ['Phone'] as const
@@ -542,7 +548,21 @@ export function CreateRequestPage() {
           neighborhood: job.neighborhood ?? '',
           street: job.street ?? '',
           openAddress: job.openAddress ?? '',
+          citizenNeighborhood: '',
+          citizenStreet: '',
+          citizenOpenAddress: '',
         })
+        if (message.citizenConversationId) {
+          const conversation = await api.getCitizenConversationDetail(message.citizenConversationId)
+          if (!cancelled && conversation) {
+            setCitizenForm(current => ({
+              ...current,
+              citizenNeighborhood: conversation.neighborhood ?? '',
+              citizenStreet: conversation.street ?? '',
+              citizenOpenAddress: conversation.openAddress ?? '',
+            }))
+          }
+        }
         setEditPrefilled(true)
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
@@ -1029,6 +1049,14 @@ export function CreateRequestPage() {
       setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
       return
     }
+    if (citizenForm.citizenNeighborhood.trim() && !citizenForm.citizenStreet.trim()) {
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
+      return
+    }
+    if (citizenForm.citizenNeighborhood.trim() && !citizenForm.citizenOpenAddress.trim()) {
+      setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
+      return
+    }
     if (confirmedKind !== 'citizen') {
       const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
       const phoneDisplay = formatCitizenPhoneDisplay(citizenForm.citizenPhone) || citizenForm.citizenPhone.trim() || '—'
@@ -1065,6 +1093,18 @@ export function CreateRequestPage() {
     const normalizedCitizenName = normalizeTitleCaseField(trimmedName) ?? trimmedName
     const citizenTitle = ensureLeadingCapitalTr(citizenForm.title.trim()) || normalizedCitizenName
     const citizenDescription = ensureLeadingCapitalRichText(citizenForm.content.trim())
+    const syncCitizenProfileAddress = async (conversationId: string | null | undefined) => {
+      if (!conversationId) return
+      const hasCitizenAddress = citizenForm.citizenNeighborhood.trim()
+        || citizenForm.citizenStreet.trim()
+        || citizenForm.citizenOpenAddress.trim()
+      if (!hasCitizenAddress) return
+      await api.updateCitizenConversationProfile(conversationId, {
+        neighborhood: normalizeTitleCaseField(citizenForm.citizenNeighborhood) ?? '',
+        street: normalizeTitleCaseField(citizenForm.citizenStreet) ?? '',
+        openAddress: normalizeTitleCaseField(citizenForm.citizenOpenAddress) ?? '',
+      })
+    }
     const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
     try {
       if (editJobId && linkedSocialMessageId) {
@@ -1088,6 +1128,8 @@ export function CreateRequestPage() {
           content: citizenDescription,
           category: citizenLabel.trim() || undefined,
         })
+        const linkedMessage = await api.getSocialMessageById(linkedSocialMessageId)
+        await syncCitizenProfileAddress(linkedMessage?.citizenConversationId)
         await uploadPendingFiles(editJobId)
         invalidateSocialMessages(queryClient, linkedSocialMessageId)
         invalidateJobs(queryClient, editJobId)
@@ -1126,6 +1168,8 @@ export function CreateRequestPage() {
         const job = await api.convertSocialMessageToJob(linkedSocialMessageId, convertPayload)
         await uploadPendingFiles(job.jobId)
         invalidateSocialMessages(queryClient, linkedSocialMessageId)
+        const linkedMessage = await api.getSocialMessageById(linkedSocialMessageId)
+        await syncCitizenProfileAddress(linkedMessage?.citizenConversationId)
       } else {
         const socialMessageId = await api.createSocialMessage({
           channel: citizenForm.channel,
@@ -1136,6 +1180,8 @@ export function CreateRequestPage() {
         const job = await api.convertSocialMessageToJob(socialMessageId, convertPayload)
         await uploadPendingFiles(job.jobId)
         invalidateSocialMessages(queryClient, socialMessageId)
+        const createdMessage = await api.getSocialMessageById(socialMessageId)
+        await syncCitizenProfileAddress(createdMessage?.citizenConversationId)
       }
       invalidateJobs(queryClient)
       setCitizenForm(EMPTY_CITIZEN_FORM)
@@ -1463,6 +1509,7 @@ export function CreateRequestPage() {
                 />
               </div>
             </div>
+            {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
             {renderPhotoUpload('min-h-0')}
           </div>
           <div className="grid content-start gap-3">
@@ -1546,8 +1593,17 @@ export function CreateRequestPage() {
               </div>
             </div>
             {renderAddressFields(
-              citizenForm,
-              (field, value) => setCitizenForm(current => ({ ...current, [field]: value })),
+              {
+                neighborhood: citizenForm.citizenNeighborhood,
+                street: citizenForm.citizenStreet,
+                openAddress: citizenForm.citizenOpenAddress,
+              },
+              (field, value) => setCitizenForm(current => ({
+                ...current,
+                citizenNeighborhood: field === 'neighborhood' ? value : current.citizenNeighborhood,
+                citizenStreet: field === 'street' ? value : current.citizenStreet,
+                citizenOpenAddress: field === 'openAddress' ? value : current.citizenOpenAddress,
+              })),
               {
                 sectionTitle: t('requests.create.citizenAddressSection', 'Vatandaş Adres Bilgisi (İsteğe Bağlı)'),
                 includePhotoUpload: false,

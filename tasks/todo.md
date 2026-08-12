@@ -1,3 +1,11 @@
+## Round 786 — #2554 reopen/#2555 reopen/#2558/#2551 reopen/#2553 reopen
+
+- [x] `6a7b4464` — Sol kolon talep Adres Bilgisi; sağ kolon konuşma profili Vatandaş Adres Bilgisi (#2554 reopen).
+- [x] `6a7c06c2` — Birime Gelen scope chip `margin-top: 0.2rem` (#2555 reopen).
+- [x] `6a7c374e` — Yazdır: Talep Kanalı Vatandaş Adı / Telefon No satırının hemen altında (#2558).
+- [x] `6a7af1dd` — Overdue rozet bildirim zili gibi `-0.35rem` köşe (#2551 reopen).
+- [x] `6a7b19af` — Manager Mesaj Onayı diğer menü öğeleriyle aynı `text-sm` (#2553 reopen).
+
 ## Round 785 — #2524 reopen/#2551/#2552/#2554/#2556/#2557/#2555/#2553 reopen
 
 - [x] `6a79b0b1` — Tüm vatandaş detay yazdırma yollarında `sourceChannel`.

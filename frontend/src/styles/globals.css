@@ -1259,7 +1259,7 @@
     }
 
     .app-content-shell .incoming-requests-page > .scope-chips {
-      margin-top: -0.5rem;
+      margin-top: 0.2rem;
     }
 
     .app-content-shell .page-header-row {
@@ -4006,10 +4006,10 @@
   .scope-chip-overdue-badge {
     pointer-events: none;
     position: absolute;
-    right: 0;
-    top: 0;
+    right: -0.35rem;
+    top: -0.35rem;
     z-index: 30;
-    transform: translate(50%, -58%);
+    transform: none;
     display: flex;
     height: 1.05rem;
     min-width: 1.05rem;

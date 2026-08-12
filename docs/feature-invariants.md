@@ -761,7 +761,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlık metinleri kart üstünde `items-start` ile aynı düşey hizada kalır.
 - **Talep Oluştur manuel vatandaş akışı:** `Vatandaş Çağrı Talebi` olarak adlandırılır; kanal seçimi
   yalnız `Çağrı`dır, form ve onay aksiyon metni `Talep Oluştur` kalır ve oluşturulan kayıt Vatandaş
-  Talepleri `Çağrı` filtresinde VT numarasıyla görünür. Tek `Çağrı` kanal butonu satırı dolduran
+  Talepleri `Çağrı` filtresinde VT numarasıyla görünür. Sol kolonda talep **Adres Bilgisi** (job
+  alanları); sağ kolonda konuşma profili **Vatandaş Adres Bilgisi (İsteğe Bağlı)** — Mahalle /
+  Cadde / Açık Adres ayrı kaynaklardan (#2554). Tek `Çağrı` kanal butonu satırı dolduran
   yatay buton görünümünde kalır; form başlığındaki ikon, seçim kartındaki mavi zeminli telefon ikonuyla aynıdır.
 - **Talep Oluştur Vatandaş kartı lisans (#2357):** tür seçim ekranındaki `Vatandaş Çağrı Talebi`
   kartı yalnız `Operator` rolü **ve** `citizen` modülü kullanılabilirken görünür (`canShowCitizenRequest`).
@@ -1041,14 +1043,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
   birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
-  (card #1701; mavi `in-progress` değil). Overdue rozeti `translate(50%, -58%)` + `z-index: 30`;
+  (card #1701; mavi `in-progress` değil). Overdue rozeti bildirim zili rozeti gibi köşede
+  (`right/top: -0.35rem`, `z-index: 30`; `transform` yok — #2551 reopen);
   `.scope-chips` z-index 3 — banner üstüne taşan rozet banner'ı ezer (#2555).
-  `incoming-requests-page` daha sıkı `page-stack` gap + çip `margin-top: -0.5rem` (#2525 reopen).
+  `incoming-requests-page` daha sıkı `page-stack` gap + çip `margin-top: 0.2rem` (#2555 reopen).
   Desktop sidebar marka metni (`shell.subtitle`) logo altında `gap-3.5` + hafif `pt`
   ile bir kademe aşağı hizalanır (card #1699); boyut `text-sm` kalır (#1692).
   **Birim yöneticisi menüsü (#2553):** `SidebarNav` `compactLabels` — uzun çok satırlı başlıklar
-  küçük punto + satır kırılımı; `/citizen-message-approval` biraz büyük (`0.74rem`); emphasized
-  nested linkler negatif margin genişletmesi yapmaz; scroll alanı `overflow-x-hidden`.
+  küçük punto + satır kırılımı; `/citizen-message-approval` diğer çok satırlı öğelerle aynı
+  `text-sm` (#2553 reopen); emphasized nested linkler negatif margin genişletmesi yapmaz;
+  scroll alanı `overflow-x-hidden`.
   Header: **Personel Dahili No ara…** solda (tüm kullanıcılara görünür — card #1779),
   **Sistemde ara…** sağda; her ikisi de en az 3 karakterde arar. Personel araması yalnız
   `DisplayName` eşleşir (card #1780); Türkçe karakter / i-ı katlamalı arama (card #1791);
@@ -1594,8 +1598,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sonra ayrı satır; boş Son Tarih = `Onay Bekleyen` (Belirsiz değil).
 - **Yazdır Talep Etiketi (#2189):** detayda etiket varsa `printJobDetail` `Talep Detayları`'nda
   Durum sonrası `Talep Etiketi` satırı (`options.requestLabel` = sosyal `category`).
-- **Yazdır Talep Kanalı (#2524):** vatandaş talebi yazdırmada `Talep Yapılan Birim` sonrası
-  `Talep Kanalı` (`options.sourceChannel` → `getSocialChannelLabel`).
+- **Yazdır Talep Kanalı (#2524/#2558):** vatandaş talebi yazdırmada `Vatandaş Adı / Telefon No`
+  satırının hemen altında `Talep Kanalı` (`options.sourceChannel` → `getSocialChannelLabel`).
 - **Dizin ticket sıra (#r467):** VT yılı+numara azalan (en yüksek üstte).
 - **WA Birim panel (#r467–#r478):** Konuşmalar trigger ~10rem / menü ~184px; create-modal
   menü ~168px; clearable X; placeholder `Birim seçiniz...`.

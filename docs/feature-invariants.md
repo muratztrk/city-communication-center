@@ -774,7 +774,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talepleri `Çağrı` filtresinde VT numarasıyla görünür. Sol kolonda talep **Adres Bilgisi** (job
   alanları); sağ kolonda konuşma profili **Vatandaş Adres Bilgisi (İsteğe Bağlı)** — Mahalle /
   Cadde / Açık Adres ayrı kaynaklardan (#2554). Dosya Ekle yalnız sol adres bölümünde bir kez
-  (`renderAddressFields`); mükerrer blok yok (#2559). Açıklama editörü `min-h-20` (#2560 reopen).
+  (`renderAddressFields`); mükerrer blok yok (#2559). Açıklama editörü `min-h-40`; toolbar
+  `#citizen-request-form` ile ince (`min-height: 1.35rem`) — `request-form--readable` 3.2rem ezilir.
   Sol kolon **Talebin Adres Bilgisi** placeholder `0.66rem`; sağ kolon vatandaş alanları `0.76rem`.
   **Talep adresi ≠ vatandaş profil adresi (#2563):** `ConvertSocialMessageToJob` / `UpdateJob`
   `CitizenConversation` mahalle/cadde/no/açık adresini job alanlarıyla güncellemez; profil yalnız

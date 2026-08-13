@@ -1,3 +1,7 @@
+## Round 793 — Çağrı formu Açıklama toolbar/input
+
+- [x] Vatandaş Çağrı Talebi Oluştur: K/A toolbar `1.35rem`; yazı alanı `min-h-40` / `10rem`.
+
 ## Round 792 — #2573/#2574/#2575/#2576/#2577/#2578/#2579/#2580/#2581/#2560 reopen/#2571 reopen
 
 - [x] `6a7e0a8a` — VT grid durum dropdown sabit genişlik (#2573).

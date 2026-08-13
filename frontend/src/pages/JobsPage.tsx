@@ -2109,7 +2109,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 value={reporterDepartmentId}
                 onChange={event => setReporterDepartment(event.target.value)}
               >
-                <option value="">{t('jobs.allDepartments', 'Tüm Departmanlar')}</option>
+                <option value="">{t('jobs.allUnits', 'Tüm Birimler')}</option>
                 {departments
                   .filter(department => department.departmentId !== user?.departmentId)
                   .map(department => (

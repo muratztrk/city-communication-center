@@ -1901,7 +1901,8 @@
     "streetNoPlaceholder": "e.g. 12",
     "streetRequired": "Street is required when a neighborhood is selected.",
     "openAddressRequired": "Full address is required when a neighborhood is selected.",
-    "openAddressLabel": "Full Address",
+    "openAddressLabel": "Address Directions",
+    "directionsLabel": "Address Directions",
     "openAddressMaxHint": "(max 100 characters)",
     "openAddressPlaceholder": "Building no, floor, apartment..."
   },

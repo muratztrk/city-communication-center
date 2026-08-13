@@ -1,3 +1,17 @@
+## Round 792 — #2573/#2574/#2575/#2576/#2577/#2578/#2579/#2580/#2581/#2560 reopen/#2571 reopen
+
+- [x] `6a7e0a8a` — VT grid durum dropdown sabit genişlik (#2573).
+- [x] `6a7e0b53` — VT grid Süreç kolonu (#2574).
+- [x] `6a7e0bd2` — Detay popup VT rozeti Birim Dışı → Vatandaş Talebi (#2575).
+- [x] `6a7e0cec` — Detay popup No Cadde/Sokak sonrası (#2576).
+- [x] `6a7e0d27` — Açık Adres → Adres Tarifi; detay layout (#2577).
+- [x] `6a7e0ed7` — Çağrı formu No genişlik + max 6 (#2578).
+- [x] `6a7e0fa3` — Harita renkleri/legend/iptal gizle/zoom (#2579).
+- [x] `6a7e123d` — Harita sayfası Anasayfa-Vatandaş banner (#2580).
+- [x] `6a7e13a6` — Taleplerim Tüm Departmanlar → Tüm Birimler (#2581).
+- [x] `6a7c4c8d` — Çağrı formu placeholder boyutları (#2560 reopen).
+- [x] `6a7e06f3` — Reporter menü Birimler ↔ Bilgi Listesi (#2571 reopen).
+
 ## Round 791 — #2567/#2568/#2560 reopen/#2569/#2570/#2571/#2572
 
 - [x] `6a7e0331` — Adres alanlarına Cadde/Sokak yanına No (#2567).

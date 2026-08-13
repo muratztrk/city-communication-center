@@ -282,8 +282,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   linkidir; terminal tarih etiketinde `(İptal)`/durum parantezi basılmaz; Görev Detayları terminal
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Adres alan limitleri:** Cadde / Sokak tüm giriş yüzeylerinde en fazla 50 karakter,
-  No (kapı/sokak numarası) en fazla 20 karakter, Açık Adres en fazla 100 karakterdir;
-  backend komut validasyonları da aynı sınırı korur (#2567).
+  No (kapı/sokak numarası) en fazla **6** karakter, **Adres Tarifi** (eski Açık Adres) en fazla 100 karakterdir;
+  backend komut validasyonları da aynı sınırı korur (#2567/#2578).
 - **Adres metni yazımı:** Cadde / Sokak ve Açık Adres değerleri Türkçe locale kurallarıyla
   her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilir
   (`normalizeTitleCaseField` — onBlur + kayıt). Rutin görev detay Düzenle dahil tüm adres
@@ -353,7 +353,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   #1657 reopen); rengi bölüm başlık çizgisiyle aynı transparan primary'dir (card #1685). Düzenleme modunda ana kartın ilk satırı açıklama editörü yüzünden gereksiz uzamaz;
   açıklama editörü kompakt kalır (cards #1218/#1220/#1221/#1222/#1223/#1238/#1244).
   Talep başlığı yanındaki meta bloğu başlık metnine değil, sol kartın sağ border çizgisine hizalanır;
-  en sağda iki satırdır: üstte talep no, altında `Birim İçi/Birim Dışı` rozeti.
+  en sağda iki satırdır: üstte talep no, altında `Birim İçi` / `Birim Dışı` veya vatandaş talebinde
+  `Vatandaş Talebi` rozeti (#2575).
   Taleplerim/görev detay popup gövdesi ortak `.detail-modal-shell` / `--my-request`
   ölçülerini kullanır (card #1682 ile küçültülmüş band); sayfa bazında yeniden ayrıştırma.
   Taleplerim salt-okunur Talep Bilgileri listesinde `Proje mi` ayrı satırdır ve formdaki
@@ -1522,9 +1523,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   isim gösterilir), `prefix – dashboard.xxx` (çevrilebilir bileşik), ve düz literal metin (aynen basılır).
   Yeni bir grafik id'siz bir gruplama anahtarına (ör. mahalle adı) göre dilim üretecekse, `Label` alanına
   DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok.
-- **Sol menü dizin sırası (#6a6cfc0c):** Üst Düzey/Operatör’de sıra: Anasayfa - Vatandaş →
-  `Vatandaş Bilgi Listesi` → Anasayfa - Birimler (ayırıcı Birimler’den sonra). Sistem Admin’de
-  eski konum (Vatandaş Talepleri grubundan sonra) korunur.
+- **Sol menü dizin sırası (#6a6cfc0c / #2571):** Reporter’de: Anasayfa - Vatandaş → Vatandaş Talep Haritası →
+  Anasayfa - Birimler → Vatandaş Bilgi Listesi. Operator’de: Anasayfa → (citizen) Anasayfa - Vatandaş →
+  Harita → Bilgi Listesi. Sistem Admin’de harita/dizin Vatandaş Talepleri grubundan sonra kalır.
 - **Vatandaş Bilgi Listesi (card #1836, kolon/buton düzeni #1843/#1858):** `/citizen-directory` yalnız
   `Reporter` / `Operator` / `SystemAdmin`; grid `GET /citizen-conversations`. Ana gridde `Talep Kanalı`
   sütunu yok (#2543); kanal yalnız detay popup talep listesinde `Talep Tarihi` sonrası (#2540).
@@ -1567,8 +1568,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
 - **Vatandaş Talep Haritası (#2572):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
-  dönem filtresi Anasayfa ile aynı; tüm VT talepleri (tamamlanan/iptal dahil); pin clustering
+  dönem filtresi Anasayfa ile aynı; pin clustering
   `@googlemaps/markerclusterer`; detay `MyRequestDetailModal`. Anasayfa haritası yok (#6a6cdf95).
+  **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
+  Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Sayfa banner/layout
+  Anasayfa-Vatandaş `section-card` ile aynı (#2580).
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
   chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında
@@ -1589,7 +1593,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`background-color` + aynı linear-gradient, `background-attachment: fixed`) — scroll’da
   tbody satırları başlığın üstüne binmez; hücreler arası sürekli gradient korunur. `z-index` ≥ 5.
 - **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → Telefon → Talep Tarihi →
-  Gittiği Yer → Talep Etiketi → İşlemler. Etiket dropdown hücresinde buton ortalı; açık menü
+  Gittiği Yer → Talep Etiketi → **Süreç** → İşlemler (#2574). **Tüm Talep Durumları** scope chip
+  seçildikten sonra genişlik sabit kalır (`scope-chip-status-select`, #2573). Etiket dropdown hücresinde buton ortalı; açık menü
   satırları sola yaslı (card #1878 reopen — ortalanmamalı).
 - **Vatandaş Talepleri Talep Etiketi (card #1878/#r461/#r462/#r463/#6a6d8fe8):** grid hücresinde
   `RequestTagPicker` + `emptyLabel=Etiketler` (diğer formlarda `Etiket seçiniz` kalabilir);

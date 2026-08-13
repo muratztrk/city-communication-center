@@ -13,21 +13,9 @@ function displayAddressValue(value: string | null | undefined, emptyValue = '—
   return trimmed ? trimmed : emptyValue
 }
 
-function formatStreetLine(street?: string | null, streetNo?: string | null): string | null | undefined {
-  const streetValue = street?.trim()
-  const streetNoValue = streetNo?.trim()
-  if (!streetValue && !streetNoValue) return street
-  return [streetValue, streetNoValue].filter(Boolean).join(' ')
-}
-
 export function AddressDetailFields({ neighborhood, street, streetNo, openAddress, variant = 'default' }: AddressDetailFieldsProps) {
   const { t } = useTranslation()
-  const streetLine = formatStreetLine(street, streetNo)
-  const fields = [
-    { label: t('address.neighborhoodLabel', 'Mahalle'), value: neighborhood },
-    { label: t('address.streetLabel', 'Cadde / Sokak'), value: streetLine },
-    { label: t('address.openAddressLabel', 'Açık Adres'), value: openAddress },
-  ]
+  const addressDirectionsLabel = t('address.directionsLabel', 'Adres Tarifi')
 
   if (variant === 'my-request' || variant === 'stacked') {
     const allEmpty = ![neighborhood, street, streetNo, openAddress].some(value => value?.trim())
@@ -43,10 +31,14 @@ export function AddressDetailFields({ neighborhood, street, streetNo, openAddres
           </div>
           <div className="address-detail-my-request__item">
             <dt className="address-detail-my-request__label">{t('address.streetLabel', 'Cadde / Sokak')}</dt>
-            <dd className="address-detail-my-request__value">{displayAddressValue(streetLine, '-')}</dd>
+            <dd className="address-detail-my-request__value">{displayAddressValue(street, '-')}</dd>
           </div>
           <div className="address-detail-my-request__item">
-            <dt className="address-detail-my-request__label">{t('address.openAddressLabel', 'Açık Adres')}</dt>
+            <dt className="address-detail-my-request__label">{t('address.streetNoLabel', 'No')}</dt>
+            <dd className="address-detail-my-request__value">{displayAddressValue(streetNo, '-')}</dd>
+          </div>
+          <div className="address-detail-my-request__item address-detail-my-request__item--directions">
+            <dt className="address-detail-my-request__label">{addressDirectionsLabel}</dt>
             <dd className="address-detail-my-request__value">{displayAddressValue(openAddress, '-')}</dd>
           </div>
         </div>
@@ -55,10 +47,19 @@ export function AddressDetailFields({ neighborhood, street, streetNo, openAddres
   }
 
   if (variant === 'detail-card') {
+    const detailFields = [
+      { label: t('address.neighborhoodLabel', 'Mahalle'), value: neighborhood },
+      { label: t('address.streetLabel', 'Cadde / Sokak'), value: street },
+      { label: t('address.streetNoLabel', 'No'), value: streetNo },
+      { label: addressDirectionsLabel, value: openAddress, fullWidth: true },
+    ]
     return (
       <dl className="divide-y divide-slate-100">
-        {fields.map(field => (
-          <div key={field.label} className="job-detail-field-row job-detail-field-row--detail-card">
+        {detailFields.map(field => (
+          <div
+            key={field.label}
+            className={`job-detail-field-row job-detail-field-row--detail-card${field.fullWidth ? ' job-detail-field-row--full' : ''}`}
+          >
             <dt className="job-detail-field-row__label">{field.label}</dt>
             <dd className="job-detail-field-row__value">{displayAddressValue(field.value)}</dd>
           </div>
@@ -66,6 +67,13 @@ export function AddressDetailFields({ neighborhood, street, streetNo, openAddres
       </dl>
     )
   }
+
+  const fields = [
+    { label: t('address.neighborhoodLabel', 'Mahalle'), value: neighborhood },
+    { label: t('address.streetLabel', 'Cadde / Sokak'), value: street },
+    { label: t('address.streetNoLabel', 'No'), value: streetNo },
+    { label: addressDirectionsLabel, value: openAddress },
+  ]
 
   return (
     <dl className="flex flex-wrap gap-x-10 gap-y-3">

@@ -305,9 +305,11 @@ export function MyRequestDetailMainCard({
     showPendingTargetApprovalAfterStatus: !hideOwnerApproval,
   }), [t, detail, locale, hideOwnerApproval])
   const priorityOptions = useMemo(() => prioritySelectOptions(t), [t])
-  const requestTypeText = detail.requestType === 'ExternalUnit'
-    ? t('jobs.requestType.external', 'Birim Dışı')
-    : t('jobs.requestType.internal', 'Birim İçi')
+  const requestTypeText = isCitizenRequestJob(detail)
+    ? t('jobs.detail.citizenRequest', 'Vatandaş Talebi')
+    : detail.requestType === 'ExternalUnit'
+      ? t('jobs.requestType.external', 'Birim Dışı')
+      : t('jobs.requestType.internal', 'Birim İçi')
   const requestNumberText = isCitizenRequestJob(detail)
     ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)
     : formatJobDisplayNumberText(detail, locale)

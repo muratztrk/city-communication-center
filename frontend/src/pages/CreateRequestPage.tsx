@@ -778,8 +778,8 @@ export function CreateRequestPage() {
     const sectionTitle = options?.sectionTitle ?? t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')
     const includePhotoUpload = options?.includePhotoUpload ?? true
     const compactPlaceholderClass = options?.compactPlaceholders ? 'placeholder:text-[0.72rem]' : ''
-    const smallerPlaceholderClass = options?.smallerPlaceholders ? 'placeholder:text-[0.74rem]' : ''
-    const largerPlaceholderClass = options?.largerPlaceholders ? 'placeholder:text-[0.84rem]' : ''
+    const smallerPlaceholderClass = options?.smallerPlaceholders ? 'placeholder:text-[0.82rem]' : ''
+    const largerPlaceholderClass = options?.largerPlaceholders ? 'placeholder:text-[0.92rem]' : ''
 
     return (
     <div className="job-field">
@@ -803,7 +803,7 @@ export function CreateRequestPage() {
               placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
             />
           </div>
-          <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
+          <div className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,5.5rem)] gap-2">
             <div className="grid gap-1">
               <span className="text-sm font-semibold text-slate-500">
                 {t('address.streetLabel', 'Cadde / Sokak')}
@@ -1558,7 +1558,7 @@ export function CreateRequestPage() {
               <label className="job-field">
                 <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş Adı')} <span className="normal-case text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
                 <input
-                  className="field-input placeholder:text-[0.84rem]"
+                  className="field-input placeholder:text-[0.92rem]"
                   required
                   maxLength={50}
                   placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş adı giriniz...')}
@@ -1570,7 +1570,7 @@ export function CreateRequestPage() {
               <label className="job-field">
                 <span className="job-field-label">{t('settings.citizen.citizenPhone', 'Telefon No')} <span className="text-xs font-normal text-slate-400 normal-case">{t('settings.citizen.citizenPhoneHint', '(Başında 0 olmadan ekleyin)')}</span> <span className="text-red-500">*</span></span>
                 <input
-                  className="field-input placeholder:text-[0.84rem]"
+                  className="field-input placeholder:text-[0.92rem]"
                   required
                   inputMode="numeric"
                   pattern="[0-9]*"

@@ -18,10 +18,9 @@ type ResolvedPin = CitizenDashboardMapPin & { position: LatLng; approximate: boo
 
 const PIN_COLORS: Record<string, string> = {
   processingReceived: '#0ea5e9',
-  inProgress: '#0ea5e9',
-  overdue: '#f97316',
+  inProgress: '#f97316',
+  overdue: '#ef4444',
   completed: '#22c55e',
-  cancelled: '#ef4444',
 }
 
 function pinColor(displayStatus: string): string {
@@ -145,12 +144,12 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     const [[swLat, swLng], [neLat, neLng]] = mapView.bounds
     if (resolved.length === 0) {
       mapInstance.setCenter({ lat: mapView.center.lat, lng: mapView.center.lng })
-      mapInstance.setZoom(14)
+      mapInstance.setZoom(12)
       return
     }
     if (resolved.length === 1) {
       mapInstance.setCenter({ lat: resolved[0].position.lat, lng: resolved[0].position.lng })
-      mapInstance.setZoom(16)
+      mapInstance.setZoom(12)
       return
     }
     const bounds = new google.maps.LatLngBounds(
@@ -163,7 +162,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     mapInstance.fitBounds(bounds, 24)
     const listener = google.maps.event.addListenerOnce(mapInstance, 'idle', () => {
       const zoom = mapInstance.getZoom()
-      if (zoom != null && zoom > 15) mapInstance.setZoom(15)
+      if (zoom != null && zoom > 13) mapInstance.setZoom(13)
     })
     return () => {
       google.maps.event.removeListener(listener)
@@ -208,9 +207,9 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
 
   const statusLegend = useMemo(() => ([
     { key: 'processingReceived', label: t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı'), color: PIN_COLORS.processingReceived },
+    { key: 'inProgress', label: t('dashboard.chart.inProgress', 'Yapılmakta Olan'), color: PIN_COLORS.inProgress },
     { key: 'overdue', label: t('citizenRequestMap.legend.overdue', 'Son Tarihi Geçmiş'), color: PIN_COLORS.overdue },
     { key: 'completed', label: t('citizenRequestMap.legend.completed', 'Tamamlanan'), color: PIN_COLORS.completed },
-    { key: 'cancelled', label: t('citizenRequestMap.legend.cancelled', 'İptal'), color: PIN_COLORS.cancelled },
   ]), [t])
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
@@ -243,9 +242,11 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   const activePin = resolved.find(pin => pin.jobId === activePinId) ?? null
 
   return (
-    <section className="section-card overflow-hidden p-0">
+    <div className="overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-border)] px-4 py-3 sm:px-5">
-        <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
+        <div className="flex flex-col gap-2">
+          <div className="text-sm font-bold text-slate-800">{t('nav.social', 'Vatandaş Talepleri')}</div>
+          <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
           {statusLegend.map(item => (
             <span key={item.key} className="inline-flex items-center gap-1.5">
               <span className="size-2.5 rounded-full" style={{ backgroundColor: item.color }} />
@@ -257,6 +258,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
               ? t('common.loading', 'Yükleniyor...')
               : t('citizenRequestMap.pinCount', { count: resolved.length, defaultValue: '{{count}} konum' })}
           </span>
+          </div>
         </div>
       </div>
 
@@ -277,7 +279,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
             key={mapView.districtId}
             mapContainerStyle={MAP_CONTAINER_STYLE}
             center={{ lat: mapView.center.lat, lng: mapView.center.lng }}
-            zoom={14}
+            zoom={12}
             onLoad={onMapLoad}
             onClick={() => setGestureHandling('greedy')}
             options={{
@@ -383,6 +385,6 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
         </div>,
         document.body,
       ) : null}
-    </section>
+    </div>
   )
 }

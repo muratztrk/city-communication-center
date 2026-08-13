@@ -555,7 +555,7 @@ export function SocialMessagesPage() {
         <span className="scope-chip-divider" aria-hidden="true">|</span>
         <SingleSelectDropdown
           className="w-auto"
-          triggerClassName="scope-chip-year-select w-auto"
+          triggerClassName="scope-chip-year-select scope-chip-status-select w-[11.5rem] min-w-[11.5rem] max-w-[11.5rem]"
           menuScrollClassName="scope-chip-status-menu-scroll"
           options={REQUEST_STATUS_FILTERS.map(filter => ({ value: filter.value, label: t(filter.labelKey, filter.fallback) }))}
           value={requestStatusFilter}
@@ -593,6 +593,7 @@ export function SocialMessagesPage() {
                   </span>
                 </FilterableTh>
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.destination', 'Gittiği Yer')}</FilterableTh>
+                <FilterableTh filterKey="statusSortText" filterValue={socialFilters['statusSortText'] ?? ''} onFilter={setSocialFilter} sortKey="statusSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.detail.processTitle', 'Süreç')}</FilterableTh>
                 <FilterableTh filterKey="labelSortText" filterValue={socialFilters['labelSortText'] ?? ''} onFilter={setSocialFilter} sortKey="labelSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('whatsapp.label', 'Talep Etiketi')}</FilterableTh>
                 <th>{t('common.actions')}</th>
               </tr>
@@ -639,6 +640,11 @@ export function SocialMessagesPage() {
                         <span className="mt-0.5 block text-sm font-semibold text-slate-500">{linkedJob.assignedUserDisplayName}</span>
                       ) : null}
                     </td>
+                    <td className="font-semibold text-slate-700">
+                      {linkedJob
+                        ? getLinkedJobDisplayStatus(t, linkedJob, message.dueDateUtc ?? linkedJob.dueDateUtc ?? null)
+                        : t('social.requestStatus.processingReceived', 'İşleme Alındı')}
+                    </td>
                     <td className="text-center">
                       <div className="inline-flex w-full justify-center">
                         <RequestTagPicker
@@ -671,7 +677,7 @@ export function SocialMessagesPage() {
                 )
               })}
               {columnFilteredMessages.length === 0 ? (
-                <TableEmptyStateRows columnCount={8} message={t('social.empty')} />
+                <TableEmptyStateRows columnCount={9} message={t('social.empty')} />
               ) : null}
             </tbody>
           </table>

@@ -4323,6 +4323,20 @@
     outline-offset: 2px;
   }
 
+  .scope-chip-status-select {
+    width: 11.5rem;
+    min-width: 11.5rem;
+    max-width: 11.5rem;
+  }
+
+  .address-detail-my-request__item--directions {
+    grid-column: 1 / -1;
+  }
+
+  .job-detail-field-row--full {
+    grid-column: 1 / -1;
+  }
+
   .scope-chip-staff-label {
     display: flex;
     align-items: center;

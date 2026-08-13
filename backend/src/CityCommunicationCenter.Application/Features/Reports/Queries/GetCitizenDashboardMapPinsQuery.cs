@@ -124,6 +124,12 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
             .Select(row =>
             {
                 var display = Classify(row.Status, row.DueDateUtc, row.TaskCount, now);
+                return (row, display);
+            })
+            .Where(pair => pair.display != MapPinDisplayStatus.Cancelled)
+            .Select(pair =>
+            {
+                var row = pair.row;
                 return new CitizenDashboardMapPin(
                     row.JobId,
                     row.Title,
@@ -135,7 +141,7 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                     row.Longitude ?? row.MessageLongitude,
                     row.CitizenRequestNumber,
                     row.CitizenRequestNumberYear,
-                    ToDisplayStatus(display));
+                    ToDisplayStatus(pair.display));
             })
             .OrderByDescending(pin => pin.Title)
             .ToList();

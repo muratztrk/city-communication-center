@@ -1942,8 +1942,9 @@
     "streetNoLabel": "No",
     "streetNoPlaceholder": "ör. 12",
     "streetRequired": "Mahalle seçildiğinde Cadde / Sokak zorunludur.",
-    "openAddressRequired": "Mahalle seçildiğinde Açık Adres zorunludur.",
-    "openAddressLabel": "Açık Adres",
+    "openAddressRequired": "Mahalle seçildiğinde Adres Tarifi zorunludur.",
+    "openAddressLabel": "Adres Tarifi",
+    "directionsLabel": "Adres Tarifi",
     "openAddressMaxHint": "(max 100 karakter)",
     "openAddressPlaceholder": "Bina no, kat, daire bilgisi giriniz..."
   },

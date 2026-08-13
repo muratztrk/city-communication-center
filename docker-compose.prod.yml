@@ -7,6 +7,13 @@
 #   CCC_DB_INCLUDE_ERROR_DETAIL=false
 #   CCC_DB_PASSWORD=<strong-password>
 #   CCC_SIGNING_KEY=<generate-with: openssl rand -base64 48>
+#   CCC_FRONTEND_PUBLIC_ORIGIN=https://yenitim.tire.bel.tr
+#   CCC_API_PUBLIC_ORIGIN=https://yenitim.tire.bel.tr
+#   CCC_AUTH_ISSUER=https://yenitim.tire.bel.tr
+#
+# If a non-Docker proxy talks directly to the API container, set
+# CCC_KNOWN_PROXY_0 or CCC_KNOWN_NETWORK_0 so ASP.NET Core trusts
+# X-Forwarded-Proto/X-Forwarded-Host for OpenIddict HTTPS validation.
 
 services:
   postgres:

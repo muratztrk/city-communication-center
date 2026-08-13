@@ -40,7 +40,7 @@ services:
       - Recaptcha__SecretKey=${CCC_RECAPTCHA_SECRET_KEY:-}
       - ForwardedHeaders__KnownProxies__0=${CCC_KNOWN_PROXY_0:-}
       - ForwardedHeaders__KnownProxies__1=${CCC_KNOWN_PROXY_1:-}
-      - ForwardedHeaders__KnownNetworks__0=${CCC_KNOWN_NETWORK_0:-}
+      - ForwardedHeaders__KnownNetworks__0=${CCC_KNOWN_NETWORK_0:-172.16.0.0/12}
     ports:
       - "${CCC_API_HOST_PORT:-15000}:${CCC_API_CONTAINER_PORT:-80}"
     volumes:

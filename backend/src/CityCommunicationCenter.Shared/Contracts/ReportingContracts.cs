@@ -87,7 +87,8 @@ public sealed record ExecutiveReportResponse(
     ExecutiveKpiResponse Kpi,
     IReadOnlyList<TimeSeriesPointResponse> TimeSeries,
     IReadOnlyList<ChannelStatResponse> ByChannel,
-    IReadOnlyList<DepartmentStatResponse> ByDepartment);
+    IReadOnlyList<DepartmentStatResponse> ByDepartment,
+    IReadOnlyList<NeighborhoodStatResponse> ByNeighborhood);
 
 public sealed record ExecutiveKpiResponse(
     int TotalRequests,
@@ -117,3 +118,12 @@ public sealed record DepartmentStatResponse(
     double CompletionRate,
     int OverdueCount,
     double AvgResolutionHours);
+
+public sealed record NeighborhoodStatResponse(
+    string Neighborhood,
+    int Total,
+    int Completed,
+    int InProgress,
+    int Processing,
+    int Overdue,
+    double CompletionRate);

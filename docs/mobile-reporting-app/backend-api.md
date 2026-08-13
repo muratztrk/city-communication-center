@@ -21,7 +21,8 @@ public sealed record ExecutiveReportResponse(
     ExecutiveKpiResponse Kpi,
     IReadOnlyList<TimeSeriesPointResponse> TimeSeries,
     IReadOnlyList<ChannelStatResponse> ByChannel,
-    IReadOnlyList<DepartmentStatResponse> ByDepartment
+    IReadOnlyList<DepartmentStatResponse> ByDepartment,
+    IReadOnlyList<NeighborhoodStatResponse> ByNeighborhood
 );
 
 public sealed record ExecutiveKpiResponse(
@@ -56,6 +57,16 @@ public sealed record DepartmentStatResponse(
     int OverdueCount,
     double AvgResolutionHours
 );
+
+public sealed record NeighborhoodStatResponse(
+    string Neighborhood,
+    int Total,
+    int Completed,
+    int InProgress,
+    int Processing,
+    int Overdue,
+    double CompletionRate
+);
 ```
 
 ### Handler Logic (pseudocode)
@@ -80,6 +91,8 @@ public sealed record DepartmentStatResponse(
 //    Each bucket: created count + completed count
 // 6. byChannel: group Jobs (Citizen type) by SocialChannel (join SocialMessage)
 // 7. byDepartment: group Jobs/Tasks by department with same KPI metrics
+// 8. byNeighborhood: group VT citizen requests with neighborhood data by
+//    Total / Completed / InProgress / Processing / Overdue slices
 ```
 
 ### Controller Action

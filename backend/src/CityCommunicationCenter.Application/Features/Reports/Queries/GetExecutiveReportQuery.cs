@@ -241,14 +241,94 @@ public sealed class GetExecutiveReportQueryHandler : IQueryHandler<GetExecutiveR
             .OrderByDescending(d => d.Total)
             .ToList();
 
+        var byNeighborhood = await BuildNeighborhoodStatsAsync(
+            tenantId,
+            effectiveFrom,
+            effectiveTo,
+            scopedDeptIds,
+            utcNow,
+            cancellationToken);
+
         return new ExecutiveReportResponse(
             Kpi: kpi,
             TimeSeries: timeSeries,
             ByChannel: channelStats,
-            ByDepartment: byDepartment);
+            ByDepartment: byDepartment,
+            ByNeighborhood: byNeighborhood);
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────
+
+    private async Task<IReadOnlyList<NeighborhoodStatResponse>> BuildNeighborhoodStatsAsync(
+        Guid tenantId,
+        DateTimeOffset from,
+        DateTimeOffset to,
+        Guid[]? scopedDeptIds,
+        DateTimeOffset utcNow,
+        CancellationToken cancellationToken)
+    {
+        var rows = await _dbContext.Jobs
+            .AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && job.CreatedAtUtc >= from
+                && job.CreatedAtUtc <= to
+                && job.SourceType != JobSourceType.Routine
+                && job.Neighborhood != null
+                && job.Neighborhood != ""
+                && (scopedDeptIds == null || scopedDeptIds.Contains(job.OwnerDepartmentId)))
+            .WhereHasCitizenRequestNumber(_dbContext)
+            .Select(job => new NeighborhoodJob(
+                job.Neighborhood!,
+                job.Status,
+                job.DueDateUtc,
+                _dbContext.Tasks.Count(task => task.JobId == job.JobId)))
+            .ToListAsync(cancellationToken);
+
+        return rows
+            .GroupBy(row => row.Neighborhood.Trim(), StringComparer.CurrentCultureIgnoreCase)
+            .Where(group => group.Key.Length > 0)
+            .Select(group =>
+            {
+                var values = group.ToList();
+                var total = values.Count;
+                var completed = 0;
+                var inProgress = 0;
+                var processing = 0;
+                var overdue = 0;
+
+                foreach (var item in values)
+                {
+                    switch (ClassifyCitizenJobStatus(item, utcNow))
+                    {
+                        case CitizenJobDisplayStatus.Completed:
+                            completed++;
+                            break;
+                        case CitizenJobDisplayStatus.InProgress:
+                            inProgress++;
+                            break;
+                        case CitizenJobDisplayStatus.ProcessingReceived:
+                            processing++;
+                            break;
+                        case CitizenJobDisplayStatus.Overdue:
+                            overdue++;
+                            break;
+                    }
+                }
+
+                var completionRate = total > 0 ? completed * 100.0 / total : 0;
+                return new NeighborhoodStatResponse(
+                    Neighborhood: group.Key,
+                    Total: total,
+                    Completed: completed,
+                    InProgress: inProgress,
+                    Processing: processing,
+                    Overdue: overdue,
+                    CompletionRate: Math.Round(completionRate, 1));
+            })
+            .OrderByDescending(item => item.Total)
+            .ThenBy(item => item.Neighborhood, StringComparer.CurrentCultureIgnoreCase)
+            .ToList();
+    }
 
     private static (DateTimeOffset From, DateTimeOffset To) ResolveRange(
         string period, DateTimeOffset? from, DateTimeOffset? to)
@@ -368,7 +448,25 @@ public sealed class GetExecutiveReportQueryHandler : IQueryHandler<GetExecutiveR
             Kpi: new ExecutiveKpiResponse(0, 0, 0, 0, 0, 0, 0, 0),
             TimeSeries: [],
             ByChannel: [],
-            ByDepartment: []);
+            ByDepartment: [],
+            ByNeighborhood: []);
+
+    private static CitizenJobDisplayStatus ClassifyCitizenJobStatus(NeighborhoodJob job, DateTimeOffset now)
+    {
+        if (job.Status == JobStatus.Completed)
+            return CitizenJobDisplayStatus.Completed;
+
+        if (job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested)
+            return CitizenJobDisplayStatus.Cancelled;
+
+        if (job.DueDateUtc.HasValue && job.DueDateUtc.Value < now)
+            return CitizenJobDisplayStatus.Overdue;
+
+        if (job.Status == JobStatus.Active && job.TaskCount > 0)
+            return CitizenJobDisplayStatus.InProgress;
+
+        return CitizenJobDisplayStatus.ProcessingReceived;
+    }
 
     private static string GetChannelColorKey(SocialChannel channel) => channel switch
     {
@@ -390,4 +488,19 @@ public sealed class GetExecutiveReportQueryHandler : IQueryHandler<GetExecutiveR
         Guid OwnerDepartmentId,
         JobSourceType SourceType,
         Guid? SourceRefId);
+
+    private sealed record NeighborhoodJob(
+        string Neighborhood,
+        JobStatus Status,
+        DateTimeOffset? DueDateUtc,
+        int TaskCount);
+
+    private enum CitizenJobDisplayStatus
+    {
+        ProcessingReceived,
+        Overdue,
+        InProgress,
+        Completed,
+        Cancelled,
+    }
 }

@@ -93,6 +93,7 @@ export function MyRequestDetailBottomCards({
               variant="my-request"
               neighborhood={detail.neighborhood}
               street={detail.street}
+              streetNo={detail.streetNo}
               openAddress={detail.openAddress}
             />
           )}

@@ -21,6 +21,7 @@ public sealed record ConvertSocialMessageToJobRequest(
     DateTimeOffset? StartDateUtc = null,
     string? Neighborhood = null,
     string? Street = null,
+    string? StreetNo = null,
     string? OpenAddress = null,
     string? CitizenName = null,
     string? CitizenPhone = null);
@@ -216,6 +217,7 @@ public sealed record CitizenConversationSummaryDto(
     string? Label = null,
     string? Neighborhood = null,
     string? Street = null,
+    string? StreetNo = null,
     string? OpenAddress = null,
     // "BEKLEMEDE" durumundaki (gönderilmemiş) giden mesaj bildirim baloncuğunda görünsün (card #1472).
     bool HasPendingOutboundMessage = false,
@@ -239,6 +241,7 @@ public sealed record CitizenConversationDetailDto(
     string? Label,
     string? Neighborhood,
     string? Street,
+    string? StreetNo,
     string? OpenAddress,
     DateTimeOffset LastMessageAt,
     int UnreadCount,
@@ -258,6 +261,7 @@ public sealed record UpdateCitizenConversationProfileRequest(
     string? Label,
     string? Neighborhood,
     string? Street,
+    string? StreetNo,
     string? OpenAddress);
 
 public sealed record RequestTagResponse(Guid TagId, string Name);

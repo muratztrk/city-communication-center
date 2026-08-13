@@ -41,7 +41,7 @@ import {
   ensureLeadingCapitalTr,
   normalizeTitleCaseField,
 } from '../utils/textNormalization'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../utils/addressLimits'
 import {
   ATTACHMENT_FILE_ACCEPT,
   attachmentFileExtension,
@@ -67,6 +67,7 @@ interface InternalFormState {
   ownerUserIds: string[]
   neighborhood: string
   street: string
+  streetNo: string
   openAddress: string
 }
 
@@ -92,9 +93,11 @@ interface CitizenFormState {
   dueDateUtc: string
   neighborhood: string
   street: string
+  streetNo: string
   openAddress: string
   citizenNeighborhood: string
   citizenStreet: string
+  citizenStreetNo: string
   citizenOpenAddress: string
 }
 
@@ -108,6 +111,7 @@ const EMPTY_INTERNAL_FORM: InternalFormState = {
   ownerUserIds: [''],
   neighborhood: '',
   street: '',
+  streetNo: '',
   openAddress: '',
 }
 
@@ -134,9 +138,11 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
   dueDateUtc: '',
   neighborhood: '',
   street: '',
+  streetNo: '',
   openAddress: '',
   citizenNeighborhood: '',
   citizenStreet: '',
+  citizenStreetNo: '',
   citizenOpenAddress: '',
 }
 
@@ -450,6 +456,7 @@ export function CreateRequestPage() {
           ownerDepartmentId: job.ownerDepartmentId,
           neighborhood: job.neighborhood ?? '',
           street: job.street ?? '',
+          streetNo: job.streetNo ?? '',
           openAddress: job.openAddress ?? '',
         }
         if (job.requestType === 'ExternalUnit') {
@@ -547,9 +554,11 @@ export function CreateRequestPage() {
           dueDateUtc: job.dueDateUtc ?? '',
           neighborhood: job.neighborhood ?? '',
           street: job.street ?? '',
+          streetNo: job.streetNo ?? '',
           openAddress: job.openAddress ?? '',
           citizenNeighborhood: '',
           citizenStreet: '',
+          citizenStreetNo: '',
           citizenOpenAddress: '',
         })
         if (message.citizenConversationId) {
@@ -559,6 +568,7 @@ export function CreateRequestPage() {
               ...current,
               citizenNeighborhood: conversation.neighborhood ?? '',
               citizenStreet: conversation.street ?? '',
+              citizenStreetNo: conversation.streetNo ?? '',
               citizenOpenAddress: conversation.openAddress ?? '',
             }))
           }
@@ -760,22 +770,22 @@ export function CreateRequestPage() {
   }
 
   const renderAddressFields = (
-    form: { neighborhood: string; street: string; openAddress: string },
-    setField: (field: 'neighborhood' | 'street' | 'openAddress', value: string) => void,
+    form: { neighborhood: string; street: string; streetNo: string; openAddress: string },
+    setField: (field: 'neighborhood' | 'street' | 'streetNo' | 'openAddress', value: string) => void,
     options?: { sectionTitle?: string; includePhotoUpload?: boolean; compactPlaceholders?: boolean; smallerPlaceholders?: boolean; largerPlaceholders?: boolean },
   ) => {
     const hasNeighborhood = form.neighborhood.trim().length > 0
     const sectionTitle = options?.sectionTitle ?? t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')
     const includePhotoUpload = options?.includePhotoUpload ?? true
     const compactPlaceholderClass = options?.compactPlaceholders ? 'placeholder:text-[0.72rem]' : ''
-    const smallerPlaceholderClass = options?.smallerPlaceholders ? 'placeholder:text-[0.66rem]' : ''
-    const largerPlaceholderClass = options?.largerPlaceholders ? 'placeholder:text-[0.76rem]' : ''
+    const smallerPlaceholderClass = options?.smallerPlaceholders ? 'placeholder:text-[0.74rem]' : ''
+    const largerPlaceholderClass = options?.largerPlaceholders ? 'placeholder:text-[0.84rem]' : ''
 
     return (
     <div className="job-field">
       <span className="job-field-label">{sectionTitle}</span>
       <div className="grid gap-2">
-        <div className="grid gap-2 md:grid-cols-2">
+        <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
           <div className="grid gap-1">
             <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
             <SingleSelectDropdown
@@ -786,27 +796,41 @@ export function CreateRequestPage() {
                 setField('neighborhood', neighborhood)
                 if (!neighborhood) {
                   setField('street', '')
+                  setField('streetNo', '')
                   setField('openAddress', '')
                 }
               }}
               placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
             />
           </div>
-          <div className="grid gap-1">
-            <span className="text-sm font-semibold text-slate-500">
-              {t('address.streetLabel', 'Cadde / Sokak')}
-              {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-            </span>
-            <input
-              className={`field-input address-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${compactPlaceholderClass} ${smallerPlaceholderClass} ${largerPlaceholderClass}`}
-              placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-              maxLength={ADDRESS_STREET_MAX_LENGTH}
-              value={form.street}
-              onChange={e => setField('street', e.target.value)}
-              onBlur={() => setField('street', normalizeTitleCaseField(form.street) ?? '')}
-              disabled={!hasNeighborhood}
-              required={hasNeighborhood}
-            />
+          <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
+            <div className="grid gap-1">
+              <span className="text-sm font-semibold text-slate-500">
+                {t('address.streetLabel', 'Cadde / Sokak')}
+                {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+              </span>
+              <input
+                className={`field-input address-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${compactPlaceholderClass} ${smallerPlaceholderClass} ${largerPlaceholderClass}`}
+                placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                maxLength={ADDRESS_STREET_MAX_LENGTH}
+                value={form.street}
+                onChange={e => setField('street', e.target.value)}
+                onBlur={() => setField('street', normalizeTitleCaseField(form.street) ?? '')}
+                disabled={!hasNeighborhood}
+                required={hasNeighborhood}
+              />
+            </div>
+            <div className="grid gap-1">
+              <span className="text-sm font-semibold text-slate-500">{t('address.streetNoLabel', 'No')}</span>
+              <input
+                className={`field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${compactPlaceholderClass} ${smallerPlaceholderClass} ${largerPlaceholderClass}`}
+                placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
+                maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
+                value={form.streetNo}
+                onChange={e => setField('streetNo', e.target.value)}
+                disabled={!hasNeighborhood}
+              />
+            </div>
           </div>
         </div>
         <div className="grid gap-2">
@@ -894,6 +918,7 @@ export function CreateRequestPage() {
           isProject: internalForm.isProject,
           neighborhood: internalForm.neighborhood || '',
           street: normalizeTitleCaseField(internalForm.street) ?? '',
+          streetNo: internalForm.streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(internalForm.openAddress) ?? '',
         })
         await uploadPendingFiles(editJobId)
@@ -914,6 +939,7 @@ export function CreateRequestPage() {
         sourceType: 'InternalRequest',
         neighborhood: internalForm.neighborhood || null,
         street: normalizeTitleCaseField(internalForm.street),
+        streetNo: internalForm.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(internalForm.openAddress),
       })
       await uploadPendingFiles(job.jobId)
@@ -980,6 +1006,7 @@ export function CreateRequestPage() {
           isProject: externalForm.isProject,
           neighborhood: normalizeTitleCaseField(externalForm.neighborhood) ?? '',
           street: normalizeTitleCaseField(externalForm.street) ?? '',
+          streetNo: externalForm.streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(externalForm.openAddress) ?? '',
           targetDepartmentIds,
         })
@@ -1002,6 +1029,7 @@ export function CreateRequestPage() {
         sourceType: 'Manual',
         neighborhood: normalizeTitleCaseField(externalForm.neighborhood),
         street: normalizeTitleCaseField(externalForm.street),
+        streetNo: externalForm.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(externalForm.openAddress),
       })
       await uploadPendingFiles(job.jobId)
@@ -1100,11 +1128,13 @@ export function CreateRequestPage() {
       if (!conversationId) return
       const hasCitizenAddress = citizenForm.citizenNeighborhood.trim()
         || citizenForm.citizenStreet.trim()
+        || citizenForm.citizenStreetNo.trim()
         || citizenForm.citizenOpenAddress.trim()
       if (!hasCitizenAddress) return
       await api.updateCitizenConversationProfile(conversationId, {
         neighborhood: normalizeTitleCaseField(citizenForm.citizenNeighborhood) ?? '',
         street: normalizeTitleCaseField(citizenForm.citizenStreet) ?? '',
+        streetNo: citizenForm.citizenStreetNo.trim() || null,
         openAddress: normalizeTitleCaseField(citizenForm.citizenOpenAddress) ?? '',
       })
     }
@@ -1122,6 +1152,7 @@ export function CreateRequestPage() {
           citizenPhone: trimmedPhone,
           neighborhood: citizenForm.neighborhood || null,
           street: normalizeTitleCaseField(citizenForm.street),
+          streetNo: citizenForm.streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(citizenForm.openAddress),
           targetDepartmentIds: [citizenForm.targetDepartmentId],
         })
@@ -1156,6 +1187,7 @@ export function CreateRequestPage() {
         dueDateUtc: toApiDueDateTime(citizenForm.dueDateUtc),
         neighborhood: citizenForm.neighborhood || null,
         street: normalizeTitleCaseField(citizenForm.street),
+        streetNo: citizenForm.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(citizenForm.openAddress),
         citizenName: normalizedCitizenName,
         citizenPhone: trimmedPhone,
@@ -1517,7 +1549,7 @@ export function CreateRequestPage() {
               (field, value) => setCitizenForm(current => ({ ...current, [field]: value })),
               {
                 sectionTitle: t('requests.create.jobAddressSection', 'Talebin Adres Bilgisi (İsteğe Bağlı)'),
-                smallerPlaceholders: true,
+                largerPlaceholders: true,
               },
             )}
           </div>
@@ -1526,7 +1558,7 @@ export function CreateRequestPage() {
               <label className="job-field">
                 <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş Adı')} <span className="normal-case text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
                 <input
-                  className="field-input placeholder:text-[0.76rem]"
+                  className="field-input placeholder:text-[0.84rem]"
                   required
                   maxLength={50}
                   placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş adı giriniz...')}
@@ -1538,7 +1570,7 @@ export function CreateRequestPage() {
               <label className="job-field">
                 <span className="job-field-label">{t('settings.citizen.citizenPhone', 'Telefon No')} <span className="text-xs font-normal text-slate-400 normal-case">{t('settings.citizen.citizenPhoneHint', '(Başında 0 olmadan ekleyin)')}</span> <span className="text-red-500">*</span></span>
                 <input
-                  className="field-input placeholder:text-[0.76rem]"
+                  className="field-input placeholder:text-[0.84rem]"
                   required
                   inputMode="numeric"
                   pattern="[0-9]*"
@@ -1605,12 +1637,14 @@ export function CreateRequestPage() {
               {
                 neighborhood: citizenForm.citizenNeighborhood,
                 street: citizenForm.citizenStreet,
+                streetNo: citizenForm.citizenStreetNo,
                 openAddress: citizenForm.citizenOpenAddress,
               },
               (field, value) => setCitizenForm(current => ({
                 ...current,
                 citizenNeighborhood: field === 'neighborhood' ? value : current.citizenNeighborhood,
                 citizenStreet: field === 'street' ? value : current.citizenStreet,
+                citizenStreetNo: field === 'streetNo' ? value : current.citizenStreetNo,
                 citizenOpenAddress: field === 'openAddress' ? value : current.citizenOpenAddress,
               })),
               {
@@ -1627,7 +1661,7 @@ export function CreateRequestPage() {
                 normalizeOnBlur={ensureLeadingCapitalRichText}
                 required
                 placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebini detaylı olarak açıklayınız...')}
-                minHeight="min-h-20"
+                minHeight="min-h-28"
               />
             </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">

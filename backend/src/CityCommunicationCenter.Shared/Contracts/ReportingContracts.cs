@@ -53,6 +53,22 @@ public sealed record DashboardChartDrilldownRow(
 public sealed record DashboardChartDrilldownResponse(
     IReadOnlyList<DashboardChartDrilldownRow> Rows);
 
+public sealed record CitizenDashboardMapPin(
+    Guid JobId,
+    string Title,
+    string? Neighborhood,
+    string? Street,
+    string? StreetNo,
+    string OpenAddress,
+    double? Latitude,
+    double? Longitude,
+    int? CitizenRequestNumber,
+    int? CitizenRequestNumberYear,
+    string DisplayStatus);
+
+public sealed record CitizenDashboardMapPinsResponse(
+    IReadOnlyList<CitizenDashboardMapPin> Pins);
+
 public sealed record SlaReportResponse(
     int OverdueTaskCount,
     int DueTodayTaskCount);

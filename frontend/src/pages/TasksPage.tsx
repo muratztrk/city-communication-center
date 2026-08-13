@@ -30,7 +30,7 @@ import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../utils/addressLimits'
 import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeaderBrand'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
@@ -532,6 +532,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     dueDateUtc: string
     neighborhood: string | null
     street: string | null
+    streetNo: string | null
     openAddress: string | null
   } | null>(null)
   const [editRoutineTaskSaving, setEditRoutineTaskSaving] = useState(false)
@@ -1579,6 +1580,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       dueDateUtc: toDateTimePickerValue(detail.dueDateUtc),
       neighborhood: job?.neighborhood ?? null,
       street: job?.street ?? null,
+      streetNo: job?.streetNo ?? null,
       openAddress: job?.openAddress ?? null,
     })
   }
@@ -1594,6 +1596,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         notes: null,
         neighborhood: editRoutineTaskModal.neighborhood,
         street: normalizeTitleCaseField(editRoutineTaskModal.street),
+        streetNo: editRoutineTaskModal.streetNo?.trim() || null,
         openAddress: normalizeTitleCaseField(editRoutineTaskModal.openAddress),
       })
       invalidateTasks(queryClient, updated.taskId, updated.jobId)
@@ -1693,7 +1696,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   }
   // Rutin görev düzenlemede Adres Bilgileri de düzenlenebilir (card #1489); editJobModal'da
   // bu alanlar yok, bu yüzden updateActiveTaskEditDraft'tan ayrı tutulur.
-  const updateRoutineTaskAddressDraft = (patch: Partial<{ neighborhood: string | null; street: string | null; openAddress: string | null }>) => {
+  const updateRoutineTaskAddressDraft = (patch: Partial<{ neighborhood: string | null; street: string | null; streetNo: string | null; openAddress: string | null }>) => {
     setEditRoutineTaskModal(m => m && ({ ...m, ...patch }))
   }
   const handleSaveActiveTaskEdit = () => {
@@ -2710,28 +2713,41 @@ const pageKicker = isMyTasksView
                                   value={editRoutineTaskModal.neighborhood ?? ''}
                                   onChange={neighborhood => updateRoutineTaskAddressDraft(neighborhood
                                     ? { neighborhood }
-                                    : { neighborhood: '', street: '', openAddress: '' })}
+                                    : { neighborhood: '', street: '', streetNo: '', openAddress: '' })}
                                   placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
                                 />
                               </label>
-                              <label className="grid gap-1">
-                                <span className="text-xs font-semibold text-slate-500">
-                                  {t('address.streetLabel', 'Cadde / Sokak')}
-                                  {editRoutineTaskModal.neighborhood ? <span className="text-red-500"> *</span> : null}
-                                </span>
-                                <input
-                                  className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-                                  placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-                                  maxLength={ADDRESS_STREET_MAX_LENGTH}
-                                  value={editRoutineTaskModal.street ?? ''}
-                                  onChange={e => updateRoutineTaskAddressDraft({ street: e.target.value })}
-                                  onBlur={e => updateRoutineTaskAddressDraft({
-                                    street: normalizeTitleCaseField(e.target.value) ?? '',
-                                  })}
-                                  disabled={!editRoutineTaskModal.neighborhood}
-                                  required={Boolean(editRoutineTaskModal.neighborhood)}
-                                />
-                              </label>
+                              <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
+                                <label className="grid gap-1">
+                                  <span className="text-xs font-semibold text-slate-500">
+                                    {t('address.streetLabel', 'Cadde / Sokak')}
+                                    {editRoutineTaskModal.neighborhood ? <span className="text-red-500"> *</span> : null}
+                                  </span>
+                                  <input
+                                    className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                                    placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                                    maxLength={ADDRESS_STREET_MAX_LENGTH}
+                                    value={editRoutineTaskModal.street ?? ''}
+                                    onChange={e => updateRoutineTaskAddressDraft({ street: e.target.value })}
+                                    onBlur={e => updateRoutineTaskAddressDraft({
+                                      street: normalizeTitleCaseField(e.target.value) ?? '',
+                                    })}
+                                    disabled={!editRoutineTaskModal.neighborhood}
+                                    required={Boolean(editRoutineTaskModal.neighborhood)}
+                                  />
+                                </label>
+                                <label className="grid gap-1">
+                                  <span className="text-xs font-semibold text-slate-500">{t('address.streetNoLabel', 'No')}</span>
+                                  <input
+                                    className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                                    placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
+                                    maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
+                                    value={editRoutineTaskModal.streetNo ?? ''}
+                                    onChange={e => updateRoutineTaskAddressDraft({ streetNo: e.target.value })}
+                                    disabled={!editRoutineTaskModal.neighborhood}
+                                  />
+                                </label>
+                              </div>
                               <label className="grid gap-1">
                                 <span className="text-xs font-semibold text-slate-500">
                                   {t('address.openAddressLabel', 'Açık Adres')}
@@ -2761,6 +2777,7 @@ const pageKicker = isMyTasksView
                               variant="my-request"
                               neighborhood={parentJobDetail?.neighborhood}
                               street={parentJobDetail?.street}
+                              streetNo={parentJobDetail?.streetNo}
                               openAddress={parentJobDetail?.openAddress}
                             />
                           )}
@@ -2881,6 +2898,7 @@ const pageKicker = isMyTasksView
                           variant="stacked"
                           neighborhood={parentJobDetail.neighborhood}
                           street={parentJobDetail.street}
+                          streetNo={parentJobDetail.streetNo}
                           openAddress={parentJobDetail.openAddress}
                         />
                       </>

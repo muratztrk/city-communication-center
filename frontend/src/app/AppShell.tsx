@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, Contact, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, Menu, MessageSquareText, MonitorUp, MessageSquareMore, ScrollText, Send, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
+import { ArrowUpRight, BookOpen, Building, Check, ChevronDown, ChevronLeft, ChevronRight, CircleDot, ClipboardList, ClipboardPlus, ClipboardCheck, CheckCircle2, Clock3, Contact, FolderKanban, Home, Inbox, KeyRound, LayoutDashboard, ListChecks, LogOut, Mail, MapPin, Menu, MessageSquareText, MonitorUp, MessageSquareMore, ScrollText, Send, Settings2, SquareKanban, Users, Workflow, X, XCircle } from 'lucide-react'
 import { AppFooter } from '../components/layout/AppFooter'
 import { ScrollFab } from '../components/layout/ScrollFab'
 import { WhatsAppNotificationFab } from '../components/layout/WhatsAppNotificationFab'
@@ -307,6 +307,7 @@ export function AppShell() {
           ...(showCitizenDashboard
             ? [{ pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard }]
             : []),
+          { pageKey: 'citizenRequestMap' as const, path: '/citizen-request-map', label: t('nav.citizenRequestMap', 'Vatandaş Talep Haritası'), icon: MapPin },
           { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact, separatorAfter: true },
         ]
       : isReporterNav
@@ -314,10 +315,11 @@ export function AppShell() {
             ...(showCitizenDashboard
               ? [{ pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard }]
               : []),
-            { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact, separatorAfter: !isInternalModuleUsable },
+            { pageKey: 'citizenRequestMap' as const, path: '/citizen-request-map', label: t('nav.citizenRequestMap', 'Vatandaş Talep Haritası'), icon: MapPin },
             ...(isInternalModuleUsable
-              ? [{ pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorAfter: true }]
+              ? [{ pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard }]
               : []),
+            { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact, separatorAfter: true },
           ]
         : [
             { pageKey: 'dashboard' as const, path: showCitizenDashboard ? '/dashboard' : '/dashboard/birimler', label: t('nav.dashboard'), icon: LayoutDashboard, separatorAfter: true },
@@ -333,7 +335,10 @@ export function AppShell() {
     ] },
     // Sistem Admin vb.: dizin Vatandaş Talepleri grubundan sonra (eski konum).
     ...(!isCitizenDashboardNav
-      ? [{ pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact }]
+      ? [
+          { pageKey: 'citizenRequestMap' as const, path: '/citizen-request-map', label: t('nav.citizenRequestMap', 'Vatandaş Talep Haritası'), icon: MapPin },
+          { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
+        ]
       : []),
     { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban, badgeCount: navDashboardCounts?.pendingApprovalCount ?? 0 },
     { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight, separatorAfter: true, badgeCount: navDashboardCounts?.outgoingPendingCount ?? 0 },
@@ -526,6 +531,7 @@ export function AppShell() {
     display: t('nav.display'),
     social: t('nav.social'),
     whatsapp: 'WhatsApp',
+    'citizen-request-map': t('nav.citizenRequestMap', 'Vatandaş Talep Haritası'),
     'citizen-directory': t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'),
     'citizen-message-approval': t('nav.citizenMessageApprovalBreadcrumb', 'Vatandaş Mesaj Onayı'),
     'sms-delivery-approval': t('nav.smsDeliveryApprovalBreadcrumb', 'Sms Onayı'),

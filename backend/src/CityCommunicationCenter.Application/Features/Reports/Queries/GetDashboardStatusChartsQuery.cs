@@ -523,11 +523,11 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToListAsync(cancellationToken))
             .Select(item => (item.DepartmentId, item.Count));
 
-        // Yapılmakta Olan Talepler — aktif dış birim talepleri (son tarihi geçmiş dahil) (#2565).
+        // Yapılmakta Olan Talepler — aktif vatandaş talebi olmayan talepler (#2570).
         var inProgress = (await _dbContext.JobDepartments.AsNoTracking()
             .Where(link => link.Role == JobDepartmentRole.Target
                 && link.Job.TenantId == tenantId
-                && link.Job.RequestType == JobRequestType.ExternalUnit
+                && link.Job.RequestType != JobRequestType.Citizen
                 && link.Job.Status == JobStatus.Active
                 && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
@@ -549,11 +549,11 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToListAsync(cancellationToken))
             .Select(item => (item.DepartmentId, item.Count));
 
-        // Proje niteliğinde yapılmakta olan / tamamlanan talepler (#2566).
+        // Proje niteliğinde yapılmakta olan / tamamlanan vatandaş talebi olmayan talepler (#2566/#2569).
         var projectsInProgress = (await _dbContext.JobDepartments.AsNoTracking()
             .Where(link => link.Role == JobDepartmentRole.Target
                 && link.Job.TenantId == tenantId
-                && link.Job.RequestType == JobRequestType.ExternalUnit
+                && link.Job.RequestType != JobRequestType.Citizen
                 && link.Job.IsProject
                 && link.Job.Status == JobStatus.Active
                 && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
@@ -566,7 +566,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
         var projectsCompleted = (await _dbContext.JobDepartments.AsNoTracking()
             .Where(link => link.Role == JobDepartmentRole.Target
                 && link.Job.TenantId == tenantId
-                && link.Job.RequestType == JobRequestType.ExternalUnit
+                && link.Job.RequestType != JobRequestType.Citizen
                 && link.Job.IsProject
                 && link.Job.Status == JobStatus.Completed
                 && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)

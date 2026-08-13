@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 type AddressDetailFieldsProps = {
   neighborhood?: string | null
   street?: string | null
+  streetNo?: string | null
   openAddress?: string | null
   variant?: 'default' | 'detail-card' | 'my-request' | 'stacked'
 }
@@ -12,16 +13,24 @@ function displayAddressValue(value: string | null | undefined, emptyValue = '—
   return trimmed ? trimmed : emptyValue
 }
 
-export function AddressDetailFields({ neighborhood, street, openAddress, variant = 'default' }: AddressDetailFieldsProps) {
+function formatStreetLine(street?: string | null, streetNo?: string | null): string | null | undefined {
+  const streetValue = street?.trim()
+  const streetNoValue = streetNo?.trim()
+  if (!streetValue && !streetNoValue) return street
+  return [streetValue, streetNoValue].filter(Boolean).join(' ')
+}
+
+export function AddressDetailFields({ neighborhood, street, streetNo, openAddress, variant = 'default' }: AddressDetailFieldsProps) {
   const { t } = useTranslation()
+  const streetLine = formatStreetLine(street, streetNo)
   const fields = [
     { label: t('address.neighborhoodLabel', 'Mahalle'), value: neighborhood },
-    { label: t('address.streetLabel', 'Cadde / Sokak'), value: street },
+    { label: t('address.streetLabel', 'Cadde / Sokak'), value: streetLine },
     { label: t('address.openAddressLabel', 'Açık Adres'), value: openAddress },
   ]
 
   if (variant === 'my-request' || variant === 'stacked') {
-    const allEmpty = ![neighborhood, street, openAddress].some(value => value?.trim())
+    const allEmpty = ![neighborhood, street, streetNo, openAddress].some(value => value?.trim())
     const stackedClass = allEmpty
       ? 'address-detail-my-request__grid--stacked'
       : 'address-detail-my-request__grid--stacked address-detail-my-request__grid--spaced'
@@ -34,7 +43,7 @@ export function AddressDetailFields({ neighborhood, street, openAddress, variant
           </div>
           <div className="address-detail-my-request__item">
             <dt className="address-detail-my-request__label">{t('address.streetLabel', 'Cadde / Sokak')}</dt>
-            <dd className="address-detail-my-request__value">{displayAddressValue(street, '-')}</dd>
+            <dd className="address-detail-my-request__value">{displayAddressValue(streetLine, '-')}</dd>
           </div>
           <div className="address-detail-my-request__item">
             <dt className="address-detail-my-request__label">{t('address.openAddressLabel', 'Açık Adres')}</dt>

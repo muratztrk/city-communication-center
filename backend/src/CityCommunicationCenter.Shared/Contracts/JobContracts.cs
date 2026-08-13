@@ -19,6 +19,7 @@ public sealed record CreateJobRequest(
     double? Longitude,
     string? Neighborhood = null,
     string? Street = null,
+    string? StreetNo = null,
     string? OpenAddress = null);
 
 public sealed record UpdateJobRequest(
@@ -32,6 +33,7 @@ public sealed record UpdateJobRequest(
     bool? IsProject = null,
     string? Neighborhood = null,
     string? Street = null,
+    string? StreetNo = null,
     string? OpenAddress = null,
     IReadOnlyCollection<Guid>? TargetDepartmentIds = null,
     string? CitizenName = null,
@@ -128,6 +130,7 @@ public sealed record JobDetailResponse(
     double? Longitude,
     string? Neighborhood,
     string? Street,
+    string? StreetNo,
     string? OpenAddress,
     string? CreatedByDisplayName,
     DateTimeOffset CreatedAtUtc,

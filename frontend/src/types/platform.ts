@@ -57,6 +57,24 @@ export interface DashboardChartDrilldownResponse {
   rows: DashboardChartDrilldownRow[];
 }
 
+export interface CitizenDashboardMapPin {
+  jobId: string;
+  title: string;
+  neighborhood?: string | null;
+  street?: string | null;
+  streetNo?: string | null;
+  openAddress: string;
+  latitude?: number | null;
+  longitude?: number | null;
+  citizenRequestNumber?: number | null;
+  citizenRequestNumberYear?: number | null;
+  displayStatus: 'processingReceived' | 'inProgress' | 'overdue' | 'completed' | 'cancelled' | string;
+}
+
+export interface CitizenDashboardMapPinsResponse {
+  pins: CitizenDashboardMapPin[];
+}
+
 export interface Department {
   departmentId: string;
   tenantId: string;
@@ -283,6 +301,7 @@ export interface UpdateJobRequest {
   isProject?: boolean | null;
   neighborhood?: string | null;
   street?: string | null;
+  streetNo?: string | null;
   openAddress?: string | null;
   targetDepartmentIds?: string[] | null;
   citizenName?: string | null;
@@ -379,6 +398,7 @@ export interface JobDetail {
   longitude?: number | null;
   neighborhood?: string | null;
   street?: string | null;
+  streetNo?: string | null;
   openAddress?: string | null;
   createdByDisplayName: string | null;
   createdByRoleCode?: string | null;
@@ -469,6 +489,7 @@ export interface CitizenConversationSummary {
   label?: string | null;
   neighborhood?: string | null;
   street?: string | null;
+  streetNo?: string | null;
   openAddress?: string | null;
   // "BEKLEMEDE" durumunda (gönderilmemiş) giden mesajı var mı — bildirim baloncuğu (card #1472).
   hasPendingOutboundMessage?: boolean;
@@ -565,6 +586,7 @@ export interface CitizenConversationDetail {
   label: string | null;
   neighborhood: string | null;
   street: string | null;
+  streetNo: string | null;
   openAddress: string | null;
   lastMessageAt: string;
   unreadCount: number;

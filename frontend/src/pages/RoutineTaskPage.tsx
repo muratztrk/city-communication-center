@@ -18,7 +18,7 @@ import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../utils/addressLimits'
 import {
   ATTACHMENT_FILE_ACCEPT,
   attachmentFileExtension,
@@ -38,6 +38,7 @@ interface FormState {
   dueDateUtc: string
   neighborhood: string
   street: string
+  streetNo: string
   openAddress: string
 }
 
@@ -48,6 +49,7 @@ const INITIAL: FormState = {
   dueDateUtc: '',
   neighborhood: '',
   street: '',
+  streetNo: '',
   openAddress: '',
 }
 
@@ -138,6 +140,7 @@ export function RoutineTaskPage() {
           dueDateUtc: toDateTimePickerValue(detail.dueDateUtc),
           neighborhood: job.neighborhood ?? '',
           street: job.street ?? '',
+          streetNo: job.streetNo ?? '',
           openAddress: job.openAddress ?? '',
         })
       } catch (err) {
@@ -153,7 +156,7 @@ export function RoutineTaskPage() {
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm(current => key === 'neighborhood' && !value
-      ? { ...current, neighborhood: '', street: '', openAddress: '' }
+      ? { ...current, neighborhood: '', street: '', streetNo: '', openAddress: '' }
       : { ...current, [key]: value })
 
   const addFiles = (files: FileList | null) => {
@@ -185,6 +188,7 @@ export function RoutineTaskPage() {
         notes: null,
         neighborhood: normalizeTitleCaseField(form.neighborhood),
         street: normalizeTitleCaseField(form.street),
+        streetNo: form.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(form.openAddress),
       }
 
@@ -318,7 +322,7 @@ export function RoutineTaskPage() {
           <div className="job-field border-t border-slate-100 pt-4">
             <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
             <div className="grid gap-2">
-              <div className="grid gap-2 md:grid-cols-2">
+              <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
                 <div className="grid gap-1">
                   <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
                   <SingleSelectDropdown
@@ -330,21 +334,34 @@ export function RoutineTaskPage() {
                     placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
                   />
                 </div>
-                <div className="grid gap-1">
-                  <span className="text-sm font-semibold text-slate-500">
-                    {t('address.streetLabel', 'Cadde / Sokak')}
-                    {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-                  </span>
-                  <input
-                    className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-                    placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-                    maxLength={ADDRESS_STREET_MAX_LENGTH}
-                    value={form.street}
-                    onChange={e => set('street', e.target.value)}
-                    onBlur={() => set('street', normalizeTitleCaseField(form.street) ?? '')}
-                    disabled={!hasNeighborhood}
-                    required={hasNeighborhood}
-                  />
+                <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
+                  <div className="grid gap-1">
+                    <span className="text-sm font-semibold text-slate-500">
+                      {t('address.streetLabel', 'Cadde / Sokak')}
+                      {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+                    </span>
+                    <input
+                      className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                      placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                      maxLength={ADDRESS_STREET_MAX_LENGTH}
+                      value={form.street}
+                      onChange={e => set('street', e.target.value)}
+                      onBlur={() => set('street', normalizeTitleCaseField(form.street) ?? '')}
+                      disabled={!hasNeighborhood}
+                      required={hasNeighborhood}
+                    />
+                  </div>
+                  <div className="grid gap-1">
+                    <span className="text-sm font-semibold text-slate-500">{t('address.streetNoLabel', 'No')}</span>
+                    <input
+                      className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                      placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
+                      maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
+                      value={form.streetNo}
+                      onChange={e => set('streetNo', e.target.value)}
+                      disabled={!hasNeighborhood}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="grid gap-2 lg:grid-cols-2 lg:items-stretch">

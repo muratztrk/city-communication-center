@@ -3497,20 +3497,20 @@
   }
 
   .citizen-request-form .rich-text-toolbar {
-    min-height: 2rem;
-    padding: 0.25rem 0.35rem;
+    min-height: 1.65rem;
+    padding: 0.15rem 0.3rem;
   }
 
   .citizen-request-form .rich-text-toolbar-button {
-    width: 1.55rem;
-    height: 1.55rem;
+    width: 1.35rem;
+    height: 1.35rem;
   }
 
   .citizen-request-form .rich-text-editable {
     font-size: 0.8rem;
-    min-height: 6.35rem;
-    max-height: 6.35rem;
-    padding: 0.45rem 0.55rem;
+    min-height: 7.75rem;
+    max-height: 7.75rem;
+    padding: 0.5rem 0.6rem;
     line-height: 1.45;
   }
 

@@ -20,6 +20,7 @@ public sealed record RoutineTaskEditSnapshot(
     DateTimeOffset? DueDateUtc,
     string? Neighborhood,
     string? Street,
+    string? StreetNo,
     string? OpenAddress,
     IReadOnlyList<RoutineTaskEditSnapshotAttachment> Attachments);
 
@@ -33,6 +34,7 @@ public sealed record UpdateRoutineTaskCommand(
     string? Notes,
     string? Neighborhood = null,
     string? Street = null,
+    string? StreetNo = null,
     string? OpenAddress = null) : ICommand<TaskSummaryResponse>;
 
 public sealed class UpdateRoutineTaskCommandValidator : AbstractValidator<UpdateRoutineTaskCommand>
@@ -44,6 +46,8 @@ public sealed class UpdateRoutineTaskCommandValidator : AbstractValidator<Update
         RuleFor(c => c.Priority).NotEmpty().WithMessage("Oncelik alani zorunludur.");
         RuleFor(c => c.Street).MaximumLength(AddressFieldLimits.StreetMaxLength)
             .WithMessage("Cadde / Sokak en fazla 50 karakter olabilir.");
+        RuleFor(c => c.StreetNo).MaximumLength(AddressFieldLimits.StreetNoMaxLength)
+            .WithMessage("No en fazla 20 karakter olabilir.");
         RuleFor(c => c.OpenAddress).MaximumLength(AddressFieldLimits.OpenAddressMaxLength)
             .WithMessage("Açık Adres en fazla 100 karakter olabilir.");
     }
@@ -104,6 +108,7 @@ public sealed class UpdateRoutineTaskCommandHandler : ICommandHandler<UpdateRout
             task.DueDateUtc,
             job.Neighborhood,
             job.Street,
+            job.StreetNo,
             job.OpenAddress,
             attachments);
 
@@ -139,6 +144,7 @@ public sealed class UpdateRoutineTaskCommandHandler : ICommandHandler<UpdateRout
         job.DueDateUtc = request.DueDateUtc;
         job.Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood.Trim();
         job.Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim();
+        job.StreetNo = string.IsNullOrWhiteSpace(request.StreetNo) ? null : request.StreetNo.Trim();
         job.OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim();
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;

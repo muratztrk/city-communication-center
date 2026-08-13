@@ -37,6 +37,7 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
     public double? Longitude { get; set; }
     public string? Neighborhood { get; set; }
     public string? Street { get; set; }
+    public string? StreetNo { get; set; }
     public string? OpenAddress { get; set; }
 
     public JobSourceType SourceType { get; set; } = JobSourceType.Manual;

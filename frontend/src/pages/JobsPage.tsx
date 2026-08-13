@@ -480,7 +480,7 @@ export function printJobDetail(
     .join('')
   const addressFields: Array<[string, string | null | undefined]> = [
     ['Mahalle', detail.neighborhood],
-    ['Cadde / Sokak', detail.street],
+    ['Cadde / Sokak', [detail.street, detail.streetNo].filter(Boolean).join(' ') || null],
     ['Açık Adres', detail.openAddress],
   ]
   const addressRows = addressFields
@@ -1406,6 +1406,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         isProject: detail.isProject,
         neighborhood: detail.neighborhood,
         street: detail.street,
+        streetNo: detail.streetNo,
         openAddress: detail.openAddress,
       })
       invalidateJobs(queryClient, detailDueDateEdit.jobId)
@@ -1481,6 +1482,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         isProject: detail.isProject,
         neighborhood: myRequestEditDraft.neighborhood || null,
         street: normalizeTitleCaseField(myRequestEditDraft.street),
+        streetNo: myRequestEditDraft.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(myRequestEditDraft.openAddress),
         ...(isPhoneCitizenEdit ? {
           citizenName: nextCitizenName,
@@ -1602,6 +1604,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       variant={isRequestDetailContext ? 'my-request' : 'default'}
       neighborhood={job.neighborhood}
       street={job.street}
+      streetNo={job.streetNo}
       openAddress={job.openAddress}
     />
   )

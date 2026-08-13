@@ -1,3 +1,13 @@
+## Round 791 — #2567/#2568/#2560 reopen/#2569/#2570/#2571/#2572
+
+- [x] `6a7e0331` — Adres alanlarına Cadde/Sokak yanına No (#2567).
+- [x] `6a7e03b8` — Çağrı formu Açıklama toolbar küçük, input alanı büyük (#2568).
+- [x] `6a7c4c8d` — Çağrı formu placeholder boyutları arttırıldı (#2560 reopen).
+- [x] `6a7e050a` — Birimler pie proje verileri vatandaş talebi olmayan (#2569).
+- [x] `6a7e0604` — Yapılmakta Olan Talepler pie vatandaş talebi olmayan (#2570).
+- [x] `6a7e06f3` — Menü: Anasayfa-Birimler ↔ Vatandaş Bilgi Listesi sırası (#2571).
+- [x] `6a7e0724` — Vatandaş Talep Haritası sayfası (Google Maps, cluster, yetki) (#2572).
+
 ## Round 790 — #2562 reopen/#2560 reopen/#2566/#2565/#2564/#2563
 
 - [x] `6a7c7ae6` — WA FAB: otomatik giden son mesaj panel satırından da düşer (#2562 reopen).

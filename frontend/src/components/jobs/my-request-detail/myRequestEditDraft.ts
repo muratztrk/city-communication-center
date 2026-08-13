@@ -8,6 +8,7 @@ export interface MyRequestEditDraft {
   dueDateUtc: string
   neighborhood: string
   street: string
+  streetNo: string
   openAddress: string
   /** Vatandaş talep etiketi (Operator/CRM düzenleme — card #1896 reopen). */
   category: string
@@ -35,6 +36,7 @@ export function buildMyRequestEditDraft(
     dueDateUtc: toDateTimePickerValue(detail.dueDateUtc),
     neighborhood: detail.neighborhood ?? '',
     street: detail.street ?? '',
+    streetNo: detail.streetNo ?? '',
     openAddress: detail.openAddress ?? '',
     category: citizenSourceMessage?.category?.trim() ?? '',
     citizenName: detail.citizenName?.trim()

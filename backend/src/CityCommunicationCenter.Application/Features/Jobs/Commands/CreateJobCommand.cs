@@ -24,6 +24,7 @@ public sealed record CreateJobCommand(
     double? Longitude = null,
     string? Neighborhood = null,
     string? Street = null,
+    string? StreetNo = null,
     string? OpenAddress = null) : ICommand<JobSummaryResponse>;
 
 public sealed class CreateJobCommandValidator : AbstractValidator<CreateJobCommand>
@@ -36,6 +37,8 @@ public sealed class CreateJobCommandValidator : AbstractValidator<CreateJobComma
         RuleFor(c => c.Priority).NotEmpty().WithMessage("Oncelik zorunludur.");
         RuleFor(c => c.Street).MaximumLength(AddressFieldLimits.StreetMaxLength)
             .WithMessage("Cadde / Sokak en fazla 50 karakter olabilir.");
+        RuleFor(c => c.StreetNo).MaximumLength(AddressFieldLimits.StreetNoMaxLength)
+            .WithMessage("No en fazla 20 karakter olabilir.");
         RuleFor(c => c.OpenAddress).MaximumLength(AddressFieldLimits.OpenAddressMaxLength)
             .WithMessage("Açık Adres en fazla 100 karakter olabilir.");
     }
@@ -221,6 +224,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             Longitude = request.Longitude,
             Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood.Trim(),
             Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim(),
+            StreetNo = string.IsNullOrWhiteSpace(request.StreetNo) ? null : request.StreetNo.Trim(),
             OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim(),
             IsCoordinated = isCoordinatedExternal,
             CreatedByUserId = context.UserId

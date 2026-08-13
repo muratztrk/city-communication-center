@@ -41,7 +41,7 @@ import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
 
@@ -559,6 +559,7 @@ type ConversationProfileDraft = {
   label: string
   neighborhood: string
   street: string
+  streetNo: string
   openAddress: string
 }
 
@@ -569,6 +570,7 @@ function createProfileDraft(detail: CitizenConversationDetail | null, fallbackPh
     label: detail?.label ?? '',
     neighborhood: detail?.neighborhood ?? '',
     street: detail?.street ?? '',
+    streetNo: detail?.streetNo ?? '',
     openAddress: detail?.openAddress ?? '',
   }
 }
@@ -657,26 +659,38 @@ function ConversationProfilePanel({
             value={draft.neighborhood}
             onChange={neighborhood => onDraftChange(neighborhood
               ? { neighborhood }
-              : { neighborhood: '', street: '', openAddress: '' })}
+              : { neighborhood: '', street: '', streetNo: '', openAddress: '' })}
             placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
             menuScrollClassName="whatsapp-neighborhood-menu-scroll"
           />
         </div>
-        <label className="block space-y-1">
-          <span className={labelClass}>
-            {t('address.street', 'Cadde / Sokak')}
-            {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-          </span>
-          <DeferredComposerInput
-            className={disabledFieldClass}
-            maxLength={ADDRESS_STREET_MAX_LENGTH}
-            value={draft.street}
-            onChange={value => onDraftChange({ street: value })}
-            onBlur={event => onDraftChange({ street: normalizeTitleCaseField(event.target.value) ?? '' })}
-            disabled={!hasNeighborhood}
-            required={hasNeighborhood}
-          />
-        </label>
+        <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
+          <label className="block space-y-1">
+            <span className={labelClass}>
+              {t('address.street', 'Cadde / Sokak')}
+              {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+            </span>
+            <DeferredComposerInput
+              className={disabledFieldClass}
+              maxLength={ADDRESS_STREET_MAX_LENGTH}
+              value={draft.street}
+              onChange={value => onDraftChange({ street: value })}
+              onBlur={event => onDraftChange({ street: normalizeTitleCaseField(event.target.value) ?? '' })}
+              disabled={!hasNeighborhood}
+              required={hasNeighborhood}
+            />
+          </label>
+          <label className="block space-y-1">
+            <span className={labelClass}>{t('address.streetNoLabel', 'No')}</span>
+            <DeferredComposerInput
+              className={disabledFieldClass}
+              maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
+              value={draft.streetNo}
+              onChange={value => onDraftChange({ streetNo: value })}
+              disabled={!hasNeighborhood}
+            />
+          </label>
+        </div>
         <label className="block space-y-1">
           <span className={labelClass}>
             {t('address.openAddress', 'Açık Adres')}
@@ -1034,6 +1048,7 @@ function ConversationDetail({
         label: normalizeTitleCaseField(profileDraft.label) ?? '',
         neighborhood: normalizeTitleCaseField(profileDraft.neighborhood) ?? '',
         street: normalizeTitleCaseField(profileDraft.street) ?? '',
+        streetNo: profileDraft.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(profileDraft.openAddress) ?? '',
       })
       profileDirtyRef.current = false

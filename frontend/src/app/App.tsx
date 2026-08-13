@@ -25,6 +25,7 @@ const EDevletActivityPlansListPage = lazy(() => import('../pages/EDevletActivity
 const EDevletBasvurularPage = lazy(() => import('../pages/EDevletBasvurularPage').then(module => ({ default: module.EDevletBasvurularPage })))
 const RoutineTaskPage = lazy(() => import('../pages/RoutineTaskPage').then(module => ({ default: module.RoutineTaskPage })))
 const CitizenDirectoryPage = lazy(() => import('../pages/CitizenDirectoryPage').then(module => ({ default: module.CitizenDirectoryPage })))
+const CitizenRequestMapPage = lazy(() => import('../pages/CitizenRequestMapPage').then(module => ({ default: module.CitizenRequestMapPage })))
 const WhatsAppConversationsPage = lazy(() => import('../pages/WhatsAppConversationsPage').then(module => ({ default: module.WhatsAppConversationsPage })))
 
 function LoadingScreen() {
@@ -102,6 +103,10 @@ export default function App() {
           <Route path="/sms-delivery-approval" element={<PageAccessGate pageKey="smsDeliveryApproval" user={user}><SmsDeliveryApprovalPage /></PageAccessGate>} />
           <Route path="/social" element={<PageAccessGate pageKey="social" user={user}><SocialMessagesPage /></PageAccessGate>} />
           <Route path="/whatsapp" element={<PageAccessGate pageKey="social" user={user}><WhatsAppConversationsPage /></PageAccessGate>} />
+          <Route
+            path="/citizen-request-map"
+            element={<PageAccessGate pageKey="citizenRequestMap" user={user}><CitizenRequestMapPage /></PageAccessGate>}
+          />
           <Route
             path="/citizen-directory"
             element={<PageAccessGate pageKey="citizenDirectory" user={user}><CitizenDirectoryPage /></PageAccessGate>}

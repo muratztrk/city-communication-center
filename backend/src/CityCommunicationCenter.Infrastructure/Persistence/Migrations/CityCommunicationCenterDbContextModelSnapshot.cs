@@ -397,6 +397,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("street");
 
+                    b.Property<string>("StreetNo")
+                        .HasColumnType("text")
+                        .HasColumnName("streetno");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenantid");
@@ -1094,6 +1098,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.Property<string>("Street")
                         .HasColumnType("text")
                         .HasColumnName("street");
+
+                    b.Property<string>("StreetNo")
+                        .HasColumnType("text")
+                        .HasColumnName("streetno");
 
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")

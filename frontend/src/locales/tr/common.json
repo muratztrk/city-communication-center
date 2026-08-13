@@ -60,6 +60,21 @@
       "openAddress": "Açık Adres"
     }
   },
+  "citizenRequestMap": {
+    "eyebrow": "Vatandaş talepleri",
+    "subtitle": "{{district}} ilçesindeki vatandaş talepleri mahalle, cadde ve açık adres bilgileriyle haritada gösterilir.",
+    "live": "Canlı harita",
+    "pinCount": "{{count}} konum",
+    "geocodeEmpty": "Adresler haritada konumlanamadı.",
+    "geocodePartial": "{{count}} talep adresinden konumlanamadı.",
+    "approximatePin": "Yaklaşık konum — açık adres tam çözülemedi, mahalle/cadde seviyesinde gösteriliyor.",
+    "detailTitle": "Vatandaş Talep Bilgisi",
+    "legend": {
+      "overdue": "Son Tarihi Geçmiş",
+      "completed": "Tamamlanan",
+      "cancelled": "İptal"
+    }
+  },
   "filters": {
     "requestFlow": {
       "internal": "Birim İçi",
@@ -192,6 +207,7 @@
     "dashboardCitizen": "Anasayfa - Vatandaş",
     "dashboardDepartments": "Anasayfa - Birimler",
     "citizenDirectory": "Vatandaş Bilgi Listesi",
+    "citizenRequestMap": "Vatandaş Talep Haritası",
     "edevletActivityPlan": "e-Devlet Günlük Faaliyet Planı Oluştur",
     "edevletActivityPlansList": "e-Devlet Günlük Faaliyet Planları Listesi",
     "createRequest": "Talep Oluştur",
@@ -1913,7 +1929,8 @@
     "useCurrentTitle": "Mevcut konumu kullan",
     "mapPreview": "Konum Önizleme",
     "mapSectionTitle": "Konum",
-    "mapTitle": "Konum Haritası"
+    "mapTitle": "Konum Haritası",
+    "mapNotConfigured": "Harita yapılandırılmadı. Google Maps API anahtarı gerekli."
   },
   "address": {
     "sectionTitle": "Adres Bilgisi (İsteğe Bağlı)",
@@ -1922,6 +1939,8 @@
     "streetLabel": "Cadde / Sokak",
     "streetShortLabel": "Cadde / Sokak",
     "streetPlaceholder": "ör. Atatürk Caddesi",
+    "streetNoLabel": "No",
+    "streetNoPlaceholder": "ör. 12",
     "streetRequired": "Mahalle seçildiğinde Cadde / Sokak zorunludur.",
     "openAddressRequired": "Mahalle seçildiğinde Açık Adres zorunludur.",
     "openAddressLabel": "Açık Adres",

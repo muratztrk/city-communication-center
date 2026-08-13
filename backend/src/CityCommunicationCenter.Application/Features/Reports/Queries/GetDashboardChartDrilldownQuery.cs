@@ -55,20 +55,23 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 tenantId,
                 request,
                 [JobStatus.Active],
-                cancellationToken),
+                cancellationToken,
+                nonCitizenOnly: true),
             "externalRequestFulfillers" => await BuildTargetDepartmentRowsAsync(tenantId, request, [JobStatus.Completed], cancellationToken),
             "externalProjectsInProgress" => await BuildTargetDepartmentRowsAsync(
                 tenantId,
                 request,
                 [JobStatus.Active],
                 cancellationToken,
-                isProject: true),
+                isProject: true,
+                nonCitizenOnly: true),
             "externalProjectsCompleted" => await BuildTargetDepartmentRowsAsync(
                 tenantId,
                 request,
                 [JobStatus.Completed],
                 cancellationToken,
-                isProject: true),
+                isProject: true,
+                nonCitizenOnly: true),
             "neighborhoodCompletedRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Completed, cancellationToken),
             "neighborhoodInProgressRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Active, cancellationToken),
             "neighborhoodProcessingRequests" => await BuildNeighborhoodProcessingRowsAsync(tenantId, request, cancellationToken),
@@ -255,7 +258,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         GetDashboardChartDrilldownQuery request,
         IReadOnlyCollection<JobStatus> statuses,
         CancellationToken cancellationToken,
-        bool? isProject = null)
+        bool? isProject = null,
+        bool nonCitizenOnly = false)
     {
         if (ParseSliceDepartmentId(request.SliceKey) is not Guid departmentId)
         {
@@ -266,7 +270,9 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             .Where(link => link.Role == JobDepartmentRole.Target
                 && link.DepartmentId == departmentId
                 && link.Job.TenantId == tenantId
-                && link.Job.RequestType == JobRequestType.ExternalUnit
+                && (nonCitizenOnly
+                    ? link.Job.RequestType != JobRequestType.Citizen
+                    : link.Job.RequestType == JobRequestType.ExternalUnit)
                 && statuses.Contains(link.Job.Status)
                 && (!isProject.HasValue || link.Job.IsProject == isProject.Value)
                 && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)

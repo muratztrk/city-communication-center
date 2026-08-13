@@ -15,6 +15,8 @@ public sealed class CitizenConversation : AuditableTenantEntity, IHasDatabaseInd
 
     public string? Street { get; set; }
 
+    public string? StreetNo { get; set; }
+
     public string? OpenAddress { get; set; }
 
     public DateTimeOffset LastMessageAt { get; set; }

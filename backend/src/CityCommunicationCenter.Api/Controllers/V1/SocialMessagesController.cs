@@ -145,6 +145,7 @@ public sealed class SocialMessagesController : ApiControllerBase
                 request.StartDateUtc,
                 request.Neighborhood,
                 request.Street,
+                request.StreetNo,
                 request.OpenAddress,
                 request.CitizenName,
                 request.CitizenPhone),

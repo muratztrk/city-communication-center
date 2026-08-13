@@ -8,6 +8,7 @@ public sealed record CreateRoutineTaskRequest(
     string? Notes,
     string? Neighborhood = null,
     string? Street = null,
+    string? StreetNo = null,
     string? OpenAddress = null);
 
 public sealed record UpdateRoutineTaskRequest(
@@ -18,6 +19,7 @@ public sealed record UpdateRoutineTaskRequest(
     string? Notes,
     string? Neighborhood = null,
     string? Street = null,
+    string? StreetNo = null,
     string? OpenAddress = null);
 
 public sealed record CreateTaskRequest(

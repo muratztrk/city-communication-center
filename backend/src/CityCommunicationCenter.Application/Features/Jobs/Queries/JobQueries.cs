@@ -652,7 +652,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             job.CompletionPercentage, job.IsCoordinated,
             job.SourceType.ToString(), job.SourceRefId, job.CancelReason,
             job.Latitude, job.Longitude,
-            job.Neighborhood, job.Street, job.OpenAddress,
+            job.Neighborhood, job.Street, job.StreetNo, job.OpenAddress,
             createdByName, job.CreatedAtUtc,
             job.JobNumber, job.JobNumberYear,
             job.ManagerNote,

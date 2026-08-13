@@ -4,7 +4,7 @@ import { getNeighborhoodsForDistrict } from '../../../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../../../hooks/useMunicipalityDistrictId'
 import { SingleSelectDropdown } from '../../ui/single-select-dropdown'
 import { stringListSelectOptions } from '../../../utils/formDropdownOptions'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../../../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../../../utils/addressLimits'
 import { normalizeTitleCaseField } from '../../../utils/textNormalization'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
 
@@ -27,9 +27,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
 
   return (
     <div className="my-request-edit-fields grid gap-3">
-      {/* Kolonlar min-w-0 ile daralabilir kalır; dar ekranda grid tek kolona iner,
-          Mahalle seçimi komşu alanın üstüne binmez (card #1612). */}
-      <div className="my-request-edit-address-grid grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="my-request-edit-address-grid grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1.2fr)]">
         <label className="grid min-w-0 gap-1">
           <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
           <SingleSelectDropdown
@@ -41,28 +39,41 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             options={neighborhoodOptions}
             value={draft.neighborhood}
             onChange={neighborhood => {
-              onChange(neighborhood ? { neighborhood } : { neighborhood, street: '', openAddress: '' })
+              onChange(neighborhood ? { neighborhood } : { neighborhood, street: '', streetNo: '', openAddress: '' })
             }}
             placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
           />
         </label>
-        <label className="grid min-w-0 gap-1">
-          <span className="text-xs font-semibold text-slate-500">
-            {t('address.streetLabel', 'Cadde / Sokak')}
-            {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-          </span>
-          <textarea
-            className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-            placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-            maxLength={ADDRESS_STREET_MAX_LENGTH}
-            value={draft.street}
-            rows={autoGrowRows(draft.street)}
-            onChange={e => onChange({ street: e.target.value })}
-            onBlur={() => onChange({ street: normalizeTitleCaseField(draft.street) ?? '' })}
-            disabled={!hasNeighborhood}
-            required={hasNeighborhood}
-          />
-        </label>
+        <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
+          <label className="grid min-w-0 gap-1">
+            <span className="text-xs font-semibold text-slate-500">
+              {t('address.streetLabel', 'Cadde / Sokak')}
+              {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+            </span>
+            <textarea
+              className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+              placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+              maxLength={ADDRESS_STREET_MAX_LENGTH}
+              value={draft.street}
+              rows={autoGrowRows(draft.street)}
+              onChange={e => onChange({ street: e.target.value })}
+              onBlur={() => onChange({ street: normalizeTitleCaseField(draft.street) ?? '' })}
+              disabled={!hasNeighborhood}
+              required={hasNeighborhood}
+            />
+          </label>
+          <label className="grid min-w-0 gap-1">
+            <span className="text-xs font-semibold text-slate-500">{t('address.streetNoLabel', 'No')}</span>
+            <input
+              className="field-input min-h-[2.75rem] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+              placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
+              maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
+              value={draft.streetNo}
+              onChange={e => onChange({ streetNo: e.target.value })}
+              disabled={!hasNeighborhood}
+            />
+          </label>
+        </div>
         <label className="grid min-w-0 gap-1">
           <span className="text-xs font-semibold text-slate-500">
             {t('address.openAddressLabel', 'Açık Adres')}

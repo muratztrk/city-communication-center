@@ -9,6 +9,7 @@ public sealed record UpdateCitizenConversationProfileCommand(
     string? Label,
     string? Neighborhood,
     string? Street,
+    string? StreetNo,
     string? OpenAddress) : ICommand<bool>;
 
 public sealed class UpdateCitizenConversationProfileCommandValidator : AbstractValidator<UpdateCitizenConversationProfileCommand>
@@ -17,6 +18,8 @@ public sealed class UpdateCitizenConversationProfileCommandValidator : AbstractV
     {
         RuleFor(c => c.Street).MaximumLength(AddressFieldLimits.StreetMaxLength)
             .WithMessage("Cadde / Sokak en fazla 50 karakter olabilir.");
+        RuleFor(c => c.StreetNo).MaximumLength(AddressFieldLimits.StreetNoMaxLength)
+            .WithMessage("No en fazla 20 karakter olabilir.");
         RuleFor(c => c.OpenAddress).MaximumLength(AddressFieldLimits.OpenAddressMaxLength)
             .WithMessage("Açık Adres en fazla 100 karakter olabilir.");
     }
@@ -48,6 +51,7 @@ public sealed class UpdateCitizenConversationProfileCommandHandler
         conversation.Label = NormalizeOptional(request.Label);
         conversation.Neighborhood = NormalizeOptional(request.Neighborhood);
         conversation.Street = NormalizeOptional(request.Street);
+        conversation.StreetNo = NormalizeOptional(request.StreetNo);
         conversation.OpenAddress = NormalizeOptional(request.OpenAddress);
 
         var phone = NormalizePhone(request.CitizenPhone);

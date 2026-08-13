@@ -17,6 +17,7 @@ public sealed record UpdateJobCommand(
     bool? IsProject = null,
     string? Neighborhood = null,
     string? Street = null,
+    string? StreetNo = null,
     string? OpenAddress = null,
     IReadOnlyCollection<Guid>? TargetDepartmentIds = null,
     string? CitizenName = null,
@@ -31,6 +32,8 @@ public sealed class UpdateJobCommandValidator : AbstractValidator<UpdateJobComma
         RuleFor(c => c.Priority).NotEmpty().WithMessage("Oncelik zorunludur.");
         RuleFor(c => c.Street).MaximumLength(AddressFieldLimits.StreetMaxLength)
             .WithMessage("Cadde / Sokak en fazla 50 karakter olabilir.");
+        RuleFor(c => c.StreetNo).MaximumLength(AddressFieldLimits.StreetNoMaxLength)
+            .WithMessage("No en fazla 20 karakter olabilir.");
         RuleFor(c => c.OpenAddress).MaximumLength(AddressFieldLimits.OpenAddressMaxLength)
             .WithMessage("Açık Adres en fazla 100 karakter olabilir.");
     }
@@ -119,6 +122,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         var previousLongitude = job.Longitude;
         var previousNeighborhood = job.Neighborhood;
         var previousStreet = job.Street;
+        var previousStreetNo = job.StreetNo;
         var previousOpenAddress = job.OpenAddress;
         var previousCitizenName = job.CitizenName;
         var previousCitizenPhone = job.CitizenPhone;
@@ -153,6 +157,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         }
         if (request.Neighborhood is not null) job.Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood;
         if (request.Street is not null) job.Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street;
+        if (request.StreetNo is not null) job.StreetNo = string.IsNullOrWhiteSpace(request.StreetNo) ? null : request.StreetNo;
         if (request.OpenAddress is not null) job.OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress;
         if (request.CitizenName is not null) job.CitizenName = string.IsNullOrWhiteSpace(request.CitizenName) ? null : request.CitizenName.Trim();
         if (request.CitizenPhone is not null) job.CitizenPhone = string.IsNullOrWhiteSpace(request.CitizenPhone) ? null : request.CitizenPhone.Trim();
@@ -234,6 +239,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             || previousLongitude != job.Longitude
             || previousNeighborhood != job.Neighborhood
             || previousStreet != job.Street
+            || previousStreetNo != job.StreetNo
             || previousOpenAddress != job.OpenAddress
             || previousCitizenName != job.CitizenName
             || previousCitizenPhone != job.CitizenPhone

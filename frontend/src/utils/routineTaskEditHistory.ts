@@ -16,6 +16,7 @@ export type RoutineTaskEditSnapshot = {
   dueDateUtc: string | null
   neighborhood: string | null
   street: string | null
+  streetNo: string | null
   openAddress: string | null
   attachments?: RoutineTaskEditSnapshotAttachment[]
 }
@@ -44,6 +45,7 @@ export function buildRoutineSnapshotFromTaskDetail(
   job: {
     neighborhood?: string | null
     street?: string | null
+    streetNo?: string | null
     openAddress?: string | null
   } | null,
 ): RoutineTaskEditSnapshot {
@@ -54,6 +56,7 @@ export function buildRoutineSnapshotFromTaskDetail(
     dueDateUtc: detail.dueDateUtc,
     neighborhood: job?.neighborhood ?? null,
     street: job?.street ?? null,
+    streetNo: job?.streetNo ?? null,
     openAddress: job?.openAddress ?? null,
     attachments: detail.attachments?.map(attachment => ({
       attachmentId: attachment.attachmentId,
@@ -81,7 +84,7 @@ function snapshotAttachmentToAttachment(entry: RoutineTaskEditSnapshotAttachment
 }
 
 function formatAddress(snapshot: RoutineTaskEditSnapshot): string {
-  return [snapshot.neighborhood, snapshot.street, snapshot.openAddress].filter(Boolean).join(' · ')
+  return [snapshot.neighborhood, snapshot.street, snapshot.streetNo, snapshot.openAddress].filter(Boolean).join(' · ')
 }
 
 function attachmentSignature(attachments: RoutineTaskEditSnapshotAttachment[]): string {

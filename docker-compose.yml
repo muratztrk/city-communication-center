@@ -65,6 +65,7 @@ services:
       args:
         VITE_API_ORIGIN: ${CCC_API_PUBLIC_ORIGIN:-}
         VITE_TENANT_ID: ${CCC_TENANT_ID:-}
+        VITE_GOOGLE_MAPS_API_KEY: ${CCC_GOOGLE_MAPS_API_KEY:-}
     restart: unless-stopped
     ports:
       - "${CCC_FRONTEND_HOST_PORT:-13000}:80"

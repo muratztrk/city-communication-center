@@ -30,6 +30,7 @@ import type {
   DashboardSnapshot,
   DashboardChartResponse,
   DashboardChartDrilldownResponse,
+  CitizenDashboardMapPinsResponse,
   DashboardStatusChartsResponse,
   Department,
   DepartmentSummary,
@@ -271,6 +272,17 @@ export const api = {
     const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.dashboardLoadFailed'))
     return response.json() as Promise<DashboardChartResponse>
+  },
+
+  async getCitizenDashboardMapPins(from?: string, to?: string): Promise<CitizenDashboardMapPinsResponse> {
+    const params = new URLSearchParams()
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const qs = params.toString()
+    const url = `${API_BASE}/reports/dashboard-citizen-map-pins${qs ? `?${qs}` : ''}`
+    const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.citizenMapLoadFailed', 'Vatandaş talep haritası yüklenemedi.'))
+    return response.json() as Promise<CitizenDashboardMapPinsResponse>
   },
 
   async getDepartments(): Promise<Department[]> {
@@ -832,6 +844,7 @@ export const api = {
     notes?: string | null
     neighborhood?: string | null
     street?: string | null
+    streetNo?: string | null
     openAddress?: string | null
   }): Promise<Task> {
     const response = await fetchWithCredentials(`${API_BASE}/tasks/routine`, {
@@ -851,6 +864,7 @@ export const api = {
     notes?: string | null
     neighborhood?: string | null
     street?: string | null
+    streetNo?: string | null
     openAddress?: string | null
   }): Promise<Task> {
     const response = await fetchWithCredentials(`${API_BASE}/tasks/routine/${taskId}`, {
@@ -1008,6 +1022,7 @@ export const api = {
     longitude?: number | null
     neighborhood?: string | null
     street?: string | null
+    streetNo?: string | null
     openAddress?: string | null
   }): Promise<JobSummary> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs`, {
@@ -1200,6 +1215,7 @@ export const api = {
       startDateUtc?: string | null
       neighborhood?: string | null
       street?: string | null
+      streetNo?: string | null
       openAddress?: string | null
       citizenName?: string | null
       citizenPhone?: string | null
@@ -1395,6 +1411,7 @@ export const api = {
     label?: string | null
     neighborhood?: string | null
     street?: string | null
+    streetNo?: string | null
     openAddress?: string | null
   }): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations/${conversationId}/profile`, {
@@ -1746,6 +1763,7 @@ export const api = {
     description: string
     neighborhood?: string | null
     street?: string | null
+    streetNo?: string | null
     openAddress?: string | null
   }): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans`, {
@@ -1817,6 +1835,7 @@ export const api = {
     description: string
     neighborhood?: string | null
     street?: string | null
+    streetNo?: string | null
     openAddress?: string | null
   }): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/edevlet/daily-plans/${planId}`, {
@@ -1859,6 +1878,7 @@ export const api = {
     dueDateUtc?: string | null
     neighborhood?: string | null
     street?: string | null
+    streetNo?: string | null
     openAddress?: string | null
     citizenName?: string | null
     citizenPhone?: string | null

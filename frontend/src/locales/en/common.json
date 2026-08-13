@@ -60,6 +60,21 @@
       "openAddress": "Open address"
     }
   },
+  "citizenRequestMap": {
+    "eyebrow": "Citizen requests",
+    "subtitle": "Citizen requests in {{district}} are shown on the map with neighborhood, street, and open address.",
+    "live": "Live map",
+    "pinCount": "{{count}} locations",
+    "geocodeEmpty": "Addresses could not be placed on the map.",
+    "geocodePartial": "{{count}} requests could not be geocoded.",
+    "approximatePin": "Approximate location — open address could not be resolved exactly; shown at neighborhood/street level.",
+    "detailTitle": "Citizen Request Info",
+    "legend": {
+      "overdue": "Overdue",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    }
+  },
   "userMenu": {
     "label": "User menu"
   },
@@ -192,6 +207,7 @@
     "dashboardCitizen": "Home - Citizen",
     "dashboardDepartments": "Home - Departments",
     "citizenDirectory": "Citizen Directory",
+    "citizenRequestMap": "Citizen Request Map",
     "edevletActivityPlan": "Create e-Government Daily Activity Plan",
     "edevletActivityPlansList": "e-Government Daily Activity Plans List",
     "createRequest": "Create Request",
@@ -1871,7 +1887,8 @@
     "useCurrentTitle": "Use current location",
     "mapPreview": "Location Preview",
     "mapSectionTitle": "Location",
-    "mapTitle": "Location Map"
+    "mapTitle": "Location Map",
+    "mapNotConfigured": "Map is not configured. A Google Maps API key is required."
   },
   "address": {
     "sectionTitle": "Address Information (Optional)",
@@ -1880,6 +1897,8 @@
     "streetLabel": "Street / Avenue",
     "streetShortLabel": "Street / Avenue",
     "streetPlaceholder": "e.g. Atatürk Avenue",
+    "streetNoLabel": "No",
+    "streetNoPlaceholder": "e.g. 12",
     "streetRequired": "Street is required when a neighborhood is selected.",
     "openAddressRequired": "Full address is required when a neighborhood is selected.",
     "openAddressLabel": "Full Address",

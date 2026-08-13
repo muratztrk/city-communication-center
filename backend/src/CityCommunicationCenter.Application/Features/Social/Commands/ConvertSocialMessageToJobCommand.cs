@@ -18,6 +18,7 @@ public sealed record ConvertSocialMessageToJobCommand(
     DateTimeOffset? StartDateUtc = null,
     string? Neighborhood = null,
     string? Street = null,
+    string? StreetNo = null,
     string? OpenAddress = null,
     string? CitizenName = null,
     string? CitizenPhone = null) : ICommand<JobSummaryResponse?>;
@@ -91,6 +92,7 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             Longitude: message.Longitude,
             Neighborhood: request.Neighborhood,
             Street: request.Street,
+            StreetNo: request.StreetNo,
             OpenAddress: request.OpenAddress), cancellationToken);
 
         message.JobId = jobSummary.JobId;

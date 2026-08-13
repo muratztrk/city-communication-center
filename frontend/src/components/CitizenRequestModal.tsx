@@ -24,7 +24,7 @@ import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../utils/addressLimits'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
 import {
@@ -172,6 +172,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const [dueDateUtc, setDueDateUtc] = useState('')
   const [neighborhood, setNeighborhood] = useState('')
   const [street, setStreet] = useState('')
+  const [streetNo, setStreetNo] = useState('')
   const [openAddress, setOpenAddress] = useState('')
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
@@ -210,6 +211,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     setDueDateUtc('')
     setNeighborhood('')
     setStreet('')
+    setStreetNo('')
     setOpenAddress('')
     setPendingFiles([])
     setFileError(null)
@@ -287,6 +289,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         setDueDateUtc(job.dueDateUtc ?? '')
         setNeighborhood(job.neighborhood ?? '')
         setStreet(job.street ?? '')
+        setStreetNo(job.streetNo ?? '')
         setOpenAddress(job.openAddress ?? '')
       })
       .catch(loadError => {
@@ -458,6 +461,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           citizenPhone: trimmedPhone,
           neighborhood: neighborhood || null,
           street: normalizeTitleCaseField(street),
+          streetNo: streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(openAddress),
           targetDepartmentIds: [targetDepartmentId],
         })
@@ -504,6 +508,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         dueDateUtc: toApiDateTime(dueDateUtc),
         neighborhood: neighborhood || null,
         street: normalizeTitleCaseField(street),
+        streetNo: streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(openAddress),
         citizenName: trimmedHandle,
         citizenPhone: trimmedPhone,
@@ -718,7 +723,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
 
               <div className="job-field">
-                <div className="grid gap-2 md:grid-cols-2 md:items-stretch">
+                <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:items-stretch">
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
                     <SingleSelectDropdown
@@ -729,28 +734,42 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                         setNeighborhood(nextNeighborhood)
                         if (!nextNeighborhood) {
                           setStreet('')
+                          setStreetNo('')
                           setOpenAddress('')
                         }
                       }}
                       placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
                     />
                   </label>
-                  <label className="job-field grid gap-1">
-                    <span className="job-field-label">
-                      {t('address.streetLabel', 'Cadde / Sokak')}
-                      {neighborhood ? <span className="text-red-500"> *</span> : null}
-                    </span>
-                    <DeferredComposerInput
-                      className="field-input address-street-input citizen-request-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-                      placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-                      maxLength={ADDRESS_STREET_MAX_LENGTH}
-                      value={street}
-                      onChange={setStreet}
-                      onBlur={() => setStreet(normalizeTitleCaseField(street) ?? '')}
-                      disabled={!neighborhood}
-                      required={Boolean(neighborhood)}
-                    />
-                  </label>
+                  <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
+                    <label className="job-field grid gap-1">
+                      <span className="job-field-label">
+                        {t('address.streetLabel', 'Cadde / Sokak')}
+                        {neighborhood ? <span className="text-red-500"> *</span> : null}
+                      </span>
+                      <DeferredComposerInput
+                        className="field-input address-street-input citizen-request-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                        placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
+                        maxLength={ADDRESS_STREET_MAX_LENGTH}
+                        value={street}
+                        onChange={setStreet}
+                        onBlur={() => setStreet(normalizeTitleCaseField(street) ?? '')}
+                        disabled={!neighborhood}
+                        required={Boolean(neighborhood)}
+                      />
+                    </label>
+                    <label className="job-field grid gap-1">
+                      <span className="job-field-label">{t('address.streetNoLabel', 'No')}</span>
+                      <DeferredComposerInput
+                        className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                        placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
+                        maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
+                        value={streetNo}
+                        onChange={setStreetNo}
+                        disabled={!neighborhood}
+                      />
+                    </label>
+                  </div>
                 </div>
                 <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-stretch">
                   <label className="job-field flex min-h-0 flex-col gap-1">

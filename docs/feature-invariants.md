@@ -20,7 +20,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **`main` push = PRODUCTION auto-deploy** (yenitim.tire.bel.tr, gerçek Tire verisi). Riskli;
   hem `main` hem `master`'a push edilir.
-- **Harita / Konum UI (#6a6cf0d1/#6a6cdf95/#6a6cf3c0):** Uygulama içi Google Maps yok;
+- **Harita / Konum UI (#2572 / #6a6cf0d1):** Uygulama içi Google Maps yalnız
+  `Vatandaş Talep Haritası` (`/citizen-request-map`) sayfasında; Reporter/Manager/SystemAdmin +
+  Ayarlar sayfa yetkisi + vatandaş modül lisansı. Anasayfa'da harita yok.
   Vatandaş Talepleri grid’inde Konum satırı yok. Talep detayında lat/lng metni olabilir;
   WhatsApp balonunda dış `maps.google.com` linki kalabilir.
 - **Demo seed YOK** → doğrulama = `dotnet build` + FE `npm run build` + `npm run lint`.
@@ -280,7 +282,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   linkidir; terminal tarih etiketinde `(İptal)`/durum parantezi basılmaz; Görev Detayları terminal
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Adres alan limitleri:** Cadde / Sokak tüm giriş yüzeylerinde en fazla 50 karakter,
-  Açık Adres en fazla 100 karakterdir; backend komut validasyonları da aynı sınırı korur.
+  No (kapı/sokak numarası) en fazla 20 karakter, Açık Adres en fazla 100 karakterdir;
+  backend komut validasyonları da aynı sınırı korur (#2567).
 - **Adres metni yazımı:** Cadde / Sokak ve Açık Adres değerleri Türkçe locale kurallarıyla
   her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilir
   (`normalizeTitleCaseField` — onBlur + kayıt). Rutin görev detay Düzenle dahil tüm adres
@@ -773,7 +776,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`renderAddressFields`); mükerrer blok yok (#2559). Açıklama editörü `min-h-20` (#2560 reopen).
   Sol kolon **Talebin Adres Bilgisi** placeholder `0.66rem`; sağ kolon vatandaş alanları `0.76rem`.
   **Talep adresi ≠ vatandaş profil adresi (#2563):** `ConvertSocialMessageToJob` / `UpdateJob`
-  `CitizenConversation` mahalle/cadde/açık adresini job alanlarıyla güncellemez; profil yalnız
+  `CitizenConversation` mahalle/cadde/no/açık adresini job alanlarıyla güncellemez; profil yalnız
   `updateCitizenConversationProfile` ve WA **Vatandaş Bilgileri** panelinden yazılır.
   yatay buton görünümünde kalır; form başlığındaki ikon, seçim kartındaki mavi zeminli telefon ikonuyla aynıdır.
 - **Talep Oluştur Vatandaş kartı lisans (#2357):** tür seçim ekranındaki `Vatandaş Çağrı Talebi`
@@ -1563,8 +1566,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   pie'ları tüm anasayfalardan kaldırıldı (#2521).
 - **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
-- **Harita kaldırma (#6a6cdf95 / #6a6cf0d1):** Anasayfa haritası, Embed bileşenleri,
-  `GET /reports/dashboard-citizen-map-pins`, `@react-google-maps/api` ve Maps env kaldırıldı.
+- **Vatandaş Talep Haritası (#2572):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
+  dönem filtresi Anasayfa ile aynı; tüm VT talepleri (tamamlanan/iptal dahil); pin clustering
+  `@googlemaps/markerclusterer`; detay `MyRequestDetailModal`. Anasayfa haritası yok (#6a6cdf95).
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
   chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında

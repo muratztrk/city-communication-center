@@ -58,7 +58,10 @@ const HIDE_DUE_DATE_CHART_KEYS = new Set([
   'dashboard.charts.citizenRequests',
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestInProgress',
   'dashboard.charts.externalRequestFulfillers',
+  'dashboard.charts.externalProjectsInProgress',
+  'dashboard.charts.externalProjectsCompleted',
 ])
 
 const NEIGHBORHOOD_CHART_KEYS = new Set([
@@ -71,7 +74,10 @@ const NEIGHBORHOOD_CHART_KEYS = new Set([
 const EXTERNAL_UNIT_CHART_KEYS = new Set([
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestInProgress',
   'dashboard.charts.externalRequestFulfillers',
+  'dashboard.charts.externalProjectsInProgress',
+  'dashboard.charts.externalProjectsCompleted',
 ])
 
 const CITIZEN_DEPARTMENT_CHART_KEYS = new Set([

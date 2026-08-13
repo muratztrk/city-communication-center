@@ -1,3 +1,12 @@
+## Round 790 — #2562 reopen/#2560 reopen/#2566/#2565/#2564/#2563
+
+- [x] `6a7c7ae6` — WA FAB: otomatik giden son mesaj panel satırından da düşer (#2562 reopen).
+- [x] `6a7c4c8d` — Çağrı formu Açıklama `min-h-20`; placeholder ince ayar (#2560 reopen).
+- [x] `6a7dbb89` — Reporter Birimler: Yapılmakta/Tamamlanan Projeler pie (#2566).
+- [x] `6a7db386` — Reporter Birimler: Yapılmakta Olan Talepler pie (#2565).
+- [x] `6a7d6239` — Bildirim rozeti feed ile hizalı; hayalet sayaç düzeltildi (#2564).
+- [x] `6a7cbd0b` — Talep adresi ≠ vatandaş profil adresi (convert/update job) (#2563).
+
 ## Round 789 — #2562/#2560 reopen
 
 - [x] `6a7c7ae6` — WA FAB: otomatik giden mesajlar rozet/panel/pulse tetiklemez (#2562).

@@ -255,20 +255,7 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             conversation.CitizenName = citizenName.Trim();
         }
 
-        if (!string.IsNullOrWhiteSpace(neighborhood))
-        {
-            conversation.Neighborhood = neighborhood.Trim();
-        }
-
-        if (!string.IsNullOrWhiteSpace(street))
-        {
-            conversation.Street = street.Trim();
-        }
-
-        if (!string.IsNullOrWhiteSpace(openAddress))
-        {
-            conversation.OpenAddress = openAddress.Trim();
-        }
+        // Talep adresi vatandaş profil adresi değildir (#2563) — yalnız ad güncellenir.
     }
 
     /// <summary>E.164 TR storage: 905XXXXXXXXX (WhatsApp CitizenConversation ile aynı).</summary>

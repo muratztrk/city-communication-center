@@ -233,12 +233,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
                 foreach (var a in logs)
                 {
-                    if (a.ActorUserId == userId)
-                    {
-                        continue;
-                    }
-
-                    if (IsJobStatusSideEffectOfTaskChange(a))
+                    if (!NotificationAuditRules.ShouldCountAuditAsUnread(a, userId))
                     {
                         continue;
                     }

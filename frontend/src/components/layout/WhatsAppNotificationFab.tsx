@@ -323,6 +323,7 @@ export function WhatsAppNotificationFab() {
     () => conversations
       .filter(conversation => {
         if (conversation.isRelevantToCurrentUser === false) return false
+        if (conversation.lastMessageIsAutomaticOutbound && !conversation.hasPendingOutboundMessage) return false
         const dismissedAt = dismissedNotifications[conversation.citizenConversationId]
         if (sameMessageTime(dismissedAt, conversation.lastMessageAt)) return false
         // Son mesajı kendimiz yazdıysak (kurum içi ileti veya Beklemede yanıt) bildirimde görünmesin (card #1495/#1499).

@@ -70,7 +70,10 @@ const PIE_LEGEND_SEARCH_KEYS = new Set([
   'dashboard.charts.citizenDepartmentCompletedRequests',
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestInProgress',
   'dashboard.charts.externalRequestFulfillers',
+  'dashboard.charts.externalProjectsInProgress',
+  'dashboard.charts.externalProjectsCompleted',
 ])
 
 // Pie chart başlığı + lejant metinleri tıklanınca gidilecek ilgili sayfa (card 759).
@@ -92,7 +95,10 @@ const DRILLDOWN_CHART_KEYS = new Set([
   'dashboard.charts.requestTags',
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestInProgress',
   'dashboard.charts.externalRequestFulfillers',
+  'dashboard.charts.externalProjectsInProgress',
+  'dashboard.charts.externalProjectsCompleted',
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
   'dashboard.charts.neighborhoodProcessingRequests',
@@ -135,12 +141,22 @@ function citizenChartOrder(titleKey: string): number {
   return index === -1 ? CITIZEN_DASHBOARD_CHART_ORDER.length : index
 }
 
-const REPORTER_DEPARTMENT_CHART_KEYS = new Set([
+const REPORTER_DEPARTMENT_CHART_ORDER = [
   'dashboard.charts.myRequests',
-  'dashboard.charts.externalRequestPending',
   'dashboard.charts.externalRequestCreators',
+  'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestInProgress',
   'dashboard.charts.externalRequestFulfillers',
-])
+  'dashboard.charts.externalProjectsInProgress',
+  'dashboard.charts.externalProjectsCompleted',
+]
+
+function reporterDepartmentChartOrder(titleKey: string): number {
+  const index = REPORTER_DEPARTMENT_CHART_ORDER.indexOf(titleKey)
+  return index === -1 ? REPORTER_DEPARTMENT_CHART_ORDER.length : index
+}
+
+const REPORTER_DEPARTMENT_CHART_KEYS = new Set(REPORTER_DEPARTMENT_CHART_ORDER)
 
 const OPERATOR_DEPARTMENT_CHART_KEYS = new Set([
   'dashboard.charts.myTasks',
@@ -581,6 +597,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   if (effectiveView === 'citizen') {
     chartCards.sort((a, b) => citizenChartOrder(a.titleKey) - citizenChartOrder(b.titleKey))
   }
+  if (effectiveView === 'departments' && isReporter) {
+    chartCards.sort((a, b) => reporterDepartmentChartOrder(a.titleKey) - reporterDepartmentChartOrder(b.titleKey))
+  }
 
   const pageTitle = effectiveView === 'citizen'
     ? t('nav.dashboardCitizen', 'Anasayfa - Vatandaş')
@@ -752,7 +771,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               card.titleKey === 'dashboard.charts.citizenRequests'
               || card.titleKey === 'dashboard.charts.externalRequestCreators'
               || card.titleKey === 'dashboard.charts.externalRequestPending'
+              || card.titleKey === 'dashboard.charts.externalRequestInProgress'
               || card.titleKey === 'dashboard.charts.externalRequestFulfillers'
+              || card.titleKey === 'dashboard.charts.externalProjectsInProgress'
+              || card.titleKey === 'dashboard.charts.externalProjectsCompleted'
               || card.titleKey === 'dashboard.charts.neighborhoodCompletedRequests'
               || card.titleKey === 'dashboard.charts.neighborhoodInProgressRequests'
               || card.titleKey === 'dashboard.charts.neighborhoodProcessingRequests'

@@ -762,12 +762,14 @@ export function CreateRequestPage() {
   const renderAddressFields = (
     form: { neighborhood: string; street: string; openAddress: string },
     setField: (field: 'neighborhood' | 'street' | 'openAddress', value: string) => void,
-    options?: { sectionTitle?: string; includePhotoUpload?: boolean; compactPlaceholders?: boolean },
+    options?: { sectionTitle?: string; includePhotoUpload?: boolean; compactPlaceholders?: boolean; smallerPlaceholders?: boolean; largerPlaceholders?: boolean },
   ) => {
     const hasNeighborhood = form.neighborhood.trim().length > 0
     const sectionTitle = options?.sectionTitle ?? t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')
     const includePhotoUpload = options?.includePhotoUpload ?? true
     const compactPlaceholderClass = options?.compactPlaceholders ? 'placeholder:text-[0.72rem]' : ''
+    const smallerPlaceholderClass = options?.smallerPlaceholders ? 'placeholder:text-[0.66rem]' : ''
+    const largerPlaceholderClass = options?.largerPlaceholders ? 'placeholder:text-[0.76rem]' : ''
 
     return (
     <div className="job-field">
@@ -796,7 +798,7 @@ export function CreateRequestPage() {
               {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
             </span>
             <input
-              className={`field-input address-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${compactPlaceholderClass}`}
+              className={`field-input address-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${compactPlaceholderClass} ${smallerPlaceholderClass} ${largerPlaceholderClass}`}
               placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
               maxLength={ADDRESS_STREET_MAX_LENGTH}
               value={form.street}
@@ -819,7 +821,7 @@ export function CreateRequestPage() {
               ) : null}
             </span>
             <textarea
-              className={`field-textarea address-open-textarea min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${compactPlaceholderClass}`}
+              className={`field-textarea address-open-textarea min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${compactPlaceholderClass} ${smallerPlaceholderClass} ${largerPlaceholderClass}`}
               placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
               maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
               value={form.openAddress}
@@ -1510,14 +1512,21 @@ export function CreateRequestPage() {
                 />
               </div>
             </div>
-            {renderAddressFields(citizenForm, (field, value) => setCitizenForm(current => ({ ...current, [field]: value })))}
+            {renderAddressFields(
+              citizenForm,
+              (field, value) => setCitizenForm(current => ({ ...current, [field]: value })),
+              {
+                sectionTitle: t('requests.create.jobAddressSection', 'Talebin Adres Bilgisi (İsteğe Bağlı)'),
+                smallerPlaceholders: true,
+              },
+            )}
           </div>
           <div className="grid content-start gap-3">
             <div className="grid gap-3 md:grid-cols-2">
               <label className="job-field">
                 <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş Adı')} <span className="normal-case text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
                 <input
-                  className="field-input placeholder:text-[0.72rem]"
+                  className="field-input placeholder:text-[0.76rem]"
                   required
                   maxLength={50}
                   placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş adı giriniz...')}
@@ -1529,7 +1538,7 @@ export function CreateRequestPage() {
               <label className="job-field">
                 <span className="job-field-label">{t('settings.citizen.citizenPhone', 'Telefon No')} <span className="text-xs font-normal text-slate-400 normal-case">{t('settings.citizen.citizenPhoneHint', '(Başında 0 olmadan ekleyin)')}</span> <span className="text-red-500">*</span></span>
                 <input
-                  className="field-input placeholder:text-[0.72rem]"
+                  className="field-input placeholder:text-[0.76rem]"
                   required
                   inputMode="numeric"
                   pattern="[0-9]*"
@@ -1607,7 +1616,7 @@ export function CreateRequestPage() {
               {
                 sectionTitle: t('requests.create.citizenAddressSection', 'Vatandaş Adres Bilgisi (İsteğe Bağlı)'),
                 includePhotoUpload: false,
-                compactPlaceholders: true,
+                largerPlaceholders: true,
               },
             )}
             <div className="job-field min-h-0">
@@ -1618,7 +1627,7 @@ export function CreateRequestPage() {
                 normalizeOnBlur={ensureLeadingCapitalRichText}
                 required
                 placeholder={t('settings.citizen.contentPlaceholder', 'Vatandaş talebini detaylı olarak açıklayınız...')}
-                minHeight="min-h-24"
+                minHeight="min-h-20"
               />
             </div>
             <Button type="submit" disabled={saving || loading} className="gap-2">

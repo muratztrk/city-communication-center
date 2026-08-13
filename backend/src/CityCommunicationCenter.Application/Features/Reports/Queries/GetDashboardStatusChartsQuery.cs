@@ -523,6 +523,19 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToListAsync(cancellationToken))
             .Select(item => (item.DepartmentId, item.Count));
 
+        // Yapılmakta Olan Talepler — aktif dış birim talepleri (son tarihi geçmiş dahil) (#2565).
+        var inProgress = (await _dbContext.JobDepartments.AsNoTracking()
+            .Where(link => link.Role == JobDepartmentRole.Target
+                && link.Job.TenantId == tenantId
+                && link.Job.RequestType == JobRequestType.ExternalUnit
+                && link.Job.Status == JobStatus.Active
+                && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
+            .GroupBy(link => link.DepartmentId)
+            .Select(group => new { DepartmentId = group.Key, Count = group.Count() })
+            .ToListAsync(cancellationToken))
+            .Select(item => (item.DepartmentId, item.Count));
+
         // #763 "Talebi Tamamlayan Birimler" — dış birimden gelip Tamamlanmış taleplerin hedef birime göre.
         var fulfillers = (await _dbContext.JobDepartments.AsNoTracking()
             .Where(link => link.Role == JobDepartmentRole.Target
@@ -536,7 +549,34 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToListAsync(cancellationToken))
             .Select(item => (item.DepartmentId, item.Count));
 
-        var counts = new[] { creators, pending, fulfillers };
+        // Proje niteliğinde yapılmakta olan / tamamlanan talepler (#2566).
+        var projectsInProgress = (await _dbContext.JobDepartments.AsNoTracking()
+            .Where(link => link.Role == JobDepartmentRole.Target
+                && link.Job.TenantId == tenantId
+                && link.Job.RequestType == JobRequestType.ExternalUnit
+                && link.Job.IsProject
+                && link.Job.Status == JobStatus.Active
+                && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
+            .GroupBy(link => link.DepartmentId)
+            .Select(group => new { DepartmentId = group.Key, Count = group.Count() })
+            .ToListAsync(cancellationToken))
+            .Select(item => (item.DepartmentId, item.Count));
+
+        var projectsCompleted = (await _dbContext.JobDepartments.AsNoTracking()
+            .Where(link => link.Role == JobDepartmentRole.Target
+                && link.Job.TenantId == tenantId
+                && link.Job.RequestType == JobRequestType.ExternalUnit
+                && link.Job.IsProject
+                && link.Job.Status == JobStatus.Completed
+                && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
+            .GroupBy(link => link.DepartmentId)
+            .Select(group => new { DepartmentId = group.Key, Count = group.Count() })
+            .ToListAsync(cancellationToken))
+            .Select(item => (item.DepartmentId, item.Count));
+
+        var counts = new[] { creators, pending, inProgress, fulfillers, projectsInProgress, projectsCompleted };
         var departmentIds = counts.SelectMany(entries => entries.Select(entry => entry.DepartmentId))
             .Distinct()
             .ToArray();
@@ -550,7 +590,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
         [
             BuildDepartmentChart("dashboard.charts.externalRequestCreators", creators, departmentNames),
             BuildDepartmentChart("dashboard.charts.externalRequestPending", pending, departmentNames),
+            BuildDepartmentChart("dashboard.charts.externalRequestInProgress", inProgress, departmentNames),
             BuildDepartmentChart("dashboard.charts.externalRequestFulfillers", fulfillers, departmentNames),
+            BuildDepartmentChart("dashboard.charts.externalProjectsInProgress", projectsInProgress, departmentNames),
+            BuildDepartmentChart("dashboard.charts.externalProjectsCompleted", projectsCompleted, departmentNames),
         ];
     }
 

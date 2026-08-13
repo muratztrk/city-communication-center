@@ -60,10 +60,8 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
                     auditLog.TenantId == tenantId
                     && entityIds.Contains(auditLog.EntityId)
                     && auditLog.EventTimeUtc > readThroughUtc
-                    && auditLog.ActorUserId != request.UserId
-                    && auditLog.Action != "RoutineTaskCreated"
-                    && !auditLog.Action.StartsWith("CitizenMessage")
-                    && !readAuditIds.Contains(auditLog.AuditLogId),
+                    && !readAuditIds.Contains(auditLog.AuditLogId)
+                    && NotificationAuditRules.ShouldCountAuditAsUnread(auditLog, request.UserId),
                 cancellationToken);
 
         return realUnread + historicalUnread;

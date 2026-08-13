@@ -381,20 +381,7 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
                 conversation.CitizenName = job.CitizenName.Trim();
             }
 
-            if (!string.IsNullOrWhiteSpace(job.Neighborhood))
-            {
-                conversation.Neighborhood = job.Neighborhood.Trim();
-            }
-
-            if (!string.IsNullOrWhiteSpace(job.Street))
-            {
-                conversation.Street = job.Street.Trim();
-            }
-
-            if (!string.IsNullOrWhiteSpace(job.OpenAddress))
-            {
-                conversation.OpenAddress = job.OpenAddress.Trim();
-            }
+            // Talep adresi vatandaş profil adresinden ayrıdır (#2563).
         }
 
         conversation.LastMessageAt = utcNow;

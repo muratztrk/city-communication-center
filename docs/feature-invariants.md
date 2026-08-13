@@ -713,8 +713,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   polling aynı son mesajı yeniden rozet/panel satırı olarak göstermez, yeni mesaj zamanı değişirse bildirim geri gelir.
 - **WA FAB otomatik giden mesaj (#2562):** sistem otomatik iletilen durum şablonu / zamanlı WA yanıtı
   (`Sent` giden, personel `Birim · Ad` etiketi değil) WhatsApp baloncuk rozet/panel/pulse tetiklemez;
-  `CitizenJobStatusNotifier` bu iletilerde `UnreadCount` artırmaz; SignalR `IsAutomaticOutbound`;
-  özet `LastMessageIsAutomaticOutbound` + `getWhatsAppFabUnreadCount` eski sayaçları düşer.
+  `lastMessageIsAutomaticOutbound` konuşmalar panel listesinden de düşer (reopen #2562).
 - **WA konuşma mesaj kutusu odak (#2528):** `/whatsapp` açık konuşmada yanıt kutusuna odaklanıldığında
   `mark-read` + `ccc:whatsapp-composer-engaged` ile sağ alt WhatsApp baloncuk rozeti temizlenir.
 - **WhatsApp teslim durumu status-only webhook ile de canlı yenilenir:** `sent/delivered/read`
@@ -771,8 +770,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talepleri `Çağrı` filtresinde VT numarasıyla görünür. Sol kolonda talep **Adres Bilgisi** (job
   alanları); sağ kolonda konuşma profili **Vatandaş Adres Bilgisi (İsteğe Bağlı)** — Mahalle /
   Cadde / Açık Adres ayrı kaynaklardan (#2554). Dosya Ekle yalnız sol adres bölümünde bir kez
-  (`renderAddressFields`); mükerrer blok yok (#2559). Açıklama editörü `min-h-24` (#2560 reopen).
-  Vatandaş Adı / Telefon / Cadde-Sokak / Açık Adres placeholder `0.72rem` (#2560 reopen). Tek `Çağrı` kanal butonu satırı dolduran
+  (`renderAddressFields`); mükerrer blok yok (#2559). Açıklama editörü `min-h-20` (#2560 reopen).
+  Sol kolon **Talebin Adres Bilgisi** placeholder `0.66rem`; sağ kolon vatandaş alanları `0.76rem`.
+  **Talep adresi ≠ vatandaş profil adresi (#2563):** `ConvertSocialMessageToJob` / `UpdateJob`
+  `CitizenConversation` mahalle/cadde/açık adresini job alanlarıyla güncellemez; profil yalnız
+  `updateCitizenConversationProfile` ve WA **Vatandaş Bilgileri** panelinden yazılır.
   yatay buton görünümünde kalır; form başlığındaki ikon, seçim kartındaki mavi zeminli telefon ikonuyla aynıdır.
 - **Talep Oluştur Vatandaş kartı lisans (#2357):** tür seçim ekranındaki `Vatandaş Çağrı Talebi`
   kartı yalnız `Operator` rolü **ve** `citizen` modülü kullanılabilirken görünür (`canShowCitizenRequest`).
@@ -1901,9 +1903,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (özellikle Son Tarihi Geçmiş) Taleplerim gridinden büyük çıkar.
 - **Reporter/Operator grafik dilimleri detay popup'ı açar (card #1343/#1338, Operator erişimi
   #1852):** Üst Düzey Yönetici panosunda
-  Taleplerim HARİÇ 7 grafik (`citizenRequests`, `externalRequestCreators/Pending/Fulfillers`,
-  `neighborhoodCompletedRequests`, `neighborhoodInProgressRequests`, `neighborhoodProcessingRequests`) diliminde tıklama `DashboardChartDrilldownModal`'ı açar
-  (`GET /reports/dashboard-chart-drilldown`, Reporter/Operator/SystemAdmin gate); popup Taleplerim detay modalıyla
+  Taleplerim HARİÇ birim-dışı + mahalle grafikleri diliminde tıklama `DashboardChartDrilldownModal`'ı açar
+  (`externalRequestCreators/Pending/InProgress/Fulfillers`, `externalProjectsInProgress/Completed`,
+  mahalle + birim VT durum pie'ları — #2565/#2566); popup Taleplerim detay modalıyla
   aynı `.detail-modal-shell` ölçüsünü kullanır, küçük grid text'i + ortak `TablePagination` kullanır. Son Tarih'ten
   önce terminal tarih kolonu gelir: tamamlandı diliminde `Tamamlanma Tarihi`, iptal/iade diliminde
   `İptal Tarihi`; terminal olmayan satırlara terminal tarih değeri basılmaz. Son Tarih boşsa bu popup'ta
@@ -2083,6 +2085,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Action != RoutineTaskCreated` ile elenir.
 - **`Bildirim güncellendi` feed'de yok (#6a6bbc18):** `CitizenMessage*` audit aksiyonları ve
   `ActionTitle` fallback başlığı (`Bildirim güncellendi`) feed + okunmamış sayıdan çıkarılır.
+  Okunmamış rozet `NotificationAuditRules.ShouldCountAuditAsUnread` ile feed ile aynı kuralları
+  kullanır; görev yan etkisi job audit'leri sayılmaz (#2564).
 - **Çok birimli müdür bildirim kapsamı (#6a6bafb7):** `NotificationAudience` yönetici birim
   genişlemesi `X-Active-Department-Id` ile daralır; feed + okunmamış rozet yalnız seçili
   birimin talep/görevlerine aittir. Kişisel atama/oluşturma bildirimleri birimden bağımsız kalır.

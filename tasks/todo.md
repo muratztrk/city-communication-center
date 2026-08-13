@@ -1,3 +1,7 @@
+## Round 794 — Çağrı SMS Tamamlama Notu / Vatandaşa Giden Mesaj
+
+- [x] Tamamlama Notu = yöneticinin Mesajı Onayla anı; operatör Sms Onayı notu = Vatandaşa Giden Mesaj (alt satır).
+
 ## Round 793 — Çağrı formu Açıklama toolbar/input
 
 - [x] Vatandaş Çağrı Talebi Oluştur: K/A toolbar `1.35rem`; yazı alanı `min-h-40` / `10rem`.

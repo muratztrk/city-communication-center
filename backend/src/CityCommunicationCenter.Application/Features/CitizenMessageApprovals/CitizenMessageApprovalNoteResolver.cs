@@ -55,8 +55,10 @@ internal static class CitizenMessageApprovalNoteResolver
     }
 
     /// <summary>
-    /// Yöneticinin "Mesajı Gönder" anındaki onay notu — operatör düzenlemesi sonrası görev notu
-    /// değişse bile Tamamlama Notu olarak sabit kalır (#2528).
+    /// Yöneticinin "Mesajı Onayla" anındaki onay notu — operatör Sms Onayı / WA düzenlemesi
+    /// sonrası görev notu değişse bile Tamamlama Notu olarak sabit kalır (#2528).
+    /// Operatör SMS gönderimi ikinci <c>CitizenMessageApprovalReleased</c> yazmış olabilir;
+    /// bu yüzden son kayıt değil, mevcut döngüdeki ilk yönetici onayı alınır.
     /// </summary>
     public static async Task<string?> ResolveReleasedApprovalNoteAsync(
         IApplicationDbContext dbContext,
@@ -64,11 +66,27 @@ internal static class CitizenMessageApprovalNoteResolver
         Guid jobId,
         CancellationToken cancellationToken)
     {
-        return await dbContext.AuditLogs.AsNoTracking()
+        var entityId = jobId.ToString();
+        var reopenAt = await dbContext.AuditLogs.AsNoTracking()
             .Where(audit => audit.TenantId == tenantId
-                && audit.EntityId == jobId.ToString()
-                && audit.Action == "CitizenMessageApprovalReleased")
+                && audit.EntityId == entityId
+                && audit.Action == "CitizenMessageJobReopenedToProcessingReceived")
             .OrderByDescending(audit => audit.EventTimeUtc)
+            .Select(audit => (DateTimeOffset?)audit.EventTimeUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var released = dbContext.AuditLogs.AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityId == entityId
+                && audit.Action == "CitizenMessageApprovalReleased");
+        if (reopenAt.HasValue)
+        {
+            var cycleStart = reopenAt.Value;
+            released = released.Where(audit => audit.EventTimeUtc > cycleStart);
+        }
+
+        return await released
+            .OrderBy(audit => audit.EventTimeUtc)
             .Select(audit => audit.Notes)
             .FirstOrDefaultAsync(cancellationToken);
     }
@@ -98,10 +116,19 @@ internal static class CitizenMessageApprovalNoteResolver
             return await ResolveAsync(dbContext, tenantId, job, cancellationToken);
         }
 
-        // SMS: düzenlenmediyse onay ekranındaki Talep Durum Notu (gönderimdeki terminal not);
-        // düzenlendiyse yukarıdaki ResolveAsync dalı (#2547).
+        // SMS: operatör Sms Onayı'nda düzenlediyse görev notu (yukarıdaki dal);
+        // yoksa iletilen SMS gövdesindeki terminal not.
         if (channel == SocialChannel.Phone)
         {
+            if (!string.IsNullOrWhiteSpace(responseContent))
+            {
+                var transmitted = ExtractTrailingTerminalNote(responseContent);
+                if (!string.IsNullOrWhiteSpace(transmitted))
+                {
+                    return transmitted;
+                }
+            }
+
             return await ResolveAsync(dbContext, tenantId, job, cancellationToken);
         }
 

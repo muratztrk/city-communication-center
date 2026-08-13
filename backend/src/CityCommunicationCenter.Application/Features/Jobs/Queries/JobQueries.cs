@@ -617,22 +617,23 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
 
                 if (linkedMessage is not null)
                 {
-                    var smsSent = linkedMessage.Channel == SocialChannel.Phone
-                        && eligible.CitizenTerminalMessageReleasedAtUtc.HasValue
-                        && linkedMessage.RespondedAtUtc.HasValue
-                        && linkedMessage.RespondedAtUtc >= eligible.CitizenTerminalMessageReleasedAtUtc;
+                    var phoneReleased = linkedMessage.Channel == SocialChannel.Phone
+                        && eligible.CitizenTerminalMessageReleasedAtUtc.HasValue;
                     var waReleased = linkedMessage.Channel == SocialChannel.WhatsApp
                         && eligible.CitizenTerminalMessageReleasedAtUtc.HasValue;
 
-                    if (smsSent || waReleased)
+                    if (phoneReleased || waReleased)
                     {
+                        var terminalSmsSent = linkedMessage.Channel == SocialChannel.Phone
+                            && linkedMessage.RespondedAtUtc.HasValue
+                            && linkedMessage.RespondedAtUtc >= eligible.CitizenTerminalMessageReleasedAtUtc;
                         var note = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
                             _dbContext,
                             tenantId,
                             eligible,
                             linkedMessage.Channel,
                             linkedMessage.SocialMessageId,
-                            linkedMessage.ResponseContent,
+                            terminalSmsSent ? linkedMessage.ResponseContent : null,
                             cancellationToken);
                         if (!string.IsNullOrWhiteSpace(note))
                         {

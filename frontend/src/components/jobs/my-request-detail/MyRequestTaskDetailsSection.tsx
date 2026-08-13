@@ -236,6 +236,7 @@ export function MyRequestTaskDetailsSection({
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
                           value: citizenOutboundMessage,
                           tone: 'outbound-diff' as const,
+                          fullRow: true as const,
                         }]
                       : []),
                     ...(task.jobSourceType !== 'Routine' && (task.statusChangeHistory?.length ?? 0) > 0
@@ -293,8 +294,9 @@ export function MyRequestTaskDetailsSection({
                       : []),
                   ].map((row) => {
                     const tone = 'tone' in row ? row.tone : undefined
+                    const fullRow = 'fullRow' in row && row.fullRow
                     return (
-                    <div key={row.label} className="job-detail-field-row job-detail-field-row--request-info">
+                    <div key={row.label} className={`job-detail-field-row job-detail-field-row--request-info${fullRow ? ' job-detail-field-row--full' : ''}`}>
                       <div className={`job-detail-field-row__label ${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.label}</div>
                       <div className={`job-detail-field-row__value ${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : typeof row.value === 'string' ? 'text-slate-900' : ''}`}>{row.value}</div>
                     </div>

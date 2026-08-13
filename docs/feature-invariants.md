@@ -1544,11 +1544,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Phone`/Çağrı satırında `DisabledActionButton` ile pasif (card #1868), açık mavi stil
   (`MessageSquareText` + `!bg-sky-400`). Mobil grid `table-wrap` ile yatay kayar (#r482).
   İç içe detay popup'ta (`MyRequestDetailModal`) İlgili Görev Detayları → Tamamlama Notu
-  `citizenApprovalReleasedNote` (Mesajı Gönder audit `CitizenMessageApprovalReleased.Notes`) —
-  operatör notu düzenlese bile değişmez (#2528); düzenlenmiş metin yalnız `citizenOutboundMessage`
-  ile farklıysa `Vatandaşa Giden Mesaj` satırında gösterilir. SMS/WA terminal not çözümü (#2547/#2539)
-  outbound alanı için geçerlidir. Tamamlama ile outbound farklıysa outbound değeri kırmızı (#2557).
-  JobsPage ve tüm `MyRequestDetailModal` yüzeylerinde `citizenApprovalReleasedNote` / `citizenOutboundMessage` taşınır (#2556).
+  `citizenApprovalReleasedNote` = yöneticinin **ilk** `CitizenMessageApprovalReleased` notu
+  (reopen sonrası yeni döngü). Operatör Sms Onayı gönderimi ikinci Released audit yazmaz;
+  geçmişte yazılmış ikinci kayıtlar yok sayılır. Operatör Sms Onayı'nda notu değiştirirse
+  `citizenOutboundMessage` → `Vatandaşa Giden Mesaj` Tamamlama Notu'nun **alt satırında**
+  (WA ile aynı; #2528 SMS'te de). Tamamlama ile outbound farklıysa outbound kırmızı (#2557).
 - **FAB boyutları (#r482):** WhatsApp bildirim balonu mobil `size-12` / `sm:size-14` — Kurum İçi
   Mesajlar FAB ile aynı.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici

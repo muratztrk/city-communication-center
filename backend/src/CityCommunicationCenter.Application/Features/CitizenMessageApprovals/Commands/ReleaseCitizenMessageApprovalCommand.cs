@@ -55,6 +55,11 @@ public sealed class ReleaseCitizenMessageApprovalCommandHandler : ICommandHandle
             ]);
         }
 
+        // Operatör Sms Onayı ikinci kez aynı endpoint'i çağırır (gerçek SMS). Yönetici
+        // "Mesajı Onayla" notunu ezmemek için serbest bırakılmış talebe ikinci
+        // CitizenMessageApprovalReleased yazılmaz.
+        var alreadyReleased = job.CitizenTerminalMessageReleasedAtUtc is not null;
+
         var released = await _citizenJobStatusNotifier.ReleaseTerminalMessagesAsync(tenantId, job.JobId, cancellationToken);
         if (!released)
         {
@@ -65,20 +70,23 @@ public sealed class ReleaseCitizenMessageApprovalCommandHandler : ICommandHandle
             ]);
         }
 
-        _dbContext.AuditLogs.Add(new AuditLog
+        if (!alreadyReleased)
         {
-            AuditLogId = Guid.NewGuid(),
-            TenantId = tenantId,
-            EntityType = nameof(Job),
-            EntityId = job.JobId.ToString(),
-            Action = "CitizenMessageApprovalReleased",
-            ActorUserId = actor.UserId,
-            ActorDisplayName = actor.DisplayName,
-            EventTimeUtc = DateTimeOffset.UtcNow,
-            StatusAtEvent = job.Status.ToString(),
-            Notes = note,
-        });
-        await _dbContext.SaveChangesAsync(cancellationToken);
+            _dbContext.AuditLogs.Add(new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = tenantId,
+                EntityType = nameof(Job),
+                EntityId = job.JobId.ToString(),
+                Action = "CitizenMessageApprovalReleased",
+                ActorUserId = actor.UserId,
+                ActorDisplayName = actor.DisplayName,
+                EventTimeUtc = DateTimeOffset.UtcNow,
+                StatusAtEvent = job.Status.ToString(),
+                Notes = note,
+            });
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
 
         return true;
     }

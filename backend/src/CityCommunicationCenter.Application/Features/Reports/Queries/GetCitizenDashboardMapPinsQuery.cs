@@ -30,15 +30,14 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
     {
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.RequireTenantId();
-        if (context.RoleCode is not ("Reporter" or "Manager" or "SystemAdmin"))
+        if (context.RoleCode is not ("Reporter" or "Manager" or "SystemAdmin" or "Operator"))
         {
-            throw new ForbiddenAccessException("Bu haritaya yalnızca Üst Düzey Yönetici veya Sistem Yöneticisi erişebilir.");
+            throw new ForbiddenAccessException("Bu haritaya yalnızca Üst Düzey Yönetici, Vatandaş Talep Operatörü veya Sistem Yöneticisi erişebilir.");
         }
 
         var now = DateTimeOffset.UtcNow;
         var rows = await _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
-                && job.RequestType == JobRequestType.Citizen
                 && job.SourceType != JobSourceType.Routine
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)

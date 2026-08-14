@@ -21,7 +21,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **`main` push = PRODUCTION auto-deploy** (yenitim.tire.bel.tr, gerçek Tire verisi). Riskli;
   hem `main` hem `master`'a push edilir.
 - **Harita / Konum UI (#2572 / #6a6cf0d1):** Uygulama içi Google Maps yalnız
-  `Vatandaş Talep Haritası` (`/citizen-request-map`) sayfasında; Reporter/Manager/SystemAdmin +
+  `Vatandaş Talep Haritası` (`/citizen-request-map`) sayfasında; Reporter/Operator/Manager/SystemAdmin +
   Ayarlar sayfa yetkisi + vatandaş modül lisansı. Anasayfa'da harita yok.
   Vatandaş Talepleri grid’inde Konum satırı yok. Talep detayında lat/lng metni olabilir;
   WhatsApp balonunda dış `maps.google.com` linki kalabilir.
@@ -374,7 +374,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kendi içinde satır kırmaz (etiket tek satır). Yanında yalnız Talep Ekleri varken (`--attachments-only`)
   Mahalle / Cadde / Sokak / No / Adres Tarifi **aynı satırda kolon içi ortalı**, başlıklar
   çok az sola kayar (`translateX(-0.45rem)`, #2576 reopen). Yanında 1'den fazla kutu
-  (`--three-cards`) iken dört başlık çok az sağa (`translateX(0.45rem)`, #2576). `Ekler / Fotoğraflar`
+  (`--three-cards`) iken dört başlık çok az sağa (`translateX(0.45rem)`); Adres Tarifi Mahalle
+  ile aynı düşey hizada (#2576). `Ekler / Fotoğraflar`
   kart zemini, Adres kartı değil, `Açıklama` paneliyle aynı soluk nötr yüzeyi kullanır (cards #1259/#1260/#1261).
   `İlgili Talep Detayları > Talep Bilgileri` başlığının sağındaki talep no ve `Birim İçi/Birim Dışı`
   meta bloğu başlık alt çizgisinin sağ sınırına hizalı kalır.
@@ -1588,12 +1589,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yetmez.
 - **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
-- **Vatandaş Talep Haritası (#2572):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
-  dönem filtresi Anasayfa ile aynı; pin clustering
+- **Vatandaş Talep Haritası (#2572/#2569):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
+  Reporter **ve Operator** (403 değil). Pin kümesi `WhereHasCitizenRequestNumber` — `RequestType=Citizen`
+  şartı yok (VT numaralı kaynaklar). Dönem filtresi Anasayfa ile aynı; pin clustering
   `@googlemaps/markerclusterer`; detay `MyRequestDetailModal`.   Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
-  imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
+  imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Koordinatlı pinler geocode
+  bitmeden basılır; geocode başarısızsa ilçe merkezi yaklaşık pin (#2569). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
@@ -1860,7 +1863,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) dört başlık
   kolon içinde ortalıdır; boş-adres padding/translate hilesi yok (#2576 reopen, #2185 geri).
   Yanında 2 kutucuk daha (`--three-cards`) iken dört adres başlığı `translateX(0.45rem)` sağa
-  (#2576); boş Açık Adres `0.6rem` (#2187).
+  (#2576); **Adres Tarifi** başlığı Mahalle ile aynı düşey hizada (sol, `fit-content`);
+  boş Açık Adres `0.6rem` (#2187).
 - **Dropdown ellipsis tooltip (#2188):** `useDataTableOverflowTooltips` dropdown satırında
   birden fazla `.truncate` varsa hover edilen / kesilmiş satırı gösterir (Şablon mesajlar adı+içerik).
 - **Pie drilldown Başlık/Durum (#6a6d9daf/#2180):** Başlık `cell-title` 2 satır + overflow tooltip;

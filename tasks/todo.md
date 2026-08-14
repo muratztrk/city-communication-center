@@ -1,3 +1,8 @@
+## Round 802 — #2569/#2576
+
+- [x] `6a7e050a` — Vatandaş Talep Haritası marker: Operator yetkisi + VT filtresi + anında/fallback pin (#2569).
+- [x] `6a7e0cec` — Üç kutulu Adres Tarifi Mahalle ile düşey hiza (#2576).
+
 ## Round 801 — #2587/#2576/#2574
 
 - [x] `6a7ec796` — Vatandaş Bilgi Listesi grid: Adres Tarifi + Cadde sonrası No (#2587).

@@ -107,37 +107,58 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   useEffect(() => {
     if (!geocodeReady) return
     let cancelled = false
+    const fallback = mapView.center
+
+    const withCoords: ResolvedPin[] = []
+    const needsGeocode: CitizenDashboardMapPin[] = []
+    for (const pin of pins) {
+      if (pin.latitude != null && pin.longitude != null) {
+        withCoords.push({ ...pin, position: { lat: pin.latitude, lng: pin.longitude }, approximate: false })
+      } else {
+        needsGeocode.push(pin)
+      }
+    }
+
+    setResolved(withCoords)
+    setUnpinned([])
+    if (needsGeocode.length === 0) {
+      setResolving(false)
+      return
+    }
+
     setResolving(true)
     void (async () => {
-      const next: ResolvedPin[] = []
+      const geocoded: ResolvedPin[] = []
       const failed: string[] = []
-      for (const pin of pins) {
+      for (const pin of needsGeocode) {
         if (cancelled) return
-        if (pin.latitude != null && pin.longitude != null) {
-          next.push({ ...pin, position: { lat: pin.latitude, lng: pin.longitude }, approximate: false })
-          continue
-        }
-        const hit = await geocodeTireAddress({
-          neighborhood: pin.neighborhood,
-          street: pin.street,
-          streetNo: pin.streetNo,
-          openAddress: pin.openAddress,
-          districtName: mapView.districtName,
-        })
+        const hit = await Promise.race([
+          geocodeTireAddress({
+            neighborhood: pin.neighborhood,
+            street: pin.street,
+            streetNo: pin.streetNo,
+            openAddress: pin.openAddress,
+            districtName: mapView.districtName,
+          }),
+          new Promise<null>(resolve => window.setTimeout(() => resolve(null), 4000)),
+        ])
         if (hit) {
-          next.push({ ...pin, position: hit.position, approximate: hit.precision === 'approximate' })
+          geocoded.push({ ...pin, position: hit.position, approximate: hit.precision === 'approximate' })
         } else {
+          geocoded.push({ ...pin, position: fallback, approximate: true })
           failed.push(pin.title)
+        }
+        if (!cancelled) {
+          setResolved([...withCoords, ...geocoded])
+          setUnpinned(failed)
         }
       }
       if (!cancelled) {
-        setResolved(next)
-        setUnpinned(failed)
         setResolving(false)
       }
     })()
     return () => { cancelled = true }
-  }, [pins, mapView.districtName, geocodeReady])
+  }, [pins, mapView.districtName, mapView.center, geocodeReady])
 
   useEffect(() => {
     if (!mapInstance || !isLoaded) return

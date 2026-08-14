@@ -109,6 +109,7 @@ const DEFAULT_ALLOWED_PAGES_BY_ROLE: Record<RoleCode, readonly PageAccessKey[]> 
     'myRequests',
     'smsDeliveryApproval',
     'social',
+    'citizenRequestMap',
     'citizenDirectory',
     'display',
     'departments',

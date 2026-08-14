@@ -123,6 +123,13 @@ export function CitizenRequestMapPage() {
         </div>
 
         <CitizenRequestMap pins={pinsQuery.data?.pins ?? []} loading={pinsQuery.isLoading} />
+        {pinsQuery.isError ? (
+          <div className="px-4 py-3 text-sm font-medium text-red-600 sm:px-5">
+            {pinsQuery.error instanceof Error
+              ? pinsQuery.error.message
+              : t('errors.citizenMapLoadFailed', 'Vatandaş talep haritası yüklenemedi.')}
+          </div>
+        ) : null}
       </section>
     </div>
   )

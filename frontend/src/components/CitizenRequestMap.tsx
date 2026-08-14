@@ -154,9 +154,29 @@ function pinAddressKey(pin: ResolvedPin): string | null {
   const neighborhood = normalizeAddressPart(pin.neighborhood)
   const street = normalizeAddressPart(pin.street)
   const streetNo = normalizeAddressPart(pin.streetNo)
-  if (neighborhood || street || streetNo) return `addr|${neighborhood}|${street}|${streetNo}`
-  const open = normalizeAddressPart(pin.openAddress)
-  return open ? `open|${open}` : null
+  if (street && streetNo) return `addr|${neighborhood}|${street}|${streetNo}`
+  return null
+}
+
+function hasMappableAddress(pin: CitizenDashboardMapPin): boolean {
+  return Boolean(normalizeAddressPart(pin.neighborhood) || normalizeAddressPart(pin.street))
+}
+
+/** No yoksa cadde/mahalle noktasından boş alana kaydır — aynı cadde pinleri üst üste binmesin (#2594). */
+function emptyAreaOffset(origin: LatLng, seed: string): LatLng {
+  let hash = 0
+  for (let index = 0; index < seed.length; index += 1) {
+    hash = (hash * 31 + seed.charCodeAt(index)) | 0
+  }
+  const angle = ((hash >>> 0) % 360) * (Math.PI / 180)
+  const meters = 28 + ((hash >>> 0) % 18)
+  const north = meters * Math.cos(angle)
+  const east = meters * Math.sin(angle)
+  const latRad = origin.lat * (Math.PI / 180)
+  return {
+    lat: origin.lat + north / 111_320,
+    lng: origin.lng + east / (111_320 * Math.cos(latRad) || 111_320),
+  }
 }
 
 function pinGeoKey(pin: ResolvedPin): string {
@@ -271,49 +291,47 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   useEffect(() => {
     if (!geocodeReady) return
     let cancelled = false
-    const fallback = mapView.center
 
-    const withCoords: ResolvedPin[] = []
-    const needsGeocode: CitizenDashboardMapPin[] = []
-    for (const pin of pins) {
-      if (pin.latitude != null && pin.longitude != null) {
-        withCoords.push({ ...pin, position: { lat: pin.latitude, lng: pin.longitude }, approximate: false })
-      } else {
-        needsGeocode.push(pin)
-      }
-    }
-
-    setResolved(withCoords)
-    setUnpinned([])
-    if (needsGeocode.length === 0) {
+    const mappable = pins.filter(hasMappableAddress)
+    if (mappable.length === 0) {
+      setResolved([])
+      setUnpinned([])
       setResolving(false)
       return
     }
 
+    setResolved([])
+    setUnpinned([])
     setResolving(true)
     void (async () => {
       const geocoded: ResolvedPin[] = []
       const failed: string[] = []
-      for (const pin of needsGeocode) {
+      for (const pin of mappable) {
         if (cancelled) return
         const hit = await Promise.race([
           geocodeTireAddress({
             neighborhood: pin.neighborhood,
             street: pin.street,
             streetNo: pin.streetNo,
-            openAddress: pin.openAddress,
             districtName: mapView.districtName,
           }),
           new Promise<null>(resolve => window.setTimeout(() => resolve(null), 4000)),
         ])
         if (hit) {
-          geocoded.push({ ...pin, position: hit.position, approximate: hit.precision === 'approximate' })
+          const hasStreetNo = Boolean(pin.streetNo?.trim())
+          const position = !hasStreetNo || hit.precision === 'approximate'
+            ? emptyAreaOffset(hit.position, pin.jobId)
+            : hit.position
+          geocoded.push({
+            ...pin,
+            position,
+            approximate: !hasStreetNo || hit.precision === 'approximate',
+          })
         } else {
-          geocoded.push({ ...pin, position: fallback, approximate: true })
           failed.push(pin.title)
         }
         if (!cancelled) {
-          setResolved([...withCoords, ...geocoded])
+          setResolved([...geocoded])
           setUnpinned(failed)
         }
       }
@@ -322,7 +340,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
       }
     })()
     return () => { cancelled = true }
-  }, [pins, mapView.districtName, mapView.center, geocodeReady])
+  }, [pins, mapView.districtName, geocodeReady])
 
   useEffect(() => {
     if (!mapInstance || !isLoaded) return

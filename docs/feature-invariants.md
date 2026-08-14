@@ -1604,11 +1604,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
   Marker **pin ikonu** (daire değil); cluster ve pin boyutu küçük (#2593).
-  Anasayfa haritası yok (#6a6cdf95).
+  Pin konumu Google geocode: mahalle + cadde/sokak + no. No yoksa cadde/mahalle
+  noktasından ~30 m boş alana kaydırılır. Mahalle **ve** cadde ikisi de boşsa marker yok;
+  geocode fail ilçe merkezine düşmez (#2594). Kayıtlı lat/lng (WhatsApp GPS) harita pinini
+  ezmez. Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
-  imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Koordinatlı pinler geocode
-  bitmeden basılır; geocode başarısızsa ilçe merkezi yaklaşık pin (#2569). Sayfa banner/layout
+  imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;

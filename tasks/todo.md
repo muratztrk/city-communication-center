@@ -1,3 +1,7 @@
+## Round 807 — #2594
+
+- [x] `6a7eef88` — Harita pin: mahalle/cadde/no geocode; no yoksa boş alan; ikisi yoksa marker yok (#2594).
+
 ## Round 806 — #2593/#2592
 
 - [x] `6a7eee5f` — Harita: küçük pin ikonu + küçültülmüş sayılı cluster (#2593).

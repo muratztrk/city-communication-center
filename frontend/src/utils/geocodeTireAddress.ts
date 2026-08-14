@@ -1,10 +1,10 @@
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v3'
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v4'
 
 export type LatLng = { lat: number; lng: number }
 
 /**
- * `address` = açık adres birebir bulundu. `approximate` = açık adres çözülemedi,
- * cadde/mahalle seviyesine düşüldü (pin yaklaşık; gerçek metin InfoWindow'da görünür).
+ * `address` = mahalle + cadde + no ile bulundu. `approximate` = no yok veya cadde/mahalle
+ * seviyesine düşüldü — pin boş alana kaydırılır (#2594).
  */
 export type GeocodePrecision = 'address' | 'approximate'
 
@@ -64,7 +64,6 @@ export function buildTireGeocodeQuery(input: {
   const district = input.districtName?.trim() || 'Tire'
   const streetWithNo = [input.street?.trim(), input.streetNo?.trim()].filter(Boolean).join(' ')
   const chunks = [
-    input.openAddress?.trim(),
     streetWithNo || undefined,
     input.neighborhood?.trim(),
     district,
@@ -78,33 +77,37 @@ function buildGeocodeQueryVariants(input: {
   neighborhood?: string | null
   street?: string | null
   streetNo?: string | null
-  openAddress?: string | null
   districtName?: string | null
 }): string[] {
   const district = input.districtName?.trim() || 'Tire'
   const tail = [district, 'İzmir', 'Türkiye']
-  const openAddress = input.openAddress?.trim()
   const street = input.street?.trim()
   const streetNo = input.streetNo?.trim()
-  const streetWithNo = [street, streetNo].filter(Boolean).join(' ')
   const neighborhood = input.neighborhood?.trim()
+  const variants: string[][] = []
+  if (street && streetNo && neighborhood) {
+    variants.push([`${street} ${streetNo}`, neighborhood, ...tail])
+    variants.push([street, neighborhood, ...tail])
+  } else if (street && streetNo) {
+    variants.push([`${street} ${streetNo}`, ...tail])
+    variants.push([street, ...tail])
+  } else if (street && neighborhood) {
+    variants.push([street, neighborhood, ...tail])
+  } else if (street) {
+    variants.push([street, ...tail])
+  } else if (neighborhood) {
+    variants.push([neighborhood, ...tail])
+  }
 
-  const variants = [
-    [openAddress, streetWithNo || street, neighborhood, ...tail],
-    [streetWithNo || street, neighborhood, ...tail],
-    [neighborhood, ...tail],
-  ]
-    .map(parts => parts.filter(Boolean).join(', '))
+  return [...new Set(variants.map(parts => parts.filter(Boolean).join(', ')))]
     .filter(query => query !== tail.join(', '))
-
-  return [...new Set(variants)]
 }
 
 let geocodeQueue: Promise<void> = Promise.resolve()
 
 /**
- * Geocode an address via the Maps JS API Geocoder with localStorage cache.
- * Açık adres çözülemezse cadde → mahalle seviyesine düşer (`precision: 'approximate'`).
+ * Geocode mahalle / cadde / no via Maps JS API Geocoder with localStorage cache.
+ * No yoksa cadde+mahalle seviyesinde `precision: 'approximate'` döner (#2594).
  * Returns null when nothing resolves or the JS API isn't loaded.
  */
 export function geocodeTireAddress(input: {
@@ -115,7 +118,7 @@ export function geocodeTireAddress(input: {
   districtName?: string | null
 }): Promise<GeocodeHit | null> {
   const district = input.districtName?.trim() || 'Tire'
-  const cacheKey = normalizeAddressKey([input.openAddress, input.street, input.streetNo, input.neighborhood, district])
+  const cacheKey = normalizeAddressKey([input.street, input.streetNo, input.neighborhood, district])
   if (!cacheKey) return Promise.resolve(null)
 
   const toHit = (cached: CachedHit | null): GeocodeHit | null => (cached
@@ -127,6 +130,7 @@ export function geocodeTireAddress(input: {
     return Promise.resolve(toHit(cache[cacheKey] ?? null))
   }
 
+  const hasStreetNo = Boolean(input.streetNo?.trim())
   const variants = buildGeocodeQueryVariants(input)
   const run = async (): Promise<GeocodeHit | null> => {
     const client = getGeocoder()
@@ -153,7 +157,8 @@ export function geocodeTireAddress(input: {
       const lng = location.lng()
       if (Number.isNaN(lat) || Number.isNaN(lng)) continue
 
-      const hit: CachedHit = index === 0 ? { lat, lng } : { lat, lng, approx: true }
+      const approximate = !hasStreetNo || index > 0
+      const hit: CachedHit = approximate ? { lat, lng, approx: true } : { lat, lng }
       cache[cacheKey] = hit
       writeCache(cache)
       return toHit(hit)

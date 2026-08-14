@@ -4391,10 +4391,12 @@
     transform: translateX(0.45rem);
   }
 
-  /* No başlığı ve `-` biraz daha sağa; değer başlıkla aynı eksende (#2576). */
+  /* No başlığı biraz daha sağa (#2576). */
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label,
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__value {
-    transform: translateX(0.85rem);
+    transform: translateX(1.2rem);
+    margin-inline: 0;
+    text-align: left;
   }
 
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2),

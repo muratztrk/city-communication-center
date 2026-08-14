@@ -54,6 +54,7 @@ public static class TireNeighborhoodCatalog
         "Işıklar",
         "Işıklı",
         "İbni Melek",
+        "İbnimelek OSB",
         "İhsaniye",
         "İpekçiler",
         "İstiklal",

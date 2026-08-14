@@ -1,3 +1,10 @@
+## Round 811 — #2597/#2600/#2601/#2576
+
+- [x] `6a7f004c` — Harita pin rengi eski durum rengi; arka plan ikon çerçevesi `#f1f5f9` (#2597).
+- [x] `6a7f1c9c` — Cadde Google’da yoksa mahalle yedeği; Çağrı talepleri de pinlenir (#2600).
+- [x] `6a7f1de3` — Tire mahalle kataloğuna İbnimelek OSB (#2601).
+- [x] `6a7e0cec` — Görevlerim / Personelimin Görevleri Adres No başlığı 1.2rem sağa (#2576).
+
 ## Round 810 — #2576/#2597/#2599/#2598
 
 - [x] `6a7e0cec` — Üç kutu Adres: No başlığı biraz sağa; `-` başlıklarla aynı düşey hizada (#2576).

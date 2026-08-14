@@ -1,7 +1,7 @@
 import { canonicalizeNeighborhoodForGeocode, IZMIR_DISTRICTS } from '../data/izmir-locations'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v6'
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v7'
 
 export type LatLng = { lat: number; lng: number }
 
@@ -92,11 +92,13 @@ function buildGeocodeQueryVariants(input: {
   if (street && streetNo && neighborhood) {
     variants.push([`${street} ${streetNo}`, neighborhood, ...tail])
     variants.push([street, neighborhood, ...tail])
+    variants.push([neighborhood, ...tail])
   } else if (street && streetNo) {
     variants.push([`${street} ${streetNo}`, ...tail])
     variants.push([street, ...tail])
   } else if (street && neighborhood) {
     variants.push([street, neighborhood, ...tail])
+    variants.push([neighborhood, ...tail])
   } else if (street) {
     variants.push([street, ...tail])
   } else if (neighborhood) {
@@ -191,18 +193,23 @@ export function geocodeTireAddress(input: {
 
   const hasStreetNo = Boolean(input.streetNo?.trim())
   const variants = buildGeocodeQueryVariants(input)
+  const neighborhoodOnlyQuery = neighborhood
+    ? [neighborhood, district, 'İzmir', 'Türkiye'].filter(Boolean).join(', ')
+    : ''
   const run = async (): Promise<GeocodeHit | null> => {
     const client = getGeocoder()
     if (!client) return null
 
     for (let index = 0; index < variants.length; index += 1) {
       await new Promise(resolve => window.setTimeout(resolve, 80))
+      const variant = variants[index]
+      const neighborhoodOnly = Boolean(neighborhoodOnlyQuery && variant === neighborhoodOnlyQuery)
 
       const { status, results } = await new Promise<{
         status: string
         results: google.maps.GeocoderResult[] | null
       }>(resolve => {
-        client.geocode({ address: variants[index], region: 'tr' }, (geoResults, geoStatus) => {
+        client.geocode({ address: variant, region: 'tr' }, (geoResults, geoStatus) => {
           resolve({ status: String(geoStatus), results: geoResults })
         })
       })
@@ -210,7 +217,10 @@ export function geocodeTireAddress(input: {
       if (status !== 'OK' && status !== 'ZERO_RESULTS') return null
       if (status === 'ZERO_RESULTS') continue
 
-      const match = results?.find(result => geocodeResultMatchesAddress(result, { street: input.street?.trim(), neighborhood }))
+      const match = results?.find(result => geocodeResultMatchesAddress(result, {
+        street: neighborhoodOnly ? undefined : input.street?.trim(),
+        neighborhood,
+      }))
       const location = match?.geometry?.location
       if (!location) continue
       const lat = location.lat()
@@ -218,7 +228,7 @@ export function geocodeTireAddress(input: {
       if (Number.isNaN(lat) || Number.isNaN(lng)) continue
       if (!isInsideDistrictEnvelope({ lat, lng }, district)) continue
 
-      const approximate = !hasStreetNo || index > 0
+      const approximate = !hasStreetNo || index > 0 || neighborhoodOnly
       const hit: CachedHit = approximate ? { lat, lng, approx: true } : { lat, lng }
       cache[cacheKey] = hit
       writeCache(cache)

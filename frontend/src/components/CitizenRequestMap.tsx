@@ -123,11 +123,12 @@ function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
   if (cached) return cached
   const fillOpacity = approximate ? '0.72' : '1'
   const dash = approximate ? 'stroke-dasharray="3 2"' : ''
-  // Gövde = detay popup ikon çerçevesi; durum rengi iç daire (#2597).
+  // Pin rengi durum rengi; arka plan çerçevesi detay popup ikon kutusu (#2597).
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PIN_WIDTH}" height="${PIN_HEIGHT}" viewBox="0 0 24 36">
-    <path fill="#f1f5f9" fill-opacity="${fillOpacity}" stroke="#cbd5e1" stroke-width="1.6" ${dash}
+    <rect x="1.2" y="0.5" width="21.6" height="19.4" rx="5.5" fill="#f1f5f9"/>
+    <path fill="${color}" fill-opacity="${fillOpacity}" stroke="#ffffff" stroke-width="1.6" ${dash}
       d="M12 1.2C6.7 1.2 2.4 5.5 2.4 10.8c0 7.4 9.6 23 9.6 23s9.6-15.6 9.6-23C21.6 5.5 17.3 1.2 12 1.2z"/>
-    <circle cx="12" cy="11" r="3.6" fill="${color}"/>
+    <circle cx="12" cy="11" r="3.6" fill="#ffffff"/>
   </svg>`
   const icon: google.maps.Icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,

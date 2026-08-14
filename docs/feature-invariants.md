@@ -375,7 +375,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mahalle / Cadde / Sokak / No / Adres Tarifi **aynı satırda kolon içi ortalı**, başlıklar
   çok az sola kayar (`translateX(-0.45rem)`, #2576 reopen). Yanında 1'den fazla kutu
   (`--three-cards`) iken dört adres başlığı **ve** `-` `translateX(0.45rem)` sağa (aynı
-  düşey eksen); **No** başlık+değer `0.85rem`; boş Adres Tarifi
+  düşey eksen); **No** başlık+değer `1.2rem`; boş Adres Tarifi
   Mahalle ile aynı `0.7rem` sol kenar (#2576).
   `Ekler / Fotoğraflar`
   kart zemini, Adres kartı değil, `Açıklama` paneliyle aynı soluk nötr yüzeyi kullanır (cards #1259/#1260/#1261).
@@ -1606,16 +1606,19 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `fitBounds` / zoom out yok (#2598).
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
-  Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593). Pin gövdesi detay
-  popup ikon çerçevesi `rgb(241 245 249)` / `#f1f5f9`, durum rengi iç dairede (#2597).
-  Pin konumu Google geocode: mahalle + cadde/sokak + no. No yoksa cadde/mahalle
-  noktasından ~30 m boş alana kaydırılır. Mahalle **ve** cadde ikisi de boşsa marker yok
+  Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593). Pin **rengi** durum
+  rengi (iç daire beyaz); arka planda detay popup ikon çerçevesi `#f1f5f9` yuvarlatılmış kutu
+  (#2597).
+  Pin konumu Google geocode: mahalle + cadde/sokak + no. Cadde Google’da yoksa mahalle
+  seviyesine düşülür (Çağrı talepleri dahil, #2600). No yoksa veya mahalle yedeği ~30 m
+  boş alana kaydırılır. Mahalle **ve** cadde ikisi de boşsa marker yok
   (yalnız Adres Tarifi / GPS / konuşma adresi yetmez, #2594/#2595). Cadde/mahalle Google
-  sonucunun adres bileşenlerinde yoksa veya yalnızca ilçe/ülke eşleşmesi ise marker yok
-  (#2599). Geocode fail ilçe
+  sonucunun adres bileşenlerinde yoksa veya yalnızca ilçe/ülke eşleşmesi ise o varyant
+  atılır; mahalle de bulunamazsa marker yok (#2599). Geocode fail ilçe
   merkezine düşmez. Mahalle adı geocode öncesi katalogla birleştirilir: OSB / mahalle
   soneki atılır, boşluksuz eşleşme (`İbnimelek OSB` → `İbni Melek`) — Google OSB'yi
-  başka sanayi bölgesine düşürmez (#2596). Kayıtlı lat/lng (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
+  başka sanayi bölgesine düşürmez (#2596). Tire mahalle kataloğunda **İbnimelek OSB** ayrı
+  kayıt (#2601); harita konumu yine İbni Melek. Kayıtlı lat/lng (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
@@ -1886,7 +1889,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) dört başlık
   kolon içinde ortalıdır; boş-adres padding/translate hilesi yok (#2576 reopen, #2185 geri).
   Yanında 2 kutucuk daha (`--three-cards`) iken dört adres başlığı **ve** `-` değeri
-  `translateX(0.45rem)` sağa (aynı düşey eksen); **No** başlık+değer `0.85rem` (#2576).
+  `translateX(0.45rem)` sağa (aynı düşey eksen); **No** başlık+değer `1.2rem` (#2576).
   boş Adres Tarifi Mahalle ile aynı `0.7rem` sol kenar (#2576).
   boş Açık Adres `0.6rem` (#2187).
 - **Dropdown ellipsis tooltip (#2188):** `useDataTableOverflowTooltips` dropdown satırında

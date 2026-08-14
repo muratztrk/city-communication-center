@@ -1610,8 +1610,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   InfoWindow yok. Aynı adres/konumda birden fazla talep varsa dizin nested
   `Vatandaş Bilgi Listesi` popup'ı açılır; tek talepte Vatandaş Talebi kalır (#2592).
   Cluster rengi banner `--color-header-from`; ilk tıklama yalnız zoom in (pan + 1 kademe),
-  `fitBounds` / zoom out yok (#2598). İkinci cluster tıklaması marker'ları görecek kadar
-  zoom'lar (gerekirse `fitBounds`, asla zoom out; #2612).
+  `fitBounds` / zoom out yok (#2598). İlk cluster tıklaması +1 kademe; ikinci tıklama zoom 14
+  (pin görünür, sokak seviyesine inmez — 3. tıklama/`fitBounds` yok; #2612). SuperCluster
+  `maxZoom` 13, böylece 2. tıklamada küme çözülür.
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
   Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593). Pin **rengi** durum

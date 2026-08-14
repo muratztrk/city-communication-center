@@ -84,38 +84,43 @@ const bannerClusterRenderer = {
 let lastClusterClickKey = ''
 let lastClusterClickCount = 0
 
-function clusterPositionKey(cluster: Cluster): string {
-  const lat = typeof cluster.position.lat === 'function' ? cluster.position.lat() : cluster.position.lat
-  const lng = typeof cluster.position.lng === 'function' ? cluster.position.lng() : cluster.position.lng
-  return `${Number(lat).toFixed(5)},${Number(lng).toFixed(5)}`
+function clusterMemberKey(cluster: Cluster): string {
+  return cluster.markers
+    .map(marker => {
+      const position = MarkerUtils.getPosition(marker)
+      if (!position) return ''
+      const lat = typeof position.lat === 'function' ? position.lat() : position.lat
+      const lng = typeof position.lng === 'function' ? position.lng() : position.lng
+      return `${Number(lat).toFixed(5)},${Number(lng).toFixed(5)}`
+    })
+    .filter(Boolean)
+    .sort()
+    .join('|')
 }
+
+function isSameOrChildCluster(previousKey: string, nextKey: string): boolean {
+  if (!previousKey || !nextKey) return false
+  if (previousKey === nextKey) return true
+  const previous = new Set(previousKey.split('|'))
+  return nextKey.split('|').every(part => previous.has(part))
+}
+
+/** 2. tıklamada pin görünsün; fitBounds ile sokak seviyesine inilmesin (#2612). */
+const CLUSTER_REVEAL_ZOOM = NUMBERED_SINGLE_MAX_ZOOM + 1
 
 function onCitizenClusterClick(_: google.maps.MapMouseEvent, cluster: Cluster, map: google.maps.Map) {
   const current = map.getZoom() ?? 12
   map.panTo(cluster.position)
-  const key = clusterPositionKey(cluster)
-  lastClusterClickCount = key === lastClusterClickKey ? lastClusterClickCount + 1 : 1
+  const key = clusterMemberKey(cluster)
+  lastClusterClickCount = isSameOrChildCluster(lastClusterClickKey, key)
+    ? lastClusterClickCount + 1
+    : 1
   lastClusterClickKey = key
   if (lastClusterClickCount >= 2) {
-    const bounds = new google.maps.LatLngBounds()
-    for (const marker of cluster.markers) {
-      const position = MarkerUtils.getPosition(marker)
-      if (position) bounds.extend(position)
-    }
-    const revealZoom = Math.min(18, Math.max(current + 1, NUMBERED_SINGLE_MAX_ZOOM + 1))
-    if (!bounds.isEmpty()) {
-      map.fitBounds(bounds, 72)
-      google.maps.event.addListenerOnce(map, 'idle', () => {
-        const fitted = map.getZoom() ?? current
-        if (fitted < current) map.setZoom(current)
-        else if (fitted <= NUMBERED_SINGLE_MAX_ZOOM) map.setZoom(revealZoom)
-      })
-    } else {
-      map.setZoom(revealZoom)
-    }
+    if (current < CLUSTER_REVEAL_ZOOM) map.setZoom(CLUSTER_REVEAL_ZOOM)
     return
   }
-  const next = Math.min(current + 1, 18)
+  const next = Math.min(current + 1, CLUSTER_REVEAL_ZOOM)
   if (next > current) map.setZoom(next)
 }
 
@@ -448,7 +453,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     clustererRef.current = new CitizenMapClusterer({
       map: mapInstance,
       markers,
-      algorithm: new SuperClusterAlgorithm({ radius: 80, maxZoom: 16 }),
+      algorithm: new SuperClusterAlgorithm({ radius: 80, maxZoom: NUMBERED_SINGLE_MAX_ZOOM }),
       renderer: bannerClusterRenderer,
       onClusterClick: onCitizenClusterClick,
     })

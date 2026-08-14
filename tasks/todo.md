@@ -1,3 +1,7 @@
+## Round 815 — #2612
+
+- [x] `6a7f57a1` — Cluster 2. tıklamada zoom 14; 3. tıklama/fitBounds over-zoom yok (#2612).
+
 ## Round 814 — #2617/#2618
 
 - [x] `6a7f6af4` — Birim Dışı Talep Oluştur: Proje niteliğinde mi kaldırıldı; Öncelik yarı genişlikte (#2617).

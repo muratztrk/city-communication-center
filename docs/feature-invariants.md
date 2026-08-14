@@ -373,7 +373,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   içinde Mahalle, `Cadde / Sokak`, `No` ve `Adres Tarifi` durur; adres etiketleri
   kendi içinde satır kırmaz (etiket tek satır). Yanında yalnız Talep Ekleri varken (`--attachments-only`)
   Mahalle / Cadde / Sokak / No / Adres Tarifi **aynı satırda kolon içi ortalı**, başlıklar
-  çok az sola kayar (`translateX(-0.45rem)`, #2576 reopen). `Ekler / Fotoğraflar`
+  çok az sola kayar (`translateX(-0.45rem)`, #2576 reopen). Yanında 1'den fazla kutu
+  (`--three-cards`) iken dört başlık çok az sağa (`translateX(0.45rem)`, #2576). `Ekler / Fotoğraflar`
   kart zemini, Adres kartı değil, `Açıklama` paneliyle aynı soluk nötr yüzeyi kullanır (cards #1259/#1260/#1261).
   `İlgili Talep Detayları > Talep Bilgileri` başlığının sağındaki talep no ve `Birim İçi/Birim Dışı`
   meta bloğu başlık alt çizgisinin sağ sınırına hizalı kalır.
@@ -1606,9 +1607,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlığı `Vatandaş Talep Bilgisi`. Popup grid tipografisi Taleplerim ile aynı (`thead` 0.78rem /
   `td` 0.9rem, thead biraz yüksek); alt başlık (ad·telefon) `text-xs` + biraz aşağı (card #1889).
   Ana grid: `Vatandaş Adı`; Talep Kanalı Numara'dan sonra ve ortalanmış (card #1880–#1883 reopen).
+  Cadde / Sokak sonrası **No** sütunu (`streetNo`); açık adres başlığı **Adres Tarifi** (#2587).
   Nested İşlemler→Detaylar popup Taleplerim shell’den biraz küçük
-  (`detail-modal-shell--citizen-directory-nested`, card #r454). Nested talep listesi Durum
-  `getCitizenRequestStatusLabel` + `ticket.dueDateUtc` (overdue = `Son Tarihi Geçmiş`, #2574). Anasayfa pie → Detaylar
+  (`detail-modal-shell--citizen-directory-nested`, card #r454).   Nested talep listesi Durum
+  `getCitizenRequestStatusLabel` + `ticket.dueDateUtc` (overdue = `Son Tarihi Geçmiş`, #2574).
+  İptal / Tamamlanmış pill içinde alt satırda tarih (`completedAtUtc` / `updatedAtUtc`, #2574 reopen). Anasayfa pie → Detaylar
   aynı nested boyut (#6a6da278). Başlık: Vatandaş sayfası `Vatandaş Talebi`, Birimler
   `Talep` (#6a6da49d/#6a6da519).
 - **Grid thead rengi + sticky örtü (card #1888 / #r447):** sticky `th` opak
@@ -1856,7 +1859,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mahalle + Açık Adres `padding-inline-start: 0.7rem` ile biraz sağa; Cadde `translateX(-0.45rem)`
   ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) dört başlık
   kolon içinde ortalıdır; boş-adres padding/translate hilesi yok (#2576 reopen, #2185 geri).
-  Yanında 2 kutucuk daha (`--three-cards`) iken boş Açık Adres `0.6rem` (#2187).
+  Yanında 2 kutucuk daha (`--three-cards`) iken dört adres başlığı `translateX(0.45rem)` sağa
+  (#2576); boş Açık Adres `0.6rem` (#2187).
 - **Dropdown ellipsis tooltip (#2188):** `useDataTableOverflowTooltips` dropdown satırında
   birden fazla `.truncate` varsa hover edilen / kesilmiş satırı gösterir (Şablon mesajlar adı+içerik).
 - **Pie drilldown Başlık/Durum (#6a6d9daf/#2180):** Başlık `cell-title` 2 satır + overflow tooltip;

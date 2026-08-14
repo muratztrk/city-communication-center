@@ -31,7 +31,20 @@ type DirectoryRow = CitizenConversationSummary & {
   displayName: string
 }
 
-const SEARCH_KEYS = ['displayName', 'citizenPhone', 'neighborhood', 'street', 'openAddress'] as const
+const SEARCH_KEYS = ['displayName', 'citizenPhone', 'neighborhood', 'street', 'streetNo', 'openAddress'] as const
+
+function formatDirectoryDateTime(value: string | null | undefined, locale: string): string | null {
+  if (!value) return null
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return null
+  return parsed.toLocaleString(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
 
 function formatVt(ticket: CitizenConversationTicket): string {
   if (ticket.citizenRequestNumber != null && ticket.citizenRequestNumberYear != null) {
@@ -396,6 +409,17 @@ export function CitizenDirectoryPage() {
                   {t('citizenDirectory.columns.street', 'Cadde / Sokak')}
                 </FilterableTh>
                 <FilterableTh
+                  filterKey="streetNo"
+                  filterValue={filters.streetNo ?? ''}
+                  onFilter={setFilter}
+                  sortKey="streetNo"
+                  currentSortKey={sortKey}
+                  sortDir={sortDir}
+                  onSort={toggleSort}
+                >
+                  {t('citizenDirectory.columns.streetNo', 'No')}
+                </FilterableTh>
+                <FilterableTh
                   filterKey="openAddress"
                   filterValue={filters.openAddress ?? ''}
                   onFilter={setFilter}
@@ -404,16 +428,16 @@ export function CitizenDirectoryPage() {
                   sortDir={sortDir}
                   onSort={toggleSort}
                 >
-                  {t('citizenDirectory.columns.openAddress', 'Açık Adres')}
+                  {t('citizenDirectory.columns.openAddress', 'Adres Tarifi')}
                 </FilterableTh>
                 <th className="text-center">{t('common.actions', 'İşlemler')}</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <TableEmptyStateRows columnCount={7} message={t('common.loading')} />
+                <TableEmptyStateRows columnCount={8} message={t('common.loading')} />
               ) : pageRows.length === 0 ? (
-                <TableEmptyStateRows columnCount={7} message={t('citizenDirectory.empty', 'Kayıtlı vatandaş bulunamadı.')} />
+                <TableEmptyStateRows columnCount={8} message={t('citizenDirectory.empty', 'Kayıtlı vatandaş bulunamadı.')} />
               ) : pageRows.map((row, index) => (
                 <tr key={row.citizenConversationId}>
                   <td className="text-center text-xs font-bold tabular-nums text-slate-400">
@@ -427,6 +451,7 @@ export function CitizenDirectoryPage() {
                   </td>
                   <td><EmptyCell value={row.neighborhood} /></td>
                   <td><EmptyCell value={row.street} /></td>
+                  <td><EmptyCell value={row.streetNo} /></td>
                   <td><EmptyCell value={row.openAddress} /></td>
                   <td className="actions-cell">
                     <div className="request-actions justify-center gap-1.5">
@@ -601,7 +626,24 @@ export function CitizenDirectoryPage() {
                             <td>
                               {statusLabel && ticket.jobStatus ? (
                                 <StatusPill className={getStatusPillClass(getJobStatusTone({ status: ticket.jobStatus, dueDateUtc: ticket.dueDateUtc ?? null }))}>
-                                  <GridStatusLabel t={t} label={statusLabel} />
+                                  <GridStatusLabel
+                                    t={t}
+                                    label={statusLabel}
+                                    footer={(() => {
+                                      const statusDate = ticket.jobStatus === 'Completed'
+                                        ? ticket.completedAtUtc
+                                        : ticket.jobStatus === 'Cancelled' || ticket.jobStatus === 'Rejected'
+                                          ? ticket.updatedAtUtc
+                                          : null
+                                      const formatted = formatDirectoryDateTime(statusDate, locale)
+                                      if (!formatted) return undefined
+                                      return (
+                                        <span className={`text-[0.68rem] font-bold ${ticket.jobStatus === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>
+                                          {formatted}
+                                        </span>
+                                      )
+                                    })()}
+                                  />
                                 </StatusPill>
                               ) : <EmptyCell />}
                             </td>

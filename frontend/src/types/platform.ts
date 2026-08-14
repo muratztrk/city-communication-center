@@ -577,6 +577,8 @@ export interface CitizenConversationTicket {
   channel?: string | null;
   title?: string | null;
   dueDateUtc?: string | null;
+  completedAtUtc?: string | null;
+  updatedAtUtc?: string | null;
 }
 
 export interface CitizenConversationDetail {

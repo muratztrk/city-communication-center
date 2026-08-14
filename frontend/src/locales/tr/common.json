@@ -57,7 +57,8 @@
       "sourceChannel": "Talep Kanalı",
       "neighborhood": "Mahalle",
       "street": "Cadde / Sokak",
-      "openAddress": "Açık Adres"
+      "streetNo": "No",
+      "openAddress": "Adres Tarifi"
     }
   },
   "citizenRequestMap": {

@@ -1,3 +1,9 @@
+## Round 801 — #2587/#2576/#2574
+
+- [x] `6a7ec796` — Vatandaş Bilgi Listesi grid: Adres Tarifi + Cadde sonrası No (#2587).
+- [x] `6a7e0cec` — Yanında 1'den fazla kutu: adres başlıkları çok az sağa (#2576).
+- [x] `6a7e0b53` — Nested Durum İptal/Tamamlanmış pill alt satırında tarih (#2574).
+
 ## Round 800 — #2570 reopen
 
 - [x] `6a7e0604` — Anasayfa-Birimler pie/drilldown: vatandaş kaynaklı job yok (RequestType + SourceType + VT no).

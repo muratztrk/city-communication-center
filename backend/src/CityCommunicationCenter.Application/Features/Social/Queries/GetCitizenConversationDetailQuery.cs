@@ -247,7 +247,9 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     : null,
                 m.Channel.ToString(),
                 m.Job != null ? m.Job.Title : m.Content,
-                m.Job != null ? m.Job.DueDateUtc : null))
+                m.Job != null ? m.Job.DueDateUtc : null,
+                m.Job != null ? m.Job.CompletedAtUtc : null,
+                m.Job != null ? m.Job.UpdatedAtUtc : null))
             .ToListAsync(cancellationToken);
 
         var statusCounts = await _dbContext.SocialMessages

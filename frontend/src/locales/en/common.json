@@ -57,7 +57,8 @@
       "sourceChannel": "Request channel",
       "neighborhood": "Neighborhood",
       "street": "Street",
-      "openAddress": "Open address"
+      "streetNo": "No",
+      "openAddress": "Address Directions"
     }
   },
   "citizenRequestMap": {

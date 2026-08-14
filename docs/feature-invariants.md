@@ -899,6 +899,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   satırı olarak göster (Jobs/Tasks/Incoming).
 - **Sarı `.row-attention` grid satırlarında `table-number-cell__priority` siyah kalır**;
   öncelik renk paleti amber zemin üzerinde kullanılmaz (card #1084).
+- **Grid Son Tarih Onay Bekleyen (#2590):** `DueDatePill` / `DateCell` boş son tarihte
+  `Onay Bekleyen` metni ve takvim ikonu `sky-500` (`#0ea5e9`); tarihli satırların
+  warning/danger/reporter tonları değişmez.
 - **Ortak bileşenleri kullan:** `DueDatePill`, `DateCell`, `FilterableTh`,
   `SingleSelectDropdown` (openUp), `StatusPill`, `ChannelIcon`. Yeni grid kolonunda yeniden icat etme.
 - **Breadcrumb parent segmentlerinde her ifade kendi ikonunu taşır:** ör. `Birimdeki Görevler`,

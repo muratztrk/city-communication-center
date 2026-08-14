@@ -24,26 +24,32 @@ type DateCellProps = {
 
 // Tüm gridview'larda tarih bilgisinin önünde takvim ikonu göstermek için ortak hücre.
 export function DateCell({ value, locale, highlight = false, tone = 'default', emptyLabel }: DateCellProps) {
-  const toneClass = tone === 'success'
-    ? 'font-semibold text-emerald-600'
-    : tone === 'danger'
-      ? 'font-semibold text-red-600'
-      : highlight
-        ? 'font-semibold text-orange-500'
-        : ''
+  const label = formatDate(value, locale, emptyLabel)
+  const pending = /onay bekleyen|pending approval/i.test(label)
+  const toneClass = pending
+    ? 'font-semibold text-sky-500'
+    : tone === 'success'
+      ? 'font-semibold text-emerald-600'
+      : tone === 'danger'
+        ? 'font-semibold text-red-600'
+        : highlight
+          ? 'font-semibold text-orange-500'
+          : ''
   // Default ikon rengi DueDatePill ile aynı (inherit); ton/highlight override eder (#6a6cbf0e).
-  const iconClass = tone === 'success'
-    ? 'text-emerald-500'
-    : tone === 'danger'
-      ? 'text-red-500'
-      : highlight
-        ? 'text-orange-400'
-        : undefined
+  const iconClass = pending
+    ? 'text-sky-500'
+    : tone === 'success'
+      ? 'text-emerald-500'
+      : tone === 'danger'
+        ? 'text-red-500'
+        : highlight
+          ? 'text-orange-400'
+          : undefined
 
   return (
     <span className={cn('date-cell', toneClass)}>
       <CalendarClock className={cn('size-3.5 shrink-0', iconClass)} />
-      {formatDate(value, locale, emptyLabel)}
+      {label}
     </span>
   )
 }

@@ -1,3 +1,7 @@
+## Round 803 — #2590
+
+- [x] `6a7edb35` — Grid Son Tarih "Onay Bekleyen" metin+ikon mavi (#2590).
+
 ## Round 802 — #2569/#2576
 
 - [x] `6a7e050a` — Vatandaş Talep Haritası marker: Operator yetkisi + VT filtresi + anında/fallback pin (#2569).

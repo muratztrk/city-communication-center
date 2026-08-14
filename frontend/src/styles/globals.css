@@ -5502,7 +5502,8 @@
   }
 
   /* Son Tarih hücresi: gridview'larda ortak takvim ikonlu tarih rozeti.
-     warning = bitiş bugün (sarı), danger = geçmiş (kırmızı). */
+     warning = bitiş bugün (sarı), danger = geçmiş (kırmızı).
+     pending = Onay Bekleyen metin+ikon mavi (sky-500, #2590). */
   .due-date-pill {
     display: inline-flex;
     align-items: center;
@@ -5513,6 +5514,11 @@
     font-size: 0.84rem;
     white-space: nowrap;
     color: var(--color-text-muted, #475569);
+  }
+
+  .due-date-pill.pending,
+  .due-date-pill.pending svg {
+    color: #0ea5e9;
   }
 
   /* Bugün dolan son tarih: açık sarı zeminde takvim ikonu ve metin aynı turuncu (#f97316) (card #1387). */

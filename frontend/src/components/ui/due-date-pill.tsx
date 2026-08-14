@@ -40,11 +40,13 @@ type DueDatePillProps = {
 // Tüm gridview'larda aynı tasarımı kullanmak için ortak bileşen.
 export function DueDatePill({ value, locale, completedAtUtc, emptyLabel, highlightReporter = false }: DueDatePillProps) {
   const tone = getDueTone(value, completedAtUtc)
-  const reporterHighlight = highlightReporter && Boolean(value) && tone === 'normal'
+  const label = formatDueDate(value, locale, emptyLabel)
+  const pending = /onay bekleyen|pending approval/i.test(label)
+  const reporterHighlight = highlightReporter && Boolean(value) && tone === 'normal' && !pending
   return (
-    <span className={`due-date-pill${tone === 'warning' ? ' warning' : tone === 'danger' ? ' danger' : ''}${reporterHighlight ? ' due-date-pill--reporter' : ''}`}>
+    <span className={`due-date-pill${pending ? ' pending' : tone === 'warning' ? ' warning' : tone === 'danger' ? ' danger' : ''}${reporterHighlight ? ' due-date-pill--reporter' : ''}`}>
       <CalendarClock className="size-3.5" />
-      {formatDueDate(value, locale, emptyLabel)}
+      {label}
     </span>
   )
 }

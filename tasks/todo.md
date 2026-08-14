@@ -1,3 +1,7 @@
+## Round 800 — #2570 reopen
+
+- [x] `6a7e0604` — Anasayfa-Birimler pie/drilldown: vatandaş kaynaklı job yok (RequestType + SourceType + VT no).
+
 ## Round 799 — #2574/#2586/#2585/#2584/#2589/#2588/#2576
 
 - [x] `6a7e0b53` — Vatandaş Bilgi Listesi nested Durum overdue = Son Tarihi Geçmiş (#2574).

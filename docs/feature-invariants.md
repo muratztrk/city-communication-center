@@ -1581,7 +1581,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
   Vatandaş Talep Kanalları). Harita alanı yok (#6a6cdf95). Birimler sayfasında Reporter: Taleplerim +
   dış birim pie'ları. Operator: Görevlerim/Taleplerim. `Birimdeki Görevler` ve `Talep Önceliği`
-  pie'ları tüm anasayfalardan kaldırıldı (#2521).
+  pie'ları tüm anasayfalardan kaldırıldı (#2521). Birimler pie + drilldown vatandaş kaynaklı
+  job içermez (#2570): `RequestType=Citizen`, `SourceType∈{SocialMessage,CitizenRequest,EDevlet}`
+  ve VT numaralı kayıtlar `WhereIsNotCitizenSourced` ile dışlanır — yalnız `RequestType != Citizen`
+  yetmez.
 - **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
 - **Vatandaş Talep Haritası (#2572):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
@@ -1921,11 +1924,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geçerlidir — birbirinden sapmamalıdır. (Not: `Vatandaş Talep Kanalları` pie'ı bu kuralın
   DIŞINDA kalır — kendi `RequestType∈{...}` genişletilmiş adaylık mantığını korur,
   VT-only filtreye çevrilmedi.)
-- **Birim/departman odaklı dashboard pie'ları VT'yi dışlar (card #1849):** `Birimler` sayfasındaki
-  `Taleplerim` (`myRequests`, Reporter/Operator) ve tenant geneli `Talep Öncelik Durumu`
-  (`BuildTenantWideRequestPriorityChartAsync`) `RequestType == Citizen` olan job'ları hariç tutar;
-  Vatandaş Talebi kartları VT'yi zaten `#1845` ile ayrı gösterdiğinden Birimler pie'larında
-  tekrar görünmemelidir.
+- **Birim/departman odaklı dashboard pie'ları VT'yi dışlar (card #1849/#2570):** `Birimler`
+  sayfasındaki `Taleplerim` (`myRequests`) ve tenant geneli birim pie'ları
+  (`BuildExternalUnitDepartmentChartsAsync`: oluşturan/bekleyen/yapılmakta/tamamlayan/projeler)
+  vatandaş kaynaklı job'ları `WhereIsNotCitizenSourced` ile hariç tutar — `RequestType=Citizen`,
+  WA/çağrı/e-Devlet `SourceType` ve `CitizenRequestNumber` dolu kayıtlar. Drilldown
+  (`GetDashboardChartDrilldownQuery` owner/target birim satırları) aynı filtreyi kullanır.
+  Vatandaş Talebi kartları VT'yi `#1845` ile ayrı gösterdiğinden Birimler pie'larında tekrar
+  görünmemelidir.
 - **Taleplerim pie = `scope=mine` listesi:** Operator/CRM pie'da Routine + SocialMessage /
   CitizenRequest / EDevlet yok; aktif birim `OwnerDepartmentId` ile sınırlı — aksi halde pie
   (özellikle Son Tarihi Geçmiş) Taleplerim gridinden büyük çıkar.

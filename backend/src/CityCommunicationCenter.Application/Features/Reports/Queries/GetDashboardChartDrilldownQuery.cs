@@ -221,6 +221,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 && job.OwnerDepartmentId == departmentId
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            .WhereIsNotCitizenSourced(_dbContext)
             .OrderByDescending(job => job.CreatedAtUtc)
             .Take(MaxRows)
             .Select(job => new
@@ -270,13 +271,12 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             .Where(link => link.Role == JobDepartmentRole.Target
                 && link.DepartmentId == departmentId
                 && link.Job.TenantId == tenantId
-                && (nonCitizenOnly
-                    ? link.Job.RequestType != JobRequestType.Citizen
-                    : link.Job.RequestType == JobRequestType.ExternalUnit)
+                && (nonCitizenOnly || link.Job.RequestType == JobRequestType.ExternalUnit)
                 && statuses.Contains(link.Job.Status)
                 && (!isProject.HasValue || link.Job.IsProject == isProject.Value)
                 && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
+            .WhereJobIsNotCitizenSourced(_dbContext)
             .OrderByDescending(link => link.Job.CreatedAtUtc)
             .Take(MaxRows)
             .Select(link => new

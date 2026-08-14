@@ -1,3 +1,10 @@
+## Round 808 — #2576/#2595/#2574/#2593
+
+- [x] `6a7e0cec` — Üç kutulu adres başlıkları 0.45rem sağa; Adres Tarifi Mahalle hizası (#2576).
+- [x] `6a7ef525` — Adres bilgisi yoksa harita marker yok (job mahalle/cadde şartı) (#2595).
+- [x] `6a7e0b53` — Nested detay Süreç overdue: Yapılmakta (Son Tarihi Geçmiş) yan yana (#2574).
+- [x] `6a7eee5f` — Harita pin boyutu 18×27 (#2593).
+
 ## Round 807 — #2594
 
 - [x] `6a7eef88` — Harita pin: mahalle/cadde/no geocode; no yoksa boş alan; ikisi yoksa marker yok (#2594).

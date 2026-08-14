@@ -4385,6 +4385,25 @@
     grid-column: 1 / -1 !important;
   }
 
+  /* Görevlerim üç kutu: dört adres başlığı çok az sağa; Adres Tarifi Mahalle ile aynı sol kenar (#2576). */
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label {
+    transform: translateX(0.45rem);
+  }
+
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2),
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) {
+    transform: none;
+  }
+
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item--directions {
+    padding-inline-start: 0.7rem;
+  }
+
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item--directions .address-detail-my-request__label,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item--directions .address-detail-my-request__value {
+    padding-inline-start: 0;
+  }
+
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
     width: fit-content;

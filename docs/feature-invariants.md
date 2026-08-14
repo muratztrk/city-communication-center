@@ -374,7 +374,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kendi içinde satır kırmaz (etiket tek satır). Yanında yalnız Talep Ekleri varken (`--attachments-only`)
   Mahalle / Cadde / Sokak / No / Adres Tarifi **aynı satırda kolon içi ortalı**, başlıklar
   çok az sola kayar (`translateX(-0.45rem)`, #2576 reopen). Yanında 1'den fazla kutu
-  (`--three-cards`) iken adres başlıklarını sağa kaydırma **yok** (#2576 geri alındı).
+  (`--three-cards`) iken dört adres başlığı `translateX(0.45rem)` sağa; boş Adres Tarifi
+  Mahalle ile aynı `0.7rem` sol kenar (#2576).
   `Ekler / Fotoğraflar`
   kart zemini, Adres kartı değil, `Açıklama` paneliyle aynı soluk nötr yüzeyi kullanır (cards #1259/#1260/#1261).
   `İlgili Talep Detayları > Talep Bilgileri` başlığının sağındaki talep no ve `Birim İçi/Birim Dışı`
@@ -1603,11 +1604,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Cluster rengi banner `--color-header-from`; tıklanınca zoom bir kademe yumuşak;
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
-  Marker **pin ikonu** (daire değil); cluster ve pin boyutu küçük (#2593).
+  Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593).
   Pin konumu Google geocode: mahalle + cadde/sokak + no. No yoksa cadde/mahalle
-  noktasından ~30 m boş alana kaydırılır. Mahalle **ve** cadde ikisi de boşsa marker yok;
-  geocode fail ilçe merkezine düşmez (#2594). Kayıtlı lat/lng (WhatsApp GPS) harita pinini
-  ezmez. Anasayfa haritası yok (#6a6cdf95).
+  noktasından ~30 m boş alana kaydırılır. Mahalle **ve** cadde ikisi de boşsa marker yok
+  (yalnız Adres Tarifi / GPS / konuşma adresi yetmez, #2594/#2595). Geocode fail ilçe
+  merkezine düşmez. Kayıtlı lat/lng (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
@@ -1628,6 +1629,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Nested İşlemler→Detaylar popup Taleplerim shell’den biraz küçük
   (`detail-modal-shell--citizen-directory-nested`, card #r454).   Nested talep listesi Durum
   `getCitizenRequestStatusLabel` + `ticket.dueDateUtc` (overdue = `Yapılmakta` / `(Son Tarihi Geçmiş)`, #2574).
+  Nested detay **Süreç** overdue tek satır `Yapılmakta (Son Tarihi Geçmiş)` — stacked GridStatusLabel değil (#2574).
   İptal / Tamamlanmış pill içinde alt satırda tarih (`completedAtUtc` / `updatedAtUtc`, #2574 reopen). Anasayfa pie → Detaylar
   aynı nested boyut (#6a6da278). Başlık: Vatandaş sayfası `Vatandaş Talebi`, Birimler
   `Talep` (#6a6da49d/#6a6da519).
@@ -1876,7 +1878,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mahalle + Açık Adres `padding-inline-start: 0.7rem` ile biraz sağa; Cadde `translateX(-0.45rem)`
   ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) dört başlık
   kolon içinde ortalıdır; boş-adres padding/translate hilesi yok (#2576 reopen, #2185 geri).
-  Yanında 2 kutucuk daha (`--three-cards`) iken adres başlıklarını sağa kaydırma yok (#2576 geri).
+  Yanında 2 kutucuk daha (`--three-cards`) iken dört adres başlığı `translateX(0.45rem)` sağa;
+  boş Adres Tarifi Mahalle ile aynı `0.7rem` sol kenar (#2576).
   boş Açık Adres `0.6rem` (#2187).
 - **Dropdown ellipsis tooltip (#2188):** `useDataTableOverflowTooltips` dropdown satırında
   birden fazla `.truncate` varsa hover edilen / kesilmiş satırı gösterir (Şablon mesajlar adı+içerik).

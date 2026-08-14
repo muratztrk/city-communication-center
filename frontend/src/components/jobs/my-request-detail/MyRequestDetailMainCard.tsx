@@ -23,7 +23,6 @@ import type { MyRequestDetailField } from './myRequestDetailFields'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { formatDateTime, pendingApprovalValueClassName } from './format'
 import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, formatOverdueInProgressStatus } from '../../../utils/localization'
-import { GridStatusLabel } from '../../ui/GridStatusLabel'
 import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
 import { normalizeTitleCaseField } from '../../../utils/textNormalization'
@@ -530,9 +529,7 @@ export function MyRequestDetailMainCard({
             recoveredFromCancellation={isJobRecoveredFromCancellation(detail)}
             statusContent={(
               <span className={`${typeof (statusLabel ?? statusContent) === 'string' && isOverdueProcessStatus(t, String(statusLabel ?? statusContent)) ? 'inline-flex' : 'inline'} ${detailStatusClass}`}>
-                {typeof (statusLabel ?? statusContent) === 'string' && isOverdueProcessStatus(t, String(statusLabel ?? statusContent))
-                  ? <GridStatusLabel t={t} label={formatOverdueInProgressStatus(t)} align="start" />
-                  : (statusLabel ?? statusContent)}
+                {statusLabel ?? statusContent}
               </span>
             )}
             statusActorName={shouldShowJobStatusActorName(detail) ? detail.statusActorDisplayName : null}

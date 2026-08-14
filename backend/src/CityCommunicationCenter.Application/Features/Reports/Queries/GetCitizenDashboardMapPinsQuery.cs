@@ -43,17 +43,7 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)
                 && (
                     (job.Neighborhood != null && job.Neighborhood != "")
-                    || (job.Street != null && job.Street != "")
-                    || (job.OpenAddress != null && job.OpenAddress != "")
-                    || job.Latitude != null
-                    || _dbContext.SocialMessages.Any(message =>
-                        message.JobId == job.JobId
-                        && message.CitizenConversation != null
-                        && (
-                            (message.CitizenConversation.Neighborhood != null && message.CitizenConversation.Neighborhood != "")
-                            || (message.CitizenConversation.Street != null && message.CitizenConversation.Street != "")
-                            || (message.CitizenConversation.OpenAddress != null && message.CitizenConversation.OpenAddress != "")
-                            || message.Latitude != null))))
+                    || (job.Street != null && job.Street != "")))
             .WhereHasCitizenRequestNumber(_dbContext)
             .Select(job => new
             {
@@ -61,42 +51,10 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                 job.Title,
                 job.Status,
                 job.DueDateUtc,
-                Neighborhood = (job.Neighborhood != null && job.Neighborhood != "")
-                    ? job.Neighborhood
-                    : _dbContext.SocialMessages
-                        .Where(message => message.JobId == job.JobId
-                            && message.CitizenConversation != null
-                            && message.CitizenConversation.Neighborhood != null
-                            && message.CitizenConversation.Neighborhood != "")
-                        .Select(message => message.CitizenConversation!.Neighborhood)
-                        .FirstOrDefault(),
-                Street = (job.Street != null && job.Street != "")
-                    ? job.Street
-                    : _dbContext.SocialMessages
-                        .Where(message => message.JobId == job.JobId
-                            && message.CitizenConversation != null
-                            && message.CitizenConversation.Street != null
-                            && message.CitizenConversation.Street != "")
-                        .Select(message => message.CitizenConversation!.Street)
-                        .FirstOrDefault(),
-                StreetNo = (job.StreetNo != null && job.StreetNo != "")
-                    ? job.StreetNo
-                    : _dbContext.SocialMessages
-                        .Where(message => message.JobId == job.JobId
-                            && message.CitizenConversation != null
-                            && message.CitizenConversation.StreetNo != null
-                            && message.CitizenConversation.StreetNo != "")
-                        .Select(message => message.CitizenConversation!.StreetNo)
-                        .FirstOrDefault(),
-                OpenAddress = (job.OpenAddress != null && job.OpenAddress != "")
-                    ? job.OpenAddress
-                    : _dbContext.SocialMessages
-                        .Where(message => message.JobId == job.JobId
-                            && message.CitizenConversation != null
-                            && message.CitizenConversation.OpenAddress != null
-                            && message.CitizenConversation.OpenAddress != "")
-                        .Select(message => message.CitizenConversation!.OpenAddress)
-                        .FirstOrDefault(),
+                Neighborhood = job.Neighborhood,
+                Street = job.Street,
+                StreetNo = job.StreetNo,
+                OpenAddress = job.OpenAddress,
                 job.Latitude,
                 job.Longitude,
                 job.CreatedAtUtc,

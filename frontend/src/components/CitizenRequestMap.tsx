@@ -123,8 +123,8 @@ class CitizenMapClusterer extends MarkerClusterer {
 
 const pinIconCache = new Map<string, google.maps.Icon>()
 
-const PIN_WIDTH = 16
-const PIN_HEIGHT = 24
+const PIN_WIDTH = 18
+const PIN_HEIGHT = 27
 
 function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
   const cacheKey = `${color}|${approximate ? 'approx' : 'exact'}`

@@ -53,6 +53,8 @@ export interface DashboardChartDrilldownRow {
   citizenPhone?: string | null;
   ownerDepartmentName?: string | null;
   destinationDepartmentName?: string | null;
+  /** Açık (terminal olmayan) görev sayısı — vatandaş İşleme Alındı / Yapılmakta (#2605). */
+  openTaskCount?: number | null;
 }
 
 export interface DashboardChartDrilldownResponse {

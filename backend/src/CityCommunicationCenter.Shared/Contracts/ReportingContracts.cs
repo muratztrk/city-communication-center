@@ -52,7 +52,9 @@ public sealed record DashboardChartDrilldownRow(
     /// <summary>Birim-dışı pie: Talep Yeri (sahip birim) — Bekleyen/Yapılmakta/Tamamlanan (#2616).</summary>
     string? OwnerDepartmentName = null,
     /// <summary>Talep Oluşturan Birimler pie: Gittiği Yer (#2616).</summary>
-    string? DestinationDepartmentName = null);
+    string? DestinationDepartmentName = null,
+    /// <summary>Açık (terminal olmayan) görev sayısı — vatandaş İşleme Alındı / Yapılmakta (#2605).</summary>
+    int? OpenTaskCount = null);
 
 public sealed record DashboardChartDrilldownResponse(
     IReadOnlyList<DashboardChartDrilldownRow> Rows);

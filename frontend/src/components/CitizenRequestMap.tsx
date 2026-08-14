@@ -161,10 +161,9 @@ function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
   if (cached) return cached
   const fillOpacity = approximate ? '0.72' : '1'
   const dash = approximate ? 'stroke-dasharray="3 2"' : ''
-  // Pin rengi durum rengi; arka plan çerçevesi detay popup ikon kutusu (#2597).
+  // Çerçeve geri alındı (#2597); pin gövdesi durum rengi, iç daire beyaz (#2613).
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PIN_WIDTH}" height="${PIN_HEIGHT}" viewBox="0 0 24 36">
-    <rect x="0.6" y="0.2" width="22.8" height="20.2" rx="5.8" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.15"/>
-    <path fill="${color}" fill-opacity="${fillOpacity}" stroke="#0f172a" stroke-width="1.15" ${dash}
+    <path fill="${color}" fill-opacity="${fillOpacity}" stroke="#ffffff" stroke-width="1.6" ${dash}
       d="M12 1.2C6.7 1.2 2.4 5.5 2.4 10.8c0 7.4 9.6 23 9.6 23s9.6-15.6 9.6-23C21.6 5.5 17.3 1.2 12 1.2z"/>
     <circle cx="12" cy="11" r="3.6" fill="#ffffff"/>
   </svg>`
@@ -320,6 +319,9 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   } | null>(null)
   const [gestureHandling, setGestureHandling] = useState<'none' | 'greedy'>('none')
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
+  const [streetViewPicker, setStreetViewPicker] = useState(false)
+  const streetViewPickerRef = useRef(false)
+  const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
   const markersRef = useRef<google.maps.Marker[]>([])
 
@@ -480,6 +482,58 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     setMapInstance(map)
   }, [])
 
+  useEffect(() => {
+    if (!mapInstance) return
+    const coverage = new google.maps.StreetViewCoverageLayer()
+    coverageLayerRef.current = coverage
+    const clickListener = mapInstance.addListener('click', (event: google.maps.MapMouseEvent) => {
+      if (!streetViewPickerRef.current || !event.latLng) return
+      const service = new google.maps.StreetViewService()
+      void service.getPanorama(
+        { location: event.latLng, radius: 80, source: google.maps.StreetViewSource.OUTDOOR },
+        (data, status) => {
+          if (status !== google.maps.StreetViewStatus.OK || !data?.location?.latLng) return
+          const panorama = mapInstance.getStreetView()
+          panorama.setPosition(data.location.latLng)
+          panorama.setPov({ heading: 0, pitch: 0 })
+          panorama.setVisible(true)
+          coverage.setMap(null)
+          streetViewPickerRef.current = false
+          setStreetViewPicker(false)
+        },
+      )
+    })
+    const panorama = mapInstance.getStreetView()
+    const visibleListener = panorama.addListener('visible_changed', () => {
+      if (panorama.getVisible()) return
+      coverage.setMap(null)
+      streetViewPickerRef.current = false
+      setStreetViewPicker(false)
+    })
+    return () => {
+      google.maps.event.removeListener(clickListener)
+      google.maps.event.removeListener(visibleListener)
+      coverage.setMap(null)
+      coverageLayerRef.current = null
+    }
+  }, [mapInstance])
+
+  function toggleStreetViewPicker() {
+    if (!mapInstance) return
+    const panorama = mapInstance.getStreetView()
+    if (panorama.getVisible()) {
+      panorama.setVisible(false)
+      coverageLayerRef.current?.setMap(null)
+      streetViewPickerRef.current = false
+      setStreetViewPicker(false)
+      return
+    }
+    const next = !streetViewPickerRef.current
+    streetViewPickerRef.current = next
+    setStreetViewPicker(next)
+    coverageLayerRef.current?.setMap(next ? mapInstance : null)
+  }
+
   function closeJobDetail() {
     setJobDetail(null)
     setCitizenSourceMessage(null)
@@ -537,8 +591,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
               cameraControl: false,
               zoomControl: true,
               zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM },
-              streetViewControl: true,
-              streetViewControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM },
+              streetViewControl: false,
               rotateControl: false,
               mapTypeControl: false,
               fullscreenControl: false,
@@ -546,6 +599,26 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
             }}
           />
         )}
+        {mapsReady && isLoaded && !loadError ? (
+          <button
+            type="button"
+            className={`citizen-request-map-streetview-btn${streetViewPicker ? ' is-active' : ''}`}
+            title={t('citizenRequestMap.streetView', 'Street View')}
+            aria-label={t('citizenRequestMap.streetView', 'Street View')}
+            aria-pressed={streetViewPicker}
+            onClick={toggleStreetViewPicker}
+          >
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <circle cx="12" cy="5.2" r="2.35" fill="#fbbf24" stroke="#0f172a" strokeWidth="1.15" />
+              <path
+                fill="#f59e0b"
+                stroke="#0f172a"
+                strokeWidth="1.15"
+                d="M8.2 9.1h7.6c.5 0 .9.4.9.9v4.2c0 .3-.2.6-.5.7l-1.4.5v5.1c0 .5-.4.9-.9.9h-1.1c-.5 0-.9-.4-.9-.9v-3.4h-.8v3.4c0 .5-.4.9-.9.9H9.1c-.5 0-.9-.4-.9-.9v-5.1l-1.4-.5a.75.75 0 0 1-.5-.7V10c0-.5.4-.9.9-.9z"
+              />
+            </svg>
+          </button>
+        ) : null}
         {!loading && !resolving && unpinned.length > 0 ? (
           <div className="absolute inset-x-0 bottom-3 z-[500] flex justify-center px-4">
             <button

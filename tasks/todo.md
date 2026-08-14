@@ -1,3 +1,10 @@
+## Round 816 — #2597/#2605/#2615/#2576
+
+- [x] `6a7f004c` — Pin slayt çerçevesi geri alındı; durum renkli gövde kaldı (#2597).
+- [x] `6a7f30a2` — İşleme Alınan pie: açık görev + drilldown sahte Yapılmakta etiketi yok (#2605).
+- [x] `6a7f5eb2` — Zoom büyütüldü/aşağı; Street View tıklama, eksi solunda (#2615).
+- [x] `6a7e0cec` — Adres No başlığı 2.4rem sağa (#2576).
+
 ## Round 815 — #2612
 
 - [x] `6a7f57a1` — Cluster 2. tıklamada zoom 14; 3. tıklama/fitBounds over-zoom yok (#2612).

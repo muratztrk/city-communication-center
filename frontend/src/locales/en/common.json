@@ -69,6 +69,7 @@
     "geocodeEmpty": "Addresses could not be placed on the map.",
     "geocodePartial": "{{count}} requests could not be geocoded.",
     "unlocatedListTitle": "Unlocated requests",
+    "streetView": "Street View",
     "approximatePin": "Approximate location — open address could not be resolved exactly; shown at neighborhood/street level.",
     "detailTitle": "Citizen Request Info",
     "legend": {

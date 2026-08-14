@@ -33,7 +33,7 @@ export function AddressDetailFields({ neighborhood, street, streetNo, openAddres
             <dt className="address-detail-my-request__label">{t('address.streetLabel', 'Cadde / Sokak')}</dt>
             <dd className="address-detail-my-request__value">{displayAddressValue(street, '-')}</dd>
           </div>
-          <div className="address-detail-my-request__item">
+          <div className="address-detail-my-request__item address-detail-my-request__item--street-no">
             <dt className="address-detail-my-request__label">{t('address.streetNoLabel', 'No')}</dt>
             <dd className="address-detail-my-request__value">{displayAddressValue(streetNo, '-')}</dd>
           </div>

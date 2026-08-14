@@ -69,6 +69,7 @@
     "geocodeEmpty": "Adresler haritada konumlanamadı.",
     "geocodePartial": "{{count}} talep adresinden konumlanamadı.",
     "unlocatedListTitle": "Konumlanamayan talepler",
+    "streetView": "Street View",
     "approximatePin": "Yaklaşık konum — açık adres tam çözülemedi, mahalle/cadde seviyesinde gösteriliyor.",
     "detailTitle": "Vatandaş Talep Bilgisi",
     "legend": {

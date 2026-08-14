@@ -1,6 +1,6 @@
 import type { TFunction } from 'i18next'
 import { isJobDueDateOverdue } from './dateTimePicker'
-import { formatOverdueInProgressStatus } from './localization'
+import { formatOverdueInProgressStatus, type GridStatusTone } from './localization'
 
 export function isCitizenRequestJob(job: { requestType?: string | null; sourceType?: string | null }): boolean {
   return job.requestType === 'Citizen'
@@ -47,6 +47,16 @@ export function getCitizenRequestStatusLabel(
   }
 
   return t('social.requestStatus.processingReceived', 'İşleme Alındı')
+}
+
+export function getCitizenRequestStatusTone(job: CitizenRequestStatusSource): GridStatusTone {
+  if (job.status === 'Completed') return 'completed'
+  if (job.status === 'Cancelled') return 'cancelled'
+  if (job.status === 'Rejected') return 'rejected'
+  if (job.status === 'RevisionRequested') return 'neutral'
+  if (isJobDueDateOverdue({ status: job.status, dueDateUtc: job.dueDateUtc })) return 'overdue'
+  if (job.status === 'Active' && countOpenWorkTasks(job) > 0) return 'inProgress'
+  return 'processingReceived'
 }
 
 export function formatCitizenRequestNumber(

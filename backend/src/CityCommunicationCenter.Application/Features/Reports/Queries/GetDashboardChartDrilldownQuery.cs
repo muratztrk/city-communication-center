@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Domain.Enums;
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Reports;
 
@@ -139,7 +140,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 link.Job.Neighborhood,
                 link.Job.CitizenName,
                 link.Job.CitizenPhone,
-                TaskCount = _dbContext.Tasks.Count(task => task.JobId == link.JobId),
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == link.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
                 CitizenRequestNumber = _dbContext.SocialMessages
                     .Where(message => message.JobId == link.JobId)
                     .Select(message => message.CitizenRequestNumber)
@@ -174,7 +178,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                     return false;
                 }
 
-                var overdue = job.DueDateUtc.HasValue && job.DueDateUtc.Value.Date < now.Date;
+                var overdue = job.DueDateUtc.HasValue && job.DueDateUtc.Value < now;
                 var inProgress = overdue || (job.Status == JobStatus.Active && job.TaskCount > 0);
                 return statusFilter switch
                 {
@@ -192,7 +196,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 row.Status.ToString(), departmentName, row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
                 row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-                row.Priority, row.CitizenName, row.CitizenPhone))
+                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
             .ToList());
     }
 
@@ -455,7 +459,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Neighborhood,
                 job.CitizenName,
                 job.CitizenPhone,
-                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
                 TargetDepartmentName = _dbContext.JobDepartments
                     .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
                     .Join(_dbContext.Departments,
@@ -482,7 +489,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         var rows = candidates
             .Where(job =>
             {
-                if (job.DueDateUtc.HasValue && job.DueDateUtc.Value.Date < now.Date)
+                if (job.DueDateUtc.HasValue && job.DueDateUtc.Value < now)
                 {
                     return false;
                 }
@@ -503,7 +510,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
                 row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-                row.Priority, row.CitizenName, row.CitizenPhone))
+                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
             .ToList());
     }
 
@@ -549,7 +556,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Neighborhood,
                 job.CitizenName,
                 job.CitizenPhone,
-                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
                 TargetDepartmentName = _dbContext.JobDepartments
                     .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
                     .Join(_dbContext.Departments,
@@ -576,7 +586,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         var rows = candidates
             .Where(job =>
             {
-                var overdue = job.DueDateUtc.HasValue && job.DueDateUtc.Value.Date < now.Date;
+                var overdue = job.DueDateUtc.HasValue && job.DueDateUtc.Value < now;
                 return overdue || (job.Status == JobStatus.Active && job.TaskCount > 0);
             })
             .Take(MaxRows)
@@ -588,7 +598,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
                 row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-                row.Priority, row.CitizenName, row.CitizenPhone))
+                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
             .ToList());
     }
 
@@ -730,7 +740,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 job.Neighborhood,
                 job.CitizenName,
                 job.CitizenPhone,
-                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
                 TargetDepartmentName = _dbContext.JobDepartments
                     .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
                     .Join(_dbContext.Departments,
@@ -774,7 +787,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
             ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
             row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-            row.Priority, row.CitizenName, row.CitizenPhone))
+            row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
         .ToList();
 
         return new DashboardChartDrilldownResponse(filtered);

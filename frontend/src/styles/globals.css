@@ -4391,12 +4391,12 @@
     transform: translateX(0.45rem);
   }
 
-  /* No başlığı biraz daha sağa (#2576). */
-  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label,
-  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__value {
-    transform: translateX(1.45rem);
-    margin-inline: 0;
-    text-align: left;
+  /* No başlığı Cadde'ye göre daha sağa (#2576) — nth-child yetmez, sınıf + !important. */
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__label,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__value {
+    transform: translateX(2.4rem) !important;
+    margin-inline: 0 !important;
+    text-align: left !important;
   }
 
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2),
@@ -6453,17 +6453,45 @@
       width: 6rem !important;
     }
   }
+}
 
-  /* Vatandaş Talep Haritası: kamera ikonu/pan yok; +/- küçük ve her zaman görünür (#2615/#2614). */
+@layer components {
+  /* Vatandaş Talep Haritası: +/- büyütülmüş, köşeye daha yakın (#2615). */
   .citizen-request-map .gm-bundled-control,
   .citizen-request-map .gm-bundled-control .gmnoprint {
-    transform: scale(0.72);
+    transform: scale(1.18) translateY(10px);
     transform-origin: bottom right;
   }
 
-  .citizen-request-map .gm-svpc,
-  .citizen-request-map .gm-style-cc {
-    transform: scale(0.86);
-    transform-origin: bottom right;
+  .citizen-request-map .gm-svpc {
+    display: none;
+  }
+
+  .citizen-request-map-streetview-btn {
+    position: absolute;
+    z-index: 5;
+    right: 3.85rem;
+    bottom: 1.05rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.35rem;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.28);
+    cursor: pointer;
+  }
+
+  .citizen-request-map-streetview-btn:hover,
+  .citizen-request-map-streetview-btn.is-active {
+    background: #f8fafc;
+  }
+
+  .citizen-request-map-streetview-btn.is-active {
+    outline: 2px solid #2563eb;
+    outline-offset: 1px;
   }
 }

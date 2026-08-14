@@ -375,7 +375,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mahalle / Cadde / Sokak / No / Adres Tarifi **aynı satırda kolon içi ortalı**, başlıklar
   çok az sola kayar (`translateX(-0.45rem)`, #2576 reopen). Yanında 1'den fazla kutu
   (`--three-cards`) iken dört adres başlığı **ve** `-` `translateX(0.45rem)` sağa (aynı
-  düşey eksen); **No** başlık+değer `1.2rem`; boş Adres Tarifi
+  düşey eksen); **No** başlık+değer `2.4rem` (`.address-detail-my-request__item--street-no`); boş Adres Tarifi
   Mahalle ile aynı `0.7rem` sol kenar (#2576).
   `Ekler / Fotoğraflar`
   kart zemini, Adres kartı değil, `Açıklama` paneliyle aynı soluk nötr yüzeyi kullanır (cards #1259/#1260/#1261).
@@ -1591,7 +1591,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
   Vatandaş Talep Kanalları). Vatandaş pie 1. satır mahalle üçlüsü, 2. satır birim üçlüsü (#2606).
-  İşleme Alınan pie yalnız ProcessingReceived; Yapılmakta pie Yapılmakta + overdue (#2605). Harita alanı yok (#6a6cdf95). Birimler sayfasında Reporter: Taleplerim +
+  İşleme Alınan pie yalnız ProcessingReceived (açık görev yok; overdue/Active+görev yok);
+  Yapılmakta pie Yapılmakta + overdue (#2605). Drilldown Durum etiketi sahte taskCount=1 kullanmaz —
+  `OpenTaskCount` ile İşleme Alındı / Yapılmakta ayrılır. Harita alanı yok (#6a6cdf95). Birimler sayfasında Reporter: Taleplerim +
   dış birim pie'ları. Operator: Görevlerim/Taleplerim. `Birimdeki Görevler` ve `Talep Önceliği`
   pie'ları tüm anasayfalardan kaldırıldı (#2521). Birimler pie + drilldown vatandaş kaynaklı
   job içermez (#2570): `RequestType=Citizen`, `SourceType∈{SocialMessage,CitizenRequest,EDevlet}`
@@ -1616,9 +1618,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
   Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593). Pin **rengi** durum
-  rengi doygun (sky/orange/red/green-700; iç daire beyaz); arka planda `#f1f5f9` çerçeve + slate stroke
-  (#2597/#2613). Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
-  zoom + Street View sağ altta küçük; pan/fullscreen yok (#2614/#2615). Geocode fail pin yok;
+  rengi doygun (sky/orange/red/green-700; iç daire beyaz); slayt çerçeve **yok** (#2597 geri alındı).
+  Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
+  zoom sağ altta büyütülmüş ve köşeye daha yakın; Street View tıklamayla (sürükleme yok)
+  mavi kapsama → yola tıklayınca açılır, eksi butonunun solunda (#2614/#2615).
+  pan/fullscreen yok. Geocode fail pin yok;
   “konumlanamadı” tıklanınca Vatandaş Bilgi Listesi (#2604).
   Pin konumu Google geocode: mahalle + cadde/sokak + no. Cadde Google’da yoksa mahalle
   seviyesine düşülür (Çağrı talepleri dahil, #2600). No yoksa veya mahalle yedeği ~30 m
@@ -1901,7 +1905,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) dört başlık
   kolon içinde ortalıdır; boş-adres padding/translate hilesi yok (#2576 reopen, #2185 geri).
   Yanında 2 kutucuk daha (`--three-cards`) iken dört adres başlığı **ve** `-` değeri
-  `translateX(0.45rem)` sağa (aynı düşey eksen); **No** başlık+değer `1.2rem` (#2576).
+  `translateX(0.45rem)` sağa (aynı düşey eksen); **No** başlık+değer `2.4rem` (#2576).
   boş Adres Tarifi Mahalle ile aynı `0.7rem` sol kenar (#2576).
   boş Açık Adres `0.6rem` (#2187).
 - **Dropdown ellipsis tooltip (#2188):** `useDataTableOverflowTooltips` dropdown satırında

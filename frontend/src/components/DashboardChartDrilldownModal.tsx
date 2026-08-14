@@ -15,7 +15,7 @@ import { DueDatePill } from './ui/due-date-pill'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { getAuditStatusLabel, getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, formatOverdueInProgressStatus } from '../utils/localization'
-import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
+import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenRequestJob } from '../utils/citizenRequests'
 import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { ChannelIcon } from './ui/channel-icon'
@@ -148,10 +148,9 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
 
 function getDrilldownStatusLabel(t: TFunction, row: DashboardChartDrilldownRow): string {
   if (row.citizenRequestNumber != null) {
-    const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
     return getCitizenRequestStatusLabel(t, {
-      status: normalizedStatus,
-      taskCount: normalizedStatus === 'Active' || normalizedStatus === 'Completed' ? 1 : 0,
+      status: row.status,
+      taskCount: row.openTaskCount ?? 0,
       dueDateUtc: row.dueDateUtc,
     })
   }
@@ -173,8 +172,11 @@ function getDrilldownStatusLabel(t: TFunction, row: DashboardChartDrilldownRow):
 
 function getDrilldownStatusPillClass(row: DashboardChartDrilldownRow): string {
   if (row.citizenRequestNumber != null) {
-    const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
-    return getStatusPillClass(getJobStatusTone({ status: normalizedStatus, dueDateUtc: row.dueDateUtc }))
+    return getStatusPillClass(getCitizenRequestStatusTone({
+      status: row.status,
+      dueDateUtc: row.dueDateUtc,
+      taskCount: row.openTaskCount ?? 0,
+    }))
   }
   return getStatusPillClass(getJobStatusTone({ status: row.status, dueDateUtc: row.dueDateUtc }))
 }

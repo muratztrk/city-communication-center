@@ -155,7 +155,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .Select(job => new CitizenJobStatusItem(
                 job.Status,
                 job.DueDateUtc,
-                _dbContext.Tasks.Count(task => task.JobId == job.JobId)))
+                _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected)))
             .ToListAsync(cancellationToken);
     }
 
@@ -426,7 +429,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
             {
                 job.Status,
                 job.DueDateUtc,
-                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
                 TargetDepartmentId = _dbContext.JobDepartments
                     .Where(link => link.JobId == job.JobId
                         && link.TenantId == tenantId
@@ -663,7 +669,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 Neighborhood = job.Neighborhood!,
                 job.Status,
                 job.DueDateUtc,
-                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
             })
             .ToListAsync(cancellationToken);
 
@@ -711,7 +720,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 Neighborhood = job.Neighborhood!,
                 job.Status,
                 job.DueDateUtc,
-                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
             })
             .ToListAsync(cancellationToken);
 

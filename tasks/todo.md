@@ -1,3 +1,8 @@
+## Round 814 — #2617/#2618
+
+- [x] `6a7f6af4` — Birim Dışı Talep Oluştur: Proje niteliğinde mi kaldırıldı; Öncelik yarı genişlikte (#2617).
+- [x] `6a7f6b66` — Projeler pie: Birim İçi + Üst Düzey Yönetici oluşturduğu (#2618).
+
 ## Round 813 — map/dashboard/idle (#2601–#2616)
 
 - [x] `6a7f1de3` — Katalog metni **İbni Melek OSB** (#2601).

@@ -416,6 +416,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   aynı okunurlukta kalır; açık adres değeri özellikle küçük düşürülmez (card #1247).
 - **Birim içi talep oluşturma alan sırası:** `Talep Başlığı`ndan sonra `Görevi Yapan Kişi/Birim`
   gelir; `Öncelik / Bitiş Tarihi / Proje niteliğinde mi?` satırı bunun altında kalır (card #1250).
+- **Birim Dışı Talep Oluştur (#2617):** `Proje niteliğinde mi?` yok; Öncelik 2 kolonlu gridde
+  yarı genişlikte kalır. Üst Düzey Yönetici `Talep Oluştur` formunda proje alanı durur.
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)
@@ -1597,6 +1599,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yetmez. Birimler pie başlıkları: Bekleyen Talepler / Tamamlanan Talepler (#2608).
   Talep Oluşturan Birimler drilldown: Birim sonrası Gittiği Yer; Bekleyen/Yapılmakta/Tamamlanan
   drilldown: Talep Yeri (sahip birim) Birim’den önce (#2616). Durum overdue = `Yapılmakta (Son Tarihi Geçmiş)` (#2609).
+  Yapılmakta/Tamamlanan Projeler pie yalnız Birim İçi (`InternalUnit`) + Üst Düzey Yönetici’nin
+  oluşturduğu `IsProject` talepler (#2618); diğer birim-dışı projeler dahil değil.
 - **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
 - **Vatandaş Talep Haritası (#2572/#2569):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;

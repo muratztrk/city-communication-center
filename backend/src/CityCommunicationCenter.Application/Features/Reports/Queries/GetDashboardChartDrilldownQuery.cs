@@ -64,14 +64,16 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 [JobStatus.Active],
                 cancellationToken,
                 isProject: true,
-                nonCitizenOnly: true),
+                nonCitizenOnly: true,
+                internalOrReporterProjects: true),
             "externalProjectsCompleted" => await BuildTargetDepartmentRowsAsync(
                 tenantId,
                 request,
                 [JobStatus.Completed],
                 cancellationToken,
                 isProject: true,
-                nonCitizenOnly: true),
+                nonCitizenOnly: true,
+                internalOrReporterProjects: true),
             "neighborhoodCompletedRequests" => await BuildNeighborhoodRowsAsync(tenantId, request, JobStatus.Completed, cancellationToken),
             "neighborhoodInProgressRequests" => await BuildNeighborhoodInProgressRowsAsync(tenantId, request, cancellationToken),
             "neighborhoodProcessingRequests" => await BuildNeighborhoodProcessingRowsAsync(tenantId, request, cancellationToken),
@@ -263,14 +265,24 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         IReadOnlyCollection<JobStatus> statuses,
         CancellationToken cancellationToken,
         bool? isProject = null,
-        bool nonCitizenOnly = false)
+        bool nonCitizenOnly = false,
+        bool internalOrReporterProjects = false)
     {
         if (ParseSliceDepartmentId(request.SliceKey) is not Guid departmentId)
         {
             return new DashboardChartDrilldownResponse([]);
         }
 
-        var rows = await _dbContext.JobDepartments.AsNoTracking()
+        List<Guid>? reporterUserIds = null;
+        if (internalOrReporterProjects)
+        {
+            reporterUserIds = await _dbContext.Users.AsNoTracking()
+                .Where(user => user.TenantId == tenantId && user.RoleCode == RoleCode.Reporter)
+                .Select(user => user.UserId)
+                .ToListAsync(cancellationToken);
+        }
+
+        var query = _dbContext.JobDepartments.AsNoTracking()
             .Where(link => link.Role == JobDepartmentRole.Target
                 && link.DepartmentId == departmentId
                 && link.Job.TenantId == tenantId
@@ -279,7 +291,17 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 && (!isProject.HasValue || link.Job.IsProject == isProject.Value)
                 && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
-            .WhereJobIsNotCitizenSourced(_dbContext)
+            .WhereJobIsNotCitizenSourced(_dbContext);
+
+        if (internalOrReporterProjects)
+        {
+            var ids = reporterUserIds ?? [];
+            query = query.Where(link =>
+                link.Job.RequestType == JobRequestType.InternalUnit
+                || (link.Job.CreatedByUserId.HasValue && ids.Contains(link.Job.CreatedByUserId.Value)));
+        }
+
+        var rows = await query
             .OrderByDescending(link => link.Job.CreatedAtUtc)
             .Take(MaxRows)
             .Select(link => new

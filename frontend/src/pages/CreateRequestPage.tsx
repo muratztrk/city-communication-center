@@ -1003,7 +1003,7 @@ export function CreateRequestPage() {
           priority: externalForm.priority,
           startDateUtc: toApiDateTime(externalForm.startDateUtc),
           dueDateUtc: toApiDueDateTime(externalForm.dueDateUtc),
-          isProject: externalForm.isProject,
+          isProject: isReporter && externalForm.isProject,
           neighborhood: normalizeTitleCaseField(externalForm.neighborhood) ?? '',
           street: normalizeTitleCaseField(externalForm.street) ?? '',
           streetNo: externalForm.streetNo.trim() || null,
@@ -1022,7 +1022,7 @@ export function CreateRequestPage() {
         ownerUserIds: [],
         priority: externalForm.priority,
         requestType: 'ExternalUnit',
-        isProject: externalForm.isProject,
+        isProject: isReporter && externalForm.isProject,
         startDateUtc: toApiDateTime(externalForm.startDateUtc),
         dueDateUtc: toApiDueDateTime(externalForm.dueDateUtc),
         targetDepartmentIds,
@@ -1436,15 +1436,19 @@ export function CreateRequestPage() {
                   placeholder={t('jobs.form.priority', 'Öncelik')}
                 />
               </div>
-              <div className="job-field">
-                <label className="job-field-label" htmlFor="request-is-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
-                <SingleSelectDropdown
-                  options={yesNoOptions}
-                  value={externalForm.isProject ? 'yes' : 'no'}
-                  onChange={value => setExternalForm(current => ({ ...current, isProject: value === 'yes' }))}
-                  placeholder={t('jobs.form.isProject', 'Proje niteliğinde mi?')}
-                />
-              </div>
+              {isReporter ? (
+                <div className="job-field">
+                  <label className="job-field-label" htmlFor="request-is-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
+                  <SingleSelectDropdown
+                    options={yesNoOptions}
+                    value={externalForm.isProject ? 'yes' : 'no'}
+                    onChange={value => setExternalForm(current => ({ ...current, isProject: value === 'yes' }))}
+                    placeholder={t('jobs.form.isProject', 'Proje niteliğinde mi?')}
+                  />
+                </div>
+              ) : (
+                <div className="hidden md:block" aria-hidden="true" />
+              )}
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-start-date">{t('jobs.form.startDate')}</label>
                 {/* Başlangıç ≥ şimdi; seçilirse Son Tarih ≥ başlangıç+2s (#6a6f6301). */}

@@ -551,12 +551,19 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToListAsync(cancellationToken))
             .Select(item => (item.DepartmentId, item.Count));
 
-        // Proje niteliğinde yapılmakta olan / tamamlanan vatandaş kaynaklı olmayan talepler (#2566/#2569/#2570).
+        // Proje pie: Birim İçi + Üst Düzey Yönetici'nin oluşturduğu projeler (#2618).
+        var reporterUserIds = await _dbContext.Users.AsNoTracking()
+            .Where(user => user.TenantId == tenantId && user.RoleCode == RoleCode.Reporter)
+            .Select(user => user.UserId)
+            .ToListAsync(cancellationToken);
+
         var projectsInProgress = (await _dbContext.JobDepartments.AsNoTracking()
             .Where(link => link.Role == JobDepartmentRole.Target
                 && link.Job.TenantId == tenantId
                 && link.Job.IsProject
                 && link.Job.Status == JobStatus.Active
+                && (link.Job.RequestType == JobRequestType.InternalUnit
+                    || (link.Job.CreatedByUserId.HasValue && reporterUserIds.Contains(link.Job.CreatedByUserId.Value)))
                 && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
             .WhereJobIsNotCitizenSourced(_dbContext)
@@ -570,6 +577,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 && link.Job.TenantId == tenantId
                 && link.Job.IsProject
                 && link.Job.Status == JobStatus.Completed
+                && (link.Job.RequestType == JobRequestType.InternalUnit
+                    || (link.Job.CreatedByUserId.HasValue && reporterUserIds.Contains(link.Job.CreatedByUserId.Value)))
                 && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
             .WhereJobIsNotCitizenSourced(_dbContext)

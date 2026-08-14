@@ -1,3 +1,7 @@
+## Round 809 — #2596
+
+- [x] `6a7efc5b` — Harita: İbnimelek OSB / İbnimelek pinleri İbni Melek ile aynı konuma geocode (#2596).
+
 ## Round 808 — #2576/#2595/#2574/#2593
 
 - [x] `6a7e0cec` — Üç kutulu adres başlıkları 0.45rem sağa; Adres Tarifi Mahalle hizası (#2576).

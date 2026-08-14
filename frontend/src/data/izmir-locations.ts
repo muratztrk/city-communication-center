@@ -380,3 +380,51 @@ export function saveDistrictId(id: string): boolean {
 export function getNeighborhoodsForDistrict(districtId: string): string[] {
   return IZMIR_DISTRICTS.find(d => d.id === districtId)?.neighborhoods ?? []
 }
+
+const GEOCODE_NEIGHBORHOOD_SUFFIXES = [
+  ' organize sanayi bölgesi',
+  ' organize sanayi',
+  ' mahallesi',
+  ' mah.',
+  ' mah',
+  ' osb',
+] as const
+
+function compactNeighborhoodKey(value: string): string {
+  return value
+    .trim()
+    .toLocaleLowerCase('tr')
+    .replace(/[\s.'’-]+/g, '')
+}
+
+function stripGeocodeNeighborhoodSuffixes(value: string): string {
+  let current = value.trim()
+  for (;;) {
+    const lower = current.toLocaleLowerCase('tr')
+    const suffix = GEOCODE_NEIGHBORHOOD_SUFFIXES.find(item => lower.endsWith(item))
+    if (!suffix) return current
+    current = current.slice(0, current.length - suffix.length).trim()
+  }
+}
+
+/**
+ * Harita geocode için mahalle adını ilçe kataloğuna indirger.
+ * "İbnimelek OSB" / "İbnimelek" → "İbni Melek" (#2596) — Google OSB'yi başka
+ * bir sanayi bölgesine düşürmesin.
+ */
+export function canonicalizeNeighborhoodForGeocode(
+  neighborhood: string | null | undefined,
+  districtName?: string | null,
+): string {
+  const raw = neighborhood?.trim() ?? ''
+  if (!raw) return ''
+
+  const districtKey = (districtName ?? 'Tire').trim().toLocaleLowerCase('tr')
+  const district = IZMIR_DISTRICTS.find(item => item.name.toLocaleLowerCase('tr') === districtKey)
+  const catalog = district?.neighborhoods ?? []
+  const stripped = stripGeocodeNeighborhoodSuffixes(raw)
+  const compact = compactNeighborhoodKey(stripped)
+  if (!compact) return stripped
+
+  return catalog.find(name => compactNeighborhoodKey(name) === compact) ?? stripped
+}

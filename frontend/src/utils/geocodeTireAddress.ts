@@ -1,4 +1,6 @@
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v4'
+import { canonicalizeNeighborhoodForGeocode } from '../data/izmir-locations'
+
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v5'
 
 export type LatLng = { lat: number; lng: number }
 
@@ -62,10 +64,11 @@ export function buildTireGeocodeQuery(input: {
   districtName?: string | null
 }): string {
   const district = input.districtName?.trim() || 'Tire'
+  const neighborhood = canonicalizeNeighborhoodForGeocode(input.neighborhood, district)
   const streetWithNo = [input.street?.trim(), input.streetNo?.trim()].filter(Boolean).join(' ')
   const chunks = [
     streetWithNo || undefined,
-    input.neighborhood?.trim(),
+    neighborhood || undefined,
     district,
     'İzmir',
     'Türkiye',
@@ -83,7 +86,7 @@ function buildGeocodeQueryVariants(input: {
   const tail = [district, 'İzmir', 'Türkiye']
   const street = input.street?.trim()
   const streetNo = input.streetNo?.trim()
-  const neighborhood = input.neighborhood?.trim()
+  const neighborhood = canonicalizeNeighborhoodForGeocode(input.neighborhood, district)
   const variants: string[][] = []
   if (street && streetNo && neighborhood) {
     variants.push([`${street} ${streetNo}`, neighborhood, ...tail])
@@ -118,7 +121,8 @@ export function geocodeTireAddress(input: {
   districtName?: string | null
 }): Promise<GeocodeHit | null> {
   const district = input.districtName?.trim() || 'Tire'
-  const cacheKey = normalizeAddressKey([input.street, input.streetNo, input.neighborhood, district])
+  const neighborhood = canonicalizeNeighborhoodForGeocode(input.neighborhood, district)
+  const cacheKey = normalizeAddressKey([input.street, input.streetNo, neighborhood, district])
   if (!cacheKey) return Promise.resolve(null)
 
   const toHit = (cached: CachedHit | null): GeocodeHit | null => (cached

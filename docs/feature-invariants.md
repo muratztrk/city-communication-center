@@ -1608,7 +1608,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pin konumu Google geocode: mahalle + cadde/sokak + no. No yoksa cadde/mahalle
   noktasından ~30 m boş alana kaydırılır. Mahalle **ve** cadde ikisi de boşsa marker yok
   (yalnız Adres Tarifi / GPS / konuşma adresi yetmez, #2594/#2595). Geocode fail ilçe
-  merkezine düşmez. Kayıtlı lat/lng (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
+  merkezine düşmez. Mahalle adı geocode öncesi katalogla birleştirilir: OSB / mahalle
+  soneki atılır, boşluksuz eşleşme (`İbnimelek OSB` → `İbni Melek`) — Google OSB'yi
+  başka sanayi bölgesine düşürmez (#2596). Kayıtlı lat/lng (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout

@@ -1712,6 +1712,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `stacked` alt alta (#6a6baec9 reopen — 3 kolon yapılmaz).
 - **Rutin Görev Oluştur Açık Adres (#r501/#r502):** textarea `address-open-textarea`; font
   Cadde / Sokak `field-input` ile aynı (~0.98rem, değer + placeholder).
+- **Rutin Görev Oluştur Mahalle dropdown (#2602):** `openUp` yok; liste aşağı açılır.
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
 - **Mobil paging (#r490/#r493):** Sayfa-boyutu seçici ≤767px DOM'dan çıkarılır; sabit `pageSize=10`.
 - **Mobil Talep No (#r490):** `.table-number-cell__value` / `__priority` mobilde küçültülür.

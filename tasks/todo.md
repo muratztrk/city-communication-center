@@ -1,3 +1,7 @@
+## Round 812 — #2602
+
+- [x] `6a7f24f2` — Rutin Görev Oluştur Mahalle dropdown aşağı açılır (#2602).
+
 ## Round 811 — #2597/#2600/#2601/#2576
 
 - [x] `6a7f004c` — Harita pin rengi eski durum rengi; arka plan ikon çerçevesi `#f1f5f9` (#2597).

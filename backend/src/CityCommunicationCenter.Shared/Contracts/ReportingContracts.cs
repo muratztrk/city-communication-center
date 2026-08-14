@@ -64,7 +64,18 @@ public sealed record CitizenDashboardMapPin(
     double? Longitude,
     int? CitizenRequestNumber,
     int? CitizenRequestNumberYear,
-    string DisplayStatus);
+    string DisplayStatus,
+    DateTimeOffset CreatedAtUtc,
+    string? Channel,
+    string? DepartmentName,
+    string JobStatus,
+    DateTimeOffset? DueDateUtc,
+    DateTimeOffset? CompletedAtUtc,
+    DateTimeOffset? UpdatedAtUtc,
+    string? Priority,
+    string? CitizenName,
+    string? CitizenPhone,
+    Guid? SocialMessageId);
 
 public sealed record CitizenDashboardMapPinsResponse(
     IReadOnlyList<CitizenDashboardMapPin> Pins);

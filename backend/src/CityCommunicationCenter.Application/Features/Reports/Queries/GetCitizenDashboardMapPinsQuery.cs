@@ -99,6 +99,32 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                         .FirstOrDefault(),
                 job.Latitude,
                 job.Longitude,
+                job.CreatedAtUtc,
+                job.CompletedAtUtc,
+                job.UpdatedAtUtc,
+                job.Priority,
+                job.CitizenName,
+                job.CitizenPhone,
+                DepartmentName = _dbContext.Departments
+                    .Where(department => department.DepartmentId == job.OwnerDepartmentId)
+                    .Select(department => department.Name)
+                    .FirstOrDefault(),
+                Channel = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => (SocialChannel?)message.Channel)
+                    .FirstOrDefault(),
+                SocialMessageId = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => (Guid?)message.SocialMessageId)
+                    .FirstOrDefault(),
+                ConversationCitizenName = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId && message.CitizenConversation != null)
+                    .Select(message => message.CitizenConversation!.CitizenName)
+                    .FirstOrDefault(),
+                ConversationCitizenPhone = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId && message.CitizenConversation != null)
+                    .Select(message => message.CitizenConversation!.CitizenPhone)
+                    .FirstOrDefault(),
                 TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
                 CitizenRequestNumber = _dbContext.SocialMessages
                     .Where(message => message.JobId == job.JobId)
@@ -140,7 +166,18 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                     row.Longitude ?? row.MessageLongitude,
                     row.CitizenRequestNumber,
                     row.CitizenRequestNumberYear,
-                    ToDisplayStatus(pair.display));
+                    ToDisplayStatus(pair.display),
+                    row.CreatedAtUtc,
+                    row.Channel?.ToString(),
+                    row.DepartmentName,
+                    row.Status.ToString(),
+                    row.DueDateUtc,
+                    row.CompletedAtUtc,
+                    row.UpdatedAtUtc,
+                    row.Priority,
+                    string.IsNullOrWhiteSpace(row.CitizenName) ? row.ConversationCitizenName : row.CitizenName,
+                    string.IsNullOrWhiteSpace(row.CitizenPhone) ? row.ConversationCitizenPhone : row.CitizenPhone,
+                    row.SocialMessageId);
             })
             .OrderByDescending(pin => pin.Title)
             .ToList();

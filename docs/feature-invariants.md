@@ -1597,10 +1597,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talep Haritası (#2572/#2569):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
   Reporter **ve Operator** (403 değil). Pin kümesi `WhereHasCitizenRequestNumber` — `RequestType=Citizen`
   şartı yok (VT numaralı kaynaklar). Dönem filtresi Anasayfa ile aynı; pin clustering
-  `@googlemaps/markerclusterer`; marker tıklanınca doğrudan `MyRequestDetailModal` (`Vatandaş Talebi`),
-  InfoWindow yok. Cluster rengi banner `--color-header-from`; tıklanınca zoom bir kademe yumuşak;
+  `@googlemaps/markerclusterer`;   marker tıklanınca doğrudan `MyRequestDetailModal` (`Vatandaş Talebi`),
+  InfoWindow yok. Aynı adres/konumda birden fazla talep varsa dizin nested
+  `Vatandaş Bilgi Listesi` popup'ı açılır; tek talepte Vatandaş Talebi kalır (#2592).
+  Cluster rengi banner `--color-header-from`; tıklanınca zoom bir kademe yumuşak;
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
+  Marker **pin ikonu** (daire değil); cluster ve pin boyutu küçük (#2593).
   Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)

@@ -1,3 +1,8 @@
+## Round 806 — #2593/#2592
+
+- [x] `6a7eee5f` — Harita: küçük pin ikonu + küçültülmüş sayılı cluster (#2593).
+- [x] `6a7eede7` — Aynı adreste birden fazla talep: Vatandaş Bilgi Listesi popup (#2592).
+
 ## Round 805 — #2591/#2576/#2574
 
 - [x] `6a7eec6b` — Harita pin yüklenince kamera kilitli (#2591).

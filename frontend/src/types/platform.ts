@@ -69,6 +69,17 @@ export interface CitizenDashboardMapPin {
   citizenRequestNumber?: number | null;
   citizenRequestNumberYear?: number | null;
   displayStatus: 'processingReceived' | 'inProgress' | 'overdue' | 'completed' | 'cancelled' | string;
+  createdAtUtc?: string;
+  channel?: string | null;
+  departmentName?: string | null;
+  jobStatus?: string | null;
+  dueDateUtc?: string | null;
+  completedAtUtc?: string | null;
+  updatedAtUtc?: string | null;
+  priority?: string | null;
+  citizenName?: string | null;
+  citizenPhone?: string | null;
+  socialMessageId?: string | null;
 }
 
 export interface CitizenDashboardMapPinsResponse {

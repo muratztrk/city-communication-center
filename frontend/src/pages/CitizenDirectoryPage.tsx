@@ -2,29 +2,23 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { MessageSquareText, Printer, Search, X as XIcon } from 'lucide-react'
+import { MessageSquareText, Search } from 'lucide-react'
 import { api } from '../api/client'
-import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeaderBrand'
-import { DateCell } from '../components/ui/date-cell'
+import { CitizenDirectoryTicketsModal } from '../components/citizen-directory/CitizenDirectoryTicketsModal'
 import { Button } from '../components/ui/button'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { EmptyCell } from '../components/ui/EmptyCell'
-import { ChannelIcon } from '../components/ui/channel-icon'
 import { FilterableTh } from '../components/ui/FilterableTh'
-import { StatusPill } from '../components/ui/status-pill'
-import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
-import type { CitizenConversationDetail, CitizenConversationSummary, CitizenConversationTicket, JobDetail, SocialMessage } from '../types/platform'
+import type { CitizenConversationDetail, CitizenConversationSummary, JobDetail, SocialMessage } from '../types/platform'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
-import { DetailModalTitle } from '../utils/detailModalTitle'
-import { getLocale, getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, getJobStatusTone, shouldShowGridPrioritySubline } from '../utils/localization'
+import { getLocale } from '../utils/localization'
 import { formatDirectoryPhone } from '../utils/phoneDisplay'
-import { printHtmlDocument } from '../utils/printDocument'
 import { printJobDetail } from './JobsPage'
 
 type DirectoryRow = CitizenConversationSummary & {
@@ -32,29 +26,6 @@ type DirectoryRow = CitizenConversationSummary & {
 }
 
 const SEARCH_KEYS = ['displayName', 'citizenPhone', 'neighborhood', 'street', 'streetNo', 'openAddress'] as const
-
-function formatDirectoryDateTime(value: string | null | undefined, locale: string): string | null {
-  if (!value) return null
-  const parsed = new Date(value)
-  if (Number.isNaN(parsed.getTime())) return null
-  return parsed.toLocaleString(locale, {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
-}
-
-function formatVt(ticket: CitizenConversationTicket): string {
-  if (ticket.citizenRequestNumber != null && ticket.citizenRequestNumberYear != null) {
-    return `VT-${ticket.citizenRequestNumberYear}-${ticket.citizenRequestNumber}`
-  }
-  if (ticket.jobNumber != null && ticket.jobNumberYear != null) {
-    return `T-${ticket.jobNumberYear}-${ticket.jobNumber}`
-  }
-  return '—'
-}
 
 function getDetailStatusClass(status: string): string {
   if (status === 'Completed') return 'text-emerald-600'
@@ -68,78 +39,6 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
     return getCitizenRequestStatusLabel(t, detail)
   }
   return t(`enum.jobStatus.${detail.status}`, { defaultValue: detail.status })
-}
-
-function printCitizenTickets(
-  conversation: CitizenConversationSummary,
-  tickets: CitizenConversationTicket[],
-  locale: string,
-  t: TFunction,
-) {
-  const citizenLine = [conversation.citizenName, formatDirectoryPhone(conversation.citizenPhone)].filter(Boolean).join(' · ') || '—'
-  const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-  const rowsHtml = tickets.map((ticket, index) => {
-    const status = ticket.jobStatus
-      ? getCitizenRequestStatusLabel(t, {
-        status: ticket.jobStatus,
-        dueDateUtc: ticket.dueDateUtc,
-        taskCount: 1,
-      })
-      : '—'
-    const date = new Date(ticket.receivedAtUtc).toLocaleString(locale, {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-    })
-    return `<tr>
-      <td>${index + 1}</td>
-      <td class="col-no">${escape(formatVt(ticket))}</td>
-      <td class="col-title">${escape(ticket.title?.trim() || '—')}</td>
-      <td class="col-date">${escape(date)}</td>
-      <td class="col-dept">${escape(ticket.departmentName ?? '—')}</td>
-      <td class="col-status">${escape(status)}</td>
-    </tr>`
-  }).join('')
-
-  // onload print YOK — printHtmlDocument zaten bir kez print açar (card #r446 çift pencere).
-  // Başlık biraz dar + ortalı; Durum biraz geniş (#r464). Başlık metni liste adı (#r462).
-  const listTitle = t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')
-  const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(listTitle)}</title>
-    <style>
-      @page{margin:12mm}
-      body{font-family:system-ui,sans-serif;padding:22px;color:#0f172a}
-      h1{font-size:17px;margin:0 0 4px}
-      h2{font-size:13px;margin:16px 0 8px;border-bottom:1px solid #cbd5e1;padding-bottom:4px}
-      p{margin:0 0 14px;color:#64748b;font-size:12px}
-      table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
-      th,td{border:1px solid #cbd5e1;padding:6px 7px;text-align:center;vertical-align:middle}
-      th{background:#f1f5f9;white-space:nowrap}
-      th.col-title,td.col-title{white-space:normal;text-align:center;word-break:break-word;overflow-wrap:anywhere}
-      .col-seq{width:4%;white-space:nowrap}
-      .col-no{width:11%;white-space:nowrap}
-      .col-title{width:30%}
-      .col-date{width:14%;white-space:nowrap}
-      .col-dept{width:19%;white-space:normal;word-break:break-word}
-      .col-status{width:15%;white-space:normal;word-break:break-word}
-      .footer{margin-top:14px;font-size:10px;color:#64748b}
-    </style></head><body>
-    <h1>${escape(listTitle)}</h1>
-    <p>${escape(citizenLine)}</p>
-    <h2>${escape(t('jobs.detail.requestInfo', 'Talep Detayları'))}</h2>
-    <table><thead><tr>
-      <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
-      <th class="col-no">${escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
-      <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>
-      <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
-      <th class="col-dept">${escape(t('users.department', 'Birim'))}</th>
-      <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
-    </tr></thead><tbody>${rowsHtml}</tbody></table>
-    <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
-    </body></html>`
-
-  printHtmlDocument(html)
 }
 
 /**
@@ -168,8 +67,6 @@ export function CitizenDirectoryPage() {
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const [jobDetailLoading, setJobDetailLoading] = useState(false)
   const [jobDetailError, setJobDetailError] = useState<string | null>(null)
-  const [ticketPage, setTicketPage] = useState(1)
-  const [ticketPageSize, setTicketPageSize] = useState(10)
   // Birim yöneticisi / personel detayındaki aynı WhatsAppConversationModal (card #1884).
   const [conversationModal, setConversationModal] = useState<{
     socialMessageId: string
@@ -230,7 +127,6 @@ export function CitizenDirectoryPage() {
   const pageRows = scopedRows.slice((safePage - 1) * pageSize, safePage * pageSize)
 
   async function openTickets(row: CitizenConversationSummary) {
-    setTicketPage(1)
     setTicketModal({ conversation: row, detail: null, loading: true, error: null })
     try {
       const detail = await api.getCitizenConversationDetail(row.citizenConversationId)
@@ -304,20 +200,8 @@ export function CitizenDirectoryPage() {
   // Job'a dönüşmemiş ama VT numarası taşıyan talepler de listelenir (card #1843).
   // En yüksek VT numarası üstte (#r467).
   const ticketsWithJobs = useMemo(() => {
-    const tickets = (ticketModal?.detail?.tickets ?? []).filter(ticket => ticket.jobId || ticket.citizenRequestNumber != null)
-    return [...tickets].sort((a, b) => {
-      const yearA = a.citizenRequestNumberYear ?? 0
-      const yearB = b.citizenRequestNumberYear ?? 0
-      if (yearA !== yearB) return yearB - yearA
-      const numA = a.citizenRequestNumber ?? 0
-      const numB = b.citizenRequestNumber ?? 0
-      if (numA !== numB) return numB - numA
-      return new Date(b.receivedAtUtc).getTime() - new Date(a.receivedAtUtc).getTime()
-    })
+    return (ticketModal?.detail?.tickets ?? []).filter(ticket => ticket.jobId || ticket.citizenRequestNumber != null)
   }, [ticketModal?.detail?.tickets])
-  const ticketTotalCount = ticketsWithJobs.length
-  const ticketSafePage = Math.min(ticketPage, Math.max(1, Math.ceil(ticketTotalCount / ticketPageSize) || 1))
-  const pagedTickets = ticketsWithJobs.slice((ticketSafePage - 1) * ticketPageSize, ticketSafePage * ticketPageSize)
 
   return (
     <div className="page-stack desktop-page-shell shrink-0">
@@ -495,193 +379,18 @@ export function CitizenDirectoryPage() {
         />
       </section>
 
-      {ticketModal ? createPortal(
-        <div
-          className="fixed inset-0 z-[130] flex items-center justify-center bg-black/40 p-4"
-          role="presentation"
-          onClick={() => setTicketModal(null)}
-        >
-          <div
-            className="detail-modal-shell detail-modal-shell--my-request flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
-            onClick={event => event.stopPropagation()}
-          >
-            <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-6 py-3">
-              <div className="detail-modal-header-title min-w-0">
-                {/* Başlık altında isim · telefon yan yana (#r483 reopen / #r485). */}
-                <div className="citizen-directory-ticket-header-text flex min-w-0 flex-col items-start gap-0.5">
-                  <div className="my-request-detail-header__title">
-                    <DetailModalTitle title={t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')} />
-                  </div>
-                  {(() => {
-                    const name = ticketModal.conversation.citizenName?.trim() ?? ''
-                    const phone = formatDirectoryPhone(ticketModal.conversation.citizenPhone)
-                    if (!name && !phone) return null
-                    return (
-                      <p className="citizen-directory-ticket-subtitle flex min-w-0 flex-wrap items-center gap-x-1.5 text-[0.65rem] font-medium leading-tight text-slate-500">
-                        {name ? <span className="min-w-0 truncate">{name}</span> : null}
-                        {name && phone ? (
-                          <span className="shrink-0 text-[0.45rem] leading-none text-slate-400" aria-hidden="true">
-                            •
-                          </span>
-                        ) : null}
-                        {phone ? <span className="shrink-0 tabular-nums">{phone}</span> : null}
-                      </p>
-                    )
-                  })()}
-                </div>
-              </div>
-              <DetailModalHeaderBrand />
-              <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
-                <Button
-                  type="button"
-                  size="lg"
-                  variant="ghost"
-                  className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
-                  disabled={ticketModal.loading || ticketsWithJobs.length === 0}
-                  onClick={() => printCitizenTickets(ticketModal.conversation, ticketsWithJobs, locale, t)}
-                  aria-label={t('common.print', 'Yazdır')}
-                >
-                  <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
-                  {t('common.print', 'Yazdır')}
-                </Button>
-                <button
-                  type="button"
-                  onClick={() => setTicketModal(null)}
-                  className="detail-modal-header-close flex size-9 items-center justify-center rounded-full bg-red-500 text-white shadow transition-colors hover:bg-red-600 active:scale-95"
-                  aria-label={t('common.close', 'Kapat')}
-                >
-                  <XIcon className="size-5" strokeWidth={1.75} />
-                </button>
-              </div>
-            </div>
-            <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-              {/* Üst boşluk scroll kabında DEĞİL içeride: `pt-3` kapta kalırsa sticky başlık
-                  (top: 0 içerik kenarına yapışır) 12px aşağı iner ve satırlar o şeritten
-                  başlığın üstünde görünür (card #1906). İçeride kalınca boşluk kayar,
-                  başlık scrollport'un tam tepesine yapışır. */}
-              <div className="min-h-0 flex-1 overflow-auto px-4">
-                <div className="pt-3">
-                {ticketModal.loading ? <div className="loading">{t('common.loading')}</div> : null}
-                {ticketModal.error ? <div className="error">{ticketModal.error}</div> : null}
-                {!ticketModal.loading && !ticketModal.error ? (
-                  ticketsWithJobs.length === 0 ? (
-                    <p className="text-sm text-slate-500">{t('citizenDirectory.noTickets', 'Bu vatandaşa ait talep bulunamadı.')}</p>
-                  ) : (
-                    <table className="data-table citizen-directory-tickets-table">
-                      <thead>
-                        <tr>
-                          <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>
-                          <th>{t('social.citizenRequestNo', 'Vatandaş Talep No')}</th>
-                          <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
-                          <th>{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
-                          <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
-                          <th>{t('users.department', 'Birim')}</th>
-                          <th>{t('jobs.columns.status', 'Durum')}</th>
-                          <th className="text-center">{t('common.actions', 'İşlemler')}</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {pagedTickets.map((ticket, index) => {
-                          const statusLabel = ticket.jobStatus
-                            ? getCitizenRequestStatusLabel(t, {
-                                status: ticket.jobStatus,
-                                dueDateUtc: ticket.dueDateUtc,
-                                taskCount: 1,
-                              })
-                            : null
-                          return (
-                          <tr key={ticket.socialMessageId}>
-                            <td className="text-center text-xs font-bold tabular-nums text-slate-400">
-                              {(ticketSafePage - 1) * ticketPageSize + index + 1}
-                            </td>
-                            <td className="table-number-cell font-mono text-xs text-slate-500">
-                              <div className="table-number-cell__value">
-                                <span>{formatVt(ticket)}</span>
-                              </div>
-                              {shouldShowGridPrioritySubline(ticket.priority) ? (
-                                <div className={`table-number-cell__priority font-sans font-bold ${getPriorityColorClass(ticket.priority!)}`}>
-                                  Öncelik:{getPriorityLabel(t, ticket.priority!)}
-                                </div>
-                              ) : null}
-                            </td>
-                            <td>
-                              <DateCell value={ticket.receivedAtUtc} locale={locale} />
-                            </td>
-                            <td className="text-center">
-                              {ticket.channel ? (
-                                <span className="inline-flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap">
-                                  <ChannelIcon channel={ticket.channel} className="size-3.5 shrink-0" />
-                                  <span className="text-sm font-semibold text-slate-800">{getSocialChannelLabel(t, ticket.channel)}</span>
-                                </span>
-                              ) : <EmptyCell />}
-                            </td>
-                            <td className="font-semibold text-slate-800"><EmptyCell value={ticket.title} /></td>
-                            <td className="max-w-[12rem]">
-                              {ticket.departmentName ? (
-                                <span className="block truncate">{ticket.departmentName}</span>
-                              ) : (
-                                <EmptyCell />
-                              )}
-                            </td>
-                            <td>
-                              {statusLabel && ticket.jobStatus ? (
-                                <StatusPill className={getStatusPillClass(getJobStatusTone({ status: ticket.jobStatus, dueDateUtc: ticket.dueDateUtc ?? null }))}>
-                                  <GridStatusLabel
-                                    t={t}
-                                    label={statusLabel}
-                                    footer={(() => {
-                                      const statusDate = ticket.jobStatus === 'Completed'
-                                        ? ticket.completedAtUtc
-                                        : ticket.jobStatus === 'Cancelled' || ticket.jobStatus === 'Rejected'
-                                          ? ticket.updatedAtUtc
-                                          : null
-                                      const formatted = formatDirectoryDateTime(statusDate, locale)
-                                      if (!formatted) return undefined
-                                      return (
-                                        <span className={`text-[0.68rem] font-bold ${ticket.jobStatus === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>
-                                          {formatted}
-                                        </span>
-                                      )
-                                    })()}
-                                  />
-                                </StatusPill>
-                              ) : <EmptyCell />}
-                            </td>
-                            <td className="actions-cell">
-                              <div className="request-actions justify-center">
-                                <Button
-                                  type="button"
-                                  size="sm"
-                                  variant="secondary"
-                                  disabled={jobDetailLoading || !ticket.jobId}
-                                  onClick={() => ticket.jobId ? void openJobDetail(ticket.jobId, ticket.socialMessageId) : undefined}
-                                >
-                                  {t('jobs.actions.details', 'Detaylar')}
-                                </Button>
-                              </div>
-                            </td>
-                          </tr>
-                          )
-                        })}
-                      </tbody>
-                    </table>
-                  )
-                ) : null}
-                </div>
-              </div>
-              {!ticketModal.loading && !ticketModal.error && ticketsWithJobs.length > 0 ? (
-                <TablePagination
-                  totalCount={ticketTotalCount}
-                  pageSize={ticketPageSize}
-                  currentPage={ticketSafePage}
-                  onPageSizeChange={size => { setTicketPageSize(size); setTicketPage(1) }}
-                  onPageChange={setTicketPage}
-                />
-              ) : null}
-            </div>
-          </div>
-        </div>,
-        document.body,
+      {ticketModal ? (
+        <CitizenDirectoryTicketsModal
+          key={ticketModal.conversation.citizenConversationId}
+          citizen={ticketModal.conversation}
+          tickets={ticketsWithJobs}
+          loading={ticketModal.loading}
+          error={ticketModal.error}
+          locale={locale}
+          jobDetailLoading={jobDetailLoading}
+          onClose={() => setTicketModal(null)}
+          onOpenJobDetail={(jobId, socialMessageId) => void openJobDetail(jobId, socialMessageId)}
+        />
       ) : null}
 
       {(jobDetail || jobDetailLoading || jobDetailError) ? createPortal(

@@ -12,7 +12,8 @@ import {
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
-import type { CitizenDashboardMapPin, JobDetail, SocialMessage } from '../types/platform'
+import type { CitizenConversationTicket, CitizenDashboardMapPin, JobDetail, SocialMessage } from '../types/platform'
+import { CitizenDirectoryTicketsModal } from './citizen-directory/CitizenDirectoryTicketsModal'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
@@ -42,8 +43,12 @@ function readBannerClusterColor(): string {
   return value || '#0B6B36'
 }
 
+function clusterPixelSize(count: number): number {
+  return count < 10 ? 32 : count < 50 ? 38 : 44
+}
+
 function clusterSvgIcon(count: number, color: string): google.maps.Icon {
-  const size = count < 10 ? 44 : count < 50 ? 52 : 60
+  const size = clusterPixelSize(count)
   const svg = `<svg fill="${color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
     <circle cx="120" cy="120" opacity=".55" r="70" />
     <circle cx="120" cy="120" opacity=".28" r="90" />
@@ -59,14 +64,14 @@ function clusterSvgIcon(count: number, color: string): google.maps.Icon {
 const bannerClusterRenderer = {
   render({ count, position }: Cluster): google.maps.Marker {
     const color = readBannerClusterColor()
-    const size = count < 10 ? 44 : count < 50 ? 52 : 60
+    const size = clusterPixelSize(count)
     return new google.maps.Marker({
       position,
       icon: clusterSvgIcon(count, color),
       label: {
         text: String(count),
         color: '#ffffff',
-        fontSize: size >= 52 ? '14px' : '12px',
+        fontSize: size >= 38 ? '12px' : '11px',
         fontWeight: '700',
       },
       zIndex: 1000 + count,
@@ -118,22 +123,85 @@ class CitizenMapClusterer extends MarkerClusterer {
 
 const pinIconCache = new Map<string, google.maps.Icon>()
 
+const PIN_WIDTH = 16
+const PIN_HEIGHT = 24
+
 function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
   const cacheKey = `${color}|${approximate ? 'approx' : 'exact'}`
   const cached = pinIconCache.get(cacheKey)
   if (cached) return cached
-  const ring = approximate
-    ? `<circle cx="11" cy="11" r="9" fill="none" stroke="${color}" stroke-width="1.5" stroke-dasharray="3 2"/>
-       <circle cx="11" cy="11" r="5" fill="${color}" stroke="#ffffff" stroke-width="1.5"/>`
-    : `<circle cx="11" cy="11" r="8" fill="${color}" stroke="#ffffff" stroke-width="2"/>`
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 22 22">${ring}</svg>`
+  const fillOpacity = approximate ? '0.72' : '1'
+  const dash = approximate ? 'stroke-dasharray="3 2"' : ''
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PIN_WIDTH}" height="${PIN_HEIGHT}" viewBox="0 0 24 36">
+    <path fill="${color}" fill-opacity="${fillOpacity}" stroke="#ffffff" stroke-width="1.6" ${dash}
+      d="M12 1.2C6.7 1.2 2.4 5.5 2.4 10.8c0 7.4 9.6 23 9.6 23s9.6-15.6 9.6-23C21.6 5.5 17.3 1.2 12 1.2z"/>
+    <circle cx="12" cy="11" r="3.6" fill="#ffffff"/>
+  </svg>`
   const icon: google.maps.Icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new google.maps.Size(22, 22),
-    anchor: new google.maps.Point(11, 11),
+    scaledSize: new google.maps.Size(PIN_WIDTH, PIN_HEIGHT),
+    anchor: new google.maps.Point(PIN_WIDTH / 2, PIN_HEIGHT),
   }
   pinIconCache.set(cacheKey, icon)
   return icon
+}
+
+function normalizeAddressPart(value: string | null | undefined): string {
+  return (value ?? '').trim().toLocaleLowerCase('tr')
+}
+
+function pinAddressKey(pin: ResolvedPin): string | null {
+  const neighborhood = normalizeAddressPart(pin.neighborhood)
+  const street = normalizeAddressPart(pin.street)
+  const streetNo = normalizeAddressPart(pin.streetNo)
+  if (neighborhood || street || streetNo) return `addr|${neighborhood}|${street}|${streetNo}`
+  const open = normalizeAddressPart(pin.openAddress)
+  return open ? `open|${open}` : null
+}
+
+function pinGeoKey(pin: ResolvedPin): string {
+  return `${pin.position.lat.toFixed(5)}|${pin.position.lng.toFixed(5)}`
+}
+
+function pinsAtSamePlace(all: ResolvedPin[], clicked: ResolvedPin): ResolvedPin[] {
+  const addressKey = pinAddressKey(clicked)
+  const byAddress = addressKey
+    ? all.filter(pin => pinAddressKey(pin) === addressKey)
+    : []
+  if (byAddress.length > 1) return byAddress
+  if (clicked.approximate) return [clicked]
+  const geoKey = pinGeoKey(clicked)
+  const byGeo = all.filter(pin => !pin.approximate && pinGeoKey(pin) === geoKey)
+  return byGeo.length > 1 ? byGeo : [clicked]
+}
+
+function pinToTicket(pin: ResolvedPin): CitizenConversationTicket {
+  return {
+    socialMessageId: pin.socialMessageId ?? pin.jobId,
+    status: pin.jobStatus ?? 'Active',
+    receivedAtUtc: pin.createdAtUtc ?? '',
+    jobId: pin.jobId,
+    category: null,
+    citizenRequestNumber: pin.citizenRequestNumber,
+    citizenRequestNumberYear: pin.citizenRequestNumberYear,
+    priority: pin.priority,
+    jobStatus: pin.jobStatus,
+    departmentName: pin.departmentName,
+    channel: pin.channel,
+    title: pin.title,
+    dueDateUtc: pin.dueDateUtc,
+    completedAtUtc: pin.completedAtUtc,
+    updatedAtUtc: pin.updatedAtUtc,
+  }
+}
+
+function citizenFromPins(pins: ResolvedPin[]): { citizenName: string | null; citizenPhone: string } {
+  const names = [...new Set(pins.map(pin => pin.citizenName?.trim()).filter((value): value is string => Boolean(value)))]
+  const phones = [...new Set(pins.map(pin => pin.citizenPhone?.trim()).filter((value): value is string => Boolean(value)))]
+  return {
+    citizenName: names.length === 1 ? names[0] : names.length > 1 ? names.join(', ') : null,
+    citizenPhone: phones.length === 1 ? phones[0] : '',
+  }
 }
 
 function getDetailStatusClass(status: string): string {
@@ -189,6 +257,10 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
+  const [addressTickets, setAddressTickets] = useState<{
+    citizen: { citizenName: string | null; citizenPhone: string }
+    tickets: CitizenConversationTicket[]
+  } | null>(null)
   const [gestureHandling, setGestureHandling] = useState<'none' | 'greedy'>('none')
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
@@ -258,15 +330,20 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     mapInstance.setZoom(12)
   }, [mapInstance, isLoaded, mapView.center.lat, mapView.center.lng])
 
-  const openJobDetail = useCallback(async (jobId: string) => {
+  const openJobDetail = useCallback(async (jobId: string, socialMessageId?: string) => {
     setJobDetail(null)
     setCitizenSourceMessage(null)
     setDetailLoading(true)
     setDetailError(null)
     try {
-      const detail = await api.getJobById(jobId)
+      const [detail, sourceMessage] = await Promise.all([
+        api.getJobById(jobId),
+        socialMessageId
+          ? api.getSocialMessageById(socialMessageId).catch(() => null)
+          : Promise.resolve(null),
+      ])
       setJobDetail(detail)
-      setCitizenSourceMessage(await loadCitizenSourceMessage(detail))
+      setCitizenSourceMessage(sourceMessage ?? await loadCitizenSourceMessage(detail))
     } catch (err) {
       setDetailError(err instanceof Error ? err.message : t('common.error'))
     } finally {
@@ -275,6 +352,27 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   }, [t])
   const openJobDetailRef = useRef(openJobDetail)
   openJobDetailRef.current = openJobDetail
+  const resolvedRef = useRef(resolved)
+  resolvedRef.current = resolved
+
+  const openPinGroup = useCallback((clicked: ResolvedPin) => {
+    const group = pinsAtSamePlace(resolvedRef.current, clicked)
+    if (group.length > 1) {
+      setJobDetail(null)
+      setCitizenSourceMessage(null)
+      setDetailError(null)
+      setDetailLoading(false)
+      setAddressTickets({
+        citizen: citizenFromPins(group),
+        tickets: group.map(pinToTicket),
+      })
+      return
+    }
+    setAddressTickets(null)
+    void openJobDetailRef.current(clicked.jobId, clicked.socialMessageId ?? undefined)
+  }, [])
+  const openPinGroupRef = useRef(openPinGroup)
+  openPinGroupRef.current = openPinGroup
 
   useEffect(() => {
     if (!mapInstance || !isLoaded) return
@@ -292,7 +390,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
         icon: pinSvgIcon(pinColor(pin.displayStatus), pin.approximate),
       })
       marker.addListener('click', () => {
-        void openJobDetailRef.current(pin.jobId)
+        openPinGroupRef.current(pin)
       })
       return marker
     })
@@ -406,12 +504,32 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
         ) : null}
       </div>
 
+      {addressTickets ? (
+        <CitizenDirectoryTicketsModal
+          key={addressTickets.tickets.map(ticket => ticket.jobId).join('|')}
+          citizen={addressTickets.citizen}
+          tickets={addressTickets.tickets}
+          loading={false}
+          error={null}
+          locale={locale}
+          jobDetailLoading={detailLoading}
+          emptyMessage={t('citizenRequestMap.noTicketsAtAddress', 'Bu adreste talep bulunamadı.')}
+          onClose={() => {
+            setAddressTickets(null)
+            closeJobDetail()
+          }}
+          onOpenJobDetail={(jobId, socialMessageId) => void openJobDetail(jobId, socialMessageId)}
+        />
+      ) : null}
+
       {(jobDetail || detailLoading || detailError) ? createPortal(
         <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/40 p-4" role="presentation" onClick={closeJobDetail}>
           {jobDetail ? (
             <MyRequestDetailModal
               detail={jobDetail}
-              title={t('citizenRequestMap.detailTitle', 'Vatandaş Talebi')}
+              title={addressTickets
+                ? t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')
+                : t('citizenRequestMap.detailTitle', 'Vatandaş Talebi')}
               locale={locale}
               detailLoading={detailLoading}
               citizenSourceMessage={citizenSourceMessage}
@@ -444,6 +562,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
               onAttachmentUpload={async () => undefined}
               onAttachmentDelete={async () => undefined}
               onDownloadTaskAttachment={() => undefined}
+              shellClassName={addressTickets ? 'detail-modal-shell--citizen-directory-nested' : undefined}
             />
           ) : (
             <div className="w-full max-w-md rounded-xl bg-white p-5 shadow-2xl" onClick={event => event.stopPropagation()}>

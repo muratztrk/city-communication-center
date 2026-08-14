@@ -416,6 +416,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   aynı okunurlukta kalır; açık adres değeri özellikle küçük düşürülmez (card #1247).
 - **Birim içi talep oluşturma alan sırası:** `Talep Başlığı`ndan sonra `Görevi Yapan Kişi/Birim`
   gelir; `Öncelik / Bitiş Tarihi / Proje niteliğinde mi?` satırı bunun altında kalır (card #1250).
+  `Proje niteliğinde mi?` yalnız **birim yöneticisi** (`Manager`) görür; Evet seçilince Görevi
+  Yapan kilitlenir ve oluşturan yöneticinin adı gelir (#2619). Personel/SystemAdmin bu alanı görmez.
 - **Birim Dışı Talep Oluştur (#2617):** `Proje niteliğinde mi?` yok; Öncelik 2 kolonlu gridde
   yarı genişlikte kalır. Üst Düzey Yönetici `Talep Oluştur` formunda proje alanı durur.
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`

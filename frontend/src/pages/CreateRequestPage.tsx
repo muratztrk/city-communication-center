@@ -350,6 +350,7 @@ export function CreateRequestPage() {
   // Birim İçi talepte "Görev Sahibi Kişi/Birim": yalnızca birim yöneticisi/sorumlusu,
   // kendisi dahil birimin tüm personellerini görev sahibi olarak seçebilir.
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  const canSetInternalProject = user?.role === 'Manager'
   // Üst Düzey Yönetici (Reporter) yalnızca birim dışı talep oluşturur; tip seçimi atlanır.
   const isReporter = user?.role === 'Reporter'
   const internalOwnerUserOptions = useMemo(() => {
@@ -915,7 +916,7 @@ export function CreateRequestPage() {
           priority: internalForm.priority,
           startDateUtc: null,
           dueDateUtc: toApiDueDateTime(internalForm.dueDateUtc),
-          isProject: internalForm.isProject,
+          isProject: canSetInternalProject ? internalForm.isProject : undefined,
           neighborhood: internalForm.neighborhood || '',
           street: normalizeTitleCaseField(internalForm.street) ?? '',
           streetNo: internalForm.streetNo.trim() || null,
@@ -926,7 +927,10 @@ export function CreateRequestPage() {
         navigate('/my-requests')
         return
       }
-      const selectedOwnerUserIds = internalForm.ownerUserIds.filter(id => id.trim() !== '')
+      const projectOwnerId = canSetInternalProject && internalForm.isProject ? user?.userId : undefined
+      const selectedOwnerUserIds = projectOwnerId
+        ? [projectOwnerId]
+        : internalForm.ownerUserIds.filter(id => id.trim() !== '')
       const job = await api.createJob({
         title: internalTitle,
         description: internalDescription,
@@ -934,7 +938,7 @@ export function CreateRequestPage() {
         ownerUserIds: selectedOwnerUserIds,
         priority: internalForm.priority,
         requestType: 'InternalUnit',
-        isProject: internalForm.isProject,
+        isProject: Boolean(projectOwnerId),
         dueDateUtc: toApiDueDateTime(internalForm.dueDateUtc),
         sourceType: 'InternalRequest',
         neighborhood: internalForm.neighborhood || null,
@@ -1334,9 +1338,12 @@ export function CreateRequestPage() {
               {isManagerLike ? (
                 <SingleSelectDropdown
                   options={internalOwnerUserSelectOptions}
-                  value={internalForm.ownerUserIds[0] ?? ''}
+                  value={canSetInternalProject && internalForm.isProject && user?.userId
+                    ? user.userId
+                    : (internalForm.ownerUserIds[0] ?? '')}
                   onChange={userId => setInternalForm(current => ({ ...current, ownerUserIds: userId ? [userId] : [''] }))}
                   placeholder={t('tasks.newRequest.selectStaff', 'Personel seçiniz')}
+                  disabled={canSetInternalProject && internalForm.isProject}
                 />
               ) : (
                 <SingleSelectDropdown
@@ -1347,7 +1354,7 @@ export function CreateRequestPage() {
                 />
               )}
             </div>
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className={`grid gap-3 ${canSetInternalProject ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
               <div className="job-field">
                 <span className="job-field-label">{t('tasks.newRequest.priority', 'Öncelik')}</span>
                 <SingleSelectDropdown
@@ -1361,15 +1368,24 @@ export function CreateRequestPage() {
                 <span className="job-field-label">{t('jobs.form.dueDate', 'Son Tarih')}</span>
                 <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v) }))} placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')} forceUp minDateTime={earliestDueDatePickerValue(2, internalForm.dueDateUtc)} />
               </div>
-              <div className="job-field">
-                <span className="job-field-label">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</span>
-                <SingleSelectDropdown
-                  options={yesNoOptions}
-                  value={internalForm.isProject ? 'yes' : 'no'}
-                  onChange={value => setInternalForm(current => ({ ...current, isProject: value === 'yes' }))}
-                  placeholder={t('jobs.form.isProject', 'Proje niteliğinde mi?')}
-                />
-              </div>
+              {canSetInternalProject ? (
+                <div className="job-field">
+                  <span className="job-field-label">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</span>
+                  <SingleSelectDropdown
+                    options={yesNoOptions}
+                    value={internalForm.isProject ? 'yes' : 'no'}
+                    onChange={value => {
+                      const isProject = value === 'yes'
+                      setInternalForm(current => ({
+                        ...current,
+                        isProject,
+                        ...(isProject && user?.userId ? { ownerUserIds: [user.userId] } : {}),
+                      }))
+                    }}
+                    placeholder={t('jobs.form.isProject', 'Proje niteliğinde mi?')}
+                  />
+                </div>
+              ) : null}
             </div>
             {renderAddressFields(internalForm, (field, value) => setInternalForm(current => ({ ...current, [field]: value })))}
           </div>

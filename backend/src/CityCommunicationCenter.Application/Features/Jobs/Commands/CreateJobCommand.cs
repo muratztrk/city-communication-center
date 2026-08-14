@@ -164,6 +164,18 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
                     : JobRequestType.InternalUnit;
         var isCitizenRequest = requestType == JobRequestType.Citizen
             || sourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet;
+        if (requestType == JobRequestType.InternalUnit && request.IsProject)
+        {
+            if (actor.RoleCode != RoleCode.Manager)
+            {
+                throw Validation(nameof(request.IsProject), "Proje niteliği yalnız birim yöneticisi tarafından belirlenebilir.");
+            }
+
+            if (ownerUserIds.Length != 1 || ownerUserIds[0] != actor.UserId)
+            {
+                throw Validation(nameof(request.OwnerUserIds), "Proje niteliğindeki birim içi talepte görev sahibi yalnızca oluşturan yönetici olabilir.");
+            }
+        }
         var requiresOwnerApproval = actor.RoleCode is RoleCode.Staff or RoleCode.CitizenRequestManager
             || (actor.RoleCode == RoleCode.Operator && !isCitizenRequest);
 

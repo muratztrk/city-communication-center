@@ -1,3 +1,7 @@
+## Round 818 — #2619
+
+- [x] `6a7f6f2f` — Birim İçi: Proje alanı yalnız Manager; Evet → Görevi Yapan kilitli kendisi (#2619).
+
 ## Round 817 — #2613/#2606
 
 - [x] `6a7f5d1a` — Harita pin renk doygunluğu geri alındı (#2613).

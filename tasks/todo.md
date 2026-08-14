@@ -1,3 +1,8 @@
+## Round 797 — #2584/#2574 reopen
+
+- [x] `6a7eb998` — Çağrı formu Adres Tarifi yüksekliği `4.5rem` (#2584).
+- [x] `6a7e0b53` — Vatandaş popup/grid Durum overdue = `Son Tarihi Geçmiş` (turuncu) (#2574 reopen).
+
 ## Round 796 — #2562 reopen/#2583
 
 - [x] `6a7c7ae6` — WA FAB otomatik durum mesajı (enum + şablon metni) rozet/panelde yok (#2562 reopen).

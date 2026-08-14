@@ -3672,6 +3672,13 @@
     padding: 0.55rem 0.65rem;
   }
 
+  /* Vatandaş Çağrı Talebi Oluştur: Adres Tarifi biraz daha alçak (#2584). */
+  #citizen-request-form .address-open-textarea {
+    min-height: 4.5rem !important;
+    height: 4.5rem;
+    max-height: 4.5rem;
+  }
+
   .table-number-cell__value {
     font-size: 0.9rem;
     line-height: 1.3;

@@ -336,7 +336,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   oluşturduğu birim içi aktif taleplerde Talep Tarihi ile Son Tarih arasında turuncu `Durum / Yapılmakta`
   step'i gösterilir (cards #1212/#1213/#1214/#1215/#1216/#1215-reopen/#1275). Vatandaş talebi popup
   Süreç'inde terminal olmayan işlerde Talep Tarihi ile Son Tarih arasında `Durum` vardır:
-  `İşleme Alındı` / `Yapılmakta` / süresi geçmiş etiket (`getCitizenRequestStatusLabel`) — #2574.
+  `İşleme Alındı` / `Yapılmakta` (mavi) / `Son Tarihi Geçmiş` (turuncu, birleşik `Yapılmakta (…)` değil)
+  — `getCitizenRequestStatusLabel` backend `CitizenJobStatusLabelHelper` ile aynı — #2574 reopen.
 - **Taleplerim detay ana kartı:** `Açıklama` kolonunun arka planı ekran görselindeki soluk
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
   (card #1217). Detay popup üstündeki `Taleplerim` başlığı Görevlerim detay popup sol üst
@@ -782,7 +783,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Cadde / Açık Adres ayrı kaynaklardan (#2554). Dosya Ekle yalnız sol adres bölümünde bir kez
   (`renderAddressFields`); mükerrer blok yok (#2559). Açıklama editörü `min-h-40`; toolbar
   `#citizen-request-form` `min-height: 1.6rem`, buton `1.4rem` (#2568). Kanal (Çağrı) butonu
-  `py-1.5` (#2560). `request-form--readable` 3.2rem ezilir.
+  `py-1.5` (#2560). Adres Tarifi textarea `#citizen-request-form` `4.5rem` (#2584; Tailwind
+  `min-h-[5.5rem]` `!important` ile ezilir). `request-form--readable` 3.2rem ezilir.
   Sol kolon **Talebin Adres Bilgisi** placeholder `0.66rem`; sağ kolon vatandaş alanları `0.76rem`.
   **Talep adresi ≠ vatandaş profil adresi (#2563):** `ConvertSocialMessageToJob` / `UpdateJob`
   `CitizenConversation` mahalle/cadde/no/açık adresini job alanlarıyla güncellemez; profil yalnız
@@ -999,9 +1001,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   turuncu kuralını geri alır. Görevlerim / Birimdeki / Personelimin Görevleri görev Süreç
   timeline'ı da aynı kuralı kullanır (card #1659). `Durum / Son Tarihi Geçmiş` (birleşik etiket dahil) turuncu
   (`current`) — card #1644.
-  **Güncelleme (card #1646/#1647/#1650 reopen):** süresi geçmiş aktif Durum metni yalnız
-  `Yapılmakta` veya yalnız `Son Tarihi Geçmiş` olmaz; `Yapılmakta (Son Tarihi Geçmiş)`
-  birleşik etiketi kullanılır. Vatandaş talebinde `İşleme Alındı` metni korunur (Onay Bekleyen'e
+  **Güncelleme (card #1646/#1647/#1650 reopen):** birim içi/dışı süresi geçmiş aktif Durum metni
+  yalnız `Yapılmakta` veya yalnız `Son Tarihi Geçmiş` olmaz; `Yapılmakta (Son Tarihi Geçmiş)`
+  birleşik etiketi kullanılır. **İstisna (#2574 reopen):** vatandaş talebi grid + popup Durum
+  overdue metni yalnız `Son Tarihi Geçmiş` (backend ile aynı); birleşik etiket yok.
+  Vatandaş talebinde `İşleme Alındı` metni korunur (Onay Bekleyen'e
   çevrilmez); grid Durum hücresinde kanal ikonu önde gelir (card #1650).
   (Talepler/Taleplerim/Görevler/Görevlerim Süreç kolonu + Birimdeki Görevler İlgili Talep
   Süreç kolonu + ilgili grid durum etiketleri).

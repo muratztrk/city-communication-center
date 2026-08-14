@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import { formatOverdueInProgressStatus } from './localization'
+import { isJobDueDateOverdue } from './dateTimePicker'
 
 export function isCitizenRequestJob(job: { requestType?: string | null; sourceType?: string | null }): boolean {
   return job.requestType === 'Citizen'
@@ -36,8 +36,8 @@ export function getCitizenRequestStatusLabel(
   if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
-  if (job.dueDateUtc != null && new Date(job.dueDateUtc).getTime() < Date.now()) {
-    return formatOverdueInProgressStatus(t)
+  if (isJobDueDateOverdue({ status: job.status, dueDateUtc: job.dueDateUtc })) {
+    return t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
   }
 
   const taskCount = countOpenWorkTasks(job)

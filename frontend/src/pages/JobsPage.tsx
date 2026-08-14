@@ -939,11 +939,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     DEPARTMENT_OUTGOING_VIEWS.find(view => view.value === currentDepartmentOutgoingView)?.labelKey ?? 'jobs.outgoingViews.pending',
     'Bekleyen Talepler',
   )
+  const citizenDetailOverdue = isCitizenRequestDetail
+    && detail != null
+    && isJobDueDateOverdue(detail)
   const detailStatusClass = detail?.status === 'PendingOwnerApproval'
     || detail?.status === 'PendingExternalApproval'
     || (isIncomingRequestDetail
       && detail?.status === 'Active'
       && countOpenWorkTasks(detail) === 0)
+    || (isCitizenRequestDetail && detail?.status === 'Active' && !citizenDetailOverdue)
     ? 'text-sky-500'
     : detail?.status === 'Active'
     ? 'text-[#f97316]'

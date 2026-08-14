@@ -81,18 +81,9 @@ const bannerClusterRenderer = {
 
 function onCitizenClusterClick(_: google.maps.MapMouseEvent, cluster: Cluster, map: google.maps.Map) {
   const current = map.getZoom() ?? 12
-  if (cluster.markers.length <= 1) {
-    map.panTo(cluster.position)
-    map.setZoom(Math.min(current + 2, 16))
-    return
-  }
-  if (!cluster.bounds) return
-  map.fitBounds(cluster.bounds, 80)
-  google.maps.event.addListenerOnce(map, 'idle', () => {
-    const zoom = map.getZoom()
-    if (zoom == null) return
-    map.setZoom(Math.max(current + 1, Math.min(zoom - 1, current + 2)))
-  })
+  map.panTo(cluster.position)
+  const next = Math.min(current + 1, 18)
+  if (next > current) map.setZoom(next)
 }
 
 /** Tek pin bile başlangıçta sayılı cluster; yeterince zoom'da durum renkli marker. */
@@ -132,10 +123,11 @@ function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
   if (cached) return cached
   const fillOpacity = approximate ? '0.72' : '1'
   const dash = approximate ? 'stroke-dasharray="3 2"' : ''
+  // Gövde = detay popup ikon çerçevesi; durum rengi iç daire (#2597).
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PIN_WIDTH}" height="${PIN_HEIGHT}" viewBox="0 0 24 36">
-    <path fill="${color}" fill-opacity="${fillOpacity}" stroke="#ffffff" stroke-width="1.6" ${dash}
+    <path fill="#f1f5f9" fill-opacity="${fillOpacity}" stroke="#cbd5e1" stroke-width="1.6" ${dash}
       d="M12 1.2C6.7 1.2 2.4 5.5 2.4 10.8c0 7.4 9.6 23 9.6 23s9.6-15.6 9.6-23C21.6 5.5 17.3 1.2 12 1.2z"/>
-    <circle cx="12" cy="11" r="3.6" fill="#ffffff"/>
+    <circle cx="12" cy="11" r="3.6" fill="${color}"/>
   </svg>`
   const icon: google.maps.Icon = {
     url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,

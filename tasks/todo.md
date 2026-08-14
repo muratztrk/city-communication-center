@@ -1,3 +1,10 @@
+## Round 810 — #2576/#2597/#2599/#2598
+
+- [x] `6a7e0cec` — Üç kutu Adres: No başlığı biraz sağa; `-` başlıklarla aynı düşey hizada (#2576).
+- [x] `6a7f004c` — Harita pin gövdesi detay ikon çerçevesi (`#f1f5f9`); durum rengi iç daire (#2597).
+- [x] `6a7f09d5` — Cadde/mahalle haritada bulunamazsa (bulanık ilçe eşleşmesi) marker yok (#2599).
+- [x] `6a7f0681` — Cluster tıklanınca yalnız zoom in; zoom out yok (#2598).
+
 ## Round 809 — #2596
 
 - [x] `6a7efc5b` — Harita: İbnimelek OSB / İbnimelek pinleri İbni Melek ile aynı konuma geocode (#2596).

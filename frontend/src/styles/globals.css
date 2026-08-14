@@ -611,9 +611,9 @@
     transform: translateX(-0.45rem);
   }
 
-  /* Yanında 2 kutucuk daha (3 kolon): boş Açık Adres çok çok az sağa (#2187 reopen). */
+  /* Üç kutuda boş No: padding değil transform ile hiza (#2576). */
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(3) {
-    padding-inline-start: 0.6rem;
+    padding-inline-start: 0;
   }
 
   .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
@@ -4385,9 +4385,16 @@
     grid-column: 1 / -1 !important;
   }
 
-  /* Görevlerim üç kutu: dört adres başlığı çok az sağa; Adres Tarifi Mahalle ile aynı sol kenar (#2576). */
-  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label {
+  /* Görevlerim üç kutu: başlık ve `-` aynı düşey hizada, biraz sağa (#2576). */
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value {
     transform: translateX(0.45rem);
+  }
+
+  /* No başlığı ve `-` biraz daha sağa; değer başlıkla aynı eksende (#2576). */
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__value {
+    transform: translateX(0.85rem);
   }
 
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2),

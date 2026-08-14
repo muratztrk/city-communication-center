@@ -1,6 +1,7 @@
-import { canonicalizeNeighborhoodForGeocode } from '../data/izmir-locations'
+import { canonicalizeNeighborhoodForGeocode, IZMIR_DISTRICTS } from '../data/izmir-locations'
+import { getDistrictMapView } from '../data/izmir-district-maps'
 
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v5'
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v6'
 
 export type LatLng = { lat: number; lng: number }
 
@@ -106,6 +107,60 @@ function buildGeocodeQueryVariants(input: {
     .filter(query => query !== tail.join(', '))
 }
 
+function compactGeocodeKey(value: string): string {
+  return value.trim().toLocaleLowerCase('tr').replace(/[\s.'’-]+/g, '')
+}
+
+function streetCoreForMatch(street: string): string {
+  return compactGeocodeKey(street.replace(/(?:caddesi|cadde|cad\.?|sokak|sokağı|sk\.?|bulvarı|bulvar|blv\.?)$/i, ''))
+}
+
+function geocodeResultBlob(result: google.maps.GeocoderResult): string {
+  const parts = result.address_components?.map(component => `${component.long_name} ${component.short_name}`) ?? []
+  return compactGeocodeKey([result.formatted_address, ...parts].join(' '))
+}
+
+/** Google/Yandex'te cadde veya mahalle yoksa pin yok (#2599) — ilçe/ülke bulanık eşleşme kabul edilmez. */
+function geocodeResultMatchesAddress(
+  result: google.maps.GeocoderResult,
+  input: { street?: string; neighborhood?: string },
+): boolean {
+  const blob = geocodeResultBlob(result)
+  const types = result.types ?? []
+  const locationType = String(result.geometry?.location_type ?? '')
+  const adminOnly = types.length > 0 && types.every(type => (
+    type === 'locality'
+    || type === 'administrative_area_level_1'
+    || type === 'administrative_area_level_2'
+    || type === 'country'
+    || type === 'political'
+  ))
+  if (adminOnly) return false
+
+  if (input.street) {
+    const core = streetCoreForMatch(input.street)
+    const full = compactGeocodeKey(input.street)
+    const hasStreet = (core.length >= 3 && blob.includes(core)) || (full.length >= 3 && blob.includes(full))
+    if (!hasStreet) return false
+    if (locationType === 'APPROXIMATE') return false
+    return true
+  }
+
+  if (input.neighborhood) {
+    const neighborhood = compactGeocodeKey(input.neighborhood)
+    return neighborhood.length < 3 || blob.includes(neighborhood)
+  }
+
+  return false
+}
+
+function isInsideDistrictEnvelope(position: LatLng, districtName: string): boolean {
+  const district = IZMIR_DISTRICTS.find(item => item.name.toLocaleLowerCase('tr') === districtName.toLocaleLowerCase('tr'))
+  const center = getDistrictMapView(district?.id).center
+  const span = 0.22
+  return Math.abs(position.lat - center.lat) <= span && Math.abs(position.lng - center.lng) <= span
+}
+
 let geocodeQueue: Promise<void> = Promise.resolve()
 
 /**
@@ -155,11 +210,13 @@ export function geocodeTireAddress(input: {
       if (status !== 'OK' && status !== 'ZERO_RESULTS') return null
       if (status === 'ZERO_RESULTS') continue
 
-      const location = results?.[0]?.geometry?.location
+      const match = results?.find(result => geocodeResultMatchesAddress(result, { street: input.street?.trim(), neighborhood }))
+      const location = match?.geometry?.location
       if (!location) continue
       const lat = location.lat()
       const lng = location.lng()
       if (Number.isNaN(lat) || Number.isNaN(lng)) continue
+      if (!isInsideDistrictEnvelope({ lat, lng }, district)) continue
 
       const approximate = !hasStreetNo || index > 0
       const hit: CachedHit = approximate ? { lat, lng, approx: true } : { lat, lng }

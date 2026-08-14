@@ -171,6 +171,10 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   const locale = getLocale(i18n.language)
   const districtId = useMunicipalityDistrictId()
   const mapView = useMemo(() => getDistrictMapView(districtId), [districtId])
+  const mapCenter = useMemo(
+    () => ({ lat: mapView.center.lat, lng: mapView.center.lng }),
+    [mapView.center.lat, mapView.center.lng],
+  )
   const mapsReady = isGoogleMapsConfigured()
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'ccc-google-maps',
@@ -250,33 +254,9 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
 
   useEffect(() => {
     if (!mapInstance || !isLoaded) return
-    const [[swLat, swLng], [neLat, neLng]] = mapView.bounds
-    if (resolved.length === 0) {
-      mapInstance.setCenter({ lat: mapView.center.lat, lng: mapView.center.lng })
-      mapInstance.setZoom(12)
-      return
-    }
-    if (resolved.length === 1) {
-      mapInstance.setCenter({ lat: resolved[0].position.lat, lng: resolved[0].position.lng })
-      mapInstance.setZoom(12)
-      return
-    }
-    const bounds = new google.maps.LatLngBounds(
-      { lat: swLat, lng: swLng },
-      { lat: neLat, lng: neLng },
-    )
-    for (const pin of resolved) {
-      bounds.extend({ lat: pin.position.lat, lng: pin.position.lng })
-    }
-    mapInstance.fitBounds(bounds, 24)
-    const listener = google.maps.event.addListenerOnce(mapInstance, 'idle', () => {
-      const zoom = mapInstance.getZoom()
-      if (zoom != null && zoom > 13) mapInstance.setZoom(13)
-    })
-    return () => {
-      google.maps.event.removeListener(listener)
-    }
-  }, [mapInstance, isLoaded, resolved, mapView.bounds, mapView.center])
+    mapInstance.setCenter({ lat: mapView.center.lat, lng: mapView.center.lng })
+    mapInstance.setZoom(12)
+  }, [mapInstance, isLoaded, mapView.center.lat, mapView.center.lng])
 
   const openJobDetail = useCallback(async (jobId: string) => {
     setJobDetail(null)
@@ -393,7 +373,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
           <GoogleMap
             key={mapView.districtId}
             mapContainerStyle={MAP_CONTAINER_STYLE}
-            center={{ lat: mapView.center.lat, lng: mapView.center.lng }}
+            center={mapCenter}
             zoom={12}
             onLoad={onMapLoad}
             onClick={() => setGestureHandling('greedy')}

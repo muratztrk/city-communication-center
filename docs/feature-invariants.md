@@ -374,8 +374,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kendi içinde satır kırmaz (etiket tek satır). Yanında yalnız Talep Ekleri varken (`--attachments-only`)
   Mahalle / Cadde / Sokak / No / Adres Tarifi **aynı satırda kolon içi ortalı**, başlıklar
   çok az sola kayar (`translateX(-0.45rem)`, #2576 reopen). Yanında 1'den fazla kutu
-  (`--three-cards`) iken dört **başlık** çok az sağa (`translateX(0.7rem)`, #2576);
-  değerler kaymaz. `Ekler / Fotoğraflar`
+  (`--three-cards`) iken adres başlıklarını sağa kaydırma **yok** (#2576 geri alındı).
+  `Ekler / Fotoğraflar`
   kart zemini, Adres kartı değil, `Açıklama` paneliyle aynı soluk nötr yüzeyi kullanır (cards #1259/#1260/#1261).
   `İlgili Talep Detayları > Talep Bilgileri` başlığının sağındaki talep no ve `Birim İçi/Birim Dışı`
   meta bloğu başlık alt çizgisinin sağ sınırına hizalı kalır.
@@ -1013,8 +1013,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`current`) — card #1644.
   **Güncelleme (card #1646/#1647/#1650 reopen):** birim içi/dışı süresi geçmiş aktif Durum metni
   yalnız `Yapılmakta` veya yalnız `Son Tarihi Geçmiş` olmaz; `Yapılmakta (Son Tarihi Geçmiş)`
-  birleşik etiketi kullanılır. **İstisna (#2574 reopen):** vatandaş talebi grid + popup Durum
-  overdue metni yalnız `Son Tarihi Geçmiş` (backend ile aynı); birleşik etiket yok.
+  birleşik etiketi kullanılır. Vatandaş talebi grid + popup Durum overdue da diğer
+  grid'lerle aynı: `Yapılmakta` + alt satır `(Son Tarihi Geçmiş)` (`GridStatusLabel`, #2574).
+  Süreç Durum aynı iki satır (sol hizalı). Backend/WhatsApp metni yalnız `Son Tarihi Geçmiş`
+  kalır.
   Vatandaş talebinde `İşleme Alındı` metni korunur (Onay Bekleyen'e
   çevrilmez); grid Durum hücresinde kanal ikonu önde gelir (card #1650).
   (Talepler/Taleplerim/Görevler/Görevlerim Süreç kolonu + Birimdeki Görevler İlgili Talep
@@ -1598,6 +1600,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `@googlemaps/markerclusterer`; marker tıklanınca doğrudan `MyRequestDetailModal` (`Vatandaş Talebi`),
   InfoWindow yok. Cluster rengi banner `--color-header-from`; tıklanınca zoom bir kademe yumuşak;
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
+  Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
   Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
@@ -1619,7 +1622,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Cadde / Sokak sonrası **No** sütunu (`streetNo`); açık adres başlığı **Adres Tarifi** (#2587).
   Nested İşlemler→Detaylar popup Taleplerim shell’den biraz küçük
   (`detail-modal-shell--citizen-directory-nested`, card #r454).   Nested talep listesi Durum
-  `getCitizenRequestStatusLabel` + `ticket.dueDateUtc` (overdue = `Son Tarihi Geçmiş`, #2574).
+  `getCitizenRequestStatusLabel` + `ticket.dueDateUtc` (overdue = `Yapılmakta` / `(Son Tarihi Geçmiş)`, #2574).
   İptal / Tamamlanmış pill içinde alt satırda tarih (`completedAtUtc` / `updatedAtUtc`, #2574 reopen). Anasayfa pie → Detaylar
   aynı nested boyut (#6a6da278). Başlık: Vatandaş sayfası `Vatandaş Talebi`, Birimler
   `Talep` (#6a6da49d/#6a6da519).
@@ -1868,8 +1871,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mahalle + Açık Adres `padding-inline-start: 0.7rem` ile biraz sağa; Cadde `translateX(-0.45rem)`
   ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) dört başlık
   kolon içinde ortalıdır; boş-adres padding/translate hilesi yok (#2576 reopen, #2185 geri).
-  Yanında 2 kutucuk daha (`--three-cards`) iken dört adres **başlığı** `translateX(0.7rem)` sağa
-  (#2576); değerler kaymaz. Adres Tarifi tam satır, Mahalle ile sol hizada.
+  Yanında 2 kutucuk daha (`--three-cards`) iken adres başlıklarını sağa kaydırma yok (#2576 geri).
   boş Açık Adres `0.6rem` (#2187).
 - **Dropdown ellipsis tooltip (#2188):** `useDataTableOverflowTooltips` dropdown satırında
   birden fazla `.truncate` varsa hover edilen / kesilmiş satırı gösterir (Şablon mesajlar adı+içerik).

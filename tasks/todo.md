@@ -1,3 +1,9 @@
+## Round 805 — #2591/#2576/#2574
+
+- [x] `6a7eec6b` — Harita pin yüklenince kamera kilitli (#2591).
+- [x] `6a7e0cec` — Üç kutulu adres başlığı sağa kaydırma geri alındı (#2576).
+- [x] `6a7e0b53` — Dizin nested Durum + Detay Süreç: Yapılmakta / (Son Tarihi Geçmiş) (#2574).
+
 ## Round 804 — #2569/#2576
 
 - [x] `6a7e050a` — Harita: Vatandaş Talebi popup, banner-yeşil sayılı cluster, yumuşak zoom, durum rengi (#2569).

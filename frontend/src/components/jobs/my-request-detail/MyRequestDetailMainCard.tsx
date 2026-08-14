@@ -22,7 +22,8 @@ import { buildMyRequestDetailFields } from './myRequestDetailFields'
 import type { MyRequestDetailField } from './myRequestDetailFields'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { formatDateTime, pendingApprovalValueClassName } from './format'
-import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
+import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, formatOverdueInProgressStatus } from '../../../utils/localization'
+import { GridStatusLabel } from '../../ui/GridStatusLabel'
 import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
 import { normalizeTitleCaseField } from '../../../utils/textNormalization'
@@ -30,6 +31,11 @@ import { formatJobDisplayNumberText } from '../../../utils/requestNumberText'
 import { formatCitizenRequestNumber, isCitizenRequestJob } from '../../../utils/citizenRequests'
 import { getChannelLabelColor } from '../../../utils/channelColors'
 import { ChannelIcon } from '../../ui/channel-icon'
+
+function isOverdueProcessStatus(t: TFunction, label: string): boolean {
+  return label === formatOverdueInProgressStatus(t)
+    || label === t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+}
 
 export interface DetailDueDateEditState {
   jobId: string
@@ -523,8 +529,10 @@ export function MyRequestDetailMainCard({
             locale={locale}
             recoveredFromCancellation={isJobRecoveredFromCancellation(detail)}
             statusContent={(
-              <span className={`inline ${detailStatusClass}`}>
-                {statusLabel ?? statusContent}
+              <span className={`${typeof (statusLabel ?? statusContent) === 'string' && isOverdueProcessStatus(t, String(statusLabel ?? statusContent)) ? 'inline-flex' : 'inline'} ${detailStatusClass}`}>
+                {typeof (statusLabel ?? statusContent) === 'string' && isOverdueProcessStatus(t, String(statusLabel ?? statusContent))
+                  ? <GridStatusLabel t={t} label={formatOverdueInProgressStatus(t)} align="start" />
+                  : (statusLabel ?? statusContent)}
               </span>
             )}
             statusActorName={shouldShowJobStatusActorName(detail) ? detail.statusActorDisplayName : null}

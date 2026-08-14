@@ -4381,26 +4381,8 @@
     transform: translateX(-0.45rem) !important;
   }
 
-  /* #2576: yanında 1'den fazla kutu — Mahalle / Cadde / No / Adres Tarifi başlıkları çok az sağa. */
-  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item,
-  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
-    transform: none !important;
-    padding-inline-start: 0 !important;
-  }
-
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--directions {
     grid-column: 1 / -1 !important;
-    justify-self: start !important;
-    width: fit-content !important;
-    max-width: 100%;
-    align-items: flex-start !important;
-    text-align: left !important;
-  }
-
-  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
-  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
-    transform: translateX(0.7rem) !important;
-    margin-inline: 0 !important;
   }
 
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,

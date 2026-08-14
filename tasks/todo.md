@@ -1,3 +1,10 @@
+## Round 819 — #2606/#2612/#2597/#2614
+
+- [x] `6a7f3120` — Talep Etiketi pie lejantı en çok veri üstte (#2606).
+- [x] `6a7f57a1` — Cluster 2. tıklama zoom 15 (#2612).
+- [x] `6a7f004c` — Pin dış çerçevesi/beyaz stroke kaldırıldı (#2597).
+- [x] `6a7f5e43` — Street View Google pegman; +/- küçültüldü (#2614).
+
 ## Round 818 — #2619
 
 - [x] `6a7f6f2f` — Birim İçi: Proje alanı yalnız Manager; Evet → Görevi Yapan kilitli kendisi (#2619).

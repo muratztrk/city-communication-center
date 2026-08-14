@@ -6456,10 +6456,10 @@
 }
 
 @layer components {
-  /* Vatandaş Talep Haritası: +/- büyütülmüş, köşeye daha yakın (#2615). */
+  /* Vatandaş Talep Haritası: +/- küçültülmüş, köşeye yakın (#2614). */
   .citizen-request-map .gm-bundled-control,
   .citizen-request-map .gm-bundled-control .gmnoprint {
-    transform: scale(1.18) translateY(10px);
+    transform: scale(0.78) translateY(6px);
     transform-origin: bottom right;
   }
 
@@ -6470,18 +6470,18 @@
   .citizen-request-map-streetview-btn {
     position: absolute;
     z-index: 5;
-    right: 3.85rem;
-    bottom: 1.05rem;
+    right: 2.55rem;
+    bottom: 0.72rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 1.85rem;
+    height: 1.85rem;
     padding: 0;
     border: 0;
-    border-radius: 0.35rem;
+    border-radius: 2px;
     background: #fff;
-    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.28);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
     cursor: pointer;
   }
 
@@ -6491,7 +6491,7 @@
   }
 
   .citizen-request-map-streetview-btn.is-active {
-    outline: 2px solid #2563eb;
+    outline: 2px solid #1a73e8;
     outline-offset: 1px;
   }
 }

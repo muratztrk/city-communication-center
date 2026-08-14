@@ -396,13 +396,17 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .Select(tag => tag.Trim())
             .Concat(tagsByJob)
             .Distinct(StringComparer.OrdinalIgnoreCase)
-            .OrderBy(tag => tag, StringComparer.CurrentCultureIgnoreCase)
             .ToList();
         var colorHints = new[] { "primary", "success", "info", "warning", "orange", "danger", "neutral" };
         var slices = labels
-            .Select((label, index) => new DashboardChartSlice(
-                label,
-                countsByTag.GetValueOrDefault(label),
+            .Select(label => (
+                Label: label,
+                Count: countsByTag.GetValueOrDefault(label)))
+            .OrderByDescending(item => item.Count)
+            .ThenBy(item => item.Label, StringComparer.CurrentCultureIgnoreCase)
+            .Select((item, index) => new DashboardChartSlice(
+                item.Label,
+                item.Count,
                 colorHints[index % colorHints.Length]))
             .ToArray();
 

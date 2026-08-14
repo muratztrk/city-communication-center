@@ -1535,7 +1535,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bağlı `CitizenConversation.Label` değeridir. Tanımlı `RequestTag` adları sıfır sayıda da lejantta
   kalır; geçmişte kullanılmış fakat sonradan tanımdan kaldırılmış etiketler kaybolmaz.
   Durum filtre butonları (Yapılmakta Olan / Tamamlanan / Tümü) yok; pie her zaman tüm
-  durumları gösterir (#2606). Etiket adı ve sayısı sağ lejantta kalır.
+  durumları gösterir (#2606). Lejant ve dilimler en çok verisi olan etiket üstte
+  (sayı azalan, eşitlikte ada göre; sıfırlar altta). Etiket adı ve sayısı sağ lejantta kalır.
 - **Vatandaş Talep Kanalları pie chart'ı**, `SystemAdmin`, `Manager`, `Operator` ve Üst Düzey Yönetici
   (`Reporter`) dashboard'larında görünür; `Reporter`/`SystemAdmin` tenant genelini, `Manager` ise
   aktif/kapsamındaki birime gelen VT taleplerini (`OwnerDepartmentId` veya `JobDepartment.Target`) sayar.
@@ -1614,17 +1615,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   InfoWindow yok. Aynı adres/konumda birden fazla talep varsa dizin nested
   `Vatandaş Bilgi Listesi` popup'ı açılır; tek talepte Vatandaş Talebi kalır (#2592).
   Cluster rengi banner `--color-header-from`; ilk tıklama yalnız zoom in (pan + 1 kademe),
-  `fitBounds` / zoom out yok (#2598). İlk cluster tıklaması +1 kademe; ikinci tıklama zoom 14
+  `fitBounds` / zoom out yok (#2598). İlk cluster tıklaması +1 kademe; ikinci tıklama zoom 15
   (pin görünür, sokak seviyesine inmez — 3. tıklama/`fitBounds` yok; #2612). SuperCluster
   `maxZoom` 13, böylece 2. tıklamada küme çözülür.
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
   Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593). Pin **rengi** durum
   rengi (sky-500 / orange-500 / red-500 / green-500; iç daire beyaz); doygunluk artırımı
-  geri alındı (#2613). Slayt çerçeve **yok** (#2597 geri alındı).
+  geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
-  zoom sağ altta büyütülmüş ve köşeye daha yakın; Street View tıklamayla (sürükleme yok)
-  mavi kapsama → yola tıklayınca açılır, eksi butonunun solunda (#2614/#2615).
+  zoom sağ altta küçültülmüş ve köşeye yakın; Street View sarı pegman (Google Maps benzeri),
+  tıklamayla mavi kapsama → yola tıklayınca açılır, eksi butonunun solunda (#2614/#2615).
   pan/fullscreen yok. Geocode fail pin yok;
   “konumlanamadı” tıklanınca Vatandaş Bilgi Listesi (#2604).
   Pin konumu Google geocode: mahalle + cadde/sokak + no. Cadde Google’da yoksa mahalle

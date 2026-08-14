@@ -28,6 +28,7 @@ public sealed class DashboardRequestTagChartTests
         Assert.Equal(2, slices["Yol"]);
         Assert.Equal(1, slices["Park"]);
         Assert.Equal(1, slices["Atık"]);
+        Assert.Equal(new[] { "Yol", "Atık", "Park", "Ağaç" }, chart.Slices.Select(slice => slice.Label));
     }
 
     [Fact]

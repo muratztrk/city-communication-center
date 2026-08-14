@@ -105,8 +105,8 @@ function isSameOrChildCluster(previousKey: string, nextKey: string): boolean {
   return nextKey.split('|').every(part => previous.has(part))
 }
 
-/** 2. tıklamada pin görünsün; fitBounds ile sokak seviyesine inilmesin (#2612). */
-const CLUSTER_REVEAL_ZOOM = NUMBERED_SINGLE_MAX_ZOOM + 1
+/** 2. tıklamada pinlere bir kademe daha yaklaş; fitBounds / sokak over-zoom yok (#2612). */
+const CLUSTER_REVEAL_ZOOM = NUMBERED_SINGLE_MAX_ZOOM + 2
 
 function onCitizenClusterClick(_: google.maps.MapMouseEvent, cluster: Cluster, map: google.maps.Map) {
   const current = map.getZoom() ?? 12
@@ -160,10 +160,9 @@ function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
   const cached = pinIconCache.get(cacheKey)
   if (cached) return cached
   const fillOpacity = approximate ? '0.72' : '1'
-  const dash = approximate ? 'stroke-dasharray="3 2"' : ''
-  // Çerçeve geri alındı (#2597); pin gövdesi durum rengi, iç daire beyaz (#2613).
+  // Dış çerçeve yok (#2597); pin gövdesi durum rengi, iç daire beyaz (#2613).
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PIN_WIDTH}" height="${PIN_HEIGHT}" viewBox="0 0 24 36">
-    <path fill="${color}" fill-opacity="${fillOpacity}" stroke="#ffffff" stroke-width="1.6" ${dash}
+    <path fill="${color}" fill-opacity="${fillOpacity}"
       d="M12 1.2C6.7 1.2 2.4 5.5 2.4 10.8c0 7.4 9.6 23 9.6 23s9.6-15.6 9.6-23C21.6 5.5 17.3 1.2 12 1.2z"/>
     <circle cx="12" cy="11" r="3.6" fill="#ffffff"/>
   </svg>`
@@ -608,14 +607,13 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
             aria-pressed={streetViewPicker}
             onClick={toggleStreetViewPicker}
           >
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
-              <circle cx="12" cy="5.2" r="2.35" fill="#fbbf24" stroke="#0f172a" strokeWidth="1.15" />
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <circle cx="12" cy="5.6" r="2.55" fill="#F4B400" />
               <path
-                fill="#f59e0b"
-                stroke="#0f172a"
-                strokeWidth="1.15"
-                d="M8.2 9.1h7.6c.5 0 .9.4.9.9v4.2c0 .3-.2.6-.5.7l-1.4.5v5.1c0 .5-.4.9-.9.9h-1.1c-.5 0-.9-.4-.9-.9v-3.4h-.8v3.4c0 .5-.4.9-.9.9H9.1c-.5 0-.9-.4-.9-.9v-5.1l-1.4-.5a.75.75 0 0 1-.5-.7V10c0-.5.4-.9.9-.9z"
+                fill="#F4B400"
+                d="M7.9 9.15c0-.5.4-.9.9-.9h6.4c.5 0 .9.4.9.9v4.15l1.35.45c.28.1.45.4.38.68l-.2.78a.6.6 0 0 1-.73.42L15.15 15.1v5.05c0 .42-.34.75-.75.75h-.7c-.41 0-.75-.33-.75-.75v-3.05h-.4v3.05c0 .42-.34.75-.75.75h-.7c-.41 0-.75-.33-.75-.75V15.1l-1.75.53a.6.6 0 0 1-.73-.42l-.2-.78a.58.58 0 0 1 .38-.68l1.35-.45V9.15z"
               />
+              <path fill="#E37400" opacity=".35" d="M12.9 8.25h2.3c.5 0 .9.4.9.9v4.15l1.35.45.2.78-.2.1-1.55-.48V15.1v5.05c0 .2-.08.38-.2.5h-.7V17.1h-.4v3.55h-.7c-.12-.12-.2-.3-.2-.5v-3.05h-.1V8.25z" />
             </svg>
           </button>
         ) : null}

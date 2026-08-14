@@ -1531,9 +1531,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Operatörü (`Operator`) dashboard'larında görünür. Tenant ve seçili tarih aralığındaki talebi
   `SocialMessage.JobId` üzerinden tek kez sayar; etiket kaynağı önce `SocialMessage.Category`, boşsa
   bağlı `CitizenConversation.Label` değeridir. Tanımlı `RequestTag` adları sıfır sayıda da lejantta
-  kalır; geçmişte kullanılmış fakat sonradan tanımdan kaldırılmış etiketler kaybolmaz. `Yapılmakta Olan` yalnız `JobStatus.Active`,
-  `Tamamlanan` yalnız `JobStatus.Completed`, `Tümü` ise tüm durumları kapsar; durum butonları
-  Görevlerim filtreleriyle aynı başlık hizası/tasarımında, etiket adı ve sayısı sağ lejantta kalır.
+  kalır; geçmişte kullanılmış fakat sonradan tanımdan kaldırılmış etiketler kaybolmaz.
+  Durum filtre butonları (Yapılmakta Olan / Tamamlanan / Tümü) yok; pie her zaman tüm
+  durumları gösterir (#2606). Etiket adı ve sayısı sağ lejantta kalır.
 - **Vatandaş Talep Kanalları pie chart'ı**, `SystemAdmin`, `Manager`, `Operator` ve Üst Düzey Yönetici
   (`Reporter`) dashboard'larında görünür; `Reporter`/`SystemAdmin` tenant genelini, `Manager` ise
   aktif/kapsamındaki birime gelen VT taleplerini (`OwnerDepartmentId` veya `JobDepartment.Target`) sayar.
@@ -1618,7 +1618,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
   Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593). Pin **rengi** durum
-  rengi doygun (sky/orange/red/green-700; iç daire beyaz); slayt çerçeve **yok** (#2597 geri alındı).
+  rengi (sky-500 / orange-500 / red-500 / green-500; iç daire beyaz); doygunluk artırımı
+  geri alındı (#2613). Slayt çerçeve **yok** (#2597 geri alındı).
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
   zoom sağ altta büyütülmüş ve köşeye daha yakın; Street View tıklamayla (sürükleme yok)
   mavi kapsama → yola tıklayınca açılır, eksi butonunun solunda (#2614/#2615).
@@ -2120,9 +2121,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Onaylayan Yönetici chip boyutu/çerçevesi).
 - **WA balon saat satırı (#2544):** `İletildi` / `Düzenlendi` ve saat `items-center` + `leading-none`.
 - **WA medya Önizle (#6a75cc3f):** gelen görsel/video/ses Önizle butonu yeşil (`variant=success`) + Eye ikonu.
-- **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle ve birim-dışı pie'larda Ara... **başlık
-  satırının sağına**; **Talep Etiketi** pie'sında filtre butonlarının **bir alt satırında** sağa
-  hizalı. Personelimin Görevleri / Çözme Süresi pie'larında Ara... yok. X ikonu kırmızı; metin
+- **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle, birim-dışı ve **Talep Etiketi**
+  pie'larında Ara... **başlık satırının sağına**. Personelimin Görevleri / Çözme Süresi pie'larında Ara... yok. X ikonu kırmızı; metin
   ~0.9rem; arama state parent'ta — boş eşleşmede input unmount olmaz (backspace odak kaybı yok).
 - **Personelimin Görevi Çözme Süresi sırası (R549 / #2038):** 0 olmayan en küçük ortalama saatten
   artan sıra; 0'lar sonda.

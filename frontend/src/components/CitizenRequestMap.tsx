@@ -27,10 +27,10 @@ import { getGoogleMapsApiKey, isGoogleMapsConfigured } from '../utils/googleMaps
 type ResolvedPin = CitizenDashboardMapPin & { position: LatLng; approximate: boolean }
 
 const PIN_COLORS: Record<string, string> = {
-  processingReceived: '#0369a1',
-  inProgress: '#c2410c',
-  overdue: '#b91c1c',
-  completed: '#15803d',
+  processingReceived: '#0ea5e9',
+  inProgress: '#f97316',
+  overdue: '#ef4444',
+  completed: '#22c55e',
 }
 
 function pinColor(displayStatus: string): string {

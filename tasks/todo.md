@@ -1,3 +1,8 @@
+## Round 817 — #2613/#2606
+
+- [x] `6a7f5d1a` — Harita pin renk doygunluğu geri alındı (#2613).
+- [x] `6a7f3120` — Talep Etiketi pie durum butonları kaldırıldı; tüm etiketler (#2606).
+
 ## Round 816 — #2597/#2605/#2615/#2576
 
 - [x] `6a7f004c` — Pin slayt çerçevesi geri alındı; durum renkli gövde kaldı (#2597).

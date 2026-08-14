@@ -44,7 +44,6 @@ interface MetricCard {
 
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom'
 type TaskChartFilter = 'all' | 'assigned' | 'routine'
-type RequestTagChartFilter = 'all' | 'inProgress' | 'completed'
 type TaskChartKey = 'dashboard.charts.staffTasks' | 'dashboard.charts.myTasks'
 
 const TASK_CHART_KEYS = new Set<TaskChartKey>([
@@ -341,7 +340,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     'dashboard.charts.staffTasks': 'all',
     'dashboard.charts.myTasks': 'all',
   })
-  const [requestTagChartFilter, setRequestTagChartFilter] = useState<RequestTagChartFilter>('all')
   const [pieLegendSearches, setPieLegendSearches] = useState<Record<string, string>>({})
   const [chartDrilldown, setChartDrilldown] = useState<{ chartKey: string; sliceKey: string } | null>(null)
   const activeDeptId = getActiveDepartmentId()
@@ -432,12 +430,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       departmentId: activeDeptId,
       staffTaskType: taskChartFilters['dashboard.charts.staffTasks'],
       myTaskType: taskChartFilters['dashboard.charts.myTasks'],
-      requestTagStatus: requestTagChartFilter,
     }),
     queryFn: () => api.getDashboardStatusCharts(apiFrom, apiTo, {
       staff: taskChartFilters['dashboard.charts.staffTasks'],
       mine: taskChartFilters['dashboard.charts.myTasks'],
-      requestTagStatus: requestTagChartFilter,
     }),
     enabled: true,
     refetchInterval: 60_000,
@@ -842,25 +838,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                       })}
                     </div>
                   )}
-                  {card.titleKey === 'dashboard.charts.requestTags' && (
-                    <div className="flex shrink-0 items-center gap-1" role="group" aria-label={t('dashboard.requestTagFilter.label', 'Talep durumu')}>
-                      {(['inProgress', 'completed', 'all'] as const).map(filter => {
-                        const active = requestTagChartFilter === filter
-                        return (
-                          <button
-                            key={filter}
-                            type="button"
-                            onClick={() => setRequestTagChartFilter(filter)}
-                            className={`rounded-md px-2 py-1 text-[11px] font-semibold transition-colors ${active ? 'bg-emerald-700 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
-                          >
-                            {t(`dashboard.requestTagFilter.${filter}`, { inProgress: 'Yapılmakta Olan', completed: 'Tamamlanan', all: 'Tümü' }[filter])}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  )}
-                  {/* Ara... başlık satırı sağı (R550). Talep Etiketi: 1 alt satırda (R552 / #2043). */}
-                  {PIE_LEGEND_SEARCH_KEYS.has(card.titleKey) && card.titleKey !== 'dashboard.charts.requestTags' ? (
+                  {/* Ara... başlık satırı sağı (R550). Talep Etiketi de aynı satır (#2606). */}
+                  {PIE_LEGEND_SEARCH_KEYS.has(card.titleKey) ? (
                     <PieLegendSearch
                       value={pieLegendSearches[card.titleKey] ?? ''}
                       onChange={value => setPieLegendSearches(current => ({ ...current, [card.titleKey]: value }))}
@@ -868,14 +847,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                   ) : null}
                 </div>
               </div>
-              {card.titleKey === 'dashboard.charts.requestTags' ? (
-                <div className="relative z-10 mb-3 flex justify-end">
-                  <PieLegendSearch
-                    value={pieLegendSearches[card.titleKey] ?? ''}
-                    onChange={value => setPieLegendSearches(current => ({ ...current, [card.titleKey]: value }))}
-                  />
-                </div>
-              ) : null}
               <PieChart
                 slices={card.slices}
                 noDataLabel={t('dashboard.chart.noData')}
@@ -930,12 +901,11 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         />
       ) : chartDrilldown ? (
         <DashboardChartDrilldownModal
-          key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}|${requestTagChartFilter}`}
+          key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}`}
           chartKey={chartDrilldown.chartKey}
           sliceKey={chartDrilldown.sliceKey}
           from={apiFrom}
           to={apiTo}
-          requestTagStatus={chartDrilldown.chartKey === 'dashboard.charts.requestTags' ? requestTagChartFilter : undefined}
           jobDetailTitle={
             effectiveView === 'citizen'
               ? t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')

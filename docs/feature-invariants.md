@@ -85,7 +85,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yüklenen görselin intrinsic boyutu login/sidebar çerçevesini büyütemez (card #2252).
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
   `font-weight: 500` kullanır; Anasayfa / Vatandaş Bilgi Listesi gradient banner
-  `.section-card > .grid.border-b .page-title` da `font-weight: 500` (#2511 reopen). Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
+  `.section-card > .grid.border-b .page-title` da `font-weight: 500` (#2511 reopen); Vatandaş Talep Haritası
+  banner başlığı aynı `page-title` sınıfını kullanır (#2579). Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
   `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
@@ -276,9 +277,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   tüm dosyalar için birleşik yüzde gösterilir. Vatandaş create/edit akışı da seçili dosyaları
   oluşan job'a gerçekten yükler (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
-  Cadde/Sokak ve Açık Adres alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
-  alt adres alanları da temizlenir. Mahalle seçildikten sonra Cadde/Sokak **ve Açık Adres**
-  zorunludur (etikette `* max 100 karakter`, `required`) — R421 / #r460. Taleplerim terminal talep notu süreç satırında tekil **Not**
+  Cadde/Sokak, No ve Adres Tarifi alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
+  alt adres alanları da temizlenir. Mahalle seçildikten sonra Cadde/Sokak **ve No** zorunludur
+  (etikette `*`, `required`); **Adres Tarifi zorunlu değildir** (`*` yok) — #2582. Taleplerim terminal talep notu süreç satırında tekil **Not**
   linkidir; terminal tarih etiketinde `(İptal)`/durum parantezi basılmaz; Görev Detayları terminal
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Adres alan limitleri:** Cadde / Sokak tüm giriş yüzeylerinde en fazla 50 karakter,
@@ -333,7 +334,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünür ve yanında parantez içinde `statusActorDisplayName` yönetici adı yine turuncu gösterilir.
   Süreç timeline'ında ayrı `Durum` step'i normalde gösterilmez; istisna olarak birim yöneticisinin
   oluşturduğu birim içi aktif taleplerde Talep Tarihi ile Son Tarih arasında turuncu `Durum / Yapılmakta`
-  step'i gösterilir (cards #1212/#1213/#1214/#1215/#1216/#1215-reopen/#1275).
+  step'i gösterilir (cards #1212/#1213/#1214/#1215/#1216/#1215-reopen/#1275). Vatandaş talebi popup
+  Süreç'inde terminal olmayan işlerde Talep Tarihi ile Son Tarih arasında `Durum` vardır:
+  `İşleme Alındı` / `Yapılmakta` / süresi geçmiş etiket (`getCitizenRequestStatusLabel`) — #2574.
 - **Taleplerim detay ana kartı:** `Açıklama` kolonunun arka planı ekran görselindeki soluk
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
   (card #1217). Detay popup üstündeki `Taleplerim` başlığı Görevlerim detay popup sol üst
@@ -361,9 +364,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Proje niteliğinde mi?` çevirisini kullanmaz; `Öncelik` ise Talep Bilgileri başlığının sağ
   sınırında etiketi üstte, değeri altta olacak biçimde gösterilir (cards #1586/#1599).
 - **Taleplerim/Vatandaş Talebi detay alt kartları:** `Talebin Gittiği Birim / Görevi Yapan`
-  etiketi tek satır kalır; atanmış kullanıcı yoksa yalnız birim adı (` / -` yok, #r481); `Adres Bilgileri`
-  içinde Mahalle, `Cadde / Sokak` ve `Açık Adres` üçlü yan yana durur; adres etiketleri
-  kendi içinde satır kırmaz (etiket tek satır); `Ekler / Fotoğraflar`
+  etiketi tek satır kalır; atanmış kullanıcı yoksa yalnız birim adı (` / -` yok, #r481);   `Adres Bilgileri`
+  içinde Mahalle, `Cadde / Sokak`, `No` ve `Adres Tarifi` durur; adres etiketleri
+  kendi içinde satır kırmaz (etiket tek satır). Yanında yalnız Talep Ekleri varken (`--attachments-only`)
+  Adres Tarifi No'nun sağındaki 4. kolondadır (#2576). `Ekler / Fotoğraflar`
   kart zemini, Adres kartı değil, `Açıklama` paneliyle aynı soluk nötr yüzeyi kullanır (cards #1259/#1260/#1261).
   `İlgili Talep Detayları > Talep Bilgileri` başlığının sağındaki talep no ve `Birim İçi/Birim Dışı`
   meta bloğu başlık alt çizgisinin sağ sınırına hizalı kalır.
@@ -775,7 +779,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   alanları); sağ kolonda konuşma profili **Vatandaş Adres Bilgisi (İsteğe Bağlı)** — Mahalle /
   Cadde / Açık Adres ayrı kaynaklardan (#2554). Dosya Ekle yalnız sol adres bölümünde bir kez
   (`renderAddressFields`); mükerrer blok yok (#2559). Açıklama editörü `min-h-40`; toolbar
-  `#citizen-request-form` ile ince (`min-height: 1.35rem`) — `request-form--readable` 3.2rem ezilir.
+  `#citizen-request-form` `min-height: 1.6rem`, buton `1.4rem` (#2568). Kanal (Çağrı) butonu
+  `py-1.5` (#2560). `request-form--readable` 3.2rem ezilir.
   Sol kolon **Talebin Adres Bilgisi** placeholder `0.66rem`; sağ kolon vatandaş alanları `0.76rem`.
   **Talep adresi ≠ vatandaş profil adresi (#2563):** `ConvertSocialMessageToJob` / `UpdateJob`
   `CitizenConversation` mahalle/cadde/no/açık adresini job alanlarıyla güncellemez; profil yalnız
@@ -1525,7 +1530,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yeni bir grafik id'siz bir gruplama anahtarına (ör. mahalle adı) göre dilim üretecekse, `Label` alanına
   DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok.
 - **Sol menü dizin sırası (#6a6cfc0c / #2571):** Reporter’de: Anasayfa - Vatandaş → Vatandaş Talep Haritası →
-  Anasayfa - Birimler → Vatandaş Bilgi Listesi. Operator’de: Anasayfa → (citizen) Anasayfa - Vatandaş →
+  Vatandaş Bilgi Listesi → Anasayfa - Birimler. Operator’de: Anasayfa → (citizen) Anasayfa - Vatandaş →
   Harita → Bilgi Listesi. Sistem Admin’de harita/dizin Vatandaş Talepleri grubundan sonra kalır.
 - **Vatandaş Bilgi Listesi (card #1836, kolon/buton düzeni #1843/#1858):** `/citizen-directory` yalnız
   `Reporter` / `Operator` / `SystemAdmin`; grid `GET /citizen-conversations`. Ana gridde `Talep Kanalı`

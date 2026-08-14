@@ -215,8 +215,8 @@ export function RoutineTaskPage() {
       setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
-    if (form.neighborhood.trim() && !form.openAddress.trim()) {
-      setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
+    if (form.neighborhood.trim() && !form.streetNo.trim()) {
+      setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
     }
     setConfirmDialog({
@@ -352,7 +352,10 @@ export function RoutineTaskPage() {
                     />
                   </div>
                   <div className="grid gap-1">
-                    <span className="text-sm font-semibold text-slate-500">{t('address.streetNoLabel', 'No')}</span>
+                    <span className="text-sm font-semibold text-slate-500">
+                      {t('address.streetNoLabel', 'No')}
+                      {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+                    </span>
                     <input
                       className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                       placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
@@ -360,6 +363,7 @@ export function RoutineTaskPage() {
                       value={form.streetNo}
                       onChange={e => set('streetNo', e.target.value)}
                       disabled={!hasNeighborhood}
+                      required={hasNeighborhood}
                     />
                   </div>
                 </div>
@@ -369,10 +373,7 @@ export function RoutineTaskPage() {
                   <span className="text-sm font-semibold text-slate-500">
                     {t('address.openAddressLabel', 'Açık Adres')}
                     {hasNeighborhood ? (
-                      <>
-                        <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
-                        <span className="text-red-500"> *</span>
-                      </>
+                      <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
                     ) : null}
                   </span>
                   <textarea
@@ -383,7 +384,6 @@ export function RoutineTaskPage() {
                     onChange={e => set('openAddress', e.target.value)}
                     onBlur={() => set('openAddress', normalizeTitleCaseField(form.openAddress) ?? '')}
                     disabled={!hasNeighborhood}
-                    required={hasNeighborhood}
                   />
                 </label>
 

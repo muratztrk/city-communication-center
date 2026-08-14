@@ -63,7 +63,10 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             />
           </label>
           <label className="grid min-w-0 gap-1">
-            <span className="text-xs font-semibold text-slate-500">{t('address.streetNoLabel', 'No')}</span>
+            <span className="text-xs font-semibold text-slate-500">
+              {t('address.streetNoLabel', 'No')}
+              {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+            </span>
             <input
               className="field-input min-h-[2.75rem] disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
               placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
@@ -71,6 +74,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
               value={draft.streetNo}
               onChange={e => onChange({ streetNo: e.target.value })}
               disabled={!hasNeighborhood}
+              required={hasNeighborhood}
             />
           </label>
         </div>
@@ -78,10 +82,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
           <span className="text-xs font-semibold text-slate-500">
             {t('address.openAddressLabel', 'Açık Adres')}
             {hasNeighborhood ? (
-              <>
-                <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
-                <span className="text-red-500"> *</span>
-              </>
+              <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
             ) : null}
           </span>
           <textarea
@@ -93,7 +94,6 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
             onChange={e => onChange({ openAddress: e.target.value })}
             onBlur={() => onChange({ openAddress: normalizeTitleCaseField(draft.openAddress) ?? '' })}
             disabled={!hasNeighborhood}
-            required={hasNeighborhood}
           />
         </label>
       </div>

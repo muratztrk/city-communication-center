@@ -627,9 +627,9 @@
     padding-inline-start: 2.25rem;
   }
 
-  /* Aynı layout: Açık Adres biraz daha sağa (#2185 reopen). */
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(3) {
-    padding-inline-start: 2.5rem;
+  /* Aynı layout: Adres Tarifi No'nun sağındaki 4. kolonda (#2576). */
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(4) {
+    padding-inline-start: 1.15rem;
   }
 
   /* Yanında 2 kutucuk daha (3 kolon): boş Açık Adres çok çok az sağa (#2187 reopen). */
@@ -3641,14 +3641,14 @@
 
   /* Vatandaş Çağrı Talebi Oluştur: K/A toolbar ince, yazı alanı yüksek. */
   #citizen-request-form .rich-text-toolbar {
-    min-height: 1.35rem;
-    padding: 0.08rem 0.25rem;
-    gap: 0.15rem;
+    min-height: 1.6rem;
+    padding: 0.12rem 0.28rem;
+    gap: 0.18rem;
   }
 
   #citizen-request-form .rich-text-toolbar-button {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1.4rem;
+    height: 1.4rem;
     border-radius: 0.3rem;
   }
 
@@ -4364,6 +4364,15 @@
 
   .address-detail-my-request__item--directions {
     grid-column: 1 / -1;
+  }
+
+  /* Adres Bilgileri yanında yalnız 1 kutu (Talep Ekleri): Adres Tarifi No'nun sağında. */
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--directions {
+    grid-column: auto;
   }
 
   .job-detail-field-row--full {

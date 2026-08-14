@@ -681,13 +681,17 @@ function ConversationProfilePanel({
             />
           </label>
           <label className="block space-y-1">
-            <span className={labelClass}>{t('address.streetNoLabel', 'No')}</span>
+            <span className={labelClass}>
+              {t('address.streetNoLabel', 'No')}
+              {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+            </span>
             <DeferredComposerInput
               className={disabledFieldClass}
               maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
               value={draft.streetNo}
               onChange={value => onDraftChange({ streetNo: value })}
               disabled={!hasNeighborhood}
+              required={hasNeighborhood}
             />
           </label>
         </div>
@@ -695,10 +699,7 @@ function ConversationProfilePanel({
           <span className={labelClass}>
             {t('address.openAddress', 'Açık Adres')}
             {hasNeighborhood ? (
-              <>
-                <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
-                <span className="text-red-500"> *</span>
-              </>
+              <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
             ) : null}
           </span>
           <DeferredComposerTextarea
@@ -709,7 +710,6 @@ function ConversationProfilePanel({
             onChange={value => onDraftChange({ openAddress: value })}
             onBlur={event => onDraftChange({ openAddress: normalizeTitleCaseField(event.target.value) ?? '' })}
             disabled={!hasNeighborhood}
-            required={hasNeighborhood}
           />
         </label>
         </div>
@@ -1035,8 +1035,8 @@ function ConversationDetail({
       window.alert(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
-    if (profileDraft.neighborhood.trim() && !profileDraft.openAddress.trim()) {
-      window.alert(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
+    if (profileDraft.neighborhood.trim() && !profileDraft.streetNo.trim()) {
+      window.alert(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
     }
     const savedForConversationId = conversationId

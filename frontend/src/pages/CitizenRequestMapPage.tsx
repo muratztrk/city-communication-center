@@ -71,7 +71,7 @@ export function CitizenRequestMapPage() {
             <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">
               {t('dashboard.liveSummary')}
             </div>
-            <h1 className="text-xl font-semibold leading-tight text-white sm:text-2xl">
+            <h1 className="page-title !text-white">
               {t('nav.citizenRequestMap', 'Vatandaş Talep Haritası')}
             </h1>
             <p className="max-w-3xl text-sm leading-6 text-white/82">

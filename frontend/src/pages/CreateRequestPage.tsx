@@ -821,7 +821,10 @@ export function CreateRequestPage() {
               />
             </div>
             <div className="grid gap-1">
-              <span className="text-sm font-semibold text-slate-500">{t('address.streetNoLabel', 'No')}</span>
+              <span className="text-sm font-semibold text-slate-500">
+                {t('address.streetNoLabel', 'No')}
+                {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+              </span>
               <input
                 className={`field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${compactPlaceholderClass} ${smallerPlaceholderClass} ${largerPlaceholderClass}`}
                 placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
@@ -829,6 +832,7 @@ export function CreateRequestPage() {
                 value={form.streetNo}
                 onChange={e => setField('streetNo', e.target.value)}
                 disabled={!hasNeighborhood}
+                required={hasNeighborhood}
               />
             </div>
           </div>
@@ -838,10 +842,7 @@ export function CreateRequestPage() {
             <span className="text-sm font-semibold text-slate-500">
               {t('address.openAddressLabel', 'Açık Adres')}
               {hasNeighborhood ? (
-                <>
-                  <span className="ml-1 text-xs font-normal text-slate-400">(max 100 karakter)</span>
-                  <span className="text-red-500"> *</span>
-                </>
+                <span className="ml-1 text-xs font-normal text-slate-400">(max 100 karakter)</span>
               ) : null}
             </span>
             <textarea
@@ -852,7 +853,6 @@ export function CreateRequestPage() {
               onChange={e => setField('openAddress', e.target.value)}
               onBlur={() => setField('openAddress', normalizeTitleCaseField(form.openAddress) ?? '')}
               disabled={!hasNeighborhood}
-              required={hasNeighborhood}
             />
           </label>
           {includePhotoUpload ? renderPhotoUpload('min-h-0') : null}
@@ -879,8 +879,8 @@ export function CreateRequestPage() {
       setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
-    if (internalForm.neighborhood.trim() && !internalForm.openAddress.trim()) {
-      setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
+    if (internalForm.neighborhood.trim() && !internalForm.streetNo.trim()) {
+      setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
     }
     // Yönetici/sorumlu için personel seçimi zorunludur (tek kişi).
@@ -970,8 +970,8 @@ export function CreateRequestPage() {
       setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
-    if (externalForm.neighborhood.trim() && !externalForm.openAddress.trim()) {
-      setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
+    if (externalForm.neighborhood.trim() && !externalForm.streetNo.trim()) {
+      setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
     }
     if (confirmedKind !== 'external') {
@@ -1076,16 +1076,16 @@ export function CreateRequestPage() {
       setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
-    if (citizenForm.neighborhood.trim() && !citizenForm.openAddress.trim()) {
-      setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
+    if (citizenForm.neighborhood.trim() && !citizenForm.streetNo.trim()) {
+      setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
     }
     if (citizenForm.citizenNeighborhood.trim() && !citizenForm.citizenStreet.trim()) {
       setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
-    if (citizenForm.citizenNeighborhood.trim() && !citizenForm.citizenOpenAddress.trim()) {
-      setError(t('address.openAddressRequired', 'Mahalle seçildiğinde Açık Adres zorunludur.'))
+    if (citizenForm.citizenNeighborhood.trim() && !citizenForm.citizenStreetNo.trim()) {
+      setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
     }
     if (confirmedKind !== 'citizen') {
@@ -1593,7 +1593,7 @@ export function CreateRequestPage() {
                       key={channel}
                       type="button"
                       onClick={() => setCitizenForm(current => ({ ...current, channel }))}
-                      className={`inline-flex items-center justify-center gap-2 rounded-lg border bg-white px-4 py-2.5 text-sm font-semibold transition-colors ${
+                      className={`inline-flex items-center justify-center gap-2 rounded-lg border bg-white px-4 py-1.5 text-sm font-semibold transition-colors ${
                         citizenForm.channel === channel
                           ? 'border-sky-500 text-sky-600'
                           : 'border-slate-200 text-slate-600 hover:border-slate-300'

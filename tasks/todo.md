@@ -1,3 +1,13 @@
+## Round 795 — #2571/#2560/#2582/#2576/#2574/#2579/#2568
+
+- [x] `6a7e06f3` — Reporter menü: Harita → Bilgi Listesi → Anasayfa-Birimler (#2571).
+- [x] `6a7c4c8d` — Çağrı kanal butonu yüksekliği `py-1.5` (#2560).
+- [x] `6a7eb063` — Adres Tarifi `*` yok; No zorunlu `*` (#2582).
+- [x] `6a7e0cec` — Yanında yalnız Ekler varken Adres Tarifi No'nun sağında (#2576).
+- [x] `6a7e0b53` — Vatandaş talep popup Süreç Durum (İşleme Alındı / Yapılmakta / gecikme) (#2574).
+- [x] `6a7e0fa3` — Harita banner başlığı `page-title` (Anasayfa-Vatandaş ağırlığı) (#2579).
+- [x] `6a7e03b8` — Çağrı Açıklama toolbar `1.6rem` (#2568).
+
 ## Round 794 — Çağrı SMS Tamamlama Notu / Vatandaşa Giden Mesaj
 
 - [x] Tamamlama Notu = yöneticinin Mesajı Onayla anı; operatör Sms Onayı notu = Vatandaşa Giden Mesaj (alt satır).

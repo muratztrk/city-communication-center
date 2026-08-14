@@ -1900,6 +1900,7 @@
     "streetNoLabel": "No",
     "streetNoPlaceholder": "e.g. 12",
     "streetRequired": "Street is required when a neighborhood is selected.",
+    "streetNoRequired": "Street number is required when a neighborhood is selected.",
     "openAddressRequired": "Full address is required when a neighborhood is selected.",
     "openAddressLabel": "Address Directions",
     "directionsLabel": "Address Directions",

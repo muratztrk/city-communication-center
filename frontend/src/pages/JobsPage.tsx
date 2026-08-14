@@ -1471,6 +1471,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           return
         }
       }
+      if (myRequestEditDraft.neighborhood.trim() && !myRequestEditDraft.street.trim()) {
+        setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
+        setMyRequestEditSaving(false)
+        return
+      }
+      if (myRequestEditDraft.neighborhood.trim() && !myRequestEditDraft.streetNo.trim()) {
+        setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
+        setMyRequestEditSaving(false)
+        return
+      }
       await api.updateJob(detail.jobId, {
         title: myRequestEditDraft.title.trim(),
         description: myRequestEditDraft.description,

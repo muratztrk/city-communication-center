@@ -1942,6 +1942,7 @@
     "streetNoLabel": "No",
     "streetNoPlaceholder": "ör. 12",
     "streetRequired": "Mahalle seçildiğinde Cadde / Sokak zorunludur.",
+    "streetNoRequired": "Mahalle seçildiğinde No zorunludur.",
     "openAddressRequired": "Mahalle seçildiğinde Adres Tarifi zorunludur.",
     "openAddressLabel": "Adres Tarifi",
     "directionsLabel": "Adres Tarifi",

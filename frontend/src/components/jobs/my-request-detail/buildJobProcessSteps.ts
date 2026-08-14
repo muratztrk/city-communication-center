@@ -4,6 +4,7 @@ import {
   isCitizenRequestJob,
   shouldShowCitizenTargetApprovalDate,
   countOpenWorkTasks,
+  getCitizenRequestStatusLabel,
 } from '../../../utils/citizenRequests'
 import { formatDateTime, formatDueDateTime } from './format'
 import { getJobTargetApproverDisplayName } from '../../../utils/jobDetails'
@@ -449,6 +450,19 @@ export function buildJobProcessSteps(
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),
       displayValue: statusDisplayValue,
+      dateTimeUtc: null,
+    })
+  }
+
+  if (
+    isCitizenRequestJob(detail)
+    && detail.status === 'Active'
+    && !steps.some(step => step.id === 'status')
+  ) {
+    steps.push({
+      id: 'status',
+      label: t('jobs.columns.status', 'Durum'),
+      displayValue: getCitizenRequestStatusLabel(t, detail),
       dateTimeUtc: null,
     })
   }

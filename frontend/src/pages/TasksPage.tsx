@@ -1586,6 +1586,14 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   }
   const handleSaveEditRoutineTask = async () => {
     if (!editRoutineTaskModal) return
+    if (editRoutineTaskModal.neighborhood?.trim() && !editRoutineTaskModal.street?.trim()) {
+      setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
+      return
+    }
+    if (editRoutineTaskModal.neighborhood?.trim() && !editRoutineTaskModal.streetNo?.trim()) {
+      setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
+      return
+    }
     setEditRoutineTaskSaving(true)
     try {
       const updated = await api.updateRoutineTask(editRoutineTaskModal.taskId, {
@@ -2737,7 +2745,10 @@ const pageKicker = isMyTasksView
                                   />
                                 </label>
                                 <label className="grid gap-1">
-                                  <span className="text-xs font-semibold text-slate-500">{t('address.streetNoLabel', 'No')}</span>
+                                  <span className="text-xs font-semibold text-slate-500">
+                                    {t('address.streetNoLabel', 'No')}
+                                    {editRoutineTaskModal.neighborhood ? <span className="text-red-500"> *</span> : null}
+                                  </span>
                                   <input
                                     className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                                     placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
@@ -2745,6 +2756,7 @@ const pageKicker = isMyTasksView
                                     value={editRoutineTaskModal.streetNo ?? ''}
                                     onChange={e => updateRoutineTaskAddressDraft({ streetNo: e.target.value })}
                                     disabled={!editRoutineTaskModal.neighborhood}
+                                    required={Boolean(editRoutineTaskModal.neighborhood)}
                                   />
                                 </label>
                               </div>
@@ -2752,10 +2764,7 @@ const pageKicker = isMyTasksView
                                 <span className="text-xs font-semibold text-slate-500">
                                   {t('address.openAddressLabel', 'Açık Adres')}
                                   {editRoutineTaskModal.neighborhood ? (
-                                    <>
-                                      <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
-                                      <span className="text-red-500"> *</span>
-                                    </>
+                                    <span className="ml-1 font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
                                   ) : null}
                                 </span>
                                 <textarea
@@ -2768,7 +2777,6 @@ const pageKicker = isMyTasksView
                                     openAddress: normalizeTitleCaseField(e.target.value) ?? '',
                                   })}
                                   disabled={!editRoutineTaskModal.neighborhood}
-                                  required={Boolean(editRoutineTaskModal.neighborhood)}
                                 />
                               </label>
                             </div>

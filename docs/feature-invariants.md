@@ -1588,12 +1588,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `/dashboard/birimler` sayfasında banner üstü Geri butonu gösterilmez (card #1889).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
-  Vatandaş Talep Kanalları). Harita alanı yok (#6a6cdf95). Birimler sayfasında Reporter: Taleplerim +
+  Vatandaş Talep Kanalları). Vatandaş pie 1. satır mahalle üçlüsü, 2. satır birim üçlüsü (#2606).
+  İşleme Alınan pie yalnız ProcessingReceived; Yapılmakta pie Yapılmakta + overdue (#2605). Harita alanı yok (#6a6cdf95). Birimler sayfasında Reporter: Taleplerim +
   dış birim pie'ları. Operator: Görevlerim/Taleplerim. `Birimdeki Görevler` ve `Talep Önceliği`
   pie'ları tüm anasayfalardan kaldırıldı (#2521). Birimler pie + drilldown vatandaş kaynaklı
   job içermez (#2570): `RequestType=Citizen`, `SourceType∈{SocialMessage,CitizenRequest,EDevlet}`
   ve VT numaralı kayıtlar `WhereIsNotCitizenSourced` ile dışlanır — yalnız `RequestType != Citizen`
-  yetmez.
+  yetmez. Birimler pie başlıkları: Bekleyen Talepler / Tamamlanan Talepler (#2608).
+  Talep Oluşturan Birimler drilldown: Birim sonrası Gittiği Yer; Bekleyen/Yapılmakta/Tamamlanan
+  drilldown: Talep Yeri (sahip birim) Birim’den önce (#2616). Durum overdue = `Yapılmakta (Son Tarihi Geçmiş)` (#2609).
 - **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
 - **Vatandaş Talep Haritası (#2572/#2569):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
@@ -1602,13 +1605,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `@googlemaps/markerclusterer`;   marker tıklanınca doğrudan `MyRequestDetailModal` (`Vatandaş Talebi`),
   InfoWindow yok. Aynı adres/konumda birden fazla talep varsa dizin nested
   `Vatandaş Bilgi Listesi` popup'ı açılır; tek talepte Vatandaş Talebi kalır (#2592).
-  Cluster rengi banner `--color-header-from`; tıklanınca **yalnız zoom in** (pan + 1 kademe),
-  `fitBounds` / zoom out yok (#2598).
+  Cluster rengi banner `--color-header-from`; ilk tıklama yalnız zoom in (pan + 1 kademe),
+  `fitBounds` / zoom out yok (#2598). İkinci cluster tıklaması marker'ları görecek kadar
+  zoom'lar (gerekirse `fitBounds`, asla zoom out; #2612).
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
   Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593). Pin **rengi** durum
-  rengi (iç daire beyaz); arka planda detay popup ikon çerçevesi `#f1f5f9` yuvarlatılmış kutu
-  (#2597).
+  rengi doygun (sky/orange/red/green-700; iç daire beyaz); arka planda `#f1f5f9` çerçeve + slate stroke
+  (#2597/#2613). Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
+  zoom + Street View sağ altta küçük; pan/fullscreen yok (#2614/#2615). Geocode fail pin yok;
+  “konumlanamadı” tıklanınca Vatandaş Bilgi Listesi (#2604).
   Pin konumu Google geocode: mahalle + cadde/sokak + no. Cadde Google’da yoksa mahalle
   seviyesine düşülür (Çağrı talepleri dahil, #2600). No yoksa veya mahalle yedeği ~30 m
   boş alana kaydırılır. Mahalle **ve** cadde ikisi de boşsa marker yok
@@ -1616,8 +1622,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sonucunun adres bileşenlerinde yoksa veya yalnızca ilçe/ülke eşleşmesi ise o varyant
   atılır; mahalle de bulunamazsa marker yok (#2599). Geocode fail ilçe
   merkezine düşmez. Mahalle adı geocode öncesi katalogla birleştirilir: OSB / mahalle
-  soneki atılır, boşluksuz eşleşme (`İbnimelek OSB` → `İbni Melek`) — Google OSB'yi
-  başka sanayi bölgesine düşürmez (#2596). Tire mahalle kataloğunda **İbnimelek OSB** ayrı
+  soneki atılır, boşluksuz eşleşme (`İbni Melek OSB` → `İbni Melek`) — Google OSB'yi
+  başka sanayi bölgesine düşürmez (#2596). Tire mahalle kataloğunda **İbni Melek OSB** ayrı
   kayıt (#2601); harita konumu yine İbni Melek. Kayıtlı lat/lng (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
@@ -1910,8 +1916,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kullanıcılar Birim/Rol menü font (#r456/#r460/#r516/#r518/#r519/#r521/#r522/#r523):** geçmiş
   ölçüler ~0.52–0.92rem; create Rol/Ek Roller güncel #r527 (220px / ~0.82rem).
 - **Talep açıklaması detay (#r460):** Taleplerim/detay `RichTextContent` ~13px.
-- **Oturum idle uyku (#2003/#r528):** `SessionIdleWarning` lastActivity duvar saati +
-  visibility/focus/pageshow reconcile; 1 saat dolmuşsa uyanınca uyarı/logout.
+- **Oturum idle (#2003/#r528/#2603):** 1 saat hareketsizlik → “Oturumu Uzat” yok, direkt logout
+  (uyku/arka plan duvar saati dahil). Kullanıcı aktifken oturum süresi dolmak üzereyse popup
+  gösterilir; Uzat `session/me` ile cookie kaydırır.
 - **WA Etiket ekle (#r460):** kompakt `RequestTagAddButton` `h-8` / `text-xs`.
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).
 - **WA chat footer Birim/Kurum İçi (#r460):** şablon satırında `ml-auto` sağa yaslı (bir satır yukarı).

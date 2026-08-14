@@ -187,6 +187,8 @@ function clearStoredValues(): void {
   localStorage.removeItem(ACCESS_TOKEN_KEY)
   localStorage.removeItem(TOKEN_EXPIRES_AT_KEY)
   localStorage.removeItem(USER_KEY)
+  localStorage.removeItem('ccc_last_activity_at')
+  localStorage.removeItem('ccc_session_deadline_at')
   clearCachedSignalRAccessToken()
 }
 

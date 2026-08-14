@@ -454,7 +454,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
             var bucket = display switch
             {
                 CitizenJobDisplayStatus.ProcessingReceived => processing,
-                CitizenJobDisplayStatus.InProgress => inProgress,
+                CitizenJobDisplayStatus.InProgress or CitizenJobDisplayStatus.Overdue => inProgress,
                 CitizenJobDisplayStatus.Completed => completed,
                 _ => null,
             };
@@ -628,27 +628,46 @@ public sealed class GetDashboardStatusChartsQueryHandler
     }
 
     /// <summary>
-    /// Üst Düzey Yönetici panosu için "Mahallelerde Yapılmakta Olan Talepler" — aktif taleplerin
-    /// (mahalle bilgisi girilmiş olanların) mahalleye göre dağılımı, tüm talep tiplerini kapsar.
+    /// "Mahallelerde Yapılmakta Olan Talepler" — Yapılmakta + Yapılmakta (Son Tarihi Geçmiş);
+    /// İşleme Alınan dilimleri dahil edilmez (#2605).
     /// </summary>
     private async Task<DashboardChartResponse> BuildNeighborhoodInProgressRequestsChartAsync(
         Guid tenantId,
         GetDashboardStatusChartsQuery request,
         CancellationToken cancellationToken)
     {
-        var counts = await _dbContext.Jobs.AsNoTracking()
+        var now = DateTimeOffset.UtcNow;
+        var rows = await _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
-                && job.Status == JobStatus.Active
                 && job.SourceType != JobSourceType.Routine
                 && job.Neighborhood != null
                 && job.Neighborhood != ""
+                && job.Status != JobStatus.Completed
+                && job.Status != JobStatus.Cancelled
+                && job.Status != JobStatus.Rejected
+                && job.Status != JobStatus.RevisionRequested
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
-            // Mahalle grafikleri yalnız VT (Vatandaş Talebi) job'larını sayar (card #1845).
             .WhereHasCitizenRequestNumber(_dbContext)
-            .GroupBy(job => job.Neighborhood)
-            .Select(group => new { Neighborhood = group.Key!, Count = group.Count() })
+            .Select(job => new
+            {
+                Neighborhood = job.Neighborhood!,
+                job.Status,
+                job.DueDateUtc,
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+            })
             .ToListAsync(cancellationToken);
+
+        var counts = rows
+            .Where(row =>
+            {
+                var display = ClassifyCitizenJobStatus(
+                    new CitizenJobStatusItem(row.Status, row.DueDateUtc, row.TaskCount), now);
+                return display is CitizenJobDisplayStatus.InProgress or CitizenJobDisplayStatus.Overdue;
+            })
+            .GroupBy(row => row.Neighborhood)
+            .Select(group => new { Neighborhood = group.Key, Count = group.Count() })
+            .ToList();
 
         return BuildNeighborhoodChartWithZeros(
             "dashboard.charts.neighborhoodInProgressRequests",

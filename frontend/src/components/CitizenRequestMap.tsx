@@ -16,6 +16,8 @@ import type { CitizenConversationTicket, CitizenDashboardMapPin, JobDetail, Soci
 import { CitizenDirectoryTicketsModal } from './citizen-directory/CitizenDirectoryTicketsModal'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
+import { formatOverdueInProgressStatus } from '../utils/localization'
+import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 import { getLocale } from '../utils/localization'
 import { geocodeTireAddress, type LatLng } from '../utils/geocodeTireAddress'
 import { getDistrictMapView } from '../data/izmir-district-maps'
@@ -25,10 +27,10 @@ import { getGoogleMapsApiKey, isGoogleMapsConfigured } from '../utils/googleMaps
 type ResolvedPin = CitizenDashboardMapPin & { position: LatLng; approximate: boolean }
 
 const PIN_COLORS: Record<string, string> = {
-  processingReceived: '#0ea5e9',
-  inProgress: '#f97316',
-  overdue: '#ef4444',
-  completed: '#22c55e',
+  processingReceived: '#0369a1',
+  inProgress: '#c2410c',
+  overdue: '#b91c1c',
+  completed: '#15803d',
 }
 
 function pinColor(displayStatus: string): string {
@@ -79,9 +81,40 @@ const bannerClusterRenderer = {
   },
 }
 
+let lastClusterClickKey = ''
+let lastClusterClickCount = 0
+
+function clusterPositionKey(cluster: Cluster): string {
+  const lat = typeof cluster.position.lat === 'function' ? cluster.position.lat() : cluster.position.lat
+  const lng = typeof cluster.position.lng === 'function' ? cluster.position.lng() : cluster.position.lng
+  return `${Number(lat).toFixed(5)},${Number(lng).toFixed(5)}`
+}
+
 function onCitizenClusterClick(_: google.maps.MapMouseEvent, cluster: Cluster, map: google.maps.Map) {
   const current = map.getZoom() ?? 12
   map.panTo(cluster.position)
+  const key = clusterPositionKey(cluster)
+  lastClusterClickCount = key === lastClusterClickKey ? lastClusterClickCount + 1 : 1
+  lastClusterClickKey = key
+  if (lastClusterClickCount >= 2) {
+    const bounds = new google.maps.LatLngBounds()
+    for (const marker of cluster.markers) {
+      const position = MarkerUtils.getPosition(marker)
+      if (position) bounds.extend(position)
+    }
+    const revealZoom = Math.min(18, Math.max(current + 1, NUMBERED_SINGLE_MAX_ZOOM + 1))
+    if (!bounds.isEmpty()) {
+      map.fitBounds(bounds, 72)
+      google.maps.event.addListenerOnce(map, 'idle', () => {
+        const fitted = map.getZoom() ?? current
+        if (fitted < current) map.setZoom(current)
+        else if (fitted <= NUMBERED_SINGLE_MAX_ZOOM) map.setZoom(revealZoom)
+      })
+    } else {
+      map.setZoom(revealZoom)
+    }
+    return
+  }
   const next = Math.min(current + 1, 18)
   if (next > current) map.setZoom(next)
 }
@@ -125,8 +158,8 @@ function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
   const dash = approximate ? 'stroke-dasharray="3 2"' : ''
   // Pin rengi durum rengi; arka plan çerçevesi detay popup ikon kutusu (#2597).
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${PIN_WIDTH}" height="${PIN_HEIGHT}" viewBox="0 0 24 36">
-    <rect x="1.2" y="0.5" width="21.6" height="19.4" rx="5.5" fill="#f1f5f9"/>
-    <path fill="${color}" fill-opacity="${fillOpacity}" stroke="#ffffff" stroke-width="1.6" ${dash}
+    <rect x="0.6" y="0.2" width="22.8" height="20.2" rx="5.8" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.15"/>
+    <path fill="${color}" fill-opacity="${fillOpacity}" stroke="#0f172a" stroke-width="1.15" ${dash}
       d="M12 1.2C6.7 1.2 2.4 5.5 2.4 10.8c0 7.4 9.6 23 9.6 23s9.6-15.6 9.6-23C21.6 5.5 17.3 1.2 12 1.2z"/>
     <circle cx="12" cy="11" r="3.6" fill="#ffffff"/>
   </svg>`
@@ -188,7 +221,7 @@ function pinsAtSamePlace(all: ResolvedPin[], clicked: ResolvedPin): ResolvedPin[
   return byGeo.length > 1 ? byGeo : [clicked]
 }
 
-function pinToTicket(pin: ResolvedPin): CitizenConversationTicket {
+function pinToTicket(pin: CitizenDashboardMapPin): CitizenConversationTicket {
   return {
     socialMessageId: pin.socialMessageId ?? pin.jobId,
     status: pin.jobStatus ?? 'Active',
@@ -228,6 +261,12 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
   if (isCitizenRequestJob(detail)) {
     return getCitizenRequestStatusLabel(t, detail)
   }
+  if (isJobDueDateOverdue({ status: detail.status, dueDateUtc: detail.dueDateUtc })) {
+    return formatOverdueInProgressStatus(t)
+  }
+  if (detail.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  if (detail.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (detail.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   return t(`enum.jobStatus.${detail.status}`, { defaultValue: detail.status })
 }
 
@@ -264,7 +303,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     region: 'TR',
   })
   const [resolved, setResolved] = useState<ResolvedPin[]>([])
-  const [unpinned, setUnpinned] = useState<string[]>([])
+  const [unpinned, setUnpinned] = useState<CitizenDashboardMapPin[]>([])
   const [resolving, setResolving] = useState(false)
   const [jobDetail, setJobDetail] = useState<JobDetail | null>(null)
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
@@ -286,9 +325,10 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     let cancelled = false
 
     const mappable = pins.filter(hasMappableAddress)
+    const unmappable = pins.filter(pin => !hasMappableAddress(pin))
     if (mappable.length === 0) {
       setResolved([])
-      setUnpinned([])
+      setUnpinned(unmappable)
       setResolving(false)
       return
     }
@@ -298,7 +338,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     setResolving(true)
     void (async () => {
       const geocoded: ResolvedPin[] = []
-      const failed: string[] = []
+      const failed: CitizenDashboardMapPin[] = [...unmappable]
       for (const pin of mappable) {
         if (cancelled) return
         const hit = await Promise.race([
@@ -321,14 +361,12 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
             approximate: !hasStreetNo || hit.precision === 'approximate',
           })
         } else {
-          failed.push(pin.title)
-        }
-        if (!cancelled) {
-          setResolved([...geocoded])
-          setUnpinned(failed)
+          failed.push(pin)
         }
       }
       if (!cancelled) {
+        setResolved(geocoded)
+        setUnpinned(failed)
         setResolving(false)
       }
     })()
@@ -482,6 +520,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
           <GoogleMap
             key={mapView.districtId}
             mapContainerStyle={MAP_CONTAINER_STYLE}
+            mapContainerClassName="citizen-request-map"
             center={mapCenter}
             zoom={12}
             onLoad={onMapLoad}
@@ -490,18 +529,36 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
               gestureHandling,
               draggableCursor: 'grab',
               draggingCursor: 'grabbing',
-              streetViewControl: false,
+              cameraControl: false,
+              zoomControl: true,
+              zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM },
+              streetViewControl: true,
+              streetViewControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM },
+              rotateControl: false,
               mapTypeControl: false,
-              fullscreenControl: true,
+              fullscreenControl: false,
               clickableIcons: false,
             }}
           />
         )}
         {!loading && !resolving && unpinned.length > 0 ? (
-          <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[500] flex justify-center px-4">
-            <div
-              className="max-w-full rounded-lg bg-white/95 px-3 py-2 text-xs font-medium text-slate-600 shadow"
-              title={unpinned.join('\n')}
+          <div className="absolute inset-x-0 bottom-3 z-[500] flex justify-center px-4">
+            <button
+              type="button"
+              className="max-w-full rounded-lg bg-white/95 px-3 py-2 text-left text-xs font-medium text-slate-600 shadow hover:bg-white"
+              onClick={() => {
+                setJobDetail(null)
+                setCitizenSourceMessage(null)
+                setDetailError(null)
+                setDetailLoading(false)
+                setAddressTickets({
+                  citizen: {
+                    citizenName: t('citizenRequestMap.unlocatedListTitle', 'Konumlanamayan talepler'),
+                    citizenPhone: '',
+                  },
+                  tickets: unpinned.map(pinToTicket),
+                })
+              }}
             >
               {resolved.length === 0
                 ? t('citizenRequestMap.geocodeEmpty', 'Adresler haritada konumlanamadı.')
@@ -510,7 +567,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
                     '{{count}} talep adresinden konumlanamadı.',
                     { count: unpinned.length },
                   )}
-            </div>
+            </button>
           </div>
         ) : null}
       </div>

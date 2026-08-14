@@ -48,7 +48,11 @@ public sealed record DashboardChartDrilldownRow(
     string? Priority = null,
     /// <summary>Talep Etiketi pie: Birim yerine Vatandaş Adı / Telefon (#6a6c9fed).</summary>
     string? CitizenName = null,
-    string? CitizenPhone = null);
+    string? CitizenPhone = null,
+    /// <summary>Birim-dışı pie: Talep Yeri (sahip birim) — Bekleyen/Yapılmakta/Tamamlanan (#2616).</summary>
+    string? OwnerDepartmentName = null,
+    /// <summary>Talep Oluşturan Birimler pie: Gittiği Yer (#2616).</summary>
+    string? DestinationDepartmentName = null);
 
 public sealed record DashboardChartDrilldownResponse(
     IReadOnlyList<DashboardChartDrilldownRow> Rows);

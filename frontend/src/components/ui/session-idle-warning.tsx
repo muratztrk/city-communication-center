@@ -5,10 +5,15 @@ import { useTranslation } from 'react-i18next'
 import { Button } from './button'
 import { ModalBackdrop } from './modal-backdrop'
 import { isSessionSupersededPending } from '../../api/sessionFlags'
+import { restoreSessionFromCookie } from '../../api/auth'
 
-/** 1 saat hareketsizlik → kısa uyarı; 60 sn içinde uzatılmazsa logout (#1769 / #r490 / #2003). */
-const IDLE_BEFORE_WARNING_MS = 60 * 60_000
+/** 1 saat hareketsizlik → popup yok, direkt logout (#2603). */
+const IDLE_LOGOUT_MS = 60 * 60_000
+/** Cookie ExpireMinutes ile aynı; aktif kullanıcıya süre dolmadan uyarı (#2603). */
+const SESSION_LIFETIME_MS = 480 * 60_000
 const WARNING_COUNTDOWN_SECONDS = 60
+const LAST_ACTIVITY_KEY = 'ccc_last_activity_at'
+const SESSION_DEADLINE_KEY = 'ccc_session_deadline_at'
 
 const ACTIVITY_EVENTS: Array<keyof WindowEventMap> = [
   'mousedown',
@@ -23,15 +28,43 @@ interface SessionIdleWarningProps {
   onLogout: () => void
 }
 
+function readStoredMs(key: string): number | null {
+  try {
+    const raw = localStorage.getItem(key)
+    if (!raw) return null
+    const value = Number(raw)
+    return Number.isFinite(value) ? value : null
+  } catch {
+    return null
+  }
+}
+
+function writeStoredMs(key: string, value: number) {
+  try {
+    localStorage.setItem(key, String(value))
+  } catch {
+    // private mode
+  }
+}
+
+function ensureSessionDeadline(): number {
+  const existing = readStoredMs(SESSION_DEADLINE_KEY)
+  if (existing && existing > Date.now()) return existing
+  const deadline = Date.now() + SESSION_LIFETIME_MS
+  writeStoredMs(SESSION_DEADLINE_KEY, deadline)
+  return deadline
+}
+
 export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
   const { t } = useTranslation()
   const [isWarningOpen, setIsWarningOpen] = useState(false)
   const [secondsLeft, setSecondsLeft] = useState(WARNING_COUNTDOWN_SECONDS)
   const idleTimerRef = useRef<number | null>(null)
+  const sessionTimerRef = useRef<number | null>(null)
   const countdownTimerRef = useRef<number | null>(null)
   const warningOpenRef = useRef(false)
-  /** Duvar saati — setTimeout uyku sırasında donduğu için (#2003 / #r528). */
-  const lastActivityAtRef = useRef(Date.now())
+  const lastActivityAtRef = useRef(readStoredMs(LAST_ACTIVITY_KEY) ?? Date.now())
+  const sessionDeadlineRef = useRef(ensureSessionDeadline())
   const warningOpenedAtRef = useRef<number | null>(null)
   const onLogoutRef = useRef(onLogout)
   onLogoutRef.current = onLogout
@@ -40,6 +73,13 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
     if (idleTimerRef.current !== null) {
       window.clearTimeout(idleTimerRef.current)
       idleTimerRef.current = null
+    }
+  }
+
+  const clearSessionTimer = () => {
+    if (sessionTimerRef.current !== null) {
+      window.clearTimeout(sessionTimerRef.current)
+      sessionTimerRef.current = null
     }
   }
 
@@ -59,11 +99,11 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
   }
 
   const forceLogout = () => {
-    // Tek oturum supersede popup'ı açıksa idle logout ekranı kapatmasın (#6a6c805e).
     if (isSessionSupersededPending()) {
       return
     }
     clearIdleTimer()
+    clearSessionTimer()
     clearCountdown()
     warningOpenRef.current = false
     warningOpenedAtRef.current = null
@@ -71,9 +111,39 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
     onLogoutRef.current()
   }
 
-  /** Uyku/sekme sonrası: gerçek geçen süreye bak (#2003). */
+  const idleElapsed = () => Date.now() - lastActivityAtRef.current
+
+  const startIdleTimer = () => {
+    clearIdleTimer()
+    const remaining = Math.max(0, IDLE_LOGOUT_MS - idleElapsed())
+    idleTimerRef.current = window.setTimeout(() => {
+      forceLogout()
+    }, remaining)
+  }
+
+  const startSessionWarningTimer = () => {
+    clearSessionTimer()
+    const untilWarning = sessionDeadlineRef.current - WARNING_COUNTDOWN_SECONDS * 1000 - Date.now()
+    sessionTimerRef.current = window.setTimeout(() => {
+      if (idleElapsed() >= IDLE_LOGOUT_MS) {
+        forceLogout()
+        return
+      }
+      openWarning()
+    }, Math.max(0, untilWarning))
+  }
+
+  /** Uyku/sekme sonrası: gerçek geçen süreye bak (#2003 / #2603). */
   const reconcileIdleWithWallClock = () => {
+    const storedActivity = readStoredMs(LAST_ACTIVITY_KEY)
+    if (storedActivity && storedActivity > lastActivityAtRef.current) {
+      lastActivityAtRef.current = storedActivity
+    }
     const now = Date.now()
+    if (now - lastActivityAtRef.current >= IDLE_LOGOUT_MS) {
+      forceLogout()
+      return
+    }
     if (warningOpenRef.current) {
       const openedAt = warningOpenedAtRef.current ?? now
       const elapsedInWarning = now - openedAt
@@ -85,25 +155,18 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
       setSecondsLeft(remaining)
       return
     }
-    if (now - lastActivityAtRef.current >= IDLE_BEFORE_WARNING_MS) {
-      clearIdleTimer()
+    if (now >= sessionDeadlineRef.current - WARNING_COUNTDOWN_SECONDS * 1000) {
       openWarning()
     }
-  }
-
-  const startIdleTimer = () => {
-    clearIdleTimer()
-    const remaining = Math.max(0, IDLE_BEFORE_WARNING_MS - (Date.now() - lastActivityAtRef.current))
-    idleTimerRef.current = window.setTimeout(() => {
-      openWarning()
-    }, remaining)
   }
 
   const resetIdleFromActivity = () => {
     if (warningOpenRef.current) {
       return
     }
-    lastActivityAtRef.current = Date.now()
+    const now = Date.now()
+    lastActivityAtRef.current = now
+    writeStoredMs(LAST_ACTIVITY_KEY, now)
     startIdleTimer()
   }
 
@@ -113,8 +176,14 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
     warningOpenedAtRef.current = null
     setIsWarningOpen(false)
     setSecondsLeft(WARNING_COUNTDOWN_SECONDS)
-    lastActivityAtRef.current = Date.now()
+    const now = Date.now()
+    lastActivityAtRef.current = now
+    writeStoredMs(LAST_ACTIVITY_KEY, now)
+    sessionDeadlineRef.current = now + SESSION_LIFETIME_MS
+    writeStoredMs(SESSION_DEADLINE_KEY, sessionDeadlineRef.current)
     startIdleTimer()
+    startSessionWarningTimer()
+    void restoreSessionFromCookie()
   }
 
   const endSession = () => {
@@ -122,8 +191,16 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
   }
 
   useEffect(() => {
-    lastActivityAtRef.current = Date.now()
+    const stored = readStoredMs(LAST_ACTIVITY_KEY)
+    if (stored) lastActivityAtRef.current = stored
+    else writeStoredMs(LAST_ACTIVITY_KEY, lastActivityAtRef.current)
+    sessionDeadlineRef.current = ensureSessionDeadline()
+    if (Date.now() - lastActivityAtRef.current >= IDLE_LOGOUT_MS) {
+      forceLogout()
+      return
+    }
     startIdleTimer()
+    startSessionWarningTimer()
     for (const eventName of ACTIVITY_EVENTS) {
       window.addEventListener(eventName, resetIdleFromActivity, { passive: true })
     }
@@ -132,6 +209,7 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
       reconcileIdleWithWallClock()
       if (!warningOpenRef.current) {
         startIdleTimer()
+        startSessionWarningTimer()
       }
     }
     document.addEventListener('visibilitychange', onWakeOrVisible)
@@ -139,6 +217,7 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
     window.addEventListener('pageshow', onWakeOrVisible)
     return () => {
       clearIdleTimer()
+      clearSessionTimer()
       clearCountdown()
       for (const eventName of ACTIVITY_EVENTS) {
         window.removeEventListener(eventName, resetIdleFromActivity)

@@ -266,7 +266,7 @@ export const IZMIR_DISTRICTS: IzmirDistrict[] = [
       'Işıklar',
       'Işıklı',
       'İbni Melek',
-      'İbnimelek OSB',
+      'İbni Melek OSB',
       'İhsaniye',
       'İpekçiler',
       'İstiklal',
@@ -410,7 +410,7 @@ function stripGeocodeNeighborhoodSuffixes(value: string): string {
 
 /**
  * Harita geocode için mahalle adını ilçe kataloğuna indirger.
- * "İbnimelek OSB" / "İbnimelek" → "İbni Melek" (#2596/#2601) — katalogda ayrı mahalle
+ * "İbni Melek OSB" / "İbnimelek OSB" → "İbni Melek" (#2596/#2601) — katalogda ayrı mahalle
  * olsa da Google OSB'yi başka sanayi bölgesine düşürmesin.
  */
 export function canonicalizeNeighborhoodForGeocode(

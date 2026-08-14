@@ -51,6 +51,8 @@ export interface DashboardChartDrilldownRow {
   /** Talep Etiketi pie: Birim yerine Vatandaş Adı / Telefon (#6a6c9fed). */
   citizenName?: string | null;
   citizenPhone?: string | null;
+  ownerDepartmentName?: string | null;
+  destinationDepartmentName?: string | null;
 }
 
 export interface DashboardChartDrilldownResponse {

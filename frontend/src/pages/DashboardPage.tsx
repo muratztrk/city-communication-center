@@ -125,15 +125,15 @@ const CITIZEN_DASHBOARD_CHART_KEYS = new Set([
 
 /** Anasayfa - Vatandaş grafik sırası (#6a6e0287); listede olmayan grafikler sona düşer. */
 const CITIZEN_DASHBOARD_CHART_ORDER = [
-  'dashboard.charts.citizenRequests',
-  'dashboard.charts.requestTags',
-  'dashboard.citizenChannels.title',
   'dashboard.charts.neighborhoodProcessingRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.citizenDepartmentProcessingRequests',
   'dashboard.charts.citizenDepartmentInProgressRequests',
   'dashboard.charts.citizenDepartmentCompletedRequests',
+  'dashboard.charts.citizenRequests',
+  'dashboard.charts.requestTags',
+  'dashboard.citizenChannels.title',
 ]
 
 function citizenChartOrder(titleKey: string): number {
@@ -592,8 +592,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     return !isReporter || card.titleKey !== 'dashboard.charts.myTasks'
   })
 
-  // Anasayfa - Vatandaş grafik sırası kart isteğiyle sabitlendi (#6a6e0287): Talep Kanalları
-  // 3. sıraya, mahalle grafikleri İşleme Alınan → Yapılmakta → Tamamlanan olarak akar.
+  // Anasayfa - Vatandaş grafik sırası (#2606): 1. satır mahalle üçlüsü, 2. satır birim üçlüsü,
+  // 3. satır Vatandaş Talepleri / Talep Etiketi / Kanallar.
   if (effectiveView === 'citizen') {
     chartCards.sort((a, b) => citizenChartOrder(a.titleKey) - citizenChartOrder(b.titleKey))
   }

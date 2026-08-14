@@ -1,3 +1,21 @@
+## Round 813 — map/dashboard/idle (#2601–#2616)
+
+- [x] `6a7f1de3` — Katalog metni **İbni Melek OSB** (#2601).
+- [x] `6a7f57a1` — Cluster 2. tıklama marker görecek kadar zoom (#2612).
+- [x] `6a7f644d` — Birimler pie popup Talep Yeri / Gittiği Yer (#2616).
+- [x] `6a7f5eb2` — Harita kamera ikonu/pan yok; +/- küçük sağ alt (#2615).
+- [x] `6a7f5e43` — Street View sağ altta zoom'un solu (#2614).
+- [x] `6a7f5d1a` — Pin renk doygunluğu artırıldı (#2613).
+- [x] `6a7f33cf` — Birimler Durum overdue `Yapılmakta (Son Tarihi Geçmiş)` (#2609).
+- [x] `6a7f3318` — Bekleyen Talepler / Tamamlanan Talepler başlıkları (#2608).
+- [x] `6a7f3120` — Vatandaş pie satır sırası mahalle→birim→diğer (#2606).
+- [x] `6a7f31ec` — Marker'lar geocode bitince toplu basılır (#2607).
+- [x] `6a7f30a2` — İşleme Alınan / Yapılmakta pie kapsamı (#2605).
+- [x] `6a7f004c` — Pin çerçevesi güçlendirildi (#2597).
+- [x] `6a7f2baa` — Konumlanamadı tıklanınca dizin popup (#2604).
+- [x] `6a7e0cec` — No başlığı 1.45rem sağa (#2576).
+- [x] `6a7f2a0e` — 1 saat idle direkt logout; aktifken oturum uyarısı (#2603).
+
 ## Round 812 — #2602
 
 - [x] `6a7f24f2` — Rutin Görev Oluştur Mahalle dropdown aşağı açılır (#2602).

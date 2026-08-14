@@ -4394,7 +4394,7 @@
   /* No başlığı biraz daha sağa (#2576). */
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label,
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__value {
-    transform: translateX(1.2rem);
+    transform: translateX(1.45rem);
     margin-inline: 0;
     text-align: left;
   }
@@ -6452,5 +6452,18 @@
     .my-request-detail-priority-header__control {
       width: 6rem !important;
     }
+  }
+
+  /* Vatandaş Talep Haritası: kamera ikonu/pan yok; +/- küçük ve her zaman görünür (#2615/#2614). */
+  .citizen-request-map .gm-bundled-control,
+  .citizen-request-map .gm-bundled-control .gmnoprint {
+    transform: scale(0.72);
+    transform-origin: bottom right;
+  }
+
+  .citizen-request-map .gm-svpc,
+  .citizen-request-map .gm-style-cc {
+    transform: scale(0.86);
+    transform-origin: bottom right;
   }
 }

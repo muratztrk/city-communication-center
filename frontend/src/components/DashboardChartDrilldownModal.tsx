@@ -14,8 +14,9 @@ import { GridStatusLabel } from './ui/GridStatusLabel'
 import { DueDatePill } from './ui/due-date-pill'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
-import { getAuditStatusLabel, getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline } from '../utils/localization'
+import { getAuditStatusLabel, getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, formatOverdueInProgressStatus } from '../utils/localization'
 import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
+import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { ChannelIcon } from './ui/channel-icon'
 import { TruncatedText } from './ui/TruncatedText'
@@ -134,6 +135,9 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
   if (isCitizenRequestJob(detail)) {
     return getCitizenRequestStatusLabel(t, detail)
   }
+  if (isJobDueDateOverdue({ status: detail.status, dueDateUtc: detail.dueDateUtc })) {
+    return formatOverdueInProgressStatus(t)
+  }
   if (detail.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
   if (detail.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
   if (detail.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
@@ -155,7 +159,12 @@ function getDrilldownStatusLabel(t: TFunction, row: DashboardChartDrilldownRow):
   if (row.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (row.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (row.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
-  if (row.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  if (row.status === 'Active') {
+    if (isJobDueDateOverdue({ status: row.status, dueDateUtc: row.dueDateUtc })) {
+      return formatOverdueInProgressStatus(t)
+    }
+    return t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  }
   if (row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval') {
     return t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
   }
@@ -300,6 +309,11 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const isNeighborhoodChart = NEIGHBORHOOD_CHART_KEYS.has(chartKey)
   const isExternalUnitChart = EXTERNAL_UNIT_CHART_KEYS.has(chartKey)
   const isCitizenDepartmentChart = CITIZEN_DEPARTMENT_CHART_KEYS.has(chartKey)
+  const isCreatorsChart = chartKey === 'dashboard.charts.externalRequestCreators'
+  const showRequestLocationColumn = chartKey === 'dashboard.charts.externalRequestPending'
+    || chartKey === 'dashboard.charts.externalRequestInProgress'
+    || chartKey === 'dashboard.charts.externalRequestFulfillers'
+  const showDestinationColumn = isCreatorsChart
   const truncateUnitColumn = TRUNCATE_UNIT_CHART_KEYS.has(chartKey)
   // Anasayfa - Vatandaş pie popup'larında kolon başlığı her zaman VT (#6a6cff28).
   const useCitizenRequestNoHeader = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart || isCitizenDepartmentChart
@@ -319,6 +333,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const drilldownColumnCount = 6
     + (showCitizenColumn ? 1 : 0)
     + (showUnitColumn ? 1 : 0)
+    + (showRequestLocationColumn ? 1 : 0)
+    + (showDestinationColumn ? 1 : 0)
     + (showTerminalDateColumn ? 1 : 0)
     + (hideDueDateColumn ? 0 : 1)
 
@@ -451,7 +467,9 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                       ) : null}
                       <th className="text-center">{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
                       <th>{t('jobs.columns.title', 'Başlık')}</th>
+                      {showRequestLocationColumn ? <th>{t('jobs.detail.requestLocation', 'Talep Yeri')}</th> : null}
                       {showUnitColumn && unitColumnLabel ? <th>{unitColumnLabel}</th> : null}
+                      {showDestinationColumn ? <th>{t('social.destination', 'Gittiği Yer')}</th> : null}
                       <th className="grid-col-status text-center">{t('jobs.columns.status', 'Durum')}</th>
                       {showTerminalDateColumn ? <th className="text-center">{terminalColumnHeader}</th> : null}
                       {!hideDueDateColumn ? <th className="text-center">{t('jobs.columns.dueDate', 'Son Tarih')}</th> : null}
@@ -509,6 +527,13 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                         <td className="font-semibold">
                           <TruncatedText text={row.title?.trim() || '—'} className="cell-title" />
                         </td>
+                        {showRequestLocationColumn ? (
+                          <td className="max-w-[12rem]">
+                            {row.ownerDepartmentName?.trim()
+                              ? <span className="block truncate">{row.ownerDepartmentName}</span>
+                              : '—'}
+                          </td>
+                        ) : null}
                         {showUnitColumn ? (
                           <td className={truncateUnitColumn ? 'max-w-[12rem]' : undefined}>
                             {truncateUnitColumn ? (
@@ -516,6 +541,13 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                                 <span className="block truncate">{row.departmentName ?? row.neighborhood}</span>
                               ) : '—'
                             ) : (row.departmentName ?? row.neighborhood ?? '—')}
+                          </td>
+                        ) : null}
+                        {showDestinationColumn ? (
+                          <td className="max-w-[12rem]">
+                            {row.destinationDepartmentName?.trim()
+                              ? <span className="block truncate">{row.destinationDepartmentName}</span>
+                              : '—'}
                           </td>
                         ) : null}
                         <td className="grid-col-status text-center">

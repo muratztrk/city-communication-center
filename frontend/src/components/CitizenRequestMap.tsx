@@ -105,8 +105,8 @@ function isSameOrChildCluster(previousKey: string, nextKey: string): boolean {
   return nextKey.split('|').every(part => previous.has(part))
 }
 
-/** 2. tıklamada pinlere bir kademe daha yaklaş; fitBounds / sokak over-zoom yok (#2612). */
-const CLUSTER_REVEAL_ZOOM = NUMBERED_SINGLE_MAX_ZOOM + 2
+/** 2. tıklamada pinlere biraz daha yaklaş; fitBounds / sokak over-zoom yok (#2612). */
+const CLUSTER_REVEAL_ZOOM = NUMBERED_SINGLE_MAX_ZOOM + 3
 
 function onCitizenClusterClick(_: google.maps.MapMouseEvent, cluster: Cluster, map: google.maps.Map) {
   const current = map.getZoom() ?? 12
@@ -152,8 +152,8 @@ class CitizenMapClusterer extends MarkerClusterer {
 
 const pinIconCache = new Map<string, google.maps.Icon>()
 
-const PIN_WIDTH = 18
-const PIN_HEIGHT = 27
+const PIN_WIDTH = 22
+const PIN_HEIGHT = 33
 
 function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
   const cacheKey = `${color}|${approximate ? 'approx' : 'exact'}`
@@ -588,8 +588,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
               draggableCursor: 'grab',
               draggingCursor: 'grabbing',
               cameraControl: false,
-              zoomControl: true,
-              zoomControlOptions: { position: google.maps.ControlPosition.RIGHT_BOTTOM },
+              zoomControl: false,
               streetViewControl: false,
               rotateControl: false,
               mapTypeControl: false,
@@ -599,23 +598,55 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
           />
         )}
         {mapsReady && isLoaded && !loadError ? (
-          <button
-            type="button"
-            className={`citizen-request-map-streetview-btn${streetViewPicker ? ' is-active' : ''}`}
-            title={t('citizenRequestMap.streetView', 'Street View')}
-            aria-label={t('citizenRequestMap.streetView', 'Street View')}
-            aria-pressed={streetViewPicker}
-            onClick={toggleStreetViewPicker}
+          <div
+            className="citizen-request-map-controls"
+            onClick={event => event.stopPropagation()}
+            onMouseDown={event => event.stopPropagation()}
           >
-            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
-              <circle cx="12" cy="5.6" r="2.55" fill="#F4B400" />
-              <path
-                fill="#F4B400"
-                d="M7.9 9.15c0-.5.4-.9.9-.9h6.4c.5 0 .9.4.9.9v4.15l1.35.45c.28.1.45.4.38.68l-.2.78a.6.6 0 0 1-.73.42L15.15 15.1v5.05c0 .42-.34.75-.75.75h-.7c-.41 0-.75-.33-.75-.75v-3.05h-.4v3.05c0 .42-.34.75-.75.75h-.7c-.41 0-.75-.33-.75-.75V15.1l-1.75.53a.6.6 0 0 1-.73-.42l-.2-.78a.58.58 0 0 1 .38-.68l1.35-.45V9.15z"
-              />
-              <path fill="#E37400" opacity=".35" d="M12.9 8.25h2.3c.5 0 .9.4.9.9v4.15l1.35.45.2.78-.2.1-1.55-.48V15.1v5.05c0 .2-.08.38-.2.5h-.7V17.1h-.4v3.55h-.7c-.12-.12-.2-.3-.2-.5v-3.05h-.1V8.25z" />
-            </svg>
-          </button>
+            <button
+              type="button"
+              className={`citizen-request-map-streetview-btn${streetViewPicker ? ' is-active' : ''}`}
+              title={t('citizenRequestMap.streetView', 'Street View')}
+              aria-label={t('citizenRequestMap.streetView', 'Street View')}
+              aria-pressed={streetViewPicker}
+              onClick={toggleStreetViewPicker}
+            >
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <circle cx="12" cy="5.6" r="2.55" fill="#F4B400" />
+                <path
+                  fill="#F4B400"
+                  d="M7.9 9.15c0-.5.4-.9.9-.9h6.4c.5 0 .9.4.9.9v4.15l1.35.45c.28.1.45.4.38.68l-.2.78a.6.6 0 0 1-.73.42L15.15 15.1v5.05c0 .42-.34.75-.75.75h-.7c-.41 0-.75-.33-.75-.75v-3.05h-.4v3.05c0 .42-.34.75-.75.75h-.7c-.41 0-.75-.33-.75-.75V15.1l-1.75.53a.6.6 0 0 1-.73-.42l-.2-.78a.58.58 0 0 1 .38-.68l1.35-.45V9.15z"
+                />
+                <path fill="#E37400" opacity=".35" d="M12.9 8.25h2.3c.5 0 .9.4.9.9v4.15l1.35.45.2.78-.2.1-1.55-.48V15.1v5.05c0 .2-.08.38-.2.5h-.7V17.1h-.4v3.55h-.7c-.12-.12-.2-.3-.2-.5v-3.05h-.1V8.25z" />
+              </svg>
+            </button>
+            <div className="citizen-request-map-zoom">
+              <button
+                type="button"
+                className="citizen-request-map-zoom-btn"
+                title="+"
+                aria-label="+"
+                onClick={() => {
+                  if (!mapInstance) return
+                  mapInstance.setZoom(Math.min(21, (mapInstance.getZoom() ?? 12) + 1))
+                }}
+              >
+                +
+              </button>
+              <button
+                type="button"
+                className="citizen-request-map-zoom-btn"
+                title="−"
+                aria-label="−"
+                onClick={() => {
+                  if (!mapInstance) return
+                  mapInstance.setZoom(Math.max(3, (mapInstance.getZoom() ?? 12) - 1))
+                }}
+              >
+                −
+              </button>
+            </div>
+          </div>
         ) : null}
         {!loading && !resolving && unpinned.length > 0 ? (
           <div className="absolute inset-x-0 bottom-3 z-[500] flex justify-center px-4">

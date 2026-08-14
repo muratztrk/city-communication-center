@@ -4,6 +4,7 @@ import { ChannelIcon } from '../../ui/channel-icon'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
 import { formatJobDestinationsWithAssignees } from '../../../utils/jobDetails'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
+import { shouldShowJobProjectField } from '../../../utils/jobProjectLabel'
 import {
   formatCitizenPhoneDisplay,
   formatCitizenRequestNumber,
@@ -122,11 +123,13 @@ export function buildMyRequestDetailFields(
             : t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'),
           value: destinationValue,
         }]),
-    {
-      label: t('jobs.form.isProject', 'Proje mi'),
-      value: <JobProjectValue job={detail} t={t} />,
-      highlight: detail.isProject,
-    },
+    ...(shouldShowJobProjectField(detail)
+      ? [{
+          label: t('jobs.form.isProject', 'Proje mi'),
+          value: <JobProjectValue job={detail} t={t} />,
+          highlight: detail.isProject,
+        }]
+      : []),
     { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
     ...extraFields,
   ]

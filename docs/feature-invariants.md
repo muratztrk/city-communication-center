@@ -1604,8 +1604,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yetmez. Birimler pie başlıkları: Bekleyen Talepler / Tamamlanan Talepler (#2608).
   Talep Oluşturan Birimler drilldown: Birim sonrası Gittiği Yer; Bekleyen/Yapılmakta/Tamamlanan
   drilldown: Talep Yeri (sahip birim) Birim’den önce (#2616). Durum overdue = `Yapılmakta (Son Tarihi Geçmiş)` (#2609).
-  Yapılmakta/Tamamlanan Projeler pie yalnız Birim İçi (`InternalUnit`) + Üst Düzey Yönetici’nin
-  oluşturduğu `IsProject` talepler (#2618); diğer birim-dışı projeler dahil değil.
+  Yapılmakta/Tamamlanan Projeler pie yalnız Birim İçi (`InternalUnit`, Owner birim) + Üst Düzey
+  Yönetici’nin oluşturduğu `IsProject` talepler (#2618); Birim İçi Target JobDepartment aranmaz
+  (T-2026-589). Diğer birim-dışı projeler dahil değil.
 - **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
 - **Vatandaş Talep Haritası (#2572/#2569):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
@@ -1615,17 +1616,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   InfoWindow yok. Aynı adres/konumda birden fazla talep varsa dizin nested
   `Vatandaş Bilgi Listesi` popup'ı açılır; tek talepte Vatandaş Talebi kalır (#2592).
   Cluster rengi banner `--color-header-from`; ilk tıklama yalnız zoom in (pan + 1 kademe),
-  `fitBounds` / zoom out yok (#2598). İlk cluster tıklaması +1 kademe; ikinci tıklama zoom 15
+  `fitBounds` / zoom out yok (#2598). İlk cluster tıklaması +1 kademe; ikinci tıklama zoom 16
   (pin görünür, sokak seviyesine inmez — 3. tıklama/`fitBounds` yok; #2612). SuperCluster
   `maxZoom` 13, böylece 2. tıklamada küme çözülür.
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
-  Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593). Pin **rengi** durum
+  Marker **pin ikonu** (daire değil); cluster küçük, pin 22×33 (#2593/#2597). Pin **rengi** durum
   rengi (sky-500 / orange-500 / red-500 / green-500; iç daire beyaz); doygunluk artırımı
   geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
-  zoom sağ altta küçültülmüş ve köşeye yakın; Street View sarı pegman (Google Maps benzeri),
-  tıklamayla mavi kapsama → yola tıklayınca açılır, eksi butonunun solunda (#2614/#2615).
+  özel +/- (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman
+  küçük beyaz çerçeve / büyük ikon, zoom yığınının solunda ortalı, tıklamayla mavi kapsama
+  → yola tıklayınca açılır (#2614/#2615/#2621).
   pan/fullscreen yok. Geocode fail pin yok;
   “konumlanamadı” tıklanınca Vatandaş Bilgi Listesi (#2604).
   Pin konumu Google geocode: mahalle + cadde/sokak + no. Cadde Google’da yoksa mahalle
@@ -1685,6 +1687,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   vatandaşta `Proje mi` satırı yok.
 - **Vatandaş Talep Bilgisi popup (#r466):** `MyRequestDetailMainCard` vatandaşta `Proje mi` satırını
   gizler (`hideProjectRow`); dizin nested Detaylar dahil.
+- **Detay popup Proje mi (#2620):** Hayır ise (ve onay bekleyen proje isteği yoksa) `Proje mi`
+  başlığı tüm Detaylar popup’larında gizlenir; Evet / onay bekleyen istek görünür.
 - **Vatandaş Talepleri paging (#r467):** sayfa numarası tıklanınca kolon filtreleri temizlenir ama
   sayfa 1'e sıfırlanmaz (filtre-clear → page-reset yarışı yok).
 - **JobDetail VT (#r467):** `GetJobById` / `JobDetailResponse` `CitizenRequestNumber` taşır; yazdır VT-…

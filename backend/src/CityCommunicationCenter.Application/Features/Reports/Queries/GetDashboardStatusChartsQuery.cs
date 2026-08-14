@@ -561,41 +561,17 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .ToListAsync(cancellationToken))
             .Select(item => (item.DepartmentId, item.Count));
 
-        // Proje pie: Birim İçi + Üst Düzey Yönetici'nin oluşturduğu projeler (#2618).
+        // Proje pie: Birim İçi (Owner birim) + Üst Düzey Yönetici'nin oluşturduğu dış birim projeleri (#2618).
+        // Birim içi taleplerin JobDepartment Target satırı yoktur — Target ile sayılırsa T-2026-589 gibi kayıtlar kaybolur.
         var reporterUserIds = await _dbContext.Users.AsNoTracking()
             .Where(user => user.TenantId == tenantId && user.RoleCode == RoleCode.Reporter)
             .Select(user => user.UserId)
             .ToListAsync(cancellationToken);
 
-        var projectsInProgress = (await _dbContext.JobDepartments.AsNoTracking()
-            .Where(link => link.Role == JobDepartmentRole.Target
-                && link.Job.TenantId == tenantId
-                && link.Job.IsProject
-                && link.Job.Status == JobStatus.Active
-                && (link.Job.RequestType == JobRequestType.InternalUnit
-                    || (link.Job.CreatedByUserId.HasValue && reporterUserIds.Contains(link.Job.CreatedByUserId.Value)))
-                && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
-            .WhereJobIsNotCitizenSourced(_dbContext)
-            .GroupBy(link => link.DepartmentId)
-            .Select(group => new { DepartmentId = group.Key, Count = group.Count() })
-            .ToListAsync(cancellationToken))
-            .Select(item => (item.DepartmentId, item.Count));
-
-        var projectsCompleted = (await _dbContext.JobDepartments.AsNoTracking()
-            .Where(link => link.Role == JobDepartmentRole.Target
-                && link.Job.TenantId == tenantId
-                && link.Job.IsProject
-                && link.Job.Status == JobStatus.Completed
-                && (link.Job.RequestType == JobRequestType.InternalUnit
-                    || (link.Job.CreatedByUserId.HasValue && reporterUserIds.Contains(link.Job.CreatedByUserId.Value)))
-                && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
-            .WhereJobIsNotCitizenSourced(_dbContext)
-            .GroupBy(link => link.DepartmentId)
-            .Select(group => new { DepartmentId = group.Key, Count = group.Count() })
-            .ToListAsync(cancellationToken))
-            .Select(item => (item.DepartmentId, item.Count));
+        var projectsInProgress = await CountProjectDepartmentsAsync(
+            tenantId, JobStatus.Active, reporterUserIds, request, cancellationToken);
+        var projectsCompleted = await CountProjectDepartmentsAsync(
+            tenantId, JobStatus.Completed, reporterUserIds, request, cancellationToken);
 
         var counts = new[] { creators, pending, inProgress, fulfillers, projectsInProgress, projectsCompleted };
         var departmentIds = counts.SelectMany(entries => entries.Select(entry => entry.DepartmentId))
@@ -616,6 +592,46 @@ public sealed class GetDashboardStatusChartsQueryHandler
             BuildDepartmentChart("dashboard.charts.externalProjectsInProgress", projectsInProgress, departmentNames),
             BuildDepartmentChart("dashboard.charts.externalProjectsCompleted", projectsCompleted, departmentNames),
         ];
+    }
+
+    private async Task<IReadOnlyList<(Guid DepartmentId, int Count)>> CountProjectDepartmentsAsync(
+        Guid tenantId,
+        JobStatus status,
+        List<Guid> reporterUserIds,
+        GetDashboardStatusChartsQuery request,
+        CancellationToken cancellationToken)
+    {
+        var internalCounts = await _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && job.IsProject
+                && job.Status == status
+                && job.RequestType == JobRequestType.InternalUnit
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            .WhereIsNotCitizenSourced(_dbContext)
+            .GroupBy(job => job.OwnerDepartmentId)
+            .Select(group => new { DepartmentId = group.Key, Count = group.Count() })
+            .ToListAsync(cancellationToken);
+
+        var reporterCounts = await _dbContext.JobDepartments.AsNoTracking()
+            .Where(link => link.Role == JobDepartmentRole.Target
+                && link.Job.TenantId == tenantId
+                && link.Job.IsProject
+                && link.Job.Status == status
+                && link.Job.RequestType != JobRequestType.InternalUnit
+                && link.Job.CreatedByUserId.HasValue
+                && reporterUserIds.Contains(link.Job.CreatedByUserId.Value)
+                && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
+            .WhereJobIsNotCitizenSourced(_dbContext)
+            .GroupBy(link => link.DepartmentId)
+            .Select(group => new { DepartmentId = group.Key, Count = group.Count() })
+            .ToListAsync(cancellationToken);
+
+        return internalCounts.Concat(reporterCounts)
+            .GroupBy(item => item.DepartmentId)
+            .Select(group => (group.Key, group.Sum(item => item.Count)))
+            .ToList();
     }
 
     /// <summary>

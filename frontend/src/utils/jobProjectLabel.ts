@@ -16,3 +16,8 @@ export function formatJobProjectLabel(job: JobProjectFields, t: TFunction): stri
   }
   return job.isProject ? t('common.yes', 'Evet') : t('common.no', 'Hayır')
 }
+
+/** Hayır ise detay popup'ta Proje mi satırı gösterilmez (#2620). */
+export function shouldShowJobProjectField(job: JobProjectFields): boolean {
+  return job.isProject === true || job.isProjectCreatorRequested === true
+}

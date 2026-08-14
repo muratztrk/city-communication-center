@@ -40,7 +40,7 @@ import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJo
 import { ExternalDestinationValue } from '../components/jobs/my-request-detail/ExternalDestinationValue'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
-import { formatJobProjectLabel } from '../utils/jobProjectLabel'
+import { formatJobProjectLabel, shouldShowJobProjectField } from '../utils/jobProjectLabel'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel, formatOverdueInProgressStatus, shouldShowGridPrioritySubline } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { getRequestEditPath } from '../utils/requestEditPath'
@@ -449,7 +449,7 @@ export function printJobDetail(
     ['Talep Yapılan Birim', options?.myRequestView
       ? formatJobDestinationsWithAssignees(detail)
       : formatJobDestinationsWithAssignees(detail, false, false)],
-    ...(isCitizenPrint ? [] : [['Proje mi', formatJobProjectLabel(detail, t)] as [string, string]]),
+    ...(isCitizenPrint || !shouldShowJobProjectField(detail) ? [] : [['Proje mi', formatJobProjectLabel(detail, t)] as [string, string]]),
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
     // Detayda Talep Etiketi varsa yazdırmada Durum sonrası (#2189).
@@ -2812,7 +2812,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: 'Talep Yapılan Birim',
                         value: <ExternalDestinationValue detail={detail} framed={false} />,
                       },
-                      { label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> },
+                      ...(shouldShowJobProjectField(detail) ? [{ label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> }] : []),
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
                     ]).map(({ label, value }) => (
                       <div key={label} className="job-detail-field-row job-detail-field-row--request-info">

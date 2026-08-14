@@ -6456,11 +6456,44 @@
 }
 
 @layer components {
-  /* Vatandaş Talep Haritası: +/- küçültülmüş, köşeye yakın (#2614). */
-  .citizen-request-map .gm-bundled-control,
-  .citizen-request-map .gm-bundled-control .gmnoprint {
-    transform: scale(0.78) translateY(6px);
-    transform-origin: bottom right;
+  /* Vatandaş Talep Haritası: özel +/- (tüm çerçeve tıklanır) + Street View (#2614/#2615/#2621). */
+  .citizen-request-map-controls {
+    position: absolute;
+    z-index: 5;
+    right: 0.7rem;
+    bottom: 1.15rem;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .citizen-request-map-zoom {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .citizen-request-map-zoom-btn {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    border: 0;
+    background: #fff;
+    color: #5f6368;
+    font-size: 1.25rem;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .citizen-request-map-zoom-btn + .citizen-request-map-zoom-btn {
+    border-top: 1px solid #e8eaed;
+  }
+
+  .citizen-request-map-zoom-btn:hover {
+    background: #f8fafc;
   }
 
   .citizen-request-map .gm-svpc {
@@ -6468,15 +6501,11 @@
   }
 
   .citizen-request-map-streetview-btn {
-    position: absolute;
-    z-index: 5;
-    right: 2.55rem;
-    bottom: 0.72rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 1.85rem;
-    height: 1.85rem;
+    width: 1.7rem;
+    height: 1.7rem;
     padding: 0;
     border: 0;
     border-radius: 2px;

@@ -25,6 +25,7 @@ import { formatDateTime, pendingApprovalValueClassName } from './format'
 import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, formatOverdueInProgressStatus } from '../../../utils/localization'
 import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
+import { shouldShowJobProjectField } from '../../../utils/jobProjectLabel'
 import { normalizeTitleCaseField } from '../../../utils/textNormalization'
 import { formatJobDisplayNumberText } from '../../../utils/requestNumberText'
 import { formatCitizenRequestNumber, isCitizenRequestJob } from '../../../utils/citizenRequests'
@@ -515,7 +516,7 @@ export function MyRequestDetailMainCard({
                 separatePriorityProjectRows={separatePriorityProjectRows}
                 hidePriorityRow={priorityInInfoHeader}
                 // Vatandaş talebinde Proje mi anlamsız — UI + yazdır (#r465/#r466).
-                hideProjectRow={hideProjectRow || isCitizenRequestJob(detail)}
+                hideProjectRow={hideProjectRow || isCitizenRequestJob(detail) || !shouldShowJobProjectField(detail)}
                 canEditCitizenContact={citizenSourceMessage?.channel === 'Phone'}
                 extraTrailingRows={infoExtraTrailingRows}
               />

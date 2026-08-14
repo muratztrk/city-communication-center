@@ -286,24 +286,32 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 .ToListAsync(cancellationToken);
         }
 
-        var query = _dbContext.JobDepartments.AsNoTracking()
-            .Where(link => link.Role == JobDepartmentRole.Target
-                && link.DepartmentId == departmentId
-                && link.Job.TenantId == tenantId
-                && (nonCitizenOnly || link.Job.RequestType == JobRequestType.ExternalUnit)
-                && statuses.Contains(link.Job.Status)
-                && (!isProject.HasValue || link.Job.IsProject == isProject.Value)
-                && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
-            .WhereJobIsNotCitizenSourced(_dbContext);
-
-        if (internalOrReporterProjects)
-        {
-            var ids = reporterUserIds ?? [];
-            query = query.Where(link =>
-                link.Job.RequestType == JobRequestType.InternalUnit
-                || (link.Job.CreatedByUserId.HasValue && ids.Contains(link.Job.CreatedByUserId.Value)));
-        }
+        var ids = reporterUserIds ?? [];
+        var query = internalOrReporterProjects
+            ? _dbContext.JobDepartments.AsNoTracking()
+                .Where(link => link.DepartmentId == departmentId
+                    && link.Job.TenantId == tenantId
+                    && statuses.Contains(link.Job.Status)
+                    && link.Job.IsProject
+                    && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value)
+                    && (
+                        (link.Job.RequestType == JobRequestType.InternalUnit && link.Role == JobDepartmentRole.Owner)
+                        || (link.Role == JobDepartmentRole.Target
+                            && link.Job.RequestType != JobRequestType.InternalUnit
+                            && link.Job.CreatedByUserId.HasValue
+                            && ids.Contains(link.Job.CreatedByUserId.Value))))
+                .WhereJobIsNotCitizenSourced(_dbContext)
+            : _dbContext.JobDepartments.AsNoTracking()
+                .Where(link => link.Role == JobDepartmentRole.Target
+                    && link.DepartmentId == departmentId
+                    && link.Job.TenantId == tenantId
+                    && (nonCitizenOnly || link.Job.RequestType == JobRequestType.ExternalUnit)
+                    && statuses.Contains(link.Job.Status)
+                    && (!isProject.HasValue || link.Job.IsProject == isProject.Value)
+                    && (!request.FromUtc.HasValue || link.Job.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || link.Job.CreatedAtUtc <= request.ToUtc.Value))
+                .WhereJobIsNotCitizenSourced(_dbContext);
 
         var rows = await query
             .OrderByDescending(link => link.Job.CreatedAtUtc)

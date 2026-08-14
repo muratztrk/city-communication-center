@@ -298,7 +298,7 @@ function printTaskDetail(
     ...(shouldShowRequestApproverField(parentJob)
       ? [['Talebi Onaylayan', formatRequestApproverDisplay(parentJob) ?? '—'] as [string, string]]
       : []),
-    ['Proje mi', parentJob.isProject ? 'Evet' : 'Hayır'],
+    ...(parentJob.isProject ? [['Proje mi', 'Evet'] as [string, string]] : []),
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
     ['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(ownerApproval?.decidedAtUtc, locale), ownerApproval?.approvedByDisplayName)],

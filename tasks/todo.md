@@ -1,3 +1,13 @@
+## Round 820 — #2614/#2618/#2612/#2597/#2621/#2620/#2615
+
+- [x] `6a7f5e43` — Street View ikon büyütüldü, beyaz çerçeve küçültüldü, yukarı hizalandı (#2614).
+- [x] `6a7f6b66` — Tamamlanan Projeler: Birim İçi Owner birim + Reporter dış proje; T-2026-589 (#2618).
+- [x] `6a7f57a1` — Cluster 2. tıklama zoom 16 (#2612).
+- [x] `6a7f004c` — Pin boyutu 22×33 (#2597).
+- [x] `6a7f7cea` — Eksi butonunun tüm çerçevesi tıklanır (#2621).
+- [x] `6a7f7c05` — Detay popup’ta Proje mi Hayır ise satır yok (#2620).
+- [x] `6a7f5eb2` — +/- biraz büyütüldü (#2615).
+
 ## Round 819 — #2606/#2612/#2597/#2614
 
 - [x] `6a7f3120` — Talep Etiketi pie lejantı en çok veri üstte (#2606).

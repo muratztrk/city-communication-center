@@ -1,3 +1,7 @@
+## Round 798 — #2576 reopen
+
+- [x] `6a7e0cec` — Yanında 1 kutu: 4 adres başlığı tek satır, kolon içi ortalı (#2576 reopen).
+
 ## Round 797 — #2584/#2574 reopen
 
 - [x] `6a7eb998` — Çağrı formu Adres Tarifi yüksekliği `4.5rem` (#2584).

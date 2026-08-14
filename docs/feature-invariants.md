@@ -369,7 +369,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi tek satır kalır; atanmış kullanıcı yoksa yalnız birim adı (` / -` yok, #r481);   `Adres Bilgileri`
   içinde Mahalle, `Cadde / Sokak`, `No` ve `Adres Tarifi` durur; adres etiketleri
   kendi içinde satır kırmaz (etiket tek satır). Yanında yalnız Talep Ekleri varken (`--attachments-only`)
-  Adres Tarifi No'nun sağındaki 4. kolondadır (#2576). `Ekler / Fotoğraflar`
+  Mahalle / Cadde / Sokak / No / Adres Tarifi **aynı satırda kolon içi ortalı**dır (#2576 reopen;
+  `grid-column: 1 / -1` `!important` ile ezilir). `Ekler / Fotoğraflar`
   kart zemini, Adres kartı değil, `Açıklama` paneliyle aynı soluk nötr yüzeyi kullanır (cards #1259/#1260/#1261).
   `İlgili Talep Detayları > Talep Bilgileri` başlığının sağındaki talep no ve `Birim İçi/Birim Dışı`
   meta bloğu başlık alt çizgisinin sağ sınırına hizalı kalır.
@@ -1844,9 +1845,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   anında senkron.
 - **Boş Adres Bilgileri (#6a6dab1b/#2185):** yan yana üç kolon boşken sola yaslı (ortalı değil);
   Mahalle + Açık Adres `padding-inline-start: 0.7rem` ile biraz sağa; Cadde `translateX(-0.45rem)`
-  ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) üç başlık
-  `1.55rem`; Mahalle `2.25rem`; Cadde `1.15rem` + `translateX(-0.4rem)`; Açık Adres `2.5rem`
-  (#2185). Yanında 2 kutucuk daha (`--three-cards`) iken boş Açık Adres `0.6rem` (#2187).
+  ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) dört başlık
+  kolon içinde ortalıdır; boş-adres padding/translate hilesi yok (#2576 reopen, #2185 geri).
+  Yanında 2 kutucuk daha (`--three-cards`) iken boş Açık Adres `0.6rem` (#2187).
 - **Dropdown ellipsis tooltip (#2188):** `useDataTableOverflowTooltips` dropdown satırında
   birden fazla `.truncate` varsa hover edilen / kesilmiş satırı gösterir (Şablon mesajlar adı+içerik).
 - **Pie drilldown Başlık/Durum (#6a6d9daf/#2180):** Başlık `cell-title` 2 satır + overflow tooltip;

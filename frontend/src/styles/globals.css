@@ -611,27 +611,6 @@
     transform: translateX(-0.45rem);
   }
 
-  /* Boş adres + yan kutuda yalnız Talep Ekleri: üç başlık biraz sağa (#2185). */
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
-    padding-inline-start: 1.55rem;
-  }
-
-  /* Aynı layout: Cadde / Sokak çok az sola (#2185 reopen). */
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2) {
-    transform: translateX(-0.4rem);
-    padding-inline-start: 1.15rem;
-  }
-
-  /* Aynı layout: Mahalle biraz daha sağa (#2185 reopen). */
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(1) {
-    padding-inline-start: 2.25rem;
-  }
-
-  /* Aynı layout: Adres Tarifi No'nun sağındaki 4. kolonda (#2576). */
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(4) {
-    padding-inline-start: 1.15rem;
-  }
-
   /* Yanında 2 kutucuk daha (3 kolon): boş Açık Adres çok çok az sağa (#2187 reopen). */
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(3) {
     padding-inline-start: 0.6rem;
@@ -4373,13 +4352,43 @@
     grid-column: 1 / -1;
   }
 
-  /* Adres Bilgileri yanında yalnız 1 kutu (Talep Ekleri): Adres Tarifi No'nun sağında. */
+  /* Adres Bilgileri yanında yalnız 1 kutu: Mahalle / Cadde / No / Adres Tarifi tek satır, kolon içi ortalı (#2576). */
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    justify-items: center;
+    align-items: start;
   }
 
   .my-request-detail-bottom--attachments-only .address-detail-my-request__item--directions {
-    grid-column: auto;
+    grid-column: auto !important;
+  }
+
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center !important;
+    text-align: center !important;
+    justify-self: center;
+    width: 100%;
+    max-width: 100%;
+    padding-inline-start: 0 !important;
+    transform: none !important;
+  }
+
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
+    width: fit-content;
+    max-width: 100%;
+    margin-inline: auto;
+    text-align: center !important;
+  }
+
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
+    width: 100%;
+    text-align: center !important;
+    margin-inline: 0;
   }
 
   .job-detail-field-row--full {

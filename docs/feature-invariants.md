@@ -357,7 +357,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açıklama editörü kompakt kalır (cards #1218/#1220/#1221/#1222/#1223/#1238/#1244).
   Talep başlığı yanındaki meta bloğu başlık metnine değil, sol kartın sağ border çizgisine hizalanır;
   en sağda iki satırdır: üstte talep no, altında `Birim İçi` / `Birim Dışı` veya vatandaş talebinde
-  `Vatandaş Talebi` rozeti (#2575).
+  `Vatandaş Talebi` rozeti (#2575). Görev popup `İlgili Talep Detayları` Talep Bilgileri sağındaki
+  VT numarasının alt satırı da vatandaş talebinde `Vatandaş Talebi` yazar, `Birim Dışı` değil (#2583).
   Taleplerim/görev detay popup gövdesi ortak `.detail-modal-shell` / `--my-request`
   ölçülerini kullanır (card #1682 ile küçültülmüş band); sayfa bazında yeniden ayrıştırma.
   Taleplerim salt-okunur Talep Bilgileri listesinde `Proje mi` ayrı satırdır ve formdaki
@@ -720,8 +721,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   veya FAB satırına tıklama, kullanıcı bazlı `conversationId + lastMessageAt` bastırması yapar;
   polling aynı son mesajı yeniden rozet/panel satırı olarak göstermez, yeni mesaj zamanı değişirse bildirim geri gelir.
 - **WA FAB otomatik giden mesaj (#2562):** sistem otomatik iletilen durum şablonu / zamanlı WA yanıtı
-  (`Sent` giden, personel `Birim · Ad` etiketi değil) WhatsApp baloncuk rozet/panel/pulse tetiklemez;
-  `lastMessageIsAutomaticOutbound` konuşmalar panel listesinden de düşer (reopen #2562).
+  (belediye adı gönderen, personel `Birim · Ad` değil; veya önizlemede `talebinizin durumu`) WhatsApp
+  baloncuk rozet/panel/pulse tetiklemez. `lastMessageIsAutomaticOutbound` son giden entry'nin enum
+  yön/teslimat + gönderen etiketiyle hesaplanır (reopen #2562).
 - **WA konuşma mesaj kutusu odak (#2528):** `/whatsapp` açık konuşmada yanıt kutusuna odaklanıldığında
   `mark-read` + `ccc:whatsapp-composer-engaged` ile sağ alt WhatsApp baloncuk rozeti temizlenir.
 - **WhatsApp teslim durumu status-only webhook ile de canlı yenilenir:** `sent/delivered/read`

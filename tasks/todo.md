@@ -1,3 +1,8 @@
+## Round 796 — #2562 reopen/#2583
+
+- [x] `6a7c7ae6` — WA FAB otomatik durum mesajı (enum + şablon metni) rozet/panelde yok (#2562 reopen).
+- [x] `6a7eb46e` — İlgili Talep Detayları VT altı Vatandaş Talebi (#2583).
+
 ## Round 795 — #2571/#2560/#2582/#2576/#2574/#2579/#2568
 
 - [x] `6a7e06f3` — Reporter menü: Harita → Bilgi Listesi → Anasayfa-Birimler (#2571).

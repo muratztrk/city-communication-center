@@ -52,15 +52,34 @@ public static class ConversationEntrySenderLabelHelper
         && !senderLabel.Contains(" · ")
         && !senderLabel.EndsWith("(Telefon)", StringComparison.Ordinal);
 
+    public static bool LooksLikeCitizenStatusTemplate(string? preview) =>
+        !string.IsNullOrWhiteSpace(preview)
+        && preview.Contains("talebinizin durumu", StringComparison.OrdinalIgnoreCase);
+
+    public static bool IsAutomaticOutbound(
+        ConversationEntryDirection? direction,
+        ConversationDeliveryStatus? deliveryStatus,
+        string? senderLabel,
+        string? preview = null)
+    {
+        if (direction != ConversationEntryDirection.Outbound) return false;
+        if (deliveryStatus == ConversationDeliveryStatus.Failed) return false;
+        if (IsSystemAutomaticOutboundSenderLabel(senderLabel)) return true;
+        return LooksLikeCitizenStatusTemplate(preview);
+    }
+
     public static bool IsDeliveredAutomaticOutbound(
         string? direction,
         string? deliveryStatus,
         string? senderLabel) =>
-        direction == nameof(ConversationEntryDirection.Outbound)
-        && deliveryStatus is nameof(ConversationDeliveryStatus.Sent)
-            or nameof(ConversationDeliveryStatus.Delivered)
-            or nameof(ConversationDeliveryStatus.Read)
-        && IsSystemAutomaticOutboundSenderLabel(senderLabel);
+        IsAutomaticOutbound(
+            Enum.TryParse<ConversationEntryDirection>(direction, true, out var parsedDirection)
+                ? parsedDirection
+                : null,
+            Enum.TryParse<ConversationDeliveryStatus>(deliveryStatus, true, out var parsedStatus)
+                ? parsedStatus
+                : null,
+            senderLabel);
 
     public static string FormatCitizenRequestNumber(int? number, int? year, DateTimeOffset? fallbackDate)
     {

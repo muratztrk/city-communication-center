@@ -2874,9 +2874,11 @@ const pageKicker = isMyTasksView
                     const parentRequestNumberText = isCitizenParentJob
                       ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: parentJobDetail.createdAtUtc }, locale)
                       : formatJobDisplayNumberText(parentJobDetail, locale)
-                    const parentRequestTypeText = parentJobDetail.requestType === 'ExternalUnit'
-                      ? t('jobs.requestType.external', 'Birim Dışı')
-                      : t('jobs.requestType.internal', 'Birim İçi')
+                    const parentRequestTypeText = isCitizenParentJob
+                      ? t('jobs.detail.citizenRequest', 'Vatandaş Talebi')
+                      : parentJobDetail.requestType === 'ExternalUnit'
+                        ? t('jobs.requestType.external', 'Birim Dışı')
+                        : t('jobs.requestType.internal', 'Birim İçi')
                     const parentExtraFields = parentForwardReasonDisplay ? [{
                       label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'),
                       value: parentForwardReasonDisplay,

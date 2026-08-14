@@ -74,7 +74,8 @@ function mapWhatsAppPayload(raw: Record<string, unknown>): WhatsAppMessagePayloa
     isInternal: Boolean(raw.isInternal ?? raw.IsInternal ?? false),
     isStatusUpdate: Boolean(raw.isStatusUpdate ?? raw.IsStatusUpdate ?? false),
     senderUserId: (raw.senderUserId ?? raw.SenderUserId) as string | null | undefined,
-    isAutomaticOutbound: Boolean(raw.isAutomaticOutbound ?? raw.IsAutomaticOutbound ?? false),
+    isAutomaticOutbound: Boolean(raw.isAutomaticOutbound ?? raw.IsAutomaticOutbound ?? false)
+      || String(raw.messagePreview ?? raw.MessagePreview ?? '').toLocaleLowerCase('tr').includes('talebinizin durumu'),
   }
 }
 

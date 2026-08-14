@@ -69,7 +69,7 @@ public sealed class GetCitizenConversationsQueryHandler
                         .Any(m => m.CitizenConversationId == c.CitizenConversationId
                                   && m.SocialMessageId == e.SocialMessageId))
                     .OrderByDescending(e => e.SentAt)
-                    .Select(e => e.Direction.ToString())
+                    .Select(e => (ConversationEntryDirection?)e.Direction)
                     .FirstOrDefault(),
                 // Son mesaj kurum içi ileti ise, bildirim çanında kimin gönderdiğini göstermek için (card #1497).
                 LastMessageSenderLabel = _dbContext.ConversationEntries
@@ -84,7 +84,7 @@ public sealed class GetCitizenConversationsQueryHandler
                         .Any(m => m.CitizenConversationId == c.CitizenConversationId
                                   && m.SocialMessageId == e.SocialMessageId))
                     .OrderByDescending(e => e.SentAt)
-                    .Select(e => e.DeliveryStatus == null ? null : e.DeliveryStatus.ToString())
+                    .Select(e => e.DeliveryStatus)
                     .FirstOrDefault(),
             })
             .ToListAsync(cancellationToken);
@@ -270,10 +270,11 @@ public sealed class GetCitizenConversationsQueryHandler
                     : conversationMessages.Any(m => m.JobId is Guid messageJobId && relevantJobIds.Contains(messageJobId)
                         && m.JobStatus is not (JobStatus.Completed or JobStatus.Cancelled or JobStatus.Rejected));
                 var hasWhatsAppChannel = conversationMessages.Any(m => m.Channel == SocialChannel.WhatsApp);
-                var lastMessageIsAutomaticOutbound = ConversationEntrySenderLabelHelper.IsDeliveredAutomaticOutbound(
+                var lastMessageIsAutomaticOutbound = ConversationEntrySenderLabelHelper.IsAutomaticOutbound(
                     c.LastMessageDirection,
                     c.LastMessageDeliveryStatus,
-                    c.LastMessageSenderLabel);
+                    c.LastMessageSenderLabel,
+                    c.LastMessagePreview);
 
                 var dto = new CitizenConversationSummaryDto(
                     c.CitizenConversationId,
@@ -284,7 +285,7 @@ public sealed class GetCitizenConversationsQueryHandler
                     c.IsBlocked,
                     c.LastMessagePreview,
                     c.OpenTicketCount,
-                    c.LastMessageDirection,
+                    c.LastMessageDirection?.ToString(),
                     ticket?.CitizenRequestNumber,
                     ticket?.CitizenRequestNumberYear,
                     ticket?.Priority,

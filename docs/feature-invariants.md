@@ -1628,8 +1628,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   özel +/- (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman
   küçük beyaz çerçeve / büyük ikon, zoom yığınının solunda ortalı, tıklamayla mavi kapsama
   → yola tıklayınca açılır (#2614/#2615/#2621).
-  pan/fullscreen yok. Geocode fail pin yok;
-  “konumlanamadı” tıklanınca Vatandaş Bilgi Listesi (#2604).
+  pan/fullscreen yok. Geocode fail pin yok; harita altında “konumlanamadı” yazısı yok (#2604).
   Pin konumu Google geocode: mahalle + cadde/sokak + no. Cadde Google’da yoksa mahalle
   seviyesine düşülür (Çağrı talepleri dahil, #2600). No yoksa veya mahalle yedeği ~30 m
   boş alana kaydırılır. Mahalle **ve** cadde ikisi de boşsa marker yok

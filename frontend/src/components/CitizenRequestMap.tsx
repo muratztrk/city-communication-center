@@ -306,7 +306,6 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     region: 'TR',
   })
   const [resolved, setResolved] = useState<ResolvedPin[]>([])
-  const [unpinned, setUnpinned] = useState<CitizenDashboardMapPin[]>([])
   const [resolving, setResolving] = useState(false)
   const [jobDetail, setJobDetail] = useState<JobDetail | null>(null)
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
@@ -331,20 +330,16 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     let cancelled = false
 
     const mappable = pins.filter(hasMappableAddress)
-    const unmappable = pins.filter(pin => !hasMappableAddress(pin))
     if (mappable.length === 0) {
       setResolved([])
-      setUnpinned(unmappable)
       setResolving(false)
       return
     }
 
     setResolved([])
-    setUnpinned([])
     setResolving(true)
     void (async () => {
       const geocoded: ResolvedPin[] = []
-      const failed: CitizenDashboardMapPin[] = [...unmappable]
       for (const pin of mappable) {
         if (cancelled) return
         const hit = await Promise.race([
@@ -366,13 +361,10 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
             position,
             approximate: !hasStreetNo || hit.precision === 'approximate',
           })
-        } else {
-          failed.push(pin)
         }
       }
       if (!cancelled) {
         setResolved(geocoded)
-        setUnpinned(failed)
         setResolving(false)
       }
     })()
@@ -646,35 +638,6 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
                 −
               </button>
             </div>
-          </div>
-        ) : null}
-        {!loading && !resolving && unpinned.length > 0 ? (
-          <div className="absolute inset-x-0 bottom-3 z-[500] flex justify-center px-4">
-            <button
-              type="button"
-              className="max-w-full rounded-lg bg-white/95 px-3 py-2 text-left text-xs font-medium text-slate-600 shadow hover:bg-white"
-              onClick={() => {
-                setJobDetail(null)
-                setCitizenSourceMessage(null)
-                setDetailError(null)
-                setDetailLoading(false)
-                setAddressTickets({
-                  citizen: {
-                    citizenName: t('citizenRequestMap.unlocatedListTitle', 'Konumlanamayan talepler'),
-                    citizenPhone: '',
-                  },
-                  tickets: unpinned.map(pinToTicket),
-                })
-              }}
-            >
-              {resolved.length === 0
-                ? t('citizenRequestMap.geocodeEmpty', 'Adresler haritada konumlanamadı.')
-                : t(
-                    'citizenRequestMap.geocodePartial',
-                    '{{count}} talep adresinden konumlanamadı.',
-                    { count: unpinned.length },
-                  )}
-            </button>
           </div>
         ) : null}
       </div>

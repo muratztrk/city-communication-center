@@ -1,3 +1,7 @@
+## Round 821 — #2604
+
+- [x] `6a7f2baa` — Harita altındaki konumlanamadı yazısı kaldırıldı (#2604).
+
 ## Round 820 — #2614/#2618/#2612/#2597/#2621/#2620/#2615
 
 - [x] `6a7f5e43` — Street View ikon büyütüldü, beyaz çerçeve küçültüldü, yukarı hizalandı (#2614).

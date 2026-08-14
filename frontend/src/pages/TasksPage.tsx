@@ -30,7 +30,7 @@ import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH, normalizeStreetNo } from '../utils/addressLimits'
 import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeaderBrand'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
@@ -2754,7 +2754,7 @@ const pageKicker = isMyTasksView
                                     placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
                                     maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
                                     value={editRoutineTaskModal.streetNo ?? ''}
-                                    onChange={e => updateRoutineTaskAddressDraft({ streetNo: e.target.value })}
+                                    onChange={e => updateRoutineTaskAddressDraft({ streetNo: normalizeStreetNo(e.target.value) })}
                                     disabled={!editRoutineTaskModal.neighborhood}
                                     required={Boolean(editRoutineTaskModal.neighborhood)}
                                   />

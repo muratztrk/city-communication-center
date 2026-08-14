@@ -24,7 +24,7 @@ import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH, normalizeStreetNo } from '../utils/addressLimits'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
 import {
@@ -768,7 +768,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                         placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
                         maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
                         value={streetNo}
-                        onChange={setStreetNo}
+                        onChange={value => setStreetNo(normalizeStreetNo(value))}
                         disabled={!neighborhood}
                         required={Boolean(neighborhood)}
                       />

@@ -1,3 +1,13 @@
+## Round 799 — #2574/#2586/#2585/#2584/#2589/#2588/#2576
+
+- [x] `6a7e0b53` — Vatandaş Bilgi Listesi nested Durum overdue = Son Tarihi Geçmiş (#2574).
+- [x] `6a7ec729` — WA Vatandaş Bilgileri Açık Adres → Adres Tarifi (#2586).
+- [x] `6a7ec6ea` — No alanı büyük harf (#2585).
+- [x] `6a7eb998` — Çağrı Cadde dar / No geniş (#2584).
+- [x] `6a7eca4e` — Harita hover grab + zoom (#2589).
+- [x] `6a7ec831` — Yazdır Adres Tarifi + ayrı No satırı (#2588).
+- [x] `6a7e0cec` — 4 adres başlığı çok az sola (#2576).
+
 ## Round 798 — #2576 reopen
 
 - [x] `6a7e0cec` — Yanında 1 kutu: 4 adres başlığı tek satır, kolon içi ortalı (#2576 reopen).

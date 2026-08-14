@@ -480,8 +480,9 @@ export function printJobDetail(
     .join('')
   const addressFields: Array<[string, string | null | undefined]> = [
     ['Mahalle', detail.neighborhood],
-    ['Cadde / Sokak', [detail.street, detail.streetNo].filter(Boolean).join(' ') || null],
-    ['Açık Adres', detail.openAddress],
+    ['Cadde / Sokak', detail.street],
+    ['No', detail.streetNo],
+    ['Adres Tarifi', detail.openAddress],
   ]
   const addressRows = addressFields
     .map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value?.trim() || '—')}</td></tr>`)

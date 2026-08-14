@@ -67,7 +67,11 @@ function printCitizenTickets(
   const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   const rowsHtml = tickets.map((ticket, index) => {
     const status = ticket.jobStatus
-      ? getCitizenRequestStatusLabel(t, { status: ticket.jobStatus, taskCount: 1 })
+      ? getCitizenRequestStatusLabel(t, {
+        status: ticket.jobStatus,
+        dueDateUtc: ticket.dueDateUtc,
+        taskCount: 1,
+      })
       : '—'
     const date = new Date(ticket.receivedAtUtc).toLocaleString(locale, {
       day: '2-digit',
@@ -556,6 +560,7 @@ export function CitizenDirectoryPage() {
                           const statusLabel = ticket.jobStatus
                             ? getCitizenRequestStatusLabel(t, {
                                 status: ticket.jobStatus,
+                                dueDateUtc: ticket.dueDateUtc,
                                 taskCount: 1,
                               })
                             : null

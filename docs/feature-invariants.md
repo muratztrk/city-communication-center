@@ -283,8 +283,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   linkidir; terminal tarih etiketinde `(İptal)`/durum parantezi basılmaz; Görev Detayları terminal
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Adres alan limitleri:** Cadde / Sokak tüm giriş yüzeylerinde en fazla 50 karakter,
-  No (kapı/sokak numarası) en fazla **6** karakter, **Adres Tarifi** (eski Açık Adres) en fazla 100 karakterdir;
+  No (kapı/sokak numarası) en fazla **6** karakter ve yazılan her karakter büyük harf
+  (`toLocaleUpperCase('tr')`, #2585), **Adres Tarifi** (eski Açık Adres) en fazla 100 karakterdir;
   backend komut validasyonları da aynı sınırı korur (#2567/#2578).
+  WhatsApp Vatandaş Bilgileri ve yazdırma çıktısında etiket `Adres Tarifi`; yazdırmada Cadde/Sokak
+  altında ayrı `No` satırı vardır (#2586/#2588).
 - **Adres metni yazımı:** Cadde / Sokak ve Açık Adres değerleri Türkçe locale kurallarıyla
   her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilir
   (`normalizeTitleCaseField` — onBlur + kayıt). Rutin görev detay Düzenle dahil tüm adres
@@ -369,8 +372,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi tek satır kalır; atanmış kullanıcı yoksa yalnız birim adı (` / -` yok, #r481);   `Adres Bilgileri`
   içinde Mahalle, `Cadde / Sokak`, `No` ve `Adres Tarifi` durur; adres etiketleri
   kendi içinde satır kırmaz (etiket tek satır). Yanında yalnız Talep Ekleri varken (`--attachments-only`)
-  Mahalle / Cadde / Sokak / No / Adres Tarifi **aynı satırda kolon içi ortalı**dır (#2576 reopen;
-  `grid-column: 1 / -1` `!important` ile ezilir). `Ekler / Fotoğraflar`
+  Mahalle / Cadde / Sokak / No / Adres Tarifi **aynı satırda kolon içi ortalı**, başlıklar
+  çok az sola kayar (`translateX(-0.45rem)`, #2576 reopen). `Ekler / Fotoğraflar`
   kart zemini, Adres kartı değil, `Açıklama` paneliyle aynı soluk nötr yüzeyi kullanır (cards #1259/#1260/#1261).
   `İlgili Talep Detayları > Talep Bilgileri` başlığının sağındaki talep no ve `Birim İçi/Birim Dışı`
   meta bloğu başlık alt çizgisinin sağ sınırına hizalı kalır.
@@ -785,7 +788,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`renderAddressFields`); mükerrer blok yok (#2559). Açıklama editörü `min-h-40`; toolbar
   `#citizen-request-form` `min-height: 1.6rem`, buton `1.4rem` (#2568). Kanal (Çağrı) butonu
   `py-1.5` (#2560). Adres Tarifi textarea `#citizen-request-form` `4.5rem` (#2584; Tailwind
-  `min-h-[5.5rem]` `!important` ile ezilir). `request-form--readable` 3.2rem ezilir.
+  `min-h-[5.5rem]` `!important` ile ezilir). Cadde/Sokak biraz dar, No biraz geniş
+  (`1fr` / `6.75rem`, #2584 reopen). `request-form--readable` 3.2rem ezilir.
   Sol kolon **Talebin Adres Bilgisi** placeholder `0.66rem`; sağ kolon vatandaş alanları `0.76rem`.
   **Talep adresi ≠ vatandaş profil adresi (#2563):** `ConvertSocialMessageToJob` / `UpdateJob`
   `CitizenConversation` mahalle/cadde/no/açık adresini job alanlarıyla güncellemez; profil yalnız
@@ -1582,9 +1586,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
 - **Vatandaş Talep Haritası (#2572):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
   dönem filtresi Anasayfa ile aynı; pin clustering
-  `@googlemaps/markerclusterer`; detay `MyRequestDetailModal`. Anasayfa haritası yok (#6a6cdf95).
+  `@googlemaps/markerclusterer`; detay `MyRequestDetailModal`.   Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
-  Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Sayfa banner/layout
+  Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
+  imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
@@ -1599,7 +1604,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `td` 0.9rem, thead biraz yüksek); alt başlık (ad·telefon) `text-xs` + biraz aşağı (card #1889).
   Ana grid: `Vatandaş Adı`; Talep Kanalı Numara'dan sonra ve ortalanmış (card #1880–#1883 reopen).
   Nested İşlemler→Detaylar popup Taleplerim shell’den biraz küçük
-  (`detail-modal-shell--citizen-directory-nested`, card #r454). Anasayfa pie → Detaylar
+  (`detail-modal-shell--citizen-directory-nested`, card #r454). Nested talep listesi Durum
+  `getCitizenRequestStatusLabel` + `ticket.dueDateUtc` (overdue = `Son Tarihi Geçmiş`, #2574). Anasayfa pie → Detaylar
   aynı nested boyut (#6a6da278). Başlık: Vatandaş sayfası `Vatandaş Talebi`, Birimler
   `Talep` (#6a6da49d/#6a6da519).
 - **Grid thead rengi + sticky örtü (card #1888 / #r447):** sticky `th` opak

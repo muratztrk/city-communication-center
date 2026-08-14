@@ -18,7 +18,7 @@ import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH, normalizeStreetNo } from '../utils/addressLimits'
 import {
   ATTACHMENT_FILE_ACCEPT,
   attachmentFileExtension,
@@ -361,7 +361,7 @@ export function RoutineTaskPage() {
                       placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
                       maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
                       value={form.streetNo}
-                      onChange={e => set('streetNo', e.target.value)}
+                      onChange={e => set('streetNo', normalizeStreetNo(e.target.value))}
                       disabled={!hasNeighborhood}
                       required={hasNeighborhood}
                     />

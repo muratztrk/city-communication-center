@@ -75,7 +75,7 @@ interface CitizenRequestMapProps {
   loading?: boolean
 }
 
-const MAP_CONTAINER_STYLE: CSSProperties = { width: '100%', height: '100%' }
+const MAP_CONTAINER_STYLE: CSSProperties = { width: '100%', height: '100%', cursor: 'grab' }
 
 export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   const { t, i18n } = useTranslation()
@@ -264,6 +264,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
 
       <div
         className="relative h-[min(36rem,65vh)] w-full bg-slate-100"
+        onMouseEnter={() => setGestureHandling('greedy')}
         onMouseLeave={() => setGestureHandling('none')}
       >
         {!mapsReady || loadError ? (
@@ -284,6 +285,8 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
             onClick={() => setGestureHandling('greedy')}
             options={{
               gestureHandling,
+              draggableCursor: 'grab',
+              draggingCursor: 'grabbing',
               streetViewControl: false,
               mapTypeControl: false,
               fullscreenControl: true,

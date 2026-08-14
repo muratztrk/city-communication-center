@@ -41,7 +41,7 @@ import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH, normalizeStreetNo } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
 
@@ -689,7 +689,7 @@ function ConversationProfilePanel({
               className={disabledFieldClass}
               maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
               value={draft.streetNo}
-              onChange={value => onDraftChange({ streetNo: value })}
+              onChange={value => onDraftChange({ streetNo: normalizeStreetNo(value) })}
               disabled={!hasNeighborhood}
               required={hasNeighborhood}
             />
@@ -697,7 +697,7 @@ function ConversationProfilePanel({
         </div>
         <label className="block space-y-1">
           <span className={labelClass}>
-            {t('address.openAddress', 'Açık Adres')}
+            {t('address.openAddressLabel', 'Adres Tarifi')}
             {hasNeighborhood ? (
               <span className="ml-1 text-[10px] font-normal normal-case tracking-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
             ) : null}

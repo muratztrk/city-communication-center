@@ -4,7 +4,7 @@ import { getNeighborhoodsForDistrict } from '../../../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../../../hooks/useMunicipalityDistrictId'
 import { SingleSelectDropdown } from '../../ui/single-select-dropdown'
 import { stringListSelectOptions } from '../../../utils/formDropdownOptions'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../../../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH, normalizeStreetNo } from '../../../utils/addressLimits'
 import { normalizeTitleCaseField } from '../../../utils/textNormalization'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
 
@@ -72,7 +72,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
               placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
               maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
               value={draft.streetNo}
-              onChange={e => onChange({ streetNo: e.target.value })}
+              onChange={e => onChange({ streetNo: normalizeStreetNo(e.target.value) })}
               disabled={!hasNeighborhood}
               required={hasNeighborhood}
             />

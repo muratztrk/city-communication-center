@@ -41,7 +41,7 @@ import {
   ensureLeadingCapitalTr,
   normalizeTitleCaseField,
 } from '../utils/textNormalization'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH, normalizeStreetNo } from '../utils/addressLimits'
 import {
   ATTACHMENT_FILE_ACCEPT,
   attachmentFileExtension,
@@ -803,7 +803,7 @@ export function CreateRequestPage() {
               placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
             />
           </div>
-          <div className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,5.5rem)] gap-2">
+          <div className="address-street-no-row grid grid-cols-[minmax(0,1.1fr)_minmax(0,5.5rem)] gap-2">
             <div className="grid gap-1">
               <span className="text-sm font-semibold text-slate-500">
                 {t('address.streetLabel', 'Cadde / Sokak')}
@@ -830,7 +830,7 @@ export function CreateRequestPage() {
                 placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
                 maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
                 value={form.streetNo}
-                onChange={e => setField('streetNo', e.target.value)}
+                onChange={e => setField('streetNo', normalizeStreetNo(e.target.value))}
                 disabled={!hasNeighborhood}
                 required={hasNeighborhood}
               />

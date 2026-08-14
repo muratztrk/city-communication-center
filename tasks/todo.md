@@ -1,3 +1,8 @@
+## Round 804 — #2569/#2576
+
+- [x] `6a7e050a` — Harita: Vatandaş Talebi popup, banner-yeşil sayılı cluster, yumuşak zoom, durum rengi (#2569).
+- [x] `6a7e0cec` — Üç kutulu adres başlıkları 0.7rem sağa (#2576).
+
 ## Round 803 — #2590
 
 - [x] `6a7edb35` — Grid Son Tarih "Onay Bekleyen" metin+ikon mavi (#2590).

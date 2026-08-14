@@ -374,8 +374,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kendi içinde satır kırmaz (etiket tek satır). Yanında yalnız Talep Ekleri varken (`--attachments-only`)
   Mahalle / Cadde / Sokak / No / Adres Tarifi **aynı satırda kolon içi ortalı**, başlıklar
   çok az sola kayar (`translateX(-0.45rem)`, #2576 reopen). Yanında 1'den fazla kutu
-  (`--three-cards`) iken dört başlık çok az sağa (`translateX(0.45rem)`); Adres Tarifi Mahalle
-  ile aynı düşey hizada (#2576). `Ekler / Fotoğraflar`
+  (`--three-cards`) iken dört **başlık** çok az sağa (`translateX(0.7rem)`, #2576);
+  değerler kaymaz. `Ekler / Fotoğraflar`
   kart zemini, Adres kartı değil, `Açıklama` paneliyle aynı soluk nötr yüzeyi kullanır (cards #1259/#1260/#1261).
   `İlgili Talep Detayları > Talep Bilgileri` başlığının sağındaki talep no ve `Birim İçi/Birim Dışı`
   meta bloğu başlık alt çizgisinin sağ sınırına hizalı kalır.
@@ -1595,7 +1595,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talep Haritası (#2572/#2569):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
   Reporter **ve Operator** (403 değil). Pin kümesi `WhereHasCitizenRequestNumber` — `RequestType=Citizen`
   şartı yok (VT numaralı kaynaklar). Dönem filtresi Anasayfa ile aynı; pin clustering
-  `@googlemaps/markerclusterer`; detay `MyRequestDetailModal`.   Anasayfa haritası yok (#6a6cdf95).
+  `@googlemaps/markerclusterer`; marker tıklanınca doğrudan `MyRequestDetailModal` (`Vatandaş Talebi`),
+  InfoWindow yok. Cluster rengi banner `--color-header-from`; tıklanınca zoom bir kademe yumuşak;
+  başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
+  Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Koordinatlı pinler geocode
@@ -1865,8 +1868,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mahalle + Açık Adres `padding-inline-start: 0.7rem` ile biraz sağa; Cadde `translateX(-0.45rem)`
   ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) dört başlık
   kolon içinde ortalıdır; boş-adres padding/translate hilesi yok (#2576 reopen, #2185 geri).
-  Yanında 2 kutucuk daha (`--three-cards`) iken dört adres başlığı `translateX(0.45rem)` sağa
-  (#2576); **Adres Tarifi** başlığı Mahalle ile aynı düşey hizada (sol, `fit-content`);
+  Yanında 2 kutucuk daha (`--three-cards`) iken dört adres **başlığı** `translateX(0.7rem)` sağa
+  (#2576); değerler kaymaz. Adres Tarifi tam satır, Mahalle ile sol hizada.
   boş Açık Adres `0.6rem` (#2187).
 - **Dropdown ellipsis tooltip (#2188):** `useDataTableOverflowTooltips` dropdown satırında
   birden fazla `.truncate` varsa hover edilen / kesilmiş satırı gösterir (Şablon mesajlar adı+içerik).

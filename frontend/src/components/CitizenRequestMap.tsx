@@ -1,7 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
 import { createPortal } from 'react-dom'
-import { GoogleMap, InfoWindow, useJsApiLoader } from '@react-google-maps/api'
-import { MarkerClusterer } from '@googlemaps/markerclusterer'
+import { GoogleMap, useJsApiLoader } from '@react-google-maps/api'
+import {
+  ClusterStats,
+  MarkerClusterer,
+  MarkerClustererEvents,
+  MarkerUtils,
+  SuperClusterAlgorithm,
+  type Cluster,
+} from '@googlemaps/markerclusterer'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
@@ -25,6 +32,88 @@ const PIN_COLORS: Record<string, string> = {
 
 function pinColor(displayStatus: string): string {
   return PIN_COLORS[displayStatus] ?? PIN_COLORS.processingReceived
+}
+
+/** Başlangıç zoom'da tek pin bile sayılı cluster; bu zoom ve üstünde durum rengi. */
+const NUMBERED_SINGLE_MAX_ZOOM = 13
+
+function readBannerClusterColor(): string {
+  const value = getComputedStyle(document.documentElement).getPropertyValue('--color-header-from').trim()
+  return value || '#0B6B36'
+}
+
+function clusterSvgIcon(count: number, color: string): google.maps.Icon {
+  const size = count < 10 ? 44 : count < 50 ? 52 : 60
+  const svg = `<svg fill="${color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+    <circle cx="120" cy="120" opacity=".55" r="70" />
+    <circle cx="120" cy="120" opacity=".28" r="90" />
+    <circle cx="120" cy="120" opacity=".16" r="110" />
+  </svg>`
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new google.maps.Size(size, size),
+    anchor: new google.maps.Point(size / 2, size / 2),
+  }
+}
+
+const bannerClusterRenderer = {
+  render({ count, position }: Cluster): google.maps.Marker {
+    const color = readBannerClusterColor()
+    const size = count < 10 ? 44 : count < 50 ? 52 : 60
+    return new google.maps.Marker({
+      position,
+      icon: clusterSvgIcon(count, color),
+      label: {
+        text: String(count),
+        color: '#ffffff',
+        fontSize: size >= 52 ? '14px' : '12px',
+        fontWeight: '700',
+      },
+      zIndex: 1000 + count,
+    })
+  },
+}
+
+function onCitizenClusterClick(_: google.maps.MapMouseEvent, cluster: Cluster, map: google.maps.Map) {
+  const current = map.getZoom() ?? 12
+  if (cluster.markers.length <= 1) {
+    map.panTo(cluster.position)
+    map.setZoom(Math.min(current + 2, 16))
+    return
+  }
+  if (!cluster.bounds) return
+  map.fitBounds(cluster.bounds, 80)
+  google.maps.event.addListenerOnce(map, 'idle', () => {
+    const zoom = map.getZoom()
+    if (zoom == null) return
+    map.setZoom(Math.max(current + 1, Math.min(zoom - 1, current + 2)))
+  })
+}
+
+/** Tek pin bile başlangıçta sayılı cluster; yeterince zoom'da durum renkli marker. */
+class CitizenMapClusterer extends MarkerClusterer {
+  protected renderClusters(): void {
+    const stats = new ClusterStats(this.markers, this.clusters)
+    const map = this.getMap() as google.maps.Map | null
+    if (!map) return
+    const zoom = map.getZoom() ?? 0
+    this.clusters.forEach(cluster => {
+      const showNumbered = cluster.markers.length > 1 || zoom <= NUMBERED_SINGLE_MAX_ZOOM
+      if (!showNumbered) {
+        cluster.marker = cluster.markers[0]
+      } else {
+        cluster.marker = this.renderer.render(cluster, stats, map)
+        cluster.markers.forEach(marker => MarkerUtils.setMap(marker, null))
+        if (this.onClusterClick && cluster.marker) {
+          cluster.marker.addListener(MarkerClustererEvents.CLUSTER_CLICK, (event: google.maps.MapMouseEvent) => {
+            google.maps.event.trigger(this, MarkerClustererEvents.CLUSTER_CLICK, cluster)
+            this.onClusterClick(event, cluster, map)
+          })
+        }
+      }
+      if (cluster.marker) MarkerUtils.setMap(cluster.marker, map)
+    })
+  }
 }
 
 const pinIconCache = new Map<string, google.maps.Icon>()
@@ -96,7 +185,6 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
-  const [activePinId, setActivePinId] = useState<string | null>(null)
   const [gestureHandling, setGestureHandling] = useState<'none' | 'greedy'>('none')
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
@@ -190,6 +278,24 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     }
   }, [mapInstance, isLoaded, resolved, mapView.bounds, mapView.center])
 
+  const openJobDetail = useCallback(async (jobId: string) => {
+    setJobDetail(null)
+    setCitizenSourceMessage(null)
+    setDetailLoading(true)
+    setDetailError(null)
+    try {
+      const detail = await api.getJobById(jobId)
+      setJobDetail(detail)
+      setCitizenSourceMessage(await loadCitizenSourceMessage(detail))
+    } catch (err) {
+      setDetailError(err instanceof Error ? err.message : t('common.error'))
+    } finally {
+      setDetailLoading(false)
+    }
+  }, [t])
+  const openJobDetailRef = useRef(openJobDetail)
+  openJobDetailRef.current = openJobDetail
+
   useEffect(() => {
     if (!mapInstance || !isLoaded) return
 
@@ -205,14 +311,19 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
         position: { lat: pin.position.lat, lng: pin.position.lng },
         icon: pinSvgIcon(pinColor(pin.displayStatus), pin.approximate),
       })
-      marker.addListener('click', () => setActivePinId(pin.jobId))
+      marker.addListener('click', () => {
+        void openJobDetailRef.current(pin.jobId)
+      })
       return marker
     })
     markersRef.current = markers
 
-    clustererRef.current = new MarkerClusterer({
+    clustererRef.current = new CitizenMapClusterer({
       map: mapInstance,
       markers,
+      algorithm: new SuperClusterAlgorithm({ radius: 80, maxZoom: 16 }),
+      renderer: bannerClusterRenderer,
+      onClusterClick: onCitizenClusterClick,
     })
 
     return () => {
@@ -237,30 +348,12 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     setMapInstance(map)
   }, [])
 
-  async function openJobDetail(jobId: string) {
-    setJobDetail(null)
-    setCitizenSourceMessage(null)
-    setDetailLoading(true)
-    setDetailError(null)
-    try {
-      const detail = await api.getJobById(jobId)
-      setJobDetail(detail)
-      setCitizenSourceMessage(await loadCitizenSourceMessage(detail))
-    } catch (err) {
-      setDetailError(err instanceof Error ? err.message : t('common.error'))
-    } finally {
-      setDetailLoading(false)
-    }
-  }
-
   function closeJobDetail() {
     setJobDetail(null)
     setCitizenSourceMessage(null)
     setDetailError(null)
     setDetailLoading(false)
   }
-
-  const activePin = resolved.find(pin => pin.jobId === activePinId) ?? null
 
   return (
     <div className="overflow-hidden">
@@ -313,35 +406,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
               fullscreenControl: true,
               clickableIcons: false,
             }}
-          >
-            {activePin ? (
-              <InfoWindow
-                position={{ lat: activePin.position.lat, lng: activePin.position.lng }}
-                onCloseClick={() => setActivePinId(null)}
-              >
-                <div className="max-w-[16rem]">
-                  <button
-                    type="button"
-                    className="cursor-pointer text-left text-sm font-semibold text-[color:var(--color-primary)] underline-offset-2 hover:underline"
-                    onClick={() => void openJobDetail(activePin.jobId)}
-                  >
-                    {activePin.title}
-                  </button>
-                  {activePin.openAddress ? (
-                    <div className="mt-1 text-[11px] leading-snug text-slate-500">{activePin.openAddress}</div>
-                  ) : null}
-                  {activePin.approximate ? (
-                    <div className="mt-1 text-[11px] font-medium leading-snug text-amber-600">
-                      {t(
-                        'citizenRequestMap.approximatePin',
-                        'Yaklaşık konum — açık adres tam çözülemedi, mahalle/cadde seviyesinde gösteriliyor.',
-                      )}
-                    </div>
-                  ) : null}
-                </div>
-              </InfoWindow>
-            ) : null}
-          </GoogleMap>
+          />
         )}
         {!loading && !resolving && unpinned.length > 0 ? (
           <div className="pointer-events-none absolute inset-x-0 bottom-3 z-[500] flex justify-center px-4">
@@ -366,7 +431,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
           {jobDetail ? (
             <MyRequestDetailModal
               detail={jobDetail}
-              title={t('citizenRequestMap.detailTitle', 'Vatandaş Talep Bilgisi')}
+              title={t('citizenRequestMap.detailTitle', 'Vatandaş Talebi')}
               locale={locale}
               detailLoading={detailLoading}
               citizenSourceMessage={citizenSourceMessage}

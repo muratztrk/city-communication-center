@@ -1,3 +1,8 @@
+## Round 829 — #2637/#2638
+
+- [x] `6a8003e8` — Banner `page-title` biraz küçültüldü (#2637).
+- [x] `6a8004ba` — Sağ alt WA / Kurum İçi / scroll FAB biraz küçültüldü (#2638).
+
 ## Round 828 — #2635/#2636
 
 - [x] `6a8000b5` — Harita popup kanal ikonu küçük; Yazdır başlığı Vatandaş Talep No (#2635).

@@ -192,7 +192,7 @@ function InternalMessageAttachmentDisplay({ attachment, isMine }: { attachment: 
 
 function InternalMessagesIcon() {
   return (
-    <svg viewBox="0 0 50 48" className="relative size-6" aria-hidden="true">
+    <svg viewBox="0 0 50 48" className="ccc-floating-fab-icon relative size-6" aria-hidden="true">
       <path
         d="M10 7h28c6 0 10 4 10 10v12c0 6-4 10-10 10h-5l9 7-16-7H10C4 39 1 35 1 29V17C1 11 4 7 10 7Z"
         fill="currentColor"

@@ -1246,7 +1246,7 @@
     }
 
     .app-content-shell .page-title {
-      font-size: clamp(1.25rem, 0.8vw + 0.95rem, 1.55rem);
+      font-size: clamp(1.18rem, 0.75vw + 0.9rem, 1.45rem);
     }
 
     /* Banner 2. satır (page-title) bold biraz daha ince (#2511). */
@@ -1857,7 +1857,7 @@
   }
 
   .page-title {
-    font-size: clamp(1.55rem, 1.1vw + 1.1rem, 2rem);
+    font-size: clamp(1.45rem, 1vw + 1.05rem, 1.85rem);
     line-height: 1.1;
     font-weight: 700;
     color: #0f172a;
@@ -6409,22 +6409,40 @@
     }
   }
 
-  /* Desktop FAB biraz küçült (mobil aynı kalsın — card #2055). Eski sm:size-14=3.5rem. */
-  @media (min-width: 640px) {
-    .ccc-floating-fab {
-      width: 3.25rem;
-      height: 3.25rem;
-    }
+  /* FAB biraz küçült (#2638). Mobil size-12=3rem; desktop eski 3.25rem. */
+  .ccc-floating-fab,
+  .ccc-floating-fab-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
 
+  .ccc-floating-fab-btn .ccc-floating-fab-icon,
+  .ccc-floating-fab-btn img.ccc-floating-fab-icon {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+
+  .scroll-fab-button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .ccc-floating-fab,
     .ccc-floating-fab-btn {
-      width: 3.25rem;
-      height: 3.25rem;
+      width: 3rem;
+      height: 3rem;
     }
 
     .ccc-floating-fab-btn .ccc-floating-fab-icon,
     .ccc-floating-fab-btn img.ccc-floating-fab-icon {
-      width: 1.75rem;
-      height: 1.75rem;
+      width: 1.625rem;
+      height: 1.625rem;
+    }
+
+    .scroll-fab-button {
+      width: 2.75rem;
+      height: 2.75rem;
     }
   }
 

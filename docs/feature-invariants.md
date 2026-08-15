@@ -86,7 +86,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
   `font-weight: 500` kullanır; Anasayfa / Vatandaş Bilgi Listesi gradient banner
   `.section-card > .grid.border-b .page-title` da `font-weight: 500` (#2511 reopen); Vatandaş Talep Haritası
-  banner başlığı aynı `page-title` sınıfını kullanır (#2579). Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
+  banner başlığı aynı `page-title` sınıfını kullanır (#2579). En büyük banner metni
+  `page-title` clamp tavanı ~1.85rem (masaüstü) / ~1.45rem (mobil) — 2rem/1.55rem değil (#2637).
+  Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
   `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
@@ -1581,8 +1583,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geçmişte yazılmış ikinci kayıtlar yok sayılır. Operatör Sms Onayı'nda notu değiştirirse
   `citizenOutboundMessage` → `Vatandaşa Giden Mesaj` Tamamlama Notu'nun **alt satırında**
   (WA ile aynı; #2528 SMS'te de). Tamamlama ile outbound farklıysa outbound kırmızı (#2557).
-- **FAB boyutları (#r482):** WhatsApp bildirim balonu mobil `size-12` / `sm:size-14` — Kurum İçi
-  Mesajlar FAB ile aynı.
+- **FAB boyutları (#r482/#2638):** WhatsApp + Kurum İçi 2.75rem / sm 3rem; scroll 2.5rem / sm 2.75rem.
+  Üçü de biraz küçük; sıra WhatsApp → Kurum İçi → scroll.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici
   (`Reporter`) sol menüde `Anasayfa - Vatandaş` (`/dashboard`, citizen lisans açıkken) + `Anasayfa - Birimler`
   (`/dashboard/birimler`); genel `Anasayfa` etiketi gösterilmez — birim sayfası varsayılan (#2348). **Vatandaş Talep Operatörü**

@@ -726,7 +726,12 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                 )
               })}
               {columnFilteredMessages.length === 0 ? (
-                <TableEmptyStateRows columnCount={embedded ? 8 : 9} message={t('social.empty')} />
+                <TableEmptyStateRows
+                  columnCount={embedded ? 8 : 9}
+                  message={embedded
+                    ? t('social.emptyCitizenRequests', 'Henüz vatandaş talebi bulunmuyor')
+                    : t('social.empty')}
+                />
               ) : null}
             </tbody>
           </table>

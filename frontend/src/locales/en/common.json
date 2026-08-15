@@ -1005,6 +1005,7 @@
     "defaultTaskDescription": "Social media message received from {{handle}}",
     "editRequest": "Edit Request",
     "empty": "No messages found yet",
+    "emptyCitizenRequests": "No citizen requests found yet",
     "goToConversation": "Go to Conversation",
     "delete": "Delete",
     "deleteConfirm": "Are you sure you want to delete this message?",

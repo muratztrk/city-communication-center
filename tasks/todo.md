@@ -1,3 +1,7 @@
+## Round 847 — #2644
+
+- [x] `6a801b6e` — Vatandaş Tüm Talepler boş grid: Henüz vatandaş talebi bulunmuyor (#2644).
+
 ## Round 846 — #2652
 
 - [x] `6a803254` — Kurum Konumu: CBS Adres Ara mahalle → cadde/sokak → kapı no kademesi (#2652).

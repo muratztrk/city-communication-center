@@ -1683,7 +1683,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Ara / başlangıç / bitiş tarihi yok. Tüm VT kayıtları listelenir.
   Popup kolon başlıkları **Talep Tarihi** / **Telefon No**; paging sticky altta (#2649).
   Popup genişliği Taleplerim detaydan daha geniş (`70vw` / `84rem`, #2644). Küçük ekranda
-  başlıklar sığmazsa yatay kaydırma (`overflow-x`, #2648).
+  başlıklar sığmazsa yatay kaydırma (`overflow-x`, #2648). Boş grid metni
+  `Henüz vatandaş talebi bulunmuyor` (`social.emptyCitizenRequests`, #2644).
 - **Anasayfa-Birimler Tüm Talepler (#2645/#2648):** Özel’den sonra aynı buton; popup başlığı
   `Birimlerin Tüm Talepleri`. Boyut Taleplerim Detaylar (`detail-modal-shell--my-request`).
   Vatandaş-olmayan atanmış kurum içi talepler (Sıra, Talep No,

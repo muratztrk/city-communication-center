@@ -1012,6 +1012,7 @@
     "defaultTaskDescription": "{{handle}} tarafından iletilen vatandaş talebi mesajı",
     "editRequest": "Talep Düzenle",
     "empty": "Henüz mesaj bulunmuyor",
+    "emptyCitizenRequests": "Henüz vatandaş talebi bulunmuyor",
     "goToConversation": "Yazışmaya Git",
     "delete": "Sil",
     "deleteConfirm": "Bu mesajı silmek istediğinizden emin misiniz?",

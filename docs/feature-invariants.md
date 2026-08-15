@@ -290,7 +290,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`toLocaleUpperCase('tr')`, #2585), **Adres Tarifi** (eski Açık Adres) en fazla 100 karakterdir;
   backend komut validasyonları da aynı sınırı korur (#2567/#2578).
   WhatsApp Vatandaş Bilgileri ve yazdırma çıktısında etiket `Adres Tarifi`; yazdırmada Cadde/Sokak
-  altında ayrı `No` satırı vardır (#2586/#2588).
+  altında ayrı `No` satırı vardır (#2586/#2588). Adres Tarifi placeholder:
+  `Mevki, daire, kat bilgisi giriniz.` (#2660).
 - **Adres metni yazımı:** Cadde / Sokak ve Açık Adres değerleri Türkçe locale kurallarıyla
   her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilir
   (`normalizeTitleCaseField` — onBlur + kayıt). Rutin görev detay Düzenle dahil tüm adres
@@ -1662,10 +1663,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   No yoksa cadde noktasından ~30 m boş alana kaydırılır. Yalnız Adres Tarifi / GPS /
   konuşma adresi yetmez (#2594/#2595). Cadde Google sonucunun adres bileşenlerinde
   yoksa veya yalnızca ilçe/ülke eşleşmesi ise o varyant atılır (#2599). Geocode fail
-  ilçe merkezine düşmez. Mahalle adı geocode öncesi katalogla birleştirilir: OSB / mahalle
-  soneki atılır, boşluksuz eşleşme (`İbni Melek OSB` → `İbni Melek`) — Google OSB'yi
-  başka sanayi bölgesine düşürmez (#2596). Tire mahalle kataloğunda **İbni Melek OSB** ayrı
-  kayıt (#2601); harita konumu yine İbni Melek. Kayıtlı lat/lng (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
+  ilçe merkezine düşmez. Mahalle adı geocode öncesi katalogla birleştirilir: tam ad
+  önce eşleşir (`İbni Melek OSB` ayrı kalır, İbni Melek mahallesine indirgenmez — #2661).
+  Yalnız mahalle/mah soneki atılır. OSB pinleri TOSBİ civarı (38.122, 27.705) ile
+  doğrulanır; mahalle pinleri OSB bölgesine düşmez. Geocode cache v9. Kayıtlı lat/lng
+  (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout

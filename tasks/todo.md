@@ -1,3 +1,8 @@
+## Round 851 — #2660/#2661
+
+- [x] `6a804022` — Adres Tarifi placeholder: Mevki, daire, kat bilgisi giriniz. (#2660).
+- [x] `6a804111` — Harita: İbni Melek mahalle ile İbni Melek OSB konumlarını ayır (#2661).
+
 ## Round 850 — #2654/#2659
 
 - [x] `6a803a0c` — Kurum Konumu Mahalle/Cadde/No biraz dar; seçenek+placeholder metin (#2654 reopen).

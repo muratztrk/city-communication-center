@@ -824,7 +824,7 @@ export function CreateRequestPage() {
             </span>
             <textarea
               className={`field-textarea address-open-textarea min-h-[5.5rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${compactPlaceholderClass} ${smallerPlaceholderClass} ${largerPlaceholderClass}`}
-              placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+              placeholder={t('address.openAddressPlaceholder', 'Mevki, daire, kat bilgisi giriniz.')}
               maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
               value={form.openAddress}
               onChange={e => setField('openAddress', e.target.value)}

@@ -763,7 +763,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     </span>
                     <DeferredComposerTextarea
                       className="field-textarea field-textarea--compact address-open-textarea citizen-request-open-address h-[5rem] min-h-[5rem] flex-1 resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-                      placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+                      placeholder={t('address.openAddressPlaceholder', 'Mevki, daire, kat bilgisi giriniz.')}
                       maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
                       value={openAddress}
                       onChange={setOpenAddress}

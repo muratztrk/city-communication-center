@@ -1940,7 +1940,7 @@
     "openAddressLabel": "Address Directions",
     "directionsLabel": "Address Directions",
     "openAddressMaxHint": "(max 100 characters)",
-    "openAddressPlaceholder": "Building no, floor, apartment..."
+    "openAddressPlaceholder": "Location, apartment, floor details."
   },
   "routineTask": {
     "submit": "Create Task"

@@ -87,7 +87,7 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
           </span>
           <textarea
             className="field-textarea min-h-[2.75rem] resize-none disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-            placeholder={t('address.openAddressPlaceholder', 'Bina no, kat, daire bilgisi giriniz...')}
+            placeholder={t('address.openAddressPlaceholder', 'Mevki, daire, kat bilgisi giriniz.')}
             maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
             value={draft.openAddress}
             rows={autoGrowRows(draft.openAddress)}

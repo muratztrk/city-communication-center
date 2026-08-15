@@ -1982,7 +1982,7 @@
     "openAddressLabel": "Adres Tarifi",
     "directionsLabel": "Adres Tarifi",
     "openAddressMaxHint": "(max 100 karakter)",
-    "openAddressPlaceholder": "Bina no, kat, daire bilgisi giriniz..."
+    "openAddressPlaceholder": "Mevki, daire, kat bilgisi giriniz."
   },
   "routineTask": {
     "submit": "Görev Oluştur"

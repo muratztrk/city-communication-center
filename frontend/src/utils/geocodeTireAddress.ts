@@ -1,7 +1,7 @@
-import { canonicalizeNeighborhoodForGeocode, IZMIR_DISTRICTS } from '../data/izmir-locations'
+import { canonicalizeNeighborhoodForGeocode, compactNeighborhoodKey, IZMIR_DISTRICTS } from '../data/izmir-locations'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v8'
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v9'
 
 export type LatLng = { lat: number; lng: number }
 
@@ -65,7 +65,9 @@ export function buildTireGeocodeQuery(input: {
   districtName?: string | null
 }): string {
   const district = input.districtName?.trim() || 'Tire'
-  const neighborhood = canonicalizeNeighborhoodForGeocode(input.neighborhood, district)
+  const neighborhood = expandNeighborhoodForQuery(
+    canonicalizeNeighborhoodForGeocode(input.neighborhood, district),
+  )
   const streetWithNo = [input.street?.trim(), input.streetNo?.trim()].filter(Boolean).join(' ')
   const chunks = [
     streetWithNo || undefined,
@@ -88,7 +90,9 @@ function buildGeocodeQueryVariants(input: {
   const tail = [district, 'İzmir', 'Türkiye']
   const street = input.street?.trim()
   const streetNo = input.streetNo?.trim()
-  const neighborhood = canonicalizeNeighborhoodForGeocode(input.neighborhood, district)
+  const neighborhood = expandNeighborhoodForQuery(
+    canonicalizeNeighborhoodForGeocode(input.neighborhood, district),
+  )
   const variants: string[][] = []
   if (street && streetNo && neighborhood) {
     variants.push([`${street} ${streetNo}`, neighborhood, ...tail])
@@ -103,10 +107,44 @@ function buildGeocodeQueryVariants(input: {
   }
   if (input.allowNeighborhoodFallback && neighborhood) {
     variants.push([neighborhood, ...tail])
+    if (isIbniMelekOsbNeighborhood(neighborhood)) {
+      variants.push(['Tire Organize Sanayi Bölgesi', ...tail])
+    }
   }
 
   return [...new Set(variants.map(parts => parts.filter(Boolean).join(', ')))]
     .filter(query => query !== tail.join(', '))
+}
+
+const IBNI_MELEK_OSB_ANCHOR: LatLng = { lat: 38.121905, lng: 27.704915 }
+const OSB_ANCHOR_SPAN = 0.02
+
+function isIbniMelekOsbNeighborhood(neighborhood: string): boolean {
+  const key = compactNeighborhoodKey(neighborhood)
+  return key === 'ibnimelekosb' || key.endsWith('ibnimelekosb') || (key.includes('ibnimelek') && key.includes('osb'))
+}
+
+function isIbniMelekMahalle(neighborhood: string): boolean {
+  const key = compactNeighborhoodKey(neighborhood)
+  return key === 'ibnimelek' || key === 'ibnimelekmahallesi'
+}
+
+function expandNeighborhoodForQuery(neighborhood: string): string {
+  if (isIbniMelekOsbNeighborhood(neighborhood)) return 'İbni Melek OSB Mahallesi'
+  return neighborhood
+}
+
+function positionFitsNeighborhood(position: LatLng, neighborhood: string): boolean {
+  if (isIbniMelekOsbNeighborhood(neighborhood)) {
+    return Math.abs(position.lat - IBNI_MELEK_OSB_ANCHOR.lat) <= OSB_ANCHOR_SPAN
+      && Math.abs(position.lng - IBNI_MELEK_OSB_ANCHOR.lng) <= OSB_ANCHOR_SPAN
+  }
+  if (isIbniMelekMahalle(neighborhood)) {
+    const onOsb = Math.abs(position.lat - IBNI_MELEK_OSB_ANCHOR.lat) <= OSB_ANCHOR_SPAN
+      && Math.abs(position.lng - IBNI_MELEK_OSB_ANCHOR.lng) <= OSB_ANCHOR_SPAN
+    return !onOsb
+  }
+  return true
 }
 
 function compactGeocodeKey(value: string): string {
@@ -231,8 +269,12 @@ export function geocodeTireAddress(input: {
     districtName: district,
     allowNeighborhoodFallback: input.allowNeighborhoodFallback,
   })
+  const queryNeighborhood = expandNeighborhoodForQuery(neighborhood)
   const neighborhoodOnlyQuery = neighborhood
-    ? [neighborhood, district, 'İzmir', 'Türkiye'].filter(Boolean).join(', ')
+    ? [queryNeighborhood, district, 'İzmir', 'Türkiye'].filter(Boolean).join(', ')
+    : ''
+  const osbFallbackQuery = isIbniMelekOsbNeighborhood(neighborhood)
+    ? ['Tire Organize Sanayi Bölgesi', district, 'İzmir', 'Türkiye'].join(', ')
     : ''
   const run = async (): Promise<GeocodeHit | null> => {
     const client = getGeocoder()
@@ -241,7 +283,10 @@ export function geocodeTireAddress(input: {
     for (let index = 0; index < variants.length; index += 1) {
       await new Promise(resolve => window.setTimeout(resolve, GEOCODE_VARIANT_DELAY_MS))
       const variant = variants[index]
-      const neighborhoodOnly = Boolean(neighborhoodOnlyQuery && variant === neighborhoodOnlyQuery)
+      const neighborhoodOnly = Boolean(
+        (neighborhoodOnlyQuery && variant === neighborhoodOnlyQuery)
+        || (osbFallbackQuery && variant === osbFallbackQuery),
+      )
 
       let status = ''
       let results: google.maps.GeocoderResult[] | null = null
@@ -273,9 +318,18 @@ export function geocodeTireAddress(input: {
       const lng = location.lng()
       if (Number.isNaN(lat) || Number.isNaN(lng)) continue
       if (!isInsideDistrictEnvelope({ lat, lng }, district)) continue
+      if (neighborhood && !positionFitsNeighborhood({ lat, lng }, neighborhood)) continue
 
       const approximate = !hasStreetNo || index > 0 || neighborhoodOnly
       const hit: CachedHit = approximate ? { lat, lng, approx: true } : { lat, lng }
+      const latest = readCache()
+      latest[cacheKey] = hit
+      writeCache(latest)
+      return toHit(hit)
+    }
+
+    if (input.allowNeighborhoodFallback && isIbniMelekOsbNeighborhood(neighborhood)) {
+      const hit: CachedHit = { lat: IBNI_MELEK_OSB_ANCHOR.lat, lng: IBNI_MELEK_OSB_ANCHOR.lng, approx: true }
       const latest = readCache()
       latest[cacheKey] = hit
       writeCache(latest)

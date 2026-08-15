@@ -418,12 +418,9 @@ export function getNeighborhoodsForDistrict(districtId: string): string[] {
 }
 
 const GEOCODE_NEIGHBORHOOD_SUFFIXES = [
-  ' organize sanayi bölgesi',
-  ' organize sanayi',
   ' mahallesi',
   ' mah.',
   ' mah',
-  ' osb',
 ] as const
 
 export function compactNeighborhoodKey(value: string): string {
@@ -454,8 +451,8 @@ function stripGeocodeNeighborhoodSuffixes(value: string): string {
 
 /**
  * Harita geocode için mahalle adını ilçe kataloğuna indirger.
- * "İbni Melek OSB" / "İbnimelek OSB" → "İbni Melek" (#2596/#2601) — katalogda ayrı mahalle
- * olsa da Google OSB'yi başka sanayi bölgesine düşürmesin.
+ * Tam katalog adı önce eşleşir — İbni Melek OSB, İbni Melek mahallesine
+ * indirgenmez (#2661). Yalnız "mahalle/mah" soneki atılır.
  */
 export function canonicalizeNeighborhoodForGeocode(
   neighborhood: string | null | undefined,
@@ -467,9 +464,15 @@ export function canonicalizeNeighborhoodForGeocode(
   const districtKey = (districtName ?? 'Tire').trim().toLocaleLowerCase('tr')
   const district = IZMIR_DISTRICTS.find(item => item.name.toLocaleLowerCase('tr') === districtKey)
   const catalog = district?.neighborhoods ?? []
+
+  const compactRaw = compactNeighborhoodKey(raw)
+  const exact = catalog.find(name => compactNeighborhoodKey(name) === compactRaw)
+  if (exact) return exact
+
   const stripped = stripGeocodeNeighborhoodSuffixes(raw)
   const compact = compactNeighborhoodKey(stripped)
   if (!compact) return stripped
 
-  return catalog.find(name => compactNeighborhoodKey(name) === compact) ?? stripped
+  const strippedExact = catalog.find(name => compactNeighborhoodKey(name) === compact)
+  return strippedExact ?? stripped
 }

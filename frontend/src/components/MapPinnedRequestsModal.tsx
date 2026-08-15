@@ -47,6 +47,14 @@ function pinStatusTone(displayStatus: string): GridStatusTone {
   return 'pendingApproval'
 }
 
+/** Vatandaş harita listesi: İşleme Alındı pin/lejant sky (#0ea5e9), diğer grid’lerdeki teal değil (#2671). */
+function mapListStatusPillClass(displayStatus: string, variant: 'citizen' | 'department'): string {
+  if (variant === 'citizen' && displayStatus === 'processingReceived') {
+    return 'bg-sky-500 text-white ring-sky-600'
+  }
+  return getStatusPillClass(pinStatusTone(displayStatus))
+}
+
 /** Haritadaki pinlerin standart drilldown grid popup’ı (#2664/#2665). */
 export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob }: MapPinnedRequestsModalProps) {
   const { t, i18n } = useTranslation()
@@ -190,7 +198,7 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob }: Ma
                             </>
                           )}
                           <td className="grid-col-status text-center">
-                            <StatusPill className={getStatusPillClass(pinStatusTone(pin.displayStatus))}>
+                            <StatusPill className={mapListStatusPillClass(pin.displayStatus, variant)}>
                               <GridStatusLabel
                                 t={t}
                                 label={statusLabel}

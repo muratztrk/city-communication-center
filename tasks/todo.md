@@ -1,3 +1,7 @@
+## Round 861 — #2671
+
+- [x] `6a8055da` — Vatandaş harita Talepleri Listele: İşleme Alındı Durum pill sky mavi (#2671).
+
 ## Round 860 — #2670
 
 - [x] `6a8054df` — Birim haritası T-2026-593: açık adres/atanmış kişi + geocode yedeği (#2670).

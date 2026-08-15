@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Info, X } from 'lucide-react'
+import { Info, MapPin, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import type { CitizenDashboardMapPin } from '../types/platform'
@@ -22,6 +22,7 @@ interface MapPinnedRequestsModalProps {
   variant: 'citizen' | 'department'
   onClose: () => void
   onOpenJob: (jobId: string, socialMessageId?: string) => void
+  onShowOnMap: (jobId: string) => void
 }
 
 function pinStatusLabel(t: TFunction, pin: CitizenDashboardMapPin): string {
@@ -56,7 +57,7 @@ function mapListStatusPillClass(displayStatus: string, variant: 'citizen' | 'dep
 }
 
 /** Haritadaki pinlerin standart drilldown grid popup’ı (#2664/#2665). */
-export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob }: MapPinnedRequestsModalProps) {
+export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onShowOnMap }: MapPinnedRequestsModalProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const [page, setPage] = useState(1)
@@ -210,6 +211,15 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob }: Ma
                           </td>
                           <td className="actions-cell">
                             <div className="request-actions justify-center">
+                              <button
+                                type="button"
+                                className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-emerald-700 transition-colors hover:bg-emerald-50"
+                                aria-label={t('citizenRequestMap.showOnMap', 'Konum')}
+                                title={t('citizenRequestMap.showOnMap', 'Konum')}
+                                onClick={() => onShowOnMap(pin.jobId)}
+                              >
+                                <MapPin className="size-4" strokeWidth={2.25} />
+                              </button>
                               <Button
                                 type="button"
                                 size="sm"

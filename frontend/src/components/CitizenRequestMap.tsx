@@ -446,6 +446,20 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
   const openPinGroupRef = useRef(openPinGroup)
   openPinGroupRef.current = openPinGroup
 
+  const focusPinOnMap = useCallback((jobId: string) => {
+    setListOpen(false)
+    const index = resolvedRef.current.findIndex(pin => pin.jobId === jobId)
+    const pin = index >= 0 ? resolvedRef.current[index] : null
+    if (!pin || !mapInstance) return
+    mapInstance.panTo(pin.position)
+    const currentZoom = mapInstance.getZoom() ?? 12
+    if (currentZoom < CLUSTER_REVEAL_ZOOM) mapInstance.setZoom(CLUSTER_REVEAL_ZOOM)
+    const marker = markersRef.current[index]
+    if (!marker) return
+    marker.setAnimation(google.maps.Animation.BOUNCE)
+    window.setTimeout(() => marker.setAnimation(null), 1600)
+  }, [mapInstance])
+
   useEffect(() => {
     if (!mapInstance || !isLoaded) return
 
@@ -709,6 +723,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
           variant={variant}
           onClose={() => setListOpen(false)}
           onOpenJob={(jobId, socialMessageId) => void openJobDetail(jobId, socialMessageId)}
+          onShowOnMap={focusPinOnMap}
         />
       ) : null}
 

@@ -1190,8 +1190,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#2654 geri al + alt satır). Seçimler `ccc_municipality_cbs_address` localStorage’da kalır.
   Talep oluştur (iç/dış/vatandaş), vatandaş modal, rutin ve WA taslak adresinde Cadde/No
   textbox yok; CBS dropdown (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle satırı
-  Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `7.5rem` sabit (cadde seçilince
-  değişmez, #2659/#2669). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `Veri Kontrolü`
+  Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `8.25rem` sabit (cadde seçilince
+  değişmez, #2659/#2669). Default Cadde placeholder `Cadde / sokak seçiniz`, No `No seçiniz`. Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `Veri Kontrolü`
   (#2654). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).
@@ -1685,7 +1685,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; Gittiği Yer = hedef birim
   (Talebi Yönlendiren/owner değil, #2668). Durum `processingReceived` = İşleme Alındı
   (#2668, Onay Bekleyen değil). Vatandaş listesinde İşleme Alındı pill lejant/pin ile aynı
-  sky (`bg-sky-500`, #2671); diğer VT grid’lerinde teal kalır. Birim listesinde Durum pill
+  sky (`bg-sky-500`, #2671); diğer VT grid’lerinde teal kalır. İşlemler’de Detaylar’ın solunda
+  yeşil Konum ikonu talebi haritada gösterir (#2673/#2674). Birim listesinde Durum pill
   Taleplerim ile aynı (`getStatusPillClass`, geciken turuncu+beyaz #2665). Birim kolonları
   Birim Talep Bilgi Listesi.
 - **Birim Talep Haritası (#2610/#2611/#2667):** `/department-request-map`;

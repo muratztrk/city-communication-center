@@ -1,3 +1,9 @@
+## Round 863 — #2673/#2674/#2669
+
+- [x] `6a805781` — Birim harita listesi: Detaylar solunda yeşil Konum (#2673).
+- [x] `6a8057e2` — Vatandaş harita listesi: Detaylar solunda yeşil Konum (#2674).
+- [x] `6a804e8b` — Talep Oluştur Cadde/No placeholder + No 8.25rem (#2669).
+
 ## Round 862 — #2672
 
 - [x] `6a80567b` — Birim Dışı Talep Oluştur: Öncelik hedef birimin sağında yarı genişlik (#2672).

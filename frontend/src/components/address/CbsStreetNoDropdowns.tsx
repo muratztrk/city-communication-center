@@ -25,7 +25,7 @@ export function CbsStreetNoDropdowns({
   required = false,
   labelClassName = 'text-sm font-semibold text-slate-500',
   openUp = false,
-  className = 'address-street-no-row grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2',
+  className = 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2',
 }: CbsStreetNoDropdownsProps) {
   const { t } = useTranslation()
   const districtId = useMunicipalityDistrictId()
@@ -54,17 +54,13 @@ export function CbsStreetNoDropdowns({
             onStreetChange(nextStreet)
             onStreetNoChange('')
           }}
-          placeholder={
-            hasNeighborhood
-              ? t('address.streetSelectPlaceholder', 'Cadde / sokak seçiniz')
-              : t('address.streetDisabledHint', 'Önce mahalle seçin')
-          }
+          placeholder={t('address.streetSelectPlaceholder', 'Cadde / sokak seçiniz')}
           searchPlaceholder={t('common.search', 'Ara...')}
           disabled={!hasNeighborhood || streetsLoading}
           clearable
         />
       </div>
-      <div className="grid w-[7.5rem] min-w-[7.5rem] max-w-[7.5rem] shrink-0 gap-1 overflow-hidden">
+      <div className="grid w-[8.25rem] min-w-[8.25rem] max-w-[8.25rem] shrink-0 gap-1 overflow-hidden">
         <span className={labelClassName}>
           {t('address.streetNoLabel', 'No')}
           {required && hasNeighborhood ? <span className="text-red-500"> *</span> : null}
@@ -75,11 +71,7 @@ export function CbsStreetNoDropdowns({
           options={doorNoOptions}
           value={streetNo}
           onChange={onStreetNoChange}
-          placeholder={
-            hasStreet
-              ? t('address.streetNoSelectPlaceholder', 'No seçiniz')
-              : t('address.streetNoDisabledHint', 'Önce cadde / sokak seçin')
-          }
+          placeholder={t('address.streetNoSelectPlaceholder', 'No seçiniz')}
           searchPlaceholder={t('common.search', 'Ara...')}
           disabled={!hasStreet || doorsLoading}
           clearable

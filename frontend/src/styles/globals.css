@@ -3678,7 +3678,7 @@
 
   /* Çağrı formu: No sütunu seçilince de sabit genişlik (#2659). */
   #citizen-request-form .address-street-no-row {
-    grid-template-columns: minmax(0, 1fr) 7.5rem !important;
+    grid-template-columns: minmax(0, 1fr) 8.25rem !important;
   }
 
   .table-number-cell__value {

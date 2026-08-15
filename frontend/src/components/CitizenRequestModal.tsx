@@ -748,7 +748,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     streetNo={streetNo}
                     required={Boolean(neighborhood)}
                     labelClassName="job-field-label"
-                    className="address-street-no-row grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2"
+                    className="address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2"
                     onStreetChange={setStreet}
                     onStreetNoChange={setStreetNo}
                   />

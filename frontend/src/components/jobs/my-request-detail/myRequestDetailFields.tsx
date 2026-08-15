@@ -4,7 +4,7 @@ import { ChannelIcon } from '../../ui/channel-icon'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
 import { formatJobDestinationsWithAssignees } from '../../../utils/jobDetails'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
-import { jobDestinationFieldLabel, shouldShowJobProjectField } from '../../../utils/jobProjectLabel'
+import { shouldShowJobProjectField, isInternalProjectJob } from '../../../utils/jobProjectLabel'
 import {
   formatCitizenPhoneDisplay,
   formatCitizenRequestNumber,
@@ -13,12 +13,35 @@ import {
 } from '../../../utils/citizenRequests'
 import { getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
 import { RequestNumberWithTypeLabel } from '../../../utils/requestDisplay'
-import { StackedFieldValue } from './StackedFieldValue'
+import { StackedFieldValue, StackedFieldLabel } from './StackedFieldValue'
 
 export interface MyRequestDetailField {
-  label: string
+  label: ReactNode
   value: ReactNode
   highlight?: boolean
+}
+
+function destinationFieldLabel(
+  detail: JobDetail,
+  t: TFunction,
+  options?: { includeAssignee?: boolean; splitLayout?: boolean },
+): ReactNode {
+  if (isInternalProjectJob(detail)) {
+    return t('jobs.detail.projectOwner', 'Proje Sahibi')
+  }
+  if (options?.splitLayout) {
+    return t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')
+  }
+  const includeAssignee = options?.includeAssignee !== false
+  if (includeAssignee && detail.requestType !== 'ExternalUnit') {
+    return (
+      <StackedFieldLabel
+        top={t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')}
+        bottom={t('jobs.detail.assignee', 'Görevi Yapan')}
+      />
+    )
+  }
+  return t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')
 }
 
 export function buildMyRequestDetailFields(
@@ -77,13 +100,13 @@ export function buildMyRequestDetailFields(
       },
       ...(useMyRequestsFieldLayout
         ? [
-            { label: jobDestinationFieldLabel(detail, t, { splitLayout: true }), value: destinationValue },
+            { label: destinationFieldLabel(detail, t, { splitLayout: true }), value: destinationValue },
             ...(!isExternal && assigneeNames.length > 0
               ? [{ label: t('jobs.detail.assignee', 'Görevi Yapan'), value: assigneeNames.join(', ') }]
               : []),
           ]
         : [{
-            label: jobDestinationFieldLabel(detail, t, { includeAssignee }),
+            label: destinationFieldLabel(detail, t, { includeAssignee }),
             value: destinationValue,
           }]),
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
@@ -111,13 +134,13 @@ export function buildMyRequestDetailFields(
     },
     ...(useMyRequestsFieldLayout
       ? [
-          { label: jobDestinationFieldLabel(detail, t, { splitLayout: true }), value: destinationValue },
+          { label: destinationFieldLabel(detail, t, { splitLayout: true }), value: destinationValue },
           ...(!isExternal && assigneeNames.length > 0 && !shouldShowJobProjectField(detail)
             ? [{ label: t('jobs.detail.assignee', 'Görevi Yapan'), value: assigneeNames.join(', ') }]
             : []),
         ]
       : [{
-          label: jobDestinationFieldLabel(detail, t, { includeAssignee }),
+          label: destinationFieldLabel(detail, t, { includeAssignee }),
           value: destinationValue,
         }]),
     ...(shouldShowJobProjectField(detail)

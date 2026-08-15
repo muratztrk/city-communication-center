@@ -1,3 +1,7 @@
+## Round 844 — #2650
+
+- [x] `6a802d1c` — Detay popup: Talep Yapılan Birim / Görevi Yapan stacked, slash yok (#2650).
+
 ## Round 843 — #2644/#2648
 
 - [x] `6a801b6e` — Vatandaş Tüm Talepler popup biraz daha geniş; drilldown thead (#2644).

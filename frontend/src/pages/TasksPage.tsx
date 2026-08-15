@@ -2896,8 +2896,8 @@ const pageKicker = isMyTasksView
                     ).filter(field => {
                       // Talep Başlığı verisi İlgili Talep Detayları'ndan tamamen kaldırıldı (card #1464).
                       if (field.label === parentTitleLabel) return false
-                      if ([parentRequestNoLabel, parentCitizenRequestNoLabel].includes(field.label)) return false
-                      if ([parentPriorityLabel, parentProjectLabel].includes(field.label)) return false
+                      if (typeof field.label === 'string' && [parentRequestNoLabel, parentCitizenRequestNoLabel].includes(field.label)) return false
+                      if (typeof field.label === 'string' && [parentPriorityLabel, parentProjectLabel].includes(field.label)) return false
                       return true
                     })
                     const parentAddressColumnContent = (

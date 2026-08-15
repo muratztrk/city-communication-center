@@ -98,8 +98,8 @@ export function MyRequestInfoFieldsList({
 
   return (
     <div className="my-request-detail-fields divide-y divide-slate-100">
-      {fields.filter(field => !(hidePriorityRow && field.label === priorityLabel)).map(field => (
-        <div key={field.label} className="job-detail-field-row job-detail-field-row--request-info">
+      {fields.filter(field => !(hidePriorityRow && field.label === priorityLabel)).map((field, index) => (
+        <div key={typeof field.label === 'string' ? field.label : `field-${index}`} className="job-detail-field-row job-detail-field-row--request-info">
           <div className="job-detail-field-row__label">{field.label}</div>
           <div className={`job-detail-field-row__value ${field.highlight ? 'text-orange-500' : ''}`}>
             {isEditing && editDraft && onEditDraftChange && field.label === priorityLabel ? (
@@ -301,8 +301,8 @@ export function MyRequestDetailMainCard({
   )
   const visibleFields = fields.filter(field => {
     if (field.label === titleLabel) return false
-    if ([requestNoLabel, citizenRequestNoLabel].includes(field.label)) return false
-    if (!isEditing && [priorityLabel, projectLabel].includes(field.label)) return false
+    if (typeof field.label === 'string' && [requestNoLabel, citizenRequestNoLabel].includes(field.label)) return false
+    if (!isEditing && typeof field.label === 'string' && [priorityLabel, projectLabel].includes(field.label)) return false
     return true
   })
   const steps = useMemo(() => buildJobProcessSteps(t, detail, locale, {

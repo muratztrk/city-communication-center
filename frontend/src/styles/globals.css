@@ -293,6 +293,14 @@
     font-weight: 600;
   }
 
+  .stacked-field-label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.12rem;
+    line-height: 1.2;
+  }
+
   .job-detail-section-title {
     display: inline-flex;
     align-items: center;

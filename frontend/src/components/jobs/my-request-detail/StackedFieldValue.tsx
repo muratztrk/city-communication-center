@@ -16,3 +16,13 @@ export function StackedFieldValue({ top, bottom }: { top: string | null | undefi
     </div>
   )
 }
+
+/** Etiket: "A / B" yerine A üstte B altta, slash yok (#2650). */
+export function StackedFieldLabel({ top, bottom }: { top: string; bottom: string }) {
+  return (
+    <span className="stacked-field-label">
+      <span>{top}</span>
+      <span>{bottom}</span>
+    </span>
+  )
+}

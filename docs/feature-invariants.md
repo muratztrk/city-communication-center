@@ -1740,6 +1740,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bekleyen istek görünür. İlgili Talep Detayları `separatePriorityProjectRows` bu kuralı ezer.
 - **Detay popup Proje Sahibi (#2624):** yalnız Birim İçi + proje ise
   `Talep Yapılan Birim / Görevi Yapan` başlığı `Proje Sahibi` olur.
+  Aksi halde birleşik başlıkta slash yok: **Talep Yapılan Birim** üstte, **Görevi Yapan** alt satır (#2650).
 - **Detay popup Talebi Yönlendiren (#2627):** yalnız vatandaş talebinde
   `Talep Yeri / Oluşturan` başlığı `Talebi Yönlendiren` olur.
 - **Vatandaş Talepleri paging (#r467):** sayfa numarası tıklanınca kolon filtreleri temizlenir ama

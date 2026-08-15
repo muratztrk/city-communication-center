@@ -1187,8 +1187,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#2654 geri al + alt satır). Seçimler `ccc_municipality_cbs_address` localStorage’da kalır.
   Talep oluştur (iç/dış/vatandaş), vatandaş modal, rutin ve WA taslak adresinde Cadde/No
   textbox yok; CBS dropdown (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle satırı
-  Öncelik/Son Tarih satırı kadar genişler; No sütunu `4.75rem` sabit (cadde seçilince
-  değişmez, #2659). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `Veri Kontrolü`
+  Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `7.5rem` sabit (cadde seçilince
+  değişmez, #2659/#2669). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `Veri Kontrolü`
   (#2654). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).
@@ -1680,7 +1680,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; Durum `processingReceived` = İşleme Alındı
-  (#2668, Onay Bekleyen değil). Birim kolonları Birimlerin Tüm Talepleri / Birim Talep Bilgi Listesi.
+  (#2668, Onay Bekleyen değil). Birim listesinde Durum pill Taleplerim ile aynı
+  (`getStatusPillClass`, geciken turuncu+beyaz #2665). Birim kolonları Birim Talep Bilgi Listesi.
 - **Birim Talep Haritası (#2610/#2611/#2667):** `/department-request-map`;
   `GET /reports/dashboard-department-map-pins`. Yalnız `internal` lisans.
   Sol menü Anasayfa - Birimler’in altında; Sayfa Yetkileri’nde Vatandaş Talep Haritası’nın

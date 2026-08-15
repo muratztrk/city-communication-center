@@ -15,7 +15,7 @@ import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { ChannelIcon } from './ui/channel-icon'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
-import { formatOverdueInProgressStatus, getLocale, getPriorityColorClass, getPriorityLabel, shouldShowGridPrioritySubline } from '../utils/localization'
+import { formatOverdueInProgressStatus, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, type GridStatusTone } from '../utils/localization'
 
 interface MapPinnedRequestsModalProps {
   pins: CitizenDashboardMapPin[]
@@ -38,11 +38,13 @@ function pinStatusLabel(t: TFunction, pin: CitizenDashboardMapPin): string {
   return t(`enum.jobStatus.${pin.jobStatus ?? pin.displayStatus}`, { defaultValue: pin.displayStatus })
 }
 
-function pinStatusToneClass(displayStatus: string): string {
-  if (displayStatus === 'completed') return 'bg-emerald-100 text-emerald-800'
-  if (displayStatus === 'overdue') return 'bg-red-100 text-red-800'
-  if (displayStatus === 'inProgress') return 'bg-orange-100 text-orange-800'
-  return 'bg-sky-100 text-sky-800'
+function pinStatusTone(displayStatus: string): GridStatusTone {
+  if (displayStatus === 'completed') return 'completed'
+  if (displayStatus === 'cancelled') return 'cancelled'
+  if (displayStatus === 'overdue') return 'overdue'
+  if (displayStatus === 'inProgress') return 'inProgress'
+  if (displayStatus === 'processingReceived') return 'processingReceived'
+  return 'pendingApproval'
 }
 
 /** Haritadaki pinlerin standart drilldown grid popup’ı (#2664/#2665). */
@@ -188,7 +190,7 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob }: Ma
                             </>
                           )}
                           <td className="grid-col-status text-center">
-                            <StatusPill className={pinStatusToneClass(pin.displayStatus)}>
+                            <StatusPill className={getStatusPillClass(pinStatusTone(pin.displayStatus))}>
                               <GridStatusLabel
                                 t={t}
                                 label={statusLabel}

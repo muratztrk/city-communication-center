@@ -25,7 +25,7 @@ export function CbsStreetNoDropdowns({
   required = false,
   labelClassName = 'text-sm font-semibold text-slate-500',
   openUp = false,
-  className = 'address-street-no-row grid grid-cols-[minmax(0,1fr)_4.75rem] gap-2',
+  className = 'address-street-no-row grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2',
 }: CbsStreetNoDropdownsProps) {
   const { t } = useTranslation()
   const districtId = useMunicipalityDistrictId()
@@ -64,7 +64,7 @@ export function CbsStreetNoDropdowns({
           clearable
         />
       </div>
-      <div className="grid w-[4.75rem] min-w-[4.75rem] max-w-[4.75rem] shrink-0 gap-1 overflow-hidden">
+      <div className="grid w-[7.5rem] min-w-[7.5rem] max-w-[7.5rem] shrink-0 gap-1 overflow-hidden">
         <span className={labelClassName}>
           {t('address.streetNoLabel', 'No')}
           {required && hasNeighborhood ? <span className="text-red-500"> *</span> : null}

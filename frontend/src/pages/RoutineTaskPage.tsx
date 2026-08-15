@@ -349,7 +349,7 @@ export function RoutineTaskPage() {
                   street={form.street}
                   streetNo={form.streetNo}
                   required={hasNeighborhood}
-                  className="address-street-no-row grid grid-cols-[minmax(0,1fr)_4.75rem] gap-2"
+                  className="address-street-no-row grid grid-cols-[minmax(0,1fr)_7.5rem] gap-2"
                   onStreetChange={street => set('street', street)}
                   onStreetNoChange={streetNo => set('streetNo', streetNo)}
                 />

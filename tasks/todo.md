@@ -1,3 +1,8 @@
+## Round 856 — #2665/#2669
+
+- [x] `6a804921` — Birim harita Talepleri Listele geciken Durum pill Taleplerim rengi (#2665).
+- [x] `6a804e8b` — Talep oluştur Cadde daralt, No 7.5rem (#2669).
+
 ## Round 855 — #2668/#2667
 
 - [x] `6a804de4` — Vatandaş harita Talepleri Listele Durum: İşleme Alındı (#2668).

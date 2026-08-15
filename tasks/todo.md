@@ -1,3 +1,7 @@
+## Round 842 — #2646
+
+- [x] `6a8020cb` — Talep No / VT No sıralama: tire sonrası sayı niceliği, büyükten küçüğe (#2646).
+
 ## Round 841 — #2649
 
 - [x] `6a802539` — Vatandaş Tüm Talepler popup: Talep Tarihi / Telefon No; paging görünsün (#2649).

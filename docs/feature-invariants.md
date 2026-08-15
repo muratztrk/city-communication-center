@@ -1441,6 +1441,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Grid başlık casing/padding:** TÜM gridview header'ları (`data-table`, `table-container`,
   `wallboard-table`) `text-transform: uppercase` kullanır (card #1342 — #1318'i tersine çevirdi);
   `FilterableTh` iç sıra: başlık → sıralama ikonu → filtre (`MoreVertical`); sıralama label içinde
+  **Talep No / Vatandaş Talep No / Bağlı Olduğu Talep No** (`jobNumber`): yıl sonrası `-` sayısı
+  niceliğine göre (591 > 12); ilk tıklama büyükten küçüğe (#2646). `VT-2026-Onay Bekleyen` string
+  karşılaştırmasına düşer.
   değil (#6a759062). Label/ikon aralığı dengeli kalır.
 - **Grid Öncelik alt satır metni:** `(Öncelik:…)` değil `Öncelik:…` — parantez yok (#6a75913e).
 - **Grid Öncelik alt satır görünürlüğü (#2509):** Talep/Görev No altındaki öncelik satırı yalnız

@@ -1673,7 +1673,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   önceki pinler yerinde kalır, cache 60 sn (#2643).
 - **Anasayfa-Vatandaş Tüm Talepler (#2644/#2647):** dönem satırında Özel’den sonra `Tüm Talepler`;
   popup operatör VT grid (`SocialMessagesPage` embedded). Boyut Taleplerim Detaylar
-  (`detail-modal-shell--my-request`). Kanal chip’leri ve Tüm Talep Durumları
+  (`detail-modal-shell--my-request`). Anasayfa Tüm Talepler popup’ı Taleplerim detaydan çok az
+  daha geniş (`detail-modal-shell--all-requests`, #2644/#2648). Kanal chip’leri ve Tüm Talep Durumları
   dropdown yok; Talep Etiketi sütunu yok; thead drilldown standardı (`0.78rem`).
   Ara / başlangıç / bitiş tarihi yok. Tüm VT kayıtları listelenir.
   Popup kolon başlıkları **Talep Tarihi** / **Telefon No**; paging sticky altta (#2649).

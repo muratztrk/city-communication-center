@@ -588,8 +588,9 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
       {embedded && loading ? <div className="loading px-4 py-6">{t('common.loading')}</div> : null}
 
-      <section className={embedded ? 'section-card flex min-h-0 flex-1 flex-col overflow-hidden' : 'section-card desktop-page-fill'}>
-        <div className={embedded ? 'table-wrap min-h-0 flex-1 overflow-auto pt-3' : 'table-wrap desktop-panel-scroll'}>
+      <section className={embedded ? 'section-card flex min-h-0 flex-1 flex-col overflow-hidden p-0' : 'section-card desktop-page-fill'}>
+        <div className={embedded ? 'dashboard-drilldown-grid-shell flex min-h-0 flex-1 flex-col px-4 pb-3 pt-3' : 'contents'}>
+        <div className={embedded ? 'dashboard-drilldown-table-wrap min-h-0 flex-1 overflow-auto' : 'table-wrap desktop-panel-scroll'}>
           <table className={`data-table jobs-table data-table--zebra social-messages-table${embedded ? ' dashboard-drilldown-table' : ''}`}>
             <thead>
               <tr>
@@ -738,6 +739,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
           onPageSizeChange={handleMessagesPageSizeChange}
           onPageChange={handleMessagesPageChange}
         />
+        </div>
         </div>
       </section>
 

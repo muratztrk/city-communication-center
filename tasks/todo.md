@@ -1,3 +1,8 @@
+## Round 843 — #2644/#2648
+
+- [x] `6a801b6e` — Vatandaş Tüm Talepler popup biraz daha geniş; drilldown thead (#2644).
+- [x] `6a8022b2` — Birimler Tüm Talepler popup biraz daha geniş (#2648).
+
 ## Round 842 — #2646
 
 - [x] `6a8020cb` — Talep No / VT No sıralama: tire sonrası sayı niceliği, büyükten küçüğe (#2646).

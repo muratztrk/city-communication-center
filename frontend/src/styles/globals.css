@@ -172,6 +172,11 @@
     max-height: min(72.9dvh, 42.3rem);
   }
 
+  /* Anasayfa Tüm Talepler popup: Taleplerim detaydan çok az daha geniş (#2644/#2648). */
+  .detail-modal-shell--my-request.detail-modal-shell--all-requests {
+    width: min(66.2vw, 79rem);
+  }
+
   /* Vatandaş Bilgi Listesi → Talep Bilgisi grid → Detaylar nested popup (card #r454). */
   .detail-modal-shell--my-request.detail-modal-shell--citizen-directory-nested {
     width: min(56vw, 68rem);

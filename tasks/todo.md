@@ -1,3 +1,8 @@
+## Round 887 — #2700/#2701
+
+- [x] `6a80b79c` — Harita liste Konum damla pin (uzun/ince).
+- [x] `6a80b884` — Yazdırda boş Yönetici Notu / ek / görev bölümü yok; görev başlığında sayı yok.
+
 ## Round 886 — #2692/#2699
 
 - [x] `6a807f6b` — Harita Detaylar Yazdır: standart printJobDetail (modal sayfa yazdırma değil).

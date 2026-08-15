@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Info, MapPin, X } from 'lucide-react'
+import { Info, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import type { CitizenDashboardMapPin } from '../types/platform'
@@ -69,6 +69,19 @@ type MapListRow = CitizenDashboardMapPin & {
   ownerLocationText: string
   titleText: string
   statusSortText: string
+}
+
+/** Harita listesi Konum: uzun ince damla pin (#2700). */
+function LocationPinIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 36" className={className} aria-hidden="true" focusable="false">
+      <path
+        fill="currentColor"
+        d="M12 1.2C6.7 1.2 2.4 5.5 2.4 10.8c0 7.4 9.6 23 9.6 23s9.6-15.6 9.6-23C21.6 5.5 17.3 1.2 12 1.2z"
+      />
+      <circle cx="12" cy="11" r="3.6" fill="#fff" />
+    </svg>
+  )
 }
 
 function formatMapDate(value: string | undefined, locale: string): string {
@@ -364,7 +377,7 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
                                 title={t('citizenRequestMap.showOnMap', 'Konum')}
                                 onClick={() => onShowOnMap(pin.jobId)}
                               >
-                                <MapPin className="size-4" strokeWidth={2.25} />
+                                <LocationPinIcon className="h-[1.35rem] w-[0.9rem]" />
                               </button>
                               ) : null}
                               <Button

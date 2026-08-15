@@ -1704,7 +1704,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#2668, Onay Bekleyen değil). Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
   (`bg-teal-600`), Yapılmakta Görevlerim ile aynı açık mavi (`bg-sky-100` / `getStatusPillClass`,
   #2699), Geciken turuncu (`bg-orange-500`). Pin rengi Yapılmakta `#0ea5e9` kalır (#2671).
-  yeşil Konum ikonu (varsayılan yuvarlak çerçeve + hover, #2673/#2674); Konum ile Detaylar
+  yeşil Konum ikonu (yuvarlak çerçeve + hover, #2673/#2674); damla pin (uzun/ince, #2700).
+  Konum ile Detaylar
   arası boşluk artırılır (#2677). Liste grid’leri FilterableTh sıralama/filtre kullanır
   (Sıra/İşlemler hariç, #2678).   Konum tıklanınca
   marker bounce harita/marker tıklanıncaya kadar sürer (#2676). Liste Detaylar Yazdır
@@ -1818,6 +1819,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **JobDetail VT (#r467):** `GetJobById` / `JobDetailResponse` `CitizenRequestNumber` taşır; yazdır VT-…
 - **Yazdır not satırları (#r467):** iptal/tamamlamada `İptal Notu` / `Tamamlama Notu` Durum'dan
   sonra ayrı satır; boş Son Tarih = `Onay Bekleyen` (Belirsiz değil).
+- **Yazdır boş bölümler (#2701):** `printJobDetail` Yönetici Notu / Talep Ekleri / İlgili Görev
+  Detayları yalnız doluysa; görev eki yalnız görevde dosya varsa. `İlgili Görev Detayları` sayaç yok.
 - **Yazdır Talep Etiketi (#2189):** detayda etiket varsa `printJobDetail` `Talep Detayları`'nda
   Durum sonrası `Talep Etiketi` satırı (`options.requestLabel` = sosyal `category`).
 - **Yazdır Talep Kanalı (#2524/#2558):** vatandaş talebi yazdırmada `Vatandaş Adı / Telefon No`

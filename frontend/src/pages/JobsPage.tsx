@@ -349,7 +349,7 @@ function buildPrintJobStatusLabel(
 
 function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFunction): string {
   if (detail.tasks.length === 0) {
-    return '<div class="section"><div class="section-title">İlgili Görev Detayları</div><p style="color:#888;font-size:11px">Görev yok</p></div>'
+    return ''
   }
 
   const taskBlocks = detail.tasks.map((task, index) => {
@@ -394,15 +394,25 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
       .map(([label, value]) => `<tr><th>${escHtml(label)}</th><td>${escHtml(value)}</td></tr>`)
       .join('')
     const separator = index > 0 ? 'margin-top:1.25rem;padding-top:1.25rem;border-top:1px dashed #cbd5e1' : ''
+    const taskAttachItems = (task.attachments ?? []).map(a => {
+      const name = a.fileName ?? ''
+      const dot = name.lastIndexOf('.')
+      const display = dot > 0 ? `${name.slice(0, dot)}${name.slice(dot).toLowerCase()}` : name
+      return `<li>${escHtml(display)}</li>`
+    }).join('')
+    const taskAttachBlock = taskAttachItems
+      ? `<div class="subsection-title">Görev Ekleri</div><ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${taskAttachItems}</ul>`
+      : ''
 
     return `<div style="${separator}">
       <div class="subsection-title">Görev ${index + 1}</div>
       <table><tbody>${tableRows}</tbody></table>
+      ${taskAttachBlock}
     </div>`
   }).join('')
 
   return `<div class="section">
-    <div class="section-title">${escHtml(t('tasks.detail.relatedTitle', 'İlgili Görev Detayları'))} (${detail.tasks.length})</div>
+    <div class="section-title">${escHtml(t('tasks.detail.relatedTitle', 'İlgili Görev Detayları'))}</div>
     ${taskBlocks}
   </div>`
 }
@@ -527,14 +537,14 @@ export function printJobDetail(
     <div class="section-title">Adres Bilgileri</div>
     <table><tbody>${addressRows}</tbody></table>
   </div>
-  <div class="section">
+  ${managerNote ? `<div class="section">
     <div class="section-title">Yönetici Notu</div>
-    <div class="desc">${managerNote ? escHtml(managerNote).replace(/\n/g, '<br/>') : '<em>Talep için yönetici notu bulunmamaktadır.</em>'}</div>
-  </div>
-  <div class="section">
-    <div class="section-title">Talep Ekleri (${(detail.attachments ?? []).length})</div>
-    ${attachItems ? `<ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul>` : '<p style="color:#888;font-size:11px">Talep için ek bulunmamaktadır.</p>'}
-  </div>
+    <div class="desc">${escHtml(managerNote).replace(/\n/g, '<br/>')}</div>
+  </div>` : ''}
+  ${attachItems ? `<div class="section">
+    <div class="section-title">Talep Ekleri</div>
+    <ul style="font-size:11px;margin:4px 0;padding-left:1.2rem">${attachItems}</ul>
+  </div>` : ''}
   ${taskDetailSections}
   <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
   <div class="page-number">1 / 1</div>

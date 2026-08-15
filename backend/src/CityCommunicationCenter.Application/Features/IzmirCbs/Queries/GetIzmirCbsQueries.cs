@@ -9,6 +9,13 @@ public sealed record GetIzmirCbsStreetsQuery(string NeighborhoodId)
 public sealed record GetIzmirCbsDoorNumbersQuery(string StreetId, string NeighborhoodId)
     : IQuery<IReadOnlyList<IzmirCbsOptionResponse>>;
 
+public sealed record GetIzmirCbsPointQuery(
+    string DistrictId,
+    string? Neighborhood,
+    string? Street,
+    string? StreetNo,
+    bool AllowNeighborhoodFallback) : IQuery<IzmirCbsPointResponse?>;
+
 public sealed class GetIzmirCbsNeighborhoodsQueryValidator : AbstractValidator<GetIzmirCbsNeighborhoodsQuery>
 {
     public GetIzmirCbsNeighborhoodsQueryValidator()
@@ -91,4 +98,26 @@ public sealed class GetIzmirCbsDoorNumbersQueryHandler
         GetIzmirCbsDoorNumbersQuery request,
         CancellationToken cancellationToken)
         => new(_catalog.GetDoorNumbersAsync(request.StreetId, request.NeighborhoodId, cancellationToken));
+}
+
+public sealed class GetIzmirCbsPointQueryHandler
+    : IQueryHandler<GetIzmirCbsPointQuery, IzmirCbsPointResponse?>
+{
+    private readonly IIzmirCbsAddressCatalog _catalog;
+
+    public GetIzmirCbsPointQueryHandler(IIzmirCbsAddressCatalog catalog)
+    {
+        _catalog = catalog;
+    }
+
+    public ValueTask<IzmirCbsPointResponse?> Handle(
+        GetIzmirCbsPointQuery request,
+        CancellationToken cancellationToken)
+        => new(_catalog.LocateAsync(
+            request.DistrictId,
+            request.Neighborhood,
+            request.Street,
+            request.StreetNo,
+            request.AllowNeighborhoodFallback,
+            cancellationToken));
 }

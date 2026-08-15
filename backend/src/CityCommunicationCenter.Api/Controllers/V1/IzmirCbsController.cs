@@ -45,4 +45,25 @@ public sealed class IzmirCbsController : ApiControllerBase
             cancellationToken);
         return Ok(response);
     }
+
+    [HttpGet("point")]
+    [ProducesResponseType<IzmirCbsPointResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IzmirCbsPointResponse?>> GetPoint(
+        [FromQuery] string districtId,
+        [FromQuery] string? neighborhood,
+        [FromQuery] string? street,
+        [FromQuery] string? streetNo,
+        [FromQuery] bool allowNeighborhoodFallback,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new GetIzmirCbsPointQuery(
+                districtId ?? string.Empty,
+                neighborhood,
+                street,
+                streetNo,
+                allowNeighborhoodFallback),
+            cancellationToken);
+        return Ok(response);
+    }
 }

@@ -14,4 +14,12 @@ public interface IIzmirCbsAddressCatalog
         string streetId,
         string neighborhoodId,
         CancellationToken cancellationToken);
+
+    Task<IzmirCbsPointResponse?> LocateAsync(
+        string districtId,
+        string? neighborhood,
+        string? street,
+        string? streetNo,
+        bool allowNeighborhoodFallback,
+        CancellationToken cancellationToken);
 }

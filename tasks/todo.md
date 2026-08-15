@@ -1,3 +1,7 @@
+## Round 883 — #2696
+
+- [x] `6a80870f` — Harita pin konumu İzmir CBS kapı/cadde noktası; Google adres araması yok.
+
 ## Round 882 — #2694
 
 - [x] `6a808364` — Küçük ekranda harita greedy zoom; WA/kurum içi FAB harita sayfalarında gizli.

@@ -1,4 +1,7 @@
+using System.Globalization;
 using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using CityCommunicationCenter.Domain.Entities;
@@ -15,6 +18,15 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
 
     private const string ControlUrl =
         "https://cbs.izmir.bel.tr/cbsuygulamalar/SehirPortaliCBSApi/BinaBilgiControl.aspx";
+
+    private const string CbsRehberQueryUrl =
+        "https://cbs.izmir.bel.tr/ArcGIS/rest/services/CbsRehber/MapServer/{0}/query";
+
+    private const int NeighborhoodLayer = 3;
+    private const int StreetCenterlineLayer = 7;
+    private const int DoorLayer = 9;
+
+    private static readonly CultureInfo Turkish = CultureInfo.GetCultureInfo("tr-TR");
 
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(6);
     private static readonly Regex NumericId = new(@"^-?\d+$", RegexOptions.Compiled);
@@ -115,6 +127,72 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
             cancellationToken);
     }
 
+    public async Task<IzmirCbsPointResponse?> LocateAsync(
+        string districtId,
+        string? neighborhood,
+        string? street,
+        string? streetNo,
+        bool allowNeighborhoodFallback,
+        CancellationToken cancellationToken)
+    {
+        var district = districtId.Trim();
+        var neighborhoodName = neighborhood?.Trim() ?? string.Empty;
+        var streetName = street?.Trim() ?? string.Empty;
+        var doorName = streetNo?.Trim() ?? string.Empty;
+        if (string.IsNullOrWhiteSpace(district))
+        {
+            return null;
+        }
+
+        if (string.IsNullOrWhiteSpace(streetName)
+            && !(allowNeighborhoodFallback && !string.IsNullOrWhiteSpace(neighborhoodName)))
+        {
+            return null;
+        }
+
+        var cacheKey =
+            $"izmir-cbs:point:{district}:{CompactKey(neighborhoodName)}:{CompactStreetKey(streetName)}:{CompactKey(doorName)}:{(allowNeighborhoodFallback ? "nb" : "")}";
+        if (_cache.TryGetValue(cacheKey, out PointCacheEntry? cached) && cached is not null)
+        {
+            return cached.Point;
+        }
+
+        var stored = await _db.IzmirCbsCatalogCaches
+            .AsNoTracking()
+            .FirstOrDefaultAsync(row => row.CacheKey == cacheKey, cancellationToken);
+        if (stored is not null)
+        {
+            var storedPoint = DeserializePoint(stored.PayloadJson);
+            _cache.Set(cacheKey, new PointCacheEntry(storedPoint), CacheDuration);
+            return storedPoint;
+        }
+
+        IzmirCbsPointResponse? located;
+        try
+        {
+            located = await ResolvePointAsync(
+                district,
+                neighborhoodName,
+                streetName,
+                doorName,
+                allowNeighborhoodFallback,
+                cancellationToken);
+        }
+        catch (ValidationException)
+        {
+            located = null;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            _logger.LogWarning(exception, "İzmir CBS nokta sorgusu başarısız.");
+            return null;
+        }
+
+        await PersistPayloadAsync(cacheKey, JsonSerializer.Serialize(located, JsonOptions), cancellationToken);
+        _cache.Set(cacheKey, new PointCacheEntry(located), CacheDuration);
+        return located;
+    }
+
     private async Task<IReadOnlyList<IzmirCbsOptionResponse>> GetCachedAsync(
         string cacheKey,
         string body,
@@ -138,7 +216,7 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
         try
         {
             var options = await FetchOptionsAsync(body, cancellationToken);
-            await PersistAsync(cacheKey, options, cancellationToken);
+            await PersistPayloadAsync(cacheKey, JsonSerializer.Serialize(options, JsonOptions), cancellationToken);
             _cache.Set(cacheKey, options, CacheDuration);
             return options;
         }
@@ -152,8 +230,13 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
         string cacheKey,
         IReadOnlyList<IzmirCbsOptionResponse> options,
         CancellationToken cancellationToken)
+        => await PersistPayloadAsync(cacheKey, JsonSerializer.Serialize(options, JsonOptions), cancellationToken);
+
+    private async Task PersistPayloadAsync(
+        string cacheKey,
+        string payload,
+        CancellationToken cancellationToken)
     {
-        var payload = JsonSerializer.Serialize(options, JsonOptions);
         var existing = await _db.IzmirCbsCatalogCaches.FirstOrDefaultAsync(
             row => row.CacheKey == cacheKey,
             cancellationToken);
@@ -240,6 +323,244 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
         }
     }
 
+    private async Task<IzmirCbsPointResponse?> ResolvePointAsync(
+        string districtId,
+        string neighborhoodName,
+        string streetName,
+        string doorName,
+        bool allowNeighborhoodFallback,
+        CancellationToken cancellationToken)
+    {
+        var neighborhoods = await GetNeighborhoodsAsync(districtId, cancellationToken);
+        var neighborhood = FindOption(neighborhoods, neighborhoodName, CompactNeighborhoodKey);
+        if (neighborhood is null)
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(streetName))
+        {
+            var streets = await GetStreetsAsync(neighborhood.Id, cancellationToken);
+            var street = FindOption(streets, streetName, CompactStreetKey);
+            if (street is null)
+            {
+                return null;
+            }
+
+            if (!string.IsNullOrWhiteSpace(doorName))
+            {
+                var doors = await GetDoorNumbersAsync(street.Id, neighborhood.Id, cancellationToken);
+                var door = FindOption(doors, doorName, CompactKey);
+                if (door is null)
+                {
+                    return null;
+                }
+
+                var doorPoint = await QueryLayerPointAsync(DoorLayer, door.Id, cancellationToken);
+                return doorPoint is null ? null : new IzmirCbsPointResponse(doorPoint.Value.Lat, doorPoint.Value.Lng, false);
+            }
+
+            var centerlineIds = await GetCachedAsync(
+                $"izmir-cbs:centerline:{street.Id}:{neighborhood.Id}",
+                $"5^{street.Id}|{neighborhood.Id}",
+                cancellationToken);
+            if (centerlineIds.Count == 0)
+            {
+                return null;
+            }
+
+            var ids = string.Join(
+                ",",
+                centerlineIds.Select(item => item.Id).Where(id => NumericId.IsMatch(id)));
+            if (string.IsNullOrEmpty(ids))
+            {
+                return null;
+            }
+
+            var streetPoint = await QueryLayerPointAsync(StreetCenterlineLayer, ids, cancellationToken, inList: true);
+            return streetPoint is null ? null : new IzmirCbsPointResponse(streetPoint.Value.Lat, streetPoint.Value.Lng, true);
+        }
+
+        if (!allowNeighborhoodFallback)
+        {
+            return null;
+        }
+
+        var neighborhoodPoint = await QueryLayerPointAsync(NeighborhoodLayer, neighborhood.Id, cancellationToken);
+        return neighborhoodPoint is null
+            ? null
+            : new IzmirCbsPointResponse(neighborhoodPoint.Value.Lat, neighborhoodPoint.Value.Lng, true);
+    }
+
+    private async Task<(double Lat, double Lng)?> QueryLayerPointAsync(
+        int layer,
+        string cbsId,
+        CancellationToken cancellationToken,
+        bool inList = false)
+    {
+        var client = _httpClientFactory.CreateClient(HttpClientName);
+        var where = inList ? $"CBSID in ({cbsId})" : $"CBSID = '{cbsId.Replace("'", "''", StringComparison.Ordinal)}'";
+        var url = string.Format(CbsRehberQueryUrl, layer)
+            + "?where=" + Uri.EscapeDataString(where)
+            + "&returnGeometry=true&outFields=CBSID&outSR=4326&f=json";
+        using var response = await client.GetAsync(url, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new HttpRequestException($"İzmir CBS katman sorgusu HTTP {(int)response.StatusCode} döndü.");
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+        if (!document.RootElement.TryGetProperty("features", out var features)
+            || features.ValueKind != JsonValueKind.Array
+            || features.GetArrayLength() == 0)
+        {
+            return null;
+        }
+
+        if (!features[0].TryGetProperty("geometry", out var geometry))
+        {
+            return null;
+        }
+
+        return ReadGeometry(geometry);
+    }
+
+    private static (double Lat, double Lng)? ReadGeometry(JsonElement geometry)
+    {
+        if (geometry.TryGetProperty("x", out var xEl) && geometry.TryGetProperty("y", out var yEl)
+            && xEl.TryGetDouble(out var x) && yEl.TryGetDouble(out var y))
+        {
+            return (y, x);
+        }
+
+        if (geometry.TryGetProperty("paths", out var paths) && paths.ValueKind == JsonValueKind.Array && paths.GetArrayLength() > 0)
+        {
+            var path = paths[0];
+            if (path.GetArrayLength() == 0)
+            {
+                return null;
+            }
+
+            var mid = path[path.GetArrayLength() / 2];
+            if (mid.GetArrayLength() < 2)
+            {
+                return null;
+            }
+
+            return (mid[1].GetDouble(), mid[0].GetDouble());
+        }
+
+        if (geometry.TryGetProperty("rings", out var rings) && rings.ValueKind == JsonValueKind.Array && rings.GetArrayLength() > 0)
+        {
+            var ring = rings[0];
+            var count = ring.GetArrayLength();
+            if (count == 0)
+            {
+                return null;
+            }
+
+            double sumX = 0;
+            double sumY = 0;
+            var used = 0;
+            var last = count > 1 ? count - 1 : count;
+            for (var index = 0; index < last; index += 1)
+            {
+                var point = ring[index];
+                if (point.GetArrayLength() < 2)
+                {
+                    continue;
+                }
+
+                sumX += point[0].GetDouble();
+                sumY += point[1].GetDouble();
+                used += 1;
+            }
+
+            if (used == 0)
+            {
+                return null;
+            }
+
+            return (sumY / used, sumX / used);
+        }
+
+        return null;
+    }
+
+    private static IzmirCbsOptionResponse? FindOption(
+        IReadOnlyList<IzmirCbsOptionResponse> options,
+        string name,
+        Func<string, string> compact)
+    {
+        var key = compact(name);
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return null;
+        }
+
+        return options.FirstOrDefault(item => compact(item.Name) == key);
+    }
+
+    private static string CompactKey(string value)
+    {
+        var builder = new StringBuilder(value.Length);
+        foreach (var ch in value.Trim().ToLower(Turkish))
+        {
+            if (char.IsLetterOrDigit(ch))
+            {
+                builder.Append(ch);
+            }
+        }
+
+        return builder.ToString();
+    }
+
+    private static string CompactStreetKey(string value)
+    {
+        var key = CompactKey(value);
+        foreach (var suffix in new[] { "caddesi", "cadde", "cad", "sokağı", "sokagi", "sokak", "sk", "bulvarı", "bulvari", "bulvar", "blv" })
+        {
+            if (key.Length > suffix.Length && key.EndsWith(suffix, StringComparison.Ordinal))
+            {
+                return key[..^suffix.Length];
+            }
+        }
+
+        return key;
+    }
+
+    private static string CompactNeighborhoodKey(string value)
+    {
+        var key = CompactKey(value);
+        foreach (var suffix in new[] { "mahallesi", "mahalle", "mah" })
+        {
+            if (key.Length > suffix.Length && key.EndsWith(suffix, StringComparison.Ordinal))
+            {
+                return key[..^suffix.Length];
+            }
+        }
+
+        return key;
+    }
+
+    private static IzmirCbsPointResponse? DeserializePoint(string payload)
+    {
+        if (string.IsNullOrWhiteSpace(payload) || payload == "null")
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<IzmirCbsPointResponse>(payload, JsonOptions);
+        }
+        catch (JsonException)
+        {
+            return null;
+        }
+    }
+
     private static string RequireNumericId(string value, string message)
     {
         var trimmed = value.Trim();
@@ -250,6 +571,8 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
 
         return trimmed;
     }
+
+    private sealed record PointCacheEntry(IzmirCbsPointResponse? Point);
 
     private sealed class CbsRow
     {

@@ -536,6 +536,25 @@ export const api = {
     return response.json() as Promise<Array<{ id: string; name: string }>>
   },
 
+  async getIzmirCbsPoint(input: {
+    districtId: string
+    neighborhood?: string | null
+    street?: string | null
+    streetNo?: string | null
+    allowNeighborhoodFallback?: boolean
+  }): Promise<{ latitude: number; longitude: number; approximate: boolean } | null> {
+    const params = new URLSearchParams({ districtId: input.districtId })
+    if (input.neighborhood?.trim()) params.set('neighborhood', input.neighborhood.trim())
+    if (input.street?.trim()) params.set('street', input.street.trim())
+    if (input.streetNo?.trim()) params.set('streetNo', input.streetNo.trim())
+    if (input.allowNeighborhoodFallback) params.set('allowNeighborhoodFallback', 'true')
+    const response = await fetchWithCredentials(`${API_BASE}/izmir-cbs/point?${params}`, {
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('settings.municipalityLocation.catalogLoadFailed', 'İzmir CBS adres listesi yüklenemedi.'))
+    return response.json() as Promise<{ latitude: number; longitude: number; approximate: boolean } | null>
+  },
+
   async updateTenantSettings(
     tenantId: string,
     payload: Omit<TenantSettings, 'tenantId' | 'municipalityName' | 'isActive' | 'rolePageAccessJson'>,

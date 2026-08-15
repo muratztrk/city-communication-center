@@ -383,10 +383,10 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     void (async () => {
       const geocoded = (await Promise.all(mappable.map(async pin => {
         const hit = await geocodeTireAddress({
+          districtId: mapView.districtId,
           neighborhood: pin.neighborhood,
           street: pin.street,
           streetNo: pin.streetNo,
-          districtName: mapView.districtName,
           allowNeighborhoodFallback: allowNeighborhood,
         })
         if (hit) {
@@ -415,7 +415,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
       }
     })()
     return () => { cancelled = true }
-  }, [pins, mapView.districtName, geocodeReady, variant])
+  }, [pins, mapView.districtId, geocodeReady, variant])
 
   const unlocated = useMemo(() => {
     const locatedIds = new Set(resolved.map(pin => pin.jobId))

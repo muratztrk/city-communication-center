@@ -9,7 +9,6 @@ import {
   formatCitizenPhoneDisplay,
   formatCitizenRequestNumber,
   isCitizenRequestJob,
-  requestLocationFieldLabel,
 } from '../../../utils/citizenRequests'
 import { getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
 import { RequestNumberWithTypeLabel } from '../../../utils/requestDisplay'
@@ -70,9 +69,23 @@ export function buildMyRequestDetailFields(
   const locationCreatorValue = (
     <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />
   )
+  const destinationDeptText = formatJobDestinationsWithAssignees(detail, false, false)
   const destinationValue = includeAssignee && !useMyRequestsFieldLayout
-    ? formatJobDestinationsWithAssignees(detail, true)
-    : formatJobDestinationsWithAssignees(detail, false, false)
+    ? (
+      <StackedFieldValue
+        top={destinationDeptText}
+        bottom={assigneeNames.length > 0 ? assigneeNames.join(', ') : undefined}
+      />
+    )
+    : destinationDeptText
+  const locationLabel = isCitizenRequestJob(detail)
+    ? t('jobs.detail.requestRouter', 'Talebi Yönlendiren')
+    : (
+      <StackedFieldLabel
+        top={t('jobs.detail.requestLocation', 'Talep Yeri')}
+        bottom={t('tasks.columns.createdBy', 'Oluşturan')}
+      />
+    )
 
   if (isCitizenRequestJob(detail)) {
     return [
@@ -95,7 +108,7 @@ export function buildMyRequestDetailFields(
       },
       { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
       {
-        label: requestLocationFieldLabel(detail, t),
+        label: locationLabel,
         value: locationCreatorValue,
       },
       ...(useMyRequestsFieldLayout
@@ -129,7 +142,7 @@ export function buildMyRequestDetailFields(
     },
     { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
     {
-      label: requestLocationFieldLabel(detail, t),
+      label: locationLabel,
       value: locationCreatorValue,
     },
     ...(useMyRequestsFieldLayout

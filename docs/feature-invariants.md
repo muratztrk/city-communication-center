@@ -1678,6 +1678,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dropdown yok; Talep Etiketi sütunu yok; thead drilldown standardı (`0.78rem`).
   Ara / başlangıç / bitiş tarihi yok. Tüm VT kayıtları listelenir.
   Popup kolon başlıkları **Talep Tarihi** / **Telefon No**; paging sticky altta (#2649).
+  Popup genişliği Taleplerim detaydan daha geniş (`70vw` / `84rem`, #2644). Küçük ekranda
+  başlıklar sığmazsa yatay kaydırma (`overflow-x`, #2648).
 - **Anasayfa-Birimler Tüm Talepler (#2645/#2648):** Özel’den sonra aynı buton; popup başlığı
   `Birimlerin Tüm Talepleri`. Boyut Taleplerim Detaylar (`detail-modal-shell--my-request`).
   Vatandaş-olmayan atanmış kurum içi talepler (Sıra, Talep No,
@@ -1740,7 +1742,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bekleyen istek görünür. İlgili Talep Detayları `separatePriorityProjectRows` bu kuralı ezer.
 - **Detay popup Proje Sahibi (#2624):** yalnız Birim İçi + proje ise
   `Talep Yapılan Birim / Görevi Yapan` başlığı `Proje Sahibi` olur.
-  Aksi halde birleşik başlıkta slash yok: **Talep Yapılan Birim** üstte, **Görevi Yapan** alt satır (#2650).
+  Aksi halde birleşik başlıkta slash yok: **Talep Yapılan Birim** üstte, **Görevi Yapan** alt satır;
+  değerler de birim üstte kişi altta hizalı; Görevi Yapan etiketine az üst boşluk (#2650).
+  **Talep Yeri** / **Oluşturan** aynı stacked düzen.
 - **Detay popup Talebi Yönlendiren (#2627):** yalnız vatandaş talebinde
   `Talep Yeri / Oluşturan` başlığı `Talebi Yönlendiren` olur.
 - **Vatandaş Talepleri paging (#r467):** sayfa numarası tıklanınca kolon filtreleri temizlenir ama

@@ -914,9 +914,14 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         taskOwnerDisplayName: task.assignedUserDisplayName ?? task.ownerDisplayName ?? '',
         taskTypeCategory: task.jobSourceType === 'Routine' ? 'Rutin' : 'Atanmış',
         cancelReturnStatus: 'İptal',
+        linkedRequestSeq: (() => {
+          const display = formatTaskJobDisplayNumber(task, socialByJobId, locale)
+          const match = /^(?:VT|T)-(\d{4})-(\d+)$/i.exec(display.trim())
+          return match ? Number(match[2]) : (task.jobNumber ?? 0)
+        })(),
       }))
       .filter(task => taskMatchesFilters(task, getTaskColumnValue)),
-    [visibleTasks, taskMatchesFilters, getTaskColumnValue],
+    [visibleTasks, taskMatchesFilters, getTaskColumnValue, socialByJobId, locale],
   )
 
   // Kullanıcı kolon sıralaması seçmediyse, Tamamlanmış/İptal görünümlerinde en yeni tarihli en üstte
@@ -3152,7 +3157,7 @@ const pageKicker = isMyTasksView
               <thead>
                 <tr>
                   <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
-                  <FilterableTh filterKey="jobNumber" filterValue={taskFilters['jobNumber'] ?? ''} onFilter={setTaskFilter} sortKey="jobNumber" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
+                  <FilterableTh filterKey="jobNumber" filterValue={taskFilters['jobNumber'] ?? ''} onFilter={setTaskFilter} sortKey="linkedRequestSeq" currentSortKey={tasksSortKey} sortDir={tasksSortDir} onSort={toggleTasksSort}>
                     <span className="inline-flex flex-col leading-tight">
                       <span>{t('tasks.columns.parentRequestLinked', 'Bağlı Olduğu')}</span>
                       <span>{t('tasks.columns.parentRequestNoShort', 'Talep No')}</span>

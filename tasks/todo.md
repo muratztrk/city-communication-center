@@ -1,3 +1,10 @@
+## Round 845 — #2648/#2644/#2650/#2646
+
+- [x] `6a8022b2` — Birimler Tüm Talepler küçük ekranda yatay scroll (#2648).
+- [x] `6a801b6e` — Vatandaş Tüm Talepler popup biraz daha geniş (#2644).
+- [x] `6a802d1c` — Detay: Oluşturan / Görevi Yapan değer ve başlık alt satır hizası (#2650).
+- [x] `6a8020cb` — Bağlı Olduğu Talep No sayısal sıralama (#2646).
+
 ## Round 844 — #2650
 
 - [x] `6a802d1c` — Detay popup: Talep Yapılan Birim / Görevi Yapan stacked, slash yok (#2650).

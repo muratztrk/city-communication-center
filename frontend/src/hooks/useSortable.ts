@@ -4,7 +4,7 @@ export type SortDir = 'asc' | 'desc'
 
 const ISO_RE = /^\d{4}-\d{2}-\d{2}T/
 const REQUEST_NO_RE = /^(?:VT|T)-(\d{4})-(\d+)$/i
-const DESC_FIRST_SORT_KEYS = new Set(['jobNumber', 'citizenRequestNumber'])
+const DESC_FIRST_SORT_KEYS = new Set(['jobNumber', 'citizenRequestNumber', 'linkedRequestSeq'])
 
 function parsePrefixedRequestNo(value: string): { year: number; seq: number } | null {
   const match = REQUEST_NO_RE.exec(value.trim())

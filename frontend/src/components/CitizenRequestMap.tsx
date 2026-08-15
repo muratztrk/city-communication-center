@@ -708,7 +708,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
                 aria-label={t('citizenRequestMap.resetView', 'Başlangıç görünümü')}
                 onClick={resetMapView}
               >
-                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
                   <circle cx="12" cy="12" r="2.15" fill="currentColor" stroke="none" />
                   <circle cx="12" cy="12" r="6.1" />
                   <path d="M12 2.6v2.7M12 18.7v2.7M2.6 12h2.7M18.7 12h2.7" strokeLinecap="round" />

@@ -16,8 +16,9 @@ public sealed class JobsController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<JobSummaryResponse>>> GetAll(
         [FromQuery] string? scope,
         [FromQuery] Guid? departmentId,
+        [FromQuery] string? requestType,
         CancellationToken cancellationToken)
-        => Ok(await _sender.Send(new GetJobsQuery(scope, departmentId), cancellationToken));
+        => Ok(await _sender.Send(new GetJobsQuery(scope, departmentId, requestType), cancellationToken));
 
     [HttpGet("{jobId:guid}", Name = "GetJobById")]
     public async Task<ActionResult<JobDetailResponse>> GetById(Guid jobId, CancellationToken cancellationToken)

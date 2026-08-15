@@ -1,3 +1,8 @@
+## Round 876 — #2686/#2687/#2688
+
+- [x] `6a806a7d` / `6a806ae5` — Anasayfa Tüm Talepler popup yükleme: Citizen işler + gereksiz istek yok (#2686/#2687).
+- [x] `6a806ead` — Harita reset ikonu 16→20px, çerçeve aynı (#2688).
+
 ## Round 875 — #2684
 
 - [x] `6a8068dc` — Grid Öncelik punto hafif artırıldı (`0.74` → `0.78rem`) (#2684).

@@ -29,6 +29,30 @@ import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenReq
 const CHANNEL_BADGE_SEEN_PREFIX = 'ccc-social-channel-badge-seen-'
 const BADGE_CHANNELS = ['EDevlet', 'MobileApp'] as const
 
+async function loadCitizenInbox(embedded: boolean) {
+  const jobsPromise = api.getJobs('all', null, embedded ? 'Citizen' : undefined)
+  if (embedded) {
+    const [messageList, jobList] = await Promise.all([
+      api.getSocialMessages(),
+      jobsPromise,
+    ])
+    return {
+      messageList,
+      jobList,
+      tagList: [] as RequestTag[],
+      departmentList: [] as Department[],
+    }
+  }
+
+  const [messageList, jobList, tagList, departmentList] = await Promise.all([
+    api.getSocialMessages(),
+    jobsPromise,
+    api.getRequestTags().catch(() => [] as RequestTag[]),
+    api.getDepartments().catch(() => [] as Department[]),
+  ])
+  return { messageList, jobList, tagList, departmentList }
+}
+
 function getChannelBadgeSeenAt(channel: string): string | null {
   try {
     return localStorage.getItem(`${CHANNEL_BADGE_SEEN_PREFIX}${channel}`)
@@ -236,13 +260,8 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
   useEffect(() => {
     let isActive = true
 
-    void Promise.all([
-      api.getSocialMessages(),
-      api.getJobs('all'),
-      api.getRequestTags().catch(() => [] as RequestTag[]),
-      api.getDepartments().catch(() => [] as Department[]),
-    ])
-      .then(([messageList, jobList, tagList, departmentList]) => {
+    void loadCitizenInbox(embedded)
+      .then(({ messageList, jobList, tagList, departmentList }) => {
         if (!isActive) {
           return
         }
@@ -266,7 +285,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
     return () => {
       isActive = false
     }
-  }, [t])
+  }, [embedded, t])
 
   const reload = async (options?: { quiet?: boolean }) => {
     if (!options?.quiet) {
@@ -275,12 +294,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
     setError('')
 
     try {
-      const [messageList, jobList, tagList, departmentList] = await Promise.all([
-        api.getSocialMessages(),
-        api.getJobs('all'),
-        api.getRequestTags().catch(() => [] as RequestTag[]),
-        api.getDepartments().catch(() => [] as Department[]),
-      ])
+      const { messageList, jobList, tagList, departmentList } = await loadCitizenInbox(embedded)
 
       setMessages(messageList)
       setJobsById(new Map(jobList.map(job => [job.jobId, job])))

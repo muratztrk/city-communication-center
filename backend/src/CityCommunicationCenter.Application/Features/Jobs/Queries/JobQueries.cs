@@ -4,7 +4,7 @@ using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
-public sealed record GetJobsQuery(string? Scope, Guid? DepartmentId = null) : IQuery<IReadOnlyList<JobSummaryResponse>>;
+public sealed record GetJobsQuery(string? Scope, Guid? DepartmentId = null, string? RequestType = null) : IQuery<IReadOnlyList<JobSummaryResponse>>;
 
 public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyList<JobSummaryResponse>>
 {
@@ -110,6 +110,13 @@ public sealed class GetJobsQueryHandler : IQueryHandler<GetJobsQuery, IReadOnlyL
         else if (scope == "rejected")
         {
             q = q.Where(j => j.Status == JobStatus.Rejected || j.Status == JobStatus.Cancelled);
+        }
+
+        if (string.Equals(request.RequestType, "Citizen", StringComparison.OrdinalIgnoreCase))
+        {
+            q = q.Where(j => j.RequestType == JobRequestType.Citizen
+                || j.SourceType == JobSourceType.SocialMessage
+                || j.SourceType == JobSourceType.CitizenRequest);
         }
 
         var rows = await q

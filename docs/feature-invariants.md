@@ -1685,7 +1685,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yapılmakta mavi `#0ea5e9`, Geciken turuncu `#f97316` (#2671). Vatandaş lejant metni
   `Yapılmakta` (Olan yok); Geciken lejantı `whitespace-nowrap` ile yan yana `Yapılmakta Geciken`
   (#2671/#2680). Banner: `Bölgenizdeki vatandaş talepleri…` (ilçe adı yok, #2685).
-  Sağ alt zoom’da `+` üstünde hedef ikonu sayfa açılış merkez/zoom’a döner (#2688).
+  Sağ alt zoom’da `+` üstünde hedef ikonu sayfa açılış merkez/zoom’a döner; ikon `20px`, çerçeve `2rem` (#2688).
   Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
@@ -1728,7 +1728,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dropdown yok; Talep Etiketi sütunu yok; thead drilldown standardı (`0.78rem`).
   Ara / başlangıç / bitiş tarihi yok. Tüm VT kayıtları listelenir.
   **Gittiği Yer sütunu yok** (Operator #2686, Reporter #2687). Reporter `GetSocialMessages`
-  tam kutu (Operator ile aynı). Popup kolon başlıkları **Talep Tarihi** / **Telefon No**; paging sticky altta (#2649).
+  tam kutu (Operator ile aynı). Embedded yükleme etiket/birim listesini atlar; işler
+  `requestType=Citizen` ile çekilir (#2686/#2687). Popup kolon başlıkları **Talep Tarihi** / **Telefon No**; paging sticky altta (#2649).
   Popup genişliği Taleplerim detaydan daha geniş (`70vw` / `84rem`, #2644). Küçük ekranda
   başlıklar sığmazsa yatay kaydırma (`overflow-x`, #2648). Boş grid metni
   `Henüz vatandaş talebi bulunmuyor` (`social.emptyCitizenRequests`, #2644).

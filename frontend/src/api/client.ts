@@ -1025,10 +1025,11 @@ export const api = {
   },
 
   // Jobs
-  async getJobs(scope?: JobListScope, departmentId?: string | null): Promise<JobSummary[]> {
+  async getJobs(scope?: JobListScope, departmentId?: string | null, requestType?: string | null): Promise<JobSummary[]> {
     const params = new URLSearchParams()
     if (scope) params.set('scope', scope)
     if (departmentId) params.set('departmentId', departmentId)
+    if (requestType) params.set('requestType', requestType)
     const suffix = params.toString()
     const response = await fetchWithCredentials(`${API_BASE}/jobs${suffix ? `?${suffix}` : ''}`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.jobsLoadFailed', 'Failed to load jobs'))

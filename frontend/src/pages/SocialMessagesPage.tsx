@@ -13,16 +13,18 @@ import { api } from '../api/client'
 import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
 import { RequestTagPicker } from '../components/RequestTagDialog'
 import { Button } from '../components/ui/button'
+import { StatusPill } from '../components/ui/status-pill'
+import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import type { Department, JobSummary, RequestTag, SocialMessage } from '../types/platform'
-import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel, shouldShowGridPrioritySubline } from '../utils/localization'
+import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
-import { formatCitizenRequestNumber, getCitizenRequestStatusLabel } from '../utils/citizenRequests'
+import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenRequestStatusTone } from '../utils/citizenRequests'
 
 const CHANNEL_BADGE_SEEN_PREFIX = 'ccc-social-channel-badge-seen-'
 const BADGE_CHANNELS = ['EDevlet', 'MobileApp'] as const
@@ -197,7 +199,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [embeddedChannel, setEmbeddedChannel] = useState(DEFAULT_CHANNEL_FILTER)
-  const [embeddedRequestStatus, setEmbeddedRequestStatus] = useState<SocialRequestStatusFilter>('all')
+  const embeddedRequestStatus: SocialRequestStatusFilter = 'all'
   // Vatandaş Talepleri varsayılanı Tümü; `channel=WhatsApp` vb. URL ile daraltılır (card #1851).
   const channelParam = embedded ? embeddedChannel : searchParams.get('channel')
   const channelFilter = channelParam === null || channelParam === ALL_CHANNELS_FILTER
@@ -544,24 +546,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
       </header>
       )}
 
-      {embedded ? (
-      <nav className="scope-chips shrink-0 px-4 pt-3" aria-label={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}>
-        <SingleSelectDropdown
-          className="w-auto"
-          triggerClassName="scope-chip-year-select scope-chip-status-select w-[11.5rem] min-w-[11.5rem] max-w-[11.5rem]"
-          menuScrollClassName="scope-chip-status-menu-scroll"
-          options={REQUEST_STATUS_FILTERS.map(filter => ({ value: filter.value, label: t(filter.labelKey, filter.fallback) }))}
-          value={requestStatusFilter}
-          onChange={value => {
-            const nextValue = value as SocialRequestStatusFilter
-            setRequestStatusFilter(nextValue)
-            setEmbeddedRequestStatus(nextValue)
-          }}
-          placeholder={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
-        />
-        <ClearPieFilterLink hasColumnFilters={hasActiveSocialColumnFilters} onClearColumnFilters={clearSocialFilters} />
-      </nav>
-      ) : (
+      {embedded ? null : (
       <nav className="scope-chips" aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
         {channelQuickFilters.map(filter => (
           <button
@@ -604,7 +589,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
       {embedded && loading ? <div className="loading px-4 py-6">{t('common.loading')}</div> : null}
 
       <section className={embedded ? 'section-card min-h-0 flex-1 overflow-hidden' : 'section-card desktop-page-fill'}>
-        <div className={embedded ? 'table-wrap h-full overflow-auto' : 'table-wrap desktop-panel-scroll'}>
+        <div className={embedded ? 'table-wrap h-full overflow-auto pt-3' : 'table-wrap desktop-panel-scroll'}>
           <table className={`data-table jobs-table data-table--zebra social-messages-table${embedded ? ' dashboard-drilldown-table' : ''}`}>
             <thead>
               <tr>
@@ -671,10 +656,40 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                         <span className="mt-0.5 block text-sm font-semibold text-slate-500">{linkedJob.assignedUserDisplayName}</span>
                       ) : null}
                     </td>
-                    <td className="font-semibold text-slate-700">
-                      {linkedJob
-                        ? getLinkedJobDisplayStatus(t, linkedJob, message.dueDateUtc ?? linkedJob.dueDateUtc ?? null)
-                        : t('social.requestStatus.processingReceived', 'İşleme Alındı')}
+                    <td className="grid-col-status text-center">
+                      {(() => {
+                        const dueDateUtc = linkedJob
+                          ? (message.dueDateUtc ?? linkedJob.dueDateUtc ?? null)
+                          : null
+                        const statusLabel = linkedJob
+                          ? getLinkedJobDisplayStatus(t, linkedJob, dueDateUtc)
+                          : t('social.requestStatus.processingReceived', 'İşleme Alındı')
+                        const statusDate = linkedJob?.status === 'Completed' ? linkedJob.completedAtUtc
+                          : linkedJob?.status === 'Cancelled' ? linkedJob.updatedAtUtc
+                          : null
+                        const statusDateText = statusDate
+                          ? new Date(statusDate).toLocaleString(locale, {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                          : null
+                        return (
+                          <StatusPill className={linkedJob
+                            ? getStatusPillClass(getCitizenRequestStatusTone({ ...linkedJob, dueDateUtc }))
+                            : getStatusPillClass('processingReceived')}>
+                            <GridStatusLabel
+                              t={t}
+                              label={statusLabel}
+                              footer={statusDateText
+                                ? <span className={`text-[0.68rem] font-bold ${linkedJob?.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{statusDateText}</span>
+                                : undefined}
+                            />
+                          </StatusPill>
+                        )
+                      })()}
                     </td>
                     {embedded ? null : (
                     <td className="text-center">

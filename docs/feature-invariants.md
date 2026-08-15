@@ -1663,17 +1663,19 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ve Birimdeki Görevler kapsamındaki atanmış görevlerin talepleri — kullanıcının birimi.
   Üst Düzey Yönetici (`Reporter`) ve SystemAdmin tüm birimlerin atanmış taleplerini görür (#2641).
   Lejant: Onay Bekleyen (sky) / Yapılmakta / Geciken / Tamamlanan.
-  Geocode kuyruğunda 4 sn timeout pin düşürmez (#2640). Birim haritasında cadde Google’da
-  yoksa pin yok — mahalle yedeği ve kayıtlı lat/lng kullanılmaz; No yoksa cadde/mahalle
-  noktasından boş alana kaydırılır (#2642). Vatandaş haritası cadde zorunlu kalır (#2635).
+  Geocode kuyruğunda 4 sn timeout pin düşürmez (#2640). Yönetici kendisine atanmış talep
+  (AssignedUserId) adresi varsa haritada görünür; cadde Google’da yoksa mahalle/lat-lng yedeği
+  birim haritasında kullanılır (#2640 T-2026-591). Vatandaş haritası cadde zorunlu kalır (#2635).
   Pin API + geocode paralel (en fazla 4 eşzamanlı, aynı adres tek istek); dönem değişince
   önceki pinler yerinde kalır, cache 60 sn (#2643).
-- **Anasayfa-Vatandaş Tüm Talepler (#2644):** dönem satırında Özel’den sonra `Tüm Talepler`;
-  popup operatör VT grid (`SocialMessagesPage` embedded). Kanal chip’leri (Tümü/WhatsApp/…) yok;
-  Talep Etiketi sütunu yok; thead drilldown standardı (`0.78rem`). Durum filtresi kalır.
-  Ara / başlangıç / bitiş tarihi yok (#2647).
+- **Anasayfa-Vatandaş Tüm Talepler (#2644/#2647):** dönem satırında Özel’den sonra `Tüm Talepler`;
+  popup operatör VT grid (`SocialMessagesPage` embedded). Boyut Taleplerim Detaylar
+  (`detail-modal-shell--my-request`). Kanal chip’leri ve Tüm Talep Durumları
+  dropdown yok; Talep Etiketi sütunu yok; thead drilldown standardı (`0.78rem`).
+  Ara / başlangıç / bitiş tarihi yok. Tüm VT kayıtları listelenir.
 - **Anasayfa-Birimler Tüm Talepler (#2645/#2648):** Özel’den sonra aynı buton; popup başlığı
-  `Birimlerin Tüm Talepleri`. Vatandaş-olmayan atanmış kurum içi talepler (Sıra, Talep No,
+  `Birimlerin Tüm Talepleri`. Boyut Taleplerim Detaylar (`detail-modal-shell--my-request`).
+  Vatandaş-olmayan atanmış kurum içi talepler (Sıra, Talep No,
   Talep Tarihi, Talep Yeri, Gittiği Yer, Başlık, Durum, İşlemler). Gittiği Yer = hedef birim;
   birim içi talepte sahip birim adı. Durum = Taleplerim `StatusPill` + `GridStatusLabel`.
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
@@ -1708,7 +1710,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`background-color` + aynı linear-gradient, `background-attachment: fixed`) — scroll’da
   tbody satırları başlığın üstüne binmez; hücreler arası sürekli gradient korunur. `z-index` ≥ 5.
 - **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → Telefon → Talep Tarihi →
-  Gittiği Yer → Talep Etiketi → **Durum** → İşlemler (#2646; eski Süreç başlığı). **Tüm Talep Durumları** scope chip
+  Gittiği Yer → Talep Etiketi → **Durum** → İşlemler (#2646; eski Süreç başlığı). Durum hücresi
+  Taleplerim `StatusPill` + `GridStatusLabel`. **Tüm Talep Durumları** scope chip
   seçildikten sonra genişlik sabit kalır (`scope-chip-status-select`, #2573). Etiket dropdown hücresinde buton ortalı; açık menü
   satırları sola yaslı (card #1878 reopen — ortalanmamalı).
 - **Vatandaş Talepleri Talep Etiketi (card #1878/#r461/#r462/#r463/#6a6d8fe8):** grid hücresinde

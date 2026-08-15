@@ -1,3 +1,11 @@
+## Round 840 — #2646/#2640/#2644/#2647/#2648
+
+- [x] `6a8020cb` — VT grid Durum Taleplerim pill (#2646).
+- [x] `6a801665` — Birim haritası: yönetici kendisine atanmış + mahalle yedeği (#2640 T-2026-591).
+- [x] `6a801b6e` — Tüm Talepler popup: durum dropdown yok, tüm VT (#2644).
+- [x] `6a8021f8` — Vatandaş Tüm Talepler popup Taleplerim detay boyutu (#2647).
+- [x] `6a8022b2` — Birimler Tüm Talepler popup Taleplerim detay boyutu (#2648).
+
 ## Round 839 — #2647/#2648
 
 - [x] `6a8021f8` — Tüm Talepler (Vatandaş) popup’ta ara/tarih yok (#2647).

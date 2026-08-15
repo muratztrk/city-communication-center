@@ -67,6 +67,7 @@ import type {
 import { SMS_PASSWORD_MASK, SMS_PROVIDER_OPTIONS, SMS_SENDABLE_PROVIDERS } from '../types/platform'
 import type { SmsProviderSelection } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
+import { toTitleCaseTr } from '../utils/textNormalization'
 
 type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates' | 'license'
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email'
@@ -594,11 +595,11 @@ export function SettingsPage() {
     staleTime: 60 * 60 * 1000,
   })
   const cbsNeighborhoodOptions = useMemo(
-    () => (cbsNeighborhoodsQuery.data ?? []).map(item => ({ value: item.id, label: item.name })),
+    () => (cbsNeighborhoodsQuery.data ?? []).map(item => ({ value: item.id, label: toTitleCaseTr(item.name) })),
     [cbsNeighborhoodsQuery.data],
   )
   const cbsStreetOptions = useMemo(
-    () => (cbsStreetsQuery.data ?? []).map(item => ({ value: item.id, label: item.name })),
+    () => (cbsStreetsQuery.data ?? []).map(item => ({ value: item.id, label: toTitleCaseTr(item.name) })),
     [cbsStreetsQuery.data],
   )
   const cbsDoorNoOptions = useMemo(

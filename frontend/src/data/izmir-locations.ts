@@ -1,3 +1,5 @@
+import { toTitleCaseTr } from '../utils/textNormalization'
+
 export interface IzmirDistrict {
   id: string
   name: string
@@ -411,7 +413,8 @@ export function saveMunicipalityCbsAddress(address: MunicipalityCbsAddress): voi
 }
 
 export function getNeighborhoodsForDistrict(districtId: string): string[] {
-  return IZMIR_DISTRICTS.find(d => d.id === districtId)?.neighborhoods ?? []
+  return (IZMIR_DISTRICTS.find(d => d.id === districtId)?.neighborhoods ?? [])
+    .map(name => toTitleCaseTr(name))
 }
 
 const GEOCODE_NEIGHBORHOOD_SUFFIXES = [

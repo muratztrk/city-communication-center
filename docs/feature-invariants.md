@@ -1180,12 +1180,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanır; sonraki girişlerde Settings dropdown seçili gelir. Eski ad/büyük-küçük harf/boşluklu
   localStorage değerleri canonical ilçe ID’sine normalize edilir; boş/geçersiz seçim mevcut
   değerin üzerine yazılamaz (card #2271 follow-up). Kurum Bilgisi Kaydet Theme’deki ilçe kodunu silmez.
-  **CBS Adres Ara kademesi (#2652/#2654/#2655):** Mahalle / Cadde-Sokak / No İzmir CBS
+  **CBS Adres Ara kademesi (#2652/#2654/#2655/#2658):** Mahalle / Cadde-Sokak / No İzmir CBS
   `BinaBilgiControl.aspx` proxy’sinden gelir (`GET /api/v1/izmir-cbs/*`). Mahalle seçilmeden
   cadde, cadde seçilmeden kapı no enable olmaz. Ayarlar’da dört alan yatay (`xl:grid-cols-4`, #2654).
   Seçimler `ccc_municipality_cbs_address` localStorage’da kalır. Talep oluştur (iç/dış/vatandaş),
   vatandaş modal, rutin ve WA taslak adresinde Cadde/No textbox yok; CBS dropdown
   (`CbsStreetNoDropdowns`, #2655). Mahalle kataloğu hâlâ statik `izmir-locations` + ilçe Theme’dir.
+  Mahalle ve Cadde/Sokak dropdown etiketleri `toTitleCaseTr` (#2658).
 - **Birimler/Kullanıcılar grid:** FilterableTh + sort + TablePagination; kolon genişlikleri
   `users-table`/`departments-table` ile orantılı (card #1724). Kullanıcılar Rol StatusPill ortalı;
   İşlemler’de kalem+Düzenle / çöp+Sil ve satır ortalı (cards #1722/#1725/#1732). Banner `+Yeni…`
@@ -1630,6 +1631,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
 - **Vatandaş Talep Haritası (#2572/#2569):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
+  Banner: mahalle, cadde/sokak, no içeren açık adres (#2656). Birim haritası aynı kalıp (#2657).
   Reporter **ve Operator** (403 değil). Pin kümesi `WhereHasCitizenRequestNumber` — `RequestType=Citizen`
   şartı yok (VT numaralı kaynaklar). Dönem filtresi Anasayfa ile aynı; pin clustering
   `@googlemaps/markerclusterer`;   marker tıklanınca doğrudan `MyRequestDetailModal` (`Vatandaş Talebi`),

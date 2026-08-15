@@ -62,12 +62,12 @@
     }
   },
   "departmentRequestMap": {
-    "subtitle": "Internal requests assigned to your department in {{district}} are shown on the map with neighborhood, street, and open address.",
+    "subtitle": "Internal requests assigned to your department in {{district}} are shown on the map with neighborhood, street/number, and open address.",
     "detailTitle": "Request"
   },
   "citizenRequestMap": {
     "eyebrow": "Citizen requests",
-    "subtitle": "Citizen requests in {{district}} are shown on the map with neighborhood, street, and open address.",
+    "subtitle": "Citizen requests in {{district}} are shown on the map with neighborhood, street/number, and open address.",
     "live": "Live map",
     "pinCount": "{{count}} locations",
     "geocodeEmpty": "Addresses could not be placed on the map.",

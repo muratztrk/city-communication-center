@@ -79,7 +79,7 @@ export function CitizenRequestMapPage() {
             <p className="max-w-3xl text-sm leading-6 text-white/82">
               {t('citizenRequestMap.subtitle', {
                 district: mapView.districtName,
-                defaultValue: '{{district}} ilçesindeki vatandaş talepleri mahalle, cadde ve açık adres bilgileriyle haritada gösterilir.',
+                defaultValue: '{{district}} ilçesindeki vatandaş talepleri mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.',
               })}
             </p>
           </div>

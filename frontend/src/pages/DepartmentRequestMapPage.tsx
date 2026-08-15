@@ -79,7 +79,7 @@ export function DepartmentRequestMapPage() {
             <p className="max-w-3xl text-sm leading-6 text-white/82">
               {t('departmentRequestMap.subtitle', {
                 district: mapView.districtName,
-                defaultValue: '{{district}} ilçesinde biriminize atanmış kurum içi talepler mahalle, cadde ve açık adres bilgileriyle haritada gösterilir.',
+                defaultValue: '{{district}} ilçesinde biriminize atanmış kurum içi talepler mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.',
               })}
             </p>
           </div>

@@ -1,3 +1,9 @@
+## Round 849 — #2656/#2657/#2658
+
+- [x] `6a803c15` — Vatandaş harita banner cadde/sokak, no (#2656).
+- [x] `6a803c42` — Birim harita banner cadde/sokak, no (#2657).
+- [x] `6a803d5c` — Mahalle/Cadde dropdown Title Case (#2658).
+
 ## Round 848 — #2654/#2655
 
 - [x] `6a803a0c` — Kurum Konumu İlçe/Mahalle/Cadde/No yatay (#2654).

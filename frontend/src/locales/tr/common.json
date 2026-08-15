@@ -62,12 +62,12 @@
     }
   },
   "departmentRequestMap": {
-    "subtitle": "{{district}} ilçesinde biriminize atanmış kurum içi talepler mahalle, cadde ve açık adres bilgileriyle haritada gösterilir.",
+    "subtitle": "{{district}} ilçesinde biriminize atanmış kurum içi talepler mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.",
     "detailTitle": "Talep"
   },
   "citizenRequestMap": {
     "eyebrow": "Vatandaş talepleri",
-    "subtitle": "{{district}} ilçesindeki vatandaş talepleri mahalle, cadde ve açık adres bilgileriyle haritada gösterilir.",
+    "subtitle": "{{district}} ilçesindeki vatandaş talepleri mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.",
     "live": "Canlı harita",
     "pinCount": "{{count}} konum",
     "geocodeEmpty": "Adresler haritada konumlanamadı.",

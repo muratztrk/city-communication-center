@@ -6,8 +6,8 @@ import { queryKeys } from '../api/queryKeys'
 import { CitizenRequestMap } from '../components/CitizenRequestMap'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { StatusPill } from '../components/ui/status-pill'
-import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
-import { getDistrictMapView } from '../data/izmir-district-maps'
+import { useAuth } from '../context/AuthContext'
+import { getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
 
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom'
@@ -41,8 +41,8 @@ function getPeriodRange(p: Period, customFrom: string, customTo: string): { from
 
 export function DepartmentRequestMapPage() {
   const { t } = useTranslation()
-  const districtId = useMunicipalityDistrictId()
-  const mapView = useMemo(() => getDistrictMapView(districtId), [districtId])
+  const { user } = useAuth()
+  const isOrgWideViewer = getEffectiveUserRoles(user).some(role => role === 'Reporter' || role === 'SystemAdmin')
   const [period, setPeriod] = useState<Period>('yearly')
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
@@ -77,10 +77,9 @@ export function DepartmentRequestMapPage() {
               {t('nav.departmentRequestMap', 'Birim Talep Haritası')}
             </h1>
             <p className="max-w-3xl text-sm leading-6 text-white/82">
-              {t('departmentRequestMap.subtitle', {
-                district: mapView.districtName,
-                defaultValue: '{{district}} ilçesinde biriminize atanmış kurum içi talepler mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.',
-              })}
+              {isOrgWideViewer
+                ? t('departmentRequestMap.subtitleOrgWide', 'Tüm birimlere atanmış kurum içi talepler mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.')
+                : t('departmentRequestMap.subtitle', 'Biriminize atanmış kurum içi talepler mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.')}
             </p>
           </div>
           <div className="flex items-start justify-start lg:justify-end">
@@ -124,7 +123,14 @@ export function DepartmentRequestMapPage() {
           )}
         </div>
 
-        <CitizenRequestMap pins={pinsQuery.data?.pins ?? []} loading={pinsQuery.isLoading} variant="department" />
+        <CitizenRequestMap
+          pins={pinsQuery.data?.pins ?? []}
+          loading={pinsQuery.isLoading}
+          variant="department"
+          heading={isOrgWideViewer
+            ? t('departmentRequestMap.mapHeadingOrgWide', 'Kurum İçi Birim Talepleri')
+            : t('departmentRequestMap.mapHeading', 'Birimdeki Görevler')}
+        />
         {pinsQuery.isError ? (
           <div className="px-4 py-3 text-sm font-medium text-red-600 sm:px-5">
             {pinsQuery.error instanceof Error

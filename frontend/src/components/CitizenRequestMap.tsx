@@ -304,11 +304,12 @@ interface CitizenRequestMapProps {
   pins: CitizenDashboardMapPin[]
   loading?: boolean
   variant?: 'citizen' | 'department'
+  heading?: string
 }
 
 const MAP_CONTAINER_STYLE: CSSProperties = { width: '100%', height: '100%', cursor: 'grab' }
 
-export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: CitizenRequestMapProps) {
+export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading }: CitizenRequestMapProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const districtId = useMunicipalityDistrictId()
@@ -517,9 +518,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
   const statusLegend = useMemo(() => {
     const inProgressColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.inProgress : PIN_COLORS.inProgress
     const overdueColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.overdue : PIN_COLORS.overdue
-    const inProgressLabel = variant === 'department'
-      ? t('dashboard.chart.inProgress', 'Yapılmakta Olan')
-      : t('jobs.statusLabel.inProgress', 'Yapılmakta')
+    const inProgressLabel = t('jobs.statusLabel.inProgress', 'Yapılmakta')
     const overdueLabel = t('citizenRequestMap.legend.overdue', 'Geciken')
     const items = [
       { key: 'inProgress', label: inProgressLabel, color: inProgressColor },
@@ -527,7 +526,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
         key: 'overdue',
         label: overdueLabel,
         color: overdueColor,
-        lines: variant === 'citizen' ? [t('jobs.statusLabel.inProgress', 'Yapılmakta'), overdueLabel] : undefined,
+        lines: [inProgressLabel, overdueLabel],
       },
       { key: 'completed', label: t('citizenRequestMap.legend.completed', 'Tamamlanan'), color: PIN_COLORS.completed },
     ]
@@ -606,7 +605,9 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
     <div className="overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[var(--color-border)] px-4 py-3 sm:px-5">
         <div className="flex flex-col gap-2">
-          <div className="text-sm font-bold text-slate-800">{t('nav.social', 'Vatandaş Talepleri')}</div>
+          <div className="text-sm font-bold text-slate-800">
+            {heading ?? t('nav.social', 'Vatandaş Talepleri')}
+          </div>
           <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
           {statusLegend.map(item => (
             <span key={item.key} className="inline-flex items-center gap-1.5">

@@ -62,7 +62,10 @@
     }
   },
   "departmentRequestMap": {
-    "subtitle": "{{district}} ilçesinde biriminize atanmış kurum içi talepler mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.",
+    "subtitle": "Biriminize atanmış kurum içi talepler mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.",
+    "subtitleOrgWide": "Tüm birimlere atanmış kurum içi talepler mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.",
+    "mapHeading": "Birimdeki Görevler",
+    "mapHeadingOrgWide": "Kurum İçi Birim Talepleri",
     "detailTitle": "Talep",
     "ticketsTitle": "Birim Talep Bilgi Listesi"
   },

@@ -1,3 +1,8 @@
+## Round 870 — #2679/#2680
+
+- [x] `6a806238` — Birim haritası (müdür): Birimdeki Görevler + banner (#2679).
+- [x] `6a80629e` — Birim haritası (üst düzey): Kurum İçi Birim Talepleri + banner (#2680).
+
 ## Round 869 — #2671/#2677/#2678
 
 - [x] `6a8055da` — VT harita lejant: Yapılmakta; Geciken iki satır (#2671).

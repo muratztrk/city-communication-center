@@ -1628,9 +1628,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman
-  beyaz çerçeve 1.7rem / iç logo 26px, zoom yığınının solunda ortalı, tıklamayla mavi kapsama
-  (düşük zoom koyu mavi çerçeve: özel `svv` overlay + `feMorphology` erode, #2622)
-  → yola tıklayınca açılır (#2614/#2615/#2621).
+  beyaz çerçeve 1.7rem / iç logo 26px, zoom yığınının solunda ortalı, tıklamayla
+  `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
+  Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631). Native kapsama
+  karosu `svv`/`lyrs=sv` ise `feMorphology` erode düşük zoom koyu çerçeveyi inceltir (#2622).
   pan/fullscreen yok. Geocode fail pin yok; harita altında “konumlanamadı” yazısı yok (#2604).
   Pin konumu Google geocode: mahalle + cadde/sokak + no. Cadde Google’da yoksa mahalle
   seviyesine düşülür (Çağrı talepleri dahil, #2600). No yoksa veya mahalle yedeği ~30 m
@@ -1664,6 +1665,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `getCitizenRequestStatusLabel` + `ticket.dueDateUtc` + `openTaskCount` (sahte `taskCount: 1` yok —
   açık görev yoksa `İşleme Alındı`, detay popup ile aynı, #2628; overdue = `Yapılmakta` /
   `(Son Tarihi Geçmiş)`, #2574).
+  Harita aynı-adres popup'ında Birim yerine stacked Vatandaş Adı / Telefon No
+  (`replaceUnitWithCitizenContact`; dizin sayfası Birim kalır, #2630).
   Nested detay **Süreç** overdue tek satır `Yapılmakta (Son Tarihi Geçmiş)` — stacked GridStatusLabel değil (#2574).
   İptal / Tamamlanmış pill içinde alt satırda tarih (`completedAtUtc` / `updatedAtUtc`, #2574 reopen). Anasayfa pie → Detaylar
   aynı nested boyut (#6a6da278). Başlık: Vatandaş sayfası `Vatandaş Talebi`, Birimler

@@ -175,29 +175,6 @@ function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
   return icon
 }
 
-const STREET_VIEW_COVERAGE_NAME = 'sv-coverage'
-
-function createStreetViewCoverageType(): google.maps.ImageMapType {
-  return new google.maps.ImageMapType({
-    getTileUrl(coord, zoom) {
-      return `https://mt${Math.abs(coord.x + coord.y) % 4}.google.com/vt?lyrs=svv&x=${coord.x}&y=${coord.y}&z=${zoom}`
-    },
-    tileSize: new google.maps.Size(256, 256),
-    opacity: 0.9,
-    name: STREET_VIEW_COVERAGE_NAME,
-  })
-}
-
-function setStreetViewCoverage(map: google.maps.Map, visible: boolean) {
-  const overlays = map.overlayMapTypes
-  for (let index = overlays.getLength() - 1; index >= 0; index -= 1) {
-    if (overlays.getAt(index)?.name === STREET_VIEW_COVERAGE_NAME) {
-      overlays.removeAt(index)
-    }
-  }
-  if (visible) overlays.push(createStreetViewCoverageType())
-}
-
 function normalizeAddressPart(value: string | null | undefined): string {
   return (value ?? '').trim().toLocaleLowerCase('tr')
 }
@@ -264,6 +241,8 @@ function pinToTicket(pin: CitizenDashboardMapPin): CitizenConversationTicket {
     dueDateUtc: pin.dueDateUtc,
     completedAtUtc: pin.completedAtUtc,
     updatedAtUtc: pin.updatedAtUtc,
+    citizenName: pin.citizenName,
+    citizenPhone: pin.citizenPhone,
   }
 }
 
@@ -342,7 +321,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
   const [streetViewPicker, setStreetViewPicker] = useState(false)
   const streetViewPickerRef = useRef(false)
-  const coverageLayerRef = useRef<google.maps.ImageMapType | null>(null)
+  const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
   const markersRef = useRef<google.maps.Marker[]>([])
 
@@ -498,7 +477,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
 
   useEffect(() => {
     if (!mapInstance) return
-    const coverage = createStreetViewCoverageType()
+    const coverage = new google.maps.StreetViewCoverageLayer()
     coverageLayerRef.current = coverage
     const clickListener = mapInstance.addListener('click', (event: google.maps.MapMouseEvent) => {
       if (!streetViewPickerRef.current || !event.latLng) return
@@ -511,7 +490,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
           panorama.setPosition(data.location.latLng)
           panorama.setPov({ heading: 0, pitch: 0 })
           panorama.setVisible(true)
-          setStreetViewCoverage(mapInstance, false)
+          coverage.setMap(null)
           streetViewPickerRef.current = false
           setStreetViewPicker(false)
         },
@@ -520,14 +499,14 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     const panorama = mapInstance.getStreetView()
     const visibleListener = panorama.addListener('visible_changed', () => {
       if (panorama.getVisible()) return
-      setStreetViewCoverage(mapInstance, false)
+      coverage.setMap(null)
       streetViewPickerRef.current = false
       setStreetViewPicker(false)
     })
     return () => {
       google.maps.event.removeListener(clickListener)
       google.maps.event.removeListener(visibleListener)
-      setStreetViewCoverage(mapInstance, false)
+      coverage.setMap(null)
       coverageLayerRef.current = null
     }
   }, [mapInstance])
@@ -537,7 +516,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     const panorama = mapInstance.getStreetView()
     if (panorama.getVisible()) {
       panorama.setVisible(false)
-      setStreetViewCoverage(mapInstance, false)
+      coverageLayerRef.current?.setMap(null)
       streetViewPickerRef.current = false
       setStreetViewPicker(false)
       return
@@ -545,7 +524,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
     const next = !streetViewPickerRef.current
     streetViewPickerRef.current = next
     setStreetViewPicker(next)
-    setStreetViewCoverage(mapInstance, next)
+    coverageLayerRef.current?.setMap(next ? mapInstance : null)
   }
 
   function closeJobDetail() {
@@ -685,6 +664,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
             closeJobDetail()
           }}
           onOpenJobDetail={(jobId, socialMessageId) => void openJobDetail(jobId, socialMessageId)}
+          replaceUnitWithCitizenContact
         />
       ) : null}
 

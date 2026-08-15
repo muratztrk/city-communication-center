@@ -1,3 +1,8 @@
+## Round 825 — #2630/#2631
+
+- [x] `6a7ffa7a` — Harita aynı-adres popup: Birim → Vatandaş Adı / Telefon No (#2630).
+- [x] `6a7ffbff` — Street View: native `StreetViewCoverageLayer` (svv overlay tıklamayı kesiyordu, #2631).
+
 ## Round 824 — #2597/#2627/#2622/#2623
 
 - [x] `6a7f004c` — Harita pin 18×27 (#2597).

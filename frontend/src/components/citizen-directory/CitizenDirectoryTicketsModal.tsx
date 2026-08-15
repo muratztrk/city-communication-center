@@ -12,7 +12,7 @@ import { StatusPill } from '../ui/status-pill'
 import { GridStatusLabel } from '../ui/GridStatusLabel'
 import { TablePagination } from '../ui/table-pagination'
 import type { CitizenConversationTicket } from '../../types/platform'
-import { getCitizenRequestStatusLabel, getCitizenRequestStatusTone } from '../../utils/citizenRequests'
+import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, getCitizenRequestStatusTone } from '../../utils/citizenRequests'
 import { DetailModalTitle } from '../../utils/detailModalTitle'
 import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, shouldShowGridPrioritySubline } from '../../utils/localization'
 import { formatDirectoryPhone } from '../../utils/phoneDisplay'
@@ -46,11 +46,20 @@ function formatVt(ticket: CitizenConversationTicket): string {
   return '—'
 }
 
+function ticketCitizenName(ticket: CitizenConversationTicket, citizen: CitizenTicketsModalCitizen): string {
+  return ticket.citizenName?.trim() || citizen.citizenName?.trim() || ''
+}
+
+function ticketCitizenPhone(ticket: CitizenConversationTicket, citizen: CitizenTicketsModalCitizen): string {
+  return ticket.citizenPhone?.trim() || citizen.citizenPhone?.trim() || ''
+}
+
 function printCitizenTickets(
   citizen: CitizenTicketsModalCitizen,
   tickets: CitizenConversationTicket[],
   locale: string,
   t: TFunction,
+  replaceUnitWithCitizenContact = false,
 ) {
   const citizenLine = [citizen.citizenName, formatDirectoryPhone(citizen.citizenPhone)].filter(Boolean).join(' · ') || '—'
   const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -71,12 +80,15 @@ function printCitizenTickets(
         minute: '2-digit',
       })
       : '—'
+    const contact = [ticketCitizenName(ticket, citizen), formatCitizenPhoneDisplay(ticketCitizenPhone(ticket, citizen))]
+      .filter(Boolean)
+      .join(' · ') || '—'
     return `<tr>
       <td>${index + 1}</td>
       <td class="col-no">${escape(formatVt(ticket))}</td>
       <td class="col-title">${escape(ticket.title?.trim() || '—')}</td>
       <td class="col-date">${escape(date)}</td>
-      <td class="col-dept">${escape(ticket.departmentName ?? '—')}</td>
+      <td class="col-dept">${escape(replaceUnitWithCitizenContact ? contact : (ticket.departmentName ?? '—'))}</td>
       <td class="col-status">${escape(status)}</td>
     </tr>`
   }).join('')
@@ -109,7 +121,9 @@ function printCitizenTickets(
       <th class="col-no">${escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
       <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>
       <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
-      <th class="col-dept">${escape(t('users.department', 'Birim'))}</th>
+      <th class="col-dept">${escape(replaceUnitWithCitizenContact
+        ? `${t('social.citizenName', 'Vatandaş Adı')} / ${t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}`
+        : t('users.department', 'Birim'))}</th>
       <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
     <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
@@ -128,6 +142,7 @@ interface CitizenDirectoryTicketsModalProps {
   emptyMessage?: string
   onClose: () => void
   onOpenJobDetail: (jobId: string, socialMessageId?: string) => void
+  replaceUnitWithCitizenContact?: boolean
 }
 
 export function CitizenDirectoryTicketsModal({
@@ -140,6 +155,7 @@ export function CitizenDirectoryTicketsModal({
   emptyMessage,
   onClose,
   onOpenJobDetail,
+  replaceUnitWithCitizenContact = false,
 }: CitizenDirectoryTicketsModalProps) {
   const { t } = useTranslation()
   const [ticketPage, setTicketPage] = useState(1)
@@ -203,7 +219,7 @@ export function CitizenDirectoryTicketsModal({
               variant="ghost"
               className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
               disabled={loading || sortedTickets.length === 0}
-              onClick={() => printCitizenTickets(citizen, sortedTickets, locale, t)}
+              onClick={() => printCitizenTickets(citizen, sortedTickets, locale, t, replaceUnitWithCitizenContact)}
               aria-label={t('common.print', 'Yazdır')}
             >
               <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -236,7 +252,18 @@ export function CitizenDirectoryTicketsModal({
                         <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
                         <th>{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
                         <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
-                        <th>{t('users.department', 'Birim')}</th>
+                        {replaceUnitWithCitizenContact ? (
+                          <th className="dashboard-drilldown-citizen-th text-center">
+                            <span className="inline-flex flex-col items-center justify-center leading-tight text-center">
+                              <span>{t('social.citizenName', 'Vatandaş Adı')}</span>
+                              <span className="text-[0.9em] font-bold uppercase tracking-[0.06em]">
+                                {t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}
+                              </span>
+                            </span>
+                          </th>
+                        ) : (
+                          <th>{t('users.department', 'Birim')}</th>
+                        )}
                         <th>{t('jobs.columns.status', 'Durum')}</th>
                         <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                       </tr>
@@ -277,8 +304,15 @@ export function CitizenDirectoryTicketsModal({
                             ) : <EmptyCell />}
                           </td>
                           <td className="font-semibold text-slate-800"><EmptyCell value={ticket.title} /></td>
-                          <td className="max-w-[12rem]">
-                            {ticket.departmentName ? (
+                          <td className={replaceUnitWithCitizenContact ? 'text-center' : 'max-w-[12rem]'}>
+                            {replaceUnitWithCitizenContact ? (
+                              <div className="dashboard-drilldown-citizen-stack inline-flex flex-col items-center leading-tight text-center">
+                                <div className="font-semibold text-slate-800">{ticketCitizenName(ticket, citizen) || '—'}</div>
+                                <div className="dashboard-drilldown-citizen-stack__phone text-xs text-slate-400">
+                                  {formatCitizenPhoneDisplay(ticketCitizenPhone(ticket, citizen)) || '—'}
+                                </div>
+                              </div>
+                            ) : ticket.departmentName ? (
                               <span className="block truncate">{ticket.departmentName}</span>
                             ) : (
                               <EmptyCell />

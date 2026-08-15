@@ -160,7 +160,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ve "Görevi İptal Et" gösterilmez.
 - **Görevlerim/Birimdeki Görevler grid `İşlemler` sütununda yalnız "Detaylar" kalır;**
   aksiyonlar detay popup header'ındadır ve eşdeğer buton varsa çoğaltılmaz. Birimdeki Görevler'de
-  "Görevi Yönlendir" sadece Bekleyen/Son Tarihi Geçmiş detayında görünür (yönlendirilemeyende pasif),
+  "Görevi Yönlendir" sadece Bekleyen/Geciken detayında görünür (yönlendirilemeyende pasif),
   Tüm Görevler detayında "Görevi İptal Et" gösterilmez. Görevlerim gridlerinde actions kolonu
   tek butona göre dar ve "Detaylar" ortalıdır.
 - **Birimdeki Görevler ve Personelimin Görevleri gridleri yatay alt scroll'a düşmemelidir;**
@@ -339,7 +339,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   oluşturduğu birim içi aktif taleplerde Talep Tarihi ile Son Tarih arasında turuncu `Durum / Yapılmakta`
   step'i gösterilir (cards #1212/#1213/#1214/#1215/#1216/#1215-reopen/#1275). Vatandaş talebi popup
   Süreç'inde terminal olmayan işlerde Talep Tarihi ile Son Tarih arasında `Durum` vardır:
-  `İşleme Alındı` / `Yapılmakta` (mavi) / `Son Tarihi Geçmiş` (turuncu, birleşik `Yapılmakta (…)` değil)
+  `İşleme Alındı` / `Yapılmakta` (mavi) / `Geciken` (turuncu, birleşik `Yapılmakta (…)` değil)
   — `getCitizenRequestStatusLabel` backend `CitizenJobStatusLabelHelper` ile aynı — #2574 reopen.
 - **Taleplerim detay ana kartı:** `Açıklama` kolonunun arka planı ekran görselindeki soluk
   nötr yüzeyle aynı kalır; yalnız başlık değil, açıklama panelinin tamamı bu yüzeyi taşır
@@ -1015,13 +1015,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Süreç Durum katmanı rengi (cards #1643/#1644/#1645/#1651/#1659):** `Durum / Onay Bekleyen` ve
   `Durum / Yapılmakta` mavi (`pending` / `text-sky-500`) — card #1651/#1659, #1645'in Yapılmakta-
   turuncu kuralını geri alır. Görevlerim / Birimdeki / Personelimin Görevleri görev Süreç
-  timeline'ı da aynı kuralı kullanır (card #1659). `Durum / Son Tarihi Geçmiş` (birleşik etiket dahil) turuncu
+  timeline'ı da aynı kuralı kullanır (card #1659). `Durum / Geciken` (birleşik etiket dahil) turuncu
   (`current`) — card #1644.
   **Güncelleme (card #1646/#1647/#1650 reopen):** birim içi/dışı süresi geçmiş aktif Durum metni
-  yalnız `Yapılmakta` veya yalnız `Son Tarihi Geçmiş` olmaz; `Yapılmakta (Son Tarihi Geçmiş)`
+  yalnız `Yapılmakta` veya yalnız `Geciken` olmaz; `Yapılmakta (Geciken)`
   birleşik etiketi kullanılır. Vatandaş talebi grid + popup Durum overdue da diğer
-  grid'lerle aynı: `Yapılmakta` + alt satır `(Son Tarihi Geçmiş)` (`GridStatusLabel`, #2574).
-  Süreç Durum aynı iki satır (sol hizalı). Backend/WhatsApp metni yalnız `Son Tarihi Geçmiş`
+  grid'lerle aynı: `Yapılmakta` + alt satır `(Geciken)` (`GridStatusLabel`, #2574).
+  Süreç Durum aynı iki satır (sol hizalı). Backend/WhatsApp metni yalnız `Geciken`
   kalır.
   Vatandaş talebinde `İşleme Alındı` metni korunur (Onay Bekleyen'e
   çevrilmez); grid Durum hücresinde kanal ikonu önde gelir (card #1650).
@@ -1074,9 +1074,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yönetici notu / ek boş durum metinleri `0.75rem` (#1687).
   Boş ek metni `Talep için ek bulunmamaktadır.`; yükleme etiketi `Dosya / Görsel Ekle (opsiyonel)`
   (card #1690). Birimden Giden detayda ek yükleme yok — salt okunur + boş metin (card #1689).
-  Yapılmakta scope chip mavi (`scope-chip--in-progress`); Son Tarihi Geçmiş turuncu
+  Yapılmakta scope chip mavi (`scope-chip--in-progress`); Geciken turuncu
   (`scope-chip--overdue`) — cards #1693/#1695. Birime Gelen'de Onaylanmış → Yapılmakta →
-  Son Tarihi Geçmiş sırası; Onaylanmış grid `approvedAtUtc` desc (cards #1694/#1695).
+  Geciken sırası; Onaylanmış grid `approvedAtUtc` desc (cards #1694/#1695).
   Birime Gelen breadcrumb `?status=` ile sekme adını takip eder (card #1696).
   Standart kullanıcı Taleplerim `Onaylanmış/Yapılmakta Taleplerim` chip'i mavidir
   (`scope-chip--in-progress`, card #1698) — sarı `approved` chip'i yönetici Onaylanmış'ta kalır.
@@ -1087,7 +1087,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yok (cards #1702/#1703). Onaylanmış grid'de `Görevi Yapan` / `Görev Sahibi` sütunu yok
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
   birim içi `createdAtUtc` desc (#6a6c9edc).
-  Görevlerim/Birimdeki Görevler `Son Tarihi Geçmiş` chip turuncu `scope-chip--overdue`
+  Görevlerim/Birimdeki Görevler `Geciken` chip turuncu `scope-chip--overdue`
   (card #1701; mavi `in-progress` değil). Overdue rozeti bildirim zili rozeti gibi köşede
   (`right/top: -0.35rem` / `top: -0.45rem` hafif yukarı — #2551 reopen), `z-index: 30`;
   `.scope-chips` z-index 3 — banner üstüne taşan rozet banner'ı ezer (#2555).
@@ -1314,7 +1314,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep son tarihi min + onay bekleyen overdue (card #1819):** Manuel Son Tarih seçimi
   (oluşturma + Değiştir) en erken `şimdi + 2 saat`. Onay bekleyen (`PendingOwnerApproval` /
   `PendingExternalApproval` / `PendingApproval`) talepler aynı gün içinde saat aşımında
-  "Son Tarihi Geçmiş" sayılmaz; takvim günü değişince overdue olur.
+  "Geciken" sayılmaz; takvim günü değişince overdue olur.
 - **Talep Oluştur Başlangıç / Son Tarih (card #6a6f6301, #6a6f5011 supersede):** Birim Dışı
   formda Başlangıç en erken `şimdi` (geçmiş gün/saat disable). Başlangıç seçiliyse Son Tarih
   en erken `başlangıç + 2 saat`; değilse Son Tarih min `şimdi + 2 saat` (#1819).
@@ -1454,7 +1454,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görevlerim grid:** `Görev Tipi / Görevi Yapan` sütunu yok (#6a75a628); tip rozeti
   `Görev Tarihi` altında (#6a75969e). Personelimin’de tip sütunu yok (#6a75af48).
 - **Birimdeki Görevler grid:** `Görev Tipi / Görevi Yapan` sütunu var (#6a75a6ae geri getir).
-  `Son Tarih` yalnız `Son Tarihi Geçmiş` görünümünde (#6a75ad62); diğer birim görünümlerinde yok
+  `Son Tarih` yalnız `Geciken` görünümünde (#6a75ad62); diğer birim görünümlerinde yok
   (#6a75a7b9 / #6a75a725 / #6a75a790). Bağlı Olduğu Talep No dar (~10rem), başlık geniş (#6a75a6ae width).
 - **Taleplerim / Birime Gelen / Birimden Giden `Tümü`:** Durum sütunu Son Tarih’ten önce
   (#6a75a5fd / #6a75a5a3).
@@ -1589,7 +1589,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `/dashboard/birimler`. Citizen lisans kapalıyken Anasayfa menüsü `/dashboard/birimler`'e yönlenir (#2362).
   Operator birim anasayfasında standart kullanıcı
   kutucukları (Bekleyen Taleplerim / Bekleyen Görevlerim) gösterilir. **Bekleyen Taleplerim**
-  kutucuk değeri = `myRequests` pie `Bekleyen` + `Son Tarihi Geçmiş` dilim toplamı (#2561).
+  kutucuk değeri = `myRequests` pie `Bekleyen` + `Geciken` dilim toplamı (#2561).
   `/dashboard/birimler` sayfasında banner üstü Geri butonu gösterilmez (card #1889).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
@@ -1603,9 +1603,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   pie'ları tüm anasayfalardan kaldırıldı (#2521). Birimler pie + drilldown vatandaş kaynaklı
   job içermez (#2570): `RequestType=Citizen`, `SourceType∈{SocialMessage,CitizenRequest,EDevlet}`
   ve VT numaralı kayıtlar `WhereIsNotCitizenSourced` ile dışlanır — yalnız `RequestType != Citizen`
-  yetmez. Birimler pie başlıkları: Onay Bekleyen Talepler / Tamamlanan Talepler (#2608/#2623).
+  yetmez.   Birimler pie başlıkları: Onay Bekleyen Talepler / Tamamlanan Talepler (#2608/#2623).
+  Pie drilldown Durum `Onay Bekleyen` sky mavi (`pendingApproval` / `bg-sky-100`, #2625);
+  Bekleyen görev nötr kalır.
+  Kullanıcıya görünen `Son Tarihi Geçmiş` ifadesi her yerde `Geciken` (#2632/#2633);
+  birleşik etiket `Yapılmakta (Geciken)`.
   Talep Oluşturan Birimler drilldown: Birim sonrası Gittiği Yer; Bekleyen/Yapılmakta/Tamamlanan
-  drilldown: Talep Yeri (sahip birim) Birim’den önce (#2616). Durum overdue = `Yapılmakta (Son Tarihi Geçmiş)` (#2609).
+  drilldown: Talep Yeri (sahip birim) Birim’den önce (#2616). Durum overdue = `Yapılmakta (Geciken)` (#2609).
   Yapılmakta/Tamamlanan Projeler pie yalnız Birim İçi (`InternalUnit`, Owner birim) + Üst Düzey
   Yönetici’nin oluşturduğu `IsProject` talepler (#2618); Birim İçi Target JobDepartment aranmaz
   (T-2026-589). Diğer birim-dışı projeler dahil değil.
@@ -1664,10 +1668,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`detail-modal-shell--citizen-directory-nested`, card #r454).   Nested talep listesi Durum
   `getCitizenRequestStatusLabel` + `ticket.dueDateUtc` + `openTaskCount` (sahte `taskCount: 1` yok —
   açık görev yoksa `İşleme Alındı`, detay popup ile aynı, #2628; overdue = `Yapılmakta` /
-  `(Son Tarihi Geçmiş)`, #2574).
+  `(Geciken)`, #2574).
   Harita aynı-adres popup'ında Birim yerine stacked Vatandaş Adı / Telefon No
   (`replaceUnitWithCitizenContact`; dizin sayfası Birim kalır, #2630).
-  Nested detay **Süreç** overdue tek satır `Yapılmakta (Son Tarihi Geçmiş)` — stacked GridStatusLabel değil (#2574).
+  Nested detay **Süreç** overdue tek satır `Yapılmakta (Geciken)` — stacked GridStatusLabel değil (#2574).
   İptal / Tamamlanmış pill içinde alt satırda tarih (`completedAtUtc` / `updatedAtUtc`, #2574 reopen). Anasayfa pie → Detaylar
   aynı nested boyut (#6a6da278). Başlık: Vatandaş sayfası `Vatandaş Talebi`, Birimler
   `Talep` (#6a6da49d/#6a6da519).
@@ -1902,7 +1906,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talep Tarihi `DateCell` = Son Tarih `DueDatePill` (0.84rem/600, svg 0.875rem); ana grid
   Adı/Numara = Gelen Talep Yeri tipografisi; popup kolon başlığı `Vatandaş Talep No`;
   Talep No `0.95rem` (#6a6cfd34), Öncelik alt satır `0.64rem`.
-- **Durum overdue 2 satır (#6a6cf4d4):** `GridStatusLabel` — `Yapılmakta` / `(Son Tarihi Geçmiş)`
+- **Durum overdue 2 satır (#6a6cf4d4):** `GridStatusLabel` — `Yapılmakta` / `(Geciken)`
   `whitespace-nowrap`; tüm grid StatusPill’lerde kullanılır (dizin popup dahil).
 - **Vatandaş Talepleri pie (#6a6cf439/#6a6cf4d4):** drilldown Priority alt satır; kolon başlığı
   `Vatandaş Talep No`; Öncelik `0.7rem`; Durum sütunu `min-width: 11rem`.
@@ -2006,7 +2010,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünmemelidir.
 - **Taleplerim pie = `scope=mine` listesi:** Operator/CRM pie'da Routine + SocialMessage /
   CitizenRequest / EDevlet yok; aktif birim `OwnerDepartmentId` ile sınırlı — aksi halde pie
-  (özellikle Son Tarihi Geçmiş) Taleplerim gridinden büyük çıkar.
+  (özellikle Geciken) Taleplerim gridinden büyük çıkar.
 - **Reporter/Operator grafik dilimleri detay popup'ı açar (card #1343/#1338, Operator erişimi
   #1852):** Üst Düzey Yönetici panosunda
   Taleplerim HARİÇ birim-dışı + mahalle grafikleri diliminde tıklama `DashboardChartDrilldownModal`'ı açar
@@ -2066,7 +2070,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   özeti `text-sm leading-5` (eski `text-xs` / `text-[13px]` değil).
 - **Detay Öncelik başlık punto:** Görev Bilgileri / Talep Bilgileri başlığındaki Öncelik = etiket
   `text-xs font-bold`, değer `text-[11px] font-semibold` (Birime Gelen Talep Bilgileri ile aynı — #2109).
-- **Recovered timeline Durum Yapılmakta:** mavi `pending` (Son Tarihi Geçmiş değilse); overdue → turuncu
+- **Recovered timeline Durum Yapılmakta:** mavi `pending` (Geciken değilse); overdue → turuncu
   `current` (görev reopen / Mesaj Onayı reopen sonrası Tamamlanma→Yapılmakta).
 - **Süreç Durum Değişikliği Yapılmakta:** `getStatusChangeTextClass` → `text-sky-500` (mavi).
 - **Görevi Tamamla / İptal Et yardım satırı:** Tamamla popup'ta Görev No yeşil (`text-emerald-600`);
@@ -2124,7 +2128,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   filtresi varken scope-chip satırında (aynı konum) kırmızı yanıp sönen `Filtreyi sil`; tıklanınca
   sütun filtreleri + pie query temizlenir. Başka sayfaya geçince (`pathname`) sütun filtreleri
   sıfırlanır; chip/buton geçişlerinde de temizlenir.
-- **Dashboard Bekleyen Görevlerim alt metin (#6a75c91c reopen):** `(Birim İçi/Birim Dışı)` — "Bekleyen ve Son Tarihi Geçmiş" eklenmez (geri alındı).
+- **Dashboard Bekleyen Görevlerim alt metin (#6a75c91c reopen):** `(Birim İçi/Birim Dışı)` — "Bekleyen ve Geciken" eklenmez (geri alındı).
 - **WA kişi kartı (#6a75a9c2/#6a75cccc/#6a75ccfa/#6a75cd3f):** webhook `contacts` → `[kişi kartı]\nAd\ntelefon` (bullet/tire/ayraç yok; isim ile numara ayrı satır); balonda User ikonu (emerald çerçeve); konum MapPin/Haritada aç kişi kartında çıkmaz (thread lat/lng sızmaz). FE eski `Ad ·/ - telefon` kayıtlarını da satır kırarak gösterir. İsim/numara metni `text-xs font-semibold` (sm değil; medium→semibold hafif bump — #6a75cccc).
 - **Birimdeki Bekleyen Son Tarih (#6a75e88c):** `hideDueDateColumn` false for department `pending` (overdue ile birlikte).
 - **Görev Tarihi Yeni+Tip (#6a75e10f):** Yeni rozeti ile Görev Tipi aynı satırda yan yana (`showTaskTypeUnderDate`).
@@ -2167,13 +2171,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Başlık fontu normal ağırlıkta kalır, Görev Sahibi normal satırda Görevin Talep Yeri verisiyle aynı
   tondadır; reporter turuncusu `wallboard-task-owner` genel rengini ezmelidir. Başlık font size'ı
   tablo yoğunluğuna göre düşük kalır.
-- **Wallboard Son Tarihi Geçmiş stat accent'i:** Yalnız `Son Tarihi Geçmiş` kutusunun alt border/accent
+- **Wallboard Geciken stat accent'i:** Yalnız `Geciken` kutusunun alt border/accent
   çizgisi `Kapat` butonunun `var(--color-destructive)` kırmızısıyla aynı kalır.
 - **Wallboard Birim Dışı stat accent'i:** `Birim Dışı` kutusunun alt border/accent çizgisi turuncu
-  kalır ama çok koyu kahverengiye dönmez; `Son Tarihi Geçmiş` kırmızı kuralından bağımsızdır.
+  kalır ama çok koyu kahverengiye dönmez; `Geciken` kırmızı kuralından bağımsızdır.
 - **Grid durum/son tarih uyarı renkleri (cards #1387/#1649/#1650):** `Yapılmakta` status chip'i
-  mavi (`bg-sky-100 text-sky-700`); `Yapılmakta (Son Tarihi Geçmiş)` iki satır (alt satır
-  ortalı `(Son Tarihi Geçmiş)`) ve **solid** turuncu chip (`bg-orange-500 text-white`, açık
+  mavi (`bg-sky-100 text-sky-700`); `Yapılmakta (Geciken)` iki satır (alt satır
+  ortalı `(Geciken)`) ve **solid** turuncu chip (`bg-orange-500 text-white`, açık
   `orange-100` değil — card #1649 reopen); `İşleme Alındı` koyu turkuaz + beyaz yazı
   (`bg-teal-600 text-white`, card #1650) + vatandaş kanal ikonu (VT no ile aynı
   `ChannelIcon`). Bugün dolan `Son Tarih` pill'i sarı arka plan, sarı takvim ikonu ve sarı

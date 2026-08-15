@@ -1,3 +1,9 @@
+## Round 826 — #2625/#2632/#2633
+
+- [x] `6a7ff0d7` — Pie drilldown Durum Onay Bekleyen mavi (#2625).
+- [x] `6a7ffd1f` — Harita lejantı Geciken (#2632).
+- [x] `6a7ffdc2` — Tüm “Son Tarihi Geçmiş” → “Geciken” (#2633).
+
 ## Round 825 — #2630/#2631
 
 - [x] `6a7ffa7a` — Harita aynı-adres popup: Birim → Vatandaş Adı / Telefon No (#2630).

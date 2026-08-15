@@ -175,9 +175,9 @@ Bir talep veya görev şu koşullarda süresi geçmiş sayılır:
 
 Bu kayıtlar ilgili ekranlarda özel filtrelerle gösterilir:
 
-- Taleplerim > Son Tarihi Geçmiş Taleplerim
-- Birime Gelen Talepler > Son Tarihi Geçmiş Talepler
-- Birimden Giden Talepler > Son Tarihi Geçmiş Talepler
+- Taleplerim > Geciken Taleplerim
+- Birime Gelen Talepler > Geciken Talepler
+- Birimden Giden Talepler > Geciken Talepler
 
 ## 11. Bildirim Akışı
 

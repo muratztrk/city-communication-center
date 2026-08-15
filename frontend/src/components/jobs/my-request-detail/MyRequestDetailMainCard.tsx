@@ -34,7 +34,7 @@ import { ChannelIcon } from '../../ui/channel-icon'
 
 function isOverdueProcessStatus(t: TFunction, label: string): boolean {
   return label === formatOverdueInProgressStatus(t)
-    || label === t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+    || label === t('jobs.statusLabel.overdue', 'Geciken')
 }
 
 export interface DetailDueDateEditState {

@@ -122,7 +122,7 @@ type SocialRequestStatusFilter = 'all' | 'processing-received' | 'overdue' | 'in
 const REQUEST_STATUS_FILTERS: { value: SocialRequestStatusFilter; labelKey: string; fallback: string }[] = [
   { value: 'all', labelKey: 'social.requestStatus.all', fallback: 'Tüm Talep Durumları' },
   { value: 'processing-received', labelKey: 'social.requestStatus.processingReceived', fallback: 'İşleme Alındı' },
-  { value: 'overdue', labelKey: 'social.requestStatus.overdue', fallback: 'Son Tarihi Geçmiş' },
+  { value: 'overdue', labelKey: 'social.requestStatus.overdue', fallback: 'Geciken' },
   { value: 'in-progress', labelKey: 'social.requestStatus.inProgress', fallback: 'Yapılmakta' },
   { value: 'completed', labelKey: 'social.requestStatus.completed', fallback: 'Tamamlanmış' },
   { value: 'cancelled', labelKey: 'social.requestStatus.cancelled', fallback: 'İptal' },

@@ -110,7 +110,7 @@ const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback:
   { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApprovalRequests', fallback: 'Onay Bekleyen Talepler' },
   { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanmış Talepler' },
   { value: 'in-progress', labelKey: 'jobs.outgoingViews.inProgress', fallback: 'Yapılmakta Olan Talepler' },
-  { value: 'overdue', labelKey: 'jobs.scopes.overdue', fallback: 'Son Tarihi Geçmiş Talepler' },
+  { value: 'overdue', labelKey: 'jobs.scopes.overdue', fallback: 'Geciken Talepler' },
   { value: 'completed', labelKey: 'jobs.scopes.completed', fallback: 'Tamamlanmış Talepler' },
   { value: 'cancelled', labelKey: 'jobs.scopes.rejected', fallback: 'İptal Talepler' },
   { value: 'all', labelKey: 'jobs.scopes.all', fallback: 'Tümü' },

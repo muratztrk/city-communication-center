@@ -1701,6 +1701,16 @@
     "myRequestsKicker": "Request Tracking",
     "myRequestsSubtitle": "Track the requests you created by status.",
     "outgoingSubtitle": "Track requests sent from your unit to other units by status.",
+    "statusLabel": {
+      "pending": "Pending",
+      "pendingApproval": "Pending Approval",
+      "overdue": "Overdue",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "rejected": "Rejected",
+      "returned": "Returned"
+    },
     "empty": "No jobs",
     "departmentsMore": "+{{count}} departments",
     "scopes": {

@@ -8,16 +8,16 @@ export function getTaskStatusLabel(t: TFunction, taskStatus: string): string {
   return t(`enum.taskStatus.${taskStatus}`, { defaultValue: taskStatus })
 }
 
-/** Süreç Durum: aktif + süresi geçmiş → `Yapılmakta (Son Tarihi Geçmiş)` (card #1646). */
+/** Süreç Durum: aktif + süresi geçmiş → `Yapılmakta (Geciken)` (card #1646). */
 export function formatOverdueInProgressStatus(t: TFunction): string {
-  return `${t('jobs.statusLabel.inProgress', 'Yapılmakta')} (${t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')})`
+  return `${t('jobs.statusLabel.inProgress', 'Yapılmakta')} (${t('jobs.statusLabel.overdue', 'Geciken')})`
 }
 
 function isDueDateOverdue(dueDateUtc: string | null | undefined): boolean {
   return dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()
 }
 
-// Görev durumunu, görev listesi sekmeleriyle (Bekleyen / Son Tarihi Geçmiş /
+// Görev durumunu, görev listesi sekmeleriyle (Bekleyen / Geciken /
 // Tamamlanmış / İptal) tutarlı tek bir etiketle gösterir. Ham enum yerine
 // kullanıcının gördüğü "durum belirten butonlarla" aynı ifadeleri kullanır.
 export function getTaskDisplayStatus(
@@ -48,8 +48,8 @@ export function getTaskDisplayStatus(
 }
 
 // Gridview "Durum" sütunu arka plan rengi: Tamamlanmış yeşil, İptal/Reddedildi kırmızı,
-// Yapılmakta mavi, İşleme Alındı sarı, Son Tarihi Geçmiş turuncu, Bekleyen/diğer nötr.
-export type GridStatusTone = 'completed' | 'cancelled' | 'rejected' | 'inProgress' | 'processingReceived' | 'overdue' | 'pending' | 'neutral'
+// Yapılmakta mavi, İşleme Alındı sarı, Geciken turuncu, Bekleyen/diğer nötr.
+export type GridStatusTone = 'completed' | 'cancelled' | 'rejected' | 'inProgress' | 'processingReceived' | 'overdue' | 'pendingApproval' | 'pending' | 'neutral'
 
 function isOverdue(dueDateUtc: string | null | undefined): boolean {
   return dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()
@@ -60,7 +60,7 @@ export function getJobStatusTone(job: { status: string; dueDateUtc: string | nul
   if (job.status === 'Cancelled') return 'cancelled'
   if (job.status === 'Rejected') return 'rejected'
   if (job.status === 'RevisionRequested') return 'neutral'
-  if (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval') return 'pending'
+  if (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval') return 'pendingApproval'
   if (isOverdue(job.dueDateUtc)) return 'overdue'
   if (job.status === 'Active') return 'inProgress'
   return 'pending'
@@ -87,7 +87,8 @@ export function getStatusPillClass(tone: GridStatusTone): string {
     case 'cancelled':
     case 'rejected': return 'bg-red-100 text-red-700 ring-red-200'
     // "Yapılmakta" chip'i mavi (card #1649); turuncu yalnız süresi geçmiş birleşik etikette.
-    case 'inProgress': return 'bg-sky-100 text-sky-700 ring-sky-200'
+    case 'inProgress':
+    case 'pendingApproval': return 'bg-sky-100 text-sky-700 ring-sky-200'
     // "İşleme Alındı" koyu turkuaz + beyaz yazı (card #1650 — açık ton isteği geri alındı).
     case 'processingReceived': return 'bg-teal-600 text-white ring-teal-700'
     // Solid turuncu + beyaz yazı — kullanıcı örneğiyle aynı ton (card #1649 reopen).

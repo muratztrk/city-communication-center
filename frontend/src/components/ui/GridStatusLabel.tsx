@@ -3,7 +3,7 @@ import type { TFunction } from 'i18next'
 import { formatOverdueInProgressStatus } from '../../utils/localization'
 
 function isOverdueStatusLabel(t: TFunction, label: string): boolean {
-  const overdueOnly = t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+  const overdueOnly = t('jobs.statusLabel.overdue', 'Geciken')
   return label === formatOverdueInProgressStatus(t) || label === overdueOnly
 }
 
@@ -26,7 +26,7 @@ export function GridStatusLabel({
 
   if (isOverdueStatusLabel(t, label)) {
     const inProgress = t('jobs.statusLabel.inProgress', 'Yapılmakta')
-    const overdue = t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')
+    const overdue = t('jobs.statusLabel.overdue', 'Geciken')
     const alignClass = align === 'start' ? 'items-start text-left' : 'items-center text-center'
     return (
       <span className={`grid-status-label--overdue flex flex-col ${alignClass} leading-tight`}>

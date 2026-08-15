@@ -80,7 +80,7 @@ function isTerminalStatus(status: string): boolean {
 }
 
 /** Aktif talepte son tarih geçmişse Durum turuncu kalır (card #1644).
- * Onay bekleyen taleplerde aynı gün içinde saat aşımı "Son Tarihi Geçmiş" sayılmaz;
+ * Onay bekleyen taleplerde aynı gün içinde saat aşımı "Geciken" sayılmaz;
  * takvim günü değişince geçerli olur (card #1819). */
 function isActiveJobOverdue(detail: JobDetail): boolean {
   if (isTerminalStatus(detail.status)) return false
@@ -140,7 +140,7 @@ function resolveStepStates(
       }
       if (step.id === 'status') {
         foundCurrent = true
-        // Yapılmakta → mavi pending; Son Tarihi Geçmiş → turuncu current (#2107).
+        // Yapılmakta → mavi pending; Geciken → turuncu current (#2107).
         return { ...step, state: isActiveJobOverdue(detail) ? 'current' as const : 'pending' as const }
       }
       if (step.id === 'dueDate') {
@@ -217,7 +217,7 @@ function resolveStepStates(
     }
     if (step.id === 'status') {
       foundCurrent = true
-      // Son Tarihi Geçmiş → turuncu (#1644). Yapılmakta + Onay Bekleyen → mavi pending
+      // Geciken → turuncu (#1644). Yapılmakta + Onay Bekleyen → mavi pending
       // (#1651; #1645 turuncusunu geri alır, #1643 ile hizalı).
       if (isActiveJobOverdue(detail)) {
         return { ...step, state: 'current' as const }
@@ -273,8 +273,8 @@ export function buildJobProcessSteps(
   const statusDisplayValue = pendingStatusLayer || isPendingApprovalJobStatus(detail.status)
     ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
     : jobOverdue
-      // card #1646: yalnız Yapılmakta / yalnız Son Tarihi Geçmiş değil — birleşik etiket
-      ? `${inProgressLabel} (${t('jobs.statusLabel.overdue', 'Son Tarihi Geçmiş')})`
+      // card #1646: yalnız Yapılmakta / yalnız Geciken değil — birleşik etiket
+      ? `${inProgressLabel} (${t('jobs.statusLabel.overdue', 'Geciken')})`
       : inProgressLabel
   const managerCreatedActive = detail.createdByRoleCode === 'Manager'
     && !isCitizenRequestJob(detail)

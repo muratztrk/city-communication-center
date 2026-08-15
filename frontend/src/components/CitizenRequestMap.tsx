@@ -467,7 +467,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   const statusLegend = useMemo(() => ([
     { key: 'processingReceived', label: t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı'), color: PIN_COLORS.processingReceived },
     { key: 'inProgress', label: t('dashboard.chart.inProgress', 'Yapılmakta Olan'), color: PIN_COLORS.inProgress },
-    { key: 'overdue', label: t('citizenRequestMap.legend.overdue', 'Son Tarihi Geçmiş'), color: PIN_COLORS.overdue },
+    { key: 'overdue', label: t('citizenRequestMap.legend.overdue', 'Geciken'), color: PIN_COLORS.overdue },
     { key: 'completed', label: t('citizenRequestMap.legend.completed', 'Tamamlanan'), color: PIN_COLORS.completed },
   ]), [t])
 

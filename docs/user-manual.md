@@ -324,7 +324,7 @@ Görünümler:
 - Birim Dışı Onay Bekleyen Talepler
 - Onaylanmış Taleplerim
 - Yapılmakta Olan Taleplerim
-- Son Tarihi Geçmiş Taleplerim
+- Geciken Taleplerim
 - Tamamlanmış Taleplerim
 - İptal Taleplerim
 - Tüm Taleplerim
@@ -396,7 +396,7 @@ Talep durumuna göre ek ekleme yetkisi değişir.
 Görünümler:
 
 - Onay Bekleyen Talepler
-- Son Tarihi Geçmiş Talepler
+- Geciken Talepler
 - Onaylanmış Talepler
 - Tamamlanmış Talepler
 - İptal Talepler
@@ -439,7 +439,7 @@ Vatandaş talebi WhatsApp’tan geldiyse, talep ve görev detayından vatandaş 
 Görünümler:
 
 - Bekleyen Talepler
-- Son Tarihi Geçmiş Talepler
+- Geciken Talepler
 - Onaylanmış Talepler
 - Yapılmakta Olan Talepler
 - Tamamlanmış Talepler
@@ -461,7 +461,7 @@ Yönetici notu eklenebilen durumlarda detay pop-up içinde **Yönetici Notu** al
 Görünümler:
 
 - Bekleyen Görevlerim
-- Son Tarihi Geçmiş Görevlerim
+- Geciken Görevlerim
 - Tamamlanmış Görevlerim
 - İptal Görevlerim
 - Tüm Görevlerim
@@ -556,7 +556,7 @@ Filtreler:
 Durum görünümleri:
 
 - Bekleyen Görevler
-- Son Tarihi Geçmiş Görevler
+- Geciken Görevler
 - Tamamlanmış Görevler
 - İptal Görevler
 - Tüm Görevler
@@ -853,7 +853,7 @@ Varsayılan SLA **48 saat**, hafta sonu hariç değil:
 - **Bekleyen:** Talep henüz ilgili onay/işlem adımındadır.
 - **Onaylanmış:** Talep onaylanmış ve işleme hazırdır.
 - **Yapılmakta:** Talep üzerinde görev/işlem devam etmektedir.
-- **Son Tarihi Geçmiş:** Talebin son tarihi geçmiş ancak kapanmamıştır.
+- **Geciken:** Talebin son tarihi geçmiş ancak kapanmamıştır.
 - **Tamamlanmış:** Talep tamamlanmıştır.
 - **İptal / Reddedildi:** Talep iptal edilmiş veya reddedilmiştir.
 - **İade Edildi:** Talep revizyon veya geri dönüş için iade edilmiştir.
@@ -863,7 +863,7 @@ Varsayılan SLA **48 saat**, hafta sonu hariç değil:
 - **Bekleyen:** Görev kullanıcı veya birim havuzundadır.
 - **Atanmış:** Görev bir kullanıcıya atanmıştır.
 - **Yapılmakta:** Görev üzerinde çalışma devam etmektedir.
-- **Son Tarihi Geçmiş:** Görevin son tarihi geçmiştir.
+- **Geciken:** Görevin son tarihi geçmiştir.
 - **Tamamlanmış:** Görev tamamlanmıştır.
 - **İptal:** Görev iptal edilmiştir.
 
@@ -957,7 +957,7 @@ Sayfayı yenileyin. Hâlâ görünmüyorsa kullanıcı oturumu, bildirim yetkisi
 - **Koordineli Talep:** Birden fazla birimin dahil olduğu talep.
 - **Yönetici Notu:** Talep detayında yöneticinin eklediği açıklama.
 - **Ekler / Fotoğraflar:** Talep veya görevle ilgili yüklenen dosya ve görseller.
-- **Son Tarihi Geçmiş:** Son tarihi geçmiş fakat tamamlanmamış kayıt.
+- **Geciken:** Son tarihi geçmiş fakat tamamlanmamış kayıt.
 - **SLA (Service Level Agreement):** Kurumun tanımladığı hedef yanıt/tamamlama süresi; uygulamada saat cinsinden **Varsayılan SLA** ayarıyla temsil edilir.
 - **Son Tarih:** SLA veya kullanıcı girişine göre hesaplanan bitiş zamanı; gridlerde takvim etiketiyle gösterilir.
 - **Onay Bekleyen (Son Tarih):** Son tarih henüz atanmadığında grid hücresinde görünen metin; onay sürecindeki taleplerde yaygındır.

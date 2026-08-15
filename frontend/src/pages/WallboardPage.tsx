@@ -329,7 +329,7 @@ export function WallboardPage() {
           <span>{summary.external}</span><p>{t('wallboard.external', 'Birim Dışı')}</p>
         </button>
         <button type="button" className={`stat-overdue${summary.overdue === 0 ? ' is-zero' : ''}${statFilter === 'overdue' ? ' active' : ''}`} aria-pressed={statFilter === 'overdue'} onClick={() => setStatFilter('overdue')}>
-          <span>{summary.overdue}</span><p>{t('wallboard.overdue', 'Son Tarihi Geçmiş Görevler')}</p>
+          <span>{summary.overdue}</span><p>{t('wallboard.overdue', 'Geciken Görevler')}</p>
         </button>
       </section>
 

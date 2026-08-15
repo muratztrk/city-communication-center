@@ -73,7 +73,7 @@
     "approximatePin": "Yaklaşık konum — açık adres tam çözülemedi, mahalle/cadde seviyesinde gösteriliyor.",
     "detailTitle": "Vatandaş Talep Bilgisi",
     "legend": {
-      "overdue": "Son Tarihi Geçmiş",
+      "overdue": "Geciken",
       "completed": "Tamamlanan",
       "cancelled": "İptal"
     }
@@ -285,7 +285,7 @@
     "totalWaiting": "Toplam Bekleyen (Birim İçi + Birim Dışı)",
     "internal": "Birim İçi",
     "external": "Birim Dışı",
-    "overdue": "Son Tarihi Geçmiş Görevler",
+    "overdue": "Geciken Görevler",
     "citizen": "Vatandaş",
     "urgent": "Öncelikli",
     "approvedJob": "Müdür onaylı iş",
@@ -434,7 +434,7 @@
       "outgoingTotal": "Birimden Giden Tüm Talepler",
       "deptTotalTasks": "Birim İçi/Dışı Tüm Görevler",
       "internalExternalSub": "(Birim İçi/Birim Dışı)",
-      "myPendingTasksSub": "(Birim İçi/Birim Dışı Bekleyen ve Son Tarihi Geçmiş)",
+      "myPendingTasksSub": "(Birim İçi/Birim Dışı Bekleyen ve Geciken)",
       "citizenPendingApprovalSub": "Onay Bekleyen"
     },
     "chart": {
@@ -449,7 +449,7 @@
       "deptTotalPending": "Müdürlükte Bekleyen",
       "completed": "Tamamlanan",
       "pending": "Bekleyen",
-      "overdue": "Son Tarihi Geçmiş",
+      "overdue": "Geciken",
       "cancelled": "İptal",
       "approved": "Onaylanmış",
       "approvedOrInProgress": "Onaylanmış/Yapılmakta",
@@ -466,7 +466,7 @@
     },
     "charts": {
       "staffTasks": "Personelimin Görevleri",
-      "staffOverdueTasks": "Personelimin Son Tarihi Geçmiş Görevleri",
+      "staffOverdueTasks": "Personelimin Geciken Görevleri",
       "staffResolutionTime": "Personelimin Görevi Çözme Süresi (Saat)",
       "departmentTasks": "Birimdeki Görevler",
       "myTasks": "Görevlerim",
@@ -774,13 +774,13 @@
       "pending": "Bekleyen Görevlerim",
       "completed": "Tamamlanmış Görevlerim",
       "rejected": "İptal Görevlerim",
-      "overdue": "Son Tarihi Geçmiş Görevlerim",
+      "overdue": "Geciken Görevlerim",
       "all": "Tüm Görevlerim",
       "empty": "{{view}} bulunmuyor"
     },
     "statusLabel": {
       "pending": "Bekleyen",
-      "overdue": "Son Tarihi Geçmiş",
+      "overdue": "Geciken",
       "completed": "Tamamlanmış",
       "cancelled": "İptal",
       "rejected": "Reddedildi",
@@ -790,7 +790,7 @@
       "pending": "Bekleyen Görevler",
       "completed": "Tamamlanmış Görevler",
       "rejected": "İptal Görevler",
-      "overdue": "Son Tarihi Geçmiş Görevler",
+      "overdue": "Geciken Görevler",
       "all": "Tüm Görevler"
     },
     "scopeDescriptions": {
@@ -1014,7 +1014,7 @@
     "requestStatus": {
       "all": "Tüm Talep Durumları",
       "pendingApproval": "Onay Bekleyen",
-      "overdue": "Son Tarihi Geçmiş",
+      "overdue": "Geciken",
       "inProgress": "Yapılmakta",
       "completed": "Tamamlandı",
       "cancelled": "İptal"
@@ -1741,6 +1741,16 @@
     "myRequestsKicker": "Talep Takibi",
     "myRequestsSubtitle": "Oluşturduğunuz talepleri durumlarına göre takip edin.",
     "outgoingSubtitle": "Biriminizden diğer birimlere gönderilen talepleri durumlarına göre takip edin.",
+    "statusLabel": {
+      "pending": "Bekleyen",
+      "pendingApproval": "Onay Bekleyen",
+      "overdue": "Geciken",
+      "inProgress": "Yapılmakta",
+      "completed": "Tamamlanmış",
+      "cancelled": "İptal",
+      "rejected": "Reddedildi",
+      "returned": "İade Edildi"
+    },
     "empty": "Hiç iş bulunamadı",
     "departmentsMore": "+{{count}} müdürlük",
     "scopes": {
@@ -1752,7 +1762,7 @@
       "pendingOwnerApproval": "Onay Bekleyen",
       "pendingExternalApproval": "Onay Bekleyen",
       "active": "Aktif",
-      "overdue": "Son Tarihi Geçmiş Talepler",
+      "overdue": "Geciken Talepler",
       "all": "Tümü"
     },
     "myViews": {
@@ -1761,7 +1771,7 @@
       "externalPending": "Birim Dışı Onay Bekleyen Taleplerim",
       "approved": "Onaylanmış/Yapılmakta Taleplerim",
       "inProgress": "Yapılmakta Olan Taleplerim",
-      "overdue": "Son Tarihi Geçmiş Taleplerim",
+      "overdue": "Geciken Taleplerim",
       "completed": "Tamamlanmış Taleplerim",
       "rejected": "İptal Taleplerim",
       "all": "Tüm Taleplerim",
@@ -1769,7 +1779,7 @@
     },
     "outgoingViews": {
       "pending": "Bekleyen Talepler",
-      "overdue": "Son Tarihi Geçmiş Talepler",
+      "overdue": "Geciken Talepler",
       "approved": "Onaylanmış Talepler",
       "inProgress": "Yapılmakta Olan Talepler",
       "completed": "Tamamlanmış Talepler",

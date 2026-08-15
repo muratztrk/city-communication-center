@@ -179,6 +179,9 @@ function getDrilldownStatusLabel(t: TFunction, row: DashboardChartDrilldownRow):
 }
 
 function getDrilldownStatusPillClass(row: DashboardChartDrilldownRow): string {
+  if (row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval') {
+    return getStatusPillClass('pendingApproval')
+  }
   if (row.citizenRequestNumber != null) {
     return getStatusPillClass(getCitizenRequestStatusTone({
       status: row.status,

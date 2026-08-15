@@ -16,7 +16,7 @@ public static class CitizenJobStatusLabelHelper
         if (status == JobStatus.Cancelled) return "İptal";
         if (status == JobStatus.Rejected) return "Reddedildi";
         if (status == JobStatus.RevisionRequested) return "İade Edildi";
-        if (dueDateUtc.HasValue && dueDateUtc.Value < utcNow) return "Son Tarihi Geçmiş";
+        if (dueDateUtc.HasValue && dueDateUtc.Value < utcNow) return "Geciken";
         if (status == JobStatus.Active && taskCount > 0) return "Yapılmakta";
 
         return "İşleme Alındı";
@@ -85,6 +85,8 @@ public static class CitizenJobStatusLabelHelper
         [
             "İşleme Alındı",
             "Yapılmakta",
+            "Geciken",
+            "Son Tarihi Geçmiş",
             "Tamamlandı",
             "Tamamlanmış",
             "İptal Edildi",

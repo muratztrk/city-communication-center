@@ -1,3 +1,10 @@
+## Round 874 — #2685/#2680/#2686/#2687/#2688
+
+- [x] `6a806a0b` — VT harita banner: Bölgenizdeki… (#2685).
+- [x] `6a80629e` — Birim haritası lejant: Yapılmakta Geciken nowrap (#2680).
+- [x] `6a806a7d` / `6a806ae5` — Anasayfa Tüm Talepler’den Gittiği Yer; Reporter tam VT kutu (#2686/#2687).
+- [x] `6a806ead` — Harita reset (hedef ikonu, açılış zoom) (#2688).
+
 ## Round 873 — #2682/#2683/#2684/#2681
 
 - [x] `6a8065fa` — VT harita listesi Vatandaş Adı/Telefon punto (#2682).

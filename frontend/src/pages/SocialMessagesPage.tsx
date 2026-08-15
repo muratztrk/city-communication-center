@@ -607,7 +607,9 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                     <span>{embedded ? t('jobs.columns.requestDate', 'Talep Tarihi') : t('social.citizenRequestDateHeader', 'Vatandaş Talep Tarihi')}</span>
                   </span>
                 </FilterableTh>
+                {embedded ? null : (
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.destination', 'Gittiği Yer')}</FilterableTh>
+                )}
                 <FilterableTh filterKey="statusSortText" filterValue={socialFilters['statusSortText'] ?? ''} onFilter={setSocialFilter} sortKey="statusSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>
                 {embedded ? null : (
                 <FilterableTh filterKey="labelSortText" filterValue={socialFilters['labelSortText'] ?? ''} onFilter={setSocialFilter} sortKey="labelSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('whatsapp.label', 'Talep Etiketi')}</FilterableTh>
@@ -638,6 +640,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                     <td className="font-semibold">{message.citizenName}</td>
                     <td className="font-semibold">{message.citizenPhone}</td>
                     <td><DateCell value={message.receivedAtUtc} locale={locale} /></td>
+                    {embedded ? null : (
                     <td>
                       {message.channel === 'MobileApp' && !message.assignedDepartmentName ? (
                         <SingleSelectDropdown
@@ -657,6 +660,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                         <span className="mt-0.5 block text-sm font-semibold text-slate-500">{linkedJob.assignedUserDisplayName}</span>
                       ) : null}
                     </td>
+                    )}
                     <td className="grid-col-status text-center">
                       {(() => {
                         const dueDateUtc = linkedJob
@@ -727,7 +731,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
               })}
               {columnFilteredMessages.length === 0 ? (
                 <TableEmptyStateRows
-                  columnCount={embedded ? 8 : 9}
+                  columnCount={embedded ? 7 : 9}
                   message={embedded
                     ? t('social.emptyCitizenRequests', 'Henüz vatandaş talebi bulunmuyor')
                     : t('social.empty')}

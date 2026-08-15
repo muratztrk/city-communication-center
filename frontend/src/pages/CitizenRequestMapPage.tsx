@@ -6,8 +6,6 @@ import { queryKeys } from '../api/queryKeys'
 import { CitizenRequestMap } from '../components/CitizenRequestMap'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { StatusPill } from '../components/ui/status-pill'
-import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
-import { getDistrictMapView } from '../data/izmir-district-maps'
 import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
 
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom'
@@ -41,8 +39,6 @@ function getPeriodRange(p: Period, customFrom: string, customTo: string): { from
 
 export function CitizenRequestMapPage() {
   const { t } = useTranslation()
-  const districtId = useMunicipalityDistrictId()
-  const mapView = useMemo(() => getDistrictMapView(districtId), [districtId])
   const [period, setPeriod] = useState<Period>('yearly')
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
@@ -77,10 +73,7 @@ export function CitizenRequestMapPage() {
               {t('nav.citizenRequestMap', 'Vatandaş Talep Haritası')}
             </h1>
             <p className="max-w-3xl text-sm leading-6 text-white/82">
-              {t('citizenRequestMap.subtitle', {
-                district: mapView.districtName,
-                defaultValue: '{{district}} ilçesindeki vatandaş talepleri mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.',
-              })}
+              {t('citizenRequestMap.subtitle', 'Bölgenizdeki vatandaş talepleri mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.')}
             </p>
           </div>
           <div className="flex items-start justify-start lg:justify-end">

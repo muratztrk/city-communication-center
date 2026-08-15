@@ -71,7 +71,8 @@
   },
   "citizenRequestMap": {
     "eyebrow": "Vatandaş talepleri",
-    "subtitle": "{{district}} ilçesindeki vatandaş talepleri mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.",
+    "subtitle": "Bölgenizdeki vatandaş talepleri mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.",
+    "resetView": "Başlangıç görünümü",
     "live": "Canlı harita",
     "pinCount": "{{count}} konum",
     "listRequests": "Talepleri Listele",

@@ -41,9 +41,9 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
         {
             query = query.Where(entity => false);
         }
-        else if (actor.RoleCode is RoleCode.SystemAdmin or RoleCode.Operator)
+        else if (actor.RoleCode is RoleCode.SystemAdmin or RoleCode.Operator or RoleCode.Reporter)
         {
-            // Citizen-request operators manage the full inbox, including converted requests.
+            // Operators and top-level reporters see the full citizen inbox, including converted requests.
         }
         else if (actor.RoleCode != RoleCode.SystemAdmin)
         {

@@ -6517,6 +6517,13 @@
     gap: 0.45rem;
   }
 
+  .citizen-request-map-zoom-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.45rem;
+  }
+
   .citizen-request-map-zoom {
     display: flex;
     flex-direction: column;
@@ -6536,6 +6543,14 @@
     font-weight: 500;
     line-height: 1;
     cursor: pointer;
+  }
+
+  .citizen-request-map-reset-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 2px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   }
 
   .citizen-request-map-zoom-btn + .citizen-request-map-zoom-btn {

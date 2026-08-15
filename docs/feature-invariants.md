@@ -1681,7 +1681,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin/lejant: İşleme Alındı turkuaz `#0d9488`,
   Yapılmakta mavi `#0ea5e9`, Geciken turuncu `#f97316` (#2671). Vatandaş lejant metni
-  `Yapılmakta` (Olan yok); Geciken lejantı yan yana `Yapılmakta Geciken` (#2671). Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
+  `Yapılmakta` (Olan yok); Geciken lejantı `whitespace-nowrap` ile yan yana `Yapılmakta Geciken`
+  (#2671/#2680). Banner: `Bölgenizdeki vatandaş talepleri…` (ilçe adı yok, #2685).
+  Sağ alt zoom’da `+` üstünde hedef ikonu sayfa açılış merkez/zoom’a döner (#2688).
+  Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
@@ -1702,8 +1705,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bir alt satırında. Pinler vatandaş-olmayan (`RequestType != Citizen`, sosyal/e-Devlet/rutin yok)
   ve Birimdeki Görevler kapsamındaki atanmış görevlerin talepleri — kullanıcının birimi.
   Üst Düzey Yönetici (`Reporter`) ve SystemAdmin tüm birimlerin atanmış taleplerini görür (#2641).
-  Lejant: Yapılmakta (mavi) / Geciken yan yana `Yapılmakta Geciken` (turuncu) / Tamamlanan;
-  Onay Bekleyen yok (#2665/#2679/#2680). Harita başlığı Reporter/SystemAdmin’de
+  Lejant: Yapılmakta (mavi) / Geciken `Yapılmakta Geciken` tek satır nowrap (turuncu) / Tamamlanan;
+  Onay Bekleyen yok (#2665/#2679/#2680). Reset ikonu + zoom vatandaş haritası ile ortak (#2688).
+  Harita başlığı Reporter/SystemAdmin’de
   `Kurum İçi Birim Talepleri` + banner “Tüm birimlere atanmış…” (#2680); diğer roller
   `Birimdeki Görevler` + “Biriminize atanmış…” (#2679).
   Marker cluster popup başlığı `Birim Talep Bilgi Listesi`; kolonlar Talep No / Talep Tarihi /
@@ -1721,7 +1725,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   daha geniş (`detail-modal-shell--all-requests`, #2644/#2648). Kanal chip’leri ve Tüm Talep Durumları
   dropdown yok; Talep Etiketi sütunu yok; thead drilldown standardı (`0.78rem`).
   Ara / başlangıç / bitiş tarihi yok. Tüm VT kayıtları listelenir.
-  Popup kolon başlıkları **Talep Tarihi** / **Telefon No**; paging sticky altta (#2649).
+  **Gittiği Yer sütunu yok** (Operator #2686, Reporter #2687). Reporter `GetSocialMessages`
+  tam kutu (Operator ile aynı). Popup kolon başlıkları **Talep Tarihi** / **Telefon No**; paging sticky altta (#2649).
   Popup genişliği Taleplerim detaydan daha geniş (`70vw` / `84rem`, #2644). Küçük ekranda
   başlıklar sığmazsa yatay kaydırma (`overflow-x`, #2648). Boş grid metni
   `Henüz vatandaş talebi bulunmuyor` (`social.emptyCitizenRequests`, #2644).

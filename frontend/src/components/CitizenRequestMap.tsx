@@ -117,6 +117,7 @@ function isSameOrChildCluster(previousKey: string, nextKey: string): boolean {
 
 /** 2. tıklamada pinlere biraz daha yaklaş; fitBounds / sokak over-zoom yok (#2612). */
 const CLUSTER_REVEAL_ZOOM = NUMBERED_SINGLE_MAX_ZOOM + 3
+const INITIAL_MAP_ZOOM = 12
 
 function onCitizenClusterClick(_: google.maps.MapMouseEvent, cluster: Cluster, map: google.maps.Map) {
   const current = map.getZoom() ?? 12
@@ -406,7 +407,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   useEffect(() => {
     if (!mapInstance || !isLoaded) return
     mapInstance.setCenter({ lat: mapView.center.lat, lng: mapView.center.lng })
-    mapInstance.setZoom(12)
+    mapInstance.setZoom(INITIAL_MAP_ZOOM)
   }, [mapInstance, isLoaded, mapView.center.lat, mapView.center.lng])
 
   const openJobDetail = useCallback(async (jobId: string, socialMessageId?: string) => {
@@ -540,6 +541,12 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     setMapInstance(map)
   }, [])
 
+  const resetMapView = useCallback(() => {
+    if (!mapInstance) return
+    mapInstance.panTo({ lat: mapView.center.lat, lng: mapView.center.lng })
+    mapInstance.setZoom(INITIAL_MAP_ZOOM)
+  }, [mapInstance, mapView.center.lat, mapView.center.lng])
+
   useEffect(() => {
     if (!mapInstance) return
     const coverage = new google.maps.StreetViewCoverageLayer()
@@ -609,7 +616,10 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
           </div>
           <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
           {statusLegend.map(item => (
-            <span key={item.key} className="inline-flex items-center gap-1.5">
+            <span
+              key={item.key}
+              className={`inline-flex shrink-0 items-center gap-1.5${item.key === 'overdue' ? ' whitespace-nowrap' : ''}`}
+            >
               <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
               {item.label}
             </span>
@@ -650,7 +660,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
             mapContainerStyle={MAP_CONTAINER_STYLE}
             mapContainerClassName="citizen-request-map"
             center={mapCenter}
-            zoom={12}
+            zoom={INITIAL_MAP_ZOOM}
             onLoad={onMapLoad}
             onClick={() => setGestureHandling('greedy')}
             options={{
@@ -690,7 +700,21 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
                 <path fill="#E37400" opacity=".35" d="M12.9 8.25h2.3c.5 0 .9.4.9.9v4.15l1.35.45.2.78-.2.1-1.55-.48V15.1v5.05c0 .2-.08.38-.2.5h-.7V17.1h-.4v3.55h-.7c-.12-.12-.2-.3-.2-.5v-3.05h-.1V8.25z" />
               </svg>
             </button>
-            <div className="citizen-request-map-zoom">
+            <div className="citizen-request-map-zoom-stack">
+              <button
+                type="button"
+                className="citizen-request-map-zoom-btn citizen-request-map-reset-btn"
+                title={t('citizenRequestMap.resetView', 'Başlangıç görünümü')}
+                aria-label={t('citizenRequestMap.resetView', 'Başlangıç görünümü')}
+                onClick={resetMapView}
+              >
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="2.15" fill="currentColor" stroke="none" />
+                  <circle cx="12" cy="12" r="6.1" />
+                  <path d="M12 2.6v2.7M12 18.7v2.7M2.6 12h2.7M18.7 12h2.7" strokeLinecap="round" />
+                </svg>
+              </button>
+              <div className="citizen-request-map-zoom">
               <button
                 type="button"
                 className="citizen-request-map-zoom-btn"
@@ -698,7 +722,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
                 aria-label="+"
                 onClick={() => {
                   if (!mapInstance) return
-                  mapInstance.setZoom(Math.min(21, (mapInstance.getZoom() ?? 12) + 1))
+                  mapInstance.setZoom(Math.min(21, (mapInstance.getZoom() ?? INITIAL_MAP_ZOOM) + 1))
                 }}
               >
                 +
@@ -710,11 +734,12 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
                 aria-label="−"
                 onClick={() => {
                   if (!mapInstance) return
-                  mapInstance.setZoom(Math.max(3, (mapInstance.getZoom() ?? 12) - 1))
+                  mapInstance.setZoom(Math.max(3, (mapInstance.getZoom() ?? INITIAL_MAP_ZOOM) - 1))
                 }}
               >
                 −
               </button>
+              </div>
             </div>
           </div>
         ) : null}

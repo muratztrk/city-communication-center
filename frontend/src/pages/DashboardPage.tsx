@@ -141,13 +141,13 @@ function citizenChartOrder(titleKey: string): number {
 }
 
 const REPORTER_DEPARTMENT_CHART_ORDER = [
-  'dashboard.charts.myRequests',
-  'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
   'dashboard.charts.externalRequestInProgress',
   'dashboard.charts.externalRequestFulfillers',
   'dashboard.charts.externalProjectsInProgress',
   'dashboard.charts.externalProjectsCompleted',
+  'dashboard.charts.externalRequestCreators',
+  'dashboard.charts.myRequests',
 ]
 
 function reporterDepartmentChartOrder(titleKey: string): number {

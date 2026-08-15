@@ -594,6 +594,7 @@ export interface CitizenConversationTicket {
   dueDateUtc?: string | null;
   completedAtUtc?: string | null;
   updatedAtUtc?: string | null;
+  openTaskCount?: number | null;
 }
 
 export interface CitizenConversationDetail {

@@ -249,7 +249,13 @@ public sealed class GetCitizenConversationDetailQueryHandler
                 m.Job != null ? m.Job.Title : m.Content,
                 m.Job != null ? m.Job.DueDateUtc : null,
                 m.Job != null ? m.Job.CompletedAtUtc : null,
-                m.Job != null ? m.Job.UpdatedAtUtc : null))
+                m.Job != null ? m.Job.UpdatedAtUtc : null,
+                m.Job != null
+                    ? m.Job.Tasks.Count(task =>
+                        task.CurrentStatus != Domain.Enums.TaskStatus.Completed
+                        && task.CurrentStatus != Domain.Enums.TaskStatus.Cancelled
+                        && task.CurrentStatus != Domain.Enums.TaskStatus.Rejected)
+                    : 0))
             .ToListAsync(cancellationToken);
 
         var statusCounts = await _dbContext.SocialMessages

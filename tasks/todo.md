@@ -1,3 +1,8 @@
+## Round 823 — #2629/#2628
+
+- [x] `6a7ff61e` — Anasayfa-Birimler pie sırası: talepler → projeler → oluşturan → Taleplerim → Bildirimler (#2629).
+- [x] `6a7ff532` — Dizin talep grid Durum: açık görev yoksa İşleme Alındı (detay ile aynı, #2628).
+
 ## Round 822 — #2597/#2620/#2614/#2626/#2625/#2615/#2624/#2622
 
 - [x] `6a7f004c` — Harita pin 20×30 (#2597).

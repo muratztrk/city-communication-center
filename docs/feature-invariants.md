@@ -1596,7 +1596,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş Talep Kanalları). Vatandaş pie 1. satır mahalle üçlüsü, 2. satır birim üçlüsü (#2606).
   İşleme Alınan pie yalnız ProcessingReceived (açık görev yok; overdue/Active+görev yok);
   Yapılmakta pie Yapılmakta + overdue (#2605). Drilldown Durum etiketi sahte taskCount=1 kullanmaz —
-  `OpenTaskCount` ile İşleme Alındı / Yapılmakta ayrılır. Harita alanı yok (#6a6cdf95). Birimler sayfasında Reporter: Taleplerim +
+  `OpenTaskCount` ile İşleme Alındı / Yapılmakta ayrılır. Harita alanı yok (#6a6cdf95).   Birimler sayfasında Reporter pie sırası: Bekleyen / Yapılmakta / Tamamlanan Talepler →
+  Yapılmakta / Tamamlanan Projeler → Talep Oluşturan Birimler → Taleplerim → Bildirimler (#2629).
+  Birimler sayfasında Reporter: Taleplerim +
   dış birim pie'ları. Operator: Görevlerim/Taleplerim. `Birimdeki Görevler` ve `Talep Önceliği`
   pie'ları tüm anasayfalardan kaldırıldı (#2521). Birimler pie + drilldown vatandaş kaynaklı
   job içermez (#2570): `RequestType=Citizen`, `SourceType∈{SocialMessage,CitizenRequest,EDevlet}`
@@ -1659,7 +1661,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Cadde / Sokak sonrası **No** sütunu (`streetNo`); açık adres başlığı **Adres Tarifi** (#2587).
   Nested İşlemler→Detaylar popup Taleplerim shell’den biraz küçük
   (`detail-modal-shell--citizen-directory-nested`, card #r454).   Nested talep listesi Durum
-  `getCitizenRequestStatusLabel` + `ticket.dueDateUtc` (overdue = `Yapılmakta` / `(Son Tarihi Geçmiş)`, #2574).
+  `getCitizenRequestStatusLabel` + `ticket.dueDateUtc` + `openTaskCount` (sahte `taskCount: 1` yok —
+  açık görev yoksa `İşleme Alındı`, detay popup ile aynı, #2628; overdue = `Yapılmakta` /
+  `(Son Tarihi Geçmiş)`, #2574).
   Nested detay **Süreç** overdue tek satır `Yapılmakta (Son Tarihi Geçmiş)` — stacked GridStatusLabel değil (#2574).
   İptal / Tamamlanmış pill içinde alt satırda tarih (`completedAtUtc` / `updatedAtUtc`, #2574 reopen). Anasayfa pie → Detaylar
   aynı nested boyut (#6a6da278). Başlık: Vatandaş sayfası `Vatandaş Talebi`, Birimler

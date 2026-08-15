@@ -310,7 +310,8 @@ public sealed record CitizenConversationTicketDto(
     string? Title = null,
     DateTimeOffset? DueDateUtc = null,
     DateTimeOffset? CompletedAtUtc = null,
-    DateTimeOffset? UpdatedAtUtc = null);
+    DateTimeOffset? UpdatedAtUtc = null,
+    int? OpenTaskCount = null);
 
 public sealed record WhatsAppMessageTemplateDto(
     Guid TemplateId,

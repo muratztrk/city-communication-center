@@ -12,9 +12,9 @@ import { StatusPill } from '../ui/status-pill'
 import { GridStatusLabel } from '../ui/GridStatusLabel'
 import { TablePagination } from '../ui/table-pagination'
 import type { CitizenConversationTicket } from '../../types/platform'
-import { getCitizenRequestStatusLabel } from '../../utils/citizenRequests'
+import { getCitizenRequestStatusLabel, getCitizenRequestStatusTone } from '../../utils/citizenRequests'
 import { DetailModalTitle } from '../../utils/detailModalTitle'
-import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, getJobStatusTone, shouldShowGridPrioritySubline } from '../../utils/localization'
+import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, shouldShowGridPrioritySubline } from '../../utils/localization'
 import { formatDirectoryPhone } from '../../utils/phoneDisplay'
 import { printHtmlDocument } from '../../utils/printDocument'
 
@@ -59,7 +59,7 @@ function printCitizenTickets(
       ? getCitizenRequestStatusLabel(t, {
         status: ticket.jobStatus,
         dueDateUtc: ticket.dueDateUtc,
-        taskCount: 1,
+        taskCount: ticket.openTaskCount ?? 0,
       })
       : '—'
     const date = ticket.receivedAtUtc
@@ -247,7 +247,7 @@ export function CitizenDirectoryTicketsModal({
                           ? getCitizenRequestStatusLabel(t, {
                               status: ticket.jobStatus,
                               dueDateUtc: ticket.dueDateUtc,
-                              taskCount: 1,
+                              taskCount: ticket.openTaskCount ?? 0,
                             })
                           : null
                         return (
@@ -286,7 +286,11 @@ export function CitizenDirectoryTicketsModal({
                           </td>
                           <td>
                             {statusLabel && ticket.jobStatus ? (
-                              <StatusPill className={getStatusPillClass(getJobStatusTone({ status: ticket.jobStatus, dueDateUtc: ticket.dueDateUtc ?? null }))}>
+                              <StatusPill className={getStatusPillClass(getCitizenRequestStatusTone({
+                                status: ticket.jobStatus,
+                                dueDateUtc: ticket.dueDateUtc,
+                                taskCount: ticket.openTaskCount ?? 0,
+                              }))}>
                                 <GridStatusLabel
                                   t={t}
                                   label={statusLabel}

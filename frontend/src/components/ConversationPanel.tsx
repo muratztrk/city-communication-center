@@ -506,9 +506,9 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                       searchPlaceholder={t('departments.search', 'Birim ara...')}
                       openUp={internalDepartmentOptions.length >= 2}
                       clearable
-                      className={`min-w-0 max-w-[10rem] shrink-0 ${compactActions ? 'w-[8.75rem]' : 'w-[10rem]'}`}
+                      className={`min-w-0 max-w-[10rem] shrink-0 ${compactActions ? 'w-[7.75rem]' : 'w-[10rem]'}`}
                       triggerClassName={`w-full rounded-full font-semibold ${compactActions ? 'min-h-7 h-7 px-2 text-[11px]' : 'h-9 px-2.5 text-xs'}`}
-                      menuWidth={compactActions ? 168 : 184}
+                      menuWidth={compactActions ? 148 : 184}
                       menuScrollClassName="whatsapp-department-menu-scroll"
                     />
                     <button

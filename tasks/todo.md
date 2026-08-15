@@ -1,3 +1,9 @@
+## Round 889 — #2704/#2701/#2700
+
+- [x] `6a80bc9b` — WA oluştur Birim seçiniz menü ~148px.
+- [x] `6a80b884` — Yazdırda `Görev 1` alt başlığı yok.
+- [x] `6a80b79c` — Harita liste Konum pini küçük gri.
+
 ## Round 888 — #2702/#2703
 
 - [x] `6a80bbad` — WA Vatandaş Talebi Oluştur konuşma mesajı 10px.

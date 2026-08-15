@@ -405,7 +405,6 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
       : ''
 
     return `<div style="${separator}">
-      <div class="subsection-title">Görev ${index + 1}</div>
       <table><tbody>${tableRows}</tbody></table>
       ${taskAttachBlock}
     </div>`

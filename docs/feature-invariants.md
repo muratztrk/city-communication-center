@@ -1705,7 +1705,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#2668, Onay Bekleyen değil). Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
   (`bg-teal-600`), Yapılmakta Görevlerim ile aynı açık mavi (`bg-sky-100` / `getStatusPillClass`,
   #2699), Geciken turuncu (`bg-orange-500`). Pin rengi Yapılmakta `#0ea5e9` kalır (#2671).
-  yeşil Konum ikonu (yuvarlak çerçeve + hover, #2673/#2674); damla pin (uzun/ince, #2700).
+  yeşil Konum ikonu (yuvarlak çerçeve + hover, #2673/#2674); damla pin küçük gri (#2700).
   Konum ile Detaylar
   arası boşluk artırılır (#2677). Liste grid’leri FilterableTh sıralama/filtre kullanır
   (Sıra/İşlemler hariç, #2678).   Konum tıklanınca
@@ -1821,14 +1821,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazdır not satırları (#r467):** iptal/tamamlamada `İptal Notu` / `Tamamlama Notu` Durum'dan
   sonra ayrı satır; boş Son Tarih = `Onay Bekleyen` (Belirsiz değil).
 - **Yazdır boş bölümler (#2701):** `printJobDetail` Yönetici Notu / Talep Ekleri / İlgili Görev
-  Detayları yalnız doluysa; görev eki yalnız görevde dosya varsa. `İlgili Görev Detayları` sayaç yok.
+  Detayları yalnız doluysa; görev eki yalnız görevde dosya varsa. `İlgili Görev Detayları` sayaç yok;
+  `Görev 1` alt başlığı yok (#2701).
 - **Yazdır Talep Etiketi (#2189):** detayda etiket varsa `printJobDetail` `Talep Detayları`'nda
   Durum sonrası `Talep Etiketi` satırı (`options.requestLabel` = sosyal `category`).
 - **Yazdır Talep Kanalı (#2524/#2558):** vatandaş talebi yazdırmada `Vatandaş Adı / Telefon No`
   satırının hemen altında `Talep Kanalı` (`options.sourceChannel` → `getSocialChannelLabel`).
 - **Dizin ticket sıra (#r467):** VT yılı+numara azalan (en yüksek üstte).
-- **WA Birim panel (#r467–#r478):** Konuşmalar trigger ~10rem / menü ~184px; create-modal
-  menü ~168px; clearable X; placeholder `Birim seçiniz...`.
+- **WA Birim panel (#r467–#r478/#2704):** Konuşmalar trigger ~10rem / menü ~184px; create-modal
+  menü ~148px; clearable X; placeholder `Birim seçiniz...`.
 - **WA Tümü / Talep Sayısı (#r473):** yalnız İşleme Alınan + Yapılmakta + Tamamlandı toplamı
   (iptal dahil değil).
 - **Grid truncate tooltip (#r474–#r479/#r517/#r522/#r524/#r529/#r530/#r531/#r533/#r534/#r535):** AppShell `useDataTableOverflowTooltips` —

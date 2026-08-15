@@ -63,7 +63,8 @@
   },
   "departmentRequestMap": {
     "subtitle": "Internal requests assigned to your department in {{district}} are shown on the map with neighborhood, street/number, and open address.",
-    "detailTitle": "Request"
+    "detailTitle": "Request",
+    "ticketsTitle": "Department Request Information List"
   },
   "citizenRequestMap": {
     "eyebrow": "Citizen requests",

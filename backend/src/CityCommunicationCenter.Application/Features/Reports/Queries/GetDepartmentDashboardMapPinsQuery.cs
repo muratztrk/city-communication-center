@@ -91,6 +91,21 @@ public sealed class GetDepartmentDashboardMapPinsQueryHandler
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
                 job.Priority,
+                job.JobNumber,
+                job.JobNumberYear,
+                job.RequestType,
+                OwnerDepartmentName = _dbContext.Departments
+                    .Where(department => department.DepartmentId == job.OwnerDepartmentId)
+                    .Select(department => department.Name)
+                    .FirstOrDefault(),
+                TargetDepartmentNames = _dbContext.JobDepartments
+                    .Where(jobDepartment => jobDepartment.JobId == job.JobId
+                        && jobDepartment.Role == JobDepartmentRole.Target)
+                    .Select(jobDepartment => _dbContext.Departments
+                        .Where(department => department.DepartmentId == jobDepartment.DepartmentId)
+                        .Select(department => department.Name)
+                        .FirstOrDefault())
+                    .ToList(),
                 DepartmentName = _dbContext.Tasks
                     .Where(task => task.JobId == job.JobId
                         && task.AssignedDepartmentId.HasValue
@@ -114,6 +129,16 @@ public sealed class GetDepartmentDashboardMapPinsQueryHandler
             .Select(pair =>
             {
                 var row = pair.row;
+                var destination = row.RequestType == JobRequestType.InternalUnit
+                    ? row.OwnerDepartmentName
+                    : string.Join(", ", row.TargetDepartmentNames
+                        .Where(name => !string.IsNullOrWhiteSpace(name))
+                        .Distinct());
+                if (string.IsNullOrWhiteSpace(destination))
+                {
+                    destination = row.DepartmentName;
+                }
+
                 return new CitizenDashboardMapPin(
                     row.JobId,
                     row.Title,
@@ -136,7 +161,11 @@ public sealed class GetDepartmentDashboardMapPinsQueryHandler
                     row.Priority,
                     null,
                     null,
-                    null);
+                    null,
+                    row.JobNumber,
+                    row.JobNumberYear,
+                    row.OwnerDepartmentName,
+                    destination);
             })
             .OrderByDescending(pin => pin.Title)
             .ToList();

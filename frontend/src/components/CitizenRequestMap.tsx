@@ -247,6 +247,10 @@ function pinToTicket(pin: CitizenDashboardMapPin): CitizenConversationTicket {
     updatedAtUtc: pin.updatedAtUtc,
     citizenName: pin.citizenName,
     citizenPhone: pin.citizenPhone,
+    jobNumber: pin.jobNumber,
+    jobNumberYear: pin.jobNumberYear,
+    ownerDepartmentName: pin.ownerDepartmentName,
+    destinationDepartmentName: pin.destinationDepartmentName,
   }
 }
 
@@ -680,6 +684,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
           }}
           onOpenJobDetail={(jobId, socialMessageId) => void openJobDetail(jobId, socialMessageId)}
           replaceUnitWithCitizenContact={variant === 'citizen'}
+          layout={variant === 'department' ? 'departmentMap' : 'directory'}
         />
       ) : null}
 

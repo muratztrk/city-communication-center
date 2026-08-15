@@ -63,7 +63,8 @@
   },
   "departmentRequestMap": {
     "subtitle": "{{district}} ilçesinde biriminize atanmış kurum içi talepler mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.",
-    "detailTitle": "Talep"
+    "detailTitle": "Talep",
+    "ticketsTitle": "Birim Talep Bilgi Listesi"
   },
   "citizenRequestMap": {
     "eyebrow": "Vatandaş talepleri",

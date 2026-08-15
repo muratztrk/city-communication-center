@@ -60,7 +60,9 @@ function printCitizenTickets(
   locale: string,
   t: TFunction,
   replaceUnitWithCitizenContact = false,
+  layout: 'directory' | 'departmentMap' = 'directory',
 ) {
+  const isDepartmentMap = layout === 'departmentMap'
   const citizenLine = [citizen.citizenName, formatDirectoryPhone(citizen.citizenPhone)].filter(Boolean).join(' · ') || '—'
   const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   const rowsHtml = tickets.map((ticket, index) => {
@@ -83,6 +85,19 @@ function printCitizenTickets(
     const contactName = ticketCitizenName(ticket, citizen) || '—'
     const contactPhone = formatCitizenPhoneDisplay(ticketCitizenPhone(ticket, citizen)) || '—'
     const contactHtml = `<span class="stack-head"><span>${escape(contactName)}</span><span>${escape(contactPhone)}</span></span>`
+    const talepYeri = ticket.ownerDepartmentName?.trim() || ticket.departmentName || '—'
+    const gidenYer = ticket.destinationDepartmentName?.trim() || ticket.departmentName || '—'
+    if (isDepartmentMap) {
+      return `<tr>
+      <td>${index + 1}</td>
+      <td class="col-no">${escape(formatVt(ticket))}</td>
+      <td class="col-date">${escape(date)}</td>
+      <td class="col-dept">${escape(talepYeri)}</td>
+      <td class="col-dept">${escape(gidenYer)}</td>
+      <td class="col-title">${escape(ticket.title?.trim() || '—')}</td>
+      <td class="col-status">${escape(status)}</td>
+    </tr>`
+    }
     return replaceUnitWithCitizenContact
       ? `<tr>
       <td>${index + 1}</td>
@@ -102,9 +117,11 @@ function printCitizenTickets(
     </tr>`
   }).join('')
 
-  const listTitle = replaceUnitWithCitizenContact
-    ? t('social.citizenRequestNo', 'Vatandaş Talep No')
-    : t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')
+  const listTitle = isDepartmentMap
+    ? t('departmentRequestMap.ticketsTitle', 'Birim Talep Bilgi Listesi')
+    : replaceUnitWithCitizenContact
+      ? t('social.citizenRequestNo', 'Vatandaş Talep No')
+      : t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')
   const stackedRequestNo = `<span class="stack-head"><span>${escape(t('dashboard.citizen', 'Vatandaş'))}</span><span>${escape(t('jobs.columns.requestNo', 'Talep No'))}</span></span>`
   const stackedCitizenContact = `<span class="stack-head"><span>${escape(t('social.citizenName', 'Vatandaş Adı'))}</span><span>${escape(t('citizenMessageApproval.columns.citizenPhone', 'Telefon No'))}</span></span>`
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(listTitle)}</title>
@@ -127,13 +144,20 @@ function printCitizenTickets(
       .col-status{width:15%;white-space:normal;word-break:break-word}
       .footer{margin-top:14px;font-size:10px;color:#64748b}
     </style></head><body>
-    <h1>${replaceUnitWithCitizenContact ? stackedRequestNo : escape(listTitle)}</h1>
-    <p>${escape(citizenLine)}</p>
+    <h1>${escape(listTitle)}</h1>
+    ${isDepartmentMap ? '' : `<p>${escape(citizenLine)}</p>`}
     <h2>${escape(t('jobs.detail.requestInfo', 'Talep Detayları'))}</h2>
     <table><thead><tr>
       <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
-      <th class="col-no">${replaceUnitWithCitizenContact ? stackedRequestNo : escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
-      ${replaceUnitWithCitizenContact
+      <th class="col-no">${isDepartmentMap
+        ? escape(t('jobs.columns.requestNo', 'Talep No'))
+        : replaceUnitWithCitizenContact ? stackedRequestNo : escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
+      ${isDepartmentMap
+        ? `<th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
+      <th class="col-dept">${escape(t('jobs.detail.requestLocation', 'Talep Yeri'))}</th>
+      <th class="col-dept">${escape(t('social.destination', 'Gittiği Yer'))}</th>
+      <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>`
+        : replaceUnitWithCitizenContact
         ? `<th class="col-dept">${stackedCitizenContact}</th>
       <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
       <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>`
@@ -159,6 +183,7 @@ interface CitizenDirectoryTicketsModalProps {
   onClose: () => void
   onOpenJobDetail: (jobId: string, socialMessageId?: string) => void
   replaceUnitWithCitizenContact?: boolean
+  layout?: 'directory' | 'departmentMap'
 }
 
 export function CitizenDirectoryTicketsModal({
@@ -172,8 +197,10 @@ export function CitizenDirectoryTicketsModal({
   onClose,
   onOpenJobDetail,
   replaceUnitWithCitizenContact = false,
+  layout = 'directory',
 }: CitizenDirectoryTicketsModalProps) {
   const { t } = useTranslation()
+  const isDepartmentMap = layout === 'departmentMap'
   const [ticketPage, setTicketPage] = useState(1)
   const [ticketPageSize, setTicketPageSize] = useState(10)
 
@@ -207,9 +234,12 @@ export function CitizenDirectoryTicketsModal({
           <div className="detail-modal-header-title min-w-0">
             <div className="citizen-directory-ticket-header-text flex min-w-0 flex-col items-start gap-0.5">
               <div className="my-request-detail-header__title">
-                <DetailModalTitle title={t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')} />
+                <DetailModalTitle title={isDepartmentMap
+                  ? t('departmentRequestMap.ticketsTitle', 'Birim Talep Bilgi Listesi')
+                  : t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')} />
               </div>
               {(() => {
+                if (isDepartmentMap) return null
                 const name = citizen.citizenName?.trim() ?? ''
                 const phone = formatDirectoryPhone(citizen.citizenPhone)
                 if (!name && !phone) return null
@@ -235,7 +265,7 @@ export function CitizenDirectoryTicketsModal({
               variant="ghost"
               className="detail-print-action inline-flex items-center gap-1.5 text-slate-700 hover:bg-slate-100"
               disabled={loading || sortedTickets.length === 0}
-              onClick={() => printCitizenTickets(citizen, sortedTickets, locale, t, replaceUnitWithCitizenContact)}
+              onClick={() => printCitizenTickets(citizen, sortedTickets, locale, t, replaceUnitWithCitizenContact, layout)}
               aria-label={t('common.print', 'Yazdır')}
             >
               <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -264,8 +294,10 @@ export function CitizenDirectoryTicketsModal({
                     <thead>
                       <tr>
                         <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>
-                        <th>{t('social.citizenRequestNo', 'Vatandaş Talep No')}</th>
-                        {replaceUnitWithCitizenContact ? (
+                        <th>{isDepartmentMap
+                          ? t('jobs.columns.requestNo', 'Talep No')
+                          : t('social.citizenRequestNo', 'Vatandaş Talep No')}</th>
+                        {replaceUnitWithCitizenContact && !isDepartmentMap ? (
                           <th className="dashboard-drilldown-citizen-th text-center">
                             <span className="inline-flex flex-col items-center justify-center leading-tight text-center">
                               <span>{t('social.citizenName', 'Vatandaş Adı')}</span>
@@ -276,11 +308,16 @@ export function CitizenDirectoryTicketsModal({
                           </th>
                         ) : null}
                         <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
-                        {replaceUnitWithCitizenContact ? null : (
+                        {isDepartmentMap ? (
+                          <>
+                            <th>{t('jobs.detail.requestLocation', 'Talep Yeri')}</th>
+                            <th>{t('social.destination', 'Gittiği Yer')}</th>
+                          </>
+                        ) : replaceUnitWithCitizenContact ? null : (
                           <th>{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
                         )}
                         <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
-                        {replaceUnitWithCitizenContact ? null : (
+                        {replaceUnitWithCitizenContact || isDepartmentMap ? null : (
                           <th>{t('users.department', 'Birim')}</th>
                         )}
                         <th>{t('jobs.columns.status', 'Durum')}</th>
@@ -327,7 +364,20 @@ export function CitizenDirectoryTicketsModal({
                           <td>
                             <DateCell value={ticket.receivedAtUtc} locale={locale} />
                           </td>
-                          {replaceUnitWithCitizenContact ? null : (
+                          {isDepartmentMap ? (
+                            <>
+                              <td className="max-w-[12rem]">
+                                {(ticket.ownerDepartmentName ?? ticket.departmentName)?.trim()
+                                  ? <span className="block truncate">{(ticket.ownerDepartmentName ?? ticket.departmentName)?.trim()}</span>
+                                  : <EmptyCell />}
+                              </td>
+                              <td className="max-w-[12rem]">
+                                {(ticket.destinationDepartmentName ?? ticket.departmentName)?.trim()
+                                  ? <span className="block truncate">{(ticket.destinationDepartmentName ?? ticket.departmentName)?.trim()}</span>
+                                  : <EmptyCell />}
+                              </td>
+                            </>
+                          ) : replaceUnitWithCitizenContact ? null : (
                             <td className="text-center">
                               {ticket.channel ? (
                                 <span className="inline-flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap">
@@ -338,7 +388,7 @@ export function CitizenDirectoryTicketsModal({
                             </td>
                           )}
                           <td className="font-semibold text-slate-800"><EmptyCell value={ticket.title} /></td>
-                          {replaceUnitWithCitizenContact ? null : (
+                          {replaceUnitWithCitizenContact || isDepartmentMap ? null : (
                             <td className="max-w-[12rem]">
                               {ticket.departmentName ? (
                                 <span className="block truncate">{ticket.departmentName}</span>

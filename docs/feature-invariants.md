@@ -1677,16 +1677,19 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
-  **Talepleri Listele (#2664/#2665):** `N konum` metninin yanında; popup yalnızca haritada
+  **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
-  Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; birim kolonları Birimlerin Tüm Talepleri.
-- **Birim Talep Haritası (#2610/#2611):** `/department-request-map`;
+  Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; Durum `processingReceived` = İşleme Alındı
+  (#2668, Onay Bekleyen değil). Birim kolonları Birimlerin Tüm Talepleri / Birim Talep Bilgi Listesi.
+- **Birim Talep Haritası (#2610/#2611/#2667):** `/department-request-map`;
   `GET /reports/dashboard-department-map-pins`. Yalnız `internal` lisans.
   Sol menü Anasayfa - Birimler’in altında; Sayfa Yetkileri’nde Vatandaş Talep Haritası’nın
   bir alt satırında. Pinler vatandaş-olmayan (`RequestType != Citizen`, sosyal/e-Devlet/rutin yok)
   ve Birimdeki Görevler kapsamındaki atanmış görevlerin talepleri — kullanıcının birimi.
   Üst Düzey Yönetici (`Reporter`) ve SystemAdmin tüm birimlerin atanmış taleplerini görür (#2641).
   Lejant: Onay Bekleyen (sky) / Yapılmakta / Geciken / Tamamlanan.
+  Marker cluster popup başlığı `Birim Talep Bilgi Listesi`; kolonlar Talep No / Talep Tarihi /
+  Talep Yeri / Gittiği Yer (hedef birim) / Başlık; Talep Kanalı yok (#2667).
   Geocode kuyruğunda 4 sn timeout pin düşürmez (#2640). Yönetici kendisine atanmış talep
   (AssignedUserId) adresi varsa haritada görünür; cadde Google’da yoksa mahalle/lat-lng yedeği
   birim haritasında kullanılır (#2640 T-2026-591). Vatandaş haritası cadde zorunlu kalır (#2635).

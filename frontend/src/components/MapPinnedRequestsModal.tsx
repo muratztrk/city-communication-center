@@ -14,6 +14,7 @@ import { GridStatusLabel } from './ui/GridStatusLabel'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { ChannelIcon } from './ui/channel-icon'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
+import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { formatOverdueInProgressStatus, getLocale, getPriorityColorClass, getPriorityLabel, shouldShowGridPrioritySubline } from '../utils/localization'
 
 interface MapPinnedRequestsModalProps {
@@ -28,7 +29,10 @@ function pinStatusLabel(t: TFunction, pin: CitizenDashboardMapPin): string {
   if (pin.displayStatus === 'cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (pin.displayStatus === 'overdue') return formatOverdueInProgressStatus(t)
   if (pin.displayStatus === 'inProgress') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
-  if (pin.displayStatus === 'pendingApproval' || pin.displayStatus === 'processingReceived') {
+  if (pin.displayStatus === 'processingReceived') {
+    return t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı')
+  }
+  if (pin.displayStatus === 'pendingApproval') {
     return t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
   }
   return t(`enum.jobStatus.${pin.jobStatus ?? pin.displayStatus}`, { defaultValue: pin.displayStatus })
@@ -71,7 +75,7 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob }: Ma
               <span className="block truncate">
                 {isCitizen
                   ? t('nav.social', 'Vatandaş Talepleri')
-                  : t('dashboard.allDepartmentRequests', 'Birimlerin Tüm Talepleri')}
+                  : t('departmentRequestMap.ticketsTitle', 'Birim Talep Bilgi Listesi')}
               </span>
             </h2>
           </div>
@@ -128,7 +132,9 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob }: Ma
                         : null
                       const requestNo = isCitizen
                         ? formatCitizenRequestNumber(pin, locale)
-                        : '—'
+                        : pin.jobNumber != null && pin.jobNumberYear != null
+                          ? formatJobDisplayNumberText(pin, locale)
+                          : '—'
                       return (
                         <tr key={pin.jobId}>
                           <td className="text-center text-xs font-bold text-slate-400 tabular-nums">
@@ -167,13 +173,13 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob }: Ma
                           ) : (
                             <>
                               <td className="max-w-[12rem]">
-                                {pin.departmentName?.trim()
-                                  ? <span className="block truncate">{pin.departmentName}</span>
+                                {pin.ownerDepartmentName?.trim()
+                                  ? <span className="block truncate">{pin.ownerDepartmentName}</span>
                                   : '—'}
                               </td>
                               <td className="max-w-[12rem]">
-                                {pin.departmentName?.trim()
-                                  ? <span className="block truncate">{pin.departmentName}</span>
+                                {(pin.destinationDepartmentName ?? pin.departmentName)?.trim()
+                                  ? <span className="block truncate">{(pin.destinationDepartmentName ?? pin.departmentName)?.trim()}</span>
                                   : '—'}
                               </td>
                               <td className="font-semibold">

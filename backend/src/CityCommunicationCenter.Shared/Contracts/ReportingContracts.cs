@@ -81,7 +81,11 @@ public sealed record CitizenDashboardMapPin(
     string? Priority,
     string? CitizenName,
     string? CitizenPhone,
-    Guid? SocialMessageId);
+    Guid? SocialMessageId,
+    int? JobNumber = null,
+    int? JobNumberYear = null,
+    string? OwnerDepartmentName = null,
+    string? DestinationDepartmentName = null);
 
 public sealed record CitizenDashboardMapPinsResponse(
     IReadOnlyList<CitizenDashboardMapPin> Pins);

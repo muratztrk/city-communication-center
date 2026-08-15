@@ -1,3 +1,8 @@
+## Round 855 — #2668/#2667
+
+- [x] `6a804de4` — Vatandaş harita Talepleri Listele Durum: İşleme Alındı (#2668).
+- [x] `6a804bbd` — Birim harita marker popup: Birim Talep Bilgi Listesi kolonları (#2667).
+
 ## Round 854 — #2654/#2659
 
 - [x] `6a803a0c` — Kurum Konumu Mahalle/Cadde/No yanında Veri Kontrolü (#2654).

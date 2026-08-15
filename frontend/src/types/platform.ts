@@ -84,6 +84,10 @@ export interface CitizenDashboardMapPin {
   citizenName?: string | null;
   citizenPhone?: string | null;
   socialMessageId?: string | null;
+  jobNumber?: number | null;
+  jobNumberYear?: number | null;
+  ownerDepartmentName?: string | null;
+  destinationDepartmentName?: string | null;
 }
 
 export interface CitizenDashboardMapPinsResponse {
@@ -597,6 +601,8 @@ export interface CitizenConversationTicket {
   openTaskCount?: number | null;
   citizenName?: string | null;
   citizenPhone?: string | null;
+  ownerDepartmentName?: string | null;
+  destinationDepartmentName?: string | null;
 }
 
 export interface CitizenConversationDetail {

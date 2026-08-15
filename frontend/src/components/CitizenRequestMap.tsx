@@ -337,6 +337,9 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     tickets: CitizenConversationTicket[]
   } | null>(null)
   const [gestureHandling, setGestureHandling] = useState<'none' | 'greedy'>('none')
+  const [compactViewport, setCompactViewport] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches,
+  )
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
   const [streetViewPicker, setStreetViewPicker] = useState(false)
   const [listMode, setListMode] = useState<'located' | 'unlocated' | null>(null)
@@ -349,6 +352,17 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   const stopMarkerBounce = useCallback(() => {
     bouncingMarkerRef.current?.setAnimation(null)
     bouncingMarkerRef.current = null
+  }, [])
+
+  useEffect(() => {
+    const media = window.matchMedia('(max-width: 1023px)')
+    const sync = () => {
+      setCompactViewport(media.matches)
+      if (media.matches) setGestureHandling('greedy')
+    }
+    sync()
+    media.addEventListener('change', sync)
+    return () => media.removeEventListener('change', sync)
   }, [])
 
   const geocodeReady = !mapsReady || loadError != null || isLoaded
@@ -655,8 +669,12 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
 
       <div
         className="relative h-[min(36rem,65vh)] w-full bg-slate-100"
-        onMouseEnter={() => setGestureHandling('greedy')}
-        onMouseLeave={() => setGestureHandling('none')}
+        onMouseEnter={() => {
+          if (!compactViewport) setGestureHandling('greedy')
+        }}
+        onMouseLeave={() => {
+          if (!compactViewport) setGestureHandling('none')
+        }}
       >
         {!mapsReady || loadError ? (
           <div className="flex size-full items-center justify-center px-4 text-center text-sm font-medium text-slate-600">

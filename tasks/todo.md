@@ -1,3 +1,7 @@
+## Round 882 — #2694
+
+- [x] `6a808364` — Küçük ekranda harita greedy zoom; WA/kurum içi FAB harita sayfalarında gizli.
+
 ## Round 881 — #2692/#2695
 
 - [x] `6a807f6b` — VT-2026-134 Doğan Cd. 66: cadde varken OSB filtresi yok; geocode açık adres kullanmaz (cache v13).

@@ -406,6 +406,8 @@ export function AppShell() {
     () => getEffectiveUserRoles(user).includes('Operator'),
     [user, accessVersion],
   )
+  const hideMapPageChatFabs = location.pathname === '/citizen-request-map'
+    || location.pathname === '/department-request-map'
 
   const handleLogout = useCallback(() => {
     void logout()
@@ -935,8 +937,9 @@ export function AppShell() {
       </div> {/* end main area row */}
       <div className="fixed-fab-stack pointer-events-none fixed right-5 z-[75] flex items-end gap-3">
         {/* FAB sırası: WhatsApp → Kurum İçi Mesajlar → aşağı/yukarı (cards #1543/#1553). */}
-        <div className="pointer-events-auto">{canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}</div>
-        <div className="pointer-events-auto"><InternalMessagesFab /></div>
+        {/* Harita sayfalarında küçük ekranda sohbet FAB’leri zoom kontrollerini kapatır (#2694). */}
+        <div className={`pointer-events-auto${hideMapPageChatFabs ? ' max-lg:hidden' : ''}`}>{canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}</div>
+        <div className={`pointer-events-auto${hideMapPageChatFabs ? ' max-lg:hidden' : ''}`}><InternalMessagesFab /></div>
         <div className="pointer-events-auto"><ScrollFab /></div>
       </div>
       {isChangePasswordOpen && <ChangePasswordModal onClose={() => setIsChangePasswordOpen(false)} />}

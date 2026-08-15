@@ -6522,6 +6522,12 @@
     gap: 0.45rem;
   }
 
+  @media (max-width: 1023px) {
+    .citizen-request-map {
+      touch-action: none;
+    }
+  }
+
   .citizen-request-map-zoom-stack {
     display: flex;
     flex-direction: column;

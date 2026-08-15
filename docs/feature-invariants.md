@@ -1693,8 +1693,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Yapılmakta` (Olan yok); Geciken lejantı `whitespace-nowrap` ile yan yana `Yapılmakta Geciken`
   (#2671/#2680). Banner: `Bölgenizdeki vatandaş talepleri…` (ilçe adı yok, #2685).
   Sağ alt zoom’da `+` üstünde hedef ikonu sayfa açılış merkez/zoom’a döner; ikon `20px`, çerçeve `2rem` (#2688).
-  Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
-  imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
+  Varsayılan zoom bir kademe geniş (#2579).   Hover'da el (grab)
+  imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Küçük ekranda (`max-width: 1023px`)
+  hover yok: harita baştan `greedy` + `touch-action: none` (pinch/zoom çalışır); WhatsApp ve
+  kurum içi FAB gizlenir, zoom kontrolleri kapanmaz (#2694). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).

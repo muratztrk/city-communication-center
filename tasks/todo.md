@@ -1,3 +1,7 @@
+## Round 875 — #2684
+
+- [x] `6a8068dc` — Grid Öncelik punto hafif artırıldı (`0.74` → `0.78rem`) (#2684).
+
 ## Round 874 — #2685/#2680/#2686/#2687/#2688
 
 - [x] `6a806a0b` — VT harita banner: Bölgenizdeki… (#2685).

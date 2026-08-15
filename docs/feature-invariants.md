@@ -1472,6 +1472,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birime Gelen / Birimden Giden / Mesaj Onayı aksiyon ikonları:** Detaylar=`FileText`
   (popup `Talep Detayları` title heading ile aynı — #6a758f80 reopen), Onayla=`Check`, İptal Et=`XCircle`;
   butonlar `inline-flex items-center gap-1.5` (#6a758f80 / #6a758fb1).
+- **Grid Öncelik alt satır punto (#2684):** `.table-number-cell__priority` `0.78rem`
+  (Talep No `0.9rem` altında; #2684 küçültme sonrası hafif artış).
 - **Grid Öncelik alt satır boşluğu:** `.table-number-cell__priority` / `.wallboard-priority-text`
   `margin-top: 0.2rem` (#6a75913e reopen).
 - **WA / kurum içi pending ek balonu:** Dosya ekle önizlemesinde balon içinde `Beklemede · HH:mm`

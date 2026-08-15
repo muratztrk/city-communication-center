@@ -2670,7 +2670,7 @@
   }
 
   .detail-modal-shell .citizen-directory-tickets-table .table-number-cell__priority {
-    font-size: 0.74rem;
+    font-size: 0.78rem;
   }
 
   .detail-modal-shell .citizen-directory-tickets-table tbody td .truncate {
@@ -2905,7 +2905,7 @@
 
   /* Vatandaş Talepleri pie drilldown (#6a6cf4d4): Öncelik biraz küçük */
   .dashboard-drilldown-table--citizen .table-number-cell__priority {
-    font-size: 0.7rem;
+    font-size: 0.74rem;
   }
 
   /* Pie drilldown: Durum 2 satır sığsın — sütun biraz geniş (#6a6d9daf / #2180). */
@@ -3692,7 +3692,7 @@
   }
 
   .table-number-cell__priority {
-    font-size: 0.74rem;
+    font-size: 0.78rem;
     line-height: 1.3;
     margin-top: 0.2rem; /* Talep No ile Öncelik arası hafif boşluk (#6a75913e) */
     white-space: nowrap;

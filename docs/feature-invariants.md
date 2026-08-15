@@ -1661,6 +1661,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Sol menü Anasayfa - Birimler’in altında; Sayfa Yetkileri’nde Vatandaş Talep Haritası’nın
   bir alt satırında. Pinler vatandaş-olmayan (`RequestType != Citizen`, sosyal/e-Devlet/rutin yok)
   ve Birimdeki Görevler kapsamındaki atanmış görevlerin talepleri — kullanıcının birimi.
+  Üst Düzey Yönetici (`Reporter`) ve SystemAdmin tüm birimlerin atanmış taleplerini görür (#2641).
   Lejant: Onay Bekleyen (sky) / Yapılmakta / Geciken / Tamamlanan. Adres/geocode kuralları
   vatandaş haritası ile aynı.
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama

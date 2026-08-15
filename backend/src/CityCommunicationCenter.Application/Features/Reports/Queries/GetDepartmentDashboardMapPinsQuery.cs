@@ -7,6 +7,7 @@ namespace CityCommunicationCenter.Application.Features.Reports;
 
 /// <summary>
 /// Birim Talep Haritası — birimin Birimdeki Görevler’de atanmış, vatandaş-olmayan talepleri (#2610/#2611).
+/// Reporter/SystemAdmin tüm birimleri görür (#2641).
 /// </summary>
 public sealed record GetDepartmentDashboardMapPinsQuery(
     DateTimeOffset? FromUtc,
@@ -38,13 +39,19 @@ public sealed class GetDepartmentDashboardMapPinsQueryHandler
             throw new ForbiddenAccessException("Bu haritaya erişim için oturum gereklidir.");
         }
 
-        var accessibleDepartmentIds = await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
-            _dbContext,
-            tenantId,
-            actor,
-            context.ActiveDepartmentId,
-            cancellationToken);
-        if (accessibleDepartmentIds.Length == 0)
+        var seeAllDepartments = actor.RoleCode is RoleCode.Reporter or RoleCode.SystemAdmin
+            || UserRoleAccess.ParseAdditionalRoleCodes(actor.AdditionalRoleCodesJson)
+                .Any(role => role is RoleCode.Reporter or RoleCode.SystemAdmin);
+
+        var accessibleDepartmentIds = seeAllDepartments
+            ? []
+            : await UserDepartmentAccess.GetScopedDepartmentIdsAsync(
+                _dbContext,
+                tenantId,
+                actor,
+                context.ActiveDepartmentId,
+                cancellationToken);
+        if (!seeAllDepartments && accessibleDepartmentIds.Length == 0)
         {
             return new CitizenDashboardMapPinsResponse([]);
         }
@@ -65,7 +72,7 @@ public sealed class GetDepartmentDashboardMapPinsQueryHandler
                 && _dbContext.Tasks.Any(task =>
                     task.JobId == job.JobId
                     && task.AssignedDepartmentId.HasValue
-                    && accessibleDepartmentIds.Contains(task.AssignedDepartmentId.Value)))
+                    && (seeAllDepartments || accessibleDepartmentIds.Contains(task.AssignedDepartmentId.Value))))
             .Select(job => new
             {
                 job.JobId,
@@ -85,7 +92,7 @@ public sealed class GetDepartmentDashboardMapPinsQueryHandler
                 DepartmentName = _dbContext.Tasks
                     .Where(task => task.JobId == job.JobId
                         && task.AssignedDepartmentId.HasValue
-                        && accessibleDepartmentIds.Contains(task.AssignedDepartmentId.Value))
+                        && (seeAllDepartments || accessibleDepartmentIds.Contains(task.AssignedDepartmentId.Value)))
                     .Select(task => _dbContext.Departments
                         .Where(department => department.DepartmentId == task.AssignedDepartmentId)
                         .Select(department => department.Name)

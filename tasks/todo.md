@@ -1,3 +1,8 @@
+## Round 834 — #2640/#2641
+
+- [x] `6a801665` — Birim haritası T-2026-591: Reporter tüm birimlerin atanmış taleplerini görür (#2640).
+- [x] `6a801771` — Üst Düzey Yönetici Birim Talep Haritası’nda tüm birimler (#2641).
+
 ## Round 833 — #2610/#2611
 
 - [x] `6a7f53d5` — Birim Talep Haritası sayfası, menü, sayfa yetkisi, kurum içi lisans (#2610).

@@ -1563,6 +1563,7 @@
       "doorNoLabel": "No",
       "doorNoPlaceholder": "Kapı no seçiniz",
       "doorNoDisabledHint": "Önce cadde / sokak seçin",
+      "dataCheckHint": "Veri Kontrolü",
       "catalogLoadFailed": "İzmir CBS adres listesi yüklenemedi.",
       "saveSuccess": "Konum ayarı kaydedildi."
     }

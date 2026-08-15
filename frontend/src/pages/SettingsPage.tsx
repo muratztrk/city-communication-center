@@ -1895,7 +1895,10 @@ export function SettingsPage() {
                 />
               </label>
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('settings.municipalityLocation.neighborhoodLabel', 'Mahalle')}</span>
+                <span>
+                  {t('settings.municipalityLocation.neighborhoodLabel', 'Mahalle')}
+                  <span className="ml-1.5 font-medium text-slate-400">{t('settings.municipalityLocation.dataCheckHint', 'Veri Kontrolü')}</span>
+                </span>
                 <SingleSelectDropdown
                   options={cbsNeighborhoodOptions}
                   value={selectedNeighborhoodId}
@@ -1912,7 +1915,10 @@ export function SettingsPage() {
                 />
               </label>
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('settings.municipalityLocation.streetLabel', 'Cadde / Sokak')}</span>
+                <span>
+                  {t('settings.municipalityLocation.streetLabel', 'Cadde / Sokak')}
+                  <span className="ml-1.5 font-medium text-slate-400">{t('settings.municipalityLocation.dataCheckHint', 'Veri Kontrolü')}</span>
+                </span>
                 <SingleSelectDropdown
                   options={cbsStreetOptions}
                   value={selectedStreetId}
@@ -1932,7 +1938,10 @@ export function SettingsPage() {
                 />
               </label>
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
-                <span>{t('settings.municipalityLocation.doorNoLabel', 'No')}</span>
+                <span>
+                  {t('settings.municipalityLocation.doorNoLabel', 'No')}
+                  <span className="ml-1.5 font-medium text-slate-400">{t('settings.municipalityLocation.dataCheckHint', 'Veri Kontrolü')}</span>
+                </span>
                 <SingleSelectDropdown
                   options={cbsDoorNoOptions}
                   value={selectedDoorNoId}

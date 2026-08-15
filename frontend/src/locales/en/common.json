@@ -1529,6 +1529,7 @@
       "doorNoLabel": "No",
       "doorNoPlaceholder": "Select door number",
       "doorNoDisabledHint": "Select a street first",
+      "dataCheckHint": "Data check",
       "catalogLoadFailed": "Could not load the İzmir CBS address list.",
       "saveSuccess": "Location setting saved."
     }

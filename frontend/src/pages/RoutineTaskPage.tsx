@@ -323,7 +323,7 @@ export function RoutineTaskPage() {
           <div className="job-field border-t border-slate-100 pt-4">
             <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
             <div className="grid gap-2">
-              <div className="grid max-w-[34.5rem] gap-2 md:grid-cols-[minmax(0,12.75rem)_minmax(0,19.5rem)]">
+              <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
                 <div className="grid gap-1">
                   <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
                   <SingleSelectDropdown

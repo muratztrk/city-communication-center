@@ -1186,8 +1186,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   cadde, cadde seçilmeden kapı no enable olmaz. Ayarlar’da 2×2: İlçe|Mahalle / Cadde|No
   (#2654 geri al + alt satır). Seçimler `ccc_municipality_cbs_address` localStorage’da kalır.
   Talep oluştur (iç/dış/vatandaş), vatandaş modal, rutin ve WA taslak adresinde Cadde/No
-  textbox yok; CBS dropdown (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle sütunu
-  `12.75rem`; No sütunu seçili değerde de `4.75rem` sabit (#2659). Mahalle kataloğu hâlâ
+  textbox yok; CBS dropdown (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle satırı
+  Öncelik/Son Tarih satırı kadar genişler; No sütunu `4.75rem` sabit (cadde seçilince
+  değişmez, #2659). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `Veri Kontrolü`
+  (#2654). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).
 - **Tek seferlik adres doldurma (#2662/#2663):** API açılışında (migration sonrası) CBS Tire

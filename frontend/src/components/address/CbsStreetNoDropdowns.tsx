@@ -64,7 +64,7 @@ export function CbsStreetNoDropdowns({
           clearable
         />
       </div>
-      <div className="grid min-w-0 gap-1">
+      <div className="grid w-[4.75rem] min-w-[4.75rem] max-w-[4.75rem] shrink-0 gap-1 overflow-hidden">
         <span className={labelClassName}>
           {t('address.streetNoLabel', 'No')}
           {required && hasNeighborhood ? <span className="text-red-500"> *</span> : null}
@@ -83,6 +83,7 @@ export function CbsStreetNoDropdowns({
           searchPlaceholder={t('common.search', 'Ara...')}
           disabled={!hasStreet || doorsLoading}
           clearable
+          className="min-w-0 overflow-hidden"
         />
       </div>
     </div>

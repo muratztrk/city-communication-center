@@ -1,3 +1,8 @@
+## Round 854 — #2654/#2659
+
+- [x] `6a803a0c` — Kurum Konumu Mahalle/Cadde/No yanında Veri Kontrolü (#2654).
+- [x] `6a803f27` — Talep oluştur Mahalle Son Tarih hizasına kadar geniş; No sabit (#2659).
+
 ## Round 853 — #2664/#2665
 
 - [x] `6a8048e0` — Vatandaş harita: Talepleri Listele (#2664).

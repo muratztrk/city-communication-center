@@ -339,7 +339,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   const [gestureHandling, setGestureHandling] = useState<'none' | 'greedy'>('none')
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
   const [streetViewPicker, setStreetViewPicker] = useState(false)
-  const [listOpen, setListOpen] = useState(false)
+  const [listMode, setListMode] = useState<'located' | 'unlocated' | null>(null)
   const streetViewPickerRef = useRef(false)
   const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
@@ -404,6 +404,11 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     return () => { cancelled = true }
   }, [pins, mapView.districtName, geocodeReady, variant])
 
+  const unlocated = useMemo(() => {
+    const locatedIds = new Set(resolved.map(pin => pin.jobId))
+    return pins.filter(pin => !locatedIds.has(pin.jobId))
+  }, [pins, resolved])
+
   useEffect(() => {
     if (!mapInstance || !isLoaded) return
     mapInstance.setCenter({ lat: mapView.center.lat, lng: mapView.center.lng })
@@ -455,7 +460,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   openPinGroupRef.current = openPinGroup
 
   const focusPinOnMap = useCallback((jobId: string) => {
-    setListOpen(false)
+    setListMode(null)
     const index = resolvedRef.current.findIndex(pin => pin.jobId === jobId)
     const pin = index >= 0 ? resolvedRef.current[index] : null
     if (!pin || !mapInstance) return
@@ -632,10 +637,18 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
           <button
             type="button"
             disabled={loading || resolving || resolved.length === 0}
-            onClick={() => setListOpen(true)}
+            onClick={() => setListMode('located')}
             className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t('citizenRequestMap.listRequests', 'Talepleri Listele')}
+          </button>
+          <button
+            type="button"
+            disabled={loading || resolving || unlocated.length === 0}
+            onClick={() => setListMode('unlocated')}
+            className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {t('citizenRequestMap.listUnlocated', 'Haritada Olmayanları Listele')}
           </button>
           </div>
         </div>
@@ -765,11 +778,12 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
         />
       ) : null}
 
-      {listOpen ? (
+      {listMode ? (
         <MapPinnedRequestsModal
-          pins={resolved}
+          pins={listMode === 'located' ? resolved : unlocated}
           variant={variant}
-          onClose={() => setListOpen(false)}
+          located={listMode === 'located'}
+          onClose={() => setListMode(null)}
           onOpenJob={(jobId, socialMessageId) => void openJobDetail(jobId, socialMessageId)}
           onShowOnMap={focusPinOnMap}
         />

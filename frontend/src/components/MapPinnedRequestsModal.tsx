@@ -23,6 +23,7 @@ import { formatOverdueInProgressStatus, getLocale, getPriorityColorClass, getPri
 interface MapPinnedRequestsModalProps {
   pins: CitizenDashboardMapPin[]
   variant: 'citizen' | 'department'
+  located?: boolean
   onClose: () => void
   onOpenJob: (jobId: string, socialMessageId?: string) => void
   onShowOnMap: (jobId: string) => void
@@ -83,7 +84,7 @@ function formatMapDate(value: string | undefined, locale: string): string {
   })
 }
 
-export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onShowOnMap }: MapPinnedRequestsModalProps) {
+export function MapPinnedRequestsModal({ pins, variant, located = true, onClose, onOpenJob, onShowOnMap }: MapPinnedRequestsModalProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const [page, setPage] = useState(1)
@@ -147,8 +148,12 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onSh
               <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <span className="block truncate">
                 {isCitizen
-                  ? t('nav.social', 'Vatandaş Talepleri')
-                  : t('departmentRequestMap.ticketsTitle', 'Birim Talep Bilgi Listesi')}
+                  ? (located
+                    ? t('nav.social', 'Vatandaş Talepleri')
+                    : t('citizenRequestMap.unlocatedListTitle', 'Konumlanamayan talepler'))
+                  : (located
+                    ? t('departmentRequestMap.ticketsTitle', 'Birim Talep Bilgi Listesi')
+                    : t('citizenRequestMap.unlocatedListTitle', 'Konumlanamayan talepler'))}
               </span>
             </h2>
           </div>
@@ -351,6 +356,7 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onSh
                           </td>
                           <td className="actions-cell">
                             <div className="request-actions map-list-request-actions justify-center">
+                              {located ? (
                               <button
                                 type="button"
                                 className="map-list-location-btn inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-emerald-300 bg-emerald-50 text-emerald-700 shadow-sm transition-colors hover:border-emerald-500 hover:bg-emerald-100"
@@ -360,6 +366,7 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onSh
                               >
                                 <MapPin className="size-4" strokeWidth={2.25} />
                               </button>
+                              ) : null}
                               <Button
                                 type="button"
                                 size="sm"

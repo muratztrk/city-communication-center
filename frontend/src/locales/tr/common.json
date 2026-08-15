@@ -77,6 +77,7 @@
     "live": "Canlı harita",
     "pinCount": "{{count}} konum",
     "listRequests": "Talepleri Listele",
+    "listUnlocated": "Haritada Olmayanları Listele",
     "geocodeEmpty": "Adresler haritada konumlanamadı.",
     "geocodePartial": "{{count}} talep adresinden konumlanamadı.",
     "unlocatedListTitle": "Konumlanamayan talepler",

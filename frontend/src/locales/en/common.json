@@ -77,6 +77,7 @@
     "live": "Live map",
     "pinCount": "{{count}} locations",
     "listRequests": "List Requests",
+    "listUnlocated": "List Unlocated",
     "geocodeEmpty": "Addresses could not be placed on the map.",
     "geocodePartial": "{{count}} requests could not be geocoded.",
     "unlocatedListTitle": "Unlocated requests",

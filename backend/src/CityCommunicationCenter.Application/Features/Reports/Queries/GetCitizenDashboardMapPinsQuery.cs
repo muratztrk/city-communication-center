@@ -40,14 +40,7 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
             .Where(job => job.TenantId == tenantId
                 && job.SourceType != JobSourceType.Routine
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)
-                && (
-                    (job.Street != null && job.Street != "")
-                    || _dbContext.SocialMessages.Any(message =>
-                        message.JobId == job.JobId
-                        && message.CitizenConversation != null
-                        && message.CitizenConversation.Street != null
-                        && message.CitizenConversation.Street != "")))
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
             .WhereHasCitizenRequestNumber(_dbContext)
             .Select(job => new
             {

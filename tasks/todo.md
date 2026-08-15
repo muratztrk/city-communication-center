@@ -1,3 +1,7 @@
+## Round 880 — #2693
+
+- [x] `6a80818e` — Her iki haritada Haritada Olmayanları Listele (Talepleri Listele klonu).
+
 ## Round 879 — #2692
 
 - [x] `6a807f6b` — Vatandaş haritası: konuşma caddesi yedek + VT numaralı sosyal mesaj; geocode APPROXIMATE/kısa cadde (cache v12).

@@ -66,11 +66,6 @@ public sealed class GetDepartmentDashboardMapPinsQueryHandler
                 && job.SourceType != JobSourceType.EDevlet
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)
-                && (
-                    (job.Neighborhood != null && job.Neighborhood != "")
-                    || (job.Street != null && job.Street != "")
-                    || (job.OpenAddress != null && job.OpenAddress != "")
-                    || (job.Latitude != null && job.Longitude != null))
                 && (seeAllDepartments
                     ? _dbContext.Tasks.Any(task =>
                         task.JobId == job.JobId

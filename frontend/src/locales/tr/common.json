@@ -1973,11 +1973,11 @@
     "streetLabel": "Cadde / Sokak",
     "streetShortLabel": "Cadde / Sokak",
     "streetPlaceholder": "ör. Atatürk Caddesi",
-    "streetSelectPlaceholder": "Cadde / sokak seçin",
+    "streetSelectPlaceholder": "Cadde / sokak seçiniz",
     "streetDisabledHint": "Önce mahalle seçin",
     "streetNoLabel": "No",
     "streetNoPlaceholder": "ör. 12",
-    "streetNoSelectPlaceholder": "No seçin",
+    "streetNoSelectPlaceholder": "No seçiniz",
     "streetNoDisabledHint": "Önce cadde / sokak seçin",
     "streetRequired": "Mahalle seçildiğinde Cadde / Sokak zorunludur.",
     "streetNoRequired": "Mahalle seçildiğinde No zorunludur.",
@@ -1985,7 +1985,7 @@
     "openAddressLabel": "Adres Tarifi",
     "directionsLabel": "Adres Tarifi",
     "openAddressMaxHint": "(max 100 karakter)",
-    "openAddressPlaceholder": "Mevki, daire, kat bilgisi giriniz."
+    "openAddressPlaceholder": "Mevki, daire, kat bilgisi giriniz..."
   },
   "routineTask": {
     "submit": "Görev Oluştur"

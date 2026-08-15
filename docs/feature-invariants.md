@@ -291,7 +291,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   backend komut validasyonları da aynı sınırı korur (#2567/#2578).
   WhatsApp Vatandaş Bilgileri ve yazdırma çıktısında etiket `Adres Tarifi`; yazdırmada Cadde/Sokak
   altında ayrı `No` satırı vardır (#2586/#2588). Adres Tarifi placeholder:
-  `Mevki, daire, kat bilgisi giriniz.` (#2660).
+  `Mevki, daire, kat bilgisi giriniz...` (#2660/#2669). Cadde placeholder `Cadde / sokak seçiniz`,
+  No `No seçiniz` (#2669).
 - **Adres metni yazımı:** Cadde / Sokak ve Açık Adres değerleri Türkçe locale kurallarıyla
   her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilir
   (`normalizeTitleCaseField` — onBlur + kayıt). Rutin görev detay Düzenle dahil tüm adres

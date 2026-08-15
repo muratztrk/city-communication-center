@@ -1931,7 +1931,7 @@
     "streetLabel": "Street / Avenue",
     "streetShortLabel": "Street / Avenue",
     "streetPlaceholder": "e.g. Atatürk Avenue",
-    "streetSelectPlaceholder": "Select street",
+    "streetSelectPlaceholder": "Select street / avenue",
     "streetDisabledHint": "Select a neighborhood first",
     "streetNoLabel": "No",
     "streetNoPlaceholder": "e.g. 12",
@@ -1943,7 +1943,7 @@
     "openAddressLabel": "Address Directions",
     "directionsLabel": "Address Directions",
     "openAddressMaxHint": "(max 100 characters)",
-    "openAddressPlaceholder": "Location, apartment, floor details."
+    "openAddressPlaceholder": "Location, apartment, floor details..."
   },
   "routineTask": {
     "submit": "Create Task"

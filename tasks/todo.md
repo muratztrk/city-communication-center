@@ -1,3 +1,7 @@
+## Round 858 — #2669
+
+- [x] `6a804e8b` — Talep oluştur placeholder: No seçiniz / Cadde seçiniz / Adres Tarifi … (#2669).
+
 ## Round 857 — #2665
 
 - [x] `6a804921` — Birim harita lejant: Onay Bekleyen yok; Yapılmakta mavi; Geciken turuncu (#2665).

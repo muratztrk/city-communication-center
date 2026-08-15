@@ -56,7 +56,7 @@ export function CbsStreetNoDropdowns({
           }}
           placeholder={
             hasNeighborhood
-              ? t('address.streetSelectPlaceholder', 'Cadde / sokak seçin')
+              ? t('address.streetSelectPlaceholder', 'Cadde / sokak seçiniz')
               : t('address.streetDisabledHint', 'Önce mahalle seçin')
           }
           searchPlaceholder={t('common.search', 'Ara...')}
@@ -77,7 +77,7 @@ export function CbsStreetNoDropdowns({
           onChange={onStreetNoChange}
           placeholder={
             hasStreet
-              ? t('address.streetNoSelectPlaceholder', 'No seçin')
+              ? t('address.streetNoSelectPlaceholder', 'No seçiniz')
               : t('address.streetNoDisabledHint', 'Önce cadde / sokak seçin')
           }
           searchPlaceholder={t('common.search', 'Ara...')}

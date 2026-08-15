@@ -1,3 +1,7 @@
+## Round 892 — #2707
+
+- [x] `6a80cecf` — WA Vatandaş Talebi Oluştur konuşma penceresi gelen mesajı anlık gösterir.
+
 ## Round 891 — #2706
 
 - [x] `6a80c6bd` — Hafta sonu SLA durduruluyken Cmt/Paz Son Tarih min = Pazartesi mesai.

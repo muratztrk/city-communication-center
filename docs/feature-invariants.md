@@ -1330,6 +1330,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).
   Başlık `WhatsApp Konuşması - Vatandaş Talebi Oluştur` `font-medium` (#2634);
   compact konuşma mesaj metni 11px, gönderen satırı 12px (#2634).
+  Modal açıkken gelen WA mesajı aynı konuşma penceresinde anlık görünür (`ccc:whatsapp-message` + 3sn poll, #2707).
 - **Yazışmaya Git popup (#2080):** `WhatsAppConversationModal` → `compactBubbles` + `compactActions`
   (metin `text-xs`, balon padding küçültülür).
 - **Mesaj Onayı Detaylar → Talep Durumunu Değiştir (#2083):** buton rengi `Görevi Yönlendir` ile aynı

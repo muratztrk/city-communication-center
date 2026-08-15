@@ -21,7 +21,7 @@ import {
   isAllowedAttachmentFileName,
 } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
-import { formatDisplayPhone } from '../utils/phoneNormalization'
+import { formatDisplayPhone, matchesPhone } from '../utils/phoneNormalization'
 import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
@@ -29,6 +29,7 @@ import { ConversationSenderHeader } from './ConversationSenderHeader'
 import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
 import { useAuth } from '../context/AuthContext'
 import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
+import type { WhatsAppMessagePayload } from '../hooks/useSignalR'
 
 interface ConversationPanelProps {
   socialMessageId: string
@@ -104,7 +105,21 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const conversationQuery = useQuery({
     queryKey: queryKeys.socialMessages.conversation(socialMessageId),
     queryFn: () => api.getSocialConversation(socialMessageId),
+    refetchInterval: () => (document.visibilityState === 'visible' ? 3000 : false),
   })
+
+  useEffect(() => {
+    const onIncoming = (event: Event) => {
+      const payload = (event as CustomEvent<WhatsAppMessagePayload>).detail
+      if (!payload) return
+      const phone = citizenPhone?.trim()
+      if (phone && !matchesPhone(payload.citizenPhone, phone)) return
+      void queryClient.invalidateQueries({ queryKey: queryKeys.socialMessages.conversation(socialMessageId) })
+    }
+    window.addEventListener('ccc:whatsapp-message', onIncoming)
+    return () => window.removeEventListener('ccc:whatsapp-message', onIncoming)
+  }, [citizenPhone, queryClient, socialMessageId])
+
   const userQuickRepliesQuery = useQuery({
     queryKey: queryKeys.userQuickReplies.list(),
     queryFn: () => api.getUserQuickReplies(),

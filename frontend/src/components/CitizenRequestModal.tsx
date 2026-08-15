@@ -598,6 +598,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               sendingInternal={sendingInternal}
               compactActions
               compactBubbles
+              tighterBubbles
             />
           </div>
 
@@ -689,6 +690,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     value={priority}
                     onChange={setPriority}
                     placeholder={t('jobs.form.priority', 'Öncelik')}
+                    triggerClassName="text-[13px]"
+                    menuScrollClassName="citizen-request-priority-menu"
                   />
                 </div>
               </div>

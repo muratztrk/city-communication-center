@@ -183,7 +183,7 @@ export function RequestTagAddButton({ onChanged, largeText = false }: RequestTag
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${largeText ? 'h-9 gap-1.5 px-3 text-sm' : 'h-8 px-2.5 text-xs'}`}
+                    className={`inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${largeText ? 'h-9 gap-1.5 px-3 text-sm' : 'h-8 px-2.5 text-[11px]'}`}
       >
         <Plus className="size-3.5 text-emerald-600" aria-hidden="true" />
         {t('whatsapp.addRequestTagButton', 'Etiket ekle')}
@@ -351,7 +351,7 @@ export function RequestTagPicker({
         onClick={toggleOpen}
         disabled={isEmpty}
         title={trimmedSelected || buttonLabel}
-        className={`w-full justify-between gap-1 disabled:opacity-50 ${largeText ? (smallButtonText ? 'h-9 text-xs' : compactMenuText ? 'h-9 text-[13px]' : 'h-9 text-sm') : 'h-8 px-2.5 text-xs'}`}
+        className={`w-full justify-between gap-1 disabled:opacity-50 ${largeText ? (smallButtonText ? 'h-9 text-xs' : compactMenuText ? 'h-9 text-[13px]' : 'h-9 text-sm') : 'h-8 px-2.5 text-[11px]'}`}
       >
         <span className="flex min-w-0 items-center gap-1.5">
           <Tag className="size-3.5 shrink-0 text-emerald-600" />

@@ -1,3 +1,8 @@
+## Round 888 — #2702/#2703
+
+- [x] `6a80bbad` — WA Vatandaş Talebi Oluştur konuşma mesajı 10px.
+- [x] `6a80bbd4` — Etiket seçiniz / Etiket ekle 11px; Öncelik menü 13px.
+
 ## Round 887 — #2700/#2701
 
 - [x] `6a80b79c` — Harita liste Konum damla pin (uzun/ince).

@@ -2262,6 +2262,10 @@
     font-size: 0.75rem;
   }
 
+  .citizen-request-priority-menu .dropdown-menu-item {
+    font-size: 0.8125rem;
+  }
+
   .whatsapp-neighborhood-menu-scroll .dropdown-menu-item {
     min-height: 1.85rem;
     padding: 0.35rem 0.65rem;

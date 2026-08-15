@@ -724,8 +724,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   salt-okunur değer + Etiketler + Etiket Ekle bloğu bulunur (#1561 reopen);
   kaynak mesaj bir konuşmaya bağlıysa seçim conversation profile'a kaydedilir.
   Kayıtlı etiket sayısı 7 veya daha fazlaysa Etiketler menüsünün ilk satırında küçük puntolu arama gösterilir.
-  `CitizenRequestModal` Etiketler/Etiket ekle kompakt (`h-7`, ~11px); menü her zaman
+  `CitizenRequestModal` Etiketler/Etiket ekle kompakt (`h-7`/`h-8`, ~11px, #2703); menü her zaman
   aşağı açılır, genişlik ~220–280px, satır `text-xs` + belirgin hover (`emerald-50`) (#1865).
+  Öncelik dropdown tetikleyici/liste `13px` (#2703). Konuşma balonu `10px` (#2702; #1711 11px’den).
   CreateRequestPage Vatandaş Çağrı Talebi bloğunda Etiketler/Etiket ekle bir kademe büyük
   (`largeText` → `text-sm`) kalır.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →

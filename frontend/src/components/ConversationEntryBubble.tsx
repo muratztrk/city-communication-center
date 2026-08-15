@@ -61,6 +61,8 @@ interface ConversationEntryBubbleProps {
   inboundSenderLabel?: string | null
   /** Vatandaş Talebi Oluştur modalında balonları biraz küçült (card #1711). */
   compact?: boolean
+  /** Aynı popup'ta mesaj yazısını bir kademe daha küçült (#2702). */
+  tighter?: boolean
 }
 
 /** Hover 250ms sonra yönetici adını gösterir (card #2092). */
@@ -125,6 +127,7 @@ export function ConversationEntryBubble({
   onShowTerminalNote: _onShowTerminalNote,
   inboundSenderLabel,
   compact = false,
+  tighter = false,
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
   const { t, i18n } = useTranslation()
@@ -224,7 +227,7 @@ export function ConversationEntryBubble({
       <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
         <div
           ref={bubbleRef}
-          className={`${compact ? 'max-w-[min(68%,22rem)] rounded-xl px-3 py-1.5 text-[11px]' : 'max-w-[min(70%,26rem)] rounded-xl px-3 py-2 text-[13px]'} leading-relaxed shadow-md ${
+          className={`${compact ? `max-w-[min(68%,22rem)] rounded-xl px-3 ${tighter ? 'py-1 text-[10px]' : 'py-1.5 text-[11px]'}` : 'max-w-[min(70%,26rem)] rounded-xl px-3 py-2 text-[13px]'} leading-relaxed shadow-md ${
             isInbound
               ? 'bg-white text-slate-800 rounded-tl-sm ring-1 ring-black/[0.04]'
               : 'rounded-tr-sm text-white ring-1 ring-white/10'

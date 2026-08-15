@@ -52,11 +52,11 @@ function pinStatusTone(displayStatus: string): GridStatusTone {
   return 'pendingApproval'
 }
 
-/** Vatandaş harita listesi: İşleme Alındı teal, Yapılmakta mavi, Geciken turuncu (#2671). */
+/** Harita listesi Durum: Yapılmakta Görevlerim ile aynı açık mavi (#2699). */
 function mapListStatusPillClass(displayStatus: string, variant: 'citizen' | 'department'): string {
+  if (displayStatus === 'inProgress') return getStatusPillClass('inProgress')
   if (variant === 'citizen') {
     if (displayStatus === 'processingReceived') return 'bg-teal-600 text-white ring-teal-700'
-    if (displayStatus === 'inProgress') return 'bg-sky-500 text-white ring-sky-600'
     if (displayStatus === 'overdue') return 'bg-orange-500 text-white ring-orange-600'
   }
   return getStatusPillClass(pinStatusTone(displayStatus))

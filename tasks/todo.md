@@ -1,3 +1,8 @@
+## Round 886 — #2692/#2699
+
+- [x] `6a807f6b` — Harita Detaylar Yazdır: standart printJobDetail (modal sayfa yazdırma değil).
+- [x] `6a80b3d2` — Harita listesi Yapılmakta pill Görevlerim açık mavi.
+
 ## Round 885 — #2692/#2698
 
 - [x] `6a807f6b` — Harita liste Detaylar Yazdır standart `printJobDetail`.

@@ -1702,13 +1702,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
   (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
   (#2668, Onay Bekleyen değil). Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
-  (`bg-teal-600`), Yapılmakta mavi (`bg-sky-500`), Geciken turuncu (`bg-orange-500`) (#2671).
+  (`bg-teal-600`), Yapılmakta Görevlerim ile aynı açık mavi (`bg-sky-100` / `getStatusPillClass`,
+  #2699), Geciken turuncu (`bg-orange-500`). Pin rengi Yapılmakta `#0ea5e9` kalır (#2671).
   yeşil Konum ikonu (varsayılan yuvarlak çerçeve + hover, #2673/#2674); Konum ile Detaylar
   arası boşluk artırılır (#2677). Liste grid’leri FilterableTh sıralama/filtre kullanır
   (Sıra/İşlemler hariç, #2678).   Konum tıklanınca
   marker bounce harita/marker tıklanıncaya kadar sürer (#2676). Liste Detaylar Yazdır
-  `printJobDetail` (Talep Detayları / Açıklama / Adres / Yönetici Notu / Ekler / Görev)
-  — `window.print` değil (#2692). Birim listesinde Durum
+  `printJobDetail` / `printHtmlDocument` popup (Talep Detayları tablosu, Açıklama, Adres,
+  Yönetici Notu, Ekler, Görev) — mevcut sayfanın Chrome yazdır önizlemesi değil (#2692).
   pill Taleplerim ile aynı (`getStatusPillClass`, geciken turuncu+beyaz #2665). Birim kolonları
   #2665). Birim kolonları Birim Talep Bilgi Listesi.
 - **Birim Talep Haritası (#2610/#2611/#2667):** `/department-request-map`;

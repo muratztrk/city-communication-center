@@ -1,3 +1,8 @@
+## Round 850 — #2654/#2659
+
+- [x] `6a803a0c` — Kurum Konumu Mahalle/Cadde/No biraz dar; seçenek+placeholder metin (#2654 reopen).
+- [x] `6a803f27` — Talep oluştur Cadde daha dar, Mahalle/No daha az dar (#2659).
+
 ## Round 849 — #2656/#2657/#2658
 
 - [x] `6a803c15` — Vatandaş harita banner cadde/sokak, no (#2656).

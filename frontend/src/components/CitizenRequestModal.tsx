@@ -724,7 +724,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
 
               <div className="job-field">
-                <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] md:items-stretch">
+                <div className="grid max-w-[32rem] gap-2 md:grid-cols-[minmax(0,10.75rem)_minmax(0,19.5rem)] md:items-stretch">
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
                     <SingleSelectDropdown
@@ -748,7 +748,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     streetNo={streetNo}
                     required={Boolean(neighborhood)}
                     labelClassName="job-field-label"
-                    className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2"
+                    className="address-street-no-row grid grid-cols-[minmax(0,1fr)_4.25rem] gap-2"
                     onStreetChange={setStreet}
                     onStreetNoChange={setStreetNo}
                   />

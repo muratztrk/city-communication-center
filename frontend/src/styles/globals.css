@@ -2302,6 +2302,20 @@
     transition: background-color 160ms ease;
   }
 
+  .municipality-cbs-menu-scroll .dropdown-menu-item {
+    min-height: 2rem;
+    padding: 0.375rem 0.625rem;
+    font-size: 0.8125rem;
+  }
+
+  .municipality-location-fields .cbs-compact-field .field-select {
+    font-size: 0.8125rem;
+  }
+
+  .municipality-location-fields .cbs-compact-placeholder .field-select span.text-slate-400 {
+    font-size: 0.72rem;
+  }
+
   .dropdown-menu-item:hover {
     background: rgb(248 250 252);
   }
@@ -3676,9 +3690,9 @@
     max-height: 4.5rem;
   }
 
-  /* Çağrı formu: Cadde biraz dar, No biraz geniş (#2584 reopen). */
+  /* Çağrı formu: Cadde daha dar, Mahalle/No daha az dar (#2659). */
   #citizen-request-form .address-street-no-row {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 6.75rem) !important;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 4.75rem) !important;
   }
 
   .table-number-cell__value {

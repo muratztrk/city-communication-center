@@ -83,17 +83,28 @@ function printCitizenTickets(
     const contact = [ticketCitizenName(ticket, citizen), formatCitizenPhoneDisplay(ticketCitizenPhone(ticket, citizen))]
       .filter(Boolean)
       .join(' · ') || '—'
-    return `<tr>
+    return replaceUnitWithCitizenContact
+      ? `<tr>
+      <td>${index + 1}</td>
+      <td class="col-no">${escape(formatVt(ticket))}</td>
+      <td class="col-dept">${escape(contact)}</td>
+      <td class="col-date">${escape(date)}</td>
+      <td class="col-title">${escape(ticket.title?.trim() || '—')}</td>
+      <td class="col-status">${escape(status)}</td>
+    </tr>`
+      : `<tr>
       <td>${index + 1}</td>
       <td class="col-no">${escape(formatVt(ticket))}</td>
       <td class="col-title">${escape(ticket.title?.trim() || '—')}</td>
       <td class="col-date">${escape(date)}</td>
-      <td class="col-dept">${escape(replaceUnitWithCitizenContact ? contact : (ticket.departmentName ?? '—'))}</td>
+      <td class="col-dept">${escape(ticket.departmentName ?? '—')}</td>
       <td class="col-status">${escape(status)}</td>
     </tr>`
   }).join('')
 
-  const listTitle = t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')
+  const listTitle = replaceUnitWithCitizenContact
+    ? t('social.citizenRequestNo', 'Vatandaş Talep No')
+    : t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(listTitle)}</title>
     <style>
       @page{margin:12mm}
@@ -119,11 +130,13 @@ function printCitizenTickets(
     <table><thead><tr>
       <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
       <th class="col-no">${escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
-      <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>
+      ${replaceUnitWithCitizenContact
+        ? `<th class="col-dept">${escape(`${t('social.citizenName', 'Vatandaş Adı')} / ${t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}`)}</th>
       <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
-      <th class="col-dept">${escape(replaceUnitWithCitizenContact
-        ? `${t('social.citizenName', 'Vatandaş Adı')} / ${t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}`
-        : t('users.department', 'Birim'))}</th>
+      <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>`
+        : `<th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>
+      <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
+      <th class="col-dept">${escape(t('users.department', 'Birim'))}</th>`}
       <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
     <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
@@ -249,9 +262,6 @@ export function CitizenDirectoryTicketsModal({
                       <tr>
                         <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>
                         <th>{t('social.citizenRequestNo', 'Vatandaş Talep No')}</th>
-                        <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
-                        <th>{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
-                        <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
                         {replaceUnitWithCitizenContact ? (
                           <th className="dashboard-drilldown-citizen-th text-center">
                             <span className="inline-flex flex-col items-center justify-center leading-tight text-center">
@@ -261,7 +271,13 @@ export function CitizenDirectoryTicketsModal({
                               </span>
                             </span>
                           </th>
-                        ) : (
+                        ) : null}
+                        <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
+                        {replaceUnitWithCitizenContact ? null : (
+                          <th>{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
+                        )}
+                        <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
+                        {replaceUnitWithCitizenContact ? null : (
                           <th>{t('users.department', 'Birim')}</th>
                         )}
                         <th>{t('jobs.columns.status', 'Durum')}</th>
@@ -283,7 +299,10 @@ export function CitizenDirectoryTicketsModal({
                             {(ticketSafePage - 1) * ticketPageSize + index + 1}
                           </td>
                           <td className="table-number-cell font-mono text-xs text-slate-500">
-                            <div className="table-number-cell__value">
+                            <div className="table-number-cell__value inline-flex items-center justify-center gap-1">
+                              {replaceUnitWithCitizenContact && ticket.channel ? (
+                                <ChannelIcon channel={ticket.channel} className="size-3 shrink-0" />
+                              ) : null}
                               <span>{formatVt(ticket)}</span>
                             </div>
                             {shouldShowGridPrioritySubline(ticket.priority) ? (
@@ -292,32 +311,39 @@ export function CitizenDirectoryTicketsModal({
                               </div>
                             ) : null}
                           </td>
-                          <td>
-                            <DateCell value={ticket.receivedAtUtc} locale={locale} />
-                          </td>
-                          <td className="text-center">
-                            {ticket.channel ? (
-                              <span className="inline-flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap">
-                                <ChannelIcon channel={ticket.channel} className="size-3.5 shrink-0" />
-                                <span className="text-sm font-semibold text-slate-800">{getSocialChannelLabel(t, ticket.channel)}</span>
-                              </span>
-                            ) : <EmptyCell />}
-                          </td>
-                          <td className="font-semibold text-slate-800"><EmptyCell value={ticket.title} /></td>
-                          <td className={replaceUnitWithCitizenContact ? 'text-center' : 'max-w-[12rem]'}>
-                            {replaceUnitWithCitizenContact ? (
+                          {replaceUnitWithCitizenContact ? (
+                            <td className="text-center">
                               <div className="dashboard-drilldown-citizen-stack inline-flex flex-col items-center leading-tight text-center">
                                 <div className="font-semibold text-slate-800">{ticketCitizenName(ticket, citizen) || '—'}</div>
                                 <div className="dashboard-drilldown-citizen-stack__phone text-xs text-slate-400">
                                   {formatCitizenPhoneDisplay(ticketCitizenPhone(ticket, citizen)) || '—'}
                                 </div>
                               </div>
-                            ) : ticket.departmentName ? (
-                              <span className="block truncate">{ticket.departmentName}</span>
-                            ) : (
-                              <EmptyCell />
-                            )}
+                            </td>
+                          ) : null}
+                          <td>
+                            <DateCell value={ticket.receivedAtUtc} locale={locale} />
                           </td>
+                          {replaceUnitWithCitizenContact ? null : (
+                            <td className="text-center">
+                              {ticket.channel ? (
+                                <span className="inline-flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap">
+                                  <ChannelIcon channel={ticket.channel} className="size-3.5 shrink-0" />
+                                  <span className="text-sm font-semibold text-slate-800">{getSocialChannelLabel(t, ticket.channel)}</span>
+                                </span>
+                              ) : <EmptyCell />}
+                            </td>
+                          )}
+                          <td className="font-semibold text-slate-800"><EmptyCell value={ticket.title} /></td>
+                          {replaceUnitWithCitizenContact ? null : (
+                            <td className="max-w-[12rem]">
+                              {ticket.departmentName ? (
+                                <span className="block truncate">{ticket.departmentName}</span>
+                              ) : (
+                                <EmptyCell />
+                              )}
+                            </td>
+                          )}
                           <td>
                             {statusLabel && ticket.jobStatus ? (
                               <StatusPill className={getStatusPillClass(getCitizenRequestStatusTone({

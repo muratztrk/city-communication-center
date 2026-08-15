@@ -1,3 +1,8 @@
+## Round 828 — #2635/#2636
+
+- [x] `6a8000b5` — Harita popup kanal ikonu küçük; Yazdır başlığı Vatandaş Talep No (#2635).
+- [x] `6a8001ed` — Harita popup: kanal ikonu VT No yanında, Talep Kanalı sütunu yok, sonraki başlık Vatandaş Adı / Telefon No (#2636).
+
 ## Round 827 — #2634/#2622
 
 - [x] `6a7fffe5` — WA Talep Oluştur başlığı daha az kalın; konuşma gönderen satırı biraz küçük (#2634).

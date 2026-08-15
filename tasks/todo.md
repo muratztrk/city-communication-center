@@ -1,3 +1,7 @@
+## Round 864 — #2671
+
+- [x] `6a8055da` — VT harita listesi Durum: İşleme Alındı teal, Yapılmakta mavi, Geciken turuncu (#2671).
+
 ## Round 863 — #2673/#2674/#2669
 
 - [x] `6a805781` — Birim harita listesi: Detaylar solunda yeşil Konum (#2673).

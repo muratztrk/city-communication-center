@@ -1684,11 +1684,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; Gittiği Yer = hedef birim
   (Talebi Yönlendiren/owner değil, #2668). Durum `processingReceived` = İşleme Alındı
-  (#2668, Onay Bekleyen değil). Vatandaş listesinde İşleme Alındı pill lejant/pin ile aynı
-  sky (`bg-sky-500`, #2671); diğer VT grid’lerinde teal kalır. İşlemler’de Detaylar’ın solunda
-  yeşil Konum ikonu talebi haritada gösterir (#2673/#2674). Birim listesinde Durum pill
-  Taleplerim ile aynı (`getStatusPillClass`, geciken turuncu+beyaz #2665). Birim kolonları
-  Birim Talep Bilgi Listesi.
+  (#2668, Onay Bekleyen değil). Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
+  (`bg-teal-600`), Yapılmakta mavi (`bg-sky-500`), Geciken turuncu (`bg-orange-500`) (#2671).
+  İşlemler’de Detaylar’ın solunda yeşil Konum ikonu talebi haritada gösterir (#2673/#2674).
+  Birim listesinde Durum pill Taleplerim ile aynı (`getStatusPillClass`, geciken turuncu+beyaz
+  #2665). Birim kolonları Birim Talep Bilgi Listesi.
 - **Birim Talep Haritası (#2610/#2611/#2667):** `/department-request-map`;
   `GET /reports/dashboard-department-map-pins`. Yalnız `internal` lisans.
   Sol menü Anasayfa - Birimler’in altında; Sayfa Yetkileri’nde Vatandaş Talep Haritası’nın

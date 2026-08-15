@@ -48,10 +48,12 @@ function pinStatusTone(displayStatus: string): GridStatusTone {
   return 'pendingApproval'
 }
 
-/** Vatandaş harita listesi: İşleme Alındı pin/lejant sky (#0ea5e9), diğer grid’lerdeki teal değil (#2671). */
+/** Vatandaş harita listesi: İşleme Alındı teal, Yapılmakta mavi, Geciken turuncu (#2671). */
 function mapListStatusPillClass(displayStatus: string, variant: 'citizen' | 'department'): string {
-  if (variant === 'citizen' && displayStatus === 'processingReceived') {
-    return 'bg-sky-500 text-white ring-sky-600'
+  if (variant === 'citizen') {
+    if (displayStatus === 'processingReceived') return 'bg-teal-600 text-white ring-teal-700'
+    if (displayStatus === 'inProgress') return 'bg-sky-500 text-white ring-sky-600'
+    if (displayStatus === 'overdue') return 'bg-orange-500 text-white ring-orange-600'
   }
   return getStatusPillClass(pinStatusTone(displayStatus))
 }

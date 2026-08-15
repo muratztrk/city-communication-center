@@ -426,7 +426,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birim Dışı Talep Oluştur (#2617/#2672/#2675):** `Proje niteliğinde mi?` yok (Reporter’da
   hedef birimin sağında, Öncelik ile aynı `1fr` — hedef dropdown’un yarısı, #2675). Öncelik,
   `Talebin Gideceği Birim` ile aynı satırda sağda ve o dropdown’un yarısı genişlikte
-  (`2fr`/`1fr`). Birim İçi/Vatandaş formlarına dokunulmaz.
+  (`2fr`/`1fr`). Reporter’da proje etiketi `Proje Mi` ve Öncelik ile üst hizalı (#2675).
+  Birim İçi Manager’da da `Proje Mi` (#2670). Birim İçi/Vatandaş formlarına başka dokunulmaz.
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)
@@ -1677,8 +1678,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   doğrulanır; mahalle pinleri OSB bölgesine düşmez (`İbni Melek Mahallesi` sorgusu, OSB blob
   elenir, cache v11 — #2666 T-2026-593). Kayıtlı lat/lng
   (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
-  **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
-  Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
+  **İptal** talepler haritada gösterilmez (#2579). Pin/lejant: İşleme Alındı turkuaz `#0d9488`,
+  Yapılmakta mavi `#0ea5e9`, Geciken turuncu `#f97316` (#2671). Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada

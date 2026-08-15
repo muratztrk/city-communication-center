@@ -1346,7 +1346,7 @@ export function CreateRequestPage() {
               </div>
               {canSetInternalProject ? (
                 <div className="job-field">
-                  <span className="job-field-label">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</span>
+                  <span className="job-field-label">{t('jobs.form.isProjectShort', 'Proje Mi')}</span>
                   <SingleSelectDropdown
                     options={yesNoOptions}
                     value={internalForm.isProject ? 'yes' : 'no'}
@@ -1358,7 +1358,7 @@ export function CreateRequestPage() {
                         ...(isProject && user?.userId ? { ownerUserIds: [user.userId] } : {}),
                       }))
                     }}
-                    placeholder={t('jobs.form.isProject', 'Proje niteliğinde mi?')}
+                    placeholder={t('jobs.form.isProjectShort', 'Proje Mi')}
                   />
                 </div>
               ) : null}
@@ -1409,7 +1409,7 @@ export function CreateRequestPage() {
                 required
               />
             </div>
-            <div className={`grid gap-3 md:items-end ${isReporter ? 'md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]' : 'md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]'}`}>
+            <div className={`grid gap-3 ${isReporter ? 'md:items-start md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)]' : 'md:items-end md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]'}`}>
               <div className="job-field min-w-0">
                 <label className="job-field-label" htmlFor="request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
                 <SingleSelectDropdown
@@ -1430,12 +1430,12 @@ export function CreateRequestPage() {
               </div>
               {isReporter ? (
                 <div className="job-field min-w-0">
-                  <label className="job-field-label" htmlFor="request-is-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
+                  <label className="job-field-label" htmlFor="request-is-project">{t('jobs.form.isProjectShort', 'Proje Mi')}</label>
                   <SingleSelectDropdown
                     options={yesNoOptions}
                     value={externalForm.isProject ? 'yes' : 'no'}
                     onChange={value => setExternalForm(current => ({ ...current, isProject: value === 'yes' }))}
-                    placeholder={t('jobs.form.isProject', 'Proje niteliğinde mi?')}
+                    placeholder={t('jobs.form.isProjectShort', 'Proje Mi')}
                   />
                 </div>
               ) : null}

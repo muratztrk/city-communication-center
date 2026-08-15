@@ -1,3 +1,9 @@
+## Round 867 — #2671/#2670/#2675
+
+- [x] `6a8055da` — VT harita lejant/pin: İşleme Alındı teal, Yapılmakta mavi, Geciken turuncu (#2671).
+- [x] `6a8054df` — Birim İçi Manager: Proje Mi (#2670).
+- [x] `6a805b07` — Reporter Talep Oluştur: Proje Mi, Öncelik ile hiza (#2675).
+
 ## Round 866 — #2673/#2674
 
 - [x] `6a805781` / `6a8057e2` — Harita listesi Konum ikonu varsayılan yuvarlak çerçeve + hover (#2673/#2674).

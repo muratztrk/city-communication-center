@@ -1813,6 +1813,7 @@
       "dueDate": "Due Date (optional)",
       "destinationUnit": "Destination Unit",
       "isProject": "Project-level request?",
+      "isProjectShort": "Project?",
       "targetDepartments": "Which Department Does the Request Go To",
       "targetDepartmentsHelp": "Select the department(s) the request will be sent to.",
       "sectionMain": "Basics",

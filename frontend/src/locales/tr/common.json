@@ -1855,6 +1855,7 @@
       "destinationUnit": "Gideceği Birim",
       "priority": "Öncelik",
       "isProject": "Proje niteliğinde mi?",
+      "isProjectShort": "Proje Mi",
       "targetDepartments": "Talebin Hangi Birime Gideceği",
       "targetDepartmentsHelp": "Talebin gönderileceği birim(ler)i seçin.",
       "sectionMain": "Temel Bilgiler",

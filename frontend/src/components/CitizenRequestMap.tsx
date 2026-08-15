@@ -24,6 +24,7 @@ import { geocodeTireAddress, type LatLng } from '../utils/geocodeTireAddress'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { getGoogleMapsApiKey, isGoogleMapsConfigured } from '../utils/googleMaps'
+import { printJobDetail } from '../pages/JobsPage'
 
 type ResolvedPin = CitizenDashboardMapPin & { position: LatLng; approximate: boolean }
 
@@ -828,7 +829,11 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
               onDueDateChange={() => undefined}
               onDueDateSave={() => undefined}
               onClose={closeJobDetail}
-              onPrint={() => window.print()}
+              onPrint={() => printJobDetail(jobDetail, locale, t, {
+                myRequestView: true,
+                requestLabel: citizenSourceMessage?.category,
+                sourceChannel: citizenSourceMessage?.channel,
+              })}
               showManagerNoteColumn={false}
               canEditManagerNote={false}
               canManageCoordination={false}

@@ -1705,8 +1705,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`bg-teal-600`), Yapılmakta mavi (`bg-sky-500`), Geciken turuncu (`bg-orange-500`) (#2671).
   yeşil Konum ikonu (varsayılan yuvarlak çerçeve + hover, #2673/#2674); Konum ile Detaylar
   arası boşluk artırılır (#2677). Liste grid’leri FilterableTh sıralama/filtre kullanır
-  (Sıra/İşlemler hariç, #2678). Konum tıklanınca
-  marker bounce harita/marker tıklanıncaya kadar sürer (#2676). Birim listesinde Durum
+  (Sıra/İşlemler hariç, #2678).   Konum tıklanınca
+  marker bounce harita/marker tıklanıncaya kadar sürer (#2676). Liste Detaylar Yazdır
+  `printJobDetail` (Talep Detayları / Açıklama / Adres / Yönetici Notu / Ekler / Görev)
+  — `window.print` değil (#2692). Birim listesinde Durum
   pill Taleplerim ile aynı (`getStatusPillClass`, geciken turuncu+beyaz #2665). Birim kolonları
   #2665). Birim kolonları Birim Talep Bilgi Listesi.
 - **Birim Talep Haritası (#2610/#2611/#2667):** `/department-request-map`;
@@ -2093,8 +2095,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanıcının adı gösterilir.
 - **Vatandaş dizin talep popup (card #1889/#1895):** Durum StatusPill + öncelik Talep No altında;
   Birim↔Durum kolon sırası; yazdırmada Talep Detayları tablosu.
-- **Talep Etiketi detay (card #1896):** Operator / CitizenRequestManager için Talep Bilgileri
-  sonunda `citizenSourceMessage.category` (yoksa —).
+- **Talep Etiketi detay (card #1896/#2698):** Operator / CitizenRequestManager için Talep Bilgileri
+  sonunda `citizenSourceMessage.category`; boşsa satır yok (`—` yok). Düzenle’de picker durur.
 - **Grid kişi metni (card #1891):** birim altındaki kişi satırı `text-sm font-semibold`.
 - **Vatandaş dashboard pie'ları yalnız VT (Vatandaş Talebi) sayar (card #1845):** `citizenJobs`,
   `BuildRequestTagChartAsync` (Talep Etiketi) ve üç mahalle grafiği (`Tamamlanan`/`Yapılmakta`/

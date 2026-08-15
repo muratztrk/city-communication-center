@@ -281,7 +281,9 @@ export function MyRequestDetailMainCard({
   const { t } = useTranslation()
   const { user } = useAuth()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
-  const showCitizenRequestLabel = user?.role === 'Operator' || hasCitizenRequestManagerRole(user)
+  const canShowRequestLabel = user?.role === 'Operator' || hasCitizenRequestManagerRole(user)
+  const showCitizenRequestLabel = canShowRequestLabel
+    && (isEditing || Boolean(citizenSourceMessage?.category?.trim()))
   // Manager/Reporter Taleplerim'de sahip onayını gizler; görev popup İlgili Talep'te gösterilir (#1654).
   const hideOwnerApproval = forceShowOwnerApproval
     ? false

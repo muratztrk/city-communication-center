@@ -1,3 +1,8 @@
+## Round 885 — #2692/#2698
+
+- [x] `6a807f6b` — Harita liste Detaylar Yazdır standart `printJobDetail`.
+- [x] `6a80b171` — Detayda boş Talep Etiketi satırı/`—` yok.
+
 ## Round 884 — #2697
 
 - [x] `6a809d2e` — Mobil talep oluştur Cadde/Sokak placeholder `Cadde seçiniz`.

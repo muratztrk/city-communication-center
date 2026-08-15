@@ -58,8 +58,6 @@ interface ConversationPanelProps {
   compactActions?: boolean
   /** Vatandaş Talebi Oluştur modalında konuşma balonlarını küçült (card #1711). */
   compactBubbles?: boolean
-  /** Vatandaş Talebi Oluştur: mesaj balonu 10px (#2702). */
-  tighterBubbles?: boolean
   /** Üst başlık satırını gizle (vatandaş bilgisi modal başlığında gösterilir — card #2390). */
   hideHeader?: boolean
 }
@@ -81,7 +79,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, tighterBubbles = false, hideHeader = false }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const queryClient = useQueryClient()
@@ -360,7 +358,6 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                   citizenPhone={citizenPhone}
                   theme="light"
                   compact={compactBubbles}
-                  tighter={tighterBubbles}
                   inboundSenderLabel={inboundSenderLabel}
                   onAddMediaAsAttachment={onAddMediaAsAttachment}
                   canSendPending={canSendPending}
@@ -380,7 +377,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             <div
               className={`rounded-xl rounded-tr-sm text-white shadow-md ring-1 ring-white/10 ${
                 compactBubbles
-                  ? `max-w-[min(68%,22rem)] px-3 ${tighterBubbles ? 'py-1 text-[10px]' : 'py-1.5 text-[11px]'}`
+                  ? 'max-w-[min(68%,22rem)] px-3 py-1.5 text-[11px]'
                   : 'max-w-[min(70%,26rem)] px-3 py-2 text-[13px]'
               }`}
               style={{ background: 'var(--color-header-from)' }}

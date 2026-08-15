@@ -598,7 +598,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               sendingInternal={sendingInternal}
               compactActions
               compactBubbles
-              tighterBubbles
             />
           </div>
 

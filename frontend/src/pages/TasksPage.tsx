@@ -2395,10 +2395,11 @@ const pageKicker = isMyTasksView
                             // görev Tamamlandı/İptal Edildi olduğunda gösterilir (card #1520).
                             ...(taskDetail.jobSourceType !== 'Routine'
                               && (taskDetail.currentStatus === 'Completed' || taskDetail.currentStatus === 'Cancelled')
+                              && (taskDetail.attachments?.length ?? 0) > 0
                               ? [{
                                   label: t('tasks.detail.attachments', 'Görev Ekleri'),
                                   // Dosya adı mavi; liste iki satırı aşarsa kendi içinde kayar (card #1617).
-                                  value: (taskDetail.attachments?.length ?? 0) === 0 ? '—' : (
+                                  value: (
                                     <div className="flex max-h-11 flex-col items-end gap-1 overflow-y-auto pr-0.5 [scrollbar-gutter:stable]">
                                       {taskDetail.attachments!.map(attachment => {
                                         const AttachmentIcon = completionAttachmentIcon(attachment.fileName)

@@ -1,3 +1,9 @@
+## Round 890 — #2702/#2705/#2700
+
+- [x] `6a80bbad` — WA oluştur konuşma mesajı 11px’e geri (10px geri alındı).
+- [x] `6a80c425` — Detayda görev eki yoksa Görev Ekleri satırı yok.
+- [x] `6a80b79c` — Harita liste Konum damla pini yeşil.
+
 ## Round 889 — #2704/#2701/#2700
 
 - [x] `6a80bc9b` — WA oluştur Birim seçiniz menü ~148px.

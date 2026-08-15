@@ -271,9 +271,10 @@ export function MyRequestTaskDetailsSection({
                     // kart yok — rutin dışlaması burada uygulanmaz, aksi halde tamamlanmış/iptal rutin
                     // görevin ekleri hiçbir yerde görünmez olurdu (codex review, card #1548 regresyonu).
                     ...((task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
+                      && (task.attachments?.length ?? 0) > 0
                       ? [{
                           label: t('attachments.taskSectionTitle', 'Görev Ekleri'),
-                          value: (task.attachments?.length ?? 0) === 0 ? '—' : (
+                          value: (
                             <div className="flex flex-col items-end gap-1">
                               {task.attachments!.map(attachment => {
                                 const AttachmentIcon = getInlineAttachmentIcon(attachment.fileName)

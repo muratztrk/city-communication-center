@@ -225,8 +225,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Banner'da Jobs/Tasks ile aynı search + tarih aralığı vardır (card #1811); ayraç `—` yeşildir (#1809).
 - **Anlık LDAP sync popup:** `updatedUsers` eski→yeni alan farklarını listeler; özet mesaj tek satırdır
   (cards #1813/#1815).
-- **Görev Ekleri sütunu (Tasks detay):** tamamlanmış rutin olmayan görevde yalnızca gerçek görev eki varsa
-  görünür; ek yoksa boş "Görev Ekleri" alanı hiç oluşmaz.
+- **Görev Ekleri sütunu (Tasks / Taleplerim / harita Detaylar):** tamamlanmış görevde yalnızca gerçek görev eki varsa
+  görünür; ek yoksa boş "Görev Ekleri" satırı hiç oluşmaz (#2705).
 - **DateTimePicker NAİF yerel duvar-saati sözleşmesi (round 380, #1677):** `DateTimePicker` value'su
   "YYYY-MM-DDTHH:mm" yerel saattir; ISO'dan dönüşüm HER ZAMAN `utils/dateTimePicker.ts` içindeki
   `toDateTimePickerValue` ile yapılır. `toISOString().slice(0,16)` (UTC dilimi) YASAK — saati UTC
@@ -726,7 +726,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kayıtlı etiket sayısı 7 veya daha fazlaysa Etiketler menüsünün ilk satırında küçük puntolu arama gösterilir.
   `CitizenRequestModal` Etiketler/Etiket ekle kompakt (`h-7`/`h-8`, ~11px, #2703); menü her zaman
   aşağı açılır, genişlik ~220–280px, satır `text-xs` + belirgin hover (`emerald-50`) (#1865).
-  Öncelik dropdown tetikleyici/liste `13px` (#2703). Konuşma balonu `10px` (#2702; #1711 11px’den).
+  Öncelik dropdown tetikleyici/liste `13px` (#2703). Konuşma balonu compact `11px` (#1711/#2634; #2702 küçültme geri alındı).
   CreateRequestPage Vatandaş Çağrı Talebi bloğunda Etiketler/Etiket ekle bir kademe büyük
   (`largeText` → `text-sm`) kalır.
 - **Sağ alt FAB sırası (cards #1543/#1553):** yatay sıra WhatsApp → Kurum İçi Mesajlar →
@@ -1705,7 +1705,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#2668, Onay Bekleyen değil). Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
   (`bg-teal-600`), Yapılmakta Görevlerim ile aynı açık mavi (`bg-sky-100` / `getStatusPillClass`,
   #2699), Geciken turuncu (`bg-orange-500`). Pin rengi Yapılmakta `#0ea5e9` kalır (#2671).
-  yeşil Konum ikonu (yuvarlak çerçeve + hover, #2673/#2674); damla pin küçük gri (#2700).
+  yeşil Konum ikonu (yuvarlak çerçeve + hover, #2673/#2674); damla pin küçük yeşil (#2700).
   Konum ile Detaylar
   arası boşluk artırılır (#2677). Liste grid’leri FilterableTh sıralama/filtre kullanır
   (Sıra/İşlemler hariç, #2678).   Konum tıklanınca

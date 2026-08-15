@@ -372,7 +372,7 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
                               {located ? (
                               <button
                                 type="button"
-                                className="map-list-location-btn inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-slate-300 bg-slate-50 text-slate-500 shadow-sm transition-colors hover:border-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                                className="map-list-location-btn inline-flex size-7 shrink-0 items-center justify-center rounded-full border border-emerald-200 bg-emerald-50 text-emerald-600 shadow-sm transition-colors hover:border-emerald-300 hover:bg-emerald-100 hover:text-emerald-700"
                                 aria-label={t('citizenRequestMap.showOnMap', 'Konum')}
                                 title={t('citizenRequestMap.showOnMap', 'Konum')}
                                 onClick={() => onShowOnMap(pin.jobId)}

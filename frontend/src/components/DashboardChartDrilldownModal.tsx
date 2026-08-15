@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Info, Printer, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
@@ -7,6 +7,7 @@ import { api } from '../api/client'
 import type { DashboardChartDrilldownRow, JobDetail, SocialMessage } from '../types/platform'
 import { DateCell } from './ui/date-cell'
 import { Button } from './ui/button'
+import { FilterableTh } from './ui/FilterableTh'
 import { TablePagination } from './ui/table-pagination'
 import { TableEmptyStateRows } from './ui/table-empty-state-rows'
 import { StatusPill } from './ui/status-pill'
@@ -23,6 +24,8 @@ import { TruncatedText } from './ui/TruncatedText'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { printHtmlDocument } from '../utils/printDocument'
 import { printJobDetail } from '../pages/JobsPage'
+import { useColumnFilters } from '../hooks/useColumnFilters'
+import { useSortable } from '../hooks/useSortable'
 
 interface DashboardChartDrilldownModalProps {
   chartKey: string
@@ -307,6 +310,8 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
+  const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
+  const { filters, setFilter, matchesFilters } = useColumnFilters()
   const terminalDateHeader = rows ? resolveTerminalDateHeader(rows, t) : null
   const hideDueDateColumn = HIDE_DUE_DATE_CHART_KEYS.has(chartKey)
   const useTaleplerimStatusStyle = TALEPLERIM_STATUS_STYLE_CHART_KEYS.has(chartKey)
@@ -351,6 +356,71 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     + (showDestinationColumn ? 1 : 0)
     + (showTerminalDateColumn ? 1 : 0)
     + (hideDueDateColumn ? 0 : 1)
+
+  function handleFilter(key: string, value: string) {
+    setFilter(key, value)
+    setPage(1)
+  }
+
+  function handleSort(key: string) {
+    toggleSort(key)
+    setPage(1)
+  }
+
+  const visibleRows = useMemo(() => {
+    if (!rows) return []
+    const filtered = rows.filter(row => matchesFilters(row, (key, item) => {
+      if (key === 'jobNumber') return formatDrilldownNumber(item, locale)
+      if (key === 'createdAtUtc') {
+        return new Date(item.createdAtUtc).toLocaleString(locale, {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      }
+      if (key === 'terminalDateUtc') {
+        if (!item.terminalDateUtc) return ''
+        return new Date(item.terminalDateUtc).toLocaleString(locale, {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      }
+      if (key === 'dueDateUtc') {
+        if (!item.dueDateUtc) return ''
+        return new Date(item.dueDateUtc).toLocaleString(locale, {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      }
+      if (key === 'citizenName') {
+        return `${item.citizenName ?? ''} ${item.citizenPhone ?? ''}`
+      }
+      if (key === 'unitText') {
+        return (item.departmentName ?? item.neighborhood ?? '').trim()
+      }
+      if (key === 'statusSortText') {
+        return getDrilldownStatusLabel(t, item)
+      }
+      return String((item as unknown as Record<string, unknown>)[key] ?? '')
+    }))
+    if (!sortKey) return filtered
+    return sortItems(filtered.map(row => ({
+      ...row,
+      statusSortText: getDrilldownStatusLabel(t, row),
+      unitText: (row.departmentName ?? row.neighborhood ?? '').trim(),
+    })))
+  }, [locale, matchesFilters, rows, sortItems, sortKey, t])
+
+  const maxPage = Math.max(1, Math.ceil(visibleRows.length / pageSize) || 1)
+  const safePage = Math.min(page, maxPage)
 
   useEffect(() => {
     let cancelled = false
@@ -468,35 +538,63 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                   <thead>
                     <tr>
                       <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
-                      <th>{requestNoColumnLabel}</th>
+                      <FilterableTh filterKey="jobNumber" filterValue={filters.jobNumber ?? ''} onFilter={handleFilter} sortKey="jobNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                        {requestNoColumnLabel}
+                      </FilterableTh>
                       {showCitizenColumn ? (
-                        <th className="dashboard-drilldown-citizen-th text-center">
+                        <FilterableTh className="dashboard-drilldown-citizen-th text-center" filterKey="citizenName" filterValue={filters.citizenName ?? ''} onFilter={handleFilter} sortKey="citizenName" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
                           <span className="inline-flex flex-col items-center justify-center leading-tight text-center">
                             <span>{t('social.citizenName', 'Vatandaş Adı')}</span>
                             <span className="text-[0.9em] font-bold uppercase tracking-[0.06em]">
                               {t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}
                             </span>
                           </span>
-                        </th>
+                        </FilterableTh>
                       ) : null}
-                      <th className="text-center">{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
-                      <th>{t('jobs.columns.title', 'Başlık')}</th>
-                      {showRequestLocationColumn ? <th>{t('jobs.detail.requestLocation', 'Talep Yeri')}</th> : null}
-                      {showUnitColumn && unitColumnLabel ? <th>{unitColumnLabel}</th> : null}
-                      {showDestinationColumn ? <th>{t('social.destination', 'Gittiği Yer')}</th> : null}
-                      <th className="grid-col-status text-center">{t('jobs.columns.status', 'Durum')}</th>
-                      {showTerminalDateColumn ? <th className="text-center">{terminalColumnHeader}</th> : null}
-                      {!hideDueDateColumn ? <th className="text-center">{t('jobs.columns.dueDate', 'Son Tarih')}</th> : null}
+                      <FilterableTh className="text-center" filterKey="createdAtUtc" filterValue={filters.createdAtUtc ?? ''} onFilter={handleFilter} sortKey="createdAtUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} allowLetters>
+                        {t('jobs.columns.requestDate', 'Talep Tarihi')}
+                      </FilterableTh>
+                      <FilterableTh filterKey="title" filterValue={filters.title ?? ''} onFilter={handleFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                        {t('jobs.columns.title', 'Başlık')}
+                      </FilterableTh>
+                      {showRequestLocationColumn ? (
+                        <FilterableTh filterKey="ownerDepartmentName" filterValue={filters.ownerDepartmentName ?? ''} onFilter={handleFilter} sortKey="ownerDepartmentName" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                          {t('jobs.detail.requestLocation', 'Talep Yeri')}
+                        </FilterableTh>
+                      ) : null}
+                      {showUnitColumn && unitColumnLabel ? (
+                        <FilterableTh filterKey="unitText" filterValue={filters.unitText ?? ''} onFilter={handleFilter} sortKey="unitText" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                          {unitColumnLabel}
+                        </FilterableTh>
+                      ) : null}
+                      {showDestinationColumn ? (
+                        <FilterableTh filterKey="destinationDepartmentName" filterValue={filters.destinationDepartmentName ?? ''} onFilter={handleFilter} sortKey="destinationDepartmentName" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                          {t('social.destination', 'Gittiği Yer')}
+                        </FilterableTh>
+                      ) : null}
+                      <FilterableTh className="grid-col-status text-center" filterKey="statusSortText" filterValue={filters.statusSortText ?? ''} onFilter={handleFilter} sortKey="statusSortText" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                        {t('jobs.columns.status', 'Durum')}
+                      </FilterableTh>
+                      {showTerminalDateColumn ? (
+                        <FilterableTh className="text-center" filterKey="terminalDateUtc" filterValue={filters.terminalDateUtc ?? ''} onFilter={handleFilter} sortKey="terminalDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} allowLetters>
+                          {terminalColumnHeader}
+                        </FilterableTh>
+                      ) : null}
+                      {!hideDueDateColumn ? (
+                        <FilterableTh className="text-center" filterKey="dueDateUtc" filterValue={filters.dueDateUtc ?? ''} onFilter={handleFilter} sortKey="dueDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} allowLetters>
+                          {t('jobs.columns.dueDate', 'Son Tarih')}
+                        </FilterableTh>
+                      ) : null}
                       <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.length === 0 ? (
+                    {visibleRows.length === 0 ? (
                       <TableEmptyStateRows
                         columnCount={drilldownColumnCount}
                         message={t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')}
                       />
-                    ) : rows.slice((page - 1) * pageSize, page * pageSize).map((row, index) => {
+                    ) : visibleRows.slice((safePage - 1) * pageSize, safePage * pageSize).map((row, index) => {
                       const statusLabel = getDrilldownStatusLabel(t, row)
                       const statusDate = (useTaleplerimStatusStyle || !showTerminalDateColumn)
                         && (row.status === 'Completed' || isCancelledLike(row.status))
@@ -513,7 +611,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                         : null
                       return (
                       <tr key={row.jobId}>
-                        <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(page - 1) * pageSize + index + 1}</td>
+                        <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(safePage - 1) * pageSize + index + 1}</td>
                         <td className="table-number-cell font-mono text-xs text-slate-600">
                           <div className="table-number-cell__value inline-flex items-center gap-1.5 whitespace-nowrap">
                             {row.citizenRequestNumber != null && row.sourceChannel ? (
@@ -631,10 +729,10 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                 </table>
                 </div>
                 <TablePagination
-                  totalCount={rows.length}
+                  totalCount={visibleRows.length}
                   pageSize={pageSize}
-                  currentPage={page}
-                  onPageSizeChange={setPageSize}
+                  currentPage={safePage}
+                  onPageSizeChange={size => { setPageSize(size); setPage(1) }}
                   onPageChange={setPage}
                 />
               </div>

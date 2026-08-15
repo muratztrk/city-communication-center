@@ -1,3 +1,10 @@
+## Round 873 — #2682/#2683/#2684/#2681
+
+- [x] `6a8065fa` — VT harita listesi Vatandaş Adı/Telefon punto (#2682).
+- [x] `6a8066f1` — Anasayfa pie/Tüm Talepler popup FilterableTh (#2683).
+- [x] `6a8068dc` — Grid Öncelik punto küçültüldü (#2684).
+- [x] `6a806475` — CBS katalog DB cache; (Veri Kontrolü); seçiniz (#2681).
+
 ## Round 872 — #2671
 
 - [x] `6a8055da` — Harita lejant Geciken: Yapılmakta Geciken yan yana (#2671).

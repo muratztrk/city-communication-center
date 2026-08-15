@@ -311,12 +311,12 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onSh
                           {isCitizen ? (
                             <td className="max-w-[12rem]">
                               {pin.citizenName?.trim()
-                                ? <span className="block truncate">{pin.citizenName}</span>
+                                ? <span className="block truncate text-sm font-semibold text-slate-800">{pin.citizenName}</span>
                                 : '—'}
                             </td>
                           ) : null}
                           {isCitizen ? (
-                            <td className="text-center text-xs font-semibold text-slate-600">
+                            <td className="text-center text-sm font-semibold text-slate-700">
                               {pin.citizenPhone?.trim() || '—'}
                             </td>
                           ) : null}

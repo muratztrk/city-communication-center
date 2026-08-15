@@ -1897,7 +1897,7 @@ export function SettingsPage() {
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
                 <span>
                   {t('settings.municipalityLocation.neighborhoodLabel', 'Mahalle')}
-                  <span className="ml-1.5 font-medium text-slate-400">{t('settings.municipalityLocation.dataCheckHint', 'Veri Kontrolü')}</span>
+                  <span className="ml-1.5 font-medium text-slate-400">{t('settings.municipalityLocation.dataCheckHint', '(Veri Kontrolü)')}</span>
                 </span>
                 <SingleSelectDropdown
                   options={cbsNeighborhoodOptions}
@@ -1917,7 +1917,7 @@ export function SettingsPage() {
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
                 <span>
                   {t('settings.municipalityLocation.streetLabel', 'Cadde / Sokak')}
-                  <span className="ml-1.5 font-medium text-slate-400">{t('settings.municipalityLocation.dataCheckHint', 'Veri Kontrolü')}</span>
+                  <span className="ml-1.5 font-medium text-slate-400">{t('settings.municipalityLocation.dataCheckHint', '(Veri Kontrolü)')}</span>
                 </span>
                 <SingleSelectDropdown
                   options={cbsStreetOptions}
@@ -1929,7 +1929,7 @@ export function SettingsPage() {
                   placeholder={
                     selectedNeighborhoodId
                       ? t('settings.municipalityLocation.streetPlaceholder', 'Cadde / sokak seçiniz')
-                      : t('settings.municipalityLocation.streetDisabledHint', 'Önce mahalle seçin')
+                      : t('settings.municipalityLocation.streetDisabledHint', 'Önce mahalle seçiniz')
                   }
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
@@ -1940,7 +1940,7 @@ export function SettingsPage() {
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
                 <span>
                   {t('settings.municipalityLocation.doorNoLabel', 'No')}
-                  <span className="ml-1.5 font-medium text-slate-400">{t('settings.municipalityLocation.dataCheckHint', 'Veri Kontrolü')}</span>
+                  <span className="ml-1.5 font-medium text-slate-400">{t('settings.municipalityLocation.dataCheckHint', '(Veri Kontrolü)')}</span>
                 </span>
                 <SingleSelectDropdown
                   options={cbsDoorNoOptions}
@@ -1949,7 +1949,7 @@ export function SettingsPage() {
                   placeholder={
                     selectedStreetId
                       ? t('settings.municipalityLocation.doorNoPlaceholder', 'Kapı no seçiniz')
-                      : t('settings.municipalityLocation.doorNoDisabledHint', 'Önce cadde / sokak seçin')
+                      : t('settings.municipalityLocation.doorNoDisabledHint', 'Önce cadde / sokak seçiniz')
                   }
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}

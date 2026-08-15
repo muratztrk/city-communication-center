@@ -30,6 +30,7 @@ public interface IApplicationDbContext
     DbSet<EDevletBasvuru> EDevletBasvurular { get; }
     DbSet<InternalConversation> InternalConversations { get; }
     DbSet<InternalMessage> InternalMessages { get; }
+    DbSet<IzmirCbsCatalogCache> IzmirCbsCatalogCaches { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

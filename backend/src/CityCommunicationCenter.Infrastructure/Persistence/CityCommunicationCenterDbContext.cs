@@ -53,6 +53,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<EDevletBasvuru> EDevletBasvurular => Set<EDevletBasvuru>();
     public DbSet<InternalConversation> InternalConversations => Set<InternalConversation>();
     public DbSet<InternalMessage> InternalMessages => Set<InternalMessage>();
+    public DbSet<IzmirCbsCatalogCache> IzmirCbsCatalogCaches => Set<IzmirCbsCatalogCache>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -121,6 +122,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureEDevletBasvuruAttachment(modelBuilder.Entity<EDevletBasvuruAttachment>());
         ConfigureInternalConversation(modelBuilder.Entity<InternalConversation>());
         ConfigureInternalMessage(modelBuilder.Entity<InternalMessage>());
+        ConfigureIzmirCbsCatalogCache(modelBuilder.Entity<IzmirCbsCatalogCache>());
 
         modelBuilder.ApplyAutomaticIndexes();
 
@@ -481,6 +483,15 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     {
         builder.ToTable("internalmessages");
         builder.HasKey(entity => entity.InternalMessageId);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureIzmirCbsCatalogCache(EntityTypeBuilder<IzmirCbsCatalogCache> builder)
+    {
+        builder.ToTable("izmircbscatalogcache");
+        builder.HasKey(entity => entity.CacheKey);
+        builder.Property(entity => entity.CacheKey).HasMaxLength(200);
+        builder.Property(entity => entity.PayloadJson).IsRequired();
         ApplyLowerCaseColumnNames(builder);
     }
 

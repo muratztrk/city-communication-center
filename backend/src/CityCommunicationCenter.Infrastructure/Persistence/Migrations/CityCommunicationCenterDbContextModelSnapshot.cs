@@ -971,6 +971,27 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                     b.ToTable("internalmessages", (string)null);
                 });
 
+            modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.IzmirCbsCatalogCache", b =>
+                {
+                    b.Property<string>("CacheKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("cachekey");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("payloadjson");
+
+                    b.Property<DateTimeOffset>("UpdatedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updatedatutc");
+
+                    b.HasKey("CacheKey");
+
+                    b.ToTable("izmircbscatalogcache", (string)null);
+                });
+
             modelBuilder.Entity("CityCommunicationCenter.Domain.Entities.Job", b =>
                 {
                     b.Property<Guid>("JobId")

@@ -7,6 +7,7 @@ import { api } from '../api/client'
 import type { JobDetail, JobSummary } from '../types/platform'
 import { Button } from './ui/button'
 import { DateCell } from './ui/date-cell'
+import { FilterableTh } from './ui/FilterableTh'
 import { TablePagination } from './ui/table-pagination'
 import { TableEmptyStateRows } from './ui/table-empty-state-rows'
 import { TruncatedText } from './ui/TruncatedText'
@@ -27,6 +28,8 @@ import {
   shouldShowGridPrioritySubline,
 } from '../utils/localization'
 import { printJobDetail } from '../pages/JobsPage'
+import { useColumnFilters } from '../hooks/useColumnFilters'
+import { useSortable } from '../hooks/useSortable'
 
 interface AllDepartmentRequestsModalProps {
   onClose: () => void
@@ -98,6 +101,8 @@ export function AllDepartmentRequestsModal({ onClose }: AllDepartmentRequestsMod
   const [detail, setDetail] = useState<JobDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
+  const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
+  const { filters, setFilter, matchesFilters } = useColumnFilters()
 
   useEffect(() => {
     let cancelled = false
@@ -115,12 +120,50 @@ export function AllDepartmentRequestsModal({ onClose }: AllDepartmentRequestsMod
     return () => { cancelled = true }
   }, [t])
 
-  const maxPage = Math.max(1, Math.ceil((jobs?.length ?? 0) / pageSize) || 1)
+  const visibleJobs = useMemo(() => {
+    const source = jobs ?? []
+    const filtered = source.filter(job => matchesFilters(job, (key, item) => {
+      if (key === 'jobNumber') return formatJobDisplayNumberText(item, locale)
+      if (key === 'createdAtUtc') {
+        return new Date(item.createdAtUtc).toLocaleString(locale, {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      }
+      if (key === 'destinationText') return destinationName(item)
+      if (key === 'statusSortText') return getRowStatusLabel(t, item)
+      return String((item as unknown as Record<string, unknown>)[key] ?? '')
+    }))
+    const decorated = filtered.map(job => ({
+      ...job,
+      destinationText: destinationName(job),
+      statusSortText: getRowStatusLabel(t, job),
+    }))
+    if (!sortKey) {
+      return [...decorated].sort((left, right) => Date.parse(right.createdAtUtc) - Date.parse(left.createdAtUtc))
+    }
+    return sortItems(decorated)
+  }, [jobs, locale, matchesFilters, sortItems, sortKey, t])
+
+  const maxPage = Math.max(1, Math.ceil(visibleJobs.length / pageSize) || 1)
   const safePage = Math.min(page, maxPage)
   const paged = useMemo(
-    () => (jobs ?? []).slice((safePage - 1) * pageSize, safePage * pageSize),
-    [jobs, pageSize, safePage],
+    () => visibleJobs.slice((safePage - 1) * pageSize, safePage * pageSize),
+    [visibleJobs, pageSize, safePage],
   )
+
+  function handleFilter(key: string, value: string) {
+    setFilter(key, value)
+    setPage(1)
+  }
+
+  function handleSort(key: string) {
+    toggleSort(key)
+    setPage(1)
+  }
 
   const openJobDetail = async (jobId: string) => {
     setDetail(null)
@@ -179,12 +222,24 @@ export function AllDepartmentRequestsModal({ onClose }: AllDepartmentRequestsMod
                       <thead>
                         <tr>
                           <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
-                          <th>{t('jobs.columns.requestNo', 'Talep No')}</th>
-                          <th className="text-center">{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
-                          <th>{t('jobs.detail.requestLocation', 'Talep Yeri')}</th>
-                          <th>{t('social.destination', 'Gittiği Yer')}</th>
-                          <th>{t('jobs.columns.title', 'Başlık')}</th>
-                          <th className="grid-col-status text-center">{t('jobs.columns.status', 'Durum')}</th>
+                          <FilterableTh filterKey="jobNumber" filterValue={filters.jobNumber ?? ''} onFilter={handleFilter} sortKey="jobNumber" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                            {t('jobs.columns.requestNo', 'Talep No')}
+                          </FilterableTh>
+                          <FilterableTh className="text-center" filterKey="createdAtUtc" filterValue={filters.createdAtUtc ?? ''} onFilter={handleFilter} sortKey="createdAtUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} allowLetters>
+                            {t('jobs.columns.requestDate', 'Talep Tarihi')}
+                          </FilterableTh>
+                          <FilterableTh filterKey="ownerDepartmentName" filterValue={filters.ownerDepartmentName ?? ''} onFilter={handleFilter} sortKey="ownerDepartmentName" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                            {t('jobs.detail.requestLocation', 'Talep Yeri')}
+                          </FilterableTh>
+                          <FilterableTh filterKey="destinationText" filterValue={filters.destinationText ?? ''} onFilter={handleFilter} sortKey="destinationText" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                            {t('social.destination', 'Gittiği Yer')}
+                          </FilterableTh>
+                          <FilterableTh filterKey="title" filterValue={filters.title ?? ''} onFilter={handleFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                            {t('jobs.columns.title', 'Başlık')}
+                          </FilterableTh>
+                          <FilterableTh className="grid-col-status text-center" filterKey="statusSortText" filterValue={filters.statusSortText ?? ''} onFilter={handleFilter} sortKey="statusSortText" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                            {t('jobs.columns.status', 'Durum')}
+                          </FilterableTh>
                           <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                         </tr>
                       </thead>
@@ -252,14 +307,14 @@ export function AllDepartmentRequestsModal({ onClose }: AllDepartmentRequestsMod
                             </tr>
                           )
                         })}
-                        {jobs.length === 0 ? (
+                        {visibleJobs.length === 0 ? (
                           <TableEmptyStateRows columnCount={8} message={t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')} />
                         ) : null}
                       </tbody>
                     </table>
                   </div>
                   <TablePagination
-                    totalCount={jobs.length}
+                    totalCount={visibleJobs.length}
                     pageSize={pageSize}
                     currentPage={safePage}
                     onPageSizeChange={size => { setPageSize(size); setPage(1) }}

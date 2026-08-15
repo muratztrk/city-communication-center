@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using CityCommunicationCenter.Domain.Entities;
+using CityCommunicationCenter.Infrastructure.Persistence;
 using CityCommunicationCenter.Shared.Contracts;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -58,15 +60,18 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
 
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly IMemoryCache _cache;
+    private readonly CityCommunicationCenterDbContext _db;
     private readonly ILogger<IzmirCbsAddressCatalog> _logger;
 
     public IzmirCbsAddressCatalog(
         IHttpClientFactory httpClientFactory,
         IMemoryCache cache,
+        CityCommunicationCenterDbContext db,
         ILogger<IzmirCbsAddressCatalog> logger)
     {
         _httpClientFactory = httpClientFactory;
         _cache = cache;
+        _db = db;
         _logger = logger;
     }
 
@@ -120,9 +125,72 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
             return cached;
         }
 
-        var options = await FetchOptionsAsync(body, cancellationToken);
-        _cache.Set(cacheKey, options, CacheDuration);
-        return options;
+        var stored = await _db.IzmirCbsCatalogCaches
+            .AsNoTracking()
+            .FirstOrDefaultAsync(row => row.CacheKey == cacheKey, cancellationToken);
+        var storedOptions = DeserializePayload(stored?.PayloadJson);
+        if (storedOptions.Count > 0)
+        {
+            _cache.Set(cacheKey, storedOptions, CacheDuration);
+            return storedOptions;
+        }
+
+        try
+        {
+            var options = await FetchOptionsAsync(body, cancellationToken);
+            await PersistAsync(cacheKey, options, cancellationToken);
+            _cache.Set(cacheKey, options, CacheDuration);
+            return options;
+        }
+        catch (ValidationException) when (storedOptions.Count > 0)
+        {
+            return storedOptions;
+        }
+    }
+
+    private async Task PersistAsync(
+        string cacheKey,
+        IReadOnlyList<IzmirCbsOptionResponse> options,
+        CancellationToken cancellationToken)
+    {
+        var payload = JsonSerializer.Serialize(options, JsonOptions);
+        var existing = await _db.IzmirCbsCatalogCaches.FirstOrDefaultAsync(
+            row => row.CacheKey == cacheKey,
+            cancellationToken);
+        if (existing is null)
+        {
+            _db.IzmirCbsCatalogCaches.Add(new IzmirCbsCatalogCache
+            {
+                CacheKey = cacheKey,
+                PayloadJson = payload,
+                UpdatedAtUtc = DateTimeOffset.UtcNow,
+            });
+        }
+        else
+        {
+            existing.PayloadJson = payload;
+            existing.UpdatedAtUtc = DateTimeOffset.UtcNow;
+        }
+
+        await _db.SaveChangesAsync(cancellationToken);
+    }
+
+    private static IReadOnlyList<IzmirCbsOptionResponse> DeserializePayload(string? payload)
+    {
+        if (string.IsNullOrWhiteSpace(payload))
+        {
+            return [];
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<IzmirCbsOptionResponse>>(payload, JsonOptions)
+                ?? [];
+        }
+        catch (JsonException)
+        {
+            return [];
+        }
     }
 
     private async Task<IReadOnlyList<IzmirCbsOptionResponse>> FetchOptionsAsync(

@@ -1185,15 +1185,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanır; sonraki girişlerde Settings dropdown seçili gelir. Eski ad/büyük-küçük harf/boşluklu
   localStorage değerleri canonical ilçe ID’sine normalize edilir; boş/geçersiz seçim mevcut
   değerin üzerine yazılamaz (card #2271 follow-up). Kurum Bilgisi Kaydet Theme’deki ilçe kodunu silmez.
-  **CBS Adres Ara kademesi (#2652/#2654/#2655/#2658/#2659):** Mahalle / Cadde-Sokak / No İzmir CBS
-  `BinaBilgiControl.aspx` proxy’sinden gelir (`GET /api/v1/izmir-cbs/*`). Mahalle seçilmeden
+  **CBS Adres Ara kademesi (#2652/#2654/#2655/#2658/#2659/#2681):** Mahalle / Cadde-Sokak / No İzmir CBS
+  `BinaBilgiControl.aspx` proxy’sinden gelir (`GET /api/v1/izmir-cbs/*`); ilk çekimde
+  `izmircbscatalogcache` tablosuna yazılır, sonraki seçimler DB’den gelir (#2681). Mahalle seçilmeden
   cadde, cadde seçilmeden kapı no enable olmaz. Ayarlar’da 2×2: İlçe|Mahalle / Cadde|No
   (#2654 geri al + alt satır). Seçimler `ccc_municipality_cbs_address` localStorage’da kalır.
   Talep oluştur (iç/dış/vatandaş), vatandaş modal, rutin ve WA taslak adresinde Cadde/No
   textbox yok; CBS dropdown (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle satırı
   Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `8.25rem` sabit (cadde seçilince
-  değişmez, #2659/#2669). Default Cadde placeholder `Cadde / sokak seçiniz`, No `No seçiniz`. Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `Veri Kontrolü`
-  (#2654). Mahalle kataloğu hâlâ
+  değişmez, #2659/#2669).   Default Cadde placeholder `Cadde / sokak seçiniz`, No `No seçiniz`. Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
+  (#2654/#2681). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).
 - **Tek seferlik adres doldurma (#2662/#2663):** API açılışında (migration sonrası) CBS Tire

@@ -11,6 +11,7 @@ import { PieChart, PieLegendSearch } from '../components/ui/PieChart'
 import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilldownModal'
 import { DashboardNotificationsCard } from '../components/DashboardNotificationsCard'
 import { CitizenChannelMessagesModal } from '../components/CitizenChannelMessagesModal'
+import { AllCitizenRequestsModal } from '../components/AllCitizenRequestsModal'
 import { useAuth } from '../context/AuthContext'
 import { isModuleUsable } from '../lib/licenseModules'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
@@ -342,6 +343,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   })
   const [pieLegendSearches, setPieLegendSearches] = useState<Record<string, string>>({})
   const [chartDrilldown, setChartDrilldown] = useState<{ chartKey: string; sliceKey: string } | null>(null)
+  const [allCitizenRequestsOpen, setAllCitizenRequestsOpen] = useState(false)
   const activeDeptId = getActiveDepartmentId()
 
   function getPeriodRange(p: Period): { from: string; to: string } {
@@ -691,6 +693,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               <ScopeChipDateRange from={customFrom} to={customTo} onFromChange={setCustomFrom} onToChange={setCustomTo} forceDown />
             </>
           )}
+          {effectiveView === 'citizen' ? (
+            <button
+              type="button"
+              onClick={() => setAllCitizenRequestsOpen(true)}
+              className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50"
+            >
+              {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
+            </button>
+          ) : null}
         </div>
 
         {hideMetricCards ? null : isManagerOrAdmin ? (
@@ -890,6 +901,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         <div className="error">{statusChartsQuery.error instanceof Error ? statusChartsQuery.error.message : t('common.error')}</div>
       ) : null}
 
+      {allCitizenRequestsOpen ? (
+        <AllCitizenRequestsModal onClose={() => setAllCitizenRequestsOpen(false)} />
+      ) : null}
       {chartDrilldown?.chartKey === 'dashboard.citizenChannels.title' ? (
         <CitizenChannelMessagesModal
           key={`${chartDrilldown.chartKey}|${chartDrilldown.sliceKey}`}

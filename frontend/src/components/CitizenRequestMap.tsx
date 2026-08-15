@@ -343,12 +343,9 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
       return
     }
 
-    setResolved([])
     setResolving(true)
     void (async () => {
-      const geocoded: ResolvedPin[] = []
-      for (const pin of mappable) {
-        if (cancelled) return
+      const geocoded = (await Promise.all(mappable.map(async pin => {
         const hit = await geocodeTireAddress({
           neighborhood: pin.neighborhood,
           street: pin.street,
@@ -361,21 +358,21 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
           const position = !hasStreetNo || hit.precision === 'approximate'
             ? emptyAreaOffset(hit.position, pin.jobId)
             : hit.position
-          geocoded.push({
+          return {
             ...pin,
             position,
             approximate: !hasStreetNo || hit.precision === 'approximate',
-          })
-          continue
+          } satisfies ResolvedPin
         }
-        if (pin.latitude != null && pin.longitude != null) {
-          geocoded.push({
+        if (allowNeighborhood && pin.latitude != null && pin.longitude != null) {
+          return {
             ...pin,
             position: { lat: pin.latitude, lng: pin.longitude },
             approximate: true,
-          })
+          } satisfies ResolvedPin
         }
-      }
+        return null
+      }))).filter((pin): pin is ResolvedPin => pin != null)
       if (!cancelled) {
         setResolved(geocoded)
         setResolving(false)

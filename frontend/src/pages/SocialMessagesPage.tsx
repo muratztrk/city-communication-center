@@ -191,17 +191,19 @@ function SocialMessageScopeFilters({ searchText, filterFrom, filterTo, onSearch,
   )
 }
 
-export function SocialMessagesPage() {
+export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } = {}) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
+  const [embeddedChannel, setEmbeddedChannel] = useState(DEFAULT_CHANNEL_FILTER)
+  const [embeddedRequestStatus, setEmbeddedRequestStatus] = useState<SocialRequestStatusFilter>('all')
   // Vatandaş Talepleri varsayılanı Tümü; `channel=WhatsApp` vb. URL ile daraltılır (card #1851).
-  const channelParam = searchParams.get('channel')
+  const channelParam = embedded ? embeddedChannel : searchParams.get('channel')
   const channelFilter = channelParam === null || channelParam === ALL_CHANNELS_FILTER
     ? DEFAULT_CHANNEL_FILTER
     : channelParam
-  const requestStatusParam = searchParams.get('requestStatus')
+  const requestStatusParam = embedded ? embeddedRequestStatus : searchParams.get('requestStatus')
   const initialRequestStatus = isSocialRequestStatusFilter(requestStatusParam) ? requestStatusParam : 'all'
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
@@ -222,11 +224,12 @@ export function SocialMessagesPage() {
   const [routingMessageId, setRoutingMessageId] = useState<string | null>(null)
 
   useEffect(() => {
+    if (embedded) return
     const nextStatus = searchParams.get('requestStatus')
     setRequestStatusFilter(isSocialRequestStatusFilter(nextStatus) ? nextStatus : 'all')
     setFilterFrom(searchParams.get('from') ?? '')
     setFilterTo(searchParams.get('to') ?? '')
-  }, [searchParams])
+  }, [embedded, searchParams])
 
   useEffect(() => {
     let isActive = true
@@ -503,17 +506,33 @@ export function SocialMessagesPage() {
       markChannelBadgeSeen(channel)
       setBadgeSeenTick(tick => tick + 1)
     }
+    if (embedded) {
+      setEmbeddedChannel(channel)
+      return
+    }
     const nextParams = new URLSearchParams(searchParams)
     nextParams.set('channel', channel || ALL_CHANNELS_FILTER)
     setSearchParams(nextParams)
   }
 
-  if (loading) {
+  if (loading && !embedded) {
     return <div className="loading">{t('common.loading')}</div>
   }
 
   return (
-    <div className="page-stack desktop-page-shell">
+    <div className={embedded ? 'flex h-full min-h-0 flex-col overflow-hidden' : 'page-stack desktop-page-shell'}>
+      {embedded ? (
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 px-4 pt-3">
+          <SocialMessageScopeFilters
+            searchText={searchText}
+            filterFrom={filterFrom}
+            filterTo={filterTo}
+            onSearch={setSearchText}
+            onFromChange={setFilterFrom}
+            onToChange={setFilterTo}
+          />
+        </div>
+      ) : (
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
@@ -534,8 +553,9 @@ export function SocialMessagesPage() {
           </div>
         </div>
       </header>
+      )}
 
-      <nav className="scope-chips" aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
+      <nav className={`scope-chips${embedded ? ' shrink-0 px-4' : ''}`} aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
         {channelQuickFilters.map(filter => (
           <button
             key={filter.value || 'all'}
@@ -562,6 +582,10 @@ export function SocialMessagesPage() {
           onChange={value => {
             const nextValue = value as SocialRequestStatusFilter
             setRequestStatusFilter(nextValue)
+            if (embedded) {
+              setEmbeddedRequestStatus(nextValue)
+              return
+            }
             const nextParams = new URLSearchParams(searchParams)
             if (nextValue === 'all') nextParams.delete('requestStatus')
             else nextParams.set('requestStatus', nextValue)
@@ -573,9 +597,10 @@ export function SocialMessagesPage() {
       </nav>
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
+      {embedded && loading ? <div className="loading px-4 py-6">{t('common.loading')}</div> : null}
 
-      <section className="section-card desktop-page-fill">
-        <div className="table-wrap desktop-panel-scroll">
+      <section className={embedded ? 'section-card min-h-0 flex-1 overflow-hidden' : 'section-card desktop-page-fill'}>
+        <div className={embedded ? 'table-wrap h-full overflow-auto' : 'table-wrap desktop-panel-scroll'}>
           <table className="data-table jobs-table data-table--zebra social-messages-table">
             <thead>
               <tr>

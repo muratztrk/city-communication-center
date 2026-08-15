@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
@@ -57,6 +57,8 @@ export function CitizenRequestMapPage() {
   const pinsQuery = useQuery({
     queryKey: queryKeys.reports.citizenMapPins({ from: activeFrom, to: activeTo }),
     queryFn: () => api.getCitizenDashboardMapPins(apiFrom, apiTo),
+    staleTime: 60_000,
+    placeholderData: keepPreviousData,
     refetchInterval: 60_000,
   })
 

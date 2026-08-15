@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
@@ -57,6 +57,8 @@ export function DepartmentRequestMapPage() {
   const pinsQuery = useQuery({
     queryKey: queryKeys.reports.departmentMapPins({ from: activeFrom, to: activeTo }),
     queryFn: () => api.getDepartmentDashboardMapPins(apiFrom, apiTo),
+    staleTime: 60_000,
+    placeholderData: keepPreviousData,
     refetchInterval: 60_000,
   })
 

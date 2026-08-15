@@ -163,7 +163,30 @@ function isInsideDistrictEnvelope(position: LatLng, districtName: string): boole
   return Math.abs(position.lat - center.lat) <= span && Math.abs(position.lng - center.lng) <= span
 }
 
-let geocodeQueue: Promise<void> = Promise.resolve()
+const GEOCODE_CONCURRENCY = 4
+const GEOCODE_VARIANT_DELAY_MS = 35
+let geocodeActive = 0
+const geocodeWaiters: Array<() => void> = []
+const geocodeInflight = new Map<string, Promise<GeocodeHit | null>>()
+
+function acquireGeocodeSlot(): Promise<void> {
+  if (geocodeActive < GEOCODE_CONCURRENCY) {
+    geocodeActive += 1
+    return Promise.resolve()
+  }
+  return new Promise(resolve => {
+    geocodeWaiters.push(() => {
+      geocodeActive += 1
+      resolve()
+    })
+  })
+}
+
+function releaseGeocodeSlot() {
+  geocodeActive = Math.max(0, geocodeActive - 1)
+  const next = geocodeWaiters.shift()
+  if (next) next()
+}
 
 /**
  * Geocode cadde / no via Maps JS API Geocoder with localStorage cache.
@@ -216,18 +239,26 @@ export function geocodeTireAddress(input: {
     if (!client) return null
 
     for (let index = 0; index < variants.length; index += 1) {
-      await new Promise(resolve => window.setTimeout(resolve, 80))
+      await new Promise(resolve => window.setTimeout(resolve, GEOCODE_VARIANT_DELAY_MS))
       const variant = variants[index]
       const neighborhoodOnly = Boolean(neighborhoodOnlyQuery && variant === neighborhoodOnlyQuery)
 
-      const { status, results } = await new Promise<{
-        status: string
-        results: google.maps.GeocoderResult[] | null
-      }>(resolve => {
-        client.geocode({ address: variant, region: 'tr' }, (geoResults, geoStatus) => {
-          resolve({ status: String(geoStatus), results: geoResults })
+      let status = ''
+      let results: google.maps.GeocoderResult[] | null = null
+      for (let attempt = 0; attempt < 2; attempt += 1) {
+        const response = await new Promise<{
+          status: string
+          results: google.maps.GeocoderResult[] | null
+        }>(resolve => {
+          client.geocode({ address: variant, region: 'tr' }, (geoResults, geoStatus) => {
+            resolve({ status: String(geoStatus), results: geoResults })
+          })
         })
-      })
+        status = response.status
+        results = response.results
+        if (status !== 'OVER_QUERY_LIMIT') break
+        await new Promise(resolve => window.setTimeout(resolve, 250))
+      }
 
       if (status !== 'OK' && status !== 'ZERO_RESULTS') return null
       if (status === 'ZERO_RESULTS') continue
@@ -245,18 +276,35 @@ export function geocodeTireAddress(input: {
 
       const approximate = !hasStreetNo || index > 0 || neighborhoodOnly
       const hit: CachedHit = approximate ? { lat, lng, approx: true } : { lat, lng }
-      cache[cacheKey] = hit
-      writeCache(cache)
+      const latest = readCache()
+      latest[cacheKey] = hit
+      writeCache(latest)
       return toHit(hit)
     }
 
-    cache[cacheKey] = null
-    writeCache(cache)
+    const latest = readCache()
+    latest[cacheKey] = null
+    writeCache(latest)
     return null
   }
 
-  const next = geocodeQueue.then(run, run)
-  geocodeQueue = next.then(() => undefined, () => undefined)
+  const existing = geocodeInflight.get(cacheKey)
+  if (existing) return existing
+
+  const next = (async () => {
+    await acquireGeocodeSlot()
+    try {
+      const latest = readCache()
+      if (Object.prototype.hasOwnProperty.call(latest, cacheKey)) {
+        return toHit(latest[cacheKey] ?? null)
+      }
+      return await run()
+    } finally {
+      releaseGeocodeSlot()
+      geocodeInflight.delete(cacheKey)
+    }
+  })()
+  geocodeInflight.set(cacheKey, next)
   return next
 }
 

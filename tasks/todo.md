@@ -1,3 +1,8 @@
+## Round 836 — #2643/#2644
+
+- [x] `6a801aea` — Vatandaş/Birim talep haritası pin yükleme: paralel geocode + pin API sadeleştirme (#2643).
+- [x] `6a801b6e` — Anasayfa-Vatandaş Özel sonrası Tüm Talepler → VT grid popup (#2644).
+
 ## Round 835 — #2640
 
 - [x] `6a801665` — Birim haritası pin timeout kaldırıldı; cadde yoksa mahalle/koordinat yedeği (#2640 T-2026-591).

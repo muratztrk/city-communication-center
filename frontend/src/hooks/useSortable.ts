@@ -30,12 +30,12 @@ function compare(a: unknown, b: unknown, dir: SortDir): number {
     const requestA = parsePrefixedRequestNo(a)
     const requestB = parsePrefixedRequestNo(b)
     if (requestA && requestB) {
-      if (requestA.seq !== requestB.seq) {
-        const diff = requestA.seq - requestB.seq
-        return dir === 'asc' ? diff : -diff
+      if (requestA.year !== requestB.year) {
+        const yearDiff = requestA.year - requestB.year
+        return dir === 'asc' ? yearDiff : -yearDiff
       }
-      const yearDiff = requestA.year - requestB.year
-      return dir === 'asc' ? yearDiff : -yearDiff
+      const diff = requestA.seq - requestB.seq
+      return dir === 'asc' ? diff : -diff
     }
     const diff = a.localeCompare(b, 'tr', { sensitivity: 'base' })
     return dir === 'asc' ? diff : -diff
@@ -53,13 +53,13 @@ function compare(a: unknown, b: unknown, dir: SortDir): number {
   return 0
 }
 
-export function useSortable() {
+export function useSortable(initial?: { sortKey?: string | null; sortDir?: SortDir }) {
   const [{ sortKey, sortDir }, setSortState] = useState<{
     sortKey: string | null
     sortDir: SortDir
   }>({
-    sortKey: null,
-    sortDir: 'asc',
+    sortKey: initial?.sortKey ?? null,
+    sortDir: initial?.sortDir ?? 'asc',
   })
 
   const toggleSort = useCallback((key: string) => {
@@ -79,14 +79,21 @@ export function useSortable() {
     if (!sortKey) return items
     return [...items].sort((a, b) => {
       if (sortKey === 'jobNumber') {
-        const rowA = a as { citizenRequestNumber?: number | null; jobNumber?: number | string | null }
-        const rowB = b as { citizenRequestNumber?: number | null; jobNumber?: number | string | null }
+        const rowA = a as { citizenRequestNumber?: number | null; citizenRequestNumberYear?: number | null; jobNumber?: number | string | null }
+        const rowB = b as { citizenRequestNumber?: number | null; citizenRequestNumberYear?: number | null; jobNumber?: number | string | null }
         const seqA = typeof rowA.citizenRequestNumber === 'number' ? rowA.citizenRequestNumber
           : typeof rowA.jobNumber === 'number' ? rowA.jobNumber : null
         const seqB = typeof rowB.citizenRequestNumber === 'number' ? rowB.citizenRequestNumber
           : typeof rowB.jobNumber === 'number' ? rowB.jobNumber : null
-        if (seqA != null && seqB != null && seqA !== seqB) {
-          return sortDir === 'asc' ? seqA - seqB : seqB - seqA
+        if (seqA != null && seqB != null) {
+          const yearA = typeof rowA.citizenRequestNumberYear === 'number' ? rowA.citizenRequestNumberYear : 0
+          const yearB = typeof rowB.citizenRequestNumberYear === 'number' ? rowB.citizenRequestNumberYear : 0
+          if (yearA !== yearB) {
+            return sortDir === 'asc' ? yearA - yearB : yearB - yearA
+          }
+          if (seqA !== seqB) {
+            return sortDir === 'asc' ? seqA - seqB : seqB - seqA
+          }
         }
       }
       return compare(getVal(a, sortKey), getVal(b, sortKey), sortDir)

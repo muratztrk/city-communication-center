@@ -1,3 +1,7 @@
+## Round 878 — #2691
+
+- [x] `6a807e31` — Vatandaş Talepleri varsayılan sıra: en yüksek VT no üstte (#2691).
+
 ## Round 877 — #2686/#2689/#2687/#2684/#2690
 
 - [x] `6a806a7d` / `6a806ae5` — Tüm Talepler grid içinde Sayfa yükleniyor… (#2686/#2687).

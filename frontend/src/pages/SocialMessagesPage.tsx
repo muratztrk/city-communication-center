@@ -359,7 +359,10 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
     }
   }
 
-  const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable()
+  const { sortKey: socialSortKey, sortDir: socialSortDir, toggleSort: toggleSocialSort, sortItems: sortSocial } = useSortable({
+    sortKey: 'jobNumber',
+    sortDir: 'desc',
+  })
   const { filters: socialFilters, setFilter: setSocialFilter, clearFilters: clearSocialFilters, matchesFilters: socialMatchesFilters, hasActiveFilters: hasActiveSocialColumnFilters } = useColumnFilters()
 
   const displayMessages = useMemo(() => messages.map(message => {

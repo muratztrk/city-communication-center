@@ -1,7 +1,7 @@
 import { canonicalizeNeighborhoodForGeocode, compactNeighborhoodKey, IZMIR_DISTRICTS } from '../data/izmir-locations'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v10'
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v11'
 
 export type LatLng = { lat: number; lng: number }
 
@@ -123,7 +123,7 @@ function buildGeocodeQueryVariants(input: {
 }
 
 const IBNI_MELEK_OSB_ANCHOR: LatLng = { lat: 38.121905, lng: 27.704915 }
-const OSB_ANCHOR_SPAN = 0.02
+const OSB_ANCHOR_SPAN = 0.03
 
 function isIbniMelekOsbNeighborhood(neighborhood: string): boolean {
   const key = compactNeighborhoodKey(neighborhood)
@@ -137,6 +137,7 @@ function isIbniMelekMahalle(neighborhood: string): boolean {
 
 function expandNeighborhoodForQuery(neighborhood: string): string {
   if (isIbniMelekOsbNeighborhood(neighborhood)) return 'İbni Melek OSB Mahallesi'
+  if (isIbniMelekMahalle(neighborhood)) return 'İbni Melek Mahallesi'
   return neighborhood
 }
 
@@ -182,6 +183,14 @@ function geocodeResultMatchesAddress(
     || type === 'political'
   ))
   if (adminOnly) return false
+
+  if (input.neighborhood && isIbniMelekMahalle(input.neighborhood) && blob.includes('osb')) {
+    return false
+  }
+  if (input.neighborhood && isIbniMelekOsbNeighborhood(input.neighborhood)
+    && !blob.includes('osb') && !blob.includes('organizesanayi')) {
+    return false
+  }
 
   if (input.street) {
     const core = streetCoreForMatch(input.street)

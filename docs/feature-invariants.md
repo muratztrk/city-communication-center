@@ -423,10 +423,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gelir; `Öncelik / Bitiş Tarihi / Proje niteliğinde mi?` satırı bunun altında kalır (card #1250).
   `Proje niteliğinde mi?` yalnız **birim yöneticisi** (`Manager`) görür; Evet seçilince Görevi
   Yapan kilitlenir ve oluşturan yöneticinin adı gelir (#2619). Personel/SystemAdmin bu alanı görmez.
-- **Birim Dışı Talep Oluştur (#2617/#2672):** `Proje niteliğinde mi?` yok (Reporter’da ayrı
-  satır). Öncelik, `Talebin Gideceği Birim` ile aynı satırda sağda ve o dropdown’un yarısı
-  genişlikte (`2fr`/`1fr`). Birim İçi/Vatandaş formlarına dokunulmaz. Üst Düzey Yönetici
-  `Talep Oluştur` formunda proje alanı durur.
+- **Birim Dışı Talep Oluştur (#2617/#2672/#2675):** `Proje niteliğinde mi?` yok (Reporter’da
+  hedef birimin sağında, Öncelik ile aynı `1fr` — hedef dropdown’un yarısı, #2675). Öncelik,
+  `Talebin Gideceği Birim` ile aynı satırda sağda ve o dropdown’un yarısı genişlikte
+  (`2fr`/`1fr`). Birim İçi/Vatandaş formlarına dokunulmaz.
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)
@@ -1674,7 +1674,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ilçe merkezine düşmez. Mahalle adı geocode öncesi katalogla birleştirilir: tam ad
   önce eşleşir (`İbni Melek OSB` ayrı kalır, İbni Melek mahallesine indirgenmez — #2661).
   Yalnız mahalle/mah soneki atılır. OSB pinleri TOSBİ civarı (38.122, 27.705) ile
-  doğrulanır; mahalle pinleri OSB bölgesine düşmez. Geocode cache v10. Kayıtlı lat/lng
+  doğrulanır; mahalle pinleri OSB bölgesine düşmez (`İbni Melek Mahallesi` sorgusu, OSB blob
+  elenir, cache v11 — #2666 T-2026-593). Kayıtlı lat/lng
   (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin renkleri: Yapılmakta turuncu, Son Tarihi
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
@@ -1702,7 +1703,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (AssignedUserId) adresi varsa haritada görünür; cadde Google’da yoksa mahalle/açık adres/lat-lng
   yedeği birim haritasında kullanılır (#2640 T-2026-591, #2670 T-2026-593). Reporter tüm atanmış
   görevleri (birim veya kişi) görür. Yalnız açık adresli kayıtlar da pinlenir. Vatandaş haritası
-  cadde zorunlu kalır (#2635). Geocode cache v10.
+  cadde zorunlu kalır (#2635). Geocode cache v11.
   Pin API + geocode paralel (en fazla 4 eşzamanlı, aynı adres tek istek); dönem değişince
   önceki pinler yerinde kalır, cache 60 sn (#2643).
 - **Anasayfa-Vatandaş Tüm Talepler (#2644/#2647):** dönem satırında Özel’den sonra `Tüm Talepler`;

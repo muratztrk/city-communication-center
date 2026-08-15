@@ -1,3 +1,8 @@
+## Round 865 — #2666/#2675
+
+- [x] `6a804997` — İbni Melek mahalle pin’i OSB’ye düşmesin (T-2026-593, cache v11) (#2666).
+- [x] `6a805b07` — Reporter Talep Oluştur: Proje niteliğinde mi? hedef birimin sağında (#2675).
+
 ## Round 864 — #2671
 
 - [x] `6a8055da` — VT harita listesi Durum: İşleme Alındı teal, Yapılmakta mavi, Geciken turuncu (#2671).

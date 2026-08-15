@@ -551,7 +551,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
         >
           <div className="min-w-0">
-            <h2 className="text-base font-semibold text-white">
+            <h2 className="text-base font-medium text-white">
               {message.channel === 'WhatsApp'
                 ? t('social.whatsappCitizenRequestTitle', 'WhatsApp Konuşması - Vatandaş Talebi Oluştur')
                 : t('jobs.detail.citizenRequest', 'Vatandaş Talebi')}

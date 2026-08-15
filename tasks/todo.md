@@ -1,3 +1,8 @@
+## Round 830 — #2636/#2634
+
+- [x] `6a8001ed` — Harita Yazdır: Vatandaş / alt satır Talep No (#2636).
+- [x] `6a7fffe5` — WA Talep Oluştur başlığı medium; compact mesaj 11px (#2634).
+
 ## Round 829 — #2637/#2638
 
 - [x] `6a8003e8` — Banner `page-title` biraz küçültüldü (#2637).

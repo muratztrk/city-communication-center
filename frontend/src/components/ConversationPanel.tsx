@@ -377,7 +377,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             <div
               className={`rounded-xl rounded-tr-sm text-white shadow-md ring-1 ring-white/10 ${
                 compactBubbles
-                  ? 'max-w-[min(68%,22rem)] px-3 py-1.5 text-xs'
+                  ? 'max-w-[min(68%,22rem)] px-3 py-1.5 text-[11px]'
                   : 'max-w-[min(70%,26rem)] px-3 py-2 text-[13px]'
               }`}
               style={{ background: 'var(--color-header-from)' }}

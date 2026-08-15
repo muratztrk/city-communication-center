@@ -224,7 +224,7 @@ export function ConversationEntryBubble({
       <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
         <div
           ref={bubbleRef}
-          className={`${compact ? 'max-w-[min(68%,22rem)] rounded-xl px-3 py-1.5 text-xs' : 'max-w-[min(70%,26rem)] rounded-xl px-3 py-2 text-[13px]'} leading-relaxed shadow-md ${
+          className={`${compact ? 'max-w-[min(68%,22rem)] rounded-xl px-3 py-1.5 text-[11px]' : 'max-w-[min(70%,26rem)] rounded-xl px-3 py-2 text-[13px]'} leading-relaxed shadow-md ${
             isInbound
               ? 'bg-white text-slate-800 rounded-tl-sm ring-1 ring-black/[0.04]'
               : 'rounded-tr-sm text-white ring-1 ring-white/10'
@@ -276,7 +276,7 @@ export function ConversationEntryBubble({
               }}
               autoFocus
               className={`block w-full resize-none border-0 bg-transparent p-0 shadow-none outline-none ring-0 focus:outline-none focus:ring-0 ${
-                compact ? 'text-xs leading-relaxed' : 'text-[13px] leading-snug'
+                compact ? 'text-[11px] leading-relaxed' : 'text-[13px] leading-snug'
               } ${
                 isInbound ? 'text-slate-800 caret-slate-900' : 'text-white caret-white'
               }`}

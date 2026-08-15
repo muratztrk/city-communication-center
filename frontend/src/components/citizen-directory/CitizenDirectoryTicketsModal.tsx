@@ -105,11 +105,13 @@ function printCitizenTickets(
   const listTitle = replaceUnitWithCitizenContact
     ? t('social.citizenRequestNo', 'Vatandaş Talep No')
     : t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')
+  const stackedRequestNo = `<span class="stack-head"><span>${escape(t('dashboard.citizen', 'Vatandaş'))}</span><span>${escape(t('jobs.columns.requestNo', 'Talep No'))}</span></span>`
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(listTitle)}</title>
     <style>
       @page{margin:12mm}
       body{font-family:system-ui,sans-serif;padding:22px;color:#0f172a}
       h1{font-size:17px;margin:0 0 4px}
+      .stack-head{display:inline-flex;flex-direction:column;align-items:center;line-height:1.15;font-weight:inherit}
       h2{font-size:13px;margin:16px 0 8px;border-bottom:1px solid #cbd5e1;padding-bottom:4px}
       p{margin:0 0 14px;color:#64748b;font-size:12px}
       table{width:100%;border-collapse:collapse;font-size:11px;table-layout:fixed}
@@ -124,12 +126,12 @@ function printCitizenTickets(
       .col-status{width:15%;white-space:normal;word-break:break-word}
       .footer{margin-top:14px;font-size:10px;color:#64748b}
     </style></head><body>
-    <h1>${escape(listTitle)}</h1>
+    <h1>${replaceUnitWithCitizenContact ? stackedRequestNo : escape(listTitle)}</h1>
     <p>${escape(citizenLine)}</p>
     <h2>${escape(t('jobs.detail.requestInfo', 'Talep Detayları'))}</h2>
     <table><thead><tr>
       <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
-      <th class="col-no">${escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
+      <th class="col-no">${replaceUnitWithCitizenContact ? stackedRequestNo : escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
       ${replaceUnitWithCitizenContact
         ? `<th class="col-dept">${escape(`${t('social.citizenName', 'Vatandaş Adı')} / ${t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}`)}</th>
       <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>

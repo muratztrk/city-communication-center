@@ -215,7 +215,7 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onSh
                             <div className="request-actions justify-center">
                               <button
                                 type="button"
-                                className="inline-flex size-8 shrink-0 items-center justify-center rounded-full text-emerald-700 transition-colors hover:bg-emerald-50"
+                                className="map-list-location-btn inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-emerald-300 bg-emerald-50 text-emerald-700 shadow-sm transition-colors hover:border-emerald-500 hover:bg-emerald-100"
                                 aria-label={t('citizenRequestMap.showOnMap', 'Konum')}
                                 title={t('citizenRequestMap.showOnMap', 'Konum')}
                                 onClick={() => onShowOnMap(pin.jobId)}

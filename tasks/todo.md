@@ -1,3 +1,7 @@
+## Round 866 — #2673/#2674
+
+- [x] `6a805781` / `6a8057e2` — Harita listesi Konum ikonu varsayılan yuvarlak çerçeve + hover (#2673/#2674).
+
 ## Round 865 — #2666/#2675
 
 - [x] `6a804997` — İbni Melek mahalle pin’i OSB’ye düşmesin (T-2026-593, cache v11) (#2666).

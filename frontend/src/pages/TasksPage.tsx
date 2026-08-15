@@ -86,6 +86,7 @@ import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJobTargetApproverDisplayName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { jobDestinationFieldLabel } from '../utils/jobProjectLabel'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
 import { isDepartmentStaffUser, userWorksInAnyDepartment } from '../utils/userDepartments'
@@ -283,7 +284,7 @@ function printTaskDetail(
     ...(shouldShowRequestApproverField(parentJob)
       ? [['Talebi Onaylayan', formatRequestApproverDisplay(parentJob) ?? '—'] as [string, string]]
       : []),
-    ['Talep Yapılan Birim', formatJobDestinationsWithAssignees(parentJob)],
+    [jobDestinationFieldLabel(parentJob, t, { includeAssignee: false }), formatJobDestinationsWithAssignees(parentJob)],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Durum', getCitizenRequestStatusLabel(t, parentJob)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],

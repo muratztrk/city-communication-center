@@ -1621,12 +1621,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `maxZoom` 13, böylece 2. tıklamada küme çözülür.
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
-  Marker **pin ikonu** (daire değil); cluster küçük, pin 22×33 (#2593/#2597). Pin **rengi** durum
+  Marker **pin ikonu** (daire değil); cluster küçük, pin 20×30 (#2593/#2597). Pin **rengi** durum
   rengi (sky-500 / orange-500 / red-500 / green-500; iç daire beyaz); doygunluk artırımı
   geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
-  özel +/- (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman
-  küçük beyaz çerçeve / büyük ikon, zoom yığınının solunda ortalı, tıklamayla mavi kapsama
+  özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman
+  beyaz çerçeve 1.7rem / iç logo 26px, zoom yığınının solunda ortalı, tıklamayla mavi kapsama
+  (düşük zoom dış çerçevesi CSS ile bastırılır — Google stil API yok, #2622)
   → yola tıklayınca açılır (#2614/#2615/#2621).
   pan/fullscreen yok. Geocode fail pin yok; harita altında “konumlanamadı” yazısı yok (#2604).
   Pin konumu Google geocode: mahalle + cadde/sokak + no. Cadde Google’da yoksa mahalle
@@ -1687,7 +1688,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talep Bilgisi popup (#r466):** `MyRequestDetailMainCard` vatandaşta `Proje mi` satırını
   gizler (`hideProjectRow`); dizin nested Detaylar dahil.
 - **Detay popup Proje mi (#2620):** Hayır ise (ve onay bekleyen proje isteği yoksa) `Proje mi`
-  başlığı tüm Detaylar popup’larında gizlenir; Evet / onay bekleyen istek görünür.
+  başlığı tüm Detaylar popup’larında gizlenir (`MyRequestInfoFieldsList` dahil); Evet / onay
+  bekleyen istek görünür. İlgili Talep Detayları `separatePriorityProjectRows` bu kuralı ezer.
+- **Detay popup Proje Sahibi (#2624):** yalnız Birim İçi + proje ise
+  `Talep Yapılan Birim / Görevi Yapan` başlığı `Proje Sahibi` olur.
 - **Vatandaş Talepleri paging (#r467):** sayfa numarası tıklanınca kolon filtreleri temizlenir ama
   sayfa 1'e sıfırlanmaz (filtre-clear → page-reset yarışı yok).
 - **JobDetail VT (#r467):** `GetJobById` / `JobDetailResponse` `CitizenRequestNumber` taşır; yazdır VT-…
@@ -2035,7 +2039,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Öncelik Normal rengi (#r542):** `getPriorityColorClass('Normal')` = `text-emerald-600`
   (grid + detay ortak; sarı değil).
 - **Drilldown popup header (#r542/#r545/#r546/#2068):** ortada kurum logosu; slice başlığın alt satırında; Talep
-  Etiketi + mahalle pie'larında Yazdır (Taleplerim `detail-print-action` ghost) + X hover bildirimler
+  Etiketi + mahalle + Vatandaş Talepleri + Kanallar + Talep Oluşturan / Bekleyen / Yapılmakta /
+  Tamamlanan Talepler + Yapılmakta/Tamamlanan Projeler pie'larında Yazdır
+  (Taleplerim `detail-print-action` ghost, #2626) + X hover bildirimler
   gibi (`hover:bg-red-50 hover:text-red-600`); mahalle/etiket/birim-dışı pie Durum=`StatusPill`+`GridStatusLabel`;
   sütun `Birim` (mahalle/etiket); **Son Tarih yok** (mahalle/etiket); Tamamlanmış/İptal tarihi Durum pill
   **alt satırında** (Giden grid ile aynı — ayrı `Tamamlanma Tarihi` sütunu yok); yazdırmada `Tamamlanma Tarihi` sütunu kalır.

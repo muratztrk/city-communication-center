@@ -1,3 +1,14 @@
+## Round 822 — #2597/#2620/#2614/#2626/#2625/#2615/#2624/#2622
+
+- [x] `6a7f004c` — Harita pin 20×30 (#2597).
+- [x] `6a7f7c05` — İlgili Talep / Detaylar: Proje mi Hayır ise satır yok (#2620).
+- [x] `6a7f5e43` — Street View iç logo 26px, çerçeve 1.7rem (#2614).
+- [x] `6a7ff14e` — Pie drilldown Yazdır: VT / etiket / kanal / birim / talep / proje (#2626).
+- [x] `6a7ff0d7` — İklim Değişikliği biriminin talep başlık/açıklama → test (tek seferlik migration, #2625).
+- [x] `6a7f5eb2` — Harita +/- 2rem (#2615).
+- [x] `6a7fedda` — Birim İçi + proje: hedef birim başlığı Proje Sahibi (#2624).
+- [x] `6a7fec83` — Street View kapsama düşük zoom dış çerçevesi bastırıldı (#2622).
+
 ## Round 821 — #2604
 
 - [x] `6a7f2baa` — Harita altındaki konumlanamadı yazısı kaldırıldı (#2604).

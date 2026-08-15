@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { Info, X } from 'lucide-react'
+import { Info, Printer, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import type { DashboardChartDrilldownRow, JobDetail, SocialMessage } from '../types/platform'
@@ -16,6 +16,7 @@ import { getLocale, getPriorityColorClass, getPriorityLabel, shouldShowGridPrior
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { printJobDetail } from '../pages/JobsPage'
+import { printDrilldownRows } from './DashboardChartDrilldownModal'
 
 function getDetailStatusClass(status: string): string {
   if (status === 'Completed') return 'text-emerald-600'
@@ -138,6 +139,31 @@ export function CitizenChannelMessagesModal({
             </div>
             <DetailModalHeaderBrand />
             <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
+              {rows ? (
+                <Button
+                  type="button"
+                  size="lg"
+                  variant="ghost"
+                  className="detail-print-action inline-flex items-center gap-1.5 text-[0.95rem] text-slate-700 hover:bg-slate-100"
+                  onClick={() => printDrilldownRows(
+                    t('dashboard.citizenChannels.title'),
+                    sliceLabel,
+                    rows,
+                    locale,
+                    t,
+                    {
+                      showCitizenColumn: true,
+                      showUnitColumn: true,
+                      terminalDateLabel: t('jobs.columns.outcomeAt', 'Sonuç Tarihi'),
+                      stackRequestNoHeader: true,
+                    },
+                  )}
+                  aria-label={t('common.print', 'Yazdır')}
+                >
+                  <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                  {t('common.print', 'Yazdır')}
+                </Button>
+              ) : null}
               <button
                 type="button"
                 className="detail-modal-header-close flex size-9 items-center justify-center rounded-full bg-transparent text-slate-400 shadow-none transition-colors hover:bg-red-50 hover:text-red-600 active:scale-95"

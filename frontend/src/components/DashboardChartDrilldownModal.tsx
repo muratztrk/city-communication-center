@@ -36,7 +36,15 @@ interface DashboardChartDrilldownModalProps {
 }
 
 const PRINTABLE_CHART_KEYS = new Set([
+  'dashboard.charts.citizenRequests',
   'dashboard.charts.requestTags',
+  'dashboard.citizenChannels.title',
+  'dashboard.charts.externalRequestCreators',
+  'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestInProgress',
+  'dashboard.charts.externalRequestFulfillers',
+  'dashboard.charts.externalProjectsInProgress',
+  'dashboard.charts.externalProjectsCompleted',
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.neighborhoodInProgressRequests',
   'dashboard.charts.neighborhoodProcessingRequests',
@@ -181,7 +189,8 @@ function getDrilldownStatusPillClass(row: DashboardChartDrilldownRow): string {
   return getStatusPillClass(getJobStatusTone({ status: row.status, dueDateUtc: row.dueDateUtc }))
 }
 
-function printDrilldownRows(
+// eslint-disable-next-line react-refresh/only-export-components -- shared print helper used by channel pie popup
+export function printDrilldownRows(
   chartTitle: string,
   sliceLabel: string,
   rows: DashboardChartDrilldownRow[],

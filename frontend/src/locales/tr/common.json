@@ -1855,6 +1855,8 @@
       "requestLocation": "Talep Yeri",
       "requestCreator": "Talebi Oluşturan",
       "targetDepartment": "Talep Yapılan Birim",
+      "targetDepartmentAssignee": "Talep Yapılan Birim / Görevi Yapan",
+      "projectOwner": "Proje Sahibi",
       "assignee": "Görevi Yapan",
       "requestApprover": "Talebi Onaylayan",
       "citizenRequest": "Vatandaş Talebi",

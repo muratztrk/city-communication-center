@@ -4,7 +4,7 @@ import { ChannelIcon } from '../../ui/channel-icon'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
 import { formatJobDestinationsWithAssignees } from '../../../utils/jobDetails'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
-import { shouldShowJobProjectField } from '../../../utils/jobProjectLabel'
+import { jobDestinationFieldLabel, shouldShowJobProjectField } from '../../../utils/jobProjectLabel'
 import {
   formatCitizenPhoneDisplay,
   formatCitizenRequestNumber,
@@ -76,15 +76,13 @@ export function buildMyRequestDetailFields(
       },
       ...(useMyRequestsFieldLayout
         ? [
-            { label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'), value: destinationValue },
+            { label: jobDestinationFieldLabel(detail, t, { splitLayout: true }), value: destinationValue },
             ...(!isExternal && assigneeNames.length > 0
               ? [{ label: t('jobs.detail.assignee', 'Görevi Yapan'), value: assigneeNames.join(', ') }]
               : []),
           ]
         : [{
-            label: includeAssignee && !isExternal
-              ? t('jobs.detail.targetDepartmentAssignee', 'Talep Yapılan Birim / Görevi Yapan')
-              : t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'),
+            label: jobDestinationFieldLabel(detail, t, { includeAssignee }),
             value: destinationValue,
           }]),
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
@@ -112,15 +110,13 @@ export function buildMyRequestDetailFields(
     },
     ...(useMyRequestsFieldLayout
       ? [
-          { label: t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'), value: destinationValue },
-          ...(!isExternal && assigneeNames.length > 0
+          { label: jobDestinationFieldLabel(detail, t, { splitLayout: true }), value: destinationValue },
+          ...(!isExternal && assigneeNames.length > 0 && !shouldShowJobProjectField(detail)
             ? [{ label: t('jobs.detail.assignee', 'Görevi Yapan'), value: assigneeNames.join(', ') }]
             : []),
         ]
       : [{
-          label: includeAssignee && !isExternal
-            ? t('jobs.detail.targetDepartmentAssignee', 'Talep Yapılan Birim / Görevi Yapan')
-            : t('jobs.detail.targetDepartment', 'Talep Yapılan Birim'),
+          label: jobDestinationFieldLabel(detail, t, { includeAssignee }),
           value: destinationValue,
         }]),
     ...(shouldShowJobProjectField(detail)

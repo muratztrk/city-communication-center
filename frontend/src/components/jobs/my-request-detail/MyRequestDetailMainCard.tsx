@@ -87,6 +87,7 @@ export function MyRequestInfoFieldsList({
 }: MyRequestInfoFieldsListProps) {
   const priorityLabel = t('jobs.columns.priority', 'Öncelik')
   const categoryLabel = t('social.label', 'Talep Etiketi')
+  const hideProject = hideProjectRow || isCitizenRequestJob(detail) || !shouldShowJobProjectField(detail)
   const citizenContactLabel = t('jobs.detail.citizenNamePhone', 'Vatandaş Adı / Telefon No')
   const [requestTags, setRequestTags] = useState<RequestTag[]>([])
 
@@ -148,7 +149,7 @@ export function MyRequestInfoFieldsList({
           </div>
         </div>
       ))}
-      {!isEditing && (separatePriorityProjectRows || hidePriorityRow || hideProjectRow ? (
+      {!isEditing && (separatePriorityProjectRows || hidePriorityRow || hideProject ? (
         <>
           {!hidePriorityRow ? (
             <div className="job-detail-field-row job-detail-field-row--request-info">
@@ -160,7 +161,7 @@ export function MyRequestInfoFieldsList({
               </div>
             </div>
           ) : null}
-          {!hideProjectRow ? (
+          {!hideProject ? (
             <div className="job-detail-field-row job-detail-field-row--request-info">
               <div className="job-detail-field-row__label">{t('jobs.columns.project', 'Proje mi')}</div>
               <div className="job-detail-field-row__value"><JobProjectValue job={detail} t={t} /></div>

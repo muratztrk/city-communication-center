@@ -40,7 +40,7 @@ import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJo
 import { ExternalDestinationValue } from '../components/jobs/my-request-detail/ExternalDestinationValue'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
-import { formatJobProjectLabel, shouldShowJobProjectField } from '../utils/jobProjectLabel'
+import { formatJobProjectLabel, jobDestinationFieldLabel, shouldShowJobProjectField } from '../utils/jobProjectLabel'
 import { formatAuditNotes, getAuditActionLabel, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getJobStatusTone, getTaskStatusLabel, getSocialChannelLabel, formatOverdueInProgressStatus, shouldShowGridPrioritySubline } from '../utils/localization'
 import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { getRequestEditPath } from '../utils/requestEditPath'
@@ -446,7 +446,7 @@ export function printJobDetail(
       : [['Talebi Onaylayan', formatRequestApproverDisplay(detail) ?? '—'] as [string, string]]),
     // Birime Gelen/Birimden Giden'de modal ile aynı: personel bilgisi yazdırma çıktısında da
     // gösterilmez; Taleplerim kendi modal davranışını korur (cards #1544/#1546, codex review tutarlılığı).
-    ['Talep Yapılan Birim', options?.myRequestView
+    [jobDestinationFieldLabel(detail, t, { includeAssignee: Boolean(options?.myRequestView) }), options?.myRequestView
       ? formatJobDestinationsWithAssignees(detail)
       : formatJobDestinationsWithAssignees(detail, false, false)],
     ...(isCitizenPrint || !shouldShowJobProjectField(detail) ? [] : [['Proje mi', formatJobProjectLabel(detail, t)] as [string, string]]),
@@ -2784,7 +2784,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       {
                         // Vatandaş talebinde de standart taleplerle tutarlı kalır — personel bilgisi
                         // gösterilmez (codex review, cards #1544/#1546).
-                        label: 'Talep Yapılan Birim',
+                        label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
                         value: <ExternalDestinationValue detail={detail} framed={false} />,
                       },
                       // Operatör / Vatandaş Talep Yöneticisi: Talep Etiketi en altta (card #1896).
@@ -2809,7 +2809,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       {
                         // Birime Gelen/Birimden Giden'de personel bilgisi bu satırdan kaldırılır
                         // (cards #1544/#1546). Dış birim yeşil çerçeve yok (#r455).
-                        label: 'Talep Yapılan Birim',
+                        label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
                         value: <ExternalDestinationValue detail={detail} framed={false} />,
                       },
                       ...(shouldShowJobProjectField(detail) ? [{ label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> }] : []),

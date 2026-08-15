@@ -1813,6 +1813,8 @@
       "requestLocation": "Request Location",
       "requestCreator": "Request Creator",
       "targetDepartment": "Destination Unit",
+      "targetDepartmentAssignee": "Destination Unit / Assignee",
+      "projectOwner": "Project Owner",
       "assignee": "Assignee",
       "requestApprover": "Request Approver",
       "citizenRequest": "Citizen Request",

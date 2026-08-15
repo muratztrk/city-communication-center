@@ -152,8 +152,8 @@ class CitizenMapClusterer extends MarkerClusterer {
 
 const pinIconCache = new Map<string, google.maps.Icon>()
 
-const PIN_WIDTH = 22
-const PIN_HEIGHT = 33
+const PIN_WIDTH = 20
+const PIN_HEIGHT = 30
 
 function pinSvgIcon(color: string, approximate: boolean): google.maps.Icon {
   const cacheKey = `${color}|${approximate ? 'approx' : 'exact'}`
@@ -554,7 +554,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
       </div>
 
       <div
-        className="relative h-[min(36rem,65vh)] w-full bg-slate-100"
+        className={`relative h-[min(36rem,65vh)] w-full bg-slate-100${streetViewPicker ? ' citizen-request-map--coverage' : ''}`}
         onMouseEnter={() => setGestureHandling('greedy')}
         onMouseLeave={() => setGestureHandling('none')}
       >
@@ -603,7 +603,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
               aria-pressed={streetViewPicker}
               onClick={toggleStreetViewPicker}
             >
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true">
                 <circle cx="12" cy="5.6" r="2.55" fill="#F4B400" />
                 <path
                   fill="#F4B400"

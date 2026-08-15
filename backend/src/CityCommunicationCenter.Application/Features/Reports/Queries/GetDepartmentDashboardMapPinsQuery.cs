@@ -68,13 +68,19 @@ public sealed class GetDepartmentDashboardMapPinsQueryHandler
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)
                 && (
                     (job.Neighborhood != null && job.Neighborhood != "")
-                    || (job.Street != null && job.Street != ""))
-                && _dbContext.Tasks.Any(task =>
-                    task.JobId == job.JobId
-                    && (
-                        (task.AssignedDepartmentId.HasValue
-                            && (seeAllDepartments || accessibleDepartmentIds.Contains(task.AssignedDepartmentId.Value)))
-                        || task.AssignedUserId == actor.UserId)))
+                    || (job.Street != null && job.Street != "")
+                    || (job.OpenAddress != null && job.OpenAddress != "")
+                    || (job.Latitude != null && job.Longitude != null))
+                && (seeAllDepartments
+                    ? _dbContext.Tasks.Any(task =>
+                        task.JobId == job.JobId
+                        && (task.AssignedDepartmentId.HasValue || task.AssignedUserId.HasValue))
+                    : _dbContext.Tasks.Any(task =>
+                        task.JobId == job.JobId
+                        && (
+                            (task.AssignedDepartmentId.HasValue
+                                && accessibleDepartmentIds.Contains(task.AssignedDepartmentId.Value))
+                            || task.AssignedUserId == actor.UserId))))
             .Select(job => new
             {
                 job.JobId,

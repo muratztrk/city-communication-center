@@ -1,3 +1,7 @@
+## Round 860 — #2670
+
+- [x] `6a8054df` — Birim haritası T-2026-593: açık adres/atanmış kişi + geocode yedeği (#2670).
+
 ## Round 859 — #2668
 
 - [x] `6a804de4` — Vatandaş harita listesi Gittiği Yer = hedef birim (#2668).

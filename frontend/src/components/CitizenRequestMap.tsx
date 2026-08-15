@@ -199,7 +199,7 @@ function pinAddressKey(pin: ResolvedPin): string | null {
 
 function hasMappableAddress(pin: CitizenDashboardMapPin, allowNeighborhood = false): boolean {
   if (normalizeAddressPart(pin.street)) return true
-  if (allowNeighborhood && normalizeAddressPart(pin.neighborhood)) return true
+  if (allowNeighborhood && (normalizeAddressPart(pin.neighborhood) || normalizeAddressPart(pin.openAddress))) return true
   return allowNeighborhood && pin.latitude != null && pin.longitude != null
 }
 
@@ -364,6 +364,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
           neighborhood: pin.neighborhood,
           street: pin.street,
           streetNo: pin.streetNo,
+          openAddress: pin.openAddress,
           districtName: mapView.districtName,
           allowNeighborhoodFallback: allowNeighborhood,
         })

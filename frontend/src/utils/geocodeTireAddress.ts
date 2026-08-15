@@ -1,7 +1,7 @@
 import { canonicalizeNeighborhoodForGeocode, compactNeighborhoodKey, IZMIR_DISTRICTS } from '../data/izmir-locations'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v9'
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v10'
 
 export type LatLng = { lat: number; lng: number }
 
@@ -83,6 +83,7 @@ function buildGeocodeQueryVariants(input: {
   neighborhood?: string | null
   street?: string | null
   streetNo?: string | null
+  openAddress?: string | null
   districtName?: string | null
   allowNeighborhoodFallback?: boolean
 }): string[] {
@@ -90,6 +91,7 @@ function buildGeocodeQueryVariants(input: {
   const tail = [district, 'İzmir', 'Türkiye']
   const street = input.street?.trim()
   const streetNo = input.streetNo?.trim()
+  const openAddress = input.openAddress?.trim()
   const neighborhood = expandNeighborhoodForQuery(
     canonicalizeNeighborhoodForGeocode(input.neighborhood, district),
   )
@@ -110,6 +112,10 @@ function buildGeocodeQueryVariants(input: {
     if (isIbniMelekOsbNeighborhood(neighborhood)) {
       variants.push(['Tire Organize Sanayi Bölgesi', ...tail])
     }
+  }
+  if (input.allowNeighborhoodFallback && openAddress) {
+    variants.push([openAddress, neighborhood, ...tail].filter(Boolean) as string[])
+    variants.push([openAddress, ...tail])
   }
 
   return [...new Set(variants.map(parts => parts.filter(Boolean).join(', ')))]
@@ -242,11 +248,14 @@ export function geocodeTireAddress(input: {
   const district = input.districtName?.trim() || 'Tire'
   const street = input.street?.trim()
   const neighborhood = canonicalizeNeighborhoodForGeocode(input.neighborhood, district)
-  if (!street && !(input.allowNeighborhoodFallback && neighborhood)) return Promise.resolve(null)
+  if (!street && !(input.allowNeighborhoodFallback && (neighborhood || input.openAddress?.trim()))) {
+    return Promise.resolve(null)
+  }
   const cacheKey = normalizeAddressKey([
     street,
     input.streetNo,
     neighborhood,
+    input.openAddress,
     district,
     input.allowNeighborhoodFallback ? 'nb' : '',
   ])
@@ -268,6 +277,7 @@ export function geocodeTireAddress(input: {
     neighborhood,
     districtName: district,
     allowNeighborhoodFallback: input.allowNeighborhoodFallback,
+    openAddress: input.openAddress,
   })
   const queryNeighborhood = expandNeighborhoodForQuery(neighborhood)
   const neighborhoodOnlyQuery = neighborhood
@@ -283,9 +293,12 @@ export function geocodeTireAddress(input: {
     for (let index = 0; index < variants.length; index += 1) {
       await new Promise(resolve => window.setTimeout(resolve, GEOCODE_VARIANT_DELAY_MS))
       const variant = variants[index]
+      const openAddressTrim = input.openAddress?.trim() ?? ''
+      const isOpenAddressVariant = Boolean(openAddressTrim && variant.startsWith(openAddressTrim))
       const neighborhoodOnly = Boolean(
         (neighborhoodOnlyQuery && variant === neighborhoodOnlyQuery)
-        || (osbFallbackQuery && variant === osbFallbackQuery),
+        || (osbFallbackQuery && variant === osbFallbackQuery)
+        || isOpenAddressVariant,
       )
 
       let status = ''
@@ -305,12 +318,12 @@ export function geocodeTireAddress(input: {
         await new Promise(resolve => window.setTimeout(resolve, 250))
       }
 
-      if (status !== 'OK' && status !== 'ZERO_RESULTS') return null
+      if (status !== 'OK' && status !== 'ZERO_RESULTS') continue
       if (status === 'ZERO_RESULTS') continue
 
       const match = results?.find(result => geocodeResultMatchesAddress(result, {
         street: neighborhoodOnly ? undefined : street,
-        neighborhood,
+        neighborhood: isOpenAddressVariant ? undefined : neighborhood,
       }))
       const location = match?.geometry?.location
       if (!location) continue

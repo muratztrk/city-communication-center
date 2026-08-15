@@ -1688,7 +1688,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bir alt satırında. Pinler vatandaş-olmayan (`RequestType != Citizen`, sosyal/e-Devlet/rutin yok)
   ve Birimdeki Görevler kapsamındaki atanmış görevlerin talepleri — kullanıcının birimi.
   Üst Düzey Yönetici (`Reporter`) ve SystemAdmin tüm birimlerin atanmış taleplerini görür (#2641).
-  Lejant: Onay Bekleyen (sky) / Yapılmakta / Geciken / Tamamlanan.
+  Lejant: Yapılmakta Olan (mavi) / Geciken (turuncu) / Tamamlanan; Onay Bekleyen yok (#2665).
   Marker cluster popup başlığı `Birim Talep Bilgi Listesi`; kolonlar Talep No / Talep Tarihi /
   Talep Yeri / Gittiği Yer (hedef birim) / Başlık; Talep Kanalı yok (#2667).
   Geocode kuyruğunda 4 sn timeout pin düşürmez (#2640). Yönetici kendisine atanmış talep

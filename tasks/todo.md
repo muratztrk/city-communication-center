@@ -1,3 +1,7 @@
+## Round 857 — #2665
+
+- [x] `6a804921` — Birim harita lejant: Onay Bekleyen yok; Yapılmakta mavi; Geciken turuncu (#2665).
+
 ## Round 856 — #2665/#2669
 
 - [x] `6a804921` — Birim harita Talepleri Listele geciken Durum pill Taleplerim rengi (#2665).

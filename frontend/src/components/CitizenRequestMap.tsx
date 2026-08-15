@@ -35,8 +35,16 @@ const PIN_COLORS: Record<string, string> = {
   completed: '#22c55e',
 }
 
-function pinColor(displayStatus: string): string {
-  return PIN_COLORS[displayStatus] ?? PIN_COLORS.processingReceived
+const DEPARTMENT_PIN_COLORS: Record<string, string> = {
+  ...PIN_COLORS,
+  pendingApproval: '#0ea5e9',
+  inProgress: '#0ea5e9',
+  overdue: '#f97316',
+}
+
+function pinColor(displayStatus: string, variant: 'citizen' | 'department'): string {
+  const palette = variant === 'department' ? DEPARTMENT_PIN_COLORS : PIN_COLORS
+  return palette[displayStatus] ?? palette.inProgress
 }
 
 /** Başlangıç zoom'da tek pin bile sayılı cluster; bu zoom ve üstünde durum rengi. */
@@ -450,7 +458,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
     const markers = resolved.map(pin => {
       const marker = new google.maps.Marker({
         position: { lat: pin.position.lat, lng: pin.position.lng },
-        icon: pinSvgIcon(pinColor(pin.displayStatus), pin.approximate),
+        icon: pinSvgIcon(pinColor(pin.displayStatus, variant), pin.approximate),
       })
       marker.addListener('click', () => {
         openPinGroupRef.current(pin)
@@ -476,16 +484,22 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
       })
       markersRef.current = []
     }
-  }, [mapInstance, isLoaded, resolved])
+  }, [mapInstance, isLoaded, resolved, variant])
 
-  const statusLegend = useMemo(() => ([
-    variant === 'department'
-      ? { key: 'pendingApproval', label: t('dashboard.chart.pendingApproval', 'Onay Bekleyen'), color: PIN_COLORS.pendingApproval }
-      : { key: 'processingReceived', label: t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı'), color: PIN_COLORS.processingReceived },
-    { key: 'inProgress', label: t('dashboard.chart.inProgress', 'Yapılmakta Olan'), color: PIN_COLORS.inProgress },
-    { key: 'overdue', label: t('citizenRequestMap.legend.overdue', 'Geciken'), color: PIN_COLORS.overdue },
-    { key: 'completed', label: t('citizenRequestMap.legend.completed', 'Tamamlanan'), color: PIN_COLORS.completed },
-  ]), [t, variant])
+  const statusLegend = useMemo(() => {
+    const inProgressColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.inProgress : PIN_COLORS.inProgress
+    const overdueColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.overdue : PIN_COLORS.overdue
+    const items = [
+      { key: 'inProgress', label: t('dashboard.chart.inProgress', 'Yapılmakta Olan'), color: inProgressColor },
+      { key: 'overdue', label: t('citizenRequestMap.legend.overdue', 'Geciken'), color: overdueColor },
+      { key: 'completed', label: t('citizenRequestMap.legend.completed', 'Tamamlanan'), color: PIN_COLORS.completed },
+    ]
+    if (variant === 'department') return items
+    return [
+      { key: 'processingReceived', label: t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı'), color: PIN_COLORS.processingReceived },
+      ...items,
+    ]
+  }, [t, variant])
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     setMapInstance(map)

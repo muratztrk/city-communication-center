@@ -1688,7 +1688,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (Talebi Yönlendiren/owner değil, #2668). Durum `processingReceived` = İşleme Alındı
   (#2668, Onay Bekleyen değil). Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
   (`bg-teal-600`), Yapılmakta mavi (`bg-sky-500`), Geciken turuncu (`bg-orange-500`) (#2671).
-  yeşil Konum ikonu (varsayılan yuvarlak çerçeve + hover, #2673/#2674). Birim listesinde Durum
+  yeşil Konum ikonu (varsayılan yuvarlak çerçeve + hover, #2673/#2674); Konum tıklanınca
+  marker bounce harita/marker tıklanıncaya kadar sürer (#2676). Birim listesinde Durum
   pill Taleplerim ile aynı (`getStatusPillClass`, geciken turuncu+beyaz #2665). Birim kolonları
   #2665). Birim kolonları Birim Talep Bilgi Listesi.
 - **Birim Talep Haritası (#2610/#2611/#2667):** `/department-request-map`;

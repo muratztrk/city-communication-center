@@ -342,6 +342,12 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
   const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
   const markersRef = useRef<google.maps.Marker[]>([])
+  const bouncingMarkerRef = useRef<google.maps.Marker | null>(null)
+
+  const stopMarkerBounce = useCallback(() => {
+    bouncingMarkerRef.current?.setAnimation(null)
+    bouncingMarkerRef.current = null
+  }, [])
 
   const geocodeReady = !mapsReady || loadError != null || isLoaded
 
@@ -456,9 +462,10 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
     if (currentZoom < CLUSTER_REVEAL_ZOOM) mapInstance.setZoom(CLUSTER_REVEAL_ZOOM)
     const marker = markersRef.current[index]
     if (!marker) return
+    stopMarkerBounce()
     marker.setAnimation(google.maps.Animation.BOUNCE)
-    window.setTimeout(() => marker.setAnimation(null), 1600)
-  }, [mapInstance])
+    bouncingMarkerRef.current = marker
+  }, [mapInstance, stopMarkerBounce])
 
   useEffect(() => {
     if (!mapInstance || !isLoaded) return
@@ -476,6 +483,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
         icon: pinSvgIcon(pinColor(pin.displayStatus, variant), pin.approximate),
       })
       marker.addListener('click', () => {
+        stopMarkerBounce()
         openPinGroupRef.current(pin)
       })
       return marker
@@ -487,10 +495,15 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
       markers,
       algorithm: new SuperClusterAlgorithm({ radius: 80, maxZoom: NUMBERED_SINGLE_MAX_ZOOM }),
       renderer: bannerClusterRenderer,
-      onClusterClick: onCitizenClusterClick,
+      onClusterClick: (event, cluster, map) => {
+        bouncingMarkerRef.current?.setAnimation(null)
+        bouncingMarkerRef.current = null
+        onCitizenClusterClick(event, cluster, map)
+      },
     })
 
     return () => {
+      bouncingMarkerRef.current = null
       clustererRef.current?.clearMarkers()
       clustererRef.current = null
       markersRef.current.forEach(marker => {
@@ -499,7 +512,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
       })
       markersRef.current = []
     }
-  }, [mapInstance, isLoaded, resolved, variant])
+  }, [mapInstance, isLoaded, resolved, variant, stopMarkerBounce])
 
   const statusLegend = useMemo(() => {
     const inProgressColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.inProgress : PIN_COLORS.inProgress
@@ -525,6 +538,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
     const coverage = new google.maps.StreetViewCoverageLayer()
     coverageLayerRef.current = coverage
     const clickListener = mapInstance.addListener('click', (event: google.maps.MapMouseEvent) => {
+      stopMarkerBounce()
       if (!streetViewPickerRef.current || !event.latLng) return
       const service = new google.maps.StreetViewService()
       void service.getPanorama(
@@ -554,7 +568,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
       coverage.setMap(null)
       coverageLayerRef.current = null
     }
-  }, [mapInstance])
+  }, [mapInstance, stopMarkerBounce])
 
   function toggleStreetViewPicker() {
     if (!mapInstance) return

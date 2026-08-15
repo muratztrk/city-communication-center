@@ -1,3 +1,7 @@
+## Round 868 — #2676
+
+- [x] `6a805ec0` — Harita Konum: marker bounce tıklanıncaya kadar (#2676).
+
 ## Round 867 — #2671/#2670/#2675
 
 - [x] `6a8055da` — VT harita lejant/pin: İşleme Alındı teal, Yapılmakta mavi, Geciken turuncu (#2671).

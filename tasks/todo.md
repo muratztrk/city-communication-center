@@ -1,3 +1,7 @@
+## Round 872 — #2671
+
+- [x] `6a8055da` — Harita lejant Geciken: Yapılmakta Geciken yan yana (#2671).
+
 ## Round 871 — #2682
 
 - [x] `6a8065fa` — Vatandaş harita listesinden Gittiği Yer sütunu kaldırıldı (#2682).

@@ -524,9 +524,8 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
       { key: 'inProgress', label: inProgressLabel, color: inProgressColor },
       {
         key: 'overdue',
-        label: overdueLabel,
+        label: `${inProgressLabel} ${overdueLabel}`,
         color: overdueColor,
-        lines: [inProgressLabel, overdueLabel],
       },
       { key: 'completed', label: t('citizenRequestMap.legend.completed', 'Tamamlanan'), color: PIN_COLORS.completed },
     ]
@@ -612,13 +611,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
           {statusLegend.map(item => (
             <span key={item.key} className="inline-flex items-center gap-1.5">
               <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
-              {item.lines ? (
-                <span className="inline-flex flex-col leading-tight">
-                  {item.lines.map(line => (
-                    <span key={line}>{line}</span>
-                  ))}
-                </span>
-              ) : item.label}
+              {item.label}
             </span>
           ))}
           <span className="text-slate-400">

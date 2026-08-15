@@ -133,7 +133,7 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onSh
   const maxPage = Math.max(1, Math.ceil(rows.length / pageSize) || 1)
   const safePage = Math.min(page, maxPage)
   const paged = rows.slice((safePage - 1) * pageSize, safePage * pageSize)
-  const columnCount = 8
+  const columnCount = isCitizen ? 7 : 8
 
   return createPortal(
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/45 p-4" onClick={onClose}>
@@ -224,19 +224,7 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onSh
                       >
                         {t('jobs.columns.requestDate', 'Talep Tarihi')}
                       </FilterableTh>
-                      {isCitizen ? (
-                        <FilterableTh
-                          filterKey="destinationText"
-                          filterValue={filters.destinationText ?? ''}
-                          onFilter={handleFilter}
-                          sortKey="destinationText"
-                          currentSortKey={sortKey}
-                          sortDir={sortDir}
-                          onSort={handleSort}
-                        >
-                          {t('social.destination', 'Gittiği Yer')}
-                        </FilterableTh>
-                      ) : (
+                      {isCitizen ? null : (
                         <>
                           <FilterableTh
                             filterKey="ownerLocationText"
@@ -333,13 +321,7 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onSh
                             </td>
                           ) : null}
                           <td className="text-center"><DateCell value={pin.createdAtUtc} locale={locale} /></td>
-                          {isCitizen ? (
-                            <td className="max-w-[12rem]">
-                              {pin.destinationDepartmentName?.trim()
-                                ? <span className="block truncate">{pin.destinationDepartmentName}</span>
-                                : '—'}
-                            </td>
-                          ) : (
+                          {isCitizen ? null : (
                             <>
                               <td className="max-w-[12rem]">
                                 {pin.ownerDepartmentName?.trim()

@@ -1,3 +1,7 @@
+## Round 871 — #2682
+
+- [x] `6a8065fa` — Vatandaş harita listesinden Gittiği Yer sütunu kaldırıldı (#2682).
+
 ## Round 870 — #2679/#2680
 
 - [x] `6a806238` — Birim haritası (müdür): Birimdeki Görevler + banner (#2679).

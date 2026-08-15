@@ -1685,8 +1685,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
-  Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; Gittiği Yer = hedef birim
-  (Talebi Yönlendiren/owner değil, #2668). Durum `processingReceived` = İşleme Alındı
+  Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
+  (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
   (#2668, Onay Bekleyen değil). Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
   (`bg-teal-600`), Yapılmakta mavi (`bg-sky-500`), Geciken turuncu (`bg-orange-500`) (#2671).
   yeşil Konum ikonu (varsayılan yuvarlak çerçeve + hover, #2673/#2674); Konum ile Detaylar

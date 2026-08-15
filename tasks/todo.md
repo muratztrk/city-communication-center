@@ -1,3 +1,7 @@
+## Round 884 — #2697
+
+- [x] `6a809d2e` — Mobil talep oluştur Cadde/Sokak placeholder `Cadde seçiniz`.
+
 ## Round 883 — #2696
 
 - [x] `6a80870f` — Harita pin konumu İzmir CBS kapı/cadde noktası; Google adres araması yok.

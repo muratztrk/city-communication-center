@@ -291,8 +291,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   backend komut validasyonları da aynı sınırı korur (#2567/#2578).
   WhatsApp Vatandaş Bilgileri ve yazdırma çıktısında etiket `Adres Tarifi`; yazdırmada Cadde/Sokak
   altında ayrı `No` satırı vardır (#2586/#2588). Adres Tarifi placeholder:
-  `Mevki, daire, kat bilgisi giriniz...` (#2660/#2669). Cadde placeholder `Cadde / sokak seçiniz`,
-  No `No seçiniz` (#2669).
+  `Mevki, daire, kat bilgisi giriniz...` (#2660/#2669). Cadde placeholder `Cadde / sokak seçiniz`
+  (masaüstü); mobilde `Cadde seçiniz` (#2697). No `No seçiniz` (#2669).
 - **Adres metni yazımı:** Cadde / Sokak ve Açık Adres değerleri Türkçe locale kurallarıyla
   her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilir
   (`normalizeTitleCaseField` — onBlur + kayıt). Rutin görev detay Düzenle dahil tüm adres
@@ -1193,7 +1193,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talep oluştur (iç/dış/vatandaş), vatandaş modal, rutin ve WA taslak adresinde Cadde/No
   textbox yok; CBS dropdown (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle satırı
   Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `8.25rem` sabit (cadde seçilince
-  değişmez, #2659/#2669).   Default Cadde placeholder `Cadde / sokak seçiniz`, No `No seçiniz`. Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
+  değişmez, #2659/#2669).   Default Cadde placeholder `Cadde / sokak seçiniz`; mobilde
+  (`max-width: 767px`) `Cadde seçiniz` (#2697). No `No seçiniz`. Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
   (#2654/#2681). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).

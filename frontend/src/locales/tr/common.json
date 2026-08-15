@@ -1981,6 +1981,7 @@
     "streetShortLabel": "Cadde / Sokak",
     "streetPlaceholder": "ör. Atatürk Caddesi",
     "streetSelectPlaceholder": "Cadde / sokak seçiniz",
+    "streetSelectPlaceholderMobile": "Cadde seçiniz",
     "streetDisabledHint": "Önce mahalle seçiniz",
     "streetNoLabel": "No",
     "streetNoPlaceholder": "ör. 12",

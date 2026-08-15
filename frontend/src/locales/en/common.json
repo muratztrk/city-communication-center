@@ -1939,6 +1939,7 @@
     "streetShortLabel": "Street / Avenue",
     "streetPlaceholder": "e.g. Atatürk Avenue",
     "streetSelectPlaceholder": "Select street / avenue",
+    "streetSelectPlaceholderMobile": "Select street",
     "streetDisabledHint": "Select a neighborhood first",
     "streetNoLabel": "No",
     "streetNoPlaceholder": "e.g. 12",

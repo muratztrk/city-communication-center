@@ -1,7 +1,10 @@
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMunicipalityDistrictId } from '../../hooks/useMunicipalityDistrictId'
 import { useIzmirCbsStreetNoCatalog } from '../../hooks/useIzmirCbsStreetNoCatalog'
 import { SingleSelectDropdown } from '../ui/single-select-dropdown'
+
+const MOBILE_MAX_WIDTH_MQ = '(max-width: 767px)'
 
 interface CbsStreetNoDropdownsProps {
   neighborhood: string
@@ -28,6 +31,7 @@ export function CbsStreetNoDropdowns({
   className = 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2',
 }: CbsStreetNoDropdownsProps) {
   const { t } = useTranslation()
+  const [isMobile, setIsMobile] = useState(false)
   const districtId = useMunicipalityDistrictId()
   const hasNeighborhood = neighborhood.trim().length > 0
   const hasStreet = street.trim().length > 0
@@ -37,6 +41,15 @@ export function CbsStreetNoDropdowns({
     street,
     streetNo,
   )
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
+    const mq = window.matchMedia(MOBILE_MAX_WIDTH_MQ)
+    const sync = () => setIsMobile(mq.matches)
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
 
   return (
     <div className={className}>
@@ -54,7 +67,11 @@ export function CbsStreetNoDropdowns({
             onStreetChange(nextStreet)
             onStreetNoChange('')
           }}
-          placeholder={t('address.streetSelectPlaceholder', 'Cadde / sokak seçiniz')}
+          placeholder={
+            isMobile
+              ? t('address.streetSelectPlaceholderMobile', 'Cadde seçiniz')
+              : t('address.streetSelectPlaceholder', 'Cadde / sokak seçiniz')
+          }
           searchPlaceholder={t('common.search', 'Ara...')}
           disabled={!hasNeighborhood || streetsLoading}
           clearable

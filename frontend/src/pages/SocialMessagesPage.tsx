@@ -555,7 +555,25 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
       </header>
       )}
 
-      <nav className={`scope-chips${embedded ? ' shrink-0 px-4' : ''}`} aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
+      {embedded ? (
+      <nav className="scope-chips shrink-0 px-4" aria-label={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}>
+        <SingleSelectDropdown
+          className="w-auto"
+          triggerClassName="scope-chip-year-select scope-chip-status-select w-[11.5rem] min-w-[11.5rem] max-w-[11.5rem]"
+          menuScrollClassName="scope-chip-status-menu-scroll"
+          options={REQUEST_STATUS_FILTERS.map(filter => ({ value: filter.value, label: t(filter.labelKey, filter.fallback) }))}
+          value={requestStatusFilter}
+          onChange={value => {
+            const nextValue = value as SocialRequestStatusFilter
+            setRequestStatusFilter(nextValue)
+            setEmbeddedRequestStatus(nextValue)
+          }}
+          placeholder={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
+        />
+        <ClearPieFilterLink hasColumnFilters={hasActiveSocialColumnFilters} onClearColumnFilters={clearSocialFilters} />
+      </nav>
+      ) : (
+      <nav className="scope-chips" aria-label={t('social.channelFilterLabel', 'Vatandaş talebi kanal filtreleri')}>
         {channelQuickFilters.map(filter => (
           <button
             key={filter.value || 'all'}
@@ -582,10 +600,6 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
           onChange={value => {
             const nextValue = value as SocialRequestStatusFilter
             setRequestStatusFilter(nextValue)
-            if (embedded) {
-              setEmbeddedRequestStatus(nextValue)
-              return
-            }
             const nextParams = new URLSearchParams(searchParams)
             if (nextValue === 'all') nextParams.delete('requestStatus')
             else nextParams.set('requestStatus', nextValue)
@@ -595,13 +609,14 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
         />
         <ClearPieFilterLink hasColumnFilters={hasActiveSocialColumnFilters} onClearColumnFilters={clearSocialFilters} />
       </nav>
+      )}
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
       {embedded && loading ? <div className="loading px-4 py-6">{t('common.loading')}</div> : null}
 
       <section className={embedded ? 'section-card min-h-0 flex-1 overflow-hidden' : 'section-card desktop-page-fill'}>
         <div className={embedded ? 'table-wrap h-full overflow-auto' : 'table-wrap desktop-panel-scroll'}>
-          <table className="data-table jobs-table data-table--zebra social-messages-table">
+          <table className={`data-table jobs-table data-table--zebra social-messages-table${embedded ? ' dashboard-drilldown-table' : ''}`}>
             <thead>
               <tr>
                 <th className="w-12 text-center">{t('common.rowNo', 'Sıra')}</th>
@@ -618,8 +633,10 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                   </span>
                 </FilterableTh>
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.destination', 'Gittiği Yer')}</FilterableTh>
-                <FilterableTh filterKey="statusSortText" filterValue={socialFilters['statusSortText'] ?? ''} onFilter={setSocialFilter} sortKey="statusSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.detail.processTitle', 'Süreç')}</FilterableTh>
+                <FilterableTh filterKey="statusSortText" filterValue={socialFilters['statusSortText'] ?? ''} onFilter={setSocialFilter} sortKey="statusSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>
+                {embedded ? null : (
                 <FilterableTh filterKey="labelSortText" filterValue={socialFilters['labelSortText'] ?? ''} onFilter={setSocialFilter} sortKey="labelSortText" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('whatsapp.label', 'Talep Etiketi')}</FilterableTh>
+                )}
                 <th>{t('common.actions')}</th>
               </tr>
             </thead>
@@ -670,6 +687,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                         ? getLinkedJobDisplayStatus(t, linkedJob, message.dueDateUtc ?? linkedJob.dueDateUtc ?? null)
                         : t('social.requestStatus.processingReceived', 'İşleme Alındı')}
                     </td>
+                    {embedded ? null : (
                     <td className="text-center">
                       <div className="inline-flex w-full justify-center">
                         <RequestTagPicker
@@ -682,6 +700,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                         />
                       </div>
                     </td>
+                    )}
                     <td className="actions-cell">
                       <div className="request-actions justify-center">
                         <Button
@@ -702,7 +721,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                 )
               })}
               {columnFilteredMessages.length === 0 ? (
-                <TableEmptyStateRows columnCount={9} message={t('social.empty')} />
+                <TableEmptyStateRows columnCount={embedded ? 8 : 9} message={t('social.empty')} />
               ) : null}
             </tbody>
           </table>

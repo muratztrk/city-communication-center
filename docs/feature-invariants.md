@@ -1669,7 +1669,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pin API + geocode paralel (en fazla 4 eşzamanlı, aynı adres tek istek); dönem değişince
   önceki pinler yerinde kalır, cache 60 sn (#2643).
 - **Anasayfa-Vatandaş Tüm Talepler (#2644):** dönem satırında Özel’den sonra `Tüm Talepler`;
-  tıklanınca operatör Vatandaş Talepleri grid’i popup (`SocialMessagesPage` embedded).
+  popup operatör VT grid (`SocialMessagesPage` embedded). Kanal chip’leri (Tümü/WhatsApp/…) yok;
+  Talep Etiketi sütunu yok; thead drilldown standardı (`0.78rem`). Durum filtresi kalır.
 - **Anasayfa-Birimler Tüm Talepler (#2645):** Özel’den sonra aynı buton; popup vatandaş-olmayan
   atanmış kurum içi talepler (Sıra, Talep No, Talep Tarihi, Talep Yeri, Gittiği Yer, Başlık,
   Durum, İşlemler).
@@ -1705,7 +1706,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`background-color` + aynı linear-gradient, `background-attachment: fixed`) — scroll’da
   tbody satırları başlığın üstüne binmez; hücreler arası sürekli gradient korunur. `z-index` ≥ 5.
 - **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → Telefon → Talep Tarihi →
-  Gittiği Yer → Talep Etiketi → **Süreç** → İşlemler (#2574). **Tüm Talep Durumları** scope chip
+  Gittiği Yer → Talep Etiketi → **Durum** → İşlemler (#2646; eski Süreç başlığı). **Tüm Talep Durumları** scope chip
   seçildikten sonra genişlik sabit kalır (`scope-chip-status-select`, #2573). Etiket dropdown hücresinde buton ortalı; açık menü
   satırları sola yaslı (card #1878 reopen — ortalanmamalı).
 - **Vatandaş Talepleri Talep Etiketi (card #1878/#r461/#r462/#r463/#6a6d8fe8):** grid hücresinde

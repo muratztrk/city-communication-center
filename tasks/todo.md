@@ -1,3 +1,8 @@
+## Round 838 — #2646/#2644
+
+- [x] `6a8020cb` — Vatandaş Talepleri grid Süreç başlığı Durum (#2646).
+- [x] `6a801b6e` — Tüm Talepler popup: kanal chip yok, Talep Etiketi yok, küçük thead (#2644).
+
 ## Round 837 — #2645/#2642
 
 - [x] `6a801c4e` — Anasayfa-Birimler Özel sonrası Tüm Talepler → atanmış kurum içi grid (#2645).

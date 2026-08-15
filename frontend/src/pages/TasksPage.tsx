@@ -80,7 +80,7 @@ function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHi
     ? chronological.filter(item => item.toUserId).reverse()
     : []
 }
-import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate } from '../utils/citizenRequests'
+import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate, requestLocationFieldLabel } from '../utils/citizenRequests'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
@@ -254,7 +254,7 @@ function printTaskDetail(
     ['Görev No', taskDisplayNumber],
     ['Görev Başlığı', taskDetail.title],
     ...(taskDetail.jobSourceType !== 'Routine'
-      ? [['Talep Yeri / Oluşturan', [taskSummary?.ownerDepartmentName, taskDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—']]
+      ? [[parentJob ? requestLocationFieldLabel(parentJob, t) : 'Talep Yeri / Oluşturan', [taskSummary?.ownerDepartmentName, taskDetail.createdByDisplayName].filter(Boolean).join(' / ') || '—']]
       : []),
     ['Görevi Yapan', taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? '—'],
     ['Görev Tipi', gorevTipi],
@@ -280,7 +280,7 @@ function printTaskDetail(
     }, locale)],
     ['Vatandaş Adı / Telefon No', [parentJob.citizenName ?? citizenSourceMessage?.citizenHandle, formatCitizenPhoneDisplay(parentJob.citizenPhone ?? citizenSourceMessage?.citizenPhone)].filter(Boolean).join(' / ') || '—'],
     ['Talep Başlığı', parentJob.title],
-    ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    [requestLocationFieldLabel(parentJob, t), [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     ...(shouldShowRequestApproverField(parentJob)
       ? [['Talebi Onaylayan', formatRequestApproverDisplay(parentJob) ?? '—'] as [string, string]]
       : []),
@@ -295,7 +295,7 @@ function printTaskDetail(
   ] : [
     ['Talep No', parentJob.jobNumber != null && parentJob.jobNumberYear != null ? `T-${parentJob.jobNumberYear}-${parentJob.jobNumber}` : '—'],
     ['Talep Başlığı', parentJob.title],
-    ['Talep Yeri / Oluşturan', [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    [requestLocationFieldLabel(parentJob, t), [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     ...(shouldShowRequestApproverField(parentJob)
       ? [['Talebi Onaylayan', formatRequestApproverDisplay(parentJob) ?? '—'] as [string, string]]
       : []),
@@ -2283,7 +2283,7 @@ const pageKicker = isMyTasksView
                           {[
                             ...(taskDetail.jobSourceType !== 'Routine'
                               ? [{
-                                  label: 'Talep Yeri / Oluşturan',
+                                  label: parentJobDetail ? requestLocationFieldLabel(parentJobDetail, t) : 'Talep Yeri / Oluşturan',
                                   // Dış birim yeşil çerçeve kaldırıldı — eski düz görünüm (card #r455).
                                   value: <StackedFieldValue top={selectedTask.ownerDepartmentName} bottom={selectedTask.createdByDisplayName} />,
                                 }]

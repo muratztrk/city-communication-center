@@ -1,3 +1,10 @@
+## Round 824 — #2597/#2627/#2622/#2623
+
+- [x] `6a7f004c` — Harita pin 18×27 (#2597).
+- [x] `6a7ff486` — Vatandaş detay: Talep Yeri / Oluşturan → Talebi Yönlendiren (#2627).
+- [x] `6a7fec83` — Street View kapsama: özel svv overlay + erode, koyu mavi çerçeve yok (#2622).
+- [x] `6a7fec88` — Birimler pie: Onay Bekleyen Talepler (#2623).
+
 ## Round 823 — #2629/#2628
 
 - [x] `6a7ff61e` — Anasayfa-Birimler pie sırası: talepler → projeler → oluşturan → Taleplerim → Bildirimler (#2629).

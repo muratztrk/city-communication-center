@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { SimpleImageAttachmentIcon } from '../../ui/SimpleImageAttachmentIcon'
 import type { JobDetail } from '../../../types/platform'
+import { requestLocationFieldLabel } from '../../../utils/citizenRequests'
 import { getPriorityColorClass, getPriorityLabel, getTaskDisplayStatus, getTaskStatusTone } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime } from './format'
 import type { JobProcessStep } from './buildJobProcessSteps'
@@ -200,7 +201,7 @@ export function MyRequestTaskDetailsSection({
                     {
                       // Talep yeri (birim) üst, oluşturan personel alt satırda (card #1544).
                       // Dış birim yeşil çerçeve yok — eski düz görünüm (card #r455).
-                      label: t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'),
+                      label: requestLocationFieldLabel(detail, t),
                       value: <StackedFieldValue top={taskLocationDepartment} bottom={taskLocationCreator} />,
                     },
                     ...(task.jobSourceType !== 'Routine'

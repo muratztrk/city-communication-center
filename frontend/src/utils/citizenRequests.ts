@@ -9,6 +9,16 @@ export function isCitizenRequestJob(job: { requestType?: string | null; sourceTy
     || job.sourceType === 'EDevlet'
 }
 
+/** Vatandaş talebinde konum/oluşturan başlığı (#2627). */
+export function requestLocationFieldLabel(
+  job: { requestType?: string | null; sourceType?: string | null },
+  t: TFunction,
+): string {
+  return isCitizenRequestJob(job)
+    ? t('jobs.detail.requestRouter', 'Talebi Yönlendiren')
+    : t('jobs.detail.requestLocationCreator', 'Talep Yeri / Oluşturan')
+}
+
 const TERMINAL_TASK_STATUSES = new Set(['Completed', 'Cancelled', 'Rejected'])
 
 /** Açık (terminal olmayan) görev sayısı — Mesaj Onayı reopen sonrası İşleme Alındı için. */

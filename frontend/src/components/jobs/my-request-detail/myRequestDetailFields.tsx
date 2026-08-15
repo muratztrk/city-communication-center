@@ -9,6 +9,7 @@ import {
   formatCitizenPhoneDisplay,
   formatCitizenRequestNumber,
   isCitizenRequestJob,
+  requestLocationFieldLabel,
 } from '../../../utils/citizenRequests'
 import { getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
 import { RequestNumberWithTypeLabel } from '../../../utils/requestDisplay'
@@ -71,7 +72,7 @@ export function buildMyRequestDetailFields(
       },
       { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
       {
-        label: t('jobs.detail.requestLocationCreator', 'Talep Yeri / Oluşturan'),
+        label: requestLocationFieldLabel(detail, t),
         value: locationCreatorValue,
       },
       ...(useMyRequestsFieldLayout
@@ -105,7 +106,7 @@ export function buildMyRequestDetailFields(
     },
     { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
     {
-      label: t('jobs.detail.requestLocationCreator', 'Talep Yeri / Oluşturan'),
+      label: requestLocationFieldLabel(detail, t),
       value: locationCreatorValue,
     },
     ...(useMyRequestsFieldLayout

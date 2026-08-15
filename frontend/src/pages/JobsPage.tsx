@@ -52,6 +52,7 @@ import {
   getCitizenRequestStatusLabel,
   shouldShowCitizenTargetApprovalDate,
   countOpenWorkTasks,
+  requestLocationFieldLabel,
 } from '../utils/citizenRequests'
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -369,7 +370,7 @@ function buildPrintTaskDetailSections(detail: JobDetail, locale: string, t: TFun
     const rows: Array<[string, string]> = [
       [t('tasks.columns.taskNo', 'Görev No'), taskNumber],
       [t('tasks.columns.title', 'Görev Başlığı'), task.title],
-      [t('tasks.columns.requestLocation', 'Talep Yeri / Oluşturan'), taskLocation],
+      [requestLocationFieldLabel(detail, t), taskLocation],
       [t('tasks.columns.owner', 'Görev Sahibi'), owner],
       [t('tasks.columns.taskType', 'Görev Tipi'), taskType],
       [t('tasks.columns.priority', 'Öncelik'), getPriorityLabel(t, task.priority)],
@@ -440,7 +441,7 @@ export function printJobDetail(
         ]
       : []),
     ['Talep Başlığı', detail.title],
-    ['Talep Yeri / Oluşturan', [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    [requestLocationFieldLabel(detail, t), [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     ...(options?.myRequestView || !shouldShowRequestApproverField(detail)
       ? []
       : [['Talebi Onaylayan', formatRequestApproverDisplay(detail) ?? '—'] as [string, string]]),
@@ -2770,7 +2771,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       {
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
                         // Dış birim yeşil çerçeve kaldırıldı — eski düz görünüm (card #r455).
-                        label: 'Talep Yeri / Oluşturan',
+                        label: requestLocationFieldLabel(detail, t),
                         value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{
@@ -2795,7 +2796,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     ] : [
                       {
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
-                        label: 'Talep Yeri / Oluşturan',
+                        label: requestLocationFieldLabel(detail, t),
                         value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
                       },
                       ...(shouldShowRequestApproverField(detail) ? [{

@@ -6524,9 +6524,9 @@
     outline-offset: 1px;
   }
 
-  /* Street View kapsama: düşük zoom'daki açık dış çerçeveyi bastır (#2622). */
+  /* Street View kapsama: düşük zoom koyu mavi dış çerçeveyi aşındır (#2622). */
   .citizen-request-map--coverage img[src*="svv"],
   .citizen-request-map--coverage img[src*="lyrs=sv"] {
-    filter: contrast(1.7) saturate(1.2) brightness(0.94);
+    filter: url(#sv-coverage-erode);
   }
 }

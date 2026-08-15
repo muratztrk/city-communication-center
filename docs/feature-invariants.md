@@ -1675,6 +1675,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
+  **Talepleri Listele (#2664/#2665):** `N konum` metninin yanında; popup yalnızca haritada
+  konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
+  Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; birim kolonları Birimlerin Tüm Talepleri.
 - **Birim Talep Haritası (#2610/#2611):** `/department-request-map`;
   `GET /reports/dashboard-department-map-pins`. Yalnız `internal` lisans.
   Sol menü Anasayfa - Birimler’in altında; Sayfa Yetkileri’nde Vatandaş Talep Haritası’nın

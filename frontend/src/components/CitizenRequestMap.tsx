@@ -14,6 +14,7 @@ import type { TFunction } from 'i18next'
 import { api } from '../api/client'
 import type { CitizenConversationTicket, CitizenDashboardMapPin, JobDetail, SocialMessage } from '../types/platform'
 import { CitizenDirectoryTicketsModal } from './citizen-directory/CitizenDirectoryTicketsModal'
+import { MapPinnedRequestsModal } from './MapPinnedRequestsModal'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { formatOverdueInProgressStatus } from '../utils/localization'
@@ -324,6 +325,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
   const [gestureHandling, setGestureHandling] = useState<'none' | 'greedy'>('none')
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
   const [streetViewPicker, setStreetViewPicker] = useState(false)
+  const [listOpen, setListOpen] = useState(false)
   const streetViewPickerRef = useRef(false)
   const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
@@ -561,6 +563,14 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
               ? t('common.loading', 'Yükleniyor...')
               : t('citizenRequestMap.pinCount', { count: resolved.length, defaultValue: '{{count}} konum' })}
           </span>
+          <button
+            type="button"
+            disabled={loading || resolving || resolved.length === 0}
+            onClick={() => setListOpen(true)}
+            className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {t('citizenRequestMap.listRequests', 'Talepleri Listele')}
+          </button>
           </div>
         </div>
       </div>
@@ -670,6 +680,15 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
           }}
           onOpenJobDetail={(jobId, socialMessageId) => void openJobDetail(jobId, socialMessageId)}
           replaceUnitWithCitizenContact={variant === 'citizen'}
+        />
+      ) : null}
+
+      {listOpen ? (
+        <MapPinnedRequestsModal
+          pins={resolved}
+          variant={variant}
+          onClose={() => setListOpen(false)}
+          onOpenJob={(jobId, socialMessageId) => void openJobDetail(jobId, socialMessageId)}
         />
       ) : null}
 

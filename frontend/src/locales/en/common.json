@@ -70,6 +70,7 @@
     "subtitle": "Citizen requests in {{district}} are shown on the map with neighborhood, street/number, and open address.",
     "live": "Live map",
     "pinCount": "{{count}} locations",
+    "listRequests": "List Requests",
     "geocodeEmpty": "Addresses could not be placed on the map.",
     "geocodePartial": "{{count}} requests could not be geocoded.",
     "unlocatedListTitle": "Unlocated requests",

@@ -1,3 +1,8 @@
+## Round 853 — #2664/#2665
+
+- [x] `6a8048e0` — Vatandaş harita: Talepleri Listele (#2664).
+- [x] `6a804921` — Birim harita: Talepleri Listele (#2665).
+
 ## Round 852 — #2654/#2659/#2662/#2663
 
 - [x] `6a803a0c` — Kurum Konumu daraltmayı geri al; Cadde/No alt satır (#2654).

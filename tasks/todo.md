@@ -1,3 +1,8 @@
+## Round 837 — #2645/#2642
+
+- [x] `6a801c4e` — Anasayfa-Birimler Özel sonrası Tüm Talepler → atanmış kurum içi grid (#2645).
+- [x] `6a801821` — Birim haritası: cadde bulunamazsa pin yok; No yoksa cadde konumuna kaydır (#2642).
+
 ## Round 836 — #2643/#2644
 
 - [x] `6a801aea` — Vatandaş/Birim talep haritası pin yükleme: paralel geocode + pin API sadeleştirme (#2643).

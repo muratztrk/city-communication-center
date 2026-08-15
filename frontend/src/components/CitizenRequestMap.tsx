@@ -188,10 +188,8 @@ function pinAddressKey(pin: ResolvedPin): string | null {
   return null
 }
 
-function hasMappableAddress(pin: CitizenDashboardMapPin, allowNeighborhood = false): boolean {
-  if (normalizeAddressPart(pin.street)) return true
-  if (allowNeighborhood && normalizeAddressPart(pin.neighborhood)) return true
-  return pin.latitude != null && pin.longitude != null
+function hasMappableAddress(pin: CitizenDashboardMapPin): boolean {
+  return Boolean(normalizeAddressPart(pin.street))
 }
 
 /** No yoksa cadde/mahalle noktasından boş alana kaydır — aynı cadde pinleri üst üste binmesin (#2594). */
@@ -335,8 +333,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
     if (!geocodeReady) return
     let cancelled = false
 
-    const allowNeighborhood = variant === 'department'
-    const mappable = pins.filter(pin => hasMappableAddress(pin, allowNeighborhood))
+    const mappable = pins.filter(pin => hasMappableAddress(pin))
     if (mappable.length === 0) {
       setResolved([])
       setResolving(false)
@@ -351,27 +348,17 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
           street: pin.street,
           streetNo: pin.streetNo,
           districtName: mapView.districtName,
-          allowNeighborhoodFallback: allowNeighborhood,
         })
-        if (hit) {
-          const hasStreetNo = Boolean(pin.streetNo?.trim())
-          const position = !hasStreetNo || hit.precision === 'approximate'
-            ? emptyAreaOffset(hit.position, pin.jobId)
-            : hit.position
-          return {
-            ...pin,
-            position,
-            approximate: !hasStreetNo || hit.precision === 'approximate',
-          } satisfies ResolvedPin
-        }
-        if (allowNeighborhood && pin.latitude != null && pin.longitude != null) {
-          return {
-            ...pin,
-            position: { lat: pin.latitude, lng: pin.longitude },
-            approximate: true,
-          } satisfies ResolvedPin
-        }
-        return null
+        if (!hit) return null
+        const hasStreetNo = Boolean(pin.streetNo?.trim())
+        const position = !hasStreetNo || hit.precision === 'approximate'
+          ? emptyAreaOffset(hit.position, pin.jobId)
+          : hit.position
+        return {
+          ...pin,
+          position,
+          approximate: !hasStreetNo || hit.precision === 'approximate',
+        } satisfies ResolvedPin
       }))).filter((pin): pin is ResolvedPin => pin != null)
       if (!cancelled) {
         setResolved(geocoded)

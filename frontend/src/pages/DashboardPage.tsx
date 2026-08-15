@@ -12,6 +12,7 @@ import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilld
 import { DashboardNotificationsCard } from '../components/DashboardNotificationsCard'
 import { CitizenChannelMessagesModal } from '../components/CitizenChannelMessagesModal'
 import { AllCitizenRequestsModal } from '../components/AllCitizenRequestsModal'
+import { AllDepartmentRequestsModal } from '../components/AllDepartmentRequestsModal'
 import { useAuth } from '../context/AuthContext'
 import { isModuleUsable } from '../lib/licenseModules'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
@@ -344,6 +345,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const [pieLegendSearches, setPieLegendSearches] = useState<Record<string, string>>({})
   const [chartDrilldown, setChartDrilldown] = useState<{ chartKey: string; sliceKey: string } | null>(null)
   const [allCitizenRequestsOpen, setAllCitizenRequestsOpen] = useState(false)
+  const [allDepartmentRequestsOpen, setAllDepartmentRequestsOpen] = useState(false)
   const activeDeptId = getActiveDepartmentId()
 
   function getPeriodRange(p: Period): { from: string; to: string } {
@@ -702,6 +704,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
             </button>
           ) : null}
+          {effectiveView === 'departments' ? (
+            <button
+              type="button"
+              onClick={() => setAllDepartmentRequestsOpen(true)}
+              className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50"
+            >
+              {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
+            </button>
+          ) : null}
         </div>
 
         {hideMetricCards ? null : isManagerOrAdmin ? (
@@ -903,6 +914,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
 
       {allCitizenRequestsOpen ? (
         <AllCitizenRequestsModal onClose={() => setAllCitizenRequestsOpen(false)} />
+      ) : null}
+      {allDepartmentRequestsOpen ? (
+        <AllDepartmentRequestsModal onClose={() => setAllDepartmentRequestsOpen(false)} />
       ) : null}
       {chartDrilldown?.chartKey === 'dashboard.citizenChannels.title' ? (
         <CitizenChannelMessagesModal

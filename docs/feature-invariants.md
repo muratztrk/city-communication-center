@@ -1662,8 +1662,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bir alt satırında. Pinler vatandaş-olmayan (`RequestType != Citizen`, sosyal/e-Devlet/rutin yok)
   ve Birimdeki Görevler kapsamındaki atanmış görevlerin talepleri — kullanıcının birimi.
   Üst Düzey Yönetici (`Reporter`) ve SystemAdmin tüm birimlerin atanmış taleplerini görür (#2641).
-  Lejant: Onay Bekleyen (sky) / Yapılmakta / Geciken / Tamamlanan. Adres/geocode kuralları
-  vatandaş haritası ile aynı.
+  Lejant: Onay Bekleyen (sky) / Yapılmakta / Geciken / Tamamlanan.
+  Geocode kuyruğunda 4 sn timeout pin düşürmez (#2640). Birim haritasında cadde Google’da
+  yoksa mahalle yedeği ve kayıtlı lat/lng kullanılır; vatandaş haritası cadde zorunlu kalır (#2635).
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
   chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında

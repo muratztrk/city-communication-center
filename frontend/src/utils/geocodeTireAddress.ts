@@ -82,6 +82,7 @@ function buildGeocodeQueryVariants(input: {
   street?: string | null
   streetNo?: string | null
   districtName?: string | null
+  allowNeighborhoodFallback?: boolean
 }): string[] {
   const district = input.districtName?.trim() || 'Tire'
   const tail = [district, 'İzmir', 'Türkiye']
@@ -89,17 +90,19 @@ function buildGeocodeQueryVariants(input: {
   const streetNo = input.streetNo?.trim()
   const neighborhood = canonicalizeNeighborhoodForGeocode(input.neighborhood, district)
   const variants: string[][] = []
-  if (!street) return []
-  if (streetNo && neighborhood) {
+  if (street && streetNo && neighborhood) {
     variants.push([`${street} ${streetNo}`, neighborhood, ...tail])
     variants.push([street, neighborhood, ...tail])
-  } else if (streetNo) {
+  } else if (street && streetNo) {
     variants.push([`${street} ${streetNo}`, ...tail])
     variants.push([street, ...tail])
-  } else if (neighborhood) {
+  } else if (street && neighborhood) {
     variants.push([street, neighborhood, ...tail])
-  } else {
+  } else if (street) {
     variants.push([street, ...tail])
+  }
+  if (input.allowNeighborhoodFallback && neighborhood) {
+    variants.push([neighborhood, ...tail])
   }
 
   return [...new Set(variants.map(parts => parts.filter(Boolean).join(', ')))]
@@ -173,12 +176,19 @@ export function geocodeTireAddress(input: {
   streetNo?: string | null
   openAddress?: string | null
   districtName?: string | null
+  allowNeighborhoodFallback?: boolean
 }): Promise<GeocodeHit | null> {
   const district = input.districtName?.trim() || 'Tire'
   const street = input.street?.trim()
-  if (!street) return Promise.resolve(null)
   const neighborhood = canonicalizeNeighborhoodForGeocode(input.neighborhood, district)
-  const cacheKey = normalizeAddressKey([street, input.streetNo, neighborhood, district])
+  if (!street && !(input.allowNeighborhoodFallback && neighborhood)) return Promise.resolve(null)
+  const cacheKey = normalizeAddressKey([
+    street,
+    input.streetNo,
+    neighborhood,
+    district,
+    input.allowNeighborhoodFallback ? 'nb' : '',
+  ])
   if (!cacheKey) return Promise.resolve(null)
 
   const toHit = (cached: CachedHit | null): GeocodeHit | null => (cached
@@ -191,7 +201,16 @@ export function geocodeTireAddress(input: {
   }
 
   const hasStreetNo = Boolean(input.streetNo?.trim())
-  const variants = buildGeocodeQueryVariants({ ...input, street, neighborhood, districtName: district })
+  const variants = buildGeocodeQueryVariants({
+    ...input,
+    street,
+    neighborhood,
+    districtName: district,
+    allowNeighborhoodFallback: input.allowNeighborhoodFallback,
+  })
+  const neighborhoodOnlyQuery = neighborhood
+    ? [neighborhood, district, 'İzmir', 'Türkiye'].filter(Boolean).join(', ')
+    : ''
   const run = async (): Promise<GeocodeHit | null> => {
     const client = getGeocoder()
     if (!client) return null
@@ -199,6 +218,7 @@ export function geocodeTireAddress(input: {
     for (let index = 0; index < variants.length; index += 1) {
       await new Promise(resolve => window.setTimeout(resolve, 80))
       const variant = variants[index]
+      const neighborhoodOnly = Boolean(neighborhoodOnlyQuery && variant === neighborhoodOnlyQuery)
 
       const { status, results } = await new Promise<{
         status: string
@@ -213,7 +233,7 @@ export function geocodeTireAddress(input: {
       if (status === 'ZERO_RESULTS') continue
 
       const match = results?.find(result => geocodeResultMatchesAddress(result, {
-        street,
+        street: neighborhoodOnly ? undefined : street,
         neighborhood,
       }))
       const location = match?.geometry?.location
@@ -223,7 +243,7 @@ export function geocodeTireAddress(input: {
       if (Number.isNaN(lat) || Number.isNaN(lng)) continue
       if (!isInsideDistrictEnvelope({ lat, lng }, district)) continue
 
-      const approximate = !hasStreetNo || index > 0
+      const approximate = !hasStreetNo || index > 0 || neighborhoodOnly
       const hit: CachedHit = approximate ? { lat, lng, approx: true } : { lat, lng }
       cache[cacheKey] = hit
       writeCache(cache)

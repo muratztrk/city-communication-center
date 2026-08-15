@@ -1,3 +1,7 @@
+## Round 835 — #2640
+
+- [x] `6a801665` — Birim haritası pin timeout kaldırıldı; cadde yoksa mahalle/koordinat yedeği (#2640 T-2026-591).
+
 ## Round 834 — #2640/#2641
 
 - [x] `6a801665` — Birim haritası T-2026-591: Reporter tüm birimlerin atanmış taleplerini görür (#2640).

@@ -1680,7 +1680,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
-  Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; Durum `processingReceived` = İşleme Alındı
+  Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; Gittiği Yer = hedef birim
+  (Talebi Yönlendiren/owner değil, #2668). Durum `processingReceived` = İşleme Alındı
   (#2668, Onay Bekleyen değil). Birim listesinde Durum pill Taleplerim ile aynı
   (`getStatusPillClass`, geciken turuncu+beyaz #2665). Birim kolonları Birim Talep Bilgi Listesi.
 - **Birim Talep Haritası (#2610/#2611/#2667):** `/department-request-map`;

@@ -65,6 +65,14 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                     .Where(department => department.DepartmentId == job.OwnerDepartmentId)
                     .Select(department => department.Name)
                     .FirstOrDefault(),
+                TargetDepartmentNames = _dbContext.JobDepartments
+                    .Where(jobDepartment => jobDepartment.JobId == job.JobId
+                        && jobDepartment.Role == JobDepartmentRole.Target)
+                    .Select(jobDepartment => _dbContext.Departments
+                        .Where(department => department.DepartmentId == jobDepartment.DepartmentId)
+                        .Select(department => department.Name)
+                        .FirstOrDefault())
+                    .ToList(),
                 Social = _dbContext.SocialMessages
                     .Where(message => message.JobId == job.JobId)
                     .Select(message => new
@@ -98,6 +106,9 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
             {
                 var row = pair.row;
                 var social = row.Social;
+                var destination = string.Join(", ", row.TargetDepartmentNames
+                    .Where(name => !string.IsNullOrWhiteSpace(name))
+                    .Distinct());
                 return new CitizenDashboardMapPin(
                     row.JobId,
                     row.Title,
@@ -120,7 +131,11 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                     row.Priority,
                     string.IsNullOrWhiteSpace(row.CitizenName) ? social?.ConversationCitizenName : row.CitizenName,
                     string.IsNullOrWhiteSpace(row.CitizenPhone) ? social?.ConversationCitizenPhone : row.CitizenPhone,
-                    social?.SocialMessageId);
+                    social?.SocialMessageId,
+                    null,
+                    null,
+                    row.DepartmentName,
+                    string.IsNullOrWhiteSpace(destination) ? null : destination);
             })
             .OrderByDescending(pin => pin.Title)
             .ToList();

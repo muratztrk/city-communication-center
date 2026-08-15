@@ -168,8 +168,8 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob }: Ma
                           <td className="text-center"><DateCell value={pin.createdAtUtc} locale={locale} /></td>
                           {isCitizen ? (
                             <td className="max-w-[12rem]">
-                              {pin.departmentName?.trim()
-                                ? <span className="block truncate">{pin.departmentName}</span>
+                              {pin.destinationDepartmentName?.trim()
+                                ? <span className="block truncate">{pin.destinationDepartmentName}</span>
                                 : '—'}
                             </td>
                           ) : (

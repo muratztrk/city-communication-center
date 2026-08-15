@@ -1,3 +1,7 @@
+## Round 859 — #2668
+
+- [x] `6a804de4` — Vatandaş harita listesi Gittiği Yer = hedef birim (#2668).
+
 ## Round 858 — #2669
 
 - [x] `6a804e8b` — Talep oluştur placeholder: No seçiniz / Cadde seçiniz / Adres Tarifi … (#2669).

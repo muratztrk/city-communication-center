@@ -1,7 +1,7 @@
 import { canonicalizeNeighborhoodForGeocode, compactNeighborhoodKey, IZMIR_DISTRICTS } from '../data/izmir-locations'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v12'
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v13'
 
 export type LatLng = { lat: number; lng: number }
 
@@ -91,7 +91,6 @@ function buildGeocodeQueryVariants(input: {
   const tail = [district, 'İzmir', 'Türkiye']
   const street = input.street?.trim()
   const streetNo = input.streetNo?.trim()
-  const openAddress = input.openAddress?.trim()
   const neighborhood = expandNeighborhoodForQuery(
     canonicalizeNeighborhoodForGeocode(input.neighborhood, district),
   )
@@ -112,10 +111,6 @@ function buildGeocodeQueryVariants(input: {
     if (isIbniMelekOsbNeighborhood(neighborhood)) {
       variants.push(['Tire Organize Sanayi Bölgesi', ...tail])
     }
-  }
-  if (input.allowNeighborhoodFallback && openAddress) {
-    variants.push([openAddress, neighborhood, ...tail].filter(Boolean) as string[])
-    variants.push([openAddress, ...tail])
   }
 
   return [...new Set(variants.map(parts => parts.filter(Boolean).join(', ')))]
@@ -183,10 +178,10 @@ function geocodeResultMatchesAddress(
   ))
   if (adminOnly) return false
 
-  if (input.neighborhood && isIbniMelekMahalle(input.neighborhood) && blob.includes('osb')) {
+  if (input.neighborhood && !input.street && isIbniMelekMahalle(input.neighborhood) && blob.includes('osb')) {
     return false
   }
-  if (input.neighborhood && isIbniMelekOsbNeighborhood(input.neighborhood)
+  if (input.neighborhood && !input.street && isIbniMelekOsbNeighborhood(input.neighborhood)
     && !blob.includes('osb') && !blob.includes('organizesanayi')) {
     return false
   }
@@ -258,14 +253,13 @@ export function geocodeTireAddress(input: {
   const district = input.districtName?.trim() || 'Tire'
   const street = input.street?.trim()
   const neighborhood = canonicalizeNeighborhoodForGeocode(input.neighborhood, district)
-  if (!street && !(input.allowNeighborhoodFallback && (neighborhood || input.openAddress?.trim()))) {
+  if (!street && !(input.allowNeighborhoodFallback && neighborhood)) {
     return Promise.resolve(null)
   }
   const cacheKey = normalizeAddressKey([
     street,
     input.streetNo,
     neighborhood,
-    input.openAddress,
     district,
     input.allowNeighborhoodFallback ? 'nb' : '',
   ])
@@ -287,7 +281,6 @@ export function geocodeTireAddress(input: {
     neighborhood,
     districtName: district,
     allowNeighborhoodFallback: input.allowNeighborhoodFallback,
-    openAddress: input.openAddress,
   })
   const queryNeighborhood = expandNeighborhoodForQuery(neighborhood)
   const neighborhoodOnlyQuery = neighborhood
@@ -303,12 +296,9 @@ export function geocodeTireAddress(input: {
     for (let index = 0; index < variants.length; index += 1) {
       await new Promise(resolve => window.setTimeout(resolve, GEOCODE_VARIANT_DELAY_MS))
       const variant = variants[index]
-      const openAddressTrim = input.openAddress?.trim() ?? ''
-      const isOpenAddressVariant = Boolean(openAddressTrim && variant.startsWith(openAddressTrim))
       const neighborhoodOnly = Boolean(
         (neighborhoodOnlyQuery && variant === neighborhoodOnlyQuery)
-        || (osbFallbackQuery && variant === osbFallbackQuery)
-        || isOpenAddressVariant,
+        || (osbFallbackQuery && variant === osbFallbackQuery),
       )
 
       let status = ''
@@ -333,7 +323,7 @@ export function geocodeTireAddress(input: {
 
       const match = results?.find(result => geocodeResultMatchesAddress(result, {
         street: neighborhoodOnly ? undefined : street,
-        neighborhood: isOpenAddressVariant ? undefined : neighborhood,
+        neighborhood,
       }))
       const location = match?.geometry?.location
       if (!location) continue
@@ -341,7 +331,7 @@ export function geocodeTireAddress(input: {
       const lng = location.lng()
       if (Number.isNaN(lat) || Number.isNaN(lng)) continue
       if (!isInsideDistrictEnvelope({ lat, lng }, district)) continue
-      if (neighborhood && !positionFitsNeighborhood({ lat, lng }, neighborhood)) continue
+      if (!street && neighborhood && !positionFitsNeighborhood({ lat, lng }, neighborhood)) continue
 
       const approximate = !hasStreetNo || index > 0 || neighborhoodOnly
       const hit: CachedHit = approximate ? { lat, lng, approx: true } : { lat, lng }

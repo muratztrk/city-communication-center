@@ -372,7 +372,6 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
           neighborhood: pin.neighborhood,
           street: pin.street,
           streetNo: pin.streetNo,
-          openAddress: pin.openAddress,
           districtName: mapView.districtName,
           allowNeighborhoodFallback: allowNeighborhood,
         })

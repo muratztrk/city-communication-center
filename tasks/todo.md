@@ -1,3 +1,8 @@
+## Round 881 — #2692/#2695
+
+- [x] `6a807f6b` — VT-2026-134 Doğan Cd. 66: cadde varken OSB filtresi yok; geocode açık adres kullanmaz (cache v13).
+- [x] `6a80841b` — Harita marker yalnız mahalle + cadde/sokak + no (#2695).
+
 ## Round 880 — #2693
 
 - [x] `6a80818e` — Her iki haritada Haritada Olmayanları Listele (Talepleri Listele klonu).

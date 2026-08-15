@@ -188,7 +188,7 @@ function pinAddressKey(pin: ResolvedPin): string | null {
 }
 
 function hasMappableAddress(pin: CitizenDashboardMapPin): boolean {
-  return Boolean(normalizeAddressPart(pin.neighborhood) || normalizeAddressPart(pin.street))
+  return Boolean(normalizeAddressPart(pin.street))
 }
 
 /** No yoksa cadde/mahalle noktasından boş alana kaydır — aynı cadde pinleri üst üste binmesin (#2594). */

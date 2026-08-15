@@ -1,3 +1,7 @@
+## Round 831 — #2635
+
+- [x] `6a8000b5` — Cadde/sokak yoksa veya Google’da bulunamazsa harita pini yok; mahalle yedeği kaldırıldı (#2635).
+
 ## Round 830 — #2636/#2634
 
 - [x] `6a8001ed` — Harita Yazdır: Vatandaş / alt satır Talep No (#2636).

@@ -1,13 +1,13 @@
 import { canonicalizeNeighborhoodForGeocode, IZMIR_DISTRICTS } from '../data/izmir-locations'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v7'
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v8'
 
 export type LatLng = { lat: number; lng: number }
 
 /**
- * `address` = mahalle + cadde + no ile bulundu. `approximate` = no yok veya cadde/mahalle
- * seviyesine düşüldü — pin boş alana kaydırılır (#2594).
+ * `address` = cadde + no ile bulundu. `approximate` = no yok, cadde seviyesinde —
+ * pin boş alana kaydırılır (#2594). Cadde/sokak yoksa veya Google’da bulunamazsa pin yok (#2635).
  */
 export type GeocodePrecision = 'address' | 'approximate'
 
@@ -89,20 +89,17 @@ function buildGeocodeQueryVariants(input: {
   const streetNo = input.streetNo?.trim()
   const neighborhood = canonicalizeNeighborhoodForGeocode(input.neighborhood, district)
   const variants: string[][] = []
-  if (street && streetNo && neighborhood) {
+  if (!street) return []
+  if (streetNo && neighborhood) {
     variants.push([`${street} ${streetNo}`, neighborhood, ...tail])
     variants.push([street, neighborhood, ...tail])
-    variants.push([neighborhood, ...tail])
-  } else if (street && streetNo) {
+  } else if (streetNo) {
     variants.push([`${street} ${streetNo}`, ...tail])
     variants.push([street, ...tail])
-  } else if (street && neighborhood) {
-    variants.push([street, neighborhood, ...tail])
-    variants.push([neighborhood, ...tail])
-  } else if (street) {
-    variants.push([street, ...tail])
   } else if (neighborhood) {
-    variants.push([neighborhood, ...tail])
+    variants.push([street, neighborhood, ...tail])
+  } else {
+    variants.push([street, ...tail])
   }
 
   return [...new Set(variants.map(parts => parts.filter(Boolean).join(', ')))]
@@ -166,9 +163,9 @@ function isInsideDistrictEnvelope(position: LatLng, districtName: string): boole
 let geocodeQueue: Promise<void> = Promise.resolve()
 
 /**
- * Geocode mahalle / cadde / no via Maps JS API Geocoder with localStorage cache.
- * No yoksa cadde+mahalle seviyesinde `precision: 'approximate'` döner (#2594).
- * Returns null when nothing resolves or the JS API isn't loaded.
+ * Geocode cadde / no via Maps JS API Geocoder with localStorage cache.
+ * Cadde/sokak yoksa veya Google sonucu caddeyi içermiyorsa null (#2635).
+ * No yoksa cadde seviyesinde `precision: 'approximate'` döner (#2594).
  */
 export function geocodeTireAddress(input: {
   neighborhood?: string | null
@@ -178,8 +175,10 @@ export function geocodeTireAddress(input: {
   districtName?: string | null
 }): Promise<GeocodeHit | null> {
   const district = input.districtName?.trim() || 'Tire'
+  const street = input.street?.trim()
+  if (!street) return Promise.resolve(null)
   const neighborhood = canonicalizeNeighborhoodForGeocode(input.neighborhood, district)
-  const cacheKey = normalizeAddressKey([input.street, input.streetNo, neighborhood, district])
+  const cacheKey = normalizeAddressKey([street, input.streetNo, neighborhood, district])
   if (!cacheKey) return Promise.resolve(null)
 
   const toHit = (cached: CachedHit | null): GeocodeHit | null => (cached
@@ -192,10 +191,7 @@ export function geocodeTireAddress(input: {
   }
 
   const hasStreetNo = Boolean(input.streetNo?.trim())
-  const variants = buildGeocodeQueryVariants(input)
-  const neighborhoodOnlyQuery = neighborhood
-    ? [neighborhood, district, 'İzmir', 'Türkiye'].filter(Boolean).join(', ')
-    : ''
+  const variants = buildGeocodeQueryVariants({ ...input, street, neighborhood, districtName: district })
   const run = async (): Promise<GeocodeHit | null> => {
     const client = getGeocoder()
     if (!client) return null
@@ -203,7 +199,6 @@ export function geocodeTireAddress(input: {
     for (let index = 0; index < variants.length; index += 1) {
       await new Promise(resolve => window.setTimeout(resolve, 80))
       const variant = variants[index]
-      const neighborhoodOnly = Boolean(neighborhoodOnlyQuery && variant === neighborhoodOnlyQuery)
 
       const { status, results } = await new Promise<{
         status: string
@@ -218,7 +213,7 @@ export function geocodeTireAddress(input: {
       if (status === 'ZERO_RESULTS') continue
 
       const match = results?.find(result => geocodeResultMatchesAddress(result, {
-        street: neighborhoodOnly ? undefined : input.street?.trim(),
+        street,
         neighborhood,
       }))
       const location = match?.geometry?.location
@@ -228,7 +223,7 @@ export function geocodeTireAddress(input: {
       if (Number.isNaN(lat) || Number.isNaN(lng)) continue
       if (!isInsideDistrictEnvelope({ lat, lng }, district)) continue
 
-      const approximate = !hasStreetNo || index > 0 || neighborhoodOnly
+      const approximate = !hasStreetNo || index > 0
       const hit: CachedHit = approximate ? { lat, lng, approx: true } : { lat, lng }
       cache[cacheKey] = hit
       writeCache(cache)

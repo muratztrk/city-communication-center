@@ -1641,13 +1641,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
   Düşük zoom native koyu mavi kapsama çerçevesi durur; erode/CSS ile inceltme geri alındı (#2622).
   pan/fullscreen yok. Geocode fail pin yok; harita altında “konumlanamadı” yazısı yok (#2604).
-  Pin konumu Google geocode: mahalle + cadde/sokak + no. Cadde Google’da yoksa mahalle
-  seviyesine düşülür (Çağrı talepleri dahil, #2600). No yoksa veya mahalle yedeği ~30 m
-  boş alana kaydırılır. Mahalle **ve** cadde ikisi de boşsa marker yok
-  (yalnız Adres Tarifi / GPS / konuşma adresi yetmez, #2594/#2595). Cadde/mahalle Google
-  sonucunun adres bileşenlerinde yoksa veya yalnızca ilçe/ülke eşleşmesi ise o varyant
-  atılır; mahalle de bulunamazsa marker yok (#2599). Geocode fail ilçe
-  merkezine düşmez. Mahalle adı geocode öncesi katalogla birleştirilir: OSB / mahalle
+  Pin konumu Google geocode: cadde/sokak + no (mahalle sorguyu daraltır). Cadde/sokak
+  boşsa veya Google sonucu caddeyi içermiyorsa marker yok — mahalle yedeği yok (#2635;
+  #2600 geri alındı). Mevcut mahalle-seviye pinler de kalkar (geocode cache v8).
+  No yoksa cadde noktasından ~30 m boş alana kaydırılır. Yalnız Adres Tarifi / GPS /
+  konuşma adresi yetmez (#2594/#2595). Cadde Google sonucunun adres bileşenlerinde
+  yoksa veya yalnızca ilçe/ülke eşleşmesi ise o varyant atılır (#2599). Geocode fail
+  ilçe merkezine düşmez. Mahalle adı geocode öncesi katalogla birleştirilir: OSB / mahalle
   soneki atılır, boşluksuz eşleşme (`İbni Melek OSB` → `İbni Melek`) — Google OSB'yi
   başka sanayi bölgesine düşürmez (#2596). Tire mahalle kataloğunda **İbni Melek OSB** ayrı
   kayıt (#2601); harita konumu yine İbni Melek. Kayıtlı lat/lng (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).

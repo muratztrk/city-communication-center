@@ -245,9 +245,9 @@ export function ConversationEntryBubble({
           }
         >
           {isInbound && inboundSenderLabel ? (
-            <ConversationSenderHeader label={inboundSenderLabel} variant="inline" tone="inbound" />
+            <ConversationSenderHeader label={inboundSenderLabel} variant="inline" tone="inbound" compact={compact} />
           ) : !isInbound && senderLabel ? (
-            <ConversationSenderHeader label={senderLabel} variant="inline" tone="outbound" />
+            <ConversationSenderHeader label={senderLabel} variant="inline" tone="outbound" compact={compact} />
           ) : null}
           {hasMedia && (
             <div className="mb-1.5">

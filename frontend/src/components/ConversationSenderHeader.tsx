@@ -3,6 +3,8 @@ interface ConversationSenderHeaderProps {
   align?: 'start' | 'end'
   variant?: 'pill' | 'inline'
   tone?: 'inbound' | 'outbound'
+  /** Vatandaş Talebi Oluştur konuşmasında başlığı biraz küçült (#2634). */
+  compact?: boolean
 }
 
 export function ConversationSenderHeader({
@@ -10,7 +12,11 @@ export function ConversationSenderHeader({
   align = 'end',
   variant = 'pill',
   tone = 'outbound',
+  compact = false,
 }: ConversationSenderHeaderProps) {
+  const nameSize = compact ? 'text-[12px]' : 'text-[13px]'
+  const phoneSize = compact ? 'text-[9px]' : 'text-[10px]'
+  const phoneOnlySize = compact ? 'text-[10px]' : 'text-[11px]'
   // "Kurum İçi Mesaj · Birim · Kullanıcı" etiketi iki satır olur: ilk satır standart turuncu
   // başlık (card #1341), ikinci satır birim + kullanıcı bilgisi (card #1347).
   const internalMatch = label.match(/^Kurum İçi Mesaj\s*·\s*(.+)$/)
@@ -26,8 +32,8 @@ export function ConversationSenderHeader({
     if (internalMatch) {
       return (
         <div className="mb-1.5 leading-snug">
-          <p className="text-[13px] font-semibold text-orange-400">Kurum İçi Mesaj</p>
-          <p className={`mt-1 text-[13px] ${inlineLabelClass}`}>
+          <p className={`${nameSize} font-semibold text-orange-400`}>Kurum İçi Mesaj</p>
+          <p className={`mt-1 ${nameSize} ${inlineLabelClass}`}>
             {internalParts.length >= 2 ? (
               <>{internalParts.slice(0, -1).join(' · ')} · <span className="italic">{internalParts.at(-1)}</span></>
             ) : internalMatch[1]}
@@ -38,20 +44,20 @@ export function ConversationSenderHeader({
     if (citizenWithPhoneMatch) {
       return (
         <p className="mb-1.5 flex flex-wrap items-baseline gap-x-1.5 leading-snug">
-          <span className="text-[13px] font-semibold text-slate-700">{citizenWithPhoneMatch[1]}</span>
-          <span className="text-[10px] font-medium text-slate-400">{citizenWithPhoneMatch[2]}</span>
+          <span className={`${nameSize} font-semibold text-slate-700`}>{citizenWithPhoneMatch[1]}</span>
+          <span className={`${phoneSize} font-medium text-slate-400`}>{citizenWithPhoneMatch[2]}</span>
         </p>
       )
     }
     if (citizenPhoneOnly) {
       return (
-        <p className="mb-1.5 text-[11px] font-medium leading-snug text-slate-400">
+        <p className={`mb-1.5 ${phoneOnlySize} font-medium leading-snug text-slate-400`}>
           {label}
         </p>
       )
     }
     return (
-      <p className={`mb-1.5 text-[13px] leading-snug ${inlineLabelClass}`}>
+      <p className={`mb-1.5 ${nameSize} leading-snug ${inlineLabelClass}`}>
         {label}
       </p>
     )

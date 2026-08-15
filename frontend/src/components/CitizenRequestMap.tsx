@@ -556,15 +556,10 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
       </div>
 
       <div
-        className={`relative h-[min(36rem,65vh)] w-full bg-slate-100${streetViewPicker ? ' citizen-request-map--coverage' : ''}`}
+        className="relative h-[min(36rem,65vh)] w-full bg-slate-100"
         onMouseEnter={() => setGestureHandling('greedy')}
         onMouseLeave={() => setGestureHandling('none')}
       >
-        <svg width="0" height="0" className="absolute" aria-hidden="true">
-          <filter id="sv-coverage-erode" colorInterpolationFilters="sRGB">
-            <feMorphology in="SourceGraphic" operator="erode" radius="3" />
-          </filter>
-        </svg>
         {!mapsReady || loadError ? (
           <div className="flex size-full items-center justify-center px-4 text-center text-sm font-medium text-slate-600">
             {t('location.mapNotConfigured', 'Harita yapılandırılmadı. Google Maps API anahtarı gerekli.')}

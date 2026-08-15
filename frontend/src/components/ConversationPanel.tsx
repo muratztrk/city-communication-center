@@ -383,7 +383,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               style={{ background: 'var(--color-header-from)' }}
             >
               {pendingSenderLabel ? (
-                <ConversationSenderHeader label={pendingSenderLabel} variant="inline" tone="outbound" />
+                <ConversationSenderHeader label={pendingSenderLabel} variant="inline" tone="outbound" compact={compactBubbles} />
               ) : null}
               <WhatsAppOutboundAttachmentChip
                 fileName={pendingFile.name}

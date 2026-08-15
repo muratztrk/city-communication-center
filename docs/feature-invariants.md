@@ -1302,6 +1302,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birimler / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
   `SingleSelectDropdown` (card #1709). Kullanıcı düzenleme dept/rol menüsünde arama + kompakt satır (card #1706).
 - **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).
+  Başlık `WhatsApp Konuşması - Vatandaş Talebi Oluştur` `font-semibold` (extrabold değil, #2634);
+  konuşma balonu gönderen satırı compact’ta 12px (#2634).
 - **Yazışmaya Git popup (#2080):** `WhatsAppConversationModal` → `compactBubbles` + `compactActions`
   (metin `text-xs`, balon padding küçültülür).
 - **Mesaj Onayı Detaylar → Talep Durumunu Değiştir (#2083):** buton rengi `Görevi Yönlendir` ile aynı
@@ -1634,8 +1636,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman
   beyaz çerçeve 1.7rem / iç logo 26px, zoom yığınının solunda ortalı, tıklamayla
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
-  Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631). Native kapsama
-  karosu `svv`/`lyrs=sv` ise `feMorphology` erode düşük zoom koyu çerçeveyi inceltir (#2622).
+  Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
+  Düşük zoom native koyu mavi kapsama çerçevesi durur; erode/CSS ile inceltme geri alındı (#2622).
   pan/fullscreen yok. Geocode fail pin yok; harita altında “konumlanamadı” yazısı yok (#2604).
   Pin konumu Google geocode: mahalle + cadde/sokak + no. Cadde Google’da yoksa mahalle
   seviyesine düşülür (Çağrı talepleri dahil, #2600). No yoksa veya mahalle yedeği ~30 m

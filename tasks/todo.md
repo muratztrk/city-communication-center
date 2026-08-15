@@ -1,3 +1,8 @@
+## Round 827 — #2634/#2622
+
+- [x] `6a7fffe5` — WA Talep Oluştur başlığı daha az kalın; konuşma gönderen satırı biraz küçük (#2634).
+- [x] `6a7fec83` — Street View kapsama koyu mavi çerçeve geri geldi (erode kaldırıldı, #2622).
+
 ## Round 826 — #2625/#2632/#2633
 
 - [x] `6a7ff0d7` — Pie drilldown Durum Onay Bekleyen mavi (#2625).

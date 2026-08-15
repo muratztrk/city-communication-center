@@ -1,3 +1,9 @@
+## Round 869 — #2671/#2677/#2678
+
+- [x] `6a8055da` — VT harita lejant: Yapılmakta; Geciken iki satır (#2671).
+- [x] `6a805f4a` — Harita listesi Konum–Detaylar boşluğu (#2677).
+- [x] `6a8060ba` — Harita listeleri FilterableTh (#2678).
+
 ## Round 868 — #2676
 
 - [x] `6a805ec0` — Harita Konum: marker bounce tıklanıncaya kadar (#2676).

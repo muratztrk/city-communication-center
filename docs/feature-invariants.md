@@ -1679,7 +1679,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   elenir, cache v11 — #2666 T-2026-593). Kayıtlı lat/lng
   (WhatsApp GPS) harita pinini ezmez. Anasayfa haritası yok (#6a6cdf95).
   **İptal** talepler haritada gösterilmez (#2579). Pin/lejant: İşleme Alındı turkuaz `#0d9488`,
-  Yapılmakta mavi `#0ea5e9`, Geciken turuncu `#f97316` (#2671). Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
+  Yapılmakta mavi `#0ea5e9`, Geciken turuncu `#f97316` (#2671). Vatandaş lejant metni
+  `Yapılmakta` (Olan yok); Geciken iki satır `Yapılmakta` / `Geciken` (#2671). Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
@@ -1688,7 +1689,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (Talebi Yönlendiren/owner değil, #2668). Durum `processingReceived` = İşleme Alındı
   (#2668, Onay Bekleyen değil). Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
   (`bg-teal-600`), Yapılmakta mavi (`bg-sky-500`), Geciken turuncu (`bg-orange-500`) (#2671).
-  yeşil Konum ikonu (varsayılan yuvarlak çerçeve + hover, #2673/#2674); Konum tıklanınca
+  yeşil Konum ikonu (varsayılan yuvarlak çerçeve + hover, #2673/#2674); Konum ile Detaylar
+  arası boşluk artırılır (#2677). Liste grid’leri FilterableTh sıralama/filtre kullanır
+  (Sıra/İşlemler hariç, #2678). Konum tıklanınca
   marker bounce harita/marker tıklanıncaya kadar sürer (#2676). Birim listesinde Durum
   pill Taleplerim ile aynı (`getStatusPillClass`, geciken turuncu+beyaz #2665). Birim kolonları
   #2665). Birim kolonları Birim Talep Bilgi Listesi.

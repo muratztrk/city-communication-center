@@ -3415,6 +3415,11 @@
     min-width: 11rem;
   }
 
+  /* Harita listesi: Konum ikonu ile Detaylar arası boşluk (#2677). */
+  .dashboard-drilldown-table .map-list-request-actions {
+    gap: 0.85rem;
+  }
+
   /* Birimden Giden / Taleplerim: işlem butonları arası biraz daha açık (#2071). */
   .my-requests-table .request-actions {
     gap: 0.7rem;

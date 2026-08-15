@@ -4,8 +4,11 @@ import { Info, MapPin, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import type { CitizenDashboardMapPin } from '../types/platform'
+import { useColumnFilters } from '../hooks/useColumnFilters'
+import { useSortable } from '../hooks/useSortable'
 import { Button } from './ui/button'
 import { DateCell } from './ui/date-cell'
+import { FilterableTh } from './ui/FilterableTh'
 import { TablePagination } from './ui/table-pagination'
 import { TableEmptyStateRows } from './ui/table-empty-state-rows'
 import { TruncatedText } from './ui/TruncatedText'
@@ -58,22 +61,79 @@ function mapListStatusPillClass(displayStatus: string, variant: 'citizen' | 'dep
   return getStatusPillClass(pinStatusTone(displayStatus))
 }
 
-/** Haritadaki pinlerin standart drilldown grid popup’ı (#2664/#2665). */
+/** Haritadaki pinlerin standart drilldown grid popup’ı (#2664/#2665/#2678). */
+type MapListRow = CitizenDashboardMapPin & {
+  requestNoText: string
+  destinationText: string
+  ownerLocationText: string
+  titleText: string
+  statusSortText: string
+}
+
+function formatMapDate(value: string | undefined, locale: string): string {
+  if (!value) return ''
+  const time = new Date(value)
+  if (Number.isNaN(time.getTime())) return ''
+  return time.toLocaleString(locale, {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
 export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onShowOnMap }: MapPinnedRequestsModalProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const isCitizen = variant === 'citizen'
+  const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
+  const { filters, setFilter, matchesFilters } = useColumnFilters()
 
-  const rows = useMemo(
-    () => [...pins].sort((left, right) => Date.parse(right.createdAtUtc ?? '') - Date.parse(left.createdAtUtc ?? '')),
-    [pins],
-  )
+  const decorated = useMemo<MapListRow[]>(() => pins.map(pin => ({
+    ...pin,
+    requestNoText: isCitizen
+      ? formatCitizenRequestNumber(pin, locale)
+      : pin.jobNumber != null && pin.jobNumberYear != null
+        ? formatJobDisplayNumberText(pin, locale)
+        : '',
+    destinationText: (pin.destinationDepartmentName ?? pin.departmentName ?? '').trim(),
+    ownerLocationText: (pin.ownerDepartmentName ?? '').trim(),
+    titleText: (pin.title ?? '').trim(),
+    statusSortText: pinStatusLabel(t, pin),
+  })), [isCitizen, locale, pins, t])
+
+  const rows = useMemo(() => {
+    const filtered = decorated.filter(row => matchesFilters(row, (key, item) => {
+      if (key === 'jobNumber') return item.requestNoText
+      if (key === 'createdAtUtc') return formatMapDate(item.createdAtUtc, locale)
+      if (key === 'citizenPhone') {
+        return String(item.citizenPhone ?? '').replace(/\D/g, '').replace(/^90/, '')
+      }
+      return String((item as unknown as Record<string, unknown>)[key] ?? '')
+    }))
+    if (!sortKey) {
+      return [...filtered].sort((left, right) => Date.parse(right.createdAtUtc ?? '') - Date.parse(left.createdAtUtc ?? ''))
+    }
+    return sortItems(filtered)
+  }, [decorated, locale, matchesFilters, sortItems, sortKey])
+
+  function handleFilter(key: string, value: string) {
+    setFilter(key, value)
+    setPage(1)
+  }
+
+  function handleSort(key: string) {
+    toggleSort(key)
+    setPage(1)
+  }
+
   const maxPage = Math.max(1, Math.ceil(rows.length / pageSize) || 1)
   const safePage = Math.min(page, maxPage)
   const paged = rows.slice((safePage - 1) * pageSize, safePage * pageSize)
-  const columnCount = isCitizen ? 8 : 8
+  const columnCount = 8
 
   return createPortal(
     <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/45 p-4" onClick={onClose}>
@@ -113,18 +173,118 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onSh
                   <thead>
                     <tr>
                       <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>
-                      <th>{isCitizen ? t('social.citizenRequestNoHeader', 'Vatandaş Talep No') : t('jobs.columns.requestNo', 'Talep No')}</th>
-                      {isCitizen ? <th>{t('social.citizenName', 'Vatandaş Adı')}</th> : null}
-                      {isCitizen ? <th className="text-center">{t('jobs.detail.citizenPhone', 'Telefon No')}</th> : null}
-                      <th className="text-center">{t('jobs.columns.requestDate', 'Talep Tarihi')}</th>
-                      {isCitizen ? <th>{t('social.destination', 'Gittiği Yer')}</th> : (
+                      <FilterableTh
+                        filterKey="jobNumber"
+                        filterValue={filters.jobNumber ?? ''}
+                        onFilter={handleFilter}
+                        sortKey="jobNumber"
+                        currentSortKey={sortKey}
+                        sortDir={sortDir}
+                        onSort={handleSort}
+                      >
+                        {isCitizen ? t('social.citizenRequestNoHeader', 'Vatandaş Talep No') : t('jobs.columns.requestNo', 'Talep No')}
+                      </FilterableTh>
+                      {isCitizen ? (
+                        <FilterableTh
+                          filterKey="citizenName"
+                          filterValue={filters.citizenName ?? ''}
+                          onFilter={handleFilter}
+                          sortKey="citizenName"
+                          currentSortKey={sortKey}
+                          sortDir={sortDir}
+                          onSort={handleSort}
+                        >
+                          {t('social.citizenName', 'Vatandaş Adı')}
+                        </FilterableTh>
+                      ) : null}
+                      {isCitizen ? (
+                        <FilterableTh
+                          className="text-center"
+                          filterKey="citizenPhone"
+                          filterValue={filters.citizenPhone ?? ''}
+                          onFilter={handleFilter}
+                          sortKey="citizenPhone"
+                          currentSortKey={sortKey}
+                          sortDir={sortDir}
+                          onSort={handleSort}
+                        >
+                          {t('jobs.detail.citizenPhone', 'Telefon No')}
+                        </FilterableTh>
+                      ) : null}
+                      <FilterableTh
+                        className="text-center"
+                        filterKey="createdAtUtc"
+                        filterValue={filters.createdAtUtc ?? ''}
+                        onFilter={handleFilter}
+                        sortKey="createdAtUtc"
+                        currentSortKey={sortKey}
+                        sortDir={sortDir}
+                        onSort={handleSort}
+                        allowLetters
+                      >
+                        {t('jobs.columns.requestDate', 'Talep Tarihi')}
+                      </FilterableTh>
+                      {isCitizen ? (
+                        <FilterableTh
+                          filterKey="destinationText"
+                          filterValue={filters.destinationText ?? ''}
+                          onFilter={handleFilter}
+                          sortKey="destinationText"
+                          currentSortKey={sortKey}
+                          sortDir={sortDir}
+                          onSort={handleSort}
+                        >
+                          {t('social.destination', 'Gittiği Yer')}
+                        </FilterableTh>
+                      ) : (
                         <>
-                          <th>{t('jobs.detail.requestLocation', 'Talep Yeri')}</th>
-                          <th>{t('social.destination', 'Gittiği Yer')}</th>
-                          <th>{t('jobs.columns.title', 'Başlık')}</th>
+                          <FilterableTh
+                            filterKey="ownerLocationText"
+                            filterValue={filters.ownerLocationText ?? ''}
+                            onFilter={handleFilter}
+                            sortKey="ownerLocationText"
+                            currentSortKey={sortKey}
+                            sortDir={sortDir}
+                            onSort={handleSort}
+                          >
+                            {t('jobs.detail.requestLocation', 'Talep Yeri')}
+                          </FilterableTh>
+                          <FilterableTh
+                            filterKey="destinationText"
+                            filterValue={filters.destinationText ?? ''}
+                            onFilter={handleFilter}
+                            sortKey="destinationText"
+                            currentSortKey={sortKey}
+                            sortDir={sortDir}
+                            onSort={handleSort}
+                          >
+                            {t('social.destination', 'Gittiği Yer')}
+                          </FilterableTh>
+                          <FilterableTh
+                            filterKey="titleText"
+                            filterValue={filters.titleText ?? ''}
+                            onFilter={handleFilter}
+                            sortKey="titleText"
+                            currentSortKey={sortKey}
+                            sortDir={sortDir}
+                            onSort={handleSort}
+                          >
+                            {t('jobs.columns.title', 'Başlık')}
+                          </FilterableTh>
                         </>
                       )}
-                      <th className="grid-col-status text-center">{t('jobs.columns.status', 'Durum')}</th>
+                      <FilterableTh
+                        className="grid-col-status text-center"
+                        filterKey="statusSortText"
+                        filterValue={filters.statusSortText ?? ''}
+                        onFilter={handleFilter}
+                        sortKey="statusSortText"
+                        currentSortKey={sortKey}
+                        sortDir={sortDir}
+                        onSort={handleSort}
+                      >
+                        {t('jobs.columns.status', 'Durum')}
+                      </FilterableTh>
                       <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                     </tr>
                   </thead>
@@ -143,11 +303,7 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onSh
                           minute: '2-digit',
                         })
                         : null
-                      const requestNo = isCitizen
-                        ? formatCitizenRequestNumber(pin, locale)
-                        : pin.jobNumber != null && pin.jobNumberYear != null
-                          ? formatJobDisplayNumberText(pin, locale)
-                          : '—'
+                      const requestNo = pin.requestNoText || '—'
                       return (
                         <tr key={pin.jobId}>
                           <td className="text-center text-xs font-bold text-slate-400 tabular-nums">
@@ -212,7 +368,7 @@ export function MapPinnedRequestsModal({ pins, variant, onClose, onOpenJob, onSh
                             </StatusPill>
                           </td>
                           <td className="actions-cell">
-                            <div className="request-actions justify-center">
+                            <div className="request-actions map-list-request-actions justify-center">
                               <button
                                 type="button"
                                 className="map-list-location-btn inline-flex size-8 shrink-0 items-center justify-center rounded-full border border-emerald-300 bg-emerald-50 text-emerald-700 shadow-sm transition-colors hover:border-emerald-500 hover:bg-emerald-100"

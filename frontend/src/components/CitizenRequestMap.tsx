@@ -517,9 +517,18 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
   const statusLegend = useMemo(() => {
     const inProgressColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.inProgress : PIN_COLORS.inProgress
     const overdueColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.overdue : PIN_COLORS.overdue
+    const inProgressLabel = variant === 'department'
+      ? t('dashboard.chart.inProgress', 'Yapılmakta Olan')
+      : t('jobs.statusLabel.inProgress', 'Yapılmakta')
+    const overdueLabel = t('citizenRequestMap.legend.overdue', 'Geciken')
     const items = [
-      { key: 'inProgress', label: t('dashboard.chart.inProgress', 'Yapılmakta Olan'), color: inProgressColor },
-      { key: 'overdue', label: t('citizenRequestMap.legend.overdue', 'Geciken'), color: overdueColor },
+      { key: 'inProgress', label: inProgressLabel, color: inProgressColor },
+      {
+        key: 'overdue',
+        label: overdueLabel,
+        color: overdueColor,
+        lines: variant === 'citizen' ? [t('jobs.statusLabel.inProgress', 'Yapılmakta'), overdueLabel] : undefined,
+      },
       { key: 'completed', label: t('citizenRequestMap.legend.completed', 'Tamamlanan'), color: PIN_COLORS.completed },
     ]
     if (variant === 'department') return items
@@ -601,8 +610,14 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: Citize
           <div className="flex flex-wrap items-center gap-3 text-sm font-semibold text-slate-600">
           {statusLegend.map(item => (
             <span key={item.key} className="inline-flex items-center gap-1.5">
-              <span className="size-2.5 rounded-full" style={{ backgroundColor: item.color }} />
-              {item.label}
+              <span className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: item.color }} />
+              {item.lines ? (
+                <span className="inline-flex flex-col leading-tight">
+                  {item.lines.map(line => (
+                    <span key={line}>{line}</span>
+                  ))}
+                </span>
+              ) : item.label}
             </span>
           ))}
           <span className="text-slate-400">

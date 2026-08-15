@@ -423,8 +423,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gelir; `Öncelik / Bitiş Tarihi / Proje niteliğinde mi?` satırı bunun altında kalır (card #1250).
   `Proje niteliğinde mi?` yalnız **birim yöneticisi** (`Manager`) görür; Evet seçilince Görevi
   Yapan kilitlenir ve oluşturan yöneticinin adı gelir (#2619). Personel/SystemAdmin bu alanı görmez.
-- **Birim Dışı Talep Oluştur (#2617):** `Proje niteliğinde mi?` yok; Öncelik 2 kolonlu gridde
-  yarı genişlikte kalır. Üst Düzey Yönetici `Talep Oluştur` formunda proje alanı durur.
+- **Birim Dışı Talep Oluştur (#2617/#2672):** `Proje niteliğinde mi?` yok (Reporter’da ayrı
+  satır). Öncelik, `Talebin Gideceği Birim` ile aynı satırda sağda ve o dropdown’un yarısı
+  genişlikte (`2fr`/`1fr`). Birim İçi/Vatandaş formlarına dokunulmaz. Üst Düzey Yönetici
+  `Talep Oluştur` formunda proje alanı durur.
 - **Vatandaş talebi sahip birime de yönlendirilebilir (card #1090):** `CreateJobCommand`
   hedef listesinden sahip birimi yalnızca NON-citizen (birim içi/dışı) taleplerde ayıklar;
   vatandaş kaynaklı (`RequestType==Citizen` veya `SourceType ∈ {SocialMessage,CitizenRequest,EDevlet}`)

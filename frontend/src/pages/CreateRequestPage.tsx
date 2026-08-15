@@ -1409,17 +1409,17 @@ export function CreateRequestPage() {
                 required
               />
             </div>
-            <div className="job-field">
-              <label className="job-field-label" htmlFor="request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
-              <SingleSelectDropdown
-                options={targetDepartmentSelectOptions}
-                value={externalForm.targetDepartmentId}
-                onChange={targetDepartmentId => setExternalForm(current => ({ ...current, targetDepartmentId }))}
-                placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
-              />
-            </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              <div className="job-field">
+            <div className="grid gap-3 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] md:items-end">
+              <div className="job-field min-w-0">
+                <label className="job-field-label" htmlFor="request-target-dept">{t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span></label>
+                <SingleSelectDropdown
+                  options={targetDepartmentSelectOptions}
+                  value={externalForm.targetDepartmentId}
+                  onChange={targetDepartmentId => setExternalForm(current => ({ ...current, targetDepartmentId }))}
+                  placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
+                />
+              </div>
+              <div className="job-field min-w-0">
                 <label className="job-field-label" htmlFor="request-priority">{t('jobs.form.priority')}</label>
                 <SingleSelectDropdown
                   options={priorityOptions}
@@ -1428,8 +1428,10 @@ export function CreateRequestPage() {
                   placeholder={t('jobs.form.priority', 'Öncelik')}
                 />
               </div>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2">
               {isReporter ? (
-                <div className="job-field">
+                <div className="job-field md:col-span-2">
                   <label className="job-field-label" htmlFor="request-is-project">{t('jobs.form.isProject', 'Proje niteliğinde mi?')}</label>
                   <SingleSelectDropdown
                     options={yesNoOptions}
@@ -1438,9 +1440,7 @@ export function CreateRequestPage() {
                     placeholder={t('jobs.form.isProject', 'Proje niteliğinde mi?')}
                   />
                 </div>
-              ) : (
-                <div className="hidden md:block" aria-hidden="true" />
-              )}
+              ) : null}
               <div className="job-field">
                 <label className="job-field-label" htmlFor="request-start-date">{t('jobs.form.startDate')}</label>
                 {/* Başlangıç ≥ şimdi; seçilirse Son Tarih ≥ başlangıç+2s (#6a6f6301). */}

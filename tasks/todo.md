@@ -1,3 +1,7 @@
+## Round 862 — #2672
+
+- [x] `6a80567b` — Birim Dışı Talep Oluştur: Öncelik hedef birimin sağında yarı genişlik (#2672).
+
 ## Round 861 — #2671
 
 - [x] `6a8055da` — Vatandaş harita Talepleri Listele: İşleme Alındı Durum pill sky mavi (#2671).

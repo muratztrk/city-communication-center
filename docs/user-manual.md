@@ -58,6 +58,7 @@ Aşağıdaki tablo **lisans + rol** birleşiminin tipik sonucudur; Sistem Yönet
 | Menü / sayfa | Rozet | Not |
 | --- | --- | --- |
 | Anasayfa — Birimler (`/dashboard/birimler`) | **Kİ** | Kurum içi özet kartları |
+| Birim Talep Haritası (`/department-request-map`) | **Kİ** | Birime atanmış kurum içi talepler |
 | Anasayfa — Vatandaş (`/dashboard`) | **VT** | Vatandaş kanalı özetleri |
 | Vatandaş Bilgi Listesi | **VT** | CRM tarzı vatandaş kartları |
 | Talep Oluştur — Birim İçi / Birim Dışı | **Kİ** | |

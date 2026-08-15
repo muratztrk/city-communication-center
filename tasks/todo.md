@@ -1,3 +1,8 @@
+## Round 833 — #2610/#2611
+
+- [x] `6a7f53d5` — Birim Talep Haritası sayfası, menü, sayfa yetkisi, kurum içi lisans (#2610).
+- [x] `6a7f565c` — Pinler yalnız birimin Birimdeki Görevler atanmış kurum içi talepleri (#2611).
+
 ## Round 832 — #2636
 
 - [x] `6a8001ed` — Harita popup kanal ikonu size-3.5; Yazdır Vatandaş Adı / Telefon No stacked, slash yok (#2636).

@@ -45,6 +45,7 @@ Varsayılan frontend matrisi settings hariç çoğu sayfayı açık kabul eder; 
 | Vatandaş Talepleri | `/jobs` | Evet | Evet | Evet | Evet | Evet |
 | Birime Gelen Talepler | `/incoming-requests` | Evet | Evet | Evet | Evet | Evet |
 | Sosyal Mesajlar | `/social` | Evet | Evet | Evet | Evet | Evet |
+| Birim Talep Haritası | `/department-request-map` | Hayır | Evet | Evet | Evet | Evet |
 | Wallboard | `/display` | Evet | Evet | Evet | Evet | Evet |
 | Birimler | `/departments` | Evet | Evet | Evet | Evet | Evet |
 | Kullanıcılar | `/users` | Evet | Evet | Evet | Evet | Evet |

@@ -20,9 +20,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **`main` push = PRODUCTION auto-deploy** (yenitim.tire.bel.tr, gerçek Tire verisi). Riskli;
   hem `main` hem `master`'a push edilir.
-- **Harita / Konum UI (#2572 / #6a6cf0d1):** Uygulama içi Google Maps yalnız
-  `Vatandaş Talep Haritası` (`/citizen-request-map`) sayfasında; Reporter/Operator/Manager/SystemAdmin +
-  Ayarlar sayfa yetkisi + vatandaş modül lisansı. Anasayfa'da harita yok.
+- **Harita / Konum UI (#2572 / #6a6cf0d1 / #2610):** Uygulama içi Google Maps
+  `Vatandaş Talep Haritası` (`/citizen-request-map`, vatandaş lisansı) ve
+  `Birim Talep Haritası` (`/department-request-map`, yalnız Kurum İçi İş Takip lisansı, #2610)
+  sayfalarında. Anasayfa'da harita yok.
   Vatandaş Talepleri grid’inde Konum satırı yok. Talep detayında lat/lng metni olabilir;
   WhatsApp balonunda dış `maps.google.com` linki kalabilir.
 - **Demo seed YOK** → doğrulama = `dotnet build` + FE `npm run build` + `npm run lint`.
@@ -1655,6 +1656,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Geçmiş kırmızı; legend aynı. Varsayılan zoom bir kademe geniş (#2579). Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Sayfa banner/layout
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
+- **Birim Talep Haritası (#2610/#2611):** `/department-request-map`;
+  `GET /reports/dashboard-department-map-pins`. Yalnız `internal` lisans.
+  Sol menü Anasayfa - Birimler’in altında; Sayfa Yetkileri’nde Vatandaş Talep Haritası’nın
+  bir alt satırında. Pinler vatandaş-olmayan (`RequestType != Citizen`, sosyal/e-Devlet/rutin yok)
+  ve Birimdeki Görevler kapsamındaki atanmış görevlerin talepleri — kullanıcının birimi.
+  Lejant: Onay Bekleyen (sky) / Yapılmakta / Geciken / Tamamlanan. Adres/geocode kuralları
+  vatandaş haritası ile aynı.
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
   chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında

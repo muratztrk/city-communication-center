@@ -26,6 +26,7 @@ const EDevletBasvurularPage = lazy(() => import('../pages/EDevletBasvurularPage'
 const RoutineTaskPage = lazy(() => import('../pages/RoutineTaskPage').then(module => ({ default: module.RoutineTaskPage })))
 const CitizenDirectoryPage = lazy(() => import('../pages/CitizenDirectoryPage').then(module => ({ default: module.CitizenDirectoryPage })))
 const CitizenRequestMapPage = lazy(() => import('../pages/CitizenRequestMapPage').then(module => ({ default: module.CitizenRequestMapPage })))
+const DepartmentRequestMapPage = lazy(() => import('../pages/DepartmentRequestMapPage').then(module => ({ default: module.DepartmentRequestMapPage })))
 const WhatsAppConversationsPage = lazy(() => import('../pages/WhatsAppConversationsPage').then(module => ({ default: module.WhatsAppConversationsPage })))
 
 function LoadingScreen() {
@@ -106,6 +107,10 @@ export default function App() {
           <Route
             path="/citizen-request-map"
             element={<PageAccessGate pageKey="citizenRequestMap" user={user}><CitizenRequestMapPage /></PageAccessGate>}
+          />
+          <Route
+            path="/department-request-map"
+            element={<PageAccessGate pageKey="departmentRequestMap" user={user}><DepartmentRequestMapPage /></PageAccessGate>}
           />
           <Route
             path="/citizen-directory"

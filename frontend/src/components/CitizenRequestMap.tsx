@@ -28,6 +28,7 @@ type ResolvedPin = CitizenDashboardMapPin & { position: LatLng; approximate: boo
 
 const PIN_COLORS: Record<string, string> = {
   processingReceived: '#0ea5e9',
+  pendingApproval: '#0ea5e9',
   inProgress: '#f97316',
   overdue: '#ef4444',
   completed: '#22c55e',
@@ -287,11 +288,12 @@ async function loadCitizenSourceMessage(detail: JobDetail): Promise<SocialMessag
 interface CitizenRequestMapProps {
   pins: CitizenDashboardMapPin[]
   loading?: boolean
+  variant?: 'citizen' | 'department'
 }
 
 const MAP_CONTAINER_STYLE: CSSProperties = { width: '100%', height: '100%', cursor: 'grab' }
 
-export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
+export function CitizenRequestMap({ pins, loading, variant = 'citizen' }: CitizenRequestMapProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const districtId = useMunicipalityDistrictId()
@@ -465,11 +467,13 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
   }, [mapInstance, isLoaded, resolved])
 
   const statusLegend = useMemo(() => ([
-    { key: 'processingReceived', label: t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı'), color: PIN_COLORS.processingReceived },
+    variant === 'department'
+      ? { key: 'pendingApproval', label: t('dashboard.chart.pendingApproval', 'Onay Bekleyen'), color: PIN_COLORS.pendingApproval }
+      : { key: 'processingReceived', label: t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı'), color: PIN_COLORS.processingReceived },
     { key: 'inProgress', label: t('dashboard.chart.inProgress', 'Yapılmakta Olan'), color: PIN_COLORS.inProgress },
     { key: 'overdue', label: t('citizenRequestMap.legend.overdue', 'Geciken'), color: PIN_COLORS.overdue },
     { key: 'completed', label: t('citizenRequestMap.legend.completed', 'Tamamlanan'), color: PIN_COLORS.completed },
-  ]), [t])
+  ]), [t, variant])
 
   const onMapLoad = useCallback((map: google.maps.Map) => {
     setMapInstance(map)
@@ -659,7 +663,7 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
             closeJobDetail()
           }}
           onOpenJobDetail={(jobId, socialMessageId) => void openJobDetail(jobId, socialMessageId)}
-          replaceUnitWithCitizenContact
+          replaceUnitWithCitizenContact={variant === 'citizen'}
         />
       ) : null}
 
@@ -668,9 +672,11 @@ export function CitizenRequestMap({ pins, loading }: CitizenRequestMapProps) {
           {jobDetail ? (
             <MyRequestDetailModal
               detail={jobDetail}
-              title={addressTickets
-                ? t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')
-                : t('citizenRequestMap.detailTitle', 'Vatandaş Talebi')}
+              title={variant === 'department'
+                ? t('departmentRequestMap.detailTitle', 'Talep')
+                : addressTickets
+                  ? t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')
+                  : t('citizenRequestMap.detailTitle', 'Vatandaş Talebi')}
               locale={locale}
               detailLoading={detailLoading}
               citizenSourceMessage={citizenSourceMessage}

@@ -285,6 +285,17 @@ export const api = {
     return response.json() as Promise<CitizenDashboardMapPinsResponse>
   },
 
+  async getDepartmentDashboardMapPins(from?: string, to?: string): Promise<CitizenDashboardMapPinsResponse> {
+    const params = new URLSearchParams()
+    if (from) params.set('from', from)
+    if (to) params.set('to', to)
+    const qs = params.toString()
+    const url = `${API_BASE}/reports/dashboard-department-map-pins${qs ? `?${qs}` : ''}`
+    const response = await fetchWithCredentials(url, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.departmentMapLoadFailed', 'Birim talep haritası yüklenemedi.'))
+    return response.json() as Promise<CitizenDashboardMapPinsResponse>
+  },
+
   async getDepartments(): Promise<Department[]> {
     const response = await fetchWithCredentials(`${API_BASE}/departments`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.departmentsLoadFailed'))

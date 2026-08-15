@@ -61,6 +61,10 @@
       "openAddress": "Adres Tarifi"
     }
   },
+  "departmentRequestMap": {
+    "subtitle": "{{district}} ilçesinde biriminize atanmış kurum içi talepler mahalle, cadde ve açık adres bilgileriyle haritada gösterilir.",
+    "detailTitle": "Talep"
+  },
   "citizenRequestMap": {
     "eyebrow": "Vatandaş talepleri",
     "subtitle": "{{district}} ilçesindeki vatandaş talepleri mahalle, cadde ve açık adres bilgileriyle haritada gösterilir.",
@@ -211,6 +215,7 @@
     "dashboardDepartments": "Anasayfa - Birimler",
     "citizenDirectory": "Vatandaş Bilgi Listesi",
     "citizenRequestMap": "Vatandaş Talep Haritası",
+    "departmentRequestMap": "Birim Talep Haritası",
     "edevletActivityPlan": "e-Devlet Günlük Faaliyet Planı Oluştur",
     "edevletActivityPlansList": "e-Devlet Günlük Faaliyet Planları Listesi",
     "createRequest": "Talep Oluştur",

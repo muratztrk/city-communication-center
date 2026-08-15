@@ -61,6 +61,10 @@
       "openAddress": "Address Directions"
     }
   },
+  "departmentRequestMap": {
+    "subtitle": "Internal requests assigned to your department in {{district}} are shown on the map with neighborhood, street, and open address.",
+    "detailTitle": "Request"
+  },
   "citizenRequestMap": {
     "eyebrow": "Citizen requests",
     "subtitle": "Citizen requests in {{district}} are shown on the map with neighborhood, street, and open address.",
@@ -211,6 +215,7 @@
     "dashboardDepartments": "Home - Departments",
     "citizenDirectory": "Citizen Directory",
     "citizenRequestMap": "Citizen Request Map",
+    "departmentRequestMap": "Department Request Map",
     "edevletActivityPlan": "Create e-Government Daily Activity Plan",
     "edevletActivityPlansList": "e-Government Daily Activity Plans List",
     "createRequest": "Create Request",

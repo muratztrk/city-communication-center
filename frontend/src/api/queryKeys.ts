@@ -80,6 +80,7 @@ export const queryKeys = {
     workload: (range: DateRange = {}) => ['ccc', 'reports', 'workload', normalize(range)] as const,
     socialTrends: (range: DateRange = {}) => ['ccc', 'reports', 'social-trends', normalize(range)] as const,
     citizenMapPins: (range: DateRange = {}) => ['ccc', 'reports', 'citizen-map-pins', normalize(range)] as const,
+    departmentMapPins: (range: DateRange = {}) => ['ccc', 'reports', 'department-map-pins', normalize(range)] as const,
   },
   settings: {
     all: ['ccc', 'settings'] as const,

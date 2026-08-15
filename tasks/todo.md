@@ -1,3 +1,8 @@
+## Round 839 — #2647/#2648
+
+- [x] `6a8021f8` — Tüm Talepler (Vatandaş) popup’ta ara/tarih yok (#2647).
+- [x] `6a8022b2` — Birimler popup başlığı Birimlerin Tüm Talepleri; Gittiği Yer birim adı; Durum pill (#2648).
+
 ## Round 838 — #2646/#2644
 
 - [x] `6a8020cb` — Vatandaş Talepleri grid Süreç başlığı Durum (#2646).

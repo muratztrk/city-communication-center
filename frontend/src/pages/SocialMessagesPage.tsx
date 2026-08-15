@@ -521,18 +521,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
 
   return (
     <div className={embedded ? 'flex h-full min-h-0 flex-col overflow-hidden' : 'page-stack desktop-page-shell'}>
-      {embedded ? (
-        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 px-4 pt-3">
-          <SocialMessageScopeFilters
-            searchText={searchText}
-            filterFrom={filterFrom}
-            filterTo={filterTo}
-            onSearch={setSearchText}
-            onFromChange={setFilterFrom}
-            onToChange={setFilterTo}
-          />
-        </div>
-      ) : (
+      {embedded ? null : (
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
@@ -556,7 +545,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
       )}
 
       {embedded ? (
-      <nav className="scope-chips shrink-0 px-4" aria-label={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}>
+      <nav className="scope-chips shrink-0 px-4 pt-3" aria-label={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}>
         <SingleSelectDropdown
           className="w-auto"
           triggerClassName="scope-chip-year-select scope-chip-status-select w-[11.5rem] min-w-[11.5rem] max-w-[11.5rem]"

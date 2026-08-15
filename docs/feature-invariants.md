@@ -1671,9 +1671,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Anasayfa-Vatandaş Tüm Talepler (#2644):** dönem satırında Özel’den sonra `Tüm Talepler`;
   popup operatör VT grid (`SocialMessagesPage` embedded). Kanal chip’leri (Tümü/WhatsApp/…) yok;
   Talep Etiketi sütunu yok; thead drilldown standardı (`0.78rem`). Durum filtresi kalır.
-- **Anasayfa-Birimler Tüm Talepler (#2645):** Özel’den sonra aynı buton; popup vatandaş-olmayan
-  atanmış kurum içi talepler (Sıra, Talep No, Talep Tarihi, Talep Yeri, Gittiği Yer, Başlık,
-  Durum, İşlemler).
+  Ara / başlangıç / bitiş tarihi yok (#2647).
+- **Anasayfa-Birimler Tüm Talepler (#2645/#2648):** Özel’den sonra aynı buton; popup başlığı
+  `Birimlerin Tüm Talepleri`. Vatandaş-olmayan atanmış kurum içi talepler (Sıra, Talep No,
+  Talep Tarihi, Talep Yeri, Gittiği Yer, Başlık, Durum, İşlemler). Gittiği Yer = hedef birim;
+  birim içi talepte sahip birim adı. Durum = Taleplerim `StatusPill` + `GridStatusLabel`.
 - **Vatandaş Talepleri kanal chip'leri:** Tümü / WhatsApp / Çağrı / e-Devlet / Mobil Uygulama
   (`SocialChannel.MobileApp`). e-Devlet ve Mobil Uygulama'da Yeni/işsiz talep sayısı kırmızı badge;
   chip tıklanınca badge localStorage ile temizlenir (card #1871/#1872). Mobil Uygulama satırında

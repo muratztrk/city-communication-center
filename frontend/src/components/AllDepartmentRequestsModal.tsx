@@ -10,6 +10,8 @@ import { DateCell } from './ui/date-cell'
 import { TablePagination } from './ui/table-pagination'
 import { TableEmptyStateRows } from './ui/table-empty-state-rows'
 import { TruncatedText } from './ui/TruncatedText'
+import { StatusPill } from './ui/status-pill'
+import { GridStatusLabel } from './ui/GridStatusLabel'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { isCitizenRequestJob } from '../utils/citizenRequests'
@@ -17,9 +19,11 @@ import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import {
   formatOverdueInProgressStatus,
+  getJobStatusTone,
   getLocale,
   getPriorityColorClass,
   getPriorityLabel,
+  getStatusPillClass,
   shouldShowGridPrioritySubline,
 } from '../utils/localization'
 import { printJobDetail } from '../pages/JobsPage'
@@ -38,10 +42,13 @@ function isAssignedInternalJob(job: JobSummary): boolean {
 }
 
 function destinationName(job: JobSummary): string {
-  const target = job.departments?.find(department => department.role === 'Target' && department.departmentName)
-  return target?.departmentName?.trim()
-    || job.assignedUserDisplayName?.trim()
-    || ''
+  if (job.requestType === 'InternalUnit') {
+    return job.ownerDepartmentName?.trim() || ''
+  }
+  const targets = (job.departments ?? [])
+    .filter(department => department.role === 'Target' && department.departmentName?.trim())
+    .map(department => department.departmentName!.trim())
+  return [...new Set(targets)].join(', ')
 }
 
 function getRowStatusLabel(t: TFunction, job: JobSummary): string {
@@ -145,7 +152,7 @@ export function AllDepartmentRequestsModal({ onClose }: AllDepartmentRequestsMod
             <div className="detail-modal-header-title min-w-0">
               <h2 className="flex min-w-0 items-start gap-2 text-sm font-bold text-emerald-700">
                 <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                <span className="block truncate">{t('dashboard.allCitizenRequests', 'Tüm Talepler')}</span>
+                <span className="block truncate">{t('dashboard.allDepartmentRequests', 'Birimlerin Tüm Talepleri')}</span>
               </h2>
             </div>
             <DetailModalHeaderBrand />
@@ -185,6 +192,18 @@ export function AllDepartmentRequestsModal({ onClose }: AllDepartmentRequestsMod
                         {paged.map((job, index) => {
                           const statusLabel = getRowStatusLabel(t, job)
                           const destination = destinationName(job)
+                          const statusDate = job.status === 'Completed' ? job.completedAtUtc
+                            : job.status === 'Cancelled' ? job.updatedAtUtc
+                            : null
+                          const statusDateText = statusDate
+                            ? new Date(statusDate).toLocaleString(locale, {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })
+                            : null
                           return (
                             <tr key={job.jobId}>
                               <td className="text-center text-xs font-bold text-slate-400 tabular-nums">
@@ -213,14 +232,15 @@ export function AllDepartmentRequestsModal({ onClose }: AllDepartmentRequestsMod
                                 <TruncatedText text={job.title?.trim() || '—'} className="cell-title" />
                               </td>
                               <td className="grid-col-status text-center">
-                                <span className={
-                                  job.status === 'Completed' ? 'font-semibold text-emerald-600'
-                                    : job.status === 'Cancelled' || job.status === 'Rejected' || job.status === 'RevisionRequested' ? 'font-semibold text-red-600'
-                                      : job.status === 'Active' ? 'font-semibold text-orange-500'
-                                        : ''
-                                }>
-                                  {statusLabel}
-                                </span>
+                                <StatusPill className={getStatusPillClass(getJobStatusTone(job))}>
+                                  <GridStatusLabel
+                                    t={t}
+                                    label={statusLabel}
+                                    footer={statusDateText
+                                      ? <span className={`text-[0.68rem] font-bold ${job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{statusDateText}</span>
+                                      : undefined}
+                                  />
+                                </StatusPill>
                               </td>
                               <td className="actions-cell">
                                 <div className="request-actions justify-center">

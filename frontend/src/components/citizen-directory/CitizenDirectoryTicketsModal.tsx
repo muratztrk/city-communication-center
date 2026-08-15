@@ -80,14 +80,14 @@ function printCitizenTickets(
         minute: '2-digit',
       })
       : '—'
-    const contact = [ticketCitizenName(ticket, citizen), formatCitizenPhoneDisplay(ticketCitizenPhone(ticket, citizen))]
-      .filter(Boolean)
-      .join(' · ') || '—'
+    const contactName = ticketCitizenName(ticket, citizen) || '—'
+    const contactPhone = formatCitizenPhoneDisplay(ticketCitizenPhone(ticket, citizen)) || '—'
+    const contactHtml = `<span class="stack-head"><span>${escape(contactName)}</span><span>${escape(contactPhone)}</span></span>`
     return replaceUnitWithCitizenContact
       ? `<tr>
       <td>${index + 1}</td>
       <td class="col-no">${escape(formatVt(ticket))}</td>
-      <td class="col-dept">${escape(contact)}</td>
+      <td class="col-dept">${contactHtml}</td>
       <td class="col-date">${escape(date)}</td>
       <td class="col-title">${escape(ticket.title?.trim() || '—')}</td>
       <td class="col-status">${escape(status)}</td>
@@ -106,6 +106,7 @@ function printCitizenTickets(
     ? t('social.citizenRequestNo', 'Vatandaş Talep No')
     : t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')
   const stackedRequestNo = `<span class="stack-head"><span>${escape(t('dashboard.citizen', 'Vatandaş'))}</span><span>${escape(t('jobs.columns.requestNo', 'Talep No'))}</span></span>`
+  const stackedCitizenContact = `<span class="stack-head"><span>${escape(t('social.citizenName', 'Vatandaş Adı'))}</span><span>${escape(t('citizenMessageApproval.columns.citizenPhone', 'Telefon No'))}</span></span>`
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escape(listTitle)}</title>
     <style>
       @page{margin:12mm}
@@ -133,7 +134,7 @@ function printCitizenTickets(
       <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
       <th class="col-no">${replaceUnitWithCitizenContact ? stackedRequestNo : escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
       ${replaceUnitWithCitizenContact
-        ? `<th class="col-dept">${escape(`${t('social.citizenName', 'Vatandaş Adı')} / ${t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}`)}</th>
+        ? `<th class="col-dept">${stackedCitizenContact}</th>
       <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
       <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>`
         : `<th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>
@@ -303,7 +304,7 @@ export function CitizenDirectoryTicketsModal({
                           <td className="table-number-cell font-mono text-xs text-slate-500">
                             <div className="table-number-cell__value inline-flex items-center justify-center gap-1">
                               {replaceUnitWithCitizenContact && ticket.channel ? (
-                                <ChannelIcon channel={ticket.channel} className="size-3 shrink-0" />
+                                <ChannelIcon channel={ticket.channel} className="size-3.5 shrink-0" />
                               ) : null}
                               <span>{formatVt(ticket)}</span>
                             </div>

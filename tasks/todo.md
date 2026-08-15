@@ -1,3 +1,7 @@
+## Round 832 — #2636
+
+- [x] `6a8001ed` — Harita popup kanal ikonu size-3.5; Yazdır Vatandaş Adı / Telefon No stacked, slash yok (#2636).
+
 ## Round 831 — #2635
 
 - [x] `6a8000b5` — Cadde/sokak yoksa veya Google’da bulunamazsa harita pini yok; mahalle yedeği kaldırıldı (#2635).

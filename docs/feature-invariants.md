@@ -1675,9 +1675,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `(Geciken)`, #2574).
   Harita aynı-adres popup'ında Birim yerine stacked Vatandaş Adı / Telefon No
   (`replaceUnitWithCitizenContact`; dizin sayfası Birim kalır, #2630).
-  Harita popup kolon sırası: Sıra → VT No (kanal ikonu yanında, Talep Kanalı sütunu yok)
-  → Vatandaş Adı / Telefon No → Talep Tarihi → Başlık → Durum (#2635/#2636).
-  Harita Yazdır h1 ve VT No sütun başlığı stacked `Vatandaş` / `Talep No` (#2635/#2636).
+  Harita popup kolon sırası: Sıra → VT No (kanal ikonu `size-3.5` yanında, Talep Kanalı sütunu yok)
+  → stacked Vatandaş Adı / Telefon No → Talep Tarihi → Başlık → Durum (#2635/#2636).
+  Harita Yazdır h1 ve VT No stacked `Vatandaş` / `Talep No`; Vatandaş Adı / Telefon No
+  başlığı ve hücresi de stacked, slash yok (#2636).
   Nested detay **Süreç** overdue tek satır `Yapılmakta (Geciken)` — stacked GridStatusLabel değil (#2574).
   İptal / Tamamlanmış pill içinde alt satırda tarih (`completedAtUtc` / `updatedAtUtc`, #2574 reopen). Anasayfa pie → Detaylar
   aynı nested boyut (#6a6da278). Başlık: Vatandaş sayfası `Vatandaş Talebi`, Birimler

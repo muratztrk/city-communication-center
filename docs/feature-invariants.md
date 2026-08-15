@@ -1474,8 +1474,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   butonlar `inline-flex items-center gap-1.5` (#6a758f80 / #6a758fb1).
 - **Grid Öncelik alt satır punto (#2684):** `.table-number-cell__priority` `0.78rem`
   (Talep No `0.9rem` altında; #2684 küçültme sonrası hafif artış).
-- **Grid Öncelik alt satır boşluğu:** `.table-number-cell__priority` / `.wallboard-priority-text`
-  `margin-top: 0.2rem` (#6a75913e reopen).
+- **Grid Öncelik alt satır boşluğu:** `.table-number-cell__priority` `margin-top: 0.35rem` (#2684);
+  wallboard `0.2rem` (#6a75913e reopen).
 - **WA / kurum içi pending ek balonu:** Dosya ekle önizlemesinde balon içinde `Beklemede · HH:mm`
   (#6a75994d / #6a759a3e reopen — bullet + saat, giden mesaj satırıyla aynı). **WA Konuşmaları
   sayfası (`WhatsAppConversationsPage`) kendi pending UI’sini kullanır** — ConversationPanel
@@ -1544,6 +1544,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ve Taleplerim gridview'ın görsel başlık font/ölçeğiyle, pagination satırı yüksekliğiyle uyumlu kalır.
   Terminal tarih kolonu yalnız `Tamamlanma Tarihi` veya `İptal Tarihi` başlığı
   kullanır; `Tamamlanma / İptal Tarihi` fallback ibaresi geri gelmez.
+  Anasayfa-Vatandaş mahalle/birim/VT pie popup’larında **Birim sütunu yok** (#2689).
+  Pie drilldown shell `67vw` / `80rem` (#2690).
   "Banner sayımına bağlı grafik" istekleri yeni backend aggregation gerektirir (#731 bu
   yüzden ertelendi).
 - **Dashboard pie chart'ları sıfır veride de görünür kalmalı:** `showZeroSlices` kullanılan
@@ -1729,7 +1731,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Ara / başlangıç / bitiş tarihi yok. Tüm VT kayıtları listelenir.
   **Gittiği Yer sütunu yok** (Operator #2686, Reporter #2687). Reporter `GetSocialMessages`
   tam kutu (Operator ile aynı). Embedded yükleme etiket/birim listesini atlar; işler
-  `requestType=Citizen` ile çekilir (#2686/#2687). Popup kolon başlıkları **Talep Tarihi** / **Telefon No**; paging sticky altta (#2649).
+  `requestType=Citizen` ile çekilir (#2686/#2687). Yükleme sürerken grid içinde
+  `Sayfa yükleniyor...` (`common.pageLoading`, #2686/#2687). Popup kolon başlıkları **Talep Tarihi** / **Telefon No**; paging sticky altta (#2649).
   Popup genişliği Taleplerim detaydan daha geniş (`70vw` / `84rem`, #2644). Küçük ekranda
   başlıklar sığmazsa yatay kaydırma (`overflow-x`, #2648). Boş grid metni
   `Henüz vatandaş talebi bulunmuyor` (`social.emptyCitizenRequests`, #2644).

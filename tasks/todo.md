@@ -1,3 +1,10 @@
+## Round 877 — #2686/#2689/#2687/#2684/#2690
+
+- [x] `6a806a7d` / `6a806ae5` — Tüm Talepler grid içinde Sayfa yükleniyor… (#2686/#2687).
+- [x] `6a807ad0` — Vatandaş pie popup’larından Birim sütunu kaldırıldı (#2689).
+- [x] `6a8068dc` — Öncelik–Talep No boşluğu `0.35rem` (#2684).
+- [x] `6a807b6f` — Pie drilldown popup genişliği `67vw`/`80rem` (#2690).
+
 ## Round 876 — #2686/#2687/#2688
 
 - [x] `6a806a7d` / `6a806ae5` — Anasayfa Tüm Talepler popup yükleme: Citizen işler + gereksiz istek yok (#2686/#2687).

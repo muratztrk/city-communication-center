@@ -342,9 +342,12 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   // VT No sonrası Vatandaş Adı / Telefon No (#6a6d9411).
   const showCitizenColumn = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart || isCitizenDepartmentChart
   const showUnitColumn = !isRequestTagsChart
+    && !isNeighborhoodChart
+    && !isCitizenDepartmentChart
+    && !isCitizenRequestsChart
   const unitColumnLabel = !showUnitColumn
     ? null
-    : (isNeighborhoodChart || isExternalUnitChart || isCitizenRequestsChart || isCitizenDepartmentChart
+    : (isExternalUnitChart
       ? t('jobs.columns.unitShort', 'Birim')
       : t('departments.name', 'Müdürlük'))
   const chartTitle = t(chartKey)
@@ -479,7 +482,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     <>
       <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/45 p-4" onClick={onClose}>
         <div
-          className="detail-modal-shell detail-modal-shell--my-request flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+          className="detail-modal-shell detail-modal-shell--my-request detail-modal-shell--chart-drilldown flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
           onClick={event => event.stopPropagation()}
         >
           <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-5 py-3.5">

@@ -8,6 +8,7 @@
   },
   "common": {
     "loading": "Loading...",
+    "pageLoading": "Loading page...",
     "dateTimePickerPlaceholder": "Select date and time",
     "refreshing": "Refreshing live data",
     "error": "Something went wrong.",

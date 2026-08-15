@@ -8,6 +8,7 @@
   },
   "common": {
     "loading": "Yükleniyor...",
+    "pageLoading": "Sayfa yükleniyor...",
     "dateTimePickerPlaceholder": "Tarih ve saat seçiniz",
     "refreshing": "Canlı veriler yenileniyor",
     "error": "Bir hata oluştu.",

@@ -600,7 +600,6 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
       )}
 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
-      {embedded && loading ? <div className="loading px-4 py-6">{t('common.loading')}</div> : null}
 
       <section className={embedded ? 'section-card flex min-h-0 flex-1 flex-col overflow-hidden p-0' : 'section-card desktop-page-fill'}>
         <div className={embedded ? 'dashboard-drilldown-grid-shell flex min-h-0 flex-1 flex-col px-4 pb-3 pt-3' : 'contents'}>
@@ -632,6 +631,13 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
               </tr>
             </thead>
             <tbody>
+              {embedded && loading ? (
+                <TableEmptyStateRows
+                  columnCount={7}
+                  message={t('common.pageLoading', 'Sayfa yükleniyor...')}
+                />
+              ) : (
+                <>
               {pagedMessages.map((message, index) => {
                 const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
 
@@ -751,6 +757,8 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                     : t('social.empty')}
                 />
               ) : null}
+                </>
+              )}
             </tbody>
           </table>
         </div>

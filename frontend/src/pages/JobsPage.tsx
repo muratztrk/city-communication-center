@@ -5,6 +5,7 @@ import { FilterableTh } from '../components/ui/FilterableTh'
 import { TruncatedText } from '../components/ui/TruncatedText'
 import { EmptyCell } from '../components/ui/EmptyCell'
 import { useColumnFilters } from '../hooks/useColumnFilters'
+import { useWeekendSlaDueDateMin } from '../hooks/useWeekendSlaDueDateMin'
 import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -710,6 +711,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
+  const weekendDueMin = useWeekendSlaDueDateMin()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const isReporter = user?.role === 'Reporter'
   // "Başkanlık seviyesi üst düzey yönetici": Üst Düzey Yönetici (Reporter) rolü + Başkanlık birimi (card 645/647).
@@ -1415,7 +1417,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         description: detail.description ?? '',
         priority: detail.priority,
         startDateUtc: detail.startDateUtc,
-        dueDateUtc: detailDueDateEdit.value ? new Date(clampDueDatePickerValue(detailDueDateEdit.value)).toISOString() : null,
+        dueDateUtc: detailDueDateEdit.value ? new Date(clampDueDatePickerValue(detailDueDateEdit.value, 2, weekendDueMin)).toISOString() : null,
         latitude: detail.latitude,
         longitude: detail.longitude,
         isProject: detail.isProject,
@@ -2434,7 +2436,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               detailDueDateEdit={detailDueDateEdit}
               onOpenDueDateEdit={openDetailDueDateEdit}
               onCloseDueDateEdit={closeDetailDueDateEdit}
-              onDueDateChange={value => setDetailDueDateEdit(current => current ? { ...current, value: clampDueDatePickerValue(value), mode: 'confirm' } : current)}
+              onDueDateChange={value => setDetailDueDateEdit(current => current ? { ...current, value: clampDueDatePickerValue(value, 2, weekendDueMin), mode: 'confirm' } : current)}
               onDueDateSave={() => void handleDetailDueDateSave()}
               jobExtraTimeReview={jobExtraTimeReview}
               onOpenExtraTimeReview={() => void openJobExtraTimeReview()}
@@ -2871,12 +2873,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         <div className="mt-1 flex flex-col gap-1.5">
                           <DateTimePicker
                             value={detailDueDateEdit.value}
-                            onChange={dateValue => setDetailDueDateEdit(current => current ? { ...current, value: clampDueDatePickerValue(dateValue), mode: 'confirm' } : current)}
+                            onChange={dateValue => setDetailDueDateEdit(current => current ? { ...current, value: clampDueDatePickerValue(dateValue, 2, weekendDueMin), mode: 'confirm' } : current)}
                             placeholder={t('jobs.form.dueDate', 'Bitiş Tarihi')}
                             className={detailDueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
                             forceUp
                             autoOpen
-                            minDateTime={earliestDueDatePickerValue()}
+                            minDateTime={earliestDueDatePickerValue(2, undefined, weekendDueMin)}
                             onClose={detailDueDateEdit.mode === 'picking' ? closeDetailDueDateEdit : undefined}
                           />
                           {detailDueDateEdit.mode === 'confirm' && (

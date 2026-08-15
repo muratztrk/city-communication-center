@@ -58,16 +58,43 @@ function dueDateMinForPickerDay(pickerValue: string, hoursFromNow = 2): string {
   return toDateTimePickerValue(new Date(Date.now() + hoursFromNow * 60 * 60 * 1000).toISOString())
 }
 
-export function earliestDueDatePickerValue(hoursFromNow = 2, pickerValue?: string | null): string {
-  if (pickerValue && pickerValue.length >= 10) {
-    return dueDateMinForPickerDay(pickerValue, hoursFromNow)
-  }
-  return dueDateMinForPickerDay(toLocalDateKey(new Date().toISOString()), hoursFromNow)
+/** İki naif picker değerinden daha geç olanı. */
+export function laterPickerValue(a: string, b?: string | null): string {
+  if (!b) return a
+  return a >= b ? a : b
 }
 
-export function clampDueDatePickerValue(value: string, hoursFromNow = 2): string {
+/**
+ * Hafta sonu SLA durduruluyorsa (Ayarlar), Cmt/Paz oluştururken Son Tarih en erken
+ * sonraki Pazartesi mesai başlangıcı (#2706).
+ */
+export function weekendSlaDueDateFloor(
+  excludeWeekends: boolean,
+  mondayStartHm = '08:30',
+  now = new Date(),
+): string | null {
+  if (!excludeWeekends) return null
+  const day = now.getDay()
+  if (day !== 0 && day !== 6) return null
+  const daysUntilMonday = day === 6 ? 2 : 1
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntilMonday)
+  const y = monday.getFullYear()
+  const m = String(monday.getMonth() + 1).padStart(2, '0')
+  const d = String(monday.getDate()).padStart(2, '0')
+  const hm = /^\d{2}:\d{2}/.test(mondayStartHm) ? mondayStartHm.slice(0, 5) : '08:30'
+  return `${y}-${m}-${d}T${hm}`
+}
+
+export function earliestDueDatePickerValue(hoursFromNow = 2, pickerValue?: string | null, absoluteMin?: string | null): string {
+  const base = pickerValue && pickerValue.length >= 10
+    ? dueDateMinForPickerDay(pickerValue, hoursFromNow)
+    : dueDateMinForPickerDay(toLocalDateKey(new Date().toISOString()), hoursFromNow)
+  return laterPickerValue(base, absoluteMin)
+}
+
+export function clampDueDatePickerValue(value: string, hoursFromNow = 2, absoluteMin?: string | null): string {
   if (!value) return value
-  const min = earliestDueDatePickerValue(hoursFromNow, value)
+  const min = earliestDueDatePickerValue(hoursFromNow, value, absoluteMin)
   return value < min ? min : value
 }
 
@@ -90,26 +117,30 @@ export function earliestDueDateRelativeToStart(
   startPickerValue: string | null | undefined,
   hoursAfter = 2,
   duePickerValue?: string | null,
+  absoluteMin?: string | null,
 ): string {
+  let base: string
   if (duePickerValue && duePickerValue.length >= 10 && !isSameLocalCalendarDayAsNow(duePickerValue)) {
-    return `${duePickerValue.slice(0, 10)}T${currentLocalTimeHm()}`
-  }
-  if (startPickerValue && startPickerValue.length >= 16) {
+    base = `${duePickerValue.slice(0, 10)}T${currentLocalTimeHm()}`
+  } else if (startPickerValue && startPickerValue.length >= 16) {
     const startMs = new Date(startPickerValue).getTime()
-    if (!Number.isNaN(startMs)) {
-      return toDateTimePickerValue(new Date(startMs + hoursAfter * 60 * 60 * 1000).toISOString())
-    }
+    base = !Number.isNaN(startMs)
+      ? toDateTimePickerValue(new Date(startMs + hoursAfter * 60 * 60 * 1000).toISOString())
+      : earliestDueDatePickerValue(hoursAfter, duePickerValue)
+  } else {
+    base = earliestDueDatePickerValue(hoursAfter, duePickerValue)
   }
-  return earliestDueDatePickerValue(hoursAfter, duePickerValue)
+  return laterPickerValue(base, absoluteMin)
 }
 
 export function clampDueDateRelativeToStart(
   value: string,
   startPickerValue: string | null | undefined,
   hoursAfter = 2,
+  absoluteMin?: string | null,
 ): string {
   if (!value) return value
-  const min = earliestDueDateRelativeToStart(startPickerValue, hoursAfter, value)
+  const min = earliestDueDateRelativeToStart(startPickerValue, hoursAfter, value, absoluteMin)
   return value < min ? min : value
 }
 

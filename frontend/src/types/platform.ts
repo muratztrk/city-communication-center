@@ -1031,6 +1031,11 @@ export interface SlaWeekendSettings {
   exemptDepartmentIds: string[]
 }
 
+export interface DueDateConstraints {
+  excludeWeekends: boolean
+  weekendDueDateMinLocal: string | null
+}
+
 export interface SlaWeekendSettingsUpdate {
   excludeWeekends: boolean
   exemptDepartmentIds: string[]

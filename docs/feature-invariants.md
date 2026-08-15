@@ -1340,7 +1340,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `UpdateJob` ile Son Tarih kaydedebilir (Owner-only yetki 403 vermez). Birimden Giden sahip
   yöneticisi detay Süreç'te `Onay Bekleyen` yanında `Değiştir` görür.
 - **Talep son tarihi min + onay bekleyen overdue (card #1819):** Manuel Son Tarih seçimi
-  (oluşturma + Değiştir) en erken `şimdi + 2 saat`. Onay bekleyen (`PendingOwnerApproval` /
+  (oluşturma + Değiştir) en erken `şimdi + 2 saat`. Hafta sonu SLA durduruluyorsa Cmt/Paz
+  oluştururken/seçerken en erken sonraki Pazartesi mesai başlangıcı (varsayılan 08:30, #2706).
+  Onay bekleyen (`PendingOwnerApproval` /
   `PendingExternalApproval` / `PendingApproval`) talepler aynı gün içinde saat aşımında
   "Geciken" sayılmaz; takvim günü değişince overdue olur.
 - **Talep Oluştur Başlangıç / Son Tarih (card #6a6f6301, #6a6f5011 supersede):** Birim Dışı

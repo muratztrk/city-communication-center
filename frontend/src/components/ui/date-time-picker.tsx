@@ -407,6 +407,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
                 <span className="text-xs font-semibold text-slate-500">Saat</span>
                 <input
                   type="time"
+                  min={minDateTime && draft.date && minDateTime.startsWith(draft.date) ? minDateTime.slice(11, 16) : undefined}
                   className="min-w-0 flex-1 bg-transparent text-xs font-semibold text-slate-700 outline-none"
                   value={draft.time}
                   onChange={e => setDraft(d => ({ ...d, time: e.target.value }))}

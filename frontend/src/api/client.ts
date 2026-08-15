@@ -75,6 +75,7 @@ import type {
   SyslogSettingsUpdate,
   SlaWeekendSettings,
   SlaWeekendSettingsUpdate,
+  DueDateConstraints,
   InternalMessagesSettings,
   InternalMessagesSettingsUpdate,
   AppNotification,
@@ -154,6 +155,12 @@ export const api = {
     const response = await fetchWithCredentials(`${API_BASE}/me/departments`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.departmentsLoadFailed', 'Birim bilgileri yüklenemedi'))
     return response.json() as Promise<DepartmentSummary[]>
+  },
+
+  async getDueDateConstraints(): Promise<DueDateConstraints> {
+    const response = await fetchWithCredentials(`${API_BASE}/me/due-date-constraints`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.dueDateConstraintsLoadFailed', 'Son tarih kısıtları yüklenemedi'))
+    return response.json() as Promise<DueDateConstraints>
   },
 
   async getLicenseModules(): Promise<LicenseModuleStatus[]> {

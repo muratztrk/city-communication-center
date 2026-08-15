@@ -14,6 +14,7 @@ import { api } from '../../../api/client'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, RequestTag, SocialMessage } from '../../../types/platform'
 import { useAuth } from '../../../context/AuthContext'
+import { useWeekendSlaDueDateMin } from '../../../hooks/useWeekendSlaDueDateMin'
 import { shouldShowJobStatusActorName } from '../../../utils/jobDetails'
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
@@ -280,6 +281,7 @@ export function MyRequestDetailMainCard({
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
+  const weekendDueMin = useWeekendSlaDueDateMin()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const canShowRequestLabel = user?.role === 'Operator' || hasCitizenRequestManagerRole(user)
   const showCitizenRequestLabel = canShowRequestLabel
@@ -328,10 +330,10 @@ export function MyRequestDetailMainCard({
     <div className="my-request-detail-edit-due-date">
       <DateTimePicker
         value={editDraft.dueDateUtc}
-        onChange={value => onEditDraftChange({ dueDateUtc: clampDueDatePickerValue(value) })}
+        onChange={value => onEditDraftChange({ dueDateUtc: clampDueDatePickerValue(value, 2, weekendDueMin) })}
         placeholder={t('jobs.form.dueDate', 'Son Tarih')}
         forceUp
-        minDateTime={earliestDueDatePickerValue(2, editDraft.dueDateUtc)}
+        minDateTime={earliestDueDatePickerValue(2, editDraft.dueDateUtc, weekendDueMin)}
       />
     </div>
   ) : detailDueDateEdit?.jobId === detail.jobId ? (
@@ -343,7 +345,7 @@ export function MyRequestDetailMainCard({
         className={detailDueDateEdit.mode === 'picking' ? 'h-0 overflow-visible [&>button:first-of-type]:sr-only [&>button:nth-of-type(2)]:hidden' : 'hidden'}
         forceUp
         autoOpen
-        minDateTime={earliestDueDatePickerValue(2, detailDueDateEdit.value ?? detail.dueDateUtc)}
+        minDateTime={earliestDueDatePickerValue(2, detailDueDateEdit.value ?? detail.dueDateUtc, weekendDueMin)}
         onClose={detailDueDateEdit.mode === 'picking' ? onCloseDueDateEdit : undefined}
       />
       {detailDueDateEdit.mode === 'confirm' && (

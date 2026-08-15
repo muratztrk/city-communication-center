@@ -93,6 +93,7 @@ export const queryKeys = {
     fileStorage: (tenantId?: string | null) => ['ccc', 'settings', 'file-storage', tenantId ?? 'none'] as const,
     syslog: (tenantId?: string | null) => ['ccc', 'settings', 'syslog', tenantId ?? 'none'] as const,
     slaWeekend: (tenantId?: string | null) => ['ccc', 'settings', 'sla-weekend', tenantId ?? 'none'] as const,
+    dueDateConstraints: () => ['ccc', 'settings', 'due-date-constraints'] as const,
     internalMessages: (tenantId?: string | null) => ['ccc', 'settings', 'internal-messages', tenantId ?? 'tenant'] as const,
     socialStatus: () => ['ccc', 'settings', 'social-status'] as const,
     routing: () => ['ccc', 'settings', 'routing'] as const,

@@ -36,6 +36,7 @@ import { isPresidencyLevelDepartment } from '../utils/departments'
 import { lowercaseFileExtension } from '../utils/fileNameDisplay'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
+import { useWeekendSlaDueDateMin } from '../hooks/useWeekendSlaDueDateMin'
 import { prioritySelectOptions, stringListSelectOptions, yesNoSelectOptions } from '../utils/formDropdownOptions'
 import {
   ensureLeadingCapitalRichText,
@@ -258,6 +259,7 @@ export function CreateRequestPage() {
   const location = useLocation()
   const [searchParams] = useSearchParams()
   const { user } = useAuth()
+  const weekendDueMin = useWeekendSlaDueDateMin()
   const rawKindParam = searchParams.get('kind')
   const kindParam = isRequestKind(rawKindParam) ? rawKindParam : null
   const selectedKind = kindParam
@@ -1342,7 +1344,7 @@ export function CreateRequestPage() {
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('jobs.form.dueDate', 'Son Tarih')}</span>
-                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v) }))} placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')} forceUp minDateTime={earliestDueDatePickerValue(2, internalForm.dueDateUtc)} />
+                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v, 2, weekendDueMin) }))} placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')} forceUp minDateTime={earliestDueDatePickerValue(2, internalForm.dueDateUtc, weekendDueMin)} />
               </div>
               {canSetInternalProject ? (
                 <div className="job-field">
@@ -1450,7 +1452,7 @@ export function CreateRequestPage() {
                   onChange={v => setExternalForm(current => {
                     const startDateUtc = clampStartDatePickerValue(v)
                     const dueDateUtc = current.dueDateUtc
-                      ? clampDueDateRelativeToStart(current.dueDateUtc, startDateUtc)
+                      ? clampDueDateRelativeToStart(current.dueDateUtc, startDateUtc, 2, weekendDueMin)
                       : current.dueDateUtc
                     return { ...current, startDateUtc, dueDateUtc }
                   })}
@@ -1465,9 +1467,9 @@ export function CreateRequestPage() {
                   value={externalForm.dueDateUtc}
                   onChange={v => setExternalForm(current => ({
                     ...current,
-                    dueDateUtc: clampDueDateRelativeToStart(v, current.startDateUtc),
+                    dueDateUtc: clampDueDateRelativeToStart(v, current.startDateUtc, 2, weekendDueMin),
                   }))}
-                  minDateTime={earliestDueDateRelativeToStart(externalForm.startDateUtc, 2, externalForm.dueDateUtc)}
+                  minDateTime={earliestDueDateRelativeToStart(externalForm.startDateUtc, 2, externalForm.dueDateUtc, weekendDueMin)}
                   placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')}
                 />
               </div>

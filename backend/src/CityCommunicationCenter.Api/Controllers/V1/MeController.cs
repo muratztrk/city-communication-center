@@ -77,6 +77,14 @@ public sealed class MeController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpGet("due-date-constraints")]
+    [ProducesResponseType<DueDateConstraintsResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<DueDateConstraintsResponse>> GetDueDateConstraints(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetDueDateConstraintsQuery(), cancellationToken);
+        return Ok(response);
+    }
+
     [HttpGet("quick-replies")]
     [ProducesResponseType<IReadOnlyList<UserQuickReplyTemplateResponse>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<UserQuickReplyTemplateResponse>>> GetQuickReplies(CancellationToken cancellationToken)

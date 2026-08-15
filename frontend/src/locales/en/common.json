@@ -1515,10 +1515,19 @@
     },
     "municipalityLocation": {
       "sectionTitle": "Municipality Location",
-      "sectionDescription": "Select a district to drive the create-request neighborhood list and the home citizen map. Changing the selection updates the neighborhood list.",
+      "sectionDescription": "Select a district to drive the create-request neighborhood list and the home citizen map. Neighborhood, street, and door number come from İzmir CBS Address Search.",
       "districtLabel": "District (İzmir)",
       "districtPlaceholder": "Select district",
       "districtRequired": "Select a district before saving.",
+      "neighborhoodLabel": "Neighborhood",
+      "neighborhoodPlaceholder": "Select neighborhood",
+      "streetLabel": "Street",
+      "streetPlaceholder": "Select street",
+      "streetDisabledHint": "Select a neighborhood first",
+      "doorNoLabel": "No",
+      "doorNoPlaceholder": "Select door number",
+      "doorNoDisabledHint": "Select a street first",
+      "catalogLoadFailed": "Could not load the İzmir CBS address list.",
       "saveSuccess": "Location setting saved."
     }
   },

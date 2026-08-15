@@ -125,4 +125,11 @@ export const queryKeys = {
     /** Sms Onayı nav rozeti — Phone VT Mesaj Onayı Bekleyen (card #6a6b6824). */
     pendingSmsCount: () => ['ccc', 'citizen-message-approvals', 'pending-sms-count'] as const,
   },
+  izmirCbs: {
+    all: ['ccc', 'izmir-cbs'] as const,
+    neighborhoods: (districtId: string) => ['ccc', 'izmir-cbs', 'neighborhoods', districtId] as const,
+    streets: (neighborhoodId: string) => ['ccc', 'izmir-cbs', 'streets', neighborhoodId] as const,
+    doorNumbers: (streetId: string, neighborhoodId: string) =>
+      ['ccc', 'izmir-cbs', 'door-numbers', streetId, neighborhoodId] as const,
+  },
 }

@@ -1549,10 +1549,19 @@
     },
     "municipalityLocation": {
       "sectionTitle": "Kurum Konumu",
-      "sectionDescription": "Talep oluşturma mahalle listesini ve Anasayfa vatandaş haritasını belirlemek için ilçe seçin. Seçim değişince mahalle listesi güncellenir.",
+      "sectionDescription": "Talep oluşturma mahalle listesini ve Anasayfa vatandaş haritasını belirlemek için ilçe seçin. Mahalle, cadde/sokak ve kapı no İzmir CBS Adres Ara kataloğundan gelir.",
       "districtLabel": "İlçe (İzmir)",
       "districtPlaceholder": "İlçe seçiniz",
       "districtRequired": "Kaydetmek için bir ilçe seçin.",
+      "neighborhoodLabel": "Mahalle",
+      "neighborhoodPlaceholder": "Mahalle seçiniz",
+      "streetLabel": "Cadde / Sokak",
+      "streetPlaceholder": "Cadde / sokak seçiniz",
+      "streetDisabledHint": "Önce mahalle seçin",
+      "doorNoLabel": "No",
+      "doorNoPlaceholder": "Kapı no seçiniz",
+      "doorNoDisabledHint": "Önce cadde / sokak seçin",
+      "catalogLoadFailed": "İzmir CBS adres listesi yüklenemedi.",
       "saveSuccess": "Konum ayarı kaydedildi."
     }
   },

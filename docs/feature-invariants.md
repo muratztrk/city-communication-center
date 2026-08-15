@@ -1180,6 +1180,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanır; sonraki girişlerde Settings dropdown seçili gelir. Eski ad/büyük-küçük harf/boşluklu
   localStorage değerleri canonical ilçe ID’sine normalize edilir; boş/geçersiz seçim mevcut
   değerin üzerine yazılamaz (card #2271 follow-up). Kurum Bilgisi Kaydet Theme’deki ilçe kodunu silmez.
+  **CBS Adres Ara kademesi (#2652):** Mahalle / Cadde-Sokak / No İzmir CBS
+  `BinaBilgiControl.aspx` proxy’sinden gelir (`GET /api/v1/izmir-cbs/*`). Mahalle seçilmeden
+  cadde, cadde seçilmeden kapı no enable olmaz. Seçimler `ccc_municipality_cbs_address` localStorage’da
+  kalır; talep formu mahalle kataloğu hâlâ statik `izmir-locations` + ilçe Theme’dir.
 - **Birimler/Kullanıcılar grid:** FilterableTh + sort + TablePagination; kolon genişlikleri
   `users-table`/`departments-table` ile orantılı (card #1724). Kullanıcılar Rol StatusPill ortalı;
   İşlemler’de kalem+Düzenle / çöp+Sil ve satır ortalı (cards #1722/#1725/#1732). Banner `+Yeni…`

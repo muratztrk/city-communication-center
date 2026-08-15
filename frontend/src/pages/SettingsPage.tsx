@@ -8,7 +8,16 @@ import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { invalidateSettings } from '../api/cacheInvalidation'
 import { API_ORIGIN } from '../api/config'
-import { IZMIR_DISTRICTS, MUNICIPALITY_DISTRICT_KEY, encodeMunicipalityDistrictTheme, normalizeDistrictId, parseMunicipalityDistrictTheme, saveDistrictId } from '../data/izmir-locations'
+import {
+  IZMIR_DISTRICTS,
+  MUNICIPALITY_DISTRICT_KEY,
+  encodeMunicipalityDistrictTheme,
+  loadMunicipalityCbsAddress,
+  normalizeDistrictId,
+  parseMunicipalityDistrictTheme,
+  saveDistrictId,
+  saveMunicipalityCbsAddress,
+} from '../data/izmir-locations'
 import { MunicipalitySeal } from '../components/branding/MunicipalitySeal'
 import { Button } from '../components/ui/button'
 import { DateTimePicker } from '../components/ui/date-time-picker'
@@ -425,6 +434,21 @@ export function SettingsPage() {
   const [selectedDistrictId, setSelectedDistrictId] = useState<string>(
     () => normalizeDistrictId(window.localStorage.getItem(MUNICIPALITY_DISTRICT_KEY)) ?? '',
   )
+  const [selectedNeighborhoodId, setSelectedNeighborhoodId] = useState(() => {
+    const saved = loadMunicipalityCbsAddress()
+    const district = normalizeDistrictId(window.localStorage.getItem(MUNICIPALITY_DISTRICT_KEY)) ?? ''
+    return saved?.districtId === district ? saved.neighborhoodId : ''
+  })
+  const [selectedStreetId, setSelectedStreetId] = useState(() => {
+    const saved = loadMunicipalityCbsAddress()
+    const district = normalizeDistrictId(window.localStorage.getItem(MUNICIPALITY_DISTRICT_KEY)) ?? ''
+    return saved?.districtId === district ? saved.streetId : ''
+  })
+  const [selectedDoorNoId, setSelectedDoorNoId] = useState(() => {
+    const saved = loadMunicipalityCbsAddress()
+    const district = normalizeDistrictId(window.localStorage.getItem(MUNICIPALITY_DISTRICT_KEY)) ?? ''
+    return saved?.districtId === district ? saved.doorNoId : ''
+  })
   const [tenantLdapSettings, setTenantLdapSettings] = useState<TenantLdapFormState>(EMPTY_TENANT_LDAP_SETTINGS)
   const [tenantAuthenticationPolicy, setTenantAuthenticationPolicy] = useState<TenantAuthenticationPolicy>(EMPTY_TENANT_AUTH_POLICY)
   const [socialStatus, setSocialStatus] = useState<SocialSettingsStatus | null>(null)
@@ -551,6 +575,51 @@ export function SettingsPage() {
     staleTime: 10 * 60 * 1000,
   })
 
+  const cbsNeighborhoodsQuery = useQuery({
+    queryKey: queryKeys.izmirCbs.neighborhoods(selectedDistrictId),
+    queryFn: () => api.getIzmirCbsNeighborhoods(selectedDistrictId),
+    enabled: selectedDistrictId.length > 0,
+    staleTime: 60 * 60 * 1000,
+  })
+  const cbsStreetsQuery = useQuery({
+    queryKey: queryKeys.izmirCbs.streets(selectedNeighborhoodId),
+    queryFn: () => api.getIzmirCbsStreets(selectedNeighborhoodId),
+    enabled: selectedNeighborhoodId.length > 0,
+    staleTime: 60 * 60 * 1000,
+  })
+  const cbsDoorNumbersQuery = useQuery({
+    queryKey: queryKeys.izmirCbs.doorNumbers(selectedStreetId, selectedNeighborhoodId),
+    queryFn: () => api.getIzmirCbsDoorNumbers(selectedStreetId, selectedNeighborhoodId),
+    enabled: selectedStreetId.length > 0 && selectedNeighborhoodId.length > 0,
+    staleTime: 60 * 60 * 1000,
+  })
+  const cbsNeighborhoodOptions = useMemo(
+    () => (cbsNeighborhoodsQuery.data ?? []).map(item => ({ value: item.id, label: item.name })),
+    [cbsNeighborhoodsQuery.data],
+  )
+  const cbsStreetOptions = useMemo(
+    () => (cbsStreetsQuery.data ?? []).map(item => ({ value: item.id, label: item.name })),
+    [cbsStreetsQuery.data],
+  )
+  const cbsDoorNoOptions = useMemo(
+    () => (cbsDoorNumbersQuery.data ?? []).map(item => ({ value: item.id, label: item.name })),
+    [cbsDoorNumbersQuery.data],
+  )
+
+  const applyMunicipalityDistrict = useCallback((nextDistrictId: string) => {
+    setSelectedDistrictId(nextDistrictId)
+    const saved = loadMunicipalityCbsAddress()
+    if (saved?.districtId === nextDistrictId) {
+      setSelectedNeighborhoodId(saved.neighborhoodId)
+      setSelectedStreetId(saved.streetId)
+      setSelectedDoorNoId(saved.doorNoId)
+      return
+    }
+    setSelectedNeighborhoodId('')
+    setSelectedStreetId('')
+    setSelectedDoorNoId('')
+  }, [])
+
   const handleSaveLicenseModule = async (moduleKey: LicenseModuleKey) => {
     const token = licenseTokenDrafts[moduleKey].trim()
     if (!token) {
@@ -610,10 +679,10 @@ export function SettingsPage() {
         const districtFromTheme = parseMunicipalityDistrictTheme(tenantResponse.theme)
         if (districtFromTheme) {
           saveDistrictId(districtFromTheme)
-          setSelectedDistrictId(districtFromTheme)
+          applyMunicipalityDistrict(districtFromTheme)
         } else {
           const localDistrict = normalizeDistrictId(window.localStorage.getItem(MUNICIPALITY_DISTRICT_KEY))
-          if (localDistrict) setSelectedDistrictId(localDistrict)
+          if (localDistrict) applyMunicipalityDistrict(localDistrict)
         }
         // Sunucuda ayar yoksa eski/global localStorage yerine yazılımın güncel varsayılanı kullanılır (#2243).
         const nextRolePageAccess = parseRolePageAccessMatrix(tenantResponse.rolePageAccessJson)
@@ -703,7 +772,7 @@ export function SettingsPage() {
     return () => {
       isActive = false
     }
-  }, [t, user?.tenantId])
+  }, [applyMunicipalityDistrict, t, user?.tenantId])
 
   const previewAppearance = resolveTenantAppearance({ ...appearanceForm, isCustomized: true })
   const institutionName = tenantSettings.displayName || tenantSettings.municipalityName || user?.tenantName || 'Test İletişim Merkezi'
@@ -875,6 +944,12 @@ export function SettingsPage() {
       showToast('error', t('settings.municipalityLocation.districtRequired', 'Kaydetmek için bir ilçe seçin.'))
       return
     }
+    saveMunicipalityCbsAddress({
+      districtId: selectedDistrictId,
+      neighborhoodId: selectedNeighborhoodId,
+      streetId: selectedStreetId,
+      doorNoId: selectedDoorNoId,
+    })
     if (!user?.tenantId) {
       showToast('success', t('settings.municipalityLocation.saveSuccess', 'Konum ayarı kaydedildi.'))
       return
@@ -1811,10 +1886,64 @@ export function SettingsPage() {
                     label: district.name,
                   }))}
                   value={selectedDistrictId}
-                  onChange={setSelectedDistrictId}
+                  onChange={applyMunicipalityDistrict}
                   placeholder={t('settings.municipalityLocation.districtPlaceholder', 'İlçe seçiniz')}
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
+                />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
+                <span>{t('settings.municipalityLocation.neighborhoodLabel', 'Mahalle')}</span>
+                <SingleSelectDropdown
+                  options={cbsNeighborhoodOptions}
+                  value={selectedNeighborhoodId}
+                  onChange={neighborhoodId => {
+                    setSelectedNeighborhoodId(neighborhoodId)
+                    setSelectedStreetId('')
+                    setSelectedDoorNoId('')
+                  }}
+                  placeholder={t('settings.municipalityLocation.neighborhoodPlaceholder', 'Mahalle seçiniz')}
+                  searchable
+                  searchPlaceholder={t('common.search', 'Ara...')}
+                  disabled={!selectedDistrictId || cbsNeighborhoodsQuery.isLoading}
+                  clearable
+                />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
+                <span>{t('settings.municipalityLocation.streetLabel', 'Cadde / Sokak')}</span>
+                <SingleSelectDropdown
+                  options={cbsStreetOptions}
+                  value={selectedStreetId}
+                  onChange={streetId => {
+                    setSelectedStreetId(streetId)
+                    setSelectedDoorNoId('')
+                  }}
+                  placeholder={
+                    selectedNeighborhoodId
+                      ? t('settings.municipalityLocation.streetPlaceholder', 'Cadde / sokak seçiniz')
+                      : t('settings.municipalityLocation.streetDisabledHint', 'Önce mahalle seçin')
+                  }
+                  searchable
+                  searchPlaceholder={t('common.search', 'Ara...')}
+                  disabled={!selectedNeighborhoodId || cbsStreetsQuery.isLoading}
+                  clearable
+                />
+              </label>
+              <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
+                <span>{t('settings.municipalityLocation.doorNoLabel', 'No')}</span>
+                <SingleSelectDropdown
+                  options={cbsDoorNoOptions}
+                  value={selectedDoorNoId}
+                  onChange={setSelectedDoorNoId}
+                  placeholder={
+                    selectedStreetId
+                      ? t('settings.municipalityLocation.doorNoPlaceholder', 'Kapı no seçiniz')
+                      : t('settings.municipalityLocation.doorNoDisabledHint', 'Önce cadde / sokak seçin')
+                  }
+                  searchable
+                  searchPlaceholder={t('common.search', 'Ara...')}
+                  disabled={!selectedStreetId || cbsDoorNumbersQuery.isLoading}
+                  clearable
                 />
               </label>
               <div className="inline-actions mt-auto">

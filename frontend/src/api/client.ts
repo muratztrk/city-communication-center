@@ -509,6 +509,33 @@ export const api = {
     return response.json() as Promise<TenantSettings>
   },
 
+  async getIzmirCbsNeighborhoods(districtId: string): Promise<Array<{ id: string; name: string }>> {
+    const params = new URLSearchParams({ districtId })
+    const response = await fetchWithCredentials(`${API_BASE}/izmir-cbs/neighborhoods?${params}`, {
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('settings.municipalityLocation.catalogLoadFailed', 'İzmir CBS adres listesi yüklenemedi.'))
+    return response.json() as Promise<Array<{ id: string; name: string }>>
+  },
+
+  async getIzmirCbsStreets(neighborhoodId: string): Promise<Array<{ id: string; name: string }>> {
+    const params = new URLSearchParams({ neighborhoodId })
+    const response = await fetchWithCredentials(`${API_BASE}/izmir-cbs/streets?${params}`, {
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('settings.municipalityLocation.catalogLoadFailed', 'İzmir CBS adres listesi yüklenemedi.'))
+    return response.json() as Promise<Array<{ id: string; name: string }>>
+  },
+
+  async getIzmirCbsDoorNumbers(streetId: string, neighborhoodId: string): Promise<Array<{ id: string; name: string }>> {
+    const params = new URLSearchParams({ streetId, neighborhoodId })
+    const response = await fetchWithCredentials(`${API_BASE}/izmir-cbs/door-numbers?${params}`, {
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('settings.municipalityLocation.catalogLoadFailed', 'İzmir CBS adres listesi yüklenemedi.'))
+    return response.json() as Promise<Array<{ id: string; name: string }>>
+  },
+
   async updateTenantSettings(
     tenantId: string,
     payload: Omit<TenantSettings, 'tenantId' | 'municipalityName' | 'isActive' | 'rolePageAccessJson'>,

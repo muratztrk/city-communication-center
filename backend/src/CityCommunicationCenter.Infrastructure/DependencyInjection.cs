@@ -89,6 +89,15 @@ public static class DependencyInjection
 
         services.AddScoped<IBelediyeSoapOperations, BelediyeSoapOperations>();
 
+        services.AddHttpClient(IzmirCbsAddressCatalog.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(15);
+            client.DefaultRequestHeaders.TryAddWithoutValidation(
+                "User-Agent",
+                "Mozilla/5.0 CityCommunicationCenter");
+        });
+        services.AddScoped<IIzmirCbsAddressCatalog, IzmirCbsAddressCatalog>();
+
         // Lisans modülleri: lumespec-license'a (bkz. ~/Works/lumespec-license) tenant+modül başına soru sorar.
         services.AddHttpClient(LicenseHttpClient.Name, (serviceProvider, client) =>
         {

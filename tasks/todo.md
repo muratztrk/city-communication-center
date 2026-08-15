@@ -1,3 +1,7 @@
+## Round 846 — #2652
+
+- [x] `6a803254` — Kurum Konumu: CBS Adres Ara mahalle → cadde/sokak → kapı no kademesi (#2652).
+
 ## Round 845 — #2648/#2644/#2650/#2646
 
 - [x] `6a8022b2` — Birimler Tüm Talepler küçük ekranda yatay scroll (#2648).

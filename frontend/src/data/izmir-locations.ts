@@ -378,6 +378,38 @@ export function saveDistrictId(id: string): boolean {
   return true
 }
 
+/** Kurum Konumu CBS Adres Ara seçimleri (#2652). İlçe Theme'de kalır. */
+export const MUNICIPALITY_CBS_ADDRESS_KEY = 'ccc_municipality_cbs_address'
+
+export type MunicipalityCbsAddress = {
+  districtId: string
+  neighborhoodId: string
+  streetId: string
+  doorNoId: string
+}
+
+export function loadMunicipalityCbsAddress(): MunicipalityCbsAddress | null {
+  try {
+    const raw = localStorage.getItem(MUNICIPALITY_CBS_ADDRESS_KEY)
+    if (!raw) return null
+    const parsed = JSON.parse(raw) as Partial<MunicipalityCbsAddress>
+    const districtId = normalizeDistrictId(parsed.districtId ?? '')
+    if (!districtId) return null
+    return {
+      districtId,
+      neighborhoodId: typeof parsed.neighborhoodId === 'string' ? parsed.neighborhoodId : '',
+      streetId: typeof parsed.streetId === 'string' ? parsed.streetId : '',
+      doorNoId: typeof parsed.doorNoId === 'string' ? parsed.doorNoId : '',
+    }
+  } catch {
+    return null
+  }
+}
+
+export function saveMunicipalityCbsAddress(address: MunicipalityCbsAddress): void {
+  localStorage.setItem(MUNICIPALITY_CBS_ADDRESS_KEY, JSON.stringify(address))
+}
+
 export function getNeighborhoodsForDistrict(districtId: string): string[] {
   return IZMIR_DISTRICTS.find(d => d.id === districtId)?.neighborhoods ?? []
 }

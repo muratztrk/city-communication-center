@@ -1,3 +1,7 @@
+## Round 879 — #2692
+
+- [x] `6a807f6b` — Vatandaş haritası: konuşma caddesi yedek + VT numaralı sosyal mesaj; geocode APPROXIMATE/kısa cadde (cache v12).
+
 ## Round 878 — #2691
 
 - [x] `6a807e31` — Vatandaş Talepleri varsayılan sıra: en yüksek VT no üstte (#2691).

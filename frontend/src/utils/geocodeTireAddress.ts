@@ -1,7 +1,7 @@
 import { canonicalizeNeighborhoodForGeocode, compactNeighborhoodKey, IZMIR_DISTRICTS } from '../data/izmir-locations'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 
-const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v11'
+const GEOCODE_CACHE_KEY = 'ccc_geocode_cache_v12'
 
 export type LatLng = { lat: number; lng: number }
 
@@ -174,7 +174,6 @@ function geocodeResultMatchesAddress(
 ): boolean {
   const blob = geocodeResultBlob(result)
   const types = result.types ?? []
-  const locationType = String(result.geometry?.location_type ?? '')
   const adminOnly = types.length > 0 && types.every(type => (
     type === 'locality'
     || type === 'administrative_area_level_1'
@@ -195,9 +194,11 @@ function geocodeResultMatchesAddress(
   if (input.street) {
     const core = streetCoreForMatch(input.street)
     const full = compactGeocodeKey(input.street)
-    const hasStreet = (core.length >= 3 && blob.includes(core)) || (full.length >= 3 && blob.includes(full))
+    const hasStreet = (core.length >= 3 && blob.includes(core))
+      || (full.length >= 3 && blob.includes(full))
+      || (core.length > 0 && core.length < 3 && blob.includes(core) && (blob.includes('cad') || blob.includes('sok') || blob.includes('sk')))
     if (!hasStreet) return false
-    if (locationType === 'APPROXIMATE') return false
+    // Cadde bileşeni eşleştiyse Google APPROXIMATE (kapı nosuz cadde) kabul (#2692).
     return true
   }
 

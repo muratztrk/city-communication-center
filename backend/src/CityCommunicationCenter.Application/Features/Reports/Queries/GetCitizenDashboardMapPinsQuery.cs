@@ -41,7 +41,13 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                 && job.SourceType != JobSourceType.Routine
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)
-                && job.Street != null && job.Street != "")
+                && (
+                    (job.Street != null && job.Street != "")
+                    || _dbContext.SocialMessages.Any(message =>
+                        message.JobId == job.JobId
+                        && message.CitizenConversation != null
+                        && message.CitizenConversation.Street != null
+                        && message.CitizenConversation.Street != "")))
             .WhereHasCitizenRequestNumber(_dbContext)
             .Select(job => new
             {
@@ -74,7 +80,9 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                         .FirstOrDefault())
                     .ToList(),
                 Social = _dbContext.SocialMessages
-                    .Where(message => message.JobId == job.JobId)
+                    .Where(message => message.JobId == job.JobId && message.CitizenRequestNumber != null)
+                    .OrderByDescending(message => message.CitizenRequestNumberYear)
+                    .ThenByDescending(message => message.CitizenRequestNumber)
                     .Select(message => new
                     {
                         message.Channel,
@@ -84,6 +92,18 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                             : null,
                         ConversationCitizenPhone = message.CitizenConversation != null
                             ? message.CitizenConversation.CitizenPhone
+                            : null,
+                        ConversationNeighborhood = message.CitizenConversation != null
+                            ? message.CitizenConversation.Neighborhood
+                            : null,
+                        ConversationStreet = message.CitizenConversation != null
+                            ? message.CitizenConversation.Street
+                            : null,
+                        ConversationStreetNo = message.CitizenConversation != null
+                            ? message.CitizenConversation.StreetNo
+                            : null,
+                        ConversationOpenAddress = message.CitizenConversation != null
+                            ? message.CitizenConversation.OpenAddress
                             : null,
                         message.CitizenRequestNumber,
                         message.CitizenRequestNumberYear,
@@ -112,10 +132,10 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                 return new CitizenDashboardMapPin(
                     row.JobId,
                     row.Title,
-                    row.Neighborhood,
-                    row.Street,
-                    row.StreetNo,
-                    row.OpenAddress ?? string.Empty,
+                    Coalesce(row.Neighborhood, social?.ConversationNeighborhood),
+                    Coalesce(row.Street, social?.ConversationStreet),
+                    Coalesce(row.StreetNo, social?.ConversationStreetNo),
+                    Coalesce(row.OpenAddress, social?.ConversationOpenAddress) ?? string.Empty,
                     row.Latitude ?? social?.Latitude,
                     row.Longitude ?? social?.Longitude,
                     social?.CitizenRequestNumber,
@@ -142,6 +162,11 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
 
         return new CitizenDashboardMapPinsResponse(pins);
     }
+
+    private static string? Coalesce(string? primary, string? fallback) =>
+        string.IsNullOrWhiteSpace(primary)
+            ? (string.IsNullOrWhiteSpace(fallback) ? null : fallback.Trim())
+            : primary;
 
     private static string ToDisplayStatus(MapPinDisplayStatus status) => status switch
     {

@@ -1,3 +1,8 @@
+## Round 848 — #2654/#2655
+
+- [x] `6a803a0c` — Kurum Konumu İlçe/Mahalle/Cadde/No yatay (#2654).
+- [x] `6a803a72` — Talep oluştur Cadde/No CBS dropdown kademesi (#2655).
+
 ## Round 847 — #2644
 
 - [x] `6a801b6e` — Vatandaş Tüm Talepler boş grid: Henüz vatandaş talebi bulunmuyor (#2644).

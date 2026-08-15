@@ -38,10 +38,11 @@ import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
+import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH, normalizeStreetNo } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
 
@@ -658,43 +659,23 @@ function ConversationProfilePanel({
             options={neighborhoodOptions}
             value={draft.neighborhood}
             onChange={neighborhood => onDraftChange(neighborhood
-              ? { neighborhood }
+              ? { neighborhood, street: '', streetNo: '' }
               : { neighborhood: '', street: '', streetNo: '', openAddress: '' })}
             placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
             menuScrollClassName="whatsapp-neighborhood-menu-scroll"
           />
         </div>
-        <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
-          <label className="block space-y-1">
-            <span className={labelClass}>
-              {t('address.street', 'Cadde / Sokak')}
-              {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-            </span>
-            <DeferredComposerInput
-              className={disabledFieldClass}
-              maxLength={ADDRESS_STREET_MAX_LENGTH}
-              value={draft.street}
-              onChange={value => onDraftChange({ street: value })}
-              onBlur={event => onDraftChange({ street: normalizeTitleCaseField(event.target.value) ?? '' })}
-              disabled={!hasNeighborhood}
-              required={hasNeighborhood}
-            />
-          </label>
-          <label className="block space-y-1">
-            <span className={labelClass}>
-              {t('address.streetNoLabel', 'No')}
-              {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-            </span>
-            <DeferredComposerInput
-              className={disabledFieldClass}
-              maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
-              value={draft.streetNo}
-              onChange={value => onDraftChange({ streetNo: normalizeStreetNo(value) })}
-              disabled={!hasNeighborhood}
-              required={hasNeighborhood}
-            />
-          </label>
-        </div>
+        <CbsStreetNoDropdowns
+          neighborhood={draft.neighborhood}
+          street={draft.street}
+          streetNo={draft.streetNo}
+          required={hasNeighborhood}
+          openUp
+          labelClassName={labelClass}
+          className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2"
+          onStreetChange={street => onDraftChange({ street })}
+          onStreetNoChange={streetNo => onDraftChange({ streetNo })}
+        />
         <label className="block space-y-1">
           <span className={labelClass}>
             {t('address.openAddressLabel', 'Adres Tarifi')}

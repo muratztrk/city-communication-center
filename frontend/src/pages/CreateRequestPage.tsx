@@ -26,6 +26,7 @@ import {
   AttachmentUploadProgressBar,
 } from '../components/ui/attachment-upload-progress'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
+import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { useAuth } from '../context/AuthContext'
 import { isModuleUsable } from '../lib/licenseModules'
 import { getDefaultLandingPath } from '../lib/rolePageAccess'
@@ -41,7 +42,7 @@ import {
   ensureLeadingCapitalTr,
   normalizeTitleCaseField,
 } from '../utils/textNormalization'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH, normalizeStreetNo } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import {
   ATTACHMENT_FILE_ACCEPT,
   attachmentFileExtension,
@@ -795,48 +796,23 @@ export function CreateRequestPage() {
               value={form.neighborhood}
               onChange={neighborhood => {
                 setField('neighborhood', neighborhood)
+                setField('street', '')
+                setField('streetNo', '')
                 if (!neighborhood) {
-                  setField('street', '')
-                  setField('streetNo', '')
                   setField('openAddress', '')
                 }
               }}
               placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
             />
           </div>
-          <div className="address-street-no-row grid grid-cols-[minmax(0,1.1fr)_minmax(0,5.5rem)] gap-2">
-            <div className="grid gap-1">
-              <span className="text-sm font-semibold text-slate-500">
-                {t('address.streetLabel', 'Cadde / Sokak')}
-                {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-              </span>
-              <input
-                className={`field-input address-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${compactPlaceholderClass} ${smallerPlaceholderClass} ${largerPlaceholderClass}`}
-                placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-                maxLength={ADDRESS_STREET_MAX_LENGTH}
-                value={form.street}
-                onChange={e => setField('street', e.target.value)}
-                onBlur={() => setField('street', normalizeTitleCaseField(form.street) ?? '')}
-                disabled={!hasNeighborhood}
-                required={hasNeighborhood}
-              />
-            </div>
-            <div className="grid gap-1">
-              <span className="text-sm font-semibold text-slate-500">
-                {t('address.streetNoLabel', 'No')}
-                {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-              </span>
-              <input
-                className={`field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 ${compactPlaceholderClass} ${smallerPlaceholderClass} ${largerPlaceholderClass}`}
-                placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
-                maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
-                value={form.streetNo}
-                onChange={e => setField('streetNo', normalizeStreetNo(e.target.value))}
-                disabled={!hasNeighborhood}
-                required={hasNeighborhood}
-              />
-            </div>
-          </div>
+          <CbsStreetNoDropdowns
+            neighborhood={form.neighborhood}
+            street={form.street}
+            streetNo={form.streetNo}
+            required={hasNeighborhood}
+            onStreetChange={street => setField('street', street)}
+            onStreetNoChange={streetNo => setField('streetNo', streetNo)}
+          />
         </div>
         <div className="grid gap-2">
           <label className="grid gap-1 min-h-0">

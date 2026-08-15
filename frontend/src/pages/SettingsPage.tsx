@@ -1878,7 +1878,8 @@ export function SettingsPage() {
                   <p className="helper-copy">{t('settings.municipalityLocation.sectionDescription', 'Talep oluşturma ekranında gösterilecek mahalle listesini belirlemek için ilçe seçin.')}</p>
                 </div>
               </div>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}</span>
                 <SingleSelectDropdown
                   options={IZMIR_DISTRICTS.map(district => ({
@@ -1892,7 +1893,7 @@ export function SettingsPage() {
                   searchPlaceholder={t('common.search', 'Ara...')}
                 />
               </label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
+              <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('settings.municipalityLocation.neighborhoodLabel', 'Mahalle')}</span>
                 <SingleSelectDropdown
                   options={cbsNeighborhoodOptions}
@@ -1909,7 +1910,7 @@ export function SettingsPage() {
                   clearable
                 />
               </label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
+              <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('settings.municipalityLocation.streetLabel', 'Cadde / Sokak')}</span>
                 <SingleSelectDropdown
                   options={cbsStreetOptions}
@@ -1929,7 +1930,7 @@ export function SettingsPage() {
                   clearable
                 />
               </label>
-              <label className="grid gap-2 text-sm font-semibold text-slate-700 max-w-xs">
+              <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('settings.municipalityLocation.doorNoLabel', 'No')}</span>
                 <SingleSelectDropdown
                   options={cbsDoorNoOptions}
@@ -1946,6 +1947,7 @@ export function SettingsPage() {
                   clearable
                 />
               </label>
+              </div>
               <div className="inline-actions mt-auto">
                 <Button type="submit">{t('common.save')}</Button>
               </div>

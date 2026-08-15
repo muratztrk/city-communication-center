@@ -11,6 +11,7 @@ import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
+import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
@@ -18,7 +19,7 @@ import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH, normalizeStreetNo } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import {
   ATTACHMENT_FILE_ACCEPT,
   attachmentFileExtension,
@@ -329,43 +330,29 @@ export function RoutineTaskPage() {
                     searchable
                     options={neighborhoodOptions}
                     value={form.neighborhood}
-                    onChange={neighborhood => set('neighborhood', neighborhood)}
                     placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+                    onChange={neighborhood => {
+                      set('neighborhood', neighborhood)
+                      if (!neighborhood) {
+                        set('street', '')
+                        set('streetNo', '')
+                        set('openAddress', '')
+                      } else {
+                        set('street', '')
+                        set('streetNo', '')
+                      }
+                    }}
                   />
                 </div>
-                <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
-                  <div className="grid gap-1">
-                    <span className="text-sm font-semibold text-slate-500">
-                      {t('address.streetLabel', 'Cadde / Sokak')}
-                      {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-                    </span>
-                    <input
-                      className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-                      placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-                      maxLength={ADDRESS_STREET_MAX_LENGTH}
-                      value={form.street}
-                      onChange={e => set('street', e.target.value)}
-                      onBlur={() => set('street', normalizeTitleCaseField(form.street) ?? '')}
-                      disabled={!hasNeighborhood}
-                      required={hasNeighborhood}
-                    />
-                  </div>
-                  <div className="grid gap-1">
-                    <span className="text-sm font-semibold text-slate-500">
-                      {t('address.streetNoLabel', 'No')}
-                      {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-                    </span>
-                    <input
-                      className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-                      placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
-                      maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
-                      value={form.streetNo}
-                      onChange={e => set('streetNo', normalizeStreetNo(e.target.value))}
-                      disabled={!hasNeighborhood}
-                      required={hasNeighborhood}
-                    />
-                  </div>
-                </div>
+                <CbsStreetNoDropdowns
+                  neighborhood={form.neighborhood}
+                  street={form.street}
+                  streetNo={form.streetNo}
+                  required={hasNeighborhood}
+                  className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2"
+                  onStreetChange={street => set('street', street)}
+                  onStreetNoChange={streetNo => set('streetNo', streetNo)}
+                />
               </div>
               <div className="grid gap-2 lg:grid-cols-2 lg:items-stretch">
                 <label className="grid min-h-0 gap-1">

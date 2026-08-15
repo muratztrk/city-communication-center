@@ -15,6 +15,7 @@ import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ModalCloseButton } from './ui/modal-close-button'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
+import { CbsStreetNoDropdowns } from './address/CbsStreetNoDropdowns'
 import { ConversationPanel } from './ConversationPanel'
 import { RequestTagAddButton, RequestTagPicker } from './RequestTagDialog'
 import type { CitizenConversationDetail, Department, RequestTag, SocialMessage } from '../types/platform'
@@ -24,7 +25,7 @@ import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
-import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH, ADDRESS_STREET_MAX_LENGTH, ADDRESS_STREET_NO_MAX_LENGTH, normalizeStreetNo } from '../utils/addressLimits'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
 import {
@@ -732,48 +733,25 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       value={neighborhood}
                       onChange={nextNeighborhood => {
                         setNeighborhood(nextNeighborhood)
+                        setStreet('')
+                        setStreetNo('')
                         if (!nextNeighborhood) {
-                          setStreet('')
-                          setStreetNo('')
                           setOpenAddress('')
                         }
                       }}
                       placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
                     />
                   </label>
-                  <div className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2">
-                    <label className="job-field grid gap-1">
-                      <span className="job-field-label">
-                        {t('address.streetLabel', 'Cadde / Sokak')}
-                        {neighborhood ? <span className="text-red-500"> *</span> : null}
-                      </span>
-                      <DeferredComposerInput
-                        className="field-input address-street-input citizen-request-street-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-                        placeholder={t('address.streetPlaceholder', 'ör. Atatürk Caddesi')}
-                        maxLength={ADDRESS_STREET_MAX_LENGTH}
-                        value={street}
-                        onChange={setStreet}
-                        onBlur={() => setStreet(normalizeTitleCaseField(street) ?? '')}
-                        disabled={!neighborhood}
-                        required={Boolean(neighborhood)}
-                      />
-                    </label>
-                    <label className="job-field grid gap-1">
-                      <span className="job-field-label">
-                        {t('address.streetNoLabel', 'No')}
-                        {neighborhood ? <span className="text-red-500"> *</span> : null}
-                      </span>
-                      <DeferredComposerInput
-                        className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
-                        placeholder={t('address.streetNoPlaceholder', 'ör. 12')}
-                        maxLength={ADDRESS_STREET_NO_MAX_LENGTH}
-                        value={streetNo}
-                        onChange={value => setStreetNo(normalizeStreetNo(value))}
-                        disabled={!neighborhood}
-                        required={Boolean(neighborhood)}
-                      />
-                    </label>
-                  </div>
+                  <CbsStreetNoDropdowns
+                    neighborhood={neighborhood}
+                    street={street}
+                    streetNo={streetNo}
+                    required={Boolean(neighborhood)}
+                    labelClassName="job-field-label"
+                    className="grid grid-cols-[minmax(0,1fr)_4.5rem] gap-2"
+                    onStreetChange={setStreet}
+                    onStreetNoChange={setStreetNo}
+                  />
                 </div>
                 <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-stretch">
                   <label className="job-field flex min-h-0 flex-col gap-1">

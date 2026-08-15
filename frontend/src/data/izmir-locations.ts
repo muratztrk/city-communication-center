@@ -423,11 +423,20 @@ const GEOCODE_NEIGHBORHOOD_SUFFIXES = [
   ' osb',
 ] as const
 
-function compactNeighborhoodKey(value: string): string {
+export function compactNeighborhoodKey(value: string): string {
   return value
     .trim()
     .toLocaleLowerCase('tr')
     .replace(/[\s.'’-]+/g, '')
+}
+
+export function findCbsOptionIdByName(
+  options: Array<{ id: string; name: string }> | undefined,
+  name: string,
+): string {
+  const key = compactNeighborhoodKey(name)
+  if (!key || !options?.length) return ''
+  return options.find(item => compactNeighborhoodKey(item.name) === key)?.id ?? ''
 }
 
 function stripGeocodeNeighborhoodSuffixes(value: string): string {

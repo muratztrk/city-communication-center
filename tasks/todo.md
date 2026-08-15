@@ -1,3 +1,9 @@
+## Round 852 — #2654/#2659/#2662/#2663
+
+- [x] `6a803a0c` — Kurum Konumu daraltmayı geri al; Cadde/No alt satır (#2654).
+- [x] `6a803f27` — Talep oluştur Mahalle biraz geniş; No seçilince genişlik sabit (#2659).
+- [x] `6a804199` / `6a8041c2` — Tek seferlik rastgele CBS adres: dizin + son 30 gün talepler (#2662/#2663).
+
 ## Round 851 — #2660/#2661
 
 - [x] `6a804022` — Adres Tarifi placeholder: Mevki, daire, kat bilgisi giriniz. (#2660).

@@ -787,7 +787,7 @@ export function CreateRequestPage() {
     <div className="job-field">
       <span className="job-field-label">{sectionTitle}</span>
       <div className="grid gap-2">
-        <div className="grid max-w-[32rem] gap-2 md:grid-cols-[minmax(0,10.75rem)_minmax(0,19.5rem)]">
+        <div className="grid max-w-[34.5rem] gap-2 md:grid-cols-[minmax(0,12.75rem)_minmax(0,19.5rem)]">
           <div className="grid gap-1">
             <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
             <SingleSelectDropdown

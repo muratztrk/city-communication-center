@@ -25,7 +25,7 @@ export function CbsStreetNoDropdowns({
   required = false,
   labelClassName = 'text-sm font-semibold text-slate-500',
   openUp = false,
-  className = 'address-street-no-row grid grid-cols-[minmax(0,1fr)_minmax(0,4.65rem)] gap-2',
+  className = 'address-street-no-row grid grid-cols-[minmax(0,1fr)_4.75rem] gap-2',
 }: CbsStreetNoDropdownsProps) {
   const { t } = useTranslation()
   const districtId = useMunicipalityDistrictId()

@@ -272,6 +272,7 @@ builder.Services.AddMediator(options =>
 
 builder.Services.AddApplicationServices();
 builder.Services.AddScoped<InitialPasswordSeeder>();
+builder.Services.AddScoped<OneOffRandomAddressAssignment>();
 
 builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(o =>
 {
@@ -317,6 +318,8 @@ if (builder.Configuration.GetValue("Database:ApplyMigrationsOnStartup", app.Envi
     await dbContext.Database.MigrateAsync();
     var passwordSeeder = scope.ServiceProvider.GetRequiredService<InitialPasswordSeeder>();
     await passwordSeeder.SeedAsync();
+    var randomAddresses = scope.ServiceProvider.GetRequiredService<OneOffRandomAddressAssignment>();
+    await randomAddresses.RunAsync();
 }
 
 app.UseRouting();

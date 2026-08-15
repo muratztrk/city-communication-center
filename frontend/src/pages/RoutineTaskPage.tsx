@@ -323,7 +323,7 @@ export function RoutineTaskPage() {
           <div className="job-field border-t border-slate-100 pt-4">
             <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
             <div className="grid gap-2">
-              <div className="grid max-w-[32rem] gap-2 md:grid-cols-[minmax(0,10.75rem)_minmax(0,19.5rem)]">
+              <div className="grid max-w-[34.5rem] gap-2 md:grid-cols-[minmax(0,12.75rem)_minmax(0,19.5rem)]">
                 <div className="grid gap-1">
                   <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
                   <SingleSelectDropdown
@@ -349,7 +349,7 @@ export function RoutineTaskPage() {
                   street={form.street}
                   streetNo={form.streetNo}
                   required={hasNeighborhood}
-                  className="address-street-no-row grid grid-cols-[minmax(0,1fr)_4.25rem] gap-2"
+                  className="address-street-no-row grid grid-cols-[minmax(0,1fr)_4.75rem] gap-2"
                   onStreetChange={street => set('street', street)}
                   onStreetNoChange={streetNo => set('streetNo', streetNo)}
                 />

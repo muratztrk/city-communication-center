@@ -1183,14 +1183,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   değerin üzerine yazılamaz (card #2271 follow-up). Kurum Bilgisi Kaydet Theme’deki ilçe kodunu silmez.
   **CBS Adres Ara kademesi (#2652/#2654/#2655/#2658/#2659):** Mahalle / Cadde-Sokak / No İzmir CBS
   `BinaBilgiControl.aspx` proxy’sinden gelir (`GET /api/v1/izmir-cbs/*`). Mahalle seçilmeden
-  cadde, cadde seçilmeden kapı no enable olmaz. Ayarlar’da dört alan yatay; İlçe biraz daha
-  geniş, Mahalle/Cadde/No biraz dar (`xl:grid-cols-[1.2fr_0.9fr_0.9fr_0.68fr]`, #2654 reopen).
-  Mahalle/Cadde/No seçenek metni `0.8125rem`; Cadde/No placeholder biraz daha küçük (#2654).
-  Seçimler `ccc_municipality_cbs_address` localStorage’da kalır. Talep oluştur (iç/dış/vatandaş),
-  vatandaş modal, rutin ve WA taslak adresinde Cadde/No textbox yok; CBS dropdown
-  (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle+cadde satırı `max-w-[32rem]` ile
-  sınırlı; Cadde diğerlerinden daha dar, No `4.75rem` (#2659). Mahalle kataloğu hâlâ statik
-  `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri `toTitleCaseTr` (#2658).
+  cadde, cadde seçilmeden kapı no enable olmaz. Ayarlar’da 2×2: İlçe|Mahalle / Cadde|No
+  (#2654 geri al + alt satır). Seçimler `ccc_municipality_cbs_address` localStorage’da kalır.
+  Talep oluştur (iç/dış/vatandaş), vatandaş modal, rutin ve WA taslak adresinde Cadde/No
+  textbox yok; CBS dropdown (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle sütunu
+  `12.75rem`; No sütunu seçili değerde de `4.75rem` sabit (#2659). Mahalle kataloğu hâlâ
+  statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
+  `toTitleCaseTr` (#2658).
+- **Tek seferlik adres doldurma (#2662/#2663):** API açılışında (migration sonrası) CBS Tire
+  havuzundan rastgele mahalle/cadde/no; Vatandaş Bilgi Listesi’ndeki tüm profiller + son
+  30 gün talepler üzerine yazılır. `AuditLogs.Action = OneOffRandomAddresses-2662-2663`
+  varsa tekrar çalışmaz.
 - **Birimler/Kullanıcılar grid:** FilterableTh + sort + TablePagination; kolon genişlikleri
   `users-table`/`departments-table` ile orantılı (card #1724). Kullanıcılar Rol StatusPill ortalı;
   İşlemler’de kalem+Düzenle / çöp+Sil ve satır ortalı (cards #1722/#1725/#1732). Banner `+Yeni…`

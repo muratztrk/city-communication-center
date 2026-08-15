@@ -1879,7 +1879,7 @@ export function SettingsPage() {
                   <p className="helper-copy">{t('settings.municipalityLocation.sectionDescription', 'Talep oluşturma ekranında gösterilecek mahalle listesini belirlemek için ilçe seçin.')}</p>
                 </div>
               </div>
-              <div className="municipality-location-fields grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.9fr)_minmax(0,0.9fr)_minmax(0,0.68fr)]">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('settings.municipalityLocation.districtLabel', 'İlçe (İzmir)')}</span>
                 <SingleSelectDropdown
@@ -1894,7 +1894,7 @@ export function SettingsPage() {
                   searchPlaceholder={t('common.search', 'Ara...')}
                 />
               </label>
-              <label className="cbs-compact-field grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
+              <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('settings.municipalityLocation.neighborhoodLabel', 'Mahalle')}</span>
                 <SingleSelectDropdown
                   options={cbsNeighborhoodOptions}
@@ -1908,12 +1908,10 @@ export function SettingsPage() {
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
                   disabled={!selectedDistrictId || cbsNeighborhoodsQuery.isLoading}
-                  triggerClassName="text-[0.8125rem]"
-                  menuScrollClassName="municipality-cbs-menu-scroll"
                   clearable
                 />
               </label>
-              <label className="cbs-compact-field cbs-compact-placeholder grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
+              <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('settings.municipalityLocation.streetLabel', 'Cadde / Sokak')}</span>
                 <SingleSelectDropdown
                   options={cbsStreetOptions}
@@ -1930,12 +1928,10 @@ export function SettingsPage() {
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
                   disabled={!selectedNeighborhoodId || cbsStreetsQuery.isLoading}
-                  triggerClassName="text-[0.8125rem]"
-                  menuScrollClassName="municipality-cbs-menu-scroll"
                   clearable
                 />
               </label>
-              <label className="cbs-compact-field cbs-compact-placeholder grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
+              <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('settings.municipalityLocation.doorNoLabel', 'No')}</span>
                 <SingleSelectDropdown
                   options={cbsDoorNoOptions}
@@ -1949,8 +1945,6 @@ export function SettingsPage() {
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
                   disabled={!selectedStreetId || cbsDoorNumbersQuery.isLoading}
-                  triggerClassName="text-[0.8125rem]"
-                  menuScrollClassName="municipality-cbs-menu-scroll"
                   clearable
                 />
               </label>

@@ -672,7 +672,7 @@ function ConversationProfilePanel({
           required={hasNeighborhood}
           openUp
           labelClassName={labelClass}
-          className="address-street-no-row grid grid-cols-[minmax(0,0.85fr)_4.1rem] gap-2"
+          className="address-street-no-row grid grid-cols-[minmax(0,1fr)_4.75rem] gap-2"
           onStreetChange={street => onDraftChange({ street })}
           onStreetNoChange={streetNo => onDraftChange({ streetNo })}
         />

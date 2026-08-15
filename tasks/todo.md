@@ -1,3 +1,7 @@
+## Round 841 — #2649
+
+- [x] `6a802539` — Vatandaş Tüm Talepler popup: Talep Tarihi / Telefon No; paging görünsün (#2649).
+
 ## Round 840 — #2646/#2640/#2644/#2647/#2648
 
 - [x] `6a8020cb` — VT grid Durum Taleplerim pill (#2646).

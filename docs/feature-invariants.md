@@ -1673,6 +1673,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`detail-modal-shell--my-request`). Kanal chip’leri ve Tüm Talep Durumları
   dropdown yok; Talep Etiketi sütunu yok; thead drilldown standardı (`0.78rem`).
   Ara / başlangıç / bitiş tarihi yok. Tüm VT kayıtları listelenir.
+  Popup kolon başlıkları **Talep Tarihi** / **Telefon No**; paging sticky altta (#2649).
 - **Anasayfa-Birimler Tüm Talepler (#2645/#2648):** Özel’den sonra aynı buton; popup başlığı
   `Birimlerin Tüm Talepleri`. Boyut Taleplerim Detaylar (`detail-modal-shell--my-request`).
   Vatandaş-olmayan atanmış kurum içi talepler (Sıra, Talep No,

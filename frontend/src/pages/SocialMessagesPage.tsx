@@ -588,8 +588,8 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
       {error ? <div className="error">{t('common.error')}: {error}</div> : null}
       {embedded && loading ? <div className="loading px-4 py-6">{t('common.loading')}</div> : null}
 
-      <section className={embedded ? 'section-card min-h-0 flex-1 overflow-hidden' : 'section-card desktop-page-fill'}>
-        <div className={embedded ? 'table-wrap h-full overflow-auto pt-3' : 'table-wrap desktop-panel-scroll'}>
+      <section className={embedded ? 'section-card flex min-h-0 flex-1 flex-col overflow-hidden' : 'section-card desktop-page-fill'}>
+        <div className={embedded ? 'table-wrap min-h-0 flex-1 overflow-auto pt-3' : 'table-wrap desktop-panel-scroll'}>
           <table className={`data-table jobs-table data-table--zebra social-messages-table${embedded ? ' dashboard-drilldown-table' : ''}`}>
             <thead>
               <tr>
@@ -600,10 +600,10 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                   </span>
                 </FilterableTh>
                 <FilterableTh filterKey="citizenName" filterValue={socialFilters['citizenName'] ?? ''} onFilter={setSocialFilter} sortKey="citizenName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenName', 'Vatandaş Adı')}</FilterableTh>
-                <FilterableTh filterKey="citizenPhone" filterValue={socialFilters['citizenPhone'] ?? ''} onFilter={setSocialFilter} sortKey="citizenPhone" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenPhone', 'Telefon Numarası')}</FilterableTh>
+                <FilterableTh filterKey="citizenPhone" filterValue={socialFilters['citizenPhone'] ?? ''} onFilter={setSocialFilter} sortKey="citizenPhone" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{embedded ? t('jobs.detail.citizenPhone', 'Telefon No') : t('social.citizenPhone', 'Telefon Numarası')}</FilterableTh>
                 <FilterableTh filterKey="receivedAtUtc" filterValue={socialFilters['receivedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>
                   <span className="inline-flex whitespace-nowrap leading-tight">
-                    <span>{t('social.citizenRequestDateHeader', 'Vatandaş Talep Tarihi')}</span>
+                    <span>{embedded ? t('jobs.columns.requestDate', 'Talep Tarihi') : t('social.citizenRequestDateHeader', 'Vatandaş Talep Tarihi')}</span>
                   </span>
                 </FilterableTh>
                 <FilterableTh filterKey="assignedDepartmentName" filterValue={socialFilters['assignedDepartmentName'] ?? ''} onFilter={setSocialFilter} sortKey="assignedDepartmentName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.destination', 'Gittiği Yer')}</FilterableTh>
@@ -730,6 +730,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
             </tbody>
           </table>
         </div>
+        <div className={embedded ? 'shrink-0' : undefined}>
         <TablePagination
           totalCount={columnFilteredMessages.length}
           pageSize={messagesPageSize}
@@ -737,6 +738,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
           onPageSizeChange={handleMessagesPageSizeChange}
           onPageChange={handleMessagesPageChange}
         />
+        </div>
       </section>
 
       {detailJobId && (

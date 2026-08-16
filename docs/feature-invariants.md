@@ -1010,12 +1010,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   adı eklenir (card #2772; Görevlerim ve talep detay Süreç).
 - **Terminal Süreç `Yapılmakta` katmanı (#2771/#2773/#2774):** Tamamlanmış/İptal/Reddedilmiş (ve
   iptalden geri alınmamış) talep ve görev Süreç’lerinde Tamamlanma veya İptal Tarihinden hemen
-  önce `Yapılmakta` durur; yanında parantez içinde Görevi Yapan. Altında önceki zaman ile terminal
-  zaman `date • time - date • time` (bullet + ` - `). Kapanışta son tarih geçmişse etiket
-  `Yapılmakta (Geciken)` olur (#2776). Ayrı `inProgressPeriod` adımıdır;
+  önce `Yapılmakta` durur; yanında ` / Görevi Yapan` (parantez değil, #2780). Altında önceki zaman
+  ile terminal zaman `date • time - date • time` (bullet + ` - `). Kapanışta son tarih geçmişse
+  etiket `Yapılmakta (Geciken)` olur (#2776). Ayrı `inProgressPeriod` adımıdır;
   `statusContent` bu değeri ezmez. Görev tarafı: Görevlerim + İlgili Görev Detayları.
 - **Süreç tarih/saat punto (#2775/#2779):** tarih-saat ve Son Tarih `0.75rem` (`datetime-value`);
-  Durum etiketi aynı. Son Tarih `date • time` (ProcessStepDateValue, #2777).
+  Durum etiketi aynı. Son Tarih `date • time` (`TimelineDateTimeValue` / ProcessStepDateValue, #2777);
+  `dueDateContent` varken tarih bir kez yazılır (#2781).
 - **Görevlerim İlgili Talep Adres Tarifi (#2778):** `Adres Tarifi` başlığı Mahalle ile aynı düşey
   hizada (Mahalle etiketindeki `translateX` Adres Tarifi’nde sıfırlanmaz).
 - **Timeline son aktif pulse:** süreçte turuncu güncel adım varsa o yanıp söner; yoksa son aktif

@@ -1,3 +1,8 @@
+## Round 952 — #2781/#2780
+
+- [x] `6a8226bf` — Süreç Son Tarih çift yazımı kaldırıldı.
+- [x] `6a82253d` — Terminal Yapılmakta personel adı ` / İsim` (parantez değil).
+
 ## Round 951 — #2778/#2779/#2777
 
 - [x] `6a822326` — İlgili Talep Adres Tarifi başlığı Mahalle ile aynı düşey hizada.

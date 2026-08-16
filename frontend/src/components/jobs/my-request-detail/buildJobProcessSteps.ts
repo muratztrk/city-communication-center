@@ -143,7 +143,7 @@ export function buildInProgressPeriodStep(
   const name = assigneeName?.trim()
   return {
     id: 'inProgressPeriod',
-    label: name ? `${statusLabel} (${name})` : statusLabel,
+    label: name ? `${statusLabel} / ${name}` : statusLabel,
     displayValue: `${formatDateTime(previousUtc ?? null, locale)} - ${formatDateTime(nextUtc ?? null, locale)}`,
     dateTimeUtc: previousUtc ?? null,
     endDateTimeUtc: nextUtc ?? null,

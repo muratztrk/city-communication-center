@@ -357,7 +357,7 @@ export function CitizenDirectoryTicketsModal({
           </div>
         </div>
         <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="min-h-0 flex-1 overflow-auto px-4">
+          <div className="min-h-0 flex-1 overflow-auto px-4 pb-4">
             <div className="pt-3">
               {loading ? <div className="loading">{t('common.loading')}</div> : null}
               {error ? <div className="error">{error}</div> : null}
@@ -365,6 +365,8 @@ export function CitizenDirectoryTicketsModal({
                 tickets.length === 0 ? (
                   <p className="text-sm text-slate-500">{emptyMessage ?? t('citizenDirectory.noTickets', 'Bu vatandaşa ait talep bulunamadı.')}</p>
                 ) : (
+                  <div className="dashboard-drilldown-grid-shell">
+                  <div className="dashboard-drilldown-table-wrap">
                   <table className="data-table citizen-directory-tickets-table">
                     <thead>
                       <tr>
@@ -591,19 +593,19 @@ export function CitizenDirectoryTicketsModal({
                       })}
                     </tbody>
                   </table>
+                  </div>
+                  <TablePagination
+                    totalCount={ticketTotalCount}
+                    pageSize={ticketPageSize}
+                    currentPage={ticketSafePage}
+                    onPageSizeChange={size => { setTicketPageSize(size); setTicketPage(1) }}
+                    onPageChange={setTicketPage}
+                  />
+                  </div>
                 )
               ) : null}
             </div>
           </div>
-          {!loading && !error && tickets.length > 0 ? (
-            <TablePagination
-              totalCount={ticketTotalCount}
-              pageSize={ticketPageSize}
-              currentPage={ticketSafePage}
-              onPageSizeChange={size => { setTicketPageSize(size); setTicketPage(1) }}
-              onPageChange={setTicketPage}
-            />
-          ) : null}
         </div>
       </div>
     </div>,

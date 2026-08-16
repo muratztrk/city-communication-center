@@ -53,6 +53,8 @@ export function SingleSelectDropdown({
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
+  const [hoverTip, setHoverTip] = useState(false)
+  const [hoverTipStyle, setHoverTipStyle] = useState<{ top: number; left: number }>({ top: 0, left: 8 })
   const [adminSurfaceMenu, setAdminSurfaceMenu] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -199,7 +201,17 @@ export function SingleSelectDropdown({
         )}
         aria-expanded={open}
         disabled={disabled}
+        onMouseEnter={() => {
+          if (!selected || open) return
+          const rect = rootRef.current?.getBoundingClientRect()
+          if (rect) {
+            setHoverTipStyle({ top: rect.bottom + 4, left: Math.max(8, rect.left) })
+          }
+          setHoverTip(true)
+        }}
+        onMouseLeave={() => setHoverTip(false)}
         onClick={() => {
+          setHoverTip(false)
           if (open) {
             setSearch('')
           } else {
@@ -215,14 +227,6 @@ export function SingleSelectDropdown({
         >
           {selected ? selected.label : placeholder}
         </span>
-        {selected ? (
-          <span
-            role="tooltip"
-            className="pointer-events-none absolute left-0 top-[calc(100%+0.2rem)] z-[80] hidden max-w-[min(22rem,70vw)] break-words rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium leading-snug text-white shadow-lg group-hover:block"
-          >
-            {selected.label}
-          </span>
-        ) : null}
         <span className="flex shrink-0 items-center gap-0.5">
           <ChevronDown className={cn('size-4 shrink-0 text-slate-400 transition-transform', open ? 'rotate-180' : '')} />
           {clearable && selected ? (
@@ -254,6 +258,19 @@ export function SingleSelectDropdown({
           ) : null}
         </span>
       </button>
+
+      {hoverTip && selected && !open
+        ? createPortal(
+            <span
+              role="tooltip"
+              className="pointer-events-none fixed z-[10050] max-w-[min(22rem,70vw)] break-words rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium leading-snug text-white shadow-lg"
+              style={hoverTipStyle}
+            >
+              {selected.label}
+            </span>,
+            document.body,
+          )
+        : null}
 
       {menuPortal ? (menuPanel ? createPortal(menuPanel, document.body) : null) : menuPanel}
     </div>

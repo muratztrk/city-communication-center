@@ -58,6 +58,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hiç uygulanmaz. `w-*`, `shrink-0`, `gap-*` gibi bir utility'yi override eden her kuralda kullan
   ve tarayıcıda computed value ile doğrula — "yazdım ama olmadı" kartlarının tipik nedeni budur.
 - **Dropdown / DateTimePicker** overflow bar tarafından kırpılır → body'ye portal + `forceDown`.
+  Kapalı `SingleSelectDropdown` seçili-değer hover tooltip’i de body portal (modal `overflow` kırpmaz, #2754).
 - **Tüm ortak dropdown'lar 7+ seçenekte otomatik arama gösterir:** çağıran ayrıca `searchable`
   vermese de `SingleSelectDropdown` ilk satıra Türkçe casing uyumlu arama alanı ekler.
 - **Yeni dropdown'larda native `<select>` açma:** mahalle seçimindeki ortak `SingleSelectDropdown`
@@ -1814,7 +1815,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`replaceUnitWithCitizenContact`). Dizin Detaylar popup’ında Birim yok; stacked Ad/Telefon
   kolonu da yok (#2750) — yalnız harita `replaceUnitWithCitizenContact`. Başlıklarda sıralama+filtre;
   dizin yazdırmada kanal sütunu, stacked Ad/Telefon yok. Dizin **Filtreyi sil** Yazdır’ın solunda
-  (aynı grup, #2708). Filtre sonucu boşsa grid kalır, tbody `Henüz gösterilecek veri yok.` (#2653).
+  (aynı grup, #2708). Filtre sonucu boşsa grid kalır, tbody `Henüz gösterilecek veri yok.` (#2653);
+  paging pie drilldown gibi tablo hemen altında (sticky footer değil).
+  Kapalı `SingleSelectDropdown` seçili değer hover tooltip’i body portal’da (modal overflow kırpmaz, #2754).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
   **Vatandaş Adres Bilgisi** + sağda **Adresi Gör** (küçük portal popup, #2751).
   Harita popup kolon sırası: Sıra → VT No (kanal ikonu `size-3.5` yanında, Talep Kanalı sütunu yok)

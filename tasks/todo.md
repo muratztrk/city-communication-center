@@ -1,3 +1,8 @@
+## Round 925 — #2653/#2754
+
+- [x] `6a803699` — Dizin Detaylar boş filtre: paging pie gibi tablonun hemen altında.
+- [x] `6a81ab8c` — WA Öncelik/Mahalle/Cadde kapalı seçili hover tooltip portal.
+
 ## Round 924 — #2752/#2753
 
 - [x] `6a81a9c5` — Konumlu talep oluşturunca harita pin listesi hemen yenilenir.

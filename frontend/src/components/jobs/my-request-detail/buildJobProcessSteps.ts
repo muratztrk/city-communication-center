@@ -414,9 +414,16 @@ export function buildJobProcessSteps(
     const nextUtc = detail.status === 'Completed'
       ? (detail.completedAtUtc ?? null)
       : (detail.updatedAtUtc ?? null)
+    const assigneeNames = [...new Set(
+      (detail.tasks ?? [])
+        .map(task => task.assignedUserDisplayName)
+        .filter((name): name is string => Boolean(name)),
+    )]
     steps.push({
       id: 'inProgressPeriod',
-      label: inProgressLabel,
+      label: assigneeNames.length > 0
+        ? `${inProgressLabel} (${assigneeNames.join(', ')})`
+        : inProgressLabel,
       displayValue: `${formatDateTime(previousUtc ?? null, locale)} - ${formatDateTime(nextUtc, locale)}`,
       dateTimeUtc: null,
     })

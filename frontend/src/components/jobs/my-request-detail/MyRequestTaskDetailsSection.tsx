@@ -338,6 +338,7 @@ export function MyRequestTaskDetailsSection({
                       {getTaskDisplayStatus(t, task)}
                     </span>
                   )}
+                  inProgressAssigneeName={task.assignedUserDisplayName ?? task.ownerDisplayName ?? null}
                   dueDateContent={dueDateContent}
                 />
               </div>

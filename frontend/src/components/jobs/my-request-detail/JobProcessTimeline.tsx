@@ -4,6 +4,7 @@ import type { ReactNode } from 'react'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { isPendingApprovalText, splitDateTimeParts } from './format'
+import { isInProgressProcessStatusLabel } from '../../../utils/localization'
 
 function getLineClass(
   step: JobProcessStep,
@@ -67,6 +68,8 @@ interface JobProcessTimelineProps {
   recoveredFromCancellation?: boolean
   statusContent?: ReactNode
   statusActorName?: string | null
+  /** Yapılmakta / Yapılmakta (Geciken) değerinin yanına ` / ad` (#2772). */
+  inProgressAssigneeName?: string | null
   statusNoteContent?: ReactNode
   dueDateContent?: ReactNode
 }
@@ -146,6 +149,7 @@ export function JobProcessTimeline({
   recoveredFromCancellation = false,
   statusContent,
   statusActorName,
+  inProgressAssigneeName,
   statusNoteContent,
   dueDateContent,
 }: JobProcessTimelineProps) {
@@ -179,6 +183,13 @@ export function JobProcessTimeline({
           // Durum: Onay Bekleyen + Yapılmakta mavi (#1643/#1651); Son Tarihi Geçmiş turuncu (#1644).
           // Onay adımları Onay Bekleyen → mavi pending (card #1645).
           const isStatusStep = step.id === 'status'
+          const assigneeName = inProgressAssigneeName?.trim() ?? ''
+          const inProgressAssigneeSuffix = isStatusStep
+            && assigneeName
+            && isInProgressProcessStatusLabel(t, step.displayValue)
+            && !step.displayValue.includes(` / ${assigneeName}`)
+            ? ` / ${assigneeName}`
+            : ''
           const statusUseBlue = isStatusStep && step.state === 'pending'
           const statusUseOrange = isStatusStep && step.state === 'current'
           const valueTone = statusUseBlue
@@ -240,6 +251,7 @@ export function JobProcessTimeline({
                     ) : (
                       statusContent
                     )}
+                    {inProgressAssigneeSuffix}
                   </div>
                 ) : showTerminalDateMeta ? (
                   <ProcessStepDateValue
@@ -253,7 +265,9 @@ export function JobProcessTimeline({
                   <div className="mt-0.5">{dueDateContent}</div>
                 ) : (
                   <ProcessStepDateValue
-                    step={step}
+                    step={inProgressAssigneeSuffix
+                      ? { ...step, displayValue: `${step.displayValue}${inProgressAssigneeSuffix}` }
+                      : step}
                     locale={locale}
                     metaTone={displayMetaTone}
                     className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}

@@ -37,7 +37,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDepartmentName, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, formatJobAssigneeNames, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDepartmentName, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { ExternalDestinationValue } from '../components/jobs/my-request-detail/ExternalDestinationValue'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
@@ -2974,6 +2974,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             </span>
                           )}
                           statusActorName={shouldShowJobStatusActorName(detail) ? detail.statusActorDisplayName : null}
+                          inProgressAssigneeName={formatJobAssigneeNames(detail)}
                           dueDateContent={dueDateContent}
                         />
                       )

@@ -1,3 +1,7 @@
+## Round 948 — #2772
+
+- [x] `6a821c1b` — Süreç Durum Yapılmakta / Yapılmakta (Geciken) yanına ` / Görevi Yapan`.
+
 ## Round 947 — #2771
 
 - [x] `6a820c96` — Tamamlanmış/İptal detay Süreç’te Tamamlanma/İptal’den önce Yapılmakta; zaman aralığı önceki - sonraki.

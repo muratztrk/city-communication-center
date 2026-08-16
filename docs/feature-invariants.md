@@ -1006,6 +1006,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Timeline `Durum / Yapılmakta` step'i:** yönetici-birim-içi istisnasına ek olarak standart
   kullanıcının Active (onaylanmış) non-citizen taleplerinde de gösterilir (card #1334); standart
   kullanıcı Taleplerim chip metni `Onaylanmış/Yapılmakta Taleplerim`dir.
+  Durum değeri `Yapılmakta` veya `Yapılmakta (Geciken)` ise yanına ` / Görevi Yapan` personel
+  adı eklenir (card #2772; Görevlerim ve talep detay Süreç).
 - **Terminal Süreç `Yapılmakta` katmanı (#2771):** Tamamlanmış/İptal/Reddedilmiş (ve iptalden
   geri alınmamış) taleplerde Tamamlanma veya İptal Tarihinden hemen önce `Yapılmakta` durur;
   yanında parantez içinde Görevi Yapan personel adı; altında önceki tarihli adımın zamanı ile

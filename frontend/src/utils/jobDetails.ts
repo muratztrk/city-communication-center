@@ -98,6 +98,15 @@ export function shouldShowJobStatusActorName(job: {
   return shouldShowRequestApproverField(job)
 }
 
+export function formatJobAssigneeNames(job: Pick<JobDetail, 'tasks'>): string | null {
+  const names = [...new Set(
+    (job.tasks ?? [])
+      .map(task => task.assignedUserDisplayName)
+      .filter((name): name is string => Boolean(name?.trim())),
+  )]
+  return names.length > 0 ? names.join(', ') : null
+}
+
 /** Hedef birim + o birime atanmış personel (detay çerçeve satırı, card #r449). */
 export function getJobDestinationStacks(job: JobDetail): Array<{ departmentName: string; assignees: string[] }> {
   const destinations = sortJobDepartments(job.departments)

@@ -44,7 +44,7 @@ import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import { isModuleUsable } from '../lib/licenseModules'
 import type { AssignmentHistory, Department, JobDetail, SocialMessage, Task, TaskDetail, TaskListScope, User } from '../types/platform'
-import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus, formatOverdueInProgressStatus, shouldShowGridPrioritySubline } from '../utils/localization'
+import { getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskStatusTone, getTaskDisplayStatus, formatOverdueInProgressStatus, isInProgressProcessStatusLabel, shouldShowGridPrioritySubline } from '../utils/localization'
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { DetailModalTitle } from '../utils/detailModalTitle'
@@ -2511,10 +2511,13 @@ const pageKicker = isMyTasksView
                                     dueDateStep,
                                   ]),
                           ]
+                          const statusLabel = getTaskDisplayStatus(t, taskDetail)
                           const statusContent = (
                             <span className="inline">
-                              {getTaskDisplayStatus(t, taskDetail)}
-                              {taskDetail.statusActorDisplayName ? ` (${taskDetail.statusActorDisplayName})` : ''}
+                              {statusLabel}
+                              {!isInProgressProcessStatusLabel(t, statusLabel) && taskDetail.statusActorDisplayName
+                                ? ` (${taskDetail.statusActorDisplayName})`
+                                : ''}
                             </span>
                           )
                           // Terminal notlar artık durum satırında gösterilmez; Görev Detayları kutusunda yer alır.
@@ -2668,6 +2671,7 @@ const pageKicker = isMyTasksView
                                 locale={locale}
                                 statusContent={statusContent}
                                 statusActorName={taskDetail.statusActorDisplayName ?? null}
+                                inProgressAssigneeName={taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? null}
                                 statusNoteContent={statusNoteContent}
                                 dueDateContent={dueDateContent}
                               />

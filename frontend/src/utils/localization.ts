@@ -13,6 +13,23 @@ export function formatOverdueInProgressStatus(t: TFunction): string {
   return `${t('jobs.statusLabel.inProgress', 'Yapılmakta')} (${t('jobs.statusLabel.overdue', 'Geciken')})`
 }
 
+export function isInProgressProcessStatusLabel(t: TFunction, label: string): boolean {
+  return label === t('jobs.statusLabel.inProgress', 'Yapılmakta')
+    || label === formatOverdueInProgressStatus(t)
+}
+
+/** Süreç Durum Yapılmakta / Yapılmakta (Geciken) yanına ` / Görevi Yapan` (#2772). */
+export function withInProgressAssignee(
+  t: TFunction,
+  statusLabel: string,
+  assigneeName: string | null | undefined,
+): string {
+  const name = assigneeName?.trim()
+  if (!name || !isInProgressProcessStatusLabel(t, statusLabel)) return statusLabel
+  if (statusLabel.includes(` / ${name}`)) return statusLabel
+  return `${statusLabel} / ${name}`
+}
+
 function isDueDateOverdue(dueDateUtc: string | null | undefined): boolean {
   return dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()
 }

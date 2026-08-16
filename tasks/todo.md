@@ -1,3 +1,7 @@
+## Round 904 — #2728
+
+- [x] `6a8172ef` — Talep Oluştur ek progress %0’da kalmaz; seçimde animasyon + XHR loadstart.
+
 ## Round 903 — #2727/#2726
 
 - [x] `6a81700f` — Rutin Görev: Konum Koordinatı Mahalle altı; Adres Tarifi/Dosya alt satır.

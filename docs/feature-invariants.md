@@ -278,7 +278,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`CreateJobCommand`, card #1079).
 - **Talep Oluştur ek yükleme ilerlemesi:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının
   seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar
-  yükleme başlar başlamaz görünür (#2510). Talep Oluştur dropzone dosya seçilince bar görünür (#2510 reopen).
+  yükleme başlar başlamaz görünür (#2510). Talep Oluştur dropzone dosya seçilince bar görünür ve
+  yüzde 0’da kilitlenmez (kısa determinate animasyon, sonra gerçek XHR — #2728).
   tüm dosyalar için birleşik yüzde gösterilir. Vatandaş create/edit akışı da seçili dosyaları
   oluşan job'a gerçekten yükler (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında

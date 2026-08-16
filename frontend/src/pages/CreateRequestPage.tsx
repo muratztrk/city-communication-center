@@ -22,6 +22,7 @@ import {
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
+import { animateDeterminateProgress } from '../utils/animateDeterminateProgress'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { AddressCoordinatesField, CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { useAuth } from '../context/AuthContext'
@@ -289,11 +290,45 @@ export function CreateRequestPage() {
   const [fileError, setFileError] = useState<string | null>(null)
   const [attachmentUploadProgress, setAttachmentUploadProgress] = useState(0)
   const [showAttachmentUploadProgress, setShowAttachmentUploadProgress] = useState(false)
+  const localProgressCancelRef = useRef<(() => void) | null>(null)
+  const hideProgressTimerRef = useRef<number | null>(null)
+  const serverUploadRef = useRef(false)
   const [activeDepartmentId, setActiveDepartmentId] = useState<string | null>(getActiveDepartmentId)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [internalForm, setInternalForm] = useState<InternalFormState>(EMPTY_INTERNAL_FORM)
   const [externalForm, setExternalForm] = useState<ExternalFormState>(EMPTY_EXTERNAL_FORM)
   const [citizenForm, setCitizenForm] = useState<CitizenFormState>(EMPTY_CITIZEN_FORM)
+
+  const stopLocalAttachmentProgress = () => {
+    localProgressCancelRef.current?.()
+    localProgressCancelRef.current = null
+    if (hideProgressTimerRef.current != null) {
+      window.clearTimeout(hideProgressTimerRef.current)
+      hideProgressTimerRef.current = null
+    }
+  }
+
+  const startLocalAttachmentProgress = (bytes: number) => {
+    if (serverUploadRef.current) return
+    stopLocalAttachmentProgress()
+    setShowAttachmentUploadProgress(true)
+    setAttachmentUploadProgress(0)
+    localProgressCancelRef.current = animateDeterminateProgress(
+      setAttachmentUploadProgress,
+      bytes / 6000,
+      () => {
+        hideProgressTimerRef.current = window.setTimeout(() => {
+          if (!serverUploadRef.current) {
+            setShowAttachmentUploadProgress(false)
+            setAttachmentUploadProgress(0)
+          }
+          hideProgressTimerRef.current = null
+        }, 400)
+      },
+    )
+  }
+
+  useEffect(() => () => stopLocalAttachmentProgress(), [])
 
   // "Talep Oluştur"a basmadan mod seçimine (Geri) dönülünce girilen veriler temizlenir; tekrar
   // girildiğinde alanlar boş başlar. `kind` bir query param olduğundan seçim ekranına dönüşte bileşen
@@ -685,7 +720,7 @@ export function CreateRequestPage() {
               if (err) { setFileError(err); return prev }
               setFileError(null)
               setShowAttachmentUploadProgress(true)
-              setAttachmentUploadProgress(0)
+              startLocalAttachmentProgress(incoming.reduce((sum, file) => sum + file.size, 0))
               return [...prev, ...incoming]
             })
           }}
@@ -708,7 +743,7 @@ export function CreateRequestPage() {
                 if (err) { setFileError(err); return prev }
                 setFileError(null)
                 setShowAttachmentUploadProgress(true)
-                setAttachmentUploadProgress(0)
+                startLocalAttachmentProgress(incoming.reduce((sum, file) => sum + file.size, 0))
                 return [...prev, ...incoming]
               })
               if (fileInputRef.current) fileInputRef.current.value = ''
@@ -742,6 +777,7 @@ export function CreateRequestPage() {
                       setPendingFiles(prev => {
                         const next = prev.filter((_, i) => i !== idx)
                         if (next.length === 0) {
+                          stopLocalAttachmentProgress()
                           setShowAttachmentUploadProgress(false)
                           setAttachmentUploadProgress(0)
                         }
@@ -768,6 +804,8 @@ export function CreateRequestPage() {
   const uploadPendingFiles = async (jobId: string) => {
     if (pendingFiles.length === 0) return
 
+    stopLocalAttachmentProgress()
+    serverUploadRef.current = true
     setAttachmentUploadProgress(0)
     setShowAttachmentUploadProgress(true)
 
@@ -779,6 +817,7 @@ export function CreateRequestPage() {
         })
       }
     } finally {
+      serverUploadRef.current = false
       setShowAttachmentUploadProgress(false)
       setAttachmentUploadProgress(0)
     }

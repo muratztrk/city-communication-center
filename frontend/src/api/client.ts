@@ -104,8 +104,15 @@ async function uploadAttachmentWithProgress(url: string, file: File, onProgress?
     for (const [key, value] of Object.entries(authHeaders)) {
       if (key.toLowerCase() !== 'content-type') request.setRequestHeader(key, value)
     }
+    request.upload.onloadstart = () => onProgress?.(5)
     request.upload.onprogress = event => {
-      if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100))
+      if (event.lengthComputable && event.total > 0) {
+        onProgress?.(Math.round((event.loaded / event.total) * 100))
+        return
+      }
+      if (event.loaded > 0) {
+        onProgress?.(Math.min(95, Math.round((event.loaded / Math.max(file.size, 1)) * 100)))
+      }
     }
     request.onerror = () => reject(new Error(i18n.t('errors.attachmentUploadFailed', 'Failed to upload attachment')))
     request.onload = () => {

@@ -90,7 +90,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     const totalBytes = selectedFiles.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
     setUploading(true)
-    setUploadProgress(0)
+    setUploadProgress(5)
     try {
       for (const file of selectedFiles) {
         try {

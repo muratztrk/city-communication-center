@@ -1,3 +1,8 @@
+## Round 896 — #2716/#2715
+
+- [x] `6a815c7e` — WA Vatandaş Bilgileri Cadde/No menü punto = Mahalle; placeholder Cadde seçiniz.
+- [x] `6a815bd3` — Mahalle seçilince başlık `*` + chevron sağında X.
+
 ## Round 895 — #2714/#2706/#2713/#2712
 
 - [x] `6a815b23` — Adres No dropdown’a Yok.

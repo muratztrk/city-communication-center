@@ -29,10 +29,14 @@ export function MyRequestAddressEditFields({ draft, onChange }: MyRequestAddress
     <div className="my-request-edit-fields grid gap-3">
       <div className="my-request-edit-address-grid grid grid-cols-1 gap-3 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1.2fr)]">
         <label className="grid min-w-0 gap-1">
-          <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+          <span className="text-xs font-semibold text-slate-500">
+            {t('address.neighborhoodLabel', 'Mahalle')}
+            {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+          </span>
           <SingleSelectDropdown
             openUp
             searchable
+            clearable
             className="min-w-0 max-w-full"
             menuClassName="min-w-full w-max max-w-[20rem]"
             menuScrollClassName="my-request-edit-neighborhood-menu"

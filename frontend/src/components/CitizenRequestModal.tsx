@@ -747,9 +747,13 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               <div className="job-field">
                 <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:items-stretch">
                   <label className="job-field grid gap-1">
-                    <span className="job-field-label">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+                    <span className="job-field-label">
+                      {t('address.neighborhoodLabel', 'Mahalle')}
+                      {neighborhood ? <span className="text-red-500"> *</span> : null}
+                    </span>
                     <SingleSelectDropdown
                       searchable
+                      clearable
                       options={neighborhoodOptions}
                       value={neighborhood}
                       onChange={nextNeighborhood => {

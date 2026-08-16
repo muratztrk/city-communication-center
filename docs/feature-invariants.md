@@ -283,7 +283,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
   Cadde/Sokak, No ve Adres Tarifi alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
   alt adres alanları da temizlenir. Mahalle seçildikten sonra Cadde/Sokak **ve No** zorunludur
-  (etikette `*`, `required`); **Adres Tarifi zorunlu değildir** (`*` yok) — #2582. Taleplerim terminal talep notu süreç satırında tekil **Not**
+  (etikette `*`, `required`); **Adres Tarifi zorunlu değildir** (`*` yok) — #2582.
+  Mahalle seçilince başlıkta `*` ve dropdown chevron sağında kırmızı X (clearable) — #2715. Taleplerim terminal talep notu süreç satırında tekil **Not**
   linkidir; terminal tarih etiketinde `(İptal)`/durum parantezi basılmaz; Görev Detayları terminal
   not kopyasını tekrar göstermez (cards #1196/#1197/#1198).
 - **Adres alan limitleri:** Cadde / Sokak tüm giriş yüzeylerinde en fazla 50 karakter,
@@ -1198,7 +1199,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   textbox yok; CBS dropdown (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle satırı
   Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `8.25rem` sabit (cadde seçilince
   değişmez, #2659/#2669).   Default Cadde placeholder `Cadde / sokak seçiniz`; mobilde
-  (`max-width: 767px`) `Cadde seçiniz` (#2697). No `No seçiniz`; listede **Yok** (#2714).
+  (`max-width: 767px`) `Cadde seçiniz` (#2697). WA Vatandaş Bilgileri’nde her zaman
+  `Cadde seçiniz`; Cadde/No menü punto mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
+  No `No seçiniz`; listede **Yok** (#2714).
   Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
   (#2654/#2681). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri

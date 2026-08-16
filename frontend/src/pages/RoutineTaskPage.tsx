@@ -325,9 +325,13 @@ export function RoutineTaskPage() {
             <div className="grid gap-2">
               <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
                 <div className="grid gap-1">
-                  <span className="text-sm font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+                  <span className="text-sm font-semibold text-slate-500">
+                    {t('address.neighborhoodLabel', 'Mahalle')}
+                    {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+                  </span>
                   <SingleSelectDropdown
                     searchable
+                    clearable
                     options={neighborhoodOptions}
                     value={form.neighborhood}
                     placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}

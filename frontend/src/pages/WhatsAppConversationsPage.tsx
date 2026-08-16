@@ -652,10 +652,14 @@ function ConversationProfilePanel({
         </label>
         {/* Mahalle başlığı tıklanınca dropdown açılmasın — label yerine div (#6a75b6c1). */}
         <div className="block space-y-1">
-          <span className={labelClass}>{t('address.neighborhood', 'Mahalle')}</span>
+          <span className={labelClass}>
+            {t('address.neighborhood', 'Mahalle')}
+            {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+          </span>
           <SingleSelectDropdown
             openUp
             searchable
+            clearable
             options={neighborhoodOptions}
             value={draft.neighborhood}
             onChange={neighborhood => onDraftChange(neighborhood
@@ -673,6 +677,8 @@ function ConversationProfilePanel({
           openUp
           labelClassName={labelClass}
           className="address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2"
+          menuScrollClassName="whatsapp-neighborhood-menu-scroll"
+          shortStreetPlaceholder
           onStreetChange={street => onDraftChange({ street })}
           onStreetNoChange={streetNo => onDraftChange({ streetNo })}
         />

@@ -19,6 +19,10 @@ interface CbsStreetNoDropdownsProps {
   labelClassName?: string
   openUp?: boolean
   className?: string
+  /** Cadde/No menü satır punto (ör. WA mahalle menüsü ile aynı). */
+  menuScrollClassName?: string
+  /** Placeholder her zaman `Cadde seçiniz` (WA dar panel). */
+  shortStreetPlaceholder?: boolean
 }
 
 /** Cadde/Sokak + No: İzmir CBS kademeli dropdown (#2655). */
@@ -34,6 +38,8 @@ export function CbsStreetNoDropdowns({
   labelClassName = 'text-sm font-semibold text-slate-500',
   openUp = false,
   className,
+  menuScrollClassName,
+  shortStreetPlaceholder = false,
 }: CbsStreetNoDropdownsProps) {
   const showCoordinates = typeof onCoordinatesChange === 'function'
   const rowClassName = showCoordinates
@@ -77,13 +83,14 @@ export function CbsStreetNoDropdowns({
             onStreetNoChange('')
           }}
           placeholder={
-            isMobile
+            isMobile || shortStreetPlaceholder
               ? t('address.streetSelectPlaceholderMobile', 'Cadde seçiniz')
               : t('address.streetSelectPlaceholder', 'Cadde / sokak seçiniz')
           }
           searchPlaceholder={t('common.search', 'Ara...')}
           disabled={!hasNeighborhood || streetsLoading}
           clearable
+          menuScrollClassName={menuScrollClassName}
         />
       </div>
       <div className="grid w-[8.25rem] min-w-[8.25rem] max-w-[8.25rem] shrink-0 gap-1 overflow-hidden">
@@ -102,6 +109,7 @@ export function CbsStreetNoDropdowns({
           disabled={!hasStreet || doorsLoading}
           clearable
           className="min-w-0 overflow-hidden"
+          menuScrollClassName={menuScrollClassName}
         />
       </div>
       {showCoordinates ? (

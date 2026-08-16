@@ -2720,10 +2720,14 @@ const pageKicker = isMyTasksView
                           {isEditingThisRoutineTask ? (
                             <div className="my-request-edit-fields grid gap-2">
                               <label className="grid gap-1">
-                                <span className="text-xs font-semibold text-slate-500">{t('address.neighborhoodLabel', 'Mahalle')}</span>
+                                <span className="text-xs font-semibold text-slate-500">
+                                  {t('address.neighborhoodLabel', 'Mahalle')}
+                                  {editRoutineTaskModal.neighborhood ? <span className="text-red-500"> *</span> : null}
+                                </span>
                                 <SingleSelectDropdown
                                   openUp
                                   searchable
+                                  clearable
                                   options={neighborhoodOptions}
                                   value={editRoutineTaskModal.neighborhood ?? ''}
                                   onChange={neighborhood => updateRoutineTaskAddressDraft(neighborhood

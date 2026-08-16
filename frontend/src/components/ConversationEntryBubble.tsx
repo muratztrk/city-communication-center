@@ -59,6 +59,8 @@ interface ConversationEntryBubbleProps {
   onReEngagementBlocked?: () => void
   onShowTerminalNote?: (entry: ConversationEntryBubbleData) => void
   inboundSenderLabel?: string | null
+  /** İndirme adı için talep kanalı (#2710). */
+  sourceChannel?: string | null
   /** Vatandaş Talebi Oluştur modalında balonları biraz küçült (card #1711). */
   compact?: boolean
 }
@@ -124,6 +126,7 @@ export function ConversationEntryBubble({
   conversationOutside24hWindow = false,
   onShowTerminalNote: _onShowTerminalNote,
   inboundSenderLabel,
+  sourceChannel = 'WhatsApp',
   compact = false,
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
@@ -147,6 +150,14 @@ export function ConversationEntryBubble({
   const showMessageApprover = !isInbound && Boolean(messageApproverName)
     && (isPending || isReEngagementFailure)
   const hasMedia = Boolean(entry.mediaId) && entry.entryId !== '00000000-0000-0000-0000-000000000000'
+  const isOutboundImage = !isInbound && hasMedia && Boolean(entry.mediaMimeType?.startsWith('image/'))
+  const bubbleMaxWidth = isOutboundImage
+    ? compact
+      ? 'max-w-[min(48%,14rem)]'
+      : 'max-w-[min(52%,14rem)]'
+    : compact
+      ? 'max-w-[min(68%,22rem)]'
+      : 'max-w-[min(70%,26rem)]'
   const isContactMessage = !hasMedia && isContactConversationContent(entry.content)
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
   const locationDescription = getLocationPlaceDescription(entry.content)
@@ -224,7 +235,7 @@ export function ConversationEntryBubble({
       <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
         <div
           ref={bubbleRef}
-          className={`${compact ? 'max-w-[min(68%,22rem)] rounded-xl px-3 py-1.5 text-[11px]' : 'max-w-[min(70%,26rem)] rounded-xl px-3 py-2 text-[13px]'} leading-relaxed shadow-md ${
+          className={`${bubbleMaxWidth} ${compact ? 'rounded-xl px-3 py-1.5 text-[11px]' : 'rounded-xl px-3 py-2 text-[13px]'} leading-relaxed shadow-md ${
             isInbound
               ? 'bg-white text-slate-800 rounded-tl-sm ring-1 ring-black/[0.04]'
               : 'rounded-tr-sm text-white ring-1 ring-white/10'
@@ -258,6 +269,7 @@ export function ConversationEntryBubble({
                 mediaMimeType={entry.mediaMimeType}
                 direction={entry.direction}
                 citizenPhone={citizenPhone}
+                sourceChannel={sourceChannel}
                 onAddAsAttachment={onAddMediaAsAttachment}
                 sentChip={entry.direction === 'Outbound'}
                 requestAttachmentLayout={Boolean(onAddMediaAsAttachment)}

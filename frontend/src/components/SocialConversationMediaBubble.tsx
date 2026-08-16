@@ -5,7 +5,7 @@ import { api } from '../api/client'
 import { Button } from './ui/button'
 import { SocialConversationMediaPreview } from './SocialConversationMediaPreview'
 import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
-import { socialMediaFilename } from '../utils/socialConversationContent'
+import { inboundSocialDownloadFilename, socialMediaFilename } from '../utils/socialConversationContent'
 import { lowercaseFileExtension } from '../utils/fileNameDisplay'
 
 interface SocialConversationMediaBubbleProps {
@@ -14,6 +14,8 @@ interface SocialConversationMediaBubbleProps {
   mediaMimeType?: string | null
   direction?: 'Inbound' | 'Outbound'
   citizenPhone?: string | null
+  /** İndirme adı için talep kanalı (#2710). */
+  sourceChannel?: string | null
   onAddAsAttachment?: (file: File) => void
   /** Gönderilmiş giden ek: pending önizleme gibi yalnız dosya adı + ikon (card #2399). */
   sentChip?: boolean
@@ -74,6 +76,7 @@ function SocialConversationMediaBubbleInner({
   mediaMimeType,
   direction = 'Inbound',
   citizenPhone,
+  sourceChannel,
   onAddAsAttachment,
   sentChip = false,
   requestAttachmentLayout = false,
@@ -148,7 +151,9 @@ function SocialConversationMediaBubbleInner({
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
     anchor.href = url
-    anchor.download = filename
+    anchor.download = direction === 'Inbound'
+      ? inboundSocialDownloadFilename(sourceChannel, citizenPhone, filename)
+      : filename
     anchor.click()
     URL.revokeObjectURL(url)
   }

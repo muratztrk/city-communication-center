@@ -84,7 +84,7 @@ export function WhatsAppOutboundAttachmentChip({
         <img
           src={previewUrl}
           alt={displayName}
-          className={`w-full cursor-zoom-in object-contain bg-white/95 ${compact ? 'max-h-32' : 'max-h-44'}`}
+          className={`mx-auto w-full max-w-[11rem] cursor-zoom-in object-contain bg-white/95 ${compact ? 'max-h-28' : 'max-h-32'}`}
         />
       </button>
     </div>

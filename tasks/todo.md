@@ -1,3 +1,9 @@
+## Round 894 — #2709/#2710/#2711
+
+- [x] `6a815114` — Talep/Görev görsel ekinde WA ile aynı Önizle.
+- [x] `6a815535` — WA gelen ek indirme adı: kanal-telefon-orijinalAd.
+- [x] `6a8155bf` — WA giden görsel balonu daha dar.
+
 ## Round 893 — #2706
 
 - [x] `6a80c6bd` — Cmt/Paz Son Tarih min = Pazartesi mesai + varsayılan SLA saat.

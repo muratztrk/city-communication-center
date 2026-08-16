@@ -392,8 +392,8 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             <div
               className={`rounded-xl rounded-tr-sm text-white shadow-md ring-1 ring-white/10 ${
                 compactBubbles
-                  ? 'max-w-[min(68%,22rem)] px-3 py-1.5 text-[11px]'
-                  : 'max-w-[min(70%,26rem)] px-3 py-2 text-[13px]'
+                  ? `px-3 py-1.5 text-[11px] ${pendingFile.type.startsWith('image/') ? 'max-w-[min(48%,14rem)]' : 'max-w-[min(68%,22rem)]'}`
+                  : `px-3 py-2 text-[13px] ${pendingFile.type.startsWith('image/') ? 'max-w-[min(52%,14rem)]' : 'max-w-[min(70%,26rem)]'}`
               }`}
               style={{ background: 'var(--color-header-from)' }}
             >

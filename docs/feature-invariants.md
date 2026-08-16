@@ -244,6 +244,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   modunda AYNI görünür: iki kolon, bordersız satır, dosya adı **koyu mavi** `blue-700`
   (`#1d4ed8` / `rgb(29 78 216) !important`, ikon dahil); `!important` CSS kuralı utility layer'ı ezer.
   Görev Bilgileri satırında ikon/metin biraz küçük. İki satırı aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
+  Görsel ek adının sağında WA ile aynı yeşil **Önizle** (Eye) vardır; indirmeden lightbox açılır (#2709).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -605,7 +606,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Gelen WA ek dosya adı (#2406 / #6a75c6fa):** webhook `document.filename` alanı `[Dosya eki: …]` olarak
   içerikte saklanır (path/encoding normalize, ad değiştirilmez); gelen ek adı orijinal büyük/küçük harf
   korunur. Medya indirirken `X-Original-File-Name` + Content-Disposition orijinal adı taşır; UI
-  `whatsapp-{tel}` fallback'ini orijinal ad varken kullanmaz.
+  `whatsapp-{tel}` fallback'ini orijinal ad varken kullanmaz. İndirme dosya adı
+  `{kanal}-{telefon}-{orijinalAd}` (#2710).
 - **Inbound video ortala (#6a75c6e8):** video balonu görsel gibi `w-full max-w-full object-contain`
   (dik format sağ boşluk kapanır / ortalanır).
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
@@ -614,7 +616,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Medya balon Talep Eki hizası (#2401/#2410):** modalda görsel+doküman gelen eklerde Önizle · İndir · Talep Eki
   **aynı satırda** (Talep Eki İndir'in sağında). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
   gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5` (#2411 reopen). Bekleyen giden görsel önizleme
-  yüksekliği kompakt `max-h-32`, normal `max-h-44` (Round 717). Görsel ek adı **alt** satırda;
+  yüksekliği kompakt `max-h-28`, normal `max-h-32`; görsel `max-w-[11rem]`; giden görsel
+  balonu `max-w-[min(52%,14rem)]` (#2711). Görsel ek adı **alt** satırda;
   X görselin **üst satırında sağda** (görsel içinde overlay değil — #6a7586af reopen).
   Görsel dosya adı yanındaki küçük ikonda emerald çerçeve **yok** (#6a7592b2); doküman satırında
   Taleplerim rozeti kalır: `rounded-md border-emerald-100 bg-emerald-50 text-emerald-700`

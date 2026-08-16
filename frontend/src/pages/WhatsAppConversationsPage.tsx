@@ -1338,7 +1338,7 @@ function ConversationDetail({
             {pendingFile ? (
               <div className="flex flex-col items-end">
                 <div
-                  className="max-w-[min(70%,26rem)] rounded-xl rounded-tr-sm px-3 py-2 text-[13px] text-white shadow-md ring-1 ring-white/10"
+                  className={`${pendingFile.type.startsWith('image/') ? 'max-w-[min(52%,14rem)]' : 'max-w-[min(70%,26rem)]'} rounded-xl rounded-tr-sm px-3 py-2 text-[13px] text-white shadow-md ring-1 ring-white/10`}
                   style={{ background: 'var(--color-header-from)' }}
                 >
                   {pendingSenderLabel ? (

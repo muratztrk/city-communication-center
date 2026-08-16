@@ -26,7 +26,7 @@ export function ConversationSenderHeader({
     : null
   const citizenPhoneOnly = tone === 'inbound' && /^\+\d[\d\s]+$/.test(label)
 
-  const inlineLabelClass = tone === 'inbound' ? 'text-slate-700 font-semibold' : 'text-white/90 font-semibold'
+  const inlineLabelClass = tone === 'inbound' ? 'text-slate-700 font-semibold' : 'text-black font-semibold'
 
   if (variant === 'inline') {
     if (internalMatch) {

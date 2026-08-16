@@ -31,6 +31,8 @@ interface SingleSelectDropdownProps {
   clearable?: boolean
   /** false: menü portal yerine trigger altında absolute kalır (grid scroll — card #2296). */
   menuPortal?: boolean
+  /** Panel tetikleyici ile aynı genişlik ve sol hiza (#2640). */
+  matchTriggerWidth?: boolean
 }
 
 export function SingleSelectDropdown({
@@ -50,6 +52,7 @@ export function SingleSelectDropdown({
   menuWidth,
   clearable = false,
   menuPortal = true,
+  matchTriggerWidth = false,
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -73,18 +76,19 @@ export function SingleSelectDropdown({
     const rect = rootRef.current?.getBoundingClientRect()
     if (!rect) return
     // menuWidth / menuClassName panelleri trigger'dan geniş olabilir; sağ kenardan taşmasın.
-    const assumedWidth = menuWidth ?? (menuClassName ? 320 : rect.width)
+    const matchWidth = matchTriggerWidth || (!menuWidth && !menuClassName)
+    const assumedWidth = menuWidth ?? (matchWidth ? rect.width : 320)
     const left = Math.min(rect.left, Math.max(8, window.innerWidth - assumedWidth - 8))
     setMenuStyle({
       left,
       ...(openUp ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
       ...(menuWidth
         ? { width: menuWidth }
-        : menuClassName
-          ? { minWidth: rect.width }
-          : { width: rect.width }),
+        : matchWidth
+          ? { width: rect.width }
+          : { minWidth: rect.width }),
     })
-  }, [openUp, menuClassName, menuWidth])
+  }, [openUp, menuClassName, menuWidth, matchTriggerWidth])
 
   useEffect(() => {
     if (!open || !menuPortal) return

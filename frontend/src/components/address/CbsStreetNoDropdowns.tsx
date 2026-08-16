@@ -57,6 +57,8 @@ interface CbsStreetNoDropdownsProps {
   menuScrollClassName?: string
   /** Açılan panel kök sınıfı (arama kutusu punto vb.). */
   menuClassName?: string
+  /** Panel tetikleyici ile aynı genişlik ve sol hiza (#2640). */
+  matchTriggerWidth?: boolean
   streetPlaceholder?: string
   streetNoPlaceholder?: string
   triggerClassName?: string
@@ -77,6 +79,7 @@ export function CbsStreetNoDropdowns({
   className,
   menuScrollClassName,
   menuClassName,
+  matchTriggerWidth = false,
   streetPlaceholder,
   streetNoPlaceholder,
   triggerClassName,
@@ -119,6 +122,7 @@ export function CbsStreetNoDropdowns({
           triggerClassName={triggerClassName}
           menuScrollClassName={menuScrollClassName}
           menuClassName={menuClassName}
+          matchTriggerWidth={matchTriggerWidth}
         />
       </div>
       <div className="grid w-[8.25rem] min-w-[8.25rem] max-w-[8.25rem] shrink-0 gap-1 overflow-hidden">
@@ -140,6 +144,7 @@ export function CbsStreetNoDropdowns({
           triggerClassName={triggerClassName}
           menuScrollClassName={menuScrollClassName}
           menuClassName={menuClassName}
+          matchTriggerWidth={matchTriggerWidth}
         />
       </div>
       {showCoordinates ? (

@@ -767,6 +767,10 @@
     transform: none !important;
   }
 
+  .address-detail-my-request--task .address-detail-my-request__grid--three {
+    padding-top: 0.55rem;
+  }
+
   .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(-n + 3) {
     align-items: center !important;
     text-align: center !important;
@@ -788,7 +792,7 @@
 
   .address-detail-my-request--task .address-detail-my-request__item--directions,
   .address-detail-my-request--task .address-detail-my-request__item--coordinates {
-    padding-top: 0.65rem;
+    padding-top: 0.85rem;
     padding-inline-start: 0 !important;
     transform: none !important;
   }
@@ -796,9 +800,9 @@
   .address-detail-my-request--task .address-detail-my-request__item--directions .address-detail-my-request__label {
     transform: none !important;
     padding-inline-start: 0 !important;
-    margin-inline: 0 !important;
-    text-align: left !important;
-    width: fit-content !important;
+    margin-inline: auto !important;
+    text-align: center !important;
+    width: 100% !important;
   }
 
   .address-detail-my-request--task .address-detail-my-request__item--coordinates .address-detail-my-request__label,

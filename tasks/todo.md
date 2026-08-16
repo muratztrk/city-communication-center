@@ -1,3 +1,10 @@
+## Round 933 — #2666/#2651/#2640/#2568
+
+- [x] `6a804997` — Giden WA birim/ad metni siyah.
+- [x] `6a802eb8` — Görev Adres Tarifi Mahalle ile kolon içi aynı düşey hizada; satır 2 üst boşluk.
+- [x] `6a801665` — WA adres menüsü tetikleyiciyle aynı hiza ve genişlik.
+- [x] `6a7e03b8` — Görev Mahalle/Cadde/No üstünde boşluk.
+
 ## Round 932 — #2754/#2640
 
 - [x] `6a81ab8c` — SingleSelectDropdown hover tooltip tamamen kaldırıldı.

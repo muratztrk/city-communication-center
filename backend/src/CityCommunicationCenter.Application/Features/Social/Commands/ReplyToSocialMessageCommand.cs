@@ -49,10 +49,10 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
         string? externalEntryId = null;
         string? deliveryError = null;
 
-        // Varsayılan WhatsApp yanıtları "Beklemede" kuyruğa alınır; /whatsapp direkt operatör
-        // yazımı açıkça isterse aynı endpoint üzerinden hemen iletilir.
+        // WhatsApp yanıtları her zaman Beklemede kuyruğa girer; vatandaşa iletme
+        // yalnız operatör "Mesajı Gönder" ile olur (#2600 / #1091). SendImmediately yok sayılır.
         var isWhatsApp = message.Channel == SocialChannel.WhatsApp;
-        if (isWhatsApp && request.SendImmediately && LooksLikeAttachmentPlaceholder(content))
+        if (isWhatsApp && LooksLikeAttachmentPlaceholder(content))
         {
             throw new ValidationException([
                 new FluentValidation.Results.ValidationFailure(
@@ -61,7 +61,7 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
             ]);
         }
 
-        if (isWhatsApp && !request.SendImmediately)
+        if (isWhatsApp)
         {
             deliveryStatus = ConversationDeliveryStatus.Pending;
         }
@@ -150,7 +150,7 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
         });
 
         // Kuyruğa alınan WhatsApp mesajı henüz iletilmedi → "Yanıtlandı" gerçek gönderimde işlenir.
-        if (!isWhatsApp || request.SendImmediately)
+        if (!isWhatsApp)
         {
             message.ResponseContent = content;
             message.RespondedAtUtc = utcNow;
@@ -276,7 +276,7 @@ public sealed record ReplyToSocialMessageAttachmentCommand(
     string FileName,
     string ContentType,
     byte[] FileContent,
-    bool SendImmediately = true) : ICommand<bool>;
+    bool SendImmediately = false) : ICommand<bool>;
 
 public sealed class ReplyToSocialMessageAttachmentCommandHandler
     : ICommandHandler<ReplyToSocialMessageAttachmentCommand, bool>
@@ -342,7 +342,7 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
             cancellationToken);
         mediaId = localMediaId;
 
-        if (request.SendImmediately)
+        if (request.SendImmediately && message.Channel != SocialChannel.WhatsApp)
         {
             deliveryStatus = ConversationDeliveryStatus.Failed;
             var client = _clientFactory.GetClient(message.Channel, tenantId);
@@ -399,7 +399,7 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
             DeliveryError = deliveryError,
         });
 
-        if (deliveryStatus != ConversationDeliveryStatus.Failed && request.SendImmediately)
+        if (deliveryStatus != ConversationDeliveryStatus.Failed && request.SendImmediately && message.Channel != SocialChannel.WhatsApp)
         {
             message.ResponseContent = content;
             message.RespondedAtUtc = utcNow;

@@ -198,7 +198,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     try {
       if (pendingFile) {
         fileProgress.start(pendingFile.size)
-        await api.replySocialMessageAttachment(socialMessageId, pendingFile, text, true)
+        await api.replySocialMessageAttachment(socialMessageId, pendingFile, text, false)
         setPendingFile(null)
         setPendingFileEditing(false)
         fileProgress.stop()
@@ -206,7 +206,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         await api.replySocialMessage(
           socialMessageId,
           text,
-          true,
+          false,
           selectedMetaTemplate
             ? {
                 whatsAppTemplateId: selectedMetaTemplate.templateId,
@@ -348,7 +348,14 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
           )}
           <div className="min-w-0 flex-1">
             <p className="text-[11px] font-semibold uppercase tracking-wide text-white/65">{headerKicker}</p>
-            <p className={`truncate font-semibold leading-tight ${headerMode === 'phone' ? 'text-xs' : 'text-[15px]'}`}>{headerSubtitle}</p>
+            {headerMode === 'phone' ? (
+              <p className="flex min-w-0 items-baseline gap-x-1.5 truncate font-semibold leading-tight text-xs">
+                {registeredCitizenName ? <span className="shrink-0">{registeredCitizenName}</span> : null}
+                <span className="min-w-0 truncate">{phoneForDisplay}</span>
+              </p>
+            ) : (
+              <p className="truncate text-[15px] font-semibold leading-tight">{headerSubtitle}</p>
+            )}
           </div>
           {showCloseButton ? (
             <ModalCloseButton

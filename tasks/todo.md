@@ -1,3 +1,9 @@
+## Round 931 — #2289/#2405/#2600
+
+- [x] `6a724edd` — Yazışmaya Git banner: kayıtlı ad numaranın solunda.
+- [x] `6a74d682` — Giden WA balonunda birim · operatör adı aynı satırda.
+- [x] `6a7f1c9c` — WhatsApp yazımı doğrudan gitmez; operatör Mesajı Gönder onayı.
+
 ## Round 930 — #2754/#2640/#2757/#2651
 
 - [x] `6a81ab8c` — Açık dropdown satır hover tooltip kaldırıldı.

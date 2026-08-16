@@ -72,6 +72,7 @@ export function CitizenDirectoryPage() {
     socialMessageId: string
     citizenHandle: string
     citizenPhone: string
+    citizenName: string | null
   } | null>(null)
 
   useEffect(() => {
@@ -175,6 +176,7 @@ export function CitizenDirectoryPage() {
         socialMessageId,
         citizenHandle: row.citizenName?.trim() || row.citizenPhone,
         citizenPhone: row.citizenPhone,
+        citizenName: row.citizenName?.trim() || null,
       })
     }
 
@@ -454,6 +456,7 @@ export function CitizenDirectoryPage() {
           socialMessageId={conversationModal.socialMessageId}
           citizenHandle={conversationModal.citizenHandle}
           citizenPhone={conversationModal.citizenPhone}
+          citizenName={conversationModal.citizenName}
           onClose={() => setConversationModal(null)}
         />
       ) : null}

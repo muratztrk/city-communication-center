@@ -1354,7 +1354,7 @@ export const api = {
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))
   },
 
-  async replySocialMessageAttachment(socialMessageId: string, file: File, content: string, sendImmediately = true): Promise<void> {
+  async replySocialMessageAttachment(socialMessageId: string, file: File, content: string, sendImmediately = false): Promise<void> {
     const formData = new FormData()
     formData.append('file', file, file.name)
     formData.append('content', content)

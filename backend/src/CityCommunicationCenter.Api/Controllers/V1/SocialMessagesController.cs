@@ -378,5 +378,5 @@ public sealed class SocialReplyAttachmentRequest
 {
     public IFormFile? File { get; set; }
     public string? Content { get; set; }
-    public bool SendImmediately { get; set; } = true;
+    public bool SendImmediately { get; set; }
 }

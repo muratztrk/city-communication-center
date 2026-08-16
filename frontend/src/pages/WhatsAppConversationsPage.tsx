@@ -991,13 +991,13 @@ function ConversationDetail({
     try {
       if (pendingFile) {
         fileProgress.start(pendingFile.size)
-        await api.replySocialMessageAttachment(openTicket.socialMessageId, pendingFile, text, true)
+        await api.replySocialMessageAttachment(openTicket.socialMessageId, pendingFile, text, false)
         fileProgress.stop()
       } else {
         await api.replySocialMessage(
           openTicket.socialMessageId,
           text,
-          true,
+          false,
           selectedMetaTemplate
             ? {
                 whatsAppTemplateId: selectedMetaTemplate.templateId,

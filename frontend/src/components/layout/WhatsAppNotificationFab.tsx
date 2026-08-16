@@ -94,6 +94,7 @@ export function WhatsAppNotificationFab() {
     socialMessageId: string
     citizenHandle: string
     citizenPhone: string | null
+    citizenName: string | null
   } | null>(null)
 
   // WhatsApp Konuşmaları sayfasını yalnızca Operatör/SistemYöneticisi yönetir; standart
@@ -397,6 +398,7 @@ export function WhatsAppNotificationFab() {
         socialMessageId: conversation.latestSocialMessageId,
         citizenHandle: conversation.citizenName ?? conversation.citizenPhone,
         citizenPhone: conversation.citizenPhone,
+        citizenName: conversation.citizenName ?? null,
       })
       return
     }
@@ -524,6 +526,7 @@ export function WhatsAppNotificationFab() {
             socialMessageId={conversationModal.socialMessageId}
             citizenHandle={conversationModal.citizenHandle}
             citizenPhone={conversationModal.citizenPhone}
+            citizenName={conversationModal.citizenName}
             onClose={() => setConversationModal(null)}
           />
         )}

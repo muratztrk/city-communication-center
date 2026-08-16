@@ -739,6 +739,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     socialMessageId: string
     citizenHandle: string
     citizenPhone: string | null
+    citizenName: string | null
   } | null>(null)
 
   const auditLogQuery = useQuery({
@@ -1341,6 +1342,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       socialMessageId,
       citizenHandle: citizenSourceMessage?.citizenHandle ?? detail.citizenName ?? detail.citizenPhone ?? '',
       citizenPhone: detail.citizenPhone ?? citizenSourceMessage?.citizenPhone ?? null,
+      citizenName: detail.citizenName ?? citizenSourceMessage?.citizenName ?? null,
     })
   }
 
@@ -3620,6 +3622,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           socialMessageId={conversationModal.socialMessageId}
           citizenHandle={conversationModal.citizenHandle}
           citizenPhone={conversationModal.citizenPhone}
+          citizenName={conversationModal.citizenName}
           onClose={() => setConversationModal(null)}
         />
       )}

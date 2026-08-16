@@ -544,6 +544,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     socialMessageId: string
     citizenHandle: string
     citizenPhone: string | null
+    citizenName: string | null
   } | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
 
@@ -1857,6 +1858,7 @@ const pageKicker = isMyTasksView
       socialMessageId,
       citizenHandle: citizenSourceMessage?.citizenHandle ?? parentJobDetail.citizenName ?? parentJobDetail.citizenPhone ?? '',
       citizenPhone: parentJobDetail.citizenPhone ?? citizenSourceMessage?.citizenPhone ?? null,
+      citizenName: parentJobDetail.citizenName ?? citizenSourceMessage?.citizenName ?? null,
     })
   }
 
@@ -3834,6 +3836,7 @@ const pageKicker = isMyTasksView
           socialMessageId={conversationModal.socialMessageId}
           citizenHandle={conversationModal.citizenHandle}
           citizenPhone={conversationModal.citizenPhone}
+          citizenName={conversationModal.citizenName}
           onClose={() => setConversationModal(null)}
         />
       )}

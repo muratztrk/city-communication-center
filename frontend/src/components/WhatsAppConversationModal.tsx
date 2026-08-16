@@ -5,6 +5,7 @@ interface WhatsAppConversationModalProps {
   socialMessageId: string
   citizenHandle: string
   citizenPhone?: string | null
+  citizenName?: string | null
   onClose: () => void
 }
 
@@ -12,6 +13,7 @@ export function WhatsAppConversationModal({
   socialMessageId,
   citizenHandle,
   citizenPhone,
+  citizenName,
   onClose,
 }: WhatsAppConversationModalProps) {
   return createPortal(
@@ -27,6 +29,7 @@ export function WhatsAppConversationModal({
           socialMessageId={socialMessageId}
           citizenHandle={citizenHandle}
           citizenPhone={citizenPhone}
+          citizenName={citizenName}
           headerMode="phone"
           onClose={onClose}
           // Birim yöneticisi/atanan personel yazabilir ama mesaj "Beklemede" kuyruğa girer;

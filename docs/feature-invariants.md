@@ -461,9 +461,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Gelen WA balonunda üst satır gönderen etiketi:** isim varsa isim (+telefon), yoksa telefon;
   `ConversationPanel` → `inboundSenderLabel` (card #1716). Vatandaş Talebi Oluştur dahil.
 
-- **Operatör WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091).**
-  `ReplyToSocialMessageCommand` WhatsApp kanalında varsayılan olarak mesajı GÖNDERMEZ, `DeliveryStatus=Pending` entry
-  oluşturur (diğer kanallar eskisi gibi anında gider). `ICitizenJobStatusNotifier` tarafından
+- **Operatör WhatsApp yanıtları "Beklemede" kuyruğa girer; iletme yetkisi yalnızca operatördedir (card #1091 / #2600).**
+  `ReplyToSocialMessageCommand` WhatsApp kanalında mesajı GÖNDERMEZ (`SendImmediately` yok sayılır), `DeliveryStatus=Pending` entry
+  oluşturur (diğer kanallar eskisi gibi anında gider). Yazışmaya Git / `/whatsapp` yazımı da doğrudan vatandaşa gitmez. `ICitizenJobStatusNotifier` tarafından
   üretilen İşleme Alındı/Yapılmakta mesajları operatör onayı beklemeden WhatsApp'a doğrudan
   gönderilir. Tamamlandı/İptal otomatik mesajları artık job tamamlanır/iptal olur olmaz
   **otomatik olarak** `Pending` kuyruğa girmez (R421 değişti — card #2039): `CitizenJobStatusNotifier`
@@ -626,7 +626,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yüksekliği kompakt `max-h-32`, normal `max-h-36`; görsel `w-full object-cover` (çerçeveyi
   yatay doldurur); giden görsel balonu `max-w-[min(58%,15.5rem)]` / kompakt `54%` (#2711 reopen).
   Görsel ek adı **alt** satırda;
-  X fotoğrafın **içinde sağ üst** (#2711 reopen); görsel X çerçevesi kırmızı (#2731). Giden görsel balonunda birim üst satır, ad soyad alt satır;
+  X fotoğrafın **içinde sağ üst** (#2711 reopen); görsel X çerçevesi kırmızı (#2731). Giden mesajda birim · ad soyad **aynı satırda**, ad birimin yanında (#2405);
   görsel dosya adı punto biraz büyük (#2711).
   Görsel dosya adı yanındaki küçük ikonda emerald çerçeve **yok** (#6a7592b2); doküman satırında
   Taleplerim rozeti kalır: `rounded-md border-emerald-100 bg-emerald-50 text-emerald-700`
@@ -1361,8 +1361,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Başlık `WhatsApp Konuşması - Vatandaş Talebi Oluştur` `font-medium` (#2634);
   compact konuşma mesaj metni 11px, gönderen satırı 12px (#2634).
   Modal açıkken gelen WA mesajı aynı konuşma penceresinde anlık görünür (`ccc:whatsapp-message` + 3sn poll, #2707).
-- **Yazışmaya Git popup (#2080):** `WhatsAppConversationModal` → `compactBubbles` + `compactActions`
-  (metin `text-xs`, balon padding küçültülür).
+- **Yazışmaya Git popup (#2080 / #2289):** `WhatsAppConversationModal` → `compactBubbles` + `compactActions`
+  (metin `text-xs`, balon padding küçültülür). Banner: kayıtlı vatandaş adı varsa numaranın **solunda** aynı satırda.
 - **Mesaj Onayı Detaylar → Talep Durumunu Değiştir (#2083):** buton rengi `Görevi Yönlendir` ile aynı
   (`bg-[#007985]` / `hover:bg-[#006570]`), turuncu değil.
 - **Onayla ve Personel Ata self-istek metni (card #1671):**

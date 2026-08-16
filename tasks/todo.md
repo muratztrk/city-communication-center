@@ -1,3 +1,8 @@
+## Round 900 — #2510/#2724
+
+- [x] `6a76cd4b` — Talep Oluştur dropzone: dosya seçilir seçilmez progress.
+- [x] `6a816bb9` — WA Cadde/No placeholder Seçiniz.
+
 ## Round 899 — #2720/#2723
 
 - [x] `6a816563` — Harita: tam CBS adreste Konum Koordinatı pin’e girmez.

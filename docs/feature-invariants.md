@@ -278,7 +278,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`CreateJobCommand`, card #1079).
 - **Talep Oluştur ek yükleme ilerlemesi:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının
   seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar
-  yükleme başlar başlamaz görünür (#2510).
+  yükleme başlar başlamaz görünür (#2510). Talep Oluştur dropzone dosya seçilince bar görünür (#2510 reopen).
   tüm dosyalar için birleşik yüzde gösterilir. Vatandaş create/edit akışı da seçili dosyaları
   oluşan job'a gerçekten yükler (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
@@ -1202,6 +1202,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `8.25rem` sabit (cadde seçilince
   değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
   Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
+  WA Vatandaş Bilgileri Cadde/No placeholder **Seçiniz** (#2724).
   No `No seçiniz`; listede **Yok** (#2714); CBS’den gelen **Kapı Numarası Yok** satırı yok (#2723).
   Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713), placeholder `Link giriniz...` (#2722).
   Birim/Vatandaş talep haritasında Mahalle+Cadde+No doluysa pin CBS’den gelir; Konum Koordinatı kullanılmaz (#2720). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`

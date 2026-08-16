@@ -683,6 +683,9 @@ export function CreateRequestPage() {
             setPendingFiles(prev => {
               const err = validatePendingBatch(prev, incoming)
               if (err) { setFileError(err); return prev }
+              setFileError(null)
+              setShowAttachmentUploadProgress(true)
+              setAttachmentUploadProgress(0)
               return [...prev, ...incoming]
             })
           }}
@@ -703,6 +706,9 @@ export function CreateRequestPage() {
               setPendingFiles(prev => {
                 const err = validatePendingBatch(prev, incoming)
                 if (err) { setFileError(err); return prev }
+                setFileError(null)
+                setShowAttachmentUploadProgress(true)
+                setAttachmentUploadProgress(0)
                 return [...prev, ...incoming]
               })
               if (fileInputRef.current) fileInputRef.current.value = ''
@@ -732,7 +738,16 @@ export function CreateRequestPage() {
                   <button
                     type="button"
                     className="shrink-0 text-xs font-medium text-red-500 hover:text-red-600"
-                    onClick={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
+                    onClick={() => {
+                      setPendingFiles(prev => {
+                        const next = prev.filter((_, i) => i !== idx)
+                        if (next.length === 0) {
+                          setShowAttachmentUploadProgress(false)
+                          setAttachmentUploadProgress(0)
+                        }
+                        return next
+                      })
+                    }}
                   >
                     {t('common.delete', 'Sil')}
                   </button>
@@ -743,7 +758,7 @@ export function CreateRequestPage() {
           )}
         </div>
       </div>
-      {saving && showAttachmentUploadProgress ? (
+      {showAttachmentUploadProgress ? (
         <AttachmentUploadProgressBar progress={attachmentUploadProgress} className="mt-2" />
       ) : null}
       {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}

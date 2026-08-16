@@ -18,6 +18,8 @@ interface CbsStreetNoDropdownsProps {
   className?: string
   /** Cadde/No menü satır punto (ör. WA mahalle menüsü ile aynı). */
   menuScrollClassName?: string
+  streetPlaceholder?: string
+  streetNoPlaceholder?: string
 }
 
 /** Cadde/Sokak + No: İzmir CBS kademeli dropdown (#2655). */
@@ -34,6 +36,8 @@ export function CbsStreetNoDropdowns({
   openUp = false,
   className,
   menuScrollClassName,
+  streetPlaceholder,
+  streetNoPlaceholder,
 }: CbsStreetNoDropdownsProps) {
   const showCoordinates = typeof onCoordinatesChange === 'function'
   const rowClassName = showCoordinates
@@ -66,7 +70,7 @@ export function CbsStreetNoDropdowns({
             onStreetChange(nextStreet)
             onStreetNoChange('')
           }}
-          placeholder={t('address.streetSelectPlaceholder', 'Cadde seçiniz')}
+          placeholder={streetPlaceholder ?? t('address.streetSelectPlaceholder', 'Cadde seçiniz')}
           searchPlaceholder={t('common.search', 'Ara...')}
           disabled={!hasNeighborhood || streetsLoading}
           clearable
@@ -84,7 +88,7 @@ export function CbsStreetNoDropdowns({
           options={doorNoOptions}
           value={streetNo}
           onChange={onStreetNoChange}
-          placeholder={t('address.streetNoSelectPlaceholder', 'No seçiniz')}
+          placeholder={streetNoPlaceholder ?? t('address.streetNoSelectPlaceholder', 'No seçiniz')}
           searchPlaceholder={t('common.search', 'Ara...')}
           disabled={!hasStreet || doorsLoading}
           clearable

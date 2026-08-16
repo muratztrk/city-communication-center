@@ -6699,7 +6699,8 @@
     right: 0.7rem;
     bottom: 1.15rem;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-end;
     gap: 0.45rem;
   }
 
@@ -6712,7 +6713,13 @@
   .citizen-request-map-zoom-stack {
     display: flex;
     flex-direction: column;
-    align-items: stretch;
+    align-items: flex-end;
+    gap: 0.45rem;
+  }
+
+  .citizen-request-map-zoom-row {
+    display: flex;
+    align-items: center;
     gap: 0.45rem;
   }
 

@@ -792,6 +792,21 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
             onClick={event => event.stopPropagation()}
             onMouseDown={event => event.stopPropagation()}
           >
+            <div className="citizen-request-map-zoom-stack">
+              <button
+                type="button"
+                className="citizen-request-map-zoom-btn citizen-request-map-reset-btn"
+                title={t('citizenRequestMap.resetView', 'Başlangıç görünümü')}
+                aria-label={t('citizenRequestMap.resetView', 'Başlangıç görünümü')}
+                onClick={resetMapView}
+              >
+                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="2.15" fill="currentColor" stroke="none" />
+                  <circle cx="12" cy="12" r="6.1" />
+                  <path d="M12 2.6v2.7M12 18.7v2.7M2.6 12h2.7M18.7 12h2.7" strokeLinecap="round" />
+                </svg>
+              </button>
+              <div className="citizen-request-map-zoom-row">
             <button
               type="button"
               className={`citizen-request-map-streetview-btn${streetViewPicker ? ' is-active' : ''}`}
@@ -809,20 +824,6 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
                 <path fill="#E37400" opacity=".35" d="M12.9 8.25h2.3c.5 0 .9.4.9.9v4.15l1.35.45.2.78-.2.1-1.55-.48V15.1v5.05c0 .2-.08.38-.2.5h-.7V17.1h-.4v3.55h-.7c-.12-.12-.2-.3-.2-.5v-3.05h-.1V8.25z" />
               </svg>
             </button>
-            <div className="citizen-request-map-zoom-stack">
-              <button
-                type="button"
-                className="citizen-request-map-zoom-btn citizen-request-map-reset-btn"
-                title={t('citizenRequestMap.resetView', 'Başlangıç görünümü')}
-                aria-label={t('citizenRequestMap.resetView', 'Başlangıç görünümü')}
-                onClick={resetMapView}
-              >
-                <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="2">
-                  <circle cx="12" cy="12" r="2.15" fill="currentColor" stroke="none" />
-                  <circle cx="12" cy="12" r="6.1" />
-                  <path d="M12 2.6v2.7M12 18.7v2.7M2.6 12h2.7M18.7 12h2.7" strokeLinecap="round" />
-                </svg>
-              </button>
               <div className="citizen-request-map-zoom">
               <button
                 type="button"
@@ -848,6 +849,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
               >
                 −
               </button>
+              </div>
               </div>
             </div>
           </div>

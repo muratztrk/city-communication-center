@@ -1,3 +1,7 @@
+## Round 941 — #2769
+
+- [x] `6a8200a5` — Harita Street View ikonu +/− çizgisi hizasında.
+
 ## Round 940 — #2768/#2767
 
 - [x] `6a81fc03` — Harita listesi Detaylar başlığı Talep Detayları.

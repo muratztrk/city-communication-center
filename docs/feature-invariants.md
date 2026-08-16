@@ -1703,7 +1703,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman
-  beyaz çerçeve 1.7rem / iç logo 26px, zoom yığınının solunda ortalı, tıklamayla
+  beyaz çerçeve 1.7rem / iç logo 26px, +/- yığınının solunda **+/− arasındaki çizgi hizasında** (#2614/#2615/#2621/#2631/#2769).
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
   Düşük zoom native koyu mavi kapsama çerçevesi durur; erode/CSS ile inceltme geri alındı (#2622).

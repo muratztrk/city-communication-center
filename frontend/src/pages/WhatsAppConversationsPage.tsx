@@ -667,6 +667,7 @@ function ConversationProfilePanel({
               : { neighborhood: '', street: '', streetNo: '', openAddress: '' })}
             placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
             menuScrollClassName="whatsapp-neighborhood-menu-scroll"
+            menuClassName="whatsapp-neighborhood-menu-scroll"
           />
         </div>
         <CbsStreetNoDropdowns
@@ -678,6 +679,7 @@ function ConversationProfilePanel({
           labelClassName={labelClass}
           className="address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2"
           menuScrollClassName="whatsapp-neighborhood-menu-scroll"
+          menuClassName="whatsapp-neighborhood-menu-scroll"
           streetPlaceholder={t('common.selectPlaceholder', 'Seçiniz')}
           streetNoPlaceholder={t('common.selectPlaceholder', 'Seçiniz')}
           onStreetChange={street => onDraftChange({ street })}

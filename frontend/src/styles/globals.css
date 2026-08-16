@@ -2272,6 +2272,12 @@
     font-size: 0.72rem;
   }
 
+  /* Search input matches list item size (WA Vatandaş Bilgileri, #2729). */
+  .whatsapp-neighborhood-menu-scroll input {
+    font-size: 0.72rem !important;
+    line-height: 1.25;
+  }
+
   .task-return-user-menu-scroll .dropdown-menu-item {
     min-height: 2rem;
     padding: 0.4rem 0.65rem;

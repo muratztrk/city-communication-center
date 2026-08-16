@@ -55,6 +55,8 @@ interface CbsStreetNoDropdownsProps {
   className?: string
   /** Cadde/No menü satır punto (ör. WA mahalle menüsü ile aynı). */
   menuScrollClassName?: string
+  /** Açılan panel kök sınıfı (arama kutusu punto vb.). */
+  menuClassName?: string
   streetPlaceholder?: string
   streetNoPlaceholder?: string
 }
@@ -73,6 +75,7 @@ export function CbsStreetNoDropdowns({
   openUp = false,
   className,
   menuScrollClassName,
+  menuClassName,
   streetPlaceholder,
   streetNoPlaceholder,
 }: CbsStreetNoDropdownsProps) {
@@ -112,6 +115,7 @@ export function CbsStreetNoDropdowns({
           disabled={!hasNeighborhood || streetsLoading}
           clearable
           menuScrollClassName={menuScrollClassName}
+          menuClassName={menuClassName}
         />
       </div>
       <div className="grid w-[8.25rem] min-w-[8.25rem] max-w-[8.25rem] shrink-0 gap-1 overflow-hidden">
@@ -131,6 +135,7 @@ export function CbsStreetNoDropdowns({
           clearable
           className="min-w-0 overflow-hidden"
           menuScrollClassName={menuScrollClassName}
+          menuClassName={menuClassName}
         />
       </div>
       {showCoordinates ? (

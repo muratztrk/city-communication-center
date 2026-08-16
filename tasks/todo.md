@@ -1,3 +1,7 @@
+## Round 906 — #2729
+
+- [x] `6a817403` — WA Vatandaş Bilgileri Mahalle/Cadde/No arama punto = liste satırı.
+
 ## Round 905 — #2724 reopen
 
 - [x] `6a816bb9` — WA Cadde/No seçili metin genişliği sabit; ellipsis + tooltip.

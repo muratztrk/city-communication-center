@@ -1204,6 +1204,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `8.25rem` sabit (cadde seçilince
   değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
   Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
+  WA Mahalle/Cadde/No arama kutusu punto, liste satırlarıyla aynı (0.72rem, #2729).
   WA Vatandaş Bilgileri Cadde/No placeholder **Seçiniz** (#2724). Seçili Cadde/No metni kutuyu
   genişletmez; taşınca ellipsis + hover tooltip (#2724 reopen).
   No `No seçiniz`; listede **Yok** (#2714); CBS’den gelen **Kapı Numarası Yok** satırı yok (#2723).

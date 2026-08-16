@@ -1,3 +1,11 @@
+## Round 926 — #2653/#2640/#2757/#2756/#2755
+
+- [x] `6a803699` — Dizin boş filtre empty-state yüksekliği pie ile aynı.
+- [x] `6a801665` — WA Vatandaş Bilgileri Mahalle/Cadde/No menü punto 0.75rem.
+- [x] `6a81b23c` — Açıklama editör K/A/liste ikonları biraz küçültüldü.
+- [x] `6a81ae7f` — Detay Adres Bilgileri 3+2 satır; Konumu Gör.
+- [x] `6a81ac70` — Adresi Gör: başlık çizgisi, 3+1 yerleşim, Yönlendir X.
+
 ## Round 925 — #2653/#2754
 
 - [x] `6a803699` — Dizin Detaylar boş filtre: paging pie gibi tablonun hemen altında.

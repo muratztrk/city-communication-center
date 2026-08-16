@@ -605,7 +605,7 @@
      üç etiket kolon içinde tek satır ortalı (#1876 / #r449; #r495 R489 geri).
      Dolu adreste satır sola kaymaz — Mahalle kart padding'inde kalsın (#r497). */
   .address-detail-my-request__grid--three {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     justify-content: start;
     gap: 1rem 1.25rem;
   }
@@ -1752,13 +1752,13 @@
     }
 
     .app-content-shell .rich-text-toolbar {
-      min-height: 2.35rem;
-      padding: 0.32rem 0.42rem;
+      min-height: 2.15rem;
+      padding: 0.28rem 0.38rem;
     }
 
     .app-content-shell .rich-text-toolbar-button {
-      width: 1.75rem;
-      height: 1.75rem;
+      width: 1.6rem;
+      height: 1.6rem;
       border-radius: 0.45rem;
     }
 
@@ -1982,18 +1982,18 @@
     display: flex;
     align-items: center;
     gap: 0.35rem;
-    min-height: 3rem;
+    min-height: 2.75rem;
     border-bottom: 1px solid var(--color-border);
     background: color-mix(in srgb, white 92%, var(--color-background));
-    padding: 0.45rem 0.55rem;
+    padding: 0.38rem 0.5rem;
   }
 
   .rich-text-toolbar-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2.2rem;
-    height: 2.2rem;
+    width: 2rem;
+    height: 2rem;
     border: 0;
     border-radius: 0.55rem;
     background: transparent;
@@ -2301,15 +2301,15 @@
      Panel köküne de aynı sınıf konur: arama kutusu scroll dışında kalır (#2730 reopen). */
   .whatsapp-neighborhood-menu-scroll .dropdown-menu-item,
   .whatsapp-neighborhood-menu-scroll .dropdown-menu-item span {
-    min-height: 2.15rem;
-    padding: 0.4rem 0.65rem;
-    font-size: 0.875rem !important;
+    min-height: 2rem;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem !important;
     line-height: 1.25;
   }
 
   .whatsapp-neighborhood-menu-scroll input,
   .dropdown-menu-panel.whatsapp-neighborhood-menu-scroll input {
-    font-size: 0.875rem !important;
+    font-size: 0.75rem !important;
     line-height: 1.25 !important;
   }
 
@@ -2990,15 +2990,17 @@
     gap: 0.05rem;
   }
 
-  /* Pie empty = Taleplerim empty-state; yükseklik azalt (#6a6d8c50) */
-  .detail-modal-shell .dashboard-drilldown-table .empty-state {
+  /* Pie empty = Taleplerim empty-state; yükseklik azalt (#6a6d8c50). Dizin Detaylar aynı (#2653). */
+  .detail-modal-shell .dashboard-drilldown-table .empty-state,
+  .detail-modal-shell .citizen-directory-tickets-table .empty-state {
     font-size: 0.82rem;
     padding: 0.45rem 0.65rem;
     border-radius: 0.65rem;
     margin-block: 0.15rem;
   }
 
-  .detail-modal-shell .dashboard-drilldown-table tbody tr:has(.empty-state) td {
+  .detail-modal-shell .dashboard-drilldown-table tbody tr:has(.empty-state) td,
+  .detail-modal-shell .citizen-directory-tickets-table tbody tr:has(.empty-state) td {
     padding-block: 0.35rem;
   }
 
@@ -3554,8 +3556,8 @@
   }
 
   .citizen-request-form .rich-text-toolbar-button {
-    width: 1.35rem;
-    height: 1.35rem;
+    width: 1.22rem;
+    height: 1.22rem;
   }
 
   .citizen-request-form .rich-text-editable {
@@ -3691,13 +3693,13 @@
 
   .request-form--readable .rich-text-toolbar,
   .routine-task-form--readable .rich-text-toolbar {
-    min-height: 3.2rem;
+    min-height: 2.95rem;
   }
 
   .request-form--readable .rich-text-toolbar-button,
   .routine-task-form--readable .rich-text-toolbar-button {
-    width: 2.35rem;
-    height: 2.35rem;
+    width: 2.15rem;
+    height: 2.15rem;
   }
 
   /* Vatandaş Çağrı Talebi Oluştur: K/A toolbar ince, yazı alanı yüksek. */
@@ -3708,8 +3710,8 @@
   }
 
   #citizen-request-form .rich-text-toolbar-button {
-    width: 1.4rem;
-    height: 1.4rem;
+    width: 1.28rem;
+    height: 1.28rem;
     border-radius: 0.3rem;
   }
 
@@ -4436,18 +4438,34 @@
   }
 
   .address-detail-my-request__item--directions {
-    grid-column: 1 / -1;
+    grid-column: span 3;
   }
 
-  /* Adres Bilgileri yanında yalnız 1 kutu: Mahalle / Cadde / No / Adres Tarifi tek satır, kolon içi ortalı (#2576). */
+  .address-detail-my-request__item--directions-full {
+    grid-column: 1 / -1 !important;
+  }
+
+  /* Adres Bilgileri: satır 1 Mahalle/Cadde/No; satır 2 Adres Tarifi + Konum Koordinatı (#2756). */
+  .address-detail-my-request__grid--three {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
+
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(1),
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
+  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) {
+    grid-column: span 2;
+  }
+
+  /* Adres Bilgileri yanında yalnız 1 kutu: aynı iki satır (eski 4 kolon tek satır #2576 kalkar, #2756). */
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three {
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
     justify-items: center;
     align-items: start;
   }
 
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--directions {
-    grid-column: auto !important;
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--directions,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--coordinates {
+    grid-column: span 3 !important;
   }
 
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item,
@@ -4463,8 +4481,9 @@
     transform: translateX(-0.45rem) !important;
   }
 
-  .my-request-detail-bottom--three-cards .address-detail-my-request__item--directions {
-    grid-column: 1 / -1 !important;
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--directions,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--coordinates {
+    grid-column: span 3 !important;
   }
 
   /* Görevlerim üç kutu: başlık ve `-` aynı düşey hizada, biraz sağa (#2576). */

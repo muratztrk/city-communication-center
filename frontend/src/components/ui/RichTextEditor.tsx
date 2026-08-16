@@ -301,10 +301,10 @@ export function RichTextEditor({
               onClick={() => runCommand(command)}
             >
               {Icon ? (
-                <Icon className="size-4" />
+                <Icon className="size-3.5" />
               ) : (
                 <span
-                  className={`inline-flex min-w-[1rem] items-center justify-center text-sm font-bold leading-none ${
+                  className={`inline-flex min-w-[1rem] items-center justify-center text-[13px] font-bold leading-none ${
                     command === 'underline' ? 'underline' : ''
                   }`}
                 >

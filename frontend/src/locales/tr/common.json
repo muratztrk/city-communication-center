@@ -1889,6 +1889,7 @@
       "citizenNamePhone": "Vatandaş Adı / Telefon No",
       "citizenAddressInfo": "Vatandaş Adres Bilgisi",
       "viewAddress": "Adresi Gör",
+      "viewCoordinates": "Konumu Gör",
       "requestLocationCreator": "Talep Yeri / Oluşturan",
       "requestRouter": "Talebi Yönlendiren",
       "requestLocation": "Talep Yeri",

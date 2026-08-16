@@ -58,6 +58,7 @@ import {
 } from '../utils/citizenRequests'
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
+import { mapsLinkFromLatLng } from '../utils/coordinates'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
@@ -1635,6 +1636,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       street={job.street}
       streetNo={job.streetNo}
       openAddress={job.openAddress}
+      coordinates={mapsLinkFromLatLng(job.latitude, job.longitude)}
     />
   )
 

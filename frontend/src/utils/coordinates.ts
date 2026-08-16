@@ -6,6 +6,13 @@ export function formatCoordinatePair(latitude?: number | null, longitude?: numbe
   return `${latitude}, ${longitude}`
 }
 
+export function mapsLinkFromLatLng(latitude?: number | null, longitude?: number | null): string {
+  if (latitude == null || longitude == null || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+    return ''
+  }
+  return `https://www.google.com/maps?q=${encodeURIComponent(`${latitude},${longitude}`)}`
+}
+
 function finitePair(rawLat: string, rawLng: string): { latitude: number; longitude: number } | null {
   const latitude = Number(rawLat.replace(',', '.'))
   const longitude = Number(rawLng.replace(',', '.'))

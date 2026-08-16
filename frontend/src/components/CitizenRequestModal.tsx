@@ -493,8 +493,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           street: normalizeTitleCaseField(mapsAddress.street),
           streetNo: mapsAddress.streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(openAddress),
-          latitude: parsedCoordinates?.latitude ?? null,
-          longitude: parsedCoordinates?.longitude ?? null,
+          latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude ?? null,
+          longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude ?? null,
           targetDepartmentIds: [targetDepartmentId],
         })
         await api.updateSocialMessage(message.socialMessageId, {
@@ -502,8 +502,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           citizenHandle: trimmedHandle,
           content: description.trim(),
           category: message.category ?? undefined,
-          latitude: parsedCoordinates?.latitude,
-          longitude: parsedCoordinates?.longitude,
+          latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude,
+          longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude,
         })
         if (pendingFiles.length > 0) {
           await uploadPendingFiles(editJobId)
@@ -522,8 +522,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           citizenHandle: trimmedPhone.length === 10 ? `90${trimmedPhone}` : trimmedPhone,
           content: description.trim(),
           category: message.category ?? undefined,
-          latitude: parsedCoordinates?.latitude,
-          longitude: parsedCoordinates?.longitude,
+          latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude,
+          longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude,
           citizenConversationId: citizenConversationId ?? undefined,
         })
       } else {
@@ -532,8 +532,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           citizenHandle: trimmedHandle,
           content: description.trim(),
           category: message.category ?? undefined,
-          latitude: parsedCoordinates?.latitude,
-          longitude: parsedCoordinates?.longitude,
+          latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude,
+          longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude,
         })
       }
 
@@ -551,6 +551,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         street: normalizeTitleCaseField(mapsAddress.street),
         streetNo: mapsAddress.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(openAddress),
+        latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude ?? null,
+        longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude ?? null,
         citizenName: trimmedHandle,
         citizenPhone: trimmedPhone,
       })
@@ -559,8 +561,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         citizenHandle: trimmedHandle,
         content: description.trim(),
         category: message.category ?? undefined,
-        latitude: parsedCoordinates?.latitude,
-        longitude: parsedCoordinates?.longitude,
+        latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude,
+        longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude,
       })
       if (pendingFiles.length > 0) {
         await uploadPendingFiles(job.jobId)

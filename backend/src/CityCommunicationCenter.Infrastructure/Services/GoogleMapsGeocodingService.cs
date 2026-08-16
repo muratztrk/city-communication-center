@@ -22,27 +22,32 @@ public sealed class GoogleMapsGeocodingService : IGoogleMapsGeocodingService
         _logger = logger;
     }
 
-    public async Task<GoogleMapsReverseAddress?> ReverseAsync(
+    public Task<GoogleMapsReverseAddress?> ReverseAsync(
         double latitude,
         double longitude,
         CancellationToken cancellationToken)
+        => FetchAsync(
+            $"latlng={latitude.ToString(CultureInfo.InvariantCulture)},{longitude.ToString(CultureInfo.InvariantCulture)}",
+            cancellationToken);
+
+    public Task<GoogleMapsReverseAddress?> GeocodeQueryAsync(string query, CancellationToken cancellationToken)
+    {
+        var trimmed = query.Trim();
+        if (trimmed.Length == 0) return Task.FromResult<GoogleMapsReverseAddress?>(null);
+        return FetchAsync($"address={Uri.EscapeDataString(trimmed)}", cancellationToken);
+    }
+
+    private async Task<GoogleMapsReverseAddress?> FetchAsync(string query, CancellationToken cancellationToken)
     {
         var apiKey = _options.Value.ApiKey?.Trim() ?? string.Empty;
-        if (apiKey.Length == 0)
-        {
-            return null;
-        }
+        if (apiKey.Length == 0) return null;
 
-        var url =
-            $"https://maps.googleapis.com/maps/api/geocode/json?latlng={latitude.ToString(CultureInfo.InvariantCulture)},{longitude.ToString(CultureInfo.InvariantCulture)}&language=tr&key={Uri.EscapeDataString(apiKey)}";
+        var url = $"https://maps.googleapis.com/maps/api/geocode/json?{query}&language=tr&key={Uri.EscapeDataString(apiKey)}";
         try
         {
             var client = _httpClientFactory.CreateClient(HttpClientName);
             using var response = await client.GetAsync(url, cancellationToken);
-            if (!response.IsSuccessStatusCode)
-            {
-                return null;
-            }
+            if (!response.IsSuccessStatusCode) return null;
 
             await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
             using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
@@ -54,8 +59,16 @@ public sealed class GoogleMapsGeocodingService : IGoogleMapsGeocodingService
             string neighborhood = "";
             string street = "";
             string streetNo = "";
+            double? latitude = null;
+            double? longitude = null;
             foreach (var result in results.EnumerateArray())
             {
+                if (latitude is null && TryReadLocation(result, out var lat, out var lng))
+                {
+                    latitude = lat;
+                    longitude = lng;
+                }
+
                 if (!result.TryGetProperty("address_components", out var components) || components.ValueKind != JsonValueKind.Array)
                 {
                     continue;
@@ -78,24 +91,41 @@ public sealed class GoogleMapsGeocodingService : IGoogleMapsGeocodingService
                     }
                 }
 
-                if (neighborhood.Length > 0 && street.Length > 0 && streetNo.Length > 0)
+                if (neighborhood.Length > 0 && street.Length > 0 && streetNo.Length > 0 && latitude is not null)
                 {
                     break;
                 }
             }
 
-            if (neighborhood.Length == 0 && street.Length == 0 && streetNo.Length == 0)
+            if (neighborhood.Length == 0 && street.Length == 0 && streetNo.Length == 0 && latitude is null)
             {
                 return null;
             }
 
-            return new GoogleMapsReverseAddress(neighborhood, street, streetNo);
+            return new GoogleMapsReverseAddress(neighborhood, street, streetNo, latitude, longitude);
         }
         catch (Exception exception) when (exception is not OperationCanceledException)
         {
-            _logger.LogWarning(exception, "Google Maps ters geocode başarısız.");
+            _logger.LogWarning(exception, "Google Maps geocode başarısız.");
             return null;
         }
+    }
+
+    private static bool TryReadLocation(JsonElement result, out double latitude, out double longitude)
+    {
+        latitude = 0;
+        longitude = 0;
+        if (!result.TryGetProperty("geometry", out var geometry)
+            || !geometry.TryGetProperty("location", out var location)
+            || !location.TryGetProperty("lat", out var latEl)
+            || !location.TryGetProperty("lng", out var lngEl)
+            || !latEl.TryGetDouble(out latitude)
+            || !lngEl.TryGetDouble(out longitude))
+        {
+            return false;
+        }
+
+        return double.IsFinite(latitude) && double.IsFinite(longitude);
     }
 
     private static HashSet<string> TypesOf(JsonElement component)

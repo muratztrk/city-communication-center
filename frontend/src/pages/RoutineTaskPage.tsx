@@ -212,8 +212,8 @@ export function RoutineTaskPage() {
         street: normalizeTitleCaseField(mapsAddress.street),
         streetNo: mapsAddress.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(form.openAddress),
-        latitude: parsedCoords?.latitude,
-        longitude: parsedCoords?.longitude,
+        latitude: mapsAddress.latitude ?? parsedCoords?.latitude,
+        longitude: mapsAddress.longitude ?? parsedCoords?.longitude,
       }
 
       const task = isEditMode && taskId

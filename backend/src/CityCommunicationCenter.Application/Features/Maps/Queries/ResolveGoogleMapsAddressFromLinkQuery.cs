@@ -27,13 +27,17 @@ public sealed class ResolveGoogleMapsAddressFromLinkQueryHandler
         ResolveGoogleMapsAddressFromLinkQuery request,
         CancellationToken cancellationToken)
     {
+        var fromSearch = await _geocoding.GeocodeQueryAsync(request.Url ?? string.Empty, cancellationToken);
         var parsed = await _resolver.ResolveAsync(request.Url ?? string.Empty, cancellationToken);
-        if (parsed is null)
+        var latitude = parsed?.Latitude ?? fromSearch?.Latitude;
+        var longitude = parsed?.Longitude ?? fromSearch?.Longitude;
+        if (latitude is null || longitude is null)
         {
             return null;
         }
 
-        var google = await _geocoding.ReverseAsync(parsed.Value.Latitude, parsed.Value.Longitude, cancellationToken);
+        var google = fromSearch
+            ?? await _geocoding.ReverseAsync(latitude.Value, longitude.Value, cancellationToken);
         string neighborhood = google?.Neighborhood ?? "";
         string street = google?.Street ?? "";
         var districtId = request.DistrictId?.Trim() ?? "";
@@ -42,7 +46,7 @@ public sealed class ResolveGoogleMapsAddressFromLinkQueryHandler
             try
             {
                 var nearest = await _catalog.FindNearestAddressAsync(
-                    districtId, parsed.Value.Latitude, parsed.Value.Longitude, cancellationToken);
+                    districtId, latitude.Value, longitude.Value, cancellationToken);
                 if (!string.IsNullOrWhiteSpace(nearest?.Neighborhood)) neighborhood = nearest.Neighborhood;
                 if (!string.IsNullOrWhiteSpace(nearest?.Street)) street = nearest.Street;
             }
@@ -56,8 +60,8 @@ public sealed class ResolveGoogleMapsAddressFromLinkQueryHandler
         var streetNo = mapsStreetNo.Length is > 0 and <= StreetNoMaxLength ? mapsStreetNo : StreetNoNone;
 
         return new GoogleMapsAddressFromLinkResponse(
-            parsed.Value.Latitude,
-            parsed.Value.Longitude,
+            latitude.Value,
+            longitude.Value,
             neighborhood,
             street,
             streetNo);

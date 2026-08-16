@@ -21,7 +21,9 @@ public sealed record ConvertSocialMessageToJobCommand(
     string? StreetNo = null,
     string? OpenAddress = null,
     string? CitizenName = null,
-    string? CitizenPhone = null) : ICommand<JobSummaryResponse?>;
+    string? CitizenPhone = null,
+    double? Latitude = null,
+    double? Longitude = null) : ICommand<JobSummaryResponse?>;
 
 public sealed class ConvertSocialMessageToJobCommandValidator : AbstractValidator<ConvertSocialMessageToJobCommand>
 {
@@ -88,8 +90,8 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             TargetDepartmentIds: request.TargetDepartmentIds,
             SourceType: JobSourceType.SocialMessage.ToString(),
             SourceRefId: message.SocialMessageId,
-            Latitude: message.Latitude,
-            Longitude: message.Longitude,
+            Latitude: request.Latitude ?? message.Latitude,
+            Longitude: request.Longitude ?? message.Longitude,
             Neighborhood: request.Neighborhood,
             Street: request.Street,
             StreetNo: request.StreetNo,

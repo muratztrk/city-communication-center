@@ -1225,7 +1225,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Birim/Vatandaş talep haritasında Mahalle+Cadde+No (No ≠ Yok) doluysa pin CBS’den gelir; Konum Koordinatı kullanılmaz (#2720).
   No=Yok ve koordinat yoksa (veya link Google Maps değilse) marker yok, **Haritada Olmayanları Listele**’de durur (#2718/#2764).
   No=Yok + Google Maps koordinat, veya mahalle/cadde boş + koordinat: pin koordinata konur (#2719/#2764). CBS cadde noktası No=Yok iken kullanılmaz.
-  Mahalle+cadde boş + Google Maps linki: **oluştururken** sunucu Google Geocoding + CBS mahalle/cadde ve No (`street_number` veya Yok) yazar; pin link koordinatına konur (#2719). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
+  Mahalle+cadde boş + Google Maps linki: **oluştururken** sunucu orijinal linki Google `address=` ile arar, kısa linki koordinata çevirir, CBS mahalle/cadde ve No (`street_number` veya Yok) yazar; bulunan lat/lng kaydedilir ve haritada pin konur (#2719). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
   (#2654/#2681). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).
@@ -1704,7 +1704,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman
   beyaz çerçeve 1.7rem / iç logo 26px, +/- yığınının solunda **+/− arasındaki çizgi hizasında** (#2614/#2615/#2621/#2631/#2769).
-  Hover’da pegman sallanır (#2767).
+  Hover’da pegman bir kez öne kayar ve durur; mouse çıkınca eski konumuna döner (#2767).
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
   Düşük zoom native koyu mavi kapsama çerçevesi durur; erode/CSS ile inceltme geri alındı (#2622).

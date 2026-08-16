@@ -24,7 +24,9 @@ public sealed record ConvertSocialMessageToJobRequest(
     string? StreetNo = null,
     string? OpenAddress = null,
     string? CitizenName = null,
-    string? CitizenPhone = null);
+    string? CitizenPhone = null,
+    double? Latitude = null,
+    double? Longitude = null);
 
 public sealed record CreateSocialMessageRequest(
     string Channel,

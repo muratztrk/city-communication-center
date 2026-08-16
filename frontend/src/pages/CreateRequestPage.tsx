@@ -946,8 +946,8 @@ export function CreateRequestPage() {
           street: normalizeTitleCaseField(mapsAddress.street) ?? '',
           streetNo: mapsAddress.streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(internalForm.openAddress) ?? '',
-          latitude: internalCoords.latitude ?? null,
-          longitude: internalCoords.longitude ?? null,
+          latitude: mapsAddress.latitude ?? internalCoords.latitude ?? null,
+          longitude: mapsAddress.longitude ?? internalCoords.longitude ?? null,
         })
         await uploadPendingFiles(editJobId)
         invalidateJobs(queryClient, editJobId)
@@ -972,8 +972,8 @@ export function CreateRequestPage() {
         street: normalizeTitleCaseField(mapsAddress.street),
         streetNo: mapsAddress.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(internalForm.openAddress),
-        latitude: internalCoords.latitude,
-        longitude: internalCoords.longitude,
+        latitude: mapsAddress.latitude ?? internalCoords.latitude,
+        longitude: mapsAddress.longitude ?? internalCoords.longitude,
       })
       await uploadPendingFiles(job.jobId)
       invalidateJobs(queryClient, job.jobId)
@@ -1049,8 +1049,8 @@ export function CreateRequestPage() {
           street: normalizeTitleCaseField(mapsAddress.street) ?? '',
           streetNo: mapsAddress.streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(externalForm.openAddress) ?? '',
-          latitude: externalCoords.latitude ?? null,
-          longitude: externalCoords.longitude ?? null,
+          latitude: mapsAddress.latitude ?? externalCoords.latitude ?? null,
+          longitude: mapsAddress.longitude ?? externalCoords.longitude ?? null,
           targetDepartmentIds,
         })
         await uploadPendingFiles(editJobId)
@@ -1074,8 +1074,8 @@ export function CreateRequestPage() {
         street: normalizeTitleCaseField(mapsAddress.street),
         streetNo: mapsAddress.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(externalForm.openAddress),
-        latitude: externalCoords.latitude,
-        longitude: externalCoords.longitude,
+        latitude: mapsAddress.latitude ?? externalCoords.latitude,
+        longitude: mapsAddress.longitude ?? externalCoords.longitude,
       })
       await uploadPendingFiles(job.jobId)
       invalidateJobs(queryClient, job.jobId)
@@ -1207,8 +1207,8 @@ export function CreateRequestPage() {
           street: normalizeTitleCaseField(mapsAddress.street),
           streetNo: mapsAddress.streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(citizenForm.openAddress),
-          latitude: citizenCoords.latitude ?? null,
-          longitude: citizenCoords.longitude ?? null,
+          latitude: mapsAddress.latitude ?? citizenCoords.latitude ?? null,
+          longitude: mapsAddress.longitude ?? citizenCoords.longitude ?? null,
           targetDepartmentIds: [citizenForm.targetDepartmentId],
         })
         await api.updateSocialMessage(linkedSocialMessageId, {
@@ -1216,8 +1216,8 @@ export function CreateRequestPage() {
           citizenHandle: trimmedName,
           content: citizenDescription,
           category: citizenLabel.trim() || undefined,
-          latitude: citizenCoords.latitude,
-          longitude: citizenCoords.longitude,
+          latitude: mapsAddress.latitude ?? citizenCoords.latitude,
+          longitude: mapsAddress.longitude ?? citizenCoords.longitude,
         })
         const linkedMessage = await api.getSocialMessageById(linkedSocialMessageId)
         await syncCitizenProfileAddress(linkedMessage?.citizenConversationId)
@@ -1246,6 +1246,8 @@ export function CreateRequestPage() {
         street: normalizeTitleCaseField(mapsAddress.street),
         streetNo: mapsAddress.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(citizenForm.openAddress),
+        latitude: mapsAddress.latitude ?? citizenCoords.latitude ?? null,
+        longitude: mapsAddress.longitude ?? citizenCoords.longitude ?? null,
         citizenName: normalizedCitizenName,
         citizenPhone: trimmedPhone,
       }
@@ -1256,8 +1258,8 @@ export function CreateRequestPage() {
           citizenHandle: trimmedName,
           content: citizenDescription,
           category: citizenLabel.trim() || undefined,
-          latitude: citizenCoords.latitude,
-          longitude: citizenCoords.longitude,
+          latitude: mapsAddress.latitude ?? citizenCoords.latitude,
+          longitude: mapsAddress.longitude ?? citizenCoords.longitude,
         })
         const job = await api.convertSocialMessageToJob(linkedSocialMessageId, convertPayload)
         await uploadPendingFiles(job.jobId)
@@ -1270,8 +1272,8 @@ export function CreateRequestPage() {
           citizenHandle: trimmedName,
           content: citizenDescription,
           category: citizenLabel.trim() || undefined,
-          latitude: citizenCoords.latitude,
-          longitude: citizenCoords.longitude,
+          latitude: mapsAddress.latitude ?? citizenCoords.latitude,
+          longitude: mapsAddress.longitude ?? citizenCoords.longitude,
         })
         const job = await api.convertSocialMessageToJob(socialMessageId, convertPayload)
         await uploadPendingFiles(job.jobId)

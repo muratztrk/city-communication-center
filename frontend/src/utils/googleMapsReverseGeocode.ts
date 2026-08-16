@@ -19,6 +19,8 @@ export type MapsResolvedAddress = {
   neighborhood: string
   street: string
   streetNo: string
+  latitude?: number
+  longitude?: number
 }
 
 let geocoderLoader: Promise<google.maps.Geocoder | null> | null = null
@@ -119,7 +121,7 @@ export async function enrichEmptyAddressFromMapsLink(input: {
   }
 
   const fromApi = await api.resolveMapsAddressFromLink(input.coordinates, input.districtId)
-  if (fromApi && (fromApi.neighborhood || fromApi.street)) {
+  if (fromApi) {
     const mapsStreetNo = fromApi.streetNo.trim()
     return {
       neighborhood: fromApi.neighborhood,
@@ -127,12 +129,12 @@ export async function enrichEmptyAddressFromMapsLink(input: {
       streetNo: mapsStreetNo && mapsStreetNo.length <= ADDRESS_STREET_NO_MAX_LENGTH
         ? mapsStreetNo
         : STREET_NO_NONE,
+      latitude: fromApi.latitude,
+      longitude: fromApi.longitude,
     }
   }
 
-  const parsed = fromApi
-    ? { latitude: fromApi.latitude, longitude: fromApi.longitude }
-    : await resolveGoogleMapsCoordinatePair(input.coordinates)
+  const parsed = await resolveGoogleMapsCoordinatePair(input.coordinates)
   if (!parsed) {
     return { neighborhood: input.neighborhood, street: input.street, streetNo: input.streetNo }
   }
@@ -160,5 +162,7 @@ export async function enrichEmptyAddressFromMapsLink(input: {
     neighborhood: resolvedNeighborhood,
     street: resolvedStreet,
     streetNo,
+    latitude: parsed.latitude,
+    longitude: parsed.longitude,
   }
 }

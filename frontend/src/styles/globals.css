@@ -6781,32 +6781,21 @@
   .citizen-request-map-streetview-btn svg {
     display: block;
     transform-origin: 50% 88%;
+    transform: translate(0, 0) rotate(0deg);
+    transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   .citizen-request-map-streetview-btn:hover svg {
-    animation: citizen-request-map-pegman-wiggle 0.65s ease-in-out infinite;
-  }
-
-  @keyframes citizen-request-map-pegman-wiggle {
-    0%,
-    100% {
-      transform: rotate(0deg) translateY(0);
-    }
-    25% {
-      transform: rotate(-14deg) translateY(-1px);
-    }
-    50% {
-      transform: rotate(0deg) translateY(-2px);
-    }
-    75% {
-      transform: rotate(14deg) translateY(-1px);
-    }
+    transform: translate(3px, -2px) rotate(16deg);
   }
 
   @media (prefers-reduced-motion: reduce) {
+    .citizen-request-map-streetview-btn svg {
+      transition: none;
+    }
+
     .citizen-request-map-streetview-btn:hover svg {
-      animation: none;
-      transform: translateY(-1px);
+      transform: translate(2px, 0);
     }
   }
 

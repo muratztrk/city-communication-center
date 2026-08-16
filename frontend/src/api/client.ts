@@ -1362,6 +1362,8 @@ export const api = {
       openAddress?: string | null
       citizenName?: string | null
       citizenPhone?: string | null
+      latitude?: number | null
+      longitude?: number | null
     },
   ): Promise<JobSummary> {
     const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/convert`, {

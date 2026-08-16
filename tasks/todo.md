@@ -1,3 +1,7 @@
+## Round 939 — #2719
+
+- [x] `6a816550` — Talep oluştururken mahalle/cadde boş + Maps linki: adres otomatik doldurulur; No yoksa Yok.
+
 ## Round 938 — #2640/#2766
 
 - [x] `6a801665` — WA Cadde menüsü No tarafına biraz daha geniş (+96px).

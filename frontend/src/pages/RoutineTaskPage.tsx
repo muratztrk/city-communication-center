@@ -22,6 +22,7 @@ import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDro
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { formatCoordinatePair, parseGoogleMapsCoordinatePair } from '../utils/coordinates'
+import { enrichEmptyAddressFromMapsLink } from '../utils/googleMapsReverseGeocode'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import {
   ATTACHMENT_FILE_ACCEPT,
@@ -194,15 +195,22 @@ export function RoutineTaskPage() {
     try {
       const coords = form.coordinates.trim()
       const parsedCoords = coords ? parseGoogleMapsCoordinatePair(coords) : null
+      const mapsAddress = await enrichEmptyAddressFromMapsLink({
+        neighborhood: form.neighborhood,
+        street: form.street,
+        streetNo: form.streetNo,
+        coordinates: form.coordinates,
+        districtId,
+      })
       const payload = {
         title: normalizeTitleCaseField(form.title) ?? '',
         description: form.description.trim(),
         priority: form.priority,
         dueDateUtc: form.dueDateUtc ? new Date(form.dueDateUtc).toISOString() : null,
         notes: null,
-        neighborhood: normalizeTitleCaseField(form.neighborhood),
-        street: normalizeTitleCaseField(form.street),
-        streetNo: form.streetNo.trim() || null,
+        neighborhood: normalizeTitleCaseField(mapsAddress.neighborhood),
+        street: normalizeTitleCaseField(mapsAddress.street),
+        streetNo: mapsAddress.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(form.openAddress),
         latitude: parsedCoords?.latitude,
         longitude: parsedCoords?.longitude,

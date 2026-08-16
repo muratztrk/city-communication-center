@@ -23,6 +23,7 @@ import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 import { getLocale } from '../utils/localization'
 import { geocodeTireAddress, type LatLng } from '../utils/geocodeTireAddress'
 import { isAbsentStreetNo } from '../utils/addressLimits'
+import { streetNoFromGoogleMaps } from '../utils/googleMapsReverseGeocode'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { getGoogleMapsApiKey, isGoogleMapsConfigured } from '../utils/googleMaps'
@@ -203,22 +204,6 @@ function pinAddressKey(pin: ResolvedPin): string | null {
 
 function hasCoordinates(pin: CitizenDashboardMapPin): boolean {
   return pin.latitude != null && pin.longitude != null
-}
-
-/** Google reverse geocode: kapı no (street_number); yoksa null (#2719). */
-async function streetNoFromGoogleMaps(lat: number, lng: number): Promise<string | null> {
-  if (typeof google === 'undefined' || !google.maps?.Geocoder) return null
-  try {
-    const response = await new google.maps.Geocoder().geocode({ location: { lat, lng } })
-    for (const result of response.results ?? []) {
-      const streetNo = result.address_components?.find(component => component.types.includes('street_number'))
-      const value = streetNo?.long_name?.trim()
-      if (value) return value
-    }
-  } catch {
-    return null
-  }
-  return null
 }
 
 function hasCompleteCbsAddress(pin: CitizenDashboardMapPin): boolean {

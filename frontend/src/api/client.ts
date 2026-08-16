@@ -569,6 +569,23 @@ export const api = {
     return response.json() as Promise<{ latitude: number; longitude: number; approximate: boolean } | null>
   },
 
+  async getIzmirCbsNearest(
+    districtId: string,
+    latitude: number,
+    longitude: number,
+  ): Promise<{ neighborhood: string; street: string } | null> {
+    const params = new URLSearchParams({
+      districtId,
+      latitude: String(latitude),
+      longitude: String(longitude),
+    })
+    const response = await fetchWithCredentials(`${API_BASE}/izmir-cbs/nearest?${params}`, {
+      headers: await getAuthHeaders(),
+    })
+    if (!response.ok) return null
+    return response.json() as Promise<{ neighborhood: string; street: string } | null>
+  },
+
   async fillJobCbsAddressFromCoordinates(jobId: string, districtId: string, streetNo?: string | null): Promise<boolean> {
     const params = new URLSearchParams({ districtId })
     if (streetNo?.trim()) params.set('streetNo', streetNo.trim())

@@ -43,6 +43,7 @@ import {
 } from '../utils/textNormalization'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatCoordinatePair, parseGoogleMapsCoordinatePair } from '../utils/coordinates'
+import { enrichEmptyAddressFromMapsLink } from '../utils/googleMapsReverseGeocode'
 import {
   ATTACHMENT_FILE_ACCEPT,
   attachmentFileExtension,
@@ -924,6 +925,13 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
+      const mapsAddress = await enrichEmptyAddressFromMapsLink({
+        neighborhood: internalForm.neighborhood,
+        street: internalForm.street,
+        streetNo: internalForm.streetNo,
+        coordinates: internalForm.coordinates,
+        districtId,
+      })
       const internalTitle = ensureLeadingCapitalTr(internalForm.title.trim())
       const internalDescription = ensureLeadingCapitalRichText(internalForm.description.trim())
       if (editJobId) {
@@ -934,9 +942,9 @@ export function CreateRequestPage() {
           startDateUtc: null,
           dueDateUtc: toApiDueDateTime(internalForm.dueDateUtc),
           isProject: canSetInternalProject ? internalForm.isProject : undefined,
-          neighborhood: internalForm.neighborhood || '',
-          street: normalizeTitleCaseField(internalForm.street) ?? '',
-          streetNo: internalForm.streetNo.trim() || null,
+          neighborhood: mapsAddress.neighborhood || '',
+          street: normalizeTitleCaseField(mapsAddress.street) ?? '',
+          streetNo: mapsAddress.streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(internalForm.openAddress) ?? '',
           latitude: internalCoords.latitude ?? null,
           longitude: internalCoords.longitude ?? null,
@@ -960,9 +968,9 @@ export function CreateRequestPage() {
         isProject: Boolean(projectOwnerId),
         dueDateUtc: toApiDueDateTime(internalForm.dueDateUtc),
         sourceType: 'InternalRequest',
-        neighborhood: internalForm.neighborhood || null,
-        street: normalizeTitleCaseField(internalForm.street),
-        streetNo: internalForm.streetNo.trim() || null,
+        neighborhood: mapsAddress.neighborhood || null,
+        street: normalizeTitleCaseField(mapsAddress.street),
+        streetNo: mapsAddress.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(internalForm.openAddress),
         latitude: internalCoords.latitude,
         longitude: internalCoords.longitude,
@@ -1018,6 +1026,13 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
+      const mapsAddress = await enrichEmptyAddressFromMapsLink({
+        neighborhood: externalForm.neighborhood,
+        street: externalForm.street,
+        streetNo: externalForm.streetNo,
+        coordinates: externalForm.coordinates,
+        districtId,
+      })
       const targetDepartmentIds = [externalForm.targetDepartmentId]
       // Talep başlığı / açıklama: yalnız ilk harf büyük (#6a6f496e) — title-case değil.
       const externalTitle = ensureLeadingCapitalTr(externalForm.title.trim())
@@ -1030,9 +1045,9 @@ export function CreateRequestPage() {
           startDateUtc: toApiDateTime(externalForm.startDateUtc),
           dueDateUtc: toApiDueDateTime(externalForm.dueDateUtc),
           isProject: isReporter && externalForm.isProject,
-          neighborhood: normalizeTitleCaseField(externalForm.neighborhood) ?? '',
-          street: normalizeTitleCaseField(externalForm.street) ?? '',
-          streetNo: externalForm.streetNo.trim() || null,
+          neighborhood: normalizeTitleCaseField(mapsAddress.neighborhood) ?? '',
+          street: normalizeTitleCaseField(mapsAddress.street) ?? '',
+          streetNo: mapsAddress.streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(externalForm.openAddress) ?? '',
           latitude: externalCoords.latitude ?? null,
           longitude: externalCoords.longitude ?? null,
@@ -1055,9 +1070,9 @@ export function CreateRequestPage() {
         dueDateUtc: toApiDueDateTime(externalForm.dueDateUtc),
         targetDepartmentIds,
         sourceType: 'Manual',
-        neighborhood: normalizeTitleCaseField(externalForm.neighborhood),
-        street: normalizeTitleCaseField(externalForm.street),
-        streetNo: externalForm.streetNo.trim() || null,
+        neighborhood: normalizeTitleCaseField(mapsAddress.neighborhood),
+        street: normalizeTitleCaseField(mapsAddress.street),
+        streetNo: mapsAddress.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(externalForm.openAddress),
         latitude: externalCoords.latitude,
         longitude: externalCoords.longitude,
@@ -1171,6 +1186,13 @@ export function CreateRequestPage() {
     }
     const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
     try {
+      const mapsAddress = await enrichEmptyAddressFromMapsLink({
+        neighborhood: citizenForm.neighborhood,
+        street: citizenForm.street,
+        streetNo: citizenForm.streetNo,
+        coordinates: citizenForm.coordinates,
+        districtId,
+      })
       if (editJobId && linkedSocialMessageId) {
         await api.updateJob(editJobId, {
           title: citizenTitle,
@@ -1181,9 +1203,9 @@ export function CreateRequestPage() {
           isProject: false,
           citizenName: normalizedCitizenName,
           citizenPhone: trimmedPhone,
-          neighborhood: citizenForm.neighborhood || null,
-          street: normalizeTitleCaseField(citizenForm.street),
-          streetNo: citizenForm.streetNo.trim() || null,
+          neighborhood: mapsAddress.neighborhood || null,
+          street: normalizeTitleCaseField(mapsAddress.street),
+          streetNo: mapsAddress.streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(citizenForm.openAddress),
           latitude: citizenCoords.latitude ?? null,
           longitude: citizenCoords.longitude ?? null,
@@ -1220,9 +1242,9 @@ export function CreateRequestPage() {
         isProject: false,
         startDateUtc: toApiDateTime(citizenForm.startDateUtc),
         dueDateUtc: toApiDueDateTime(citizenForm.dueDateUtc),
-        neighborhood: citizenForm.neighborhood || null,
-        street: normalizeTitleCaseField(citizenForm.street),
-        streetNo: citizenForm.streetNo.trim() || null,
+        neighborhood: mapsAddress.neighborhood || null,
+        street: normalizeTitleCaseField(mapsAddress.street),
+        streetNo: mapsAddress.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(citizenForm.openAddress),
         citizenName: normalizedCitizenName,
         citizenPhone: trimmedPhone,

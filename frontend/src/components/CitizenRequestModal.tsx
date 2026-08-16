@@ -29,6 +29,7 @@ import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatCoordinatePair, parseGoogleMapsCoordinatePair } from '../utils/coordinates'
+import { enrichEmptyAddressFromMapsLink } from '../utils/googleMapsReverseGeocode'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
 import {
@@ -473,6 +474,13 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     const trimmedHandle = citizenHandle.trim()
     const trimmedTitle = title.trim() || trimmedHandle
     try {
+      const mapsAddress = await enrichEmptyAddressFromMapsLink({
+        neighborhood,
+        street,
+        streetNo,
+        coordinates,
+        districtId,
+      })
       if (isEditMode && editJobId) {
         await api.updateJob(editJobId, {
           title: trimmedTitle,
@@ -483,9 +491,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           isProject: false,
           citizenName: trimmedHandle,
           citizenPhone: trimmedPhone,
-          neighborhood: neighborhood || null,
-          street: normalizeTitleCaseField(street),
-          streetNo: streetNo.trim() || null,
+          neighborhood: mapsAddress.neighborhood || null,
+          street: normalizeTitleCaseField(mapsAddress.street),
+          streetNo: mapsAddress.streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(openAddress),
           latitude: parsedCoordinates?.latitude ?? null,
           longitude: parsedCoordinates?.longitude ?? null,
@@ -541,9 +549,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         isProject: false,
         startDateUtc: toApiDateTime(startDateUtc),
         dueDateUtc: toApiDateTime(dueDateUtc),
-        neighborhood: neighborhood || null,
-        street: normalizeTitleCaseField(street),
-        streetNo: streetNo.trim() || null,
+        neighborhood: mapsAddress.neighborhood || null,
+        street: normalizeTitleCaseField(mapsAddress.street),
+        streetNo: mapsAddress.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(openAddress),
         citizenName: trimmedHandle,
         citizenPhone: trimmedPhone,

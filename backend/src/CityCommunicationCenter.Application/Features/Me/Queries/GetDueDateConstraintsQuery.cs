@@ -10,15 +10,18 @@ public sealed class GetDueDateConstraintsQueryHandler : IQueryHandler<GetDueDate
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ITenantWorkingHoursService _workingHours;
+    private readonly ISlaCalculatorService _slaCalculator;
 
     public GetDueDateConstraintsQueryHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
-        ITenantWorkingHoursService workingHours)
+        ITenantWorkingHoursService workingHours,
+        ISlaCalculatorService slaCalculator)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _workingHours = workingHours;
+        _slaCalculator = slaCalculator;
     }
 
     public async ValueTask<DueDateConstraintsResponse> Handle(
@@ -26,7 +29,10 @@ public sealed class GetDueDateConstraintsQueryHandler : IQueryHandler<GetDueDate
         CancellationToken cancellationToken)
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
-        var excludeWeekends = await ReadExcludeWeekendsAsync(tenantId, cancellationToken);
+        var setting = await _dbContext.TenantSettings
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
+        var excludeWeekends = ReadExcludeWeekends(setting);
         if (!excludeWeekends)
             return new DueDateConstraintsResponse(false, null);
 
@@ -35,18 +41,20 @@ public sealed class GetDueDateConstraintsQueryHandler : IQueryHandler<GetDueDate
         if (localNow.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday)
             return new DueDateConstraintsResponse(true, null);
 
-        var mondayStart = await ResolveMondayStartAsync(tenantId, cancellationToken);
+        var mondayStartHm = await ResolveMondayStartAsync(tenantId, cancellationToken);
         var daysUntilMonday = localNow.DayOfWeek == DayOfWeek.Saturday ? 2 : 1;
-        var monday = localNow.Date.AddDays(daysUntilMonday);
-        return new DueDateConstraintsResponse(true, $"{monday:yyyy-MM-dd}T{mondayStart}");
+        var mondayDate = localNow.Date.AddDays(daysUntilMonday);
+        var mondayLocal = CombineLocalDateAndTime(mondayDate, mondayStartHm);
+        var mondayStart = new DateTimeOffset(mondayLocal, tz.GetUtcOffset(mondayLocal));
+        var slaHours = setting is { DefaultSlaHours: > 0 } ? setting.DefaultSlaHours : 48;
+        var dueUtc = await _slaCalculator.CalculateDueDateAsync(
+            mondayStart.ToUniversalTime(), slaHours, tenantId, departmentId: null, cancellationToken);
+        var dueLocal = TimeZoneInfo.ConvertTime(dueUtc, tz);
+        return new DueDateConstraintsResponse(true, $"{dueLocal:yyyy-MM-ddTHH:mm}");
     }
 
-    private async Task<bool> ReadExcludeWeekendsAsync(Guid tenantId, CancellationToken cancellationToken)
+    private static bool ReadExcludeWeekends(Domain.Entities.TenantSetting? setting)
     {
-        var setting = await _dbContext.TenantSettings
-            .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
-
         if (setting?.SlaWeekendSettingsJson is null)
             return true;
 
@@ -59,6 +67,21 @@ public sealed class GetDueDateConstraintsQueryHandler : IQueryHandler<GetDueDate
         {
             return true;
         }
+    }
+
+    private static DateTime CombineLocalDateAndTime(DateTime date, string hm)
+    {
+        var hour = 8;
+        var minute = 30;
+        if (hm.Length >= 5
+            && int.TryParse(hm.AsSpan(0, 2), out var parsedHour)
+            && int.TryParse(hm.AsSpan(3, 2), out var parsedMinute))
+        {
+            hour = parsedHour;
+            minute = parsedMinute;
+        }
+
+        return new DateTime(date.Year, date.Month, date.Day, hour, minute, 0, DateTimeKind.Unspecified);
     }
 
     private async Task<string> ResolveMondayStartAsync(Guid tenantId, CancellationToken cancellationToken)

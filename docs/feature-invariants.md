@@ -1342,7 +1342,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yöneticisi detay Süreç'te `Onay Bekleyen` yanında `Değiştir` görür.
 - **Talep son tarihi min + onay bekleyen overdue (card #1819):** Manuel Son Tarih seçimi
   (oluşturma + Değiştir) en erken `şimdi + 2 saat`. Hafta sonu SLA durduruluyorsa Cmt/Paz
-  oluştururken/seçerken en erken sonraki Pazartesi mesai başlangıcı (varsayılan 08:30, #2706).
+  oluştururken/seçerken en erken sonraki Pazartesi mesai + varsayılan SLA saat
+  (varsayılan 08:30 + 48s, #2706).
   Onay bekleyen (`PendingOwnerApproval` /
   `PendingExternalApproval` / `PendingApproval`) talepler aynı gün içinde saat aşımında
   "Geciken" sayılmaz; takvim günü değişince overdue olur.

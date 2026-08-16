@@ -66,11 +66,12 @@ export function laterPickerValue(a: string, b?: string | null): string {
 
 /**
  * Hafta sonu SLA durduruluyorsa (Ayarlar), Cmt/Paz oluştururken Son Tarih en erken
- * sonraki Pazartesi mesai başlangıcı (#2706).
+ * sonraki Pazartesi mesai + varsayılan SLA saat (#2706).
  */
 export function weekendSlaDueDateFloor(
   excludeWeekends: boolean,
   mondayStartHm = '08:30',
+  slaHours = 48,
   now = new Date(),
 ): string | null {
   if (!excludeWeekends) return null
@@ -78,11 +79,22 @@ export function weekendSlaDueDateFloor(
   if (day !== 0 && day !== 6) return null
   const daysUntilMonday = day === 6 ? 2 : 1
   const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysUntilMonday)
-  const y = monday.getFullYear()
-  const m = String(monday.getMonth() + 1).padStart(2, '0')
-  const d = String(monday.getDate()).padStart(2, '0')
   const hm = /^\d{2}:\d{2}/.test(mondayStartHm) ? mondayStartHm.slice(0, 5) : '08:30'
-  return `${y}-${m}-${d}T${hm}`
+  const [hour = 8, minute = 30] = hm.split(':').map(Number)
+  monday.setHours(hour, minute, 0, 0)
+  let remaining = Math.max(slaHours, 0)
+  const cursor = new Date(monday)
+  while (remaining > 0) {
+    cursor.setHours(cursor.getHours() + 1)
+    const weekday = cursor.getDay()
+    if (weekday !== 0 && weekday !== 6) remaining -= 1
+  }
+  const y = cursor.getFullYear()
+  const m = String(cursor.getMonth() + 1).padStart(2, '0')
+  const d = String(cursor.getDate()).padStart(2, '0')
+  const hh = String(cursor.getHours()).padStart(2, '0')
+  const mm = String(cursor.getMinutes()).padStart(2, '0')
+  return `${y}-${m}-${d}T${hh}:${mm}`
 }
 
 export function earliestDueDatePickerValue(hoursFromNow = 2, pickerValue?: string | null, absoluteMin?: string | null): string {

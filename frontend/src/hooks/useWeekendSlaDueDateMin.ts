@@ -3,7 +3,7 @@ import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { weekendSlaDueDateFloor } from '../utils/dateTimePicker'
 
-/** Hafta sonu SLA durduruluyorsa Son Tarih tabanı (Pazartesi mesai) — #2706. */
+/** Hafta sonu SLA durduruluyorsa Son Tarih tabanı (Pazartesi mesai + varsayılan SLA) — #2706. */
 export function useWeekendSlaDueDateMin(): string | null {
   const { data } = useQuery({
     queryKey: queryKeys.settings.dueDateConstraints(),

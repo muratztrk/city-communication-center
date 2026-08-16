@@ -684,18 +684,21 @@ export function CreateRequestPage() {
             }
           }}
           onDragOver={event => event.preventDefault()}
-          onDrop={event => {
+            onDrop={event => {
             event.preventDefault()
             if (saving) return
             setFileError(null)
             const incoming = Array.from(event.dataTransfer.files)
+            let accepted = false
             setPendingFiles(prev => {
               const err = validatePendingBatch(prev, incoming)
               if (err) { setFileError(err); return prev }
               setFileError(null)
-              fileProgress.holdAtZero()
+              accepted = true
               return [...prev, ...incoming]
             })
+            if (accepted) fileProgress.start(sumFileSizes(incoming) || 400)
+            else fileProgress.stop()
           }}
         >
           <Paperclip className="mb-1 size-4 text-slate-400" />
@@ -711,13 +714,16 @@ export function CreateRequestPage() {
             onChange={event => {
               setFileError(null)
               const incoming = Array.from(event.target.files ?? [])
+              let accepted = false
               setPendingFiles(prev => {
                 const err = validatePendingBatch(prev, incoming)
                 if (err) { setFileError(err); return prev }
                 setFileError(null)
-                fileProgress.holdAtZero()
+                accepted = true
                 return [...prev, ...incoming]
               })
+              if (accepted) fileProgress.start(sumFileSizes(incoming) || 400)
+              else fileProgress.stop()
               if (fileInputRef.current) fileInputRef.current.value = ''
             }}
           />
@@ -784,6 +790,8 @@ export function CreateRequestPage() {
         })
       }
     } finally {
+      fileProgress.report(100)
+      await new Promise(resolve => window.setTimeout(resolve, 320))
       fileProgress.stop()
     }
   }

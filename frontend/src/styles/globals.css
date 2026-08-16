@@ -3544,11 +3544,6 @@
     font-size: 0.82rem;
   }
 
-  /* Mahalle/Cadde/No kapalı kutu punto = WA Vatandaş Bilgileri menü listesi (#2730 reopen). */
-  .citizen-request-form .field-select.citizen-request-address-select {
-    font-size: 0.875rem;
-  }
-
   .citizen-request-form .helper-copy {
     font-size: 0.72rem;
   }

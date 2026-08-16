@@ -117,6 +117,8 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
         pickerProgress.report(done)
       }
     } finally {
+      pickerProgress.report(100)
+      await new Promise(resolve => window.setTimeout(resolve, 320))
       pickerProgress.stop()
       setUploading(false)
       setUploadProgress(0)

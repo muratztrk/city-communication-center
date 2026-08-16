@@ -11,6 +11,10 @@ import { ChannelIcon } from '../ui/channel-icon'
 import { StatusPill } from '../ui/status-pill'
 import { GridStatusLabel } from '../ui/GridStatusLabel'
 import { TablePagination } from '../ui/table-pagination'
+import { FilterableTh } from '../ui/FilterableTh'
+import { ClearPieFilterLink } from '../ui/ClearPieFilterLink'
+import { useColumnFilters } from '../../hooks/useColumnFilters'
+import { useSortable } from '../../hooks/useSortable'
 import type { CitizenConversationTicket } from '../../types/platform'
 import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, getCitizenRequestStatusTone } from '../../utils/citizenRequests'
 import { DetailModalTitle } from '../../utils/detailModalTitle'
@@ -98,21 +102,14 @@ function printCitizenTickets(
       <td class="col-status">${escape(status)}</td>
     </tr>`
     }
-    return replaceUnitWithCitizenContact
-      ? `<tr>
+    const channelLabel = ticket.channel ? escape(getSocialChannelLabel(t, ticket.channel)) : '—'
+    return `<tr>
       <td>${index + 1}</td>
       <td class="col-no">${escape(formatVt(ticket))}</td>
       <td class="col-dept">${contactHtml}</td>
       <td class="col-date">${escape(date)}</td>
+      ${replaceUnitWithCitizenContact ? '' : `<td class="col-dept">${channelLabel}</td>`}
       <td class="col-title">${escape(ticket.title?.trim() || '—')}</td>
-      <td class="col-status">${escape(status)}</td>
-    </tr>`
-      : `<tr>
-      <td>${index + 1}</td>
-      <td class="col-no">${escape(formatVt(ticket))}</td>
-      <td class="col-title">${escape(ticket.title?.trim() || '—')}</td>
-      <td class="col-date">${escape(date)}</td>
-      <td class="col-dept">${escape(ticket.departmentName ?? '—')}</td>
       <td class="col-status">${escape(status)}</td>
     </tr>`
   }).join('')
@@ -151,19 +148,16 @@ function printCitizenTickets(
       <th class="col-seq">${escape(t('common.number', 'Sıra'))}</th>
       <th class="col-no">${isDepartmentMap
         ? escape(t('jobs.columns.requestNo', 'Talep No'))
-        : replaceUnitWithCitizenContact ? stackedRequestNo : escape(t('social.citizenRequestNo', 'Vatandaş Talep No'))}</th>
+        : stackedRequestNo}</th>
       ${isDepartmentMap
         ? `<th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
       <th class="col-dept">${escape(t('jobs.detail.requestLocation', 'Talep Yeri'))}</th>
       <th class="col-dept">${escape(t('social.destination', 'Gittiği Yer'))}</th>
       <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>`
-        : replaceUnitWithCitizenContact
-        ? `<th class="col-dept">${stackedCitizenContact}</th>
+        : `<th class="col-dept">${stackedCitizenContact}</th>
       <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
-      <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>`
-        : `<th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>
-      <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
-      <th class="col-dept">${escape(t('users.department', 'Birim'))}</th>`}
+      ${replaceUnitWithCitizenContact ? '' : `<th class="col-dept">${escape(t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı'))}</th>`}
+      <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>`}
       <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
     <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
@@ -201,20 +195,75 @@ export function CitizenDirectoryTicketsModal({
 }: CitizenDirectoryTicketsModalProps) {
   const { t } = useTranslation()
   const isDepartmentMap = layout === 'departmentMap'
+  const showCitizenContact = !isDepartmentMap
   const [ticketPage, setTicketPage] = useState(1)
   const [ticketPageSize, setTicketPageSize] = useState(10)
+  const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
+  const { filters, setFilter, matchesFilters, clearFilters, hasActiveFilters } = useColumnFilters()
+
+  const decoratedTickets = useMemo(() => tickets.map(ticket => ({
+    ...ticket,
+    requestNoText: formatVt(ticket),
+    citizenNameText: ticketCitizenName(ticket, citizen),
+    citizenPhoneText: formatCitizenPhoneDisplay(ticketCitizenPhone(ticket, citizen)),
+    channelLabel: ticket.channel ? getSocialChannelLabel(t, ticket.channel) : '',
+    titleText: (ticket.title ?? '').trim(),
+    statusLabel: ticket.jobStatus
+      ? getCitizenRequestStatusLabel(t, {
+        status: ticket.jobStatus,
+        dueDateUtc: ticket.dueDateUtc,
+        taskCount: ticket.openTaskCount ?? 0,
+      })
+      : '',
+    ownerLocationText: (ticket.ownerDepartmentName ?? ticket.departmentName ?? '').trim(),
+    destinationText: (ticket.destinationDepartmentName ?? ticket.departmentName ?? '').trim(),
+  })), [citizen, t, tickets])
 
   const sortedTickets = useMemo(() => {
-    return [...tickets].sort((a, b) => {
-      const yearA = a.citizenRequestNumberYear ?? 0
-      const yearB = b.citizenRequestNumberYear ?? 0
-      if (yearA !== yearB) return yearB - yearA
-      const numA = a.citizenRequestNumber ?? 0
-      const numB = b.citizenRequestNumber ?? 0
-      if (numA !== numB) return numB - numA
-      return new Date(b.receivedAtUtc).getTime() - new Date(a.receivedAtUtc).getTime()
-    })
-  }, [tickets])
+    const filtered = decoratedTickets.filter(row => matchesFilters(row, (key, item) => {
+      if (key === 'jobNumber') return item.requestNoText
+      if (key === 'citizenName') return `${item.citizenNameText} ${item.citizenPhoneText}`
+      if (key === 'receivedAtUtc') {
+        return item.receivedAtUtc
+          ? new Date(item.receivedAtUtc).toLocaleString(locale, {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })
+          : ''
+      }
+      if (key === 'channel') return item.channelLabel
+      if (key === 'title') return item.titleText
+      if (key === 'jobStatus') return item.statusLabel
+      if (key === 'ownerLocationText') return item.ownerLocationText
+      if (key === 'destinationText') return item.destinationText
+      return String((item as Record<string, unknown>)[key] ?? '')
+    }))
+    if (!sortKey) {
+      return [...filtered].sort((a, b) => {
+        const yearA = a.citizenRequestNumberYear ?? 0
+        const yearB = b.citizenRequestNumberYear ?? 0
+        if (yearA !== yearB) return yearB - yearA
+        const numA = a.citizenRequestNumber ?? 0
+        const numB = b.citizenRequestNumber ?? 0
+        if (numA !== numB) return numB - numA
+        return new Date(b.receivedAtUtc).getTime() - new Date(a.receivedAtUtc).getTime()
+      })
+    }
+    return sortItems(filtered)
+  }, [decoratedTickets, locale, matchesFilters, sortItems, sortKey])
+
+  function handleFilter(key: string, value: string) {
+    setFilter(key, value)
+    setTicketPage(1)
+  }
+
+  function handleSort(key: string) {
+    toggleSort(key)
+    setTicketPage(1)
+  }
 
   const ticketTotalCount = sortedTickets.length
   const ticketSafePage = Math.min(ticketPage, Math.max(1, Math.ceil(ticketTotalCount / ticketPageSize) || 1))
@@ -259,6 +308,13 @@ export function CitizenDirectoryTicketsModal({
           </div>
           <DetailModalHeaderBrand />
           <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
+            <ClearPieFilterLink
+              hasColumnFilters={hasActiveFilters}
+              onClearColumnFilters={() => {
+                clearFilters()
+                setTicketPage(1)
+              }}
+            />
             <Button
               type="button"
               size="lg"
@@ -294,33 +350,110 @@ export function CitizenDirectoryTicketsModal({
                     <thead>
                       <tr>
                         <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>
-                        <th>{isDepartmentMap
-                          ? t('jobs.columns.requestNo', 'Talep No')
-                          : t('social.citizenRequestNo', 'Vatandaş Talep No')}</th>
-                        {replaceUnitWithCitizenContact && !isDepartmentMap ? (
-                          <th className="dashboard-drilldown-citizen-th text-center">
+                        <FilterableTh
+                          filterKey="jobNumber"
+                          filterValue={filters.jobNumber ?? ''}
+                          onFilter={handleFilter}
+                          sortKey="jobNumber"
+                          currentSortKey={sortKey}
+                          sortDir={sortDir}
+                          onSort={handleSort}
+                        >
+                          {isDepartmentMap
+                            ? t('jobs.columns.requestNo', 'Talep No')
+                            : t('social.citizenRequestNo', 'Vatandaş Talep No')}
+                        </FilterableTh>
+                        {showCitizenContact ? (
+                          <FilterableTh
+                            className="dashboard-drilldown-citizen-th text-center"
+                            filterKey="citizenName"
+                            filterValue={filters.citizenName ?? ''}
+                            onFilter={handleFilter}
+                            sortKey="citizenName"
+                            currentSortKey={sortKey}
+                            sortDir={sortDir}
+                            onSort={handleSort}
+                          >
                             <span className="inline-flex flex-col items-center justify-center leading-tight text-center">
                               <span>{t('social.citizenName', 'Vatandaş Adı')}</span>
                               <span className="text-[0.9em] font-bold uppercase tracking-[0.06em]">
                                 {t('citizenMessageApproval.columns.citizenPhone', 'Telefon No')}
                               </span>
                             </span>
-                          </th>
+                          </FilterableTh>
                         ) : null}
-                        <th>{t('social.citizenRequestDateHeader', 'Talep Tarihi')}</th>
+                        <FilterableTh
+                          filterKey="receivedAtUtc"
+                          filterValue={filters.receivedAtUtc ?? ''}
+                          onFilter={handleFilter}
+                          sortKey="receivedAtUtc"
+                          currentSortKey={sortKey}
+                          sortDir={sortDir}
+                          onSort={handleSort}
+                          allowLetters
+                        >
+                          {t('social.citizenRequestDateHeader', 'Talep Tarihi')}
+                        </FilterableTh>
                         {isDepartmentMap ? (
                           <>
-                            <th>{t('jobs.detail.requestLocation', 'Talep Yeri')}</th>
-                            <th>{t('social.destination', 'Gittiği Yer')}</th>
+                            <FilterableTh
+                              filterKey="ownerLocationText"
+                              filterValue={filters.ownerLocationText ?? ''}
+                              onFilter={handleFilter}
+                              sortKey="ownerLocationText"
+                              currentSortKey={sortKey}
+                              sortDir={sortDir}
+                              onSort={handleSort}
+                            >
+                              {t('jobs.detail.requestLocation', 'Talep Yeri')}
+                            </FilterableTh>
+                            <FilterableTh
+                              filterKey="destinationText"
+                              filterValue={filters.destinationText ?? ''}
+                              onFilter={handleFilter}
+                              sortKey="destinationText"
+                              currentSortKey={sortKey}
+                              sortDir={sortDir}
+                              onSort={handleSort}
+                            >
+                              {t('social.destination', 'Gittiği Yer')}
+                            </FilterableTh>
                           </>
                         ) : replaceUnitWithCitizenContact ? null : (
-                          <th>{t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}</th>
+                          <FilterableTh
+                            filterKey="channel"
+                            filterValue={filters.channel ?? ''}
+                            onFilter={handleFilter}
+                            sortKey="channel"
+                            currentSortKey={sortKey}
+                            sortDir={sortDir}
+                            onSort={handleSort}
+                          >
+                            {t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı')}
+                          </FilterableTh>
                         )}
-                        <th>{t('jobs.columns.title', 'Talep Başlığı')}</th>
-                        {replaceUnitWithCitizenContact || isDepartmentMap ? null : (
-                          <th>{t('users.department', 'Birim')}</th>
-                        )}
-                        <th>{t('jobs.columns.status', 'Durum')}</th>
+                        <FilterableTh
+                          filterKey="title"
+                          filterValue={filters.title ?? ''}
+                          onFilter={handleFilter}
+                          sortKey="title"
+                          currentSortKey={sortKey}
+                          sortDir={sortDir}
+                          onSort={handleSort}
+                        >
+                          {t('jobs.columns.title', 'Talep Başlığı')}
+                        </FilterableTh>
+                        <FilterableTh
+                          filterKey="jobStatus"
+                          filterValue={filters.jobStatus ?? ''}
+                          onFilter={handleFilter}
+                          sortKey="jobStatus"
+                          currentSortKey={sortKey}
+                          sortDir={sortDir}
+                          onSort={handleSort}
+                        >
+                          {t('jobs.columns.status', 'Durum')}
+                        </FilterableTh>
                         <th className="text-center">{t('common.actions', 'İşlemler')}</th>
                       </tr>
                     </thead>
@@ -351,7 +484,7 @@ export function CitizenDirectoryTicketsModal({
                               </div>
                             ) : null}
                           </td>
-                          {replaceUnitWithCitizenContact ? (
+                          {showCitizenContact ? (
                             <td className="text-center">
                               <div className="dashboard-drilldown-citizen-stack inline-flex flex-col items-center leading-tight text-center">
                                 <div className="font-semibold text-slate-800">{ticketCitizenName(ticket, citizen) || '—'}</div>
@@ -388,15 +521,6 @@ export function CitizenDirectoryTicketsModal({
                             </td>
                           )}
                           <td className="font-semibold text-slate-800"><EmptyCell value={ticket.title} /></td>
-                          {replaceUnitWithCitizenContact || isDepartmentMap ? null : (
-                            <td className="max-w-[12rem]">
-                              {ticket.departmentName ? (
-                                <span className="block truncate">{ticket.departmentName}</span>
-                              ) : (
-                                <EmptyCell />
-                              )}
-                            </td>
-                          )}
                           <td>
                             {statusLabel && ticket.jobStatus ? (
                               <StatusPill className={getStatusPillClass(getCitizenRequestStatusTone({

@@ -250,7 +250,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yapışık); lightbox `document.body` portal + `z-[400]` ile detay modalının üstünde açılır (#2709/#2732).
   Detay popup'ta **Talep Bilgileri** altında Talep Ekleri satırı yalnız ek varsa görünür (#2734 reopen).
   **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle, üst değer satırının sağ kenarıyla aynı düşey hizadadır (değer kolonu `align-items: flex-end`; scrollbar-gutter ek kümesini içeri kaydırmaz) (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
-  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar %0 görünür; yüzde, dosya seçilip yükleme başlayınca ilerler. Picker %0 çubuğu seçim/yükleme boyunca tek kaynaktır (`report`); pencere focus timeout’u barı kapatmaz (#2728).
+  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar %0 görünür; dosya seçilince bekleyen ek `start()` ile yüzde ilerler, gerçek yüklemede `report` kullanılır (#2728).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -283,7 +283,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`CreateJobCommand`, card #1079).
 - **Talep Oluştur ek yükleme ilerlemesi:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının
   seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar
-  Dosya ekle tıklanınca %0’da görünür, yüzde yükleme başlayınca ilerler; bar yükleme boyunca `report` ile açık kalır (#2728 / #2510).
+  Dosya ekle tıklanınca %0’da görünür; seçilen bekleyen dosyada `start()` ile yüzde ilerler, kayıt sonrası XHR `report` ile devam eder (#2728).
   tüm dosyalar için birleşik yüzde gösterilir. Vatandaş create/edit akışı da seçili dosyaları
   oluşan job'a gerçekten yükler (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
@@ -620,8 +620,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
   footer input'ta tutulur.
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.
-- **Medya balon Talep Eki hizası (#2401/#2410):** modalda görsel+doküman gelen eklerde Önizle · İndir · Talep Eki
-  **aynı satırda** (Talep Eki İndir'in sağında). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
+- **Medya balon Talep Eki hizası (#2401/#2410/#2744):** modalda görsel+doküman gelen eklerde Ön İzle · İndir · Talep Eki
+  **aynı satırda** (Talep Eki İndir'in sağında); Vatandaş Talebi popup’ta butonlar biraz daha dar (`h-6` / `10px`). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
   gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5` (#2411 reopen). Bekleyen giden görsel önizleme
   yüksekliği kompakt `max-h-32`, normal `max-h-36`; görsel `w-full object-cover` (çerçeveyi
   yatay doldurur); giden görsel balonu `max-w-[min(58%,15.5rem)]` / kompakt `54%` (#2711 reopen).
@@ -1211,7 +1211,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
   Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
   WA Mahalle/Cadde/No arama ve liste punto aynı (0.875rem); liste küçültülmez (#2729).
-  WA **Vatandaş Talebi Oluştur** popup Mahalle/Cadde/No arama ve liste punto 0.875rem; kapalı kutu da aynı (`citizen-request-address-select`, #2730 reopen).
+  WA **Vatandaş Talebi Oluştur** popup Mahalle/Cadde/No punto, form `.field-select` (0.82rem) ile aynıdır; #2730 eşitleme geri alındı. WA profil **Vatandaş Bilgileri** menüsü 0.875rem kalır (#2729).
   Popup Konum Koordinatı Mahalle’nin **alt satırında** (Cadde/No ile aynı satırda değil) (#2741).
   Popup yüksekliği taban detay shell’den çok az daha fazladır (`detail-modal-shell--citizen-create`, #2742).
   WA Vatandaş Bilgileri ve Vatandaş Talebi Oluştur popup Cadde seçili metni oka kadar
@@ -1732,7 +1732,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
   Yanında **Haritada Olmayanları Listele** aynı popup; başlık **Haritada Konumu Olmayan Talepler** (#2737).
-  Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; etiketler nowrap, mobil butonlar biraz daha geniş (`flex-1`, #2738).
+  Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; etiketler nowrap, mobil butonlar biraz daha geniş ve biraz daha yüksek (`flex-1`, `min-h`, #2738).
   Liste popup başlığı title case’dir (ALL CAPS yok, `map-list-modal-title`) (#2740).
   Sütun filtresi varken yanıp sönen **Filtreyi sil** kapatma (X) solundadır (#2717).
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde
@@ -1810,7 +1810,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açık görev yoksa `İşleme Alındı`, detay popup ile aynı, #2628; overdue = `Yapılmakta` /
   `(Geciken)`, #2574).
   Harita aynı-adres popup'ında Birim yerine stacked Vatandaş Adı / Telefon No
-  (`replaceUnitWithCitizenContact`; dizin sayfası Birim kalır, #2630).
+  (`replaceUnitWithCitizenContact`). Dizin Detaylar popup’ında da Birim yok; VT No’dan sonra stacked
+  Vatandaş Adı / Telefon No; başlıklarda sıralama+filtre; yazdırmada Vatandaş/Talep No ve Adı/Telefon No alt alta (#2713).
   Harita popup kolon sırası: Sıra → VT No (kanal ikonu `size-3.5` yanında, Talep Kanalı sütunu yok)
   → stacked Vatandaş Adı / Telefon No → Talep Tarihi → Başlık → Durum (#2635/#2636).
   Harita Yazdır h1 ve VT No stacked `Vatandaş` / `Talep No`; Vatandaş Adı / Telefon No

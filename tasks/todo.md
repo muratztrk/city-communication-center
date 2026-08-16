@@ -1,3 +1,11 @@
+## Round 918 — #2744/#2730/#2738/#2728/#2713
+
+- [x] `6a819cee` — WA talep popup mesajında Ön İzle / İndir / Talep Eki butonları daha dar.
+- [x] `6a817465` — #2730 Mahalle/Cadde/No punto eşitlemesi geri alındı (form 0.82rem).
+- [x] `6a8185d3` — Mobil harita liste butonları biraz daha yüksek.
+- [x] `6a8172ef` — Talep Oluştur/WA bekleyen ek: seçimde bar %0’da kilitlenmez, `start()` ile ilerler.
+- [x] `6a81584b` — Dizin Detaylar: sıralama+filtre, Birim yok, Ad+Telefon VT No sonrası, yazdır stacked.
+
 ## Round 917 — #2717/#2743/#2683
 
 - [x] `6a815d5e` — Harita liste popup: Filtreyi sil, X’in solunda.

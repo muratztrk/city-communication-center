@@ -175,14 +175,17 @@ export function RoutineTaskPage() {
       const err = validateFile(file)
       if (err) { setFileError(err); return }
     }
+    let accepted = false
     setPendingFiles(prev => {
       if (exceedsAttachmentTotalLimit(sumFileSizes(prev), sumFileSizes(incoming))) {
         setFileError('Dosyaların toplam boyutu 5 MB\'ı aşamaz.')
         return prev
       }
+      accepted = true
       return [...prev, ...incoming]
     })
-    fileProgress.holdAtZero()
+    if (accepted) fileProgress.start(sumFileSizes(incoming) || 400)
+    else fileProgress.stop()
   }
 
   const executeSave = async () => {

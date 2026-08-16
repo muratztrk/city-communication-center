@@ -990,7 +990,9 @@ function ConversationDetail({
     setSending(true)
     try {
       if (pendingFile) {
+        fileProgress.start(pendingFile.size)
         await api.replySocialMessageAttachment(openTicket.socialMessageId, pendingFile, text, true)
+        fileProgress.stop()
       } else {
         await api.replySocialMessage(
           openTicket.socialMessageId,
@@ -1440,7 +1442,7 @@ function ConversationDetail({
                       }
                       setIsPinnedToBottom(true)
                       window.setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
-                      fileProgress.start(file.size)
+                      fileProgress.holdAtZero()
                     }
                     if (event.target) event.target.value = ''
                   }}
@@ -1466,7 +1468,10 @@ function ConversationDetail({
                 <UserQuickReplyAddButton onChanged={onUserQuickRepliesChanged} />
                 <button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    fileProgress.arm()
+                    fileInputRef.current?.click()
+                  }}
                   disabled={sending}
                   className="inline-flex h-[2.125rem] items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                 >

@@ -182,7 +182,7 @@ export function RoutineTaskPage() {
       }
       return [...prev, ...incoming]
     })
-    fileProgress.start(sumFileSizes(incoming))
+    fileProgress.holdAtZero()
   }
 
   const executeSave = async () => {
@@ -214,8 +214,10 @@ export function RoutineTaskPage() {
         ? await api.updateRoutineTask(taskId, payload)
         : await api.createRoutineTask(payload)
 
-      for (const file of pendingFiles) {
-        await api.uploadTaskAttachment(task.taskId, file)
+      for (const [index, file] of pendingFiles.entries()) {
+        await api.uploadTaskAttachment(task.taskId, file, percent => {
+          fileProgress.report(((index + percent / 100) / Math.max(pendingFiles.length, 1)) * 100)
+        })
       }
       invalidateTasks(queryClient, task.taskId, task.jobId)
       navigate('/my-tasks?view=pending')
@@ -408,7 +410,10 @@ export function RoutineTaskPage() {
                         type="button"
                         className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                         disabled={submitting}
-                        onClick={() => fileInputRef.current?.click()}
+                        onClick={() => {
+                          fileProgress.arm()
+                          fileInputRef.current?.click()
+                        }}
                       >
                         <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
                         {t('attachments.addFile', 'Dosya ekle')}

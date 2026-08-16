@@ -23,6 +23,8 @@ interface DateTimePickerProps {
   maxDateTime?: string
   /** Yalnızca tarih: saat UI yok, değer `YYYY-MM-DD`, tetikleyicide saat gösterilmez (card #2007). */
   dateOnly?: boolean
+  /** Takvim açılamaz; değer salt okunur (Görevlerim düzenleme başlangıç tarihi — #2736). */
+  disabled?: boolean
 }
 
 const DROPDOWN_WIDTH = 288  // w-72
@@ -62,7 +64,7 @@ function todayDateStr() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false, onClose, minDateTime, maxDateTime, dateOnly = false }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false, onClose, minDateTime, maxDateTime, dateOnly = false, disabled = false }: DateTimePickerProps) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState({ date: '', time: '' })
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
@@ -78,6 +80,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
   const maxDatePart = maxDateTime?.slice(0, 10) ?? ''
 
   const handleOpen = useCallback(() => {
+    if (disabled) return
     const now = new Date()
     const fallback = minDateTime && minDateTime.length >= 16
       ? minDateTime
@@ -101,7 +104,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
     }
     setYearPickerOpen(false)
     setOpen(true)
-  }, [minDateTime, value])
+  }, [disabled, minDateTime, value])
 
   useEffect(() => {
     if (!autoOpen || autoOpenedRef.current) return
@@ -227,17 +230,19 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
         id={id}
         type="button"
         onClick={handleOpen}
+        disabled={disabled}
         title={display || undefined}
         className={cn(
           'field-input flex w-full items-center gap-1.5 text-left',
           !display && 'text-[color:var(--color-muted-foreground)]',
-          value && 'pr-6',
+          value && !disabled && 'pr-6',
+          disabled && 'cursor-not-allowed bg-slate-100 text-slate-500',
         )}
       >
         <CalendarClock className="size-3.5 shrink-0 opacity-60" />
         <span className="min-w-0 flex-1 truncate">{display || placeholder}</span>
       </button>
-      {value && (
+      {value && !disabled && (
         <button
           type="button"
           onClick={e => { e.stopPropagation(); onChange('') }}

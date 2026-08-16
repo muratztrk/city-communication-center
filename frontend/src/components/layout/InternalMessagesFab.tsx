@@ -687,7 +687,10 @@ export function InternalMessagesFab() {
       const uploadFile = normalizedFileName === file.name
         ? file
         : new File([file], normalizedFileName, { type: file.type })
+      fileProgress.start(uploadFile.size)
       await api.uploadInternalMessageAttachment(result.message.internalMessageId, uploadFile)
+      fileProgress.stop()
+      fileProgress.stop()
       setDraft('')
       setPendingFile(null)
       await loadChat(activeChat.otherUserId)
@@ -936,12 +939,15 @@ export function InternalMessagesFab() {
                       return
                     }
                     setPendingFile(file)
-                    fileProgress.start(file.size)
+                    fileProgress.holdAtZero()
                   }}
                 />
                 <button
                   type="button"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => {
+                    fileProgress.arm()
+                    fileInputRef.current?.click()
+                  }}
                   disabled={sending}
                   className="inline-flex h-7 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
                 >

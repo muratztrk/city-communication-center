@@ -764,7 +764,6 @@
   .attachment-section--rich-view .attachment-rich-list > li {
     width: 100%;
     max-width: 100%;
-    justify-content: flex-end;
     border: 0 !important;
     background: transparent !important;
     padding: 0.2rem 0 !important;

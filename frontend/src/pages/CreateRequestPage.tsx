@@ -1,7 +1,6 @@
 import { Building2, FileText, Paperclip, Phone, Send, Workflow } from 'lucide-react'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -23,7 +22,7 @@ import {
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
-import { animateDeterminateProgress } from '../utils/animateDeterminateProgress'
+import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { AddressCoordinatesField, CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { useAuth } from '../context/AuthContext'
@@ -291,47 +290,13 @@ export function CreateRequestPage() {
   const [fileError, setFileError] = useState<string | null>(null)
   const [attachmentUploadProgress, setAttachmentUploadProgress] = useState(0)
   const [showAttachmentUploadProgress, setShowAttachmentUploadProgress] = useState(false)
-  const localProgressCancelRef = useRef<(() => void) | null>(null)
-  const hideProgressTimerRef = useRef<number | null>(null)
   const serverUploadRef = useRef(false)
+  const fileProgress = useLocalFileSelectProgress()
   const [activeDepartmentId, setActiveDepartmentId] = useState<string | null>(getActiveDepartmentId)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [internalForm, setInternalForm] = useState<InternalFormState>(EMPTY_INTERNAL_FORM)
   const [externalForm, setExternalForm] = useState<ExternalFormState>(EMPTY_EXTERNAL_FORM)
   const [citizenForm, setCitizenForm] = useState<CitizenFormState>(EMPTY_CITIZEN_FORM)
-
-  const stopLocalAttachmentProgress = () => {
-    localProgressCancelRef.current?.()
-    localProgressCancelRef.current = null
-    if (hideProgressTimerRef.current != null) {
-      window.clearTimeout(hideProgressTimerRef.current)
-      hideProgressTimerRef.current = null
-    }
-  }
-
-  const startLocalAttachmentProgress = (bytes: number) => {
-    if (serverUploadRef.current) return
-    stopLocalAttachmentProgress()
-    flushSync(() => {
-      setShowAttachmentUploadProgress(true)
-      setAttachmentUploadProgress(8)
-    })
-    localProgressCancelRef.current = animateDeterminateProgress(
-      setAttachmentUploadProgress,
-      bytes / 6000,
-      () => {
-        hideProgressTimerRef.current = window.setTimeout(() => {
-          if (!serverUploadRef.current) {
-            setShowAttachmentUploadProgress(false)
-            setAttachmentUploadProgress(0)
-          }
-          hideProgressTimerRef.current = null
-        }, 400)
-      },
-    )
-  }
-
-  useEffect(() => () => stopLocalAttachmentProgress(), [])
 
   // "Talep Oluştur"a basmadan mod seçimine (Geri) dönülünce girilen veriler temizlenir; tekrar
   // girildiğinde alanlar boş başlar. `kind` bir query param olduğundan seçim ekranına dönüşte bileşen
@@ -710,8 +675,17 @@ export function CreateRequestPage() {
           role="button"
           tabIndex={saving ? -1 : 0}
           className={`request-photo-dropzone flex min-h-[3.25rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-1.5 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
-          onClick={() => !saving && fileInputRef.current?.click()}
-          onKeyDown={event => event.key === 'Enter' && !saving && fileInputRef.current?.click()}
+          onClick={() => {
+            if (saving) return
+            fileProgress.arm()
+            fileInputRef.current?.click()
+          }}
+          onKeyDown={event => {
+            if (event.key === 'Enter' && !saving) {
+              fileProgress.arm()
+              fileInputRef.current?.click()
+            }
+          }}
           onDragOver={event => event.preventDefault()}
           onDrop={event => {
             event.preventDefault()
@@ -722,8 +696,7 @@ export function CreateRequestPage() {
               const err = validatePendingBatch(prev, incoming)
               if (err) { setFileError(err); return prev }
               setFileError(null)
-              setShowAttachmentUploadProgress(true)
-              startLocalAttachmentProgress(incoming.reduce((sum, file) => sum + file.size, 0))
+              fileProgress.holdAtZero()
               return [...prev, ...incoming]
             })
           }}
@@ -745,8 +718,7 @@ export function CreateRequestPage() {
                 const err = validatePendingBatch(prev, incoming)
                 if (err) { setFileError(err); return prev }
                 setFileError(null)
-                setShowAttachmentUploadProgress(true)
-                startLocalAttachmentProgress(incoming.reduce((sum, file) => sum + file.size, 0))
+                fileProgress.holdAtZero()
                 return [...prev, ...incoming]
               })
               if (fileInputRef.current) fileInputRef.current.value = ''
@@ -780,7 +752,7 @@ export function CreateRequestPage() {
                       setPendingFiles(prev => {
                         const next = prev.filter((_, i) => i !== idx)
                         if (next.length === 0) {
-                          stopLocalAttachmentProgress()
+                          fileProgress.stop()
                           setShowAttachmentUploadProgress(false)
                           setAttachmentUploadProgress(0)
                         }
@@ -797,8 +769,8 @@ export function CreateRequestPage() {
           )}
         </div>
       </div>
-      {showAttachmentUploadProgress ? (
-        <AttachmentUploadProgressBar progress={attachmentUploadProgress} className="mt-2" />
+      {showAttachmentUploadProgress || fileProgress.visible ? (
+        <AttachmentUploadProgressBar progress={showAttachmentUploadProgress ? attachmentUploadProgress : fileProgress.progress} className="mt-2" />
       ) : null}
       {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
     </div>
@@ -807,7 +779,7 @@ export function CreateRequestPage() {
   const uploadPendingFiles = async (jobId: string) => {
     if (pendingFiles.length === 0) return
 
-    stopLocalAttachmentProgress()
+    fileProgress.stop()
     serverUploadRef.current = true
     setAttachmentUploadProgress(0)
     setShowAttachmentUploadProgress(true)

@@ -1,3 +1,10 @@
+## Round 909 — #2733/#2728/#2730/#2736
+
+- [x] `6a817712` — Detay Talep/Görev ek satırı sağa yaslı; diğer rich-list hizaları geri alındı.
+- [x] `6a8172ef` — Dosya ekle tıklanınca progress %0; yüzde yükleme başlayınca ilerler.
+- [x] `6a817465` — Vatandaş Talebi Oluştur Mahalle/Cadde/No menü punto = WA Vatandaş Bilgileri.
+- [x] `6a817c6f` — Görevlerim düzenlemede Başlangıç Tarihi salt okunur.
+
 ## Round 908 — #2728/#2729/#2724/#2735
 
 - [x] `6a8172ef` — Tüm Dosya ekle: seçimde progress hemen boyanır ve ilerler.

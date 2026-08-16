@@ -180,6 +180,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Taleplerim / Birime Gelen / Birimden Giden talep detay popup'larında bölüm başlığı
   `İlgili Görev Detayları`dır (card #1663); Görevlerim popup'ında kendi görev başlığı
   `Görev Detayları` kalır.
+  Görevlerim detay → Düzenle’de **Başlangıç Tarihi** salt okunurdur (#2736).
 - **Atanmış görev detay popup'ında `Öncelik` satırı gizlidir:** `Görev Tipi = Atanmış`
   olduğunda Görevlerim `Görev Detayları` altındaki Öncelik etiketi ve değeri görünmez; rutin
   görevlerin öncelik satırı korunur (card #1118).
@@ -246,9 +247,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Görev Bilgileri satırında ikon/metin biraz küçük. İki satırı aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
   Görsel ek adının hemen sağında küçük yeşil **Ön İzle** (Eye) vardır (`flex-1` yok — buton ada
   yapışık); lightbox `document.body` portal + `z-[400]` ile detay modalının üstünde açılır (#2709/#2732).
-  Detay popup ek satırında dosya adı + Ön İzle sağa yaslıdır (#2733); ad ile Ön İzle arası
-  biraz açıktır (#2735). Detay **Dosya ekle** ve diğer Dosya ekle yüzeylerinde seçimle birlikte
-  progress bar hemen görünür ve ilerler (#2728/#2734).
+  Detay popup'ta **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle sağa yaslıdır (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
+  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar %0 görünür; yüzde, dosya seçilip yükleme başlayınca ilerler (#2728 reopen / #2734).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -281,8 +281,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`CreateJobCommand`, card #1079).
 - **Talep Oluştur ek yükleme ilerlemesi:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının
   seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar
-  yükleme başlar başlamaz görünür (#2510). Talep Oluştur dropzone dosya seçilince bar görünür ve
-  yüzde 0’da kilitlenmez (kısa determinate animasyon, sonra gerçek XHR — #2728).
+  Dosya ekle tıklanınca %0’da görünür, yüzde yükleme başlayınca ilerler (#2728 reopen / #2510).
   tüm dosyalar için birleşik yüzde gösterilir. Vatandaş create/edit akışı da seçili dosyaları
   oluşan job'a gerçekten yükler (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
@@ -1208,6 +1207,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
   Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
   WA Mahalle/Cadde/No arama ve liste punto aynı (0.875rem); liste küçültülmez (#2729).
+  WA **Vatandaş Talebi Oluştur** popup Mahalle/Cadde/No menü punto da aynı sınıftadır (#2730).
   WA Vatandaş Bilgileri ve Vatandaş Talebi Oluştur popup Cadde seçili metni oka kadar
   daha fazla yer kaplar; erken ellipsis yok (#2724).
   WA Vatandaş Bilgileri Cadde/No placeholder **Seçiniz** (#2724). Seçili Cadde/No metni kutuyu

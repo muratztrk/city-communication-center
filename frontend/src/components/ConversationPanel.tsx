@@ -188,7 +188,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     setFileError(null)
     setPendingFile(file)
     setPendingFileEditing(false)
-    fileProgress.start(file.size)
+    fileProgress.holdAtZero()
   }
 
   const handleSend = async () => {
@@ -197,9 +197,11 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     setSending(true)
     try {
       if (pendingFile) {
+        fileProgress.start(pendingFile.size)
         await api.replySocialMessageAttachment(socialMessageId, pendingFile, text, true)
         setPendingFile(null)
         setPendingFileEditing(false)
+        fileProgress.stop()
       } else {
         await api.replySocialMessage(
           socialMessageId,
@@ -503,7 +505,10 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             {enableWhatsAppFileAttachment ? (
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={() => {
+                  fileProgress.arm()
+                  fileInputRef.current?.click()
+                }}
                 disabled={sending}
                 className={`inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50 ${compactActions ? 'h-7 px-2.5 text-[11px]' : 'h-9 px-4 text-xs'}`}
               >

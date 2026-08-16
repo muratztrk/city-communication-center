@@ -1,6 +1,5 @@
 import { Download, FileText, Paperclip } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
@@ -20,7 +19,7 @@ import { ConfirmDialog } from './confirm-dialog'
 import { SimpleImageAttachmentIcon } from './SimpleImageAttachmentIcon'
 import { AttachmentUploadProgressBar } from './attachment-upload-progress'
 import { AttachmentImagePreviewButton } from './AttachmentImagePreviewButton'
-import { animateDeterminateProgress } from '../../utils/animateDeterminateProgress'
+import { useLocalFileSelectProgress } from '../../hooks/useLocalFileSelectProgress'
 
 const MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
@@ -58,6 +57,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+  const pickerProgress = useLocalFileSelectProgress()
 
   const validate = (file: File): string | null => {
     if (!isAllowedAttachmentFileName(file.name)) {
@@ -71,12 +71,14 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return
+    pickerProgress.holdAtZero()
     setValidationError(null)
     const selectedFiles = Array.from(files)
     for (const file of selectedFiles) {
       const error = validate(file)
       if (error) {
         setValidationError(error)
+        pickerProgress.stop()
         // Aynı dosya(lar) yeniden seçilebilsin; değer temizlenmezse change tetiklenmez.
         if (fileInputRef.current) fileInputRef.current.value = ''
         return
@@ -86,25 +88,20 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     const incomingBytes = sumFileSizes(selectedFiles)
     if (exceedsAttachmentTotalLimit(existingBytes, incomingBytes)) {
       setValidationError(t('attachments.errorTotalSize', 'Dosyaların toplam boyutu 5 MB\'ı aşamaz.'))
+      pickerProgress.stop()
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
     const totalBytes = selectedFiles.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
-    flushSync(() => {
-      setUploading(true)
-      setUploadProgress(8)
-    })
-    let stopPreview = animateDeterminateProgress(percent => {
-      setUploadProgress(current => Math.max(current, Math.min(40, percent)))
-    }, 520)
+    pickerProgress.stop()
+    setUploading(true)
+    setUploadProgress(0)
     try {
       for (const file of selectedFiles) {
         try {
           await onUpload?.(file, percent => {
-            stopPreview()
-            stopPreview = () => {}
-            setUploadProgress(Math.min(100, Math.max(40, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100))))
+            setUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
           })
         } catch (err) {
           setValidationError(err instanceof Error ? err.message : String(err))
@@ -113,7 +110,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
         setUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)))
       }
     } finally {
-      stopPreview()
       setUploading(false)
       setUploadProgress(0)
     }
@@ -181,7 +177,10 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
             aria-label={t('attachments.uploadLabel', 'Fotoğraf Ekle')}
             className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isDisabled}
-            onClick={() => fileInputRef.current?.click()}
+            onClick={() => {
+              pickerProgress.arm()
+              fileInputRef.current?.click()
+            }}
           >
             <Paperclip className="size-3.5 text-emerald-600" aria-hidden="true" />
             {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
@@ -197,8 +196,8 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
           />
         </div>
       )}
-      {!readOnly && uploading ? (
-        <AttachmentUploadProgressBar progress={uploadProgress} className="attachment-upload-progress mt-2" />
+      {!readOnly && (uploading || pickerProgress.visible) ? (
+        <AttachmentUploadProgressBar progress={uploading ? uploadProgress : pickerProgress.progress} className="attachment-upload-progress mt-2" />
       ) : null}
 
       {validationError && (

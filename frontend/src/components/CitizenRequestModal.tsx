@@ -366,6 +366,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     const validationError = validateFile(file)
     if (validationError) {
       setFileError(validationError)
+      fileProgress.stop()
       return
     }
     setPendingFiles(current => {
@@ -379,7 +380,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       setFileError(null)
       return [...current, file]
     })
-    fileProgress.start(file.size)
+    fileProgress.holdAtZero()
   }
 
   const downloadPendingFile = (file: File) => {
@@ -392,8 +393,16 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   }
 
   const uploadPendingFiles = async (jobId: string) => {
-    for (const file of pendingFiles) {
-      await api.uploadJobAttachment(jobId, file)
+    if (pendingFiles.length === 0) return
+    fileProgress.report(0)
+    try {
+      for (const [index, file] of pendingFiles.entries()) {
+        await api.uploadJobAttachment(jobId, file, filePercent => {
+          fileProgress.report(((index + filePercent / 100) / pendingFiles.length) * 100)
+        })
+      }
+    } finally {
+      fileProgress.stop()
     }
   }
 
@@ -769,6 +778,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                         }
                       }}
                       placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+                      menuScrollClassName="whatsapp-neighborhood-menu-scroll"
+                      menuClassName="whatsapp-neighborhood-menu-scroll"
                     />
                   </label>
                   <CbsStreetNoDropdowns
@@ -781,6 +792,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     onCoordinatesChange={setCoordinates}
                     onStreetChange={setStreet}
                     onStreetNoChange={setStreetNo}
+                    menuScrollClassName="whatsapp-neighborhood-menu-scroll"
+                    menuClassName="whatsapp-neighborhood-menu-scroll"
                   />
                 </div>
                 <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-stretch">
@@ -805,7 +818,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
                     <div className="flex min-h-[5rem] items-start gap-2">
                       <div className="flex shrink-0 flex-col gap-1">
-                      <label className={`inline-flex h-[1.875rem] w-[6.35rem] shrink-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-white px-1.5 text-[11px] font-semibold leading-none text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}>
+                      <label
+                        className={`inline-flex h-[1.875rem] w-[6.35rem] shrink-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-white px-1.5 text-[11px] font-semibold leading-none text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}
+                        onClick={() => fileProgress.arm()}
+                      >
                         <Paperclip className="size-3.5 shrink-0 text-emerald-700" />
                         {t('attachments.addFile', 'Dosya ekle')}
                         <input

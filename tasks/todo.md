@@ -1,3 +1,8 @@
+## Round 938 — #2640/#2766
+
+- [x] `6a801665` — WA Cadde menüsü No tarafına biraz daha geniş (+96px).
+- [x] `6a81d4e5` — Konum Koordinatı textbox punto 13px.
+
 ## Round 937 — #2763/#2719/#2765
 
 - [x] `6a81cd41` — Konum Koordinatı tooltip 500ms.

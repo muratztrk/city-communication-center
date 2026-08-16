@@ -682,7 +682,7 @@ function ConversationProfilePanel({
           menuScrollClassName="whatsapp-neighborhood-menu-scroll"
           menuClassName="whatsapp-neighborhood-menu-scroll"
           matchTriggerWidth
-          streetMenuWidthExtraPx={72}
+          streetMenuWidthExtraPx={96}
           streetPlaceholder={t('common.selectPlaceholder', 'Seçiniz')}
           streetNoPlaceholder={t('common.selectPlaceholder', 'Seçiniz')}
           onStreetChange={street => onDraftChange({ street })}

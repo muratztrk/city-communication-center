@@ -29,7 +29,7 @@ export function AddressCoordinatesField({
       <input
         type="text"
         inputMode="url"
-        className="field-input min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px] placeholder:text-[13px]"
+        className="field-input min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[13px] placeholder:text-[14px]"
         placeholder={t('address.coordinatesPlaceholder', 'Link giriniz...')}
         value={value}
         onChange={event => onChange(event.target.value)}

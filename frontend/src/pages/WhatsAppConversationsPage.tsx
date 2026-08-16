@@ -35,6 +35,7 @@ import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIc
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
+import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
@@ -42,6 +43,7 @@ import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
+import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
@@ -763,6 +765,7 @@ function ConversationDetail({
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [pendingFileEditing, setPendingFileEditing] = useState(false)
   const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
+  const fileProgress = useLocalFileSelectProgress()
   const pendingFileClock = useMemo(
     () => (pendingFile ? formatConversationMessageTime(new Date().toISOString(), locale, t) : ''),
     [pendingFile, locale, t],
@@ -1437,6 +1440,7 @@ function ConversationDetail({
                       }
                       setIsPinnedToBottom(true)
                       window.setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
+                      fileProgress.start(file.size)
                     }
                     if (event.target) event.target.value = ''
                   }}
@@ -1469,6 +1473,9 @@ function ConversationDetail({
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
+                {fileProgress.visible ? (
+                  <AttachmentUploadProgressBar progress={fileProgress.progress} />
+                ) : null}
                     <div className="ml-auto flex items-center gap-2">
                       <SingleSelectDropdown
                         options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}

@@ -9,7 +9,7 @@ export function animateDeterminateProgress(
   let frame = 0
   const tick = (now: number) => {
     const ratio = Math.min(1, (now - started) / duration)
-    setProgress(Math.round(ratio * 100))
+    setProgress(Math.max(8, Math.round(ratio * 100)))
     if (ratio < 1) {
       frame = requestAnimationFrame(tick)
       return

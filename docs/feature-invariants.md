@@ -246,8 +246,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Görev Bilgileri satırında ikon/metin biraz küçük. İki satırı aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
   Görsel ek adının hemen sağında küçük yeşil **Ön İzle** (Eye) vardır (`flex-1` yok — buton ada
   yapışık); lightbox `document.body` portal + `z-[400]` ile detay modalının üstünde açılır (#2709/#2732).
-  Detay popup ek satırında dosya adı + Ön İzle sağa yaslıdır (#2733). Detay **Dosya ekle** yüklemesi
-  başlar başlamaz progress bar görünür (grid alt satır, #2734).
+  Detay popup ek satırında dosya adı + Ön İzle sağa yaslıdır (#2733); ad ile Ön İzle arası
+  biraz açıktır (#2735). Detay **Dosya ekle** ve diğer Dosya ekle yüzeylerinde seçimle birlikte
+  progress bar hemen görünür ve ilerler (#2728/#2734).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -1206,7 +1207,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `8.25rem` sabit (cadde seçilince
   değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
   Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
-  WA Mahalle/Cadde/No arama kutusu punto, liste satırlarıyla aynı (0.72rem, #2729).
+  WA Mahalle/Cadde/No arama ve liste punto aynı (0.875rem); liste küçültülmez (#2729).
+  WA Vatandaş Bilgileri ve Vatandaş Talebi Oluştur popup Cadde seçili metni oka kadar
+  daha fazla yer kaplar; erken ellipsis yok (#2724).
   WA Vatandaş Bilgileri Cadde/No placeholder **Seçiniz** (#2724). Seçili Cadde/No metni kutuyu
   genişletmez; taşınca ellipsis + hover tooltip (#2724 reopen).
   No `No seçiniz`; listede **Yok** (#2714); CBS’den gelen **Kapı Numarası Yok** satırı yok (#2723).

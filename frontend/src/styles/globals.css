@@ -2229,8 +2229,9 @@
     padding: 0.58rem 0.82rem;
   }
 
-  .field-select {
-    cursor: pointer;
+  .address-street-no-row .field-select {
+    padding-inline: 0.5rem 0.4rem;
+    gap: 0.25rem;
   }
 
   .dropdown-menu-panel {
@@ -2273,14 +2274,14 @@
   }
 
   .whatsapp-neighborhood-menu-scroll .dropdown-menu-item {
-    min-height: 1.85rem;
-    padding: 0.35rem 0.65rem;
-    font-size: 0.72rem;
+    min-height: 2.15rem;
+    padding: 0.4rem 0.65rem;
+    font-size: 0.875rem;
   }
 
-  /* Search input matches list item size (WA Vatandaş Bilgileri, #2729). */
+  /* Search matches list (liste küçültülmez; arama listeye yükselir, #2729). */
   .whatsapp-neighborhood-menu-scroll input {
-    font-size: 0.72rem !important;
+    font-size: 0.875rem !important;
     line-height: 1.25;
   }
 

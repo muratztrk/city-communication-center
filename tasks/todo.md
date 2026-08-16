@@ -1,3 +1,10 @@
+## Round 908 — #2728/#2729/#2724/#2735
+
+- [x] `6a8172ef` — Tüm Dosya ekle: seçimde progress hemen boyanır ve ilerler.
+- [x] `6a817403` — WA arama/liste 0.875rem; liste küçültülmez.
+- [x] `6a816bb9` — WA + talep popup Cadde metni oka kadar daha geniş.
+- [x] `6a8177ed` — Detay dosya adı / Ön İzle arası boşluk.
+
 ## Round 907 — #2731/#2732/#2733/#2734/#2719/#2718
 
 - [x] `6a81751d` — WA giden görsel X çerçevesi kırmızı.

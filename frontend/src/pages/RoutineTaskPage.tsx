@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateTasks } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
+import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
@@ -16,6 +17,7 @@ import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
+import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
@@ -100,6 +102,7 @@ export function RoutineTaskPage() {
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
+  const fileProgress = useLocalFileSelectProgress()
   const [userQuickReplies, setUserQuickReplies] = useState<UserQuickReplyTemplate[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const districtId = useMunicipalityDistrictId()
@@ -168,17 +171,18 @@ export function RoutineTaskPage() {
     if (!files) return
     setFileError(null)
     const incoming = Array.from(files)
+    for (const file of incoming) {
+      const err = validateFile(file)
+      if (err) { setFileError(err); return }
+    }
     setPendingFiles(prev => {
-      for (const file of incoming) {
-        const err = validateFile(file)
-        if (err) { setFileError(err); return prev }
-      }
       if (exceedsAttachmentTotalLimit(sumFileSizes(prev), sumFileSizes(incoming))) {
         setFileError('Dosyaların toplam boyutu 5 MB\'ı aşamaz.')
         return prev
       }
       return [...prev, ...incoming]
     })
+    fileProgress.start(sumFileSizes(incoming))
   }
 
   const executeSave = async () => {
@@ -409,6 +413,9 @@ export function RoutineTaskPage() {
                         <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
                         {t('attachments.addFile', 'Dosya ekle')}
                       </button>
+                      {fileProgress.visible ? (
+                        <AttachmentUploadProgressBar progress={fileProgress.progress} className="ml-2" />
+                      ) : null}
                       <input
                         ref={fileInputRef}
                         type="file"

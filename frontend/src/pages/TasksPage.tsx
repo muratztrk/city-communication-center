@@ -8,6 +8,7 @@ import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { ScopeChipButton } from '../components/ui/ScopeChipButton'
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import { flushSync } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -21,6 +22,7 @@ import { invalidateTasks, invalidateNotifications } from '../api/cacheInvalidati
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
+import { animateDeterminateProgress } from '../utils/animateDeterminateProgress'
 import { AttachmentImagePreviewButton } from '../components/ui/AttachmentImagePreviewButton'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
@@ -1089,13 +1091,20 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
     const totalBytes = incoming.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
-    setCompletionAttachmentUploading(true)
-    setCompletionUploadProgress(5)
+    flushSync(() => {
+      setCompletionAttachmentUploading(true)
+      setCompletionUploadProgress(8)
+    })
+    let stopPreview = animateDeterminateProgress(percent => {
+      setCompletionUploadProgress(current => Math.max(current, Math.min(40, percent)))
+    }, 520)
 
     for (const file of incoming) {
       try {
         const attachment = await api.uploadTaskAttachment(completeModal.taskId, file, percent => {
-          setCompletionUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
+          stopPreview()
+          stopPreview = () => {}
+          setCompletionUploadProgress(Math.min(100, Math.max(40, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100))))
         })
         setPendingCompletionAttachments(current => [...current, {
           attachmentId: attachment.attachmentId,
@@ -1109,6 +1118,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       }
     }
 
+    stopPreview()
     setCompletionUploadProgress(0)
     setCompletionAttachmentUploading(false)
 
@@ -1282,13 +1292,20 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
     const totalBytes = incoming.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
-    setCancelAttachmentUploading(true)
-    setCancelUploadProgress(5)
+    flushSync(() => {
+      setCancelAttachmentUploading(true)
+      setCancelUploadProgress(8)
+    })
+    let stopPreview = animateDeterminateProgress(percent => {
+      setCancelUploadProgress(current => Math.max(current, Math.min(40, percent)))
+    }, 520)
 
     for (const file of incoming) {
       try {
         const attachment = await api.uploadTaskAttachment(returnModal.taskId, file, percent => {
-          setCancelUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
+          stopPreview()
+          stopPreview = () => {}
+          setCancelUploadProgress(Math.min(100, Math.max(40, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100))))
         })
         setPendingCancelAttachments(current => [...current, {
           attachmentId: attachment.attachmentId,
@@ -1302,6 +1319,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       }
     }
 
+    stopPreview()
     setCancelUploadProgress(0)
     setCancelAttachmentUploading(false)
 

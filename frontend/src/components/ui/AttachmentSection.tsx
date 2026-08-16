@@ -1,5 +1,6 @@
 import { Download, FileText, Paperclip } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
@@ -19,6 +20,7 @@ import { ConfirmDialog } from './confirm-dialog'
 import { SimpleImageAttachmentIcon } from './SimpleImageAttachmentIcon'
 import { AttachmentUploadProgressBar } from './attachment-upload-progress'
 import { AttachmentImagePreviewButton } from './AttachmentImagePreviewButton'
+import { animateDeterminateProgress } from '../../utils/animateDeterminateProgress'
 
 const MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
@@ -89,13 +91,20 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     }
     const totalBytes = selectedFiles.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
-    setUploading(true)
-    setUploadProgress(5)
+    flushSync(() => {
+      setUploading(true)
+      setUploadProgress(8)
+    })
+    let stopPreview = animateDeterminateProgress(percent => {
+      setUploadProgress(current => Math.max(current, Math.min(40, percent)))
+    }, 520)
     try {
       for (const file of selectedFiles) {
         try {
           await onUpload?.(file, percent => {
-            setUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
+            stopPreview()
+            stopPreview = () => {}
+            setUploadProgress(Math.min(100, Math.max(40, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100))))
           })
         } catch (err) {
           setValidationError(err instanceof Error ? err.message : String(err))
@@ -104,6 +113,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
         setUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)))
       }
     } finally {
+      stopPreview()
       setUploading(false)
       setUploadProgress(0)
     }
@@ -209,8 +219,8 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
             <li
               key={att.attachmentId}
               className={readOnly
-                ? 'group flex min-w-0 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5'
-                : 'group flex min-w-0 items-center gap-0.5 px-1 py-1'}
+                ? 'group flex min-w-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5'
+                : 'group flex min-w-0 items-center gap-1.5 px-1 py-1'}
             >
               <div className={`flex size-5 shrink-0 items-center justify-center text-blue-700 ${readOnly ? 'rounded-md border border-emerald-100 bg-emerald-50' : ''}`}>
                 <Icon className="size-3" aria-hidden="true" />

@@ -193,7 +193,7 @@ export function SingleSelectDropdown({
       <button
         type="button"
         className={cn(
-          'field-select group relative flex w-full min-w-0 items-center justify-between gap-2 text-left',
+          'field-select group relative flex w-full min-w-0 items-center justify-between gap-1 text-left',
           disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
           triggerClassName,
         )}

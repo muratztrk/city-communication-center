@@ -1,6 +1,7 @@
 import { Building2, FileText, Paperclip, Phone, Send, Workflow } from 'lucide-react'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -311,8 +312,10 @@ export function CreateRequestPage() {
   const startLocalAttachmentProgress = (bytes: number) => {
     if (serverUploadRef.current) return
     stopLocalAttachmentProgress()
-    setShowAttachmentUploadProgress(true)
-    setAttachmentUploadProgress(0)
+    flushSync(() => {
+      setShowAttachmentUploadProgress(true)
+      setAttachmentUploadProgress(8)
+    })
     localProgressCancelRef.current = animateDeterminateProgress(
       setAttachmentUploadProgress,
       bytes / 6000,

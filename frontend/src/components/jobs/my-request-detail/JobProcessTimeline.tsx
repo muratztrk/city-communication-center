@@ -74,6 +74,16 @@ interface JobProcessTimelineProps {
   dueDateContent?: ReactNode
 }
 
+function DateTimeParts({ parts }: { parts: { date: string; time: string } }) {
+  return (
+    <>
+      <span>{parts.date}</span>
+      <span className="job-process-timeline__datetime-bullet" aria-hidden="true" />
+      <span>{parts.time}</span>
+    </>
+  )
+}
+
 function ProcessStepDateValue({
   step,
   locale,
@@ -87,9 +97,10 @@ function ProcessStepDateValue({
   metaContent?: ReactNode
   className: string
 }) {
-  const parts = step.dateTimeUtc ? splitDateTimeParts(step.dateTimeUtc, locale) : null
+  const startParts = step.dateTimeUtc ? splitDateTimeParts(step.dateTimeUtc, locale) : null
+  const endParts = step.endDateTimeUtc ? splitDateTimeParts(step.endDateTimeUtc, locale) : null
 
-  if (!parts) {
+  if (!startParts) {
     const pendingApprovalText = isPendingApprovalText(step.displayValue)
     return (
       <div className={className}>
@@ -109,9 +120,13 @@ function ProcessStepDateValue({
   return (
     <div className={className}>
       <span className="inline-flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-        <span>{parts.date}</span>
-        <span className="job-process-timeline__datetime-bullet" aria-hidden="true" />
-        <span>{parts.time}</span>
+        <DateTimeParts parts={startParts} />
+        {endParts ? (
+          <>
+            <span>-</span>
+            <DateTimeParts parts={endParts} />
+          </>
+        ) : null}
         {step.displayMeta ? (
           <span className={`align-baseline text-xs font-semibold ${metaTone}`}>
             ({step.displayMeta})
@@ -259,7 +274,7 @@ export function JobProcessTimeline({
                     locale={locale}
                     metaTone={displayMetaTone}
                     metaContent={statusNoteContent}
-                    className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}
+                    className={`job-process-timeline__step-value job-process-timeline__datetime-value mt-0.5 font-semibold ${valueTone}`}
                   />
                 ) : step.id === 'dueDate' && dueDateContent ? (
                   <div className="mt-0.5">{dueDateContent}</div>
@@ -270,7 +285,7 @@ export function JobProcessTimeline({
                       : step}
                     locale={locale}
                     metaTone={displayMetaTone}
-                    className={`job-process-timeline__step-value mt-0.5 text-sm font-semibold ${valueTone}`}
+                    className={`job-process-timeline__step-value job-process-timeline__datetime-value mt-0.5 font-semibold ${valueTone}`}
                   />
                 )}
               </div>

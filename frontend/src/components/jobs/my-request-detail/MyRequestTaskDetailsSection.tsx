@@ -8,7 +8,7 @@ import type { JobDetail } from '../../../types/platform'
 import { requestLocationFieldLabel } from '../../../utils/citizenRequests'
 import { getPriorityColorClass, getPriorityLabel, getTaskDisplayStatus, getTaskStatusTone } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime } from './format'
-import type { JobProcessStep } from './buildJobProcessSteps'
+import { buildInProgressPeriodStep, type JobProcessStep } from './buildJobProcessSteps'
 import { JobProcessTimeline } from './JobProcessTimeline'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldValue } from './StackedFieldValue'
@@ -49,6 +49,7 @@ function buildTaskProcessSteps(
   }
 
   if (isCompleted) {
+    const assigneeName = task.assignedUserDisplayName ?? task.ownerDisplayName ?? null
     return [
       {
         id: 'requestDate',
@@ -58,6 +59,16 @@ function buildTaskProcessSteps(
         state: 'completed',
       },
       dueDateStep,
+      {
+        ...buildInProgressPeriodStep(
+          t,
+          locale,
+          task.createdAtUtc,
+          task.completedAtUtc,
+          assigneeName,
+        ),
+        state: 'completed',
+      },
       {
         id: 'completionDate',
         label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'),
@@ -69,6 +80,12 @@ function buildTaskProcessSteps(
   }
 
   if (isCancelled) {
+    const cancelledAtUtc = task.statusChangeHistory?.find(entry =>
+      entry.toStatus === 'Cancelled' || entry.toStatus === 'Rejected',
+    )?.changedAtUtc
+      ?? task.updatedAtUtc
+      ?? null
+    const assigneeName = task.assignedUserDisplayName ?? task.ownerDisplayName ?? null
     return [
       {
         id: 'requestDate',
@@ -79,17 +96,14 @@ function buildTaskProcessSteps(
       },
       dueDateStep,
       {
+        ...buildInProgressPeriodStep(t, locale, task.createdAtUtc, cancelledAtUtc, assigneeName),
+        state: 'completed',
+      },
+      {
         id: 'cancelDate',
         label: t('tasks.columns.cancelledAt', 'İptal Tarihi'),
-        displayValue: formatDateTime(
-          task.statusChangeHistory?.find(entry => entry.toStatus === 'Cancelled' || entry.toStatus === 'Rejected')?.changedAtUtc
-            ?? task.updatedAtUtc
-            ?? null,
-          locale,
-        ),
-        dateTimeUtc: task.statusChangeHistory?.find(entry => entry.toStatus === 'Cancelled' || entry.toStatus === 'Rejected')?.changedAtUtc
-          ?? task.updatedAtUtc
-          ?? null,
+        displayValue: formatDateTime(cancelledAtUtc, locale),
+        dateTimeUtc: cancelledAtUtc,
         state: 'terminal-danger',
       },
     ]

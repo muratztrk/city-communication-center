@@ -73,6 +73,8 @@ export interface JobProcessStep {
   displayValue: string
   displayMeta?: string
   dateTimeUtc?: string | null
+  /** Terminal Yapılmakta aralığının ikinci zamanı (date • time - date • time, #2773/#2774). */
+  endDateTimeUtc?: string | null
   state: JobProcessStepState
 }
 
@@ -119,6 +121,24 @@ export function wasReopenedViaCitizenMessageApproval(detail: JobDetail): boolean
 
 function isRecoveredTimeline(detail: JobDetail): boolean {
   return wasRecoveredFromCancellation(detail) || wasReopenedViaCitizenMessageApproval(detail)
+}
+
+export function buildInProgressPeriodStep(
+  t: TFunction,
+  locale: string,
+  previousUtc: string | null | undefined,
+  nextUtc: string | null | undefined,
+  assigneeName: string | null | undefined,
+): Omit<JobProcessStep, 'state'> {
+  const inProgressLabel = t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  const name = assigneeName?.trim()
+  return {
+    id: 'inProgressPeriod',
+    label: name ? `${inProgressLabel} (${name})` : inProgressLabel,
+    displayValue: `${formatDateTime(previousUtc ?? null, locale)} - ${formatDateTime(nextUtc ?? null, locale)}`,
+    dateTimeUtc: previousUtc ?? null,
+    endDateTimeUtc: nextUtc ?? null,
+  }
 }
 
 function resolveStepStates(
@@ -419,14 +439,13 @@ export function buildJobProcessSteps(
         .map(task => task.assignedUserDisplayName)
         .filter((name): name is string => Boolean(name)),
     )]
-    steps.push({
-      id: 'inProgressPeriod',
-      label: assigneeNames.length > 0
-        ? `${inProgressLabel} (${assigneeNames.join(', ')})`
-        : inProgressLabel,
-      displayValue: `${formatDateTime(previousUtc ?? null, locale)} - ${formatDateTime(nextUtc, locale)}`,
-      dateTimeUtc: null,
-    })
+    steps.push(buildInProgressPeriodStep(
+      t,
+      locale,
+      previousUtc,
+      nextUtc,
+      assigneeNames.join(', ') || null,
+    ))
   }
 
   if (detail.status === 'Completed') {

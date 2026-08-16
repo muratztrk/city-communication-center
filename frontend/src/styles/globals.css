@@ -557,6 +557,13 @@
     font-size: 0.75rem;
   }
 
+  .detail-modal-shell--my-request .job-process-timeline__datetime-value,
+  .detail-modal-shell .job-process-timeline__datetime-value,
+  .job-process-timeline__datetime-value {
+    font-size: 0.6875rem;
+    line-height: 1.35;
+  }
+
   .detail-modal-shell--my-request .job-process-timeline__step-value .text-xs,
   .detail-modal-shell .job-process-timeline__step-value .text-xs {
     font-size: 0.6875rem;

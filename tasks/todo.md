@@ -1,3 +1,9 @@
+## Round 949 — #2774/#2775/#2773
+
+- [x] `6a821e6e` — İlgili Görev / Görevlerim terminal Süreç’te Tamamlanma/İptal’den önce Yapılmakta aralığı.
+- [x] `6a821f51` — Süreç tarih-saat puntosu biraz küçültüldü (0.6875rem).
+- [x] `6a821e09` — Terminal Yapılmakta zamanında tarih • saat - tarih • saat.
+
 ## Round 948 — #2772
 
 - [x] `6a821c1b` — Süreç Durum Yapılmakta / Yapılmakta (Geciken) yanına ` / Görevi Yapan`.

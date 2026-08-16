@@ -99,7 +99,7 @@ import { buildMyRequestDetailFields } from '../components/jobs/my-request-detail
 import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
 import { FramedDepartmentStack } from '../components/jobs/my-request-detail/FramedDepartmentStack'
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
-import type { JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
+import { buildInProgressPeriodStep, type JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { StatusChangeTransition } from '../components/jobs/my-request-detail/StatusChangeTransition'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 
@@ -2482,6 +2482,15 @@ const pageKicker = isMyTasksView
                             },
                             ...(isCompletedTimelineTask
                               ? [dueDateStep, {
+                                  ...buildInProgressPeriodStep(
+                                    t,
+                                    locale,
+                                    taskDetail.createdAtUtc,
+                                    taskDetail.completedAtUtc,
+                                    taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName,
+                                  ),
+                                  state: 'completed' as const,
+                                }, {
                                   id: 'completionDate' as const,
                                   label: t('tasks.columns.completedAt', 'Tamamlanma Tarihi'),
                                   displayValue: formatDateTime(taskDetail.completedAtUtc, locale),
@@ -2490,6 +2499,15 @@ const pageKicker = isMyTasksView
                                 }]
                               : isCancelledTimelineTask
                                 ? [dueDateStep, {
+                                    ...buildInProgressPeriodStep(
+                                      t,
+                                      locale,
+                                      taskDetail.createdAtUtc,
+                                      cancelledAtUtc,
+                                      taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName,
+                                    ),
+                                    state: 'completed' as const,
+                                  }, {
                                     id: 'cancelDate' as const,
                                     label: t('tasks.columns.cancelledAt', 'İptal Tarihi'),
                                     displayValue: formatDateTime(cancelledAtUtc, locale),

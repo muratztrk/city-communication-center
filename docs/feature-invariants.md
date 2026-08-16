@@ -1008,10 +1008,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanıcı Taleplerim chip metni `Onaylanmış/Yapılmakta Taleplerim`dir.
   Durum değeri `Yapılmakta` veya `Yapılmakta (Geciken)` ise yanına ` / Görevi Yapan` personel
   adı eklenir (card #2772; Görevlerim ve talep detay Süreç).
-- **Terminal Süreç `Yapılmakta` katmanı (#2771):** Tamamlanmış/İptal/Reddedilmiş (ve iptalden
-  geri alınmamış) taleplerde Tamamlanma veya İptal Tarihinden hemen önce `Yapılmakta` durur;
-  yanında parantez içinde Görevi Yapan personel adı; altında önceki tarihli adımın zamanı ile
-  terminal zamanı ` - ` ile birleşir. Ayrı `inProgressPeriod` adımıdır; `statusContent` bu değeri ezmez.
+- **Terminal Süreç `Yapılmakta` katmanı (#2771/#2773/#2774):** Tamamlanmış/İptal/Reddedilmiş (ve
+  iptalden geri alınmamış) talep ve görev Süreç’lerinde Tamamlanma veya İptal Tarihinden hemen
+  önce `Yapılmakta` durur; yanında parantez içinde Görevi Yapan. Altında önceki zaman ile terminal
+  zaman `date • time - date • time` (bullet + ` - `). Ayrı `inProgressPeriod` adımıdır;
+  `statusContent` bu değeri ezmez. Görev tarafı: Görevlerim + İlgili Görev Detayları.
+- **Süreç tarih/saat punto (#2775):** tarih-saat değerleri `0.6875rem` (`datetime-value`); Durum
+  etiketi `0.75rem` kalır.
 - **Timeline son aktif pulse:** süreçte turuncu güncel adım varsa o yanıp söner; yoksa son aktif
   yeşil/kırmızı nokta turuncu pulse'ın yeşil/kırmızı eşdeğeriyle yanıp söner (card #1339/#1343).
 - **Birime Gelen / Birimden Giden detay Süreç kolonu (card #1527):** flat alan listesi değil;

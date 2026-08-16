@@ -6786,7 +6786,7 @@
   }
 
   .citizen-request-map-streetview-btn:hover svg {
-    transform: translate(3px, -2px) rotate(16deg);
+    transform: translate(-3px, 2px) rotate(-16deg);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -6795,7 +6795,7 @@
     }
 
     .citizen-request-map-streetview-btn:hover svg {
-      transform: translate(2px, 0);
+      transform: translate(-2px, 0);
     }
   }
 

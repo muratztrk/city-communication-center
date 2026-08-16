@@ -155,7 +155,12 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
 const CITIZEN_CHANNELS = ['Phone'] as const
 const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
 
-async function coordinatesFromForm(raw: string | null | undefined): Promise<{ latitude?: number; longitude?: number }> {
+async function coordinatesFromForm(
+  raw: string | null | undefined,
+  neighborhood: string,
+  street: string,
+): Promise<{ latitude?: number; longitude?: number }> {
+  if (!neighborhood.trim() && !street.trim()) return {}
   const trimmed = raw?.trim() ?? ''
   if (!trimmed) return {}
   return (await resolveGoogleMapsCoordinatePair(trimmed)) ?? {}
@@ -924,7 +929,11 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
-      const internalCoords = await coordinatesFromForm(internalForm.coordinates)
+      const internalCoords = await coordinatesFromForm(
+        internalForm.coordinates,
+        internalForm.neighborhood,
+        internalForm.street,
+      )
       const mapsAddress = await enrichEmptyAddressFromMapsLink({
         neighborhood: internalForm.neighborhood,
         street: internalForm.street,
@@ -1025,7 +1034,11 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
-      const externalCoords = await coordinatesFromForm(externalForm.coordinates)
+      const externalCoords = await coordinatesFromForm(
+        externalForm.coordinates,
+        externalForm.neighborhood,
+        externalForm.street,
+      )
       const mapsAddress = await enrichEmptyAddressFromMapsLink({
         neighborhood: externalForm.neighborhood,
         street: externalForm.street,
@@ -1185,7 +1198,11 @@ export function CreateRequestPage() {
     }
     const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
     try {
-      const citizenCoords = await coordinatesFromForm(citizenForm.coordinates)
+      const citizenCoords = await coordinatesFromForm(
+        citizenForm.coordinates,
+        citizenForm.neighborhood,
+        citizenForm.street,
+      )
       const mapsAddress = await enrichEmptyAddressFromMapsLink({
         neighborhood: citizenForm.neighborhood,
         street: citizenForm.street,

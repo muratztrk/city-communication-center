@@ -84,28 +84,8 @@ export async function streetNoFromGoogleMaps(lat: number, lng: number): Promise<
   return null
 }
 
-async function reverseGeocodeGoogleAddress(lat: number, lng: number): Promise<MapsResolvedAddress | null> {
-  const geocoder = await loadGeocoder()
-  if (!geocoder) return null
-  try {
-    const response = await geocoder.geocode({ location: { lat, lng } })
-    for (const result of response.results ?? []) {
-      const neighborhood = componentName(result, ['neighborhood', 'sublocality_level_1', 'sublocality', 'administrative_area_level_4'])
-      const street = componentName(result, ['route'])
-      const streetNo = componentName(result, ['street_number'])
-      if (neighborhood || street || streetNo) {
-        return { neighborhood, street, streetNo }
-      }
-    }
-  } catch {
-    return null
-  }
-  return null
-}
-
 /**
- * Mahalle/cadde boş + Google Maps linki: mahalle/cadde CBS (yoksa Google),
- * No Google Maps street_number veya Yok (#2719).
+ * Mahalle/cadde boş + Maps linki: link parse edilmez; Google `address=` araması (#2770).
  */
 export async function enrichEmptyAddressFromMapsLink(input: {
   neighborhood: string
@@ -121,48 +101,18 @@ export async function enrichEmptyAddressFromMapsLink(input: {
   }
 
   const fromApi = await api.resolveMapsAddressFromLink(input.coordinates, input.districtId)
-  if (fromApi) {
-    const mapsStreetNo = fromApi.streetNo.trim()
-    return {
-      neighborhood: fromApi.neighborhood,
-      street: fromApi.street,
-      streetNo: mapsStreetNo && mapsStreetNo.length <= ADDRESS_STREET_NO_MAX_LENGTH
-        ? mapsStreetNo
-        : STREET_NO_NONE,
-      latitude: fromApi.latitude,
-      longitude: fromApi.longitude,
-    }
-  }
-
-  const parsed = await resolveGoogleMapsCoordinatePair(input.coordinates)
-  if (!parsed) {
+  if (!fromApi) {
     return { neighborhood: input.neighborhood, street: input.street, streetNo: input.streetNo }
   }
 
-  const googleAddress = await reverseGeocodeGoogleAddress(parsed.latitude, parsed.longitude)
-  let resolvedNeighborhood = googleAddress?.neighborhood ?? ''
-  let resolvedStreet = googleAddress?.street ?? ''
-  if (input.districtId.trim()) {
-    try {
-      const nearest = await api.getIzmirCbsNearest(input.districtId, parsed.latitude, parsed.longitude)
-      if (nearest?.neighborhood) resolvedNeighborhood = nearest.neighborhood
-      if (nearest?.street) resolvedStreet = nearest.street
-    } catch {
-      /* CBS yoksa Google adları kalır. */
-    }
-  }
-
-  const mapsStreetNo = googleAddress?.streetNo?.trim()
-    ?? await streetNoFromGoogleMaps(parsed.latitude, parsed.longitude)
-  const streetNo = mapsStreetNo && mapsStreetNo.length <= ADDRESS_STREET_NO_MAX_LENGTH
-    ? mapsStreetNo
-    : STREET_NO_NONE
-
+  const mapsStreetNo = fromApi.streetNo.trim()
   return {
-    neighborhood: resolvedNeighborhood,
-    street: resolvedStreet,
-    streetNo,
-    latitude: parsed.latitude,
-    longitude: parsed.longitude,
+    neighborhood: fromApi.neighborhood,
+    street: fromApi.street,
+    streetNo: mapsStreetNo && mapsStreetNo.length <= ADDRESS_STREET_NO_MAX_LENGTH
+      ? mapsStreetNo
+      : STREET_NO_NONE,
+    latitude: fromApi.latitude,
+    longitude: fromApi.longitude,
   }
 }

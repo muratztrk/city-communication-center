@@ -471,7 +471,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     const trimmedHandle = citizenHandle.trim()
     const trimmedTitle = title.trim() || trimmedHandle
     try {
-      const parsedCoordinates = coordinates.trim() ? await resolveGoogleMapsCoordinatePair(coordinates) : null
+      const parsedCoordinates = neighborhood.trim() || street.trim()
+        ? (coordinates.trim() ? await resolveGoogleMapsCoordinatePair(coordinates) : null)
+        : null
       const mapsAddress = await enrichEmptyAddressFromMapsLink({
         neighborhood,
         street,

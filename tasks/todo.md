@@ -1,3 +1,8 @@
+## Round 945 — #2770/#2767
+
+- [x] `6a820c72` — Mahalle/cadde boşken Maps linki URL’den koordinata çevrilmez; Google araması. Cevap Trello karta yazıldı.
+- [x] `6a81fae8` — Street View pegman hover’da bir kez geri kayar, çıkınca döner.
+
 ## Round 944 — #2767/#2719
 
 - [x] `6a81fae8` — Street View pegman hover’da bir kez öne kayar, çıkınca geri döner.

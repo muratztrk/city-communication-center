@@ -194,7 +194,9 @@ export function RoutineTaskPage() {
     setError(null)
     try {
       const coords = form.coordinates.trim()
-      const parsedCoords = coords ? await resolveGoogleMapsCoordinatePair(coords) : null
+      const parsedCoords = form.neighborhood.trim() || form.street.trim()
+        ? (coords ? await resolveGoogleMapsCoordinatePair(coords) : null)
+        : null
       const mapsAddress = await enrichEmptyAddressFromMapsLink({
         neighborhood: form.neighborhood,
         street: form.street,

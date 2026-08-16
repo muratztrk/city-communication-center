@@ -1006,6 +1006,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Timeline `Durum / Yapılmakta` step'i:** yönetici-birim-içi istisnasına ek olarak standart
   kullanıcının Active (onaylanmış) non-citizen taleplerinde de gösterilir (card #1334); standart
   kullanıcı Taleplerim chip metni `Onaylanmış/Yapılmakta Taleplerim`dir.
+- **Terminal Süreç `Yapılmakta` katmanı (#2771):** Tamamlanmış/İptal/Reddedilmiş (ve iptalden
+  geri alınmamış) taleplerde Tamamlanma veya İptal Tarihinden hemen önce `Yapılmakta` durur;
+  altında önceki tarihli adımın zamanı ile terminal zamanı ` - ` ile birleşir. Ayrı `inProgressPeriod`
+  adımıdır; `statusContent` bu değeri ezmez.
 - **Timeline son aktif pulse:** süreçte turuncu güncel adım varsa o yanıp söner; yoksa son aktif
   yeşil/kırmızı nokta turuncu pulse'ın yeşil/kırmızı eşdeğeriyle yanıp söner (card #1339/#1343).
 - **Birime Gelen / Birimden Giden detay Süreç kolonu (card #1527):** flat alan listesi değil;

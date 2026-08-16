@@ -62,6 +62,7 @@ export type JobProcessStepId =
   | 'ownerApproval'
   | 'targetApproval'
   | 'status'
+  | 'inProgressPeriod'
   | 'completionDate'
   | 'cancelDate'
   | 'dueDate'
@@ -402,6 +403,23 @@ export function buildJobProcessSteps(
         dateTimeUtc: detail.completedAtUtc,
       })
     }
+  }
+
+  if (
+    (detail.status === 'Completed' || detail.status === 'Cancelled' || detail.status === 'Rejected')
+    && !isRecoveredTimeline(detail)
+  ) {
+    const previousUtc = [...steps].reverse().find(step => Boolean(step.dateTimeUtc))?.dateTimeUtc
+      ?? detail.createdAtUtc
+    const nextUtc = detail.status === 'Completed'
+      ? (detail.completedAtUtc ?? null)
+      : (detail.updatedAtUtc ?? null)
+    steps.push({
+      id: 'inProgressPeriod',
+      label: inProgressLabel,
+      displayValue: `${formatDateTime(previousUtc ?? null, locale)} - ${formatDateTime(nextUtc, locale)}`,
+      dateTimeUtc: null,
+    })
   }
 
   if (detail.status === 'Completed') {

@@ -1,3 +1,7 @@
+## Round 947 — #2771
+
+- [x] `6a820c96` — Tamamlanmış/İptal detay Süreç’te Tamamlanma/İptal’den önce Yapılmakta; zaman aralığı önceki - sonraki.
+
 ## Round 946 — #2719/#2770
 
 - [x] `6a816550` — Maps linki orijinal saklanır; place adı Google’da aranır; pin linkteki konum.

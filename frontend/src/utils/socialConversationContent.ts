@@ -167,21 +167,6 @@ export function socialMediaFilename(entryId: string, mime: string, citizenPhone?
   return `whatsapp-${entryId.slice(0, 8)}${extensionFromMimeType(mime)}`
 }
 
-/** Gelen WA ek indirme adı: kanal + telefon + orijinal ad (#2710). */
-export function inboundSocialDownloadFilename(
-  channel: string | null | undefined,
-  citizenPhone: string | null | undefined,
-  originalName: string,
-): string {
-  const channelPart = (channel?.trim() || 'WhatsApp').replace(/[/\\]+/g, '-')
-  const phonePart = citizenPhone?.trim()
-    ? normalizeWhatsappPhoneForFilename(citizenPhone)
-    : 'unknown'
-  const slash = Math.max(originalName.lastIndexOf('/'), originalName.lastIndexOf('\\'))
-  const base = (slash >= 0 ? originalName.slice(slash + 1) : originalName).trim() || 'ek'
-  return `${channelPart}-${phonePart}-${base}`
-}
-
 /** `[Dosya eki: orijinal-ad.pdf]` içeriğinden dosya adını çıkarır (giden #2385, gelen #2406/#6a75c6fa). */
 export function parseAttachmentFilenameFromContent(content: string | null | undefined): string | null {
   if (!content?.trim()) return null

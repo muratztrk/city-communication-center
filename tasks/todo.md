@@ -1,3 +1,7 @@
+## Round 901 — #2710 reopen
+
+- [x] `6a815535` — WA gelen ek indirme adı: orijinal dosya adı (kanal-telefon öneki yok).
+
 ## Round 900 — #2510/#2724
 
 - [x] `6a76cd4b` — Talep Oluştur dropzone: dosya seçilir seçilmez progress.

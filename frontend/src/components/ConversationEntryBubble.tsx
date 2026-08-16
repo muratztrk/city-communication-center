@@ -59,8 +59,6 @@ interface ConversationEntryBubbleProps {
   onReEngagementBlocked?: () => void
   onShowTerminalNote?: (entry: ConversationEntryBubbleData) => void
   inboundSenderLabel?: string | null
-  /** İndirme adı için talep kanalı (#2710). */
-  sourceChannel?: string | null
   /** Vatandaş Talebi Oluştur modalında balonları biraz küçült (card #1711). */
   compact?: boolean
 }
@@ -126,7 +124,6 @@ export function ConversationEntryBubble({
   conversationOutside24hWindow = false,
   onShowTerminalNote: _onShowTerminalNote,
   inboundSenderLabel,
-  sourceChannel = 'WhatsApp',
   compact = false,
 }: ConversationEntryBubbleProps) {
   const resolvedSocialMessageId = socialMessageId ?? entry.socialMessageId ?? ''
@@ -272,7 +269,6 @@ export function ConversationEntryBubble({
                 mediaMimeType={entry.mediaMimeType}
                 direction={entry.direction}
                 citizenPhone={citizenPhone}
-                sourceChannel={sourceChannel}
                 onAddAsAttachment={onAddMediaAsAttachment}
                 sentChip={entry.direction === 'Outbound'}
                 requestAttachmentLayout={Boolean(onAddMediaAsAttachment)}

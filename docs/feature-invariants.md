@@ -609,7 +609,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   içerikte saklanır (path/encoding normalize, ad değiştirilmez); gelen ek adı orijinal büyük/küçük harf
   korunur. Medya indirirken `X-Original-File-Name` + Content-Disposition orijinal adı taşır; UI
   `whatsapp-{tel}` fallback'ini orijinal ad varken kullanmaz. İndirme dosya adı
-  `{kanal}-{telefon}-{orijinalAd}` (#2710).
+  vatandaşın orijinal adıdır (kanal/telefon öneki yok — #2710 reopen).
 - **Inbound video ortala (#6a75c6e8):** video balonu görsel gibi `w-full max-w-full object-contain`
   (dik format sağ boşluk kapanır / ortalanır).
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız

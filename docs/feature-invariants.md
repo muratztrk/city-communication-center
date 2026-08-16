@@ -774,8 +774,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yükseklik artar (`min-height` ~4.25rem), genişlik sabit (#6a75d11d / #6a75d1bf).
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
-- **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Açık Adres
-  ve Dosya/Fotoğraf alanı aynı satırda yan yana durur; dosya seçilmedi metni butonla aynı blokta
+- **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Konum Koordinatı
+  Mahalle’nin alt satırındadır (#2741); ardından Açık Adres ve Dosya/Fotoğraf aynı satırda yan yana durur; dosya seçilmedi metni butonla aynı blokta
   sığar (card #1088). Açıklama RichTextEditor ve Açık Adres textarea üst padding kompakt
   (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6.35rem] h-[1.875rem] text-[11px] whitespace-nowrap`
   (Round 719). Açıklama `spellCheck={false}` + Windows autocorrect kapalı; Enter → `insertLineBreak`
@@ -1209,14 +1209,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
   Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
   WA Mahalle/Cadde/No arama ve liste punto aynı (0.875rem); liste küçültülmez (#2729).
-  WA **Vatandaş Talebi Oluştur** popup Mahalle/Cadde/No menü punto da aynı sınıftadır (#2730).
+  WA **Vatandaş Talebi Oluştur** popup Mahalle/Cadde/No arama ve liste punto 0.875rem; kapalı kutu da aynı (`citizen-request-address-select`, #2730 reopen).
+  Popup Konum Koordinatı Mahalle’nin **alt satırında** (Cadde/No ile aynı satırda değil) (#2741).
+  Popup yüksekliği taban detay shell’den çok az daha fazladır (`detail-modal-shell--citizen-create`, #2742).
   WA Vatandaş Bilgileri ve Vatandaş Talebi Oluştur popup Cadde seçili metni oka kadar
   daha fazla yer kaplar; erken ellipsis yok (#2724).
   WA Vatandaş Bilgileri Cadde/No placeholder **Seçiniz** (#2724). Seçili Cadde/No metni kutuyu
   genişletmez; taşınca ellipsis + hover tooltip (#2724 reopen).
   No `No seçiniz`; listede **Yok** (#2714); CBS’den gelen **Kapı Numarası Yok** satırı yok (#2723).
   Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713), placeholder `Link giriniz...` (#2722); taşan metin ellipsis + hover tooltip (#2725).
-  Vatandaş Çağrı **Talebin Adres Bilgisi** ve Rutin Görev Oluştur’da Konum Koordinatı başlığı Mahalle dropdown’unun **alt satırında** hizalanır; Adres Tarifi / Dosya ekle bir alt satırdadır (#2726/#2727).
+  Vatandaş Çağrı **Talebin Adres Bilgisi**, Rutin Görev Oluştur ve WA **Vatandaş Talebi Oluştur** popup’ta Konum Koordinatı başlığı Mahalle dropdown’unun **alt satırında** hizalanır; Adres Tarifi / Dosya ekle bir alt satırdadır (#2726/#2727/#2741).
   Birim/Vatandaş talep haritasında Mahalle+Cadde+No (No ≠ Yok) doluysa pin CBS’den gelir; Konum Koordinatı kullanılmaz (#2720).
   No=Yok ve koordinat yoksa marker yok, **Haritada Olmayanları Listele**’de durur (#2718).
   No=Yok + koordinat, veya mahalle/cadde boş + koordinat: pin koordinata konur (#2719).

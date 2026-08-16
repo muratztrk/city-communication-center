@@ -161,7 +161,7 @@ export function SingleSelectDropdown({
             onChange={event => setSearch(event.target.value)}
             onClick={event => event.stopPropagation()}
             placeholder={searchPlaceholder}
-            className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+            className="min-w-0 flex-1 bg-transparent text-[0.875rem] leading-tight text-slate-900 outline-none placeholder:text-slate-400"
           />
         </div>
       ) : null}

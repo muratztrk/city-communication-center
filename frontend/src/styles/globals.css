@@ -172,6 +172,12 @@
     max-height: min(72.9dvh, 42.3rem);
   }
 
+  /* WA Vatandaş Talebi Oluştur: taban shell’den çok az daha yüksek (#2742). */
+  .detail-modal-shell--citizen-create {
+    height: min(79.2dvh, 46rem);
+    max-height: min(79.2dvh, 46rem);
+  }
+
   /* Anasayfa pie drilldown: Taleplerim detaydan çok az daha geniş (#2690). */
   .detail-modal-shell--my-request.detail-modal-shell--chart-drilldown {
     width: min(67vw, 80rem);
@@ -2275,16 +2281,20 @@
     font-size: 0.8125rem;
   }
 
-  .whatsapp-neighborhood-menu-scroll .dropdown-menu-item {
+  /* Search matches list (liste küçültülmez; arama listeye yükselir, #2729).
+     Panel köküne de aynı sınıf konur: arama kutusu scroll dışında kalır (#2730 reopen). */
+  .whatsapp-neighborhood-menu-scroll .dropdown-menu-item,
+  .whatsapp-neighborhood-menu-scroll .dropdown-menu-item span {
     min-height: 2.15rem;
     padding: 0.4rem 0.65rem;
-    font-size: 0.875rem;
-  }
-
-  /* Search matches list (liste küçültülmez; arama listeye yükselir, #2729). */
-  .whatsapp-neighborhood-menu-scroll input {
     font-size: 0.875rem !important;
     line-height: 1.25;
+  }
+
+  .whatsapp-neighborhood-menu-scroll input,
+  .dropdown-menu-panel.whatsapp-neighborhood-menu-scroll input {
+    font-size: 0.875rem !important;
+    line-height: 1.25 !important;
   }
 
   .task-return-user-menu-scroll .dropdown-menu-item {
@@ -3516,6 +3526,11 @@
     min-height: 2rem;
     padding: 0.3rem 0.5rem;
     font-size: 0.82rem;
+  }
+
+  /* Mahalle/Cadde/No kapalı kutu punto = WA Vatandaş Bilgileri menü listesi (#2730 reopen). */
+  .citizen-request-form .field-select.citizen-request-address-select {
+    font-size: 0.875rem;
   }
 
   .citizen-request-form .helper-copy {

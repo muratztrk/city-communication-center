@@ -16,7 +16,7 @@ import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ModalCloseButton } from './ui/modal-close-button'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
-import { CbsStreetNoDropdowns } from './address/CbsStreetNoDropdowns'
+import { AddressCoordinatesField, CbsStreetNoDropdowns } from './address/CbsStreetNoDropdowns'
 import { ConversationPanel } from './ConversationPanel'
 import { RequestTagAddButton, RequestTagPicker } from './RequestTagDialog'
 import type { CitizenConversationDetail, Department, RequestTag, SocialMessage } from '../types/platform'
@@ -576,7 +576,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       role="presentation"
     >
       <div
-        className="detail-modal-shell flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+        className="detail-modal-shell detail-modal-shell--citizen-create flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
         <div
@@ -778,6 +778,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                         }
                       }}
                       placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+                      triggerClassName="citizen-request-address-select"
                       menuScrollClassName="whatsapp-neighborhood-menu-scroll"
                       menuClassName="whatsapp-neighborhood-menu-scroll"
                     />
@@ -788,12 +789,18 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     streetNo={streetNo}
                     required={Boolean(neighborhood)}
                     labelClassName="job-field-label"
-                    coordinates={coordinates}
-                    onCoordinatesChange={setCoordinates}
                     onStreetChange={setStreet}
                     onStreetNoChange={setStreetNo}
+                    triggerClassName="citizen-request-address-select"
                     menuScrollClassName="whatsapp-neighborhood-menu-scroll"
                     menuClassName="whatsapp-neighborhood-menu-scroll"
+                  />
+                </div>
+                <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+                  <AddressCoordinatesField
+                    value={coordinates}
+                    onChange={setCoordinates}
+                    labelClassName="job-field-label"
                   />
                 </div>
                 <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-stretch">

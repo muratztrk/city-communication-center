@@ -1,3 +1,9 @@
+## Round 915 — #2730/#2741/#2742
+
+- [x] `6a817465` — WA Vatandaş Talebi Oluştur Mahalle/Cadde/No arama+liste 0.875rem (kapalı kutu dahil).
+- [x] `6a819095` — Konum Koordinatı Mahalle’nin alt satırında.
+- [x] `6a8191ee` — Popup yüksekliği çok az artırıldı.
+
 ## Round 914 — #2738/#2733/#2740/#2736/#2728 reopen
 
 - [x] `6a8185d3` — Mobil harita Listele etiketleri tek satır (nowrap).

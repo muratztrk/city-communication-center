@@ -59,6 +59,7 @@ interface CbsStreetNoDropdownsProps {
   menuClassName?: string
   streetPlaceholder?: string
   streetNoPlaceholder?: string
+  triggerClassName?: string
 }
 
 /** Cadde/Sokak + No: İzmir CBS kademeli dropdown (#2655). */
@@ -78,6 +79,7 @@ export function CbsStreetNoDropdowns({
   menuClassName,
   streetPlaceholder,
   streetNoPlaceholder,
+  triggerClassName,
 }: CbsStreetNoDropdownsProps) {
   const showCoordinates = typeof onCoordinatesChange === 'function'
   const rowClassName = showCoordinates
@@ -114,6 +116,7 @@ export function CbsStreetNoDropdowns({
           searchPlaceholder={t('common.search', 'Ara...')}
           disabled={!hasNeighborhood || streetsLoading}
           clearable
+          triggerClassName={triggerClassName}
           menuScrollClassName={menuScrollClassName}
           menuClassName={menuClassName}
         />
@@ -134,6 +137,7 @@ export function CbsStreetNoDropdowns({
           disabled={!hasStreet || doorsLoading}
           clearable
           className="min-w-0 overflow-hidden"
+          triggerClassName={triggerClassName}
           menuScrollClassName={menuScrollClassName}
           menuClassName={menuClassName}
         />

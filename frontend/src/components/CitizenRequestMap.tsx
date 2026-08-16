@@ -706,7 +706,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
             type="button"
             disabled={loading || resolving || resolved.length === 0}
             onClick={() => setListMode('located')}
-            className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50 max-lg:px-2 max-lg:text-[10px]"
           >
             {t('citizenRequestMap.listRequests', 'Talepleri Listele')}
           </button>
@@ -714,7 +714,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
             type="button"
             disabled={loading || resolving || unlocated.length === 0}
             onClick={() => setListMode('unlocated')}
-            className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50"
+            className="whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50 max-lg:px-2 max-lg:text-[10px]"
           >
             {t('citizenRequestMap.listUnlocated', 'Haritada Olmayanları Listele')}
           </button>

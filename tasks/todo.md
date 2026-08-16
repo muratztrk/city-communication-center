@@ -1,3 +1,11 @@
+## Round 914 — #2738/#2733/#2740/#2736/#2728 reopen
+
+- [x] `6a8185d3` — Mobil harita Listele etiketleri tek satır (nowrap).
+- [x] `6a817712` — Detay ek adı + Ön İzle üst satır sağ kenarıyla aynı düşey hizada.
+- [x] `6a81903a` — Harita liste popup başlık rengi = Taleplerim detay başlığı.
+- [x] `6a817c6f` — Görevlerim düzenlemede Başlangıç Tarihi satırı yok.
+- [x] `6a8172ef` — Dosya ekle: %0 tıklamada; çubuk yükleme başlarken kaybolmaz.
+
 ## Round 913 — #2738 reopen
 
 - [x] `6a8185d3` — Mobil haritada Haritada Olmayanları Listele, Talepleri Listele’nin sağında aynı satır.

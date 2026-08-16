@@ -1,6 +1,7 @@
 import { Building2, FileText, Paperclip, Phone, Send, Workflow } from 'lucide-react'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -779,10 +780,12 @@ export function CreateRequestPage() {
   const uploadPendingFiles = async (jobId: string) => {
     if (pendingFiles.length === 0) return
 
+    flushSync(() => {
+      serverUploadRef.current = true
+      setAttachmentUploadProgress(0)
+      setShowAttachmentUploadProgress(true)
+    })
     fileProgress.stop()
-    serverUploadRef.current = true
-    setAttachmentUploadProgress(0)
-    setShowAttachmentUploadProgress(true)
 
     try {
       for (const [index, file] of pendingFiles.entries()) {

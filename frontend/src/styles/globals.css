@@ -378,6 +378,9 @@
   }
 
   .job-detail-field-row--request-info .job-detail-field-row__value {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
     text-align: right;
     font-weight: 600;
   }

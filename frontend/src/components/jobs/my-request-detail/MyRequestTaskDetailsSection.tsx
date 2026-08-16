@@ -276,7 +276,7 @@ export function MyRequestTaskDetailsSection({
                       ? [{
                           label: t('attachments.taskSectionTitle', 'Görev Ekleri'),
                           value: (
-                            <div className="flex flex-col items-end gap-1">
+                            <div className="flex w-full flex-col items-end gap-1">
                               {task.attachments!.map(attachment => {
                                 const AttachmentIcon = getInlineAttachmentIcon(attachment.fileName)
                                 return (

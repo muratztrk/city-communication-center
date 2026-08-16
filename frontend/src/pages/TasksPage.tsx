@@ -7,7 +7,7 @@ import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { ScopeChipButton } from '../components/ui/ScopeChipButton'
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
-import { createPortal } from 'react-dom'
+import { createPortal, flushSync } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -1093,9 +1093,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
     const totalBytes = incoming.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
+    flushSync(() => {
+      setCompletionAttachmentUploading(true)
+      setCompletionUploadProgress(0)
+    })
     completionPickerProgress.stop()
-    setCompletionAttachmentUploading(true)
-    setCompletionUploadProgress(0)
 
     for (const file of incoming) {
       try {
@@ -2384,7 +2386,7 @@ const pageKicker = isMyTasksView
                                   label: t('tasks.detail.attachments', 'Görev Ekleri'),
                                   // Dosya adı mavi; liste iki satırı aşarsa kendi içinde kayar (card #1617).
                                   value: (
-                                    <div className="flex max-h-11 flex-col items-end gap-1 overflow-y-auto pr-0.5 [scrollbar-gutter:stable]">
+                                    <div className="flex w-full max-h-11 flex-col items-end gap-1 overflow-y-auto">
                                       {taskDetail.attachments!.map(attachment => {
                                         const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
                                         return (
@@ -2426,20 +2428,6 @@ const pageKicker = isMyTasksView
                                       value={activeTaskEditDraft.priority}
                                       onChange={priority => updateActiveTaskEditDraft({ priority })}
                                       placeholder={t('tasks.newRequest.priority', 'Öncelik')}
-                                    />
-                                  ),
-                                }]
-                              : []),
-                            ...(editJobModal
-                              ? [{
-                                  label: t('jobs.form.startDate', 'Başlangıç Tarihi'),
-                                  value: (
-                                    <DateTimePicker
-                                      value={editJobModal.startDateUtc}
-                                      onChange={v => setEditJobModal(m => m && ({ ...m, startDateUtc: v }))}
-                                      placeholder={t('jobs.form.startDate', 'Başlangıç Tarihi')}
-                                      forceUp
-                                      disabled
                                     />
                                   ),
                                 }]
@@ -2947,7 +2935,7 @@ const pageKicker = isMyTasksView
                               label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
                               // Görev Ekleri satırıyla aynı sunum: mavi ad, iki satırı aşınca scroll (card #1617).
                               value: (
-                                <div className="flex max-h-11 flex-col items-end gap-1 overflow-y-auto pr-0.5 [scrollbar-gutter:stable]">
+                                <div className="flex w-full max-h-11 flex-col items-end gap-1 overflow-y-auto">
                                   {parentJobDetail.attachments!.map(attachment => {
                                     const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
                                     return (

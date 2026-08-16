@@ -1,5 +1,6 @@
 import { Download, FileText, Paperclip } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
@@ -94,9 +95,10 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     }
     const totalBytes = selectedFiles.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
-    pickerProgress.stop()
-    setUploading(true)
-    setUploadProgress(0)
+    flushSync(() => {
+      setUploading(true)
+      setUploadProgress(0)
+    })
     try {
       for (const file of selectedFiles) {
         try {
@@ -110,6 +112,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
         setUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)))
       }
     } finally {
+      pickerProgress.stop()
       setUploading(false)
       setUploadProgress(0)
     }

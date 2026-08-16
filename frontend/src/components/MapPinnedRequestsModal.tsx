@@ -157,7 +157,7 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
       >
         <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-5 py-3.5">
           <div className="detail-modal-header-title min-w-0">
-            <h2 className="flex min-w-0 items-start gap-2 text-sm font-bold text-emerald-700">
+            <h2 className="my-request-detail-header__title flex min-w-0 items-start gap-2">
               <Info className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
               <span className="block truncate">
                 {isCitizen

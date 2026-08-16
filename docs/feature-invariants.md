@@ -181,7 +181,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Taleplerim / Birime Gelen / Birimden Giden talep detay popup'larında bölüm başlığı
   `İlgili Görev Detayları`dır (card #1663); Görevlerim popup'ında kendi görev başlığı
   `Görev Detayları` kalır.
-  Görevlerim detay → Düzenle’de **Başlangıç Tarihi** salt okunurdur (#2736).
+  Görevlerim detay → Düzenle’de **Başlangıç Tarihi** satırı hiç gösterilmez; kayıtta mevcut `startDateUtc` gönderilir (#2736 reopen).
 - **Atanmış görev detay popup'ında `Öncelik` satırı gizlidir:** `Görev Tipi = Atanmış`
   olduğunda Görevlerim `Görev Detayları` altındaki Öncelik etiketi ve değeri görünmez; rutin
   görevlerin öncelik satırı korunur (card #1118).
@@ -249,8 +249,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Görsel ek adının hemen sağında küçük yeşil **Ön İzle** (Eye) vardır (`flex-1` yok — buton ada
   yapışık); lightbox `document.body` portal + `z-[400]` ile detay modalının üstünde açılır (#2709/#2732).
   Detay popup'ta **Talep Bilgileri** altında Talep Ekleri satırı yalnız ek varsa görünür (#2734 reopen).
-  **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle sağa yaslıdır (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
-  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar %0 görünür; yüzde, dosya seçilip yükleme başlayınca ilerler (#2728 reopen / #2734).
+  **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle, üst değer satırının sağ kenarıyla aynı düşey hizadadır (değer kolonu `align-items: flex-end`; scrollbar-gutter ek kümesini içeri kaydırmaz) (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
+  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar %0 görünür; yüzde, dosya seçilip yükleme başlayınca ilerler. Picker %0 çubuğu, yükleme state’i commit edilene kadar kapanmaz (#2728 reopen / #2734).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -283,7 +283,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`CreateJobCommand`, card #1079).
 - **Talep Oluştur ek yükleme ilerlemesi:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının
   seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar
-  Dosya ekle tıklanınca %0’da görünür, yüzde yükleme başlayınca ilerler (#2728 reopen / #2510).
+  Dosya ekle tıklanınca %0’da görünür, yüzde yükleme başlayınca ilerler; picker çubuğu yükleme barına geçişte kaybolmaz (#2728 reopen / #2510).
   tüm dosyalar için birleşik yüzde gösterilir. Vatandaş create/edit akışı da seçili dosyaları
   oluşan job'a gerçekten yükler (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
@@ -1727,7 +1727,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
   Yanında **Haritada Olmayanları Listele** aynı popup; başlık **Haritada Konumu Olmayan Talepler** (#2737).
-  Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır, alt satıra düşmez (#2738).
+  Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; her iki etikette `Listele` satır kırılmaz (`whitespace-nowrap`) (#2738).
+  Liste popup başlık rengi Taleplerim detay popup başlığıyla aynıdır (`my-request-detail-header__title`, emerald değil) (#2740).
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde
   şartı yok — cadde/konuşma yedegi geocode için FE’de; harita yine cadde zorunlu (#2635).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).

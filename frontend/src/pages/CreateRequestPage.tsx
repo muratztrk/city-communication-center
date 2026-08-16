@@ -1,7 +1,6 @@
 import { Building2, FileText, Paperclip, Phone, Send, Workflow } from 'lucide-react'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -289,9 +288,6 @@ export function CreateRequestPage() {
   const [confirmedKind, setConfirmedKind] = useState<RequestKind | null>(null)
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
-  const [attachmentUploadProgress, setAttachmentUploadProgress] = useState(0)
-  const [showAttachmentUploadProgress, setShowAttachmentUploadProgress] = useState(false)
-  const serverUploadRef = useRef(false)
   const fileProgress = useLocalFileSelectProgress()
   const [activeDepartmentId, setActiveDepartmentId] = useState<string | null>(getActiveDepartmentId)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -754,8 +750,6 @@ export function CreateRequestPage() {
                         const next = prev.filter((_, i) => i !== idx)
                         if (next.length === 0) {
                           fileProgress.stop()
-                          setShowAttachmentUploadProgress(false)
-                          setAttachmentUploadProgress(0)
                         }
                         return next
                       })
@@ -770,8 +764,8 @@ export function CreateRequestPage() {
           )}
         </div>
       </div>
-      {showAttachmentUploadProgress || fileProgress.visible ? (
-        <AttachmentUploadProgressBar progress={showAttachmentUploadProgress ? attachmentUploadProgress : fileProgress.progress} className="mt-2" />
+      {fileProgress.visible ? (
+        <AttachmentUploadProgressBar progress={fileProgress.progress} className="mt-2" />
       ) : null}
       {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
     </div>
@@ -780,24 +774,17 @@ export function CreateRequestPage() {
   const uploadPendingFiles = async (jobId: string) => {
     if (pendingFiles.length === 0) return
 
-    flushSync(() => {
-      serverUploadRef.current = true
-      setAttachmentUploadProgress(0)
-      setShowAttachmentUploadProgress(true)
-    })
-    fileProgress.stop()
+    fileProgress.report(0)
 
     try {
       for (const [index, file] of pendingFiles.entries()) {
-        await api.uploadJobAttachment(jobId, file, fileProgress => {
-          const overallProgress = Math.round(((index + fileProgress / 100) / pendingFiles.length) * 100)
-          setAttachmentUploadProgress(overallProgress)
+        await api.uploadJobAttachment(jobId, file, percent => {
+          const overallProgress = Math.round(((index + percent / 100) / pendingFiles.length) * 100)
+          fileProgress.report(overallProgress)
         })
       }
     } finally {
-      serverUploadRef.current = false
-      setShowAttachmentUploadProgress(false)
-      setAttachmentUploadProgress(0)
+      fileProgress.stop()
     }
   }
 

@@ -1097,12 +1097,14 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       setCompletionAttachmentUploading(true)
       setCompletionUploadProgress(0)
     })
-    completionPickerProgress.stop()
+    completionPickerProgress.report(0)
 
     for (const file of incoming) {
       try {
         const attachment = await api.uploadTaskAttachment(completeModal.taskId, file, percent => {
-          setCompletionUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
+          const next = Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100))
+          setCompletionUploadProgress(next)
+          completionPickerProgress.report(next)
         })
         setPendingCompletionAttachments(current => [...current, {
           attachmentId: attachment.attachmentId,
@@ -1110,12 +1112,15 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
           fileSizeBytes: attachment.fileSizeBytes,
         }])
         uploadedBytes += file.size
-        setCompletionUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)))
+        const done = Math.min(100, Math.round((uploadedBytes / totalBytes) * 100))
+        setCompletionUploadProgress(done)
+        completionPickerProgress.report(done)
       } catch (err) {
         setCompletionAttachmentError(err instanceof Error ? err.message : t('common.error'))
       }
     }
 
+    completionPickerProgress.stop()
     setCompletionUploadProgress(0)
     setCompletionAttachmentUploading(false)
 
@@ -3584,7 +3589,7 @@ const pageKicker = isMyTasksView
                   />
                 </label>
                 {completionAttachmentUploading || completionPickerProgress.visible ? (
-                  <AttachmentUploadProgressBar progress={completionAttachmentUploading ? completionUploadProgress : completionPickerProgress.progress} />
+                  <AttachmentUploadProgressBar progress={completionAttachmentUploading ? Math.max(completionUploadProgress, completionPickerProgress.progress) : completionPickerProgress.progress} />
                 ) : null}
               </div>
               <div className="inline-actions justify-end">

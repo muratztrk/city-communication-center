@@ -284,6 +284,16 @@
     color: rgb(71 85 105);
   }
 
+  /* Harita liste popup başlığı: yalnızca ilk harfler büyük, ALL CAPS yok (#2740). */
+  .detail-modal-shell--all-requests .map-list-modal-title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    line-height: 1.2;
+    text-transform: none;
+    color: rgb(71 85 105);
+  }
+
   .detail-modal-title-rest {
     /* Masaüstünde tek satır; mobilde ikinci satıra döker (card #1728). */
     display: inline;

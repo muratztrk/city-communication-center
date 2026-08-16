@@ -99,17 +99,22 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
       setUploading(true)
       setUploadProgress(0)
     })
+    pickerProgress.report(0)
     try {
       for (const file of selectedFiles) {
         try {
           await onUpload?.(file, percent => {
-            setUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
+            const next = Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100))
+            setUploadProgress(next)
+            pickerProgress.report(next)
           })
         } catch (err) {
           setValidationError(err instanceof Error ? err.message : String(err))
         }
         uploadedBytes += file.size
-        setUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)))
+        const done = Math.min(100, Math.round((uploadedBytes / totalBytes) * 100))
+        setUploadProgress(done)
+        pickerProgress.report(done)
       }
     } finally {
       pickerProgress.stop()
@@ -200,7 +205,10 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
         </div>
       )}
       {!readOnly && (uploading || pickerProgress.visible) ? (
-        <AttachmentUploadProgressBar progress={uploading ? uploadProgress : pickerProgress.progress} className="attachment-upload-progress mt-2" />
+        <AttachmentUploadProgressBar
+          progress={uploading ? Math.max(uploadProgress, pickerProgress.progress) : pickerProgress.progress}
+          className="attachment-upload-progress mt-2"
+        />
       ) : null}
 
       {validationError && (

@@ -1,3 +1,9 @@
+## Round 916 — #2728/#2740/#2738 reopen
+
+- [x] `6a8172ef` — Dosya ekle: seçim sonrası focus barı kapatmaz; yükleme `report` ile ilerler.
+- [x] `6a81903a` — Harita liste popup başlığı title case (ALL CAPS yok).
+- [x] `6a8185d3` — Mobil liste butonları biraz daha geniş, aynı satır.
+
 ## Round 915 — #2730/#2741/#2742
 
 - [x] `6a817465` — WA Vatandaş Talebi Oluştur Mahalle/Cadde/No arama+liste 0.875rem (kapalı kutu dahil).

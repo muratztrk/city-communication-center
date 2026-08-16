@@ -1,3 +1,9 @@
+## Round 951 — #2778/#2779/#2777
+
+- [x] `6a822326` — İlgili Talep Adres Tarifi başlığı Mahalle ile aynı düşey hizada.
+- [x] `6a822498` — Süreç tarih-saat puntosu 0.75rem.
+- [x] `6a82226d` — Görev Detayları Süreç Son Tarih `date • time`.
+
 ## Round 950 — #2776/#2775
 
 - [x] `6a822074` — Terminal Yapılmakta, gecikmişse `Yapılmakta (Geciken)`.

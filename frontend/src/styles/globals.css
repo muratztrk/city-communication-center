@@ -560,8 +560,12 @@
   .detail-modal-shell--my-request .job-process-timeline__datetime-value,
   .detail-modal-shell .job-process-timeline__datetime-value,
   .job-process-timeline__datetime-value {
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     line-height: 1.35;
+  }
+
+  .job-process-timeline__due-date-actions .job-process-timeline__datetime-value {
+    display: none;
   }
 
   .detail-modal-shell--my-request .job-process-timeline__step-value .text-xs,
@@ -805,7 +809,6 @@
   }
 
   .address-detail-my-request--task .address-detail-my-request__item--directions .address-detail-my-request__label {
-    transform: none !important;
     padding-inline-start: 0 !important;
     margin-inline: auto !important;
     text-align: center !important;
@@ -818,7 +821,6 @@
     width: 100% !important;
     margin-inline: 0 !important;
     text-align: center !important;
-    transform: none !important;
     display: flex;
     justify-content: center;
   }

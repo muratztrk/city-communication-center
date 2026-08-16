@@ -296,7 +296,17 @@ export function JobProcessTimeline({
                     className={`job-process-timeline__step-value job-process-timeline__datetime-value mt-0.5 font-semibold ${valueTone}`}
                   />
                 ) : step.id === 'dueDate' && dueDateContent ? (
-                  <div className="mt-0.5">{dueDateContent}</div>
+                  <div className="mt-0.5">
+                    <ProcessStepDateValue
+                      step={step}
+                      locale={locale}
+                      metaTone={displayMetaTone}
+                      className={`job-process-timeline__step-value job-process-timeline__datetime-value font-semibold ${valueTone}`}
+                    />
+                    <div className="job-process-timeline__due-date-actions">
+                      {dueDateContent}
+                    </div>
+                  </div>
                 ) : (
                   <ProcessStepDateValue
                     step={inProgressAssigneeSuffix

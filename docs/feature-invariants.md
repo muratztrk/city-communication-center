@@ -1014,8 +1014,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   zaman `date • time - date • time` (bullet + ` - `). Kapanışta son tarih geçmişse etiket
   `Yapılmakta (Geciken)` olur (#2776). Ayrı `inProgressPeriod` adımıdır;
   `statusContent` bu değeri ezmez. Görev tarafı: Görevlerim + İlgili Görev Detayları.
-- **Süreç tarih/saat punto (#2775):** tarih-saat ve Son Tarih değerleri `0.6875rem`
-  (`datetime-value`); Durum etiketi `0.75rem` kalır.
+- **Süreç tarih/saat punto (#2775/#2779):** tarih-saat ve Son Tarih `0.75rem` (`datetime-value`);
+  Durum etiketi aynı. Son Tarih `date • time` (ProcessStepDateValue, #2777).
+- **Görevlerim İlgili Talep Adres Tarifi (#2778):** `Adres Tarifi` başlığı Mahalle ile aynı düşey
+  hizada (Mahalle etiketindeki `translateX` Adres Tarifi’nde sıfırlanmaz).
 - **Timeline son aktif pulse:** süreçte turuncu güncel adım varsa o yanıp söner; yoksa son aktif
   yeşil/kırmızı nokta turuncu pulse'ın yeşil/kırmızı eşdeğeriyle yanıp söner (card #1339/#1343).
 - **Birime Gelen / Birimden Giden detay Süreç kolonu (card #1527):** flat alan listesi değil;

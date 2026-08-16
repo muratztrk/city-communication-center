@@ -760,7 +760,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
               <div className="job-field min-h-0">
                 <span className="job-field-label">{t('jobs.form.description', 'Açıklama')} <span className="normal-case text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
-                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-[7.15rem]" />
+                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-[6.85rem]" />
               </div>
 
               <div className="job-field">
@@ -784,6 +784,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                         }
                       }}
                       placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+                      triggerClassName="citizen-request-address-trigger"
                     />
                   </label>
                   <CbsStreetNoDropdowns
@@ -794,6 +795,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     labelClassName="job-field-label"
                     onStreetChange={setStreet}
                     onStreetNoChange={setStreetNo}
+                    triggerClassName="citizen-request-address-trigger"
                   />
                 </div>
                 <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">

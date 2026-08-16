@@ -772,8 +772,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geri gelmiştir; veri `TaskStatusChanged` audit `Notes` alanından okunur ve Süreç altında gösterilir.
 - **`CitizenRequestModal` `Talep Başlığı`:** saran textarea + dikey scroll; etiket textbox kaldırılınca
   yükseklik artar (`min-height` ~4.25rem). Başlık kolonu Öncelik’ten biraz daha geniş, Öncelik dar
-  (`7.25rem`, #2743). Gideceği Birim menü punto `0.75rem`; Adres Tarifi input `0.7rem`; Açıklama
-  editör yüksekliği `7.15rem` (#2743).
+  (`7.25rem`, #2743). Gideceği Birim ve Öncelik menü punto `0.75rem`; Adres Tarifi input Açıklama ile aynı `0.8rem`; Açıklama
+  editör yüksekliği `6.85rem` (#2743/#2746). Mahalle/Cadde/No boş placeholder punto biraz küçük (#2747).
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Konum Koordinatı
@@ -1581,7 +1581,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanır; `Tamamlanma / İptal Tarihi` fallback ibaresi geri gelmez.
   Anasayfa-Vatandaş mahalle/birim/VT pie popup’larında **Birim sütunu yok** (#2689).
   Pie drilldown shell `67vw` / `80rem` (#2690). Sütun filtresi varken yanıp sönen **Filtreyi sil**
-  Yazdır’ın solundadır (#2683).
+  Yazdır’ın solundadır (#2683); chip punto/padding biraz küçüktür (#2683 reopen).
   "Banner sayımına bağlı grafik" istekleri yeni backend aggregation gerektirir (#731 bu
   yüzden ertelendi).
 - **Dashboard pie chart'ları sıfır veride de görünür kalmalı:** `showZeroSlices` kullanılan
@@ -1731,7 +1731,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Anasayfa-Vatandaş `section-card` ile aynı (#2580).
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
-  Yanında **Haritada Olmayanları Listele** aynı popup; başlık **Haritada Konumu Olmayan Talepler** (#2737).
+  Yanında **Haritada Olmayanları Listele** aynı popup; başlık **Harita Konumu Olmayan Talepler** (#2737/#2745).
+  Birim haritası konumlanan liste başlığı **Konum Bilgisi Olan Birim Talepleri** (#2745).
   Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; etiketler nowrap, mobil butonlar biraz daha geniş ve biraz daha yüksek (`flex-1`, `min-h`, #2738).
   Liste popup başlığı title case’dir (ALL CAPS yok, `map-list-modal-title`) (#2740).
   Sütun filtresi varken yanıp sönen **Filtreyi sil** kapatma (X) solundadır (#2717).

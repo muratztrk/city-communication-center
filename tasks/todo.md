@@ -1,3 +1,11 @@
+## Round 919 — #2743/#2747/#2746/#2683/#2745
+
+- [x] `6a8198a6` — WA Öncelik menü punto biraz küçültüldü.
+- [x] `6a819f67` — Mahalle/Cadde/No placeholder punto küçültüldü.
+- [x] `6a819f45` — Adres Tarifi = Açıklama punto; Açıklama biraz alçak.
+- [x] `6a8066f1` — Pie Filtreyi sil chip biraz küçültüldü.
+- [x] `6a819da1` — Harita Konumu Olmayan Talepler; Konum Bilgisi Olan Birim Talepleri.
+
 ## Round 918 — #2744/#2730/#2738/#2728/#2713
 
 - [x] `6a819cee` — WA talep popup mesajında Ön İzle / İndir / Talep Eki butonları daha dar.

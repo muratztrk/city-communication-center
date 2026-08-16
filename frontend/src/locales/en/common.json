@@ -68,7 +68,8 @@
     "mapHeading": "Tasks in Department",
     "mapHeadingOrgWide": "Internal Department Requests",
     "detailTitle": "Request",
-    "ticketsTitle": "Department Request Information List"
+    "ticketsTitle": "Department Request Information List",
+    "locatedListTitle": "Department requests with a map location"
   },
   "citizenRequestMap": {
     "eyebrow": "Citizen requests",

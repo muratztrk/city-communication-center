@@ -164,10 +164,10 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
                 {isCitizen
                   ? (located
                     ? t('nav.social', 'Vatandaş Talepleri')
-                    : t('citizenRequestMap.unlocatedListTitle', 'Haritada Konumu Olmayan Talepler'))
+                    : t('citizenRequestMap.unlocatedListTitle', 'Harita Konumu Olmayan Talepler'))
                   : (located
-                    ? t('departmentRequestMap.ticketsTitle', 'Birim Talep Bilgi Listesi')
-                    : t('citizenRequestMap.unlocatedListTitle', 'Haritada Konumu Olmayan Talepler'))}
+                    ? t('departmentRequestMap.locatedListTitle', 'Konum Bilgisi Olan Birim Talepleri')
+                    : t('citizenRequestMap.unlocatedListTitle', 'Harita Konumu Olmayan Talepler'))}
               </span>
             </h2>
           </div>

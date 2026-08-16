@@ -68,7 +68,8 @@
     "mapHeading": "Birimdeki Görevler",
     "mapHeadingOrgWide": "Kurum İçi Birim Talepleri",
     "detailTitle": "Talep",
-    "ticketsTitle": "Birim Talep Bilgi Listesi"
+    "ticketsTitle": "Birim Talep Bilgi Listesi",
+    "locatedListTitle": "Konum Bilgisi Olan Birim Talepleri"
   },
   "citizenRequestMap": {
     "eyebrow": "Vatandaş talepleri",
@@ -80,7 +81,7 @@
     "listUnlocated": "Haritada Olmayanları Listele",
     "geocodeEmpty": "Adresler haritada konumlanamadı.",
     "geocodePartial": "{{count}} talep adresinden konumlanamadı.",
-    "unlocatedListTitle": "Haritada Konumu Olmayan Talepler",
+    "unlocatedListTitle": "Harita Konumu Olmayan Talepler",
     "streetView": "Street View",
     "approximatePin": "Yaklaşık konum — açık adres tam çözülemedi, mahalle/cadde seviyesinde gösteriliyor.",
     "detailTitle": "Vatandaş Talep Bilgisi",

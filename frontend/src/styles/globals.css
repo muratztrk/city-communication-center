@@ -2288,7 +2288,7 @@
   }
 
   .citizen-request-priority-menu .dropdown-menu-item {
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
   }
 
   .citizen-request-department-menu .dropdown-menu-item {
@@ -3560,8 +3560,8 @@
 
   .citizen-request-form .rich-text-editable {
     font-size: 0.8rem;
-    min-height: 7.15rem;
-    max-height: 7.15rem;
+    min-height: 6.85rem;
+    max-height: 6.85rem;
     padding: 0.5rem 0.6rem;
     line-height: 1.45;
   }
@@ -3585,7 +3585,11 @@
     min-height: 5rem;
     height: 5rem;
     box-sizing: border-box;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
+  }
+
+  .citizen-request-form .citizen-request-address-trigger span.text-slate-400 {
+    font-size: 0.72rem;
   }
 
   .request-actions button,
@@ -3673,7 +3677,7 @@
 
   .citizen-request-form .address-open-textarea,
   .citizen-request-form .citizen-request-open-address {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     line-height: 1.3;
   }
 
@@ -4373,18 +4377,18 @@
     background: #fecaca;
     border-color: #f87171;
     color: #991b1b;
-    font-size: 0.76rem;
+    font-size: 0.68rem;
     font-weight: 600;
-    padding: 0.38rem 1rem;
+    padding: 0.3rem 0.8rem;
     line-height: 1.3;
     letter-spacing: 0.015em;
-    min-height: 1.85rem;
+    min-height: 1.65rem;
     animation: ccc-blink 2.2s ease-in-out infinite;
   }
 
   .app-content-shell .scope-chip.scope-chip--clear-pie,
   .app-content-shell .scope-chip--clear-pie {
-    font-size: 0.76rem;
+    font-size: 0.68rem;
   }
 
   .scope-chip.scope-chip--clear-pie.active,

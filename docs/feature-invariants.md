@@ -490,7 +490,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonda MapPin + (yer açıklaması varsa açıklama, yoksa **Konum**)
   + alt satırda Haritada Göster; enlem/boylam metni gösterilmez; kayıtlı yer (`Name - Address`)
-  SocialMessage lat/lng ile tanınır. Vatandaş Talebi popup konuşmasında konum metni balon mesaj punto ile aynıdır (`text-[11px]` compact / `text-[13px]` normal, #2748).
+  SocialMessage lat/lng ile tanınır. Vatandaş Talebi popup konuşmasında konum metni compact `12px` / normal `13px` (#2748).
   Medya placeholder (`[image]` vb.) ve medya balonunda konum UI yok (#6a74de2a reopen / #6a6b9fac).
   Inbound MapPin çerçevesi Taleplerim ek ikonuyla aynı emerald rozet
   (`border-emerald-100 bg-emerald-50 text-emerald-700`, `size-5` kutu + `size-3` ikon; #6a74de2a / #6a75958d).
@@ -620,7 +620,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
   footer input'ta tutulur.
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.
-- **Medya balon Talep Eki hizası (#2401/#2410/#2744):** modalda görsel+doküman gelen eklerde Ön İzle · İndir aynı satırda, **Talep Eki Olarak Ekle** alt satırda ve sağ kenarı İndir ile aynı (`w-fit` + `w-full`); butonlar biraz daha dar (`h-6` / `10px`). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
+- **Medya balon Talep Eki hizası (#2401/#2410/#2744):** modalda görsel+doküman gelen eklerde Ön İzle · İndir aynı satırda, **Talep Eki Olarak Ekle** alt satırda; üçü görsel genişliğine göre ortalanır (`items-center` + `w-fit`); sağ kenar İndir ile aynı (`w-full`); butonlar biraz daha dar (`h-6` / `10px`). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
   gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5` (#2411 reopen). Bekleyen giden görsel önizleme
   yüksekliği kompakt `max-h-32`, normal `max-h-36`; görsel `w-full object-cover` (çerçeveyi
   yatay doldurur); giden görsel balonu `max-w-[min(58%,15.5rem)]` / kompakt `54%` (#2711 reopen).
@@ -772,7 +772,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **`CitizenRequestModal` `Talep Başlığı`:** saran textarea + dikey scroll; etiket textbox kaldırılınca
   yükseklik artar (`min-height` ~4.25rem). Başlık kolonu Öncelik’ten biraz daha geniş, Öncelik dar
   (`7.25rem`, #2743). Öncelik menü sırası Normal → Yüksek → Çok Yüksek (`prioritySelectOptions`, #2749). Gideceği Birim ve Öncelik menü punto `0.75rem`; Adres Tarifi input Açıklama ile aynı `0.8rem`; Açıklama
-  editör yüksekliği `6.85rem` (#2743/#2746). Mahalle/Cadde/No boş placeholder punto biraz küçük (#2747). Gideceği Birim / Öncelik kapalı placeholder punto biraz küçük (`citizen-request-placeholder-trigger`, #2747 reopen). Açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (`citizen-request-department-menu`, #2730).
+  editör yüksekliği `6.85rem` (#2743/#2746). Mahalle/Cadde/No boş placeholder punto biraz küçük (#2747). Gideceği Birim / Öncelik kapalı placeholder punto biraz küçük (`citizen-request-placeholder-trigger`, #2747 reopen). Öncelik kapalı seçili metin `12px` (#2747). Açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (`citizen-request-department-menu`, #2730).
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Konum Koordinatı
@@ -1813,7 +1813,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`replaceUnitWithCitizenContact`). Dizin Detaylar popup’ında Birim yok; stacked Ad/Telefon
   kolonu da yok (#2750) — yalnız harita `replaceUnitWithCitizenContact`. Başlıklarda sıralama+filtre;
   dizin yazdırmada kanal sütunu, stacked Ad/Telefon yok. Dizin **Filtreyi sil** Yazdır’ın solunda
-  (aynı grup, #2708).
+  (aynı grup, #2708). Filtre sonucu boşsa grid kalır, tbody `Henüz gösterilecek veri yok.` (#2653).
+  Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
+  **Vatandaş Adres Bilgisi** + sağda **Adresi Gör** (küçük portal popup, #2751).
   Harita popup kolon sırası: Sıra → VT No (kanal ikonu `size-3.5` yanında, Talep Kanalı sütunu yok)
   → stacked Vatandaş Adı / Telefon No → Talep Tarihi → Başlık → Durum (#2635/#2636).
   Harita Yazdır h1 ve VT No stacked `Vatandaş` / `Talep No`; Vatandaş Adı / Telefon No

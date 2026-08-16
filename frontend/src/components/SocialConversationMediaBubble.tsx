@@ -248,7 +248,7 @@ function SocialConversationMediaBubbleInner({
   }
 
   return (
-    <div ref={containerRef} className="space-y-1.5">
+    <div ref={containerRef} className={`space-y-1.5 ${requestAttachmentLayout ? 'flex flex-col items-center' : ''}`}>
       {isImage ? (
         <button
           type="button"
@@ -307,8 +307,8 @@ function SocialConversationMediaBubbleInner({
       )}
 
       {requestAttachmentLayout && showAddAsAttachment ? (
-        <div className="grid w-fit max-w-full gap-1">
-          <div className="flex flex-wrap gap-1">
+        <div className="mx-auto grid w-fit max-w-full justify-items-stretch gap-1">
+          <div className="flex flex-wrap justify-center gap-1">
             {canPreviewInline ? (
               <Button type="button" size="sm" variant="success" className="h-6 px-1.5 text-[10px]" onClick={() => setPreviewOpen(true)}>
                 <Eye className="size-3" aria-hidden="true" />

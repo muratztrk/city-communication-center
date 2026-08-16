@@ -309,7 +309,7 @@ export function ConversationEntryBubble({
             </p>
           ) : isLocationMessage ? (
             <div className="grid gap-1.5">
-              <p className="inline-flex items-start gap-1.5 leading-snug">
+              <p className={`inline-flex items-start gap-1.5 leading-snug ${compact ? 'text-[12px]' : 'text-[13px]'}`}>
                 <span
                   className={`mt-0.5 flex size-5 shrink-0 items-center justify-center rounded-md border ${
                     isInbound

@@ -9,10 +9,12 @@ import {
   formatCitizenPhoneDisplay,
   formatCitizenRequestNumber,
   isCitizenRequestJob,
+  hasCitizenAddress,
 } from '../../../utils/citizenRequests'
 import { getPriorityLabel, getSocialChannelLabel } from '../../../utils/localization'
 import { RequestNumberWithTypeLabel } from '../../../utils/requestDisplay'
 import { StackedFieldValue, StackedFieldLabel } from './StackedFieldValue'
+import { CitizenAddressPeekButton } from './CitizenAddressPeekButton'
 
 export interface MyRequestDetailField {
   label: ReactNode
@@ -106,6 +108,19 @@ export function buildMyRequestDetailFields(
         label: t('jobs.detail.citizenNamePhone', 'Vatandaş Adı / Telefon No'),
         value: <StackedFieldValue top={detail.citizenName} bottom={formatCitizenPhoneDisplay(detail.citizenPhone)} />,
       },
+      ...(hasCitizenAddress(detail)
+        ? [{
+            label: t('jobs.detail.citizenAddressInfo', 'Vatandaş Adres Bilgisi'),
+            value: (
+              <CitizenAddressPeekButton
+                neighborhood={detail.neighborhood}
+                street={detail.street}
+                streetNo={detail.streetNo}
+                openAddress={detail.openAddress}
+              />
+            ),
+          }]
+        : []),
       { label: t('jobs.form.title', 'Talep Başlığı'), value: detail.title },
       {
         label: locationLabel,

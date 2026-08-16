@@ -1,3 +1,11 @@
+## Round 923 — #2744/#2653/#2747/#2751/#2748
+
+- [x] `6a819cee` — WA medya butonları görsel genişliğine göre ortalandı.
+- [x] `6a803699` — Dizin Detaylar filtre boş: grid kalır, Henüz gösterilecek veri yok.
+- [x] `6a819f67` — WA Öncelik kapalı seçili metin 12px.
+- [x] `6a81a61a` — Detay Talep Bilgileri: adres varsa Adresi Gör popup.
+- [x] `6a81a070` — WA konum metni compact 12px.
+
 ## Round 922 — #2738/#2748
 
 - [x] `6a8185d3` — Mobil harita liste butonları içerik genişliği; Talepleri Listele biraz daha dar.

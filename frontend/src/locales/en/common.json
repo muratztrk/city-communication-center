@@ -1845,6 +1845,8 @@
       "cancelledAt": "Cancellation Date",
       "citizenRequestNo": "Citizen Request No",
       "citizenNamePhone": "Citizen Name / Phone",
+      "citizenAddressInfo": "Citizen Address",
+      "viewAddress": "View Address",
       "requestLocationCreator": "Request Location / Creator",
       "requestRouter": "Routed By",
       "requestLocation": "Request Location",

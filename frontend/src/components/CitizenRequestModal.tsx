@@ -728,7 +728,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     value={priority}
                     onChange={setPriority}
                     placeholder={t('jobs.form.priority', 'Öncelik')}
-                    triggerClassName="text-[13px] citizen-request-placeholder-trigger"
+                    triggerClassName="text-[12px] citizen-request-placeholder-trigger"
                     menuScrollClassName="citizen-request-priority-menu"
                   />
                 </div>

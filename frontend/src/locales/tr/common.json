@@ -1887,6 +1887,8 @@
       "cancelledAt": "İptal Tarihi",
       "citizenRequestNo": "Vatandaş Talep No",
       "citizenNamePhone": "Vatandaş Adı / Telefon No",
+      "citizenAddressInfo": "Vatandaş Adres Bilgisi",
+      "viewAddress": "Adresi Gör",
       "requestLocationCreator": "Talep Yeri / Oluşturan",
       "requestRouter": "Talebi Yönlendiren",
       "requestLocation": "Talep Yeri",

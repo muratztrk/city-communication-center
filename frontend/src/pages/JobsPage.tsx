@@ -54,6 +54,7 @@ import {
   shouldShowCitizenTargetApprovalDate,
   countOpenWorkTasks,
   requestLocationFieldLabel,
+  hasCitizenAddress,
 } from '../utils/citizenRequests'
 import { getExternalUnitOwnerDisplayStatus, getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -68,6 +69,7 @@ import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyReq
 import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
 import { MyRequestTaskDetailsSection } from '../components/jobs/my-request-detail/MyRequestTaskDetailsSection'
 import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
+import { CitizenAddressPeekButton } from '../components/jobs/my-request-detail/CitizenAddressPeekButton'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation, wasReopenedViaCitizenMessageApproval } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import { pendingApprovalValueClassName } from '../components/jobs/my-request-detail/format'
@@ -2779,6 +2781,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: 'Vatandaş Adı / Telefon No',
                         value: <StackedFieldValue top={detail.citizenName} bottom={formatCitizenPhoneDisplay(detail.citizenPhone)} />,
                       },
+                      ...(hasCitizenAddress(detail) ? [{
+                        label: t('jobs.detail.citizenAddressInfo', 'Vatandaş Adres Bilgisi'),
+                        value: (
+                          <CitizenAddressPeekButton
+                            neighborhood={detail.neighborhood}
+                            street={detail.street}
+                            streetNo={detail.streetNo}
+                            openAddress={detail.openAddress}
+                          />
+                        ),
+                      }] : []),
                       {
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
                         // Dış birim yeşil çerçeve kaldırıldı — eski düz görünüm (card #r455).

@@ -21,6 +21,7 @@ import { DetailModalTitle } from '../../utils/detailModalTitle'
 import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, shouldShowGridPrioritySubline } from '../../utils/localization'
 import { formatDirectoryPhone } from '../../utils/phoneDisplay'
 import { printHtmlDocument } from '../../utils/printDocument'
+import { TableEmptyStateRows } from '../ui/table-empty-state-rows'
 
 export type CitizenTicketsModalCitizen = {
   citizenName: string | null
@@ -276,6 +277,11 @@ export function CitizenDirectoryTicketsModal({
     setTicketPage(1)
   }
 
+  const ticketColumnCount = 2
+    + (showCitizenContact ? 1 : 0)
+    + 1
+    + (isDepartmentMap ? 2 : replaceUnitWithCitizenContact ? 0 : 1)
+    + 3
   const ticketTotalCount = sortedTickets.length
   const ticketSafePage = Math.min(ticketPage, Math.max(1, Math.ceil(ticketTotalCount / ticketPageSize) || 1))
   const pagedTickets = sortedTickets.slice((ticketSafePage - 1) * ticketPageSize, ticketSafePage * ticketPageSize)
@@ -356,7 +362,7 @@ export function CitizenDirectoryTicketsModal({
               {loading ? <div className="loading">{t('common.loading')}</div> : null}
               {error ? <div className="error">{error}</div> : null}
               {!loading && !error ? (
-                sortedTickets.length === 0 ? (
+                tickets.length === 0 ? (
                   <p className="text-sm text-slate-500">{emptyMessage ?? t('citizenDirectory.noTickets', 'Bu vatandaşa ait talep bulunamadı.')}</p>
                 ) : (
                   <table className="data-table citizen-directory-tickets-table">
@@ -471,7 +477,12 @@ export function CitizenDirectoryTicketsModal({
                       </tr>
                     </thead>
                     <tbody>
-                      {pagedTickets.map((ticket, index) => {
+                      {pagedTickets.length === 0 ? (
+                        <TableEmptyStateRows
+                          columnCount={ticketColumnCount}
+                          message={t('dashboard.chart.noData', 'Henüz gösterilecek veri yok.')}
+                        />
+                      ) : pagedTickets.map((ticket, index) => {
                         const statusLabel = ticket.jobStatus
                           ? getCitizenRequestStatusLabel(t, {
                               status: ticket.jobStatus,
@@ -584,7 +595,7 @@ export function CitizenDirectoryTicketsModal({
               ) : null}
             </div>
           </div>
-          {!loading && !error && sortedTickets.length > 0 ? (
+          {!loading && !error && tickets.length > 0 ? (
             <TablePagination
               totalCount={ticketTotalCount}
               pageSize={ticketPageSize}

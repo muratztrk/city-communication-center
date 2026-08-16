@@ -9,6 +9,15 @@ export function isCitizenRequestJob(job: { requestType?: string | null; sourceTy
     || job.sourceType === 'EDevlet'
 }
 
+export function hasCitizenAddress(fields: {
+  neighborhood?: string | null
+  street?: string | null
+  streetNo?: string | null
+  openAddress?: string | null
+}): boolean {
+  return [fields.neighborhood, fields.street, fields.streetNo, fields.openAddress].some(value => Boolean(value?.trim()))
+}
+
 /** Vatandaş talebinde konum/oluşturan başlığı (#2627). */
 export function requestLocationFieldLabel(
   job: { requestType?: string | null; sourceType?: string | null },

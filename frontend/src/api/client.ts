@@ -569,8 +569,9 @@ export const api = {
     return response.json() as Promise<{ latitude: number; longitude: number; approximate: boolean } | null>
   },
 
-  async fillJobCbsAddressFromCoordinates(jobId: string, districtId: string): Promise<boolean> {
+  async fillJobCbsAddressFromCoordinates(jobId: string, districtId: string, streetNo?: string | null): Promise<boolean> {
     const params = new URLSearchParams({ districtId })
+    if (streetNo?.trim()) params.set('streetNo', streetNo.trim())
     const response = await fetchWithCredentials(
       `${API_BASE}/jobs/${jobId}/fill-cbs-address-from-coordinates?${params}`,
       { method: 'POST', headers: await getAuthHeaders() },

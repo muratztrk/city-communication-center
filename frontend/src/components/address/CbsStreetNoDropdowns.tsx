@@ -10,7 +10,7 @@ interface AddressCoordinatesFieldProps {
   labelClassName?: string
 }
 
-/** Konum Koordinatı: taşan metin ellipsis + 200ms hover tooltip (#2725/#2763). */
+/** Konum Koordinatı: taşan metin ellipsis + 500ms hover tooltip (#2725/#2763). */
 export function AddressCoordinatesField({
   value,
   onChange,
@@ -29,14 +29,14 @@ export function AddressCoordinatesField({
       <input
         type="text"
         inputMode="url"
-        className="field-input min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px]"
+        className="field-input min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px] placeholder:text-[13px]"
         placeholder={t('address.coordinatesPlaceholder', 'Link giriniz...')}
         value={value}
         onChange={event => onChange(event.target.value)}
         onMouseEnter={() => {
           window.clearTimeout(tipTimerRef.current)
           if (!trimmed) return
-          tipTimerRef.current = window.setTimeout(() => setShowTip(true), 200)
+          tipTimerRef.current = window.setTimeout(() => setShowTip(true), 500)
         }}
         onMouseLeave={() => {
           window.clearTimeout(tipTimerRef.current)

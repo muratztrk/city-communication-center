@@ -1219,13 +1219,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WA Vatandaş Bilgileri Cadde/No placeholder **Seçiniz** (#2724). Seçili Cadde/No metni kutuyu
   genişletmez; taşınca ellipsis + hover tooltip (#2724 reopen).
   No `No seçiniz`; listede **Yok** (#2714); CBS’den gelen **Kapı Numarası Yok** satırı yok (#2723).
-  Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713), placeholder `Link giriniz...` (#2722); taşan metin ellipsis + **200ms** hover tooltip (#2725/#2763). Native `title` yok.
+  Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713), placeholder `Link giriniz...` (#2722); taşan metin ellipsis + **500ms** hover tooltip (#2725/#2763). Placeholder punto `13px`, değer `12px` (#2765). Native `title` yok.
   Konum Koordinatı anlamsız/hatalıysa talep yine oluşur; marker yok; `coordinatesInvalid` ile bloke edilmez (#2753). Pin için yalnız Google Maps linki (`@lat,lng` / `q=` / `!3d!4d`) parse edilir; düz `lat, lng` marker yazmaz (#2764). Oluşturunca harita pin sorgusu invalidate + mount’ta taze çekilir (#2752).
   Vatandaş Çağrı **Talebin Adres Bilgisi**, Rutin Görev Oluştur ve WA **Vatandaş Talebi Oluştur** popup’ta Konum Koordinatı başlığı Mahalle dropdown’unun **alt satırında** hizalanır; Adres Tarifi / Dosya ekle bir alt satırdadır (#2726/#2727/#2741).
   Birim/Vatandaş talep haritasında Mahalle+Cadde+No (No ≠ Yok) doluysa pin CBS’den gelir; Konum Koordinatı kullanılmaz (#2720).
   No=Yok ve koordinat yoksa (veya link Google Maps değilse) marker yok, **Haritada Olmayanları Listele**’de durur (#2718/#2764).
   No=Yok + Google Maps koordinat, veya mahalle/cadde boş + koordinat: pin koordinata konur (#2719/#2764). CBS cadde noktası No=Yok iken kullanılmaz.
-  Mahalle+cadde boş + koordinat: CBS ters sorgu ile mahalle/cadde doldurulur, No=Yok (#2719). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
+  Mahalle+cadde boş + koordinat: pin koordinata konur; CBS ters sorgu mahalle/cadde doldurur; No Google Maps `street_number` ise yazılır, yoksa **Yok** (#2719). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
   (#2654/#2681). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).

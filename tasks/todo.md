@@ -1,3 +1,9 @@
+## Round 937 — #2763/#2719/#2765
+
+- [x] `6a81cd41` — Konum Koordinatı tooltip 500ms.
+- [x] `6a816550` — Mahalle/cadde boş + koordinat: pin + CBS adres; No Google Maps’ten veya Yok.
+- [x] `6a81d251` — Konum Koordinatı placeholder punto biraz büyütüldü.
+
 ## Round 936 — #2640/#2666/#2758
 
 - [x] `6a801665` — WA Cadde menüsü No tarafına biraz daha geniş (+72px).

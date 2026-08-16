@@ -3,12 +3,13 @@ using CityCommunicationCenter.Application.Abstractions;
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
 /// <summary>
-/// Mahalle/cadde boş, koordinat dolu taleplere CBS’den mahalle+cadde yazar; No = Yok (#2719).
+/// Mahalle/cadde boş, koordinat dolu taleplere CBS’den mahalle+cadde yazar; No Google Maps’ten veya Yok (#2719).
 /// </summary>
 public sealed record FillJobCbsAddressFromCoordinatesCommand(
     Guid JobId,
     Guid? ActorUserId,
-    string DistrictId) : ICommand<bool>;
+    string DistrictId,
+    string? StreetNoFromMaps = null) : ICommand<bool>;
 
 public sealed class FillJobCbsAddressFromCoordinatesCommandValidator
     : AbstractValidator<FillJobCbsAddressFromCoordinatesCommand>
@@ -78,7 +79,10 @@ public sealed class FillJobCbsAddressFromCoordinatesCommandHandler
 
         job.Neighborhood = nearest.Neighborhood;
         job.Street = nearest.Street;
-        job.StreetNo = StreetNoNone;
+        var mapsStreetNo = request.StreetNoFromMaps?.Trim();
+        job.StreetNo = string.IsNullOrWhiteSpace(mapsStreetNo) || mapsStreetNo.Length > 6
+            ? StreetNoNone
+            : mapsStreetNo;
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;
     }

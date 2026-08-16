@@ -9,6 +9,7 @@ import {
   SuperClusterAlgorithm,
   type Cluster,
 } from '@googlemaps/markerclusterer'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
@@ -204,6 +205,22 @@ function hasCoordinates(pin: CitizenDashboardMapPin): boolean {
   return pin.latitude != null && pin.longitude != null
 }
 
+/** Google reverse geocode: kapı no (street_number); yoksa null (#2719). */
+async function streetNoFromGoogleMaps(lat: number, lng: number): Promise<string | null> {
+  if (typeof google === 'undefined' || !google.maps?.Geocoder) return null
+  try {
+    const response = await new google.maps.Geocoder().geocode({ location: { lat, lng } })
+    for (const result of response.results ?? []) {
+      const streetNo = result.address_components?.find(component => component.types.includes('street_number'))
+      const value = streetNo?.long_name?.trim()
+      if (value) return value
+    }
+  } catch {
+    return null
+  }
+  return null
+}
+
 function hasCompleteCbsAddress(pin: CitizenDashboardMapPin): boolean {
   return Boolean(normalizeAddressPart(pin.neighborhood))
     && Boolean(normalizeAddressPart(pin.street))
@@ -328,6 +345,7 @@ interface CitizenRequestMapProps {
 const MAP_CONTAINER_STYLE: CSSProperties = { width: '100%', height: '100%', cursor: 'grab' }
 
 export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading }: CitizenRequestMapProps) {
+  const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const districtId = useMunicipalityDistrictId()
@@ -459,7 +477,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   const filledFromCoordinatesRef = useRef(new Set<string>())
   useEffect(() => {
     const districtId = mapView.districtId
-    if (!districtId) return
+    if (!districtId || !geocodeReady) return
     const pending = pins.filter(pin =>
       hasCoordinates(pin)
       && !normalizeAddressPart(pin.neighborhood)
@@ -468,18 +486,28 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     if (pending.length === 0) return
     let cancelled = false
     void (async () => {
+      let filled = false
       for (const pin of pending.slice(0, 4)) {
         if (cancelled) return
         filledFromCoordinatesRef.current.add(pin.jobId)
         try {
-          await api.fillJobCbsAddressFromCoordinates(pin.jobId, districtId)
+          const mapsStreetNo = await streetNoFromGoogleMaps(pin.latitude as number, pin.longitude as number)
+          const ok = await api.fillJobCbsAddressFromCoordinates(pin.jobId, districtId, mapsStreetNo)
+          if (ok) filled = true
         } catch {
           /* CBS eşleşmezse sessiz; tekrar deneme döngüsü olmasın. */
         }
       }
+      if (filled && !cancelled) {
+        await queryClient.invalidateQueries({
+          queryKey: variant === 'department'
+            ? ['ccc', 'reports', 'department-map-pins']
+            : ['ccc', 'reports', 'citizen-map-pins'],
+        })
+      }
     })()
     return () => { cancelled = true }
-  }, [pins, mapView.districtId])
+  }, [pins, mapView.districtId, geocodeReady, queryClient, variant])
 
   const unlocated = useMemo(() => {
     const locatedIds = new Set(resolved.map(pin => pin.jobId))

@@ -135,10 +135,11 @@ public sealed class JobsController : ApiControllerBase
     public async Task<IActionResult> FillCbsAddressFromCoordinates(
         Guid jobId,
         [FromQuery] string districtId,
+        [FromQuery] string? streetNo,
         CancellationToken cancellationToken)
     {
         var ok = await _sender.Send(
-            new FillJobCbsAddressFromCoordinatesCommand(jobId, CurrentContext.UserId, districtId ?? string.Empty),
+            new FillJobCbsAddressFromCoordinatesCommand(jobId, CurrentContext.UserId, districtId ?? string.Empty, streetNo),
             cancellationToken);
         return ok ? NoContent() : NotFound();
     }

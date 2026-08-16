@@ -193,6 +193,66 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
         return located;
     }
 
+    public async Task<IzmirCbsNearestAddressResponse?> FindNearestAddressAsync(
+        string districtId,
+        double latitude,
+        double longitude,
+        CancellationToken cancellationToken)
+    {
+        var district = districtId.Trim();
+        if (string.IsNullOrWhiteSpace(district))
+        {
+            return null;
+        }
+
+        var cacheKey =
+            $"izmir-cbs:nearest:{district}:{latitude.ToString("0.00000", CultureInfo.InvariantCulture)}:{longitude.ToString("0.00000", CultureInfo.InvariantCulture)}";
+        if (_cache.TryGetValue(cacheKey, out IzmirCbsNearestAddressResponse? cached) && cached is not null)
+        {
+            return cached;
+        }
+
+        try
+        {
+            var neighborhoodName = await QueryContainingAttributeAsync(
+                NeighborhoodLayer, latitude, longitude, distanceMeters: null, cancellationToken);
+            if (string.IsNullOrWhiteSpace(neighborhoodName))
+            {
+                return null;
+            }
+
+            var neighborhoods = await GetNeighborhoodsAsync(district, cancellationToken);
+            var neighborhood = FindOption(neighborhoods, neighborhoodName, CompactNeighborhoodKey);
+            if (neighborhood is null)
+            {
+                return null;
+            }
+
+            var streetName = await QueryContainingAttributeAsync(
+                StreetCenterlineLayer, latitude, longitude, distanceMeters: 80, cancellationToken);
+            if (string.IsNullOrWhiteSpace(streetName))
+            {
+                return null;
+            }
+
+            var streets = await GetStreetsAsync(neighborhood.Id, cancellationToken);
+            var street = FindOption(streets, streetName, CompactStreetKey);
+            if (street is null)
+            {
+                return null;
+            }
+
+            var result = new IzmirCbsNearestAddressResponse(neighborhood.Name, street.Name);
+            _cache.Set(cacheKey, result, CacheDuration);
+            return result;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            _logger.LogWarning(exception, "İzmir CBS ters adres sorgusu başarısız.");
+            return null;
+        }
+    }
+
     private async Task<IReadOnlyList<IzmirCbsOptionResponse>> GetCachedAsync(
         string cacheKey,
         string body,
@@ -424,6 +484,88 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
         }
 
         return ReadGeometry(geometry);
+    }
+
+    private async Task<string?> QueryContainingAttributeAsync(
+        int layer,
+        double latitude,
+        double longitude,
+        double? distanceMeters,
+        CancellationToken cancellationToken)
+    {
+        var client = _httpClientFactory.CreateClient(HttpClientName);
+        var geometry = Uri.EscapeDataString(
+            $"{longitude.ToString(CultureInfo.InvariantCulture)},{latitude.ToString(CultureInfo.InvariantCulture)}");
+        var url = string.Format(CbsRehberQueryUrl, layer)
+            + "?geometry=" + geometry
+            + "&geometryType=esriGeometryPoint&inSR=4326&spatialRel=esriSpatialRelIntersects"
+            + "&outFields=ADINUMARASI&returnGeometry=true&outSR=4326&f=json";
+        if (distanceMeters is not null)
+        {
+            url += "&distance=" + distanceMeters.Value.ToString(CultureInfo.InvariantCulture)
+                + "&units=esriSRUnit_Meter";
+        }
+
+        using var response = await client.GetAsync(url, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new HttpRequestException($"İzmir CBS yakın adres sorgusu HTTP {(int)response.StatusCode} döndü.");
+        }
+
+        await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+        using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+        if (!document.RootElement.TryGetProperty("features", out var features)
+            || features.ValueKind != JsonValueKind.Array
+            || features.GetArrayLength() == 0)
+        {
+            return null;
+        }
+
+        string? bestName = null;
+        var bestDistance = double.MaxValue;
+        foreach (var feature in features.EnumerateArray())
+        {
+            if (!feature.TryGetProperty("attributes", out var attributes)
+                || !attributes.TryGetProperty("ADINUMARASI", out var nameEl))
+            {
+                continue;
+            }
+
+            var name = nameEl.GetString()?.Trim();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                continue;
+            }
+
+            var distance = 0d;
+            if (feature.TryGetProperty("geometry", out var geometryEl))
+            {
+                var point = ReadGeometry(geometryEl);
+                if (point is not null)
+                {
+                    distance = HaversineMeters(latitude, longitude, point.Value.Lat, point.Value.Lng);
+                }
+            }
+
+            if (distance < bestDistance)
+            {
+                bestDistance = distance;
+                bestName = name;
+            }
+        }
+
+        return bestName;
+    }
+
+    private static double HaversineMeters(double lat1, double lng1, double lat2, double lng2)
+    {
+        const double earthMeters = 6_371_000;
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLng = (lng2 - lng1) * Math.PI / 180;
+        var a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2)
+            + Math.Cos(lat1 * Math.PI / 180) * Math.Cos(lat2 * Math.PI / 180)
+            * Math.Sin(dLng / 2) * Math.Sin(dLng / 2);
+        return 2 * earthMeters * Math.Asin(Math.Min(1, Math.Sqrt(a)));
     }
 
     private static (double Lat, double Lng)? ReadGeometry(JsonElement geometry)

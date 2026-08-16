@@ -200,6 +200,10 @@ function pinAddressKey(pin: ResolvedPin): string | null {
   return null
 }
 
+function hasCoordinates(pin: CitizenDashboardMapPin): boolean {
+  return pin.latitude != null && pin.longitude != null
+}
+
 function hasCompleteCbsAddress(pin: CitizenDashboardMapPin): boolean {
   return Boolean(normalizeAddressPart(pin.neighborhood))
     && Boolean(normalizeAddressPart(pin.street))
@@ -208,9 +212,13 @@ function hasCompleteCbsAddress(pin: CitizenDashboardMapPin): boolean {
 }
 
 function hasMappableAddress(pin: CitizenDashboardMapPin, allowNeighborhood = false): boolean {
-  if (normalizeAddressPart(pin.street)) return true
+  // No=Yok ve koordinat yoksa pin yok; Haritada Olmayanlar listesine düşer (#2718).
+  if (isAbsentStreetNo(pin.streetNo) && !hasCoordinates(pin)) return false
+  if (hasCoordinates(pin)) return true
+  if (hasCompleteCbsAddress(pin)) return true
+  if (normalizeAddressPart(pin.street) && !isAbsentStreetNo(pin.streetNo)) return true
   if (allowNeighborhood && (normalizeAddressPart(pin.neighborhood) || normalizeAddressPart(pin.openAddress))) return true
-  return pin.latitude != null && pin.longitude != null
+  return false
 }
 
 /** No yoksa cadde/mahalle noktasından boş alana kaydır — aynı cadde pinleri üst üste binmesin (#2594). */
@@ -391,6 +399,17 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     setResolving(true)
     void (async () => {
       const geocoded = (await Promise.all(mappable.map(async pin => {
+        const useCoordinatePin = hasCoordinates(pin)
+          && (isAbsentStreetNo(pin.streetNo)
+            || (!normalizeAddressPart(pin.neighborhood) && !normalizeAddressPart(pin.street)))
+        if (useCoordinatePin) {
+          return {
+            ...pin,
+            position: { lat: pin.latitude as number, lng: pin.longitude as number },
+            approximate: true,
+          } satisfies ResolvedPin
+        }
+
         const hit = await geocodeTireAddress({
           districtId: mapView.districtId,
           neighborhood: pin.neighborhood,
@@ -426,6 +445,31 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     })()
     return () => { cancelled = true }
   }, [pins, mapView.districtId, geocodeReady, variant])
+
+  const filledFromCoordinatesRef = useRef(new Set<string>())
+  useEffect(() => {
+    const districtId = mapView.districtId
+    if (!districtId) return
+    const pending = pins.filter(pin =>
+      hasCoordinates(pin)
+      && !normalizeAddressPart(pin.neighborhood)
+      && !normalizeAddressPart(pin.street)
+      && !filledFromCoordinatesRef.current.has(pin.jobId))
+    if (pending.length === 0) return
+    let cancelled = false
+    void (async () => {
+      for (const pin of pending.slice(0, 4)) {
+        if (cancelled) return
+        filledFromCoordinatesRef.current.add(pin.jobId)
+        try {
+          await api.fillJobCbsAddressFromCoordinates(pin.jobId, districtId)
+        } catch {
+          /* CBS eşleşmezse sessiz; tekrar deneme döngüsü olmasın. */
+        }
+      }
+    })()
+    return () => { cancelled = true }
+  }, [pins, mapView.districtId])
 
   const unlocated = useMemo(() => {
     const locatedIds = new Set(resolved.map(pin => pin.jobId))

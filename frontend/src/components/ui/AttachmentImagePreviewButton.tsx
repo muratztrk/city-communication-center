@@ -73,7 +73,7 @@ export function AttachmentImagePreviewButton({
         onClick={() => void openPreview()}
       >
         <Eye className="size-3" aria-hidden="true" />
-        {t('attachments.preview', 'Önizle')}
+        {t('attachments.preview', 'Ön İzle')}
       </Button>
       {preview ? (
         <SocialConversationMediaPreview

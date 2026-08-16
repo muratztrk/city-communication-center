@@ -1,3 +1,12 @@
+## Round 907 — #2731/#2732/#2733/#2734/#2719/#2718
+
+- [x] `6a81751d` — WA giden görsel X çerçevesi kırmızı.
+- [x] `6a8176d4` — Önizle → Ön İzle.
+- [x] `6a817712` — Detay ek satırı sağa yaslı.
+- [x] `6a81779f` — Detay Dosya ekle progress hemen görünür.
+- [x] `6a816550` — Harita: Yok+koordinat / boş adres+koordinat pin; CBS mahalle/cadde doldur, No=Yok.
+- [x] `6a816474` — Harita: Yok ve koordinat yoksa marker yok.
+
 ## Round 906 — #2729
 
 - [x] `6a817403` — WA Vatandaş Bilgileri Mahalle/Cadde/No arama punto = liste satırı.

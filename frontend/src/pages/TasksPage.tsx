@@ -1090,7 +1090,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     const totalBytes = incoming.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
     setCompletionAttachmentUploading(true)
-    setCompletionUploadProgress(0)
+    setCompletionUploadProgress(5)
 
     for (const file of incoming) {
       try {
@@ -1283,7 +1283,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     const totalBytes = incoming.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
     setCancelAttachmentUploading(true)
-    setCancelUploadProgress(0)
+    setCancelUploadProgress(5)
 
     for (const file of incoming) {
       try {

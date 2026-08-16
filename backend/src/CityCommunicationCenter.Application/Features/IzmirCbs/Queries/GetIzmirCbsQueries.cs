@@ -121,3 +121,44 @@ public sealed class GetIzmirCbsPointQueryHandler
             request.AllowNeighborhoodFallback,
             cancellationToken));
 }
+
+public sealed record GetIzmirCbsNearestQuery(
+    string DistrictId,
+    double Latitude,
+    double Longitude) : IQuery<IzmirCbsNearestAddressResponse?>;
+
+public sealed class GetIzmirCbsNearestQueryValidator : AbstractValidator<GetIzmirCbsNearestQuery>
+{
+    public GetIzmirCbsNearestQueryValidator()
+    {
+        RuleFor(x => x.DistrictId)
+            .NotEmpty()
+            .WithMessage("İlçe seçiniz.");
+        RuleFor(x => x.Latitude)
+            .InclusiveBetween(-90, 90)
+            .WithMessage("Geçersiz enlem.");
+        RuleFor(x => x.Longitude)
+            .InclusiveBetween(-180, 180)
+            .WithMessage("Geçersiz boylam.");
+    }
+}
+
+public sealed class GetIzmirCbsNearestQueryHandler
+    : IQueryHandler<GetIzmirCbsNearestQuery, IzmirCbsNearestAddressResponse?>
+{
+    private readonly IIzmirCbsAddressCatalog _catalog;
+
+    public GetIzmirCbsNearestQueryHandler(IIzmirCbsAddressCatalog catalog)
+    {
+        _catalog = catalog;
+    }
+
+    public ValueTask<IzmirCbsNearestAddressResponse?> Handle(
+        GetIzmirCbsNearestQuery request,
+        CancellationToken cancellationToken)
+        => new(_catalog.FindNearestAddressAsync(
+            request.DistrictId,
+            request.Latitude,
+            request.Longitude,
+            cancellationToken));
+}

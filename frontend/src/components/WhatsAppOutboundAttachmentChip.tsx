@@ -38,7 +38,9 @@ export function WhatsAppOutboundAttachmentChip({
   const iconClass = 'size-3'
   const nameClass = compact ? 'text-xs font-semibold' : 'text-[13px] font-semibold'
   const [previewOpen, setPreviewOpen] = useState(false)
-  const dismissBtnClass = `inline-flex shrink-0 items-center justify-center rounded-full bg-black/45 text-white shadow-sm ring-1 ring-white/35 transition-colors hover:bg-black/60 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`
+  const dismissBtnClass = isImage && previewUrl
+    ? `inline-flex shrink-0 items-center justify-center rounded-full bg-red-600 text-white shadow-sm ring-1 ring-red-700 transition-colors hover:bg-red-700 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`
+    : `inline-flex shrink-0 items-center justify-center rounded-full bg-black/45 text-white shadow-sm ring-1 ring-white/35 transition-colors hover:bg-black/60 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`
 
   const openPreview = () => {
     if (onImageClick) {

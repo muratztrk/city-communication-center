@@ -131,6 +131,18 @@ public sealed class JobsController : ApiControllerBase
         return ok ? NoContent() : NotFound();
     }
 
+    [HttpPost("{jobId:guid}/fill-cbs-address-from-coordinates")]
+    public async Task<IActionResult> FillCbsAddressFromCoordinates(
+        Guid jobId,
+        [FromQuery] string districtId,
+        CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(
+            new FillJobCbsAddressFromCoordinatesCommand(jobId, CurrentContext.UserId, districtId ?? string.Empty),
+            cancellationToken);
+        return ok ? NoContent() : NotFound();
+    }
+
     [HttpPut("{jobId:guid}")]
     public async Task<IActionResult> Update(Guid jobId, [FromBody] UpdateJobRequest request, CancellationToken cancellationToken)
     {

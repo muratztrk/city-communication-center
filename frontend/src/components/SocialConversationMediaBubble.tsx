@@ -311,7 +311,7 @@ function SocialConversationMediaBubbleInner({
           {canPreviewInline ? (
             <Button type="button" size="sm" variant="success" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
               <Eye className="size-3.5" aria-hidden="true" />
-              {t('attachments.preview', 'Önizle')}
+              {t('attachments.preview', 'Ön İzle')}
             </Button>
           ) : null}
           <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => void handleDownload()}>
@@ -325,7 +325,7 @@ function SocialConversationMediaBubbleInner({
           {canPreviewInline ? (
             <Button type="button" size="sm" variant="success" className="h-7 px-2 text-[11px]" onClick={() => setPreviewOpen(true)}>
               <Eye className="size-3.5" aria-hidden="true" />
-              {t('attachments.preview', 'Önizle')}
+              {t('attachments.preview', 'Ön İzle')}
             </Button>
           ) : null}
           <Button type="button" size="sm" variant="secondary" className="h-7 px-2 text-[11px]" onClick={() => void handleDownload()}>

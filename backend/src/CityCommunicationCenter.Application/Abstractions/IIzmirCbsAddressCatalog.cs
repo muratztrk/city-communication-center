@@ -22,4 +22,10 @@ public interface IIzmirCbsAddressCatalog
         string? streetNo,
         bool allowNeighborhoodFallback,
         CancellationToken cancellationToken);
+
+    Task<IzmirCbsNearestAddressResponse?> FindNearestAddressAsync(
+        string districtId,
+        double latitude,
+        double longitude,
+        CancellationToken cancellationToken);
 }

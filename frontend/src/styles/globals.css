@@ -764,9 +764,15 @@
   .attachment-section--rich-view .attachment-rich-list > li {
     width: 100%;
     max-width: 100%;
+    justify-content: flex-end;
     border: 0 !important;
     background: transparent !important;
     padding: 0.2rem 0 !important;
+  }
+
+  .attachment-section--rich-edit .attachment-upload-progress {
+    grid-column: 1 / -1;
+    width: min(16rem, 100%);
   }
 
   /* Not: salt-okunur listedeki ikon rozeti (emerald çerçeve) bilinçli korunur —

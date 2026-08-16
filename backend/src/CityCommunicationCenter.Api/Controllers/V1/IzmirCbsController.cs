@@ -66,4 +66,18 @@ public sealed class IzmirCbsController : ApiControllerBase
             cancellationToken);
         return Ok(response);
     }
+
+    [HttpGet("nearest")]
+    [ProducesResponseType<IzmirCbsNearestAddressResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IzmirCbsNearestAddressResponse?>> GetNearest(
+        [FromQuery] string districtId,
+        [FromQuery] double latitude,
+        [FromQuery] double longitude,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new GetIzmirCbsNearestQuery(districtId ?? string.Empty, latitude, longitude),
+            cancellationToken);
+        return Ok(response);
+    }
 }

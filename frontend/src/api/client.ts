@@ -569,6 +569,15 @@ export const api = {
     return response.json() as Promise<{ latitude: number; longitude: number; approximate: boolean } | null>
   },
 
+  async fillJobCbsAddressFromCoordinates(jobId: string, districtId: string): Promise<boolean> {
+    const params = new URLSearchParams({ districtId })
+    const response = await fetchWithCredentials(
+      `${API_BASE}/jobs/${jobId}/fill-cbs-address-from-coordinates?${params}`,
+      { method: 'POST', headers: await getAuthHeaders() },
+    )
+    return response.ok
+  },
+
   async updateTenantSettings(
     tenantId: string,
     payload: Omit<TenantSettings, 'tenantId' | 'municipalityName' | 'isActive' | 'rolePageAccessJson'>,

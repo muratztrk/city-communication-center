@@ -1947,7 +1947,7 @@
     "errorType": "Yalnızca resim (JPG, PNG), video (MP4, MOV, WEBM), PDF ve Office dosyaları yüklenebilir.",
     "deleteConfirm": "Bu eki silmek istediğinize emin misiniz?",
     "download": "İndir",
-    "preview": "Önizle",
+    "preview": "Ön İzle",
     "previewUnavailable": "Bu dosya türü için önizleme yok.",
     "file": "Dosya",
     "downloadFile": "{{fileName}} dosyasını indir",

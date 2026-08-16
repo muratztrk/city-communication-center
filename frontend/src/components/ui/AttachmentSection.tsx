@@ -176,9 +176,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
             <Paperclip className="size-3.5 text-emerald-600" aria-hidden="true" />
             {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
           </button>
-          {uploading ? (
-            <AttachmentUploadProgressBar progress={uploadProgress} className="mt-2" />
-          ) : null}
           <input
             ref={fileInputRef}
             type="file"
@@ -190,6 +187,9 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
           />
         </div>
       )}
+      {!readOnly && uploading ? (
+        <AttachmentUploadProgressBar progress={uploadProgress} className="attachment-upload-progress mt-2" />
+      ) : null}
 
       {validationError && (
         <div className="alert alert-error text-sm">{validationError}</div>

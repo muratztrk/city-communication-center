@@ -244,8 +244,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   modunda AYNI görünür: iki kolon, bordersız satır, dosya adı **koyu mavi** `blue-700`
   (`#1d4ed8` / `rgb(29 78 216) !important`, ikon dahil); `!important` CSS kuralı utility layer'ı ezer.
   Görev Bilgileri satırında ikon/metin biraz küçük. İki satırı aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
-  Görsel ek adının hemen sağında küçük yeşil **Önizle** (Eye) vardır (`flex-1` yok — buton ada
-  yapışık); lightbox `document.body` portal + `z-[400]` ile detay modalının üstünde açılır (#2709).
+  Görsel ek adının hemen sağında küçük yeşil **Ön İzle** (Eye) vardır (`flex-1` yok — buton ada
+  yapışık); lightbox `document.body` portal + `z-[400]` ile detay modalının üstünde açılır (#2709/#2732).
+  Detay popup ek satırında dosya adı + Ön İzle sağa yaslıdır (#2733). Detay **Dosya ekle** yüklemesi
+  başlar başlamaz progress bar görünür (grid alt satır, #2734).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -622,7 +624,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yüksekliği kompakt `max-h-32`, normal `max-h-36`; görsel `w-full object-cover` (çerçeveyi
   yatay doldurur); giden görsel balonu `max-w-[min(58%,15.5rem)]` / kompakt `54%` (#2711 reopen).
   Görsel ek adı **alt** satırda;
-  X fotoğrafın **içinde sağ üst** (#2711 reopen). Giden görsel balonunda birim üst satır, ad soyad alt satır;
+  X fotoğrafın **içinde sağ üst** (#2711 reopen); görsel X çerçevesi kırmızı (#2731). Giden görsel balonunda birim üst satır, ad soyad alt satır;
   görsel dosya adı punto biraz büyük (#2711).
   Görsel dosya adı yanındaki küçük ikonda emerald çerçeve **yok** (#6a7592b2); doküman satırında
   Taleplerim rozeti kalır: `rounded-md border-emerald-100 bg-emerald-50 text-emerald-700`
@@ -1210,7 +1212,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   No `No seçiniz`; listede **Yok** (#2714); CBS’den gelen **Kapı Numarası Yok** satırı yok (#2723).
   Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713), placeholder `Link giriniz...` (#2722); taşan metin ellipsis + hover tooltip (#2725).
   Vatandaş Çağrı **Talebin Adres Bilgisi** ve Rutin Görev Oluştur’da Konum Koordinatı başlığı Mahalle dropdown’unun **alt satırında** hizalanır; Adres Tarifi / Dosya ekle bir alt satırdadır (#2726/#2727).
-  Birim/Vatandaş talep haritasında Mahalle+Cadde+No doluysa pin CBS’den gelir; Konum Koordinatı kullanılmaz (#2720). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
+  Birim/Vatandaş talep haritasında Mahalle+Cadde+No (No ≠ Yok) doluysa pin CBS’den gelir; Konum Koordinatı kullanılmaz (#2720).
+  No=Yok ve koordinat yoksa marker yok, **Haritada Olmayanları Listele**’de durur (#2718).
+  No=Yok + koordinat, veya mahalle/cadde boş + koordinat: pin koordinata konur (#2719).
+  Mahalle+cadde boş + koordinat: CBS ters sorgu ile mahalle/cadde doldurulur, No=Yok (#2719). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
   (#2654/#2681). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).
@@ -1748,7 +1753,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talep Yeri / Gittiği Yer (hedef birim) / Başlık; Talep Kanalı yok (#2667).
   Geocode kuyruğunda 4 sn timeout pin düşürmez (#2640). Yönetici kendisine atanmış talep
   (AssignedUserId) adresi varsa haritada görünür; cadde CBS’de yoksa mahalle yedeği
-  birim haritasında kullanılır. Mahalle+Cadde+No doluysa Konum Koordinatı / lat-lng pin’e girmez (#2720). Reporter tüm atanmış
+  birim haritasında kullanılır. Mahalle+Cadde+No (No ≠ Yok) doluysa Konum Koordinatı / lat-lng pin’e girmez (#2720).
+  No=Yok + koordinat yok → marker yok (#2718). No=Yok veya adres boş + koordinat → pin koordinatta;
+  adres boşsa CBS mahalle/cadde doldurulur, No=Yok (#2719). Reporter tüm atanmış
   görevleri (birim veya kişi) görür. Açık adres marker için kullanılmaz (#2695). Vatandaş haritası
   cadde zorunlu kalır (#2635). Pin noktası CBS (`GET /izmir-cbs/point`).
   Pin API + geocode paralel (en fazla 4 eşzamanlı, aynı adres tek istek); dönem değişince

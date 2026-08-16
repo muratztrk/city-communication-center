@@ -1,3 +1,7 @@
+## Round 943 — #2767
+
+- [x] `6a81fae8` — Harita Street View pegman hover’da sallanır.
+
 ## Round 942 — #2719
 
 - [x] `6a816550` — Mahalle/cadde boş + Maps linki: Google Geocoding ile mahalle/cadde/no (yoksa Yok).

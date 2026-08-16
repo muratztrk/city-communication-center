@@ -189,11 +189,11 @@ export function SingleSelectDropdown({
   ) : null
 
   return (
-    <div ref={rootRef} className={cn('relative', className)}>
+    <div ref={rootRef} className={cn('relative min-w-0 max-w-full', className)}>
       <button
         type="button"
         className={cn(
-          'field-select flex w-full items-center justify-between gap-2 text-left',
+          'field-select group relative flex w-full min-w-0 items-center justify-between gap-2 text-left',
           disabled ? 'cursor-not-allowed opacity-60' : 'cursor-pointer',
           triggerClassName,
         )}
@@ -209,9 +209,20 @@ export function SingleSelectDropdown({
           setOpen(current => !current)
         }}
       >
-        <span className={cn('min-w-0 flex-1 truncate', selected ? 'text-slate-900' : 'text-slate-400')}>
+        <span
+          className={cn('min-w-0 flex-1 truncate', selected ? 'text-slate-900' : 'text-slate-400')}
+          title={selected ? selected.label : undefined}
+        >
           {selected ? selected.label : placeholder}
         </span>
+        {selected ? (
+          <span
+            role="tooltip"
+            className="pointer-events-none absolute left-0 top-[calc(100%+0.2rem)] z-[80] hidden max-w-[min(22rem,70vw)] break-words rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium leading-snug text-white shadow-lg group-hover:block"
+          >
+            {selected.label}
+          </span>
+        ) : null}
         <span className="flex shrink-0 items-center gap-0.5">
           <ChevronDown className={cn('size-4 shrink-0 text-slate-400 transition-transform', open ? 'rotate-180' : '')} />
           {clearable && selected ? (

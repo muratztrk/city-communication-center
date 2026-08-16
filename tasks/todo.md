@@ -1,3 +1,7 @@
+## Round 905 — #2724 reopen
+
+- [x] `6a816bb9` — WA Cadde/No seçili metin genişliği sabit; ellipsis + tooltip.
+
 ## Round 904 — #2728
 
 - [x] `6a8172ef` — Talep Oluştur ek progress %0’da kalmaz; seçimde animasyon + XHR loadstart.

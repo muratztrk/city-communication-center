@@ -3,9 +3,9 @@ import type { SingleSelectOption } from '../components/ui/single-select-dropdown
 
 export function prioritySelectOptions(t: TFunction): SingleSelectOption[] {
   return [
-    { value: 'VeryHigh', label: t('enum.priority.VeryHigh', 'Çok Yüksek') },
-    { value: 'High', label: t('enum.priority.High', 'Yüksek') },
     { value: 'Normal', label: t('enum.priority.Normal', 'Normal') },
+    { value: 'High', label: t('enum.priority.High', 'Yüksek') },
+    { value: 'VeryHigh', label: t('enum.priority.VeryHigh', 'Çok Yüksek') },
   ]
 }
 

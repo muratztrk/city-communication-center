@@ -490,8 +490,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonda MapPin + (yer açıklaması varsa açıklama, yoksa **Konum**)
   + alt satırda Haritada Göster; enlem/boylam metni gösterilmez; kayıtlı yer (`Name - Address`)
-  SocialMessage lat/lng ile tanınır. Medya placeholder (`[image]` vb.) ve medya balonunda
-  konum UI yok (#6a74de2a reopen / #6a6b9fac).
+  SocialMessage lat/lng ile tanınır. Vatandaş Talebi popup konuşmasında konum metni `10px` / `font-medium` (#2748).
+  Medya placeholder (`[image]` vb.) ve medya balonunda konum UI yok (#6a74de2a reopen / #6a6b9fac).
   Inbound MapPin çerçevesi Taleplerim ek ikonuyla aynı emerald rozet
   (`border-emerald-100 bg-emerald-50 text-emerald-700`, `size-5` kutu + `size-3` ikon; #6a74de2a / #6a75958d).
   Detayda turuncu
@@ -620,8 +620,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
   footer input'ta tutulur.
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.
-- **Medya balon Talep Eki hizası (#2401/#2410/#2744):** modalda görsel+doküman gelen eklerde Ön İzle · İndir · Talep Eki
-  **aynı satırda** (Talep Eki İndir'in sağında); Vatandaş Talebi popup’ta butonlar biraz daha dar (`h-6` / `10px`). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
+- **Medya balon Talep Eki hizası (#2401/#2410/#2744):** modalda görsel+doküman gelen eklerde Ön İzle · İndir aynı satırda, **Talep Eki Olarak Ekle** alt satırda; butonlar biraz daha dar (`h-6` / `10px`). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
   gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5` (#2411 reopen). Bekleyen giden görsel önizleme
   yüksekliği kompakt `max-h-32`, normal `max-h-36`; görsel `w-full object-cover` (çerçeveyi
   yatay doldurur); giden görsel balonu `max-w-[min(58%,15.5rem)]` / kompakt `54%` (#2711 reopen).
@@ -772,7 +771,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   geri gelmiştir; veri `TaskStatusChanged` audit `Notes` alanından okunur ve Süreç altında gösterilir.
 - **`CitizenRequestModal` `Talep Başlığı`:** saran textarea + dikey scroll; etiket textbox kaldırılınca
   yükseklik artar (`min-height` ~4.25rem). Başlık kolonu Öncelik’ten biraz daha geniş, Öncelik dar
-  (`7.25rem`, #2743). Gideceği Birim ve Öncelik menü punto `0.75rem`; Adres Tarifi input Açıklama ile aynı `0.8rem`; Açıklama
+  (`7.25rem`, #2743). Öncelik menü sırası Normal → Yüksek → Çok Yüksek (`prioritySelectOptions`, #2749). Gideceği Birim ve Öncelik menü punto `0.75rem`; Adres Tarifi input Açıklama ile aynı `0.8rem`; Açıklama
   editör yüksekliği `6.85rem` (#2743/#2746). Mahalle/Cadde/No boş placeholder punto biraz küçük (#2747).
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
@@ -1733,7 +1732,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
   Yanında **Haritada Olmayanları Listele** aynı popup; başlık **Harita Konumu Olmayan Talepler** (#2737/#2745).
   Birim haritası konumlanan liste başlığı **Konum Bilgisi Olan Birim Talepleri** (#2745).
-  Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; etiketler nowrap, mobil butonlar biraz daha geniş ve biraz daha yüksek (`flex-1`, `min-h`, #2738).
+  Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; etiketler nowrap, mobil butonlar biraz daha yüksek; genişlik biraz dar (`min-w-[8.25rem]`, #2738).
   Liste popup başlığı title case’dir (ALL CAPS yok, `map-list-modal-title`) (#2740).
   Sütun filtresi varken yanıp sönen **Filtreyi sil** kapatma (X) solundadır (#2717).
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde

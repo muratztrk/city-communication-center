@@ -307,17 +307,19 @@ function SocialConversationMediaBubbleInner({
       )}
 
       {requestAttachmentLayout && showAddAsAttachment ? (
-        <div className="flex flex-wrap gap-1">
-          {canPreviewInline ? (
-            <Button type="button" size="sm" variant="success" className="h-6 px-1.5 text-[10px]" onClick={() => setPreviewOpen(true)}>
-              <Eye className="size-3" aria-hidden="true" />
-              {t('attachments.preview', 'Ön İzle')}
+        <div className="grid gap-1">
+          <div className="flex flex-wrap gap-1">
+            {canPreviewInline ? (
+              <Button type="button" size="sm" variant="success" className="h-6 px-1.5 text-[10px]" onClick={() => setPreviewOpen(true)}>
+                <Eye className="size-3" aria-hidden="true" />
+                {t('attachments.preview', 'Ön İzle')}
+              </Button>
+            ) : null}
+            <Button type="button" size="sm" variant="secondary" className="h-6 px-1.5 text-[10px]" onClick={() => void handleDownload()}>
+              <Download className="size-3" />
+              {t('attachments.download', 'İndir')}
             </Button>
-          ) : null}
-          <Button type="button" size="sm" variant="secondary" className="h-6 px-1.5 text-[10px]" onClick={() => void handleDownload()}>
-            <Download className="size-3" />
-            {t('attachments.download', 'İndir')}
-          </Button>
+          </div>
           {addAsAttachmentButton}
         </div>
       ) : (

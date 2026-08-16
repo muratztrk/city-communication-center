@@ -1,3 +1,10 @@
+## Round 920 — #2744/#2749/#2748/#2738
+
+- [x] `6a819cee` — WA talep popup: Talep Eki Olarak Ekle alt satırda.
+- [x] `6a81a18c` — Öncelik menü sırası: Normal, Yüksek, Çok Yüksek.
+- [x] `6a81a070` — Konum balon metni daha küçük ve daha az kalın.
+- [x] `6a8185d3` — Mobil harita liste butonları biraz daha dar.
+
 ## Round 919 — #2743/#2747/#2746/#2683/#2745
 
 - [x] `6a8198a6` — WA Öncelik menü punto biraz küçültüldü.

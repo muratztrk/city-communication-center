@@ -683,7 +683,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 </label>
               </div>
 
-              <div className="grid gap-2.5 md:grid-cols-3">
+              <div className="grid gap-2.5 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)_minmax(0,7.25rem)]">
                 <div className="job-field min-w-0">
                   <label className="job-field-label" htmlFor="citizen-req-title">
                     {t('tasks.newRequest.title', 'Talep Başlığı')}{' '}
@@ -711,6 +711,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     onChange={setTargetDepartmentId}
                     placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
                     menuWidth={300}
+                    menuScrollClassName="citizen-request-department-menu"
                   />
                 </div>
 
@@ -754,7 +755,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
               <div className="job-field min-h-0">
                 <span className="job-field-label">{t('jobs.form.description', 'Açıklama')} <span className="normal-case text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
-                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-24" />
+                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-[7.15rem]" />
               </div>
 
               <div className="job-field">

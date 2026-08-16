@@ -771,7 +771,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Durum Değişikliği Geçmişi audit reason taşır:** #1095'te kaldırılan neden, #1619 reopen ile
   geri gelmiştir; veri `TaskStatusChanged` audit `Notes` alanından okunur ve Süreç altında gösterilir.
 - **`CitizenRequestModal` `Talep Başlığı`:** saran textarea + dikey scroll; etiket textbox kaldırılınca
-  yükseklik artar (`min-height` ~4.25rem), genişlik sabit (#6a75d11d / #6a75d1bf).
+  yükseklik artar (`min-height` ~4.25rem). Başlık kolonu Öncelik’ten biraz daha geniş, Öncelik dar
+  (`7.25rem`, #2743). Gideceği Birim menü punto `0.75rem`; Adres Tarifi input `0.7rem`; Açıklama
+  editör yüksekliği `7.15rem` (#2743).
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Konum Koordinatı
@@ -781,7 +783,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (Round 719). Açıklama `spellCheck={false}` + Windows autocorrect kapalı; Enter → `insertLineBreak`
   (liste hariç); satır aralığı yalnız `line-height` (#6a74e697). Açık Adres `h-[5rem]` — dosya
   kutusu alt kenarıyla hizalı (#2440 reopen). Açıklama editör
-  `font-size: 0.8rem`, yükseklik `6.35rem`. Modal gelen görsel balon içinde `w-full` (Round 719).
+  `font-size: 0.8rem`, yükseklik `7.15rem` (#2743). Modal gelen görsel balon içinde `w-full` (Round 719).
 - **Görsel lightbox yüksekliği (Round 720):** `SocialConversationMediaPreview` kabuk
   `max-h-[70vh]`, görsel/video `max-h-[56vh]` (WA + kurum içi — #6a75848c / #6a75722a).
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının
@@ -1578,7 +1580,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Terminal tarih kolonu yalnız `Tamamlanma Tarihi` veya `İptal Tarihi` başlığı
   kullanır; `Tamamlanma / İptal Tarihi` fallback ibaresi geri gelmez.
   Anasayfa-Vatandaş mahalle/birim/VT pie popup’larında **Birim sütunu yok** (#2689).
-  Pie drilldown shell `67vw` / `80rem` (#2690).
+  Pie drilldown shell `67vw` / `80rem` (#2690). Sütun filtresi varken yanıp sönen **Filtreyi sil**
+  Yazdır’ın solundadır (#2683).
   "Banner sayımına bağlı grafik" istekleri yeni backend aggregation gerektirir (#731 bu
   yüzden ertelendi).
 - **Dashboard pie chart'ları sıfır veride de görünür kalmalı:** `showZeroSlices` kullanılan
@@ -1731,6 +1734,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yanında **Haritada Olmayanları Listele** aynı popup; başlık **Haritada Konumu Olmayan Talepler** (#2737).
   Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; etiketler nowrap, mobil butonlar biraz daha geniş (`flex-1`, #2738).
   Liste popup başlığı title case’dir (ALL CAPS yok, `map-list-modal-title`) (#2740).
+  Sütun filtresi varken yanıp sönen **Filtreyi sil** kapatma (X) solundadır (#2717).
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde
   şartı yok — cadde/konuşma yedegi geocode için FE’de; harita yine cadde zorunlu (#2635).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).

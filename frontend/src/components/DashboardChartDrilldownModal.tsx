@@ -7,6 +7,7 @@ import { api } from '../api/client'
 import type { DashboardChartDrilldownRow, JobDetail, SocialMessage } from '../types/platform'
 import { DateCell } from './ui/date-cell'
 import { Button } from './ui/button'
+import { ClearPieFilterLink } from './ui/ClearPieFilterLink'
 import { FilterableTh } from './ui/FilterableTh'
 import { TablePagination } from './ui/table-pagination'
 import { TableEmptyStateRows } from './ui/table-empty-state-rows'
@@ -311,7 +312,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const [detailError, setDetailError] = useState<string | null>(null)
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
-  const { filters, setFilter, matchesFilters } = useColumnFilters()
+  const { filters, setFilter, matchesFilters, clearFilters, hasActiveFilters } = useColumnFilters()
   const terminalDateHeader = rows ? resolveTerminalDateHeader(rows, t) : null
   const hideDueDateColumn = HIDE_DUE_DATE_CHART_KEYS.has(chartKey)
   const useTaleplerimStatusStyle = TALEPLERIM_STATUS_STYLE_CHART_KEYS.has(chartKey)
@@ -497,6 +498,13 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
             </div>
             <DetailModalHeaderBrand />
             <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
+              <ClearPieFilterLink
+                hasColumnFilters={hasActiveFilters}
+                onClearColumnFilters={() => {
+                  clearFilters()
+                  setPage(1)
+                }}
+              />
               {showPrint && rows ? (
                 <Button
                   type="button"

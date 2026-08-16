@@ -15,6 +15,7 @@ import { TruncatedText } from './ui/TruncatedText'
 import { StatusPill } from './ui/status-pill'
 import { GridStatusLabel } from './ui/GridStatusLabel'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
+import { ClearPieFilterLink } from './ui/ClearPieFilterLink'
 import { ChannelIcon } from './ui/channel-icon'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -104,7 +105,7 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
   const [pageSize, setPageSize] = useState(10)
   const isCitizen = variant === 'citizen'
   const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
-  const { filters, setFilter, matchesFilters } = useColumnFilters()
+  const { filters, setFilter, matchesFilters, clearFilters, hasActiveFilters } = useColumnFilters()
 
   const decorated = useMemo<MapListRow[]>(() => pins.map(pin => ({
     ...pin,
@@ -172,6 +173,13 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
           </div>
           <DetailModalHeaderBrand />
           <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
+            <ClearPieFilterLink
+              hasColumnFilters={hasActiveFilters}
+              onClearColumnFilters={() => {
+                clearFilters()
+                setPage(1)
+              }}
+            />
             <button
               type="button"
               className="detail-modal-header-close flex size-9 items-center justify-center rounded-full bg-transparent text-slate-400 shadow-none transition-colors hover:bg-red-50 hover:text-red-600 active:scale-95"

@@ -2291,6 +2291,12 @@
     font-size: 0.8125rem;
   }
 
+  .citizen-request-department-menu .dropdown-menu-item {
+    font-size: 0.75rem;
+    min-height: 2rem;
+    padding: 0.35rem 0.65rem;
+  }
+
   /* Search matches list (liste küçültülmez; arama listeye yükselir, #2729).
      Panel köküne de aynı sınıf konur: arama kutusu scroll dışında kalır (#2730 reopen). */
   .whatsapp-neighborhood-menu-scroll .dropdown-menu-item,
@@ -3559,8 +3565,8 @@
 
   .citizen-request-form .rich-text-editable {
     font-size: 0.8rem;
-    min-height: 7.75rem;
-    max-height: 7.75rem;
+    min-height: 7.15rem;
+    max-height: 7.15rem;
     padding: 0.5rem 0.6rem;
     line-height: 1.45;
   }
@@ -3584,6 +3590,7 @@
     min-height: 5rem;
     height: 5rem;
     box-sizing: border-box;
+    font-size: 0.7rem;
   }
 
   .request-actions button,

@@ -1,3 +1,9 @@
+## Round 917 — #2717/#2743/#2683
+
+- [x] `6a815d5e` — Harita liste popup: Filtreyi sil, X’in solunda.
+- [x] `6a8198a6` — WA talep popup: başlık daha geniş, Öncelik dar, birim menü/Adres Tarifi punto, Açıklama alçak.
+- [x] `6a8066f1` — Pie drilldown: Filtreyi sil, Yazdır’ın solunda.
+
 ## Round 916 — #2728/#2740/#2738 reopen
 
 - [x] `6a8172ef` — Dosya ekle: seçim sonrası focus barı kapatmaz; yükleme `report` ile ilerler.

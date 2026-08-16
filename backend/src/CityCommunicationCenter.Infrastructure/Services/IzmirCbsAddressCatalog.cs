@@ -230,19 +230,15 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
 
             var streetName = await QueryContainingAttributeAsync(
                 StreetCenterlineLayer, latitude, longitude, distanceMeters: 80, cancellationToken);
-            if (string.IsNullOrWhiteSpace(streetName))
+            string streetCatalogName = string.Empty;
+            if (!string.IsNullOrWhiteSpace(streetName))
             {
-                return null;
+                var streets = await GetStreetsAsync(neighborhood.Id, cancellationToken);
+                var street = FindOption(streets, streetName, CompactStreetKey);
+                streetCatalogName = street?.Name ?? string.Empty;
             }
 
-            var streets = await GetStreetsAsync(neighborhood.Id, cancellationToken);
-            var street = FindOption(streets, streetName, CompactStreetKey);
-            if (street is null)
-            {
-                return null;
-            }
-
-            var result = new IzmirCbsNearestAddressResponse(neighborhood.Name, street.Name);
+            var result = new IzmirCbsNearestAddressResponse(neighborhood.Name, streetCatalogName);
             _cache.Set(cacheKey, result, CacheDuration);
             return result;
         }

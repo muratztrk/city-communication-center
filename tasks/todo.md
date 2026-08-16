@@ -1,3 +1,7 @@
+## Round 942 — #2719
+
+- [x] `6a816550` — Mahalle/cadde boş + Maps linki: Google Geocoding ile mahalle/cadde/no (yoksa Yok).
+
 ## Round 941 — #2769
 
 - [x] `6a8200a5` — Harita Street View ikonu +/− çizgisi hizasında.

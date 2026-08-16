@@ -25,6 +25,7 @@ public static class DependencyInjection
             configuration.GetSection(AuthenticationOptions.SectionName));
         services.Configure<LicensingOptions>(
             configuration.GetSection(LicensingOptions.SectionName));
+        services.Configure<GoogleMapsOptions>(configuration.GetSection(GoogleMapsOptions.SectionName));
         services.Configure<RecaptchaOptions>(
             configuration.GetSection(RecaptchaOptions.SectionName));
 
@@ -106,6 +107,12 @@ public static class DependencyInjection
                 "Mozilla/5.0 CityCommunicationCenter");
         }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
         services.AddScoped<IGoogleMapsLinkResolver, GoogleMapsLinkResolver>();
+        services.AddHttpClient(GoogleMapsGeocodingService.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(8);
+            client.BaseAddress = new Uri("https://maps.googleapis.com/");
+        });
+        services.AddScoped<IGoogleMapsGeocodingService, GoogleMapsGeocodingService>();
 
         // Lisans modülleri: lumespec-license'a (bkz. ~/Works/lumespec-license) tenant+modül başına soru sorar.
         services.AddHttpClient(LicenseHttpClient.Name, (serviceProvider, client) =>

@@ -45,7 +45,9 @@ async function loadGeocoder(): Promise<google.maps.Geocoder | null> {
         return
       }
       const script = document.createElement('script')
-      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&language=tr`
+      const callbackName = `__cccMapsGeocoderReady_${Date.now()}`
+      ;(window as unknown as Record<string, () => void>)[callbackName] = finish
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(key)}&language=tr&callback=${callbackName}`
       script.async = true
       script.dataset.cccMapsGeocoder = '1'
       script.onload = finish
@@ -116,7 +118,21 @@ export async function enrichEmptyAddressFromMapsLink(input: {
     return { neighborhood: input.neighborhood, street: input.street, streetNo: input.streetNo }
   }
 
-  const parsed = await resolveGoogleMapsCoordinatePair(input.coordinates)
+  const fromApi = await api.resolveMapsAddressFromLink(input.coordinates, input.districtId)
+  if (fromApi && (fromApi.neighborhood || fromApi.street)) {
+    const mapsStreetNo = fromApi.streetNo.trim()
+    return {
+      neighborhood: fromApi.neighborhood,
+      street: fromApi.street,
+      streetNo: mapsStreetNo && mapsStreetNo.length <= ADDRESS_STREET_NO_MAX_LENGTH
+        ? mapsStreetNo
+        : STREET_NO_NONE,
+    }
+  }
+
+  const parsed = fromApi
+    ? { latitude: fromApi.latitude, longitude: fromApi.longitude }
+    : await resolveGoogleMapsCoordinatePair(input.coordinates)
   if (!parsed) {
     return { neighborhood: input.neighborhood, street: input.street, streetNo: input.streetNo }
   }

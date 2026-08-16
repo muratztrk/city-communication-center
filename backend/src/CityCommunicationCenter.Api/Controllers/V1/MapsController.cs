@@ -22,4 +22,17 @@ public sealed class MapsController : ApiControllerBase
         var response = await _sender.Send(new ResolveGoogleMapsCoordinatesQuery(url ?? string.Empty), cancellationToken);
         return Ok(response);
     }
+
+    [HttpGet("address-from-link")]
+    [ProducesResponseType<GoogleMapsAddressFromLinkResponse>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<GoogleMapsAddressFromLinkResponse?>> ResolveAddressFromLink(
+        [FromQuery] string url,
+        [FromQuery] string? districtId,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new ResolveGoogleMapsAddressFromLinkQuery(url ?? string.Empty, districtId),
+            cancellationToken);
+        return Ok(response);
+    }
 }

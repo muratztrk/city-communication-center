@@ -586,6 +586,34 @@ export const api = {
     return response.json() as Promise<{ neighborhood: string; street: string } | null>
   },
 
+  async resolveMapsAddressFromLink(
+    url: string,
+    districtId?: string,
+  ): Promise<{ latitude: number; longitude: number; neighborhood: string; street: string; streetNo: string } | null> {
+    const params = new URLSearchParams({ url })
+    if (districtId?.trim()) params.set('districtId', districtId.trim())
+    const response = await fetchWithCredentials(`${API_BASE}/maps/address-from-link?${params}`, {
+      headers: await getAuthHeaders(),
+    })
+    if (!response.ok) return null
+    const body = await response.json() as {
+      latitude?: number
+      longitude?: number
+      neighborhood?: string
+      street?: string
+      streetNo?: string
+    } | null
+    if (body?.latitude == null || body?.longitude == null) return null
+    if (!Number.isFinite(body.latitude) || !Number.isFinite(body.longitude)) return null
+    return {
+      latitude: body.latitude,
+      longitude: body.longitude,
+      neighborhood: body.neighborhood?.trim() ?? '',
+      street: body.street?.trim() ?? '',
+      streetNo: body.streetNo?.trim() ?? '',
+    }
+  },
+
   async resolveMapsCoordinates(url: string): Promise<{ latitude: number; longitude: number } | null> {
     const params = new URLSearchParams({ url })
     const response = await fetchWithCredentials(`${API_BASE}/maps/coordinates?${params}`, {

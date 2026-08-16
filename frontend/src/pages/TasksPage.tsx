@@ -2942,10 +2942,11 @@ const pageKicker = isMyTasksView
                           t={t}
                           separatePriorityProjectRows
                           extraTrailingRows={isEditingThisParentJob ? undefined : [
-                            {
+                            ...((parentJobDetail.attachments?.length ?? 0) > 0
+                              ? [{
                               label: t('attachments.requestSectionTitle', 'Talep Ekleri'),
                               // Görev Ekleri satırıyla aynı sunum: mavi ad, iki satırı aşınca scroll (card #1617).
-                              value: (parentJobDetail.attachments?.length ?? 0) === 0 ? '—' : (
+                              value: (
                                 <div className="flex max-h-11 flex-col items-end gap-1 overflow-y-auto pr-0.5 [scrollbar-gutter:stable]">
                                   {parentJobDetail.attachments!.map(attachment => {
                                     const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
@@ -2969,7 +2970,8 @@ const pageKicker = isMyTasksView
                                   })}
                                 </div>
                               ),
-                            },
+                            }]
+                              : []),
                             // Yönetici notu yalnızca doluysa Talep Ekleri'nin hemen altında gösterilir (card #1538);
                             // vatandaş talebi veya kendine atayan yönetici için hiç gösterilmez (card #1519 devamı).
                             ...(!isCitizenParentJob && !isSelfAssignedManagerTask && parentJobDetail.managerNote?.trim()

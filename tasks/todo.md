@@ -1,3 +1,9 @@
+## Round 910 — #2737/#2734/#2738
+
+- [x] `6a81851c` — Konumlanamayan popup başlığı: Haritada Konumu Olmayan Talepler.
+- [x] `6a81779f` — Talep Bilgileri altında boş Talep Ekleri satırı yok.
+- [x] `6a8185d3` — Mobil haritada Haritada Olmayanları Listele, Talepleri Listele’nin solunda aynı satır.
+
 ## Round 909 — #2733/#2728/#2730/#2736
 
 - [x] `6a817712` — Detay Talep/Görev ek satırı sağa yaslı; diğer rich-list hizaları geri alındı.

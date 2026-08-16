@@ -701,6 +701,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
               ? t('common.loading', 'Yükleniyor...')
               : t('citizenRequestMap.pinCount', { count: resolved.length, defaultValue: '{{count}} konum' })}
           </span>
+          <div className="flex shrink-0 flex-nowrap items-center gap-2 max-lg:flex-row-reverse">
           <button
             type="button"
             disabled={loading || resolving || resolved.length === 0}
@@ -717,6 +718,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
           >
             {t('citizenRequestMap.listUnlocated', 'Haritada Olmayanları Listele')}
           </button>
+          </div>
           </div>
         </div>
       </div>

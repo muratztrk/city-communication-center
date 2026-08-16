@@ -76,7 +76,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `UserRoleAccess.ApplyAdditionalRoleCodes` kuralı zorunlu uygular (card #2273).
 - **Mobil genişliklerde (<1024 CSS px) desktop zoom uygulanmaz:** içerik/sidebar `zoom=1`
   kalmalı; aksi halde telefonlarda native dikey scroll ve form ölçekleri kırılır.
-  Mobil sol menü sola kaydırılınca kapanır (#2739).
+  Mobil sol menü sola kaydırılınca parmağı takip ederek kapanır; aniden kaybolmaz (#2739).
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
   breakpoint'lerinde kullanılmalı; iki kolonlu/split panel yerleşimleri telefonda alt alta akmalı.
 - **Mobil login/sidebar marka alanı:** login logo kartı kullanılan koyu yeşil yüzeydir ve Atatürk

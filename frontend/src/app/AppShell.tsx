@@ -118,27 +118,88 @@ export function AppShell() {
   const [activeDepartmentVersion, setActiveDepartmentVersion] = useState(0)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const [mobileNavDragX, setMobileNavDragX] = useState(0)
+  const [mobileNavDragging, setMobileNavDragging] = useState(false)
   const mobileNavSwipeStartRef = useRef<{ x: number; y: number } | null>(null)
+  const mobileNavSwipeAxisRef = useRef<'undecided' | 'x' | 'y'>('undecided')
+  const mobileNavCloseTimerRef = useRef<number | null>(null)
+  const mobileNavDragXRef = useRef(0)
+
+  const finishCloseMobileNav = useCallback(() => {
+    if (mobileNavCloseTimerRef.current != null) {
+      window.clearTimeout(mobileNavCloseTimerRef.current)
+      mobileNavCloseTimerRef.current = null
+    }
+    setIsMobileNavOpen(false)
+    mobileNavDragXRef.current = 0
+    setMobileNavDragX(0)
+    setMobileNavDragging(false)
+  }, [])
+
+  const closeMobileNav = useCallback(() => {
+    setMobileNavDragging(false)
+    mobileNavDragXRef.current = -320
+    setMobileNavDragX(-320)
+    if (mobileNavCloseTimerRef.current != null) {
+      window.clearTimeout(mobileNavCloseTimerRef.current)
+    }
+    mobileNavCloseTimerRef.current = window.setTimeout(finishCloseMobileNav, 240)
+  }, [finishCloseMobileNav])
 
   const onMobileNavTouchStart = useCallback((event: TouchEvent) => {
     const touch = event.changedTouches[0]
     if (!touch) return
+    if (mobileNavCloseTimerRef.current != null) {
+      window.clearTimeout(mobileNavCloseTimerRef.current)
+      mobileNavCloseTimerRef.current = null
+    }
     mobileNavSwipeStartRef.current = { x: touch.clientX, y: touch.clientY }
+    mobileNavSwipeAxisRef.current = 'undecided'
+    setMobileNavDragging(true)
   }, [])
 
-  const onMobileNavTouchEnd = useCallback((event: TouchEvent) => {
+  const onMobileNavTouchMove = useCallback((event: TouchEvent) => {
     const start = mobileNavSwipeStartRef.current
-    mobileNavSwipeStartRef.current = null
-    if (!start) return
     const touch = event.changedTouches[0]
-    if (!touch) return
+    if (!start || !touch) return
     const dx = touch.clientX - start.x
     const dy = touch.clientY - start.y
-    // Sola kaydırınca kapanır; dikey scroll’u yutmaz (#2739).
-    if (dx < -56 && Math.abs(dx) > Math.abs(dy) * 1.15) {
-      setIsMobileNavOpen(false)
+    if (mobileNavSwipeAxisRef.current === 'undecided') {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
+      mobileNavSwipeAxisRef.current = Math.abs(dx) > Math.abs(dy) * 1.1 ? 'x' : 'y'
+    }
+    if (mobileNavSwipeAxisRef.current !== 'x') return
+    const offset = Math.min(0, dx)
+    mobileNavDragXRef.current = offset
+    setMobileNavDragX(offset)
+  }, [])
+
+  const onMobileNavTouchEnd = useCallback(() => {
+    const start = mobileNavSwipeStartRef.current
+    mobileNavSwipeStartRef.current = null
+    const axis = mobileNavSwipeAxisRef.current
+    mobileNavSwipeAxisRef.current = 'undecided'
+    setMobileNavDragging(false)
+    if (!start || axis !== 'x') {
+      mobileNavDragXRef.current = 0
+      setMobileNavDragX(0)
+      return
+    }
+    const dx = mobileNavDragXRef.current
+    if (dx < -64) {
+      closeMobileNav()
+      return
+    }
+    mobileNavDragXRef.current = 0
+    setMobileNavDragX(0)
+  }, [closeMobileNav])
+
+  useEffect(() => () => {
+    if (mobileNavCloseTimerRef.current != null) {
+      window.clearTimeout(mobileNavCloseTimerRef.current)
     }
   }, [])
+
   const [activeDeptId, setActiveDeptId] = useState<string | null>(() => getActiveDepartmentId(user?.userId))
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
@@ -660,7 +721,12 @@ export function AppShell() {
             <button
               type="button"
               className="sidebar-chip text-slate-700"
-              onClick={() => setIsMobileNavOpen(true)}
+              onClick={() => {
+                mobileNavDragXRef.current = 0
+                setMobileNavDragX(0)
+                setMobileNavDragging(false)
+                setIsMobileNavOpen(true)
+              }}
               aria-label={t('nav.openMenu', 'Open menu')}
             >
               <Menu className="size-4.5" />
@@ -686,12 +752,28 @@ export function AppShell() {
           role="dialog"
           aria-modal="true"
           aria-label={t('nav.navigation', 'Navigation')}
-          onKeyDown={(e) => { if (e.key === 'Escape') setIsMobileNavOpen(false) }}
+          onKeyDown={(e) => { if (e.key === 'Escape') closeMobileNav() }}
           onTouchStart={onMobileNavTouchStart}
+          onTouchMove={onMobileNavTouchMove}
           onTouchEnd={onMobileNavTouchEnd}
         >
-          <button type="button" className="absolute inset-0 bg-slate-950/40" onClick={() => setIsMobileNavOpen(false)} aria-label="Close navigation" />
-          <aside className="sidebar-shell relative z-10 flex h-full w-[88vw] max-w-[320px] flex-col p-3 shadow-2xl">
+          <button
+            type="button"
+            className="absolute inset-0 bg-slate-950/40"
+            style={{
+              opacity: Math.max(0, 1 + mobileNavDragX / 320),
+              transition: mobileNavDragging ? 'none' : 'opacity 240ms ease-out',
+            }}
+            onClick={closeMobileNav}
+            aria-label="Close navigation"
+          />
+          <aside
+            className="sidebar-shell relative z-10 flex h-full w-[88vw] max-w-[320px] flex-col p-3 shadow-2xl will-change-transform"
+            style={{
+              transform: `translateX(${mobileNavDragX}px)`,
+              transition: mobileNavDragging ? 'none' : 'transform 240ms ease-out',
+            }}
+          >
             <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3 pt-14">
               {/* Desktop sidebar'daki gibi sol üst köşede Atatürk; belediye logosu mobil menüde
                   daha geniş (varsayılan 96px kare çok küçüktü) (card #1205). */}
@@ -711,12 +793,12 @@ export function AppShell() {
                   <div className="text-xl font-bold leading-tight break-words text-white text-center">{t('shell.subtitle', { municipalityName })}</div>
                 </div>
               </div>
-              <button type="button" className="sidebar-chip absolute right-3 top-3" onClick={() => setIsMobileNavOpen(false)} aria-label="Close menu">
+              <button type="button" className="sidebar-chip absolute right-3 top-3" onClick={closeMobileNav} aria-label="Close menu">
                 <X className="size-4" />
               </button>
             </div>
             <div className="sidebar-scroll-area mt-3 flex-1 overflow-y-auto">
-              <SidebarNav items={navItems} onNavigate={() => setIsMobileNavOpen(false)} compactLabels={user?.role === 'Manager'} />
+              <SidebarNav items={navItems} onNavigate={closeMobileNav} compactLabels={user?.role === 'Manager'} />
             </div>
             <div className="shrink-0 pt-2">
               <div className="rounded-[var(--radius-xl)] border border-white/8 bg-white/6 px-3 py-2.5">

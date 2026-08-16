@@ -1,3 +1,7 @@
+## Round 912 — #2739 reopen
+
+- [x] `6a818641` — Mobil sol menü sola kaydırırken hareket ederek kapanır (aniden değil).
+
 ## Round 911 — #2739
 
 - [x] `6a818641` — Mobil sol menü sola kaydırınca kapanır.

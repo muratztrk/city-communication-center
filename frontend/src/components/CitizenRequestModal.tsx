@@ -28,8 +28,8 @@ import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
-import { formatCoordinatePair, parseGoogleMapsCoordinatePair } from '../utils/coordinates'
-import { enrichEmptyAddressFromMapsLink } from '../utils/googleMapsReverseGeocode'
+import { formatCoordinatePair } from '../utils/coordinates'
+import { enrichEmptyAddressFromMapsLink, resolveGoogleMapsCoordinatePair } from '../utils/googleMapsReverseGeocode'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
 import {
@@ -447,9 +447,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
     }
-    const parsedCoordinates = coordinates.trim() ? parseGoogleMapsCoordinatePair(coordinates) : null
-
-
     if (!confirmedSubmit) {
       setConfirmDialog({
         title: isEditMode ? 'Vatandaş Talebi Güncelle' : 'Vatandaş Talebi Oluştur',
@@ -474,6 +471,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     const trimmedHandle = citizenHandle.trim()
     const trimmedTitle = title.trim() || trimmedHandle
     try {
+      const parsedCoordinates = coordinates.trim() ? await resolveGoogleMapsCoordinatePair(coordinates) : null
       const mapsAddress = await enrichEmptyAddressFromMapsLink({
         neighborhood,
         street,

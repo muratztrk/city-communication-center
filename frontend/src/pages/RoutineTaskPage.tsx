@@ -21,8 +21,8 @@ import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
-import { formatCoordinatePair, parseGoogleMapsCoordinatePair } from '../utils/coordinates'
-import { enrichEmptyAddressFromMapsLink } from '../utils/googleMapsReverseGeocode'
+import { formatCoordinatePair } from '../utils/coordinates'
+import { enrichEmptyAddressFromMapsLink, resolveGoogleMapsCoordinatePair } from '../utils/googleMapsReverseGeocode'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import {
   ATTACHMENT_FILE_ACCEPT,
@@ -194,7 +194,7 @@ export function RoutineTaskPage() {
     setError(null)
     try {
       const coords = form.coordinates.trim()
-      const parsedCoords = coords ? parseGoogleMapsCoordinatePair(coords) : null
+      const parsedCoords = coords ? await resolveGoogleMapsCoordinatePair(coords) : null
       const mapsAddress = await enrichEmptyAddressFromMapsLink({
         neighborhood: form.neighborhood,
         street: form.street,

@@ -891,10 +891,10 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
             <MyRequestDetailModal
               detail={jobDetail}
               title={variant === 'department'
-                ? t('departmentRequestMap.detailTitle', 'Talep')
+                ? t('departmentRequestMap.detailTitle', 'Talep Detayları')
                 : addressTickets
                   ? t('citizenDirectory.ticketsTitle', 'Vatandaş Talep Bilgisi')
-                  : t('citizenRequestMap.detailTitle', 'Vatandaş Talebi')}
+                  : t('citizenRequestMap.detailTitle', 'Talep Detayları')}
               locale={locale}
               detailLoading={detailLoading}
               citizenSourceMessage={citizenSourceMessage}

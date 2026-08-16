@@ -1220,7 +1220,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   genişletmez; taşınca ellipsis + hover tooltip (#2724 reopen).
   No `No seçiniz`; listede **Yok** (#2714); CBS’den gelen **Kapı Numarası Yok** satırı yok (#2723).
   Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713), placeholder `Link giriniz...` (#2722); taşan metin ellipsis + **500ms** hover tooltip (#2725/#2763). Değer punto `13px`, placeholder `14px` (#2765/#2766). Native `title` yok.
-  Konum Koordinatı anlamsız/hatalıysa talep yine oluşur; marker yok; `coordinatesInvalid` ile bloke edilmez (#2753). Pin için yalnız Google Maps linki (`@lat,lng` / `q=` / `!3d!4d`) parse edilir; düz `lat, lng` marker yazmaz (#2764). Oluşturunca harita pin sorgusu invalidate + mount’ta taze çekilir (#2752).
+  Konum Koordinatı anlamsız/hatalıysa talep yine oluşur; marker yok; `coordinatesInvalid` ile bloke edilmez (#2753). Pin için Google Maps linki (`@lat,lng` / `q=` / `!3d!4d`, `google.com.tr`, kısa `maps.app.goo.gl` sunucuda açılır) parse edilip lat/lng kaydedilir (#2764/#2767); düz `lat, lng` marker yazmaz. Oluşturunca harita pin sorgusu invalidate + mount’ta taze çekilir (#2752).
   Vatandaş Çağrı **Talebin Adres Bilgisi**, Rutin Görev Oluştur ve WA **Vatandaş Talebi Oluştur** popup’ta Konum Koordinatı başlığı Mahalle dropdown’unun **alt satırında** hizalanır; Adres Tarifi / Dosya ekle bir alt satırdadır (#2726/#2727/#2741).
   Birim/Vatandaş talep haritasında Mahalle+Cadde+No (No ≠ Yok) doluysa pin CBS’den gelir; Konum Koordinatı kullanılmaz (#2720).
   No=Yok ve koordinat yoksa (veya link Google Maps değilse) marker yok, **Haritada Olmayanları Listele**’de durur (#2718/#2764).
@@ -1752,6 +1752,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `printJobDetail` / `printHtmlDocument` popup (Talep Detayları tablosu, Açıklama, Adres,
   Yönetici Notu, Ekler, Görev) — mevcut sayfanın Chrome yazdır önizlemesi değil (#2692).
   Harita listesi Detaylar’da lat/lng **Konum** bloğu yok (#2762).
+  Liste/harita Detaylar popup başlığı **Talep Detayları** (#2768).
   pill Taleplerim ile aynı (`getStatusPillClass`, geciken turuncu+beyaz #2665). Birim kolonları
   #2665). Birim kolonları Birim Talep Bilgi Listesi.
 - **Birim Talep Haritası (#2610/#2611/#2667):** `/department-request-map`;

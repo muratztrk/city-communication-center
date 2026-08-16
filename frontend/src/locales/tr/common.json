@@ -67,7 +67,7 @@
     "subtitleOrgWide": "Tüm birimlere atanmış kurum içi talepler mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.",
     "mapHeading": "Birimdeki Görevler",
     "mapHeadingOrgWide": "Kurum İçi Birim Talepleri",
-    "detailTitle": "Talep",
+    "detailTitle": "Talep Detayları",
     "ticketsTitle": "Birim Talep Bilgi Listesi",
     "locatedListTitle": "Konum Bilgisi Olan Birim Talepleri"
   },
@@ -84,7 +84,7 @@
     "unlocatedListTitle": "Harita Konumu Olmayan Talepler",
     "streetView": "Street View",
     "approximatePin": "Yaklaşık konum — açık adres tam çözülemedi, mahalle/cadde seviyesinde gösteriliyor.",
-    "detailTitle": "Vatandaş Talep Bilgisi",
+    "detailTitle": "Talep Detayları",
     "legend": {
       "overdue": "Geciken",
       "completed": "Tamamlanan",

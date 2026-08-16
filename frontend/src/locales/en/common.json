@@ -67,7 +67,7 @@
     "subtitleOrgWide": "Internal requests assigned to all departments are shown on the map with neighborhood, street/number, and open address.",
     "mapHeading": "Tasks in Department",
     "mapHeadingOrgWide": "Internal Department Requests",
-    "detailTitle": "Request",
+    "detailTitle": "Request Details",
     "ticketsTitle": "Department Request Information List",
     "locatedListTitle": "Department requests with a map location"
   },
@@ -84,7 +84,7 @@
     "unlocatedListTitle": "Requests without a map location",
     "streetView": "Street View",
     "approximatePin": "Approximate location — open address could not be resolved exactly; shown at neighborhood/street level.",
-    "detailTitle": "Citizen Request Info",
+    "detailTitle": "Request Details",
     "legend": {
       "overdue": "Overdue",
       "completed": "Completed",

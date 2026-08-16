@@ -1,7 +1,19 @@
 import { api } from '../api/client'
 import { ADDRESS_STREET_NO_MAX_LENGTH, STREET_NO_NONE } from './addressLimits'
-import { parseGoogleMapsCoordinatePair } from './coordinates'
+import { isGoogleMapsLink, parseGoogleMapsCoordinatePair } from './coordinates'
 import { getGoogleMapsApiKey } from './googleMaps'
+
+/** Kısa Maps linki (maps.app.goo.gl) sunucuda açılıp lat/lng çıkarılır (#2767). */
+export async function resolveGoogleMapsCoordinatePair(
+  value: string,
+): Promise<{ latitude: number; longitude: number } | null> {
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  const direct = parseGoogleMapsCoordinatePair(trimmed)
+  if (direct) return direct
+  if (!isGoogleMapsLink(trimmed) || !/^https?:\/\//i.test(trimmed)) return null
+  return api.resolveMapsCoordinates(trimmed)
+}
 
 export type MapsResolvedAddress = {
   neighborhood: string
@@ -104,7 +116,7 @@ export async function enrichEmptyAddressFromMapsLink(input: {
     return { neighborhood: input.neighborhood, street: input.street, streetNo: input.streetNo }
   }
 
-  const parsed = parseGoogleMapsCoordinatePair(input.coordinates)
+  const parsed = await resolveGoogleMapsCoordinatePair(input.coordinates)
   if (!parsed) {
     return { neighborhood: input.neighborhood, street: input.street, streetNo: input.streetNo }
   }

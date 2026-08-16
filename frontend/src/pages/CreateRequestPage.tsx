@@ -42,8 +42,8 @@ import {
   normalizeTitleCaseField,
 } from '../utils/textNormalization'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
-import { formatCoordinatePair, parseGoogleMapsCoordinatePair } from '../utils/coordinates'
-import { enrichEmptyAddressFromMapsLink } from '../utils/googleMapsReverseGeocode'
+import { formatCoordinatePair } from '../utils/coordinates'
+import { enrichEmptyAddressFromMapsLink, resolveGoogleMapsCoordinatePair } from '../utils/googleMapsReverseGeocode'
 import {
   ATTACHMENT_FILE_ACCEPT,
   attachmentFileExtension,
@@ -155,10 +155,10 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
 const CITIZEN_CHANNELS = ['Phone'] as const
 const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
 
-function coordinatesFromForm(raw: string | null | undefined): { latitude?: number; longitude?: number } {
+async function coordinatesFromForm(raw: string | null | undefined): Promise<{ latitude?: number; longitude?: number }> {
   const trimmed = raw?.trim() ?? ''
   if (!trimmed) return {}
-  return parseGoogleMapsCoordinatePair(trimmed) ?? {}
+  return (await resolveGoogleMapsCoordinatePair(trimmed)) ?? {}
 }
 
 function getRequestedOwnerUserIds(
@@ -901,7 +901,6 @@ export function CreateRequestPage() {
       setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
     }
-    const internalCoords = coordinatesFromForm(internalForm.coordinates)
     // Yönetici/sorumlu için personel seçimi zorunludur (tek kişi).
     if (isManagerLike && internalForm.ownerUserIds.filter(id => id.trim() !== '').length === 0) {
       setError(t('tasks.newRequest.ownerUserRequired', 'Lütfen bir personel seçiniz.'))
@@ -925,6 +924,7 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
+      const internalCoords = await coordinatesFromForm(internalForm.coordinates)
       const mapsAddress = await enrichEmptyAddressFromMapsLink({
         neighborhood: internalForm.neighborhood,
         street: internalForm.street,
@@ -1007,7 +1007,6 @@ export function CreateRequestPage() {
       setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
     }
-    const externalCoords = coordinatesFromForm(externalForm.coordinates)
     if (confirmedKind !== 'external') {
       setConfirmDialog({
         title: editJobId ? 'Birim Dışı Talep Güncelle' : 'Birim Dışı Talep Oluştur',
@@ -1026,6 +1025,7 @@ export function CreateRequestPage() {
     setSaving(true)
     setError(null)
     try {
+      const externalCoords = await coordinatesFromForm(externalForm.coordinates)
       const mapsAddress = await enrichEmptyAddressFromMapsLink({
         neighborhood: externalForm.neighborhood,
         street: externalForm.street,
@@ -1133,7 +1133,6 @@ export function CreateRequestPage() {
       setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
     }
-    const citizenCoords = coordinatesFromForm(citizenForm.coordinates)
     if (confirmedKind !== 'citizen') {
       const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
       const phoneDisplay = formatCitizenPhoneDisplay(citizenForm.citizenPhone) || citizenForm.citizenPhone.trim() || '—'
@@ -1186,6 +1185,7 @@ export function CreateRequestPage() {
     }
     const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
     try {
+      const citizenCoords = await coordinatesFromForm(citizenForm.coordinates)
       const mapsAddress = await enrichEmptyAddressFromMapsLink({
         neighborhood: citizenForm.neighborhood,
         street: citizenForm.street,

@@ -1,3 +1,8 @@
+## Round 940 — #2768/#2767
+
+- [x] `6a81fc03` — Harita listesi Detaylar başlığı Talep Detayları.
+- [x] `6a81fae8` — Talep oluşturda Konum Koordinatı Maps linki (kısa link / .tr) lat/lng olarak kaydedilir.
+
 ## Round 939 — #2719
 
 - [x] `6a816550` — Talep oluştururken mahalle/cadde boş + Maps linki: adres otomatik doldurulur; No yoksa Yok.

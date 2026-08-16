@@ -586,6 +586,18 @@ export const api = {
     return response.json() as Promise<{ neighborhood: string; street: string } | null>
   },
 
+  async resolveMapsCoordinates(url: string): Promise<{ latitude: number; longitude: number } | null> {
+    const params = new URLSearchParams({ url })
+    const response = await fetchWithCredentials(`${API_BASE}/maps/coordinates?${params}`, {
+      headers: await getAuthHeaders(),
+    })
+    if (!response.ok) return null
+    const body = await response.json() as { latitude?: number; longitude?: number } | null
+    if (body?.latitude == null || body?.longitude == null) return null
+    if (!Number.isFinite(body.latitude) || !Number.isFinite(body.longitude)) return null
+    return { latitude: body.latitude, longitude: body.longitude }
+  },
+
   async fillJobCbsAddressFromCoordinates(jobId: string, districtId: string, streetNo?: string | null): Promise<boolean> {
     const params = new URLSearchParams({ districtId })
     if (streetNo?.trim()) params.set('streetNo', streetNo.trim())

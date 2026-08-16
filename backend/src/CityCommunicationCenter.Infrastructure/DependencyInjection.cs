@@ -98,6 +98,15 @@ public static class DependencyInjection
         });
         services.AddScoped<IIzmirCbsAddressCatalog, IzmirCbsAddressCatalog>();
 
+        services.AddHttpClient(GoogleMapsLinkResolver.HttpClientName, client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(8);
+            client.DefaultRequestHeaders.TryAddWithoutValidation(
+                "User-Agent",
+                "Mozilla/5.0 CityCommunicationCenter");
+        }).ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
+        services.AddScoped<IGoogleMapsLinkResolver, GoogleMapsLinkResolver>();
+
         // Lisans modülleri: lumespec-license'a (bkz. ~/Works/lumespec-license) tenant+modül başına soru sorar.
         services.AddHttpClient(LicenseHttpClient.Name, (serviceProvider, client) =>
         {

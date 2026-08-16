@@ -1,3 +1,7 @@
+## Round 913 — #2738 reopen
+
+- [x] `6a8185d3` — Mobil haritada Haritada Olmayanları Listele, Talepleri Listele’nin sağında aynı satır.
+
 ## Round 912 — #2739 reopen
 
 - [x] `6a818641` — Mobil sol menü sola kaydırırken hareket ederek kapanır (aniden değil).

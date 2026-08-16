@@ -1727,7 +1727,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Talepleri Listele (#2664/#2665/#2668):** `N konum` metninin yanında; popup yalnızca haritada
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
   Yanında **Haritada Olmayanları Listele** aynı popup; başlık **Haritada Konumu Olmayan Talepler** (#2737).
-  Mobilde bu buton Talepleri Listele’nin solunda aynı satırdadır, alt satıra düşmez (#2738).
+  Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır, alt satıra düşmez (#2738).
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde
   şartı yok — cadde/konuşma yedegi geocode için FE’de; harita yine cadde zorunlu (#2635).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).

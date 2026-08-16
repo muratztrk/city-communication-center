@@ -783,7 +783,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (Round 719). Açıklama `spellCheck={false}` + Windows autocorrect kapalı; Enter → `insertLineBreak`
   (liste hariç); satır aralığı yalnız `line-height` (#6a74e697). Açık Adres `h-[5rem]` — dosya
   kutusu alt kenarıyla hizalı (#2440 reopen). Açıklama editör
-  `font-size: 0.8rem`, yükseklik `7.15rem` (#2743). Modal gelen görsel balon içinde `w-full` (Round 719).
+  `font-size: 0.8rem`, yükseklik `6.85rem` (#2743/#2746). Modal gelen görsel balon içinde `w-full` (Round 719).
 - **Görsel lightbox yüksekliği (Round 720):** `SocialConversationMediaPreview` kabuk
   `max-h-[70vh]`, görsel/video `max-h-[56vh]` (WA + kurum içi — #6a75848c / #6a75722a).
 - **`CitizenRequestModal` edit mode:** Vatandaş Talep No, "Vatandaş Adı / Gönderen" alanının

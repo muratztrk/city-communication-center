@@ -1,3 +1,8 @@
+## Round 932 — #2754/#2640
+
+- [x] `6a81ab8c` — SingleSelectDropdown hover tooltip tamamen kaldırıldı.
+- [x] `6a801665` — WA Vatandaş Bilgileri Mahalle/Cadde/No menü aşağı açılır.
+
 ## Round 931 — #2289/#2405/#2600
 
 - [x] `6a724edd` — Yazışmaya Git banner: kayıtlı ad numaranın solunda.

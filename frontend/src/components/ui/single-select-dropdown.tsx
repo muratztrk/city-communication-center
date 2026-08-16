@@ -53,8 +53,6 @@ export function SingleSelectDropdown({
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
-  const [hoverTip, setHoverTip] = useState(false)
-  const [hoverTipStyle, setHoverTipStyle] = useState<{ top: number; left: number }>({ top: 0, left: 8 })
   const [adminSurfaceMenu, setAdminSurfaceMenu] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -194,15 +192,6 @@ export function SingleSelectDropdown({
     <div
       ref={rootRef}
       className={cn('relative min-w-0 max-w-full', className)}
-      onMouseEnter={() => {
-        if (!selected || open) return
-        const rect = rootRef.current?.getBoundingClientRect()
-        if (rect) {
-          setHoverTipStyle({ top: rect.bottom + 4, left: Math.max(8, rect.left) })
-        }
-        setHoverTip(true)
-      }}
-      onMouseLeave={() => setHoverTip(false)}
     >
       <button
         type="button"
@@ -214,7 +203,6 @@ export function SingleSelectDropdown({
         aria-expanded={open}
         disabled={disabled}
         onClick={() => {
-          setHoverTip(false)
           if (open) {
             setSearch('')
           } else {
@@ -260,20 +248,6 @@ export function SingleSelectDropdown({
           ) : null}
         </span>
       </button>
-
-      {hoverTip && selected && !open
-        ? createPortal(
-            <span
-              role="tooltip"
-              className="ccc-grid-overflow-tooltip"
-              data-open="true"
-              style={hoverTipStyle}
-            >
-              {selected.label}
-            </span>,
-            document.body,
-          )
-        : null}
 
       {menuPortal ? (menuPanel ? createPortal(menuPanel, document.body) : null) : menuPanel}
     </div>

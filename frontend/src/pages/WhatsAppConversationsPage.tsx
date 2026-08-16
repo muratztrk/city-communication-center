@@ -659,7 +659,6 @@ function ConversationProfilePanel({
             {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
           </span>
           <SingleSelectDropdown
-            openUp
             searchable
             clearable
             options={neighborhoodOptions}
@@ -677,7 +676,6 @@ function ConversationProfilePanel({
           street={draft.street}
           streetNo={draft.streetNo}
           required={hasNeighborhood}
-          openUp
           labelClassName={labelClass}
           className="address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2"
           menuScrollClassName="whatsapp-neighborhood-menu-scroll"

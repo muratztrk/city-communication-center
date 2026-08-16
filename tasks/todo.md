@@ -1,3 +1,8 @@
+## Round 946 — #2719/#2770
+
+- [x] `6a816550` — Maps linki orijinal saklanır; place adı Google’da aranır; pin linkteki konum.
+- [x] `6a820c72` — Konum `maps?q=` ile değiştirilmez; T-2026-614 örneğindeki yanlış q= çevirisi durduruldu.
+
 ## Round 945 — #2770/#2767
 
 - [x] `6a820c72` — Mahalle/cadde boşken Maps linki URL’den koordinata çevrilmez; Google araması. Cevap Trello karta yazıldı.

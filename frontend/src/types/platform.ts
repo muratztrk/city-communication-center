@@ -88,6 +88,7 @@ export interface CitizenDashboardMapPin {
   jobNumberYear?: number | null;
   ownerDepartmentName?: string | null;
   destinationDepartmentName?: string | null;
+  locationMapsUrl?: string | null;
 }
 
 export interface CitizenDashboardMapPinsResponse {
@@ -325,6 +326,7 @@ export interface UpdateJobRequest {
   targetDepartmentIds?: string[] | null;
   citizenName?: string | null;
   citizenPhone?: string | null;
+  locationMapsUrl?: string | null;
 }
 
 export interface JobSummary {
@@ -419,6 +421,7 @@ export interface JobDetail {
   street?: string | null;
   streetNo?: string | null;
   openAddress?: string | null;
+  locationMapsUrl?: string | null;
   createdByDisplayName: string | null;
   createdByRoleCode?: string | null;
   createdAtUtc: string;

@@ -54,19 +54,29 @@ public static class GoogleMapsCoordinateParser
 
     public static (double Latitude, double Longitude)? TryParseCoordinatePair(string value)
     {
-        var plain = PlainPair.Match(value.Trim());
-        if (plain.Success) return FinitePair(plain.Groups[1].Value, plain.Groups[2].Value);
+        var bang = BangPair.Match(value);
+        if (bang.Success) return FinitePair(bang.Groups[1].Value, bang.Groups[2].Value);
 
         var at = AtPair.Match(value);
         if (at.Success) return FinitePair(at.Groups[1].Value, at.Groups[2].Value);
 
-        var bang = BangPair.Match(value);
-        if (bang.Success) return FinitePair(bang.Groups[1].Value, bang.Groups[2].Value);
-
         var query = QueryPair.Match(value);
         if (query.Success) return FinitePair(query.Groups[1].Value, query.Groups[2].Value);
 
+        var plain = PlainPair.Match(value.Trim());
+        if (plain.Success) return FinitePair(plain.Groups[1].Value, plain.Groups[2].Value);
+
         return null;
+    }
+
+    /// <summary>/maps/place/Adres+Metni/ içindeki yer adı — Google address araması (#2719/#2770).</summary>
+    public static string? TryPlaceSearchText(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        var match = Regex.Match(value, @"/maps/place/([^/@?]+)", RegexOptions.IgnoreCase);
+        if (!match.Success) return null;
+        var decoded = Uri.UnescapeDataString(match.Groups[1].Value.Replace('+', ' ')).Trim();
+        return decoded.Length == 0 ? null : decoded;
     }
 
     private static (double Latitude, double Longitude)? FinitePair(string rawLat, string rawLng)

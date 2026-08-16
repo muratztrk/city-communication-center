@@ -52,7 +52,8 @@ public sealed class JobsController : ApiControllerBase
             request.Neighborhood,
             request.Street,
             request.StreetNo,
-            request.OpenAddress), cancellationToken);
+            request.OpenAddress,
+            request.LocationMapsUrl), cancellationToken);
         return CreatedAtRoute("GetJobById", new { jobId = response.JobId }, response);
     }
 
@@ -147,7 +148,7 @@ public sealed class JobsController : ApiControllerBase
     [HttpPut("{jobId:guid}")]
     public async Task<IActionResult> Update(Guid jobId, [FromBody] UpdateJobRequest request, CancellationToken cancellationToken)
     {
-        var ok = await _sender.Send(new UpdateJobCommand(jobId, CurrentContext.UserId, request.Title, request.Description, request.Priority, request.StartDateUtc, request.DueDateUtc, request.Latitude, request.Longitude, request.IsProject, request.Neighborhood, request.Street, request.StreetNo, request.OpenAddress, request.TargetDepartmentIds, request.CitizenName, request.CitizenPhone), cancellationToken);
+        var ok = await _sender.Send(new UpdateJobCommand(jobId, CurrentContext.UserId, request.Title, request.Description, request.Priority, request.StartDateUtc, request.DueDateUtc, request.Latitude, request.Longitude, request.IsProject, request.Neighborhood, request.Street, request.StreetNo, request.OpenAddress, request.TargetDepartmentIds, request.CitizenName, request.CitizenPhone, request.LocationMapsUrl), cancellationToken);
         return ok ? NoContent() : NotFound();
     }
 

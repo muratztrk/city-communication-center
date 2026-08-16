@@ -150,7 +150,8 @@ public sealed class SocialMessagesController : ApiControllerBase
                 request.CitizenName,
                 request.CitizenPhone,
                 request.Latitude,
-                request.Longitude),
+                request.Longitude,
+                request.LocationMapsUrl),
             cancellationToken);
         if (job is null) return NotFound();
 

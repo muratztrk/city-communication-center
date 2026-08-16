@@ -403,7 +403,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     void (async () => {
       const geocoded = (await Promise.all(mappable.map(async pin => {
         // No=Yok: yalnızca Google Maps’ten çözülmüş koordinat; CBS cadde noktası yok (#2764/#2718).
-        if (isAbsentStreetNo(pin.streetNo)) {
+        if (isAbsentStreetNo(pin.streetNo) || pin.locationMapsUrl?.trim()) {
           if (!hasCoordinates(pin)) return null
           return {
             ...pin,

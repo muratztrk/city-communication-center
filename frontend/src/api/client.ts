@@ -1167,6 +1167,7 @@ export const api = {
     street?: string | null
     streetNo?: string | null
     openAddress?: string | null
+    locationMapsUrl?: string | null
   }): Promise<JobSummary> {
     const response = await fetchWithCredentials(`${API_BASE}/jobs`, {
       method: 'POST',
@@ -1364,6 +1365,7 @@ export const api = {
       citizenPhone?: string | null
       latitude?: number | null
       longitude?: number | null
+      locationMapsUrl?: string | null
     },
   ): Promise<JobSummary> {
     const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/convert`, {

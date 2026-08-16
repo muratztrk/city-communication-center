@@ -28,7 +28,7 @@ import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
-import { formatCoordinatePair } from '../utils/coordinates'
+import { formatCoordinatePair, originalGoogleMapsUrl } from '../utils/coordinates'
 import { enrichEmptyAddressFromMapsLink, resolveGoogleMapsCoordinatePair } from '../utils/googleMapsReverseGeocode'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
@@ -497,6 +497,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           openAddress: normalizeTitleCaseField(openAddress),
           latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude ?? null,
           longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude ?? null,
+          locationMapsUrl: originalGoogleMapsUrl(coordinates),
           targetDepartmentIds: [targetDepartmentId],
         })
         await api.updateSocialMessage(message.socialMessageId, {
@@ -555,6 +556,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         openAddress: normalizeTitleCaseField(openAddress),
         latitude: mapsAddress.latitude ?? parsedCoordinates?.latitude ?? null,
         longitude: mapsAddress.longitude ?? parsedCoordinates?.longitude ?? null,
+        locationMapsUrl: originalGoogleMapsUrl(coordinates),
         citizenName: trimmedHandle,
         citizenPhone: trimmedPhone,
       })

@@ -1072,6 +1072,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("longitude");
 
+                    b.Property<string>("LocationMapsUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("locationmapsurl");
+
                     b.Property<string>("ManagerNote")
                         .HasColumnType("text")
                         .HasColumnName("managernote");

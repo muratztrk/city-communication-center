@@ -40,6 +40,9 @@ public sealed class Job : AuditableTenantEntity, IHasDatabaseIndexDefinitions
     public string? StreetNo { get; set; }
     public string? OpenAddress { get; set; }
 
+    /// <summary>Kullanıcının girdiği orijinal Google Maps linki; q=lat,lng ile değiştirilmez (#2770).</summary>
+    public string? LocationMapsUrl { get; set; }
+
     public JobSourceType SourceType { get; set; } = JobSourceType.Manual;
 
     public Guid? SourceRefId { get; set; }

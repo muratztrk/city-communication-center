@@ -8,7 +8,7 @@ import type { JobDetail } from '../../../types/platform'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { MyRequestAddressEditFields } from './MyRequestAddressEditFields'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
-import { mapsLinkFromLatLng } from '../../../utils/coordinates'
+import { displayMapsLink } from '../../../utils/coordinates'
 
 interface MyRequestDetailBottomCardsProps {
   detail: JobDetail
@@ -96,7 +96,7 @@ export function MyRequestDetailBottomCards({
               street={detail.street}
               streetNo={detail.streetNo}
               openAddress={detail.openAddress}
-              coordinates={mapsLinkFromLatLng(detail.latitude, detail.longitude)}
+              coordinates={displayMapsLink(detail.locationMapsUrl, detail.latitude, detail.longitude)}
             />
           )}
         </div>

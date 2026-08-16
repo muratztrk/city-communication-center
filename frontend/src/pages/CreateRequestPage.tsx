@@ -42,7 +42,7 @@ import {
   normalizeTitleCaseField,
 } from '../utils/textNormalization'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
-import { formatCoordinatePair } from '../utils/coordinates'
+import { formatCoordinatePair, originalGoogleMapsUrl } from '../utils/coordinates'
 import { enrichEmptyAddressFromMapsLink, resolveGoogleMapsCoordinatePair } from '../utils/googleMapsReverseGeocode'
 import {
   ATTACHMENT_FILE_ACCEPT,
@@ -470,7 +470,7 @@ export function CreateRequestPage() {
           street: job.street ?? '',
           streetNo: job.streetNo ?? '',
           openAddress: job.openAddress ?? '',
-          coordinates: formatCoordinatePair(job.latitude, job.longitude),
+          coordinates: job.locationMapsUrl?.trim() || formatCoordinatePair(job.latitude, job.longitude),
         }
         if (job.requestType === 'ExternalUnit') {
           setExternalForm(current => ({
@@ -569,7 +569,8 @@ export function CreateRequestPage() {
           street: job.street ?? '',
           streetNo: job.streetNo ?? '',
           openAddress: job.openAddress ?? '',
-          coordinates: formatCoordinatePair(job.latitude ?? message.latitude, job.longitude ?? message.longitude),
+          coordinates: job.locationMapsUrl?.trim()
+            || formatCoordinatePair(job.latitude ?? message.latitude, job.longitude ?? message.longitude),
           citizenNeighborhood: '',
           citizenStreet: '',
           citizenStreetNo: '',
@@ -957,6 +958,7 @@ export function CreateRequestPage() {
           openAddress: normalizeTitleCaseField(internalForm.openAddress) ?? '',
           latitude: mapsAddress.latitude ?? internalCoords.latitude ?? null,
           longitude: mapsAddress.longitude ?? internalCoords.longitude ?? null,
+          locationMapsUrl: originalGoogleMapsUrl(internalForm.coordinates),
         })
         await uploadPendingFiles(editJobId)
         invalidateJobs(queryClient, editJobId)
@@ -983,6 +985,7 @@ export function CreateRequestPage() {
         openAddress: normalizeTitleCaseField(internalForm.openAddress),
         latitude: mapsAddress.latitude ?? internalCoords.latitude,
         longitude: mapsAddress.longitude ?? internalCoords.longitude,
+        locationMapsUrl: originalGoogleMapsUrl(internalForm.coordinates),
       })
       await uploadPendingFiles(job.jobId)
       invalidateJobs(queryClient, job.jobId)
@@ -1064,6 +1067,7 @@ export function CreateRequestPage() {
           openAddress: normalizeTitleCaseField(externalForm.openAddress) ?? '',
           latitude: mapsAddress.latitude ?? externalCoords.latitude ?? null,
           longitude: mapsAddress.longitude ?? externalCoords.longitude ?? null,
+          locationMapsUrl: originalGoogleMapsUrl(externalForm.coordinates),
           targetDepartmentIds,
         })
         await uploadPendingFiles(editJobId)
@@ -1089,6 +1093,7 @@ export function CreateRequestPage() {
         openAddress: normalizeTitleCaseField(externalForm.openAddress),
         latitude: mapsAddress.latitude ?? externalCoords.latitude,
         longitude: mapsAddress.longitude ?? externalCoords.longitude,
+        locationMapsUrl: originalGoogleMapsUrl(externalForm.coordinates),
       })
       await uploadPendingFiles(job.jobId)
       invalidateJobs(queryClient, job.jobId)
@@ -1226,6 +1231,7 @@ export function CreateRequestPage() {
           openAddress: normalizeTitleCaseField(citizenForm.openAddress),
           latitude: mapsAddress.latitude ?? citizenCoords.latitude ?? null,
           longitude: mapsAddress.longitude ?? citizenCoords.longitude ?? null,
+          locationMapsUrl: originalGoogleMapsUrl(citizenForm.coordinates),
           targetDepartmentIds: [citizenForm.targetDepartmentId],
         })
         await api.updateSocialMessage(linkedSocialMessageId, {
@@ -1265,6 +1271,7 @@ export function CreateRequestPage() {
         openAddress: normalizeTitleCaseField(citizenForm.openAddress),
         latitude: mapsAddress.latitude ?? citizenCoords.latitude ?? null,
         longitude: mapsAddress.longitude ?? citizenCoords.longitude ?? null,
+        locationMapsUrl: originalGoogleMapsUrl(citizenForm.coordinates),
         citizenName: normalizedCitizenName,
         citizenPhone: trimmedPhone,
       }

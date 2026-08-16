@@ -20,7 +20,8 @@ public sealed record CreateJobRequest(
     string? Neighborhood = null,
     string? Street = null,
     string? StreetNo = null,
-    string? OpenAddress = null);
+    string? OpenAddress = null,
+    string? LocationMapsUrl = null);
 
 public sealed record UpdateJobRequest(
     string Title,
@@ -37,7 +38,8 @@ public sealed record UpdateJobRequest(
     string? OpenAddress = null,
     IReadOnlyCollection<Guid>? TargetDepartmentIds = null,
     string? CitizenName = null,
-    string? CitizenPhone = null);
+    string? CitizenPhone = null,
+    string? LocationMapsUrl = null);
 
 public sealed record CancelJobRequest(string Reason);
 
@@ -154,4 +156,5 @@ public sealed record JobDetailResponse(
   /// <summary>Üst düzey yetkili — vatandaşa iletilen/gönderilecek terminal mesaj (#2528).</summary>
     string? CitizenOutboundMessage = null,
     /// <summary>Mesajı Gönder anındaki onay notu — Tamamlama Notu olarak gösterilir (#2528).</summary>
-    string? CitizenApprovalReleasedNote = null);
+    string? CitizenApprovalReleasedNote = null,
+    string? LocationMapsUrl = null);

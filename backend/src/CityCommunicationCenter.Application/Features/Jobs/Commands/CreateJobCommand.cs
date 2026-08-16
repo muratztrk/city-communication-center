@@ -25,7 +25,8 @@ public sealed record CreateJobCommand(
     string? Neighborhood = null,
     string? Street = null,
     string? StreetNo = null,
-    string? OpenAddress = null) : ICommand<JobSummaryResponse>;
+    string? OpenAddress = null,
+    string? LocationMapsUrl = null) : ICommand<JobSummaryResponse>;
 
 public sealed class CreateJobCommandValidator : AbstractValidator<CreateJobCommand>
 {
@@ -238,6 +239,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim(),
             StreetNo = string.IsNullOrWhiteSpace(request.StreetNo) ? null : request.StreetNo.Trim(),
             OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim(),
+            LocationMapsUrl = string.IsNullOrWhiteSpace(request.LocationMapsUrl) ? null : request.LocationMapsUrl.Trim(),
             IsCoordinated = isCoordinatedExternal,
             CreatedByUserId = context.UserId
         };

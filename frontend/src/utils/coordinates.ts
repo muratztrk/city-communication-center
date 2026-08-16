@@ -13,6 +13,23 @@ export function mapsLinkFromLatLng(latitude?: number | null, longitude?: number 
   return `https://www.google.com/maps?q=${encodeURIComponent(`${latitude},${longitude}`)}`
 }
 
+/** Detay Konum: girilen orijinal Maps linki; yoksa q=lat,lng (#2770). */
+export function displayMapsLink(
+  locationMapsUrl?: string | null,
+  latitude?: number | null,
+  longitude?: number | null,
+): string {
+  const original = locationMapsUrl?.trim()
+  if (original) return original
+  return mapsLinkFromLatLng(latitude, longitude)
+}
+
+export function originalGoogleMapsUrl(value: string | null | undefined): string | null {
+  const trimmed = value?.trim() ?? ''
+  if (!trimmed || !isGoogleMapsLink(trimmed)) return null
+  return trimmed
+}
+
 function finitePair(rawLat: string, rawLng: string): { latitude: number; longitude: number } | null {
   const latitude = Number(rawLat.replace(',', '.'))
   const longitude = Number(rawLng.replace(',', '.'))

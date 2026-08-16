@@ -14,7 +14,7 @@ import { MyRequestTaskDetailsSection } from './MyRequestTaskDetailsSection'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { MyRequestAddressEditFields } from './MyRequestAddressEditFields'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
-import { mapsLinkFromLatLng } from '../../../utils/coordinates'
+import { displayMapsLink } from '../../../utils/coordinates'
 
 export interface MyRequestDetailModalProps {
   detail: JobDetail
@@ -259,7 +259,7 @@ export function MyRequestDetailModal({
                   street={detail.street}
                   streetNo={detail.streetNo}
                   openAddress={detail.openAddress}
-                  coordinates={mapsLinkFromLatLng(detail.latitude, detail.longitude)}
+                  coordinates={displayMapsLink(detail.locationMapsUrl, detail.latitude, detail.longitude)}
                 />
               )}
             </section>

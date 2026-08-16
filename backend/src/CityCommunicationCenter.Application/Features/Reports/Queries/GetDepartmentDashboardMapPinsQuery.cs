@@ -88,6 +88,7 @@ public sealed class GetDepartmentDashboardMapPinsQueryHandler
                 OpenAddress = job.OpenAddress,
                 job.Latitude,
                 job.Longitude,
+                job.LocationMapsUrl,
                 job.CreatedAtUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
@@ -166,7 +167,8 @@ public sealed class GetDepartmentDashboardMapPinsQueryHandler
                     row.JobNumber,
                     row.JobNumberYear,
                     row.OwnerDepartmentName,
-                    destination);
+                    destination,
+                    row.LocationMapsUrl);
             })
             .OrderByDescending(pin => pin.Title)
             .ToList();

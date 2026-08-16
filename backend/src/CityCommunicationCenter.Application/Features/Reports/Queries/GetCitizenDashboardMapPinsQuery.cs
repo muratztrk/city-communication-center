@@ -54,6 +54,7 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                 OpenAddress = job.OpenAddress,
                 job.Latitude,
                 job.Longitude,
+                job.LocationMapsUrl,
                 job.CreatedAtUtc,
                 job.CompletedAtUtc,
                 job.UpdatedAtUtc,
@@ -148,7 +149,8 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                     null,
                     null,
                     row.DepartmentName,
-                    string.IsNullOrWhiteSpace(destination) ? null : destination);
+                    string.IsNullOrWhiteSpace(destination) ? null : destination,
+                    row.LocationMapsUrl);
             })
             .OrderByDescending(pin => pin.Title)
             .ToList();

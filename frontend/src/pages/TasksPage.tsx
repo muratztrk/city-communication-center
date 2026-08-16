@@ -25,7 +25,7 @@ import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { AttachmentImagePreviewButton } from '../components/ui/AttachmentImagePreviewButton'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
-import { mapsLinkFromLatLng } from '../utils/coordinates'
+import { displayMapsLink } from '../utils/coordinates'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
@@ -2785,7 +2785,7 @@ const pageKicker = isMyTasksView
                               street={parentJobDetail?.street}
                               streetNo={parentJobDetail?.streetNo}
                               openAddress={parentJobDetail?.openAddress}
-                              coordinates={mapsLinkFromLatLng(parentJobDetail?.latitude, parentJobDetail?.longitude)}
+                              coordinates={displayMapsLink(parentJobDetail?.locationMapsUrl, parentJobDetail?.latitude, parentJobDetail?.longitude)}
                             />
                           )}
                         </div>
@@ -2910,7 +2910,7 @@ const pageKicker = isMyTasksView
                           street={parentJobDetail.street}
                           streetNo={parentJobDetail.streetNo}
                           openAddress={parentJobDetail.openAddress}
-                          coordinates={mapsLinkFromLatLng(parentJobDetail.latitude, parentJobDetail.longitude)}
+                          coordinates={displayMapsLink(parentJobDetail.locationMapsUrl, parentJobDetail.latitude, parentJobDetail.longitude)}
                         />
                     </div>
                       </>

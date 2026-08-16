@@ -667,6 +667,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             depts, tasks, approvals, attachments,
             jobStatusActorDisplayName, jobCompletionNote, job.UpdatedAtUtc, createdByRoleCode,
             citizenRequest?.CitizenRequestNumber, citizenRequest?.CitizenRequestNumberYear,
-            citizenOutboundMessage, citizenApprovalReleasedNote);
+            citizenOutboundMessage, citizenApprovalReleasedNote,
+            job.LocationMapsUrl);
     }
 }

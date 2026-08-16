@@ -1222,10 +1222,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713), placeholder `Link giriniz...` (#2722); taşan metin ellipsis + **500ms** hover tooltip (#2725/#2763). Değer punto `13px`, placeholder `14px` (#2765/#2766). Native `title` yok.
   Konum Koordinatı anlamsız/hatalıysa talep yine oluşur; marker yok; `coordinatesInvalid` ile bloke edilmez (#2753). Pin için Google Maps linki (`@lat,lng` / `q=` / `!3d!4d`, `google.com.tr`, kısa `maps.app.goo.gl` sunucuda açılır) parse edilip lat/lng kaydedilir (#2764/#2767); düz `lat, lng` marker yazmaz. Oluşturunca harita pin sorgusu invalidate + mount’ta taze çekilir (#2752).
   Vatandaş Çağrı **Talebin Adres Bilgisi**, Rutin Görev Oluştur ve WA **Vatandaş Talebi Oluştur** popup’ta Konum Koordinatı başlığı Mahalle dropdown’unun **alt satırında** hizalanır; Adres Tarifi / Dosya ekle bir alt satırdadır (#2726/#2727/#2741).
-  Birim/Vatandaş talep haritasında Mahalle+Cadde+No (No ≠ Yok) doluysa pin CBS’den gelir; Konum Koordinatı kullanılmaz (#2720).
+  Birim/Vatandaş talep haritasında Mahalle+Cadde+No (No ≠ Yok) doluysa pin CBS’den gelir; Konum Koordinatı kullanılmaz (#2720). Orijinal Maps linki (`LocationMapsUrl`) varsa pin link koordinatındadır (#2770).
   No=Yok ve koordinat yoksa (veya link Google Maps değilse) marker yok, **Haritada Olmayanları Listele**’de durur (#2718/#2764).
   No=Yok + Google Maps koordinat, veya mahalle/cadde boş + koordinat: pin koordinata konur (#2719/#2764). CBS cadde noktası No=Yok iken kullanılmaz.
-  Mahalle+cadde boş + Google Maps linki: **oluştururken** link URL’den lat/lng parse edilmez (#2770); orijinal link Google `address=` ile aranır, CBS mahalle/cadde ve No (`street_number` veya Yok) yazar; Google arama sonucundaki lat/lng kaydedilir ve haritada pin konur (#2719). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
+  Mahalle+cadde boş + Google Maps linki: **oluştururken** girilen link olduğu gibi saklanır (`LocationMapsUrl`); detay Konum `maps?q=` ile yeniden yazılmaz (#2770). `/maps/place/` metni Google `address=` ile aranır; pin linkteki `!3d!4d`/`@` konumudur, CBS cadde noktası kullanılmaz (#2719). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
   (#2654/#2681). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).

@@ -1,3 +1,11 @@
+## Round 921 — #2747/#2750/#2730/#2744/#2708
+
+- [x] `6a819f67` — WA Birim/Öncelik kapalı placeholder punto küçültüldü.
+- [x] `6a81a2be` — Dizin Detaylar: stacked Vatandaş Adı / Telefon No kolonu kaldırıldı.
+- [x] `6a817465` — WA Mahalle/Cadde/No açık menü punto = Gideceği Birim (0.75rem).
+- [x] `6a819cee` — Talep Eki Olarak Ekle genişliği Ön İzle+İndir satırıyla aynı.
+- [x] `6a814b98` — Dizin Detaylar: Filtreyi sil, Yazdır’ın solunda (aynı grup).
+
 ## Round 920 — #2744/#2749/#2748/#2738
 
 - [x] `6a819cee` — WA talep popup: Talep Eki Olarak Ekle alt satırda.

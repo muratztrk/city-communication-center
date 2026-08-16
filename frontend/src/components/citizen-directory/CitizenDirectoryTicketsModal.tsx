@@ -103,12 +103,20 @@ function printCitizenTickets(
     </tr>`
     }
     const channelLabel = ticket.channel ? escape(getSocialChannelLabel(t, ticket.channel)) : '—'
-    return `<tr>
+    return replaceUnitWithCitizenContact
+      ? `<tr>
       <td>${index + 1}</td>
       <td class="col-no">${escape(formatVt(ticket))}</td>
       <td class="col-dept">${contactHtml}</td>
       <td class="col-date">${escape(date)}</td>
-      ${replaceUnitWithCitizenContact ? '' : `<td class="col-dept">${channelLabel}</td>`}
+      <td class="col-title">${escape(ticket.title?.trim() || '—')}</td>
+      <td class="col-status">${escape(status)}</td>
+    </tr>`
+      : `<tr>
+      <td>${index + 1}</td>
+      <td class="col-no">${escape(formatVt(ticket))}</td>
+      <td class="col-date">${escape(date)}</td>
+      <td class="col-dept">${channelLabel}</td>
       <td class="col-title">${escape(ticket.title?.trim() || '—')}</td>
       <td class="col-status">${escape(status)}</td>
     </tr>`
@@ -154,9 +162,12 @@ function printCitizenTickets(
       <th class="col-dept">${escape(t('jobs.detail.requestLocation', 'Talep Yeri'))}</th>
       <th class="col-dept">${escape(t('social.destination', 'Gittiği Yer'))}</th>
       <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>`
-        : `<th class="col-dept">${stackedCitizenContact}</th>
+        : replaceUnitWithCitizenContact
+        ? `<th class="col-dept">${stackedCitizenContact}</th>
       <th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
-      ${replaceUnitWithCitizenContact ? '' : `<th class="col-dept">${escape(t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı'))}</th>`}
+      <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>`
+        : `<th class="col-date">${escape(t('social.citizenRequestDateHeader', 'Talep Tarihi'))}</th>
+      <th class="col-dept">${escape(t('citizenDirectory.columns.sourceChannel', 'Talep Kanalı'))}</th>
       <th class="col-title">${escape(t('jobs.columns.title', 'Talep Başlığı'))}</th>`}
       <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
@@ -195,7 +206,7 @@ export function CitizenDirectoryTicketsModal({
 }: CitizenDirectoryTicketsModalProps) {
   const { t } = useTranslation()
   const isDepartmentMap = layout === 'departmentMap'
-  const showCitizenContact = !isDepartmentMap
+  const showCitizenContact = replaceUnitWithCitizenContact && !isDepartmentMap
   const [ticketPage, setTicketPage] = useState(1)
   const [ticketPageSize, setTicketPageSize] = useState(10)
   const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
@@ -308,6 +319,7 @@ export function CitizenDirectoryTicketsModal({
           </div>
           <DetailModalHeaderBrand />
           <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
+            <div className="inline-flex min-w-0 items-center justify-end gap-2">
             <ClearPieFilterLink
               hasColumnFilters={hasActiveFilters}
               onClearColumnFilters={() => {
@@ -327,6 +339,7 @@ export function CitizenDirectoryTicketsModal({
               <Printer className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
               {t('common.print', 'Yazdır')}
             </Button>
+            </div>
             <button
               type="button"
               onClick={onClose}

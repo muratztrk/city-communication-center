@@ -3592,6 +3592,10 @@
     font-size: 0.72rem;
   }
 
+  .citizen-request-form .citizen-request-placeholder-trigger span.text-slate-400 {
+    font-size: 0.7rem;
+  }
+
   .request-actions button,
   .request-actions a {
     flex: 0 0 auto;

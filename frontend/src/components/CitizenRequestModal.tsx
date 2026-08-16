@@ -716,6 +716,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     onChange={setTargetDepartmentId}
                     placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
                     menuWidth={300}
+                    triggerClassName="citizen-request-placeholder-trigger"
                     menuScrollClassName="citizen-request-department-menu"
                   />
                 </div>
@@ -727,7 +728,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     value={priority}
                     onChange={setPriority}
                     placeholder={t('jobs.form.priority', 'Öncelik')}
-                    triggerClassName="text-[13px]"
+                    triggerClassName="text-[13px] citizen-request-placeholder-trigger"
                     menuScrollClassName="citizen-request-priority-menu"
                   />
                 </div>
@@ -785,6 +786,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       }}
                       placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
                       triggerClassName="citizen-request-address-trigger"
+                      menuScrollClassName="citizen-request-department-menu"
+                      menuClassName="citizen-request-department-menu"
                     />
                   </label>
                   <CbsStreetNoDropdowns
@@ -796,6 +799,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     onStreetChange={setStreet}
                     onStreetNoChange={setStreetNo}
                     triggerClassName="citizen-request-address-trigger"
+                    menuScrollClassName="citizen-request-department-menu"
+                    menuClassName="citizen-request-department-menu"
                   />
                 </div>
                 <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">

@@ -620,7 +620,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
   footer input'ta tutulur.
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.
-- **Medya balon Talep Eki hizası (#2401/#2410/#2744):** modalda görsel+doküman gelen eklerde Ön İzle · İndir aynı satırda, **Talep Eki Olarak Ekle** alt satırda; butonlar biraz daha dar (`h-6` / `10px`). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
+- **Medya balon Talep Eki hizası (#2401/#2410/#2744):** modalda görsel+doküman gelen eklerde Ön İzle · İndir aynı satırda, **Talep Eki Olarak Ekle** alt satırda ve sağ kenarı İndir ile aynı (`w-fit` + `w-full`); butonlar biraz daha dar (`h-6` / `10px`). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
   gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5` (#2411 reopen). Bekleyen giden görsel önizleme
   yüksekliği kompakt `max-h-32`, normal `max-h-36`; görsel `w-full object-cover` (çerçeveyi
   yatay doldurur); giden görsel balonu `max-w-[min(58%,15.5rem)]` / kompakt `54%` (#2711 reopen).
@@ -772,7 +772,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **`CitizenRequestModal` `Talep Başlığı`:** saran textarea + dikey scroll; etiket textbox kaldırılınca
   yükseklik artar (`min-height` ~4.25rem). Başlık kolonu Öncelik’ten biraz daha geniş, Öncelik dar
   (`7.25rem`, #2743). Öncelik menü sırası Normal → Yüksek → Çok Yüksek (`prioritySelectOptions`, #2749). Gideceği Birim ve Öncelik menü punto `0.75rem`; Adres Tarifi input Açıklama ile aynı `0.8rem`; Açıklama
-  editör yüksekliği `6.85rem` (#2743/#2746). Mahalle/Cadde/No boş placeholder punto biraz küçük (#2747).
+  editör yüksekliği `6.85rem` (#2743/#2746). Mahalle/Cadde/No boş placeholder punto biraz küçük (#2747). Gideceği Birim / Öncelik kapalı placeholder punto biraz küçük (`citizen-request-placeholder-trigger`, #2747 reopen). Açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (`citizen-request-department-menu`, #2730).
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Konum Koordinatı
@@ -1210,7 +1210,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
   Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
   WA Mahalle/Cadde/No arama ve liste punto aynı (0.875rem); liste küçültülmez (#2729).
-  WA **Vatandaş Talebi Oluştur** popup Mahalle/Cadde/No punto, form `.field-select` (0.82rem) ile aynıdır; #2730 eşitleme geri alındı. WA profil **Vatandaş Bilgileri** menüsü 0.875rem kalır (#2729).
+  WA **Vatandaş Talebi Oluştur** popup açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (#2730). Kapalı kutu form `.field-select` (0.82rem) kalır. WA profil **Vatandaş Bilgileri** menüsü 0.875rem kalır (#2729).
   Popup Konum Koordinatı Mahalle’nin **alt satırında** (Cadde/No ile aynı satırda değil) (#2741).
   Popup yüksekliği taban detay shell’den çok az daha fazladır (`detail-modal-shell--citizen-create`, #2742).
   WA Vatandaş Bilgileri ve Vatandaş Talebi Oluştur popup Cadde seçili metni oka kadar
@@ -1810,8 +1810,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açık görev yoksa `İşleme Alındı`, detay popup ile aynı, #2628; overdue = `Yapılmakta` /
   `(Geciken)`, #2574).
   Harita aynı-adres popup'ında Birim yerine stacked Vatandaş Adı / Telefon No
-  (`replaceUnitWithCitizenContact`). Dizin Detaylar popup’ında da Birim yok; VT No’dan sonra stacked
-  Vatandaş Adı / Telefon No; başlıklarda sıralama+filtre; yazdırmada Vatandaş/Talep No ve Adı/Telefon No alt alta (#2713).
+  (`replaceUnitWithCitizenContact`). Dizin Detaylar popup’ında Birim yok; stacked Ad/Telefon
+  kolonu da yok (#2750) — yalnız harita `replaceUnitWithCitizenContact`. Başlıklarda sıralama+filtre;
+  dizin yazdırmada kanal sütunu, stacked Ad/Telefon yok. Dizin **Filtreyi sil** Yazdır’ın solunda
+  (aynı grup, #2708).
   Harita popup kolon sırası: Sıra → VT No (kanal ikonu `size-3.5` yanında, Talep Kanalı sütunu yok)
   → stacked Vatandaş Adı / Telefon No → Talep Tarihi → Başlık → Durum (#2635/#2636).
   Harita Yazdır h1 ve VT No stacked `Vatandaş` / `Talep No`; Vatandaş Adı / Telefon No

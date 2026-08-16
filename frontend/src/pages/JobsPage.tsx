@@ -2791,6 +2791,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             street={detail.street}
                             streetNo={detail.streetNo}
                             openAddress={detail.openAddress}
+                            coordinates={mapsLinkFromLatLng(detail.latitude, detail.longitude)}
                           />
                         ),
                       }] : []),

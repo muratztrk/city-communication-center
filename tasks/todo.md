@@ -1,3 +1,9 @@
+## Round 927 — #2754/#2755/#2756
+
+- [x] `6a81ab8c` — WA kapalı dropdown hover tooltip (disabled dahil, standart overflow tooltip).
+- [x] `6a81ac70` — Adresi Gör: Adres Tarifi yanında Konum textbox; başlıklar ortalı.
+- [x] `6a81ae7f` — Adres Bilgileri: Adres Tarifi Mahalle altında, Konum Cadde altında.
+
 ## Round 926 — #2653/#2640/#2757/#2756/#2755
 
 - [x] `6a803699` — Dizin boş filtre empty-state yüksekliği pie ile aynı.

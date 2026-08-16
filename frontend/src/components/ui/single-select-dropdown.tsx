@@ -191,7 +191,19 @@ export function SingleSelectDropdown({
   ) : null
 
   return (
-    <div ref={rootRef} className={cn('relative min-w-0 max-w-full', className)}>
+    <div
+      ref={rootRef}
+      className={cn('relative min-w-0 max-w-full', className)}
+      onMouseEnter={() => {
+        if (!selected || open) return
+        const rect = rootRef.current?.getBoundingClientRect()
+        if (rect) {
+          setHoverTipStyle({ top: rect.bottom + 4, left: Math.max(8, rect.left) })
+        }
+        setHoverTip(true)
+      }}
+      onMouseLeave={() => setHoverTip(false)}
+    >
       <button
         type="button"
         className={cn(
@@ -201,15 +213,6 @@ export function SingleSelectDropdown({
         )}
         aria-expanded={open}
         disabled={disabled}
-        onMouseEnter={() => {
-          if (!selected || open) return
-          const rect = rootRef.current?.getBoundingClientRect()
-          if (rect) {
-            setHoverTipStyle({ top: rect.bottom + 4, left: Math.max(8, rect.left) })
-          }
-          setHoverTip(true)
-        }}
-        onMouseLeave={() => setHoverTip(false)}
         onClick={() => {
           setHoverTip(false)
           if (open) {
@@ -223,7 +226,6 @@ export function SingleSelectDropdown({
       >
         <span
           className={cn('min-w-0 flex-1 truncate', selected ? 'text-slate-900' : 'text-slate-400')}
-          title={selected ? selected.label : undefined}
         >
           {selected ? selected.label : placeholder}
         </span>
@@ -263,7 +265,8 @@ export function SingleSelectDropdown({
         ? createPortal(
             <span
               role="tooltip"
-              className="pointer-events-none fixed z-[10050] max-w-[min(22rem,70vw)] break-words rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium leading-snug text-white shadow-lg"
+              className="ccc-grid-overflow-tooltip"
+              data-open="true"
               style={hoverTipStyle}
             >
               {selected.label}

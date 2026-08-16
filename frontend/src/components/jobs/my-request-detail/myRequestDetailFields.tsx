@@ -15,6 +15,7 @@ import { getPriorityLabel, getSocialChannelLabel } from '../../../utils/localiza
 import { RequestNumberWithTypeLabel } from '../../../utils/requestDisplay'
 import { StackedFieldValue, StackedFieldLabel } from './StackedFieldValue'
 import { CitizenAddressPeekButton } from './CitizenAddressPeekButton'
+import { mapsLinkFromLatLng } from '../../../utils/coordinates'
 
 export interface MyRequestDetailField {
   label: ReactNode
@@ -117,6 +118,7 @@ export function buildMyRequestDetailFields(
                 street={detail.street}
                 streetNo={detail.streetNo}
                 openAddress={detail.openAddress}
+                coordinates={mapsLinkFromLatLng(detail.latitude, detail.longitude)}
               />
             ),
           }]

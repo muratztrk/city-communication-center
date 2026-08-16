@@ -605,7 +605,7 @@
      üç etiket kolon içinde tek satır ortalı (#1876 / #r449; #r495 R489 geri).
      Dolu adreste satır sola kaymaz — Mahalle kart padding'inde kalsın (#r497). */
   .address-detail-my-request__grid--three {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: start;
     gap: 1rem 1.25rem;
   }
@@ -705,9 +705,9 @@
     text-align: left;
   }
 
-  /* Dolu adreste Cadde / Sokak başlığı biraz sola (#r498). */
+  /* Dolu adreste Cadde / Sokak başlığı biraz sola (#r498). #2756: kolon düşey hizası için kaydırma yok. */
   .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) {
-    transform: translateX(-0.7rem);
+    transform: none;
   }
 
   .address-detail-my-request__grid--stacked {
@@ -718,6 +718,29 @@
   /* Atanmış görev İlgili Talep adresi: veri varken satırlar arası daha ferah (#r497). */
   .address-detail-my-request__grid--stacked.address-detail-my-request__grid--spaced {
     gap: 1.35rem;
+  }
+
+  .address-detail-my-request__grid--peek {
+    justify-items: center;
+  }
+
+  .address-detail-my-request__grid--peek > .address-detail-my-request__item {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .address-detail-my-request__grid--peek .address-detail-my-request__label {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .address-detail-my-request__grid--peek .address-detail-my-request__value {
+    width: 100%;
+    text-align: center;
   }
 
   .address-detail-my-request__item {
@@ -4437,35 +4460,25 @@
     max-width: 11.5rem;
   }
 
-  .address-detail-my-request__item--directions {
-    grid-column: span 3;
+  .address-detail-my-request__item--directions,
+  .address-detail-my-request__item--coordinates {
+    grid-column: auto;
   }
 
   .address-detail-my-request__item--directions-full {
     grid-column: 1 / -1 !important;
   }
 
-  /* Adres Bilgileri: satır 1 Mahalle/Cadde/No; satır 2 Adres Tarifi + Konum Koordinatı (#2756). */
-  .address-detail-my-request__grid--three {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
-
-  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(1),
-  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
-  .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) {
-    grid-column: span 2;
-  }
-
-  /* Adres Bilgileri yanında yalnız 1 kutu: aynı iki satır (eski 4 kolon tek satır #2576 kalkar, #2756). */
+  /* Adres Bilgileri: satır 1 Mahalle/Cadde/No; satır 2 Adres Tarifi Mahalle altında, Konum Cadde altında (#2756). */
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three {
-    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-    justify-items: center;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    justify-items: start;
     align-items: start;
   }
 
   .my-request-detail-bottom--attachments-only .address-detail-my-request__item--directions,
   .my-request-detail-bottom--attachments-only .address-detail-my-request__item--coordinates {
-    grid-column: span 3 !important;
+    grid-column: auto !important;
   }
 
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item,
@@ -4483,7 +4496,7 @@
 
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--directions,
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--coordinates {
-    grid-column: span 3 !important;
+    grid-column: auto !important;
   }
 
   /* Görevlerim üç kutu: başlık ve `-` aynı düşey hizada, biraz sağa (#2576). */
@@ -4492,10 +4505,10 @@
     transform: translateX(0.45rem);
   }
 
-  /* No başlığı Cadde'ye göre daha sağa (#2576) — nth-child yetmez, sınıf + !important. */
+  /* No başlığı Cadde'ye göre daha sağa (#2576) — #2756 kolon hizası için kaydırma yok. */
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__label,
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__value {
-    transform: translateX(2.4rem) !important;
+    transform: none !important;
     margin-inline: 0 !important;
     text-align: left !important;
   }

@@ -10,6 +10,7 @@ type CitizenAddressPeekButtonProps = {
   street?: string | null
   streetNo?: string | null
   openAddress?: string | null
+  coordinates?: string | null
 }
 
 export function CitizenAddressPeekButton({
@@ -17,6 +18,7 @@ export function CitizenAddressPeekButton({
   street,
   streetNo,
   openAddress,
+  coordinates,
 }: CitizenAddressPeekButtonProps) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -66,6 +68,7 @@ export function CitizenAddressPeekButton({
                 street={street}
                 streetNo={streetNo}
                 openAddress={openAddress}
+                coordinates={coordinates}
               />
             </div>
           </div>,

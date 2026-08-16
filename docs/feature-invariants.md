@@ -1818,8 +1818,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (aynı grup, #2708). Filtre sonucu boşsa grid kalır, tbody `Henüz gösterilecek veri yok.` (#2653);
   paging pie drilldown gibi tablo hemen altında (sticky footer değil); boş-durum çerçevesi pie ile aynı alçak padding.
   Kapalı `SingleSelectDropdown` seçili değer hover tooltip’i body portal’da (modal overflow kırpmaz, #2754).
-  **Adresi Gör** popup: başlık altı çizgi; Mahalle/Cadde/No aynı satır, Adres Tarifi alt satır; X Talebi Yönlendir ile aynı (gri hover kırmızı, #2755).
-  Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No, satır2 Adres Tarifi+Konum Koordinatı; koordinat varsa **Konumu Gör** link popup (#2756).
+  **Adresi Gör** popup: başlık altı çizgi; Mahalle/Cadde/No aynı satır, Adres Tarifi’nin sağında Konum Koordinatı (değer textbox + taşınca ellipsis tooltip); başlıklar popup’ta kolon içi ortalı; X Talebi Yönlendir ile aynı (#2755).
+  Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
   **Vatandaş Adres Bilgisi** + sağda **Adresi Gör** (küçük portal popup, #2751).
   Harita popup kolon sırası: Sıra → VT No (kanal ikonu `size-3.5` yanında, Talep Kanalı sütunu yok)
@@ -1906,7 +1906,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Bildirim "(Vatandaş Talebi)" etiketi (#r491/#r492/#6a6bad16):** `titleTag` metin `text-[0.7rem]`
   yeşil (`text-emerald-600`); kanal ikonu `size-2.5`; ikon+metin `inline-flex items-center`.
 - **Ek toplam boyutu (#r491):** Entity / form başına tüm eklerin toplamı ≤ 5 MB (tek dosya da dahil); aşımda uyarı, yükleme yok. BE `UploadAttachmentCommand` mevcut ekleri toplar.
-- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r449 / #r495–#r501 / #6a6ba6ad / #2756):** Masaüstü: satır 1 Mahalle + Cadde + No; satır 2 Adres Tarifi + Konum Koordinatı. Koordinat varsa **Konumu Gör** (link popup). Dolu adreste Cadde etiket+değer sola yaslı;
+- **Adres Bilgileri 3 kolon (card #1876 / #r483 / #r449 / #r495–#r501 / #6a6ba6ad / #2756):** Masaüstü: satır 1 Mahalle + Cadde + No; satır 2 Adres Tarifi Mahalle kolonunun altında, Konum Koordinatı Cadde kolonunun altında. Koordinat varsa **Konumu Gör** (link popup). Dolu adreste Cadde etiket+değer sola yaslı;
   kırılınca da sol — #r500); değer fontu ~0.8rem (#r501); Cadde kolon biraz sola
   (`translateX(-0.7rem)` — #r498); boşsa üç kolon bölüm alt çizgisi altında ortalı (`--empty`,
   #6a6ba6ad). Mobil (≤767): alt alta. Rutin = `my-request`; Görevlerim İlgili Talep =

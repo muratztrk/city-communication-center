@@ -1,3 +1,9 @@
+## Round 902 — #2725/#2711/#2709
+
+- [x] `6a816f2b` — Konum Koordinatı ellipsis + hover tooltip; punto 12px.
+- [x] `6a8155bf` — WA görsel X foto içinde sağ üst; birim/ad iki satır; dosya adı punto ↑.
+- [x] `6a815114` — Talep/Görev Önizle ada yapışık ve küçük.
+
 ## Round 901 — #2710 reopen
 
 - [x] `6a815535` — WA gelen ek indirme adı: orijinal dosya adı (kanal-telefon öneki yok).

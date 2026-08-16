@@ -68,11 +68,11 @@ export function AttachmentImagePreviewButton({
         type="button"
         size="sm"
         variant="success"
-        className={className ?? 'h-7 shrink-0 px-2 text-[11px]'}
+        className={className ?? 'h-5 shrink-0 gap-0.5 px-1.5 text-[10px]'}
         disabled={loading}
         onClick={() => void openPreview()}
       >
-        <Eye className="size-3.5" aria-hidden="true" />
+        <Eye className="size-3" aria-hidden="true" />
         {t('attachments.preview', 'Önizle')}
       </Button>
       {preview ? (

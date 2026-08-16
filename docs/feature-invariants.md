@@ -244,8 +244,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   modunda AYNI görünür: iki kolon, bordersız satır, dosya adı **koyu mavi** `blue-700`
   (`#1d4ed8` / `rgb(29 78 216) !important`, ikon dahil); `!important` CSS kuralı utility layer'ı ezer.
   Görev Bilgileri satırında ikon/metin biraz küçük. İki satırı aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
-  Görsel ek adının sağında WA ile aynı yeşil **Önizle** (Eye) vardır; lightbox `document.body`
-  portal + `z-[400]` ile detay modalının üstünde açılır (#2709 reopen).
+  Görsel ek adının hemen sağında küçük yeşil **Önizle** (Eye) vardır (`flex-1` yok — buton ada
+  yapışık); lightbox `document.body` portal + `z-[400]` ile detay modalının üstünde açılır (#2709).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -296,7 +296,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   altında ayrı `No` satırı vardır (#2586/#2588). Adres Tarifi placeholder:
   `Mevki, daire, kat bilgisi giriniz...` (#2660/#2669). Cadde placeholder her yerde
   `Cadde seçiniz` (#2721). No `No seçiniz` (#2669). Konum Koordinatı placeholder
-  `Link giriniz...` (#2722).
+  `Link giriniz...` (#2722); taşan metin ellipsis + hover tooltip, punto biraz küçük (#2725).
 - **Adres metni yazımı:** Cadde / Sokak ve Açık Adres değerleri Türkçe locale kurallarıyla
   her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilir
   (`normalizeTitleCaseField` — onBlur + kayıt). Rutin görev detay Düzenle dahil tüm adres
@@ -621,7 +621,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yüksekliği kompakt `max-h-32`, normal `max-h-36`; görsel `w-full object-cover` (çerçeveyi
   yatay doldurur); giden görsel balonu `max-w-[min(58%,15.5rem)]` / kompakt `54%` (#2711 reopen).
   Görsel ek adı **alt** satırda;
-  X görselin **üst satırında sağda** (görsel içinde overlay değil — #6a7586af reopen).
+  X fotoğrafın **içinde sağ üst** (#2711 reopen). Giden görsel balonunda birim üst satır, ad soyad alt satır;
+  görsel dosya adı punto biraz büyük (#2711).
   Görsel dosya adı yanındaki küçük ikonda emerald çerçeve **yok** (#6a7592b2); doküman satırında
   Taleplerim rozeti kalır: `rounded-md border-emerald-100 bg-emerald-50 text-emerald-700`
   (#6a758a88 / #6a75958d). Modal gelen görsel `max-w-[15.5rem]`; sayfa inbound

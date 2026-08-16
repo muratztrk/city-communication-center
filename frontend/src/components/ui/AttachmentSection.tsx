@@ -217,7 +217,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
               </div>
               <button
                 type="button"
-                className="min-w-0 flex-1 text-left disabled:cursor-wait"
+                className="min-w-0 max-w-[min(100%,14rem)] text-left disabled:cursor-wait"
                 disabled={downloadingId === att.attachmentId}
                 onClick={() => void handleDownload(att)}
               >
@@ -254,7 +254,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
               </span>
               <button
                 type="button"
-                className="min-w-0 flex-1 break-words text-left text-[11px] font-normal text-blue-700 hover:text-blue-800 disabled:cursor-wait"
+                className="min-w-0 max-w-[min(100%,14rem)] break-words text-left text-[11px] font-normal text-blue-700 hover:text-blue-800 disabled:cursor-wait"
                 disabled={downloadingId === att.attachmentId}
                 onClick={() => void handleDownload(att)}
               >

@@ -97,16 +97,25 @@ export function CbsStreetNoDropdowns({
         />
       </div>
       {showCoordinates ? (
-        <div className="grid min-w-0 gap-1">
+        <div className="group relative grid min-w-0 gap-1">
           <span className={labelClassName}>{t('address.coordinatesLabel', 'Konum Koordinatı')}</span>
           <input
             type="text"
-            inputMode="decimal"
-            className="field-input min-w-0"
+            inputMode="url"
+            className="field-input min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px]"
             placeholder={t('address.coordinatesPlaceholder', 'Link giriniz...')}
             value={coordinates ?? ''}
+            title={coordinates?.trim() || undefined}
             onChange={event => onCoordinatesChange?.(event.target.value)}
           />
+          {coordinates?.trim() ? (
+            <span
+              role="tooltip"
+              className="pointer-events-none absolute left-0 top-[calc(100%+0.2rem)] z-[80] hidden max-w-[min(24rem,70vw)] break-all rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium leading-snug text-white shadow-lg group-hover:block"
+            >
+              {coordinates.trim()}
+            </span>
+          ) : null}
         </div>
       ) : null}
     </div>

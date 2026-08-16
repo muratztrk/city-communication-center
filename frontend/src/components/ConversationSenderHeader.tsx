@@ -56,6 +56,16 @@ export function ConversationSenderHeader({
         </p>
       )
     }
+    // Giden görsel/metin: birim üst satır, ad soyad alt satır (#2711 reopen).
+    const outboundParts = tone === 'outbound' ? label.split(/\s*·\s*/).filter(Boolean) : []
+    if (outboundParts.length >= 2) {
+      return (
+        <div className="mb-1.5 leading-snug">
+          <p className={`${nameSize} ${inlineLabelClass}`}>{outboundParts.slice(0, -1).join(' · ')}</p>
+          <p className={`mt-0.5 ${nameSize} ${inlineLabelClass}`}>{outboundParts.at(-1)}</p>
+        </div>
+      )
+    }
     return (
       <p className={`mb-1.5 ${nameSize} leading-snug ${inlineLabelClass}`}>
         {label}

@@ -21,7 +21,7 @@ interface WhatsAppOutboundAttachmentChipProps {
 const attachmentIconBadgeClass =
   'flex size-5 shrink-0 items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 text-emerald-700'
 
-/** Giden WA ek chip — görselde ad altta; X görsel üst satır sağında (#6a7586af reopen). */
+/** Giden WA ek chip — görselde ad altta; X fotoğraf içinde sağ üst (#2711 reopen). */
 export function WhatsAppOutboundAttachmentChip({
   fileName,
   isImage,
@@ -36,9 +36,9 @@ export function WhatsAppOutboundAttachmentChip({
   const displayName = lowercaseFileExtension(fileName)
   const FileIcon = isImage ? SimpleImageAttachmentIcon : FileText
   const iconClass = 'size-3'
-  const nameClass = compact ? 'text-[11px] font-semibold' : 'text-xs font-semibold'
+  const nameClass = compact ? 'text-xs font-semibold' : 'text-[13px] font-semibold'
   const [previewOpen, setPreviewOpen] = useState(false)
-  const dismissBtnClass = `inline-flex shrink-0 items-center justify-center rounded-full bg-white/15 text-white transition-colors hover:bg-white/25 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`
+  const dismissBtnClass = `inline-flex shrink-0 items-center justify-center rounded-full bg-black/45 text-white shadow-sm ring-1 ring-white/35 transition-colors hover:bg-black/60 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`
 
   const openPreview = () => {
     if (onImageClick) {
@@ -74,8 +74,7 @@ export function WhatsAppOutboundAttachmentChip({
   ) : null
 
   const imagePreview = isImage && previewUrl ? (
-    <div className="space-y-1">
-      {dismissButton ? <div className="flex justify-end">{dismissButton}</div> : null}
+    <div className="relative">
       <button
         type="button"
         onClick={openPreview}
@@ -87,6 +86,9 @@ export function WhatsAppOutboundAttachmentChip({
           className={`w-full cursor-zoom-in object-cover ${compact ? 'max-h-32' : 'max-h-36'}`}
         />
       </button>
+      {dismissButton ? (
+        <div className="absolute right-1.5 top-1.5 z-10">{dismissButton}</div>
+      ) : null}
     </div>
   ) : null
 

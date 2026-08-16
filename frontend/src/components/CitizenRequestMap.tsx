@@ -706,7 +706,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
             type="button"
             disabled={loading || resolving || resolved.length === 0}
             onClick={() => setListMode('located')}
-            className="whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50 max-lg:min-h-[2.15rem] max-lg:min-w-[8.25rem] max-lg:flex-1 max-lg:px-2 max-lg:py-1.5 max-lg:text-[11px]"
+            className="whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50 max-lg:min-h-[2.15rem] max-lg:w-fit max-lg:shrink-0 max-lg:px-1.5 max-lg:py-1.5 max-lg:text-[11px]"
           >
             {t('citizenRequestMap.listRequests', 'Talepleri Listele')}
           </button>
@@ -714,7 +714,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
             type="button"
             disabled={loading || resolving || unlocated.length === 0}
             onClick={() => setListMode('unlocated')}
-            className="whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50 max-lg:min-h-[2.15rem] max-lg:min-w-[8.25rem] max-lg:flex-1 max-lg:px-2 max-lg:py-1.5 max-lg:text-[11px]"
+            className="whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50 max-lg:min-h-[2.15rem] max-lg:w-fit max-lg:shrink-0 max-lg:px-2 max-lg:py-1.5 max-lg:text-[11px]"
           >
             {t('citizenRequestMap.listUnlocated', 'Haritada Olmayanları Listele')}
           </button>

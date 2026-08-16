@@ -490,7 +490,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonda MapPin + (yer açıklaması varsa açıklama, yoksa **Konum**)
   + alt satırda Haritada Göster; enlem/boylam metni gösterilmez; kayıtlı yer (`Name - Address`)
-  SocialMessage lat/lng ile tanınır. Vatandaş Talebi popup konuşmasında konum metni `10px` / `font-medium` (#2748).
+  SocialMessage lat/lng ile tanınır. Vatandaş Talebi popup konuşmasında konum metni balon mesaj punto ile aynıdır (`text-[11px]` compact / `text-[13px]` normal, #2748).
   Medya placeholder (`[image]` vb.) ve medya balonunda konum UI yok (#6a74de2a reopen / #6a6b9fac).
   Inbound MapPin çerçevesi Taleplerim ek ikonuyla aynı emerald rozet
   (`border-emerald-100 bg-emerald-50 text-emerald-700`, `size-5` kutu + `size-3` ikon; #6a74de2a / #6a75958d).
@@ -1732,7 +1732,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   konumlanan pinleri listeler (`detail-modal-shell--all-requests` + drilldown grid).
   Yanında **Haritada Olmayanları Listele** aynı popup; başlık **Harita Konumu Olmayan Talepler** (#2737/#2745).
   Birim haritası konumlanan liste başlığı **Konum Bilgisi Olan Birim Talepleri** (#2745).
-  Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; etiketler nowrap, mobil butonlar biraz daha yüksek; genişlik biraz dar (`min-w-[8.25rem]`, #2738).
+  Mobilde bu buton Talepleri Listele’nin sağında aynı satırdadır; etiketler nowrap, mobil butonlar biraz daha yüksek; genişlik içerik kadar (`w-fit`); Talepleri Listele biraz daha dar padding (`px-1.5` vs `px-2`, #2738).
   Liste popup başlığı title case’dir (ALL CAPS yok, `map-list-modal-title`) (#2740).
   Sütun filtresi varken yanıp sönen **Filtreyi sil** kapatma (X) solundadır (#2717).
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde

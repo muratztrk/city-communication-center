@@ -1,3 +1,8 @@
+## Round 922 — #2738/#2748
+
+- [x] `6a8185d3` — Mobil harita liste butonları içerik genişliği; Talepleri Listele biraz daha dar.
+- [x] `6a81a070` — WA konum balon metni mesaj punto ile aynı.
+
 ## Round 921 — #2747/#2750/#2730/#2744/#2708
 
 - [x] `6a819f67` — WA Birim/Öncelik kapalı placeholder punto küçültüldü.

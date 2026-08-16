@@ -629,11 +629,13 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             var latitude = GetDouble(location, "latitude");
             var longitude = GetDouble(location, "longitude");
             var contentText = string.Join(" - ", new[] { name, address }.Where(v => !string.IsNullOrWhiteSpace(v)));
-            // Koordinatları içerikte de sakla — entry şemasında lat/lng yok; balonda harita açılsın (#6a6b9fac).
-            if (string.IsNullOrWhiteSpace(contentText) && latitude is not null && longitude is not null)
+            if (latitude is not null && longitude is not null)
             {
-                contentText =
-                    $"[konum mesajı] {latitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)},{longitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+                var coords =
+                    $"{latitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)},{longitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+                contentText = string.IsNullOrWhiteSpace(contentText)
+                    ? $"[konum mesajı] {coords}"
+                    : $"{contentText}\n[konum mesajı] {coords}";
             }
             else if (string.IsNullOrWhiteSpace(contentText))
             {

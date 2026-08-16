@@ -1,3 +1,10 @@
+## Round 895 — #2714/#2706/#2713/#2712
+
+- [x] `6a815b23` — Adres No dropdown’a Yok.
+- [x] `6a80c6bd` — Cmt/Paz Son Tarih min: TR +3 TZ + FE fallback.
+- [x] `6a81584b` — Talep oluştur Konum Koordinatı (No sağı).
+- [x] `6a8157a6` — WA konum Haritada Göster.
+
 ## Round 894 — #2709/#2710/#2711
 
 - [x] `6a815114` — Talep/Görev görsel ekinde WA ile aynı Önizle.

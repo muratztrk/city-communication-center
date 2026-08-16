@@ -482,7 +482,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonda MapPin + (yer açıklaması varsa açıklama, yoksa **Konum**)
-  + alt satırda Haritada aç; enlem/boylam metni gösterilmez; kayıtlı yer (`Name - Address`)
+  + alt satırda Haritada Göster; enlem/boylam metni gösterilmez; kayıtlı yer (`Name - Address`)
   SocialMessage lat/lng ile tanınır. Medya placeholder (`[image]` vb.) ve medya balonunda
   konum UI yok (#6a74de2a reopen / #6a6b9fac).
   Inbound MapPin çerçevesi Taleplerim ek ikonuyla aynı emerald rozet
@@ -1198,7 +1198,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   textbox yok; CBS dropdown (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle satırı
   Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `8.25rem` sabit (cadde seçilince
   değişmez, #2659/#2669).   Default Cadde placeholder `Cadde / sokak seçiniz`; mobilde
-  (`max-width: 767px`) `Cadde seçiniz` (#2697). No `No seçiniz`. Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
+  (`max-width: 767px`) `Cadde seçiniz` (#2697). No `No seçiniz`; listede **Yok** (#2714).
+  Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
   (#2654/#2681). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).

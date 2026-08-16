@@ -10,6 +10,7 @@ export function useWeekendSlaDueDateMin(): string | null {
     queryFn: () => api.getDueDateConstraints(),
     staleTime: 60_000,
   })
-  if (data) return data.weekendDueDateMinLocal ?? null
+  if (data?.weekendDueDateMinLocal) return data.weekendDueDateMinLocal
+  if (data && data.excludeWeekends === false) return null
   return weekendSlaDueDateFloor(true)
 }

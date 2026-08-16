@@ -26,6 +26,7 @@ import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
+import { formatCoordinatePair, parseCoordinatePair } from '../utils/coordinates'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { formatDisplayPhone } from '../utils/phoneNormalization'
 import {
@@ -175,6 +176,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const [street, setStreet] = useState('')
   const [streetNo, setStreetNo] = useState('')
   const [openAddress, setOpenAddress] = useState('')
+  const [coordinates, setCoordinates] = useState('')
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
@@ -292,6 +294,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         setStreet(job.street ?? '')
         setStreetNo(job.streetNo ?? '')
         setOpenAddress(job.openAddress ?? '')
+        setCoordinates(formatCoordinatePair(job.latitude ?? message.latitude, job.longitude ?? message.longitude))
       })
       .catch(loadError => {
         if (!cancelled) {
@@ -425,6 +428,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       setError(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
     }
+    const parsedCoordinates = coordinates.trim() ? parseCoordinatePair(coordinates) : null
+    if (coordinates.trim() && !parsedCoordinates) {
+      setError(t('address.coordinatesInvalid', 'Konum koordinatı enlem, boylam olarak girilmelidir.'))
+      return
+    }
 
     if (!confirmedSubmit) {
       setConfirmDialog({
@@ -464,6 +472,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           street: normalizeTitleCaseField(street),
           streetNo: streetNo.trim() || null,
           openAddress: normalizeTitleCaseField(openAddress),
+          latitude: parsedCoordinates?.latitude ?? null,
+          longitude: parsedCoordinates?.longitude ?? null,
           targetDepartmentIds: [targetDepartmentId],
         })
         await api.updateSocialMessage(message.socialMessageId, {
@@ -471,8 +481,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           citizenHandle: trimmedHandle,
           content: description.trim(),
           category: message.category ?? undefined,
-          latitude: message.latitude ?? undefined,
-          longitude: message.longitude ?? undefined,
+          latitude: parsedCoordinates?.latitude,
+          longitude: parsedCoordinates?.longitude,
         })
         if (pendingFiles.length > 0) {
           await uploadPendingFiles(editJobId)
@@ -491,9 +501,18 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
           citizenHandle: trimmedPhone.length === 10 ? `90${trimmedPhone}` : trimmedPhone,
           content: description.trim(),
           category: message.category ?? undefined,
-          latitude: message.latitude ?? undefined,
-          longitude: message.longitude ?? undefined,
+          latitude: parsedCoordinates?.latitude,
+          longitude: parsedCoordinates?.longitude,
           citizenConversationId: citizenConversationId ?? undefined,
+        })
+      } else {
+        await api.updateSocialMessage(convertMessageId, {
+          channel: message.channel,
+          citizenHandle: trimmedHandle,
+          content: description.trim(),
+          category: message.category ?? undefined,
+          latitude: parsedCoordinates?.latitude,
+          longitude: parsedCoordinates?.longitude,
         })
       }
 
@@ -519,8 +538,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         citizenHandle: trimmedHandle,
         content: description.trim(),
         category: message.category ?? undefined,
-        latitude: message.latitude ?? undefined,
-        longitude: message.longitude ?? undefined,
+        latitude: parsedCoordinates?.latitude,
+        longitude: parsedCoordinates?.longitude,
       })
       if (pendingFiles.length > 0) {
         await uploadPendingFiles(job.jobId)
@@ -750,7 +769,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     streetNo={streetNo}
                     required={Boolean(neighborhood)}
                     labelClassName="job-field-label"
-                    className="address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2"
+                    coordinates={coordinates}
+                    onCoordinatesChange={setCoordinates}
                     onStreetChange={setStreet}
                     onStreetNoChange={setStreetNo}
                   />

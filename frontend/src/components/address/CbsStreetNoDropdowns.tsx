@@ -12,6 +12,9 @@ interface CbsStreetNoDropdownsProps {
   streetNo: string
   onStreetChange: (street: string) => void
   onStreetNoChange: (streetNo: string) => void
+  /** No’nun sağında isteğe bağlı koordinat kutusu (#2713). */
+  coordinates?: string
+  onCoordinatesChange?: (value: string) => void
   required?: boolean
   labelClassName?: string
   openUp?: boolean
@@ -25,11 +28,17 @@ export function CbsStreetNoDropdowns({
   streetNo,
   onStreetChange,
   onStreetNoChange,
+  coordinates,
+  onCoordinatesChange,
   required = false,
   labelClassName = 'text-sm font-semibold text-slate-500',
   openUp = false,
-  className = 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2',
+  className,
 }: CbsStreetNoDropdownsProps) {
+  const showCoordinates = typeof onCoordinatesChange === 'function'
+  const rowClassName = showCoordinates
+    ? 'address-street-no-row grid min-w-0 grid-cols-[minmax(0,1fr)_8.25rem_minmax(8.75rem,11rem)] gap-2'
+    : (className ?? 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2')
   const { t } = useTranslation()
   const [isMobile, setIsMobile] = useState(false)
   const districtId = useMunicipalityDistrictId()
@@ -52,7 +61,7 @@ export function CbsStreetNoDropdowns({
   }, [])
 
   return (
-    <div className={className}>
+    <div className={rowClassName}>
       <div className="grid min-w-0 gap-1">
         <span className={labelClassName}>
           {t('address.streetLabel', 'Cadde / Sokak')}
@@ -95,6 +104,19 @@ export function CbsStreetNoDropdowns({
           className="min-w-0 overflow-hidden"
         />
       </div>
+      {showCoordinates ? (
+        <div className="grid min-w-0 gap-1">
+          <span className={labelClassName}>{t('address.coordinatesLabel', 'Konum Koordinatı')}</span>
+          <input
+            type="text"
+            inputMode="decimal"
+            className="field-input min-w-0"
+            placeholder={t('address.coordinatesPlaceholder', 'ör. 38.08, 27.73')}
+            value={coordinates ?? ''}
+            onChange={event => onCoordinatesChange?.(event.target.value)}
+          />
+        </div>
+      ) : null}
     </div>
   )
 }

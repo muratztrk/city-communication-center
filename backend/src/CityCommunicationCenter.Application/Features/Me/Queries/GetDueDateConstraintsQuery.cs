@@ -109,7 +109,7 @@ public sealed class GetDueDateConstraintsQueryHandler : IQueryHandler<GetDueDate
             }
         }
 
-        return TimeZoneInfo.Utc;
+        return TimeZoneInfo.CreateCustomTimeZone("TRT", TimeSpan.FromHours(3), "Türkiye", "Türkiye");
     }
 
     private sealed class SlaWeekendPayload

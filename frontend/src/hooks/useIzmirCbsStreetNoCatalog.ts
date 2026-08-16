@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { compactNeighborhoodKey, findCbsOptionIdByName } from '../data/izmir-locations'
+import { STREET_NO_NONE } from '../utils/addressLimits'
 import { toTitleCaseTr } from '../utils/textNormalization'
 
 const CBS_STALE_MS = 60 * 60 * 1000
@@ -70,10 +71,13 @@ export function useIzmirCbsStreetNoCatalog(
     [streetsQuery.data, streetName],
   )
   const doorNoOptions = useMemo(
-    () => withCurrentValue(
-      (doorNumbersQuery.data ?? []).map(item => ({ value: item.name, label: item.name })),
-      streetNo,
-    ),
+    () => {
+      const yok = { value: STREET_NO_NONE, label: STREET_NO_NONE }
+      const fromCbs = (doorNumbersQuery.data ?? [])
+        .map(item => ({ value: item.name, label: item.name }))
+        .filter(item => item.value.trim().toLocaleLowerCase('tr') !== STREET_NO_NONE.toLocaleLowerCase('tr'))
+      return withCurrentValue([yok, ...fromCbs], streetNo)
+    },
     [doorNumbersQuery.data, streetNo],
   )
 

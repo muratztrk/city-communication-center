@@ -21,6 +21,7 @@ import { formatOverdueInProgressStatus } from '../utils/localization'
 import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 import { getLocale } from '../utils/localization'
 import { geocodeTireAddress, type LatLng } from '../utils/geocodeTireAddress'
+import { isAbsentStreetNo } from '../utils/addressLimits'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { getGoogleMapsApiKey, isGoogleMapsConfigured } from '../utils/googleMaps'
@@ -391,7 +392,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
           allowNeighborhoodFallback: allowNeighborhood,
         })
         if (hit) {
-          const hasStreetNo = Boolean(pin.streetNo?.trim())
+          const hasStreetNo = Boolean(pin.streetNo?.trim()) && !isAbsentStreetNo(pin.streetNo)
           const position = !hasStreetNo || hit.precision === 'approximate'
             ? emptyAreaOffset(hit.position, pin.jobId)
             : hit.position

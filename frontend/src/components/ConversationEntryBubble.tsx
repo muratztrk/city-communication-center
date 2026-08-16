@@ -161,10 +161,9 @@ export function ConversationEntryBubble({
   const isContactMessage = !hasMedia && isContactConversationContent(entry.content)
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
   const locationDescription = getLocationPlaceDescription(entry.content)
-  // Medya/kişi kartında konum UI yok — lat/lng sızıntısı yanlış pozitif (#6a74de2a / #6a75ccfa).
+  // Medya varken de konum butonu kalsın; kişi kartına lat sızmasın (#2712 / #6a74de2a).
   const isLocationMessage =
-    !hasMedia
-    && !isContactMessage
+    !isContactMessage
     && (
       isLocationConversationContent(entry.content)
       || (Boolean(locationCoords) && Boolean(locationDescription))
@@ -329,13 +328,21 @@ export function ConversationEntryBubble({
                   href={buildGoogleMapsOpenUrl(locationCoords.latitude, locationCoords.longitude)}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={event => {
+                    event.preventDefault()
+                    window.open(
+                      buildGoogleMapsOpenUrl(locationCoords.latitude, locationCoords.longitude),
+                      '_blank',
+                      'noopener,noreferrer',
+                    )
+                  }}
                   className={`inline-flex w-fit items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold underline-offset-2 hover:underline ${
                     isInbound
                       ? 'bg-emerald-50 text-emerald-800 ring-1 ring-emerald-200'
                       : 'bg-white/15 text-white ring-1 ring-white/25'
                   }`}
                 >
-                  {t('whatsapp.openLocation', 'Haritada aç')}
+                  {t('whatsapp.openLocation', 'Haritada Göster')}
                 </a>
               ) : (
                 <p className={`text-xs italic ${isInbound ? 'text-slate-500' : 'text-white/70'}`}>

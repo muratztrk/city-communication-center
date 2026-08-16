@@ -1,4 +1,5 @@
 import { api } from '../api/client'
+import { isAbsentStreetNo } from './addressLimits'
 
 export type LatLng = { lat: number; lng: number }
 
@@ -80,7 +81,7 @@ export function geocodeTireAddress(input: {
         districtId: input.districtId ?? '',
         neighborhood,
         street,
-        streetNo: input.streetNo,
+        streetNo: isAbsentStreetNo(input.streetNo) ? undefined : input.streetNo,
         allowNeighborhoodFallback: input.allowNeighborhoodFallback,
       })
       if (!hit) return null

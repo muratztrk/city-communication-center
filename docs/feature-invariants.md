@@ -1017,8 +1017,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Süreç tarih/saat punto (#2775/#2779):** tarih-saat ve Son Tarih `0.75rem` (`datetime-value`);
   Durum etiketi aynı. Son Tarih `date • time` (`TimelineDateTimeValue` / ProcessStepDateValue, #2777);
   `dueDateContent` varken tarih bir kez yazılır (#2781).
-- **Görevlerim İlgili Talep Adres Tarifi (#2778):** `Adres Tarifi` başlığı Mahalle ile aynı düşey
-  hizada (Mahalle etiketindeki `translateX` Adres Tarifi’nde sıfırlanmaz).
+- **Görevlerim İlgili Talep Adres Tarifi (#2778):** Görevlerim/Birimdeki/Personelimin popup’ta
+  `Adres Tarifi` ve `Mahalle` başlıkları (ve `-` değerleri) aynı sol düşey hizada; kolon içi
+  ortalama kısa/uzun etikette sol kenarı kaydırır, bu iki alan `flex-start` + aynı `padding-inline-start`.
 - **Timeline son aktif pulse:** süreçte turuncu güncel adım varsa o yanıp söner; yoksa son aktif
   yeşil/kırmızı nokta turuncu pulse'ın yeşil/kırmızı eşdeğeriyle yanıp söner (card #1339/#1343).
 - **Birime Gelen / Birimden Giden detay Süreç kolonu (card #1527):** flat alan listesi değil;
@@ -1836,7 +1837,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kapalı ve açık `SingleSelectDropdown` hover tooltip yok (Talep Oluştur Görevi Yapan/Öncelik/Mahalle/Cadde dahil, #2754).
   **Adresi Gör** popup: başlık altı çizgi; Mahalle/Cadde/No aynı satır, altında yalnız Adres Tarifi (Konum Koordinatı yok); Cadde/No başlık+değer kolon içi ortalı; popup `max-w-[26rem]` (#2755). X Talebi Yönlendir ile aynı.
   Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın (`2.4rem` üç kutu, `1.6rem` iki kutu, #2759).
-  Görevlerim İlgili Talep Adres Bilgileri 3+2; Mahalle/Cadde/No üstünde boşluk (#2568); Adres Tarifi başlığı Mahalle ile aynı düşey hizada (kolon içi ortalı); satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri Cadde menüsü tetikleyiciden sağa (No tarafına) daha geniş (`+96px`), No tetikleyici genişliğinde, aşağı açılır (#2640). WA Talebi Oluştur Açıklama toolbar ikonları yalnız o popup’ta küçük (`!important`, Tailwind size-4 ezmesin, #2757). Giden WA birim·ad yeşil balonda `text-white/90`. WA Talebi Oluştur Mahalle/Cadde/No/Birim arama kutusu 0.7rem (#2760).
+  Görevlerim İlgili Talep Adres Bilgileri 3+2; Mahalle/Cadde/No üstünde boşluk (#2568); Adres Tarifi başlığı Mahalle ile aynı sol düşey hizada (#2778); satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri Cadde menüsü tetikleyiciden sağa (No tarafına) daha geniş (`+96px`), No tetikleyici genişliğinde, aşağı açılır (#2640). WA Talebi Oluştur Açıklama toolbar ikonları yalnız o popup’ta küçük (`!important`, Tailwind size-4 ezmesin, #2757). Giden WA birim·ad yeşil balonda `text-white/90`. WA Talebi Oluştur Mahalle/Cadde/No/Birim arama kutusu 0.7rem (#2760).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
   **Vatandaş Adres Bilgisi** + sağda **Adresi Gör** (küçük portal popup, #2751).
   Harita popup kolon sırası: Sıra → VT No (kanal ikonu `size-3.5` yanında, Talep Kanalı sütunu yok)

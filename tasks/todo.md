@@ -1,3 +1,7 @@
+## Round 953 — #2778
+
+- [x] `6a822326` — Görev popup İlgili Talep Adres Tarifi/Mahalle aynı sol düşey hizada (ortalı etiket kayması giderildi).
+
 ## Round 952 — #2781/#2780
 
 - [x] `6a8226bf` — Süreç Son Tarih çift yazımı kaldırıldı.

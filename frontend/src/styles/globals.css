@@ -797,22 +797,37 @@
     text-align: center;
   }
 
-  .address-detail-my-request--task .address-detail-my-request__item--directions,
-  .address-detail-my-request--task .address-detail-my-request__item--coordinates {
-    padding-top: 1.15rem;
-    padding-inline-start: 0 !important;
+  /* #2778: Adres Tarifi Mahalle ile aynı sol düşey hizada (ortalı kısa/uzun etiket sol kenarı kaydırır). */
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(1),
+  .address-detail-my-request--task .address-detail-my-request__item--directions {
+    align-items: flex-start !important;
+    text-align: left !important;
+    padding-inline-start: 0.55rem !important;
+  }
+
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(1) .address-detail-my-request__label,
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(1) .address-detail-my-request__value,
+  .address-detail-my-request--task .address-detail-my-request__item--directions .address-detail-my-request__label,
+  .address-detail-my-request--task .address-detail-my-request__item--directions .address-detail-my-request__value {
+    width: fit-content !important;
+    max-width: 100%;
+    margin-inline: 0 !important;
+    text-align: left !important;
+    justify-content: flex-start;
     transform: none !important;
   }
 
-  .address-detail-my-request--task .address-detail-my-request__item--directions .address-detail-my-request__label {
+  .address-detail-my-request--task .address-detail-my-request__item--directions,
+  .address-detail-my-request--task .address-detail-my-request__item--coordinates {
+    padding-top: 1.15rem;
+    transform: none !important;
+  }
+
+  .address-detail-my-request--task .address-detail-my-request__item--coordinates {
     padding-inline-start: 0 !important;
-    margin-inline: auto !important;
-    text-align: center !important;
-    width: 100% !important;
   }
 
   .address-detail-my-request--task .address-detail-my-request__item--coordinates .address-detail-my-request__label,
-  .address-detail-my-request--task .address-detail-my-request__item--directions .address-detail-my-request__value,
   .address-detail-my-request--task .address-detail-my-request__item--coordinates .address-detail-my-request__value {
     width: 100% !important;
     margin-inline: 0 !important;

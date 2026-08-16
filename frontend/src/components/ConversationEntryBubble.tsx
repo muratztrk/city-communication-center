@@ -153,8 +153,8 @@ export function ConversationEntryBubble({
   const isOutboundImage = !isInbound && hasMedia && Boolean(entry.mediaMimeType?.startsWith('image/'))
   const bubbleMaxWidth = isOutboundImage
     ? compact
-      ? 'max-w-[min(48%,14rem)]'
-      : 'max-w-[min(52%,14rem)]'
+      ? 'max-w-[min(54%,15.5rem)]'
+      : 'max-w-[min(58%,15.5rem)]'
     : compact
       ? 'max-w-[min(68%,22rem)]'
       : 'max-w-[min(70%,26rem)]'
@@ -234,7 +234,11 @@ export function ConversationEntryBubble({
       <div className={`flex ${isInbound ? 'justify-start' : 'justify-end'} w-full`}>
         <div
           ref={bubbleRef}
-          className={`${bubbleMaxWidth} ${compact ? 'rounded-xl px-3 py-1.5 text-[11px]' : 'rounded-xl px-3 py-2 text-[13px]'} leading-relaxed shadow-md ${
+          className={`${bubbleMaxWidth} ${
+            isOutboundImage
+              ? compact ? 'rounded-xl px-1.5 py-1.5 text-[11px]' : 'rounded-xl px-1.5 py-1.5 text-[13px]'
+              : compact ? 'rounded-xl px-3 py-1.5 text-[11px]' : 'rounded-xl px-3 py-2 text-[13px]'
+          } leading-relaxed shadow-md ${
             isInbound
               ? 'bg-white text-slate-800 rounded-tl-sm ring-1 ring-black/[0.04]'
               : 'rounded-tr-sm text-white ring-1 ring-white/10'

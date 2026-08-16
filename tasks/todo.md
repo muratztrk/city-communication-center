@@ -1,3 +1,7 @@
+## Round 897 — #2711
+
+- [x] `6a8155bf` — WA giden görsel balonu biraz geniş; foto çerçeveyi doldurur.
+
 ## Round 896 — #2716/#2715
 
 - [x] `6a815c7e` — WA Vatandaş Bilgileri Cadde/No menü punto = Mahalle; placeholder Cadde seçiniz.

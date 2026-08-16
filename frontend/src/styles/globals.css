@@ -797,6 +797,10 @@
     transform: none !important;
   }
 
+  .address-detail-my-request--task .address-detail-my-request__item--coordinates {
+    grid-column: 3 !important;
+  }
+
   .address-detail-my-request--task .address-detail-my-request__item--directions .address-detail-my-request__label {
     transform: none !important;
     padding-inline-start: 0 !important;
@@ -2387,6 +2391,12 @@
     font-size: 0.75rem;
     min-height: 2rem;
     padding: 0.35rem 0.65rem;
+  }
+
+  /* WA Vatandaş Talebi Oluştur: dropdown arama kutusu puntosu (#2760). */
+  .dropdown-menu-panel.citizen-request-department-menu input {
+    font-size: 0.7rem !important;
+    line-height: 1.25 !important;
   }
 
   /* Search matches list (liste küçültülmez; arama listeye yükselir, #2729).
@@ -4535,25 +4545,32 @@
     max-width: 11.5rem;
   }
 
-  .address-detail-my-request__item--directions,
-  .address-detail-my-request__item--coordinates {
+  .address-detail-my-request__item--directions {
     grid-column: auto;
+  }
+
+  /* Konum Koordinatı No ile aynı düşey kolon (#2758). */
+  .address-detail-my-request__item--coordinates {
+    grid-column: 3;
   }
 
   .address-detail-my-request__item--directions-full {
     grid-column: 1 / -1 !important;
   }
 
-  /* Adres Bilgileri: satır 1 Mahalle/Cadde/No; satır 2 Adres Tarifi Mahalle altında, Konum Cadde altında (#2756). */
+  /* Adres Bilgileri: satır 1 Mahalle/Cadde/No; satır 2 Adres Tarifi Mahalle, Konum No altında (#2758). */
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three {
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     justify-items: start;
     align-items: start;
   }
 
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--directions,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--coordinates {
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--directions {
     grid-column: auto !important;
+  }
+
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--coordinates {
+    grid-column: 3 !important;
   }
 
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item,
@@ -4569,9 +4586,12 @@
     transform: translateX(-0.45rem) !important;
   }
 
-  .my-request-detail-bottom--three-cards .address-detail-my-request__item--directions,
-  .my-request-detail-bottom--three-cards .address-detail-my-request__item--coordinates {
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--directions {
     grid-column: auto !important;
+  }
+
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--coordinates {
+    grid-column: 3 !important;
   }
 
   /* Görevlerim üç kutu: başlık ve `-` aynı düşey hizada, biraz sağa (#2576). */
@@ -4582,20 +4602,32 @@
 
   /* No başlığı kartın sağına daha yakın (#2759 / #2576). */
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__label,
-  .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__value {
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__value,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--coordinates .address-detail-my-request__label,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--coordinates .address-detail-my-request__value {
     transform: translateX(2.4rem) !important;
     margin-inline: 0 !important;
     text-align: left !important;
   }
 
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no {
+  /* Görevlerim: Konum No kolonunda ortalı kalır (#2758 vs #2759). */
+  .address-detail-my-request--task .address-detail-my-request__item--coordinates .address-detail-my-request__label,
+  .address-detail-my-request--task .address-detail-my-request__item--coordinates .address-detail-my-request__value {
+    transform: none !important;
+    text-align: center !important;
+  }
+
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--coordinates {
     transform: translateX(1.6rem) !important;
     align-items: flex-end !important;
     text-align: right !important;
   }
 
   .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__label,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__value {
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__value,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--coordinates .address-detail-my-request__label,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--coordinates .address-detail-my-request__value {
     width: fit-content !important;
     margin-inline: 0 !important;
     text-align: right !important;

@@ -33,6 +33,8 @@ interface SingleSelectDropdownProps {
   menuPortal?: boolean
   /** Panel tetikleyici ile aynı genişlik ve sol hiza (#2640). */
   matchTriggerWidth?: boolean
+  /** matchTriggerWidth iken paneli sağa doğru ekstra px (#2640 Cadde). */
+  menuWidthExtraPx?: number
 }
 
 export function SingleSelectDropdown({
@@ -53,6 +55,7 @@ export function SingleSelectDropdown({
   clearable = false,
   menuPortal = true,
   matchTriggerWidth = false,
+  menuWidthExtraPx = 0,
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -77,7 +80,8 @@ export function SingleSelectDropdown({
     if (!rect) return
     // menuWidth / menuClassName panelleri trigger'dan geniş olabilir; sağ kenardan taşmasın.
     const matchWidth = matchTriggerWidth || (!menuWidth && !menuClassName)
-    const assumedWidth = menuWidth ?? (matchWidth ? rect.width : 320)
+    const extra = matchWidth ? menuWidthExtraPx : 0
+    const assumedWidth = menuWidth ?? (matchWidth ? rect.width + extra : 320)
     const left = Math.min(rect.left, Math.max(8, window.innerWidth - assumedWidth - 8))
     setMenuStyle({
       left,
@@ -85,10 +89,10 @@ export function SingleSelectDropdown({
       ...(menuWidth
         ? { width: menuWidth }
         : matchWidth
-          ? { width: rect.width }
+          ? { width: rect.width + extra }
           : { minWidth: rect.width }),
     })
-  }, [openUp, menuClassName, menuWidth, matchTriggerWidth])
+  }, [openUp, menuClassName, menuWidth, matchTriggerWidth, menuWidthExtraPx])
 
   useEffect(() => {
     if (!open || !menuPortal) return

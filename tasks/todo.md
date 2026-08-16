@@ -1,3 +1,10 @@
+## Round 934 — #2666/#2758/#2640/#2760
+
+- [x] `6a804997` — Giden WA birim/ad siyah isteği geri alındı (yeşil balonda beyaz).
+- [x] `6a81b2b0` — Detay Adres Bilgileri: Konum Koordinatı No ile aynı düşey hizada.
+- [x] `6a801665` — WA Cadde menüsü No tarafına biraz genişletildi.
+- [x] `6a81c96a` — WA Talebi Oluştur dropdown arama puntosu küçültüldü.
+
 ## Round 933 — #2666/#2651/#2640/#2568
 
 - [x] `6a804997` — Giden WA birim/ad metni siyah.

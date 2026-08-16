@@ -716,6 +716,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     menuWidth={300}
                     triggerClassName="citizen-request-placeholder-trigger"
                     menuScrollClassName="citizen-request-department-menu"
+                    menuClassName="citizen-request-department-menu"
                   />
                 </div>
 

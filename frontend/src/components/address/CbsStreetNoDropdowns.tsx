@@ -3,6 +3,43 @@ import { useMunicipalityDistrictId } from '../../hooks/useMunicipalityDistrictId
 import { useIzmirCbsStreetNoCatalog } from '../../hooks/useIzmirCbsStreetNoCatalog'
 import { SingleSelectDropdown } from '../ui/single-select-dropdown'
 
+interface AddressCoordinatesFieldProps {
+  value: string
+  onChange: (value: string) => void
+  labelClassName?: string
+}
+
+/** Konum Koordinatı: taşan metin ellipsis + hover tooltip (#2725). */
+export function AddressCoordinatesField({
+  value,
+  onChange,
+  labelClassName = 'text-sm font-semibold text-slate-500',
+}: AddressCoordinatesFieldProps) {
+  const { t } = useTranslation()
+  return (
+    <div className="group relative grid min-w-0 gap-1">
+      <span className={labelClassName}>{t('address.coordinatesLabel', 'Konum Koordinatı')}</span>
+      <input
+        type="text"
+        inputMode="url"
+        className="field-input min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px]"
+        placeholder={t('address.coordinatesPlaceholder', 'Link giriniz...')}
+        value={value}
+        title={value.trim() || undefined}
+        onChange={event => onChange(event.target.value)}
+      />
+      {value.trim() ? (
+        <span
+          role="tooltip"
+          className="pointer-events-none absolute left-0 top-[calc(100%+0.2rem)] z-[80] hidden max-w-[min(24rem,70vw)] break-all rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium leading-snug text-white shadow-lg group-hover:block"
+        >
+          {value.trim()}
+        </span>
+      ) : null}
+    </div>
+  )
+}
+
 interface CbsStreetNoDropdownsProps {
   neighborhood: string
   street: string
@@ -97,26 +134,11 @@ export function CbsStreetNoDropdowns({
         />
       </div>
       {showCoordinates ? (
-        <div className="group relative grid min-w-0 gap-1">
-          <span className={labelClassName}>{t('address.coordinatesLabel', 'Konum Koordinatı')}</span>
-          <input
-            type="text"
-            inputMode="url"
-            className="field-input min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px]"
-            placeholder={t('address.coordinatesPlaceholder', 'Link giriniz...')}
-            value={coordinates ?? ''}
-            title={coordinates?.trim() || undefined}
-            onChange={event => onCoordinatesChange?.(event.target.value)}
-          />
-          {coordinates?.trim() ? (
-            <span
-              role="tooltip"
-              className="pointer-events-none absolute left-0 top-[calc(100%+0.2rem)] z-[80] hidden max-w-[min(24rem,70vw)] break-all rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium leading-snug text-white shadow-lg group-hover:block"
-            >
-              {coordinates.trim()}
-            </span>
-          ) : null}
-        </div>
+        <AddressCoordinatesField
+          value={coordinates ?? ''}
+          onChange={value => onCoordinatesChange?.(value)}
+          labelClassName={labelClassName}
+        />
       ) : null}
     </div>
   )

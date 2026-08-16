@@ -1,3 +1,8 @@
+## Round 903 — #2727/#2726
+
+- [x] `6a81700f` — Rutin Görev: Konum Koordinatı Mahalle altı; Adres Tarifi/Dosya alt satır.
+- [x] `6a816fc2` — Vatandaş Çağrı: Konum Koordinatı Mahalle alt satır.
+
 ## Round 902 — #2725/#2711/#2709
 
 - [x] `6a816f2b` — Konum Koordinatı ellipsis + hover tooltip; punto 12px.

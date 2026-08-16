@@ -11,7 +11,7 @@ import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
-import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
+import { AddressCoordinatesField, CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
@@ -19,6 +19,7 @@ import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
+import { formatCoordinatePair, parseCoordinatePair } from '../utils/coordinates'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import {
   ATTACHMENT_FILE_ACCEPT,
@@ -41,6 +42,7 @@ interface FormState {
   street: string
   streetNo: string
   openAddress: string
+  coordinates: string
 }
 
 const INITIAL: FormState = {
@@ -52,6 +54,7 @@ const INITIAL: FormState = {
   street: '',
   streetNo: '',
   openAddress: '',
+  coordinates: '',
 }
 
 const MAX_FILE_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
@@ -143,6 +146,7 @@ export function RoutineTaskPage() {
           street: job.street ?? '',
           streetNo: job.streetNo ?? '',
           openAddress: job.openAddress ?? '',
+          coordinates: formatCoordinatePair(job.latitude, job.longitude),
         })
       } catch (err) {
         if (!cancelled) {
@@ -157,7 +161,7 @@ export function RoutineTaskPage() {
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm(current => key === 'neighborhood' && !value
-      ? { ...current, neighborhood: '', street: '', streetNo: '', openAddress: '' }
+      ? { ...current, neighborhood: '', street: '', streetNo: '', openAddress: '', coordinates: '' }
       : { ...current, [key]: value })
 
   const addFiles = (files: FileList | null) => {
@@ -181,6 +185,13 @@ export function RoutineTaskPage() {
     setSubmitting(true)
     setError(null)
     try {
+      const coords = form.coordinates.trim()
+      const parsedCoords = coords ? parseCoordinatePair(coords) : null
+      if (coords && !parsedCoords) {
+        setError(t('address.coordinatesInvalid', 'Konum koordinatı enlem, boylam olarak girilmelidir.'))
+        setSubmitting(false)
+        return
+      }
       const payload = {
         title: normalizeTitleCaseField(form.title) ?? '',
         description: form.description.trim(),
@@ -191,6 +202,8 @@ export function RoutineTaskPage() {
         street: normalizeTitleCaseField(form.street),
         streetNo: form.streetNo.trim() || null,
         openAddress: normalizeTitleCaseField(form.openAddress),
+        latitude: parsedCoords?.latitude,
+        longitude: parsedCoords?.longitude,
       }
 
       const task = isEditMode && taskId
@@ -356,6 +369,12 @@ export function RoutineTaskPage() {
                   className="address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2"
                   onStreetChange={street => set('street', street)}
                   onStreetNoChange={streetNo => set('streetNo', streetNo)}
+                />
+              </div>
+              <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
+                <AddressCoordinatesField
+                  value={form.coordinates}
+                  onChange={value => set('coordinates', value)}
                 />
               </div>
               <div className="grid gap-2 lg:grid-cols-2 lg:items-stretch">

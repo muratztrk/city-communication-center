@@ -14,7 +14,9 @@ public sealed record CreateRoutineTaskCommand(
     string? Neighborhood = null,
     string? Street = null,
     string? StreetNo = null,
-    string? OpenAddress = null) : ICommand<TaskSummaryResponse>;
+    string? OpenAddress = null,
+    double? Latitude = null,
+    double? Longitude = null) : ICommand<TaskSummaryResponse>;
 
 public sealed class CreateRoutineTaskCommandValidator : AbstractValidator<CreateRoutineTaskCommand>
 {
@@ -92,7 +94,9 @@ public sealed class CreateRoutineTaskCommandHandler : ICommandHandler<CreateRout
             Neighborhood = string.IsNullOrWhiteSpace(request.Neighborhood) ? null : request.Neighborhood.Trim(),
             Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim(),
             StreetNo = string.IsNullOrWhiteSpace(request.StreetNo) ? null : request.StreetNo.Trim(),
-            OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim()
+            OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim(),
+            Latitude = request.Latitude,
+            Longitude = request.Longitude
         };
 
         _dbContext.Jobs.Add(job);

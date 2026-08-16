@@ -37,7 +37,9 @@ public sealed class TasksController : ApiControllerBase
             request.Neighborhood,
             request.Street,
             request.StreetNo,
-            request.OpenAddress), cancellationToken);
+            request.OpenAddress,
+            request.Latitude,
+            request.Longitude), cancellationToken);
         return CreatedAtRoute("GetTaskById", new { taskId = response.TaskId }, response);
     }
 
@@ -55,7 +57,9 @@ public sealed class TasksController : ApiControllerBase
             request.Neighborhood,
             request.Street,
             request.StreetNo,
-            request.OpenAddress), cancellationToken);
+            request.OpenAddress,
+            request.Latitude,
+            request.Longitude), cancellationToken);
         return Ok(response);
     }
 

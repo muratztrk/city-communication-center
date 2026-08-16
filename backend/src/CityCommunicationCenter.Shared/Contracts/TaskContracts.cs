@@ -9,7 +9,9 @@ public sealed record CreateRoutineTaskRequest(
     string? Neighborhood = null,
     string? Street = null,
     string? StreetNo = null,
-    string? OpenAddress = null);
+    string? OpenAddress = null,
+    double? Latitude = null,
+    double? Longitude = null);
 
 public sealed record UpdateRoutineTaskRequest(
     string Title,
@@ -20,7 +22,9 @@ public sealed record UpdateRoutineTaskRequest(
     string? Neighborhood = null,
     string? Street = null,
     string? StreetNo = null,
-    string? OpenAddress = null);
+    string? OpenAddress = null,
+    double? Latitude = null,
+    double? Longitude = null);
 
 public sealed record CreateTaskRequest(
     Guid JobId,

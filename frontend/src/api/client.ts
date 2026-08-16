@@ -910,6 +910,8 @@ export const api = {
     street?: string | null
     streetNo?: string | null
     openAddress?: string | null
+    latitude?: number | null
+    longitude?: number | null
   }): Promise<Task> {
     const response = await fetchWithCredentials(`${API_BASE}/tasks/routine`, {
       method: 'POST',
@@ -930,6 +932,8 @@ export const api = {
     street?: string | null
     streetNo?: string | null
     openAddress?: string | null
+    latitude?: number | null
+    longitude?: number | null
   }): Promise<Task> {
     const response = await fetchWithCredentials(`${API_BASE}/tasks/routine/${taskId}`, {
       method: 'PUT',

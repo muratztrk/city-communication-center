@@ -35,7 +35,9 @@ public sealed record UpdateRoutineTaskCommand(
     string? Neighborhood = null,
     string? Street = null,
     string? StreetNo = null,
-    string? OpenAddress = null) : ICommand<TaskSummaryResponse>;
+    string? OpenAddress = null,
+    double? Latitude = null,
+    double? Longitude = null) : ICommand<TaskSummaryResponse>;
 
 public sealed class UpdateRoutineTaskCommandValidator : AbstractValidator<UpdateRoutineTaskCommand>
 {
@@ -146,6 +148,8 @@ public sealed class UpdateRoutineTaskCommandHandler : ICommandHandler<UpdateRout
         job.Street = string.IsNullOrWhiteSpace(request.Street) ? null : request.Street.Trim();
         job.StreetNo = string.IsNullOrWhiteSpace(request.StreetNo) ? null : request.StreetNo.Trim();
         job.OpenAddress = string.IsNullOrWhiteSpace(request.OpenAddress) ? null : request.OpenAddress.Trim();
+        job.Latitude = request.Latitude;
+        job.Longitude = request.Longitude;
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
 

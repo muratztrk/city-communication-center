@@ -1,3 +1,9 @@
+## Round 936 — #2640/#2666/#2758
+
+- [x] `6a801665` — WA Cadde menüsü No tarafına biraz daha geniş (+72px).
+- [x] `6a804997` — Detay Adres Tarifi/Konum başlık üst boşluğu artırıldı.
+- [x] `6a81b2b0` — Konum No hizası geri alındı (yine Cadde altında).
+
 ## Round 935 — #2762/#2764/#2763
 
 - [x] `6a81cb9a` — Harita listesi Detaylar’da Konum (lat/lng) bloğu kaldırıldı.

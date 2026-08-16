@@ -68,6 +68,7 @@ import { SMS_PASSWORD_MASK, SMS_PROVIDER_OPTIONS, SMS_SENDABLE_PROVIDERS } from 
 import type { SmsProviderSelection } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
 import { toTitleCaseTr } from '../utils/textNormalization'
+import { isCbsMissingDoorLabel } from '../utils/addressLimits'
 
 type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates' | 'license'
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email'
@@ -603,7 +604,9 @@ export function SettingsPage() {
     [cbsStreetsQuery.data],
   )
   const cbsDoorNoOptions = useMemo(
-    () => (cbsDoorNumbersQuery.data ?? []).map(item => ({ value: item.id, label: item.name })),
+    () => (cbsDoorNumbersQuery.data ?? [])
+      .filter(item => !isCbsMissingDoorLabel(item.name))
+      .map(item => ({ value: item.id, label: item.name })),
     [cbsDoorNumbersQuery.data],
   )
 

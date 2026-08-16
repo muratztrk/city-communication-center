@@ -200,10 +200,17 @@ function pinAddressKey(pin: ResolvedPin): string | null {
   return null
 }
 
+function hasCompleteCbsAddress(pin: CitizenDashboardMapPin): boolean {
+  return Boolean(normalizeAddressPart(pin.neighborhood))
+    && Boolean(normalizeAddressPart(pin.street))
+    && Boolean(normalizeAddressPart(pin.streetNo))
+    && !isAbsentStreetNo(pin.streetNo)
+}
+
 function hasMappableAddress(pin: CitizenDashboardMapPin, allowNeighborhood = false): boolean {
   if (normalizeAddressPart(pin.street)) return true
   if (allowNeighborhood && (normalizeAddressPart(pin.neighborhood) || normalizeAddressPart(pin.openAddress))) return true
-  return allowNeighborhood && pin.latitude != null && pin.longitude != null
+  return pin.latitude != null && pin.longitude != null
 }
 
 /** No yoksa cadde/mahalle noktasından boş alana kaydır — aynı cadde pinleri üst üste binmesin (#2594). */
@@ -402,7 +409,8 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
             approximate: !hasStreetNo || hit.precision === 'approximate',
           } satisfies ResolvedPin
         }
-        if (allowNeighborhood && pin.latitude != null && pin.longitude != null) {
+        // Mahalle+Cadde+No doluysa Konum Koordinatı pin’e girmez (#2720).
+        if (!hasCompleteCbsAddress(pin) && pin.latitude != null && pin.longitude != null) {
           return {
             ...pin,
             position: { lat: pin.latitude, lng: pin.longitude },

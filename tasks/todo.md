@@ -1,3 +1,8 @@
+## Round 899 — #2720/#2723
+
+- [x] `6a816563` — Harita: tam CBS adreste Konum Koordinatı pin’e girmez.
+- [x] `6a816b86` — No listesinden Kapı Numarası Yok kaldırıldı.
+
 ## Round 898 — #2510/#2721/#2722/#2709
 
 - [x] `6a76cd4b` — Dosya ekle yüklemesi başlar başlamaz progress bar.

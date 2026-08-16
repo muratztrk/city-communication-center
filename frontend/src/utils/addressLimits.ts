@@ -5,7 +5,15 @@ export const ADDRESS_OPEN_ADDRESS_MAX_LENGTH = 100
 export const STREET_NO_NONE = 'Yok'
 
 export function isAbsentStreetNo(value: string | null | undefined): boolean {
-  return value?.trim().toLocaleLowerCase('tr') === STREET_NO_NONE.toLocaleLowerCase('tr')
+  const normalized = value?.trim().toLocaleLowerCase('tr') ?? ''
+  if (!normalized) return false
+  return normalized === STREET_NO_NONE.toLocaleLowerCase('tr')
+    || normalized === 'kapı numarası yok'
+}
+
+/** CBS kapı listesindeki “Kapı Numarası Yok” satırı gösterilmez (#2723). */
+export function isCbsMissingDoorLabel(value: string): boolean {
+  return value.trim().toLocaleLowerCase('tr') === 'kapı numarası yok'
 }
 
 /** No alanı: yazılan her karakter büyük harf (#2585). */

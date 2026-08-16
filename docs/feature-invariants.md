@@ -1202,8 +1202,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `8.25rem` sabit (cadde seçilince
   değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
   Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
-  No `No seçiniz`; listede **Yok** (#2714).
-  Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713), placeholder `Link giriniz...` (#2722). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
+  No `No seçiniz`; listede **Yok** (#2714); CBS’den gelen **Kapı Numarası Yok** satırı yok (#2723).
+  Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713), placeholder `Link giriniz...` (#2722).
+  Birim/Vatandaş talep haritasında Mahalle+Cadde+No doluysa pin CBS’den gelir; Konum Koordinatı kullanılmaz (#2720). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
   (#2654/#2681). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).
@@ -1740,8 +1741,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Marker cluster popup başlığı `Birim Talep Bilgi Listesi`; kolonlar Talep No / Talep Tarihi /
   Talep Yeri / Gittiği Yer (hedef birim) / Başlık; Talep Kanalı yok (#2667).
   Geocode kuyruğunda 4 sn timeout pin düşürmez (#2640). Yönetici kendisine atanmış talep
-  (AssignedUserId) adresi varsa haritada görünür; cadde CBS’de yoksa mahalle/lat-lng
-  yedeği birim haritasında kullanılır (#2640 T-2026-591, #2670 T-2026-593, #2696). Reporter tüm atanmış
+  (AssignedUserId) adresi varsa haritada görünür; cadde CBS’de yoksa mahalle yedeği
+  birim haritasında kullanılır. Mahalle+Cadde+No doluysa Konum Koordinatı / lat-lng pin’e girmez (#2720). Reporter tüm atanmış
   görevleri (birim veya kişi) görür. Açık adres marker için kullanılmaz (#2695). Vatandaş haritası
   cadde zorunlu kalır (#2635). Pin noktası CBS (`GET /izmir-cbs/point`).
   Pin API + geocode paralel (en fazla 4 eşzamanlı, aynı adres tek istek); dönem değişince

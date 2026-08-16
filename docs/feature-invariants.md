@@ -1817,10 +1817,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dizin yazdırmada kanal sütunu, stacked Ad/Telefon yok. Dizin **Filtreyi sil** Yazdır’ın solunda
   (aynı grup, #2708). Filtre sonucu boşsa grid kalır, tbody `Henüz gösterilecek veri yok.` (#2653);
   paging pie drilldown gibi tablo hemen altında (sticky footer değil); boş-durum çerçevesi pie ile aynı alçak padding.
-  Kapalı `SingleSelectDropdown` seçili değer hover tooltip’i body portal’da (modal overflow kırpmaz, #2754).
+  Kapalı `SingleSelectDropdown` seçili değer hover tooltip’i body portal’da (modal overflow kırpmaz). Açık liste satırında hover tooltip yok (#2754).
   **Adresi Gör** popup: başlık altı çizgi; Mahalle/Cadde/No aynı satır, altında yalnız Adres Tarifi (Konum Koordinatı yok); Cadde/No başlık+değer kolon içi ortalı; popup `max-w-[26rem]` (#2755). X Talebi Yönlendir ile aynı.
   Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın (`2.4rem` üç kutu, `1.6rem` iki kutu, #2759).
-  Görevlerim İlgili Talep Adres Bilgileri de aynı 3+2 yerleşim; Mahalle/Cadde/No başlıkları kart genişliğine göre ortalı (#2651). Açık `SingleSelectDropdown` satır hover tooltip (#2754). WA Vatandaş Bilgileri menü satır yüksekliği kompakt (#2640). WA Talebi Oluştur Açıklama toolbar ikonları yalnız o popup’ta küçük (#2757).
+  Görevlerim İlgili Talep Adres Bilgileri 3+2; Adres Tarifi başlığı Mahalle ile aynı düşey hizada; Adres Tarifi/Konum değerleri ortalı; satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri açık menü satır yüksekliği Talebi Oluştur Adres menüsü ile aynı (#2640). WA Talebi Oluştur Açıklama toolbar ikonları yalnız o popup’ta küçük (`!important`, Tailwind size-4 ezmesin, #2757).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
   **Vatandaş Adres Bilgisi** + sağda **Adresi Gör** (küçük portal popup, #2751).
   Harita popup kolon sırası: Sıra → VT No (kanal ikonu `size-3.5` yanında, Talep Kanalı sütunu yok)

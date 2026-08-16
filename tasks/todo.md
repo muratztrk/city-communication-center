@@ -1,3 +1,10 @@
+## Round 930 — #2754/#2640/#2757/#2651
+
+- [x] `6a81ab8c` — Açık dropdown satır hover tooltip kaldırıldı.
+- [x] `6a801665` — WA Vatandaş Bilgileri menü satır yüksekliği Talebi Oluştur ile aynı.
+- [x] `6a81b23c` — WA Talebi Oluştur Açıklama toolbar ikonları daha küçük (`!important`).
+- [x] `6a802eb8` — Görev detay Adres Tarifi Mahalle hizası; satır 2 değerleri ortalı.
+
 ## Round 929 — #2755/#2759
 
 - [x] `6a81ac70` — Adresi Gör: Konum Koordinatı yok; Cadde/No değerleri ortalı.

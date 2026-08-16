@@ -55,8 +55,6 @@ export function SingleSelectDropdown({
   const [search, setSearch] = useState('')
   const [hoverTip, setHoverTip] = useState(false)
   const [hoverTipStyle, setHoverTipStyle] = useState<{ top: number; left: number }>({ top: 0, left: 8 })
-  const [optionTip, setOptionTip] = useState<string | null>(null)
-  const [optionTipStyle, setOptionTipStyle] = useState<{ top: number; left: number }>({ top: 0, left: 8 })
   const [adminSurfaceMenu, setAdminSurfaceMenu] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -119,7 +117,6 @@ export function SingleSelectDropdown({
       if (menuRef.current?.contains(target)) return
       setOpen(false)
       setSearch('')
-      setOptionTip(null)
     }
     document.addEventListener('pointerdown', handlePointerDown)
     return () => document.removeEventListener('pointerdown', handlePointerDown)
@@ -181,13 +178,7 @@ export function SingleSelectDropdown({
                 key={option.value}
                 type="button"
                 className={cn('dropdown-menu-item', checked && 'dropdown-menu-item--selected')}
-                onMouseEnter={event => {
-                  const rect = event.currentTarget.getBoundingClientRect()
-                  setOptionTipStyle({ top: rect.bottom + 4, left: Math.max(8, rect.left) })
-                  setOptionTip(option.label)
-                }}
-                onMouseLeave={() => setOptionTip(null)}
-                onClick={() => { onChange(option.value); setOpen(false); setSearch(''); setOptionTip(null) }}
+                onClick={() => { onChange(option.value); setOpen(false); setSearch('') }}
               >
                 <span className="min-w-0 truncate">{option.label}</span>
                 {checked ? <Check className="size-4 shrink-0" /> : null}
@@ -279,20 +270,6 @@ export function SingleSelectDropdown({
               style={hoverTipStyle}
             >
               {selected.label}
-            </span>,
-            document.body,
-          )
-        : null}
-
-      {optionTip
-        ? createPortal(
-            <span
-              role="tooltip"
-              className="ccc-grid-overflow-tooltip"
-              data-open="true"
-              style={optionTipStyle}
-            >
-              {optionTip}
             </span>,
             document.body,
           )

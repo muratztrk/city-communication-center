@@ -1,3 +1,7 @@
+## Round 911 — #2739
+
+- [x] `6a818641` — Mobil sol menü sola kaydırınca kapanır.
+
 ## Round 910 — #2737/#2734/#2738
 
 - [x] `6a81851c` — Konumlanamayan popup başlığı: Haritada Konumu Olmayan Talepler.

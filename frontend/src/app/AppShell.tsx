@@ -6,7 +6,7 @@ import { InternalMessagesFab } from '../components/layout/InternalMessagesFab'
 import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
 import { SessionIdleWarning } from '../components/ui/session-idle-warning'
 import { SessionSupersededWarning } from '../components/ui/session-superseded-warning'
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type TouchEvent } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
@@ -118,6 +118,27 @@ export function AppShell() {
   const [activeDepartmentVersion, setActiveDepartmentVersion] = useState(0)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const mobileNavSwipeStartRef = useRef<{ x: number; y: number } | null>(null)
+
+  const onMobileNavTouchStart = useCallback((event: TouchEvent) => {
+    const touch = event.changedTouches[0]
+    if (!touch) return
+    mobileNavSwipeStartRef.current = { x: touch.clientX, y: touch.clientY }
+  }, [])
+
+  const onMobileNavTouchEnd = useCallback((event: TouchEvent) => {
+    const start = mobileNavSwipeStartRef.current
+    mobileNavSwipeStartRef.current = null
+    if (!start) return
+    const touch = event.changedTouches[0]
+    if (!touch) return
+    const dx = touch.clientX - start.x
+    const dy = touch.clientY - start.y
+    // Sola kaydırınca kapanır; dikey scroll’u yutmaz (#2739).
+    if (dx < -56 && Math.abs(dx) > Math.abs(dy) * 1.15) {
+      setIsMobileNavOpen(false)
+    }
+  }, [])
   const [activeDeptId, setActiveDeptId] = useState<string | null>(() => getActiveDepartmentId(user?.userId))
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
@@ -660,8 +681,15 @@ export function AppShell() {
       </div>
 
       {isMobileNavOpen ? (
-        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true" aria-label={t('nav.navigation', 'Navigation')}
-          onKeyDown={(e) => { if (e.key === 'Escape') setIsMobileNavOpen(false) }}>
+        <div
+          className="fixed inset-0 z-40 lg:hidden"
+          role="dialog"
+          aria-modal="true"
+          aria-label={t('nav.navigation', 'Navigation')}
+          onKeyDown={(e) => { if (e.key === 'Escape') setIsMobileNavOpen(false) }}
+          onTouchStart={onMobileNavTouchStart}
+          onTouchEnd={onMobileNavTouchEnd}
+        >
           <button type="button" className="absolute inset-0 bg-slate-950/40" onClick={() => setIsMobileNavOpen(false)} aria-label="Close navigation" />
           <aside className="sidebar-shell relative z-10 flex h-full w-[88vw] max-w-[320px] flex-col p-3 shadow-2xl">
             <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3 pt-14">

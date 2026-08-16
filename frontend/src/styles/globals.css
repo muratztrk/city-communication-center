@@ -746,6 +746,27 @@
     text-align: center;
   }
 
+  /* Adresi Gör: dolu adreste Cadde/No değerleri de kolon içi ortalı (#2755). */
+  .address-detail-my-request__grid--peek.address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2),
+  .address-detail-my-request__grid--peek.address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(3) {
+    align-items: center !important;
+    text-align: center !important;
+  }
+
+  .address-detail-my-request__grid--peek.address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
+  .address-detail-my-request__grid--peek.address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label,
+  .address-detail-my-request__grid--peek.address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__value,
+  .address-detail-my-request__grid--peek.address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__value {
+    width: 100% !important;
+    margin-inline: auto !important;
+    text-align: center !important;
+  }
+
+  .address-detail-my-request__grid--peek .address-detail-my-request__item--street-no .address-detail-my-request__label,
+  .address-detail-my-request__grid--peek .address-detail-my-request__item--street-no .address-detail-my-request__value {
+    transform: none !important;
+  }
+
   .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(-n + 3) {
     align-items: center !important;
     text-align: center !important;
@@ -4528,12 +4549,25 @@
     transform: translateX(0.45rem);
   }
 
-  /* No başlığı Cadde'ye göre daha sağa (#2576) — #2756 kolon hizası için kaydırma yok. */
+  /* No başlığı kartın sağına daha yakın (#2759 / #2576). */
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__label,
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__value {
-    transform: none !important;
+    transform: translateX(2.4rem) !important;
     margin-inline: 0 !important;
     text-align: left !important;
+  }
+
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no {
+    transform: translateX(1.6rem) !important;
+    align-items: flex-end !important;
+    text-align: right !important;
+  }
+
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__label,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__value {
+    width: fit-content !important;
+    margin-inline: 0 !important;
+    text-align: right !important;
   }
 
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2),

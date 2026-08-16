@@ -1,5 +1,3 @@
-import { useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { CoordinatesPeekButton } from '../jobs/my-request-detail/CoordinatesPeekButton'
 
@@ -15,40 +13,6 @@ type AddressDetailFieldsProps = {
 function displayAddressValue(value: string | null | undefined, emptyValue = '—'): string {
   const trimmed = value?.trim()
   return trimmed ? trimmed : emptyValue
-}
-
-function CoordinatesEllipsisField({ value }: { value: string }) {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [hoverTip, setHoverTip] = useState(false)
-  const [hoverTipStyle, setHoverTipStyle] = useState<{ top: number; left: number }>({ top: 0, left: 8 })
-
-  return (
-    <>
-      <input
-        ref={inputRef}
-        type="text"
-        readOnly
-        value={value}
-        className="field-input w-full min-w-0 cursor-default overflow-hidden text-ellipsis whitespace-nowrap text-[12px]"
-        onMouseEnter={() => {
-          const el = inputRef.current
-          if (!el || el.scrollWidth <= el.clientWidth + 1) return
-          const rect = el.getBoundingClientRect()
-          setHoverTipStyle({ top: rect.bottom + 4, left: Math.max(8, rect.left) })
-          setHoverTip(true)
-        }}
-        onMouseLeave={() => setHoverTip(false)}
-      />
-      {hoverTip
-        ? createPortal(
-            <span role="tooltip" className="ccc-grid-overflow-tooltip" data-open="true" style={hoverTipStyle}>
-              {value}
-            </span>,
-            document.body,
-          )
-        : null}
-    </>
-  )
 }
 
 export function AddressDetailFields({ neighborhood, street, streetNo, openAddress, coordinates, variant = 'default' }: AddressDetailFieldsProps) {
@@ -76,14 +40,6 @@ export function AddressDetailFields({ neighborhood, street, streetNo, openAddres
           <div className="address-detail-my-request__item address-detail-my-request__item--directions">
             <dt className="address-detail-my-request__label">{addressDirectionsLabel}</dt>
             <dd className="address-detail-my-request__value">{displayAddressValue(openAddress, '-')}</dd>
-          </div>
-          <div className="address-detail-my-request__item address-detail-my-request__item--coordinates">
-            <dt className="address-detail-my-request__label">{coordinatesLabel}</dt>
-            <dd className="address-detail-my-request__value">
-              {coordinatesText
-                ? <CoordinatesEllipsisField value={coordinatesText} />
-                : displayAddressValue(null, '-')}
-            </dd>
           </div>
         </div>
       </dl>

@@ -1,3 +1,8 @@
+## Round 929 — #2755/#2759
+
+- [x] `6a81ac70` — Adresi Gör: Konum Koordinatı yok; Cadde/No değerleri ortalı.
+- [x] `6a81bb7c` — Taleplerim / Birimden Giden detayında No sağa yakın.
+
 ## Round 928 — #2754/#2640/#2755/#2651/#2757
 
 - [x] `6a81ab8c` — Açık dropdown satır hover tooltip (yeniden).

@@ -1818,8 +1818,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (aynı grup, #2708). Filtre sonucu boşsa grid kalır, tbody `Henüz gösterilecek veri yok.` (#2653);
   paging pie drilldown gibi tablo hemen altında (sticky footer değil); boş-durum çerçevesi pie ile aynı alçak padding.
   Kapalı `SingleSelectDropdown` seçili değer hover tooltip’i body portal’da (modal overflow kırpmaz, #2754).
-  **Adresi Gör** popup: başlık altı çizgi; Mahalle/Cadde/No aynı satır, Adres Tarifi’nin sağında Konum Koordinatı (değer textbox + taşınca ellipsis tooltip); başlıklar popup’ta kolon içi ortalı; X Talebi Yönlendir ile aynı (#2755).
+  **Adresi Gör** popup: başlık altı çizgi; Mahalle/Cadde/No aynı satır, Adres Tarifi’nin sağında Konum Koordinatı (değer textbox + taşınca ellipsis tooltip); başlıklar popup genişliğine göre kolon içi ortalı; popup `max-w-[26rem]` (#2755). X Talebi Yönlendir ile aynı.
   Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756).
+  Görevlerim İlgili Talep Adres Bilgileri de aynı 3+2 yerleşim; Mahalle/Cadde/No başlıkları kart genişliğine göre ortalı (#2651). Açık `SingleSelectDropdown` satır hover tooltip (#2754). WA Vatandaş Bilgileri menü satır yüksekliği kompakt (#2640). WA Talebi Oluştur Açıklama toolbar ikonları yalnız o popup’ta küçük (#2757).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
   **Vatandaş Adres Bilgisi** + sağda **Adresi Gör** (küçük portal popup, #2751).
   Harita popup kolon sırası: Sıra → VT No (kanal ikonu `size-3.5` yanında, Talep Kanalı sütunu yok)
@@ -1919,8 +1920,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil Talep No (#r490):** `.table-number-cell__value` / `__priority` mobilde küçültülür.
 - **VT edit mobil hiza (#r490/#r498):** Talep Etiketi kontrolü etiket altında sola; Öncelik sağ üst
   meta, varsayılan `w-28` (Öncelik sola/küçült istekleri #r498'de geri alındı).
-- **Atanmış görev adres stacked (#r496/#r497/#6a6baec9):** Görevlerim İlgili Talep Adres
-  `variant="stacked"` (alt alta); doluysa `gap: 1.35rem`.
+- **Atanmış görev adres stacked (#r496/#r497/#6a6baec9 / #2651):** Görevlerim İlgili Talep Adres
+  `variant="my-request"` (Mahalle+Cadde+No / Adres Tarifi+Konum); başlıklar kart içinde ortalı.
 - **Mobil dizin talep popup (#r483 / #r485):** başlık altında isim · telefon yan yana (küçük
   bullet); ortada kurum logosu.
 - **Mobil Vatandaş Talep Bilgisi genişlik (#r483):** `.detail-modal-shell--my-request`

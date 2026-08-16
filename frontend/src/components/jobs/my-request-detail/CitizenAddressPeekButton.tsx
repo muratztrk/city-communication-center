@@ -42,7 +42,7 @@ export function CitizenAddressPeekButton({
             onClick={() => setOpen(false)}
           >
             <div
-              className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl"
+              className="relative w-full max-w-[26rem] rounded-2xl bg-white p-6 shadow-2xl"
               role="dialog"
               aria-modal="true"
               aria-labelledby="citizen-address-peek-title"

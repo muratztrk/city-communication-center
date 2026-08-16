@@ -2901,13 +2901,16 @@ const pageKicker = isMyTasksView
                         <MyRequestSectionHeading icon={MapPin}>
                           {t('address.detailSectionTitle', 'Adres Bilgileri')}
                         </MyRequestSectionHeading>
+                    <div className="address-detail-my-request--task">
                         <AddressDetailFields
-                          variant="stacked"
+                          variant="my-request"
                           neighborhood={parentJobDetail.neighborhood}
                           street={parentJobDetail.street}
                           streetNo={parentJobDetail.streetNo}
                           openAddress={parentJobDetail.openAddress}
+                          coordinates={mapsLinkFromLatLng(parentJobDetail.latitude, parentJobDetail.longitude)}
                         />
+                    </div>
                       </>
                     )
                     // Kendine atayan yönetici kendi talebini düzenlerken (card #1519) Yönetici Notu

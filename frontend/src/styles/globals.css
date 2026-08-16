@@ -729,13 +729,16 @@
     width: 100%;
     max-width: 100%;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: center !important;
+    text-align: center !important;
+    justify-self: stretch;
+    transform: none !important;
   }
 
   .address-detail-my-request__grid--peek .address-detail-my-request__label {
-    margin-inline: auto;
-    text-align: center;
+    width: 100% !important;
+    margin-inline: auto !important;
+    text-align: center !important;
   }
 
   .address-detail-my-request__grid--peek .address-detail-my-request__value {
@@ -743,8 +746,23 @@
     text-align: center;
   }
 
-  .address-detail-my-request__item {
-    min-width: 0;
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(-n + 3) {
+    align-items: center !important;
+    text-align: center !important;
+    width: 100%;
+    justify-self: stretch;
+    transform: none !important;
+  }
+
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(-n + 3) .address-detail-my-request__label {
+    width: 100% !important;
+    margin-inline: auto !important;
+    text-align: center !important;
+  }
+
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(-n + 3) .address-detail-my-request__value {
+    width: 100%;
+    text-align: center;
   }
 
   .detail-modal-shell--my-request .my-request-detail-card--attachments {
@@ -1775,13 +1793,13 @@
     }
 
     .app-content-shell .rich-text-toolbar {
-      min-height: 2.15rem;
-      padding: 0.28rem 0.38rem;
+      min-height: 2.35rem;
+      padding: 0.32rem 0.42rem;
     }
 
     .app-content-shell .rich-text-toolbar-button {
-      width: 1.6rem;
-      height: 1.6rem;
+      width: 1.75rem;
+      height: 1.75rem;
       border-radius: 0.45rem;
     }
 
@@ -2005,18 +2023,18 @@
     display: flex;
     align-items: center;
     gap: 0.35rem;
-    min-height: 2.75rem;
+    min-height: 3rem;
     border-bottom: 1px solid var(--color-border);
     background: color-mix(in srgb, white 92%, var(--color-background));
-    padding: 0.38rem 0.5rem;
+    padding: 0.45rem 0.55rem;
   }
 
   .rich-text-toolbar-button {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 2rem;
-    height: 2rem;
+    width: 2.2rem;
+    height: 2.2rem;
     border: 0;
     border-radius: 0.55rem;
     background: transparent;
@@ -2322,12 +2340,18 @@
 
   /* Search matches list (liste küçültülmez; arama listeye yükselir, #2729).
      Panel köküne de aynı sınıf konur: arama kutusu scroll dışında kalır (#2730 reopen). */
-  .whatsapp-neighborhood-menu-scroll .dropdown-menu-item,
-  .whatsapp-neighborhood-menu-scroll .dropdown-menu-item span {
-    min-height: 2rem;
-    padding: 0.35rem 0.65rem;
+  .whatsapp-neighborhood-menu-scroll .dropdown-menu-item {
+    min-height: 1.5rem;
+    padding: 0.12rem 0.55rem;
     font-size: 0.75rem !important;
-    line-height: 1.25;
+    line-height: 1.2;
+  }
+
+  .whatsapp-neighborhood-menu-scroll .dropdown-menu-item span {
+    min-height: 0;
+    padding: 0;
+    font-size: 0.75rem !important;
+    line-height: 1.2;
   }
 
   .whatsapp-neighborhood-menu-scroll input,
@@ -3578,9 +3602,9 @@
     padding: 0.15rem 0.3rem;
   }
 
-  .citizen-request-form .rich-text-toolbar-button {
-    width: 1.22rem;
-    height: 1.22rem;
+  .detail-modal-shell--citizen-create .citizen-request-form .rich-text-toolbar-button {
+    width: 1.08rem !important;
+    height: 1.08rem !important;
   }
 
   .citizen-request-form .rich-text-editable {
@@ -3716,13 +3740,13 @@
 
   .request-form--readable .rich-text-toolbar,
   .routine-task-form--readable .rich-text-toolbar {
-    min-height: 2.95rem;
+    min-height: 3.2rem;
   }
 
   .request-form--readable .rich-text-toolbar-button,
   .routine-task-form--readable .rich-text-toolbar-button {
-    width: 2.15rem;
-    height: 2.15rem;
+    width: 2.35rem;
+    height: 2.35rem;
   }
 
   /* Vatandaş Çağrı Talebi Oluştur: K/A toolbar ince, yazı alanı yüksek. */
@@ -3732,20 +3756,19 @@
     gap: 0.18rem;
   }
 
-  #citizen-request-form .rich-text-toolbar-button {
-    width: 1.28rem;
-    height: 1.28rem;
-    border-radius: 0.3rem;
+  .detail-modal-shell--citizen-create #citizen-request-form .rich-text-toolbar-button {
+    width: 1.08rem !important;
+    height: 1.08rem !important;
   }
 
-  #citizen-request-form .rich-text-toolbar-button svg {
-    width: 0.8rem;
-    height: 0.8rem;
+  .detail-modal-shell--citizen-create .rich-text-toolbar-button svg {
+    width: 0.72rem;
+    height: 0.72rem;
   }
 
-  #citizen-request-form .rich-text-toolbar-button span {
-    font-size: 0.68rem;
-    min-width: 0.75rem;
+  .detail-modal-shell--citizen-create .rich-text-toolbar-button span {
+    font-size: 0.62rem;
+    min-width: 0.7rem;
   }
 
   #citizen-request-form .rich-text-toolbar-divider {

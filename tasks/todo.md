@@ -1,3 +1,11 @@
+## Round 928 — #2754/#2640/#2755/#2651/#2757
+
+- [x] `6a81ab8c` — Açık dropdown satır hover tooltip (yeniden).
+- [x] `6a801665` — WA Vatandaş Bilgileri menü satır yüksekliği küçültüldü.
+- [x] `6a81ac70` — Adresi Gör biraz dar; başlıklar popup genişliğine göre ortalı.
+- [x] `6a802eb8` — Görevlerim Adres Bilgileri 3+2 ve başlıklar kartta ortalı.
+- [x] `6a81b23c` — Yalnız WA Talebi Oluştur Açıklama K/A ikonları küçültüldü.
+
 ## Round 927 — #2754/#2755/#2756
 
 - [x] `6a81ab8c` — WA kapalı dropdown hover tooltip (disabled dahil, standart overflow tooltip).

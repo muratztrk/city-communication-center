@@ -57,7 +57,8 @@ export function DepartmentRequestMapPage() {
   const pinsQuery = useQuery({
     queryKey: queryKeys.reports.departmentMapPins({ from: activeFrom, to: activeTo }),
     queryFn: () => api.getDepartmentDashboardMapPins(apiFrom, apiTo),
-    staleTime: 60_000,
+    staleTime: 0,
+    refetchOnMount: 'always',
     placeholderData: keepPreviousData,
     refetchInterval: 60_000,
   })

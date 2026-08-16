@@ -1,3 +1,8 @@
+## Round 924 — #2752/#2753
+
+- [x] `6a81a9c5` — Konumlu talep oluşturunca harita pin listesi hemen yenilenir.
+- [x] `6a81aabc` — Hatalı Konum Koordinatı talebi durdurmaz; marker oluşmaz.
+
 ## Round 923 — #2744/#2653/#2747/#2751/#2748
 
 - [x] `6a819cee` — WA medya butonları görsel genişliğine göre ortalandı.

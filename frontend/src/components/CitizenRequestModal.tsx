@@ -447,10 +447,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       return
     }
     const parsedCoordinates = coordinates.trim() ? parseCoordinatePair(coordinates) : null
-    if (coordinates.trim() && !parsedCoordinates) {
-      setError(t('address.coordinatesInvalid', 'Konum koordinatı enlem, boylam olarak girilmelidir.'))
-      return
-    }
+
 
     if (!confirmedSubmit) {
       setConfirmDialog({
@@ -563,6 +560,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         await uploadPendingFiles(job.jobId)
       }
       invalidateSocialMessages(queryClient, convertMessageId)
+      invalidateJobs(queryClient, job.jobId)
       if (citizenConversationId) {
         invalidateConversations(queryClient, citizenConversationId, convertMessageId)
       }

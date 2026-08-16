@@ -53,7 +53,8 @@ export function CitizenRequestMapPage() {
   const pinsQuery = useQuery({
     queryKey: queryKeys.reports.citizenMapPins({ from: activeFrom, to: activeTo }),
     queryFn: () => api.getCitizenDashboardMapPins(apiFrom, apiTo),
-    staleTime: 60_000,
+    staleTime: 0,
+    refetchOnMount: 'always',
     placeholderData: keepPreviousData,
     refetchInterval: 60_000,
   })

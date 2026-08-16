@@ -154,12 +154,10 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
 const CITIZEN_CHANNELS = ['Phone'] as const
 const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
 
-function coordinatesFromForm(raw: string | null | undefined): { latitude?: number; longitude?: number } | 'invalid' {
+function coordinatesFromForm(raw: string | null | undefined): { latitude?: number; longitude?: number } {
   const trimmed = raw?.trim() ?? ''
   if (!trimmed) return {}
-  const parsed = parseCoordinatePair(trimmed)
-  if (!parsed) return 'invalid'
-  return parsed
+  return parseCoordinatePair(trimmed) ?? {}
 }
 
 function getRequestedOwnerUserIds(
@@ -903,10 +901,6 @@ export function CreateRequestPage() {
       return
     }
     const internalCoords = coordinatesFromForm(internalForm.coordinates)
-    if (internalCoords === 'invalid') {
-      setError(t('address.coordinatesInvalid', 'Konum koordinatı enlem, boylam olarak girilmelidir.'))
-      return
-    }
     // Yönetici/sorumlu için personel seçimi zorunludur (tek kişi).
     if (isManagerLike && internalForm.ownerUserIds.filter(id => id.trim() !== '').length === 0) {
       setError(t('tasks.newRequest.ownerUserRequired', 'Lütfen bir personel seçiniz.'))
@@ -1006,10 +1000,6 @@ export function CreateRequestPage() {
       return
     }
     const externalCoords = coordinatesFromForm(externalForm.coordinates)
-    if (externalCoords === 'invalid') {
-      setError(t('address.coordinatesInvalid', 'Konum koordinatı enlem, boylam olarak girilmelidir.'))
-      return
-    }
     if (confirmedKind !== 'external') {
       setConfirmDialog({
         title: editJobId ? 'Birim Dışı Talep Güncelle' : 'Birim Dışı Talep Oluştur',
@@ -1129,10 +1119,6 @@ export function CreateRequestPage() {
       return
     }
     const citizenCoords = coordinatesFromForm(citizenForm.coordinates)
-    if (citizenCoords === 'invalid') {
-      setError(t('address.coordinatesInvalid', 'Konum koordinatı enlem, boylam olarak girilmelidir.'))
-      return
-    }
     if (confirmedKind !== 'citizen') {
       const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
       const phoneDisplay = formatCitizenPhoneDisplay(citizenForm.citizenPhone) || citizenForm.citizenPhone.trim() || '—'

@@ -194,11 +194,6 @@ export function RoutineTaskPage() {
     try {
       const coords = form.coordinates.trim()
       const parsedCoords = coords ? parseCoordinatePair(coords) : null
-      if (coords && !parsedCoords) {
-        setError(t('address.coordinatesInvalid', 'Konum koordinatı enlem, boylam olarak girilmelidir.'))
-        setSubmitting(false)
-        return
-      }
       const payload = {
         title: normalizeTitleCaseField(form.title) ?? '',
         description: form.description.trim(),

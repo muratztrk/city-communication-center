@@ -1,3 +1,8 @@
+## Round 950 — #2776/#2775
+
+- [x] `6a822074` — Terminal Yapılmakta, gecikmişse `Yapılmakta (Geciken)`.
+- [x] `6a821f51` — Süreç Son Tarih puntosu 0.6875rem (dueDateContent text-sm kaldırıldı).
+
 ## Round 949 — #2774/#2775/#2773
 
 - [x] `6a821e6e` — İlgili Görev / Görevlerim terminal Süreç’te Tamamlanma/İptal’den önce Yapılmakta aralığı.

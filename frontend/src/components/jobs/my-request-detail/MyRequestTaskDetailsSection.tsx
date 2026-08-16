@@ -9,7 +9,7 @@ import { requestLocationFieldLabel } from '../../../utils/citizenRequests'
 import { getPriorityColorClass, getPriorityLabel, getTaskDisplayStatus, getTaskStatusTone } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime } from './format'
 import { buildInProgressPeriodStep, type JobProcessStep } from './buildJobProcessSteps'
-import { JobProcessTimeline } from './JobProcessTimeline'
+import { JobProcessTimeline, TimelineDateTimeValue } from './JobProcessTimeline'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldValue } from './StackedFieldValue'
 import { StatusChangeTransition } from './StatusChangeTransition'
@@ -66,6 +66,7 @@ function buildTaskProcessSteps(
           task.createdAtUtc,
           task.completedAtUtc,
           assigneeName,
+          task.dueDateUtc,
         ),
         state: 'completed',
       },
@@ -96,7 +97,7 @@ function buildTaskProcessSteps(
       },
       dueDateStep,
       {
-        ...buildInProgressPeriodStep(t, locale, task.createdAtUtc, cancelledAtUtc, assigneeName),
+        ...buildInProgressPeriodStep(t, locale, task.createdAtUtc, cancelledAtUtc, assigneeName, task.dueDateUtc),
         state: 'completed',
       },
       {
@@ -168,7 +169,7 @@ export function MyRequestTaskDetailsSection({
           const processSteps = buildTaskProcessSteps(t, task, locale)
           const dueDateContent = (
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm font-semibold text-slate-900">{formatDueDateTime(task.dueDateUtc, locale)}</span>
+              <TimelineDateTimeValue utc={task.dueDateUtc} locale={locale} />
               {task.hasPendingExtraTimeRequest ? (
                 <span className="text-xs font-bold text-amber-500">
                   {t('tasks.actions.extraTimePendingMarker', '(Ek süre talebi)')}

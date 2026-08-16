@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import type { JobProcessStep } from './buildJobProcessSteps'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
-import { isPendingApprovalText, splitDateTimeParts } from './format'
+import { isPendingApprovalText, splitDateTimeParts, formatDueDateTime, pendingApprovalValueClassName } from './format'
 import { isInProgressProcessStatusLabel } from '../../../utils/localization'
 
 function getLineClass(
@@ -81,6 +81,25 @@ function DateTimeParts({ parts }: { parts: { date: string; time: string } }) {
       <span className="job-process-timeline__datetime-bullet" aria-hidden="true" />
       <span>{parts.time}</span>
     </>
+  )
+}
+
+export function TimelineDateTimeValue({
+  utc,
+  locale,
+}: {
+  utc: string | null | undefined
+  locale: string
+}) {
+  const parts = splitDateTimeParts(utc ?? null, locale)
+  if (!parts) {
+    const fallback = formatDueDateTime(utc ?? null, locale)
+    return <span className={pendingApprovalValueClassName(fallback)}>{fallback}</span>
+  }
+  return (
+    <span className="job-process-timeline__datetime-value inline-flex flex-wrap items-center gap-x-1.5 font-semibold text-slate-900">
+      <DateTimeParts parts={parts} />
+    </span>
   )
 }
 

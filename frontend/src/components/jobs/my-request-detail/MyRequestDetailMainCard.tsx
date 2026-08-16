@@ -18,11 +18,11 @@ import { useWeekendSlaDueDateMin } from '../../../hooks/useWeekendSlaDueDateMin'
 import { shouldShowJobStatusActorName, formatJobAssigneeNames } from '../../../utils/jobDetails'
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
-import { JobProcessTimeline } from './JobProcessTimeline'
+import { JobProcessTimeline, TimelineDateTimeValue } from './JobProcessTimeline'
 import { buildMyRequestDetailFields } from './myRequestDetailFields'
 import type { MyRequestDetailField } from './myRequestDetailFields'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
-import { formatDateTime, pendingApprovalValueClassName } from './format'
+import { formatDateTime } from './format'
 import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, formatOverdueInProgressStatus } from '../../../utils/localization'
 import { prioritySelectOptions } from '../../../utils/formDropdownOptions'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
@@ -324,8 +324,6 @@ export function MyRequestDetailMainCard({
   const requestNumberText = isCitizenRequestJob(detail)
     ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)
     : formatJobDisplayNumberText(detail, locale)
-  const dueDateDisplayValue = steps.find(step => step.id === 'dueDate')?.displayValue
-
   const dueDateContent = isEditing && editDraft && onEditDraftChange ? (
     <div className="my-request-detail-edit-due-date">
       <DateTimePicker
@@ -390,9 +388,7 @@ export function MyRequestDetailMainCard({
     </div>
   ) : (
     <div className="flex flex-wrap items-center gap-2">
-      <span className={pendingApprovalValueClassName(dueDateDisplayValue)}>
-        {dueDateDisplayValue}
-      </span>
+      <TimelineDateTimeValue utc={detail.dueDateUtc} locale={locale} />
       {canChangeDueDate && (
         <button
           type="button"

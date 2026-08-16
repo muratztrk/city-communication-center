@@ -39,7 +39,7 @@ export function isPendingApprovalText(value: string | null | undefined): boolean
 export function pendingApprovalValueClassName(value: string | null | undefined): string {
   return isPendingApprovalText(value)
     ? 'job-process-timeline__pending-approval-text text-slate-900'
-    : 'text-sm font-semibold text-slate-900'
+    : 'job-process-timeline__datetime-value font-semibold text-slate-900'
 }
 
 export function getStatusChangeTextClass(status: string) {

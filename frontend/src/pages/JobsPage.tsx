@@ -72,8 +72,7 @@ import { MyRequestTaskDetailsSection } from '../components/jobs/my-request-detai
 import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
 import { CitizenAddressPeekButton } from '../components/jobs/my-request-detail/CitizenAddressPeekButton'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation, wasReopenedViaCitizenMessageApproval } from '../components/jobs/my-request-detail/buildJobProcessSteps'
-import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
-import { pendingApprovalValueClassName } from '../components/jobs/my-request-detail/format'
+import { JobProcessTimeline, TimelineDateTimeValue } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import { buildMyRequestEditDraft, type MyRequestEditDraft } from '../components/jobs/my-request-detail/myRequestEditDraft'
 import { TablePagination } from '../components/ui/table-pagination'
 import { DetailModalTitle } from '../utils/detailModalTitle'
@@ -2886,7 +2885,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               : detail.status === 'Completed'
                                 ? t('jobs.statusLabel.completed', 'Tamamlanmış')
                                 : getJobStatusLabel(t, detail.status))
-                      const dueDateDisplayText = formatDueDateTime(detail.dueDateUtc, locale)
                       const dueDateContent = detailDueDateEdit?.jobId === detail.jobId ? (
                         <div className="mt-1 flex flex-col gap-1.5">
                           <DateTimePicker
@@ -2940,9 +2938,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         </div>
                       ) : (
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className={pendingApprovalValueClassName(dueDateDisplayText)}>
-                            {dueDateDisplayText}
-                          </span>
+                          <TimelineDateTimeValue utc={detail.dueDateUtc} locale={locale} />
                           {canChangeDetailDueDate && (
                             <button
                               type="button"

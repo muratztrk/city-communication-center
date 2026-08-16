@@ -98,7 +98,7 @@ import { MyRequestDetailBottomCards } from '../components/jobs/my-request-detail
 import { buildMyRequestDetailFields } from '../components/jobs/my-request-detail/myRequestDetailFields'
 import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
 import { FramedDepartmentStack } from '../components/jobs/my-request-detail/FramedDepartmentStack'
-import { JobProcessTimeline } from '../components/jobs/my-request-detail/JobProcessTimeline'
+import { JobProcessTimeline, TimelineDateTimeValue } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import { buildInProgressPeriodStep, type JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { StatusChangeTransition } from '../components/jobs/my-request-detail/StatusChangeTransition'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
@@ -2488,6 +2488,7 @@ const pageKicker = isMyTasksView
                                     taskDetail.createdAtUtc,
                                     taskDetail.completedAtUtc,
                                     taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName,
+                                    taskDetail.dueDateUtc,
                                   ),
                                   state: 'completed' as const,
                                 }, {
@@ -2505,6 +2506,7 @@ const pageKicker = isMyTasksView
                                       taskDetail.createdAtUtc,
                                       cancelledAtUtc,
                                       taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName,
+                                      taskDetail.dueDateUtc,
                                     ),
                                     state: 'completed' as const,
                                   }, {
@@ -2630,7 +2632,7 @@ const pageKicker = isMyTasksView
                             </div>
                           ) : (
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="text-sm font-semibold text-slate-900">{formatDueDateTime(taskDetail.dueDateUtc, locale)}</span>
+                              <TimelineDateTimeValue utc={taskDetail.dueDateUtc} locale={locale} />
                               {canReviewExtraTime ? (
                                 // Yöneticiye bekleyen ek süre talebi tek bir aksiyon linki olarak gösterilir;
                                 // ayrı bir "(Ek süre talebi)" işaretiyle tekrar edilmez (card #1404 reopen).

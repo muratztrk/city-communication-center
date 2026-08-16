@@ -7,6 +7,7 @@ import {
   getCitizenRequestStatusLabel,
 } from '../../../utils/citizenRequests'
 import { formatDateTime, formatDueDateTime } from './format'
+import { formatOverdueInProgressStatus } from '../../../utils/localization'
 import { getJobTargetApproverDisplayName } from '../../../utils/jobDetails'
 import { isJobDueDateOverdue } from '../../../utils/dateTimePicker'
 
@@ -129,12 +130,20 @@ export function buildInProgressPeriodStep(
   previousUtc: string | null | undefined,
   nextUtc: string | null | undefined,
   assigneeName: string | null | undefined,
+  dueDateUtc?: string | null,
 ): Omit<JobProcessStep, 'state'> {
-  const inProgressLabel = t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  const overdueAtClose = Boolean(
+    dueDateUtc
+    && nextUtc
+    && new Date(dueDateUtc).getTime() < new Date(nextUtc).getTime(),
+  )
+  const statusLabel = overdueAtClose
+    ? formatOverdueInProgressStatus(t)
+    : t('jobs.statusLabel.inProgress', 'Yapılmakta')
   const name = assigneeName?.trim()
   return {
     id: 'inProgressPeriod',
-    label: name ? `${inProgressLabel} (${name})` : inProgressLabel,
+    label: name ? `${statusLabel} (${name})` : statusLabel,
     displayValue: `${formatDateTime(previousUtc ?? null, locale)} - ${formatDateTime(nextUtc ?? null, locale)}`,
     dateTimeUtc: previousUtc ?? null,
     endDateTimeUtc: nextUtc ?? null,
@@ -445,6 +454,7 @@ export function buildJobProcessSteps(
       previousUtc,
       nextUtc,
       assigneeNames.join(', ') || null,
+      detail.dueDateUtc,
     ))
   }
 

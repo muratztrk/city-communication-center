@@ -1,3 +1,10 @@
+## Round 898 — #2510/#2721/#2722/#2709
+
+- [x] `6a76cd4b` — Dosya ekle yüklemesi başlar başlamaz progress bar.
+- [x] `6a8168a4` — Adres Cadde placeholder: Cadde seçiniz.
+- [x] `6a81693b` — Konum Koordinatı placeholder: Link giriniz...
+- [x] `6a815114` — Talep/Görev görsel eki Önizle: portal lightbox + satır içi.
+
 ## Round 897 — #2711
 
 - [x] `6a8155bf` — WA giden görsel balonu biraz geniş; foto çerçeveyi doldurur.

@@ -26,5 +26,3 @@ export function AttachmentUploadProgressBar({
   )
 }
 
-/** Hızlı yüklemelerde yanıp sönme yerine kısa gecikme + ilk progress event'te göster. */
-export const ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS = 200

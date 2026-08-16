@@ -678,7 +678,6 @@ function ConversationProfilePanel({
           labelClassName={labelClass}
           className="address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2"
           menuScrollClassName="whatsapp-neighborhood-menu-scroll"
-          shortStreetPlaceholder
           onStreetChange={street => onDraftChange({ street })}
           onStreetNoChange={streetNo => onDraftChange({ streetNo })}
         />

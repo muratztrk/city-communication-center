@@ -20,10 +20,8 @@ import { api } from '../api/client'
 import { invalidateTasks, invalidateNotifications } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
-import {
-  ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS,
-  AttachmentUploadProgressBar,
-} from '../components/ui/attachment-upload-progress'
+import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
+import { AttachmentImagePreviewButton } from '../components/ui/AttachmentImagePreviewButton'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
@@ -553,13 +551,11 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [completionAttachmentError, setCompletionAttachmentError] = useState<string | null>(null)
   const [completionAttachmentUploading, setCompletionAttachmentUploading] = useState(false)
   const [completionUploadProgress, setCompletionUploadProgress] = useState(0)
-  const [showCompletionUploadProgress, setShowCompletionUploadProgress] = useState(false)
   const completeFileInputRef = useRef<HTMLInputElement>(null)
   const [pendingCancelAttachments, setPendingCancelAttachments] = useState<Array<{ attachmentId: string; fileName: string; fileSizeBytes: number }>>([])
   const [cancelAttachmentError, setCancelAttachmentError] = useState<string | null>(null)
   const [cancelAttachmentUploading, setCancelAttachmentUploading] = useState(false)
   const [cancelUploadProgress, setCancelUploadProgress] = useState(0)
-  const [showCancelUploadProgress, setShowCancelUploadProgress] = useState(false)
   const cancelFileInputRef = useRef<HTMLInputElement>(null)
   const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'cancel' | 'return'; assignedDepartmentId: string | null; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean; displayNumber: string } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
@@ -1095,17 +1091,10 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     let uploadedBytes = 0
     setCompletionAttachmentUploading(true)
     setCompletionUploadProgress(0)
-    setShowCompletionUploadProgress(false)
-    let revealTimer: number | null = window.setTimeout(() => {
-      revealTimer = null
-      setShowCompletionUploadProgress(true)
-    }, ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS)
-    const revealProgress = () => setShowCompletionUploadProgress(true)
 
     for (const file of incoming) {
       try {
         const attachment = await api.uploadTaskAttachment(completeModal.taskId, file, percent => {
-          revealProgress()
           setCompletionUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
         })
         setPendingCompletionAttachments(current => [...current, {
@@ -1120,8 +1109,6 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       }
     }
 
-    if (revealTimer !== null) window.clearTimeout(revealTimer)
-    setShowCompletionUploadProgress(false)
     setCompletionUploadProgress(0)
     setCompletionAttachmentUploading(false)
 
@@ -1297,17 +1284,10 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     let uploadedBytes = 0
     setCancelAttachmentUploading(true)
     setCancelUploadProgress(0)
-    setShowCancelUploadProgress(false)
-    let revealTimer: number | null = window.setTimeout(() => {
-      revealTimer = null
-      setShowCancelUploadProgress(true)
-    }, ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS)
-    const revealProgress = () => setShowCancelUploadProgress(true)
 
     for (const file of incoming) {
       try {
         const attachment = await api.uploadTaskAttachment(returnModal.taskId, file, percent => {
-          revealProgress()
           setCancelUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
         })
         setPendingCancelAttachments(current => [...current, {
@@ -1322,8 +1302,6 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       }
     }
 
-    if (revealTimer !== null) window.clearTimeout(revealTimer)
-    setShowCancelUploadProgress(false)
     setCancelUploadProgress(0)
     setCancelAttachmentUploading(false)
 
@@ -2404,15 +2382,21 @@ const pageKicker = isMyTasksView
                                       {taskDetail.attachments!.map(attachment => {
                                         const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
                                         return (
+                                          <div key={attachment.attachmentId} className="inline-flex max-w-full items-center gap-1">
                                           <button
-                                            key={attachment.attachmentId}
                                             type="button"
-                                            className="inline-flex max-w-full items-center gap-1 text-[11px] text-blue-700 hover:text-blue-800"
+                                            className="inline-flex min-w-0 max-w-full items-center gap-1 text-[11px] text-blue-700 hover:text-blue-800"
                                             onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                           >
                                             <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />
                                             <span className="truncate">{lowercaseFileExtension(attachment.fileName)}</span>
                                           </button>
+                                          <AttachmentImagePreviewButton
+                                            attachmentId={attachment.attachmentId}
+                                            fileName={attachment.fileName}
+                                            className="h-6 shrink-0 px-1.5 text-[10px]"
+                                          />
+                                          </div>
                                         )
                                       })}
                                     </div>
@@ -2959,15 +2943,21 @@ const pageKicker = isMyTasksView
                                   {parentJobDetail.attachments!.map(attachment => {
                                     const AttachmentIcon = completionAttachmentIcon(attachment.fileName)
                                     return (
+                                      <div key={attachment.attachmentId} className="inline-flex max-w-full items-center gap-1">
                                       <button
-                                        key={attachment.attachmentId}
                                         type="button"
-                                        className="inline-flex max-w-full items-center gap-1 text-[11px] text-blue-700 hover:text-blue-800"
+                                        className="inline-flex min-w-0 max-w-full items-center gap-1 text-[11px] text-blue-700 hover:text-blue-800"
                                         onClick={() => void handleDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                       >
                                         <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />
                                         <span className="truncate">{lowercaseFileExtension(attachment.fileName)}</span>
                                       </button>
+                                      <AttachmentImagePreviewButton
+                                        attachmentId={attachment.attachmentId}
+                                        fileName={attachment.fileName}
+                                        className="h-6 shrink-0 px-1.5 text-[10px]"
+                                      />
+                                      </div>
                                     )
                                   })}
                                 </div>
@@ -3593,7 +3583,7 @@ const pageKicker = isMyTasksView
                     onChange={event => void handleCompletionFilesSelected(event.target.files)}
                   />
                 </label>
-                {completionAttachmentUploading && showCompletionUploadProgress ? (
+                {completionAttachmentUploading ? (
                   <AttachmentUploadProgressBar progress={completionUploadProgress} />
                 ) : null}
               </div>
@@ -3702,7 +3692,7 @@ const pageKicker = isMyTasksView
                         onChange={event => void handleCancelFilesSelected(event.target.files)}
                       />
                     </label>
-                    {cancelAttachmentUploading && showCancelUploadProgress ? (
+                    {cancelAttachmentUploading ? (
                       <AttachmentUploadProgressBar progress={cancelUploadProgress} />
                     ) : null}
                   </div>

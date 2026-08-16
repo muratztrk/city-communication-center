@@ -21,10 +21,7 @@ import {
 } from '../utils/dateTimePicker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
-import {
-  ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS,
-  AttachmentUploadProgressBar,
-} from '../components/ui/attachment-upload-progress'
+import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { useAuth } from '../context/AuthContext'
@@ -294,16 +291,10 @@ export function CreateRequestPage() {
   const [showAttachmentUploadProgress, setShowAttachmentUploadProgress] = useState(false)
   const [activeDepartmentId, setActiveDepartmentId] = useState<string | null>(getActiveDepartmentId)
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const attachmentUploadDelayRef = useRef<number | null>(null)
   const [internalForm, setInternalForm] = useState<InternalFormState>(EMPTY_INTERNAL_FORM)
   const [externalForm, setExternalForm] = useState<ExternalFormState>(EMPTY_EXTERNAL_FORM)
   const [citizenForm, setCitizenForm] = useState<CitizenFormState>(EMPTY_CITIZEN_FORM)
 
-  useEffect(() => () => {
-    if (attachmentUploadDelayRef.current !== null) {
-      window.clearTimeout(attachmentUploadDelayRef.current)
-    }
-  }, [])
   // "Talep Oluştur"a basmadan mod seçimine (Geri) dönülünce girilen veriler temizlenir; tekrar
   // girildiğinde alanlar boş başlar. `kind` bir query param olduğundan seçim ekranına dönüşte bileşen
   // unmount olmaz ve state kalırdı; başka sayfaya gidildiğinde ise zaten unmount olup sıfırlanır.
@@ -763,27 +754,16 @@ export function CreateRequestPage() {
     if (pendingFiles.length === 0) return
 
     setAttachmentUploadProgress(0)
-    setShowAttachmentUploadProgress(false)
-    if (attachmentUploadDelayRef.current !== null) window.clearTimeout(attachmentUploadDelayRef.current)
-    const revealUploadProgress = () => setShowAttachmentUploadProgress(true)
-    attachmentUploadDelayRef.current = window.setTimeout(() => {
-      attachmentUploadDelayRef.current = null
-      revealUploadProgress()
-    }, ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS)
+    setShowAttachmentUploadProgress(true)
 
     try {
       for (const [index, file] of pendingFiles.entries()) {
         await api.uploadJobAttachment(jobId, file, fileProgress => {
-          revealUploadProgress()
           const overallProgress = Math.round(((index + fileProgress / 100) / pendingFiles.length) * 100)
           setAttachmentUploadProgress(overallProgress)
         })
       }
     } finally {
-      if (attachmentUploadDelayRef.current !== null) {
-        window.clearTimeout(attachmentUploadDelayRef.current)
-        attachmentUploadDelayRef.current = null
-      }
       setShowAttachmentUploadProgress(false)
       setAttachmentUploadProgress(0)
     }

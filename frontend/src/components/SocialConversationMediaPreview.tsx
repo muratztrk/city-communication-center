@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { Download } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { Button } from './ui/button'
@@ -25,8 +26,8 @@ export function SocialConversationMediaPreview({
 
   if (!open) return null
 
-  return (
-    <ModalBackdrop className="fixed inset-0 z-[300] flex items-center justify-center bg-black/80 p-4">
+  return createPortal(
+    <ModalBackdrop className="fixed inset-0 z-[400] flex items-center justify-center bg-black/80 p-4">
       <div
         className="relative flex max-h-[70vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-slate-950/95 shadow-2xl ring-1 ring-white/10"
         role="dialog"
@@ -60,6 +61,7 @@ export function SocialConversationMediaPreview({
           )}
         </div>
       </div>
-    </ModalBackdrop>
+    </ModalBackdrop>,
+    document.body,
   )
 }

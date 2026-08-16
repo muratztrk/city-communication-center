@@ -1,10 +1,7 @@
-import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMunicipalityDistrictId } from '../../hooks/useMunicipalityDistrictId'
 import { useIzmirCbsStreetNoCatalog } from '../../hooks/useIzmirCbsStreetNoCatalog'
 import { SingleSelectDropdown } from '../ui/single-select-dropdown'
-
-const MOBILE_MAX_WIDTH_MQ = '(max-width: 767px)'
 
 interface CbsStreetNoDropdownsProps {
   neighborhood: string
@@ -21,8 +18,6 @@ interface CbsStreetNoDropdownsProps {
   className?: string
   /** Cadde/No menü satır punto (ör. WA mahalle menüsü ile aynı). */
   menuScrollClassName?: string
-  /** Placeholder her zaman `Cadde seçiniz` (WA dar panel). */
-  shortStreetPlaceholder?: boolean
 }
 
 /** Cadde/Sokak + No: İzmir CBS kademeli dropdown (#2655). */
@@ -39,14 +34,12 @@ export function CbsStreetNoDropdowns({
   openUp = false,
   className,
   menuScrollClassName,
-  shortStreetPlaceholder = false,
 }: CbsStreetNoDropdownsProps) {
   const showCoordinates = typeof onCoordinatesChange === 'function'
   const rowClassName = showCoordinates
     ? 'address-street-no-row grid min-w-0 grid-cols-[minmax(0,1fr)_8.25rem_minmax(8.75rem,11rem)] gap-2'
     : (className ?? 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2')
   const { t } = useTranslation()
-  const [isMobile, setIsMobile] = useState(false)
   const districtId = useMunicipalityDistrictId()
   const hasNeighborhood = neighborhood.trim().length > 0
   const hasStreet = street.trim().length > 0
@@ -56,15 +49,6 @@ export function CbsStreetNoDropdowns({
     street,
     streetNo,
   )
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
-    const mq = window.matchMedia(MOBILE_MAX_WIDTH_MQ)
-    const sync = () => setIsMobile(mq.matches)
-    sync()
-    mq.addEventListener('change', sync)
-    return () => mq.removeEventListener('change', sync)
-  }, [])
 
   return (
     <div className={rowClassName}>
@@ -82,11 +66,7 @@ export function CbsStreetNoDropdowns({
             onStreetChange(nextStreet)
             onStreetNoChange('')
           }}
-          placeholder={
-            isMobile || shortStreetPlaceholder
-              ? t('address.streetSelectPlaceholderMobile', 'Cadde seçiniz')
-              : t('address.streetSelectPlaceholder', 'Cadde / sokak seçiniz')
-          }
+          placeholder={t('address.streetSelectPlaceholder', 'Cadde seçiniz')}
           searchPlaceholder={t('common.search', 'Ara...')}
           disabled={!hasNeighborhood || streetsLoading}
           clearable
@@ -119,7 +99,7 @@ export function CbsStreetNoDropdowns({
             type="text"
             inputMode="decimal"
             className="field-input min-w-0"
-            placeholder={t('address.coordinatesPlaceholder', 'ör. 38.08, 27.73')}
+            placeholder={t('address.coordinatesPlaceholder', 'Link giriniz...')}
             value={coordinates ?? ''}
             onChange={event => onCoordinatesChange?.(event.target.value)}
           />

@@ -1,5 +1,5 @@
-import { Download, Eye, FileText, Paperclip } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { Download, FileText, Paperclip } from 'lucide-react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
@@ -17,24 +17,13 @@ import {
 } from '../../utils/attachmentLimits'
 import { ConfirmDialog } from './confirm-dialog'
 import { SimpleImageAttachmentIcon } from './SimpleImageAttachmentIcon'
-import {
-  ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS,
-  AttachmentUploadProgressBar,
-} from './attachment-upload-progress'
-import { Button } from './button'
-import { SocialConversationMediaPreview } from '../SocialConversationMediaPreview'
+import { AttachmentUploadProgressBar } from './attachment-upload-progress'
+import { AttachmentImagePreviewButton } from './AttachmentImagePreviewButton'
 
 const MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
 function isImageFile(name: string): boolean {
   return ['.jpg', '.jpeg', '.png'].includes(attachmentFileExtension(name))
-}
-
-function mimeFromFileName(name: string): string {
-  const ext = attachmentFileExtension(name)
-  if (ext === '.jpg' || ext === '.jpeg') return 'image/jpeg'
-  if (ext === '.png') return 'image/png'
-  return 'application/octet-stream'
 }
 
 function getAttachmentIcon(fileName: string) {
@@ -63,31 +52,10 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
-  const [showUploadProgress, setShowUploadProgress] = useState(false)
-  const uploadProgressDelayRef = useRef<number | null>(null)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
-  const [preview, setPreview] = useState<{ url: string; mime: string; fileName: string } | null>(null)
-  const [previewingId, setPreviewingId] = useState<string | null>(null)
-
-  const clearUploadProgressDelay = () => {
-    if (uploadProgressDelayRef.current !== null) {
-      window.clearTimeout(uploadProgressDelayRef.current)
-      uploadProgressDelayRef.current = null
-    }
-  }
-
-  useEffect(() => () => {
-    if (uploadProgressDelayRef.current !== null) {
-      window.clearTimeout(uploadProgressDelayRef.current)
-    }
-  }, [])
-
-  useEffect(() => () => {
-    if (preview?.url) URL.revokeObjectURL(preview.url)
-  }, [preview?.url])
 
   const validate = (file: File): string | null => {
     if (!isAllowedAttachmentFileName(file.name)) {
@@ -119,23 +87,14 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
-    // Tek zamanlayıcı + dosyalar arası birleşik yüzde; ilk progress event veya 200 ms sonra bar görünür.
     const totalBytes = selectedFiles.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
     setUploading(true)
     setUploadProgress(0)
-    setShowUploadProgress(false)
-    clearUploadProgressDelay()
-    const revealUploadProgress = () => setShowUploadProgress(true)
-    uploadProgressDelayRef.current = window.setTimeout(() => {
-      uploadProgressDelayRef.current = null
-      revealUploadProgress()
-    }, ATTACHMENT_UPLOAD_PROGRESS_REVEAL_MS)
     try {
       for (const file of selectedFiles) {
         try {
           await onUpload?.(file, percent => {
-            revealUploadProgress()
             setUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
           })
         } catch (err) {
@@ -145,8 +104,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
         setUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)))
       }
     } finally {
-      clearUploadProgressDelay()
-      setShowUploadProgress(false)
       setUploading(false)
       setUploadProgress(0)
     }
@@ -166,34 +123,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     } finally {
       setDeletingId(null)
     }
-  }
-
-  const handlePreview = async (attachment: Attachment) => {
-    setValidationError(null)
-    setPreviewingId(attachment.attachmentId)
-    try {
-      const blob = await api.downloadAttachment(attachment.attachmentId)
-      const url = URL.createObjectURL(blob)
-      setPreview(current => {
-        if (current?.url) URL.revokeObjectURL(current.url)
-        return {
-          url,
-          mime: blob.type?.startsWith('image/') ? blob.type : mimeFromFileName(attachment.fileName),
-          fileName: attachment.fileName,
-        }
-      })
-    } catch (err) {
-      setValidationError(err instanceof Error ? err.message : t('attachments.downloadFailed', 'Ek indirilemedi.'))
-    } finally {
-      setPreviewingId(null)
-    }
-  }
-
-  const closePreview = () => {
-    setPreview(current => {
-      if (current?.url) URL.revokeObjectURL(current.url)
-      return null
-    })
   }
 
   const handleDownload = async (attachment: Attachment) => {
@@ -247,7 +176,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
             <Paperclip className="size-3.5 text-emerald-600" aria-hidden="true" />
             {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
           </button>
-          {uploading && showUploadProgress ? (
+          {uploading ? (
             <AttachmentUploadProgressBar progress={uploadProgress} className="mt-2" />
           ) : null}
           <input
@@ -296,19 +225,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                   {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : lowercaseFileExtension(att.fileName)}
                 </span>
               </button>
-              {isImageFile(att.fileName) ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="success"
-                  className="h-7 shrink-0 px-2 text-[11px]"
-                  disabled={previewingId === att.attachmentId}
-                  onClick={() => void handlePreview(att)}
-                >
-                  <Eye className="size-3.5" aria-hidden="true" />
-                  {t('attachments.preview', 'Önizle')}
-                </Button>
-              ) : null}
+              <AttachmentImagePreviewButton attachmentId={att.attachmentId} fileName={att.fileName} />
               {canShowDeleteActions && (
                 <button
                   type="button"
@@ -343,19 +260,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
               >
                 {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : att.fileName}
               </button>
-              {isImageFile(att.fileName) ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="success"
-                  className="h-7 shrink-0 px-2 text-[11px]"
-                  disabled={previewingId === att.attachmentId}
-                  onClick={() => void handlePreview(att)}
-                >
-                  <Eye className="size-3.5" aria-hidden="true" />
-                  {t('attachments.preview', 'Önizle')}
-                </Button>
-              ) : null}
+              <AttachmentImagePreviewButton attachmentId={att.attachmentId} fileName={att.fileName} />
               {canShowDeleteActions && (
                 <button
                   type="button"
@@ -401,19 +306,13 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                 <span className={`${compact ? 'line-clamp-1 text-[9px]' : 'line-clamp-2 text-[10px]'} break-all text-center font-normal leading-tight text-slate-900`}>{att.fileName}</span>
               </button>
               {isImageFile(att.fileName) ? (
-                <div className="px-1 pb-1">
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="success"
-                    className="h-7 w-full px-2 text-[11px]"
-                    disabled={previewingId === att.attachmentId}
-                    onClick={() => void handlePreview(att)}
-                  >
-                    <Eye className="size-3.5" aria-hidden="true" />
-                    {t('attachments.preview', 'Önizle')}
-                  </Button>
-                </div>
+              <div className="px-1 pb-1">
+                <AttachmentImagePreviewButton
+                  attachmentId={att.attachmentId}
+                  fileName={att.fileName}
+                  className="h-7 w-full px-2 text-[11px]"
+                />
+              </div>
               ) : null}
               <button
                 type="button"
@@ -459,20 +358,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
           onConfirm: () => void confirmDelete(),
         } : null}
         onClose={() => setPendingDeleteId(null)}
-      />
-      <SocialConversationMediaPreview
-        open={Boolean(preview)}
-        objectUrl={preview?.url ?? ''}
-        mime={preview?.mime ?? 'image/jpeg'}
-        filename={preview?.fileName ?? ''}
-        onClose={closePreview}
-        onDownload={() => {
-          if (!preview) return
-          const link = document.createElement('a')
-          link.href = preview.url
-          link.download = preview.fileName
-          link.click()
-        }}
       />
     </div>
   )

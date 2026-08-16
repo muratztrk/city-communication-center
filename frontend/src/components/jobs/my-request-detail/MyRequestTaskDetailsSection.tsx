@@ -2,6 +2,7 @@ import { FileText, Info, ListChecks } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
+import { AttachmentImagePreviewButton } from '../../ui/AttachmentImagePreviewButton'
 import { SimpleImageAttachmentIcon } from '../../ui/SimpleImageAttachmentIcon'
 import type { JobDetail } from '../../../types/platform'
 import { requestLocationFieldLabel } from '../../../utils/citizenRequests'
@@ -279,15 +280,21 @@ export function MyRequestTaskDetailsSection({
                               {task.attachments!.map(attachment => {
                                 const AttachmentIcon = getInlineAttachmentIcon(attachment.fileName)
                                 return (
+                                  <div key={attachment.attachmentId} className="inline-flex max-w-full items-center gap-1">
                                   <button
-                                    key={attachment.attachmentId}
                                     type="button"
-                                    className="inline-flex max-w-full items-center gap-1 text-[11px] text-blue-700 hover:text-blue-800"
+                                    className="inline-flex min-w-0 max-w-full items-center gap-1 text-[11px] text-blue-700 hover:text-blue-800"
                                     onClick={() => onDownloadTaskAttachment(attachment.attachmentId, attachment.fileName)}
                                   >
                                     <AttachmentIcon className="size-3 shrink-0" aria-hidden="true" />
                                     <span className="truncate">{lowercaseFileExtension(attachment.fileName)}</span>
                                   </button>
+                                  <AttachmentImagePreviewButton
+                                    attachmentId={attachment.attachmentId}
+                                    fileName={attachment.fileName}
+                                    className="h-6 shrink-0 px-1.5 text-[10px]"
+                                  />
+                                  </div>
                                 )
                               })}
                             </div>

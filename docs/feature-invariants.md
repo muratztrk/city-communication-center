@@ -244,7 +244,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   modunda AYNI görünür: iki kolon, bordersız satır, dosya adı **koyu mavi** `blue-700`
   (`#1d4ed8` / `rgb(29 78 216) !important`, ikon dahil); `!important` CSS kuralı utility layer'ı ezer.
   Görev Bilgileri satırında ikon/metin biraz küçük. İki satırı aşınca scroll. Rutin düzenleme geçmişi Önceki/Sonraki İSTİSNA: tam liste.
-  Görsel ek adının sağında WA ile aynı yeşil **Önizle** (Eye) vardır; indirmeden lightbox açılır (#2709).
+  Görsel ek adının sağında WA ile aynı yeşil **Önizle** (Eye) vardır; lightbox `document.body`
+  portal + `z-[400]` ile detay modalının üstünde açılır (#2709 reopen).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -277,7 +278,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`CreateJobCommand`, card #1079).
 - **Talep Oluştur ek yükleme ilerlemesi:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının
   seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar
-  ilk XHR progress event'inde veya 200 ms sonra görünür (hızlı yüklemelerde yanıp sönmez),
+  yükleme başlar başlamaz görünür (#2510).
   tüm dosyalar için birleşik yüzde gösterilir. Vatandaş create/edit akışı da seçili dosyaları
   oluşan job'a gerçekten yükler (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
@@ -293,8 +294,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   backend komut validasyonları da aynı sınırı korur (#2567/#2578).
   WhatsApp Vatandaş Bilgileri ve yazdırma çıktısında etiket `Adres Tarifi`; yazdırmada Cadde/Sokak
   altında ayrı `No` satırı vardır (#2586/#2588). Adres Tarifi placeholder:
-  `Mevki, daire, kat bilgisi giriniz...` (#2660/#2669). Cadde placeholder `Cadde / sokak seçiniz`
-  (masaüstü); mobilde `Cadde seçiniz` (#2697). No `No seçiniz` (#2669).
+  `Mevki, daire, kat bilgisi giriniz...` (#2660/#2669). Cadde placeholder her yerde
+  `Cadde seçiniz` (#2721). No `No seçiniz` (#2669). Konum Koordinatı placeholder
+  `Link giriniz...` (#2722).
 - **Adres metni yazımı:** Cadde / Sokak ve Açık Adres değerleri Türkçe locale kurallarıyla
   her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilir
   (`normalizeTitleCaseField` — onBlur + kayıt). Rutin görev detay Düzenle dahil tüm adres
@@ -314,9 +316,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanır: son görsel dengede 1.75rem/11px `Dosya ekle` solda, mevcut ekler sağ kart
   sınırına yaslıdır; bu scope Taleplerim/Talep Ekleri buton ölçüsünü değiştirmez
   (card #1601 sixth reopen).
-  Detay popup düzenleme yüzeylerindeki yükleme progress bar'ı ilk XHR progress event'inde veya
-  200 ms sonra görünür; daha hızlı yüklemelerde gösterge yanıp sönmez. XHR progress callback'i
-  korunur. Görevi Tamamla / Görevi İptal Et popup'larındaki `Dosya ekle` anlık yüklemesi de aynı
+  Detay popup düzenleme yüzeylerindeki yükleme progress bar'ı Dosya ekle seçilir seçilmez
+  görünür (#2510). XHR progress callback'i korunur. Görevi Tamamla / Görevi İptal Et popup'larındaki `Dosya ekle` anlık yüklemesi de aynı
   ortak progress bileşenini kullanır (card #1610).
   Düzenleme modundaki `rich-list` ekleri yatay sarılır; dosya kutusu border/zemin taşımaz, dosya
   adı mavi ve uzantısı küçük harftir. Yükleme butonu yalnız doğal genişliğini alır, liste kalan
@@ -1199,11 +1200,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Talep oluştur (iç/dış/vatandaş), vatandaş modal, rutin ve WA taslak adresinde Cadde/No
   textbox yok; CBS dropdown (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle satırı
   Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `8.25rem` sabit (cadde seçilince
-  değişmez, #2659/#2669).   Default Cadde placeholder `Cadde / sokak seçiniz`; mobilde
-  (`max-width: 767px`) `Cadde seçiniz` (#2697). WA Vatandaş Bilgileri’nde her zaman
-  `Cadde seçiniz`; Cadde/No menü punto mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
+  değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
+  Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
   No `No seçiniz`; listede **Yok** (#2714).
-  Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
+  Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713), placeholder `Link giriniz...` (#2722). Ayarlar CBS etiketlerinde Mahalle / Cadde / No yanında `(Veri Kontrolü)`
   (#2654/#2681). Mahalle kataloğu hâlâ
   statik `izmir-locations` + ilçe Theme’dir. Mahalle ve Cadde/Sokak dropdown etiketleri
   `toTitleCaseTr` (#2658).

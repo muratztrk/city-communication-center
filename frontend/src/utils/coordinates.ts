@@ -39,3 +39,14 @@ export function parseCoordinatePair(value: string): { latitude: number; longitud
 
   return null
 }
+
+/** Konum Koordinatı: yalnızca Google Maps linkinden pin (#2764). Düz "lat, lng" marker üretmez. */
+export function parseGoogleMapsCoordinatePair(value: string): { latitude: number; longitude: number } | null {
+  const trimmed = value.trim()
+  if (!trimmed) return null
+  const mapsLike = /google\.com\/maps|maps\.google\.|maps\.app\.goo\.gl|goo\.gl\/maps/i.test(trimmed)
+    || /@-?\d+(?:\.\d+)?,-?\d+/.test(trimmed)
+    || /!3d-?\d+(?:\.\d+)?!4d-?\d+/.test(trimmed)
+  if (!mapsLike) return null
+  return parseCoordinatePair(trimmed)
+}

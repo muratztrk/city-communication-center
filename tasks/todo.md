@@ -1,3 +1,9 @@
+## Round 935 — #2762/#2764/#2763
+
+- [x] `6a81cb9a` — Harita listesi Detaylar’da Konum (lat/lng) bloğu kaldırıldı.
+- [x] `6a81cd77` — No=Yok: marker yalnız Google Maps koordinatından; CBS cadde noktası yok.
+- [x] `6a81cd41` — Talep Oluştur Konum Koordinatı tooltip 200ms gecikmeli.
+
 ## Round 934 — #2666/#2758/#2640/#2760
 
 - [x] `6a804997` — Giden WA birim/ad siyah isteği geri alındı (yeşil balonda beyaz).

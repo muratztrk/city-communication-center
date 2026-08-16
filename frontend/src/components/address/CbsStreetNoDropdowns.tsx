@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useMunicipalityDistrictId } from '../../hooks/useMunicipalityDistrictId'
 import { useIzmirCbsStreetNoCatalog } from '../../hooks/useIzmirCbsStreetNoCatalog'
@@ -9,15 +10,21 @@ interface AddressCoordinatesFieldProps {
   labelClassName?: string
 }
 
-/** Konum Koordinatı: taşan metin ellipsis + hover tooltip (#2725). */
+/** Konum Koordinatı: taşan metin ellipsis + 200ms hover tooltip (#2725/#2763). */
 export function AddressCoordinatesField({
   value,
   onChange,
   labelClassName = 'text-sm font-semibold text-slate-500',
 }: AddressCoordinatesFieldProps) {
   const { t } = useTranslation()
+  const [showTip, setShowTip] = useState(false)
+  const tipTimerRef = useRef<number>(0)
+  const trimmed = value.trim()
+
+  useEffect(() => () => window.clearTimeout(tipTimerRef.current), [])
+
   return (
-    <div className="group relative grid min-w-0 gap-1">
+    <div className="relative grid min-w-0 gap-1">
       <span className={labelClassName}>{t('address.coordinatesLabel', 'Konum Koordinatı')}</span>
       <input
         type="text"
@@ -25,15 +32,23 @@ export function AddressCoordinatesField({
         className="field-input min-w-0 overflow-hidden text-ellipsis whitespace-nowrap text-[12px]"
         placeholder={t('address.coordinatesPlaceholder', 'Link giriniz...')}
         value={value}
-        title={value.trim() || undefined}
         onChange={event => onChange(event.target.value)}
+        onMouseEnter={() => {
+          window.clearTimeout(tipTimerRef.current)
+          if (!trimmed) return
+          tipTimerRef.current = window.setTimeout(() => setShowTip(true), 200)
+        }}
+        onMouseLeave={() => {
+          window.clearTimeout(tipTimerRef.current)
+          setShowTip(false)
+        }}
       />
-      {value.trim() ? (
+      {trimmed && showTip ? (
         <span
           role="tooltip"
-          className="pointer-events-none absolute left-0 top-[calc(100%+0.2rem)] z-[80] hidden max-w-[min(24rem,70vw)] break-all rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium leading-snug text-white shadow-lg group-hover:block"
+          className="pointer-events-none absolute left-0 top-[calc(100%+0.2rem)] z-[80] max-w-[min(24rem,70vw)] break-all rounded-md bg-slate-900 px-2.5 py-1.5 text-[11px] font-medium leading-snug text-white shadow-lg"
         >
-          {value.trim()}
+          {trimmed}
         </span>
       ) : null}
     </div>

@@ -82,6 +82,8 @@ export interface MyRequestDetailModalProps {
   citizenOutboundMessage?: string | null
   /** Mesajı Gönder anındaki onay notu — Tamamlama Notu (#2528). */
   citizenApprovalReleasedNote?: string | null
+  /** Harita listesi Detaylar: lat/lng "Konum" bloğu gösterilmez (#2762). */
+  hideLocationCoords?: boolean
 }
 
 export function MyRequestDetailModal({
@@ -145,6 +147,7 @@ export function MyRequestDetailModal({
   shellClassName,
   citizenOutboundMessage,
   citizenApprovalReleasedNote,
+  hideLocationCoords = false,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
 
@@ -295,7 +298,7 @@ export function MyRequestDetailModal({
 
         {detailLoading && <div className="loading">{t('common.loading')}</div>}
 
-        {detail.latitude != null && detail.longitude != null && (
+        {detail.latitude != null && detail.longitude != null && !hideLocationCoords && (
           <section className="mb-5">
             <h3 className="job-detail-section-title mb-2">
               {t('location.mapSectionTitle', 'Konum')}

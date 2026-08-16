@@ -399,9 +399,19 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     setResolving(true)
     void (async () => {
       const geocoded = (await Promise.all(mappable.map(async pin => {
+        // No=Yok: yalnızca Google Maps’ten çözülmüş koordinat; CBS cadde noktası yok (#2764/#2718).
+        if (isAbsentStreetNo(pin.streetNo)) {
+          if (!hasCoordinates(pin)) return null
+          return {
+            ...pin,
+            position: { lat: pin.latitude as number, lng: pin.longitude as number },
+            approximate: true,
+          } satisfies ResolvedPin
+        }
+
         const useCoordinatePin = hasCoordinates(pin)
-          && (isAbsentStreetNo(pin.streetNo)
-            || (!normalizeAddressPart(pin.neighborhood) && !normalizeAddressPart(pin.street)))
+          && !normalizeAddressPart(pin.neighborhood)
+          && !normalizeAddressPart(pin.street)
         if (useCoordinatePin) {
           return {
             ...pin,
@@ -890,6 +900,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
                 sourceChannel: citizenSourceMessage?.channel,
               })}
               showManagerNoteColumn={false}
+              hideLocationCoords
               canEditManagerNote={false}
               canManageCoordination={false}
               managerNoteDraft=""

@@ -42,7 +42,7 @@ import {
   normalizeTitleCaseField,
 } from '../utils/textNormalization'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
-import { formatCoordinatePair, parseCoordinatePair } from '../utils/coordinates'
+import { formatCoordinatePair, parseGoogleMapsCoordinatePair } from '../utils/coordinates'
 import {
   ATTACHMENT_FILE_ACCEPT,
   attachmentFileExtension,
@@ -157,7 +157,7 @@ const OWNER_TASK_NOTES_PREFIX = 'ccc:owner-task-request:v1:'
 function coordinatesFromForm(raw: string | null | undefined): { latitude?: number; longitude?: number } {
   const trimmed = raw?.trim() ?? ''
   if (!trimmed) return {}
-  return parseCoordinatePair(trimmed) ?? {}
+  return parseGoogleMapsCoordinatePair(trimmed) ?? {}
 }
 
 function getRequestedOwnerUserIds(

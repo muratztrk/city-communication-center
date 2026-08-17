@@ -54,6 +54,9 @@ export function parseCoordinatePair(value: string): { latitude: number; longitud
   const query = trimmed.match(/[?&#](?:q|query|ll|center|destination)=(-?\d+(?:\.\d+)?)(?:%2C|,|\+)(-?\d+(?:\.\d+)?)/i)
   if (query) return finitePair(query[1], query[2])
 
+  const path = trimmed.match(/\/maps\/(?:search|dir)\/(-?\d+(?:\.\d+)?)(?:%2C|,|\+)(-?\d+(?:\.\d+)?)/i)
+  if (path) return finitePair(path[1], path[2])
+
   return null
 }
 

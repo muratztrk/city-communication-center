@@ -8,6 +8,7 @@ public sealed class GoogleMapsCoordinateParserTests
     [InlineData("https://www.google.com/maps/@38.089012,27.735011,17z", 38.089012, 27.735011)]
     [InlineData("https://www.google.com.tr/maps/@38.089012,27.735011,17z", 38.089012, 27.735011)]
     [InlineData("https://www.google.com/maps?q=38.089012,27.735011", 38.089012, 27.735011)]
+    [InlineData("https://www.google.com/maps/search/38.089012,27.735011", 38.089012, 27.735011)]
     [InlineData("https://maps.app.goo.gl/abc", null, null)]
     public void TryParse_ExtractsCoordinatesFromMapsUrls(string input, double? expectedLat, double? expectedLng)
     {

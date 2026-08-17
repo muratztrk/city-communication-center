@@ -24,6 +24,10 @@ public static class GoogleMapsCoordinateParser
         @"[?&#](?:q|query|ll|center|destination)=(-?\d+(?:\.\d+)?)(?:%2C|,|\+)(-?\d+(?:\.\d+)?)",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
+    private static readonly Regex PathPair = new(
+        @"/maps/(?:search|dir)/(-?\d+(?:\.\d+)?)(?:%2C|,|\+)(-?\d+(?:\.\d+)?)",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
     private static readonly Regex MapsHost = new(
         @"(?:maps\.app\.goo\.gl|goo\.gl/maps|maps\.google\.|(?:www\.)?google(?:\.[a-z]{2,3})+/maps)",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -62,6 +66,9 @@ public static class GoogleMapsCoordinateParser
 
         var query = QueryPair.Match(value);
         if (query.Success) return FinitePair(query.Groups[1].Value, query.Groups[2].Value);
+
+        var path = PathPair.Match(value);
+        if (path.Success) return FinitePair(path.Groups[1].Value, path.Groups[2].Value);
 
         var plain = PlainPair.Match(value.Trim());
         if (plain.Success) return FinitePair(plain.Groups[1].Value, plain.Groups[2].Value);

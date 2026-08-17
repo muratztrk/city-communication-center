@@ -23,7 +23,7 @@ import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 import { getLocale } from '../utils/localization'
 import { geocodeTireAddress, type LatLng } from '../utils/geocodeTireAddress'
 import { isAbsentStreetNo } from '../utils/addressLimits'
-import { streetNoFromGoogleMaps } from '../utils/googleMapsReverseGeocode'
+import { resolveGoogleMapsCoordinatePair, streetNoFromGoogleMaps } from '../utils/googleMapsReverseGeocode'
 import { getDistrictMapView } from '../data/izmir-district-maps'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { getGoogleMapsApiKey, isGoogleMapsConfigured } from '../utils/googleMaps'
@@ -213,7 +213,13 @@ function hasCompleteCbsAddress(pin: CitizenDashboardMapPin): boolean {
     && !isAbsentStreetNo(pin.streetNo)
 }
 
+function hasMapsLocationUrl(pin: CitizenDashboardMapPin): boolean {
+  return Boolean(pin.locationMapsUrl?.trim())
+}
+
 function hasMappableAddress(pin: CitizenDashboardMapPin, allowNeighborhood = false): boolean {
+  // Konum linki tek başına yeter; lat/lng kayıtlı olmasa da link çözülür (#2782).
+  if (hasMapsLocationUrl(pin)) return true
   // No=Yok ve koordinat yoksa pin yok; Haritada Olmayanlar listesine düşer (#2718).
   if (isAbsentStreetNo(pin.streetNo) && !hasCoordinates(pin)) return false
   if (hasCoordinates(pin)) return true
@@ -402,8 +408,36 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     setResolving(true)
     void (async () => {
       const geocoded = (await Promise.all(mappable.map(async pin => {
+        // LocationMapsUrl: pin link koordinatındadır; kayıtlı lat/lng yoksa link çözülür (#2770/#2782).
+        if (hasMapsLocationUrl(pin)) {
+          let latitude = pin.latitude
+          let longitude = pin.longitude
+          if (latitude == null || longitude == null) {
+            const fromLink = await resolveGoogleMapsCoordinatePair(pin.locationMapsUrl as string)
+            if (fromLink) {
+              latitude = fromLink.latitude
+              longitude = fromLink.longitude
+            } else {
+              const fromPlace = await api.resolveMapsAddressFromLink(
+                pin.locationMapsUrl as string,
+                mapView.districtId,
+              )
+              if (fromPlace) {
+                latitude = fromPlace.latitude
+                longitude = fromPlace.longitude
+              }
+            }
+          }
+          if (latitude == null || longitude == null) return null
+          return {
+            ...pin,
+            position: { lat: latitude, lng: longitude },
+            approximate: true,
+          } satisfies ResolvedPin
+        }
+
         // No=Yok: yalnızca Google Maps’ten çözülmüş koordinat; CBS cadde noktası yok (#2764/#2718).
-        if (isAbsentStreetNo(pin.streetNo) || pin.locationMapsUrl?.trim()) {
+        if (isAbsentStreetNo(pin.streetNo)) {
           if (!hasCoordinates(pin)) return null
           return {
             ...pin,

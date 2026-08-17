@@ -1,3 +1,7 @@
+## Round 954 — #2782
+
+- [x] `6a82a572` — T-2026-620: Konum Maps linki varken harita pini (kayıtlı lat/lng olmasa da link çözülür).
+
 ## Round 953 — #2778
 
 - [x] `6a822326` — Görev popup İlgili Talep Adres Tarifi/Mahalle aynı sol düşey hizada (ortalı etiket kayması giderildi).

@@ -1,3 +1,33 @@
+## Round 987 — #2813/#2814/#2815/#2807 reopen
+- [x] `6a8347ef` — İlgili Talep Detayları: Öncelik satırı kaldırıldı (`hidePriorityRow`).
+- [x] `6a834813` — İlgili Görev Detayları: Görev Bilgileri Öncelik kaldırıldı.
+- [x] `6a83482e` — Detay popup altındaki Konum+koordinat bloğu kaldırıldı.
+- [x] `6a8336aa` — VT/CRM anasayfa dört kutucuk flex tek satır (yönetici alt satır düzeni).
+
+## Round 986 — #2800/#2812 (VT İşleme Alındı + kart sayısı)
+- [x] `6a832a18` — İşleme Alındı gecikmede turuncu değil (turkuaz pill).
+- [x] `6a834688` — VT Onay Bekleyen kutusu sayısı = processing-received grid.
+
+## Round 985 — #2809/#2807 reopen
+- [x] `6a833b3d` — Yönetici Notu başlığından * kaldırıldı (maxLength 100 duruyor).
+- [x] `6a8336aa` — VT CRM anasayfa dört kutucuk `sm:grid-cols-4`.
+
+## Round 984 — #2811 (yönetici kutucuk sırası)
+- [x] `6a83429d` — Üst: Birimdeki + Bekleyen/Geciken Görevlerim; alt: VT + Bekleyen/Geciken Taleplerim.
+
+## Round 983 — #2805–#2810 (dashboard + detay + geri)
+- [x] `6a8332a3` — VT İşleme Alındı gecikmede aynı durum.
+- [x] `6a8332c0` — Geri: sayfa içi chip geçmişi replace.
+- [x] `6a8336aa` — VT operatör/CRM anasayfa 4'lü grid.
+- [x] `6a833895` — Yönetici 3 metrik kutu kaldırıldı.
+- [x] `6a833b3d` — Yönetici Notu başlık (max hint silindi, limit 100).
+- [x] `6a833b9d` — Görev detay Normal öncelik yeşil değil.
+
+## Round 982 — #2800/#2801/#2804 reopen (bekleyen sayı = grid)
+- [x] `6a832a18` — Yönetici Bekleyen Taleplerim pie = external-pending grid (PendingExternalApproval / Active+0 görev).
+- [x] `6a832a8d` — Personel Bekleyen Taleplerim pie pending (geciken hariç) — zaten hizalı, doğrulandı.
+- [x] `6a8331ec` — Bekleyen Görevlerim pie pending + `/my-tasks?view=pending` (geciken ayrı kutuda).
+
 ## Round 981 — #2802/#2803 (Geciken Taleplerim/Görevlerim kutuları)
 - [x] `6a832c26` / `6a832c2e` — Anasayfa overdue metrik kutuları; pie overdue + Taleplerim/Görevlerim grid.
 

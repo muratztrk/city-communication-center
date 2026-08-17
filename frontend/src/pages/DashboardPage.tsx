@@ -793,13 +793,23 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           </div>
         ) : (
           <div className="px-5 py-3.5 sm:px-8">
-            <div className={`mx-auto grid gap-x-12 gap-y-2 ${staffMetricGridClass}`}>
-              {dashboardQuery.isLoading
-                ? Array.from({ length: useStaffMetricFourCol ? 4 : 2 }).map((_, i) => (
-                    <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
-                  ))
-                : staffMetrics.map(renderCard)}
-            </div>
+            {useStaffMetricFourCol && staffMetrics.length >= 4 ? (
+              <div className="mx-auto flex max-w-7xl flex-wrap justify-center gap-x-12 gap-y-2 [&>button]:w-full [&>button]:min-w-[15.5rem] [&>button]:sm:max-w-[calc((100%-3rem)/2)] [&>button]:lg:max-w-[calc((100%-9rem)/4)]">
+                {dashboardQuery.isLoading
+                  ? Array.from({ length: 4 }).map((_, i) => (
+                      <div key={i} className="h-[72px] w-full min-w-[15.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:max-w-[calc((100%-3rem)/2)] lg:max-w-[calc((100%-9rem)/4)]" />
+                    ))
+                  : staffMetrics.map(renderCard)}
+              </div>
+            ) : (
+              <div className={`mx-auto grid gap-x-12 gap-y-2 ${staffMetricGridClass}`}>
+                {dashboardQuery.isLoading
+                  ? Array.from({ length: useStaffMetricFourCol ? 4 : 2 }).map((_, i) => (
+                      <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
+                    ))
+                  : staffMetrics.map(renderCard)}
+              </div>
+            )}
           </div>
         )}
       </section>

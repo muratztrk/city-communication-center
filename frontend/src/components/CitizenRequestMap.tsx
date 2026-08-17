@@ -954,7 +954,6 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
                 sourceChannel: citizenSourceMessage?.channel,
               })}
               showManagerNoteColumn={false}
-              hideLocationCoords
               canEditManagerNote={false}
               canManageCoordination={false}
               managerNoteDraft=""

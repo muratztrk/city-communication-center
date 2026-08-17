@@ -3170,17 +3170,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
             </section>}
 
-            {detail.latitude != null && detail.longitude != null && (
-              <section className="mb-5">
-                <h3 className="mb-2 text-sm font-bold uppercase tracking-wide text-slate-700">
-                  {t('location.mapSectionTitle', 'Konum')}
-                </h3>
-                <p className="text-xs text-slate-500">
-                  {detail.latitude.toFixed(6)}, {detail.longitude.toFixed(6)}
-                </p>
-              </section>
-            )}
-
             {showWorkflowSections && <section className="mb-5">
               <div className="flex items-center justify-between mb-2">
                 <h3 className="text-sm font-bold uppercase tracking-wide text-slate-700">{t('jobs.detail.tasks')}</h3>

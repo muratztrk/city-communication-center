@@ -2965,6 +2965,7 @@ const pageKicker = isMyTasksView
                           detail={parentJobDetail}
                           t={t}
                           separatePriorityProjectRows
+                          hidePriorityRow
                           extraTrailingRows={isEditingThisParentJob ? undefined : [
                             ...((parentJobDetail.attachments?.length ?? 0) > 0
                               ? [{

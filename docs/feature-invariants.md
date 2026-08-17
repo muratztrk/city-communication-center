@@ -1548,7 +1548,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Taleplerim → Geciken Taleplerim (Kurum İçi modülü açıkken). Birime Gelen / Birimden Giden
   kutuları kaldırıldı (#2808).
 - **VT operatör/CRM anasayfa kutucuk grid (#2807 reopen):** Operator veya CitizenRequestManager
-  (veya Staff+Operator ek rol) dört kutucukta `sm:grid-cols-4` tek satır (2×2 değil).
+  (veya Staff+Operator ek rol) dört kutucukta yönetici alt satırıyla aynı flex düzeni — tek satır
+  yan yana (`lg:max-w-[calc((100%-9rem)/4)]`), 2×2 değil. Sıra: Bekleyen Görevlerim → Geciken
+  Görevlerim → Bekleyen Taleplerim → Geciken Taleplerim.
 - **Personel/Operatör anasayfa kutucuk sırası (#6a75bf14):** Bekleyen Görevlerim → Bekleyen Taleplerim.
 - **Bekleyen Görevlerim kart sayısı (#6a75c274 / #2804 reopen):** pie `dashboard.chart.pending`
   dilimi (geciken hariç); tıklanınca `/my-tasks?view=pending`. `myPendingTaskCount` yalnızca

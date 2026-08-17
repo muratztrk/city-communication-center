@@ -71,8 +71,10 @@ export const queryKeys = {
   },
   notifications: {
     all: ['ccc', 'notifications'] as const,
-    list: () => ['ccc', 'notifications', 'list'] as const,
-    unreadCount: () => ['ccc', 'notifications', 'unread-count'] as const,
+    list: (activeDepartmentId?: string | null) =>
+      ['ccc', 'notifications', 'list', activeDepartmentId ?? 'none'] as const,
+    unreadCount: (activeDepartmentId?: string | null) =>
+      ['ccc', 'notifications', 'unread-count', activeDepartmentId ?? 'none'] as const,
   },
   reports: {
     all: ['ccc', 'reports'] as const,

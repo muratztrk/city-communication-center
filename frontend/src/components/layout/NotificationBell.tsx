@@ -1,5 +1,5 @@
 import { Bell, CheckCheck, Search, X } from 'lucide-react'
-import { useState, useCallback, useEffect, useRef, type ReactNode } from 'react'
+import { useState, useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -156,7 +156,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   }, [queryClient, user?.userId])
 
   const unreadQuery = useQuery({
-    queryKey: [...queryKeys.notifications.unreadCount(), activeDeptId],
+    queryKey: queryKeys.notifications.unreadCount(activeDeptId),
     queryFn: () => api.getUnreadNotificationCount(),
     enabled: Boolean(user?.userId),
     refetchInterval: 30000,
@@ -164,14 +164,21 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   })
 
   const notifQuery = useQuery({
-    queryKey: [...queryKeys.notifications.list(), activeDeptId],
+    queryKey: queryKeys.notifications.list(activeDeptId),
     queryFn: () => api.getNotifications(),
-    enabled: Boolean(user?.userId) && (isOpen || isModalOpen),
+    enabled: Boolean(user?.userId),
+    staleTime: 60_000,
+    refetchInterval: 60_000,
     refetchOnMount: 'always',
   })
 
   const notifications = notifQuery.data ?? []
-  const unreadCount = unreadQuery.data ?? 0
+  const apiUnreadCount = unreadQuery.data ?? 0
+  const listUnreadCount = useMemo(
+    () => notifications.filter(notification => !notification.isRead && !viewedNotificationIds.has(notification.notificationId)).length,
+    [notifications, viewedNotificationIds],
+  )
+  const unreadCount = notifQuery.data != null ? Math.max(apiUnreadCount, listUnreadCount) : apiUnreadCount
   const displayNotifications = notifications.map(notification => ({
     ...notification,
     title: localizeNotificationText(notification.title),
@@ -276,8 +283,11 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
     markingNotificationIdsRef.current.add(id)
 
     setViewedNotificationIds(prev => new Set(prev).add(id))
-    queryClient.setQueryData<number>(queryKeys.notifications.unreadCount(), current => Math.max(0, (current ?? 0) - 1))
-    queryClient.setQueryData<AppNotification[]>(queryKeys.notifications.list(), current =>
+    queryClient.setQueryData<number>(
+      queryKeys.notifications.unreadCount(activeDeptId),
+      current => Math.max(0, (current ?? 0) - 1),
+    )
+    queryClient.setQueryData<AppNotification[]>(queryKeys.notifications.list(activeDeptId), current =>
       current?.map(notification => notification.notificationId === id ? { ...notification, isRead: true } : notification),
     )
 
@@ -361,21 +371,19 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
       </div>
 
       {/* Bell button + dropdown */}
-      <div className="relative" ref={dropdownRef}>
+      <div className="relative overflow-visible" ref={dropdownRef}>
         <button
           type="button"
-          className="relative flex size-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 shadow-sm transition-colors hover:border-[color:var(--color-primary)]/40 hover:bg-[color:var(--color-primary)]/8 hover:text-[color:var(--color-primary)]"
+          className="relative flex size-9 items-center justify-center overflow-visible rounded-full border border-slate-200 bg-slate-50 text-slate-500 shadow-sm transition-colors hover:border-[color:var(--color-primary)]/40 hover:bg-[color:var(--color-primary)]/8 hover:text-[color:var(--color-primary)]"
           onClick={() => setIsOpen(prev => !prev)}
           aria-label={t('notifications.bell', 'Bildirimler')}
         >
-          <span className="relative inline-flex">
-            <Bell className="size-4" />
-            {unreadCount > 0 && (
-              <span className="pointer-events-none absolute -right-3.5 -top-3.5 flex h-[1.15rem] min-w-[1.15rem] items-center justify-center rounded-full bg-red-600 px-1 text-[0.7rem] font-black leading-none tabular-nums text-white shadow-sm ring-2 ring-white">
-                {unreadCount > 99 ? '99+' : unreadCount}
-              </span>
-            )}
-          </span>
+          <Bell className="size-4" />
+          {unreadCount > 0 && (
+            <span className="notification-bell-badge">
+              {unreadCount > 99 ? '99+' : unreadCount}
+            </span>
+          )}
         </button>
 
         {isOpen && (

@@ -1,3 +1,6 @@
+## Round 977 — #2793 (bildirim zili rozeti)
+- [x] `6a82c8d0` — Zil rozeti overflow + query key düzeltmesi; liste/API uyumlu sayı.
+
 ## Round 976 — #2799 (yeniden)
 - [x] `6a830066` — Yalnız cadde/sokak/bulvar; POI ve transit kapalı (#975 geri alındı).
 

@@ -4,7 +4,9 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { invalidateNotifications } from '../api/cacheInvalidation'
+import { getActiveDepartmentId } from '../api/http'
 import { queryKeys } from '../api/queryKeys'
+import { useAuth } from '../context/AuthContext'
 import { getLocale } from '../utils/localization'
 import {
   OPEN_NOTIFICATION_DETAIL_EVENT,
@@ -16,13 +18,15 @@ import type { AppNotification } from '../types/platform'
 
 export function DashboardNotificationsCard() {
   const { t, i18n } = useTranslation()
+  const { user } = useAuth()
   const locale = getLocale(i18n.language)
   const queryClient = useQueryClient()
+  const activeDeptId = getActiveDepartmentId(user?.userId)
   const markingNotificationIdsRef = useRef<Set<string>>(new Set())
   const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
 
   const notifQuery = useQuery({
-    queryKey: queryKeys.notifications.list(),
+    queryKey: queryKeys.notifications.list(activeDeptId),
     queryFn: () => api.getNotifications(),
     refetchInterval: 60_000,
     staleTime: 30_000,
@@ -42,8 +46,11 @@ export function DashboardNotificationsCard() {
     markingNotificationIdsRef.current.add(id)
 
     setViewedNotificationIds(prev => new Set(prev).add(id))
-    queryClient.setQueryData<number>(queryKeys.notifications.unreadCount(), current => Math.max(0, (current ?? 0) - 1))
-    queryClient.setQueryData<AppNotification[]>(queryKeys.notifications.list(), current =>
+    queryClient.setQueryData<number>(
+      queryKeys.notifications.unreadCount(activeDeptId),
+      current => Math.max(0, (current ?? 0) - 1),
+    )
+    queryClient.setQueryData<AppNotification[]>(queryKeys.notifications.list(activeDeptId), current =>
       current?.map(notification => notification.notificationId === id ? { ...notification, isRead: true } : notification),
     )
 

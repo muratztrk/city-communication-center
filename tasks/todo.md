@@ -1,3 +1,6 @@
+## Round 968 — #2797 (geri al)
+- [x] `6a82e63c` — CBS referans overlay kaldırıldı (kart isteği geri alındı).
+
 ## Round 967 — #2797
 - [x] `6a82e63c` — CBS referans yerleri (filtreli katman+isim); zoom≥14 yükleme, kategori ikonlar.
 

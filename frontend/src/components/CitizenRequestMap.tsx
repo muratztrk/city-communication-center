@@ -51,10 +51,21 @@ function pinColor(displayStatus: string, variant: 'citizen' | 'department'): str
   return palette[displayStatus] ?? palette.inProgress
 }
 
-/** Cadde/sokak/bulvar açık; POI ve transit kapalı — yalnız yol isimleri (#2799). */
+/** Cadde/sokak/bulvar açık; kamusal POI Google native; ticari/kafe kapalı; CBS overlay yok (#2796). */
 const REQUEST_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi.attraction', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi.school', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.medical', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.place_of_worship', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.government', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.park', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.sports_complex', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.cemetery', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.lodging', stylers: [{ visibility: 'on' }] },
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit.station', stylers: [{ visibility: 'on' }] },
   { featureType: 'administrative.land_parcel', stylers: [{ visibility: 'off' }] },
 ]
 

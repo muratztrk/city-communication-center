@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, type LucideIcon } from 'lucide-react'
 import { Fragment, useCallback, useEffect, useMemo, useState } from 'react'
 import { prefetchRouteChunk } from '../../app/routePrefetch'
 import { cn } from '../../lib/cn'
+import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 
 const PAGE_SIZE = 10
 
@@ -138,7 +139,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
             <span className={cn('inline-flex min-w-0 max-w-full items-center gap-1.5', item.multilineLabel ? 'leading-snug' : '')}>
               {(() => {
                 const lines = item.label.split('\n')
-                const badgeLabel = item.badgeCount > 99 ? '99+' : String(item.badgeCount)
+                const badgeLabel = formatBadgeCount(item.badgeCount)
                 const firstLine = lines[0] ?? item.label
                 const restLines = lines.slice(1)
                 if (item.multilineLabel && restLines.length > 0) {

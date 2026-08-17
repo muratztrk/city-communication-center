@@ -1,3 +1,6 @@
+## Round 996 — #2827 (badge sayıları tam gösterim)
+- [x] `6a836a52` — `99+` kısaltması kaldırıldı; sol menü, zil, WA/İç mesaj FAB, scope chip rozetleri tam sayı.
+
 ## Round 995 — #2820/#2823/#2825/#2826 (Birime Gelen nav + Onaylanmış grid)
 - [x] `6a83549f` — Sol menü Birime Gelen badge = Onay Bekleyen grid (`useIncomingPendingApprovalCount`).
 - [x] `6a835b70` — Nav sayısı Onay Bekleyen grid ile hizalı (dashboard `pendingApprovalCount` değil).

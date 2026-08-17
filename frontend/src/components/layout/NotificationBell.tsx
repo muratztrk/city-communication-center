@@ -11,6 +11,7 @@ import type { AppNotification, JobDetail, TaskDetail } from '../../types/platfor
 import type { NotificationPayload } from '../../hooks/useSignalR'
 import { useSignalR } from '../../hooks/useSignalR'
 import { getLocale } from '../../utils/localization'
+import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 import { useAuth } from '../../context/AuthContext'
 import { TablePagination } from '../ui/table-pagination'
 import { DateTimePicker } from '../ui/date-time-picker'
@@ -381,7 +382,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
           <Bell className="size-4" />
           {unreadCount > 0 && (
             <span className="notification-bell-badge">
-              {unreadCount > 99 ? '99+' : unreadCount}
+              {formatBadgeCount(unreadCount)}
             </span>
           )}
         </button>

@@ -10,6 +10,7 @@ import type { CitizenConversationSummary } from '../../types/platform'
 import { formatConversationDisplayContent } from '../../utils/socialConversationContent'
 import { formatConversationListTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
+import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 import { getWhatsAppFabUnreadCount, isAutomaticOutboundConversation } from '../../utils/whatsappFabNotification'
 import { matchesPhone } from '../../utils/phoneNormalization'
 import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
@@ -29,11 +30,6 @@ function formatPhone(phone: string): string {
     return `+90 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10)}`
   }
   return `+${digits}`
-}
-
-function formatBadgeCount(count: number) {
-  if (count > 99) return '99+'
-  return String(count)
 }
 
 function normalizeDisplayName(value?: string | null): string {

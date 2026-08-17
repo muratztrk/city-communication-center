@@ -20,6 +20,7 @@ import { SocialConversationMediaPreview } from '../SocialConversationMediaPrevie
 import { formatConversationDayDivider } from '../../utils/conversationDayLabel'
 import { formatConversationListTime, formatConversationMessageTime } from '../../utils/conversationListTime'
 import { getLocale } from '../../utils/localization'
+import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 import { TablePagination } from '../ui/table-pagination'
 import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../../utils/attachmentLimits'
@@ -70,10 +71,6 @@ function toRow(conversation: InternalConversationSummary): MessageRow {
     lastMessageSenderUserId: conversation.lastMessageSenderUserId,
     unreadCount: conversation.unreadCount,
   }
-}
-
-function formatBadgeCount(count: number) {
-  return count > 99 ? '99+' : String(count)
 }
 
 function areConversationDetailsEqual(left: InternalConversationDetail | null, right: InternalConversationDetail) {

@@ -62,6 +62,7 @@ import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobsPage } from './JobsPage'
 import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '../utils/roleAccess'
+import { matchesIncomingStatusFilter } from '../utils/incomingRequestGrid'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { isJobDueDateOverdue, toDateTimePickerValue, toLocalDateKey } from '../utils/dateTimePicker'
 
@@ -240,73 +241,12 @@ function getIncomingStatusFilter(value: string | null): IncomingStatusFilter {
     : 'pending-approval'
 }
 
-function isCitizenProcessingReceivedRow(row: IncomingRequestRow): boolean {
-  if (!row.isCitizenRequest) return false
-  return isCitizenProcessingReceivedState({
-    status: row.status,
-    dueDateUtc: row.dueDateUtc,
-    taskCount: row.taskCount,
-  })
+function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilter): boolean {
+  return matchesIncomingStatusFilter(row, filter)
 }
 
 function getIncomingKindFilter(): IncomingKindFilter {
   return 'all'
-}
-
-function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilter): boolean {
-  if (filter === 'all') return true
-  const isOverdue = isJobDueDateOverdue(row)
-  const isClosed = row.status === 'Completed' || row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
-
-  if (filter === 'pending-approval') {
-    // Sahip onay bekler (Talebin Birim Yöneticisinin Onay Tarihi = Onay Bekleyen) + personel ataması bekler.
-    // Hedef onay bekleyen (Talebi Gerçekleştiren = Onay Bekleyen) → Onaylanmış (#2823).
-    // VT İşleme Alındı yalnız sahip onayı beklerken Onay Bekleyen'de; sahip onaylı → Onaylanmış.
-    const ownerApprovalPending = row.status === 'PendingOwnerApproval' || row.status === 'PendingApproval'
-    const citizenProcessingBeforeOwnerApproval = isCitizenProcessingReceivedRow(row) && !row.ownerApprovedAtUtc
-    return ownerApprovalPending
-      || row.assignTargetDepartmentId != null
-      || citizenProcessingBeforeOwnerApproval
-  }
-
-  if (filter === 'processing-received') {
-    return isCitizenProcessingReceivedRow(row)
-  }
-
-  // Onaylanmış: yönetici onayladığı tüm talepler — durum sonra değişse bile kalır (card #1697).
-  if (filter === 'approved') {
-    return row.approvedAtUtc != null
-  }
-
-  if (filter === 'overdue') return !isClosed && isOverdue
-  if (isOverdue && !isClosed) return false
-
-  if (filter === 'completed') {
-    return row.status === 'Completed'
-  }
-
-  if (filter === 'cancelled') {
-    return row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
-  }
-
-  const taskCount = row.taskCount ?? 0
-  const isActiveJob = row.statusDomain === 'job' && row.status === 'Active'
-  const isInProgressTask = row.statusDomain === 'task' && (
-    row.status === 'Waiting'
-    || row.status === 'Assigned'
-    || row.status === 'InProgress'
-    || row.status === 'PendingCloseApproval'
-  )
-
-  // Personel ataması bekleyenler Onay Bekleyen'de; Yapılmakta'da tekrar etmesin.
-  if (row.assignTargetDepartmentId != null) return false
-
-  // Yapılmakta: aktif + görev var / görev satırı (card #1695).
-  if (filter === 'in-progress') {
-    return (isActiveJob && taskCount > 0) || isInProgressTask
-  }
-
-  return false
 }
 
 function matchesKindFilter(filter: IncomingKindFilter): boolean {
@@ -540,9 +480,9 @@ export function IncomingRequestsPage() {
   const incomingTableColumnCount = useMemo(() => {
     let count = 6
     if (showTaskOwnerColumn) count += 1
-    // Son Tarih sütunu Tamamlanmış ve İptal görünümlerinde gizli (card #1384).
-    if (currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed') count += 1
-    if (currentStatusFilter === 'approved') count += 1
+    // Son Tarih: Tamamlanmış/İptal/Onaylanmış görünümlerinde yok (#1384 / #2825).
+    if (currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && currentStatusFilter !== 'approved') count += 1
+    if (currentStatusFilter === 'approved') count += 2
     if (currentStatusFilter === 'completed') count += 1
     if (currentStatusFilter === 'cancelled') count += 1
     if (currentStatusFilter === 'all') count += 1
@@ -832,6 +772,17 @@ export function IncomingRequestsPage() {
     return result.length
   }, [rows, isCitizenRequestManager, citizenOnly, channelFilter])
 
+  const incomingPendingApprovalCount = useMemo(() => {
+    let result = rows.filter(row => matchesStatusFilter(row, 'pending-approval'))
+    if (isCitizenRequestManager || citizenOnly) {
+      result = result.filter(row => row.isCitizenRequest)
+    }
+    if (channelFilter) {
+      result = result.filter(row => channelsMatch(row.sourceChannel, channelFilter))
+    }
+    return result.length
+  }, [rows, isCitizenRequestManager, citizenOnly, channelFilter])
+
   useEffect(() => { setIncomingPage(1) }, [filterFrom, filterTo, searchText])
 
   const { sortKey: incomingSortKey, sortDir: incomingSortDir, toggleSort: _toggleIncomingSort, sortItems: sortIncoming } = useSortable()
@@ -979,7 +930,7 @@ export function IncomingRequestsPage() {
             key={filter.value}
             type="button"
             className={`scope-chip ${getScopeChipColorClass(filter.value)}${filter.value === currentStatusFilter ? ' active' : ''}`}
-            badgeCount={filter.value === 'overdue' ? incomingOverdueCount : 0}
+            badgeCount={filter.value === 'overdue' ? incomingOverdueCount : filter.value === 'pending-approval' ? incomingPendingApprovalCount : 0}
             onClick={() => setStatusFilter(filter.value)}
           >
             {t(filter.labelKey, filter.fallback)}
@@ -1018,8 +969,8 @@ export function IncomingRequestsPage() {
                 <col className="grid-col-location-creator" />
                 <col className="grid-col-title" />
                 {showTaskOwnerColumn && <col className="grid-col-task-owner" />}
-                {currentStatusFilter === 'all' && <col className="grid-col-status" />}
-                {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && <col className="grid-col-due" />}
+                {(currentStatusFilter === 'all' || currentStatusFilter === 'approved') && <col className="grid-col-status" />}
+                {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && currentStatusFilter !== 'approved' && <col className="grid-col-due" />}
                 {currentStatusFilter === 'approved' && <col className="grid-col-status-date" />}
                 {currentStatusFilter === 'completed' && <col className="grid-col-status-date incoming-completed-at-col" />}
                 {currentStatusFilter === 'cancelled' && <col className="grid-col-status-date" />}
@@ -1039,9 +990,8 @@ export function IncomingRequestsPage() {
                         : t('tasks.columns.owner', 'Görev Sahibi')}
                     </FilterableTh>
                   )}
-                  {currentStatusFilter === 'all' && <FilterableTh filterKey="status" filterValue={incomingFilters['status'] ?? ''} onFilter={setIncomingFilter} sortKey="status" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>}
-                  {/* Tamamlanmış görünümünde Son Tarih sütunu gösterilmez (card #1384). */}
-                  {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>}
+                  {(currentStatusFilter === 'all' || currentStatusFilter === 'approved') && <FilterableTh filterKey="status" filterValue={incomingFilters['status'] ?? ''} onFilter={setIncomingFilter} sortKey="status" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>}
+                  {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && currentStatusFilter !== 'approved' && <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {currentStatusFilter === 'approved' && <FilterableTh filterKey="approvedAtUtc" filterValue={incomingFilters['approvedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="approvedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
                   {currentStatusFilter === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={incomingFilters['completedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="completedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort} className="incoming-completed-at-th">{t('incomingRequests.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
                   {currentStatusFilter === 'cancelled' && <FilterableTh filterKey="updatedAtUtc" filterValue={incomingFilters['updatedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="updatedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.cancelledAt', 'İptal Tarihi')}</FilterableTh>}
@@ -1130,10 +1080,11 @@ export function IncomingRequestsPage() {
                     </td>
                     <td className="font-semibold"><TruncatedText text={row.title} className={`cell-title ${isReporterRow ? 'text-[#f97316]' : ''}`} /></td>
                     {showTaskOwnerColumn && <td><EmptyCell value={row.taskOwnerDisplayName} /></td>}
-                    {currentStatusFilter === 'all' && (() => {
-                      // Tarih durum pill'inin İÇİNDE alt satırda gösterilir (card #714).
-                      const statusDate = row.status === 'Completed' ? row.completedAtUtc
-                        : row.status === 'Cancelled' ? row.updatedAtUtc
+                    {(currentStatusFilter === 'all' || currentStatusFilter === 'approved') && (() => {
+                      const statusDate = currentStatusFilter === 'all'
+                        ? (row.status === 'Completed' ? row.completedAtUtc
+                          : row.status === 'Cancelled' ? row.updatedAtUtc
+                          : null)
                         : null
                       return (
                         <td>
@@ -1152,11 +1103,11 @@ export function IncomingRequestsPage() {
                                 : undefined}
                             />
                           </StatusPill>
-                          {isTerminalRow && rowExtraTimeMarkers}
+                          {currentStatusFilter === 'all' && isTerminalRow && rowExtraTimeMarkers}
                         </td>
                       )
                     })()}
-                    {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && (
+                    {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && currentStatusFilter !== 'approved' && (
                       <td>
                         <DueDatePill value={row.dueDateUtc} completedAtUtc={row.completedAtUtc} locale={locale} highlightReporter={isReporterRow} />
                         {!isTerminalRow && rowExtraTimeMarkers}

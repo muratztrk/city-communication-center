@@ -38,6 +38,7 @@ import type { DepartmentSummary } from '../types/platform'
 import { getRoleLabel } from '../utils/localization'
 import { sortUserDepartments } from '../utils/departmentAccess'
 import { useDataTableOverflowTooltips } from '../hooks/useDataTableOverflowTooltips'
+import { useIncomingPendingApprovalCount } from '../hooks/useIncomingPendingApprovalCount'
 
 declare const __APP_VERSION__: string
 const SUPPORT_EMAIL = 'destek@lumespec.com.tr'
@@ -107,7 +108,7 @@ function useResponsiveZoom() {
 }
 
 export function AppShell() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const { user, logout } = useAuth()
@@ -377,6 +378,9 @@ export function AppShell() {
 
   const navDashboardCounts = navCountsQuery.data
 
+  const incomingPendingApprovalCountQuery = useIncomingPendingApprovalCount(user, i18n.language)
+  const incomingPendingApprovalNavCount = incomingPendingApprovalCountQuery.data ?? 0
+
   const isReporterNav = user?.role === 'Reporter'
   const isOperatorNav = user?.role === 'Operator'
   const isCitizenDashboardNav = isReporterNav || isOperatorNav
@@ -427,7 +431,7 @@ export function AppShell() {
           { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact },
         ]
       : []),
-    { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban, badgeCount: navDashboardCounts?.pendingApprovalCount ?? 0 },
+    { pageKey: 'incomingRequests' as const, path: '/incoming-requests?kind=all', label: t('nav.incomingRequests', 'Birime Gelen Talepler'), icon: FolderKanban, badgeCount: incomingPendingApprovalNavCount },
     { pageKey: 'outgoingRequests' as const, path: '/outgoing-requests', label: t('nav.outgoingRequests', 'Birimden Giden Talepler'), icon: ArrowUpRight, separatorAfter: true, badgeCount: navDashboardCounts?.outgoingPendingCount ?? 0 },
     { pageKey: 'citizenMessageApproval' as const, path: '/citizen-message-approval', label: t('nav.citizenMessageApproval', 'Vatandaşa Gönderilecek\nMesaj Onayı'), icon: Send, multilineLabel: true, badgeCount: pendingCitizenMessageApprovalCount },
     { pageKey: 'createRoutineTask' as const, path: '/routine-tasks/new', label: t('nav.createRoutineTask', 'Rutin Görev Oluştur'), icon: ClipboardCheck, separatorBefore: true },

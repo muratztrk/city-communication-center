@@ -46,6 +46,14 @@ export const queryKeys = {
     all: ['ccc', 'licensing'] as const,
     modules: () => ['ccc', 'licensing', 'modules'] as const,
   },
+  incoming: {
+    all: ['ccc', 'incoming'] as const,
+    pendingApprovalCount: (
+      departmentId?: string | null,
+      userId?: string | null,
+      citizenOnly?: boolean,
+    ) => ['ccc', 'incoming', 'pending-approval-count', normalize({ departmentId, userId, citizenOnly })] as const,
+  },
   jobs: {
     all: ['ccc', 'jobs'] as const,
     lists: () => ['ccc', 'jobs', 'list'] as const,

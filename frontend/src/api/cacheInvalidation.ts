@@ -22,12 +22,17 @@ export function invalidateUsers(queryClient: QueryClient) {
   void queryClient.invalidateQueries({ queryKey: queryKeys.departments.all })
 }
 
+export function invalidateIncoming(queryClient: QueryClient) {
+  void queryClient.invalidateQueries({ queryKey: queryKeys.incoming.all })
+}
+
 export function invalidateJobs(queryClient: QueryClient, jobId?: EntityId) {
   void queryClient.invalidateQueries({ queryKey: queryKeys.jobs.all })
   if (jobId) {
     void queryClient.invalidateQueries({ queryKey: queryKeys.jobs.detail(jobId) })
     void queryClient.invalidateQueries({ queryKey: queryKeys.jobs.auditLog(jobId) })
   }
+  invalidateIncoming(queryClient)
   invalidateDashboard(queryClient)
   invalidateNotifications(queryClient)
 }
@@ -38,6 +43,7 @@ export function invalidateTasks(queryClient: QueryClient, taskId?: EntityId, job
     void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.detail(taskId) })
     void queryClient.invalidateQueries({ queryKey: queryKeys.tasks.auditLog(taskId) })
   }
+  invalidateIncoming(queryClient)
   if (jobId) {
     invalidateJobs(queryClient, jobId)
   } else {
@@ -52,6 +58,7 @@ export function invalidateSocialMessages(queryClient: QueryClient, messageId?: E
     void queryClient.invalidateQueries({ queryKey: queryKeys.socialMessages.detail(messageId) })
     void queryClient.invalidateQueries({ queryKey: queryKeys.socialMessages.conversation(messageId) })
   }
+  invalidateIncoming(queryClient)
   invalidateDashboard(queryClient)
   invalidateNotifications(queryClient)
 }

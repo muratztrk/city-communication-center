@@ -491,8 +491,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`); yeni inbound webhook sıfırlar.
   **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
   **Görevlerim / Birime Gelen / Birimden Giden** nav satırlarında da aynı `nav-pending-badge`
-  rozeti: Görevlerim = `myPendingTaskCount`, Birime Gelen = `pendingApprovalCount`, Birimden Giden =
-  `outgoingPendingCount` (dashboard snapshot; Sms Onayı stili — card #2516).
+  rozeti: Görevlerim = `myPendingTaskCount`, Birime Gelen = Onay Bekleyen grid toplamı
+  (`useIncomingPendingApprovalCount` / `matchesIncomingStatusFilter` pending-approval — dashboard
+  `pendingApprovalCount` ile aynı değil; VT yöneticisi CRM için yalnız vatandaş satırları), Birimden Giden =
+  `outgoingPendingCount` (dashboard snapshot; Sms Onayı stili — card #2516 / #2820 / #2823).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonda MapPin + (yer açıklaması varsa açıklama, yoksa **Konum**)
@@ -1124,11 +1126,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Birime Gelen breadcrumb `?status=` ile sekme adını takip eder (card #1696).
   Standart kullanıcı Taleplerim `Onaylanmış/Yapılmakta Taleplerim` chip'i mavidir
   (`scope-chip--in-progress`, card #1698) — sarı `approved` chip'i yönetici Onaylanmış'ta kalır.
-  Birime Gelen Onaylanmış: `approvedAtUtc != null` — durum sonra değişse bile kalır
-  (card #1697); hedef onay bekleyen (Talebi Gerçekleştiren Onay Bekleyen) + sahip onaylı
-  İşleme Alındı VT burada kalır, Onay Bekleyen'de değil (#2823). Onay Bekleyen: sahip onay
+  Birime Gelen Onaylanmış: `approvedAtUtc != null` ve tamamlanmış/iptal/yapılmakta değil
+  (#2826); hedef onay bekleyen (Talebi Gerçekleştiren Onay Bekleyen) + sahip onaylı
+  İşleme Alındı VT Onay Bekleyen'de (#2823). Onay Bekleyen: sahip onay
   bekler + personel ataması bekler + sahip onaysız VT İşleme Alındı; `PendingExternalApproval`
-  yalnız Onaylanmış'ta. Yapılmakta / Tamamlanmış vb. sekmelerde de görünebilirler.
+  yalnız Onaylanmış'ta. Onaylanmış grid **Son Tarih** sütunu yok, **Durum** + **Onay Tarihi**
+  (#2825). Birimden Giden Onaylanmış da tamamlanmış/iptal/yapılmakta hariç (#2826).
   Birime Gelen Onaylanmış grid İşlemler'de yalnız `Detaylar` — `İptal Et` ve `Onayla`
   yok (cards #1702/#1703). Onaylanmış grid'de `Görevi Yapan` / `Görev Sahibi` sütunu yok
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,

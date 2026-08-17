@@ -1,3 +1,9 @@
+## Round 995 — #2820/#2823/#2825/#2826 (Birime Gelen nav + Onaylanmış grid)
+- [x] `6a83549f` — Sol menü Birime Gelen badge = Onay Bekleyen grid (`useIncomingPendingApprovalCount`).
+- [x] `6a835b70` — Nav sayısı Onay Bekleyen grid ile hizalı (dashboard `pendingApprovalCount` değil).
+- [x] `6a836034` — Onaylanmış grid: Son Tarih kaldırıldı, Durum eklendi.
+- [x] `6a8360df` — Onaylanmış: tamamlanmış/iptal/yapılmakta hariç (Birime Gelen + Birimden Giden).
+
 ## Round 994 — #2817 reopen/#2818 reopen/#2822 reopen/#2824
 - [x] `6a834f17` — Yönetici Geciken Görevlerim: pie/kutucuk = `GET /tasks?scope=mine` (birim kümesi sapması giderildi).
 - [x] `6a83508b` — Yönetici Geciken Taleplerim: pie/kutucuk = `GET /jobs?scope=mine` (yalnız ExternalUnit sapması giderildi).

@@ -1,3 +1,6 @@
+## Round 972 — #2799
+- [x] `6a830066` — Haritada yalnız cadde/sokak/bulvar; POI ve transit kapalı (önceki davranış).
+
 ## Round 971 — #2796 (güncelleme)
 - [x] `6a82d5d2` — CBS overlay kaldırıldı; Google Maps native POI (okul/hastane/cami/kamu/park/gar vb.) geri.
 

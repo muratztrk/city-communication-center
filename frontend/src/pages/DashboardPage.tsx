@@ -492,7 +492,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const hideMetricCards = effectiveView === 'citizen'
     || (effectiveView === 'departments' && role !== 'Operator')
 
-  const managerRow1: MetricCard[] = !hideMetricCards && isManagerOrAdmin && dashboardQuery.data
+  const managerTaskMetricRow: MetricCard[] = !hideMetricCards && isManagerOrAdmin && dashboardQuery.data
     ? [
         {
           label: t('dashboard.cards.deptPendingTasks', 'Birimdeki Görevler'),
@@ -503,24 +503,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconBg: 'bg-emerald-100',
           iconColor: 'text-emerald-600',
         },
-        ...(isInternalModuleUsable ? [{
-          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
-          value: myPendingRequestsMetricValue ?? dashboardQuery.data.myPendingRequestCount,
-          icon: ClipboardList,
-          path: '/my-requests?view=external-pending',
-          iconBg: 'bg-amber-100',
-          iconColor: 'text-amber-600',
-        },
-        {
-          label: t('jobs.myViews.overdue', 'Geciken Taleplerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
-          value: myOverdueRequestsMetricValue ?? 0,
-          icon: Clock3,
-          path: '/my-requests?view=overdue',
-          iconBg: 'bg-orange-100',
-          iconColor: 'text-orange-600',
-        }] : []),
         {
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
@@ -539,6 +521,11 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconBg: 'bg-orange-100',
           iconColor: 'text-orange-600',
         },
+      ]
+    : []
+
+  const managerBottomMetricRow: MetricCard[] = !hideMetricCards && isManagerOrAdmin && dashboardQuery.data
+    ? [
         {
           label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
           sublabel: t('dashboard.cards.citizenPendingApprovalSub', 'Onay Bekleyen'),
@@ -548,6 +535,24 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconBg: 'bg-rose-100',
           iconColor: 'text-rose-600',
         },
+        ...(isInternalModuleUsable ? [{
+          label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          value: myPendingRequestsMetricValue ?? dashboardQuery.data.myPendingRequestCount,
+          icon: ClipboardList,
+          path: '/my-requests?view=external-pending',
+          iconBg: 'bg-amber-100',
+          iconColor: 'text-amber-600',
+        },
+        {
+          label: t('jobs.myViews.overdue', 'Geciken Taleplerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          value: myOverdueRequestsMetricValue ?? 0,
+          icon: Clock3,
+          path: '/my-requests?view=overdue',
+          iconBg: 'bg-orange-100',
+          iconColor: 'text-orange-600',
+        }] as MetricCard[] : []),
       ]
     : []
 
@@ -557,9 +562,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       || hasCitizenRequestManagerRole(currentUser)
       || getEffectiveUserRoles(currentUser).includes('Operator'))
 
-  const managerTailCount = isInternalModuleUsable ? 5 : 3
-  const managerRowHead = managerRow1.slice(0, Math.max(0, managerRow1.length - managerTailCount))
-  const managerRowTail = managerRow1.slice(-managerTailCount)
+  const managerRowHead = managerTaskMetricRow
+  const managerRowTail = managerBottomMetricRow
 
   const staffMetrics: MetricCard[] = !hideMetricCards && !isManagerOrAdmin && dashboardQuery.data
     ? [
@@ -758,13 +762,13 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             {dashboardQuery.isLoading
               ? (
                 <>
-                  <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
-                    {Array.from({ length: 1 }).map((_, i) => (
+                  <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
+                    {Array.from({ length: 3 }).map((_, i) => (
                       <div key={i} className="h-[72px] min-w-[15.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                     ))}
                   </div>
                   <div className="mx-auto mt-2 flex max-w-7xl flex-wrap justify-center gap-x-12">
-                    {Array.from({ length: isInternalModuleUsable ? 5 : 3 }).map((_, i) => (
+                    {Array.from({ length: isInternalModuleUsable ? 3 : 1 }).map((_, i) => (
                       <div key={i} className="h-[72px] w-full min-w-[15.5rem] max-w-[calc((100%-9rem)/4)] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:max-w-[calc((100%-3rem)/2)]" />
                     ))}
                   </div>
@@ -772,7 +776,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               )
               : (
                 <>
-                  <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
+                  <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
                     {managerRowHead.map(renderCard)}
                   </div>
                   {managerRowTail.length > 0 ? (

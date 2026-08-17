@@ -1,3 +1,6 @@
+## Round 974 — #2799 (yeniden)
+- [x] `6a830066` — Yalnız cadde/sokak/bulvar; POI ve transit kapalı (#2796 POI geri alındı).
+
 ## Round 973 — #2796 (güncelleme)
 - [x] `6a82d5d2` — Google native POI geri; poi.business/attraction kapalı (kafe yok); CBS yok.
 

@@ -217,16 +217,17 @@ public sealed class GetDashboardStatusChartsQueryHandler
             return CitizenJobDisplayStatus.Cancelled;
         }
 
-        if (job.DueDateUtc.HasValue && IsPastDue(job.DueDateUtc, now))
-        {
-            return CitizenJobDisplayStatus.Overdue;
-        }
-
         if (job.Status == JobStatus.Active && job.TaskCount > 0)
         {
+            if (job.DueDateUtc.HasValue && IsPastDue(job.DueDateUtc, now))
+            {
+                return CitizenJobDisplayStatus.Overdue;
+            }
+
             return CitizenJobDisplayStatus.InProgress;
         }
 
+        // İşleme Alındı — gecikmiş olsa da bu dilimde (#2800 / #2812).
         return CitizenJobDisplayStatus.ProcessingReceived;
     }
 

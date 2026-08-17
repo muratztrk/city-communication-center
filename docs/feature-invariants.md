@@ -1588,7 +1588,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hook öncesi return `react-hooks/rules-of-hooks` ile lint fail eder.
 - **Banner buton sayımları client-side hesaplanır; dashboard'da bu aggregation YOK.**
 - **Yönetici `Vatandaş Talepleri` kartı:** `activeSocialMessageCount` — İşleme Alındı VT
-  sayısı (pie `citizenProcessingReceived` ile aynı sınıflandırma); alt etiket **Onay Bekleyen**
+  sayısı (`CitizenVtDashboardClassification`, geciken dahil — #2812); alt etiket **Onay Bekleyen**
   (#2791 reopen). Tıklama → `/incoming-requests?citizen=1&status=processing-received`.
 - **Yönetici `Bekleyen Taleplerim` kartı:** sayı = `myRequests` pie `externalPendingApproval`
   dilimi (`PendingExternalApproval` veya `Active` + `taskCount===0`, geciken hariç — Taleplerim
@@ -1778,7 +1778,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
   (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
   (#2668, Onay Bekleyen değil). Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
-  (`bg-teal-600`), Yapılmakta Görevlerim ile aynı açık mavi (`bg-sky-100` / `getStatusPillClass`,
+  (`bg-teal-600`), gecikmiş olsa da turuncu değil (#2800 reopen); Yapılmakta Görevlerim ile aynı açık mavi (`bg-sky-100` / `getStatusPillClass`,
   #2699), Geciken turuncu (`bg-orange-500`). Pin rengi Yapılmakta `#0ea5e9` kalır (#2671).
   yeşil Konum ikonu (yuvarlak çerçeve + hover, #2673/#2674); damla pin küçük yeşil (#2700).
   Konum ile Detaylar

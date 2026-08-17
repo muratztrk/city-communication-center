@@ -185,9 +185,8 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
   if (row.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
   // Vatandaş talebi: PendingExternalApproval → İşleme Alındı (card #1650 reopen); Onay Bekleyen değil.
   if (row.isCitizenRequest) {
-    const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
     return getCitizenRequestStatusLabel(t, {
-      status: normalizedStatus,
+      status: row.status,
       taskCount: row.taskCount ?? 0,
       dueDateUtc: row.dueDateUtc,
     })
@@ -243,14 +242,11 @@ function getIncomingStatusFilter(value: string | null): IncomingStatusFilter {
 
 function isCitizenProcessingReceivedRow(row: IncomingRequestRow): boolean {
   if (!row.isCitizenRequest) return false
-  const isClosed = row.status === 'Completed'
-    || row.status === 'Cancelled'
-    || row.status === 'Rejected'
-    || row.status === 'RevisionRequested'
-  if (isClosed) return false
-  const taskCount = row.taskCount ?? 0
-  if (row.status === 'Active' && taskCount > 0) return false
-  return row.status === 'PendingExternalApproval' || row.status === 'Active'
+  return isCitizenProcessingReceivedState({
+    status: row.status,
+    dueDateUtc: row.dueDateUtc,
+    taskCount: row.taskCount,
+  })
 }
 
 function getIncomingKindFilter(): IncomingKindFilter {

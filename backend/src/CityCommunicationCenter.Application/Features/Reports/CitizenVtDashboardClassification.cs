@@ -21,16 +21,12 @@ internal static class CitizenVtDashboardClassification
             return false;
         }
 
-        if (job.DueDateUtc.HasValue && job.DueDateUtc.Value < now)
-        {
-            return false;
-        }
-
         if (job.Status == JobStatus.Active && job.OpenTaskCount > 0)
         {
             return false;
         }
 
+        // Onaylanmadı / açık görev yok — gecikmiş olsa da İşleme Alındı (#2805 / #2812).
         return true;
     }
 }

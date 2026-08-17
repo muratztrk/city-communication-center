@@ -476,6 +476,7 @@ export function IncomingRequestsPage() {
     )
   const currentKindFilter = getIncomingKindFilter()
   // Onaylanmış grid'de Görevi Yapan/Sahibi sütunu yok (#6a6ca0bc).
+  const showIncomingStatusColumn = currentStatusFilter === 'all' || currentStatusFilter === 'approved' || currentStatusFilter === 'overdue'
   const showTaskOwnerColumn = ['in-progress', 'completed', 'cancelled'].includes(currentStatusFilter)
   const incomingTableColumnCount = useMemo(() => {
     let count = 6
@@ -485,9 +486,9 @@ export function IncomingRequestsPage() {
     if (currentStatusFilter === 'approved') count += 2
     if (currentStatusFilter === 'completed') count += 1
     if (currentStatusFilter === 'cancelled') count += 1
-    if (currentStatusFilter === 'all') count += 1
+    if (showIncomingStatusColumn) count += 1
     return count
-  }, [currentStatusFilter, showTaskOwnerColumn])
+  }, [currentStatusFilter, showIncomingStatusColumn, showTaskOwnerColumn])
 
   useEffect(() => {
     const handler = () => setActiveDeptIdState(getActiveDepartmentId())
@@ -772,17 +773,6 @@ export function IncomingRequestsPage() {
     return result.length
   }, [rows, isCitizenRequestManager, citizenOnly, channelFilter])
 
-  const incomingPendingApprovalCount = useMemo(() => {
-    let result = rows.filter(row => matchesStatusFilter(row, 'pending-approval'))
-    if (isCitizenRequestManager || citizenOnly) {
-      result = result.filter(row => row.isCitizenRequest)
-    }
-    if (channelFilter) {
-      result = result.filter(row => channelsMatch(row.sourceChannel, channelFilter))
-    }
-    return result.length
-  }, [rows, isCitizenRequestManager, citizenOnly, channelFilter])
-
   useEffect(() => { setIncomingPage(1) }, [filterFrom, filterTo, searchText])
 
   const { sortKey: incomingSortKey, sortDir: incomingSortDir, toggleSort: _toggleIncomingSort, sortItems: sortIncoming } = useSortable()
@@ -930,7 +920,7 @@ export function IncomingRequestsPage() {
             key={filter.value}
             type="button"
             className={`scope-chip ${getScopeChipColorClass(filter.value)}${filter.value === currentStatusFilter ? ' active' : ''}`}
-            badgeCount={filter.value === 'overdue' ? incomingOverdueCount : filter.value === 'pending-approval' ? incomingPendingApprovalCount : 0}
+            badgeCount={filter.value === 'overdue' ? incomingOverdueCount : 0}
             onClick={() => setStatusFilter(filter.value)}
           >
             {t(filter.labelKey, filter.fallback)}
@@ -969,7 +959,7 @@ export function IncomingRequestsPage() {
                 <col className="grid-col-location-creator" />
                 <col className="grid-col-title" />
                 {showTaskOwnerColumn && <col className="grid-col-task-owner" />}
-                {(currentStatusFilter === 'all' || currentStatusFilter === 'approved') && <col className="grid-col-status" />}
+                {showIncomingStatusColumn && <col className="grid-col-status" />}
                 {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && currentStatusFilter !== 'approved' && <col className="grid-col-due" />}
                 {currentStatusFilter === 'approved' && <col className="grid-col-status-date" />}
                 {currentStatusFilter === 'completed' && <col className="grid-col-status-date incoming-completed-at-col" />}
@@ -990,7 +980,7 @@ export function IncomingRequestsPage() {
                         : t('tasks.columns.owner', 'Görev Sahibi')}
                     </FilterableTh>
                   )}
-                  {(currentStatusFilter === 'all' || currentStatusFilter === 'approved') && <FilterableTh filterKey="status" filterValue={incomingFilters['status'] ?? ''} onFilter={setIncomingFilter} sortKey="status" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>}
+                  {showIncomingStatusColumn && <FilterableTh filterKey="status" filterValue={incomingFilters['status'] ?? ''} onFilter={setIncomingFilter} sortKey="status" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.status', 'Durum')}</FilterableTh>}
                   {currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && currentStatusFilter !== 'approved' && <FilterableTh filterKey="dueDateUtc" filterValue={incomingFilters['dueDateUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="dueDateUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('jobs.columns.dueDate', 'Son Tarih')}</FilterableTh>}
                   {currentStatusFilter === 'approved' && <FilterableTh filterKey="approvedAtUtc" filterValue={incomingFilters['approvedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="approvedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort}>{t('incomingRequests.columns.approvedAt', 'Onay Tarihi')}</FilterableTh>}
                   {currentStatusFilter === 'completed' && <FilterableTh filterKey="completedAtUtc" filterValue={incomingFilters['completedAtUtc'] ?? ''} onFilter={setIncomingFilter} sortKey="completedAtUtc" currentSortKey={incomingSortKey} sortDir={incomingSortDir} onSort={toggleIncomingSort} className="incoming-completed-at-th">{t('incomingRequests.columns.completedAt', 'Tamamlanma Tarihi')}</FilterableTh>}
@@ -1080,7 +1070,7 @@ export function IncomingRequestsPage() {
                     </td>
                     <td className="font-semibold"><TruncatedText text={row.title} className={`cell-title ${isReporterRow ? 'text-[#f97316]' : ''}`} /></td>
                     {showTaskOwnerColumn && <td><EmptyCell value={row.taskOwnerDisplayName} /></td>}
-                    {(currentStatusFilter === 'all' || currentStatusFilter === 'approved') && (() => {
+                    {showIncomingStatusColumn && (() => {
                       const statusDate = currentStatusFilter === 'all'
                         ? (row.status === 'Completed' ? row.completedAtUtc
                           : row.status === 'Cancelled' ? row.updatedAtUtc

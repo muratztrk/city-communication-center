@@ -1131,7 +1131,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   İşleme Alındı VT Onay Bekleyen'de (#2823). Onay Bekleyen: sahip onay
   bekler + personel ataması bekler + sahip onaysız VT İşleme Alındı; `PendingExternalApproval`
   yalnız Onaylanmış'ta. Onaylanmış grid **Son Tarih** sütunu yok, **Durum** + **Onay Tarihi**
-  (#2825). Birimden Giden Onaylanmış da tamamlanmış/iptal/yapılmakta hariç (#2826).
+  Birime Gelen Onaylanmış grid **Son Tarih** sütunu yok, **Durum** + **Onay Tarihi**
+  (#2825). Birime Gelen **Geciken** grid: **Durum** Son Tarih'ten önce (#2829). Birime Gelen
+  sayfa içi Onay Bekleyen scope chip'inde rozet yok — sayı yalnız sol menüde (#2830). Birimden
+  Giden **Geciken** grid: **Oluşturan** yok; Gittiği Yer sonrası **Durum** (#2828). Birimden Giden
+  Onaylanmış da tamamlanmış/iptal/yapılmakta hariç (#2826).
   Birime Gelen Onaylanmış grid İşlemler'de yalnız `Detaylar` — `İptal Et` ve `Onayla`
   yok (cards #1702/#1703). Onaylanmış grid'de `Görevi Yapan` / `Görev Sahibi` sütunu yok
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,

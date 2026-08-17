@@ -1,3 +1,8 @@
+## Round 997 — #2828/#2829/#2830 (Geciken grid + Onay chip rozeti)
+- [x] `6a836c9a` — Birime Gelen Geciken grid: Durum sütunu Son Tarih öncesi.
+- [x] `6a836d10` — Birime Gelen Onay Bekleyen scope chip rozeti kaldırıldı (sol menüde kalır).
+- [x] `6a836c3e` — Birimden Giden Geciken: Oluşturan yok; Gittiği Yer sonrası Durum.
+
 ## Round 996 — #2827 (badge sayıları tam gösterim)
 - [x] `6a836a52` — `99+` kısaltması kaldırıldı; sol menü, zil, WA/İç mesaj FAB, scope chip rozetleri tam sayı.
 

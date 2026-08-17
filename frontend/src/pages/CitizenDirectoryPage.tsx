@@ -9,23 +9,126 @@ import { Button } from '../components/ui/button'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { EmptyCell } from '../components/ui/EmptyCell'
 import { FilterableTh } from '../components/ui/FilterableTh'
+import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { TablePagination } from '../components/ui/table-pagination'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
+import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useColumnFilters } from '../hooks/useColumnFilters'
+import { useIzmirCbsStreetNoCatalog } from '../hooks/useIzmirCbsStreetNoCatalog'
+import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { useSortable } from '../hooks/useSortable'
 import type { CitizenConversationDetail, CitizenConversationSummary, JobDetail, SocialMessage } from '../types/platform'
+import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
+import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { getLocale } from '../utils/localization'
 import { formatDirectoryPhone } from '../utils/phoneDisplay'
+import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { printJobDetail } from './JobsPage'
 
 type DirectoryRow = CitizenConversationSummary & {
   displayName: string
 }
 
+type AddressDraft = {
+  neighborhood: string
+  street: string
+  streetNo: string
+  openAddress: string
+}
+
 const SEARCH_KEYS = ['displayName', 'citizenPhone', 'neighborhood', 'street', 'streetNo', 'openAddress'] as const
+const ADDRESS_TRIGGER_CLASS = 'field-input !h-8 !min-h-8 !py-0 text-xs'
+
+function rowAddressDraft(row: CitizenConversationSummary): AddressDraft {
+  return {
+    neighborhood: row.neighborhood?.trim() ?? '',
+    street: row.street?.trim() ?? '',
+    streetNo: row.streetNo?.trim() ?? '',
+    openAddress: row.openAddress?.trim() ?? '',
+  }
+}
+
+function DirectoryAddressEditCells({
+  draft,
+  onChange,
+}: {
+  draft: AddressDraft
+  onChange: (patch: Partial<AddressDraft>) => void
+}) {
+  const { t } = useTranslation()
+  const districtId = useMunicipalityDistrictId()
+  const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
+  const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
+  const hasNeighborhood = draft.neighborhood.trim().length > 0
+  const hasStreet = draft.street.trim().length > 0
+  const { streetOptions, doorNoOptions, streetsLoading, doorsLoading } = useIzmirCbsStreetNoCatalog(
+    districtId,
+    draft.neighborhood,
+    draft.street,
+    draft.streetNo,
+  )
+
+  return (
+    <>
+      <td className="min-w-[8.5rem]">
+        <SingleSelectDropdown
+          searchable
+          clearable
+          options={neighborhoodOptions}
+          value={draft.neighborhood}
+          onChange={neighborhood => onChange(neighborhood
+            ? { neighborhood, street: '', streetNo: '' }
+            : { neighborhood: '', street: '', streetNo: '', openAddress: '' })}
+          placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+          searchPlaceholder={t('common.search', 'Ara...')}
+          matchTriggerWidth
+          triggerClassName={ADDRESS_TRIGGER_CLASS}
+        />
+      </td>
+      <td className="min-w-[9rem]">
+        <SingleSelectDropdown
+          searchable
+          clearable
+          options={streetOptions}
+          value={draft.street}
+          onChange={street => onChange({ street, streetNo: '' })}
+          placeholder={t('address.streetSelectPlaceholder', 'Cadde seçiniz')}
+          searchPlaceholder={t('common.search', 'Ara...')}
+          disabled={!hasNeighborhood || streetsLoading}
+          matchTriggerWidth
+          triggerClassName={ADDRESS_TRIGGER_CLASS}
+        />
+      </td>
+      <td className="min-w-[6.5rem]">
+        <SingleSelectDropdown
+          searchable
+          clearable
+          options={doorNoOptions}
+          value={draft.streetNo}
+          onChange={streetNo => onChange({ streetNo })}
+          placeholder={t('address.streetNoSelectPlaceholder', 'No seçiniz')}
+          searchPlaceholder={t('common.search', 'Ara...')}
+          disabled={!hasStreet || doorsLoading}
+          matchTriggerWidth
+          triggerClassName={ADDRESS_TRIGGER_CLASS}
+        />
+      </td>
+      <td className="min-w-[8rem]">
+        <input
+          type="text"
+          className="field-input w-full text-xs"
+          maxLength={ADDRESS_OPEN_ADDRESS_MAX_LENGTH}
+          value={draft.openAddress}
+          onChange={event => onChange({ openAddress: event.target.value })}
+          placeholder={t('address.directionsLabel', 'Adres Tarifi')}
+        />
+      </td>
+    </>
+  )
+}
 
 function getDetailStatusClass(status: string): string {
   if (status === 'Completed') return 'text-emerald-600'
@@ -74,6 +177,9 @@ export function CitizenDirectoryPage() {
     citizenPhone: string
     citizenName: string | null
   } | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [addressDraft, setAddressDraft] = useState<AddressDraft | null>(null)
+  const [addressSaving, setAddressSaving] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -196,6 +302,53 @@ export function CitizenDirectoryPage() {
       setError(t('citizenDirectory.goToChatUnavailable', 'Bu kayıt için açılacak yazışma bulunamadı.'))
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
+    }
+  }
+
+  function startAddressEdit(row: CitizenConversationSummary) {
+    setEditingId(row.citizenConversationId)
+    setAddressDraft(rowAddressDraft(row))
+    setError(null)
+  }
+
+  function cancelAddressEdit() {
+    setEditingId(null)
+    setAddressDraft(null)
+    setAddressSaving(false)
+  }
+
+  async function saveAddressEdit(row: CitizenConversationSummary) {
+    if (!addressDraft || addressSaving) return
+    if (addressDraft.neighborhood.trim() && !addressDraft.street.trim()) {
+      window.alert(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
+      return
+    }
+    if (addressDraft.neighborhood.trim() && !addressDraft.streetNo.trim()) {
+      window.alert(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
+      return
+    }
+    setAddressSaving(true)
+    try {
+      const neighborhood = normalizeTitleCaseField(addressDraft.neighborhood)
+      const street = normalizeTitleCaseField(addressDraft.street)
+      const streetNo = addressDraft.streetNo.trim() || null
+      const openAddress = normalizeTitleCaseField(addressDraft.openAddress)
+      await api.updateCitizenConversationProfile(row.citizenConversationId, {
+        citizenName: row.citizenName,
+        citizenPhone: row.citizenPhone,
+        label: row.label,
+        neighborhood: neighborhood ?? '',
+        street: street ?? '',
+        streetNo,
+        openAddress: openAddress ?? '',
+      })
+      setRows(current => current.map(item => item.citizenConversationId === row.citizenConversationId
+        ? { ...item, neighborhood, street, streetNo, openAddress }
+        : item))
+      cancelAddressEdit()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : t('common.error'))
+      setAddressSaving(false)
     }
   }
 
@@ -324,7 +477,9 @@ export function CitizenDirectoryPage() {
                 <TableEmptyStateRows columnCount={8} message={t('common.loading')} />
               ) : pageRows.length === 0 ? (
                 <TableEmptyStateRows columnCount={8} message={t('citizenDirectory.empty', 'Kayıtlı vatandaş bulunamadı.')} />
-              ) : pageRows.map((row, index) => (
+              ) : pageRows.map((row, index) => {
+                const isEditing = editingId === row.citizenConversationId && addressDraft != null
+                return (
                 <tr key={row.citizenConversationId}>
                   <td className="text-center text-xs font-bold tabular-nums text-slate-400">
                     {(safePage - 1) * pageSize + index + 1}
@@ -335,12 +490,35 @@ export function CitizenDirectoryPage() {
                   <td className="text-sm font-semibold text-slate-500 tabular-nums">
                     <EmptyCell value={formatDirectoryPhone(row.citizenPhone)} />
                   </td>
-                  <td><EmptyCell value={row.neighborhood} /></td>
-                  <td><EmptyCell value={row.street} /></td>
-                  <td><EmptyCell value={row.streetNo} /></td>
-                  <td><EmptyCell value={row.openAddress} /></td>
+                  {isEditing ? (
+                    <DirectoryAddressEditCells
+                      draft={addressDraft}
+                      onChange={patch => setAddressDraft(current => current ? { ...current, ...patch } : current)}
+                    />
+                  ) : (
+                    <>
+                      <td><EmptyCell value={row.neighborhood} /></td>
+                      <td><EmptyCell value={row.street} /></td>
+                      <td><EmptyCell value={row.streetNo} /></td>
+                      <td><EmptyCell value={row.openAddress} /></td>
+                    </>
+                  )}
                   <td className="actions-cell">
                     <div className="request-actions justify-center gap-1.5">
+                      {isEditing ? (
+                        <>
+                          <Button type="button" size="sm" disabled={addressSaving} onClick={() => void saveAddressEdit(row)}>
+                            {t('common.save', 'Kaydet')}
+                          </Button>
+                          <Button type="button" size="sm" variant="secondary" disabled={addressSaving} onClick={cancelAddressEdit}>
+                            {t('common.cancel', 'İptal')}
+                          </Button>
+                        </>
+                      ) : (
+                        <Button type="button" size="sm" variant="secondary" onClick={() => startAddressEdit(row)}>
+                          {t('common.edit', 'Düzenle')}
+                        </Button>
+                      )}
                       <Button type="button" size="sm" variant="secondary" onClick={() => void openTickets(row)}>
                         {t('jobs.actions.details', 'Detaylar')}
                       </Button>
@@ -368,7 +546,8 @@ export function CitizenDirectoryPage() {
                     </div>
                   </td>
                 </tr>
-              ))}
+                )
+              })}
             </tbody>
           </table>
         </div>

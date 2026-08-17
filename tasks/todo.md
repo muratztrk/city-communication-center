@@ -1,3 +1,7 @@
+## Round 956 — #2784
+
+- [x] `6a82b2e5` — Vatandaş Bilgi Listesi İşlemler’e Düzenle; Mahalle/Cadde/No/Adres Tarifi grid’de.
+
 ## Round 955 — #2783
 
 - [x] `6a82a5b9` — Konum linki varken harita marker’ı Google Maps linkinden (`!3d` öncelikli); kayıtlı lat/lng/CBS değil.

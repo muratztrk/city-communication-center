@@ -1653,7 +1653,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Detaylar → konuşma ticket listesi (aynı telefon tüm kanallar — BE konuşma birleşimi +
   orphan Phone VT telefon eşlemesi, card #2543/#2546) → salt-okunur
   `MyRequestDetailModal`; listede `jobId` olmayan ama `citizenRequestNumber` taşıyan ticket'lar da
-  gösterilir. Yazışmaya Git → birim yöneticisi/personel detayındaki aynı
+  gösterilir. İşlemler’de **Düzenle**: Mahalle/Cadde/No/Adres Tarifi grid üzerinde değişir;
+  CBS kademeli seçim + mevcut `PUT .../profile` (#2784). Ad/telefon ezilmesin diye kayıtta
+  mevcut isim/telefon/etiket gönderilir. Yazışmaya Git → birim yöneticisi/personel detayındaki aynı
   `WhatsAppConversationModal` (`latestSocialMessageId` veya konuşma detayından) (card #1884);
   `Phone`/Çağrı satırında `DisabledActionButton` ile pasif (card #1868), açık mavi stil
   (`MessageSquareText` + `!bg-sky-400`). Mobil grid `table-wrap` ile yatay kayar (#r482).

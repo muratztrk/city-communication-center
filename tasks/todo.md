@@ -1,3 +1,6 @@
+## Round 963 — #2796
+- [x] `6a82d5d2` — Talep haritaları: cadde/sokak/bulvar + kamu alanları (park/belediye) görünür; ticari POI kapalı.
+
 ## Round 962 — #2793/#2791/#2795
 
 - [x] `6a82c8d0` — #2793 CBS overlay / cadde gizleme geri alındı.

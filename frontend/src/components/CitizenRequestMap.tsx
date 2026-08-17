@@ -51,6 +51,15 @@ function pinColor(displayStatus: string, variant: 'citizen' | 'department'): str
   return palette[displayStatus] ?? palette.inProgress
 }
 
+/** Cadde/sokak/bulvar etiketleri açık; ticari/medikal POI kapalı; park ve kamu binaları görünür (#2796). */
+const REQUEST_MAP_STYLES: google.maps.MapTypeStyle[] = [
+  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi.park', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.government', stylers: [{ visibility: 'on' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  { featureType: 'administrative.land_parcel', stylers: [{ visibility: 'off' }] },
+]
+
 /** Başlangıç zoom'da tek pin bile sayılı cluster; bu zoom ve üstünde durum rengi. */
 const NUMBERED_SINGLE_MAX_ZOOM = 13
 
@@ -814,6 +823,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
               mapTypeControl: false,
               fullscreenControl: false,
               clickableIcons: false,
+              styles: REQUEST_MAP_STYLES,
             }}
           />
         )}

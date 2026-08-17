@@ -1,3 +1,6 @@
+## Round 965 — #2793
+- [x] `6a82c8d0` — CBS Tire referans yerleri overlay (kategori ikonları + mahalle/isim etiketleri).
+
 ## Round 964 — #2796 (güncelleme)
 - [x] `6a82d5d2` — Kamu alanları da gizlendi; yalnız cadde/sokak/bulvar + talep pinleri.
 

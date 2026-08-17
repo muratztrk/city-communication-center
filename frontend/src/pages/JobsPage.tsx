@@ -2991,10 +2991,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {showManagerNoteColumn && (
                       <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
                         <MyRequestSectionHeading icon={NotebookPen}>
-                          <span>
-                            {t('jobs.managerNote.title', 'Yönetici Notu')}
-                            <span className="text-red-500"> *</span>
-                          </span>
+                          {t('jobs.managerNote.title', 'Yönetici Notu')}
                         </MyRequestSectionHeading>
                         {!canEditManagerNote ? (
                           // Salt-okunur: terminal durum veya yetkisiz kullanıcı.

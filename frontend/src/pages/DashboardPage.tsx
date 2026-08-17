@@ -606,6 +606,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       ]
     : []
 
+  const staffMetricGridClass = useStaffMetricFourCol
+    ? (staffMetrics.length >= 4 ? 'max-w-7xl sm:grid-cols-4' : 'max-w-7xl sm:grid-cols-2')
+    : 'max-w-3xl sm:grid-cols-2'
+
   // Yönetici dashboard'unda her grafik, üst bölümdeki ilgili hızlı erişim
   // kartlarının aynı dönem verisini kullanır. Böylece sayı ve görsel özet
   // birbirinden kopmaz.
@@ -789,9 +793,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           </div>
         ) : (
           <div className="px-5 py-3.5 sm:px-8">
-            <div className={`mx-auto grid gap-x-12 gap-y-2 ${useStaffMetricFourCol ? 'max-w-7xl sm:grid-cols-2 lg:grid-cols-4' : 'max-w-3xl sm:grid-cols-2'}`}>
+            <div className={`mx-auto grid gap-x-12 gap-y-2 ${staffMetricGridClass}`}>
               {dashboardQuery.isLoading
-                ? Array.from({ length: 2 }).map((_, i) => (
+                ? Array.from({ length: useStaffMetricFourCol ? 4 : 2 }).map((_, i) => (
                     <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                   ))
                 : staffMetrics.map(renderCard)}

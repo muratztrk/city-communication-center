@@ -1467,9 +1467,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`MapPin` / `NotebookPen` / `Paperclip`) ve `job-detail-card-title` tipografisini kullanır;
   düz `h3` border-b başlık kullanılmaz. Adres alanları `AddressDetailFields variant="my-request"`.
   Shell `detail-modal-shell--my-request` taşır.
-- **Yönetici Notu limiti (card #1585):** yönetici detay popup'larındaki textarea ve
-  `SetJobManagerNoteCommand` en fazla 100 karakter kabul eder; başlık yanında
-  `(max 100 karakter) *` gösterilir. `JobManagerNoteAdded` bildiriminde açıklama
+- **Yönetici Notu limiti (card #1585 / #2809 reopen):** textarea ve komut en fazla 100 karakter;
+  başlıkta zorunluluk yıldızı ve `(max 100 karakter)` gösterilmez (#2809). `JobManagerNoteAdded`
   `Talep No: T-…` (yoksa `T-{yıl}-Onay Bekleyen`) içerir; audit `ActorDisplayName` yazılır.
 - **Terminal işlem notları 100 karakterdir:** Görevi Tamamla `Tamamlama Notu`, Görevi İptal Et
   `İptal Nedeni`, Talebi İptal Et `İptal Nedeni` ve Görev Durum Değişikliği nedeni frontend
@@ -1548,8 +1547,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Görevler → Bekleyen Görevlerim → Geciken Görevlerim; alt satır Vatandaş Talepleri → Bekleyen
   Taleplerim → Geciken Taleplerim (Kurum İçi modülü açıkken). Birime Gelen / Birimden Giden
   kutuları kaldırıldı (#2808).
-- **VT operatör/CRM anasayfa kutucuk grid (#2807):** Operator veya CitizenRequestManager (veya
-  Staff+Operator ek rol) dört kutucuk `lg:grid-cols-4` (2×2 değil).
+- **VT operatör/CRM anasayfa kutucuk grid (#2807 reopen):** Operator veya CitizenRequestManager
+  (veya Staff+Operator ek rol) dört kutucukta `sm:grid-cols-4` tek satır (2×2 değil).
 - **Personel/Operatör anasayfa kutucuk sırası (#6a75bf14):** Bekleyen Görevlerim → Bekleyen Taleplerim.
 - **Bekleyen Görevlerim kart sayısı (#6a75c274 / #2804 reopen):** pie `dashboard.chart.pending`
   dilimi (geciken hariç); tıklanınca `/my-tasks?view=pending`. `myPendingTaskCount` yalnızca

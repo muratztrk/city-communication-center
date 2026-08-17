@@ -1723,8 +1723,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   rengi (sky-500 / orange-500 / red-500 / green-500; iç daire beyaz); doygunluk artırımı
   geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
-  Google haritada cadde/sokak/bulvar etiketleri açık; tüm Google POI kapalı; CBS overlay yok
-  (#2797/#2793 geri alındı; #2796).
+  Google haritada cadde/sokak/bulvar açık; ticari POI kapalı; okul/hastane/cami/kamu bina/park/
+  mezarlık/gar/istasyon/yurt/stad Google native POI ikonları açık; CBS overlay yok (#2796; #2797/#2793 geri alındı).
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman
   beyaz çerçeve 1.7rem / iç logo 26px, +/- yığınının solunda **+/− arasındaki çizgi hizasında** (#2614/#2615/#2621/#2631/#2769).
   Hover’da pegman bir kez geri kayar ve durur; mouse çıkınca eski konumuna döner (#2767).

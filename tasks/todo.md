@@ -1,3 +1,6 @@
+## Round 969 — #2796 (güncelleme)
+- [x] `6a82d5d2` — Google native POI: okul, hastane, cami, kamu, park, gar vb.; ticari POI kapalı.
+
 ## Round 968 — #2797 (geri al)
 - [x] `6a82e63c` — CBS referans overlay kaldırıldı (kart isteği geri alındı).
 

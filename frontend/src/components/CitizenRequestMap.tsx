@@ -51,10 +51,19 @@ function pinColor(displayStatus: string, variant: 'citizen' | 'department'): str
   return palette[displayStatus] ?? palette.inProgress
 }
 
-/** Cadde/sokak/bulvar etiketleri açık; tüm Google POI (kamu alanları dahil) kapalı (#2796). */
+/** Cadde/sokak/bulvar açık; ticari POI kapalı; okul/hastane/cami/kamu/park/gar vb. Google native POI (#2796). */
 const REQUEST_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi.school', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.medical', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.place_of_worship', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.government', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.park', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.sports_complex', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.cemetery', stylers: [{ visibility: 'on' }] },
+  { featureType: 'poi.lodging', stylers: [{ visibility: 'on' }] },
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit.station', stylers: [{ visibility: 'on' }] },
   { featureType: 'administrative.land_parcel', stylers: [{ visibility: 'off' }] },
 ]
 

@@ -408,25 +408,22 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     setResolving(true)
     void (async () => {
       const geocoded = (await Promise.all(mappable.map(async pin => {
-        // LocationMapsUrl: pin link koordinatındadır; kayıtlı lat/lng yoksa link çözülür (#2770/#2782).
+        // LocationMapsUrl: marker her zaman Google Maps linkinden (#2783); CBS/kayıtlı lat-lng değil.
         if (hasMapsLocationUrl(pin)) {
-          let latitude = pin.latitude
-          let longitude = pin.longitude
+          const mapsUrl = pin.locationMapsUrl as string
+          const fromLink = await resolveGoogleMapsCoordinatePair(mapsUrl)
+          let latitude = fromLink?.latitude
+          let longitude = fromLink?.longitude
           if (latitude == null || longitude == null) {
-            const fromLink = await resolveGoogleMapsCoordinatePair(pin.locationMapsUrl as string)
-            if (fromLink) {
-              latitude = fromLink.latitude
-              longitude = fromLink.longitude
-            } else {
-              const fromPlace = await api.resolveMapsAddressFromLink(
-                pin.locationMapsUrl as string,
-                mapView.districtId,
-              )
-              if (fromPlace) {
-                latitude = fromPlace.latitude
-                longitude = fromPlace.longitude
-              }
+            const fromPlace = await api.resolveMapsAddressFromLink(mapsUrl, mapView.districtId)
+            if (fromPlace) {
+              latitude = fromPlace.latitude
+              longitude = fromPlace.longitude
             }
+          }
+          if (latitude == null || longitude == null) {
+            latitude = pin.latitude ?? undefined
+            longitude = pin.longitude ?? undefined
           }
           if (latitude == null || longitude == null) return null
           return {

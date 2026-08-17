@@ -1,3 +1,7 @@
+## Round 955 — #2783
+
+- [x] `6a82a5b9` — Konum linki varken harita marker’ı Google Maps linkinden (`!3d` öncelikli); kayıtlı lat/lng/CBS değil.
+
 ## Round 954 — #2782
 
 - [x] `6a82a572` — T-2026-620: Konum Maps linki varken harita pini (kayıtlı lat/lng olmasa da link çözülür).

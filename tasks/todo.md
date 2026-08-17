@@ -1,3 +1,9 @@
+## Round 960 — #2792/#2787/#2788
+
+- [x] `6a82c674` — Üst Düzey Yazışmaya Git koyu turkuaz.
+- [x] `6a82ba9b` — Düzenle koyu turkuaz (`teal-700`).
+- [x] `6a82bae7` — Adres açık menü satır yüksekliği azaltıldı.
+
 ## Round 959 — #2791
 
 - [x] `6a82bfe1` — Vatandaş/Birim talep haritasında Google POI kapalı; CBS Önemli Yerler noktaları.

@@ -160,7 +160,11 @@ export function CitizenDirectoryPage() {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const { user } = useAuth()
-  const canEditDirectoryAddress = user?.role !== 'Reporter'
+  const isReporter = user?.role === 'Reporter'
+  const canEditDirectoryAddress = !isReporter
+  const chatButtonClass = isReporter
+    ? 'inline-flex items-center gap-1.5 !bg-teal-700 !text-white hover:!bg-teal-800'
+    : 'inline-flex items-center gap-1.5 !bg-sky-400 !text-white hover:!bg-sky-500'
 
   const [rows, setRows] = useState<CitizenConversationSummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -532,7 +536,7 @@ export function CitizenDirectoryPage() {
                         <Button
                           type="button"
                           size="sm"
-                          className="!bg-sky-400 !text-white hover:!bg-sky-500"
+                          className="!bg-teal-700 !text-white hover:!bg-teal-800"
                           onClick={() => startAddressEdit(row)}
                         >
                           {t('common.edit', 'Düzenle')}
@@ -542,7 +546,7 @@ export function CitizenDirectoryPage() {
                         <DisabledActionButton
                           type="button"
                           size="sm"
-                          className="inline-flex items-center gap-1.5 !bg-sky-400 !text-white"
+                          className={chatButtonClass}
                           hoverTitle={t('citizenDirectory.goToChatUnavailable', 'Çağrı kanalında yazışma yoktur')}
                         >
                           <MessageSquareText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -552,7 +556,7 @@ export function CitizenDirectoryPage() {
                         <Button
                           type="button"
                           size="sm"
-                          className="inline-flex items-center gap-1.5 !bg-sky-400 !text-white hover:!bg-sky-500"
+                          className={chatButtonClass}
                           onClick={() => void goToConversation(row)}
                         >
                           <MessageSquareText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />

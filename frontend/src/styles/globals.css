@@ -2440,10 +2440,10 @@
   /* Vatandaş Bilgi Listesi adres menü satırları küçük (#2788); tetikleyici 13px (#2790). */
   .citizen-directory-address-menu .dropdown-menu-item,
   .citizen-directory-address-menu .dropdown-menu-item span {
-    min-height: 1.75rem;
-    padding: 0.28rem 0.55rem;
+    min-height: 1.5rem;
+    padding: 0.16rem 0.5rem;
     font-size: 0.6875rem !important;
-    line-height: 1.2;
+    line-height: 1.15;
   }
 
   .citizen-directory-address-menu input,

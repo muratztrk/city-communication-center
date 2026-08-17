@@ -954,7 +954,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const setMyTaskView = (view: MyTaskView) => {
     const nextParams = new URLSearchParams(searchParams)
     nextParams.set('view', view)
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, { replace: true })
     setTasksPage(1)
     clearTaskFilters()
   }
@@ -963,7 +963,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     const nextParams = new URLSearchParams(searchParams)
     if (filter === 'all') nextParams.delete('flow')
     else nextParams.set('flow', filter)
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, { replace: true })
     setTasksPage(1)
     clearTaskFilters()
   }
@@ -971,7 +971,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const setDepartmentTaskFlow = (filter: RequestFlowFilter) => {
     const nextParams = new URLSearchParams(searchParams)
     nextParams.set('flow', filter)
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, { replace: true })
     setTasksPage(1)
     clearTaskFilters()
   }
@@ -980,7 +980,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     const nextParams = new URLSearchParams(searchParams)
     if (userId === 'all') nextParams.delete('userId')
     else nextParams.set('userId', userId)
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, { replace: true })
     setTasksPage(1)
     clearTaskFilters()
   }
@@ -989,7 +989,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     const nextParams = new URLSearchParams(searchParams)
     if (type === 'all') nextParams.delete('taskType')
     else nextParams.set('taskType', type)
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, { replace: true })
     setTasksPage(1)
     clearTaskFilters()
   }

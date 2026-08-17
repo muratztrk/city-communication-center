@@ -1246,7 +1246,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const setMyRequestsView = (view: MyRequestsView) => {
     const nextParams = new URLSearchParams(searchParams)
     nextParams.set('view', view)
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, { replace: true })
     setJobsPage(1)
     clearJobFilters()
   }
@@ -1262,7 +1262,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         nextParams.set('view', 'external-pending')
       }
     }
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, { replace: true })
     setJobsPage(1)
     clearJobFilters()
   }
@@ -1271,7 +1271,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     const nextParams = new URLSearchParams(searchParams)
     if (departmentId) nextParams.set('departmentId', departmentId)
     else nextParams.set('departmentId', 'all')
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, { replace: true })
     setJobsPage(1)
     clearJobFilters()
   }
@@ -1279,7 +1279,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const setDepartmentOutgoingView = (view: DepartmentOutgoingView) => {
     const nextParams = new URLSearchParams(searchParams)
     nextParams.set('view', view)
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, { replace: true })
     setJobsPage(1)
     clearJobFilters()
   }
@@ -2992,9 +2992,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       <div className="my-request-detail-card rounded-xl border border-slate-200 bg-white p-4">
                         <MyRequestSectionHeading icon={NotebookPen}>
                           <span>
-                            {t('jobs.managerNote.title', 'Yönetici Notu')}{' '}
-                            <span className="text-xs font-normal text-slate-400">(Max 100 karakter)</span>{' '}
-                            <span className="text-red-500">*</span>
+                            {t('jobs.managerNote.title', 'Yönetici Notu')}
+                            <span className="text-red-500"> *</span>
                           </span>
                         </MyRequestSectionHeading>
                         {!canEditManagerNote ? (

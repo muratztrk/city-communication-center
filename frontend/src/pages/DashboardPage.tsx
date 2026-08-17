@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChartBarBig, ClipboardList, Clock3, ListChecks, Loader, MessageSquareMore, SquareKanban } from 'lucide-react'
+import { ClipboardList, Clock3, ListChecks, MessageSquareMore, SquareKanban } from 'lucide-react'
 import { useEffect, useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -15,6 +15,8 @@ import { AllCitizenRequestsModal } from '../components/AllCitizenRequestsModal'
 import { AllDepartmentRequestsModal } from '../components/AllDepartmentRequestsModal'
 import { useAuth } from '../context/AuthContext'
 import { isModuleUsable } from '../lib/licenseModules'
+import { getEffectiveUserRoles } from '../lib/rolePageAccess'
+import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
 import { getDashboardChartTitleIcon } from '../utils/dashboardChartIcons'
@@ -493,15 +495,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const managerRow1: MetricCard[] = !hideMetricCards && isManagerOrAdmin && dashboardQuery.data
     ? [
         {
-          label: t('dashboard.cards.incomingPendingApprovalTitle', 'Birime Gelen'),
-          sublabel: t('dashboard.cards.incomingPendingApprovalSub', 'Onay Bekleyen Talepler'),
-          value: dashboardQuery.data.pendingApprovalCount,
-          icon: ChartBarBig,
-          path: '/incoming-requests',
-          iconBg: 'bg-orange-100',
-          iconColor: 'text-orange-600',
-        },
-        {
           label: t('dashboard.cards.deptPendingTasks', 'Birimdeki Görevler'),
           sublabel: t('dashboard.cards.deptPendingTasksSub', 'Bekleyen Görevler'),
           value: dashboardQuery.data.deptPendingTaskCount,
@@ -510,26 +503,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           iconBg: 'bg-emerald-100',
           iconColor: 'text-emerald-600',
         },
-        ...(isInternalModuleUsable ? [
-          {
-            label: t('dashboard.cards.outgoingPendingTitle', 'Birimden Giden'),
-            sublabel: t('dashboard.cards.outgoingPendingSub', 'Bekleyen Talepler'),
-            value: dashboardQuery.data.outgoingPendingCount,
-            icon: ArrowUpRight,
-            path: '/outgoing-requests?view=pending',
-            iconBg: 'bg-sky-100',
-            iconColor: 'text-sky-600',
-          },
-          {
-            label: t('dashboard.cards.outgoingInProgressTitle', 'Birimden Giden'),
-            sublabel: t('dashboard.cards.outgoingInProgressSub', 'Yapılmakta Olan Talepler'),
-            value: dashboardQuery.data.outgoingInProgressCount,
-            icon: Loader,
-            path: '/outgoing-requests?view=in-progress',
-            iconBg: 'bg-cyan-100',
-            iconColor: 'text-cyan-600',
-          },
-        ] as MetricCard[] : []),
         ...(isInternalModuleUsable ? [{
           label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
@@ -577,6 +550,12 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         },
       ]
     : []
+
+  const useStaffMetricFourCol = !isManagerOrAdmin
+    && role !== 'Reporter'
+    && (role === 'Operator'
+      || hasCitizenRequestManagerRole(currentUser)
+      || getEffectiveUserRoles(currentUser).includes('Operator'))
 
   const managerTailCount = isInternalModuleUsable ? 5 : 3
   const managerRowHead = managerRow1.slice(0, Math.max(0, managerRow1.length - managerTailCount))
@@ -780,7 +759,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               ? (
                 <>
                   <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-4">
-                    {Array.from({ length: 5 }).map((_, i) => (
+                    {Array.from({ length: 1 }).map((_, i) => (
                       <div key={i} className="h-[72px] min-w-[15.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                     ))}
                   </div>
@@ -806,7 +785,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           </div>
         ) : (
           <div className="px-5 py-3.5 sm:px-8">
-            <div className="mx-auto grid max-w-3xl gap-x-12 gap-y-2 sm:grid-cols-2">
+            <div className={`mx-auto grid gap-x-12 gap-y-2 ${useStaffMetricFourCol ? 'max-w-7xl sm:grid-cols-2 lg:grid-cols-4' : 'max-w-3xl sm:grid-cols-2'}`}>
               {dashboardQuery.isLoading
                 ? Array.from({ length: 2 }).map((_, i) => (
                     <div key={i} className="h-[72px] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />

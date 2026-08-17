@@ -51,7 +51,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone, formatOverdueInProgressStatus, shouldShowGridPrioritySubline } from '../utils/localization'
-import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
+import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenProcessingReceivedState, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -213,11 +213,14 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
 function getIncomingStatusPillClass(row: IncomingRequestRow): string {
   // Vatandaş PendingExternalApproval satırları UI'da İşleme Alındı olabilir — pending tone kullanma (card #1650 reopen).
   if (row.isCitizenRequest && row.statusDomain === 'job') {
-    const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
-    const overdue = isJobDueDateOverdue({ status: normalizedStatus, dueDateUtc: row.dueDateUtc })
-    if (normalizedStatus === 'Active' && (row.taskCount ?? 0) === 0 && !overdue) {
+    if (isCitizenProcessingReceivedState({
+      status: row.status,
+      dueDateUtc: row.dueDateUtc,
+      taskCount: row.taskCount,
+    })) {
       return getStatusPillClass('processingReceived')
     }
+    const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
     return getStatusPillClass(getJobStatusTone({ status: normalizedStatus, dueDateUtc: row.dueDateUtc }))
   }
   const tone = row.statusDomain === 'task'
@@ -245,10 +248,9 @@ function isCitizenProcessingReceivedRow(row: IncomingRequestRow): boolean {
     || row.status === 'Rejected'
     || row.status === 'RevisionRequested'
   if (isClosed) return false
-  if (isJobDueDateOverdue(row)) return false
   const taskCount = row.taskCount ?? 0
   if (row.status === 'Active' && taskCount > 0) return false
-  return true
+  return row.status === 'PendingExternalApproval' || row.status === 'Active'
 }
 
 function getIncomingKindFilter(): IncomingKindFilter {
@@ -884,7 +886,7 @@ export function IncomingRequestsPage() {
     const nextParams = new URLSearchParams(searchParams)
     if (filter === 'pending-approval') nextParams.delete('status')
     else nextParams.set('status', filter)
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, { replace: true })
     setIncomingPage(1)
     clearIncomingFilters()
   }
@@ -893,7 +895,7 @@ export function IncomingRequestsPage() {
     const nextParams = new URLSearchParams(searchParams)
     if (filter === 'all') nextParams.delete('kind')
     else nextParams.set('kind', filter)
-    setSearchParams(nextParams)
+    setSearchParams(nextParams, { replace: true })
     setIncomingPage(1)
     clearIncomingFilters()
   }

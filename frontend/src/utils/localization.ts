@@ -126,6 +126,12 @@ export function getPriorityColorClass(priority: string): string {
   return 'text-slate-400'
 }
 
+/** Detay panellerinde Normal öncelik yeşil değil (#2810). */
+export function getDetailPriorityColorClass(priority: string): string {
+  if (priority === 'Normal') return 'text-slate-700'
+  return getPriorityColorClass(priority)
+}
+
 /** Grid Talep/Görev No alt satırı: yalnız Yüksek / Çok Yüksek / Kritik (#2509). */
 export function shouldShowGridPrioritySubline(priority: string | null | undefined): boolean {
   const normalized = priority?.trim()

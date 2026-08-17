@@ -48,6 +48,20 @@ type CitizenRequestStatusSource = {
   tasks?: { currentStatus?: string }[]
 }
 
+/** Vatandaş talebi henüz onaylanmadı / açık görev yok — gecikse bile İşleme Alındı (#2805). */
+export function isCitizenProcessingReceivedState(job: CitizenRequestStatusSource): boolean {
+  if (job.status === 'Completed'
+    || job.status === 'Cancelled'
+    || job.status === 'Rejected'
+    || job.status === 'RevisionRequested') {
+    return false
+  }
+  const openTasks = countOpenWorkTasks(job)
+  if (job.status === 'PendingExternalApproval') return true
+  if (job.status === 'Active' && openTasks === 0) return true
+  return false
+}
+
 export function getCitizenRequestStatusLabel(
   t: TFunction,
   job: CitizenRequestStatusSource,
@@ -56,6 +70,9 @@ export function getCitizenRequestStatusLabel(
   if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
+  if (isCitizenProcessingReceivedState(job)) {
+    return t('social.requestStatus.processingReceived', 'İşleme Alındı')
+  }
   if (isJobDueDateOverdue({ status: job.status, dueDateUtc: job.dueDateUtc })) {
     return formatOverdueInProgressStatus(t)
   }
@@ -73,6 +90,7 @@ export function getCitizenRequestStatusTone(job: CitizenRequestStatusSource): Gr
   if (job.status === 'Cancelled') return 'cancelled'
   if (job.status === 'Rejected') return 'rejected'
   if (job.status === 'RevisionRequested') return 'neutral'
+  if (isCitizenProcessingReceivedState(job)) return 'processingReceived'
   if (isJobDueDateOverdue({ status: job.status, dueDateUtc: job.dueDateUtc })) return 'overdue'
   if (job.status === 'Active' && countOpenWorkTasks(job) > 0) return 'inProgress'
   return 'processingReceived'

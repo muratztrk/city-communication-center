@@ -6,7 +6,7 @@ import { AttachmentImagePreviewButton } from '../../ui/AttachmentImagePreviewBut
 import { SimpleImageAttachmentIcon } from '../../ui/SimpleImageAttachmentIcon'
 import type { JobDetail } from '../../../types/platform'
 import { requestLocationFieldLabel } from '../../../utils/citizenRequests'
-import { getPriorityColorClass, getPriorityLabel, getTaskDisplayStatus, getTaskStatusTone } from '../../../utils/localization'
+import { getDetailPriorityColorClass, getPriorityLabel, getTaskDisplayStatus, getTaskStatusTone } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime } from './format'
 import { buildInProgressPeriodStep, type JobProcessStep } from './buildJobProcessSteps'
 import { JobProcessTimeline, TimelineDateTimeValue } from './JobProcessTimeline'
@@ -228,7 +228,7 @@ export function MyRequestTaskDetailsSection({
                       // İlgili Görev Detayları: Görevi Yapan sonrası Öncelik + renk (#r537).
                       label: t('tasks.columns.priority', 'Öncelik'),
                       value: (
-                        <span className={`${getPriorityColorClass(task.priority)} ${task.priority === 'High' || task.priority === 'VeryHigh' || task.priority === 'Critical' ? 'font-extrabold' : 'font-semibold'}`}>
+                        <span className={`${getDetailPriorityColorClass(task.priority)} ${task.priority === 'High' || task.priority === 'VeryHigh' || task.priority === 'Critical' ? 'font-extrabold' : 'font-semibold'}`}>
                           {getPriorityLabel(t, task.priority)}
                         </span>
                       ),

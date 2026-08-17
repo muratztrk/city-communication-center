@@ -1544,9 +1544,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Görevi Yapan / Görev Sahibi yok (#6a75a4ff).
 - **Kurum içi FAB sohbet zemin:** liste paneli ile aynı `bg-[color:var(--color-background)]`
   (bej `#ece5dd` geri alındı — #6a75a09a).
-- **Yönetici anasayfa kutucuk sırası (#6a75b318 / #2532 reopen):** Birime Gelen Onay Bekleyen
-  → Birimdeki Görevler (Bekleyen Görevler) → Birimden Giden Bekleyen → Birimden Giden Yapılmakta
-  → Bekleyen Taleplerim → Bekleyen Görevlerim → Vatandaş Talepleri (en son).
+- **Yönetici anasayfa kutucuk sırası (#6a75b318 / #2808):** Birimdeki Görevler (üst satır) → alt
+  satır: Bekleyen/Geciken Taleplerim → Bekleyen/Geciken Görevlerim → Vatandaş Talepleri. Birime
+  Gelen Onay Bekleyen / Birimden Giden Bekleyen / Yapılmakta kutuları kaldırıldı (#2808).
+- **VT operatör/CRM anasayfa kutucuk grid (#2807):** Operator veya CitizenRequestManager (veya
+  Staff+Operator ek rol) dört kutucuk `lg:grid-cols-4` (2×2 değil).
 - **Personel/Operatör anasayfa kutucuk sırası (#6a75bf14):** Bekleyen Görevlerim → Bekleyen Taleplerim.
 - **Bekleyen Görevlerim kart sayısı (#6a75c274 / #2804 reopen):** pie `dashboard.chart.pending`
   dilimi (geciken hariç); tıklanınca `/my-tasks?view=pending`. `myPendingTaskCount` yalnızca

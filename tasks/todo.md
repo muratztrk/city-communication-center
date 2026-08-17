@@ -1,3 +1,6 @@
+## Round 964 — #2796 (güncelleme)
+- [x] `6a82d5d2` — Kamu alanları da gizlendi; yalnız cadde/sokak/bulvar + talep pinleri.
+
 ## Round 963 — #2796
 - [x] `6a82d5d2` — Talep haritaları: cadde/sokak/bulvar + kamu alanları (park/belediye) görünür; ticari POI kapalı.
 

@@ -1,3 +1,6 @@
+## Round 971 — #2796 (güncelleme)
+- [x] `6a82d5d2` — CBS overlay kaldırıldı; Google Maps native POI (okul/hastane/cami/kamu/park/gar vb.) geri.
+
 ## Round 970 — #2796 (düzeltme)
 - [x] `6a82d5d2` — Google POI kategori yerine CBS filtre overlay; isim anahtarları sıkılaştırıldı.
 

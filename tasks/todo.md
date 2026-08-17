@@ -1,3 +1,6 @@
+## Round 978 — #2791 (Vatandaş Talepleri kutusu İşleme Alındı)
+- [x] `6a82bfe1` — Anasayfa metrik kartı: onay bekleyen yerine İşleme Alındı VT sayısı; BE sınıflandırma pie ile uyumlu.
+
 ## Round 977 — #2793 (bildirim zili rozeti)
 - [x] `6a82c8d0` — Zil rozeti overflow + query key düzeltmesi; liste/API uyumlu sayı.
 

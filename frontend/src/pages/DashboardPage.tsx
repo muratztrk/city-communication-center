@@ -527,10 +527,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         },
         {
           label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
-          sublabel: t('dashboard.cards.citizenPendingApprovalSub', 'Onay Bekleyen'),
+          sublabel: t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı'),
           value: dashboardQuery.data.activeSocialMessageCount,
           icon: MessageSquareMore,
-          path: '/incoming-requests?status=pending-approval&citizen=1',
+          path: '/social?requestStatus=processing-received',
           iconBg: 'bg-rose-100',
           iconColor: 'text-rose-600',
         },

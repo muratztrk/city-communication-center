@@ -250,15 +250,12 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
         var roleCode = context.RoleCode;
         if (roleCode is "SystemAdmin" or "Operator")
         {
-            openSocialMessages = await _dbContext.Jobs
-                .Where(j => j.TenantId == tenantId
-                    && j.SourceType != JobSourceType.Routine
-                    && (!j.DueDateUtc.HasValue || j.DueDateUtc >= now)
-                    && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
-                    && _dbContext.SocialMessages.Any(m => m.JobId == j.JobId && m.CitizenRequestNumber != null)
-                    && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
-                    && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value))
-                .CountAsync(cancellationToken);
+            openSocialMessages = await CountCitizenProcessingReceivedVtJobsAsync(
+                tenantId,
+                fromUtc,
+                toUtc,
+                departmentIds: null,
+                cancellationToken);
         }
         else if (isManagerOrAdmin && userId.HasValue)
         {
@@ -273,19 +270,12 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
 
             if (socialDepartmentIds.Length > 0)
             {
-                openSocialMessages = await _dbContext.Jobs
-                    .Where(j => j.TenantId == tenantId
-                        && j.SourceType != JobSourceType.Routine
-                        && (!j.DueDateUtc.HasValue || j.DueDateUtc >= now)
-                        && (j.Status == JobStatus.PendingOwnerApproval || j.Status == JobStatus.PendingExternalApproval)
-                        && _dbContext.SocialMessages.Any(m => m.JobId == j.JobId && m.CitizenRequestNumber != null)
-                        && (socialDepartmentIds.Contains(j.OwnerDepartmentId)
-                            || _dbContext.JobDepartments.Any(jd => jd.JobId == j.JobId
-                                && jd.Role == JobDepartmentRole.Target
-                                && socialDepartmentIds.Contains(jd.DepartmentId)))
-                        && (!fromUtc.HasValue || j.CreatedAtUtc >= fromUtc.Value)
-                        && (!toUtc.HasValue || j.CreatedAtUtc <= toUtc.Value))
-                    .CountAsync(cancellationToken);
+                openSocialMessages = await CountCitizenProcessingReceivedVtJobsAsync(
+                    tenantId,
+                    fromUtc,
+                    toUtc,
+                    socialDepartmentIds,
+                    cancellationToken);
             }
         }
 
@@ -305,5 +295,42 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
             incomingTotalCount,
             outgoingTotalCount,
             deptTotalTaskCount);
+    }
+
+    private async Task<int> CountCitizenProcessingReceivedVtJobsAsync(
+        Guid tenantId,
+        DateTimeOffset? fromUtc,
+        DateTimeOffset? toUtc,
+        IReadOnlyList<Guid>? departmentIds,
+        CancellationToken cancellationToken)
+    {
+        var now = DateTimeOffset.UtcNow;
+        var jobsQuery = _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && job.SourceType != JobSourceType.Routine
+                && (!fromUtc.HasValue || job.CreatedAtUtc >= fromUtc.Value)
+                && (!toUtc.HasValue || job.CreatedAtUtc <= toUtc.Value));
+
+        if (departmentIds is { Count: > 0 })
+        {
+            jobsQuery = jobsQuery.Where(job =>
+                departmentIds.Contains(job.OwnerDepartmentId)
+                || _dbContext.JobDepartments.Any(link => link.JobId == job.JobId
+                    && link.Role == JobDepartmentRole.Target
+                    && departmentIds.Contains(link.DepartmentId)));
+        }
+
+        var slices = await jobsQuery
+            .WhereHasCitizenRequestNumber(_dbContext)
+            .Select(job => new CitizenVtDashboardClassification.JobSlice(
+                job.Status,
+                job.DueDateUtc,
+                _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected)))
+            .ToListAsync(cancellationToken);
+
+        return slices.Count(slice => CitizenVtDashboardClassification.IsProcessingReceived(slice, now));
     }
 }

@@ -1,4 +1,4 @@
-import { ArrowUpRight, ChartBarBig, ClipboardList, ListChecks, Loader, MessageSquareMore, SquareKanban } from 'lucide-react'
+import { ArrowUpRight, ChartBarBig, ClipboardList, Clock3, ListChecks, Loader, MessageSquareMore, SquareKanban } from 'lucide-react'
 import { useEffect, useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -454,6 +454,20 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     return chart.slices.find(slice => slice.label === pendingLabel)?.value ?? 0
   }, [dashboardQuery.data, statusChartsQuery.data, isManagerOrAdmin])
 
+  const myOverdueRequestsMetricValue = useMemo(() => {
+    if (!dashboardQuery.data) return undefined
+    const chart = statusChartsQuery.data?.charts.find(item => item.titleKey === 'dashboard.charts.myRequests')
+    if (!chart) return 0
+    return chart.slices.find(slice => slice.label === 'dashboard.chart.overdue')?.value ?? 0
+  }, [dashboardQuery.data, statusChartsQuery.data])
+
+  const myOverdueTasksMetricValue = useMemo(() => {
+    if (!dashboardQuery.data) return undefined
+    const chart = statusChartsQuery.data?.charts.find(item => item.titleKey === 'dashboard.charts.myTasks')
+    if (!chart) return 0
+    return chart.slices.find(slice => slice.label === 'dashboard.chart.overdue')?.value ?? 0
+  }, [dashboardQuery.data, statusChartsQuery.data])
+
   // Hook'lardan sonra redirect — erken return rules-of-hooks bozar (CI lint).
   if (effectiveView === 'citizen' && !isModuleUsable('citizen')) {
     return <Navigate to={role === 'Operator' ? '/dashboard/birimler' : '/citizen-directory'} replace />
@@ -517,6 +531,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-requests?view=external-pending',
           iconBg: 'bg-amber-100',
           iconColor: 'text-amber-600',
+        },
+        {
+          label: t('jobs.myViews.overdue', 'Geciken Taleplerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          value: myOverdueRequestsMetricValue ?? 0,
+          icon: Clock3,
+          path: '/my-requests?view=overdue',
+          iconBg: 'bg-orange-100',
+          iconColor: 'text-orange-600',
         }] : []),
         {
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
@@ -526,6 +549,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-tasks?view=open',
           iconBg: 'bg-violet-100',
           iconColor: 'text-violet-600',
+        },
+        {
+          label: t('tasks.myViews.overdue', 'Geciken Görevlerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          value: myOverdueTasksMetricValue ?? 0,
+          icon: Clock3,
+          path: '/my-tasks?view=overdue',
+          iconBg: 'bg-orange-100',
+          iconColor: 'text-orange-600',
         },
         {
           label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
@@ -539,7 +571,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       ]
     : []
 
-  const managerTailCount = isInternalModuleUsable ? 3 : 2
+  const managerTailCount = isInternalModuleUsable ? 5 : 3
   const managerRowHead = managerRow1.slice(0, Math.max(0, managerRow1.length - managerTailCount))
   const managerRowTail = managerRow1.slice(-managerTailCount)
 
@@ -553,6 +585,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-tasks?view=open',
           iconBg: 'bg-violet-100',
           iconColor: 'text-violet-600',
+        },
+        {
+          label: t('tasks.myViews.overdue', 'Geciken Görevlerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          value: myOverdueTasksMetricValue ?? 0,
+          icon: Clock3,
+          path: '/my-tasks?view=overdue',
+          iconBg: 'bg-orange-100',
+          iconColor: 'text-orange-600',
         }]),
         ...(isInternalModuleUsable ? [{
           label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
@@ -562,6 +603,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-requests?view=pending',
           iconBg: 'bg-amber-100',
           iconColor: 'text-amber-600',
+        },
+        {
+          label: t('jobs.myViews.overdue', 'Geciken Taleplerim'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          value: myOverdueRequestsMetricValue ?? 0,
+          icon: Clock3,
+          path: '/my-requests?view=overdue',
+          iconBg: 'bg-orange-100',
+          iconColor: 'text-orange-600',
         }] : []),
       ]
     : []
@@ -728,7 +778,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                     ))}
                   </div>
                   <div className="mx-auto mt-2 flex max-w-7xl flex-wrap justify-center gap-x-12">
-                    {Array.from({ length: 3 }).map((_, i) => (
+                    {Array.from({ length: isInternalModuleUsable ? 5 : 3 }).map((_, i) => (
                       <div key={i} className="h-[72px] w-full min-w-[15.5rem] max-w-[calc((100%-9rem)/4)] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:max-w-[calc((100%-3rem)/2)]" />
                     ))}
                   </div>

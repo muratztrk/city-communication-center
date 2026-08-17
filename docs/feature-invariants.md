@@ -1590,6 +1590,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dilimi; tıklama → `/my-requests?view=external-pending` (#2800).
 - **Personel `Bekleyen Taleplerim` kartı:** sayı = `myRequests` pie `pending` dilimi (geciken
   dahil değil); tıklama → `/my-requests?view=pending` (#2801).
+- **Anasayfa geciken kutucukları (#2802/#2803):** Bekleyen Taleplerim/Görevlerim sonrası
+  `Geciken Taleplerim` / `Geciken Görevlerim`; sayı = ilgili pie `overdue` dilimi; tıklama
+  → `/my-requests?view=overdue` / `/my-tasks?view=overdue`.
 - **Yönetici `Personelimin Görevi Çözme Süresi` grafiği:** yalnız Manager rolünde ve yöneticinin
   kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
   (`CreatedAtUtc`) ile tamamlananda `CompletedAtUtc`, iptalde son `TaskCancelled` audit zamanı

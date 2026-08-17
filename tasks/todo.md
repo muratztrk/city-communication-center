@@ -1,3 +1,6 @@
+## Round 981 — #2802/#2803 (Geciken Taleplerim/Görevlerim kutuları)
+- [x] `6a832c26` / `6a832c2e` — Anasayfa overdue metrik kutuları; pie overdue + Taleplerim/Görevlerim grid.
+
 ## Round 980 — #2800/#2801/#2791 reopen (dashboard metrik kutuları)
 - [x] `6a832a18` — Yönetici Bekleyen Taleplerim → external-pending + pie sayısı.
 - [x] `6a832a8d` — Personel Bekleyen Taleplerim → pending pie dilimi (geciken hariç).

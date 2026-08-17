@@ -1548,8 +1548,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   → Birimdeki Görevler (Bekleyen Görevler) → Birimden Giden Bekleyen → Birimden Giden Yapılmakta
   → Bekleyen Taleplerim → Bekleyen Görevlerim → Vatandaş Talepleri (en son).
 - **Personel/Operatör anasayfa kutucuk sırası (#6a75bf14):** Bekleyen Görevlerim → Bekleyen Taleplerim.
-- **Bekleyen Görevlerim kart sayısı (#6a75c274):** `myPendingTaskCount` = bekleyen + son tarihi geçmiş
-  (terminal hariç); tıklanınca `/my-tasks?view=open` (ikisini birden listeler, Durum sütunu açık).
+- **Bekleyen Görevlerim kart sayısı (#6a75c274 / #2804 reopen):** pie `dashboard.chart.pending`
+  dilimi (geciken hariç); tıklanınca `/my-tasks?view=pending`. `myPendingTaskCount` yalnızca
+  nav rozeti / eski uyumluluk için geciken dahil kalır; kart sayısı `myPendingTaskNavBadgeCount`
+  veya pie ile aynı.
 - **Operatör birim anasayfa banner (#6a75bed6):** `pageTitle` / breadcrumb `birimler` = `Anasayfa`
   (Anasayfa - Birimler değil).
 - **Görev Tarihi filtre harf (#6a75c435 / #6a75c4e8):** Görevlerim + Personelimin `createdAtUtc`
@@ -1587,7 +1589,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sayısı (pie `citizenProcessingReceived` ile aynı sınıflandırma); alt etiket **Onay Bekleyen**
   (#2791 reopen). Tıklama → `/incoming-requests?citizen=1&status=processing-received`.
 - **Yönetici `Bekleyen Taleplerim` kartı:** sayı = `myRequests` pie `externalPendingApproval`
-  dilimi; tıklama → `/my-requests?view=external-pending` (#2800).
+  dilimi (`PendingExternalApproval` veya `Active` + `taskCount===0`, geciken hariç — Taleplerim
+  `external-pending` grid ile aynı); tıklama → `/my-requests?view=external-pending` (#2800).
 - **Personel `Bekleyen Taleplerim` kartı:** sayı = `myRequests` pie `pending` dilimi (geciken
   dahil değil); tıklama → `/my-requests?view=pending` (#2801).
 - **Anasayfa geciken kutucukları (#2802/#2803):** Bekleyen Taleplerim/Görevlerim sonrası

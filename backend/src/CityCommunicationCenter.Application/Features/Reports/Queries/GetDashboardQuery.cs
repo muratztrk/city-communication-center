@@ -90,10 +90,9 @@ public sealed class GetDashboardQueryHandler : IQueryHandler<GetDashboardQuery, 
                         && job.RequestType == JobRequestType.ExternalUnit
                         && job.CreatedByUserId == userId
                         && (!job.DueDateUtc.HasValue || job.DueDateUtc >= now)
-                        && (job.Status == JobStatus.Draft
-                            || job.Status == JobStatus.PendingOwnerApproval
-                            || job.Status == JobStatus.PendingExternalApproval
-                            || job.Status == JobStatus.RevisionRequested)
+                        && (job.Status == JobStatus.PendingExternalApproval
+                            || (job.Status == JobStatus.Active
+                                && !_dbContext.Tasks.Any(task => task.JobId == job.JobId)))
                         && (!fromUtc.HasValue || job.CreatedAtUtc >= fromUtc.Value)
                         && (!toUtc.HasValue || job.CreatedAtUtc <= toUtc.Value),
                     cancellationToken);

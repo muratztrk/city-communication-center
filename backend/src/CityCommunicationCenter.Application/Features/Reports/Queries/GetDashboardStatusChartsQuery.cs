@@ -239,7 +239,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
                 _dbContext.Tasks.Any(task => task.JobId == job.JobId
                     && task.CurrentStatus != WorkflowTaskStatus.Completed
                     && task.CurrentStatus != WorkflowTaskStatus.Cancelled
-                    && task.CurrentStatus != WorkflowTaskStatus.Rejected)))
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
+                _dbContext.Tasks.Count(task => task.JobId == job.JobId)))
             .ToListAsync(cancellationToken);
     }
 
@@ -954,7 +955,9 @@ public sealed class GetDashboardStatusChartsQueryHandler
         bool includeInProgress)
     {
         var values = jobs.ToList();
-        var pending = values.Count(job => MatchesJobPendingSlice(job.Status, pendingLabel) && !IsPastDue(job.DueDateUtc, now));
+        var pending = pendingLabel == "dashboard.chart.externalPendingApproval"
+            ? values.Count(job => MatchesExternalPendingView(job, now))
+            : values.Count(job => MatchesJobPendingSlice(job.Status, pendingLabel) && !IsPastDue(job.DueDateUtc, now));
         // Son tarihi geçmiş kayıtlar yalnızca DueDateUtc ile belirlenir (card #1181).
         var overdue = values.Count(job => IsOpen(job.Status) && IsPastDue(job.DueDateUtc, now));
         var activeNotOverdue = values.Where(job =>
@@ -981,6 +984,12 @@ public sealed class GetDashboardStatusChartsQueryHandler
             => status is JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval,
         _ => status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested,
     };
+
+    // Taleplerim `view=external-pending` ile aynı: PendingExternalApproval veya Active + hiç görev yok; geciken hariç.
+    private static bool MatchesExternalPendingView(JobStatusItem job, DateTimeOffset now) =>
+        !IsPastDue(job.DueDateUtc, now)
+        && (job.Status == JobStatus.PendingExternalApproval
+            || (job.Status == JobStatus.Active && job.TotalTaskCount == 0));
 
     private static bool IsPastDue(DateTimeOffset? dueDateUtc, DateTimeOffset now) =>
         dueDateUtc.HasValue && dueDateUtc.Value < now;
@@ -1024,7 +1033,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
     }
 
     private sealed record TaskStatusItem(Guid? AssignedUserId, WorkflowTaskStatus Status, DateTimeOffset? DueDateUtc, JobSourceType SourceType, string Priority);
-    private sealed record JobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, bool HasOpenTasks);
+    private sealed record JobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, bool HasOpenTasks, int TotalTaskCount);
     private sealed record CitizenJobStatusItem(JobStatus Status, DateTimeOffset? DueDateUtc, int TaskCount);
 
     private enum CitizenJobDisplayStatus

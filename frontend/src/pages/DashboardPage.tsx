@@ -468,6 +468,13 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     return chart.slices.find(slice => slice.label === 'dashboard.chart.overdue')?.value ?? 0
   }, [dashboardQuery.data, statusChartsQuery.data])
 
+  const myPendingTasksMetricValue = useMemo(() => {
+    if (!dashboardQuery.data) return undefined
+    const chart = statusChartsQuery.data?.charts.find(item => item.titleKey === 'dashboard.charts.myTasks')
+    if (!chart) return dashboardQuery.data.myPendingTaskNavBadgeCount
+    return chart.slices.find(slice => slice.label === 'dashboard.chart.pending')?.value ?? 0
+  }, [dashboardQuery.data, statusChartsQuery.data])
+
   // Hook'lardan sonra redirect — erken return rules-of-hooks bozar (CI lint).
   if (effectiveView === 'citizen' && !isModuleUsable('citizen')) {
     return <Navigate to={role === 'Operator' ? '/dashboard/birimler' : '/citizen-directory'} replace />
@@ -544,9 +551,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         {
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
-          value: dashboardQuery.data.myPendingTaskCount,
+          value: myPendingTasksMetricValue ?? dashboardQuery.data.myPendingTaskNavBadgeCount,
           icon: ListChecks,
-          path: '/my-tasks?view=open',
+          path: '/my-tasks?view=pending',
           iconBg: 'bg-violet-100',
           iconColor: 'text-violet-600',
         },
@@ -580,9 +587,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         ...(isReporter ? [] : [{
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
-          value: dashboardQuery.data.myPendingTaskCount,
+          value: myPendingTasksMetricValue ?? dashboardQuery.data.myPendingTaskNavBadgeCount,
           icon: ListChecks,
-          path: '/my-tasks?view=open',
+          path: '/my-tasks?view=pending',
           iconBg: 'bg-violet-100',
           iconColor: 'text-violet-600',
         },

@@ -1,3 +1,6 @@
+## Round 979 — #2793 reopen (zil rozeti çerçeve)
+- [x] `6a82c8d0` — Bildirim zili rozeti dış çerçeve beyaz değil; scope-chip overdue ile kırmızı border.
+
 ## Round 978 — #2791 (Vatandaş Talepleri kutusu İşleme Alındı)
 - [x] `6a82bfe1` — Anasayfa metrik kartı: onay bekleyen yerine İşleme Alındı VT sayısı; BE sınıflandırma pie ile uyumlu.
 

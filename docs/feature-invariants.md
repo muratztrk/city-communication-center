@@ -2424,10 +2424,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   üretir; FE başlık eşleşmesi eski yanlış URL'leri de department scope'a zorlar. Görevlerim popup'ı
   kullanılmaz — onay/red "Ek süre talebini gör" bu yüzeyde görünür.
 - **Bildirim zili okunmamış rozeti (#2793):** `notification-bell-badge` köşede
-  (`right/top: -0.35rem / -0.45rem`), `z-index: 30`, beyaz halka; header ve zil butonu
-  `overflow-visible` (üst kapsayıcı `overflow-x-hidden` rozeti kesmemeli). Rozet sayısı
-  `unread-count` API + liste okunmamışların üst sınırı; query key aktif birimle hizalı.
-  numarası; sayfalı modalda `indexOffset` ile devam eder.
+  (`right/top: -0.35rem / -0.45rem`), `z-index: 30`, kırmızı halka (`border` beyaz değil —
+  `scope-chip-overdue-badge` ile aynı); header ve zil butonu `overflow-visible` (üst kapsayıcı
+  `overflow-x-hidden` rozeti kesmemeli). Rozet sayısı `unread-count` API + liste okunmamışların
+  üst sınırı; query key aktif birimle hizalı.
 - **Bildirim dropdown okundu aksiyonu:** "Tümünü Okundu yap" butonu küçük bildirim dropdown'unda
   kapatma X'inin solundadır, yeşil metinlidir, çerçeveli buton gibi görünür ve iki satır metin
   (`Tümünü` / `Okundu yap`) arasında okunabilir boşluk kullanır;

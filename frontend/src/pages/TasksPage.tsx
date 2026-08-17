@@ -2481,7 +2481,7 @@ const pageKicker = isMyTasksView
                               state: 'completed',
                             },
                             ...(isCompletedTimelineTask
-                              ? [dueDateStep, {
+                              ? [{
                                   ...buildInProgressPeriodStep(
                                     t,
                                     locale,
@@ -2497,9 +2497,9 @@ const pageKicker = isMyTasksView
                                   displayValue: formatDateTime(taskDetail.completedAtUtc, locale),
                                   dateTimeUtc: taskDetail.completedAtUtc ?? null,
                                   state: 'terminal-success' as const,
-                                }]
+                                }, dueDateStep]
                               : isCancelledTimelineTask
-                                ? [dueDateStep, {
+                                ? [{
                                     ...buildInProgressPeriodStep(
                                       t,
                                       locale,
@@ -2515,7 +2515,7 @@ const pageKicker = isMyTasksView
                                     displayValue: formatDateTime(cancelledAtUtc, locale),
                                     dateTimeUtc: cancelledAtUtc,
                                     state: 'terminal-danger' as const,
-                                  }]
+                                  }, dueDateStep]
                                 : [
                                     {
                                       id: 'status' as const,

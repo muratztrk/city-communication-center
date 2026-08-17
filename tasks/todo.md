@@ -1,3 +1,8 @@
+## Round 957 — #2785/#2786
+
+- [x] `6a82b855` — Görev Süreç Son Tarih, Tamamlanma/İptal’den sonra.
+- [x] `6a82b903` — Talep / İlgili Talep Süreç’te terminal Son Tarih katmanı aynı sırada.
+
 ## Round 956 — #2784
 
 - [x] `6a82b2e5` — Vatandaş Bilgi Listesi İşlemler’e Düzenle; Mahalle/Cadde/No/Adres Tarifi grid’de.

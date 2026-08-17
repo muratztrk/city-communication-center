@@ -530,14 +530,13 @@ export function buildJobProcessSteps(
     })
   }
 
-  if (!isTerminalStatus(detail.status)) {
-    steps.push({
-      id: 'dueDate',
-      label: t('jobs.columns.dueDate', 'Son Tarih'),
-      displayValue: formatDueDateTime(detail.dueDateUtc, locale),
-      dateTimeUtc: detail.dueDateUtc ?? null,
-    })
-  }
+  // Aktif taleplerde Durum’dan sonra; terminalde Tamamlanma/İptal’den sonra (#2785/#2786).
+  steps.push({
+    id: 'dueDate',
+    label: t('jobs.columns.dueDate', 'Son Tarih'),
+    displayValue: formatDueDateTime(detail.dueDateUtc, locale),
+    dateTimeUtc: detail.dueDateUtc ?? null,
+  })
 
   return resolveStepStates(steps, detail, options)
 }

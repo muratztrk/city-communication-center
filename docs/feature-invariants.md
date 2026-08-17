@@ -1014,6 +1014,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile terminal zaman `date • time - date • time` (bullet + ` - `). Kapanışta son tarih geçmişse
   etiket `Yapılmakta (Geciken)` olur (#2776). Ayrı `inProgressPeriod` adımıdır;
   `statusContent` bu değeri ezmez. Görev tarafı: Görevlerim + İlgili Görev Detayları.
+  Terminal Süreç’te `Son Tarih` Tamamlanma/İptal’den **sonra** gelir (#2785/#2786); aktifte Durum’dan sonra.
 - **Süreç tarih/saat punto (#2775/#2779):** tarih-saat ve Son Tarih `0.75rem` (`datetime-value`);
   Durum etiketi aynı. Son Tarih `date • time` (`TimelineDateTimeValue` / ProcessStepDateValue, #2777);
   `dueDateContent` varken tarih bir kez yazılır (#2781).

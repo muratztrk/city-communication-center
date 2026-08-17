@@ -58,7 +58,6 @@ function buildTaskProcessSteps(
         dateTimeUtc: task.createdAtUtc ?? null,
         state: 'completed',
       },
-      dueDateStep,
       {
         ...buildInProgressPeriodStep(
           t,
@@ -77,6 +76,7 @@ function buildTaskProcessSteps(
         dateTimeUtc: task.completedAtUtc ?? null,
         state: 'terminal-success',
       },
+      dueDateStep,
     ]
   }
 
@@ -95,7 +95,6 @@ function buildTaskProcessSteps(
         dateTimeUtc: task.createdAtUtc ?? null,
         state: 'completed',
       },
-      dueDateStep,
       {
         ...buildInProgressPeriodStep(t, locale, task.createdAtUtc, cancelledAtUtc, assigneeName, task.dueDateUtc),
         state: 'completed',
@@ -107,6 +106,7 @@ function buildTaskProcessSteps(
         dateTimeUtc: cancelledAtUtc,
         state: 'terminal-danger',
       },
+      dueDateStep,
     ]
   }
 

@@ -1,3 +1,6 @@
+## Round 966 — #2793 (geri al)
+- [x] `6a82c8d0` — CBS Tire referans overlay kaldırıldı (kart isteği geri alındı).
+
 ## Round 965 — #2793
 - [x] `6a82c8d0` — CBS Tire referans yerleri overlay (kategori ikonları + mahalle/isim etiketleri).
 

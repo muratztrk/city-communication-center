@@ -1,3 +1,8 @@
+## Round 980 — #2800/#2801/#2791 reopen (dashboard metrik kutuları)
+- [x] `6a832a18` — Yönetici Bekleyen Taleplerim → external-pending + pie sayısı.
+- [x] `6a832a8d` — Personel Bekleyen Taleplerim → pending pie dilimi (geciken hariç).
+- [x] `6a82bfe1` — VT kutusu Onay Bekleyen etiketi; incoming citizen İşleme Alındı filtresi.
+
 ## Round 979 — #2793 reopen (zil rozeti çerçeve)
 - [x] `6a82c8d0` — Bildirim zili rozeti dış çerçeve beyaz değil; scope-chip overdue ile kırmızı border.
 

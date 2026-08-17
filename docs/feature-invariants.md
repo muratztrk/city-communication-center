@@ -1584,9 +1584,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hook öncesi return `react-hooks/rules-of-hooks` ile lint fail eder.
 - **Banner buton sayımları client-side hesaplanır; dashboard'da bu aggregation YOK.**
 - **Yönetici `Vatandaş Talepleri` kartı:** `activeSocialMessageCount` — İşleme Alındı VT
-  sayısı (pie `citizenProcessingReceived` ile aynı sınıflandırma; CitizenRequestNumber dolu
-  job'lar); SystemAdmin/Operator tenant geneli; Manager kapsam birimi (#2332, #2791).
-  Tıklama → `/social?requestStatus=processing-received`.
+  sayısı (pie `citizenProcessingReceived` ile aynı sınıflandırma); alt etiket **Onay Bekleyen**
+  (#2791 reopen). Tıklama → `/incoming-requests?citizen=1&status=processing-received`.
+- **Yönetici `Bekleyen Taleplerim` kartı:** sayı = `myRequests` pie `externalPendingApproval`
+  dilimi; tıklama → `/my-requests?view=external-pending` (#2800).
+- **Personel `Bekleyen Taleplerim` kartı:** sayı = `myRequests` pie `pending` dilimi (geciken
+  dahil değil); tıklama → `/my-requests?view=pending` (#2801).
 - **Yönetici `Personelimin Görevi Çözme Süresi` grafiği:** yalnız Manager rolünde ve yöneticinin
   kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
   (`CreatedAtUtc`) ile tamamlananda `CompletedAtUtc`, iptalde son `TaskCancelled` audit zamanı

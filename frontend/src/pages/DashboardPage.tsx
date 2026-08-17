@@ -185,6 +185,7 @@ const SLICE_VIEW: Record<string, string> = {
 const INCOMING_SLICE_STATUS: Record<string, string> = {
   'dashboard.chart.pendingApproval': 'pending-approval',
   'dashboard.chart.pending': 'pending-approval',
+  'dashboard.chart.citizenProcessingReceived': 'processing-received',
   'dashboard.chart.overdue': 'overdue',
   'dashboard.chart.approved': 'approved',
   // Yapılmakta Olan → mavi "Yapılmakta Olan Talepler" chip (#r542 / cards #3+#16)
@@ -447,10 +448,11 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     if (!dashboardQuery.data) return undefined
     const chart = statusChartsQuery.data?.charts.find(item => item.titleKey === 'dashboard.charts.myRequests')
     if (!chart) return dashboardQuery.data.myPendingRequestCount
-    const pending = chart.slices.find(slice => slice.label === 'dashboard.chart.pending')?.value ?? 0
-    const overdue = chart.slices.find(slice => slice.label === 'dashboard.chart.overdue')?.value ?? 0
-    return pending + overdue
-  }, [dashboardQuery.data, statusChartsQuery.data])
+    const pendingLabel = isManagerOrAdmin
+      ? 'dashboard.chart.externalPendingApproval'
+      : 'dashboard.chart.pending'
+    return chart.slices.find(slice => slice.label === pendingLabel)?.value ?? 0
+  }, [dashboardQuery.data, statusChartsQuery.data, isManagerOrAdmin])
 
   // Hook'lardan sonra redirect — erken return rules-of-hooks bozar (CI lint).
   if (effectiveView === 'citizen' && !isModuleUsable('citizen')) {
@@ -512,7 +514,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
           value: myPendingRequestsMetricValue ?? dashboardQuery.data.myPendingRequestCount,
           icon: ClipboardList,
-          path: '/my-requests?view=pending',
+          path: '/my-requests?view=external-pending',
           iconBg: 'bg-amber-100',
           iconColor: 'text-amber-600',
         }] : []),
@@ -527,10 +529,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         },
         {
           label: t('dashboard.cards.activeMessages', 'Vatandaş Talepleri'),
-          sublabel: t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı'),
+          sublabel: t('dashboard.cards.citizenPendingApprovalSub', 'Onay Bekleyen'),
           value: dashboardQuery.data.activeSocialMessageCount,
           icon: MessageSquareMore,
-          path: '/social?requestStatus=processing-received',
+          path: '/incoming-requests?citizen=1&status=processing-received',
           iconBg: 'bg-rose-100',
           iconColor: 'text-rose-600',
         },

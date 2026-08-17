@@ -103,7 +103,7 @@ function channelsMatch(rowChannel: string | null | undefined, filter: string): b
   return false
 }
 
-type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-progress' | 'completed' | 'cancelled' | 'all'
+type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-progress' | 'completed' | 'cancelled' | 'processing-received' | 'all'
 type IncomingKindFilter = 'all'
 
 const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback: string }[] = [
@@ -232,9 +232,23 @@ function getIncomingStatusFilter(value: string | null): IncomingStatusFilter {
     || value === 'in-progress'
     || value === 'completed'
     || value === 'cancelled'
+    || value === 'processing-received'
     || value === 'all'
     ? value
     : 'pending-approval'
+}
+
+function isCitizenProcessingReceivedRow(row: IncomingRequestRow): boolean {
+  if (!row.isCitizenRequest) return false
+  const isClosed = row.status === 'Completed'
+    || row.status === 'Cancelled'
+    || row.status === 'Rejected'
+    || row.status === 'RevisionRequested'
+  if (isClosed) return false
+  if (isJobDueDateOverdue(row)) return false
+  const taskCount = row.taskCount ?? 0
+  if (row.status === 'Active' && taskCount > 0) return false
+  return true
 }
 
 function getIncomingKindFilter(): IncomingKindFilter {
@@ -250,6 +264,10 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
     // Son tarihi geçmiş olsa bile onay bekleyen kayıtlar bu görünümde kalır (dashboard kartlarıyla uyum).
     return row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval' || row.status === 'PendingApproval'
       || row.assignTargetDepartmentId != null
+  }
+
+  if (filter === 'processing-received') {
+    return isCitizenProcessingReceivedRow(row)
   }
 
   // Onaylanmış: yönetici onayladığı tüm talepler — durum sonra değişse bile kalır (card #1697).
@@ -502,10 +520,12 @@ export function IncomingRequestsPage() {
   const channelFilter = searchParams.get('channel')?.trim() || null
   const citizenOnly = searchParams.get('citizen') === '1'
   const currentStatusFilterMeta = STATUS_FILTERS.find(filter => filter.value === currentStatusFilter)
-  const currentStatusFilterLabel = t(
-    currentStatusFilterMeta?.labelKey ?? 'jobs.scopes.pendingApprovalRequests',
-    currentStatusFilterMeta?.fallback ?? 'Onay Bekleyen Talepler',
-  )
+  const currentStatusFilterLabel = currentStatusFilter === 'processing-received'
+    ? t('social.requestStatus.processingReceived', 'İşleme Alındı')
+    : t(
+      currentStatusFilterMeta?.labelKey ?? 'jobs.scopes.pendingApprovalRequests',
+      currentStatusFilterMeta?.fallback ?? 'Onay Bekleyen Talepler',
+    )
   const currentKindFilter = getIncomingKindFilter()
   // Onaylanmış grid'de Görevi Yapan/Sahibi sütunu yok (#6a6ca0bc).
   const showTaskOwnerColumn = ['in-progress', 'completed', 'cancelled'].includes(currentStatusFilter)

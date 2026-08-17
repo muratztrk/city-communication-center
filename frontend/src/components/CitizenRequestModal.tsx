@@ -383,7 +383,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       accepted = true
       return [...current, file]
     })
-    if (accepted) fileProgress.start(file.size || 400)
+    // Yükleme talep kaydedilirken yapılır: bar %0'da kalır, yüzde gerçek upload'ta `report` ile ilerler.
+    if (accepted) fileProgress.holdAtZero()
     else fileProgress.stop()
   }
 
@@ -890,7 +891,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                                 <button
                                   type="button"
                                   className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
-                                  onClick={() => setPendingFiles(current => current.filter((_, i) => i !== idx))}
+                                  onClick={() => {
+                                    setPendingFiles(current => current.filter((_, i) => i !== idx))
+                                    // Son dosya da silindiyse %0'da bekleyen bar kapanır.
+                                    if (pendingFiles.length <= 1) fileProgress.stop()
+                                  }}
                                 >
                                   {t('common.delete', 'Sil')}
                                 </button>

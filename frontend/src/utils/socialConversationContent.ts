@@ -167,6 +167,62 @@ export function socialMediaFilename(entryId: string, mime: string, citizenPhone?
   return `whatsapp-${entryId.slice(0, 8)}${extensionFromMimeType(mime)}`
 }
 
+const TURKISH_ASCII: Record<string, string> = {
+  ç: 'c', Ç: 'c', ğ: 'g', Ğ: 'g', ı: 'i', İ: 'i', ö: 'o', Ö: 'o', ş: 's', Ş: 's', ü: 'u', Ü: 'u',
+}
+
+/** Dosya adı parçası: Türkçe karakterler sadeleşir, kalan güvensiz karakterler `-` olur. */
+function toFilenameSlug(value: string): string {
+  return value
+    .replace(/[çÇğĞıİöÖşŞüÜ]/g, char => TURKISH_ASCII[char] ?? char)
+    .replace(/[^A-Za-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase()
+}
+
+/** Gönderim tarihi (yerel saat) — `18.08.2026`. Geçersiz/boş tarihte '' döner. */
+function toFilenameDate(sentAt?: string | null): string {
+  if (!sentAt?.trim()) return ''
+  const date = new Date(sentAt)
+  if (Number.isNaN(date.getTime())) return ''
+  const pad = (value: number) => String(value).padStart(2, '0')
+  return `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}`
+}
+
+/** Orijinal dosya adındaki uzantı (`.jpeg` gibi); yoksa '' döner. */
+function extensionFromFileName(fileName?: string | null): string {
+  const trimmed = fileName?.trim()
+  if (!trimmed) return ''
+  const dotIndex = trimmed.lastIndexOf('.')
+  if (dotIndex <= 0) return ''
+  const extension = trimmed.slice(dotIndex)
+  return /^\.[A-Za-z0-9]{1,8}$/.test(extension) ? extension.toLowerCase() : ''
+}
+
+/**
+ * Vatandaştan gelen konuşma ekinin indirme adı: `kanal-numara-tarih.uzanti`
+ * (ör. `whatsapp-5547616022-18.08.2026.jpg`). Vatandaşın orijinal dosya adı kullanılmaz;
+ * indirilen dosya hangi kanaldan, hangi numaradan, hangi tarihte geldiğinden okunur olsun.
+ * Uzantı, biliniyorsa orijinal addan, yoksa MIME tipinden alınır.
+ */
+export function inboundMediaDownloadFilename(options: {
+  channel?: string | null
+  citizenPhone?: string | null
+  sentAt?: string | null
+  mime: string
+  originalFileName?: string | null
+  entryId?: string | null
+}): string {
+  const { channel, citizenPhone, sentAt, mime, originalFileName, entryId } = options
+  const channelPart = toFilenameSlug(channel?.trim() || 'WhatsApp') || 'whatsapp'
+  const phonePart = citizenPhone?.trim() ? normalizeWhatsappPhoneForFilename(citizenPhone) : ''
+  const datePart = toFilenameDate(sentAt)
+  const parts = [channelPart, phonePart, datePart].filter(Boolean)
+  // Numara ve tarihin ikisi de yoksa dosyalar birbirine karışmasın diye entry kimliği eklenir.
+  if (parts.length === 1 && entryId) parts.push(entryId.slice(0, 8))
+  return `${parts.join('-')}${extensionFromFileName(originalFileName) || extensionFromMimeType(mime)}`
+}
+
 /** `[Dosya eki: orijinal-ad.pdf]` içeriğinden dosya adını çıkarır (giden #2385, gelen #2406/#6a75c6fa). */
 export function parseAttachmentFilenameFromContent(content: string | null | undefined): string | null {
   if (!content?.trim()) return null

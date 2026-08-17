@@ -185,7 +185,8 @@ export function RoutineTaskPage() {
       accepted = true
       return [...prev, ...incoming]
     })
-    if (accepted) fileProgress.start(sumFileSizes(incoming) || 400)
+    // Yükleme kayıt sırasında yapılır: bar %0'da kalır, yüzde gerçek upload'ta `report` ile ilerler.
+    if (accepted) fileProgress.holdAtZero()
     else fileProgress.stop()
   }
 
@@ -458,7 +459,11 @@ export function RoutineTaskPage() {
                               <button
                                 type="button"
                                 className="shrink-0 text-[11px] font-medium text-red-500 hover:text-red-600"
-                                onClick={() => setPendingFiles(prev => prev.filter((_, i) => i !== idx))}
+                                onClick={() => {
+                                  setPendingFiles(prev => prev.filter((_, i) => i !== idx))
+                                  // Son dosya da silindiyse %0'da bekleyen bar kapanır.
+                                  if (pendingFiles.length <= 1) fileProgress.stop()
+                                }}
                               >
                                 {t('common.delete', 'Sil')}
                               </button>

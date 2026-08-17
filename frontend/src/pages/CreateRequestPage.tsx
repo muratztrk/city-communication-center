@@ -702,7 +702,9 @@ export function CreateRequestPage() {
               accepted = true
               return [...prev, ...incoming]
             })
-            if (accepted) fileProgress.start(sumFileSizes(incoming) || 400)
+            // Dosya burada yüklenmez (talep oluşturulurken yüklenir): bar %0'da görünür kalır,
+            // yüzde gerçek upload sırasında `report` ile ilerler — sahte animasyonla kaybolmaz.
+            if (accepted) fileProgress.holdAtZero()
             else fileProgress.stop()
           }}
         >
@@ -727,7 +729,7 @@ export function CreateRequestPage() {
                 accepted = true
                 return [...prev, ...incoming]
               })
-              if (accepted) fileProgress.start(sumFileSizes(incoming) || 400)
+              if (accepted) fileProgress.holdAtZero()
               else fileProgress.stop()
               if (fileInputRef.current) fileInputRef.current.value = ''
             }}

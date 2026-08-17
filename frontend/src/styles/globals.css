@@ -3870,14 +3870,15 @@
     height: 0.92rem !important;
   }
 
+  /* K / A ve iki liste ikonu bir tık daha küçük; buton kutusu (0.92rem) ve toolbar yüksekliği aynı. */
   .detail-modal-shell--citizen-create .rich-text-toolbar-button svg {
-    width: 0.55rem !important;
-    height: 0.55rem !important;
+    width: 0.49rem !important;
+    height: 0.49rem !important;
   }
 
   .detail-modal-shell--citizen-create .rich-text-toolbar-button span {
-    font-size: 0.52rem !important;
-    min-width: 0.52rem !important;
+    font-size: 0.47rem !important;
+    min-width: 0.47rem !important;
     line-height: 1 !important;
   }
 
@@ -5929,6 +5930,14 @@
       flex-direction: column;
       min-height: 0;
       overflow: visible;
+    }
+
+    /* Sayfa başına kayıt sayısı büyüdüğünde (10 → 100) tablo içeriği taşar ve flex kolonda
+       negatif boşluk oluşur. Scroll kapsayıcısı olan kardeşler (ör. .scope-chips overflow-x:auto)
+       için min-height:auto = 0 çözüldüğünden bu kardeşler eziliyor, gridview başlığı yukarı doğru
+       büyüyordu. Taşmayı yalnız .desktop-page-fill paneli emsin; banner/çip satırları sabit kalsın. */
+    .desktop-page-shell > :not(.desktop-page-fill) {
+      flex-shrink: 0;
     }
 
     .desktop-page-fill {

@@ -44,9 +44,7 @@ internal sealed class LicenseTokenVerifier : ILicenseTokenVerifier
             return null;
         }
 
-        var expiresAt = payload.Exp is > 0
-            ? DateTimeOffset.FromUnixTimeSeconds(payload.Exp.Value)
-            : DateTimeOffset.UtcNow;
+        var expiresAt = ResolveLicenseExpiresAt(payload);
 
         return new VerifiedLicenseToken(
             payload.BundleId,
@@ -123,6 +121,26 @@ internal sealed class LicenseTokenVerifier : ILicenseTokenVerifier
         return payload;
     }
 
+    private static DateTimeOffset ResolveLicenseExpiresAt(LicenseTokenPayload payload)
+    {
+        if (payload.GraceUntil.HasValue)
+        {
+            return payload.GraceUntil.Value;
+        }
+
+        if (payload.ValidUntil.HasValue)
+        {
+            return payload.ValidUntil.Value;
+        }
+
+        if (payload.Exp is > 0)
+        {
+            return DateTimeOffset.FromUnixTimeSeconds(payload.Exp.Value);
+        }
+
+        return DateTimeOffset.UtcNow;
+    }
+
     private static byte[] Base64UrlDecode(string input)
     {
         var padded = input.Replace('-', '+').Replace('_', '/');
@@ -137,6 +155,7 @@ internal sealed class LicenseTokenVerifier : ILicenseTokenVerifier
         [property: JsonPropertyName("status")] string Status,
         [property: JsonPropertyName("blocked")] bool Blocked,
         [property: JsonPropertyName("validUntil")] DateTimeOffset? ValidUntil,
+        [property: JsonPropertyName("graceUntil")] DateTimeOffset? GraceUntil,
         [property: JsonPropertyName("message")] string? Message,
         [property: JsonPropertyName("exp")] long? Exp);
 }

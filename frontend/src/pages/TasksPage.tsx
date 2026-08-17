@@ -797,7 +797,12 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     } else if (!isMyTasksView) {
       result = tasks
     } else {
-      const myTasks = filterMyTasks(tasks, currentMyTaskView)
+      let myTasks = filterMyTasks(tasks, currentMyTaskView)
+      if (currentTaskTypeFilter === 'routine') {
+        myTasks = myTasks.filter(task => task.jobSourceType === 'Routine')
+      } else if (currentTaskTypeFilter === 'assigned') {
+        myTasks = myTasks.filter(task => task.jobSourceType !== 'Routine')
+      }
       result = showRequestFlowFilters ? myTasks.filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter)) : myTasks
     }
 
@@ -847,11 +852,16 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const myTasksOverdueCount = useMemo(() => {
     if (!isMyTasksView) return 0
     let result = filterMyTasks(tasks, 'overdue')
+    if (currentTaskTypeFilter === 'routine') {
+      result = result.filter(task => task.jobSourceType === 'Routine')
+    } else if (currentTaskTypeFilter === 'assigned') {
+      result = result.filter(task => task.jobSourceType !== 'Routine')
+    }
     if (showRequestFlowFilters) {
       result = result.filter(task => matchesRequestFlow(task.jobRequestType, currentRequestFlowFilter))
     }
     return result.length
-  }, [isMyTasksView, tasks, showRequestFlowFilters, currentRequestFlowFilter])
+  }, [isMyTasksView, tasks, currentTaskTypeFilter, showRequestFlowFilters, currentRequestFlowFilter])
 
   const departmentTasksOverdueCount = useMemo(() => {
     if (!isDepartmentTasksView) return 0

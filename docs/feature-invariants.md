@@ -50,6 +50,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `AppShell` zoom'u `--app-content-zoom` olarak `documentElement`'e yazar; popup kuralları
   `calc(... * var(--app-content-zoom, 1))` ile çarpmalı. Ayrıca **`min-height` table-cell'de
   yok sayılır** — başlık yüksekliğini sabitlemek için `height` kullan (`--table-header-row-height`).
+- **Grid thead + paging sabit yükseklik (#2824):** sayfa boyutu değişince başlık şeridi büyümemeli —
+  `thead th` `height`/`max-height: var(--table-header-row-height)`; paging bar `max-height:
+  var(--table-chrome-row-min-height)`; `background-attachment: fixed` thead'de kullanılmaz.
 - **Popup gridview başlık şeridi standart gridview gibi üstten kavislidir** (0.9rem): scroll kabı
   olan tablolarda kavis `thead th:first-child/:last-child`'a verilir (araya `overflow:hidden` bir
   sarmalayıcı koymak sticky thead'i bozar); ayrı wrap'i olanlarda (`.dashboard-drilldown-table-wrap`)
@@ -1608,6 +1611,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Geciken Taleplerim` / `Geciken Görevlerim`; sayı = ilgili pie `overdue` dilimi; tıklama
   → `/my-requests?view=overdue` / `/my-tasks?view=overdue` + aktif dönem `from`/`to` + `fromPie=1`
   (#2817/#2818); pie ile aynı dönem için Geciken grid `createdAtUtc` ile süzülür (`fromPie` + overdue).
+  Yönetici kutucuk/pie `myTasks` = `GET /tasks?scope=mine` (yalnızca `AssignedUserId`; birimdeki
+  görev kümesiyle sınırlama yok, #2817 reopen); `myRequests` = `GET /jobs?scope=mine` (Routine hariç,
+  aktif birim `OwnerDepartmentId`; yalnız ExternalUnit değil, #2818 reopen).
 - **Personel/CRM anasayfa 4 kutucuk (#2807 reopen):** Staff + Operator + CRM dörtlü flex sıra
   (Bekleyen Görevlerim → Geciken Görevlerim → Bekleyen Taleplerim → Geciken Taleplerim);
   `useStaffMetricFourCol` Staff rolünü de kapsar.

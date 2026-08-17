@@ -662,6 +662,14 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       ? Object.fromEntries(new URLSearchParams(queryString).entries())
       : {}
     const dateParams = periodQueryParams(activeFrom, activeTo)
+    const taskTypeExtra: Record<string, string | undefined> = {}
+    if (basePath === '/my-tasks' || basePath === '/department-tasks' || basePath === '/staff-tasks') {
+      const chartKey = basePath === '/staff-tasks'
+        ? 'dashboard.charts.staffTasks'
+        : 'dashboard.charts.myTasks'
+      const taskType = taskChartFilters[chartKey]
+      if (taskType !== 'all') taskTypeExtra.taskType = taskType
+    }
     return (
       <button
         key={metric.label}
@@ -669,7 +677,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         className="flex w-full min-w-[15.5rem] items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-4 py-3 text-left shadow-[var(--shadow-edge)] transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
         onClick={() => {
           saveDashboardScroll()
-          navigate(withQueryParams(basePath, pieQueryParams({ ...existingParams, ...dateParams })))
+          navigate(withQueryParams(basePath, pieQueryParams({ ...existingParams, ...dateParams, ...taskTypeExtra })))
         }}
       >
         <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>

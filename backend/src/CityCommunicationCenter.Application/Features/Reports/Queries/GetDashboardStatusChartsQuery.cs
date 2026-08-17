@@ -89,12 +89,29 @@ public sealed class GetDashboardStatusChartsQueryHandler
                     && departmentIds.Contains(department.DepartmentId)))
             && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)), cancellationToken);
-        var myExternalJobs = await ProjectJobs(_dbContext.Jobs.AsNoTracking().Where(job =>
+        // Görevlerim pie/kutucuk = GET /tasks?scope=mine (yalnızca AssignedUserId); birimdeki
+        // görev kümesiyle sınırlamak kart 65 / grid 66 sapmasına yol açıyordu (#2817 reopen).
+        var myAssignedTasks = await ProjectTaskStatusItems(
+            _dbContext.Tasks.AsNoTracking()
+                .Where(task => task.TenantId == tenantId
+                    && task.AssignedUserId == context.UserId.Value
+                    && (!request.FromUtc.HasValue || task.CreatedAtUtc >= request.FromUtc.Value)
+                    && (!request.ToUtc.HasValue || task.CreatedAtUtc <= request.ToUtc.Value)),
+            tenantId).ToListAsync(cancellationToken);
+
+        // Taleplerim pie/kutucuk = GET /jobs?scope=mine (Routine hariç, aktif birim OwnerDepartmentId).
+        var myRequestsQuery = _dbContext.Jobs.AsNoTracking().Where(job =>
             job.TenantId == tenantId
-            && job.RequestType == JobRequestType.ExternalUnit
             && job.CreatedByUserId == context.UserId.Value
+            && job.SourceType != JobSourceType.Routine
             && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
-                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value)), cancellationToken);
+            && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value));
+        if (context.ActiveDepartmentId.HasValue)
+        {
+            myRequestsQuery = myRequestsQuery.Where(job => job.OwnerDepartmentId == context.ActiveDepartmentId.Value);
+        }
+
+        var myRequestsJobs = await ProjectJobs(myRequestsQuery, cancellationToken);
 
         var staffUserIds = await UserDepartmentAccess.GetStaffUserIdsForDepartmentsAsync(
             _dbContext,
@@ -139,10 +156,10 @@ public sealed class GetDashboardStatusChartsQueryHandler
         }
         charts.AddRange(
         [
-            BuildTaskChart("dashboard.charts.myTasks", FilterTasks(tasks.Where(task => task.AssignedUserId == context.UserId.Value), request.MyTaskType), now),
+            BuildTaskChart("dashboard.charts.myTasks", FilterTasks(myAssignedTasks, request.MyTaskType), now),
             BuildJobChart("dashboard.charts.outgoingRequests", outgoingJobs, "dashboard.chart.pending", now, true),
             BuildJobChart("dashboard.charts.incomingRequests", incomingJobs, "dashboard.chart.pendingApproval", now, true),
-            BuildJobChart("dashboard.charts.myRequests", myExternalJobs, "dashboard.chart.externalPendingApproval", now, true),
+            BuildJobChart("dashboard.charts.myRequests", myRequestsJobs, "dashboard.chart.externalPendingApproval", now, true),
         ]);
 
         return new DashboardStatusChartsResponse(charts);

@@ -259,9 +259,14 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
   const isClosed = row.status === 'Completed' || row.status === 'Cancelled' || row.status === 'Rejected' || row.status === 'RevisionRequested'
 
   if (filter === 'pending-approval') {
-    // Son tarihi geçmiş olsa bile onay bekleyen kayıtlar bu görünümde kalır (dashboard kartlarıyla uyum).
-    return row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval' || row.status === 'PendingApproval'
+    // Sahip onay bekler (Talebin Birim Yöneticisinin Onay Tarihi = Onay Bekleyen) + personel ataması bekler.
+    // Hedef onay bekleyen (Talebi Gerçekleştiren = Onay Bekleyen) → Onaylanmış (#2823).
+    // VT İşleme Alındı yalnız sahip onayı beklerken Onay Bekleyen'de; sahip onaylı → Onaylanmış.
+    const ownerApprovalPending = row.status === 'PendingOwnerApproval' || row.status === 'PendingApproval'
+    const citizenProcessingBeforeOwnerApproval = isCitizenProcessingReceivedRow(row) && !row.ownerApprovedAtUtc
+    return ownerApprovalPending
       || row.assignTargetDepartmentId != null
+      || citizenProcessingBeforeOwnerApproval
   }
 
   if (filter === 'processing-received') {

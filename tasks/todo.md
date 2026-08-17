@@ -1,3 +1,7 @@
+## Round 993 — #2823/#2822 (Birime Gelen Onay + Durum pill boyutu)
+- [x] `6a835b70` — Onay Bekleyen: sahip onay + personel atama + sahip onaysız VT İşleme Alındı; hedef onay bekleyen → Onaylanmış.
+- [x] `6a835a7f` — Grid İşleme Alındı/Yapılmakta pill hafif boyut artışı (`grid-status-label--flow-status`).
+
 ## Round 992 — #2819 (VT grid İşleme Alındı geciken)
 - [x] `6a8353be` — Grid Durum: İşleme Alındı + alt satır `(Geciken)` (`GridStatusLabel.overdueSubline`).
 

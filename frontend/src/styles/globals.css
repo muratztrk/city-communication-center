@@ -3166,6 +3166,21 @@
     white-space: nowrap;
   }
 
+  /* İşleme Alındı / Yapılmakta grid Durum pill — hafif boyut artışı (#2822). */
+  .data-table .status-pill:has(.grid-status-label--flow-status),
+  .dashboard-drilldown-table .status-pill:has(.grid-status-label--flow-status),
+  .table-container .status-pill:has(.grid-status-label--flow-status) {
+    padding: 0.32rem 0.7rem;
+    font-size: 0.78rem;
+    line-height: 1.2;
+  }
+
+  .data-table .status-pill .grid-status-label--flow-status > span:first-child,
+  .dashboard-drilldown-table .status-pill .grid-status-label--flow-status > span:first-child,
+  .table-container .status-pill .grid-status-label--flow-status > span:first-child {
+    font-size: 0.78rem;
+  }
+
   .data-table tbody tr:hover td {
     background: rgba(248, 250, 252, 0.72);
   }

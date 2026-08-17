@@ -1122,8 +1122,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Standart kullanıcı Taleplerim `Onaylanmış/Yapılmakta Taleplerim` chip'i mavidir
   (`scope-chip--in-progress`, card #1698) — sarı `approved` chip'i yönetici Onaylanmış'ta kalır.
   Birime Gelen Onaylanmış: `approvedAtUtc != null` — durum sonra değişse bile kalır
-  (card #1697). Birimden Giden Onaylanmış: Owner `decidedAtUtc` dolu olan tüm talepler
-  (card #1697). Yapılmakta / Tamamlanmış vb. sekmelerde de görünebilirler.
+  (card #1697); hedef onay bekleyen (Talebi Gerçekleştiren Onay Bekleyen) + sahip onaylı
+  İşleme Alındı VT burada kalır, Onay Bekleyen'de değil (#2823). Onay Bekleyen: sahip onay
+  bekler + personel ataması bekler + sahip onaysız VT İşleme Alındı; `PendingExternalApproval`
+  yalnız Onaylanmış'ta. Yapılmakta / Tamamlanmış vb. sekmelerde de görünebilirler.
   Birime Gelen Onaylanmış grid İşlemler'de yalnız `Detaylar` — `İptal Et` ve `Onayla`
   yok (cards #1702/#1703). Onaylanmış grid'de `Görevi Yapan` / `Görev Sahibi` sütunu yok
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
@@ -1791,8 +1793,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   şartı yok — cadde/konuşma yedegi geocode için FE’de; harita yine cadde zorunlu (#2635).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
   (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
-  (#2668, Onay Bekleyen değil). Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
+  (#2668, Onay Bekleyen değil).   Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
   (`bg-teal-600`), gecikmiş İşleme Alındı da turuncu değil — alt satır `(Geciken)` (#2819);
+  İşleme Alındı / Yapılmakta pill boyutu grid'de hafif büyük (`grid-status-label--flow-status`, #2822).
   Yapılmakta Görevlerim ile aynı açık mavi (`bg-sky-100` / `getStatusPillClass`,
   #2699), Geciken turuncu (`bg-orange-500`). Pin rengi Yapılmakta `#0ea5e9` kalır (#2671).
   yeşil Konum ikonu (yuvarlak çerçeve + hover, #2673/#2674); damla pin küçük yeşil (#2700).

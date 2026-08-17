@@ -13,6 +13,15 @@ function isProcessingReceivedWithOverdueSubline(t: TFunction, label: string, ove
   return label === processingReceived
 }
 
+function isFlowStatusLabel(t: TFunction, label: string, overdueSubline?: boolean): boolean {
+  const processingReceived = t('social.requestStatus.processingReceived', 'İşleme Alındı')
+  const inProgress = t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  return label === processingReceived
+    || label === inProgress
+    || isOverdueStatusLabel(t, label)
+    || isProcessingReceivedWithOverdueSubline(t, label, overdueSubline)
+}
+
 /** Grid Durum hücresi: stacked overdue (cards #1649/#1650/#2574). İşleme Alındı önünde kanal ikonu yok. */
 export function GridStatusLabel({
   t,
@@ -33,11 +42,12 @@ export function GridStatusLabel({
 }) {
   const overdueCombined = formatOverdueInProgressStatus(t)
   const alignClass = align === 'start' ? 'items-start text-left' : 'items-center text-center'
+  const flowClass = isFlowStatusLabel(t, label, overdueSubline) ? 'grid-status-label--flow-status' : ''
 
   if (isProcessingReceivedWithOverdueSubline(t, label, overdueSubline)) {
     const overdue = t('jobs.statusLabel.overdue', 'Geciken')
     return (
-      <span className={`grid-status-label--processing-received-overdue flex flex-col ${alignClass} leading-tight`}>
+      <span className={`grid-status-label--processing-received-overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
         <span className="whitespace-nowrap">{label}</span>
         <span className="whitespace-nowrap text-[0.68rem] font-bold">({overdue})</span>
         {footer}
@@ -49,7 +59,7 @@ export function GridStatusLabel({
     const inProgress = t('jobs.statusLabel.inProgress', 'Yapılmakta')
     const overdue = t('jobs.statusLabel.overdue', 'Geciken')
     return (
-      <span className={`grid-status-label--overdue flex flex-col ${alignClass} leading-tight`}>
+      <span className={`grid-status-label--overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
         <span className="whitespace-nowrap">{inProgress}</span>
         <span className="whitespace-nowrap text-[0.68rem] font-bold">({overdue})</span>
         {footer}
@@ -58,7 +68,7 @@ export function GridStatusLabel({
   }
 
   return (
-    <span className={`inline-flex flex-col ${align === 'start' ? 'items-start' : 'items-center'} leading-tight${footer ? '' : ''}`}>
+    <span className={`inline-flex flex-col ${align === 'start' ? 'items-start' : 'items-center'} leading-tight${flowClass ? ` ${flowClass}` : ''}${footer ? '' : ''}`}>
       <span className="inline-flex items-center gap-1">
         <span>{label === overdueCombined ? overdueCombined : label}</span>
       </span>

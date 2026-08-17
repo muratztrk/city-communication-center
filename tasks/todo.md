@@ -1,3 +1,9 @@
+## Round 962 — #2793/#2791/#2795
+
+- [x] `6a82c8d0` — #2793 CBS overlay / cadde gizleme geri alındı.
+- [x] `6a82bfe1` — #2791 Google POI kapatma + Önemli Yerler noktaları geri alındı.
+- [x] `6a82ce80` — Dizin Detaylar `FileText`, Düzenle `PenLine`.
+
 ## Round 961 — #2787/#2794/#2793
 
 - [x] `6a82ba9b` — Düzenle ile Yazışmaya Git yer değiştirdi.

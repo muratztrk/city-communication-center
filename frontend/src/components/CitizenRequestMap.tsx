@@ -9,11 +9,10 @@ import {
   SuperClusterAlgorithm,
   type Cluster,
 } from '@googlemaps/markerclusterer'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
-import { queryKeys } from '../api/queryKeys'
 import type { CitizenConversationTicket, CitizenDashboardMapPin, JobDetail, SocialMessage } from '../types/platform'
 import { CitizenDirectoryTicketsModal } from './citizen-directory/CitizenDirectoryTicketsModal'
 import { MapPinnedRequestsModal } from './MapPinnedRequestsModal'
@@ -50,48 +49,6 @@ const DEPARTMENT_PIN_COLORS: Record<string, string> = {
 function pinColor(displayStatus: string, variant: 'citizen' | 'department'): string {
   const palette = variant === 'department' ? DEPARTMENT_PIN_COLORS : PIN_COLORS
   return palette[displayStatus] ?? palette.inProgress
-}
-
-/** Google POI ve cadde adları kapalı; CBS konum adları/marker’ları ayrı basılır (#2793). */
-const STREET_ONLY_MAP_STYLES: google.maps.MapTypeStyle[] = [
-  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { featureType: 'road', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-  { featureType: 'administrative.land_parcel', stylers: [{ visibility: 'off' }] },
-  { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-]
-
-const CBS_PLACE_MIN_ZOOM = 14
-const CBS_PLACE_LABEL_MIN_ZOOM = 15
-
-function cbsPlaceColor(category: string): string {
-  const key = category.toLocaleLowerCase('tr')
-  if (/(sağlık|acil|hastane|veteriner|eczane)/.test(key)) return '#dc2626'
-  if (/(eğitim|okul|üniversite|anaokul|lise)/.test(key)) return '#2563eb'
-  if (/(cami|dini|park|spor)/.test(key)) return '#16a34a'
-  if (/(müze|kültür|tarihi|sanat)/.test(key)) return '#92400e'
-  if (/(ulaşım|terminal|gar|otobüs)/.test(key)) return '#ea580c'
-  return '#1d4ed8'
-}
-
-function cbsPlaceIcon(color: string): google.maps.Icon {
-  const width = 16
-  const height = 22
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 24 34">
-    <path fill="${color}" d="M12 1.4C6.9 1.4 2.8 5.5 2.8 10.6c0 7.1 9.2 21.4 9.2 21.4s9.2-14.3 9.2-21.4C21.2 5.5 17.1 1.4 12 1.4z"/>
-    <circle cx="12" cy="11" r="3.4" fill="#ffffff"/>
-  </svg>`
-  return {
-    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
-    scaledSize: new google.maps.Size(width, height),
-    anchor: new google.maps.Point(width / 2, height),
-    labelOrigin: new google.maps.Point(width / 2, -2),
-  }
-}
-
-function neighborhoodLabelText(name: string): string {
-  const trimmed = name.trim()
-  return /mah\.?$/i.test(trimmed) ? trimmed : `${trimmed} Mah.`
 }
 
 /** Başlangıç zoom'da tek pin bile sayılı cluster; bu zoom ve üstünde durum rengi. */
@@ -416,14 +373,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
   const markersRef = useRef<google.maps.Marker[]>([])
-  const landmarkMarkersRef = useRef<google.maps.Marker[]>([])
   const bouncingMarkerRef = useRef<google.maps.Marker | null>(null)
-  const { data: landmarks = [] } = useQuery({
-    queryKey: queryKeys.izmirCbs.landmarks(mapView.districtId),
-    queryFn: () => api.getIzmirCbsLandmarks(mapView.districtId),
-    enabled: Boolean(mapView.districtId) && mapsReady && isLoaded,
-    staleTime: 6 * 60 * 60 * 1000,
-  })
 
   const stopMarkerBounce = useCallback(() => {
     bouncingMarkerRef.current?.setAnimation(null)
@@ -692,69 +642,6 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     }
   }, [mapInstance, isLoaded, resolved, variant, stopMarkerBounce])
 
-  useEffect(() => {
-    if (!mapInstance || !isLoaded) return
-
-    landmarkMarkersRef.current.forEach(marker => marker.setMap(null))
-    const markers = landmarks.map(place => {
-      const isNeighborhood = place.kind === 'neighborhood'
-      const marker = new google.maps.Marker({
-        map: mapInstance,
-        position: { lat: place.latitude, lng: place.longitude },
-        clickable: false,
-        zIndex: isNeighborhood ? 2 : 1,
-        title: isNeighborhood ? neighborhoodLabelText(place.name) : place.name,
-        icon: isNeighborhood
-          ? {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 0,
-              fillOpacity: 0,
-              strokeOpacity: 0,
-            }
-          : cbsPlaceIcon(cbsPlaceColor(place.category)),
-        label: isNeighborhood
-          ? {
-              text: neighborhoodLabelText(place.name),
-              fontSize: '11px',
-              fontWeight: '700',
-              color: '#475569',
-            }
-          : undefined,
-      })
-      return marker
-    })
-    landmarkMarkersRef.current = markers
-
-    const syncVisibility = () => {
-      const zoom = mapInstance.getZoom() ?? INITIAL_MAP_ZOOM
-      markers.forEach((marker, index) => {
-        const place = landmarks[index]
-        if (!place) return
-        const isNeighborhood = place.kind === 'neighborhood'
-        marker.setVisible(isNeighborhood || zoom >= CBS_PLACE_MIN_ZOOM)
-        if (isNeighborhood) return
-        if (zoom >= CBS_PLACE_LABEL_MIN_ZOOM) {
-          marker.setLabel({
-            text: place.name,
-            fontSize: '10px',
-            fontWeight: '600',
-            color: '#1e293b',
-          })
-        } else {
-          marker.setLabel(null)
-        }
-      })
-    }
-    syncVisibility()
-    const zoomListener = mapInstance.addListener('zoom_changed', syncVisibility)
-
-    return () => {
-      google.maps.event.removeListener(zoomListener)
-      landmarkMarkersRef.current.forEach(marker => marker.setMap(null))
-      landmarkMarkersRef.current = []
-    }
-  }, [mapInstance, isLoaded, landmarks])
-
   const statusLegend = useMemo(() => {
     const inProgressColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.inProgress : PIN_COLORS.inProgress
     const overdueColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.overdue : PIN_COLORS.overdue
@@ -927,7 +814,6 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
               mapTypeControl: false,
               fullscreenControl: false,
               clickableIcons: false,
-              styles: STREET_ONLY_MAP_STYLES,
             }}
           />
         )}

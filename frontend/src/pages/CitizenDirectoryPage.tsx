@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
-import { MessageSquareText, Search } from 'lucide-react'
+import { FileText, MessageSquareText, PenLine, Search } from 'lucide-react'
 import { api } from '../api/client'
 import { CitizenDirectoryTicketsModal } from '../components/citizen-directory/CitizenDirectoryTicketsModal'
 import { Button } from '../components/ui/button'
@@ -529,7 +529,8 @@ export function CitizenDirectoryPage() {
                           </Button>
                         </>
                       ) : null}
-                      <Button type="button" size="sm" variant="secondary" onClick={() => void openTickets(row)}>
+                      <Button type="button" size="sm" variant="secondary" className="inline-flex items-center gap-1.5" onClick={() => void openTickets(row)}>
+                        <FileText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                         {t('jobs.actions.details', 'Detaylar')}
                       </Button>
                       {row.sourceChannel === 'Phone' ? (
@@ -557,9 +558,10 @@ export function CitizenDirectoryPage() {
                         <Button
                           type="button"
                           size="sm"
-                          className="!bg-teal-700 !text-white hover:!bg-teal-800"
+                          className="inline-flex items-center gap-1.5 !bg-teal-700 !text-white hover:!bg-teal-800"
                           onClick={() => startAddressEdit(row)}
                         >
+                          <PenLine className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('common.edit', 'Düzenle')}
                         </Button>
                       ) : null}

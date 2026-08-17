@@ -1,3 +1,9 @@
+## Round 994 — #2817 reopen/#2818 reopen/#2822 reopen/#2824
+- [x] `6a834f17` — Yönetici Geciken Görevlerim: pie/kutucuk = `GET /tasks?scope=mine` (birim kümesi sapması giderildi).
+- [x] `6a83508b` — Yönetici Geciken Taleplerim: pie/kutucuk = `GET /jobs?scope=mine` (yalnız ExternalUnit sapması giderildi).
+- [x] `6a835a7f` — İşleme Alındı/Yapılmakta grid pill biraz daha büyük (#2822 reopen).
+- [x] `6a835e95` — Grid thead + paging sabit yükseklik; `background-attachment:fixed` kaldırıldı (#2824).
+
 ## Round 993 — #2823/#2822 (Birime Gelen Onay + Durum pill boyutu)
 - [x] `6a835b70` — Onay Bekleyen: sahip onay + personel atama + sahip onaysız VT İşleme Alındı; hedef onay bekleyen → Onaylanmış.
 - [x] `6a835a7f` — Grid İşleme Alındı/Yapılmakta pill hafif boyut artışı (`grid-status-label--flow-status`).

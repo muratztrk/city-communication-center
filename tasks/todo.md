@@ -1,3 +1,6 @@
+## Round 967 — #2797
+- [x] `6a82e63c` — CBS referans yerleri (filtreli katman+isim); zoom≥14 yükleme, kategori ikonlar.
+
 ## Round 966 — #2793 (geri al)
 - [x] `6a82c8d0` — CBS Tire referans overlay kaldırıldı (kart isteği geri alındı).
 

@@ -191,3 +191,32 @@ public sealed class GetIzmirCbsLandmarksQueryHandler
         CancellationToken cancellationToken)
         => new(_catalog.GetLandmarksAsync(request.DistrictId, cancellationToken));
 }
+
+public sealed record GetIzmirCbsMapReferenceLandmarksQuery(string DistrictId)
+    : IQuery<IReadOnlyList<IzmirCbsLandmarkResponse>>;
+
+public sealed class GetIzmirCbsMapReferenceLandmarksQueryValidator : AbstractValidator<GetIzmirCbsMapReferenceLandmarksQuery>
+{
+    public GetIzmirCbsMapReferenceLandmarksQueryValidator()
+    {
+        RuleFor(x => x.DistrictId)
+            .NotEmpty()
+            .WithMessage("İlçe seçiniz.");
+    }
+}
+
+public sealed class GetIzmirCbsMapReferenceLandmarksQueryHandler
+    : IQueryHandler<GetIzmirCbsMapReferenceLandmarksQuery, IReadOnlyList<IzmirCbsLandmarkResponse>>
+{
+    private readonly IIzmirCbsAddressCatalog _catalog;
+
+    public GetIzmirCbsMapReferenceLandmarksQueryHandler(IIzmirCbsAddressCatalog catalog)
+    {
+        _catalog = catalog;
+    }
+
+    public ValueTask<IReadOnlyList<IzmirCbsLandmarkResponse>> Handle(
+        GetIzmirCbsMapReferenceLandmarksQuery request,
+        CancellationToken cancellationToken)
+        => new(_catalog.GetMapReferenceLandmarksAsync(request.DistrictId, cancellationToken));
+}

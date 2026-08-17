@@ -44,6 +44,26 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
         (25, "Coğrafi Yer Şekilleri"),
     ];
 
+    /// Talep haritası referans yerleri (#2797): yalnızca karttaki kamu/sosyal alan tipleri.
+    private static readonly (int Layer, string Category)[] MapReferenceLandmarkLayers =
+    [
+        (12, "Kamu Kurum ve Kuruluşları"),
+        (14, "Dini Tesisler"),
+        (15, "Eğitim"),
+        (17, "Konaklama"),
+        (19, "Sağlık"),
+        (21, "Spor Aktiviteleri"),
+        (24, "Ulaşım Noktaları"),
+        (25, "Coğrafi Yer Şekilleri"),
+    ];
+
+    private static readonly string[] MapReferenceNameKeywords =
+    [
+        "okul", "üniversite", "hastane", "cami", "belediye", "adliye", "itfaiye",
+        "emniyet", "hükümet", "kaymakamlık", "jandarma", "mezarlık", "park",
+        "gar", "istasyon", "terminal", "noter", "yurt", "stad", "stadyum",
+    ];
+
     private static readonly CultureInfo Turkish = CultureInfo.GetCultureInfo("tr-TR");
 
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(6);
@@ -343,6 +363,59 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
         await PersistPayloadAsync(cacheKey, JsonSerializer.Serialize(landmarks, JsonOptions), cancellationToken);
         _cache.Set(cacheKey, (IReadOnlyList<IzmirCbsLandmarkResponse>)landmarks, CacheDuration);
         return landmarks;
+    }
+
+    public async Task<IReadOnlyList<IzmirCbsLandmarkResponse>> GetMapReferenceLandmarksAsync(
+        string districtId,
+        CancellationToken cancellationToken)
+    {
+        var trimmed = districtId.Trim();
+        if (!DistrictIlceNames.TryGetValue(trimmed, out var ilceName))
+        {
+            throw new ValidationException("Geçersiz ilçe değeri.");
+        }
+
+        var cacheKey = $"izmir-cbs:map-reference-landmarks:{ilceName}";
+        if (_cache.TryGetValue(cacheKey, out IReadOnlyList<IzmirCbsLandmarkResponse>? cached) && cached is not null)
+        {
+            return cached;
+        }
+
+        var stored = await _db.IzmirCbsCatalogCaches
+            .AsNoTracking()
+            .FirstOrDefaultAsync(row => row.CacheKey == cacheKey, cancellationToken);
+        var storedLandmarks = DeserializeLandmarks(stored?.PayloadJson);
+        if (storedLandmarks.Count > 0)
+        {
+            _cache.Set(cacheKey, storedLandmarks, CacheDuration);
+            return storedLandmarks;
+        }
+
+        var layers = await Task.WhenAll(
+            MapReferenceLandmarkLayers.Select(layer =>
+                QueryLandmarkLayerAsync(layer.Layer, layer.Category, ilceName, cancellationToken)));
+        var landmarks = layers
+            .SelectMany(items => items)
+            .Where(item => IsMapReferenceLandmark(item.Name))
+            .GroupBy(item => $"{item.Latitude:F5}|{item.Longitude:F5}|{item.Name}", StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+
+        await PersistPayloadAsync(cacheKey, JsonSerializer.Serialize(landmarks, JsonOptions), cancellationToken);
+        _cache.Set(cacheKey, (IReadOnlyList<IzmirCbsLandmarkResponse>)landmarks, CacheDuration);
+        return landmarks;
+    }
+
+    private static bool IsMapReferenceLandmark(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return false;
+        }
+
+        var normalized = name.ToLower(Turkish);
+        return MapReferenceNameKeywords.Any(keyword =>
+            normalized.Contains(keyword, StringComparison.Ordinal));
     }
 
     private async Task<IReadOnlyList<IzmirCbsLandmarkResponse>> QueryLandmarkLayerAsync(

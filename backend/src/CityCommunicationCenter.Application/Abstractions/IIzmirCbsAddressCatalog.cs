@@ -32,4 +32,8 @@ public interface IIzmirCbsAddressCatalog
     Task<IReadOnlyList<IzmirCbsLandmarkResponse>> GetLandmarksAsync(
         string districtId,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<IzmirCbsLandmarkResponse>> GetMapReferenceLandmarksAsync(
+        string districtId,
+        CancellationToken cancellationToken);
 }

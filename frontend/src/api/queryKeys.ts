@@ -133,5 +133,6 @@ export const queryKeys = {
     doorNumbers: (streetId: string, neighborhoodId: string) =>
       ['ccc', 'izmir-cbs', 'door-numbers', streetId, neighborhoodId] as const,
     landmarks: (districtId: string) => ['ccc', 'izmir-cbs', 'landmarks', districtId] as const,
+    mapReferenceLandmarks: (districtId: string) => ['ccc', 'izmir-cbs', 'map-reference-landmarks', districtId] as const,
   },
 }

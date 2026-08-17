@@ -1605,7 +1605,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Anasayfa geciken kutucukları (#2802/#2803):** Bekleyen Taleplerim/Görevlerim sonrası
   `Geciken Taleplerim` / `Geciken Görevlerim`; sayı = ilgili pie `overdue` dilimi; tıklama
   → `/my-requests?view=overdue` / `/my-tasks?view=overdue` + aktif dönem `from`/`to` + `fromPie=1`
-  (#2817); pie ile aynı dönem için Geciken grid `createdAtUtc` ile süzülür (`fromPie` + overdue).
+  (#2817/#2818); pie ile aynı dönem için Geciken grid `createdAtUtc` ile süzülür (`fromPie` + overdue).
 - **Personel/CRM anasayfa 4 kutucuk (#2807 reopen):** Staff + Operator + CRM dörtlü flex sıra
   (Bekleyen Görevlerim → Geciken Görevlerim → Bekleyen Taleplerim → Geciken Taleplerim);
   `useStaffMetricFourCol` Staff rolünü de kapsar.

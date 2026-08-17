@@ -1,3 +1,6 @@
+## Round 991 — #2818 (Geciken Taleplerim kart→grid)
+- [x] `6a83508b` — Taleplerim geciken: `fromPie` + dönem `from`/`to`; overdue grid `createdAtUtc`; chip badge aynı süzüm.
+
 ## Round 990 — #2817/#2807 reopen/#2800 reopen
 - [x] `6a834f17` — Geciken Görevlerim kartı: dönem `from`/`to` + pie ile aynı `createdAtUtc` süzümü (`fromPie`).
 - [x] `6a8336aa` — Staff + Operator + CRM anasayfa 4 kutucuk tek satır (`useStaffMetricFourCol` + Staff).

@@ -1135,9 +1135,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
 
     if (filterFrom || filterTo) {
+      const fromPie = searchParams.get('fromPie') === '1'
       const useDueDatePeriod =
-        (isMyRequestsView && currentMyRequestsView === 'overdue')
-        || (isDepartmentOutgoingView && currentDepartmentOutgoingView === 'overdue')
+        !fromPie
+        && ((isMyRequestsView && currentMyRequestsView === 'overdue')
+          || (isDepartmentOutgoingView && currentDepartmentOutgoingView === 'overdue'))
       const fromDay = toLocalDateKey(filterFrom)
       const toDay = toLocalDateKey(filterTo)
       result = result.filter(job => {
@@ -1158,7 +1160,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
 
     return result
-  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, enrichJobRow, filterFrom, filterTo, getJobColumnValue, hideCitizenRequestsFromMyRequests, isDepartmentOutgoingView, isManagerLike, isMyRequestsView, isReporter, jobs, scope, searchText, showRequestFlowFilters])
+  }, [currentDepartmentOutgoingView, currentMyRequestsView, currentRequestFlowFilter, enrichJobRow, filterFrom, filterTo, getJobColumnValue, hideCitizenRequestsFromMyRequests, isDepartmentOutgoingView, isManagerLike, isMyRequestsView, isReporter, jobs, scope, searchParams, searchText, showRequestFlowFilters])
 
   const myRequestsOverdueCount = useMemo(() => {
     if (!isMyRequestsView) return 0
@@ -1166,7 +1168,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     const scoped = showRequestFlowFilters
       ? base.filter(job => matchesRequestFlow(job.requestType, currentRequestFlowFilter))
       : base
-    return filterMyRequests(scoped, 'overdue', isReporter, isManagerLike).length
+    let result = filterMyRequests(scoped, 'overdue', isReporter, isManagerLike)
+    if (filterFrom || filterTo) {
+      const fromPie = searchParams.get('fromPie') === '1'
+      const useDueDatePeriod = !fromPie
+      const fromDay = toLocalDateKey(filterFrom)
+      const toDay = toLocalDateKey(filterTo)
+      result = result.filter(job => {
+        const raw = useDueDatePeriod ? job.dueDateUtc : job.createdAtUtc
+        if (!raw) return false
+        const d = toLocalDateKey(raw)
+        if (fromDay && d < fromDay) return false
+        if (toDay && d > toDay) return false
+        return true
+      })
+    }
+    return result.length
   }, [
     isMyRequestsView,
     jobs,
@@ -1175,6 +1192,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     currentRequestFlowFilter,
     isReporter,
     isManagerLike,
+    filterFrom,
+    filterTo,
+    searchParams,
   ])
 
   const outgoingOverdueCount = useMemo(() => {
@@ -1201,6 +1221,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   )
 
   useEffect(() => { setJobsPage(1) }, [jobFilters])
+
+  useEffect(() => {
+    setFilterFrom(toDateTimePickerValue(searchParams.get('from') ?? '') || (searchParams.get('from') ?? ''))
+    setFilterTo(toDateTimePickerValue(searchParams.get('to') ?? '') || (searchParams.get('to') ?? ''))
+  }, [searchParams])
 
   useEffect(() => {
     queueMicrotask(() => {

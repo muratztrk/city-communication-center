@@ -81,7 +81,7 @@ function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHi
     ? chronological.filter(item => item.toUserId).reverse()
     : []
 }
-import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate, requestLocationFieldLabel } from '../utils/citizenRequests'
+import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestDetailStatusLabel, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate, requestLocationFieldLabel } from '../utils/citizenRequests'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
@@ -810,7 +810,10 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
 
     if (filterFrom || filterTo) {
-      const useDueDatePeriod = (isMyTasksView || isDepartmentTasksView || isStaffTasksView) && currentMyTaskView === 'overdue'
+      const fromPie = searchParams.get('fromPie') === '1'
+      const useDueDatePeriod = (isMyTasksView || isDepartmentTasksView || isStaffTasksView)
+        && currentMyTaskView === 'overdue'
+        && !fromPie
       const fromMs = filterFrom ? new Date(filterFrom).getTime() : Number.NaN
       const toMs = filterTo ? new Date(filterTo).getTime() : Number.NaN
       result = result.filter(task => {
@@ -839,7 +842,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     }
 
     return result
-  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, getTaskColumnValue, isCitizenRequestManager, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchText, showRequestFlowFilters, staffUserIds, tasks])
+  }, [currentMyTaskView, currentRequestFlowFilter, currentTaskTypeFilter, currentStaffUserId, filterFrom, filterTo, getTaskColumnValue, isCitizenRequestManager, isDepartmentTasksView, isMyTasksView, isStaffTasksView, managedDepartmentIds, searchParams, searchText, showRequestFlowFilters, staffUserIds, tasks])
 
   const myTasksOverdueCount = useMemo(() => {
     if (!isMyTasksView) return 0
@@ -2886,7 +2889,7 @@ const pageKicker = isMyTasksView
                         : 'text-orange-500'
                     // Süreç Durum: süresi geçmişte birleşik etiket (card #1646 / Birimdeki Görevler #1647).
                     const parentStatusContent = isCitizenParentJob
-                      ? getCitizenRequestStatusLabel(t, parentJobDetail)
+                      ? getCitizenRequestDetailStatusLabel(t, parentJobDetail)
                       : parentJobDetail.status === 'Completed'
                         ? t('jobs.status.completed', 'Tamamlandı')
                         : parentJobDetail.status === 'Cancelled'

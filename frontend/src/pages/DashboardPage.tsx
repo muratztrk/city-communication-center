@@ -558,7 +558,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
 
   const useStaffMetricFourCol = !isManagerOrAdmin
     && role !== 'Reporter'
-    && (role === 'Operator'
+    && (role === 'Staff'
+      || role === 'Operator'
       || hasCitizenRequestManagerRole(currentUser)
       || getEffectiveUserRoles(currentUser).includes('Operator'))
 
@@ -660,6 +661,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     const existingParams = queryString
       ? Object.fromEntries(new URLSearchParams(queryString).entries())
       : {}
+    const dateParams = periodQueryParams(activeFrom, activeTo)
     return (
       <button
         key={metric.label}
@@ -667,7 +669,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         className="flex w-full min-w-[15.5rem] items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-4 py-3 text-left shadow-[var(--shadow-edge)] transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
         onClick={() => {
           saveDashboardScroll()
-          navigate(withQueryParams(basePath, pieQueryParams(existingParams)))
+          navigate(withQueryParams(basePath, pieQueryParams({ ...existingParams, ...dateParams })))
         }}
       >
         <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>

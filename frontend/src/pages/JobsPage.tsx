@@ -51,6 +51,7 @@ import {
   canShowCitizenWhatsAppConversation,
   formatCitizenRequestNumber,
   formatCitizenPhoneDisplay,
+  getCitizenRequestDetailStatusLabel,
   getCitizenRequestStatusLabel,
   shouldShowCitizenTargetApprovalDate,
   countOpenWorkTasks,
@@ -2054,7 +2055,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       : t('attachments.lockedApproved', 'Talep onaylandığı için sonradan Ek/Fotoğraf eklenemez.')
   const myRequestStatusLabel = detail != null ? (
     isCitizenRequestDetail
-      ? getCitizenRequestStatusLabel(t, detail)
+      ? getCitizenRequestDetailStatusLabel(t, detail)
       : getExternalUnitOwnerDisplayStatus(t, detail)
         ?? (detail.status === 'Active'
           ? (detail.dueDateUtc != null && new Date(detail.dueDateUtc).getTime() < Date.now()
@@ -2876,7 +2877,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         ? formatOverdueInProgressStatus(t)
                         : t('jobs.statusLabel.inProgress', 'Yapılmakta')
                       const incomingOutgoingStatusLabel = isCitizenRequestDetail
-                        ? getCitizenRequestStatusLabel(t, detail)
+                        ? getCitizenRequestDetailStatusLabel(t, detail)
                         : isIncomingRequestDetail
                           ? (
                             getExternalUnitTargetDisplayStatus(t, detail)

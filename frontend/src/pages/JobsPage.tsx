@@ -6,6 +6,7 @@ import { TruncatedText } from '../components/ui/TruncatedText'
 import { EmptyCell } from '../components/ui/EmptyCell'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useWeekendSlaDueDateMin } from '../hooks/useWeekendSlaDueDateMin'
+import { useEscapeKey } from '../hooks/useEscapeKey'
 import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -1627,6 +1628,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       navigate(detailContext === 'social' ? '/social' : returnToIncoming, { replace: true })
     }
   }
+
+  useEscapeKey(closeDetail, Boolean(detail && !isMyRequestsView))
+  useEscapeKey(() => {
+    if (cancelModal) setCancelModal(null)
+    else if (forwardModal && !forwardModal.saving) setForwardModal(null)
+    else if (staffAssignModal && !staffAssignModal.saving) setStaffAssignModal(null)
+    else if (editModal) setEditModal(null)
+  }, Boolean(cancelModal || forwardModal || staffAssignModal || editModal), 'high')
 
   // Talep oluştururken opsiyonel olarak girilen adres alanlarını gösterir; veri yoksa boş durum (card 442).
   // Gelen/Giden detayda Taleplerim ile aynı `my-request` adres tipografisi kullanılır.

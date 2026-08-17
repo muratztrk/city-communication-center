@@ -1,3 +1,6 @@
+## Round 989 — #2816 (detay popup ESC)
+- [x] `6a834ea4` — ESC = X: `useEscapeKey`, `MyRequestDetailModal`, Jobs/Tasks detay, `ModalBackdrop`.
+
 ## Round 988 — #2812 reopen (VT grid iptal filtresi)
 - [x] `6a834688` — `toExternalRow`: terminal job durumu PendingExternalApproval ile ezilmez; processing-received grid iptal VT göstermez.
 

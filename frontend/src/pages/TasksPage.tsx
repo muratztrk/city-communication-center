@@ -22,6 +22,7 @@ import { getActiveDepartmentId } from '../api/http'
 import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
+import { useEscapeKey } from '../hooks/useEscapeKey'
 import { AttachmentImagePreviewButton } from '../components/ui/AttachmentImagePreviewButton'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
@@ -1895,6 +1896,8 @@ const pageKicker = isMyTasksView
     setSearchParams(nextParams, { replace: true })
   }
 
+  useEscapeKey(closeTaskDetail, Boolean(selectedTask))
+
   const routineEditFieldLabel = (fieldKey: string) => {
     switch (fieldKey) {
       case 'title': return t('tasks.newRequest.title', 'Başlık')
@@ -3072,7 +3075,10 @@ const pageKicker = isMyTasksView
       )}
 
       {routineEditHistoryModalOpen && createPortal(
-        <ModalBackdrop className="fixed inset-0 z-[130] flex items-center justify-center bg-black/45 p-4">
+        <ModalBackdrop
+          className="fixed inset-0 z-[130] flex items-center justify-center bg-black/45 p-4"
+          onEscapeClose={() => setRoutineEditHistoryModalOpen(false)}
+        >
           <section
             className="flex max-h-[min(85dvh,52rem)] w-full max-w-3xl flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
           >
@@ -3542,7 +3548,7 @@ const pageKicker = isMyTasksView
       )}
 
       {completeModal && createPortal(
-        <ModalBackdrop>
+        <ModalBackdrop onEscapeClose={closeCompleteModal}>
           <div className="form-card page-stack relative w-full max-w-md">
             <button
               type="button"
@@ -3650,7 +3656,7 @@ const pageKicker = isMyTasksView
       )}
 
       {returnModal && createPortal(
-        <ModalBackdrop>
+        <ModalBackdrop onEscapeClose={closeReturnModal}>
           <div className="form-card page-stack relative w-full max-w-md">
             {/* Sağ üstte kapatma (X) ikonu. */}
             <button
@@ -3796,7 +3802,7 @@ const pageKicker = isMyTasksView
       )}
 
       {statusChangeModal && createPortal(
-        <ModalBackdrop>
+        <ModalBackdrop onEscapeClose={closeStatusChangeModal}>
           <div className="form-card page-stack relative w-full max-w-md">
             <button
               type="button"

@@ -15,6 +15,7 @@ import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { MyRequestAddressEditFields } from './MyRequestAddressEditFields'
 import type { MyRequestEditDraft } from './myRequestEditDraft'
 import { displayMapsLink } from '../../../utils/coordinates'
+import { useEscapeKey } from '../../../hooks/useEscapeKey'
 
 export interface MyRequestDetailModalProps {
   detail: JobDetail
@@ -147,6 +148,8 @@ export function MyRequestDetailModal({
   citizenApprovalReleasedNote,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
+
+  useEscapeKey(onClose)
 
   // Standart kullanıcıda da Adres Bilgileri ve Talep Ekleri ayrı alt kutular olarak kalır
   // (card #1602). Yönetici Notu varsa eski davranışla Talep Bilgileri'nin sonunda gösterilir.

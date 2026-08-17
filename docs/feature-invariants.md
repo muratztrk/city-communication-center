@@ -42,6 +42,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   döner → **`max-h-[min(85dvh,52rem)]`** kullan, sabit `h-[..dvh]` DEĞİL (bkz. lessons.md).
   Özellikle Görevlerim iptal/tamamla/durum popup'ları da Taleplerim gibi body'ye portal
   edilmeli; aksi halde `.app-content-shell .form-card` kompakt stilleri popup'ı küçültür.
+- **Detay popup ESC (#2816):** `MyRequestDetailModal`, Görevlerim/Birime Gelen detay portal'ları ve
+  `ModalBackdrop onEscapeClose` — ESC = kırmızı X ile aynı kapatma; üstte yüksek öncelik overlay
+  (`data-escape-overlay="high"`) açıkken alt detay ESC almaz.
 - **Popup içi grid ölçüsünü sayfa grid'iyle eşitlerken aynı rem değerini KOPYALAMA (#6a6cffd1):**
   portal edilen popup shell zoom'unu (0.76–0.90) almaz, aynı rem orada daha büyük görünür.
   `AppShell` zoom'u `--app-content-zoom` olarak `documentElement`'e yazar; popup kuralları

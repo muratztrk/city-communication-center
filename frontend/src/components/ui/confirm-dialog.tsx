@@ -55,7 +55,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
       : 'text-slate-950'
 
   return createPortal(
-    <ModalBackdrop>
+    <ModalBackdrop onEscapeClose={onClose}>
       <div
         className={`relative w-full rounded-[var(--radius-2xl)] bg-white shadow-2xl ${
           state.details || state.wide

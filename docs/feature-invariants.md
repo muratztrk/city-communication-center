@@ -1656,8 +1656,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `MyRequestDetailModal`; listede `jobId` olmayan ama `citizenRequestNumber` taşıyan ticket'lar da
   gösterilir. İşlemler’de **Düzenle**: Mahalle/Cadde/No/Adres Tarifi grid üzerinde değişir;
   CBS kademeli seçim + mevcut `PUT .../profile` (#2784). Ad/telefon ezilmesin diye kayıtta
-  mevcut isim/telefon/etiket gönderilir. Düzenle koyu turkuaz (`teal-700`), Detaylar’ın sağında (#2787);
-  Üst Düzey (`Reporter`) görmez (#2789). Açık menü punto `0.6875rem`, satır `1.5rem` (#2788); kapalı tetikleyici
+  mevcut isim/telefon/etiket gönderilir. Düzenle koyu turkuaz (`teal-700`); sırası Detaylar → Yazışmaya Git → Düzenle (#2787).
+  Üst Düzey (`Reporter`) Düzenle görmez (#2789). Düzenlerken İptal kırmızı (`destructive`, #2794). Açık menü punto `0.6875rem`, satır `1.5rem` (#2788); kapalı tetikleyici
   `13px` (#2790). Yazışmaya Git: Üst Düzey’de koyu turkuaz (#2792), diğerlerinde açık sky.
   Yazışmaya Git → birim yöneticisi/personel detayındaki aynı
   `WhatsAppConversationModal` (`latestSocialMessageId` veya konuşma detayından) (card #1884);
@@ -1722,8 +1722,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   rengi (sky-500 / orange-500 / red-500 / green-500; iç daire beyaz); doygunluk artırımı
   geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
-  Google POI/işletme/transit ikonları kapalı — cadde/sokak/bulvar yazıları kalır (#2791).
-  CBS **Önemli Yerler** (CbsRehber katman 12–25, ilçe `ILCESI`) küçük gri nokta; talep pinini ezmez (#2791).
+  Google POI/işletme/transit ve **cadde etiketleri** kapalı (#2793). CBS mahalle adları (`… Mah.`) her zoom’da;
+  CBS konum marker’ları zoom ≥ 14, adları ≥ 15; gri Önemli Yerler noktası yok (#2793).
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman
   beyaz çerçeve 1.7rem / iç logo 26px, +/- yığınının solunda **+/− arasındaki çizgi hizasında** (#2614/#2615/#2621/#2631/#2769).
   Hover’da pegman bir kez geri kayar ve durur; mouse çıkınca eski konumuna döner (#2767).

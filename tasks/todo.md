@@ -1,3 +1,9 @@
+## Round 961 — #2787/#2794/#2793
+
+- [x] `6a82ba9b` — Düzenle ile Yazışmaya Git yer değiştirdi.
+- [x] `6a82cad5` — Düzenle İptal kırmızı.
+- [x] `6a82c8d0` — Haritada cadde adı yok; CBS mahalle/konum marker tasarımı.
+
 ## Round 960 — #2792/#2787/#2788
 
 - [x] `6a82c674` — Üst Düzey Yazışmaya Git koyu turkuaz.

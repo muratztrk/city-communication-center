@@ -6,4 +6,9 @@ public sealed record IzmirCbsPointResponse(double Latitude, double Longitude, bo
 
 public sealed record IzmirCbsNearestAddressResponse(string Neighborhood, string Street);
 
-public sealed record IzmirCbsLandmarkResponse(string Name, string Category, double Latitude, double Longitude);
+public sealed record IzmirCbsLandmarkResponse(
+    string Name,
+    string Category,
+    double Latitude,
+    double Longitude,
+    string Kind);

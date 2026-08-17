@@ -524,7 +524,7 @@ export function CitizenDirectoryPage() {
                           <Button type="button" size="sm" disabled={addressSaving} onClick={() => void saveAddressEdit(row)}>
                             {t('common.save', 'Kaydet')}
                           </Button>
-                          <Button type="button" size="sm" variant="secondary" disabled={addressSaving} onClick={cancelAddressEdit}>
+                          <Button type="button" size="sm" variant="destructive" disabled={addressSaving} onClick={cancelAddressEdit}>
                             {t('common.cancel', 'İptal')}
                           </Button>
                         </>
@@ -532,16 +532,6 @@ export function CitizenDirectoryPage() {
                       <Button type="button" size="sm" variant="secondary" onClick={() => void openTickets(row)}>
                         {t('jobs.actions.details', 'Detaylar')}
                       </Button>
-                      {!isEditing && canEditDirectoryAddress ? (
-                        <Button
-                          type="button"
-                          size="sm"
-                          className="!bg-teal-700 !text-white hover:!bg-teal-800"
-                          onClick={() => startAddressEdit(row)}
-                        >
-                          {t('common.edit', 'Düzenle')}
-                        </Button>
-                      ) : null}
                       {row.sourceChannel === 'Phone' ? (
                         <DisabledActionButton
                           type="button"
@@ -563,6 +553,16 @@ export function CitizenDirectoryPage() {
                           {t('citizenDirectory.goToChat', 'Yazışmaya Git')}
                         </Button>
                       )}
+                      {!isEditing && canEditDirectoryAddress ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="!bg-teal-700 !text-white hover:!bg-teal-800"
+                          onClick={() => startAddressEdit(row)}
+                        >
+                          {t('common.edit', 'Düzenle')}
+                        </Button>
+                      ) : null}
                     </div>
                   </td>
                 </tr>

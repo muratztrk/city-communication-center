@@ -379,7 +379,12 @@ function toExternalRow(
   const pendingTargetApprovalDepartmentId = targetPending && activeTarget && !isCitizen
     ? activeTarget.departmentId
     : null
-  const displayStatus = targetPending ? 'PendingExternalApproval' : job.status
+  // Terminal taleplerde hedef onay bekliyor olsa bile durumu ezme — iptal VT'ler İşleme Alındı grid'ine düşmesin (#2812 reopen).
+  const isTerminalJobStatus = job.status === 'Completed'
+    || job.status === 'Cancelled'
+    || job.status === 'Rejected'
+    || job.status === 'RevisionRequested'
+  const displayStatus = targetPending && !isTerminalJobStatus ? 'PendingExternalApproval' : job.status
   const displayNumber = isCitizenRequestJob(job)
     ? formatCitizenRequestNumber(socialByJobId.get(job.jobId) ?? { createdAtUtc: job.createdAtUtc }, locale)
     : formatJobDisplayNumber(job)

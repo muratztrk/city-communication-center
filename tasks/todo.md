@@ -1,3 +1,6 @@
+## Round 988 — #2812 reopen (VT grid iptal filtresi)
+- [x] `6a834688` — `toExternalRow`: terminal job durumu PendingExternalApproval ile ezilmez; processing-received grid iptal VT göstermez.
+
 ## Round 987 — #2813/#2814/#2815/#2807 reopen
 - [x] `6a8347ef` — İlgili Talep Detayları: Öncelik satırı kaldırıldı (`hidePriorityRow`).
 - [x] `6a834813` — İlgili Görev Detayları: Görev Bilgileri Öncelik kaldırıldı.

@@ -1592,6 +1592,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yönetici `Vatandaş Talepleri` kartı:** `activeSocialMessageCount` — İşleme Alındı VT
   sayısı (`CitizenVtDashboardClassification`, geciken dahil — #2812); alt etiket **Onay Bekleyen**
   (#2791 reopen). Tıklama → `/incoming-requests?citizen=1&status=processing-received`.
+  Grid `processing-received` iptal/terminal VT satırlarını içermez — `toExternalRow` terminal
+  job durumunu `PendingExternalApproval` ile ezmez (#2812 reopen).
 - **Yönetici `Bekleyen Taleplerim` kartı:** sayı = `myRequests` pie `externalPendingApproval`
   dilimi (`PendingExternalApproval` veya `Active` + `taskCount===0`, geciken hariç — Taleplerim
   `external-pending` grid ile aynı); tıklama → `/my-requests?view=external-pending` (#2800).

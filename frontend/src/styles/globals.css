@@ -2437,6 +2437,21 @@
     line-height: 1.25 !important;
   }
 
+  /* Vatandaş Bilgi Listesi adres menü satırları küçük (#2788); tetikleyici 13px (#2790). */
+  .citizen-directory-address-menu .dropdown-menu-item,
+  .citizen-directory-address-menu .dropdown-menu-item span {
+    min-height: 1.75rem;
+    padding: 0.28rem 0.55rem;
+    font-size: 0.6875rem !important;
+    line-height: 1.2;
+  }
+
+  .citizen-directory-address-menu input,
+  .dropdown-menu-panel.citizen-directory-address-menu input {
+    font-size: 0.6875rem !important;
+    line-height: 1.25 !important;
+  }
+
   .task-return-user-menu-scroll .dropdown-menu-item {
     min-height: 2rem;
     padding: 0.4rem 0.65rem;

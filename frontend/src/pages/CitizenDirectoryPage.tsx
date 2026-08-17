@@ -15,6 +15,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { WhatsAppConversationModal } from '../components/WhatsAppConversationModal'
 import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
+import { useAuth } from '../context/AuthContext'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useIzmirCbsStreetNoCatalog } from '../hooks/useIzmirCbsStreetNoCatalog'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
@@ -40,7 +41,8 @@ type AddressDraft = {
 }
 
 const SEARCH_KEYS = ['displayName', 'citizenPhone', 'neighborhood', 'street', 'streetNo', 'openAddress'] as const
-const ADDRESS_TRIGGER_CLASS = 'field-input !h-8 !min-h-8 !py-0 text-xs'
+const ADDRESS_TRIGGER_CLASS = 'field-input !h-8 !min-h-8 !py-0 text-[13px]'
+const ADDRESS_MENU_CLASS = 'citizen-directory-address-menu'
 
 function rowAddressDraft(row: CitizenConversationSummary): AddressDraft {
   return {
@@ -86,6 +88,8 @@ function DirectoryAddressEditCells({
           searchPlaceholder={t('common.search', 'Ara...')}
           matchTriggerWidth
           triggerClassName={ADDRESS_TRIGGER_CLASS}
+          menuClassName={ADDRESS_MENU_CLASS}
+          menuScrollClassName={ADDRESS_MENU_CLASS}
         />
       </td>
       <td className="min-w-[9rem]">
@@ -100,6 +104,8 @@ function DirectoryAddressEditCells({
           disabled={!hasNeighborhood || streetsLoading}
           matchTriggerWidth
           triggerClassName={ADDRESS_TRIGGER_CLASS}
+          menuClassName={ADDRESS_MENU_CLASS}
+          menuScrollClassName={ADDRESS_MENU_CLASS}
         />
       </td>
       <td className="min-w-[6.5rem]">
@@ -114,6 +120,8 @@ function DirectoryAddressEditCells({
           disabled={!hasStreet || doorsLoading}
           matchTriggerWidth
           triggerClassName={ADDRESS_TRIGGER_CLASS}
+          menuClassName={ADDRESS_MENU_CLASS}
+          menuScrollClassName={ADDRESS_MENU_CLASS}
         />
       </td>
       <td className="min-w-[8rem]">
@@ -151,6 +159,8 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
 export function CitizenDirectoryPage() {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
+  const { user } = useAuth()
+  const canEditDirectoryAddress = user?.role !== 'Reporter'
 
   const [rows, setRows] = useState<CitizenConversationSummary[]>([])
   const [loading, setLoading] = useState(true)
@@ -514,14 +524,20 @@ export function CitizenDirectoryPage() {
                             {t('common.cancel', 'İptal')}
                           </Button>
                         </>
-                      ) : (
-                        <Button type="button" size="sm" variant="secondary" onClick={() => startAddressEdit(row)}>
-                          {t('common.edit', 'Düzenle')}
-                        </Button>
-                      )}
+                      ) : null}
                       <Button type="button" size="sm" variant="secondary" onClick={() => void openTickets(row)}>
                         {t('jobs.actions.details', 'Detaylar')}
                       </Button>
+                      {!isEditing && canEditDirectoryAddress ? (
+                        <Button
+                          type="button"
+                          size="sm"
+                          className="!bg-sky-400 !text-white hover:!bg-sky-500"
+                          onClick={() => startAddressEdit(row)}
+                        >
+                          {t('common.edit', 'Düzenle')}
+                        </Button>
+                      ) : null}
                       {row.sourceChannel === 'Phone' ? (
                         <DisabledActionButton
                           type="button"

@@ -1656,7 +1656,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `MyRequestDetailModal`; listede `jobId` olmayan ama `citizenRequestNumber` taşıyan ticket'lar da
   gösterilir. İşlemler’de **Düzenle**: Mahalle/Cadde/No/Adres Tarifi grid üzerinde değişir;
   CBS kademeli seçim + mevcut `PUT .../profile` (#2784). Ad/telefon ezilmesin diye kayıtta
-  mevcut isim/telefon/etiket gönderilir. Yazışmaya Git → birim yöneticisi/personel detayındaki aynı
+  mevcut isim/telefon/etiket gönderilir. Düzenle turkuaz, Detaylar’ın sağında (#2787);
+  Üst Düzey (`Reporter`) görmez (#2789). Açık menü punto `0.6875rem` (#2788); kapalı tetikleyici
+  `13px` (#2790). Yazışmaya Git → birim yöneticisi/personel detayındaki aynı
   `WhatsAppConversationModal` (`latestSocialMessageId` veya konuşma detayından) (card #1884);
   `Phone`/Çağrı satırında `DisabledActionButton` ile pasif (card #1868), açık mavi stil
   (`MessageSquareText` + `!bg-sky-400`). Mobil grid `table-wrap` ile yatay kayar (#r482).

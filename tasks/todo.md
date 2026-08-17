@@ -1,3 +1,10 @@
+## Round 958 — #2787/#2788/#2789/#2790
+
+- [x] `6a82ba9b` — Düzenle turkuaz, Detaylar’ın sağında.
+- [x] `6a82bae7` — Adres açık menü punto küçültüldü.
+- [x] `6a82bb78` — Üst Düzey (Reporter) Düzenle görmez.
+- [x] `6a82bbbc` — Kapalı dropdown tetikleyici punto 13px.
+
 ## Round 957 — #2785/#2786
 
 - [x] `6a82b855` — Görev Süreç Son Tarih, Tamamlanma/İptal’den sonra.

@@ -9,10 +9,11 @@ import {
   SuperClusterAlgorithm,
   type Cluster,
 } from '@googlemaps/markerclusterer'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
+import { queryKeys } from '../api/queryKeys'
 import type { CitizenConversationTicket, CitizenDashboardMapPin, JobDetail, SocialMessage } from '../types/platform'
 import { CitizenDirectoryTicketsModal } from './citizen-directory/CitizenDirectoryTicketsModal'
 import { MapPinnedRequestsModal } from './MapPinnedRequestsModal'
@@ -49,6 +50,26 @@ const DEPARTMENT_PIN_COLORS: Record<string, string> = {
 function pinColor(displayStatus: string, variant: 'citizen' | 'department'): string {
   const palette = variant === 'department' ? DEPARTMENT_PIN_COLORS : PIN_COLORS
   return palette[displayStatus] ?? palette.inProgress
+}
+
+/** Google POI/işletme ikonlarını kapat; cadde adları kalsın (#2791). */
+const STREET_ONLY_MAP_STYLES: google.maps.MapTypeStyle[] = [
+  { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  { featureType: 'administrative.land_parcel', stylers: [{ visibility: 'off' }] },
+  { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+]
+
+function landmarkSvgIcon(): google.maps.Icon {
+  const size = 10
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 10 10">
+    <circle cx="5" cy="5" r="3.4" fill="#64748b" stroke="#ffffff" stroke-width="1.2"/>
+  </svg>`
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new google.maps.Size(size, size),
+    anchor: new google.maps.Point(size / 2, size / 2),
+  }
 }
 
 /** Başlangıç zoom'da tek pin bile sayılı cluster; bu zoom ve üstünde durum rengi. */
@@ -373,7 +394,14 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
   const markersRef = useRef<google.maps.Marker[]>([])
+  const landmarkMarkersRef = useRef<google.maps.Marker[]>([])
   const bouncingMarkerRef = useRef<google.maps.Marker | null>(null)
+  const { data: landmarks = [] } = useQuery({
+    queryKey: queryKeys.izmirCbs.landmarks(mapView.districtId),
+    queryFn: () => api.getIzmirCbsLandmarks(mapView.districtId),
+    enabled: Boolean(mapView.districtId) && mapsReady && isLoaded,
+    staleTime: 6 * 60 * 60 * 1000,
+  })
 
   const stopMarkerBounce = useCallback(() => {
     bouncingMarkerRef.current?.setAnimation(null)
@@ -642,6 +670,25 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     }
   }, [mapInstance, isLoaded, resolved, variant, stopMarkerBounce])
 
+  useEffect(() => {
+    if (!mapInstance || !isLoaded) return
+
+    landmarkMarkersRef.current.forEach(marker => marker.setMap(null))
+    landmarkMarkersRef.current = landmarks.map(place => new google.maps.Marker({
+      map: mapInstance,
+      position: { lat: place.latitude, lng: place.longitude },
+      icon: landmarkSvgIcon(),
+      title: place.category ? `${place.name} (${place.category})` : place.name,
+      clickable: false,
+      zIndex: 1,
+    }))
+
+    return () => {
+      landmarkMarkersRef.current.forEach(marker => marker.setMap(null))
+      landmarkMarkersRef.current = []
+    }
+  }, [mapInstance, isLoaded, landmarks])
+
   const statusLegend = useMemo(() => {
     const inProgressColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.inProgress : PIN_COLORS.inProgress
     const overdueColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.overdue : PIN_COLORS.overdue
@@ -814,6 +861,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
               mapTypeControl: false,
               fullscreenControl: false,
               clickableIcons: false,
+              styles: STREET_ONLY_MAP_STYLES,
             }}
           />
         )}

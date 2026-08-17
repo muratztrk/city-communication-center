@@ -80,4 +80,14 @@ public sealed class IzmirCbsController : ApiControllerBase
             cancellationToken);
         return Ok(response);
     }
+
+    [HttpGet("landmarks")]
+    [ProducesResponseType<IReadOnlyList<IzmirCbsLandmarkResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<IzmirCbsLandmarkResponse>>> GetLandmarks(
+        [FromQuery] string districtId,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetIzmirCbsLandmarksQuery(districtId ?? string.Empty), cancellationToken);
+        return Ok(response);
+    }
 }

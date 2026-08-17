@@ -132,5 +132,6 @@ export const queryKeys = {
     streets: (neighborhoodId: string) => ['ccc', 'izmir-cbs', 'streets', neighborhoodId] as const,
     doorNumbers: (streetId: string, neighborhoodId: string) =>
       ['ccc', 'izmir-cbs', 'door-numbers', streetId, neighborhoodId] as const,
+    landmarks: (districtId: string) => ['ccc', 'izmir-cbs', 'landmarks', districtId] as const,
   },
 }

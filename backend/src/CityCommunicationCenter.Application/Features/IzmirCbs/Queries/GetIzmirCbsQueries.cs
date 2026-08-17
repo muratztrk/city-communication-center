@@ -162,3 +162,32 @@ public sealed class GetIzmirCbsNearestQueryHandler
             request.Longitude,
             cancellationToken));
 }
+
+public sealed record GetIzmirCbsLandmarksQuery(string DistrictId)
+    : IQuery<IReadOnlyList<IzmirCbsLandmarkResponse>>;
+
+public sealed class GetIzmirCbsLandmarksQueryValidator : AbstractValidator<GetIzmirCbsLandmarksQuery>
+{
+    public GetIzmirCbsLandmarksQueryValidator()
+    {
+        RuleFor(x => x.DistrictId)
+            .NotEmpty()
+            .WithMessage("İlçe seçiniz.");
+    }
+}
+
+public sealed class GetIzmirCbsLandmarksQueryHandler
+    : IQueryHandler<GetIzmirCbsLandmarksQuery, IReadOnlyList<IzmirCbsLandmarkResponse>>
+{
+    private readonly IIzmirCbsAddressCatalog _catalog;
+
+    public GetIzmirCbsLandmarksQueryHandler(IIzmirCbsAddressCatalog catalog)
+    {
+        _catalog = catalog;
+    }
+
+    public ValueTask<IReadOnlyList<IzmirCbsLandmarkResponse>> Handle(
+        GetIzmirCbsLandmarksQuery request,
+        CancellationToken cancellationToken)
+        => new(_catalog.GetLandmarksAsync(request.DistrictId, cancellationToken));
+}

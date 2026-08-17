@@ -26,6 +26,24 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
     private const int StreetCenterlineLayer = 7;
     private const int DoorLayer = 9;
 
+    private static readonly (int Layer, string Category)[] LandmarkLayers =
+    [
+        (12, "Kamu Kurum ve Kuruluşları"),
+        (13, "Alışveriş Noktaları"),
+        (14, "Dini Tesisler"),
+        (15, "Eğitim"),
+        (16, "Kent Çekim Merkezleri"),
+        (17, "Konaklama"),
+        (18, "Kültür ve Sanat"),
+        (19, "Sağlık"),
+        (20, "Sosyal Hizmetler"),
+        (21, "Spor Aktiviteleri"),
+        (22, "Tarihi Yerler"),
+        (23, "Fatura Ödeme Merkezi"),
+        (24, "Ulaşım Noktaları"),
+        (25, "Coğrafi Yer Şekilleri"),
+    ];
+
     private static readonly CultureInfo Turkish = CultureInfo.GetCultureInfo("tr-TR");
 
     private static readonly TimeSpan CacheDuration = TimeSpan.FromHours(6);
@@ -68,6 +86,40 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
         ["tire"] = "997",
         ["torbali"] = "9",
         ["urla"] = "18",
+    };
+
+    private static readonly Dictionary<string, string> DistrictIlceNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["aliaga"] = "ALİAĞA",
+        ["balcova"] = "BALÇOVA",
+        ["bayindir"] = "BAYINDIR",
+        ["bayrakli"] = "BAYRAKLI",
+        ["bergama"] = "BERGAMA",
+        ["beydağ"] = "BEYDAĞ",
+        ["bornova"] = "BORNOVA",
+        ["buca"] = "BUCA",
+        ["cesme"] = "ÇEŞME",
+        ["cigli"] = "ÇİĞLİ",
+        ["dikili"] = "DİKİLİ",
+        ["foca"] = "FOÇA",
+        ["gaziemir"] = "GAZİEMİR",
+        ["guzelbahe"] = "GÜZELBAHÇE",
+        ["karabaglar"] = "KARABAĞLAR",
+        ["karaburun"] = "KARABURUN",
+        ["karsiyaka"] = "KARŞIYAKA",
+        ["kemalpasa"] = "KEMALPAŞA",
+        ["kinik"] = "KINIK",
+        ["kiraz"] = "KİRAZ",
+        ["konak"] = "KONAK",
+        ["menderes"] = "MENDERES",
+        ["menemen"] = "MENEMEN",
+        ["narlidere"] = "NARLIDERE",
+        ["odemis"] = "ÖDEMİŞ",
+        ["seferihisar"] = "SEFERİHİSAR",
+        ["selcuk"] = "SELÇUK",
+        ["tire"] = "TİRE",
+        ["torbali"] = "TORBALI",
+        ["urla"] = "URLA",
     };
 
     private readonly IHttpClientFactory _httpClientFactory;
@@ -246,6 +298,141 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
         {
             _logger.LogWarning(exception, "İzmir CBS ters adres sorgusu başarısız.");
             return null;
+        }
+    }
+
+    public async Task<IReadOnlyList<IzmirCbsLandmarkResponse>> GetLandmarksAsync(
+        string districtId,
+        CancellationToken cancellationToken)
+    {
+        var trimmed = districtId.Trim();
+        if (!DistrictIlceNames.TryGetValue(trimmed, out var ilceName))
+        {
+            throw new ValidationException("Geçersiz ilçe değeri.");
+        }
+
+        var cacheKey = $"izmir-cbs:landmarks:{ilceName}";
+        if (_cache.TryGetValue(cacheKey, out IReadOnlyList<IzmirCbsLandmarkResponse>? cached) && cached is not null)
+        {
+            return cached;
+        }
+
+        var stored = await _db.IzmirCbsCatalogCaches
+            .AsNoTracking()
+            .FirstOrDefaultAsync(row => row.CacheKey == cacheKey, cancellationToken);
+        var storedLandmarks = DeserializeLandmarks(stored?.PayloadJson);
+        if (storedLandmarks.Count > 0)
+        {
+            _cache.Set(cacheKey, storedLandmarks, CacheDuration);
+            return storedLandmarks;
+        }
+
+        var layers = await Task.WhenAll(
+            LandmarkLayers.Select(layer => QueryLandmarkLayerAsync(layer.Layer, layer.Category, ilceName, cancellationToken)));
+        var landmarks = layers
+            .SelectMany(items => items)
+            .GroupBy(item => $"{item.Latitude:F5}|{item.Longitude:F5}|{item.Name}", StringComparer.Ordinal)
+            .Select(group => group.First())
+            .ToArray();
+
+        await PersistPayloadAsync(cacheKey, JsonSerializer.Serialize(landmarks, JsonOptions), cancellationToken);
+        _cache.Set(cacheKey, (IReadOnlyList<IzmirCbsLandmarkResponse>)landmarks, CacheDuration);
+        return landmarks;
+    }
+
+    private async Task<IReadOnlyList<IzmirCbsLandmarkResponse>> QueryLandmarkLayerAsync(
+        int layer,
+        string category,
+        string ilceName,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var client = _httpClientFactory.CreateClient(HttpClientName);
+            var where = $"ILCESI = '{ilceName.Replace("'", "''", StringComparison.Ordinal)}'";
+            var url = string.Format(CbsRehberQueryUrl, layer)
+                + "?where=" + Uri.EscapeDataString(where)
+                + "&returnGeometry=true&outFields=ADI,TIP&outSR=4326&f=json";
+            using var response = await client.GetAsync(url, cancellationToken);
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogWarning("İzmir CBS önemli yer katmanı {Layer} HTTP {Status} döndü.", layer, (int)response.StatusCode);
+                return [];
+            }
+
+            await using var stream = await response.Content.ReadAsStreamAsync(cancellationToken);
+            using var document = await JsonDocument.ParseAsync(stream, cancellationToken: cancellationToken);
+            if (!document.RootElement.TryGetProperty("features", out var features)
+                || features.ValueKind != JsonValueKind.Array)
+            {
+                return [];
+            }
+
+            var results = new List<IzmirCbsLandmarkResponse>();
+            foreach (var feature in features.EnumerateArray())
+            {
+                if (!feature.TryGetProperty("geometry", out var geometry))
+                {
+                    continue;
+                }
+
+                var point = ReadGeometry(geometry);
+                if (point is null)
+                {
+                    continue;
+                }
+
+                var name = string.Empty;
+                var type = category;
+                if (feature.TryGetProperty("attributes", out var attributes))
+                {
+                    if (attributes.TryGetProperty("ADI", out var adiEl))
+                    {
+                        name = adiEl.GetString()?.Trim() ?? string.Empty;
+                    }
+
+                    if (attributes.TryGetProperty("TIP", out var tipEl))
+                    {
+                        var tip = tipEl.GetString()?.Trim();
+                        if (!string.IsNullOrWhiteSpace(tip))
+                        {
+                            type = tip;
+                        }
+                    }
+                }
+
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    continue;
+                }
+
+                results.Add(new IzmirCbsLandmarkResponse(name, type, point.Value.Lat, point.Value.Lng));
+            }
+
+            return results;
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            _logger.LogWarning(exception, "İzmir CBS önemli yer katmanı {Layer} okunamadı.", layer);
+            return [];
+        }
+    }
+
+    private static IReadOnlyList<IzmirCbsLandmarkResponse> DeserializeLandmarks(string? payload)
+    {
+        if (string.IsNullOrWhiteSpace(payload))
+        {
+            return [];
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<IzmirCbsLandmarkResponse>>(payload, JsonOptions)
+                ?? [];
+        }
+        catch (JsonException)
+        {
+            return [];
         }
     }
 

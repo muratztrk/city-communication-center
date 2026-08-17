@@ -586,6 +586,15 @@ export const api = {
     return response.json() as Promise<{ neighborhood: string; street: string } | null>
   },
 
+  async getIzmirCbsLandmarks(districtId: string): Promise<Array<{ name: string; category: string; latitude: number; longitude: number }>> {
+    const params = new URLSearchParams({ districtId })
+    const response = await fetchWithCredentials(`${API_BASE}/izmir-cbs/landmarks?${params}`, {
+      headers: await getAuthHeaders(),
+    })
+    if (!response.ok) return []
+    return response.json() as Promise<Array<{ name: string; category: string; latitude: number; longitude: number }>>
+  },
+
   async resolveMapsAddressFromLink(
     url: string,
     districtId?: string,

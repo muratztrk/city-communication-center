@@ -28,4 +28,8 @@ public interface IIzmirCbsAddressCatalog
         double latitude,
         double longitude,
         CancellationToken cancellationToken);
+
+    Task<IReadOnlyList<IzmirCbsLandmarkResponse>> GetLandmarksAsync(
+        string districtId,
+        CancellationToken cancellationToken);
 }

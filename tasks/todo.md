@@ -1,3 +1,7 @@
+## Round 959 — #2791
+
+- [x] `6a82bfe1` — Vatandaş/Birim talep haritasında Google POI kapalı; CBS Önemli Yerler noktaları.
+
 ## Round 958 — #2787/#2788/#2789/#2790
 
 - [x] `6a82ba9b` — Düzenle turkuaz, Detaylar’ın sağında.

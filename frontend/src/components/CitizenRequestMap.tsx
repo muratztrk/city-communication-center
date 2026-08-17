@@ -9,10 +9,11 @@ import {
   SuperClusterAlgorithm,
   type Cluster,
 } from '@googlemaps/markerclusterer'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
+import { queryKeys } from '../api/queryKeys'
 import type { CitizenConversationTicket, CitizenDashboardMapPin, JobDetail, SocialMessage } from '../types/platform'
 import { CitizenDirectoryTicketsModal } from './citizen-directory/CitizenDirectoryTicketsModal'
 import { MapPinnedRequestsModal } from './MapPinnedRequestsModal'
@@ -51,24 +52,66 @@ function pinColor(displayStatus: string, variant: 'citizen' | 'department'): str
   return palette[displayStatus] ?? palette.inProgress
 }
 
-/** Cadde/sokak/bulvar açık; ticari POI kapalı; okul/hastane/cami/kamu/park/gar vb. Google native POI (#2796). */
+/** Cadde/sokak/bulvar açık; Google POI kapalı; karttaki referans yerler CBS filtre overlay (#2796). */
 const REQUEST_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
-  { featureType: 'poi.school', stylers: [{ visibility: 'on' }] },
-  { featureType: 'poi.medical', stylers: [{ visibility: 'on' }] },
-  { featureType: 'poi.place_of_worship', stylers: [{ visibility: 'on' }] },
-  { featureType: 'poi.government', stylers: [{ visibility: 'on' }] },
-  { featureType: 'poi.park', stylers: [{ visibility: 'on' }] },
-  { featureType: 'poi.sports_complex', stylers: [{ visibility: 'on' }] },
-  { featureType: 'poi.cemetery', stylers: [{ visibility: 'on' }] },
-  { featureType: 'poi.lodging', stylers: [{ visibility: 'on' }] },
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { featureType: 'transit.station', stylers: [{ visibility: 'on' }] },
   { featureType: 'administrative.land_parcel', stylers: [{ visibility: 'off' }] },
 ]
 
+function cbsPlaceColor(category: string): string {
+  const key = category.toLocaleLowerCase('tr')
+  if (/sağlık|acil|hastane|veteriner|eczane/.test(key)) return '#dc2626'
+  if (/eğitim|okul|üniversite|anaokul|lise/.test(key)) return '#2563eb'
+  if (/(cami|dini|park|spor)/.test(key)) return '#16a34a'
+  if (/(müze|kültür|tarihi|sanat)/.test(key)) return '#92400e'
+  if (/(ulaşım|terminal|gar|otobüs)/.test(key)) return '#ea580c'
+  return '#1d4ed8'
+}
+
+function cbsCategorySymbol(category: string): string {
+  const key = category.toLocaleLowerCase('tr')
+  if (/dini|cami/.test(key)) {
+    return '<path fill="#fff" d="M12 5.5c-1.8 0-3 1.2-3 2.8v1.2h6V8.3c0-1.6-1.2-2.8-3-2.8zm-4.5 4.5v7.5h9V10h-9z"/>'
+  }
+  if (/eğitim|okul/.test(key)) {
+    return '<path fill="#fff" d="M12 5L4 9.5v1.5l8 4.5 8-4.5V9.5L12 5zm0 3.2l5.5 3.1L12 14.3 6.5 11.3 12 8.2z"/>'
+  }
+  if (/sağlık|acil|hastane|veteriner|eczane/.test(key)) {
+    return '<path fill="#fff" d="M11 7h2v4h4v2h-4v4h-2v-4H7v-2h4V7z"/>'
+  }
+  if (/(müze|kültür|tarihi|sanat)/.test(key)) {
+    return '<path fill="#fff" d="M6 9h12v9H6V9zm2 2v5h2v-5H8zm4 0v5h2v-5h-2zm4 0v5h2v-5h-2zM9 7h6l1 2H8l1-2z"/>'
+  }
+  if (/(ulaşım|terminal|gar|otobüs)/.test(key)) {
+    return '<path fill="#fff" d="M7 8h10a2 2 0 012 2v5a2 2 0 01-2 2h-1.2l.8 2h-1.6l-.8-2H9.6l-.8 2H7.2l.8-2H7a2 2 0 01-2-2v-5a2 2 0 012-2zm0 2v3h10v-3H7zm2.5 5.5a1 1 0 100-2 1 1 0 000 2zm7 0a1 1 0 100-2 1 1 0 000 2z"/>'
+  }
+  if (/park|coğrafi/.test(key)) {
+    return '<path fill="#fff" d="M12 6c-1.5 2-4 2.5-4 5a4 4 0 008 0c0-2.5-2.5-3-4-5z"/>'
+  }
+  return '<circle cx="12" cy="12" r="3.5" fill="#fff"/>'
+}
+
+function cbsPlaceIcon(category: string): google.maps.Icon {
+  const size = 22
+  const color = cbsPlaceColor(category)
+  const symbol = cbsCategorySymbol(category)
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" fill="${color}" stroke="#ffffff" stroke-width="1.2"/>
+    ${symbol}
+  </svg>`
+  return {
+    url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`,
+    scaledSize: new google.maps.Size(size, size),
+    anchor: new google.maps.Point(size / 2, size / 2),
+    labelOrigin: new google.maps.Point(size / 2, -4),
+  }
+}
+
 /** Başlangıç zoom'da tek pin bile sayılı cluster; bu zoom ve üstünde durum rengi. */
 const NUMBERED_SINGLE_MAX_ZOOM = 13
+const MAP_REFERENCE_MIN_ZOOM = NUMBERED_SINGLE_MAX_ZOOM + 1
+const MAP_REFERENCE_LABEL_MIN_ZOOM = MAP_REFERENCE_MIN_ZOOM + 1
 
 function readBannerClusterColor(): string {
   const value = getComputedStyle(document.documentElement).getPropertyValue('--color-header-from').trim()
@@ -383,13 +426,22 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches,
   )
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
+  const [mapZoom, setMapZoom] = useState(INITIAL_MAP_ZOOM)
   const [streetViewPicker, setStreetViewPicker] = useState(false)
   const [listMode, setListMode] = useState<'located' | 'unlocated' | null>(null)
   const streetViewPickerRef = useRef(false)
   const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
   const markersRef = useRef<google.maps.Marker[]>([])
+  const referenceMarkersRef = useRef<google.maps.Marker[]>([])
   const bouncingMarkerRef = useRef<google.maps.Marker | null>(null)
+  const referenceFetchEnabled = Boolean(mapView.districtId) && mapsReady && isLoaded && mapZoom >= MAP_REFERENCE_MIN_ZOOM
+  const { data: referenceLandmarks = [] } = useQuery({
+    queryKey: queryKeys.izmirCbs.mapReferenceLandmarks(mapView.districtId),
+    queryFn: () => api.getIzmirCbsMapReferenceLandmarks(mapView.districtId),
+    enabled: referenceFetchEnabled,
+    staleTime: 6 * 60 * 60 * 1000,
+  })
 
   const stopMarkerBounce = useCallback(() => {
     bouncingMarkerRef.current?.setAnimation(null)
@@ -657,6 +709,56 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
       markersRef.current = []
     }
   }, [mapInstance, isLoaded, resolved, variant, stopMarkerBounce])
+
+  useEffect(() => {
+    if (!mapInstance) return
+    const syncZoom = () => setMapZoom(mapInstance.getZoom() ?? INITIAL_MAP_ZOOM)
+    syncZoom()
+    const listener = mapInstance.addListener('zoom_changed', syncZoom)
+    return () => google.maps.event.removeListener(listener)
+  }, [mapInstance])
+
+  useEffect(() => {
+    if (!mapInstance || !isLoaded || mapZoom < MAP_REFERENCE_MIN_ZOOM) {
+      referenceMarkersRef.current.forEach(marker => marker.setMap(null))
+      referenceMarkersRef.current = []
+      return
+    }
+
+    referenceMarkersRef.current.forEach(marker => marker.setMap(null))
+    const markers = referenceLandmarks.map(place => {
+      const marker = new google.maps.Marker({
+        map: mapInstance,
+        position: { lat: place.latitude, lng: place.longitude },
+        clickable: false,
+        zIndex: 1,
+        title: place.name,
+        icon: cbsPlaceIcon(place.category),
+      })
+      return marker
+    })
+    referenceMarkersRef.current = markers
+
+    markers.forEach((marker, index) => {
+      const place = referenceLandmarks[index]
+      if (!place) return
+      if (mapZoom >= MAP_REFERENCE_LABEL_MIN_ZOOM) {
+        marker.setLabel({
+          text: place.name,
+          fontSize: '10px',
+          fontWeight: '600',
+          color: '#1e293b',
+        })
+      } else {
+        marker.setLabel(null)
+      }
+    })
+
+    return () => {
+      referenceMarkersRef.current.forEach(marker => marker.setMap(null))
+      referenceMarkersRef.current = []
+    }
+  }, [mapInstance, isLoaded, mapZoom, referenceLandmarks])
 
   const statusLegend = useMemo(() => {
     const inProgressColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.inProgress : PIN_COLORS.inProgress

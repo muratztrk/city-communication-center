@@ -60,8 +60,8 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
     private static readonly string[] MapReferenceNameKeywords =
     [
         "okul", "üniversite", "hastane", "cami", "belediye", "adliye", "itfaiye",
-        "emniyet", "hükümet", "kaymakamlık", "jandarma", "mezarlık", "park",
-        "gar", "istasyon", "terminal", "noter", "yurt", "stad", "stadyum",
+        "emniyet", "hükümet", "kaymakamlık", "jandarma", "mezarlık", "parkı",
+        "garı", "istasyon", "noter", "yurt", "stad", "stadyum",
     ];
 
     private static readonly CultureInfo Turkish = CultureInfo.GetCultureInfo("tr-TR");
@@ -375,7 +375,7 @@ internal sealed class IzmirCbsAddressCatalog : IIzmirCbsAddressCatalog
             throw new ValidationException("Geçersiz ilçe değeri.");
         }
 
-        var cacheKey = $"izmir-cbs:map-reference-landmarks:{ilceName}";
+        var cacheKey = $"izmir-cbs:map-reference-landmarks-v2:{ilceName}";
         if (_cache.TryGetValue(cacheKey, out IReadOnlyList<IzmirCbsLandmarkResponse>? cached) && cached is not null)
         {
             return cached;

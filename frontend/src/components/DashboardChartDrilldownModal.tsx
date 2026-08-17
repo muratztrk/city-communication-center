@@ -17,7 +17,7 @@ import { DueDatePill } from './ui/due-date-pill'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { getAuditStatusLabel, getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, formatOverdueInProgressStatus } from '../utils/localization'
-import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenRequestJob } from '../utils/citizenRequests'
+import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue, isCitizenRequestJob } from '../utils/citizenRequests'
 import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { ChannelIcon } from './ui/channel-icon'
@@ -680,6 +680,11 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                                 t={t}
                                 label={statusLabel}
                                 channel={row.sourceChannel}
+                                overdueSubline={row.citizenRequestNumber != null && isCitizenProcessingReceivedOverdue({
+                                  status: row.status,
+                                  dueDateUtc: row.dueDateUtc,
+                                  taskCount: row.openTaskCount ?? 0,
+                                })}
                                 footer={statusDateText
                                   ? <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{statusDateText}</span>
                                   : undefined}

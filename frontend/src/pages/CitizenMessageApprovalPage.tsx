@@ -23,7 +23,7 @@ import { TruncatedText } from '../components/ui/TruncatedText'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
 import type { CitizenMessageApprovalRow } from '../types/platform'
-import { getCitizenRequestStatusLabel, formatCitizenRequestNumber, formatCitizenPhoneDisplay } from '../utils/citizenRequests'
+import { getCitizenRequestStatusLabel, formatCitizenRequestNumber, formatCitizenPhoneDisplay, isCitizenProcessingReceivedOverdue } from '../utils/citizenRequests'
 import { getJobStatusTone, getStatusPillClass, getLocale } from '../utils/localization'
 import { JobsPage } from './JobsPage'
 
@@ -377,7 +377,8 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                           <StatusPill className={getStatusPillClass(getJobStatusTone({ status: row.status, dueDateUtc: row.dueDateUtc }))}>
                             <GridStatusLabel
                               t={t}
-                              label={getCitizenRequestStatusLabel(t, { status: row.status })}
+                              label={getCitizenRequestStatusLabel(t, { status: row.status, dueDateUtc: row.dueDateUtc })}
+                              overdueSubline={isCitizenProcessingReceivedOverdue({ status: row.status, dueDateUtc: row.dueDateUtc })}
                               footer={statusDate
                                 ? <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
                                 : undefined}

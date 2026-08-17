@@ -62,6 +62,12 @@ export function isCitizenProcessingReceivedState(job: CitizenRequestStatusSource
   return false
 }
 
+/** Grid Durum: İşleme Alındı + gecikmiş → alt satır `(Geciken)` (#2819). */
+export function isCitizenProcessingReceivedOverdue(job: CitizenRequestStatusSource): boolean {
+  return isCitizenProcessingReceivedState(job)
+    && isJobDueDateOverdue({ status: job.status, dueDateUtc: job.dueDateUtc })
+}
+
 export function getCitizenRequestStatusLabel(
   t: TFunction,
   job: CitizenRequestStatusSource,

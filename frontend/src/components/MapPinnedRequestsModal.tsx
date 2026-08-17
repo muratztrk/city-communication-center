@@ -20,6 +20,7 @@ import { ChannelIcon } from './ui/channel-icon'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { formatOverdueInProgressStatus, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, type GridStatusTone } from '../utils/localization'
+import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 
 interface MapPinnedRequestsModalProps {
   pins: CitizenDashboardMapPin[]
@@ -369,6 +370,9 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
                               <GridStatusLabel
                                 t={t}
                                 label={statusLabel}
+                                overdueSubline={variant === 'citizen'
+                                  && pin.displayStatus === 'processingReceived'
+                                  && isJobDueDateOverdue({ status: pin.jobStatus ?? 'Active', dueDateUtc: pin.dueDateUtc })}
                                 footer={statusDateText
                                   ? <span className={`text-[0.68rem] font-bold ${pin.displayStatus === 'completed' ? 'text-emerald-700' : 'text-red-700'}`}>{statusDateText}</span>
                                   : undefined}

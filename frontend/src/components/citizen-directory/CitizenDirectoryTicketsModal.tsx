@@ -16,7 +16,7 @@ import { ClearPieFilterLink } from '../ui/ClearPieFilterLink'
 import { useColumnFilters } from '../../hooks/useColumnFilters'
 import { useSortable } from '../../hooks/useSortable'
 import type { CitizenConversationTicket } from '../../types/platform'
-import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, getCitizenRequestStatusTone } from '../../utils/citizenRequests'
+import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue } from '../../utils/citizenRequests'
 import { DetailModalTitle } from '../../utils/detailModalTitle'
 import { getPriorityColorClass, getPriorityLabel, getSocialChannelLabel, getStatusPillClass, shouldShowGridPrioritySubline } from '../../utils/localization'
 import { formatDirectoryPhone } from '../../utils/phoneDisplay'
@@ -557,6 +557,11 @@ export function CitizenDirectoryTicketsModal({
                                 <GridStatusLabel
                                   t={t}
                                   label={statusLabel}
+                                  overdueSubline={ticket.jobStatus != null && isCitizenProcessingReceivedOverdue({
+                                    status: ticket.jobStatus,
+                                    dueDateUtc: ticket.dueDateUtc,
+                                    taskCount: ticket.openTaskCount ?? 0,
+                                  })}
                                   footer={(() => {
                                     const statusDate = ticket.jobStatus === 'Completed'
                                       ? ticket.completedAtUtc

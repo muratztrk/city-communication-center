@@ -1609,8 +1609,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Personel/CRM anasayfa 4 kutucuk (#2807 reopen):** Staff + Operator + CRM dörtlü flex sıra
   (Bekleyen Görevlerim → Geciken Görevlerim → Bekleyen Taleplerim → Geciken Taleplerim);
   `useStaffMetricFourCol` Staff rolünü de kapsar.
-- **VT İşleme Alındı geciken detay (#2800 reopen):** grid/liste `İşleme Alındı` kalır; yalnız
-  detay popup `getCitizenRequestDetailStatusLabel` → `İşleme Alındı (Geciken)`.
+- **VT İşleme Alındı geciken (#2800/#2819):** grid `GridStatusLabel` + `overdueSubline` →
+  `İşleme Alındı` alt satır `(Geciken)`; pill turkuaz kalır; detay popup
+  `getCitizenRequestDetailStatusLabel` → tek satır `İşleme Alındı (Geciken)`.
 - **Yönetici `Personelimin Görevi Çözme Süresi` grafiği:** yalnız Manager rolünde ve yöneticinin
   kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
   (`CreatedAtUtc`) ile tamamlananda `CompletedAtUtc`, iptalde son `TaskCancelled` audit zamanı
@@ -1791,7 +1792,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
   (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
   (#2668, Onay Bekleyen değil). Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
-  (`bg-teal-600`), gecikmiş olsa da turuncu değil (#2800 reopen); Yapılmakta Görevlerim ile aynı açık mavi (`bg-sky-100` / `getStatusPillClass`,
+  (`bg-teal-600`), gecikmiş İşleme Alındı da turuncu değil — alt satır `(Geciken)` (#2819);
+  Yapılmakta Görevlerim ile aynı açık mavi (`bg-sky-100` / `getStatusPillClass`,
   #2699), Geciken turuncu (`bg-orange-500`). Pin rengi Yapılmakta `#0ea5e9` kalır (#2671).
   yeşil Konum ikonu (yuvarlak çerçeve + hover, #2673/#2674); damla pin küçük yeşil (#2700).
   Konum ile Detaylar

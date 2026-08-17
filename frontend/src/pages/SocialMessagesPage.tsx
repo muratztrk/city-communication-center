@@ -24,7 +24,7 @@ import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLab
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
-import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenRequestStatusTone } from '../utils/citizenRequests'
+import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue } from '../utils/citizenRequests'
 
 const CHANNEL_BADGE_SEEN_PREFIX = 'ccc-social-channel-badge-seen-'
 const BADGE_CHANNELS = ['EDevlet', 'MobileApp'] as const
@@ -711,6 +711,11 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                             <GridStatusLabel
                               t={t}
                               label={statusLabel}
+                              overdueSubline={linkedJob != null && isCitizenProcessingReceivedOverdue({
+                                status: linkedJob.status,
+                                dueDateUtc: dueDateUtc,
+                                taskCount: linkedJob.taskCount ?? 0,
+                              })}
                               footer={statusDateText
                                 ? <span className={`text-[0.68rem] font-bold ${linkedJob?.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{statusDateText}</span>
                                 : undefined}

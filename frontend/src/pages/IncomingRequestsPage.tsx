@@ -51,7 +51,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone, formatOverdueInProgressStatus, shouldShowGridPrioritySubline } from '../utils/localization'
-import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenProcessingReceivedState, isCitizenRequestJob } from '../utils/citizenRequests'
+import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -1137,6 +1137,11 @@ export function IncomingRequestsPage() {
                               t={t}
                               label={getIncomingStatusLabel(t, row)}
                               channel={row.isCitizenRequest ? row.sourceChannel : null}
+                              overdueSubline={row.isCitizenRequest && isCitizenProcessingReceivedOverdue({
+                                status: row.status,
+                                dueDateUtc: row.dueDateUtc,
+                                taskCount: row.taskCount ?? 0,
+                              })}
                               footer={statusDate
                                 ? <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
                                 : undefined}

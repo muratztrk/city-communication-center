@@ -1,3 +1,6 @@
+## Round 992 — #2819 (VT grid İşleme Alındı geciken)
+- [x] `6a8353be` — Grid Durum: İşleme Alındı + alt satır `(Geciken)` (`GridStatusLabel.overdueSubline`).
+
 ## Round 991 — #2818 (Geciken Taleplerim kart→grid)
 - [x] `6a83508b` — Taleplerim geciken: `fromPie` + dönem `from`/`to`; overdue grid `createdAtUtc`; chip badge aynı süzüm.
 

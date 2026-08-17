@@ -53,6 +53,7 @@ import {
   formatCitizenPhoneDisplay,
   getCitizenRequestDetailStatusLabel,
   getCitizenRequestStatusLabel,
+  isCitizenProcessingReceivedOverdue,
   shouldShowCitizenTargetApprovalDate,
   countOpenWorkTasks,
   requestLocationFieldLabel,
@@ -2359,6 +2360,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             <GridStatusLabel
                               t={t}
                               label={getJobDisplayStatus(t, job)}
+                              overdueSubline={isCitizenRequestJob(job) && isCitizenProcessingReceivedOverdue(job)}
                               footer={statusDate
                                 ? <span className={`text-[0.68rem] font-bold ${job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
                                 : undefined}

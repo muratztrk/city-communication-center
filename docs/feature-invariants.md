@@ -503,7 +503,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `outgoingPendingCount` (dashboard snapshot; Sms Onayı stili — card #2516 / #2820 / #2823).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
-  WhatsApp konum mesajı balonu yalnız gerçek koordinat varken MapPin + Haritada Göster (#2834);
+  WhatsApp konum mesajı balonu yalnız `[konum mesajı]` işaretçisi + koordinat varken MapPin + Haritada Göster (#2838 reopen);
   marker metni koordinatsız mesajda konum UI yok. Yer açıklaması varsa açıklama, yoksa **Konum**
   + alt satırda Haritada Göster; enlem/boylam metni gösterilmez; kayıtlı yer (`Name - Address`)
   SocialMessage lat/lng ile tanınır. Vatandaş Talebi popup konuşmasında konum metni compact `12px` / normal `13px` (#2748).

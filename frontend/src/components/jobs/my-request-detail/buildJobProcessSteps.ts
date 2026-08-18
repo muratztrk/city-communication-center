@@ -300,11 +300,14 @@ export function buildJobProcessSteps(
   const hideStatusAwaitingTarget = shouldHideStatusWhileAwaitingTargetApproval(detail, targetDecided)
   const jobOverdue = isActiveJobOverdue(detail)
   const inProgressLabel = t('jobs.statusLabel.inProgress', 'Yapılmakta')
+  const pendingApprovalLabel = t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+  const overdueSuffix = t('jobs.statusLabel.overdue', 'Geciken')
   const statusDisplayValue = pendingStatusLayer || isPendingApprovalJobStatus(detail.status)
-    ? t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+    ? jobOverdue
+      ? `${pendingApprovalLabel} (${overdueSuffix})`
+      : pendingApprovalLabel
     : jobOverdue
-      // card #1646: yalnız Yapılmakta / yalnız Geciken değil — birleşik etiket
-      ? `${inProgressLabel} (${t('jobs.statusLabel.overdue', 'Geciken')})`
+      ? `${inProgressLabel} (${overdueSuffix})`
       : inProgressLabel
   const managerCreatedActive = detail.createdByRoleCode === 'Manager'
     && !isCitizenRequestJob(detail)
@@ -333,7 +336,7 @@ export function buildJobProcessSteps(
     steps.push({
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),
-      displayValue: t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+      displayValue: statusDisplayValue,
       dateTimeUtc: null,
     })
   }
@@ -366,7 +369,7 @@ export function buildJobProcessSteps(
       steps.push({
         id: 'status',
         label: t('jobs.columns.status', 'Durum'),
-        displayValue: t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
+        displayValue: statusDisplayValue,
         dateTimeUtc: null,
       })
     }

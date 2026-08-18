@@ -1639,7 +1639,7 @@
     .app-content-shell .my-tasks-all-table .my-tasks-status-col,
     .app-content-shell .department-tasks-table .my-tasks-status-col,
     .app-content-shell .staff-tasks-table .my-tasks-status-col {
-      width: 10rem;
+      width: 10.75rem;
     }
 
     /* Görevlerim başlık satırı yüksekliği paging bar ile aynı olsun. */
@@ -1739,7 +1739,7 @@
 
     .app-content-shell .my-requests-table .grid-col-status,
     .app-content-shell .incoming-requests-table .grid-col-status {
-      width: 10rem;
+      width: 10.75rem;
     }
 
     .app-content-shell .my-requests-table .grid-col-actions,
@@ -3221,15 +3221,15 @@
   .data-table .status-pill:has(.grid-status-label--flow-status),
   .dashboard-drilldown-table .status-pill:has(.grid-status-label--flow-status),
   .table-container .status-pill:has(.grid-status-label--flow-status) {
-    padding: 0.36rem 0.72rem;
-    font-size: 0.8rem;
-    line-height: 1.22;
+    padding: 0.38rem 0.78rem;
+    font-size: 0.82rem;
+    line-height: 1.24;
   }
 
   .data-table .status-pill .grid-status-label--flow-status > span:first-child,
   .dashboard-drilldown-table .status-pill .grid-status-label--flow-status > span:first-child,
   .table-container .status-pill .grid-status-label--flow-status > span:first-child {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
   }
 
   .data-table tbody tr:hover td {

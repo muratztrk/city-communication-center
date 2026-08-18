@@ -158,10 +158,10 @@ export function ConversationEntryBubble({
   const isContactMessage = !hasMedia && isContactConversationContent(entry.content)
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
   const locationDescription = getLocationPlaceDescription(entry.content)
-  // Konum UI yalnız gerçek konum verisi varken (#2834 / #2838).
+  // Konum UI yalnız gerçek WA konum mesajı işaretçisi varken (#2838 reopen).
   const isLocationMessage = !isContactMessage
+    && isLocationConversationContent(entry.content)
     && Boolean(locationCoords)
-    && (isLocationConversationContent(entry.content) || entry.latitude != null || entry.longitude != null)
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)

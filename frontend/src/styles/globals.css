@@ -3964,15 +3964,15 @@
     max-height: 4.5rem;
   }
 
-  /* Çağrı formu: Cadde + No + Konum Koordinatı aynı satır (#2835 / #2837). */
+  /* Çağrı formu: Cadde + No + Konum Koordinatı aynı satır (#2835 / #2837). No hafif geniş (#2844). */
   #citizen-request-form .address-street-no-row {
-    grid-template-columns: minmax(0, 0.92fr) 6.25rem minmax(6.25rem, 7.75rem) !important;
+    grid-template-columns: minmax(0, 0.92fr) 6.75rem minmax(6.25rem, 7.75rem) !important;
   }
 
   #citizen-request-form .address-street-no-row > div:nth-child(2) {
-    width: 6.25rem !important;
-    min-width: 6.25rem !important;
-    max-width: 6.25rem !important;
+    width: 6.75rem !important;
+    min-width: 6.75rem !important;
+    max-width: 6.75rem !important;
   }
 
   #citizen-request-form .address-street-no-row .field-input {

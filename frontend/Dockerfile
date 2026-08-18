@@ -6,10 +6,11 @@ ARG VITE_TENANT_ID
 ENV VITE_TENANT_ID=$VITE_TENANT_ID
 ARG VITE_GOOGLE_MAPS_API_KEY
 ENV VITE_GOOGLE_MAPS_API_KEY=$VITE_GOOGLE_MAPS_API_KEY
+ARG CACHE_BUST=1
 COPY package*.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+RUN echo "frontend build ${CACHE_BUST}" && npm run build
 
 FROM nginx:1.27-alpine AS production
 COPY nginx.conf /etc/nginx/conf.d/default.conf

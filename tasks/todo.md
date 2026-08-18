@@ -5923,3 +5923,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a83fd49c542d726df5f95f8` — WA konuşma: koordinat yoksa konum ikonu + Haritada Göster yok.
 
 ## STATUS: Round 1000 complete — frontend build/lint green; shipping.
+
+## Round 1001 (Doing — 2026-08-18, pie thead + WA popup adres + operatör direkt mesaj)
+- [x] `6a83f4f55c350b5188174930` — Pie drilldown thead yeşil (fixed attachment kaldırıldı, #2833 retry).
+- [x] `6a8407eddb7a8219676e1d27` — WA VT popup Mahalle/Cadde/No/koordinat genişlikleri (#2837).
+- [x] `6a84089020312212e77e25fc` — WA operatör `sendImmediately` direkt metin+ek (#2838).
+
+## STATUS: Round 1001 complete — build/lint green; `1949f04b` pushed + deploy.

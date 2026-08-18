@@ -5915,3 +5915,11 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a83f2bdcc5ae01a8eec4bb5` — Birime Gelen detay popup: `Onay Bekleyen Geciken`.
 
 ## STATUS: Round 999 complete — frontend build/lint green; shipping.
+
+## Round 1000 (Doing — 2026-08-18, WA konum + grid Durum + VT popup layout)
+- [x] `6a83fece5fdd692402e98f6d` — VT popup Konum Koordinatı No yanında; Mahalle/Cadde daraltıldı.
+- [x] `6a84032839add3cd76ceca73` — Gridview Durum sütunu hafif geniş (9.5rem).
+- [x] `6a81b23c63806e7d7b7678eb` — WA VT popup Açıklama editör K/A + liste ikonları hafif büyük.
+- [x] `6a83fd49c542d726df5f95f8` — WA konuşma: koordinat yoksa konum ikonu + Haritada Göster yok.
+
+## STATUS: Round 1000 complete — frontend build/lint green; shipping.

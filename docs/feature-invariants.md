@@ -502,7 +502,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `outgoingPendingCount` (dashboard snapshot; Sms Onayı stili — card #2516 / #2820 / #2823).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
-  WhatsApp konum mesajı balonda MapPin + (yer açıklaması varsa açıklama, yoksa **Konum**)
+  WhatsApp konum mesajı balonu yalnız gerçek koordinat varken MapPin + Haritada Göster (#2834);
+  marker metni koordinatsız mesajda konum UI yok. Yer açıklaması varsa açıklama, yoksa **Konum**
   + alt satırda Haritada Göster; enlem/boylam metni gösterilmez; kayıtlı yer (`Name - Address`)
   SocialMessage lat/lng ile tanınır. Vatandaş Talebi popup konuşmasında konum metni compact `12px` / normal `13px` (#2748).
   Medya placeholder (`[image]` vb.) ve medya balonunda konum UI yok (#6a74de2a reopen / #6a6b9fac).
@@ -799,7 +800,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **`CitizenRequestModal` sağ form sırası:** Açıklama rich-text alanı Talep Başlığı satırının
   hemen altında gelir; adres ve dosya alanları açıklamadan sonra kalır (card #1082).
 - **`CitizenRequestModal` adres/dosya yerleşimi:** Mahalle + Cadde satırından sonra Konum Koordinatı
-  Mahalle’nin alt satırındadır (#2741); ardından Açık Adres ve Dosya/Fotoğraf aynı satırda yan yana durur; dosya seçilmedi metni butonla aynı blokta
+  No’nun yanında aynı satırda (`CbsStreetNoDropdowns` + koordinat, #2835); Mahalle/Cadde daraltıldı.
+  ardından Açık Adres ve Dosya/Fotoğraf aynı satırda yan yana durur; dosya seçilmedi metni butonla aynı blokta
   sığar (card #1088). Açıklama RichTextEditor ve Açık Adres textarea üst padding kompakt
   (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6.35rem] h-[1.875rem] text-[11px] whitespace-nowrap`
   (Round 719). Açıklama `spellCheck={false}` + Windows autocorrect kapalı; Enter → `insertLineBreak`
@@ -1905,7 +1907,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kapalı ve açık `SingleSelectDropdown` hover tooltip yok (Talep Oluştur Görevi Yapan/Öncelik/Mahalle/Cadde dahil, #2754).
   **Adresi Gör** popup: başlık altı çizgi; Mahalle/Cadde/No aynı satır, altında yalnız Adres Tarifi (Konum Koordinatı yok); Cadde/No başlık+değer kolon içi ortalı; popup `max-w-[26rem]` (#2755). X Talebi Yönlendir ile aynı.
   Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın (`2.4rem` üç kutu, `1.6rem` iki kutu, #2759).
-  Görevlerim İlgili Talep Adres Bilgileri 3+2; Mahalle/Cadde/No üstünde boşluk (#2568); Adres Tarifi başlığı Mahalle ile aynı sol düşey hizada (#2778); satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri Cadde menüsü tetikleyiciden sağa (No tarafına) daha geniş (`+96px`), No tetikleyici genişliğinde, aşağı açılır (#2640). WA Talebi Oluştur Açıklama toolbar ikonları yalnız o popup’ta küçük (`!important`, Tailwind size-4 ezmesin, #2757). Giden WA birim·ad yeşil balonda `text-white/90`. WA Talebi Oluştur Mahalle/Cadde/No/Birim arama kutusu 0.7rem (#2760).
+  Görevlerim İlgili Talep Adres Bilgileri 3+2; Mahalle/Cadde/No üstünde boşluk (#2568); Adres Tarifi başlığı Mahalle ile aynı sol düşey hizada (#2778); satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri Cadde menüsü tetikleyiciden sağa (No tarafına) daha geniş (`+96px`), No tetikleyici genişliğinde, aşağı açılır (#2640). WA Talebi Oluştur Açıklama toolbar K/A + liste ikonları yalnız o popup’ta hafif büyük (`!important`, #2757 reopen). Giden WA birim·ad yeşil balonda `text-white/90`. WA Talebi Oluştur Mahalle/Cadde/No/Birim arama kutusu 0.7rem (#2760).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
   **Vatandaş Adres Bilgisi** + sağda **Adresi Gör** (küçük portal popup, #2751).
   Harita popup kolon sırası: Sıra → VT No (kanal ikonu `size-3.5` yanında, Talep Kanalı sütunu yok)

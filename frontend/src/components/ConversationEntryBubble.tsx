@@ -12,7 +12,6 @@ import {
   formatConversationDisplayContent,
   getLocationPlaceDescription,
   isContactConversationContent,
-  isLocationConversationContent,
   isPlaceholderBracketContent,
   parseAttachmentFilenameFromContent,
   parseConversationLocationCoords,
@@ -158,13 +157,8 @@ export function ConversationEntryBubble({
   const isContactMessage = !hasMedia && isContactConversationContent(entry.content)
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
   const locationDescription = getLocationPlaceDescription(entry.content)
-  // Medya varken de konum butonu kalsın; kişi kartına lat sızmasın (#2712 / #6a74de2a).
-  const isLocationMessage =
-    !isContactMessage
-    && (
-      isLocationConversationContent(entry.content)
-      || (Boolean(locationCoords) && Boolean(locationDescription))
-    )
+  // Konum UI yalnız gerçek koordinat varken; marker metni koordinatsız mesajda normal metin (#2834).
+  const isLocationMessage = !isContactMessage && Boolean(locationCoords)
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)

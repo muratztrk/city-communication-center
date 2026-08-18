@@ -16,7 +16,7 @@ import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ModalCloseButton } from './ui/modal-close-button'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
-import { AddressCoordinatesField, CbsStreetNoDropdowns } from './address/CbsStreetNoDropdowns'
+import { CbsStreetNoDropdowns } from './address/CbsStreetNoDropdowns'
 import { ConversationPanel } from './ConversationPanel'
 import { RequestTagAddButton, RequestTagPicker } from './RequestTagDialog'
 import type { CitizenConversationDetail, Department, RequestTag, SocialMessage } from '../types/platform'
@@ -777,7 +777,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
 
               <div className="job-field">
-                <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] md:items-stretch">
+                <div className="grid gap-2 md:grid-cols-[minmax(0,0.72fr)_minmax(0,1fr)] md:items-stretch">
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">
                       {t('address.neighborhoodLabel', 'Mahalle')}
@@ -806,6 +806,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     neighborhood={neighborhood}
                     street={street}
                     streetNo={streetNo}
+                    coordinates={coordinates}
+                    onCoordinatesChange={setCoordinates}
                     required={Boolean(neighborhood)}
                     labelClassName="job-field-label"
                     onStreetChange={setStreet}
@@ -813,13 +815,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     triggerClassName="citizen-request-address-trigger"
                     menuScrollClassName="citizen-request-department-menu"
                     menuClassName="citizen-request-department-menu"
-                  />
-                </div>
-                <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
-                  <AddressCoordinatesField
-                    value={coordinates}
-                    onChange={setCoordinates}
-                    labelClassName="job-field-label"
                   />
                 </div>
                 <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-stretch">

@@ -1639,7 +1639,7 @@
     .app-content-shell .my-tasks-all-table .my-tasks-status-col,
     .app-content-shell .department-tasks-table .my-tasks-status-col,
     .app-content-shell .staff-tasks-table .my-tasks-status-col {
-      width: 9rem;
+      width: 9.5rem;
     }
 
     /* Görevlerim başlık satırı yüksekliği paging bar ile aynı olsun. */
@@ -1739,7 +1739,7 @@
 
     .app-content-shell .my-requests-table .grid-col-status,
     .app-content-shell .incoming-requests-table .grid-col-status {
-      width: 9rem;
+      width: 9.5rem;
     }
 
     .app-content-shell .my-requests-table .grid-col-actions,
@@ -3102,8 +3102,8 @@
   /* Pie drilldown: Durum 2 satır sığsın — sütun biraz geniş (#6a6d9daf / #2180). */
   .dashboard-drilldown-table th.grid-col-status,
   .dashboard-drilldown-table td.grid-col-status {
-    min-width: 12rem;
-    width: 12rem;
+    min-width: 12.5rem;
+    width: 12.5rem;
   }
 
   /* Pie drilldown Başlık: en fazla 2 satır + overflow tooltip (#2180). */
@@ -3712,8 +3712,8 @@
   }
 
   .detail-modal-shell--citizen-create .citizen-request-form .rich-text-toolbar-button {
-    width: 0.92rem !important;
-    height: 0.92rem !important;
+    width: 0.98rem !important;
+    height: 0.98rem !important;
   }
 
   .citizen-request-form .rich-text-editable {
@@ -3866,19 +3866,19 @@
   }
 
   .detail-modal-shell--citizen-create #citizen-request-form .rich-text-toolbar-button {
-    width: 0.92rem !important;
-    height: 0.92rem !important;
+    width: 0.98rem !important;
+    height: 0.98rem !important;
   }
 
-  /* K / A ve iki liste ikonu bir tık daha küçük; buton kutusu (0.92rem) ve toolbar yüksekliği aynı. */
+  /* K / A ve iki liste ikonu bir tık büyük; buton kutusu toolbar yüksekliğiyle uyumlu (#2757). */
   .detail-modal-shell--citizen-create .rich-text-toolbar-button svg {
-    width: 0.49rem !important;
-    height: 0.49rem !important;
+    width: 0.53rem !important;
+    height: 0.53rem !important;
   }
 
   .detail-modal-shell--citizen-create .rich-text-toolbar-button span {
-    font-size: 0.47rem !important;
-    min-width: 0.47rem !important;
+    font-size: 0.51rem !important;
+    min-width: 0.51rem !important;
     line-height: 1 !important;
   }
 
@@ -3899,9 +3899,9 @@
     max-height: 4.5rem;
   }
 
-  /* Çağrı formu: No sütunu seçilince de sabit genişlik (#2659). */
+  /* Çağrı formu: Cadde + No + Konum Koordinatı aynı satır (#2835). */
   #citizen-request-form .address-street-no-row {
-    grid-template-columns: minmax(0, 1fr) 8.25rem !important;
+    grid-template-columns: minmax(0, 0.82fr) 8.25rem minmax(7.5rem, 10rem) !important;
   }
 
   .table-number-cell__value {

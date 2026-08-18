@@ -55,7 +55,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `var(--table-chrome-row-min-height)`; genel `.data-table thead th`'de `background-attachment:
   fixed` kullanılmaz (#2824); Birime Gelen / Taleplerim / Birimdeki Görevler / Personelimin
   Görevler tablolarında sütunlar arası tek gradient için `fixed` kullanılır (#r447). Pie drilldown
-  popup istisnası: `.dashboard-drilldown-table thead th` (#2833) — `fixed` yok.
+  popup grid (`dashboard-drilldown-table`) aynı kalıp — genel `.data-table thead th`'de `fixed` yok
+  (#2824).
 - **Popup gridview başlık şeridi standart gridview gibi üstten kavislidir** (0.9rem): scroll kabı
   olan tablolarda kavis `thead th:first-child/:last-child`'a verilir (araya `overflow:hidden` bir
   sarmalayıcı koymak sticky thead'i bozar); ayrı wrap'i olanlarda (`.dashboard-drilldown-table-wrap`)

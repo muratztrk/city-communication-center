@@ -4922,9 +4922,10 @@
      için shell zoom'unu almaz, bu yüzden ölçüler `--app-content-zoom` ile çarpılır (#6a6cffd1). */
   .detail-modal-shell .dashboard-drilldown-table thead th,
   .data-table.dashboard-drilldown-table thead th {
-    /* Standart gridview yeşil şerit — fixed attachment modal içinde bozuyor (#2824 / #2833). */
+    /* Standart gridview yeşil şerit — sütunlar arası tek gradient (#r447 / pie #2833). */
     background-color: var(--color-header-from);
     background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background-attachment: fixed;
     color: #fff;
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     vertical-align: middle;

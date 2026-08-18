@@ -2869,12 +2869,13 @@
   }
 
   /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" / Birimdeki/Personelimin Görevler /
-     Vatandaş/SMS mesaj onayı — banner ile aynı yeşil; sticky opak (#r447). */
+     Vatandaş/SMS mesaj onayı / Vatandaş Bilgi Listesi — banner ile aynı yeşil; sticky opak (#r447). */
   .my-requests-table thead th,
   .incoming-requests-table thead th,
   .department-tasks-table thead th,
   .staff-tasks-table thead th,
-  .citizen-message-approval-table thead th {
+  .citizen-message-approval-table thead th,
+  .citizen-directory-table thead th {
     background-color: var(--color-header-from);
     background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     background-attachment: fixed;
@@ -2886,7 +2887,8 @@
   .incoming-requests-table thead,
   .department-tasks-table thead,
   .staff-tasks-table thead,
-  .citizen-message-approval-table thead {
+  .citizen-message-approval-table thead,
+  .citizen-directory-table thead {
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
   }
 
@@ -2916,7 +2918,9 @@
   .staff-tasks-table thead th.sortable-th:hover,
   .staff-tasks-table thead th.sort-active,
   .citizen-message-approval-table thead th.sortable-th:hover,
-  .citizen-message-approval-table thead th.sort-active {
+  .citizen-message-approval-table thead th.sort-active,
+  .citizen-directory-table thead th.sortable-th:hover,
+  .citizen-directory-table thead th.sort-active {
     color: rgba(255, 255, 255, 0.8);
   }
 

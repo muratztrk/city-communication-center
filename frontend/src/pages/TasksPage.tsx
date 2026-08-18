@@ -1136,6 +1136,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       }
     }
 
+    completionPickerProgress.report(100)
+    await new Promise(resolve => window.setTimeout(resolve, 320))
     completionPickerProgress.stop()
     setCompletionUploadProgress(0)
     setCompletionAttachmentUploading(false)
@@ -1310,14 +1312,16 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
 
     const totalBytes = incoming.reduce((sum, file) => sum + file.size, 0) || 1
     let uploadedBytes = 0
-    cancelPickerProgress.stop()
+    cancelPickerProgress.report(0)
     setCancelAttachmentUploading(true)
     setCancelUploadProgress(0)
 
     for (const file of incoming) {
       try {
         const attachment = await api.uploadTaskAttachment(returnModal.taskId, file, percent => {
-          setCancelUploadProgress(Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100)))
+          const next = Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100))
+          setCancelUploadProgress(next)
+          cancelPickerProgress.report(next)
         })
         setPendingCancelAttachments(current => [...current, {
           attachmentId: attachment.attachmentId,
@@ -1325,12 +1329,17 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
           fileSizeBytes: attachment.fileSizeBytes,
         }])
         uploadedBytes += file.size
-        setCancelUploadProgress(Math.min(100, Math.round((uploadedBytes / totalBytes) * 100)))
+        const done = Math.min(100, Math.round((uploadedBytes / totalBytes) * 100))
+        setCancelUploadProgress(done)
+        cancelPickerProgress.report(done)
       } catch (err) {
         setCancelAttachmentError(err instanceof Error ? err.message : t('common.error'))
       }
     }
 
+    cancelPickerProgress.report(100)
+    await new Promise(resolve => window.setTimeout(resolve, 320))
+    cancelPickerProgress.stop()
     setCancelUploadProgress(0)
     setCancelAttachmentUploading(false)
 
@@ -3625,7 +3634,7 @@ const pageKicker = isMyTasksView
               <div className="flex flex-col gap-2">
                 <label
                   className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${completeSaving || completionAttachmentUploading ? 'pointer-events-none opacity-60' : ''}`}
-                  onClick={() => completionPickerProgress.arm()}
+                  onClick={() => completeFileInputRef.current?.click()}
                 >
                   <Paperclip className="size-3.5" />
                   {t('attachments.addFile', 'Dosya ekle')}
@@ -3737,7 +3746,7 @@ const pageKicker = isMyTasksView
                   <div className="flex flex-col gap-2">
                     <label
                       className={`inline-flex h-8 cursor-pointer items-center justify-center gap-0.5 rounded-lg bg-white px-2 text-xs font-semibold text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${returnSaving || cancelAttachmentUploading ? 'pointer-events-none opacity-60' : ''}`}
-                      onClick={() => cancelPickerProgress.arm()}
+                      onClick={() => cancelFileInputRef.current?.click()}
                     >
                       <Paperclip className="size-3.5" />
                       {t('attachments.addFile', 'Dosya ekle')}

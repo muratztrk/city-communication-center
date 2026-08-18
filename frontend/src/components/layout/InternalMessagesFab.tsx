@@ -684,9 +684,12 @@ export function InternalMessagesFab() {
       const uploadFile = normalizedFileName === file.name
         ? file
         : new File([file], normalizedFileName, { type: file.type })
-      fileProgress.start(uploadFile.size)
-      await api.uploadInternalMessageAttachment(result.message.internalMessageId, uploadFile)
-      fileProgress.stop()
+      fileProgress.report(0)
+      await api.uploadInternalMessageAttachment(
+        result.message.internalMessageId,
+        uploadFile,
+        percent => fileProgress.report(percent),
+      )
       fileProgress.stop()
       setDraft('')
       setPendingFile(null)
@@ -941,10 +944,7 @@ export function InternalMessagesFab() {
                 />
                 <button
                   type="button"
-                  onClick={() => {
-                    fileProgress.arm()
-                    fileInputRef.current?.click()
-                  }}
+                  onClick={() => fileInputRef.current?.click()}
                   disabled={sending}
                   className="inline-flex h-7 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-50"
                 >

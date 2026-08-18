@@ -383,7 +383,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       accepted = true
       return [...current, file]
     })
-    if (accepted) fileProgress.start(file.size || 400)
+    if (accepted) fileProgress.holdAtZero()
     else fileProgress.stop()
   }
 
@@ -840,7 +840,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       <div className="flex shrink-0 flex-col gap-1">
                       <label
                         className={`inline-flex h-[1.875rem] w-[6.35rem] shrink-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-white px-1.5 text-[11px] font-semibold leading-none text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}
-                        onClick={() => fileProgress.arm()}
+                        onClick={() => fileInputRef.current?.click()}
                       >
                         <Paperclip className="size-3.5 shrink-0 text-emerald-700" />
                         {t('attachments.addFile', 'Dosya ekle')}

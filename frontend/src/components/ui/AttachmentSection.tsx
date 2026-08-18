@@ -187,10 +187,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
             aria-label={t('attachments.uploadLabel', 'Fotoğraf Ekle')}
             className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
             disabled={isDisabled}
-            onClick={() => {
-              pickerProgress.arm()
-              fileInputRef.current?.click()
-            }}
+            onClick={() => fileInputRef.current?.click()}
           >
             <Paperclip className="size-3.5 text-emerald-600" aria-hidden="true" />
             {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}

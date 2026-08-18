@@ -679,12 +679,10 @@ export function CreateRequestPage() {
           className={`request-photo-dropzone flex min-h-[3.25rem] cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-4 py-1.5 text-center text-sm transition-colors ${saving ? 'pointer-events-none opacity-50' : 'border-slate-200 bg-slate-50 hover:border-slate-300'}`}
           onClick={() => {
             if (saving) return
-            fileProgress.arm()
             fileInputRef.current?.click()
           }}
           onKeyDown={event => {
             if (event.key === 'Enter' && !saving) {
-              fileProgress.arm()
               fileInputRef.current?.click()
             }
           }}
@@ -702,7 +700,7 @@ export function CreateRequestPage() {
               accepted = true
               return [...prev, ...incoming]
             })
-            if (accepted) fileProgress.start(sumFileSizes(incoming) || 400)
+            if (accepted) fileProgress.holdAtZero()
             else fileProgress.stop()
           }}
         >
@@ -727,7 +725,7 @@ export function CreateRequestPage() {
                 accepted = true
                 return [...prev, ...incoming]
               })
-              if (accepted) fileProgress.start(sumFileSizes(incoming) || 400)
+              if (accepted) fileProgress.holdAtZero()
               else fileProgress.stop()
               if (fileInputRef.current) fileInputRef.current.value = ''
             }}

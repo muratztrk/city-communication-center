@@ -185,7 +185,7 @@ export function RoutineTaskPage() {
       accepted = true
       return [...prev, ...incoming]
     })
-    if (accepted) fileProgress.start(sumFileSizes(incoming) || 400)
+    if (accepted) fileProgress.holdAtZero()
     else fileProgress.stop()
   }
 
@@ -222,10 +222,18 @@ export function RoutineTaskPage() {
         ? await api.updateRoutineTask(taskId, payload)
         : await api.createRoutineTask(payload)
 
+      if (pendingFiles.length > 0) {
+        fileProgress.report(0)
+      }
       for (const [index, file] of pendingFiles.entries()) {
         await api.uploadTaskAttachment(task.taskId, file, percent => {
           fileProgress.report(((index + percent / 100) / Math.max(pendingFiles.length, 1)) * 100)
         })
+      }
+      if (pendingFiles.length > 0) {
+        fileProgress.report(100)
+        await new Promise(resolve => window.setTimeout(resolve, 320))
+        fileProgress.stop()
       }
       invalidateTasks(queryClient, task.taskId, task.jobId)
       navigate('/my-tasks?view=pending')
@@ -418,10 +426,7 @@ export function RoutineTaskPage() {
                         type="button"
                         className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
                         disabled={submitting}
-                        onClick={() => {
-                          fileProgress.arm()
-                          fileInputRef.current?.click()
-                        }}
+                        onClick={() => fileInputRef.current?.click()}
                       >
                         <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
                         {t('attachments.addFile', 'Dosya ekle')}

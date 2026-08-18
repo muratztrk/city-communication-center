@@ -261,7 +261,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yapışık); lightbox `document.body` portal + `z-[400]` ile detay modalının üstünde açılır (#2709/#2732).
   Detay popup'ta **Talep Bilgileri** altında Talep Ekleri satırı yalnız ek varsa görünür (#2734 reopen).
   **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle, üst değer satırının sağ kenarıyla aynı düşey hizadadır (değer kolonu `align-items: flex-end`; scrollbar-gutter ek kümesini içeri kaydırmaz) (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
-  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar %0 görünür; dosya seçilince bekleyen ek `start()` ile yüzde ilerler, gerçek yüklemede `report` kullanılır (#2728).
+  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar görünmez; dosya seçildikten veya yükleme
+  başladığında görünür, XHR `report` ile gerçek yükleme oranına göre ilerler; %100 sonrası kapanır (#2821).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -294,7 +295,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`CreateJobCommand`, card #1079).
 - **Talep Oluştur ek yükleme ilerlemesi:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının
   seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar
-  Dosya ekle tıklanınca %0’da görünür; seçilen bekleyen dosyada `start()` ile yüzde ilerler, kayıt sonrası XHR `report` ile devam eder (#2728).
+  Dosya ekle tıklanınca bar görünmez; dosya seçildikten sonra (bekleyen ek) veya kayıt sonrası XHR
+  `report` ile gerçek yükleme oranına göre ilerler (#2821).
   tüm dosyalar için birleşik yüzde gösterilir. Vatandaş create/edit akışı da seçili dosyaları
   oluşan job'a gerçekten yükler (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
@@ -332,8 +334,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanır: son görsel dengede 1.75rem/11px `Dosya ekle` solda, mevcut ekler sağ kart
   sınırına yaslıdır; bu scope Taleplerim/Talep Ekleri buton ölçüsünü değiştirmez
   (card #1601 sixth reopen).
-  Detay popup düzenleme yüzeylerindeki yükleme progress bar'ı Dosya ekle seçilir seçilmez
-  görünür (#2510). XHR progress callback'i korunur. Görevi Tamamla / Görevi İptal Et popup'larındaki `Dosya ekle` anlık yüklemesi de aynı
+  Detay popup düzenleme yüzeylerindeki yükleme progress bar'ı Dosya ekle tıklanınca görünmez;
+  dosya seçildikten sonra görünür (#2821). XHR progress callback'i korunur. Görevi Tamamla / Görevi İptal Et popup'larındaki `Dosya ekle` anlık yüklemesi de aynı
   ortak progress bileşenini kullanır (card #1610).
   Düzenleme modundaki `rich-list` ekleri yatay sarılır; dosya kutusu border/zemin taşımaz, dosya
   adı mavi ve uzantısı küçük harftir. Yükleme butonu yalnız doğal genişliğini alır, liste kalan

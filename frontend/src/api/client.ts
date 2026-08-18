@@ -1434,24 +1434,48 @@ export const api = {
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))
   },
 
-  async replySocialMessageAttachment(socialMessageId: string, file: File, content: string, sendImmediately = false): Promise<void> {
+  async replySocialMessageAttachment(
+    socialMessageId: string,
+    file: File,
+    content: string,
+    sendImmediately = false,
+    onProgress?: (percent: number) => void,
+  ): Promise<void> {
     const formData = new FormData()
     formData.append('file', file, file.name)
     formData.append('content', content)
     formData.append('sendImmediately', String(sendImmediately))
 
     const authHeaders = await getAuthHeaders() as Record<string, string>
-    const headers: Record<string, string> = {}
-    for (const [key, value] of Object.entries(authHeaders)) {
-      if (key.toLowerCase() !== 'content-type') headers[key] = value
-    }
 
-    const response = await fetchWithCredentials(`${API_BASE}/social/messages/${socialMessageId}/reply/attachment`, {
-      method: 'POST',
-      headers,
-      body: formData,
+    return new Promise((resolve, reject) => {
+      const request = new XMLHttpRequest()
+      request.open('POST', `${API_BASE}/social/messages/${socialMessageId}/reply/attachment`)
+      request.withCredentials = true
+      for (const [key, value] of Object.entries(authHeaders)) {
+        if (key.toLowerCase() !== 'content-type') request.setRequestHeader(key, value)
+      }
+      request.upload.onloadstart = () => onProgress?.(5)
+      request.upload.onprogress = event => {
+        if (event.lengthComputable && event.total > 0) {
+          onProgress?.(Math.round((event.loaded / event.total) * 100))
+          return
+        }
+        if (event.loaded > 0) {
+          onProgress?.(Math.min(95, Math.round((event.loaded / Math.max(file.size, 1)) * 100)))
+        }
+      }
+      request.onerror = () => reject(new Error(i18n.t('errors.socialRouteFailed')))
+      request.onload = () => {
+        if (request.status < 200 || request.status >= 300) {
+          reject(new Error(request.responseText || i18n.t('errors.socialRouteFailed')))
+          return
+        }
+        onProgress?.(100)
+        resolve()
+      }
+      request.send(formData)
     })
-    await ensureOk(response, i18n.t('errors.socialRouteFailed'))
   },
 
   async addInternalConversationMessage(socialMessageId: string, departmentId: string, content: string): Promise<void> {

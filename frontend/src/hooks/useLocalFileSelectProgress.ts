@@ -3,30 +3,16 @@ import { flushSync } from 'react-dom'
 import { animateDeterminateProgress } from '../utils/animateDeterminateProgress'
 
 /**
- * Dosya ekle: tıklanınca bar %0; gerçek yükleme başlayınca yüzde ilerler (#2728).
- * `arm` = seçici açıldı. `holdAtZero` = dosya seçildi, henüz yüzde yok.
- * `start` / `report` = yükleme; bar kapanmaz. Yalnız `stop` gizler.
+ * Dosya ekle progress: butona basınca görünmez; dosya seçildikten veya yükleme
+ * başladığında görünür (#2821). `holdAtZero` = seçim sonrası %0. `report` = gerçek
+ * yükleme; %100 sonrası kısa gecikmeyle kapanır.
  */
 export function useLocalFileSelectProgress() {
   const [visible, setVisible] = useState(false)
   const [progress, setProgress] = useState(0)
   const cancelRef = useRef<(() => void) | null>(null)
   const hideTimerRef = useRef<number | null>(null)
-  const focusHideTimerRef = useRef<number | null>(null)
-  const armedRef = useRef(false)
   const uploadingRef = useRef(false)
-  const focusHideRef = useRef<(() => void) | null>(null)
-
-  const clearFocusListener = () => {
-    if (focusHideRef.current) {
-      window.removeEventListener('focus', focusHideRef.current)
-      focusHideRef.current = null
-    }
-    if (focusHideTimerRef.current != null) {
-      window.clearTimeout(focusHideTimerRef.current)
-      focusHideTimerRef.current = null
-    }
-  }
 
   const stop = () => {
     cancelRef.current?.()
@@ -35,50 +21,30 @@ export function useLocalFileSelectProgress() {
       window.clearTimeout(hideTimerRef.current)
       hideTimerRef.current = null
     }
-    clearFocusListener()
-    armedRef.current = false
     uploadingRef.current = false
     setVisible(false)
     setProgress(0)
   }
 
-  const arm = () => {
+  const scheduleHide = () => {
+    if (hideTimerRef.current != null) {
+      window.clearTimeout(hideTimerRef.current)
+    }
+    hideTimerRef.current = window.setTimeout(() => {
+      setVisible(false)
+      setProgress(0)
+      uploadingRef.current = false
+      hideTimerRef.current = null
+    }, 280)
+  }
+
+  const holdAtZero = () => {
     cancelRef.current?.()
     cancelRef.current = null
     if (hideTimerRef.current != null) {
       window.clearTimeout(hideTimerRef.current)
       hideTimerRef.current = null
     }
-    clearFocusListener()
-    armedRef.current = true
-    uploadingRef.current = false
-    flushSync(() => {
-      setVisible(true)
-      setProgress(0)
-    })
-    const onFocus = () => {
-      if (focusHideTimerRef.current != null) {
-        window.clearTimeout(focusHideTimerRef.current)
-      }
-      focusHideTimerRef.current = window.setTimeout(() => {
-        focusHideTimerRef.current = null
-        if (armedRef.current && !uploadingRef.current) {
-          armedRef.current = false
-          setVisible(false)
-          setProgress(0)
-        }
-      }, 350)
-    }
-    focusHideRef.current = onFocus
-    window.addEventListener('focus', onFocus)
-  }
-
-  const holdAtZero = () => {
-    cancelRef.current?.()
-    cancelRef.current = null
-    clearFocusListener()
-    armedRef.current = false
-    // Seçim sonrası pencere focus'u barı kapatmasın; yükleme raporu gelene kadar %0 kalsın.
     uploadingRef.current = true
     flushSync(() => {
       setVisible(true)
@@ -93,8 +59,6 @@ export function useLocalFileSelectProgress() {
       window.clearTimeout(hideTimerRef.current)
       hideTimerRef.current = null
     }
-    clearFocusListener()
-    armedRef.current = false
     uploadingRef.current = true
     flushSync(() => {
       setVisible(true)
@@ -104,14 +68,7 @@ export function useLocalFileSelectProgress() {
       setProgress,
       Math.max(bytes / 6000, 400),
       () => {
-        hideTimerRef.current = window.setTimeout(() => {
-          if (uploadingRef.current) {
-            setVisible(false)
-            setProgress(0)
-            uploadingRef.current = false
-          }
-          hideTimerRef.current = null
-        }, 280)
+        scheduleHide()
       },
     )
   }
@@ -119,18 +76,19 @@ export function useLocalFileSelectProgress() {
   const report = (percent: number) => {
     cancelRef.current?.()
     cancelRef.current = null
-    if (hideTimerRef.current != null) {
+    uploadingRef.current = true
+    const rounded = Math.min(100, Math.max(0, Math.round(percent)))
+    flushSync(() => {
+      setVisible(true)
+      setProgress(rounded)
+    })
+    if (rounded >= 100) {
+      scheduleHide()
+    } else if (hideTimerRef.current != null) {
       window.clearTimeout(hideTimerRef.current)
       hideTimerRef.current = null
     }
-    clearFocusListener()
-    armedRef.current = false
-    uploadingRef.current = true
-    flushSync(() => {
-      setVisible(true)
-      setProgress(Math.min(100, Math.max(0, Math.round(percent))))
-    })
   }
 
-  return { visible, progress, arm, holdAtZero, start, report, stop }
+  return { visible, progress, holdAtZero, start, report, stop }
 }

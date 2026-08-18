@@ -198,8 +198,14 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     setSending(true)
     try {
       if (pendingFile) {
-        fileProgress.start(pendingFile.size)
-        await api.replySocialMessageAttachment(socialMessageId, pendingFile, text, sendImmediately)
+        fileProgress.report(0)
+        await api.replySocialMessageAttachment(
+          socialMessageId,
+          pendingFile,
+          text,
+          sendImmediately,
+          percent => fileProgress.report(percent),
+        )
         setPendingFile(null)
         setPendingFileEditing(false)
         fileProgress.stop()
@@ -514,7 +520,6 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               <button
                 type="button"
                 onClick={() => {
-                  fileProgress.arm()
                   fileInputRef.current?.click()
                 }}
                 disabled={sending}

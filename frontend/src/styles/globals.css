@@ -3950,7 +3950,7 @@
 
   /* Çağrı formu: Cadde + No + Konum Koordinatı aynı satır (#2835 / #2837). */
   #citizen-request-form .address-street-no-row {
-    grid-template-columns: minmax(0, 0.92fr) 6.25rem minmax(5.75rem, 7.25rem) !important;
+    grid-template-columns: minmax(0, 0.92fr) 6.25rem minmax(6.25rem, 7.75rem) !important;
   }
 
   #citizen-request-form .address-street-no-row > div:nth-child(2) {

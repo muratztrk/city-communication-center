@@ -36,7 +36,9 @@ export function WhatsAppOutboundAttachmentChip({
   const displayName = lowercaseFileExtension(fileName)
   const FileIcon = isImage ? SimpleImageAttachmentIcon : FileText
   const iconClass = 'size-3'
-  const nameClass = compact ? 'text-xs font-semibold' : 'text-[13px] font-semibold'
+  const nameClass = isImage
+    ? (compact ? 'text-xs font-semibold' : 'text-[13px] font-semibold')
+    : (compact ? 'text-[10px] font-semibold' : 'text-xs font-semibold')
   const [previewOpen, setPreviewOpen] = useState(false)
   const dismissBtnClass = isImage && previewUrl
     ? `inline-flex shrink-0 items-center justify-center rounded-full bg-red-600 text-white shadow-sm ring-1 ring-red-700 transition-colors hover:bg-red-700 disabled:opacity-60 ${compact ? 'size-5' : 'size-6'}`
@@ -85,7 +87,7 @@ export function WhatsAppOutboundAttachmentChip({
         <img
           src={previewUrl}
           alt={displayName}
-          className={`w-full cursor-zoom-in object-cover ${compact ? 'max-h-32' : 'max-h-36'}`}
+          className={`mx-auto w-full max-w-full cursor-zoom-in object-contain ${compact ? 'max-h-32' : 'max-h-36'}`}
         />
       </button>
       {dismissButton ? (

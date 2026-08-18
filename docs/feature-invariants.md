@@ -638,8 +638,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talebi modal başlık (#2398):** gradient header'da `Vatandaş Talep Akışı` kicker'ı basılmaz.
 - **Medya balon Talep Eki hizası (#2401/#2410/#2744):** modalda görsel+doküman gelen eklerde Ön İzle · İndir aynı satırda, **Talep Eki Olarak Ekle** alt satırda; üçü görsel genişliğine göre ortalanır (`items-center` + `w-fit`); sağ kenar İndir ile aynı (`w-full`); butonlar biraz daha dar (`h-6` / `10px`). Modal gelen görsel `max-w-[14rem]` (#2413 reopen); modal
   gelen doküman adı çerçevesi `text-[11px] px-2.5 py-1.5` (#2411 reopen). Bekleyen giden görsel önizleme
-  yüksekliği kompakt `max-h-32`, normal `max-h-36`; görsel `w-full object-cover` (çerçeveyi
-  yatay doldurur); giden görsel balonu `max-w-[min(58%,15.5rem)]` / kompakt `54%` (#2711 reopen).
+  yüksekliği kompakt `max-h-32`, normal `max-h-36`; görsel `w-full object-contain` (yüksek
+  görseller standart yüksekliğe küçültülür — #2843); giden görsel balonu
+  `max-w-[min(58%,15.5rem)]` / kompakt `54%` (#2711 reopen). Giden doküman adı kompakt
+  `text-[10px]` (#2841).
   Görsel ek adı **alt** satırda;
   X fotoğrafın **içinde sağ üst** (#2711 reopen); görsel X çerçevesi kırmızı (#2731). Giden mesajda birim · ad soyad **aynı satırda**, ad birimin yanında (#2405);
   görsel dosya adı punto biraz büyük (#2711).

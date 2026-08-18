@@ -776,7 +776,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
 
               <div className="job-field">
-                <div className="grid gap-2 md:grid-cols-[minmax(0,0.48fr)_minmax(0,1fr)] md:items-stretch">
+                <div className="grid gap-2 md:grid-cols-[minmax(0,0.44fr)_minmax(0,1fr)] md:items-stretch">
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">
                       {t('address.neighborhoodLabel', 'Mahalle')}

@@ -304,7 +304,7 @@ export function buildJobProcessSteps(
   const overdueSuffix = t('jobs.statusLabel.overdue', 'Geciken')
   const statusDisplayValue = pendingStatusLayer || isPendingApprovalJobStatus(detail.status)
     ? jobOverdue
-      ? `${pendingApprovalLabel} (${overdueSuffix})`
+      ? `${pendingApprovalLabel} ${overdueSuffix}`
       : pendingApprovalLabel
     : jobOverdue
       ? `${inProgressLabel} (${overdueSuffix})`

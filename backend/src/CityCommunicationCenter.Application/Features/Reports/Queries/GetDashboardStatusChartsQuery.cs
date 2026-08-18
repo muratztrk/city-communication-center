@@ -224,28 +224,18 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
     private static CitizenJobDisplayStatus ClassifyCitizenJobStatus(CitizenJobStatusItem job, DateTimeOffset now)
     {
-        if (job.Status == JobStatus.Completed)
+        var display = CitizenVtDashboardClassification.Classify(
+            new CitizenVtDashboardClassification.JobSlice(job.Status, job.DueDateUtc, job.TaskCount),
+            now);
+        return display switch
         {
-            return CitizenJobDisplayStatus.Completed;
-        }
-
-        if (job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested)
-        {
-            return CitizenJobDisplayStatus.Cancelled;
-        }
-
-        if (job.Status == JobStatus.Active && job.TaskCount > 0)
-        {
-            if (job.DueDateUtc.HasValue && IsPastDue(job.DueDateUtc, now))
-            {
-                return CitizenJobDisplayStatus.Overdue;
-            }
-
-            return CitizenJobDisplayStatus.InProgress;
-        }
-
-        // İşleme Alındı — gecikmiş olsa da bu dilimde (#2800 / #2812).
-        return CitizenJobDisplayStatus.ProcessingReceived;
+            CitizenVtDashboardClassification.DisplayStatus.ProcessingReceived => CitizenJobDisplayStatus.ProcessingReceived,
+            CitizenVtDashboardClassification.DisplayStatus.InProgress => CitizenJobDisplayStatus.InProgress,
+            CitizenVtDashboardClassification.DisplayStatus.Overdue => CitizenJobDisplayStatus.Overdue,
+            CitizenVtDashboardClassification.DisplayStatus.Completed => CitizenJobDisplayStatus.Completed,
+            CitizenVtDashboardClassification.DisplayStatus.Cancelled => CitizenJobDisplayStatus.Cancelled,
+            _ => CitizenJobDisplayStatus.ProcessingReceived,
+        };
     }
 
     private async Task<List<JobStatusItem>> ProjectJobs(IQueryable<Job> jobs, CancellationToken cancellationToken)

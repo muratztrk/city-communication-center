@@ -27,7 +27,7 @@ interface DateTimePickerProps {
   disabled?: boolean
 }
 
-const DROPDOWN_WIDTH = 288  // w-72
+const DROPDOWN_WIDTH = 272
 const DROPDOWN_HEIGHT = 390 // approximate max height
 
 const MONTHS_TR = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık']

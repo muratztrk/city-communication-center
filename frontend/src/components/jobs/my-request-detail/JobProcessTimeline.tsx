@@ -5,6 +5,7 @@ import type { JobProcessStep } from './buildJobProcessSteps'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { isPendingApprovalText, splitDateTimeParts, formatDueDateTime, pendingApprovalValueClassName } from './format'
 import { isInProgressProcessStatusLabel } from '../../../utils/localization'
+import { isJobDueDateOverdue } from '../../../utils/dateTimePicker'
 
 function getLineClass(
   step: JobProcessStep,
@@ -72,6 +73,10 @@ interface JobProcessTimelineProps {
   inProgressAssigneeName?: string | null
   statusNoteContent?: ReactNode
   dueDateContent?: ReactNode
+  /** Süreç altında Gecikti mi satırı (#2855). */
+  showOverdueYesNo?: boolean
+  overdueDueDateUtc?: string | null
+  overdueJobStatus?: string
 }
 
 function DateTimeParts({ parts }: { parts: { date: string; time: string } }) {
@@ -186,6 +191,9 @@ export function JobProcessTimeline({
   inProgressAssigneeName,
   statusNoteContent,
   dueDateContent,
+  showOverdueYesNo = false,
+  overdueDueDateUtc,
+  overdueJobStatus = 'Active',
 }: JobProcessTimelineProps) {
   const { t } = useTranslation()
   const pulseIndex = (() => {
@@ -312,6 +320,18 @@ export function JobProcessTimeline({
           )
         })}
       </ol>
+      {showOverdueYesNo ? (
+        <div className="job-process-timeline__overdue-yesno mt-1 pl-[1.625rem]">
+          <div className="text-xs font-semibold tracking-wide text-slate-500">
+            {t('jobs.detail.wasOverdue', 'Gecikti mi')}
+          </div>
+          <div className="mt-0.5 text-xs font-semibold text-slate-900">
+            {isJobDueDateOverdue({ status: overdueJobStatus, dueDateUtc: overdueDueDateUtc })
+              ? t('common.yes', 'Evet')
+              : t('common.no', 'Hayır')}
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }

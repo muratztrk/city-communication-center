@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Reports;
 using CityCommunicationCenter.Application.Features.Users;
 
 namespace CityCommunicationCenter.Application.Features.Social;
@@ -143,6 +144,38 @@ public sealed class GetCitizenConversationsQueryHandler
             .Distinct()
             .ToList();
 
+        var allConversationJobIds = socialMessages
+            .Where(m => m.JobId.HasValue)
+            .Select(m => m.JobId!.Value)
+            .Distinct()
+            .ToList();
+
+        var jobIdsForClassification = allConversationJobIds
+            .Concat(jobIds)
+            .Distinct()
+            .ToList();
+
+        var jobSliceById = jobIdsForClassification.Count == 0
+            ? new Dictionary<Guid, CitizenVtDashboardClassification.JobSlice>()
+            : await _dbContext.Jobs.AsNoTracking()
+                .Where(job => jobIdsForClassification.Contains(job.JobId))
+                .Select(job => new
+                {
+                    job.JobId,
+                    job.Status,
+                    job.DueDateUtc,
+                    OpenTaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                        && task.CurrentStatus != Domain.Enums.TaskStatus.Completed
+                        && task.CurrentStatus != Domain.Enums.TaskStatus.Cancelled
+                        && task.CurrentStatus != Domain.Enums.TaskStatus.Rejected),
+                })
+                .ToDictionaryAsync(
+                    item => item.JobId,
+                    item => new CitizenVtDashboardClassification.JobSlice(item.Status, item.DueDateUtc, item.OpenTaskCount),
+                    cancellationToken);
+
+        var classificationNow = DateTimeOffset.UtcNow;
+
         var assigneeByJobId = new Dictionary<Guid, string>();
         var assigneeUserIdByJobId = new Dictionary<Guid, Guid>();
         if (jobIds.Count > 0)
@@ -276,6 +309,36 @@ public sealed class GetCitizenConversationsQueryHandler
                     c.LastMessageSenderLabel,
                     c.LastMessagePreview);
 
+                var intakeCount = 0;
+                var inProgressCount = 0;
+                var completedCount = 0;
+                var cancelledCount = 0;
+                foreach (var message in conversationMessages)
+                {
+                    if (message.JobId is not Guid classifiedJobId
+                        || !jobSliceById.TryGetValue(classifiedJobId, out var jobSlice))
+                    {
+                        continue;
+                    }
+
+                    switch (CitizenVtDashboardClassification.Classify(jobSlice, classificationNow))
+                    {
+                        case CitizenVtDashboardClassification.DisplayStatus.ProcessingReceived:
+                            intakeCount++;
+                            break;
+                        case CitizenVtDashboardClassification.DisplayStatus.InProgress
+                            or CitizenVtDashboardClassification.DisplayStatus.Overdue:
+                            inProgressCount++;
+                            break;
+                        case CitizenVtDashboardClassification.DisplayStatus.Completed:
+                            completedCount++;
+                            break;
+                        case CitizenVtDashboardClassification.DisplayStatus.Cancelled:
+                            cancelledCount++;
+                            break;
+                    }
+                }
+
                 var dto = new CitizenConversationSummaryDto(
                     c.CitizenConversationId,
                     c.CitizenPhone,
@@ -292,10 +355,10 @@ public sealed class GetCitizenConversationsQueryHandler
                     ticket?.Status.ToString(),
                     assigneeDisplayName,
                     isRelevantToCurrentUser,
-                    conversationMessages.Count(m => m.JobStatus is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested),
-                    conversationMessages.Count(m => m.JobStatus == JobStatus.Active),
-                    conversationMessages.Count(m => m.JobStatus == JobStatus.Completed),
-                    conversationMessages.Count(m => m.JobStatus is JobStatus.Cancelled or JobStatus.Rejected),
+                    intakeCount,
+                    inProgressCount,
+                    completedCount,
+                    cancelledCount,
                     c.Label,
                     c.Neighborhood,
                     c.Street,

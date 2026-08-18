@@ -1019,7 +1019,7 @@ export function IncomingRequestsPage() {
                         <span className={reporterNumberClass}>{row.displayNumber}</span>
                         {/* Yönlendirilen talepte Talep No yanında koyu turkuaz rozet görünür (cards #1406/#1412). */}
                         {row.forwardReason ? (
-                          <span className="font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                          <span className="font-sans text-[10px] font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                         ) : null}
                       </div>
                       {shouldShowGridPrioritySubline(row.priority) ? (
@@ -1084,12 +1084,13 @@ export function IncomingRequestsPage() {
                               label={getIncomingStatusLabel(t, row)}
                               channel={row.isCitizenRequest ? row.sourceChannel : null}
                               overdueSubline={
-                                (row.isCitizenRequest && isCitizenProcessingReceivedOverdue({
+                                currentStatusFilter !== 'overdue'
+                                && ((row.isCitizenRequest && isCitizenProcessingReceivedOverdue({
                                   status: row.status,
                                   dueDateUtc: row.dueDateUtc,
                                   taskCount: row.taskCount ?? 0,
                                 }))
-                                || isIncomingPendingApprovalOverdue(row)
+                                || isIncomingPendingApprovalOverdue(row))
                               }
                               footer={statusDate
                                 ? <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>

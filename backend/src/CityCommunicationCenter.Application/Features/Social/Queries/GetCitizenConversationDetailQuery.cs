@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Reports;
 using CityCommunicationCenter.Domain;
 
 namespace CityCommunicationCenter.Application.Features.Social;
@@ -258,19 +259,61 @@ public sealed class GetCitizenConversationDetailQueryHandler
                     : 0))
             .ToListAsync(cancellationToken);
 
-        var statusCounts = await _dbContext.SocialMessages
+        var statusJobIds = await _dbContext.SocialMessages
             .AsNoTracking()
-            .Where(m => m.CitizenConversationId == request.CitizenConversationId && m.Job != null)
-            .GroupBy(m => m.Job!.Status)
-            .Select(g => new { Status = g.Key, Count = g.Count() })
+            .Where(m => m.CitizenConversationId == request.CitizenConversationId && m.JobId != null)
+            .Select(m => m.JobId!.Value)
+            .Distinct()
             .ToListAsync(cancellationToken);
 
-        var intakeCount = statusCounts
-            .Where(s => s.Status is JobStatus.Draft or JobStatus.PendingOwnerApproval or JobStatus.PendingExternalApproval or JobStatus.RevisionRequested)
-            .Sum(s => s.Count);
-        var inProgressCount = statusCounts.Where(s => s.Status == JobStatus.Active).Sum(s => s.Count);
-        var completedCount = statusCounts.Where(s => s.Status == JobStatus.Completed).Sum(s => s.Count);
-        var cancelledCount = statusCounts.Where(s => s.Status is JobStatus.Cancelled or JobStatus.Rejected).Sum(s => s.Count);
+        var jobSliceById = statusJobIds.Count == 0
+            ? new Dictionary<Guid, CitizenVtDashboardClassification.JobSlice>()
+            : await _dbContext.Jobs.AsNoTracking()
+                .Where(job => statusJobIds.Contains(job.JobId))
+                .Select(job => new
+                {
+                    job.JobId,
+                    job.Status,
+                    job.DueDateUtc,
+                    OpenTaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                        && task.CurrentStatus != Domain.Enums.TaskStatus.Completed
+                        && task.CurrentStatus != Domain.Enums.TaskStatus.Cancelled
+                        && task.CurrentStatus != Domain.Enums.TaskStatus.Rejected),
+                })
+                .ToDictionaryAsync(
+                    item => item.JobId,
+                    item => new CitizenVtDashboardClassification.JobSlice(item.Status, item.DueDateUtc, item.OpenTaskCount),
+                    cancellationToken);
+
+        var classificationNow = DateTimeOffset.UtcNow;
+        var intakeCount = 0;
+        var inProgressCount = 0;
+        var completedCount = 0;
+        var cancelledCount = 0;
+        foreach (var jobId in statusJobIds)
+        {
+            if (!jobSliceById.TryGetValue(jobId, out var jobSlice))
+            {
+                continue;
+            }
+
+            switch (CitizenVtDashboardClassification.Classify(jobSlice, classificationNow))
+            {
+                case CitizenVtDashboardClassification.DisplayStatus.ProcessingReceived:
+                    intakeCount++;
+                    break;
+                case CitizenVtDashboardClassification.DisplayStatus.InProgress
+                    or CitizenVtDashboardClassification.DisplayStatus.Overdue:
+                    inProgressCount++;
+                    break;
+                case CitizenVtDashboardClassification.DisplayStatus.Completed:
+                    completedCount++;
+                    break;
+                case CitizenVtDashboardClassification.DisplayStatus.Cancelled:
+                    cancelledCount++;
+                    break;
+            }
+        }
 
         return new CitizenConversationDetailDto(
             conversation.CitizenConversationId,

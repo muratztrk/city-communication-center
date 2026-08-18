@@ -931,7 +931,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   )
   const showDepartmentOutgoingCreatedBy = isDepartmentOutgoingView && activeJobView !== 'overdue'
   const showJobsGridStatusColumn = (isMyRequestsView || isDepartmentOutgoingView)
-    && (activeJobView === 'all' || (isDepartmentOutgoingView && activeJobView === 'overdue'))
+    && (activeJobView === 'all'
+      || (isDepartmentOutgoingView && activeJobView === 'overdue')
+      || (isMyRequestsView && activeJobView === 'overdue'))
   const jobsTableColumnCount = useMemo(() => {
     let count = 1
     if (isMyRequestsView || isDepartmentOutgoingView) count += 2
@@ -2369,7 +2371,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             <GridStatusLabel
                               t={t}
                               label={getJobDisplayStatus(t, job)}
-                              overdueSubline={isCitizenRequestJob(job) && isCitizenProcessingReceivedOverdue(job)}
+                              overdueSubline={activeJobView !== 'overdue' && isCitizenRequestJob(job) && isCitizenProcessingReceivedOverdue(job)}
                               footer={statusDate
                                 ? <span className={`text-[0.68rem] font-bold ${job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
                                 : undefined}
@@ -2788,7 +2790,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             </span>
                           )}
                           {forwardReason ? (
-                            <span className="text-xs font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                            <span className="text-[10px] font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                           ) : null}
                         </span>
                       </span>
@@ -3023,6 +3025,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           statusActorName={shouldShowJobStatusActorName(detail) ? detail.statusActorDisplayName : null}
                           inProgressAssigneeName={formatJobAssigneeNames(detail)}
                           dueDateContent={dueDateContent}
+                          showOverdueYesNo
+                          overdueDueDateUtc={detail.dueDateUtc}
+                          overdueJobStatus={detail.status}
                         />
                       )
                     })()}

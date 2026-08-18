@@ -2719,6 +2719,9 @@ const pageKicker = isMyTasksView
                                 inProgressAssigneeName={taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? null}
                                 statusNoteContent={statusNoteContent}
                                 dueDateContent={dueDateContent}
+                                showOverdueYesNo
+                                overdueDueDateUtc={parentJobDetail?.dueDateUtc ?? taskDetail.dueDateUtc}
+                                overdueJobStatus={parentJobDetail?.status ?? taskDetail.currentStatus}
                               />
                               {firstStatusChange && latestStatusChange && firstChangedStatus ? (
                                 <div className="task-process-status-change mt-1 border-t border-slate-100 pt-1">
@@ -2917,7 +2920,7 @@ const pageKicker = isMyTasksView
                             ? formatOverdueInProgressStatus(t)
                             : t('jobs.status.inProgress', 'Yapılmakta')
                     const parentRequestNumberSuffix = parentForwardReasonDisplay ? (
-                      <span className="text-xs font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                      <span className="text-[10px] font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                     ) : null
                     const parentRequestNumberText = isCitizenParentJob
                       ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: parentJobDetail.createdAtUtc }, locale)
@@ -3311,7 +3314,7 @@ const pageKicker = isMyTasksView
                                 <ChannelIcon channel={getCitizenTaskChannel(task, socialByJobId)} className="size-4 shrink-0" />
                                 <span className={reporterLinkedRequestClass}>{linkedRequestNumber}</span>
                               </span>
-                              {task.forwardReason ? <span className="font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
+                              {task.forwardReason ? <span className="font-sans text-[10px] font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
                             </div>
                           )
                           : (
@@ -3319,7 +3322,7 @@ const pageKicker = isMyTasksView
                               <span className="inline-flex flex-wrap items-center justify-center gap-1.5">
                                 <span className={reporterLinkedRequestClass}>{linkedRequestNumber}</span>
                               </span>
-                              {task.forwardReason ? <span className="font-sans font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
+                              {task.forwardReason ? <span className="font-sans text-[10px] font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}
                             </div>
                           )}
                     </td>

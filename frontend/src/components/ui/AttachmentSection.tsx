@@ -53,7 +53,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState(0)
   const [validationError, setValidationError] = useState<string | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
@@ -97,7 +96,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     let uploadedBytes = 0
     flushSync(() => {
       setUploading(true)
-      setUploadProgress(0)
     })
     pickerProgress.report(0)
     try {
@@ -105,7 +103,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
         try {
           await onUpload?.(file, percent => {
             const next = Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100))
-            setUploadProgress(next)
             pickerProgress.report(next)
           })
         } catch (err) {
@@ -113,7 +110,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
         }
         uploadedBytes += file.size
         const done = Math.min(100, Math.round((uploadedBytes / totalBytes) * 100))
-        setUploadProgress(done)
         pickerProgress.report(done)
       }
     } finally {
@@ -121,7 +117,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
       await new Promise(resolve => window.setTimeout(resolve, 320))
       pickerProgress.stop()
       setUploading(false)
-      setUploadProgress(0)
     }
     if (fileInputRef.current) fileInputRef.current.value = ''
   }
@@ -205,7 +200,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
       )}
       {!readOnly && (uploading || pickerProgress.visible) ? (
         <AttachmentUploadProgressBar
-          progress={uploading ? Math.max(uploadProgress, pickerProgress.progress) : pickerProgress.progress}
+          progress={pickerProgress.progress}
           className="attachment-upload-progress mt-2"
         />
       ) : null}

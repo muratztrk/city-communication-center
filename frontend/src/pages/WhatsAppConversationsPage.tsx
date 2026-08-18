@@ -1245,6 +1245,15 @@ function ConversationDetail({
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
+          {phoneForHeader ? (
+            <button
+              type="button"
+              onClick={() => onOpenViewRequests(phoneForHeader)}
+              className="shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+            >
+              {t('whatsapp.viewRequestsByNumber', 'Numaranın Talepleri')}
+            </button>
+          ) : null}
           <button
             type="button"
             aria-label={t('common.search', 'Ara')}

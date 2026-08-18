@@ -26,6 +26,11 @@ import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../../utils
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../../utils/attachmentLimits'
 import { formatStaffSenderLabel } from '../../utils/formatConversationSenderLabel'
 import { lowercaseFileExtension } from '../../utils/fileNameDisplay'
+import {
+  notifyFloatingChatFabClosed,
+  notifyFloatingChatFabOpened,
+  subscribeFloatingChatFab,
+} from '../../utils/floatingChatFabCoordinator'
 
 const INTERNAL_MESSAGE_FILE_ACCEPT = ATTACHMENT_FILE_ACCEPT
 const INTERNAL_MESSAGE_FILE_MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
@@ -217,6 +222,21 @@ export function InternalMessagesFab() {
   const showUserTitleInMessages = internalMessagesSettingsQuery.data?.showUserTitleInMessages ?? false
 
   const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    return subscribeFloatingChatFab(kind => {
+      if (kind === 'whatsapp' && isOpen) setIsOpen(false)
+    })
+  }, [isOpen])
+
+  const toggleOpen = useCallback(() => {
+    setIsOpen(current => {
+      const next = !current
+      if (next) notifyFloatingChatFabOpened('internal')
+      else notifyFloatingChatFabClosed('internal')
+      return next
+    })
+  }, [])
   const [conversations, setConversations] = useState<InternalConversationSummary[]>([])
   const [search, setSearch] = useState('')
   const [userResults, setUserResults] = useState<UserLookup[]>([])
@@ -633,6 +653,7 @@ export function InternalMessagesFab() {
   const closePanel = () => {
     notifyTyping(false)
     clearTypingHeartbeat()
+    notifyFloatingChatFabClosed('internal')
     setIsOpen(false)
     setActiveChat(null)
     setChatDetail(null)
@@ -690,6 +711,8 @@ export function InternalMessagesFab() {
         uploadFile,
         percent => fileProgress.report(percent),
       )
+      fileProgress.report(100)
+      await new Promise(resolve => window.setTimeout(resolve, 280))
       fileProgress.stop()
       setDraft('')
       setPendingFile(null)
@@ -983,7 +1006,7 @@ export function InternalMessagesFab() {
               </div>
             </>
           ) : (
-            <>
+            <div className="flex min-h-0 flex-1 flex-col">
               <div className="shrink-0 space-y-2 border-b border-slate-100 bg-[color:var(--color-background)] px-3 pb-2 pt-2.5">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-slate-400" aria-hidden="true" />
@@ -1102,7 +1125,7 @@ export function InternalMessagesFab() {
                 })}
               </div>
 
-              <div className="shrink-0 border-t border-[var(--color-border)]">
+              <div className="shrink-0 border-t border-[var(--color-border)] pb-1">
                 <TablePagination
                   className="internal-messages-pagination"
                   totalCount={filteredRows.length}
@@ -1113,7 +1136,7 @@ export function InternalMessagesFab() {
                   pageSizeOptions={[PAGE_SIZE]}
                 />
               </div>
-            </>
+            </div>
           )}
         </div>
       ) : null}
@@ -1123,7 +1146,7 @@ export function InternalMessagesFab() {
         aria-label={t('internalMessages.fabLabel', 'Kurum İçi Mesajlar')}
         title={t('internalMessages.fabLabel', 'Kurum İçi Mesajlar')}
         aria-expanded={isOpen}
-        onClick={() => setIsOpen(current => !current)}
+        onClick={toggleOpen}
         className={`ccc-floating-fab-btn group relative flex size-12 cursor-pointer items-center justify-center rounded-full bg-emerald-700 text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
       >
         <span className="absolute inset-0 rounded-full bg-emerald-700/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />

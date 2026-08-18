@@ -17,7 +17,6 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.mp4',
   '.mov',
   '.webm',
-  '.3gp',
 ] as const
 
 /** Accept attribute uzantıları — MIME yerine uzantı (jpeg/mov/webm/dot alias önlemi). */
@@ -32,7 +31,6 @@ export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.ppt',
   '.pptx',
   '.mp4',
-  '.3gp',
 ] as const
 
 export const ATTACHMENT_FILE_ACCEPT_MIMES = [

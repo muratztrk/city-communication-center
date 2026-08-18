@@ -103,8 +103,12 @@ export function matchesIncomingStatusFilter(row: IncomingRequestRow, filter: Inc
       && !isIncomingRowInProgress(row)
   }
 
-  if (filter === 'overdue') return !isClosed && isOverdue
-  if (isOverdue && !isClosed) return false
+  if (filter === 'overdue') {
+    return !isClosed && isOverdue && !isCitizenProcessingReceivedRow(row)
+  }
+
+  // Yapılmakta geciken satırlar in-progress filtresinde kalır; İşleme Alındı geciken overdue'da (#2853 / #2860).
+  if (isOverdue && !isClosed && filter !== 'in-progress') return false
 
   if (filter === 'completed') return row.status === 'Completed'
   if (filter === 'cancelled') {
@@ -114,7 +118,7 @@ export function matchesIncomingStatusFilter(row: IncomingRequestRow, filter: Inc
   if (row.assignTargetDepartmentId != null) return false
 
   if (filter === 'in-progress') {
-    return isIncomingRowInProgress(row)
+    return isIncomingRowInProgress(row) && !isCitizenProcessingReceivedRow(row)
   }
 
   return false

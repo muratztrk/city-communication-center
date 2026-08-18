@@ -14,6 +14,11 @@ import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 import { getWhatsAppFabUnreadCount, isAutomaticOutboundConversation } from '../../utils/whatsappFabNotification'
 import { matchesPhone } from '../../utils/phoneNormalization'
 import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
+import {
+  notifyFloatingChatFabClosed,
+  notifyFloatingChatFabOpened,
+  subscribeFloatingChatFab,
+} from '../../utils/floatingChatFabCoordinator'
 
 const POLL_INTERVAL_MS = 12_000
 const DISMISSED_STORAGE_PREFIX = 'ccc:whatsapp-notification-dismissed:'
@@ -82,6 +87,26 @@ export function WhatsAppNotificationFab() {
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [activeConversation, setActiveConversation] = useState<ActiveWhatsAppConversation>(null)
   const [isOpen, setIsOpen] = useState(false)
+
+  useEffect(() => {
+    return subscribeFloatingChatFab(kind => {
+      if (kind === 'internal' && isOpen) setIsOpen(false)
+    })
+  }, [isOpen])
+
+  const toggleOpen = useCallback(() => {
+    setIsOpen(current => {
+      const next = !current
+      if (next) notifyFloatingChatFabOpened('whatsapp')
+      else notifyFloatingChatFabClosed('whatsapp')
+      return next
+    })
+  }, [])
+
+  const closePanel = useCallback(() => {
+    notifyFloatingChatFabClosed('whatsapp')
+    setIsOpen(false)
+  }, [])
   const [isPulsing, setIsPulsing] = useState(false)
   const dismissedStorageKey = useMemo(() => getDismissedStorageKey(user?.userId), [user?.userId])
   const currentUserDisplayName = useMemo(() => normalizeDisplayName(user?.displayName), [user?.displayName])
@@ -379,7 +404,7 @@ export function WhatsAppNotificationFab() {
   }, [isOpen, fetchConversations])
 
   const openConversation = (conversation: CitizenConversationSummary) => {
-    setIsOpen(false)
+    closePanel()
     // Tıklanan konuşmanın bildirimi anında kaybolsun; arka plandaki yenilemeyi beklemez (card #1477/#1498).
     dismissConversationNotification(conversation.citizenConversationId, conversation.lastMessageAt)
     void api.markConversationRead(conversation.citizenConversationId).catch(() => {})
@@ -429,7 +454,7 @@ export function WhatsAppNotificationFab() {
               type="button"
               className="rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-black/5 hover:text-[color:var(--color-foreground)]"
               aria-label={t('common.close', 'Kapat')}
-              onClick={() => setIsOpen(false)}
+              onClick={closePanel}
             >
               <X className="size-4" />
             </button>
@@ -490,7 +515,7 @@ export function WhatsAppNotificationFab() {
               type="button"
               className="text-xs font-semibold text-[color:var(--color-primary)] hover:underline"
               onClick={() => {
-                setIsOpen(false)
+                closePanel()
                 navigate('/whatsapp')
               }}
             >
@@ -505,7 +530,7 @@ export function WhatsAppNotificationFab() {
           aria-label={t('whatsapp.notificationFabLabel', 'WhatsApp bildirimleri')}
           title={t('whatsapp.notificationFabLabel', 'WhatsApp bildirimleri')}
           aria-expanded={isOpen}
-          onClick={() => setIsOpen(current => !current)}
+          onClick={toggleOpen}
           className={`ccc-floating-fab-btn group relative flex size-12 cursor-pointer items-center justify-center rounded-full bg-[#25D366] text-white shadow-lg transition-shadow duration-300 hover:shadow-xl ${isPulsing ? 'whatsapp-fab-pulse' : ''} ${isOpen ? '' : 'transition-transform hover:scale-110 active:scale-95'}`}
         >
           <span className="absolute inset-0 rounded-full bg-[#25D366]/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" aria-hidden="true" />

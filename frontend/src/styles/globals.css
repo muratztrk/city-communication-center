@@ -2895,7 +2895,10 @@
   .department-tasks-table thead th,
   .staff-tasks-table thead th,
   .citizen-message-approval-table thead th,
-  .citizen-directory-table thead th {
+  .citizen-directory-table thead th,
+  .departments-table thead th,
+  .users-table thead th,
+  .audit-logs-table thead th {
     background-color: var(--color-header-from);
     background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     background-attachment: fixed;
@@ -2908,7 +2911,10 @@
   .department-tasks-table thead,
   .staff-tasks-table thead,
   .citizen-message-approval-table thead,
-  .citizen-directory-table thead {
+  .citizen-directory-table thead,
+  .departments-table thead,
+  .users-table thead,
+  .audit-logs-table thead {
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
   }
 
@@ -2940,7 +2946,13 @@
   .citizen-message-approval-table thead th.sortable-th:hover,
   .citizen-message-approval-table thead th.sort-active,
   .citizen-directory-table thead th.sortable-th:hover,
-  .citizen-directory-table thead th.sort-active {
+  .citizen-directory-table thead th.sort-active,
+  .departments-table thead th.sortable-th:hover,
+  .departments-table thead th.sort-active,
+  .users-table thead th.sortable-th:hover,
+  .users-table thead th.sort-active,
+  .audit-logs-table thead th.sortable-th:hover,
+  .audit-logs-table thead th.sort-active {
     color: rgba(255, 255, 255, 0.8);
   }
 

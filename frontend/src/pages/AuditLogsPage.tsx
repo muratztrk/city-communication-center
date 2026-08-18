@@ -354,7 +354,7 @@ export function AuditLogsPage() {
 
       <section className="section-card desktop-page-fill">
         <div className="table-wrap desktop-panel-scroll">
-          <table className="data-table">
+          <table className="data-table audit-logs-table">
             <thead>
               <tr>
                 <FilterableTh

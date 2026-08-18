@@ -2409,19 +2409,30 @@
     padding: 0.35rem 0.65rem;
   }
 
-  /* Ayarlar → Kurum Konumu CBS dropdown menü satırları (#2835). */
+  /* Ayarlar → Kurum Konumu CBS dropdown menü satırları (#2835 reopen). */
   .settings-municipality-location-menu-scroll .dropdown-menu-item,
   .settings-municipality-location-menu .dropdown-menu-item {
-    min-height: 1.85rem;
-    padding: 0.28rem 0.6rem;
+    min-height: 1.65rem;
+    padding: 0.2rem 0.55rem;
     font-size: 0.75rem !important;
-    line-height: 1.15;
+    line-height: 1.1;
+  }
+
+  .settings-municipality-location-menu-scroll > .dropdown-menu-item,
+  .settings-municipality-location-menu > .dropdown-menu-item {
+    border-top-width: 0;
+  }
+
+  .settings-municipality-location-menu-scroll > .dropdown-menu-item + .dropdown-menu-item,
+  .settings-municipality-location-menu > .dropdown-menu-item + .dropdown-menu-item {
+    border-top-width: 1px;
+    border-color: rgb(241 245 249);
   }
 
   .settings-municipality-location-menu-scroll .dropdown-menu-item span,
   .settings-municipality-location-menu .dropdown-menu-item span {
     font-size: 0.75rem !important;
-    line-height: 1.2;
+    line-height: 1.1;
   }
 
   .dropdown-menu-panel.settings-municipality-location-menu input {

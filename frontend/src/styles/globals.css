@@ -3931,19 +3931,19 @@
   }
 
   .detail-modal-shell--citizen-create #citizen-request-form .rich-text-toolbar-button {
-    width: 0.98rem !important;
-    height: 0.98rem !important;
+    width: 1.12rem !important;
+    height: 1.12rem !important;
   }
 
-  /* K / A ve iki liste ikonu bir tık büyük; buton kutusu toolbar yüksekliğiyle uyumlu (#2757). */
+  /* K / A ve iki liste ikonu bir tık büyük (#2757 reopen). */
   .detail-modal-shell--citizen-create .rich-text-toolbar-button svg {
-    width: 0.53rem !important;
-    height: 0.53rem !important;
+    width: 0.62rem !important;
+    height: 0.62rem !important;
   }
 
   .detail-modal-shell--citizen-create .rich-text-toolbar-button span {
-    font-size: 0.51rem !important;
-    min-width: 0.51rem !important;
+    font-size: 0.58rem !important;
+    min-width: 0.58rem !important;
     line-height: 1 !important;
   }
 
@@ -3966,13 +3966,18 @@
 
   /* Çağrı formu: Cadde + No + Konum Koordinatı aynı satır (#2835 / #2837). No hafif geniş (#2844). */
   #citizen-request-form .address-street-no-row {
-    grid-template-columns: minmax(0, 0.92fr) 6.75rem minmax(6.25rem, 7.75rem) !important;
+    grid-template-columns: minmax(0, 0.92fr) 7rem minmax(6.25rem, 7.75rem) !important;
   }
 
   #citizen-request-form .address-street-no-row > div:nth-child(2) {
-    width: 6.75rem !important;
-    min-width: 6.75rem !important;
-    max-width: 6.75rem !important;
+    width: 7rem !important;
+    min-width: 7rem !important;
+    max-width: 7rem !important;
+  }
+
+  /* Cadde/Sokak + No placeholder hafif küçük (#2845). */
+  #citizen-request-form .address-street-no-row .field-select span.text-slate-400 {
+    font-size: 0.88rem !important;
   }
 
   #citizen-request-form .address-street-no-row .field-input {

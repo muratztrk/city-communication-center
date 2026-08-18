@@ -12,6 +12,7 @@ import {
   formatConversationDisplayContent,
   getLocationPlaceDescription,
   isContactConversationContent,
+  isLocationConversationContent,
   isPlaceholderBracketContent,
   parseAttachmentFilenameFromContent,
   parseConversationLocationCoords,
@@ -157,8 +158,10 @@ export function ConversationEntryBubble({
   const isContactMessage = !hasMedia && isContactConversationContent(entry.content)
   const locationCoords = parseConversationLocationCoords(entry.content, entry.latitude, entry.longitude)
   const locationDescription = getLocationPlaceDescription(entry.content)
-  // Konum UI yalnız gerçek koordinat varken; marker metni koordinatsız mesajda normal metin (#2834).
-  const isLocationMessage = !isContactMessage && Boolean(locationCoords)
+  // Konum UI yalnız gerçek konum verisi varken (#2834 / #2838).
+  const isLocationMessage = !isContactMessage
+    && Boolean(locationCoords)
+    && (isLocationConversationContent(entry.content) || entry.latitude != null || entry.longitude != null)
   const locale = getLocale(i18n.language)
   const senderLabel = formatConversationSenderLabel(entry.senderLabel)
   const sentTime = formatConversationMessageTime(entry.sentAt, locale, t)
@@ -264,7 +267,7 @@ export function ConversationEntryBubble({
                 direction={entry.direction}
                 citizenPhone={citizenPhone}
                 onAddAsAttachment={onAddMediaAsAttachment}
-                sentChip={entry.direction === 'Outbound'}
+                sentChip={entry.direction === 'Outbound' && entry.deliveryStatus === 'Pending'}
                 requestAttachmentLayout={Boolean(onAddMediaAsAttachment)}
                 displayFilename={parseAttachmentFilenameFromContent(entry.content)}
                 compactChip={compact}

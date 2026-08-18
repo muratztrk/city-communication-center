@@ -1639,7 +1639,7 @@
     .app-content-shell .my-tasks-all-table .my-tasks-status-col,
     .app-content-shell .department-tasks-table .my-tasks-status-col,
     .app-content-shell .staff-tasks-table .my-tasks-status-col {
-      width: 9.5rem;
+      width: 10rem;
     }
 
     /* Görevlerim başlık satırı yüksekliği paging bar ile aynı olsun. */
@@ -1739,7 +1739,7 @@
 
     .app-content-shell .my-requests-table .grid-col-status,
     .app-content-shell .incoming-requests-table .grid-col-status {
-      width: 9.5rem;
+      width: 10rem;
     }
 
     .app-content-shell .my-requests-table .grid-col-actions,
@@ -3119,8 +3119,8 @@
   /* Pie drilldown: Durum 2 satır sığsın — sütun biraz geniş (#6a6d9daf / #2180). */
   .dashboard-drilldown-table th.grid-col-status,
   .dashboard-drilldown-table td.grid-col-status {
-    min-width: 12.5rem;
-    width: 12.5rem;
+    min-width: 13rem;
+    width: 13rem;
   }
 
   /* Pie drilldown Başlık: en fazla 2 satır + overflow tooltip (#2180). */
@@ -3918,7 +3918,7 @@
 
   /* Çağrı formu: Cadde + No + Konum Koordinatı aynı satır (#2835 / #2837). */
   #citizen-request-form .address-street-no-row {
-    grid-template-columns: minmax(0, 1.15fr) 6.25rem minmax(5.25rem, 6.75rem) !important;
+    grid-template-columns: minmax(0, 0.92fr) 6.25rem minmax(5.75rem, 7.25rem) !important;
   }
 
   #citizen-request-form .address-street-no-row > div:nth-child(2) {
@@ -3928,9 +3928,9 @@
   }
 
   #citizen-request-form .address-street-no-row .field-input {
-    min-height: 2.05rem !important;
-    height: 2.05rem !important;
-    max-height: 2.05rem !important;
+    min-height: 1.92rem !important;
+    height: 1.92rem !important;
+    max-height: 1.92rem !important;
     padding-block: 0.28rem !important;
     font-size: 12px !important;
   }

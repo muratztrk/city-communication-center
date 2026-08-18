@@ -194,11 +194,12 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const handleSend = async () => {
     const text = replyText.trim()
     if ((!text && !pendingFile) || sending) return
+    const sendImmediately = canSendPending && windowOpen && !selectedMetaTemplate
     setSending(true)
     try {
       if (pendingFile) {
         fileProgress.start(pendingFile.size)
-        await api.replySocialMessageAttachment(socialMessageId, pendingFile, text, false)
+        await api.replySocialMessageAttachment(socialMessageId, pendingFile, text, sendImmediately)
         setPendingFile(null)
         setPendingFileEditing(false)
         fileProgress.stop()
@@ -206,7 +207,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         await api.replySocialMessage(
           socialMessageId,
           text,
-          false,
+          sendImmediately,
           selectedMetaTemplate
             ? {
                 whatsAppTemplateId: selectedMetaTemplate.templateId,

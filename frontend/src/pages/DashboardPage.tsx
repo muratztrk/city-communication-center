@@ -967,7 +967,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             )
           })}
         {effectiveView !== 'full' || chartCards.length > 0 || statusChartsQuery.isLoading || dashboardQuery.isLoading
-          ? <DashboardNotificationsCard />
+          ? (role === 'Reporter' && effectiveView !== 'full' ? null : <DashboardNotificationsCard />)
           : null}
       </section>
 

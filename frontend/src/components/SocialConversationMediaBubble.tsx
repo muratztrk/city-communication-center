@@ -5,7 +5,7 @@ import { api } from '../api/client'
 import { Button } from './ui/button'
 import { SocialConversationMediaPreview } from './SocialConversationMediaPreview'
 import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
-import { inboundMediaDownloadFilename, socialMediaFilename } from '../utils/socialConversationContent'
+import { socialMediaFilename } from '../utils/socialConversationContent'
 import { lowercaseFileExtension } from '../utils/fileNameDisplay'
 
 interface SocialConversationMediaBubbleProps {
@@ -23,10 +23,6 @@ interface SocialConversationMediaBubbleProps {
   displayFilename?: string | null
   /** Modal/kompakt konuşmada giden ek adı daha küçük (#2209). */
   compactChip?: boolean
-  /** Mesajın gönderim zamanı — gelen ek indirme adındaki tarih parçası. */
-  sentAt?: string | null
-  /** Talep kanalı — gelen ek indirme adındaki kanal parçası (konuşma paneli WhatsApp'tır). */
-  channel?: string | null
 }
 
 /** entry değişince state sıfırlansın diye key’li sarmalayıcı (#6a758a88 cache ile birlikte). */
@@ -83,8 +79,6 @@ function SocialConversationMediaBubbleInner({
   requestAttachmentLayout = false,
   displayFilename,
   compactChip = false,
-  sentAt,
-  channel,
 }: SocialConversationMediaBubbleProps) {
   const { t } = useTranslation()
   const mime = mediaMimeType ?? 'application/octet-stream'
@@ -154,18 +148,10 @@ function SocialConversationMediaBubbleInner({
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
     anchor.href = url
-    // Gelen ek: indirilen dosya adı kanal-numara-tarih olur (vatandaşın orijinal adı değil);
-    // balonda görünen ad orijinal adını korur. Giden ek adı değişmez.
+    // Gelen ek: vatandaşın orijinal adı (#2710 reopen). Prefix (kanal-telefon) yok.
     anchor.download =
       direction === 'Inbound'
-        ? inboundMediaDownloadFilename({
-          channel,
-          citizenPhone,
-          sentAt,
-          mime,
-          originalFileName: displayFilename?.trim() || discoveredName?.trim() || null,
-          entryId,
-        })
+        ? displayFilename?.trim() || discoveredName?.trim() || filename
         : filename
     anchor.click()
     URL.revokeObjectURL(url)

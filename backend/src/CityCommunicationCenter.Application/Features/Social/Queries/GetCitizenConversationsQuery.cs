@@ -97,32 +97,17 @@ public sealed class GetCitizenConversationsQueryHandler
         var conversationIds = conversations.Select(c => c.CitizenConversationId).ToList();
 
         // "BEKLEMEDE" (gönderilmemiş) giden mesajı olan konuşmalar — bildirim baloncuğunda
-        // görünsün diye özetle birlikte döner (card #1472). Otomatik durum mesajları
-        // (İşleme Alındı / Yapılmakta / Tamamlandı / İptal) onay kuyruğunda Pending beklediği için
-        // buraya girip FAB'ı otomatik mesajla dolduruyordu; yalnız personelin yazdığı bekleyen
-        // yanıtlar sayılır (#2562 devamı).
-        var pendingOutboundCandidates = await _dbContext.ConversationEntries
+        // görünsün diye özetle birlikte döner (card #1472).
+        var pendingOutboundConversationIds = (await _dbContext.ConversationEntries
             .AsNoTracking()
             .Where(e => e.Direction == ConversationEntryDirection.Outbound && e.DeliveryStatus == ConversationDeliveryStatus.Pending)
             .Join(
                 _dbContext.SocialMessages.Where(m => m.CitizenConversationId != null && conversationIds.Contains(m.CitizenConversationId.Value)),
                 e => e.SocialMessageId,
                 m => m.SocialMessageId,
-                (e, m) => new
-                {
-                    ConversationId = m.CitizenConversationId!.Value,
-                    e.SenderLabel,
-                    e.Content,
-                })
-            .ToListAsync(cancellationToken);
-
-        var pendingOutboundConversationIds = pendingOutboundCandidates
-            .Where(e => !ConversationEntrySenderLabelHelper.IsAutomaticOutbound(
-                ConversationEntryDirection.Outbound,
-                ConversationDeliveryStatus.Pending,
-                e.SenderLabel,
-                e.Content))
-            .Select(e => e.ConversationId)
+                (e, m) => m.CitizenConversationId!.Value)
+            .Distinct()
+            .ToListAsync(cancellationToken))
             .ToHashSet();
 
         var socialMessages = await _dbContext.SocialMessages

@@ -1337,8 +1337,6 @@ function ConversationDetail({
                       <ConversationEntryBubble
                         entry={entry}
                         theme="light"
-                        // Gelen ek indirme adındaki numara parçası için gerekli (kanal-numara-tarih).
-                        citizenPhone={citizenPhone}
                         inboundSenderLabel={inboundSenderLabel}
                         canSendPending={canSendPending}
                         onSendPending={() => handleSendPending(entry)}

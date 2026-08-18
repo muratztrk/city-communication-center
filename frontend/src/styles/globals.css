@@ -5962,14 +5962,6 @@
       overflow: visible;
     }
 
-    /* Sayfa başına kayıt sayısı büyüdüğünde (10 → 100) tablo içeriği taşar ve flex kolonda
-       negatif boşluk oluşur. Scroll kapsayıcısı olan kardeşler (ör. .scope-chips overflow-x:auto)
-       için min-height:auto = 0 çözüldüğünden bu kardeşler eziliyor, gridview başlığı yukarı doğru
-       büyüyordu. Taşmayı yalnız .desktop-page-fill paneli emsin; banner/çip satırları sabit kalsın. */
-    .desktop-page-shell > :not(.desktop-page-fill) {
-      flex-shrink: 0;
-    }
-
     .desktop-page-fill {
       display: flex;
       flex: 1 1 auto;

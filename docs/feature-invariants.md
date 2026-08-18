@@ -258,9 +258,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yapışık); lightbox `document.body` portal + `z-[400]` ile detay modalının üstünde açılır (#2709/#2732).
   Detay popup'ta **Talep Bilgileri** altında Talep Ekleri satırı yalnız ek varsa görünür (#2734 reopen).
   **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle, üst değer satırının sağ kenarıyla aynı düşey hizadadır (değer kolonu `align-items: flex-end`; scrollbar-gutter ek kümesini içeri kaydırmaz) (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
-  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar %0 görünür; dosya seçilince bar
-  `holdAtZero()` ile %0'da **görünür kalır** (sahte `start()` animasyonu yok, kaybolmaz) ve yüzde
-  yalnız gerçek yükleme sırasında XHR `report` ile ilerler (#2728 reopen).
+  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar %0 görünür; dosya seçilince bekleyen ek `start()` ile yüzde ilerler, gerçek yüklemede `report` kullanılır (#2728).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -293,9 +291,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`CreateJobCommand`, card #1079).
 - **Talep Oluştur ek yükleme ilerlemesi:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının
   seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar
-  Dosya ekle tıklanınca %0’da görünür ve dosya seçilince `holdAtZero()` ile %0'da bekler (kaybolmaz);
-  yüzde yalnız kayıt sonrası XHR `report` akışında ilerler (#2728 reopen). Son bekleyen dosya
-  silinince bar `stop()` ile kapanır — aksi halde %0'da asılı kalır.
+  Dosya ekle tıklanınca %0’da görünür; seçilen bekleyen dosyada `start()` ile yüzde ilerler, kayıt sonrası XHR `report` ile devam eder (#2728).
   tüm dosyalar için birleşik yüzde gösterilir. Vatandaş create/edit akışı da seçili dosyaları
   oluşan job'a gerçekten yükler (card #1610 create-form reopen).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
@@ -628,12 +624,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Gelen WA ek dosya adı (#2406 / #6a75c6fa):** webhook `document.filename` alanı `[Dosya eki: …]` olarak
   içerikte saklanır (path/encoding normalize, ad değiştirilmez); gelen ek adı orijinal büyük/küçük harf
   korunur. Medya indirirken `X-Original-File-Name` + Content-Disposition orijinal adı taşır; UI
-  `whatsapp-{tel}` fallback'ini orijinal ad varken kullanmaz — **balonda/önizlemede görünen ad**
-  vatandaşın orijinal adıdır. **İndirilen dosyanın adı** ise `kanal-numara-tarih.uzanti`
-  (`inboundMediaDownloadFilename`, ör. `whatsapp-5547616022-18.08.2026.jpg`); uzantı orijinal
-  addan, yoksa MIME'den gelir; numara/tarih yoksa o parça düşer, ikisi de yoksa entry kimliği
-  eklenir. Bu, indirme adının orijinal ad olduğu eski davranışın (#2710 reopen) yerini alır.
-  Giden ek indirme adı değişmez.
+  `whatsapp-{tel}` fallback'ini orijinal ad varken kullanmaz. İndirme dosya adı
+  vatandaşın orijinal adıdır (kanal/telefon öneki yok — #2710 reopen).
 - **Inbound video ortala (#6a75c6e8):** video balonu görsel gibi `w-full max-w-full object-contain`
   (dik format sağ boşluk kapanır / ortalanır).
 - **WA textarea gecikmesi (#2397):** yanıt textarea metni chat scroll alanında ayrıca render edilmez; yalnız
@@ -776,11 +768,6 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (belediye adı gönderen, personel `Birim · Ad` değil; veya önizlemede `talebinizin durumu`) WhatsApp
   baloncuk rozet/panel/pulse tetiklemez. `lastMessageIsAutomaticOutbound` son giden entry'nin enum
   yön/teslimat + gönderen etiketiyle hesaplanır (reopen #2562).
-  **Onay kuyruğundaki (`Pending`) otomatik durum mesajı `HasPendingOutboundMessage` yapmaz**
-  (`GetCitizenConversationsQuery` pending adayları `IsAutomaticOutbound` ile eler): bu bayrak yalnız
-  personelin yazdığı bekleyen yanıtlar içindir, aksi halde otomatik mesaj `#1472` yolundan FAB'a
-  geri sızıyordu. Otomatik durum mesajı FAB panelinde **önizleme metni olarak da basılmaz**;
-  konuşma yalnız gerçek okunmamış mesajı varsa listelenir.
 - **WA konuşma mesaj kutusu odak (#2528):** `/whatsapp` açık konuşmada yanıt kutusuna odaklanıldığında
   `mark-read` + `ccc:whatsapp-composer-engaged` ile sağ alt WhatsApp baloncuk rozeti temizlenir.
 - **WhatsApp teslim durumu status-only webhook ile de canlı yenilenir:** `sent/delivered/read`
@@ -2289,11 +2276,6 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde; tablo
   başlıkları scroll sırasında sticky kalır ve eski sürekli header gradient rengi korunur. Footer
   viewport'un en alt kenarına tam satır/full-bleed oturur; sayfa padding'i footer'ı yukarıda veya dar bırakmaz.
-- **Gridview üstü satırlar sayfa boyutuyla oynamaz:** `.desktop-page-shell > :not(.desktop-page-fill)`
-  desktop'ta `flex-shrink: 0`. `.scope-chips` `overflow-x: auto` olduğu için scroll kapsayıcısıdır ve
-  `min-height: auto` = 0'a çözülür; kural olmadan sayfa başına kayıt 10 → 100 yapıldığında taşan
-  flex alanı çip satırından çalınıyor, çipler eziliyor ve gridview başlığı yukarı doğru büyüyordu.
-  Taşmayı yalnız `.desktop-page-fill` paneli emmelidir (grid kendi içinde scroll eder).
 - **AppFooter Lumespec markası:** Tüm footer yüzeyleri (`AppShell`, login, wallboard) ortak
   `AppFooter` kullanır; marka `/lumespec-logo.png` wordmark'ıdır (eski 4-kare SVG + uppercase
   metin yok). Logo `h-7 sm:h-8`, satır `py-0`, alt şerit `3px`; `--fab-footer-clearance: 2rem`

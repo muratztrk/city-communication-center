@@ -472,9 +472,7 @@ export function WhatsAppNotificationFab() {
                       {formatPhone(conversation.citizenPhone)}
                     </p>
                   ) : null}
-                  {/* Otomatik durum mesajı (İşleme Alındı/Yapılmakta/Tamamlandı/İptal) FAB içeriğinde
-                      mesaj olarak gösterilmez; konuşma yalnız gerçek okunmamış mesajı varsa listelenir. */}
-                  {conversation.lastMessagePreview && !isAutomaticOutboundConversation(conversation) ? (
+                  {conversation.lastMessagePreview ? (
                     <p className="mt-1 line-clamp-2 text-xs text-[color:var(--color-muted-foreground)]">
                       {formatConversationDisplayContent(conversation.lastMessagePreview)}
                     </p>

@@ -36,7 +36,7 @@ ssh "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<EOF
 
   echo "  Building and starting containers..."
   CACHE_BUST="$(git rev-parse HEAD)"
-  echo "${REMOTE_SUDO_PASS}" | sudo -S docker compose -f docker-compose.yml -f docker-compose.prod.yml build --build-arg CACHE_BUST="${CACHE_BUST}" frontend
+  echo "${REMOTE_SUDO_PASS}" | sudo -S docker compose -f docker-compose.yml -f docker-compose.prod.yml build --build-arg CACHE_BUST="\${CACHE_BUST}" frontend
   echo "${REMOTE_SUDO_PASS}" | sudo -S docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 
   echo "  Waiting for health checks..."

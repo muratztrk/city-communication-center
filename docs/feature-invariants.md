@@ -2093,9 +2093,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.
 - **Kurum içi Dosya ekle (#2383):** kompakt buton; 5 MB; seçilen dosya sohbet alanında önizleme (WA gibi).
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
-- **Dosya ekle accept filtresi (#2373 reopen / Round 717):** Talep/görev/WA/kurum içi dosya seçimlerinde ortak
-  `ATTACHMENT_FILE_ACCEPT` **MIME + uzantı** (Windows filtre); `.jpeg` accept’e eklenmez (`image/jpeg`
-  mükerrer önlemi). JPG/PNG/PDF/Office + video. Seçim sonrası uzantı doğrulaması da yapılır.
+- **Dosya ekle accept filtresi (#2373 / #2848):** Talep/görev/WA/kurum içi dosya seçimlerinde ortak
+  `ATTACHMENT_FILE_ACCEPT` **MIME + uzantı** (Windows filtre). Accept’te `image/jpeg`, `application/msword`,
+  `video/quicktime`, `video/webm`, `video/3gpp` yok; uzantıda `.mov`/`.webm` yok — özel dosyalar listesinde
+  jpe/jfif/mov/webm/3gpp/dot vb. görünmez. Seçim sonrası `.jpeg`/`.mov`/`.webm` doğrulaması devam eder.
   Logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol

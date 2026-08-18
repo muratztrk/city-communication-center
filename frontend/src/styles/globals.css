@@ -3912,15 +3912,23 @@
     font-size: 0.8rem;
   }
 
+  /* Birim içi/dışı + rutin görev Açıklama toolbar satırı hafif ince (#2850). */
   .request-form--readable .rich-text-toolbar,
   .routine-task-form--readable .rich-text-toolbar {
-    min-height: 3.2rem;
+    min-height: 2.9rem;
+    padding-block: 0.22rem;
   }
 
   .request-form--readable .rich-text-toolbar-button,
   .routine-task-form--readable .rich-text-toolbar-button {
-    width: 2.35rem;
-    height: 2.35rem;
+    width: 2.15rem;
+    height: 2.15rem;
+  }
+
+  /* Birim içi/dışı Cadde/No placeholder hafif küçük (#2846). */
+  #internal-request-form .address-street-no-row .field-select span.text-slate-400,
+  #external-request-form .address-street-no-row .field-select span.text-slate-400 {
+    font-size: 0.88rem !important;
   }
 
   /* Vatandaş Çağrı Talebi Oluştur: K/A toolbar ince, yazı alanı yüksek. */
@@ -3931,20 +3939,24 @@
   }
 
   .detail-modal-shell--citizen-create #citizen-request-form .rich-text-toolbar-button {
-    width: 1.28rem !important;
-    height: 1.28rem !important;
+    width: 1.34rem !important;
+    height: 1.34rem !important;
   }
 
   /* K / A ve iki liste ikonu — WA VT popup (#2757 reopen). */
   .detail-modal-shell--citizen-create .rich-text-toolbar-button svg {
-    width: 0.72rem !important;
-    height: 0.72rem !important;
+    width: 0.76rem !important;
+    height: 0.76rem !important;
   }
 
   .detail-modal-shell--citizen-create .rich-text-toolbar-button span {
-    font-size: 0.65rem !important;
-    min-width: 0.65rem !important;
+    font-size: 0.68rem !important;
+    min-width: 0.68rem !important;
     line-height: 1 !important;
+  }
+
+  .detail-modal-shell--citizen-create .rich-text-toolbar-button:first-of-type span {
+    transform: translateY(0.05rem);
   }
 
   #citizen-request-form .rich-text-toolbar-divider {
@@ -3975,9 +3987,9 @@
     max-width: 7rem !important;
   }
 
-  /* Cadde/Sokak + No placeholder hafif küçük (#2845). */
+  /* Cadde/Sokak + No placeholder hafif küçük (#2845 / #2849). */
   #citizen-request-form .address-street-no-row .field-select span.text-slate-400 {
-    font-size: 0.88rem !important;
+    font-size: 0.82rem !important;
   }
 
   #citizen-request-form .address-street-no-row .field-input {

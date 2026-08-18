@@ -1,6 +1,7 @@
-/** Ortak Dosya ekle filtresi (#2373 reopen).
- * MIME + uzantı birlikte (Windows filtre); `.jpeg` accept’e eklenmez — `image/jpeg` ile mükerrer olur.
- * Seçim sonrası `.jpeg` dahil uzantı doğrulaması `isAllowedAttachmentFileName` ile devam eder.
+/** Ortak Dosya ekle filtresi (#2373 / #2848).
+ * MIME + uzantı birlikte (Windows filtre). `image/jpeg`, `video/quicktime`, `video/webm`, `video/3gpp`
+ * ve `application/msword` accept’te yok — özel dosyalar listesinde jpe/jfif/mov/webm/3gpp/dot vb. çıkar.
+ * Seçim sonrası `.jpeg` / `.mov` / `.webm` doğrulaması `isAllowedAttachmentFileName` ile devam eder.
  */
 export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.jpg',
@@ -19,7 +20,7 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.3gp',
 ] as const
 
-/** Accept attribute uzantıları — image/jpeg varken `.jpeg` yok (Windows mükerrer önlemi). */
+/** Accept attribute uzantıları — MIME yerine uzantı (jpeg/mov/webm/dot alias önlemi). */
 export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.jpg',
   '.png',
@@ -31,25 +32,18 @@ export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.ppt',
   '.pptx',
   '.mp4',
-  '.mov',
-  '.webm',
   '.3gp',
 ] as const
 
 export const ATTACHMENT_FILE_ACCEPT_MIMES = [
-  'image/jpeg',
   'image/png',
   'application/pdf',
-  'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.ms-excel',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'application/vnd.ms-powerpoint',
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
   'video/mp4',
-  'video/quicktime',
-  'video/webm',
-  'video/3gpp',
 ] as const
 
 /** `<input type="file" accept=…>` — MIME + uzantı (Windows + macOS). */

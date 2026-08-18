@@ -3899,9 +3899,23 @@
     max-height: 4.5rem;
   }
 
-  /* Çağrı formu: Cadde + No + Konum Koordinatı aynı satır (#2835). */
+  /* Çağrı formu: Cadde + No + Konum Koordinatı aynı satır (#2835 / #2837). */
   #citizen-request-form .address-street-no-row {
-    grid-template-columns: minmax(0, 0.82fr) 8.25rem minmax(7.5rem, 10rem) !important;
+    grid-template-columns: minmax(0, 1.15fr) 6.25rem minmax(5.25rem, 6.75rem) !important;
+  }
+
+  #citizen-request-form .address-street-no-row > div:nth-child(2) {
+    width: 6.25rem !important;
+    min-width: 6.25rem !important;
+    max-width: 6.25rem !important;
+  }
+
+  #citizen-request-form .address-street-no-row .field-input {
+    min-height: 2.05rem !important;
+    height: 2.05rem !important;
+    max-height: 2.05rem !important;
+    padding-block: 0.28rem !important;
+    font-size: 12px !important;
   }
 
   .table-number-cell__value {
@@ -4889,15 +4903,22 @@
     min-width: 52rem;
   }
 
+  .detail-modal-shell .dashboard-drilldown-table thead,
+  .data-table.dashboard-drilldown-table thead {
+    background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+  }
+
   /* Pie drilldown popup grid = Taleplerim / dizin popup tipografisi (#2080, card #1889 kalıbı).
      Başlık yüksekliği sayfa grid'iyle *görsel* olarak eşitlenir: popup body'ye portal edildiği
      için shell zoom'unu almaz, bu yüzden ölçüler `--app-content-zoom` ile çarpılır (#6a6cffd1). */
   .detail-modal-shell .dashboard-drilldown-table thead th,
   .data-table.dashboard-drilldown-table thead th {
-    /* Yeşil başlık şeridi biraz daha yüksek; font sabit (#6a6edec6 / #6a6ede32). */
+    /* Standart gridview yeşil şerit — fixed attachment modal içinde bozuyor (#2824 / #2833). */
     background-color: var(--color-header-from);
     background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
-    background-attachment: fixed;
+    color: #fff;
+    border-right: 1px solid rgba(255, 255, 255, 0.22);
+    vertical-align: middle;
     height: calc((var(--table-header-row-height) + 0.48rem) * var(--app-content-zoom, 1));
     min-height: 0;
     max-height: none;
@@ -4909,6 +4930,11 @@
     font-family: var(--font-sans);
     text-transform: uppercase;
     border-radius: 0;
+  }
+
+  .detail-modal-shell .dashboard-drilldown-table thead th:last-child,
+  .data-table.dashboard-drilldown-table thead th:last-child {
+    border-right: 0;
   }
 
   .detail-modal-shell .dashboard-drilldown-table tbody td {

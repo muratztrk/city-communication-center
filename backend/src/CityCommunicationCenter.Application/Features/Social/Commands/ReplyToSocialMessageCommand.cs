@@ -49,8 +49,8 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
         string? externalEntryId = null;
         string? deliveryError = null;
 
-        // WhatsApp yanıtları her zaman Beklemede kuyruğa girer; vatandaşa iletme
-        // yalnız operatör "Mesajı Gönder" ile olur (#2600 / #1091). SendImmediately yok sayılır.
+        // WhatsApp yanıtları varsayılan olarak Beklemede kuyruğa girer (#2600 / #1091).
+        // /whatsapp footer: sendImmediately=true ile operatör direkt iletir (#2838).
         var isWhatsApp = message.Channel == SocialChannel.WhatsApp;
         if (isWhatsApp && LooksLikeAttachmentPlaceholder(content))
         {
@@ -61,12 +61,23 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
             ]);
         }
 
-        if (isWhatsApp)
+        if (isWhatsApp && !request.SendImmediately)
         {
             deliveryStatus = ConversationDeliveryStatus.Pending;
         }
         else
         {
+            if (isWhatsApp && request.SendImmediately)
+            {
+                var actor = await ActorAuthorization.RequireActiveActorAsync(
+                    _dbContext, request.ActorUserId, tenantId, cancellationToken);
+                if (actor.RoleCode != RoleCode.Operator && actor.RoleCode != RoleCode.SystemAdmin)
+                {
+                    throw new ForbiddenAccessException(
+                        "Direkt WhatsApp mesajını yalnızca Vatandaş Talep Operatörü veya Sistem Yöneticisi gönderebilir.");
+                }
+            }
+
             var client = _clientFactory.GetClient(message.Channel, tenantId);
             if (client is not null)
             {
@@ -81,8 +92,15 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
                     {
                         recipientId = recipientPhone;
                     }
+                    else if (request.SendImmediately)
+                    {
+                        deliveryStatus = ConversationDeliveryStatus.Failed;
+                        deliveryError = "WhatsApp alıcı telefonu bulunamadı. Konuşma kaydındaki telefon numarasını kontrol edin.";
+                    }
                 }
 
+                if (deliveryStatus != ConversationDeliveryStatus.Failed)
+                {
                 SocialMediaResult sendResult;
                 if (isWhatsApp && !string.IsNullOrWhiteSpace(templateName))
                 {
@@ -125,6 +143,7 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
                         deliveryError = sendResult.Error;
                     }
                 }
+                }
             }
             else if (isWhatsApp)
             {
@@ -150,13 +169,17 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
         });
 
         // Kuyruğa alınan WhatsApp mesajı henüz iletilmedi → "Yanıtlandı" gerçek gönderimde işlenir.
-        if (!isWhatsApp)
+        if (!isWhatsApp || request.SendImmediately)
         {
-            message.ResponseContent = content;
-            message.RespondedAtUtc = utcNow;
-            if (message.Status == SocialMessageStatus.New || message.Status == SocialMessageStatus.Routed)
+            if (deliveryStatus != ConversationDeliveryStatus.Failed
+                && deliveryStatus != ConversationDeliveryStatus.Pending)
             {
-                message.Status = SocialMessageStatus.Responded;
+                message.ResponseContent = content;
+                message.RespondedAtUtc = utcNow;
+                if (message.Status == SocialMessageStatus.New || message.Status == SocialMessageStatus.Routed)
+                {
+                    message.Status = SocialMessageStatus.Responded;
+                }
             }
         }
 
@@ -342,8 +365,16 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
             cancellationToken);
         mediaId = localMediaId;
 
-        if (request.SendImmediately && message.Channel != SocialChannel.WhatsApp)
+        if (request.SendImmediately)
         {
+            var actor = await ActorAuthorization.RequireActiveActorAsync(
+                _dbContext, request.ActorUserId, tenantId, cancellationToken);
+            if (actor.RoleCode != RoleCode.Operator && actor.RoleCode != RoleCode.SystemAdmin)
+            {
+                throw new ForbiddenAccessException(
+                    "Direkt WhatsApp mesajını yalnızca Vatandaş Talep Operatörü veya Sistem Yöneticisi gönderebilir.");
+            }
+
             deliveryStatus = ConversationDeliveryStatus.Failed;
             var client = _clientFactory.GetClient(message.Channel, tenantId);
             var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
@@ -399,7 +430,9 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
             DeliveryError = deliveryError,
         });
 
-        if (deliveryStatus != ConversationDeliveryStatus.Failed && request.SendImmediately && message.Channel != SocialChannel.WhatsApp)
+        if (request.SendImmediately
+            && deliveryStatus != ConversationDeliveryStatus.Failed
+            && deliveryStatus != ConversationDeliveryStatus.Pending)
         {
             message.ResponseContent = content;
             message.RespondedAtUtc = utcNow;

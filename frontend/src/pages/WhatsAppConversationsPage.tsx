@@ -987,18 +987,19 @@ function ConversationDetail({
     const openTicket = pickReplyTicket(detail.tickets)
     if (!openTicket) return
 
+    const sendImmediately = canSendPending && (isWhatsApp24hWindowOpen(detail.lastInboundAt ?? null) || usingMetaTemplate)
     const sentForConversationId = conversationId
     setSending(true)
     try {
       if (pendingFile) {
         fileProgress.start(pendingFile.size)
-        await api.replySocialMessageAttachment(openTicket.socialMessageId, pendingFile, text, false)
+        await api.replySocialMessageAttachment(openTicket.socialMessageId, pendingFile, text, sendImmediately)
         fileProgress.stop()
       } else {
         await api.replySocialMessage(
           openTicket.socialMessageId,
           text,
-          false,
+          sendImmediately,
           selectedMetaTemplate
             ? {
                 whatsAppTemplateId: selectedMetaTemplate.templateId,

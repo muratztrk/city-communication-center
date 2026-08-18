@@ -76,6 +76,7 @@ import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedF
 import { CitizenAddressPeekButton } from '../components/jobs/my-request-detail/CitizenAddressPeekButton'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation, wasReopenedViaCitizenMessageApproval } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { JobProcessTimeline, TimelineDateTimeValue } from '../components/jobs/my-request-detail/JobProcessTimeline'
+import { isPendingApprovalText } from '../components/jobs/my-request-detail/format'
 import { buildMyRequestEditDraft, type MyRequestEditDraft } from '../components/jobs/my-request-detail/myRequestEditDraft'
 import { TablePagination } from '../components/ui/table-pagination'
 import { DetailModalTitle } from '../utils/detailModalTitle'
@@ -2911,7 +2912,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       const activeStatusLabel = detailOverdue
                         ? formatOverdueInProgressStatus(t)
                         : t('jobs.statusLabel.inProgress', 'Yapılmakta')
-                      const incomingOutgoingStatusLabel = isCitizenRequestDetail
+                      const incomingOutgoingStatusLabelRaw = isCitizenRequestDetail
                         ? getCitizenRequestDetailStatusLabel(t, detail)
                         : isIncomingRequestDetail
                           ? (
@@ -2930,6 +2931,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               : detail.status === 'Completed'
                                 ? t('jobs.statusLabel.completed', 'Tamamlanmış')
                                 : getJobStatusLabel(t, detail.status))
+                      const incomingOutgoingStatusLabel = detailOverdue
+                        && typeof incomingOutgoingStatusLabelRaw === 'string'
+                        && isPendingApprovalText(incomingOutgoingStatusLabelRaw)
+                        ? `${incomingOutgoingStatusLabelRaw} ${t('jobs.statusLabel.overdue', 'Geciken')}`
+                        : incomingOutgoingStatusLabelRaw
                       const dueDateContent = detailDueDateEdit?.jobId === detail.jobId ? (
                         <div className="mt-1 flex flex-col gap-1.5">
                           <DateTimePicker

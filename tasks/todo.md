@@ -5908,3 +5908,10 @@ Model classifier kesintisinde cron birkaç kez boşa tetiklendi; kesinti bitince
 - [x] `6a645f36` — Rol paneli LDAP sonuna (~14rem).
 
 ## STATUS: Round 459 complete — frontend build/lint green; shipping.
+
+## Round 999 (Doing — 2026-08-18, Birime Gelen geciken onay + pie drilldown thead)
+- [x] `6a83f4f55c350b5188174930` — Pie drilldown popup grid thead yeşil şerit (`background-attachment: fixed`).
+- [x] `6a83f16419946de9858af10a` — Birime Gelen Geciken grid: Onay Bekleyen + `(Geciken)` alt satır.
+- [x] `6a83f2bdcc5ae01a8eec4bb5` — Birime Gelen detay popup: `Onay Bekleyen Geciken`.
+
+## STATUS: Round 999 complete — frontend build/lint green; shipping.

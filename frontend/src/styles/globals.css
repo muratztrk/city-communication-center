@@ -4895,8 +4895,12 @@
   .detail-modal-shell .dashboard-drilldown-table thead th,
   .data-table.dashboard-drilldown-table thead th {
     /* Yeşil başlık şeridi biraz daha yüksek; font sabit (#6a6edec6 / #6a6ede32). */
+    background-color: var(--color-header-from);
+    background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
+    background-attachment: fixed;
     height: calc((var(--table-header-row-height) + 0.48rem) * var(--app-content-zoom, 1));
     min-height: 0;
+    max-height: none;
     padding: 0.42rem var(--table-chrome-row-px);
     font-size: 0.78rem;
     font-weight: 700;

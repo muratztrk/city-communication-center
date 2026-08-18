@@ -62,7 +62,7 @@ import { getSelfRequestedOwnerUserId } from '../utils/ownerTaskRequest'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobsPage } from './JobsPage'
 import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '../utils/roleAccess'
-import { matchesIncomingStatusFilter } from '../utils/incomingRequestGrid'
+import { isIncomingPendingApprovalOverdue, matchesIncomingStatusFilter } from '../utils/incomingRequestGrid'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { isJobDueDateOverdue, toDateTimePickerValue, toLocalDateKey } from '../utils/dateTimePicker'
 
@@ -1083,11 +1083,14 @@ export function IncomingRequestsPage() {
                               t={t}
                               label={getIncomingStatusLabel(t, row)}
                               channel={row.isCitizenRequest ? row.sourceChannel : null}
-                              overdueSubline={row.isCitizenRequest && isCitizenProcessingReceivedOverdue({
-                                status: row.status,
-                                dueDateUtc: row.dueDateUtc,
-                                taskCount: row.taskCount ?? 0,
-                              })}
+                              overdueSubline={
+                                (row.isCitizenRequest && isCitizenProcessingReceivedOverdue({
+                                  status: row.status,
+                                  dueDateUtc: row.dueDateUtc,
+                                  taskCount: row.taskCount ?? 0,
+                                }))
+                                || isIncomingPendingApprovalOverdue(row)
+                              }
                               footer={statusDate
                                 ? <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
                                 : undefined}

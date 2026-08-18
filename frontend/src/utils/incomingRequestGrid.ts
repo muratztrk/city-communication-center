@@ -262,6 +262,10 @@ export function countIncomingPendingApprovalRows(
     .length
 }
 
+export function isIncomingPendingApprovalOverdue(row: IncomingRequestRow): boolean {
+  return isJobDueDateOverdue(row) && matchesIncomingStatusFilter(row, 'pending-approval')
+}
+
 export function countIncomingPendingApprovalForNav(
   tasks: Task[],
   jobs: JobSummary[],

@@ -52,7 +52,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yok sayılır** — başlık yüksekliğini sabitlemek için `height` kullan (`--table-header-row-height`).
 - **Grid thead + paging sabit yükseklik (#2824):** sayfa boyutu değişince başlık şeridi büyümemeli —
   `thead th` `height`/`max-height: var(--table-header-row-height)`; paging bar `max-height:
-  var(--table-chrome-row-min-height)`; `background-attachment: fixed` thead'de kullanılmaz.
+  var(--table-chrome-row-min-height)`; `background-attachment: fixed` sayfa grid thead'de
+  kullanılmaz — pie drilldown popup istisnası: `.dashboard-drilldown-table thead th` (#2833).
 - **Popup gridview başlık şeridi standart gridview gibi üstten kavislidir** (0.9rem): scroll kabı
   olan tablolarda kavis `thead th:first-child/:last-child`'a verilir (araya `overflow:hidden` bir
   sarmalayıcı koymak sticky thead'i bozar); ayrı wrap'i olanlarda (`.dashboard-drilldown-table-wrap`)
@@ -1145,7 +1146,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bekler + personel ataması bekler + sahip onaysız VT İşleme Alındı; `PendingExternalApproval`
   yalnız Onaylanmış'ta. Onaylanmış grid **Son Tarih** sütunu yok, **Durum** + **Onay Tarihi**
   Birime Gelen Onaylanmış grid **Son Tarih** sütunu yok, **Durum** + **Onay Tarihi**
-  (#2825). Birime Gelen **Geciken** grid: **Durum** Son Tarih'ten önce (#2829). Birime Gelen
+  (#2825). Birime Gelen **Geciken** grid: **Durum** Son Tarih'ten önce (#2829). Onay bekleyen +
+  son tarih geçmiş: Durum `Onay Bekleyen` + alt satır `(Geciken)` (#2831); detay popup tek satır
+  `Onay Bekleyen Geciken` (#2832). Birime Gelen
   sayfa içi Onay Bekleyen scope chip'inde rozet yok — sayı yalnız sol menüde (#2830). Birimden
   Giden **Geciken** grid: **Oluşturan** yok; Gittiği Yer sonrası **Durum** (#2828). Birimden Giden
   Onaylanmış da tamamlanmış/iptal/yapılmakta hariç (#2826).

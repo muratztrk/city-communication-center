@@ -7,6 +7,11 @@ function isOverdueStatusLabel(t: TFunction, label: string): boolean {
   return label === formatOverdueInProgressStatus(t) || label === overdueOnly
 }
 
+function isPendingApprovalWithOverdueSubline(t: TFunction, label: string, overdueSubline?: boolean): boolean {
+  if (!overdueSubline) return false
+  return label === t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
+}
+
 function isProcessingReceivedWithOverdueSubline(t: TFunction, label: string, overdueSubline?: boolean): boolean {
   if (!overdueSubline) return false
   const processingReceived = t('social.requestStatus.processingReceived', 'İşleme Alındı')
@@ -48,6 +53,17 @@ export function GridStatusLabel({
     const overdue = t('jobs.statusLabel.overdue', 'Geciken')
     return (
       <span className={`grid-status-label--processing-received-overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
+        <span className="whitespace-nowrap">{label}</span>
+        <span className="whitespace-nowrap text-[0.68rem] font-bold">({overdue})</span>
+        {footer}
+      </span>
+    )
+  }
+
+  if (isPendingApprovalWithOverdueSubline(t, label, overdueSubline)) {
+    const overdue = t('jobs.statusLabel.overdue', 'Geciken')
+    return (
+      <span className={`grid-status-label--pending-approval-overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
         <span className="whitespace-nowrap">{label}</span>
         <span className="whitespace-nowrap text-[0.68rem] font-bold">({overdue})</span>
         {footer}

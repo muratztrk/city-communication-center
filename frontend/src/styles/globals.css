@@ -2409,6 +2409,26 @@
     padding: 0.35rem 0.65rem;
   }
 
+  /* Ayarlar → Kurum Konumu CBS dropdown menü satırları (#2835). */
+  .settings-municipality-location-menu-scroll .dropdown-menu-item,
+  .settings-municipality-location-menu .dropdown-menu-item {
+    min-height: 2rem;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem !important;
+    line-height: 1.2;
+  }
+
+  .settings-municipality-location-menu-scroll .dropdown-menu-item span,
+  .settings-municipality-location-menu .dropdown-menu-item span {
+    font-size: 0.75rem !important;
+    line-height: 1.2;
+  }
+
+  .dropdown-menu-panel.settings-municipality-location-menu input {
+    font-size: 0.7rem !important;
+    line-height: 1.25 !important;
+  }
+
   /* WA Vatandaş Talebi Oluştur: dropdown arama kutusu puntosu (#2760). */
   .dropdown-menu-panel.citizen-request-department-menu input {
     font-size: 0.7rem !important;

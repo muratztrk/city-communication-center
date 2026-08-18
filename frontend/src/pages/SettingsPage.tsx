@@ -1915,6 +1915,8 @@ export function SettingsPage() {
                   searchPlaceholder={t('common.search', 'Ara...')}
                   disabled={!selectedDistrictId || cbsNeighborhoodsQuery.isLoading}
                   clearable
+                  menuScrollClassName="settings-municipality-location-menu-scroll"
+                  menuClassName="settings-municipality-location-menu"
                 />
               </label>
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
@@ -1938,6 +1940,8 @@ export function SettingsPage() {
                   searchPlaceholder={t('common.search', 'Ara...')}
                   disabled={!selectedNeighborhoodId || cbsStreetsQuery.isLoading}
                   clearable
+                  menuScrollClassName="settings-municipality-location-menu-scroll"
+                  menuClassName="settings-municipality-location-menu"
                 />
               </label>
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">
@@ -1958,6 +1962,8 @@ export function SettingsPage() {
                   searchPlaceholder={t('common.search', 'Ara...')}
                   disabled={!selectedStreetId || cbsDoorNumbersQuery.isLoading}
                   clearable
+                  menuScrollClassName="settings-municipality-location-menu-scroll"
+                  menuClassName="settings-municipality-location-menu"
                 />
               </label>
               </div>

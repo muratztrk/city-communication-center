@@ -2440,6 +2440,11 @@
     line-height: 1.25 !important;
   }
 
+  /* Ayarlar Kurum Konumu Mahalle/Cadde/No trigger placeholder (#2835 reopen). */
+  .app-content-shell .admin-surface-page .field-select.settings-municipality-location-trigger span.text-slate-400 {
+    font-size: 0.85rem !important;
+  }
+
   /* WA Vatandaş Talebi Oluştur: dropdown arama kutusu puntosu (#2760). */
   .dropdown-menu-panel.citizen-request-department-menu input {
     font-size: 0.7rem !important;

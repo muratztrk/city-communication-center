@@ -2276,6 +2276,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `shrink-0`, table-shell `flex:1 min-h:0`, pagination pinned, scroll tablo içinde; tablo
   başlıkları scroll sırasında sticky kalır ve eski sürekli header gradient rengi korunur. Footer
   viewport'un en alt kenarına tam satır/full-bleed oturur; sayfa padding'i footer'ı yukarıda veya dar bırakmaz.
+- **Gridview üstü satırlar grid yüksekliğiyle ezilmez:** `.desktop-page-shell > :not(.desktop-page-fill)`
+  desktop'ta `flex-shrink: 0`. `.scope-chips` `overflow-x: auto` olduğu için scroll kapsayıcısıdır ve
+  `min-height: auto` = 0'a çözülür; kural olmadan tablo içeriği taştığında (sayfa başına kayıt
+  büyütmek ya da Birimdeki Görevler gibi iki satırlı hücreler) taşan flex alanı çip satırından
+  çalınıyor, çipler eziliyor ve gridview başlığı yukarı doğru büyüyordu. Taşmayı yalnız
+  `.desktop-page-fill` paneli emmelidir (grid kendi içinde scroll eder).
 - **AppFooter Lumespec markası:** Tüm footer yüzeyleri (`AppShell`, login, wallboard) ortak
   `AppFooter` kullanır; marka `/lumespec-logo.png` wordmark'ıdır (eski 4-kare SVG + uppercase
   metin yok). Logo `h-7 sm:h-8`, satır `py-0`, alt şerit `3px`; `--fab-footer-clearance: 2rem`

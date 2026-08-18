@@ -2412,10 +2412,10 @@
   /* Ayarlar → Kurum Konumu CBS dropdown menü satırları (#2835). */
   .settings-municipality-location-menu-scroll .dropdown-menu-item,
   .settings-municipality-location-menu .dropdown-menu-item {
-    min-height: 2rem;
-    padding: 0.35rem 0.65rem;
+    min-height: 1.85rem;
+    padding: 0.28rem 0.6rem;
     font-size: 0.75rem !important;
-    line-height: 1.2;
+    line-height: 1.15;
   }
 
   .settings-municipality-location-menu-scroll .dropdown-menu-item span,
@@ -3965,6 +3965,19 @@
     max-height: 1.92rem !important;
     padding-block: 0.28rem !important;
     font-size: 12px !important;
+  }
+
+  /* Konum Koordinatı: textbox ve placeholder hafif küçült (#2833). */
+  #citizen-request-form .address-street-no-row > div:nth-child(3) .field-input {
+    min-height: 1.78rem !important;
+    height: 1.78rem !important;
+    max-height: 1.78rem !important;
+    padding-block: 0.22rem !important;
+    font-size: 11px !important;
+  }
+
+  #citizen-request-form .address-street-no-row > div:nth-child(3) .field-input::placeholder {
+    font-size: 11.5px !important;
   }
 
   .table-number-cell__value {

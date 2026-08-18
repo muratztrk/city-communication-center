@@ -814,6 +814,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     triggerClassName="citizen-request-address-trigger"
                     menuScrollClassName="citizen-request-department-menu"
                     menuClassName="citizen-request-department-menu"
+                    matchTriggerWidth
                   />
                 </div>
                 <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-stretch">

@@ -1,11 +1,27 @@
 /** Ortak Dosya ekle filtresi (#2373 reopen).
- * Accept yalnız MIME — Windows’ta uzantı+MIME birlikte jpg/jpeg mükerrer üretiyordu;
- * uzantı-only macOS’ta “Tüm dosyalar” görünmesine yol açabiliyordu.
- * Seçim sonrası uzantı doğrulaması `isAllowedAttachmentFileName` ile devam eder.
+ * MIME + uzantı birlikte (Windows filtre); `.jpeg` accept’e eklenmez — `image/jpeg` ile mükerrer olur.
+ * Seçim sonrası `.jpeg` dahil uzantı doğrulaması `isAllowedAttachmentFileName` ile devam eder.
  */
 export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.jpg',
   '.jpeg',
+  '.png',
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.xls',
+  '.xlsx',
+  '.ppt',
+  '.pptx',
+  '.mp4',
+  '.mov',
+  '.webm',
+  '.3gp',
+] as const
+
+/** Accept attribute uzantıları — image/jpeg varken `.jpeg` yok (Windows mükerrer önlemi). */
+export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
+  '.jpg',
   '.png',
   '.pdf',
   '.doc',
@@ -36,8 +52,11 @@ export const ATTACHMENT_FILE_ACCEPT_MIMES = [
   'video/3gpp',
 ] as const
 
-/** `<input type="file" accept=…>` — MIME listesi (uzantı accept’e eklenmez). */
-export const ATTACHMENT_FILE_ACCEPT = ATTACHMENT_FILE_ACCEPT_MIMES.join(',')
+/** `<input type="file" accept=…>` — MIME + uzantı (Windows + macOS). */
+export const ATTACHMENT_FILE_ACCEPT = [
+  ...ATTACHMENT_FILE_ACCEPT_MIMES,
+  ...ATTACHMENT_FILE_ACCEPT_EXTENSIONS,
+].join(',')
 
 export function attachmentFileExtension(fileName: string): string {
   const dot = fileName.lastIndexOf('.')

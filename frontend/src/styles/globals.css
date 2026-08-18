@@ -2868,9 +2868,12 @@
     max-width: 12rem;
   }
 
-  /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" — banner ile aynı yeşil; sticky opak (#r447). */
+  /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" / Birimdeki/Personelimin Görevler —
+     banner ile aynı yeşil; sticky opak (#r447). */
   .my-requests-table thead th,
-  .incoming-requests-table thead th {
+  .incoming-requests-table thead th,
+  .department-tasks-table thead th,
+  .staff-tasks-table thead th {
     background-color: var(--color-header-from);
     background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     background-attachment: fixed;
@@ -2879,7 +2882,9 @@
   }
 
   .my-requests-table thead,
-  .incoming-requests-table thead {
+  .incoming-requests-table thead,
+  .department-tasks-table thead,
+  .staff-tasks-table thead {
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
   }
 
@@ -2903,7 +2908,11 @@
   .my-requests-table thead th.sortable-th:hover,
   .my-requests-table thead th.sort-active,
   .incoming-requests-table thead th.sortable-th:hover,
-  .incoming-requests-table thead th.sort-active {
+  .incoming-requests-table thead th.sort-active,
+  .department-tasks-table thead th.sortable-th:hover,
+  .department-tasks-table thead th.sort-active,
+  .staff-tasks-table thead th.sortable-th:hover,
+  .staff-tasks-table thead th.sort-active {
     color: rgba(255, 255, 255, 0.8);
   }
 

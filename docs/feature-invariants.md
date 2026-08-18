@@ -52,8 +52,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yok sayılır** — başlık yüksekliğini sabitlemek için `height` kullan (`--table-header-row-height`).
 - **Grid thead + paging sabit yükseklik (#2824):** sayfa boyutu değişince başlık şeridi büyümemeli —
   `thead th` `height`/`max-height: var(--table-header-row-height)`; paging bar `max-height:
-  var(--table-chrome-row-min-height)`; `background-attachment: fixed` sayfa grid thead'de
-  kullanılmaz — pie drilldown popup istisnası: `.dashboard-drilldown-table thead th` (#2833).
+  `var(--table-chrome-row-min-height)`; genel `.data-table thead th`'de `background-attachment:
+  fixed` kullanılmaz (#2824); Birime Gelen / Taleplerim / Birimdeki Görevler / Personelimin
+  Görevler tablolarında sütunlar arası tek gradient için `fixed` kullanılır (#r447). Pie drilldown
+  popup istisnası: `.dashboard-drilldown-table thead th` (#2833) — `fixed` yok.
 - **Popup gridview başlık şeridi standart gridview gibi üstten kavislidir** (0.9rem): scroll kabı
   olan tablolarda kavis `thead th:first-child/:last-child`'a verilir (araya `overflow:hidden` bir
   sarmalayıcı koymak sticky thead'i bozar); ayrı wrap'i olanlarda (`.dashboard-drilldown-table-wrap`)

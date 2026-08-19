@@ -804,7 +804,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (Round 719). Açıklama `spellCheck={false}` + Windows autocorrect kapalı; Enter → `insertLineBreak`
   (liste hariç); satır aralığı yalnız `line-height` (#6a74e697). Açık Adres `h-[5rem]` — dosya
   kutusu alt kenarıyla hizalı (#2440 reopen). Boş dosya metni `Henüz dosya seçilmedi.` `text-[0.65rem]` (#2875).
-  Dosya ekle `w-[5.85rem]`; boş dosya kutusu `flex-[1.15]` (#2875).
+  Dosya ekle `w-[5.35rem]` / `text-[10px]` / ikon `size-3`; boş dosya kutusu `flex-[1.28]` (#2875).
   Açıklama editör
   `font-size: 0.8rem`, yükseklik `6.85rem` (#2743/#2746). Modal gelen görsel balon içinde `w-full` (Round 719).
 - **Görsel lightbox yüksekliği (Round 720):** `SocialConversationMediaPreview` kabuk
@@ -1745,14 +1745,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kutucukları (Bekleyen Taleplerim / Bekleyen Görevlerim) gösterilir. **Bekleyen Taleplerim**
   kutucuk değeri = `myRequests` pie `Bekleyen` + `Geciken` dilim toplamı (#2561).
   `/dashboard/birimler` sayfasında banner üstü Geri butonu gösterilmez (card #1889).
-  Vatandaş dashboard banner başlığı `Vatandaş Paneli` (`dashboard.citizenPanelTitle`); sol menü
-  `Anasayfa - Vatandaş` kalır (#2887). Anasayfa ve Vatandaş Paneli pie ızgarasında
+  Vatandaş dashboard banner başlığı `Vatandaş Paneli` (`dashboard.citizenPanelTitle`); alt yazı
+  `Vatandaştan gelen talepleri durumlarına göre takip edin.` (#2887). Sol menü
+  `Anasayfa - Vatandaş` kalır. Anasayfa ve Vatandaş Paneli pie ızgarasında
   `DashboardNotificationsCard` yok (#2886).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
   Vatandaş Talep Kanalları). Vatandaş pie 1. satır mahalle üçlüsü, 2. satır birim üçlüsü (#2606).
-  İşleme Alınan pie yalnız ProcessingReceived (açık görev yok; overdue/Active+görev yok);
-  Yapılmakta pie Yapılmakta + overdue (#2605). Drilldown Durum etiketi sahte taskCount=1 kullanmaz —
+  İşleme Alınan pie `Classify` ProcessingReceived: açık görev yok (geciken İşleme Alındı dahil);
+  Yapılmakta pie Yapılmakta + in-progress overdue (#2605/#2890). Vatandaş Talepleri pie ayrı
+  `ClassifyCitizenRequestsPie` kullanır. Drilldown Durum etiketi sahte taskCount=1 kullanmaz —
   `OpenTaskCount` ile İşleme Alındı / Yapılmakta ayrılır. Harita alanı yok (#6a6cdf95).   Birimler sayfasında Reporter pie sırası: Bekleyen / Yapılmakta / Tamamlanan Talepler →
   Yapılmakta / Tamamlanan Projeler → Talep Oluşturan Birimler → Taleplerim → Bildirimler (#2629).
   Birimler sayfasında Reporter: Taleplerim +

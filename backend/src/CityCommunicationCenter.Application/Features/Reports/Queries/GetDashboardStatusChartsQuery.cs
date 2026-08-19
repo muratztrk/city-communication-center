@@ -192,7 +192,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
         foreach (var job in values)
         {
-            switch (ClassifyCitizenJobStatus(job, now))
+            switch (ClassifyCitizenRequestsPieStatus(job, now))
             {
                 case CitizenJobDisplayStatus.Completed:
                     completed++;
@@ -222,12 +222,24 @@ public sealed class GetDashboardStatusChartsQueryHandler
         ]);
     }
 
-    private static CitizenJobDisplayStatus ClassifyCitizenJobStatus(CitizenJobStatusItem job, DateTimeOffset now)
+    private static CitizenJobDisplayStatus ClassifyCitizenRequestsPieStatus(CitizenJobStatusItem job, DateTimeOffset now)
     {
         var display = CitizenVtDashboardClassification.ClassifyCitizenRequestsPie(
             new CitizenVtDashboardClassification.JobSlice(job.Status, job.DueDateUtc, job.TaskCount),
             now);
-        return display switch
+        return MapCitizenDisplayStatus(display);
+    }
+
+    private static CitizenJobDisplayStatus ClassifyCitizenJobStatus(CitizenJobStatusItem job, DateTimeOffset now)
+    {
+        var display = CitizenVtDashboardClassification.Classify(
+            new CitizenVtDashboardClassification.JobSlice(job.Status, job.DueDateUtc, job.TaskCount),
+            now);
+        return MapCitizenDisplayStatus(display);
+    }
+
+    private static CitizenJobDisplayStatus MapCitizenDisplayStatus(CitizenVtDashboardClassification.DisplayStatus display) =>
+        display switch
         {
             CitizenVtDashboardClassification.DisplayStatus.ProcessingReceived => CitizenJobDisplayStatus.ProcessingReceived,
             CitizenVtDashboardClassification.DisplayStatus.InProgress => CitizenJobDisplayStatus.InProgress,
@@ -236,7 +248,6 @@ public sealed class GetDashboardStatusChartsQueryHandler
             CitizenVtDashboardClassification.DisplayStatus.Cancelled => CitizenJobDisplayStatus.Cancelled,
             _ => CitizenJobDisplayStatus.ProcessingReceived,
         };
-    }
 
     private async Task<List<JobStatusItem>> ProjectJobs(IQueryable<Job> jobs, CancellationToken cancellationToken)
     {
@@ -722,8 +733,8 @@ public sealed class GetDashboardStatusChartsQueryHandler
     }
 
     /// <summary>
-    /// "Mahallelerde İşleme Alınan Talepler" — vatandaş talep sınıflandırmasında İşleme Alındı
-    /// olan (terminal/overdue/yapılmakta olmayan) mahalleli talepler (cards #1833/#1810).
+    /// "Mahallelerde İşleme Alınan Talepler" — İşleme Alındı + İşleme Alındı (Geciken);
+    /// Yapılmakta geciken bu grafikte yok (#2890).
     /// </summary>
     private async Task<DashboardChartResponse> BuildNeighborhoodProcessingRequestsChartAsync(
         Guid tenantId,

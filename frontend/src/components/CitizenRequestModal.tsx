@@ -840,10 +840,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <div className="flex min-h-[5rem] items-start gap-2">
                       <div className="flex shrink-0 flex-col gap-1">
                       <label
-                        className={`inline-flex h-[1.875rem] w-[5.85rem] shrink-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-white px-1 text-[11px] font-semibold leading-none text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}
+                        className={`inline-flex h-[1.875rem] w-[5.35rem] shrink-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-white px-1 text-[10px] font-semibold leading-none text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}
                         onClick={() => fileInputRef.current?.click()}
                       >
-                        <Paperclip className="size-3.5 shrink-0 text-emerald-700" />
+                        <Paperclip className="size-3 shrink-0 text-emerald-700" />
                         {t('attachments.addFile', 'Dosya ekle')}
                         <input
                           ref={fileInputRef}
@@ -864,7 +864,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                         <AttachmentUploadProgressBar progress={fileProgress.progress} />
                       ) : null}
                       </div>
-                      <div className="min-h-[5rem] max-h-[5rem] min-w-0 flex-[1.15] overflow-y-auto rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                      <div className="min-h-[5rem] max-h-[5rem] min-w-0 flex-[1.28] overflow-y-auto rounded-2xl border border-slate-200 bg-white px-3 py-2">
                         {pendingFiles.length === 0 ? (
                           <p className="text-[0.65rem] leading-snug text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
                         ) : (

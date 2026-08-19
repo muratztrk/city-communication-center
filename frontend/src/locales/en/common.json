@@ -425,6 +425,7 @@
     "title": "Home",
     "citizenPanelTitle": "Citizen Panel",
     "subtitle": "Track open workload, recent tasks, and incoming messages on one screen.",
+    "citizenSubtitle": "Track incoming citizen requests by status.",
     "pieJobDetailTitle": "Request",
     "liveSummary": "Live Summary",
     "cards": {

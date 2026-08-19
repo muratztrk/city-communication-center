@@ -707,7 +707,11 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <div className="space-y-1">
             <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">{t('dashboard.liveSummary')}</div>
             <h1 className="page-title !text-white">{pageTitle}</h1>
-            <p className="max-w-3xl text-sm leading-6 text-white/82">{t('dashboard.subtitle')}</p>
+            <p className="max-w-3xl text-sm leading-6 text-white/82">
+              {effectiveView === 'citizen'
+                ? t('dashboard.citizenSubtitle', 'Vatandaştan gelen talepleri durumlarına göre takip edin.')
+                : t('dashboard.subtitle')}
+            </p>
           </div>
           <div className="flex items-start justify-start lg:justify-end">
             <StatusPill tone="info" className="bg-white/12 text-white ring-white/15">

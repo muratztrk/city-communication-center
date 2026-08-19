@@ -1643,7 +1643,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `useStaffMetricFourCol` Staff rolünü de kapsar.
 - **VT İşleme Alındı geciken (#2800/#2819/#2880):** grid `GridStatusLabel` + `overdueSubline` →
   `İşleme Alındı` alt satır `(Geciken)`; pill turkuaz kalır; detay popup
-  `getCitizenRequestDetailStatusLabel` → `İşleme Alındı` (`(Geciken)` yok — #2860).
+  `getCitizenRequestDetailStatusLabel` → tek satır `İşleme Alındı (Geciken)` (#2860 geri alındı).
   Birime Gelen **Tümü** ve **Geciken Talepler**: son tarih `dueDateUtc < now`
   (Son Tarih kırmızı pill ile aynı). Geciken grid’de İşleme Alındı ve Yapılmakta alt satırı
   `(Geciken)` görünür (#2882 reopen). `PendingExternalApproval` takvim-günü eşiği bu alt satırı geciktirmez.

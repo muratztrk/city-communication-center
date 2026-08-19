@@ -1,3 +1,7 @@
+## Round 1020 tick — #2860 revert detay İşleme Alındı (Geciken)
+
+- **STATUS:** implementing.
+
 ## Round 1019 tick — #2887 subtitle + #2890 mahalle/birim İşleme Alınan + #2875 dosya buton
 
 - **STATUS:** pushed `1a996ce1`; 3 kart Done; Doing: 0.

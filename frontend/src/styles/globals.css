@@ -4024,9 +4024,9 @@
     font-size: 0.72rem !important;
   }
 
-  /* Vatandaş Çağrı Talebin Adres: Cadde/Sokak sütunu geniş (#2873 reopen — address-street-no-row sonrası). */
+  /* Vatandaş Çağrı Talebin Adres: Cadde/Sokak sütunu (#2873 / #2879). */
   #citizen-request-form .address-street-no-row.citizen-call-address-street-row {
-    grid-template-columns: minmax(0, 1.6fr) 7.5rem !important;
+    grid-template-columns: minmax(0, 1.45fr) 7.5rem !important;
   }
 
   #citizen-request-form .address-street-no-row.citizen-call-address-street-row > div:nth-child(2) {

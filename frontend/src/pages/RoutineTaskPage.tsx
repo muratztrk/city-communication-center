@@ -420,8 +420,8 @@ export function RoutineTaskPage() {
 
                 <div className="job-field min-h-0">
                 <span className="job-field-label text-[0.82rem]">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
-                  <div className="flex flex-col gap-2">
-                    <div className="flex items-center gap-2">
+                  <div className="grid gap-3 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-stretch">
+                    <div className="flex items-end justify-start">
                       <button
                         type="button"
                         className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
@@ -432,7 +432,7 @@ export function RoutineTaskPage() {
                         {t('attachments.addFile', 'Dosya ekle')}
                       </button>
                       {fileProgress.visible ? (
-                        <AttachmentUploadProgressBar progress={fileProgress.progress} className="max-w-[10rem]" />
+                        <AttachmentUploadProgressBar progress={fileProgress.progress} className="ml-2" />
                       ) : null}
                       <input
                         ref={fileInputRef}

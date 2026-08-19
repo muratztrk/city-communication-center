@@ -811,6 +811,7 @@ export function CreateRequestPage() {
       showCoordinates?: boolean
       coordinatesBelowNeighborhood?: boolean
       streetRowClassName?: string
+      neighborhoodStreetRowClass?: string
     },
   ) => {
     const hasNeighborhood = form.neighborhood.trim().length > 0
@@ -821,6 +822,8 @@ export function CreateRequestPage() {
     const inlineCoordinates = showCoordinates && !coordinatesBelowNeighborhood
     const streetRowClassName = options?.streetRowClassName
       ?? 'address-street-no-row citizen-call-address-street-row grid grid-cols-[minmax(0,1.6fr)_7.5rem] gap-2 w-full'
+    const neighborhoodStreetRowClass = options?.neighborhoodStreetRowClass
+      ?? (inlineCoordinates ? 'md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]' : 'md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]')
     const compactPlaceholderClass = options?.compactPlaceholders ? 'placeholder:text-[0.72rem]' : ''
     const smallerPlaceholderClass = options?.smallerPlaceholders ? 'placeholder:text-[0.82rem]' : ''
     const largerPlaceholderClass = options?.largerPlaceholders ? 'placeholder:text-[0.92rem]' : ''
@@ -829,7 +832,7 @@ export function CreateRequestPage() {
     <div className="job-field">
       <span className="job-field-label">{sectionTitle}</span>
       <div className="grid gap-2">
-        <div className={`grid gap-2 ${inlineCoordinates ? 'md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]' : 'md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]'}`}>
+        <div className={`grid gap-2 ${neighborhoodStreetRowClass}`}>
           <div className="grid gap-1">
             <span className="text-sm font-semibold text-slate-500">
               {t('address.neighborhoodLabel', 'Mahalle')}
@@ -1768,6 +1771,9 @@ export function CreateRequestPage() {
                 includePhotoUpload: false,
                 largerPlaceholders: true,
                 showCoordinates: false,
+                neighborhoodStreetRowClass: 'md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.05fr)]',
+                streetRowClassName:
+                  'address-street-no-row citizen-call-address-street-row grid grid-cols-[minmax(0,1.45fr)_7.5rem] gap-2 w-full',
               },
             )}
             <div className="job-field min-h-0">

@@ -399,12 +399,12 @@ export function RoutineTaskPage() {
                   onChange={value => set('coordinates', value)}
                 />
               </div>
-              <div className="grid gap-2 lg:grid-cols-2 lg:items-stretch">
+              <div className="grid gap-2 lg:grid-cols-2 lg:items-start">
                 <label className="grid min-h-0 gap-1">
-                  <span className="text-sm font-semibold text-slate-500">
+                  <span className="job-field-label text-[0.82rem]">
                     {t('address.openAddressLabel', 'Açık Adres')}
                     {hasNeighborhood ? (
-                      <span className="ml-1 text-xs font-normal text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
+                      <span className="ml-1 text-xs font-normal normal-case text-slate-400">{t('address.openAddressMaxHint', '(Max 100 karakter)')}</span>
                     ) : null}
                   </span>
                   <textarea
@@ -420,8 +420,8 @@ export function RoutineTaskPage() {
 
                 <div className="job-field min-h-0">
                 <span className="job-field-label text-[0.82rem]">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
-                  <div className="grid gap-3 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-stretch">
-                    <div className="flex items-end justify-start">
+                  <div className="grid gap-3 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-start">
+                    <div className="flex items-start justify-start">
                       <button
                         type="button"
                         className="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"

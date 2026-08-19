@@ -1,6 +1,6 @@
 ## Round 1019 tick — #2887 subtitle + #2890 mahalle/birim İşleme Alınan + #2875 dosya buton
 
-- **STATUS:** implementing.
+- **STATUS:** pushed `1a996ce1`; 3 kart Done; Doing: 0.
 
 ## Round 1018 tick — 10 kart pie/WA/banner/dosya/detay
 

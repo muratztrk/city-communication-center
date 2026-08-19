@@ -1,6 +1,6 @@
 ## Round 1017 tick — #2870 accept jpeg + #2882 Yapılmakta (Geciken) + #2875 WA placeholder
 
-- **STATUS:** implementing.
+- **STATUS:** pushed `a15ae11d`; 3 kart Done; Doing: 0.
 
 ## Round 1016 tick — #2882 Geciken İşleme Alındı (Geciken) + #2870 accept uzantı
 

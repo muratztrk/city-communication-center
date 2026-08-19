@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next'
 import type { JobDetail } from '../../../types/platform'
 import {
   isCitizenRequestJob,
+  isCitizenProcessingReceivedOverdue,
   shouldShowCitizenTargetApprovalDate,
   countOpenWorkTasks,
   getCitizenRequestDetailStatusLabel,
@@ -91,6 +92,14 @@ function isActiveJobOverdue(detail: JobDetail): boolean {
   return isJobDueDateOverdue(detail)
 }
 
+/** İşleme Alındı (Geciken) → mavi pending; Yapılmakta (Geciken) turuncu current (#2875). */
+function statusStepStateWhenOverdue(detail: JobDetail): 'current' | 'pending' {
+  if (isCitizenRequestJob(detail) && isCitizenProcessingReceivedOverdue(detail)) {
+    return 'pending'
+  }
+  return 'current'
+}
+
 /**
  * Tek hedefli birim dışı talepte sahip yöneticisinin onayı hedef kaydı da aynı anda otomatik
  * damgalar (ApproveRejectJobOwnerCommands "one-step approval") — bu damga hedef yöneticisinin
@@ -171,7 +180,7 @@ function resolveStepStates(
       if (step.id === 'status') {
         foundCurrent = true
         // Yapılmakta → mavi pending; Geciken → turuncu current (#2107).
-        return { ...step, state: isActiveJobOverdue(detail) ? 'current' as const : 'pending' as const }
+        return { ...step, state: isActiveJobOverdue(detail) ? statusStepStateWhenOverdue(detail) : 'pending' as const }
       }
       if (step.id === 'dueDate') {
         return { ...step, state: 'upcoming' as const }
@@ -247,10 +256,9 @@ function resolveStepStates(
     }
     if (step.id === 'status') {
       foundCurrent = true
-      // Geciken → turuncu (#1644). Yapılmakta + Onay Bekleyen → mavi pending
-      // (#1651; #1645 turuncusunu geri alır, #1643 ile hizalı).
+      // Geciken → turuncu (#1644); İşleme Alındı (Geciken) → mavi (#2875).
       if (isActiveJobOverdue(detail)) {
-        return { ...step, state: 'current' as const }
+        return { ...step, state: statusStepStateWhenOverdue(detail) }
       }
       return { ...step, state: 'pending' as const }
     }

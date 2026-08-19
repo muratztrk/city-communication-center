@@ -731,7 +731,7 @@ export function CreateRequestPage() {
             if (fileInputRef.current) fileInputRef.current.value = ''
           }}
         />
-        <div className="flex h-full min-h-[3.25rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-1.5">
+        <div className="request-pending-files-panel flex h-full min-h-[3.25rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-1.5">
           {pendingFiles.length === 0 ? (
             <p className="text-sm text-slate-500">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
           ) : (
@@ -820,7 +820,7 @@ export function CreateRequestPage() {
     const coordinatesBelowNeighborhood = options?.coordinatesBelowNeighborhood ?? false
     const inlineCoordinates = showCoordinates && !coordinatesBelowNeighborhood
     const streetRowClassName = options?.streetRowClassName
-      ?? 'address-street-no-row citizen-call-address-street-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2 w-full'
+      ?? 'address-street-no-row citizen-call-address-street-row grid grid-cols-[minmax(0,1.6fr)_7.5rem] gap-2 w-full'
     const compactPlaceholderClass = options?.compactPlaceholders ? 'placeholder:text-[0.72rem]' : ''
     const smallerPlaceholderClass = options?.smallerPlaceholders ? 'placeholder:text-[0.82rem]' : ''
     const largerPlaceholderClass = options?.largerPlaceholders ? 'placeholder:text-[0.92rem]' : ''

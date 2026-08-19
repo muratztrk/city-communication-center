@@ -81,7 +81,7 @@ function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHi
     ? chronological.filter(item => item.toUserId).reverse()
     : []
 }
-import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestDetailStatusLabel, getCitizenRequestStatusLabel, shouldShowCitizenTargetApprovalDate, requestLocationFieldLabel } from '../utils/citizenRequests'
+import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestDetailStatusLabel, getCitizenRequestStatusLabel, isCitizenProcessingReceivedState, shouldShowCitizenTargetApprovalDate, requestLocationFieldLabel } from '../utils/citizenRequests'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
@@ -2908,7 +2908,9 @@ const pageKicker = isMyTasksView
                       ? 'text-emerald-600'
                       : parentJobDetail.status === 'Cancelled'
                         ? 'text-rose-600'
-                        : 'text-orange-500'
+                        : isCitizenParentJob && isCitizenProcessingReceivedState(parentJobDetail)
+                          ? 'text-sky-500'
+                          : 'text-orange-500'
                     // Süreç Durum: süresi geçmişte birleşik etiket (card #1646 / Birimdeki Görevler #1647).
                     const parentStatusContent = isCitizenParentJob
                       ? getCitizenRequestDetailStatusLabel(t, parentJobDetail)

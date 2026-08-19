@@ -1260,6 +1260,17 @@
     background: rgb(148 163 184);
   }
 
+  /* Talep oluştur: seçili dosya listesi dikey scroll (#2876). */
+  .request-pending-files-panel {
+    max-height: 3.25rem;
+    overflow-y: auto;
+  }
+
+  .request-pending-files-panel--tall {
+    max-height: 5.5rem;
+    overflow-y: auto;
+  }
+
   .job-process-timeline__indicator--danger {
     width: 0.875rem;
     height: 0.875rem;
@@ -4002,9 +4013,15 @@
     font-size: 0.78rem !important;
   }
 
-  /* Vatandaş Çağrı Talebin Adres: Cadde/Sokak sütunu geniş (#2873). */
-  #citizen-request-form .citizen-call-address-street-row {
-    grid-template-columns: minmax(0, 1.35fr) 8.25rem !important;
+  /* Vatandaş Çağrı Talebin Adres: Cadde/Sokak sütunu geniş (#2873 reopen — address-street-no-row sonrası). */
+  #citizen-request-form .address-street-no-row.citizen-call-address-street-row {
+    grid-template-columns: minmax(0, 1.6fr) 7.5rem !important;
+  }
+
+  #citizen-request-form .address-street-no-row.citizen-call-address-street-row > div:nth-child(2) {
+    width: 7.5rem !important;
+    min-width: 7.5rem !important;
+    max-width: 7.5rem !important;
   }
 
   #citizen-request-form .rich-text-toolbar-divider {

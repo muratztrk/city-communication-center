@@ -285,7 +285,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
                 {viewYear}
               </button>
             </div>
-            <div className="flex justify-center">
+            <div className="flex justify-center pl-2.5">
               <div className="flex items-center gap-1">
                 <button
                   type="button"

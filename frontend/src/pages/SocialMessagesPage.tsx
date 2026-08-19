@@ -639,7 +639,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
           }}
           placeholder={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
         />
-        <label className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
+        <label className="ml-3 inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
           <input
             type="checkbox"
             className="field-checkbox"

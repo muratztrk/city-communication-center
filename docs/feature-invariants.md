@@ -1935,7 +1935,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Gittiği Yer → Talep Etiketi → **Durum** → İşlemler (#2646; eski Süreç başlığı). Varsayılan sıra
   Vatandaş Talep No **yıl+sıra desc** (en yüksek numara üstte, #2691). Durum hücresi
   Taleplerim `StatusPill` + `GridStatusLabel`. **Tüm Talep Durumları** dropdown’da Geciken yok;
-  yanında **Gecikti mi?** checkbox (`wasOverdue=1`, detay `wasJobOverdueWhenClosed` ile aynı, #2860).
+  yanında **Gecikti mi?** checkbox (`wasOverdue=1`, detay `wasJobOverdueWhenClosed` ile aynı, #2860);
+  durum dropdown’undan `ml-3` boşluk.
   Dropdown seçildikten sonra genişlik sabit kalır (`scope-chip-status-select`, #2573). Etiket dropdown hücresinde buton ortalı; açık menü
   satırları sola yaslı (card #1878 reopen — ortalanmamalı).
 - **Vatandaş Talepleri Talep Etiketi (card #1878/#r461/#r462/#r463/#6a6d8fe8):** grid hücresinde

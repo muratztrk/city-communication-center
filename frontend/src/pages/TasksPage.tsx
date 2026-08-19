@@ -3429,6 +3429,7 @@ const pageKicker = isMyTasksView
                               channel={isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType })
                                 ? getCitizenTaskChannel(task, socialByJobId)
                                 : null}
+                              hideInProgressOverdueSubline={currentMyTaskView === 'overdue'}
                               footer={statusDate
                                 ? <span className={`text-[0.68rem] font-bold ${task.currentStatus === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
                                 : undefined}

@@ -1,3 +1,9 @@
+## Round 1000 tick — #2872/#2848 reopen + grid thead gradient
+
+- [x] `6a8550fc` — WA Yapılmakta tıklanınca grid geciken Yapılmakta dahil (#2872).
+- [x] `6a847723` — Dosya accept MIME+uzantı geri; yalnız m4v alias (`video/mp4`) kaldırıldı (#2848 reopen).
+- [x] Grid thead gradient: `social-messages-table` + `citizen-directory-tickets-table` (#r447).
+
 ## Round 999 — #2845–#2871 reopen (20 kart: VT durum, UI düzeltmeler)
 
 - [x] `6a852ee7` — WA İşleme Alınan filtresi geciken İşleme Alındı dahil (#2865).

@@ -48,6 +48,11 @@ type CitizenRequestStatusSource = {
   tasks?: { currentStatus?: string }[]
 }
 
+/** Vatandaş talebi Yapılmakta (açık görev var; gecikmiş dahil, #2872). */
+export function isCitizenInProgressState(job: CitizenRequestStatusSource): boolean {
+  return job.status === 'Active' && countOpenWorkTasks(job) > 0
+}
+
 /** Vatandaş talebi henüz onaylanmadı / açık görev yok — gecikse bile İşleme Alındı (#2805). */
 export function isCitizenProcessingReceivedState(job: CitizenRequestStatusSource): boolean {
   if (job.status === 'Completed'

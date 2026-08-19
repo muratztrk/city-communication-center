@@ -2905,13 +2905,15 @@
   }
 
   /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" / Birimdeki/Personelimin Görevler /
-     Vatandaş/SMS mesaj onayı / Vatandaş Bilgi Listesi — banner ile aynı yeşil; sticky opak (#r447). */
+     Vatandaş/SMS mesaj onayı / Vatandaş Bilgi Listesi / Vatandaş Talepleri — banner ile aynı yeşil; sticky opak (#r447). */
   .my-requests-table thead th,
   .incoming-requests-table thead th,
   .department-tasks-table thead th,
   .staff-tasks-table thead th,
   .citizen-message-approval-table thead th,
   .citizen-directory-table thead th,
+  .citizen-directory-tickets-table thead th,
+  .social-messages-table thead th,
   .departments-table thead th,
   .users-table thead th,
   .audit-logs-table thead th {
@@ -2928,6 +2930,8 @@
   .staff-tasks-table thead,
   .citizen-message-approval-table thead,
   .citizen-directory-table thead,
+  .citizen-directory-tickets-table thead,
+  .social-messages-table thead,
   .departments-table thead,
   .users-table thead,
   .audit-logs-table thead {
@@ -2963,6 +2967,10 @@
   .citizen-message-approval-table thead th.sort-active,
   .citizen-directory-table thead th.sortable-th:hover,
   .citizen-directory-table thead th.sort-active,
+  .citizen-directory-tickets-table thead th.sortable-th:hover,
+  .citizen-directory-tickets-table thead th.sort-active,
+  .social-messages-table thead th.sortable-th:hover,
+  .social-messages-table thead th.sort-active,
   .departments-table thead th.sortable-th:hover,
   .departments-table thead th.sort-active,
   .users-table thead th.sortable-th:hover,

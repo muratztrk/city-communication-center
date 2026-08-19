@@ -54,7 +54,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `thead th` `height`/`max-height: var(--table-header-row-height)`; paging bar `max-height:
   `var(--table-chrome-row-min-height)`; genel `.data-table thead th`'de `background-attachment:
   fixed` kullanılmaz (#2824); Birime Gelen / Taleplerim / Birimdeki Görevler / Personelimin
-  Görevler / Vatandaş ve SMS mesaj onayı / Vatandaş Bilgi Listesi / Yönetim gridleri
+  Görevler / Vatandaş ve SMS mesaj onayı / Vatandaş Bilgi Listesi (ana grid + talep popup) /
+  Vatandaş Talepleri / Yönetim gridleri
   (Birimler, Kullanıcılar, Log) tablolarında sütunlar arası tek gradient için `fixed` kullanılır (#r447). Pie drilldown popup grid (`dashboard-drilldown-table`) aynı kalıp —
   genel `.data-table thead th`'de `fixed` yok (#2824).
 - **Popup gridview başlık şeridi standart gridview gibi üstten kavislidir** (0.9rem): scroll kabı
@@ -2091,7 +2092,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
 - **Dosya ekle accept filtresi (#2373 / #2848):** Talep/görev/WA/kurum içi dosya seçimlerinde ortak
   `ATTACHMENT_FILE_ACCEPT` **MIME + uzantı** (Windows filtre). Accept’te `image/jpeg`, `application/msword`,
-  `video/quicktime`, `video/webm`, `video/3gpp` yok; uzantıda `.mov`/`.webm` yok — özel dosyalar listesinde
+  `video/quicktime`, `video/webm`, `video/3gpp`, `video/mp4` (m4v alias) yok; uzantıda `.mov`/`.webm`/`.m4v` yok — özel dosyalar listesinde
   jpe/jfif/mov/webm/3gpp/dot vb. görünmez. Seçim sonrası `.jpeg`/`.mov`/`.webm` doğrulaması devam eder.
   Logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);

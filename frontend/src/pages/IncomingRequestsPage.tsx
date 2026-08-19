@@ -1019,7 +1019,7 @@ export function IncomingRequestsPage() {
                         <span className={reporterNumberClass}>{row.displayNumber}</span>
                         {/* Yönlendirilen talepte Talep No yanında koyu turkuaz rozet görünür (cards #1406/#1412). */}
                         {row.forwardReason ? (
-                          <span className="font-sans text-[11px] font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                          <span className="font-sans text-[12px] font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                         ) : null}
                       </div>
                       {shouldShowGridPrioritySubline(row.priority) ? (

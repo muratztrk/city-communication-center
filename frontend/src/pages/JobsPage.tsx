@@ -2790,7 +2790,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             </span>
                           )}
                           {forwardReason ? (
-                            <span className="text-[11px] font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                            <span className="text-[12px] font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                           ) : null}
                         </span>
                       </span>

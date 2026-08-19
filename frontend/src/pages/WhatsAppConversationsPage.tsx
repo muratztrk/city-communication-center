@@ -1249,9 +1249,9 @@ function ConversationDetail({
             <button
               type="button"
               onClick={() => onOpenViewRequests(phoneForHeader)}
-              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
             >
-              <ClipboardList {...DETAIL_ICON_PROPS} className="size-3.5" />
+              <ClipboardList {...DETAIL_ICON_PROPS} className="size-3.5 text-emerald-600" />
               {t('whatsapp.viewRequestsByNumber', 'Numaranın Talepleri')}
             </button>
           ) : null}

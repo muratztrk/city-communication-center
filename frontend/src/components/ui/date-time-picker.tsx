@@ -285,24 +285,26 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
                 {viewYear}
               </button>
             </div>
-            <div className="relative flex items-center justify-center">
-              <button
-                type="button"
-                onClick={prevMonth}
-                className="absolute left-0 rounded-lg p-1 text-white/80 transition-colors hover:bg-white/20"
-              >
-                <ChevronLeft className="size-4" />
-              </button>
-              <span className="text-base font-extrabold text-white text-center">
-                {MONTHS_TR[viewMonth]}
-              </span>
-              <button
-                type="button"
-                onClick={nextMonth}
-                className="absolute right-0 rounded-lg p-1 text-white/80 transition-colors hover:bg-white/20"
-              >
-                <ChevronRight className="size-4" />
-              </button>
+            <div className="flex justify-center">
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={prevMonth}
+                  className="rounded-lg p-1 text-white/80 transition-colors hover:bg-white/20"
+                >
+                  <ChevronLeft className="size-4" />
+                </button>
+                <span className="min-w-[5.5rem] text-center text-base font-extrabold text-white">
+                  {MONTHS_TR[viewMonth]}
+                </span>
+                <button
+                  type="button"
+                  onClick={nextMonth}
+                  className="rounded-lg p-1 text-white/80 transition-colors hover:bg-white/20"
+                >
+                  <ChevronRight className="size-4" />
+                </button>
+              </div>
             </div>
           </div>
 

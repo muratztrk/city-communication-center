@@ -1573,6 +1573,7 @@ export function CreateRequestPage() {
                   })}
                   minDateTime={earliestStartDatePickerValue()}
                   placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')}
+                  forceUp
                 />
               </div>
               <div className="job-field">
@@ -1586,6 +1587,7 @@ export function CreateRequestPage() {
                   }))}
                   minDateTime={earliestDueDateRelativeToStart(externalForm.startDateUtc, 2, externalForm.dueDateUtc, weekendDueMin)}
                   placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')}
+                  forceUp
                 />
               </div>
             </div>

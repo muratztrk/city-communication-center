@@ -2404,6 +2404,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA Talep Eki turkuaz (#6a75e2f0):** `SocialConversationMediaBubble` add-as-attachment `bg-teal-500`.
 - **SMS alıcı (#6a75eea2):** `WhatsAppRecipientResolver` Job.CitizenPhone fallback.
 - **SMS LiveSend (#6a75eea2):** Round 643 sonrası `IsEnabled` ⇒ gerçek gönderim (`EffectiveLiveSendEnabled`); Operatör release SMS fail → ValidationException.
+- **SMS hitap:** sağlayıcıya giden her metnin başı `Değerli vatandaşımız,` + boş satır + asıl metin
+  (`SmsCitizenGreeting` / `SmsGateway`; zaten hitaplıysa tekrar eklenmez). Onay/UI şablon metni değişmez.
 - **WA etiket revert (#6a75d1bf reopen):** Talep Etiketi readonly textbox geri; başlık min-height 2.5rem.
 - **WA modal etiket menü (#2504):** `RequestTagPicker` menü metni `text-xs` (compactMenuText yok).
 - **Görevlerim detay Öncelik düzenle (#2503 reopen):** trigger `min-width: 7rem` / `max-width: 14rem`;

@@ -140,6 +140,24 @@ public class AsistelSendAtFormatTests
     }
 }
 
+public class SmsCitizenGreetingTests
+{
+    [Fact]
+    public void Ensure_adds_greeting_and_blank_line()
+    {
+        Assert.Equal(
+            "Değerli vatandaşımız,\n\nTalebiniz işleme alındı.",
+            SmsCitizenGreeting.Ensure("Talebiniz işleme alındı."));
+    }
+
+    [Fact]
+    public void Ensure_does_not_double_prefix()
+    {
+        var already = "Değerli vatandaşımız,\n\nMetin";
+        Assert.Equal(already, SmsCitizenGreeting.Ensure(already));
+    }
+}
+
 public class CitizenSmsTerminalNoteFormatTests
 {
     [Fact]

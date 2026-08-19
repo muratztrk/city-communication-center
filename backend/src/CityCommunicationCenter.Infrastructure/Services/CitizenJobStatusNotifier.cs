@@ -6,6 +6,7 @@ using CityCommunicationCenter.Application.Features.Attachments;
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Domain.Enums;
+using CityCommunicationCenter.Infrastructure.Sms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -706,7 +707,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 "SMS SIMULATION (gerçek gönderim kapalı) — SocialMessage {SocialMessageId}, alıcı {Phone}, metin: {Content}",
                 message.SocialMessageId,
                 recipientPhone,
-                content);
+                SmsCitizenGreeting.Ensure(content));
             return false;
         }
 

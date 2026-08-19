@@ -96,6 +96,8 @@ internal sealed class SmsGateway : ISmsGateway
             return SmsSendResult.Fail("SMS metni boş.");
         }
 
+        var outboundText = SmsCitizenGreeting.Ensure(text);
+
         var normalizedPhone = SmsPhoneNumber.TryNormalize(phoneNumber);
         if (normalizedPhone is null)
         {
@@ -104,7 +106,7 @@ internal sealed class SmsGateway : ISmsGateway
 
         try
         {
-            var result = await sender.SendAsync(credentials, normalizedPhone, text, cancellationToken);
+            var result = await sender.SendAsync(credentials, normalizedPhone, outboundText, cancellationToken);
             if (!result.Success)
             {
                 _logger.LogWarning(

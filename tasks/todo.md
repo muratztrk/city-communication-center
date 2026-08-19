@@ -1,3 +1,67 @@
+## Round 1014 tick — #2880 İşleme Alındı (Geciken) Tümü grid
+
+- **STATUS:** implementing; Birime Gelen Tümü / VT grid: son tarihi geçmiş İşleme Alındı alt satır `(Geciken)`.
+
+## Round 1013 tick — #2870 reopen accept mükerrer uzantı sil
+
+- **STATUS:** pushed; 1 kart Done; Doing: 0.
+
+## Round 1012 tick — #2859/#2848/#2870 reopen grid + pie + accept
+
+- **STATUS:** `380a3fb8` pushed; 3 kart Done; Doing: 0.
+
+## Round 1011 tick — #2868/#2877/#2879 Rutin hizası + takvim
+
+- **STATUS:** `d68ed5bb` pushed; 3 kart Done; Doing: 0.
+
+## Round 1010 tick — #2859 Geciken grid Yapılmakta alt satır
+
+- **STATUS:** `5a25974e` pushed; 1 kart Done; Doing: 2 yeni.
+
+## Round 1009 tick — #2868/#2875 takvim ay + süreç Durum
+
+## Round 1008 tick — #2870/#2876 reopen accept + dosya alanı yüksek
+
+- **STATUS:** `c5aa0f1a` pushed; 2 kart Done; Doing: 1 (#2875?).
+
+## Round 1007 tick — #2879 Cadde/Mahalle + #2877 Rutin dosya revert
+
+- **STATUS:** `9ba3c2c5` pushed; 2 kart Done; Doing: 2 yeni.
+
+## Round 1006 tick — #2869/#2868 reopen Gecikti mi zebra + takvim ay
+
+- **STATUS:** `b8cdf281` pushed; 2 kart Done; Doing: 0.
+
+## Round 1005 tick — #2869/#2878/#2849 Gecikti mi + WA placeholder
+
+- **STATUS:** `60f9f716` pushed; 3 kart Done; Doing: 0.
+
+## Round 1004 tick — #2868/#2873/#2875/#2876/#2877
+
+- **STATUS:** `579d4560` pushed; 5 kart Done; Doing: 3.
+
+## Round 1003 tick — #2869 Gecikti mi satır hizası
+
+- **#2869 reopen:** `JobProcessTimeline` Gecikti mi ikon kaldır; etiket hizası.
+- **STATUS:** `fe4db113` pushed; 1 kart Done; Doing: 2 yeni kart.
+
+## Round 1002 tick — #2852/#2862/#2868/#2874/#2863 WA UI ve takvim
+
+- **#2852:** Numaranın Talepleri yeşil ikon + buton yüksekliği.
+- **#2862:** WA VT popup balon `11.5px`.
+- **#2868:** DateTimePicker ay satırı ortada (gruplu nav).
+- **#2874:** Birim Dışı `forceUp` takvim.
+- **#2863:** Grid Yönlendirilen Talep `12px`.
+- **STATUS:** `9b2d0471` pushed; 5 kart Done.
+
+## Round 1001 tick — #2867/#2848/#2849/#2873 dosya yükleme ve adres CSS
+
+- **#2867 reopen:** File input label dışına; progress bar tüm yükleme yüzeylerinde geri.
+- **#2848 reopen:** `attachmentAccept.ts` MIME + deduped uzantılar; `video/mp4` yok.
+- **#2849 reopen:** WA VT popup placeholder `0.78rem`.
+- **#2873:** Vatandaş Çağrı `citizen-call-address-street-row` genişlik.
+- **STATUS:** `d929749b` pushed; 4 kart Done; Doing: 4 yeni kart.
+
 ## Round 1000 tick — #2872/#2848 reopen + grid thead gradient
 
 - [x] `6a8550fc` — WA Yapılmakta tıklanınca grid geciken Yapılmakta dahil (#2872).

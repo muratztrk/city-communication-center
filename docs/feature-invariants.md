@@ -1636,9 +1636,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Personel/CRM anasayfa 4 kutucuk (#2807 reopen):** Staff + Operator + CRM dörtlü flex sıra
   (Bekleyen Görevlerim → Geciken Görevlerim → Bekleyen Taleplerim → Geciken Taleplerim);
   `useStaffMetricFourCol` Staff rolünü de kapsar.
-- **VT İşleme Alındı geciken (#2800/#2819):** grid `GridStatusLabel` + `overdueSubline` →
+- **VT İşleme Alındı geciken (#2800/#2819/#2880):** grid `GridStatusLabel` + `overdueSubline` →
   `İşleme Alındı` alt satır `(Geciken)`; pill turkuaz kalır; detay popup
   `getCitizenRequestDetailStatusLabel` → tek satır `İşleme Alındı (Geciken)`.
+  Birime Gelen **Tümü** dahil: son tarih `dueDateUtc < now` (Son Tarih kırmızı pill ile aynı);
+  `PendingExternalApproval` takvim-günü eşiği bu alt satırı geciktirmez.
 - **Yönetici `Personelimin Görevi Çözme Süresi` grafiği:** yalnız Manager rolünde ve yöneticinin
   kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
   (`CreatedAtUtc`) ile tamamlananda `CompletedAtUtc`, iptalde son `TaskCancelled` audit zamanı

@@ -67,10 +67,13 @@ export function isCitizenProcessingReceivedState(job: CitizenRequestStatusSource
   return false
 }
 
-/** Grid Durum: İşleme Alındı + gecikmiş → alt satır `(Geciken)` (#2819). */
+/** Grid Durum: İşleme Alındı + son tarih geçmiş → alt satır `(Geciken)` (#2819 / #2880).
+ *  Son Tarih pill ile aynı: saat dilimine bakmadan `dueDateUtc < now`.
+ *  PendingExternalApproval satırında takvim-günü kuralı kullanma — aynı gün geçmiş saat kırmızı pill olur. */
 export function isCitizenProcessingReceivedOverdue(job: CitizenRequestStatusSource): boolean {
-  return isCitizenProcessingReceivedState(job)
-    && isJobDueDateOverdue({ status: job.status, dueDateUtc: job.dueDateUtc })
+  if (!isCitizenProcessingReceivedState(job) || !job.dueDateUtc) return false
+  const dueTime = new Date(job.dueDateUtc).getTime()
+  return !Number.isNaN(dueTime) && dueTime < Date.now()
 }
 
 export function getCitizenRequestStatusLabel(

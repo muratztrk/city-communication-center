@@ -79,7 +79,7 @@ export function GridStatusLabel({
     const overdue = t('jobs.statusLabel.overdue', 'Geciken')
     if (hideInProgressOverdueSubline) {
       return (
-        <span className={`grid-status-label--overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
+        <span className={`grid-status-label--overdue grid-status-label--overdue-solo grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
           <span className="whitespace-nowrap">{inProgress}</span>
           {footer}
         </span>

@@ -3280,6 +3280,14 @@
     font-size: 0.82rem;
   }
 
+  /* Geciken-only grid: Durum metni biraz daha büyük (#2859 reopen). */
+  .data-table .status-pill .grid-status-label--overdue-solo > span:first-child,
+  .dashboard-drilldown-table .status-pill .grid-status-label--overdue-solo > span:first-child,
+  .table-container .status-pill .grid-status-label--overdue-solo > span:first-child {
+    font-size: 0.9rem;
+    font-weight: 700;
+  }
+
   .data-table tbody tr:hover td {
     background: rgba(248, 250, 252, 0.72);
   }

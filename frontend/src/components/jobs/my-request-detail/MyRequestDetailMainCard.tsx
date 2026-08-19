@@ -538,6 +538,9 @@ export function MyRequestDetailMainCard({
             inProgressAssigneeName={formatJobAssigneeNames(detail)}
             statusNoteContent={statusNoteContent}
             dueDateContent={dueDateContent}
+            showOverdueYesNo
+            overdueDueDateUtc={detail.dueDateUtc}
+            overdueJobStatus={detail.status}
           />
         </div>
       </div>

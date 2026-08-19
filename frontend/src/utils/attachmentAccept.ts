@@ -19,16 +19,21 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.webm',
 ] as const
 
-/** MIME listesinde olmayan uzantılar — MIME ile çakışan .png/.pdf/.docx vb. yok (#2870 reopen). */
+/** Accept uzantıları — Windows özel dosyalar listesi (#2870 reopen geri getir). */
 export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.jpg',
   '.jpeg',
+  '.png',
+  '.pdf',
+  '.doc',
+  '.docx',
+  '.xls',
+  '.xlsx',
+  '.ppt',
+  '.pptx',
+  '.mp4',
   '.mov',
   '.webm',
-  '.doc',
-  '.xls',
-  '.ppt',
-  '.mp4',
 ] as const
 
 /** MIME listesi — `video/mp4` Windows özel dosyalarda m4v satırı üretir (#2848). */

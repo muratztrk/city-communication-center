@@ -25,6 +25,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
 import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenInProgressState, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState } from '../utils/citizenRequests'
+import { wasJobOverdueWhenClosed } from '../utils/dateTimePicker'
 
 const CHANNEL_BADGE_SEEN_PREFIX = 'ccc-social-channel-badge-seen-'
 const BADGE_CHANNELS = ['EDevlet', 'MobileApp'] as const
@@ -143,31 +144,33 @@ function getLinkedJobDisplayStatus(t: TFunction, job: JobSummary, dueDateUtc: st
   return getCitizenRequestStatusLabel(t, { ...job, dueDateUtc })
 }
 
-type SocialRequestStatusFilter = 'all' | 'processing-received' | 'overdue' | 'in-progress' | 'completed' | 'cancelled'
+type SocialRequestStatusFilter = 'all' | 'processing-received' | 'in-progress' | 'completed' | 'cancelled'
 
 const REQUEST_STATUS_FILTERS: { value: SocialRequestStatusFilter; labelKey: string; fallback: string }[] = [
   { value: 'all', labelKey: 'social.requestStatus.all', fallback: 'Tüm Talep Durumları' },
   { value: 'processing-received', labelKey: 'social.requestStatus.processingReceived', fallback: 'İşleme Alındı' },
-  { value: 'overdue', labelKey: 'social.requestStatus.overdue', fallback: 'Geciken' },
   { value: 'in-progress', labelKey: 'social.requestStatus.inProgress', fallback: 'Yapılmakta' },
   { value: 'completed', labelKey: 'social.requestStatus.completed', fallback: 'Tamamlanmış' },
   { value: 'cancelled', labelKey: 'social.requestStatus.cancelled', fallback: 'İptal' },
 ]
 
-function isSocialRequestStatusFilter(value: string | null): value is SocialRequestStatusFilter {
-  return value != null && REQUEST_STATUS_FILTERS.some(filter => filter.value === value)
+function parseSocialRequestStatusFilter(value: string | null): SocialRequestStatusFilter {
+  if (value != null && REQUEST_STATUS_FILTERS.some(filter => filter.value === value)) {
+    return value as SocialRequestStatusFilter
+  }
+  return 'all'
 }
 
-function getSocialMessageStatusKey(job: JobSummary | undefined, dueDateUtc: string | null): Exclude<SocialRequestStatusFilter, 'all'> {
+function parseSocialWasOverdueFilter(searchParams: URLSearchParams): boolean {
+  return searchParams.get('wasOverdue') === '1' || searchParams.get('requestStatus') === 'overdue'
+}
+
+function getSocialMessageStatusKey(job: JobSummary | undefined): Exclude<SocialRequestStatusFilter, 'all'> {
   if (!job) return 'processing-received'
 
   if (job.status === 'Completed') return 'completed'
   if (job.status === 'Cancelled' || job.status === 'Rejected' || job.status === 'RevisionRequested') return 'cancelled'
-
-  const isOverdue = dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()
-  if (isOverdue) return 'overdue'
   if (job.status === 'Active') return (job.taskCount ?? 0) > 0 ? 'in-progress' : 'processing-received'
-
   return 'processing-received'
 }
 
@@ -181,12 +184,6 @@ function matchesSocialRequestStatusFilter(job: JobSummary | undefined, dueDateUt
       taskCount: job.taskCount,
     })
   }
-  if (filter === 'overdue') {
-    if (job.status === 'Completed' || job.status === 'Cancelled' || job.status === 'Rejected' || job.status === 'RevisionRequested') {
-      return false
-    }
-    return dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()
-  }
   if (filter === 'in-progress') {
     return isCitizenInProgressState({
       status: job.status,
@@ -194,7 +191,17 @@ function matchesSocialRequestStatusFilter(job: JobSummary | undefined, dueDateUt
       taskCount: job.taskCount,
     })
   }
-  return getSocialMessageStatusKey(job, dueDateUtc) === filter
+  return getSocialMessageStatusKey(job) === filter
+}
+
+function matchesSocialWasOverdueFilter(job: JobSummary | undefined, dueDateUtc: string | null): boolean {
+  if (!job || !dueDateUtc) return false
+  return wasJobOverdueWhenClosed({
+    status: job.status,
+    dueDateUtc,
+    completedAtUtc: job.completedAtUtc,
+    updatedAtUtc: job.updatedAtUtc,
+  })
 }
 
 function canCancelLinkedJob(status: JobSummary['status'] | undefined) {
@@ -251,7 +258,8 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
     ? DEFAULT_CHANNEL_FILTER
     : channelParam
   const requestStatusParam = embedded ? embeddedRequestStatus : searchParams.get('requestStatus')
-  const initialRequestStatus = isSocialRequestStatusFilter(requestStatusParam) ? requestStatusParam : 'all'
+  const initialRequestStatus = parseSocialRequestStatusFilter(requestStatusParam)
+  const initialWasOverdue = embedded ? false : parseSocialWasOverdueFilter(searchParams)
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
   const [jobsById, setJobsById] = useState<Map<string, JobSummary>>(new Map())
@@ -265,6 +273,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
   const [messagesPage, setMessagesPage] = useState(1)
   const [messagesPageSize, setMessagesPageSize] = useState(10)
   const [requestStatusFilter, setRequestStatusFilter] = useState<SocialRequestStatusFilter>(initialRequestStatus)
+  const [wasOverdueFilter, setWasOverdueFilter] = useState(initialWasOverdue)
   const [requestTags, setRequestTags] = useState<RequestTag[]>([])
   const [departments, setDepartments] = useState<Department[]>([])
   const [badgeSeenTick, setBadgeSeenTick] = useState(0)
@@ -273,7 +282,8 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
   useEffect(() => {
     if (embedded) return
     const nextStatus = searchParams.get('requestStatus')
-    setRequestStatusFilter(isSocialRequestStatusFilter(nextStatus) ? nextStatus : 'all')
+    setRequestStatusFilter(parseSocialRequestStatusFilter(nextStatus))
+    setWasOverdueFilter(parseSocialWasOverdueFilter(searchParams))
     setFilterFrom(searchParams.get('from') ?? '')
     setFilterTo(searchParams.get('to') ?? '')
   }, [embedded, searchParams])
@@ -442,8 +452,15 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
       })
     }
 
+    if (wasOverdueFilter) {
+      result = result.filter(message => {
+        const linkedJob = message.jobId ? jobsById.get(message.jobId) : undefined
+        return matchesSocialWasOverdueFilter(linkedJob, message.dueDateUtc ?? null)
+      })
+    }
+
     return sortSocial(result)
-  }, [channelFilter, displayMessages, filterFrom, filterTo, jobsById, locale, requestStatusFilter, searchText, sortSocial])
+  }, [channelFilter, displayMessages, filterFrom, filterTo, jobsById, locale, requestStatusFilter, searchText, sortSocial, wasOverdueFilter])
 
   useEffect(() => {
     const phoneParam = searchParams.get('phone')?.trim()
@@ -485,7 +502,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
       return
     }
     setMessagesPage(1)
-  }, [channelFilter, filterFrom, filterTo, requestStatusFilter, searchText, socialFilters])
+  }, [channelFilter, filterFrom, filterTo, requestStatusFilter, searchText, socialFilters, wasOverdueFilter])
 
   // Sayfa değişince etiket/kolon filtreleri default'a döner (#r461); paging bozulmaz (#r467).
   const handleMessagesPageChange = (page: number) => {
@@ -615,10 +632,32 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
             const nextParams = new URLSearchParams(searchParams)
             if (nextValue === 'all') nextParams.delete('requestStatus')
             else nextParams.set('requestStatus', nextValue)
+            if (nextParams.get('requestStatus') === 'overdue') nextParams.delete('requestStatus')
+            if (wasOverdueFilter) nextParams.set('wasOverdue', '1')
+            else nextParams.delete('wasOverdue')
             setSearchParams(nextParams)
           }}
           placeholder={t('social.requestStatusFilterLabel', 'Talep durumu filtresi')}
         />
+        <label className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
+          <input
+            type="checkbox"
+            className="field-checkbox"
+            checked={wasOverdueFilter}
+            onChange={event => {
+              const nextChecked = event.target.checked
+              setWasOverdueFilter(nextChecked)
+              const nextParams = new URLSearchParams(searchParams)
+              if (requestStatusFilter === 'all') nextParams.delete('requestStatus')
+              else nextParams.set('requestStatus', requestStatusFilter)
+              if (nextParams.get('requestStatus') === 'overdue') nextParams.delete('requestStatus')
+              if (nextChecked) nextParams.set('wasOverdue', '1')
+              else nextParams.delete('wasOverdue')
+              setSearchParams(nextParams)
+            }}
+          />
+          {t('jobs.detail.wasOverdue', 'Gecikti mi?')}
+        </label>
         <ClearPieFilterLink hasColumnFilters={hasActiveSocialColumnFilters} onClearColumnFilters={clearSocialFilters} />
       </nav>
       )}
@@ -737,7 +776,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                                 dueDateUtc: dueDateUtc,
                                 taskCount: linkedJob.taskCount ?? 0,
                               })}
-                              hideInProgressOverdueSubline={requestStatusFilter === 'overdue'}
+                              hideInProgressOverdueSubline={wasOverdueFilter}
                               footer={statusDateText
                                 ? <span className={`text-[0.68rem] font-bold ${linkedJob?.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{statusDateText}</span>
                                 : undefined}

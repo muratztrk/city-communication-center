@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Common;
 using Microsoft.Extensions.Logging;
 
 namespace CityCommunicationCenter.Infrastructure.Sms;
@@ -96,7 +97,7 @@ internal sealed class SmsGateway : ISmsGateway
             return SmsSendResult.Fail("SMS metni boş.");
         }
 
-        var outboundText = SmsCitizenGreeting.Ensure(text);
+        var outboundText = CitizenOutboundGreeting.Ensure(text);
 
         var normalizedPhone = SmsPhoneNumber.TryNormalize(phoneNumber);
         if (normalizedPhone is null)

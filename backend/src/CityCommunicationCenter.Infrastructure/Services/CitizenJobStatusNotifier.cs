@@ -6,7 +6,6 @@ using CityCommunicationCenter.Application.Features.Attachments;
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Domain.Enums;
-using CityCommunicationCenter.Infrastructure.Sms;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -422,6 +421,8 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             messageContent = AppendSmsTerminalNote(content, terminalNote);
         }
 
+        messageContent = CitizenOutboundGreeting.Ensure(messageContent);
+
         if (!requireApproval)
         {
             var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
@@ -707,7 +708,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 "SMS SIMULATION (gerçek gönderim kapalı) — SocialMessage {SocialMessageId}, alıcı {Phone}, metin: {Content}",
                 message.SocialMessageId,
                 recipientPhone,
-                SmsCitizenGreeting.Ensure(content));
+                CitizenOutboundGreeting.Ensure(content));
             return false;
         }
 

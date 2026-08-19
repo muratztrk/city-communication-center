@@ -61,6 +61,11 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
             ]);
         }
 
+        if (isWhatsApp && string.IsNullOrWhiteSpace(templateName))
+        {
+            content = CitizenOutboundGreeting.Ensure(content);
+        }
+
         if (isWhatsApp && !request.SendImmediately)
         {
             deliveryStatus = ConversationDeliveryStatus.Pending;
@@ -348,7 +353,8 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
         var originalFileName = string.IsNullOrWhiteSpace(request.FileName)
             ? "ek.bin"
             : Path.GetFileName(request.FileName.Trim());
-        var userCaption = string.IsNullOrWhiteSpace(request.Content) ? null : request.Content.Trim();
+        var userCaption = CitizenOutboundGreeting.EnsureOptional(
+            string.IsNullOrWhiteSpace(request.Content) ? null : request.Content.Trim());
         // Orijinal ad her zaman içerikte — caption varken de (UI fallback whatsapp-{tel} olmasın, #6a75878c).
         var content = BuildOutboundAttachmentContent(originalFileName, userCaption);
 

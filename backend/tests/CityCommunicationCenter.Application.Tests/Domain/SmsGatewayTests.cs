@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Common;
 using CityCommunicationCenter.Infrastructure.Services;
 using CityCommunicationCenter.Infrastructure.Sms;
 
@@ -140,21 +141,28 @@ public class AsistelSendAtFormatTests
     }
 }
 
-public class SmsCitizenGreetingTests
+public class CitizenOutboundGreetingTests
 {
     [Fact]
     public void Ensure_adds_greeting_and_blank_line()
     {
         Assert.Equal(
             "Değerli vatandaşımız,\n\nTalebiniz işleme alındı.",
-            SmsCitizenGreeting.Ensure("Talebiniz işleme alındı."));
+            CitizenOutboundGreeting.Ensure("Talebiniz işleme alındı."));
     }
 
     [Fact]
     public void Ensure_does_not_double_prefix()
     {
         var already = "Değerli vatandaşımız,\n\nMetin";
-        Assert.Equal(already, SmsCitizenGreeting.Ensure(already));
+        Assert.Equal(already, CitizenOutboundGreeting.Ensure(already));
+    }
+
+    [Fact]
+    public void EnsureOptional_skips_blank()
+    {
+        Assert.Null(CitizenOutboundGreeting.EnsureOptional(null));
+        Assert.Equal("   ", CitizenOutboundGreeting.EnsureOptional("   "));
     }
 }
 

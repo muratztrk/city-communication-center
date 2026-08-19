@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
+using CityCommunicationCenter.Application.Common;
 using CityCommunicationCenter.Domain;
 using CityCommunicationCenter.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
@@ -79,12 +80,13 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
                         receivedAtUtc,
                         IstanbulTimeZone);
 
+                    var outboundContent = CitizenOutboundGreeting.Ensure(template.Content);
                     var alreadySentToday = await dbContext.ConversationEntries
                         .AsNoTracking()
                         .AnyAsync(
                             e => e.SocialMessageId == socialMessageId
                                  && e.Direction == ConversationEntryDirection.Outbound
-                                 && e.Content == template.Content
+                                 && (e.Content == template.Content || e.Content == outboundContent)
                                  && e.SentAt >= dayStartUtc
                                  && e.SentAt < dayEndUtc,
                             CancellationToken.None);
@@ -98,7 +100,7 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
                     var sendResult = await client.SendMessageAsync(new SendMessageRequest
                     {
                         RecipientId = citizenHandle,
-                        Message = template.Content,
+                        Message = outboundContent,
                     }, CancellationToken.None);
 
                     if (!sendResult.Success)
@@ -123,7 +125,7 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
                         EntryId = Guid.NewGuid(),
                         SocialMessageId = socialMessageId,
                         Direction = ConversationEntryDirection.Outbound,
-                        Content = template.Content,
+                        Content = outboundContent,
                         SentAt = sentAt,
                         ExternalEntryId = sendResult.MessageId,
                         SenderLabel = tenantName,
@@ -136,7 +138,7 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
 
                     if (message is not null)
                     {
-                        message.ResponseContent = template.Content;
+                        message.ResponseContent = outboundContent;
                         message.RespondedAtUtc = DateTimeOffset.UtcNow;
                         if (message.Status is SocialMessageStatus.New or SocialMessageStatus.Routed)
                             message.Status = SocialMessageStatus.Responded;

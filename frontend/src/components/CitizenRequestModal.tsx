@@ -9,7 +9,6 @@ import { invalidateJobs, invalidateConversations, invalidateSocialMessages } fro
 import { getActiveDepartmentId } from '../api/http'
 import { useAuth } from '../context/AuthContext'
 import { Button } from './ui/button'
-import { AttachmentUploadProgressBar } from './ui/attachment-upload-progress'
 import { DeferredComposerInput } from './ui/DeferredComposerInput'
 import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
@@ -860,9 +859,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                           }}
                         />
                       </label>
-                      {fileProgress.visible ? (
-                        <AttachmentUploadProgressBar progress={fileProgress.progress} />
-                      ) : null}
                       </div>
                       <div className="min-h-[5rem] max-h-[5rem] min-w-0 flex-1 overflow-y-auto rounded-2xl border border-slate-200 bg-white px-3 py-2">
                         {pendingFiles.length === 0 ? (

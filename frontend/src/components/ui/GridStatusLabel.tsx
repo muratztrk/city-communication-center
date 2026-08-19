@@ -35,6 +35,8 @@ export function GridStatusLabel({
   footer,
   align = 'center',
   overdueSubline,
+  /** Geciken-only grid: Yapılmakta alt satırında (Geciken) gösterme (#2859). */
+  hideInProgressOverdueSubline,
 }: {
   t: TFunction
   label: string
@@ -44,6 +46,7 @@ export function GridStatusLabel({
   align?: 'center' | 'start'
   /** İşleme Alındı + gecikmiş VT grid: alt satır `(Geciken)` (#2819). */
   overdueSubline?: boolean
+  hideInProgressOverdueSubline?: boolean
 }) {
   const overdueCombined = formatOverdueInProgressStatus(t)
   const alignClass = align === 'start' ? 'items-start text-left' : 'items-center text-center'
@@ -74,6 +77,14 @@ export function GridStatusLabel({
   if (isOverdueStatusLabel(t, label)) {
     const inProgress = t('jobs.statusLabel.inProgress', 'Yapılmakta')
     const overdue = t('jobs.statusLabel.overdue', 'Geciken')
+    if (hideInProgressOverdueSubline) {
+      return (
+        <span className={`grid-status-label--overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
+          <span className="whitespace-nowrap">{inProgress}</span>
+          {footer}
+        </span>
+      )
+    }
     return (
       <span className={`grid-status-label--overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
         <span className="whitespace-nowrap">{inProgress}</span>

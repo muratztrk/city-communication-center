@@ -33,22 +33,8 @@ export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.mp4',
 ] as const
 
-export const ATTACHMENT_FILE_ACCEPT_MIMES = [
-  'image/png',
-  'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-powerpoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-  'video/mp4',
-] as const
-
-/** `<input type="file" accept=…>` — MIME + uzantı (Windows + macOS). */
-export const ATTACHMENT_FILE_ACCEPT = [
-  ...ATTACHMENT_FILE_ACCEPT_MIMES,
-  ...ATTACHMENT_FILE_ACCEPT_EXTENSIONS,
-].join(',')
+/** `<input type="file" accept=…>` — yalnız uzantı (MIME+uzantı Windows özel dosyalarda mükerrer satır üretir, #2870). */
+export const ATTACHMENT_FILE_ACCEPT = ATTACHMENT_FILE_ACCEPT_EXTENSIONS.join(',')
 
 export function attachmentFileExtension(fileName: string): string {
   const dot = fileName.lastIndexOf('.')

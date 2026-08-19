@@ -21,7 +21,6 @@ import {
 } from '../utils/dateTimePicker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
-import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { AddressCoordinatesField, CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
@@ -773,9 +772,6 @@ export function CreateRequestPage() {
           )}
         </div>
       </div>
-      {fileProgress.visible ? (
-        <AttachmentUploadProgressBar progress={fileProgress.progress} className="mt-2" />
-      ) : null}
       {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
     </div>
   )
@@ -819,7 +815,6 @@ export function CreateRequestPage() {
     const showCoordinates = options?.showCoordinates ?? true
     const coordinatesBelowNeighborhood = options?.coordinatesBelowNeighborhood ?? false
     const inlineCoordinates = showCoordinates && !coordinatesBelowNeighborhood
-    const stackedStreetRow = coordinatesBelowNeighborhood && !inlineCoordinates
     const streetRowClassName = options?.streetRowClassName
       ?? 'address-street-no-row citizen-call-address-street-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2 w-full'
     const compactPlaceholderClass = options?.compactPlaceholders ? 'placeholder:text-[0.72rem]' : ''
@@ -830,75 +825,40 @@ export function CreateRequestPage() {
     <div className="job-field">
       <span className="job-field-label">{sectionTitle}</span>
       <div className="grid gap-2">
-        {stackedStreetRow ? (
-          <div className="grid gap-2">
-            <div className="grid gap-1">
-              <span className="text-sm font-semibold text-slate-500">
-                {t('address.neighborhoodLabel', 'Mahalle')}
-                {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-              </span>
-              <SingleSelectDropdown
-                searchable
-                clearable
-                options={neighborhoodOptions}
-                value={form.neighborhood}
-                onChange={neighborhood => {
-                  setField('neighborhood', neighborhood)
-                  setField('street', '')
-                  setField('streetNo', '')
-                  if (!neighborhood) {
-                    setField('openAddress', '')
-                  }
-                }}
-                placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
-              />
-            </div>
-            <CbsStreetNoDropdowns
-              neighborhood={form.neighborhood}
-              street={form.street}
-              streetNo={form.streetNo}
-              required={hasNeighborhood}
-              className={streetRowClassName}
-              onStreetChange={street => setField('street', street)}
-              onStreetNoChange={streetNo => setField('streetNo', streetNo)}
+        <div className={`grid gap-2 ${inlineCoordinates ? 'md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]' : 'md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]'}`}>
+          <div className="grid gap-1">
+            <span className="text-sm font-semibold text-slate-500">
+              {t('address.neighborhoodLabel', 'Mahalle')}
+              {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
+            </span>
+            <SingleSelectDropdown
+              searchable
+              clearable
+              options={neighborhoodOptions}
+              value={form.neighborhood}
+              onChange={neighborhood => {
+                setField('neighborhood', neighborhood)
+                setField('street', '')
+                setField('streetNo', '')
+                if (!neighborhood) {
+                  setField('openAddress', '')
+                }
+              }}
+              placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
             />
           </div>
-        ) : (
-          <div className={`grid gap-2 ${inlineCoordinates ? 'md:grid-cols-[minmax(0,0.9fr)_minmax(0,1.4fr)]' : 'md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]'}`}>
-            <div className="grid gap-1">
-              <span className="text-sm font-semibold text-slate-500">
-                {t('address.neighborhoodLabel', 'Mahalle')}
-                {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
-              </span>
-              <SingleSelectDropdown
-                searchable
-                clearable
-                options={neighborhoodOptions}
-                value={form.neighborhood}
-                onChange={neighborhood => {
-                  setField('neighborhood', neighborhood)
-                  setField('street', '')
-                  setField('streetNo', '')
-                  if (!neighborhood) {
-                    setField('openAddress', '')
-                  }
-                }}
-                placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
-              />
-            </div>
-            <CbsStreetNoDropdowns
-              neighborhood={form.neighborhood}
-              street={form.street}
-              streetNo={form.streetNo}
-              required={hasNeighborhood}
-              coordinates={inlineCoordinates ? (form.coordinates ?? '') : undefined}
-              onCoordinatesChange={inlineCoordinates ? value => setField('coordinates', value) : undefined}
-              className={streetRowClassName}
-              onStreetChange={street => setField('street', street)}
-              onStreetNoChange={streetNo => setField('streetNo', streetNo)}
-            />
-          </div>
-        )}
+          <CbsStreetNoDropdowns
+            neighborhood={form.neighborhood}
+            street={form.street}
+            streetNo={form.streetNo}
+            required={hasNeighborhood}
+            coordinates={inlineCoordinates ? (form.coordinates ?? '') : undefined}
+            onCoordinatesChange={inlineCoordinates ? value => setField('coordinates', value) : undefined}
+            className={streetRowClassName}
+            onStreetChange={street => setField('street', street)}
+            onStreetNoChange={streetNo => setField('streetNo', streetNo)}
+          />
+        </div>
         {showCoordinates && coordinatesBelowNeighborhood ? (
           <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
             <AddressCoordinatesField

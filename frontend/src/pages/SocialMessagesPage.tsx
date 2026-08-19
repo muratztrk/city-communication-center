@@ -24,7 +24,7 @@ import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLab
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
-import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue } from '../utils/citizenRequests'
+import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState } from '../utils/citizenRequests'
 
 const CHANNEL_BADGE_SEEN_PREFIX = 'ccc-social-channel-badge-seen-'
 const BADGE_CHANNELS = ['EDevlet', 'MobileApp'] as const
@@ -173,6 +173,20 @@ function getSocialMessageStatusKey(job: JobSummary | undefined, dueDateUtc: stri
 
 function matchesSocialRequestStatusFilter(job: JobSummary | undefined, dueDateUtc: string | null, filter: SocialRequestStatusFilter): boolean {
   if (filter === 'all') return true
+  if (!job) return filter === 'processing-received'
+  if (filter === 'processing-received') {
+    return isCitizenProcessingReceivedState({
+      status: job.status,
+      dueDateUtc,
+      taskCount: job.taskCount,
+    })
+  }
+  if (filter === 'overdue') {
+    if (job.status === 'Completed' || job.status === 'Cancelled' || job.status === 'Rejected' || job.status === 'RevisionRequested') {
+      return false
+    }
+    return dueDateUtc != null && new Date(dueDateUtc).getTime() < Date.now()
+  }
   return getSocialMessageStatusKey(job, dueDateUtc) === filter
 }
 

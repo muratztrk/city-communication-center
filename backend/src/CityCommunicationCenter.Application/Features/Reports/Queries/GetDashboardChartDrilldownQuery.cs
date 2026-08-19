@@ -178,12 +178,14 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                     return false;
                 }
 
-                var overdue = job.DueDateUtc.HasValue && job.DueDateUtc.Value < now;
-                var inProgress = overdue || (job.Status == JobStatus.Active && job.TaskCount > 0);
+                var display = CitizenVtDashboardClassification.Classify(
+                    new CitizenVtDashboardClassification.JobSlice(job.Status, job.DueDateUtc, job.TaskCount),
+                    now);
                 return statusFilter switch
                 {
-                    CitizenDepartmentDrilldownStatus.InProgress => inProgress,
-                    CitizenDepartmentDrilldownStatus.ProcessingReceived => !inProgress,
+                    CitizenDepartmentDrilldownStatus.InProgress => display is CitizenVtDashboardClassification.DisplayStatus.InProgress
+                        or CitizenVtDashboardClassification.DisplayStatus.Overdue,
+                    CitizenDepartmentDrilldownStatus.ProcessingReceived => display == CitizenVtDashboardClassification.DisplayStatus.ProcessingReceived,
                     _ => false,
                 };
             })
@@ -496,19 +498,9 @@ public sealed class GetDashboardChartDrilldownQueryHandler
 
         var rows = candidates
             .Where(job =>
-            {
-                if (job.DueDateUtc.HasValue && job.DueDateUtc.Value < now)
-                {
-                    return false;
-                }
-
-                if (job.Status == JobStatus.Active && job.TaskCount > 0)
-                {
-                    return false;
-                }
-
-                return true;
-            })
+                CitizenVtDashboardClassification.Classify(
+                    new CitizenVtDashboardClassification.JobSlice(job.Status, job.DueDateUtc, job.TaskCount),
+                    now) == CitizenVtDashboardClassification.DisplayStatus.ProcessingReceived)
             .Take(MaxRows)
             .ToList();
 
@@ -593,10 +585,9 @@ public sealed class GetDashboardChartDrilldownQueryHandler
 
         var rows = candidates
             .Where(job =>
-            {
-                var overdue = job.DueDateUtc.HasValue && job.DueDateUtc.Value < now;
-                return overdue || (job.Status == JobStatus.Active && job.TaskCount > 0);
-            })
+                CitizenVtDashboardClassification.IsInProgressBucket(
+                    new CitizenVtDashboardClassification.JobSlice(job.Status, job.DueDateUtc, job.TaskCount),
+                    now))
             .Take(MaxRows)
             .ToList();
 

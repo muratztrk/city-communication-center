@@ -932,8 +932,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const showDepartmentOutgoingCreatedBy = isDepartmentOutgoingView && activeJobView !== 'overdue'
   const showJobsGridStatusColumn = (isMyRequestsView || isDepartmentOutgoingView)
     && (activeJobView === 'all'
-      || (isDepartmentOutgoingView && activeJobView === 'overdue')
-      || (isMyRequestsView && activeJobView === 'overdue'))
+      || (isDepartmentOutgoingView && activeJobView === 'overdue'))
   const jobsTableColumnCount = useMemo(() => {
     let count = 1
     if (isMyRequestsView || isDepartmentOutgoingView) count += 2
@@ -2372,6 +2371,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               t={t}
                               label={getJobDisplayStatus(t, job)}
                               overdueSubline={activeJobView !== 'overdue' && isCitizenRequestJob(job) && isCitizenProcessingReceivedOverdue(job)}
+                              hideInProgressOverdueSubline={activeJobView === 'overdue'}
                               footer={statusDate
                                 ? <span className={`text-[0.68rem] font-bold ${job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
                                 : undefined}
@@ -2790,7 +2790,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             </span>
                           )}
                           {forwardReason ? (
-                            <span className="text-[10px] font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
+                            <span className="text-[11px] font-bold text-teal-700">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span>
                           ) : null}
                         </span>
                       </span>

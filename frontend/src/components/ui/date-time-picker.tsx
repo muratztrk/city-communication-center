@@ -28,7 +28,7 @@ interface DateTimePickerProps {
 }
 
 const DROPDOWN_WIDTH = 272
-const DROPDOWN_HEIGHT = 390 // approximate max height
+const DROPDOWN_HEIGHT = 360 // approximate max height
 
 const MONTHS_TR = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık']
 const DAYS_TR = ['Pt', 'Sa', 'Ça', 'Pe', 'Cu', 'Ct', 'Pa']
@@ -285,21 +285,21 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
                 {viewYear}
               </button>
             </div>
-            <div className="flex items-center justify-between">
+            <div className="relative flex items-center justify-center">
               <button
                 type="button"
                 onClick={prevMonth}
-                className="rounded-lg p-1 text-white/80 transition-colors hover:bg-white/20"
+                className="absolute left-0 rounded-lg p-1 text-white/80 transition-colors hover:bg-white/20"
               >
                 <ChevronLeft className="size-4" />
               </button>
-              <span className="text-base font-extrabold text-white">
+              <span className="text-base font-extrabold text-white text-center">
                 {MONTHS_TR[viewMonth]}
               </span>
               <button
                 type="button"
                 onClick={nextMonth}
-                className="rounded-lg p-1 text-white/80 transition-colors hover:bg-white/20"
+                className="absolute right-0 rounded-lg p-1 text-white/80 transition-colors hover:bg-white/20"
               >
                 <ChevronRight className="size-4" />
               </button>

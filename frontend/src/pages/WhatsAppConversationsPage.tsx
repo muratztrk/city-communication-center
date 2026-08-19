@@ -43,7 +43,6 @@ import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
-import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
@@ -1249,8 +1248,9 @@ function ConversationDetail({
             <button
               type="button"
               onClick={() => onOpenViewRequests(phoneForHeader)}
-              className="shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
             >
+              <ClipboardList {...DETAIL_ICON_PROPS} className="size-3.5" />
               {t('whatsapp.viewRequestsByNumber', 'Numaranın Talepleri')}
             </button>
           ) : null}
@@ -1491,9 +1491,6 @@ function ConversationDetail({
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
-                {fileProgress.visible ? (
-                  <AttachmentUploadProgressBar progress={fileProgress.progress} />
-                ) : null}
                     <div className="ml-auto flex items-center gap-2">
                       <SingleSelectDropdown
                         options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}

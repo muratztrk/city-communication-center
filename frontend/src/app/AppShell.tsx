@@ -392,7 +392,7 @@ export function AppShell() {
           { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboard', 'Anasayfa'), icon: LayoutDashboard },
           { pageKey: 'departmentRequestMap' as const, path: '/department-request-map', label: t('nav.departmentRequestMap', 'Birim Talep Haritası'), icon: MapPin },
           ...(showCitizenDashboard
-            ? [{ pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.dashboardCitizen', 'Anasayfa - Vatandaş'), icon: LayoutDashboard }]
+            ? [{ pageKey: 'dashboard' as const, path: '/dashboard', label: t('nav.citizenPanel', 'Vatandaş Paneli'), icon: LayoutDashboard }]
             : []),
           { pageKey: 'citizenRequestMap' as const, path: '/citizen-request-map', label: t('nav.citizenRequestMap', 'Vatandaş Talep Haritası'), icon: MapPin },
           { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact, separatorAfter: true },
@@ -406,7 +406,7 @@ export function AppShell() {
             { pageKey: 'citizenDirectory' as const, path: '/citizen-directory', label: t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi'), icon: Contact, separatorAfter: !isInternalModuleUsable },
             ...(isInternalModuleUsable
               ? [
-                  { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard },
+                  { pageKey: 'dashboard' as const, path: '/dashboard/birimler', label: t('nav.dashboardDepartments', 'Anasayfa - Birimler'), icon: LayoutDashboard, separatorBefore: true },
                   { pageKey: 'departmentRequestMap' as const, path: '/department-request-map', label: t('nav.departmentRequestMap', 'Birim Talep Haritası'), icon: MapPin, separatorAfter: true },
                 ]
               : []),

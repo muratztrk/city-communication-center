@@ -1,3 +1,42 @@
+## Round 999 — #2845–#2871 reopen (20 kart: VT durum, UI düzeltmeler)
+
+- [x] `6a852ee7` — WA İşleme Alınan filtresi geciken İşleme Alındı dahil (#2865).
+- [x] `6a84aa39` — WA header Numaranın Talepleri ClipboardList ikonu (#2852).
+- [x] `6a8533a4` — Süreç timeline Gecikti mi? satırı zebra + sağ hizada (#2869).
+- [x] `6a84c976` — WA VT popup balon metni biraz büyük (#2862).
+- [x] `6a847723` / `6a853532` — accept yalnız uzantı; m4v/mükerrer gider (#2848/#2870).
+- [x] `6a8537e4` — Reporter menü Birimler üstü ayraç (#2871).
+- [x] `6a847368` — Operator menü Vatandaş Paneli (#2845).
+- [x] `6a84c780` — Vatandaş Çağrı Mahalle sağında Cadde/No (#2861).
+- [x] `6a8477b1` — WA VT Cadde/No placeholder Mahalle boyutu (#2849).
+- [x] `6a84c32a` / `6a84ada7` — Geciken grid + pie drilldown sınıflama (#2859/#2853).
+- [x] `6a81b23c` — K ikonu aşağı (#2757).
+- [x] `6a8531b7` / `6a84cc4a` — Takvim ay ortada; yükseklik küçük (#2868/#2864).
+- [x] `6a853162` — Dosya ekle progress bar UI kaldırıldı (#2867).
+- [x] `6a84ca1b` — Yönlendirilen Talep metni büyütüldü (#2863).
+- [x] `6a84ae00` — Taleplerim Geciken Durum sütunu geri alındı (#2854 revert).
+- [x] `6a852f45` / `6a84b188` — WA/Kurum içi paging alt satır (#2866/#2857).
+
+## Round 998 — #2851–#2864 (19 kart: VT durum, WA/grid UI, progress)
+
+- [x] `6a84ada7` — Pie: İşleme Alındı (Geciken) → İşleme Alınan, Yapılmakta değil.
+- [x] `6a84b1ae` — WA / Kurum İçi FAB yalnız biri açık (`floatingChatFabCoordinator`).
+- [x] `6a84a9d9` — WA konuşma listesi İşleme Alınan sayısı (BE sınıflama).
+- [x] `6a84c780` / `6a83551b` — Dosya progress seçim sonrası, yükleme % senkronu.
+- [x] `6a84aeba` — Vatandaş Çağrı Açıklama yüksekliği azaltıldı.
+- [x] `6a847368` — Talebin Adres Cadde genişliği = Vatandaş Adres.
+- [x] `6a847723` — Dosya accept: 3gp kaldırıldı.
+- [x] `6a8477b1` / `6a81b23c` — WA VT popup Cadde/No placeholder; K ikonu yukarı hizalı.
+- [x] `6a84c573` — Geciken İşleme Alındı ≠ Yapılmakta (FE+BE).
+- [x] `6a84c32a` — Geciken-only gridlerde `(Geciken)` alt satırı gizli.
+- [x] `6a84ae9d` — Detay Süreç altında Gecikti mi.
+- [x] `6a84aa39` — WA header Numaranın Talepleri butonu.
+- [x] `6a84ae00` — Taleplerim Geciken grid Durum sütunu.
+- [x] `6a84b188` — Kurum İçi paging alt satır görünür.
+- [x] `6a84ca1b` — (Yönlendirilen Talep) text küçük.
+- [x] `6a84c976` — WA VT popup konuşma metni küçük/sağa yakın.
+- [x] `6a84cc4a` — Takvim popup biraz küçük (272px).
+
 ## Round 997 — #2828/#2829/#2830 (Geciken grid + Onay chip rozeti)
 - [x] `6a836c9a` — Birime Gelen Geciken grid: Durum sütunu Son Tarih öncesi.
 - [x] `6a836d10` — Birime Gelen Onay Bekleyen scope chip rozeti kaldırıldı (sol menüde kalır).

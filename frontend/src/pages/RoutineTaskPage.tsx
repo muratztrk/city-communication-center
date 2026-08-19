@@ -7,7 +7,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
 import { invalidateTasks } from '../api/cacheInvalidation'
 import { Button } from '../components/ui/button'
-import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { DateTimePicker } from '../components/ui/date-time-picker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
@@ -431,9 +430,6 @@ export function RoutineTaskPage() {
                         <Paperclip className="size-3.5 text-emerald-700" aria-hidden="true" />
                         {t('attachments.addFile', 'Dosya ekle')}
                       </button>
-                      {fileProgress.visible ? (
-                        <AttachmentUploadProgressBar progress={fileProgress.progress} className="ml-2" />
-                      ) : null}
                       <input
                         ref={fileInputRef}
                         type="file"

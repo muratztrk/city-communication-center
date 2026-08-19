@@ -319,19 +319,26 @@ export function JobProcessTimeline({
             </li>
           )
         })}
+        {showOverdueYesNo ? (
+          <li className="job-process-timeline__item job-process-timeline__item--overdue-yesno">
+            <div className="job-process-timeline__track">
+              <span className="job-process-timeline__indicator job-process-timeline__indicator--upcoming" aria-hidden="true" />
+            </div>
+            <div className="job-process-timeline__content min-w-0 pb-4">
+              <div className="job-process-timeline__overdue-yesno-row flex items-start justify-between gap-3 rounded-md bg-slate-50 px-2 py-1.5">
+                <div className="text-xs font-semibold tracking-wide text-slate-500">
+                  {t('jobs.detail.wasOverdue', 'Gecikti mi?')}
+                </div>
+                <div className="text-xs font-semibold text-slate-900 shrink-0">
+                  {isJobDueDateOverdue({ status: overdueJobStatus, dueDateUtc: overdueDueDateUtc })
+                    ? t('common.yes', 'Evet')
+                    : t('common.no', 'Hayır')}
+                </div>
+              </div>
+            </div>
+          </li>
+        ) : null}
       </ol>
-      {showOverdueYesNo ? (
-        <div className="job-process-timeline__overdue-yesno mt-1 pl-[1.625rem]">
-          <div className="text-xs font-semibold tracking-wide text-slate-500">
-            {t('jobs.detail.wasOverdue', 'Gecikti mi')}
-          </div>
-          <div className="mt-0.5 text-xs font-semibold text-slate-900">
-            {isJobDueDateOverdue({ status: overdueJobStatus, dueDateUtc: overdueDueDateUtc })
-              ? t('common.yes', 'Evet')
-              : t('common.no', 'Hayır')}
-          </div>
-        </div>
-      ) : null}
     </div>
   )
 }

@@ -104,7 +104,7 @@ export function matchesIncomingStatusFilter(row: IncomingRequestRow, filter: Inc
   }
 
   if (filter === 'overdue') {
-    return !isClosed && isOverdue && !isCitizenProcessingReceivedRow(row)
+    return !isClosed && isOverdue
   }
 
   // Yapılmakta geciken satırlar in-progress filtresinde kalır; İşleme Alındı geciken overdue'da (#2853 / #2860).

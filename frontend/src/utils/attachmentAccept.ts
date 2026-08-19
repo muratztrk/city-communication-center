@@ -19,18 +19,13 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.webm',
 ] as const
 
-/** Accept uzantıları — Windows özel dosyalar listesi (#2870 reopen geri getir). */
+/** MIME ile aynı uzantıyı tekrar yazma — Windows özel dosyalarda mükerrer satır (#2870 reopen). */
 export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.jpg',
   '.jpeg',
-  '.png',
-  '.pdf',
   '.doc',
-  '.docx',
   '.xls',
-  '.xlsx',
   '.ppt',
-  '.pptx',
   '.mp4',
   '.mov',
   '.webm',

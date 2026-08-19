@@ -866,7 +866,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                       </div>
                       <div className="min-h-[5rem] max-h-[5rem] min-w-0 flex-1 overflow-y-auto rounded-2xl border border-slate-200 bg-white px-3 py-2">
                         {pendingFiles.length === 0 ? (
-                          <p className="text-xs text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
+                          <p className="text-[0.65rem] leading-snug text-slate-400">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
                         ) : (
                           <ul className="space-y-1 text-xs">
                             {pendingFiles.map((file, idx) => {

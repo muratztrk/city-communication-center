@@ -1,6 +1,6 @@
 /** Ortak Dosya ekle filtresi (#2373 / #2848 / #2870).
  * Windows “özel dosyalar” MIME + uzantı karışınca ya mükerrer ya boş liste üretir.
- * Accept yalnız benzersiz uzantı; doğrulama tam izin listesi. `.jpeg` accept’te yok (.jpg ile aynı isim).
+ * Accept yalnız benzersiz uzantı; doğrulama tam izin listesi. MIME yok (mükerrer isim yok).
  */
 export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.jpg',
@@ -18,9 +18,10 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.webm',
 ] as const
 
-/** Windows özel dosyalar — her uzantı bir kez; MIME yok (#2870 reopen). */
+/** Windows özel dosyalar — her uzantı bir kez; MIME yok (#2870). `.jpeg` geri (uzantı listesi). */
 export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.jpg',
+  '.jpeg',
   '.png',
   '.pdf',
   '.doc',

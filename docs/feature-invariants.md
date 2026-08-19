@@ -800,7 +800,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`0.45rem 0.55rem`, #2403/#2416). Dosya ekle butonu `w-[6.35rem] h-[1.875rem] text-[11px] whitespace-nowrap`
   (Round 719). Açıklama `spellCheck={false}` + Windows autocorrect kapalı; Enter → `insertLineBreak`
   (liste hariç); satır aralığı yalnız `line-height` (#6a74e697). Açık Adres `h-[5rem]` — dosya
-  kutusu alt kenarıyla hizalı (#2440 reopen). Açıklama editör
+  kutusu alt kenarıyla hizalı (#2440 reopen). Boş dosya metni `Henüz dosya seçilmedi.` `text-[0.65rem]` (#2875).
+  Açıklama editör
   `font-size: 0.8rem`, yükseklik `6.85rem` (#2743/#2746). Modal gelen görsel balon içinde `w-full` (Round 719).
 - **Görsel lightbox yüksekliği (Round 720):** `SocialConversationMediaPreview` kabuk
   `max-h-[70vh]`, görsel/video `max-h-[56vh]` (WA + kurum içi — #6a75848c / #6a75722a).
@@ -1639,10 +1640,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **VT İşleme Alındı geciken (#2800/#2819/#2880):** grid `GridStatusLabel` + `overdueSubline` →
   `İşleme Alındı` alt satır `(Geciken)`; pill turkuaz kalır; detay popup
   `getCitizenRequestDetailStatusLabel` → tek satır `İşleme Alındı (Geciken)`.
-  Birime Gelen **Tümü** ve **Geciken Talepler** dahil: son tarih `dueDateUtc < now`
-  (Son Tarih kırmızı pill ile aynı); Geciken grid’de Yapılmakta alt satırı `(Geciken)` yok
-  (`hideInProgressOverdueSubline`), İşleme Alındı alt satırı durur (#2882).
-  `PendingExternalApproval` takvim-günü eşiği bu alt satırı geciktirmez.
+  Birime Gelen **Tümü** ve **Geciken Talepler**: son tarih `dueDateUtc < now`
+  (Son Tarih kırmızı pill ile aynı). Geciken grid’de İşleme Alındı ve Yapılmakta alt satırı
+  `(Geciken)` görünür (#2882 reopen). `PendingExternalApproval` takvim-günü eşiği bu alt satırı geciktirmez.
 - **Yönetici `Personelimin Görevi Çözme Süresi` grafiği:** yalnız Manager rolünde ve yöneticinin
   kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
   (`CreatedAtUtc`) ile tamamlananda `CompletedAtUtc`, iptalde son `TaskCancelled` audit zamanı
@@ -2100,8 +2100,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi Dosya ekle (#2383):** kompakt buton; 5 MB; seçilen dosya sohbet alanında önizleme (WA gibi).
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
 - **Dosya ekle accept filtresi (#2373 / #2848 / #2870):** Talep/görev/WA/kurum içi `accept`
-  yalnız benzersiz uzantı listesi (MIME yok — Windows özel dosyalarda MIME+uzantı ya mükerrer
-  ya boş liste). `.jpeg` accept’te yok (`.jpg` ile aynı isim); seçim sonrası `.jpeg` doğrulanır.
+  yalnız benzersiz uzantı listesi (MIME yok). `.jpg` ve `.jpeg` ayrı uzantı olarak listelenir.
   Logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol

@@ -1091,7 +1091,7 @@ export function IncomingRequestsPage() {
                                 }))
                                 || (currentStatusFilter !== 'overdue' && isIncomingPendingApprovalOverdue(row))
                               }
-                              hideInProgressOverdueSubline={currentStatusFilter === 'overdue'}
+                              hideInProgressOverdueSubline={false}
                               footer={statusDate
                                 ? <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
                                 : undefined}

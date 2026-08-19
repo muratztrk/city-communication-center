@@ -1,6 +1,10 @@
-## Round 1016 tick — #2882 Geciken İşleme Alındı (Geciken) + #2870 accept uzantı
+## Round 1017 tick — #2870 accept jpeg + #2882 Yapılmakta (Geciken) + #2875 WA placeholder
 
 - **STATUS:** implementing.
+
+## Round 1016 tick — #2882 Geciken İşleme Alındı (Geciken) + #2870 accept uzantı
+
+- **STATUS:** pushed `43e7f73c`; 2 kart Done; Doing: 0.
 
 ## Round 1015 tick — #2881 pie drilldown paging sabit
 

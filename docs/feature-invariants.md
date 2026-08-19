@@ -1410,6 +1410,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Modal açıkken gelen WA mesajı aynı konuşma penceresinde anlık görünür (`ccc:whatsapp-message` + 3sn poll, #2707).
 - **Yazışmaya Git popup (#2080 / #2289):** `WhatsAppConversationModal` → `compactBubbles` + `compactActions`
   (metin `text-xs`, balon padding küçültülür). Banner: kayıtlı vatandaş adı varsa numaranın **solunda** aynı satırda.
+  Banner zemini sayfa `sticky-page-header` ile aynı `linear-gradient(135deg, header-from, header-to)`.
 - **Mesaj Onayı Detaylar → Talep Durumunu Değiştir (#2083):** buton rengi `Görevi Yönlendir` ile aynı
   (`bg-[#007985]` / `hover:bg-[#006570]`), turuncu değil.
 - **Onayla ve Personel Ata self-istek metni (card #1671):**

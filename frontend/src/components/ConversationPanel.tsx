@@ -343,7 +343,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
       {!hideHeader ? (
         <div
           className="flex items-center gap-3 px-4 py-3 shrink-0 text-white"
-          style={{ backgroundColor: 'var(--color-header-from)' }}
+          style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
         >
           {headerMode === 'phone' ? (
             // Ortak WhatsApp asset; beyaz dış çerçeve yok (card #1555).

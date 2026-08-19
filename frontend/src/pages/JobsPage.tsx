@@ -2368,7 +2368,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             <GridStatusLabel
                               t={t}
                               label={getJobDisplayStatus(t, job)}
-                              overdueSubline={activeJobView !== 'overdue' && isCitizenRequestJob(job) && isCitizenProcessingReceivedOverdue(job)}
+                              overdueSubline={isCitizenRequestJob(job) && isCitizenProcessingReceivedOverdue(job)}
                               hideInProgressOverdueSubline={activeJobView === 'overdue'}
                               footer={statusDate
                                 ? <span className={`text-[0.68rem] font-bold ${job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>

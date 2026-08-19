@@ -1639,7 +1639,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **VT İşleme Alındı geciken (#2800/#2819/#2880):** grid `GridStatusLabel` + `overdueSubline` →
   `İşleme Alındı` alt satır `(Geciken)`; pill turkuaz kalır; detay popup
   `getCitizenRequestDetailStatusLabel` → tek satır `İşleme Alındı (Geciken)`.
-  Birime Gelen **Tümü** dahil: son tarih `dueDateUtc < now` (Son Tarih kırmızı pill ile aynı);
+  Birime Gelen **Tümü** ve **Geciken Talepler** dahil: son tarih `dueDateUtc < now`
+  (Son Tarih kırmızı pill ile aynı); Geciken grid’de Yapılmakta alt satırı `(Geciken)` yok
+  (`hideInProgressOverdueSubline`), İşleme Alındı alt satırı durur (#2882).
   `PendingExternalApproval` takvim-günü eşiği bu alt satırı geciktirmez.
 - **Yönetici `Personelimin Görevi Çözme Süresi` grafiği:** yalnız Manager rolünde ve yöneticinin
   kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
@@ -2097,11 +2099,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.
 - **Kurum içi Dosya ekle (#2383):** kompakt buton; 5 MB; seçilen dosya sohbet alanında önizleme (WA gibi).
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
-- **Dosya ekle accept filtresi (#2373 / #2848):** Talep/görev/WA/kurum içi dosya seçimlerinde ortak
-  `ATTACHMENT_FILE_ACCEPT` **MIME + uzantı** (Windows filtre). Accept’te `image/jpeg`, `application/msword`,
-  `video/quicktime`, `video/webm`, `video/3gpp`, `video/mp4` (m4v alias) yok; uzantıda `.mov`/`.webm`/`.m4v` yok —
-  MIME ile çakışan uzantılar accept'e tekrar yazılmaz (mükerrer satır önlemi, #2870). — özel dosyalar listesinde
-  jpe/jfif/mov/webm/3gpp/dot vb. görünmez. Seçim sonrası `.jpeg`/`.mov`/`.webm` doğrulaması devam eder.
+- **Dosya ekle accept filtresi (#2373 / #2848 / #2870):** Talep/görev/WA/kurum içi `accept`
+  yalnız benzersiz uzantı listesi (MIME yok — Windows özel dosyalarda MIME+uzantı ya mükerrer
+  ya boş liste). `.jpeg` accept’te yok (`.jpg` ile aynı isim); seçim sonrası `.jpeg` doğrulanır.
   Logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol

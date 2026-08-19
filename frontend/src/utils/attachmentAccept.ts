@@ -1,7 +1,6 @@
-/** Ortak Dosya ekle filtresi (#2373 / #2848).
- * MIME + uzantı birlikte (Windows filtre). `image/jpeg`, `video/quicktime`, `video/webm`, `video/3gpp`,
- * `video/mp4` (m4v alias) ve `application/msword` accept'te yok.
- * MIME ile aynı uzantıyı accept'e tekrar yazma — Windows özel dosyalarda mükerrer satır (#2870 / #2848 reopen).
+/** Ortak Dosya ekle filtresi (#2373 / #2848 / #2870).
+ * Windows “özel dosyalar” MIME + uzantı karışınca ya mükerrer ya boş liste üretir.
+ * Accept yalnız benzersiz uzantı; doğrulama tam izin listesi. `.jpeg` accept’te yok (.jpg ile aynı isim).
  */
 export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.jpg',
@@ -19,34 +18,23 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.webm',
 ] as const
 
-/** MIME ile aynı uzantıyı tekrar yazma — Windows özel dosyalarda mükerrer satır (#2870 reopen). */
+/** Windows özel dosyalar — her uzantı bir kez; MIME yok (#2870 reopen). */
 export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.jpg',
-  '.jpeg',
+  '.png',
+  '.pdf',
   '.doc',
+  '.docx',
   '.xls',
+  '.xlsx',
   '.ppt',
+  '.pptx',
   '.mp4',
   '.mov',
   '.webm',
 ] as const
 
-/** MIME listesi — `video/mp4` Windows özel dosyalarda m4v satırı üretir (#2848). */
-export const ATTACHMENT_FILE_ACCEPT_MIMES = [
-  'image/png',
-  'application/pdf',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-powerpoint',
-  'application/vnd.openxmlformats-officedocument.presentationml.presentation',
-] as const
-
-/** `<input type="file" accept=…>` — MIME + ek uzantılar (mükerrer yok). */
-export const ATTACHMENT_FILE_ACCEPT = [
-  ...ATTACHMENT_FILE_ACCEPT_MIMES,
-  ...ATTACHMENT_FILE_ACCEPT_EXTENSIONS,
-].join(',')
+export const ATTACHMENT_FILE_ACCEPT = ATTACHMENT_FILE_ACCEPT_EXTENSIONS.join(',')
 
 export function attachmentFileExtension(fileName: string): string {
   const dot = fileName.lastIndexOf('.')

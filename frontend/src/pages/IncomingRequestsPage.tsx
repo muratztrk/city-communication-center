@@ -1084,13 +1084,12 @@ export function IncomingRequestsPage() {
                               label={getIncomingStatusLabel(t, row)}
                               channel={row.isCitizenRequest ? row.sourceChannel : null}
                               overdueSubline={
-                                currentStatusFilter !== 'overdue'
-                                && ((row.isCitizenRequest && isCitizenProcessingReceivedOverdue({
+                                (row.isCitizenRequest && isCitizenProcessingReceivedOverdue({
                                   status: row.status,
                                   dueDateUtc: row.dueDateUtc,
                                   taskCount: row.taskCount ?? 0,
                                 }))
-                                || isIncomingPendingApprovalOverdue(row))
+                                || (currentStatusFilter !== 'overdue' && isIncomingPendingApprovalOverdue(row))
                               }
                               hideInProgressOverdueSubline={currentStatusFilter === 'overdue'}
                               footer={statusDate

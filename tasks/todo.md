@@ -1,3 +1,11 @@
+## Round 1016 tick — #2882 Geciken İşleme Alındı (Geciken) + #2870 accept uzantı
+
+- **STATUS:** implementing.
+
+## Round 1015 tick — #2881 pie drilldown paging sabit
+
+- **STATUS:** pushed `87b9bed6`; 1 kart Done; Doing: 0.
+
 ## Round 1014 tick — #2880 İşleme Alındı (Geciken) Tümü grid
 
 - **STATUS:** pushed `3297ddd5`; Birime Gelen Tümü: son tarihi geçmiş İşleme Alındı alt satır `(Geciken)`.

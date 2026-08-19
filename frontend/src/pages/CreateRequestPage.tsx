@@ -731,7 +731,7 @@ export function CreateRequestPage() {
             if (fileInputRef.current) fileInputRef.current.value = ''
           }}
         />
-        <div className="request-pending-files-panel flex h-full min-h-[3.25rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-1.5">
+        <div className="request-pending-files-panel flex h-full min-h-[5rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-1.5">
           {pendingFiles.length === 0 ? (
             <p className="text-sm text-slate-500">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
           ) : (

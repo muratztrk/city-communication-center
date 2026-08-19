@@ -19,9 +19,12 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.webm',
 ] as const
 
-/** MIME listesinde olmayan veya eski Office uzantıları — MIME ile çakışan .png/.pdf/.docx vb. yok. */
+/** MIME listesinde olmayan uzantılar — MIME ile çakışan .png/.pdf/.docx vb. yok (#2870 reopen). */
 export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.jpg',
+  '.jpeg',
+  '.mov',
+  '.webm',
   '.doc',
   '.xls',
   '.ppt',

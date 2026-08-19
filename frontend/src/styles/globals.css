@@ -1269,12 +1269,12 @@
 
   /* Talep oluştur: seçili dosya listesi dikey scroll (#2876). */
   .request-pending-files-panel {
-    max-height: 3.25rem;
+    max-height: 5rem;
     overflow-y: auto;
   }
 
   .request-pending-files-panel--tall {
-    max-height: 5.5rem;
+    max-height: 6.5rem;
     overflow-y: auto;
   }
 

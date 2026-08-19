@@ -447,7 +447,7 @@ export function RoutineTaskPage() {
                         }}
                       />
                     </div>
-                    <div className="request-pending-files-panel--tall flex h-full min-h-[5.5rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-2">
+                    <div className="request-pending-files-panel--tall flex h-full min-h-[6.5rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-2">
                       {pendingFiles.length === 0 ? (
                         <p className="text-sm text-slate-500">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
                       ) : (

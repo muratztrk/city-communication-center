@@ -262,8 +262,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yapışık); lightbox `document.body` portal + `z-[400]` ile detay modalının üstünde açılır (#2709/#2732).
   Detay popup'ta **Talep Bilgileri** altında Talep Ekleri satırı yalnız ek varsa görünür (#2734 reopen).
   **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle, üst değer satırının sağ kenarıyla aynı düşey hizadadır (değer kolonu `align-items: flex-end`; scrollbar-gutter ek kümesini içeri kaydırmaz) (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
-  biraz açıktır (#2735). **Dosya ekle** yükleme progress bar UI **gösterilmez** (#2867); XHR
-  `report` callback'i iç yükleme oranını yine hesaplar.
+  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar görünmez; dosya seçildikten veya yükleme
+  başladığında görünür, XHR `report` ile gerçek yükleme oranına göre ilerler; %100 sonrası kapanır (#2821).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -294,8 +294,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   {SocialMessage, CitizenRequest, EDevlet}.
 - **Talep oluşturma yetki hatalarında kullanıcı metni "talep" der, "iş" değil**
   (`CreateJobCommand`, card #1079).
-- **Talep Oluştur ek yükleme:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının seçili dosyaları
-  kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar UI yok (#2867).
+- **Talep Oluştur ek yükleme ilerlemesi:** Birim İçi/Birim Dışı/Vatandaş Çağrı formlarının
+  seçili dosyaları kayıt oluştuktan sonra XHR progress callback'iyle yüklenir; progress bar
+  Dosya ekle tıklanınca bar görünmez; dosya seçildikten sonra (bekleyen ek) veya kayıt sonrası XHR
+  `report` ile gerçek yükleme oranına göre ilerler (#2821).
   Vatandaş create/edit akışı da seçili dosyaları oluşan job'a gerçekten yükler (card #1610).
 - **Adres girişleri mahalle kapılıdır:** talep/rutin/e-Devlet/Taleplerim düzenleme formlarında
   Cadde/Sokak, No ve Adres Tarifi alanları Mahalle seçilmeden aktif olmaz; mahalle temizlenirse
@@ -332,8 +334,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kullanır: son görsel dengede 1.75rem/11px `Dosya ekle` solda, mevcut ekler sağ kart
   sınırına yaslıdır; bu scope Taleplerim/Talep Ekleri buton ölçüsünü değiştirmez
   (card #1601 sixth reopen).
-  Detay popup düzenleme yüzeylerinde ve Görevi Tamamla / Görevi İptal Et popup'larında progress bar
-  UI gösterilmez (#2867); XHR progress callback'i korunur.
+  Detay popup düzenleme yüzeylerindeki yükleme progress bar'ı Dosya ekle tıklanınca görünmez;
+  dosya seçildikten sonra görünür (#2821). XHR progress callback'i korunur. Görevi Tamamla / Görevi İptal Et popup'larındaki `Dosya ekle` anlık yüklemesi de aynı
+  ortak progress bileşenini kullanır (card #1610).
   Düzenleme modundaki `rich-list` ekleri yatay sarılır; dosya kutusu border/zemin taşımaz, dosya
   adı mavi ve uzantısı küçük harftir. Yükleme butonu yalnız doğal genişliğini alır, liste kalan
   yatay alanın tamamını kullanır ve `display:grid !important` ile iki eşit kolondur;
@@ -2092,7 +2095,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
 - **Dosya ekle accept filtresi (#2373 / #2848):** Talep/görev/WA/kurum içi dosya seçimlerinde ortak
   `ATTACHMENT_FILE_ACCEPT` **MIME + uzantı** (Windows filtre). Accept’te `image/jpeg`, `application/msword`,
-  `video/quicktime`, `video/webm`, `video/3gpp`, `video/mp4` (m4v alias) yok; uzantıda `.mov`/`.webm`/`.m4v` yok — özel dosyalar listesinde
+  `video/quicktime`, `video/webm`, `video/3gpp`, `video/mp4` (m4v alias) yok; uzantıda `.mov`/`.webm`/`.m4v` yok —
+  MIME ile çakışan uzantılar accept'e tekrar yazılmaz (mükerrer satır önlemi, #2870). — özel dosyalar listesinde
   jpe/jfif/mov/webm/3gpp/dot vb. görünmez. Seçim sonrası `.jpeg`/`.mov`/`.webm` doğrulaması devam eder.
   Logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);

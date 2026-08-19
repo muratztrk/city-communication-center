@@ -14,6 +14,7 @@ import {
 } from '../../hooks/useSignalR'
 import type { Attachment, InternalConversationDetail, InternalConversationSummary, InternalMessage, UserLookup } from '../../types/platform'
 import { SimpleImageAttachmentIcon } from '../ui/SimpleImageAttachmentIcon'
+import { AttachmentUploadProgressBar } from '../ui/attachment-upload-progress'
 import { useLocalFileSelectProgress } from '../../hooks/useLocalFileSelectProgress'
 import { SocialConversationMediaPreview } from '../SocialConversationMediaPreview'
 import { formatConversationDayDivider } from '../../utils/conversationDayLabel'
@@ -973,6 +974,9 @@ export function InternalMessagesFab() {
                   <Paperclip className="size-3 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
+                {fileProgress.visible ? (
+                  <AttachmentUploadProgressBar progress={fileProgress.progress} />
+                ) : null}
                 {fileError ? <p className="text-xs font-semibold text-red-600">{fileError}</p> : null}
                 <div className="flex items-end gap-2">
                   <textarea

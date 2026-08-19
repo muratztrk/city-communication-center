@@ -1,7 +1,7 @@
 /** Ortak Dosya ekle filtresi (#2373 / #2848).
  * MIME + uzantı birlikte (Windows filtre). `image/jpeg`, `video/quicktime`, `video/webm`, `video/3gpp`,
- * `video/mp4` (m4v alias) ve `application/msword` accept'te yok — özel dosyalarda jpe/jfif/mov/m4v/webm/3gpp/dot vb. çıkar.
- * Seçim sonrası `.jpeg` / `.mov` / `.webm` doğrulaması `isAllowedAttachmentFileName` ile devam eder.
+ * `video/mp4` (m4v alias) ve `application/msword` accept'te yok.
+ * MIME ile aynı uzantıyı accept'e tekrar yazma — Windows özel dosyalarda mükerrer satır (#2870 / #2848 reopen).
  */
 export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.jpg',
@@ -19,21 +19,16 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.webm',
 ] as const
 
-/** Accept attribute uzantıları — MIME yerine uzantı (jpeg/mov/webm/dot alias önlemi). */
+/** MIME listesinde olmayan veya eski Office uzantıları — MIME ile çakışan .png/.pdf/.docx vb. yok. */
 export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.jpg',
-  '.png',
-  '.pdf',
   '.doc',
-  '.docx',
   '.xls',
-  '.xlsx',
   '.ppt',
-  '.pptx',
   '.mp4',
 ] as const
 
-/** MIME listesi — `video/mp4` Windows özel dosyalarda m4v satırı üretir (#2848 reopen). */
+/** MIME listesi — `video/mp4` Windows özel dosyalarda m4v satırı üretir (#2848). */
 export const ATTACHMENT_FILE_ACCEPT_MIMES = [
   'image/png',
   'application/pdf',
@@ -44,7 +39,7 @@ export const ATTACHMENT_FILE_ACCEPT_MIMES = [
   'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 ] as const
 
-/** `<input type="file" accept=…>` — MIME + uzantı (Windows + macOS). */
+/** `<input type="file" accept=…>` — MIME + ek uzantılar (mükerrer yok). */
 export const ATTACHMENT_FILE_ACCEPT = [
   ...ATTACHMENT_FILE_ACCEPT_MIMES,
   ...ATTACHMENT_FILE_ACCEPT_EXTENSIONS,

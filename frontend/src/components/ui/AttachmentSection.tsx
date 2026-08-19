@@ -18,6 +18,7 @@ import {
 } from '../../utils/attachmentLimits'
 import { ConfirmDialog } from './confirm-dialog'
 import { SimpleImageAttachmentIcon } from './SimpleImageAttachmentIcon'
+import { AttachmentUploadProgressBar } from './attachment-upload-progress'
 import { AttachmentImagePreviewButton } from './AttachmentImagePreviewButton'
 import { useLocalFileSelectProgress } from '../../hooks/useLocalFileSelectProgress'
 
@@ -175,27 +176,35 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     <div className={sectionClassName}>
       {/* Upload action — salt-okunur modda gizli (card 537). */}
       {!readOnly && (
-        <div className="attachment-upload-zone">
-          <button
-            type="button"
-            aria-label={t('attachments.uploadLabel', 'Fotoğraf Ekle')}
-            className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            disabled={isDisabled}
-            onClick={() => fileInputRef.current?.click()}
-          >
-            <Paperclip className="size-3.5 text-emerald-600" aria-hidden="true" />
-            {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
-          </button>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={ATTACHMENT_FILE_ACCEPT}
-            multiple
-            className="hidden"
-            disabled={isDisabled}
-            onChange={e => void handleFiles(e.target.files)}
-          />
-        </div>
+        <>
+          <div className="attachment-upload-zone">
+            <button
+              type="button"
+              aria-label={t('attachments.uploadLabel', 'Fotoğraf Ekle')}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={isDisabled}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <Paperclip className="size-3.5 text-emerald-600" aria-hidden="true" />
+              {uploading ? t('attachments.uploading', 'Yükleniyor...') : t('attachments.addFile', 'Dosya ekle')}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept={ATTACHMENT_FILE_ACCEPT}
+              multiple
+              className="hidden"
+              disabled={isDisabled}
+              onChange={e => void handleFiles(e.target.files)}
+            />
+          </div>
+          {uploading || pickerProgress.visible ? (
+            <AttachmentUploadProgressBar
+              progress={pickerProgress.progress}
+              className="attachment-upload-progress mt-2"
+            />
+          ) : null}
+        </>
       )}
       {validationError && (
         <div className="alert alert-error text-sm">{validationError}</div>

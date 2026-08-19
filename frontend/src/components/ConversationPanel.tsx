@@ -6,6 +6,7 @@ import { api } from '../api/client'
 import { invalidateSocialMessages } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { Button } from './ui/button'
+import { AttachmentUploadProgressBar } from './ui/attachment-upload-progress'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ConversationEntryBubble } from './ConversationEntryBubble'
 import type { ConversationEntryBubbleData } from './ConversationEntryBubble'
@@ -527,6 +528,9 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 <Paperclip className={`shrink-0 text-emerald-600 ${compactActions ? 'size-3' : 'size-3.5'}`} aria-hidden="true" />
                 {t('attachments.addFile', 'Dosya ekle')}
               </button>
+            ) : null}
+            {enableWhatsAppFileAttachment && fileProgress.visible ? (
+              <AttachmentUploadProgressBar progress={fileProgress.progress} />
             ) : null}
                 {internalDepartmentOptions ? (
                   <div className="ml-auto flex items-center gap-2">

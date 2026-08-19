@@ -43,6 +43,7 @@ import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
+import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
@@ -1491,6 +1492,9 @@ function ConversationDetail({
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
+                {fileProgress.visible ? (
+                  <AttachmentUploadProgressBar progress={fileProgress.progress} />
+                ) : null}
                     <div className="ml-auto flex items-center gap-2">
                       <SingleSelectDropdown
                         options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}

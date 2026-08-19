@@ -21,6 +21,7 @@ import {
 } from '../utils/dateTimePicker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { AddressCoordinatesField, CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
@@ -706,30 +707,30 @@ export function CreateRequestPage() {
           <Paperclip className="mb-1 size-4 text-slate-400" />
           <span className="font-semibold text-slate-700">{t('attachments.dragHint', 'Dosyayı buraya sürükleyin veya tıklayın')}</span>
           <span className="mt-0.5 text-xs text-slate-400">{t('attachments.uploadHint', 'JPG, PNG, PDF, Office — toplam max 5 MB')}</span>
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={ATTACHMENT_FILE_ACCEPT}
-            multiple
-            className="hidden"
-            disabled={saving}
-            onChange={event => {
-              setFileError(null)
-              const incoming = Array.from(event.target.files ?? [])
-              let accepted = false
-              setPendingFiles(prev => {
-                const err = validatePendingBatch(prev, incoming)
-                if (err) { setFileError(err); return prev }
-                setFileError(null)
-                accepted = true
-                return [...prev, ...incoming]
-              })
-              if (accepted) fileProgress.holdAtZero()
-              else fileProgress.stop()
-              if (fileInputRef.current) fileInputRef.current.value = ''
-            }}
-          />
         </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept={ATTACHMENT_FILE_ACCEPT}
+          multiple
+          className="hidden"
+          disabled={saving}
+          onChange={event => {
+            setFileError(null)
+            const incoming = Array.from(event.target.files ?? [])
+            let accepted = false
+            setPendingFiles(prev => {
+              const err = validatePendingBatch(prev, incoming)
+              if (err) { setFileError(err); return prev }
+              setFileError(null)
+              accepted = true
+              return [...prev, ...incoming]
+            })
+            if (accepted) fileProgress.holdAtZero()
+            else fileProgress.stop()
+            if (fileInputRef.current) fileInputRef.current.value = ''
+          }}
+        />
         <div className="flex h-full min-h-[3.25rem] flex-col rounded-2xl border border-slate-200 bg-white px-3 py-1.5">
           {pendingFiles.length === 0 ? (
             <p className="text-sm text-slate-500">{t('attachments.pendingEmpty', 'Henüz dosya seçilmedi.')}</p>
@@ -772,6 +773,9 @@ export function CreateRequestPage() {
           )}
         </div>
       </div>
+      {fileProgress.visible ? (
+        <AttachmentUploadProgressBar progress={fileProgress.progress} className="mt-2" />
+      ) : null}
       {fileError && <div className="mt-1 text-xs text-red-500">{fileError}</div>}
     </div>
   )

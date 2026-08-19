@@ -3986,9 +3986,19 @@
     max-height: 9rem !important;
   }
 
-  /* Vatandaş Çağrı: Talebin / Vatandaş Cadde genişliği eşit (#2845). */
+  /* Cadde/Sokak + No placeholder — Vatandaş Çağrı sayfası. */
+  #citizen-request-form .address-street-no-row .field-select span.text-slate-400 {
+    font-size: 0.875rem !important;
+  }
+
+  /* WA VT popup: dropdown placeholder biraz küçük (#2849 reopen — yalnız popup). */
+  .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row .field-select span.text-slate-400 {
+    font-size: 0.78rem !important;
+  }
+
+  /* Vatandaş Çağrı Talebin Adres: Cadde/Sokak sütunu geniş (#2873). */
   #citizen-request-form .citizen-call-address-street-row {
-    grid-template-columns: minmax(0, 1fr) 8.25rem !important;
+    grid-template-columns: minmax(0, 1.35fr) 8.25rem !important;
   }
 
   #citizen-request-form .rich-text-toolbar-divider {
@@ -4017,12 +4027,6 @@
     width: 7rem !important;
     min-width: 7rem !important;
     max-width: 7rem !important;
-  }
-
-  /* Cadde/Sokak + No placeholder — Mahalle seçiniz ile aynı boyut (#2849 reopen). */
-  #citizen-request-form .address-street-no-row .field-select span.text-slate-400,
-  .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row .field-select span.text-slate-400 {
-    font-size: 0.875rem !important;
   }
 
   #citizen-request-form .address-street-no-row .field-input {

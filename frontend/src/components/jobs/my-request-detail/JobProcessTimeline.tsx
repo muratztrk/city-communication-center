@@ -323,7 +323,7 @@ export function JobProcessTimeline({
           <li className="job-process-timeline__item job-process-timeline__item--overdue-yesno">
             <div className="job-process-timeline__track" aria-hidden="true" />
             <div className="job-process-timeline__content min-w-0 pb-4">
-              <div className="job-process-timeline__overdue-yesno-row flex items-start justify-between gap-3 rounded-md bg-slate-50 pb-1.5 pr-2 pt-0">
+              <div className="job-process-timeline__overdue-yesno-row flex items-start justify-between gap-3 rounded-md bg-slate-50 py-2 pr-2 pl-1">
                 <div className="text-xs font-semibold leading-[0.875rem] tracking-wide text-slate-500">
                   {t('jobs.detail.wasOverdue', 'Gecikti mi?')}
                 </div>

@@ -14,11 +14,9 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
   '.ppt',
   '.pptx',
   '.mp4',
-  '.mov',
-  '.webm',
 ] as const
 
-/** Windows özel dosyalar — her uzantı bir kez; MIME yok (#2870). `.jpeg` geri (uzantı listesi). */
+/** Windows özel dosyalar — her uzantı bir kez; MIME yok (#2870). `.mov`/`.webm` yok (#2870). */
 export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.jpg',
   '.jpeg',
@@ -31,8 +29,6 @@ export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.ppt',
   '.pptx',
   '.mp4',
-  '.mov',
-  '.webm',
 ] as const
 
 export const ATTACHMENT_FILE_ACCEPT = ATTACHMENT_FILE_ACCEPT_EXTENSIONS.join(',')

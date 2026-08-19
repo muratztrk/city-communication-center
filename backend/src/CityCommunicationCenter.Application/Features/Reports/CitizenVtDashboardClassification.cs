@@ -52,4 +52,25 @@ internal static class CitizenVtDashboardClassification
 
     internal static bool IsInProgressBucket(JobSlice job, DateTimeOffset now) =>
         Classify(job, now) is DisplayStatus.InProgress or DisplayStatus.Overdue;
+
+    /// <summary>
+    /// Vatandaş Talepleri pie + drilldown: Geciken = tüm açık taleplerde son tarih geçmiş
+    /// (İşleme Alındı geciken dahil). İşleme Alındı dilimi gecikenleri içermez (#2888/#2889).
+    /// WA konuşma sayıları <see cref="Classify"/> kullanmaya devam eder.
+    /// </summary>
+    internal static DisplayStatus ClassifyCitizenRequestsPie(JobSlice job, DateTimeOffset now)
+    {
+        var display = Classify(job, now);
+        if (display is DisplayStatus.Completed or DisplayStatus.Cancelled)
+        {
+            return display;
+        }
+
+        if (IsPastDue(job.DueDateUtc, now))
+        {
+            return DisplayStatus.Overdue;
+        }
+
+        return display;
+    }
 }

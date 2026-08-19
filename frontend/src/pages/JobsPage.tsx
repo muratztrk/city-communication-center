@@ -3026,6 +3026,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           showOverdueYesNo
                           overdueDueDateUtc={detail.dueDateUtc}
                           overdueJobStatus={detail.status}
+                          overdueCompletedAtUtc={detail.completedAtUtc}
+                          overdueUpdatedAtUtc={detail.updatedAtUtc}
                         />
                       )
                     })()}

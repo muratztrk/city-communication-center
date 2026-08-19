@@ -176,3 +176,25 @@ export function isJobDueDateOverdue(job: { status: string; dueDateUtc: string | 
   if (isPendingApprovalJobStatus(job.status)) return isDueDatePastCalendarDay(job.dueDateUtc)
   return new Date(job.dueDateUtc).getTime() < Date.now()
 }
+
+/** Tamamlandı/iptalde Gecikti mi = kapanış anı son tarihten sonra mı (#2885). */
+export function wasJobOverdueWhenClosed(job: {
+  status: string
+  dueDateUtc: string | null | undefined
+  completedAtUtc?: string | null
+  updatedAtUtc?: string | null
+}): boolean {
+  if (!job.dueDateUtc) return false
+  const due = new Date(job.dueDateUtc).getTime()
+  if (Number.isNaN(due)) return false
+  if (job.status === 'Completed') {
+    const closed = job.completedAtUtc ? new Date(job.completedAtUtc).getTime() : Date.now()
+    return !Number.isNaN(closed) && due < closed
+  }
+  if (job.status === 'Cancelled' || job.status === 'Rejected') {
+    const closedAt = job.updatedAtUtc ?? job.completedAtUtc
+    const closed = closedAt ? new Date(closedAt).getTime() : Date.now()
+    return !Number.isNaN(closed) && due < closed
+  }
+  return isJobDueDateOverdue(job)
+}

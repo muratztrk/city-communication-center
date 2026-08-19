@@ -353,6 +353,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Rutin görev düzenleme geçmişi ek karşılaştırması:** Önceki/Sonraki karşılaştırma kartları
   korunur; kartların içindeki tekil ekler ayrıca çerçevelenmez ve birden fazla ek iki sütunda
   yan yana akar (card #1626).
+- **Süreç Gecikti mi (#2855/#2885):** terminal talepte kapanış (`completedAtUtc` / iptalde
+  `updatedAtUtc`) son tarihten önceyse Hayır; sonra ise Evet. Açık taleplerde `isJobDueDateOverdue`.
 - **Süreç onay tarihleri:** `Talebin Birim Yöneticisinin Onay Tarihi` ve `Talebi Gerçekleştiren
   Birim Yöneticisinin Onay Tarihi` etiketleri sade kalır; onaylayan yönetici adı varsa tarih
   değerinin yanında parantez içinde, küçük ve yeşil renkte gösterilir. Manager/SystemAdmin/Reporter
@@ -611,6 +613,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Diğer sayaçlar `Tümü` satırının altındaki satırda kalır ve
   tıklanınca Vatandaş Talepleri gridini ilgili talep durumuyla (`requestStatus`) filtreler. Sol
   konuşma kartlarındaki aynı görünür durum kırılımı salt metin kalır.
+  Sayaçlar WhatsApp kanallı **benzersiz JobId** (#2883/#2884); aynı talep birden fazla mesajda sayılmaz.
 - **WhatsApp FAB ilgili kullanıcı görünürlüğü (#2286):** WhatsApp bildirim FAB'ı yalnız
   `Operator` (Vatandaş Talep Operatörü) rolünde görünür; SystemAdmin dahil diğer rollerde çıkmaz.
   Konuşma listesi filtresi: aktif/açık konuşmalarda operatörler için; diğer kullanıcılar için
@@ -801,6 +804,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (Round 719). Açıklama `spellCheck={false}` + Windows autocorrect kapalı; Enter → `insertLineBreak`
   (liste hariç); satır aralığı yalnız `line-height` (#6a74e697). Açık Adres `h-[5rem]` — dosya
   kutusu alt kenarıyla hizalı (#2440 reopen). Boş dosya metni `Henüz dosya seçilmedi.` `text-[0.65rem]` (#2875).
+  Dosya ekle `w-[5.85rem]`; boş dosya kutusu `flex-[1.15]` (#2875).
   Açıklama editör
   `font-size: 0.8rem`, yükseklik `6.85rem` (#2743/#2746). Modal gelen görsel balon içinde `w-full` (Round 719).
 - **Görsel lightbox yüksekliği (Round 720):** `SocialConversationMediaPreview` kabuk
@@ -1639,7 +1643,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `useStaffMetricFourCol` Staff rolünü de kapsar.
 - **VT İşleme Alındı geciken (#2800/#2819/#2880):** grid `GridStatusLabel` + `overdueSubline` →
   `İşleme Alındı` alt satır `(Geciken)`; pill turkuaz kalır; detay popup
-  `getCitizenRequestDetailStatusLabel` → tek satır `İşleme Alındı (Geciken)`.
+  `getCitizenRequestDetailStatusLabel` → `İşleme Alındı` (`(Geciken)` yok — #2860).
   Birime Gelen **Tümü** ve **Geciken Talepler**: son tarih `dueDateUtc < now`
   (Son Tarih kırmızı pill ile aynı). Geciken grid’de İşleme Alındı ve Yapılmakta alt satırı
   `(Geciken)` görünür (#2882 reopen). `PendingExternalApproval` takvim-günü eşiği bu alt satırı geciktirmez.
@@ -1741,6 +1745,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kutucukları (Bekleyen Taleplerim / Bekleyen Görevlerim) gösterilir. **Bekleyen Taleplerim**
   kutucuk değeri = `myRequests` pie `Bekleyen` + `Geciken` dilim toplamı (#2561).
   `/dashboard/birimler` sayfasında banner üstü Geri butonu gösterilmez (card #1889).
+  Vatandaş dashboard banner başlığı `Vatandaş Paneli` (`dashboard.citizenPanelTitle`); sol menü
+  `Anasayfa - Vatandaş` kalır (#2887). Anasayfa ve Vatandaş Paneli pie ızgarasında
+  `DashboardNotificationsCard` yok (#2886).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
   Vatandaş Talep Kanalları). Vatandaş pie 1. satır mahalle üçlüsü, 2. satır birim üçlüsü (#2606).
@@ -2101,7 +2108,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
 - **Dosya ekle accept filtresi (#2373 / #2848 / #2870):** Talep/görev/WA/kurum içi `accept`
   yalnız benzersiz uzantı listesi (MIME yok). `.jpg` ve `.jpeg` ayrı uzantı olarak listelenir.
-  Logo yükleme (Ayarlar Görünüm) ayrı kalır.
+  `.mov` ve `.webm` accept’te yok (#2870). Logo yükleme (Ayarlar Görünüm) ayrı kalır.
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol
   sütun); Login Page Açıklama Ana Renk altında tam sütun genişliği. Başlıklar ayrı satır, logo Ekle butonu ile
@@ -2376,9 +2383,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Toast (#2074/#2075 reopen):** iptal başarı mesajı `error` (kırmızı); auto-hide **≤5 sn**;
   `onClose` ref ile sabitlenir (parent re-render timer’ı sıfırlamaz).
 - **Mesaj Onayı / grid Başlık (#2076/#2077):** `cell-title` max-width ~11.5rem; overflow tooltip metin anchor'ı altında.
-- **Vatandaş Talepleri pie (#r546/#6a6ceed0):** VT sayısı `WhereHasCitizenRequestNumber`;
+- **Vatandaş Talepleri pie (#r546/#6a6ceed0/#2888/#2889):** VT sayısı `WhereHasCitizenRequestNumber`;
   dilim tıklanınca `DashboardChartDrilldownModal` (Reporter/Operator/SystemAdmin);
-  BE `BuildCitizenRowsAsync`.
+  BE `BuildCitizenRowsAsync`. Pie `ClassifyCitizenRequestsPie`: Geciken = açık + `due < now`
+  (İşleme Alındı geciken dahil); İşleme Alındı dilimi gecikenleri içermez — drilldown ile aynı.
 - **Pie / sütun Filtreyi sil (#r546/#2096/#6a75c994):** `fromPie=1` **veya** aktif sütun başlığı
   filtresi varken scope-chip satırında (aynı konum) kırmızı yanıp sönen `Filtreyi sil`; tıklanınca
   sütun filtreleri + pie query temizlenir. Başka sayfaya geçince (`pathname`) sütun filtreleri

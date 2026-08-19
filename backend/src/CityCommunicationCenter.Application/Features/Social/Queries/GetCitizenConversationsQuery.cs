@@ -313,9 +313,12 @@ public sealed class GetCitizenConversationsQueryHandler
                 var inProgressCount = 0;
                 var completedCount = 0;
                 var cancelledCount = 0;
+                var countedJobIds = new HashSet<Guid>();
                 foreach (var message in conversationMessages)
                 {
-                    if (message.JobId is not Guid classifiedJobId
+                    if (message.Channel != SocialChannel.WhatsApp
+                        || message.JobId is not Guid classifiedJobId
+                        || !countedJobIds.Add(classifiedJobId)
                         || !jobSliceById.TryGetValue(classifiedJobId, out var jobSlice))
                     {
                         continue;

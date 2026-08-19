@@ -9,7 +9,6 @@ import { getActiveDepartmentId } from '../api/http'
 import { StatusPill } from '../components/ui/status-pill'
 import { PieChart, PieLegendSearch } from '../components/ui/PieChart'
 import { DashboardChartDrilldownModal } from '../components/DashboardChartDrilldownModal'
-import { DashboardNotificationsCard } from '../components/DashboardNotificationsCard'
 import { CitizenChannelMessagesModal } from '../components/CitizenChannelMessagesModal'
 import { AllCitizenRequestsModal } from '../components/AllCitizenRequestsModal'
 import { AllDepartmentRequestsModal } from '../components/AllDepartmentRequestsModal'
@@ -649,7 +648,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   }
 
   const pageTitle = effectiveView === 'citizen'
-    ? t('nav.dashboardCitizen', 'Anasayfa - Vatandaş')
+    ? t('dashboard.citizenPanelTitle', 'Vatandaş Paneli')
     : effectiveView === 'departments'
       // Vatandaş operatörü: birim anasayfa banner = "Anasayfa" (#6a75bed6).
       ? (role === 'Operator' ? t('nav.dashboard', 'Anasayfa') : t('nav.dashboardDepartments', 'Anasayfa - Birimler'))
@@ -966,9 +965,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               </section>
             )
           })}
-        {effectiveView !== 'full' || chartCards.length > 0 || statusChartsQuery.isLoading || dashboardQuery.isLoading
-          ? (role === 'Reporter' && effectiveView !== 'full' ? null : <DashboardNotificationsCard />)
-          : null}
       </section>
 
       {dashboardQuery.isError ? (

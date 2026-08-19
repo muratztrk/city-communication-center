@@ -224,7 +224,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
 
     private static CitizenJobDisplayStatus ClassifyCitizenJobStatus(CitizenJobStatusItem job, DateTimeOffset now)
     {
-        var display = CitizenVtDashboardClassification.Classify(
+        var display = CitizenVtDashboardClassification.ClassifyCitizenRequestsPie(
             new CitizenVtDashboardClassification.JobSlice(job.Status, job.DueDateUtc, job.TaskCount),
             now);
         return display switch

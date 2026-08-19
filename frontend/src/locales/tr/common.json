@@ -425,6 +425,7 @@
   },
   "dashboard": {
     "title": "Anasayfa",
+    "citizenPanelTitle": "Vatandaş Paneli",
     "subtitle": "Açık iş yükünü, son işleri ve gelen mesajları tek ekranda izleyin.",
     "pieJobDetailTitle": "Talep",
     "liveSummary": "Canlı Özet",

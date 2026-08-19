@@ -5,7 +5,7 @@ import type { JobProcessStep } from './buildJobProcessSteps'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { isPendingApprovalText, splitDateTimeParts, formatDueDateTime, pendingApprovalValueClassName } from './format'
 import { isInProgressProcessStatusLabel } from '../../../utils/localization'
-import { isJobDueDateOverdue } from '../../../utils/dateTimePicker'
+import { wasJobOverdueWhenClosed } from '../../../utils/dateTimePicker'
 
 function getLineClass(
   step: JobProcessStep,
@@ -77,6 +77,8 @@ interface JobProcessTimelineProps {
   showOverdueYesNo?: boolean
   overdueDueDateUtc?: string | null
   overdueJobStatus?: string
+  overdueCompletedAtUtc?: string | null
+  overdueUpdatedAtUtc?: string | null
 }
 
 function DateTimeParts({ parts }: { parts: { date: string; time: string } }) {
@@ -194,8 +196,16 @@ export function JobProcessTimeline({
   showOverdueYesNo = false,
   overdueDueDateUtc,
   overdueJobStatus = 'Active',
+  overdueCompletedAtUtc,
+  overdueUpdatedAtUtc,
 }: JobProcessTimelineProps) {
   const { t } = useTranslation()
+  const overdueYes = wasJobOverdueWhenClosed({
+    status: overdueJobStatus,
+    dueDateUtc: overdueDueDateUtc,
+    completedAtUtc: overdueCompletedAtUtc,
+    updatedAtUtc: overdueUpdatedAtUtc,
+  })
   const pulseIndex = (() => {
     const pendingIndex = steps.findIndex(step => step.state === 'pending')
     if (pendingIndex >= 0) return pendingIndex
@@ -327,8 +337,8 @@ export function JobProcessTimeline({
                 <div className="text-xs font-semibold leading-[0.875rem] tracking-wide text-slate-500">
                   {t('jobs.detail.wasOverdue', 'Gecikti mi?')}
                 </div>
-                <div className={`text-xs font-semibold shrink-0 tabular-nums leading-[0.875rem] ${isJobDueDateOverdue({ status: overdueJobStatus, dueDateUtc: overdueDueDateUtc }) ? 'text-red-600' : 'text-slate-900'}`}>
-                  {isJobDueDateOverdue({ status: overdueJobStatus, dueDateUtc: overdueDueDateUtc })
+                <div className={`text-xs font-semibold shrink-0 tabular-nums leading-[0.875rem] ${overdueYes ? 'text-red-600' : 'text-slate-900'}`}>
+                  {overdueYes
                     ? t('common.yes', 'Evet')
                     : t('common.no', 'Hayır')}
                 </div>

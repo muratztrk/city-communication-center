@@ -1,3 +1,7 @@
+## Round 1018 tick — 10 kart pie/WA/banner/dosya/detay
+
+- **STATUS:** implementing.
+
 ## Round 1017 tick — #2870 accept jpeg + #2882 Yapılmakta (Geciken) + #2875 WA placeholder
 
 - **STATUS:** pushed `a15ae11d`; 3 kart Done; Doing: 0.

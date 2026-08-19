@@ -423,6 +423,7 @@
   },
   "dashboard": {
     "title": "Home",
+    "citizenPanelTitle": "Citizen Panel",
     "subtitle": "Track open workload, recent tasks, and incoming messages on one screen.",
     "pieJobDetailTitle": "Request",
     "liveSummary": "Live Summary",

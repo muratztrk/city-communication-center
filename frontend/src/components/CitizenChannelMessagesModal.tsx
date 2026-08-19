@@ -124,7 +124,7 @@ export function CitizenChannelMessagesModal({
     <>
       <div className="fixed inset-0 z-[90] flex items-center justify-center bg-slate-950/45 p-4" onClick={onClose}>
         <div
-          className="detail-modal-shell detail-modal-shell--my-request flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+          className="detail-modal-shell detail-modal-shell--my-request detail-modal-shell--chart-drilldown flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
           onClick={event => event.stopPropagation()}
         >
           <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-5 py-3.5">
@@ -175,8 +175,7 @@ export function CitizenChannelMessagesModal({
             </div>
           </div>
 
-          <div className="min-h-0 flex-1 overflow-auto px-4 pb-4">
-            <div className="pt-4">
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-4 pt-4">
               {error ? (
                 <div className="error">{error}</div>
               ) : rows === null ? (
@@ -272,7 +271,6 @@ export function CitizenChannelMessagesModal({
                   />
                 </div>
               )}
-            </div>
           </div>
         </div>
       </div>

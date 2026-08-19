@@ -1,6 +1,6 @@
 ## Round 1014 tick — #2880 İşleme Alındı (Geciken) Tümü grid
 
-- **STATUS:** implementing; Birime Gelen Tümü / VT grid: son tarihi geçmiş İşleme Alındı alt satır `(Geciken)`.
+- **STATUS:** pushed `3297ddd5`; Birime Gelen Tümü: son tarihi geçmiş İşleme Alındı alt satır `(Geciken)`.
 
 ## Round 1013 tick — #2870 reopen accept mükerrer uzantı sil
 

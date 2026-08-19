@@ -5061,11 +5061,24 @@
   }
 
   /* Pie drilldown: başlık şeridi standart gridview gibi üstten kavisli (#6a6a578d), gövde
-     metni biraz küçük (#2087). Kavis wrap'te; `overflow: hidden` th köşelerini kırpar. */
+     metni biraz küçük (#2087). Kavis wrap'te; tablo gövdesi kayar, paging popup altında kalır (#2881). */
+  .dashboard-drilldown-grid-shell {
+    display: flex;
+    min-height: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
   .dashboard-drilldown-table-wrap {
     border-radius: 0.9rem 0.9rem 0 0;
     overflow: hidden;
     border: 1px solid rgb(226 232 240);
+  }
+
+  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-wrap {
+    min-height: 0;
+    flex: 1 1 auto;
+    overflow: auto;
   }
 
   .detail-modal-shell--all-requests .dashboard-drilldown-table-wrap {

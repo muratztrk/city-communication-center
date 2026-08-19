@@ -1653,6 +1653,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Anasayfa-Vatandaş mahalle/birim/VT pie popup’larında **Birim sütunu yok** (#2689).
   Pie drilldown shell `67vw` / `80rem` (#2690). Sütun filtresi varken yanıp sönen **Filtreyi sil**
   Yazdır’ın solundadır (#2683); chip punto/padding biraz küçüktür (#2683 reopen).
+  Pie drilldown grid: kayıtlar tablo wrap içinde kayar; `TablePagination` popup gövdesinin
+  altında görünür kalır, kayıtlarla birlikte aşağı itilmez (#2881).
   "Banner sayımına bağlı grafik" istekleri yeni backend aggregation gerektirir (#731 bu
   yüzden ertelendi).
 - **Dashboard pie chart'ları sıfır veride de görünür kalmalı:** `showZeroSlices` kullanılan

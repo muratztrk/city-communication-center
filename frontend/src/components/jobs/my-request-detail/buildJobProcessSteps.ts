@@ -5,7 +5,7 @@ import {
   isCitizenProcessingReceivedOverdue,
   shouldShowCitizenTargetApprovalDate,
   countOpenWorkTasks,
-  getCitizenRequestDetailStatusLabel,
+  getCitizenRequestStatusLabel,
 } from '../../../utils/citizenRequests'
 import { formatDateTime, formatDueDateTime } from './format'
 import { formatOverdueInProgressStatus } from '../../../utils/localization'
@@ -527,7 +527,7 @@ export function buildJobProcessSteps(
     steps.push({
       id: 'status',
       label: t('jobs.columns.status', 'Durum'),
-      displayValue: getCitizenRequestDetailStatusLabel(t, detail),
+      displayValue: getCitizenRequestStatusLabel(t, detail),
       dateTimeUtc: null,
     })
   }

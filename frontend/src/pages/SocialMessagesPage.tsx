@@ -776,7 +776,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                                 dueDateUtc: dueDateUtc,
                                 taskCount: linkedJob.taskCount ?? 0,
                               })}
-                              hideInProgressOverdueSubline={wasOverdueFilter}
+                              hideInProgressOverdueSubline={false}
                               footer={statusDateText
                                 ? <span className={`text-[0.68rem] font-bold ${linkedJob?.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{statusDateText}</span>
                                 : undefined}

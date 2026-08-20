@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import type { TFunction } from 'i18next'
 import { DateTimePicker } from '../../ui/date-time-picker'
-import { clampDueDatePickerValue, earliestDueDatePickerValue } from '../../../utils/dateTimePicker'
+import { clampDueDatePickerValue, earliestDueDatePickerValue, wasJobOverdueWhenClosed } from '../../../utils/dateTimePicker'
 import { Button } from '../../ui/button'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { RichTextEditor } from '../../ui/RichTextEditor'
@@ -321,6 +321,23 @@ export function MyRequestDetailMainCard({
     : detail.requestType === 'ExternalUnit'
       ? t('jobs.requestType.external', 'Birim Dışı')
       : t('jobs.requestType.internal', 'Birim İçi')
+  const overdueYes = wasJobOverdueWhenClosed({
+    status: detail.status,
+    dueDateUtc: detail.dueDateUtc,
+    completedAtUtc: detail.completedAtUtc,
+    updatedAtUtc: detail.updatedAtUtc,
+  })
+  const trailingInfoRows = [
+    ...(infoExtraTrailingRows ?? []),
+    {
+      label: t('jobs.detail.wasOverdue', 'Gecikti mi?'),
+      value: (
+        <span className={overdueYes ? 'text-red-600' : 'text-slate-900'}>
+          {overdueYes ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}
+        </span>
+      ),
+    },
+  ]
   const requestNumberText = isCitizenRequestJob(detail)
     ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)
     : formatJobDisplayNumberText(detail, locale)
@@ -519,7 +536,7 @@ export function MyRequestDetailMainCard({
                 // Vatandaş talebinde Proje mi anlamsız — UI + yazdır (#r465/#r466).
                 hideProjectRow={hideProjectRow || isCitizenRequestJob(detail) || !shouldShowJobProjectField(detail)}
                 canEditCitizenContact={citizenSourceMessage?.channel === 'Phone'}
-                extraTrailingRows={infoExtraTrailingRows}
+                extraTrailingRows={trailingInfoRows}
               />
             </>
           )}
@@ -538,11 +555,6 @@ export function MyRequestDetailMainCard({
             inProgressAssigneeName={formatJobAssigneeNames(detail)}
             statusNoteContent={statusNoteContent}
             dueDateContent={dueDateContent}
-            showOverdueYesNo
-            overdueDueDateUtc={detail.dueDateUtc}
-            overdueJobStatus={detail.status}
-            overdueCompletedAtUtc={detail.completedAtUtc}
-            overdueUpdatedAtUtc={detail.updatedAtUtc}
           />
         </div>
       </div>

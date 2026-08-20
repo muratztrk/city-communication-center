@@ -73,7 +73,7 @@
   },
   "citizenRequestMap": {
     "eyebrow": "Vatandaş talepleri",
-    "subtitle": "Bölgenizdeki vatandaş talepleri mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.",
+    "subtitle": "Bölgenizdeki vatandaş talepleri açık adres bilgileriyle haritada gösterilir.",
     "resetView": "Başlangıç görünümü",
     "live": "Canlı harita",
     "pinCount": "{{count}} konum",
@@ -2005,6 +2005,7 @@
     "openAddressPlaceholder": "Mevki, daire, kat bilgisi giriniz..."
   },
   "routineTask": {
-    "submit": "Görev Oluştur"
+    "submit": "Görev Oluştur",
+    "subtitle": "Yönetici onay gerektirmeyen rutin görev oluşturun."
   }
 }

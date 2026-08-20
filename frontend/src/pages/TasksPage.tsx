@@ -2719,11 +2719,6 @@ const pageKicker = isMyTasksView
                                 inProgressAssigneeName={taskDetail.assignedUserDisplayName ?? taskDetail.ownerDisplayName ?? null}
                                 statusNoteContent={statusNoteContent}
                                 dueDateContent={dueDateContent}
-                                showOverdueYesNo
-                                overdueDueDateUtc={parentJobDetail?.dueDateUtc ?? taskDetail.dueDateUtc}
-                                overdueJobStatus={parentJobDetail?.status ?? taskDetail.currentStatus}
-                                overdueCompletedAtUtc={parentJobDetail?.completedAtUtc ?? taskDetail.completedAtUtc}
-                                overdueUpdatedAtUtc={parentJobDetail?.updatedAtUtc}
                               />
                               {firstStatusChange && latestStatusChange && firstChangedStatus ? (
                                 <div className="task-process-status-change mt-1 border-t border-slate-100 pt-1">

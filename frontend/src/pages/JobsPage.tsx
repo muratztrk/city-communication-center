@@ -86,7 +86,7 @@ import { printHtmlDocument } from '../utils/printDocument'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { richTextToPlainText } from '../utils/richText'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
-import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue, toLocalDateKey } from '../utils/dateTimePicker'
+import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue, toLocalDateKey, wasJobOverdueWhenClosed } from '../utils/dateTimePicker'
 
 interface ScopeChipFiltersProps {
   searchText: string
@@ -2895,6 +2895,22 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         <div className={`job-detail-field-row__value ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</div>
                       </div>
                     ))}
+                    {(() => {
+                      const overdueYes = wasJobOverdueWhenClosed({
+                        status: detail.status,
+                        dueDateUtc: detail.dueDateUtc,
+                        completedAtUtc: detail.completedAtUtc,
+                        updatedAtUtc: detail.updatedAtUtc,
+                      })
+                      return (
+                        <div className="job-detail-field-row job-detail-field-row--request-info">
+                          <div className="job-detail-field-row__label">{t('jobs.detail.wasOverdue', 'Gecikti mi?')}</div>
+                          <div className={`job-detail-field-row__value ${overdueYes ? 'text-red-600' : 'text-slate-900'}`}>
+                            {overdueYes ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}
+                          </div>
+                        </div>
+                      )
+                    })()}
                     </div>
                   </div>
                   <div className="min-w-0 p-4">
@@ -3023,11 +3039,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           statusActorName={shouldShowJobStatusActorName(detail) ? detail.statusActorDisplayName : null}
                           inProgressAssigneeName={formatJobAssigneeNames(detail)}
                           dueDateContent={dueDateContent}
-                          showOverdueYesNo
-                          overdueDueDateUtc={detail.dueDateUtc}
-                          overdueJobStatus={detail.status}
-                          overdueCompletedAtUtc={detail.completedAtUtc}
-                          overdueUpdatedAtUtc={detail.updatedAtUtc}
                         />
                       )
                     })()}

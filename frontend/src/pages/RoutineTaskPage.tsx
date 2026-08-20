@@ -286,7 +286,7 @@ export function RoutineTaskPage() {
           <div className="space-y-1">
             <div className="page-kicker">{t('nav.myTasks', 'Görevlerim')}</div>
             <h1 className="page-title">{pageTitle}</h1>
-            <p className="page-subtitle text-base">{t('routineTask.subtitle', 'Onay gerektirmeyen kişisel görev')}</p>
+            <p className="page-subtitle">{t('routineTask.subtitle', 'Yönetici onay gerektirmeyen rutin görev oluşturun.')}</p>
           </div>
         </div>
       </header>

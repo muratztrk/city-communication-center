@@ -74,7 +74,7 @@ export function CitizenRequestMapPage() {
               {t('nav.citizenRequestMap', 'Vatandaş Talep Haritası')}
             </h1>
             <p className="max-w-3xl text-sm leading-6 text-white/82">
-              {t('citizenRequestMap.subtitle', 'Bölgenizdeki vatandaş talepleri mahalle, cadde/sokak, no içeren açık adres bilgileriyle haritada gösterilir.')}
+              {t('citizenRequestMap.subtitle', 'Bölgenizdeki vatandaş talepleri açık adres bilgileriyle haritada gösterilir.')}
             </p>
           </div>
           <div className="flex items-start justify-start lg:justify-end">

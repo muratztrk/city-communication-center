@@ -73,7 +73,7 @@
   },
   "citizenRequestMap": {
     "eyebrow": "Citizen requests",
-    "subtitle": "Citizen requests in your area are shown on the map with neighborhood, street/number, and open address.",
+    "subtitle": "Citizen requests in your area are shown on the map with their open address.",
     "resetView": "Initial map view",
     "live": "Live map",
     "pinCount": "{{count}} locations",
@@ -1963,6 +1963,7 @@
     "openAddressPlaceholder": "Location, apartment, floor details..."
   },
   "routineTask": {
-    "submit": "Create Task"
+    "submit": "Create Task",
+    "subtitle": "Create a routine task that does not require manager approval."
   }
 }

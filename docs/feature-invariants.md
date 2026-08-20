@@ -32,11 +32,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   "İ"yi bozar → **her zaman `toLocaleLowerCase('tr')`** (hem sorgu hem haystack). Bkz.
   `hooks/useColumnFilters.ts`.
 - **Tüm hata/validasyon mesajları Türkçe.**
-- **Tarayıcıdan yerel ağa istek atma (#6a6e1900):** herkese açık bir host'ta açılan sayfa
+- **Tarayıcıdan yerel ağa istek atma (#6a6e1900 / #2192):** herkese açık bir host'ta açılan sayfa
   private-range bir adrese istek atarsa Chrome "Yerel ağınızdaki diğer cihazlara erişin" izni
   sorar. `api/config.ts` bunu **şemadan bağımsız** engeller (http'de de) ve aynı origin'e düşer;
   bu geri düşüş sayfanın origin'inin `/api`, `/connect`, `/hubs` proxy'lemesine dayanır (nginx
   yapıyor). Frontend'de LAN'a giden tek yol `VITE_API_ORIGIN`'dir — yeni mutlak URL ekleme.
+  HTML yanıtlarında `Permissions-Policy: local-network-access=()` olmalı; `location /` ve
+  `location = /index.html` kendi `add_header` kümesiyle server kalıtımını kestiği için politikayı
+  **orada da** tekrarla (yoksa kutusu çıkar). Uygulama başka LAN cihazına bağlanmaz — yalnız
+  aynı HTTPS origin.
 - **Modallar `zoom` stacking-context içinde** (~0.81 scale). Tam ekran / her şeyin üstünde
   durması gerekenler `createPortal(..., document.body)`. Portal sonrası modal scale 1.0'a
   döner → **`max-h-[min(85dvh,52rem)]`** kullan, sabit `h-[..dvh]` DEĞİL (bkz. lessons.md).
@@ -104,6 +108,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `page-title` clamp tavanı ~1.85rem (masaüstü) / ~1.45rem (mobil) — 2rem/1.55rem değil (#2637).
   Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
   `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
+  Banner `page-kicker` `font-weight: 600` (800 değil, #2894).
+- **Vatandaş Talep Haritası alt yazı (#2892):** "açık adres bilgileriyle haritada gösterilir" —
+  mahalle/cadde/no sıralaması yok.
+- **Rutin Görev Oluştur banner (#2893):** alt yazı `Yönetici onay gerektirmeyen rutin görev oluşturun.`
+  ve `page-subtitle` (diğer banner alt yazılarıyla aynı punto; `text-base` yok).
 - **Mobil filtre/çip satırları tek satıra zorlanmaz:** telefonlarda çipler ve banner filtreleri
   iki eşit kolonlu grid'e akar, bir satıra en az iki buton sığar; banner filtrelerinde arama
   kutusu tam satırdır, başlangıç/bitiş tarihleri aramanın altında iki eşit kolon olarak yan yana durur
@@ -353,8 +362,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Rutin görev düzenleme geçmişi ek karşılaştırması:** Önceki/Sonraki karşılaştırma kartları
   korunur; kartların içindeki tekil ekler ayrıca çerçevelenmez ve birden fazla ek iki sütunda
   yan yana akar (card #1626).
-- **Süreç Gecikti mi (#2855/#2885):** terminal talepte kapanış (`completedAtUtc` / iptalde
+- **Süreç Gecikti mi (#2855/#2885/#2895):** terminal talepte kapanış (`completedAtUtc` / iptalde
   `updatedAtUtc`) son tarihten önceyse Hayır; sonra ise Evet. Açık taleplerde `isJobDueDateOverdue`.
+  Satır **Talep Bilgileri** listesinin en altında; Süreç kolonunda yok.
 - **Süreç onay tarihleri:** `Talebin Birim Yöneticisinin Onay Tarihi` ve `Talebi Gerçekleştiren
   Birim Yöneticisinin Onay Tarihi` etiketleri sade kalır; onaylayan yönetici adı varsa tarih
   değerinin yanında parantez içinde, küçük ve yeşil renkte gösterilir. Manager/SystemAdmin/Reporter
@@ -1936,7 +1946,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Vatandaş Talep No **yıl+sıra desc** (en yüksek numara üstte, #2691). Durum hücresi
   Taleplerim `StatusPill` + `GridStatusLabel`. **Tüm Talep Durumları** dropdown’da Geciken yok;
   yanında **Gecikti mi?** checkbox (`wasOverdue=1`, detay `wasJobOverdueWhenClosed` ile aynı, #2860);
-  durum dropdown’undan `ml-3` boşluk.
+  durum dropdown’undan `ml-3` boşluk. Checkbox açıkken Yapılmakta satırında alt satır `(Geciken)`
+  gösterilir (`hideInProgressOverdueSubline` kapalı, #2891).
   Dropdown seçildikten sonra genişlik sabit kalır (`scope-chip-status-select`, #2573). Etiket dropdown hücresinde buton ortalı; açık menü
   satırları sola yaslı (card #1878 reopen — ortalanmamalı).
 - **Vatandaş Talepleri Talep Etiketi (card #1878/#r461/#r462/#r463/#6a6d8fe8):** grid hücresinde

@@ -2366,7 +2366,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             <GridStatusLabel
                               t={t}
                               label={getJobDisplayStatus(t, job)}
-                              overdueSubline={isCitizenRequestJob(job) && isCitizenProcessingReceivedOverdue(job)}
+                              overdueSubline={
+                                (isCitizenRequestJob(job) && isCitizenProcessingReceivedOverdue(job))
+                                || (
+                                  isJobDueDateOverdue(job)
+                                  && (job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
+                                )
+                              }
                               hideInProgressOverdueSubline={activeJobView === 'overdue'}
                               footer={statusDate
                                 ? <span className={`text-[0.68rem] font-bold ${job.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
@@ -3029,6 +3035,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           statusActorName={shouldShowJobStatusActorName(detail) ? detail.statusActorDisplayName : null}
                           inProgressAssigneeName={formatJobAssigneeNames(detail)}
                           dueDateContent={dueDateContent}
+                          overdueDueDateUtc={detail.dueDateUtc}
+                          overdueJobStatus={detail.status}
+                          overdueCompletedAtUtc={detail.completedAtUtc}
+                          overdueUpdatedAtUtc={detail.updatedAtUtc}
                         />
                       )
                     })()}

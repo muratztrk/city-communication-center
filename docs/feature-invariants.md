@@ -1160,8 +1160,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız Onaylanmış'ta. Onaylanmış grid **Son Tarih** sütunu yok, **Durum** + **Onay Tarihi**
   Birime Gelen Onaylanmış grid **Son Tarih** sütunu yok, **Durum** + **Onay Tarihi**
   (#2825). Birime Gelen **Geciken** grid: **Durum** Son Tarih'ten önce (#2829). Onay bekleyen +
-  son tarih geçmiş: Durum `Onay Bekleyen` + alt satır `(Geciken)` (#2831); detay popup tek satır
-  `Onay Bekleyen Geciken` (#2832). Birime Gelen
+  son tarih geçmiş: Durum `Onay Bekleyen` + alt satır `(Geciken)` (#2831/#2898, Geciken filtresinde
+  de); detay popup tek satır `Onay Bekleyen Geciken` (#2832). Süreç'te sahip/hedef onay tarihi
+  `Onay Bekleyen` ve Gecikti mi Evet ise metin + katman kırmızı (#2897). Birime Gelen
   sayfa içi Onay Bekleyen scope chip'inde rozet yok — sayı yalnız sol menüde (#2830). Birimden
   Giden **Geciken** grid: **Oluşturan** yok; Gittiği Yer sonrası **Durum** (#2828). Birimden Giden
   Onaylanmış da tamamlanmış/iptal/yapılmakta hariç (#2826).

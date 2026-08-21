@@ -130,7 +130,7 @@ function ProcessStepDateValue({
     const pendingApprovalText = isPendingApprovalText(step.displayValue)
     return (
       <div className={className}>
-        <span className={pendingApprovalText ? 'job-process-timeline__pending-approval-text inline' : 'inline'}>
+        <span className={pendingApprovalText ? `job-process-timeline__pending-approval-text inline${className.includes('text-red-600') ? ' job-process-timeline__pending-approval-text--overdue' : ''}` : 'inline'}>
           {step.displayValue}
           {step.displayMeta ? (
             <span className={`ml-1 align-baseline text-xs font-semibold ${metaTone}`}>
@@ -235,6 +235,9 @@ export function JobProcessTimeline({
           // Durum: Onay Bekleyen + Yapılmakta mavi (#1643/#1651); Son Tarihi Geçmiş turuncu (#1644).
           // Onay adımları Onay Bekleyen → mavi pending (card #1645).
           const isStatusStep = step.id === 'status'
+          const approvalPendingOverdue = overdueYes
+            && (step.id === 'ownerApproval' || step.id === 'targetApproval')
+            && isPendingApprovalText(step.displayValue)
           const assigneeName = inProgressAssigneeName?.trim() ?? ''
           const inProgressAssigneeSuffix = isStatusStep
             && assigneeName
@@ -244,43 +247,51 @@ export function JobProcessTimeline({
             : ''
           const statusUseBlue = isStatusStep && step.state === 'pending'
           const statusUseOrange = isStatusStep && step.state === 'current'
-          const valueTone = statusUseBlue
-            ? 'text-sky-500'
-            : statusUseOrange
-              ? 'text-[#f97316]'
-              : step.id === 'completionDate'
-                ? 'text-emerald-600'
-                : step.id === 'cancelDate'
-                    ? 'text-red-600'
-                    : step.state === 'pending'
-                      ? 'text-sky-500'
-                      : step.state === 'current'
-                        ? 'text-[#f97316]'
-                        : step.state === 'upcoming'
-                          ? 'text-slate-400'
-                          : 'text-slate-900'
-          const displayMetaTone = statusUseBlue
-            ? 'text-sky-500'
-            : statusUseOrange
-              ? 'text-[#f97316]'
-              : step.state === 'pending'
-                ? 'text-sky-500'
-                : step.state === 'current'
-                  ? 'text-[#f97316]'
-                  : 'text-emerald-600'
-          const labelClass = statusUseBlue
-            ? 'text-sky-500'
-            : statusUseOrange
-              ? 'text-orange-500'
-              : getStepLabelClass(step.state)
-          const indicatorState = statusUseBlue
-            ? 'pending'
-            : statusUseOrange
-              ? 'current'
-              : step.state
+          const valueTone = approvalPendingOverdue
+            ? 'text-red-600'
+            : statusUseBlue
+              ? 'text-sky-500'
+              : statusUseOrange
+                ? 'text-[#f97316]'
+                : step.id === 'completionDate'
+                  ? 'text-emerald-600'
+                  : step.id === 'cancelDate'
+                      ? 'text-red-600'
+                      : step.state === 'pending'
+                        ? 'text-sky-500'
+                        : step.state === 'current'
+                          ? 'text-[#f97316]'
+                          : step.state === 'upcoming'
+                            ? 'text-slate-400'
+                            : 'text-slate-900'
+          const displayMetaTone = approvalPendingOverdue
+            ? 'text-red-600'
+            : statusUseBlue
+              ? 'text-sky-500'
+              : statusUseOrange
+                ? 'text-[#f97316]'
+                : step.state === 'pending'
+                  ? 'text-sky-500'
+                  : step.state === 'current'
+                    ? 'text-[#f97316]'
+                    : 'text-emerald-600'
+          const labelClass = approvalPendingOverdue
+            ? 'text-red-600'
+            : statusUseBlue
+              ? 'text-sky-500'
+              : statusUseOrange
+                ? 'text-orange-500'
+                : getStepLabelClass(step.state)
+          const indicatorState = approvalPendingOverdue
+            ? 'terminal-danger'
+            : statusUseBlue
+              ? 'pending'
+              : statusUseOrange
+                ? 'current'
+                : step.state
 
           return (
-            <li key={step.id} className="job-process-timeline__item">
+            <li key={step.id} className={`job-process-timeline__item${approvalPendingOverdue ? ' job-process-timeline__item--approval-pending-overdue' : ''}`}>
               <div className="job-process-timeline__track">
                 <StepIndicator state={indicatorState} shouldPulse={index === pulseIndex} />
                 {!isLast && <span className={`job-process-timeline__line ${lineClass}`} aria-hidden="true" />}

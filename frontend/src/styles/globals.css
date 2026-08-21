@@ -977,6 +977,19 @@
     gap: 0.75rem;
   }
 
+  /* Süreç Onay Bekleyen + Gecikti mi Evet: kırmızı metin ve katman (#2897). */
+  .job-process-timeline__item--approval-pending-overdue .job-process-timeline__content {
+    border-radius: 0.375rem;
+    background: rgb(254 226 226);
+    padding-left: 0.35rem;
+    padding-right: 0.35rem;
+  }
+
+  .detail-modal-shell .job-process-timeline__pending-approval-text--overdue,
+  .job-process-timeline__pending-approval-text--overdue {
+    color: rgb(220 38 38);
+  }
+
   /* Gecikti mi? — zebra sola; satır yüksekliği artırıldı (#2869 reopen). */
   .job-process-timeline__item--overdue-yesno .job-process-timeline__track {
     min-height: 0.875rem;

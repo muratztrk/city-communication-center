@@ -1089,7 +1089,7 @@ export function IncomingRequestsPage() {
                                   dueDateUtc: row.dueDateUtc,
                                   taskCount: row.taskCount ?? 0,
                                 }))
-                                || (currentStatusFilter !== 'overdue' && isIncomingPendingApprovalOverdue(row))
+                                || isIncomingPendingApprovalOverdue(row)
                               }
                               hideInProgressOverdueSubline={false}
                               footer={statusDate

@@ -102,13 +102,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   logo görseli `imageClassName ~86%` ile çerçeve içinde büyütülür (çerçeve boyutu değişmez);
   yüklenen görselin intrinsic boyutu login/sidebar çerçevesini büyütemez (card #2252).
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
-  `font-weight: 500` kullanır; Anasayfa / Vatandaş Bilgi Listesi gradient banner
-  `.section-card > .grid.border-b .page-title` da `font-weight: 500` (#2511 reopen); Vatandaş Talep Haritası
+  `font-weight: 400` kullanır; Anasayfa / Vatandaş Bilgi Listesi gradient banner
+  `.section-card > .grid.border-b .page-title` da `font-weight: 400` (#2511 / #2894 reopen); Vatandaş Talep Haritası
   banner başlığı aynı `page-title` sınıfını kullanır (#2579). En büyük banner metni
   `page-title` clamp tavanı ~1.85rem (masaüstü) / ~1.45rem (mobil) — 2rem/1.55rem değil (#2637).
   Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
   `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
-  Banner `page-kicker` `font-weight: 600` (800 değil, #2894).
+  Banner `page-kicker` `font-weight: 500`, banner `page-title` `400` (#2894 reopen).
+  Sol menü sayfa bannerları (sticky-header + dizin eyebrow `font-medium`). **Canlı Özet** kicker
+  `font-semibold` kalır.
 - **Vatandaş Talep Haritası alt yazı (#2892):** "açık adres bilgileriyle haritada gösterilir" —
   mahalle/cadde/no sıralaması yok.
 - **Rutin Görev Oluştur banner (#2893):** alt yazı `Yönetici onay gerektirmeyen rutin görev oluşturun.`
@@ -1412,6 +1414,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil Talep Bilgileri satırları:** `Talep Yeri / Oluşturan` ve `Talebi Onaylayan` dahil
   etiket üstte, değer alt satırda (yan yana değil); `StackedFieldValue` mobilde sola yaslı
   (card #1743). Masaüstü sağa yaslı yan yana düzen korunur.
+- **Talep Bilgileri sıra (#2896):** `Talep Yapılan Birim` `Talebi Onaylayan`'dan önce.
+  Talebi Onaylayan yalnız kişi adı (birim yok).
 - **Birimler / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
   `SingleSelectDropdown` (card #1709). Kullanıcı düzenleme dept/rol menüsünde arama + kompakt satır (card #1706).
 - **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).

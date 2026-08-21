@@ -380,7 +380,7 @@ export function CitizenDirectoryPage() {
           style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
         >
           <div className="space-y-1">
-            <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">
+            <div className="text-[0.72rem] font-medium uppercase tracking-[0.08em] text-white/70">
               {t('citizenDirectory.eyebrow', 'Vatandaş kayıtları')}
             </div>
             <h1 className="page-title !text-white">{t('nav.citizenDirectory', 'Vatandaş Bilgi Listesi')}</h1>

@@ -1434,7 +1434,7 @@
 
     /* Banner 2. satır (page-title) bold biraz daha ince (#2511). */
     .app-content-shell .sticky-page-header .page-title {
-      font-weight: 500;
+      font-weight: 400;
     }
 
     .app-content-shell .page-subtitle {
@@ -2055,7 +2055,7 @@
 
   .page-kicker {
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: 500;
     line-height: 1.2;
     text-transform: uppercase;
     color: var(--color-primary);
@@ -5032,12 +5032,12 @@
   }
 
   .sticky-page-header .page-title {
-    font-weight: 500;
+    font-weight: 400;
   }
 
-  /* Anasayfa / Vatandaş Bilgi Listesi banner page-title (#2511 reopen). */
+  /* Anasayfa / Vatandaş Bilgi Listesi banner page-title (#2511 reopen). Canlı Özet kicker ayrı. */
   .section-card > .grid.border-b .page-title {
-    font-weight: 500;
+    font-weight: 400;
   }
 
   .sticky-page-header .page-subtitle {

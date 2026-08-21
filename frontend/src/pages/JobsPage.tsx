@@ -38,7 +38,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees, formatJobAssigneeNames, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDepartmentName, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, formatJobAssigneeNames, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { ExternalDestinationValue } from '../components/jobs/my-request-detail/ExternalDestinationValue'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
@@ -459,14 +459,12 @@ export function printJobDetail(
       : []),
     ['Talep Başlığı', detail.title],
     [requestLocationFieldLabel(detail, t), [detail.ownerDepartmentName, detail.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
-    ...(options?.myRequestView || !shouldShowRequestApproverField(detail)
-      ? []
-      : [['Talebi Onaylayan', formatRequestApproverDisplay(detail) ?? '—'] as [string, string]]),
-    // Birime Gelen/Birimden Giden'de modal ile aynı: personel bilgisi yazdırma çıktısında da
-    // gösterilmez; Taleplerim kendi modal davranışını korur (cards #1544/#1546, codex review tutarlılığı).
     [jobDestinationFieldLabel(detail, t, { includeAssignee: Boolean(options?.myRequestView) }), options?.myRequestView
       ? formatJobDestinationsWithAssignees(detail)
       : formatJobDestinationsWithAssignees(detail, false, false)],
+    ...(options?.myRequestView || !shouldShowRequestApproverField(detail)
+      ? []
+      : [['Talebi Onaylayan', formatRequestApproverDisplay(detail) ?? '—'] as [string, string]]),
     ...(isCitizenPrint || !shouldShowJobProjectField(detail) ? [] : [['Proje mi', formatJobProjectLabel(detail, t)] as [string, string]]),
     ['Öncelik', getPriorityLabel(t, detail.priority)],
     ['Durum', buildPrintJobStatusLabel(detail, t, options)],
@@ -2848,20 +2846,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: requestLocationFieldLabel(detail, t),
                         value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
                       },
-                      ...(shouldShowRequestApproverField(detail) ? [{
-                        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        // Onaylayan kişi henüz yoksa eskisi gibi tek "—" gösterilir; birim adı yalnız
-                        // başına onaylayanmış gibi görünmesin (codex review).
-                        value: getRequestApproverDisplayName(detail) ? (
-                          <StackedFieldValue top={getRequestApproverDepartmentName(detail)} bottom={getRequestApproverDisplayName(detail)} />
-                        ) : (formatRequestApproverDisplay(detail) ?? '—'),
-                      }] : []),
                       {
                         // Vatandaş talebinde de standart taleplerle tutarlı kalır — personel bilgisi
                         // gösterilmez (codex review, cards #1544/#1546).
                         label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
                         value: <ExternalDestinationValue detail={detail} framed={false} />,
                       },
+                      ...(shouldShowRequestApproverField(detail) ? [{
+                        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
+                        value: getRequestApproverDisplayName(detail) ?? '—',
+                      }] : []),
                       // Operatör / Vatandaş Talep Yöneticisi: Talep Etiketi en altta (card #1896).
                       ...((user?.role === 'Operator' || hasCitizenRequestManagerRole(user)) ? [{
                         label: t('social.label', 'Talep Etiketi'),
@@ -2873,20 +2867,16 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: requestLocationFieldLabel(detail, t),
                         value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
                       },
-                      ...(shouldShowRequestApproverField(detail) ? [{
-                        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-                        // Onaylayan kişi henüz yoksa (örn. iptal/reddedilmiş) eskisi gibi tek "—"
-                        // gösterilir; birim adı yalnız başına onaylayanmış gibi görünmesin (codex review).
-                        value: getRequestApproverDisplayName(detail) ? (
-                          <StackedFieldValue top={getRequestApproverDepartmentName(detail)} bottom={getRequestApproverDisplayName(detail)} />
-                        ) : (formatRequestApproverDisplay(detail) ?? '—'),
-                      }] : []),
                       {
                         // Birime Gelen/Birimden Giden'de personel bilgisi bu satırdan kaldırılır
                         // (cards #1544/#1546). Dış birim yeşil çerçeve yok (#r455).
                         label: jobDestinationFieldLabel(detail, t, { includeAssignee: false }),
                         value: <ExternalDestinationValue detail={detail} framed={false} />,
                       },
+                      ...(shouldShowRequestApproverField(detail) ? [{
+                        label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
+                        value: getRequestApproverDisplayName(detail) ?? '—',
+                      }] : []),
                       ...(shouldShowJobProjectField(detail) ? [{ label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> }] : []),
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
                     ]).map(({ label, value }) => (

@@ -282,10 +282,10 @@ function printTaskDetail(
     ['Vatandaş Adı / Telefon No', [parentJob.citizenName ?? citizenSourceMessage?.citizenHandle, formatCitizenPhoneDisplay(parentJob.citizenPhone ?? citizenSourceMessage?.citizenPhone)].filter(Boolean).join(' / ') || '—'],
     ['Talep Başlığı', parentJob.title],
     [requestLocationFieldLabel(parentJob, t), [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
+    [jobDestinationFieldLabel(parentJob, t, { includeAssignee: false }), formatJobDestinationsWithAssignees(parentJob)],
     ...(shouldShowRequestApproverField(parentJob)
       ? [['Talebi Onaylayan', formatRequestApproverDisplay(parentJob) ?? '—'] as [string, string]]
       : []),
-    [jobDestinationFieldLabel(parentJob, t, { includeAssignee: false }), formatJobDestinationsWithAssignees(parentJob)],
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Durum', getCitizenRequestStatusLabel(t, parentJob)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],

@@ -49,10 +49,7 @@ export function getRequestApproverDepartmentName(
 export function formatRequestApproverDisplay(
   job: Pick<JobDetail, 'departments' | 'requestType' | 'sourceType'>,
 ): string | null {
-  const approverName = getRequestApproverDisplayName(job)
-  if (!approverName) return null
-  const departmentName = getRequestApproverDepartmentName(job)
-  return departmentName ? `${departmentName} / ${approverName}` : approverName
+  return getRequestApproverDisplayName(job)
 }
 
 export function getRequestApproverDisplayName(

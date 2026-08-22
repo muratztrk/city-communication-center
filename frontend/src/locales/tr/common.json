@@ -655,6 +655,8 @@
     "emailPlaceholder": "ornek@belediye.bel.tr",
     "internalPhone": "Dahili No",
     "internalPhonePlaceholder": "Dahili no",
+    "mobilePhone": "Cep Telefonu No",
+    "mobilePhonePlaceholder": "Cep telefonu no",
     "department": "Birim",
     "additionalDepartments": "Ek görev yaptığı birimler",
     "additionalDepartmentsShort": "Ek birimler",
@@ -1514,7 +1516,10 @@
       "updated": "Kural güncellendi",
       "deleted": "Kural silindi",
       "deleteConfirm": "Bu kuralı silmek istediğinize emin misiniz?",
-      "autoRepliesSaved": "Vatandaşa giden cevaplar kaydedildi."
+      "autoRepliesSaved": "Vatandaşa giden cevaplar kaydedildi.",
+      "afterHoursManagerSmsTitle": "Birim Yöneticilerine/Sorumlularına Mesai Dışı Giden SMS Mesajları",
+      "afterHoursManagerSmsLabel": "Bildirim Mesajı",
+      "afterHoursManagerSmsPlaceholder": "Bildirim mesajını giriniz..."
     },
     "templates": {
       "createSuccess": "Şablon oluşturuldu.",

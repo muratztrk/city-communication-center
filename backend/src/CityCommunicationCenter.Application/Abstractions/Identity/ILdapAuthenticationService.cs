@@ -31,7 +31,8 @@ public sealed record LdapDirectoryUser(
     string? Department,
     string? Title = null,
     string? Phone = null,
-    string? OrganizationalUnit = null);
+    string? OrganizationalUnit = null,
+    string? MobilePhone = null);
 
 public sealed record LdapConnectivityTestParameters(
     string Host,

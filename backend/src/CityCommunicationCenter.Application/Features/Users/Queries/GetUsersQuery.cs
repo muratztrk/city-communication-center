@@ -46,7 +46,8 @@ public sealed class GetUsersQueryHandler : IQueryHandler<GetUsersQuery, IReadOnl
                 user.Title,
                 user.Phone,
                 departments,
-                UserRoleAccess.GetAdditionalRoleCodeStrings(user)));
+                UserRoleAccess.GetAdditionalRoleCodeStrings(user),
+                user.MobilePhone));
         }
 
         return responses;

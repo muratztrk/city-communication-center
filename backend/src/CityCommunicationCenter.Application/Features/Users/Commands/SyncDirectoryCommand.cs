@@ -215,6 +215,13 @@ public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryC
             user.Phone = phone;
         }
 
+        var mobilePhone = Truncate(directoryUser.MobilePhone, 50);
+        if (mobilePhone is not null && !string.Equals(user.MobilePhone, mobilePhone, StringComparison.Ordinal))
+        {
+            changes.Add(new SyncDirectoryProfileChange("MobilePhone", user.MobilePhone, mobilePhone));
+            user.MobilePhone = mobilePhone;
+        }
+
         if (!string.IsNullOrWhiteSpace(directoryUser.ExternalIdentityId)
             && !string.Equals(user.ExternalIdentityId, directoryUser.ExternalIdentityId, StringComparison.OrdinalIgnoreCase))
         {

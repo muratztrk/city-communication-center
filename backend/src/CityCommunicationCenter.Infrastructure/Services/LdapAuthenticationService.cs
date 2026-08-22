@@ -295,7 +295,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 BuildDirectorySearchFilter(settings.UserAttribute, searchTerms),
                 SearchScope.Subtree,
                 ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
-                 "cn", "givenName", "sn", "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"]);
+                 "cn", "givenName", "sn", "physicalDeliveryOfficeName", "department", "description", "telephoneNumber", "mobile"]);
             var response = (SearchResponse)connection.SendRequest(request);
             return response.Entries
                 .Cast<SearchResultEntry>()
@@ -330,10 +330,11 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             // E-posta yalnız LDAP mail attribute; UPN fallback yok (card #1734).
             NormalizeDirectoryMail(GetAttribute(entry, "mail")),
             ResolveDepartment(entry),
-            // Ünvan = LDAP description; Dahili No = telephoneNumber (card #1773).
+            // Ünvan = LDAP description; Dahili = telephoneNumber; Cep = mobile (card #1773/#2902).
             GetAttribute(entry, "description"),
             GetAttribute(entry, "telephoneNumber"),
-            ExtractDepartmentFromDn(dn));
+            ExtractDepartmentFromDn(dn),
+            GetAttribute(entry, "mobile"));
     }
 
     private static string? NormalizeDirectoryMail(string? mail)
@@ -355,7 +356,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
         string[] attributes =
         [
             "distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
-            "physicalDeliveryOfficeName", "department", "description", "telephoneNumber",
+            "physicalDeliveryOfficeName", "department", "description", "telephoneNumber", "mobile",
         ];
 
         try
@@ -419,7 +420,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 $"(|({settings.UserAttribute}={escapedUsername})(sAMAccountName={escapedUsername})(userPrincipalName={escapedUsername})(mail={escapedUsername}))",
                 SearchScope.Subtree,
                 ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
-                 "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"]);
+                 "physicalDeliveryOfficeName", "department", "description", "telephoneNumber", "mobile"]);
             var response = (SearchResponse)connection.SendRequest(request);
             if (response.Entries.Count == 0)
             {
@@ -501,7 +502,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                 $"(|({settings.UserAttribute}={Escape(username)})(sAMAccountName={Escape(username)})(userPrincipalName={Escape(username)}))",
                 SearchScope.Subtree,
                 ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
-                 "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"]);
+                 "physicalDeliveryOfficeName", "department", "description", "telephoneNumber", "mobile"]);
             var response = (SearchResponse)connection.SendRequest(request);
             if (response.Entries.Count == 0)
             {
@@ -601,7 +602,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
                         filter,
                         SearchScope.Subtree,
                         ["distinguishedName", "displayName", "mail", "userPrincipalName", "sAMAccountName",
-                         "cn", "givenName", "sn", "physicalDeliveryOfficeName", "department", "description", "telephoneNumber"])
+                         "cn", "givenName", "sn", "physicalDeliveryOfficeName", "department", "description", "telephoneNumber", "mobile"])
                     {
                         SizeLimit = 200,
                     };

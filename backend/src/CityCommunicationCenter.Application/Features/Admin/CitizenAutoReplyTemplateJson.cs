@@ -9,7 +9,8 @@ public sealed record CitizenAutoReplyTemplateModel(
     string InProgress,
     string Completed,
     string Cancelled,
-    string? Greeting = null);
+    string? Greeting = null,
+    string? AfterHoursManagerSms = null);
 
 public static class CitizenAutoReplyTemplateJson
 {
@@ -40,7 +41,8 @@ public static class CitizenAutoReplyTemplateJson
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.InProgress) ? defaults.InProgress : parsed.InProgress)),
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Completed) ? defaults.Completed : parsed.Completed)),
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled)),
-                CitizenOutboundGreeting.NormalizeLine(parsed.Greeting));
+                CitizenOutboundGreeting.NormalizeLine(parsed.Greeting),
+                parsed.AfterHoursManagerSms);
         }
         catch (JsonException)
         {
@@ -54,7 +56,8 @@ public static class CitizenAutoReplyTemplateJson
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.InProgress)),
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.Completed)),
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.Cancelled)),
-            CitizenOutboundGreeting.NormalizeLine(model.Greeting)));
+            CitizenOutboundGreeting.NormalizeLine(model.Greeting),
+            model.AfterHoursManagerSms));
 
     private static string EnsureQuotedCitizenStatuses(string template) =>
         CitizenJobStatusLabelHelper.EnsureQuotedCitizenStatuses(template);

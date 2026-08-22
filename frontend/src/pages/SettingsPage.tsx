@@ -83,6 +83,7 @@ const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Tamamlandı\". {GönderilenBirim}",
   cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İptal Edildi\". {GönderilenBirim}",
   greeting: DEFAULT_CITIZEN_OUTBOUND_GREETING,
+  afterHoursManagerSms: '',
 }
 
 const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
@@ -91,7 +92,7 @@ const CITIZEN_REQUEST_STATUS_TOKEN = '{VatandaşTalepDurumu}'
 const TARGET_DEPARTMENT_TOKEN = '{GönderilenBirim}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
-type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting'>
+type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'afterHoursManagerSms'>
 
 function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string, suffixText = '', normalize = false) {
   const normalizedBody = normalize ? (bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT) : bodyText
@@ -1579,6 +1580,7 @@ export function SettingsPage() {
           true,
         ),
         greeting: citizenAutoReplyTemplates.greeting.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
+        afterHoursManagerSms: citizenAutoReplyTemplates.afterHoursManagerSms ?? '',
       }
       await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)
       setCitizenAutoReplyTemplates(normalizedTemplates)
@@ -3304,6 +3306,30 @@ export function SettingsPage() {
             <p className="text-xs font-medium text-slate-500">
               {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı ve {GönderilenBirim}.')}
             </p>
+          </section>
+
+          <section className="section-card page-stack">
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.afterHoursManagerSmsTitle')}</h2>
+              </div>
+              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySaving}>
+                {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              </Button>
+            </div>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('settings.routing.afterHoursManagerSmsLabel')}</span>
+              <textarea
+                aria-label={t('settings.routing.afterHoursManagerSmsLabel')}
+                className="field-input min-h-28 whitespace-pre-wrap"
+                placeholder={t('settings.routing.afterHoursManagerSmsPlaceholder')}
+                value={citizenAutoReplyTemplates.afterHoursManagerSms ?? ''}
+                onChange={event => setCitizenAutoReplyTemplates(current => ({
+                  ...current,
+                  afterHoursManagerSms: event.target.value,
+                }))}
+              />
+            </label>
           </section>
 
         </div>

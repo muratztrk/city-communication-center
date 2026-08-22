@@ -51,6 +51,24 @@ public sealed class CitizenJobStatusMessageTests
     }
 
     [Fact]
+    public void ParseOrDefault_PreservesAfterHoursManagerSmsWhitespace()
+    {
+        const string json = """
+            {
+              "ProcessingReceived": "{VatandaşTalepNo} İşleme Alındı. {GönderilenBirim}",
+              "InProgress": "{VatandaşTalepNo} Yapılmakta. {GönderilenBirim}",
+              "Completed": "{VatandaşTalepNo} Tamamlandı. {GönderilenBirim}",
+              "Cancelled": "{VatandaşTalepNo} İptal Edildi. {GönderilenBirim}",
+              "AfterHoursManagerSms": "Satır 1\n  girintili\n"
+            }
+            """;
+
+        var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
+
+        Assert.Equal("Satır 1\n  girintili\n", templates.AfterHoursManagerSms);
+    }
+
+    [Fact]
     public void BuildStatusMessage_ReplacesTargetDepartmentToken()
     {
         var receivedAt = new DateTimeOffset(2026, 7, 13, 10, 0, 0, TimeSpan.Zero);

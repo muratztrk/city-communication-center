@@ -94,7 +94,8 @@ public sealed class UsersController : ApiControllerBase
                 request.LdapDepartmentName,
                 request.Title,
                 request.Phone,
-                request.SkipManagerQuota),
+                request.SkipManagerQuota,
+                request.MobilePhone),
             cancellationToken);
 
         return CreatedAtAction(nameof(GetAll), response);
@@ -138,7 +139,8 @@ public sealed class UsersController : ApiControllerBase
                 request.DisplayName,
                 request.Email,
                 request.Title,
-                request.SkipManagerQuota),
+                request.SkipManagerQuota,
+                request.MobilePhone),
             cancellationToken);
 
         return Ok(response);

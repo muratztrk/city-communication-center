@@ -1,3 +1,7 @@
+## Round 1025 — #2906 mesai dışı SMS şablon + #2902 Cep Telefonu No
+
+- **STATUS:** implementing; Users `mobilephone` + Settings after-hours SMS body.
+
 ## Round 1020 tick — #2860 revert detay İşleme Alındı (Geciken)
 
 - **STATUS:** pushed `ecdf6480`; 1 kart Done; Doing: 0.

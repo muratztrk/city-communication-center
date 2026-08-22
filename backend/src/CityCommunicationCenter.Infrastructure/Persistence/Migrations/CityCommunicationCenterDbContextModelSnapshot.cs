@@ -74,6 +74,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("passwordhash");
 
+                    b.Property<string>("MobilePhone")
+                        .HasColumnType("text")
+                        .HasColumnName("mobilephone");
+
                     b.Property<string>("Phone")
                         .HasColumnType("text")
                         .HasColumnName("phone");

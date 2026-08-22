@@ -17,7 +17,8 @@ public sealed record CreateUserCommand(
     string? LdapDepartmentName,
     string? Title = null,
     string? Phone = null,
-    bool SkipManagerQuota = false) : ICommand<UserSummaryResponse>;
+    bool SkipManagerQuota = false,
+    string? MobilePhone = null) : ICommand<UserSummaryResponse>;
 
 public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCommand>
 {
@@ -90,6 +91,12 @@ public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCom
             .When(command =>
                 !string.IsNullOrWhiteSpace(command.Phone)
                 && !string.Equals(command.SourceType, UserSource.Ldap.ToString(), StringComparison.OrdinalIgnoreCase));
+
+        RuleFor(command => command.MobilePhone)
+            .MaximumLength(50)
+            .When(command =>
+                !string.IsNullOrWhiteSpace(command.MobilePhone)
+                && !string.Equals(command.SourceType, UserSource.Ldap.ToString(), StringComparison.OrdinalIgnoreCase));
     }
 }
 
@@ -126,6 +133,7 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
         var externalIdentityId = string.IsNullOrWhiteSpace(request.ExternalIdentityId) ? null : request.ExternalIdentityId.Trim();
         string? ldapTitle = null;
         string? ldapPhone = null;
+        string? ldapMobilePhone = null;
 
         if (sourceType == UserSource.Ldap)
         {
@@ -154,6 +162,7 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             username = directoryUser.Username.Trim();
             ldapTitle = Truncate(directoryUser.Title, 200);
             ldapPhone = Truncate(directoryUser.Phone, 50);
+            ldapMobilePhone = Truncate(directoryUser.MobilePhone, 50);
         }
         else
         {
@@ -326,6 +335,7 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             IsActive = request.IsActive,
             Title = Truncate(string.IsNullOrWhiteSpace(request.Title) ? ldapTitle : request.Title.Trim(), 200),
             Phone = Truncate(string.IsNullOrWhiteSpace(request.Phone) ? ldapPhone : request.Phone.Trim(), 50),
+            MobilePhone = Truncate(string.IsNullOrWhiteSpace(request.MobilePhone) ? ldapMobilePhone : request.MobilePhone.Trim(), 50),
             CreatedByUserId = context.UserId,
         };
 
@@ -398,7 +408,8 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
             user.Title,
             user.Phone,
             departments,
-            UserRoleAccess.GetAdditionalRoleCodeStrings(user));
+            UserRoleAccess.GetAdditionalRoleCodeStrings(user),
+            user.MobilePhone);
     }
 
     private static string? Truncate(string? value, int maxLength)

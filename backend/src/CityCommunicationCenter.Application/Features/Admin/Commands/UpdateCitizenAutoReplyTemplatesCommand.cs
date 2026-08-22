@@ -8,7 +8,8 @@ public sealed record UpdateCitizenAutoReplyTemplatesCommand(
     string InProgress,
     string Completed,
     string Cancelled,
-    string? Greeting = null) : ICommand<Unit>;
+    string? Greeting = null,
+    string? AfterHoursManagerSms = null) : ICommand<Unit>;
 
 public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractValidator<UpdateCitizenAutoReplyTemplatesCommand>
 {
@@ -20,6 +21,7 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractVa
         RuleFor(command => command.Completed).NotEmpty().MaximumLength(1000);
         RuleFor(command => command.Cancelled).NotEmpty().MaximumLength(1000);
         RuleFor(command => command.Greeting).MaximumLength(200);
+        RuleFor(command => command.AfterHoursManagerSms).MaximumLength(1600);
     }
 }
 
@@ -61,7 +63,8 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
             request.InProgress.Trim(),
             request.Completed.Trim(),
             request.Cancelled.Trim(),
-            CitizenOutboundGreeting.NormalizeLine(request.Greeting)));
+            CitizenOutboundGreeting.NormalizeLine(request.Greeting),
+            request.AfterHoursManagerSms));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;

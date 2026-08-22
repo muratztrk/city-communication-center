@@ -31,6 +31,7 @@ public sealed class GetCitizenAutoReplyTemplatesQueryHandler : IQueryHandler<Get
             templates.InProgress,
             templates.Completed,
             templates.Cancelled,
-            CitizenOutboundGreeting.NormalizeLine(templates.Greeting));
+            CitizenOutboundGreeting.NormalizeLine(templates.Greeting),
+            templates.AfterHoursManagerSms);
     }
 }

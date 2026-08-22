@@ -880,6 +880,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Her iki textarea yazım sırasında baştaki/sondaki boşluğu korur; trim ve boş gövde varsayılanına
   dönüş yalnız `Kaydet` normalizasyonunda yapılır, böylece kelimeler arasına boşluk girilebilir
   (card #1594 reopen).
+  Aynı sekmede Vatandaşa Giden Cevaplar altında **Birim Yöneticilerine/Sorumlularına Mesai Dışı
+  Giden SMS Mesajları** vardır; **Bildirim Mesajı** textarea içeriği SMS gövdesidir — boşluk ve
+  satır sonları olduğu gibi saklanır, vatandaş hitabı eklenmez (card #2906).
   `{GönderilenBirim}` token'ından sonra şablonda her zaman tam bir otomatik ayraç boşluğu bulunur;
   eski bitişik veya çok boşluklu kayıtlar okunurken/yazılırken tek boşluğa normalleştirilir
   ve mesaj üretilirken de gerçek hedef birim ile devam metni arasındaki tek boşluk son kez garanti
@@ -1330,7 +1333,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dropdown’u (card #1752). LDAP formunda Dizin Hesabı alanı yok; **İptal Et** yalnız LDAP
   kullanıcısı seçiliyken Oluştur altında görünür (cards #1755/#1756). Anlık senkron `listDirectoryUsers`
   ile çalışır (arama zorunlu değil); ConfirmDialog `"LDAP Kullanıcı Senkronize Edildi"` + bağlı
-  kullanıcıların username/ad/ünvan/dahili/e-posta güncellemesi (`POST /users/sync/ad` — card #1787);
+  kullanıcıların username/ad/ünvan/dahili/cep/e-posta güncellemesi (`POST /users/sync/ad` — card #1787/#2902);
   ayrıca LDAP birim adı sistemde eşleşiyorsa `DepartmentId` güncellenir; description/`Title`
   içinde "Müdür" geçiyorsa (birim müdür kontenjanı uygunsa) rol `Manager` yapılır
   (cards #1787 reopen/#1789). "Tüm LDAP Kullanıcılarını Sil" kırmızı link + ConfirmDialog;
@@ -1355,9 +1358,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   arama satırı var; Birim+Ek birimler+Rol+Ek roller+Aktif+Oluştur tek satırda;
   Rol kolonu dar; Rol+Ek roller menü satır metni kompakt; Oluştur geniş ama alçak
   (card #1739). Yeni kullanıcı üst satırı: Kullanıcı Adı / Ad Soyad / Dahili No /
-  Ünvan / E-posta tek satır (`lg:grid-cols-5`); create API `title`+`phone` alır;
-  LDAP seçiminde dizin title/phone prefills (card #1771). LDAP Title=`description`,
-  Phone=`telephoneNumber` attribute’larından gelir (card #1773).
+  Cep Telefonu No / Ünvan / E-posta (`lg:grid-cols-6`); create API `title`+`phone`+`mobilePhone`
+  alır; Cep zorunlu değil (card #2902). LDAP seçiminde dizin title/phone/mobile prefills
+  (card #1771/#2902). LDAP Title=`description`, Phone=`telephoneNumber`, MobilePhone=`mobile`
+  (card #1773/#2902). Kullanıcılar grid e-Posta yerine Cep Telefonu No gösterir.
   Personel Dahili No sonuç paneli `left-0` ile sağa açılır (card #1786).
   Talep oluştur ek listesinde dosya adı `text-sm`, uzantı küçük gri (card #1788).
   Birimi Düzenle dropdown’ları `<label>` ile sarılmaz — dış tıklayınca kapanır (card #1729).

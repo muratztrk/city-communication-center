@@ -119,6 +119,7 @@ export interface User {
   userSource: string;
   title: string | null;
   phone: string | null;
+  mobilePhone?: string | null;
   departments?: DepartmentSummary[] | null;
 }
 
@@ -145,6 +146,7 @@ export interface DirectoryUserLookup {
   existingUserId: string | null;
   title: string | null;
   phone: string | null;
+  mobilePhone?: string | null;
   /** LDAP DN OU — birim attribute değil (card #1764). */
   organizationalUnit?: string | null;
 }
@@ -922,6 +924,7 @@ export interface CitizenAutoReplyTemplates {
   completed: string;
   cancelled: string;
   greeting: string;
+  afterHoursManagerSms?: string;
 }
 
 export interface WorkingHoursDaySchedule { day: number; from: string | null; to: string | null }

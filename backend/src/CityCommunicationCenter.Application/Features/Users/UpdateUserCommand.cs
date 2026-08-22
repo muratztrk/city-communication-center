@@ -13,7 +13,8 @@ public sealed record UpdateUserCommand(
     string? DisplayName = null,
     string? Email = null,
     string? Title = null,
-    bool SkipManagerQuota = false) : ICommand<UserSummaryResponse>;
+    bool SkipManagerQuota = false,
+    string? MobilePhone = null) : ICommand<UserSummaryResponse>;
 
 public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCommand>
 {
@@ -56,6 +57,10 @@ public sealed class UpdateUserCommandValidator : AbstractValidator<UpdateUserCom
         RuleFor(command => command.Title)
             .MaximumLength(200)
             .When(command => command.Title is not null);
+
+        RuleFor(command => command.MobilePhone)
+            .MaximumLength(50)
+            .When(command => !string.IsNullOrWhiteSpace(command.MobilePhone));
     }
 }
 
@@ -196,6 +201,7 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
             user.DisplayName = request.DisplayName.Trim();
             user.Email = nextEmail;
             user.Title = string.IsNullOrWhiteSpace(request.Title) ? null : request.Title.Trim();
+            user.MobilePhone = string.IsNullOrWhiteSpace(request.MobilePhone) ? null : request.MobilePhone.Trim();
         }
 
         user.DepartmentId = request.DepartmentId;
@@ -246,6 +252,7 @@ public sealed class UpdateUserCommandHandler : ICommandHandler<UpdateUserCommand
             user.Title,
             user.Phone,
             departments,
-            UserRoleAccess.GetAdditionalRoleCodeStrings(user));
+            UserRoleAccess.GetAdditionalRoleCodeStrings(user),
+            user.MobilePhone);
     }
 }

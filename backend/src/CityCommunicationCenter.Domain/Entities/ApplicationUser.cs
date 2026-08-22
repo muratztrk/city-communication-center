@@ -16,6 +16,9 @@ public sealed class ApplicationUser : AuditableTenantEntity, IHasDatabaseIndexDe
 
     public string? Phone { get; set; }
 
+    /// <summary>Cep telefonu — LDAP <c>mobile</c>; yerel kullanıcıda isteğe bağlı (card #2902).</summary>
+    public string? MobilePhone { get; set; }
+
     public string? PasswordHash { get; set; }
 
     public string? ExternalIdentityId { get; set; }

@@ -87,7 +87,8 @@ public sealed class SearchDirectoryUsersQueryHandler : IQueryHandler<SearchDirec
                     existing?.UserId,
                     candidate.Title,
                     candidate.Phone,
-                    candidate.OrganizationalUnit);
+                    candidate.OrganizationalUnit,
+                    candidate.MobilePhone);
             })
             .ToArray();
     }

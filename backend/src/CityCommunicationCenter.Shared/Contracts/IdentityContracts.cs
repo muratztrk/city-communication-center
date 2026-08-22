@@ -36,7 +36,8 @@ public sealed record UserSummaryResponse(
     string? Title = null,
     string? Phone = null,
     IReadOnlyList<DepartmentSummaryResponse>? Departments = null,
-    IReadOnlyList<string>? AdditionalRoleCodes = null);
+    IReadOnlyList<string>? AdditionalRoleCodes = null,
+    string? MobilePhone = null);
 
 public sealed record CreateUserRequest(
     string? Username,
@@ -53,6 +54,7 @@ public sealed record CreateUserRequest(
     string? LdapDepartmentName,
     string? Title = null,
     string? Phone = null,
+    string? MobilePhone = null,
     // Sorumlu seçimi Manager rolüne map edilir ama müdür kontenjanına takılmaz (card #1897 reopen).
     bool SkipManagerQuota = false);
 
@@ -66,7 +68,8 @@ public sealed record UpdateUserRequest(
     string? DisplayName = null,
     string? Email = null,
     string? Title = null,
-    bool SkipManagerQuota = false);
+    bool SkipManagerQuota = false,
+    string? MobilePhone = null);
 
 public sealed record UserLookupResponse(
     Guid UserId,
@@ -90,7 +93,8 @@ public sealed record DirectoryUserLookupResponse(
     Guid? ExistingUserId,
     string? Title = null,
     string? Phone = null,
-    string? OrganizationalUnit = null);
+    string? OrganizationalUnit = null,
+    string? MobilePhone = null);
 
 public sealed record UserManagementContextResponse(
     bool LocalUsersEnabled,

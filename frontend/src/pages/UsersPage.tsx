@@ -79,6 +79,7 @@ const DEFAULT_USER_FORM = {
   passwordConfirm: '',
   title: '',
   phone: '',
+  mobilePhone: '',
   departmentId: '',
   additionalDepartmentIds: [] as string[],
   roleCode: 'Staff',
@@ -132,6 +133,7 @@ export function UsersPage() {
     displayName: '',
     title: '',
     email: '',
+    mobilePhone: '',
     departmentId: '',
     additionalDepartmentIds: [] as string[],
     roleCode: '',
@@ -340,6 +342,7 @@ export function UsersPage() {
           case 'Email': return t('users.columns.email', 'E-posta')
           case 'Title': return t('users.columns.title', 'Ünvan')
           case 'Phone': return t('users.columns.phone', 'Dahili')
+          case 'MobilePhone': return t('users.mobilePhone', 'Cep Telefonu No')
           case 'Department': return t('users.columns.department', 'Birim')
           case 'Role': return t('users.columns.role', 'Rol')
           default: return field
@@ -465,6 +468,7 @@ export function UsersPage() {
                 ldapDepartmentName: departmentId ? null : deptName,
                 title: item.title?.trim() || null,
                 phone: item.phone?.trim() || null,
+                mobilePhone: item.mobilePhone?.trim() || null,
               })
               createdUsers.push(item)
             } catch (createError) {
@@ -736,6 +740,7 @@ export function UsersPage() {
         ldapDepartmentName: createMode === 'ldap' ? selectedDirectoryUser?.department ?? null : null,
         title: newUser.title.trim() || null,
         phone: newUser.phone.trim() || null,
+        mobilePhone: newUser.mobilePhone.trim() || null,
       })
 
       // Oluşturunca form kapanıp listeye dönmesin — alanlar temizlenip form açık kalsın (card #2258).
@@ -761,6 +766,7 @@ export function UsersPage() {
       displayName: user.displayName ?? '',
       title: user.title ?? '',
       email: user.email ?? '',
+      mobilePhone: user.mobilePhone ?? '',
       departmentId: user.departmentId,
       additionalDepartmentIds: getUserDepartmentIds(user).filter(id => id !== user.departmentId),
       roleCode: uiRoleCode,
@@ -809,6 +815,7 @@ export function UsersPage() {
           displayName: editForm.displayName.trim(),
           email: editForm.email.trim() || null,
           title: editForm.title.trim() || null,
+          mobilePhone: editForm.mobilePhone.trim() || null,
         } : {}),
       })
       setEditingUserId(null)
@@ -1093,6 +1100,7 @@ export function UsersPage() {
                     password: '',
                     title: selected?.title?.trim() ?? '',
                     phone: selected?.phone?.trim() ?? '',
+                    mobilePhone: selected?.mobilePhone?.trim() ?? '',
                     externalIdentityId: selected?.externalIdentityId ?? null,
                     departmentId: matchedDepartmentId || current.departmentId,
                     roleCode: titleImpliesManager(selected?.title) ? 'Manager' : 'Staff',
@@ -1112,6 +1120,7 @@ export function UsersPage() {
                       email: '',
                       title: '',
                       phone: '',
+                      mobilePhone: '',
                       externalIdentityId: null,
                     }))
                   }
@@ -1136,8 +1145,8 @@ export function UsersPage() {
             </div>
           ) : null}
 
-          {/* Kullanıcı Adı / Ad Soyad / Dahili No / Ünvan / E-posta tek satırda (card #1771). */}
-          <div className="grid gap-4 lg:grid-cols-5">
+          {/* Kullanıcı Adı / Ad Soyad / Dahili / Cep / Ünvan / E-posta (card #1771/#2902). */}
+          <div className="grid gap-4 lg:grid-cols-6">
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
               <span>{t('users.username')}</span>
               <input
@@ -1177,6 +1186,18 @@ export function UsersPage() {
                   // Dahili No: yalnız rakam (card #r449).
                   phone: event.target.value.replace(/\D/g, ''),
                 }))}
+              />
+            </label>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('users.mobilePhone')}</span>
+              <input
+                aria-label={t('users.mobilePhone')}
+                className="field-input"
+                placeholder={t('users.mobilePhonePlaceholder')}
+                type="text"
+                inputMode="tel"
+                value={newUser.mobilePhone}
+                onChange={event => setNewUser(current => ({ ...current, mobilePhone: event.target.value }))}
               />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -1418,7 +1439,7 @@ export function UsersPage() {
                 <FilterableTh filterKey="username" filterValue={userFilters['username'] ?? ''} onFilter={handleUserFilter} sortKey="username" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.username')}</FilterableTh>
                 <FilterableTh filterKey="displayName" filterValue={userFilters['displayName'] ?? ''} onFilter={handleUserFilter} sortKey="displayName" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.displayName')}</FilterableTh>
                 <FilterableTh filterKey="title" filterValue={userFilters['title'] ?? ''} onFilter={handleUserFilter} sortKey="title" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.jobTitle')}</FilterableTh>
-                <FilterableTh filterKey="email" filterValue={userFilters['email'] ?? ''} onFilter={handleUserFilter} sortKey="email" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.email')}</FilterableTh>
+                <FilterableTh filterKey="mobilePhone" filterValue={userFilters['mobilePhone'] ?? ''} onFilter={handleUserFilter} sortKey="mobilePhone" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.mobilePhone')}</FilterableTh>
                 <FilterableTh filterKey="departmentId" filterValue={userFilters['departmentId'] ?? ''} onFilter={handleUserFilter}>{t('users.department')}</FilterableTh>
                 <FilterableTh filterKey="roleCode" filterValue={userFilters['roleCode'] ?? ''} onFilter={handleUserFilter} sortKey="roleCode" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.role')}</FilterableTh>
                 <FilterableTh filterKey="userSource" filterValue={userFilters['userSource'] ?? ''} onFilter={handleUserFilter} sortKey="userSource" currentSortKey={usersSortKey} sortDir={usersSortDir} onSort={handleUsersSort}>{t('users.source')}</FilterableTh>
@@ -1471,13 +1492,14 @@ export function UsersPage() {
                       {user.userSource === 'Manual' ? (
                         <input
                           className="field-input min-w-[12rem] text-sm"
-                          type="email"
-                          value={editForm.email}
-                          onChange={e => setEditForm(c => ({ ...c, email: e.target.value }))}
-                          aria-label={t('users.email')}
+                          type="text"
+                          inputMode="tel"
+                          value={editForm.mobilePhone}
+                          onChange={e => setEditForm(c => ({ ...c, mobilePhone: e.target.value }))}
+                          aria-label={t('users.mobilePhone')}
                         />
                       ) : (
-                        <span>{user.email || t('common.none')}</span>
+                        <span>{user.mobilePhone || t('common.none')}</span>
                       )}
                     </td>
                     <td className="users-edit-dept-cell w-[7.5rem] max-w-[7.5rem]">
@@ -1595,7 +1617,7 @@ export function UsersPage() {
                     <td>{user.username || t('common.none')}</td>
                     <td className="font-semibold">{user.displayName}</td>
                     <td className="max-w-[10rem]"><span className="block truncate text-slate-500 text-sm" title={user.title ?? undefined}>{user.title || '-'}</span></td>
-                    <td>{user.email || t('common.none')}</td>
+                    <td>{user.mobilePhone || t('common.none')}</td>
                     <td>
                       <div className="grid gap-1">
                         <span>{getDepartmentName(user.departmentId)}</span>

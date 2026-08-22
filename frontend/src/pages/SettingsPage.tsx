@@ -1550,7 +1550,7 @@ export function SettingsPage() {
     }
   }
 
-  const saveCitizenAutoReplies = async () => {
+  const saveCitizenAutoReplies = async (toast: 'citizen' | 'afterHours' = 'citizen') => {
     if (!user?.tenantId) return
     setCitizenAutoReplySaving(true)
     try {
@@ -1584,7 +1584,12 @@ export function SettingsPage() {
       }
       await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)
       setCitizenAutoReplyTemplates(normalizedTemplates)
-      showToast('success', t('settings.routing.autoRepliesSaved', 'Vatandaşa giden cevaplar kaydedildi.'))
+      showToast(
+        'success',
+        toast === 'afterHours'
+          ? t('settings.routing.afterHoursManagerSmsSaved', 'Birim yöneticilerine giden bildirim mesajı kaydedildi.')
+          : t('settings.routing.autoRepliesSaved', 'Vatandaşa giden cevaplar kaydedildi.'),
+      )
     } catch (saveError) {
       showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
     } finally {
@@ -3313,7 +3318,7 @@ export function SettingsPage() {
               <div>
                 <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.afterHoursManagerSmsTitle')}</h2>
               </div>
-              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySaving}>
+              <Button type="button" onClick={() => void saveCitizenAutoReplies('afterHours')} disabled={citizenAutoReplySaving}>
                 {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
               </Button>
             </div>

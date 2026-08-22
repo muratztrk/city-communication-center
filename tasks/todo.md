@@ -1,3 +1,7 @@
+## Round 1026 — #2905/#2907/#2908/#2909/#2903/#2904/#2899
+
+- **STATUS:** implementing after-hours SMS send + LDAP mobile/dept + toast/title.
+
 ## Round 1025 — #2906/#2902 + #2899 reopen placeholder
 
 - **STATUS:** #2902/#2906 `49b80b17`; #2899 Adres Tarifi placeholder 0.86rem (WA VT 0.82).

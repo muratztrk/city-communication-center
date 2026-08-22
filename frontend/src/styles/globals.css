@@ -3987,7 +3987,7 @@
   .routine-task-form--readable .address-open-textarea::placeholder,
   .my-request-edit-fields .field-textarea::placeholder,
   .request-form#citizen-request-form .address-open-textarea::placeholder {
-    font-size: 0.86rem !important;
+    font-size: 0.9rem !important;
   }
 
   .detail-modal-shell--citizen-create .address-open-textarea::placeholder {

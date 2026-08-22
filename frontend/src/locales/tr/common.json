@@ -1517,9 +1517,10 @@
       "deleted": "Kural silindi",
       "deleteConfirm": "Bu kuralı silmek istediğinize emin misiniz?",
       "autoRepliesSaved": "Vatandaşa giden cevaplar kaydedildi.",
-      "afterHoursManagerSmsTitle": "Birim Yöneticilerine/Sorumlularına Mesai Dışı Giden SMS Mesajları",
+      "afterHoursManagerSmsTitle": "Birim Yöneticilerine/Sorumlularına Mesai Dışı Giden SMS Bildirimleri",
       "afterHoursManagerSmsLabel": "Bildirim Mesajı",
-      "afterHoursManagerSmsPlaceholder": "Bildirim mesajını giriniz..."
+      "afterHoursManagerSmsPlaceholder": "Bildirim mesajını giriniz...",
+      "afterHoursManagerSmsSaved": "Birim yöneticilerine giden bildirim mesajı kaydedildi."
     },
     "templates": {
       "createSuccess": "Şablon oluşturuldu.",

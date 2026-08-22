@@ -334,7 +334,7 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             GetAttribute(entry, "description"),
             GetAttribute(entry, "telephoneNumber"),
             ExtractDepartmentFromDn(dn),
-            GetAttribute(entry, "mobile"));
+            GetAttribute(entry, "mobile", "mobileTelephoneNumber", "otherMobile"));
     }
 
     private static string? NormalizeDirectoryMail(string? mail)
@@ -815,11 +815,68 @@ internal sealed class LdapAuthenticationService : ILdapAuthenticationService
             .Replace("\0", "\\00", StringComparison.Ordinal);
     }
 
-    private static string? GetAttribute(SearchResultEntry entry, string name)
+    private static string? GetAttribute(SearchResultEntry entry, params string[] names)
     {
-        return entry.Attributes.Contains(name) && entry.Attributes[name]?.Count > 0
-            ? entry.Attributes[name]?[0]?.ToString()
-            : null;
+        foreach (var name in names)
+        {
+            var attribute = FindAttribute(entry, name);
+            var value = ReadAttributeString(attribute);
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value.Trim();
+            }
+        }
+
+        return null;
+    }
+
+    private static DirectoryAttribute? FindAttribute(SearchResultEntry entry, string name)
+    {
+        if (entry.Attributes.Contains(name))
+        {
+            return entry.Attributes[name];
+        }
+
+        foreach (string key in entry.Attributes.AttributeNames)
+        {
+            if (string.Equals(key, name, StringComparison.OrdinalIgnoreCase))
+            {
+                return entry.Attributes[key];
+            }
+        }
+
+        return null;
+    }
+
+    private static string? ReadAttributeString(DirectoryAttribute? attribute)
+    {
+        if (attribute is null || attribute.Count == 0)
+        {
+            return null;
+        }
+
+        try
+        {
+            var values = attribute.GetValues(typeof(string));
+            if (values.Length > 0 && values[0] is string text && !string.IsNullOrWhiteSpace(text))
+            {
+                return text;
+            }
+        }
+        catch (NotSupportedException)
+        {
+        }
+        catch (InvalidOperationException)
+        {
+        }
+
+        return attribute[0] switch
+        {
+            byte[] bytes => System.Text.Encoding.UTF8.GetString(bytes),
+            string text => text,
+            { } other => other.ToString(),
+            _ => null,
+        };
     }
 
     private static string? GetDistinguishedName(SearchResultEntry entry)

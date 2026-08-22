@@ -50,12 +50,18 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISlaCalculatorService _slaCalculator;
+    private readonly IAfterHoursJobSmsNotifier _afterHoursJobSmsNotifier;
 
-    public CreateJobCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
+    public CreateJobCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        ISlaCalculatorService slaCalculator,
+        IAfterHoursJobSmsNotifier afterHoursJobSmsNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
+        _afterHoursJobSmsNotifier = afterHoursJobSmsNotifier;
     }
 
     public async ValueTask<JobSummaryResponse> Handle(CreateJobCommand request, CancellationToken cancellationToken)
@@ -357,6 +363,10 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        var notifyDepartmentIds = new List<Guid> { job.OwnerDepartmentId };
+        notifyDepartmentIds.AddRange(targets);
+        await _afterHoursJobSmsNotifier.NotifyAsync(job, notifyDepartmentIds, cancellationToken);
 
         return await JobSummaryResponseFactory.CreateAsync(_dbContext, job, cancellationToken);
     }

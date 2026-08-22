@@ -881,8 +881,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dönüş yalnız `Kaydet` normalizasyonunda yapılır, böylece kelimeler arasına boşluk girilebilir
   (card #1594 reopen).
   Aynı sekmede Vatandaşa Giden Cevaplar altında **Birim Yöneticilerine/Sorumlularına Mesai Dışı
-  Giden SMS Mesajları** vardır; **Bildirim Mesajı** textarea içeriği SMS gövdesidir — boşluk ve
-  satır sonları olduğu gibi saklanır, vatandaş hitabı eklenmez (card #2906).
+  Giden SMS Bildirimleri** vardır (#2907); bu bölümün Kaydet toast’ı
+  `Birim yöneticilerine giden bildirim mesajı kaydedildi.` (#2905). **Bildirim Mesajı** textarea
+  içeriği SMS gövdesidir — boşluk ve satır sonları olduğu gibi saklanır, vatandaş hitabı eklenmez
+  (#2906). Mesai dışı talep oluşturunca aynı metin birim müdür/sorumlu/yardımcı cep numaralarına
+  ve (vatandaş talebinde) `CitizenRequestManager` kullanıcılara SMS gider (#2903/#2904).
   `{GönderilenBirim}` token'ından sonra şablonda her zaman tam bir otomatik ayraç boşluğu bulunur;
   eski bitişik veya çok boşluklu kayıtlar okunurken/yazılırken tek boşluğa normalleştirilir
   ve mesaj üretilirken de gerçek hedef birim ile devam metni arasındaki tek boşluk son kez garanti
@@ -1360,8 +1363,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1739). Yeni kullanıcı üst satırı: Kullanıcı Adı / Ad Soyad / Dahili No /
   Cep Telefonu No / Ünvan / E-posta (`lg:grid-cols-6`); create API `title`+`phone`+`mobilePhone`
   alır; Cep zorunlu değil (card #2902). LDAP seçiminde dizin title/phone/mobile prefills
-  (card #1771/#2902). LDAP Title=`description`, Phone=`telephoneNumber`, MobilePhone=`mobile`
-  (card #1773/#2902). Kullanıcılar grid e-Posta yerine Cep Telefonu No gösterir.
+  (card #1771/#2902). LDAP Title=`description`,   Phone=`telephoneNumber`, MobilePhone=`mobile`/`mobileTelephoneNumber`/`otherMobile`
+  (card #1773/#2902/#2908). Kullanıcılar grid e-Posta yerine Cep Telefonu No gösterir.
+  LDAP senkronunda birim değişince eski birim adı (sistemdeki önceki ad) gösterilir; `—` değil (#2909).
   Personel Dahili No sonuç paneli `left-0` ile sağa açılır (card #1786).
   Talep oluştur ek listesinde dosya adı `text-sm`, uzantı küçük gri (card #1788).
   Birimi Düzenle dropdown’ları `<label>` ile sarılmaz — dış tıklayınca kapanır (card #1729).
@@ -2037,7 +2041,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Cadde / Sokak `field-input` ile aynı (~0.98rem, değer + placeholder).
 - **Rutin Görev Oluştur Mahalle dropdown (#2602):** `openUp` yok; liste aşağı açılır.
   Mahalle/Cadde/No placeholder punto Birim İçi ile aynı `0.88rem` (#2797).
-  Adres Tarifi placeholder (WA Vatandaş Talebi Oluştur hariç) `0.86rem`; WA VT popup `0.82rem` (#2899).
+  Adres Tarifi placeholder (WA Vatandaş Talebi Oluştur hariç) `0.9rem`; WA VT popup `0.82rem` (#2899).
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
 - **Mobil paging (#r490/#r493):** Sayfa-boyutu seçici ≤767px DOM'dan çıkarılır; sabit `pageSize=10`.
 - **Mobil Talep No (#r490):** `.table-number-cell__value` / `__priority` mobilde küçültülür.

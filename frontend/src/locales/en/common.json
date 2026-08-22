@@ -1495,9 +1495,10 @@
       "updated": "Rule updated",
       "deleted": "Rule deleted",
       "deleteConfirm": "Are you sure you want to delete this rule?",
-      "afterHoursManagerSmsTitle": "After-hours SMS to unit managers/responsibles",
+      "afterHoursManagerSmsTitle": "After-hours SMS notifications to unit managers/responsibles",
       "afterHoursManagerSmsLabel": "Notification message",
-      "afterHoursManagerSmsPlaceholder": "Enter the notification message..."
+      "afterHoursManagerSmsPlaceholder": "Enter the notification message...",
+      "afterHoursManagerSmsSaved": "The notification message for unit managers was saved."
     },
     "citizen": {
       "sectionTitle": "Create Citizen Request",

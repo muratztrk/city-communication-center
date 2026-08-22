@@ -70,6 +70,7 @@ public static class DependencyInjection
         services.AddScoped<ISmsProviderSender, AsistelSmsSender>();
         services.AddScoped<ISmsGateway, SmsGateway>();
         services.AddScoped<ICitizenJobStatusNotifier, CitizenJobStatusNotifier>();
+        services.AddScoped<IAfterHoursJobSmsNotifier, AfterHoursJobSmsNotifier>();
         services.AddScoped<ITenantFileStorageSettingsService, TenantFileStorageSettingsService>();
         services.AddScoped<INasConnectivityTester, SmbNasConnectivityTester>();
         services.AddScoped<ISyslogForwarderService, SyslogForwarderService>();

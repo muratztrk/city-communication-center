@@ -104,6 +104,9 @@ public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryC
             }
 
             var profileChanges = ApplyDirectoryProfile(linked, directoryUser);
+            var previousDepartmentName = departments
+                .FirstOrDefault(department => department.DepartmentId == linked.DepartmentId)
+                ?.Name;
             var departmentChanged = await TryApplyDirectoryDepartmentAsync(
                 linked,
                 directoryUser.Department,
@@ -114,7 +117,7 @@ public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryC
             {
                 profileChanges.Add(new SyncDirectoryProfileChange(
                     "Department",
-                    null,
+                    previousDepartmentName,
                     directoryUser.Department?.Trim()));
             }
 

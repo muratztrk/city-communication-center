@@ -3326,7 +3326,7 @@ export function SettingsPage() {
               <span>{t('settings.routing.afterHoursManagerSmsLabel')}</span>
               <textarea
                 aria-label={t('settings.routing.afterHoursManagerSmsLabel')}
-                className="field-input min-h-28 whitespace-pre-wrap"
+                className="field-input min-h-40 whitespace-pre-wrap"
                 placeholder={t('settings.routing.afterHoursManagerSmsPlaceholder')}
                 value={citizenAutoReplyTemplates.afterHoursManagerSms ?? ''}
                 onChange={event => setCitizenAutoReplyTemplates(current => ({

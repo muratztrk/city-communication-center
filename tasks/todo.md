@@ -1,3 +1,7 @@
+## Round 1027 — #2910 mesai dışı SMS textarea yüksekliği
+
+- **STATUS:** Bildirim Mesajı `min-h-40`.
+
 ## Round 1026 — #2905/#2907/#2908/#2909/#2903/#2904/#2899
 
 - **STATUS:** implementing after-hours SMS send + LDAP mobile/dept + toast/title.

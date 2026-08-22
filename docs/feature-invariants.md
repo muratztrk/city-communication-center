@@ -881,7 +881,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dönüş yalnız `Kaydet` normalizasyonunda yapılır, böylece kelimeler arasına boşluk girilebilir
   (card #1594 reopen).
   Aynı sekmede Vatandaşa Giden Cevaplar altında **Birim Yöneticilerine/Sorumlularına Mesai Dışı
-  Giden SMS Bildirimleri** vardır (#2907); bu bölümün Kaydet toast’ı
+  Giden SMS Bildirimleri** vardır (#2907); Bildirim Mesajı textarea `min-h-40` (#2910). Bu bölümün Kaydet toast’ı
   `Birim yöneticilerine giden bildirim mesajı kaydedildi.` (#2905). **Bildirim Mesajı** textarea
   içeriği SMS gövdesidir — boşluk ve satır sonları olduğu gibi saklanır, vatandaş hitabı eklenmez
   (#2906). Mesai dışı talep oluşturunca aynı metin birim müdür/sorumlu/yardımcı cep numaralarına

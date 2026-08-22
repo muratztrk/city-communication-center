@@ -164,6 +164,14 @@ public class CitizenOutboundGreetingTests
         Assert.Null(CitizenOutboundGreeting.EnsureOptional(null));
         Assert.Equal("   ", CitizenOutboundGreeting.EnsureOptional("   "));
     }
+
+    [Fact]
+    public void Ensure_uses_custom_greeting()
+    {
+        Assert.Equal(
+            "Sayın hemşehrimiz,\n\nTalebiniz alındı.",
+            CitizenOutboundGreeting.Ensure("Talebiniz alındı.", "Sayın hemşehrimiz,"));
+    }
 }
 
 public class CitizenSmsTerminalNoteFormatTests

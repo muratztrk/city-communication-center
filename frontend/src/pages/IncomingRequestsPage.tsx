@@ -477,7 +477,7 @@ export function IncomingRequestsPage() {
   const currentKindFilter = getIncomingKindFilter()
   // Onaylanmış grid'de Görevi Yapan/Sahibi sütunu yok (#6a6ca0bc).
   const showIncomingStatusColumn = currentStatusFilter === 'all' || currentStatusFilter === 'approved' || currentStatusFilter === 'overdue'
-  const showTaskOwnerColumn = ['in-progress', 'completed', 'cancelled'].includes(currentStatusFilter)
+  const showTaskOwnerColumn = ['in-progress', 'completed'].includes(currentStatusFilter)
   const incomingTableColumnCount = useMemo(() => {
     let count = 6
     if (showTaskOwnerColumn) count += 1

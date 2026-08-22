@@ -24,13 +24,15 @@ public sealed record CitizenAutoReplyTemplatesResponse(
     string ProcessingReceived,
     string InProgress,
     string Completed,
-    string Cancelled);
+    string Cancelled,
+    string Greeting);
 
 public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     string ProcessingReceived,
     string InProgress,
     string Completed,
-    string Cancelled);
+    string Cancelled,
+    string? Greeting = null);
 
 public sealed record TenantAppearanceResponse(
     string ThemePreset,

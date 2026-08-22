@@ -75,11 +75,14 @@ type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'em
 type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
 
+const DEFAULT_CITIZEN_OUTBOUND_GREETING = 'Değerli vatandaşımız,'
+
 const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   processingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\". {GönderilenBirim}",
   inProgress: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Yapılmakta\". {GönderilenBirim}",
   completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Tamamlandı\". {GönderilenBirim}",
   cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İptal Edildi\". {GönderilenBirim}",
+  greeting: DEFAULT_CITIZEN_OUTBOUND_GREETING,
 }
 
 const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
@@ -88,7 +91,7 @@ const CITIZEN_REQUEST_STATUS_TOKEN = '{VatandaşTalepDurumu}'
 const TARGET_DEPARTMENT_TOKEN = '{GönderilenBirim}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
-type CitizenAutoReplyTemplateKey = keyof CitizenAutoReplyTemplates
+type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting'>
 
 function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string, suffixText = '', normalize = false) {
   const normalizedBody = normalize ? (bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT) : bodyText
@@ -139,10 +142,12 @@ interface CitizenAutoReplyTemplateFieldProps {
   templateStatusLabel?: string
   tone?: 'success' | 'warning' | 'danger'
   value: string
+  greeting: string
   onChange: (value: string) => void
+  onGreetingChange: (value: string) => void
 }
 
-function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel = statusLabel, tone = 'success', value, onChange }: CitizenAutoReplyTemplateFieldProps) {
+function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel = statusLabel, tone = 'success', value, greeting, onChange, onGreetingChange }: CitizenAutoReplyTemplateFieldProps) {
   const statusToneClass = tone === 'danger'
     ? 'border-red-200 bg-red-50 text-red-700'
     : tone === 'warning'
@@ -152,6 +157,12 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
   return (
     <div className="grid gap-2 rounded-lg border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700">
       <span className="text-slate-800">{label}</span>
+      <input
+        className="field-input text-sm"
+        value={greeting}
+        onChange={event => onGreetingChange(event.target.value)}
+        placeholder={DEFAULT_CITIZEN_OUTBOUND_GREETING}
+      />
       <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
         <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 font-bold text-slate-500">{CITIZEN_REQUEST_NO_TOKEN}</span>
         <span>no'lu</span>
@@ -715,7 +726,11 @@ export function SettingsPage() {
             },
           }))
         }
-        setCitizenAutoReplyTemplates({ ...DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES, ...autoReplyResponse })
+        setCitizenAutoReplyTemplates({
+          ...DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES,
+          ...autoReplyResponse,
+          greeting: autoReplyResponse.greeting?.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
+        })
         setDepartments(departmentResponse)
         setSlaWeekendForm({
           excludeWeekends: slaWeekendResponse.excludeWeekends,
@@ -1563,6 +1578,7 @@ export function SettingsPage() {
           extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.cancelled),
           true,
         ),
+        greeting: citizenAutoReplyTemplates.greeting.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
       }
       await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)
       setCitizenAutoReplyTemplates(normalizedTemplates)
@@ -3279,7 +3295,9 @@ export function SettingsPage() {
                   templateStatusLabel={templateLabel}
                   tone={tone}
                   value={citizenAutoReplyTemplates[key]}
+                  greeting={citizenAutoReplyTemplates.greeting}
                   onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, [key]: value }))}
+                  onGreetingChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, greeting: value }))}
                 />
               ))}
             </div>

@@ -355,7 +355,7 @@ export function RoutineTaskPage() {
           </div>
 
           {/* Adres Bilgisi + Dosya/Fotoğraf — Öncelik ve Bitiş Tarihi satırının hemen altında. */}
-          <div className="job-field border-t border-slate-100 pt-4">
+          <div className="job-field routine-task-address-fields border-t border-slate-100 pt-4">
             <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
             <div className="grid gap-2">
               <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">

@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Common;
+
 namespace CityCommunicationCenter.Application.Features.Admin;
 
 public sealed record GetCitizenAutoReplyTemplatesQuery(Guid TenantId) : IQuery<CitizenAutoReplyTemplatesResponse?>;
@@ -28,6 +30,7 @@ public sealed class GetCitizenAutoReplyTemplatesQueryHandler : IQueryHandler<Get
             templates.ProcessingReceived,
             templates.InProgress,
             templates.Completed,
-            templates.Cancelled);
+            templates.Cancelled,
+            CitizenOutboundGreeting.NormalizeLine(templates.Greeting));
     }
 }

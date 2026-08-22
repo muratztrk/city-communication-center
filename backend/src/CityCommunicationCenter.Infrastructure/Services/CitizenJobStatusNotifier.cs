@@ -389,6 +389,17 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         };
     }
 
+    private async Task<string> ResolveGreetingAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var raw = await _dbContext.TenantSettings
+            .AsNoTracking()
+            .Where(setting => setting.TenantId == tenantId)
+            .Select(setting => setting.CitizenAutoReplyTemplatesJson)
+            .FirstOrDefaultAsync(cancellationToken);
+        return CitizenOutboundGreeting.NormalizeLine(
+            CitizenAutoReplyTemplateJson.ParseOrDefault(raw).Greeting);
+    }
+
     private static bool IsSupportedAutoReplyStatus(string statusLabel) =>
         statusLabel is "İşleme Alındı" or "Yapılmakta" or "Tamamlanmış" or "Tamamlandı" or "İptal";
 
@@ -421,7 +432,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             messageContent = AppendSmsTerminalNote(content, terminalNote);
         }
 
-        messageContent = CitizenOutboundGreeting.Ensure(messageContent);
+        messageContent = CitizenOutboundGreeting.Ensure(messageContent, await ResolveGreetingAsync(tenantId, cancellationToken));
 
         if (!requireApproval)
         {
@@ -708,7 +719,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 "SMS SIMULATION (gerçek gönderim kapalı) — SocialMessage {SocialMessageId}, alıcı {Phone}, metin: {Content}",
                 message.SocialMessageId,
                 recipientPhone,
-                CitizenOutboundGreeting.Ensure(content));
+                CitizenOutboundGreeting.Ensure(content, await ResolveGreetingAsync(tenantId, cancellationToken)));
             return false;
         }
 

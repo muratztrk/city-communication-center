@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Application.Common;
+
 namespace CityCommunicationCenter.Application.Features.Admin;
 
 public sealed record UpdateCitizenAutoReplyTemplatesCommand(
@@ -5,7 +7,8 @@ public sealed record UpdateCitizenAutoReplyTemplatesCommand(
     string ProcessingReceived,
     string InProgress,
     string Completed,
-    string Cancelled) : ICommand<Unit>;
+    string Cancelled,
+    string? Greeting = null) : ICommand<Unit>;
 
 public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractValidator<UpdateCitizenAutoReplyTemplatesCommand>
 {
@@ -16,6 +19,7 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractVa
         RuleFor(command => command.InProgress).NotEmpty().MaximumLength(1000);
         RuleFor(command => command.Completed).NotEmpty().MaximumLength(1000);
         RuleFor(command => command.Cancelled).NotEmpty().MaximumLength(1000);
+        RuleFor(command => command.Greeting).MaximumLength(200);
     }
 }
 
@@ -56,7 +60,8 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
             request.ProcessingReceived.Trim(),
             request.InProgress.Trim(),
             request.Completed.Trim(),
-            request.Cancelled.Trim()));
+            request.Cancelled.Trim(),
+            CitizenOutboundGreeting.NormalizeLine(request.Greeting)));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;

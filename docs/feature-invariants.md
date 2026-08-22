@@ -872,7 +872,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Tamamlanmış`, talep/görev iptali talebi terminale taşıyınca `İptal` şablonu gönderilir;
   red/son tarihi geçmiş etiketleri bu otomatik şablonlara düşürülmez (cards #1266/#1268).
   Ayarlar > Otomatik Yönlendirme > Vatandaşa Giden Cevaplar bölümü, Otomatik Yönlendirme
-  kartının hemen altında durur; `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
+  kartının hemen altında durur; `{VatandaşTalepNo}` öncesinde düzenlenebilir hitap
+  (`Değerli vatandaşımız,` varsayılan, #2901). `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
   kullanıcı tarafından düzenlenemez. Durum adından sonra sabit `{GönderilenBirim}` gelir ve aktif
   hedef birim adlarıyla değiştirilir; bu alanın ardından ikinci serbest metin düzenlenebilir. Eski
   kayıtlı şablonlara eksik birim token'ı okunurken/yazılırken otomatik eklenir (card #1594).
@@ -1162,12 +1163,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#2825). Birime Gelen **Geciken** grid: **Durum** Son Tarih'ten önce (#2829). Onay bekleyen +
   son tarih geçmiş: Durum `Onay Bekleyen` + alt satır `(Geciken)` (#2831/#2898, Geciken filtresinde
   de); detay popup tek satır `Onay Bekleyen Geciken` (#2832). Süreç'te sahip/hedef onay tarihi
-  `Onay Bekleyen` ve Gecikti mi Evet ise metin + katman kırmızı (#2897). Birime Gelen
+  `Onay Bekleyen` ve Gecikti mi Evet ise metin ve nokta kırmızı; satır/başlık zemini kırmızı
+  değil (#2897 reopen). Birime Gelen
   sayfa içi Onay Bekleyen scope chip'inde rozet yok — sayı yalnız sol menüde (#2830). Birimden
   Giden **Geciken** grid: **Oluşturan** yok; Gittiği Yer sonrası **Durum** (#2828). Birimden Giden
   Onaylanmış da tamamlanmış/iptal/yapılmakta hariç (#2826).
   Birime Gelen Onaylanmış grid İşlemler'de yalnız `Detaylar` — `İptal Et` ve `Onayla`
-  yok (cards #1702/#1703). Onaylanmış grid'de `Görevi Yapan` / `Görev Sahibi` sütunu yok
+  yok (cards #1702/#1703). İptal Talepler gridinde `Görevi Yapan` yok (#2900). Onaylanmış grid'de `Görevi Yapan` / `Görev Sahibi` sütunu yok
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
   birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Geciken` chip turuncu `scope-chip--overdue`
@@ -2030,6 +2032,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Rutin Görev Oluştur Açık Adres (#r501/#r502):** textarea `address-open-textarea`; font
   Cadde / Sokak `field-input` ile aynı (~0.98rem, değer + placeholder).
 - **Rutin Görev Oluştur Mahalle dropdown (#2602):** `openUp` yok; liste aşağı açılır.
+  Mahalle/Cadde/No placeholder punto Birim İçi ile aynı `0.88rem` (#2797).
+  Adres Tarifi placeholder (WA Vatandaş Talebi Oluştur hariç) `0.82rem` (#2899).
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
 - **Mobil paging (#r490/#r493):** Sayfa-boyutu seçici ≤767px DOM'dan çıkarılır; sabit `pageSize=10`.
 - **Mobil Talep No (#r490):** `.table-number-cell__value` / `__priority` mobilde küçültülür.

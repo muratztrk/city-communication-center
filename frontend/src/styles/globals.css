@@ -977,14 +977,7 @@
     gap: 0.75rem;
   }
 
-  /* Süreç Onay Bekleyen + Gecikti mi Evet: kırmızı metin ve katman (#2897). */
-  .job-process-timeline__item--approval-pending-overdue .job-process-timeline__content {
-    border-radius: 0.375rem;
-    background: rgb(254 226 226);
-    padding-left: 0.35rem;
-    padding-right: 0.35rem;
-  }
-
+  /* Süreç Onay Bekleyen + Gecikti mi Evet: kırmızı metin/nokta; satır zemini değil (#2897 reopen). */
   .detail-modal-shell .job-process-timeline__pending-approval-text--overdue,
   .job-process-timeline__pending-approval-text--overdue {
     color: rgb(220 38 38);
@@ -3982,6 +3975,19 @@
   #internal-request-form .address-street-no-row .field-select span.text-slate-400,
   #external-request-form .address-street-no-row .field-select span.text-slate-400 {
     font-size: 0.88rem !important;
+  }
+
+  /* Rutin Görev Mahalle/Cadde/No placeholder = Birim İçi (#2797). */
+  .routine-task-form--readable .routine-task-address-fields .field-select span.text-slate-400 {
+    font-size: 0.88rem !important;
+  }
+
+  /* Adres Tarifi placeholder: WA Vatandaş Talebi Oluştur hariç biraz küçük (#2899). */
+  .request-form--readable .address-open-textarea::placeholder,
+  .routine-task-form--readable .address-open-textarea::placeholder,
+  .my-request-edit-fields .field-textarea::placeholder,
+  .request-form#citizen-request-form .address-open-textarea::placeholder {
+    font-size: 0.82rem !important;
   }
 
   /* Vatandaş Çağrı Talebi Oluştur: K/A toolbar ince, yazı alanı yüksek. */

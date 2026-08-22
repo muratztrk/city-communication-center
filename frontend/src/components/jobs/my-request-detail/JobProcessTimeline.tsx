@@ -291,7 +291,7 @@ export function JobProcessTimeline({
                 : step.state
 
           return (
-            <li key={step.id} className={`job-process-timeline__item${approvalPendingOverdue ? ' job-process-timeline__item--approval-pending-overdue' : ''}`}>
+            <li key={step.id} className="job-process-timeline__item">
               <div className="job-process-timeline__track">
                 <StepIndicator state={indicatorState} shouldPulse={index === pulseIndex} />
                 {!isLast && <span className={`job-process-timeline__line ${lineClass}`} aria-hidden="true" />}

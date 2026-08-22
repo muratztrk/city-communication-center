@@ -8,7 +8,13 @@ public static class CitizenOutboundGreeting
 {
     public const string Line = "Değerli vatandaşımız,";
 
-    public static string Ensure(string text)
+    public static string NormalizeLine(string? greetingLine)
+    {
+        var line = greetingLine?.Trim();
+        return string.IsNullOrWhiteSpace(line) ? Line : line;
+    }
+
+    public static string Ensure(string text, string? greetingLine = null)
     {
         var body = text.Trim();
         if (body.Length == 0)
@@ -16,14 +22,16 @@ public static class CitizenOutboundGreeting
             return body;
         }
 
-        if (body.StartsWith(Line, StringComparison.Ordinal))
+        var line = NormalizeLine(greetingLine);
+        if (body.StartsWith(line, StringComparison.Ordinal)
+            || body.StartsWith(Line, StringComparison.Ordinal))
         {
             return body;
         }
 
-        return Line + "\n\n" + body;
+        return line + "\n\n" + body;
     }
 
-    public static string? EnsureOptional(string? text)
-        => string.IsNullOrWhiteSpace(text) ? text : Ensure(text);
+    public static string? EnsureOptional(string? text, string? greetingLine = null)
+        => string.IsNullOrWhiteSpace(text) ? text : Ensure(text, greetingLine);
 }

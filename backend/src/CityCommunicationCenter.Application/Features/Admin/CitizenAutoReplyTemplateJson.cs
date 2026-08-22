@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CityCommunicationCenter.Application.Common;
 using CityCommunicationCenter.Application.Features.Social;
 
 namespace CityCommunicationCenter.Application.Features.Admin;
@@ -7,7 +8,8 @@ public sealed record CitizenAutoReplyTemplateModel(
     string ProcessingReceived,
     string InProgress,
     string Completed,
-    string Cancelled);
+    string Cancelled,
+    string? Greeting = null);
 
 public static class CitizenAutoReplyTemplateJson
 {
@@ -37,7 +39,8 @@ public static class CitizenAutoReplyTemplateJson
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.ProcessingReceived) ? defaults.ProcessingReceived : parsed.ProcessingReceived)),
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.InProgress) ? defaults.InProgress : parsed.InProgress)),
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Completed) ? defaults.Completed : parsed.Completed)),
-                EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled)));
+                EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled)),
+                CitizenOutboundGreeting.NormalizeLine(parsed.Greeting));
         }
         catch (JsonException)
         {
@@ -50,7 +53,8 @@ public static class CitizenAutoReplyTemplateJson
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.ProcessingReceived)),
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.InProgress)),
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.Completed)),
-            EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.Cancelled))));
+            EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.Cancelled)),
+            CitizenOutboundGreeting.NormalizeLine(model.Greeting)));
 
     private static string EnsureQuotedCitizenStatuses(string template) =>
         CitizenJobStatusLabelHelper.EnsureQuotedCitizenStatuses(template);

@@ -1667,7 +1667,7 @@ export function CreateRequestPage() {
               (field, value) => setCitizenForm(current => ({ ...current, [field]: value })),
               {
                 sectionTitle: t('requests.create.jobAddressSection', 'Talebin Adres Bilgisi (İsteğe Bağlı)'),
-                largerPlaceholders: true,
+                smallerPlaceholders: true,
                 coordinatesBelowNeighborhood: true,
               },
             )}
@@ -1769,7 +1769,7 @@ export function CreateRequestPage() {
               {
                 sectionTitle: t('requests.create.citizenAddressSection', 'Vatandaş Adres Bilgisi (İsteğe Bağlı)'),
                 includePhotoUpload: false,
-                largerPlaceholders: true,
+                smallerPlaceholders: true,
                 showCoordinates: false,
                 neighborhoodStreetRowClass: 'md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.05fr)]',
                 streetRowClassName:

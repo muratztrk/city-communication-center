@@ -921,6 +921,7 @@ export interface CitizenAutoReplyTemplates {
   inProgress: string;
   completed: string;
   cancelled: string;
+  greeting: string;
 }
 
 export interface WorkingHoursDaySchedule { day: number; from: string | null; to: string | null }

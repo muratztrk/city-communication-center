@@ -1,6 +1,6 @@
-## Round 1025 — #2906 mesai dışı SMS şablon + #2902 Cep Telefonu No
+## Round 1025 — #2906/#2902 + #2899 reopen placeholder
 
-- **STATUS:** implementing; Users `mobilephone` + Settings after-hours SMS body.
+- **STATUS:** #2902/#2906 `49b80b17`; #2899 Adres Tarifi placeholder 0.86rem (WA VT 0.82).
 
 ## Round 1020 tick — #2860 revert detay İşleme Alındı (Geciken)
 

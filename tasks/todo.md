@@ -1,3 +1,7 @@
+## Round 1029 — #2911 revert
+
+- **STATUS:** Vatandaşa Giden Cevaplar ilk textarea yüksekliği ve trailing NL koruması geri alındı.
+
 ## Round 1028 — #2912/#2911/#2910
 
 - **STATUS:** Şablon Türü Çağrı + küçük menü; vatandaş gövde textarea + trailing NL; mesai dışı `min-h-64`.

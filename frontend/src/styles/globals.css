@@ -1973,10 +1973,6 @@
       min-height: 5.5rem;
     }
 
-    .app-content-shell .admin-surface-page .settings-citizen-auto-reply-body.field-textarea {
-      min-height: 10rem;
-    }
-
     .app-content-shell .admin-surface-page .settings-after-hours-sms {
       min-height: 16rem;
     }

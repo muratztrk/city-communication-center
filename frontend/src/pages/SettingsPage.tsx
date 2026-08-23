@@ -94,19 +94,8 @@ const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
 type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'afterHoursManagerSms'>
 
-function normalizeCitizenAutoReplyBodyText(bodyText: string) {
-  const trailingNewlines = bodyText.match(/\n+$/)?.[0] ?? ''
-  const withoutTrailingNewlines = trailingNewlines.length > 0
-    ? bodyText.slice(0, -trailingNewlines.length)
-    : bodyText
-  const core = withoutTrailingNewlines.trim()
-  // Kaydette gövde trim'i sondaki boş satırları silmesin — vatandaş mesajında aynı satır sonları
-  // durum etiketinden önce görünür (card #2911).
-  return (core || DEFAULT_AUTO_REPLY_BODY_TEXT) + trailingNewlines
-}
-
 function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string, suffixText = '', normalize = false) {
-  const normalizedBody = normalize ? normalizeCitizenAutoReplyBodyText(bodyText) : bodyText
+  const normalizedBody = normalize ? (bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT) : bodyText
   // {GönderilenBirim} sonrası otomatik ayraç yok: kullanıcı "'ne iletilmiştir." gibi bitişik metin
   // yazabilmeli; baştaki bilinçli boşluk da korunur, yalnız sondaki boşluk temizlenir (card #1598 2. reopen).
   const normalizedSuffix = normalize ? suffixText.trimEnd() : suffixText
@@ -181,7 +170,7 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
         <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 font-bold text-slate-500">{CITIZEN_REQUEST_TITLE_TOKEN}</span>
       </div>
       <textarea
-        className="field-textarea settings-citizen-auto-reply-body min-h-40 whitespace-pre-wrap"
+        className="field-textarea min-h-[4.5rem]"
         value={extractCitizenAutoReplyBodyText(value, templateStatusLabel)}
         onChange={event => onChange(buildCitizenAutoReplyTemplate(
           event.target.value,

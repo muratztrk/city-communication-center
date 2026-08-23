@@ -879,9 +879,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kayıtlı şablonlara eksik birim token'ı okunurken/yazılırken otomatik eklenir (card #1594).
   Her iki textarea yazım sırasında baştaki/sondaki boşluğu korur; trim ve boş gövde varsayılanına
   dönüş yalnız `Kaydet` normalizasyonunda yapılır, böylece kelimeler arasına boşluk girilebilir
-  (card #1594 reopen). İlk (gövde) textarea `min-h-40` + `whitespace-pre-wrap`; Kaydet gövde
-  sonundaki satır sonlarını silmez — vatandaş mesajında durum etiketinden önce aynı boş satırlar
-  görünür (card #2911).
+  (card #1594 reopen). İlk gövde textarea kompakt `min-h-[4.5rem]`; Kaydet `bodyText.trim()` yapar
+  (#2911 revert).
   Aynı sekmede Vatandaşa Giden Cevaplar altında **Birim Yöneticilerine/Sorumlularına Mesai Dışı
   Giden SMS Bildirimleri** vardır (#2907); Bildirim Mesajı textarea `min-h-64` (#2910). Bu bölümün Kaydet toast’ı
   `Birim yöneticilerine giden bildirim mesajı kaydedildi.` (#2905). **Bildirim Mesajı** textarea

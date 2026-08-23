@@ -1,3 +1,7 @@
+## Round 1030 — #2914 WhatsApp Mesajlar
+
+- **STATUS:** Banner `WhatsApp Mesajlar`; sol panel `Mesajlar`.
+
 ## Round 1029 — #2911 revert
 
 - **STATUS:** Vatandaşa Giden Cevaplar ilk textarea yüksekliği ve trailing NL koruması geri alındı.

@@ -1040,7 +1040,7 @@
     }
   },
   "whatsapp": {
-    "title": "WhatsApp Konuşmaları",
+    "title": "WhatsApp Mesajlar",
     "navTitle": "WhatsApp",
     "subtitle": "Vatandaşlardan gelen WhatsApp mesajlarını yönetin.",
     "locationMessage": "Konum",
@@ -1054,7 +1054,7 @@
     "sendPendingConfirmMessage": "Bu mesaj vatandaşa WhatsApp üzerinden iletilecek. Onaylıyor musunuz?",
     "searchPlaceholder": "Telefon no bul…",
     "searchPlaceholderExtended": "Telefon no, vatandaş adı…",
-    "conversationsTitle": "Konuşmalar",
+    "conversationsTitle": "Mesajlar",
     "sort": "Sırala",
     "urgent": "ACİL",
     "waitingForResponse": "Yanıt bekliyor",

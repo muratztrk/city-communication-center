@@ -414,7 +414,7 @@ function ConversationListPanel({
       <div className="shrink-0 px-4 pt-4 pb-3 space-y-3 border-b border-slate-100">
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-baseline gap-2 min-w-0">
-            <h2 className="text-base font-bold text-slate-900">{t('whatsapp.conversationsTitle', 'Konuşmalar')}</h2>
+            <h2 className="text-base font-bold text-slate-900">{t('whatsapp.conversationsTitle', 'Mesajlar')}</h2>
             <span className="text-sm font-semibold text-emerald-700">{conversations.length}</span>
           </div>
           <button

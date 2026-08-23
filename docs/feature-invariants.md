@@ -617,7 +617,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Sol konuşma kartındaki `Talep Sayısı: N`
   satırı gösterilmez; `İşleme Alınan`, `Yapılmakta`, `Tamamlandı` durum kırılımı
   başlıksız olarak görünür kalır; `İptal` kart alt sayacında basılmaz.
-- **WhatsApp konuşma toplam sayaç filtreleri:** `/whatsapp` sol panelinde `Konuşmalar` başlığı altında
+- **WhatsApp banner / sol başlık (#2914):** `/whatsapp` banner `page-title` `WhatsApp Mesajlar`;
+  sol panel başlığı `Mesajlar` (`whatsapp.title` / `whatsapp.conversationsTitle`).
+- **WhatsApp konuşma toplam sayaç filtreleri:** `/whatsapp` sol panelinde `Mesajlar` başlığı altında
   `İşleme Alınan`, turuncu `Yapılmakta`, yeşil `Tamamlandı` sayaçları görünür; `İptal` kalemi burada
   ve konuşma kartı alt sayaçlarında gösterilmez. Görünen sayaçlar tek satırda ve okunur büyüklükte kalır. `Tümü`, `Konuşmalar` başlığının altındaki kendi
   satırında tek başına durur; durum sayaçlarının toplamını gösterir ve tıklanınca Vatandaş Talepleri

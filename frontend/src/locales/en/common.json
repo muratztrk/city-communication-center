@@ -1033,7 +1033,7 @@
     }
   },
   "whatsapp": {
-    "title": "WhatsApp Conversations",
+    "title": "WhatsApp Messages",
     "navTitle": "WhatsApp",
     "subtitle": "Manage incoming WhatsApp messages from citizens.",
     "locationMessage": "Location",
@@ -1047,7 +1047,7 @@
     "sendPendingConfirmMessage": "This message will be delivered to the citizen via WhatsApp. Do you confirm?",
     "searchPlaceholder": "Find phone no…",
     "searchPlaceholderExtended": "Phone no, citizen name…",
-    "conversationsTitle": "Conversations",
+    "conversationsTitle": "Messages",
     "sort": "Sort",
     "urgent": "URGENT",
     "waitingForResponse": "Awaiting reply",

@@ -879,9 +879,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kayıtlı şablonlara eksik birim token'ı okunurken/yazılırken otomatik eklenir (card #1594).
   Her iki textarea yazım sırasında baştaki/sondaki boşluğu korur; trim ve boş gövde varsayılanına
   dönüş yalnız `Kaydet` normalizasyonunda yapılır, böylece kelimeler arasına boşluk girilebilir
-  (card #1594 reopen).
+  (card #1594 reopen). İlk (gövde) textarea `min-h-40` + `whitespace-pre-wrap`; Kaydet gövde
+  sonundaki satır sonlarını silmez — vatandaş mesajında durum etiketinden önce aynı boş satırlar
+  görünür (card #2911).
   Aynı sekmede Vatandaşa Giden Cevaplar altında **Birim Yöneticilerine/Sorumlularına Mesai Dışı
-  Giden SMS Bildirimleri** vardır (#2907); Bildirim Mesajı textarea `min-h-40` (#2910). Bu bölümün Kaydet toast’ı
+  Giden SMS Bildirimleri** vardır (#2907); Bildirim Mesajı textarea `min-h-64` (#2910). Bu bölümün Kaydet toast’ı
   `Birim yöneticilerine giden bildirim mesajı kaydedildi.` (#2905). **Bildirim Mesajı** textarea
   içeriği SMS gövdesidir — boşluk ve satır sonları olduğu gibi saklanır, vatandaş hitabı eklenmez
   (#2906). Mesai dışı talep oluşturunca aynı metin birim müdür/sorumlu/yardımcı cep numaralarına
@@ -940,7 +942,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Ayarlar > Taslak Mesajlar:** klasik şablon mesaj formudur; sol üst aksiyon butonu
   `+ Yeni Şablon Oluştur` metnini gösterir; form içinde
   `Şablon Türü`, `Otomatik Cevap`, `Anahtar Kelime`, `Zamanlı Yanıt` ve zaman planı kontrolleri
-  görünür kalır. Meta onaylı şablonlar için birincil yol **Meta'dan Senkronize Et** butonudur
+  görünür kalır. Şablon Türü listesinde `Phone` etiketi `Çağrı`dır, `Other` yoktur; açık menü
+  metni `0.78rem` (card #2912). Mevcut `Other` kayıt tetikleyicide `Diğer` olarak kalır. Meta onaylı şablonlar için birincil yol **Meta'dan Senkronize Et** butonudur
   (`POST /whatsapp-templates/sync-from-meta`); yalnızca Graph'ta `APPROVED` olanlar upsert edilir,
   artık onaylı olmayan yerel `WhatsApp Meta` kayıtları `IsActive=false` yapılır. Elle Meta oluşturma
   butonu gizlidir — Meta onaylı şablonlar Meta Manager üzerinden oluşturulur, uygulamada birincil

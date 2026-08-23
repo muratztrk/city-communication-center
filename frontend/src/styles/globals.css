@@ -1973,6 +1973,14 @@
       min-height: 5.5rem;
     }
 
+    .app-content-shell .admin-surface-page .settings-citizen-auto-reply-body.field-textarea {
+      min-height: 10rem;
+    }
+
+    .app-content-shell .admin-surface-page .settings-after-hours-sms {
+      min-height: 16rem;
+    }
+
     .app-content-shell .admin-surface-page label.text-sm,
     .app-content-shell .admin-surface-page .text-sm.font-semibold,
     .app-content-shell .admin-surface-page span.text-sm.font-semibold {
@@ -4279,6 +4287,13 @@
     min-height: 2.6rem;
     padding: 0.6rem 0.9rem;
     font-size: 0.95rem;
+  }
+
+  /* Taslak Mesajlar > Şablon Türü açık liste (card #2912). */
+  .admin-surface-menu.settings-template-channel-menu .dropdown-menu-item {
+    min-height: 1.85rem;
+    padding: 0.28rem 0.65rem;
+    font-size: 0.78rem;
   }
 
   /* Rol / Ek roller açılır liste — create form (#r527 / #1988); aynı genişlik+font. */

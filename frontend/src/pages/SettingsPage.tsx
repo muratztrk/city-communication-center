@@ -94,8 +94,19 @@ const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
 type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'afterHoursManagerSms'>
 
+function normalizeCitizenAutoReplyBodyText(bodyText: string) {
+  const trailingNewlines = bodyText.match(/\n+$/)?.[0] ?? ''
+  const withoutTrailingNewlines = trailingNewlines.length > 0
+    ? bodyText.slice(0, -trailingNewlines.length)
+    : bodyText
+  const core = withoutTrailingNewlines.trim()
+  // Kaydette gövde trim'i sondaki boş satırları silmesin — vatandaş mesajında aynı satır sonları
+  // durum etiketinden önce görünür (card #2911).
+  return (core || DEFAULT_AUTO_REPLY_BODY_TEXT) + trailingNewlines
+}
+
 function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string, suffixText = '', normalize = false) {
-  const normalizedBody = normalize ? (bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT) : bodyText
+  const normalizedBody = normalize ? normalizeCitizenAutoReplyBodyText(bodyText) : bodyText
   // {GönderilenBirim} sonrası otomatik ayraç yok: kullanıcı "'ne iletilmiştir." gibi bitişik metin
   // yazabilmeli; baştaki bilinçli boşluk da korunur, yalnız sondaki boşluk temizlenir (card #1598 2. reopen).
   const normalizedSuffix = normalize ? suffixText.trimEnd() : suffixText
@@ -170,7 +181,7 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
         <span className="rounded-md border border-slate-200 bg-slate-100 px-2 py-1 font-bold text-slate-500">{CITIZEN_REQUEST_TITLE_TOKEN}</span>
       </div>
       <textarea
-        className="field-textarea min-h-[4.5rem]"
+        className="field-textarea settings-citizen-auto-reply-body min-h-40 whitespace-pre-wrap"
         value={extractCitizenAutoReplyBodyText(value, templateStatusLabel)}
         onChange={event => onChange(buildCitizenAutoReplyTemplate(
           event.target.value,
@@ -351,7 +362,14 @@ const EMPTY_SOCIAL_FORMS: ChannelForms = {
   email: { imapHost: '', imapPort: '', imapUser: '', imapPassword: '', folder: '', smtpHost: '', smtpPort: '', smtpUser: '', smtpPassword: '' },
 }
 
-const TEMPLATE_CHANNEL_OPTIONS = ['Genel', 'WhatsApp', 'Facebook', 'Instagram', 'X', 'Phone', 'Other']
+const TEMPLATE_CHANNEL_OPTIONS: { value: string; label: string }[] = [
+  { value: 'Genel', label: 'Genel' },
+  { value: 'WhatsApp', label: 'WhatsApp' },
+  { value: 'Facebook', label: 'Facebook' },
+  { value: 'Instagram', label: 'Instagram' },
+  { value: 'X', label: 'X' },
+  { value: 'Phone', label: 'Çağrı' },
+]
 const WHATSAPP_META_TEMPLATE_CHANNEL = 'WhatsApp Meta'
 const TEMPLATE_REPLY_DELAY_OPTIONS = [10, 30, 60, 120, 300]
 const TEMPLATE_WEEKDAY_OPTIONS = [
@@ -3326,7 +3344,7 @@ export function SettingsPage() {
               <span>{t('settings.routing.afterHoursManagerSmsLabel')}</span>
               <textarea
                 aria-label={t('settings.routing.afterHoursManagerSmsLabel')}
-                className="field-input min-h-40 whitespace-pre-wrap"
+                className="field-input settings-after-hours-sms min-h-64 whitespace-pre-wrap"
                 placeholder={t('settings.routing.afterHoursManagerSmsPlaceholder')}
                 value={citizenAutoReplyTemplates.afterHoursManagerSms ?? ''}
                 onChange={event => setCitizenAutoReplyTemplates(current => ({
@@ -3444,10 +3462,15 @@ export function SettingsPage() {
                   <label className="grid gap-1.5 text-sm font-semibold text-slate-700">
                     <span>Şablon Türü</span>
                     <SingleSelectDropdown
-                      options={TEMPLATE_CHANNEL_OPTIONS.map(ch => ({ value: ch, label: ch }))}
+                      options={
+                        templateForm.channel === 'Other'
+                          ? [...TEMPLATE_CHANNEL_OPTIONS, { value: 'Other', label: 'Diğer' }]
+                          : TEMPLATE_CHANNEL_OPTIONS
+                      }
                       value={templateForm.channel}
                       onChange={channel => setTemplateForm(cur => ({ ...cur, channel }))}
                       placeholder="Şablon Türü"
+                      menuClassName="settings-template-channel-menu"
                     />
                   </label>
                 </div>

@@ -1,3 +1,7 @@
+## Round 1028 — #2912/#2911/#2910
+
+- **STATUS:** Şablon Türü Çağrı + küçük menü; vatandaş gövde textarea + trailing NL; mesai dışı `min-h-64`.
+
 ## Round 1027 — #2910 mesai dışı SMS textarea yüksekliği
 
 - **STATUS:** Bildirim Mesajı `min-h-40`.

@@ -25,7 +25,7 @@ export function AddressCoordinatesField({
 
   return (
     <div className="relative grid min-w-0 gap-1">
-      <span className={labelClassName}>{t('address.coordinatesLabel', 'Konum Koordinatı')}</span>
+      <span className={labelClassName}>{t('address.coordinatesLabel', 'Konum Linki')}</span>
       <input
         type="text"
         inputMode="url"

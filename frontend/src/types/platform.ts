@@ -1033,6 +1033,23 @@ export interface FileStorageSettingsUpdate {
   clearFtpPassword: boolean;
 }
 
+export interface DatabaseBackupSettings {
+  nasHost: string | null;
+  nasShareName: string | null;
+  nasProtocol: 'SMB/CIFS' | 'NFS';
+  nasUsername: string | null;
+  nasHasPassword: boolean;
+}
+
+export interface DatabaseBackupSettingsUpdate {
+  nasHost: string | null;
+  nasShareName: string | null;
+  nasProtocol: 'SMB/CIFS' | 'NFS';
+  nasUsername: string | null;
+  nasPassword: string | null;
+  clearNasPassword: boolean;
+}
+
 export interface SlaWeekendSettings {
   excludeWeekends: boolean
   exemptDepartmentIds: string[]

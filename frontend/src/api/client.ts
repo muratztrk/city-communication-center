@@ -71,6 +71,8 @@ import type {
   TestSmsResult,
   FileStorageSettings,
   FileStorageSettingsUpdate,
+  DatabaseBackupSettings,
+  DatabaseBackupSettingsUpdate,
   SyslogSettings,
   SyslogSettingsUpdate,
   SlaWeekendSettings,
@@ -904,6 +906,21 @@ export const api = {
     })
     await ensureOk(response, i18n.t('errors.fileStorageSettingsLoadFailed'))
     return response.json() as Promise<{ success: boolean; message: string }>
+  },
+
+  async getDatabaseBackupSettings(tenantId: string): Promise<DatabaseBackupSettings> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/database-backup-settings`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.databaseBackupSettingsLoadFailed'))
+    return response.json() as Promise<DatabaseBackupSettings>
+  },
+
+  async updateDatabaseBackupSettings(tenantId: string, data: DatabaseBackupSettingsUpdate): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/database-backup-settings`, {
+      method: 'PUT',
+      headers: { ...(await getAuthHeaders()), 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    await ensureOk(response, i18n.t('errors.databaseBackupSettingsSaveFailed'))
   },
 
   async getSyslogSettings(tenantId: string): Promise<SyslogSettings> {

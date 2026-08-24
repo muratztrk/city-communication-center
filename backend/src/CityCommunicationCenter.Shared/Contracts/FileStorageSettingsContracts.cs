@@ -47,3 +47,18 @@ public sealed record TestFileStorageNasUserRequest(
 public sealed record TestFileStorageNasUserResponse(
     bool Success,
     string Message);
+
+public sealed record DatabaseBackupSettingsResponse(
+    string? NasHost,
+    string? NasShareName,
+    string NasProtocol,
+    string? NasUsername,
+    bool NasHasPassword);
+
+public sealed record UpdateDatabaseBackupSettingsRequest(
+    string? NasHost,
+    string? NasShareName,
+    string NasProtocol,
+    string? NasUsername,
+    string? NasPassword,
+    bool ClearNasPassword);

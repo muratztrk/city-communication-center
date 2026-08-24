@@ -30,6 +30,9 @@ public sealed class TenantSetting : AuditableTenantEntity, IHasDatabaseIndexDefi
 
     public string? FileStorageSettingsJson { get; set; }
 
+    /// <summary>Veritabanı yedeğinin kopyalanacağı ayrı NAS/dosya sunucusu (ek sunucusundan bağımsız, #2913).</summary>
+    public string? DatabaseBackupSettingsJson { get; set; }
+
     public string? SlaWeekendSettingsJson { get; set; }
 
     public string? InternalMessagesSettingsJson { get; set; }

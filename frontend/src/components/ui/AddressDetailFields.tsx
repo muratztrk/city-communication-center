@@ -18,7 +18,7 @@ function displayAddressValue(value: string | null | undefined, emptyValue = '—
 export function AddressDetailFields({ neighborhood, street, streetNo, openAddress, coordinates, variant = 'default' }: AddressDetailFieldsProps) {
   const { t } = useTranslation()
   const addressDirectionsLabel = t('address.directionsLabel', 'Adres Tarifi')
-  const coordinatesLabel = t('address.coordinatesLabel', 'Konum Koordinatı')
+  const coordinatesLabel = t('address.coordinatesLabel', 'Konum Linki')
   const coordinatesText = coordinates?.trim() ?? ''
 
   if (variant === 'peek') {

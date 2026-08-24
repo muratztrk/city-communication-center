@@ -206,6 +206,8 @@
     "syslogSettingsSaveFailed": "Syslog ayarları kaydedilemedi.",
     "fileStorageSettingsLoadFailed": "Dosya sunucusu ayarları alınamadı.",
     "fileStorageSettingsSaveFailed": "Dosya sunucusu ayarları kaydedilemedi.",
+    "databaseBackupSettingsLoadFailed": "Veritabanı yedeği sunucu ayarları alınamadı.",
+    "databaseBackupSettingsSaveFailed": "Veritabanı yedeği sunucu ayarları kaydedilemedi.",
     "slaWeekendSettingsLoadFailed": "SLA hafta sonu ayarları alınamadı.",
     "slaWeekendSettingsSaveFailed": "SLA hafta sonu ayarları kaydedilemedi."
   },
@@ -1001,6 +1003,7 @@
   },
   "social": {
     "title": "Vatandaş Talep Akışı",
+    "whatsappCitizenRequestTitle": "WhatsApp Mesajları - Vatandaş Talebi Oluştur",
     "subtitle": "Gelen mesajları yönlendirin ve talebe dönüştürün.",
     "total": "mesaj",
     "routedSummary": "yönlendirildi",
@@ -1040,7 +1043,7 @@
     }
   },
   "whatsapp": {
-    "title": "WhatsApp Mesajlar",
+    "title": "WhatsApp Mesajları",
     "navTitle": "WhatsApp",
     "subtitle": "Vatandaşlardan gelen WhatsApp mesajlarını yönetin.",
     "locationMessage": "Konum",
@@ -1320,8 +1323,15 @@
       "save": "Kaydet",
       "saved": "Kurum içi mesaj ayarları kaydedildi."
     },
+    "databaseBackup": {
+      "sectionTitle": "Veritabanı Yedeği Alınacak Sunucu Bilgileri",
+      "sectionDescription": "Veritabanı yedeğinin aktarılacağı NAS / dosya sunucusu yolunu tanımlayın. Ek sunucusundan bağımsızdır.",
+      "path": "Dosya yolu",
+      "pathPlaceholder": "//sunucu/paylasim",
+      "saved": "Veritabanı yedeği sunucu bilgileri kaydedildi."
+    },
     "fileStorage": {
-      "sectionTitle": "Talep ve Görev Eklerini Barınacak Server Bilgileri",
+      "sectionTitle": "Talep ve Görev Eklerini Barındıracak Sunucu Bilgileri",
       "sectionDescription": "Talep ve görev eklerinin saklanacağı yerel ağ veya FTP sunucusu bağlantı bilgilerini tanımlayın.",
       "nasTitle": "NAS / Dosya Sunucusu Paylaşımı",
       "ftpTitle": "FTP Paylaşımı",
@@ -2001,7 +2011,7 @@
     "streetNoDisabledHint": "Önce cadde / sokak seçiniz",
     "streetRequired": "Mahalle seçildiğinde Cadde / Sokak zorunludur.",
     "streetNoRequired": "Mahalle seçildiğinde No zorunludur.",
-    "coordinatesLabel": "Konum Koordinatı",
+    "coordinatesLabel": "Konum Linki",
     "coordinatesPlaceholder": "Link giriniz...",
     "coordinatesInvalid": "Konum koordinatı enlem, boylam olarak girilmelidir.",
     "openAddressRequired": "Mahalle seçildiğinde Adres Tarifi zorunludur.",

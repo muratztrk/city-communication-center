@@ -324,7 +324,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WhatsApp Vatandaş Bilgileri ve yazdırma çıktısında etiket `Adres Tarifi`; yazdırmada Cadde/Sokak
   altında ayrı `No` satırı vardır (#2586/#2588). Adres Tarifi placeholder:
   `Mevki, daire, kat bilgisi giriniz...` (#2660/#2669). Cadde placeholder her yerde
-  `Cadde seçiniz` (#2721). No `No seçiniz` (#2669). Konum Koordinatı placeholder
+  `Cadde seçiniz` (#2721). No `No seçiniz` (#2669). Konum Linki placeholder
   `Link giriniz...` (#2722); taşan metin ellipsis + hover tooltip, punto biraz küçük (#2725).
 - **Adres metni yazımı:** Cadde / Sokak ve Açık Adres değerleri Türkçe locale kurallarıyla
   her kelimenin ilk harfi büyük, kalan harfleri küçük olacak biçimde normalize edilir
@@ -617,7 +617,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Sol konuşma kartındaki `Talep Sayısı: N`
   satırı gösterilmez; `İşleme Alınan`, `Yapılmakta`, `Tamamlandı` durum kırılımı
   başlıksız olarak görünür kalır; `İptal` kart alt sayacında basılmaz.
-- **WhatsApp banner / sol başlık (#2914):** `/whatsapp` banner `page-title` `WhatsApp Mesajlar`;
+- **WhatsApp banner / sol başlık (#2914):** `/whatsapp` banner `page-title` `WhatsApp Mesajları`;
   sol panel başlığı `Mesajlar` (`whatsapp.title` / `whatsapp.conversationsTitle`).
 - **WhatsApp konuşma toplam sayaç filtreleri:** `/whatsapp` sol panelinde `Mesajlar` başlığı altında
   `İşleme Alınan`, turuncu `Yapılmakta`, yeşil `Tamamlandı` sayaçları görünür; `İptal` kalemi burada
@@ -1291,7 +1291,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WA Vatandaş Bilgileri Cadde/No placeholder **Seçiniz** (#2724). Seçili Cadde/No metni kutuyu
   genişletmez; taşınca ellipsis + hover tooltip (#2724 reopen).
   No `No seçiniz`; listede **Yok** (#2714); CBS’den gelen **Kapı Numarası Yok** satırı yok (#2723).
-  Talep oluşturda No’nun sağında isteğe bağlı Konum Koordinatı (#2713), placeholder `Link giriniz...` (#2722); taşan metin ellipsis + **500ms** hover tooltip (#2725/#2763). Değer punto `13px`, placeholder `14px` (#2765/#2766); WA VT popup’ta koordinat kutusu/placeholder hafif küçültüldü (#2833). Native `title` yok.
+  Talep oluşturda No’nun sağında isteğe bağlı Konum Linki (#2713/#2915), placeholder `Link giriniz...` (#2722); taşan metin ellipsis + **500ms** hover tooltip (#2725/#2763). Değer punto `13px`, placeholder `14px` (#2765/#2766); WA VT popup’ta koordinat kutusu/placeholder hafif küçültüldü (#2833). Native `title` yok.
   Konum Koordinatı anlamsız/hatalıysa talep yine oluşur; marker yok; `coordinatesInvalid` ile bloke edilmez (#2753). Pin için Google Maps linki (`@lat,lng` / `q=` / `!3d!4d`, `google.com.tr`, kısa `maps.app.goo.gl` sunucuda açılır) parse edilip lat/lng kaydedilir (#2764/#2767); düz `lat, lng` marker yazmaz. Oluşturunca harita pin sorgusu invalidate + mount’ta taze çekilir (#2752).
   Vatandaş Çağrı **Talebin Adres Bilgisi**, Rutin Görev Oluştur ve WA **Vatandaş Talebi Oluştur** popup’ta Konum Koordinatı başlığı Mahalle dropdown’unun **alt satırında** hizalanır; Adres Tarifi / Dosya ekle bir alt satırdadır (#2726/#2727/#2741).
   Birim/Vatandaş talep haritasında Mahalle+Cadde+No (No ≠ Yok) doluysa pin CBS’den gelir; Konum Koordinatı kullanılmaz (#2720). Orijinal Maps linki (`LocationMapsUrl`) varsa marker **önce** Google Maps linkinden (`!3d!4d` kamera `@` değil, kısa link sunucuda açılır) konur; CBS veya kayıtlı Job lat/lng ezmez (#2770/#2782/#2783).
@@ -1393,7 +1393,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Matris `social` ve `citizenMessageApproval` satır etiketleri menü metninden ayrıdır; başlık +
   küçük parantez ipucu iki satırda gösterilir (#2282/#2284); sol menü `nav.*` etiketleri değişmez.
 - **Dosya sunucusu test alanları (#6a6cb6ec):** NAS ve FTP kolonlarında ayrı bağlantı +
-  kullanıcı giriş testi (ortak alt blok yok).
+  kullanıcı giriş testi (ortak alt blok yok). Başlık `Talep ve Görev Eklerini Barındıracak Sunucu
+  Bilgileri` (#2916). Kurum İçi Mesajlar’ın sağında **Veritabanı Yedeği Alınacak Sunucu Bilgileri**
+  ayrı NAS yolu (ek sunucusundan bağımsız, #2913).
 - **NAS kullanıcı testi gerçek bir SMB bağlantısıdır (Round 657 / card #2226):** eskiden yalnız
   kayıtlı `nasUsername` ile girilen adı string karşılaştırıyordu (sahte). Artık `SMBLibrary`
   (Infrastructure/FileStorage/SmbNasConnectivityTester.cs, `INasConnectivityTester` abstraction)
@@ -1434,7 +1436,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birimler / Kullanıcılar / Ayarlar dropdown’ları** native `<select>` değil ortak
   `SingleSelectDropdown` (card #1709). Kullanıcı düzenleme dept/rol menüsünde arama + kompakt satır (card #1706).
 - **Vatandaş Talebi Oluştur modalı WA balonları** `compactBubbles` ile ana `/whatsapp` sayfasından küçük kalır (card #1711).
-  Başlık `WhatsApp Konuşması - Vatandaş Talebi Oluştur` `font-medium` (#2634);
+  Başlık `WhatsApp Mesajları - Vatandaş Talebi Oluştur` `font-medium` (#2634/#2917);
   compact konuşma mesaj metni 11px, gönderen satırı 12px (#2634).
   Modal açıkken gelen WA mesajı aynı konuşma penceresinde anlık görünür (`ccc:whatsapp-message` + 3sn poll, #2707).
 - **Yazışmaya Git popup (#2080 / #2289):** `WhatsAppConversationModal` → `compactBubbles` + `compactActions`

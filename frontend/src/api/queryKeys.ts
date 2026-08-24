@@ -101,6 +101,7 @@ export const queryKeys = {
     workingHours: (tenantId?: string | null) => ['ccc', 'settings', 'working-hours', tenantId ?? 'none'] as const,
     sms: (tenantId?: string | null) => ['ccc', 'settings', 'sms', tenantId ?? 'none'] as const,
     fileStorage: (tenantId?: string | null) => ['ccc', 'settings', 'file-storage', tenantId ?? 'none'] as const,
+    databaseBackup: (tenantId?: string | null) => ['ccc', 'settings', 'database-backup', tenantId ?? 'none'] as const,
     syslog: (tenantId?: string | null) => ['ccc', 'settings', 'syslog', tenantId ?? 'none'] as const,
     slaWeekend: (tenantId?: string | null) => ['ccc', 'settings', 'sla-weekend', tenantId ?? 'none'] as const,
     dueDateConstraints: () => ['ccc', 'settings', 'due-date-constraints'] as const,

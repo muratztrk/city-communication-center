@@ -206,6 +206,8 @@
     "syslogSettingsSaveFailed": "Failed to save Syslog settings.",
     "fileStorageSettingsLoadFailed": "Failed to load file server settings.",
     "fileStorageSettingsSaveFailed": "Failed to save file server settings.",
+    "databaseBackupSettingsLoadFailed": "Failed to load database backup server settings.",
+    "databaseBackupSettingsSaveFailed": "Failed to save database backup server settings.",
     "slaWeekendSettingsLoadFailed": "Failed to load SLA weekend settings.",
     "slaWeekendSettingsSaveFailed": "Failed to save SLA weekend settings."
   },
@@ -994,6 +996,7 @@
   },
   "social": {
     "title": "Citizen Request Flow",
+    "whatsappCitizenRequestTitle": "WhatsApp Messages - Create Citizen Request",
     "subtitle": "Route incoming messages and convert them into requests.",
     "total": "messages",
     "routedSummary": "routed",
@@ -1312,6 +1315,13 @@
       "showUserTitle": "Show staff title in internal messages",
       "save": "Save",
       "saved": "Internal messages settings saved."
+    },
+    "databaseBackup": {
+      "sectionTitle": "Database Backup Destination Server",
+      "sectionDescription": "NAS / file-server path where database backups are copied. Independent from attachment storage.",
+      "path": "File path",
+      "pathPlaceholder": "//server/share",
+      "saved": "Database backup server settings saved."
     },
     "fileStorage": {
       "sectionTitle": "Server Information for Request and Task Attachments",
@@ -1959,7 +1969,7 @@
     "streetNoDisabledHint": "Select a street first",
     "streetRequired": "Street is required when a neighborhood is selected.",
     "streetNoRequired": "Street number is required when a neighborhood is selected.",
-    "coordinatesLabel": "Location coordinates",
+    "coordinatesLabel": "Location link",
     "coordinatesPlaceholder": "Enter link...",
     "coordinatesInvalid": "Enter coordinates as latitude, longitude.",
     "openAddressRequired": "Full address is required when a neighborhood is selected.",

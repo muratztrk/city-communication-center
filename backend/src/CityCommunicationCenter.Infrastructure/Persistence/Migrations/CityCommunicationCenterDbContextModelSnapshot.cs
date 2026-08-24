@@ -1874,6 +1874,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("filestoragesettingsjson");
 
+                    b.Property<string>("DatabaseBackupSettingsJson")
+                        .HasColumnType("text")
+                        .HasColumnName("databasebackupsettingsjson");
+
                     b.Property<string>("LdapSettingsJson")
                         .HasColumnType("text")
                         .HasColumnName("ldapsettingsjson");

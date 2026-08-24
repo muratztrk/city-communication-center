@@ -431,6 +431,34 @@ public sealed class AdminController : ApiControllerBase
         return Ok(new TestFileStorageNasUserResponse(result.Success, result.Message));
     }
 
+    [HttpGet("tenants/{tenantId:guid}/database-backup-settings")]
+    public async Task<ActionResult<DatabaseBackupSettingsResponse>> GetDatabaseBackupSettings(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetDatabaseBackupSettingsQuery(tenantId), cancellationToken);
+        return result is null ? NotFound() : Ok(result);
+    }
+
+    [HttpPut("tenants/{tenantId:guid}/database-backup-settings")]
+    public async Task<IActionResult> UpdateDatabaseBackupSettings(
+        Guid tenantId,
+        [FromBody] UpdateDatabaseBackupSettingsRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new UpdateDatabaseBackupSettingsCommand(
+                tenantId,
+                request.NasHost,
+                request.NasShareName,
+                request.NasProtocol,
+                request.NasUsername,
+                request.NasPassword,
+                request.ClearNasPassword),
+            cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("tenants/{tenantId:guid}/syslog-settings")]
     public async Task<ActionResult<SyslogSettingsResponse>> GetSyslogSettings(Guid tenantId, CancellationToken cancellationToken)
     {

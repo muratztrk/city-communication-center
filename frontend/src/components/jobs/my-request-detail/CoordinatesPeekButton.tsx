@@ -51,7 +51,7 @@ export function CoordinatesPeekButton({ value }: CoordinatesPeekButtonProps) {
                 id="coordinates-peek-title"
                 className="mb-3 border-b border-slate-200 pb-3 pr-8 text-base font-bold text-slate-950"
               >
-                {t('address.coordinatesLabel', 'Konum Koordinatı')}
+                {t('address.coordinatesLabel', 'Konum Linki')}
               </h2>
               <p className="break-all text-sm text-slate-800">{trimmed}</p>
             </div>

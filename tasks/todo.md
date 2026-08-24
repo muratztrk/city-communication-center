@@ -1,3 +1,7 @@
+## Round 1031 — #2915/#2913/#2914/#2917/#2916
+
+- **STATUS:** Konum Linki; DB yedek NAS; WhatsApp Mesajları; VT modal başlığı; ek sunucu başlığı.
+
 ## Round 1030 — #2914 WhatsApp Mesajlar
 
 - **STATUS:** Banner `WhatsApp Mesajlar`; sol panel `Mesajlar`.

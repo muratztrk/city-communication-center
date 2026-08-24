@@ -60,6 +60,8 @@ import type {
   SmsSettingsUpdate,
   FileStorageSettings,
   FileStorageSettingsUpdate,
+  DatabaseBackupSettings,
+  DatabaseBackupSettingsUpdate,
   SyslogSettingsUpdate,
   SlaWeekendSettingsUpdate,
   InternalMessagesSettings,
@@ -547,6 +549,7 @@ export function SettingsPage() {
   const [workingHoursForm, setWorkingHoursForm] = useState<WorkingHoursSettings | null>(null)
   const [smsSettings, setSmsSettings] = useState<SmsSettings | null>(null)
   const [fileStorageSettings, setFileStorageSettings] = useState<FileStorageSettings | null>(null)
+  const [databaseBackupSettings, setDatabaseBackupSettings] = useState<DatabaseBackupSettings | null>(null)
   const [smsTestPhone, setSmsTestPhone] = useState('')
   const [smsTestStatus, setSmsTestStatus] = useState<{ type: 'idle' | 'testing' | 'success' | 'error'; message: string }>({ type: 'idle', message: '' })
   const [smsForm, setSmsForm] = useState<SmsSettingsUpdate>({
@@ -573,6 +576,14 @@ export function SettingsPage() {
     ftpUsername: null,
     ftpPassword: null,
     clearFtpPassword: false,
+  })
+  const [databaseBackupForm, setDatabaseBackupForm] = useState<DatabaseBackupSettingsUpdate>({
+    nasHost: null,
+    nasShareName: null,
+    nasProtocol: 'SMB/CIFS',
+    nasUsername: null,
+    nasPassword: null,
+    clearNasPassword: false,
   })
   const [slaWeekendForm, setSlaWeekendForm] = useState<SlaWeekendSettingsUpdate>({
     excludeWeekends: true, exemptDepartmentIds: [],
@@ -689,8 +700,9 @@ export function SettingsPage() {
       api.getSlaWeekendSettings(user.tenantId),
       api.getWhatsAppTemplates(),
       api.getInternalMessagesSettings(user.tenantId),
+      api.getDatabaseBackupSettings(user.tenantId),
     ])
-      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, autoReplyResponse, departmentResponse, workingHoursResponse, smsResponse, fileStorageResponse, syslogResponse, slaWeekendResponse, templatesResponse, internalMessagesResponse]) => {
+      .then(([tenantResponse, ldapResponse, authPolicyResponse, appearanceResponse, socialResponse, autoReplyResponse, departmentResponse, workingHoursResponse, smsResponse, fileStorageResponse, syslogResponse, slaWeekendResponse, templatesResponse, internalMessagesResponse, databaseBackupResponse]) => {
         if (!isActive) {
           return
         }
@@ -784,6 +796,15 @@ export function SettingsPage() {
         })
         setTemplates(templatesResponse)
         setInternalMessagesSettings(internalMessagesResponse)
+        setDatabaseBackupSettings(databaseBackupResponse)
+        setDatabaseBackupForm({
+          nasHost: databaseBackupResponse.nasHost,
+          nasShareName: databaseBackupResponse.nasShareName,
+          nasProtocol: databaseBackupResponse.nasProtocol,
+          nasUsername: databaseBackupResponse.nasUsername,
+          nasPassword: null,
+          clearNasPassword: false,
+        })
       })
       .catch(loadError => {
         if (isActive) {
@@ -1334,6 +1355,30 @@ export function SettingsPage() {
       queryClient.invalidateQueries({ queryKey: queryKeys.settings.internalMessages(user.tenantId) })
       setInternalMessagesSettings(await api.getInternalMessagesSettings(user.tenantId))
       setMessage({ type: 'success', text: t('settings.internalMessages.saved') })
+    } catch (saveError) {
+      setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
+    }
+  }
+
+  const saveDatabaseBackupSettings = async (event: FormEvent) => {
+    event.preventDefault()
+    if (!user?.tenantId) return
+
+    setMessage(null)
+    try {
+      await api.updateDatabaseBackupSettings(user.tenantId, databaseBackupForm)
+      invalidateSettings(queryClient)
+      const refreshed = await api.getDatabaseBackupSettings(user.tenantId)
+      setDatabaseBackupSettings(refreshed)
+      setDatabaseBackupForm({
+        nasHost: refreshed.nasHost,
+        nasShareName: refreshed.nasShareName,
+        nasProtocol: refreshed.nasProtocol,
+        nasUsername: refreshed.nasUsername,
+        nasPassword: null,
+        clearNasPassword: false,
+      })
+      setMessage({ type: 'success', text: t('settings.databaseBackup.saved') })
     } catch (saveError) {
       setMessage({ type: 'error', text: saveError instanceof Error ? saveError.message : t('common.error') })
     }
@@ -2731,6 +2776,82 @@ export function SettingsPage() {
             </label>
             <div className="inline-actions">
               <Button type="submit">{t('settings.internalMessages.save')}</Button>
+            </div>
+          </form>
+
+          <form className="section-card page-stack" onSubmit={event => void saveDatabaseBackupSettings(event)}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.databaseBackup.sectionTitle')}</h2>
+                <p className="helper-copy">{t('settings.databaseBackup.sectionDescription')}</p>
+              </div>
+            </div>
+            <label className="field-row">
+              <span className="field-label">{t('settings.databaseBackup.path')}</span>
+              <input
+                className="field-input"
+                placeholder={t('settings.databaseBackup.pathPlaceholder')}
+                value={databaseBackupForm.nasHost ?? ''}
+                onChange={event => setDatabaseBackupForm(current => ({ ...current, nasHost: event.target.value || null }))}
+              />
+            </label>
+            <label className="field-row">
+              <span className="field-label">{t('settings.fileStorage.shareName')}</span>
+              <input
+                className="field-input"
+                value={databaseBackupForm.nasShareName ?? ''}
+                onChange={event => setDatabaseBackupForm(current => ({ ...current, nasShareName: event.target.value || null }))}
+              />
+            </label>
+            <label className="field-row">
+              <span className="field-label">{t('settings.fileStorage.protocol')}</span>
+              <SingleSelectDropdown
+                options={[
+                  { value: 'SMB/CIFS', label: 'SMB/CIFS' },
+                  { value: 'NFS', label: 'NFS' },
+                ]}
+                value={databaseBackupForm.nasProtocol}
+                onChange={nasProtocol => setDatabaseBackupForm(current => ({ ...current, nasProtocol: nasProtocol as DatabaseBackupSettingsUpdate['nasProtocol'] }))}
+                placeholder={t('settings.fileStorage.protocol')}
+              />
+            </label>
+            <label className="field-row">
+              <span className="field-label">{t('settings.fileStorage.username')}</span>
+              <input
+                className="field-input"
+                value={databaseBackupForm.nasUsername ?? ''}
+                onChange={event => setDatabaseBackupForm(current => ({ ...current, nasUsername: event.target.value || null }))}
+              />
+            </label>
+            <label className="field-row">
+              <span className="field-label">{t('settings.fileStorage.password')}</span>
+              <input
+                className="field-input"
+                type="password"
+                placeholder={t('settings.fileStorage.passwordPlaceholder')}
+                value={databaseBackupForm.nasPassword ?? (databaseBackupSettings?.nasHasPassword ? SMS_PASSWORD_MASK : '')}
+                onFocus={() => {
+                  if (!databaseBackupForm.nasPassword && databaseBackupSettings?.nasHasPassword) {
+                    setDatabaseBackupForm(current => ({ ...current, nasPassword: '' }))
+                  }
+                }}
+                onBlur={() => {
+                  if (databaseBackupForm.nasPassword === '') {
+                    setDatabaseBackupForm(current => ({ ...current, nasPassword: null }))
+                  }
+                }}
+                onChange={event => {
+                  const next = event.target.value
+                  setDatabaseBackupForm(current => ({
+                    ...current,
+                    nasPassword: next === SMS_PASSWORD_MASK ? null : (next || null),
+                    clearNasPassword: false,
+                  }))
+                }}
+              />
+            </label>
+            <div className="inline-actions">
+              <Button type="submit">{t('common.save')}</Button>
             </div>
           </form>
           </div>

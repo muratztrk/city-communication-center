@@ -9,6 +9,7 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
     private static readonly JsonSerializerOptions SerializerOptions = new(JsonSerializerDefaults.Web);
     private readonly IApplicationDbContext _dbContext;
     private readonly IDataProtector _dataProtector;
+    private readonly IDataProtector _backupDataProtector;
 
     public TenantFileStorageSettingsService(
         IApplicationDbContext dbContext,
@@ -17,6 +18,8 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
         _dbContext = dbContext;
         _dataProtector = dataProtectionProvider.CreateProtector(
             "CityCommunicationCenter.TenantFileStorageSettings.v1");
+        _backupDataProtector = dataProtectionProvider.CreateProtector(
+            "CityCommunicationCenter.TenantDatabaseBackupSettings.v1");
     }
 
     public async Task<TenantFileStorageSettingsDescriptor> GetSettingsAsync(
@@ -91,6 +94,65 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
         await _dbContext.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<TenantDatabaseBackupSettingsDescriptor> GetDatabaseBackupSettingsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        var payload = await GetBackupPayloadAsync(tenantId, cancellationToken);
+        return new TenantDatabaseBackupSettingsDescriptor(
+            payload.NasHost,
+            payload.NasShareName,
+            payload.NasProtocol,
+            payload.NasUsername,
+            !string.IsNullOrWhiteSpace(payload.NasPassword));
+    }
+
+    public async Task SaveDatabaseBackupSettingsAsync(
+        Guid tenantId,
+        TenantDatabaseBackupSettingsUpdate settings,
+        Guid? actorUserId,
+        CancellationToken cancellationToken = default)
+    {
+        var current = await GetBackupPayloadAsync(tenantId, cancellationToken);
+        var payload = new TenantDatabaseBackupSettingsPayload
+        {
+            NasHost = NormalizeNasHost(settings.NasHost),
+            NasShareName = NormalizeNasShareName(settings.NasShareName),
+            NasProtocol = settings.NasProtocol,
+            NasUsername = Normalize(settings.NasUsername),
+            NasPassword = ResolvePassword(
+                current.NasPassword, settings.NasPassword, settings.ClearNasPassword),
+        };
+
+        var serializedPayload = _backupDataProtector.Protect(
+            JsonSerializer.Serialize(payload, SerializerOptions));
+        var tenantSetting = await _dbContext.TenantSettings
+            .IgnoreQueryFilters()
+            .SingleOrDefaultAsync(entity => entity.TenantId == tenantId, cancellationToken);
+
+        if (tenantSetting is null)
+        {
+            _dbContext.TenantSettings.Add(new TenantSetting
+            {
+                TenantSettingId = Guid.NewGuid(),
+                TenantId = tenantId,
+                DisplayName = string.Empty,
+                DefaultSlaHours = 48,
+                AutoRoutingEnabled = false,
+                DatabaseBackupSettingsJson = serializedPayload,
+                CreatedByUserId = actorUserId,
+            });
+        }
+        else
+        {
+            tenantSetting.DatabaseBackupSettingsJson = serializedPayload;
+            tenantSetting.UpdatedAtUtc = DateTimeOffset.UtcNow;
+            tenantSetting.UpdatedByUserId = actorUserId;
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
     private async Task<TenantFileStorageSettingsPayload> GetPayloadAsync(
         Guid tenantId,
         CancellationToken cancellationToken)
@@ -116,6 +178,32 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
 
         return JsonSerializer.Deserialize<TenantFileStorageSettingsPayload>(raw, SerializerOptions)
             ?? new TenantFileStorageSettingsPayload();
+    }
+
+    private async Task<TenantDatabaseBackupSettingsPayload> GetBackupPayloadAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        var raw = await _dbContext.TenantSettings
+            .IgnoreQueryFilters()
+            .Where(entity => entity.TenantId == tenantId)
+            .Select(entity => entity.DatabaseBackupSettingsJson)
+            .SingleOrDefaultAsync(cancellationToken);
+        if (string.IsNullOrWhiteSpace(raw))
+        {
+            return new TenantDatabaseBackupSettingsPayload();
+        }
+
+        try
+        {
+            raw = _backupDataProtector.Unprotect(raw);
+        }
+        catch (CryptographicException)
+        {
+        }
+
+        return JsonSerializer.Deserialize<TenantDatabaseBackupSettingsPayload>(raw, SerializerOptions)
+            ?? new TenantDatabaseBackupSettingsPayload();
     }
 
     private static string? ResolvePassword(
@@ -150,5 +238,14 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
         public string FtpProtocol { get; set; } = "FTP";
         public string? FtpUsername { get; set; }
         public string? FtpPassword { get; set; }
+    }
+
+    private sealed class TenantDatabaseBackupSettingsPayload
+    {
+        public string? NasHost { get; set; }
+        public string? NasShareName { get; set; }
+        public string NasProtocol { get; set; } = "SMB/CIFS";
+        public string? NasUsername { get; set; }
+        public string? NasPassword { get; set; }
     }
 }

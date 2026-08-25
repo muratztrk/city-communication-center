@@ -790,6 +790,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WhatsApp FAB bildirimi aynı son mesaj için geri dirilmez:** kendi gönderdiğin kurum içi ileti
   veya FAB satırına tıklama, kullanıcı bazlı `conversationId + lastMessageAt` bastırması yapar;
   polling aynı son mesajı yeniden rozet/panel satırı olarak göstermez, yeni mesaj zamanı değişirse bildirim geri gelir.
+  Panel X altında **Bildirimi Temizle** tüm görünür satırları aynı bastırma ile boşaltır; paneli kapatmaz,
+  `Okunmamış WhatsApp mesajı yok.` gösterilir (#3000). Konuşma sunucuda okundu işaretlenmez.
 - **WA FAB otomatik giden mesaj (#2562):** sistem otomatik iletilen durum şablonu / zamanlı WA yanıtı
   (belediye adı gönderen, personel `Birim · Ad` değil; veya önizlemede `talebinizin durumu`) WhatsApp
   baloncuk rozet/panel/pulse tetiklemez. `lastMessageIsAutomaticOutbound` son giden entry'nin enum

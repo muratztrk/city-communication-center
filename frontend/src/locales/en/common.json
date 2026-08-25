@@ -1073,6 +1073,7 @@
     "empty": "No conversations yet",
     "emptyDetail": "Select a conversation",
     "unread": "unread",
+    "clearNotifications": "Clear notification",
     "openTickets": "Open tickets",
     "noTickets": "No linked tickets",
     "blocked": "Blocked",

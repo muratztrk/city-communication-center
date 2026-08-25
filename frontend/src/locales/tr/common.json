@@ -1080,6 +1080,7 @@
     "empty": "Henüz konuşma bulunmuyor",
     "emptyDetail": "Bir konuşma seçin",
     "unread": "okunmadı",
+    "clearNotifications": "Bildirimi Temizle",
     "openTickets": "Açık talep",
     "noTickets": "Bağlı talep yok",
     "blocked": "Engellendi",

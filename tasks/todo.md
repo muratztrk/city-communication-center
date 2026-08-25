@@ -1,3 +1,7 @@
+## Round 1039 — #3000 WhatsApp FAB Bildirimi Temizle
+
+- **STATUS:** Panel X altında Bildirimi Temizle; liste boş boş duruma düşer.
+
 ## Round 1038 — #2988 İşleme Alındı (Geciken) alt satır
 
 - **STATUS:** Grid Durum’da `(Geciken)` alt satır; detay tek satır kalır.

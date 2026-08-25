@@ -427,6 +427,24 @@ export function WhatsAppNotificationFab() {
     navigate(`/whatsapp?phone=${encodeURIComponent(conversation.citizenPhone)}`)
   }
 
+  const clearPanelNotifications = useCallback(() => {
+    setDismissedNotifications(prev => {
+      const next = { ...prev }
+      unreadConversations.forEach(conversation => {
+        if (conversation.lastMessageAt) {
+          next[conversation.citizenConversationId] = conversation.lastMessageAt
+        }
+      })
+      return persistDismissedNotifications(dismissedStorageKey, next)
+    })
+    const ids = new Set(unreadConversations.map(conversation => conversation.citizenConversationId))
+    setConversations(prev => prev.map(conversation => (
+      ids.has(conversation.citizenConversationId)
+        ? { ...conversation, unreadCount: 0, hasPendingOutboundMessage: false }
+        : conversation
+    )))
+  }, [dismissedStorageKey, unreadConversations])
+
   const badgeLabel = formatBadgeCount(unreadTotal)
 
   if (!shouldShowFab) {
@@ -439,7 +457,7 @@ export function WhatsAppNotificationFab() {
     <div className="ccc-floating-fab relative size-12 shrink-0">
         {isOpen ? (
           <div className="whatsapp-notification-fab-panel absolute bottom-full z-20 mb-3 w-[min(22rem,calc(100vw-2.5rem))] overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[color:var(--color-background)] shadow-2xl">
-          <div className="flex items-center justify-between border-b border-[var(--color-border)] bg-[#25D366]/10 px-4 py-3">
+          <div className="flex items-start justify-between gap-3 border-b border-[var(--color-border)] bg-[#25D366]/10 px-4 py-3">
             <div>
               <p className="text-sm font-bold text-[color:var(--color-foreground)]">
                 {t('whatsapp.notificationPanelTitle', 'WhatsApp Mesajları')}
@@ -450,6 +468,7 @@ export function WhatsAppNotificationFab() {
                   : t('whatsapp.notificationPanelEmptyHint', 'Yeni mesaj geldiğinde burada görünür.')}
               </p>
             </div>
+            <div className="flex shrink-0 flex-col items-center gap-1">
             <button
               type="button"
               className="rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-black/5 hover:text-[color:var(--color-foreground)]"
@@ -458,6 +477,16 @@ export function WhatsAppNotificationFab() {
             >
               <X className="size-4" />
             </button>
+            {unreadConversations.length > 0 ? (
+              <button
+                type="button"
+                className="max-w-[6.5rem] text-center text-[10px] font-semibold leading-tight text-[color:var(--color-primary)] hover:underline"
+                onClick={clearPanelNotifications}
+              >
+                {t('whatsapp.clearNotifications', 'Bildirimi Temizle')}
+              </button>
+            ) : null}
+            </div>
           </div>
 
           <div className="max-h-80 overflow-y-auto">

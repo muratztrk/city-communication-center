@@ -1,3 +1,7 @@
+## Round 1033 — #6a8d51c0 vatandaş pie geri
+
+- **STATUS:** Mahalle/birim durum pie’ları vatandaş anasayfada yeniden görünür.
+
 ## Round 1032 — #2952/#2911/#2910/#2935/#2936/#2937
 
 - **STATUS:** Kurum recaptcha/yedek yer değişimi; hitap textarea; mesai dışı SMS kısaldı; vatandaş pie birleşik mahalle/birim.

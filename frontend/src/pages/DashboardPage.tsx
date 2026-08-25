@@ -119,6 +119,12 @@ const CITIZEN_DASHBOARD_CHART_KEYS = new Set([
   'dashboard.charts.neighborhoodAllRequests',
   'dashboard.charts.citizenDepartmentAllRequests',
   'dashboard.charts.citizenRequests',
+  'dashboard.charts.neighborhoodCompletedRequests',
+  'dashboard.charts.neighborhoodInProgressRequests',
+  'dashboard.charts.neighborhoodProcessingRequests',
+  'dashboard.charts.citizenDepartmentProcessingRequests',
+  'dashboard.charts.citizenDepartmentInProgressRequests',
+  'dashboard.charts.citizenDepartmentCompletedRequests',
   'dashboard.charts.requestTags',
   'dashboard.citizenChannels.title',
 ])
@@ -142,6 +148,12 @@ const CITIZEN_DASHBOARD_CHART_ORDER = [
   'dashboard.charts.neighborhoodAllRequests',
   'dashboard.charts.citizenDepartmentAllRequests',
   'dashboard.charts.citizenRequests',
+  'dashboard.charts.neighborhoodProcessingRequests',
+  'dashboard.charts.neighborhoodInProgressRequests',
+  'dashboard.charts.neighborhoodCompletedRequests',
+  'dashboard.charts.citizenDepartmentProcessingRequests',
+  'dashboard.charts.citizenDepartmentInProgressRequests',
+  'dashboard.charts.citizenDepartmentCompletedRequests',
   'dashboard.charts.requestTags',
   'dashboard.citizenChannels.title',
 ]
@@ -685,7 +697,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     return !isReporter || card.titleKey !== 'dashboard.charts.myTasks'
   })
 
-  // Anasayfa - Vatandaş: mahalle tümü / birim tümü / Vatandaş Talepleri (#2935/#2936/#2937).
+  // Anasayfa - Vatandaş: birleşik pie'lar + Vatandaş Talepleri + mahalle/birim durum üçlüleri.
   if (effectiveView === 'citizen') {
     chartCards.sort((a, b) => citizenChartOrder(a.titleKey) - citizenChartOrder(b.titleKey))
   }

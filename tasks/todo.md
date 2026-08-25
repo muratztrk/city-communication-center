@@ -1,3 +1,7 @@
+## Round 1040 — #3000 Bildirimi Temizle hover
+
+- **STATUS:** Link hover renk + underline.
+
 ## Round 1039 — #3000 WhatsApp FAB Bildirimi Temizle
 
 - **STATUS:** Panel X altında Bildirimi Temizle; liste boş boş duruma düşer.

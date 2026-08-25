@@ -19,6 +19,7 @@ import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
 import { getDashboardChartTitleIcon } from '../utils/dashboardChartIcons'
+import type { DashboardChartResponse } from '../types/platform'
 
 const DASHBOARD_SCROLL_KEY = 'ccc.dashboard.scrollTop'
 
@@ -89,6 +90,8 @@ const CHART_ROUTES: Record<string, string> = {
   'dashboard.charts.outgoingRequests': '/outgoing-requests',
   'dashboard.citizenChannels.title': '/social',
   'dashboard.charts.citizenRequests': '/social',
+  'dashboard.charts.neighborhoodAllRequests': '/social',
+  'dashboard.charts.citizenDepartmentAllRequests': '/social',
 }
 
 // Üst Düzey Yönetici panosunda dilim tıklaması detay popup'ı açan grafikler (#6a6ceed0).
@@ -113,30 +116,54 @@ const DRILLDOWN_CHART_KEYS = new Set([
 
 /** Split dashboard chart allowlists (Reporter / Operator — cards #1833/#1810). */
 const CITIZEN_DASHBOARD_CHART_KEYS = new Set([
+  'dashboard.charts.neighborhoodAllRequests',
+  'dashboard.charts.citizenDepartmentAllRequests',
   'dashboard.charts.citizenRequests',
   'dashboard.charts.requestTags',
-  'dashboard.charts.neighborhoodCompletedRequests',
-  'dashboard.charts.neighborhoodInProgressRequests',
-  'dashboard.charts.neighborhoodProcessingRequests',
-  // Reporter-only birim VT durum pie'ları (#6a6cdec6).
-  'dashboard.charts.citizenDepartmentProcessingRequests',
-  'dashboard.charts.citizenDepartmentInProgressRequests',
-  'dashboard.charts.citizenDepartmentCompletedRequests',
   'dashboard.citizenChannels.title',
 ])
 
-/** Anasayfa - Vatandaş grafik sırası (#6a6e0287); listede olmayan grafikler sona düşer. */
+/** Mahalle/birim durum pie'ları vatandaş anasayfada birleşik 3 dilimli pie'lara toplanır (#2935/#2936). */
+const CITIZEN_SOURCE_CHART_KEYS = {
+  neighborhood: [
+    'dashboard.charts.neighborhoodProcessingRequests',
+    'dashboard.charts.neighborhoodInProgressRequests',
+    'dashboard.charts.neighborhoodCompletedRequests',
+  ],
+  department: [
+    'dashboard.charts.citizenDepartmentProcessingRequests',
+    'dashboard.charts.citizenDepartmentInProgressRequests',
+    'dashboard.charts.citizenDepartmentCompletedRequests',
+  ],
+} as const
+
+/** Anasayfa - Vatandaş grafik sırası (#2935/#2936/#2937); listede olmayan grafikler sona düşer. */
 const CITIZEN_DASHBOARD_CHART_ORDER = [
-  'dashboard.charts.neighborhoodProcessingRequests',
-  'dashboard.charts.neighborhoodInProgressRequests',
-  'dashboard.charts.neighborhoodCompletedRequests',
-  'dashboard.charts.citizenDepartmentProcessingRequests',
-  'dashboard.charts.citizenDepartmentInProgressRequests',
-  'dashboard.charts.citizenDepartmentCompletedRequests',
+  'dashboard.charts.neighborhoodAllRequests',
+  'dashboard.charts.citizenDepartmentAllRequests',
   'dashboard.charts.citizenRequests',
   'dashboard.charts.requestTags',
   'dashboard.citizenChannels.title',
 ]
+
+function sumChartSliceValues(charts: DashboardChartResponse[], titleKey: string): number {
+  return charts.find(chart => chart.titleKey === titleKey)?.slices.reduce((total, slice) => total + slice.value, 0) ?? 0
+}
+
+function buildCitizenStatusAggregateChart(
+  titleKey: string,
+  charts: DashboardChartResponse[],
+  sourceKeys: readonly [string, string, string],
+): DashboardChartResponse {
+  return {
+    titleKey,
+    slices: [
+      { label: 'dashboard.chart.citizenProcessingReceived', value: sumChartSliceValues(charts, sourceKeys[0]), colorHint: 'info' },
+      { label: 'dashboard.chart.inProgress', value: sumChartSliceValues(charts, sourceKeys[1]), colorHint: 'success' },
+      { label: 'dashboard.chart.completed', value: sumChartSliceValues(charts, sourceKeys[2]), colorHint: 'primary' },
+    ],
+  }
+}
 
 function citizenChartOrder(titleKey: string): number {
   const index = CITIZEN_DASHBOARD_CHART_ORDER.indexOf(titleKey)
@@ -256,7 +283,11 @@ function getSliceRoute(
       : withQueryParams('/social', pieQueryParams())
   }
 
-  if (titleKey === 'dashboard.charts.citizenRequests') {
+  if (
+    titleKey === 'dashboard.charts.citizenRequests'
+    || titleKey === 'dashboard.charts.neighborhoodAllRequests'
+    || titleKey === 'dashboard.charts.citizenDepartmentAllRequests'
+  ) {
     const requestStatus = CITIZEN_SLICE_STATUS[sliceLabel]
     return withQueryParams('/social', pieQueryParams({
       channel: 'all',
@@ -613,8 +644,24 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   // Yönetici dashboard'unda her grafik, üst bölümdeki ilgili hızlı erişim
   // kartlarının aynı dönem verisini kullanır. Böylece sayı ve görsel özet
   // birbirinden kopmaz.
+  const statusCharts = statusChartsQuery.data?.charts ?? []
+  const citizenAggregateCharts = effectiveView === 'citizen'
+    ? [
+        buildCitizenStatusAggregateChart(
+          'dashboard.charts.neighborhoodAllRequests',
+          statusCharts,
+          CITIZEN_SOURCE_CHART_KEYS.neighborhood,
+        ),
+        buildCitizenStatusAggregateChart(
+          'dashboard.charts.citizenDepartmentAllRequests',
+          statusCharts,
+          CITIZEN_SOURCE_CHART_KEYS.department,
+        ),
+      ]
+    : []
   const chartCards = [
-    ...(statusChartsQuery.data?.charts ?? []),
+    ...statusCharts,
+    ...citizenAggregateCharts,
     ...(canSeeCitizenChannels && citizenChannelQuery.data ? [citizenChannelQuery.data] : []),
   ].filter(card => {
     if (REMOVED_PIE_CHART_KEYS.has(card.titleKey)) {
@@ -638,8 +685,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     return !isReporter || card.titleKey !== 'dashboard.charts.myTasks'
   })
 
-  // Anasayfa - Vatandaş grafik sırası (#2606): 1. satır mahalle üçlüsü, 2. satır birim üçlüsü,
-  // 3. satır Vatandaş Talepleri / Talep Etiketi / Kanallar.
+  // Anasayfa - Vatandaş: mahalle tümü / birim tümü / Vatandaş Talepleri (#2935/#2936/#2937).
   if (effectiveView === 'citizen') {
     chartCards.sort((a, b) => citizenChartOrder(a.titleKey) - citizenChartOrder(b.titleKey))
   }

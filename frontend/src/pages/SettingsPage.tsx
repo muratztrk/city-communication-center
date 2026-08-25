@@ -160,8 +160,8 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
   return (
     <div className="grid gap-2 rounded-lg border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700">
       <span className="text-slate-800">{label}</span>
-      <input
-        className="field-input text-sm"
+      <textarea
+        className="field-textarea min-h-[4.5rem]"
         value={greeting}
         onChange={event => onGreetingChange(event.target.value)}
         placeholder={DEFAULT_CITIZEN_OUTBOUND_GREETING}
@@ -2734,51 +2734,6 @@ export function SettingsPage() {
             </div>
           </form>
 
-          <form className="section-card page-stack" onSubmit={event => void saveRecaptchaSettings(event)}>
-            <div className="page-header-row">
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.recaptcha.sectionTitle')}</h2>
-                <p className="helper-copy">{t('settings.recaptcha.sectionDescription')}</p>
-              </div>
-            </div>
-            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-              <input
-                className="field-checkbox"
-                type="checkbox"
-                checked={tenantAuthenticationPolicy.recaptchaEnabled}
-                onChange={event => setTenantAuthenticationPolicy(current => ({ ...current, recaptchaEnabled: event.target.checked }))}
-              />
-              {t('settings.recaptcha.isEnabled')}
-            </label>
-            <div className="inline-actions">
-              <Button type="submit">{t('settings.recaptcha.save')}</Button>
-            </div>
-          </form>
-
-          <form className="section-card page-stack" onSubmit={event => void saveInternalMessagesSettings(event)}>
-            <div className="page-header-row">
-              <div>
-                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.internalMessages.sectionTitle')}</h2>
-                <p className="helper-copy">{t('settings.internalMessages.sectionDescription')}</p>
-              </div>
-            </div>
-            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-              <input
-                className="field-checkbox"
-                type="checkbox"
-                checked={internalMessagesSettings.showUserTitleInMessages}
-                onChange={event => setInternalMessagesSettings(current => ({
-                  ...current,
-                  showUserTitleInMessages: event.target.checked,
-                }))}
-              />
-              {t('settings.internalMessages.showUserTitle')}
-            </label>
-            <div className="inline-actions">
-              <Button type="submit">{t('settings.internalMessages.save')}</Button>
-            </div>
-          </form>
-
           <form className="section-card page-stack" onSubmit={event => void saveDatabaseBackupSettings(event)}>
             <div className="page-header-row">
               <div>
@@ -2854,6 +2809,51 @@ export function SettingsPage() {
               <Button type="submit">{t('common.save')}</Button>
             </div>
           </form>
+          <form className="section-card page-stack" onSubmit={event => void saveInternalMessagesSettings(event)}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.internalMessages.sectionTitle')}</h2>
+                <p className="helper-copy">{t('settings.internalMessages.sectionDescription')}</p>
+              </div>
+            </div>
+            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+              <input
+                className="field-checkbox"
+                type="checkbox"
+                checked={internalMessagesSettings.showUserTitleInMessages}
+                onChange={event => setInternalMessagesSettings(current => ({
+                  ...current,
+                  showUserTitleInMessages: event.target.checked,
+                }))}
+              />
+              {t('settings.internalMessages.showUserTitle')}
+            </label>
+            <div className="inline-actions">
+              <Button type="submit">{t('settings.internalMessages.save')}</Button>
+            </div>
+          </form>
+
+          <form className="section-card page-stack" onSubmit={event => void saveRecaptchaSettings(event)}>
+            <div className="page-header-row">
+              <div>
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.recaptcha.sectionTitle')}</h2>
+                <p className="helper-copy">{t('settings.recaptcha.sectionDescription')}</p>
+              </div>
+            </div>
+            <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
+              <input
+                className="field-checkbox"
+                type="checkbox"
+                checked={tenantAuthenticationPolicy.recaptchaEnabled}
+                onChange={event => setTenantAuthenticationPolicy(current => ({ ...current, recaptchaEnabled: event.target.checked }))}
+              />
+              {t('settings.recaptcha.isEnabled')}
+            </label>
+            <div className="inline-actions">
+              <Button type="submit">{t('settings.recaptcha.save')}</Button>
+            </div>
+          </form>
+
           </div>
 
           <div className="grid gap-4 xl:grid-cols-2">
@@ -3454,7 +3454,7 @@ export function SettingsPage() {
               <span>{t('settings.routing.afterHoursManagerSmsLabel')}</span>
               <textarea
                 aria-label={t('settings.routing.afterHoursManagerSmsLabel')}
-                className="field-input settings-after-hours-sms min-h-64 whitespace-pre-wrap"
+                className="field-input settings-after-hours-sms min-h-48 whitespace-pre-wrap"
                 placeholder={t('settings.routing.afterHoursManagerSmsPlaceholder')}
                 value={citizenAutoReplyTemplates.afterHoursManagerSms ?? ''}
                 onChange={event => setCitizenAutoReplyTemplates(current => ({

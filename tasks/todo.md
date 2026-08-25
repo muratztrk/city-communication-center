@@ -1,3 +1,7 @@
+## Round 1032 — #2952/#2911/#2910/#2935/#2936/#2937
+
+- **STATUS:** Kurum recaptcha/yedek yer değişimi; hitap textarea; mesai dışı SMS kısaldı; vatandaş pie birleşik mahalle/birim.
+
 ## Round 1031 — #2915/#2913/#2914/#2917/#2916
 
 - **STATUS:** Konum Linki; DB yedek NAS; WhatsApp Mesajları; VT modal başlığı; ek sunucu başlığı.

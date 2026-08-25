@@ -875,7 +875,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   red/son tarihi geçmiş etiketleri bu otomatik şablonlara düşürülmez (cards #1266/#1268).
   Ayarlar > Otomatik Yönlendirme > Vatandaşa Giden Cevaplar bölümü, Otomatik Yönlendirme
   kartının hemen altında durur; `{VatandaşTalepNo}` öncesinde düzenlenebilir hitap
-  (`Değerli vatandaşımız,` varsayılan, #2901). `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
+  (`Değerli vatandaşımız,` varsayılan, #2901) `field-textarea min-h-[4.5rem]` — gövde ve ek metin
+  kutularıyla aynı boyut (#2911). `{VatandaşTalepNo}`, `{VatandaşTalepBaşlığı}` ve durum adı
   kullanıcı tarafından düzenlenemez. Durum adından sonra sabit `{GönderilenBirim}` gelir ve aktif
   hedef birim adlarıyla değiştirilir; bu alanın ardından ikinci serbest metin düzenlenebilir. Eski
   kayıtlı şablonlara eksik birim token'ı okunurken/yazılırken otomatik eklenir (card #1594).
@@ -884,7 +885,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1594 reopen). İlk gövde textarea kompakt `min-h-[4.5rem]`; Kaydet `bodyText.trim()` yapar
   (#2911 revert).
   Aynı sekmede Vatandaşa Giden Cevaplar altında **Birim Yöneticilerine/Sorumlularına Mesai Dışı
-  Giden SMS Bildirimleri** vardır (#2907); Bildirim Mesajı textarea `min-h-64` (#2910). Bu bölümün Kaydet toast’ı
+  Giden SMS Bildirimleri** vardır (#2907); Bildirim Mesajı textarea `min-h-48` / CSS `12rem` (#2910). Bu bölümün Kaydet toast’ı
   `Birim yöneticilerine giden bildirim mesajı kaydedildi.` (#2905). **Bildirim Mesajı** textarea
   içeriği SMS gövdesidir — boşluk ve satır sonları olduğu gibi saklanır, vatandaş hitabı eklenmez
   (#2906). Mesai dışı talep oluşturunca aynı metin birim müdür/sorumlu/yardımcı cep numaralarına
@@ -1266,6 +1267,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Hafta Sonu SLA — SMS kutucuğu `isCitizenModuleUsable` ile gizlenir.
   (`xl:grid-cols-2`, `items-stretch` + `h-full`; dış/`grid` `gap-6` eşit düşey boşluk;
   Kaydet `mt-auto`). Readonly KURUM ADI/SLA özet satırı yok (#6a6cdd37).
+  Syslog | Veritabanı Yedeği / Kurum İçi Mesajlar | reCAPTCHA (#2952).
 - **Kurum Konumu ilçe (#r512/#r514/#r521/#6a75b1ae):** Ayarlar’da İlçe (İzmir) seçilir; mahalle listesi
   önizlemesi Ayarlar’da gösterilmez (#r521). Kaydet sonrası `ccc_municipality_district` localStorage
   + `TenantSettings.Theme = ccc-district:<id>` ile talep formu mahalle dropdown’ları aynı ilçeyi
@@ -1782,8 +1784,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Anasayfa - Vatandaş` kalır. Anasayfa ve Vatandaş Paneli pie ızgarasında
   `DashboardNotificationsCard` yok (#2886).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
-  vatandaş pie'ları (Vatandaş Talepleri, Talep Etiketi, mahalle Tamamlanan/Yapılmakta/İşleme Alınan,
-  Vatandaş Talep Kanalları). Vatandaş pie 1. satır mahalle üçlüsü, 2. satır birim üçlüsü (#2606).
+  vatandaş pie'ları (Mahallelerdeki Tüm Talepler, Birimlerdeki Tüm Talepler, Vatandaş Talepleri,
+  Talep Etiketi, Vatandaş Talep Kanalları). Vatandaş pie 1. satır: mahalle tümü + birim tümü +
+  Vatandaş Talepleri (#2935/#2936/#2937); mahalle/birim durum üçlüleri vatandaş görünümünde gizlenir.
   İşleme Alınan pie `Classify` ProcessingReceived: açık görev yok (geciken İşleme Alındı dahil);
   Yapılmakta pie Yapılmakta + in-progress overdue (#2605/#2890). Vatandaş Talepleri pie ayrı
   `ClassifyCitizenRequestsPie` kullanır. Drilldown Durum etiketi sahte taskCount=1 kullanmaz —

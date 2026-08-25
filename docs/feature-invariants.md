@@ -364,9 +364,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Rutin görev düzenleme geçmişi ek karşılaştırması:** Önceki/Sonraki karşılaştırma kartları
   korunur; kartların içindeki tekil ekler ayrıca çerçevelenmez ve birden fazla ek iki sütunda
   yan yana akar (card #1626).
-- **Süreç Gecikti mi (#2855/#2885/#2895):** terminal talepte kapanış (`completedAtUtc` / iptalde
+- **Süreç Gecikti mi (#2855/#2885/#2895/#2978):** terminal talepte kapanış (`completedAtUtc` / iptalde
   `updatedAtUtc`) son tarihten önceyse Hayır; sonra ise Evet. Açık taleplerde `isJobDueDateOverdue`.
   Satır **Talep Bilgileri** listesinin en altında; Süreç kolonunda yok.
+  Detay popup’ta Gecikti mi? Evet ve Durum `İşleme Alındı` ise metin `İşleme Alındı (Geciken)` olur
+  (başlık + Süreç Durum).
 - **Süreç onay tarihleri:** `Talebin Birim Yöneticisinin Onay Tarihi` ve `Talebi Gerçekleştiren
   Birim Yöneticisinin Onay Tarihi` etiketleri sade kalır; onaylayan yönetici adı varsa tarih
   değerinin yanında parantez içinde, küçük ve yeşil renkte gösterilir. Manager/SystemAdmin/Reporter
@@ -1802,7 +1804,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pie drilldown Durum `Onay Bekleyen` sky mavi (`pendingApproval` / `bg-sky-100`, #2625);
   Bekleyen görev nötr kalır.
   Kullanıcıya görünen `Son Tarihi Geçmiş` ifadesi her yerde `Geciken` (#2632/#2633);
-  birleşik etiket `Yapılmakta (Geciken)`.
+  birleşik etiket `Yapılmakta (Geciken)`. Vatandaş Talep Haritası lejant + pin grid overdue
+  yalnız `Geciken` (#2977).
   Talep Oluşturan Birimler drilldown: Birim sonrası Gittiği Yer; Bekleyen/Yapılmakta/Tamamlanan
   drilldown: Talep Yeri (sahip birim) Birim’den önce (#2616). Durum overdue = `Yapılmakta (Geciken)` (#2609).
   Yapılmakta/Tamamlanan Projeler pie yalnız Birim İçi (`InternalUnit`, Owner birim) + Üst Düzey

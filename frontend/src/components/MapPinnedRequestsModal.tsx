@@ -31,10 +31,14 @@ interface MapPinnedRequestsModalProps {
   onShowOnMap: (jobId: string) => void
 }
 
-function pinStatusLabel(t: TFunction, pin: CitizenDashboardMapPin): string {
+function pinStatusLabel(t: TFunction, pin: CitizenDashboardMapPin, variant: 'citizen' | 'department'): string {
   if (pin.displayStatus === 'completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
   if (pin.displayStatus === 'cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
-  if (pin.displayStatus === 'overdue') return formatOverdueInProgressStatus(t)
+  if (pin.displayStatus === 'overdue') {
+    return variant === 'citizen'
+      ? t('citizenRequestMap.legend.overdue', 'Geciken')
+      : formatOverdueInProgressStatus(t)
+  }
   if (pin.displayStatus === 'inProgress') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
   if (pin.displayStatus === 'processingReceived') {
     return t('dashboard.chart.citizenProcessingReceived', 'İşleme Alındı')
@@ -118,8 +122,8 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
     destinationText: (pin.destinationDepartmentName ?? pin.departmentName ?? '').trim(),
     ownerLocationText: (pin.ownerDepartmentName ?? '').trim(),
     titleText: (pin.title ?? '').trim(),
-    statusSortText: pinStatusLabel(t, pin),
-  })), [isCitizen, locale, pins, t])
+    statusSortText: pinStatusLabel(t, pin, variant),
+   })), [isCitizen, locale, pins, t, variant])
 
   const rows = useMemo(() => {
     const filtered = decorated.filter(row => matchesFilters(row, (key, item) => {
@@ -305,7 +309,7 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
                   </thead>
                   <tbody>
                     {paged.map((pin, index) => {
-                      const statusLabel = pinStatusLabel(t, pin)
+                      const statusLabel = pinStatusLabel(t, pin, variant)
                       const statusDate = pin.displayStatus === 'completed' ? pin.completedAtUtc
                         : pin.displayStatus === 'cancelled' ? pin.updatedAtUtc
                         : null

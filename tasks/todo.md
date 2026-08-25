@@ -1,3 +1,7 @@
+## Round 1035 — #2977/#2978 harita Geciken + detay İşleme Alındı (Geciken)
+
+- **STATUS:** Vatandaş haritası overdue `Geciken`; detayda Gecikti mi Evet + İşleme Alındı yanına (Geciken).
+
 ## Round 1034 — #2965 birleşik pie drilldown
 
 - **STATUS:** Mahalle/Birim tüm talepler pie dilimi popup grid + Mahalle kolonu.

@@ -658,7 +658,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
       { key: 'inProgress', label: inProgressLabel, color: inProgressColor },
       {
         key: 'overdue',
-        label: `${inProgressLabel} ${overdueLabel}`,
+        label: variant === 'department' ? `${inProgressLabel} ${overdueLabel}` : overdueLabel,
         color: overdueColor,
       },
       { key: 'completed', label: t('citizenRequestMap.legend.completed', 'Tamamlanan'), color: PIN_COLORS.completed },

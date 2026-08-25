@@ -1677,8 +1677,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Personel/CRM anasayfa 4 kutucuk (#2807 reopen):** Staff + Operator + CRM dörtlü flex sıra
   (Bekleyen Görevlerim → Geciken Görevlerim → Bekleyen Taleplerim → Geciken Taleplerim);
   `useStaffMetricFourCol` Staff rolünü de kapsar.
-- **VT İşleme Alındı geciken (#2800/#2819/#2880/#2918):** grid + detay metni
-  `İşleme Alındı (Geciken)`; pill turkuaz (`processingReceived`), turuncu Yapılmakta (Geciken) değil.
+- **VT İşleme Alındı geciken (#2800/#2819/#2880/#2918/#2988):** detay metni
+  `İşleme Alındı (Geciken)`; grid’de `İşleme Alındı` + alt satır `(Geciken)` (Yapılmakta ile aynı yığın).
+  Pill turkuaz (`processingReceived`), turuncu Yapılmakta (Geciken) değil.
   `PendingOwnerApproval` vatandaşta İşleme Alındı’dır. Birime Gelen **Tümü** ve **Geciken Talepler**: son tarih `dueDateUtc < now`
   (Son Tarih kırmızı pill ile aynı). Geciken grid’de İşleme Alındı ve Yapılmakta alt satırı
   `(Geciken)` görünür (#2882 reopen). `PendingExternalApproval` takvim-günü eşiği bu alt satırı geciktirmez.

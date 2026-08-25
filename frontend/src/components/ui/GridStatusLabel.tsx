@@ -54,9 +54,12 @@ export function GridStatusLabel({
   const flowClass = isFlowStatusLabel(t, label, overdueSubline) ? 'grid-status-label--flow-status' : ''
 
   if (isProcessingReceivedOverdueLabel(t, label, overdueSubline)) {
+    const processingReceived = t('social.requestStatus.processingReceived', 'İşleme Alındı')
+    const overdue = t('jobs.statusLabel.overdue', 'Geciken')
     return (
       <span className={`grid-status-label--processing-received-overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
-        <span className="whitespace-nowrap">{formatProcessingReceivedOverdueStatus(t)}</span>
+        <span className="whitespace-nowrap">{processingReceived}</span>
+        <span className="whitespace-nowrap text-[0.68rem] font-bold">({overdue})</span>
         {footer}
       </span>
     )

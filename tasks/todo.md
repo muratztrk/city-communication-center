@@ -1,3 +1,7 @@
+## Round 1038 — #2988 İşleme Alındı (Geciken) alt satır
+
+- **STATUS:** Grid Durum’da `(Geciken)` alt satır; detay tek satır kalır.
+
 ## Round 1037 — #2979 hiza + #2918 İşleme Alındı (Geciken)
 
 - **STATUS:** Mahalle Tamamlanan / açık pie sırası; geciken İşleme Alındı grid+detay turkuaz metin.

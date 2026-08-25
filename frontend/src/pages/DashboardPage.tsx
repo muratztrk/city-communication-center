@@ -66,10 +66,10 @@ const REMOVED_PIE_CHART_KEYS = new Set([
 const PIE_LEGEND_SEARCH_KEYS = new Set([
   'dashboard.charts.requestTags',
   'dashboard.charts.neighborhoodCompletedRequests',
-  'dashboard.charts.neighborhoodInProgressRequests',
-  'dashboard.charts.neighborhoodProcessingRequests',
-  'dashboard.charts.citizenDepartmentProcessingRequests',
-  'dashboard.charts.citizenDepartmentInProgressRequests',
+  'dashboard.charts.neighborhoodOpenRequests',
+  'dashboard.charts.neighborhoodAllRequests',
+  'dashboard.charts.citizenDepartmentOpenRequests',
+  'dashboard.charts.citizenDepartmentAllRequests',
   'dashboard.charts.citizenDepartmentCompletedRequests',
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.externalRequestPending',
@@ -109,7 +109,9 @@ const DRILLDOWN_CHART_KEYS = new Set([
   'dashboard.charts.citizenDepartmentInProgressRequests',
   'dashboard.charts.citizenDepartmentCompletedRequests',
   'dashboard.charts.neighborhoodAllRequests',
+  'dashboard.charts.neighborhoodOpenRequests',
   'dashboard.charts.citizenDepartmentAllRequests',
+  'dashboard.charts.citizenDepartmentOpenRequests',
   // Vatandaş Talep Kanalları → VT grid popup (#6a6d0181); ayrı modal.
   'dashboard.citizenChannels.title',
 ])
@@ -119,11 +121,9 @@ const CITIZEN_DASHBOARD_CHART_KEYS = new Set([
   'dashboard.charts.neighborhoodAllRequests',
   'dashboard.charts.citizenDepartmentAllRequests',
   'dashboard.charts.citizenRequests',
+  'dashboard.charts.neighborhoodOpenRequests',
   'dashboard.charts.neighborhoodCompletedRequests',
-  'dashboard.charts.neighborhoodInProgressRequests',
-  'dashboard.charts.neighborhoodProcessingRequests',
-  'dashboard.charts.citizenDepartmentProcessingRequests',
-  'dashboard.charts.citizenDepartmentInProgressRequests',
+  'dashboard.charts.citizenDepartmentOpenRequests',
   'dashboard.charts.citizenDepartmentCompletedRequests',
   'dashboard.charts.requestTags',
   'dashboard.citizenChannels.title',
@@ -131,49 +131,72 @@ const CITIZEN_DASHBOARD_CHART_KEYS = new Set([
 
 /** Mahalle/birim durum pie'ları vatandaş anasayfada birleşik 3 dilimli pie'lara toplanır (#2935/#2936). */
 const CITIZEN_SOURCE_CHART_KEYS = {
-  neighborhood: [
+  neighborhoodAll: [
     'dashboard.charts.neighborhoodProcessingRequests',
     'dashboard.charts.neighborhoodInProgressRequests',
     'dashboard.charts.neighborhoodCompletedRequests',
   ],
-  department: [
+  neighborhoodOpen: [
+    'dashboard.charts.neighborhoodProcessingRequests',
+    'dashboard.charts.neighborhoodInProgressRequests',
+  ],
+  departmentAll: [
     'dashboard.charts.citizenDepartmentProcessingRequests',
     'dashboard.charts.citizenDepartmentInProgressRequests',
     'dashboard.charts.citizenDepartmentCompletedRequests',
   ],
+  departmentOpen: [
+    'dashboard.charts.citizenDepartmentProcessingRequests',
+    'dashboard.charts.citizenDepartmentInProgressRequests',
+  ],
 } as const
 
-/** Anasayfa - Vatandaş grafik sırası (#2935/#2936/#2937); listede olmayan grafikler sona düşer. */
+/** Anasayfa - Vatandaş grafik sırası (#2935/#2979). */
 const CITIZEN_DASHBOARD_CHART_ORDER = [
   'dashboard.charts.neighborhoodAllRequests',
   'dashboard.charts.citizenDepartmentAllRequests',
   'dashboard.charts.citizenRequests',
-  'dashboard.charts.neighborhoodProcessingRequests',
-  'dashboard.charts.neighborhoodInProgressRequests',
+  'dashboard.charts.neighborhoodOpenRequests',
   'dashboard.charts.neighborhoodCompletedRequests',
-  'dashboard.charts.citizenDepartmentProcessingRequests',
-  'dashboard.charts.citizenDepartmentInProgressRequests',
+  'dashboard.charts.citizenDepartmentOpenRequests',
   'dashboard.charts.citizenDepartmentCompletedRequests',
   'dashboard.charts.requestTags',
   'dashboard.citizenChannels.title',
 ]
 
-function sumChartSliceValues(charts: DashboardChartResponse[], titleKey: string): number {
-  return charts.find(chart => chart.titleKey === titleKey)?.slices.reduce((total, slice) => total + slice.value, 0) ?? 0
+function mergeCitizenEntitySlices(
+  charts: DashboardChartResponse[],
+  sourceKeys: readonly string[],
+): DashboardChartResponse['slices'] {
+  const totals = new Map<string, { value: number; colorHint: string }>()
+  for (const titleKey of sourceKeys) {
+    const chart = charts.find(item => item.titleKey === titleKey)
+    if (!chart) continue
+    for (const slice of chart.slices) {
+      const previous = totals.get(slice.label)
+      totals.set(slice.label, {
+        value: (previous?.value ?? 0) + slice.value,
+        colorHint: previous?.colorHint ?? slice.colorHint,
+      })
+    }
+  }
+  return [...totals.entries()]
+    .filter(([, item]) => item.value > 0)
+    .map(([label, item]) => ({
+      label,
+      value: item.value,
+      colorHint: item.colorHint,
+    }))
 }
 
-function buildCitizenStatusAggregateChart(
+function buildCitizenEntityAggregateChart(
   titleKey: string,
   charts: DashboardChartResponse[],
-  sourceKeys: readonly [string, string, string],
+  sourceKeys: readonly string[],
 ): DashboardChartResponse {
   return {
     titleKey,
-    slices: [
-      { label: 'dashboard.chart.citizenProcessingReceived', value: sumChartSliceValues(charts, sourceKeys[0]), colorHint: 'info' },
-      { label: 'dashboard.chart.inProgress', value: sumChartSliceValues(charts, sourceKeys[1]), colorHint: 'success' },
-      { label: 'dashboard.chart.completed', value: sumChartSliceValues(charts, sourceKeys[2]), colorHint: 'primary' },
-    ],
+    slices: mergeCitizenEntitySlices(charts, sourceKeys),
   }
 }
 
@@ -295,11 +318,7 @@ function getSliceRoute(
       : withQueryParams('/social', pieQueryParams())
   }
 
-  if (
-    titleKey === 'dashboard.charts.citizenRequests'
-    || titleKey === 'dashboard.charts.neighborhoodAllRequests'
-    || titleKey === 'dashboard.charts.citizenDepartmentAllRequests'
-  ) {
+  if (titleKey === 'dashboard.charts.citizenRequests') {
     const requestStatus = CITIZEN_SLICE_STATUS[sliceLabel]
     return withQueryParams('/social', pieQueryParams({
       channel: 'all',
@@ -659,15 +678,25 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const statusCharts = statusChartsQuery.data?.charts ?? []
   const citizenAggregateCharts = effectiveView === 'citizen'
     ? [
-        buildCitizenStatusAggregateChart(
+        buildCitizenEntityAggregateChart(
           'dashboard.charts.neighborhoodAllRequests',
           statusCharts,
-          CITIZEN_SOURCE_CHART_KEYS.neighborhood,
+          CITIZEN_SOURCE_CHART_KEYS.neighborhoodAll,
         ),
-        buildCitizenStatusAggregateChart(
+        buildCitizenEntityAggregateChart(
           'dashboard.charts.citizenDepartmentAllRequests',
           statusCharts,
-          CITIZEN_SOURCE_CHART_KEYS.department,
+          CITIZEN_SOURCE_CHART_KEYS.departmentAll,
+        ),
+        buildCitizenEntityAggregateChart(
+          'dashboard.charts.neighborhoodOpenRequests',
+          statusCharts,
+          CITIZEN_SOURCE_CHART_KEYS.neighborhoodOpen,
+        ),
+        buildCitizenEntityAggregateChart(
+          'dashboard.charts.citizenDepartmentOpenRequests',
+          statusCharts,
+          CITIZEN_SOURCE_CHART_KEYS.departmentOpen,
         ),
       ]
     : []
@@ -697,7 +726,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     return !isReporter || card.titleKey !== 'dashboard.charts.myTasks'
   })
 
-  // Anasayfa - Vatandaş: birleşik pie'lar + Vatandaş Talepleri + mahalle/birim durum üçlüleri.
+  // Anasayfa - Vatandaş: mahalle/birim tüm + açık birleşik pie'lar; durum üçlülerinden yalnız Tamamlanan kalır (#2979).
   if (effectiveView === 'citizen') {
     chartCards.sort((a, b) => citizenChartOrder(a.titleKey) - citizenChartOrder(b.titleKey))
   }
@@ -927,7 +956,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               || card.titleKey === 'dashboard.charts.citizenDepartmentInProgressRequests'
               || card.titleKey === 'dashboard.charts.citizenDepartmentCompletedRequests'
               || card.titleKey === 'dashboard.charts.neighborhoodAllRequests'
+              || card.titleKey === 'dashboard.charts.neighborhoodOpenRequests'
               || card.titleKey === 'dashboard.charts.citizenDepartmentAllRequests'
+              || card.titleKey === 'dashboard.charts.citizenDepartmentOpenRequests'
               || card.titleKey === 'dashboard.charts.requestTags'
               // Operatör: kanal dilimi popup değil → Vatandaş Talepleri grid (#6a6eeb56).
               || (isCitizenDashboardDrilldownRole && role !== 'Operator' && card.titleKey === 'dashboard.citizenChannels.title')

@@ -84,10 +84,22 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 tenantId, request, CitizenDepartmentDrilldownStatus.InProgress, cancellationToken),
             "citizenDepartmentCompletedRequests" => await BuildCitizenDepartmentStatusRowsAsync(
                 tenantId, request, CitizenDepartmentDrilldownStatus.Completed, cancellationToken),
-            "neighborhoodAllRequests" => await BuildCitizenAggregateStatusRowsAsync(
-                tenantId, request, requireNeighborhood: true, requireTargetDepartment: false, cancellationToken),
-            "citizenDepartmentAllRequests" => await BuildCitizenAggregateStatusRowsAsync(
-                tenantId, request, requireNeighborhood: false, requireTargetDepartment: true, cancellationToken),
+            "neighborhoodAllRequests" => await BuildCitizenScopedStatusRowsAsync(
+                tenantId, request, neighborhood: request.SliceKey.Trim(), departmentId: null,
+                [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress, CitizenDepartmentDrilldownStatus.Completed],
+                cancellationToken),
+            "neighborhoodOpenRequests" => await BuildCitizenScopedStatusRowsAsync(
+                tenantId, request, neighborhood: request.SliceKey.Trim(), departmentId: null,
+                [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress],
+                cancellationToken),
+            "citizenDepartmentAllRequests" => await BuildCitizenScopedStatusRowsAsync(
+                tenantId, request, neighborhood: null, departmentId: ParseSliceDepartmentId(request.SliceKey),
+                [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress, CitizenDepartmentDrilldownStatus.Completed],
+                cancellationToken),
+            "citizenDepartmentOpenRequests" => await BuildCitizenScopedStatusRowsAsync(
+                tenantId, request, neighborhood: null, departmentId: ParseSliceDepartmentId(request.SliceKey),
+                [CitizenDepartmentDrilldownStatus.ProcessingReceived, CitizenDepartmentDrilldownStatus.InProgress],
+                cancellationToken),
             "citizenRequests" => await BuildCitizenRowsAsync(tenantId, request, cancellationToken),
             "requestTags" => await BuildRequestTagRowsAsync(tenantId, request, cancellationToken),
             "citizenChannels" => await BuildCitizenChannelRowsAsync(tenantId, request, cancellationToken),
@@ -206,15 +218,15 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             .ToList());
     }
 
-    private async Task<DashboardChartDrilldownResponse> BuildCitizenAggregateStatusRowsAsync(
+    private async Task<DashboardChartDrilldownResponse> BuildCitizenScopedStatusRowsAsync(
         Guid tenantId,
         GetDashboardChartDrilldownQuery request,
-        bool requireNeighborhood,
-        bool requireTargetDepartment,
+        string? neighborhood,
+        Guid? departmentId,
+        CitizenDepartmentDrilldownStatus[] statuses,
         CancellationToken cancellationToken)
     {
-        var statusFilter = ParseCitizenAggregateSliceStatus(request.SliceKey);
-        if (statusFilter is null)
+        if (departmentId is null && string.IsNullOrWhiteSpace(neighborhood))
         {
             return new DashboardChartDrilldownResponse([]);
         }
@@ -223,7 +235,7 @@ public sealed class GetDashboardChartDrilldownQueryHandler
         var candidates = await _dbContext.Jobs.AsNoTracking()
             .Where(job => job.TenantId == tenantId
                 && job.SourceType != JobSourceType.Routine
-                && (!requireNeighborhood || (job.Neighborhood != null && job.Neighborhood != ""))
+                && (neighborhood == null || job.Neighborhood == neighborhood)
                 && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
                 && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
             .WhereHasCitizenRequestNumber(_dbContext)
@@ -277,17 +289,18 @@ public sealed class GetDashboardChartDrilldownQueryHandler
             .Take(MaxRows * 3)
             .ToListAsync(cancellationToken);
 
+        var statusSet = statuses.ToHashSet();
         var rows = candidates
             .Where(job =>
             {
-                if (requireTargetDepartment && job.TargetDepartmentId is null)
+                if (departmentId is Guid requiredDepartment && job.TargetDepartmentId != requiredDepartment)
                 {
                     return false;
                 }
 
                 if (job.Status == JobStatus.Completed)
                 {
-                    return statusFilter == CitizenDepartmentDrilldownStatus.Completed;
+                    return statusSet.Contains(CitizenDepartmentDrilldownStatus.Completed);
                 }
 
                 if (job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested)
@@ -298,11 +311,13 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 var display = CitizenVtDashboardClassification.Classify(
                     new CitizenVtDashboardClassification.JobSlice(job.Status, job.DueDateUtc, job.TaskCount),
                     now);
-                return statusFilter switch
+                return display switch
                 {
-                    CitizenDepartmentDrilldownStatus.InProgress => display is CitizenVtDashboardClassification.DisplayStatus.InProgress
-                        or CitizenVtDashboardClassification.DisplayStatus.Overdue,
-                    CitizenDepartmentDrilldownStatus.ProcessingReceived => display == CitizenVtDashboardClassification.DisplayStatus.ProcessingReceived,
+                    CitizenVtDashboardClassification.DisplayStatus.InProgress
+                        or CitizenVtDashboardClassification.DisplayStatus.Overdue
+                        => statusSet.Contains(CitizenDepartmentDrilldownStatus.InProgress),
+                    CitizenVtDashboardClassification.DisplayStatus.ProcessingReceived
+                        => statusSet.Contains(CitizenDepartmentDrilldownStatus.ProcessingReceived),
                     _ => false,
                 };
             })
@@ -317,15 +332,6 @@ public sealed class GetDashboardChartDrilldownQueryHandler
 
         return new DashboardChartDrilldownResponse(rows);
     }
-
-    private static CitizenDepartmentDrilldownStatus? ParseCitizenAggregateSliceStatus(string sliceKey) =>
-        sliceKey switch
-        {
-            "dashboard.chart.citizenProcessingReceived" => CitizenDepartmentDrilldownStatus.ProcessingReceived,
-            "dashboard.chart.inProgress" => CitizenDepartmentDrilldownStatus.InProgress,
-            "dashboard.chart.completed" => CitizenDepartmentDrilldownStatus.Completed,
-            _ => null,
-        };
 
     private static Guid? ParseSliceDepartmentId(string sliceKey)
     {

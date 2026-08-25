@@ -1,3 +1,7 @@
+## Round 1036 — #2965/#2979 vatandaş pie entity + açık birleşik
+
+- **STATUS:** Tüm Talepler dilimleri mahalle/birim; İşleme+Yapılmakta tek pie; Tamamlanan duruyor.
+
 ## Round 1035 — #2977/#2978 harita Geciken + detay İşleme Alındı (Geciken)
 
 - **STATUS:** Vatandaş haritası overdue `Geciken`; detayda Gecikti mi Evet + İşleme Alındı yanına (Geciken).

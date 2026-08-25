@@ -55,6 +55,8 @@ const PRINTABLE_CHART_KEYS = new Set([
   'dashboard.charts.citizenDepartmentProcessingRequests',
   'dashboard.charts.citizenDepartmentInProgressRequests',
   'dashboard.charts.citizenDepartmentCompletedRequests',
+  'dashboard.charts.neighborhoodAllRequests',
+  'dashboard.charts.citizenDepartmentAllRequests',
 ])
 
 /** Anasayfa - Birimler pie drilldown: Son Tarih sütunu yok (#2097). */
@@ -99,12 +101,18 @@ const CITIZEN_DEPARTMENT_CHART_KEYS = new Set([
   'dashboard.charts.citizenDepartmentCompletedRequests',
 ])
 
+const CITIZEN_AGGREGATE_CHART_KEYS = new Set([
+  'dashboard.charts.neighborhoodAllRequests',
+  'dashboard.charts.citizenDepartmentAllRequests',
+])
+
 const TALEPLERIM_STATUS_STYLE_CHART_KEYS = new Set([
   ...NEIGHBORHOOD_CHART_KEYS,
   'dashboard.charts.requestTags',
   'dashboard.charts.citizenRequests',
   ...EXTERNAL_UNIT_CHART_KEYS,
   ...CITIZEN_DEPARTMENT_CHART_KEYS,
+  ...CITIZEN_AGGREGATE_CHART_KEYS,
 ])
 
 /** Birim sütunu tek satır + overflow tooltip (#6a62fe79). Talep Etiketi → Vatandaş Adı (#6a6c9fed). */
@@ -113,6 +121,7 @@ const TRUNCATE_UNIT_CHART_KEYS = new Set([
   ...NEIGHBORHOOD_CHART_KEYS,
   ...CITIZEN_DEPARTMENT_CHART_KEYS,
   'dashboard.charts.citizenRequests',
+  ...CITIZEN_AGGREGATE_CHART_KEYS,
 ])
 
 function formatDrilldownNumber(row: DashboardChartDrilldownRow, locale: string): string {
@@ -206,6 +215,7 @@ export function printDrilldownRows(
   options?: {
     showCitizenColumn?: boolean
     showUnitColumn?: boolean
+    showNeighborhoodColumn?: boolean
     /** Mahalle pie yazdır: Sonuç Tarihi. */
     terminalDateLabel?: string
     /** Mahalle yazdır: Vatandaş / Talep No iki satır (#6a6d8e2f). */
@@ -224,6 +234,7 @@ export function printDrilldownRows(
   }
   const showCitizen = options?.showCitizenColumn === true
   const showUnit = options?.showUnitColumn !== false
+  const showNeighborhood = options?.showNeighborhoodColumn === true
   const stackRequestNo = options?.stackRequestNoHeader === true
   const terminalHeader = options?.terminalDateLabel
     ?? t('jobs.columns.outcomeAt', 'Sonuç Tarihi')
@@ -241,6 +252,7 @@ export function printDrilldownRows(
       ${showCitizen ? `<td class="col-citizen"><div class="citizen-stack"><div class="citizen-name">${escape(name)}</div><div class="citizen-phone">${escape(phone)}</div></div></td>` : ''}
       <td class="col-date">${escape(formatDate(row.createdAtUtc))}</td>
       <td class="col-title">${escape(row.title?.trim() || '—')}</td>
+      ${showNeighborhood ? `<td class="col-dept">${escape(row.neighborhood?.trim() || '—')}</td>` : ''}
       ${showUnit ? `<td class="col-dept">${escape(unitCell)}</td>` : ''}
       <td class="col-status"><span class="status-cell">${escape(status)}</span></td>
       <td class="col-completed">${escape(formatDate(row.terminalDateUtc))}</td>
@@ -286,6 +298,7 @@ export function printDrilldownRows(
       ${showCitizen ? `<th class="col-citizen"><div class="citizen-stack"><div>${escape(t('social.citizenName', 'Vatandaş Adı'))}</div><div class="citizen-phone">${escape(t('citizenMessageApproval.columns.citizenPhone', 'Telefon No'))}</div></div></th>` : ''}
       <th class="col-date">${escape(t('jobs.columns.requestDate', 'Talep Tarihi'))}</th>
       <th class="col-title">${escape(t('jobs.columns.title', 'Başlık'))}</th>
+      ${showNeighborhood ? `<th class="col-dept">${escape(t('jobs.address.neighborhoodLabel', 'Mahalle'))}</th>` : ''}
       ${showUnit ? `<th class="col-dept">${escape(t('jobs.columns.unitShort', 'Birim'))}</th>` : ''}
       <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
       <th class="col-completed">${escape(terminalHeader)}</th>
@@ -329,6 +342,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const isNeighborhoodChart = NEIGHBORHOOD_CHART_KEYS.has(chartKey)
   const isExternalUnitChart = EXTERNAL_UNIT_CHART_KEYS.has(chartKey)
   const isCitizenDepartmentChart = CITIZEN_DEPARTMENT_CHART_KEYS.has(chartKey)
+  const isCitizenAggregateChart = CITIZEN_AGGREGATE_CHART_KEYS.has(chartKey)
   const isCreatorsChart = chartKey === 'dashboard.charts.externalRequestCreators'
   const showRequestLocationColumn = chartKey === 'dashboard.charts.externalRequestPending'
     || chartKey === 'dashboard.charts.externalRequestInProgress'
@@ -336,16 +350,18 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const showDestinationColumn = isCreatorsChart
   const truncateUnitColumn = TRUNCATE_UNIT_CHART_KEYS.has(chartKey)
   // Anasayfa - Vatandaş pie popup'larında kolon başlığı her zaman VT (#6a6cff28).
-  const useCitizenRequestNoHeader = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart || isCitizenDepartmentChart
+  const useCitizenRequestNoHeader = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart || isCitizenDepartmentChart || isCitizenAggregateChart
   const requestNoColumnLabel = useCitizenRequestNoHeader
     ? t('social.citizenRequestNo', 'Vatandaş Talep No')
     : t('jobs.columns.requestNo', 'Talep No')
   // VT No sonrası Vatandaş Adı / Telefon No (#6a6d9411).
-  const showCitizenColumn = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart || isCitizenDepartmentChart
+  const showCitizenColumn = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart || isCitizenDepartmentChart || isCitizenAggregateChart
+  const showNeighborhoodColumn = isCitizenAggregateChart
   const showUnitColumn = !isRequestTagsChart
     && !isNeighborhoodChart
     && !isCitizenDepartmentChart
     && !isCitizenRequestsChart
+    && !isCitizenAggregateChart
   const unitColumnLabel = !showUnitColumn
     ? null
     : (isExternalUnitChart
@@ -355,6 +371,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const sliceLabel = resolveSliceLabel(sliceKey, t)
   const drilldownColumnCount = 6
     + (showCitizenColumn ? 1 : 0)
+    + (showNeighborhoodColumn ? 1 : 0)
     + (showUnitColumn ? 1 : 0)
     + (showRequestLocationColumn ? 1 : 0)
     + (showDestinationColumn ? 1 : 0)
@@ -406,6 +423,9 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
       }
       if (key === 'citizenName') {
         return `${item.citizenName ?? ''} ${item.citizenPhone ?? ''}`
+      }
+      if (key === 'neighborhood') {
+        return (item.neighborhood ?? '').trim()
       }
       if (key === 'unitText') {
         return (item.departmentName ?? item.neighborhood ?? '').trim()
@@ -514,6 +534,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                   onClick={() => printDrilldownRows(chartTitle, sliceLabel, rows, locale, t, {
                     showCitizenColumn,
                     showUnitColumn,
+                    showNeighborhoodColumn,
                     // Yazdır: Tamamlanma Tarihi → Sonuç Tarihi (#6a6da028).
                     terminalDateLabel: t('jobs.columns.outcomeAt', 'Sonuç Tarihi'),
                     // Yazdır: "Vatandaş" / "Talep No" iki satır (#6a6d8e2f / #6a6f46e6).
@@ -567,6 +588,11 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                       <FilterableTh filterKey="title" filterValue={filters.title ?? ''} onFilter={handleFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
                         {t('jobs.columns.title', 'Başlık')}
                       </FilterableTh>
+                      {showNeighborhoodColumn ? (
+                        <FilterableTh filterKey="neighborhood" filterValue={filters.neighborhood ?? ''} onFilter={handleFilter} sortKey="neighborhood" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                          {t('jobs.address.neighborhoodLabel', 'Mahalle')}
+                        </FilterableTh>
+                      ) : null}
                       {showRequestLocationColumn ? (
                         <FilterableTh filterKey="ownerDepartmentName" filterValue={filters.ownerDepartmentName ?? ''} onFilter={handleFilter} sortKey="ownerDepartmentName" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
                           {t('jobs.detail.requestLocation', 'Talep Yeri')}
@@ -649,6 +675,13 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                         <td className="font-semibold">
                           <TruncatedText text={row.title?.trim() || '—'} className="cell-title" />
                         </td>
+                        {showNeighborhoodColumn ? (
+                          <td className="max-w-[12rem]">
+                            {row.neighborhood?.trim()
+                              ? <span className="block truncate">{row.neighborhood}</span>
+                              : '—'}
+                          </td>
+                        ) : null}
                         {showRequestLocationColumn ? (
                           <td className="max-w-[12rem]">
                             {row.ownerDepartmentName?.trim()

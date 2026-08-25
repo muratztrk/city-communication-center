@@ -90,8 +90,6 @@ const CHART_ROUTES: Record<string, string> = {
   'dashboard.charts.outgoingRequests': '/outgoing-requests',
   'dashboard.citizenChannels.title': '/social',
   'dashboard.charts.citizenRequests': '/social',
-  'dashboard.charts.neighborhoodAllRequests': '/social',
-  'dashboard.charts.citizenDepartmentAllRequests': '/social',
 }
 
 // Üst Düzey Yönetici panosunda dilim tıklaması detay popup'ı açan grafikler (#6a6ceed0).
@@ -110,6 +108,8 @@ const DRILLDOWN_CHART_KEYS = new Set([
   'dashboard.charts.citizenDepartmentProcessingRequests',
   'dashboard.charts.citizenDepartmentInProgressRequests',
   'dashboard.charts.citizenDepartmentCompletedRequests',
+  'dashboard.charts.neighborhoodAllRequests',
+  'dashboard.charts.citizenDepartmentAllRequests',
   // Vatandaş Talep Kanalları → VT grid popup (#6a6d0181); ayrı modal.
   'dashboard.citizenChannels.title',
 ])
@@ -926,6 +926,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               || card.titleKey === 'dashboard.charts.citizenDepartmentProcessingRequests'
               || card.titleKey === 'dashboard.charts.citizenDepartmentInProgressRequests'
               || card.titleKey === 'dashboard.charts.citizenDepartmentCompletedRequests'
+              || card.titleKey === 'dashboard.charts.neighborhoodAllRequests'
+              || card.titleKey === 'dashboard.charts.citizenDepartmentAllRequests'
               || card.titleKey === 'dashboard.charts.requestTags'
               // Operatör: kanal dilimi popup değil → Vatandaş Talepleri grid (#6a6eeb56).
               || (isCitizenDashboardDrilldownRole && role !== 'Operator' && card.titleKey === 'dashboard.citizenChannels.title')

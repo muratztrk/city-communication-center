@@ -84,6 +84,10 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 tenantId, request, CitizenDepartmentDrilldownStatus.InProgress, cancellationToken),
             "citizenDepartmentCompletedRequests" => await BuildCitizenDepartmentStatusRowsAsync(
                 tenantId, request, CitizenDepartmentDrilldownStatus.Completed, cancellationToken),
+            "neighborhoodAllRequests" => await BuildCitizenAggregateStatusRowsAsync(
+                tenantId, request, requireNeighborhood: true, requireTargetDepartment: false, cancellationToken),
+            "citizenDepartmentAllRequests" => await BuildCitizenAggregateStatusRowsAsync(
+                tenantId, request, requireNeighborhood: false, requireTargetDepartment: true, cancellationToken),
             "citizenRequests" => await BuildCitizenRowsAsync(tenantId, request, cancellationToken),
             "requestTags" => await BuildRequestTagRowsAsync(tenantId, request, cancellationToken),
             "citizenChannels" => await BuildCitizenChannelRowsAsync(tenantId, request, cancellationToken),
@@ -201,6 +205,127 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
             .ToList());
     }
+
+    private async Task<DashboardChartDrilldownResponse> BuildCitizenAggregateStatusRowsAsync(
+        Guid tenantId,
+        GetDashboardChartDrilldownQuery request,
+        bool requireNeighborhood,
+        bool requireTargetDepartment,
+        CancellationToken cancellationToken)
+    {
+        var statusFilter = ParseCitizenAggregateSliceStatus(request.SliceKey);
+        if (statusFilter is null)
+        {
+            return new DashboardChartDrilldownResponse([]);
+        }
+
+        var now = DateTimeOffset.UtcNow;
+        var candidates = await _dbContext.Jobs.AsNoTracking()
+            .Where(job => job.TenantId == tenantId
+                && job.SourceType != JobSourceType.Routine
+                && (!requireNeighborhood || (job.Neighborhood != null && job.Neighborhood != ""))
+                && (!request.FromUtc.HasValue || job.CreatedAtUtc >= request.FromUtc.Value)
+                && (!request.ToUtc.HasValue || job.CreatedAtUtc <= request.ToUtc.Value))
+            .WhereHasCitizenRequestNumber(_dbContext)
+            .OrderByDescending(job => job.CreatedAtUtc)
+            .Select(job => new
+            {
+                job.JobId,
+                job.JobNumber,
+                job.JobNumberYear,
+                job.Title,
+                job.CreatedAtUtc,
+                job.Status,
+                job.Priority,
+                job.DueDateUtc,
+                job.CompletedAtUtc,
+                job.UpdatedAtUtc,
+                job.Neighborhood,
+                job.CitizenName,
+                job.CitizenPhone,
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
+                TargetDepartmentId = _dbContext.JobDepartments
+                    .Where(link => link.JobId == job.JobId
+                        && link.TenantId == tenantId
+                        && link.Role == JobDepartmentRole.Target
+                        && link.ApprovalStatus != JobApprovalStatus.Rejected)
+                    .Select(link => (Guid?)link.DepartmentId)
+                    .FirstOrDefault(),
+                TargetDepartmentName = _dbContext.JobDepartments
+                    .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
+                    .Join(_dbContext.Departments,
+                        link => link.DepartmentId,
+                        department => department.DepartmentId,
+                        (_, department) => (string?)department.Name)
+                    .FirstOrDefault(),
+                CitizenRequestNumber = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => message.CitizenRequestNumber)
+                    .FirstOrDefault(),
+                CitizenRequestNumberYear = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => message.CitizenRequestNumberYear)
+                    .FirstOrDefault(),
+                SourceChannel = _dbContext.SocialMessages
+                    .Where(message => message.JobId == job.JobId)
+                    .Select(message => (string?)message.Channel.ToString())
+                    .FirstOrDefault(),
+            })
+            .Take(MaxRows * 3)
+            .ToListAsync(cancellationToken);
+
+        var rows = candidates
+            .Where(job =>
+            {
+                if (requireTargetDepartment && job.TargetDepartmentId is null)
+                {
+                    return false;
+                }
+
+                if (job.Status == JobStatus.Completed)
+                {
+                    return statusFilter == CitizenDepartmentDrilldownStatus.Completed;
+                }
+
+                if (job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.RevisionRequested)
+                {
+                    return false;
+                }
+
+                var display = CitizenVtDashboardClassification.Classify(
+                    new CitizenVtDashboardClassification.JobSlice(job.Status, job.DueDateUtc, job.TaskCount),
+                    now);
+                return statusFilter switch
+                {
+                    CitizenDepartmentDrilldownStatus.InProgress => display is CitizenVtDashboardClassification.DisplayStatus.InProgress
+                        or CitizenVtDashboardClassification.DisplayStatus.Overdue,
+                    CitizenDepartmentDrilldownStatus.ProcessingReceived => display == CitizenVtDashboardClassification.DisplayStatus.ProcessingReceived,
+                    _ => false,
+                };
+            })
+            .Take(MaxRows)
+            .Select(row => new DashboardChartDrilldownRow(
+                row.JobId, row.JobNumber, row.JobNumberYear, row.Title, row.CreatedAtUtc,
+                row.Status.ToString(), row.TargetDepartmentName, row.Neighborhood,
+                ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
+                row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
+                row.Priority, row.CitizenName, row.CitizenPhone, OpenTaskCount: row.TaskCount))
+            .ToList();
+
+        return new DashboardChartDrilldownResponse(rows);
+    }
+
+    private static CitizenDepartmentDrilldownStatus? ParseCitizenAggregateSliceStatus(string sliceKey) =>
+        sliceKey switch
+        {
+            "dashboard.chart.citizenProcessingReceived" => CitizenDepartmentDrilldownStatus.ProcessingReceived,
+            "dashboard.chart.inProgress" => CitizenDepartmentDrilldownStatus.InProgress,
+            "dashboard.chart.completed" => CitizenDepartmentDrilldownStatus.Completed,
+            _ => null,
+        };
 
     private static Guid? ParseSliceDepartmentId(string sliceKey)
     {

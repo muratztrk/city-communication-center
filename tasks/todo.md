@@ -1,3 +1,7 @@
+## Round 1034 — #2965 birleşik pie drilldown
+
+- **STATUS:** Mahalle/Birim tüm talepler pie dilimi popup grid + Mahalle kolonu.
+
 ## Round 1033 — #6a8d51c0 vatandaş pie geri
 
 - **STATUS:** Mahalle/birim durum pie’ları vatandaş anasayfada yeniden görünür.

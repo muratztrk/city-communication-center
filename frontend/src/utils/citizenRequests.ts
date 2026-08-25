@@ -1,5 +1,5 @@
 import type { TFunction } from 'i18next'
-import { isJobDueDateOverdue, wasJobOverdueWhenClosed } from './dateTimePicker'
+import { isJobDueDateOverdue } from './dateTimePicker'
 import { formatOverdueInProgressStatus, type GridStatusTone } from './localization'
 
 export function isCitizenRequestJob(job: { requestType?: string | null; sourceType?: string | null }): boolean {
@@ -64,9 +64,14 @@ export function isCitizenProcessingReceivedState(job: CitizenRequestStatusSource
     return false
   }
   const openTasks = countOpenWorkTasks(job)
-  if (job.status === 'PendingExternalApproval') return true
+  if (job.status === 'PendingExternalApproval' || job.status === 'PendingOwnerApproval') return true
   if (job.status === 'Active' && openTasks === 0) return true
   return false
+}
+
+/** Grid + detay: geciken İşleme Alındı tek satır (#2918). */
+export function formatProcessingReceivedOverdueStatus(t: TFunction): string {
+  return `${t('social.requestStatus.processingReceived', 'İşleme Alındı')} (${t('jobs.statusLabel.overdue', 'Geciken')})`
 }
 
 /** Grid Durum: İşleme Alındı + son tarih geçmiş → alt satır `(Geciken)` (#2819 / #2880).
@@ -87,6 +92,9 @@ export function getCitizenRequestStatusLabel(
   if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
   if (isCitizenProcessingReceivedState(job)) {
+    if (isCitizenProcessingReceivedOverdue(job)) {
+      return formatProcessingReceivedOverdueStatus(t)
+    }
     return t('social.requestStatus.processingReceived', 'İşleme Alındı')
   }
   if (isJobDueDateOverdue({ status: job.status, dueDateUtc: job.dueDateUtc })) {
@@ -101,19 +109,11 @@ export function getCitizenRequestStatusLabel(
   return t('social.requestStatus.processingReceived', 'İşleme Alındı')
 }
 
-/** Detay popup: Gecikti mi? Evet + İşleme Alındı → `İşleme Alındı (Geciken)` (#2978). */
+/** Detay popup: Gecikti mi? Evet + İşleme Alındı → `İşleme Alındı (Geciken)` (#2978/#2918). */
 export function getCitizenRequestDetailStatusLabel(
   t: TFunction,
   job: CitizenRequestStatusSource,
 ): string {
-  if (isCitizenProcessingReceivedState(job) && wasJobOverdueWhenClosed({
-    status: job.status,
-    dueDateUtc: job.dueDateUtc,
-    completedAtUtc: job.completedAtUtc,
-    updatedAtUtc: job.updatedAtUtc,
-  })) {
-    return `${t('social.requestStatus.processingReceived', 'İşleme Alındı')} (${t('jobs.statusLabel.overdue', 'Geciken')})`
-  }
   return getCitizenRequestStatusLabel(t, job)
 }
 

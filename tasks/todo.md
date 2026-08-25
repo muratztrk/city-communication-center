@@ -1,3 +1,7 @@
+## Round 1037 — #2979 hiza + #2918 İşleme Alındı (Geciken)
+
+- **STATUS:** Mahalle Tamamlanan / açık pie sırası; geciken İşleme Alındı grid+detay turkuaz metin.
+
 ## Round 1036 — #2965/#2979 vatandaş pie entity + açık birleşik
 
 - **STATUS:** Tüm Talepler dilimleri mahalle/birim; İşleme+Yapılmakta tek pie; Tamamlanan duruyor.

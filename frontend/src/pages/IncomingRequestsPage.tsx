@@ -51,7 +51,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { useAuth } from '../context/AuthContext'
 import type { JobSummary, Task, User, SocialMessage } from '../types/platform'
 import { getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, getTaskDisplayStatus, getTaskStatusTone, formatOverdueInProgressStatus, shouldShowGridPrioritySubline } from '../utils/localization'
-import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState, isCitizenRequestJob } from '../utils/citizenRequests'
+import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState, isCitizenRequestJob } from '../utils/citizenRequests'
 import { getExternalUnitTargetDisplayStatus } from '../utils/externalUnitRequests'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -218,7 +218,11 @@ function getIncomingStatusPillClass(row: IncomingRequestRow): string {
       dueDateUtc: row.dueDateUtc,
       taskCount: row.taskCount,
     })) {
-      return getStatusPillClass('processingReceived')
+      return getStatusPillClass(getCitizenRequestStatusTone({
+        status: row.status,
+        dueDateUtc: row.dueDateUtc,
+        taskCount: row.taskCount,
+      }))
     }
     const normalizedStatus = row.status === 'PendingExternalApproval' ? 'Active' : row.status
     return getStatusPillClass(getJobStatusTone({ status: normalizedStatus, dueDateUtc: row.dueDateUtc }))

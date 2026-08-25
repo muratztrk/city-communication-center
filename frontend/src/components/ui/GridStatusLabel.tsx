@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import type { TFunction } from 'i18next'
 import { formatOverdueInProgressStatus } from '../../utils/localization'
+import { formatProcessingReceivedOverdueStatus } from '../../utils/citizenRequests'
 
 function isOverdueStatusLabel(t: TFunction, label: string): boolean {
   const overdueOnly = t('jobs.statusLabel.overdue', 'Geciken')
@@ -12,10 +13,10 @@ function isPendingApprovalWithOverdueSubline(t: TFunction, label: string, overdu
   return label === t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen')
 }
 
-function isProcessingReceivedWithOverdueSubline(t: TFunction, label: string, overdueSubline?: boolean): boolean {
-  if (!overdueSubline) return false
+function isProcessingReceivedOverdueLabel(t: TFunction, label: string, overdueSubline?: boolean): boolean {
   const processingReceived = t('social.requestStatus.processingReceived', 'İşleme Alındı')
-  return label === processingReceived
+  if (label === formatProcessingReceivedOverdueStatus(t)) return true
+  return overdueSubline === true && label === processingReceived
 }
 
 function isFlowStatusLabel(t: TFunction, label: string, overdueSubline?: boolean): boolean {
@@ -24,7 +25,7 @@ function isFlowStatusLabel(t: TFunction, label: string, overdueSubline?: boolean
   return label === processingReceived
     || label === inProgress
     || isOverdueStatusLabel(t, label)
-    || isProcessingReceivedWithOverdueSubline(t, label, overdueSubline)
+    || isProcessingReceivedOverdueLabel(t, label, overdueSubline)
 }
 
 /** Grid Durum hücresi: stacked overdue (cards #1649/#1650/#2574). İşleme Alındı önünde kanal ikonu yok. */
@@ -52,12 +53,10 @@ export function GridStatusLabel({
   const alignClass = align === 'start' ? 'items-start text-left' : 'items-center text-center'
   const flowClass = isFlowStatusLabel(t, label, overdueSubline) ? 'grid-status-label--flow-status' : ''
 
-  if (isProcessingReceivedWithOverdueSubline(t, label, overdueSubline)) {
-    const overdue = t('jobs.statusLabel.overdue', 'Geciken')
+  if (isProcessingReceivedOverdueLabel(t, label, overdueSubline)) {
     return (
       <span className={`grid-status-label--processing-received-overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
-        <span className="whitespace-nowrap">{label}</span>
-        <span className="whitespace-nowrap text-[0.68rem] font-bold">({overdue})</span>
+        <span className="whitespace-nowrap">{formatProcessingReceivedOverdueStatus(t)}</span>
         {footer}
       </span>
     )

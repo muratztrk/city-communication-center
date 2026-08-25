@@ -1677,10 +1677,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Personel/CRM anasayfa 4 kutucuk (#2807 reopen):** Staff + Operator + CRM dörtlü flex sıra
   (Bekleyen Görevlerim → Geciken Görevlerim → Bekleyen Taleplerim → Geciken Taleplerim);
   `useStaffMetricFourCol` Staff rolünü de kapsar.
-- **VT İşleme Alındı geciken (#2800/#2819/#2880):** grid `GridStatusLabel` + `overdueSubline` →
-  `İşleme Alındı` alt satır `(Geciken)`; pill turkuaz kalır; detay popup
-  `getCitizenRequestDetailStatusLabel` → tek satır `İşleme Alındı (Geciken)` (#2860 geri alındı).
-  Birime Gelen **Tümü** ve **Geciken Talepler**: son tarih `dueDateUtc < now`
+- **VT İşleme Alındı geciken (#2800/#2819/#2880/#2918):** grid + detay metni
+  `İşleme Alındı (Geciken)`; pill turkuaz (`processingReceived`), turuncu Yapılmakta (Geciken) değil.
+  `PendingOwnerApproval` vatandaşta İşleme Alındı’dır. Birime Gelen **Tümü** ve **Geciken Talepler**: son tarih `dueDateUtc < now`
   (Son Tarih kırmızı pill ile aynı). Geciken grid’de İşleme Alındı ve Yapılmakta alt satırı
   `(Geciken)` görünür (#2882 reopen). `PendingExternalApproval` takvim-günü eşiği bu alt satırı geciktirmez.
 - **Yönetici `Personelimin Görevi Çözme Süresi` grafiği:** yalnız Manager rolünde ve yöneticinin
@@ -1788,8 +1787,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   vatandaş pie'ları (Mahallelerdeki Tüm Talepler, Birimlerdeki Tüm Talepler, Vatandaş Talepleri,
   mahalle/birim açık birleşik pie, Tamamlanan pie'ları, Talep Etiketi, Vatandaş Talep Kanalları).
-  Vatandaş pie 1. satır: mahalle tümü + birim tümü + Vatandaş Talepleri (#2935/#2936/#2937);
-  ardından açık birleşik pie + Tamamlanan (#2979). İşleme Alınan ve Yapılmakta ayrı pie'ları vatandaş
+  vatandaş pie 1. satır: mahalle tümü + birim tümü + Vatandaş Talepleri (#2935/#2936/#2937);
+  ardından mahalle Tamamlanan, sonra mahalle açık birleşik pie (#2979 hiza); birim açık + Tamamlanan. İşleme Alınan ve Yapılmakta ayrı pie'ları vatandaş
   anasayfada gösterilmez. Tüm Talepler pie dilimleri mahalle veya birim entity'sidir, durum adı değil
   (#2965). Drilldown gridde Durum her zaman vardır; Mahalle kolonu yalnız birim tüm/açık pie popup'ında.
   İşleme Alınan pie `Classify` ProcessingReceived: açık görev yok (geciken İşleme Alındı dahil);

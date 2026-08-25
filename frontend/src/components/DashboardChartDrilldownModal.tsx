@@ -196,15 +196,15 @@ function getDrilldownStatusLabel(t: TFunction, row: DashboardChartDrilldownRow):
 }
 
 function getDrilldownStatusPillClass(row: DashboardChartDrilldownRow): string {
-  if (row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval') {
-    return getStatusPillClass('pendingApproval')
-  }
   if (row.citizenRequestNumber != null) {
     return getStatusPillClass(getCitizenRequestStatusTone({
       status: row.status,
       dueDateUtc: row.dueDateUtc,
       taskCount: row.openTaskCount ?? 0,
     }))
+  }
+  if (row.status === 'PendingOwnerApproval' || row.status === 'PendingExternalApproval') {
+    return getStatusPillClass('pendingApproval')
   }
   return getStatusPillClass(getJobStatusTone({ status: row.status, dueDateUtc: row.dueDateUtc }))
 }

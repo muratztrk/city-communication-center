@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Domain.Enums;
 using CityCommunicationCenter.Shared.Contracts;
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Reports;
 
@@ -105,7 +106,10 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
                         message.Longitude,
                     })
                     .FirstOrDefault(),
-                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId),
+                TaskCount = _dbContext.Tasks.Count(task => task.JobId == job.JobId
+                    && task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected),
             })
             .ToListAsync(cancellationToken);
 
@@ -189,13 +193,13 @@ public sealed class GetCitizenDashboardMapPinsQueryHandler
             return MapPinDisplayStatus.Cancelled;
         }
 
-        if (dueDateUtc.HasValue && dueDateUtc.Value < now)
-        {
-            return MapPinDisplayStatus.Overdue;
-        }
-
         if (status == JobStatus.Active && taskCount > 0)
         {
+            if (dueDateUtc.HasValue && dueDateUtc.Value < now)
+            {
+                return MapPinDisplayStatus.Overdue;
+            }
+
             return MapPinDisplayStatus.InProgress;
         }
 

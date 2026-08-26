@@ -1771,6 +1771,7 @@
       "pendingExternalApproval": "Pending External Approval",
       "active": "Active",
       "overdue": "Overdue Requests",
+      "completed": "Completed Requests",
       "all": "All"
     },
     "myViews": {

@@ -6763,39 +6763,6 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    /* Pie slice popup paging: tek satır max-height wrap'lenen düğmeleri kesiyordu (#3024). */
-    .detail-modal-shell--chart-drilldown .table-pagination-bar {
-      flex-wrap: wrap;
-      max-height: none;
-      height: auto;
-      min-height: var(--table-chrome-row-min-height);
-      justify-content: center;
-      row-gap: 0.35rem;
-      column-gap: 0.4rem;
-      overflow: visible;
-    }
-
-    .detail-modal-shell--chart-drilldown .table-pagination-info {
-      flex: 1 0 100%;
-      justify-content: center;
-    }
-
-    .detail-modal-shell--chart-drilldown .table-pagination-divider {
-      display: none;
-    }
-
-    .detail-modal-shell--chart-drilldown .table-pagination-navigation {
-      flex: 1 0 100%;
-      justify-content: center;
-    }
-
-    .detail-modal-shell--chart-drilldown .table-pagination-page,
-    .detail-modal-shell--chart-drilldown .table-pagination-btn {
-      width: 1.55rem;
-      height: 1.55rem;
-      min-width: 1.55rem;
-    }
-
     .table-container thead th,
     .data-table thead th {
       padding: 0.48rem 0.4rem;

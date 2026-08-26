@@ -32,7 +32,7 @@ interface MapPinnedRequestsModalProps {
 }
 
 function pinStatusLabel(t: TFunction, pin: CitizenDashboardMapPin, variant: 'citizen' | 'department'): string {
-  if (pin.displayStatus === 'completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (pin.displayStatus === 'completed') return t('jobs.statusLabel.completed', 'Tamamlanan')
   if (pin.displayStatus === 'cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (pin.displayStatus === 'overdue') {
     return variant === 'citizen'

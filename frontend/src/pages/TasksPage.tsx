@@ -146,10 +146,10 @@ type MyTaskView = 'pending' | 'completed' | 'rejected' | 'overdue' | 'all' | 'op
 type RequestFlowFilter = 'internal' | 'external' | 'all'
 type TasksPageMode = 'default' | 'departmentTasks' | 'staffTasks'
 
-// Tamamlanmış/İptal görevin çekilebileceği durumlar (mevcut durum filtrelenir) (card #1005).
+// Tamamlanan/İptal görevin çekilebileceği durumlar (mevcut durum filtrelenir) (card #1005).
 const STATUS_CHANGE_OPTIONS: { value: string; labelKey: string; fallback: string }[] = [
   { value: 'InProgress', labelKey: 'tasks.statusChange.inProgress', fallback: 'Yapılmakta' },
-  { value: 'Completed', labelKey: 'tasks.statusChange.completed', fallback: 'Tamamlanmış' },
+  { value: 'Completed', labelKey: 'tasks.statusChange.completed', fallback: 'Tamamlanan' },
   { value: 'Cancelled', labelKey: 'tasks.statusChange.cancelled', fallback: 'İptal' },
 ]
 
@@ -572,7 +572,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const [completeSaving, setCompleteSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [completionNote, setCompletionNote] = useState('')
-  // Tamamlanmış/İptal görevin durumunu değiştirme pop-up'ı (card #1005).
+  // Tamamlanan/İptal görevin durumunu değiştirme pop-up'ı (card #1005).
   const [statusChangeModal, setStatusChangeModal] = useState<{ taskId: string; currentStatus: string; displayNumber: string } | null>(null)
   const [statusChangeReason, setStatusChangeReason] = useState('')
   const [statusChangeTarget, setStatusChangeTarget] = useState('')
@@ -939,7 +939,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     [visibleTasks, taskMatchesFilters, getTaskColumnValue, socialByJobId, locale],
   )
 
-  // Kullanıcı kolon sıralaması seçmediyse, Tamamlanmış/İptal görünümlerinde en yeni tarihli en üstte
+  // Kullanıcı kolon sıralaması seçmediyse, Tamamlanan/İptal görünümlerinde en yeni tarihli en üstte
   // olacak şekilde varsayılan sırala (tamamlanma→completedAtUtc, iptal→updatedAtUtc) (card #722).
   const viewDefaultSortedTasks = useMemo(() => {
     if (tasksSortKey) return columnFilteredTasks
@@ -1522,7 +1522,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     if (!extraTimeReview || !taskDetail) return
     setExtraTimeReview(current => current ? { ...current, saving: true } : null)
     try {
-      await api.approveTaskRevision(extraTimeReview.taskId, t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'), extraTimeReview.proposedDueDateUtc)
+      await api.approveTaskRevision(extraTimeReview.taskId, t('tasks.actions.extraTimeApproved', 'Onaylanan ek süre'), extraTimeReview.proposedDueDateUtc)
       setTasks(current => current.map(task =>
         task.taskId === extraTimeReview.taskId
           ? { ...task, hasPendingExtraTimeRequest: false, lastExtraTimeRequestDecision: 'Approved', updatedAtUtc: new Date().toISOString() }
@@ -1531,7 +1531,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       await refreshTaskAfterRevisionDecision(extraTimeReview.taskId, taskDetail.jobId)
       invalidateNotifications(queryClient)
       setExtraTimeReview(null)
-      showToast(t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'))
+      showToast(t('tasks.actions.extraTimeApproved', 'Onaylanan ek süre'))
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
       setExtraTimeReview(current => current ? { ...current, saving: false } : null)
@@ -3412,7 +3412,7 @@ const pageKicker = isMyTasksView
                       </td>
                     )}
                     {showStatusColumn && (() => {
-                      // Tamamlanmış→tamamlanma, İptal→iptal tarihi; tarih durum pill'inin İÇİNDE
+                      // Tamamlanan→tamamlanma, İptal→iptal tarihi; tarih durum pill'inin İÇİNDE
                       // alt satırda gösterilir (card #714, #711'in rafine hali).
                       const statusDate = task.currentStatus === 'Completed' ? task.completedAtUtc
                         : task.currentStatus === 'Cancelled' ? task.updatedAtUtc

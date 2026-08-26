@@ -87,7 +87,7 @@ export function getCitizenRequestStatusLabel(
   t: TFunction,
   job: CitizenRequestStatusSource,
 ): string {
-  if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanan')
   if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')

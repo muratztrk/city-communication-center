@@ -1,3 +1,7 @@
+## Round 1042 — #3016/#3017/#3000/#3024/#3025
+
+- **STATUS:** Onaylanan/Tamamlanan UI; Bildirimi Temizle açık hover; kenar-aç/pie paging geri alındı.
+
 ## Round 1041 — #3025/#3024 mobil menü swipe + pie paging
 
 - **STATUS:** Sol kenar sağa kaydırınca menü açılır; pie drilldown paging iki satır kesilmez.

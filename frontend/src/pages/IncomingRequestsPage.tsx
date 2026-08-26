@@ -109,10 +109,10 @@ type IncomingKindFilter = 'all'
 
 const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback: string }[] = [
   { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApprovalRequests', fallback: 'Onay Bekleyen Talepler' },
-  { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanmış Talepler' },
+  { value: 'approved', labelKey: 'jobs.scopes.departmentPool', fallback: 'Onaylanan Talepler' },
   { value: 'in-progress', labelKey: 'jobs.outgoingViews.inProgress', fallback: 'Yapılmakta Olan Talepler' },
   { value: 'overdue', labelKey: 'jobs.scopes.overdue', fallback: 'Geciken Talepler' },
-  { value: 'completed', labelKey: 'jobs.scopes.completed', fallback: 'Tamamlanmış Talepler' },
+  { value: 'completed', labelKey: 'jobs.scopes.completed', fallback: 'Tamamlanan Talepler' },
   { value: 'cancelled', labelKey: 'jobs.scopes.rejected', fallback: 'İptal Talepler' },
   { value: 'all', labelKey: 'jobs.scopes.all', fallback: 'Tümü' },
 ]
@@ -180,7 +180,7 @@ function getIncomingStatusLabel(t: ReturnType<typeof useTranslation>['t'], row: 
     return getTaskDisplayStatus(t, { currentStatus: row.status, dueDateUtc: row.dueDateUtc })
   }
 
-  if (row.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (row.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanan')
   if (row.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (row.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (row.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
@@ -479,13 +479,13 @@ export function IncomingRequestsPage() {
       currentStatusFilterMeta?.fallback ?? 'Onay Bekleyen Talepler',
     )
   const currentKindFilter = getIncomingKindFilter()
-  // Onaylanmış grid'de Görevi Yapan/Sahibi sütunu yok (#6a6ca0bc).
+  // Onaylanan grid'de Görevi Yapan/Sahibi sütunu yok (#6a6ca0bc).
   const showIncomingStatusColumn = currentStatusFilter === 'all' || currentStatusFilter === 'approved' || currentStatusFilter === 'overdue'
   const showTaskOwnerColumn = ['in-progress', 'completed'].includes(currentStatusFilter)
   const incomingTableColumnCount = useMemo(() => {
     let count = 6
     if (showTaskOwnerColumn) count += 1
-    // Son Tarih: Tamamlanmış/İptal/Onaylanmış görünümlerinde yok (#1384 / #2825).
+    // Son Tarih: Tamamlanan/İptal/Onaylanan görünümlerinde yok (#1384 / #2825).
     if (currentStatusFilter !== 'cancelled' && currentStatusFilter !== 'completed' && currentStatusFilter !== 'approved') count += 1
     if (currentStatusFilter === 'approved') count += 2
     if (currentStatusFilter === 'completed') count += 1
@@ -810,7 +810,7 @@ export function IncomingRequestsPage() {
 
   const pagedRows = useMemo(
     () => {
-      // Tamamlanmış/İptal görünümlerinde en yeni tamamlanma/iptal tarihli en üstte varsayılan sırala (card #722).
+      // Tamamlanan/İptal görünümlerinde en yeni tamamlanma/iptal tarihli en üstte varsayılan sırala (card #722).
       const isCompleted = currentStatusFilter === 'completed'
       const isCancelled = currentStatusFilter === 'cancelled'
       const isApproved = currentStatusFilter === 'approved'
@@ -1131,7 +1131,7 @@ export function IncomingRequestsPage() {
                           <FileText className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('jobs.actions.details', 'Detaylar')}
                         </Button>
-                        {/* Yapılmakta / Onaylanmış: yalnız Detaylar (cards #1695/#1702/#1703). */}
+                        {/* Yapılmakta / Onaylanan: yalnız Detaylar (cards #1695/#1702/#1703). */}
                         {currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && canApproveRow(row) && row.statusDomain === 'job' && row.status === 'PendingOwnerApproval' && (
                           <Button size="sm" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveOwner(row.id)}>
                             <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
@@ -1167,7 +1167,7 @@ export function IncomingRequestsPage() {
                             {t('jobs.actions.approveOwner', 'Onayla')}
                           </DisabledActionButton>
                         )}
-                        {/* Onaylanmış gridde İptal Et yok (card #1702); Yapılmakta'da da yok (#1695). */}
+                        {/* Onaylanan gridde İptal Et yok (card #1702); Yapılmakta'da da yok (#1695). */}
                         {canCancelRow(row) && currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && (
                           <Button size="sm" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openCancelReturn(row)}>
                             <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />

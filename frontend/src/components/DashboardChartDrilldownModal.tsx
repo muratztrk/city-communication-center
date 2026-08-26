@@ -164,7 +164,7 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
     return formatOverdueInProgressStatus(t)
   }
   if (detail.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
-  if (detail.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (detail.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanan')
   if (detail.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (detail.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (detail.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
@@ -179,7 +179,7 @@ function getDrilldownStatusLabel(t: TFunction, row: DashboardChartDrilldownRow):
       dueDateUtc: row.dueDateUtc,
     })
   }
-  if (row.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (row.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanan')
   if (row.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (row.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (row.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
@@ -333,7 +333,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const terminalDateHeader = rows ? resolveTerminalDateHeader(rows, t) : null
   const hideDueDateColumn = HIDE_DUE_DATE_CHART_KEYS.has(chartKey)
   const useTaleplerimStatusStyle = TALEPLERIM_STATUS_STYLE_CHART_KEYS.has(chartKey)
-  // Giden talepler gibi: Tamamlanmış/İptal tarihi Durum pill altında — ayrı sütun yok (#2068).
+  // Giden talepler gibi: Tamamlanan/İptal tarihi Durum pill altında — ayrı sütun yok (#2068).
   // Yazdırma HTML'inde Tamamlanma Tarihi sütunu korunur.
   const showTerminalDateColumn = !useTaleplerimStatusStyle
     && (hideDueDateColumn || Boolean(terminalDateHeader))

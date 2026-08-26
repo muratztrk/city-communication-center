@@ -11,7 +11,7 @@ interface StatusChangeTransitionProps {
   locale: string
 }
 
-/** Süreç altı / Görev Bilgileri "Durum Değişikliği" geçiş özeti — Tamamlanmış gibi uzun etiketler tek satıra sığar (card #1621). */
+/** Süreç altı / Görev Bilgileri "Durum Değişikliği" geçiş özeti — Tamamlanan gibi uzun etiketler tek satıra sığar (card #1621). */
 export function StatusChangeTransition({
   fromStatus,
   toStatus,

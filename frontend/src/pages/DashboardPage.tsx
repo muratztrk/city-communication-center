@@ -1037,7 +1037,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                 formatSliceLabel={
                   (role === 'Staff' || role === 'Operator') && card.titleKey === 'dashboard.charts.myRequests'
                     ? (raw, translate) => (raw === 'dashboard.chart.approved'
-                      ? translate('dashboard.chart.approvedOrInProgress', 'Onaylanmış/Yapılmakta')
+                      ? translate('dashboard.chart.approvedOrInProgress', 'Onaylanan/Yapılmakta')
                       : undefined)
                     : undefined
                 }

@@ -107,10 +107,6 @@ function useResponsiveZoom() {
   return zoom
 }
 
-const MOBILE_NAV_PANEL_PX = 320
-const MOBILE_NAV_SWIPE_COMMIT_PX = 64
-const MOBILE_NAV_EDGE_OPEN_PX = 24
-
 export function AppShell() {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
@@ -129,13 +125,6 @@ export function AppShell() {
   const mobileNavSwipeAxisRef = useRef<'undecided' | 'x' | 'y'>('undecided')
   const mobileNavCloseTimerRef = useRef<number | null>(null)
   const mobileNavDragXRef = useRef(0)
-  const isMobileNavOpenRef = useRef(false)
-  const mobileNavOpeningFromEdgeRef = useRef(false)
-  const mobileNavOpenedThisGestureRef = useRef(false)
-
-  useEffect(() => {
-    isMobileNavOpenRef.current = isMobileNavOpen
-  }, [isMobileNavOpen])
 
   const finishCloseMobileNav = useCallback(() => {
     if (mobileNavCloseTimerRef.current != null) {
@@ -150,38 +139,15 @@ export function AppShell() {
 
   const closeMobileNav = useCallback(() => {
     setMobileNavDragging(false)
-    mobileNavDragXRef.current = -MOBILE_NAV_PANEL_PX
-    setMobileNavDragX(-MOBILE_NAV_PANEL_PX)
+    mobileNavDragXRef.current = -320
+    setMobileNavDragX(-320)
     if (mobileNavCloseTimerRef.current != null) {
       window.clearTimeout(mobileNavCloseTimerRef.current)
     }
     mobileNavCloseTimerRef.current = window.setTimeout(finishCloseMobileNav, 240)
   }, [finishCloseMobileNav])
 
-  const openMobileNav = useCallback(() => {
-    if (mobileNavCloseTimerRef.current != null) {
-      window.clearTimeout(mobileNavCloseTimerRef.current)
-      mobileNavCloseTimerRef.current = null
-    }
-    mobileNavOpeningFromEdgeRef.current = false
-    mobileNavDragXRef.current = -MOBILE_NAV_PANEL_PX
-    setMobileNavDragX(-MOBILE_NAV_PANEL_PX)
-    setMobileNavDragging(false)
-    setIsMobileNavOpen(true)
-  }, [])
-
-  useEffect(() => {
-    if (!isMobileNavOpen || mobileNavDragging) return
-    if (mobileNavDragXRef.current >= 0) return
-    const frame = window.requestAnimationFrame(() => {
-      mobileNavDragXRef.current = 0
-      setMobileNavDragX(0)
-    })
-    return () => window.cancelAnimationFrame(frame)
-  }, [isMobileNavOpen, mobileNavDragging])
-
   const onMobileNavTouchStart = useCallback((event: TouchEvent) => {
-    if (mobileNavOpeningFromEdgeRef.current) return
     const touch = event.changedTouches[0]
     if (!touch) return
     if (mobileNavCloseTimerRef.current != null) {
@@ -194,7 +160,6 @@ export function AppShell() {
   }, [])
 
   const onMobileNavTouchMove = useCallback((event: TouchEvent) => {
-    if (mobileNavOpeningFromEdgeRef.current) return
     const start = mobileNavSwipeStartRef.current
     const touch = event.changedTouches[0]
     if (!start || !touch) return
@@ -211,7 +176,6 @@ export function AppShell() {
   }, [])
 
   const onMobileNavTouchEnd = useCallback(() => {
-    if (mobileNavOpeningFromEdgeRef.current) return
     const start = mobileNavSwipeStartRef.current
     mobileNavSwipeStartRef.current = null
     const axis = mobileNavSwipeAxisRef.current
@@ -223,96 +187,12 @@ export function AppShell() {
       return
     }
     const dx = mobileNavDragXRef.current
-    if (dx < -MOBILE_NAV_SWIPE_COMMIT_PX) {
+    if (dx < -64) {
       closeMobileNav()
       return
     }
     mobileNavDragXRef.current = 0
     setMobileNavDragX(0)
-  }, [closeMobileNav])
-
-  useEffect(() => {
-    const isPhoneNav = () => window.matchMedia('(max-width: 1023px)').matches
-
-    const onEdgeTouchStart = (event: globalThis.TouchEvent) => {
-      if (!isPhoneNav() || isMobileNavOpenRef.current) return
-      const touch = event.changedTouches[0]
-      if (!touch || touch.clientX > MOBILE_NAV_EDGE_OPEN_PX) return
-      const target = event.target
-      if (target instanceof Element && target.closest('[aria-modal="true"], [role="dialog"], .detail-modal-shell')) {
-        return
-      }
-      if (mobileNavCloseTimerRef.current != null) {
-        window.clearTimeout(mobileNavCloseTimerRef.current)
-        mobileNavCloseTimerRef.current = null
-      }
-      mobileNavSwipeStartRef.current = { x: touch.clientX, y: touch.clientY }
-      mobileNavSwipeAxisRef.current = 'undecided'
-      mobileNavOpeningFromEdgeRef.current = true
-      mobileNavOpenedThisGestureRef.current = false
-    }
-
-    const onEdgeTouchMove = (event: globalThis.TouchEvent) => {
-      if (!mobileNavOpeningFromEdgeRef.current) return
-      const start = mobileNavSwipeStartRef.current
-      const touch = event.changedTouches[0]
-      if (!start || !touch) return
-      const dx = touch.clientX - start.x
-      const dy = touch.clientY - start.y
-      if (mobileNavSwipeAxisRef.current === 'undecided') {
-        if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return
-        mobileNavSwipeAxisRef.current = Math.abs(dx) > Math.abs(dy) * 1.1 ? 'x' : 'y'
-        if (mobileNavSwipeAxisRef.current === 'y') {
-          mobileNavOpeningFromEdgeRef.current = false
-          mobileNavSwipeStartRef.current = null
-          return
-        }
-      }
-      if (mobileNavSwipeAxisRef.current !== 'x' || dx <= 0) return
-      if (!isMobileNavOpenRef.current) {
-        mobileNavOpenedThisGestureRef.current = true
-        mobileNavDragXRef.current = -MOBILE_NAV_PANEL_PX
-        setMobileNavDragX(-MOBILE_NAV_PANEL_PX)
-        setMobileNavDragging(true)
-        setIsMobileNavOpen(true)
-      }
-      const offset = Math.min(0, Math.max(-MOBILE_NAV_PANEL_PX, -MOBILE_NAV_PANEL_PX + dx))
-      mobileNavDragXRef.current = offset
-      setMobileNavDragX(offset)
-    }
-
-    const onEdgeTouchEnd = () => {
-      if (!mobileNavOpeningFromEdgeRef.current) return
-      mobileNavOpeningFromEdgeRef.current = false
-      const openedThisGesture = mobileNavOpenedThisGestureRef.current
-      mobileNavOpenedThisGestureRef.current = false
-      const start = mobileNavSwipeStartRef.current
-      mobileNavSwipeStartRef.current = null
-      const axis = mobileNavSwipeAxisRef.current
-      mobileNavSwipeAxisRef.current = 'undecided'
-      setMobileNavDragging(false)
-      if (!start || axis !== 'x' || (!openedThisGesture && !isMobileNavOpenRef.current)) {
-        return
-      }
-      const revealed = MOBILE_NAV_PANEL_PX + mobileNavDragXRef.current
-      if (revealed > MOBILE_NAV_SWIPE_COMMIT_PX) {
-        mobileNavDragXRef.current = 0
-        setMobileNavDragX(0)
-        return
-      }
-      closeMobileNav()
-    }
-
-    document.addEventListener('touchstart', onEdgeTouchStart, { passive: true })
-    document.addEventListener('touchmove', onEdgeTouchMove, { passive: true })
-    document.addEventListener('touchend', onEdgeTouchEnd)
-    document.addEventListener('touchcancel', onEdgeTouchEnd)
-    return () => {
-      document.removeEventListener('touchstart', onEdgeTouchStart)
-      document.removeEventListener('touchmove', onEdgeTouchMove)
-      document.removeEventListener('touchend', onEdgeTouchEnd)
-      document.removeEventListener('touchcancel', onEdgeTouchEnd)
-    }
   }, [closeMobileNav])
 
   useEffect(() => () => {
@@ -628,10 +508,10 @@ export function AppShell() {
 
   const myRequestsViewLabels: Record<string, string> = {
     pending: t('nav.myRequestsPending', 'Bekleyen Taleplerim'),
-    approved: t('nav.myRequestsApproved', 'Onaylanmış Taleplerim'),
+    approved: t('nav.myRequestsApproved', 'Onaylanan Taleplerim'),
     'in-progress': t('jobs.myViews.inProgress', 'Yapılmakta Olan Taleplerim'),
     overdue: t('jobs.myViews.overdue', 'Geciken Taleplerim'),
-    completed: t('jobs.myViews.completed', 'Tamamlanmış Taleplerim'),
+    completed: t('jobs.myViews.completed', 'Tamamlanan Taleplerim'),
     rejected: t('nav.myRequestsRejected', 'İptal Taleplerim'),
     all: t('nav.myRequestsAll', 'Tüm Taleplerim'),
   }
@@ -649,7 +529,7 @@ export function AppShell() {
     pending: t('nav.myTasksPending', 'Bekleyen Görevlerim'),
     open: t('nav.myTasksPending', 'Bekleyen Görevlerim'),
     overdue: t('tasks.myViews.overdue', 'Geciken Görevlerim'),
-    completed: t('nav.myTasksCompleted', 'Tamamlanmış Görevlerim'),
+    completed: t('nav.myTasksCompleted', 'Tamamlanan Görevlerim'),
     rejected: t('nav.myTasksRejected', 'İptal Görevlerim'),
     all: t('nav.myTasksAll', 'Tüm Görevlerim'),
   }
@@ -663,10 +543,10 @@ export function AppShell() {
   }
   const outgoingRequestsViewLabels: Record<string, string> = {
     pending: t('jobs.outgoingViews.pending', 'Bekleyen Talepler'),
-    approved: t('jobs.outgoingViews.approved', 'Onaylanmış Talepler'),
+    approved: t('jobs.outgoingViews.approved', 'Onaylanan Talepler'),
     'in-progress': t('jobs.outgoingViews.inProgress', 'Yapılmakta Olan Talepler'),
     overdue: t('jobs.outgoingViews.overdue', 'Geciken Talepler'),
-    completed: t('jobs.outgoingViews.completed', 'Tamamlanmış Talepler'),
+    completed: t('jobs.outgoingViews.completed', 'Tamamlanan Talepler'),
     rejected: t('jobs.outgoingViews.rejected', 'Reddedilen/İptal Talepler'),
     all: t('jobs.outgoingViews.all', 'Tümü'),
   }
@@ -682,10 +562,10 @@ export function AppShell() {
   // Birime Gelen breadcrumb sekmeyi status query ile takip eder (card #1696).
   const incomingRequestsStatusLabels: Record<string, string> = {
     'pending-approval': t('jobs.scopes.pendingApprovalRequests', 'Onay Bekleyen Talepler'),
-    approved: t('jobs.scopes.departmentPool', 'Onaylanmış Talepler'),
+    approved: t('jobs.scopes.departmentPool', 'Onaylanan Talepler'),
     'in-progress': t('jobs.outgoingViews.inProgress', 'Yapılmakta Olan Talepler'),
     overdue: t('jobs.scopes.overdue', 'Geciken Talepler'),
-    completed: t('jobs.scopes.completed', 'Tamamlanmış Talepler'),
+    completed: t('jobs.scopes.completed', 'Tamamlanan Talepler'),
     cancelled: t('jobs.scopes.rejected', 'İptal Talepler'),
     all: t('jobs.scopes.all', 'Tümü'),
   }
@@ -845,7 +725,12 @@ export function AppShell() {
             <button
               type="button"
               className="sidebar-chip text-slate-700"
-              onClick={openMobileNav}
+              onClick={() => {
+                mobileNavDragXRef.current = 0
+                setMobileNavDragX(0)
+                setMobileNavDragging(false)
+                setIsMobileNavOpen(true)
+              }}
               aria-label={t('nav.openMenu', 'Open menu')}
             >
               <Menu className="size-4.5" />
@@ -880,7 +765,7 @@ export function AppShell() {
             type="button"
             className="absolute inset-0 bg-slate-950/40"
             style={{
-              opacity: Math.max(0, 1 + mobileNavDragX / MOBILE_NAV_PANEL_PX),
+              opacity: Math.max(0, 1 + mobileNavDragX / 320),
               transition: mobileNavDragging ? 'none' : 'opacity 240ms ease-out',
             }}
             onClick={closeMobileNav}

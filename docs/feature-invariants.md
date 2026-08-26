@@ -93,9 +93,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil genişliklerde (<1024 CSS px) desktop zoom uygulanmaz:** içerik/sidebar `zoom=1`
   kalmalı; aksi halde telefonlarda native dikey scroll ve form ölçekleri kırılır.
   Mobil sol menü sola kaydırılınca parmağı takip ederek kapanır; aniden kaybolmaz (#2739).
-  Telefon viewport'ta (≤1023px) sol kenardan sağa kaydırma menüyü aynı translate/opacity
-  animasyonuyla açar; hamburger de soldan kayarak açılır. Popup/dialog üstündeyken kenar
-  kaydırması menüyü açmaz (#3025).
+  Sol kenardan sağa kaydırarak menü açma yok (#3025 geri alındı).
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
   breakpoint'lerinde kullanılmalı; iki kolonlu/split panel yerleşimleri telefonda alt alta akmalı.
 - **Mobil login/sidebar marka alanı:** login logo kartı kullanılan koyu yeşil yüzeydir ve Atatürk
@@ -138,8 +136,6 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Başlık satırı X yüksekliği kadar minimum alan ayırır; X ile alt aksiyon satırı birbirine değmez.
   Dashboard pie chart
   drilldown popup'ında pagination bar yatay scroll içinde gridview genişliğiyle aynı genişliktedir.
-  Telefon ≤767px pie drilldown paging bar `max-height` ile kesilmez; toplam üst satırda, sayfa
-  düğmeleri alt satırda ortalıdır (#3024).
 - **Mobil detay popup yazdır aksiyonu:** telefon breakpoint'inde talep/görev detay header'ındaki
   tüm `Yazdır` butonları gizlidir; desktop/tablet print aksiyonları korunur.
 - **Yazdır popup'ı ağ erişimi açmaz:** `printHtmlDocument` yazdırma penceresine CSP enjekte eder
@@ -157,7 +153,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **İki kardeş `inline-flex` div üst üste değil yan yana dizilir:** dikey stack beklenen (örn. birim adı +
   oluşturan adı) iki blok, ikisi de `inline-flex` ise satır içi gibi davranıp yan yana yapışır — `flex`
   (block-level) kullan (card #1313 reopen, `ReporterDepartmentName` + `.wallboard-creator-line`).
-- **Metin değişikliği kartlarında önce LOCALE dosyasını düzelt, t() fallback'ini değil:** kod içi
+- **Onaylanan / Tamamlanan UI (#3016/#3017):** kullanıcıya görünen `Onaylanmış` / `Tamamlanmış`
+  etiketleri (banner çipleri, durum pill, breadcrumb) `Onaylanan` / `Tamamlanan`; `Tamamlandı` ayrı kalır.
   `t('key', 'fallback')` ikinci argümanı yalnız anahtar locale'de yokken görünür; anahtar
   `locales/tr/common.json`'da varsa oradaki metin kazanır (card #1308 reopen, `searchPlaceholderExtended`).
 - **Aynı `t()` anahtarı birden çok bağlamda (talep/görev gibi) farklı metin göstermeli olduğunda
@@ -797,7 +794,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   polling aynı son mesajı yeniden rozet/panel satırı olarak göstermez, yeni mesaj zamanı değişirse bildirim geri gelir.
   Panel X altında **Bildirimi Temizle** tüm görünür satırları aynı bastırma ile boşaltır; paneli kapatmaz,
   `Okunmamış WhatsApp mesajı yok.` gösterilir (#3000). Konuşma sunucuda okundu işaretlenmez.
-  Bildirimi Temizle hover’da renk değişir (`#128C7E`) + underline.
+  Bildirimi Temizle hover’da aynı yeşil açık ton (`color-mix` primary + beyaz) + underline (#3000).
 - **WA FAB otomatik giden mesaj (#2562):** sistem otomatik iletilen durum şablonu / zamanlı WA yanıtı
   (belediye adı gönderen, personel `Birim · Ad` değil; veya önizlemede `talebinizin durumu`) WhatsApp
   baloncuk rozet/panel/pulse tetiklemez. `lastMessageIsAutomaticOutbound` son giden entry'nin enum

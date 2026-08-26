@@ -203,7 +203,7 @@ function getJobDisplayStatus(
   if (isCitizenRequestJob(job)) {
     return getCitizenRequestStatusLabel(t, job)
   }
-  if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanan')
   if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
@@ -334,14 +334,14 @@ function buildPrintJobStatusLabel(
         : detail.status === 'Active'
           ? 'Yapılmakta'
           : detail.status === 'Completed'
-            ? 'Tamamlanmış'
+            ? 'Tamamlanan'
             : getJobStatusLabel(t, detail.status))
   } else {
     status = getExternalUnitOwnerDisplayStatus(t, detail)
       ?? (detail.status === 'Active'
         ? t('jobs.statusLabel.inProgress', 'Yapılmakta')
         : detail.status === 'Completed'
-          ? 'Tamamlanmış'
+          ? 'Tamamlanan'
           : getJobStatusLabel(t, detail.status))
   }
   if (shouldShowJobStatusActorName(detail)) {
@@ -648,7 +648,7 @@ function filterDepartmentOutgoingRequests(jobs: JobSummary[], view: DepartmentOu
       job.status === 'PendingOwnerApproval' || job.status === 'PendingExternalApproval')
   }
 
-  // Onaylanmış: sahip onaylı; tamamlanmış/iptal/yapılmakta hariç (#2826).
+  // Onaylanan: sahip onaylı; tamamlanmış/iptal/yapılmakta hariç (#2826).
   if (view === 'approved') {
     return jobs.filter(job =>
       (job.departments?.some(department => department.role === 'Owner' && department.decidedAtUtc != null) ?? false)
@@ -915,7 +915,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const showTaskOwnerColumn = isMyRequestsView
     ? ['in-progress', 'completed', 'rejected'].includes(activeJobView)
     : isDepartmentOutgoingView && activeJobView === 'in-progress'
-  // Tamamlanmış / İptal Taleplerim: Gittiği Yer, Görevi Yapan'dan önce (#6a75e470).
+  // Tamamlanan / İptal Taleplerim: Gittiği Yer, Görevi Yapan'dan önce (#6a75e470).
   const destinationBeforeOwner = showTaskOwnerColumn
     && isMyRequestsView
     && (activeJobView === 'completed' || activeJobView === 'rejected')
@@ -944,7 +944,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     count += 1
     return count
   }, [activeJobView, hideJobsDueDateColumn, isDepartmentOutgoingView, isMyRequestsView, showDepartmentOutgoingCreatedBy, showJobsGridStatusColumn, showTaskOwnerColumn])
-  // Yönetici/sorumlu: Bekleyen + Onaylanmış yerine tek "Yapılmakta Olan Taleplerim".
+  // Yönetici/sorumlu: Bekleyen + Onaylanan yerine tek "Yapılmakta Olan Taleplerim".
   const myRequestViews = isManagerLike
     ? MY_REQUEST_VIEWS.filter(view => view.value !== 'pending' && view.value !== 'approved')
     : isReporter
@@ -1089,7 +1089,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   )
   const scopeLabel = scope === 'rejected'
     ? t('jobs.scopes.rejected', 'İptal/Red Edilen')
-    : t(EXTERNAL_SCOPES.find(item => item.value === scope)?.labelKey ?? 'jobs.scopes.departmentPool', 'Onaylanmış Talepler')
+    : t(EXTERNAL_SCOPES.find(item => item.value === scope)?.labelKey ?? 'jobs.scopes.departmentPool', 'Onaylanan Talepler')
 
   type EnrichedJobRow = JobSummary & {
     destinationText: string
@@ -1245,7 +1245,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
   const pagedJobs = useMemo(
     () => {
-      // Tamamlanmış/İptal görünümlerinde tamamlanma/iptal tarihine göre, diğerlerinde talep tarihine
+      // Tamamlanan/İptal görünümlerinde tamamlanma/iptal tarihine göre, diğerlerinde talep tarihine
       // göre en yeni en üstte varsayılan sırala (card #722).
       const isCompletedView = (isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'completed'
       const isRejectedView = (isMyRequestsView || isDepartmentOutgoingView) && activeJobView === 'rejected'
@@ -1415,7 +1415,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     setJobExtraTimeReview(current => (current ? { ...current, saving: true } : current))
     try {
       if (decision === 'approve') {
-        await api.approveTaskRevision(jobExtraTimeReview.taskId, t('tasks.actions.extraTimeApproved', 'Onaylanmış ek süre'), jobExtraTimeReview.proposedDueDateUtc)
+        await api.approveTaskRevision(jobExtraTimeReview.taskId, t('tasks.actions.extraTimeApproved', 'Onaylanan ek süre'), jobExtraTimeReview.proposedDueDateUtc)
       } else {
         await api.rejectTaskRevision(jobExtraTimeReview.taskId, t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'))
       }
@@ -2089,7 +2089,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             ? formatOverdueInProgressStatus(t)
             : t('jobs.statusLabel.inProgress', 'Yapılmakta'))
           : detail.status === 'Completed'
-            ? t('jobs.statusLabel.completed', 'Tamamlanmış')
+            ? t('jobs.statusLabel.completed', 'Tamamlanan')
             : getJobStatusLabel(t, detail.status))
   ) : null
   const myRequestStatusNoteContent = null
@@ -2134,7 +2134,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             const isDisabledExternalPending = isManagerLike
               && currentRequestFlowFilter === 'internal'
               && view.value === 'external-pending'
-            // Standart kullanıcı "Onaylanmış/Yapılmakta Taleplerim" → mavi (card #1698).
+            // Standart kullanıcı "Onaylanan/Yapılmakta Taleplerim" → mavi (card #1698).
             const chipColorClass = !isManagerLike && !isReporter && view.value === 'approved'
               ? 'scope-chip--in-progress'
               : getScopeChipColorClass(view.value)
@@ -2930,14 +2930,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               : detail.status === 'Active'
                                 ? activeStatusLabel
                                 : detail.status === 'Completed'
-                                  ? t('jobs.statusLabel.completed', 'Tamamlanmış')
+                                  ? t('jobs.statusLabel.completed', 'Tamamlanan')
                                   : getJobStatusLabel(t, detail.status))
                           )
                           : getExternalUnitOwnerDisplayStatus(t, detail)
                             ?? (detail.status === 'Active'
                               ? activeStatusLabel
                               : detail.status === 'Completed'
-                                ? t('jobs.statusLabel.completed', 'Tamamlanmış')
+                                ? t('jobs.statusLabel.completed', 'Tamamlanan')
                                 : getJobStatusLabel(t, detail.status))
                       const incomingOutgoingStatusLabel = detailOverdue
                         && typeof incomingOutgoingStatusLabelRaw === 'string'

@@ -55,7 +55,7 @@ function destinationName(job: JobSummary): string {
 }
 
 function getRowStatusLabel(t: TFunction, job: JobSummary): string {
-  if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (job.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanan')
   if (job.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (job.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (job.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')
@@ -83,7 +83,7 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
     return formatOverdueInProgressStatus(t)
   }
   if (detail.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
-  if (detail.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (detail.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanan')
   if (detail.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   if (detail.status === 'Rejected') return t('jobs.statusLabel.rejected', 'Reddedildi')
   if (detail.status === 'RevisionRequested') return t('jobs.statusLabel.returned', 'İade Edildi')

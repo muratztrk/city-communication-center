@@ -319,7 +319,7 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
     return formatOverdueInProgressStatus(t)
   }
   if (detail.status === 'Active') return t('jobs.statusLabel.inProgress', 'Yapılmakta')
-  if (detail.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanmış')
+  if (detail.status === 'Completed') return t('jobs.statusLabel.completed', 'Tamamlanan')
   if (detail.status === 'Cancelled') return t('jobs.statusLabel.cancelled', 'İptal')
   return t(`enum.jobStatus.${detail.status}`, { defaultValue: detail.status })
 }

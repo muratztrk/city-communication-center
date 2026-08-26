@@ -138,7 +138,7 @@ export function RoutineTaskPage() {
           return
         }
         if (detail.currentStatus === 'Completed' || detail.currentStatus === 'Cancelled') {
-          setError(t('routineTask.editNotAllowed', 'Tamamlanmış veya iptal edilmiş rutin görev düzenlenemez.'))
+          setError(t('routineTask.editNotAllowed', 'Tamamlanan veya iptal edilmiş rutin görev düzenlenemez.'))
           return
         }
         setForm({

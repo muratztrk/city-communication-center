@@ -150,7 +150,7 @@ const REQUEST_STATUS_FILTERS: { value: SocialRequestStatusFilter; labelKey: stri
   { value: 'all', labelKey: 'social.requestStatus.all', fallback: 'Tüm Talep Durumları' },
   { value: 'processing-received', labelKey: 'social.requestStatus.processingReceived', fallback: 'İşleme Alındı' },
   { value: 'in-progress', labelKey: 'social.requestStatus.inProgress', fallback: 'Yapılmakta' },
-  { value: 'completed', labelKey: 'social.requestStatus.completed', fallback: 'Tamamlanmış' },
+  { value: 'completed', labelKey: 'social.requestStatus.completed', fallback: 'Tamamlanan' },
   { value: 'cancelled', labelKey: 'social.requestStatus.cancelled', fallback: 'İptal' },
 ]
 

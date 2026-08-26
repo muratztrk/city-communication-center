@@ -35,7 +35,7 @@ function isDueDateOverdue(dueDateUtc: string | null | undefined): boolean {
 }
 
 // Görev durumunu, görev listesi sekmeleriyle (Bekleyen / Geciken /
-// Tamamlanmış / İptal) tutarlı tek bir etiketle gösterir. Ham enum yerine
+// Tamamlanan / İptal) tutarlı tek bir etiketle gösterir. Ham enum yerine
 // kullanıcının gördüğü "durum belirten butonlarla" aynı ifadeleri kullanır.
 export function getTaskDisplayStatus(
   t: TFunction,
@@ -43,7 +43,7 @@ export function getTaskDisplayStatus(
 ): string {
   switch (task.currentStatus) {
     case 'Completed':
-      return t('tasks.statusLabel.completed', { defaultValue: 'Tamamlanmış' })
+      return t('tasks.statusLabel.completed', { defaultValue: 'Tamamlanan' })
     case 'Cancelled':
       return t('tasks.statusLabel.cancelled', { defaultValue: 'İptal' })
     case 'Rejected':
@@ -64,7 +64,7 @@ export function getTaskDisplayStatus(
   return t('tasks.statusLabel.pending', { defaultValue: 'Bekleyen' })
 }
 
-// Gridview "Durum" sütunu arka plan rengi: Tamamlanmış yeşil, İptal/Reddedildi kırmızı,
+// Gridview "Durum" sütunu arka plan rengi: Tamamlanan yeşil, İptal/Reddedildi kırmızı,
 // Yapılmakta mavi, İşleme Alındı sarı, Geciken turuncu, Bekleyen/diğer nötr.
 export type GridStatusTone = 'completed' | 'cancelled' | 'rejected' | 'inProgress' | 'processingReceived' | 'overdue' | 'pendingApproval' | 'pending' | 'neutral'
 

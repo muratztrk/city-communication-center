@@ -1,3 +1,7 @@
+## Round 1045 — #3000 Bildirimi Temizle underline reopen
+
+- **STATUS:** Hover underline span + !important (button Tailwind çizmez).
+
 ## Round 1044 — #3000 Bildirimi Temizle hover underline
 
 - **STATUS:** Hover’da yalnız altı çizili; renk sabit.

@@ -6832,6 +6832,15 @@
     right: -7.75rem;
   }
 
+  /* <button> üzerinde Tailwind hover:underline çoğu tarayıcıda çizgi basmaz (#3000 reopen). */
+  .whatsapp-clear-notifications-link:hover span,
+  .whatsapp-clear-notifications-link:focus-visible span {
+    text-decoration: underline !important;
+    text-underline-offset: 2px;
+    text-decoration-thickness: 1px;
+    text-decoration-color: currentColor;
+  }
+
   /* WhatsApp konuşma scroll alanı: bej zemin + hafif nokta deseni (#2300 reopen). */
   .whatsapp-chat-bg {
     background-color: var(--wa-chat-bg);

@@ -480,7 +480,7 @@ export function WhatsAppNotificationFab() {
             {unreadConversations.length > 0 ? (
               <button
                 type="button"
-                className="max-w-[6.5rem] cursor-pointer text-center text-[10px] font-semibold leading-tight text-[color:var(--color-primary)] transition-colors hover:text-[color:color-mix(in_srgb,var(--color-primary)_58%,white)] hover:underline"
+                className="max-w-[6.5rem] cursor-pointer text-center text-[10px] font-semibold leading-tight text-[color:var(--color-primary)]"
                 onClick={clearPanelNotifications}
               >
                 {t('whatsapp.clearNotifications', 'Bildirimi Temizle')}

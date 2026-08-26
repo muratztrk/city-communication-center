@@ -1,3 +1,7 @@
+## Round 1043 — #3000 Bildirimi Temizle hover geri
+
+- **STATUS:** Hover renk/underline yok; link rengi sabit.
+
 ## Round 1042 — #3016/#3017/#3000/#3024/#3025
 
 - **STATUS:** Onaylanan/Tamamlanan UI; Bildirimi Temizle açık hover; kenar-aç/pie paging geri alındı.

@@ -794,7 +794,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   polling aynı son mesajı yeniden rozet/panel satırı olarak göstermez, yeni mesaj zamanı değişirse bildirim geri gelir.
   Panel X altında **Bildirimi Temizle** tüm görünür satırları aynı bastırma ile boşaltır; paneli kapatmaz,
   `Okunmamış WhatsApp mesajı yok.` gösterilir (#3000). Konuşma sunucuda okundu işaretlenmez.
-  Bildirimi Temizle hover’da renk ve underline değişmez (#3000 geri alındı).
+  Bildirimi Temizle hover’da yalnız underline; renk değişmez (#3000).
 - **WA FAB otomatik giden mesaj (#2562):** sistem otomatik iletilen durum şablonu / zamanlı WA yanıtı
   (belediye adı gönderen, personel `Birim · Ad` değil; veya önizlemede `talebinizin durumu`) WhatsApp
   baloncuk rozet/panel/pulse tetiklemez. `lastMessageIsAutomaticOutbound` son giden entry'nin enum

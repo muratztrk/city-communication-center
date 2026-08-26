@@ -1,3 +1,7 @@
+## Round 1044 — #3000 Bildirimi Temizle hover underline
+
+- **STATUS:** Hover’da yalnız altı çizili; renk sabit.
+
 ## Round 1043 — #3000 Bildirimi Temizle hover geri
 
 - **STATUS:** Hover renk/underline yok; link rengi sabit.

@@ -93,6 +93,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil genişliklerde (<1024 CSS px) desktop zoom uygulanmaz:** içerik/sidebar `zoom=1`
   kalmalı; aksi halde telefonlarda native dikey scroll ve form ölçekleri kırılır.
   Mobil sol menü sola kaydırılınca parmağı takip ederek kapanır; aniden kaybolmaz (#2739).
+  Telefon viewport'ta (≤1023px) sol kenardan sağa kaydırma menüyü aynı translate/opacity
+  animasyonuyla açar; hamburger de soldan kayarak açılır. Popup/dialog üstündeyken kenar
+  kaydırması menüyü açmaz (#3025).
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
   breakpoint'lerinde kullanılmalı; iki kolonlu/split panel yerleşimleri telefonda alt alta akmalı.
 - **Mobil login/sidebar marka alanı:** login logo kartı kullanılan koyu yeşil yüzeydir ve Atatürk
@@ -135,6 +138,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Başlık satırı X yüksekliği kadar minimum alan ayırır; X ile alt aksiyon satırı birbirine değmez.
   Dashboard pie chart
   drilldown popup'ında pagination bar yatay scroll içinde gridview genişliğiyle aynı genişliktedir.
+  Telefon ≤767px pie drilldown paging bar `max-height` ile kesilmez; toplam üst satırda, sayfa
+  düğmeleri alt satırda ortalıdır (#3024).
 - **Mobil detay popup yazdır aksiyonu:** telefon breakpoint'inde talep/görev detay header'ındaki
   tüm `Yazdır` butonları gizlidir; desktop/tablet print aksiyonları korunur.
 - **Yazdır popup'ı ağ erişimi açmaz:** `printHtmlDocument` yazdırma penceresine CSP enjekte eder

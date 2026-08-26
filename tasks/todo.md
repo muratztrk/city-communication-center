@@ -1,3 +1,7 @@
+## Round 1041 — #3025/#3024 mobil menü swipe + pie paging
+
+- **STATUS:** Sol kenar sağa kaydırınca menü açılır; pie drilldown paging iki satır kesilmez.
+
 ## Round 1040 — #3000 Bildirimi Temizle hover
 
 - **STATUS:** Link hover renk + underline.

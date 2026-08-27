@@ -1,3 +1,7 @@
+## Round 1049 — Sayfa Yetkileri thead gradient
+
+- **STATUS:** `.role-matrix-table` diğer yönetim grid’leri gibi `background-attachment: fixed`.
+
 ## Round 1048 — #3058 Talep Etiketleri pie başlığı
 
 - **STATUS:** Vatandaş pie `dashboard.charts.requestTags` TR başlığı çoğul.

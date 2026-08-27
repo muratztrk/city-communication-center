@@ -2939,7 +2939,8 @@
   }
 
   /* "Taleplerim" / "Birimden Giden" / "Birime Gelen" / Birimdeki/Personelimin Görevler /
-     Vatandaş/SMS mesaj onayı / Vatandaş Bilgi Listesi / Vatandaş Talepleri — banner ile aynı yeşil; sticky opak (#r447). */
+     Vatandaş/SMS mesaj onayı / Vatandaş Bilgi Listesi / Vatandaş Talepleri / Sayfa Yetkileri —
+     banner ile aynı yeşil; sticky opak (#r447). */
   .my-requests-table thead th,
   .incoming-requests-table thead th,
   .department-tasks-table thead th,
@@ -2950,7 +2951,8 @@
   .social-messages-table thead th,
   .departments-table thead th,
   .users-table thead th,
-  .audit-logs-table thead th {
+  .audit-logs-table thead th,
+  .role-matrix-table thead th {
     background-color: var(--color-header-from);
     background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
     background-attachment: fixed;
@@ -2968,7 +2970,8 @@
   .social-messages-table thead,
   .departments-table thead,
   .users-table thead,
-  .audit-logs-table thead {
+  .audit-logs-table thead,
+  .role-matrix-table thead {
     background: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
   }
 

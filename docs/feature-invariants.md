@@ -60,7 +60,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   fixed` kullanılmaz (#2824); Birime Gelen / Taleplerim / Birimdeki Görevler / Personelimin
   Görevler / Vatandaş ve SMS mesaj onayı / Vatandaş Bilgi Listesi (ana grid + talep popup) /
   Vatandaş Talepleri / Yönetim gridleri
-  (Birimler, Kullanıcılar, Log) tablolarında sütunlar arası tek gradient için `fixed` kullanılır (#r447). Pie drilldown popup grid (`dashboard-drilldown-table`) aynı kalıp —
+  (Birimler, Kullanıcılar, Log, Sayfa Yetkileri / `.role-matrix-table`) tablolarında sütunlar arası tek gradient için `fixed` kullanılır (#r447). Pie drilldown popup grid (`dashboard-drilldown-table`) aynı kalıp —
   genel `.data-table thead th`'de `fixed` yok (#2824).
 - **Popup gridview başlık şeridi standart gridview gibi üstten kavislidir** (0.9rem): scroll kabı
   olan tablolarda kavis `thead th:first-child/:last-child`'a verilir (araya `overflow:hidden` bir
@@ -1389,7 +1389,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   NFC-normalize adında `Müdür` geçenler Müdürlük, kalanların tamamı Birim sayılır ve sıfır
   bucket da görünür. Kullanıcı özetinde Aktif yanında Yerel ve LDAP sayıları ayrı gösterilir;
   liste placeholder’ı `İsim, kullanıcı adı ara...` kalır.
-- **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; **Sayfa** th ortalı,
+- **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; thead diğer yönetim
+  grid’leri gibi `background-attachment: fixed` ile sürekli banner gradient’i (#r447); **Sayfa** th ortalı,
   satır adları solda (card #1726). Matris satır sırasında `Birimden Giden` hemen
   `Birime Gelen` sonrası (#6a6ca355). Rol kolon sırasında `Vatandaş Talep Yöneticisi`
   hemen `Birim Yöneticisi/Sorumluları` sonrası (#6a6cb6ea). Tenant JSON yok/geçersizse Ayarlar

@@ -510,7 +510,7 @@
       "citizenDepartmentCompletedRequests": "Birimlerde Tamamlanan Talepler",
       "requestPriority": "Talep Önceliği",
       "requestPriorityAll": "Talep Önceliği",
-      "requestTags": "Talep Etiketi"
+      "requestTags": "Talep Etiketleri"
     },
     "taskFilter": {
       "assigned": "Atanmış",

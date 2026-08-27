@@ -1719,7 +1719,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dashboard dönem altı metrik kutucukları (card #2532 reopen):** `DashboardPage` üst grid
   + alt satır `justify-center` (Bekleyen Taleplerim / Bekleyen Görevlerim / Vatandaş Talepleri);
   `max-w-7xl gap-x-12`; kutucuk `min-w-[15.5rem]`.
-- **Talep Etiketi pie chart'ı (card #1591):** yalnız Üst Düzey Yönetici (`Reporter`) ve Vatandaş
+- **Talep Etiketi pie chart'ı (card #1591/#3058):** başlık `Talep Etiketleri` (`dashboard.charts.requestTags`);
+  form alanları `Talep Etiketi` kalır. Yalnız Üst Düzey Yönetici (`Reporter`) ve Vatandaş
   Operatörü (`Operator`) dashboard'larında görünür. Tenant ve seçili tarih aralığındaki talebi
   `SocialMessage.JobId` üzerinden tek kez sayar; etiket kaynağı önce `SocialMessage.Category`, boşsa
   bağlı `CitizenConversation.Label` değeridir. Tanımlı `RequestTag` adları sıfır sayıda da lejantta
@@ -1794,7 +1795,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
   vatandaş pie'ları. Açık birleşik pie başlıkları `Mahallelerde Açık Talepler` /
   `Birimlerde Açık Talepler` (#3055). Vatandaş pie sırası (#3054): mahalle Tamamlanan → Açık → Tüm;
-  birim Tamamlanan → Açık → Tüm; Vatandaş Talepleri; Talep Etiketi; Vatandaş Talep Kanalları.
+  birim Tamamlanan → Açık → Tüm; Vatandaş Talepleri; Talep Etiketleri; Vatandaş Talep Kanalları.
   İşleme Alınan ve Yapılmakta ayrı pie'ları vatandaş
   anasayfada gösterilmez. Tüm Talepler pie dilimleri mahalle veya birim entity'sidir, durum adı değil
   (#2965). Drilldown gridde Durum her zaman vardır; Mahalle kolonu yalnız birim tüm/açık pie popup'ında.

@@ -1,3 +1,7 @@
+## Round 1048 — #3058 Talep Etiketleri pie başlığı
+
+- **STATUS:** Vatandaş pie `dashboard.charts.requestTags` TR başlığı çoğul.
+
 ## Round 1047 — #3054/#3055/#3056 vatandaş/birim pie başlık+sıra
 
 - **STATUS:** Açık Talepler başlıkları; vatandaş pie mahalle→birim Tamamlanan/Açık/Tüm; birimler Tamamlanan/Yapılmakta/Onay.

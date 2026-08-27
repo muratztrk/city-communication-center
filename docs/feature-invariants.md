@@ -1704,6 +1704,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yazdır’ın solundadır (#2683); chip punto/padding biraz küçüktür (#2683 reopen).
   Pie drilldown grid: kayıtlar tablo wrap içinde kayar; `TablePagination` popup gövdesinin
   altında görünür kalır, kayıtlarla birlikte aşağı itilmez (#2881).
+  Mobil (≤767px) pie popup paging: `max-height` kalkar; toplam üst satır, sayfa düğmeleri ikinci
+  satırda ortalı — butonlar yeşil barın dışına taşmaz.
   "Banner sayımına bağlı grafik" istekleri yeni backend aggregation gerektirir (#731 bu
   yüzden ertelendi).
 - **Dashboard pie chart'ları sıfır veride de görünür kalmalı:** `showZeroSlices` kullanılan

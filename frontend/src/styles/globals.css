@@ -6766,6 +6766,36 @@
       -webkit-overflow-scrolling: touch;
     }
 
+    /* Pie popup paging: dar ekranda tek satır max-height butonları yeşil barın dışına taşıyor.
+       Toplam üstte, sayfa düğmeleri ikinci satırda ortalı kalsın. */
+    .detail-modal-shell--chart-drilldown .table-pagination-bar {
+      flex-shrink: 0;
+      max-height: none;
+      height: auto;
+      min-height: var(--table-chrome-row-min-height);
+      align-content: center;
+      justify-content: center;
+      row-gap: 0.4rem;
+      padding-block: 0.5rem;
+      overflow: hidden;
+    }
+
+    .detail-modal-shell--chart-drilldown .table-pagination-info {
+      justify-content: center;
+      width: 100%;
+    }
+
+    .detail-modal-shell--chart-drilldown .table-pagination-divider:not(.table-pagination-divider--page-size) {
+      display: none;
+    }
+
+    .detail-modal-shell--chart-drilldown .table-pagination-navigation {
+      flex: 1 1 100%;
+      justify-content: center;
+      width: 100%;
+      min-width: 0;
+    }
+
     .table-container thead th,
     .data-table thead th {
       padding: 0.48rem 0.4rem;

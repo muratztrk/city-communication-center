@@ -1,3 +1,7 @@
+## Round 1050 — mobil pie popup paging
+
+- **STATUS:** ≤767px drilldown paging iki satır; butonlar yeşil bar içinde.
+
 ## Round 1049 — Sayfa Yetkileri thead gradient
 
 - **STATUS:** `.role-matrix-table` diğer yönetim grid’leri gibi `background-attachment: fixed`.

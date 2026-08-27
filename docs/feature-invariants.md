@@ -1705,7 +1705,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pie drilldown grid: kayıtlar tablo wrap içinde kayar; `TablePagination` popup gövdesinin
   altında görünür kalır, kayıtlarla birlikte aşağı itilmez (#2881).
   Mobil (≤767px) pie popup paging: `max-height` kalkar; toplam üst satır, sayfa düğmeleri ikinci
-  satırda ortalı — butonlar yeşil barın dışına taşmaz.
+  satırda ortalı — butonlar yeşil barın dışına taşmaz. Pie/kanal drilldown tablosu kavisli wrap
+  içinde değil, iç `.dashboard-drilldown-table-hscroll` katmanında yatay+dikey kayar (aynı
+  kutuda `border-radius` + `overflow:auto` iOS/WebKit yatay pan'i keser); paging modal
+  genişliğinde kalır.
   "Banner sayımına bağlı grafik" istekleri yeni backend aggregation gerektirir (#731 bu
   yüzden ertelendi).
 - **Dashboard pie chart'ları sıfır veride de görünür kalmalı:** `showZeroSlices` kullanılan

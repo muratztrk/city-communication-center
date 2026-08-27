@@ -183,6 +183,7 @@ export function CitizenChannelMessagesModal({
               ) : (
                 <div className="dashboard-drilldown-grid-shell">
                   <div className="dashboard-drilldown-table-wrap">
+                    <div className="dashboard-drilldown-table-hscroll">
                     <table className="data-table data-table--zebra social-messages-table dashboard-drilldown-table dashboard-drilldown-table--citizen-channels">
                       <thead>
                         <tr>
@@ -258,6 +259,7 @@ export function CitizenChannelMessagesModal({
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   </div>
                   <TablePagination
                     totalCount={rows.length}

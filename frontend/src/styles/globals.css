@@ -5113,9 +5113,24 @@
   }
 
   .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-wrap {
+    display: flex;
     min-height: 0;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+    /* Kavis clip burada; kaydırma hscroll'da. Aynı kutuda border-radius + overflow:auto
+       WebKit/iOS'ta yatay pan'i yutuyor (paging düzeltmesinden sonra sağa kaymaz). */
+    overflow: hidden;
+  }
+
+  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-hscroll {
+    min-height: 0;
+    min-width: 0;
     flex: 1 1 auto;
     overflow: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    touch-action: pan-x pan-y;
   }
 
   .detail-modal-shell--all-requests .dashboard-drilldown-table-wrap {
@@ -6752,18 +6767,33 @@
       font-size: 0.72rem;
     }
 
-    /* Tablo kendi scroll kapsayıcısında (dashboard-drilldown-table-wrap) yatay taşıyor;
-       grid-shell'in kendisi zorla genişletilmezse altındaki TablePagination aynı (dar)
-       genişlikte kalır — önceden grid-shell min-width:30rem ile zorlanınca paging modal'ın
-       gerçek genişliğinde kalıp tablodan daha dar görünüyordu. */
+    /* Tablo yatayda kendi hscroll katmanında taşar; grid-shell/paging modal genişliğinde
+       kalır. min-width:0 olmazsa tablo flex ebeveyni 30rem'e şişirir, modal overflow:hidden
+       keser, parmakla sağa kaydırılacak bir scrollport oluşmaz. */
     .dashboard-drilldown-grid-shell {
       width: 100%;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .dashboard-drilldown-table-wrap {
       width: 100%;
+      min-width: 0;
+      max-width: 100%;
       overflow-x: auto;
       -webkit-overflow-scrolling: touch;
+    }
+
+    .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-wrap {
+      overflow: hidden;
+    }
+
+    .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-hscroll {
+      width: 100%;
+      min-width: 0;
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x pan-y;
     }
 
     /* Pie popup paging: dar ekranda tek satır max-height butonları yeşil barın dışına taşıyor.

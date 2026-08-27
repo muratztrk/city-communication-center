@@ -567,6 +567,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
             ) : (
               <div className="dashboard-drilldown-grid-shell">
                 <div className="dashboard-drilldown-table-wrap">
+                <div className="dashboard-drilldown-table-hscroll">
                 <table className={`data-table data-table--zebra dashboard-drilldown-table${isCitizenRequestsChart ? ' dashboard-drilldown-table--citizen' : ''}${isRequestTagsChart ? ' dashboard-drilldown-table--request-tags' : ''}`}>
                   <thead>
                     <tr>
@@ -777,6 +778,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                     })}
                   </tbody>
                 </table>
+                </div>
                 </div>
                 <TablePagination
                   totalCount={visibleRows.length}

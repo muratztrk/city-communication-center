@@ -468,7 +468,7 @@ export function WhatsAppNotificationFab() {
                   : t('whatsapp.notificationPanelEmptyHint', 'Yeni mesaj geldiğinde burada görünür.')}
               </p>
             </div>
-            <div className="flex shrink-0 flex-col items-center gap-1">
+            <div className="flex shrink-0 flex-col items-end gap-1">
             <button
               type="button"
               className="rounded-full p-1 text-[color:var(--color-muted-foreground)] transition-colors hover:bg-black/5 hover:text-[color:var(--color-foreground)]"
@@ -480,7 +480,7 @@ export function WhatsAppNotificationFab() {
             {unreadConversations.length > 0 ? (
               <button
                 type="button"
-                className="whatsapp-clear-notifications-link max-w-[6.5rem] cursor-pointer text-center text-[10px] font-semibold leading-tight text-[color:var(--color-primary)]"
+                className="whatsapp-clear-notifications-link max-w-[6.5rem] cursor-pointer text-right text-[10px] font-semibold leading-tight text-[color:var(--color-primary)]"
                 onClick={clearPanelNotifications}
               >
                 <span>{t('whatsapp.clearNotifications', 'Bildirimi Temizle')}</span>

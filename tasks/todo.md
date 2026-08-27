@@ -1,3 +1,7 @@
+## Round 1046 — #3036 WhatsApp panel X sağ hiza
+
+- **STATUS:** Bildirim varken X + Bildirimi Temizle sağa yaslı.
+
 ## Round 1045 — #3000 Bildirimi Temizle underline reopen
 
 - **STATUS:** Hover underline span + !important (button Tailwind çizmez).

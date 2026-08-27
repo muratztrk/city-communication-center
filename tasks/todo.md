@@ -1,3 +1,7 @@
+## Round 1047 — #3054/#3055/#3056 vatandaş/birim pie başlık+sıra
+
+- **STATUS:** Açık Talepler başlıkları; vatandaş pie mahalle→birim Tamamlanan/Açık/Tüm; birimler Tamamlanan/Yapılmakta/Onay.
+
 ## Round 1046 — #3036 WhatsApp panel X sağ hiza
 
 - **STATUS:** Bildirim varken X + Bildirimi Temizle sağa yaslı.

@@ -1792,17 +1792,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Anasayfa - Vatandaş` kalır. Anasayfa ve Vatandaş Paneli pie ızgarasında
   `DashboardNotificationsCard` yok (#2886).
   Genel `nav.dashboard` metni `Anasayfa`. Vatandaş sayfasında Bekleyen Taleplerim/Görevlerim kartları yoktur — yalnız dönem filtresi +
-  vatandaş pie'ları (Mahallelerdeki Tüm Talepler, Birimlerdeki Tüm Talepler, Vatandaş Talepleri,
-  mahalle/birim açık birleşik pie, Tamamlanan pie'ları, Talep Etiketi, Vatandaş Talep Kanalları).
-  vatandaş pie 1. satır: mahalle tümü + birim tümü + Vatandaş Talepleri (#2935/#2936/#2937);
-  ardından mahalle Tamamlanan, sonra mahalle açık birleşik pie (#2979 hiza); birim açık + Tamamlanan. İşleme Alınan ve Yapılmakta ayrı pie'ları vatandaş
+  vatandaş pie'ları. Açık birleşik pie başlıkları `Mahallelerde Açık Talepler` /
+  `Birimlerde Açık Talepler` (#3055). Vatandaş pie sırası (#3054): mahalle Tamamlanan → Açık → Tüm;
+  birim Tamamlanan → Açık → Tüm; Vatandaş Talepleri; Talep Etiketi; Vatandaş Talep Kanalları.
+  İşleme Alınan ve Yapılmakta ayrı pie'ları vatandaş
   anasayfada gösterilmez. Tüm Talepler pie dilimleri mahalle veya birim entity'sidir, durum adı değil
   (#2965). Drilldown gridde Durum her zaman vardır; Mahalle kolonu yalnız birim tüm/açık pie popup'ında.
   İşleme Alınan pie `Classify` ProcessingReceived: açık görev yok (geciken İşleme Alındı dahil);
   Yapılmakta pie Yapılmakta + in-progress overdue (#2605/#2890). Vatandaş Talepleri pie ayrı
   `ClassifyCitizenRequestsPie` kullanır. Drilldown Durum etiketi sahte taskCount=1 kullanmaz —
-  `OpenTaskCount` ile İşleme Alındı / Yapılmakta ayrılır. Harita alanı yok (#6a6cdf95).   Birimler sayfasında Reporter pie sırası: Bekleyen / Yapılmakta / Tamamlanan Talepler →
-  Yapılmakta / Tamamlanan Projeler → Talep Oluşturan Birimler → Taleplerim → Bildirimler (#2629).
+  `OpenTaskCount` ile İşleme Alındı / Yapılmakta ayrılır.   Harita alanı yok (#6a6cdf95).   Birimler sayfasında Reporter pie sırası (#3056): Tamamlanan /
+  Yapılmakta / Onay Bekleyen Talepler → Tamamlanan / Yapılmakta Projeler → Talep Oluşturan Birimler
+  → Taleplerim.
   Birimler sayfasında Reporter: Taleplerim +
   dış birim pie'ları. Operator: Görevlerim/Taleplerim. `Birimdeki Görevler` ve `Talep Önceliği`
   pie'ları tüm anasayfalardan kaldırıldı (#2521). Birimler pie + drilldown vatandaş kaynaklı

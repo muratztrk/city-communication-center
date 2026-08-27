@@ -151,15 +151,15 @@ const CITIZEN_SOURCE_CHART_KEYS = {
   ],
 } as const
 
-/** Anasayfa - Vatandaş grafik sırası (#2935/#2979). */
+/** Anasayfa - Vatandaş grafik sırası (#3054). */
 const CITIZEN_DASHBOARD_CHART_ORDER = [
-  'dashboard.charts.neighborhoodAllRequests',
-  'dashboard.charts.citizenDepartmentAllRequests',
-  'dashboard.charts.citizenRequests',
   'dashboard.charts.neighborhoodCompletedRequests',
   'dashboard.charts.neighborhoodOpenRequests',
-  'dashboard.charts.citizenDepartmentOpenRequests',
+  'dashboard.charts.neighborhoodAllRequests',
   'dashboard.charts.citizenDepartmentCompletedRequests',
+  'dashboard.charts.citizenDepartmentOpenRequests',
+  'dashboard.charts.citizenDepartmentAllRequests',
+  'dashboard.charts.citizenRequests',
   'dashboard.charts.requestTags',
   'dashboard.citizenChannels.title',
 ]
@@ -205,12 +205,13 @@ function citizenChartOrder(titleKey: string): number {
   return index === -1 ? CITIZEN_DASHBOARD_CHART_ORDER.length : index
 }
 
+/** Anasayfa - Birimler Reporter pie sırası (#3056). */
 const REPORTER_DEPARTMENT_CHART_ORDER = [
-  'dashboard.charts.externalRequestPending',
-  'dashboard.charts.externalRequestInProgress',
   'dashboard.charts.externalRequestFulfillers',
-  'dashboard.charts.externalProjectsInProgress',
+  'dashboard.charts.externalRequestInProgress',
+  'dashboard.charts.externalRequestPending',
   'dashboard.charts.externalProjectsCompleted',
+  'dashboard.charts.externalProjectsInProgress',
   'dashboard.charts.externalRequestCreators',
   'dashboard.charts.myRequests',
 ]

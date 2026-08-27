@@ -153,8 +153,10 @@ public sealed record JobDetailResponse(
     // Detay/yazdır VT- numarası (liste özetindeki ile aynı kaynak, #r467).
     int? CitizenRequestNumber = null,
     int? CitizenRequestNumberYear = null,
-  /// <summary>Üst düzey yetkili — vatandaşa iletilen/gönderilecek terminal mesaj (#2528).</summary>
+  /// <summary>Vatandaşa iletilen/gönderilecek terminal mesaj (#2528). Sms Onayı'nda
+    /// operatörün değiştirdiği not; WhatsApp'ta konuşma kaydındaki trailing not.</summary>
     string? CitizenOutboundMessage = null,
-    /// <summary>Mesajı Gönder anındaki onay notu — Tamamlama Notu olarak gösterilir (#2528).</summary>
+    /// <summary>Yöneticinin Mesajı Onayla anındaki not — Tamamlama Notu (#2528). Operatör
+    /// Sms Onayı task.Notes'u ezse bile bu alan değişmez.</summary>
     string? CitizenApprovalReleasedNote = null,
     string? LocationMapsUrl = null);

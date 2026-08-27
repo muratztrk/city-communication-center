@@ -1779,9 +1779,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   İç içe detay popup'ta (`MyRequestDetailModal`) İlgili Görev Detayları → Tamamlama Notu
   `citizenApprovalReleasedNote` = yöneticinin **ilk** `CitizenMessageApprovalReleased` notu
   (reopen sonrası yeni döngü). Operatör Sms Onayı gönderimi ikinci Released audit yazmaz;
-  geçmişte yazılmış ikinci kayıtlar yok sayılır. Operatör Sms Onayı'nda notu değiştirirse
-  `citizenOutboundMessage` → `Vatandaşa Giden Mesaj` Tamamlama Notu'nun **alt satırında**
-  (WA ile aynı; #2528 SMS'te de). Tamamlama ile outbound farklıysa outbound kırmızı (#2557).
+  geçmişte yazılmış ikinci kayıtlar yok sayılır. WhatsApp'ta operatör bekleyen balonu
+  düzenler (`task.Notes` değişmez). SMS'te `Notu Düzenle` `task.Notes`'u ezer — Tamamlama
+  yine Released (yoksa TaskCompleted / ilk NoteEdited) kalır; serbest bırakmadan **sonraki**
+  `CitizenMessageApprovalCompletionNoteEdited` → `citizenOutboundMessage` → **Vatandaşa Giden
+  Mesaj** Tamamlama Notu'nun **alt satırında**. `GetJobById` bu iki alanı rol kapısı olmadan
+  doldurur (Operator/Reporter dışında Manager/CRM de görsün). `MyRequestDetailModal` prop
+  verilmezse `detail.citizenOutboundMessage` / `citizenApprovalReleasedNote` okunur (kanal pie,
+  harita). Tamamlama ile outbound farklıysa outbound kırmızı (#2557); yalnız büyük/küçük harf
+  farkı gizli.
 - **FAB boyutları (#r482/#2638):** WhatsApp + Kurum İçi 2.75rem / sm 3rem; scroll 2.5rem / sm 2.75rem.
   Üçü de biraz küçük; sıra WhatsApp → Kurum İçi → scroll.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici

@@ -29,6 +29,17 @@ interface MyRequestTaskDetailsSectionProps {
   addressColumnContent?: ReactNode
 }
 
+function notePlain(value?: string | null) {
+  return richTextToPlainText(value ?? '').trim()
+}
+
+function notesDiffer(left?: string | null, right?: string | null) {
+  const a = notePlain(left)
+  const b = notePlain(right)
+  if (!a || !b) return a !== b
+  return a.toLocaleLowerCase('tr') !== b.toLocaleLowerCase('tr')
+}
+
 function getInlineAttachmentIcon(fileName: string) {
   return /\.(?:jpe?g|png)$/i.test(fileName) ? SimpleImageAttachmentIcon : FileText
 }
@@ -180,15 +191,29 @@ export function MyRequestTaskDetailsSection({
 
           const isCompletedTask = task.currentStatus === 'Completed'
           const isCancelledTask = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
+          const releasedPlain = notePlain(citizenApprovalReleasedNote)
+          const taskNotesPlain = notePlain(task.notes)
+          const outboundPlain = notePlain(citizenOutboundMessage)
+          const cancelNoteDisplay = task.revisionReason?.trim() || detail.cancelReason?.trim() || '—'
+          // Operatör Sms Onayı task.Notes'u ezer; Tamamlama yöneticinin onay notu olmalı.
+          // Released yokken canlı görev notuna ancak outbound yoksa (veya aynıysa) düş.
           const completionNoteDisplay = isCompletedTask
-            ? (citizenApprovalReleasedNote?.trim()
-              || richTextToPlainText(task.notes)
+            ? (releasedPlain
+              || (outboundPlain && notesDiffer(outboundPlain, taskNotesPlain) ? '—' : taskNotesPlain)
               || '—')
             : ''
+          const completionCompareSource = isCompletedTask
+            ? (releasedPlain || taskNotesPlain)
+            : notePlain(task.revisionReason) || notePlain(detail.cancelReason)
           const outboundDiffersFromCompletion = Boolean(
-            citizenOutboundMessage?.trim()
-            && citizenOutboundMessage.trim() !== (citizenApprovalReleasedNote?.trim() || richTextToPlainText(task.notes).trim()),
+            outboundPlain
+            && notesDiffer(outboundPlain, completionCompareSource),
           )
+          const primaryTerminalTaskId = detail.tasks.find(item =>
+            item.currentStatus === 'Completed'
+            || item.currentStatus === 'Cancelled'
+            || item.currentStatus === 'Rejected',
+          )?.taskId
           const showDescriptionCard = !hidePlainDescription
           // Açıklama yokken Görev Bilgileri + Süreç eşit kolonlarda; kartlar düşeyde eşit
           // yükseklikte (items-stretch) ve başlıklar üstte hizalı (cards #1634/#1635).
@@ -234,12 +259,14 @@ export function MyRequestTaskDetailsSection({
                       : isCancelledTask
                         ? [{
                             label: t('tasks.detail.cancelNote', 'İptal Notu'),
-                            value: task.revisionReason?.trim() || detail.cancelReason?.trim() || '—',
+                            value: cancelNoteDisplay,
                             // Etiket + değer kırmızı (card #1638).
                             tone: 'cancel' as const,
                           }]
                         : []),
-                    ...(outboundDiffersFromCompletion && task.taskId === detail.tasks[0]?.taskId
+                    ...(outboundDiffersFromCompletion
+                      && (isCompletedTask || isCancelledTask)
+                      && task.taskId === primaryTerminalTaskId
                       ? [{
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
                           value: citizenOutboundMessage,

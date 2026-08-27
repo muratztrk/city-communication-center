@@ -6,10 +6,16 @@ namespace CityCommunicationCenter.Application.Features.CitizenMessageApprovals;
 /// <summary>
 /// Terminal vatandaş talebinin görüntülenecek/gönderilecek notunu çözer — tamamlanmışta son
 /// tamamlanan görevin notu, iptalde talep iptal nedeni (veya son iptal edilen görevin notu),
-/// `CitizenJobStatusNotifier.EnqueueTerminalFollowUpsAsync` ile aynı öncelik sırasıyla (card #2039).
+/// <c>CitizenJobStatusNotifier.EnqueueTerminalFollowUpsAsync</c> ile aynı öncelik sırasıyla (card #2039).
 /// </summary>
 internal static class CitizenMessageApprovalNoteResolver
 {
+    private const string ReleasedAction = "CitizenMessageApprovalReleased";
+    private const string ReopenedAction = "CitizenMessageJobReopenedToProcessingReceived";
+    private const string CompletionNoteEditedAction = "CitizenMessageApprovalCompletionNoteEdited";
+    private const string CancelNoteEditedAction = "CitizenMessageApprovalCancelNoteEdited";
+    private const string TaskCompletedAction = "TaskCompleted";
+
     public static async Task<string?> ResolveAsync(
         IApplicationDbContext dbContext,
         Guid tenantId,
@@ -66,34 +72,49 @@ internal static class CitizenMessageApprovalNoteResolver
         Guid jobId,
         CancellationToken cancellationToken)
     {
-        var entityId = jobId.ToString();
-        var reopenAt = await dbContext.AuditLogs.AsNoTracking()
-            .Where(audit => audit.TenantId == tenantId
-                && audit.EntityId == entityId
-                && audit.Action == "CitizenMessageJobReopenedToProcessingReceived")
-            .OrderByDescending(audit => audit.EventTimeUtc)
-            .Select(audit => (DateTimeOffset?)audit.EventTimeUtc)
+        var cycle = await GetCycleBoundsAsync(dbContext, tenantId, jobId, cancellationToken);
+        var releasedNote = await QueryReleasedInCycle(dbContext, tenantId, jobId, cycle.ReopenedAt)
+            .OrderBy(audit => audit.EventTimeUtc)
+            .Select(audit => audit.Notes ?? audit.Details)
             .FirstOrDefaultAsync(cancellationToken);
-
-        var released = dbContext.AuditLogs.AsNoTracking()
-            .Where(audit => audit.TenantId == tenantId
-                && audit.EntityId == entityId
-                && audit.Action == "CitizenMessageApprovalReleased");
-        if (reopenAt.HasValue)
+        if (!string.IsNullOrWhiteSpace(releasedNote))
         {
-            var cycleStart = reopenAt.Value;
-            released = released.Where(audit => audit.EventTimeUtc > cycleStart);
+            return releasedNote.Trim();
         }
 
-        return await released
+        // Çağrı geçmişi: Released audit yokken operatör Sms Onayı task.Notes'u ezer.
+        // Tamamlama, personelin/yöneticinin daha eski anlık görüntüsü olmalı.
+        var cycleEdits = await QueryNoteEditsInCycle(dbContext, tenantId, jobId, cycle.ReopenedAt)
             .OrderBy(audit => audit.EventTimeUtc)
             .Select(audit => audit.Notes)
-            .FirstOrDefaultAsync(cancellationToken);
+            .ToListAsync(cancellationToken);
+        var firstEdit = FirstNonEmpty(cycleEdits);
+        var lastEdit = LastNonEmpty(cycleEdits);
+        if (firstEdit is not null
+            && lastEdit is not null
+            && !string.Equals(firstEdit, lastEdit, StringComparison.Ordinal))
+        {
+            return firstEdit;
+        }
+
+        var completedSnapshot = await ResolveTaskCompletedSnapshotAsync(
+            dbContext, tenantId, jobId, cancellationToken);
+        if (!string.IsNullOrWhiteSpace(completedSnapshot)
+            && lastEdit is not null
+            && !string.Equals(completedSnapshot, lastEdit, StringComparison.Ordinal))
+        {
+            return completedSnapshot;
+        }
+
+        return null;
     }
 
     /// <summary>
-    /// Vatandaş Bilgi Listesi detay popup'ında "Vatandaşa Giden Mesaj" alanı — onay ekranında
-    /// düzenlenmiş not veya iletilen terminal not (SMS <c>ResponseContent</c> / WA konuşma kaydı).
+    /// Vatandaş Bilgi Listesi detay popup'ında "Vatandaşa Giden Mesaj" alanı.
+    /// WhatsApp: operatör bekleyen balonu düzenler (görev notu değişmez) → konuşma kaydı.
+    /// SMS: operatör Sms Onayı'nda Notu Düzenle görev notunu ezer → serbest bırakmadan
+    /// <b>sonraki</b> NoteEdited veya iletilen SMS gövdesindeki terminal not.
+    /// Canlı <c>task.Notes</c> Tamamlama ile karışmasın diye <see cref="ResolveAsync"/> kullanılmaz.
     /// </summary>
     public static async Task<string?> ResolveOutboundDisplayNoteAsync(
         IApplicationDbContext dbContext,
@@ -104,22 +125,32 @@ internal static class CitizenMessageApprovalNoteResolver
         string? responseContent,
         CancellationToken cancellationToken)
     {
-        var noteEdited = await dbContext.AuditLogs.AsNoTracking().AnyAsync(
-            audit => audit.TenantId == tenantId
-                && audit.EntityId == job.JobId.ToString()
-                && (audit.Action == "CitizenMessageApprovalCompletionNoteEdited"
-                    || audit.Action == "CitizenMessageApprovalCancelNoteEdited"),
-            cancellationToken);
+        var cycle = await GetCycleBoundsAsync(dbContext, tenantId, job.JobId, cancellationToken);
+        var firstReleasedAt = await QueryReleasedInCycle(dbContext, tenantId, job.JobId, cycle.ReopenedAt)
+            .OrderBy(audit => audit.EventTimeUtc)
+            .Select(audit => (DateTimeOffset?)audit.EventTimeUtc)
+            .FirstOrDefaultAsync(cancellationToken);
 
-        if (noteEdited)
+        var postReleaseEdits = QueryNoteEditsInCycle(dbContext, tenantId, job.JobId, cycle.ReopenedAt);
+        if (firstReleasedAt.HasValue)
         {
-            return await ResolveAsync(dbContext, tenantId, job, cancellationToken);
+            var releasedAt = firstReleasedAt.Value;
+            postReleaseEdits = postReleaseEdits.Where(audit => audit.EventTimeUtc > releasedAt);
         }
 
-        // SMS: operatör Sms Onayı'nda düzenlediyse görev notu (yukarıdaki dal);
-        // yoksa iletilen SMS gövdesindeki terminal not.
+        var lastPostReleaseEdit = await postReleaseEdits
+            .OrderByDescending(audit => audit.EventTimeUtc)
+            .Select(audit => audit.Notes)
+            .FirstOrDefaultAsync(cancellationToken);
+
         if (channel == SocialChannel.Phone)
         {
+            // Operatörün Sms Onayı'nda yazdığı not, iletilen SMS'ten (büyük harf) önce gelir.
+            if (!string.IsNullOrWhiteSpace(lastPostReleaseEdit))
+            {
+                return lastPostReleaseEdit.Trim();
+            }
+
             if (!string.IsNullOrWhiteSpace(responseContent))
             {
                 var transmitted = ExtractTrailingTerminalNote(responseContent);
@@ -129,7 +160,7 @@ internal static class CitizenMessageApprovalNoteResolver
                 }
             }
 
-            return await ResolveAsync(dbContext, tenantId, job, cancellationToken);
+            return null;
         }
 
         if (channel == SocialChannel.WhatsApp)
@@ -152,10 +183,10 @@ internal static class CitizenMessageApprovalNoteResolver
             }
         }
 
-        return await ResolveAsync(dbContext, tenantId, job, cancellationToken);
+        return string.IsNullOrWhiteSpace(lastPostReleaseEdit) ? null : lastPostReleaseEdit.Trim();
     }
 
-    private static string? ExtractTrailingTerminalNote(string content)
+    internal static string? ExtractTrailingTerminalNote(string content)
     {
         var trimmed = content.TrimEnd();
         var separatorIndex = trimmed.LastIndexOf("\n\n", StringComparison.Ordinal);
@@ -167,4 +198,117 @@ internal static class CitizenMessageApprovalNoteResolver
         var tail = trimmed[(separatorIndex + 2)..].Trim();
         return string.IsNullOrWhiteSpace(tail) ? null : tail;
     }
+
+    private static async Task<CycleBounds> GetCycleBoundsAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        CancellationToken cancellationToken)
+    {
+        var entityId = jobId.ToString();
+        var reopenedAt = await dbContext.AuditLogs.AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityId == entityId
+                && audit.Action == ReopenedAction)
+            .OrderByDescending(audit => audit.EventTimeUtc)
+            .Select(audit => (DateTimeOffset?)audit.EventTimeUtc)
+            .FirstOrDefaultAsync(cancellationToken);
+        return new CycleBounds(reopenedAt);
+    }
+
+    private static IQueryable<AuditLog> QueryReleasedInCycle(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        DateTimeOffset? reopenedAt)
+    {
+        var entityId = jobId.ToString();
+        var released = dbContext.AuditLogs.AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityId == entityId
+                && audit.Action == ReleasedAction);
+        if (reopenedAt.HasValue)
+        {
+            var cycleStart = reopenedAt.Value;
+            released = released.Where(audit => audit.EventTimeUtc > cycleStart);
+        }
+
+        return released;
+    }
+
+    private static IQueryable<AuditLog> QueryNoteEditsInCycle(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        DateTimeOffset? reopenedAt)
+    {
+        var entityId = jobId.ToString();
+        var edits = dbContext.AuditLogs.AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityId == entityId
+                && (audit.Action == CompletionNoteEditedAction
+                    || audit.Action == CancelNoteEditedAction));
+        if (reopenedAt.HasValue)
+        {
+            var cycleStart = reopenedAt.Value;
+            edits = edits.Where(audit => audit.EventTimeUtc > cycleStart);
+        }
+
+        return edits;
+    }
+
+    private static async Task<string?> ResolveTaskCompletedSnapshotAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        CancellationToken cancellationToken)
+    {
+        var taskIds = await dbContext.Tasks.AsNoTracking()
+            .Where(task => task.TenantId == tenantId && task.JobId == jobId)
+            .Select(task => task.TaskId.ToString())
+            .ToListAsync(cancellationToken);
+        if (taskIds.Count == 0)
+        {
+            return null;
+        }
+
+        var note = await dbContext.AuditLogs.AsNoTracking()
+            .Where(audit => audit.TenantId == tenantId
+                && audit.EntityType == nameof(WorkTask)
+                && taskIds.Contains(audit.EntityId)
+                && audit.Action == TaskCompletedAction)
+            .OrderByDescending(audit => audit.EventTimeUtc)
+            .Select(audit => audit.Notes ?? audit.Details)
+            .FirstOrDefaultAsync(cancellationToken);
+        return string.IsNullOrWhiteSpace(note) ? null : note.Trim();
+    }
+
+    private static string? FirstNonEmpty(IReadOnlyList<string?> values)
+    {
+        foreach (var value in values)
+        {
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value.Trim();
+            }
+        }
+
+        return null;
+    }
+
+    private static string? LastNonEmpty(IReadOnlyList<string?> values)
+    {
+        for (var index = values.Count - 1; index >= 0; index--)
+        {
+            var value = values[index];
+            if (!string.IsNullOrWhiteSpace(value))
+            {
+                return value.Trim();
+            }
+        }
+
+        return null;
+    }
+
+    private readonly record struct CycleBounds(DateTimeOffset? ReopenedAt);
 }

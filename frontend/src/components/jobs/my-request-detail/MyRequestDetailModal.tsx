@@ -79,9 +79,9 @@ export interface MyRequestDetailModalProps {
   forceCitizenDetailCards?: boolean
   /** Shell boyutu override (ör. Vatandaş Bilgi Listesi nested Detaylar — card #r454). */
   shellClassName?: string
-  /** Vatandaş Bilgi Listesi — üst düzey yetkili terminal mesaj (#2528). */
+  /** Vatandaşa giden terminal mesaj — Sms Onayı operatör notu / WA konuşma kaydı (#2528). */
   citizenOutboundMessage?: string | null
-  /** Mesajı Gönder anındaki onay notu — Tamamlama Notu (#2528). */
+  /** Yöneticinin Mesajı Onayla anındaki not — Tamamlama Notu (#2528). Prop yoksa detail alanından okunur. */
   citizenApprovalReleasedNote?: string | null
 }
 
@@ -148,6 +148,8 @@ export function MyRequestDetailModal({
   citizenApprovalReleasedNote,
 }: MyRequestDetailModalProps) {
   const { t } = useTranslation()
+  const outboundMessage = citizenOutboundMessage ?? detail.citizenOutboundMessage
+  const releasedNote = citizenApprovalReleasedNote ?? detail.citizenApprovalReleasedNote
 
   useEscapeKey(onClose)
 
@@ -303,8 +305,8 @@ export function MyRequestDetailModal({
           locale={locale}
           onDownloadTaskAttachment={onDownloadTaskAttachment}
           hidePlainDescription={hideTaskPlainDescription || (isStandardUser && !isEditing)}
-          citizenOutboundMessage={citizenOutboundMessage}
-          citizenApprovalReleasedNote={citizenApprovalReleasedNote}
+          citizenOutboundMessage={outboundMessage}
+          citizenApprovalReleasedNote={releasedNote}
         />
       </div>
     </section>

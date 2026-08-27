@@ -84,6 +84,7 @@ public sealed class ReleaseCitizenMessageApprovalCommandHandler : ICommandHandle
                 EventTimeUtc = DateTimeOffset.UtcNow,
                 StatusAtEvent = job.Status.ToString(),
                 Notes = note,
+                Details = note,
             });
             await _dbContext.SaveChangesAsync(cancellationToken);
         }

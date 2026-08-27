@@ -597,56 +597,50 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
 
         string? citizenOutboundMessage = null;
         string? citizenApprovalReleasedNote = null;
-        if (context.RoleCode is nameof(RoleCode.Reporter)
-            or nameof(RoleCode.SystemAdmin)
-            or nameof(RoleCode.Operator))
+        var eligible = await CitizenMessageApprovalAccess.FindEligibleTerminalJobAsync(
+            _dbContext, tenantId, job.JobId, track: false, cancellationToken);
+        if (eligible is not null)
         {
-            var eligible = await CitizenMessageApprovalAccess.FindEligibleTerminalJobAsync(
-                _dbContext, tenantId, job.JobId, track: false, cancellationToken);
-            if (eligible is not null)
-            {
-                citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
-                    _dbContext, tenantId, job.JobId, cancellationToken);
-                var linkedMessage = await _dbContext.SocialMessages.AsNoTracking()
-                    .Where(m => m.TenantId == tenantId
-                        && m.CitizenRequestNumber != null
-                        && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
-                        && (m.JobId == job.JobId
-                            || (job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)))
-                    .Select(m => new
-                    {
-                        m.Channel,
-                        m.SocialMessageId,
-                        m.RespondedAtUtc,
-                        m.ResponseContent,
-                    })
-                    .FirstOrDefaultAsync(cancellationToken);
-
-                if (linkedMessage is not null)
+            citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
+                _dbContext, tenantId, job.JobId, cancellationToken);
+            var linkedMessages = await _dbContext.SocialMessages.AsNoTracking()
+                .Where(m => m.TenantId == tenantId
+                    && m.CitizenRequestNumber != null
+                    && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
+                    && (m.JobId == job.JobId
+                        || (job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)))
+                .Select(m => new
                 {
-                    var phoneReleased = linkedMessage.Channel == SocialChannel.Phone
-                        && eligible.CitizenTerminalMessageReleasedAtUtc.HasValue;
-                    var waReleased = linkedMessage.Channel == SocialChannel.WhatsApp
-                        && eligible.CitizenTerminalMessageReleasedAtUtc.HasValue;
+                    m.Channel,
+                    m.SocialMessageId,
+                    m.RespondedAtUtc,
+                    m.ResponseContent,
+                    m.ReceivedAtUtc,
+                })
+                .ToListAsync(cancellationToken);
+            var linkedMessage = (job.SourceRefId.HasValue
+                    ? linkedMessages.Find(m => m.SocialMessageId == job.SourceRefId.Value)
+                    : null)
+                ?? linkedMessages
+                    .OrderByDescending(m => m.ReceivedAtUtc)
+                    .FirstOrDefault();
 
-                    if (phoneReleased || waReleased)
-                    {
-                        var terminalSmsSent = linkedMessage.Channel == SocialChannel.Phone
-                            && linkedMessage.RespondedAtUtc.HasValue
-                            && linkedMessage.RespondedAtUtc >= eligible.CitizenTerminalMessageReleasedAtUtc;
-                        var note = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
-                            _dbContext,
-                            tenantId,
-                            eligible,
-                            linkedMessage.Channel,
-                            linkedMessage.SocialMessageId,
-                            terminalSmsSent ? linkedMessage.ResponseContent : null,
-                            cancellationToken);
-                        if (!string.IsNullOrWhiteSpace(note))
-                        {
-                            citizenOutboundMessage = note;
-                        }
-                    }
+            if (linkedMessage is not null && eligible.CitizenTerminalMessageReleasedAtUtc.HasValue)
+            {
+                var terminalSmsSent = linkedMessage.Channel == SocialChannel.Phone
+                    && linkedMessage.RespondedAtUtc.HasValue
+                    && linkedMessage.RespondedAtUtc >= eligible.CitizenTerminalMessageReleasedAtUtc;
+                var note = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+                    _dbContext,
+                    tenantId,
+                    eligible,
+                    linkedMessage.Channel,
+                    linkedMessage.SocialMessageId,
+                    terminalSmsSent ? linkedMessage.ResponseContent : null,
+                    cancellationToken);
+                if (!string.IsNullOrWhiteSpace(note))
+                {
+                    citizenOutboundMessage = note;
                 }
             }
         }

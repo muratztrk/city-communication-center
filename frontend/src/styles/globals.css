@@ -4058,6 +4058,11 @@
     font-size: 0.875rem !important;
   }
 
+  /* #3087: Talep Başlığı / Birim / Telefon / Öncelik placeholder = Mahalle. */
+  .request-form--readable .create-request-core-placeholder span.text-slate-400 {
+    font-size: 0.875rem !important;
+  }
+
   /* WA VT popup: Cadde/No dropdown placeholder küçük (#2849 reopen). */
   .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row .field-select {
     font-size: 0.72rem !important;

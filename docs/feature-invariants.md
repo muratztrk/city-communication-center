@@ -872,7 +872,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `min-h-[5.5rem]` `!important` ile ezilir). Cadde/Sokak biraz dar, No biraz geniş
   (`1fr` / `6.75rem`, #2584 reopen). `request-form--readable` 3.2rem ezilir.
   Sol kolon **Talebin Adres Bilgisi** Cadde/No placeholder `0.875rem`; Mahalle aynı punto
-  (`citizen-call-neighborhood-trigger`, #2847). Sağ kolon vatandaş alanları `0.76rem`.
+  (`citizen-call-neighborhood-trigger`, #2847). Talep Başlığı / Gideceği Birim / Telefon No /
+  Öncelik placeholder da Mahalle ile aynı `0.875rem` (#3087). Sağ kolon vatandaş alanları `0.76rem`.
   **Talep adresi ≠ vatandaş profil adresi (#2563):** `ConvertSocialMessageToJob` / `UpdateJob`
   `CitizenConversation` mahalle/cadde/no/açık adresini job alanlarıyla güncellemez; profil yalnız
   `updateCitizenConversationProfile` ve WA **Vatandaş Bilgileri** panelinden yazılır.
@@ -1002,7 +1003,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gösterilmez; breadcrumb doğrudan `Anasayfa > Vatandaş Talepleri` olur (card #1262).
 - **Login logosu (#2315 / #2318 / #2326):** Login ekranı `appearance.loginLogoUrl` kullanır; boşsa
   `/tire-belediyesi-logo.png`, kayıtlı `/default-institution-logo.png` lumespec wordmark. Login/popup upload
-  **Kaydet** sonrası uygulanır.
+  **Kaydet** sonrası uygulanır. `shell.subtitle` (`Tire İletişim Merkezi`) `font-medium` (#3110).
 - **Login logo oval çerçeve (#2316):** desktop `h-15 w-36` (`2xl:h-[4.25rem]`); mobil
   `h-[4.5rem]` (`sm:h-[6.25rem]`).
 - **Mobil login Atatürk görseli:** `/header-ataturk.png` (beyaz silüet) sayfa sol üst köşesinde
@@ -1177,6 +1178,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Yapılmakta scope chip mavi (`scope-chip--in-progress`); Geciken turuncu
   (`scope-chip--overdue`) — cards #1693/#1695. Birime Gelen'de Onaylanmış → Yapılmakta →
   Geciken sırası; Onaylanmış grid `approvedAtUtc` desc (cards #1694/#1695).
+  Tümü chip’inden sonra `|` + Birim İçi / Birim Dışı / Birim İçi/Birim Dışı (varsayılan sonuncusu,
+  Taleplerim `filters.requestFlow` chip’leri, #3111).
   Birime Gelen breadcrumb `?status=` ile sekme adını takip eder (card #1696).
   Standart kullanıcı Taleplerim `Onaylanmış/Yapılmakta Taleplerim` chip'i mavidir
   (`scope-chip--in-progress`, card #1698) — sarı `approved` chip'i yönetici Onaylanmış'ta kalır.
@@ -1771,7 +1774,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sütunu yok (#2543); kanal yalnız detay popup talep listesinde `Talep Tarihi` sonrası (#2540).
   Telefon hücresi diğer kolonlarla aynı font (`font-semibold text-slate-800`,
   `font-mono`/`text-base` yok — card #1863) + `formatDirectoryPhone` (baştaki `90`/`0`
-  gösterilmez — card #1843 reopen). Operatör/çağrı ile oluşturulan VT'ler `ConvertSocialMessageToJob`
+  gösterilmez — card #1843 reopen). Ad boşsa veya ad telefon gibi duruyorsa Vatandaş Adı
+  hücresi de `XXX XXX XX XX` yazar (#3106). Arama 3 karakterden sonra başlar (#3103). Operatör/çağrı ile oluşturulan VT'ler `ConvertSocialMessageToJob`
   sırasında `CitizenConversation` upsert eder; liste sorgusu eksik konuşmaları da backfill eder
   (card #1858). WhatsApp Konuşmaları listesi `whatsAppOnly=true` ile yalnız en az bir WhatsApp
   kanal mesajı olan konuşmaları gösterir; çağrı VT numaraları bu listede yoktur (card #1864).
@@ -1866,7 +1870,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
   Lejant satırında `PieLegendSearch` konum sayısı ile Talepleri Listele arasında (aynı satır,
   `flex-1`); vatandaş haritasında ad/telefon/mahalle, birim haritasında birim adı
-  (`requestSearch.ts`, `toLocaleLowerCase('tr')`). Arama pinleri, konum sayısını ve liste
+  (`requestSearch.ts`, `toLocaleLowerCase('tr')`). Arama **3 karakterden** sonra başlar
+  (#3103; aynı eşik Vatandaş Bilgi Listesi). Arama pinleri, konum sayısını ve liste
   popup’ını daraltır; geocode tüm pinlerde bir kez çalışır (#3086/#3087/#3088/#2978).
   Google haritada yalnız cadde/sokak/bulvar etiketleri; POI ve transit kapalı; CBS overlay
   veya özel referans marker yok (#2799).
@@ -2007,7 +2012,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Grid thead rengi + sticky örtü (card #1888 / #r447):** sticky `th` opak
   (`background-color` + aynı linear-gradient, `background-attachment: fixed`) — scroll’da
   tbody satırları başlığın üstüne binmez; hücreler arası sürekli gradient korunur. `z-index` ≥ 5.
-- **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → Telefon → Talep Tarihi →
+- **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → **Numara** (#3108, hücre stili
+  dizin Numara ile aynı #3107) → Talep Tarihi →
   Gittiği Yer → Talep Etiketi → **Durum** → İşlemler (#2646; eski Süreç başlığı). Varsayılan sıra
   Vatandaş Talep No **yıl+sıra desc** (en yüksek numara üstte, #2691). Durum hücresi
   Taleplerim `StatusPill` + `GridStatusLabel`. **Tüm Talep Durumları** dropdown’da Geciken yok;
@@ -2590,9 +2596,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `overflow-x-hidden` rozeti kesmemeli). Rozet sayısı `unread-count` API + liste okunmamışların
   üst sınırı; query key aktif birimle hizalı.
 - **Bildirim dropdown okundu aksiyonu:** "Tümünü Okundu yap" butonu küçük bildirim dropdown'unda
-  kapatma X'inin solundadır, yeşil metinlidir, çerçeveli buton gibi görünür ve iki satır metin
-  (`Tümünü` / `Okundu yap`) arasında okunabilir boşluk kullanır;
-  "Tüm bildirimleri gör" modal toolbar'ında da tek satır `Tümünü okundu yap` aksiyonu görünür.
+  kapatma X'inin solundadır, yeşil metinlidir, çerçeveli buton gibi görünür;
+  solunda kırmızı `Tümünü sil` vardır (#3109). Modal toolbar’da `Tümünü sil` solda, küçültülmüş
+  `Tümünü okundu yap` sağda. Silme `Tüm bildirimleri silmek istediğinize emin misiniz?`
+  Evet/Hayır onayından sonra `NotificationReadCursor.DismissedThroughUtc` ilerletir; sonraki
+  olaylar feed’de kalır. Audit log silinmez.
 - **Bildirim başlığı vurguları:** okunmamış satırda `güncellendi`, `oluşturuldu`, `atandı`,
   `yönlendirildi`, `Yönetici notu atandı`, `Ek süre talebi` ve onay/red/tamamlandı/iptal
   kelimeleri bold (+ renk); okununca ağırlık normale döner (#6a6ca25f).

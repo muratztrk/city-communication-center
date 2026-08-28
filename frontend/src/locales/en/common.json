@@ -334,7 +334,11 @@
     "unreadCount": "unread notifications",
     "permissionPrompt": "Allow notifications",
     "permissionGranted": "Notifications enabled",
-    "permissionDenied": "Notifications blocked"
+    "permissionDenied": "Notifications blocked",
+    "markAllRead": "Mark all as read",
+    "markAllReadShort": "Read all",
+    "deleteAll": "Delete all",
+    "deleteAllConfirm": "Are you sure you want to delete all notifications?"
   },
   "projects": {
     "title": "Projects",
@@ -1008,7 +1012,7 @@
     "channel": "Channel",
     "sender": "Sender",
     "citizenName": "Citizen Name",
-    "citizenPhone": "Phone Number",
+    "citizenPhone": "Number",
     "citizenRequestNo": "Citizen Request No",
     "citizenRequestDate": "Citizen Request Date",
     "destination": "Destination",

@@ -1872,6 +1872,14 @@ export const api = {
     await ensureOk(response, 'Failed to mark all notifications as read')
   },
 
+  async deleteAllNotifications(): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/notifications/clear-all`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+    })
+    await ensureOk(response, i18n.t('notifications.deleteAllFailed', 'Bildirimler silinemedi'))
+  },
+
   async subscribePush(subscription: { endpoint: string; p256dhKey: string; authKey: string; userAgent?: string }): Promise<{ subscriptionId: string }> {
     const response = await fetchWithCredentials(`${API_BASE}/notifications/push/subscribe`, {
       method: 'POST',

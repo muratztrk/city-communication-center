@@ -25,7 +25,8 @@ import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citizenRequests'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { getLocale } from '../utils/localization'
-import { formatDirectoryPhone } from '../utils/phoneDisplay'
+import { directoryCitizenDisplayName, formatDirectoryPhone } from '../utils/phoneDisplay'
+import { SEARCH_MIN_CHARS } from '../utils/requestSearch'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { printJobDetail } from './JobsPage'
 
@@ -222,7 +223,7 @@ export function CitizenDirectoryPage() {
   const viewRows: DirectoryRow[] = useMemo(
     () => rows.map(row => ({
       ...row,
-      displayName: row.citizenName?.trim() || row.citizenPhone || '—',
+      displayName: directoryCitizenDisplayName(row.citizenName, row.citizenPhone),
     })),
     [rows],
   )
@@ -230,7 +231,7 @@ export function CitizenDirectoryPage() {
   const scopedRows = useMemo(() => {
     const searchNormalized = searchText.trim().toLocaleLowerCase('tr')
     const filtered = viewRows.filter(row => {
-      if (searchNormalized) {
+      if (searchNormalized.length >= SEARCH_MIN_CHARS) {
         const haystack = SEARCH_KEYS.map(key => String(row[key] ?? '')).join(' ').toLocaleLowerCase('tr')
         if (!haystack.includes(searchNormalized)) return false
       }

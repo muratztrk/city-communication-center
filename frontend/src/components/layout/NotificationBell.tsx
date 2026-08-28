@@ -1,4 +1,4 @@
-import { Bell, CheckCheck, Search, X } from 'lucide-react'
+import { Bell, CheckCheck, Search, Trash2, X } from 'lucide-react'
 import { useState, useCallback, useEffect, useMemo, useRef, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -15,6 +15,7 @@ import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 import { useAuth } from '../../context/AuthContext'
 import { TablePagination } from '../ui/table-pagination'
 import { DateTimePicker } from '../ui/date-time-picker'
+import { ConfirmDialog, type ConfirmDialogState } from '../ui/confirm-dialog'
 import { RichTextContent } from '../ui/RichTextContent'
 import { GridExtraTimeMarkers } from '../ui/extra-time-markers'
 import { NotificationPreviewList } from '../notifications/NotificationPreviewList'
@@ -140,6 +141,8 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   const [toasts, setToasts] = useState<NotificationPayload[]>([])
   const [viewedNotificationIds, setViewedNotificationIds] = useState<Set<string>>(() => new Set())
   const [isMarkingAllRead, setIsMarkingAllRead] = useState(false)
+  const [isDeletingAll, setIsDeletingAll] = useState(false)
+  const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [notificationDetail] = useState<{ kind: 'task' | 'job'; data: TaskDetail | JobDetail } | null>(null)
   const [notificationDetailLoading] = useState(false)
   const [notificationDetailError] = useState<string | null>(null)
@@ -326,6 +329,27 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
     }
   }
 
+  const deleteAllNotifications = async () => {
+    if (isDeletingAll || displayNotifications.length === 0) return
+    setIsDeletingAll(true)
+    try {
+      await api.deleteAllNotifications()
+      invalidateNotifications(queryClient)
+    } finally {
+      setIsDeletingAll(false)
+    }
+  }
+
+  const confirmDeleteAll = () => {
+    setConfirmDialog({
+      message: t('notifications.deleteAllConfirm', 'Tüm bildirimleri silmek istediğinize emin misiniz?'),
+      confirmLabel: t('common.yes', 'Evet'),
+      cancelLabel: t('common.no', 'Hayır'),
+      variant: 'destructive',
+      onConfirm: () => { void deleteAllNotifications() },
+    })
+  }
+
   // Bildirim detayı, mevcut sayfayı değiştirmeden uygulama kabuğunda açılır.
   const handleOpenNotificationDetail = async (url: string, title?: string) => {
     const target = parseNotificationDetailTarget(url)
@@ -408,15 +432,24 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                     {t('notifications.unread', 'Okunmamış')}
                   </button>
                 </div>
-                <div className="flex shrink-0 items-center gap-1.5">
-                  {/* Kompakt tek satır "Tümünü Oku" butonu (card #1403). */}
+                <div className="flex shrink-0 items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={confirmDeleteAll}
+                    disabled={isDeletingAll || displayNotifications.length === 0}
+                    className="inline-flex items-center gap-1 rounded-md border border-rose-300 bg-white px-1.5 py-1 text-[0.62rem] font-semibold leading-none text-rose-700 shadow-sm transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <Trash2 className="size-3 shrink-0" />
+                    {t('notifications.deleteAll', 'Tümünü sil')}
+                  </button>
+                  {/* Kompakt tek satır "Tümünü Oku" butonu (card #1403 / #3109). */}
                   <button
                     type="button"
                     onClick={markAllRead}
                     disabled={isMarkingAllRead || unreadCount === 0}
-                    className="inline-flex items-center gap-1 rounded-md border border-emerald-500 bg-white px-2 py-1 text-[0.68rem] font-semibold leading-none text-[color:var(--color-primary)] shadow-sm transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-40"
+                    className="inline-flex items-center gap-1 rounded-md border border-emerald-500 bg-white px-1.5 py-1 text-[0.62rem] font-semibold leading-none text-[color:var(--color-primary)] shadow-sm transition-colors hover:bg-[color:var(--color-primary)]/8 disabled:cursor-not-allowed disabled:opacity-40"
                   >
-                    <CheckCheck className="size-3.5 shrink-0" />
+                    <CheckCheck className="size-3 shrink-0" />
                     {t('notifications.markAllReadShort', 'Tümünü Oku')}
                   </button>
                   <button
@@ -542,16 +575,26 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   <span className="ml-1 text-amber-400">({unreadCount})</span>
                 </button>
               </div>
-              <button
-                type="button"
-                onClick={markAllRead}
-                disabled={isMarkingAllRead || unreadCount === 0}
-                /* Çift tik ikonu, dropdown butonuyla aynı görsel dil (card #1397). */
-                className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-200 px-3 py-1.5 text-xs font-bold text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-45"
-              >
-                <CheckCheck className="size-3.5 shrink-0" />
-                {isMarkingAllRead ? t('common.loading', 'Yükleniyor...') : t('notifications.markAllRead', 'Tümünü okundu yap')}
-              </button>
+              <div className="flex shrink-0 items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={confirmDeleteAll}
+                  disabled={isDeletingAll || notifications.length === 0}
+                  className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-2 py-1 text-[0.68rem] font-bold text-rose-700 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  <Trash2 className="size-3 shrink-0" />
+                  {isDeletingAll ? t('common.loading', 'Yükleniyor...') : t('notifications.deleteAll', 'Tümünü sil')}
+                </button>
+                <button
+                  type="button"
+                  onClick={markAllRead}
+                  disabled={isMarkingAllRead || unreadCount === 0}
+                  className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 px-2 py-1 text-[0.68rem] font-bold text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-45"
+                >
+                  <CheckCheck className="size-3 shrink-0" />
+                  {isMarkingAllRead ? t('common.loading', 'Yükleniyor...') : t('notifications.markAllRead', 'Tümünü okundu yap')}
+                </button>
+              </div>
             </div>
 
             {/* Modal list */}
@@ -582,6 +625,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
         locale={locale}
         onClose={() => undefined}
       />
+      <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
     </>
   )
 }

@@ -20,12 +20,28 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
         var context = _tenantContextAccessor.GetCurrent();
         var tenantId = context.RequireTenantId();
 
+        var dismissedThroughUtc = DateTimeOffset.MinValue;
+        var readThroughUtc = DateTimeOffset.MinValue;
+        if (context.UserId.HasValue)
+        {
+            var cursorTimes = await _dbContext.NotificationReadCursors.AsNoTracking()
+                .Where(cursor => cursor.TenantId == tenantId && cursor.UserId == context.UserId.Value)
+                .Select(cursor => new { cursor.ReadThroughUtc, cursor.DismissedThroughUtc })
+                .FirstOrDefaultAsync(cancellationToken);
+            if (cursorTimes is not null)
+            {
+                readThroughUtc = cursorTimes.ReadThroughUtc;
+                dismissedThroughUtc = cursorTimes.DismissedThroughUtc ?? DateTimeOffset.MinValue;
+            }
+        }
+
         // Gerçek (push) bildirimleri.
         var notifications = await _dbContext.Notifications
             .AsNoTracking()
             .Where(entity =>
                 entity.TenantId == tenantId
-                && (!context.UserId.HasValue || entity.UserId == context.UserId.Value))
+                && (!context.UserId.HasValue || entity.UserId == context.UserId.Value)
+                && (entity.SentAtUtc ?? entity.CreatedAtUtc) > dismissedThroughUtc)
             .OrderByDescending(entity => entity.SentAtUtc)
             .Take(100)
             .Select(entity => new NotificationResponse(
@@ -49,10 +65,6 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
 
             // "Hepsini okundu yap" imlecinden sonraki (ve aktörün kendisi olmadığı) denetim kayıtları
             // okunmamış sayılır; böylece talep/görev süreçlerindeki değişiklikler rozette uyarı verir (card 634).
-            var readThroughUtc = await _dbContext.NotificationReadCursors.AsNoTracking()
-                .Where(cursor => cursor.TenantId == tenantId && cursor.UserId == userId)
-                .Select(cursor => (DateTimeOffset?)cursor.ReadThroughUtc)
-                .FirstOrDefaultAsync(cancellationToken) ?? DateTimeOffset.MinValue;
 
             // Tek tek okunmuş geçmiş bildirimler (imleç değil, tekil işaret) okundu görünür (card 633).
             var readAuditIds = (await _dbContext.NotificationAuditReads.AsNoTracking()
@@ -193,6 +205,7 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                 var logs = await _dbContext.AuditLogs.AsNoTracking()
                     .Where(a => a.TenantId == tenantId
                         && entityIds.Contains(a.EntityId)
+                        && a.EventTimeUtc > dismissedThroughUtc
                         // Rutin görev oluşturma bildirimi gösterilmez (#6a6bba0d).
                         && a.Action != "RoutineTaskCreated"
                         // Fallback başlık "Bildirim güncellendi" — CitizenMessage* vb. (#6a6bbc18).

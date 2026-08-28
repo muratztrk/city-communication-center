@@ -336,7 +336,11 @@
     "unreadCount": "okunmamış bildirim",
     "permissionPrompt": "Bildirimlere izin ver",
     "permissionGranted": "Bildirimler aktif",
-    "permissionDenied": "Bildirimler engellendi"
+    "permissionDenied": "Bildirimler engellendi",
+    "markAllRead": "Tümünü okundu yap",
+    "markAllReadShort": "Tümünü Oku",
+    "deleteAll": "Tümünü sil",
+    "deleteAllConfirm": "Tüm bildirimleri silmek istediğinize emin misiniz?"
   },
   "projects": {
     "title": "Projeler",
@@ -1015,7 +1019,7 @@
     "channel": "Kanal",
     "sender": "Gönderen",
     "citizenName": "Vatandaş Adı",
-    "citizenPhone": "Telefon Numarası",
+    "citizenPhone": "Numara",
     "citizenRequestNo": "Vatandaş Talep No",
     "citizenRequestDate": "Vatandaş Talep Tarihi",
     "destination": "Gittiği Yer",

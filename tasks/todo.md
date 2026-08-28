@@ -1,4 +1,8 @@
-## Round 1053 — harita arama hizası, onay etiketleri, Mahalle punto, Hitap geri
+## Round 1054 — arama eşiği, dizin telefon, gelen tür chip, bildirim sil, placeholder/login
+
+- **STATUS:** Harita/dizin arama 3 karakter; adsız dizin adı formatlı telefon; Birime Gelen Birim İçi/Dışı chip; bildirim Tümünü sil; VT grid Numara; Talep Oluştur placeholder 0.875rem; login başlık ağırlığı.
+
+
 
 - **STATUS:** Search lejant satırında liste butonlarıyla hizalı; onay tarih etiketleri sade; Onay Bekleyen (Geciken); Mahalle placeholder 0.875rem; Hitap tekrar dört kolonda paylaşılıyor.
 

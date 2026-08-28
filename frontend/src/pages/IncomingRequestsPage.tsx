@@ -105,7 +105,7 @@ function channelsMatch(rowChannel: string | null | undefined, filter: string): b
 }
 
 type IncomingStatusFilter = 'pending-approval' | 'approved' | 'overdue' | 'in-progress' | 'completed' | 'cancelled' | 'processing-received' | 'all'
-type IncomingKindFilter = 'all'
+type IncomingKindFilter = 'internal' | 'external' | 'all'
 
 const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback: string }[] = [
   { value: 'pending-approval', labelKey: 'jobs.scopes.pendingApprovalRequests', fallback: 'Onay Bekleyen Talepler' },
@@ -118,7 +118,9 @@ const STATUS_FILTERS: { value: IncomingStatusFilter; labelKey: string; fallback:
 ]
 
 const KIND_FILTERS: { value: IncomingKindFilter; labelKey: string; fallback: string }[] = [
-  { value: 'all', labelKey: 'nav.incomingRequestsAll', fallback: 'Birime Gelen Tüm Talepler' },
+  { value: 'internal', labelKey: 'filters.requestFlow.internal', fallback: 'Birim İçi' },
+  { value: 'external', labelKey: 'filters.requestFlow.external', fallback: 'Birim Dışı' },
+  { value: 'all', labelKey: 'filters.requestFlow.all', fallback: 'Birim İçi/Birim Dışı' },
 ]
 
 type IncomingRequestRow = {
@@ -249,12 +251,14 @@ function matchesStatusFilter(row: IncomingRequestRow, filter: IncomingStatusFilt
   return matchesIncomingStatusFilter(row, filter)
 }
 
-function getIncomingKindFilter(): IncomingKindFilter {
-  return 'all'
+function getIncomingKindFilter(value: string | null): IncomingKindFilter {
+  return value === 'internal' || value === 'external' ? value : 'all'
 }
 
-function matchesKindFilter(filter: IncomingKindFilter): boolean {
-  return filter === 'all'
+function matchesKindFilter(row: IncomingRequestRow, filter: IncomingKindFilter): boolean {
+  if (filter === 'internal') return row.kind === 'internal'
+  if (filter === 'external') return row.kind === 'external'
+  return true
 }
 
 function formatJobDisplayNumber(job: JobSummary): string {
@@ -478,7 +482,7 @@ export function IncomingRequestsPage() {
       currentStatusFilterMeta?.labelKey ?? 'jobs.scopes.pendingApprovalRequests',
       currentStatusFilterMeta?.fallback ?? 'Onay Bekleyen Talepler',
     )
-  const currentKindFilter = getIncomingKindFilter()
+  const currentKindFilter = getIncomingKindFilter(searchParams.get('kind'))
   // Onaylanan grid'de Görevi Yapan/Sahibi sütunu yok (#6a6ca0bc).
   const showIncomingStatusColumn = currentStatusFilter === 'all' || currentStatusFilter === 'approved' || currentStatusFilter === 'overdue'
   const showTaskOwnerColumn = ['in-progress', 'completed'].includes(currentStatusFilter)
@@ -736,7 +740,7 @@ export function IncomingRequestsPage() {
   const visibleRows = useMemo(() => {
     let result = rows
       .filter(row => matchesStatusFilter(row, currentStatusFilter))
-      .filter(() => matchesKindFilter(currentKindFilter))
+      .filter(row => matchesKindFilter(row, currentKindFilter))
     if (isCitizenRequestManager || citizenOnly) {
       result = result.filter(row => row.isCitizenRequest)
     }
@@ -767,7 +771,9 @@ export function IncomingRequestsPage() {
   }, [currentKindFilter, currentStatusFilter, isCitizenRequestManager, citizenOnly, channelFilter, rows, filterFrom, filterTo, searchText, getColumnValue])
 
   const incomingOverdueCount = useMemo(() => {
-    let result = rows.filter(row => matchesStatusFilter(row, 'overdue'))
+    let result = rows
+      .filter(row => matchesStatusFilter(row, 'overdue'))
+      .filter(row => matchesKindFilter(row, currentKindFilter))
     if (isCitizenRequestManager || citizenOnly) {
       result = result.filter(row => row.isCitizenRequest)
     }
@@ -775,7 +781,7 @@ export function IncomingRequestsPage() {
       result = result.filter(row => channelsMatch(row.sourceChannel, channelFilter))
     }
     return result.length
-  }, [rows, isCitizenRequestManager, citizenOnly, channelFilter])
+  }, [rows, isCitizenRequestManager, citizenOnly, channelFilter, currentKindFilter])
 
   useEffect(() => { setIncomingPage(1) }, [filterFrom, filterTo, searchText])
 

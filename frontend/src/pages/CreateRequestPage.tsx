@@ -1422,7 +1422,7 @@ export function CreateRequestPage() {
             <div className="job-field">
               <span className="job-field-label">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="normal-case text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
               <input
-                className="field-input"
+                className="field-input placeholder:text-[0.875rem]"
                 required
                 maxLength={50}
                 placeholder={t('jobs.form.titlePlaceholder', 'Talep başlığı giriniz...')}
@@ -1463,6 +1463,7 @@ export function CreateRequestPage() {
                   value={internalForm.priority}
                   onChange={priority => setInternalForm(current => ({ ...current, priority }))}
                   placeholder={t('tasks.newRequest.priority', 'Öncelik')}
+                  triggerClassName="create-request-core-placeholder"
                 />
               </div>
               <div className="job-field">
@@ -1524,7 +1525,7 @@ export function CreateRequestPage() {
               <label className="job-field-label" htmlFor="request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="normal-case text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
               <input
                 id="request-title"
-                className="field-input"
+                className="field-input placeholder:text-[0.875rem]"
                 type="text"
                 maxLength={50}
                 placeholder={t('jobs.form.titlePlaceholder', 'Talep başlığı giriniz...')}
@@ -1542,6 +1543,7 @@ export function CreateRequestPage() {
                   value={externalForm.targetDepartmentId}
                   onChange={targetDepartmentId => setExternalForm(current => ({ ...current, targetDepartmentId }))}
                   placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
+                  triggerClassName="create-request-core-placeholder"
                 />
               </div>
               <div className="job-field min-w-0">
@@ -1551,6 +1553,7 @@ export function CreateRequestPage() {
                   value={externalForm.priority}
                   onChange={priority => setExternalForm(current => ({ ...current, priority }))}
                   placeholder={t('jobs.form.priority', 'Öncelik')}
+                  triggerClassName="create-request-core-placeholder"
                 />
               </div>
               {isReporter ? (
@@ -1637,7 +1640,7 @@ export function CreateRequestPage() {
               <label className="job-field-label" htmlFor="citizen-request-title">{t('tasks.newRequest.title', 'Talep Başlığı')} <span className="normal-case text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></label>
               <input
                 id="citizen-request-title"
-                className="field-input"
+                className="field-input placeholder:text-[0.875rem]"
                 type="text"
                 maxLength={50}
                 placeholder={t('jobs.form.titlePlaceholder', 'Talep başlığı giriniz...')}
@@ -1655,6 +1658,7 @@ export function CreateRequestPage() {
                   value={citizenForm.targetDepartmentId}
                   onChange={targetDepartmentId => setCitizenForm(current => ({ ...current, targetDepartmentId }))}
                   placeholder={t('requests.create.targetDepartmentsPlaceholder', 'Departman seçiniz')}
+                  triggerClassName="create-request-core-placeholder"
                 />
               </div>
               <div className="job-field">
@@ -1664,6 +1668,7 @@ export function CreateRequestPage() {
                   value={citizenForm.priority}
                   onChange={priority => setCitizenForm(current => ({ ...current, priority }))}
                   placeholder={t('jobs.form.priority', 'Öncelik')}
+                  triggerClassName="create-request-core-placeholder"
                 />
               </div>
             </div>
@@ -1694,7 +1699,7 @@ export function CreateRequestPage() {
               <label className="job-field">
                 <span className="job-field-label">{t('settings.citizen.citizenPhone', 'Telefon No')} <span className="text-xs font-normal text-slate-400 normal-case">{t('settings.citizen.citizenPhoneHint', '(Başında 0 olmadan ekleyin)')}</span> <span className="text-red-500">*</span></span>
                 <input
-                  className="field-input placeholder:text-[0.92rem]"
+                  className="field-input placeholder:text-[0.875rem]"
                   required
                   inputMode="numeric"
                   pattern="[0-9]*"

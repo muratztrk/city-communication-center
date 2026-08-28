@@ -19,13 +19,22 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
     {
         var tenantId = _tenantContextAccessor.GetCurrent().RequireTenantId();
 
+        var cursorTimes = await _dbContext.NotificationReadCursors
+            .AsNoTracking()
+            .Where(cursor => cursor.TenantId == tenantId && cursor.UserId == request.UserId)
+            .Select(cursor => new { cursor.ReadThroughUtc, cursor.DismissedThroughUtc })
+            .FirstOrDefaultAsync(cancellationToken);
+        var readThroughUtc = cursorTimes?.ReadThroughUtc ?? DateTimeOffset.MinValue;
+        var dismissedThroughUtc = cursorTimes?.DismissedThroughUtc ?? DateTimeOffset.MinValue;
+
         // 1) Tek tek okunabilen gerçek bildirimler.
         var realUnread = await _dbContext.Notifications
             .CountAsync(
                 entity =>
                     entity.TenantId == tenantId
                     && entity.UserId == request.UserId
-                    && !entity.IsRead,
+                    && !entity.IsRead
+                    && (entity.SentAtUtc ?? entity.CreatedAtUtc) > dismissedThroughUtc,
                 cancellationToken);
 
         // 2) Talep/görev süreçlerindeki değişiklikler (AuditLog) de ilgili tüm kullanıcıların rozetinde
@@ -39,12 +48,6 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
         {
             return realUnread;
         }
-
-        var readThroughUtc = await _dbContext.NotificationReadCursors
-            .AsNoTracking()
-            .Where(cursor => cursor.TenantId == tenantId && cursor.UserId == request.UserId)
-            .Select(cursor => (DateTimeOffset?)cursor.ReadThroughUtc)
-            .FirstOrDefaultAsync(cancellationToken) ?? DateTimeOffset.MinValue;
 
         // Tek tek okunmuş (rozet tam 1 azalsın diye) geçmiş bildirimler sayım dışı (card 633).
         var readAuditIds = await _dbContext.NotificationAuditReads
@@ -60,6 +63,7 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
                     auditLog.TenantId == tenantId
                     && entityIds.Contains(auditLog.EntityId)
                     && auditLog.EventTimeUtc > readThroughUtc
+                    && auditLog.EventTimeUtc > dismissedThroughUtc
                     && !readAuditIds.Contains(auditLog.AuditLogId)
                     && NotificationAuditRules.ShouldCountAuditAsUnread(auditLog, request.UserId),
                 cancellationToken);

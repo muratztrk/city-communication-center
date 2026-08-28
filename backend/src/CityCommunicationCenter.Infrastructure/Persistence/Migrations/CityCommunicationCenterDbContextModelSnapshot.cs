@@ -1383,6 +1383,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("readthroughutc");
 
+                    b.Property<DateTimeOffset?>("DismissedThroughUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("dismissedthroughutc");
+
                     b.Property<Guid>("TenantId")
                         .HasColumnType("uuid")
                         .HasColumnName("tenantid");

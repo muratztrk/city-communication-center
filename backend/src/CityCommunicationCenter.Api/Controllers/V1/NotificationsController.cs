@@ -76,13 +76,21 @@ public sealed class NotificationsController : ApiControllerBase
         return result ? NoContent() : NotFound();
     }
 
-    [HttpPost("read-all")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<IActionResult> MarkAllRead(CancellationToken cancellationToken)
-    {
-        await _sender.Send(new MarkAllNotificationsReadCommand(), cancellationToken);
-        return NoContent();
-    }
+        [HttpPost("read-all")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> MarkAllRead(CancellationToken cancellationToken)
+        {
+            await _sender.Send(new MarkAllNotificationsReadCommand(), cancellationToken);
+            return NoContent();
+        }
+
+        [HttpPost("clear-all")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        public async Task<IActionResult> ClearAll(CancellationToken cancellationToken)
+        {
+            await _sender.Send(new DeleteAllNotificationsCommand(), cancellationToken);
+            return NoContent();
+        }
 
     [HttpGet("unread-count")]
     [ProducesResponseType<int>(StatusCodes.Status200OK)]

@@ -326,7 +326,7 @@ export function LoginPage() {
                   className="h-15 w-36 shrink-0 rounded-[1.1rem] border-0 bg-transparent 2xl:h-[4.25rem] 2xl:w-44"
                   imageClassName="h-[82%] w-[90%] drop-shadow-none"
                 />
-                <h1 className="text-center text-xl font-semibold leading-[1.1] text-white 2xl:text-3xl">
+                <h1 className="text-center text-xl font-medium leading-[1.1] text-white 2xl:text-3xl">
                   {t('shell.subtitle', { municipalityName })}
                 </h1>
                 <span aria-hidden className="h-15 w-36 shrink-0 2xl:h-[4.25rem] 2xl:w-44" />
@@ -383,7 +383,7 @@ export function LoginPage() {
                 imageClassName="h-[92%] w-[92%]"
               />
               <div className="min-w-0 text-center">
-                <div className="text-sm font-bold text-white sm:text-base">{t('shell.subtitle', { municipalityName })}</div>
+                <div className="text-sm font-medium text-white sm:text-base">{t('shell.subtitle', { municipalityName })}</div>
               </div>
             </div>
 
@@ -405,7 +405,7 @@ export function LoginPage() {
                 {!isTenantContextLoading && hideTenantSelector && selectedTenantDetails && tenants.length > 1 ? (
                   <div className="rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-[color:var(--color-muted)]/6 p-4" data-testid="resolved-tenant-card">
                     <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-[color:var(--color-muted-foreground)]">{t('login.organization')}</div>
-                    <h3 className="mt-2 text-xl font-extrabold text-slate-950">{institutionName}</h3>
+                    <h3 className="mt-2 text-xl font-semibold text-slate-950">{institutionName}</h3>
                   </div>
                 ) : null}
 

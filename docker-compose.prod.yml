@@ -24,6 +24,7 @@ services:
     volumes:
       - dataprotection_keys:/var/lib/city-communication-center/dataprotection
       - api_logs:/app/logs
+      - ./mobile-releases:/app/mobile-releases:ro
     logging:
       driver: "json-file"
       options:

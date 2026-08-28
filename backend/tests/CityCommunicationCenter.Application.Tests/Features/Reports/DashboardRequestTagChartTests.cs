@@ -13,6 +13,7 @@ public sealed class DashboardRequestTagChartTests
     private static readonly Guid TenantId = Guid.Parse("b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e");
     private static readonly Guid UserId = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     private static readonly Guid DepartmentId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+    private static readonly Guid TargetDepartmentId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
     [Fact]
     public async Task Handle_All_GroupsTagsPerRequestAndUsesConversationLabelAsFallback()
@@ -63,6 +64,33 @@ public sealed class DashboardRequestTagChartTests
         Assert.Equal(0, slices["Park"]);
     }
 
+    [Fact]
+    public async Task Drilldown_ReturnsTargetDepartmentSeparatelyFromOwnerDepartment()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db);
+
+        var handler = new GetDashboardChartDrilldownQueryHandler(
+            db,
+            new TestTenantContextAccessor(new TenantContext(
+                TenantId, UserId, "Reporter", "Reporter", true, "claims", null, true)));
+
+        var response = await handler.Handle(
+            new GetDashboardChartDrilldownQuery(
+                "dashboard.charts.requestTags",
+                "Yol",
+                null,
+                null),
+            CancellationToken.None);
+
+        Assert.Equal(2, response.Rows.Count);
+        Assert.All(response.Rows, row =>
+        {
+            Assert.Equal("Test Birimi", row.DepartmentName);
+            Assert.Equal("Hedef Birim", row.DestinationDepartmentName);
+        });
+    }
+
     private static async Task<CityCommunicationCenter.Shared.Contracts.DashboardChartResponse> GetRequestTagChartAsync(
         CityCommunicationCenterDbContext db,
         RequestTagDashboardFilter filter)
@@ -93,6 +121,13 @@ public sealed class DashboardRequestTagChartTests
             Name = "Test Birimi",
             DepartmentType = "Unit",
         };
+        var targetDepartment = new Department
+        {
+            TenantId = TenantId,
+            DepartmentId = TargetDepartmentId,
+            Name = "Hedef Birim",
+            DepartmentType = "Unit",
+        };
         var user = new ApplicationUser
         {
             TenantId = TenantId,
@@ -115,7 +150,10 @@ public sealed class DashboardRequestTagChartTests
         var cancelledPark = Job(JobStatus.Cancelled);
         var activeFallback = Job(JobStatus.Active);
 
-        db.AddRange(tenant, department, user, conversation, activeRoad, completedRoad, cancelledPark, activeFallback);
+        db.AddRange(tenant, department, targetDepartment, user, conversation, activeRoad, completedRoad, cancelledPark, activeFallback);
+        db.JobDepartments.AddRange(
+            Target(activeRoad.JobId),
+            Target(completedRoad.JobId));
         db.RequestTags.AddRange(
             Tag("Ağaç"),
             Tag("Atık"),
@@ -156,6 +194,16 @@ public sealed class DashboardRequestTagChartTests
         CitizenRequestNumber = Random.Shared.Next(1, 9_999),
         CitizenRequestNumberYear = 2026,
         Channel = SocialChannel.WhatsApp,
+    };
+
+    private static JobDepartment Target(Guid jobId) => new()
+    {
+        TenantId = TenantId,
+        JobDepartmentId = Guid.NewGuid(),
+        JobId = jobId,
+        DepartmentId = TargetDepartmentId,
+        Role = JobDepartmentRole.Target,
+        ApprovalStatus = JobApprovalStatus.Approved,
     };
 
     private static RequestTag Tag(string name) => new()

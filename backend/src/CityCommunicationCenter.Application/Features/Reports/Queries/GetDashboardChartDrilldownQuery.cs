@@ -817,6 +817,16 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                     .Where(department => department.DepartmentId == job.OwnerDepartmentId)
                     .Select(department => (string?)department.Name)
                     .FirstOrDefault(),
+                TargetDepartmentName = _dbContext.JobDepartments
+                    .Where(link => link.JobId == job.JobId
+                        && link.TenantId == tenantId
+                        && link.Role == JobDepartmentRole.Target
+                        && link.ApprovalStatus != JobApprovalStatus.Rejected)
+                    .Join(_dbContext.Departments,
+                        link => link.DepartmentId,
+                        department => department.DepartmentId,
+                        (_, department) => (string?)department.Name)
+                    .FirstOrDefault(),
                 CitizenRequestNumber = _dbContext.SocialMessages
                     .Where(message => message.JobId == job.JobId)
                     .Select(message => message.CitizenRequestNumber)
@@ -838,7 +848,8 @@ public sealed class GetDashboardChartDrilldownQueryHandler
                 row.Status.ToString(), row.OwnerDepartmentName, row.Neighborhood,
                 ResolveTerminalDate(row.Status, row.CompletedAtUtc, row.UpdatedAtUtc), row.DueDateUtc,
                 row.CitizenRequestNumber, row.CitizenRequestNumberYear, row.SourceChannel,
-                row.Priority, row.CitizenName, row.CitizenPhone))
+                row.Priority, row.CitizenName, row.CitizenPhone,
+                row.OwnerDepartmentName, row.TargetDepartmentName))
             .ToList());
     }
 

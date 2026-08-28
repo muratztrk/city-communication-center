@@ -1875,9 +1875,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Lejant satırında `PieLegendSearch` konum sayısı ile Talepleri Listele arasında (aynı satır,
   `flex-1`); vatandaş haritasında ad/telefon/mahalle, birim haritasında birim adı
   (`requestSearch.ts`, `toLocaleLowerCase('tr')`). Arama **3 karakterden** sonra başlar
-  (`isSearchQueryActive`, boşluksuz uzunluk; #3103). Aynı eşik: Vatandaş Bilgi Listesi banner,
-  Anasayfa-Vatandaş panel araması, pie lejant `Ara…` (`PieChart` `legendSearch`). 1–2 karakter
-  pinleri / dilimleri daraltmaz. Arama pinleri, konum sayısını ve liste
+  (`isSearchQueryActive`, harf/rakam ≥3; #3103). Aynı eşik: Vatandaş Bilgi Listesi banner
+  (1–2 karakter sayfa resetlemez), Anasayfa-Vatandaş panel araması, pie lejant `Ara…`.
+  1–2 karakter pinleri / dilimleri daraltmaz. Arama pinleri, konum sayısını ve liste
   popup’ını daraltır; geocode tüm pinlerde bir kez çalışır (#3086/#3087/#3088/#2978).
   Google haritada yalnız cadde/sokak/bulvar etiketleri; POI ve transit kapalı; CBS overlay
   veya özel referans marker yok (#2799).
@@ -2604,15 +2604,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   üst sınırı; query key aktif birimle hizalı.
 - **Bildirim dropdown okundu aksiyonu:** "Tümünü Okundu yap" butonu küçük bildirim dropdown'unda
   kapatma X'inin solundadır, yeşil metinlidir, çerçeveli buton gibi görünür.
-  Dropdown’da `Tümünü sil` yoktur (#3114). Modal toolbar’da `Tümünü sil` solda, daraltılmış
-  `Tümünü okundu yap` sağda (`text-[0.6rem] font-semibold`, #3109). Silme onayı başlığı
-  `Bildirimleri Sil` + ayırıcı çizgi, Evet yeşil (`variant: success`); metin
+  Dropdown’da `Tümünü sil` yoktur (#3114). Modal toolbar’da `Tümünü sil` solda,
+  `Tümünü okundu yap` sağda (`h-7 text-[0.65rem] font-medium`, #3109). Silme onayı başlığı
+  `Bildirimleri Sil` `titleCompact` (`text-base`) + ayırıcı çizgi, Evet yeşil (`variant: success`); metin
   `Tüm bildirimleri silmek istediğinize emin misiniz?` Evet/Hayır. Onay sonrası
   `NotificationReadCursor.DismissedThroughUtc` ilerletir; sonraki
   olaylar feed’de kalır. Audit log silinmez.
 - **Bildirim başlığı vurguları:** okunmamış satırda `güncellendi`, `oluşturuldu`, `atandı`,
   `yönlendirildi`, `Yönetici notu atandı`, `Ek süre talebi` ve onay/red/tamamlandı/iptal
-  kelimeleri `font-semibold` (+ renk); okununca ağırlık `font-medium` (#6a6ca25f / #3113).
+  kelimeleri `font-medium` (+ renk); okununca `font-normal` (#6a6ca25f / #3113). Detay butonu
+  `font-semibold` (bold değil).
 - **Bildirim alt mesaj metni:** başlığın altındaki mesaj alanında onay/red/tamamlandı kelimeleri
   kırmızı/yeşil renge boyanmaz ve bold yapılmaz; normal ağırlıkta nötr slate metin olarak kalır.
 - **Bildirim detay popup ek süre marker'ı:** bildirimden açılan görev/talep detay popup'ı, grid detaylarıyla

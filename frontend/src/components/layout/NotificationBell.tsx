@@ -343,6 +343,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
   const confirmDeleteAll = () => {
     setConfirmDialog({
       title: t('notifications.deleteAllTitle', 'Bildirimleri Sil'),
+      titleCompact: true,
       titleDivider: true,
       message: t('notifications.deleteAllConfirm', 'Tüm bildirimleri silmek istediğinize emin misiniz?'),
       confirmLabel: t('common.yes', 'Evet'),
@@ -573,7 +574,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   type="button"
                   onClick={confirmDeleteAll}
                   disabled={isDeletingAll || notifications.length === 0}
-                  className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-1.5 py-0.5 text-[0.6rem] font-semibold leading-none text-rose-700 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-45"
+                  className="inline-flex h-7 items-center gap-1 rounded-lg border border-rose-200 px-2 text-[0.65rem] font-medium leading-none text-rose-700 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   <Trash2 className="size-3 shrink-0" />
                   {isDeletingAll ? t('common.loading', 'Yükleniyor...') : t('notifications.deleteAll', 'Tümünü sil')}
@@ -582,7 +583,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   type="button"
                   onClick={markAllRead}
                   disabled={isMarkingAllRead || unreadCount === 0}
-                  className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 px-1.5 py-0.5 text-[0.6rem] font-semibold leading-none text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-45"
+                  className="inline-flex h-7 items-center gap-1 rounded-lg border border-emerald-200 px-2 text-[0.65rem] font-medium leading-none text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   <CheckCheck className="size-3 shrink-0" />
                   {isMarkingAllRead ? t('common.loading', 'Yükleniyor...') : t('notifications.markAllRead', 'Tümünü okundu yap')}

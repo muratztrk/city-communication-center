@@ -1,3 +1,7 @@
+## Round 1056 — arama 3 harf sıkılaştırma, bildirim buton yüksekliği, başlık punto
+
+- **STATUS:** Dizin 1–2 harfte sayfa atmaz; harf/rakam eşiği. Modal Tümünü sil/okundu h-7 medium; Bildirimleri Sil compact; bildirim ifadeleri medium.
+
 ## Round 1055 — arama eşiği pie/panel, talep placeholder, rutin Son Tarih, bildirim UI
 
 - **STATUS:** Arama 3 karakter pie+panel; Talep Oluştur Öncelik/tarih/yapan/Mahalle 0.88rem; rutin Son Tarih; zil Tümünü sil yalnız modal; onay başlığı yeşil Evet; bildirim semibold.

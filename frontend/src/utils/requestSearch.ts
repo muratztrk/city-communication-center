@@ -12,7 +12,8 @@ function phoneDigits(value: string | null | undefined): string {
 export const SEARCH_MIN_CHARS = 3
 
 export function isSearchQueryActive(query: string): boolean {
-  return normalizeSearch(query).replace(/\s/g, '').length >= SEARCH_MIN_CHARS
+  const compact = normalizeSearch(query).replace(/[^\p{L}\p{N}]+/gu, '')
+  return compact.length >= SEARCH_MIN_CHARS
 }
 
 function haystackIncludes(query: string, ...parts: Array<string | null | undefined>): boolean {

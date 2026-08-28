@@ -240,9 +240,11 @@ export function CitizenDirectoryPage() {
     return sortItems(filtered)
   }, [matchesFilters, searchText, sortItems, viewRows])
 
+  const searchActiveKey = isSearchQueryActive(searchText) ? searchText.trim() : ''
+
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchText, filters, sortKey, sortDir, pageSize])
+  }, [searchActiveKey, filters, sortKey, sortDir, pageSize])
 
   const totalCount = scopedRows.length
   const safePage = Math.min(currentPage, Math.max(1, Math.ceil(totalCount / pageSize) || 1))
@@ -402,7 +404,7 @@ export function CitizenDirectoryPage() {
               className="field-input w-full pl-8 text-sm"
             />
           </div>
-          {(searchText || Object.values(filters).some(Boolean)) ? (
+          {(isSearchQueryActive(searchText) || Object.values(filters).some(Boolean)) ? (
             <Button type="button" size="sm" variant="secondary" onClick={() => { setSearchText(''); clearFilters() }}>
               {t('common.reset', 'Temizle')}
             </Button>

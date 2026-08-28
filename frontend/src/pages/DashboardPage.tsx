@@ -1,6 +1,6 @@
 import { ClipboardList, Clock3, ListChecks, MessageSquareMore, SquareKanban } from 'lucide-react'
 import { useEffect, useState, useMemo } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { api } from '../api/client'
@@ -19,6 +19,8 @@ import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
 import { getDashboardChartTitleIcon } from '../utils/dashboardChartIcons'
+import { useDebouncedValue } from '../hooks/useDebouncedValue'
+import { pinMatchesCitizenSearch } from '../utils/requestSearch'
 import type { DashboardChartResponse } from '../types/platform'
 
 const DASHBOARD_SCROLL_KEY = 'ccc.dashboard.scrollTop'
@@ -408,6 +410,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     'dashboard.charts.myTasks': 'all',
   })
   const [pieLegendSearches, setPieLegendSearches] = useState<Record<string, string>>({})
+  const [panelSearch, setPanelSearch] = useState('')
+  const debouncedPanelSearch = useDebouncedValue(panelSearch, 300)
   const [chartDrilldown, setChartDrilldown] = useState<{ chartKey: string; sliceKey: string } | null>(null)
   const [allCitizenRequestsOpen, setAllCitizenRequestsOpen] = useState(false)
   const [allDepartmentRequestsOpen, setAllDepartmentRequestsOpen] = useState(false)
@@ -448,6 +452,30 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   )
   const apiFrom = toApiDateParam(activeFrom)
   const apiTo = toApiDateParam(activeTo)
+  const citizenPinsQuery = useQuery({
+    queryKey: queryKeys.reports.citizenMapPins({ from: activeFrom, to: activeTo }),
+    queryFn: () => api.getCitizenDashboardMapPins(apiFrom, apiTo),
+    enabled: effectiveView === 'citizen' && debouncedPanelSearch.trim().length > 0,
+    staleTime: 60_000,
+    placeholderData: keepPreviousData,
+  })
+  const matchingCitizenPins = useMemo(
+    () => (citizenPinsQuery.data?.pins ?? []).filter(pin => pinMatchesCitizenSearch(pin, debouncedPanelSearch)),
+    [citizenPinsQuery.data?.pins, debouncedPanelSearch],
+  )
+  const panelNeighborhoods = useMemo(
+    () => new Set(matchingCitizenPins.map(pin => (pin.neighborhood ?? '').trim().toLocaleLowerCase('tr')).filter(Boolean)),
+    [matchingCitizenPins],
+  )
+  const panelDepartments = useMemo(
+    () => new Set(
+      matchingCitizenPins
+        .flatMap(pin => [pin.departmentName, pin.ownerDepartmentName, pin.destinationDepartmentName])
+        .map(name => (name ?? '').trim().toLocaleLowerCase('tr'))
+        .filter(Boolean),
+    ),
+    [matchingCitizenPins],
+  )
 
   const dashboardQuery = useQuery({
     queryKey: queryKeys.dashboard.snapshot({ from: activeFrom, to: activeTo, departmentId: activeDeptId }),
@@ -735,6 +763,23 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     chartCards.sort((a, b) => reporterDepartmentChartOrder(a.titleKey) - reporterDepartmentChartOrder(b.titleKey))
   }
 
+  const panelSearchQuery = debouncedPanelSearch.trim().toLocaleLowerCase('tr')
+  const visibleChartCards = panelSearchQuery && effectiveView === 'citizen'
+    ? chartCards.map(card => {
+        const isNeighborhood = card.titleKey.includes('neighborhood')
+        const isDepartment = card.titleKey.includes('citizenDepartment') || card.titleKey.includes('Department')
+        if (!isNeighborhood && !isDepartment) return card
+        const allowed = isNeighborhood ? panelNeighborhoods : panelDepartments
+        return {
+          ...card,
+          slices: card.slices.filter(slice => {
+            const label = slice.label.toLocaleLowerCase('tr')
+            return label.includes(panelSearchQuery) || allowed.has(label)
+          }),
+        }
+      })
+    : chartCards
+
   const pageTitle = effectiveView === 'citizen'
     ? t('dashboard.citizenPanelTitle', 'Vatandaş Paneli')
     : effectiveView === 'departments'
@@ -861,6 +906,13 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             </button>
           ) : null}
         </div>
+        {effectiveView === 'citizen' ? (
+          <div className="flex items-center gap-2 px-4 py-2 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
+            <div className="w-full max-w-md">
+              <PieLegendSearch value={panelSearch} onChange={setPanelSearch} />
+            </div>
+          </div>
+        ) : null}
 
         {hideMetricCards ? null : isManagerOrAdmin ? (
           <div className="px-5 py-3.5 sm:px-8">
@@ -916,7 +968,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       </section>
 
       <section className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {(statusChartsQuery.isLoading || dashboardQuery.isLoading) && chartCards.length === 0
+        {(statusChartsQuery.isLoading || dashboardQuery.isLoading) && visibleChartCards.length === 0
           ? Array.from({ length: 2 }).map((_, i) => (
               <div key={i} className="section-card p-4 sm:p-5">
                 <div className="mb-4 h-4 w-40 animate-pulse rounded bg-slate-100" />
@@ -930,7 +982,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                 </div>
               </div>
             ))
-          : chartCards.length === 0 && !statusChartsQuery.isLoading && !dashboardQuery.isLoading
+          : visibleChartCards.length === 0 && !statusChartsQuery.isLoading && !dashboardQuery.isLoading
             ? (
               <div className="section-card col-span-full p-4 text-sm text-slate-600 sm:p-5">
                 {statusChartsQuery.isError
@@ -938,7 +990,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                   : t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')}
               </div>
             )
-          : chartCards.map(card => {
+          : visibleChartCards.map(card => {
             // Standart kullanıcıların erişemediği "Birimdeki Görevler" ile Üst Düzey Yönetici'ye
             // özel birim-dışı dağılım grafikleri (card #835/#763) yalnızca bilgilendirme amaçlıdır;
             // dashboard'dan yönlendirme yapılmaz.
@@ -1092,6 +1144,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           sliceKey={chartDrilldown.sliceKey}
           from={apiFrom}
           to={apiTo}
+          rowSearch={effectiveView === 'citizen' ? debouncedPanelSearch : undefined}
           jobDetailTitle={
             effectiveView === 'citizen'
               ? t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')

@@ -895,8 +895,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kayıtlı şablonlara eksik birim token'ı okunurken/yazılırken otomatik eklenir (card #1594).
   Her iki textarea yazım sırasında baştaki/sondaki boşluğu korur; trim ve boş gövde varsayılanına
   dönüş yalnız `Kaydet` normalizasyonunda yapılır, böylece kelimeler arasına boşluk girilebilir
-  (card #1594 reopen). İlk gövde textarea kompakt `min-h-[4.5rem]`; Kaydet `bodyText.trim()` yapar
-  (#2911 revert).
+  (card #1594 reopen).   İlk gövde textarea kompakt `min-h-[4.5rem]`; Kaydet `bodyText.trim()` yapar
+  (#2911 revert). Hitap (greeting) dört durum kartının üstünde tek textarea’dır; durum
+  gövde/ek metin kutuları birbirine yazılmaz (#3085).
   Aynı sekmede Vatandaşa Giden Cevaplar altında **Birim Yöneticilerine/Sorumlularına Mesai Dışı
   Giden SMS Bildirimleri** vardır (#2907); Bildirim Mesajı textarea `min-h-48` / CSS `12rem` (#2910). Bu bölümün Kaydet toast’ı
   `Birim yöneticilerine giden bildirim mesajı kaydedildi.` (#2905). **Bildirim Mesajı** textarea
@@ -1699,6 +1700,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
   (`CreatedAtUtc`) ile tamamlananda `CompletedAtUtc`, iptalde son `TaskCancelled` audit zamanı
   arasındadır; personel başına ortalama saat (1 ondalık) gösterilir.
+- **Vatandaş Paneli dönem altı arama (#3088):** Dönem şeridinin altında; ad/telefon/mahalle ile
+  mahalle/birim pie dilimlerini ve drilldown satırlarını daraltır. Pin API yalnız arama doluyken
+  çekilir. Hook’lar `Navigate` erken return’ünden önce kalmalı.
+- **Talep Oluştur onay sonrası toast (#3089):** Onay popup’ı kapanınca sağ alt yeşil `Toast`
+  (`emitPageToast` → `AppShell`). Yalnız oluşturma; güncelleme toast atmaz.
 - **Reporter dashboard pie drilldown popup:** başlık yeşil ve `Info` ikonludur; tablo başlıkları
   portal/zoom farkını dengeleyecek şekilde `.data-table` genel header fontundan sonra override edilir
   ve Taleplerim gridview'ın görsel başlık font/ölçeğiyle, pagination satırı yüksekliğiyle uyumlu kalır.
@@ -1710,7 +1716,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pie drilldown grid: kayıtlar tablo wrap içinde kayar; `TablePagination` popup gövdesinin
   altında görünür kalır, kayıtlarla birlikte aşağı itilmez (#2881).
   Mobil (≤767px) pie popup paging: `max-height` kalkar; toplam üst satır, sayfa düğmeleri ikinci
-  satırda ortalı — butonlar yeşil barın dışına taşmaz. Pie/kanal drilldown tablosu kavisli wrap
+  satırda sola yaslı — butonlar yeşil barın dışına taşmaz (#3024). Pie/kanal drilldown tablosu kavisli wrap
   içinde değil, iç `.dashboard-drilldown-table-hscroll` katmanında yatay+dikey kayar (aynı
   kutuda `border-radius` + `overflow:auto` iOS/WebKit yatay pan'i keser); paging modal
   genişliğinde kalır.
@@ -1791,8 +1797,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mesaj** Tamamlama Notu'nun **alt satırında**. `GetJobById` bu iki alanı rol kapısı olmadan
   doldurur (Operator/Reporter dışında Manager/CRM de görsün). `MyRequestDetailModal` prop
   verilmezse `detail.citizenOutboundMessage` / `citizenApprovalReleasedNote` okunur (kanal pie,
-  harita). Tamamlama ile outbound farklıysa outbound kırmızı (#2557); yalnız büyük/küçük harf
-  farkı gizli.
+  harita). Outbound her zaman gösterilir; otomatik durum şablonu (`talebinizin durumu`) veya
+  Tamamlama ile aynıysa yeşil, operatörün özelleştirdiği farklı metin kırmızı (#2557/#3084).
 - **FAB boyutları (#r482/#2638):** WhatsApp + Kurum İçi 2.75rem / sm 3rem; scroll 2.5rem / sm 2.75rem.
   Üçü de biraz küçük; sıra WhatsApp → Kurum İçi → scroll.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici
@@ -1857,6 +1863,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   rengi (sky-500 / orange-500 / red-500 / green-500; iç daire beyaz); doygunluk artırımı
   geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
+  Lejant satırının altında `PieLegendSearch`: vatandaş haritasında ad/telefon/mahalle,
+  birim haritasında birim adı (`requestSearch.ts`, `toLocaleLowerCase('tr')`). Arama pinleri,
+  konum sayısını ve liste popup’ını daraltır; geocode tüm pinlerde bir kez çalışır (#3086/#3087).
   Google haritada yalnız cadde/sokak/bulvar etiketleri; POI ve transit kapalı; CBS overlay
   veya özel referans marker yok (#2799).
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman

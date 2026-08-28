@@ -21,6 +21,7 @@ import {
 } from '../utils/dateTimePicker'
 import { RichTextEditor } from '../components/ui/RichTextEditor'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { emitPageToast } from '../components/ui/pageToast'
 import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
@@ -1004,6 +1005,7 @@ export function CreateRequestPage() {
       invalidateJobs(queryClient, job.jobId)
       setInternalForm(EMPTY_INTERNAL_FORM)
       setPendingFiles([])
+      emitPageToast(t('requests.create.successToast', 'Talep başarıyla oluşturuldu.'))
       navigate('/requests/new')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -1112,6 +1114,7 @@ export function CreateRequestPage() {
       invalidateJobs(queryClient, job.jobId)
       setExternalForm(EMPTY_EXTERNAL_FORM)
       setPendingFiles([])
+      emitPageToast(t('requests.create.successToast', 'Talep başarıyla oluşturuldu.'))
       navigate(isReporter ? '/my-requests?view=pending' : '/requests/new')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -1323,6 +1326,7 @@ export function CreateRequestPage() {
       setEditSocialMessageId(null)
       setCitizenLabel('')
       setCitizenConversationId(null)
+      emitPageToast(t('tasks.newRequest.successMessage', 'Vatandaş talebi başarıyla oluşturuldu.'))
       navigateAfterCitizenRequest(navigate, returnToParam)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))

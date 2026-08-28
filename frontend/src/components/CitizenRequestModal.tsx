@@ -13,6 +13,7 @@ import { AttachmentUploadProgressBar } from './ui/attachment-upload-progress'
 import { DeferredComposerInput } from './ui/DeferredComposerInput'
 import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
+import { emitPageToast } from './ui/pageToast'
 import { ModalCloseButton } from './ui/modal-close-button'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
@@ -576,6 +577,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       if (citizenConversationId) {
         invalidateConversations(queryClient, citizenConversationId, convertMessageId)
       }
+      emitPageToast(t('tasks.newRequest.successMessage', 'Vatandaş talebi başarıyla oluşturuldu.'))
       onCreated()
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : t('common.error'))

@@ -209,6 +209,10 @@ export function MyRequestTaskDetailsSection({
             outboundPlain
             && notesDiffer(outboundPlain, completionCompareSource),
           )
+          const outboundIsAutoStatus = outboundPlain.toLocaleLowerCase('tr').includes('talebinizin durumu')
+          const outboundTone = outboundDiffersFromCompletion && !outboundIsAutoStatus
+            ? 'outbound-diff' as const
+            : 'completion' as const
           const primaryTerminalTaskId = detail.tasks.find(item =>
             item.currentStatus === 'Completed'
             || item.currentStatus === 'Cancelled'
@@ -264,13 +268,13 @@ export function MyRequestTaskDetailsSection({
                             tone: 'cancel' as const,
                           }]
                         : []),
-                    ...(outboundDiffersFromCompletion
+                    ...(outboundPlain
                       && (isCompletedTask || isCancelledTask)
                       && task.taskId === primaryTerminalTaskId
                       ? [{
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
                           value: citizenOutboundMessage,
-                          tone: 'outbound-diff' as const,
+                          tone: outboundTone,
                           fullRow: true as const,
                         }]
                       : []),

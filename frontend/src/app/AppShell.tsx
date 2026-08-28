@@ -6,6 +6,8 @@ import { InternalMessagesFab } from '../components/layout/InternalMessagesFab'
 import { ChangePasswordModal } from '../components/system/ChangePasswordModal'
 import { SessionIdleWarning } from '../components/ui/session-idle-warning'
 import { SessionSupersededWarning } from '../components/ui/session-superseded-warning'
+import { Toast } from '../components/ui/toast'
+import { PAGE_TOAST_EVENT, type PageToastDetail } from '../components/ui/pageToast'
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, type TouchEvent } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -205,7 +207,18 @@ export function AppShell() {
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
   const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false)
   const [notificationDetailTarget, setNotificationDetailTarget] = useState<NotificationDetailTarget | null>(null)
+  const [pageToast, setPageToast] = useState<PageToastDetail | null>(null)
   const userMenuRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const onPageToast = (event: Event) => {
+      const detail = (event as CustomEvent<PageToastDetail>).detail
+      if (!detail?.message) return
+      setPageToast({ message: detail.message, type: detail.type ?? 'success' })
+    }
+    window.addEventListener(PAGE_TOAST_EVENT, onPageToast)
+    return () => window.removeEventListener(PAGE_TOAST_EVENT, onPageToast)
+  }, [])
 
   const userDepartmentsQuery = useQuery({
     queryKey: queryKeys.departments.me(user?.userId),
@@ -1056,6 +1069,13 @@ export function AppShell() {
         <div className={`pointer-events-auto${hideMapPageChatFabs ? ' max-lg:hidden' : ''}`}><InternalMessagesFab /></div>
         <div className="pointer-events-auto"><ScrollFab /></div>
       </div>
+      {pageToast ? (
+        <Toast
+          message={pageToast.message}
+          type={pageToast.type}
+          onClose={() => setPageToast(null)}
+        />
+      ) : null}
       {isChangePasswordOpen && <ChangePasswordModal onClose={() => setIsChangePasswordOpen(false)} />}
       {notificationDetailTarget?.kind === 'task' && (
         notificationDetailTarget.scope === 'department' ? (

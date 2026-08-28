@@ -28,6 +28,8 @@ import { getDistrictMapView } from '../data/izmir-district-maps'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { getGoogleMapsApiKey, isGoogleMapsConfigured } from '../utils/googleMaps'
 import { printJobDetail } from '../pages/JobsPage'
+import { PieLegendSearch } from './ui/PieChart'
+import { pinMatchesMapSearch } from '../utils/requestSearch'
 
 type ResolvedPin = CitizenDashboardMapPin & { position: LatLng; approximate: boolean }
 
@@ -376,6 +378,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
   const [streetViewPicker, setStreetViewPicker] = useState(false)
   const [listMode, setListMode] = useState<'located' | 'unlocated' | null>(null)
+  const [mapSearch, setMapSearch] = useState('')
   const streetViewPickerRef = useRef(false)
   const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
@@ -399,6 +402,10 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   }, [])
 
   const geocodeReady = !mapsReady || loadError != null || isLoaded
+  const searchedPins = useMemo(
+    () => pins.filter(pin => pinMatchesMapSearch(pin, mapSearch, variant)),
+    [mapSearch, pins, variant],
+  )
 
   useEffect(() => {
     if (!geocodeReady) return
@@ -532,10 +539,15 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     return () => { cancelled = true }
   }, [pins, mapView.districtId, geocodeReady, queryClient, variant])
 
+  const visibleResolved = useMemo(() => {
+    const ids = new Set(searchedPins.map(pin => pin.jobId))
+    return resolved.filter(pin => ids.has(pin.jobId))
+  }, [resolved, searchedPins])
+
   const unlocated = useMemo(() => {
     const locatedIds = new Set(resolved.map(pin => pin.jobId))
-    return pins.filter(pin => !locatedIds.has(pin.jobId))
-  }, [pins, resolved])
+    return searchedPins.filter(pin => !locatedIds.has(pin.jobId))
+  }, [searchedPins, resolved])
 
   useEffect(() => {
     if (!mapInstance || !isLoaded) return
@@ -565,8 +577,8 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   }, [t])
   const openJobDetailRef = useRef(openJobDetail)
   openJobDetailRef.current = openJobDetail
-  const resolvedRef = useRef(resolved)
-  resolvedRef.current = resolved
+  const resolvedRef = useRef(visibleResolved)
+  resolvedRef.current = visibleResolved
 
   const openPinGroup = useCallback((clicked: ResolvedPin) => {
     const group = pinsAtSamePlace(resolvedRef.current, clicked)
@@ -612,7 +624,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
     })
     markersRef.current = []
 
-    const markers = resolved.map(pin => {
+    const markers = visibleResolved.map(pin => {
       const marker = new google.maps.Marker({
         position: { lat: pin.position.lat, lng: pin.position.lng },
         icon: pinSvgIcon(pinColor(pin.displayStatus, variant), pin.approximate),
@@ -647,7 +659,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
       })
       markersRef.current = []
     }
-  }, [mapInstance, isLoaded, resolved, variant, stopMarkerBounce])
+  }, [mapInstance, isLoaded, visibleResolved, variant, stopMarkerBounce])
 
   const statusLegend = useMemo(() => {
     const inProgressColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.inProgress : PIN_COLORS.inProgress
@@ -760,12 +772,15 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
           <span className="text-slate-400">
             {loading || resolving
               ? t('common.loading', 'Yükleniyor...')
-              : t('citizenRequestMap.pinCount', { count: resolved.length, defaultValue: '{{count}} konum' })}
+              : t('citizenRequestMap.pinCount', { count: visibleResolved.length, defaultValue: '{{count}} konum' })}
           </span>
+          <div className="w-full min-w-[12rem] max-w-md">
+            <PieLegendSearch value={mapSearch} onChange={setMapSearch} />
+          </div>
           <div className="flex shrink-0 flex-nowrap items-center gap-2 max-lg:w-full">
           <button
             type="button"
-            disabled={loading || resolving || resolved.length === 0}
+            disabled={loading || resolving || visibleResolved.length === 0}
             onClick={() => setListMode('located')}
             className="whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50 max-lg:min-h-[2.15rem] max-lg:w-fit max-lg:shrink-0 max-lg:px-1.5 max-lg:py-1.5 max-lg:text-[11px]"
           >
@@ -917,7 +932,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
 
       {listMode ? (
         <MapPinnedRequestsModal
-          pins={listMode === 'located' ? resolved : unlocated}
+          pins={listMode === 'located' ? visibleResolved : unlocated}
           variant={variant}
           located={listMode === 'located'}
           onClose={() => setListMode(null)}

@@ -1,3 +1,7 @@
+## Round 1052 — harita/panel arama, outbound yeşil, toast, pie sola
+
+- **STATUS:** Vatandaş/birim harita lejant altı arama; Vatandaş Paneli dönem altı arama; Ayarlar Hitap tek kutu; outbound otomatik yeşil; Talep Oluştur toast; mobil pie paging sola.
+
 ## Round 1050 — mobil pie popup paging
 
 - **STATUS:** ≤767px drilldown paging iki satır; butonlar yeşil bar içinde.

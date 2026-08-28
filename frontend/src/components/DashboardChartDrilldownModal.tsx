@@ -18,6 +18,7 @@ import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { resolveSliceLabel } from '../utils/chartSliceLabel'
 import { getAuditStatusLabel, getJobStatusTone, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, formatOverdueInProgressStatus } from '../utils/localization'
 import { formatCitizenPhoneDisplay, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenProcessingReceivedOverdue, isCitizenRequestJob } from '../utils/citizenRequests'
+import { drilldownRowMatchesCitizenSearch } from '../utils/requestSearch'
 import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { ChannelIcon } from './ui/channel-icon'
@@ -37,6 +38,8 @@ interface DashboardChartDrilldownModalProps {
   onClose: () => void
   /** Pie → Detaylar nested başlık (#6a6da49d / #6a6da519). */
   jobDetailTitle?: string
+  /** Vatandaş Paneli dönem altı arama — ad/telefon/mahalle (#3087). */
+  rowSearch?: string
 }
 
 const PRINTABLE_CHART_KEYS = new Set([
@@ -317,7 +320,7 @@ export function printDrilldownRows(
  * Üst Düzey Yönetici panosunda pie chart dilimine tıklanınca açılan detay popup'ı (card #1343 / #r542).
  * İçerik shell zoom stacking-context'inden kaçmak için body'ye portallanır.
  */
-export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, requestTagStatus, onClose, jobDetailTitle }: DashboardChartDrilldownModalProps) {
+export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, requestTagStatus, onClose, jobDetailTitle, rowSearch }: DashboardChartDrilldownModalProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const [rows, setRows] = useState<DashboardChartDrilldownRow[] | null>(null)
@@ -380,6 +383,10 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     + (showTerminalDateColumn ? 1 : 0)
     + (hideDueDateColumn ? 0 : 1)
 
+  useEffect(() => {
+    setPage(1)
+  }, [rowSearch])
+
   function handleFilter(key: string, value: string) {
     setFilter(key, value)
     setPage(1)
@@ -392,7 +399,9 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
 
   const visibleRows = useMemo(() => {
     if (!rows) return []
-    const filtered = rows.filter(row => matchesFilters(row, (key, item) => {
+    const filtered = rows.filter(row => {
+      if (rowSearch?.trim() && !drilldownRowMatchesCitizenSearch(row, rowSearch)) return false
+      return matchesFilters(row, (key, item) => {
       if (key === 'jobNumber') return formatDrilldownNumber(item, locale)
       if (key === 'createdAtUtc') {
         return new Date(item.createdAtUtc).toLocaleString(locale, {
@@ -436,14 +445,15 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
         return getDrilldownStatusLabel(t, item)
       }
       return String((item as unknown as Record<string, unknown>)[key] ?? '')
-    }))
+      })
+    })
     if (!sortKey) return filtered
     return sortItems(filtered.map(row => ({
       ...row,
       statusSortText: getDrilldownStatusLabel(t, row),
       unitText: (row.departmentName ?? row.neighborhood ?? '').trim(),
     })))
-  }, [locale, matchesFilters, rows, sortItems, sortKey, t])
+  }, [locale, matchesFilters, rowSearch, rows, sortItems, sortKey, t])
 
   const maxPage = Math.max(1, Math.ceil(visibleRows.length / pageSize) || 1)
   const safePage = Math.min(page, maxPage)

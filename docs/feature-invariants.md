@@ -799,7 +799,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA FAB otomatik giden mesaj (#2562):** sistem otomatik iletilen durum şablonu / zamanlı WA yanıtı
   (belediye adı gönderen, personel `Birim · Ad` değil; veya önizlemede `talebinizin durumu`) WhatsApp
   baloncuk rozet/panel/pulse tetiklemez. `lastMessageIsAutomaticOutbound` son giden entry'nin enum
-  yön/teslimat + gönderen etiketiyle hesaplanır (reopen #2562).
+  yön/teslimat + gönderen etiketiyle hesaplanır (reopen #2562). Konuşmada eski Beklemede personel
+  yanıtı veya Beklemede Tamamlandı/İptal şablonu olsa bile **son mesaj durum şablonuysa satır
+  gelmez**; `hasPendingOutboundMessage` yalnız personel Beklemede yanıtını sayar (otomatik
+  İşleme Alındı/Yapılmakta/Tamamlandı/İptal hariç).
 - **WA konuşma mesaj kutusu odak (#2528):** `/whatsapp` açık konuşmada yanıt kutusuna odaklanıldığında
   `mark-read` + `ccc:whatsapp-composer-engaged` ile sağ alt WhatsApp baloncuk rozeti temizlenir.
 - **WhatsApp teslim durumu status-only webhook ile de canlı yenilenir:** `sent/delivered/read`
@@ -808,8 +811,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Otomatik vatandaş durum mesajı konuşma kuyruğunu da günceller:** `ICitizenJobStatusNotifier`
   WhatsApp `Sent`/`Failed` entry eklediğinde ilgili `CitizenConversation.LastMessageAt` güncellenir
   ve SignalR WhatsApp payload'ı yollar; otomatik **iletilmiş** (`Sent`) durum şablonları `UnreadCount`
-  artırmaz (FAB #2562). Onay bekleyen terminal (`Pending`) ve başarısız gönderimler bildirim sayacını
-  artırabilir; aksi halde mesaj operatör listesinde son konuşma/sıra olarak görünmeyebilir.
+  artırmaz (FAB #2562). WhatsApp **baloncuk** otomatik durum şablonlarını (Pending Tamamlandı/İptal
+  dahil) saymaz; son mesaj durum şablonuysa personel Beklemede taslağı olsa bile satır gelmez.
+  Personel Beklemede yanıtı, son mesaj durum şablonu değilse FAB'da görünebilir. `/whatsapp`
+  listesinde Beklemede terminal mesaj operatör gönderimi için durur.
 - **Durum Değişikliği Geçmişi audit reason taşır:** #1095'te kaldırılan neden, #1619 reopen ile
   geri gelmiştir; veri `TaskStatusChanged` audit `Notes` alanından okunur ve Süreç altında gösterilir.
 - **`CitizenRequestModal` `Talep Başlığı`:** saran textarea + dikey scroll; etiket textbox kaldırılınca

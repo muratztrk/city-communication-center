@@ -1,6 +1,6 @@
 import type { CitizenConversationSummary } from '../types/platform'
 
-/** FAB rozet/panel sayacı — otomatik giden son mesajın unread artışını düşer (#2562). */
+/** FAB rozet/panel — otomatik giden durum şablonu satır/sayaç üretmez (#2562). */
 export function isAutomaticOutboundConversation(conversation: CitizenConversationSummary): boolean {
   if (conversation.lastMessageIsAutomaticOutbound) return true
   const preview = conversation.lastMessagePreview?.toLocaleLowerCase('tr') ?? ''

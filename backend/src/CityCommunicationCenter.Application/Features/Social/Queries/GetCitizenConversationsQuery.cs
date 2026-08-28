@@ -97,18 +97,30 @@ public sealed class GetCitizenConversationsQueryHandler
 
         var conversationIds = conversations.Select(c => c.CitizenConversationId).ToList();
 
-        // "BEKLEMEDE" (gönderilmemiş) giden mesajı olan konuşmalar — bildirim baloncuğunda
-        // görünsün diye özetle birlikte döner (card #1472).
-        var pendingOutboundConversationIds = (await _dbContext.ConversationEntries
+        // "BEKLEMEDE" personel yanıtı — FAB'da görünsün (card #1472).
+        // İşleme Alındı/Yapılmakta/Tamamlandı/İptal otomatik durum şablonları (belediye
+        // gönderen veya "talebinizin durumu") bekleyen kalsa bile FAB sayacı/satırı üretmez.
+        var pendingOutboundRows = await _dbContext.ConversationEntries
             .AsNoTracking()
             .Where(e => e.Direction == ConversationEntryDirection.Outbound && e.DeliveryStatus == ConversationDeliveryStatus.Pending)
             .Join(
                 _dbContext.SocialMessages.Where(m => m.CitizenConversationId != null && conversationIds.Contains(m.CitizenConversationId.Value)),
                 e => e.SocialMessageId,
                 m => m.SocialMessageId,
-                (e, m) => m.CitizenConversationId!.Value)
-            .Distinct()
-            .ToListAsync(cancellationToken))
+                (e, m) => new
+                {
+                    ConversationId = m.CitizenConversationId!.Value,
+                    e.SenderLabel,
+                    e.Content,
+                })
+            .ToListAsync(cancellationToken);
+        var pendingOutboundConversationIds = pendingOutboundRows
+            .Where(row => !ConversationEntrySenderLabelHelper.IsAutomaticOutbound(
+                ConversationEntryDirection.Outbound,
+                ConversationDeliveryStatus.Pending,
+                row.SenderLabel,
+                row.Content))
+            .Select(row => row.ConversationId)
             .ToHashSet();
 
         var socialMessages = await _dbContext.SocialMessages

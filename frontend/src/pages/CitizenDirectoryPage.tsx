@@ -26,7 +26,7 @@ import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../utils/citi
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { getLocale } from '../utils/localization'
 import { directoryCitizenDisplayName, formatDirectoryPhone } from '../utils/phoneDisplay'
-import { SEARCH_MIN_CHARS } from '../utils/requestSearch'
+import { isSearchQueryActive } from '../utils/requestSearch'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { printJobDetail } from './JobsPage'
 
@@ -229,9 +229,9 @@ export function CitizenDirectoryPage() {
   )
 
   const scopedRows = useMemo(() => {
-    const searchNormalized = searchText.trim().toLocaleLowerCase('tr')
     const filtered = viewRows.filter(row => {
-      if (searchNormalized.length >= SEARCH_MIN_CHARS) {
+      if (isSearchQueryActive(searchText)) {
+        const searchNormalized = searchText.trim().toLocaleLowerCase('tr')
         const haystack = SEARCH_KEYS.map(key => String(row[key] ?? '')).join(' ').toLocaleLowerCase('tr')
         if (!haystack.includes(searchNormalized)) return false
       }

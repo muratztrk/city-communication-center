@@ -3984,6 +3984,12 @@
     font-size: 0.88rem !important;
   }
 
+  /* #3116: Birim İçi / Dışı Mahalle placeholder = Cadde/Sokak. */
+  #internal-request-form .citizen-call-neighborhood-trigger span.text-slate-400,
+  #external-request-form .citizen-call-neighborhood-trigger span.text-slate-400 {
+    font-size: 0.88rem !important;
+  }
+
   /* Rutin Görev Mahalle/Cadde/No placeholder = Birim İçi (#2797). */
   .routine-task-form--readable .routine-task-address-fields .field-select span.text-slate-400 {
     font-size: 0.88rem !important;
@@ -4060,6 +4066,19 @@
 
   /* #3087: Talep Başlığı / Birim / Telefon / Öncelik placeholder = Mahalle. */
   .request-form--readable .create-request-core-placeholder span.text-slate-400 {
+    font-size: 0.875rem !important;
+  }
+
+  /* #3087 reopen: seçili Öncelik + tarih + yapan kişi/birim = Cadde placeholder. */
+  #internal-request-form .create-request-core-placeholder,
+  #internal-request-form .create-request-core-placeholder span,
+  #external-request-form .create-request-core-placeholder,
+  #external-request-form .create-request-core-placeholder span {
+    font-size: 0.88rem !important;
+  }
+
+  #citizen-request-form .create-request-core-placeholder,
+  #citizen-request-form .create-request-core-placeholder span {
     font-size: 0.875rem !important;
   }
 

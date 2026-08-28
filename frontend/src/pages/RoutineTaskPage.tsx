@@ -310,7 +310,7 @@ export function RoutineTaskPage() {
           </div>
         </div>
 
-        {/* Sol sütun: Başlık + Öncelik + Bitiş Tarihi */}
+        {/* Sol sütun: Başlık + Öncelik + Son Tarih */}
         <div className="grid content-start gap-3">
           <div className="job-field">
             <label className="job-field-label" htmlFor="routine-title">
@@ -343,7 +343,7 @@ export function RoutineTaskPage() {
 
             <div className="job-field">
               <label className="job-field-label" htmlFor="routine-due">
-                {t('tasks.newRequest.dueDate', 'Bitiş Tarihi')}
+                {t('tasks.columns.dueDate', 'Son Tarih')}
                 <span className="ml-1 text-slate-400">({t('common.optional', 'opsiyonel')})</span>
               </label>
               <DateTimePicker
@@ -354,7 +354,7 @@ export function RoutineTaskPage() {
             </div>
           </div>
 
-          {/* Adres Bilgisi + Dosya/Fotoğraf — Öncelik ve Bitiş Tarihi satırının hemen altında. */}
+          {/* Adres Bilgisi + Dosya/Fotoğraf — Öncelik ve Son Tarih satırının hemen altında. */}
           <div className="job-field routine-task-address-fields border-t border-slate-100 pt-4">
             <span className="job-field-label">{t('address.sectionTitle', 'Adres Bilgisi (İsteğe Bağlı)')}</span>
             <div className="grid gap-2">

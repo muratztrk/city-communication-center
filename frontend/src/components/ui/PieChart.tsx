@@ -3,6 +3,7 @@ import { Search, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { DashboardChartSlice } from '../../types/platform'
 import { resolveSliceLabel } from '../../utils/chartSliceLabel'
+import { isSearchQueryActive } from '../../utils/requestSearch'
 
 const COLOR_MAP: Record<string, string> = {
   primary: 'var(--color-primary)',
@@ -153,8 +154,8 @@ export function PieChart({
   const { t } = useTranslation()
 
   const visibleSlices = useMemo(() => {
+    if (!isSearchQueryActive(legendSearch)) return slices
     const query = legendSearch.trim().toLocaleLowerCase('tr')
-    if (!query) return slices
     return slices.filter(slice => {
       const label = (formatSliceLabel?.(slice.label, t) ?? resolveSliceLabel(slice.label, t))
         .toLocaleLowerCase('tr')
@@ -218,7 +219,7 @@ export function PieChart({
     <div className="relative flex min-w-0 flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
       {showEmpty ? (
         <div className="flex min-h-40 w-full items-center justify-center py-10 text-sm text-[color:var(--color-muted-foreground)]">
-          {legendSearch.trim()
+          {isSearchQueryActive(legendSearch)
             ? t('dashboard.chart.noSearchMatch', 'Eşleşen dilim yok.')
             : noDataLabel}
         </div>

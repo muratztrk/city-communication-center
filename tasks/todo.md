@@ -1,3 +1,7 @@
+## Round 1055 — arama eşiği pie/panel, talep placeholder, rutin Son Tarih, bildirim UI
+
+- **STATUS:** Arama 3 karakter pie+panel; Talep Oluştur Öncelik/tarih/yapan/Mahalle 0.88rem; rutin Son Tarih; zil Tümünü sil yalnız modal; onay başlığı yeşil Evet; bildirim semibold.
+
 ## Round 1054 — arama eşiği, dizin telefon, gelen tür chip, bildirim sil, placeholder/login
 
 - **STATUS:** Harita/dizin arama 3 karakter; adsız dizin adı formatlı telefon; Birime Gelen Birim İçi/Dışı chip; bildirim Tümünü sil; VT grid Numara; Talep Oluştur placeholder 0.875rem; login başlık ağırlığı.

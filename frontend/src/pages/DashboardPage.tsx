@@ -20,7 +20,7 @@ import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
 import { getDashboardChartTitleIcon } from '../utils/dashboardChartIcons'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
-import { pinMatchesCitizenSearch } from '../utils/requestSearch'
+import { pinMatchesCitizenSearch, isSearchQueryActive } from '../utils/requestSearch'
 import type { DashboardChartResponse } from '../types/platform'
 
 const DASHBOARD_SCROLL_KEY = 'ccc.dashboard.scrollTop'
@@ -455,7 +455,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const citizenPinsQuery = useQuery({
     queryKey: queryKeys.reports.citizenMapPins({ from: activeFrom, to: activeTo }),
     queryFn: () => api.getCitizenDashboardMapPins(apiFrom, apiTo),
-    enabled: effectiveView === 'citizen' && debouncedPanelSearch.trim().length > 0,
+    enabled: effectiveView === 'citizen' && isSearchQueryActive(debouncedPanelSearch),
     staleTime: 60_000,
     placeholderData: keepPreviousData,
   })
@@ -763,8 +763,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     chartCards.sort((a, b) => reporterDepartmentChartOrder(a.titleKey) - reporterDepartmentChartOrder(b.titleKey))
   }
 
+  const panelSearchActive = isSearchQueryActive(debouncedPanelSearch)
   const panelSearchQuery = debouncedPanelSearch.trim().toLocaleLowerCase('tr')
-  const visibleChartCards = panelSearchQuery && effectiveView === 'citizen'
+  const visibleChartCards = panelSearchActive && effectiveView === 'citizen'
     ? chartCards.map(card => {
         const isNeighborhood = card.titleKey.includes('neighborhood')
         const isDepartment = card.titleKey.includes('citizenDepartment') || card.titleKey.includes('Department')

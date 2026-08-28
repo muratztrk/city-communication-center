@@ -9,6 +9,8 @@ interface DateTimePickerProps {
   placeholder?: string
   id?: string
   className?: string
+  /** Tetikleyici butona ek class (Talep Oluştur Cadde punto eşlemesi — #3087). */
+  triggerClassName?: string
   /** Takvimi her zaman aşağıya doğru aç (yukarı kaydırma yapma). */
   forceDown?: boolean
   /** Takvimi her zaman yukarıya doğru aç. */
@@ -64,7 +66,7 @@ function todayDateStr() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, forceDown = false, forceUp = false, autoOpen = false, onClose, minDateTime, maxDateTime, dateOnly = false, disabled = false }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, triggerClassName, forceDown = false, forceUp = false, autoOpen = false, onClose, minDateTime, maxDateTime, dateOnly = false, disabled = false }: DateTimePickerProps) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState({ date: '', time: '' })
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
@@ -234,6 +236,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
         title={display || undefined}
         className={cn(
           'field-input flex w-full items-center gap-1.5 text-left',
+          triggerClassName,
           !display && 'text-[color:var(--color-muted-foreground)]',
           value && !disabled && 'pr-6',
           disabled && 'cursor-not-allowed bg-slate-100 text-slate-500',

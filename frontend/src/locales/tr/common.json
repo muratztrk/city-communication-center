@@ -340,6 +340,7 @@
     "markAllRead": "Tümünü okundu yap",
     "markAllReadShort": "Tümünü Oku",
     "deleteAll": "Tümünü sil",
+    "deleteAllTitle": "Bildirimleri Sil",
     "deleteAllConfirm": "Tüm bildirimleri silmek istediğinize emin misiniz?"
   },
   "projects": {

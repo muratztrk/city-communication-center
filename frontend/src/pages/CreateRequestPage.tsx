@@ -1445,6 +1445,7 @@ export function CreateRequestPage() {
                   onChange={userId => setInternalForm(current => ({ ...current, ownerUserIds: userId ? [userId] : [''] }))}
                   placeholder={t('tasks.newRequest.selectStaff', 'Personel seçiniz')}
                   disabled={canSetInternalProject && internalForm.isProject}
+                  triggerClassName="create-request-core-placeholder"
                 />
               ) : (
                 <SingleSelectDropdown
@@ -1452,6 +1453,7 @@ export function CreateRequestPage() {
                   value={internalForm.ownerUserIds[0] ?? ''}
                   onChange={userId => setInternalForm(current => ({ ...current, ownerUserIds: userId ? [userId] : [''] }))}
                   placeholder={t('tasks.newRequest.departmentPool', 'Birim Havuzu')}
+                  triggerClassName="create-request-core-placeholder"
                 />
               )}
             </div>
@@ -1468,7 +1470,7 @@ export function CreateRequestPage() {
               </div>
               <div className="job-field">
                 <span className="job-field-label">{t('jobs.form.dueDate', 'Son Tarih')}</span>
-                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v, 2, weekendDueMin) }))} placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')} forceUp minDateTime={earliestDueDatePickerValue(2, internalForm.dueDateUtc, weekendDueMin)} />
+                <DateTimePicker value={internalForm.dueDateUtc} onChange={v => setInternalForm(current => ({ ...current, dueDateUtc: clampDueDatePickerValue(v, 2, weekendDueMin) }))} placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')} triggerClassName="create-request-core-placeholder" forceUp minDateTime={earliestDueDatePickerValue(2, internalForm.dueDateUtc, weekendDueMin)} />
               </div>
               {canSetInternalProject ? (
                 <div className="job-field">
@@ -1584,6 +1586,7 @@ export function CreateRequestPage() {
                   })}
                   minDateTime={earliestStartDatePickerValue()}
                   placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')}
+                  triggerClassName="create-request-core-placeholder"
                   forceUp
                 />
               </div>
@@ -1598,6 +1601,7 @@ export function CreateRequestPage() {
                   }))}
                   minDateTime={earliestDueDateRelativeToStart(externalForm.startDateUtc, 2, externalForm.dueDateUtc, weekendDueMin)}
                   placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz')}
+                  triggerClassName="create-request-core-placeholder"
                   forceUp
                 />
               </div>

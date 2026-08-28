@@ -459,7 +459,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   formlarında `Cadde / Sokak` input değer fontu `Açık Adres` textarea değeriyle
   aynı okunurlukta kalır; açık adres değeri özellikle küçük düşürülmez (card #1247).
 - **Birim içi talep oluşturma alan sırası:** `Talep Başlığı`ndan sonra `Görevi Yapan Kişi/Birim`
-  gelir; `Öncelik / Bitiş Tarihi / Proje niteliğinde mi?` satırı bunun altında kalır (card #1250).
+  gelir; `Öncelik / Son Tarih / Proje niteliğinde mi?` satırı bunun altında kalır (card #1250).
   `Proje niteliğinde mi?` yalnız **birim yöneticisi** (`Manager`) görür; Evet seçilince Görevi
   Yapan kilitlenir ve oluşturan yöneticinin adı gelir (#2619). Personel/SystemAdmin bu alanı görmez.
 - **Birim Dışı Talep Oluştur (#2617/#2672/#2675):** `Proje niteliğinde mi?` yok (Reporter’da
@@ -873,7 +873,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`1fr` / `6.75rem`, #2584 reopen). `request-form--readable` 3.2rem ezilir.
   Sol kolon **Talebin Adres Bilgisi** Cadde/No placeholder `0.875rem`; Mahalle aynı punto
   (`citizen-call-neighborhood-trigger`, #2847). Talep Başlığı / Gideceği Birim / Telefon No /
-  Öncelik placeholder da Mahalle ile aynı `0.875rem` (#3087). Sağ kolon vatandaş alanları `0.76rem`.
+  Öncelik placeholder da Mahalle ile aynı `0.875rem` (#3087). Vatandaş Çağrı seçili Öncelik
+  metni de `0.875rem`. Birim İçi / Dışı Cadde placeholder `0.88rem`; Mahalle placeholder aynı
+  (#3116). Seçili Öncelik, Başlangıç/Son Tarih tetikleyici ve Görevi Yapan Kişi/Birim
+  placeholder/değer `0.88rem` (`create-request-core-placeholder`, #3087 reopen).
+  Sağ kolon vatandaş alanları `0.76rem`.
   **Talep adresi ≠ vatandaş profil adresi (#2563):** `ConvertSocialMessageToJob` / `UpdateJob`
   `CitizenConversation` mahalle/cadde/no/açık adresini job alanlarıyla güncellemez; profil yalnız
   `updateCitizenConversationProfile` ve WA **Vatandaş Bilgileri** panelinden yazılır.
@@ -1871,7 +1875,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Lejant satırında `PieLegendSearch` konum sayısı ile Talepleri Listele arasında (aynı satır,
   `flex-1`); vatandaş haritasında ad/telefon/mahalle, birim haritasında birim adı
   (`requestSearch.ts`, `toLocaleLowerCase('tr')`). Arama **3 karakterden** sonra başlar
-  (#3103; aynı eşik Vatandaş Bilgi Listesi). Arama pinleri, konum sayısını ve liste
+  (`isSearchQueryActive`, boşluksuz uzunluk; #3103). Aynı eşik: Vatandaş Bilgi Listesi banner,
+  Anasayfa-Vatandaş panel araması, pie lejant `Ara…` (`PieChart` `legendSearch`). 1–2 karakter
+  pinleri / dilimleri daraltmaz. Arama pinleri, konum sayısını ve liste
   popup’ını daraltır; geocode tüm pinlerde bir kez çalışır (#3086/#3087/#3088/#2978).
   Google haritada yalnız cadde/sokak/bulvar etiketleri; POI ve transit kapalı; CBS overlay
   veya özel referans marker yok (#2799).
@@ -2098,6 +2104,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Cadde / Sokak `field-input` ile aynı (~0.98rem, değer + placeholder).
 - **Rutin Görev Oluştur Mahalle dropdown (#2602):** `openUp` yok; liste aşağı açılır.
   Mahalle/Cadde/No placeholder punto Birim İçi ile aynı `0.88rem` (#2797).
+  Tarih etiketi `Son Tarih` (`tasks.columns.dueDate`, #3115); yanında opsiyonel ipucu.
   Adres Tarifi placeholder (WA Vatandaş Talebi Oluştur hariç) `0.9rem`; WA VT popup `0.82rem` (#2899).
 - **Ek dosya adı (#r489/#r490):** Talep/Görev ek adları ~11–12px; renk koyu mavi `blue-700` (ikon+ad).
 - **Mobil paging (#r490/#r493):** Sayfa-boyutu seçici ≤767px DOM'dan çıkarılır; sabit `pageSize=10`.
@@ -2596,14 +2603,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `overflow-x-hidden` rozeti kesmemeli). Rozet sayısı `unread-count` API + liste okunmamışların
   üst sınırı; query key aktif birimle hizalı.
 - **Bildirim dropdown okundu aksiyonu:** "Tümünü Okundu yap" butonu küçük bildirim dropdown'unda
-  kapatma X'inin solundadır, yeşil metinlidir, çerçeveli buton gibi görünür;
-  solunda kırmızı `Tümünü sil` vardır (#3109). Modal toolbar’da `Tümünü sil` solda, küçültülmüş
-  `Tümünü okundu yap` sağda. Silme `Tüm bildirimleri silmek istediğinize emin misiniz?`
-  Evet/Hayır onayından sonra `NotificationReadCursor.DismissedThroughUtc` ilerletir; sonraki
+  kapatma X'inin solundadır, yeşil metinlidir, çerçeveli buton gibi görünür.
+  Dropdown’da `Tümünü sil` yoktur (#3114). Modal toolbar’da `Tümünü sil` solda, daraltılmış
+  `Tümünü okundu yap` sağda (`text-[0.6rem] font-semibold`, #3109). Silme onayı başlığı
+  `Bildirimleri Sil` + ayırıcı çizgi, Evet yeşil (`variant: success`); metin
+  `Tüm bildirimleri silmek istediğinize emin misiniz?` Evet/Hayır. Onay sonrası
+  `NotificationReadCursor.DismissedThroughUtc` ilerletir; sonraki
   olaylar feed’de kalır. Audit log silinmez.
 - **Bildirim başlığı vurguları:** okunmamış satırda `güncellendi`, `oluşturuldu`, `atandı`,
   `yönlendirildi`, `Yönetici notu atandı`, `Ek süre talebi` ve onay/red/tamamlandı/iptal
-  kelimeleri bold (+ renk); okununca ağırlık normale döner (#6a6ca25f).
+  kelimeleri `font-semibold` (+ renk); okununca ağırlık `font-medium` (#6a6ca25f / #3113).
 - **Bildirim alt mesaj metni:** başlığın altındaki mesaj alanında onay/red/tamamlandı kelimeleri
   kırmızı/yeşil renge boyanmaz ve bold yapılmaz; normal ağırlıkta nötr slate metin olarak kalır.
 - **Bildirim detay popup ek süre marker'ı:** bildirimden açılan görev/talep detay popup'ı, grid detaylarıyla

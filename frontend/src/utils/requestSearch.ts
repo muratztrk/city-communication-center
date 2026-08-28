@@ -11,9 +11,13 @@ function phoneDigits(value: string | null | undefined): string {
 /** Harita / dizin araması 3 karakterden önce filtrelemez (#3103). */
 export const SEARCH_MIN_CHARS = 3
 
+export function isSearchQueryActive(query: string): boolean {
+  return normalizeSearch(query).replace(/\s/g, '').length >= SEARCH_MIN_CHARS
+}
+
 function haystackIncludes(query: string, ...parts: Array<string | null | undefined>): boolean {
+  if (!isSearchQueryActive(query)) return true
   const q = normalizeSearch(query)
-  if (q.length < SEARCH_MIN_CHARS) return true
   const qDigits = phoneDigits(q)
   if (parts.some(part => normalizeSearch(part).includes(q))) return true
   if (qDigits.length >= 3) {

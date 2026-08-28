@@ -342,10 +342,12 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
 
   const confirmDeleteAll = () => {
     setConfirmDialog({
+      title: t('notifications.deleteAllTitle', 'Bildirimleri Sil'),
+      titleDivider: true,
       message: t('notifications.deleteAllConfirm', 'Tüm bildirimleri silmek istediğinize emin misiniz?'),
       confirmLabel: t('common.yes', 'Evet'),
       cancelLabel: t('common.no', 'Hayır'),
-      variant: 'destructive',
+      variant: 'success',
       onConfirm: () => { void deleteAllNotifications() },
     })
   }
@@ -433,15 +435,6 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   </button>
                 </div>
                 <div className="flex shrink-0 items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={confirmDeleteAll}
-                    disabled={isDeletingAll || displayNotifications.length === 0}
-                    className="inline-flex items-center gap-1 rounded-md border border-rose-300 bg-white px-1.5 py-1 text-[0.62rem] font-semibold leading-none text-rose-700 shadow-sm transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    <Trash2 className="size-3 shrink-0" />
-                    {t('notifications.deleteAll', 'Tümünü sil')}
-                  </button>
                   {/* Kompakt tek satır "Tümünü Oku" butonu (card #1403 / #3109). */}
                   <button
                     type="button"
@@ -580,7 +573,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   type="button"
                   onClick={confirmDeleteAll}
                   disabled={isDeletingAll || notifications.length === 0}
-                  className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-2 py-1 text-[0.68rem] font-bold text-rose-700 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-45"
+                  className="inline-flex items-center gap-1 rounded-lg border border-rose-200 px-1.5 py-0.5 text-[0.6rem] font-semibold leading-none text-rose-700 transition-colors hover:bg-rose-50 disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   <Trash2 className="size-3 shrink-0" />
                   {isDeletingAll ? t('common.loading', 'Yükleniyor...') : t('notifications.deleteAll', 'Tümünü sil')}
@@ -589,7 +582,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   type="button"
                   onClick={markAllRead}
                   disabled={isMarkingAllRead || unreadCount === 0}
-                  className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 px-2 py-1 text-[0.68rem] font-bold text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-45"
+                  className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 px-1.5 py-0.5 text-[0.6rem] font-semibold leading-none text-emerald-700 transition-colors hover:bg-emerald-50 disabled:cursor-not-allowed disabled:opacity-45"
                 >
                   <CheckCheck className="size-3 shrink-0" />
                   {isMarkingAllRead ? t('common.loading', 'Yükleniyor...') : t('notifications.markAllRead', 'Tümünü okundu yap')}

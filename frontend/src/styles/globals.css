@@ -4053,6 +4053,11 @@
     font-size: 0.875rem !important;
   }
 
+  /* #2847: Mahalle placeholder Cadde/No ile aynı punto. */
+  #citizen-request-form .citizen-call-neighborhood-trigger span.text-slate-400 {
+    font-size: 0.875rem !important;
+  }
+
   /* WA VT popup: Cadde/No dropdown placeholder küçük (#2849 reopen). */
   .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row .field-select {
     font-size: 0.72rem !important;

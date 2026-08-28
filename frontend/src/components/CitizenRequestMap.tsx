@@ -774,10 +774,10 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
               ? t('common.loading', 'Yükleniyor...')
               : t('citizenRequestMap.pinCount', { count: visibleResolved.length, defaultValue: '{{count}} konum' })}
           </span>
-          <div className="w-full min-w-[12rem] max-w-md">
+          <div className="min-w-[10rem] max-w-sm flex-1">
             <PieLegendSearch value={mapSearch} onChange={setMapSearch} />
           </div>
-          <div className="flex shrink-0 flex-nowrap items-center gap-2 max-lg:w-full">
+          <div className="ml-auto flex shrink-0 flex-nowrap items-center gap-2">
           <button
             type="button"
             disabled={loading || resolving || visibleResolved.length === 0}

@@ -905,14 +905,12 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
             </button>
           ) : null}
-        </div>
-        {effectiveView === 'citizen' ? (
-          <div className="flex items-center gap-2 px-4 py-2 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
-            <div className="w-full max-w-md">
+          {effectiveView === 'citizen' ? (
+            <div className="ml-auto min-w-[10rem] max-w-sm flex-1">
               <PieLegendSearch value={panelSearch} onChange={setPanelSearch} />
             </div>
-          </div>
-        ) : null}
+          ) : null}
+        </div>
 
         {hideMetricCards ? null : isManagerOrAdmin ? (
           <div className="px-5 py-3.5 sm:px-8">

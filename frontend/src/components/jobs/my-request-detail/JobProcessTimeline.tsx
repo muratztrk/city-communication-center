@@ -275,6 +275,9 @@ export function JobProcessTimeline({
                   : step.state === 'current'
                     ? 'text-[#f97316]'
                     : 'text-emerald-600'
+          const approvalValue = approvalPendingOverdue
+            ? `${step.displayValue} (${t('jobs.statusLabel.overdue', 'Geciken')})`
+            : step.displayValue
           const labelClass = approvalPendingOverdue
             ? 'text-red-600'
             : statusUseBlue
@@ -310,7 +313,11 @@ export function JobProcessTimeline({
                 {step.id === 'status' && statusContent ? (
                   <div className={`job-process-timeline__step-value mt-0.5 text-xs font-semibold ${valueTone}${statusUseBlue ? ' [&_*]:!text-sky-500' : statusUseOrange ? ' [&_*]:!text-[#f97316]' : ''}`}>
                     {typeof statusContent === 'string' && isPendingApprovalText(statusContent) ? (
-                      <span className="job-process-timeline__pending-approval-text">{statusContent}</span>
+                      <span className="job-process-timeline__pending-approval-text">
+                        {overdueYes
+                          ? `${statusContent} (${t('jobs.statusLabel.overdue', 'Geciken')})`
+                          : statusContent}
+                      </span>
                     ) : (
                       statusContent
                     )}
@@ -329,8 +336,10 @@ export function JobProcessTimeline({
                 ) : (
                   <ProcessStepDateValue
                     step={inProgressAssigneeSuffix
-                      ? { ...step, displayValue: `${step.displayValue}${inProgressAssigneeSuffix}` }
-                      : step}
+                      ? { ...step, displayValue: `${approvalValue}${inProgressAssigneeSuffix}` }
+                      : approvalPendingOverdue
+                        ? { ...step, displayValue: approvalValue }
+                        : step}
                     locale={locale}
                     metaTone={displayMetaTone}
                     className={`job-process-timeline__step-value job-process-timeline__datetime-value mt-0.5 font-semibold ${valueTone}`}

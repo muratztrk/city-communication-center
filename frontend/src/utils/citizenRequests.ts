@@ -171,7 +171,7 @@ export function shouldShowCitizenTargetApprovalDate(job: {
   tasks?: { taskId?: string }[]
   departments?: { role: string; approvalStatus?: string | null; decidedAtUtc?: string | null }[]
 }): boolean {
-  // "Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi" vatandaş ve birim dışı taleplerde
+  // "Hedef Birim Yöneticisi Onay Tarihi" vatandaş ve birim dışı taleplerde
   // görünür; birim içi taleplerde hiç gösterilmez (card #1357).
   if (job.requestType === 'InternalUnit') {
     return false

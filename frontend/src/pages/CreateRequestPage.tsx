@@ -853,6 +853,7 @@ export function CreateRequestPage() {
                 }
               }}
               placeholder={t('address.neighborhoodPlaceholder', 'Mahalle seçin')}
+              triggerClassName="citizen-call-neighborhood-trigger"
             />
           </div>
           <CbsStreetNoDropdowns

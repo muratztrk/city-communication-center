@@ -1,3 +1,7 @@
+## Round 1053 — harita arama hizası, onay etiketleri, Mahalle punto, Hitap geri
+
+- **STATUS:** Search lejant satırında liste butonlarıyla hizalı; onay tarih etiketleri sade; Onay Bekleyen (Geciken); Mahalle placeholder 0.875rem; Hitap tekrar dört kolonda paylaşılıyor.
+
 ## Round 1052 — harita/panel arama, outbound yeşil, toast, pie sola
 
 - **STATUS:** Vatandaş/birim harita lejant altı arama; Vatandaş Paneli dönem altı arama; Ayarlar Hitap tek kutu; outbound otomatik yeşil; Talep Oluştur toast; mobil pie paging sola.

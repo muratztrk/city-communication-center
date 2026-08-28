@@ -370,11 +370,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `updatedAtUtc`) son tarihten önceyse Hayır; sonra ise Evet. Açık taleplerde `isJobDueDateOverdue`.
   Satır **Talep Bilgileri** listesinin en altında; Süreç kolonunda yok.
   Detay popup’ta Gecikti mi? Evet ve Durum `İşleme Alındı` ise metin `İşleme Alındı (Geciken)` olur
-  (başlık + Süreç Durum).
-- **Süreç onay tarihleri:** `Talebin Birim Yöneticisinin Onay Tarihi` ve `Talebi Gerçekleştiren
-  Birim Yöneticisinin Onay Tarihi` etiketleri sade kalır; onaylayan yönetici adı varsa tarih
+  (başlık + Süreç Durum). Süreç’te `Onay Bekleyen` ve son tarih geçmişse yanına `(Geciken)` (#2832).
+- **Süreç onay tarihleri:** `Talebin Birim Yöneticisi Onay Tarihi` ve `Hedef Birim Yöneticisi
+  Onay Tarihi` etiketleri sade kalır (#2925/#2975); onaylayan yönetici adı varsa tarih
   değerinin yanında parantez içinde, küçük ve yeşil renkte gösterilir. Manager/SystemAdmin/Reporter
-  rolünde Taleplerim Süreç altında owner approval (`Talebin Birim Yöneticisinin Onay Tarihi`) satırı
+  rolünde Taleplerim Süreç altında owner approval (`Talebin Birim Yöneticisi Onay Tarihi`) satırı
   gösterilmez. **İstisna (card #1654):** Görevlerim / Birimdeki Görevler / Personelimin Görevleri
   detay popup'ındaki İlgili Talep Süreç'inde sahip onay katmanı (varsa) her zaman gösterilir.
   Standart kullanıcıda owner approval bekliyorsa `Onay Bekleyen` değeri turuncu
@@ -871,7 +871,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `py-1.5` (#2560). Adres Tarifi textarea `#citizen-request-form` `4.5rem` (#2584; Tailwind
   `min-h-[5.5rem]` `!important` ile ezilir). Cadde/Sokak biraz dar, No biraz geniş
   (`1fr` / `6.75rem`, #2584 reopen). `request-form--readable` 3.2rem ezilir.
-  Sol kolon **Talebin Adres Bilgisi** placeholder `0.66rem`; sağ kolon vatandaş alanları `0.76rem`.
+  Sol kolon **Talebin Adres Bilgisi** Cadde/No placeholder `0.875rem`; Mahalle aynı punto
+  (`citizen-call-neighborhood-trigger`, #2847). Sağ kolon vatandaş alanları `0.76rem`.
   **Talep adresi ≠ vatandaş profil adresi (#2563):** `ConvertSocialMessageToJob` / `UpdateJob`
   `CitizenConversation` mahalle/cadde/no/açık adresini job alanlarıyla güncellemez; profil yalnız
   `updateCitizenConversationProfile` ve WA **Vatandaş Bilgileri** panelinden yazılır.
@@ -896,8 +897,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Her iki textarea yazım sırasında baştaki/sondaki boşluğu korur; trim ve boş gövde varsayılanına
   dönüş yalnız `Kaydet` normalizasyonunda yapılır, böylece kelimeler arasına boşluk girilebilir
   (card #1594 reopen).   İlk gövde textarea kompakt `min-h-[4.5rem]`; Kaydet `bodyText.trim()` yapar
-  (#2911 revert). Hitap (greeting) dört durum kartının üstünde tek textarea’dır; durum
-  gövde/ek metin kutuları birbirine yazılmaz (#3085).
+  (#2911 revert). Hitap (greeting) dört durum kartında paylaşılan üst textarea’dır; birine
+  yazınca hepsi güncellenir (#3085 geri alındı). Durum gövde/ek metin kutuları ayrı kalır.
   Aynı sekmede Vatandaşa Giden Cevaplar altında **Birim Yöneticilerine/Sorumlularına Mesai Dışı
   Giden SMS Bildirimleri** vardır (#2907); Bildirim Mesajı textarea `min-h-48` / CSS `12rem` (#2910). Bu bölümün Kaydet toast’ı
   `Birim yöneticilerine giden bildirim mesajı kaydedildi.` (#2905). **Bildirim Mesajı** textarea
@@ -1700,9 +1701,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
   (`CreatedAtUtc`) ile tamamlananda `CompletedAtUtc`, iptalde son `TaskCancelled` audit zamanı
   arasındadır; personel başına ortalama saat (1 ondalık) gösterilir.
-- **Vatandaş Paneli dönem altı arama (#3088):** Dönem şeridinin altında; ad/telefon/mahalle ile
-  mahalle/birim pie dilimlerini ve drilldown satırlarını daraltır. Pin API yalnız arama doluyken
-  çekilir. Hook’lar `Navigate` erken return’ünden önce kalmalı.
+- **Vatandaş Paneli dönem satırı arama (#3087):** Dönem şeridinde Tüm Talepler ile aynı satırda
+  (`ml-auto`); ad/telefon/mahalle ile mahalle/birim pie dilimlerini ve drilldown satırlarını
+  daraltır. Pin API yalnız arama doluyken çekilir. Hook’lar `Navigate` erken return’ünden önce kalmalı.
 - **Talep Oluştur onay sonrası toast (#3089):** Onay popup’ı kapanınca sağ alt yeşil `Toast`
   (`emitPageToast` → `AppShell`). Yalnız oluşturma; güncelleme toast atmaz.
 - **Reporter dashboard pie drilldown popup:** başlık yeşil ve `Info` ikonludur; tablo başlıkları
@@ -1863,9 +1864,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   rengi (sky-500 / orange-500 / red-500 / green-500; iç daire beyaz); doygunluk artırımı
   geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
   Pinler geocode bitene kadar haritaya konmaz (#2607). `cameraControl` kapalı;
-  Lejant satırının altında `PieLegendSearch`: vatandaş haritasında ad/telefon/mahalle,
-  birim haritasında birim adı (`requestSearch.ts`, `toLocaleLowerCase('tr')`). Arama pinleri,
-  konum sayısını ve liste popup’ını daraltır; geocode tüm pinlerde bir kez çalışır (#3086/#3087).
+  Lejant satırında `PieLegendSearch` konum sayısı ile Talepleri Listele arasında (aynı satır,
+  `flex-1`); vatandaş haritasında ad/telefon/mahalle, birim haritasında birim adı
+  (`requestSearch.ts`, `toLocaleLowerCase('tr')`). Arama pinleri, konum sayısını ve liste
+  popup’ını daraltır; geocode tüm pinlerde bir kez çalışır (#3086/#3087/#3088/#2978).
   Google haritada yalnız cadde/sokak/bulvar etiketleri; POI ve transit kapalı; CBS overlay
   veya özel referans marker yok (#2799).
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman

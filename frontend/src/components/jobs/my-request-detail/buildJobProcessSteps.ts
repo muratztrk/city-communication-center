@@ -353,7 +353,7 @@ export function buildJobProcessSteps(
     const ownerDepartment = detail.departments.find(department => department.role === 'Owner')
     const ownerApprovalActor = ownerDepartment?.approvedByDisplayName
       ?? (ownerDepartment?.decidedAtUtc ? null : detail.statusActorDisplayName)
-    const ownerApprovalLabel = t('jobs.detail.ownerManagerApprovalDate', 'Talebin Birim Yöneticisinin Onay Tarihi')
+    const ownerApprovalLabel = t('jobs.detail.ownerManagerApprovalDate', 'Talebin Birim Yöneticisi Onay Tarihi')
     steps.push({
       id: 'ownerApproval',
       label: ownerApprovalLabel,
@@ -388,7 +388,7 @@ export function buildJobProcessSteps(
     // kalıyordu; o durumda yalnız showPendingTargetApproval adımı kullanılır (cards #1641/#1642).
     steps.push({
       id: 'targetApproval',
-      label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),
+      label: t('jobs.detail.targetManagerApprovalDate', 'Hedef Birim Yöneticisi Onay Tarihi'),
       displayValue: targetDepartment?.decidedAtUtc
         ? formatDueDateTime(targetDepartment.decidedAtUtc, locale)
         : t('jobs.detail.pendingApproval', 'Onay Bekleyen'),
@@ -418,7 +418,7 @@ export function buildJobProcessSteps(
       ?? undefined
     steps.push({
       id: 'targetApproval',
-      label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),
+      label: t('jobs.detail.targetManagerApprovalDate', 'Hedef Birim Yöneticisi Onay Tarihi'),
       displayValue: decidedAt
         ? formatDueDateTime(decidedAt, locale)
         : t('jobs.detail.pendingApproval', 'Onay Bekleyen'),
@@ -535,7 +535,7 @@ export function buildJobProcessSteps(
   if (showPendingTargetApproval) {
     steps.push({
       id: 'targetApproval',
-      label: t('jobs.detail.targetManagerApprovalDate', 'Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi'),
+      label: t('jobs.detail.targetManagerApprovalDate', 'Hedef Birim Yöneticisi Onay Tarihi'),
       displayValue: t('jobs.detail.pendingApproval', 'Onay Bekleyen'),
       dateTimeUtc: null,
     })

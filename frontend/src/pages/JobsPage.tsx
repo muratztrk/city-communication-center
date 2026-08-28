@@ -475,9 +475,9 @@ export function printJobDetail(
       ? [['Tamamlama Notu', richTextToPlainText(detail.completionNote)] as [string, string]]
       : []),
     ['Talep Tarihi', fd(detail.createdAtUtc)],
-    ...(isCitizenPrint ? [] : [['Talebin Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(ownerApprovalDate, locale), ownerDepartment?.approvedByDisplayName)] as [string, string]]),
+    ...(isCitizenPrint ? [] : [['Talebin Birim Yöneticisi Onay Tarihi', formatApprovalDateText(formatDueDateTime(ownerApprovalDate, locale), ownerDepartment?.approvedByDisplayName)] as [string, string]]),
     ...(shouldShowCitizenTargetApprovalDate(detail)
-      ? [['Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi', formatApprovalDateText(formatDueDateTime(targetApprovalDate, locale), getJobTargetApproverDisplayName(detail))] as [string, string]]
+      ? [['Hedef Birim Yöneticisi Onay Tarihi', formatApprovalDateText(formatDueDateTime(targetApprovalDate, locale), getJobTargetApproverDisplayName(detail))] as [string, string]]
       : []),
     ...(detail.status === 'Completed'
       ? [['Tamamlanma Tarihi', fd(detail.completedAtUtc)] as [string, string]]

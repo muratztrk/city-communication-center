@@ -17,9 +17,13 @@ public sealed class CitizenConversationsController : ApiControllerBase
     [ProducesResponseType<IReadOnlyList<CitizenConversationSummaryDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<CitizenConversationSummaryDto>>> GetAll(
         [FromQuery] bool whatsAppOnly = false,
+        [FromQuery] DateTimeOffset? from = null,
+        [FromQuery] DateTimeOffset? to = null,
         CancellationToken cancellationToken = default)
     {
-        var result = await _sender.Send(new GetCitizenConversationsQuery(whatsAppOnly), cancellationToken);
+        var result = await _sender.Send(
+            new GetCitizenConversationsQuery(whatsAppOnly, from, to),
+            cancellationToken);
         return Ok(result);
     }
 

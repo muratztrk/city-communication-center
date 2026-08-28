@@ -7,7 +7,10 @@ namespace CityCommunicationCenter.Application.Features.Social;
 /// true ise yalnız WhatsApp kanalında iletişimi olan konuşmalar döner (card #1864);
 /// çağrı/telefon VT ile oluşan numaralar WhatsApp listesinden çıkar.
 /// </param>
-public sealed record GetCitizenConversationsQuery(bool WhatsAppOnly = false)
+public sealed record GetCitizenConversationsQuery(
+    bool WhatsAppOnly = false,
+    DateTimeOffset? From = null,
+    DateTimeOffset? To = null)
     : IQuery<IReadOnlyList<CitizenConversationSummaryDto>>;
 
 public sealed class GetCitizenConversationsQueryHandler
@@ -125,7 +128,10 @@ public sealed class GetCitizenConversationsQueryHandler
 
         var socialMessages = await _dbContext.SocialMessages
             .AsNoTracking()
-            .Where(m => m.CitizenConversationId != null && conversationIds.Contains(m.CitizenConversationId.Value))
+            .Where(m => m.CitizenConversationId != null
+                && conversationIds.Contains(m.CitizenConversationId.Value)
+                && (!request.From.HasValue || m.ReceivedAtUtc >= request.From.Value)
+                && (!request.To.HasValue || m.ReceivedAtUtc <= request.To.Value))
             .Select(m => new
             {
                 ConversationId = m.CitizenConversationId!.Value,
@@ -328,8 +334,7 @@ public sealed class GetCitizenConversationsQueryHandler
                 var countedJobIds = new HashSet<Guid>();
                 foreach (var message in conversationMessages)
                 {
-                    if (message.Channel != SocialChannel.WhatsApp
-                        || message.JobId is not Guid classifiedJobId
+                    if (message.JobId is not Guid classifiedJobId
                         || !countedJobIds.Add(classifiedJobId)
                         || !jobSliceById.TryGetValue(classifiedJobId, out var jobSlice))
                     {

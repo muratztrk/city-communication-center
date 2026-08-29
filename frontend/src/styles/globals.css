@@ -1438,9 +1438,9 @@
       font-size: clamp(1.05rem, 0.65vw + 0.78rem, 1.28rem);
     }
 
-    /* Banner 2. satır (page-title) bold biraz daha ince (#2511). */
+    /* Banner 2. satır (page-title) biraz daha kalın (#6a92e37b). */
     .app-content-shell .sticky-page-header .page-title {
-      font-weight: 400;
+      font-weight: 500;
     }
 
     .app-content-shell .page-subtitle {
@@ -2969,7 +2969,8 @@
   .role-matrix-table thead th {
     background-color: var(--color-header-from);
     background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
-    background-attachment: fixed;
+    /* local: viewport-fixed attachment sidebar/banner'dan yeşil-siyah örnekler (#6a928f47). */
+    background-attachment: local;
     border-right-color: rgba(255, 255, 255, 0.22);
     color: white;
   }
@@ -4789,10 +4790,9 @@
     cursor: pointer;
   }
 
-  /* Dashboard pie Ara... — biraz daha büyük metin; X her zaman kırmızı (R550 / #2042).
-     Yükseklik biraz küçültüldü (card #2065 / R556). */
+  /* Dashboard / harita Ara... — header Personel/Sistemde ara değil (#6a92692b). */
   .pie-legend-search.scope-chip-search-wrap {
-    min-height: 1.625rem;
+    min-height: 1.8rem;
     padding: 0 0.55rem;
   }
 
@@ -5120,12 +5120,12 @@
   }
 
   .sticky-page-header .page-title {
-    font-weight: 400;
+    font-weight: 500;
   }
 
-  /* Anasayfa / Vatandaş Bilgi Listesi banner page-title (#2511 reopen). Canlı Özet kicker ayrı. */
+  /* Anasayfa / Vatandaş Bilgi Listesi banner page-title (#6a92e37b). Canlı Özet kicker ayrı. */
   .section-card > .grid.border-b .page-title {
-    font-weight: 400;
+    font-weight: 500;
   }
 
   .sticky-page-header .page-subtitle {
@@ -5206,7 +5206,7 @@
     /* Standart gridview yeşil şerit — sütunlar arası tek gradient (#r447 / pie #2833). */
     background-color: var(--color-header-from);
     background-image: linear-gradient(135deg, var(--color-header-from), var(--color-header-to));
-    background-attachment: fixed;
+    background-attachment: local;
     color: #fff;
     border-right: 1px solid rgba(255, 255, 255, 0.22);
     vertical-align: middle;
@@ -7333,8 +7333,8 @@
     }
 
     .pie-chart-root svg {
-      width: 100px;
-      height: 100px;
+      width: 110px;
+      height: 110px;
     }
 
     .pie-chart-root text[font-size='18'] {
@@ -7429,6 +7429,13 @@
       font-size: 0.68rem !important;
     }
 
+    /* Anasayfa / Vatandaş Paneli / Birimler / harita Ara — header araması değil (#6a92692b). */
+    .section-card .pie-legend-search.scope-chip-search-wrap,
+    .sticky-page-header .pie-legend-search.scope-chip-search-wrap,
+    .map-period-search .pie-legend-search.scope-chip-search-wrap {
+      min-height: 1.75rem !important;
+    }
+
     .sticky-page-header .scope-chip-search-input,
     .section-card .scope-chip-search-input {
       font-size: 0.68rem !important;
@@ -7475,7 +7482,7 @@
     }
 
     .pie-chart-root ul {
-      gap: 0.12rem !important;
+      gap: 0.22rem !important;
     }
 
     .pie-chart-root ul,
@@ -7561,9 +7568,13 @@
     }
 
     .header-logout-btn {
+      height: 0.95rem !important;
+      min-height: 0.95rem !important;
+      padding-block: 0 !important;
       padding-inline: 0.4rem !important;
-      min-height: 1.1rem !important;
       font-size: 0.6rem !important;
+      line-height: 1 !important;
+      overflow: hidden;
     }
 
     .header-logout-btn svg {

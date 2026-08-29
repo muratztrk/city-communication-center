@@ -1,3 +1,7 @@
+## Round 1062 — pie 110px, lejant/arama/banner, Çıkış, thead flash
+
+- **STATUS:** Desktop pie 110px; pie kart gap-x-8; mobil lejant gap 0.22rem (5 satır); banner page-title 500; sayfa Ara 1.8rem; mobil Çıkış 0.95rem height; Sistemde ara thead `local` + grid gizleme. TIM kartlar Doing’de.
+
 ## Round 1061 — pie 100px, lejant kompakt, banner, Başlama tarihi
 
 - **STATUS:** Desktop pie 100px; mobil lejant küçük + sıkı gap; banner title küçüldü; bildirim Başlama tarihi; arama bullet; Çıkış/Geri/WA; header ara yüksekliği +2px.

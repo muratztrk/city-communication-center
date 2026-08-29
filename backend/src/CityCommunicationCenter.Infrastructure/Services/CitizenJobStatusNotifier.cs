@@ -384,7 +384,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             "İşleme Alındı" => templates.ProcessingReceived,
             "Yapılmakta" => templates.InProgress,
             "Tamamlanmış" or "Tamamlandı" => templates.Completed,
-            "İptal" => templates.Cancelled,
+            "İptal" or "İptal Edildi" => templates.Cancelled,
             _ => null,
         };
     }

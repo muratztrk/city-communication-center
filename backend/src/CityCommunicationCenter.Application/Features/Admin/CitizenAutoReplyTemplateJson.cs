@@ -34,7 +34,7 @@ public sealed record CitizenAutoReplyTemplateModel(
             "İşleme Alındı" => Greetings?.ProcessingReceived,
             "Yapılmakta" => Greetings?.InProgress,
             "Tamamlanmış" or "Tamamlandı" => Greetings?.Completed,
-            "İptal" => Greetings?.Cancelled,
+            "İptal" or "İptal Edildi" => Greetings?.Cancelled,
             _ => null,
         };
 

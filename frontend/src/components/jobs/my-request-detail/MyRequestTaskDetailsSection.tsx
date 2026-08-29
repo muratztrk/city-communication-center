@@ -5,13 +5,13 @@ import { RichTextContent } from '../../ui/RichTextContent'
 import { AttachmentImagePreviewButton } from '../../ui/AttachmentImagePreviewButton'
 import { SimpleImageAttachmentIcon } from '../../ui/SimpleImageAttachmentIcon'
 import type { JobDetail } from '../../../types/platform'
-import { requestLocationFieldLabel } from '../../../utils/citizenRequests'
+import { isCitizenRequestJob, requestLocationFieldLabel } from '../../../utils/citizenRequests'
 import { getTaskDisplayStatus, getTaskStatusTone } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime } from './format'
 import { buildInProgressPeriodStep, type JobProcessStep } from './buildJobProcessSteps'
 import { JobProcessTimeline, TimelineDateTimeValue } from './JobProcessTimeline'
 import { MyRequestSectionHeading } from './MyRequestSectionHeading'
-import { StackedFieldValue } from './StackedFieldValue'
+import { StackedFieldLabel, StackedFieldValue } from './StackedFieldValue'
 import { StatusChangeTransition } from './StatusChangeTransition'
 import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
 import { richTextToPlainText } from '../../../utils/richText'
@@ -246,8 +246,23 @@ export function MyRequestTaskDetailsSection({
                     {
                       // Talep yeri (birim) üst, oluşturan personel alt satırda (card #1544).
                       // Dış birim yeşil çerçeve yok — eski düz görünüm (card #r455).
-                      label: requestLocationFieldLabel(detail, t),
+                      // Mobilde etiket de iki satır: slash yok, `Oluşturan` alt satırda (#2650 kalıbı);
+                      // masaüstünde tek satırlık metin korunur.
+                      key: 'task-location',
+                      label: isCitizenRequestJob(detail)
+                        ? requestLocationFieldLabel(detail, t)
+                        : (
+                          <>
+                            <span className="hidden lg:inline">{requestLocationFieldLabel(detail, t)}</span>
+                            <StackedFieldLabel
+                              className="lg:hidden"
+                              top={t('jobs.detail.requestLocation', 'Talep Yeri')}
+                              bottom={t('tasks.columns.createdBy', 'Oluşturan')}
+                            />
+                          </>
+                        ),
                       value: <StackedFieldValue top={taskLocationDepartment} bottom={taskLocationCreator} />,
+                      rowClass: 'job-detail-field-row--task-location',
                     },
                     ...(task.jobSourceType !== 'Routine'
                       ? [{ label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'), value: task.assigningManagerDisplayName ?? '—' }]
@@ -341,8 +356,9 @@ export function MyRequestTaskDetailsSection({
                   ].map((row) => {
                     const tone = 'tone' in row ? row.tone : undefined
                     const fullRow = 'fullRow' in row && row.fullRow
+                    const rowClass = 'rowClass' in row ? row.rowClass : ''
                     return (
-                    <div key={row.label} className={`job-detail-field-row job-detail-field-row--request-info${fullRow ? ' job-detail-field-row--full' : ''}`}>
+                    <div key={'key' in row ? row.key : String(row.label)} className={`job-detail-field-row job-detail-field-row--request-info${fullRow ? ' job-detail-field-row--full' : ''}${rowClass ? ` ${rowClass}` : ''}`}>
                       <div className={`job-detail-field-row__label ${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.label}</div>
                       <div className={`job-detail-field-row__value ${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : typeof row.value === 'string' ? 'text-slate-900' : ''}`}>{row.value}</div>
                     </div>

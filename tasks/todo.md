@@ -1,3 +1,7 @@
+## Round 1071 — mobil Görev Bilgileri Talep Yeri / Oluşturan iki satır
+
+- **STATUS:** Bu satır `StackedFieldLabel` kullanmıyordu (tek satır metin). Mobilde etiket iki satıra bölündü, satır `--task-location` ızgarasıyla değer satırlarıyla hizalandı; masaüstü değişmedi.
+
 ## Round 1070 — mobil Adres Bilgileri tek sol eksen + ortalı tire
 
 - **STATUS:** mobil blok `--task` merkez kurallarını yenemiyordu (özgüllük). Tüm başlıklar sola/tek eksene alındı; boş satırda kutu `fit-content` + `:has(.address-empty-dash)` ile `-` başlık altında ortalı. `--peek` korunuyor.

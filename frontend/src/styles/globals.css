@@ -7817,6 +7817,50 @@
       text-align: center !important;
     }
 
+    /* Mobil İlgili Görev Detayları → Görev Bilgileri "Talep Yeri / Oluşturan":
+       etiket iki satır (slash yok, #2650), değer sağa yaslı ve her değer satırı kendi
+       etiketiyle aynı hizada. `display: contents` iç yığınları tek ızgaraya açar —
+       font/renk miras yoluyla korunur, yalnız kutu üretilmez. */
+    .job-detail-field-row--task-location {
+      display: grid !important;
+      grid-template-columns: auto minmax(0, 1fr);
+      align-items: baseline !important;
+      column-gap: 1rem !important;
+      row-gap: 0.28rem !important;
+    }
+
+    .job-detail-field-row--task-location > .job-detail-field-row__label,
+    .job-detail-field-row--task-location > .job-detail-field-row__value,
+    .job-detail-field-row--task-location .stacked-field-label,
+    .job-detail-field-row--task-location .stacked-field-value {
+      display: contents !important;
+    }
+
+    .job-detail-field-row--task-location .stacked-field-label > span:first-child {
+      grid-area: 1 / 1;
+    }
+
+    .job-detail-field-row--task-location .stacked-field-label > span:last-child {
+      grid-area: 2 / 1;
+      padding-top: 0 !important;
+    }
+
+    .job-detail-field-row--task-location .stacked-field-value > span:first-child {
+      grid-area: 1 / 2;
+      text-align: right;
+    }
+
+    .job-detail-field-row--task-location .stacked-field-value__secondary {
+      grid-area: 2 / 2;
+      text-align: right;
+    }
+
+    /* Tek değer (birim veya oluşturan boş) — `-` ilk satırda sağda kalır. */
+    .job-detail-field-row--task-location > .job-detail-field-row__value > *:not(.stacked-field-value) {
+      grid-area: 1 / 2;
+      text-align: right;
+    }
+
     .job-detail-field-row--location-creator {
       display: flex !important;
       flex-direction: row !important;

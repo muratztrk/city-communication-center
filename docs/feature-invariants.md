@@ -2565,6 +2565,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   artan sıra; 0'lar sonda.
 - **Drilldown yazdır Tamamlanma Tarihi (#r547):** `col-completed` ~18% / min 9.5rem — başlık
   hücre border'ından taşmaz.
+- **Mobil (≤1023px) İlgili Görev Detayları `Talep Yeri / Oluşturan`:** etiket iki satır
+  (`Talep Yeri` üstte, `Oluşturan` altta — slash yok, #2650 kalıbı) ve her değer satırı kendi
+  etiketiyle aynı hizada, sağa yaslı. Satır `job-detail-field-row--task-location` ile 2 kolonlu
+  ızgaraya alınır; `stacked-field-label` / `stacked-field-value` `display: contents` ile aynı
+  ızgaraya açılır (font/renk miras yoluyla korunur). Masaüstünde tek satırlık metin korunur
+  (`hidden lg:inline` / `lg:hidden`). Vatandaş talebinde etiket `Talebi Yönlendiren` tek satır kalır.
 - **Mobil (≤1023px) Adres Bilgileri hizası:** `Mahalle` / `Cadde / Sokak` / `No` / `Adres Tarifi` /
   `Konum Linki` başlıkları **tek sol düşey eksende** alt alta; boş satırda `-` başlığın genişliğinde
   ortalı (kutu `width: fit-content` + `:has(.address-empty-dash)`), dolu değer sola yaslı tam genişlik.

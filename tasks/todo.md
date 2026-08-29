@@ -1,6 +1,6 @@
 ## Round 1061 — pie 100px, lejant kompakt, banner, Başlama tarihi
 
-- **STATUS:** Desktop pie 100px; mobil lejant küçük + sıkı gap; banner title küçüldü; bildirim Başlama tarihi; arama bullet; Çıkış/Geri/WA retry.
+- **STATUS:** Desktop pie 100px; mobil lejant küçük + sıkı gap; banner title küçüldü; bildirim Başlama tarihi; arama bullet; Çıkış/Geri/WA; header ara yüksekliği +2px.
 
 ## Round 1060 — arama Job durumu, kanal ikonu, chrome retry
 

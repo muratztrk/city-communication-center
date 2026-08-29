@@ -369,7 +369,7 @@ export function LoginPage() {
           }}
         >
           <div className="w-full space-y-4">
-            <div className="login-logo-panel-mobile relative flex flex-col items-center gap-2 overflow-hidden rounded-[var(--radius-xl)] border border-emerald-900/20 bg-[color:var(--color-header-from)] px-5 py-3 pt-12 sm:px-9 lg:hidden">
+            <div className="login-logo-panel-mobile relative flex flex-col items-center gap-2 overflow-hidden rounded-[var(--radius-xl)] border border-emerald-900/20 bg-[color:var(--color-header-from)] px-5 py-2 pt-8 sm:px-9 lg:hidden">
               {/* Mobilde Atatürk silüeti logo kartının kendi border'ı içinde sol üstte kalır. */}
               <img
                 src="/header-ataturk.png"

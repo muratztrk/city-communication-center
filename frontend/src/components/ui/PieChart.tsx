@@ -85,7 +85,7 @@ function LegendItem({
   const label = useResolvedLabel(slice.label, formatSliceLabel)
   const content = (
     <>
-      <span className="pie-legend-dot shrink-0 size-2 rounded-full" style={{ backgroundColor: getColor(slice.colorHint) }} />
+      <span className="pie-legend-dot shrink-0 size-1.5 rounded-full" style={{ backgroundColor: getColor(slice.colorHint) }} />
       <span className="min-w-0 truncate text-slate-700">{label}</span>
       <span className="ml-auto pl-3 font-semibold text-slate-950 tabular-nums">{slice.value}</span>
     </>
@@ -257,7 +257,7 @@ export function PieChart({
             <text x={cx} y={cy - 6} textAnchor="middle" fontSize="18" fontWeight="700" fill="#0f172a">
               {Number.isInteger(total) ? total : (Math.round(total * 10) / 10)}
             </text>
-            <text x={cx} y={cy + 10} textAnchor="middle" fontSize="9" fill="#64748b">
+            <text x={cx} y={cy + 11} textAnchor="middle" fontSize="11" fill="#64748b">
               toplam
             </text>
           </svg>

@@ -8,7 +8,7 @@ import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../../lib/rolePageA
 import type { Department, JobSummary, SocialMessage, Task, User } from '../../types/platform'
 import { ChannelIcon } from '../ui/channel-icon'
 import { getCitizenRequestStatusLabel } from '../../utils/citizenRequests'
-import { getSocialStatusLabel, getTaskStatusLabel } from '../../utils/localization'
+import { getTaskStatusLabel } from '../../utils/localization'
 import { includesFoldedTr } from '../../utils/textNormalization'
 
 type SearchCategory =
@@ -77,6 +77,34 @@ function localizeSearchChannel(channel: string | null | undefined): string {
   if (!channel) return ''
   if (/^phone$/i.test(channel)) return 'Çağrı'
   return channel
+}
+
+/** Sistemde ara durumları: İşleme Alındı / Onay Bekleyen / Yapılmakta / Tamamlandı / İptal. */
+function searchCitizenStatusLabel(
+  t: ReturnType<typeof useTranslation>['t'],
+  job: JobSummary,
+): string {
+  if (job.status === 'Completed') return t('jobs.statusLabel.completedShort', 'Tamamlandı')
+  if (job.status === 'Cancelled' || job.status === 'Rejected') return t('jobs.statusLabel.cancelled', 'İptal')
+  if (job.status === 'PendingExternalApproval' || job.status === 'PendingOwnerApproval') {
+    return t('social.requestStatus.pendingApproval', 'Onay Bekleyen')
+  }
+  const label = getCitizenRequestStatusLabel(t, job)
+  if (label.startsWith('Tamamlanan')) return label.replace('Tamamlanan', 'Tamamlandı')
+  if (/işe\s*dönüşt/i.test(label) || /converted/i.test(label)) {
+    return t('social.requestStatus.processingReceived', 'İşleme Alındı')
+  }
+  return label
+}
+
+function searchSocialStatusLabel(
+  t: ReturnType<typeof useTranslation>['t'],
+  status: string,
+  job?: JobSummary,
+): string {
+  if (job) return searchCitizenStatusLabel(t, job)
+  if (/pending|approval/i.test(status)) return t('social.requestStatus.pendingApproval', 'Onay Bekleyen')
+  return t('social.requestStatus.processingReceived', 'İşleme Alındı')
 }
 
 function jobNumberTexts(job: Pick<JobSummary, 'jobNumber' | 'jobNumberYear' | 'citizenRequestNumber' | 'citizenRequestNumberYear'>): string[] {
@@ -158,7 +186,7 @@ function pushJobResults(
     seenIds.add(job.jobId)
     const channel = showCitizenChannel ? resolveJobChannel(job, socialByJobId) : null
     const channelLabel = localizeSearchChannel(channel)
-    const status = getCitizenRequestStatusLabel(t, job)
+    const status = searchCitizenStatusLabel(t, job)
     results.push({
       id: `${category}-${job.jobId}`,
       category,
@@ -319,7 +347,7 @@ function filterResults(
       .slice(0, MAX_PER_CATEGORY)
       .forEach(msg => {
         const job = msg.jobId ? jobsById.get(msg.jobId) : undefined
-        const status = job ? getCitizenRequestStatusLabel(t, job) : getSocialStatusLabel(t, msg.status)
+        const status = searchSocialStatusLabel(t, msg.status, job)
         const channelLabel = localizeSearchChannel(msg.channel)
         results.push({
           id: `social-${msg.socialMessageId}`,
@@ -360,7 +388,7 @@ export function GlobalSearchBar() {
     }
   }, [roles, user?.role])
 
-  const showCitizenChannel = user?.role !== 'Operator' && user?.role !== 'SystemAdmin'
+  const showCitizenChannel = !roles.includes('Operator') && !roles.includes('SystemAdmin')
 
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -539,7 +567,7 @@ export function GlobalSearchBar() {
             }
           }}
           placeholder={t('search.placeholder', 'Sistemde ara...')}
-          className="w-44 bg-transparent text-xs font-normal text-slate-700 placeholder:text-slate-400 outline-none"
+          className="w-[8.25rem] bg-transparent text-xs font-normal text-slate-700 placeholder:text-slate-400 outline-none"
           aria-label={t('search.label', 'Sistemde ara')}
           autoComplete="off"
           spellCheck={false}

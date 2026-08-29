@@ -791,7 +791,7 @@ export function AppShell() {
               transition: mobileNavDragging ? 'none' : 'transform 240ms ease-out',
             }}
           >
-            <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-3 pt-14">
+            <div className="relative rounded-[var(--radius-xl)] border border-white/8 bg-white/6 p-2.5 pt-10">
               {/* Desktop sidebar'daki gibi sol üst köşede Atatürk; belediye logosu mobil menüde
                   daha geniş (varsayılan 96px kare çok küçüktü) (card #1205). */}
               <img

@@ -1229,7 +1229,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   eşleşme yalnız talep no / VT no / görev no / bağlı talep no / talep-görev başlığı / vatandaş adı / telefon
   (birim, atanan, kullanıcı, birim listesi yok — #3171/#6a9275b5); `Phone` etiketi `Çağrı`,
   sosyal satırda `@` yok, kanal ikonu kanal adının solunda (#3168/#3169).
-  Kanal etiketinden sonra ` • ` + talep/sosyal durum (#6a9268a9).
+  Kanal etiketinden sonra ` • ` + talep durumu yalnız
+  `İşleme Alındı` / `Onay Bekleyen` / `Yapılmakta` / `Tamamlandı` / `İptal`
+  (`İşe dönüştürüldü` yok — #6a9268a9).
   Operator ve SystemAdmin dışında vatandaş talebinde kanal ikonu başlığın solunda
   (kanal yoksa `Phone`/`Çağrı` yedek — #6a92739b);
   Görevlerim / Birimdeki Görevler alt satırı yalnız görev durumu (#3170).
@@ -1238,8 +1240,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   detay popup açılır (card #1766).
   Kurum İçi Mesajlar personel aramasında (≥3 karakter) satır başlığı da `Ad - Dahili` /
   `Ad - Dahili No Yok` (#r504).
-  Banner `page-kicker` title case (`capitalize`), ALL CAPS değil (#6a9284d8).
-  Mobilde “Canlı özet” / `.live-summary-kicker` gizli (#6a91fea5).
+  Banner `page-kicker` title case (`capitalize`). Anasayfa metrik etiketleri yeniden ALL CAPS
+  (title-case isteği geri alındı — #6a92852e).
+  Mobilde “Canlı özet” / “Canlı harita” / `.live-summary-kicker` gizli; kicker boşluğu banner
+  yüksekliğinden düşer (#6a91fea5/#6a91feaa).
+  Banner Ara… tarih sütunlarında eşleşmez (#6a92a69b).
   Birime Gelen / Birimden Giden banner `page-kicker` seçili scope chip metnidir;
   `page-title` bölüm adı kalır (card #1700; Taleplerim ile aynı).
 - **Ayarlar banner `page-kicker` seçili tab metnidir** (`Kurum`, `Görünüm`, …);

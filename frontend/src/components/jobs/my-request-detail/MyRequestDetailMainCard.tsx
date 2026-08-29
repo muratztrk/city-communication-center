@@ -100,7 +100,7 @@ export function MyRequestInfoFieldsList({
   return (
     <div className="my-request-detail-fields divide-y divide-slate-100">
       {fields.filter(field => !(hidePriorityRow && field.label === priorityLabel)).map((field, index) => (
-        <div key={typeof field.label === 'string' ? field.label : `field-${index}`} className="job-detail-field-row job-detail-field-row--request-info">
+        <div key={typeof field.label === 'string' ? field.label : `field-${index}`} className={`job-detail-field-row job-detail-field-row--request-info${field.rowClass ? ` ${field.rowClass}` : ''}`}>
           <div className="job-detail-field-row__label">{field.label}</div>
           <div className={`job-detail-field-row__value ${field.highlight ? 'text-orange-500' : ''}`}>
             {isEditing && editDraft && onEditDraftChange && field.label === priorityLabel ? (

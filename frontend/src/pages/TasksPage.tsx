@@ -414,14 +414,10 @@ function formatTaskJobDisplayNumber(
 const TASK_SEARCH_COLUMN_KEYS = [
   'jobNumber',
   'taskNumber',
-  'createdAtUtc',
   'ownerDepartmentName',
   'title',
   'taskOwnerDisplayName',
   'jobSourceType',
-  'dueDateUtc',
-  'completedAtUtc',
-  'updatedAtUtc',
   'currentStatus',
   'cancelReturnStatus',
   'priority',
@@ -2317,6 +2313,7 @@ const pageKicker = isMyTasksView
                                     ),
                                   // Dış birim yeşil çerçeve kaldırıldı — eski düz görünüm (card #r455).
                                   value: <StackedFieldValue top={selectedTask.ownerDepartmentName} bottom={selectedTask.createdByDisplayName} />,
+                                  rowClass: 'job-detail-field-row--location-creator',
                                 }]
                               : []),
                             // Atayan yönetici üstte, görevi yapan hemen altında kalır (card #1613).
@@ -2475,7 +2472,7 @@ const pageKicker = isMyTasksView
                           ].map((row, fieldIndex) => {
                             const tone = 'tone' in row ? row.tone : undefined
                             return (
-                            <div key={fieldIndex} className="job-detail-field-row job-detail-field-row--request-info">
+                            <div key={fieldIndex} className={`job-detail-field-row job-detail-field-row--request-info${'rowClass' in row && row.rowClass ? ` ${row.rowClass}` : ''}`}>
                               <div className={`job-detail-field-row__label ${tone === 'cancel' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.label}</div>
                               <div className={`job-detail-field-row__value ${tone === 'cancel' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.value}</div>
                             </div>

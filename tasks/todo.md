@@ -1,3 +1,7 @@
+## Round 1059 — arama durum düzeltmesi, banner tarih yok, mobil chrome
+
+- **STATUS:** Sistemde ara İşe dönüştürüldü yok; banner Ara tarih eşleşmez; Canlı harita gizli; müdür Bekleyen; pie toplam/dot; bildirim sağ hiza; TIM kartlar Doing’de bırakıldı.
+
 ## Round 1058 — arama durum/kanal, örtüşen pin, 6’lı metrik, mobil chrome
 
 - **STATUS:** Sistemde ara kanal+durum ve bağlı talep no; vatandaş kanal ikonu Phone yedek; aynı CBS pinleri ~10 m kayar; yönetici 6 metrik tek satır; kicker/metrik title case; bildirim/WA/login/nav mobil düzeltmeleri.

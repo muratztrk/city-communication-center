@@ -735,7 +735,7 @@ export function IncomingRequestsPage() {
   }, [t, locale])
 
   // Banner aramasının tarayacağı tüm sütunlar (sadece Başlık değil).
-  const SEARCH_COLUMN_KEYS = ['displayNumber', 'forwardReason', 'priority', 'createdAtUtc', 'departmentName', 'createdBy', 'title', 'taskOwnerDisplayName', 'dueDateUtc', 'approvedAtUtc', 'completedAtUtc', 'updatedAtUtc', 'status']
+  const SEARCH_COLUMN_KEYS = ['displayNumber', 'forwardReason', 'priority', 'departmentName', 'createdBy', 'title', 'taskOwnerDisplayName', 'status']
 
   const visibleRows = useMemo(() => {
     let result = rows

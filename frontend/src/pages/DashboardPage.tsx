@@ -568,7 +568,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     ? [
         {
           label: t('dashboard.cards.deptPendingTasks', 'Birimdeki Görevler'),
-          sublabel: t('dashboard.cards.deptPendingTasksSub', 'Bekleyen Görevler'),
+          sublabel: t('dashboard.cards.deptPendingTasksSub', 'Bekleyen'),
           value: dashboardQuery.data.deptPendingTaskCount,
           icon: SquareKanban,
           path: '/department-tasks?flow=all',
@@ -801,7 +801,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <Icon className="size-4" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="dashboard-metric-label text-[0.72rem] font-semibold capitalize leading-snug text-[color:var(--color-muted-foreground)]">
+          <div className="dashboard-metric-label text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
             {metric.label}
           </div>
           {metric.sublabel ? (

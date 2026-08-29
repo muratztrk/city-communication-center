@@ -839,7 +839,7 @@ export function CitizenRequestMap({
               <PieLegendSearch value={mapSearch} onChange={setMapSearch} />
             </div>
           )}
-          <div className="ml-auto flex shrink-0 flex-nowrap items-center gap-2">
+          <div className="flex shrink-0 flex-nowrap items-center gap-2 max-lg:ml-0 lg:ml-auto">
           <button
             type="button"
             disabled={loading || resolving || visibleResolved.length === 0}

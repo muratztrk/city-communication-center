@@ -1366,7 +1366,7 @@ export function CreateRequestPage() {
                   </span>
                   <div>
                     <h2 className="text-lg font-semibold text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
-                    <p className="mt-1 text-sm leading-6 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizde birim içi talep sürecini oluşturun.')}</p>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizde olan talep sürecini oluşturun.')}</p>
                   </div>
                 </div>
               </button>
@@ -1401,7 +1401,7 @@ export function CreateRequestPage() {
                 </span>
                 <div>
                   <h2 className="text-lg font-semibold text-slate-950">{t('requests.create.citizenCallTitle', 'Vatandaş Çağrı Talebi')}</h2>
-                  <p className="mt-1 text-sm leading-6 text-slate-600">{t('requests.create.citizenDescription', 'Vatandaştan gelen talebi manuel kayıt olarak oluşturun.')}</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">{t('requests.create.citizenDescription', 'Vatandaştan gelen talebi manuel oluşturun.')}</p>
                 </div>
               </div>
             </button>
@@ -1412,7 +1412,7 @@ export function CreateRequestPage() {
       {selectedKind === 'internal' ? (
         <form id="internal-request-form" noValidate className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-2" onSubmit={handleCreateInternal}>
           <div className="xl:col-span-2">
-            <h2 className="inline-flex items-center gap-2 text-xl font-semibold text-slate-950">
+            <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-slate-950">
               <Building2 className="size-5 text-[color:var(--color-primary)]" />
               {t('requests.create.internalFormTitle', 'Birim İçi Talep Oluştur')}
             </h2>
@@ -1516,7 +1516,7 @@ export function CreateRequestPage() {
       {selectedKind === 'external' ? (
         <form id="external-request-form" noValidate className="section-card request-form request-form--readable grid gap-3 xl:grid-cols-2" onSubmit={handleCreateExternal}>
           <div className="xl:col-span-2">
-            <h2 className="inline-flex items-center gap-2 text-xl font-semibold text-slate-950">
+            <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-slate-950">
               <Workflow className="size-5 text-emerald-700" />
               {isReporter ? t('requests.create.reporterFormTitle', 'Talep Oluştur') : t('requests.create.externalFormTitle', 'Birim Dışı Talep Oluştur')}
             </h2>
@@ -1631,7 +1631,7 @@ export function CreateRequestPage() {
       {selectedKind === 'citizen' ? (
         <form id="citizen-request-form" noValidate className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
           <div className="xl:col-span-2">
-            <h2 className="inline-flex items-center gap-2 text-xl font-semibold text-slate-950">
+            <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-slate-950">
               <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
                 <Phone className="size-4" />
               </span>

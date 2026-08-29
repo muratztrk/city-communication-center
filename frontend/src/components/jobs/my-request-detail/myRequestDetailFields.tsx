@@ -21,6 +21,7 @@ export interface MyRequestDetailField {
   label: ReactNode
   value: ReactNode
   highlight?: boolean
+  rowClass?: string
 }
 
 function destinationFieldLabel(
@@ -127,6 +128,7 @@ export function buildMyRequestDetailFields(
       {
         label: locationLabel,
         value: locationCreatorValue,
+        rowClass: 'job-detail-field-row--location-creator',
       },
       ...(useMyRequestsFieldLayout
         ? [
@@ -161,6 +163,7 @@ export function buildMyRequestDetailFields(
     {
       label: locationLabel,
       value: locationCreatorValue,
+      rowClass: 'job-detail-field-row--location-creator',
     },
     ...(useMyRequestsFieldLayout
       ? [

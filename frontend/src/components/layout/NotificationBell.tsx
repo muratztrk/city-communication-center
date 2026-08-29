@@ -205,7 +205,6 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
       return [
         notification.title,
         notification.message,
-        formatNotifDate(notification.sentAtUtc, locale),
       ].some(value => value.toLocaleLowerCase('tr').includes(modalSearchQuery))
     })
   const pagedModal = filteredModal.slice((modalPage - 1) * modalPageSize, modalPage * modalPageSize)
@@ -499,7 +498,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                 {t('notifications.modalTitle', 'Bildirimler')}
               </h2>
               {/* Talepler bannerındaki ile aynı: arama + başlangıç/bitiş tarihi seçicileri (card 508). */}
-              <div className="notification-modal-filters flex shrink-0 items-center gap-1.5">
+              <div className="notification-modal-filters ml-auto flex shrink-0 items-center justify-end gap-1.5">
                 <div className="notification-modal-search scope-chip-search-wrap">
                   <Search className="scope-chip-search-icon size-3 shrink-0" aria-hidden="true" />
                   <input

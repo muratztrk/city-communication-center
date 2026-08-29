@@ -121,7 +121,7 @@ export function ExtensionSearchBar() {
             }
           }}
           placeholder={t('search.extensionPlaceholder', 'Personel Dahili No bul...')}
-          className="w-44 bg-transparent text-xs font-normal text-slate-700 placeholder:text-slate-400 outline-none"
+          className="w-[8.25rem] bg-transparent text-xs font-normal text-slate-700 placeholder:text-slate-400 outline-none"
           aria-label={t('search.extensionLabel', 'Personel Dahili No bul')}
           autoComplete="off"
           spellCheck={false}

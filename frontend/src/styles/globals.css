@@ -1300,7 +1300,7 @@
   }
 
   .notification-modal-search.scope-chip-search-wrap {
-    width: 6.75rem;
+    width: 7.25rem;
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.28);
   }
@@ -1351,7 +1351,7 @@
 
   /* Tarih = yanındaki Ara textbox ile aynı genişlik (#6a75d499). */
   .notification-modal-filters .notification-modal-date.scope-chip-date {
-    width: 6.75rem;
+    width: 7.25rem;
   }
 
   .notification-modal-filters .scope-chip-date-separator {
@@ -2050,7 +2050,7 @@
   }
 
   .page-title {
-    font-size: clamp(1.45rem, 1vw + 1.05rem, 1.85rem);
+    font-size: clamp(1.35rem, 1vw + 0.95rem, 1.7rem);
     line-height: 1.1;
     font-weight: 700;
     color: #0f172a;
@@ -2227,7 +2227,7 @@
   }
 
   .routine-task-form .rich-text-editable:empty::before {
-    font-size: 0.78rem;
+    font-size: 0.875rem;
   }
 
   .rich-text-editable p,
@@ -4766,7 +4766,7 @@
   }
 
   .map-period-search .scope-chip-search-wrap {
-    min-height: 2.25rem;
+    min-height: 1.625rem;
   }
 
   .scope-chip-search-input::placeholder {
@@ -7299,11 +7299,11 @@
   }
 
   .notification-modal-shell .notification-modal-search {
-    max-width: 6.75rem;
+    max-width: 7.25rem;
   }
 
   .notification-modal-shell .notification-modal-date.scope-chip-date {
-    max-width: 6.75rem;
+    max-width: 7.25rem;
   }
 
   .notification-modal-shell .notification-modal-date.scope-chip-date .field-input {
@@ -7329,6 +7329,15 @@
       font-size: 15px;
     }
 
+    .pie-chart-root text[font-size='11'] {
+      font-size: 11px;
+    }
+
+    .pie-legend-dot {
+      width: 0.35rem;
+      height: 0.35rem;
+    }
+
     .citizen-map-list-btn {
       min-height: 2rem;
       padding-block: 0.4rem;
@@ -7341,8 +7350,8 @@
     }
 
     .login-page .login-logo-panel-mobile {
-      padding-top: 2.4rem;
-      padding-bottom: 0.6rem;
+      padding-top: 1.65rem;
+      padding-bottom: 0.45rem;
     }
 
     .login-page h2 {
@@ -7362,7 +7371,13 @@
 
     .sticky-page-header .page-title,
     .section-card .page-title {
-      font-size: 1.05rem;
+      font-size: 0.98rem;
+    }
+
+    .section-card > .grid.border-b {
+      padding-top: 0.7rem !important;
+      padding-bottom: 0.7rem !important;
+      row-gap: 0.35rem !important;
     }
 
     .sticky-page-header .page-subtitle,
@@ -7449,7 +7464,7 @@
 
     .pie-chart-root ul,
     .pie-chart-root li {
-      font-size: 0.62rem !important;
+      font-size: 0.58rem !important;
     }
 
     .pie-chart-root li span[class*='size-'],
@@ -7489,8 +7504,8 @@
     .mobile-nav-panel .h-\[5\.5rem\],
     .lg\:hidden .h-\[5\.5rem\],
     .mobile-sidebar-seal {
-      height: 3.65rem !important;
-      width: 8.25rem !important;
+      height: 4rem !important;
+      width: 8.75rem !important;
     }
 
     .mobile-sidebar-brand {
@@ -7500,7 +7515,7 @@
     .mobile-nav-panel .text-xl,
     .lg\:hidden .text-xl.font-bold,
     .mobile-sidebar-title {
-      font-size: 0.78rem !important;
+      font-size: 0.88rem !important;
       font-weight: 500 !important;
     }
 
@@ -7509,9 +7524,9 @@
     }
 
     .header-logout-btn {
-      padding-inline: 0.55rem !important;
-      min-height: 1.7rem !important;
-      font-size: 0.68rem !important;
+      padding-inline: 0.5rem !important;
+      min-height: 1.5rem !important;
+      font-size: 0.65rem !important;
     }
 
     .header-logout-btn svg {
@@ -7520,8 +7535,8 @@
     }
 
     .back-button {
-      font-size: 0.72rem !important;
-      padding: 0.15rem 0.4rem !important;
+      font-size: 0.8rem !important;
+      padding: 0.2rem 0.5rem !important;
       min-height: 0 !important;
     }
 
@@ -7538,7 +7553,7 @@
 
     .citizen-map-list-btn {
       margin-left: 0 !important;
-      margin-right: auto !important;
+      margin-right: 0 !important;
       justify-content: flex-start !important;
       text-align: left !important;
       align-self: flex-start !important;
@@ -7554,13 +7569,18 @@
 
     .whatsapp-dept-select,
     .whatsapp-dept-select button {
-      height: 1.7rem !important;
-      max-width: 6.75rem !important;
-      font-size: 0.65rem !important;
+      height: 1.55rem !important;
+      max-width: 6.5rem !important;
+      font-size: 0.62rem !important;
+    }
+
+    .whatsapp-template-add {
+      min-width: 8.25rem !important;
+      padding-inline: 0.55rem !important;
     }
 
     .date-time-picker-time {
-      max-width: 6.5rem !important;
+      max-width: 8.75rem !important;
     }
 
     .date-time-picker-select {
@@ -7665,9 +7685,18 @@
       text-align: center !important;
     }
 
-    .my-request-detail-fields .stacked-field-value {
-      align-items: flex-end !important;
+    .job-detail-field-row--location-creator {
+      display: flex !important;
+      flex-direction: row !important;
+      justify-content: space-between !important;
+      align-items: flex-start !important;
+      gap: 0.75rem !important;
+    }
+
+    .job-detail-field-row--location-creator .job-detail-field-row__value,
+    .job-detail-field-row--location-creator .stacked-field-value {
       text-align: right !important;
+      align-items: flex-end !important;
     }
 
     .create-request-kind-card h2,

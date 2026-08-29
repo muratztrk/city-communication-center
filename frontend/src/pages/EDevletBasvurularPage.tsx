@@ -44,7 +44,7 @@ const SCOPE_FILTERS: Array<{ value: BasvuruScope; labelKey: string; fallback: st
   { value: 'processed', labelKey: 'edevletBasvurular.scope.processed', fallback: 'İşlenen Başvurular', chipClass: 'scope-chip--all' },
 ]
 
-const SEARCH_COLUMN_KEYS = ['takipNo', 'createdAtUtc', 'citizenName', 'basvuruTipi', 'mahalleAdi', 'sokakCaddeAdi', 'description'] as const
+const SEARCH_COLUMN_KEYS = ['takipNo', 'citizenName', 'basvuruTipi', 'mahalleAdi', 'sokakCaddeAdi', 'description'] as const
 
 function formatDateTime(value: string | null | undefined, locale: string) {
   if (!value) return ''
@@ -138,17 +138,15 @@ export function EDevletBasvurularPage() {
       const query = searchText.toLocaleLowerCase('tr')
       result = result.filter(row =>
         SEARCH_COLUMN_KEYS.some(key => {
-          const display = key === 'createdAtUtc'
-            ? formatDateTime(row.createdAtUtc, locale)
-            : key === 'citizenName'
-              ? row.citizenName
-              : String(row[key] ?? '')
+          const display = key === 'citizenName'
+            ? row.citizenName
+            : String(row[key] ?? '')
           return display.toLocaleLowerCase('tr').includes(query)
         }),
       )
     }
     return result
-  }, [scopedRows, filterFrom, filterTo, searchText, locale])
+  }, [scopedRows, filterFrom, filterTo, searchText])
 
   const columnFilteredRows = useMemo(
     () => visibleRows.filter(row => matchesFilters(row, getColumnValue)),

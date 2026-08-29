@@ -1214,10 +1214,10 @@ function ConversationDetail({
         {ticketLabel}
       </button>
       {taskOwnerLabel ? (
-        <>
+        <span className="whatsapp-task-owner-meta max-lg:hidden">
           <span className="mx-1 text-slate-400">|</span>
           <span>{t('tasks.columns.owner', 'Görev Sahibi')}: {taskOwnerLabel}</span>
-        </>
+        </span>
       ) : null}
     </span>
   ) : null

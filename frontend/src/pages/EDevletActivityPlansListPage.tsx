@@ -38,7 +38,7 @@ const SCOPE_FILTERS: Array<{ value: PlanScope; labelKey: string; fallback: strin
   { value: 'past', labelKey: 'edevletActivityPlans.scope.past', fallback: 'Geçmiş Faaliyet', chipClass: 'scope-chip--all' },
 ]
 
-const SEARCH_COLUMN_KEYS = ['planNoDisplay', 'createdAtUtc', 'activityTypeName', 'neighborhood', 'street', 'description'] as const
+const SEARCH_COLUMN_KEYS = ['planNoDisplay', 'activityTypeName', 'neighborhood', 'street', 'description'] as const
 
 function formatPlanNumber(planNumber: number | null, planNumberYear: number | null) {
   if (!planNumber || !planNumberYear) return '—'
@@ -136,15 +136,13 @@ export function EDevletActivityPlansListPage() {
         SEARCH_COLUMN_KEYS.some(key => {
           const display = key === 'planNoDisplay'
             ? plan.planNoDisplay
-            : key === 'createdAtUtc'
-              ? formatDateTime(plan.createdAtUtc, locale)
-              : String(plan[key] ?? '')
+            : String(plan[key] ?? '')
           return display.toLocaleLowerCase('tr').includes(query)
         }),
       )
     }
     return result
-  }, [scopedPlans, filterFrom, filterTo, searchText, locale])
+  }, [scopedPlans, filterFrom, filterTo, searchText])
 
   const columnFilteredPlans = useMemo(
     () => visiblePlans.filter(plan => planMatchesFilters(plan, getColumnValue)),

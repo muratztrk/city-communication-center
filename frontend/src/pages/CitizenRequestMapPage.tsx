@@ -80,7 +80,7 @@ export function CitizenRequestMapPage() {
             </p>
           </div>
           <div className="flex items-start justify-start lg:justify-end">
-            <StatusPill tone="info" className="bg-white/12 text-white ring-white/15">
+            <StatusPill tone="info" className="live-summary-kicker bg-white/12 text-white ring-white/15">
               {pinsQuery.isFetching ? t('common.refreshing') : t('citizenRequestMap.live', 'Canlı harita')}
             </StatusPill>
           </div>

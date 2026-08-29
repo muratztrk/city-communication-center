@@ -591,7 +591,7 @@ export function GlobalSearchBar() {
             }
           }}
           placeholder={t('search.placeholder', 'Sistemde ara...')}
-          className="w-[8.25rem] bg-transparent text-xs font-normal text-slate-700 placeholder:text-slate-400 outline-none"
+          className="w-[8.25rem] bg-transparent text-xs font-normal text-slate-700 placeholder:font-light placeholder:text-slate-400 outline-none"
           aria-label={t('search.label', 'Sistemde ara')}
           autoComplete="off"
           spellCheck={false}

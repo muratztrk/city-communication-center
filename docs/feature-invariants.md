@@ -1236,7 +1236,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Operator ve SystemAdmin dışında vatandaş talebinde kanal ikonu başlığın solunda
   (kanal yoksa `Phone`/`Çağrı` yedek — #6a92739b);
   Görevlerim / Birimdeki Görevler alt satırı yalnız görev durumu (#3170).
-  Header Personel/Sistemde ara placeholder `text-xs` (#6a926f4e).
+  Header Personel/Sistemde ara placeholder `text-xs` + `placeholder:font-light` (#6a926f4e / #6a92f91b).
   talep/görev sonucuna tıklanınca `jobId`/`taskId` ile ilgili sayfada
   detay popup açılır (card #1766).
   Kurum İçi Mesajlar personel aramasında (≥3 karakter) satır başlığı da `Ad - Dahili` /
@@ -1248,11 +1248,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Completed → `Tamamlandı` (#6a9268a9). Operator/SystemAdmin dışında kanal ikonu başlık solunda;
   kanal eşlemesi `getSocialMessages` ile (#6a92aaca).
   Sistemde ara kanal • durum bullet `0.62em` (#6a92dd81).
-  Desktop pie yuvarlak 110px; iç sayı 17px / «toplam» 12.5px (#6a92b566). Mobil pie 96px (#6a92b30e).
-  Mobil pie lejant `ul` gap 0.3rem; kaydırmadan 5 satır görünür (#6a92cbc7).
+  Desktop pie yuvarlak 110px; iç sayı 18.5px/800, «toplam» 13.5px/600 (#6a92b566).
+  Mobil pie 96px; iç sayı 19.5px / «toplam» 12.5px (#6a92f964).
+  Mobil pie lejant `ul` gap 0.38rem; kaydırmadan 5 satır görünür (#6a92cbc7).
   Anasayfa pie ızgara `gap-y-6 gap-x-12` (#6a92852e).
   Anasayfa/Vatandaş Paneli/Birimler/harita `PieLegendSearch` min-height 1.8rem (header ara değil) (#6a92692b).
-  Mobil header Çıkış `height` 1.25rem; ikon-metin `gap` 0.2rem (#6a920226).
+  Mobil header Çıkış `height` 1.45rem; ikon-metin `gap` 0.2rem (#6a920226).
   Sistemde ara `jobId`/`taskId` ile detay açılır; thead `background-attachment: fixed` (#r447;
   #6a928f47 geri alındı).
   Bildirim modal başlangıç placeholder `Başlama tarihi`; tarih font-weight 400 (#6a92b641).

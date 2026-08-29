@@ -7337,11 +7337,13 @@
     }
 
     .pie-chart-root text[font-size='18'] {
-      font-size: 17px;
+      font-size: 18.5px;
+      font-weight: 800;
     }
 
     .pie-chart-root text[font-size='11'] {
-      font-size: 12.5px;
+      font-size: 13.5px;
+      font-weight: 600;
     }
 
     .pie-legend-dot {
@@ -7480,8 +7482,16 @@
       height: 96px !important;
     }
 
+    .pie-chart-root text[font-size='18'] {
+      font-size: 19.5px !important;
+    }
+
+    .pie-chart-root text[font-size='11'] {
+      font-size: 12.5px !important;
+    }
+
     .pie-chart-root ul {
-      gap: 0.3rem !important;
+      gap: 0.38rem !important;
     }
 
     .pie-chart-root ul,
@@ -7567,8 +7577,8 @@
     }
 
     .header-logout-btn {
-      height: 1.25rem !important;
-      min-height: 1.25rem !important;
+      height: 1.45rem !important;
+      min-height: 1.45rem !important;
       gap: 0.2rem !important;
       padding-block: 0 !important;
       padding-inline: 0.45rem !important;

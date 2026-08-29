@@ -1,3 +1,7 @@
+## Round 1064 — placeholder light, pie iç yazı, lejant, Çıkış
+
+- **STATUS:** header ara placeholder font-light; desktop pie iç 18.5/800 + 13.5/600; mobil iç 19.5/12.5; lejant gap 0.38rem; Çıkış 1.45rem. TIM Doing’de.
+
 ## Round 1063 — pie aralık/iç yazı, lejant, Çıkış, thead geri alma
 
 - **STATUS:** pie gap-x-12; desktop iç sayı/toplam büyüdü; mobil lejant 0.3rem; Çıkış 1.25rem + ikon gap 0.2rem; #6a928f47 thead/grid gizleme geri alındı. TIM Doing’de.

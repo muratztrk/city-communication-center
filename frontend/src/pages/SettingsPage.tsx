@@ -85,6 +85,12 @@ const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   completed: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"Tamamlandı\". {GönderilenBirim}",
   cancelled: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İptal Edildi\". {GönderilenBirim}",
   greeting: DEFAULT_CITIZEN_OUTBOUND_GREETING,
+  greetings: {
+    processingReceived: DEFAULT_CITIZEN_OUTBOUND_GREETING,
+    inProgress: DEFAULT_CITIZEN_OUTBOUND_GREETING,
+    completed: DEFAULT_CITIZEN_OUTBOUND_GREETING,
+    cancelled: DEFAULT_CITIZEN_OUTBOUND_GREETING,
+  },
   afterHoursManagerSms: '',
 }
 
@@ -94,7 +100,7 @@ const CITIZEN_REQUEST_STATUS_TOKEN = '{VatandaşTalepDurumu}'
 const TARGET_DEPARTMENT_TOKEN = '{GönderilenBirim}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
-type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'afterHoursManagerSms'>
+type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms'>
 
 function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string, suffixText = '', normalize = false) {
   const normalizedBody = normalize ? (bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT) : bodyText
@@ -746,10 +752,19 @@ export function SettingsPage() {
             },
           }))
         }
+        // Durum hitabı boş gelirse (eski kayıt) genel hitapla açılır; sonrası durum bazlı.
+        const generalGreeting = autoReplyResponse.greeting?.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING
+        const loadedGreetings = autoReplyResponse.greetings
         setCitizenAutoReplyTemplates({
           ...DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES,
           ...autoReplyResponse,
-          greeting: autoReplyResponse.greeting?.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
+          greeting: generalGreeting,
+          greetings: {
+            processingReceived: loadedGreetings?.processingReceived?.trim() || generalGreeting,
+            inProgress: loadedGreetings?.inProgress?.trim() || generalGreeting,
+            completed: loadedGreetings?.completed?.trim() || generalGreeting,
+            cancelled: loadedGreetings?.cancelled?.trim() || generalGreeting,
+          },
         })
         setDepartments(departmentResponse)
         setSlaWeekendForm({
@@ -1632,6 +1647,12 @@ export function SettingsPage() {
           true,
         ),
         greeting: citizenAutoReplyTemplates.greeting.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
+        greetings: {
+          processingReceived: citizenAutoReplyTemplates.greetings.processingReceived.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
+          inProgress: citizenAutoReplyTemplates.greetings.inProgress.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
+          completed: citizenAutoReplyTemplates.greetings.completed.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
+          cancelled: citizenAutoReplyTemplates.greetings.cancelled.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
+        },
         afterHoursManagerSms: citizenAutoReplyTemplates.afterHoursManagerSms ?? '',
       }
       await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)
@@ -3430,9 +3451,12 @@ export function SettingsPage() {
                   templateStatusLabel={templateLabel}
                   tone={tone}
                   value={citizenAutoReplyTemplates[key]}
-                  greeting={citizenAutoReplyTemplates.greeting}
+                  greeting={citizenAutoReplyTemplates.greetings[key]}
                   onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, [key]: value }))}
-                  onGreetingChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, greeting: value }))}
+                  onGreetingChange={value => setCitizenAutoReplyTemplates(current => ({
+                    ...current,
+                    greetings: { ...current.greetings, [key]: value },
+                  }))}
                 />
               ))}
             </div>

@@ -1,3 +1,7 @@
+## Round 1073 — Vatandaşa Giden Cevaplar hitabı durum bazlı
+
+- **STATUS:** Dört kart tek `greeting` alanını paylaşıyordu → birine yazınca dördü değişiyordu. Backend'e `greetings` (durum bazlı, boşsa genele düşer) eklendi; notifier hitabı `GreetingFor(statusLabel)` ile çözüyor. 4 yeni test.
+
 ## Round 1072 — mobil paging barı gerçekten küçülsün
 
 - **STATUS:** Eski kural `.table-pagination` hedefliyordu (DOM'da yok) → ölü CSS, silindi. Gerçek sınıf `.table-pagination-bar` ile punto/kontroller küçültüldü, `nowrap` + `max-height: none` ile tek satıra sığdı (taşan "1" düzeldi).

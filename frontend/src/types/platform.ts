@@ -918,12 +918,22 @@ export interface RoutingTestResult {
   targetDepartmentName: string | null;
 }
 
+/** Durum bazlı hitap satırları; her kutu yalnız kendi durumunun mesajını etkiler. */
+export interface CitizenAutoReplyGreetings {
+  processingReceived: string;
+  inProgress: string;
+  completed: string;
+  cancelled: string;
+}
+
 export interface CitizenAutoReplyTemplates {
   processingReceived: string;
   inProgress: string;
   completed: string;
   cancelled: string;
+  /** Durum hitabı boş kaldığında kullanılan tenant geneli hitap (eski kayıtların kaynağı). */
   greeting: string;
+  greetings: CitizenAutoReplyGreetings;
   afterHoursManagerSms?: string;
 }
 

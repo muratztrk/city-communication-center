@@ -157,7 +157,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             content = EnsureBlankLineBeforeTargetDepartments(content, departmentNames);
             var terminalNote = await ResolveTerminalNoteAsync(tenantId, job, statusLabel, cancellationToken);
             content = AppendSmsTerminalNote(content, terminalNote);
-            return await SendSmsAsync(tenantId, message, content, cancellationToken);
+            return await SendSmsAsync(tenantId, message, content, statusLabel, cancellationToken);
         }
 
         if (job.CitizenTerminalMessageReleasedAtUtc is not null)
@@ -323,7 +323,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         // Phone non-terminal (İşleme Alındı / Yapılmakta) — not yok; birim öncesi boş satır (#6a6f19af).
         // Terminal Phone SMS bu yoldan gelmez (RequiresOperatorApproval defer); release yolunda not eklenir.
         content = EnsureBlankLineBeforeTargetDepartments(content, departmentNames);
-        await SendSmsAsync(tenantId, message, content, cancellationToken);
+        await SendSmsAsync(tenantId, message, content, statusLabel, cancellationToken);
     }
 
     /// <summary>
@@ -389,15 +389,15 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         };
     }
 
-    private async Task<string> ResolveGreetingAsync(Guid tenantId, CancellationToken cancellationToken)
+    /// <summary>Hitap durum bazlıdır; durumun kendi satırı boşsa tenant genel hitabına düşer.</summary>
+    private async Task<string> ResolveGreetingAsync(Guid tenantId, string statusLabel, CancellationToken cancellationToken)
     {
         var raw = await _dbContext.TenantSettings
             .AsNoTracking()
             .Where(setting => setting.TenantId == tenantId)
             .Select(setting => setting.CitizenAutoReplyTemplatesJson)
             .FirstOrDefaultAsync(cancellationToken);
-        return CitizenOutboundGreeting.NormalizeLine(
-            CitizenAutoReplyTemplateJson.ParseOrDefault(raw).Greeting);
+        return CitizenAutoReplyTemplateJson.ParseOrDefault(raw).GreetingFor(statusLabel);
     }
 
     private static bool IsSupportedAutoReplyStatus(string statusLabel) =>
@@ -432,7 +432,9 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             messageContent = AppendSmsTerminalNote(content, terminalNote);
         }
 
-        messageContent = CitizenOutboundGreeting.Ensure(messageContent, await ResolveGreetingAsync(tenantId, cancellationToken));
+        messageContent = CitizenOutboundGreeting.Ensure(
+            messageContent,
+            await ResolveGreetingAsync(tenantId, statusLabel, cancellationToken));
 
         if (!requireApproval)
         {
@@ -686,6 +688,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         Guid tenantId,
         SocialMessage message,
         string content,
+        string statusLabel,
         CancellationToken cancellationToken)
     {
         var smsSettings = await _smsSettingsService.GetSettingsAsync(tenantId, cancellationToken);
@@ -719,7 +722,9 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 "SMS SIMULATION (gerçek gönderim kapalı) — SocialMessage {SocialMessageId}, alıcı {Phone}, metin: {Content}",
                 message.SocialMessageId,
                 recipientPhone,
-                CitizenOutboundGreeting.Ensure(content, await ResolveGreetingAsync(tenantId, cancellationToken)));
+                CitizenOutboundGreeting.Ensure(
+                    content,
+                    await ResolveGreetingAsync(tenantId, statusLabel, cancellationToken)));
             return false;
         }
 

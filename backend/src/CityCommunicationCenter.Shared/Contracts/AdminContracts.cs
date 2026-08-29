@@ -20,13 +20,21 @@ public sealed record UpdateTenantSettingsRequest(
 
 public sealed record UpdateRolePageAccessRequest(string? MatrixJson);
 
+/// <summary>Durum bazlı hitap satırları; her durum yalnız kendi mesajını etkiler.</summary>
+public sealed record CitizenAutoReplyGreetingsContract(
+    string? ProcessingReceived = null,
+    string? InProgress = null,
+    string? Completed = null,
+    string? Cancelled = null);
+
 public sealed record CitizenAutoReplyTemplatesResponse(
     string ProcessingReceived,
     string InProgress,
     string Completed,
     string Cancelled,
     string Greeting,
-    string? AfterHoursManagerSms = null);
+    string? AfterHoursManagerSms = null,
+    CitizenAutoReplyGreetingsContract? Greetings = null);
 
 public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     string ProcessingReceived,
@@ -34,7 +42,8 @@ public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     string Completed,
     string Cancelled,
     string? Greeting = null,
-    string? AfterHoursManagerSms = null);
+    string? AfterHoursManagerSms = null,
+    CitizenAutoReplyGreetingsContract? Greetings = null);
 
 public sealed record TenantAppearanceResponse(
     string ThemePreset,

@@ -4,13 +4,44 @@ using CityCommunicationCenter.Application.Features.Social;
 
 namespace CityCommunicationCenter.Application.Features.Admin;
 
+/// <summary>
+/// Durum bazlı hitap satırları. Boş bırakılan durum, tenant genel hitabına düşer — eski
+/// kayıtlarda yalnız <see cref="CitizenAutoReplyTemplateModel.Greeting"/> vardır.
+/// </summary>
+public sealed record CitizenAutoReplyGreetings(
+    string? ProcessingReceived = null,
+    string? InProgress = null,
+    string? Completed = null,
+    string? Cancelled = null);
+
 public sealed record CitizenAutoReplyTemplateModel(
     string ProcessingReceived,
     string InProgress,
     string Completed,
     string Cancelled,
     string? Greeting = null,
-    string? AfterHoursManagerSms = null);
+    string? AfterHoursManagerSms = null,
+    CitizenAutoReplyGreetings? Greetings = null)
+{
+    /// <summary>
+    /// Vatandaşa gidecek durum mesajının hitabı: durumun kendi hitabı → tenant genel hitabı →
+    /// varsayılan satır. Durum etiketleri <c>CitizenJobStatusLabelHelper.GetDisplayStatus</c> çıktısıyla aynı.
+    /// </summary>
+    public string GreetingFor(string statusLabel)
+    {
+        var perStatus = statusLabel switch
+        {
+            "İşleme Alındı" => Greetings?.ProcessingReceived,
+            "Yapılmakta" => Greetings?.InProgress,
+            "Tamamlanmış" or "Tamamlandı" => Greetings?.Completed,
+            "İptal" => Greetings?.Cancelled,
+            _ => null,
+        };
+
+        return CitizenOutboundGreeting.NormalizeLine(
+            string.IsNullOrWhiteSpace(perStatus) ? Greeting : perStatus);
+    }
+}
 
 public static class CitizenAutoReplyTemplateJson
 {
@@ -42,7 +73,8 @@ public static class CitizenAutoReplyTemplateJson
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Completed) ? defaults.Completed : parsed.Completed)),
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled)),
                 CitizenOutboundGreeting.NormalizeLine(parsed.Greeting),
-                parsed.AfterHoursManagerSms);
+                parsed.AfterHoursManagerSms,
+                NormalizeGreetings(parsed.Greetings));
         }
         catch (JsonException)
         {
@@ -57,7 +89,27 @@ public static class CitizenAutoReplyTemplateJson
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.Completed)),
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.Cancelled)),
             CitizenOutboundGreeting.NormalizeLine(model.Greeting),
-            model.AfterHoursManagerSms));
+            model.AfterHoursManagerSms,
+            NormalizeGreetings(model.Greetings)));
+
+    /// <summary>Boş durum hitabı <c>null</c> saklanır; okuma tarafında genel hitaba düşsün.</summary>
+    private static CitizenAutoReplyGreetings? NormalizeGreetings(CitizenAutoReplyGreetings? greetings)
+    {
+        if (greetings is null)
+        {
+            return null;
+        }
+
+        var normalized = new CitizenAutoReplyGreetings(
+            TrimmedOrNull(greetings.ProcessingReceived),
+            TrimmedOrNull(greetings.InProgress),
+            TrimmedOrNull(greetings.Completed),
+            TrimmedOrNull(greetings.Cancelled));
+        return normalized == new CitizenAutoReplyGreetings() ? null : normalized;
+    }
+
+    private static string? TrimmedOrNull(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
 
     private static string EnsureQuotedCitizenStatuses(string template) =>
         CitizenJobStatusLabelHelper.EnsureQuotedCitizenStatuses(template);

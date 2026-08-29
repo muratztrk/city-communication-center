@@ -2565,6 +2565,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   artan sıra; 0'lar sonda.
 - **Drilldown yazdır Tamamlanma Tarihi (#r547):** `col-completed` ~18% / min 9.5rem — başlık
   hücre border'ından taşmaz.
+- **Vatandaşa Giden Cevaplar hitap alanı durum bazlıdır (#2985):** Ayarlar → Otomatik Yönlendirme'deki
+  dört kartın ilk textbox'ı **ayrı** alanlardır (`greetings.processingReceived` / `inProgress` /
+  `completed` / `cancelled`); tek `greeting` alanını paylaşmazlar — paylaşırlarsa birine yazınca
+  dördü birlikte değişir. Boş bırakılan durum hitabı tenant geneli `greeting`'e, o da boşsa
+  `CitizenOutboundGreeting.Line`'a düşer (eski kayıtlar bu sayede dört kutuda eski hitapla açılır).
+  Gönderimde hitap `CitizenAutoReplyTemplateModel.GreetingFor(statusLabel)` ile çözülür; durum
+  etiketleri `CitizenJobStatusLabelHelper.GetDisplayStatus` çıktısıyla aynı olmalı.
+  ⚠️ Gerçek SMS gönderiminde hitap halen `SmsGateway` içinde varsayılan satırla eklenir (tenant
+  hitabı bu yolda hiç kullanılmıyordu; bu kart kapsamında değiştirilmedi).
 - **Mobil (≤767px) grid paging barı:** hedef sınıf **`table-pagination-bar`** — DOM'da
   `table-pagination` **yok** (eski küçültme denemesi bu yüzden etkisizdi). Bar `max-height` ile
   sınırlı olduğundan `flex-wrap: wrap` ikinci satırı taşırır → mobilde `flex-wrap: nowrap`,

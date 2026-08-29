@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Common;
+using CityCommunicationCenter.Application.Features.Admin;
 using CityCommunicationCenter.Infrastructure.Services;
 using CityCommunicationCenter.Infrastructure.Sms;
 
@@ -171,6 +172,52 @@ public class CitizenOutboundGreetingTests
         Assert.Equal(
             "Sayın hemşehrimiz,\n\nTalebiniz alındı.",
             CitizenOutboundGreeting.Ensure("Talebiniz alındı.", "Sayın hemşehrimiz,"));
+    }
+}
+
+public class CitizenAutoReplyGreetingScopeTests
+{
+    private static CitizenAutoReplyTemplateModel Model(CitizenAutoReplyGreetings? greetings, string? greeting = "Genel hitap,") =>
+        new("a", "b", "c", "d", greeting, null, greetings);
+
+    [Fact]
+    public void Each_status_uses_its_own_greeting()
+    {
+        var model = Model(new CitizenAutoReplyGreetings("İşleme,", "Yapılmakta,", "Tamamlandı,", "İptal,"));
+
+        Assert.Equal("İşleme,", model.GreetingFor("İşleme Alındı"));
+        Assert.Equal("Yapılmakta,", model.GreetingFor("Yapılmakta"));
+        Assert.Equal("Tamamlandı,", model.GreetingFor("Tamamlanmış"));
+        Assert.Equal("İptal,", model.GreetingFor("İptal"));
+    }
+
+    [Fact]
+    public void Blank_status_greeting_falls_back_to_general()
+    {
+        var model = Model(new CitizenAutoReplyGreetings(ProcessingReceived: "  ", InProgress: "Yapılmakta,"));
+
+        Assert.Equal("Genel hitap,", model.GreetingFor("İşleme Alındı"));
+        Assert.Equal("Yapılmakta,", model.GreetingFor("Yapılmakta"));
+    }
+
+    [Fact]
+    public void Legacy_record_without_status_greetings_uses_general()
+    {
+        var model = Model(null);
+
+        Assert.Equal("Genel hitap,", model.GreetingFor("İşleme Alındı"));
+        Assert.Equal("Genel hitap,", model.GreetingFor("Tamamlandı"));
+    }
+
+    [Fact]
+    public void Status_greetings_survive_json_round_trip()
+    {
+        var json = CitizenAutoReplyTemplateJson.Serialize(
+            Model(new CitizenAutoReplyGreetings("İşleme,", "Yapılmakta,", "Tamamlandı,", "İptal,")));
+        var parsed = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
+
+        Assert.Equal("İşleme,", parsed.GreetingFor("İşleme Alındı"));
+        Assert.Equal("İptal,", parsed.GreetingFor("İptal"));
     }
 }
 

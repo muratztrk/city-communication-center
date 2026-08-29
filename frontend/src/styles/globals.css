@@ -7338,12 +7338,12 @@
 
     .pie-chart-root text[font-size='18'] {
       font-size: 18.5px;
-      font-weight: 800;
+      font-weight: 700;
     }
 
     .pie-chart-root text[font-size='11'] {
       font-size: 13.5px;
-      font-weight: 600;
+      font-weight: 500;
     }
 
     .pie-legend-dot {
@@ -7491,7 +7491,9 @@
     }
 
     .pie-chart-root ul {
-      gap: 0.38rem !important;
+      gap: 0.45rem !important;
+      max-height: 4.7rem !important;
+      overflow-y: auto !important;
     }
 
     .pie-chart-root ul,
@@ -7577,8 +7579,8 @@
     }
 
     .header-logout-btn {
-      height: 1.45rem !important;
-      min-height: 1.45rem !important;
+      height: 1.65rem !important;
+      min-height: 1.65rem !important;
       gap: 0.2rem !important;
       padding-block: 0 !important;
       padding-inline: 0.45rem !important;

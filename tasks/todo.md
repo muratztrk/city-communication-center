@@ -1,3 +1,7 @@
+## Round 1065 — pie iç weight, mobil lejant 5 satır, Çıkış
+
+- **STATUS:** desktop pie iç 700/500; mobil lejant gap 0.45rem + max 5 satır; Çıkış 1.65rem. TIM Doing’de.
+
 ## Round 1064 — placeholder light, pie iç yazı, lejant, Çıkış
 
 - **STATUS:** header ara placeholder font-light; desktop pie iç 18.5/800 + 13.5/600; mobil iç 19.5/12.5; lejant gap 0.38rem; Çıkış 1.45rem. TIM Doing’de.

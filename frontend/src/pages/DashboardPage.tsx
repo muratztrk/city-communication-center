@@ -905,14 +905,14 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <div className="px-5 py-3.5 sm:px-8">
             {dashboardQuery.isLoading
               ? (
-                <div className="mx-auto grid max-w-[90rem] gap-x-3 gap-y-2 sm:grid-cols-2 lg:grid-cols-6">
+                <div className="mx-auto grid max-w-[90rem] gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-6">
                   {Array.from({ length: isInternalModuleUsable ? 6 : 4 }).map((_, i) => (
                     <div key={i} className="h-[72px] min-w-0 animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                   ))}
                 </div>
               )
               : (
-                <div className="mx-auto grid max-w-[90rem] gap-x-3 gap-y-2 sm:grid-cols-2 lg:grid-cols-6">
+                <div className="mx-auto grid max-w-[90rem] gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-6">
                   {[...managerRowHead, ...managerRowTail].map(renderCard)}
                 </div>
               )}
@@ -940,7 +940,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         )}
       </section>
 
-      <section className="grid gap-y-6 gap-x-12 md:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-y-6 gap-x-16 md:grid-cols-2 lg:grid-cols-3">
         {(statusChartsQuery.isLoading || dashboardQuery.isLoading) && visibleChartCards.length === 0
           ? Array.from({ length: 2 }).map((_, i) => (
               <div key={i} className="section-card p-4 sm:p-5">

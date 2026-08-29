@@ -1252,7 +1252,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Desktop pie yuvarlak 110px; iç sayı 18.5px/700, «toplam» 13.5px/500 (#6a92b566).
   Mobil pie 96px; iç sayı 19.5px / «toplam» 12.5px (#6a92f964).
   Mobil pie lejant gap 0.45rem; max-height 5 satır hesabı — 6. görünmez (#6a930a33).
-  Anasayfa pie ızgara `gap-y-6 gap-x-12` (#6a92852e).
+  Anasayfa yönetici 6’lı metrik satırı `gap-x-8` (eskiden `gap-x-3` — oklar buradaydı).
+  Anasayfa pie ızgara `gap-y-6 gap-x-16` (#6a92852e).
   Anasayfa/Vatandaş Paneli/Birimler/harita `PieLegendSearch` min-height 1.8rem (header ara değil) (#6a92692b).
   Mobil header Çıkış `height` 1.75rem; ikon-metin `gap` 0.2rem (#6a920226).
   Sistemde ara `jobId`/`taskId` ile detay açılır; thead `background-attachment: fixed` (#r447;
@@ -1775,7 +1776,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kartı uzun etiket listesi yüzünden aşağı doğru büyümemelidir.
 - **Dashboard dönem altı metrik kutucukları (card #2532 reopen):** `DashboardPage` üst grid
   + alt satır `justify-center` (Bekleyen Taleplerim / Bekleyen Görevlerim / Vatandaş Talepleri);
-  `max-w-7xl gap-x-12`; kutucuk `min-w-[15.5rem]`.
+  `max-w-7xl gap-x-12`; kutucuk `min-w-[15.5rem]`. Yönetici 6’lı satır `gap-x-8`
+  (`max-w-[90rem]`, #6a92852e).
 - **Talep Etiketi pie chart'ı (card #1591/#3058):** başlık `Talep Etiketleri` (`dashboard.charts.requestTags`);
   form alanları `Talep Etiketi` kalır. Yalnız Üst Düzey Yönetici (`Reporter`) ve Vatandaş
   Operatörü (`Operator`) dashboard'larında görünür. Tenant ve seçili tarih aralığındaki talebi

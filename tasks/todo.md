@@ -1,3 +1,7 @@
+## Round 1067 — anasayfa kutucuk + pie yatay boşluk
+
+- **STATUS:** yönetici 6’lı metrik `gap-x-3` → `gap-x-8` (oklar buradaydı); pie ızgara `gap-x-12` → `gap-x-16`. Daire/lejant boyutu değişmedi.
+
 ## Round 1066 — mobil pie max 5 satır, Çıkış
 
 - **STATUS:** mobil lejant 5 satır tavanı sıkı (button text-sm ezildi + calc max-height); JS scroll >5; Çıkış 1.75rem.

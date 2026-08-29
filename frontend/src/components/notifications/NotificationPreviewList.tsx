@@ -28,7 +28,7 @@ function NotificationEntityLabelText({
   plainClassName: string
   isUnread: boolean
 }) {
-  const entityWeight = isUnread ? 'font-medium text-slate-900' : plainClassName
+  const entityWeight = isUnread ? 'font-semibold text-slate-900' : plainClassName
   return value.split(/(Görev|Talep)/g).map((segment, index) => {
     if (!segment) return null
     if (segment === 'Görev' || segment === 'Talep') {
@@ -47,7 +47,7 @@ function NotificationTitleStatusText({
   plainClassName: string
   isUnread: boolean
 }) {
-  const emphasis = isUnread ? 'font-medium' : 'font-normal'
+  const emphasis = isUnread ? 'font-semibold' : 'font-normal'
   return value.split(/(onaylandı|reddedildi|tamamlandı|Tamamlandı|İptal Edildi|güncellendi|oluşturuldu|atandı|yönlendirildi|Yönetici notu atandı|Ek süre talebi)/gi).map((part, index) => {
     if (!part) return null
     if (/^onaylandı$/i.test(part)) return <span key={index} className={`${emphasis} text-emerald-600`}>{part}</span>
@@ -62,7 +62,7 @@ function NotificationTitleStatusText({
 }
 
 function NotificationTitle({ title, isUnread }: { title: string; isUnread: boolean }) {
-  const mainWeight = isUnread ? 'font-medium text-slate-900' : 'font-normal text-slate-700'
+  const mainWeight = isUnread ? 'font-semibold text-slate-900' : 'font-normal text-slate-700'
   const tone = notificationTitleTone(title)
   const match = title.match(/^(.+?)\s(\([^)]+\))$/)
   const mainText = match ? match[1] : title
@@ -70,7 +70,7 @@ function NotificationTitle({ title, isUnread }: { title: string; isUnread: boole
   return (
     <>
       {tone ? (
-        <span className={`${isUnread ? 'font-medium' : 'font-normal'} ${tone}`}>{mainText}</span>
+        <span className={`${isUnread ? 'font-semibold' : 'font-normal'} ${tone}`}>{mainText}</span>
       ) : (
         <NotificationTitleStatusText value={mainText} isUnread={isUnread} plainClassName={mainWeight} />
       )}

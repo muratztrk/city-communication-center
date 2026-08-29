@@ -260,7 +260,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
         <div
           ref={dropdownRef}
           style={dropdownStyle}
-          className="relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+          className="date-time-picker-popup relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
         >
           {/* Talebi iptal et popup X: default çerçevesiz; hover'da kırmızı + yuvarlak (#r538). */}
           <button

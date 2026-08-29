@@ -2033,6 +2033,8 @@
   },
   "routineTask": {
     "submit": "Görev Oluştur",
-    "subtitle": "Yönetici onay gerektirmeyen rutin görev oluşturun."
+    "subtitle": "Yönetici onay gerektirmeyen rutin görev oluşturun.",
+    "titlePlaceholder": "Görev başlığını giriniz...",
+    "descPlaceholder": "Görev açıklamasını detaylı olarak giriniz..."
   }
 }

@@ -7,7 +7,7 @@ public sealed record GetDashboardChartQuery(DateTimeOffset? FromUtc, DateTimeOff
 
 public sealed class GetDashboardChartQueryHandler : IQueryHandler<GetDashboardChartQuery, DashboardChartResponse>
 {
-    private static readonly string[] SliceColors = ["primary", "success", "info", "warning", "danger", "neutral"];
+    private static readonly string[] SliceColors = ["primary", "info", "violet", "warning", "danger", "neutral", "rose"];
 
     private static readonly WorkflowTaskStatus[] DoneStatuses = [WorkflowTaskStatus.Completed];
     private static readonly WorkflowTaskStatus[] PendingStatuses =

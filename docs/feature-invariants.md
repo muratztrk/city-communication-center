@@ -1226,6 +1226,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   scope’larını çeker
   ve sonuç grup başlığı menü adıyla aynıdır (`Taleplerim` / `Görevlerim` /
   `Birime Gelen Talepler` … — `nav.jobs` kullanılmaz; cards #1782/#1783);
+  eşleşme yalnız talep no / VT no / görev no / talep-görev başlığı / vatandaş adı / telefon
+  (birim, atanan, kullanıcı, birim listesi yok — #3171); `Phone` etiketi `Çağrı`,
+  sosyal satırda `@` yok, kanal ikonu kanal adının solunda (#3168/#3169).
+  Operator ve SystemAdmin dışında vatandaş talebinde kanal ikonu başlığın solunda;
+  Görevlerim / Birimdeki Görevler alt satırı yalnız görev durumu (#3170).
   talep/görev sonucuna tıklanınca `jobId`/`taskId` ile ilgili sayfada
   detay popup açılır (card #1766).
   Kurum İçi Mesajlar personel aramasında (≥3 karakter) satır başlığı da `Ad - Dahili` /
@@ -1708,9 +1713,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kapsamındaki personele atanmış rutin olmayan terminal görevleri kullanır. Süre Görev Tarihi
   (`CreatedAtUtc`) ile tamamlananda `CompletedAtUtc`, iptalde son `TaskCancelled` audit zamanı
   arasındadır; personel başına ortalama saat (1 ondalık) gösterilir.
-- **Vatandaş Paneli dönem satırı arama (#3087):** Dönem şeridinde Tüm Talepler ile aynı satırda
-  (`ml-auto`); ad/telefon/mahalle ile mahalle/birim pie dilimlerini ve drilldown satırlarını
-  daraltır. Pin API yalnız arama doluyken çekilir. Hook’lar `Navigate` erken return’ünden önce kalmalı.
+- **Vatandaş Paneli / Anasayfa-Birimler dönem altı arama (#3087/#3161/#3124):**
+  Ara kutusu Dönem satırının **altında** (Tüm Talepler ile aynı satırda değil); pie başlık
+  satırında ayrı arama yok. Dilim etiketi eşleşmesi her iki görünümde geçerlidir.
+  Hook’lar `Navigate` erken return’ünden önce kalmalı.
 - **Talep Oluştur onay sonrası toast (#3089):** Onay popup’ı kapanınca sağ alt yeşil `Toast`
   (`emitPageToast` → `AppShell`). Yalnız oluşturma; güncelleme toast atmaz.
 - **Reporter dashboard pie drilldown popup:** başlık yeşil ve `Info` ikonludur; tablo başlıkları
@@ -1862,10 +1868,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `@googlemaps/markerclusterer`;   marker tıklanınca doğrudan `MyRequestDetailModal` (`Vatandaş Talebi`),
   InfoWindow yok. Aynı adres/konumda birden fazla talep varsa dizin nested
   `Vatandaş Bilgi Listesi` popup'ı açılır; tek talepte Vatandaş Talebi kalır (#2592).
-  Cluster rengi banner `--color-header-from`; ilk tıklama yalnız zoom in (pan + 1 kademe),
+  Cluster rengi banner `--color-header-from`; ilk tıklama yalnız zoom in (pan + 1 kademe,
+  SuperCluster `maxZoom` 13’ü geçmez — ilk dokunuş pinleri açmaz; #3147),
   `fitBounds` / zoom out yok (#2598). İlk cluster tıklaması +1 kademe; ikinci tıklama zoom 16
   (pin görünür, sokak seviyesine inmez — 3. tıklama/`fitBounds` yok; #2612). SuperCluster
   `maxZoom` 13, böylece 2. tıklamada küme çözülür.
+  Harita araması Dönem satırının altında; lejant satırında yok (#3162).
+  Aktif olmayan arama (`<3` harf/rakam) cluster’ı yeniden kurmaz (#3149).
+  Aynı CBS koordinatında birden fazla talep tek pin’de durur; cluster sayısı iş, zoom’da
+  benzersiz konum (#3166).
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
   Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593/#2597). Pin **rengi** durum

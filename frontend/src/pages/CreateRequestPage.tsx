@@ -1357,32 +1357,32 @@ export function CreateRequestPage() {
             <>
               <button
                 type="button"
-                className="section-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
+                className="section-card create-request-kind-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
                 onClick={() => selectRequestKind('internal')}
               >
                 <div className="flex items-start gap-3">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
-                    <Building2 className="size-5" />
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-[color:var(--color-primary)]/10 text-[color:var(--color-primary)]">
+                    <Building2 className="size-4" />
                   </span>
                   <div>
-                    <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
-                    <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizde birim içi talep sürecini oluşturun.')}</p>
+                    <h2 className="text-lg font-semibold text-slate-950">{t('requests.create.internalTitle', 'Birim İçi')}</h2>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">{t('requests.create.internalDescription', 'Kendi biriminizde birim içi talep sürecini oluşturun.')}</p>
                   </div>
                 </div>
               </button>
 
               <button
                 type="button"
-                className="section-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
+                className="section-card create-request-kind-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
                 onClick={() => selectRequestKind('external')}
               >
                 <div className="flex items-start gap-3">
-                  <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
-                    <Workflow className="size-5" />
+                  <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700">
+                    <Workflow className="size-4" />
                   </span>
                   <div>
-                    <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.externalTitle', 'Birim Dışı')}</h2>
-                    <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.externalDescription', 'Başka bir birime gidecek talep sürecini oluşturun.')}</p>
+                    <h2 className="text-lg font-semibold text-slate-950">{t('requests.create.externalTitle', 'Birim Dışı')}</h2>
+                    <p className="mt-1 text-sm leading-6 text-slate-600">{t('requests.create.externalDescription', 'Başka bir birime gidecek talep sürecini oluşturun.')}</p>
                   </div>
                 </div>
               </button>
@@ -1392,16 +1392,16 @@ export function CreateRequestPage() {
           {canShowCitizenRequest ? (
             <button
               type="button"
-              className="section-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
+              className="section-card create-request-kind-card cursor-pointer text-left transition-colors hover:border-[color:var(--color-primary)]/40 hover:shadow-md"
               onClick={() => selectRequestKind('citizen')}
             >
               <div className="flex items-start gap-3">
-                <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
-                  <Phone className="size-5" />
+                <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">
+                  <Phone className="size-4" />
                 </span>
                 <div>
-                  <h2 className="text-xl font-semibold text-slate-950">{t('requests.create.citizenCallTitle', 'Vatandaş Çağrı Talebi')}</h2>
-                  <p className="mt-1 text-base leading-6 text-slate-600">{t('requests.create.citizenDescription', 'Vatandaştan gelen talebi manuel kayıt olarak oluşturun.')}</p>
+                  <h2 className="text-lg font-semibold text-slate-950">{t('requests.create.citizenCallTitle', 'Vatandaş Çağrı Talebi')}</h2>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">{t('requests.create.citizenDescription', 'Vatandaştan gelen talebi manuel kayıt olarak oluşturun.')}</p>
                 </div>
               </div>
             </button>

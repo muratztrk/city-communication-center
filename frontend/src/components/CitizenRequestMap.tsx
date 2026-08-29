@@ -29,7 +29,7 @@ import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { getGoogleMapsApiKey, isGoogleMapsConfigured } from '../utils/googleMaps'
 import { printJobDetail } from '../pages/JobsPage'
 import { PieLegendSearch } from './ui/PieChart'
-import { pinMatchesMapSearch } from '../utils/requestSearch'
+import { isSearchQueryActive, pinMatchesMapSearch } from '../utils/requestSearch'
 
 type ResolvedPin = CitizenDashboardMapPin & { position: LatLng; approximate: boolean }
 
@@ -144,7 +144,7 @@ function onCitizenClusterClick(_: google.maps.MapMouseEvent, cluster: Cluster, m
     if (current < CLUSTER_REVEAL_ZOOM) map.setZoom(CLUSTER_REVEAL_ZOOM)
     return
   }
-  const next = Math.min(current + 1, CLUSTER_REVEAL_ZOOM)
+  const next = Math.min(current + 1, NUMBERED_SINGLE_MAX_ZOOM)
   if (next > current) map.setZoom(next)
 }
 
@@ -340,11 +340,22 @@ interface CitizenRequestMapProps {
   loading?: boolean
   variant?: 'citizen' | 'department'
   heading?: string
+  searchQuery?: string
+  onSearchQueryChange?: (value: string) => void
+  hideLegendSearch?: boolean
 }
 
 const MAP_CONTAINER_STYLE: CSSProperties = { width: '100%', height: '100%', cursor: 'grab' }
 
-export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading }: CitizenRequestMapProps) {
+export function CitizenRequestMap({
+  pins,
+  loading,
+  variant = 'citizen',
+  heading,
+  searchQuery,
+  onSearchQueryChange,
+  hideLegendSearch = false,
+}: CitizenRequestMapProps) {
   const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
@@ -378,7 +389,10 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
   const [streetViewPicker, setStreetViewPicker] = useState(false)
   const [listMode, setListMode] = useState<'located' | 'unlocated' | null>(null)
-  const [mapSearch, setMapSearch] = useState('')
+  const [internalSearch, setInternalSearch] = useState('')
+  const mapSearch = searchQuery ?? internalSearch
+  const setMapSearch = onSearchQueryChange ?? setInternalSearch
+  const searchKey = isSearchQueryActive(mapSearch) ? mapSearch.trim() : ''
   const streetViewPickerRef = useRef(false)
   const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
@@ -403,8 +417,8 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
 
   const geocodeReady = !mapsReady || loadError != null || isLoaded
   const searchedPins = useMemo(
-    () => pins.filter(pin => pinMatchesMapSearch(pin, mapSearch, variant)),
-    [mapSearch, pins, variant],
+    () => (searchKey ? pins.filter(pin => pinMatchesMapSearch(pin, searchKey, variant)) : pins),
+    [searchKey, pins, variant],
   )
 
   useEffect(() => {
@@ -540,9 +554,10 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
   }, [pins, mapView.districtId, geocodeReady, queryClient, variant])
 
   const visibleResolved = useMemo(() => {
+    if (!searchKey) return resolved
     const ids = new Set(searchedPins.map(pin => pin.jobId))
     return resolved.filter(pin => ids.has(pin.jobId))
-  }, [resolved, searchedPins])
+  }, [resolved, searchedPins, searchKey])
 
   const unlocated = useMemo(() => {
     const locatedIds = new Set(resolved.map(pin => pin.jobId))
@@ -774,15 +789,17 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
               ? t('common.loading', 'Yükleniyor...')
               : t('citizenRequestMap.pinCount', { count: visibleResolved.length, defaultValue: '{{count}} konum' })}
           </span>
-          <div className="min-w-[10rem] max-w-sm flex-1">
-            <PieLegendSearch value={mapSearch} onChange={setMapSearch} />
-          </div>
+          {hideLegendSearch ? null : (
+            <div className="min-w-[10rem] max-w-sm flex-1">
+              <PieLegendSearch value={mapSearch} onChange={setMapSearch} />
+            </div>
+          )}
           <div className="ml-auto flex shrink-0 flex-nowrap items-center gap-2">
           <button
             type="button"
             disabled={loading || resolving || visibleResolved.length === 0}
             onClick={() => setListMode('located')}
-            className="whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50 max-lg:min-h-[2.15rem] max-lg:w-fit max-lg:shrink-0 max-lg:px-1.5 max-lg:py-1.5 max-lg:text-[11px]"
+            className="citizen-map-list-btn whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50 max-lg:min-h-[2.15rem] max-lg:w-fit max-lg:shrink-0 max-lg:px-1.5 max-lg:py-1.5 max-lg:text-[11px]"
           >
             {t('citizenRequestMap.listRequests', 'Talepleri Listele')}
           </button>
@@ -790,7 +807,7 @@ export function CitizenRequestMap({ pins, loading, variant = 'citizen', heading 
             type="button"
             disabled={loading || resolving || unlocated.length === 0}
             onClick={() => setListMode('unlocated')}
-            className="whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50 max-lg:min-h-[2.15rem] max-lg:w-fit max-lg:shrink-0 max-lg:px-2 max-lg:py-1.5 max-lg:text-[11px]"
+            className="citizen-map-list-btn whitespace-nowrap rounded-lg border border-[var(--color-border)] bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50 disabled:cursor-not-allowed disabled:opacity-50 max-lg:min-h-[2.15rem] max-lg:w-fit max-lg:shrink-0 max-lg:px-2 max-lg:py-1.5 max-lg:text-[11px]"
           >
             {t('citizenRequestMap.listUnlocated', 'Haritada Olmayanları Listele')}
           </button>

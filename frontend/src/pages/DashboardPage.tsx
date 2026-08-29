@@ -64,23 +64,6 @@ const REMOVED_PIE_CHART_KEYS = new Set([
   'dashboard.charts.requestPriorityAll',
 ])
 
-/** Banner Ara... ile aynı kutu; personel pie'ları hariç listedeki pie'larda (R549/R550). */
-const PIE_LEGEND_SEARCH_KEYS = new Set([
-  'dashboard.charts.requestTags',
-  'dashboard.charts.neighborhoodCompletedRequests',
-  'dashboard.charts.neighborhoodOpenRequests',
-  'dashboard.charts.neighborhoodAllRequests',
-  'dashboard.charts.citizenDepartmentOpenRequests',
-  'dashboard.charts.citizenDepartmentAllRequests',
-  'dashboard.charts.citizenDepartmentCompletedRequests',
-  'dashboard.charts.externalRequestCreators',
-  'dashboard.charts.externalRequestPending',
-  'dashboard.charts.externalRequestInProgress',
-  'dashboard.charts.externalRequestFulfillers',
-  'dashboard.charts.externalProjectsInProgress',
-  'dashboard.charts.externalProjectsCompleted',
-])
-
 // Pie chart başlığı + lejant metinleri tıklanınca gidilecek ilgili sayfa (card 759).
 const CHART_ROUTES: Record<string, string> = {
   'dashboard.charts.staffTasks': '/staff-tasks',
@@ -409,7 +392,6 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     'dashboard.charts.staffTasks': 'all',
     'dashboard.charts.myTasks': 'all',
   })
-  const [pieLegendSearches, setPieLegendSearches] = useState<Record<string, string>>({})
   const [panelSearch, setPanelSearch] = useState('')
   const debouncedPanelSearch = useDebouncedValue(panelSearch, 300)
   const [chartDrilldown, setChartDrilldown] = useState<{ chartKey: string; sliceKey: string } | null>(null)
@@ -765,17 +747,19 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
 
   const panelSearchActive = isSearchQueryActive(debouncedPanelSearch)
   const panelSearchQuery = debouncedPanelSearch.trim().toLocaleLowerCase('tr')
-  const visibleChartCards = panelSearchActive && effectiveView === 'citizen'
+  const visibleChartCards = panelSearchActive
     ? chartCards.map(card => {
         const isNeighborhood = card.titleKey.includes('neighborhood')
         const isDepartment = card.titleKey.includes('citizenDepartment') || card.titleKey.includes('Department')
-        if (!isNeighborhood && !isDepartment) return card
-        const allowed = isNeighborhood ? panelNeighborhoods : panelDepartments
+        if (effectiveView === 'citizen' && !isNeighborhood && !isDepartment) return card
+        const allowed = effectiveView === 'citizen'
+          ? (isNeighborhood ? panelNeighborhoods : panelDepartments)
+          : null
         return {
           ...card,
           slices: card.slices.filter(slice => {
             const label = slice.label.toLocaleLowerCase('tr')
-            return label.includes(panelSearchQuery) || allowed.has(label)
+            return label.includes(panelSearchQuery) || (allowed?.has(label) ?? false)
           }),
         }
       })
@@ -839,7 +823,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
         >
           <div className="space-y-1">
-            <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">{t('dashboard.liveSummary')}</div>
+            <div className="live-summary-kicker text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">{t('dashboard.liveSummary')}</div>
             <h1 className="page-title !text-white">{pageTitle}</h1>
             <p className="max-w-3xl text-sm leading-6 text-white/82">
               {effectiveView === 'citizen'
@@ -906,11 +890,11 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
             </button>
           ) : null}
-          {effectiveView === 'citizen' ? (
-            <div className="ml-auto min-w-[10rem] max-w-sm flex-1">
-              <PieLegendSearch value={panelSearch} onChange={setPanelSearch} />
-            </div>
-          ) : null}
+        </div>
+        <div className="flex items-center px-4 py-2 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
+          <div className="min-w-[12rem] max-w-md">
+            <PieLegendSearch value={panelSearch} onChange={setPanelSearch} />
+          </div>
         </div>
 
         {hideMetricCards ? null : isManagerOrAdmin ? (
@@ -923,9 +907,9 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                       <div key={i} className="h-[72px] min-w-[15.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                     ))}
                   </div>
-                  <div className="mx-auto mt-2 flex max-w-7xl flex-wrap justify-center gap-x-12">
+                  <div className="mx-auto mt-2 grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
                     {Array.from({ length: isInternalModuleUsable ? 3 : 1 }).map((_, i) => (
-                      <div key={i} className="h-[72px] w-full min-w-[15.5rem] max-w-[calc((100%-9rem)/4)] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:max-w-[calc((100%-3rem)/2)]" />
+                      <div key={i} className="h-[72px] min-w-[15.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                     ))}
                   </div>
                 </>
@@ -936,7 +920,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                     {managerRowHead.map(renderCard)}
                   </div>
                   {managerRowTail.length > 0 ? (
-                    <div className="mx-auto mt-2 flex max-w-7xl flex-wrap justify-center gap-x-12 [&>button]:w-full [&>button]:min-w-[15.5rem] [&>button]:sm:max-w-[calc((100%-3rem)/2)] [&>button]:lg:max-w-[calc((100%-9rem)/4)]">
+                    <div className="mx-auto mt-2 grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
                       {managerRowTail.map(renderCard)}
                     </div>
                   ) : null}
@@ -1029,7 +1013,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               ? 'size-3.5 shrink-0 text-emerald-600'
               : 'size-3.5 shrink-0 text-slate-500'
             return (
-            <section key={card.titleKey} className="section-card relative overflow-hidden p-4 sm:p-5">
+            <section key={card.titleKey} className="section-card pie-chart-card relative overflow-hidden p-4 sm:p-5">
               <div className="relative z-10 mb-4 flex items-center justify-between gap-3">
                 {chartRoute ? (
                   <button
@@ -1072,20 +1056,13 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                       })}
                     </div>
                   )}
-                  {/* Ara... başlık satırı sağı (R550). Talep Etiketi de aynı satır (#2606). */}
-                  {PIE_LEGEND_SEARCH_KEYS.has(card.titleKey) ? (
-                    <PieLegendSearch
-                      value={pieLegendSearches[card.titleKey] ?? ''}
-                      onChange={value => setPieLegendSearches(current => ({ ...current, [card.titleKey]: value }))}
-                    />
-                  ) : null}
                 </div>
               </div>
               <PieChart
                 slices={card.slices}
                 noDataLabel={t('dashboard.chart.noData')}
                 showZeroSlices
-                legendSearch={pieLegendSearches[card.titleKey] ?? ''}
+                legendSearch={panelSearch}
                 formatSliceLabel={
                   (role === 'Staff' || role === 'Operator') && card.titleKey === 'dashboard.charts.myRequests'
                     ? (raw, translate) => (raw === 'dashboard.chart.approved'

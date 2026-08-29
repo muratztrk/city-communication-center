@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../api/client'
 import { queryKeys } from '../api/queryKeys'
 import { CitizenRequestMap } from '../components/CitizenRequestMap'
+import { PieLegendSearch } from '../components/ui/PieChart'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { StatusPill } from '../components/ui/status-pill'
 import { toApiDateParam, toDateTimePickerValue } from '../utils/dateTimePicker'
@@ -42,6 +43,7 @@ export function CitizenRequestMapPage() {
   const [period, setPeriod] = useState<Period>('yearly')
   const [customFrom, setCustomFrom] = useState('')
   const [customTo, setCustomTo] = useState('')
+  const [mapSearch, setMapSearch] = useState('')
 
   const { from: activeFrom, to: activeTo } = useMemo(
     () => getPeriodRange(period, customFrom, customTo),
@@ -67,7 +69,7 @@ export function CitizenRequestMapPage() {
           style={{ background: 'linear-gradient(135deg, var(--color-header-from), var(--color-header-to))' }}
         >
           <div className="space-y-1">
-            <div className="text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">
+            <div className="live-summary-kicker text-[0.72rem] font-semibold uppercase tracking-[0.08em] text-white/70">
               {t('dashboard.liveSummary')}
             </div>
             <h1 className="page-title !text-white">
@@ -117,8 +119,19 @@ export function CitizenRequestMapPage() {
             <ScopeChipDateRange from={customFrom} to={customTo} onFromChange={setCustomFrom} onToChange={setCustomTo} forceDown />
           )}
         </div>
+        <div className="flex items-center px-4 py-2 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
+          <div className="min-w-[12rem] max-w-md flex-1">
+            <PieLegendSearch value={mapSearch} onChange={setMapSearch} />
+          </div>
+        </div>
 
-        <CitizenRequestMap pins={pinsQuery.data?.pins ?? []} loading={pinsQuery.isLoading} />
+        <CitizenRequestMap
+          pins={pinsQuery.data?.pins ?? []}
+          loading={pinsQuery.isLoading}
+          searchQuery={mapSearch}
+          onSearchQueryChange={setMapSearch}
+          hideLegendSearch
+        />
         {pinsQuery.isError ? (
           <div className="px-4 py-3 text-sm font-medium text-red-600 sm:px-5">
             {pinsQuery.error instanceof Error

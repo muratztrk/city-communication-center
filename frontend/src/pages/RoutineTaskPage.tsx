@@ -301,10 +301,10 @@ export function RoutineTaskPage() {
             <ClipboardList className="size-5" />
           </span>
           <div>
-            <h2 className="text-xl font-extrabold text-slate-950">
+            <h2 className="text-lg font-bold text-slate-950">
               {pageTitle}
             </h2>
-            <p className="helper-copy mt-0.5 text-base leading-6">
+            <p className="helper-copy mt-0.5 text-sm leading-6">
               {t('routineTask.formDescription', 'Onay süreci gerektirmeyen kişisel görevler için kullanın.')}
             </p>
           </div>
@@ -318,12 +318,12 @@ export function RoutineTaskPage() {
             </label>
             <input
               id="routine-title"
-              className="field-input"
+              className="field-input create-request-core-placeholder"
               type="text"
               maxLength={50}
               value={form.title}
               onChange={e => set('title', e.target.value)}
-              placeholder={t('routineTask.titlePlaceholder', 'Görev başlığını girin')}
+              placeholder={t('routineTask.titlePlaceholder', 'Görev başlığını giriniz...')}
               required
             />
           </div>
@@ -338,6 +338,7 @@ export function RoutineTaskPage() {
                 value={form.priority}
                 onChange={priority => set('priority', priority)}
                 placeholder={t('tasks.newRequest.priority', 'Öncelik')}
+                triggerClassName="create-request-core-placeholder"
               />
             </div>
 
@@ -350,6 +351,8 @@ export function RoutineTaskPage() {
                 id="routine-due"
                 value={form.dueDateUtc}
                 onChange={v => set('dueDateUtc', v)}
+                placeholder={t('common.dateTimePickerPlaceholder', 'Tarih ve saat seçiniz...')}
+                triggerClassName="create-request-core-placeholder"
               />
             </div>
           </div>
@@ -500,7 +503,7 @@ export function RoutineTaskPage() {
             <RichTextEditor
               value={form.description}
               onChange={v => set('description', v)}
-              placeholder={t('routineTask.descPlaceholder', 'Görev açıklamasını girin')}
+              placeholder={t('routineTask.descPlaceholder', 'Görev açıklamasını detaylı olarak giriniz...')}
               minHeight="min-h-48"
             />
           </div>

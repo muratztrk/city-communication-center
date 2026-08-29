@@ -1,3 +1,7 @@
+## Round 1057 — Sistemde ara, harita, pie, mobil görünüm
+
+- **STATUS:** Arama alanları/kanal ikonları; harita araması Dönem altında + cluster flicker yok; pie tek arama; rastgele yeşil yok; mobil/desktop chrome.
+
 ## Round 1056 — arama 3 harf sıkılaştırma, bildirim buton yüksekliği, başlık punto
 
 - **STATUS:** Dizin 1–2 harfte sayfa atmaz; harf/rakam eşiği. Modal Tümünü sil/okundu h-7 medium; Bildirimleri Sil compact; bildirim ifadeleri medium.

@@ -13,10 +13,12 @@ const COLOR_MAP: Record<string, string> = {
   info: '#06b6d4',
   neutral: '#94a3b8',
   orange: '#f97316',
+  violet: '#8b5cf6',
+  rose: '#f43f5e',
 }
 
 function getColor(hint: string): string {
-  return COLOR_MAP[hint] ?? COLOR_MAP.primary
+  return COLOR_MAP[hint] ?? COLOR_MAP.info
 }
 
 interface ArcPoint {
@@ -216,7 +218,7 @@ export function PieChart({
   }
 
   return (
-    <div className="relative flex min-w-0 flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
+    <div className="pie-chart-root relative flex min-w-0 flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-6">
       {showEmpty ? (
         <div className="flex min-h-40 w-full items-center justify-center py-10 text-sm text-[color:var(--color-muted-foreground)]">
           {isSearchQueryActive(legendSearch)

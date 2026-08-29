@@ -6,6 +6,7 @@ import { api } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../../lib/rolePageAccess'
 import type { Department, JobSummary, SocialMessage, Task, User } from '../../types/platform'
+import { ChannelIcon } from '../ui/channel-icon'
 import { getTaskStatusLabel } from '../../utils/localization'
 import { includesFoldedTr } from '../../utils/textNormalization'
 
@@ -26,6 +27,7 @@ interface SearchResultItem {
   title: string
   subtitle: string
   path: string
+  channel?: string | null
 }
 
 interface SearchData {
@@ -66,10 +68,35 @@ const CATEGORY_ICONS: Record<SearchCategory, typeof FolderKanban> = {
 
 const MAX_PER_CATEGORY = 4
 
+function digitsOnly(value: string | null | undefined): string {
+  return (value ?? '').replace(/\D/g, '')
+}
+
+function localizeSearchChannel(channel: string | null | undefined): string {
+  if (!channel) return ''
+  if (/^phone$/i.test(channel)) return 'Çağrı'
+  return channel
+}
+
+function jobNumberTexts(job: Pick<JobSummary, 'jobNumber' | 'jobNumberYear' | 'citizenRequestNumber' | 'citizenRequestNumberYear'>): string[] {
+  const parts: string[] = []
+  if (job.jobNumber != null && job.jobNumberYear != null) {
+    parts.push(`T-${job.jobNumberYear}-${job.jobNumber}`, `${job.jobNumberYear}-${job.jobNumber}`, String(job.jobNumber))
+  }
+  if (job.citizenRequestNumber != null) {
+    const year = job.citizenRequestNumberYear ?? job.jobNumberYear
+    parts.push(`VT-${year}-${job.citizenRequestNumber}`, String(job.citizenRequestNumber))
+  }
+  return parts
+}
+
+/** #3171: yalnız talep no, VT no, görev no, talep/görev başlığı, vatandaş adı, telefon. */
 function jobMatches(job: JobSummary, q: string): boolean {
-  return includesFoldedTr(job.title, q)
-    || includesFoldedTr(job.citizenName, q)
-    || includesFoldedTr(job.ownerDepartmentName, q)
+  const qDigits = digitsOnly(q)
+  if (includesFoldedTr(job.title, q) || includesFoldedTr(job.citizenName, q)) return true
+  if (jobNumberTexts(job).some(part => includesFoldedTr(part, q))) return true
+  if (qDigits.length >= 3 && digitsOnly(job.citizenPhone).includes(qDigits)) return true
+  return false
 }
 
 function jobSubtitle(job: JobSummary): string {
@@ -80,10 +107,32 @@ function jobSubtitle(job: JobSummary): string {
 }
 
 function taskMatches(task: Task, q: string): boolean {
-  return includesFoldedTr(task.title, q)
-    || includesFoldedTr(task.jobTitle, q)
-    || includesFoldedTr(task.assignedUserDisplayName, q)
-    || includesFoldedTr(task.assignedDepartmentName, q)
+  if (includesFoldedTr(task.title, q) || includesFoldedTr(task.jobTitle, q)) return true
+  if (task.taskNumber != null && task.taskNumberYear != null) {
+    const no = `G-${task.taskNumberYear}-${task.taskNumber}`
+    if (includesFoldedTr(no, q) || includesFoldedTr(String(task.taskNumber), q)) return true
+  }
+  if (task.jobNumber != null && task.jobNumberYear != null) {
+    if (includesFoldedTr(`T-${task.jobNumberYear}-${task.jobNumber}`, q) || includesFoldedTr(String(task.jobNumber), q)) return true
+  }
+  return false
+}
+
+function socialMatches(msg: SocialMessage, q: string): boolean {
+  const qDigits = digitsOnly(q)
+  if (includesFoldedTr(msg.citizenHandle, q) || includesFoldedTr(msg.citizenName, q)) return true
+  if (msg.citizenRequestNumber != null) {
+    const year = msg.citizenRequestNumberYear
+    if (includesFoldedTr(`VT-${year}-${msg.citizenRequestNumber}`, q) || includesFoldedTr(String(msg.citizenRequestNumber), q)) return true
+  }
+  if (qDigits.length >= 3 && digitsOnly(msg.citizenPhone).includes(qDigits)) return true
+  return false
+}
+
+function resolveJobChannel(job: JobSummary, socialByJobId: Map<string, string>): string | null {
+  if (job.requestType !== 'Citizen') return null
+  return socialByJobId.get(job.jobId)
+    ?? (job.sourceType === 'SocialMessage' ? null : 'Phone')
 }
 
 function pushJobResults(
@@ -93,6 +142,8 @@ function pushJobResults(
   pathFor: (job: JobSummary) => string,
   seenIds: Set<string>,
   q: string,
+  socialByJobId: Map<string, string>,
+  showCitizenChannel: boolean,
 ) {
   let added = 0
   for (const job of jobs) {
@@ -105,6 +156,7 @@ function pushJobResults(
       title: job.title,
       subtitle: jobSubtitle(job),
       path: pathFor(job),
+      channel: showCitizenChannel ? resolveJobChannel(job, socialByJobId) : null,
     })
     added += 1
   }
@@ -118,18 +170,25 @@ function pushTaskResults(
   seenIds: Set<string>,
   q: string,
   t: ReturnType<typeof useTranslation>['t'],
+  socialByJobId: Map<string, string>,
+  showCitizenChannel: boolean,
+  statusOnlySubtitle: boolean,
 ) {
   let added = 0
   for (const task of tasks) {
     if (added >= MAX_PER_CATEGORY) break
     if (seenIds.has(task.taskId) || !taskMatches(task, q)) continue
     seenIds.add(task.taskId)
+    const status = getTaskStatusLabel(t, task.currentStatus)
     results.push({
       id: `${category}-${task.taskId}`,
       category,
       title: task.title,
-      subtitle: [task.jobTitle, getTaskStatusLabel(t, task.currentStatus)].filter(Boolean).join(' · '),
+      subtitle: statusOnlySubtitle ? status : [task.jobTitle, status].filter(Boolean).join(' · '),
       path: pathFor(task),
+      channel: showCitizenChannel && task.jobRequestType === 'Citizen'
+        ? (socialByJobId.get(task.jobId) ?? (task.jobSourceType === 'SocialMessage' ? null : 'Phone'))
+        : null,
     })
     added += 1
   }
@@ -140,6 +199,7 @@ function filterResults(
   query: string,
   t: ReturnType<typeof useTranslation>['t'],
   access: SearchCategoryAccess,
+  showCitizenChannel: boolean,
 ): SearchResultItem[] {
   const q = query.toLocaleLowerCase('tr').trim()
   if (q.length < 3) return []
@@ -147,6 +207,10 @@ function filterResults(
   const results: SearchResultItem[] = []
   const seenJobs = new Set<string>()
   const seenTasks = new Set<string>()
+  const socialByJobId = new Map<string, string>()
+  for (const msg of data.social) {
+    if (msg.jobId && msg.channel) socialByJobId.set(msg.jobId, msg.channel)
+  }
 
   // Önce menüdeki sayfa sırasına yakın: Taleplerim → Gelen → Giden (card #1783).
   if (access.myRequests) {
@@ -157,6 +221,8 @@ function filterResults(
       job => `/my-requests?view=all&jobId=${job.jobId}`,
       seenJobs,
       q,
+      socialByJobId,
+      showCitizenChannel,
     )
   }
   if (access.incomingRequests) {
@@ -167,6 +233,8 @@ function filterResults(
       job => `/request-details?context=incoming&jobId=${job.jobId}`,
       seenJobs,
       q,
+      socialByJobId,
+      showCitizenChannel,
     )
   }
   if (access.outgoingRequests) {
@@ -177,6 +245,8 @@ function filterResults(
       job => `/outgoing-requests?jobId=${job.jobId}`,
       seenJobs,
       q,
+      socialByJobId,
+      false,
     )
   }
 
@@ -189,6 +259,9 @@ function filterResults(
       seenTasks,
       q,
       t,
+      socialByJobId,
+      showCitizenChannel,
+      showCitizenChannel,
     )
   }
   if (access.departmentTasks) {
@@ -200,6 +273,9 @@ function filterResults(
       seenTasks,
       q,
       t,
+      socialByJobId,
+      showCitizenChannel,
+      showCitizenChannel,
     )
   }
   if (access.staffTasks) {
@@ -211,53 +287,23 @@ function filterResults(
       seenTasks,
       q,
       t,
+      socialByJobId,
+      false,
+      false,
     )
   }
 
   if (access.social) {
     data.social
-      .filter(msg =>
-        includesFoldedTr(msg.citizenHandle, q)
-        || includesFoldedTr(msg.category, q)
-        || includesFoldedTr(msg.assignedDepartmentName, q),
-      )
+      .filter(msg => socialMatches(msg, q))
       .slice(0, MAX_PER_CATEGORY)
       .forEach(msg => results.push({
         id: `social-${msg.socialMessageId}`,
         category: 'social',
-        title: `@${msg.citizenHandle}`,
-        subtitle: [msg.channel, msg.category].filter(Boolean).join(' · '),
+        title: msg.citizenName?.trim() || msg.citizenHandle,
+        subtitle: localizeSearchChannel(msg.channel),
         path: `/social?channel=${msg.channel}`,
-      }))
-  }
-
-  if (access.users) {
-    data.users
-      .filter(user =>
-        includesFoldedTr(user.displayName, q)
-        || includesFoldedTr(user.username, q)
-        || includesFoldedTr(user.email, q),
-      )
-      .slice(0, MAX_PER_CATEGORY)
-      .forEach(user => results.push({
-        id: `user-${user.userId}`,
-        category: 'users',
-        title: user.displayName,
-        subtitle: [user.title, user.email].filter(Boolean).join(' · '),
-        path: '/users',
-      }))
-  }
-
-  if (access.departments) {
-    data.departments
-      .filter(dept => includesFoldedTr(dept.name, q))
-      .slice(0, MAX_PER_CATEGORY)
-      .forEach(dept => results.push({
-        id: `dept-${dept.departmentId}`,
-        category: 'departments',
-        title: dept.name,
-        subtitle: dept.departmentType,
-        path: '/departments',
+        channel: msg.channel,
       }))
   }
 
@@ -288,6 +334,8 @@ export function GlobalSearchBar() {
       departments: canAnyRoleAccessPage(roles, 'departments'),
     }
   }, [roles, user?.role])
+
+  const showCitizenChannel = user?.role !== 'Operator' && user?.role !== 'SystemAdmin'
 
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
@@ -349,9 +397,9 @@ export function GlobalSearchBar() {
         access.myTasks ? api.getTasks('mine').catch(() => [] as Task[]) : Promise.resolve([] as Task[]),
         access.departmentTasks ? api.getTasks('department').catch(() => [] as Task[]) : Promise.resolve([] as Task[]),
         access.staffTasks ? api.getTasks('all').catch(() => [] as Task[]) : Promise.resolve([] as Task[]),
-        Promise.allSettled([access.social ? api.getSocialMessages() : Promise.resolve([] as SocialMessage[])]),
-        Promise.allSettled([access.users ? api.getUsers() : Promise.resolve([] as User[])]),
-        Promise.allSettled([access.departments ? api.getDepartments() : Promise.resolve([] as Department[])]),
+        Promise.allSettled([api.getSocialMessages()]),
+        Promise.allSettled([Promise.resolve([] as User[])]),
+        Promise.allSettled([Promise.resolve([] as Department[])]),
       ])
 
       const fetched: SearchData = {
@@ -374,15 +422,12 @@ export function GlobalSearchBar() {
       setIsLoading(false)
     }
   }, [
-    access.departments,
     access.departmentTasks,
     access.incomingRequests,
     access.myRequests,
     access.myTasks,
     access.outgoingRequests,
-    access.social,
     access.staffTasks,
-    access.users,
     data,
   ])
 
@@ -401,9 +446,9 @@ export function GlobalSearchBar() {
     debounceRef.current = setTimeout(async () => {
       const current = data ?? await fetchData()
       if (!current) return
-      setResults(filterResults(current, value, t, access))
+      setResults(filterResults(current, value, t, access, showCitizenChannel))
     }, 300)
-  }, [access, data, fetchData, t])
+  }, [access, data, fetchData, showCitizenChannel, t])
 
   const handleSelect = (path: string) => {
     setIsOpen(false)
@@ -497,17 +542,37 @@ export function GlobalSearchBar() {
                       <Icon className="size-3.5 text-slate-400" />
                       <span className="text-[0.68rem] font-bold uppercase tracking-[0.08em] text-slate-500">{categoryLabels[category]}</span>
                     </div>
-                    {items.map(item => (
+                    {items.map(item => {
+                      const iconBesideTitle = Boolean(item.channel) && (
+                        item.category === 'incomingRequests'
+                        || item.category === 'myTasks'
+                        || item.category === 'departmentTasks'
+                      )
+                      const iconBesideChannel = Boolean(item.channel) && !iconBesideTitle
+                      return (
                       <button
                         key={item.id}
                         type="button"
-                        className="flex w-full flex-col gap-0.5 border-b border-slate-50 px-4 py-2.5 text-left last:border-0 hover:bg-slate-50"
+                        className="flex w-full items-start gap-2 border-b border-slate-50 px-4 py-2.5 text-left last:border-0 hover:bg-slate-50"
                         onClick={() => handleSelect(item.path)}
                       >
-                        <span className="text-sm font-semibold text-slate-800">{item.title}</span>
-                        {item.subtitle ? <span className="text-xs text-slate-400">{item.subtitle}</span> : null}
+                        {iconBesideTitle && item.channel ? (
+                          <ChannelIcon channel={item.channel} className="mt-0.5 size-4 shrink-0" />
+                        ) : null}
+                        <span className="flex min-w-0 flex-col gap-0.5">
+                          <span className="text-sm font-semibold text-slate-800">{item.title}</span>
+                          {item.subtitle ? (
+                            <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+                              {iconBesideChannel && item.channel ? (
+                                <ChannelIcon channel={item.channel} className="size-3.5 shrink-0" />
+                              ) : null}
+                              {item.subtitle}
+                            </span>
+                          ) : null}
+                        </span>
                       </button>
-                    ))}
+                      )
+                    })}
                   </div>
                 )
               })}

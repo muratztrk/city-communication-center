@@ -417,7 +417,7 @@ public sealed class GetDashboardStatusChartsQueryHandler
             .Concat(tagsByJob)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
-        var colorHints = new[] { "primary", "success", "info", "warning", "orange", "danger", "neutral" };
+        var colorHints = new[] { "primary", "info", "violet", "warning", "orange", "danger", "neutral", "rose" };
         var slices = labels
             .Select(label => (
                 Label: label,
@@ -1064,5 +1064,5 @@ public sealed class GetDashboardStatusChartsQueryHandler
         Cancelled,
     }
 
-    private static readonly string[] StaffChartColors = ["primary", "success", "info", "warning", "neutral"];
+    private static readonly string[] StaffChartColors = ["primary", "info", "violet", "warning", "rose", "neutral"];
 }

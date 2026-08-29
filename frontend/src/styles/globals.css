@@ -7271,3 +7271,297 @@
   }
 
 }
+
+@layer components {
+  /* Round 1057 — desktop chrome + mobile viewport kartları */
+
+  .scope-chip-date .field-input:focus,
+  .scope-chip-date .field-input:focus-visible,
+  .scope-chip-date .field-input:hover {
+    border-color: var(--color-border);
+    box-shadow: none;
+  }
+
+  .routine-task-form .create-request-core-placeholder,
+  .routine-task-form .create-request-core-placeholder span,
+  .routine-task-form .create-request-core-placeholder.field-input::placeholder {
+    font-size: 0.88rem;
+  }
+
+  .notification-modal-shell .notification-modal-search {
+    max-width: 9.5rem;
+  }
+
+  .notification-modal-shell .notification-modal-date.scope-chip-date {
+    max-width: 8.25rem;
+  }
+
+  .notification-modal-shell .notification-modal-date.scope-chip-date .field-input {
+    min-height: 1.75rem;
+    font-size: 0.68rem;
+  }
+
+  @media (min-width: 1024px) {
+    .app-content-shell .page-stack {
+      gap: 0.55rem;
+    }
+
+    .pie-chart-card {
+      padding: 0.7rem 0.85rem;
+    }
+
+    .pie-chart-root svg {
+      width: 128px;
+      height: 128px;
+    }
+
+    .pie-chart-root text[font-size='18'] {
+      font-size: 15px;
+    }
+
+    .citizen-map-list-btn {
+      min-height: 2rem;
+      padding-block: 0.4rem;
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .login-page .login-logo-panel-mobile .h-\[4\.5rem\] {
+      height: 3.4rem;
+    }
+
+    .login-page .login-logo-panel-mobile {
+      padding-top: 2.4rem;
+      padding-bottom: 0.6rem;
+    }
+
+    .login-page h2 {
+      font-size: 1.05rem;
+    }
+
+    .login-page .field-input,
+    .login-page button[type='submit'] {
+      min-height: 2.15rem;
+      font-size: 0.82rem;
+    }
+
+    .live-summary-kicker,
+    .section-card .text-\[0\.72rem\].uppercase.tracking-\[0\.08em\] {
+      display: none;
+    }
+
+    .sticky-page-header .page-title,
+    .section-card .page-title {
+      font-size: 1.05rem;
+    }
+
+    .sticky-page-header .page-subtitle,
+    .section-card .page-subtitle,
+    .sticky-page-header p,
+    .section-card > div.text-white p {
+      font-size: 0.75rem;
+      line-height: 1.35;
+    }
+
+    .page-kicker {
+      text-transform: capitalize;
+      letter-spacing: 0;
+    }
+
+    .metric-card-label,
+    .dashboard-metric-label,
+    [class*='metric'] .uppercase {
+      text-transform: none;
+      font-size: 0.68rem;
+      font-weight: 600;
+    }
+
+    .scope-chips,
+    .sticky-page-header .flex.flex-wrap {
+      row-gap: 0.35rem;
+    }
+
+    .scope-chip,
+    .sticky-page-header .rounded-lg.border.px-3 {
+      font-size: 0.68rem;
+      padding: 0.2rem 0.5rem;
+    }
+
+    .scope-chips {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .scope-chips .scope-chip {
+      flex: 1 1 calc(33.333% - 0.4rem);
+      justify-content: center;
+    }
+
+    .scope-chips,
+    .notification-modal-filters {
+      flex-wrap: nowrap;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .pie-chart-root {
+      flex-direction: row !important;
+      align-items: center;
+      gap: 0.55rem;
+    }
+
+    .pie-chart-root svg {
+      width: 80px;
+      height: 80px;
+    }
+
+    .pie-chart-root ul,
+    .pie-chart-root li {
+      font-size: 0.68rem;
+    }
+
+    .pie-chart-root li span[class*='size-'],
+    .pie-chart-root .size-2\.5,
+    .pie-chart-root .size-2 {
+      width: 0.45rem;
+      height: 0.45rem;
+    }
+
+    .pie-chart-card {
+      padding: 0.65rem;
+    }
+
+    .pie-chart-card::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 3px;
+      background: color-mix(in srgb, var(--color-primary) 55%, white);
+    }
+
+    .pie-chart-card h2,
+    .pie-chart-card .text-sm.font-semibold {
+      white-space: normal;
+      overflow-wrap: anywhere;
+      font-size: 0.72rem;
+    }
+
+    .sidebar-shell,
+    aside.sidebar-shell {
+      font-size: 0.78rem;
+    }
+
+    .mobile-nav-panel .h-\[5\.5rem\],
+    .lg\:hidden .h-\[5\.5rem\] {
+      height: 4.25rem;
+    }
+
+    .mobile-nav-panel .text-xl,
+    .lg\:hidden .text-xl.font-bold {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .lg\:hidden .sidebar-scroll-area a,
+    .lg\:hidden .sidebar-scroll-area button {
+      font-size: 0.72rem;
+      padding-block: 0.35rem;
+    }
+
+    .lg\:hidden .sidebar-chip,
+    .lg\:hidden button[aria-label='Close menu'] {
+      transform: scale(0.88);
+    }
+
+    .citizen-map-list-btn {
+      margin-left: 0;
+      justify-content: flex-start;
+    }
+
+    .whatsapp-message-pane {
+      max-height: 42vh;
+    }
+
+    .whatsapp-template-row {
+      flex-wrap: nowrap;
+    }
+
+    .date-time-picker-popup {
+      transform: scale(0.88);
+      transform-origin: top center;
+    }
+
+    .date-time-picker-popup button.flex.h-9,
+    .date-time-picker-popup button.size-8 {
+      height: 1.65rem;
+      width: 1.65rem;
+      font-size: 0.72rem;
+    }
+
+    .wallboard-actions {
+      justify-content: flex-start;
+    }
+
+    .wallboard-back-button,
+    .wallboard-fullscreen-button {
+      transform: scale(0.86);
+      transform-origin: left center;
+    }
+
+    .wallboard-page .table-pagination,
+    .table-pagination {
+      font-size: 0.72rem;
+      gap: 0.25rem;
+    }
+
+    .detail-modal-shell,
+    .detail-modal-shell--my-request {
+      font-size: 0.78rem;
+    }
+
+    .detail-modal-shell svg,
+    .detail-modal-shell--my-request svg {
+      width: 0.85em;
+      height: 0.85em;
+    }
+
+    .my-request-edit-address-grid,
+    .address-fields-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.45rem;
+    }
+
+    .my-request-edit-address-grid .info-item,
+    .address-fields-grid .info-item {
+      border: 0;
+      border-bottom: 1px solid transparent;
+    }
+
+    .my-request-edit-address-grid .info-item span:last-child,
+    .address-fields-grid .info-item span:last-child,
+    .my-request-edit-address-grid input,
+    .address-fields-grid input {
+      text-decoration: underline;
+      text-underline-offset: 0.15em;
+    }
+
+    .create-request-kind-card h2,
+    #internal-request-form .field-input,
+    #external-request-form .field-input,
+    #citizen-request-form .field-input,
+    #internal-request-form .field-select,
+    #external-request-form .field-select,
+    #citizen-request-form .field-select,
+    .routine-task-form .field-input {
+      font-size: 0.82rem;
+    }
+
+    .request-form--readable button[type='submit'],
+    .routine-task-form button[type='submit'] {
+      font-size: inherit;
+    }
+  }
+}

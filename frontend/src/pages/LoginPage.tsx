@@ -304,7 +304,7 @@ export function LoginPage() {
   }
 
   return (
-    <div className="relative flex min-h-dvh flex-col overflow-y-auto">
+    <div className="login-page relative flex min-h-dvh flex-col overflow-y-auto">
     <div className="flex flex-1 flex-col lg:my-8 lg:mx-4 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:overflow-hidden lg:rounded-3xl lg:shadow-2xl xl:mx-[12.5%] xl:grid-cols-[minmax(0,1fr)_440px]">
         <section
           className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-7 lg:py-16 xl:px-8 2xl:px-12 2xl:py-20"

@@ -1327,7 +1327,7 @@ function ConversationDetail({
           <div
             ref={scrollContainerRef}
             onScroll={updatePinnedToBottom}
-            className="whatsapp-chat-bg min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4"
+            className="whatsapp-chat-bg whatsapp-message-pane min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4"
           >
             {loading ? (
               <ConversationSkeleton />
@@ -1464,6 +1464,7 @@ function ConversationDetail({
                     if (event.target) event.target.value = ''
                   }}
                 />
+                <div className="whatsapp-template-row inline-flex items-center gap-1.5">
                 <WhatsAppTemplatePicker
                   userQuickReplies={userQuickReplies}
                   menuAlign="start"
@@ -1483,6 +1484,7 @@ function ConversationDetail({
                   }}
                 />
                 <UserQuickReplyAddButton onChanged={onUserQuickRepliesChanged} />
+                </div>
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
@@ -1505,8 +1507,8 @@ function ConversationDetail({
                         searchPlaceholder={t('departments.search', 'Birim ara...')}
                         openUp={internalDepartmentOptions.length >= 2}
                         clearable
-                        className="w-[10rem] min-w-0 max-w-[10rem] shrink-0"
-                        triggerClassName="h-9 w-full rounded-full px-2.5 text-xs font-semibold"
+                        className="w-[8.5rem] min-w-0 max-w-[8.5rem] shrink-0"
+                        triggerClassName="h-8 w-full rounded-full px-2.5 text-xs font-semibold"
                         menuWidth={184}
                         menuScrollClassName="whatsapp-department-menu-scroll"
                       />

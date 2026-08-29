@@ -1991,6 +1991,8 @@
   },
   "routineTask": {
     "submit": "Create Task",
-    "subtitle": "Create a routine task that does not require manager approval."
+    "subtitle": "Create a routine task that does not require manager approval.",
+    "titlePlaceholder": "Enter the task title...",
+    "descPlaceholder": "Enter a detailed task description..."
   }
 }

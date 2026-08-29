@@ -862,7 +862,7 @@ export function AppShell() {
                   imageClassName="h-[72%] w-[72%]"
                 />
                 {/* Marka metni logo altına biraz boşlukla (card #1699). */}
-                <div className="min-w-0 w-full pt-0.5 text-center text-sm font-bold leading-tight break-words text-white">{t('shell.subtitle', { municipalityName })}</div>
+                <div className="sidebar-brand-title min-w-0 w-full border-b border-white/18 pt-0.5 pb-2 text-center text-sm font-bold leading-tight break-words text-white">{t('shell.subtitle', { municipalityName })}</div>
               </div>
             ) : (
               <div className="flex justify-center">

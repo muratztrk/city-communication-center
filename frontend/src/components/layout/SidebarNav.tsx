@@ -98,7 +98,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
     const className = cn(
       'flex w-full min-w-0 items-center rounded-xl border text-left font-semibold transition-colors duration-150',
       collapsed
-        ? 'justify-center gap-0 px-0 py-2.5 text-sm'
+        ? 'justify-center gap-0 px-0 py-2.5 text-sm lg:text-[0.8rem]'
         : useCompactEmphasis
           ? 'gap-2 px-2.5 py-1.5 text-[0.68rem] font-bold leading-snug'
           : isEmphasizedNested
@@ -110,8 +110,8 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
               : item.multilineLabel
                 ? (compactLabels && item.path !== '/citizen-message-approval'
                   ? 'gap-2.5 px-3 py-1.5 text-[0.68rem] leading-snug'
-                  : 'gap-3 px-3 py-2 text-sm leading-snug')
-                : 'gap-3 px-3 py-2 text-sm',
+                  : 'gap-3 px-3 py-2 text-sm leading-snug lg:text-[0.8rem]')
+                : 'gap-3 px-3 py-2 text-sm lg:text-[0.8rem]',
       isActive
         ? 'border-white/10 bg-white text-slate-950 shadow-sm'
         : 'border-transparent text-[color:var(--color-sidebar-foreground)]/78 hover:border-white/8 hover:bg-white/8 hover:text-white',
@@ -130,7 +130,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
         onClick={() => onNavigate?.()}
       >
         {item.iconImageSrc ? (
-          <img src={item.iconImageSrc} alt="" className={cn('shrink-0 object-contain', isEmphasizedNested ? 'size-5' : nested && !collapsed ? 'size-4' : 'size-4.5')} />
+          <img src={item.iconImageSrc} alt="" className={cn('shrink-0 object-contain', isEmphasizedNested ? 'size-4' : nested && !collapsed ? 'size-4' : 'size-4.5')} />
         ) : Icon ? (
           <Icon className={cn('shrink-0', isEmphasizedNested ? 'size-5' : nested && !collapsed ? 'size-4' : 'size-4.5')} />
         ) : null}
@@ -215,7 +215,7 @@ export function SidebarNav({ items, collapsed = false, defaultActivePaths = [], 
                 <button
                   type="button"
                   className={cn(
-                    'flex w-full min-w-0 items-center gap-3 rounded-xl border px-3 py-2 text-left text-sm font-semibold transition-colors duration-150',
+                    'flex w-full min-w-0 items-center gap-3 rounded-xl border px-3 py-2 text-left text-sm font-semibold transition-colors duration-150 lg:text-[0.8rem]',
                     isGroupActive
                       ? 'border-white/10 bg-white/10 text-white shadow-sm'
                       : 'border-transparent text-[color:var(--color-sidebar-foreground)]/78 hover:border-white/8 hover:bg-white/8 hover:text-white',

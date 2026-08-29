@@ -2565,6 +2565,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   artan sıra; 0'lar sonda.
 - **Drilldown yazdır Tamamlanma Tarihi (#r547):** `col-completed` ~18% / min 9.5rem — başlık
   hücre border'ından taşmaz.
+- **Mobil (≤767px) grid paging barı:** hedef sınıf **`table-pagination-bar`** — DOM'da
+  `table-pagination` **yok** (eski küçültme denemesi bu yüzden etkisizdi). Bar `max-height` ile
+  sınırlı olduğundan `flex-wrap: wrap` ikinci satırı taşırır → mobilde `flex-wrap: nowrap`,
+  `max-height: none`, punto `0.6rem`, buton/sayfa kutuları `1.3rem`, ok ikonları `0.62rem`.
+  Toplam/aralık metni kısılabilir, oklar ve sayfa numaraları `flex-shrink: 0` ile ezilmez.
+  `!important` zorunlu: Tailwind `utilities` katmanı (`gap-1`, `size-3.5`) `components`'ı ezer.
 - **Mobil (≤1023px) İlgili Görev Detayları `Talep Yeri / Oluşturan`:** etiket iki satır
   (`Talep Yeri` üstte, `Oluşturan` altta — slash yok, #2650 kalıbı) ve her değer satırı kendi
   etiketiyle aynı hizada, sağa yaslı. Satır `job-detail-field-row--task-location` ile 2 kolonlu

@@ -1,3 +1,7 @@
+## Round 1072 — mobil paging barı gerçekten küçülsün
+
+- **STATUS:** Eski kural `.table-pagination` hedefliyordu (DOM'da yok) → ölü CSS, silindi. Gerçek sınıf `.table-pagination-bar` ile punto/kontroller küçültüldü, `nowrap` + `max-height: none` ile tek satıra sığdı (taşan "1" düzeldi).
+
 ## Round 1071 — mobil Görev Bilgileri Talep Yeri / Oluşturan iki satır
 
 - **STATUS:** Bu satır `StackedFieldLabel` kullanmıyordu (tek satır metin). Mobilde etiket iki satıra bölündü, satır `--task-location` ızgarasıyla değer satırlarıyla hizalandı; masaüstü değişmedi.

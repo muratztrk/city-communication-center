@@ -6727,6 +6727,69 @@
       display: none !important;
     }
 
+    /* Mobil paging barı: her şey tek satıra sığar. Bar `max-height` ile sınırlı olduğu için
+       `flex-wrap` ikinci satırı taşırıyordu — `nowrap` + küçültme. Sınıf `table-pagination-bar`;
+       DOM'da `table-pagination` yok. `!important` gerekli: Tailwind utilities katmanı
+       (`gap-1`, `size-3.5`) components katmanını ezer. */
+    .table-pagination-bar {
+      --table-chrome-row-py: 0.3rem;
+      --table-chrome-row-px: 0.5rem;
+      --table-chrome-row-inner-height: 1.3rem;
+      flex-wrap: nowrap !important;
+      justify-content: space-between;
+      gap: 0.3rem !important;
+      max-height: none !important;
+      font-size: 0.6rem !important;
+    }
+
+    /* Çok dar ekranda toplam/aralık metni kısılır; oklar ve sayfa numaraları asla ezilmez. */
+    .table-pagination-bar .table-pagination-info {
+      min-width: 0;
+      overflow: hidden;
+      gap: 0.2rem !important;
+      font-size: 0.6rem !important;
+      white-space: nowrap;
+    }
+
+    .table-pagination-bar .table-pagination-label,
+    .table-pagination-bar .table-pagination-total-count,
+    .table-pagination-bar .table-pagination-range {
+      font-size: 0.6rem !important;
+    }
+
+    .table-pagination-bar .table-pagination-divider {
+      height: 0.85rem;
+    }
+
+    .table-pagination-bar .table-pagination-navigation {
+      flex-shrink: 0;
+      gap: 0.12rem !important;
+    }
+
+    .table-pagination-bar .table-pagination-pages {
+      gap: 0.12rem;
+    }
+
+    .table-pagination-bar .table-pagination-btn,
+    .table-pagination-bar .table-pagination-page {
+      width: 1.3rem !important;
+      min-width: 1.3rem !important;
+      height: 1.3rem !important;
+      padding: 0 !important;
+      border-radius: 0.3rem;
+      font-size: 0.6rem !important;
+    }
+
+    .table-pagination-bar .table-pagination-btn svg {
+      width: 0.62rem !important;
+      height: 0.62rem !important;
+    }
+
+    .table-pagination-bar .table-pagination-ellipsis {
+      padding: 0 0.1rem;
+      font-size: 0.6rem;
+    }
+
     .scope-chips {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -7689,21 +7752,6 @@
     .wallboard-fullscreen-button {
       transform: scale(0.86);
       transform-origin: left center;
-    }
-
-    .wallboard-page .table-pagination,
-    .table-pagination {
-      font-size: 0.62rem !important;
-      gap: 0.15rem !important;
-      padding-block: 0.2rem !important;
-    }
-
-    .table-pagination button,
-    .table-pagination select {
-      min-height: 1.45rem !important;
-      min-width: 1.45rem !important;
-      padding: 0.1rem 0.35rem !important;
-      font-size: 0.62rem !important;
     }
 
     .detail-modal-shell,

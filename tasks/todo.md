@@ -1,3 +1,7 @@
+## Round 1070 — mobil Adres Bilgileri tek sol eksen + ortalı tire
+
+- **STATUS:** mobil blok `--task` merkez kurallarını yenemiyordu (özgüllük). Tüm başlıklar sola/tek eksene alındı; boş satırda kutu `fit-content` + `:has(.address-empty-dash)` ile `-` başlık altında ortalı. `--peek` korunuyor.
+
 ## Round 1069 — Sistemde ara kanal ikonu gerçekten görünsün
 
 - **STATUS:** kanal `requestType === 'Citizen'` şartına bağlıydı; WhatsApp talebi `ExternalUnit` olduğu için null dönüyordu. `isCitizenRequestJob` + sourceType yedeği; ikon başlık span’ı içine alındı.

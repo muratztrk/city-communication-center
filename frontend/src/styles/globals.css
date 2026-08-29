@@ -7751,12 +7751,64 @@
       font-size: 0.72rem !important;
     }
 
+    /* Mobil Adres Bilgileri: tüm alt başlıklar tek sol düşey eksende alt alta; boş satırda `-`
+       başlığın genişliğinde ortalı. Masaüstündeki ortalama/kaydırma kuralları `!important` +
+       daha özgül seçicilerle yazıldığı için burada da aynı özgüllük gerekiyor.
+       `--peek` (Adresi Gör) ortalı düzenini korur (#2755). */
     .address-detail-my-request,
-    .address-detail-my-request__grid,
-    .address-detail-my-request__item {
+    .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) {
       text-align: left !important;
-      align-items: flex-start !important;
       justify-items: start !important;
+    }
+
+    .address-detail-my-request .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item,
+    .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(-n + 3),
+    .address-detail-my-request--task .address-detail-my-request__item--directions,
+    .address-detail-my-request--task .address-detail-my-request__item--coordinates {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      text-align: left !important;
+      justify-self: start !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      padding-inline-start: 0 !important;
+      transform: none !important;
+    }
+
+    .address-detail-my-request .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item > .address-detail-my-request__label,
+    .address-detail-my-request--task .address-detail-my-request__item--coordinates .address-detail-my-request__label {
+      display: block !important;
+      width: fit-content !important;
+      max-width: 100% !important;
+      margin-inline: 0 !important;
+      text-align: left !important;
+      transform: none !important;
+    }
+
+    .address-detail-my-request .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item > .address-detail-my-request__value,
+    .address-detail-my-request--task .address-detail-my-request__item--coordinates .address-detail-my-request__value {
+      width: 100% !important;
+      max-width: 100% !important;
+      margin-inline: 0 !important;
+      text-align: left !important;
+      justify-content: flex-start !important;
+      transform: none !important;
+    }
+
+    /* Boş satırda kutu başlık genişliğine iner; `-` başlığın altında ortalanır. Dolu adres metni
+       sola yaslı ve tam genişlikte kalır. */
+    .address-detail-my-request .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item:has(.address-empty-dash) {
+      width: fit-content !important;
+    }
+
+    .address-detail-my-request .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item:has(.address-empty-dash) > .address-detail-my-request__label {
+      width: 100% !important;
+    }
+
+    .address-detail-my-request .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item:has(.address-empty-dash) > .address-detail-my-request__value {
+      text-align: center !important;
+      justify-content: center !important;
     }
 
     .address-empty-dash {

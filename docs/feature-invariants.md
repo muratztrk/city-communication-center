@@ -2565,6 +2565,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   artan sıra; 0'lar sonda.
 - **Drilldown yazdır Tamamlanma Tarihi (#r547):** `col-completed` ~18% / min 9.5rem — başlık
   hücre border'ından taşmaz.
+- **Mobil (≤1023px) Adres Bilgileri hizası:** `Mahalle` / `Cadde / Sokak` / `No` / `Adres Tarifi` /
+  `Konum Linki` başlıkları **tek sol düşey eksende** alt alta; boş satırda `-` başlığın genişliğinde
+  ortalı (kutu `width: fit-content` + `:has(.address-empty-dash)`), dolu değer sola yaslı tam genişlik.
+  Masaüstü ortalama/`translateX` kuralları `!important` + özgül seçicilerle yazıldığı için mobil
+  ezme de aynı özgüllükte olmalı — `--task` / `--three-cards` / `--attachments-only` seçicileri
+  açıkça hedeflenir. `--peek` (Adresi Gör) ortalı düzenini korur (#2755).
 - **Boş Adres Bilgileri tire (#r547/#6a6ba6ad):** `-` değeri üst etiketin genişliğinde ortalanır;
   üç boş kolon da Adres Bilgileri alt çizgisi altında ortalı
   (`width: fit-content` item + `text-align: center` value).

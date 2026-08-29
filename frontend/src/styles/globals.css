@@ -7631,9 +7631,26 @@
 
     .whatsapp-dept-select,
     .whatsapp-dept-select button {
-      height: 1.15rem !important;
+      height: 0.95rem !important;
+      min-height: 0.95rem !important;
+      max-height: 0.95rem !important;
+      padding-block: 0 !important;
+      padding-inline: 0.35rem !important;
       max-width: 6.5rem !important;
-      font-size: 0.55rem !important;
+      font-size: 0.5rem !important;
+      line-height: 1 !important;
+      overflow: hidden;
+      box-sizing: border-box;
+    }
+
+    .whatsapp-dept-select button svg {
+      width: 0.55rem !important;
+      height: 0.55rem !important;
+    }
+
+    .whatsapp-dept-select button [role='button'] {
+      width: 0.7rem !important;
+      height: 0.7rem !important;
     }
 
     .whatsapp-template-add {

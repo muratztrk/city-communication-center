@@ -1,3 +1,7 @@
+## Round 1068 — mobil WA Birim seçiniz gerçek yükseklik
+
+- **STATUS:** `height` 1.15rem yetmiyordu çünkü `.field-select` `min-height` ~2rem eziyordu. Mobil `0.95rem` + min-height/max-height/padding-block 0; chevron küçüldü.
+
 ## Round 1067 — anasayfa kutucuk + pie yatay boşluk
 
 - **STATUS:** yönetici 6’lı metrik `gap-x-3` → `gap-x-8` (oklar buradaydı); pie ızgara `gap-x-12` → `gap-x-16`. Daire/lejant boyutu değişmedi.

@@ -1256,6 +1256,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Anasayfa pie ızgara `gap-y-6 gap-x-16` (#6a92852e).
   Anasayfa/Vatandaş Paneli/Birimler/harita `PieLegendSearch` min-height 1.8rem (header ara değil) (#6a92692b).
   Mobil header Çıkış `height` 1.75rem; ikon-metin `gap` 0.2rem (#6a920226).
+  Mobil `/whatsapp` Birim seçiniz: `0.95rem` + `min-height`/`padding-block: 0`
+  (`.field-select` `min-height` height’i eziyordu).
   Sistemde ara `jobId`/`taskId` ile detay açılır; thead `background-attachment: fixed` (#r447;
   #6a928f47 geri alındı).
   Bildirim modal başlangıç placeholder `Başlama tarihi`; tarih font-weight 400 (#6a92b641).
@@ -2109,6 +2111,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dizin ticket sıra (#r467):** VT yılı+numara azalan (en yüksek üstte).
 - **WA Birim panel (#r467–#r478/#2704):** Konuşmalar trigger ~10rem / menü ~184px; create-modal
   menü ~148px; clearable X; placeholder `Birim seçiniz...`.
+  Mobil `.whatsapp-dept-select` `0.95rem` (`min-height` + `padding-block: 0`; yalnız `height` yetmez).
 - **WA Tümü / Talep Sayısı (#r473):** yalnız İşleme Alınan + Yapılmakta + Tamamlandı toplamı
   (iptal dahil değil).
 - **Grid truncate tooltip (#r474–#r479/#r517/#r522/#r524/#r529/#r530/#r531/#r533/#r534/#r535):** AppShell `useDataTableOverflowTooltips` —

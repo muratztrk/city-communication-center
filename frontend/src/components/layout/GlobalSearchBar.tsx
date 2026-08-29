@@ -68,6 +68,18 @@ const CATEGORY_ICONS: Record<SearchCategory, typeof FolderKanban> = {
   departments: Building,
 }
 
+function SearchSubtitleText({ text }: { text: string }) {
+  const idx = text.indexOf(' • ')
+  if (idx < 0) return text
+  return (
+    <>
+      {text.slice(0, idx)}
+      <span className="search-status-bullet" aria-hidden="true">•</span>
+      {text.slice(idx + 3)}
+    </>
+  )
+}
+
 const MAX_PER_CATEGORY = 4
 
 function digitsOnly(value: string | null | undefined): string {
@@ -631,7 +643,7 @@ export function GlobalSearchBar() {
                               {iconBesideChannel && item.channel ? (
                                 <ChannelIcon channel={item.channel} className="size-3.5 shrink-0" />
                               ) : null}
-                              {item.subtitle}
+                              <SearchSubtitleText text={item.subtitle} />
                             </span>
                           ) : null}
                         </span>

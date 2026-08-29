@@ -341,7 +341,8 @@
     "markAllReadShort": "Tümünü Oku",
     "deleteAll": "Tümünü sil",
     "deleteAllTitle": "Bildirimleri Sil",
-    "deleteAllConfirm": "Tüm bildirimleri silmek istediğinize emin misiniz?"
+    "deleteAllConfirm": "Tüm bildirimleri silmek istediğinize emin misiniz?",
+    "modalStartDate": "Başlama tarihi"
   },
   "projects": {
     "title": "Projeler",

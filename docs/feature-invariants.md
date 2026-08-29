@@ -105,8 +105,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Banner başlığının (2. satır) ağırlığı kontrollü kalır:** `.sticky-page-header .page-title`
   `font-weight: 400` kullanır; Anasayfa / Vatandaş Bilgi Listesi gradient banner
   `.section-card > .grid.border-b .page-title` da `font-weight: 400` (#2511 / #2894 reopen); Vatandaş Talep Haritası
-  banner başlığı aynı `page-title` sınıfını kullanır (#2579). En büyük banner metni
-  `page-title` clamp tavanı ~1.85rem (masaüstü) / ~1.45rem (mobil) — 2rem/1.55rem değil (#2637).
+  banner başlığı aynı `page-title` sınıfını kullanır (#2579).   En büyük banner metni
+  `page-title` clamp tavanı ~1.28rem (masaüstü) / ~0.8rem (mobil) (#2637 / #6a9284d8).
   Talep Oluştur tür seçim kartları (`Birim İçi/Birim Dışı/Vatandaş Talepleri`)
   `font-semibold` seviyesinde kalır, `font-bold`/`font-extrabold`'a geri alınmaz.
   Banner `page-kicker` `font-weight: 500`, banner `page-title` `400` (#2894 reopen).
@@ -1246,6 +1246,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Sistemde ara sosyal satır durumu bağlı Job’dan gelir (`getJobs(all, Citizen)`);
   Completed → `Tamamlandı` (#6a9268a9). Operator/SystemAdmin dışında kanal ikonu başlık solunda;
   kanal eşlemesi `getSocialMessages` ile (#6a92aaca).
+  Sistemde ara kanal • durum bullet `0.62em` (#6a92dd81).
+  Desktop pie yuvarlak 100px; lejant ayrı (#6a92b566). Mobil pie 96px tüm sayfalar (#6a92b30e).
+  Bildirim modal başlangıç placeholder `Başlama tarihi`; tarih font-weight 400 (#6a92b641).
   Mobilde “Canlı özet” / “Canlı harita” / `.live-summary-kicker` gizli; kicker boşluğu banner
   yüksekliğinden düşer (#6a91fea5/#6a91feaa).
   Banner Ara… tarih sütunlarında eşleşmez (#6a92a69b).

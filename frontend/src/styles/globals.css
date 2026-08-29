@@ -1370,7 +1370,7 @@
     gap: 0.2rem;
     padding: 0 1.35rem 0 0.35rem !important; /* X ile metin çakışmasın (#6a75d499) */
     font-size: 0.65rem !important;
-    font-weight: 500;
+    font-weight: 400;
     line-height: 1.15;
     background: rgba(255, 255, 255, 0.14);
     border-color: rgba(255, 255, 255, 0.28);
@@ -1435,7 +1435,7 @@
     }
 
     .app-content-shell .page-title {
-      font-size: clamp(1.18rem, 0.75vw + 0.9rem, 1.45rem);
+      font-size: clamp(1.05rem, 0.65vw + 0.78rem, 1.28rem);
     }
 
     /* Banner 2. satır (page-title) bold biraz daha ince (#2511). */
@@ -2050,7 +2050,7 @@
   }
 
   .page-title {
-    font-size: clamp(1.22rem, 0.9vw + 0.88rem, 1.52rem);
+    font-size: clamp(1.1rem, 0.75vw + 0.8rem, 1.38rem);
     line-height: 1.1;
     font-weight: 700;
     color: #0f172a;
@@ -2070,6 +2070,15 @@
     text-transform: capitalize;
     letter-spacing: 0;
     color: var(--color-primary);
+  }
+
+  .search-status-bullet {
+    display: inline-block;
+    margin: 0 0.22em;
+    font-size: 0.62em;
+    font-weight: 400;
+    line-height: 1;
+    transform: translateY(-0.05em) scale(0.82);
   }
 
   .rich-text-content {
@@ -7324,8 +7333,8 @@
     }
 
     .pie-chart-root svg {
-      width: 118px;
-      height: 118px;
+      width: 100px;
+      height: 100px;
     }
 
     .pie-chart-root text[font-size='18'] {
@@ -7374,7 +7383,7 @@
 
     .sticky-page-header .page-title,
     .section-card .page-title {
-      font-size: 0.88rem;
+      font-size: 0.8rem;
     }
 
     .section-card > .grid.border-b {
@@ -7465,22 +7474,35 @@
       height: 96px !important;
     }
 
+    .pie-chart-root ul {
+      gap: 0.12rem !important;
+    }
+
     .pie-chart-root ul,
     .pie-chart-root li {
-      font-size: 0.58rem !important;
+      font-size: 0.5rem !important;
+      line-height: 1.15 !important;
+    }
+
+    .pie-chart-root li button,
+    .pie-chart-root li > span {
+      padding-block: 0 !important;
+      gap: 0.3rem !important;
     }
 
     .pie-chart-root li span[class*='size-'],
     .pie-chart-root .pie-legend-dot,
     .pie-chart-root .size-2\.5,
-    .pie-chart-root .size-2 {
-      width: 0.4rem !important;
-      height: 0.4rem !important;
-      transform: translateY(2px);
+    .pie-chart-root .size-2,
+    .pie-chart-root .size-1\.5 {
+      width: 0.28rem !important;
+      height: 0.28rem !important;
+      transform: translateY(1px);
     }
 
     .pie-chart-card .pie-chart-root svg,
-    .section-card .pie-chart-root svg {
+    .section-card .pie-chart-root svg,
+    .pie-chart-root svg {
       width: 96px !important;
       height: 96px !important;
     }
@@ -7539,9 +7561,9 @@
     }
 
     .header-logout-btn {
-      padding-inline: 0.45rem !important;
-      min-height: 1.3rem !important;
-      font-size: 0.62rem !important;
+      padding-inline: 0.4rem !important;
+      min-height: 1.1rem !important;
+      font-size: 0.6rem !important;
     }
 
     .header-logout-btn svg {
@@ -7550,9 +7572,9 @@
     }
 
     .back-button {
-      font-size: 0.85rem !important;
-      padding: 0.28rem 0.55rem !important;
-      min-height: 1.7rem !important;
+      font-size: 0.7rem !important;
+      padding: 0.35rem 0.55rem !important;
+      min-height: 1.95rem !important;
     }
 
     .lg\:hidden .sidebar-scroll-area a,
@@ -7584,9 +7606,9 @@
 
     .whatsapp-dept-select,
     .whatsapp-dept-select button {
-      height: 1.35rem !important;
+      height: 1.15rem !important;
       max-width: 6.5rem !important;
-      font-size: 0.58rem !important;
+      font-size: 0.55rem !important;
     }
 
     .whatsapp-template-add {

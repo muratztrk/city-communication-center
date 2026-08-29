@@ -339,7 +339,8 @@
     "markAllReadShort": "Read all",
     "deleteAll": "Delete all",
     "deleteAllTitle": "Delete Notifications",
-    "deleteAllConfirm": "Are you sure you want to delete all notifications?"
+    "deleteAllConfirm": "Are you sure you want to delete all notifications?",
+    "modalStartDate": "Start date"
   },
   "projects": {
     "title": "Projects",

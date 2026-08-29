@@ -1,3 +1,7 @@
+## Round 1061 — pie 100px, lejant kompakt, banner, Başlama tarihi
+
+- **STATUS:** Desktop pie 100px; mobil lejant küçük + sıkı gap; banner title küçüldü; bildirim Başlama tarihi; arama bullet; Çıkış/Geri/WA retry.
+
 ## Round 1060 — arama Job durumu, kanal ikonu, chrome retry
 
 - **STATUS:** Sistemde ara VT durumu bağlı Job’dan (Tamamlandı); manager kanal ikonu social fetch; harita Ara dashboard genişliği; pie/banner/Çıkış/Geri/WA/takvim/Atatürk; metrik title case; TIM Doing’de.

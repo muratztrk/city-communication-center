@@ -523,7 +523,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                   <DateTimePicker
                     value={modalDateFrom}
                     onChange={handleModalDateFromChange}
-                    placeholder={t('filters.startDate', 'Başlangıç tarihi')}
+                    placeholder={t('notifications.modalStartDate', 'Başlama tarihi')}
                     className="notification-modal-date scope-chip-date"
                     forceDown
                     dateOnly

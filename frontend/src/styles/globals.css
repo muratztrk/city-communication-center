@@ -7492,12 +7492,14 @@
 
     .pie-chart-root ul {
       gap: 0.45rem !important;
-      max-height: 4.7rem !important;
+      /* 5 satır: 0.5rem×1.15×5 + 0.45rem×4 — 6. satır kesilir (#6a930a33). */
+      max-height: calc((0.5rem * 1.15 * 5) + (0.45rem * 4)) !important;
       overflow-y: auto !important;
     }
 
     .pie-chart-root ul,
-    .pie-chart-root li {
+    .pie-chart-root li,
+    .pie-chart-root li button {
       font-size: 0.5rem !important;
       line-height: 1.15 !important;
     }
@@ -7579,8 +7581,8 @@
     }
 
     .header-logout-btn {
-      height: 1.65rem !important;
-      min-height: 1.65rem !important;
+      height: 1.75rem !important;
+      min-height: 1.75rem !important;
       gap: 0.2rem !important;
       padding-block: 0 !important;
       padding-inline: 0.45rem !important;

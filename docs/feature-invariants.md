@@ -1150,8 +1150,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görevlerim ailesi ilgili talep öncelik/proje satırları (card #1658):** Görevlerim, Birimdeki
   Görevler ve Personelimin Görevleri popup'larında `Öncelik` ile `Proje mi` ayrı satırlardır;
   `Proje mi`, `Öncelik`in hemen altındadır (birleşik `Öncelik / Proje mi` kullanılmaz).
-- **Dashboard pie lejant scroll (card #1704):** tüm `PieChart` lejantlarında satır sayısı
-  `> 6` ise `overflow-y-auto`; 6 ve altı (ör. 5) scroll yok.
+- **Dashboard pie lejant scroll (card #1704 / #6a930a33):** `PieChart` lejantında satır sayısı
+  `> 5` ise `overflow-y-auto`. Mobilde kutucukta ilk bakışta en fazla 5 satır
+  (`max-height` 5 satır hesabı); 6. satır kaydırılır.
 - **Dashboard status pie chart dönem filtresi (card #1662):** pie chart sorguları üst kartlarla
   aynı şekilde yalnız `CreatedAtUtc` dönem aralığını uygular; dönem dışı açık/gecikmiş kayıtları
   OR ile eklemez.
@@ -1250,10 +1251,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Sistemde ara kanal • durum bullet `0.62em` (#6a92dd81).
   Desktop pie yuvarlak 110px; iç sayı 18.5px/700, «toplam» 13.5px/500 (#6a92b566).
   Mobil pie 96px; iç sayı 19.5px / «toplam» 12.5px (#6a92f964).
-  Mobil pie lejant `ul` gap 0.45rem + max-height 4.7rem — kaydırmadan en fazla 5 satır (#6a92cbc7).
+  Mobil pie lejant gap 0.45rem; max-height 5 satır hesabı — 6. görünmez (#6a930a33).
   Anasayfa pie ızgara `gap-y-6 gap-x-12` (#6a92852e).
   Anasayfa/Vatandaş Paneli/Birimler/harita `PieLegendSearch` min-height 1.8rem (header ara değil) (#6a92692b).
-  Mobil header Çıkış `height` 1.65rem; ikon-metin `gap` 0.2rem (#6a920226).
+  Mobil header Çıkış `height` 1.75rem; ikon-metin `gap` 0.2rem (#6a920226).
   Sistemde ara `jobId`/`taskId` ile detay açılır; thead `background-attachment: fixed` (#r447;
   #6a928f47 geri alındı).
   Bildirim modal başlangıç placeholder `Başlama tarihi`; tarih font-weight 400 (#6a92b641).

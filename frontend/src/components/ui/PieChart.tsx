@@ -262,8 +262,8 @@ export function PieChart({
             </text>
           </svg>
 
-          {/* Lejant: 6 satırdan fazla → scroll; 6 ve altı (ör. 5) → scroll yok (card #1704). */}
-          <ul className={`relative z-10 flex min-w-0 w-full flex-col gap-2 ${legendSlices.length > 6 ? 'max-h-40 overflow-y-auto pr-1 [scrollbar-gutter:stable]' : ''}`}>
+          {/* Lejant: 5 satırdan fazla → scroll; 5 ve altı scroll yok (mobil max 5 görünür — #6a930a33). */}
+          <ul className={`relative z-10 flex min-w-0 w-full flex-col gap-2 ${legendSlices.length > 5 ? 'max-h-40 overflow-y-auto pr-1 [scrollbar-gutter:stable]' : ''}`}>
             {legendSlices.map(slice => (
               <LegendItem
                 key={slice.label}

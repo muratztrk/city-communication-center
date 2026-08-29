@@ -1,3 +1,7 @@
+## Round 1066 — mobil pie max 5 satır, Çıkış
+
+- **STATUS:** mobil lejant 5 satır tavanı sıkı (button text-sm ezildi + calc max-height); JS scroll >5; Çıkış 1.75rem.
+
 ## Round 1065 — pie iç weight, mobil lejant 5 satır, Çıkış
 
 - **STATUS:** desktop pie iç 700/500; mobil lejant gap 0.45rem + max 5 satır; Çıkış 1.65rem. TIM Doing’de.

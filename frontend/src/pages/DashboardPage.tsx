@@ -805,7 +805,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <Icon className="size-4" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className={`dashboard-metric-label text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]${metric.labelClassName ? ` ${metric.labelClassName}` : ''}`}>
+          <div className={`dashboard-metric-label whitespace-nowrap text-[0.72rem] font-semibold capitalize leading-snug tracking-normal text-[color:var(--color-muted-foreground)]${metric.labelClassName ? ` ${metric.labelClassName}` : ''}`}>
             {metric.label}
           </div>
           {metric.sublabel ? (

@@ -1240,10 +1240,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   detay popup açılır (card #1766).
   Kurum İçi Mesajlar personel aramasında (≥3 karakter) satır başlığı da `Ad - Dahili` /
   `Ad - Dahili No Yok` (#r504).
-  Banner `page-kicker` title case (`capitalize`).   Anasayfa metrik etiketleri yeniden ALL CAPS
-  (title-case isteği geri alındı — #6a92852e).
-  Yönetici/personel `Geciken Taleplerim` kutusu `whitespace-nowrap` — «Geciken» ile
-  «Taleplerim» alt alta kırılmaz (#6a92acaa).
+  Banner `page-kicker` title case (`capitalize`). Anasayfa metrik etiketleri title case
+  (`capitalize`, ALL CAPS değil — #6a92852e yeniden).
+  Yönetici/personel metrik başlıkları `whitespace-nowrap` — «Geciken Taleplerim» kırılmaz (#6a92acaa).
+  Sistemde ara sosyal satır durumu bağlı Job’dan gelir (`getJobs(all, Citizen)`);
+  Completed → `Tamamlandı` (#6a9268a9). Operator/SystemAdmin dışında kanal ikonu başlık solunda;
+  kanal eşlemesi `getSocialMessages` ile (#6a92aaca).
   Mobilde “Canlı özet” / “Canlı harita” / `.live-summary-kicker` gizli; kicker boşluğu banner
   yüksekliğinden düşer (#6a91fea5/#6a91feaa).
   Banner Ara… tarih sütunlarında eşleşmez (#6a92a69b).

@@ -99,7 +99,7 @@ export function ExtensionSearchBar() {
 
   return (
     <div ref={containerRef} className="relative">
-      <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 shadow-sm transition-shadow focus-within:border-slate-300 focus-within:shadow-md">
+      <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5 shadow-sm transition-shadow focus-within:border-slate-300 focus-within:shadow-md">
         <User className="size-4 shrink-0 text-slate-400" aria-hidden="true" />
         <input
           ref={inputRef}

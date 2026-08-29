@@ -1,3 +1,7 @@
+## Round 1060 — arama Job durumu, kanal ikonu, chrome retry
+
+- **STATUS:** Sistemde ara VT durumu bağlı Job’dan (Tamamlandı); manager kanal ikonu social fetch; harita Ara dashboard genişliği; pie/banner/Çıkış/Geri/WA/takvim/Atatürk; metrik title case; TIM Doing’de.
+
 ## Round 1059 — arama durum düzeltmesi, banner tarih yok, mobil chrome
 
 - **STATUS:** Sistemde ara İşe dönüştürüldü yok; banner Ara tarih eşleşmez; Canlı harita gizli; müdür Bekleyen; pie toplam/dot; bildirim sağ hiza; `Geciken Taleplerim` nowrap; TIM kartlar Doing’de bırakıldı.

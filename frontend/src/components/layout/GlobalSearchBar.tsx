@@ -35,6 +35,7 @@ interface SearchData {
   myRequestJobs: JobSummary[]
   incomingJobs: JobSummary[]
   outgoingJobs: JobSummary[]
+  citizenJobs: JobSummary[]
   myTasks: Task[]
   departmentTasks: Task[]
   staffTasks: Task[]
@@ -103,6 +104,8 @@ function searchSocialStatusLabel(
   job?: JobSummary,
 ): string {
   if (job) return searchCitizenStatusLabel(t, job)
+  if (/complet/i.test(status)) return t('jobs.statusLabel.completedShort', 'Tamamlandı')
+  if (/cancel|reject/i.test(status)) return t('jobs.statusLabel.cancelled', 'İptal')
   if (/pending|approval/i.test(status)) return t('social.requestStatus.pendingApproval', 'Onay Bekleyen')
   return t('social.requestStatus.processingReceived', 'İşleme Alındı')
 }
@@ -247,7 +250,7 @@ function filterResults(
   const seenTasks = new Set<string>()
   const socialByJobId = new Map<string, string>()
   const jobsById = new Map<string, JobSummary>()
-  for (const job of [...data.myRequestJobs, ...data.incomingJobs, ...data.outgoingJobs]) {
+  for (const job of [...data.citizenJobs, ...data.myRequestJobs, ...data.incomingJobs, ...data.outgoingJobs]) {
     jobsById.set(job.jobId, job)
   }
   for (const msg of data.social) {
@@ -437,6 +440,7 @@ export function GlobalSearchBar() {
         myRequestJobs,
         incomingJobs,
         outgoingJobs,
+        citizenJobs,
         myTasks,
         departmentTasks,
         staffTasks,
@@ -447,10 +451,15 @@ export function GlobalSearchBar() {
         access.myRequests ? api.getJobs('mine').catch(() => [] as JobSummary[]) : Promise.resolve([] as JobSummary[]),
         access.incomingRequests ? api.getJobs('my-department').catch(() => [] as JobSummary[]) : Promise.resolve([] as JobSummary[]),
         access.outgoingRequests ? api.getJobs('outgoing-department').catch(() => [] as JobSummary[]) : Promise.resolve([] as JobSummary[]),
+        access.social
+          ? api.getJobs('all', null, 'Citizen').catch(() => [] as JobSummary[])
+          : Promise.resolve([] as JobSummary[]),
         access.myTasks ? api.getTasks('mine').catch(() => [] as Task[]) : Promise.resolve([] as Task[]),
         access.departmentTasks ? api.getTasks('department').catch(() => [] as Task[]) : Promise.resolve([] as Task[]),
         access.staffTasks ? api.getTasks('all').catch(() => [] as Task[]) : Promise.resolve([] as Task[]),
-        Promise.allSettled([api.getSocialMessages()]),
+        (access.social || showCitizenChannel)
+          ? Promise.allSettled([api.getSocialMessages()])
+          : Promise.allSettled([Promise.resolve([] as SocialMessage[])]),
         Promise.allSettled([Promise.resolve([] as User[])]),
         Promise.allSettled([Promise.resolve([] as Department[])]),
       ])
@@ -459,6 +468,7 @@ export function GlobalSearchBar() {
         myRequestJobs,
         incomingJobs,
         outgoingJobs,
+        citizenJobs,
         myTasks,
         departmentTasks,
         staffTasks,
@@ -480,8 +490,10 @@ export function GlobalSearchBar() {
     access.myRequests,
     access.myTasks,
     access.outgoingRequests,
+    access.social,
     access.staffTasks,
     data,
+    showCitizenChannel,
   ])
 
   const handleInput = useCallback((value: string) => {
@@ -551,7 +563,7 @@ export function GlobalSearchBar() {
 
   return (
     <div ref={containerRef} className="relative">
-      <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 shadow-sm transition-shadow focus-within:border-slate-300 focus-within:shadow-md">
+      <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-2.5 py-1.5 shadow-sm transition-shadow focus-within:border-slate-300 focus-within:shadow-md">
         <Search className="size-4 shrink-0 text-slate-400" />
         <input
           ref={inputRef}
@@ -610,7 +622,7 @@ export function GlobalSearchBar() {
                         onClick={() => handleSelect(item.path)}
                       >
                         {iconBesideTitle && item.channel ? (
-                          <ChannelIcon channel={item.channel} className="mt-0.5 size-4 shrink-0" />
+                          <ChannelIcon channel={item.channel} className="mt-px size-3.5 shrink-0 self-center" />
                         ) : null}
                         <span className="flex min-w-0 flex-col gap-0.5">
                           <span className="text-sm font-semibold text-slate-800">{item.title}</span>

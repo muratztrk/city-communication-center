@@ -797,7 +797,7 @@ export function AppShell() {
               <img
                 src="/header-ataturk.png"
                 alt="Atatürk"
-                className="absolute left-0 top-0 z-10 h-16 w-auto select-none opacity-80 pointer-events-none"
+                className="mobile-sidebar-ataturk absolute left-0 top-0 z-10 h-11 w-auto select-none opacity-80 pointer-events-none"
               />
               <div className="flex min-w-0 flex-col items-center gap-3 text-center">
                 <MunicipalitySeal

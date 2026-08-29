@@ -46,6 +46,8 @@ interface MetricCard {
   path: string
   iconBg: string
   iconColor: string
+  /** Keep title words on one line (manager «Geciken Taleplerim» — #6a92acaa). */
+  labelClassName?: string
 }
 
 type Period = 'daily' | 'weekly' | 'monthly' | 'yearly' | 'custom'
@@ -624,6 +626,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-requests?view=overdue',
           iconBg: 'bg-orange-100',
           iconColor: 'text-orange-600',
+          labelClassName: 'whitespace-nowrap tracking-[0.03em]',
         }] as MetricCard[] : []),
       ]
     : []
@@ -675,6 +678,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           path: '/my-requests?view=overdue',
           iconBg: 'bg-orange-100',
           iconColor: 'text-orange-600',
+          labelClassName: 'whitespace-nowrap tracking-[0.03em]',
         }] : []),
       ]
     : []
@@ -801,7 +805,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <Icon className="size-4" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="dashboard-metric-label text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
+          <div className={`dashboard-metric-label text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]${metric.labelClassName ? ` ${metric.labelClassName}` : ''}`}>
             {metric.label}
           </div>
           {metric.sublabel ? (

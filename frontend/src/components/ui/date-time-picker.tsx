@@ -412,7 +412,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
             {dateOnly ? (
               <span className="flex-1" />
             ) : (
-              <div className="flex flex-1 items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-2 py-1">
+              <div className="date-time-picker-time flex max-w-[7.25rem] flex-1 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-1.5 py-1">
                 <Clock className="size-3.5 shrink-0 text-slate-400" />
                 <span className="text-xs font-semibold text-slate-500">Saat</span>
                 <input
@@ -429,7 +429,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
               type="button"
               onClick={handleConfirm}
               disabled={!draft.date}
-              className="shrink-0 rounded-lg bg-[color:var(--color-primary)] px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="date-time-picker-select shrink-0 rounded-lg bg-[color:var(--color-primary)] px-4 py-1.5 text-sm font-bold text-white shadow-sm transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               Seç
             </button>

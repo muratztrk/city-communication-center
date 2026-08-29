@@ -259,6 +259,51 @@ function pinGeoKey(pin: ResolvedPin): string {
   return `${pin.position.lat.toFixed(5)}|${pin.position.lng.toFixed(5)}`
 }
 
+/** Aynı CBS / midpoint pinlerini ~10 m halkaya ayır — zoom’da ayrı tıklanır (#6a92713f). */
+function nearbyDuplicateOffset(origin: LatLng, seed: string, index: number): LatLng {
+  let hash = 0
+  for (let i = 0; i < seed.length; i += 1) {
+    hash = (hash * 31 + seed.charCodeAt(i)) | 0
+  }
+  const angle = ((index * 2 * Math.PI) / 6) + (((hash >>> 0) % 360) * (Math.PI / 180))
+  const meters = 10 + (index % 3) * 3
+  const north = meters * Math.cos(angle)
+  const east = meters * Math.sin(angle)
+  const latRad = origin.lat * (Math.PI / 180)
+  return {
+    lat: origin.lat + north / 111_320,
+    lng: origin.lng + east / (111_320 * Math.cos(latRad) || 111_320),
+  }
+}
+
+function spreadNearbyDuplicatePins(pins: ResolvedPin[]): ResolvedPin[] {
+  const groups = new Map<string, ResolvedPin[]>()
+  for (const pin of pins) {
+    const key = pinAddressKey(pin) ?? pinGeoKey(pin)
+    const list = groups.get(key) ?? []
+    list.push(pin)
+    groups.set(key, list)
+  }
+  const result: ResolvedPin[] = []
+  for (const group of groups.values()) {
+    if (group.length === 1) {
+      result.push(group[0])
+      continue
+    }
+    group.forEach((pin, index) => {
+      if (index === 0) {
+        result.push(pin)
+        return
+      }
+      result.push({
+        ...pin,
+        position: nearbyDuplicateOffset(pin.position, pin.jobId, index),
+      })
+    })
+  }
+  return result
+}
+
 function pinsAtSamePlace(all: ResolvedPin[], clicked: ResolvedPin): ResolvedPin[] {
   const addressKey = pinAddressKey(clicked)
   const byAddress = addressKey
@@ -511,7 +556,7 @@ export function CitizenRequestMap({
         return null
       }))).filter((pin): pin is ResolvedPin => pin != null)
       if (!cancelled) {
-        setResolved(geocoded)
+        setResolved(spreadNearbyDuplicatePins(geocoded))
         setResolving(false)
       }
     })()

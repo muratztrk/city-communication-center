@@ -495,7 +495,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
             {/* Modal header */}
             <div className="sticky-page-header notification-modal-header flex shrink-0 items-center gap-3 rounded-none border-0 px-6 shadow-none">
               <Bell className="size-5 shrink-0 text-white/80" />
-              <h2 className="min-w-0 flex-1 truncate text-base font-extrabold text-white">
+              <h2 className="notification-modal-title min-w-0 shrink-0 text-sm font-semibold text-white">
                 {t('notifications.modalTitle', 'Bildirimler')}
               </h2>
               {/* Talepler bannerındaki ile aynı: arama + başlangıç/bitiş tarihi seçicileri (card 508). */}
@@ -527,6 +527,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                     placeholder={t('filters.startDate', 'Başlangıç tarihi')}
                     className="notification-modal-date scope-chip-date"
                     forceDown
+                    dateOnly
                     maxDateTime={modalDateTo || undefined}
                   />
                   <span className="scope-chip-date-separator" aria-hidden="true">-</span>
@@ -536,6 +537,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
                     placeholder={t('filters.endDate', 'Bitiş tarihi')}
                     className="notification-modal-date scope-chip-date"
                     forceDown
+                    dateOnly
                     minDateTime={modalDateFrom || undefined}
                   />
                 </div>
@@ -596,7 +598,7 @@ export function NotificationBell({ onOpenDetail }: NotificationBellProps) {
               {notifQuery.isLoading ? (
                 <div className="py-12 text-center text-sm text-slate-400">{t('common.loading', 'Yükleniyor...')}</div>
               ) : (
-                <NotificationPreviewList items={pagedModal} onMarkRead={markRead} onNavigate={handleOpenNotificationDetail} locale={locale} largeDetailButton indexOffset={(modalPage - 1) * modalPageSize} />
+                <NotificationPreviewList items={pagedModal} onMarkRead={markRead} onNavigate={handleOpenNotificationDetail} locale={locale} indexOffset={(modalPage - 1) * modalPageSize} />
               )}
             </div>
             {!notifQuery.isLoading && (

@@ -1249,7 +1249,7 @@ function ConversationDetail({
             <button
               type="button"
               onClick={() => onOpenViewRequests(phoneForHeader)}
-              className="inline-flex shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50"
+              className="hidden shrink-0 items-center gap-1 rounded-full border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-700 transition-colors hover:bg-slate-50 lg:inline-flex"
             >
               <ClipboardList {...DETAIL_ICON_PROPS} className="size-3.5 text-emerald-600" />
               {t('whatsapp.viewRequestsByNumber', 'Numaranın Talepleri')}
@@ -1507,8 +1507,8 @@ function ConversationDetail({
                         searchPlaceholder={t('departments.search', 'Birim ara...')}
                         openUp={internalDepartmentOptions.length >= 2}
                         clearable
-                        className="w-[8.5rem] min-w-0 max-w-[8.5rem] shrink-0"
-                        triggerClassName="h-8 w-full rounded-full px-2.5 text-xs font-semibold"
+                        className="whatsapp-dept-select w-[7.25rem] min-w-0 max-w-[7.25rem] shrink-0"
+                        triggerClassName="h-7 w-full rounded-full px-2 text-[11px] font-semibold"
                         menuWidth={184}
                         menuScrollClassName="whatsapp-department-menu-scroll"
                       />

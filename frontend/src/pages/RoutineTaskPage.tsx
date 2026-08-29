@@ -301,7 +301,7 @@ export function RoutineTaskPage() {
             <ClipboardList className="size-5" />
           </span>
           <div>
-            <h2 className="text-lg font-bold text-slate-950">
+            <h2 className="text-lg font-semibold text-slate-950">
               {pageTitle}
             </h2>
             <p className="helper-copy mt-0.5 text-sm leading-6">

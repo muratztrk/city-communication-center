@@ -126,7 +126,7 @@ export function DepartmentRequestMapPage() {
           )}
         </div>
         <div className="flex items-center px-4 py-2 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
-          <div className="min-w-[12rem] max-w-md flex-1">
+          <div className="map-period-search min-w-[12rem] max-w-md flex-1">
             <PieLegendSearch value={mapSearch} onChange={setMapSearch} />
           </div>
         </div>

@@ -229,7 +229,7 @@ export function UserQuickReplyAddButton({ onChanged, compact = false }: UserQuic
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className={`inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${compact ? 'h-7 px-2 text-[11px]' : 'h-9 px-2.5 text-xs'}`}
+        className={`whatsapp-template-add inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full border border-slate-200 bg-white font-semibold text-slate-700 transition-colors hover:bg-slate-50 ${compact ? 'h-7 min-w-[10.5rem] px-3 text-[10px]' : 'h-8 min-w-[11.5rem] px-4 text-[11px]'}`}
       >
         <Plus className="size-3 text-emerald-600" aria-hidden="true" />
         {t('whatsapp.addUserTemplate', 'Şablon mesaj ekle')}

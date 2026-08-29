@@ -791,7 +791,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       <button
         key={metric.label}
         type="button"
-        className="flex w-full min-w-[15.5rem] items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-4 py-3 text-left shadow-[var(--shadow-edge)] transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
+        className="dashboard-metric-card flex w-full min-w-0 items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-4 py-3 text-left shadow-[var(--shadow-edge)] transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
         onClick={() => {
           saveDashboardScroll()
           navigate(withQueryParams(basePath, pieQueryParams({ ...existingParams, ...dateParams, ...taskTypeExtra })))
@@ -801,7 +801,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <Icon className="size-4" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[0.72rem] font-semibold uppercase leading-snug tracking-[0.08em] text-[color:var(--color-muted-foreground)]">
+          <div className="dashboard-metric-label text-[0.72rem] font-semibold capitalize leading-snug text-[color:var(--color-muted-foreground)]">
             {metric.label}
           </div>
           {metric.sublabel ? (
@@ -832,7 +832,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             </p>
           </div>
           <div className="flex items-start justify-start lg:justify-end">
-            <StatusPill tone="info" className="bg-white/12 text-white ring-white/15">
+            <StatusPill tone="info" className="live-summary-kicker bg-white/12 text-white ring-white/15">
               {dashboardQuery.isFetching ? t('common.refreshing') : t('dashboard.liveSummary')}
             </StatusPill>
           </div>
@@ -892,7 +892,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           ) : null}
         </div>
         <div className="flex items-center px-4 py-2 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
-          <div className="min-w-[12rem] max-w-md">
+          <div className="map-period-search min-w-[12rem] max-w-md">
             <PieLegendSearch value={panelSearch} onChange={setPanelSearch} />
           </div>
         </div>
@@ -901,30 +901,16 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <div className="px-5 py-3.5 sm:px-8">
             {dashboardQuery.isLoading
               ? (
-                <>
-                  <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {Array.from({ length: 3 }).map((_, i) => (
-                      <div key={i} className="h-[72px] min-w-[15.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
-                    ))}
-                  </div>
-                  <div className="mx-auto mt-2 grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {Array.from({ length: isInternalModuleUsable ? 3 : 1 }).map((_, i) => (
-                      <div key={i} className="h-[72px] min-w-[15.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
-                    ))}
-                  </div>
-                </>
+                <div className="mx-auto grid max-w-[90rem] gap-x-3 gap-y-2 sm:grid-cols-2 lg:grid-cols-6">
+                  {Array.from({ length: isInternalModuleUsable ? 6 : 4 }).map((_, i) => (
+                    <div key={i} className="h-[72px] min-w-0 animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
+                  ))}
+                </div>
               )
               : (
-                <>
-                  <div className="mx-auto grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
-                    {managerRowHead.map(renderCard)}
-                  </div>
-                  {managerRowTail.length > 0 ? (
-                    <div className="mx-auto mt-2 grid max-w-7xl gap-x-12 gap-y-2 sm:grid-cols-2 lg:grid-cols-3">
-                      {managerRowTail.map(renderCard)}
-                    </div>
-                  ) : null}
-                </>
+                <div className="mx-auto grid max-w-[90rem] gap-x-3 gap-y-2 sm:grid-cols-2 lg:grid-cols-6">
+                  {[...managerRowHead, ...managerRowTail].map(renderCard)}
+                </div>
               )}
           </div>
         ) : (

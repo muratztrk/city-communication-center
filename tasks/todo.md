@@ -1,3 +1,7 @@
+## Round 1058 — arama durum/kanal, örtüşen pin, 6’lı metrik, mobil chrome
+
+- **STATUS:** Sistemde ara kanal+durum ve bağlı talep no; vatandaş kanal ikonu Phone yedek; aynı CBS pinleri ~10 m kayar; yönetici 6 metrik tek satır; kicker/metrik title case; bildirim/WA/login/nav mobil düzeltmeleri.
+
 ## Round 1057 — Sistemde ara, harita, pie, mobil görünüm
 
 - **STATUS:** Arama alanları/kanal ikonları; harita araması Dönem altında + cluster flicker yok; pie tek arama; rastgele yeşil yok; mobil/desktop chrome.

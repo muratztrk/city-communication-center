@@ -1226,15 +1226,20 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   scope’larını çeker
   ve sonuç grup başlığı menü adıyla aynıdır (`Taleplerim` / `Görevlerim` /
   `Birime Gelen Talepler` … — `nav.jobs` kullanılmaz; cards #1782/#1783);
-  eşleşme yalnız talep no / VT no / görev no / talep-görev başlığı / vatandaş adı / telefon
-  (birim, atanan, kullanıcı, birim listesi yok — #3171); `Phone` etiketi `Çağrı`,
+  eşleşme yalnız talep no / VT no / görev no / bağlı talep no / talep-görev başlığı / vatandaş adı / telefon
+  (birim, atanan, kullanıcı, birim listesi yok — #3171/#6a9275b5); `Phone` etiketi `Çağrı`,
   sosyal satırda `@` yok, kanal ikonu kanal adının solunda (#3168/#3169).
-  Operator ve SystemAdmin dışında vatandaş talebinde kanal ikonu başlığın solunda;
+  Kanal etiketinden sonra ` • ` + talep/sosyal durum (#6a9268a9).
+  Operator ve SystemAdmin dışında vatandaş talebinde kanal ikonu başlığın solunda
+  (kanal yoksa `Phone`/`Çağrı` yedek — #6a92739b);
   Görevlerim / Birimdeki Görevler alt satırı yalnız görev durumu (#3170).
+  Header Personel/Sistemde ara placeholder `text-xs` (#6a926f4e).
   talep/görev sonucuna tıklanınca `jobId`/`taskId` ile ilgili sayfada
   detay popup açılır (card #1766).
   Kurum İçi Mesajlar personel aramasında (≥3 karakter) satır başlığı da `Ad - Dahili` /
   `Ad - Dahili No Yok` (#r504).
+  Banner `page-kicker` title case (`capitalize`), ALL CAPS değil (#6a9284d8).
+  Mobilde “Canlı özet” / `.live-summary-kicker` gizli (#6a91fea5).
   Birime Gelen / Birimden Giden banner `page-kicker` seçili scope chip metnidir;
   `page-title` bölüm adı kalır (card #1700; Taleplerim ile aynı).
 - **Ayarlar banner `page-kicker` seçili tab metnidir** (`Kurum`, `Görünüm`, …);
@@ -1875,8 +1880,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `maxZoom` 13, böylece 2. tıklamada küme çözülür.
   Harita araması Dönem satırının altında; lejant satırında yok (#3162).
   Aktif olmayan arama (`<3` harf/rakam) cluster’ı yeniden kurmaz (#3149).
-  Aynı CBS koordinatında birden fazla talep tek pin’de durur; cluster sayısı iş, zoom’da
-  benzersiz konum (#3166).
+  Aynı CBS cadde/no veya midpoint’te birden fazla talep zoom’da ayrı tıklansın diye
+  ilk pin yerinde kalır, diğerleri ~10 m halkaya kayar; tıklanınca adres grubu yine
+  `Vatandaş Bilgi Listesi` açılır (#6a92713f). Cluster sayısı iş, zoom’da ayrı konum.
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
   Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
   Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593/#2597). Pin **rengi** durum
@@ -2560,6 +2566,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Banner arama input ağırlığı:** Banner/search input metni kompakt alanda iri okunur ama 700-bold
   görünmez; `scope-chip-search-input` yazı ağırlığı yarı-kalın seviyede kalır.
 - **"Ekrana Yansıt" görseli = `/header-ataturk.png`** (kurum arması/cresti değil).
+  Mobil sol menüde Ekrana Yansıt satırı gizlenir (`a[href="/display"]`, #6a920522).
 
 ## 5b. Bildirimler (Notifications)
 

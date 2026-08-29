@@ -10,9 +10,10 @@ type AddressDetailFieldsProps = {
   variant?: 'default' | 'detail-card' | 'my-request' | 'stacked' | 'peek'
 }
 
-function displayAddressValue(value: string | null | undefined, emptyValue = '—'): string {
+function displayAddressValue(value: string | null | undefined, emptyValue = '—') {
   const trimmed = value?.trim()
-  return trimmed ? trimmed : emptyValue
+  if (trimmed) return trimmed
+  return <span className="address-empty-dash">{emptyValue}</span>
 }
 
 export function AddressDetailFields({ neighborhood, street, streetNo, openAddress, coordinates, variant = 'default' }: AddressDetailFieldsProps) {

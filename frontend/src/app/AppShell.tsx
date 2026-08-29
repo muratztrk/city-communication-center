@@ -755,7 +755,7 @@ export function AppShell() {
           </div>
           <div className="flex items-center gap-2">
             <UserGuideLink />
-            <Button variant="destructive" onClick={handleLogout} className="gap-2 px-5">
+            <Button variant="destructive" onClick={handleLogout} className="header-logout-btn gap-2 px-5">
               <LogOut className="size-4.5" />
               {t('shell.logout')}
             </Button>
@@ -803,11 +803,11 @@ export function AppShell() {
                 <MunicipalitySeal
                   alt={`${institutionName} logo`}
                   src={logoUrl}
-                  className="h-[5.5rem] w-44 max-w-full rounded-xl border-white/18"
-                  imageClassName="h-[72%] w-[72%]"
+                  className="mobile-sidebar-seal h-[4.5rem] w-36 max-w-full rounded-xl border-white/18"
+                  imageClassName="h-[68%] w-[68%]"
                 />
-                <div className="min-w-0">
-                  <div className="text-xl font-bold leading-tight break-words text-white text-center">{t('shell.subtitle', { municipalityName })}</div>
+                <div className="mobile-sidebar-brand min-w-0">
+                  <div className="mobile-sidebar-title text-base font-semibold leading-tight break-words text-white text-center">{t('shell.subtitle', { municipalityName })}</div>
                 </div>
               </div>
               <button type="button" className="sidebar-chip absolute right-3 top-3" onClick={closeMobileNav} aria-label="Close menu">

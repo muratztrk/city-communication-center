@@ -85,7 +85,7 @@ function LegendItem({
   const label = useResolvedLabel(slice.label, formatSliceLabel)
   const content = (
     <>
-      <span className="shrink-0 size-2.5 rounded-full" style={{ backgroundColor: getColor(slice.colorHint) }} />
+      <span className="pie-legend-dot shrink-0 size-2 rounded-full" style={{ backgroundColor: getColor(slice.colorHint) }} />
       <span className="min-w-0 truncate text-slate-700">{label}</span>
       <span className="ml-auto pl-3 font-semibold text-slate-950 tabular-nums">{slice.value}</span>
     </>

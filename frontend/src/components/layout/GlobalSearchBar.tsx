@@ -7,7 +7,8 @@ import { useAuth } from '../../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../../lib/rolePageAccess'
 import type { Department, JobSummary, SocialMessage, Task, User } from '../../types/platform'
 import { ChannelIcon } from '../ui/channel-icon'
-import { getTaskStatusLabel } from '../../utils/localization'
+import { getCitizenRequestStatusLabel } from '../../utils/citizenRequests'
+import { getSocialStatusLabel, getTaskStatusLabel } from '../../utils/localization'
 import { includesFoldedTr } from '../../utils/textNormalization'
 
 type SearchCategory =
@@ -106,15 +107,20 @@ function jobSubtitle(job: JobSummary): string {
   ].filter(Boolean).join(' · ')
 }
 
-function taskMatches(task: Task, q: string): boolean {
+function taskMatches(task: Task, q: string, parentJob?: JobSummary): boolean {
   if (includesFoldedTr(task.title, q) || includesFoldedTr(task.jobTitle, q)) return true
   if (task.taskNumber != null && task.taskNumberYear != null) {
     const no = `G-${task.taskNumberYear}-${task.taskNumber}`
     if (includesFoldedTr(no, q) || includesFoldedTr(String(task.taskNumber), q)) return true
   }
   if (task.jobNumber != null && task.jobNumberYear != null) {
-    if (includesFoldedTr(`T-${task.jobNumberYear}-${task.jobNumber}`, q) || includesFoldedTr(String(task.jobNumber), q)) return true
+    if (
+      includesFoldedTr(`T-${task.jobNumberYear}-${task.jobNumber}`, q)
+      || includesFoldedTr(`${task.jobNumberYear}-${task.jobNumber}`, q)
+      || includesFoldedTr(String(task.jobNumber), q)
+    ) return true
   }
+  if (parentJob && jobNumberTexts(parentJob).some(part => includesFoldedTr(part, q))) return true
   return false
 }
 
@@ -131,8 +137,7 @@ function socialMatches(msg: SocialMessage, q: string): boolean {
 
 function resolveJobChannel(job: JobSummary, socialByJobId: Map<string, string>): string | null {
   if (job.requestType !== 'Citizen') return null
-  return socialByJobId.get(job.jobId)
-    ?? (job.sourceType === 'SocialMessage' ? null : 'Phone')
+  return socialByJobId.get(job.jobId) ?? 'Phone'
 }
 
 function pushJobResults(
@@ -144,19 +149,23 @@ function pushJobResults(
   q: string,
   socialByJobId: Map<string, string>,
   showCitizenChannel: boolean,
+  t: ReturnType<typeof useTranslation>['t'],
 ) {
   let added = 0
   for (const job of jobs) {
     if (added >= MAX_PER_CATEGORY) break
     if (seenIds.has(job.jobId) || !jobMatches(job, q)) continue
     seenIds.add(job.jobId)
+    const channel = showCitizenChannel ? resolveJobChannel(job, socialByJobId) : null
+    const channelLabel = localizeSearchChannel(channel)
+    const status = getCitizenRequestStatusLabel(t, job)
     results.push({
       id: `${category}-${job.jobId}`,
       category,
       title: job.title,
-      subtitle: jobSubtitle(job),
+      subtitle: channelLabel ? `${channelLabel} • ${status}` : jobSubtitle(job),
       path: pathFor(job),
-      channel: showCitizenChannel ? resolveJobChannel(job, socialByJobId) : null,
+      channel,
     })
     added += 1
   }
@@ -173,11 +182,12 @@ function pushTaskResults(
   socialByJobId: Map<string, string>,
   showCitizenChannel: boolean,
   statusOnlySubtitle: boolean,
+  jobsById: Map<string, JobSummary>,
 ) {
   let added = 0
   for (const task of tasks) {
     if (added >= MAX_PER_CATEGORY) break
-    if (seenIds.has(task.taskId) || !taskMatches(task, q)) continue
+    if (seenIds.has(task.taskId) || !taskMatches(task, q, jobsById.get(task.jobId))) continue
     seenIds.add(task.taskId)
     const status = getTaskStatusLabel(t, task.currentStatus)
     results.push({
@@ -208,6 +218,10 @@ function filterResults(
   const seenJobs = new Set<string>()
   const seenTasks = new Set<string>()
   const socialByJobId = new Map<string, string>()
+  const jobsById = new Map<string, JobSummary>()
+  for (const job of [...data.myRequestJobs, ...data.incomingJobs, ...data.outgoingJobs]) {
+    jobsById.set(job.jobId, job)
+  }
   for (const msg of data.social) {
     if (msg.jobId && msg.channel) socialByJobId.set(msg.jobId, msg.channel)
   }
@@ -223,6 +237,7 @@ function filterResults(
       q,
       socialByJobId,
       showCitizenChannel,
+      t,
     )
   }
   if (access.incomingRequests) {
@@ -235,6 +250,7 @@ function filterResults(
       q,
       socialByJobId,
       showCitizenChannel,
+      t,
     )
   }
   if (access.outgoingRequests) {
@@ -247,6 +263,7 @@ function filterResults(
       q,
       socialByJobId,
       false,
+      t,
     )
   }
 
@@ -262,6 +279,7 @@ function filterResults(
       socialByJobId,
       showCitizenChannel,
       showCitizenChannel,
+      jobsById,
     )
   }
   if (access.departmentTasks) {
@@ -276,6 +294,7 @@ function filterResults(
       socialByJobId,
       showCitizenChannel,
       showCitizenChannel,
+      jobsById,
     )
   }
   if (access.staffTasks) {
@@ -290,6 +309,7 @@ function filterResults(
       socialByJobId,
       false,
       false,
+      jobsById,
     )
   }
 
@@ -297,14 +317,19 @@ function filterResults(
     data.social
       .filter(msg => socialMatches(msg, q))
       .slice(0, MAX_PER_CATEGORY)
-      .forEach(msg => results.push({
-        id: `social-${msg.socialMessageId}`,
-        category: 'social',
-        title: msg.citizenName?.trim() || msg.citizenHandle,
-        subtitle: localizeSearchChannel(msg.channel),
-        path: `/social?channel=${msg.channel}`,
-        channel: msg.channel,
-      }))
+      .forEach(msg => {
+        const job = msg.jobId ? jobsById.get(msg.jobId) : undefined
+        const status = job ? getCitizenRequestStatusLabel(t, job) : getSocialStatusLabel(t, msg.status)
+        const channelLabel = localizeSearchChannel(msg.channel)
+        results.push({
+          id: `social-${msg.socialMessageId}`,
+          category: 'social',
+          title: msg.citizenName?.trim() || msg.citizenHandle,
+          subtitle: [channelLabel, status].filter(Boolean).join(' • '),
+          path: `/social?channel=${msg.channel}`,
+          channel: msg.channel,
+        })
+      })
   }
 
   return results
@@ -514,7 +539,7 @@ export function GlobalSearchBar() {
             }
           }}
           placeholder={t('search.placeholder', 'Sistemde ara...')}
-          className="w-44 bg-transparent text-sm font-medium text-slate-700 placeholder:text-slate-400 outline-none"
+          className="w-44 bg-transparent text-xs font-normal text-slate-700 placeholder:text-slate-400 outline-none"
           aria-label={t('search.label', 'Sistemde ara')}
           autoComplete="off"
           spellCheck={false}

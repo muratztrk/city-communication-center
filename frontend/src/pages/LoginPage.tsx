@@ -380,7 +380,7 @@ export function LoginPage() {
                 alt={`${institutionName} logo`}
                 src={compactLogoUrl}
                 className="h-[4.5rem] w-48 border-0 sm:h-[6.25rem] sm:w-64"
-                imageClassName="h-[92%] w-[92%]"
+                imageClassName="h-[72%] w-[72%]"
               />
               <div className="min-w-0 text-center">
                 <div className="text-sm font-medium text-white sm:text-base">{t('shell.subtitle', { municipalityName })}</div>

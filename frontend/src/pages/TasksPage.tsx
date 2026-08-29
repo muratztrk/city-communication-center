@@ -97,7 +97,7 @@ import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/My
 import { MyRequestDetailMainCard, MyRequestInfoFieldsList } from '../components/jobs/my-request-detail/MyRequestDetailMainCard'
 import { MyRequestDetailBottomCards } from '../components/jobs/my-request-detail/MyRequestDetailBottomCards'
 import { buildMyRequestDetailFields } from '../components/jobs/my-request-detail/myRequestDetailFields'
-import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
+import { StackedFieldLabel, StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
 import { FramedDepartmentStack } from '../components/jobs/my-request-detail/FramedDepartmentStack'
 import { JobProcessTimeline, TimelineDateTimeValue } from '../components/jobs/my-request-detail/JobProcessTimeline'
 import { buildInProgressPeriodStep, type JobProcessStep } from '../components/jobs/my-request-detail/buildJobProcessSteps'
@@ -2307,7 +2307,14 @@ const pageKicker = isMyTasksView
                           {[
                             ...(taskDetail.jobSourceType !== 'Routine'
                               ? [{
-                                  label: parentJobDetail ? requestLocationFieldLabel(parentJobDetail, t) : 'Talep Yeri / Oluşturan',
+                                  label: parentJobDetail && isCitizenRequestJob(parentJobDetail)
+                                    ? requestLocationFieldLabel(parentJobDetail, t)
+                                    : (
+                                      <StackedFieldLabel
+                                        top={t('jobs.detail.requestLocation', 'Talep Yeri')}
+                                        bottom={t('tasks.columns.createdBy', 'Oluşturan')}
+                                      />
+                                    ),
                                   // Dış birim yeşil çerçeve kaldırıldı — eski düz görünüm (card #r455).
                                   value: <StackedFieldValue top={selectedTask.ownerDepartmentName} bottom={selectedTask.createdByDisplayName} />,
                                 }]

@@ -940,7 +940,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         )}
       </section>
 
-      <section className="grid gap-y-5 gap-x-8 md:grid-cols-2 lg:grid-cols-3">
+      <section className="grid gap-y-6 gap-x-12 md:grid-cols-2 lg:grid-cols-3">
         {(statusChartsQuery.isLoading || dashboardQuery.isLoading) && visibleChartCards.length === 0
           ? Array.from({ length: 2 }).map((_, i) => (
               <div key={i} className="section-card p-4 sm:p-5">

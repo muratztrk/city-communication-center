@@ -723,7 +723,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const [jobs, setJobs] = useState<JobSummary[]>([])
   const [loading, setLoading] = useState(true)
   const hasLoadedJobsRef = useRef(false)
-  const lastAutoOpenedJobIdRef = useRef<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [jobsPage, setJobsPage] = useState(1)
   const [jobsPageSize, setJobsPageSize] = useState(10)
@@ -732,7 +731,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
   const [detail, setDetail] = useState<JobDetail | null>(null)
   const [detailLoading, setDetailLoading] = useState(false)
-  const [hideGridForAutoOpen, setHideGridForAutoOpen] = useState(() => Boolean(notificationJobId || searchParams.get('jobId')))
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
   const [conversationModal, setConversationModal] = useState<{
     socialMessageId: string
@@ -1047,11 +1045,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         if (cancelled) return
         hasLoadedJobsRef.current = true
         setJobs(jobList)
+        if (autoOpenJobId) void openDetail(autoOpenJobId)
       })
       .catch(err => { if (!cancelled) setError(err instanceof Error ? err.message : t('common.error')) })
       .finally(() => { if (!cancelled) setLoading(false) })
     return () => { cancelled = true }
-  }, [scope, t, activeDeptId, reporterDepartmentId, includeDepartmentJobs])
+  }, [scope, t, activeDeptId, reporterDepartmentId, includeDepartmentJobs]) // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const intervalId = window.setInterval(() => {
@@ -1314,25 +1313,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     try {
       const d = await api.getJobById(jobId)
       setDetail(d)
-      setHideGridForAutoOpen(false)
     } catch (err) {
-      setHideGridForAutoOpen(false)
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
       setDetailLoading(false)
     }
   }
-
-  useEffect(() => {
-    if (!autoOpenJobId) {
-      lastAutoOpenedJobIdRef.current = null
-      return
-    }
-    if (lastAutoOpenedJobIdRef.current === autoOpenJobId) return
-    lastAutoOpenedJobIdRef.current = autoOpenJobId
-    setHideGridForAutoOpen(true)
-    void openDetail(autoOpenJobId)
-  }, [autoOpenJobId]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const refreshDetail = async () => {
     if (!detail) return
@@ -2233,7 +2219,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
       {error && <div className="error">{error}</div>}
 
-      {loading || hideGridForAutoOpen ? (
+      {loading ? (
         <div className="loading">{t('common.loading')}</div>
       ) : (
         <section className="section-card desktop-page-fill">

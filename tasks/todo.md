@@ -1,3 +1,7 @@
+## Round 1063 — pie aralık/iç yazı, lejant, Çıkış, thead geri alma
+
+- **STATUS:** pie gap-x-12; desktop iç sayı/toplam büyüdü; mobil lejant 0.3rem; Çıkış 1.25rem + ikon gap 0.2rem; #6a928f47 thead/grid gizleme geri alındı. TIM Doing’de.
+
 ## Round 1062 — pie 110px, lejant/arama/banner, Çıkış, thead flash
 
 - **STATUS:** Desktop pie 110px; pie kart gap-x-8; mobil lejant gap 0.22rem (5 satır); banner page-title 500; sayfa Ara 1.8rem; mobil Çıkış 0.95rem height; Sistemde ara thead `local` + grid gizleme. TIM kartlar Doing’de.

@@ -595,7 +595,6 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const currentMyTaskView = getMyTaskView(searchParams.get('view'))
   const currentRequestFlowFilter = getRequestFlowFilter(searchParams.get('flow'))
   const autoOpenTaskId = notificationTaskId ?? searchParams.get('taskId')
-  const [hideGridForAutoOpen, setHideGridForAutoOpen] = useState(() => Boolean(notificationTaskId || searchParams.get('taskId')))
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   // Vatandaş Talep Yöneticisi "Birimdeki Görevler"de yalnızca vatandaş taleplerinin görevlerini görür (card #1073).
   const isCitizenRequestManager = hasCitizenRequestManagerRole(user)
@@ -1761,7 +1760,6 @@ const pageKicker = isMyTasksView
 
   const openTaskDetail = async (task: Task) => {
     setSelectedTask(task)
-    setHideGridForAutoOpen(false)
     setTaskDetail(null)
     setParentJobDetail(null)
     setEditJobModal(null)
@@ -1780,7 +1778,6 @@ const pageKicker = isMyTasksView
         setRoutineEditHistory(parseRoutineTaskEditHistory(auditEntries))
       }
     } catch (err) {
-      setHideGridForAutoOpen(false)
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
       setDetailLoading(false)
@@ -1812,9 +1809,7 @@ const pageKicker = isMyTasksView
         jobNumber: parentJob?.jobNumber ?? null,
         jobNumberYear: parentJob?.jobNumberYear ?? null,
       } as Task)
-      setHideGridForAutoOpen(false)
     } catch (err) {
-      setHideGridForAutoOpen(false)
       setError(err instanceof Error ? err.message : t('common.error'))
     } finally {
       setDetailLoading(false)
@@ -3200,7 +3195,7 @@ const pageKicker = isMyTasksView
       )}
 
       {error && <div className="alert alert-error">{error}</div>}
-      {loading || hideGridForAutoOpen ? (
+      {loading ? (
         <div className="loading">{t('common.loading')}</div>
       ) : (
         <section className="section-card desktop-page-fill">

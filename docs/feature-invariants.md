@@ -60,9 +60,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   fixed` kullanılmaz (#2824); Birime Gelen / Taleplerim / Birimdeki Görevler / Personelimin
   Görevler / Vatandaş ve SMS mesaj onayı / Vatandaş Bilgi Listesi (ana grid + talep popup) /
   Vatandaş Talepleri / Yönetim gridleri
-  (Birimler, Kullanıcılar, Log, Sayfa Yetkileri / `.role-matrix-table`) tablolarında sütun
-  gradient `background-attachment: local` (#6a928f47 — `fixed` viewport'tan sidebar/banner
-  örnekleyip yeşil-siyah flash yapıyordu). Pie drilldown popup grid (`dashboard-drilldown-table`) aynı kalıp —
+  (Birimler, Kullanıcılar, Log, Sayfa Yetkileri / `.role-matrix-table`) tablolarında sütunlar arası tek gradient için `fixed` kullanılır (#r447). Pie drilldown popup grid (`dashboard-drilldown-table`) aynı kalıp —
   genel `.data-table thead th`'de `fixed` yok (#2824).
 - **Popup gridview başlık şeridi standart gridview gibi üstten kavislidir** (0.9rem): scroll kabı
   olan tablolarda kavis `thead th:first-child/:last-child`'a verilir (araya `overflow:hidden` bir
@@ -1250,13 +1248,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Completed → `Tamamlandı` (#6a9268a9). Operator/SystemAdmin dışında kanal ikonu başlık solunda;
   kanal eşlemesi `getSocialMessages` ile (#6a92aaca).
   Sistemde ara kanal • durum bullet `0.62em` (#6a92dd81).
-  Desktop pie yuvarlak 110px; lejant ayrı (#6a92b566). Mobil pie 96px tüm sayfalar (#6a92b30e).
-  Mobil pie lejant `ul` gap 0.22rem; kaydırmadan 5 satır görünür (#6a92cbc7).
-  Anasayfa pie ızgara `gap-y-5 gap-x-8` (#6a92852e).
+  Desktop pie yuvarlak 110px; iç sayı 17px / «toplam» 12.5px (#6a92b566). Mobil pie 96px (#6a92b30e).
+  Mobil pie lejant `ul` gap 0.3rem; kaydırmadan 5 satır görünür (#6a92cbc7).
+  Anasayfa pie ızgara `gap-y-6 gap-x-12` (#6a92852e).
   Anasayfa/Vatandaş Paneli/Birimler/harita `PieLegendSearch` min-height 1.8rem (header ara değil) (#6a92692b).
-  Mobil header Çıkış `height`/`min-height` 0.95rem (`h-10` ezilir) (#6a920226).
-  Sistemde ara `jobId`/`taskId` ile detay açılırken liste grid thead boyanmadan önce gizlenir;
-  thead `background-attachment: local` — `fixed` yeşil-siyah flash yapmaz (#6a928f47).
+  Mobil header Çıkış `height` 1.25rem; ikon-metin `gap` 0.2rem (#6a920226).
+  Sistemde ara `jobId`/`taskId` ile detay açılır; thead `background-attachment: fixed` (#r447;
+  #6a928f47 geri alındı).
   Bildirim modal başlangıç placeholder `Başlama tarihi`; tarih font-weight 400 (#6a92b641).
   Mobilde “Canlı özet” / “Canlı harita” / `.live-summary-kicker` gizli; kicker boşluğu banner
   yüksekliğinden düşer (#6a91fea5/#6a91feaa).
@@ -1435,7 +1433,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   bucket da görünür. Kullanıcı özetinde Aktif yanında Yerel ve LDAP sayıları ayrı gösterilir;
   liste placeholder’ı `İsim, kullanıcı adı ara...` kalır.
 - **Rol Sayfa Yetkileri:** standart header + TablePagination default 25; thead diğer yönetim
-  grid’leri gibi `background-attachment: local` ile hücre içi banner gradient’i (#6a928f47); **Sayfa** th ortalı,
+  grid’leri gibi `background-attachment: fixed` ile sürekli banner gradient’i (#r447); **Sayfa** th ortalı,
   satır adları solda (card #1726). Matris satır sırasında `Birimden Giden` hemen
   `Birime Gelen` sonrası (#6a6ca355). Rol kolon sırasında `Vatandaş Talep Yöneticisi`
   hemen `Birim Yöneticisi/Sorumluları` sonrası (#6a6cb6ea). Tenant JSON yok/geçersizse Ayarlar
@@ -2053,10 +2051,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   İptal / Tamamlanmış pill içinde alt satırda tarih (`completedAtUtc` / `updatedAtUtc`, #2574 reopen). Anasayfa pie → Detaylar
   aynı nested boyut (#6a6da278). Başlık: Vatandaş sayfası `Vatandaş Talebi`, Birimler
   `Talep` (#6a6da49d/#6a6da519).
-- **Grid thead rengi + sticky örtü (card #1888 / #r447 / #6a928f47):** sticky `th` opak
-  (`background-color` + aynı linear-gradient, `background-attachment: local`) — scroll’da
-  tbody satırları başlığın üstüne binmez. `fixed` kullanma: viewport sidebar/banner’dan
-  yeşil-siyah flash olur (Sistemde ara → detay). `z-index` ≥ 5.
+- **Grid thead rengi + sticky örtü (card #1888 / #r447):** sticky `th` opak
+  (`background-color` + aynı linear-gradient, `background-attachment: fixed`) — scroll’da
+  tbody satırları başlığın üstüne binmez; hücreler arası sürekli gradient korunur. `z-index` ≥ 5.
 - **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → **Numara** (#3108, hücre stili
   dizin Numara ile aynı #3107) → Talep Tarihi →
   Gittiği Yer → Talep Etiketi → **Durum** → İşlemler (#2646; eski Süreç başlığı). Varsayılan sıra

@@ -1249,6 +1249,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Completed → `Tamamlandı` (#6a9268a9). Operator/SystemAdmin dışında kanal ikonu başlık solunda;
   kanal eşlemesi `getSocialMessages` ile (#6a92aaca).
   Sistemde ara kanal • durum bullet `0.62em` (#6a92dd81).
+  Sistemde ara kanal ikonu vatandaş kaynağını `isCitizenRequestJob` (requestType **veya**
+  sourceType) ile bulur — `requestType === 'Citizen'` şartı yetmez, WhatsApp talebi
+  `ExternalUnit` da olabilir. Sosyal liste yetkiden dolayı boş gelirse kanal `sourceType`’tan
+  türetilir (`SocialMessage`→WhatsApp, `EDevlet`→EDevlet, diğer→Phone); ikon **null olmamalı**.
+  İkon başlık `span`’ının içinde (ayrı kolonda `self-center` iki satırın ortasına kaçıyordu).
   Desktop pie yuvarlak 110px; iç sayı 18.5px/700, «toplam» 13.5px/500 (#6a92b566).
   Mobil pie 96px; iç sayı 19.5px / «toplam» 12.5px (#6a92f964).
   Mobil pie lejant gap 0.45rem; max-height 5 satır hesabı — 6. görünmez (#6a930a33).

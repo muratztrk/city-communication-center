@@ -1,3 +1,7 @@
+## Round 1069 — Sistemde ara kanal ikonu gerçekten görünsün
+
+- **STATUS:** kanal `requestType === 'Citizen'` şartına bağlıydı; WhatsApp talebi `ExternalUnit` olduğu için null dönüyordu. `isCitizenRequestJob` + sourceType yedeği; ikon başlık span’ı içine alındı.
+
 ## Round 1068 — mobil WA Birim seçiniz gerçek yükseklik
 
 - **STATUS:** `height` 1.15rem yetmiyordu çünkü `.field-select` `min-height` ~2rem eziyordu. Mobil `0.95rem` + min-height/max-height/padding-block 0; chevron küçüldü.

@@ -7,7 +7,7 @@ import { useAuth } from '../../context/AuthContext'
 import { canAnyRoleAccessPage, getEffectiveUserRoles } from '../../lib/rolePageAccess'
 import type { Department, JobSummary, SocialMessage, Task, User } from '../../types/platform'
 import { ChannelIcon } from '../ui/channel-icon'
-import { getCitizenRequestStatusLabel } from '../../utils/citizenRequests'
+import { getCitizenRequestStatusLabel, isCitizenRequestJob } from '../../utils/citizenRequests'
 import { getTaskStatusLabel } from '../../utils/localization'
 import { includesFoldedTr } from '../../utils/textNormalization'
 
@@ -178,9 +178,25 @@ function socialMatches(msg: SocialMessage, q: string): boolean {
   return false
 }
 
+/**
+ * Vatandaş kaynağı `requestType === 'Citizen'` ile sınırlı değil: WhatsApp'tan gelip birime
+ * yönlendirilen talepler `ExternalUnit` olarak da durabiliyor (gridler `isCitizenRequestJob` kullanır).
+ * Sosyal mesaj listesi yetkiye göre kısıtlı geldiğinde kanal `sourceType`'tan türetilir.
+ */
+function citizenChannelFallback(sourceType: string | null | undefined): string {
+  if (sourceType === 'EDevlet') return 'EDevlet'
+  return sourceType === 'SocialMessage' ? 'WhatsApp' : 'Phone'
+}
+
 function resolveJobChannel(job: JobSummary, socialByJobId: Map<string, string>): string | null {
-  if (job.requestType !== 'Citizen') return null
-  return socialByJobId.get(job.jobId) ?? 'Phone'
+  if (!isCitizenRequestJob({ requestType: job.requestType, sourceType: job.sourceType })) return null
+  return socialByJobId.get(job.jobId) ?? citizenChannelFallback(job.sourceType)
+}
+
+function resolveTaskChannel(task: Task, socialByJobId: Map<string, string>): string | null {
+  if (task.jobSourceType === 'Routine') return null
+  if (!isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType })) return null
+  return socialByJobId.get(task.jobId) ?? citizenChannelFallback(task.jobSourceType)
 }
 
 function pushJobResults(
@@ -239,9 +255,7 @@ function pushTaskResults(
       title: task.title,
       subtitle: statusOnlySubtitle ? status : [task.jobTitle, status].filter(Boolean).join(' · '),
       path: pathFor(task),
-      channel: showCitizenChannel && task.jobRequestType === 'Citizen'
-        ? (socialByJobId.get(task.jobId) ?? (task.jobSourceType === 'SocialMessage' ? null : 'Phone'))
-        : null,
+      channel: showCitizenChannel ? resolveTaskChannel(task, socialByJobId) : null,
     })
     added += 1
   }
@@ -633,11 +647,13 @@ export function GlobalSearchBar() {
                         className="flex w-full items-start gap-2 border-b border-slate-50 px-4 py-2.5 text-left last:border-0 hover:bg-slate-50"
                         onClick={() => handleSelect(item.path)}
                       >
-                        {iconBesideTitle && item.channel ? (
-                          <ChannelIcon channel={item.channel} className="mt-px size-3.5 shrink-0 self-center" />
-                        ) : null}
                         <span className="flex min-w-0 flex-col gap-0.5">
-                          <span className="text-sm font-semibold text-slate-800">{item.title}</span>
+                          <span className="inline-flex min-w-0 items-center gap-1.5 text-sm font-semibold text-slate-800">
+                            {iconBesideTitle && item.channel ? (
+                              <ChannelIcon channel={item.channel} className="size-3.5 shrink-0" />
+                            ) : null}
+                            <span className="min-w-0 truncate">{item.title}</span>
+                          </span>
                           {item.subtitle ? (
                             <span className="inline-flex items-center gap-1 text-xs text-slate-400">
                               {iconBesideChannel && item.channel ? (

@@ -7264,10 +7264,10 @@
   }
 }
 
-/* ≥768: Sms Onayı stacked telefon — text-sm 0.875rem’den az küçült (#3283). */
+/* ≥768: Sms Onayı stacked telefon — 0.80rem yetmedi, VT Telefon No ile hizala (#3283). */
 @media (min-width: 768px) {
   .citizen-message-approval-table .citizen-message-approval-phone-value {
-    font-size: 0.8rem !important;
+    font-size: 0.72rem !important;
     line-height: 1.25;
   }
 }

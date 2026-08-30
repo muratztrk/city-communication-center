@@ -2660,9 +2660,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `.status-pill` `0.58rem`, birim çerçevesi `0.60rem`, son tarih pill `0.74rem`) mobil büyütülür (#3257);
   mobil başlık (`.cell-title`) `0.70rem` (#3262), numara (`__value`) `0.58rem` (#3252). Vatandaş
   Talepleri + harita Talepleri Listele Talep No `0.52rem`; **Telefon No hücresi**
-  (`.citizen-grid-phone-value`) `0.72rem` (#3252/#3282); harita liste `text-slate-500 tabular-nums`
-  (VT grid ile aynı). Sms Onayı stacked telefondan yalnız numara
-  (`.citizen-message-approval-phone-value`) mobil `0.70rem` (#3273), masaüstü `0.80rem` (#3283). `StatusPill`
+  (`.citizen-grid-phone-value`) `0.72rem` (#3252); harita liste `text-slate-500 tabular-nums`
+  + `formatCitizenPhoneDisplay` `xxx xxx xx xx` (Talepleri Listele ve Harita Konumu Olmayan, #3282).
+  Sms Onayı stacked telefondan yalnız numara
+  (`.citizen-message-approval-phone-value`) mobil `0.70rem` (#3273), masaüstü `0.72rem` (#3283). `StatusPill`
   kökünde `status-pill` sınıfı olmalı. Durum alt satır `(Geciken)` (`.grid-status-overdue-sub`)
   mobil `0.50rem` (#3226).
   Tarih (`.date-cell`) mobil `0.66rem` (#3227). Mobil Durum hücresinde saat yok

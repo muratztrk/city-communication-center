@@ -1,3 +1,8 @@
+## Round 1088 — 2 web kart: harita telefon format, Sms Onayı punto retry
+
+- **#3282:** harita Talepleri Listele / konumu olmayan Telefon No `xxx xxx xx xx`.
+- **#3283:** Sms Onayı masaüstü stacked telefon `0.72rem` (0.80 yetmedi; `text-sm` kaldırıldı).
+
 ## Round 1087 — 4 web kart: Sms telefon, Talep Kanalı, harita Telefon No
 
 - **#3283:** Sms Onayı stacked telefon masaüstü `0.80rem` (unlayered).

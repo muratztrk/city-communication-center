@@ -17,7 +17,7 @@ import { GridStatusLabel } from './ui/GridStatusLabel'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { ClearPieFilterLink } from './ui/ClearPieFilterLink'
 import { ChannelIcon } from './ui/channel-icon'
-import { formatCitizenRequestNumber } from '../utils/citizenRequests'
+import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { formatOverdueInProgressStatus, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, type GridStatusTone } from '../utils/localization'
 import { isJobDueDateOverdue } from '../utils/dateTimePicker'
@@ -348,7 +348,7 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
                           ) : null}
                           {isCitizen ? (
                             <td className="citizen-grid-phone-value text-sm font-semibold text-slate-500 tabular-nums">
-                              {pin.citizenPhone?.trim() || '—'}
+                              {formatCitizenPhoneDisplay(pin.citizenPhone)}
                             </td>
                           ) : null}
                           <td className="text-center"><DateCell value={pin.createdAtUtc} locale={locale} /></td>

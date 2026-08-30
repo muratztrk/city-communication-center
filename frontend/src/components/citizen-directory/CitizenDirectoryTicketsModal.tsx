@@ -540,8 +540,8 @@ export function CitizenDirectoryTicketsModal({
                             <td className="text-center">
                               {ticket.channel ? (
                                 <span className="citizen-directory-channel-value inline-flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap">
-                                  <ChannelIcon channel={ticket.channel} className="size-3.5 shrink-0" />
-                                  <span className="text-sm font-semibold text-slate-800">{getSocialChannelLabel(t, ticket.channel)}</span>
+                                  <ChannelIcon channel={ticket.channel} className="citizen-directory-channel-icon size-3.5 shrink-0" />
+                                  <span className="citizen-directory-channel-label text-sm font-semibold text-slate-800">{getSocialChannelLabel(t, ticket.channel)}</span>
                                 </span>
                               ) : <EmptyCell />}
                             </td>

@@ -30,7 +30,15 @@ interface MyRequestTaskDetailsSectionProps {
 }
 
 function stripAutoMessageNoteLabel(value?: string | null) {
-  return (value ?? '').trim().replace(/^(Yapılan İş|İptal Nedeni|İptal Notu)\s*:\s*/i, '').trim()
+  const plain = notePlain(value).replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n')
+  if (!plain) return ''
+  const match = /(?:^|\n)(Yapılan İş|İptal Nedeni|İptal Notu)\s*:\s*/u.exec(plain)
+  if (match && match.index >= 0) {
+    const after = plain.slice(match.index + match[0].length).trim()
+    const firstLine = after.split('\n')[0]?.trim() ?? ''
+    if (firstLine) return firstLine
+  }
+  return plain
 }
 
 function notePlain(value?: string | null) {
@@ -197,8 +205,7 @@ export function MyRequestTaskDetailsSection({
           const isCancelledTask = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
           const releasedPlain = notePlain(citizenApprovalReleasedNote)
           const taskNotesPlain = notePlain(task.notes)
-          const outboundDisplay = stripAutoMessageNoteLabel(citizenOutboundMessage)
-          const outboundPlain = notePlain(outboundDisplay)
+          const outboundPlain = stripAutoMessageNoteLabel(citizenOutboundMessage)
           const cancelNoteDisplay = task.revisionReason?.trim() || detail.cancelReason?.trim() || '—'
           // Operatör Sms Onayı task.Notes'u ezer; Tamamlama yöneticinin onay notu olmalı.
           // Released yokken canlı görev notuna ancak outbound yoksa (veya aynıysa) düş.
@@ -210,11 +217,15 @@ export function MyRequestTaskDetailsSection({
           const completionCompareSource = isCompletedTask
             ? (releasedPlain || taskNotesPlain)
             : notePlain(task.revisionReason) || notePlain(detail.cancelReason)
+          const fallbackOutboundNote = isCompletedTask
+            ? (releasedPlain || taskNotesPlain)
+            : (notePlain(task.revisionReason) || notePlain(detail.cancelReason))
+          const outboundValue = outboundPlain || fallbackOutboundNote
           const outboundDiffersFromCompletion = Boolean(
             outboundPlain
             && notesDiffer(outboundPlain, completionCompareSource),
           )
-          const outboundIsAutoStatus = outboundPlain.toLocaleLowerCase('tr').includes('talebinizin durumu')
+          const outboundIsAutoStatus = outboundValue.toLocaleLowerCase('tr').includes('talebinizin durumu')
           const outboundTone = outboundDiffersFromCompletion && !outboundIsAutoStatus
             ? 'outbound-diff' as const
             : 'completion' as const
@@ -286,12 +297,12 @@ export function MyRequestTaskDetailsSection({
                             tone: 'cancel' as const,
                           }]
                         : []),
-                    ...(outboundPlain
+                    ...(outboundValue
                       && (isCompletedTask || isCancelledTask)
                       && task.taskId === primaryTerminalTaskId
                       ? [{
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          value: outboundDisplay,
+                          value: outboundValue,
                           tone: outboundTone,
                           fullRow: true as const,
                         }]

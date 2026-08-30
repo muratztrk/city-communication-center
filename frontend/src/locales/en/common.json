@@ -1016,7 +1016,7 @@
     "channel": "Channel",
     "sender": "Sender",
     "citizenName": "Citizen Name",
-    "citizenPhone": "Number",
+    "citizenPhone": "Phone No",
     "citizenRequestNo": "Citizen Request No",
     "citizenRequestDate": "Citizen Request Date",
     "destination": "Destination",

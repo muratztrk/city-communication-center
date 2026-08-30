@@ -1880,7 +1880,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   harita).   Outbound her zaman gösterilir; otomatik durum şablonu (`talebinizin durumu`) veya
   Tamamlama ile aynıysa yeşil, operatörün özelleştirdiği farklı metin kırmızı (#2557/#3084).
   `Yapılan İş:` / `İptal Nedeni:` / `İptal Notu:` şablon etiketleri bu alandan düşer — yalnız
-  not kalır (#3270); otomatik mesaj gövdesinde etiket durur.
+  not kalır; başlık her zaman durur, değer tamamlama/iptal notu (#3270). Otomatik mesaj gövdesinde
+  etiket durur. CRLF (`\r\n\r\n`) ayırıcı da extract edilir.
 - **FAB boyutları (#r482/#2638):** WhatsApp + Kurum İçi 2.75rem / sm 3rem; scroll 2.5rem / sm 2.75rem.
   Üçü de biraz küçük; sıra WhatsApp → Kurum İçi → scroll.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici
@@ -2103,8 +2104,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Grid thead rengi + sticky örtü (card #1888 / #r447):** sticky `th` opak
   (`background-color` + aynı linear-gradient, `background-attachment: fixed`) — scroll’da
   tbody satırları başlığın üstüne binmez; hücreler arası sürekli gradient korunur. `z-index` ≥ 5.
-- **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → **Numara** (#3108, hücre stili
-  dizin Numara ile aynı #3107) → Talep Tarihi →
+- **Vatandaş Talepleri kolon sırası:** Sıra → Talep No → Vatandaş Adı → **Telefon No** (#3272; eski
+  Numara, #3108; hücre stili dizin Numara ile aynı #3107) → Talep Tarihi →
   Gittiği Yer → Talep Etiketi → **Durum** → İşlemler (#2646; eski Süreç başlığı). Varsayılan sıra
   Vatandaş Talep No **yıl+sıra desc** (en yüksek numara üstte, #2691). Durum hücresi
   Taleplerim `StatusPill` + `GridStatusLabel`. **Tüm Talep Durumları** dropdown’da Geciken yok;
@@ -2650,7 +2651,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ikincil satır değil çerçeve metni küçülür. Renkli arka planlı grid verisi (Durum/Görev Tipi
   `.status-pill` `0.54rem`, birim çerçevesi `0.56rem`, son tarih pill `0.70rem`) mobil büyütülür;
   mobil başlık (`.cell-title`) `0.70rem` (#3262), numara (`__value`) `0.58rem` (#3252). Vatandaş
-  Talepleri + harita Talepleri Listele numara `0.52rem` (#3252 reopen). `StatusPill`
+  Talepleri + harita Talepleri Listele Talep No `0.52rem`; **Telefon No hücresi**
+  (`.citizen-grid-phone-value`) `0.72rem` (#3252). Sms Onayı stacked telefondan yalnız numara
+  (`.citizen-message-approval-phone-value`) `0.78rem` (#3273). `StatusPill`
   kökünde `status-pill` sınıfı olmalı. Durum alt satır `(Geciken)` (`.grid-status-overdue-sub`)
   mobil `0.50rem` (#3226).
   Tarih (`.date-cell`) mobil `0.66rem` (#3227). Mobil Durum hücresinde saat yok
@@ -2867,7 +2870,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
   (`citizen-directory-tickets-table` scoped CSS). Mobil Talep Kanalı değer + ikon biraz küçük
-  (`.citizen-directory-channel-value`, #3271).
+  (`.citizen-directory-channel-label` `0.62rem`, ikon `0.60rem`, unlayered #3271).
 - **Vatandaş Bilgi Listesi Talep Kanalı (#2285):** `Talep Kanalı` sütunu `FilterableTh` ile
   filtrelenebilir ve sıralanabilir; etiket `sourceChannelLabel` üzerinden Türkçe kanal adıyla eşleşir.
 - **Birimler liste araması (#2283):** Birim ara kutusu yalnız birim adı, müdür ve sorumlu

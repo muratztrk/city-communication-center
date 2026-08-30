@@ -148,7 +148,7 @@ internal static class CitizenMessageApprovalNoteResolver
             // Operatörün Sms Onayı'nda yazdığı not, iletilen SMS'ten (büyük harf) önce gelir.
             if (!string.IsNullOrWhiteSpace(lastPostReleaseEdit))
             {
-                return lastPostReleaseEdit.Trim();
+                return StripAutoTemplateNoteLabel(lastPostReleaseEdit);
             }
 
             if (!string.IsNullOrWhiteSpace(responseContent))
@@ -183,12 +183,14 @@ internal static class CitizenMessageApprovalNoteResolver
             }
         }
 
-        return string.IsNullOrWhiteSpace(lastPostReleaseEdit) ? null : lastPostReleaseEdit.Trim();
+        return string.IsNullOrWhiteSpace(lastPostReleaseEdit)
+            ? null
+            : StripAutoTemplateNoteLabel(lastPostReleaseEdit);
     }
 
     internal static string? ExtractTrailingTerminalNote(string content)
     {
-        var trimmed = content.TrimEnd();
+        var trimmed = content.Replace("\r\n", "\n").TrimEnd();
         var separatorIndex = trimmed.LastIndexOf("\n\n", StringComparison.Ordinal);
         if (separatorIndex < 0)
         {

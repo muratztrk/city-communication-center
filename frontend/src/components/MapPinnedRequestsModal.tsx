@@ -347,7 +347,7 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
                             </td>
                           ) : null}
                           {isCitizen ? (
-                            <td className="text-center text-sm font-semibold text-slate-700">
+                            <td className="citizen-grid-phone-value text-center text-sm font-semibold text-slate-700">
                               {pin.citizenPhone?.trim() || '—'}
                             </td>
                           ) : null}

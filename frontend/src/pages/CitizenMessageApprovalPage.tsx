@@ -363,7 +363,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                     <td className="citizen-message-approval-citizen-cell">
                       <div className="font-semibold">{row.citizenName ?? '—'}</div>
                       {/* Telefon no silik kalıyordu (#6a6e05c3) — kontrastı artırıldı. */}
-                      <div className="text-sm font-medium text-slate-600">{formatCitizenPhoneDisplay(row.citizenPhone)}</div>
+                      <div className="citizen-message-approval-phone-value text-sm font-medium text-slate-600">{formatCitizenPhoneDisplay(row.citizenPhone)}</div>
                     </td>
                     <td className="citizen-message-approval-title-cell text-center">
                       <TruncatedText text={row.title} className="cell-title" />

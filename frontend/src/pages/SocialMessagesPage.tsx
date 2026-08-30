@@ -677,7 +677,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                   </span>
                 </FilterableTh>
                 <FilterableTh filterKey="citizenName" filterValue={socialFilters['citizenName'] ?? ''} onFilter={setSocialFilter} sortKey="citizenName" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('social.citizenName', 'Vatandaş Adı')}</FilterableTh>
-                <FilterableTh filterKey="citizenPhone" filterValue={socialFilters['citizenPhone'] ?? ''} onFilter={setSocialFilter} sortKey="citizenPhone" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{embedded ? t('jobs.detail.citizenPhone', 'Telefon No') : t('social.citizenPhone', 'Numara')}</FilterableTh>
+                <FilterableTh filterKey="citizenPhone" filterValue={socialFilters['citizenPhone'] ?? ''} onFilter={setSocialFilter} sortKey="citizenPhone" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>{t('jobs.detail.citizenPhone', 'Telefon No')}</FilterableTh>
                 <FilterableTh filterKey="receivedAtUtc" filterValue={socialFilters['receivedAtUtc'] ?? ''} onFilter={setSocialFilter} sortKey="receivedAtUtc" currentSortKey={socialSortKey} sortDir={socialSortDir} onSort={toggleSocialSort}>
                   <span className="inline-flex whitespace-nowrap leading-tight">
                     <span>{embedded ? t('jobs.columns.requestDate', 'Talep Tarihi') : t('social.citizenRequestDateHeader', 'Vatandaş Talep Tarihi')}</span>
@@ -721,7 +721,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                       ) : null}
                     </td>
                     <td className="font-semibold">{getSocialMessageCitizenName(message)}</td>
-                    <td className="text-sm font-semibold text-slate-500 tabular-nums">{getSocialMessageCitizenPhone(message)}</td>
+                    <td className="citizen-grid-phone-value text-sm font-semibold text-slate-500 tabular-nums">{getSocialMessageCitizenPhone(message)}</td>
                     <td><DateCell value={message.receivedAtUtc} locale={locale} /></td>
                     {embedded ? null : (
                     <td>

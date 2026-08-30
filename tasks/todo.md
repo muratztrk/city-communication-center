@@ -1,3 +1,12 @@
+## Round 1083 — 5 web kart: Telefon No başlık/punto, kanal, Yapılan İş başlık
+
+- **#3272:** Vatandaş Talepleri grid başlığı Numara → Telefon No.
+- **#3252:** mobil Telefon No hücresi `0.72rem` (VT + harita liste); Talep No 0.52 durur.
+- **#3273:** mobil Sms Onayı stacked telefon `0.78rem`.
+- **#3271:** mobil bilgi listesi Talep Kanalı unlayered `0.62rem` / ikon `0.60rem` (img+svg).
+- **#3270:** Vatandaşa Giden Mesaj başlığı durur; değer not (Yapılan İş: yok); CRLF extract.
+- **Atlandı:** #3232 Tim mobil cluster 14.9.
+
 ## Round 1082 — 7 web kart: Onayla toast, harita FAB, Yapılan İş, etiket, kanal, VT no
 
 - **#3252:** mobil Vatandaş Talepleri + harita Talepleri Listele numara `0.52rem` (diğer gridler 0.58).

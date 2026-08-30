@@ -104,6 +104,20 @@ public sealed class CitizenMessageApprovalNoteResolverTests
         Assert.Equal("Uuuuuu", CitizenMessageApprovalNoteResolver.ExtractTrailingTerminalNote(sms));
     }
 
+    [Fact]
+    public void ExtractTrailingTerminalNote_strips_label_when_crlf_separates_segments()
+    {
+        var sms = "VT-2026-1 no'lu Başlık talebinizin durumu \"Tamamlandı\".\r\n\r\nYapılan İş: Uuuuuu";
+        Assert.Equal("Uuuuuu", CitizenMessageApprovalNoteResolver.ExtractTrailingTerminalNote(sms));
+    }
+
+    [Fact]
+    public void StripAutoTemplateNoteLabel_removes_work_done_prefix()
+    {
+        Assert.Equal("Uuuuuu", CitizenMessageApprovalNoteResolver.StripAutoTemplateNoteLabel("Yapılan İş: Uuuuuu"));
+        Assert.Equal("Kapandı", CitizenMessageApprovalNoteResolver.StripAutoTemplateNoteLabel("İptal Nedeni: Kapandı"));
+    }
+
     private static Job BuildCompletedJob(Guid jobId, DateTimeOffset releasedAt) => new()
     {
         JobId = jobId,

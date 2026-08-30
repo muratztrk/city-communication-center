@@ -7370,6 +7370,19 @@
     gap: 0.45rem;
   }
 
+  .citizen-request-map-controls.is-streetview .citizen-request-map-streetview-btn {
+    transform: translateX(-0.55rem);
+  }
+
+  /* Street View sol üst adres kartı: "Google Haritalar'da görüntüleyin" sığsın (#3237). */
+  .citizen-request-map .gm-iv-address,
+  .citizen-request-map .gm-iv-address-link,
+  .citizen-request-map .gm-iv-container {
+    height: auto !important;
+    min-height: 4.75rem !important;
+    overflow: visible !important;
+  }
+
   .citizen-request-map-zoom {
     display: flex;
     flex-direction: column;

@@ -10,6 +10,8 @@
 - **#3217:** masaüstü No `-` sola hizası geri alındı. **#3218:** mobil No `1.65rem` sağa.
 - **#3230/#3228/#3229/#3231:** detay aynı satır, değer punto, Vatandaş Adı/Telefon stack, banner title `0.75rem`.
 - **#3225/#3226/#3227/#3224/#3223/#3206:** grid/pie/metrik puntoları.
+- **#3237:** Street View sol üst adres kartı yüksekliği (`gm-iv-address` min 4.75rem).
+- **#3238:** Street View açıkken +/−/başlangıç ikonları gizli; pegman biraz sola.
 
 ## Round 1075 — 8 kart: login bar, Kaydet, not token, adres No, metrik/pie/grid
 

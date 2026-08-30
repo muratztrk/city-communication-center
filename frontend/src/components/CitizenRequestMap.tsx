@@ -433,6 +433,7 @@ export function CitizenRequestMap({
   )
   const [mapInstance, setMapInstance] = useState<google.maps.Map | null>(null)
   const [streetViewPicker, setStreetViewPicker] = useState(false)
+  const [streetViewVisible, setStreetViewVisible] = useState(false)
   const [listMode, setListMode] = useState<'located' | 'unlocated' | null>(null)
   const [internalSearch, setInternalSearch] = useState('')
   const mapSearch = searchQuery ?? internalSearch
@@ -768,6 +769,7 @@ export function CitizenRequestMap({
           panorama.setPosition(data.location.latLng)
           panorama.setPov({ heading: 0, pitch: 0 })
           panorama.setVisible(true)
+          setStreetViewVisible(true)
           coverage.setMap(null)
           streetViewPickerRef.current = false
           setStreetViewPicker(false)
@@ -776,7 +778,9 @@ export function CitizenRequestMap({
     })
     const panorama = mapInstance.getStreetView()
     const visibleListener = panorama.addListener('visible_changed', () => {
-      if (panorama.getVisible()) return
+      const visible = panorama.getVisible()
+      setStreetViewVisible(visible)
+      if (visible) return
       coverage.setMap(null)
       streetViewPickerRef.current = false
       setStreetViewPicker(false)
@@ -794,6 +798,7 @@ export function CitizenRequestMap({
     const panorama = mapInstance.getStreetView()
     if (panorama.getVisible()) {
       panorama.setVisible(false)
+      setStreetViewVisible(false)
       coverageLayerRef.current?.setMap(null)
       streetViewPickerRef.current = false
       setStreetViewPicker(false)
@@ -904,11 +909,12 @@ export function CitizenRequestMap({
         )}
         {mapsReady && isLoaded && !loadError ? (
           <div
-            className="citizen-request-map-controls"
+            className={`citizen-request-map-controls${streetViewVisible ? ' is-streetview' : ''}`}
             onClick={event => event.stopPropagation()}
             onMouseDown={event => event.stopPropagation()}
           >
             <div className="citizen-request-map-zoom-stack">
+              {streetViewVisible ? null : (
               <button
                 type="button"
                 className="citizen-request-map-zoom-btn citizen-request-map-reset-btn"
@@ -922,7 +928,8 @@ export function CitizenRequestMap({
                   <path d="M12 2.6v2.7M12 18.7v2.7M2.6 12h2.7M18.7 12h2.7" strokeLinecap="round" />
                 </svg>
               </button>
-              <div className="citizen-request-map-zoom-row">
+              )}
+              <div className={`citizen-request-map-zoom-row${streetViewVisible ? ' is-streetview' : ''}`}>
             <button
               type="button"
               className={`citizen-request-map-streetview-btn${streetViewPicker ? ' is-active' : ''}`}
@@ -940,6 +947,7 @@ export function CitizenRequestMap({
                 <path fill="#E37400" opacity=".35" d="M12.9 8.25h2.3c.5 0 .9.4.9.9v4.15l1.35.45.2.78-.2.1-1.55-.48V15.1v5.05c0 .2-.08.38-.2.5h-.7V17.1h-.4v3.55h-.7c-.12-.12-.2-.3-.2-.5v-3.05h-.1V8.25z" />
               </svg>
             </button>
+              {streetViewVisible ? null : (
               <div className="citizen-request-map-zoom">
               <button
                 type="button"
@@ -966,6 +974,7 @@ export function CitizenRequestMap({
                 −
               </button>
               </div>
+              )}
               </div>
             </div>
           </div>

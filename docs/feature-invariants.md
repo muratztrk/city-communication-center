@@ -2649,7 +2649,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   masaüstü `0.74rem` (#3263, Oluşturan). Yeşil birim çerçevesi (`.framed-department-pill`) mobil `0.50rem` —
   ikincil satır değil çerçeve metni küçülür. Renkli arka planlı grid verisi (Durum/Görev Tipi
   `.status-pill` `0.54rem`, birim çerçevesi `0.56rem`, son tarih pill `0.70rem`) mobil büyütülür;
-  mobil başlık (`.cell-title`) `0.70rem` (#3262), numara (`__value`) `0.58rem` (#3252). `StatusPill`
+  mobil başlık (`.cell-title`) `0.70rem` (#3262), numara (`__value`) `0.58rem` (#3252). Vatandaş
+  Talepleri + harita Talepleri Listele numara `0.52rem` (#3252 reopen). `StatusPill`
   kökünde `status-pill` sınıfı olmalı. Durum alt satır `(Geciken)` (`.grid-status-overdue-sub`)
   mobil `0.50rem` (#3226).
   Tarih (`.date-cell`) mobil `0.66rem` (#3227). Mobil Durum hücresinde saat yok

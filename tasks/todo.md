@@ -1,11 +1,12 @@
-## Round 1082 — 6 web kart: Onayla toast, harita FAB, Yapılan İş, etiket, kanal
+## Round 1082 — 7 web kart: Onayla toast, harita FAB, Yapılan İş, etiket, kanal, VT no
 
+- **#3252:** mobil Vatandaş Talepleri + harita Talepleri Listele numara `0.52rem` (diğer gridler 0.58).
 - **#3254/#3264:** Toast `reload()` öncesi + `assign` yolu + `z-[400]` (modal üstü). Trello karta yazıldı.
 - **#3261:** ≥768 harita +/−/reset/SV, FAB satırının üstünde (`footer+gap+FAB+0.35rem`).
 - **#3270:** Vatandaşa Giden Mesaj’dan `Yapılan İş:` şablon etiketi düşer; not kalır.
 - **#3268:** mobil Etiket ekle yazısı `0.70rem`.
 - **#3271:** mobil Vatandaş Bilgi Listesi detay grid Talep Kanalı değer+ikon küçük.
-- **Atlandı:** #3232 Tim mobil app.
+- **Atlandı:** #3232 Tim mobil app (poll anında Doing’de yoktu).
 
 ## Round 1081 — 10 web kart: Onayla toast, YENİ, etiket, cadde, grid/FAB, pie scroll
 

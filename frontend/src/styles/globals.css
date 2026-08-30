@@ -6825,6 +6825,12 @@
       line-height: 1.25;
     }
 
+    /* Vatandaş Talepleri + harita Talepleri Listele numara verisi biraz daha küçük (#3252). */
+    .social-messages-table .table-number-cell__value,
+    .citizen-map-requests-table .table-number-cell__value {
+      font-size: 0.52rem !important;
+    }
+
     .table-number-cell__priority {
       font-size: 0.65rem;
       line-height: 1.2;

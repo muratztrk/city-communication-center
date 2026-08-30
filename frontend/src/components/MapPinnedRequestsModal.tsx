@@ -200,7 +200,7 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
           <div className="pt-4">
             <div className="dashboard-drilldown-grid-shell">
               <div className="dashboard-drilldown-table-wrap">
-                <table className="data-table data-table--zebra dashboard-drilldown-table">
+                <table className="data-table data-table--zebra dashboard-drilldown-table citizen-map-requests-table">
                   <thead>
                     <tr>
                       <th className="w-10 text-center">{t('common.rowNo', 'Sıra')}</th>

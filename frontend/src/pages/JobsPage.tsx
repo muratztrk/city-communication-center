@@ -1800,9 +1800,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           try {
             await api.approveJobOwner(jobId)
             invalidateJobs(queryClient, jobId)
+            emitPageToast(t('jobs.actions.approveSuccess', 'Talep onaylandı.'))
             await refreshDetail()
             await reload()
-            emitPageToast(t('jobs.actions.approveSuccess', 'Talep onaylandı.'))
           } catch (err) {
             setError(err instanceof Error ? err.message : t('common.error'))
           }
@@ -1901,11 +1901,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         invalidateTasks(queryClient, undefined, jobId)
       }
       setStaffAssignModal(null)
+      emitPageToast(t('jobs.actions.approveSuccess', 'Talep onaylandı.'))
       await refreshDetail()
       await reload()
-      if (approvalRequired || targetApprovalRequired) {
-        emitPageToast(t('jobs.actions.approveSuccess', 'Talep onaylandı.'))
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
       setStaffAssignModal(current => current ? { ...current, saving: false } : null)
@@ -1923,8 +1921,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           await api.approveTaskClose(taskId)
           invalidateTasks(queryClient, taskId, detail?.jobId)
           if (detail) invalidateJobs(queryClient, detail.jobId)
-          await refreshDetail()
           emitPageToast(t('tasks.actions.approveCloseSuccess', 'Görev kapatma onaylandı.'))
+          await refreshDetail()
         } catch (err) {
           setError(err instanceof Error ? err.message : t('common.error'))
         }

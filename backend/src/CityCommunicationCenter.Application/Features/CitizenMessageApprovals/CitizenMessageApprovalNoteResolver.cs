@@ -196,7 +196,31 @@ internal static class CitizenMessageApprovalNoteResolver
         }
 
         var tail = trimmed[(separatorIndex + 2)..].Trim();
-        return string.IsNullOrWhiteSpace(tail) ? null : tail;
+        if (string.IsNullOrWhiteSpace(tail))
+        {
+            return null;
+        }
+
+        return StripAutoTemplateNoteLabel(tail);
+    }
+
+    /// <summary>
+    /// Otomatik mesaj şablonundaki "Yapılan İş:" / iptal etiketi yalnız WA/SMS gövdesinedir;
+    /// Vatandaşa Giden Mesaj alanında notun kendisi kalır (#3270).
+    /// </summary>
+    internal static string StripAutoTemplateNoteLabel(string note)
+    {
+        var trimmed = note.Trim();
+        string[] prefixes = ["Yapılan İş:", "İptal Nedeni:", "İptal Notu:"];
+        foreach (var prefix in prefixes)
+        {
+            if (trimmed.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return trimmed[prefix.Length..].Trim();
+            }
+        }
+
+        return trimmed;
     }
 
     private static async Task<CycleBounds> GetCycleBoundsAsync(

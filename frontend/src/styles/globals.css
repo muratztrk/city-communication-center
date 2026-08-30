@@ -6800,6 +6800,23 @@
       width: 100%;
     }
 
+    /* Çağrı Talebi oluştur: Etiket ekle yazısı biraz küçük (#3268). */
+    .request-tag-add-button {
+      font-size: 0.7rem !important;
+    }
+
+    /* Vatandaş Bilgi Listesi detay grid: yalnız Talep Kanalı değer + ikon (#3271). */
+    .citizen-directory-tickets-table .citizen-directory-channel-value,
+    .citizen-directory-tickets-table .citizen-directory-channel-value .text-sm {
+      font-size: 0.72rem !important;
+    }
+
+    .citizen-directory-tickets-table .citizen-directory-channel-value svg,
+    .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
+      width: 0.75rem !important;
+      height: 0.75rem !important;
+    }
+
     /* VT edit Öncelik sola/küçült istekleri geri alındı (#r498). */
 
     /* Mobil grid: Talep No + altındaki öncelik küçült (#r490 / #3252). */
@@ -7484,10 +7501,10 @@
     gap: 0.45rem;
   }
 
-  /* Masaüstü: +/−/reset/pegman FAB'ların üstünde kalsın (#3245). */
-  @media (min-width: 1024px) {
+  /* Masaüstü/tablet (mobil değil): +/−/reset/pegman FAB satırının üstünde (#3245/#3261). */
+  @media (min-width: 768px) {
     .citizen-request-map-controls:not(.is-streetview) {
-      bottom: calc(var(--fab-footer-clearance) + var(--whatsapp-fab-size) + 0.15rem);
+      bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap) + var(--whatsapp-fab-size) + 0.35rem);
     }
   }
 

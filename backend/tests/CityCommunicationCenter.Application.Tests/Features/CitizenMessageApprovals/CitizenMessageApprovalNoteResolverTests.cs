@@ -97,6 +97,13 @@ public sealed class CitizenMessageApprovalNoteResolverTests
         Assert.Equal("Sahada tamamlandı.", CitizenMessageApprovalNoteResolver.ExtractTrailingTerminalNote(sms));
     }
 
+    [Fact]
+    public void ExtractTrailingTerminalNote_strips_auto_template_work_done_label()
+    {
+        var sms = "VT-2026-1 no'lu Başlık talebinizin durumu \"Tamamlandı\".\n\nYapılan İş: Uuuuuu";
+        Assert.Equal("Uuuuuu", CitizenMessageApprovalNoteResolver.ExtractTrailingTerminalNote(sms));
+    }
+
     private static Job BuildCompletedJob(Guid jobId, DateTimeOffset releasedAt) => new()
     {
         JobId = jobId,

@@ -28,7 +28,7 @@ export function Toast({ message, type = 'success', onClose, duration = 5000 }: T
       role="status"
       aria-live="polite"
       className={[
-        'fixed bottom-6 right-6 z-[200] flex items-center gap-3 rounded-2xl border px-5 py-3.5 shadow-2xl',
+        'fixed bottom-6 right-6 z-[400] flex items-center gap-3 rounded-2xl border px-5 py-3.5 shadow-2xl',
         isSuccess
           ? 'border-emerald-200 bg-emerald-50 text-emerald-800'
           : 'border-rose-200 bg-rose-50 text-rose-800',

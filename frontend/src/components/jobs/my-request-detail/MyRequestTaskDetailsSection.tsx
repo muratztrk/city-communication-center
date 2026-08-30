@@ -29,6 +29,10 @@ interface MyRequestTaskDetailsSectionProps {
   addressColumnContent?: ReactNode
 }
 
+function stripAutoMessageNoteLabel(value?: string | null) {
+  return (value ?? '').trim().replace(/^(Yapılan İş|İptal Nedeni|İptal Notu)\s*:\s*/i, '').trim()
+}
+
 function notePlain(value?: string | null) {
   return richTextToPlainText(value ?? '').trim()
 }
@@ -193,7 +197,8 @@ export function MyRequestTaskDetailsSection({
           const isCancelledTask = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
           const releasedPlain = notePlain(citizenApprovalReleasedNote)
           const taskNotesPlain = notePlain(task.notes)
-          const outboundPlain = notePlain(citizenOutboundMessage)
+          const outboundDisplay = stripAutoMessageNoteLabel(citizenOutboundMessage)
+          const outboundPlain = notePlain(outboundDisplay)
           const cancelNoteDisplay = task.revisionReason?.trim() || detail.cancelReason?.trim() || '—'
           // Operatör Sms Onayı task.Notes'u ezer; Tamamlama yöneticinin onay notu olmalı.
           // Released yokken canlı görev notuna ancak outbound yoksa (veya aynıysa) düş.
@@ -286,7 +291,7 @@ export function MyRequestTaskDetailsSection({
                       && task.taskId === primaryTerminalTaskId
                       ? [{
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          value: citizenOutboundMessage,
+                          value: outboundDisplay,
                           tone: outboundTone,
                           fullRow: true as const,
                         }]

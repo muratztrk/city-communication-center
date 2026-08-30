@@ -642,10 +642,10 @@ export function IncomingRequestsPage() {
         }
         invalidateTasks(queryClient, undefined, jobId)
       }
-      await reload()
-      if (approvalType === 'owner' || approvalType === 'target') {
+      if (approvalType === 'owner' || approvalType === 'target' || approvalType === 'assign') {
         emitPageToast(t('jobs.actions.approveSuccess', 'Talep onaylandı.'))
       }
+      await reload()
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
     }
@@ -661,8 +661,8 @@ export function IncomingRequestsPage() {
         try {
           await api.approveTaskClose(taskId)
           invalidateTasks(queryClient, taskId)
-          await reload()
           emitPageToast(t('tasks.actions.approveCloseSuccess', 'Görev kapatma onaylandı.'))
+          await reload()
         } catch (err) {
           setError(err instanceof Error ? err.message : t('common.error'))
         }

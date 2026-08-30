@@ -963,8 +963,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`terminal-danger`). Hedef onay adımı tarih varsa (decidedAtUtc veya hedef görev atama)
   gösterilir, yoksa Onay Bekleyen.
 - **Onayla toast (#3254/#3264):** Taleplerim / Birime Gelen / Birimden Giden grid ve detay
-  `Onayla` (personel ata modalı + düz onay + kapatma) başarıda `emitPageToast` → `AppShell`
-  (`Talep onaylandı.` / `Görev kapatma onaylandı.`). Yerel `Toast` + `reload()` toast’ı öldürür.
+  `Onayla` (personel ata, yalnız ata, düz onay, kapatma) başarıda hemen `emitPageToast` →
+  `AppShell` (`z-[400]`, `Talep onaylandı.` / `Görev kapatma onaylandı.`). Toast `reload()`
+  **öncesi** — aksi halde modal/reload toast’ı yutar. `assign` yolu da Onayla sayılır.
 - **Mesaj Onayı reopen hedef onay adımı (card #6a6aecbc):** reopen sonrası Süreç'te
   `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` korunur (onaylıysa tarih; değilse
   `Onay Bekleyen`). `shouldShowCitizenTargetApprovalDate` reopen'da `taskCount === 0` iken de
@@ -1051,7 +1052,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep Oluştur > Vatandaş Çağrı Talebi Talep Etiketi değeri:** yalnız salt-okunur input metni
   `text-xs` kalır; Etiketler/Etiket ekle butonlarının büyütülmüş metni etkilenmez (card #1561).
   Mobil/oluşturma: `Talep Etiketi seçiniz` kendi satırında; altında dropdown + Etiket Ekle
-  yan yana (`request-tag-create-block`, #3268).
+  yan yana (`request-tag-create-block`, #3268). Mobil Etiket ekle yazısı `0.70rem` (#3268).
 - **Talep Oluştur Cadde/No (#3267):** iç/dış talepte Konum Linki Cadde/No ile aynı satırda
   değil — Rutin Görev gibi `coordinatesBelowNeighborhood` + `minmax(0,1fr)_8.25rem`. Kalan
   3’lü satırlarda mobilde Konum alt satıra iner (`.address-street-no-row--with-link`).
@@ -1876,8 +1877,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mesaj** Tamamlama Notu'nun **alt satırında**. `GetJobById` bu iki alanı rol kapısı olmadan
   doldurur (Operator/Reporter dışında Manager/CRM de görsün). `MyRequestDetailModal` prop
   verilmezse `detail.citizenOutboundMessage` / `citizenApprovalReleasedNote` okunur (kanal pie,
-  harita). Outbound her zaman gösterilir; otomatik durum şablonu (`talebinizin durumu`) veya
+  harita).   Outbound her zaman gösterilir; otomatik durum şablonu (`talebinizin durumu`) veya
   Tamamlama ile aynıysa yeşil, operatörün özelleştirdiği farklı metin kırmızı (#2557/#3084).
+  `Yapılan İş:` / `İptal Nedeni:` / `İptal Notu:` şablon etiketleri bu alandan düşer — yalnız
+  not kalır (#3270); otomatik mesaj gövdesinde etiket durur.
 - **FAB boyutları (#r482/#2638):** WhatsApp + Kurum İçi 2.75rem / sm 3rem; scroll 2.5rem / sm 2.75rem.
   Üçü de biraz küçük; sıra WhatsApp → Kurum İçi → scroll.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici
@@ -1963,8 +1966,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Street View açıkken özel +/−/başlangıç ikonları gizlenir; pegman Google native − solunda
   (`translate(-3.15rem, -0.45rem)`, #3238/#3244 reopen). Adres kartı (`gm-iv-address`) `min-height: 4.75rem` —
   "Google Haritalar'da görüntüleyin" kırpılmaz (#3237).
-  Masaüstünde varsayılan harita kontrolleri FAB yığınının üstünde (`bottom` FAB + `0.15rem`,
-  #3245). Street View açıkken sohbet FAB'leri kaydır düğmesinin **üst satırlarında**
+  Masaüstü/tablet (≥768, mobil değil) varsayılan harita kontrolleri FAB satırının üstünde
+  (`footer + stack-gap + FAB + 0.35rem`, #3245/#3261). Street View açıkken sohbet FAB'leri kaydır düğmesinin **üst satırlarında**
   (`flex-col`); paneller butonların soluna `right: calc(100% + 0.7rem)` ile açılır (#3243 reopen).
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
@@ -2862,7 +2865,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Çağrı Talebi vatandaş adı (#2331):** `CreateRequestPage` vatandaş adı alanı blur/submit'te
   `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
-  (`citizen-directory-tickets-table` scoped CSS).
+  (`citizen-directory-tickets-table` scoped CSS). Mobil Talep Kanalı değer + ikon biraz küçük
+  (`.citizen-directory-channel-value`, #3271).
 - **Vatandaş Bilgi Listesi Talep Kanalı (#2285):** `Talep Kanalı` sütunu `FilterableTh` ile
   filtrelenebilir ve sıralanabilir; etiket `sourceChannelLabel` üzerinden Türkçe kanal adıyla eşleşir.
 - **Birimler liste araması (#2283):** Birim ara kutusu yalnız birim adı, müdür ve sorumlu

@@ -1,3 +1,12 @@
+## Round 1080 — 6 web kart: başlık/numara, renkli pill, YENİ, Geciken, metrik
+
+- **#3252/#3256:** mobil tüm grid + pie popup başlık (`.cell-title`) ve numara (`__value`) `0.64rem`.
+- **#3257:** renkli arka planlı veri büyütüldü — Durum/Tip `0.54rem`, birim çerçevesi `0.56rem`, son tarih `0.70rem`. Düz metin dokunulmadı.
+- **#3251:** mobil YENİ 0.64rem satırda kayboluyordu → `0.72rem` + overflow visible.
+- **#3226:** Durum alt satır `(Geciken)` `0.50rem` (`.grid-status-overdue-sub`).
+- **#3258:** dönem kartı alt satır (`(Birim İçi/Dışı)`, Bekleyen, Onay Bekleyen) `0.58rem`.
+- **Atlandı:** #3248/#3255/#3232/#3259/#3260 Tim/mobil app.
+
 ## Round 1079 — 7 kart: pie thead, Onayla toast, YENİ/Durum, yönlendiren, harita
 
 - **#3252:** Mobil thead küçültmesi yalnız pie drilldown popup; sayfa grid thead 0.68rem'e döndü (önceki tur tüm gridleri küçültmüştü).

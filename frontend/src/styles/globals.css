@@ -3325,6 +3325,10 @@
     white-space: nowrap;
   }
 
+  .grid-status-overdue-sub {
+    font-size: 0.68rem;
+  }
+
   /* İşleme Alındı / Yapılmakta grid Durum pill — hafif boyut artışı (#2822 reopen). */
   .data-table .status-pill:has(.grid-status-label--flow-status),
   .dashboard-drilldown-table .status-pill:has(.grid-status-label--flow-status),
@@ -6228,7 +6232,7 @@
   .task-new-badge {
     margin-top: 0.25rem;
     text-align: center;
-    font-size: 0.64rem;
+    font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -6785,9 +6789,9 @@
 
     /* VT edit Öncelik sola/küçült istekleri geri alındı (#r498). */
 
-    /* Mobil grid: Talep No + altındaki öncelik küçült (#r490). */
+    /* Mobil grid: Talep No + altındaki öncelik küçült (#r490 / #3252). */
     .table-number-cell__value {
-      font-size: 0.72rem;
+      font-size: 0.64rem;
       line-height: 1.25;
     }
 
@@ -7029,14 +7033,31 @@
       font-size: 0.68rem !important;
     }
 
-    .table-container tbody td,
-    .data-table tbody td {
-      /* Satır yüksekliği çok az azaldı: dikey padding 0.48 → 0.34rem (#3207). Punto sabit. */
-      padding: 0.34rem 0.4rem;
-      font-size: 0.72rem;
-      line-height: 1.25;
+    /* Başlık + numara verisi: tüm grid + pie popup (#3252/#3256). */
+    .data-table .cell-title,
+    .table-container .cell-title,
+    .dashboard-drilldown-table .cell-title,
+    .detail-modal-shell .dashboard-drilldown-table .cell-title,
+    .data-table .table-number-cell__value,
+    .table-container .table-number-cell__value,
+    .dashboard-drilldown-table .table-number-cell__value,
+    .detail-modal-shell .dashboard-drilldown-table .table-number-cell__value {
+      font-size: 0.64rem !important;
     }
 
+    /* YENİ rozeti 1079'da 0.64rem olunca satırda kayboldu — geri getir (#3251). */
+    .task-new-badge {
+      font-size: 0.72rem !important;
+      display: block;
+      overflow: visible;
+      line-height: 1.2;
+    }
+
+    td:has(.task-new-badge) {
+      overflow: visible;
+    }
+
+    /* Renkli arka planlı grid verisi biraz büyüsün; düz metin dokunulmaz (#3257). */
     .data-table .status-pill,
     .table-container .status-pill,
     .dashboard-drilldown-table .status-pill,
@@ -7051,13 +7072,28 @@
     .data-table .status-pill .grid-status-label--overdue-solo > span:first-child,
     .table-container .status-pill .grid-status-label--overdue-solo > span:first-child,
     .dashboard-drilldown-table .status-pill .grid-status-label--overdue-solo > span:first-child {
-      font-size: 0.46rem !important;
+      font-size: 0.54rem !important;
     }
 
     .data-table .status-pill:has(.grid-status-label--flow-status),
     .table-container .status-pill:has(.grid-status-label--flow-status),
     .dashboard-drilldown-table .status-pill:has(.grid-status-label--flow-status) {
-      padding: 0.18rem 0.42rem !important;
+      padding: 0.22rem 0.48rem !important;
+    }
+
+    /* Durum alt satır (Geciken) — pill gövdesinden ayrı (#3226). */
+    .data-table .grid-status-overdue-sub,
+    .table-container .grid-status-overdue-sub,
+    .dashboard-drilldown-table .grid-status-overdue-sub {
+      font-size: 0.50rem !important;
+    }
+
+    .table-container tbody td,
+    .data-table tbody td {
+      /* Satır yüksekliği çok az azaldı: dikey padding 0.48 → 0.34rem (#3207). Punto sabit. */
+      padding: 0.34rem 0.4rem;
+      font-size: 0.72rem;
+      line-height: 1.25;
     }
 
     .data-table .date-cell,
@@ -7071,15 +7107,17 @@
       font-size: 0.52rem !important;
     }
 
-    /* Yeşil birim çerçevesi — ikincil satır değil, çerçeve metni (#3226 reopen). */
+    /* Yeşil birim çerçevesi — renkli arka plan, #3257 büyütme. */
     .table-container tbody td .framed-department-pill,
-    .data-table tbody td .framed-department-pill {
-      font-size: 0.5rem !important;
+    .data-table tbody td .framed-department-pill,
+    .dashboard-drilldown-table tbody td .framed-department-pill {
+      font-size: 0.56rem !important;
     }
 
     .table-container tbody td .due-date-pill,
-    .data-table tbody td .due-date-pill {
-      font-size: 0.66rem !important;
+    .data-table tbody td .due-date-pill,
+    .dashboard-drilldown-table tbody td .due-date-pill {
+      font-size: 0.70rem !important;
       padding: 0.12rem 0.4rem;
     }
 
@@ -7670,6 +7708,11 @@
     .dashboard-metric-card .text-lg {
       font-size: 0.95rem !important;
       font-weight: 600 !important;
+    }
+
+    /* Dönem kartı alt satır: (Birim İçi/Dışı), Bekleyen, Onay Bekleyen (#3258). */
+    .dashboard-metric-sublabel {
+      font-size: 0.58rem !important;
     }
 
     .sticky-page-header .scope-chip-search-wrap,

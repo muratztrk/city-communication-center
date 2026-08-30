@@ -59,7 +59,7 @@ export function GridStatusLabel({
     return (
       <span className={`grid-status-label--processing-received-overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
         <span className="whitespace-nowrap">{processingReceived}</span>
-        <span className="whitespace-nowrap text-[0.68rem] font-bold">({overdue})</span>
+        <span className="grid-status-overdue-sub whitespace-nowrap font-bold">({overdue})</span>
         {footer ? <span className="grid-status-datetime">{footer}</span> : null}
       </span>
     )
@@ -70,7 +70,7 @@ export function GridStatusLabel({
     return (
       <span className={`grid-status-label--pending-approval-overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
         <span className="whitespace-nowrap">{label}</span>
-        <span className="whitespace-nowrap text-[0.68rem] font-bold">({overdue})</span>
+        <span className="grid-status-overdue-sub whitespace-nowrap font-bold">({overdue})</span>
         {footer ? <span className="grid-status-datetime">{footer}</span> : null}
       </span>
     )
@@ -90,7 +90,7 @@ export function GridStatusLabel({
     return (
       <span className={`grid-status-label--overdue grid-status-label--flow-status flex flex-col ${alignClass} leading-tight`}>
         <span className="whitespace-nowrap">{inProgress}</span>
-        <span className="whitespace-nowrap text-[0.68rem] font-bold">({overdue})</span>
+        <span className="grid-status-overdue-sub whitespace-nowrap font-bold">({overdue})</span>
         {footer ? <span className="grid-status-datetime">{footer}</span> : null}
       </span>
     )

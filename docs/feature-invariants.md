@@ -2635,17 +2635,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünecek şekilde puntoyla birlikte güncellenmeli (#3206).
   Gridview'da Gittiği/Geldiği yer **alt satırı** (`.grid-stack-secondary`) mobil `0.52rem` (#3226/#3241),
   masaüstü `0.82rem` (#3225). Yeşil birim çerçevesi (`.framed-department-pill`) mobil `0.50rem` —
-  ikincil satır değil çerçeve metni küçülür (#3226 reopen). Durum (`.status-pill`) ve Görev Tipi
-  (`.task-type-pill`) mobil `0.46rem` (#3226). `StatusPill` kökünde `status-pill` sınıfı olmalı;
-  Yapılmakta/İşleme Alındı iç span (`#2822` 0.82rem) de aynı mobil kuralda ezilir. Tarih (`.date-cell` / `.due-date-pill`)
-  mobil `0.66rem` (#3227).   Mobil Durum hücresinde saat yok (`.grid-status-datetime` gizli, #3224);
-  İşlemler butonları biraz küçük (`0.62rem` / `1.5rem`).
-  Mobil sayfa grid `thead` `0.68rem`. Pie drilldown popup thead mobil `0.68rem` (#3252) —
-  `.dashboard-drilldown-table thead th` 0.78rem masaüstü kuralını ezer.
-  Masaüstü `YENİ` `0.68rem` (≥768px, #3225); mobil `YENİ` `0.64rem` (#3251).
+  ikincil satır değil çerçeve metni küçülür. Renkli arka planlı grid verisi (Durum/Görev Tipi
+  `.status-pill` `0.54rem`, birim çerçevesi `0.56rem`, son tarih pill `0.70rem`) mobil büyütülür;
+  düz başlık/numara metni küçülür (`0.64rem`, #3252/#3256/#3257). `StatusPill` kökünde `status-pill`
+  sınıfı olmalı. Durum alt satır `(Geciken)` (`.grid-status-overdue-sub`) mobil `0.50rem` (#3226).
+  Tarih (`.date-cell`) mobil `0.66rem` (#3227). Mobil Durum hücresinde saat yok
+  (`.grid-status-datetime` gizli, #3224); İşlemler butonları biraz küçük (`0.62rem` / `1.5rem`).
+  Mobil sayfa + pie popup `thead` `0.68rem`.
+  Masaüstü `YENİ` `0.68rem` (≥768px); mobil `YENİ` `0.72rem` ve taşmaz — 0.64rem satırda kayboluyordu (#3251).
 - **Anasayfa metrik kutucuğu (#3208/#3216/#3223):** ikon kutusu `size-8`, ikon `size-3.5`, sol padding
   `pl-2.5`, ikon-metin boşluğu `gap-2`. Alt satır `(Birim İçi/Dışı)` — eski `(Birim İçi/Birim Dışı)`
-  değil; alt satır punto `0.70rem` (başlık `0.72rem`).
+  değil; alt satır punto masaüstü `0.70rem` (başlık `0.72rem`), mobil `0.58rem`
+  (`.dashboard-metric-sublabel` — Bekleyen / Onay Bekleyen dahil, #3258).
 - **Ayarlar Kaydet butonları metin/görünüm değiştirmez (#3209):** `Vatandaşa Giden Cevaplar` ve
   `Birim Yöneticilerine … Mesai Dışı SMS` Kaydet butonları basılınca "Kaydediliyor..." yazmaz,
   `disabled` olmaz. Çift tıklama fonksiyon başındaki `citizenAutoReplySaving` guard ile engellenir.

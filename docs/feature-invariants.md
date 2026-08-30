@@ -2544,8 +2544,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA Talep Eki turkuaz (#6a75e2f0):** `SocialConversationMediaBubble` add-as-attachment `bg-teal-500`.
 - **SMS alıcı (#6a75eea2):** `WhatsAppRecipientResolver` Job.CitizenPhone fallback.
 - **SMS LiveSend (#6a75eea2):** Round 643 sonrası `IsEnabled` ⇒ gerçek gönderim (`EffectiveLiveSendEnabled`); Operatör release SMS fail → ValidationException.
-- **SMS hitap:** sağlayıcıya giden her metnin başı `Değerli vatandaşımız,` + boş satır + asıl metin
-  (`CitizenOutboundGreeting` / `SmsGateway`; zaten hitaplıysa tekrar eklenmez). Onay/UI şablon metni değişmez.
+- **SMS hitap (#3213/#3214 ile güncellendi):** hitap **`SmsGateway`'de DEĞİL**, yalnız vatandaş
+  durum bildiriminde (`CitizenJobStatusNotifier`) eklenir: hitap satırı + boş satır + asıl metin
+  (`CitizenOutboundGreeting.Ensure`, zaten hitaplıysa tekrar eklenmez). Yöneticiye giden mesai dışı
+  SMS ve test SMS'i hitapsızdır. Onay/UI şablon metni değişmez.
 - **WhatsApp hitap:** serbest metin / yanıt / medya caption aynı hitap (`WhatsAppClient` + konuşma kaydı).
   Meta `type: template` gövdesine eklenmez. İç mesaj vatandaşa gitmez, hitap yok.
 - **WA etiket revert (#6a75d1bf reopen):** Talep Etiketi readonly textbox geri; başlık min-height 2.5rem.
@@ -2572,8 +2574,45 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `CitizenOutboundGreeting.Line`'a düşer (eski kayıtlar bu sayede dört kutuda eski hitapla açılır).
   Gönderimde hitap `CitizenAutoReplyTemplateModel.GreetingFor(statusLabel)` ile çözülür; durum
   etiketleri `CitizenJobStatusLabelHelper.GetDisplayStatus` çıktısıyla aynı olmalı.
-  ⚠️ Gerçek SMS gönderiminde hitap halen `SmsGateway` içinde varsayılan satırla eklenir (tenant
-  hitabı bu yolda hiç kullanılmıyordu; bu kart kapsamında değiştirilmedi).
+- **`SmsGateway` saf taşıyıcıdır — hitap EKLEMEZ (#3213/#3214):** ağ geçidi eskiden her SMS'e
+  `CitizenOutboundGreeting.Ensure(text)` uyguluyordu; bu yüzden (a) mesai dışı **yönetici** SMS'i
+  "Değerli vatandaşımız," ile başlıyordu, (b) vatandaş SMS'inde tenant'ın **çok satırlı** durum
+  hitabı tek satırlık varsayılana düşüyordu. Hitap artık yalnız `CitizenJobStatusNotifier`
+  içinde `GreetingFor(statusLabel)` ile kurulur; gönderilen metin `ResponseContent`'e de aynı
+  şekilde (hitap dahil) yazılır. `AfterHoursJobSmsNotifier` ve `SendTestSmsCommand` hitapsız gider.
+  ⚠️ Tekrar-gönderim kilidi metin eşitliğine dayanır ve **hem `outboundContent` hem hitapsız
+  `content`** ile karşılaştırılmalıdır: eski kayıtlarda satırda hitapsız metin duruyor, yalnız yeni
+  metne bakılırsa operatör "Sms Onayı"na ikinci kez bastığında vatandaşa ücretli ikinci SMS gider.
+  ⚠️ Aynı kırılganlık WhatsApp tarafında **açık**: `SendWhatsAppAsync` kaydı hitapla yazar, duplicate
+  kontrolü hitapsız `content` ile karşılaştırır → otomatik WA durum mesajı tekrarlanabilir (bedelsiz,
+  bu kart kapsamında değiştirilmedi).
+  ⚠️ `Ensure` gövde `CitizenOutboundGreeting.Line` (varsayılan hitap) ile başlıyorsa hitap
+  **eklemez** — bu de-dup koruması bilerek korundu: kaldırılırsa şablon gövdesine hitap yazan
+  tenant'ta vatandaşa çift hitaplı SMS gider. Bedeli: gövdeye varsayılan hitap yazılmışsa ayarlardaki
+  özel hitap o durum için yok sayılır (gövdedeki hitap gider).
+  ⚠️ `WhatsAppClient` halen gövdeye varsayılan hitabı ekler; tenant hitabı varsayılandan farklıysa
+  WA mesajında hitap iki kez görünebilir (bilinen açık; SMS yolunu etkilemez).
+- **Cep telefonu girişi ilk hane 5 (#3205/#3210/#3211):** Kullanıcılar (yeni kayıt + gridview
+  Düzenle), Vatandaş Çağrı Talebi ve talep detay düzenleme alanları `sanitizeMobilePhoneInput(next,
+  previous)` kullanır: rakam dışı karakter yazılmaz, ilk hane 5 değilse **tuş vuruşu yazılmaz**
+  (önceki değer korunur), alanı tamamen boşaltmaya izin verilir, `0…` / `90…` / `0090…` yapıştırması
+  önek atılarak kabul edilir, uzunluk 10. Placeholder her yerde `5XXXXXXXXX`.
+  Submit tarafındaki `startsWith('5')` kontrolleri kaldırılmadı (yapıştırma/otofil güvenliği).
+  ⚠️ Bu alanlarda **`maxLength` KULLANILMAZ**: tarayıcı yapıştırmayı `onChange`'den önce kırpıyor,
+  `0532…` → `0532123456` olup önek temizliği 9 haneli numara üretiyordu (SMS asla gitmez).
+  Uzunluk tavanı yalnız `sanitizeMobilePhoneInput` içinde. Kullanıcılar formunda hane sayısı
+  doğrulaması yok — 9 hane elle yazılıp kaydedilebilir (bilinen açık).
+- **Mobil (≤767px) ölçüler:** grid satırı dikey padding `0.34rem` (#3207), Çıkış butonu `1.95rem`
+  (#3135), pie kart başlığı `0.8rem` + lejant `0.58rem` — lejant `max-height` formülü 5 satır
+  görünecek şekilde puntoyla birlikte güncellenmeli (#3206/#6a930a33).
+- **Anasayfa metrik kutucuğu (#3208):** ikon kutusu `size-8`, ikon `size-3.5`, sol padding `pl-2.5`,
+  ikon-metin boşluğu `gap-2` — ikon ve başlık kart sol kenarına yakın durur. Sağ padding `pr-4`
+  kalır (sayı sağda nefes alsın).
+- **Ayarlar Kaydet butonları bölüm bazlıdır (#3209):** `Vatandaşa Giden Cevaplar` ve `Birim
+  Yöneticilerine … Mesai Dışı SMS` kartları aynı endpoint'i kullanır ama `Kaydediliyor...` /
+  `disabled` durumu yalnız basılan butona uygulanır (`citizenAutoReplySavingScope`). Tek boolean
+  paylaşılırsa diğer buton da işlem yapıyor gibi görünür; eşzamanlı kayıt fonksiyon başındaki
+  guard ile engellenir (diğer buton görsel olarak devre dışı kalmaz).
 - **Mobil (≤767px) grid paging barı:** hedef sınıf **`table-pagination-bar`** — DOM'da
   `table-pagination` **yok** (eski küçültme denemesi bu yüzden etkisizdi). Bar `max-height` ile
   sınırlı olduğundan `flex-wrap: wrap` ikinci satırı taşırır → mobilde `flex-wrap: nowrap`,
@@ -2587,11 +2626,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ızgaraya açılır (font/renk miras yoluyla korunur). Masaüstünde tek satırlık metin korunur
   (`hidden lg:inline` / `lg:hidden`). Vatandaş talebinde etiket `Talebi Yönlendiren` tek satır kalır.
 - **Mobil (≤1023px) Adres Bilgileri hizası:** `Mahalle` / `Cadde / Sokak` / `No` / `Adres Tarifi` /
-  `Konum Linki` başlıkları **tek sol düşey eksende** alt alta; boş satırda `-` başlığın genişliğinde
-  ortalı (kutu `width: fit-content` + `:has(.address-empty-dash)`), dolu değer sola yaslı tam genişlik.
+  `Konum Linki` başlıkları **tek sol düşey eksende** alt alta; dolu değer sola yaslı tam genişlik.
   Masaüstü ortalama/`translateX` kuralları `!important` + özgül seçicilerle yazıldığı için mobil
   ezme de aynı özgüllükte olmalı — `--task` / `--three-cards` / `--attachments-only` seçicileri
   açıkça hedeflenir. `--peek` (Adresi Gör) ortalı düzenini korur (#2755).
+- **Boş adres `-` her görünümde başlığın SOL kenarında (#3143):** `-` ortalanmaz (önceki tur
+  ortalamıştı). Kural `:has(.address-empty-dash)` ile mobil + masaüstünde birlikte uygulanır.
+  Ortalı kolonlarda (`--task` 2./3. kolon, `--coordinates`, `--attachments-only`) `-`'nin başlığın
+  soluna yaslanabilmesi için kutu `width: fit-content` + `justify-self: center` yapılır: grup kolon
+  içinde ortalı kalır, değer başlık genişliği içinde sola yaslanır. Zaten sola yaslı kutular
+  (`--task` 1. kolon / `Adres Tarifi` #2778, `--empty` üç kolon #6a6dab1b) ve `--peek` (#2755) ile
+  `--attachments-only` `No` (#2759 sağa yaslı) **daraltılmaz** — konumları kayardı.
 - **Boş Adres Bilgileri tire (#r547/#6a6ba6ad):** `-` değeri üst etiketin genişliğinde ortalanır;
   üç boş kolon da Adres Bilgileri alt çizgisi altında ortalı
   (`width: fit-content` item + `text-align: center` value).

@@ -1,5 +1,4 @@
 using CityCommunicationCenter.Application.Abstractions;
-using CityCommunicationCenter.Application.Common;
 using Microsoft.Extensions.Logging;
 
 namespace CityCommunicationCenter.Infrastructure.Sms;
@@ -97,7 +96,10 @@ internal sealed class SmsGateway : ISmsGateway
             return SmsSendResult.Fail("SMS metni boş.");
         }
 
-        var outboundText = CitizenOutboundGreeting.Ensure(text);
+        // Ağ geçidi saf taşıyıcıdır: hitap EKLEMEZ. Vatandaş hitabı çağıran tarafta (durum
+        // bildirimi) tenant ayarından çözülür; yöneticiye giden mesai dışı SMS ve test SMS'i
+        // "Değerli vatandaşımız" almamalı (kart #3213/#3214).
+        var outboundText = text.Trim();
 
         var normalizedPhone = SmsPhoneNumber.TryNormalize(phoneNumber);
         if (normalizedPhone is null)

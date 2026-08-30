@@ -24,6 +24,7 @@ import { useAuth } from '../context/AuthContext'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Department, DirectoryUserLookup, User, UserManagementContext } from '../types/platform'
 import { getRoleLabel, getUserSourceLabel } from '../utils/localization'
+import { sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
 
 type CreateMode = 'manual' | 'ldap'
 
@@ -1195,9 +1196,13 @@ export function UsersPage() {
                 className="field-input"
                 placeholder={t('users.mobilePhonePlaceholder')}
                 type="text"
-                inputMode="tel"
+                inputMode="numeric"
+                pattern="[0-9]*"
                 value={newUser.mobilePhone}
-                onChange={event => setNewUser(current => ({ ...current, mobilePhone: event.target.value }))}
+                onChange={event => setNewUser(current => ({
+                  ...current,
+                  mobilePhone: sanitizeMobilePhoneInput(event.target.value, current.mobilePhone),
+                }))}
               />
             </label>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">
@@ -1480,6 +1485,7 @@ export function UsersPage() {
                       {user.userSource === 'Manual' ? (
                         <input
                           className="field-input w-full text-sm"
+                          placeholder={t('users.jobTitleRowPlaceholder', 'Ünvan giriniz...')}
                           value={editForm.title}
                           onChange={e => setEditForm(c => ({ ...c, title: e.target.value }))}
                           aria-label={t('users.jobTitle')}
@@ -1493,9 +1499,14 @@ export function UsersPage() {
                         <input
                           className="field-input min-w-[12rem] text-sm"
                           type="text"
-                          inputMode="tel"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          placeholder={t('users.mobilePhonePlaceholder')}
                           value={editForm.mobilePhone}
-                          onChange={e => setEditForm(c => ({ ...c, mobilePhone: e.target.value }))}
+                          onChange={e => setEditForm(c => ({
+                            ...c,
+                            mobilePhone: sanitizeMobilePhoneInput(e.target.value, c.mobilePhone),
+                          }))}
                           aria-label={t('users.mobilePhone')}
                         />
                       ) : (

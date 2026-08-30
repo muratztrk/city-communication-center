@@ -30,6 +30,7 @@ import { shouldShowJobProjectField } from '../../../utils/jobProjectLabel'
 import { normalizeTitleCaseField } from '../../../utils/textNormalization'
 import { formatJobDisplayNumberText } from '../../../utils/requestNumberText'
 import { formatCitizenRequestNumber, isCitizenRequestJob } from '../../../utils/citizenRequests'
+import { sanitizeMobilePhoneInput } from '../../../utils/phoneNormalization'
 import { getChannelLabelColor } from '../../../utils/channelColors'
 import { ChannelIcon } from '../../ui/channel-icon'
 
@@ -135,12 +136,11 @@ export function MyRequestInfoFieldsList({
                 <input
                   className="field-input text-sm text-slate-600"
                   value={editDraft.citizenPhone}
-                  maxLength={10}
                   inputMode="numeric"
                   pattern="[0-9]*"
                   placeholder="5XXXXXXXXX"
                   onChange={event => onEditDraftChange({
-                    citizenPhone: event.target.value.replace(/\D/g, '').slice(0, 10),
+                    citizenPhone: sanitizeMobilePhoneInput(event.target.value, editDraft.citizenPhone),
                   })}
                 />
               </div>

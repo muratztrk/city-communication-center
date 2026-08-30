@@ -713,6 +713,12 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return false;
         }
 
+        // Hitap ayarlardaki durum kutusundan gelir ve METNİN TAMAMI gider (kart #3214):
+        // ağ geçidi artık hitap eklemiyor, aksi halde çok satırlı hitap tek satıra düşüyordu.
+        var outboundContent = CitizenOutboundGreeting.Ensure(
+            content,
+            await ResolveGreetingAsync(tenantId, statusLabel, cancellationToken));
+
         // Gerçek gönderim kapalı (simülasyon): sağlayıcıya çıkma, "gönderilecekti"yi logla.
         // Bilinçli olarak hiçbir şey işaretlenmez — mesaj yanıtlanmış sayılmaz, terminal
         // release açılmaz. Böylece anahtar açıldığında akış kaldığı yerden normal işler.
@@ -722,9 +728,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 "SMS SIMULATION (gerçek gönderim kapalı) — SocialMessage {SocialMessageId}, alıcı {Phone}, metin: {Content}",
                 message.SocialMessageId,
                 recipientPhone,
-                CitizenOutboundGreeting.Ensure(
-                    content,
-                    await ResolveGreetingAsync(tenantId, statusLabel, cancellationToken)));
+                outboundContent);
             return false;
         }
 
@@ -735,13 +739,17 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         var utcNow = DateTimeOffset.UtcNow;
         var previousResponseContent = message.ResponseContent;
         var previousRespondedAtUtc = message.RespondedAtUtc;
+        // `content` de karşılaştırılır: hitap ağ geçidinde eklendiği dönemde satıra HİTAPSIZ metin
+        // yazılmıştı. Yalnız `outboundContent`'e bakılsa, eski kayıtların hepsi "yeni metin" sayılıp
+        // operatör "Sms Onayı"na ikinci kez bastığında vatandaşa ücretli ikinci SMS giderdi (#3214).
         var claimed = await _dbContext.SocialMessages
             .Where(entity => entity.SocialMessageId == message.SocialMessageId
                 && entity.TenantId == tenantId
+                && entity.ResponseContent != outboundContent
                 && entity.ResponseContent != content)
             .ExecuteUpdateAsync(
                 setters => setters
-                    .SetProperty(entity => entity.ResponseContent, content)
+                    .SetProperty(entity => entity.ResponseContent, outboundContent)
                     .SetProperty(entity => entity.RespondedAtUtc, utcNow),
                 cancellationToken);
 
@@ -753,7 +761,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return false;
         }
 
-        var result = await _smsGateway.SendAsync(tenantId, recipientPhone, content, cancellationToken);
+        var result = await _smsGateway.SendAsync(tenantId, recipientPhone, outboundContent, cancellationToken);
         if (!result.Success)
         {
             // Hak geri verilir ki operatör/işleyiş tekrar deneyebilsin.
@@ -773,7 +781,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return false;
         }
 
-        message.ResponseContent = content;
+        message.ResponseContent = outboundContent;
         message.RespondedAtUtc = utcNow;
         if (message.Status is SocialMessageStatus.New or SocialMessageStatus.Routed)
         {

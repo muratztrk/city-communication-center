@@ -867,6 +867,39 @@
     word-break: break-word;
   }
 
+  /* Boş adres satırındaki `-` her görünümde başlığın SOL kenarıyla aynı düşey hizada (#3143 —
+     eskiden başlık genişliğinde ortalıydı). `--peek` (Adresi Gör) ortalı düzenini korur (#2755). */
+  .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item:has(.address-empty-dash) > .address-detail-my-request__value {
+    text-align: left !important;
+    justify-content: flex-start !important;
+  }
+
+  .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) .address-empty-dash {
+    display: block !important;
+    width: 100% !important;
+    text-align: left !important;
+  }
+
+  /* Ortalı kolonlarda (Görev/İlgili Talep adresi, ek-only alt satır) kutu başlık genişliğine
+     iner — kolonda ortalı kalır, `-` başlığın soluna yaslanabilir. Aksi halde değer kolon
+     genişliğinde olduğu için sola yaslanınca başlıktan kopuyordu. */
+  /* Yalnız halen ortalı olan kutular: `--task` 2./3. kolon (1. kolon ve Adres Tarifi #2778 ile
+     sola yaslı, dokunulmaz) + Konum Linki + ek-only alt satır (No hariç, #2759 sağa yaslı). */
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(n + 2):nth-child(-n + 3):not(.address-detail-my-request__item--directions):has(.address-empty-dash),
+  .address-detail-my-request--task .address-detail-my-request__item--coordinates:has(.address-empty-dash),
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item:not(.address-detail-my-request__item--street-no):has(.address-empty-dash) {
+    width: fit-content !important;
+    justify-self: center !important;
+  }
+
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(n + 2):nth-child(-n + 3):not(.address-detail-my-request__item--directions):has(.address-empty-dash) > .address-detail-my-request__label,
+  .address-detail-my-request--task .address-detail-my-request__item--coordinates:has(.address-empty-dash) > .address-detail-my-request__label,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item:not(.address-detail-my-request__item--street-no):has(.address-empty-dash) > .address-detail-my-request__label {
+    width: 100% !important;
+    margin-inline: 0 !important;
+    text-align: left !important;
+  }
+
   .attachment-section--rich-edit {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
@@ -6949,7 +6982,8 @@
 
     .table-container tbody td,
     .data-table tbody td {
-      padding: 0.48rem 0.4rem;
+      /* Satır yüksekliği çok az azaldı: dikey padding 0.48 → 0.34rem (#3207). Punto sabit. */
+      padding: 0.34rem 0.4rem;
       font-size: 0.72rem;
       line-height: 1.25;
     }
@@ -7555,15 +7589,16 @@
 
     .pie-chart-root ul {
       gap: 0.45rem !important;
-      /* 5 satır: 0.5rem×1.15×5 + 0.45rem×4 — 6. satır kesilir (#6a930a33). */
-      max-height: calc((0.5rem * 1.15 * 5) + (0.45rem * 4)) !important;
+      /* 5 satır: 0.58rem×1.15×5 + 0.45rem×4 — 6. satır kesilir (#6a930a33; punto #3206). */
+      max-height: calc((0.58rem * 1.15 * 5) + (0.45rem * 4)) !important;
       overflow-y: auto !important;
     }
 
     .pie-chart-root ul,
     .pie-chart-root li,
     .pie-chart-root li button {
-      font-size: 0.5rem !important;
+      /* Lejant satırı (birim adı + sayı) çok az büyük: 0.5 → 0.58rem (#3206). */
+      font-size: 0.58rem !important;
       line-height: 1.15 !important;
     }
 
@@ -7613,7 +7648,8 @@
     .pie-chart-card .text-sm.font-semibold {
       white-space: normal;
       overflow-wrap: anywhere;
-      font-size: 0.72rem;
+      /* Kart başlığı çok az büyük: 0.72 → 0.8rem (#3206). */
+      font-size: 0.8rem;
     }
 
     .sidebar-shell,
@@ -7644,8 +7680,9 @@
     }
 
     .header-logout-btn {
-      height: 1.75rem !important;
-      min-height: 1.75rem !important;
+      /* Çok az yükseldi: 1.75 → 1.95rem (#3135). */
+      height: 1.95rem !important;
+      min-height: 1.95rem !important;
       gap: 0.2rem !important;
       padding-block: 0 !important;
       padding-inline: 0.45rem !important;
@@ -7844,25 +7881,23 @@
       transform: none !important;
     }
 
-    /* Boş satırda kutu başlık genişliğine iner; `-` başlığın altında ortalanır. Dolu adres metni
-       sola yaslı ve tam genişlikte kalır. */
+    /* Boş satırda kutu başlık genişliğine iner; `-` başlığın SOL kenarıyla aynı düşey hizada
+       (#3143 — eskiden başlık genişliğinde ortalıydı). Dolu adres metni sola yaslı tam genişlik. */
     .address-detail-my-request .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item:has(.address-empty-dash) {
       width: fit-content !important;
     }
 
-    .address-detail-my-request .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item:has(.address-empty-dash) > .address-detail-my-request__label {
-      width: 100% !important;
-    }
-
+    .address-detail-my-request .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item:has(.address-empty-dash) > .address-detail-my-request__label,
     .address-detail-my-request .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item:has(.address-empty-dash) > .address-detail-my-request__value {
-      text-align: center !important;
-      justify-content: center !important;
+      width: 100% !important;
+      text-align: left !important;
+      justify-content: flex-start !important;
     }
 
     .address-empty-dash {
       display: block !important;
       width: 100% !important;
-      text-align: center !important;
+      text-align: left !important;
     }
 
     /* Mobil İlgili Görev Detayları → Görev Bilgileri "Talep Yeri / Oluşturan":

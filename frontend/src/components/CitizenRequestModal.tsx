@@ -32,7 +32,7 @@ import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatCoordinatePair, originalGoogleMapsUrl } from '../utils/coordinates'
 import { enrichEmptyAddressFromMapsLink, resolveGoogleMapsCoordinatePair } from '../utils/googleMapsReverseGeocode'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
-import { formatDisplayPhone } from '../utils/phoneNormalization'
+import { formatDisplayPhone, sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
 import {
   ATTACHMENT_FILE_ACCEPT,
   attachmentFileExtension,
@@ -689,13 +689,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                   <DeferredComposerInput
                     className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
                     value={citizenPhone}
-                    maxLength={10}
                     required
                     disabled={citizenPhoneLocked}
                     inputMode="numeric"
                     pattern="[0-9]*"
                     placeholder="5XXXXXXXXX"
-                    onChange={value => setCitizenPhone(value.replace(/\D/g, '').slice(0, 10))}
+                    onChange={value => setCitizenPhone(current => sanitizeMobilePhoneInput(value, current))}
                   />
                 </label>
               </div>

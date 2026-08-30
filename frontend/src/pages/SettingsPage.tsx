@@ -482,7 +482,10 @@ export function SettingsPage() {
   const [tenantAuthenticationPolicy, setTenantAuthenticationPolicy] = useState<TenantAuthenticationPolicy>(EMPTY_TENANT_AUTH_POLICY)
   const [socialStatus, setSocialStatus] = useState<SocialSettingsStatus | null>(null)
   const [citizenAutoReplyTemplates, setCitizenAutoReplyTemplates] = useState<CitizenAutoReplyTemplates>(DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES)
-  const [citizenAutoReplySaving, setCitizenAutoReplySaving] = useState(false)
+  // Hangi kartın Kaydet'i çalışıyor: iki bölüm aynı endpoint'i kullanıyor ama buton durumu
+  // ayrı olmalı; tek bayrak paylaşınca diğer buton da "Kaydediliyor..." oluyordu (kart #3209).
+  const [citizenAutoReplySavingScope, setCitizenAutoReplySavingScope] = useState<'citizen' | 'afterHours' | null>(null)
+  const citizenAutoReplySaving = citizenAutoReplySavingScope !== null
   const [departments, setDepartments] = useState<Department[]>([])
   const logoFileInputRef = useRef<HTMLInputElement>(null)
   const loginLogoFileInputRef = useRef<HTMLInputElement>(null)
@@ -1618,8 +1621,8 @@ export function SettingsPage() {
   }
 
   const saveCitizenAutoReplies = async (toast: 'citizen' | 'afterHours' = 'citizen') => {
-    if (!user?.tenantId) return
-    setCitizenAutoReplySaving(true)
+    if (!user?.tenantId || citizenAutoReplySaving) return
+    setCitizenAutoReplySavingScope(toast)
     try {
       const normalizedTemplates: CitizenAutoReplyTemplates = {
         processingReceived: buildCitizenAutoReplyTemplate(
@@ -1666,7 +1669,7 @@ export function SettingsPage() {
     } catch (saveError) {
       showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
     } finally {
-      setCitizenAutoReplySaving(false)
+      setCitizenAutoReplySavingScope(null)
     }
   }
 
@@ -3433,8 +3436,8 @@ export function SettingsPage() {
                 <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.autoRepliesTitle', 'Vatandaşa Giden Cevaplar')}</h2>
                 <p className="helper-copy">{t('settings.routing.autoRepliesDescription', 'Vatandaş talebi durumlarına göre otomatik gönderilecek taslak cevapları düzenleyin.')}</p>
               </div>
-              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySaving}>
-                {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySavingScope === 'citizen'}>
+                {citizenAutoReplySavingScope === 'citizen' ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
               </Button>
             </div>
             <div className="grid gap-4 md:grid-cols-4">
@@ -3470,8 +3473,8 @@ export function SettingsPage() {
               <div>
                 <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.afterHoursManagerSmsTitle')}</h2>
               </div>
-              <Button type="button" onClick={() => void saveCitizenAutoReplies('afterHours')} disabled={citizenAutoReplySaving}>
-                {citizenAutoReplySaving ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              <Button type="button" onClick={() => void saveCitizenAutoReplies('afterHours')} disabled={citizenAutoReplySavingScope === 'afterHours'}>
+                {citizenAutoReplySavingScope === 'afterHours' ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
               </Button>
             </div>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">

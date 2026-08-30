@@ -1,3 +1,13 @@
+## Round 1074 — 12 kart: SMS hitabı, telefon girişi, mobil ölçüler
+
+- **#3213 / #3214 (SMS hitabı):** `SmsGateway` her SMS'e varsayılan "Değerli vatandaşımız," ekliyordu → mesai dışı **yönetici** SMS'inde vatandaş hitabı çıkıyor, vatandaş SMS'inde tenant'ın çok satırlı hitabı tek satıra düşüyordu. Ağ geçidi saf taşıyıcı yapıldı; hitap `CitizenJobStatusNotifier` içinde `GreetingFor(statusLabel)` ile kuruluyor ve `ResponseContent`'e de aynı metin yazılıyor. Yeni test: çok satırlı hitap korunur.
+- **#3205 / #3210 / #3211 (telefon):** `sanitizeMobilePhoneInput` — ilk hane 5 değilse yazılmaz, `0…`/`90…` yapıştırması önek atılarak kabul, 10 hane; placeholder `5XXXXXXXXX` (Kullanıcılar yeni + Düzenle, Çağrı Talebi, talep detay düzenleme).
+- **#3212:** gridview Düzenle Ünvan placeholder `Ünvan giriniz...` (`users.jobTitleRowPlaceholder`).
+- **#3209:** iki Kaydet butonu tek bayrağı paylaşıyordu → `citizenAutoReplySavingScope` ile yalnız basılan buton "Kaydediliyor..." oluyor.
+- **#3143:** boş adres `-`'si artık ortalı değil, başlığın SOL kenarında (mobil + masaüstü). Ortalı kolonlarda kutu `fit-content` + `justify-self: center`; zaten sola/sağa yaslı kutular ve `--peek` daraltılmıyor.
+- **#3206 / #3135 / #3207 / #3208:** mobil pie başlık 0.8rem + lejant 0.58rem (max-height formülü güncel), Çıkış 1.95rem, grid satırı dikey padding 0.34rem; anasayfa metrik ikonu `size-8`/`size-3.5` + `pl-2.5`/`gap-2`.
+- **Review düzeltmeleri (push öncesi):** (1) BLOCKER — hitap artık `ResponseContent`'e yazıldığı için tekrar-gönderim kilidi eski (hitapsız) kayıtları "yeni metin" sayıyordu → operatör ikinci kez basınca ücretli SMS tekrar giderdi; kilit hem `outboundContent` hem hitapsız `content` ile karşılaştırılıyor. (2) HIGH — telefon input'larındaki `maxLength={10}` yapıştırmayı `onChange`'den önce kırpıyordu (`0532…` → 9 haneli kayıt); beş alandan da kaldırıldı, tavan yalnız `sanitizeMobilePhoneInput` içinde.
+
 ## Round 1073 — Vatandaşa Giden Cevaplar hitabı durum bazlı
 
 - **STATUS:** Dört kart tek `greeting` alanını paylaşıyordu → birine yazınca dördü değişiyordu. Backend'e `greetings` (durum bazlı, boşsa genele düşer) eklendi; notifier hitabı `GreetingFor(statusLabel)` ile çözüyor. 4 yeni test.

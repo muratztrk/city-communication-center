@@ -795,14 +795,15 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       <button
         key={metric.label}
         type="button"
-        className="dashboard-metric-card flex w-full min-w-0 items-center gap-3 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white px-4 py-3 text-left shadow-[var(--shadow-edge)] transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
+        className="dashboard-metric-card flex w-full min-w-0 items-center gap-2 rounded-[var(--radius-xl)] border border-[var(--color-border)] bg-white pl-2.5 pr-4 py-3 text-left shadow-[var(--shadow-edge)] transition-colors hover:border-[color:var(--color-primary)]/30 hover:shadow-md cursor-pointer"
         onClick={() => {
           saveDashboardScroll()
           navigate(withQueryParams(basePath, pieQueryParams({ ...existingParams, ...dateParams, ...taskTypeExtra })))
         }}
       >
-        <div className={`flex size-9 shrink-0 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
-          <Icon className="size-4" />
+        {/* İkon kutusu ve ikon çok az küçük; kutu + başlık sola yakın (card #3208). */}
+        <div className={`flex size-8 shrink-0 items-center justify-center rounded-xl ${metric.iconBg} ${metric.iconColor}`}>
+          <Icon className="size-3.5" />
         </div>
         <div className="min-w-0 flex-1">
           <div className={`dashboard-metric-label whitespace-nowrap text-[0.72rem] font-semibold capitalize leading-snug tracking-normal text-[color:var(--color-muted-foreground)]${metric.labelClassName ? ` ${metric.labelClassName}` : ''}`}>

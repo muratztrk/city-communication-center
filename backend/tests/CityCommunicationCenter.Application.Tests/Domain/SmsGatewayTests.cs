@@ -173,6 +173,20 @@ public class CitizenOutboundGreetingTests
             "Sayın hemşehrimiz,\n\nTalebiniz alındı.",
             CitizenOutboundGreeting.Ensure("Talebiniz alındı.", "Sayın hemşehrimiz,"));
     }
+
+    /// <summary>
+    /// Hitap kutusu çok satırlı olabilir; SMS'te metnin TAMAMI gitmeli (kart #3214 — ağ geçidi
+    /// tek satırlık varsayılanı basıyor, ikinci satır düşüyordu).
+    /// </summary>
+    [Fact]
+    public void Ensure_keeps_multi_line_greeting()
+    {
+        const string greeting = "Değerli vatandaşımız,\nTire İletişim Merkezi sizin için çalışmaktadır.";
+
+        Assert.Equal(
+            greeting + "\n\nVT-2026-1 no'lu talebiniz işleme alındı.",
+            CitizenOutboundGreeting.Ensure("VT-2026-1 no'lu talebiniz işleme alındı.", greeting));
+    }
 }
 
 public class CitizenAutoReplyGreetingScopeTests

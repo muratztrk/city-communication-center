@@ -56,6 +56,7 @@ import {
   sumFileSizes,
 } from '../utils/attachmentLimits'
 import { formatCitizenPhoneDisplay } from '../utils/citizenRequests'
+import { sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
 
@@ -1707,12 +1708,12 @@ export function CreateRequestPage() {
                   required
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  maxLength={10}
                   placeholder="5XXXXXXXXX"
                   value={citizenForm.citizenPhone}
                   onChange={event => setCitizenForm(current => ({
                     ...current,
-                    citizenPhone: event.target.value.replace(/\D/g, '').slice(0, 10),
+                    // İlk hane 5 olmayan giriş yazılmaz (kart #3210).
+                    citizenPhone: sanitizeMobilePhoneInput(event.target.value, current.citizenPhone),
                   }))}
                 />
               </label>

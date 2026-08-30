@@ -1,5 +1,4 @@
 using System.Net.Http.Headers;
-using CityCommunicationCenter.Application.Common;
 
 namespace CityCommunicationCenter.Infrastructure.SocialMedia;
 
@@ -115,7 +114,7 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
             recipient_type = "individual",
             to = request.RecipientId, // Phone number in international format
             type = "text",
-            text = new { body = CitizenOutboundGreeting.Ensure(request.Message) }
+            text = new { body = request.Message }
         };
 
         var url = $"{ApiBase}/{_settings.PhoneNumberId}/messages";
@@ -154,7 +153,7 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
 
         if (!string.IsNullOrWhiteSpace(request.Caption) && mediaType != "audio")
         {
-            mediaPayload["caption"] = CitizenOutboundGreeting.Ensure(request.Caption.Trim());
+            mediaPayload["caption"] = request.Caption.Trim();
         }
 
         if (mediaType == "document")
@@ -202,7 +201,7 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
             to = request.RecipientId,
             type = "text",
             context = new { message_id = request.OriginalMessageId },
-            text = new { body = CitizenOutboundGreeting.Ensure(request.Content) }
+            text = new { body = request.Content }
         };
 
         var url = $"{ApiBase}/{_settings.PhoneNumberId}/messages";

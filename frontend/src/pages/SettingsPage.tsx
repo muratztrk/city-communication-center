@@ -150,16 +150,26 @@ function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) 
 }
 
 function extractCitizenAutoReplySuffixText(template: string, noteToken?: string) {
-  // Token sonrası metin olduğu gibi gösterilir; eski kayıtlardaki zorunlu ayraç boşluğu da
-  // görünür/düzenlenebilir olur — gizli otomatik boşluk kalmaz (card #1598 2. reopen).
+  // Token sonrası metin olduğu gibi gösterilir; Enter ile eklenen satır sonları korunur (#3220).
+  // Not token'ından hemen önceki otomatik `\n\n` ayırıcı textarea'da görünmez (#3215).
   const tokenIndex = template.indexOf(TARGET_DEPARTMENT_TOKEN)
   if (tokenIndex < 0) return ''
   let after = template.slice(tokenIndex + TARGET_DEPARTMENT_TOKEN.length)
   if (noteToken) {
     const noteIndex = after.indexOf(noteToken)
-    if (noteIndex >= 0) after = after.slice(0, noteIndex)
+    if (noteIndex >= 0) {
+      after = after.slice(0, noteIndex)
+      if (after.endsWith('\n\n')) after = after.slice(0, -2)
+    }
   }
-  return after.replace(/\n+$/, '')
+  return after
+}
+
+function cloneCitizenAutoReplyTemplates(value: CitizenAutoReplyTemplates): CitizenAutoReplyTemplates {
+  return {
+    ...value,
+    greetings: { ...value.greetings },
+  }
 }
 
 function extractCitizenAutoReplyNoteSuffixText(template: string, noteToken: string) {
@@ -236,24 +246,9 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
         placeholder="Gönderilen birim bilgisinden sonra gelecek metin"
       />
       {noteToken ? (
-        <>
-          <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
-            <span className="rounded-md border border-violet-200 bg-violet-50 px-2 py-1 font-bold text-violet-700">{noteToken}</span>
-          </div>
-          <textarea
-            className="field-textarea min-h-[4.5rem]"
-            value={noteSuffixText}
-            onChange={event => onChange(buildCitizenAutoReplyTemplate(
-              extractCitizenAutoReplyBodyText(value, templateStatusLabel),
-              templateStatusLabel,
-              suffixText,
-              false,
-              noteToken,
-              event.target.value,
-            ))}
-            placeholder="Not bilgisinden sonra gelecek metin"
-          />
-        </>
+        <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
+          <span className="rounded-md border border-violet-200 bg-violet-50 px-2 py-1 font-bold text-violet-700">{noteToken}</span>
+        </div>
       ) : null}
     </div>
   )
@@ -534,6 +529,7 @@ export function SettingsPage() {
   const [tenantAuthenticationPolicy, setTenantAuthenticationPolicy] = useState<TenantAuthenticationPolicy>(EMPTY_TENANT_AUTH_POLICY)
   const [socialStatus, setSocialStatus] = useState<SocialSettingsStatus | null>(null)
   const [citizenAutoReplyTemplates, setCitizenAutoReplyTemplates] = useState<CitizenAutoReplyTemplates>(DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES)
+  const savedCitizenAutoReplyTemplatesRef = useRef<CitizenAutoReplyTemplates>(DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES)
   // Hangi kartın Kaydet'i çalışıyor: iki bölüm aynı endpoint'i kullanıyor ama buton durumu
   // ayrı olmalı; tek bayrak paylaşınca diğer buton da "Kaydediliyor..." oluyordu (kart #3209).
   const [citizenAutoReplySavingScope, setCitizenAutoReplySavingScope] = useState<'citizen' | 'afterHours' | null>(null)
@@ -810,7 +806,7 @@ export function SettingsPage() {
         // Durum hitabı boş gelirse (eski kayıt) genel hitapla açılır; sonrası durum bazlı.
         const generalGreeting = autoReplyResponse.greeting?.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING
         const loadedGreetings = autoReplyResponse.greetings
-        setCitizenAutoReplyTemplates({
+        const loadedTemplates: CitizenAutoReplyTemplates = {
           ...DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES,
           ...autoReplyResponse,
           greeting: generalGreeting,
@@ -820,7 +816,9 @@ export function SettingsPage() {
             completed: loadedGreetings?.completed?.trim() || generalGreeting,
             cancelled: loadedGreetings?.cancelled?.trim() || generalGreeting,
           },
-        })
+        }
+        setCitizenAutoReplyTemplates(loadedTemplates)
+        savedCitizenAutoReplyTemplatesRef.current = cloneCitizenAutoReplyTemplates(loadedTemplates)
         setDepartments(departmentResponse)
         setSlaWeekendForm({
           excludeWeekends: slaWeekendResponse.excludeWeekends,
@@ -902,10 +900,19 @@ export function SettingsPage() {
     if (activeTab === 'appearance' && tab !== 'appearance') {
       discardPendingAppearanceLogos()
     }
+    if (activeTab === 'routing' && tab !== 'routing') {
+      setCitizenAutoReplyTemplates(cloneCitizenAutoReplyTemplates(savedCitizenAutoReplyTemplatesRef.current))
+    }
     const next = new URLSearchParams(searchParams)
     next.set('tab', tab)
     setSearchParams(next, { replace: true })
   }
+
+  useEffect(() => {
+    if (activeTab !== 'routing') {
+      setCitizenAutoReplyTemplates(cloneCitizenAutoReplyTemplates(savedCitizenAutoReplyTemplatesRef.current))
+    }
+  }, [activeTab])
 
   const revokePendingLogoPreviews = useCallback(() => {
     for (const url of Object.values(pendingLogoPreviewUrlsRef.current)) {
@@ -1716,6 +1723,7 @@ export function SettingsPage() {
       }
       await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)
       setCitizenAutoReplyTemplates(normalizedTemplates)
+      savedCitizenAutoReplyTemplatesRef.current = cloneCitizenAutoReplyTemplates(normalizedTemplates)
       showToast(
         'success',
         toast === 'afterHours'

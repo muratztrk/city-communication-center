@@ -2089,7 +2089,7 @@ const pageKicker = isMyTasksView
               <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center justify-end gap-2">
                 {parentJobDetail
                   && isCitizenRequestJob(parentJobDetail)
-                  && canShowCitizenWhatsAppConversation(parentJobDetail, citizenSourceMessage) && (
+                  && canShowCitizenWhatsAppConversation(parentJobDetail, citizenSourceMessage, user) && (
                   <Button
                     type="button"
                     size="lg"

@@ -1,3 +1,16 @@
+## Round 1076 — 19 kart: WA hitabı, Yazışmaya Git, ayarlar, grid/detay/pie
+
+- **#3236:** Tamamlandı/İptal detayında Yazışmaya Git yalnız SystemAdmin + Operator.
+- **#3235:** Harita SuperCluster maxZoom 13→14, 2. tıklama zoom 16→17. **#3232 Tim mobil app atlandı.**
+- **#3233:** WhatsAppClient + manuel reply/pending/caption hitap eklemez.
+- **#3221:** Ayarlar routing sekmesinden çıkınca kaydedilmemiş taslak geri alınır.
+- **#3222:** Not-sonrası textarea silindi; `{Tamamlama Notu}`/`{İptal Notu}` chip kaldı.
+- **#3220:** `{GönderilenBirim}` ek textarea Enter satır sonunu korur.
+- **#3234:** WA Talep Oluştur placeholder'ları.
+- **#3217:** masaüstü No `-` sola hizası geri alındı. **#3218:** mobil No `1.65rem` sağa.
+- **#3230/#3228/#3229/#3231:** detay aynı satır, değer punto, Vatandaş Adı/Telefon stack, banner title `0.75rem`.
+- **#3225/#3226/#3227/#3224/#3223/#3206:** grid/pie/metrik puntoları.
+
 ## Round 1075 — 8 kart: login bar, Kaydet, not token, adres No, metrik/pie/grid
 
 - **#3219:** Login masaüstü yeşil panel alt barı `lg:pb-8` / `2xl:pb-10` — "Yetkili personel..." biraz aşağı.

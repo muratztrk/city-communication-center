@@ -61,7 +61,7 @@ const REQUEST_MAP_STYLES: google.maps.MapTypeStyle[] = [
 ]
 
 /** Başlangıç zoom'da tek pin bile sayılı cluster; bu zoom ve üstünde durum rengi. */
-const NUMBERED_SINGLE_MAX_ZOOM = 13
+const NUMBERED_SINGLE_MAX_ZOOM = 14
 
 function readBannerClusterColor(): string {
   const value = getComputedStyle(document.documentElement).getPropertyValue('--color-header-from').trim()

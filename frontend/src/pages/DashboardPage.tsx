@@ -810,7 +810,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             {metric.label}
           </div>
           {metric.sublabel ? (
-            <div className="text-[0.64rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
+            <div className="text-[0.70rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
               {metric.sublabel}
             </div>
           ) : null}

@@ -107,8 +107,18 @@ export function buildMyRequestDetailFields(
         ),
       },
       {
-        label: t('jobs.detail.citizenNamePhone', 'Vatandaş Adı / Telefon No'),
+        label: (
+          <>
+            <span className="hidden md:inline">{t('jobs.detail.citizenNamePhone', 'Vatandaş Adı / Telefon No')}</span>
+            <StackedFieldLabel
+              className="md:hidden"
+              top={t('social.citizenName', 'Vatandaş Adı')}
+              bottom={t('jobs.detail.citizenPhone', 'Telefon No')}
+            />
+          </>
+        ),
         value: <StackedFieldValue top={detail.citizenName} bottom={formatCitizenPhoneDisplay(detail.citizenPhone)} />,
+        rowClass: 'job-detail-field-row--citizen-contact',
       },
       ...(hasCitizenAddress(detail)
         ? [{

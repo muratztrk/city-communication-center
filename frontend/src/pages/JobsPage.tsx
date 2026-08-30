@@ -74,7 +74,7 @@ import { WhatsAppConversationModal } from '../components/WhatsAppConversationMod
 import { MyRequestDetailModal } from '../components/jobs/my-request-detail/MyRequestDetailModal'
 import { MyRequestSectionHeading } from '../components/jobs/my-request-detail/MyRequestSectionHeading'
 import { MyRequestTaskDetailsSection } from '../components/jobs/my-request-detail/MyRequestTaskDetailsSection'
-import { StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
+import { StackedFieldLabel, StackedFieldValue } from '../components/jobs/my-request-detail/StackedFieldValue'
 import { CitizenAddressPeekButton } from '../components/jobs/my-request-detail/CitizenAddressPeekButton'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation, wasReopenedViaCitizenMessageApproval } from '../components/jobs/my-request-detail/buildJobProcessSteps'
 import { JobProcessTimeline, TimelineDateTimeValue } from '../components/jobs/my-request-detail/JobProcessTimeline'
@@ -2501,7 +2501,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               onEdit={socialActions?.editDisabledTitle ? undefined : (socialActions?.edit ?? (canEditMyRequestDetailJob && !myRequestEditing ? startMyRequestEdit : undefined))}
               showEditDisabled={socialActions ? Boolean(!socialActions.edit && socialActions.editDisabledTitle) : (showMyRequestEditDisabled && !myRequestEditing)}
               editDisabledTitle={socialActions?.editDisabledTitle}
-              onGoToConversation={socialActions?.goToConversation ?? (isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage) ? openCitizenConversationModal : undefined)}
+              onGoToConversation={socialActions?.goToConversation ?? (isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage, user) ? openCitizenConversationModal : undefined)}
               showManagerNoteColumn={showManagerNoteColumn}
               canEditManagerNote={canEditManagerNote}
               canManageCoordination={canManageCoordination}
@@ -2575,7 +2575,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 }
               />
               <div className="detail-modal-header-actions detail-modal-header-actions--mobile-grid flex shrink-0 flex-nowrap items-center gap-2">
-                {isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage) && (
+                {isCitizenRequestDetail && canShowCitizenWhatsAppConversation(detail, citizenSourceMessage, user) && (
                   <Button
                     type="button"
                     size="lg"
@@ -2822,7 +2822,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {(isCitizenRequestDetail ? [
                       {
                         // Vatandaş adı üst, telefon no alt satırda (card #1545).
-                        label: 'Vatandaş Adı / Telefon No',
+                        // Mobilde slash yok, etiketler alt alta (#3229).
+                        label: (
+                          <>
+                            <span className="hidden md:inline">{t('jobs.detail.citizenNamePhone', 'Vatandaş Adı / Telefon No')}</span>
+                            <StackedFieldLabel
+                              className="md:hidden"
+                              top={t('social.citizenName', 'Vatandaş Adı')}
+                              bottom={t('jobs.detail.citizenPhone', 'Telefon No')}
+                            />
+                          </>
+                        ),
                         value: <StackedFieldValue top={detail.citizenName} bottom={formatCitizenPhoneDisplay(detail.citizenPhone)} />,
                       },
                       ...(hasCitizenAddress(detail) ? [{
@@ -2876,8 +2886,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       }] : []),
                       ...(shouldShowJobProjectField(detail) ? [{ label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> }] : []),
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
-                    ]).map(({ label, value }) => (
-                      <div key={label} className="job-detail-field-row job-detail-field-row--request-info">
+                    ]).map(({ label, value }, fieldIndex) => (
+                      <div key={fieldIndex} className="job-detail-field-row job-detail-field-row--request-info">
                         <div className="job-detail-field-row__label">{label}</div>
                         <div className={`job-detail-field-row__value ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</div>
                       </div>

@@ -1,4 +1,5 @@
 import type { TFunction } from 'i18next'
+import { getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { isJobDueDateOverdue } from './dateTimePicker'
 import { formatOverdueInProgressStatus, type GridStatusTone } from './localization'
 
@@ -221,6 +222,7 @@ export function canShowCitizenWhatsAppConversation(
     sourceType?: string | null
     sourceRefId?: string | null
     citizenPhone?: string | null
+    status?: string | null
   },
   social?: {
     socialMessageId?: string | null
@@ -229,6 +231,7 @@ export function canShowCitizenWhatsAppConversation(
     whatsAppPhone?: string | null
     channel?: string | null
   } | null,
+  viewer?: { role?: string; additionalRoles?: string[] } | null,
 ): boolean {
   if (!isCitizenRequestJob(job)) return false
 
@@ -240,6 +243,16 @@ export function canShowCitizenWhatsAppConversation(
   if (channel === 'phone' || channel === 'call' || channel === 'çağrı' || channel === 'cagri') {
     return false
   }
+
+  // Tamamlandı / İptal: yalnız SystemAdmin ve Operator görür (#3236).
+  const status = (job.status ?? '').toLocaleLowerCase('tr')
+  if (status === 'completed' || status === 'cancelled') {
+    const roles = getEffectiveUserRoles(viewer)
+    if (!roles.includes('SystemAdmin') && !roles.includes('Operator')) {
+      return false
+    }
+  }
+
   if (hasSocialSource) return true
   if (social?.socialMessageId) return true
   return resolveCitizenWhatsAppPhone(job, social) != null

@@ -714,6 +714,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     onChange={setTitle}
                     required
                     rows={2}
+                    placeholder={t('jobs.form.titlePlaceholder', 'Talep başlığı giriniz...')}
                   />
                 </div>
 
@@ -773,7 +774,13 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
               <div className="job-field min-h-0">
                 <span className="job-field-label">{t('jobs.form.description', 'Açıklama')} <span className="normal-case text-xs font-normal text-slate-400">(max 400 karakter)</span> <span className="text-red-500">*</span></span>
-                <RichTextEditor value={description} onChange={setDescription} required minHeight="min-h-[6.85rem]" />
+                <RichTextEditor
+                  value={description}
+                  onChange={setDescription}
+                  required
+                  minHeight="min-h-[6.85rem]"
+                  placeholder={t('jobs.form.whatsappCitizenDescriptionPlaceholder', 'Vatandaş talebini detaylı olarak açıklayınız...')}
+                />
               </div>
 
               <div className="job-field">

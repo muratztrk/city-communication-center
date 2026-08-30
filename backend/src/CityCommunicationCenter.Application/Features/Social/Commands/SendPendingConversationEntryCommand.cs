@@ -128,11 +128,6 @@ public sealed class SendPendingConversationEntryCommandHandler
 
             if (sendResult.Success)
             {
-                if (string.IsNullOrWhiteSpace(entry.WhatsAppTemplateName) && localPath is null)
-                {
-                    entry.Content = CitizenOutboundGreeting.Ensure(entry.Content);
-                }
-
                 entry.ExternalEntryId = sendResult.MessageId;
                 entry.DeliveryStatus = ConversationDeliveryStatus.Sent;
                 entry.DeliveryError = null;

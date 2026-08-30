@@ -1908,10 +1908,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   InfoWindow yok. Aynı adres/konumda birden fazla talep varsa dizin nested
   `Vatandaş Bilgi Listesi` popup'ı açılır; tek talepte Vatandaş Talebi kalır (#2592).
   Cluster rengi banner `--color-header-from`; ilk tıklama yalnız zoom in (pan + 1 kademe,
-  SuperCluster `maxZoom` 13’ü geçmez — ilk dokunuş pinleri açmaz; #3147),
-  `fitBounds` / zoom out yok (#2598). İlk cluster tıklaması +1 kademe; ikinci tıklama zoom 16
-  (pin görünür, sokak seviyesine inmez — 3. tıklama/`fitBounds` yok; #2612). SuperCluster
-  `maxZoom` 13, böylece 2. tıklamada küme çözülür.
+  SuperCluster `maxZoom` 14’ü geçmez — ilk dokunuş pinleri açmaz; #3147/#3235),
+  `fitBounds` / zoom out yok (#2598). İlk cluster tıklaması +1 kademe; ikinci tıklama zoom 17
+  (pin görünür, sokak seviyesine inmez — 3. tıklama/`fitBounds` yok; #2612/#3235). SuperCluster
+  `maxZoom` 14, böylece 2. tıklamada küme çözülür.
   Harita araması Dönem satırının altında; lejant satırında yok (#3162).
   Aktif olmayan arama (`<3` harf/rakam) cluster’ı yeniden kurmaz (#3149).
   Aynı CBS cadde/no veya midpoint’te birden fazla talep zoom’da ayrı tıklansın diye
@@ -2594,8 +2594,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **eklemez** — bu de-dup koruması bilerek korundu: kaldırılırsa şablon gövdesine hitap yazan
   tenant'ta vatandaşa çift hitaplı SMS gider. Bedeli: gövdeye varsayılan hitap yazılmışsa ayarlardaki
   özel hitap o durum için yok sayılır (gövdedeki hitap gider).
-  ⚠️ `WhatsAppClient` halen gövdeye varsayılan hitabı ekler; tenant hitabı varsayılandan farklıysa
-  WA mesajında hitap iki kez görünebilir (bilinen açık; SMS yolunu etkilemez).
+  ⚠️ `WhatsAppClient` **saf taşıyıcıdır** — hitap EKLEMEZ (#3233). Operatörün yazdığı manuel
+  WA metni (`ReplyToSocialMessage`, pending edit/send, caption) olduğu gibi gider.
+  Otomatik durum mesajı hitabı yalnız `CitizenJobStatusNotifier` / şablon auto-reply içinde
+  `Ensure` ile kurulur.
 - **Cep telefonu girişi ilk hane 5 (#3205/#3210/#3211):** Kullanıcılar (yeni kayıt + gridview
   Düzenle), Vatandaş Çağrı Talebi ve talep detay düzenleme alanları `sanitizeMobilePhoneInput(next,
   previous)` kullanır: rakam dışı karakter yazılmaz, ilk hane 5 değilse **tuş vuruşu yazılmaz**
@@ -2607,13 +2609,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Uzunluk tavanı yalnız `sanitizeMobilePhoneInput` içinde. Kullanıcılar formunda hane sayısı
   doğrulaması yok — 9 hane elle yazılıp kaydedilebilir (bilinen açık).
 - **Mobil (≤767px) ölçüler:** grid satırı dikey padding `0.34rem` (#3207), Çıkış butonu `1.95rem`
-  (#3135), pie kart başlığı `0.88rem` + lejant `0.66rem` — lejant `max-height` formülü 5 satır
-  görünecek şekilde puntoyla birlikte güncellenmeli (#3206/#6a930a33).
-  Gridview'da Gittiği/Geldiği yer **alt satırı** (`.grid-stack-secondary`), Durum (`.status-pill`)
-  ve Son Tarih (`.due-date-pill`) punto `0.58rem` (#3207).
-- **Anasayfa metrik kutucuğu (#3208/#3216):** ikon kutusu `size-8`, ikon `size-3.5`, sol padding
+  (#3135), pie kart başlığı `0.94rem` + lejant `0.72rem` — lejant `max-height` formülü 5 satır
+  görünecek şekilde puntoyla birlikte güncellenmeli (#3206).
+  Gridview'da Gittiği/Geldiği yer **alt satırı** (`.grid-stack-secondary`) mobil `0.52rem` (#3226),
+  masaüstü `0.78rem` (#3225). Durum (`.status-pill`) `0.58rem`. Tarih (`.date-cell` / `.due-date-pill`)
+  mobil `0.66rem` (#3227). Mobil Durum hücresinde saat yok (`.grid-status-datetime` gizli, #3224);
+  İşlemler butonları biraz küçük (`0.62rem` / `1.5rem`).
+- **Anasayfa metrik kutucuğu (#3208/#3216/#3223):** ikon kutusu `size-8`, ikon `size-3.5`, sol padding
   `pl-2.5`, ikon-metin boşluğu `gap-2`. Alt satır `(Birim İçi/Dışı)` — eski `(Birim İçi/Birim Dışı)`
-  değil; alt satır punto `0.64rem` (başlık `0.72rem`).
+  değil; alt satır punto `0.70rem` (başlık `0.72rem`).
 - **Ayarlar Kaydet butonları metin/görünüm değiştirmez (#3209):** `Vatandaşa Giden Cevaplar` ve
   `Birim Yöneticilerine … Mesai Dışı SMS` Kaydet butonları basılınca "Kaydediliyor..." yazmaz,
   `disabled` olmaz. Çift tıklama fonksiyon başındaki `citizenAutoReplySaving` guard ile engellenir.
@@ -2638,9 +2642,19 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   altında; `lg:pb-8` / `2xl:pb-10` (eski `py-16`/`py-20` alt padding). Mobil form açıklaması
   değişmez.
 - **Birime Gelen Adres No (#3217/#3218):** yalnız `my-request-detail-bottom--incoming`.
-  Masaüstünde boş `-` başlığın sol kenarında (sağa yaslı `--street-no` ezilir). Mobilde No
-  `padding-inline-start: 0.85rem` — Cadde/Sokak'a yapışmaz. Diğer sayfalar (`--attachments-only`
-  Taleplerim vb.) değişmez.
+  #3217 masaüstü boş `-` sola hizası **geri alındı**. Mobilde No `padding-inline-start: 1.65rem`
+  + `margin-inline-start: 0.35rem` — Cadde/Sokak'a yapışmaz (#3218). Taleplerim `--attachments-only`
+  değişmez.
+- **Yazışmaya Git terminal gizleme (#3236):** talep `Completed` / `Cancelled` ise buton yalnız
+  `SystemAdmin` ve `Operator` (ek rol dahil) için görünür; diğer roller görmez.
+- **Vatandaş cevap şablonu taslak (#3221/#3220/#3222):** Kaydetmeden sekme/sayfa değişince
+  `citizenAutoReplyTemplates` son kaydedilene döner. `{GönderilenBirim}` ek textarea Enter ile
+  satır sonu alır (`extract` trailing `\\n` yutmaz; not token öncesi yalnız `\\n\\n` ayrılır).
+  `{Tamamlama Notu}` / `{İptal Notu}` chip kalır, not-sonrası textarea yoktur.
+- **Mobil detay popup (#3230/#3228/#3229/#3231):** Talep/Görev Bilgileri etiket+değer aynı satır
+  (değer sağa, punto `0.78rem`). Vatandaş Adı / Telefon No slash'ı mobilde yok, etiketler alt alta.
+  Banner `page-title` `0.75rem` (ikinci satırdan büyük olmaz).
+- **Harita cluster (#3235):** SuperCluster `maxZoom` / ilk tıklama tavanı `14`; 2. tıklama zoom `17`.
 - **Boş adres `-` her görünümde başlığın SOL kenarında (#3143):** `-` ortalanmaz (önceki tur
   ortalamıştı). Kural `:has(.address-empty-dash)` ile mobil + masaüstünde birlikte uygulanır.
   Ortalı kolonlarda (`--task` 2./3. kolon, `--coordinates`, `--attachments-only`) `-`'nin başlığın

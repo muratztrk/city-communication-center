@@ -1,3 +1,9 @@
+## Round 1085 — 3 web kart: harita FAB, İptal toast, Cadde/No
+
+- **#3261:** ≥768 harita kontrolleri unlayered; footer+WA+kaydır üstünde (2 FAB yüksekliği).
+- **#3275:** Birime Gelen İptal Et → kırmızı `Talep iptal edildi.` toast, reload öncesi.
+- **#3274:** mobil adres 1 kolon + tüm başlıklar sol eksen (3 kolon merdivenini kır).
+
 ## Round 1084 — 2 web kart: Cadde/No hiza, renkli pill
 
 - **#3274:** mobil görev detay Cadde/Sokak + No `translateX` sıfır; `--task`/`--three-cards` unlayered.

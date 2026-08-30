@@ -1822,6 +1822,7 @@
     "actions": {
       "approveOwner": "Approve",
       "approveSuccess": "Request approved.",
+      "cancelSuccess": "Request cancelled.",
       "rejectOwner": "Reject",
       "assignStaff": "Assign Staff",
       "assign": "Assign",

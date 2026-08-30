@@ -687,6 +687,7 @@ export function IncomingRequestsPage() {
         await api.cancelJob(row.id, reason.trim())
       }
       invalidateJobs(queryClient, row.jobId)
+      emitPageToast(t('jobs.actions.cancelSuccess', 'Talep iptal edildi.'), 'error')
       setCancelModal(null)
       await reload()
     } catch (err) {

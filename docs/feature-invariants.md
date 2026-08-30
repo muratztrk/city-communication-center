@@ -966,6 +966,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Onayla` (personel ata, yalnız ata, düz onay, kapatma) başarıda hemen `emitPageToast` →
   `AppShell` (`z-[400]`, `Talep onaylandı.` / `Görev kapatma onaylandı.`). Toast `reload()`
   **öncesi** — aksi halde modal/reload toast’ı yutar. `assign` yolu da Onayla sayılır.
+  Birime Gelen **İptal Et** aynı desen: `emitPageToast(..., 'error')` reload öncesi,
+  `Talep iptal edildi.` kırmızı çerçeve (#3275; Görev iptal toast’ı gibi).
 - **Mesaj Onayı reopen hedef onay adımı (card #6a6aecbc):** reopen sonrası Süreç'te
   `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` korunur (onaylıysa tarih; değilse
   `Onay Bekleyen`). `shouldShowCitizenTargetApprovalDate` reopen'da `taskCount === 0` iken de
@@ -1967,8 +1969,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Street View açıkken özel +/−/başlangıç ikonları gizlenir; pegman Google native − solunda
   (`translate(-3.15rem, -0.45rem)`, #3238/#3244 reopen). Adres kartı (`gm-iv-address`) `min-height: 4.75rem` —
   "Google Haritalar'da görüntüleyin" kırpılmaz (#3237).
-  Masaüstü/tablet (≥768, mobil değil) varsayılan harita kontrolleri FAB satırının üstünde
-  (`footer + stack-gap + FAB + 0.35rem`, #3245/#3261). Street View açıkken sohbet FAB'leri kaydır düğmesinin **üst satırlarında**
+  Masaüstü/tablet (≥768, mobil değil) varsayılan harita kontrolleri FAB yığınının üstünde
+  (`footer + gap + WA FAB + gap + kaydır FAB + 0.5rem`, unlayered #3245/#3261). Street View açıkken sohbet FAB'leri kaydır düğmesinin **üst satırlarında**
   (`flex-col`); paneller butonların soluna `right: calc(100% + 0.7rem)` ile açılır (#3243 reopen).
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
@@ -2684,7 +2686,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Konum Linki` başlıkları **tek sol düşey eksende** alt alta; dolu değer sola yaslı tam genişlik.
   Masaüstü ortalama/`translateX` kuralları `!important` + özgül seçicilerle yazıldığı için mobil
   ezme unlayered + aynı özgüllükte olmalı — `--task` / `--three-cards` / `--attachments-only`
-  Cadde/No `translateX` sıfırlanır (#3274). `--peek` (Adresi Gör) ortalı düzenini korur (#2755).
+  Cadde/No `translateX` sıfırlanır; 3 kolon `1fr` olur (#3274). `--peek` (Adresi Gör) ortalı
+  düzenini korur (#2755).
 - **Login masaüstü hero alt bar (#3219):** "Yetkili personel hesabınızla devam edin." yeşil panelin
   altında; `lg:pb-8` / `2xl:pb-10` (eski `py-16`/`py-20` alt padding). Mobil form açıklaması
   değişmez.

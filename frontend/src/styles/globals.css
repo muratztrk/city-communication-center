@@ -7226,32 +7226,55 @@
     line-height: 1.25;
   }
 
-  /* Görevlerim / Birimdeki Görevler / Personelim: Cadde/No masaüstü translateX mobilde kayıyor (#3274). */
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3),
-  .address-detail-my-request--task .address-detail-my-request__item--street-no,
-  .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no {
-    transform: none !important;
-    align-items: flex-start !important;
-    text-align: left !important;
-    padding-inline-start: 0 !important;
-    margin-inline-start: 0 !important;
+  /* Görev detay Adres: 3 kolon + ortalama merdiven yapıyordu; tek sol eksen (#3274). */
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--peek),
+  .address-detail-my-request--task .address-detail-my-request__grid--three,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three {
+    grid-template-columns: minmax(0, 1fr) !important;
+    justify-items: start !important;
+    justify-content: start !important;
   }
 
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label,
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__value,
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__value,
-  .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__label,
-  .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__value,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__label,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__value {
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item,
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    justify-self: start !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-inline-start: 0 !important;
+    margin-inline-start: 0 !important;
+    transform: none !important;
+  }
+
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item .address-detail-my-request__label,
+  .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item .address-detail-my-request__value,
+  .address-detail-my-request--task .address-detail-my-request__label,
+  .address-detail-my-request--task .address-detail-my-request__value {
     transform: none !important;
     width: fit-content !important;
     max-width: 100% !important;
     margin-inline: 0 !important;
     text-align: left !important;
+  }
+}
+
+/* ≥768: harita +/−/reset/SV, WhatsApp + kurum içi + kaydır FAB'lerinin üstünde (#3261). */
+@media (min-width: 768px) {
+  .citizen-request-map-controls:not(.is-streetview) {
+    bottom: calc(
+      var(--fab-footer-clearance)
+      + var(--fab-stack-gap)
+      + var(--whatsapp-fab-size)
+      + var(--fab-stack-gap)
+      + var(--scroll-fab-size)
+      + 0.5rem
+    ) !important;
   }
 }
 
@@ -7563,12 +7586,8 @@
     gap: 0.45rem;
   }
 
-  /* Masaüstü/tablet (mobil değil): +/−/reset/pegman FAB satırının üstünde (#3245/#3261). */
-  @media (min-width: 768px) {
-    .citizen-request-map-controls:not(.is-streetview) {
-      bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap) + var(--whatsapp-fab-size) + 0.35rem);
-    }
-  }
+  /* Masaüstü/tablet (mobil değil): +/−/reset/pegman FAB yığınının üstünde (#3245/#3261).
+     Asıl kural unlayered ≥768 bloğunda — @layer components bottom'ı kaybediyordu. */
 
   @media (max-width: 1023px) {
     .citizen-request-map {

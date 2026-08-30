@@ -1,9 +1,6 @@
 ## Round 1077 — 11 kart: not token, harita FAB, grid/banner, WA geçiş
 
 - **#3246:** Kutucuk değişince gri pulse iskelet + footer/profil zıplaması. İskelet silindi; detay null edilmez; footer min-height kilitli.
-
-## Round 1077 — 10 kart: not token, harita FAB, grid/banner punto
-
 - **#3239:** `BuildStatusMessage(null)` token'ı boşaltıyordu → not kayboluyordu; null token bırakır, `ApplyTerminalNote` yerleştirir. **#3232 Tim mobil app atlandı.**
 - **#3245:** masaüstü harita +/−/reset/pegman FAB üstüne alındı. **#3244:** SV pegman Google − solunda. **#3243:** SV'de sohbet FAB'leri kaydır düğmesinin üst satırında.
 - **#3226:** yeşil birim çerçevesi mobil `0.50rem`. **#3225:** masaüstü secondary `0.82rem`. **#3241:** Görevi Yapan `grid-stack-secondary`.

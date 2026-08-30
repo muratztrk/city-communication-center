@@ -7119,7 +7119,7 @@
     .data-table .status-pill .grid-status-label--overdue-solo > span:first-child,
     .table-container .status-pill .grid-status-label--overdue-solo > span:first-child,
     .dashboard-drilldown-table .status-pill .grid-status-label--overdue-solo > span:first-child {
-      font-size: 0.54rem !important;
+      font-size: 0.58rem !important;
     }
 
     .data-table .status-pill:has(.grid-status-label--flow-status),
@@ -7158,13 +7158,13 @@
     .table-container tbody td .framed-department-pill,
     .data-table tbody td .framed-department-pill,
     .dashboard-drilldown-table tbody td .framed-department-pill {
-      font-size: 0.56rem !important;
+      font-size: 0.60rem !important;
     }
 
     .table-container tbody td .due-date-pill,
     .data-table tbody td .due-date-pill,
     .dashboard-drilldown-table tbody td .due-date-pill {
-      font-size: 0.70rem !important;
+      font-size: 0.74rem !important;
       padding: 0.12rem 0.4rem;
     }
 
@@ -7224,6 +7224,34 @@
   .citizen-message-approval-table .citizen-message-approval-phone-value {
     font-size: 0.78rem !important;
     line-height: 1.25;
+  }
+
+  /* Görevlerim / Birimdeki Görevler / Personelim: Cadde/No masaüstü translateX mobilde kayıyor (#3274). */
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2),
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3),
+  .address-detail-my-request--task .address-detail-my-request__item--street-no,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no {
+    transform: none !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    padding-inline-start: 0 !important;
+    margin-inline-start: 0 !important;
+  }
+
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__label,
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__label,
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(2) .address-detail-my-request__value,
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(3) .address-detail-my-request__value,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__label,
+  .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__value,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__label,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__value {
+    transform: none !important;
+    width: fit-content !important;
+    max-width: 100% !important;
+    margin-inline: 0 !important;
+    text-align: left !important;
   }
 }
 

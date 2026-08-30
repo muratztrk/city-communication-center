@@ -2649,7 +2649,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Gridview'da Gittiği/Geldiği yer **alt satırı** (`.grid-stack-secondary`) mobil `0.52rem` (#3226/#3241),
   masaüstü `0.74rem` (#3263, Oluşturan). Yeşil birim çerçevesi (`.framed-department-pill`) mobil `0.50rem` —
   ikincil satır değil çerçeve metni küçülür. Renkli arka planlı grid verisi (Durum/Görev Tipi
-  `.status-pill` `0.54rem`, birim çerçevesi `0.56rem`, son tarih pill `0.70rem`) mobil büyütülür;
+  `.status-pill` `0.58rem`, birim çerçevesi `0.60rem`, son tarih pill `0.74rem`) mobil büyütülür (#3257);
   mobil başlık (`.cell-title`) `0.70rem` (#3262), numara (`__value`) `0.58rem` (#3252). Vatandaş
   Talepleri + harita Talepleri Listele Talep No `0.52rem`; **Telefon No hücresi**
   (`.citizen-grid-phone-value`) `0.72rem` (#3252). Sms Onayı stacked telefondan yalnız numara
@@ -2683,8 +2683,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil (≤1023px) Adres Bilgileri hizası:** `Mahalle` / `Cadde / Sokak` / `No` / `Adres Tarifi` /
   `Konum Linki` başlıkları **tek sol düşey eksende** alt alta; dolu değer sola yaslı tam genişlik.
   Masaüstü ortalama/`translateX` kuralları `!important` + özgül seçicilerle yazıldığı için mobil
-  ezme de aynı özgüllükte olmalı — `--task` / `--three-cards` / `--attachments-only` seçicileri
-  açıkça hedeflenir. `--peek` (Adresi Gör) ortalı düzenini korur (#2755).
+  ezme unlayered + aynı özgüllükte olmalı — `--task` / `--three-cards` / `--attachments-only`
+  Cadde/No `translateX` sıfırlanır (#3274). `--peek` (Adresi Gör) ortalı düzenini korur (#2755).
 - **Login masaüstü hero alt bar (#3219):** "Yetkili personel hesabınızla devam edin." yeşil panelin
   altında; `lg:pb-8` / `2xl:pb-10` (eski `py-16`/`py-20` alt padding). Mobil form açıklaması
   değişmez.

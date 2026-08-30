@@ -1,3 +1,8 @@
+## Round 1084 — 2 web kart: Cadde/No hiza, renkli pill
+
+- **#3274:** mobil görev detay Cadde/Sokak + No `translateX` sıfır; `--task`/`--three-cards` unlayered.
+- **#3257:** renkli grid pill Durum/Tip `0.58`, birim `0.60`, son tarih `0.74`. Düz metin yok.
+
 ## Round 1083 — 5 web kart: Telefon No başlık/punto, kanal, Yapılan İş başlık
 
 - **#3272:** Vatandaş Talepleri grid başlığı Numara → Telefon No.

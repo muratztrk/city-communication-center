@@ -187,9 +187,32 @@ public sealed class CitizenJobStatusMessageTests
             receivedAt,
             "İptal. {GönderilenBirim}\n\n{İptal Notu}",
             "Fen İşleri Müdürlüğü",
-            null);
+            "");
 
         Assert.Equal("İptal. Fen İşleri Müdürlüğü", content);
         Assert.DoesNotContain("{İptal Notu}", content);
+    }
+
+    [Fact]
+    public void BuildStatusMessage_NullNote_LeavesTokenForLaterApply()
+    {
+        var receivedAt = new DateTimeOffset(2026, 7, 13, 10, 0, 0, TimeSpan.Zero);
+        var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
+            new SocialMessage
+            {
+                CitizenRequestNumber = 42,
+                CitizenRequestNumberYear = 2026,
+                ReceivedAtUtc = receivedAt,
+            },
+            new Job { Title = "Yol bakım", Status = JobStatus.Completed },
+            1,
+            receivedAt,
+            "{VatandaşTalepNo} talebiniz \"Tamamlandı\". {GönderilenBirim}\n\n{Tamamlama Notu}",
+            "Fen İşleri Müdürlüğü");
+
+        Assert.Contains("{Tamamlama Notu}", content);
+        Assert.Equal(
+            "VT-2026-42 talebiniz \"Tamamlandı\". Fen İşleri Müdürlüğü\n\nsahada tamamlandı.",
+            CitizenJobStatusLabelHelper.ApplyTerminalNote(content, "sahada tamamlandı."));
     }
 }

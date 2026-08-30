@@ -1079,7 +1079,13 @@ export function IncomingRequestsPage() {
                       })()}
                     </td>
                     <td className="font-semibold"><TruncatedText text={row.title} className={`cell-title ${isReporterRow ? 'text-[#f97316]' : ''}`} /></td>
-                    {showTaskOwnerColumn && <td><EmptyCell value={row.taskOwnerDisplayName} /></td>}
+                    {showTaskOwnerColumn && (
+                      <td>
+                        <span className="grid-stack-secondary font-semibold">
+                          <EmptyCell value={row.taskOwnerDisplayName} />
+                        </span>
+                      </td>
+                    )}
                     {showIncomingStatusColumn && (() => {
                       const statusDate = currentStatusFilter === 'all'
                         ? (row.status === 'Completed' ? row.completedAtUtc

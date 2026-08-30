@@ -2032,8 +2032,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               key={department.jobDepartmentId}
               tone="success"
               className={enlargeExternal
-                ? 'max-w-[13rem] px-2.5 py-1 text-[0.78rem] font-semibold'
-                : 'max-w-[11rem] px-2.5 py-1 text-[0.76rem]'}
+                ? 'framed-department-pill max-w-[13rem] px-2.5 py-1 text-[0.78rem] font-semibold'
+                : 'framed-department-pill max-w-[11rem] px-2.5 py-1 text-[0.76rem]'}
             >
               <span className="truncate">{department.departmentName ?? '—'}</span>
             </StatusPill>
@@ -2852,6 +2852,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         // Dış birim yeşil çerçeve kaldırıldı — eski düz görünüm (card #r455).
                         label: requestLocationFieldLabel(detail, t),
                         value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
+                        rowClass: 'job-detail-field-row--location-creator',
                       },
                       {
                         // Vatandaş talebinde de standart taleplerle tutarlı kalır — personel bilgisi
@@ -2873,6 +2874,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
                         label: requestLocationFieldLabel(detail, t),
                         value: <StackedFieldValue top={detail.ownerDepartmentName} bottom={detail.createdByDisplayName} />,
+                        rowClass: 'job-detail-field-row--location-creator',
                       },
                       {
                         // Birime Gelen/Birimden Giden'de personel bilgisi bu satırdan kaldırılır
@@ -2886,10 +2888,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       }] : []),
                       ...(shouldShowJobProjectField(detail) ? [{ label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> }] : []),
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
-                    ]).map(({ label, value }, fieldIndex) => (
-                      <div key={fieldIndex} className="job-detail-field-row job-detail-field-row--request-info">
-                        <div className="job-detail-field-row__label">{label}</div>
-                        <div className={`job-detail-field-row__value ${typeof value === 'string' ? 'text-slate-900' : ''}`}>{value}</div>
+                    ]).map((field, fieldIndex) => (
+                      <div key={fieldIndex} className={`job-detail-field-row job-detail-field-row--request-info${'rowClass' in field && field.rowClass ? ` ${field.rowClass}` : ''}`}>
+                        <div className="job-detail-field-row__label">{field.label}</div>
+                        <div className={`job-detail-field-row__value ${typeof field.value === 'string' ? 'text-slate-900' : ''}`}>{field.value}</div>
                       </div>
                     ))}
                     {(() => {

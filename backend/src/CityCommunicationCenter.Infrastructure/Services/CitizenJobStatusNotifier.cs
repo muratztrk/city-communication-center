@@ -297,6 +297,8 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             utcNow,
             template,
             departmentNames);
+        // Non-terminal: token kalırsa vatandaşa ham chip gitmesin (#3239).
+        content = CitizenJobStatusLabelHelper.ApplyTerminalNote(content, string.Empty);
         var statusLabel = CitizenJobStatusLabelHelper.GetDisplayStatus(job, taskCount, utcNow);
 
         if (message.Channel == SocialChannel.WhatsApp)

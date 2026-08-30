@@ -1,3 +1,10 @@
+## Round 1077 — 10 kart: not token, harita FAB, grid/banner punto
+
+- **#3239:** `BuildStatusMessage(null)` token'ı boşaltıyordu → not kayboluyordu; null token bırakır, `ApplyTerminalNote` yerleştirir. **#3232 Tim mobil app atlandı.**
+- **#3245:** masaüstü harita +/−/reset/pegman FAB üstüne alındı. **#3244:** SV pegman Google − solunda. **#3243:** SV'de sohbet FAB'leri kaydır düğmesinin üst satırında.
+- **#3226:** yeşil birim çerçevesi mobil `0.50rem`. **#3225:** masaüstü secondary `0.82rem`. **#3241:** Görevi Yapan `grid-stack-secondary`.
+- **#3231:** banner kicker `0.65rem` < title `0.82rem`. **#3242:** yönlendiren kullanıcı `0.66rem`. **#3234:** WA başlık placeholder `0.68rem`.
+
 ## Round 1076 — 19 kart: WA hitabı, Yazışmaya Git, ayarlar, grid/detay/pie
 
 - **#3236:** Tamamlandı/İptal detayında Yazışmaya Git yalnız SystemAdmin + Operator.

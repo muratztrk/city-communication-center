@@ -3860,6 +3860,10 @@
     word-break: break-word;
   }
 
+  .citizen-request-form .citizen-request-title-textarea::placeholder {
+    font-size: 0.68rem;
+  }
+
   .citizen-request-form .field-input,
   .citizen-request-form .field-select {
     min-height: 2rem;
@@ -4974,7 +4978,7 @@
   @media (min-width: 768px) {
     .table-container tbody td .grid-stack-secondary,
     .data-table tbody td .grid-stack-secondary {
-      font-size: 0.78rem !important;
+      font-size: 0.82rem !important;
     }
   }
 
@@ -7030,10 +7034,16 @@
       font-size: 0.66rem !important;
     }
 
-    /* Gittiği/Geldiği yer alt satırı — mobil biraz daha küçük (#3226). */
+    /* Gittiği/Geldiği yer alt satırı + Görevi Yapan (#3226/#3241). */
     .table-container tbody td .grid-stack-secondary,
     .data-table tbody td .grid-stack-secondary {
       font-size: 0.52rem !important;
+    }
+
+    /* Yeşil birim çerçevesi — ikincil satır değil, çerçeve metni (#3226 reopen). */
+    .table-container tbody td .framed-department-pill,
+    .data-table tbody td .framed-department-pill {
+      font-size: 0.5rem !important;
     }
 
     .table-container tbody td .due-date-pill,
@@ -7087,6 +7097,12 @@
   /* Fixed FAB stack: WhatsApp above footer, scroll arrow above WhatsApp (#1055). */
   .fixed-fab-stack {
     bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap));
+  }
+
+  /* Street View: sohbet FAB'leri kaydır düğmesinin üst satırlarında (#3243). */
+  body:has(.citizen-request-map-controls.is-streetview) .fixed-fab-stack {
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   /* Sayfa Yetkileri: Kaydet sağ kenarı Kurum İçi Mesajlar FAB soluna yakın (#2329 reopen). */
@@ -7351,6 +7367,13 @@
     gap: 0.45rem;
   }
 
+  /* Masaüstü: +/−/reset/pegman FAB'ların üstünde kalsın (#3245). */
+  @media (min-width: 1024px) {
+    .citizen-request-map-controls:not(.is-streetview) {
+      bottom: calc(var(--fab-footer-clearance) + var(--whatsapp-fab-size) + 1.35rem);
+    }
+  }
+
   @media (max-width: 1023px) {
     .citizen-request-map {
       touch-action: none;
@@ -7370,8 +7393,9 @@
     gap: 0.45rem;
   }
 
+  /* Street View: pegman Google − düğmesinin solunda (#3244). */
   .citizen-request-map-controls.is-streetview .citizen-request-map-streetview-btn {
-    transform: translateX(-0.55rem);
+    transform: translateX(-3.15rem);
   }
 
   /* Street View sol üst adres kartı: "Google Haritalar'da görüntüleyin" sığsın (#3237). */
@@ -7560,9 +7584,14 @@
       display: none !important;
     }
 
+    /* 1. satır (kicker) 2. satırdan (title) büyük olmaz (#3231). */
+    .sticky-page-header .page-kicker {
+      font-size: 0.65rem;
+    }
+
     .sticky-page-header .page-title,
     .section-card .page-title {
-      font-size: 0.75rem;
+      font-size: 0.82rem;
     }
 
     .section-card > .grid.border-b {
@@ -8037,6 +8066,11 @@
     .job-detail-field-row--location-creator .stacked-field-value {
       text-align: right !important;
       align-items: flex-end !important;
+    }
+
+    /* Talebi yönlendiren kullanıcı (oluşturan) — mobil biraz küçük (#3242). */
+    .job-detail-field-row--location-creator .stacked-field-value__secondary {
+      font-size: 0.66rem;
     }
 
     .create-request-kind-card h2,

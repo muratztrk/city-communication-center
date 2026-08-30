@@ -3389,7 +3389,7 @@ const pageKicker = isMyTasksView
                             <TruncatedText
                               as="div"
                               text={(task.assignedUserDisplayName ?? task.ownerDisplayName)!}
-                              className={`mt-1 truncate text-sm font-semibold leading-snug ${reporterAssigneeClass}`}
+                              className={`grid-stack-secondary mt-1 truncate font-semibold leading-snug ${reporterAssigneeClass}`}
                             />
                           ) : (
                             <div className="mt-1"><EmptyCell /></div>

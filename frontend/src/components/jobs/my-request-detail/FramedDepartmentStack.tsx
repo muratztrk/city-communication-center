@@ -31,7 +31,7 @@ export function FramedDepartmentStack({
           tone="success"
           className={cn(
             // Gelen taleplerde birim çerçevesi biraz daha geniş (#6a6c72f4).
-            enlarge ? 'max-w-[13.5rem] px-2.5 py-1 text-[0.78rem] font-semibold' : 'max-w-[12.75rem] px-2.5 py-1 text-[0.76rem]',
+            enlarge ? 'framed-department-pill max-w-[13.5rem] px-2.5 py-1 text-[0.78rem] font-semibold' : 'framed-department-pill max-w-[12.75rem] px-2.5 py-1 text-[0.76rem]',
           )}
         >
           <span className="truncate">{name}</span>

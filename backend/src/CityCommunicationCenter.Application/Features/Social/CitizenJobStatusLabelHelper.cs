@@ -58,9 +58,13 @@ public static class CitizenJobStatusLabelHelper
             .Replace("{Vatandaş Talep Durumu}", statusLabel, StringComparison.Ordinal);
 
         content = ReplaceTargetDepartmentToken(content, targetDepartments);
-        // Not, birim boş satırından SONRA yerleşmeli; çağıran EnsureBlankLine yaptıysa
-        // terminalNote'u null geçip ReplaceTerminalNoteToken'ı sonra çağırır.
-        content = ReplaceTerminalNoteToken(content, terminalNote);
+        // null = ertelenmiş yerleştirme: token kalsın, çağıran EnsureBlankLine + ApplyTerminalNote yapsın.
+        // "" / whitespace = token'ı şimdi sil. Dolü not = şimdi yerleştir.
+        if (terminalNote is not null)
+        {
+            content = ReplaceTerminalNoteToken(content, terminalNote);
+        }
+
         return content.Trim();
     }
 

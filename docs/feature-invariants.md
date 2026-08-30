@@ -1229,8 +1229,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sayfa içi Onay Bekleyen scope chip'inde rozet yok — sayı yalnız sol menüde (#2830). Birimden
   Giden **Geciken** grid: **Oluşturan** yok; Gittiği Yer sonrası **Durum** (#2828). Birimden Giden
   Onaylanmış da tamamlanmış/iptal/yapılmakta hariç (#2826).
-  Birime Gelen Onaylanmış grid İşlemler'de yalnız `Detaylar` — `İptal Et` ve `Onayla`
-  yok (cards #1702/#1703). İptal Talepler gridinde `Görevi Yapan` yok (#2900). Onaylanmış grid'de `Görevi Yapan` / `Görev Sahibi` sütunu yok
+  Birime Gelen Onaylanmış grid İşlemler'de `Onayla` yok (#1703). Birim içi onaylanmış
+  (Active/Waiting/Assigned/InProgress/PendingCloseApproval) satırda **İptal Et pasif**
+  (#3276; Geciken/Yapılmakta/Tümü/Onaylanmış). Birim dışı gelen, sahip onayından sonra
+  veya otomatik hedefe düşünce hedef birim müdürü `CancelJob` ile iptal eder — yetki
+  `ManagesDepartmentAsync` (Role=Manager + birincil birim / müdür / vekil), yalnız
+  `ManagerUserId` değil (#3277). İptal Talepler gridinde `Görevi Yapan` yok (#2900). Onaylanmış grid'de `Görevi Yapan` / `Görev Sahibi` sütunu yok
   (#6a6ca0bc). Onay Bekleyen varsayılan sıra: dış birim `ownerApprovedAtUtc` desc,
   birim içi `createdAtUtc` desc (#6a6c9edc).
   Görevlerim/Birimdeki Görevler `Geciken` chip turuncu `scope-chip--overdue`
@@ -1882,8 +1886,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   harita).   Outbound her zaman gösterilir; otomatik durum şablonu (`talebinizin durumu`) veya
   Tamamlama ile aynıysa yeşil, operatörün özelleştirdiği farklı metin kırmızı (#2557/#3084).
   `Yapılan İş:` / `İptal Nedeni:` / `İptal Notu:` şablon etiketleri bu alandan düşer — yalnız
-  not kalır; başlık her zaman durur, değer tamamlama/iptal notu (#3270). Otomatik mesaj gövdesinde
-  etiket durur. CRLF (`\r\n\r\n`) ayırıcı da extract edilir.
+  not kalır; vatandaş talebinde başlık durur, değer tamamlama/iptal notu (#3270). Birim içi /
+  birim dışı (vatandaş olmayan) talepte **Vatandaşa Giden Mesaj** satırı yok (#3278).
+  Otomatik mesaj gövdesinde etiket durur. CRLF (`\r\n\r\n`) ayırıcı da extract edilir.
 - **FAB boyutları (#r482/#2638):** WhatsApp + Kurum İçi 2.75rem / sm 3rem; scroll 2.5rem / sm 2.75rem.
   Üçü de biraz küçük; sıra WhatsApp → Kurum İçi → scroll.
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici
@@ -1969,8 +1974,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Street View açıkken özel +/−/başlangıç ikonları gizlenir; pegman Google native − solunda
   (`translate(-3.15rem, -0.45rem)`, #3238/#3244 reopen). Adres kartı (`gm-iv-address`) `min-height: 4.75rem` —
   "Google Haritalar'da görüntüleyin" kırpılmaz (#3237).
-  Masaüstü/tablet (≥768, mobil değil) varsayılan harita kontrolleri FAB yığınının üstünde
-  (`footer + gap + WA FAB + gap + kaydır FAB + 0.5rem`, unlayered #3245/#3261). Street View açıkken sohbet FAB'leri kaydır düğmesinin **üst satırlarında**
+  Masaüstü/tablet (≥768, mobil değil) varsayılan harita kontrolleri yatay FAB sırasının
+  hemen üstünde (`footer + gap + WA FAB + 0.35rem`, unlayered #3245/#3261/#3280) — yığın
+  yataydır, ikinci FAB yüksekliği eklenmez. Street View açıkken sohbet FAB'leri kaydır düğmesinin **üst satırlarında**
   (`flex-col`); paneller butonların soluna `right: calc(100% + 0.7rem)` ile açılır (#3243 reopen).
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).

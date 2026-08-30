@@ -7264,16 +7264,14 @@
   }
 }
 
-/* ≥768: harita +/−/reset/SV, WhatsApp + kurum içi + kaydır FAB'lerinin üstünde (#3261). */
+/* ≥768: harita +/−/reset/SV, yatay FAB sırasının hemen üstünde — tek FAB yüksekliği (#3280). */
 @media (min-width: 768px) {
   .citizen-request-map-controls:not(.is-streetview) {
     bottom: calc(
       var(--fab-footer-clearance)
       + var(--fab-stack-gap)
       + var(--whatsapp-fab-size)
-      + var(--fab-stack-gap)
-      + var(--scroll-fab-size)
-      + 0.5rem
+      + 0.35rem
     ) !important;
   }
 }

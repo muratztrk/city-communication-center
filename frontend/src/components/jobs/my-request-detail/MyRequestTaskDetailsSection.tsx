@@ -297,7 +297,8 @@ export function MyRequestTaskDetailsSection({
                             tone: 'cancel' as const,
                           }]
                         : []),
-                    ...(outboundValue
+                    ...(isCitizenRequestJob(detail)
+                      && outboundValue
                       && (isCompletedTask || isCancelledTask)
                       && task.taskId === primaryTerminalTaskId
                       ? [{

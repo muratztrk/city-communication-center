@@ -1,3 +1,11 @@
+## Round 1086 — 5 web kart: SLA yorum, harita FAB, outbound, hedef iptal, iç iptal
+
+- **#3281:** VT-2026-161 son tarih = 48 iş saati UTC + hafta sonu durdurma (yorum).
+- **#3280:** ≥768 harita kontrolleri tek FAB yüksekliği (footer+gap+WA+0.35rem).
+- **#3278:** Vatandaşa Giden Mesaj yalnız vatandaş talebinde.
+- **#3277:** CancelJob hedef müdür = `ManagesDepartmentAsync`.
+- **#3276:** Birime Gelen birim içi onaylı İptal Et pasif.
+
 ## Round 1085 — 3 web kart: harita FAB, İptal toast, Cadde/No
 
 - **#3261:** ≥768 harita kontrolleri unlayered; footer+WA+kaydır üstünde (2 FAB yüksekliği).

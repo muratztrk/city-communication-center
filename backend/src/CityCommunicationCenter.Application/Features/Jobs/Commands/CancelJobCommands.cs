@@ -44,15 +44,31 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
 
         var isCreator = job.CreatedByUserId == actor.UserId;
-        var isOwnerManager = !isCreator && await _dbContext.Departments
-            .AnyAsync(d => d.TenantId == tenantId && d.DepartmentId == job.OwnerDepartmentId && d.ManagerUserId == actor.UserId, cancellationToken);
-        // Hedef birim yöneticisi, onay bekleyen veya aktif (ör. Üst Düzey Yönetici'den gelen) birim dışı talebi iptal edebilir.
-        var isTargetManager = !isCreator && !isOwnerManager &&
-            (job.Status == JobStatus.PendingExternalApproval || job.Status == JobStatus.Active) &&
-            await _dbContext.JobDepartments.AnyAsync(
-                jd => jd.JobId == job.JobId && jd.Role == JobDepartmentRole.Target &&
-                      _dbContext.Departments.Any(d => d.TenantId == tenantId && d.DepartmentId == jd.DepartmentId && d.ManagerUserId == actor.UserId),
-                cancellationToken);
+        var isOwnerManager = !isCreator
+            && await JobWorkflowAuthorization.ManagesDepartmentAsync(
+                _dbContext, actor, job.OwnerDepartmentId, cancellationToken);
+        // Hedef birim yöneticisi: sahip onayından sonra veya otomatik gönderimde
+        // (PendingExternalApproval / Active). ManagerUserId değil, ManagesDepartmentAsync
+        // (Role=Manager + birincil birim / müdür / vekil) — card #3277.
+        var isTargetManager = false;
+        if (!isCreator && !isOwnerManager
+            && (job.Status == JobStatus.PendingExternalApproval || job.Status == JobStatus.Active))
+        {
+            var targetDepartmentIds = await _dbContext.JobDepartments
+                .AsNoTracking()
+                .Where(jd => jd.JobId == job.JobId && jd.Role == JobDepartmentRole.Target)
+                .Select(jd => jd.DepartmentId)
+                .ToListAsync(cancellationToken);
+            foreach (var departmentId in targetDepartmentIds)
+            {
+                if (await JobWorkflowAuthorization.ManagesDepartmentAsync(
+                        _dbContext, actor, departmentId, cancellationToken))
+                {
+                    isTargetManager = true;
+                    break;
+                }
+            }
+        }
         var isCitizenRequestManager = !isCreator && !isOwnerManager && !isTargetManager
             && await UserRoleAccess.CanManageCitizenRequestAsync(
                 _dbContext,

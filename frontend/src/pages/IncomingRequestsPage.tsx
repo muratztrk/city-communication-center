@@ -682,9 +682,9 @@ export function IncomingRequestsPage() {
     try {
       setError(null)
       if (isPending && row.status === 'PendingOwnerApproval') {
-        await api.rejectJobOwner(row.id, reason.trim())
+        await api.rejectJobOwner(row.jobId, reason.trim())
       } else {
-        await api.cancelJob(row.id, reason.trim())
+        await api.cancelJob(row.jobId, reason.trim())
       }
       invalidateJobs(queryClient, row.jobId)
       emitPageToast(t('jobs.actions.cancelSuccess', 'Talep iptal edildi.'), 'error')
@@ -880,9 +880,21 @@ export function IncomingRequestsPage() {
     && (currentStatusFilter === 'all' || currentStatusFilter === 'overdue' || currentStatusFilter === 'pending-approval')
     && !canApproveRow(row)
 
+  const isInternalAlreadyApproved = (row: IncomingRequestRow) =>
+    row.kind === 'internal'
+    && row.status !== 'PendingOwnerApproval'
+    && (
+      row.status === 'Active'
+      || row.status === 'Waiting'
+      || row.status === 'Assigned'
+      || row.status === 'InProgress'
+      || row.status === 'PendingCloseApproval'
+    )
+
   const canCancelRow = (row: IncomingRequestRow) =>
     canManageIncomingActions
     && canCitizenRequestManagerActOnRow(user, row)
+    && !isInternalAlreadyApproved(row)
     && (
       row.status === 'PendingOwnerApproval' ||
       row.status === 'PendingExternalApproval' ||
@@ -894,7 +906,16 @@ export function IncomingRequestsPage() {
     )
 
   const shouldShowDisabledCancel = (row: IncomingRequestRow) =>
-    canManageIncomingActions && currentStatusFilter === 'all' && !canCancelRow(row)
+    canManageIncomingActions
+    && !canCancelRow(row)
+    && (
+      currentStatusFilter === 'all'
+      || (isInternalAlreadyApproved(row) && (
+        currentStatusFilter === 'overdue'
+        || currentStatusFilter === 'in-progress'
+        || currentStatusFilter === 'approved'
+      ))
+    )
 
   return (
     <div className="page-stack desktop-page-shell incoming-requests-page">
@@ -1192,7 +1213,7 @@ export function IncomingRequestsPage() {
                             {t('jobs.actions.cancel', 'İptal Et')}
                           </Button>
                         )}
-                        {shouldShowDisabledCancel(row) && currentStatusFilter !== 'in-progress' && currentStatusFilter !== 'approved' && (
+                        {shouldShowDisabledCancel(row) && (currentStatusFilter === 'all' || currentStatusFilter === 'overdue' || isInternalAlreadyApproved(row)) && (
                           <DisabledActionButton
                             size="sm"
                             variant="destructive"

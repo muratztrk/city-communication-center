@@ -1,3 +1,10 @@
+## Round 1087 — 4 web kart: Sms telefon, Talep Kanalı, harita Telefon No
+
+- **#3283:** Sms Onayı stacked telefon masaüstü `0.80rem` (unlayered).
+- **#3273:** Sms Onayı stacked telefon mobil `0.70rem` (0.78 yetmedi).
+- **#3271:** Bilgi listesi detay Talep Kanalı `0.70rem` / ikon `0.68rem`.
+- **#3282:** harita Talepleri Listele Telefon No = VT grid (`slate-500 tabular-nums` + `0.72rem`).
+
 ## Round 1086 — 5 web kart: SLA yorum, harita FAB, outbound, hedef iptal, iç iptal
 
 - **#3281:** VT-2026-161 son tarih = 48 iş saati UTC + hafta sonu durdurma (yorum).

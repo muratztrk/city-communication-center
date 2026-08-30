@@ -6809,15 +6809,15 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value,
     .citizen-directory-tickets-table .citizen-directory-channel-label,
     .citizen-directory-tickets-table .citizen-directory-channel-value .text-sm {
-      font-size: 0.62rem !important;
+      font-size: 0.7rem !important;
     }
 
     .citizen-directory-tickets-table .citizen-directory-channel-value svg,
     .citizen-directory-tickets-table .citizen-directory-channel-value img,
     .citizen-directory-tickets-table .citizen-directory-channel-icon,
     .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
-      width: 0.6rem !important;
-      height: 0.6rem !important;
+      width: 0.68rem !important;
+      height: 0.68rem !important;
     }
 
     /* VT edit Öncelik sola/küçült istekleri geri alındı (#r498). */
@@ -7204,15 +7204,15 @@
   /* Unlayered: Tailwind utilities (@layer) aksi halde font-size'ı ezer (#3271/#3252/#3273). */
   .citizen-directory-tickets-table .citizen-directory-channel-value,
   .citizen-directory-tickets-table .citizen-directory-channel-label {
-    font-size: 0.62rem !important;
+    font-size: 0.7rem !important;
     line-height: 1.2;
   }
 
   .citizen-directory-tickets-table .citizen-directory-channel-icon,
   .citizen-directory-tickets-table .citizen-directory-channel-value svg,
   .citizen-directory-tickets-table .citizen-directory-channel-value img {
-    width: 0.6rem !important;
-    height: 0.6rem !important;
+    width: 0.68rem !important;
+    height: 0.68rem !important;
   }
 
   .social-messages-table .citizen-grid-phone-value,
@@ -7222,7 +7222,7 @@
   }
 
   .citizen-message-approval-table .citizen-message-approval-phone-value {
-    font-size: 0.78rem !important;
+    font-size: 0.7rem !important;
     line-height: 1.25;
   }
 
@@ -7261,6 +7261,14 @@
     max-width: 100% !important;
     margin-inline: 0 !important;
     text-align: left !important;
+  }
+}
+
+/* ≥768: Sms Onayı stacked telefon — text-sm 0.875rem’den az küçült (#3283). */
+@media (min-width: 768px) {
+  .citizen-message-approval-table .citizen-message-approval-phone-value {
+    font-size: 0.8rem !important;
+    line-height: 1.25;
   }
 }
 

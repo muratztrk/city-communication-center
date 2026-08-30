@@ -110,32 +110,6 @@ function DateDivider({ label, light = false }: { label: string; light?: boolean 
   )
 }
 
-// Konuşma değiştirilirken mesajlar yüklenene kadar boş/spinner alanı yerine gerçek mesaj
-// balonlarına benzeyen soluk iskelet gösterilir — üretim ortamındaki ağ gecikmesi sırasında
-// ekranın "boşalıp sonra dolması" hissini azaltır (kullanıcı geri bildirimi).
-function ConversationSkeleton() {
-  const bubbles = ['55%', '38%', '70%', '32%', '58%']
-  return (
-    <div aria-hidden="true" className="space-y-2.5">
-      {bubbles.map((width, index) => {
-        const isOutbound = index % 2 === 1
-        return (
-          <div key={index} className={`flex ${isOutbound ? 'justify-end' : 'justify-start'}`}>
-            <div
-              className={`animate-pulse rounded-2xl px-4 py-2.5 shadow-sm ${
-                isOutbound ? 'rounded-tr-sm bg-slate-300/60' : 'rounded-tl-sm bg-white ring-1 ring-black/[0.04]'
-              }`}
-              style={{ width }}
-            >
-              <div className={`h-2.5 rounded-full ${isOutbound ? 'bg-slate-400/60' : 'bg-slate-200'}`} />
-            </div>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
 function findClosestTimelineEntryIndex(
   timeline: CitizenConversationTimelineEntry[],
   anchorAtUtc: string,
@@ -812,7 +786,12 @@ function ConversationDetail({
 
   useEffect(() => {
     profileDirtyRef.current = false
-    setProfileDraft(createProfileDraft(null, citizenPhone, citizenName))
+    setProfileDraft(current => ({
+      ...current,
+      citizenName: citizenName ?? '',
+      citizenPhone: citizenPhone ?? current.citizenPhone,
+    }))
+    // Adres alanları yeni detay gelene kadar durur — boşaltmak formu zıplatır (#3246).
     // citizenName/citizenPhone deps omitted — list refresh must not reset WA profile draft (#2513).
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
   }, [conversationId])
@@ -874,10 +853,9 @@ function ConversationDetail({
     return () => window.clearInterval(intervalId)
   }, [refreshDetail])
 
-  // Konuşma değiştiğinde önceki konuşmaya ait taslak/seçim state'i yeni konuşmaya sızmasın diye
-  // sıfırlanır (component artık `key` ile remount edilmiyor — card #1493 sonrası geçiş jank fix'i).
+  // Konuşma değişince taslak/seçim sıfırlanır; detay silinmez — aksi halde gri iskelet
+  // ve panel zıplaması oluşur (#3246). Eski timeline activeDetail ile gizlenir.
   useEffect(() => {
-    setDetail(null)
     setReplyText('')
     setChatSearch('')
     setShowChatSearch(false)
@@ -1146,17 +1124,18 @@ function ConversationDetail({
     })
   }
 
-  const openTicket = detail ? pickReplyTicket(detail.tickets) : undefined
-  const primaryTicket = openTicket ?? detail?.tickets[detail.tickets.length - 1]
+  const activeDetail = detail?.citizenConversationId === conversationId ? detail : null
+  const openTicket = activeDetail ? pickReplyTicket(activeDetail.tickets) : undefined
+  const primaryTicket = openTicket ?? activeDetail?.tickets[activeDetail.tickets.length - 1]
   const internalDepartmentOptions = useMemo(() => {
     const activeStatuses = new Set(['Draft', 'PendingOwnerApproval', 'PendingExternalApproval', 'RevisionRequested', 'Active'])
     const options = new Map<string, string>()
-    for (const ticket of detail?.tickets ?? []) {
+    for (const ticket of activeDetail?.tickets ?? []) {
       if (!ticket.jobStatus || !activeStatuses.has(ticket.jobStatus) || !ticket.departmentId || !ticket.departmentName) continue
       options.set(ticket.departmentId, ticket.departmentName)
     }
     return Array.from(options, ([departmentId, name]) => ({ departmentId, name }))
-  }, [detail?.tickets])
+  }, [activeDetail?.tickets])
 
   useEffect(() => {
     if (!internalDepartmentId) return
@@ -1165,10 +1144,10 @@ function ConversationDetail({
     }
   }, [internalDepartmentId, internalDepartmentOptions])
 
-  const windowOpen = isWhatsApp24hWindowOpen(detail?.lastInboundAt ?? null)
+  const windowOpen = isWhatsApp24hWindowOpen(activeDetail?.lastInboundAt ?? null)
   const hasSelectableTemplates = userQuickReplies.length > 0
 
-  const phoneForHeader = citizenPhone ?? detail?.citizenPhone ?? null
+  const phoneForHeader = citizenPhone ?? activeDetail?.citizenPhone ?? null
   const headerTitle = citizenName?.trim() || (phoneForHeader ? formatPhone(phoneForHeader) : t('social.conversation', 'Konuşma'))
   const headerInitials = citizenName ? getInitials(citizenName) : null
   const inboundSenderLabel = citizenName?.trim()
@@ -1177,12 +1156,12 @@ function ConversationDetail({
       ? formatPhone(phoneForHeader)
       : null
   // Talep Sayısı = İşleme Alınan + Yapılmakta + Tamamlandı (iptal yok, #r473).
-  const ticketLabel = detail
-    ? `Talep Sayısı: ${detail.intakeCount + detail.inProgressCount + detail.completedCount}`
+  const ticketLabel = activeDetail
+    ? `Talep Sayısı: ${activeDetail.intakeCount + activeDetail.inProgressCount + activeDetail.completedCount}`
     : formatWhatsAppTicketLabel(primaryTicket)
   // Header'daki "Görev Sahibi" yalnız aktif (Yapılmakta) taleplerin aktif görev atananlarını
   // gösterir; talep/görev tamamlandı veya iptal ise düşer (#6a75ec71 / #1372).
-  const taskOwnerLabel = detail?.tickets.reduce<string[]>((owners, ticket) => {
+  const taskOwnerLabel = activeDetail?.tickets.reduce<string[]>((owners, ticket) => {
     const status = ticket.jobStatus
     if (status !== 'Active') return owners
     const assigneeName = ticket.jobId ? ticket.assigneeDisplayName?.trim() : null
@@ -1196,13 +1175,13 @@ function ConversationDetail({
   }
   const normalizedChatSearch = chatSearch.trim().toLocaleLowerCase('tr')
   const visibleTimeline = useMemo(() => {
-    if (!detail) return []
-    if (!normalizedChatSearch) return detail.timeline
-    return detail.timeline.filter(entry =>
+    if (!activeDetail) return []
+    if (!normalizedChatSearch) return activeDetail.timeline
+    return activeDetail.timeline.filter(entry =>
       formatConversationDisplayContent(entry.content).toLocaleLowerCase('tr').includes(normalizedChatSearch)
       || (entry.senderLabel ?? '').toLocaleLowerCase('tr').includes(normalizedChatSearch),
     )
-  }, [detail, normalizedChatSearch])
+  }, [activeDetail, normalizedChatSearch])
 
   const ticketMeta = ticketLabel ? (
     <span className="shrink-0 truncate text-[11px] font-semibold text-slate-600">
@@ -1329,9 +1308,9 @@ function ConversationDetail({
             onScroll={updatePinnedToBottom}
             className="whatsapp-chat-bg whatsapp-message-pane min-h-0 flex-1 space-y-2.5 overflow-y-auto px-4 py-4"
           >
-            {loading ? (
-              <ConversationSkeleton />
-            ) : !detail || visibleTimeline.length === 0 ? (
+            {loading && !activeDetail ? (
+              null
+            ) : !activeDetail || visibleTimeline.length === 0 ? (
               <p className="mt-8 text-center text-sm text-slate-500">
                 {normalizedChatSearch ? t('whatsapp.searchNoResults', 'Eşleşen mesaj yok.') : t('social.noMessages', 'Henüz mesaj yok')}
               </p>
@@ -1432,8 +1411,8 @@ function ConversationDetail({
             <div ref={bottomRef} />
           </div>
 
-          {openTicket || loading ? (
-            <footer className="shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
+          {openTicket ? (
+            <footer className="whatsapp-conversation-footer shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
               <div className="space-y-2">
                 <div className="grid grid-cols-[1fr_auto] items-center gap-2">
                   <div className="flex min-w-0 flex-wrap items-center gap-2">
@@ -1559,13 +1538,13 @@ function ConversationDetail({
               </div>
             </footer>
           ) : (
-            <footer className="shrink-0 border-t border-slate-200 bg-white px-4 py-4 text-center text-xs text-slate-500">
+            <footer className="whatsapp-conversation-footer flex shrink-0 items-center justify-center border-t border-slate-200 bg-white px-4 py-4 text-center text-xs text-slate-500">
               {t('whatsapp.noTickets')}
             </footer>
           )}
         </div>
         <ConversationProfilePanel
-          detail={detail}
+          detail={activeDetail}
           draft={profileDraft}
           saving={profileSaving}
           onDraftChange={patch => {

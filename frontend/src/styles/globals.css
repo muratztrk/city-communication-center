@@ -7136,6 +7136,10 @@
   }
 
   /* WhatsApp konuşma scroll alanı: bej zemin + hafif nokta deseni (#2300 reopen). */
+  .whatsapp-conversation-footer {
+    min-height: 10.75rem;
+  }
+
   .whatsapp-chat-bg {
     background-color: var(--wa-chat-bg);
     background-image:

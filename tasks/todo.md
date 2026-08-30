@@ -1,3 +1,7 @@
+## Round 1077 — 11 kart: not token, harita FAB, grid/banner, WA geçiş
+
+- **#3246:** Kutucuk değişince gri pulse iskelet + footer/profil zıplaması. İskelet silindi; detay null edilmez; footer min-height kilitli.
+
 ## Round 1077 — 10 kart: not token, harita FAB, grid/banner punto
 
 - **#3239:** `BuildStatusMessage(null)` token'ı boşaltıyordu → not kayboluyordu; null token bırakır, `ApplyTerminalNote` yerleştirir. **#3232 Tim mobil app atlandı.**

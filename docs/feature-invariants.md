@@ -962,8 +962,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gösterilmez. Timeline: İptal/Tamamlanma → Durum Yapılmakta; İptal Tarihi kırmızı
   (`terminal-danger`). Hedef onay adımı tarih varsa (decidedAtUtc veya hedef görev atama)
   gösterilir, yoksa Onay Bekleyen.
-- **Onayla toast (#3254):** Taleplerim / Birime Gelen `Onayla` ve kapatma onayı başarıda sağ alt
-  `Toast` (`Talep onaylandı.` / `Görev kapatma onaylandı.`) — Görevlerim tamamlama toast kalıbı.
+- **Onayla toast (#3254/#3264):** Taleplerim / Birime Gelen / Birimden Giden grid ve detay
+  `Onayla` (personel ata modalı + düz onay + kapatma) başarıda `emitPageToast` → `AppShell`
+  (`Talep onaylandı.` / `Görev kapatma onaylandı.`). Yerel `Toast` + `reload()` toast’ı öldürür.
 - **Mesaj Onayı reopen hedef onay adımı (card #6a6aecbc):** reopen sonrası Süreç'te
   `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` korunur (onaylıysa tarih; değilse
   `Onay Bekleyen`). `shouldShowCitizenTargetApprovalDate` reopen'da `taskCount === 0` iken de
@@ -1049,6 +1050,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ölçüleri ayrı korunur (card #1247).
 - **Talep Oluştur > Vatandaş Çağrı Talebi Talep Etiketi değeri:** yalnız salt-okunur input metni
   `text-xs` kalır; Etiketler/Etiket ekle butonlarının büyütülmüş metni etkilenmez (card #1561).
+  Mobil/oluşturma: `Talep Etiketi seçiniz` kendi satırında; altında dropdown + Etiket Ekle
+  yan yana (`request-tag-create-block`, #3268).
+- **Talep Oluştur Cadde/No (#3267):** iç/dış talepte Konum Linki Cadde/No ile aynı satırda
+  değil — Rutin Görev gibi `coordinatesBelowNeighborhood` + `minmax(0,1fr)_8.25rem`. Kalan
+  3’lü satırlarda mobilde Konum alt satıra iner (`.address-street-no-row--with-link`).
 - **Birim içi/dışı/vatandaş talep oluşturma formlarının input/dropdown yükseklikleri kompakt
   tutulur**; genel `.field-input` / `.field-select` ölçeği bu istek için değiştirilmez (card #1249).
 - **Birim içi talep oluşturma `Bitiş Tarihi` picker'ı yukarı açılır**; diğer tarih picker'larının
@@ -1552,6 +1558,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil login logo paneli (card #1675):** yeşil logo alanı Personel Girişi kartıyla aynı
   genişlikte (negatif margin yok).
 - **Mobil kurum içi mesajlar FAB (card #1674):** FAB `size-12`; panel yüksekliği `~78dvh`.
+  Masaüstünde WhatsApp + kurum içi FAB görsel boyutu kaydır FAB ile aynı (`2.75rem`, #3261);
+  `--whatsapp-fab-size` ≥768px `2.75rem` (harita clearance).
 - **Bildirim ISO tarih formatı (card #1667):** `FormatNote` hem `Z` hem `+00:00` (round-trip
   `"O"`) ISO zamanlarını `dd.MM.yyyy HH:mm` (yerel) gösterir — özellikle `TaskDueDateUpdated`
   / `JobDueDateUpdated`.
@@ -2634,15 +2642,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#3135), pie kart başlığı `0.94rem` + lejant `0.72rem` — lejant `max-height` formülü 5 satır
   görünecek şekilde puntoyla birlikte güncellenmeli (#3206).
   Gridview'da Gittiği/Geldiği yer **alt satırı** (`.grid-stack-secondary`) mobil `0.52rem` (#3226/#3241),
-  masaüstü `0.82rem` (#3225). Yeşil birim çerçevesi (`.framed-department-pill`) mobil `0.50rem` —
+  masaüstü `0.74rem` (#3263, Oluşturan). Yeşil birim çerçevesi (`.framed-department-pill`) mobil `0.50rem` —
   ikincil satır değil çerçeve metni küçülür. Renkli arka planlı grid verisi (Durum/Görev Tipi
   `.status-pill` `0.54rem`, birim çerçevesi `0.56rem`, son tarih pill `0.70rem`) mobil büyütülür;
-  düz başlık/numara metni küçülür (`0.64rem`, #3252/#3256/#3257). `StatusPill` kökünde `status-pill`
-  sınıfı olmalı. Durum alt satır `(Geciken)` (`.grid-status-overdue-sub`) mobil `0.50rem` (#3226).
+  mobil başlık (`.cell-title`) `0.70rem` (#3262), numara (`__value`) `0.58rem` (#3252). `StatusPill`
+  kökünde `status-pill` sınıfı olmalı. Durum alt satır `(Geciken)` (`.grid-status-overdue-sub`)
+  mobil `0.50rem` (#3226).
   Tarih (`.date-cell`) mobil `0.66rem` (#3227). Mobil Durum hücresinde saat yok
   (`.grid-status-datetime` gizli, #3224); İşlemler butonları biraz küçük (`0.62rem` / `1.5rem`).
   Mobil sayfa + pie popup `thead` `0.68rem`.
-  Masaüstü `YENİ` `0.68rem` (≥768px); mobil `YENİ` `0.72rem` ve taşmaz — 0.64rem satırda kayboluyordu (#3251).
+  Masaüstü `YENİ` `0.68rem` (≥768px); mobil `YENİ` `0.66rem` ve taşmaz — 0.64rem satırda kayboluyordu (#3251).
 - **Anasayfa metrik kutucuğu (#3208/#3216/#3223):** ikon kutusu `size-8`, ikon `size-3.5`, sol padding
   `pl-2.5`, ikon-metin boşluğu `gap-2`. Alt satır `(Birim İçi/Dışı)` — eski `(Birim İçi/Birim Dışı)`
   değil; alt satır punto masaüstü `0.70rem` (başlık `0.72rem`), mobil `0.58rem`

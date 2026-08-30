@@ -104,7 +104,7 @@ export function CbsStreetNoDropdowns({
 }: CbsStreetNoDropdownsProps) {
   const showCoordinates = typeof onCoordinatesChange === 'function'
   const rowClassName = showCoordinates
-    ? 'address-street-no-row grid min-w-0 grid-cols-[minmax(0,1fr)_8.25rem_minmax(8.75rem,11rem)] gap-2'
+    ? 'address-street-no-row address-street-no-row--with-link grid min-w-0 grid-cols-[minmax(0,1fr)_8.25rem] gap-2 md:grid-cols-[minmax(0,1fr)_8.25rem_minmax(8.75rem,11rem)]'
     : (className ?? 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2')
   const { t } = useTranslation()
   const districtId = useMunicipalityDistrictId()

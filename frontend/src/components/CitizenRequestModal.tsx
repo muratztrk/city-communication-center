@@ -749,17 +749,18 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
               <div className="job-field">
                 <span className="job-field-label">{t('whatsapp.label', 'Talep Etiketi')}</span>
-                <div className="flex items-center gap-2">
+                <div className="request-tag-create-block">
                   <input
-                    className="field-input citizen-request-tag-input min-w-0 flex-1 text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+                    className="field-input citizen-request-tag-input request-tag-create-value min-w-0 w-full text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
                     value={requestLabel}
                     readOnly
                     disabled
                     placeholder={t('whatsapp.requestTagPlaceholder', 'Talep Etiketi seçiniz...')}
                   />
                   {canManageRequestTags ? (
-                    <>
+                    <div className="request-tag-create-actions">
                       <RequestTagPicker
+                        largeText
                         smallButtonText
                         tags={requestTags}
                         selectedName={requestLabel}
@@ -767,7 +768,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                         onClear={() => { void handleRequestLabelSelect('') }}
                       />
                       <RequestTagAddButton onChanged={() => { void loadRequestTags() }} />
-                    </>
+                    </div>
                   ) : null}
                 </div>
               </div>

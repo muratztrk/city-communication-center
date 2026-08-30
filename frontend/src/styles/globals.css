@@ -2445,6 +2445,19 @@
     gap: 0.25rem;
   }
 
+  .request-tag-create-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .request-tag-create-actions {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
   .dropdown-menu-panel {
     overflow: hidden;
     border-radius: 0.75rem;
@@ -4982,7 +4995,7 @@
   @media (min-width: 768px) {
     .table-container tbody td .grid-stack-secondary,
     .data-table tbody td .grid-stack-secondary {
-      font-size: 0.82rem !important;
+      font-size: 0.74rem !important;
     }
   }
 
@@ -6791,13 +6804,18 @@
 
     /* Mobil grid: Talep No + altındaki öncelik küçült (#r490 / #3252). */
     .table-number-cell__value {
-      font-size: 0.64rem;
+      font-size: 0.58rem;
       line-height: 1.25;
     }
 
     .table-number-cell__priority {
       font-size: 0.65rem;
       line-height: 1.2;
+    }
+
+    /* Cadde/No + Konum Linki: mobilde Konum alt satıra insin (#3267). */
+    .address-street-no-row--with-link > :nth-child(3) {
+      grid-column: 1 / -1;
     }
 
     /* Mobil: Sayfa Başına Kayıt seçici gizle; sabit 10 (#r490/#r493). */
@@ -7033,21 +7051,24 @@
       font-size: 0.68rem !important;
     }
 
-    /* Başlık + numara verisi: tüm grid + pie popup (#3252/#3256). */
+    /* Başlık büyüsün, numara küçülsün: tüm grid + pie popup (#3252/#3262). */
     .data-table .cell-title,
     .table-container .cell-title,
     .dashboard-drilldown-table .cell-title,
-    .detail-modal-shell .dashboard-drilldown-table .cell-title,
+    .detail-modal-shell .dashboard-drilldown-table .cell-title {
+      font-size: 0.70rem !important;
+    }
+
     .data-table .table-number-cell__value,
     .table-container .table-number-cell__value,
     .dashboard-drilldown-table .table-number-cell__value,
     .detail-modal-shell .dashboard-drilldown-table .table-number-cell__value {
-      font-size: 0.64rem !important;
+      font-size: 0.58rem !important;
     }
 
-    /* YENİ rozeti 1079'da 0.64rem olunca satırda kayboldu — geri getir (#3251). */
+    /* YENİ rozeti görünür kalsın, biraz küçült (#3251). */
     .task-new-badge {
-      font-size: 0.72rem !important;
+      font-size: 0.66rem !important;
       display: block;
       overflow: visible;
       line-height: 1.2;
@@ -7405,6 +7426,21 @@
     .scroll-fab-button {
       width: 2.75rem;
       height: 2.75rem;
+    }
+  }
+
+  /* Masaüstü: WhatsApp + kurum içi FAB = kaydır FAB (#3261). */
+  @media (min-width: 768px) {
+    .ccc-floating-fab,
+    .ccc-floating-fab-btn {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
+    .ccc-floating-fab-btn .ccc-floating-fab-icon,
+    .ccc-floating-fab-btn img.ccc-floating-fab-icon {
+      width: 1.375rem;
+      height: 1.375rem;
     }
   }
 

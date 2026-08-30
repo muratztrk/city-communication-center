@@ -47,3 +47,9 @@
   --wa-chat-bg-dark: #0b141a;
   --internal-messages-chat-bg: #ece5dd;
 }
+
+@media (min-width: 768px) {
+  :root {
+    --whatsapp-fab-size: 2.75rem;
+  }
+}

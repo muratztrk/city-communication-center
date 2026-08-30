@@ -1492,7 +1492,10 @@ export function CreateRequestPage() {
                 </div>
               ) : null}
             </div>
-            {renderAddressFields(internalForm, (field, value) => setInternalForm(current => ({ ...current, [field]: value })))}
+            {renderAddressFields(internalForm, (field, value) => setInternalForm(current => ({ ...current, [field]: value })), {
+              coordinatesBelowNeighborhood: true,
+              streetRowClassName: 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2',
+            })}
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
@@ -1607,7 +1610,10 @@ export function CreateRequestPage() {
                 />
               </div>
             </div>
-            {renderAddressFields(externalForm, (field, value) => setExternalForm(current => ({ ...current, [field]: value })))}
+            {renderAddressFields(externalForm, (field, value) => setExternalForm(current => ({ ...current, [field]: value })), {
+              coordinatesBelowNeighborhood: true,
+              streetRowClassName: 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2',
+            })}
           </div>
           <div className="grid content-start gap-3">
             <div className="job-field min-h-0">
@@ -1742,16 +1748,16 @@ export function CreateRequestPage() {
               {/* Talep Kanalı'nın sağında WhatsApp profilindeki Talep Etiketi bloğunun klonu (card #1561). */}
               <div className="job-field">
                 <span className="job-field-label">{t('whatsapp.label', 'Talep Etiketi')}</span>
-                <div className="flex items-center gap-2">
+                <div className="request-tag-create-block">
                   <input
-                    className="field-input citizen-request-tag-input min-w-0 flex-1 text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-600 disabled:placeholder:text-slate-600"
+                    className="field-input citizen-request-tag-input request-tag-create-value min-w-0 w-full text-xs disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-600 disabled:placeholder:text-slate-600"
                     value={citizenLabel}
                     readOnly
                     disabled
                     placeholder={t('whatsapp.requestTagPlaceholder', 'Talep Etiketi seçiniz...')}
                   />
                   {canManageRequestTags && (
-                    <>
+                    <div className="request-tag-create-actions">
                       <RequestTagPicker
                         largeText
                         largeMenuText
@@ -1762,7 +1768,7 @@ export function CreateRequestPage() {
                         onClear={() => void handleCitizenLabelSelect('')}
                       />
                       <RequestTagAddButton largeText onChanged={() => void loadRequestTags()} />
-                    </>
+                    </div>
                   )}
                 </div>
               </div>

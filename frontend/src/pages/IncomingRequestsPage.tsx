@@ -44,7 +44,7 @@ import { invalidateJobs, invalidateTasks } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
-import { Toast } from '../components/ui/toast'
+import { emitPageToast } from '../components/ui/pageToast'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import { TablePagination } from '../components/ui/table-pagination'
@@ -460,8 +460,6 @@ export function IncomingRequestsPage() {
   const [filterTo, setFilterTo] = useState(() => toDateTimePickerValue(searchParams.get('to') ?? '') || (searchParams.get('to') ?? ''))
   const [searchText, setSearchText] = useState('')
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
-  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
-  const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type })
   const [cancelModal, setCancelModal] = useState<{ row: IncomingRequestRow; reason: string; saving: boolean } | null>(null)
   const [departmentUsers, setDepartmentUsers] = useState<User[]>([])
   const [staffAssignModal, setStaffAssignModal] = useState<{
@@ -646,7 +644,7 @@ export function IncomingRequestsPage() {
       }
       await reload()
       if (approvalType === 'owner' || approvalType === 'target') {
-        showToast(t('jobs.actions.approveSuccess', 'Talep onaylandı.'))
+        emitPageToast(t('jobs.actions.approveSuccess', 'Talep onaylandı.'))
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -664,7 +662,7 @@ export function IncomingRequestsPage() {
           await api.approveTaskClose(taskId)
           invalidateTasks(queryClient, taskId)
           await reload()
-          showToast(t('tasks.actions.approveCloseSuccess', 'Görev kapatma onaylandı.'))
+          emitPageToast(t('tasks.actions.approveCloseSuccess', 'Görev kapatma onaylandı.'))
         } catch (err) {
           setError(err instanceof Error ? err.message : t('common.error'))
         }
@@ -1222,7 +1220,6 @@ export function IncomingRequestsPage() {
         </section>
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
-      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {cancelModal && createPortal(
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" role="presentation">
           <section className="form-card page-stack relative w-full max-w-md" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="cancel-incoming-job-dialog-title">

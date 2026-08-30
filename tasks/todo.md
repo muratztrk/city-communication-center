@@ -1,3 +1,14 @@
+## Round 1081 — 9 web kart: Onayla toast, YENİ, etiket, cadde, grid punto, FAB
+
+- **#3254/#3264:** Onayla toast `emitPageToast` (AppShell) — `reload()` yerel Toast’ı öldürüyordu; grid + detay, Birime Gelen + Birimden Giden.
+- **#3251:** mobil YENİ `0.66rem` (taşmaz).
+- **#3268:** Talep Etiketi: seçiniz kendi satırında; altında dropdown + Etiket Ekle.
+- **#3267:** Talep oluştur Cadde/No Rutin Görev gibi; Konum Linki alt satır.
+- **#3252:** mobil numara `0.58rem`. **#3262:** mobil başlık `0.70rem`.
+- **#3263:** masaüstü Oluşturan / `.grid-stack-secondary` `0.74rem`.
+- **#3261:** masaüstü WA + kurum içi FAB = kaydır `2.75rem`.
+- **Atlandı:** #3232/#3265/#3266/#3255 Tim mobil app.
+
 ## Round 1080 — 6 web kart: başlık/numara, renkli pill, YENİ, Geciken, metrik
 
 - **#3252/#3256:** mobil tüm grid + pie popup başlık (`.cell-title`) ve numara (`__value`) `0.64rem`.

@@ -146,6 +146,28 @@ public sealed class CitizenJobStatusMessageTests
         Assert.Contains("{İptal Notu}", templates.Cancelled);
         Assert.EndsWith("{Tamamlama Notu}", templates.Completed);
         Assert.EndsWith("{İptal Notu}", templates.Cancelled);
+        Assert.DoesNotContain("\n\n{Tamamlama Notu}", templates.Completed);
+        Assert.DoesNotContain("\n\n{İptal Notu}", templates.Cancelled);
+    }
+
+    [Fact]
+    public void ParseOrDefault_CollapsesBlankLineBeforeNoteToken()
+    {
+        const string json = """
+            {
+              "ProcessingReceived": "{VatandaşTalepNo} İşleme Alındı. {GönderilenBirim}",
+              "InProgress": "{VatandaşTalepNo} Yapılmakta. {GönderilenBirim}",
+              "Completed": "{VatandaşTalepNo} Tamamlandı. {GönderilenBirim}\n\n{Tamamlama Notu}",
+              "Cancelled": "{VatandaşTalepNo} İptal Edildi. {GönderilenBirim}\n\n{İptal Notu}"
+            }
+            """;
+
+        var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
+
+        Assert.Contains("{GönderilenBirim} {Tamamlama Notu}", templates.Completed);
+        Assert.Contains("{GönderilenBirim} {İptal Notu}", templates.Cancelled);
+        Assert.DoesNotContain("\n\n{Tamamlama Notu}", templates.Completed);
+        Assert.DoesNotContain("\n\n{İptal Notu}", templates.Cancelled);
     }
 
     [Fact]

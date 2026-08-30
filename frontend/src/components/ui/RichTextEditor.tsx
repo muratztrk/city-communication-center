@@ -200,7 +200,13 @@ export function RichTextEditor({
       emitRafRef.current = null
       const editor = editorRef.current
       if (!editor) return
-      const sanitizedHtml = isEditorEmpty(editor) ? '' : sanitizeRichTextHtml(editor.innerHTML)
+      if (isEditorEmpty(editor)) {
+        if (editor.innerHTML !== '') editor.innerHTML = ''
+        lastCommittedHtmlRef.current = ''
+        startTransition(() => onChange(''))
+        return
+      }
+      const sanitizedHtml = sanitizeRichTextHtml(editor.innerHTML)
       const nextHtml = normalizeEditorValue(sanitizedHtml)
       lastCommittedHtmlRef.current = nextHtml
       startTransition(() => onChange(nextHtml))
@@ -344,7 +350,13 @@ export function RichTextEditor({
           }
           const editor = editorRef.current
           if (!editor) return
-          const sanitizedHtml = isEditorEmpty(editor) ? '' : sanitizeRichTextHtml(editor.innerHTML)
+          if (isEditorEmpty(editor)) {
+            if (editor.innerHTML !== '') editor.innerHTML = ''
+            lastCommittedHtmlRef.current = ''
+            onChange('')
+            return
+          }
+          const sanitizedHtml = sanitizeRichTextHtml(editor.innerHTML)
           const nextHtml = normalizeEditorValue(sanitizedHtml)
           lastCommittedHtmlRef.current = nextHtml
           onChange(nextHtml)

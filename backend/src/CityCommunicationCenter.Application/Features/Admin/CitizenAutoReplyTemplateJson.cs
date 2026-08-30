@@ -150,11 +150,16 @@ public static class CitizenAutoReplyTemplateJson
                 continue;
             }
 
-            var beforeToken = template[..tokenIndex];
+            var beforeToken = template[..tokenIndex].TrimEnd('\r', '\n');
+            if (beforeToken.Length > 0 && !char.IsWhiteSpace(beforeToken[^1]))
+            {
+                beforeToken += " ";
+            }
+
             var afterToken = template[(tokenIndex + token.Length)..];
             return $"{beforeToken}{canonical}{afterToken}";
         }
 
-        return $"{template.TrimEnd()}\n\n{canonical}";
+        return $"{template.TrimEnd()} {canonical}";
     }
 }

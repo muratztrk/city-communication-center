@@ -207,6 +207,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Taleplerim / Birime Gelen / Birimden Giden talep detay popup'larında bölüm başlığı
   `İlgili Görev Detayları`dır (card #1663); Görevlerim popup'ında kendi görev başlığı
   `Görev Detayları` kalır.
+  Vatandaş talebinde `İlgili Görev Detayları` **Talebi Yönlendiren** etiket+değer satırını
+  göstermez (#3253). Görevlerim `Görev Bilgileri` ve yazdır şablonu değişmez.
+  Vatandaş olmayan işlerde `Talep Yeri / Oluşturan` satırı durur.
   Görevlerim detay → Düzenle’de **Başlangıç Tarihi** satırı hiç gösterilmez; kayıtta mevcut `startDateUtc` gönderilir (#2736 reopen).
 - **Atanmış görev detay popup'ında `Öncelik` satırı gizlidir:** `Görev Tipi = Atanmış`
   olduğunda Görevlerim `Görev Detayları` altındaki Öncelik etiketi ve değeri görünmez; rutin
@@ -917,8 +920,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `{GönderilenBirim}` token'ından sonra şablonda her zaman tam bir otomatik ayraç boşluğu bulunur;
   Tamamlandı kartında `{Tamamlama Notu}`, İptal kartında `{İptal Notu}` birim ek metninden sonra
   gelir (chip, #3215/#3222); gönderimde token notla değişir, yoksa boşalır. Token'lı
-  şablonda `AppendSmsTerminalNote` **tekrar eklemez** (çift not olmasın). Eski kayıtlara token
-  okunurken/yazılırken `\n\n` ile eklenir.
+  şablonda `AppendSmsTerminalNote` **tekrar eklemez** (çift not olmasın). Token birim ekinden
+  sonra **boş satır olmadan** tek boşlukla eklenir (#3250); eski `\n\n{Tamamlama Notu}` kayıtları
+  okunurken boş satır tek boşluğa düşer.
   `BuildStatusMessage(..., terminalNote: null)` token'ı **silmez** — çağıran
   `EnsureBlankLineBeforeTargetDepartments` sonra `ApplyTerminalNote` ile yerleştirir (#3239).
   Boş not (`""`) token'ı siler.
@@ -1536,7 +1540,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep Oluştur placeholder’ları (card #6a6f49fd / #3234):** Başlık `Talep başlığı giriniz...`;
   Açıklama `Talebinizi detaylı olarak açıklayınız...`; Vatandaş Çağrı Açıklama
   `Vatandaş talebini detaylı olarak açıklayınız...`. WA Vatandaş Talebi başlık placeholder
-  punto `0.68rem` (`.citizen-request-title-textarea::placeholder`).
+  punto `0.76rem` (`.citizen-request-title-textarea::placeholder`, #3234 reopen).
+  Talep oluştur **Açıklama** rich-text boşalınca (`<br>` / `<p><br>`) DOM temizlenir ki
+  `:empty::before` placeholder geri gelsin (#3249).
 - **Header Personel Dahili No (card #6a6f51eb):** placeholder/aria `Personel Dahili No bul...`.
 - **Mobil detay header eşit butonlar (card #1676):** `DisabledActionButton` span sarmalayıcı
   da 2-kolon gridde `width: 100%` — pasif Yönlendir = İptal boyutu.
@@ -1943,10 +1949,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   beyaz çerçeve 1.7rem / iç logo 26px, +/- yığınının solunda **+/− arasındaki çizgi hizasında** (#2614/#2615/#2621/#2631/#2769).
   Hover’da pegman bir kez geri kayar ve durur; mouse çıkınca eski konumuna döner (#2767).
   Street View açıkken özel +/−/başlangıç ikonları gizlenir; pegman Google native − solunda
-  (`translateX(-3.15rem)`, #3238/#3244). Adres kartı (`gm-iv-address`) `min-height: 4.75rem` —
+  (`translate(-3.15rem, -0.45rem)`, #3238/#3244 reopen). Adres kartı (`gm-iv-address`) `min-height: 4.75rem` —
   "Google Haritalar'da görüntüleyin" kırpılmaz (#3237).
-  Masaüstünde varsayılan harita kontrolleri FAB yığınının üstünde (`bottom` FAB yüksekliği + boşluk,
-  #3245). Street View açıkken sohbet FAB'leri kaydır düğmesinin **üst satırlarında** (`flex-col`, #3243).
+  Masaüstünde varsayılan harita kontrolleri FAB yığınının üstünde (`bottom` FAB + `0.85rem`,
+  #3245 reopen). Street View açıkken sohbet FAB'leri kaydır düğmesinin **üst satırlarında**
+  (`flex-col`); paneller butonların soluna `right: calc(100% + 0.7rem)` ile açılır (#3243 reopen).
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
   Düşük zoom native koyu mavi kapsama çerçevesi durur; erode/CSS ile inceltme geri alındı (#2622).
@@ -2625,9 +2632,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görünecek şekilde puntoyla birlikte güncellenmeli (#3206).
   Gridview'da Gittiği/Geldiği yer **alt satırı** (`.grid-stack-secondary`) mobil `0.52rem` (#3226/#3241),
   masaüstü `0.82rem` (#3225). Yeşil birim çerçevesi (`.framed-department-pill`) mobil `0.50rem` —
-  ikincil satır değil çerçeve metni küçülür (#3226 reopen). Durum (`.status-pill`) `0.58rem`. Tarih (`.date-cell` / `.due-date-pill`)
-  mobil `0.66rem` (#3227). Mobil Durum hücresinde saat yok (`.grid-status-datetime` gizli, #3224);
+  ikincil satır değil çerçeve metni küçülür (#3226 reopen). Durum (`.status-pill`) ve Görev Tipi
+  (`.task-type-pill`) mobil `0.50rem` (#3226 reopen). Tarih (`.date-cell` / `.due-date-pill`)
+  mobil `0.66rem` (#3227).   Mobil Durum hücresinde saat yok (`.grid-status-datetime` gizli, #3224);
   İşlemler butonları biraz küçük (`0.62rem` / `1.5rem`).
+  Mobil grid `thead` punto `0.60rem` (#3252). Masaüstü yanıp sönen `YENİ` (`.task-new-badge`)
+  `0.64rem` (≥768px); mobil `0.72rem` kalır (#3225 reopen).
 - **Anasayfa metrik kutucuğu (#3208/#3216/#3223):** ikon kutusu `size-8`, ikon `size-3.5`, sol padding
   `pl-2.5`, ikon-metin boşluğu `gap-2`. Alt satır `(Birim İçi/Dışı)` — eski `(Birim İçi/Birim Dışı)`
   değil; alt satır punto `0.70rem` (başlık `0.72rem`).
@@ -2645,7 +2655,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketiyle aynı hizada, sağa yaslı. Satır `job-detail-field-row--task-location` ile 2 kolonlu
   ızgaraya alınır; `stacked-field-label` / `stacked-field-value` `display: contents` ile aynı
   ızgaraya açılır (font/renk miras yoluyla korunur). Masaüstünde tek satırlık metin korunur
-  (`hidden lg:inline` / `lg:hidden`). Vatandaş talebinde etiket `Talebi Yönlendiren` tek satır kalır.
+  (`hidden lg:inline` / `lg:hidden`). Vatandaş talebinde bu satır `İlgili Görev Detayları`'nda yoktur (#3253).
 - **Mobil (≤1023px) Adres Bilgileri hizası:** `Mahalle` / `Cadde / Sokak` / `No` / `Adres Tarifi` /
   `Konum Linki` başlıkları **tek sol düşey eksende** alt alta; dolu değer sola yaslı tam genişlik.
   Masaüstü ortalama/`translateX` kuralları `!important` + özgül seçicilerle yazıldığı için mobil
@@ -2662,7 +2672,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `SystemAdmin` ve `Operator` (ek rol dahil) için görünür; diğer roller görmez.
 - **Vatandaş cevap şablonu taslak (#3221/#3220/#3222):** Kaydetmeden sekme/sayfa değişince
   `citizenAutoReplyTemplates` son kaydedilene döner. `{GönderilenBirim}` ek textarea Enter ile
-  satır sonu alır (`extract` trailing `\\n` yutmaz; not token öncesi yalnız `\\n\\n` ayrılır).
+  satır sonu alır (`extract` trailing `\\n` yutmaz; not token öncesi `\\n\\n` veya tek boşluk ayrılır, #3250).
   `{Tamamlama Notu}` / `{İptal Notu}` chip kalır, not-sonrası textarea yoktur.
 - **Mobil detay popup (#3230/#3228/#3229/#3231/#3242):** Talep/Görev Bilgileri etiket+değer aynı satır
   (değer sağa, punto `0.78rem`). Vatandaş Adı / Telefon No slash'ı mobilde yok, etiketler alt alta.

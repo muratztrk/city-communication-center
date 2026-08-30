@@ -243,27 +243,24 @@ export function MyRequestTaskDetailsSection({
                 </MyRequestSectionHeading>
                 <div className="my-request-detail-fields divide-y divide-slate-100">
                   {[
-                    {
-                      // Talep yeri (birim) üst, oluşturan personel alt satırda (card #1544).
-                      // Dış birim yeşil çerçeve yok — eski düz görünüm (card #r455).
-                      // Mobilde etiket de iki satır: slash yok, `Oluşturan` alt satırda (#2650 kalıbı);
-                      // masaüstünde tek satırlık metin korunur.
-                      key: 'task-location',
-                      label: isCitizenRequestJob(detail)
-                        ? requestLocationFieldLabel(detail, t)
-                        : (
-                          <>
-                            <span className="hidden lg:inline">{requestLocationFieldLabel(detail, t)}</span>
-                            <StackedFieldLabel
-                              className="lg:hidden"
-                              top={t('jobs.detail.requestLocation', 'Talep Yeri')}
-                              bottom={t('tasks.columns.createdBy', 'Oluşturan')}
-                            />
-                          </>
-                        ),
-                      value: <StackedFieldValue top={taskLocationDepartment} bottom={taskLocationCreator} />,
-                      rowClass: 'job-detail-field-row--task-location',
-                    },
+                    // Vatandaş talebinde Talebi Yönlendiren satırı İlgili Görev Detayları'nda yok (#3253).
+                    ...(!isCitizenRequestJob(detail)
+                      ? [{
+                          key: 'task-location',
+                          label: (
+                            <>
+                              <span className="hidden lg:inline">{requestLocationFieldLabel(detail, t)}</span>
+                              <StackedFieldLabel
+                                className="lg:hidden"
+                                top={t('jobs.detail.requestLocation', 'Talep Yeri')}
+                                bottom={t('tasks.columns.createdBy', 'Oluşturan')}
+                              />
+                            </>
+                          ),
+                          value: <StackedFieldValue top={taskLocationDepartment} bottom={taskLocationCreator} />,
+                          rowClass: 'job-detail-field-row--task-location',
+                        }]
+                      : []),
                     ...(task.jobSourceType !== 'Routine'
                       ? [{ label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'), value: task.assigningManagerDisplayName ?? '—' }]
                       : []),

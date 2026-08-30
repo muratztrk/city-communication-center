@@ -3349,7 +3349,7 @@ const pageKicker = isMyTasksView
                               <div className="task-new-badge !mt-0">{t('tasks.badges.new', 'Yeni')}</div>
                             ) : null}
                             {showTaskTypeUnderDate ? (
-                              <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.72rem]">
+                              <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="task-type-pill text-[0.72rem]">
                                 {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
                               </StatusPill>
                             ) : null}
@@ -3381,7 +3381,7 @@ const pageKicker = isMyTasksView
                     {showTaskTypeColumn && (
                       <td>
                         <div className="mx-auto max-w-[11rem] text-center">
-                          <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="text-[0.82rem]">
+                          <StatusPill tone={task.jobSourceType === 'Routine' ? 'neutral' : 'success'} className="task-type-pill text-[0.82rem]">
                             {task.jobSourceType === 'Routine' ? t('tasks.type.routine', 'Rutin') : t('tasks.type.assigned', 'Atanmış')}
                           </StatusPill>
                           {/* Görevi Yapan: oluşturandan biraz küçük (#r472); biraz büyüt (#2006 / #r531). */}

@@ -119,9 +119,8 @@ function buildCitizenAutoReplyTemplate(
   const normalizedNoteSuffix = normalize ? noteSuffix.trimEnd() : noteSuffix
   // Durum etiketi tırnak içinde (#2102).
   const quotedStatus = statusLabel.startsWith('"') ? statusLabel : `"${statusLabel}"`
-  // Not token'ı birim ek metninden sonra her zaman ayrı satırda (#3215): Kaydet trimEnd
-  // suffix'teki `\n\n`'i silse bile burada yeniden konur; aksi halde not birim adına yapışır.
-  const notePart = noteToken ? `\n\n${noteToken}${normalizedNoteSuffix}` : ''
+  // Not token'ı birim ekinden sonra boş satır olmadan, tek boşlukla eklenir (#3250).
+  const notePart = noteToken ? ` ${noteToken}${normalizedNoteSuffix}` : ''
   return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix}${notePart}`
 }
 
@@ -151,7 +150,7 @@ function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) 
 
 function extractCitizenAutoReplySuffixText(template: string, noteToken?: string) {
   // Token sonrası metin olduğu gibi gösterilir; Enter ile eklenen satır sonları korunur (#3220).
-  // Not token'ından hemen önceki otomatik `\n\n` ayırıcı textarea'da görünmez (#3215).
+  // Not token'ından hemen önceki `\n\n` veya tek boşluk textarea'da görünmez (#3215/#3250).
   const tokenIndex = template.indexOf(TARGET_DEPARTMENT_TOKEN)
   if (tokenIndex < 0) return ''
   let after = template.slice(tokenIndex + TARGET_DEPARTMENT_TOKEN.length)
@@ -160,6 +159,7 @@ function extractCitizenAutoReplySuffixText(template: string, noteToken?: string)
     if (noteIndex >= 0) {
       after = after.slice(0, noteIndex)
       if (after.endsWith('\n\n')) after = after.slice(0, -2)
+      else if (after.endsWith(' ')) after = after.slice(0, -1)
     }
   }
   return after

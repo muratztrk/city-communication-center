@@ -3861,7 +3861,7 @@
   }
 
   .citizen-request-form .citizen-request-title-textarea::placeholder {
-    font-size: 0.68rem;
+    font-size: 0.76rem;
   }
 
   .citizen-request-form .field-input,
@@ -6236,6 +6236,12 @@
     animation: ccc-blink 2.2s ease-in-out infinite;
   }
 
+  @media (min-width: 768px) {
+    .task-new-badge {
+      font-size: 0.64rem;
+    }
+  }
+
   /* Görev gridlerinde (Birimdeki Görevler/Personelimin Görevleri/Görevlerim) bekleyen ek süre
      talebi işareti "Yeni" rozetiyle aynı yanıp sönme efektini kullanır (card #1404, 3. reopen). */
   .extra-time-pending-blink {
@@ -7011,7 +7017,7 @@
     .table-container thead th,
     .data-table thead th {
       padding: 0.48rem 0.4rem;
-      font-size: 0.68rem;
+      font-size: 0.6rem;
       line-height: 1.15;
       letter-spacing: 0.03em;
     }
@@ -7025,8 +7031,10 @@
     }
 
     .data-table .status-pill,
-    .table-container .status-pill {
-      font-size: 0.58rem !important;
+    .table-container .status-pill,
+    .data-table tbody td .task-type-pill,
+    .table-container tbody td .task-type-pill {
+      font-size: 0.5rem !important;
     }
 
     .data-table .date-cell,
@@ -7124,6 +7132,14 @@
 
   .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel {
     right: -7.75rem;
+  }
+
+  /* Street View dikey FAB: paneller sağa taşmasın, butonların soluna açılsın (#3243). */
+  body:has(.citizen-request-map-controls.is-streetview) .whatsapp-notification-fab-panel,
+  body:has(.citizen-request-map-controls.is-streetview) .internal-messages-fab-panel,
+  body:has(.citizen-request-map-controls.is-streetview) .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel,
+  body:has(.citizen-request-map-controls.is-streetview) .fixed-fab-stack:has(.scroll-fab-button) .internal-messages-fab-panel {
+    right: calc(100% + 0.7rem);
   }
 
   /* <button> üzerinde Tailwind hover:underline çoğu tarayıcıda çizgi basmaz (#3000 reopen). */
@@ -7374,7 +7390,7 @@
   /* Masaüstü: +/−/reset/pegman FAB'ların üstünde kalsın (#3245). */
   @media (min-width: 1024px) {
     .citizen-request-map-controls:not(.is-streetview) {
-      bottom: calc(var(--fab-footer-clearance) + var(--whatsapp-fab-size) + 1.35rem);
+      bottom: calc(var(--fab-footer-clearance) + var(--whatsapp-fab-size) + 0.85rem);
     }
   }
 
@@ -7399,7 +7415,7 @@
 
   /* Street View: pegman Google − düğmesinin solunda (#3244). */
   .citizen-request-map-controls.is-streetview .citizen-request-map-streetview-btn {
-    transform: translateX(-3.15rem);
+    transform: translate(-3.15rem, -0.45rem);
   }
 
   /* Street View sol üst adres kartı: "Google Haritalar'da görüntüleyin" sığsın (#3237). */

@@ -1,3 +1,12 @@
+## Round 1078 — 10 kart: yönlendiren satırı, not yapışması, placeholder, harita/grid
+
+- **#3253:** İlgili Görev Detayları'nda vatandaş talebinde Talebi Yönlendiren etiket+değer yok. Talep Yeri/Oluşturan (vatandaş olmayan) durur.
+- **#3250:** `{Tamamlama Notu}` / `{İptal Notu}` birim ekinden sonra boş satır yok — tek boşluk. Eski `\n\n{token}` okunurken düşer.
+- **#3249:** Talep oluştur Açıklama — silince `:empty` placeholder geri gelir (contenteditable `<br>` temizlenir).
+- **#3234:** WA başlık placeholder `0.76rem`. **#3225:** masaüstü YENİ `0.64rem`. **#3226:** mobil Durum/Görev Tipi `0.50rem`. **#3252:** mobil thead `0.60rem`.
+- **#3243:** SV FAB panelleri sola (`right: calc(100% + 0.7rem)`). **#3244:** pegman `translate(-3.15rem, -0.45rem)`. **#3245:** masaüstü kontroller `+ 0.85rem`.
+- **#3248/#3247/#3232 Tim mobil app atlandı.**
+
 ## Round 1077 — 11 kart: not token, harita FAB, grid/banner, WA geçiş
 
 - **#3246:** Kutucuk değişince gri pulse iskelet + footer/profil zıplaması. İskelet silindi; detay null edilmez; footer min-height kilitli.

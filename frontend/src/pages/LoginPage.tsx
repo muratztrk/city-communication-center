@@ -307,7 +307,7 @@ export function LoginPage() {
     <div className="login-page relative flex min-h-dvh flex-col overflow-y-auto">
     <div className="flex flex-1 flex-col lg:my-8 lg:mx-4 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:overflow-hidden lg:rounded-3xl lg:shadow-2xl xl:mx-[12.5%] xl:grid-cols-[minmax(0,1fr)_440px]">
         <section
-          className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-7 lg:py-16 xl:px-8 2xl:px-12 2xl:py-20"
+          className="relative hidden overflow-hidden lg:flex lg:flex-col lg:justify-between lg:px-7 lg:pt-16 lg:pb-8 xl:px-8 2xl:px-12 2xl:pt-20 2xl:pb-10"
           style={loginHeroBackgroundStyle}
         >
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.14),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(197,154,55,0.18),transparent_28%)]" />
@@ -355,7 +355,7 @@ export function LoginPage() {
             ) : null}
           </div>
 
-          <div className="relative grid gap-3 rounded-[var(--radius-xl)] border border-white/12 bg-white/7 p-4 text-white/82">
+          <div className="login-hero-continue relative grid gap-3 rounded-[var(--radius-xl)] border border-white/12 bg-white/7 p-4 text-white/82">
             <div className="text-sm font-semibold text-white">{t('login.formDescription')}</div>
           </div>
         </section>

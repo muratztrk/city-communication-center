@@ -147,6 +147,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 .Distinct()
                 .ToListAsync(cancellationToken);
             var departmentNames = string.Join(", ", targetDepartmentNames);
+            var terminalNote = await ResolveTerminalNoteAsync(tenantId, job, statusLabel, cancellationToken);
             var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
                 message,
                 job,
@@ -155,8 +156,15 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 template,
                 departmentNames);
             content = EnsureBlankLineBeforeTargetDepartments(content, departmentNames);
-            var terminalNote = await ResolveTerminalNoteAsync(tenantId, job, statusLabel, cancellationToken);
-            content = AppendSmsTerminalNote(content, terminalNote);
+            if (CitizenJobStatusLabelHelper.ContainsTerminalNoteToken(template))
+            {
+                content = CitizenJobStatusLabelHelper.ApplyTerminalNote(content, terminalNote);
+            }
+            else
+            {
+                content = AppendSmsTerminalNote(content, terminalNote);
+            }
+
             return await SendSmsAsync(tenantId, message, content, statusLabel, cancellationToken);
         }
 
@@ -182,6 +190,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 .Distinct()
                 .ToListAsync(cancellationToken);
             var departmentNames = string.Join(", ", targetDepartmentNames);
+            var terminalNote = await ResolveTerminalNoteAsync(tenantId, job, statusLabel, cancellationToken);
             var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
                 message,
                 job,
@@ -189,11 +198,16 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 utcNow,
                 template,
                 departmentNames);
+            var noteAlreadyApplied = CitizenJobStatusLabelHelper.ContainsTerminalNoteToken(template);
+            content = EnsureBlankLineBeforeTargetDepartments(content, departmentNames);
+            if (noteAlreadyApplied)
+            {
+                content = CitizenJobStatusLabelHelper.ApplyTerminalNote(content, terminalNote);
+            }
 
             if (message.Channel == SocialChannel.WhatsApp)
             {
                 // Terminal WA: {GönderilenBirim} öncesi boş satır (#6a6f24e7 reopen).
-                content = EnsureBlankLineBeforeTargetDepartments(content, departmentNames);
                 var statusContentPrefix = content.TrimEnd();
                 var alreadyCreated = await _dbContext.ConversationEntries
                     .AsNoTracking()
@@ -207,7 +221,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                         cancellationToken);
                 if (!alreadyCreated)
                 {
-                    await SendWhatsAppAsync(tenantId, message, job, content, statusLabel, utcNow, cancellationToken);
+                    await SendWhatsAppAsync(tenantId, message, job, content, statusLabel, utcNow, cancellationToken, noteAlreadyApplied);
                 }
                 else
                 {
@@ -413,7 +427,8 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         string content,
         string statusLabel,
         DateTimeOffset utcNow,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        bool skipTerminalNoteAppend = false)
     {
         var tenantName = await _dbContext.Tenants
             .AsNoTracking()
@@ -424,9 +439,10 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         var requireApproval = RequiresOperatorApproval(statusLabel);
         SocialMediaResult? sendResult = null;
 
-        // Terminal notu durum mesajının altına 1 boş satırla ekle (#2103 / #6a6f24e7) — ayrı balon yok.
+        // Terminal notu: şablonda {Tamamlama Notu}/{İptal Notu} varsa BuildStatusMessage
+        // zaten yerleştirdi (#3215). Eski şablonlarda token yoksa alta \n\n ile eklenir (#2103).
         var messageContent = content;
-        if (requireApproval)
+        if (requireApproval && !skipTerminalNoteAppend)
         {
             var terminalNote = await ResolveTerminalNoteAsync(tenantId, job, statusLabel, cancellationToken);
             messageContent = AppendSmsTerminalNote(content, terminalNote);

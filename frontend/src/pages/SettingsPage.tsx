@@ -98,18 +98,31 @@ const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
 const CITIZEN_REQUEST_TITLE_TOKEN = '{VatandaşTalepBaşlığı}'
 const CITIZEN_REQUEST_STATUS_TOKEN = '{VatandaşTalepDurumu}'
 const TARGET_DEPARTMENT_TOKEN = '{GönderilenBirim}'
+const COMPLETION_NOTE_TOKEN = '{Tamamlama Notu}'
+const CANCEL_NOTE_TOKEN = '{İptal Notu}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
 type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms'>
 
-function buildCitizenAutoReplyTemplate(bodyText: string, statusLabel: string, suffixText = '', normalize = false) {
+function buildCitizenAutoReplyTemplate(
+  bodyText: string,
+  statusLabel: string,
+  suffixText = '',
+  normalize = false,
+  noteToken?: string,
+  noteSuffix = '',
+) {
   const normalizedBody = normalize ? (bodyText.trim() || DEFAULT_AUTO_REPLY_BODY_TEXT) : bodyText
   // {GönderilenBirim} sonrası otomatik ayraç yok: kullanıcı "'ne iletilmiştir." gibi bitişik metin
   // yazabilmeli; baştaki bilinçli boşluk da korunur, yalnız sondaki boşluk temizlenir (card #1598 2. reopen).
   const normalizedSuffix = normalize ? suffixText.trimEnd() : suffixText
+  const normalizedNoteSuffix = normalize ? noteSuffix.trimEnd() : noteSuffix
   // Durum etiketi tırnak içinde (#2102).
   const quotedStatus = statusLabel.startsWith('"') ? statusLabel : `"${statusLabel}"`
-  return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix}`
+  // Not token'ı birim ek metninden sonra her zaman ayrı satırda (#3215): Kaydet trimEnd
+  // suffix'teki `\n\n`'i silse bile burada yeniden konur; aksi halde not birim adına yapışır.
+  const notePart = noteToken ? `\n\n${noteToken}${normalizedNoteSuffix}` : ''
+  return `${CITIZEN_REQUEST_NO_TOKEN} no'lu ${CITIZEN_REQUEST_TITLE_TOKEN} ${normalizedBody} ${quotedStatus}. ${TARGET_DEPARTMENT_TOKEN}${normalizedSuffix}${notePart}`
 }
 
 function removeTemplateSeparatorSpaces(value: string) {
@@ -136,13 +149,22 @@ function extractCitizenAutoReplyBodyText(template: string, statusLabel: string) 
     .replace(TARGET_DEPARTMENT_TOKEN, ''))
 }
 
-function extractCitizenAutoReplySuffixText(template: string) {
+function extractCitizenAutoReplySuffixText(template: string, noteToken?: string) {
   // Token sonrası metin olduğu gibi gösterilir; eski kayıtlardaki zorunlu ayraç boşluğu da
   // görünür/düzenlenebilir olur — gizli otomatik boşluk kalmaz (card #1598 2. reopen).
   const tokenIndex = template.indexOf(TARGET_DEPARTMENT_TOKEN)
-  return tokenIndex >= 0
-    ? template.slice(tokenIndex + TARGET_DEPARTMENT_TOKEN.length)
-    : ''
+  if (tokenIndex < 0) return ''
+  let after = template.slice(tokenIndex + TARGET_DEPARTMENT_TOKEN.length)
+  if (noteToken) {
+    const noteIndex = after.indexOf(noteToken)
+    if (noteIndex >= 0) after = after.slice(0, noteIndex)
+  }
+  return after.replace(/\n+$/, '')
+}
+
+function extractCitizenAutoReplyNoteSuffixText(template: string, noteToken: string) {
+  const noteIndex = template.indexOf(noteToken)
+  return noteIndex >= 0 ? template.slice(noteIndex + noteToken.length) : ''
 }
 
 interface CitizenAutoReplyTemplateFieldProps {
@@ -154,14 +176,18 @@ interface CitizenAutoReplyTemplateFieldProps {
   greeting: string
   onChange: (value: string) => void
   onGreetingChange: (value: string) => void
+  noteToken?: string
 }
 
-function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel = statusLabel, tone = 'success', value, greeting, onChange, onGreetingChange }: CitizenAutoReplyTemplateFieldProps) {
+function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel = statusLabel, tone = 'success', value, greeting, onChange, onGreetingChange, noteToken }: CitizenAutoReplyTemplateFieldProps) {
   const statusToneClass = tone === 'danger'
     ? 'border-red-200 bg-red-50 text-red-700'
     : tone === 'warning'
       ? 'border-orange-200 bg-orange-50 text-orange-700'
       : 'border-emerald-200 bg-emerald-50 text-emerald-700'
+
+  const suffixText = extractCitizenAutoReplySuffixText(value, noteToken)
+  const noteSuffixText = noteToken ? extractCitizenAutoReplyNoteSuffixText(value, noteToken) : ''
 
   return (
     <div className="grid gap-2 rounded-lg border border-slate-200 bg-white p-3 text-sm font-semibold text-slate-700">
@@ -183,7 +209,10 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
         onChange={event => onChange(buildCitizenAutoReplyTemplate(
           event.target.value,
           templateStatusLabel,
-          extractCitizenAutoReplySuffixText(value),
+          suffixText,
+          false,
+          noteToken,
+          noteSuffixText,
         ))}
       />
       <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
@@ -195,14 +224,37 @@ function CitizenAutoReplyTemplateField({ label, statusLabel, templateStatusLabel
       </div>
       <textarea
         className="field-textarea min-h-[4.5rem]"
-        value={extractCitizenAutoReplySuffixText(value)}
+        value={suffixText}
         onChange={event => onChange(buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(value, templateStatusLabel),
           templateStatusLabel,
           event.target.value,
+          false,
+          noteToken,
+          noteSuffixText,
         ))}
         placeholder="Gönderilen birim bilgisinden sonra gelecek metin"
       />
+      {noteToken ? (
+        <>
+          <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-slate-50 p-2 text-xs text-slate-600">
+            <span className="rounded-md border border-violet-200 bg-violet-50 px-2 py-1 font-bold text-violet-700">{noteToken}</span>
+          </div>
+          <textarea
+            className="field-textarea min-h-[4.5rem]"
+            value={noteSuffixText}
+            onChange={event => onChange(buildCitizenAutoReplyTemplate(
+              extractCitizenAutoReplyBodyText(value, templateStatusLabel),
+              templateStatusLabel,
+              suffixText,
+              false,
+              noteToken,
+              event.target.value,
+            ))}
+            placeholder="Not bilgisinden sonra gelecek metin"
+          />
+        </>
+      ) : null}
     </div>
   )
 }
@@ -1640,14 +1692,18 @@ export function SettingsPage() {
         completed: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.completed, t('social.requestStatus.completed', 'Tamamlandı')),
           t('social.requestStatus.completed', 'Tamamlandı'),
-          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.completed),
+          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.completed, COMPLETION_NOTE_TOKEN),
           true,
+          COMPLETION_NOTE_TOKEN,
+          extractCitizenAutoReplyNoteSuffixText(citizenAutoReplyTemplates.completed, COMPLETION_NOTE_TOKEN),
         ),
         cancelled: buildCitizenAutoReplyTemplate(
           extractCitizenAutoReplyBodyText(citizenAutoReplyTemplates.cancelled, t('social.requestStatus.cancelledMessage', 'İptal Edildi')),
           t('social.requestStatus.cancelledMessage', 'İptal Edildi'),
-          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.cancelled),
+          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.cancelled, CANCEL_NOTE_TOKEN),
           true,
+          CANCEL_NOTE_TOKEN,
+          extractCitizenAutoReplyNoteSuffixText(citizenAutoReplyTemplates.cancelled, CANCEL_NOTE_TOKEN),
         ),
         greeting: citizenAutoReplyTemplates.greeting.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
         greetings: {
@@ -3436,17 +3492,17 @@ export function SettingsPage() {
                 <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.autoRepliesTitle', 'Vatandaşa Giden Cevaplar')}</h2>
                 <p className="helper-copy">{t('settings.routing.autoRepliesDescription', 'Vatandaş talebi durumlarına göre otomatik gönderilecek taslak cevapları düzenleyin.')}</p>
               </div>
-              <Button type="button" onClick={() => void saveCitizenAutoReplies()} disabled={citizenAutoReplySavingScope === 'citizen'}>
-                {citizenAutoReplySavingScope === 'citizen' ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              <Button type="button" onClick={() => void saveCitizenAutoReplies()}>
+                {t('common.save', 'Kaydet')}
               </Button>
             </div>
             <div className="grid gap-4 md:grid-cols-4">
               {([
                 { key: 'processingReceived', label: t('social.requestStatus.processingReceived', 'İşleme Alındı'), tone: 'warning' },
                 { key: 'inProgress', label: t('social.requestStatus.inProgress', 'Yapılmakta'), tone: 'warning' },
-                { key: 'completed', label: t('social.requestStatus.completed', 'Tamamlandı'), tone: 'success' },
-                { key: 'cancelled', label: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), templateLabel: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), tone: 'danger' },
-              ] as Array<{ key: CitizenAutoReplyTemplateKey; label: string; templateLabel?: string; tone: 'success' | 'warning' | 'danger' }>).map(({ key, label, templateLabel, tone }) => (
+                { key: 'completed', label: t('social.requestStatus.completed', 'Tamamlandı'), tone: 'success', noteToken: COMPLETION_NOTE_TOKEN },
+                { key: 'cancelled', label: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), templateLabel: t('social.requestStatus.cancelledMessage', 'İptal Edildi'), tone: 'danger', noteToken: CANCEL_NOTE_TOKEN },
+              ] as Array<{ key: CitizenAutoReplyTemplateKey; label: string; templateLabel?: string; tone: 'success' | 'warning' | 'danger'; noteToken?: string }>).map(({ key, label, templateLabel, tone, noteToken }) => (
                 <CitizenAutoReplyTemplateField
                   key={key}
                   label={label}
@@ -3455,6 +3511,7 @@ export function SettingsPage() {
                   tone={tone}
                   value={citizenAutoReplyTemplates[key]}
                   greeting={citizenAutoReplyTemplates.greetings[key]}
+                  noteToken={noteToken}
                   onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, [key]: value }))}
                   onGreetingChange={value => setCitizenAutoReplyTemplates(current => ({
                     ...current,
@@ -3464,7 +3521,7 @@ export function SettingsPage() {
               ))}
             </div>
             <p className="text-xs font-medium text-slate-500">
-              {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı ve {GönderilenBirim}.')}
+              {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı, {GönderilenBirim}, {Tamamlama Notu} ve {İptal Notu}.')}
             </p>
           </section>
 
@@ -3473,8 +3530,8 @@ export function SettingsPage() {
               <div>
                 <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.afterHoursManagerSmsTitle')}</h2>
               </div>
-              <Button type="button" onClick={() => void saveCitizenAutoReplies('afterHours')} disabled={citizenAutoReplySavingScope === 'afterHours'}>
-                {citizenAutoReplySavingScope === 'afterHours' ? t('common.saving', 'Kaydediliyor...') : t('common.save', 'Kaydet')}
+              <Button type="button" onClick={() => void saveCitizenAutoReplies('afterHours')}>
+                {t('common.save', 'Kaydet')}
               </Button>
             </div>
             <label className="grid gap-2 text-sm font-semibold text-slate-700">

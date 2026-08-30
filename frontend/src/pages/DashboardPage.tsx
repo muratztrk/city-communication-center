@@ -579,7 +579,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         },
         {
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myPendingTasksMetricValue ?? dashboardQuery.data.myPendingTaskNavBadgeCount,
           icon: ListChecks,
           path: '/my-tasks?view=pending',
@@ -588,7 +588,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         },
         {
           label: t('tasks.myViews.overdue', 'Geciken Görevlerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myOverdueTasksMetricValue ?? 0,
           icon: Clock3,
           path: '/my-tasks?view=overdue',
@@ -611,7 +611,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         },
         ...(isInternalModuleUsable ? [{
           label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myPendingRequestsMetricValue ?? dashboardQuery.data.myPendingRequestCount,
           icon: ClipboardList,
           path: '/my-requests?view=external-pending',
@@ -620,7 +620,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         },
         {
           label: t('jobs.myViews.overdue', 'Geciken Taleplerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myOverdueRequestsMetricValue ?? 0,
           icon: Clock3,
           path: '/my-requests?view=overdue',
@@ -645,7 +645,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     ? [
         ...(isReporter ? [] : [{
           label: t('dashboard.cards.myPendingTasks', 'Bekleyen Görevlerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myPendingTasksMetricValue ?? dashboardQuery.data.myPendingTaskNavBadgeCount,
           icon: ListChecks,
           path: '/my-tasks?view=pending',
@@ -654,7 +654,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         },
         {
           label: t('tasks.myViews.overdue', 'Geciken Görevlerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myOverdueTasksMetricValue ?? 0,
           icon: Clock3,
           path: '/my-tasks?view=overdue',
@@ -663,7 +663,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         }]),
         ...(isInternalModuleUsable ? [{
           label: t('dashboard.cards.myPendingRequests', 'Bekleyen Taleplerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myPendingRequestsMetricValue ?? dashboardQuery.data.myPendingRequestCount,
           icon: ClipboardList,
           path: '/my-requests?view=pending',
@@ -672,7 +672,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         },
         {
           label: t('jobs.myViews.overdue', 'Geciken Taleplerim'),
-          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Birim Dışı)'),
+          sublabel: t('dashboard.cards.internalExternalSub', '(Birim İçi/Dışı)'),
           value: myOverdueRequestsMetricValue ?? 0,
           icon: Clock3,
           path: '/my-requests?view=overdue',
@@ -810,7 +810,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             {metric.label}
           </div>
           {metric.sublabel ? (
-            <div className="text-[0.72rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
+            <div className="text-[0.64rem] font-medium normal-case tracking-normal text-[color:var(--color-muted-foreground)]">
               {metric.sublabel}
             </div>
           ) : null}

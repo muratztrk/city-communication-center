@@ -70,8 +70,8 @@ public static class CitizenAutoReplyTemplateJson
             return new CitizenAutoReplyTemplateModel(
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.ProcessingReceived) ? defaults.ProcessingReceived : parsed.ProcessingReceived)),
                 EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.InProgress) ? defaults.InProgress : parsed.InProgress)),
-                EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Completed) ? defaults.Completed : parsed.Completed)),
-                EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled)),
+                EnsureQuotedCitizenStatuses(EnsureCompletionNoteToken(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Completed) ? defaults.Completed : parsed.Completed))),
+                EnsureQuotedCitizenStatuses(EnsureCancelNoteToken(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled))),
                 CitizenOutboundGreeting.NormalizeLine(parsed.Greeting),
                 parsed.AfterHoursManagerSms,
                 NormalizeGreetings(parsed.Greetings));
@@ -86,8 +86,8 @@ public static class CitizenAutoReplyTemplateJson
         JsonSerializer.Serialize(new CitizenAutoReplyTemplateModel(
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.ProcessingReceived)),
             EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.InProgress)),
-            EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.Completed)),
-            EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.Cancelled)),
+            EnsureQuotedCitizenStatuses(EnsureCompletionNoteToken(EnsureTargetDepartmentToken(model.Completed))),
+            EnsureQuotedCitizenStatuses(EnsureCancelNoteToken(EnsureTargetDepartmentToken(model.Cancelled))),
             CitizenOutboundGreeting.NormalizeLine(model.Greeting),
             model.AfterHoursManagerSms,
             NormalizeGreetings(model.Greetings)));
@@ -132,5 +132,29 @@ public static class CitizenAutoReplyTemplateJson
         }
 
         return $"{template.TrimEnd()} {{GönderilenBirim}}";
+    }
+
+    private static string EnsureCompletionNoteToken(string template) =>
+        EnsureTerminalNoteToken(template, "{Tamamlama Notu}", "{TamamlamaNotu}");
+
+    private static string EnsureCancelNoteToken(string template) =>
+        EnsureTerminalNoteToken(template, "{İptal Notu}", "{İptalNotu}");
+
+    private static string EnsureTerminalNoteToken(string template, string canonical, string compact)
+    {
+        foreach (var token in new[] { canonical, compact })
+        {
+            var tokenIndex = template.IndexOf(token, StringComparison.Ordinal);
+            if (tokenIndex < 0)
+            {
+                continue;
+            }
+
+            var beforeToken = template[..tokenIndex];
+            var afterToken = template[(tokenIndex + token.Length)..];
+            return $"{beforeToken}{canonical}{afterToken}";
+        }
+
+        return $"{template.TrimEnd()}\n\n{canonical}";
     }
 }

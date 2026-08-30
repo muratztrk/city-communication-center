@@ -740,7 +740,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
                         <span className="font-semibold text-slate-700">{message.assignedDepartmentName ?? t('common.none')}</span>
                       )}
                       {linkedJob?.assignedUserDisplayName ? (
-                        <span className="mt-0.5 block text-sm font-semibold text-slate-500">{linkedJob.assignedUserDisplayName}</span>
+                        <span className="grid-stack-secondary mt-0.5 block text-sm font-semibold text-slate-500">{linkedJob.assignedUserDisplayName}</span>
                       ) : null}
                     </td>
                     )}

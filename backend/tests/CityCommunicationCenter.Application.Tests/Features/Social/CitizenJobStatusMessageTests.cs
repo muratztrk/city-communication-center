@@ -47,7 +47,8 @@ public sealed class CitizenJobStatusMessageTests
         Assert.Contains("{GönderilenBirim}'ne iletilmiştir.", templates.ProcessingReceived);
         Assert.Contains("{GönderilenBirim}   ekiplerce inceleniyor.", templates.InProgress);
         Assert.Contains("{GönderilenBirim} ekiplerce incelendi.", templates.Completed);
-        Assert.EndsWith("{GönderilenBirim}", templates.Cancelled);
+        Assert.Contains("{GönderilenBirim}", templates.Cancelled);
+        Assert.EndsWith("{İptal Notu}", templates.Cancelled);
     }
 
     [Fact]
@@ -123,5 +124,72 @@ public sealed class CitizenJobStatusMessageTests
             "Fen İşleri Müdürlüğü");
 
         Assert.EndsWith(expectedEnding, content);
+    }
+
+    [Fact]
+    public void ParseOrDefault_AddsTerminalNoteTokens_ToCompletedAndCancelled()
+    {
+        const string json = """
+            {
+              "ProcessingReceived": "{VatandaşTalepNo} İşleme Alındı. {GönderilenBirim}",
+              "InProgress": "{VatandaşTalepNo} Yapılmakta. {GönderilenBirim}",
+              "Completed": "{VatandaşTalepNo} Tamamlandı. {GönderilenBirim}",
+              "Cancelled": "{VatandaşTalepNo} İptal Edildi. {GönderilenBirim}"
+            }
+            """;
+
+        var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
+
+        Assert.DoesNotContain("{Tamamlama Notu}", templates.ProcessingReceived);
+        Assert.DoesNotContain("{İptal Notu}", templates.InProgress);
+        Assert.Contains("{Tamamlama Notu}", templates.Completed);
+        Assert.Contains("{İptal Notu}", templates.Cancelled);
+        Assert.EndsWith("{Tamamlama Notu}", templates.Completed);
+        Assert.EndsWith("{İptal Notu}", templates.Cancelled);
+    }
+
+    [Fact]
+    public void BuildStatusMessage_ReplacesCompletionNoteToken_AndKeepsTextAfter()
+    {
+        var receivedAt = new DateTimeOffset(2026, 7, 13, 10, 0, 0, TimeSpan.Zero);
+        var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
+            new SocialMessage
+            {
+                CitizenRequestNumber = 42,
+                CitizenRequestNumberYear = 2026,
+                ReceivedAtUtc = receivedAt,
+            },
+            new Job { Title = "Yol bakım", Status = JobStatus.Completed },
+            1,
+            receivedAt,
+            "{VatandaşTalepNo} talebiniz \"Tamamlandı\". {GönderilenBirim}\n\n{Tamamlama Notu} teşekkürler.",
+            "Fen İşleri Müdürlüğü",
+            "sahada tamamlandı.");
+
+        Assert.Equal(
+            "VT-2026-42 talebiniz \"Tamamlandı\". Fen İşleri Müdürlüğü\n\nsahada tamamlandı. teşekkürler.",
+            content);
+    }
+
+    [Fact]
+    public void BuildStatusMessage_EmptyNote_RemovesToken()
+    {
+        var receivedAt = new DateTimeOffset(2026, 7, 13, 10, 0, 0, TimeSpan.Zero);
+        var content = CitizenJobStatusLabelHelper.BuildStatusMessage(
+            new SocialMessage
+            {
+                CitizenRequestNumber = 7,
+                CitizenRequestNumberYear = 2026,
+                ReceivedAtUtc = receivedAt,
+            },
+            new Job { Title = "Park", Status = JobStatus.Cancelled },
+            0,
+            receivedAt,
+            "İptal. {GönderilenBirim}\n\n{İptal Notu}",
+            "Fen İşleri Müdürlüğü",
+            null);
+
+        Assert.Equal("İptal. Fen İşleri Müdürlüğü", content);
+        Assert.DoesNotContain("{İptal Notu}", content);
     }
 }

@@ -33,7 +33,8 @@ public static class CitizenJobStatusLabelHelper
         int taskCount,
         DateTimeOffset utcNow,
         string? template,
-        string? targetDepartmentNames = null)
+        string? targetDepartmentNames = null,
+        string? terminalNote = null)
     {
         var requestNumber = ConversationEntrySenderLabelHelper.FormatCitizenRequestNumber(
             message.CitizenRequestNumber,
@@ -56,7 +57,27 @@ public static class CitizenJobStatusLabelHelper
             .Replace("{VatandaşTalepDurumu}", statusLabel, StringComparison.Ordinal)
             .Replace("{Vatandaş Talep Durumu}", statusLabel, StringComparison.Ordinal);
 
-        return ReplaceTargetDepartmentToken(content, targetDepartments).Trim();
+        content = ReplaceTargetDepartmentToken(content, targetDepartments);
+        // Not, birim boş satırından SONRA yerleşmeli; çağıran EnsureBlankLine yaptıysa
+        // terminalNote'u null geçip ReplaceTerminalNoteToken'ı sonra çağırır.
+        content = ReplaceTerminalNoteToken(content, terminalNote);
+        return content.Trim();
+    }
+
+    public static string ApplyTerminalNote(string content, string? note) =>
+        ReplaceTerminalNoteToken(content, note).Trim();
+
+    public static bool ContainsTerminalNoteToken(string? template)
+    {
+        if (string.IsNullOrWhiteSpace(template))
+        {
+            return false;
+        }
+
+        return template.Contains("{Tamamlama Notu}", StringComparison.Ordinal)
+            || template.Contains("{TamamlamaNotu}", StringComparison.Ordinal)
+            || template.Contains("{İptal Notu}", StringComparison.Ordinal)
+            || template.Contains("{İptalNotu}", StringComparison.Ordinal);
     }
 
     /// <summary>WA otomatik mesajlarda vatandaşa gösterilen durum etiketi (#2104).</summary>
@@ -127,5 +148,15 @@ public static class CitizenJobStatusLabelHelper
         return template
             .Replace("{GönderilenBirim}", targetDepartments, StringComparison.Ordinal)
             .Replace("{Gönderilen Birim}", targetDepartments, StringComparison.Ordinal);
+    }
+
+    private static string ReplaceTerminalNoteToken(string template, string? note)
+    {
+        var value = string.IsNullOrWhiteSpace(note) ? string.Empty : note.Trim();
+        return template
+            .Replace("{Tamamlama Notu}", value, StringComparison.Ordinal)
+            .Replace("{TamamlamaNotu}", value, StringComparison.Ordinal)
+            .Replace("{İptal Notu}", value, StringComparison.Ordinal)
+            .Replace("{İptalNotu}", value, StringComparison.Ordinal);
     }
 }

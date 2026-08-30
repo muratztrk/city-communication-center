@@ -4969,6 +4969,28 @@
     text-align: right !important;
   }
 
+  /* Birime Gelen detay: boş No `-` başlığın sol kenarında (#3217, masaüstü).
+     Sağa yaslı `--street-no` kuralları dash'i kolon sağına itiyordu. */
+  @media (min-width: 768px) {
+    .my-request-detail-bottom--incoming.my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no:has(.address-empty-dash) {
+      align-items: flex-end !important;
+      text-align: left !important;
+    }
+
+    .my-request-detail-bottom--incoming.my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no:has(.address-empty-dash) > .address-detail-my-request__label,
+    .my-request-detail-bottom--incoming.my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no:has(.address-empty-dash) > .address-detail-my-request__value {
+      width: fit-content !important;
+      margin-inline: 0 !important;
+      text-align: left !important;
+    }
+
+    .my-request-detail-bottom--incoming.my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-empty-dash {
+      display: block !important;
+      width: auto !important;
+      text-align: left !important;
+    }
+  }
+
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2),
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item:nth-child(2) {
     transform: none;
@@ -6559,6 +6581,18 @@
       grid-template-columns: minmax(0, 1fr) !important;
     }
 
+    /* Birime Gelen detay: No, Cadde/Sokak'a yapışmasın — biraz sağa (#3218).
+       `--attachments-only` 3 kolon `!important` mobilde de kalır. */
+    .my-request-detail-bottom--incoming .address-detail-my-request__item--street-no {
+      padding-inline-start: 0.85rem !important;
+      transform: none !important;
+    }
+
+    .my-request-detail-bottom--incoming .address-detail-my-request__item--street-no .address-detail-my-request__label,
+    .my-request-detail-bottom--incoming .address-detail-my-request__item--street-no .address-detail-my-request__value {
+      transform: none !important;
+    }
+
     /* Dizin talep listesi: başlık altında isim/telefon (#r483). */
     .detail-modal-header-title .citizen-directory-ticket-header-text {
       width: 100%;
@@ -6992,7 +7026,19 @@
     .data-table .date-cell,
     .table-container .status-pill,
     .table-container .date-cell {
-      font-size: 0.68rem;
+      font-size: 0.58rem !important;
+    }
+
+    /* Gittiği/Geldiği yer alt satırı, Durum, Son Tarih — tüm gridview (#3207). */
+    .table-container tbody td .grid-stack-secondary,
+    .data-table tbody td .grid-stack-secondary {
+      font-size: 0.58rem !important;
+    }
+
+    .table-container tbody td .due-date-pill,
+    .data-table tbody td .due-date-pill {
+      font-size: 0.58rem !important;
+      padding: 0.12rem 0.4rem;
     }
 
     .sticky-page-header {
@@ -7580,25 +7626,25 @@
     }
 
     .pie-chart-root text[font-size='18'] {
-      font-size: 19.5px !important;
+      font-size: 21px !important;
     }
 
     .pie-chart-root text[font-size='11'] {
-      font-size: 12.5px !important;
+      font-size: 13.5px !important;
     }
 
     .pie-chart-root ul {
       gap: 0.45rem !important;
-      /* 5 satır: 0.58rem×1.15×5 + 0.45rem×4 — 6. satır kesilir (#6a930a33; punto #3206). */
-      max-height: calc((0.58rem * 1.15 * 5) + (0.45rem * 4)) !important;
+      /* 5 satır: 0.66rem×1.15×5 + 0.45rem×4 — 6. satır kesilir (#6a930a33; punto #3206). */
+      max-height: calc((0.66rem * 1.15 * 5) + (0.45rem * 4)) !important;
       overflow-y: auto !important;
     }
 
     .pie-chart-root ul,
     .pie-chart-root li,
     .pie-chart-root li button {
-      /* Lejant satırı (birim adı + sayı) çok az büyük: 0.5 → 0.58rem (#3206). */
-      font-size: 0.58rem !important;
+      /* Lejant satırı (birim adı + sayı) çok az büyük: 0.58 → 0.66rem (#3206). */
+      font-size: 0.66rem !important;
       line-height: 1.15 !important;
     }
 
@@ -7648,8 +7694,8 @@
     .pie-chart-card .text-sm.font-semibold {
       white-space: normal;
       overflow-wrap: anywhere;
-      /* Kart başlığı çok az büyük: 0.72 → 0.8rem (#3206). */
-      font-size: 0.8rem;
+      /* Kart başlığı çok az büyük: 0.8 → 0.88rem (#3206). */
+      font-size: 0.88rem;
     }
 
     .sidebar-shell,

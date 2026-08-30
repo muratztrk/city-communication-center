@@ -38,7 +38,7 @@ export function FramedDepartmentStack({
         </StatusPill>
       ) : null}
       {secondary?.trim() ? (
-        <span className="text-sm font-semibold text-slate-500">{secondary.trim()}</span>
+        <span className="grid-stack-secondary text-sm font-semibold text-slate-500">{secondary.trim()}</span>
       ) : null}
     </div>
   )

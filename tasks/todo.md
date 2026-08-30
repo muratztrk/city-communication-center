@@ -1,3 +1,13 @@
+## Round 1075 — 8 kart: login bar, Kaydet, not token, adres No, metrik/pie/grid
+
+- **#3219:** Login masaüstü yeşil panel alt barı `lg:pb-8` / `2xl:pb-10` — "Yetkili personel..." biraz aşağı.
+- **#3209:** Ayarlar Kaydet butonları "Kaydediliyor..." yazmaz, disabled olmaz; çift tıklama `citizenAutoReplySaving` guard ile durur.
+- **#3215:** Tamamlandı `{Tamamlama Notu}` + textarea, İptal `{İptal Notu}` + textarea. Gönderimde token notla değişir; token yoksa eski `AppendSmsTerminalNote`. Kaydet `\n\n` ile token'ı birimden ayırır (not birim adına yapışmaz). Birim boş satırı nottan önce uygulanır.
+- **#3217 / #3218:** yalnız `my-request-detail-bottom--incoming`: masaüstünde boş No `-` sola; mobilde No `0.85rem` sağa (Cadde/Sokak'tan uzak).
+- **#3216:** anasayfa alt satır `(Birim İçi/Dışı)`, punto `0.64rem`.
+- **#3207:** mobil grid alt satır / Durum / Son Tarih `0.58rem` (`.grid-stack-secondary`).
+- **#3206:** mobil pie başlık `0.88rem`, lejant `0.66rem`.
+
 ## Round 1074 — 12 kart: SMS hitabı, telefon girişi, mobil ölçüler
 
 - **#3213 / #3214 (SMS hitabı):** `SmsGateway` her SMS'e varsayılan "Değerli vatandaşımız," ekliyordu → mesai dışı **yönetici** SMS'inde vatandaş hitabı çıkıyor, vatandaş SMS'inde tenant'ın çok satırlı hitabı tek satıra düşüyordu. Ağ geçidi saf taşıyıcı yapıldı; hitap `CitizenJobStatusNotifier` içinde `GreetingFor(statusLabel)` ile kuruluyor ve `ResponseContent`'e de aynı metin yazılıyor. Yeni test: çok satırlı hitap korunur.

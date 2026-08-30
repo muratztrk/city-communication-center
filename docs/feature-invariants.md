@@ -912,6 +912,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#2906). Mesai dışı talep oluşturunca aynı metin birim müdür/sorumlu/yardımcı cep numaralarına
   ve (vatandaş talebinde) `CitizenRequestManager` kullanıcılara SMS gider (#2903/#2904).
   `{GönderilenBirim}` token'ından sonra şablonda her zaman tam bir otomatik ayraç boşluğu bulunur;
+  Tamamlandı kartında `{Tamamlama Notu}`, İptal kartında `{İptal Notu}` birim ek metninden sonra
+  gelir (chip + textarea, #3215); gönderimde token notla değişir, yoksa boşalır. Token'lı
+  şablonda `AppendSmsTerminalNote` **tekrar eklemez** (çift not olmasın). Eski kayıtlara token
+  okunurken/yazılırken `\n\n` ile eklenir.
   eski bitişik veya çok boşluklu kayıtlar okunurken/yazılırken tek boşluğa normalleştirilir
   ve mesaj üretilirken de gerçek hedef birim ile devam metni arasındaki tek boşluk son kez garanti
   edilir (card #1598 reopen). Kullanıcının ikinci textarea'da ayrıca başına boşluk yazması gerekmez.
@@ -2603,16 +2607,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Uzunluk tavanı yalnız `sanitizeMobilePhoneInput` içinde. Kullanıcılar formunda hane sayısı
   doğrulaması yok — 9 hane elle yazılıp kaydedilebilir (bilinen açık).
 - **Mobil (≤767px) ölçüler:** grid satırı dikey padding `0.34rem` (#3207), Çıkış butonu `1.95rem`
-  (#3135), pie kart başlığı `0.8rem` + lejant `0.58rem` — lejant `max-height` formülü 5 satır
+  (#3135), pie kart başlığı `0.88rem` + lejant `0.66rem` — lejant `max-height` formülü 5 satır
   görünecek şekilde puntoyla birlikte güncellenmeli (#3206/#6a930a33).
-- **Anasayfa metrik kutucuğu (#3208):** ikon kutusu `size-8`, ikon `size-3.5`, sol padding `pl-2.5`,
-  ikon-metin boşluğu `gap-2` — ikon ve başlık kart sol kenarına yakın durur. Sağ padding `pr-4`
-  kalır (sayı sağda nefes alsın).
-- **Ayarlar Kaydet butonları bölüm bazlıdır (#3209):** `Vatandaşa Giden Cevaplar` ve `Birim
-  Yöneticilerine … Mesai Dışı SMS` kartları aynı endpoint'i kullanır ama `Kaydediliyor...` /
-  `disabled` durumu yalnız basılan butona uygulanır (`citizenAutoReplySavingScope`). Tek boolean
-  paylaşılırsa diğer buton da işlem yapıyor gibi görünür; eşzamanlı kayıt fonksiyon başındaki
-  guard ile engellenir (diğer buton görsel olarak devre dışı kalmaz).
+  Gridview'da Gittiği/Geldiği yer **alt satırı** (`.grid-stack-secondary`), Durum (`.status-pill`)
+  ve Son Tarih (`.due-date-pill`) punto `0.58rem` (#3207).
+- **Anasayfa metrik kutucuğu (#3208/#3216):** ikon kutusu `size-8`, ikon `size-3.5`, sol padding
+  `pl-2.5`, ikon-metin boşluğu `gap-2`. Alt satır `(Birim İçi/Dışı)` — eski `(Birim İçi/Birim Dışı)`
+  değil; alt satır punto `0.64rem` (başlık `0.72rem`).
+- **Ayarlar Kaydet butonları metin/görünüm değiştirmez (#3209):** `Vatandaşa Giden Cevaplar` ve
+  `Birim Yöneticilerine … Mesai Dışı SMS` Kaydet butonları basılınca "Kaydediliyor..." yazmaz,
+  `disabled` olmaz. Çift tıklama fonksiyon başındaki `citizenAutoReplySaving` guard ile engellenir.
 - **Mobil (≤767px) grid paging barı:** hedef sınıf **`table-pagination-bar`** — DOM'da
   `table-pagination` **yok** (eski küçültme denemesi bu yüzden etkisizdi). Bar `max-height` ile
   sınırlı olduğundan `flex-wrap: wrap` ikinci satırı taşırır → mobilde `flex-wrap: nowrap`,
@@ -2630,6 +2634,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Masaüstü ortalama/`translateX` kuralları `!important` + özgül seçicilerle yazıldığı için mobil
   ezme de aynı özgüllükte olmalı — `--task` / `--three-cards` / `--attachments-only` seçicileri
   açıkça hedeflenir. `--peek` (Adresi Gör) ortalı düzenini korur (#2755).
+- **Login masaüstü hero alt bar (#3219):** "Yetkili personel hesabınızla devam edin." yeşil panelin
+  altında; `lg:pb-8` / `2xl:pb-10` (eski `py-16`/`py-20` alt padding). Mobil form açıklaması
+  değişmez.
+- **Birime Gelen Adres No (#3217/#3218):** yalnız `my-request-detail-bottom--incoming`.
+  Masaüstünde boş `-` başlığın sol kenarında (sağa yaslı `--street-no` ezilir). Mobilde No
+  `padding-inline-start: 0.85rem` — Cadde/Sokak'a yapışmaz. Diğer sayfalar (`--attachments-only`
+  Taleplerim vb.) değişmez.
 - **Boş adres `-` her görünümde başlığın SOL kenarında (#3143):** `-` ortalanmaz (önceki tur
   ortalamıştı). Kural `:has(.address-empty-dash)` ile mobil + masaüstünde birlikte uygulanır.
   Ortalı kolonlarda (`--task` 2./3. kolon, `--coordinates`, `--attachments-only`) `-`'nin başlığın

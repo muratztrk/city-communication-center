@@ -457,7 +457,7 @@
       "incomingTotal": "Birime Gelen Tüm Talepler",
       "outgoingTotal": "Birimden Giden Tüm Talepler",
       "deptTotalTasks": "Birim İçi/Dışı Tüm Görevler",
-      "internalExternalSub": "(Birim İçi/Birim Dışı)",
+      "internalExternalSub": "(Birim İçi/Dışı)",
       "myPendingTasksSub": "(Birim İçi/Birim Dışı Bekleyen ve Geciken)",
       "citizenPendingApprovalSub": "Onay Bekleyen"
     },

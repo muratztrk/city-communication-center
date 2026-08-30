@@ -19,7 +19,7 @@ export function ReporterDepartmentCell({
   return (
     <div className={`${align === 'center' ? 'text-center' : ''} ${className}`.trim()}>
       <ReporterDepartmentName name={departmentName} isReporter={isReporter} />
-      <div className={`truncate ${reporterCreatorTextClass(isReporter)}`}>{creatorName ?? '—'}</div>
+      <div className={`grid-stack-secondary truncate ${reporterCreatorTextClass(isReporter)}`}>{creatorName ?? '—'}</div>
     </div>
   )
 }

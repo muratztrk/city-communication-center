@@ -882,6 +882,7 @@
       "changeStatusSelect": "Select Task Status",
       "changeStatusPlaceholder": "Select a task status",
       "statusChangeSuccess": "Task status updated.",
+      "approveCloseSuccess": "Task close approved.",
       "details": "Details"
     },
     "statusChange": {
@@ -1820,6 +1821,7 @@
     },
     "actions": {
       "approveOwner": "Approve",
+      "approveSuccess": "Request approved.",
       "rejectOwner": "Reject",
       "assignStaff": "Assign Staff",
       "assign": "Assign",

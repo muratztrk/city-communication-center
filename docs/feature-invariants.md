@@ -207,8 +207,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Taleplerim / Birime Gelen / Birimden Giden talep detay popup'larında bölüm başlığı
   `İlgili Görev Detayları`dır (card #1663); Görevlerim popup'ında kendi görev başlığı
   `Görev Detayları` kalır.
-  Vatandaş talebinde `İlgili Görev Detayları` **Talebi Yönlendiren** etiket+değer satırını
-  göstermez (#3253). Görevlerim `Görev Bilgileri` ve yazdır şablonu değişmez.
+  Vatandaş talebinde `İlgili Görev Detayları` **Talebi Yönlendiren** satırı
+  **yalnız mobilde** gizlenir (`job-detail-field-row--request-router`, ≤1023px, #3253).
+  Masaüstünde durur. Görevlerim `Görev Bilgileri` ve yazdır şablonu değişmez.
   Vatandaş olmayan işlerde `Talep Yeri / Oluşturan` satırı durur.
   Görevlerim detay → Düzenle’de **Başlangıç Tarihi** satırı hiç gösterilmez; kayıtta mevcut `startDateUtc` gönderilir (#2736 reopen).
 - **Atanmış görev detay popup'ında `Öncelik` satırı gizlidir:** `Görev Tipi = Atanmış`
@@ -961,6 +962,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   gösterilmez. Timeline: İptal/Tamamlanma → Durum Yapılmakta; İptal Tarihi kırmızı
   (`terminal-danger`). Hedef onay adımı tarih varsa (decidedAtUtc veya hedef görev atama)
   gösterilir, yoksa Onay Bekleyen.
+- **Onayla toast (#3254):** Taleplerim / Birime Gelen `Onayla` ve kapatma onayı başarıda sağ alt
+  `Toast` (`Talep onaylandı.` / `Görev kapatma onaylandı.`) — Görevlerim tamamlama toast kalıbı.
 - **Mesaj Onayı reopen hedef onay adımı (card #6a6aecbc):** reopen sonrası Süreç'te
   `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` korunur (onaylıysa tarih; değilse
   `Onay Bekleyen`). `shouldShowCitizenTargetApprovalDate` reopen'da `taskCount === 0` iken de
@@ -1951,8 +1954,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Street View açıkken özel +/−/başlangıç ikonları gizlenir; pegman Google native − solunda
   (`translate(-3.15rem, -0.45rem)`, #3238/#3244 reopen). Adres kartı (`gm-iv-address`) `min-height: 4.75rem` —
   "Google Haritalar'da görüntüleyin" kırpılmaz (#3237).
-  Masaüstünde varsayılan harita kontrolleri FAB yığınının üstünde (`bottom` FAB + `0.85rem`,
-  #3245 reopen). Street View açıkken sohbet FAB'leri kaydır düğmesinin **üst satırlarında**
+  Masaüstünde varsayılan harita kontrolleri FAB yığınının üstünde (`bottom` FAB + `0.15rem`,
+  #3245). Street View açıkken sohbet FAB'leri kaydır düğmesinin **üst satırlarında**
   (`flex-col`); paneller butonların soluna `right: calc(100% + 0.7rem)` ile açılır (#3243 reopen).
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
@@ -2633,11 +2636,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Gridview'da Gittiği/Geldiği yer **alt satırı** (`.grid-stack-secondary`) mobil `0.52rem` (#3226/#3241),
   masaüstü `0.82rem` (#3225). Yeşil birim çerçevesi (`.framed-department-pill`) mobil `0.50rem` —
   ikincil satır değil çerçeve metni küçülür (#3226 reopen). Durum (`.status-pill`) ve Görev Tipi
-  (`.task-type-pill`) mobil `0.50rem` (#3226 reopen). Tarih (`.date-cell` / `.due-date-pill`)
+  (`.task-type-pill`) mobil `0.46rem` (#3226). `StatusPill` kökünde `status-pill` sınıfı olmalı;
+  Yapılmakta/İşleme Alındı iç span (`#2822` 0.82rem) de aynı mobil kuralda ezilir. Tarih (`.date-cell` / `.due-date-pill`)
   mobil `0.66rem` (#3227).   Mobil Durum hücresinde saat yok (`.grid-status-datetime` gizli, #3224);
   İşlemler butonları biraz küçük (`0.62rem` / `1.5rem`).
-  Mobil grid `thead` punto `0.60rem` (#3252). Masaüstü yanıp sönen `YENİ` (`.task-new-badge`)
-  `0.64rem` (≥768px); mobil `0.72rem` kalır (#3225 reopen).
+  Mobil sayfa grid `thead` `0.68rem`. Pie drilldown popup thead mobil `0.68rem` (#3252) —
+  `.dashboard-drilldown-table thead th` 0.78rem masaüstü kuralını ezer.
+  Masaüstü `YENİ` `0.68rem` (≥768px, #3225); mobil `YENİ` `0.64rem` (#3251).
 - **Anasayfa metrik kutucuğu (#3208/#3216/#3223):** ikon kutusu `size-8`, ikon `size-3.5`, sol padding
   `pl-2.5`, ikon-metin boşluğu `gap-2`. Alt satır `(Birim İçi/Dışı)` — eski `(Birim İçi/Birim Dışı)`
   değil; alt satır punto `0.70rem` (başlık `0.72rem`).
@@ -2655,7 +2660,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketiyle aynı hizada, sağa yaslı. Satır `job-detail-field-row--task-location` ile 2 kolonlu
   ızgaraya alınır; `stacked-field-label` / `stacked-field-value` `display: contents` ile aynı
   ızgaraya açılır (font/renk miras yoluyla korunur). Masaüstünde tek satırlık metin korunur
-  (`hidden lg:inline` / `lg:hidden`). Vatandaş talebinde bu satır `İlgili Görev Detayları`'nda yoktur (#3253).
+  (`hidden lg:inline` / `lg:hidden`). Vatandaş talebinde `Talebi Yönlendiren` satırı
+  mobilde (`≤1023px`) gizlenir, masaüstünde durur (#3253).
 - **Mobil (≤1023px) Adres Bilgileri hizası:** `Mahalle` / `Cadde / Sokak` / `No` / `Adres Tarifi` /
   `Konum Linki` başlıkları **tek sol düşey eksende** alt alta; dolu değer sola yaslı tam genişlik.
   Masaüstü ortalama/`translateX` kuralları `!important` + özgül seçicilerle yazıldığı için mobil

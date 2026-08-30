@@ -889,6 +889,7 @@
       "changeStatusSelect": "Görev Durumu Seç",
       "changeStatusPlaceholder": "Görev durumu seçiniz",
       "statusChangeSuccess": "Görev durumu güncellendi.",
+      "approveCloseSuccess": "Görev kapatma onaylandı.",
       "details": "Detaylar"
     },
     "statusChange": {
@@ -1860,6 +1861,7 @@
     },
     "actions": {
       "approveOwner": "Onayla",
+      "approveSuccess": "Talep onaylandı.",
       "rejectOwner": "Reddet",
       "assignStaff": "Personel Ata",
       "assign": "Ata",

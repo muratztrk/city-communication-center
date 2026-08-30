@@ -30,6 +30,7 @@ import { DetailModalHeaderBrand } from '../components/branding/DetailModalHeader
 import { Button } from '../components/ui/button'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
+import { Toast } from '../components/ui/toast'
 import { DisabledActionButton } from '../components/ui/DisabledActionButton'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { RichTextContent } from '../components/ui/RichTextContent'
@@ -765,6 +766,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const [myRequestEditDraft, setMyRequestEditDraft] = useState<MyRequestEditDraft | null>(null)
   const [myRequestEditSaving, setMyRequestEditSaving] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => setToast({ message, type })
   const [cancelModal, setCancelModal] = useState<{ jobId: string; reason: string; saving: boolean; displayNumber?: string } | null>(null)
   const [staffAssignModal, setStaffAssignModal] = useState<{
     jobId: string
@@ -1416,6 +1419,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       }
       setJobExtraTimeReview(null)
       await refreshDetail()
+      showToast(decision === 'approve'
+        ? t('tasks.actions.extraTimeApproved', 'Onaylanan ek süre')
+        : t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'),
+      decision === 'approve' ? 'success' : 'error')
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
       setJobExtraTimeReview(current => (current ? { ...current, saving: false } : current))
@@ -1797,6 +1804,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             invalidateJobs(queryClient, jobId)
             await refreshDetail()
             await reload()
+            showToast(t('jobs.actions.approveSuccess', 'Talep onaylandı.'))
           } catch (err) {
             setError(err instanceof Error ? err.message : t('common.error'))
           }
@@ -1897,6 +1905,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       setStaffAssignModal(null)
       await refreshDetail()
       await reload()
+      if (approvalRequired || targetApprovalRequired) {
+        showToast(t('jobs.actions.approveSuccess', 'Talep onaylandı.'))
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
       setStaffAssignModal(current => current ? { ...current, saving: false } : null)
@@ -1915,6 +1926,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           invalidateTasks(queryClient, taskId, detail?.jobId)
           if (detail) invalidateJobs(queryClient, detail.jobId)
           await refreshDetail()
+          showToast(t('tasks.actions.approveCloseSuccess', 'Görev kapatma onaylandı.'))
         } catch (err) {
           setError(err instanceof Error ? err.message : t('common.error'))
         }
@@ -3572,6 +3584,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         document.body
       )}
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
+      {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
       {forwardModal && createPortal(
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 p-4" role="presentation">
           <section className="relative w-full max-w-md rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="forward-job-dialog-title">

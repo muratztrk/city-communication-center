@@ -6228,7 +6228,7 @@
   .task-new-badge {
     margin-top: 0.25rem;
     text-align: center;
-    font-size: 0.72rem;
+    font-size: 0.64rem;
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -6238,7 +6238,7 @@
 
   @media (min-width: 768px) {
     .task-new-badge {
-      font-size: 0.64rem;
+      font-size: 0.68rem;
     }
   }
 
@@ -7017,9 +7017,16 @@
     .table-container thead th,
     .data-table thead th {
       padding: 0.48rem 0.4rem;
-      font-size: 0.6rem;
+      font-size: 0.68rem;
       line-height: 1.15;
       letter-spacing: 0.03em;
+    }
+
+    /* Pie drilldown popup thead — sayfa grid'inden bağımsız (#3252 reopen). */
+    .detail-modal-shell .dashboard-drilldown-table thead th,
+    .data-table.dashboard-drilldown-table thead th,
+    .detail-modal-shell--chart-drilldown thead th {
+      font-size: 0.68rem !important;
     }
 
     .table-container tbody td,
@@ -7032,9 +7039,25 @@
 
     .data-table .status-pill,
     .table-container .status-pill,
+    .dashboard-drilldown-table .status-pill,
     .data-table tbody td .task-type-pill,
-    .table-container tbody td .task-type-pill {
-      font-size: 0.5rem !important;
+    .table-container tbody td .task-type-pill,
+    .data-table .status-pill:has(.grid-status-label--flow-status),
+    .table-container .status-pill:has(.grid-status-label--flow-status),
+    .dashboard-drilldown-table .status-pill:has(.grid-status-label--flow-status),
+    .data-table .status-pill .grid-status-label--flow-status > span:first-child,
+    .table-container .status-pill .grid-status-label--flow-status > span:first-child,
+    .dashboard-drilldown-table .status-pill .grid-status-label--flow-status > span:first-child,
+    .data-table .status-pill .grid-status-label--overdue-solo > span:first-child,
+    .table-container .status-pill .grid-status-label--overdue-solo > span:first-child,
+    .dashboard-drilldown-table .status-pill .grid-status-label--overdue-solo > span:first-child {
+      font-size: 0.46rem !important;
+    }
+
+    .data-table .status-pill:has(.grid-status-label--flow-status),
+    .table-container .status-pill:has(.grid-status-label--flow-status),
+    .dashboard-drilldown-table .status-pill:has(.grid-status-label--flow-status) {
+      padding: 0.18rem 0.42rem !important;
     }
 
     .data-table .date-cell,
@@ -7390,7 +7413,7 @@
   /* Masaüstü: +/−/reset/pegman FAB'ların üstünde kalsın (#3245). */
   @media (min-width: 1024px) {
     .citizen-request-map-controls:not(.is-streetview) {
-      bottom: calc(var(--fab-footer-clearance) + var(--whatsapp-fab-size) + 0.85rem);
+      bottom: calc(var(--fab-footer-clearance) + var(--whatsapp-fab-size) + 0.15rem);
     }
   }
 
@@ -8072,6 +8095,11 @@
     .job-detail-field-row--task-location > .job-detail-field-row__value > *:not(.stacked-field-value) {
       grid-area: 1 / 2;
       text-align: right;
+    }
+
+    /* Vatandaş Talebi Yönlendiren — task-location grid'inden sonra, mobilde gizle (#3253). */
+    .job-detail-field-row--task-location.job-detail-field-row--request-router {
+      display: none !important;
     }
 
     .job-detail-field-row--location-creator {

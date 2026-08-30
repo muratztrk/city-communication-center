@@ -1,3 +1,12 @@
+## Round 1079 — 7 kart: pie thead, Onayla toast, YENİ/Durum, yönlendiren, harita
+
+- **#3252:** Mobil thead küçültmesi yalnız pie drilldown popup; sayfa grid thead 0.68rem'e döndü (önceki tur tüm gridleri küçültmüştü).
+- **#3254:** Taleplerim / Birime Gelen Onayla sonrası sağ alt toast (`Talep onaylandı.` / kapatma).
+- **#3226:** Durum/Görev Tipi 0.46rem; `StatusPill`'e `status-pill` sınıfı eklendi (önceki CSS tutmuyordu).
+- **#3225:** masaüstü YENİ 0.68rem (0.64 fazlaydı). **#3251:** mobil YENİ 0.64rem.
+- **#3253:** Talebi Yönlendiren yalnız mobilde gizlenir; masaüstü durur.
+- **#3245:** harita default kontroller FAB + 0.15rem (hala yüksekti).
+
 ## Round 1078 — 10 kart: yönlendiren satırı, not yapışması, placeholder, harita/grid
 
 - **#3253:** İlgili Görev Detayları'nda vatandaş talebinde Talebi Yönlendiren etiket+değer yok. Talep Yeri/Oluşturan (vatandaş olmayan) durur.

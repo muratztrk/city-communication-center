@@ -1,5 +1,6 @@
-## Round 1081 — 9 web kart: Onayla toast, YENİ, etiket, cadde, grid punto, FAB
+## Round 1081 — 10 web kart: Onayla toast, YENİ, etiket, cadde, grid/FAB, pie scroll
 
+- **#3269:** mobil pie lejant sayısı ile dikey scroll arası `padding-right: 0.65rem`.
 - **#3254/#3264:** Onayla toast `emitPageToast` (AppShell) — `reload()` yerel Toast’ı öldürüyordu; grid + detay, Birime Gelen + Birimden Giden.
 - **#3251:** mobil YENİ `0.66rem` (taşmaz).
 - **#3268:** Talep Etiketi: seçiniz kendi satırında; altında dropdown + Etiket Ekle.

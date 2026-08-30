@@ -7824,6 +7824,8 @@
       /* 5 satır: 0.72rem×1.15×5 + 0.45rem×4 — 6. satır kesilir (#3206). */
       max-height: calc((0.72rem * 1.15 * 5) + (0.45rem * 4)) !important;
       overflow-y: auto !important;
+      /* Sayı ile dikey scroll arası (#3269). */
+      padding-right: 0.65rem !important;
     }
 
     .pie-chart-root ul,

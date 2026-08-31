@@ -440,7 +440,8 @@ export function CitizenDirectoryPage() {
                   sortDir={sortDir}
                   onSort={toggleSort}
                 >
-                  {t('citizenDirectory.columns.phone', 'Numara')}
+                  <span className="max-md:hidden">{t('citizenDirectory.columns.phone', 'Numara')}</span>
+                  <span className="md:hidden">{t('jobs.detail.citizenPhone', 'Telefon No')}</span>
                 </FilterableTh>
                 <FilterableTh
                   filterKey="neighborhood"

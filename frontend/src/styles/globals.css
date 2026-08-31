@@ -5285,6 +5285,12 @@
     border-radius: 0;
   }
 
+  /* Pie drilldown başlık kalınlığı sayfa/harita listesinden ayrı (#3288). */
+  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table thead th,
+  .detail-modal-shell--chart-drilldown .data-table.dashboard-drilldown-table thead th {
+    font-weight: 600;
+  }
+
   .detail-modal-shell .dashboard-drilldown-table thead th:last-child,
   .data-table.dashboard-drilldown-table thead th:last-child {
     border-right: 0;
@@ -7272,15 +7278,43 @@
   }
 }
 
-/* ≥768: harita +/−/reset/SV, yatay FAB sırasının hemen üstünde — tek FAB yüksekliği (#3280). */
-@media (min-width: 768px) {
+/* ≥768 <1024: harita +/−/reset/SV, yalnız kaydır FAB üstünde (#3280). */
+@media (min-width: 768px) and (max-width: 1023px) {
   .citizen-request-map-controls:not(.is-streetview) {
     bottom: calc(
       var(--fab-footer-clearance)
       + var(--fab-stack-gap)
+      + var(--scroll-fab-size)
+      + 0.35rem
+    ) !important;
+  }
+}
+
+/* ≥1024: üç dikey FAB (WA + kurum içi + kaydır) üstünde (#3280). */
+@media (min-width: 1024px) {
+  .citizen-request-map-controls:not(.is-streetview) {
+    bottom: calc(
+      var(--fab-footer-clearance)
+      + var(--fab-stack-gap)
+      + var(--scroll-fab-size)
+      + var(--fab-stack-gap)
+      + var(--whatsapp-fab-size)
+      + var(--fab-stack-gap)
       + var(--whatsapp-fab-size)
       + 0.35rem
     ) !important;
+  }
+}
+
+/* Pie / harita liste popup: İşleme Alındı ve Yapılmakta biraz küçük; (Geciken) durur (#3287/#3285). */
+@media (min-width: 768px) {
+  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table .status-pill .grid-status-label--flow-status:not(.grid-status-label--overdue-solo) > span:first-child,
+  .citizen-map-requests-table .status-pill .grid-status-label--flow-status:not(.grid-status-label--overdue-solo) > span:first-child {
+    font-size: 0.74rem !important;
+  }
+
+  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table thead th {
+    font-weight: 600 !important;
   }
 }
 
@@ -7297,8 +7331,8 @@
     bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap));
   }
 
-  /* Street View: sohbet FAB'leri kaydır düğmesinin üst satırlarında (#3243). */
-  body:has(.citizen-request-map-controls.is-streetview) .fixed-fab-stack {
+  /* Harita: sohbet FAB'leri kaydır düğmesinin üst satırlarında (#3280/#3243). */
+  body:has(.citizen-request-map-controls) .fixed-fab-stack {
     flex-direction: column;
     align-items: flex-end;
   }
@@ -7324,11 +7358,11 @@
     right: -7.75rem;
   }
 
-  /* Street View dikey FAB: paneller sağa taşmasın, butonların soluna açılsın (#3243). */
-  body:has(.citizen-request-map-controls.is-streetview) .whatsapp-notification-fab-panel,
-  body:has(.citizen-request-map-controls.is-streetview) .internal-messages-fab-panel,
-  body:has(.citizen-request-map-controls.is-streetview) .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel,
-  body:has(.citizen-request-map-controls.is-streetview) .fixed-fab-stack:has(.scroll-fab-button) .internal-messages-fab-panel {
+  /* Harita dikey FAB: paneller sağa taşmasın, butonların soluna açılsın (#3280/#3243). */
+  body:has(.citizen-request-map-controls) .whatsapp-notification-fab-panel,
+  body:has(.citizen-request-map-controls) .internal-messages-fab-panel,
+  body:has(.citizen-request-map-controls) .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel,
+  body:has(.citizen-request-map-controls) .fixed-fab-stack:has(.scroll-fab-button) .internal-messages-fab-panel {
     right: calc(100% + 0.7rem);
   }
 

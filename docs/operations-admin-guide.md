@@ -48,7 +48,7 @@ Son tarih hesabı tenant bazlı iki ayardan etkilenir:
 **Hesaplama mantığı** (`SlaCalculatorService`):
 
 1. Hafta sonu hariç tutma kapalıysa: `Son Tarih = başlangıç + N saat`
-2. Hafta sonu hariç tutma açıksa: saatler yalnızca hafta içi günlerde ilerler; muaf birimler için normal saat eklemesi uygulanır
+2. Hafta sonu hariç tutma açıksa: Türkiye takviminde (`Europe/Istanbul`) Cmt/Paz sayılmaz; hafta sonunda başlarsa aynı yerel saat sonraki Pazartesi’ye kayar, sonra N hafta içi saat eklenir (#3281). UTC gece yarısı kesimi kullanılmaz. Muaf birimler için normal saat eklemesi uygulanır. Mevcut kayıtlar geriye dönük düzeltilmez.
 
 **Başlangıç anı** iş akışına göre değişir:
 

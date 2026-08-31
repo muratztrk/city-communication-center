@@ -1551,6 +1551,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Onay bekleyen (`PendingOwnerApproval` /
   `PendingExternalApproval` / `PendingApproval`) talepler aynı gün içinde saat aşımında
   "Geciken" sayılmaz; takvim günü değişince overdue olur.
+- **SLA hafta sonu süresi (#3281):** `SlaBusinessHours` Türkiye takvimi (`Europe/Istanbul`);
+  Cmt/Paz başlangıç aynı yerel saatte sonraki Pazartesi’ye kayar, sonra yalnız hafta içi saat.
+  UTC `DayOfWeek` / gece yarısı kesimi yok. Mevcut kayıtlar backfill edilmez.
 - **Talep Oluştur Başlangıç / Son Tarih (card #6a6f6301, #6a6f5011 supersede):** Birim Dışı
   formda Başlangıç en erken `şimdi` (geçmiş gün/saat disable). Başlangıç seçiliyse Son Tarih
   en erken `başlangıç + 2 saat`; değilse Son Tarih min `şimdi + 2 saat` (#1819).
@@ -1855,7 +1858,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sütunu yok (#2543); kanal yalnız detay popup talep listesinde `Talep Tarihi` sonrası (#2540).
   Telefon hücresi diğer kolonlarla aynı font (`font-semibold text-slate-800`,
   `font-mono`/`text-base` yok — card #1863) + `formatDirectoryPhone` (baştaki `90`/`0`
-  gösterilmez — card #1843 reopen). Ad boşsa veya ad telefon gibi duruyorsa Vatandaş Adı
+  gösterilmez — card #1843 reopen). Ana grid başlığı masaüstü `Numara`, mobil `Telefon No` (#3273).
+  Ad boşsa veya ad telefon gibi duruyorsa Vatandaş Adı
   hücresi de `XXX XXX XX XX` yazar (#3106). Arama 3 karakterden sonra başlar (#3103). Operatör/çağrı ile oluşturulan VT'ler `ConvertSocialMessageToJob`
   sırasında `CitizenConversation` upsert eder; liste sorgusu eksik konuşmaları da backfill eder
   (card #1858). WhatsApp Konuşmaları listesi `whatsAppOnly=true` ile yalnız en az bir WhatsApp
@@ -1974,10 +1978,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Street View açıkken özel +/−/başlangıç ikonları gizlenir; pegman Google native − solunda
   (`translate(-3.15rem, -0.45rem)`, #3238/#3244 reopen). Adres kartı (`gm-iv-address`) `min-height: 4.75rem` —
   "Google Haritalar'da görüntüleyin" kırpılmaz (#3237).
-  Masaüstü/tablet (≥768, mobil değil) varsayılan harita kontrolleri yatay FAB sırasının
-  hemen üstünde (`footer + gap + WA FAB + 0.35rem`, unlayered #3245/#3261/#3280) — yığın
-  yataydır, ikinci FAB yüksekliği eklenmez. Street View açıkken sohbet FAB'leri kaydır düğmesinin **üst satırlarında**
-  (`flex-col`); paneller butonların soluna `right: calc(100% + 0.7rem)` ile açılır (#3243 reopen).
+  Harita sayfalarında FAB yığını dikeydir (`flex-col`); WhatsApp ve kurum içi kaydırın
+  üst satırlarında (#3280/#3243). ≥768 ve <1024 yalnız kaydır FAB (`max-lg:hidden` sohbet) →
+  kontroller `footer+gap+scroll+0.35rem`. ≥1024 üç FAB →
+  `footer+gap+scroll+gap+WA+gap+WA+0.35rem`. Paneller butonların soluna
+  `right: calc(100% + 0.7rem)` ile açılır.
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
   Düşük zoom native koyu mavi kapsama çerçevesi durur; erode/CSS ile inceltme geri alındı (#2622).
@@ -2014,10 +2019,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde
   şartı yok — cadde/konuşma yedegi geocode için FE’de; harita yine cadde zorunlu (#2635).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
+  Birim haritası liste Gittiği Yer = `FramedDepartmentStack` yeşil çerçeve (#3286).
   (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
   (#2668, Onay Bekleyen değil).   Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
   (`bg-teal-600`), gecikmiş İşleme Alındı da turuncu değil — alt satır `(Geciken)` (#2819);
   İşleme Alındı / Yapılmakta pill boyutu grid'de hafif büyük (`grid-status-label--flow-status`, #2822).
+  Pie ve harita liste popup Durum İşleme Alındı/Yapılmakta
+  masaüstü `0.74rem` (`.detail-modal-shell--chart-drilldown` / `.citizen-map-requests-table`);
+  `(Geciken)` `.grid-status-overdue-sub` değişmez (#3287/#3285).
+  Sayfa grid `0.82rem` durur.
   Yapılmakta Görevlerim ile aynı açık mavi (`bg-sky-100` / `getStatusPillClass`,
   #2699), Geciken turuncu (`bg-orange-500`). Pin rengi Yapılmakta `#0ea5e9` kalır (#2671).
   yeşil Konum ikonu (yuvarlak çerçeve + hover, #2673/#2674); damla pin küçük yeşil (#2700).
@@ -2569,7 +2579,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Onaylayan Yönetici` (eski: Mesajı Onaylayan Yönetici); hover 250ms tooltip.
 - **Pie drilldown (#2087):** thead dikdörtgen (`border-radius: 0`); gövde ~0.82rem; Yazdır biraz büyük.
   `actions-cell` min-width ~18.5rem.
-- **Pie drilldown grid tipografi (#2080):** Taleplerim ile aynı — `thead` 0.78rem + letter-spacing 0.06em + biraz yüksek; `td` 0.9rem (dizin popup #1889 kalıbı).
+- **Pie drilldown grid tipografi (#2080/#3288):** Taleplerim ile aynı — `thead` 0.78rem + letter-spacing 0.06em + biraz yüksek; `td` 0.9rem (dizin popup #1889 kalıbı). Pie `thead` `font-weight: 600`; harita liste 700 kalır.
 - **Birimden Giden işlem gap (#2071):** `.my-requests-table .request-actions` gap `0.7rem`.
 - **Birim pie drilldown (#2070):** sütun `Birim`; Talep No `T-{yıl}-Onay Bekleyen` (+ Öncelik alt satır); Durum=StatusPill.
 - **Toast (#2074/#2075 reopen):** iptal başarı mesajı `error` (kırmızı); auto-hide **≤5 sn**;

@@ -17,6 +17,7 @@ import { GridStatusLabel } from './ui/GridStatusLabel'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { ClearPieFilterLink } from './ui/ClearPieFilterLink'
 import { ChannelIcon } from './ui/channel-icon'
+import { FramedDepartmentStack } from './jobs/my-request-detail/FramedDepartmentStack'
 import { formatCitizenPhoneDisplay, formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { formatOverdueInProgressStatus, getLocale, getPriorityColorClass, getPriorityLabel, getStatusPillClass, shouldShowGridPrioritySubline, type GridStatusTone } from '../utils/localization'
@@ -360,9 +361,10 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
                                   : '—'}
                               </td>
                               <td className="max-w-[12rem]">
-                                {(pin.destinationDepartmentName ?? pin.departmentName)?.trim()
-                                  ? <span className="block truncate">{(pin.destinationDepartmentName ?? pin.departmentName)?.trim()}</span>
-                                  : '—'}
+                                <FramedDepartmentStack
+                                  departmentName={pin.destinationDepartmentName ?? pin.departmentName}
+                                  align="center"
+                                />
                               </td>
                               <td className="font-semibold">
                                 <TruncatedText text={pin.title?.trim() || '—'} className="cell-title" />

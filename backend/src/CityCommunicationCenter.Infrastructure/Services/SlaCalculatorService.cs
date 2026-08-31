@@ -1,5 +1,6 @@
 using System.Text.Json;
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Common;
 
 namespace CityCommunicationCenter.Infrastructure.Services;
 
@@ -26,7 +27,7 @@ public sealed class SlaCalculatorService : ISlaCalculatorService
         if (!ShouldExcludeWeekends(setting, departmentId))
             return startUtc.AddHours(slaHours);
 
-        return AddBusinessHours(startUtc, slaHours);
+        return SlaBusinessHours.AddExcludingWeekends(startUtc, slaHours);
     }
 
     private static bool ShouldExcludeWeekends(Domain.Entities.TenantSetting? setting, Guid? departmentId)
@@ -48,19 +49,6 @@ public sealed class SlaCalculatorService : ISlaCalculatorService
         {
             return true;
         }
-    }
-
-    private static DateTimeOffset AddBusinessHours(DateTimeOffset start, int hours)
-    {
-        var current = start;
-        var remaining = hours;
-        while (remaining > 0)
-        {
-            current = current.AddHours(1);
-            if (current.DayOfWeek != DayOfWeek.Saturday && current.DayOfWeek != DayOfWeek.Sunday)
-                remaining--;
-        }
-        return current;
     }
 
     private sealed class SlaWeekendPayload

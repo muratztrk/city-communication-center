@@ -1,3 +1,12 @@
+## Round 1089 — 7 web kart: harita Gittiği Yer, pie/harita Durum, dizin Telefon No, SLA, FAB
+
+- **#3286:** birim haritası Talepleri Listele Gittiği Yer = yeşil `FramedDepartmentStack` (vatandaş listesinde sütun yok).
+- **#3288:** pie drilldown thead `font-weight` 700 → 600 (harita liste 700).
+- **#3287/#3285:** pie + harita liste İşleme Alındı/Yapılmakta `0.74rem`; `(Geciken)` durur.
+- **#3273:** Vatandaş Bilgi Listesi mobil başlık Telefon No; masaüstü Numara.
+- **#3281:** SLA hafta sonu Türkiye saati; Pazar 08:37 + 48 iş saati = Çarşamba 08:37 (UTC 02:37 değil).
+- **#3280:** harita FAB dikey; kontroller <1024 tek FAB, ≥1024 üç FAB üstünde.
+
 ## Round 1088 — 2 web kart: harita telefon format, Sms Onayı punto retry
 
 - **#3282:** harita Talepleri Listele / konumu olmayan Telefon No `xxx xxx xx xx`.

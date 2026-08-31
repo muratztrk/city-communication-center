@@ -867,7 +867,7 @@ export function CitizenRequestMap({
       </div>
 
       <div
-        className="relative h-[min(36rem,65vh)] w-full bg-slate-100"
+        className="relative h-[min(33.5rem,60vh)] w-full bg-slate-100"
         onMouseEnter={() => {
           if (!compactViewport) setGestureHandling('greedy')
         }}

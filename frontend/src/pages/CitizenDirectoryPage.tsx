@@ -432,6 +432,7 @@ export function CitizenDirectoryPage() {
                   {t('citizenDirectory.columns.name', 'Vatandaş Adı')}
                 </FilterableTh>
                 <FilterableTh
+                  className="citizen-directory-phone-th"
                   filterKey="citizenPhone"
                   filterValue={filters.citizenPhone ?? ''}
                   onFilter={setFilter}
@@ -440,8 +441,8 @@ export function CitizenDirectoryPage() {
                   sortDir={sortDir}
                   onSort={toggleSort}
                 >
-                  <span className="max-md:hidden">{t('citizenDirectory.columns.phone', 'Numara')}</span>
-                  <span className="md:hidden">{t('jobs.detail.citizenPhone', 'Telefon No')}</span>
+                  <span className="citizen-directory-phone-th__desktop">{t('citizenDirectory.columns.phone', 'Numara')}</span>
+                  <span className="citizen-directory-phone-th__mobile">{t('jobs.detail.citizenPhone', 'Telefon No')}</span>
                 </FilterableTh>
                 <FilterableTh
                   filterKey="neighborhood"

@@ -1,3 +1,10 @@
+## Round 1090 — 4 web kart: harita köşe/yükseklik, Gittiği Yer punto, dizin Telefon No, pie Başlık
+
+- **#3280:** +/−/reset/SV harita sağ alt köşe `0.7rem`; kutu `min(33.5rem, 60vh)` (FAB offset kaldırıldı).
+- **#3286:** birim haritası liste Gittiği Yer çerçevesi masaüstü `0.68rem`.
+- **#3273:** dizin başlığı ≤1023 Telefon No (unlayered; Tailwind `md` iPad’de Numara bırakıyordu).
+- **#3289:** pie drilldown Başlık `font-weight: 500` (sayfa grid semibold durur).
+
 ## Round 1089 — 7 web kart: harita Gittiği Yer, pie/harita Durum, dizin Telefon No, SLA, FAB
 
 - **#3286:** birim haritası Talepleri Listele Gittiği Yer = yeşil `FramedDepartmentStack` (vatandaş listesinde sütun yok).

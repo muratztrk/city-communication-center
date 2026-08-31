@@ -1858,7 +1858,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sütunu yok (#2543); kanal yalnız detay popup talep listesinde `Talep Tarihi` sonrası (#2540).
   Telefon hücresi diğer kolonlarla aynı font (`font-semibold text-slate-800`,
   `font-mono`/`text-base` yok — card #1863) + `formatDirectoryPhone` (baştaki `90`/`0`
-  gösterilmez — card #1843 reopen). Ana grid başlığı masaüstü `Numara`, mobil `Telefon No` (#3273).
+  gösterilmez — card #1843 reopen). Ana grid başlığı ≥1024 `Numara`, ≤1023 `Telefon No`
+  (unlayered, iPad 768’de Tailwind `md` Numara bırakıyordu — #3273).
   Ad boşsa veya ad telefon gibi duruyorsa Vatandaş Adı
   hücresi de `XXX XXX XX XX` yazar (#3106). Arama 3 karakterden sonra başlar (#3103). Operatör/çağrı ile oluşturulan VT'ler `ConvertSocialMessageToJob`
   sırasında `CitizenConversation` upsert eder; liste sorgusu eksik konuşmaları da backfill eder
@@ -1972,16 +1973,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   popup’ını daraltır; geocode tüm pinlerde bir kez çalışır (#3086/#3087/#3088/#2978).
   Google haritada yalnız cadde/sokak/bulvar etiketleri; POI ve transit kapalı; CBS overlay
   veya özel referans marker yok (#2799).
-  özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) sağ altta; Street View sarı pegman
+  özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) harita kutusunun sağ alt köşesinde
+  (`bottom`/`right` 0.7rem, #2614/#2615/#2621/#2631/#3280); Street View sarı pegman
   beyaz çerçeve 1.7rem / iç logo 26px, +/- yığınının solunda **+/− arasındaki çizgi hizasında** (#2614/#2615/#2621/#2631/#2769).
   Hover’da pegman bir kez geri kayar ve durur; mouse çıkınca eski konumuna döner (#2767).
   Street View açıkken özel +/−/başlangıç ikonları gizlenir; pegman Google native − solunda
   (`translate(-3.15rem, -0.45rem)`, #3238/#3244 reopen). Adres kartı (`gm-iv-address`) `min-height: 4.75rem` —
   "Google Haritalar'da görüntüleyin" kırpılmaz (#3237).
   Harita sayfalarında FAB yığını dikeydir (`flex-col`); WhatsApp ve kurum içi kaydırın
-  üst satırlarında (#3280/#3243). ≥768 ve <1024 yalnız kaydır FAB (`max-lg:hidden` sohbet) →
-  kontroller `footer+gap+scroll+0.35rem`. ≥1024 üç FAB →
-  `footer+gap+scroll+gap+WA+gap+WA+0.35rem`. Paneller butonların soluna
+  üst satırlarında (#3280/#3243). Harita kutusu `min(33.5rem, 60vh)` — önceki 36rem/65vh
+  biraz kısaltıldı ki köşe FAB’lerin üstünde kalsın (#3280). +/−/reset/SV harita köşesinde
+  (`0.7rem`); FAB yüksekliği kadar `bottom` eklenmez. Paneller butonların soluna
   `right: calc(100% + 0.7rem)` ile açılır.
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
@@ -2019,7 +2021,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde
   şartı yok — cadde/konuşma yedegi geocode için FE’de; harita yine cadde zorunlu (#2635).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
-  Birim haritası liste Gittiği Yer = `FramedDepartmentStack` yeşil çerçeve (#3286).
+  Birim haritası liste Gittiği Yer = `FramedDepartmentStack` yeşil çerçeve; masaüstü punto
+  `0.68rem` (#3286).
   (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
   (#2668, Onay Bekleyen değil).   Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
   (`bg-teal-600`), gecikmiş İşleme Alındı da turuncu değil — alt satır `(Geciken)` (#2819);
@@ -2579,7 +2582,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Onaylayan Yönetici` (eski: Mesajı Onaylayan Yönetici); hover 250ms tooltip.
 - **Pie drilldown (#2087):** thead dikdörtgen (`border-radius: 0`); gövde ~0.82rem; Yazdır biraz büyük.
   `actions-cell` min-width ~18.5rem.
-- **Pie drilldown grid tipografi (#2080/#3288):** Taleplerim ile aynı — `thead` 0.78rem + letter-spacing 0.06em + biraz yüksek; `td` 0.9rem (dizin popup #1889 kalıbı). Pie `thead` `font-weight: 600`; harita liste 700 kalır.
+- **Pie drilldown grid tipografi (#2080/#3288/#3289):** Taleplerim ile aynı — `thead` 0.78rem + letter-spacing 0.06em + biraz yüksek; `td` 0.9rem (dizin popup #1889 kalıbı). Pie `thead` `font-weight: 600`; harita liste 700 kalır. Pie Başlık (`.cell-title`) `font-weight: 500` (sayfa grid `semibold` durur).
 - **Birimden Giden işlem gap (#2071):** `.my-requests-table .request-actions` gap `0.7rem`.
 - **Birim pie drilldown (#2070):** sütun `Birim`; Talep No `T-{yıl}-Onay Bekleyen` (+ Öncelik alt satır); Durum=StatusPill.
 - **Toast (#2074/#2075 reopen):** iptal başarı mesajı `error` (kırmızı); auto-hide **≤5 sn**;

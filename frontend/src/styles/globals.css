@@ -7278,31 +7278,25 @@
   }
 }
 
-/* ≥768 <1024: harita +/−/reset/SV, yalnız kaydır FAB üstünde (#3280). */
-@media (min-width: 768px) and (max-width: 1023px) {
+/* Harita +/−/reset/SV: haritanın sağ alt köşesi (FAB offset yok) (#3280 reopen). */
+@media (min-width: 768px) {
   .citizen-request-map-controls:not(.is-streetview) {
-    bottom: calc(
-      var(--fab-footer-clearance)
-      + var(--fab-stack-gap)
-      + var(--scroll-fab-size)
-      + 0.35rem
-    ) !important;
+    bottom: 0.7rem !important;
   }
 }
 
-/* ≥1024: üç dikey FAB (WA + kurum içi + kaydır) üstünde (#3280). */
-@media (min-width: 1024px) {
-  .citizen-request-map-controls:not(.is-streetview) {
-    bottom: calc(
-      var(--fab-footer-clearance)
-      + var(--fab-stack-gap)
-      + var(--scroll-fab-size)
-      + var(--fab-stack-gap)
-      + var(--whatsapp-fab-size)
-      + var(--fab-stack-gap)
-      + var(--whatsapp-fab-size)
-      + 0.35rem
-    ) !important;
+/* Dizin telefon başlığı: Tailwind md (768) iPad’de Numara bırakıyordu; ≤1023 Telefon No (#3273). */
+.citizen-directory-table .citizen-directory-phone-th__mobile {
+  display: none !important;
+}
+
+@media (max-width: 1023px) {
+  .citizen-directory-table .citizen-directory-phone-th__desktop {
+    display: none !important;
+  }
+
+  .citizen-directory-table .citizen-directory-phone-th__mobile {
+    display: inline !important;
   }
 }
 
@@ -7315,6 +7309,16 @@
 
   .detail-modal-shell--chart-drilldown .dashboard-drilldown-table thead th {
     font-weight: 600 !important;
+  }
+
+  /* Birim haritası liste Gittiği Yer çerçevesi biraz küçük (#3286). */
+  .citizen-map-requests-table tbody td .framed-department-pill {
+    font-size: 0.68rem !important;
+  }
+
+  /* Pie drilldown Başlık kalınlığı sayfa gridinden ayrı (#3289). */
+  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table .cell-title {
+    font-weight: 500 !important;
   }
 }
 

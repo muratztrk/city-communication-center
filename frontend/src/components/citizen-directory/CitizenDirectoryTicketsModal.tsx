@@ -367,7 +367,7 @@ export function CitizenDirectoryTicketsModal({
                 ) : (
                   <div className="dashboard-drilldown-grid-shell">
                   <div className="dashboard-drilldown-table-wrap">
-                  <table className="data-table citizen-directory-tickets-table">
+                  <table className={`data-table citizen-directory-tickets-table${showCitizenContact ? ' citizen-directory-tickets-table--map-pin' : ''}`}>
                     <thead>
                       <tr>
                         <th className="w-14 text-center">{t('common.number', 'Sıra')}</th>

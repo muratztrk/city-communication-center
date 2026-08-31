@@ -6815,15 +6815,15 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value,
     .citizen-directory-tickets-table .citizen-directory-channel-label,
     .citizen-directory-tickets-table .citizen-directory-channel-value .text-sm {
-      font-size: 0.7rem !important;
+      font-size: 0.64rem !important;
     }
 
     .citizen-directory-tickets-table .citizen-directory-channel-value svg,
     .citizen-directory-tickets-table .citizen-directory-channel-value img,
     .citizen-directory-tickets-table .citizen-directory-channel-icon,
     .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
-      width: 0.68rem !important;
-      height: 0.68rem !important;
+      width: 0.62rem !important;
+      height: 0.62rem !important;
     }
 
     /* VT edit Öncelik sola/küçült istekleri geri alındı (#r498). */
@@ -7210,15 +7210,15 @@
   /* Unlayered: Tailwind utilities (@layer) aksi halde font-size'ı ezer (#3271/#3252/#3273). */
   .citizen-directory-tickets-table .citizen-directory-channel-value,
   .citizen-directory-tickets-table .citizen-directory-channel-label {
-    font-size: 0.7rem !important;
+    font-size: 0.64rem !important;
     line-height: 1.2;
   }
 
   .citizen-directory-tickets-table .citizen-directory-channel-icon,
   .citizen-directory-tickets-table .citizen-directory-channel-value svg,
   .citizen-directory-tickets-table .citizen-directory-channel-value img {
-    width: 0.68rem !important;
-    height: 0.68rem !important;
+    width: 0.62rem !important;
+    height: 0.62rem !important;
   }
 
   .social-messages-table .citizen-grid-phone-value,
@@ -7278,32 +7278,30 @@
   }
 }
 
-/* Harita +/−/reset/SV: haritanın sağ alt köşesi (FAB offset yok) (#3280 reopen). */
+/* Harita +/−/reset/SV: köşede, biraz sola (#3280). */
+.citizen-request-map-controls {
+  right: 1.15rem !important;
+}
+
 @media (min-width: 768px) {
   .citizen-request-map-controls:not(.is-streetview) {
     bottom: 0.7rem !important;
   }
 }
 
-/* Dizin telefon başlığı: Tailwind md (768) iPad’de Numara bırakıyordu; ≤1023 Telefon No (#3273). */
-.citizen-directory-table .citizen-directory-phone-th__mobile {
-  display: none !important;
-}
-
+/* Dizin Telefon No değeri: mobil text-sm (0.875) hücreden büyüktü (#3284). */
 @media (max-width: 1023px) {
-  .citizen-directory-table .citizen-directory-phone-th__desktop {
-    display: none !important;
-  }
-
-  .citizen-directory-table .citizen-directory-phone-th__mobile {
-    display: inline !important;
+  .citizen-directory-table .citizen-directory-phone-value {
+    font-size: 0.70rem !important;
+    line-height: 1.25;
   }
 }
 
 /* Pie / harita liste popup: İşleme Alındı ve Yapılmakta biraz küçük; (Geciken) durur (#3287/#3285). */
 @media (min-width: 768px) {
   .detail-modal-shell--chart-drilldown .dashboard-drilldown-table .status-pill .grid-status-label--flow-status:not(.grid-status-label--overdue-solo) > span:first-child,
-  .citizen-map-requests-table .status-pill .grid-status-label--flow-status:not(.grid-status-label--overdue-solo) > span:first-child {
+  .citizen-map-requests-table .status-pill .grid-status-label--flow-status:not(.grid-status-label--overdue-solo) > span:first-child,
+  .citizen-directory-tickets-table--map-pin .status-pill .grid-status-label--flow-status:not(.grid-status-label--overdue-solo) > span:first-child {
     font-size: 0.74rem !important;
   }
 
@@ -7316,8 +7314,9 @@
     font-size: 0.68rem !important;
   }
 
-  /* Pie drilldown Başlık kalınlığı sayfa gridinden ayrı (#3289). */
-  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table .cell-title {
+  /* Pie drilldown Başlık + Talep Tarihi kalınlığı sayfa gridinden ayrı (#3289). */
+  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table .cell-title,
+  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table .date-cell {
     font-weight: 500 !important;
   }
 }
@@ -7622,7 +7621,7 @@
   .citizen-request-map-controls {
     position: absolute;
     z-index: 5;
-    right: 0.7rem;
+    right: 1.15rem;
     bottom: 1.15rem;
     display: flex;
     flex-direction: column;

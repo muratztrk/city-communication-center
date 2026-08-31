@@ -441,8 +441,7 @@ export function CitizenDirectoryPage() {
                   sortDir={sortDir}
                   onSort={toggleSort}
                 >
-                  <span className="citizen-directory-phone-th__desktop">{t('citizenDirectory.columns.phone', 'Numara')}</span>
-                  <span className="citizen-directory-phone-th__mobile">{t('jobs.detail.citizenPhone', 'Telefon No')}</span>
+                  {t('citizenDirectory.columns.phone', 'Telefon No')}
                 </FilterableTh>
                 <FilterableTh
                   filterKey="neighborhood"
@@ -506,7 +505,7 @@ export function CitizenDirectoryPage() {
                   <td>
                     <span className="truncate font-semibold text-slate-700">{row.displayName}</span>
                   </td>
-                  <td className="text-sm font-semibold text-slate-500 tabular-nums">
+                  <td className="citizen-directory-phone-value text-sm font-semibold text-slate-500 tabular-nums">
                     <EmptyCell value={formatDirectoryPhone(row.citizenPhone)} />
                   </td>
                   {isEditing ? (

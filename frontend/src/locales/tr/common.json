@@ -54,7 +54,7 @@
     "citizenOutboundMessage": "Vatandaşa Giden Mesaj",
     "columns": {
       "name": "Vatandaş Adı",
-      "phone": "Numara",
+      "phone": "Telefon No",
       "sourceChannel": "Talep Kanalı",
       "neighborhood": "Mahalle",
       "street": "Cadde / Sokak",

@@ -1858,8 +1858,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sütunu yok (#2543); kanal yalnız detay popup talep listesinde `Talep Tarihi` sonrası (#2540).
   Telefon hücresi diğer kolonlarla aynı font (`font-semibold text-slate-800`,
   `font-mono`/`text-base` yok — card #1863) + `formatDirectoryPhone` (baştaki `90`/`0`
-  gösterilmez — card #1843 reopen). Ana grid başlığı ≥1024 `Numara`, ≤1023 `Telefon No`
-  (unlayered, iPad 768’de Tailwind `md` Numara bırakıyordu — #3273).
+  gösterilmez — card #1843 reopen). Ana grid başlığı tüm genişlikte `Telefon No`
+  (`citizenDirectory.columns.phone`; masaüstü NUMARA reopen’ları viewport CSS’ini geçersiz kıldı — #3273).
+  Mobil Telefon No **değeri** `0.70rem` (`.citizen-directory-phone-value`, ≤1023, #3284); başlık punto değişmez.
   Ad boşsa veya ad telefon gibi duruyorsa Vatandaş Adı
   hücresi de `XXX XXX XX XX` yazar (#3106). Arama 3 karakterden sonra başlar (#3103). Operatör/çağrı ile oluşturulan VT'ler `ConvertSocialMessageToJob`
   sırasında `CitizenConversation` upsert eder; liste sorgusu eksik konuşmaları da backfill eder
@@ -1974,7 +1975,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Google haritada yalnız cadde/sokak/bulvar etiketleri; POI ve transit kapalı; CBS overlay
   veya özel referans marker yok (#2799).
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) harita kutusunun sağ alt köşesinde
-  (`bottom`/`right` 0.7rem, #2614/#2615/#2621/#2631/#3280); Street View sarı pegman
+  (`bottom` 0.7rem, `right` 1.15rem, #2614/#2615/#2621/#2631/#3280); Street View sarı pegman
   beyaz çerçeve 1.7rem / iç logo 26px, +/- yığınının solunda **+/− arasındaki çizgi hizasında** (#2614/#2615/#2621/#2631/#2769).
   Hover’da pegman bir kez geri kayar ve durur; mouse çıkınca eski konumuna döner (#2767).
   Street View açıkken özel +/−/başlangıç ikonları gizlenir; pegman Google native − solunda
@@ -1983,7 +1984,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Harita sayfalarında FAB yığını dikeydir (`flex-col`); WhatsApp ve kurum içi kaydırın
   üst satırlarında (#3280/#3243). Harita kutusu `min(33.5rem, 60vh)` — önceki 36rem/65vh
   biraz kısaltıldı ki köşe FAB’lerin üstünde kalsın (#3280). +/−/reset/SV harita köşesinde
-  (`0.7rem`); FAB yüksekliği kadar `bottom` eklenmez. Paneller butonların soluna
+  (`bottom` 0.7rem, `right` 1.15rem); FAB yüksekliği kadar `bottom` eklenmez. Paneller butonların soluna
   `right: calc(100% + 0.7rem)` ile açılır.
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
@@ -2027,9 +2028,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#2668, Onay Bekleyen değil).   Vatandaş listesinde Durum pill: İşleme Alındı turkuaz
   (`bg-teal-600`), gecikmiş İşleme Alındı da turuncu değil — alt satır `(Geciken)` (#2819);
   İşleme Alındı / Yapılmakta pill boyutu grid'de hafif büyük (`grid-status-label--flow-status`, #2822).
-  Pie ve harita liste popup Durum İşleme Alındı/Yapılmakta
-  masaüstü `0.74rem` (`.detail-modal-shell--chart-drilldown` / `.citizen-map-requests-table`);
-  `(Geciken)` `.grid-status-overdue-sub` değişmez (#3287/#3285).
+  Pie, harita liste ve harita pin popup Durum İşleme Alındı/Yapılmakta
+  masaüstü `0.74rem` (`.detail-modal-shell--chart-drilldown` / `.citizen-map-requests-table` / `.citizen-directory-tickets-table--map-pin`);
+  `(Geciken)` `.grid-status-overdue-sub` değişmez (#3287/#3285/#3291).
   Sayfa grid `0.82rem` durur.
   Yapılmakta Görevlerim ile aynı açık mavi (`bg-sky-100` / `getStatusPillClass`,
   #2699), Geciken turuncu (`bg-orange-500`). Pin rengi Yapılmakta `#0ea5e9` kalır (#2671).
@@ -2582,7 +2583,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Onaylayan Yönetici` (eski: Mesajı Onaylayan Yönetici); hover 250ms tooltip.
 - **Pie drilldown (#2087):** thead dikdörtgen (`border-radius: 0`); gövde ~0.82rem; Yazdır biraz büyük.
   `actions-cell` min-width ~18.5rem.
-- **Pie drilldown grid tipografi (#2080/#3288/#3289):** Taleplerim ile aynı — `thead` 0.78rem + letter-spacing 0.06em + biraz yüksek; `td` 0.9rem (dizin popup #1889 kalıbı). Pie `thead` `font-weight: 600`; harita liste 700 kalır. Pie Başlık (`.cell-title`) `font-weight: 500` (sayfa grid `semibold` durur).
+- **Pie drilldown grid tipografi (#2080/#3288/#3289):** Taleplerim ile aynı — `thead` 0.78rem + letter-spacing 0.06em + biraz yüksek; `td` 0.9rem (dizin popup #1889 kalıbı). Pie `thead` `font-weight: 600`; harita liste 700 kalır. Pie Başlık (`.cell-title`) ve Talep Tarihi (`.date-cell`) `font-weight: 500` (sayfa grid semibold / date 600 durur).
 - **Birimden Giden işlem gap (#2071):** `.my-requests-table .request-actions` gap `0.7rem`.
 - **Birim pie drilldown (#2070):** sütun `Birim`; Talep No `T-{yıl}-Onay Bekleyen` (+ Öncelik alt satır); Durum=StatusPill.
 - **Toast (#2074/#2075 reopen):** iptal başarı mesajı `error` (kırmızı); auto-hide **≤5 sn**;
@@ -2893,8 +2894,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Çağrı Talebi vatandaş adı (#2331):** `CreateRequestPage` vatandaş adı alanı blur/submit'te
   `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
-  (`citizen-directory-tickets-table` scoped CSS). Mobil Talep Kanalı değer + ikon biraz küçük
-  (`.citizen-directory-channel-label` `0.70rem`, ikon `0.68rem`, unlayered #3271).
+  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.64rem` / `0.62rem`
+  (unlayered #3271/#3290). Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
+  `(Geciken)` durur; dizin Detaylar Durum punto değişmez (#3291).
 - **Vatandaş Bilgi Listesi Talep Kanalı (#2285):** `Talep Kanalı` sütunu `FilterableTh` ile
   filtrelenebilir ve sıralanabilir; etiket `sourceChannelLabel` üzerinden Türkçe kanal adıyla eşleşir.
 - **Birimler liste araması (#2283):** Birim ara kutusu yalnız birim adı, müdür ve sorumlu

@@ -54,7 +54,7 @@
     "citizenOutboundMessage": "Message Sent to Citizen",
     "columns": {
       "name": "Citizen name",
-      "phone": "Phone",
+      "phone": "Phone No",
       "sourceChannel": "Request channel",
       "neighborhood": "Neighborhood",
       "street": "Street",

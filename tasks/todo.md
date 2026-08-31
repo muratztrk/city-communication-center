@@ -1,3 +1,13 @@
+## Round 1091 — 6 web kart: dizin Telefon No, harita pin Durum, kontroller, kanal, pie tarih
+
+- **#3273:** dizin grid başlığı tüm genişlikte Telefon No (masaüstü NUMARA reopen; viewport CSS yetmedi).
+- **#3284:** mobil dizin Telefon No **değeri** `0.70rem` (başlık durur).
+- **#3291:** harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`; `(Geciken)` durur; dizin Detaylar Durum değişmez.
+- **#3280:** +/−/reset/SV `right` 0.7 → 1.15rem (köşe `bottom` 0.7; FAB offset yok).
+- **#3290:** dizin Detaylar Talep Kanalı `0.64rem` / ikon `0.62rem`.
+- **#3289:** pie drilldown Talep Tarihi (`.date-cell`) `font-weight: 500` (Başlık 500 durur).
+- **Atlandı:** #3292 Tim mobil app Vatandaşlar sayfalama.
+
 ## Round 1090 — 4 web kart: harita köşe/yükseklik, Gittiği Yer punto, dizin Telefon No, pie Başlık
 
 - **#3280:** +/−/reset/SV harita sağ alt köşe `0.7rem`; kutu `min(33.5rem, 60vh)` (FAB offset kaldırıldı).

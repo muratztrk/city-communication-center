@@ -151,7 +151,6 @@ export function UsersPage() {
   /** LDAP'ta birim alanı boş kullanıcılar — buton sağındaki dropdown (card #1752). */
   const [ldapUsersWithoutDepartment, setLdapUsersWithoutDepartment] = useState<DirectoryUserLookup[]>([])
   const [ldapUsersWithoutDepartmentValue, setLdapUsersWithoutDepartmentValue] = useState('')
-  const [ldapDirectoryPulled, setLdapDirectoryPulled] = useState(false)
   const [ldapDailySyncEnabled, setLdapDailySyncEnabled] = useState(false)
   const [ldapDailySyncTime, setLdapDailySyncTime] = useState('02:00')
   const [ldapDailySyncSaving, setLdapDailySyncSaving] = useState(false)
@@ -277,6 +276,33 @@ export function UsersPage() {
     }
   }, [canManageUsers, currentUser?.tenantId, managementContext?.ldapEnabled, t])
 
+  const applyLdapUsersWithoutDepartment = (results: DirectoryUserLookup[]) => {
+    setLdapUsersWithoutDepartment(results.filter(item => !item.department?.trim()))
+    setLdapUsersWithoutDepartmentValue('')
+  }
+
+  useEffect(() => {
+    if (!showForm || createMode !== 'ldap' || !managementContext?.ldapEnabled) {
+      return
+    }
+
+    let isActive = true
+    void api.listDirectoryUsers()
+      .then(results => {
+        if (!isActive) return
+        applyLdapUsersWithoutDepartment(results)
+      })
+      .catch(loadError => {
+        if (isActive) {
+          setError(loadError instanceof Error ? loadError.message : t('common.error'))
+        }
+      })
+
+    return () => {
+      isActive = false
+    }
+  }, [showForm, createMode, managementContext?.ldapEnabled, t])
+
   const localeCompareTr = (left: string, right: string) =>
     left.localeCompare(right, 'tr', { sensitivity: 'base' })
 
@@ -354,10 +380,7 @@ export function UsersPage() {
       const syncResult = await api.syncDirectoryUsers()
       const results = await api.listDirectoryUsers()
       setDirectoryResults(results)
-      const withoutLdapDepartment = results.filter(item => !item.department?.trim())
-      setLdapUsersWithoutDepartment(withoutLdapDepartment)
-      setLdapUsersWithoutDepartmentValue('')
-      setLdapDirectoryPulled(true)
+      applyLdapUsersWithoutDepartment(results)
       setDirectorySyncMessage(null)
       invalidateUsers(queryClient)
       loadData()
@@ -473,10 +496,7 @@ export function UsersPage() {
     try {
       // Yalnızca aktif LDAP kullanıcıları (BE filter); ekleme ConfirmDialog Ekle ile (cards #1750/#1757).
       const results = await api.listDirectoryUsers()
-      const withoutLdapDepartment = results.filter(item => !item.department?.trim())
-      setLdapUsersWithoutDepartment(withoutLdapDepartment)
-      setLdapUsersWithoutDepartmentValue('')
-      setLdapDirectoryPulled(true)
+      applyLdapUsersWithoutDepartment(results)
 
       // alreadyLinked: externalId veya sAMAccountName (card #1758).
       const candidates = results.filter(item => !item.alreadyLinked)
@@ -1103,8 +1123,7 @@ export function UsersPage() {
                     {deleteAllLdapLoading ? t('users.deleteAllLdapWorking') : t('users.deleteAllLdap')}
                   </button>
                 </div>
-                {ldapDirectoryPulled ? (
-                  <div className="ldap-unmatched-dept-dropdown min-w-[12rem] max-w-[16rem]">
+                <div className="ldap-unmatched-dept-dropdown min-w-[12rem] max-w-[16rem]">
                     <SingleSelectDropdown
                       className="ldap-unmatched-dept-dropdown"
                       menuClassName="ldap-unmatched-dept-menu"
@@ -1120,7 +1139,6 @@ export function UsersPage() {
                       searchPlaceholder={t('common.search', 'Ara...')}
                     />
                   </div>
-                ) : null}
               </div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <span className="text-sm font-semibold text-slate-700">{t('users.dailyLdapSync')}</span>
@@ -1148,13 +1166,14 @@ export function UsersPage() {
                     type="time"
                     className="field-input w-[7.5rem]"
                     value={ldapDailySyncTime}
-                    onChange={event => setLdapDailySyncTime(event.target.value)}
+                    onChange={event => {
+                      const next = event.target.value
+                      setLdapDailySyncTime(next)
+                      void handleSaveLdapDailySync(ldapDailySyncEnabled, next)
+                    }}
                     aria-label={t('users.dailyLdapSyncTime')}
                   />
                 </label>
-                <Button type="button" size="sm" disabled={ldapDailySyncSaving} onClick={() => void handleSaveLdapDailySync()}>
-                  {t('common.save', 'Kaydet')}
-                </Button>
               </div>
               <p className="helper-copy">{t('users.directorySearchDescription')}</p>
               <p className="helper-copy">{t('users.directoryLinkHint')}</p>

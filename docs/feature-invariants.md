@@ -1431,12 +1431,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   LDAP oluşturma modunda "LDAP Birim Çek" yardım metninin altında görünür.
   Popup kapanış **Çıkış**
   (kırmızı); eksik birim uyarısı: LDAP birim verisi gerekir / tümü eklendiyse başarı metni
-  (cards #1759/#1760). Çekim sonrası buton sağında **Birimi LDAP’ta olmayan kullanıcılar**
-  dropdown’u (card #1752). LDAP verisi çekildikten sonra (anlık senkron / tümünü ekle)
-  liste boş olsa da dropdown görünür; genişlik `12–16rem`, seçenek metni `0.78rem` (#3307).
-  **Ldap Günlük Sync** Aktif anahtar + saat (`Europe/Istanbul`); API `LdapDailySyncHostedService`
-  anlık senkronla aynı `SyncDirectoryCommand` çalıştırır. Ayar `LdapSettingsJson` içinde,
-  Ayarlar LDAP kaydı günlük sync’i silmez (#3298). LDAP formunda Dizin Hesabı alanı yok; **İptal Et** yalnız LDAP
+  (cards #1759/#1760).   Çekim sonrası buton sağında **Birimi LDAP’ta olmayan kullanıcılar**
+  dropdown’u (card #1752). LDAP oluşturma formu açılınca dizin listesi çekilir (anlık senkron
+  şart değil); dropdown her zaman görünür. Genişlik `12–16rem`, tetikleyici/seçenek `0.72rem` (#3307).
+  **Ldap Günlük Sync** Aktif anahtar + saat (`Europe/Istanbul`); saat değişince kaydedilir,
+  ayrı Kaydet yok (#3308). API `LdapDailySyncHostedService` anlık senkronla aynı `SyncDirectoryCommand`
+  çalıştırır. Ayar `LdapSettingsJson` içinde, Ayarlar LDAP kaydı günlük sync’i silmez (#3298). LDAP formunda Dizin Hesabı alanı yok; **İptal Et** yalnız LDAP
   kullanıcısı seçiliyken Oluştur altında görünür (cards #1755/#1756). Anlık senkron `listDirectoryUsers`
   ile çalışır (arama zorunlu değil); ConfirmDialog `"LDAP Kullanıcı Senkronize Edildi"` + bağlı
   kullanıcıların username/ad/ünvan/dahili/cep/e-posta güncellemesi (`POST /users/sync/ad` — card #1787/#2902);
@@ -1942,7 +1942,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız `Geciken` (#2977).
   Talep Oluşturan Birimler drilldown: Birim sonrası Gittiği Yer; Bekleyen/Yapılmakta/Tamamlanan
   drilldown: Talep Yeri (sahip birim) Birim’den önce (#2616); bu üç pie’de Birim sütunu
-  **Gittiği Yer** yeşil `FramedDepartmentStack` (#3301/#3302). Durum overdue = `Yapılmakta (Geciken)` (#2609).
+  **Gittiği Yer** yeşil `FramedDepartmentStack` (#3301/#3302). Gittiği Yer **başlığı** `0.70rem` (#3302).
+  Tamamlanan/Yapılmakta/Onay Bekleyen Talepler + Tamamlanan/Yapılmakta Projeler pie popup’ta
+  **Durum sütunu yok** (dilim zaten durum, #3310). Durum overdue = `Yapılmakta (Geciken)` (#2609).
   Yapılmakta/Tamamlanan Projeler pie yalnız Birim İçi (`InternalUnit`, Owner birim) + Üst Düzey
   Yönetici’nin oluşturduğu `IsProject` talepler (#2618); Birim İçi Target JobDepartment aranmaz
   (T-2026-589). Diğer birim-dışı projeler dahil değil.
@@ -2028,7 +2030,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde
   şartı yok — cadde/konuşma yedegi geocode için FE’de; harita yine cadde zorunlu (#2635).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
-  Vatandaş harita liste **Vatandaş Adı** + **Telefon No** `0.68rem` (#3303).
+  Vatandaş harita liste **Vatandaş Adı** + **Telefon No** `0.70rem` (#3303).
   Birim haritası liste Gittiği Yer = `FramedDepartmentStack` yeşil çerçeve; masaüstü punto
   `0.68rem` (#3286).
   (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
@@ -2119,6 +2121,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kapalı ve açık `SingleSelectDropdown` hover tooltip yok (Talep Oluştur Görevi Yapan/Öncelik/Mahalle/Cadde dahil, #2754).
   **Adresi Gör** popup: başlık altı çizgi; 2×2 `Mahalle | Cadde / Sokak` ve `No | Adres Tarifi`
   (Konum Koordinatı yok). Peek `--directions` `padding-top` yok — No ile aynı yatay hiza (#3299).
+  Başlık altı değerler **sağa hizalı**, ortalı değil (#3311). Yalnız peek; detay kartı dokunulmaz.
   Mobilde 2 kolon durur, başlık aralıkları popup’ı kaplayıp ortalanır (`space-evenly`, #3300).
   X Talebi Yönlendir ile aynı.
   Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın (`2.4rem` üç kutu, `1.6rem` iki kutu, #2759).
@@ -2906,8 +2909,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Çağrı Talebi vatandaş adı (#2331):** `CreateRequestPage` vatandaş adı alanı blur/submit'te
   `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
-  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.60rem` / `0.62rem`,
-  metin `font-weight: 500` (unlayered #3271/#3290). Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
+  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.56rem` / `0.58rem`,
+  metin `font-weight: 500` — kural **unlayered** (767px medya içinde kalırsa masaüstünde `text-sm` kazanır, #3271/#3290).
+  Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
   `(Geciken)` durur; dizin Detaylar Durum punto değişmez (#3291).
   Dizin Detaylar + harita Talepleri Listele / pin popup scroll pie gibi tablo `hscroll` içinde;
   popup kenar scrollbar yok (`--tickets-grid`, #3297).

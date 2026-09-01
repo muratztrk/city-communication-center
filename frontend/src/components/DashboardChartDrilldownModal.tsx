@@ -110,6 +110,15 @@ const EXTERNAL_DESTINATION_FRAMED_CHART_KEYS = new Set([
   'dashboard.charts.externalRequestFulfillers',
 ])
 
+/** Bu pie'lerde dilim zaten durum; Durum sütunu yok (#3310). */
+const HIDE_STATUS_CHART_KEYS = new Set([
+  'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestInProgress',
+  'dashboard.charts.externalRequestFulfillers',
+  'dashboard.charts.externalProjectsCompleted',
+  'dashboard.charts.externalProjectsInProgress',
+])
+
 const CITIZEN_DEPARTMENT_CHART_KEYS = new Set([
   'dashboard.charts.citizenDepartmentProcessingRequests',
   'dashboard.charts.citizenDepartmentInProgressRequests',
@@ -231,6 +240,8 @@ export function printDrilldownRows(
     terminalDateLabel?: string
     /** Mahalle yazdır: Vatandaş / Talep No iki satır (#6a6d8e2f). */
     stackRequestNoHeader?: boolean
+    /** Anasayfa-Birimler durum-dilimli pie: Durum sütunu yok (#3310). */
+    showStatusColumn?: boolean
   },
 ) {
   const escape = (value: string) => value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -246,6 +257,7 @@ export function printDrilldownRows(
   const showCitizen = options?.showCitizenColumn === true
   const showUnit = options?.showUnitColumn !== false
   const showNeighborhood = options?.showNeighborhoodColumn === true
+  const showStatus = options?.showStatusColumn !== false
   const stackRequestNo = options?.stackRequestNoHeader === true
   const terminalHeader = options?.terminalDateLabel
     ?? t('jobs.columns.outcomeAt', 'Sonuç Tarihi')
@@ -265,7 +277,7 @@ export function printDrilldownRows(
       <td class="col-title">${escape(row.title?.trim() || '—')}</td>
       ${showNeighborhood ? `<td class="col-dept">${escape(row.neighborhood?.trim() || '—')}</td>` : ''}
       ${showUnit ? `<td class="col-dept">${escape(unitCell)}</td>` : ''}
-      <td class="col-status"><span class="status-cell">${escape(status)}</span></td>
+      ${showStatus ? `<td class="col-status"><span class="status-cell">${escape(status)}</span></td>` : ''}
       <td class="col-completed">${escape(formatDate(row.terminalDateUtc))}</td>
     </tr>`
   }).join('')
@@ -311,7 +323,7 @@ export function printDrilldownRows(
       <th class="col-title">${escape(t('jobs.columns.title', 'Başlık'))}</th>
       ${showNeighborhood ? `<th class="col-dept">${escape(t('jobs.address.neighborhoodLabel', 'Mahalle'))}</th>` : ''}
       ${showUnit ? `<th class="col-dept">${escape(options?.unitColumnLabel ?? t('jobs.columns.unitShort', 'Birim'))}</th>` : ''}
-      <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
+      ${showStatus ? `<th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>` : ''}
       <th class="col-completed">${escape(terminalHeader)}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
     <div class="footer">Yazdırma tarihi: ${new Date().toLocaleString(locale)}</div>
@@ -353,6 +365,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const isNeighborhoodChart = NEIGHBORHOOD_CHART_KEYS.has(chartKey)
   const isExternalUnitChart = EXTERNAL_UNIT_CHART_KEYS.has(chartKey)
   const useFramedDestinationUnit = EXTERNAL_DESTINATION_FRAMED_CHART_KEYS.has(chartKey)
+  const hideStatusColumn = HIDE_STATUS_CHART_KEYS.has(chartKey)
   const isCitizenDepartmentChart = CITIZEN_DEPARTMENT_CHART_KEYS.has(chartKey)
   const isCreatorsChart = chartKey === 'dashboard.charts.externalRequestCreators'
   const showRequestLocationColumn = chartKey === 'dashboard.charts.externalRequestPending'
@@ -381,7 +394,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
         : t('departments.name', 'Müdürlük'))
   const chartTitle = t(chartKey)
   const sliceLabel = resolveSliceLabel(sliceKey, t)
-  const drilldownColumnCount = 6
+  const drilldownColumnCount = (hideStatusColumn ? 5 : 6)
     + (showCitizenColumn ? 1 : 0)
     + (showNeighborhoodColumn ? 1 : 0)
     + (showUnitColumn ? 1 : 0)
@@ -559,6 +572,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                     terminalDateLabel: t('jobs.columns.outcomeAt', 'Sonuç Tarihi'),
                     // Yazdır: "Vatandaş" / "Talep No" iki satır (#6a6d8e2f / #6a6f46e6).
                     stackRequestNoHeader: useCitizenRequestNoHeader,
+                    showStatusColumn: !hideStatusColumn,
                   })}
                   aria-label={t('common.print', 'Yazdır')}
                 >
@@ -620,7 +634,16 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                         </FilterableTh>
                       ) : null}
                       {showUnitColumn && unitColumnLabel ? (
-                        <FilterableTh filterKey="unitText" filterValue={filters.unitText ?? ''} onFilter={handleFilter} sortKey="unitText" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                        <FilterableTh
+                          className={useFramedDestinationUnit ? 'dashboard-drilldown-destination-th' : undefined}
+                          filterKey="unitText"
+                          filterValue={filters.unitText ?? ''}
+                          onFilter={handleFilter}
+                          sortKey="unitText"
+                          currentSortKey={sortKey}
+                          sortDir={sortDir}
+                          onSort={handleSort}
+                        >
                           {unitColumnLabel}
                         </FilterableTh>
                       ) : null}
@@ -629,9 +652,11 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                           {t('social.destination', 'Gittiği Yer')}
                         </FilterableTh>
                       ) : null}
-                      <FilterableTh className="grid-col-status text-center" filterKey="statusSortText" filterValue={filters.statusSortText ?? ''} onFilter={handleFilter} sortKey="statusSortText" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
-                        {t('jobs.columns.status', 'Durum')}
-                      </FilterableTh>
+                      {hideStatusColumn ? null : (
+                        <FilterableTh className="grid-col-status text-center" filterKey="statusSortText" filterValue={filters.statusSortText ?? ''} onFilter={handleFilter} sortKey="statusSortText" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
+                          {t('jobs.columns.status', 'Durum')}
+                        </FilterableTh>
+                      )}
                       {showTerminalDateColumn ? (
                         <FilterableTh className="text-center" filterKey="terminalDateUtc" filterValue={filters.terminalDateUtc ?? ''} onFilter={handleFilter} sortKey="terminalDateUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort} allowLetters>
                           {terminalColumnHeader}
@@ -731,6 +756,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                               : '—'}
                           </td>
                         ) : null}
+                        {hideStatusColumn ? null : (
                         <td className="grid-col-status text-center">
                           {useTaleplerimStatusStyle ? (
                             <StatusPill className={getDrilldownStatusPillClass(row)}>
@@ -754,6 +780,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                             </span>
                           )}
                         </td>
+                        )}
                         {showTerminalDateColumn ? (
                           <td className="text-center">
                             {row.status === 'Completed' || isCancelledLike(row.status) ? (

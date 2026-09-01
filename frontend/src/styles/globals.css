@@ -6818,7 +6818,7 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value,
     .citizen-directory-tickets-table .citizen-directory-channel-label,
     .citizen-directory-tickets-table .citizen-directory-channel-value .text-sm {
-      font-size: 0.60rem !important;
+      font-size: 0.56rem !important;
       font-weight: 500 !important;
     }
 
@@ -6826,8 +6826,8 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value img,
     .citizen-directory-tickets-table .citizen-directory-channel-icon,
     .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
-      width: 0.62rem !important;
-      height: 0.62rem !important;
+      width: 0.58rem !important;
+      height: 0.58rem !important;
     }
 
     /* VT edit Öncelik sola/küçült istekleri geri alındı (#r498). */
@@ -7214,22 +7214,7 @@
   }
 
   /* Unlayered: Tailwind utilities (@layer) aksi halde font-size'ı ezer (#3271/#3252/#3273). */
-  .citizen-directory-tickets-table .citizen-directory-channel-value,
-  .citizen-directory-tickets-table .citizen-directory-channel-label {
-    font-size: 0.60rem !important;
-    font-weight: 500 !important;
-    line-height: 1.2;
-  }
-
-  .citizen-directory-tickets-table .citizen-directory-channel-icon,
-  .citizen-directory-tickets-table .citizen-directory-channel-value svg,
-  .citizen-directory-tickets-table .citizen-directory-channel-value img {
-    width: 0.62rem !important;
-    height: 0.62rem !important;
-  }
-
-  .social-messages-table .citizen-grid-phone-value,
-  .citizen-map-requests-table .citizen-grid-phone-value {
+  .social-messages-table .citizen-grid-phone-value {
     font-size: 0.72rem !important;
     line-height: 1.25;
   }
@@ -7277,10 +7262,26 @@
   }
 }
 
-/* Unlayered: harita liste Ad/Telefon (#3303); LDAP eşleşmeyen dropdown (#3307). */
+/* Unlayered: harita liste Ad/Telefon (#3303); LDAP eşleşmeyen dropdown (#3307);
+   dizin Detaylar Talep Kanalı masaüstü (#3290 — önceki kural 767px medyada kaldığı için olmamıştı). */
+.citizen-directory-tickets-table .citizen-directory-channel-value,
+.citizen-directory-tickets-table .citizen-directory-channel-label {
+  font-size: 0.56rem !important;
+  font-weight: 500 !important;
+  line-height: 1.2;
+}
+
+.citizen-directory-tickets-table .citizen-directory-channel-icon,
+.citizen-directory-tickets-table .citizen-directory-channel-value svg,
+.citizen-directory-tickets-table .citizen-directory-channel-value img,
+.citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
+  width: 0.58rem !important;
+  height: 0.58rem !important;
+}
+
 .citizen-map-requests-table .citizen-grid-phone-value,
 .citizen-map-requests-table .citizen-map-name-value {
-  font-size: 0.68rem !important;
+  font-size: 0.70rem !important;
   line-height: 1.25;
 }
 
@@ -7291,7 +7292,7 @@
 
 .ldap-unmatched-dept-menu .dropdown-menu-item,
 .ldap-unmatched-dept-dropdown .field-select {
-  font-size: 0.78rem !important;
+  font-size: 0.72rem !important;
   line-height: 1.25;
 }
 
@@ -7312,6 +7313,26 @@
 .address-detail-my-request__grid--peek .address-detail-my-request__item--directions,
 .address-detail-my-request__grid--peek .address-detail-my-request__item--coordinates {
   padding-top: 0 !important;
+}
+
+/* Adresi Gör: başlık altı değerler sağa; ortalı değil (#3311). Yalnız peek popup. */
+.citizen-address-peek-dialog .address-detail-my-request__grid--peek > .address-detail-my-request__item {
+  align-items: flex-end !important;
+  text-align: right !important;
+}
+
+.citizen-address-peek-dialog .address-detail-my-request__grid--peek .address-detail-my-request__label,
+.citizen-address-peek-dialog .address-detail-my-request__grid--peek .address-detail-my-request__value {
+  width: fit-content !important;
+  max-width: 100%;
+  margin-inline: 0 0 !important;
+  margin-left: auto !important;
+  text-align: right !important;
+}
+
+/* Pie Gittiği Yer başlığı diğer thead'den biraz küçük (#3302). */
+.dashboard-drilldown-table thead th.dashboard-drilldown-destination-th .filterable-th-label {
+  font-size: 0.70rem !important;
 }
 
 @media (max-width: 1023px) {

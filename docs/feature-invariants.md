@@ -380,7 +380,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Onay Tarihi` etiketleri sade kalır (#2925/#2975); onaylayan yönetici adı varsa tarih
   değerinin yanında parantez içinde, küçük ve yeşil renkte gösterilir. Manager/SystemAdmin/Reporter
   rolünde Taleplerim Süreç altında owner approval (`Talebin Birim Yöneticisi Onay Tarihi`) satırı
-  gösterilmez. **İstisna (card #1654):** Görevlerim / Birimdeki Görevler / Personelimin Görevleri
+  gösterilmez — **istisna birim dışı** (`ExternalUnit`, vatandaş değil): yönetici oluşturmuş olsa
+  da katman durur (#3309). **İstisna (card #1654):** Görevlerim / Birimdeki Görevler / Personelimin Görevleri
   detay popup'ındaki İlgili Talep Süreç'inde sahip onay katmanı (varsa) her zaman gösterilir.
   Standart kullanıcıda owner approval bekliyorsa `Onay Bekleyen` değeri turuncu
   görünür ve yanında parantez içinde `statusActorDisplayName` yönetici adı yine turuncu gösterilir.

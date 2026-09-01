@@ -1,4 +1,8 @@
-## Round 1096 — 6 web kart: LDAP placeholder/satır, pie Gittiği Yer hücre, kanal/harita punto
+## Round 1097 — birim dışı Süreç sahip onay
+
+- **#3309:** Birim dışı (vatandaş değil) Süreç’te Talebin Birim Yöneticisi Onay Tarihi; pie/Reporter dahil. Birim içi #1654 gizlemesi durur.
+
+## Round 1096 — 6 web kart: LDAP placeholder/satır, pie Gittiği Yer, kanal/harita punto
 
 - **#3307:** LDAP eşleşmeyen placeholder `span` `0.68rem` (admin-surface 0.95rem eziyordu).
 - **#3313:** LDAP eşleşmeyen açık liste satır `min-height` 1.85rem.

@@ -287,9 +287,12 @@ export function MyRequestDetailMainCard({
   const showCitizenRequestLabel = canShowRequestLabel
     && (isEditing || Boolean(citizenSourceMessage?.category?.trim()))
   // Manager/Reporter Taleplerim'de sahip onayını gizler; görev popup İlgili Talep'te gösterilir (#1654).
+  // Birim dışı talepte yönetici oluşturmuş olsa da katman durur (#3309 / T-2026-665).
   const hideOwnerApproval = forceShowOwnerApproval
     ? false
-    : (isManagerLike || user?.role === 'Reporter')
+    : (detail.requestType === 'ExternalUnit' && !isCitizenRequestJob(detail))
+      ? false
+      : (isManagerLike || user?.role === 'Reporter')
   // Talep detayında bekleyen ek süre isteği yönetici tarafından karara bağlanabilir (card #1404).
   const hasPendingExtraTime = detail.tasks.some(task => task.hasPendingExtraTimeRequest)
   const canReviewExtraTime = isManagerLike && hasPendingExtraTime && Boolean(onOpenExtraTimeReview)

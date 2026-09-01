@@ -6818,7 +6818,7 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value,
     .citizen-directory-tickets-table .citizen-directory-channel-label,
     .citizen-directory-tickets-table .citizen-directory-channel-value .text-sm {
-      font-size: 0.64rem !important;
+      font-size: 0.60rem !important;
       font-weight: 500 !important;
     }
 
@@ -7216,7 +7216,7 @@
   /* Unlayered: Tailwind utilities (@layer) aksi halde font-size'ı ezer (#3271/#3252/#3273). */
   .citizen-directory-tickets-table .citizen-directory-channel-value,
   .citizen-directory-tickets-table .citizen-directory-channel-label {
-    font-size: 0.64rem !important;
+    font-size: 0.60rem !important;
     font-weight: 500 !important;
     line-height: 1.2;
   }
@@ -7285,9 +7285,37 @@
   }
 }
 
-/* Adresi Gör: Mahalle|Cadde, No|Adres Tarifi — mobil 1 kolon ezmesin (#3293). */
+/* Adresi Gör: Mahalle|Cadde, No|Adres Tarifi — 1.1rem directions padding No hizasını bozuyordu (#3299). */
 .address-detail-my-request__grid--peek {
   grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: start;
+}
+
+.address-detail-my-request__grid--peek .address-detail-my-request__item--directions,
+.address-detail-my-request__grid--peek .address-detail-my-request__item--coordinates {
+  padding-top: 0 !important;
+}
+
+@media (max-width: 1023px) {
+  .citizen-address-peek-dialog {
+    min-height: min(22rem, 72dvh);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .citizen-address-peek-dialog .address-detail-my-request {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: stretch;
+  }
+
+  .citizen-address-peek-dialog .address-detail-my-request__grid--peek {
+    flex: 1 1 auto;
+    width: 100%;
+    gap: 1.5rem 1.75rem !important;
+    align-content: space-evenly;
+    justify-content: space-evenly;
+  }
 }
 
 /* Harita +/−/reset/SV: köşede, biraz sola ve yukarı (#3280). */

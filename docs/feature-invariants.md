@@ -2108,7 +2108,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   paging pie drilldown gibi tablo hemen altında (sticky footer değil); boş-durum çerçevesi pie ile aynı alçak padding.
   Kapalı ve açık `SingleSelectDropdown` hover tooltip yok (Talep Oluştur Görevi Yapan/Öncelik/Mahalle/Cadde dahil, #2754).
   **Adresi Gör** popup: başlık altı çizgi; 2×2 `Mahalle | Cadde / Sokak` ve `No | Adres Tarifi`
-  (Konum Koordinatı yok); peek 2 kolon mobil dahil (`--peek`, #3293/#2755). X Talebi Yönlendir ile aynı.
+  (Konum Koordinatı yok). Peek `--directions` `padding-top` yok — No ile aynı yatay hiza (#3299).
+  Mobilde 2 kolon durur, başlık aralıkları popup’ı kaplayıp ortalanır (`space-evenly`, #3300).
+  X Talebi Yönlendir ile aynı.
   Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın (`2.4rem` üç kutu, `1.6rem` iki kutu, #2759).
   Görevlerim İlgili Talep Adres Bilgileri 3+2; Mahalle/Cadde/No üstünde boşluk (#2568); Adres Tarifi başlığı Mahalle ile aynı sol düşey hizada (#2778); satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri Cadde menüsü tetikleyiciden sağa (No tarafına) daha geniş (`+96px`), No tetikleyici genişliğinde, aşağı açılır (#2640). WA Talebi Oluştur Açıklama toolbar K/A + liste ikonları yalnız o popup’ta hafif büyük (`!important`, #2757 reopen). Giden WA birim·ad yeşil balonda `text-white/90`. WA Talebi Oluştur Mahalle/Cadde/No/Birim arama kutusu 0.7rem (#2760).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
@@ -2707,7 +2709,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Masaüstü ortalama/`translateX` kuralları `!important` + özgül seçicilerle yazıldığı için mobil
   ezme unlayered + aynı özgüllükte olmalı — `--task` / `--three-cards` / `--attachments-only`
   Cadde/No `translateX` sıfırlanır; 3 kolon `1fr` olur (#3274). `--peek` (Adresi Gör) 2×2
-  `Mahalle|Cadde` / `No|Adres Tarifi` (mobil 1 kolon olmaz, #3293/#2755).
+  `Mahalle|Cadde` / `No|Adres Tarifi`; Adres Tarifi `padding-top` yok (No ile aynı hiza, #3299);
+  mobil aralık popup’ı kaplar (#3300).
 - **Login masaüstü hero alt bar (#3219):** "Yetkili personel hesabınızla devam edin." yeşil panelin
   altında; `lg:pb-8` / `2xl:pb-10` (eski `py-16`/`py-20` alt padding). Mobil form açıklaması
   değişmez.
@@ -2892,7 +2895,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Çağrı Talebi vatandaş adı (#2331):** `CreateRequestPage` vatandaş adı alanı blur/submit'te
   `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
-  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.64rem` / `0.62rem`,
+  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.60rem` / `0.62rem`,
   metin `font-weight: 500` (unlayered #3271/#3290). Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
   `(Geciken)` durur; dizin Detaylar Durum punto değişmez (#3291).
   Dizin Detaylar + harita Talepleri Listele / pin popup scroll pie gibi tablo `hscroll` içinde;

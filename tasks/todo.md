@@ -1,3 +1,9 @@
+## Round 1093 — 3 web kart: kanal punto, Adresi Gör No hizası
+
+- **#3290:** dizin Detaylar Talep Kanalı metin `0.64` → `0.60rem` (ikon `0.62` durur).
+- **#3299:** Adresi Gör Adres Tarifi `padding-top` 1.1rem kaldırıldı; No ile aynı hiza.
+- **#3300:** mobil Adresi Gör 2×2 aralık popup’ı kaplar (`space-evenly`); No ile aynı hiza.
+
 ## Round 1092 — 8 web kart: WA header, scroll, Adresi Gör, pie Mahalle/çizgi, harita yukarı
 
 - **#3295:** WA konuşma header’dan `Talep Sayısı | Görev Sahibi` satırı silindi.

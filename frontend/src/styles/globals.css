@@ -6818,7 +6818,7 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value,
     .citizen-directory-tickets-table .citizen-directory-channel-label,
     .citizen-directory-tickets-table .citizen-directory-channel-value .text-sm {
-      font-size: 0.56rem !important;
+      font-size: 0.60rem !important;
       font-weight: 500 !important;
     }
 
@@ -6826,8 +6826,8 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value img,
     .citizen-directory-tickets-table .citizen-directory-channel-icon,
     .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
-      width: 0.58rem !important;
-      height: 0.58rem !important;
+      width: 0.62rem !important;
+      height: 0.62rem !important;
     }
 
     /* VT edit Öncelik sola/küçült istekleri geri alındı (#r498). */
@@ -7266,7 +7266,7 @@
    dizin Detaylar Talep Kanalı masaüstü (#3290 — önceki kural 767px medyada kaldığı için olmamıştı). */
 .citizen-directory-tickets-table .citizen-directory-channel-value,
 .citizen-directory-tickets-table .citizen-directory-channel-label {
-  font-size: 0.56rem !important;
+  font-size: 0.60rem !important;
   font-weight: 500 !important;
   line-height: 1.2;
 }
@@ -7275,13 +7275,13 @@
 .citizen-directory-tickets-table .citizen-directory-channel-value svg,
 .citizen-directory-tickets-table .citizen-directory-channel-value img,
 .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
-  width: 0.58rem !important;
-  height: 0.58rem !important;
+  width: 0.62rem !important;
+  height: 0.62rem !important;
 }
 
 .citizen-map-requests-table .citizen-grid-phone-value,
 .citizen-map-requests-table .citizen-map-name-value {
-  font-size: 0.70rem !important;
+  font-size: 0.72rem !important;
   line-height: 1.25;
 }
 
@@ -7290,9 +7290,18 @@
   max-width: 16rem !important;
 }
 
-.ldap-unmatched-dept-menu .dropdown-menu-item,
-.ldap-unmatched-dept-dropdown .field-select {
-  font-size: 0.72rem !important;
+/* Placeholder admin-surface `.field-select span { 0.95rem }` ile eziliyordu (#3307). */
+.ldap-unmatched-dept-dropdown .field-select,
+.ldap-unmatched-dept-dropdown .field-select span {
+  font-size: 0.68rem !important;
+  line-height: 1.25;
+}
+
+.ldap-unmatched-dept-menu .dropdown-menu-item {
+  min-height: 1.85rem !important;
+  padding: 0.28rem 0.6rem !important;
+  font-size: 0.70rem !important;
+  font-weight: 500 !important;
   line-height: 1.25;
 }
 
@@ -7330,8 +7339,8 @@
   text-align: left !important;
 }
 
-/* Pie Gittiği Yer başlığı diğer thead'den biraz küçük (#3302). */
-.dashboard-drilldown-table thead th.dashboard-drilldown-destination-th .filterable-th-label {
+/* Üç talep pie Gittiği Yer hücresi (çerçeve) biraz küçük; başlık thead ile aynı (#3312, #3302 revert). */
+.detail-modal-shell--chart-drilldown .dashboard-drilldown-table tbody td .framed-department-pill {
   font-size: 0.70rem !important;
 }
 

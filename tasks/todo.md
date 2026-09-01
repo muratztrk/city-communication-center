@@ -1,3 +1,12 @@
+## Round 1096 — 6 web kart: LDAP placeholder/satır, pie Gittiği Yer hücre, kanal/harita punto
+
+- **#3307:** LDAP eşleşmeyen placeholder `span` `0.68rem` (admin-surface 0.95rem eziyordu).
+- **#3313:** LDAP eşleşmeyen açık liste satır `min-height` 1.85rem.
+- **#3302:** Gittiği Yer **başlık** küçültmesi geri alındı.
+- **#3312:** Üç talep pie Gittiği Yer **hücresi** (çerçeve) `0.70rem`.
+- **#3290:** dizin Detaylar Talep Kanalı `0.60rem` / ikon `0.62rem`.
+- **#3303:** Vatandaş harita liste Ad + Telefon `0.72rem`.
+
 ## Round 1095 — 7 web kart: pie Durum/Gittiği Yer, harita punto, LDAP, Adresi Gör, Talep Kanalı
 
 - **#3302:** Birimler üç talep pie popup’ta Gittiği Yer başlığı `0.70rem`.

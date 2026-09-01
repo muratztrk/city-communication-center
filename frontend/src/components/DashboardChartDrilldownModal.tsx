@@ -634,16 +634,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                         </FilterableTh>
                       ) : null}
                       {showUnitColumn && unitColumnLabel ? (
-                        <FilterableTh
-                          className={useFramedDestinationUnit ? 'dashboard-drilldown-destination-th' : undefined}
-                          filterKey="unitText"
-                          filterValue={filters.unitText ?? ''}
-                          onFilter={handleFilter}
-                          sortKey="unitText"
-                          currentSortKey={sortKey}
-                          sortDir={sortDir}
-                          onSort={handleSort}
-                        >
+                        <FilterableTh filterKey="unitText" filterValue={filters.unitText ?? ''} onFilter={handleFilter} sortKey="unitText" currentSortKey={sortKey} sortDir={sortDir} onSort={handleSort}>
                           {unitColumnLabel}
                         </FilterableTh>
                       ) : null}

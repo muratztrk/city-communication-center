@@ -2121,7 +2121,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Kapalı ve açık `SingleSelectDropdown` hover tooltip yok (Talep Oluştur Görevi Yapan/Öncelik/Mahalle/Cadde dahil, #2754).
   **Adresi Gör** popup: başlık altı çizgi; 2×2 `Mahalle | Cadde / Sokak` ve `No | Adres Tarifi`
   (Konum Koordinatı yok). Peek `--directions` `padding-top` yok — No ile aynı yatay hiza (#3299).
-  Başlık altı değerler **sağa hizalı**, ortalı değil (#3311). Yalnız peek; detay kartı dokunulmaz.
+  Başlık altı değerler **sola hizalı**, ortalı değil (#3311). Yalnız peek; detay kartı dokunulmaz.
   Mobilde 2 kolon durur, başlık aralıkları popup’ı kaplayıp ortalanır (`space-evenly`, #3300).
   X Talebi Yönlendir ile aynı.
   Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın (`2.4rem` üç kutu, `1.6rem` iki kutu, #2759).

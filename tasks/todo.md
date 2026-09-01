@@ -5,7 +5,7 @@
 - **#3303:** Vatandaş harita liste Ad + Telefon `0.70rem`.
 - **#3307:** LDAP formu açılınca eşleşmeyen dropdown (anlık senkron şart değil); placeholder `0.72rem`.
 - **#3308:** Ldap Günlük Sync Kaydet yok; saat değişince kaydedilir.
-- **#3311:** Adresi Gör değerler sağa hizalı.
+- **#3311:** Adresi Gör değerler sola hizalı.
 - **#3290:** dizin Detaylar Talep Kanalı `0.56rem` unlayered (önce 767px medyada kaldığı için masaüstünde olmamıştı).
 
 ## Round 1094 — 8 web kart: mesai dışı SMS, LDAP, pie Gittiği Yer, Sms etiketi, harita punto

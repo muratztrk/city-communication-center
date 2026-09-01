@@ -7315,19 +7315,19 @@
   padding-top: 0 !important;
 }
 
-/* Adresi Gör: başlık altı değerler sağa; ortalı değil (#3311). Yalnız peek popup. */
+/* Adresi Gör: başlık altı değerler sola; ortalı değil (#3311). Yalnız peek popup. */
 .citizen-address-peek-dialog .address-detail-my-request__grid--peek > .address-detail-my-request__item {
-  align-items: flex-end !important;
-  text-align: right !important;
+  align-items: flex-start !important;
+  text-align: left !important;
 }
 
 .citizen-address-peek-dialog .address-detail-my-request__grid--peek .address-detail-my-request__label,
 .citizen-address-peek-dialog .address-detail-my-request__grid--peek .address-detail-my-request__value {
   width: fit-content !important;
   max-width: 100%;
-  margin-inline: 0 0 !important;
-  margin-left: auto !important;
-  text-align: right !important;
+  margin-inline: 0 !important;
+  margin-left: 0 !important;
+  text-align: left !important;
 }
 
 /* Pie Gittiği Yer başlığı diğer thead'den biraz küçük (#3302). */

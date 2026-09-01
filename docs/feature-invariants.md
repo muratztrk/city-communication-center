@@ -716,13 +716,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yazılır (`Job.CitizenName` talep bazlı ayrı kalır — card #2288). **Phone (çağrı) VT'leri aynı
   numarada mevcut WhatsApp konuşmasına bağlanmaz / WA profil adını ezmez** — `CitizenConversationLinkGuard`
   (#2288 reopen / #2330). Kaydedilen ad/etiket/adres metinleri Türkçe başlık biçimine normalize edilir.
-- **WhatsApp detay header sayaçları:** seçili konuşma header'ında durum kırılımları gösterilmez; yalnız
-  seçili numaraya ait toplam `Talep Sayısı` hesaplanır ve tıklanınca Vatandaş Talepleri gridine telefon
-  filtresiyle gider. `Talep Sayısı` numara satırının **alt satırında** gösterilir (#2400).
-- **WhatsApp detay header görev sahibi:** konuşmadaki vatandaş talebinin görevi oluşmuş ve atanan
-  personeli varsa `Talep Sayısı` yanında `| Görev Sahibi: Ad Soyad, Diğer Ad` olarak tüm benzersiz görev
-  sahipleri virgülle gösterilir; yalnız `Active`/Yapılmakta talep görev sahipleri sayılır, tamamlanan/iptal
-  taleplerin personel adları düşer; görev/atanan yoksa alan basılmaz.
+- **WhatsApp detay header sayaçları (#3295):** seçili konuşma header'ında `Talep Sayısı` satırı
+  ve yanındaki `Görev Sahibi` yok; ad + numara + `Numaranın Talepleri` butonu durur.
+- **WhatsApp detay header görev sahibi:** görev sahibi bilgisi header'da basılmaz (#3295);
+  `Numaranın Talepleri` butonu / menü ile taleplere gidilir.
 - **WhatsApp konuşma listesi görev sahibi:** görev sahibi bilgisi artık detay header'ına taşındı;
   sol konuşma kartında `GG Ad Soyad` avatar/metni tekrar gösterilmez.
 - **WhatsApp sol panel arama kutusu `type="text"` kalır, `type="search"` olmaz** (tarayıcının kendi
@@ -1975,7 +1972,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Google haritada yalnız cadde/sokak/bulvar etiketleri; POI ve transit kapalı; CBS overlay
   veya özel referans marker yok (#2799).
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) harita kutusunun sağ alt köşesinde
-  (`bottom` 0.7rem, `right` 1.15rem, #2614/#2615/#2621/#2631/#3280); Street View sarı pegman
+  (`bottom`/`right` 1.15rem, #2614/#2615/#2621/#2631/#3280); Street View sarı pegman
   beyaz çerçeve 1.7rem / iç logo 26px, +/- yığınının solunda **+/− arasındaki çizgi hizasında** (#2614/#2615/#2621/#2631/#2769).
   Hover’da pegman bir kez geri kayar ve durur; mouse çıkınca eski konumuna döner (#2767).
   Street View açıkken özel +/−/başlangıç ikonları gizlenir; pegman Google native − solunda
@@ -1984,7 +1981,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Harita sayfalarında FAB yığını dikeydir (`flex-col`); WhatsApp ve kurum içi kaydırın
   üst satırlarında (#3280/#3243). Harita kutusu `min(33.5rem, 60vh)` — önceki 36rem/65vh
   biraz kısaltıldı ki köşe FAB’lerin üstünde kalsın (#3280). +/−/reset/SV harita köşesinde
-  (`bottom` 0.7rem, `right` 1.15rem); FAB yüksekliği kadar `bottom` eklenmez. Paneller butonların soluna
+  (`bottom`/`right` 1.15rem); FAB yüksekliği kadar `bottom` eklenmez. Paneller butonların soluna
   `right: calc(100% + 0.7rem)` ile açılır.
   `StreetViewCoverageLayer` + yola tıklayınca panorama (#2614/#2615/#2621/#2631).
   Özel `svv` `ImageMapType` overlay tıklamayı yutar — kullanma (#2631).
@@ -2110,7 +2107,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (aynı grup, #2708). Filtre sonucu boşsa grid kalır, tbody `Henüz gösterilecek veri yok.` (#2653);
   paging pie drilldown gibi tablo hemen altında (sticky footer değil); boş-durum çerçevesi pie ile aynı alçak padding.
   Kapalı ve açık `SingleSelectDropdown` hover tooltip yok (Talep Oluştur Görevi Yapan/Öncelik/Mahalle/Cadde dahil, #2754).
-  **Adresi Gör** popup: başlık altı çizgi; Mahalle/Cadde/No aynı satır, altında yalnız Adres Tarifi (Konum Koordinatı yok); Cadde/No başlık+değer kolon içi ortalı; popup `max-w-[26rem]` (#2755). X Talebi Yönlendir ile aynı.
+  **Adresi Gör** popup: başlık altı çizgi; 2×2 `Mahalle | Cadde / Sokak` ve `No | Adres Tarifi`
+  (Konum Koordinatı yok); peek 2 kolon mobil dahil (`--peek`, #3293/#2755). X Talebi Yönlendir ile aynı.
   Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın (`2.4rem` üç kutu, `1.6rem` iki kutu, #2759).
   Görevlerim İlgili Talep Adres Bilgileri 3+2; Mahalle/Cadde/No üstünde boşluk (#2568); Adres Tarifi başlığı Mahalle ile aynı sol düşey hizada (#2778); satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri Cadde menüsü tetikleyiciden sağa (No tarafına) daha geniş (`+96px`), No tetikleyici genişliğinde, aşağı açılır (#2640). WA Talebi Oluştur Açıklama toolbar K/A + liste ikonları yalnız o popup’ta hafif büyük (`!important`, #2757 reopen). Giden WA birim·ad yeşil balonda `text-white/90`. WA Talebi Oluştur Mahalle/Cadde/No/Birim arama kutusu 0.7rem (#2760).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
@@ -2583,7 +2581,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Onaylayan Yönetici` (eski: Mesajı Onaylayan Yönetici); hover 250ms tooltip.
 - **Pie drilldown (#2087):** thead dikdörtgen (`border-radius: 0`); gövde ~0.82rem; Yazdır biraz büyük.
   `actions-cell` min-width ~18.5rem.
-- **Pie drilldown grid tipografi (#2080/#3288/#3289):** Taleplerim ile aynı — `thead` 0.78rem + letter-spacing 0.06em + biraz yüksek; `td` 0.9rem (dizin popup #1889 kalıbı). Pie `thead` `font-weight: 600`; harita liste 700 kalır. Pie Başlık (`.cell-title`) ve Talep Tarihi (`.date-cell`) `font-weight: 500` (sayfa grid semibold / date 600 durur).
+- **Pie drilldown grid tipografi (#2080/#3288/#3289/#3294/#3296):** Taleplerim ile aynı — `thead` 0.78rem + letter-spacing 0.06em + biraz yüksek; `td` 0.9rem (dizin popup #1889 kalıbı). Pie `thead` `font-weight: 600`; harita liste 700 kalır. Pie Başlık (`.cell-title`) ve Talep Tarihi (`.date-cell`) `font-weight: 500` (sayfa grid semibold / date 600 durur). `Birimlerde Açık Talepler` / `Birimlerdeki Tüm Talepler` Mahalle sütunu yok. Sayfa dolmazsa son satırın altında `border-bottom` (#3296).
 - **Birimden Giden işlem gap (#2071):** `.my-requests-table .request-actions` gap `0.7rem`.
 - **Birim pie drilldown (#2070):** sütun `Birim`; Talep No `T-{yıl}-Onay Bekleyen` (+ Öncelik alt satır); Durum=StatusPill.
 - **Toast (#2074/#2075 reopen):** iptal başarı mesajı `error` (kırmızı); auto-hide **≤5 sn**;
@@ -2708,8 +2706,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Konum Linki` başlıkları **tek sol düşey eksende** alt alta; dolu değer sola yaslı tam genişlik.
   Masaüstü ortalama/`translateX` kuralları `!important` + özgül seçicilerle yazıldığı için mobil
   ezme unlayered + aynı özgüllükte olmalı — `--task` / `--three-cards` / `--attachments-only`
-  Cadde/No `translateX` sıfırlanır; 3 kolon `1fr` olur (#3274). `--peek` (Adresi Gör) ortalı
-  düzenini korur (#2755).
+  Cadde/No `translateX` sıfırlanır; 3 kolon `1fr` olur (#3274). `--peek` (Adresi Gör) 2×2
+  `Mahalle|Cadde` / `No|Adres Tarifi` (mobil 1 kolon olmaz, #3293/#2755).
 - **Login masaüstü hero alt bar (#3219):** "Yetkili personel hesabınızla devam edin." yeşil panelin
   altında; `lg:pb-8` / `2xl:pb-10` (eski `py-16`/`py-20` alt padding). Mobil form açıklaması
   değişmez.
@@ -2894,9 +2892,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Çağrı Talebi vatandaş adı (#2331):** `CreateRequestPage` vatandaş adı alanı blur/submit'te
   `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
-  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.64rem` / `0.62rem`
-  (unlayered #3271/#3290). Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
+  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.64rem` / `0.62rem`,
+  metin `font-weight: 500` (unlayered #3271/#3290). Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
   `(Geciken)` durur; dizin Detaylar Durum punto değişmez (#3291).
+  Dizin Detaylar + harita Talepleri Listele / pin popup scroll pie gibi tablo `hscroll` içinde;
+  popup kenar scrollbar yok (`--tickets-grid`, #3297).
 - **Vatandaş Bilgi Listesi Talep Kanalı (#2285):** `Talep Kanalı` sütunu `FilterableTh` ile
   filtrelenebilir ve sıralanabilir; etiket `sourceChannelLabel` üzerinden Türkçe kanal adıyla eşleşir.
 - **Birimler liste araması (#2283):** Birim ara kutusu yalnız birim adı, müdür ve sorumlu

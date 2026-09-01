@@ -25,7 +25,7 @@ export function AddressDetailFields({ neighborhood, street, streetNo, openAddres
   if (variant === 'peek') {
     return (
       <dl className="address-detail-my-request">
-        <div className="address-detail-my-request__grid address-detail-my-request__grid--three address-detail-my-request__grid--peek">
+        <div className="address-detail-my-request__grid address-detail-my-request__grid--peek">
           <div className="address-detail-my-request__item">
             <dt className="address-detail-my-request__label">{t('address.neighborhoodLabel', 'Mahalle')}</dt>
             <dd className="address-detail-my-request__value">{displayAddressValue(neighborhood, '-')}</dd>

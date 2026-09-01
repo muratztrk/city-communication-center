@@ -30,7 +30,7 @@ import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
-import { formatWhatsAppTicketLabel, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
+import { isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
@@ -1155,19 +1155,6 @@ function ConversationDetail({
     : phoneForHeader
       ? formatPhone(phoneForHeader)
       : null
-  // Talep Sayısı = İşleme Alınan + Yapılmakta + Tamamlandı (iptal yok, #r473).
-  const ticketLabel = activeDetail
-    ? `Talep Sayısı: ${activeDetail.intakeCount + activeDetail.inProgressCount + activeDetail.completedCount}`
-    : formatWhatsAppTicketLabel(primaryTicket)
-  // Header'daki "Görev Sahibi" yalnız aktif (Yapılmakta) taleplerin aktif görev atananlarını
-  // gösterir; talep/görev tamamlandı veya iptal ise düşer (#6a75ec71 / #1372).
-  const taskOwnerLabel = activeDetail?.tickets.reduce<string[]>((owners, ticket) => {
-    const status = ticket.jobStatus
-    if (status !== 'Active') return owners
-    const assigneeName = ticket.jobId ? ticket.assigneeDisplayName?.trim() : null
-    if (assigneeName && !owners.includes(assigneeName)) owners.push(assigneeName)
-    return owners
-  }, []).join(', ') || null
   const showUrgentBadge = isUrgentConversationPriority(primaryTicket?.priority)
   const headerSubtitleParts: string[] = []
   if (citizenName?.trim() && phoneForHeader) {
@@ -1182,24 +1169,6 @@ function ConversationDetail({
       || (entry.senderLabel ?? '').toLocaleLowerCase('tr').includes(normalizedChatSearch),
     )
   }, [activeDetail, normalizedChatSearch])
-
-  const ticketMeta = ticketLabel ? (
-    <span className="shrink-0 truncate text-[11px] font-semibold text-slate-600">
-      <button
-        type="button"
-        className="font-bold text-slate-700 underline-offset-2 hover:text-emerald-700 hover:underline"
-        onClick={() => phoneForHeader && onOpenViewRequests(phoneForHeader)}
-      >
-        {ticketLabel}
-      </button>
-      {taskOwnerLabel ? (
-        <span className="whatsapp-task-owner-meta max-lg:hidden">
-          <span className="mx-1 text-slate-400">|</span>
-          <span>{t('tasks.columns.owner', 'Görev Sahibi')}: {taskOwnerLabel}</span>
-        </span>
-      ) : null}
-    </span>
-  ) : null
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[color:var(--color-foreground)]">
@@ -1218,9 +1187,6 @@ function ConversationDetail({
           </div>
           {headerSubtitleParts.length > 0 ? (
             <p className="truncate text-xs text-slate-500">{headerSubtitleParts.join(' · ')}</p>
-          ) : null}
-          {ticketMeta ? (
-            <div className="mt-0.5">{ticketMeta}</div>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">

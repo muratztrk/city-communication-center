@@ -293,7 +293,7 @@ export function CitizenDirectoryTicketsModal({
       onClick={onClose}
     >
       <div
-        className="detail-modal-shell detail-modal-shell--my-request flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+        className="detail-modal-shell detail-modal-shell--my-request detail-modal-shell--tickets-grid flex flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
         onClick={event => event.stopPropagation()}
       >
         <div className="my-request-detail-header detail-modal-header-layout detail-modal-header-mobile detail-modal-header-mobile--actions-grid shrink-0 px-6 py-3">
@@ -356,9 +356,7 @@ export function CitizenDirectoryTicketsModal({
             </button>
           </div>
         </div>
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="min-h-0 flex-1 overflow-auto px-4 pb-4">
-            <div className="pt-3">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-4 pt-3">
               {loading ? <div className="loading">{t('common.loading')}</div> : null}
               {error ? <div className="error">{error}</div> : null}
               {!loading && !error ? (
@@ -367,6 +365,7 @@ export function CitizenDirectoryTicketsModal({
                 ) : (
                   <div className="dashboard-drilldown-grid-shell">
                   <div className="dashboard-drilldown-table-wrap">
+                  <div className="dashboard-drilldown-table-hscroll">
                   <table className={`data-table citizen-directory-tickets-table${showCitizenContact ? ' citizen-directory-tickets-table--map-pin' : ''}`}>
                     <thead>
                       <tr>
@@ -599,6 +598,7 @@ export function CitizenDirectoryTicketsModal({
                     </tbody>
                   </table>
                   </div>
+                  </div>
                   <TablePagination
                     totalCount={ticketTotalCount}
                     pageSize={ticketPageSize}
@@ -609,8 +609,6 @@ export function CitizenDirectoryTicketsModal({
                   </div>
                 )
               ) : null}
-            </div>
-          </div>
         </div>
       </div>
     </div>,

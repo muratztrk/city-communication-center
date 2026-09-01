@@ -728,6 +728,7 @@
   }
 
   .address-detail-my-request__grid--peek {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     justify-items: center;
   }
 
@@ -5225,7 +5226,8 @@
     border: 1px solid rgb(226 232 240);
   }
 
-  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-wrap {
+  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-wrap,
+  .detail-modal-shell--tickets-grid .dashboard-drilldown-table-wrap {
     display: flex;
     min-height: 0;
     min-width: 0;
@@ -5236,7 +5238,8 @@
     overflow: hidden;
   }
 
-  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-hscroll {
+  .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-hscroll,
+  .detail-modal-shell--tickets-grid .dashboard-drilldown-table-hscroll {
     min-height: 0;
     min-width: 0;
     flex: 1 1 auto;
@@ -5246,7 +5249,7 @@
     touch-action: pan-x pan-y;
   }
 
-  .detail-modal-shell--all-requests .dashboard-drilldown-table-wrap {
+  .detail-modal-shell--all-requests:not(.detail-modal-shell--tickets-grid) .dashboard-drilldown-table-wrap {
     overflow-x: auto;
     overflow-y: hidden;
   }
@@ -6816,6 +6819,7 @@
     .citizen-directory-tickets-table .citizen-directory-channel-label,
     .citizen-directory-tickets-table .citizen-directory-channel-value .text-sm {
       font-size: 0.64rem !important;
+      font-weight: 500 !important;
     }
 
     .citizen-directory-tickets-table .citizen-directory-channel-value svg,
@@ -7026,11 +7030,13 @@
       -webkit-overflow-scrolling: touch;
     }
 
-    .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-wrap {
+    .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-wrap,
+    .detail-modal-shell--tickets-grid .dashboard-drilldown-table-wrap {
       overflow: hidden;
     }
 
-    .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-hscroll {
+    .detail-modal-shell--chart-drilldown .dashboard-drilldown-table-hscroll,
+    .detail-modal-shell--tickets-grid .dashboard-drilldown-table-hscroll {
       width: 100%;
       min-width: 0;
       overflow: auto;
@@ -7211,6 +7217,7 @@
   .citizen-directory-tickets-table .citizen-directory-channel-value,
   .citizen-directory-tickets-table .citizen-directory-channel-label {
     font-size: 0.64rem !important;
+    font-weight: 500 !important;
     line-height: 1.2;
   }
 
@@ -7278,14 +7285,19 @@
   }
 }
 
-/* Harita +/−/reset/SV: köşede, biraz sola (#3280). */
+/* Adresi Gör: Mahalle|Cadde, No|Adres Tarifi — mobil 1 kolon ezmesin (#3293). */
+.address-detail-my-request__grid--peek {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+/* Harita +/−/reset/SV: köşede, biraz sola ve yukarı (#3280). */
 .citizen-request-map-controls {
   right: 1.15rem !important;
 }
 
 @media (min-width: 768px) {
   .citizen-request-map-controls:not(.is-streetview) {
-    bottom: 0.7rem !important;
+    bottom: 1.15rem !important;
   }
 }
 
@@ -7319,6 +7331,11 @@
   .detail-modal-shell--chart-drilldown .dashboard-drilldown-table .date-cell {
     font-weight: 500 !important;
   }
+}
+
+/* Kısa sayfada son satırın altı boş kalmasın (#3296). */
+.detail-modal-shell--chart-drilldown .dashboard-drilldown-table tbody tr:last-child td {
+  border-bottom: 1px solid #edf2f7 !important;
 }
 
 @layer utilities {

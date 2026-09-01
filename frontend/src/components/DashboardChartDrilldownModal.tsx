@@ -110,11 +110,6 @@ const CITIZEN_DEPARTMENT_CHART_KEYS = new Set([
   'dashboard.charts.citizenDepartmentOpenRequests',
 ])
 
-const CITIZEN_DEPARTMENT_NEIGHBORHOOD_COLUMN_KEYS = new Set([
-  'dashboard.charts.citizenDepartmentAllRequests',
-  'dashboard.charts.citizenDepartmentOpenRequests',
-])
-
 const TALEPLERIM_STATUS_STYLE_CHART_KEYS = new Set([
   ...NEIGHBORHOOD_CHART_KEYS,
   'dashboard.charts.requestTags',
@@ -362,7 +357,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     : t('jobs.columns.requestNo', 'Talep No')
   // VT No sonrası Vatandaş Adı / Telefon No (#6a6d9411).
   const showCitizenColumn = isCitizenRequestsChart || isRequestTagsChart || isNeighborhoodChart || isCitizenDepartmentChart
-  const showNeighborhoodColumn = CITIZEN_DEPARTMENT_NEIGHBORHOOD_COLUMN_KEYS.has(chartKey)
+  const showNeighborhoodColumn = false
   const showUnitColumn = !isRequestTagsChart
     && !isNeighborhoodChart
     && !isCitizenDepartmentChart

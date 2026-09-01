@@ -1,3 +1,15 @@
+## Round 1092 — 8 web kart: WA header, scroll, Adresi Gör, pie Mahalle/çizgi, harita yukarı
+
+- **#3295:** WA konuşma header’dan `Talep Sayısı | Görev Sahibi` satırı silindi.
+- **#3290:** dizin Detaylar Talep Kanalı `font-weight` 500.
+- **#3297:** dizin Detaylar + harita liste/pin scroll pie `hscroll` içinde; popup kenar scrollbar yok.
+- **#3296:** pie drilldown son satır altı `border-bottom` (kısa sayfa).
+- **#3294:** Birimlerde Açık / Tüm Talepler pie’de Mahalle sütunu yok.
+- **#3280:** +/−/reset/SV `bottom` 0.7→1.15rem (yukarı); `right` 1.15 durur.
+- **#3273:** dizin başlığı zaten tüm genişlikte Telefon No (1091).
+- **#3293:** Adresi Gör 2×2 Mahalle|Cadde / No|Adres Tarifi (mobil dahil).
+- **Atlandı:** #3292 Tim mobil app Vatandaşlar sayfalama.
+
 ## Round 1091 — 6 web kart: dizin Telefon No, harita pin Durum, kontroller, kanal, pie tarih
 
 - **#3273:** dizin grid başlığı tüm genişlikte Telefon No (masaüstü NUMARA reopen; viewport CSS yetmedi).

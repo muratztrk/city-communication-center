@@ -39,6 +39,9 @@ public sealed class GetCitizenAutoReplyTemplatesQueryHandler : IQueryHandler<Get
                 templates.GreetingFor("İşleme Alındı"),
                 templates.GreetingFor("Yapılmakta"),
                 templates.GreetingFor("Tamamlandı"),
-                templates.GreetingFor("İptal")));
+                templates.GreetingFor("İptal")),
+            templates.AfterHoursStaffSms,
+            templates.ManagerSmsIsEnabled,
+            templates.StaffSmsIsEnabled);
     }
 }

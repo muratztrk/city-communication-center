@@ -23,6 +23,7 @@ import { isJobDueDateOverdue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { ChannelIcon } from './ui/channel-icon'
 import { TruncatedText } from './ui/TruncatedText'
+import { FramedDepartmentStack } from './jobs/my-request-detail/FramedDepartmentStack'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { printHtmlDocument } from '../utils/printDocument'
 import { printJobDetail } from '../pages/JobsPage'
@@ -100,6 +101,13 @@ const EXTERNAL_UNIT_CHART_KEYS = new Set([
   'dashboard.charts.externalRequestFulfillers',
   'dashboard.charts.externalProjectsInProgress',
   'dashboard.charts.externalProjectsCompleted',
+])
+
+/** Anasayfa-Birimler Tamamlanan / Yapılmakta / Onay Bekleyen: Birim → Gittiği Yer çerçeve (#3301). */
+const EXTERNAL_DESTINATION_FRAMED_CHART_KEYS = new Set([
+  'dashboard.charts.externalRequestPending',
+  'dashboard.charts.externalRequestInProgress',
+  'dashboard.charts.externalRequestFulfillers',
 ])
 
 const CITIZEN_DEPARTMENT_CHART_KEYS = new Set([
@@ -218,6 +226,7 @@ export function printDrilldownRows(
     showCitizenColumn?: boolean
     showUnitColumn?: boolean
     showNeighborhoodColumn?: boolean
+    unitColumnLabel?: string
     /** Mahalle pie yazdır: Sonuç Tarihi. */
     terminalDateLabel?: string
     /** Mahalle yazdır: Vatandaş / Talep No iki satır (#6a6d8e2f). */
@@ -301,7 +310,7 @@ export function printDrilldownRows(
       <th class="col-date">${escape(t('jobs.columns.requestDate', 'Talep Tarihi'))}</th>
       <th class="col-title">${escape(t('jobs.columns.title', 'Başlık'))}</th>
       ${showNeighborhood ? `<th class="col-dept">${escape(t('jobs.address.neighborhoodLabel', 'Mahalle'))}</th>` : ''}
-      ${showUnit ? `<th class="col-dept">${escape(t('jobs.columns.unitShort', 'Birim'))}</th>` : ''}
+      ${showUnit ? `<th class="col-dept">${escape(options?.unitColumnLabel ?? t('jobs.columns.unitShort', 'Birim'))}</th>` : ''}
       <th class="col-status">${escape(t('jobs.columns.status', 'Durum'))}</th>
       <th class="col-completed">${escape(terminalHeader)}</th>
     </tr></thead><tbody>${rowsHtml}</tbody></table>
@@ -343,6 +352,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const isCitizenRequestsChart = chartKey === 'dashboard.charts.citizenRequests'
   const isNeighborhoodChart = NEIGHBORHOOD_CHART_KEYS.has(chartKey)
   const isExternalUnitChart = EXTERNAL_UNIT_CHART_KEYS.has(chartKey)
+  const useFramedDestinationUnit = EXTERNAL_DESTINATION_FRAMED_CHART_KEYS.has(chartKey)
   const isCitizenDepartmentChart = CITIZEN_DEPARTMENT_CHART_KEYS.has(chartKey)
   const isCreatorsChart = chartKey === 'dashboard.charts.externalRequestCreators'
   const showRequestLocationColumn = chartKey === 'dashboard.charts.externalRequestPending'
@@ -364,9 +374,11 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     && !isCitizenRequestsChart
   const unitColumnLabel = !showUnitColumn
     ? null
-    : (isExternalUnitChart
-      ? t('jobs.columns.unitShort', 'Birim')
-      : t('departments.name', 'Müdürlük'))
+    : (useFramedDestinationUnit
+      ? t('social.destination', 'Gittiği Yer')
+      : isExternalUnitChart
+        ? t('jobs.columns.unitShort', 'Birim')
+        : t('departments.name', 'Müdürlük'))
   const chartTitle = t(chartKey)
   const sliceLabel = resolveSliceLabel(sliceKey, t)
   const drilldownColumnCount = 6
@@ -542,6 +554,7 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                     showCitizenColumn,
                     showUnitColumn,
                     showNeighborhoodColumn,
+                    unitColumnLabel: unitColumnLabel ?? undefined,
                     // Yazdır: Tamamlanma Tarihi → Sonuç Tarihi (#6a6da028).
                     terminalDateLabel: t('jobs.columns.outcomeAt', 'Sonuç Tarihi'),
                     // Yazdır: "Vatandaş" / "Talep No" iki satır (#6a6d8e2f / #6a6f46e6).
@@ -698,8 +711,13 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                           </td>
                         ) : null}
                         {showUnitColumn ? (
-                          <td className={truncateUnitColumn ? 'max-w-[12rem]' : undefined}>
-                            {truncateUnitColumn ? (
+                          <td className={truncateUnitColumn && !useFramedDestinationUnit ? 'max-w-[12rem]' : undefined}>
+                            {useFramedDestinationUnit ? (
+                              <FramedDepartmentStack
+                                departmentName={row.departmentName ?? row.destinationDepartmentName}
+                                align="center"
+                              />
+                            ) : truncateUnitColumn ? (
                               (row.departmentName ?? row.neighborhood) ? (
                                 <span className="block truncate">{row.departmentName ?? row.neighborhood}</span>
                               ) : '—'

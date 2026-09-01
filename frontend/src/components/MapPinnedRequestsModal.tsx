@@ -343,12 +343,12 @@ export function MapPinnedRequestsModal({ pins, variant, located = true, onClose,
                           {isCitizen ? (
                             <td className="max-w-[12rem]">
                               {pin.citizenName?.trim()
-                                ? <span className="block truncate text-sm font-semibold text-slate-800">{pin.citizenName}</span>
+                                ? <span className="citizen-map-name-value block truncate font-semibold text-slate-800">{pin.citizenName}</span>
                                 : '—'}
                             </td>
                           ) : null}
                           {isCitizen ? (
-                            <td className="citizen-grid-phone-value text-sm font-semibold text-slate-500 tabular-nums">
+                            <td className="citizen-grid-phone-value font-semibold text-slate-500 tabular-nums">
                               {formatCitizenPhoneDisplay(pin.citizenPhone)}
                             </td>
                           ) : null}

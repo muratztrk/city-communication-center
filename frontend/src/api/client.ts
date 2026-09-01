@@ -712,6 +712,19 @@ export const api = {
     await ensureOk(response, i18n.t('errors.tenantLdapSettingsSaveFailed'))
   },
 
+  async updateTenantLdapDailySync(
+    tenantId: string,
+    payload: { dailySyncEnabled: boolean; dailySyncTime: string | null },
+  ): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/admin/tenants/${tenantId}/ldap-daily-sync`, {
+      method: 'PUT',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify(payload),
+    })
+
+    await ensureOk(response, i18n.t('errors.tenantLdapSettingsSaveFailed'))
+  },
+
   async testLdapConnectivity(
     tenantId: string,
     payload: {

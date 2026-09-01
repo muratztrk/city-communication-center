@@ -21,8 +21,15 @@ public sealed record CitizenAutoReplyTemplateModel(
     string Cancelled,
     string? Greeting = null,
     string? AfterHoursManagerSms = null,
-    CitizenAutoReplyGreetings? Greetings = null)
+    CitizenAutoReplyGreetings? Greetings = null,
+    string? AfterHoursStaffSms = null,
+    bool? AfterHoursManagerSmsEnabled = null,
+    bool? AfterHoursStaffSmsEnabled = null)
 {
+    public bool ManagerSmsIsEnabled => AfterHoursManagerSmsEnabled ?? true;
+
+    public bool StaffSmsIsEnabled => AfterHoursStaffSmsEnabled ?? false;
+
     /// <summary>
     /// Vatandaşa gidecek durum mesajının hitabı: durumun kendi hitabı → tenant genel hitabı →
     /// varsayılan satır. Durum etiketleri <c>CitizenJobStatusLabelHelper.GetDisplayStatus</c> çıktısıyla aynı.
@@ -74,7 +81,10 @@ public static class CitizenAutoReplyTemplateJson
                 EnsureQuotedCitizenStatuses(EnsureCancelNoteToken(EnsureTargetDepartmentToken(string.IsNullOrWhiteSpace(parsed.Cancelled) ? defaults.Cancelled : parsed.Cancelled))),
                 CitizenOutboundGreeting.NormalizeLine(parsed.Greeting),
                 parsed.AfterHoursManagerSms,
-                NormalizeGreetings(parsed.Greetings));
+                NormalizeGreetings(parsed.Greetings),
+                parsed.AfterHoursStaffSms,
+                parsed.AfterHoursManagerSmsEnabled,
+                parsed.AfterHoursStaffSmsEnabled);
         }
         catch (JsonException)
         {
@@ -90,7 +100,10 @@ public static class CitizenAutoReplyTemplateJson
             EnsureQuotedCitizenStatuses(EnsureCancelNoteToken(EnsureTargetDepartmentToken(model.Cancelled))),
             CitizenOutboundGreeting.NormalizeLine(model.Greeting),
             model.AfterHoursManagerSms,
-            NormalizeGreetings(model.Greetings)));
+            NormalizeGreetings(model.Greetings),
+            model.AfterHoursStaffSms,
+            model.AfterHoursManagerSmsEnabled,
+            model.AfterHoursStaffSmsEnabled));
 
     /// <summary>Boş durum hitabı <c>null</c> saklanır; okuma tarafında genel hitaba düşsün.</summary>
     private static CitizenAutoReplyGreetings? NormalizeGreetings(CitizenAutoReplyGreetings? greetings)

@@ -915,6 +915,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   içeriği SMS gövdesidir — boşluk ve satır sonları olduğu gibi saklanır, vatandaş hitabı eklenmez
   (#2906). Mesai dışı talep oluşturunca aynı metin birim müdür/sorumlu/yardımcı cep numaralarına
   ve (vatandaş talebinde) `CitizenRequestManager` kullanıcılara SMS gider (#2903/#2904).
+  **Birim Personeline Mesai Dışı SMS** ayrı kutu (#3305); her ikisinde **Aktif** anahtar
+  (#3306). Aktif kapalıysa o kutu gönderilmez. Yönetici kutusu eski kayıtlarda bayrak yoksa
+  açıktır; personel kutusu varsayılan kapalı. Personel alıcıları `RoleCode.Staff` + birim
+  üyeliği, yönetici/sorumlu kümesi hariç.
   `{GönderilenBirim}` token'ından sonra şablonda her zaman tam bir otomatik ayraç boşluğu bulunur;
   Tamamlandı kartında `{Tamamlama Notu}`, İptal kartında `{İptal Notu}` birim ek metninden sonra
   gelir (chip, #3215/#3222); gönderimde token notla değişir, yoksa boşalır. Token'lı
@@ -1428,7 +1432,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Popup kapanış **Çıkış**
   (kırmızı); eksik birim uyarısı: LDAP birim verisi gerekir / tümü eklendiyse başarı metni
   (cards #1759/#1760). Çekim sonrası buton sağında **Birimi LDAP’ta olmayan kullanıcılar**
-  dropdown’u (card #1752). LDAP formunda Dizin Hesabı alanı yok; **İptal Et** yalnız LDAP
+  dropdown’u (card #1752). LDAP verisi çekildikten sonra (anlık senkron / tümünü ekle)
+  liste boş olsa da dropdown görünür; genişlik `12–16rem`, seçenek metni `0.78rem` (#3307).
+  **Ldap Günlük Sync** Aktif anahtar + saat (`Europe/Istanbul`); API `LdapDailySyncHostedService`
+  anlık senkronla aynı `SyncDirectoryCommand` çalıştırır. Ayar `LdapSettingsJson` içinde,
+  Ayarlar LDAP kaydı günlük sync’i silmez (#3298). LDAP formunda Dizin Hesabı alanı yok; **İptal Et** yalnız LDAP
   kullanıcısı seçiliyken Oluştur altında görünür (cards #1755/#1756). Anlık senkron `listDirectoryUsers`
   ile çalışır (arama zorunlu değil); ConfirmDialog `"LDAP Kullanıcı Senkronize Edildi"` + bağlı
   kullanıcıların username/ad/ünvan/dahili/cep/e-posta güncellemesi (`POST /users/sync/ad` — card #1787/#2902);
@@ -1933,7 +1941,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   birleşik etiket `Yapılmakta (Geciken)`. Vatandaş Talep Haritası lejant + pin grid overdue
   yalnız `Geciken` (#2977).
   Talep Oluşturan Birimler drilldown: Birim sonrası Gittiği Yer; Bekleyen/Yapılmakta/Tamamlanan
-  drilldown: Talep Yeri (sahip birim) Birim’den önce (#2616). Durum overdue = `Yapılmakta (Geciken)` (#2609).
+  drilldown: Talep Yeri (sahip birim) Birim’den önce (#2616); bu üç pie’de Birim sütunu
+  **Gittiği Yer** yeşil `FramedDepartmentStack` (#3301/#3302). Durum overdue = `Yapılmakta (Geciken)` (#2609).
   Yapılmakta/Tamamlanan Projeler pie yalnız Birim İçi (`InternalUnit`, Owner birim) + Üst Düzey
   Yönetici’nin oluşturduğu `IsProject` talepler (#2618); Birim İçi Target JobDepartment aranmaz
   (T-2026-589). Diğer birim-dışı projeler dahil değil.
@@ -2019,6 +2028,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde
   şartı yok — cadde/konuşma yedegi geocode için FE’de; harita yine cadde zorunlu (#2635).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
+  Vatandaş harita liste **Vatandaş Adı** + **Telefon No** `0.68rem` (#3303).
   Birim haritası liste Gittiği Yer = `FramedDepartmentStack` yeşil çerçeve; masaüstü punto
   `0.68rem` (#3286).
   (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
@@ -2556,6 +2566,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Onayı to-send'te SMS gönderir). `to-send` filtresi `RespondedAtUtc == null` DEĞİL:
   İşleme Alındı/Yapılmakta SMS'i `RespondedAtUtc`'yi erken set eder; terminal bekleyen =
   `ReleasedAt != null && (RespondedAtUtc == null || RespondedAtUtc < ReleasedAt)` (#6a5e1e23).
+  Detaylar popup Talep Etiketi satırı seçilmemişse gizlenir (`—` yok, #3304).
 - **Çağrı non-terminal SMS birim boş satırı (#6a6f19af):** İşleme Alındı/Yapılmakta SMS'inde
   `{GönderilenBirim}` değerinden önce 1 boş satır (`EnsureBlankLineBeforeTargetDepartments`) —
   terminal SMS ile aynı.
@@ -2689,7 +2700,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   değil; alt satır punto masaüstü `0.70rem` (başlık `0.72rem`), mobil `0.58rem`
   (`.dashboard-metric-sublabel` — Bekleyen / Onay Bekleyen dahil, #3258).
 - **Ayarlar Kaydet butonları metin/görünüm değiştirmez (#3209):** `Vatandaşa Giden Cevaplar` ve
-  `Birim Yöneticilerine … Mesai Dışı SMS` Kaydet butonları basılınca "Kaydediliyor..." yazmaz,
+  mesai dışı SMS (yönetici + personel) Kaydet butonları basılınca "Kaydediliyor..." yazmaz,
   `disabled` olmaz. Çift tıklama fonksiyon başındaki `citizenAutoReplySaving` guard ile engellenir.
 - **Mobil (≤767px) grid paging barı:** hedef sınıf **`table-pagination-bar`** — DOM'da
   `table-pagination` **yok** (eski küçültme denemesi bu yüzden etkisizdi). Bar `max-height` ile

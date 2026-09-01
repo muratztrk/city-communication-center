@@ -34,7 +34,10 @@ public sealed record CitizenAutoReplyTemplatesResponse(
     string Cancelled,
     string Greeting,
     string? AfterHoursManagerSms = null,
-    CitizenAutoReplyGreetingsContract? Greetings = null);
+    CitizenAutoReplyGreetingsContract? Greetings = null,
+    string? AfterHoursStaffSms = null,
+    bool AfterHoursManagerSmsEnabled = true,
+    bool AfterHoursStaffSmsEnabled = false);
 
 public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     string ProcessingReceived,
@@ -43,7 +46,10 @@ public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     string Cancelled,
     string? Greeting = null,
     string? AfterHoursManagerSms = null,
-    CitizenAutoReplyGreetingsContract? Greetings = null);
+    CitizenAutoReplyGreetingsContract? Greetings = null,
+    string? AfterHoursStaffSms = null,
+    bool AfterHoursManagerSmsEnabled = true,
+    bool AfterHoursStaffSmsEnabled = false);
 
 public sealed record TenantAppearanceResponse(
     string ThemePreset,
@@ -97,7 +103,9 @@ public sealed record TenantLdapSettingsResponse(
     bool HasBindPassword,
     string UserAttribute,
     bool CanAuthenticate,
-    bool CanSearch);
+    bool CanSearch,
+    bool DailySyncEnabled = false,
+    string? DailySyncTime = null);
 
 public sealed record UpdateTenantLdapSettingsRequest(
     bool Enabled,
@@ -111,6 +119,10 @@ public sealed record UpdateTenantLdapSettingsRequest(
     string? BindPassword,
     bool ClearBindPassword,
     string? UserAttribute);
+
+public sealed record UpdateTenantLdapDailySyncRequest(
+    bool DailySyncEnabled,
+    string? DailySyncTime);
 
 public sealed record TestLdapConnectivityRequest(
     string? Host,

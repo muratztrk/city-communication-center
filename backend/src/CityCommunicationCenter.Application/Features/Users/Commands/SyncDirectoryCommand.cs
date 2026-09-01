@@ -3,7 +3,7 @@ using Microsoft.Extensions.Localization;
 
 namespace CityCommunicationCenter.Application.Features.Users;
 
-public sealed record SyncDirectoryCommand() : ICommand<SyncDirectoryResult>;
+public sealed record SyncDirectoryCommand(Guid? TenantIdOverride = null) : ICommand<SyncDirectoryResult>;
 
 public sealed record SyncDirectoryProfileChange(
     string Field,
@@ -49,7 +49,7 @@ public sealed class SyncDirectoryCommandHandler : ICommandHandler<SyncDirectoryC
     public async ValueTask<SyncDirectoryResult> Handle(SyncDirectoryCommand request, CancellationToken cancellationToken)
     {
         var context = _tenantContextAccessor.GetCurrent();
-        var tenantId = context.RequireTenantId();
+        var tenantId = request.TenantIdOverride ?? context.RequireTenantId();
         var ldapSettings = await _tenantLdapSettingsService.GetSettingsAsync(tenantId, cancellationToken);
         if (!ldapSettings.CanSearch)
         {

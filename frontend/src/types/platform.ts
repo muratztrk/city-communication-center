@@ -765,6 +765,8 @@ export interface TenantLdapSettings {
   userAttribute: string;
   canAuthenticate: boolean;
   canSearch: boolean;
+  dailySyncEnabled?: boolean;
+  dailySyncTime?: string | null;
 }
 
 export interface TenantAuthenticationPolicy {
@@ -935,6 +937,9 @@ export interface CitizenAutoReplyTemplates {
   greeting: string;
   greetings: CitizenAutoReplyGreetings;
   afterHoursManagerSms?: string;
+  afterHoursStaffSms?: string;
+  afterHoursManagerSmsEnabled?: boolean;
+  afterHoursStaffSmsEnabled?: boolean;
 }
 
 export interface WorkingHoursDaySchedule { day: number; from: string | null; to: string | null }

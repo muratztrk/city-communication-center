@@ -2873,9 +2873,9 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         value: getRequestApproverDisplayName(detail) ?? '—',
                       }] : []),
                       // Operatör / Vatandaş Talep Yöneticisi: Talep Etiketi en altta (card #1896).
-                      ...((user?.role === 'Operator' || hasCitizenRequestManagerRole(user)) ? [{
+                      ...((user?.role === 'Operator' || hasCitizenRequestManagerRole(user)) && citizenSourceMessage?.category?.trim() ? [{
                         label: t('social.label', 'Talep Etiketi'),
-                        value: citizenSourceMessage?.category?.trim() || '—',
+                        value: citizenSourceMessage.category.trim(),
                       }] : []),
                     ] : [
                       {

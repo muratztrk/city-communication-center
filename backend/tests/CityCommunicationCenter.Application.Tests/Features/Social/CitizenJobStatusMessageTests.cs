@@ -70,6 +70,46 @@ public sealed class CitizenJobStatusMessageTests
     }
 
     [Fact]
+    public void ParseOrDefault_AfterHoursStaffSms_AndLegacyManagerEnabled()
+    {
+        const string json = """
+            {
+              "ProcessingReceived": "{VatandaşTalepNo} İşleme Alındı. {GönderilenBirim}",
+              "InProgress": "{VatandaşTalepNo} Yapılmakta. {GönderilenBirim}",
+              "Completed": "{VatandaşTalepNo} Tamamlandı. {GönderilenBirim}",
+              "Cancelled": "{VatandaşTalepNo} İptal Edildi. {GönderilenBirim}",
+              "AfterHoursStaffSms": "Personel mesajı"
+            }
+            """;
+
+        var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
+
+        Assert.Equal("Personel mesajı", templates.AfterHoursStaffSms);
+        Assert.True(templates.ManagerSmsIsEnabled);
+        Assert.False(templates.StaffSmsIsEnabled);
+    }
+
+    [Fact]
+    public void ParseOrDefault_AfterHoursEnabledFlags()
+    {
+        const string json = """
+            {
+              "ProcessingReceived": "{VatandaşTalepNo} İşleme Alındı. {GönderilenBirim}",
+              "InProgress": "{VatandaşTalepNo} Yapılmakta. {GönderilenBirim}",
+              "Completed": "{VatandaşTalepNo} Tamamlandı. {GönderilenBirim}",
+              "Cancelled": "{VatandaşTalepNo} İptal Edildi. {GönderilenBirim}",
+              "AfterHoursManagerSmsEnabled": false,
+              "AfterHoursStaffSmsEnabled": true
+            }
+            """;
+
+        var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(json);
+
+        Assert.False(templates.ManagerSmsIsEnabled);
+        Assert.True(templates.StaffSmsIsEnabled);
+    }
+
+    [Fact]
     public void BuildStatusMessage_ReplacesTargetDepartmentToken()
     {
         var receivedAt = new DateTimeOffset(2026, 7, 13, 10, 0, 0, TimeSpan.Zero);

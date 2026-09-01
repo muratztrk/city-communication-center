@@ -7277,6 +7277,24 @@
   }
 }
 
+/* Unlayered: harita liste Ad/Telefon (#3303); LDAP eşleşmeyen dropdown (#3307). */
+.citizen-map-requests-table .citizen-grid-phone-value,
+.citizen-map-requests-table .citizen-map-name-value {
+  font-size: 0.68rem !important;
+  line-height: 1.25;
+}
+
+.ldap-unmatched-dept-dropdown {
+  min-width: 12rem !important;
+  max-width: 16rem !important;
+}
+
+.ldap-unmatched-dept-menu .dropdown-menu-item,
+.ldap-unmatched-dept-dropdown .field-select {
+  font-size: 0.78rem !important;
+  line-height: 1.25;
+}
+
 /* ≥768: Sms Onayı stacked telefon — 0.80rem yetmedi, VT Telefon No ile hizala (#3283). */
 @media (min-width: 768px) {
   .citizen-message-approval-table .citizen-message-approval-phone-value {

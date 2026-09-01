@@ -1,3 +1,12 @@
+## Round 1094 — 8 web kart: mesai dışı SMS, LDAP, pie Gittiği Yer, Sms etiketi, harita punto
+
+- **#3305/#3306:** Personel mesai dışı SMS kutusu + yönetici/personel Aktif anahtar; kapalıysa SMS yok.
+- **#3307:** LDAP çekiminden sonra eşleşmeyen-kullanıcı dropdown (boş olsa da); daha dar, küçük punto.
+- **#3301/#3302:** Birimler Tamamlanan/Yapılmakta/Onay Bekleyen pie Birim → Gittiği Yer çerçeve.
+- **#3304:** Sms Onayı detayında boş Talep Etiketi satırı yok.
+- **#3303:** Vatandaş harita liste Ad + Telefon `0.68rem`.
+- **#3298:** Kullanıcılar Ldap Günlük Sync Aktif + saat; API günlük `SyncDirectoryCommand` (TR saati).
+
 ## Round 1093 — 3 web kart: kanal punto, Adresi Gör No hizası
 
 - **#3290:** dizin Detaylar Talep Kanalı metin `0.64` → `0.60rem` (ikon `0.62` durur).

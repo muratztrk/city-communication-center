@@ -84,7 +84,10 @@ public sealed class AdminController : ApiControllerBase
             request.Cancelled,
             request.Greeting,
             request.AfterHoursManagerSms,
-            request.Greetings), cancellationToken);
+            request.Greetings,
+            request.AfterHoursStaffSms,
+            request.AfterHoursManagerSmsEnabled,
+            request.AfterHoursStaffSmsEnabled), cancellationToken);
         return NoContent();
     }
 
@@ -229,6 +232,18 @@ public sealed class AdminController : ApiControllerBase
                 request.UserAttribute),
             cancellationToken);
 
+        return NoContent();
+    }
+
+    [HttpPut("tenants/{tenantId:guid}/ldap-daily-sync")]
+    public async Task<IActionResult> UpdateTenantLdapDailySync(
+        Guid tenantId,
+        [FromBody] UpdateTenantLdapDailySyncRequest request,
+        CancellationToken cancellationToken)
+    {
+        await _sender.Send(
+            new UpdateTenantLdapDailySyncCommand(tenantId, request.DailySyncEnabled, request.DailySyncTime),
+            cancellationToken);
         return NoContent();
     }
 

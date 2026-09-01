@@ -39,6 +39,8 @@ public sealed class GetTenantLdapSettingsQueryHandler : IQueryHandler<GetTenantL
             settings.HasBindPassword,
             settings.UserAttribute,
             settings.CanAuthenticate,
-            settings.CanSearch);
+            settings.CanSearch,
+            settings.DailySyncEnabled,
+            settings.DailySyncTime);
     }
 }

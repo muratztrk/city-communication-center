@@ -92,6 +92,9 @@ const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
     cancelled: DEFAULT_CITIZEN_OUTBOUND_GREETING,
   },
   afterHoursManagerSms: '',
+  afterHoursStaffSms: '',
+  afterHoursManagerSmsEnabled: true,
+  afterHoursStaffSmsEnabled: false,
 }
 
 const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
@@ -102,7 +105,7 @@ const COMPLETION_NOTE_TOKEN = '{Tamamlama Notu}'
 const CANCEL_NOTE_TOKEN = '{İptal Notu}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
-type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms'>
+type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms' | 'afterHoursStaffSms' | 'afterHoursManagerSmsEnabled' | 'afterHoursStaffSmsEnabled'>
 
 function buildCitizenAutoReplyTemplate(
   bodyText: string,
@@ -170,6 +173,24 @@ function cloneCitizenAutoReplyTemplates(value: CitizenAutoReplyTemplates): Citiz
     ...value,
     greetings: { ...value.greetings },
   }
+}
+
+function SettingsActiveSwitch({ checked, onChange, label }: { checked: boolean; onChange: () => void; label: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <span className="text-sm font-semibold text-slate-700">{label}</span>
+      <button
+        type="button"
+        onClick={onChange}
+        className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${checked ? 'bg-emerald-500' : 'bg-slate-200'}`}
+        role="switch"
+        aria-checked={checked}
+        aria-label={label}
+      >
+        <span className={`pointer-events-none inline-block size-5 rounded-full bg-white shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
+      </button>
+    </div>
+  )
 }
 
 function extractCitizenAutoReplyNoteSuffixText(template: string, noteToken: string) {
@@ -532,7 +553,7 @@ export function SettingsPage() {
   const savedCitizenAutoReplyTemplatesRef = useRef<CitizenAutoReplyTemplates>(DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES)
   // Hangi kartın Kaydet'i çalışıyor: iki bölüm aynı endpoint'i kullanıyor ama buton durumu
   // ayrı olmalı; tek bayrak paylaşınca diğer buton da "Kaydediliyor..." oluyordu (kart #3209).
-  const [citizenAutoReplySavingScope, setCitizenAutoReplySavingScope] = useState<'citizen' | 'afterHours' | null>(null)
+  const [citizenAutoReplySavingScope, setCitizenAutoReplySavingScope] = useState<'citizen' | 'afterHours' | 'afterHoursStaff' | null>(null)
   const citizenAutoReplySaving = citizenAutoReplySavingScope !== null
   const [departments, setDepartments] = useState<Department[]>([])
   const logoFileInputRef = useRef<HTMLInputElement>(null)
@@ -816,6 +837,8 @@ export function SettingsPage() {
             completed: loadedGreetings?.completed?.trim() || generalGreeting,
             cancelled: loadedGreetings?.cancelled?.trim() || generalGreeting,
           },
+          afterHoursManagerSmsEnabled: autoReplyResponse.afterHoursManagerSmsEnabled ?? true,
+          afterHoursStaffSmsEnabled: autoReplyResponse.afterHoursStaffSmsEnabled ?? false,
         }
         setCitizenAutoReplyTemplates(loadedTemplates)
         savedCitizenAutoReplyTemplatesRef.current = cloneCitizenAutoReplyTemplates(loadedTemplates)
@@ -1679,7 +1702,7 @@ export function SettingsPage() {
     }
   }
 
-  const saveCitizenAutoReplies = async (toast: 'citizen' | 'afterHours' = 'citizen') => {
+  const saveCitizenAutoReplies = async (toast: 'citizen' | 'afterHours' | 'afterHoursStaff' = 'citizen') => {
     if (!user?.tenantId || citizenAutoReplySaving) return
     setCitizenAutoReplySavingScope(toast)
     try {
@@ -1720,15 +1743,20 @@ export function SettingsPage() {
           cancelled: citizenAutoReplyTemplates.greetings.cancelled.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
         },
         afterHoursManagerSms: citizenAutoReplyTemplates.afterHoursManagerSms ?? '',
+        afterHoursStaffSms: citizenAutoReplyTemplates.afterHoursStaffSms ?? '',
+        afterHoursManagerSmsEnabled: citizenAutoReplyTemplates.afterHoursManagerSmsEnabled ?? true,
+        afterHoursStaffSmsEnabled: citizenAutoReplyTemplates.afterHoursStaffSmsEnabled ?? false,
       }
       await api.updateCitizenAutoReplyTemplates(user.tenantId, normalizedTemplates)
       setCitizenAutoReplyTemplates(normalizedTemplates)
       savedCitizenAutoReplyTemplatesRef.current = cloneCitizenAutoReplyTemplates(normalizedTemplates)
       showToast(
         'success',
-        toast === 'afterHours'
-          ? t('settings.routing.afterHoursManagerSmsSaved', 'Birim yöneticilerine giden bildirim mesajı kaydedildi.')
-          : t('settings.routing.autoRepliesSaved', 'Vatandaşa giden cevaplar kaydedildi.'),
+        toast === 'afterHoursStaff'
+          ? t('settings.routing.afterHoursStaffSmsSaved', 'Birim personeline giden bildirim mesajı kaydedildi.')
+          : toast === 'afterHours'
+            ? t('settings.routing.afterHoursManagerSmsSaved', 'Birim yöneticilerine giden bildirim mesajı kaydedildi.')
+            : t('settings.routing.autoRepliesSaved', 'Vatandaşa giden cevaplar kaydedildi.'),
       )
     } catch (saveError) {
       showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
@@ -3535,8 +3563,16 @@ export function SettingsPage() {
 
           <section className="section-card page-stack">
             <div className="page-header-row">
-              <div>
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
                 <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.afterHoursManagerSmsTitle')}</h2>
+                <SettingsActiveSwitch
+                  label={t('users.active', 'Aktif')}
+                  checked={citizenAutoReplyTemplates.afterHoursManagerSmsEnabled ?? true}
+                  onChange={() => setCitizenAutoReplyTemplates(current => ({
+                    ...current,
+                    afterHoursManagerSmsEnabled: !(current.afterHoursManagerSmsEnabled ?? true),
+                  }))}
+                />
               </div>
               <Button type="button" onClick={() => void saveCitizenAutoReplies('afterHours')}>
                 {t('common.save', 'Kaydet')}
@@ -3552,6 +3588,38 @@ export function SettingsPage() {
                 onChange={event => setCitizenAutoReplyTemplates(current => ({
                   ...current,
                   afterHoursManagerSms: event.target.value,
+                }))}
+              />
+            </label>
+          </section>
+
+          <section className="section-card page-stack">
+            <div className="page-header-row">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.afterHoursStaffSmsTitle')}</h2>
+                <SettingsActiveSwitch
+                  label={t('users.active', 'Aktif')}
+                  checked={citizenAutoReplyTemplates.afterHoursStaffSmsEnabled ?? false}
+                  onChange={() => setCitizenAutoReplyTemplates(current => ({
+                    ...current,
+                    afterHoursStaffSmsEnabled: !(current.afterHoursStaffSmsEnabled ?? false),
+                  }))}
+                />
+              </div>
+              <Button type="button" onClick={() => void saveCitizenAutoReplies('afterHoursStaff')}>
+                {t('common.save', 'Kaydet')}
+              </Button>
+            </div>
+            <label className="grid gap-2 text-sm font-semibold text-slate-700">
+              <span>{t('settings.routing.afterHoursStaffSmsLabel')}</span>
+              <textarea
+                aria-label={t('settings.routing.afterHoursStaffSmsLabel')}
+                className="field-input settings-after-hours-sms min-h-48 whitespace-pre-wrap"
+                placeholder={t('settings.routing.afterHoursStaffSmsPlaceholder')}
+                value={citizenAutoReplyTemplates.afterHoursStaffSms ?? ''}
+                onChange={event => setCitizenAutoReplyTemplates(current => ({
+                  ...current,
+                  afterHoursStaffSms: event.target.value,
                 }))}
               />
             </label>

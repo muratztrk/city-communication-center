@@ -702,6 +702,10 @@
     "liveLdapSyncUpdated": "{{count}} LDAP user profiles were updated.",
     "liveLdapSyncUpdatedProfiles": "Updated profiles",
     "liveLdapSyncNoNew": "No new users found",
+    "dailyLdapSync": "Daily LDAP sync",
+    "dailyLdapSyncTime": "Daily sync time",
+    "dailyLdapSyncSaved": "Daily LDAP sync settings were saved.",
+    "dailyLdapSyncTimeRequired": "Choose a time for daily sync.",
     "addAllLdap": "Add All LDAP Users",
     "addAllLdapWorking": "Adding LDAP users...",
     "deleteAllLdap": "Delete All LDAP Users",
@@ -1521,7 +1525,11 @@
       "afterHoursManagerSmsTitle": "After-hours SMS notifications to unit managers/responsibles",
       "afterHoursManagerSmsLabel": "Notification message",
       "afterHoursManagerSmsPlaceholder": "Enter the notification message...",
-      "afterHoursManagerSmsSaved": "The notification message for unit managers was saved."
+      "afterHoursManagerSmsSaved": "The notification message for unit managers was saved.",
+      "afterHoursStaffSmsTitle": "After-hours SMS notifications to unit staff",
+      "afterHoursStaffSmsLabel": "Notification message",
+      "afterHoursStaffSmsPlaceholder": "Enter the notification message...",
+      "afterHoursStaffSmsSaved": "The notification message for unit staff was saved."
     },
     "citizen": {
       "sectionTitle": "Create Citizen Request",

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Security.Cryptography;
 using Microsoft.AspNetCore.DataProtection;
 
@@ -36,7 +37,9 @@ internal sealed class TenantLdapSettingsService : ITenantLdapSettingsService
             !string.IsNullOrWhiteSpace(settings.BindPassword),
             settings.UserAttribute,
             settings.CanAuthenticate,
-            settings.CanSearch);
+            settings.CanSearch,
+            settings.DailySyncEnabled,
+            settings.DailySyncTime);
     }
 
     public async Task<TenantLdapRuntimeSettings> GetRuntimeSettingsAsync(Guid tenantId, CancellationToken cancellationToken = default)
@@ -66,34 +69,27 @@ internal sealed class TenantLdapSettingsService : ITenantLdapSettingsService
             BindDn = Normalize(settings.BindDn),
             BindPassword = bindPassword,
             UserAttribute = Normalize(settings.UserAttribute) ?? _options.Ldap.UserAttribute,
+            DailySyncEnabled = currentPayload.DailySyncEnabled,
+            DailySyncTime = currentPayload.DailySyncTime,
+            DailySyncLastRunDate = currentPayload.DailySyncLastRunDate,
         };
 
-        var serializedPayload = _dataProtector.Protect(JsonSerializer.Serialize(payload, SerializerOptions));
-        var tenantSetting = await _dbContext.TenantSettings
-            .IgnoreQueryFilters()
-            .SingleOrDefaultAsync(entity => entity.TenantId == tenantId, cancellationToken);
+        await PersistPayloadAsync(tenantId, payload, actorUserId, cancellationToken);
+    }
 
-        if (tenantSetting is null)
-        {
-            _dbContext.TenantSettings.Add(new TenantSetting
-            {
-                TenantSettingId = Guid.NewGuid(),
-                TenantId = tenantId,
-                DisplayName = string.Empty,
-                DefaultSlaHours = 48,
-                AutoRoutingEnabled = false,
-                LdapSettingsJson = serializedPayload,
-                CreatedByUserId = actorUserId,
-            });
-        }
-        else
-        {
-            tenantSetting.LdapSettingsJson = serializedPayload;
-            tenantSetting.UpdatedAtUtc = DateTimeOffset.UtcNow;
-            tenantSetting.UpdatedByUserId = actorUserId;
-        }
+    public async Task SaveDailySyncAsync(Guid tenantId, bool enabled, string? time, Guid? actorUserId, CancellationToken cancellationToken = default)
+    {
+        var currentPayload = await GetPayloadAsync(tenantId, cancellationToken);
+        currentPayload.DailySyncEnabled = enabled;
+        currentPayload.DailySyncTime = NormalizeDailySyncTime(time);
+        await PersistPayloadAsync(tenantId, currentPayload, actorUserId, cancellationToken);
+    }
 
-        await _dbContext.SaveChangesAsync(cancellationToken);
+    public async Task MarkDailySyncRanAsync(Guid tenantId, string turkeyDate, CancellationToken cancellationToken = default)
+    {
+        var currentPayload = await GetPayloadAsync(tenantId, cancellationToken);
+        currentPayload.DailySyncLastRunDate = Normalize(turkeyDate);
+        await PersistPayloadAsync(tenantId, currentPayload, actorUserId: null, cancellationToken);
     }
 
     private async Task<TenantLdapSettingsPayload> GetPayloadAsync(Guid tenantId, CancellationToken cancellationToken)
@@ -162,7 +158,10 @@ internal sealed class TenantLdapSettingsService : ITenantLdapSettingsService
             Normalize(payload.UserAttribute) ?? _options.Ldap.UserAttribute,
             canAuthenticate,
             canSearch,
-            mockUsers);
+            mockUsers,
+            payload.DailySyncEnabled,
+            NormalizeDailySyncTime(payload.DailySyncTime),
+            Normalize(payload.DailySyncLastRunDate));
     }
 
     private static string? Normalize(string? value)
@@ -196,5 +195,57 @@ internal sealed class TenantLdapSettingsService : ITenantLdapSettingsService
         public string? BindPassword { get; set; }
 
         public string UserAttribute { get; set; } = "mail";
+
+        public bool DailySyncEnabled { get; set; }
+
+        public string? DailySyncTime { get; set; }
+
+        public string? DailySyncLastRunDate { get; set; }
+    }
+
+    private async Task PersistPayloadAsync(
+        Guid tenantId,
+        TenantLdapSettingsPayload payload,
+        Guid? actorUserId,
+        CancellationToken cancellationToken)
+    {
+        var serializedPayload = _dataProtector.Protect(JsonSerializer.Serialize(payload, SerializerOptions));
+        var tenantSetting = await _dbContext.TenantSettings
+            .IgnoreQueryFilters()
+            .SingleOrDefaultAsync(entity => entity.TenantId == tenantId, cancellationToken);
+
+        if (tenantSetting is null)
+        {
+            _dbContext.TenantSettings.Add(new TenantSetting
+            {
+                TenantSettingId = Guid.NewGuid(),
+                TenantId = tenantId,
+                DisplayName = string.Empty,
+                DefaultSlaHours = 48,
+                AutoRoutingEnabled = false,
+                LdapSettingsJson = serializedPayload,
+                CreatedByUserId = actorUserId,
+            });
+        }
+        else
+        {
+            tenantSetting.LdapSettingsJson = serializedPayload;
+            tenantSetting.UpdatedAtUtc = DateTimeOffset.UtcNow;
+            tenantSetting.UpdatedByUserId = actorUserId;
+        }
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    private static string? NormalizeDailySyncTime(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        return TimeOnly.TryParse(value.Trim(), CultureInfo.InvariantCulture, DateTimeStyles.None, out var parsed)
+            ? parsed.ToString("HH:mm", CultureInfo.InvariantCulture)
+            : null;
     }
 }

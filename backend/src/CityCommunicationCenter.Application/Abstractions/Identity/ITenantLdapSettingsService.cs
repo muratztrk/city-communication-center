@@ -7,6 +7,10 @@ public interface ITenantLdapSettingsService
     Task<TenantLdapRuntimeSettings> GetRuntimeSettingsAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
     Task SaveSettingsAsync(Guid tenantId, TenantLdapSettingsUpdate settings, Guid? actorUserId, CancellationToken cancellationToken = default);
+
+    Task SaveDailySyncAsync(Guid tenantId, bool enabled, string? time, Guid? actorUserId, CancellationToken cancellationToken = default);
+
+    Task MarkDailySyncRanAsync(Guid tenantId, string turkeyDate, CancellationToken cancellationToken = default);
 }
 
 public sealed record TenantLdapSettingsDescriptor(
@@ -21,7 +25,9 @@ public sealed record TenantLdapSettingsDescriptor(
     bool HasBindPassword,
     string UserAttribute,
     bool CanAuthenticate,
-    bool CanSearch);
+    bool CanSearch,
+    bool DailySyncEnabled = false,
+    string? DailySyncTime = null);
 
 public sealed record TenantLdapSettingsUpdate(
     bool Enabled,
@@ -49,7 +55,10 @@ public sealed record TenantLdapRuntimeSettings(
     string UserAttribute,
     bool CanAuthenticate,
     bool CanSearch,
-    IReadOnlyList<LdapDirectoryCredential> MockUsers);
+    IReadOnlyList<LdapDirectoryCredential> MockUsers,
+    bool DailySyncEnabled = false,
+    string? DailySyncTime = null,
+    string? DailySyncLastRunDate = null);
 
 public sealed record LdapDirectoryCredential(
     string ExternalIdentityId,

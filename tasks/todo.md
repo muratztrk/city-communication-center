@@ -1,3 +1,20 @@
+## Round 1098 — punto, pie çerçeve, Birim Talebi, adres hiza
+
+- **#3322/#3323:** Birim/vatandaş harita liste Talep/VT No + tarih `0.74rem`.
+- **#3303:** Harita liste Ad + Telefon `0.74rem`.
+- **#3290:** Dizin Talep Kanalı `0.64` / ikon `0.66`.
+- **#3317:** Ayarlar İlçe dropdown satır `0.70rem`.
+- **#3315:** Talep Oluşturan Birimler pie Gittiği Yer yeşil çerçeve.
+- **#3313:** LDAP açık liste Ara... `0.62rem`.
+- **#3316:** Grid thead `0.74rem`.
+- **#3321/#3320:** Pie Talep/VT No + tarih `0.74rem`.
+- **#3314:** Pie Detaylar başlığı `Birim Talebi`.
+- **#3319:** Adres Tarifi=Mahalle, Konum Linki=Cadde sol düşey.
+- **#3318:** Detaylar popup başlığı `0.80rem`.
+- **#3327:** Mobil (≤1023) Talep/Görev Bilgileri değer `0.72rem`.
+- **#3326:** Doing’de bırakıldı — Tim Mobil sayfa listesi yok.
+- Atlandı: #3324 #3325 (`tim mobil app'de`).
+
 ## Round 1097 — birim dışı Süreç sahip onay
 
 - **#3309:** Birim dışı (vatandaş değil) Süreç’te Talebin Birim Yöneticisi Onay Tarihi; pie/Reporter dahil. Birim içi #1654 gizlemesi durur.

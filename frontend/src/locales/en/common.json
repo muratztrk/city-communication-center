@@ -434,7 +434,7 @@
     "citizenPanelTitle": "Citizen Panel",
     "subtitle": "Track open workload, recent tasks, and incoming messages on one screen.",
     "citizenSubtitle": "Track incoming citizen requests by status.",
-    "pieJobDetailTitle": "Request",
+    "pieJobDetailTitle": "Unit Request",
     "liveSummary": "Live Summary",
     "cards": {
       "openTasks": "Pending Tasks",

@@ -332,7 +332,7 @@ export function AllDepartmentRequestsModal({ onClose }: AllDepartmentRequestsMod
           {detail ? (
             <MyRequestDetailModal
               detail={detail}
-              title={t('dashboard.pieJobDetailTitle', 'Talep')}
+              title={t('dashboard.pieJobDetailTitle', 'Birim Talebi')}
               locale={locale}
               detailLoading={detailLoading}
               citizenSourceMessage={null}

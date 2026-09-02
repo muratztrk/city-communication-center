@@ -276,7 +276,7 @@
     /* Sol üst popup başlığı (Talep/Görev No — başlık).
        Masaüstü: biraz büyük + ALL CAPS (card #1742).
        Mobil: title case + kompakt (card #1728) — aşağıda max-width:767 override. */
-    font-size: 0.85rem;
+    font-size: 0.80rem;
     font-weight: 800;
     letter-spacing: 0.08em;
     line-height: 1.2;
@@ -286,7 +286,7 @@
 
   /* Harita liste popup başlığı: yalnızca ilk harfler büyük, ALL CAPS yok (#2740). */
   .detail-modal-shell--all-requests .map-list-modal-title {
-    font-size: 0.85rem;
+    font-size: 0.80rem;
     font-weight: 800;
     letter-spacing: 0.02em;
     line-height: 1.2;
@@ -1905,7 +1905,7 @@
     .app-content-shell .table-container thead th {
       padding: var(--table-chrome-row-py) var(--table-chrome-row-px);
       min-height: var(--table-chrome-row-min-height);
-      font-size: 0.78rem;
+      font-size: 0.74rem;
       letter-spacing: 0.06em;
       line-height: 1.2;
       vertical-align: middle;
@@ -2509,7 +2509,7 @@
   .settings-municipality-location-menu .dropdown-menu-item {
     min-height: 1.65rem;
     padding: 0.2rem 0.55rem;
-    font-size: 0.75rem !important;
+    font-size: 0.70rem !important;
     line-height: 1.1;
   }
 
@@ -2526,7 +2526,7 @@
 
   .settings-municipality-location-menu-scroll .dropdown-menu-item span,
   .settings-municipality-location-menu .dropdown-menu-item span {
-    font-size: 0.75rem !important;
+    font-size: 0.70rem !important;
     line-height: 1.1;
   }
 
@@ -2941,7 +2941,7 @@
      Başlık şeridi standart gridview gibi üstten kavisli ve aynı *görsel* yükseklikte olur:
      popup body'ye portal edildiği için shell zoom'unu almaz → `--app-content-zoom` (#6a6cbf79). */
   .detail-modal-shell .citizen-directory-tickets-table thead th {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     letter-spacing: 0.06em;
     line-height: 1.2;
     font-family: var(--font-sans);
@@ -4946,17 +4946,27 @@
     grid-column: auto !important;
   }
 
+  /* #3319: Adres Tarifi = Mahalle, Konum Linki = Cadde — aynı kolon sol düşeyi. */
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item,
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
     display: flex;
     flex-direction: column;
-    align-items: center !important;
-    text-align: center !important;
-    justify-self: center;
+    align-items: flex-start !important;
+    text-align: left !important;
+    justify-self: stretch;
     width: 100%;
     max-width: 100%;
     padding-inline-start: 0 !important;
-    transform: translateX(-0.45rem) !important;
+    transform: none !important;
+  }
+
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value {
+    width: fit-content !important;
+    max-width: 100%;
+    margin-inline: 0 !important;
+    text-align: left !important;
+    transform: none !important;
   }
 
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--directions,
@@ -5279,7 +5289,7 @@
     min-height: 0;
     max-height: none;
     padding: 0.42rem var(--table-chrome-row-px);
-    font-size: 0.78rem;
+    font-size: 0.74rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     line-height: 1.2;
@@ -6782,7 +6792,7 @@
       text-align: right;
       align-items: flex-end;
       white-space: normal;
-      font-size: 0.78rem;
+      font-size: 0.72rem;
     }
 
     .stacked-field-value {
@@ -6818,7 +6828,7 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value,
     .citizen-directory-tickets-table .citizen-directory-channel-label,
     .citizen-directory-tickets-table .citizen-directory-channel-value .text-sm {
-      font-size: 0.60rem !important;
+      font-size: 0.64rem !important;
       font-weight: 500 !important;
     }
 
@@ -6826,8 +6836,8 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value img,
     .citizen-directory-tickets-table .citizen-directory-channel-icon,
     .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
-      width: 0.62rem !important;
-      height: 0.62rem !important;
+      width: 0.66rem !important;
+      height: 0.66rem !important;
     }
 
     /* VT edit Öncelik sola/küçült istekleri geri alındı (#r498). */
@@ -7266,22 +7276,22 @@
    dizin Detaylar Talep Kanalı masaüstü (#3290 — önceki kural 767px medyada kaldığı için olmamıştı). */
 .citizen-directory-tickets-table .citizen-directory-channel-value,
 .citizen-directory-tickets-table .citizen-directory-channel-label {
-  font-size: 0.60rem !important;
-  font-weight: 500 !important;
-  line-height: 1.2;
+    font-size: 0.64rem !important;
+    font-weight: 500 !important;
+    line-height: 1.2;
 }
 
 .citizen-directory-tickets-table .citizen-directory-channel-icon,
 .citizen-directory-tickets-table .citizen-directory-channel-value svg,
 .citizen-directory-tickets-table .citizen-directory-channel-value img,
 .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
-  width: 0.62rem !important;
-  height: 0.62rem !important;
+  width: 0.66rem !important;
+  height: 0.66rem !important;
 }
 
 .citizen-map-requests-table .citizen-grid-phone-value,
 .citizen-map-requests-table .citizen-map-name-value {
-  font-size: 0.72rem !important;
+  font-size: 0.74rem !important;
   line-height: 1.25;
 }
 
@@ -7302,6 +7312,30 @@
   padding: 0.28rem 0.6rem !important;
   font-size: 0.70rem !important;
   font-weight: 500 !important;
+  line-height: 1.25;
+}
+
+/* LDAP eşleşmeyen açık liste Ara... (#3313). */
+.ldap-unmatched-dept-menu input,
+.dropdown-menu-panel.ldap-unmatched-dept-menu input {
+  font-size: 0.62rem !important;
+  line-height: 1.25 !important;
+}
+
+/* Mobil görünüm (≤1023): Talep/Görev Bilgileri değerleri; etiket durur (#3327). */
+@media (max-width: 1023px) {
+  .detail-modal-shell .job-detail-field-row--request-info .job-detail-field-row__value,
+  .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__value {
+    font-size: 0.72rem !important;
+  }
+}
+
+/* Harita liste + pie: Talep/VT No ve Talep Tarihi biraz küçük (#3320–#3323). */
+.citizen-map-requests-table .table-number-cell__value,
+.citizen-map-requests-table .date-cell,
+.detail-modal-shell--chart-drilldown .dashboard-drilldown-table .table-number-cell__value,
+.detail-modal-shell--chart-drilldown .dashboard-drilldown-table .date-cell {
+  font-size: 0.74rem !important;
   line-height: 1.25;
 }
 

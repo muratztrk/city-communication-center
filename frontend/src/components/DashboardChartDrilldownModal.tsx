@@ -741,9 +741,14 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
                           </td>
                         ) : null}
                         {showDestinationColumn ? (
-                          <td className="max-w-[12rem]">
+                          <td>
                             {row.destinationDepartmentName?.trim()
-                              ? <span className="block truncate">{row.destinationDepartmentName}</span>
+                              ? (
+                                <FramedDepartmentStack
+                                  departmentName={row.destinationDepartmentName}
+                                  align="center"
+                                />
+                              )
                               : '—'}
                           </td>
                         ) : null}

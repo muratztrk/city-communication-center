@@ -1116,7 +1116,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
             effectiveView === 'citizen'
               ? t('jobs.taskType.CitizenRequest', 'Vatandaş Talebi')
               : effectiveView === 'departments'
-                ? t('dashboard.pieJobDetailTitle', 'Talep')
+                ? t('dashboard.pieJobDetailTitle', 'Birim Talebi')
                 : undefined
           }
           onClose={() => setChartDrilldown(null)}

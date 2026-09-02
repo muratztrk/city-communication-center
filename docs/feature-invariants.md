@@ -1685,6 +1685,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`RichTextEditor` ve e-Devlet dönüşüm textarea'sı).
 - **Grid başlık casing/padding:** TÜM gridview header'ları (`data-table`, `table-container`,
   `wallboard-table`) `text-transform: uppercase` kullanır (card #1342 — #1318'i tersine çevirdi);
+  masaüstü thead punto `0.74rem` (#3316; pie/drilldown aynı). Detaylar popup başlığı `0.80rem` (#3318).
   `FilterableTh` iç sıra: başlık → sıralama ikonu → filtre (`MoreVertical`); sıralama label içinde
   **Talep No / Vatandaş Talep No / Bağlı Olduğu Talep No** (`jobNumber`): yıl sonrası `-` sayısı
   niceliğine göre (591 > 12); ilk tıklama büyükten küçüğe (#2646). `VT-2026-Onay Bekleyen` string
@@ -1944,8 +1945,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız `Geciken` (#2977).
   Talep Oluşturan Birimler drilldown: Birim sonrası Gittiği Yer; Bekleyen/Yapılmakta/Tamamlanan
   drilldown: Talep Yeri (sahip birim) Birim’den önce (#2616); bu üç pie’de Birim sütunu
-  **Gittiği Yer** yeşil `FramedDepartmentStack` (#3301). Gittiği Yer **hücresi** `0.70rem` (#3312);
-  başlık diğer pie thead ile aynı (#3302 revert).
+  **Gittiği Yer** yeşil `FramedDepartmentStack` (#3301). Talep Oluşturan Birimler Gittiği Yer
+  hücresi de aynı çerçeve (#3315). Gittiği Yer **hücresi** `0.70rem` (#3312);
+  başlık diğer pie thead ile aynı (#3302 revert). Pie Detaylar başlığı birim talebinde
+  **Birim Talebi** (eski `Talep`, #3314).
   Tamamlanan/Yapılmakta/Onay Bekleyen Talepler + Tamamlanan/Yapılmakta Projeler pie popup’ta
   **Durum sütunu yok** (dilim zaten durum, #3310). Durum overdue = `Yapılmakta (Geciken)` (#2609).
   Yapılmakta/Tamamlanan Projeler pie yalnız Birim İçi (`InternalUnit`, Owner birim) + Üst Düzey
@@ -2033,7 +2036,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde
   şartı yok — cadde/konuşma yedegi geocode için FE’de; harita yine cadde zorunlu (#2635).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
-  Vatandaş harita liste **Vatandaş Adı** + **Telefon No** `0.72rem` (#3303).
+  Vatandaş harita liste **Vatandaş Adı** + **Telefon No** `0.74rem` (#3303).
+  Harita liste + pie drilldown Talep/VT No ve Talep Tarihi `0.74rem` (#3320–#3323).
   Birim haritası liste Gittiği Yer = `FramedDepartmentStack` yeşil çerçeve; masaüstü punto
   `0.68rem` (#3286).
   (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
@@ -2912,7 +2916,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Çağrı Talebi vatandaş adı (#2331):** `CreateRequestPage` vatandaş adı alanı blur/submit'te
   `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
-  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.60rem` / `0.62rem`,
+  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.64rem` / `0.66rem`,
   metin `font-weight: 500` — kural **unlayered** (767px medya içinde kalırsa masaüstünde `text-sm` kazanır, #3271/#3290).
   Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
   `(Geciken)` durur; dizin Detaylar Durum punto değişmez (#3291).

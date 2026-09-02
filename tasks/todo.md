@@ -1,3 +1,14 @@
+## Round 1099 — punto reopen: İlçe admin-surface, telefon secondary, No büyüt
+
+- **#3317:** İlçe liste `0.70rem` **unlayered** — `.admin-surface-menu` 0.95rem eziyordu.
+- **#3327:** Mobil yalnız Telefon No (`.stacked-field-value__secondary`) `0.68rem`.
+- **#3303:** Harita VT No `0.78rem` (ikon size-4), Ad `0.78rem`.
+- **#3323:** Birim harita Talep No `0.78rem`.
+- **#3321:** Pie Talep No `0.78rem`; tarih `0.74rem` durur.
+- **#3328:** Dizin tarih `0.76rem`, kanal `0.68`/`0.70`.
+- **#3326:** Doing — Tim Mobil sayfa listesi yok.
+- Atlandı: #3324 #3325.
+
 ## Round 1098 — punto, pie çerçeve, Birim Talebi, adres hiza
 
 - **#3322/#3323:** Birim/vatandaş harita liste Talep/VT No + tarih `0.74rem`.

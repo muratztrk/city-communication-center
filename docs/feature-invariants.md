@@ -2036,8 +2036,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde
   şartı yok — cadde/konuşma yedegi geocode için FE’de; harita yine cadde zorunlu (#2635).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
-  Vatandaş harita liste **Vatandaş Adı** + **Telefon No** `0.74rem` (#3303).
-  Harita liste + pie drilldown Talep/VT No ve Talep Tarihi `0.74rem` (#3320–#3323).
+  Vatandaş harita liste **Vatandaş Adı** `0.78rem`, **Telefon No** `0.74rem`; VT No `0.78rem`, kanal ikonu `size-4` (#3303).
+  Harita liste + pie Talep Tarihi `0.74rem`; Talep/VT No `0.78rem` (#3321/#3323).
   Birim haritası liste Gittiği Yer = `FramedDepartmentStack` yeşil çerçeve; masaüstü punto
   `0.68rem` (#3286).
   (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
@@ -2916,8 +2916,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Çağrı Talebi vatandaş adı (#2331):** `CreateRequestPage` vatandaş adı alanı blur/submit'te
   `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
-  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.64rem` / `0.66rem`,
-  metin `font-weight: 500` — kural **unlayered** (767px medya içinde kalırsa masaüstünde `text-sm` kazanır, #3271/#3290).
+  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.68rem` / `0.70rem`,
+  metin `font-weight: 500` — kural **unlayered**. Talep Tarihi `0.76rem` (#3328).
   Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
   `(Geciken)` durur; dizin Detaylar Durum punto değişmez (#3291).
   Dizin Detaylar + harita Talepleri Listele / pin popup scroll pie gibi tablo `hscroll` içinde;

@@ -6792,7 +6792,7 @@
       text-align: right;
       align-items: flex-end;
       white-space: normal;
-      font-size: 0.72rem;
+      font-size: 0.78rem;
     }
 
     .stacked-field-value {
@@ -6828,7 +6828,7 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value,
     .citizen-directory-tickets-table .citizen-directory-channel-label,
     .citizen-directory-tickets-table .citizen-directory-channel-value .text-sm {
-      font-size: 0.64rem !important;
+      font-size: 0.68rem !important;
       font-weight: 500 !important;
     }
 
@@ -6836,8 +6836,8 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value img,
     .citizen-directory-tickets-table .citizen-directory-channel-icon,
     .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
-      width: 0.66rem !important;
-      height: 0.66rem !important;
+      width: 0.70rem !important;
+      height: 0.70rem !important;
     }
 
     /* VT edit Öncelik sola/küçült istekleri geri alındı (#r498). */
@@ -7276,7 +7276,7 @@
    dizin Detaylar Talep Kanalı masaüstü (#3290 — önceki kural 767px medyada kaldığı için olmamıştı). */
 .citizen-directory-tickets-table .citizen-directory-channel-value,
 .citizen-directory-tickets-table .citizen-directory-channel-label {
-    font-size: 0.64rem !important;
+    font-size: 0.68rem !important;
     font-weight: 500 !important;
     line-height: 1.2;
 }
@@ -7285,13 +7285,17 @@
 .citizen-directory-tickets-table .citizen-directory-channel-value svg,
 .citizen-directory-tickets-table .citizen-directory-channel-value img,
 .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
-  width: 0.66rem !important;
-  height: 0.66rem !important;
+  width: 0.70rem !important;
+  height: 0.70rem !important;
 }
 
-.citizen-map-requests-table .citizen-grid-phone-value,
-.citizen-map-requests-table .citizen-map-name-value {
+.citizen-map-requests-table .citizen-grid-phone-value {
   font-size: 0.74rem !important;
+  line-height: 1.25;
+}
+
+.citizen-map-requests-table .citizen-map-name-value {
+  font-size: 0.78rem !important;
   line-height: 1.25;
 }
 
@@ -7322,21 +7326,50 @@
   line-height: 1.25 !important;
 }
 
-/* Mobil görünüm (≤1023): Talep/Görev Bilgileri değerleri; etiket durur (#3327). */
+/* İlçe açık liste: admin-surface-menu 0.95rem eziyordu (#3317). */
+.admin-surface-menu.settings-municipality-location-menu .dropdown-menu-item,
+.admin-surface-menu.settings-municipality-location-menu .dropdown-menu-scroll .dropdown-menu-item,
+.settings-municipality-location-menu-scroll .dropdown-menu-item,
+.settings-municipality-location-menu .dropdown-menu-item,
+.admin-surface-menu.settings-municipality-location-menu .dropdown-menu-item span,
+.settings-municipality-location-menu-scroll .dropdown-menu-item span,
+.settings-municipality-location-menu .dropdown-menu-item span {
+  min-height: 1.65rem !important;
+  padding: 0.2rem 0.55rem !important;
+  font-size: 0.70rem !important;
+  line-height: 1.15 !important;
+}
+
+/* Mobil: yalnız Telefon No değeri; etiket ve diğer değerler durur (#3327). */
 @media (max-width: 1023px) {
-  .detail-modal-shell .job-detail-field-row--request-info .job-detail-field-row__value,
-  .detail-modal-shell--my-request .job-detail-field-row--request-info .job-detail-field-row__value {
-    font-size: 0.72rem !important;
+  .detail-modal-shell .job-detail-field-row--citizen-contact .stacked-field-value__secondary,
+  .detail-modal-shell--my-request .job-detail-field-row--citizen-contact .stacked-field-value__secondary {
+    font-size: 0.68rem !important;
   }
 }
 
-/* Harita liste + pie: Talep/VT No ve Talep Tarihi biraz küçük (#3320–#3323). */
+/* Harita + pie: No büyüt, tarih 0.74 kalsın; kanal ikonu size-4 (#3303/#3321/#3323). */
 .citizen-map-requests-table .table-number-cell__value,
+.detail-modal-shell--chart-drilldown .dashboard-drilldown-table .table-number-cell__value {
+  font-size: 0.78rem !important;
+  line-height: 1.25;
+}
+
+.citizen-map-requests-table .table-number-cell__value svg,
+.citizen-map-requests-table .table-number-cell__value img {
+  width: 1rem !important;
+  height: 1rem !important;
+}
+
 .citizen-map-requests-table .date-cell,
-.detail-modal-shell--chart-drilldown .dashboard-drilldown-table .table-number-cell__value,
 .detail-modal-shell--chart-drilldown .dashboard-drilldown-table .date-cell {
   font-size: 0.74rem !important;
   line-height: 1.25;
+}
+
+/* Dizin Detaylar: tarih küçült, kanal büyüt (#3328). */
+.detail-modal-shell .citizen-directory-tickets-table tbody td .date-cell {
+  font-size: 0.76rem !important;
 }
 
 /* ≥768: Sms Onayı stacked telefon — 0.80rem yetmedi, VT Telefon No ile hizala (#3283). */

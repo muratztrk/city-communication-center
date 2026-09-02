@@ -2842,6 +2842,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           </>
                         ),
                         value: <StackedFieldValue top={detail.citizenName} bottom={formatCitizenPhoneDisplay(detail.citizenPhone)} />,
+                        rowClass: 'job-detail-field-row--citizen-contact',
                       },
                       ...(hasCitizenAddress(detail) ? [{
                         label: t('jobs.detail.citizenAddressInfo', 'Vatandaş Adres Bilgisi'),

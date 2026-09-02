@@ -1083,6 +1083,7 @@
     "listFilter": {
       "all": "Tümü",
       "unread": "Yanıt bekliyor",
+      "pendingApproval": "Mesaj Onayı Bekleyen",
       "replied": "Yanıt verildi",
       "pending": "Bekleyen",
       "assigned": "Atanmış"

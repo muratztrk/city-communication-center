@@ -6828,7 +6828,7 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value,
     .citizen-directory-tickets-table .citizen-directory-channel-label,
     .citizen-directory-tickets-table .citizen-directory-channel-value .text-sm {
-      font-size: 0.68rem !important;
+      font-size: 0.76rem !important;
       font-weight: 500 !important;
     }
 
@@ -6836,8 +6836,8 @@
     .citizen-directory-tickets-table .citizen-directory-channel-value img,
     .citizen-directory-tickets-table .citizen-directory-channel-icon,
     .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
-      width: 0.70rem !important;
-      height: 0.70rem !important;
+      width: 0.80rem !important;
+      height: 0.80rem !important;
     }
 
     /* VT edit Öncelik sola/küçült istekleri geri alındı (#r498). */
@@ -7276,7 +7276,7 @@
    dizin Detaylar Talep Kanalı masaüstü (#3290 — önceki kural 767px medyada kaldığı için olmamıştı). */
 .citizen-directory-tickets-table .citizen-directory-channel-value,
 .citizen-directory-tickets-table .citizen-directory-channel-label {
-    font-size: 0.68rem !important;
+    font-size: 0.76rem !important;
     font-weight: 500 !important;
     line-height: 1.2;
 }
@@ -7285,8 +7285,8 @@
 .citizen-directory-tickets-table .citizen-directory-channel-value svg,
 .citizen-directory-tickets-table .citizen-directory-channel-value img,
 .citizen-directory-tickets-table .citizen-directory-channel-value .size-3\.5 {
-  width: 0.70rem !important;
-  height: 0.70rem !important;
+  width: 0.80rem !important;
+  height: 0.80rem !important;
 }
 
 .citizen-map-requests-table .citizen-grid-phone-value {
@@ -7340,18 +7340,21 @@
   line-height: 1.15 !important;
 }
 
-/* Mobil: yalnız Telefon No değeri; etiket ve diğer değerler durur (#3327). */
+/* Mobil: yalnız Telefon No değeri; etiket ve diğer değerler durur (#3327).
+   Birime Gelen JobsPage satırında --citizen-contact yoktu; class + unlayered şart. */
 @media (max-width: 1023px) {
+  .job-detail-field-row--citizen-contact .stacked-field-value__secondary,
   .detail-modal-shell .job-detail-field-row--citizen-contact .stacked-field-value__secondary,
   .detail-modal-shell--my-request .job-detail-field-row--citizen-contact .stacked-field-value__secondary {
-    font-size: 0.68rem !important;
+    font-size: 0.56rem !important;
+    line-height: 1.2 !important;
   }
 }
 
-/* Harita + pie: No büyüt, tarih 0.74 kalsın; kanal ikonu size-4 (#3303/#3321/#3323). */
+/* Harita + pie: No bir kademe daha büyüt, tarih 0.74 kalsın (#3331/#3321/#3323). */
 .citizen-map-requests-table .table-number-cell__value,
 .detail-modal-shell--chart-drilldown .dashboard-drilldown-table .table-number-cell__value {
-  font-size: 0.78rem !important;
+  font-size: 0.86rem !important;
   line-height: 1.25;
 }
 
@@ -8503,6 +8506,12 @@
       font-size: 0.66rem;
     }
 
+    /* Telefon No değeri — JobsPage + İlgili Talep; etiket durur (#3327). */
+    .job-detail-field-row--citizen-contact .stacked-field-value__secondary {
+      font-size: 0.56rem !important;
+      line-height: 1.2 !important;
+    }
+
     .create-request-kind-card h2,
     #internal-request-form .field-input,
     #external-request-form .field-input,
@@ -8518,5 +8527,39 @@
     .routine-task-form button[type='submit'] {
       font-size: inherit;
     }
+  }
+}
+
+/* Çağrı Talebi: Talep Etiketi input + Etiket seçiniz + Etiket ekle aynı satır (#3329). */
+.request-tag-create-block {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+.request-tag-create-block .request-tag-create-value {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  width: auto !important;
+}
+
+.request-tag-create-block .request-tag-create-actions {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  align-items: center !important;
+  flex: 0 0 auto !important;
+  gap: 0.4rem !important;
+}
+
+.request-tag-create-block .request-tag-add-button {
+  font-size: 0.78rem !important;
+}
+
+@media (max-width: 767px) {
+  .request-tag-create-block .request-tag-add-button {
+    font-size: 0.68rem !important;
   }
 }

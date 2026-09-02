@@ -519,6 +519,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   chip satırının en sağında (yanıp sönen yeşil, yavaş blink) —
   filtre tek başına yetmez (#6a6bab12/#6a6c3dca);
   `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`); yeni inbound webhook sıfırlar.
+  `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekliyor` sağında; `hasPendingMessageApproval`
+  = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). FAB `hasPendingOutboundMessage`
+  hâlâ yalnız personel Beklemede (otomatik hariç). Bu chip açıkken üst durum sayaç filtresi uygulanmaz
+  ki İptal bekleyenler de görünsün (#3330).
   **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
   **Görevlerim / Birime Gelen / Birimden Giden** nav satırlarında da aynı `nav-pending-badge`
   rozeti: Görevlerim = `myPendingTaskCount`, Birime Gelen = Onay Bekleyen grid toplamı
@@ -1053,10 +1057,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep oluşturma formlarında adres `Cadde / Sokak` input metni aynı formdaki `Açık Adres`
   textarea metin ölçüsüyle eşleşir**; ana oluşturma sayfası ve WhatsApp vatandaş modalı kompakt
   ölçüleri ayrı korunur (card #1247).
-- **Talep Oluştur > Vatandaş Çağrı Talebi Talep Etiketi değeri:** yalnız salt-okunur input metni
-  `text-xs` kalır; Etiketler/Etiket ekle butonlarının büyütülmüş metni etkilenmez (card #1561).
-  Mobil/oluşturma: `Talep Etiketi seçiniz` kendi satırında; altında dropdown + Etiket Ekle
-  yan yana (`request-tag-create-block`, #3268). Mobil Etiket ekle yazısı `0.70rem` (#3268).
+- **Talep Oluştur > Vatandaş Çağrı Talebi Talep Etiketi değeri:** salt-okunur input `text-xs` kalır.
+  Input + `Etiket seçiniz` + Etiket ekle **aynı satırda** (`request-tag-create-block` row, #3329).
+  Etiket ekle yazısı masaüstü `0.78rem`, mobil `0.68rem`.
 - **Talep Oluştur Cadde/No (#3267):** iç/dış talepte Konum Linki Cadde/No ile aynı satırda
   değil — Rutin Görev gibi `coordinatesBelowNeighborhood` + `minmax(0,1fr)_8.25rem`. Kalan
   3’lü satırlarda mobilde Konum alt satıra iner (`.address-street-no-row--with-link`).
@@ -2036,8 +2039,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Dönemdeki pinlenemeyen talepler (cadde yok / geocode fail). Konum ikonu yok, Detaylar durur (#2693). Pin API cadde
   şartı yok — cadde/konuşma yedegi geocode için FE’de; harita yine cadde zorunlu (#2635).
   Vatandaş kolonları Anasayfa Tüm Talepler VT grid’i; **Gittiği Yer yok** (#2682).
-  Vatandaş harita liste **Vatandaş Adı** `0.78rem`, **Telefon No** `0.74rem`; VT No `0.78rem`, kanal ikonu `size-4` (#3303).
-  Harita liste + pie Talep Tarihi `0.74rem`; Talep/VT No `0.78rem` (#3321/#3323).
+  Vatandaş harita liste **Vatandaş Adı** `0.78rem`, **Telefon No** `0.74rem`; VT No `0.86rem`, kanal ikonu `size-4` (#3303/#3331).
+  Harita liste + pie Talep Tarihi `0.74rem`; Talep/VT No `0.86rem` (#3321/#3323/#3331).
   Birim haritası liste Gittiği Yer = `FramedDepartmentStack` yeşil çerçeve; masaüstü punto
   `0.68rem` (#3286).
   (Talebi Yönlendiren/owner değil). Durum `processingReceived` = İşleme Alındı
@@ -2749,7 +2752,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (değer sağa, punto `0.78rem`). Vatandaş Adı / Telefon No slash'ı mobilde yok, etiketler alt alta.
   Banner 1. satır (`.page-kicker`) `0.65rem`, 2. satır (`.page-title`) `0.82rem` — kicker title'dan
   büyük olmaz (#3231). `Talebi Yönlendiren` oluşturan satırı (`.stacked-field-value__secondary`)
-  mobil `0.66rem` (#3242).
+  mobil `0.66rem` (#3242). Mobil Telefon No değeri `--citizen-contact` `.stacked-field-value__secondary`
+  `0.56rem` (Birime Gelen `JobsPage` satırına aynı class şart — #3327).
 - **Harita cluster (#3235):** SuperCluster `maxZoom` / ilk tıklama tavanı `14`; 2. tıklama zoom `17`.
 - **Boş adres `-` her görünümde başlığın SOL kenarında (#3143):** `-` ortalanmaz (önceki tur
   ortalamıştı). Kural `:has(.address-empty-dash)` ile mobil + masaüstünde birlikte uygulanır.
@@ -2916,7 +2920,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Çağrı Talebi vatandaş adı (#2331):** `CreateRequestPage` vatandaş adı alanı blur/submit'te
   `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
-  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.68rem` / `0.70rem`,
+  (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.76rem` / `0.80rem`,
   metin `font-weight: 500` — kural **unlayered**. Talep Tarihi `0.76rem` (#3328).
   Harita pin popup (`--map-pin`) İşleme Alındı/Yapılmakta `0.74rem`;
   `(Geciken)` durur; dizin Detaylar Durum punto değişmez (#3291).

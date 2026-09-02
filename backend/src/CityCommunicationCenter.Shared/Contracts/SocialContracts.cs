@@ -235,7 +235,9 @@ public sealed record CitizenConversationSummaryDto(
     // Operatör "Yanıt Verildi İşaretle" — yeni inbound gelene kadar Yanıt bekliyor sayılmaz (#6a6bab12).
     DateTimeOffset? WaitingReplyClearedAtUtc = null,
     // Son mesaj sistem otomatik giden (durum şablonu / zamanlı WA yanıtı) — FAB bildirim sayacından düşülür (#2562).
-    bool LastMessageIsAutomaticOutbound = false);
+    bool LastMessageIsAutomaticOutbound = false,
+    // Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon) — /whatsapp Mesaj Onayı Bekleyen (#3330).
+    bool HasPendingMessageApproval = false);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,

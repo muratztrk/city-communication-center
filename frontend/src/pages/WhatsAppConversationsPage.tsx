@@ -178,7 +178,7 @@ function ConversationStatusCounts({
 
 // ─── left panel: conversation list ────────────────────────────────────────────
 
-type ConversationListFilter = 'all' | 'unread'
+type ConversationListFilter = 'all' | 'unread' | 'pendingApproval'
 type ConversationSortOrder = 'newest' | 'oldest'
 type ConversationStatusFilter = 'all' | 'intake' | 'in-progress' | 'completed' | 'cancelled'
 
@@ -350,9 +350,18 @@ function ConversationListPanel({
     () => conversations.filter(c => isWaitingForConversationResponse(c)).length,
     [conversations],
   )
+  const pendingApprovalCount = useMemo(
+    () => conversations.filter(c => c.hasPendingMessageApproval).length,
+    [conversations],
+  )
   const filterOptions: { value: ConversationListFilter; label: string; badge?: number }[] = [
     { value: 'all', label: t('whatsapp.listFilter.all', 'Tümü') },
     { value: 'unread', label: t('whatsapp.listFilter.unread', 'Yanıt bekliyor'), badge: unreadCount || undefined },
+    {
+      value: 'pendingApproval',
+      label: t('whatsapp.listFilter.pendingApproval', 'Mesaj Onayı Bekleyen'),
+      badge: pendingApprovalCount || undefined,
+    },
   ]
 
   const totalCounts = useMemo(
@@ -1723,10 +1732,13 @@ export function WhatsAppConversationsPage() {
         if (filterTo && date > filterTo.slice(0, 10)) return false
       }
       if (listFilter === 'unread' && !isWaitingForConversationResponse(conversation)) return false
-      if (statusFilter === 'intake' && (conversation.intakeCount ?? 0) <= 0) return false
-      if (statusFilter === 'in-progress' && (conversation.inProgressCount ?? 0) <= 0) return false
-      if (statusFilter === 'completed' && (conversation.completedCount ?? 0) <= 0) return false
-      if (statusFilter === 'cancelled' && (conversation.cancelledCount ?? 0) <= 0) return false
+      if (listFilter === 'pendingApproval' && !conversation.hasPendingMessageApproval) return false
+      if (listFilter !== 'pendingApproval') {
+        if (statusFilter === 'intake' && (conversation.intakeCount ?? 0) <= 0) return false
+        if (statusFilter === 'in-progress' && (conversation.inProgressCount ?? 0) <= 0) return false
+        if (statusFilter === 'completed' && (conversation.completedCount ?? 0) <= 0) return false
+        if (statusFilter === 'cancelled' && (conversation.cancelledCount ?? 0) <= 0) return false
+      }
       return true
     })
 

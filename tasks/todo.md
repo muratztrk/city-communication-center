@@ -1,3 +1,13 @@
+## Round 1100 — punto reopen, WA Mesaj Onayı filtresi, etiket satırı
+
+- **#3327:** JobsPage vatandaş satırına `--citizen-contact`; mobil Telefon No `0.56rem` (önce class yoktu, 0.68 görünmedi).
+- **#3331/#3323/#3321:** Harita + pie Talep/VT No `0.86rem`; tarih `0.74` durur.
+- **#3328:** Dizin Talep Kanalı `0.76` / ikon `0.80`.
+- **#3330:** `/whatsapp` Yanıt bekliyor yanına Mesaj Onayı Bekleyen (`hasPendingMessageApproval`, otomatik Beklemede dahil).
+- **#3329:** Çağrı Talebi Talep Etiketi input + seçiniz + ekle aynı satır; Etiket ekle `0.78rem`.
+- **#3326:** Doing — Tim Mobil sayfa listesi yok.
+- Atlandı: #3324 #3325.
+
 ## Round 1099 — punto reopen: İlçe admin-surface, telefon secondary, No büyüt
 
 - **#3317:** İlçe liste `0.70rem` **unlayered** — `.admin-surface-menu` 0.95rem eziyordu.

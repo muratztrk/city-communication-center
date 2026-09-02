@@ -529,6 +529,8 @@ export interface CitizenConversationSummary {
   waitingReplyClearedAtUtc?: string | null;
   /** Son mesaj sistem otomatik giden ileti — FAB bildirim sayacından düşülür (#2562). */
   lastMessageIsAutomaticOutbound?: boolean;
+  /** Beklemede giden mesaj (personel + otomatik Tamamlandı/İptal) — WhatsApp Mesaj Onayı Bekleyen (#3330). */
+  hasPendingMessageApproval?: boolean;
 }
 
 // Kurum içi (personel-arası) mesajlaşma — card #1539.

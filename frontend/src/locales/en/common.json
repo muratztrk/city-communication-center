@@ -1076,6 +1076,7 @@
     "listFilter": {
       "all": "All",
       "unread": "Awaiting reply",
+      "pendingApproval": "Pending message approval",
       "replied": "Replied",
       "pending": "Pending",
       "assigned": "Assigned"

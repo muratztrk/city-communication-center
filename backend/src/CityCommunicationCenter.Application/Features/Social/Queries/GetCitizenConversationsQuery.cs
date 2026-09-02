@@ -125,6 +125,10 @@ public sealed class GetCitizenConversationsQueryHandler
                 row.Content))
             .Select(row => row.ConversationId)
             .ToHashSet();
+        // Personel yanıtı + Tamamlandı/İptal otomatik şablon — FAB'a girmez, /whatsapp filtresine girer (#3330).
+        var pendingApprovalConversationIds = pendingOutboundRows
+            .Select(row => row.ConversationId)
+            .ToHashSet();
 
         var socialMessages = await _dbContext.SocialMessages
             .AsNoTracking()
@@ -390,7 +394,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     lastStaffSenderDisplayName,
                     ticket?.Channel.ToString(),
                     c.WaitingReplyClearedAtUtc,
-                    lastMessageIsAutomaticOutbound);
+                    lastMessageIsAutomaticOutbound,
+                    pendingApprovalConversationIds.Contains(c.CitizenConversationId));
 
                 return (HasWhatsAppChannel: hasWhatsAppChannel, Dto: dto);
             })

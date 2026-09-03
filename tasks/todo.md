@@ -1,3 +1,10 @@
+## Round 1119 — Trello Doing 3 kart (#3375/#3363/#3374)
+
+- **#3375:** Birime Gelen oluşturan `0.80rem`.
+- **#3363 retry:** WA gri başlık phone-only dikey hizası.
+- **#3374:** Birimler/Kullanıcılar default pageSize 10.
+- Push: `1006c075`.
+
 ## Round 1109 — Mesaj Onayı outbound, WA footer, Dosya ekle, Birime Gelen lisans
 
 - **#3356:** Mesaj Onayı detay popup'ta `Vatandaşa Giden Mesaj` yalnız iletim sonrası (`outboundPlain`).

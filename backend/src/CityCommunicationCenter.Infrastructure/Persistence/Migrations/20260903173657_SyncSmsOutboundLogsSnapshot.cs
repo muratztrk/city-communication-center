@@ -1,14 +1,10 @@
-using CityCommunicationCenter.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations;
 
-[DbContext(typeof(CityCommunicationCenterDbContext))]
-[Migration("20260903190000_AddSmsOutboundLogs")]
-public partial class AddSmsOutboundLogs : Migration
+public partial class SyncSmsOutboundLogsSnapshot : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -48,14 +44,14 @@ public partial class AddSmsOutboundLogs : Migration
             columns: new[] { "tenantid", "createdatutc" });
 
         migrationBuilder.CreateIndex(
-            name: "IX_smsoutboundlogs_tenantid_kind_createdatutc",
-            table: "smsoutboundlogs",
-            columns: new[] { "tenantid", "kind", "createdatutc" });
-
-        migrationBuilder.CreateIndex(
             name: "IX_smsoutboundlogs_tenantid_jobid",
             table: "smsoutboundlogs",
             columns: new[] { "tenantid", "jobid" });
+
+        migrationBuilder.CreateIndex(
+            name: "IX_smsoutboundlogs_tenantid_kind_createdatutc",
+            table: "smsoutboundlogs",
+            columns: new[] { "tenantid", "kind", "createdatutc" });
     }
 
     /// <inheritdoc />

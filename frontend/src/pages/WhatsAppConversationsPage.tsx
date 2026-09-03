@@ -1184,7 +1184,7 @@ function ConversationDetail({
             ) : null}
           </div>
           {headerSubtitleParts.length > 0 ? (
-            <p className="truncate text-xs text-slate-500">{headerSubtitleParts.join(' · ')}</p>
+            <p className="mt-1 truncate text-xs text-slate-500">{headerSubtitleParts.join(' · ')}</p>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">

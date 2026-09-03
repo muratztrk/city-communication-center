@@ -1380,7 +1380,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `BinaBilgiControl.aspx` proxy’sinden gelir (`GET /api/v1/izmir-cbs/*`); ilk çekimde
   `izmircbscatalogcache` tablosuna yazılır, sonraki seçimler DB’den gelir (#2681). Mahalle seçilmeden
   cadde, cadde seçilmeden kapı no enable olmaz. Ayarlar’da 2×2: İlçe|Mahalle / Cadde|No
-  (#2654 geri al + alt satır). Seçimler `ccc_municipality_cbs_address` localStorage’da kalır.
+  (#2654 geri al + alt satır). Kurum Konumu tüm CBS dropdown menüleri (İlçe dahil)
+  `settings-municipality-location-menu` — satır `0.68rem`, `min-height 1.45rem`, sıkı padding (#3317).
   Talep oluştur (iç/dış/vatandaş), vatandaş modal, rutin ve WA taslak adresinde Cadde/No
   textbox yok; CBS dropdown (`CbsStreetNoDropdowns`, #2655). Talep formunda mahalle satırı
   Öncelik/Son Tarih satırı kadar genişler; Cadde dar, No `8.25rem` sabit (cadde seçilince

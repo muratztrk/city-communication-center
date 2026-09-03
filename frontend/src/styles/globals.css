@@ -2482,35 +2482,37 @@
     padding: 0.35rem 0.65rem;
   }
 
-  /* Ayarlar → Kurum Konumu CBS dropdown menü satırları (#2835 reopen). */
+  /* Ayarlar → Kurum Konumu CBS dropdown menü satırları (#2835 reopen / #3317 İlçe). */
   .settings-municipality-location-menu-scroll .dropdown-menu-item,
-  .settings-municipality-location-menu .dropdown-menu-item {
-    min-height: 1.65rem;
-    padding: 0.2rem 0.55rem;
-    font-size: 0.70rem !important;
-    line-height: 1.1;
+  .settings-municipality-location-menu .dropdown-menu-scroll .dropdown-menu-item {
+    min-height: 1.45rem;
+    padding: 0.12rem 0.5rem;
+    font-size: 0.68rem !important;
+    line-height: 1.05;
+    gap: 0.35rem;
   }
 
-  .settings-municipality-location-menu-scroll > .dropdown-menu-item,
-  .settings-municipality-location-menu > .dropdown-menu-item {
-    border-top-width: 0;
-  }
-
-  .settings-municipality-location-menu-scroll > .dropdown-menu-item + .dropdown-menu-item,
-  .settings-municipality-location-menu > .dropdown-menu-item + .dropdown-menu-item {
+  .settings-municipality-location-menu-scroll > .dropdown-menu-item + .dropdown-menu-item {
     border-top-width: 1px;
     border-color: rgb(241 245 249);
   }
 
   .settings-municipality-location-menu-scroll .dropdown-menu-item span,
-  .settings-municipality-location-menu .dropdown-menu-item span {
-    font-size: 0.70rem !important;
-    line-height: 1.1;
+  .settings-municipality-location-menu .dropdown-menu-scroll .dropdown-menu-item span {
+    font-size: 0.68rem !important;
+    line-height: 1.05;
   }
 
   .dropdown-menu-panel.settings-municipality-location-menu input {
-    font-size: 0.7rem !important;
-    line-height: 1.25 !important;
+    font-size: 0.68rem !important;
+    line-height: 1.2 !important;
+    padding-top: 0.15rem;
+    padding-bottom: 0.15rem;
+  }
+
+  .dropdown-menu-panel.settings-municipality-location-menu > div.border-b {
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
   }
 
   /* Ayarlar Kurum Konumu Mahalle/Cadde/No trigger placeholder (#2835 reopen). */
@@ -7356,18 +7358,16 @@
   line-height: 1.25 !important;
 }
 
-/* İlçe açık liste: admin-surface-menu 0.95rem eziyordu (#3317). */
-.admin-surface-menu.settings-municipality-location-menu .dropdown-menu-item,
+/* İlçe açık liste: admin-surface-menu 0.95rem eziyordu (#3317); İlçe dropdown menuClassName bağlandı. */
 .admin-surface-menu.settings-municipality-location-menu .dropdown-menu-scroll .dropdown-menu-item,
 .settings-municipality-location-menu-scroll .dropdown-menu-item,
-.settings-municipality-location-menu .dropdown-menu-item,
-.admin-surface-menu.settings-municipality-location-menu .dropdown-menu-item span,
-.settings-municipality-location-menu-scroll .dropdown-menu-item span,
-.settings-municipality-location-menu .dropdown-menu-item span {
-  min-height: 1.65rem !important;
-  padding: 0.2rem 0.55rem !important;
-  font-size: 0.70rem !important;
-  line-height: 1.15 !important;
+.admin-surface-menu.settings-municipality-location-menu .dropdown-menu-scroll .dropdown-menu-item span,
+.settings-municipality-location-menu-scroll .dropdown-menu-item span {
+  min-height: 1.45rem !important;
+  padding: 0.12rem 0.5rem !important;
+  font-size: 0.68rem !important;
+  line-height: 1.05 !important;
+  gap: 0.35rem !important;
 }
 
 /* Mobil Talep Bilgileri: Vatandaş Adı / Telefon No — task-location grid deseni + yalnız

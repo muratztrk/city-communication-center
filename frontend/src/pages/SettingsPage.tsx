@@ -2085,6 +2085,9 @@ export function SettingsPage() {
                   placeholder={t('settings.municipalityLocation.districtPlaceholder', 'İlçe seçiniz')}
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
+                  triggerClassName="settings-municipality-location-trigger"
+                  menuScrollClassName="settings-municipality-location-menu-scroll"
+                  menuClassName="settings-municipality-location-menu"
                 />
               </label>
               <label className="grid min-w-0 gap-2 text-sm font-semibold text-slate-700">

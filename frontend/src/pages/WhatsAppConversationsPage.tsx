@@ -1141,7 +1141,7 @@ function ConversationDetail({
         </div>
         <div className={`min-w-0 flex-1 ${headerTitleIsPhoneOnly ? 'pt-0.5' : ''}`}>
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
-            <p className={`truncate font-semibold leading-tight ${headerTitleIsPhoneOnly ? 'text-xs text-slate-600' : 'text-[15px] text-slate-900'}`}>{headerTitle}</p>
+            <p className={`truncate leading-tight ${headerTitleIsPhoneOnly ? 'text-xs font-bold text-slate-600' : 'text-[15px] font-semibold text-slate-900'}`}>{headerTitle}</p>
             {showUrgentBadge ? (
               <span className="shrink-0 rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-950">
                 ACİL

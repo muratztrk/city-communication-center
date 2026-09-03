@@ -2194,7 +2194,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   önceki label yüklenmez). Grid sayfa/page-size değişince kolon filtreleri sıfırlanır.
 - **WA chat footer (#r463/#r465 / #3366):** Şablon + Şablon ekle + Dosya ekle tek satır; Birim/Kurum İçi İlet yok.
 - **Kurum İçi İlet buton metni (#2380 / #3366):** WA konuşma composer'ında artık gösterilmez; metin anahtarı `whatsapp.sendInternalMessage` korunur (Kurum İçi Mesajlar FAB).
-- **WA footer düzeni (#2381 / #3359 / #3365):** Mesaj yazın textarea `min-h-[4.25rem]` / `rows={3}`. Gri başlık telefon alt satırı `text-[10px]`; yalnız numara başlıkta `text-xs` (#3363 retry).
+- **WA footer düzeni (#2381 / #3359 / #3365):** Mesaj yazın textarea `min-h-[4.25rem]` / `rows={3}`. Gri başlık telefon alt satırı `text-[10px]`; yalnız numara başlıkta `text-xs font-bold` (#3363 retry).
 - **Dashboard metrik kutuları (#3367/#3368):** Müdür ≤4 kart `max-w-4xl lg:grid-cols-4` ortalı; standart kullanıcı 4'lü satır `min-w-[7.75rem]` yarı genişlik.
 - **Users/Birimler grid yüksekliği (#3369 / #3374):** oluşturma sonrası `loadData({ silent: true })`; ilk yükleme dışında tam sayfa spinner yok; `admin-surface-page` form `max-height` scroll; grid iç scroll yok — sayfa boyutu kadar satır görünür.
 - **Açık Adres zorunluluk etiketi (#r463):** mahalle sonrası `(max 100 karakter)` sonra kırmızı `*`.

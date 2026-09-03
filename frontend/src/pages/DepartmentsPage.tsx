@@ -57,7 +57,7 @@ export function DepartmentsPage() {
   const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
   const [deleteAllLdapLoading, setDeleteAllLdapLoading] = useState(false)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
-  const [deptPageSize, setDeptPageSize] = useState(25)
+  const [deptPageSize, setDeptPageSize] = useState(10)
   const [deptPage, setDeptPage] = useState(1)
 
   const departmentsQuery = useQuery({

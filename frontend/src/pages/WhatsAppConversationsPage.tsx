@@ -1135,11 +1135,11 @@ function ConversationDetail({
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[color:var(--color-foreground)]">
-      <header className="flex shrink-0 items-start gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3">
+      <header className={`flex shrink-0 gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3 ${headerTitleIsPhoneOnly ? 'items-center' : 'items-start'}`}>
         <div className="flex size-11 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-800">
           {headerInitials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
         </div>
-        <div className="min-w-0 flex-1">
+        <div className={`min-w-0 flex-1 ${headerTitleIsPhoneOnly ? 'pt-0.5' : ''}`}>
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
             <p className={`truncate font-semibold leading-tight ${headerTitleIsPhoneOnly ? 'text-xs text-slate-600' : 'text-[15px] text-slate-900'}`}>{headerTitle}</p>
             {showUrgentBadge ? (

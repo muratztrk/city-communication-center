@@ -978,7 +978,7 @@ export function UsersPage() {
       })
     })
   }, [sortedUsers, userMatchesFilters, userSearchText, departments, t])
-  const [usersPageSize, setUsersPageSize] = useState(25)
+  const [usersPageSize, setUsersPageSize] = useState(10)
   const [usersPage, setUsersPage] = useState(1)
   const usersTotalCount = columnFilteredUsers.length
   const usersTotalPages = Math.max(1, Math.ceil(usersTotalCount / usersPageSize) || 1)

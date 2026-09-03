@@ -2841,7 +2841,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             />
                           </>
                         ),
-                        value: <StackedFieldValue top={detail.citizenName} bottom={formatCitizenPhoneDisplay(detail.citizenPhone)} />,
+                        value: (
+                          <StackedFieldValue
+                            top={detail.citizenName}
+                            bottom={formatCitizenPhoneDisplay(detail.citizenPhone)}
+                            secondaryClassName="citizen-contact-phone-value"
+                          />
+                        ),
                         rowClass: 'job-detail-field-row--citizen-contact',
                       },
                       ...(hasCitizenAddress(detail) ? [{

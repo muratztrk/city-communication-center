@@ -5,14 +5,23 @@ import { EmptyCell } from '../../ui/EmptyCell'
 // Değerlerden biri eksikse eski `.filter(Boolean).join(' / ') || '—'` davranışı gibi tek satıra
 // düşer — ikisi de eksikken çift "—" göstermez (codex review).
 // Masaüstünde sağa yaslı; mobilde sol (card #1743 — değerler etiket yanına değil altına).
-export function StackedFieldValue({ top, bottom }: { top: string | null | undefined; bottom: string | null | undefined }) {
+export function StackedFieldValue({
+  top,
+  bottom,
+  secondaryClassName,
+}: {
+  top: string | null | undefined
+  bottom: string | null | undefined
+  /** Mobil Talep Bilgileri telefon değeri hedeflemesi (#3327). */
+  secondaryClassName?: string
+}) {
   if (!top && !bottom) return <EmptyCell />
   if (!top) return <EmptyCell value={bottom} />
   if (!bottom) return <EmptyCell value={top} />
   return (
     <div className="stacked-field-value">
       <span>{top}</span>
-      <span className="stacked-field-value__secondary">{bottom}</span>
+      <span className={`stacked-field-value__secondary${secondaryClassName ? ` ${secondaryClassName}` : ''}`}>{bottom}</span>
     </div>
   )
 }

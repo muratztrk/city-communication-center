@@ -7354,14 +7354,48 @@
   line-height: 1.15 !important;
 }
 
-/* Mobil: yalnız Telefon No değeri; etiket ve diğer değerler durur (#3327).
-   Birime Gelen JobsPage satırında --citizen-contact yoktu; class + unlayered şart. */
+/* Mobil Talep Bilgileri: Vatandaş Adı / Telefon No — task-location grid deseni + yalnız
+   telefon değeri hafif küçük (#3327 retry; önceki 0.56rem seçici eşleşmedi). */
 @media (max-width: 1023px) {
+  .job-detail-field-row--citizen-contact {
+    display: grid !important;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: baseline !important;
+    column-gap: 1rem !important;
+    row-gap: 0.28rem !important;
+  }
+
+  .job-detail-field-row--citizen-contact > .job-detail-field-row__label,
+  .job-detail-field-row--citizen-contact > .job-detail-field-row__value,
+  .job-detail-field-row--citizen-contact .stacked-field-label,
+  .job-detail-field-row--citizen-contact .stacked-field-value {
+    display: contents !important;
+  }
+
+  .job-detail-field-row--citizen-contact .stacked-field-label > span:first-child {
+    grid-area: 1 / 1;
+  }
+
+  .job-detail-field-row--citizen-contact .stacked-field-label > span:last-child {
+    grid-area: 2 / 1;
+    padding-top: 0 !important;
+  }
+
+  .job-detail-field-row--citizen-contact .stacked-field-value > span:first-child {
+    grid-area: 1 / 2;
+    text-align: right;
+  }
+
   .job-detail-field-row--citizen-contact .stacked-field-value__secondary,
-  .detail-modal-shell .job-detail-field-row--citizen-contact .stacked-field-value__secondary,
-  .detail-modal-shell--my-request .job-detail-field-row--citizen-contact .stacked-field-value__secondary {
-    font-size: 0.56rem !important;
+  .job-detail-field-row--citizen-contact .citizen-contact-phone-value,
+  .detail-modal-shell .job-detail-field-row--citizen-contact .citizen-contact-phone-value,
+  .detail-modal-shell--my-request .job-detail-field-row--citizen-contact .citizen-contact-phone-value {
+    grid-area: 2 / 2;
+    text-align: right;
+    font-size: 0.70rem !important;
     line-height: 1.2 !important;
+    font-weight: 600 !important;
+    color: rgb(100 116 139) !important;
   }
 }
 
@@ -8535,12 +8569,6 @@
     /* Talebi yönlendiren kullanıcı (oluşturan) — mobil biraz küçük (#3242). */
     .job-detail-field-row--location-creator .stacked-field-value__secondary {
       font-size: 0.66rem;
-    }
-
-    /* Telefon No değeri — JobsPage + İlgili Talep; etiket durur (#3327). */
-    .job-detail-field-row--citizen-contact .stacked-field-value__secondary {
-      font-size: 0.56rem !important;
-      line-height: 1.2 !important;
     }
 
     .create-request-kind-card h2,

@@ -423,8 +423,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi tek satır kalır; atanmış kullanıcı yoksa yalnız birim adı (` / -` yok, #r481);   `Adres Bilgileri`
   içinde Mahalle, `Cadde / Sokak`, `No` ve `Adres Tarifi` durur; adres etiketleri
   kendi içinde satır kırmaz (etiket tek satır). Yanında yalnız Talep Ekleri varken (`--attachments-only`)
-  Mahalle / Cadde / Sokak / No / Adres Tarifi **aynı satırda kolon içi ortalı**, başlıklar
-  çok az sola kayar (`translateX(-0.45rem)`, #2576 reopen). Yanında 1'den fazla kutu
+  Mahalle / Cadde / Sokak / No / Adres Tarifi / Konum Linki **eşit 3 kolon** ızgarada sola yaslı
+  (`repeat(3, 1fr)`, transform/padding hack yok, #3327 reopen). Yanında 1'den fazla kutu
   (`--three-cards`) iken dört adres başlığı **ve** `-` `translateX(0.45rem)` sağa (aynı
   düşey eksen); **No** başlık+değer `2.4rem` (`.address-detail-my-request__item--street-no`); boş Adres Tarifi
   Mahalle ile aynı `0.7rem` sol kenar (#2576).
@@ -2158,7 +2158,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Başlık altı değerler **sola hizalı**, ortalı değil (#3311). Yalnız peek; detay kartı dokunulmaz.
   Mobilde 2 kolon durur, başlık aralıkları popup’ı kaplayıp ortalanır (`space-evenly`, #3300).
   X Talebi Yönlendir ile aynı.
-  Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın (`2.4rem` üç kutu, `2rem` iki kutu, #2759/#2728).
+  Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın yalnız **üç kutu** düzeninde (`2.4rem`, #2759/#2728); **iki kutu** (`--attachments-only`) eşit 3 kolon sola yaslı, transform yok (#3327 reopen).
   Görevlerim İlgili Talep Adres Bilgileri 3+2; Mahalle/Cadde/No üstünde boşluk (#2568); Adres Tarifi başlığı Mahalle ile aynı sol düşey hizada (#2778); satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri Cadde menüsü tetikleyiciden sağa (No tarafına) daha geniş (`+96px`), No tetikleyici genişliğinde, aşağı açılır (#2640). WA Talebi Oluştur Açıklama toolbar K/A + liste ikonları yalnız o popup’ta hafif büyük (`!important`, #2757 reopen). Giden WA birim·ad yeşil balonda `text-white/90`. WA Talebi Oluştur Mahalle/Cadde/No/Birim arama kutusu 0.7rem (#2760).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
   **Vatandaş Adres Bilgisi** + sağda **Adresi Gör** (küçük portal popup, #2751).
@@ -2440,9 +2440,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   anında senkron.
 - **Boş Adres Bilgileri (#6a6dab1b/#2185):** yan yana üç kolon boşken sola yaslı (ortalı değil);
   Mahalle + Açık Adres `padding-inline-start: 0.7rem` ile biraz sağa; Cadde `translateX(-0.45rem)`
-  ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) dört başlık
-  kolon içinde ortalıdır; boş-adres padding/translate hilesi yok (#2576 reopen, #2185 geri).
-  Yanında 2 kutucuk daha (`--three-cards`) iken dört adres başlığı **ve** `-` değeri
+  ile çok az sola. Yan kutuda yalnız Talep Ekleri iken (`--attachments-only`) beş alan eşit 3 kolon
+  sola yaslı; boş-adres padding/translate/ortalama hilesi yok (#3327 reopen). Yanında 2 kutucuk daha (`--three-cards`) iken dört adres başlığı **ve** `-` değeri
   `translateX(0.45rem)` sağa (aynı düşey eksen); **No** başlık+değer `2.4rem` (#2576).
   boş Adres Tarifi Mahalle ile aynı `0.7rem` sol kenar (#2576).
   boş Açık Adres `0.6rem` (#2187).
@@ -2780,7 +2779,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birime Gelen Adres No (#3217/#3218):** yalnız `my-request-detail-bottom--incoming`.
   #3217 masaüstü boş `-` sola hizası **geri alındı**. Mobilde No `padding-inline-start: 1.65rem`
   + `margin-inline-start: 0.35rem` — Cadde/Sokak'a yapışmaz (#3218). Taleplerim `--attachments-only`
-  değişmez.
+  masaüstünde eşit 3 kolon sola yaslı (#3327 reopen).
 - **Yazışmaya Git terminal gizleme (#3236):** talep `Completed` / `Cancelled` ise buton yalnız
   `SystemAdmin` ve `Operator` (ek rol dahil) için görünür; diğer roller görmez.
 - **Vatandaş cevap şablonu taslak (#3221/#3220/#3222):** Kaydetmeden sekme/sayfa değişince
@@ -2797,11 +2796,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Harita cluster (#3235):** SuperCluster `maxZoom` / ilk tıklama tavanı `14`; 2. tıklama zoom `17`.
 - **Boş adres `-` her görünümde başlığın SOL kenarında (#3143):** `-` ortalanmaz (önceki tur
   ortalamıştı). Kural `:has(.address-empty-dash)` ile mobil + masaüstünde birlikte uygulanır.
-  Ortalı kolonlarda (`--task` 2./3. kolon, `--coordinates`, `--attachments-only`) `-`'nin başlığın
+  Ortalı kolonlarda (`--task` 2./3. kolon, `--coordinates`) `-`'nin başlığın
   soluna yaslanabilmesi için kutu `width: fit-content` + `justify-self: center` yapılır: grup kolon
   içinde ortalı kalır, değer başlık genişliği içinde sola yaslanır. Zaten sola yaslı kutular
-  (`--task` 1. kolon / `Adres Tarifi` #2778, `--empty` üç kolon #6a6dab1b) ve `--peek` (#2755) ile
-  `--attachments-only` `No` (#2759 sağa yaslı) **daraltılmaz** — konumları kayardı.
+  (`--task` 1. kolon / `Adres Tarifi` #2778, `--empty` üç kolon #6a6dab1b, `--attachments-only` #3327) ile
+  `--peek` (#2755) ve `--three-cards` `No` (#2759 sağa yaslı) **daraltılmaz** — konumları kayardı.
 - **Boş Adres Bilgileri tire (#r547/#6a6ba6ad):** `-` değeri üst etiketin genişliğinde ortalanır;
   üç boş kolon da Adres Bilgileri alt çizgisi altında ortalı
   (`width: fit-content` item + `text-align: center` value).

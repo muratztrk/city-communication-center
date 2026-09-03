@@ -887,15 +887,13 @@
   /* Yalnız halen ortalı olan kutular: `--task` 2./3. kolon (1. kolon ve Adres Tarifi #2778 ile
      sola yaslı, dokunulmaz) + Konum Linki + ek-only alt satır (No hariç, #2759 sağa yaslı). */
   .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(n + 2):nth-child(-n + 3):not(.address-detail-my-request__item--directions):has(.address-empty-dash),
-  .address-detail-my-request--task .address-detail-my-request__item--coordinates:has(.address-empty-dash),
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item:not(.address-detail-my-request__item--street-no):has(.address-empty-dash) {
+  .address-detail-my-request--task .address-detail-my-request__item--coordinates:has(.address-empty-dash) {
     width: fit-content !important;
     justify-self: center !important;
   }
 
   .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(n + 2):nth-child(-n + 3):not(.address-detail-my-request__item--directions):has(.address-empty-dash) > .address-detail-my-request__label,
-  .address-detail-my-request--task .address-detail-my-request__item--coordinates:has(.address-empty-dash) > .address-detail-my-request__label,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item:not(.address-detail-my-request__item--street-no):has(.address-empty-dash) > .address-detail-my-request__label {
+  .address-detail-my-request--task .address-detail-my-request__item--coordinates:has(.address-empty-dash) > .address-detail-my-request__label {
     width: 100% !important;
     margin-inline: 0 !important;
     text-align: left !important;
@@ -4949,11 +4947,18 @@
     grid-column: 1 / -1 !important;
   }
 
-  /* Adres Bilgileri: satır 1 Mahalle/Cadde/No; satır 2 Adres Tarifi Mahalle, Konum Cadde altında (#2756). */
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three {
+  /* Adres + Talep Ekleri (2 kutu): satır 1 Mahalle/Cadde/No; satır 2 Adres Tarifi/Konum.
+     Eşit 3 kolon — transform/padding hack yok (#2756 / #3327 reopen). */
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
+    display: grid !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    justify-items: start;
-    align-items: start;
+    gap: 0.65rem 1.25rem !important;
+    justify-items: stretch !important;
+    align-items: start !important;
+    justify-content: stretch !important;
+    margin-inline: 0 !important;
+    width: 100% !important;
   }
 
   .my-request-detail-bottom--attachments-only .address-detail-my-request__item--directions,
@@ -4961,26 +4966,44 @@
     grid-column: auto !important;
   }
 
-  /* #3319: Adres Tarifi = Mahalle, Konum Linki = Cadde — aynı kolon sol düşeyi. */
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item,
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
-    display: flex;
-    flex-direction: column;
+    display: flex !important;
+    flex-direction: column !important;
     align-items: flex-start !important;
     text-align: left !important;
-    justify-self: stretch;
-    width: 100%;
-    max-width: 100%;
+    justify-self: stretch !important;
+    width: 100% !important;
+    max-width: none !important;
     padding-inline-start: 0 !important;
     transform: none !important;
   }
 
   .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value {
-    width: fit-content !important;
-    max-width: 100%;
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__label,
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__value {
+    width: 100% !important;
+    max-width: 100% !important;
     margin-inline: 0 !important;
     text-align: left !important;
+    transform: none !important;
+    align-items: flex-start !important;
+    padding-inline-start: 0 !important;
+  }
+
+  /* Boş `-` gösteriminde de kolon hizası bozulmasın (genel empty-dash ortalama kuralı geçersiz). */
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item:has(.address-empty-dash),
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(1),
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2),
+  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(3) {
+    width: 100% !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+    padding-inline-start: 0 !important;
     transform: none !important;
   }
 
@@ -4995,25 +5018,12 @@
     transform: translateX(0.45rem);
   }
 
-  /* No başlığı kartın sağına daha yakın (#2759 / #2576). */
+  /* No başlığı kartın sağına daha yakın (#2759 / #2576) — yalnız 3 kutu düzeni. */
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__label,
   .my-request-detail-bottom--three-cards .address-detail-my-request__item--street-no .address-detail-my-request__value {
     transform: translateX(2.4rem) !important;
     margin-inline: 0 !important;
     text-align: left !important;
-  }
-
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no {
-    transform: translateX(2rem) !important;
-    align-items: flex-end !important;
-    text-align: right !important;
-  }
-
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__label,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item--street-no .address-detail-my-request__value {
-    width: fit-content !important;
-    margin-inline: 0 !important;
-    text-align: right !important;
   }
 
   /* #3217 geri alındı: masaüstü Birime Gelen boş No hizası önceki haline döndü. */
@@ -5037,21 +5047,6 @@
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item--directions .address-detail-my-request__label,
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--empty) > .address-detail-my-request__item--directions .address-detail-my-request__value {
     padding-inline-start: 0;
-  }
-
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label {
-    width: fit-content;
-    max-width: 100%;
-    margin-inline: auto;
-    text-align: center !important;
-  }
-
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
-    width: 100%;
-    text-align: center !important;
-    margin-inline: 0;
   }
 
   .job-detail-field-row--full {

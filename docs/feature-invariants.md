@@ -281,8 +281,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yapışık); lightbox `document.body` portal + `z-[400]` ile detay modalının üstünde açılır (#2709/#2732).
   Detay popup'ta **Talep Bilgileri** altında Talep Ekleri satırı yalnız ek varsa görünür (#2734 reopen).
   **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle, üst değer satırının sağ kenarıyla aynı düşey hizadadır (değer kolonu `align-items: flex-end`; scrollbar-gutter ek kümesini içeri kaydırmaz) (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
-  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar görünmez; dosya seçildikten veya yükleme
-  başladığında görünür, XHR `report` ile gerçek yükleme oranına göre ilerler; %100 sonrası kapanır (#2821).
+  biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar görünmez; seçim ve yükleme
+  sırasında da gösterilmez (#3357).
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).
@@ -520,7 +520,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekliyor` sağında; `hasPendingMessageApproval`
   = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). Rozet konuşma/numara
   sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2` / `-right-1.5`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
-  (#3348 yükseklik; #3330 nowrap). Üç chip arası `gap-1.5` (#3354). `overflow-x-auto` yok — gizli scroll üçüncü chip’i kesiyordu; dar punto
+  (#3348 yükseklik; #3330 nowrap). Üç chip arası `gap-2` (#3354 reopen). `overflow-x-auto` yok — gizli scroll üçüncü chip’i kesiyordu; dar punto
   üçünü yan panele sığdırır. Rozet için `pt-1.5 pr-1` + `overflow-visible`. `max-w` ile satır kırma yok. FAB `hasPendingOutboundMessage`
   hâlâ yalnız personel Beklemede (otomatik hariç). Bu chip açıkken üst durum sayaç filtresi uygulanmaz
   ki İptal bekleyenler de görünsün (#3330).
@@ -1219,7 +1219,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`scope-chip--overdue`) — cards #1693/#1695. Birime Gelen'de Onaylanmış → Yapılmakta →
   Geciken sırası; Onaylanmış grid `approvedAtUtc` desc (cards #1694/#1695).
   Tümü chip’inden sonra `|` + Birim İçi / Birim Dışı / Birim İçi/Birim Dışı (varsayılan sonuncusu,
-  Taleplerim `filters.requestFlow` chip’leri, #3111).
+  Taleplerim `filters.requestFlow` chip’leri, #3111) — yalnız `isModuleUsable('internal')` iken (#3355).
   Birime Gelen breadcrumb `?status=` ile sekme adını takip eder (card #1696).
   Standart kullanıcı Taleplerim `Onaylanmış/Yapılmakta Taleplerim` chip'i mavidir
   (`scope-chip--in-progress`, card #1698) — sarı `approved` chip'i yönetici Onaylanmış'ta kalır.
@@ -1908,7 +1908,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mesaj** Tamamlama Notu'nun **alt satırında**. `GetJobById` bu iki alanı rol kapısı olmadan
   doldurur (Operator/Reporter dışında Manager/CRM de görsün). `MyRequestDetailModal` prop
   verilmezse `detail.citizenOutboundMessage` / `citizenApprovalReleasedNote` okunur (kanal pie,
-  harita).   Outbound her zaman gösterilir; otomatik durum şablonu (`talebinizin durumu`) veya
+  harita). **Vatandaşa Giden Mesaj** yalnız mesaj iletildikten sonra (`citizenOutboundMessage`
+  dolu; release öncesi Tamamlama/iptal notu fallback ile gösterilmez — #3356). Otomatik durum şablonu (`talebinizin durumu`) veya
   Tamamlama ile aynıysa yeşil, operatörün özelleştirdiği farklı metin kırmızı (#2557/#3084).
   `Yapılan İş:` / `İptal Nedeni:` / `İptal Notu:` şablon etiketleri bu alandan düşer — yalnız
   not kalır; vatandaş talebinde başlık durur, değer tamamlama/iptal notu (#3270). Birim içi /
@@ -2341,7 +2342,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   balon aksiyonu `onAddMediaAsAttachment` talep eklerine kalır.
 - **Kurum İçi İlet buton metni (#2380):** `Sadece Kurum İçi İlet` (`whatsapp.sendInternalMessage`).
 - **WA footer düzeni (#2381 / reopen):** `/whatsapp` sayfasında Birim + Sadece Kurum İçi İlet alt satır sol;
-  Vatandaş Talebi modal (`compactActions`) tek satır, Birim/Kurum İçi sağda (`ml-auto`).
+  Vatandaş Talebi modal (`compactActions`) tek satır, Birim/Kurum İçi sağda (`ml-auto`). Birim seçici +
+  Kurum İçi İlet `h-[2.125rem]` (Dosya ekle ile hizalı); Mesaj yazın textarea `min-h-[3.5rem]` (#3359).
 - **WA modal ek önizleme (#2385):** kompakt dosya balonu; PDF/mime alt satırı yok (yalnız dosya adı + görsel önizleme).
 - **Kurum içi dosya uzantısı (#2386):** `internalMessageFileExtension` yalnız `.ext` döner (`lowercaseFileExtension` değil).
 - **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.

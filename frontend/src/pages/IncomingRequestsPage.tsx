@@ -66,6 +66,7 @@ import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '
 import { isIncomingPendingApprovalOverdue, matchesIncomingStatusFilter } from '../utils/incomingRequestGrid'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { isJobDueDateOverdue, toDateTimePickerValue, toLocalDateKey } from '../utils/dateTimePicker'
+import { isModuleUsable } from '../lib/licenseModules'
 
 function resolveIncomingSourceChannel(
   job: { sourceType?: string | null; requestType?: string | null },
@@ -483,7 +484,8 @@ export function IncomingRequestsPage() {
       currentStatusFilterMeta?.labelKey ?? 'jobs.scopes.pendingApprovalRequests',
       currentStatusFilterMeta?.fallback ?? 'Onay Bekleyen Talepler',
     )
-  const currentKindFilter = getIncomingKindFilter(searchParams.get('kind'))
+  const showKindFilters = isModuleUsable('internal')
+  const currentKindFilter = showKindFilters ? getIncomingKindFilter(searchParams.get('kind')) : 'all'
   // Onaylanan grid'de Görevi Yapan/Sahibi sütunu yok (#6a6ca0bc).
   const showIncomingStatusColumn = currentStatusFilter === 'all' || currentStatusFilter === 'approved' || currentStatusFilter === 'overdue'
   const showTaskOwnerColumn = ['in-progress', 'completed'].includes(currentStatusFilter)
@@ -963,7 +965,7 @@ export function IncomingRequestsPage() {
             {t(filter.labelKey, filter.fallback)}
           </ScopeChipButton>
         ))}
-        {KIND_FILTERS.length > 1 ? (
+        {showKindFilters ? (
           <>
             <span className="scope-chip-divider" aria-hidden="true">|</span>
             {KIND_FILTERS.map(filter => (

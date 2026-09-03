@@ -298,12 +298,12 @@ export function MyRequestTaskDetailsSection({
                           }]
                         : []),
                     ...(isCitizenRequestJob(detail)
-                      && outboundValue
+                      && outboundPlain
                       && (isCompletedTask || isCancelledTask)
                       && task.taskId === primaryTerminalTaskId
                       ? [{
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          value: outboundValue,
+                          value: outboundPlain,
                           tone: outboundTone,
                           fullRow: true as const,
                         }]

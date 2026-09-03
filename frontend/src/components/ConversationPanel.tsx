@@ -6,7 +6,6 @@ import { api } from '../api/client'
 import { invalidateSocialMessages } from '../api/cacheInvalidation'
 import { queryKeys } from '../api/queryKeys'
 import { Button } from './ui/button'
-import { AttachmentUploadProgressBar } from './ui/attachment-upload-progress'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { ConversationEntryBubble } from './ConversationEntryBubble'
 import type { ConversationEntryBubbleData } from './ConversationEntryBubble'
@@ -22,7 +21,6 @@ import {
   isAllowedAttachmentFileName,
 } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
-import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { formatDisplayPhone, matchesPhone } from '../utils/phoneNormalization'
 import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
@@ -97,7 +95,6 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const [pendingFileEditing, setPendingFileEditing] = useState(false)
   const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
-  const fileProgress = useLocalFileSelectProgress()
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pendingFileClock = useMemo(
@@ -188,7 +185,6 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     setFileError(null)
     setPendingFile(file)
     setPendingFileEditing(false)
-    fileProgress.holdAtZero()
   }
 
   const handleSend = async () => {
@@ -198,17 +194,14 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     setSending(true)
     try {
       if (pendingFile) {
-        fileProgress.report(0)
         await api.replySocialMessageAttachment(
           socialMessageId,
           pendingFile,
           text,
           sendImmediately,
-          percent => fileProgress.report(percent),
         )
         setPendingFile(null)
         setPendingFileEditing(false)
-        fileProgress.stop()
       } else {
         await api.replySocialMessage(
           socialMessageId,
@@ -491,7 +484,9 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               className="hidden"
               onChange={event => {
                 handleWhatsAppFileSelected(event.target.files?.[0])
-                event.target.value = ''
+                window.setTimeout(() => {
+                  if (event.target) event.target.value = ''
+                }, 0)
               }}
             />
           ) : null}
@@ -528,9 +523,6 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 <Paperclip className={`shrink-0 text-emerald-600 ${compactActions ? 'size-3' : 'size-3.5'}`} aria-hidden="true" />
                 {t('attachments.addFile', 'Dosya ekle')}
               </button>
-            ) : null}
-            {enableWhatsAppFileAttachment && fileProgress.visible ? (
-              <AttachmentUploadProgressBar progress={fileProgress.progress} />
             ) : null}
                 {internalDepartmentOptions ? (
                   <div className="ml-auto flex items-center gap-2">

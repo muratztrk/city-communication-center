@@ -35,7 +35,6 @@ import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIc
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
-import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
@@ -43,7 +42,6 @@ import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
 import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/attachmentAccept'
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
-import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
@@ -468,7 +466,7 @@ function ConversationListPanel({
         </div>
 
         <div className="overflow-visible pt-2.5 pr-1">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {filterOptions.map(option => (
               <button
                 key={option.value}
@@ -742,7 +740,6 @@ function ConversationDetail({
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [pendingFileEditing, setPendingFileEditing] = useState(false)
   const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
-  const fileProgress = useLocalFileSelectProgress()
   const pendingFileClock = useMemo(
     () => (pendingFile ? formatConversationMessageTime(new Date().toISOString(), locale, t) : ''),
     [pendingFile, locale, t],
@@ -972,15 +969,12 @@ function ConversationDetail({
     setSending(true)
     try {
       if (pendingFile) {
-        fileProgress.report(0)
         await api.replySocialMessageAttachment(
           replySocialMessageId,
           pendingFile,
           text,
           sendImmediately,
-          percent => fileProgress.report(percent),
         )
-        fileProgress.stop()
       } else {
         await api.replySocialMessage(
           replySocialMessageId,
@@ -1408,9 +1402,10 @@ function ConversationDetail({
                       }
                       setIsPinnedToBottom(true)
                       window.setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50)
-                      fileProgress.holdAtZero()
                     }
-                    if (event.target) event.target.value = ''
+                    window.setTimeout(() => {
+                      if (event.target) event.target.value = ''
+                    }, 0)
                   }}
                 />
                 <div className="whatsapp-template-row inline-flex items-center gap-1.5">
@@ -1443,9 +1438,6 @@ function ConversationDetail({
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
-                {fileProgress.visible ? (
-                  <AttachmentUploadProgressBar progress={fileProgress.progress} />
-                ) : null}
                     {internalDepartmentOptions.length > 0 ? (
                     <div className="ml-auto flex items-center gap-2">
                       <SingleSelectDropdown
@@ -1458,7 +1450,7 @@ function ConversationDetail({
                         openUp={internalDepartmentOptions.length >= 2}
                         clearable
                         className="whatsapp-dept-select w-[7.25rem] min-w-0 max-w-[7.25rem] shrink-0"
-                        triggerClassName="h-7 w-full rounded-full px-2 text-[11px] font-semibold"
+                        triggerClassName="h-[2.125rem] w-full rounded-full px-2 text-[11px] font-semibold"
                         menuWidth={184}
                         menuScrollClassName="whatsapp-department-menu-scroll"
                       />
@@ -1466,7 +1458,7 @@ function ConversationDetail({
                         type="button"
                         onClick={() => void handleSendInternal()}
                         disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                        className="inline-flex h-8 shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="inline-flex h-[2.125rem] shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {sendingInternal ? <Loader2 className="size-3 animate-spin" /> : <Send className="size-3" />}
                         {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
@@ -1495,7 +1487,7 @@ function ConversationDetail({
                   }}
                   placeholder={t('whatsapp.replyPlaceholder', 'Mesaj yazın...')}
                   disabled={!windowOpen && !hasSelectableTemplates}
-                  className="field-input min-h-[3.25rem] max-h-28 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
+                  className="field-input min-h-[3.5rem] max-h-28 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
                 />
                 <button
                   type="button"

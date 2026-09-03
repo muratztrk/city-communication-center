@@ -14,8 +14,6 @@ import {
 } from '../../hooks/useSignalR'
 import type { Attachment, InternalConversationDetail, InternalConversationSummary, InternalMessage, UserLookup } from '../../types/platform'
 import { SimpleImageAttachmentIcon } from '../ui/SimpleImageAttachmentIcon'
-import { AttachmentUploadProgressBar } from '../ui/attachment-upload-progress'
-import { useLocalFileSelectProgress } from '../../hooks/useLocalFileSelectProgress'
 import { SocialConversationMediaPreview } from '../SocialConversationMediaPreview'
 import { formatConversationDayDivider } from '../../utils/conversationDayLabel'
 import { formatConversationListTime, formatConversationMessageTime } from '../../utils/conversationListTime'
@@ -253,7 +251,6 @@ export function InternalMessagesFab() {
   const [draft, setDraft] = useState('')
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
-  const fileProgress = useLocalFileSelectProgress()
   const [pendingPreviewOpen, setPendingPreviewOpen] = useState(false)
   const [fileError, setFileError] = useState<string | null>(null)
   const [sending, setSending] = useState(false)
@@ -705,15 +702,10 @@ export function InternalMessagesFab() {
       const uploadFile = normalizedFileName === file.name
         ? file
         : new File([file], normalizedFileName, { type: file.type })
-      fileProgress.report(0)
       await api.uploadInternalMessageAttachment(
         result.message.internalMessageId,
         uploadFile,
-        percent => fileProgress.report(percent),
       )
-      fileProgress.report(100)
-      await new Promise(resolve => window.setTimeout(resolve, 280))
-      fileProgress.stop()
       setDraft('')
       setPendingFile(null)
       await loadChat(activeChat.otherUserId)
@@ -962,7 +954,6 @@ export function InternalMessagesFab() {
                       return
                     }
                     setPendingFile(file)
-                    fileProgress.holdAtZero()
                   }}
                 />
                 <button
@@ -974,9 +965,6 @@ export function InternalMessagesFab() {
                   <Paperclip className="size-3 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
-                {fileProgress.visible ? (
-                  <AttachmentUploadProgressBar progress={fileProgress.progress} />
-                ) : null}
                 {fileError ? <p className="text-xs font-semibold text-red-600">{fileError}</p> : null}
                 <div className="flex items-end gap-2">
                   <textarea

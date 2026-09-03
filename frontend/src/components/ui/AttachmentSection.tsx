@@ -1,6 +1,5 @@
 import { Download, FileText, Paperclip } from 'lucide-react'
 import { useRef, useState } from 'react'
-import { flushSync } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../api/client'
 import type { Attachment } from '../../types/platform'
@@ -18,9 +17,7 @@ import {
 } from '../../utils/attachmentLimits'
 import { ConfirmDialog } from './confirm-dialog'
 import { SimpleImageAttachmentIcon } from './SimpleImageAttachmentIcon'
-import { AttachmentUploadProgressBar } from './attachment-upload-progress'
 import { AttachmentImagePreviewButton } from './AttachmentImagePreviewButton'
-import { useLocalFileSelectProgress } from '../../hooks/useLocalFileSelectProgress'
 
 const MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
 
@@ -57,7 +54,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
-  const pickerProgress = useLocalFileSelectProgress()
 
   const validate = (file: File): string | null => {
     if (!isAllowedAttachmentFileName(file.name)) {
@@ -71,15 +67,12 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
 
   const handleFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return
-    pickerProgress.holdAtZero()
     setValidationError(null)
     const selectedFiles = Array.from(files)
     for (const file of selectedFiles) {
       const error = validate(file)
       if (error) {
         setValidationError(error)
-        pickerProgress.stop()
-        // Aynı dosya(lar) yeniden seçilebilsin; değer temizlenmezse change tetiklenmez.
         if (fileInputRef.current) fileInputRef.current.value = ''
         return
       }
@@ -88,34 +81,19 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     const incomingBytes = sumFileSizes(selectedFiles)
     if (exceedsAttachmentTotalLimit(existingBytes, incomingBytes)) {
       setValidationError(t('attachments.errorTotalSize', 'Dosyaların toplam boyutu 5 MB\'ı aşamaz.'))
-      pickerProgress.stop()
       if (fileInputRef.current) fileInputRef.current.value = ''
       return
     }
-    const totalBytes = selectedFiles.reduce((sum, file) => sum + file.size, 0) || 1
-    let uploadedBytes = 0
-    flushSync(() => {
-      setUploading(true)
-    })
-    pickerProgress.report(0)
+    setUploading(true)
     try {
       for (const file of selectedFiles) {
         try {
-          await onUpload?.(file, percent => {
-            const next = Math.min(100, Math.round(((uploadedBytes + (percent / 100) * file.size) / totalBytes) * 100))
-            pickerProgress.report(next)
-          })
+          await onUpload?.(file)
         } catch (err) {
           setValidationError(err instanceof Error ? err.message : String(err))
         }
-        uploadedBytes += file.size
-        const done = Math.min(100, Math.round((uploadedBytes / totalBytes) * 100))
-        pickerProgress.report(done)
       }
     } finally {
-      pickerProgress.report(100)
-      await new Promise(resolve => window.setTimeout(resolve, 320))
-      pickerProgress.stop()
       setUploading(false)
     }
     if (fileInputRef.current) fileInputRef.current.value = ''
@@ -198,12 +176,6 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
               onChange={e => void handleFiles(e.target.files)}
             />
           </div>
-          {uploading || pickerProgress.visible ? (
-            <AttachmentUploadProgressBar
-              progress={pickerProgress.progress}
-              className="attachment-upload-progress mt-2"
-            />
-          ) : null}
         </>
       )}
       {validationError && (

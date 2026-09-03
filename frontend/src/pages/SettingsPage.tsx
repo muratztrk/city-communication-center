@@ -4089,7 +4089,7 @@ export function SettingsPage() {
             <p className="helper-copy">{t('settings.support.empty', 'Henüz destek talebi yok.')}</p>
           ) : (
             <div className="table-wrap desktop-panel-scroll">
-              <table className="data-table">
+              <table className="data-table data-table--flat-header">
                 <thead>
                   <tr>
                     <th>{t('settings.support.date', 'Tarih')}</th>

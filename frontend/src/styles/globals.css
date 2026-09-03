@@ -2917,6 +2917,14 @@
     border-right: 0;
   }
 
+  /* Kaydırmasız/kısa tablolarda sticky th'lerin kendi ayrı gradient'i yerine
+     thead'in tek parça gradient'i görünsün (açıktan koyuya, kesintisiz). */
+  .data-table--flat-header thead th {
+    position: static;
+    background-color: transparent;
+    background-image: none;
+  }
+
   /* Dizin talep popup: DateCell ≈ DueDatePill (0.84rem/600, aynı ikon) (#6a6cbf0e).
      Başlık şeridi standart gridview gibi üstten kavisli ve aynı *görsel* yükseklikte olur:
      popup body'ye portal edildiği için shell zoom'unu almaz → `--app-content-zoom` (#6a6cbf79). */

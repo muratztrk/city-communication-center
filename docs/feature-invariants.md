@@ -2793,7 +2793,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   büyük olmaz (#3231). `Talebi Yönlendiren` oluşturan satırı (`.stacked-field-value__secondary`)
   mobil `0.66rem` (#3242). Mobil Telefon No değeri: satır `job-detail-field-row--citizen-contact`
   + değer span `citizen-contact-phone-value` (task-location grid + `display: contents`), yalnız
-  telefon `0.70rem`; etiketler durur (#3327 retry).
+  telefon `0.75rem`; etiketler durur (#3327 retry).
 - **Harita cluster (#3235):** SuperCluster `maxZoom` / ilk tıklama tavanı `14`; 2. tıklama zoom `17`.
 - **Boş adres `-` her görünümde başlığın SOL kenarında (#3143):** `-` ortalanmaz (önceki tur
   ortalamıştı). Kural `:has(.address-empty-dash)` ile mobil + masaüstünde birlikte uygulanır.

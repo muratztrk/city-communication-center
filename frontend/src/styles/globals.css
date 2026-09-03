@@ -7392,7 +7392,7 @@
   .detail-modal-shell--my-request .job-detail-field-row--citizen-contact .citizen-contact-phone-value {
     grid-area: 2 / 2;
     text-align: right;
-    font-size: 0.70rem !important;
+    font-size: 0.75rem !important;
     line-height: 1.2 !important;
     font-weight: 600 !important;
     color: rgb(100 116 139) !important;

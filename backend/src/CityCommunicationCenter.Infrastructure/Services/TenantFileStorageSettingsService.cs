@@ -41,6 +41,32 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
             !string.IsNullOrWhiteSpace(payload.FtpPassword));
     }
 
+    public async Task<NasAttachmentStorageCredentials?> GetNasAttachmentCredentialsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default)
+    {
+        var payload = await GetPayloadAsync(tenantId, cancellationToken);
+        if (!string.Equals(payload.NasProtocol, "SMB/CIFS", StringComparison.OrdinalIgnoreCase))
+        {
+            return null;
+        }
+
+        var host = NormalizeNasHost(payload.NasHost);
+        var shareName = NormalizeNasShareName(payload.NasShareName);
+        var username = Normalize(payload.NasUsername);
+        var password = payload.NasPassword;
+
+        if (string.IsNullOrWhiteSpace(host)
+            || string.IsNullOrWhiteSpace(shareName)
+            || string.IsNullOrWhiteSpace(username)
+            || string.IsNullOrWhiteSpace(password))
+        {
+            return null;
+        }
+
+        return new NasAttachmentStorageCredentials(host, shareName, username, password);
+    }
+
     public async Task SaveSettingsAsync(
         Guid tenantId,
         TenantFileStorageSettingsUpdate settings,

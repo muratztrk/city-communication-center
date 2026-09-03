@@ -1,3 +1,5 @@
+using CityCommunicationCenter.Shared.FileStorage;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace CityCommunicationCenter.Application.Features.Attachments;
@@ -8,15 +10,21 @@ public sealed class DeleteAttachmentCommandHandler : ICommandHandler<DeleteAttac
 {
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly INasAttachmentStorage _nasAttachmentStorage;
+    private readonly ILogger<DeleteAttachmentCommandHandler> _logger;
     private readonly string _uploadRootPath;
 
     public DeleteAttachmentCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
+        INasAttachmentStorage nasAttachmentStorage,
+        ILogger<DeleteAttachmentCommandHandler> logger,
         IOptions<AttachmentStorageOptions> options)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _nasAttachmentStorage = nasAttachmentStorage;
+        _logger = logger;
         _uploadRootPath = options.Value.UploadRootPath;
     }
 
@@ -49,6 +57,27 @@ public sealed class DeleteAttachmentCommandHandler : ICommandHandler<DeleteAttac
         if (File.Exists(physicalPath))
         {
             File.Delete(physicalPath);
+        }
+
+        if (await _nasAttachmentStorage.IsEnabledAsync(tenantId, cancellationToken))
+        {
+            var relativeNasPath = AttachmentNasPath.BuildRelativePath(
+                attachment.TenantId,
+                attachment.EntityType,
+                attachment.EntityId,
+                attachment.StoredFileName);
+            try
+            {
+                await _nasAttachmentStorage.DeleteAsync(tenantId, relativeNasPath, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "NAS eki silinemedi (tenant {TenantId}, path {RelativeNasPath})",
+                    tenantId,
+                    relativeNasPath);
+            }
         }
 
         _dbContext.Attachments.Remove(attachment);

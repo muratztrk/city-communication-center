@@ -6,6 +6,13 @@ public interface ITenantFileStorageSettingsService
         Guid tenantId,
         CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Talep/görev eki NAS replikasyonu için çözülmüş SMB kimlik bilgileri; yapılandırma eksikse null.
+    /// </summary>
+    Task<NasAttachmentStorageCredentials?> GetNasAttachmentCredentialsAsync(
+        Guid tenantId,
+        CancellationToken cancellationToken = default);
+
     Task SaveSettingsAsync(
         Guid tenantId,
         TenantFileStorageSettingsUpdate settings,

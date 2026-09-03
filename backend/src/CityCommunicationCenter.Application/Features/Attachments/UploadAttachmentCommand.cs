@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Shared.FileStorage;
 using Microsoft.Extensions.Options;
 
 namespace CityCommunicationCenter.Application.Features.Attachments;
@@ -41,15 +42,18 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
 
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
+    private readonly INasAttachmentStorage _nasAttachmentStorage;
     private readonly string _uploadRootPath;
 
     public UploadAttachmentCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
+        INasAttachmentStorage nasAttachmentStorage,
         IOptions<AttachmentStorageOptions> options)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
+        _nasAttachmentStorage = nasAttachmentStorage;
         _uploadRootPath = options.Value.UploadRootPath;
     }
 
@@ -112,6 +116,31 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
         await using (var fs = File.Create(physicalPath))
         {
             await request.FileStream.CopyToAsync(fs, cancellationToken);
+        }
+
+        var relativeNasPath = AttachmentNasPath.BuildRelativePath(tenantId, entityType, entityId, storedFileName);
+        if (await _nasAttachmentStorage.IsEnabledAsync(tenantId, cancellationToken))
+        {
+            try
+            {
+                await _nasAttachmentStorage.UploadAsync(
+                    tenantId,
+                    relativeNasPath,
+                    physicalPath,
+                    cancellationToken);
+            }
+            catch
+            {
+                if (File.Exists(physicalPath))
+                {
+                    File.Delete(physicalPath);
+                }
+
+                throw new ValidationException([
+                    new FluentValidation.Results.ValidationFailure(nameof(request.FileName),
+                        "Dosya NAS sunucusuna aktarılamadı. Dosya sunucusu ayarlarını kontrol edin veya sistem yöneticinize başvurun.")
+                ]);
+            }
         }
 
         var relativeUrl = $"/uploads/{tenantId}/{entityType}/{entityId}/{storedFileName}";

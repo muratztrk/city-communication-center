@@ -1526,6 +1526,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   host/paylaşım değerlerini de kabul eder (kaydetmeden test). Başarısız `Login` sonrası aynı
   client'ta `Logoff`+yeniden `Login` yapılmaz (STATUS_USER_SESSION_DELETED); her domain denemesi
   fresh `Connect`.
+- **Talep/görev eki NAS replikasyonu (2026-09-03):** Ayarlar'daki "Talep ve Görev Eklerini
+  Barındıracak Sunucu Bilgileri" NAS (SMB/CIFS) doluysa `UploadAttachmentCommand` yerel
+  `uploads/` yazımından sonra aynı göreli yolu (`{tenantId}/{entityType}/{entityId}/{storedFileName}`)
+  paylaşıma kopyalar; NAS başarısızsa yerel dosya silinir ve Türkçe validation hatası döner (DB'ye
+  kayıt yok). `DeleteAttachmentCommand` yerel silmeden sonra NAS'tan best-effort siler. Yerel disk
+  birincil okuma kaynağı kalır; NFS/FTP replikasyonu yok. Ortak SMB oturumu:
+  `SmbNasSessionSupport` + `SmbNasAttachmentStorage`.
 - **Ayarlar/Birimler/Kullanıcılar (`admin-surface-page`):** helper-copy, label, textbox,
   textarea, Oluşturma Modu segmented + LDAP başlıkları kompakt shell’den belirgin büyük
   (cards #1733/#1736/#1738). Ayarlar banner altı tab butonları #1733’ten sonra biraz

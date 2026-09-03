@@ -407,6 +407,14 @@ public sealed class GetCitizenConversationsQueryHandler
         {
             filtered = results.Where(item => item.HasWhatsAppChannel);
         }
+        else
+        {
+            var conversationIdsWithRequest = socialMessages
+                .Where(m => m.CitizenRequestNumber != null)
+                .Select(m => m.ConversationId)
+                .ToHashSet();
+            filtered = results.Where(item => conversationIdsWithRequest.Contains(item.Dto.CitizenConversationId));
+        }
 
         return filtered.Select(item => item.Dto).ToList();
     }

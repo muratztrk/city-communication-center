@@ -1659,7 +1659,6 @@ export function UsersPage() {
                             triggerClassName="text-sm !min-h-9 !px-2 !bg-slate-100"
                             menuWidth={264}
                             menuScrollClassName="users-edit-dropdown-menu-scroll"
-                            forceDown
                           />
                         )}
                         <MultiSelectDropdown
@@ -1677,7 +1676,6 @@ export function UsersPage() {
                           menuWidth={264}
                           searchable
                           searchPlaceholder={t('common.search', 'Ara...')}
-                          forceDown
                         />
                       </div>
                     </td>
@@ -1700,7 +1698,6 @@ export function UsersPage() {
                           // Panel: Rol → LDAP (Kaynak) sonu (~9+5rem, card #r459).
                           menuWidth={224}
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
-                          forceDown
                         />
                         <MultiSelectDropdown
                           options={getAllowedAdditionalRoleCodes(editForm.roleCode)
@@ -1714,7 +1711,6 @@ export function UsersPage() {
                           triggerClassName="text-xs !min-h-9 !py-0.5"
                           menuClassName="users-edit-dropdown-menu-scroll !max-h-88"
                           menuWidth={224}
-                          forceDown
                         />
                       </div>
                     </td>

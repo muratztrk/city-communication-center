@@ -35,7 +35,8 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
 
         IQueryable<SocialMessage> query = _dbContext.SocialMessages
             .AsNoTracking()
-            .Where(entity => entity.TenantId == tenantId);
+            .Where(entity => entity.TenantId == tenantId
+                && (entity.CitizenRequestNumber != null || entity.JobId != null));
 
         if (actor is null)
         {

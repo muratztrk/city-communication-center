@@ -456,7 +456,7 @@ function ConversationListPanel({
           ) : null}
         </div>
 
-        <div className="overflow-visible pt-1.5 pr-1">
+        <div className="overflow-visible pt-2.5 pr-1">
           <div className="flex items-center gap-1">
             {filterOptions.map(option => (
               <button
@@ -474,7 +474,7 @@ function ConversationListPanel({
               >
                 {option.label}
                 {option.badge != null && option.badge > 0 ? (
-                  <span className="absolute -right-0.5 -top-1 z-10 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-[8px] font-bold leading-none text-white">
+                  <span className="absolute -right-0.5 -top-2 z-10 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-[8px] font-bold leading-none text-white">
                     {option.badge}
                   </span>
                 ) : null}

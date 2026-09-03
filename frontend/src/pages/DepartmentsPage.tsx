@@ -927,7 +927,6 @@ export function DepartmentsPage() {
                           triggerClassName="text-xs"
                           menuClassName="departments-manager-assign-menu"
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
-                          forceDown
                           deselectOnReselect
                         />
                       ) : (
@@ -948,7 +947,6 @@ export function DepartmentsPage() {
                           triggerClassName="text-xs"
                           disabled={isManagerSaving}
                           menuClassName="departments-manager-assign-menu users-edit-dropdown-menu-scroll"
-                          forceDown
                         />
                       ) : (
                         <div className="flex flex-wrap gap-1">

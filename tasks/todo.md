@@ -1,3 +1,10 @@
+## Round 1104 — WA VT yok, dropdown yönü, rozet
+
+- **#3349/#3350:** Ham WA mesajı VT üretmez; dizin/Vatandaş Talepleri yalnız talep olunca. Mevcut VT-2026-1/2/3 numarası temizlenir.
+- **#3332:** Kullanıcılar/Birimler grid dropdown scroll üstte aşağı, altta yukarı.
+- **#3348:** Yanıt bekliyor rozeti `-top-2`.
+- Atlandı: #3343 #3344 #3346 `tim mobil app'de`.
+
 ## Round 1103d — WA chip sığdırma
 
 - Üç chip `text-xs` + `h-7` + `px-1.5`; overflow-x-auto kaldırıldı (Mesaj Onayı Bekleyen + rozet kesilmesin).

@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Features;
 using CityCommunicationCenter.Application.Features.Jobs;
 
 namespace CityCommunicationCenter.Application.Features.Social;
@@ -73,6 +74,14 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             {
                 return await JobSummaryResponseFactory.CreateAsync(_dbContext, existingJob, cancellationToken);
             }
+        }
+
+        if (message.CitizenRequestNumber is null)
+        {
+            var year = DateTimeOffset.UtcNow.Year;
+            message.CitizenRequestNumberYear = year;
+            message.CitizenRequestNumber = await SequenceNumberHelper.NextCitizenRequestNumberAsync(
+                _dbContext, tenantId, year, cancellationToken);
         }
 
         var jobSummary = await _sender.Send(new CreateJobCommand(

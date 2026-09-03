@@ -1,4 +1,4 @@
-/** Grid satırında menü alta sığmazsa yukarı aç (#3332). `forceDown` her zaman alta açar (#3332 reopen). */
+/** Grid satırında menü alta sığmazsa yukarı aç (#3332). Üstte aşağı, altta yukarı. */
 export function shouldOpenDropdownUp(trigger: HTMLElement | null, forcedUp = false, forceDown = false): boolean {
   if (forceDown) return false
   if (forcedUp) return true

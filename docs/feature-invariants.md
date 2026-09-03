@@ -72,7 +72,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   components` içinde; Tailwind v4'te utilities katmanı bunu yener, importance'sız kural sessizce
   hiç uygulanmaz. `w-*`, `shrink-0`, `gap-*` gibi bir utility'yi override eden her kuralda kullan
   ve tarayıcıda computed value ile doğrula — "yazdım ama olmadı" kartlarının tipik nedeni budur.
-- **Dropdown / DateTimePicker** overflow bar tarafından kırpılır → body'ye portal + `forceDown`.
+- **Dropdown / DateTimePicker** overflow bar tarafından kırpılır → body'ye portal.
+  Kullanıcılar/Birimler grid'de `forceDown` yok: scroll üstteyse aşağı, altta yukarı (#3332).
   `SingleSelectDropdown` hover tooltip yok (#2754).
 - **Tüm ortak dropdown'lar 7+ seçenekte otomatik arama gösterir:** çağıran ayrıca `searchable`
   vermese de `SingleSelectDropdown` ilk satıra Türkçe casing uyumlu arama alanı ekler.
@@ -518,7 +519,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Yanıt bekliyor` filtresinde. `Yanıt Verildi Yap` kaldırıldı (#3347) — chip satırında yok.
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekliyor` sağında; `hasPendingMessageApproval`
   = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). Rozet konuşma/numara
-  sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde. Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
+  sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
   (#3348 yükseklik; #3330 nowrap). `overflow-x-auto` yok — gizli scroll üçüncü chip’i kesiyordu; dar punto
   üçünü yan panele sığdırır. Rozet için `pt-1.5 pr-1` + `overflow-visible`. `max-w` ile satır kırma yok. FAB `hasPendingOutboundMessage`
   hâlâ yalnız personel Beklemede (otomatik hariç). Bu chip açıkken üst durum sayaç filtresi uygulanmaz
@@ -1873,9 +1874,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`citizenDirectory.columns.phone`; masaüstü NUMARA reopen’ları viewport CSS’ini geçersiz kıldı — #3273).
   Mobil Telefon No **değeri** `0.70rem` (`.citizen-directory-phone-value`, ≤1023, #3284); başlık punto değişmez.
   Ad boşsa veya ad telefon gibi duruyorsa Vatandaş Adı
-  hücresi de `XXX XXX XX XX` yazar (#3106). Arama 3 karakterden sonra başlar (#3103). Operatör/çağrı ile oluşturulan VT'ler `ConvertSocialMessageToJob`
+  hücresi de `XXX XXX XX XX` yazar (#3106). Arama 3 karakterden sonra başlar (#3103).   Operatör/çağrı ile oluşturulan VT'ler `ConvertSocialMessageToJob`
   sırasında `CitizenConversation` upsert eder; liste sorgusu eksik konuşmaları da backfill eder
-  (card #1858). WhatsApp Konuşmaları listesi `whatsAppOnly=true` ile yalnız en az bir WhatsApp
+  (card #1858). **Ham WhatsApp mesajı VT üretmez** (#3349/#3350): webhook `CitizenRequestNumber`
+  yazmaz; dizin yalnız numaralı talep olan konuşmaları listeler; `/social` grid `CitizenRequestNumber`
+  veya `JobId` olmayan WA thread'lerini göstermez. VT numarası `CreateSocialMessage` / convert anında
+  verilir. WhatsApp Konuşmaları listesi `whatsAppOnly=true` ile yalnız en az bir WhatsApp
   kanal mesajı olan konuşmaları gösterir; çağrı VT numaraları bu listede yoktur (card #1864).
   Detaylar → konuşma ticket listesi (aynı telefon tüm kanallar — BE konuşma birleşimi +
   orphan Phone VT telefon eşlemesi, card #2543/#2546) → salt-okunur
@@ -2942,9 +2946,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Rol:` etiketli satırlar gösterir; ham `role=Manager` İngilizce metni kullanıcıya basılmaz.
 - **Log UserDeleted detayı (#2302):** silinen kullanıcı artık DB'de olmadığından audit `Details`
   alanında `username`/`role` saklanır; `GetAuditLogsQuery` geçmiş kayıtları parse ederek Detay'da gösterir.
-- **Kullanıcılar/Birimler grid dropdown (#2296 / #3332 reopen):** satır içi düzenleme dropdown'ları
-  body portal + `forceDown` (her zaman aşağı, grid'in üstünde). `menuPortal={false}` / otomatik
-  yukarı çevirme bu gridlerde yok — kırpılır veya yukarı kaçar.
+- **Kullanıcılar/Birimler grid dropdown (#2296 / #3332):** satır içi düzenleme dropdown'ları
+  body portal; grid scroll üstteyse aşağı, altta yukarı (`shouldOpenDropdownUp`). `forceDown` yok.
 - **Birim düzenle müdür dropdown (#3334):** seçili kullanıcıya tekrar tıklanınca seçim kalkar
   (`deselectOnReselect`).
 - **Yerel kullanıcı oluştur toast (#3339):** başarıda `emitPageToast` (sağ alt yeşil).

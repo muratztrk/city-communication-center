@@ -65,8 +65,6 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         // Group by citizen phone so we can find/create conversation threads
         var byCitizen = newMessages.GroupBy(m => m.CitizenHandle);
         var savedCount = 0;
-        int? nextCitizenRequestNumber = null;
-        var citizenRequestNumberYear = DateTimeOffset.UtcNow.Year;
         var pendingAutoReplies = new List<PendingWhatsAppAutoReply>();
         var pendingConversationPushes = new List<WhatsAppMessagePayload>();
 
@@ -135,11 +133,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         ReceivedAtUtc = msg.ReceivedAtUtc,
                         Status = SocialMessageStatus.New,
                         CitizenConversationId = conversation.CitizenConversationId,
-                        CitizenRequestNumberYear = citizenRequestNumberYear,
-                        CitizenRequestNumber = nextCitizenRequestNumber ??= await SequenceNumberHelper.NextCitizenRequestNumberAsync(
-                            _dbContext, request.TenantId, citizenRequestNumberYear, cancellationToken),
                     };
-                    nextCitizenRequestNumber++;
                     _dbContext.SocialMessages.Add(thread);
                 }
                 else
@@ -293,7 +287,6 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
             {
                 if (thread is null)
                 {
-                    var citizenRequestNumberYear = echo.SentAtUtc.Year;
                     thread = new SocialMessage
                     {
                         SocialMessageId = Guid.NewGuid(),
@@ -305,9 +298,6 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         ReceivedAtUtc = echo.SentAtUtc,
                         Status = SocialMessageStatus.Responded,
                         CitizenConversationId = conversation.CitizenConversationId,
-                        CitizenRequestNumberYear = citizenRequestNumberYear,
-                        CitizenRequestNumber = await SequenceNumberHelper.NextCitizenRequestNumberAsync(
-                            _dbContext, tenantId, citizenRequestNumberYear, cancellationToken),
                         ResponseContent = echo.Content,
                         RespondedAtUtc = echo.SentAtUtc,
                     };

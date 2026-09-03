@@ -55,6 +55,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<InternalMessage> InternalMessages => Set<InternalMessage>();
     public DbSet<IzmirCbsCatalogCache> IzmirCbsCatalogCaches => Set<IzmirCbsCatalogCache>();
     public DbSet<SmsOutboundLog> SmsOutboundLogs => Set<SmsOutboundLog>();
+    public DbSet<SupportRequest> SupportRequests => Set<SupportRequest>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -125,6 +126,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureInternalMessage(modelBuilder.Entity<InternalMessage>());
         ConfigureIzmirCbsCatalogCache(modelBuilder.Entity<IzmirCbsCatalogCache>());
         ConfigureSmsOutboundLog(modelBuilder.Entity<SmsOutboundLog>());
+        ConfigureSupportRequest(modelBuilder.Entity<SupportRequest>());
 
         modelBuilder.ApplyAutomaticIndexes();
 
@@ -156,6 +158,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<InternalConversation>());
         ApplyTenantFilter(modelBuilder.Entity<InternalMessage>());
         ApplyTenantFilter(modelBuilder.Entity<SmsOutboundLog>());
+        ApplyTenantFilter(modelBuilder.Entity<SupportRequest>());
 
         ApplyInstallSeedData(modelBuilder);
     }
@@ -473,6 +476,16 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         builder.Property(entity => entity.ProviderCode).HasMaxLength(64);
         builder.Property(entity => entity.ProviderMessage).HasMaxLength(500);
         builder.Property(entity => entity.BodyPreview).HasMaxLength(500);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureSupportRequest(EntityTypeBuilder<SupportRequest> builder)
+    {
+        builder.ToTable("supportrequests");
+        builder.HasKey(entity => entity.SupportRequestId);
+        builder.Property(entity => entity.Subject).HasMaxLength(200);
+        builder.Property(entity => entity.Message).HasMaxLength(4000);
+        builder.Property(entity => entity.PageContext).HasMaxLength(500);
         ApplyLowerCaseColumnNames(builder);
     }
 

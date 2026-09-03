@@ -1877,6 +1877,15 @@ export const api = {
     return response.json() as Promise<AppNotification[]>
   },
 
+  async submitSupportRequest(subject: string, message: string, pageContext: string | null): Promise<void> {
+    const response = await fetchWithCredentials(`${API_BASE}/support-requests`, {
+      method: 'POST',
+      headers: await getAuthHeaders(),
+      body: JSON.stringify({ subject, message, pageContext }),
+    })
+    await ensureOk(response, i18n.t('errors.supportRequestSendFailed', 'Destek talebi gönderilemedi'))
+  },
+
   async markAllNotificationsRead(): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/notifications/read-all`, {
       method: 'POST',

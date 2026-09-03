@@ -132,6 +132,7 @@
     }
   },
   "errors": {
+    "supportRequestSendFailed": "Destek talebi gönderilemedi",
     "invalidAccessToken": "Geçersiz access token.",
     "authFailed": "Kimlik doğrulama başarısız.",
     "invalidAuthResponse": "Kimlik doğrulama yanıtı geçersiz.",
@@ -281,6 +282,16 @@
     "language": "Dil seçici",
     "userGuide": "Kullanım Kılavuzu",
     "supportLine": "Destek Hattı"
+  },
+  "support": {
+    "dialogTitle": "Lumespec Destek",
+    "subjectLabel": "Konu",
+    "subjectPlaceholder": "Kısaca ne ile ilgili?",
+    "messageLabel": "Mesaj",
+    "messagePlaceholder": "Takıldığınız veya çalışmayan noktayı anlatın...",
+    "send": "Gönder",
+    "sentMessage": "Talebiniz alındı. Lumespec ekibi en kısa sürede sizinle iletişime geçecek.",
+    "sendError": "Talep gönderilemedi. Lütfen tekrar deneyin."
   },
   "sessionIdle": {
     "title": "Oturum Süreniz Dolmak Üzere!",

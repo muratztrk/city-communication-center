@@ -132,6 +132,7 @@
     "endDate": "End date"
   },
   "errors": {
+    "supportRequestSendFailed": "Could not send the support request",
     "invalidAccessToken": "Invalid access token.",
     "authFailed": "Authentication failed.",
     "invalidAuthResponse": "Authentication response is invalid.",
@@ -281,6 +282,16 @@
     "language": "Language selector",
     "userGuide": "User Guide",
     "supportLine": "Support Line"
+  },
+  "support": {
+    "dialogTitle": "Lumespec Support",
+    "subjectLabel": "Subject",
+    "subjectPlaceholder": "What's this about?",
+    "messageLabel": "Message",
+    "messagePlaceholder": "Describe what's stuck or not working...",
+    "send": "Send",
+    "sentMessage": "Your request has been received. The Lumespec team will reach out shortly.",
+    "sendError": "Could not send the request. Please try again."
   },
   "sessionIdle": {
     "title": "Your Session Is About To Expire!",

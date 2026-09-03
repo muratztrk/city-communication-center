@@ -466,7 +466,7 @@ function ConversationListPanel({
                   setConversationPage(1)
                   onListFilterChange(option.value)
                 }}
-                className={`relative inline-flex h-11 shrink-0 items-center justify-center whitespace-nowrap rounded-full px-3 text-sm font-semibold leading-none transition-colors ${
+                className={`relative inline-flex h-[1.925rem] shrink-0 items-center justify-center whitespace-nowrap rounded-full px-2 text-sm font-semibold leading-none transition-colors ${
                   listFilter === option.value
                     ? 'bg-emerald-800 text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'

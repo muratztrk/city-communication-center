@@ -1,3 +1,7 @@
+## Round 1103b — WA chip %30 küçültme
+
+- **#3348 follow-up:** Tümü / Yanıt bekliyor / Mesaj Onayı Bekleyen `h-11` → `h-[1.925rem]` (%30).
+
 ## Round 1103 — WA filtre chip yüksekliği
 
 - **#3348:** `/whatsapp` Tümü / Yanıt bekliyor / Mesaj Onayı Bekleyen `h-11` + `text-sm` (nowrap durur).

@@ -1,3 +1,14 @@
+## Round 1102 — boş metin, WA chip, grid dropdown, form zıplaması, iç mesaj FAB
+
+- **#3345:** Vatandaş Talepleri boş grid `Henüz vatandaş talebi bulunmuyor.`
+- **#3347:** `/whatsapp` «Yanıt Verildi Yap» kaldırıldı (chip overlap).
+- **#3337:** Kullanıcı/Birim Ekle grid’i reload gibi yapmıyordu: URL scroll reset + fill class + arama silme. Trello yorum.
+- **#3330:** WA Tümü / Yanıt bekliyor / Mesaj Onayı Bekleyen `nowrap` + sıkı padding.
+- **#3341:** Dizin boş `Talebi olan vatandaş bilgisi bulunamadı.`
+- **#3342:** Kurum İçi Mesajlar FAB yalnız `internal` lisans.
+- **#3332:** Grid dropdown portal + `forceDown` (aşağı, grid üstünde).
+- Atlandı: #3343 #3344 #3346 `tim mobil app'de`.
+
 ## Round 1101 — kullanıcı toast, Başkanlık, grid dropdown, e-Devlet lisans, WA rozet
 
 - **#3339:** Yerel kullanıcı oluşturunca sağ alt yeşil `emitPageToast`.

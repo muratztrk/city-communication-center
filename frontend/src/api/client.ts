@@ -26,6 +26,7 @@ function decodeOriginalFileNameHeader(header: string | null): string | null {
 }
 import type {
   AuditLog,
+  SupportRequest,
   Attachment,
   DashboardSnapshot,
   DashboardChartResponse,
@@ -1884,6 +1885,12 @@ export const api = {
       body: JSON.stringify({ subject, message, pageContext }),
     })
     await ensureOk(response, i18n.t('errors.supportRequestSendFailed', 'Destek talebi gönderilemedi'))
+  },
+
+  async getSupportRequests(): Promise<SupportRequest[]> {
+    const response = await fetchWithCredentials(`${API_BASE}/support-requests`, { headers: await getAuthHeaders() })
+    await ensureOk(response, i18n.t('errors.supportRequestsLoadFailed', 'Destek talepleri alınamadı'))
+    return response.json() as Promise<SupportRequest[]>
   },
 
   async markAllNotificationsRead(): Promise<void> {

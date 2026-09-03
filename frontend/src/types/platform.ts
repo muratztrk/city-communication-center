@@ -692,6 +692,15 @@ export interface AuditLog {
   entityTitle?: string | null;
 }
 
+export interface SupportRequest {
+  supportRequestId: string;
+  subject: string;
+  message: string;
+  pageContext: string | null;
+  createdAtUtc: string;
+  submittedByDisplayName: string;
+}
+
 export interface EntityAuditLogEntry {
   auditLogId: string;
   action: string;

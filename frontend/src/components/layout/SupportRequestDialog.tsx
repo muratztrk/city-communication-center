@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import { Button } from '../ui/button'
 import { ModalBackdrop } from '../ui/modal-backdrop'
 import { api } from '../../api/client'
+import { queryKeys } from '../../api/queryKeys'
 
 interface SupportRequestDialogProps {
   open: boolean
@@ -14,6 +16,7 @@ interface SupportRequestDialogProps {
 export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProps) {
   const { t } = useTranslation()
   const location = useLocation()
+  const queryClient = useQueryClient()
   const [subject, setSubject] = useState('')
   const [message, setMessage] = useState('')
   const [sending, setSending] = useState(false)
@@ -38,6 +41,7 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
     setError(null)
     try {
       await api.submitSupportRequest(subject.trim(), message.trim(), location.pathname)
+      void queryClient.invalidateQueries({ queryKey: queryKeys.supportRequests.list() })
       setSent(true)
       setSubject('')
       setMessage('')
@@ -84,7 +88,7 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
               <input
                 type="text"
                 className="field-input w-full"
-                placeholder={t('support.subjectPlaceholder', 'Kısaca ne ile ilgili?')}
+                placeholder={t('support.subjectPlaceholder', 'Konu başlığı')}
                 value={subject}
                 onChange={e => setSubject(e.target.value)}
                 maxLength={200}
@@ -98,7 +102,7 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
               <textarea
                 className="field-textarea w-full"
                 rows={4}
-                placeholder={t('support.messagePlaceholder', 'Takıldığınız veya çalışmayan noktayı anlatın...')}
+                placeholder={t('support.messagePlaceholder', 'Sorununuzu kısaca açıklayın.')}
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 maxLength={4000}

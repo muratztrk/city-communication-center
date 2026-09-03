@@ -24,6 +24,15 @@ public sealed class SupportController : ApiControllerBase
             cancellationToken);
         return StatusCode(StatusCodes.Status201Created, new { supportRequestId });
     }
+
+    [HttpGet("")]
+    [Authorize(Policy = AuthorizationPolicies.PlatformAdmin)]
+    [ProducesResponseType<IEnumerable<SupportRequestResponse>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<SupportRequestResponse>>> GetAll(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetSupportRequestsQuery(), cancellationToken);
+        return Ok(response);
+    }
 }
 
 public sealed record SubmitSupportRequestRequest(string Subject, string Message, string? PageContext);

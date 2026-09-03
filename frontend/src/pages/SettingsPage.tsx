@@ -72,7 +72,7 @@ import { getRoleLabel } from '../utils/localization'
 import { toTitleCaseTr } from '../utils/textNormalization'
 import { isCbsMissingDoorLabel } from '../utils/addressLimits'
 
-type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates' | 'license'
+type SettingsTab = 'tenant' | 'appearance' | 'roles' | 'social' | 'routing' | 'templates' | 'license' | 'support'
 type ChannelType = 'x' | 'facebook' | 'instagram' | 'whatsapp' | 'edevlet' | 'email'
 type ChannelForms = Record<ChannelType, Record<string, string>>
 type TenantLdapFormState = TenantLdapSettings & { bindPassword: string; clearBindPassword: boolean }
@@ -470,7 +470,7 @@ const EMPTY_TEMPLATE_FORM: Omit<WhatsAppMessageTemplate, 'templateId'> = {
 }
 
 function readTab(tab: string | null): SettingsTab {
-  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'templates' || tab === 'license' ? tab : 'tenant'
+  return tab === 'appearance' || tab === 'roles' || tab === 'social' || tab === 'routing' || tab === 'templates' || tab === 'license' || tab === 'support' ? tab : 'tenant'
 }
 
 const SETTINGS_TAB_LABEL_KEYS: Record<SettingsTab, string> = {
@@ -481,6 +481,7 @@ const SETTINGS_TAB_LABEL_KEYS: Record<SettingsTab, string> = {
   routing: 'settings.tabs.routing',
   templates: 'settings.tabs.templates',
   license: 'settings.tabs.license',
+  support: 'settings.tabs.support',
 }
 
 function isMetaWhatsAppTemplate(template: Pick<WhatsAppMessageTemplate, 'channel'>) {
@@ -682,6 +683,12 @@ export function SettingsPage() {
     queryKey: queryKeys.licensing.modules(),
     queryFn: () => api.getLicenseModules(),
     staleTime: 10 * 60 * 1000,
+  })
+
+  const supportRequestsQuery = useQuery({
+    queryKey: queryKeys.supportRequests.list(),
+    queryFn: () => api.getSupportRequests(),
+    enabled: activeTab === 'support',
   })
 
   const cbsNeighborhoodsQuery = useQuery({
@@ -2031,6 +2038,9 @@ export function SettingsPage() {
             )}
             <button className={`tab-button ${activeTab === 'license' ? 'active' : ''}`} onClick={() => setTab('license')} type="button">
               {t('settings.tabs.license', 'Lisans')}
+            </button>
+            <button className={`tab-button ${activeTab === 'support' ? 'active' : ''}`} onClick={() => setTab('support')} type="button">
+              {t('settings.tabs.support', 'Destek Talepleri')}
             </button>
           </div>
         </div>
@@ -4060,6 +4070,47 @@ export function SettingsPage() {
                   </section>
                 )
               })}
+            </div>
+          )}
+        </div>
+      ) : null}
+
+      {activeTab === 'support' ? (
+        <div className="section-card page-stack">
+          <div className="page-header-row">
+            <div>
+              <h2 className="text-xl font-extrabold text-slate-950">{t('settings.support.title', 'Destek Talepleri')}</h2>
+              <p className="helper-copy">{t('settings.support.description', 'Personelin Lumespec Destek üzerinden gönderdiği talepler.')}</p>
+            </div>
+          </div>
+          {supportRequestsQuery.isLoading ? (
+            <p className="helper-copy">{t('common.loading')}</p>
+          ) : (supportRequestsQuery.data ?? []).length === 0 ? (
+            <p className="helper-copy">{t('settings.support.empty', 'Henüz destek talebi yok.')}</p>
+          ) : (
+            <div className="table-wrap desktop-panel-scroll">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>{t('settings.support.date', 'Tarih')}</th>
+                    <th>{t('settings.support.submittedBy', 'Gönderen')}</th>
+                    <th>{t('settings.support.subject', 'Konu')}</th>
+                    <th>{t('settings.support.message', 'Mesaj')}</th>
+                    <th>{t('settings.support.page', 'Sayfa')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(supportRequestsQuery.data ?? []).map(item => (
+                    <tr key={item.supportRequestId}>
+                      <td className="whitespace-nowrap">{new Date(item.createdAtUtc).toLocaleString('tr-TR')}</td>
+                      <td className="whitespace-nowrap">{item.submittedByDisplayName}</td>
+                      <td className="font-semibold text-slate-800">{item.subject}</td>
+                      <td className="max-w-md whitespace-pre-wrap text-slate-600">{item.message}</td>
+                      <td className="font-mono text-xs text-slate-500">{item.pageContext ?? '—'}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>

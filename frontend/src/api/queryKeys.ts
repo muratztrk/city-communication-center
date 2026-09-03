@@ -22,6 +22,10 @@ export const queryKeys = {
     list: () => ['ccc', 'audit-logs', 'list'] as const,
     entity: (entityType: string, entityId: string) => ['ccc', 'audit-logs', 'entity', entityType, entityId] as const,
   },
+  supportRequests: {
+    all: ['ccc', 'support-requests'] as const,
+    list: () => ['ccc', 'support-requests', 'list'] as const,
+  },
   auth: {
     all: ['ccc', 'auth'] as const,
     me: () => ['ccc', 'auth', 'me'] as const,

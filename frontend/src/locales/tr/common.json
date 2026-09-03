@@ -133,6 +133,7 @@
   },
   "errors": {
     "supportRequestSendFailed": "Destek talebi gönderilemedi",
+    "supportRequestsLoadFailed": "Destek talepleri alınamadı",
     "invalidAccessToken": "Geçersiz access token.",
     "authFailed": "Kimlik doğrulama başarısız.",
     "invalidAuthResponse": "Kimlik doğrulama yanıtı geçersiz.",
@@ -286,9 +287,9 @@
   "support": {
     "dialogTitle": "Lumespec Destek",
     "subjectLabel": "Konu",
-    "subjectPlaceholder": "Kısaca ne ile ilgili?",
+    "subjectPlaceholder": "Konu başlığı",
     "messageLabel": "Mesaj",
-    "messagePlaceholder": "Takıldığınız veya çalışmayan noktayı anlatın...",
+    "messagePlaceholder": "Sorununuzu kısaca açıklayın.",
     "send": "Gönder",
     "sentMessage": "Talebiniz alındı. Lumespec ekibi en kısa sürede sizinle iletişime geçecek.",
     "sendError": "Talep gönderilemedi. Lütfen tekrar deneyin."
@@ -1168,7 +1169,8 @@
       "social": "Sosyal Medya Entegrasyonu",
       "routing": "Otomatik Yönlendirme",
       "templates": "Taslak Mesajlar",
-      "license": "Lisans"
+      "license": "Lisans",
+      "support": "Destek Talepleri"
     },
     "organizationName": "Kurum Adı",
     "domain": "Alan Adı",
@@ -1189,6 +1191,16 @@
       "statusUsable": "Kullanılabilir",
       "statusBlocked": "Kullanılamıyor",
       "validUntil": "Geçerlilik tarihi"
+    },
+    "support": {
+      "title": "Destek Talepleri",
+      "description": "Personelin Lumespec Destek üzerinden gönderdiği talepler.",
+      "empty": "Henüz destek talebi yok.",
+      "date": "Tarih",
+      "submittedBy": "Gönderen",
+      "subject": "Konu",
+      "message": "Mesaj",
+      "page": "Sayfa"
     },
     "domainPlaceholder": "portal.tire.bel.tr",
     "appearancePreviewTitle": "Önizleme",

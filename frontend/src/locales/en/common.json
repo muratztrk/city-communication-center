@@ -133,6 +133,7 @@
   },
   "errors": {
     "supportRequestSendFailed": "Could not send the support request",
+    "supportRequestsLoadFailed": "Could not load support requests",
     "invalidAccessToken": "Invalid access token.",
     "authFailed": "Authentication failed.",
     "invalidAuthResponse": "Authentication response is invalid.",
@@ -286,9 +287,9 @@
   "support": {
     "dialogTitle": "Lumespec Support",
     "subjectLabel": "Subject",
-    "subjectPlaceholder": "What's this about?",
+    "subjectPlaceholder": "Subject title",
     "messageLabel": "Message",
-    "messagePlaceholder": "Describe what's stuck or not working...",
+    "messagePlaceholder": "Briefly describe the issue.",
     "send": "Send",
     "sentMessage": "Your request has been received. The Lumespec team will reach out shortly.",
     "sendError": "Could not send the request. Please try again."
@@ -1161,7 +1162,8 @@
       "social": "Social Media Integration",
       "routing": "Auto Routing",
       "templates": "Draft Messages",
-      "license": "License"
+      "license": "License",
+      "support": "Support Requests"
     },
     "organizationName": "Organization Name",
     "domain": "Domain",
@@ -1182,6 +1184,16 @@
       "statusUsable": "Usable",
       "statusBlocked": "Unavailable",
       "validUntil": "Valid until"
+    },
+    "support": {
+      "title": "Support Requests",
+      "description": "Requests staff sent through Lumespec Support.",
+      "empty": "No support requests yet.",
+      "date": "Date",
+      "submittedBy": "Submitted by",
+      "subject": "Subject",
+      "message": "Message",
+      "page": "Page"
     },
     "domainPlaceholder": "portal.tire.bel.tr",
     "appearancePreviewTitle": "Preview",

@@ -144,6 +144,17 @@ function pickReplyTicket(tickets: CitizenConversationTicket[]): CitizenConversat
     ?? ordered.find(ticket => ticket.status !== 'Closed')
 }
 
+/** Talep yoksa bile son sohbet mesajına yanıt yazılır (ham WhatsApp). */
+function pickReplySocialMessageId(detail: CitizenConversationDetail): string | undefined {
+  const ticket = pickReplyTicket(detail.tickets)
+  if (ticket) return ticket.socialMessageId
+  for (let index = detail.timeline.length - 1; index >= 0; index -= 1) {
+    const socialMessageId = detail.timeline[index]?.socialMessageId
+    if (socialMessageId) return socialMessageId
+  }
+  return undefined
+}
+
 function ConversationStatusCounts({
   intake,
   inProgress,
@@ -953,8 +964,8 @@ function ConversationDetail({
       return
     }
 
-    const openTicket = pickReplyTicket(detail.tickets)
-    if (!openTicket) return
+    const replySocialMessageId = pickReplySocialMessageId(detail)
+    if (!replySocialMessageId) return
 
     const sendImmediately = canSendPending && (isWhatsApp24hWindowOpen(detail.lastInboundAt ?? null) || usingMetaTemplate)
     const sentForConversationId = conversationId
@@ -963,7 +974,7 @@ function ConversationDetail({
       if (pendingFile) {
         fileProgress.report(0)
         await api.replySocialMessageAttachment(
-          openTicket.socialMessageId,
+          replySocialMessageId,
           pendingFile,
           text,
           sendImmediately,
@@ -972,7 +983,7 @@ function ConversationDetail({
         fileProgress.stop()
       } else {
         await api.replySocialMessage(
-          openTicket.socialMessageId,
+          replySocialMessageId,
           text,
           sendImmediately,
           selectedMetaTemplate
@@ -1119,6 +1130,7 @@ function ConversationDetail({
   const activeDetail = detail?.citizenConversationId === conversationId ? detail : null
   const openTicket = activeDetail ? pickReplyTicket(activeDetail.tickets) : undefined
   const primaryTicket = openTicket ?? activeDetail?.tickets[activeDetail.tickets.length - 1]
+  const replySocialMessageId = activeDetail ? pickReplySocialMessageId(activeDetail) : undefined
   const internalDepartmentOptions = useMemo(() => {
     const activeStatuses = new Set(['Draft', 'PendingOwnerApproval', 'PendingExternalApproval', 'RevisionRequested', 'Active'])
     const options = new Map<string, string>()
@@ -1211,14 +1223,14 @@ function ConversationDetail({
             </button>
             {menuOpen ? (
               <div className="dropdown-menu-panel absolute right-0 top-full z-20 mt-1 min-w-[13rem] py-1">
-                {primaryTicket ? (
+                {replySocialMessageId ? (
                   <>
                     <button
                       type="button"
                       className="dropdown-menu-item !justify-start gap-2.5"
                       onClick={() => {
                         setMenuOpen(false)
-                        onOpenCreateRequest(primaryTicket.socialMessageId)
+                        onOpenCreateRequest(replySocialMessageId)
                       }}
                     >
                       <ClipboardPlus {...DETAIL_ICON_PROPS} className="size-4 text-emerald-600" />
@@ -1369,7 +1381,7 @@ function ConversationDetail({
             <div ref={bottomRef} />
           </div>
 
-          {openTicket ? (
+          {replySocialMessageId ? (
             <footer className="whatsapp-conversation-footer shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
               <div className="space-y-2">
                 <div className="grid grid-cols-[1fr_auto] items-center gap-2">
@@ -1434,6 +1446,7 @@ function ConversationDetail({
                 {fileProgress.visible ? (
                   <AttachmentUploadProgressBar progress={fileProgress.progress} />
                 ) : null}
+                    {internalDepartmentOptions.length > 0 ? (
                     <div className="ml-auto flex items-center gap-2">
                       <SingleSelectDropdown
                         options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
@@ -1459,6 +1472,7 @@ function ConversationDetail({
                         {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
                       </button>
                     </div>
+                    ) : null}
                   </div>
                   <div className="size-11 invisible shrink-0 pointer-events-none" aria-hidden="true" />
                 </div>
@@ -1511,8 +1525,8 @@ function ConversationDetail({
             setProfileDraft(current => ({ ...current, ...patch }))
           }}
           onSave={() => { void handleProfileSave() }}
-          canCreateRequest={Boolean(primaryTicket)}
-          onCreateRequest={primaryTicket ? () => onOpenCreateRequest(primaryTicket.socialMessageId) : undefined}
+          canCreateRequest={Boolean(replySocialMessageId)}
+          onCreateRequest={replySocialMessageId ? () => onOpenCreateRequest(replySocialMessageId) : undefined}
         />
       </div>
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />

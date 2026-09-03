@@ -1879,7 +1879,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1858). **Ham WhatsApp mesajı VT üretmez** (#3349/#3350): webhook `CitizenRequestNumber`
   yazmaz; dizin yalnız numaralı talep olan konuşmaları listeler; `/social` grid `CitizenRequestNumber`
   veya `JobId` olmayan WA thread'lerini göstermez. VT numarası `CreateSocialMessage` / convert anında
-  verilir. WhatsApp Konuşmaları listesi `whatsAppOnly=true` ile yalnız en az bir WhatsApp
+  verilir. **`/whatsapp` yanıt kutusu talebe bağlı değildir:** footer `tickets` (VT numaralı satır)
+  yokken de son sohbet `SocialMessageId` ile yazılır; `Bağlı talep yok` yalnız hiç mesaj yokken.
+  Talep Oluştur isteğe bağlıdır (sağ panel). Kurum içi birim iletimi yalnız açık talebin birimi varken. WhatsApp Konuşmaları listesi `whatsAppOnly=true` ile yalnız en az bir WhatsApp
   kanal mesajı olan konuşmaları gösterir; çağrı VT numaraları bu listede yoktur (card #1864).
   Detaylar → konuşma ticket listesi (aynı telefon tüm kanallar — BE konuşma birleşimi +
   orphan Phone VT telefon eşlemesi, card #2543/#2546) → salt-okunur

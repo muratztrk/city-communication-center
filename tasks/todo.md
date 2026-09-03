@@ -1,3 +1,7 @@
+## Round 1105 — ham WA yanıt kutusu
+
+- `/whatsapp` talebi olmayan sohbette de mesaj yazılır; Talep Oluştur isteğe bağlı. `Bağlı talep yok` composer’ı kilitlemez.
+
 ## Round 1104 — WA VT yok, dropdown yönü, rozet
 
 - **#3349/#3350:** Ham WA mesajı VT üretmez; dizin/Vatandaş Talepleri yalnız talep olunca. Mevcut VT-2026-1/2/3 numarası temizlenir.

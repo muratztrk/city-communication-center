@@ -1,3 +1,13 @@
+## Round 1109 — Mesaj Onayı outbound, WA footer, Dosya ekle, Birime Gelen lisans
+
+- **#3356:** Mesaj Onayı detay popup'ta `Vatandaşa Giden Mesaj` yalnız iletim sonrası (`outboundPlain`).
+- **#3354 reopen:** WA filtre chip satırı `gap-2`.
+- **#3355:** Birime Gelen Birim İçi/Dışı chip'leri `isModuleUsable('internal')` ile.
+- **#3357:** Dosya ekle progress bar kaldırıldı (WA, ConversationPanel, AttachmentSection, FAB).
+- **#3358:** Dosya seçimi sonrası input reset `setTimeout` ile; `holdAtZero` kaldırıldı.
+- **#3359:** WA Mesaj yazın `min-h-[3.5rem]`; Birim/Kurum İçi `h-[2.125rem]`.
+- Atlandı: #3360 `tim mobil app'de`.
+
 ## Round 1108b — harita bugünkü değişiklikler geri alındı
 
 - Vatandaş Talep Haritası `289932ed` (31 Ağu) haline döndü: zoom 12, CBS mahalle overlay yok, Google native mahalle etiketleri durur.

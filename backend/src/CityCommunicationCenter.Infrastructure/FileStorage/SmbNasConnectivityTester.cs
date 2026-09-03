@@ -44,6 +44,9 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
         NTStatus lastLoginStatus = NTStatus.STATUS_LOGON_FAILURE;
         Exception? lastConnectError = null;
         var anyConnected = false;
+        // Hangi bağlantı adı / domain çiftinin denendiği hata mesajına yazılır: aksi halde
+        // "kullanıcı adı veya şifre hatalı" mesajı hangi kombinasyonun reddedildiğini gizliyor.
+        var attempts = new List<string>();
 
         foreach (var connectName in connectServerNames)
         {
@@ -80,6 +83,7 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
                     lastLoginStatus = loginStatus;
                     if (loginStatus != NTStatus.STATUS_SUCCESS)
                     {
+                        attempts.Add($"{connectName}\\{(domain.Length == 0 ? "(boş domain)" : domain)} → {loginStatus}");
                         continue;
                     }
 
@@ -168,14 +172,18 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
             return new NasUserTestResult(false, $"NAS sunucusuna bağlanılamadı ({host}). Adresi ve ağ erişimini kontrol edin.");
         }
 
-        return new NasUserTestResult(false, FormatLoginFailureMessage(lastLoginStatus, netBiosName));
+        return new NasUserTestResult(false, FormatLoginFailureMessage(lastLoginStatus, netBiosName, attempts));
     }
 
-    private static string FormatLoginFailureMessage(NTStatus status, string? netBiosName)
+    private static string FormatLoginFailureMessage(NTStatus status, string? netBiosName, IReadOnlyList<string> attempts)
     {
+        var trail = attempts.Count == 0
+            ? string.Empty
+            : $" Denenen: {string.Join("; ", attempts)}.";
+
         if (status == NTStatus.STATUS_USER_SESSION_DELETED)
         {
-            return "SMB oturumu açılamadı (STATUS_USER_SESSION_DELETED). Kullanıcı adı DOMAIN\\kullanıcı biçiminde deneyin veya NAS workgroup ayarını kontrol edin.";
+            return "SMB oturumu açılamadı (STATUS_USER_SESSION_DELETED). Kullanıcı adı DOMAIN\\kullanıcı biçiminde deneyin veya NAS workgroup ayarını kontrol edin." + trail;
         }
 
         if (status is NTStatus.STATUS_LOGON_FAILURE or NTStatus.STATUS_WRONG_PASSWORD)
@@ -183,10 +191,10 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
             var domainHint = netBiosName is not null
                 ? $" DOMAIN\\{netBiosName}\\kullanıcı veya {netBiosName}\\kullanıcı biçimini deneyin."
                 : " DOMAIN\\kullanıcı biçimini deneyin.";
-            return $"Kullanıcı adı veya şifre hatalı ({status}).{domainHint}";
+            return $"Kullanıcı adı veya şifre hatalı ({status}).{domainHint}{trail}";
         }
 
-        return $"NAS kullanıcı girişi başarısız ({status}).";
+        return $"NAS kullanıcı girişi başarısız ({status}).{trail}";
     }
 
     private static IReadOnlyList<string> BuildConnectServerNames(

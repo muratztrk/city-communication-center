@@ -9,8 +9,7 @@ import {
   SuperClusterAlgorithm,
   type Cluster,
 } from '@googlemaps/markerclusterer'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { queryKeys } from '../api/queryKeys'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
@@ -54,21 +53,12 @@ function pinColor(displayStatus: string, variant: 'citizen' | 'department'): str
   return palette[displayStatus] ?? palette.inProgress
 }
 
-/** Cadde/sokak/bulvar açık; POI ve transit kapalı — yol isimleri + CBS mahalle etiketleri (#2799/#3351). */
+/** Cadde/sokak/bulvar açık; POI ve transit kapalı — yalnız yol isimleri (#2799). */
 const REQUEST_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
   { featureType: 'administrative.land_parcel', stylers: [{ visibility: 'off' }] },
-  { featureType: 'administrative.neighborhood', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-  { featureType: 'administrative.locality', elementType: 'labels', stylers: [{ visibility: 'off' }] },
 ]
-
-const NEIGHBORHOOD_LABEL_FONT_SIZE = '9px'
-
-function neighborhoodLabelText(name: string): string {
-  const trimmed = name.trim()
-  return /mah\.?$/i.test(trimmed) ? trimmed : `${trimmed} Mah.`
-}
 
 /** Başlangıç zoom'da tek pin bile sayılı cluster; bu zoom ve üstünde durum rengi. */
 const NUMBERED_SINGLE_MAX_ZOOM = 14
@@ -140,9 +130,7 @@ function isSameOrChildCluster(previousKey: string, nextKey: string): boolean {
 
 /** 2. tıklamada pinlere biraz daha yaklaş; fitBounds / sokak over-zoom yok (#2612). */
 const CLUSTER_REVEAL_ZOOM = NUMBERED_SINGLE_MAX_ZOOM + 3
-const DEPARTMENT_INITIAL_MAP_ZOOM = 12
-/** Vatandaş haritası açılışı ilçe merkezine bir yarım kademe daha yakın (#3351). */
-const CITIZEN_INITIAL_MAP_ZOOM = 12.5
+const INITIAL_MAP_ZOOM = 12
 
 function onCitizenClusterClick(_: google.maps.MapMouseEvent, cluster: Cluster, map: google.maps.Map) {
   const current = map.getZoom() ?? 12
@@ -416,7 +404,6 @@ export function CitizenRequestMap({
   const queryClient = useQueryClient()
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
-  const initialZoom = variant === 'department' ? DEPARTMENT_INITIAL_MAP_ZOOM : CITIZEN_INITIAL_MAP_ZOOM
   const districtId = useMunicipalityDistrictId()
   const mapView = useMemo(() => getDistrictMapView(districtId), [districtId])
   const mapCenter = useMemo(
@@ -456,19 +443,7 @@ export function CitizenRequestMap({
   const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
   const markersRef = useRef<google.maps.Marker[]>([])
-  const neighborhoodLabelMarkersRef = useRef<google.maps.Marker[]>([])
   const bouncingMarkerRef = useRef<google.maps.Marker | null>(null)
-
-  const { data: mapLandmarks = [] } = useQuery({
-    queryKey: queryKeys.izmirCbs.landmarks(mapView.districtId),
-    queryFn: () => api.getIzmirCbsLandmarks(mapView.districtId),
-    enabled: variant === 'citizen' && mapsReady,
-    staleTime: 1000 * 60 * 60,
-  })
-  const neighborhoodLandmarks = useMemo(
-    () => mapLandmarks.filter(place => place.kind === 'neighborhood'),
-    [mapLandmarks],
-  )
 
   const stopMarkerBounce = useCallback(() => {
     bouncingMarkerRef.current?.setAnimation(null)
@@ -638,8 +613,8 @@ export function CitizenRequestMap({
   useEffect(() => {
     if (!mapInstance || !isLoaded) return
     mapInstance.setCenter({ lat: mapView.center.lat, lng: mapView.center.lng })
-    mapInstance.setZoom(initialZoom)
-  }, [mapInstance, isLoaded, mapView.center.lat, mapView.center.lng, initialZoom])
+    mapInstance.setZoom(INITIAL_MAP_ZOOM)
+  }, [mapInstance, isLoaded, mapView.center.lat, mapView.center.lng])
 
   const openJobDetail = useCallback(async (jobId: string, socialMessageId?: string) => {
     setJobDetail(null)
@@ -747,37 +722,6 @@ export function CitizenRequestMap({
     }
   }, [mapInstance, isLoaded, visibleResolved, variant, stopMarkerBounce])
 
-  useEffect(() => {
-    if (!mapInstance || !isLoaded || variant !== 'citizen') return
-
-    neighborhoodLabelMarkersRef.current.forEach(marker => marker.setMap(null))
-    const markers = neighborhoodLandmarks.map(place => new google.maps.Marker({
-      map: mapInstance,
-      position: { lat: place.latitude, lng: place.longitude },
-      clickable: false,
-      zIndex: 2,
-      title: neighborhoodLabelText(place.name),
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 0,
-        fillOpacity: 0,
-        strokeOpacity: 0,
-      },
-      label: {
-        text: neighborhoodLabelText(place.name),
-        fontSize: NEIGHBORHOOD_LABEL_FONT_SIZE,
-        fontWeight: '600',
-        color: '#64748b',
-      },
-    }))
-    neighborhoodLabelMarkersRef.current = markers
-
-    return () => {
-      neighborhoodLabelMarkersRef.current.forEach(marker => marker.setMap(null))
-      neighborhoodLabelMarkersRef.current = []
-    }
-  }, [mapInstance, isLoaded, neighborhoodLandmarks, variant])
-
   const statusLegend = useMemo(() => {
     const inProgressColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.inProgress : PIN_COLORS.inProgress
     const overdueColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.overdue : PIN_COLORS.overdue
@@ -806,8 +750,8 @@ export function CitizenRequestMap({
   const resetMapView = useCallback(() => {
     if (!mapInstance) return
     mapInstance.panTo({ lat: mapView.center.lat, lng: mapView.center.lng })
-    mapInstance.setZoom(initialZoom)
-  }, [mapInstance, mapView.center.lat, mapView.center.lng, initialZoom])
+    mapInstance.setZoom(INITIAL_MAP_ZOOM)
+  }, [mapInstance, mapView.center.lat, mapView.center.lng])
 
   useEffect(() => {
     if (!mapInstance) return
@@ -945,7 +889,7 @@ export function CitizenRequestMap({
             mapContainerStyle={MAP_CONTAINER_STYLE}
             mapContainerClassName="citizen-request-map"
             center={mapCenter}
-            zoom={initialZoom}
+            zoom={INITIAL_MAP_ZOOM}
             onLoad={onMapLoad}
             onClick={() => setGestureHandling('greedy')}
             options={{
@@ -1012,7 +956,7 @@ export function CitizenRequestMap({
                 aria-label="+"
                 onClick={() => {
                   if (!mapInstance) return
-                  mapInstance.setZoom(Math.min(21, (mapInstance.getZoom() ?? initialZoom) + 1))
+                  mapInstance.setZoom(Math.min(21, (mapInstance.getZoom() ?? INITIAL_MAP_ZOOM) + 1))
                 }}
               >
                 +
@@ -1024,7 +968,7 @@ export function CitizenRequestMap({
                 aria-label="−"
                 onClick={() => {
                   if (!mapInstance) return
-                  mapInstance.setZoom(Math.max(3, (mapInstance.getZoom() ?? initialZoom) - 1))
+                  mapInstance.setZoom(Math.max(3, (mapInstance.getZoom() ?? INITIAL_MAP_ZOOM) - 1))
                 }}
               >
                 −

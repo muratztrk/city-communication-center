@@ -1985,7 +1985,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ilk pin yerinde kalır, diğerleri ~10 m halkaya kayar; tıklanınca adres grubu yine
   `Vatandaş Bilgi Listesi` açılır (#6a92713f). Cluster sayısı iş, zoom’da ayrı konum.
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
-  Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi; vatandaş zoom 12.5 (#3351), birim zoom 12 (#2591).
+  Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
   Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593/#2597). Pin **rengi** durum
   rengi (sky-500 / orange-500 / red-500 / green-500; iç daire beyaz); doygunluk artırımı
   geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
@@ -1997,9 +1997,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (1–2 karakter sayfa resetlemez), Anasayfa-Vatandaş panel araması, pie lejant `Ara…`.
   1–2 karakter pinleri / dilimleri daraltmaz. Arama pinleri, konum sayısını ve liste
   popup’ını daraltır; geocode tüm pinlerde bir kez çalışır (#3086/#3087/#3088/#2978).
-  Google haritada yalnız cadde/sokak/bulvar etiketleri; POI, transit ve Google mahalle/yerleşim
-  adı etiketleri kapalı (#2799/#3351 — karo fontu küçültülemez). Vatandaş haritasında CBS mahalle
-  etiketleri `9px` label overlay ile geri basılır; POI/referans marker yok (#3351 reopen).
+  Google haritada yalnız cadde/sokak/bulvar etiketleri; POI ve transit kapalı; CBS overlay
+  veya özel referans marker yok (#2799).
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) harita kutusunun sağ alt köşesinde
   (`bottom`/`right` 1.15rem, #2614/#2615/#2621/#2631/#3280); Street View sarı pegman
   beyaz çerçeve 1.7rem / iç logo 26px, +/- yığınının solunda **+/− arasındaki çizgi hizasında** (#2614/#2615/#2621/#2631/#2769).
@@ -2033,7 +2032,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Yapılmakta` (Olan yok); Geciken lejantı `whitespace-nowrap` ile yan yana `Yapılmakta Geciken`
   (#2671/#2680). Banner: `Bölgenizdeki vatandaş talepleri…` (ilçe adı yok, #2685).
   Sağ alt zoom’da `+` üstünde hedef ikonu sayfa açılış merkez/zoom’a döner; ikon `20px`, çerçeve `2rem` (#2688).
-  Varsayılan zoom bir kademe geniş (#2579); vatandaş haritası açılışı yarım kademe daha yakın 12.5 (#3351).   Hover'da el (grab)
+  Varsayılan zoom bir kademe geniş (#2579).   Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Küçük ekranda (`max-width: 1023px`)
   hover yok: harita baştan `greedy` + `touch-action: none` (pinch/zoom çalışır); WhatsApp ve
   kurum içi FAB gizlenir, zoom kontrolleri kapanmaz (#2694). Sayfa banner/layout

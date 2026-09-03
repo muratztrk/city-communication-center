@@ -1,3 +1,8 @@
+## Round 1108b — harita bugünkü değişiklikler geri alındı
+
+- Vatandaş Talep Haritası `289932ed` (31 Ağu) haline döndü: zoom 12, CBS mahalle overlay yok, Google native mahalle etiketleri durur.
+- #3351 reopen ve bugünkü zoom/etiket denemeleri geri alındı.
+
 ## Round 1108 — WA etiket/chip/FAB, harita mahalle etiketi reopen
 
 - **#3353:** `CitizenRequestModal` Etiket seçiniz / Etiket ekle `10px` + `h-7`.

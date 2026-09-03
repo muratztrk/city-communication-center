@@ -2157,7 +2157,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Başlık altı değerler **sola hizalı**, ortalı değil (#3311). Yalnız peek; detay kartı dokunulmaz.
   Mobilde 2 kolon durur, başlık aralıkları popup’ı kaplayıp ortalanır (`space-evenly`, #3300).
   X Talebi Yönlendir ile aynı.
-  Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın (`2.4rem` üç kutu, `1.6rem` iki kutu, #2759).
+  Detay **Adres Bilgileri**: satır1 Mahalle+Cadde+No; satır2 Adres Tarifi Mahalle altında, Konum Koordinatı Cadde altında; koordinat varsa **Konumu Gör** (#2756; #2758 No hizası geri alındı). Adres Tarifi / Konum başlıklarının üstünde ekstra boşluk (#2666). Taleplerim / Birimden Giden detayında **No** başlık+değer sağa daha yakın (`2.4rem` üç kutu, `2rem` iki kutu, #2759/#2728).
   Görevlerim İlgili Talep Adres Bilgileri 3+2; Mahalle/Cadde/No üstünde boşluk (#2568); Adres Tarifi başlığı Mahalle ile aynı sol düşey hizada (#2778); satır 2 üstte boşluk (#2651). WA Vatandaş Bilgileri Cadde menüsü tetikleyiciden sağa (No tarafına) daha geniş (`+96px`), No tetikleyici genişliğinde, aşağı açılır (#2640). WA Talebi Oluştur Açıklama toolbar K/A + liste ikonları yalnız o popup’ta hafif büyük (`!important`, #2757 reopen). Giden WA birim·ad yeşil balonda `text-white/90`. WA Talebi Oluştur Mahalle/Cadde/No/Birim arama kutusu 0.7rem (#2760).
   Vatandaş talep detayında adres doluysa Talep Bilgileri’nde Vatandaş Adı / Telefon No altında
   **Vatandaş Adres Bilgisi** + sağda **Adresi Gör** (küçük portal popup, #2751).
@@ -2649,6 +2649,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sıfırlanır; chip/buton geçişlerinde de temizlenir.
 - **Dashboard Bekleyen Görevlerim alt metin (#6a75c91c reopen):** `(Birim İçi/Birim Dışı)` — "Bekleyen ve Geciken" eklenmez (geri alındı).
 - **WA kişi kartı (#6a75a9c2/#6a75cccc/#6a75ccfa/#6a75cd3f):** webhook `contacts` → `[kişi kartı]\nAd\ntelefon` (bullet/tire/ayraç yok; isim ile numara ayrı satır); balonda User ikonu (emerald çerçeve); konum MapPin/Haritada aç kişi kartında çıkmaz (thread lat/lng sızmaz). FE eski `Ad ·/ - telefon` kayıtlarını da satır kırarak gösterir. İsim/numara metni `text-xs font-semibold` (sm değil; medium→semibold hafif bump — #6a75cccc).
+- **WA tepki mesajı (#3336):** webhook `type: reaction` → `emoji` metni (boşsa `[tepki]`); eski `[unsupported]` kayıtları otomatik düzelmez.
+- **WA Vatandaş Bilgileri Cadde menüsü (#3351):** `CbsStreetNoDropdowns` `streetMenuWidthExtraPx={96}` + `matchTriggerWidth`.
 - **Birimdeki Bekleyen Son Tarih (#6a75e88c):** `hideDueDateColumn` false for department `pending` (overdue ile birlikte).
 - **Görev Tarihi Yeni+Tip (#6a75e10f):** Yeni rozeti ile Görev Tipi aynı satırda yan yana (`showTaskTypeUnderDate`).
 - **Dizin telefon (#6a75e40c):** `formatDirectoryPhone` → `xxx xxx xx xx`.

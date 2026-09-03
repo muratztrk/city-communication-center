@@ -8,6 +8,7 @@ const BRACKET_LABELS: Record<string, string> = {
   audio: 'Ses kaydı',
   document: 'Belge',
   sticker: 'Çıkartma',
+  tepki: 'Tepki',
   voice: 'Sesli mesaj',
   contacts: 'Kişi kartı',
   'kişi kartı': 'Kişi kartı',

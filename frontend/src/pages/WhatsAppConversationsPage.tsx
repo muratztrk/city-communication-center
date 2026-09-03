@@ -468,7 +468,7 @@ function ConversationListPanel({
         </div>
 
         <div className="overflow-visible pt-2.5 pr-1">
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             {filterOptions.map(option => (
               <button
                 key={option.value}

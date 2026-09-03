@@ -4024,6 +4024,13 @@
     font-size: 0.72rem;
   }
 
+  /* WA Vatandaş Talebi Oluştur: Etiket seçiniz / Etiket ekle biraz küçük (#3353). */
+  .citizen-request-form .request-tag-create-block .request-tag-create-actions button {
+    height: 1.75rem !important;
+    padding-inline: 0.45rem !important;
+    font-size: 0.625rem !important;
+  }
+
   .citizen-request-form .address-open-textarea,
   .citizen-request-form .citizen-request-open-address {
     font-size: 0.8rem;
@@ -7502,7 +7509,7 @@
   }
 
   .whatsapp-notification-fab-panel {
-    right: -3rem;
+    right: -2.5rem;
   }
 
   .fixed-fab-stack:has(.scroll-fab-button) .internal-messages-fab-panel {
@@ -7510,7 +7517,7 @@
   }
 
   .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel {
-    right: -6.5rem;
+    right: -6rem;
   }
 
   /* Harita dikey FAB: paneller sağa taşmasın, butonların soluna açılsın (#3280/#3243). */

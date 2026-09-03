@@ -1,3 +1,10 @@
+## Round 1108 — WA etiket/chip/FAB, harita mahalle etiketi reopen
+
+- **#3353:** `CitizenRequestModal` Etiket seçiniz / Etiket ekle `10px` + `h-7`.
+- **#3351 reopen:** CBS mahalle etiketleri `9px` geri; Google native mahalle kapalı.
+- **#3354:** WA filtre chip satırı `gap-1.5`.
+- **#3352 reopen:** WA bildirim paneli biraz sağa (`-2.5/-6rem`).
+
 ## Round 1107 — WA FAB sola, harita mahalle etiketi
 
 - **#3352:** WhatsApp bildirim paneli biraz sola (`-4.25/-7.75` → `-3/-6.5rem`).

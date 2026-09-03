@@ -9,7 +9,8 @@ import {
   SuperClusterAlgorithm,
   type Cluster,
 } from '@googlemaps/markerclusterer'
-import { useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { queryKeys } from '../api/queryKeys'
 import { useTranslation } from 'react-i18next'
 import type { TFunction } from 'i18next'
 import { api } from '../api/client'
@@ -53,7 +54,7 @@ function pinColor(displayStatus: string, variant: 'citizen' | 'department'): str
   return palette[displayStatus] ?? palette.inProgress
 }
 
-/** Cadde/sokak/bulvar açık; POI ve transit kapalı — yalnız yol isimleri (#2799). */
+/** Cadde/sokak/bulvar açık; POI ve transit kapalı — yol isimleri + CBS mahalle etiketleri (#2799/#3351). */
 const REQUEST_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: 'poi', stylers: [{ visibility: 'off' }] },
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
@@ -61,6 +62,13 @@ const REQUEST_MAP_STYLES: google.maps.MapTypeStyle[] = [
   { featureType: 'administrative.neighborhood', elementType: 'labels', stylers: [{ visibility: 'off' }] },
   { featureType: 'administrative.locality', elementType: 'labels', stylers: [{ visibility: 'off' }] },
 ]
+
+const NEIGHBORHOOD_LABEL_FONT_SIZE = '9px'
+
+function neighborhoodLabelText(name: string): string {
+  const trimmed = name.trim()
+  return /mah\.?$/i.test(trimmed) ? trimmed : `${trimmed} Mah.`
+}
 
 /** Başlangıç zoom'da tek pin bile sayılı cluster; bu zoom ve üstünde durum rengi. */
 const NUMBERED_SINGLE_MAX_ZOOM = 14
@@ -448,7 +456,19 @@ export function CitizenRequestMap({
   const coverageLayerRef = useRef<google.maps.StreetViewCoverageLayer | null>(null)
   const clustererRef = useRef<MarkerClusterer | null>(null)
   const markersRef = useRef<google.maps.Marker[]>([])
+  const neighborhoodLabelMarkersRef = useRef<google.maps.Marker[]>([])
   const bouncingMarkerRef = useRef<google.maps.Marker | null>(null)
+
+  const { data: mapLandmarks = [] } = useQuery({
+    queryKey: queryKeys.izmirCbs.landmarks(mapView.districtId),
+    queryFn: () => api.getIzmirCbsLandmarks(mapView.districtId),
+    enabled: variant === 'citizen' && mapsReady,
+    staleTime: 1000 * 60 * 60,
+  })
+  const neighborhoodLandmarks = useMemo(
+    () => mapLandmarks.filter(place => place.kind === 'neighborhood'),
+    [mapLandmarks],
+  )
 
   const stopMarkerBounce = useCallback(() => {
     bouncingMarkerRef.current?.setAnimation(null)
@@ -726,6 +746,37 @@ export function CitizenRequestMap({
       markersRef.current = []
     }
   }, [mapInstance, isLoaded, visibleResolved, variant, stopMarkerBounce])
+
+  useEffect(() => {
+    if (!mapInstance || !isLoaded || variant !== 'citizen') return
+
+    neighborhoodLabelMarkersRef.current.forEach(marker => marker.setMap(null))
+    const markers = neighborhoodLandmarks.map(place => new google.maps.Marker({
+      map: mapInstance,
+      position: { lat: place.latitude, lng: place.longitude },
+      clickable: false,
+      zIndex: 2,
+      title: neighborhoodLabelText(place.name),
+      icon: {
+        path: google.maps.SymbolPath.CIRCLE,
+        scale: 0,
+        fillOpacity: 0,
+        strokeOpacity: 0,
+      },
+      label: {
+        text: neighborhoodLabelText(place.name),
+        fontSize: NEIGHBORHOOD_LABEL_FONT_SIZE,
+        fontWeight: '600',
+        color: '#64748b',
+      },
+    }))
+    neighborhoodLabelMarkersRef.current = markers
+
+    return () => {
+      neighborhoodLabelMarkersRef.current.forEach(marker => marker.setMap(null))
+      neighborhoodLabelMarkersRef.current = []
+    }
+  }, [mapInstance, isLoaded, neighborhoodLandmarks, variant])
 
   const statusLegend = useMemo(() => {
     const inProgressColor = variant === 'department' ? DEPARTMENT_PIN_COLORS.inProgress : PIN_COLORS.inProgress

@@ -520,7 +520,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekliyor` sağında; `hasPendingMessageApproval`
   = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). Rozet konuşma/numara
   sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2` / `-right-1.5`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
-  (#3348 yükseklik; #3330 nowrap). `overflow-x-auto` yok — gizli scroll üçüncü chip’i kesiyordu; dar punto
+  (#3348 yükseklik; #3330 nowrap). Üç chip arası `gap-1.5` (#3354). `overflow-x-auto` yok — gizli scroll üçüncü chip’i kesiyordu; dar punto
   üçünü yan panele sığdırır. Rozet için `pt-1.5 pr-1` + `overflow-visible`. `max-w` ile satır kırma yok. FAB `hasPendingOutboundMessage`
   hâlâ yalnız personel Beklemede (otomatik hariç). Bu chip açıkken üst durum sayaç filtresi uygulanmaz
   ki İptal bekleyenler de görünsün (#3330).
@@ -785,7 +785,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   salt-okunur değer + Etiketler + Etiket Ekle bloğu bulunur (#1561 reopen);
   kaynak mesaj bir konuşmaya bağlıysa seçim conversation profile'a kaydedilir.
   Kayıtlı etiket sayısı 7 veya daha fazlaysa Etiketler menüsünün ilk satırında küçük puntolu arama gösterilir.
-  `CitizenRequestModal` Etiketler/Etiket ekle kompakt (`h-7`/`h-8`, ~11px, #2703); menü her zaman
+  `CitizenRequestModal` Etiketler/Etiket ekle kompakt (`h-7`/`~1.75rem`, ~10px, #2703/#3353); menü her zaman
   aşağı açılır, genişlik ~220–280px, satır `text-xs` + belirgin hover (`emerald-50`) (#1865).
   Öncelik dropdown tetikleyici/liste `13px` (#2703). Konuşma balonu compact `11px` (#1711/#2634; #2702 küçültme geri alındı).
   CreateRequestPage Vatandaş Çağrı Talebi bloğunda Etiketler/Etiket ekle bir kademe büyük
@@ -795,7 +795,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum İçi Mesajlar FAB ikonu:** yeşil yuvarlak butonda tek, 24px ve belirgin dolu konuşma
   balonu görünür; ikinci/öndeki balon ve üç nokta gösterilmez (card #1583 reopen).
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.
-  WhatsApp bildirim paneli yatay yığında biraz daha solda (`right: -3rem` / kaydır varken `-6.5rem`, #3352)
+  WhatsApp bildirim paneli yatay yığında biraz daha solda (`right: -2.5rem` / kaydır varken `-6rem`, #3352)
   ki sağ kenar viewport’a sığsın.
 - **FAB panel katmanı:** WhatsApp ve Kurum İçi Mesajlar birlikte açıkken WhatsApp bildirim paneli
   `z-20` ile kurum içi panelin önünde görünür (card #1578).
@@ -1997,9 +1997,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (1–2 karakter sayfa resetlemez), Anasayfa-Vatandaş panel araması, pie lejant `Ara…`.
   1–2 karakter pinleri / dilimleri daraltmaz. Arama pinleri, konum sayısını ve liste
   popup’ını daraltır; geocode tüm pinlerde bir kez çalışır (#3086/#3087/#3088/#2978).
-  Google haritada yalnız cadde/sokak/bulvar etiketleri; POI, transit, mahalle ve yerleşim
-  adı etiketleri kapalı (#2799/#3351 — Google karo fontu küçültülemez). CBS overlay
-  veya özel referans marker yok (#2799).
+  Google haritada yalnız cadde/sokak/bulvar etiketleri; POI, transit ve Google mahalle/yerleşim
+  adı etiketleri kapalı (#2799/#3351 — karo fontu küçültülemez). Vatandaş haritasında CBS mahalle
+  etiketleri `9px` label overlay ile geri basılır; POI/referans marker yok (#3351 reopen).
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) harita kutusunun sağ alt köşesinde
   (`bottom`/`right` 1.15rem, #2614/#2615/#2621/#2631/#3280); Street View sarı pegman
   beyaz çerçeve 1.7rem / iç logo 26px, +/- yığınının solunda **+/− arasındaki çizgi hizasında** (#2614/#2615/#2621/#2631/#2769).

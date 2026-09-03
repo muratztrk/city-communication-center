@@ -43,16 +43,16 @@ if [[ "${REMOTE_HEAD}" != "${LOCAL_HEAD}" ]]; then
   cleanup() { rm -f "${BUNDLE}"; }
   trap cleanup EXIT
 
-  info "Bundling ${REMOTE_HEAD:0:12}..${LOCAL_HEAD:0:12} (no GitHub pull on server)"
-  git bundle create "${BUNDLE}" "${REMOTE_HEAD}..${LOCAL_HEAD}"
+  info "Bundling ${REMOTE_HEAD:0:12}..HEAD (no GitHub pull on server)"
+  git bundle create "${BUNDLE}" "${REMOTE_HEAD}..HEAD"
 
-  REMOTE_BUNDLE="/tmp/ccc-deploy-${LOCAL_HEAD:0:12}.bundle"
+  REMOTE_BUNDLE="/tmp/ccc-deploy-$(git rev-parse --short HEAD).bundle"
   scp -o BatchMode=yes "${BUNDLE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_BUNDLE}"
 
   ssh -o BatchMode=yes "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<EOF
 set -euo pipefail
 cd "${REMOTE_DIR}"
-git fetch "${REMOTE_BUNDLE}" "${LOCAL_HEAD}"
+git fetch "${REMOTE_BUNDLE}" HEAD
 git merge --ff-only FETCH_HEAD
 rm -f "${REMOTE_BUNDLE}"
 echo "  Server HEAD \$(git rev-parse --short HEAD)"

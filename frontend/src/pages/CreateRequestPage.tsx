@@ -1760,7 +1760,7 @@ export function CreateRequestPage() {
                     <div className="request-tag-create-actions">
                       <RequestTagPicker
                         largeText
-                        largeMenuText
+                        compactMenuText
                         smallButtonText
                         tags={requestTags}
                         selectedName={citizenLabel}

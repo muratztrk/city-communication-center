@@ -2210,6 +2210,7 @@ export function SettingsPage() {
                         liveSendEnabled: true,
                       }))}
                       placeholder={t('settings.sms.providerPlaceholder', 'SMS sağlayıcısı seçiniz')}
+                      menuScrollClassName="settings-sms-provider-menu"
                       clearable
                     />
                   </div>

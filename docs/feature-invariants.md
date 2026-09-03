@@ -1337,6 +1337,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi `Yönetici`.
 - **SMS sağlayıcı dropdown (#6a6ef1a7/#6a6efa2c):** listede `Custom` yok; varsayılan seçim
   boş → placeholder `SMS sağlayıcısı seçiniz` (`SmsProvider.Unspecified`, NetGSM'e düşmez).
+  `Teknormart` listede (#3340); gönderim entegrasyonu yoksa `providerNotImplemented` uyarısı.
   Entegrasyonu olmayan sağlayıcı uyarısı: "…Destek talebinde bulununuz."
   Kayıtlı `Custom`/`JettMesaj` hâlâ seçenek olarak görünür.
 - **SMS şifre alanı (#6a6efd02/#6a6f06f8):** kayıtlı parola varken input değeri `********`
@@ -2356,9 +2357,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.
 - **Kurum içi Dosya ekle (#2383):** kompakt buton; 5 MB; seçilen dosya sohbet alanında önizleme (WA gibi).
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
-- **Dosya ekle accept filtresi (#2373 / #2848 / #2870):** Talep/görev/WA/kurum içi `accept`
-  yalnız benzersiz uzantı listesi (MIME yok). `.jpg` ve `.jpeg` ayrı uzantı olarak listelenir.
-  `.mov` ve `.webm` accept’te yok (#2870). Logo yükleme (Ayarlar Görünüm) ayrı kalır.
+- **Dosya ekle accept filtresi (#2373 / #2848 / #2870 / #3362):** Talep/görev/WA/kurum içi `accept`
+  MIME + ek uzantı (çakışan uzantı yok); Windows özel dosyalar filtresi için. `.jpg` ve `.jpeg`
+  ayrı uzantı. `.mov` ve `.webm` accept'te yok (#2870). Logo yükleme (Ayarlar Görünüm) ayrı kalır.
+
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol
   sütun); Login Page Açıklama Ana Renk altında tam sütun genişliği. Başlıklar ayrı satır, logo Ekle butonu ile

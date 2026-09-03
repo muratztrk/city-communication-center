@@ -831,27 +831,29 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     <span className="job-field-label">{t('attachments.label', 'Dosya / Görsel Ekle (opsiyonel)')}</span>
                     <div className="flex min-h-[5rem] items-start gap-2">
                       <div className="flex shrink-0 flex-col gap-1">
-                      <label
-                        className={`inline-flex h-[1.875rem] w-[5.35rem] shrink-0 cursor-pointer items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-white px-1 text-[10px] font-semibold leading-none text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}
+                      <button
+                        type="button"
+                        className={`inline-flex h-[1.875rem] w-[5.35rem] shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-lg bg-white px-1 text-[10px] font-semibold leading-none text-slate-800 ring-1 ring-[var(--color-border)] transition-colors hover:bg-slate-50 ${saving ? 'pointer-events-none opacity-60' : ''}`}
+                        disabled={saving}
                         onClick={() => fileInputRef.current?.click()}
                       >
                         <Paperclip className="size-3 shrink-0 text-emerald-700" />
                         {t('attachments.addFile', 'Dosya ekle')}
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept={ATTACHMENT_FILE_ACCEPT}
-                          multiple
-                          className="hidden"
-                          disabled={saving}
-                          onChange={event => {
-                            for (const file of Array.from(event.target.files ?? [])) {
-                              addPendingFile(file)
-                            }
-                            if (fileInputRef.current) fileInputRef.current.value = ''
-                          }}
-                        />
-                      </label>
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept={ATTACHMENT_FILE_ACCEPT}
+                        multiple
+                        className="hidden"
+                        disabled={saving}
+                        onChange={event => {
+                          for (const file of Array.from(event.target.files ?? [])) {
+                            addPendingFile(file)
+                          }
+                          if (fileInputRef.current) fileInputRef.current.value = ''
+                        }}
+                      />
                       </div>
                       <div className="min-h-[5rem] max-h-[5rem] min-w-0 flex-[1.28] overflow-y-auto rounded-2xl border border-slate-200 bg-white px-3 py-2">
                         {pendingFiles.length === 0 ? (

@@ -15,7 +15,7 @@ public interface ITenantSmsSettingsService
 /// <summary>
 /// <see cref="Unspecified"/> = henüz seçilmedi (FE placeholder "SMS sağlayıcısı seçiniz").
 /// </summary>
-public enum SmsProvider { NetGSM, Iletimerkezi, Verimor, Custom, Asistel, JettMesaj, Infobip, Unspecified }
+public enum SmsProvider { NetGSM, Iletimerkezi, Verimor, Custom, Asistel, JettMesaj, Infobip, Teknormart, Unspecified }
 
 /// <param name="LiveSendEnabled">
 /// Gerçek gönderim anahtarı. Kapalıyken otomatik vatandaş SMS'leri sağlayıcıya GÖNDERİLMEZ;

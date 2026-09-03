@@ -483,7 +483,7 @@ function ConversationListPanel({
               >
                 {option.label}
                 {option.badge != null && option.badge > 0 ? (
-                  <span className="absolute -right-1.5 -top-2 z-10 inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-0.5 text-[8px] font-bold leading-none text-white">
+                  <span className="absolute -right-2 -top-2.5 z-10 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold leading-none tabular-nums text-white">
                     {option.badge}
                   </span>
                 ) : null}

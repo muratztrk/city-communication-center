@@ -1,3 +1,9 @@
+## Round 1107 — WA FAB sola, harita mahalle etiketi
+
+- **#3352:** WhatsApp bildirim paneli biraz sola (`-4.25/-7.75` → `-3/-6.5rem`).
+- **#3351:** Vatandaş haritada mahalle/yerleşim etiketleri kapalı (Google karo fontu küçültülemez); cadde etiketleri durur.
+- Atlandı: #3343 #3344 #3346 `tim mobil app'de`.
+
 ## Round 1106 — WA rozet sağa, vatandaş harita zoom
 
 - **#3348:** `/whatsapp` Yanıt bekliyor (ve onay) chip rozeti `-right-1.5`.

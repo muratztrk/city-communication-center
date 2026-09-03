@@ -7502,7 +7502,7 @@
   }
 
   .whatsapp-notification-fab-panel {
-    right: -4.25rem;
+    right: -3rem;
   }
 
   .fixed-fab-stack:has(.scroll-fab-button) .internal-messages-fab-panel {
@@ -7510,7 +7510,7 @@
   }
 
   .fixed-fab-stack:has(.scroll-fab-button) .whatsapp-notification-fab-panel {
-    right: -7.75rem;
+    right: -6.5rem;
   }
 
   /* Harita dikey FAB: paneller sağa taşmasın, butonların soluna açılsın (#3280/#3243). */

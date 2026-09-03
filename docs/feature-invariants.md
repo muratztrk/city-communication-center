@@ -795,6 +795,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum İçi Mesajlar FAB ikonu:** yeşil yuvarlak butonda tek, 24px ve belirgin dolu konuşma
   balonu görünür; ikinci/öndeki balon ve üç nokta gösterilmez (card #1583 reopen).
   Scroll FAB render edilmediğinde panel offset'leri koşullu kalır ve dar ekranda taşma oluşturmaz.
+  WhatsApp bildirim paneli yatay yığında biraz daha solda (`right: -3rem` / kaydır varken `-6.5rem`, #3352)
+  ki sağ kenar viewport’a sığsın.
 - **FAB panel katmanı:** WhatsApp ve Kurum İçi Mesajlar birlikte açıkken WhatsApp bildirim paneli
   `z-20` ile kurum içi panelin önünde görünür (card #1578).
 - **WhatsApp konuşma satırı durum sayaçları salt metindir:** konuşma kartındaki `İşleme Alınan /
@@ -1995,7 +1997,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (1–2 karakter sayfa resetlemez), Anasayfa-Vatandaş panel araması, pie lejant `Ara…`.
   1–2 karakter pinleri / dilimleri daraltmaz. Arama pinleri, konum sayısını ve liste
   popup’ını daraltır; geocode tüm pinlerde bir kez çalışır (#3086/#3087/#3088/#2978).
-  Google haritada yalnız cadde/sokak/bulvar etiketleri; POI ve transit kapalı; CBS overlay
+  Google haritada yalnız cadde/sokak/bulvar etiketleri; POI, transit, mahalle ve yerleşim
+  adı etiketleri kapalı (#2799/#3351 — Google karo fontu küçültülemez). CBS overlay
   veya özel referans marker yok (#2799).
   özel +/- 2rem (tüm çerçeve tıklanır, Google native zoom yok) harita kutusunun sağ alt köşesinde
   (`bottom`/`right` 1.15rem, #2614/#2615/#2621/#2631/#3280); Street View sarı pegman

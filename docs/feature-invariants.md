@@ -518,9 +518,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Yanıt bekliyor` filtresinde. `Yanıt Verildi Yap` kaldırıldı (#3347) — chip satırında yok.
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekliyor` sağında; `hasPendingMessageApproval`
   = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). Rozet konuşma/numara
-  sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde. Üç chip `h-[1.925rem]` (h-11’in %70’i) + `text-sm`
-  + `whitespace-nowrap` (#3348 yükseklik, %30 küçültme; #3330 nowrap). Rozet `overflow-x-auto` satırının
-  `pt-2 pr-2` padding’i içinde kalsın — overflow parent daireyi kesmesin. `max-w` ile satır kırma yok. FAB `hasPendingOutboundMessage`
+  sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde. Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
+  (#3348 yükseklik; #3330 nowrap). `overflow-x-auto` yok — gizli scroll üçüncü chip’i kesiyordu; dar punto
+  üçünü yan panele sığdırır. Rozet için `pt-1.5 pr-1` + `overflow-visible`. `max-w` ile satır kırma yok. FAB `hasPendingOutboundMessage`
   hâlâ yalnız personel Beklemede (otomatik hariç). Bu chip açıkken üst durum sayaç filtresi uygulanmaz
   ki İptal bekleyenler de görünsün (#3330).
   **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).

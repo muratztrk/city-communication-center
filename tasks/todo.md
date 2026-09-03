@@ -1,3 +1,7 @@
+## Round 1103d — WA chip sığdırma
+
+- Üç chip `text-xs` + `h-7` + `px-1.5`; overflow-x-auto kaldırıldı (Mesaj Onayı Bekleyen + rozet kesilmesin).
+
 ## Round 1103c — WA chip rozet kesilmesi
 
 - **#3348 follow-up:** `overflow-x-auto` satırına `pt-2 pr-2`; rozet padding içinde, daire kesilmez.

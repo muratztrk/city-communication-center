@@ -2780,9 +2780,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   altında; `lg:pb-8` / `2xl:pb-10` (eski `py-16`/`py-20` alt padding). Mobil form açıklaması
   değişmez.
 - **Birime Gelen Adres No (#3217/#3218):** yalnız `my-request-detail-bottom--incoming`.
-  #3217 masaüstü boş `-` sola hizası **geri alındı**. Mobilde No `padding-inline-start: 1.65rem`
-  + `margin-inline-start: 0.35rem` — Cadde/Sokak'a yapışmaz (#3218). Taleplerim `--attachments-only`
-  masaüstünde eşit 3 kolon sola yaslı (#3327 reopen).
+  #3217 masaüstü boş `-` sola hizası **geri alındı**. Mobilde **3 kutu** düzeninde No
+  `padding-inline-start: 1.65rem` + `margin-inline-start: 0.35rem` (#3218). **2 kutu**
+  (`--incoming` + `--attachments-only`) mobilde eşit `repeat(3, 1fr)` + simetrik `column-gap`
+  — No padding hack yok (#3327 reopen). Taleplerim `--attachments-only` masaüstünde eşit 3 kolon.
 - **Yazışmaya Git terminal gizleme (#3236):** talep `Completed` / `Cancelled` ise buton yalnız
   `SystemAdmin` ve `Operator` (ek rol dahil) için görünür; diğer roller görmez.
 - **Vatandaş cevap şablonu taslak (#3221/#3220/#3222):** Kaydetmeden sekme/sayfa değişince

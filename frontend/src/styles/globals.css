@@ -6615,15 +6615,16 @@
       grid-template-columns: minmax(0, 1fr) !important;
     }
 
-    /* Birime Gelen detay: No, Cadde/Sokak'a yapışmasın — daha belirgin sağa (#3218 retry). */
-    .my-request-detail-bottom--incoming .address-detail-my-request__item--street-no {
+    /* Birime Gelen detay (3 kutu): No, Cadde/Sokak'a yapışmasın (#3218). 2 kutu
+       (--attachments-only) eşit grid gap kullanır — padding hack yok (#3327 reopen). */
+    .my-request-detail-bottom--incoming:not(.my-request-detail-bottom--attachments-only) .address-detail-my-request__item--street-no {
       padding-inline-start: 1.65rem !important;
       margin-inline-start: 0.35rem !important;
       transform: none !important;
     }
 
-    .my-request-detail-bottom--incoming .address-detail-my-request__item--street-no .address-detail-my-request__label,
-    .my-request-detail-bottom--incoming .address-detail-my-request__item--street-no .address-detail-my-request__value {
+    .my-request-detail-bottom--incoming:not(.my-request-detail-bottom--attachments-only) .address-detail-my-request__item--street-no .address-detail-my-request__label,
+    .my-request-detail-bottom--incoming:not(.my-request-detail-bottom--attachments-only) .address-detail-my-request__item--street-no .address-detail-my-request__value {
       transform: none !important;
     }
 
@@ -7235,11 +7236,12 @@
     line-height: 1.25;
   }
 
-  /* Görev detay Adres: 3 kolon + ortalama merdiven yapıyordu; tek sol eksen (#3274). */
+  /* Görev detay Adres: 3 kolon + ortalama merdiven yapıyordu; tek sol eksen (#3274).
+     Birime Gelen 2-kutu (--incoming + --attachments-only) mobilde eşit 3 kolon kalır. */
   .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--peek),
   .address-detail-my-request--task .address-detail-my-request__grid--three,
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three {
+  .my-request-detail-bottom--attachments-only:not(.my-request-detail-bottom--incoming) .address-detail-my-request__grid--three {
     grid-template-columns: minmax(0, 1fr) !important;
     justify-items: start !important;
     justify-content: start !important;
@@ -7248,7 +7250,7 @@
   .address-detail-my-request__grid--three:not(.address-detail-my-request__grid--peek) > .address-detail-my-request__item,
   .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item,
   .my-request-detail-bottom--three-cards .address-detail-my-request__item,
-  .my-request-detail-bottom--attachments-only .address-detail-my-request__item {
+  .my-request-detail-bottom--attachments-only:not(.my-request-detail-bottom--incoming) .address-detail-my-request__item {
     display: flex !important;
     flex-direction: column !important;
     align-items: flex-start !important;
@@ -7269,6 +7271,33 @@
     width: fit-content !important;
     max-width: 100% !important;
     margin-inline: 0 !important;
+    text-align: left !important;
+  }
+
+  /* Birime Gelen + yalnız Talep Ekleri: mobilde eşit 3 kolon, simetrik sütun aralığı (#3327 reopen). */
+  .my-request-detail-bottom--incoming.my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three,
+  .my-request-detail-bottom--incoming.my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    column-gap: 0.85rem !important;
+    row-gap: 0.65rem !important;
+    justify-items: stretch !important;
+    justify-content: stretch !important;
+  }
+
+  .my-request-detail-bottom--incoming.my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three > .address-detail-my-request__item,
+  .my-request-detail-bottom--incoming.my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
+    width: 100% !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+    padding-inline-start: 0 !important;
+    margin-inline-start: 0 !important;
+    transform: none !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+
+  .my-request-detail-bottom--incoming.my-request-detail-bottom--attachments-only .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
     text-align: left !important;
   }
 }

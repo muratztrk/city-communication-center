@@ -366,7 +366,19 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
 
         var notifyDepartmentIds = new List<Guid> { job.OwnerDepartmentId };
         notifyDepartmentIds.AddRange(targets);
-        await _afterHoursJobSmsNotifier.NotifyAsync(job, notifyDepartmentIds, cancellationToken);
+        await _afterHoursJobSmsNotifier.NotifyJobCreatedAsync(job, notifyDepartmentIds, cancellationToken);
+
+        if (!requiresOwnerApproval)
+        {
+            foreach (var ownerUser in ownerUsers)
+            {
+                await _afterHoursJobSmsNotifier.NotifyTaskAssignedAsync(
+                    job,
+                    ownerUser.UserId,
+                    request.OwnerDepartmentId,
+                    cancellationToken);
+            }
+        }
 
         return await JobSummaryResponseFactory.CreateAsync(_dbContext, job, cancellationToken);
     }

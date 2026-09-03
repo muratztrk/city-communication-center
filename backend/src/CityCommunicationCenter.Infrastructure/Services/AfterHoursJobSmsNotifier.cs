@@ -31,52 +31,112 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         _logger = logger;
     }
 
-    public async Task NotifyAsync(Job job, IReadOnlyCollection<Guid> departmentIds, CancellationToken cancellationToken = default)
+    public async Task NotifyJobCreatedAsync(Job job, IReadOnlyCollection<Guid> departmentIds, CancellationToken cancellationToken = default)
     {
         try
         {
-            await NotifyCoreAsync(job, departmentIds, cancellationToken);
+            await NotifyJobCreatedCoreAsync(job, departmentIds, cancellationToken);
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "Mesai dışı SMS bildirimi başarısız oldu. JobId={JobId}", job.JobId);
+            _logger.LogWarning(ex, "Mesai dışı yönetici SMS bildirimi başarısız oldu. JobId={JobId}", job.JobId);
         }
     }
 
-    private async Task NotifyCoreAsync(Job job, IReadOnlyCollection<Guid> departmentIds, CancellationToken cancellationToken)
+    public async Task NotifyTaskAssignedAsync(
+        Job job,
+        Guid assigneeUserId,
+        Guid? assignedDepartmentId,
+        CancellationToken cancellationToken = default)
     {
-        var settings = await _workingHoursService.GetSettingsAsync(job.TenantId, cancellationToken);
-        var schedule = WorkingHoursEvaluator.ResolveSchedule(settings, job.OwnerDepartmentId);
-        if (!WorkingHoursEvaluator.IsAfterHours(schedule, DateTimeOffset.UtcNow, TurkeyTimeZone))
+        try
+        {
+            await NotifyTaskAssignedCoreAsync(job, assigneeUserId, assignedDepartmentId, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Mesai dışı personel SMS bildirimi başarısız oldu. JobId={JobId} AssigneeUserId={AssigneeUserId}",
+                job.JobId,
+                assigneeUserId);
+        }
+    }
+
+    private async Task NotifyJobCreatedCoreAsync(Job job, IReadOnlyCollection<Guid> departmentIds, CancellationToken cancellationToken)
+    {
+        if (!await IsAfterHoursAsync(job.TenantId, job.OwnerDepartmentId, cancellationToken))
         {
             return;
         }
 
+        var templates = await LoadTemplatesAsync(job.TenantId, cancellationToken);
+        if (!templates.ManagerSmsIsEnabled)
+        {
+            return;
+        }
+
+        var distinctDepartmentIds = DistinctDepartmentIds(departmentIds);
+        var managerIds = await ResolveManagerRecipientIdsAsync(job, distinctDepartmentIds, cancellationToken);
+        await SendTemplateAsync(job, templates.AfterHoursManagerSms, managerIds, cancellationToken);
+    }
+
+    private async Task NotifyTaskAssignedCoreAsync(
+        Job job,
+        Guid assigneeUserId,
+        Guid? assignedDepartmentId,
+        CancellationToken cancellationToken)
+    {
+        var scheduleDepartmentId = assignedDepartmentId ?? job.OwnerDepartmentId;
+        if (!await IsAfterHoursAsync(job.TenantId, scheduleDepartmentId, cancellationToken))
+        {
+            return;
+        }
+
+        var templates = await LoadTemplatesAsync(job.TenantId, cancellationToken);
+        if (!templates.StaffSmsIsEnabled || string.IsNullOrWhiteSpace(templates.AfterHoursStaffSms))
+        {
+            return;
+        }
+
+        var notifyDepartmentIds = await ResolveJobNotifyDepartmentIdsAsync(job, cancellationToken);
+        var managerIds = await ResolveManagerRecipientIdsAsync(job, notifyDepartmentIds, cancellationToken);
+        if (managerIds.Contains(assigneeUserId))
+        {
+            return;
+        }
+
+        await SendTemplateAsync(job, templates.AfterHoursStaffSms, [assigneeUserId], cancellationToken);
+    }
+
+    private async Task<bool> IsAfterHoursAsync(Guid tenantId, Guid? departmentId, CancellationToken cancellationToken)
+    {
+        var settings = await _workingHoursService.GetSettingsAsync(tenantId, cancellationToken);
+        var schedule = WorkingHoursEvaluator.ResolveSchedule(settings, departmentId);
+        return WorkingHoursEvaluator.IsAfterHours(schedule, DateTimeOffset.UtcNow, TurkeyTimeZone);
+    }
+
+    private async Task<CitizenAutoReplyTemplateModel> LoadTemplatesAsync(Guid tenantId, CancellationToken cancellationToken)
+    {
         var raw = await _dbContext.TenantSettings
             .AsNoTracking()
-            .Where(entity => entity.TenantId == job.TenantId)
+            .Where(entity => entity.TenantId == tenantId)
             .Select(entity => entity.CitizenAutoReplyTemplatesJson)
             .FirstOrDefaultAsync(cancellationToken);
-        var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(raw);
+        return CitizenAutoReplyTemplateJson.ParseOrDefault(raw);
+    }
 
-        var distinctDepartmentIds = departmentIds
-            .Where(id => id != Guid.Empty)
-            .Distinct()
-            .ToArray();
+    private async Task<Guid[]> ResolveJobNotifyDepartmentIdsAsync(Job job, CancellationToken cancellationToken)
+    {
+        var targetIds = await _dbContext.JobDepartments
+            .AsNoTracking()
+            .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
+            .Select(link => link.DepartmentId)
+            .ToListAsync(cancellationToken);
 
-        var managerIds = await ResolveManagerRecipientIdsAsync(job, distinctDepartmentIds, cancellationToken);
-        var staffIds = await ResolveStaffRecipientIdsAsync(job.TenantId, distinctDepartmentIds, managerIds, cancellationToken);
-
-        await SendTemplateAsync(
-            job,
-            templates.ManagerSmsIsEnabled ? templates.AfterHoursManagerSms : null,
-            managerIds,
-            cancellationToken);
-        await SendTemplateAsync(
-            job,
-            templates.StaffSmsIsEnabled ? templates.AfterHoursStaffSms : null,
-            staffIds,
-            cancellationToken);
+        var ids = new List<Guid> { job.OwnerDepartmentId };
+        ids.AddRange(targetIds);
+        return DistinctDepartmentIds(ids);
     }
 
     private async Task<HashSet<Guid>> ResolveManagerRecipientIdsAsync(
@@ -94,7 +154,6 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
                 .Select(department => new
                 {
                     department.ManagerUserId,
-                    department.DeputyManagerUserId,
                     department.ResponsibleUserIdsJson,
                 })
                 .ToListAsync(cancellationToken);
@@ -104,11 +163,6 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
                 if (department.ManagerUserId is Guid managerId)
                 {
                     recipientIds.Add(managerId);
-                }
-
-                if (department.DeputyManagerUserId is Guid deputyId)
-                {
-                    recipientIds.Add(deputyId);
                 }
 
                 foreach (var responsibleId in ParseResponsibleUserIds(department.ResponsibleUserIdsJson))
@@ -140,39 +194,10 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         return recipientIds;
     }
 
-    private async Task<HashSet<Guid>> ResolveStaffRecipientIdsAsync(
-        Guid tenantId,
-        Guid[] distinctDepartmentIds,
-        HashSet<Guid> managerRecipientIds,
-        CancellationToken cancellationToken)
-    {
-        if (distinctDepartmentIds.Length == 0)
-        {
-            return [];
-        }
-
-        var assignedStaffIds = await _dbContext.UserDepartmentAssignments
-            .AsNoTracking()
-            .Where(assignment => assignment.TenantId == tenantId && distinctDepartmentIds.Contains(assignment.DepartmentId))
-            .Select(assignment => assignment.UserId)
-            .ToListAsync(cancellationToken);
-
-        var staffIds = await _dbContext.Users
-            .AsNoTracking()
-            .Where(user => user.TenantId == tenantId
-                && user.IsActive
-                && user.RoleCode == RoleCode.Staff
-                && (distinctDepartmentIds.Contains(user.DepartmentId) || assignedStaffIds.Contains(user.UserId)))
-            .Select(user => user.UserId)
-            .ToListAsync(cancellationToken);
-
-        return staffIds.Where(id => !managerRecipientIds.Contains(id)).ToHashSet();
-    }
-
     private async Task SendTemplateAsync(
         Job job,
         string? template,
-        HashSet<Guid> recipientIds,
+        IReadOnlyCollection<Guid> recipientIds,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(template) || recipientIds.Count == 0)
@@ -205,6 +230,12 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             }
         }
     }
+
+    private static Guid[] DistinctDepartmentIds(IEnumerable<Guid> departmentIds) =>
+        departmentIds
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToArray();
 
     private static IReadOnlyCollection<Guid> ParseResponsibleUserIds(string? json)
     {

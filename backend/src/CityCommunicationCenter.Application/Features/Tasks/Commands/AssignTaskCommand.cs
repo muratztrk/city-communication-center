@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -24,12 +25,18 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
     private readonly IApplicationDbContext _dbContext;
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly ISlaCalculatorService _slaCalculator;
+    private readonly IAfterHoursJobSmsNotifier _afterHoursJobSmsNotifier;
 
-    public AssignTaskCommandHandler(IApplicationDbContext dbContext, ITenantContextAccessor tenantContextAccessor, ISlaCalculatorService slaCalculator)
+    public AssignTaskCommandHandler(
+        IApplicationDbContext dbContext,
+        ITenantContextAccessor tenantContextAccessor,
+        ISlaCalculatorService slaCalculator,
+        IAfterHoursJobSmsNotifier afterHoursJobSmsNotifier)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _slaCalculator = slaCalculator;
+        _afterHoursJobSmsNotifier = afterHoursJobSmsNotifier;
     }
 
     public async ValueTask<bool> Handle(AssignTaskCommand request, CancellationToken cancellationToken)
@@ -151,6 +158,16 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
         });
 
         await _dbContext.SaveChangesAsync(cancellationToken);
+
+        if (targetUser is not null)
+        {
+            await _afterHoursJobSmsNotifier.NotifyTaskAssignedAsync(
+                job,
+                targetUser.UserId,
+                targetDepartment?.DepartmentId,
+                cancellationToken);
+        }
+
         return true;
     }
 

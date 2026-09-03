@@ -921,12 +921,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Giden SMS Bildirimleri** vardır (#2907); Bildirim Mesajı textarea `min-h-48` / CSS `12rem` (#2910). Bu bölümün Kaydet toast’ı
   `Birim yöneticilerine giden bildirim mesajı kaydedildi.` (#2905). **Bildirim Mesajı** textarea
   içeriği SMS gövdesidir — boşluk ve satır sonları olduğu gibi saklanır, vatandaş hitabı eklenmez
-  (#2906). Mesai dışı talep oluşturunca aynı metin birim müdür/sorumlu/yardımcı cep numaralarına
-  ve (vatandaş talebinde) `CitizenRequestManager` kullanıcılara SMS gider (#2903/#2904).
+  (#2906). Mesai dışı talep oluşturulunca yönetici şablonu birim müdürü, sorumlu
+  (`ResponsibleUserIdsJson`) ve (vatandaş talebinde) `CitizenRequestManager` cep numaralarına gider;
+  yardımcı müdür ve tüm personel **dahil değil** (#2903/#2904, 2026-09-03).
   **Birim Personeline Mesai Dışı SMS** ayrı kutu (#3305); her ikisinde **Aktif** anahtar
   (#3306). Aktif kapalıysa o kutu gönderilmez. Yönetici kutusu eski kayıtlarda bayrak yoksa
-  açıktır; personel kutusu varsayılan kapalı. Personel alıcıları `RoleCode.Staff` + birim
-  üyeliği, yönetici/sorumlu kümesi hariç.
+  açıktır; personel kutusu varsayılan kapalı. Personel şablonu **yalnız görev bir kullanıcıya
+  atandığında** (`CreateTask` / `AssignTask`, mesai dışı) atanan kişinin cep numarasına gider;
+  atanan kişi müdür/sorumlu/VTY ise ikinci SMS atılmaz (talep SMS'i yeterli).
   `{GönderilenBirim}` token'ından sonra şablonda her zaman tam bir otomatik ayraç boşluğu bulunur;
   Tamamlandı kartında `{Tamamlama Notu}`, İptal kartında `{İptal Notu}` birim ek metninden sonra
   gelir (chip, #3215/#3222); gönderimde token notla değişir, yoksa boşalır. Token'lı

@@ -13,6 +13,8 @@ namespace CityCommunicationCenter.Infrastructure.FileStorage;
 /// </summary>
 internal sealed class SmbNasConnectivityTester : INasConnectivityTester
 {
+    private static readonly TimeSpan NetBiosLookupTimeout = TimeSpan.FromSeconds(2);
+
     public Task<NasUserTestResult> TestCreateFolderAsync(
         string host,
         string shareName,
@@ -197,21 +199,14 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
             }
         }
 
-        if (IsIpAddressHost(host))
+        // Girilen adres önce denenir: doğru domain adayıyla IP üzerinden SMB2 girişi çalışıyor
+        // (canlı NAS'ta doğrulandı) ve isim çözümlemesi gerektirmediği için en hızlı yol budur.
+        // NetBIOS / reverse DNS adları yalnızca IP ile giriş reddedilirse yedek olarak denenir (#2347).
+        Add(host);
+        Add(netBiosName);
+        if (serverAddress is not null && IsIpAddressHost(host))
         {
-            // IP ile Connect NTLM SPN'i bozabilir (#2347) — önce NetBIOS / reverse DNS adı denenir.
-            Add(netBiosName);
-            if (serverAddress is not null)
-            {
-                Add(TryGetReverseDnsShortName(serverAddress));
-            }
-
-            Add(host);
-        }
-        else
-        {
-            Add(host);
-            Add(netBiosName);
+            Add(TryGetReverseDnsShortName(serverAddress));
         }
 
         return candidates;
@@ -307,12 +302,33 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
         }
     }
 
+    /// <summary>
+    /// NBSTAT sorgusu UDP/137 üzerinden yapılır; port filtreliyse (Docker, kurumsal firewall)
+    /// SMBLibrary'nin çağrısı dakikalarca bloklar ve test isteği asılı kalır. Bu yüzden
+    /// arka planda çalıştırılıp kısa bir süre sonra terk edilir — isim yalnızca ek bir adaydır.
+    /// </summary>
     private static string? TryGetNetBiosServerName(IPAddress serverAddress)
     {
         try
         {
-            var client = new NameServiceClient(serverAddress);
-            var serverName = client.GetServerName();
+            var lookup = Task.Run(() =>
+            {
+                try
+                {
+                    return new NameServiceClient(serverAddress).GetServerName();
+                }
+                catch
+                {
+                    return null;
+                }
+            });
+
+            if (!lookup.Wait(NetBiosLookupTimeout))
+            {
+                return null;
+            }
+
+            var serverName = lookup.Result;
             return string.IsNullOrWhiteSpace(serverName) ? null : serverName.Trim();
         }
         catch

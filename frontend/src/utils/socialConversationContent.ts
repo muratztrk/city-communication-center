@@ -233,3 +233,27 @@ export function formatConversationDisplayContent(content: string): string {
   }
   return stripAttachmentFilenameMarker(richTextToPlainText(trimmed))
 }
+
+/** WA konuşmada ara — içerik, gönderen etiketi ve Beklemede rozeti (#3378/#3379). */
+export function conversationEntryMatchesChatSearch(
+  entry: {
+    content: string
+    senderLabel?: string | null
+    direction?: string
+    deliveryStatus?: string | null
+  },
+  query: string,
+  pendingBadgeLabel: string,
+): boolean {
+  const normalizedQuery = query.toLocaleLowerCase('tr')
+  if (formatConversationDisplayContent(entry.content).toLocaleLowerCase('tr').includes(normalizedQuery)) return true
+  if ((entry.senderLabel ?? '').toLocaleLowerCase('tr').includes(normalizedQuery)) return true
+  if (
+    entry.direction === 'Outbound'
+    && entry.deliveryStatus === 'Pending'
+    && pendingBadgeLabel.toLocaleLowerCase('tr').includes(normalizedQuery)
+  ) {
+    return true
+  }
+  return false
+}

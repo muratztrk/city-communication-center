@@ -27,7 +27,7 @@ import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
-import { filterVisibleConversationEntries, formatConversationDisplayContent } from '../utils/socialConversationContent'
+import { conversationEntryMatchesChatSearch, filterVisibleConversationEntries } from '../utils/socialConversationContent'
 import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
@@ -1122,16 +1122,21 @@ function ConversationDetail({
   if (citizenName?.trim() && phoneForHeader) {
     headerSubtitleParts.push(formatPhone(phoneForHeader))
   }
+  const pendingBadgeSearchLabel = useMemo(
+    () => t('whatsapp.pendingBadge', 'Beklemede'),
+    [t, i18n.language],
+  )
   const normalizedChatSearch = chatSearch.trim().toLocaleLowerCase('tr')
+  const activeChatSearch = normalizedChatSearch.length >= 3 ? normalizedChatSearch : ''
+  const pendingFileMatchesSearch = Boolean(
+    pendingFile && activeChatSearch && pendingBadgeSearchLabel.toLocaleLowerCase('tr').includes(activeChatSearch),
+  )
   const visibleTimeline = useMemo(() => {
     if (!activeDetail) return []
     const timeline = filterVisibleConversationEntries(activeDetail.timeline)
-    if (!normalizedChatSearch) return timeline
-    return timeline.filter(entry =>
-      formatConversationDisplayContent(entry.content).toLocaleLowerCase('tr').includes(normalizedChatSearch)
-      || (entry.senderLabel ?? '').toLocaleLowerCase('tr').includes(normalizedChatSearch),
-    )
-  }, [activeDetail, normalizedChatSearch])
+    if (!activeChatSearch) return timeline
+    return timeline.filter(entry => conversationEntryMatchesChatSearch(entry, activeChatSearch, pendingBadgeSearchLabel))
+  }, [activeDetail, activeChatSearch, pendingBadgeSearchLabel])
 
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden bg-white text-[color:var(--color-foreground)]">
@@ -1239,9 +1244,9 @@ function ConversationDetail({
           >
             {loading && !activeDetail ? (
               null
-            ) : !activeDetail || visibleTimeline.length === 0 ? (
+            ) : !activeDetail || (visibleTimeline.length === 0 && !pendingFileMatchesSearch) ? (
               <p className="mt-8 text-center text-sm text-slate-500">
-                {normalizedChatSearch ? t('whatsapp.searchNoResults', 'Eşleşen mesaj yok.') : t('social.noMessages', 'Henüz mesaj yok')}
+                {activeChatSearch ? t('whatsapp.searchNoResults', 'Eşleşen mesaj yok.') : t('social.noMessages', 'Henüz mesaj yok')}
               </p>
             ) : (
               visibleTimeline.map((entry, index) => {
@@ -1274,7 +1279,7 @@ function ConversationDetail({
                 )
               })
             )}
-            {pendingFile ? (
+            {pendingFile && (!activeChatSearch || pendingFileMatchesSearch) ? (
               <div className="flex flex-col items-end">
                 <div
                   className={`${pendingFile.type.startsWith('image/') ? 'max-w-[min(58%,15.5rem)] px-1.5 py-1.5' : 'max-w-[min(70%,26rem)] px-3 py-2'} rounded-xl rounded-tr-sm text-[13px] text-white shadow-md ring-1 ring-white/10`}

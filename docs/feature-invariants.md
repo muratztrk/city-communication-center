@@ -1339,7 +1339,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   etiketi `Yönetici`.
 - **SMS sağlayıcı dropdown (#6a6ef1a7/#6a6efa2c):** listede `Custom` yok; varsayılan seçim
   boş → placeholder `SMS sağlayıcısı seçiniz` (`SmsProvider.Unspecified`, NetGSM'e düşmez).
-  `Teknormart` listede (#3340); gönderim entegrasyonu yoksa `providerNotImplemented` uyarısı.
+  `Teknormart` enum / `Teknomart` etiket listede (#3340); gönderim entegrasyonu yoksa `providerNotImplemented` uyarısı.
   Entegrasyonu olmayan sağlayıcı uyarısı: "…Destek talebinde bulununuz."
   Kayıtlı `Custom`/`JettMesaj` hâlâ seçenek olarak görünür.
 - **SMS şifre alanı (#6a6efd02/#6a6f06f8):** kayıtlı parola varken input değeri `********`

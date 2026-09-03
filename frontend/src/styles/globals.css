@@ -6378,6 +6378,16 @@
       overflow: hidden;
     }
 
+    .app-content-shell .admin-surface-page .desktop-page-fill {
+      flex: 1 1 18rem;
+      min-height: 18rem;
+    }
+
+    .app-content-shell .admin-surface-page .form-card.page-stack {
+      max-height: min(48dvh, 34rem);
+      overflow-y: auto;
+    }
+
     .desktop-panel-scroll {
       flex: 1 1 auto;
       min-height: 0;

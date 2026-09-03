@@ -640,6 +640,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
 
   const managerRowHead = managerTaskMetricRow
   const managerRowTail = managerBottomMetricRow
+  const managerMetricCards = [...managerRowHead, ...managerRowTail]
+  const managerMetricGridClass = managerMetricCards.length <= 4
+    ? 'max-w-4xl sm:grid-cols-2 lg:grid-cols-4'
+    : 'max-w-[90rem] sm:grid-cols-2 lg:grid-cols-6'
 
   const staffMetrics: MetricCard[] = !hideMetricCards && !isManagerOrAdmin && dashboardQuery.data
     ? [
@@ -684,8 +688,8 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     : []
 
   const staffMetricGridClass = useStaffMetricFourCol
-    ? (staffMetrics.length >= 4 ? 'max-w-7xl sm:grid-cols-4' : 'max-w-7xl sm:grid-cols-2')
-    : 'max-w-3xl sm:grid-cols-2'
+    ? (staffMetrics.length >= 4 ? 'max-w-3xl sm:grid-cols-4' : 'max-w-xl sm:grid-cols-2')
+    : 'max-w-xl sm:grid-cols-2'
 
   // Yönetici dashboard'unda her grafik, üst bölümdeki ilgili hızlı erişim
   // kartlarının aynı dönem verisini kullanır. Böylece sayı ve görsel özet
@@ -906,14 +910,14 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
           <div className="px-5 py-3.5 sm:px-8">
             {dashboardQuery.isLoading
               ? (
-                <div className="mx-auto grid max-w-[90rem] gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-6">
+                <div className={`mx-auto grid gap-x-8 gap-y-2 ${managerMetricGridClass}`}>
                   {Array.from({ length: isInternalModuleUsable ? 6 : 4 }).map((_, i) => (
                     <div key={i} className="h-[72px] min-w-0 animate-pulse rounded-[var(--radius-xl)] bg-slate-100" />
                   ))}
                 </div>
               )
               : (
-                <div className="mx-auto grid max-w-[90rem] gap-x-8 gap-y-2 sm:grid-cols-2 lg:grid-cols-6">
+                <div className={`mx-auto grid gap-x-8 gap-y-2 ${managerMetricGridClass}`}>
                   {[...managerRowHead, ...managerRowTail].map(renderCard)}
                 </div>
               )}
@@ -921,10 +925,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
         ) : (
           <div className="px-5 py-3.5 sm:px-8">
             {useStaffMetricFourCol && staffMetrics.length >= 4 ? (
-              <div className="mx-auto flex max-w-7xl flex-wrap justify-center gap-x-12 gap-y-2 [&>button]:w-full [&>button]:min-w-[15.5rem] [&>button]:sm:max-w-[calc((100%-3rem)/2)] [&>button]:lg:max-w-[calc((100%-9rem)/4)]">
+              <div className="mx-auto flex max-w-3xl flex-wrap justify-center gap-x-12 gap-y-2 [&>button]:w-full [&>button]:min-w-[7.75rem] [&>button]:sm:max-w-[calc((100%-3rem)/4)] [&>button]:lg:max-w-[calc((100%-9rem)/8)]">
                 {dashboardQuery.isLoading
                   ? Array.from({ length: 4 }).map((_, i) => (
-                      <div key={i} className="h-[72px] w-full min-w-[15.5rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:max-w-[calc((100%-3rem)/2)] lg:max-w-[calc((100%-9rem)/4)]" />
+                      <div key={i} className="h-[72px] w-full min-w-[7.75rem] animate-pulse rounded-[var(--radius-xl)] bg-slate-100 sm:max-w-[calc((100%-3rem)/4)] lg:max-w-[calc((100%-9rem)/8)]" />
                     ))
                   : staffMetrics.map(renderCard)}
               </div>

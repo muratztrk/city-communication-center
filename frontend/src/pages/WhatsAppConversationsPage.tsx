@@ -745,8 +745,6 @@ function ConversationDetail({
     () => (pendingFile ? formatConversationMessageTime(new Date().toISOString(), locale, t) : ''),
     [pendingFile, locale, t],
   )
-  const [internalDepartmentId, setInternalDepartmentId] = useState('')
-  const [sendingInternal, setSendingInternal] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [highlightEntryIndex, setHighlightEntryIndex] = useState<number | null>(null)
@@ -863,9 +861,7 @@ function ConversationDetail({
     setMenuOpen(false)
     setConfirmDialog(null)
     setSendingPendingId(null)
-    setInternalDepartmentId('')
     setSending(false)
-    setSendingInternal(false)
     setProfileSaving(false)
     setHighlightEntryIndex(null)
   }, [conversationId])
@@ -1037,24 +1033,6 @@ function ConversationDetail({
     }
   }
 
-  const handleSendInternal = async () => {
-    const text = replyText.trim()
-    const targetTicket = detail?.tickets.find(ticket => ticket.departmentId === internalDepartmentId) ?? primaryTicket
-    if (!text || !internalDepartmentId || !targetTicket || sendingInternal) return
-    const sentForConversationId = conversationId
-    setSendingInternal(true)
-    try {
-      await api.addInternalConversationMessage(targetTicket.socialMessageId, internalDepartmentId, text)
-      if (latestConversationIdRef.current === sentForConversationId) {
-        setReplyText('')
-        setIsPinnedToBottom(true)
-      }
-      await refreshDetail()
-    } finally {
-      if (latestConversationIdRef.current === sentForConversationId) setSendingInternal(false)
-    }
-  }
-
   const doSendPending = async (entry: CitizenConversationTimelineEntry) => {
     if (sendingPendingId) return
     const sentForConversationId = conversationId
@@ -1126,22 +1104,6 @@ function ConversationDetail({
   const openTicket = activeDetail ? pickReplyTicket(activeDetail.tickets) : undefined
   const primaryTicket = openTicket ?? activeDetail?.tickets[activeDetail.tickets.length - 1]
   const replySocialMessageId = activeDetail ? pickReplySocialMessageId(activeDetail) : undefined
-  const internalDepartmentOptions = useMemo(() => {
-    const activeStatuses = new Set(['Draft', 'PendingOwnerApproval', 'PendingExternalApproval', 'RevisionRequested', 'Active'])
-    const options = new Map<string, string>()
-    for (const ticket of activeDetail?.tickets ?? []) {
-      if (!ticket.jobStatus || !activeStatuses.has(ticket.jobStatus) || !ticket.departmentId || !ticket.departmentName) continue
-      options.set(ticket.departmentId, ticket.departmentName)
-    }
-    return Array.from(options, ([departmentId, name]) => ({ departmentId, name }))
-  }, [activeDetail?.tickets])
-
-  useEffect(() => {
-    if (!internalDepartmentId) return
-    if (!internalDepartmentOptions.some(department => department.departmentId === internalDepartmentId)) {
-      setInternalDepartmentId('')
-    }
-  }, [internalDepartmentId, internalDepartmentOptions])
 
   const windowOpen = isWhatsApp24hWindowOpen(activeDetail?.lastInboundAt ?? null)
   const hasSelectableTemplates = userQuickReplies.length > 0
@@ -1186,7 +1148,7 @@ function ConversationDetail({
             ) : null}
           </div>
           {headerSubtitleParts.length > 0 ? (
-            <p className="mt-1 truncate text-xs text-slate-500">{headerSubtitleParts.join(' · ')}</p>
+            <p className="mt-1 truncate text-[11px] text-slate-500">{headerSubtitleParts.join(' · ')}</p>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
@@ -1440,33 +1402,6 @@ function ConversationDetail({
                   <Paperclip className="size-3.5 shrink-0 text-emerald-600" aria-hidden="true" />
                   {t('attachments.addFile', 'Dosya ekle')}
                 </button>
-                    {internalDepartmentOptions.length > 0 ? (
-                    <div className="ml-auto flex items-center gap-2">
-                      <SingleSelectDropdown
-                        options={internalDepartmentOptions.map(department => ({ value: department.departmentId, label: department.name }))}
-                        value={internalDepartmentId}
-                        onChange={setInternalDepartmentId}
-                        placeholder={t('departments.selectDepartment', 'Birim seçiniz...')}
-                        emptyText={t('departments.noDepartments', 'Birim bulunamadı.')}
-                        searchPlaceholder={t('departments.search', 'Birim ara...')}
-                        openUp={internalDepartmentOptions.length >= 2}
-                        clearable
-                        className="whatsapp-dept-select w-[7.25rem] min-w-0 max-w-[7.25rem] shrink-0"
-                        triggerClassName="h-[2.125rem] w-full rounded-full px-2 text-[11px] font-semibold"
-                        menuWidth={184}
-                        menuScrollClassName="whatsapp-department-menu-scroll"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => void handleSendInternal()}
-                        disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                        className="whatsapp-internal-send-btn inline-flex h-[2.125rem] shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {sendingInternal ? <Loader2 className="size-3 animate-spin" /> : <Send className="size-3" />}
-                        {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
-                      </button>
-                    </div>
-                    ) : null}
                   </div>
                   <div className="size-11 invisible shrink-0 pointer-events-none" aria-hidden="true" />
                 </div>
@@ -1489,7 +1424,7 @@ function ConversationDetail({
                   }}
                   placeholder={t('whatsapp.replyPlaceholder', 'Mesaj yazın...')}
                   disabled={!windowOpen && !hasSelectableTemplates}
-                  className="field-input min-h-[3.75rem] max-h-28 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
+                  className="field-input min-h-[4.25rem] max-h-28 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
                 />
                 <button
                   type="button"

@@ -188,8 +188,10 @@ export function UsersPage() {
     return Array.from(ids)
   }
 
-  const loadData = () => {
-    setLoading(true)
+  const loadData = (options?: { silent?: boolean }) => {
+    if (!options?.silent) {
+      setLoading(true)
+    }
     setError('')
 
     void resolveDataRequests(canManageUsers)
@@ -825,7 +827,7 @@ export function UsersPage() {
       resetForm()
       invalidateUsers(queryClient)
       invalidateDepartments(queryClient)
-      loadData()
+      loadData({ silent: true })
       if (createMode === 'manual') {
         emitPageToast(t('users.createSuccess', '{{name}} kullanıcısı oluşturuldu.', { name: createdDisplayName || t('users.title') }))
       }
@@ -1008,7 +1010,7 @@ export function UsersPage() {
     ldap: users.filter(user => user.userSource === 'Ldap').length,
   }
 
-  if (loading) {
+  if (loading && users.length === 0) {
     return <div className="loading">{t('common.loading')}</div>
   }
 

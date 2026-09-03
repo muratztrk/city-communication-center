@@ -77,7 +77,8 @@ export function DepartmentsPage() {
   const users = useMemo(() => usersQuery.data ?? [], [usersQuery.data])
   const managementContext = managementContextQuery.data ?? null
   const ldapEnabled = !!managementContext?.ldapEnabled
-  const loading = departmentsQuery.isLoading || usersQuery.isLoading
+  const loading = (departmentsQuery.isLoading && departments.length === 0)
+    || (usersQuery.isLoading && users.length === 0)
   const debouncedDirectoryQuery = useDebouncedValue(directoryQuery)
   const shouldSearchDirectory = showForm
     && createMode === 'ldap'

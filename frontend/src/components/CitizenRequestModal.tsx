@@ -19,7 +19,7 @@ import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import { CbsStreetNoDropdowns } from './address/CbsStreetNoDropdowns'
 import { ConversationPanel } from './ConversationPanel'
 import { RequestTagAddButton, RequestTagPicker } from './RequestTagDialog'
-import type { CitizenConversationDetail, Department, RequestTag, SocialMessage } from '../types/platform'
+import type { Department, RequestTag, SocialMessage } from '../types/platform'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
@@ -186,9 +186,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const [error, setError] = useState<string | null>(null)
   const [confirmDialog, setConfirmDialog] = useState<ConfirmDialogState | null>(null)
   const [confirmedSubmit, setConfirmedSubmit] = useState(false)
-  const [conversationDetail, setConversationDetail] = useState<CitizenConversationDetail | null>(null)
-  const [internalDepartmentId, setInternalDepartmentId] = useState('')
-  const [sendingInternal, setSendingInternal] = useState(false)
   const [requestLabel, setRequestLabel] = useState('')
   const [requestTags, setRequestTags] = useState<RequestTag[]>([])
   const canManageRequestTags = user?.role === 'Operator' || user?.role === 'SystemAdmin'
@@ -228,14 +225,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
   useEffect(() => {
     if (!citizenConversationId) {
-      setConversationDetail(null)
       return
     }
     let cancelled = false
     void api.getCitizenConversationDetail(citizenConversationId)
       .then(detail => {
         if (!cancelled) {
-          setConversationDetail(detail)
           // Yeni talep popup'ında önceki etiket butonda seçili kalmasın (#r463).
           if (!(forceNewRequest && !editJobId)) {
             setRequestLabel(detail.label?.trim() ?? '')
@@ -244,7 +239,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       })
       .catch(() => {
         if (!cancelled) {
-          setConversationDetail(null)
+          setRequestLabel('')
         }
       })
     return () => {
@@ -316,34 +311,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   // güncel talep/birim bilgisi (ticket listesi) çekilir (card #1512).
   // Talep Etiketi de aynı detaydan gelir (card #1865).
   // (citizenConversationId effect above already loads conversationDetail + requestLabel)
-  const internalDepartmentOptions = useMemo(() => {
-    const activeStatuses = new Set(['Draft', 'PendingOwnerApproval', 'PendingExternalApproval', 'RevisionRequested', 'Active'])
-    const options = new Map<string, string>()
-    for (const ticket of conversationDetail?.tickets ?? []) {
-      if (!ticket.jobStatus || !activeStatuses.has(ticket.jobStatus) || !ticket.departmentId || !ticket.departmentName) continue
-      options.set(ticket.departmentId, ticket.departmentName)
-    }
-    return Array.from(options, ([departmentId, name]) => ({ departmentId, name }))
-  }, [conversationDetail?.tickets])
-
-  useEffect(() => {
-    if (!internalDepartmentId) return
-    if (!internalDepartmentOptions.some(department => department.departmentId === internalDepartmentId)) {
-      setInternalDepartmentId('')
-    }
-  }, [internalDepartmentId, internalDepartmentOptions])
-
-  const handleSendInternal = async (text: string) => {
-    const targetTicket = conversationDetail?.tickets.find(ticket => ticket.departmentId === internalDepartmentId)
-    if (!targetTicket || sendingInternal) return
-    setSendingInternal(true)
-    try {
-      await api.addInternalConversationMessage(targetTicket.socialMessageId, internalDepartmentId, text)
-      invalidateConversations(queryClient, citizenConversationId ?? undefined, targetTicket.socialMessageId)
-    } finally {
-      setSendingInternal(false)
-    }
-  }
 
   // Vatandaş talebi operatörün kendi birimine de yönlendirilebilir (card #1090);
   // sahip birim hedef listesinden çıkarılmaz.
@@ -623,11 +590,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               onReplySent={() => { /* talep oluşturma akışını etkilemez */ }}
               onAddMediaAsAttachment={addPendingFile}
               enableWhatsAppFileAttachment
-              internalDepartmentOptions={citizenConversationId ? internalDepartmentOptions : undefined}
-              internalDepartmentId={internalDepartmentId}
-              onInternalDepartmentIdChange={setInternalDepartmentId}
-              onSendInternal={handleSendInternal}
-              sendingInternal={sendingInternal}
               compactActions
               compactBubbles
             />

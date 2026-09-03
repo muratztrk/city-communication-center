@@ -5013,6 +5013,10 @@
     .data-table tbody td .grid-stack-secondary {
       font-size: 0.74rem !important;
     }
+
+    .app-content-shell .incoming-requests-table tbody td .grid-stack-secondary {
+      font-size: 0.78rem !important;
+    }
   }
 
   .my-request-detail-bottom--three-cards .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2),
@@ -6354,8 +6358,16 @@
     }
 
     .app-content-shell .admin-surface-page .desktop-page-fill {
-      flex: 1 1 18rem;
-      min-height: 18rem;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: visible;
+    }
+
+    /* Birimler/Kullanıcılar: sayfa boyutu kadar satır görünsün, iç scroll olmasın (#3374). */
+    .app-content-shell .admin-surface-page .table-wrap.desktop-panel-scroll {
+      flex: 0 0 auto;
+      max-height: none;
+      overflow-y: visible;
     }
 
     .app-content-shell .admin-surface-page .form-card.page-stack {

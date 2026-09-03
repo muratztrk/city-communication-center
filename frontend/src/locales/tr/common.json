@@ -1043,6 +1043,7 @@
     "taskTitlePlaceholder": "İş başlığı",
     "defaultTaskTitle": "{{handle}} talebi",
     "defaultTaskDescription": "{{handle}} tarafından iletilen vatandaş talebi mesajı",
+    "replyPlaceholder": "Mesaj yazın...",
     "editRequest": "Talep Düzenle",
     "empty": "Henüz mesaj bulunmuyor",
     "emptyCitizenRequests": "Henüz vatandaş talebi bulunmuyor.",

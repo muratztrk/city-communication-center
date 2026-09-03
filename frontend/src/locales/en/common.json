@@ -1036,6 +1036,7 @@
     "taskTitlePlaceholder": "Task title",
     "defaultTaskTitle": "{{handle}} request",
     "defaultTaskDescription": "Social media message received from {{handle}}",
+    "replyPlaceholder": "Type a message...",
     "editRequest": "Edit Request",
     "empty": "No messages found yet",
     "emptyCitizenRequests": "No citizen requests found yet.",

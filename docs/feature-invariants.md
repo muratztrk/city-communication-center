@@ -2191,9 +2191,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   önceki label yüklenmez). Grid sayfa/page-size değişince kolon filtreleri sıfırlanır.
 - **WA chat footer (#r463/#r465 / #3366):** Şablon + Şablon ekle + Dosya ekle tek satır; Birim/Kurum İçi İlet yok.
 - **Kurum İçi İlet buton metni (#2380 / #3366):** WA konuşma composer'ında artık gösterilmez; metin anahtarı `whatsapp.sendInternalMessage` korunur (Kurum İçi Mesajlar FAB).
-- **WA footer düzeni (#2381 / #3359 / #3365):** Mesaj yazın textarea `min-h-[4.25rem]` / `rows={3}`. Gri başlık telefon satırı `text-[11px]` (#3363).
+- **WA footer düzeni (#2381 / #3359 / #3365):** Mesaj yazın textarea `min-h-[4.25rem]` / `rows={3}`. Gri başlık telefon alt satırı `text-[10px]`; yalnız numara başlıkta `text-xs` (#3363 retry).
 - **Dashboard metrik kutuları (#3367/#3368):** Müdür ≤4 kart `max-w-4xl lg:grid-cols-4` ortalı; standart kullanıcı 4'lü satır `min-w-[7.75rem]` yarı genişlik.
-- **Users/Birimler grid yüksekliği (#3369):** oluşturma sonrası `loadData({ silent: true })`; ilk yükleme dışında tam sayfa spinner yok; `admin-surface-page` form `max-height` scroll + grid `min-height: 18rem`.
+- **Users/Birimler grid yüksekliği (#3369 / #3374):** oluşturma sonrası `loadData({ silent: true })`; ilk yükleme dışında tam sayfa spinner yok; `admin-surface-page` form `max-height` scroll; grid iç scroll yok — sayfa boyutu kadar satır görünür.
 - **Açık Adres zorunluluk etiketi (#r463):** mahalle sonrası `(max 100 karakter)` sonra kırmızı `*`.
 - **WA Talep Oluştur popup (#r464):** konuşma + form `lg:grid-cols-2` (yarım / yarım).
 - **Dizin yazdır (#r462–#r465):** h1 `Vatandaş Bilgi Listesi`; Başlık ~30% + ortalı;
@@ -2356,7 +2356,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile dosya WhatsApp konuşmasına gider (`replySocialMessageAttachment`); talep eklerine değil. Gelen medya
   balon aksiyonu `onAddMediaAsAttachment` talep eklerine kalır.
 - **Kurum İçi İlet buton metni (#2380 / #3366):** WA konuşma composer'ında artık gösterilmez.
-- **WA footer düzeni (#2381 / #3359 / #3365):** `/whatsapp` Mesaj yazın textarea `min-h-[4.25rem]` / `rows={3}`; gri başlık telefon `text-[11px]` (#3363).
+- **WA footer düzeni (#2381 / #3359 / #3365):** `/whatsapp` Mesaj yazın textarea `min-h-[4.25rem]` / `rows={3}`; gri başlık telefon alt satırı `text-[10px]`, yalnız numara başlıkta `text-xs` (#3363 retry).
 - **WA modal ek önizleme (#2385):** kompakt dosya balonu; PDF/mime alt satırı yok (yalnız dosya adı + görsel önizleme).
 - **Kurum içi dosya uzantısı (#2386):** `internalMessageFileExtension` yalnız `.ext` döner (`lowercaseFileExtension` değil).
 - **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.

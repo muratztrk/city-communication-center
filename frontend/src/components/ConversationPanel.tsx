@@ -569,7 +569,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
                 setSelectedMetaTemplate(null)
               }}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void handleSend() } }}
-              placeholder={t('social.replyPlaceholder', 'Yanıt yaz…')}
+              placeholder={t('whatsapp.replyPlaceholder', 'Mesaj yazın...')}
               className="field-input min-w-0 resize-none min-h-[4.5rem] max-h-28 py-2 text-sm"
               style={{ height: 'auto' }}
             />

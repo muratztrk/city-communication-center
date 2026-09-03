@@ -43,7 +43,7 @@ import { useDataTableOverflowTooltips } from '../hooks/useDataTableOverflowToolt
 import { useIncomingPendingApprovalCount } from '../hooks/useIncomingPendingApprovalCount'
 
 declare const __APP_VERSION__: string
-const SUPPORT_EMAIL = 'destek@lumespec.com.tr'
+const SUPPORT_EMAIL = 'destek@lumespec.com'
 
 const userGuideLinkClassName =
   'flex size-9 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 shadow-sm transition-colors hover:border-[color:var(--color-primary)]/40 hover:bg-[color:var(--color-primary)]/8 hover:text-[color:var(--color-primary)]'

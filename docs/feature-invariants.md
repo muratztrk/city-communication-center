@@ -1876,7 +1876,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   DOĞRUDAN literal ismi ver — pipe/GUID eklemeye gerek yok.
 - **Sol menü dizin sırası (#6a6cfc0c / #2571):** Reporter’de: Anasayfa - Vatandaş → Vatandaş Talep Haritası →
   Vatandaş Bilgi Listesi → Anasayfa - Birimler. Operator’de: Anasayfa → (citizen) Anasayfa - Vatandaş →
-  Harita → Bilgi Listesi. Sistem Admin’de harita/dizin Vatandaş Talepleri grubundan sonra kalır.
+  Harita → Bilgi Listesi.   Sistem Admin’de harita/dizin Vatandaş Talepleri grubundan sonra kalır.
+- **Sol menü alt bilgi (#3371/#3372):** footer sürüm `package.json` → `__APP_VERSION__` (1.0.0); destek `destek@lumespec.com`.
 - **Vatandaş Bilgi Listesi (card #1836, kolon/buton düzeni #1843/#1858):** `/citizen-directory` yalnız
   `Reporter` / `Operator` / `SystemAdmin`; grid `GET /citizen-conversations`. Ana gridde `Talep Kanalı`
   sütunu yok (#2543); kanal yalnız detay popup talep listesinde `Talep Tarihi` sonrası (#2540).
@@ -1979,7 +1980,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Pie drilldown Birim (#6a62fe79):** dış birim / mahalle / talep etiketi / Vatandaş Talepleri
   popup’ta Birim tek satır `truncate` + overflow tooltip (`max-w-[12rem]`).
 - **Vatandaş Talep Haritası (#2572/#2569):** `/citizen-request-map`; `GET /reports/dashboard-citizen-map-pins`;
-  Banner: mahalle, cadde/sokak, no içeren açık adres (#2656). Birim haritası aynı kalıp (#2657).
+  Banner: mahalle, cadde/sokak, no içeren açık adres yalnız **talep (Job)** kaydından (#2656/#3370);
+  vatandaş profil (CitizenConversation) adresi haritada kullanılmaz. Birim haritası aynı kalıp (#2657).
   Reporter **ve Operator** (403 değil). Pin kümesi `WhereHasCitizenRequestNumber` — `RequestType=Citizen`
   şartı yok (VT numaralı kaynaklar). Dönem filtresi Anasayfa ile aynı; pin clustering
   `@googlemaps/markerclusterer`;   marker tıklanınca doğrudan `MyRequestDetailModal` (`Vatandaş Talebi`),

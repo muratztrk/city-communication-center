@@ -738,7 +738,7 @@ export function UsersPage() {
     if (nextMode !== searchParams.get('mode')) {
       const nextSearchParams = new URLSearchParams(searchParams)
       nextSearchParams.set('mode', nextMode)
-      setSearchParams(nextSearchParams, { replace: true })
+      setSearchParams(nextSearchParams, { replace: true, preventScrollReset: true })
     }
   }, [managementContext, searchParams, setSearchParams, showForm])
 
@@ -753,7 +753,7 @@ export function UsersPage() {
       }
     })
 
-    setSearchParams(nextSearchParams, { replace: true })
+    setSearchParams(nextSearchParams, { replace: true, preventScrollReset: true })
   }
 
   const resetForm = () => {
@@ -767,14 +767,12 @@ export function UsersPage() {
 
   const closeCreateForm = () => {
     resetForm()
-    setUserSearchText('')
     updateSearchParams({ create: null, mode: null })
   }
 
   const openCreateForm = () => {
     // Yarım kalan satır düzenlemesini kapat (card #r457).
     setEditingUserId(null)
-    setUserSearchText('')
     const initialMode = managementContext?.ldapEnabled ? 'ldap' : 'manual'
     updateSearchParams({ create: '1', mode: initialMode })
   }
@@ -1015,7 +1013,7 @@ export function UsersPage() {
   }
 
   return (
-    <div className={`page-stack desktop-page-shell admin-surface-page${showForm ? ' shrink-0' : ''}`}>
+    <div className="page-stack desktop-page-shell admin-surface-page">
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
@@ -1534,7 +1532,7 @@ export function UsersPage() {
         </form>
       ) : null}
 
-      <section className={`section-card${showForm ? '' : ' desktop-page-fill'}`}>
+      <section className="section-card desktop-page-fill">
         <div className="flex flex-wrap items-center gap-2 border-b border-[var(--color-border)] bg-[var(--color-background)] px-4 py-2.5 sm:px-5">
           <ClearPieFilterLink hasColumnFilters={hasActiveUserColumnFilters} onClearColumnFilters={clearUserFilters} />
           <div className="relative min-w-[14rem] flex-1">
@@ -1553,7 +1551,7 @@ export function UsersPage() {
             </Button>
           ) : null}
         </div>
-        <div className={`table-wrap${showForm ? '' : ' desktop-panel-scroll'}`}>
+        <div className="table-wrap desktop-panel-scroll">
           <table className="data-table users-table">
             <thead>
               <tr>
@@ -1661,7 +1659,7 @@ export function UsersPage() {
                             triggerClassName="text-sm !min-h-9 !px-2 !bg-slate-100"
                             menuWidth={264}
                             menuScrollClassName="users-edit-dropdown-menu-scroll"
-                            menuPortal={false}
+                            forceDown
                           />
                         )}
                         <MultiSelectDropdown
@@ -1679,7 +1677,7 @@ export function UsersPage() {
                           menuWidth={264}
                           searchable
                           searchPlaceholder={t('common.search', 'Ara...')}
-                          menuPortal={false}
+                          forceDown
                         />
                       </div>
                     </td>
@@ -1702,7 +1700,7 @@ export function UsersPage() {
                           // Panel: Rol → LDAP (Kaynak) sonu (~9+5rem, card #r459).
                           menuWidth={224}
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
-                          menuPortal={false}
+                          forceDown
                         />
                         <MultiSelectDropdown
                           options={getAllowedAdditionalRoleCodes(editForm.roleCode)
@@ -1716,7 +1714,7 @@ export function UsersPage() {
                           triggerClassName="text-xs !min-h-9 !py-0.5"
                           menuClassName="users-edit-dropdown-menu-scroll !max-h-88"
                           menuWidth={224}
-                          menuPortal={false}
+                          forceDown
                         />
                       </div>
                     </td>

@@ -38,6 +38,8 @@ interface SingleSelectDropdownProps {
   menuWidthExtraPx?: number
   /** Seçili satıra tekrar tıklayınca seçimi kaldır (#3334). */
   deselectOnReselect?: boolean
+  /** Otomatik yukarı çevirmeyi kapat; panel her zaman alta açılır (#3332 reopen). */
+  forceDown?: boolean
 }
 
 export function SingleSelectDropdown({
@@ -60,6 +62,7 @@ export function SingleSelectDropdown({
   matchTriggerWidth = false,
   menuWidthExtraPx = 0,
   deselectOnReselect = false,
+  forceDown = false,
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -88,7 +91,7 @@ export function SingleSelectDropdown({
     const extra = matchWidth ? menuWidthExtraPx : 0
     const assumedWidth = menuWidth ?? (matchWidth ? rect.width + extra : 320)
     const left = Math.min(rect.left, Math.max(8, window.innerWidth - assumedWidth - 8))
-    const flipUp = shouldOpenDropdownUp(rootRef.current, openUp)
+    const flipUp = shouldOpenDropdownUp(rootRef.current, openUp, forceDown)
     setResolvedOpenUp(flipUp)
     setMenuStyle({
       left,
@@ -99,7 +102,7 @@ export function SingleSelectDropdown({
           ? { width: rect.width + extra }
           : { minWidth: rect.width }),
     })
-  }, [openUp, menuClassName, menuWidth, matchTriggerWidth, menuWidthExtraPx])
+  }, [openUp, forceDown, menuClassName, menuWidth, matchTriggerWidth, menuWidthExtraPx])
 
   useEffect(() => {
     if (!open || !menuPortal) return

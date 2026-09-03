@@ -494,7 +494,7 @@ export function CitizenDirectoryPage() {
               {loading ? (
                 <TableEmptyStateRows columnCount={8} message={t('common.loading')} />
               ) : pageRows.length === 0 ? (
-                <TableEmptyStateRows columnCount={8} message={t('citizenDirectory.empty', 'Kayıtlı vatandaş bulunamadı.')} />
+                <TableEmptyStateRows columnCount={8} message={t('citizenDirectory.empty', 'Talebi olan vatandaş bilgisi bulunamadı.')} />
               ) : pageRows.map((row, index) => {
                 const isEditing = editingId === row.citizenConversationId && addressDraft != null
                 return (

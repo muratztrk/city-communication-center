@@ -515,13 +515,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
   WhatsApp nav satırında `Yanıt bekliyor` rozeti yok (#6a6ba9ac); sayım yalnız sayfa içi
-  `Yanıt bekliyor` filtresinde. `Yanıt Verildi Yap` yalnız **seçili konuşma yanıt bekliyorsa**
-  chip satırının en sağında (yanıp sönen yeşil, yavaş blink) —
-  filtre tek başına yetmez (#6a6bab12/#6a6c3dca);
-  `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`); yeni inbound webhook sıfırlar.
+  `Yanıt bekliyor` filtresinde. `Yanıt Verildi Yap` kaldırıldı (#3347) — chip satırında yok.
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekliyor` sağında; `hasPendingMessageApproval`
   = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). Rozet konuşma/numara
-  sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde; chip daha dar (#3330). FAB `hasPendingOutboundMessage`
+  sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde. Üç chip `whitespace-nowrap` + sıkı padding;
+  `max-w` ile satır kırma yok (#3330 reopen). FAB `hasPendingOutboundMessage`
   hâlâ yalnız personel Beklemede (otomatik hariç). Bu chip açıkken üst durum sayaç filtresi uygulanmaz
   ki İptal bekleyenler de görünsün (#3330).
   **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
@@ -2099,7 +2097,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Sayfa yükleniyor...` (`common.pageLoading`, #2686/#2687). Popup kolon başlıkları **Talep Tarihi** / **Telefon No**; paging sticky altta (#2649).
   Popup genişliği Taleplerim detaydan daha geniş (`70vw` / `84rem`, #2644). Küçük ekranda
   başlıklar sığmazsa yatay kaydırma (`overflow-x`, #2648). Boş grid metni
-  `Henüz vatandaş talebi bulunmuyor` (`social.emptyCitizenRequests`, #2644).
+  `Henüz vatandaş talebi bulunmuyor.` (`social.emptyCitizenRequests`, #2644 / #3345).
+  Vatandaş Talepleri ana grid aynı metin; `social.empty` ("Henüz mesaj bulunmuyor") kullanılmaz.
+- **Vatandaş Bilgi Listesi boş grid (#3341):** `Talebi olan vatandaş bilgisi bulunamadı.`
+  (`citizenDirectory.empty`).
 - **Anasayfa-Birimler Tüm Talepler (#2645/#2648):** Özel’den sonra aynı buton; popup başlığı
   `Birimlerin Tüm Talepleri`. Boyut Taleplerim Detaylar (`detail-modal-shell--my-request`).
   Vatandaş-olmayan atanmış kurum içi talepler (Sıra, Talep No,
@@ -2940,9 +2941,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Rol:` etiketli satırlar gösterir; ham `role=Manager` İngilizce metni kullanıcıya basılmaz.
 - **Log UserDeleted detayı (#2302):** silinen kullanıcı artık DB'de olmadığından audit `Details`
   alanında `username`/`role` saklanır; `GetAuditLogsQuery` geçmiş kayıtları parse ederek Detay'da gösterir.
-- **Kullanıcılar/Birimler grid dropdown (#2296 / #3332):** satır içi düzenleme dropdown'ları `menuPortal={false}`
-  ile satırla birlikte kayar; alta sığmazsa `shouldOpenDropdownUp` ile yukarı açılır; `.table-wrap`
-  scroll'unda menü kapanır; thead z-index dropdown üstündedir.
+- **Kullanıcılar/Birimler grid dropdown (#2296 / #3332 reopen):** satır içi düzenleme dropdown'ları
+  body portal + `forceDown` (her zaman aşağı, grid'in üstünde). `menuPortal={false}` / otomatik
+  yukarı çevirme bu gridlerde yok — kırpılır veya yukarı kaçar.
 - **Birim düzenle müdür dropdown (#3334):** seçili kullanıcıya tekrar tıklanınca seçim kalkar
   (`deselectOnReselect`).
 - **Yerel kullanıcı oluştur toast (#3339):** başarıda `emitPageToast` (sağ alt yeşil).
@@ -2950,6 +2951,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   aynı addan ikinci birim oluşmaz. Kullanıcı birim dropdown'u `uniqueDepartmentsByName`.
 - **Başkanlık gizli Administration (#3335):** `GetDepartments` hâlâ Administration gizler.
   Görünür kopya yoksa Create/LDAP gizli eşleşmeyi (`Sistem Yönetimi` hariç) yükseltir.
+- **Kurum İçi Mesajlar FAB lisansı (#3342):** yalnız `isModuleUsable('internal')` iken render.
+  Vatandaş lisansı yetmez; WhatsApp FAB hâlâ Operator.
 - **Kurum içi yazıyor göstergesi (#2307 / #2353 / Round 717):** aktif sohbette karşı taraf yazarken SignalR
   `ReceiveInternalMessageTyping` ile header'da birim satırının altında `Yazıyor` + animasyonlu
   üç nokta gösterilir; `POST /internal-messages/typing` yalnız alıcıya iletilir. Gönderen yazmaya
@@ -2999,8 +3002,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `max-h-72`.
 - **Birimler Yönetici Ata dropdown (#2311):** Müdür/Sorumlu panel öğe metni `0.8125rem`.
 - **Birimler Yönetici Ata Kaydet/İptal (#2295 reopen):** `1.85rem` yükseklik, `0.6875rem` punto.
-- **Users/Birimler liste araması (#1531):** Yeni Kullanıcı/Birim Ekle veya İptal ile form
-  açılıp/kapanırken `userSearchText` / `deptSearchText` temizlenir.
+- **Users/Birimler liste araması (#1531 / #3337 reopen):** Form aç/kapa grid'i `loading` ile
+  unmount etmez; `desktop-page-fill` / `desktop-panel-scroll` form açıkken de durur. Kullanıcılar
+  `setSearchParams(..., { preventScrollReset: true })`. Arama metni form açılınca silinmez.
 - **Log birim audit metni (#2302 reopen):** `Department` entity logları Detay'da `Birim: {ad}` gösterir;
   güncellemede `Birim: eski → yeni`; ham `Department '…'` İngilizce metni kullanıcıya basılmaz.
   `GetAuditLogsQuery` silinen birim adını `Details`'ten parse eder.

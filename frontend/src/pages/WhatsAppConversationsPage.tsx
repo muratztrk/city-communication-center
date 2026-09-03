@@ -325,7 +325,6 @@ function ConversationListPanel({
   onOpenStatusRequests,
   selectedId,
   onSelect,
-  onMarkWaitingReplied,
 }: {
   conversations: CitizenConversationSummary[]
   filtered: CitizenConversationSummary[]
@@ -340,7 +339,6 @@ function ConversationListPanel({
   onOpenStatusRequests: (value: ConversationStatusFilter) => void
   selectedId: string | null
   onSelect: (id: string) => void
-  onMarkWaitingReplied: (conversationId: string) => void
 }) {
   const { t } = useTranslation()
   const [conversationPage, setConversationPage] = useState(1)
@@ -459,7 +457,7 @@ function ConversationListPanel({
         </div>
 
         <div className="flex items-center gap-2 pb-0.5">
-          <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+          <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {filterOptions.map(option => (
               <button
                 key={option.value}
@@ -468,9 +466,7 @@ function ConversationListPanel({
                   setConversationPage(1)
                   onListFilterChange(option.value)
                 }}
-                className={`relative inline-flex shrink-0 items-center justify-center rounded-full py-1.5 text-xs font-semibold leading-tight transition-colors ${
-                  option.value === 'pendingApproval' ? 'max-w-[7.25rem] px-2 text-center' : 'px-3'
-                } ${
+                className={`relative inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-full px-2 py-1 text-[11px] font-semibold leading-none transition-colors ${
                   listFilter === option.value
                     ? 'bg-emerald-800 text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
@@ -485,19 +481,6 @@ function ConversationListPanel({
               </button>
             ))}
           </div>
-          {/* Yalnız seçili konuşma yanıt bekliyorsa (#6a6bab12 reopen). */}
-          {selectedId
-            && conversations.some(c => c.citizenConversationId === selectedId && isWaitingForConversationResponse(c)) ? (
-            <button
-              type="button"
-              className="whatsapp-mark-waiting-replied shrink-0 text-[11px] font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline"
-              onClick={() => {
-                if (selectedId) onMarkWaitingReplied(selectedId)
-              }}
-            >
-              {t('whatsapp.markWaitingReplied', 'Yanıt Verildi Yap')}
-            </button>
-          ) : null}
         </div>
       </div>
 
@@ -1772,18 +1755,6 @@ export function WhatsAppConversationsPage() {
     )
   }, [selectedId])
 
-  const handleMarkWaitingReplied = useCallback((conversationId: string) => {
-    const clearedAt = new Date().toISOString()
-    setConversations(prev =>
-      prev.map(c => c.citizenConversationId === conversationId
-        ? { ...c, waitingReplyClearedAtUtc: clearedAt }
-        : c),
-    )
-    void api.markConversationWaitingReplied(conversationId).catch(() => {
-      void silentRefreshConversations()
-    })
-  }, [silentRefreshConversations])
-
   useEffect(() => {
     const detail = selectedId
       ? {
@@ -1922,7 +1893,6 @@ export function WhatsAppConversationsPage() {
           onOpenStatusRequests={handleOpenStatusRequests}
           selectedId={selectedId}
           onSelect={handleSelectConversation}
-          onMarkWaitingReplied={handleMarkWaitingReplied}
         />
 
         {/* Right: conversation detail */}

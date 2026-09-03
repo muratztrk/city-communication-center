@@ -30,6 +30,8 @@ interface MultiSelectDropdownProps {
   searchPlaceholder?: string
   /** false: menü portal yerine trigger altında absolute kalır (grid scroll — card #2296). */
   menuPortal?: boolean
+  /** Otomatik yukarı çevirmeyi kapat; panel her zaman alta açılır (#3332 reopen). */
+  forceDown?: boolean
 }
 
 export function MultiSelectDropdown({
@@ -47,6 +49,7 @@ export function MultiSelectDropdown({
   searchable = false,
   searchPlaceholder = 'Ara...',
   menuPortal = true,
+  forceDown = false,
 }: MultiSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
@@ -71,14 +74,14 @@ export function MultiSelectDropdown({
     // Trigger ile aynı genişlik (veya menuWidth) — #1706/#r456/#r459.
     const width = menuWidth ?? Math.max(rect.width, 1)
     const left = Math.min(rect.left, Math.max(8, window.innerWidth - width - 8))
-    const flipUp = shouldOpenDropdownUp(rootRef.current, openUp)
+    const flipUp = shouldOpenDropdownUp(rootRef.current, openUp, forceDown)
     setResolvedOpenUp(flipUp)
     setMenuStyle({
       left,
       width,
       ...(flipUp ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
     })
-  }, [openUp, menuWidth])
+  }, [openUp, forceDown, menuWidth])
 
   useEffect(() => {
     if (!open || !menuPortal) return

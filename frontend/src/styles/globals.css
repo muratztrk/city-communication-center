@@ -6284,16 +6284,6 @@
     animation: ccc-blink 2.2s ease-in-out infinite;
   }
 
-  /* WhatsApp liste: Yanıt Verildi Yap — daha büyük metin, daha az silik blink (#6a6c3dca). */
-  .whatsapp-mark-waiting-replied {
-    animation: whatsapp-mark-waiting-blink 3.6s ease-in-out infinite;
-  }
-
-  @keyframes whatsapp-mark-waiting-blink {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.58; }
-  }
-
   @keyframes ccc-blink {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.18; }
@@ -6302,7 +6292,6 @@
   @media (prefers-reduced-motion: reduce) {
     .task-new-badge,
     .extra-time-pending-blink,
-    .whatsapp-mark-waiting-replied,
     .scope-chip-clear-pie {
       animation: none;
     }

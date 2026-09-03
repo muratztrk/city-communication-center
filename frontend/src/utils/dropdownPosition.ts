@@ -1,5 +1,6 @@
-/** Grid satırında menü alta sığmazsa yukarı aç (#3332). */
-export function shouldOpenDropdownUp(trigger: HTMLElement | null, forcedUp = false): boolean {
+/** Grid satırında menü alta sığmazsa yukarı aç (#3332). `forceDown` her zaman alta açar (#3332 reopen). */
+export function shouldOpenDropdownUp(trigger: HTMLElement | null, forcedUp = false, forceDown = false): boolean {
+  if (forceDown) return false
   if (forcedUp) return true
   if (!trigger) return false
   const rect = trigger.getBoundingClientRect()

@@ -1066,7 +1066,7 @@ export function AppShell() {
         {/* FAB sırası: WhatsApp → Kurum İçi Mesajlar → aşağı/yukarı (cards #1543/#1553). */}
         {/* Harita sayfalarında küçük ekranda sohbet FAB’leri zoom kontrollerini kapatır (#2694). */}
         <div className={`pointer-events-auto${hideMapPageChatFabs ? ' max-lg:hidden' : ''}`}>{canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}</div>
-        <div className={`pointer-events-auto${hideMapPageChatFabs ? ' max-lg:hidden' : ''}`}><InternalMessagesFab /></div>
+        <div className={`pointer-events-auto${hideMapPageChatFabs ? ' max-lg:hidden' : ''}`}>{isInternalModuleUsable ? <InternalMessagesFab /> : null}</div>
         <div className="pointer-events-auto"><ScrollFab /></div>
       </div>
       {pageToast ? (

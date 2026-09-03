@@ -1,3 +1,9 @@
+## Round 1121 — Trello Doing 2 kart (#3363/#3381)
+
+- **#3363 retry:** WA gri başlık phone-only `text-[13px] font-bold` (12px→13px).
+- **#3381:** WA gri başlık alt satır telefon `text-[11px]` (10px→11px, ad kayıtlı).
+- Push: `3cb6a9be`.
+
 ## Round 1119 — Trello Doing 3 kart (#3375/#3363/#3374)
 
 - **#3375:** Birime Gelen oluşturan `0.80rem`.

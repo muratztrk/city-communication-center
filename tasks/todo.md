@@ -1,3 +1,8 @@
+## Round 1103 — WA filtre chip yüksekliği
+
+- **#3348:** `/whatsapp` Tümü / Yanıt bekliyor / Mesaj Onayı Bekleyen `h-11` + `text-sm` (nowrap durur).
+- Atlandı: #3343 #3344 #3346 `tim mobil app'de`.
+
 ## Round 1102 — boş metin, WA chip, grid dropdown, form zıplaması, iç mesaj FAB
 
 - **#3345:** Vatandaş Talepleri boş grid `Henüz vatandaş talebi bulunmuyor.`

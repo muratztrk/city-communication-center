@@ -200,6 +200,22 @@ export function isPlaceholderBracketContent(content: string): boolean {
   return /^\[[^\]]+\]$/.test(trimmed) || /^<[^>/]+>$/.test(trimmed)
 }
 
+/** Meta `type: unsupported` — albüm kapsayıcısı; medyasız balon gösterme (#3336). */
+export function isIgnorableWhatsAppInboundNoise(
+  content: string | null | undefined,
+  mediaId?: string | null,
+): boolean {
+  if (mediaId) return false
+  const trimmed = content?.trim() ?? ''
+  return trimmed.toLocaleLowerCase('tr') === '[unsupported]'
+}
+
+export function filterVisibleConversationEntries<
+  T extends { content: string; mediaId?: string | null },
+>(entries: T[]): T[] {
+  return entries.filter(entry => !isIgnorableWhatsAppInboundNoise(entry.content, entry.mediaId))
+}
+
 /** WhatsApp konuşma balonu / önizleme metni — HTML etiketlerini göstermez. */
 export function formatConversationDisplayContent(content: string): string {
   const trimmed = content.trim()

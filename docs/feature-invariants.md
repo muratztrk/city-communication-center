@@ -2649,7 +2649,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sıfırlanır; chip/buton geçişlerinde de temizlenir.
 - **Dashboard Bekleyen Görevlerim alt metin (#6a75c91c reopen):** `(Birim İçi/Birim Dışı)` — "Bekleyen ve Geciken" eklenmez (geri alındı).
 - **WA kişi kartı (#6a75a9c2/#6a75cccc/#6a75ccfa/#6a75cd3f):** webhook `contacts` → `[kişi kartı]\nAd\ntelefon` (bullet/tire/ayraç yok; isim ile numara ayrı satır); balonda User ikonu (emerald çerçeve); konum MapPin/Haritada aç kişi kartında çıkmaz (thread lat/lng sızmaz). FE eski `Ad ·/ - telefon` kayıtlarını da satır kırarak gösterir. İsim/numara metni `text-xs font-semibold` (sm değil; medium→semibold hafif bump — #6a75cccc).
-- **WA tepki mesajı (#3336):** webhook `type: reaction` → `emoji` metni (boşsa `[tepki]`); eski `[unsupported]` kayıtları otomatik düzelmez.
+- **WA tepki mesajı (#3336):** webhook `type: reaction` → `emoji` metni (boşsa `[tepki]`). Medyasız `type: unsupported` (albüm kapsayıcısı) konuşmada gösterilmez / kaydedilmez; eski `[unsupported]` satırları FE filtresiyle gizlenir.
 - **WA Vatandaş Bilgileri Cadde menüsü (#3351):** `CbsStreetNoDropdowns` `streetMenuWidthExtraPx={96}` + `matchTriggerWidth`.
 - **Birimdeki Bekleyen Son Tarih (#6a75e88c):** `hideDueDateColumn` false for department `pending` (overdue ile birlikte).
 - **Görev Tarihi Yeni+Tip (#6a75e10f):** Yeni rozeti ile Görev Tipi aynı satırda yan yana (`showTaskTypeUnderDate`).

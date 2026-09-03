@@ -50,4 +50,18 @@ public sealed class WhatsAppInboundContentParserTests
 
         Assert.Equal("[unsupported]", content);
     }
+
+    [Theory]
+    [InlineData("[unsupported]", null, true)]
+    [InlineData("[unsupported]", "", true)]
+    [InlineData("[unsupported]", "media-id", false)]
+    [InlineData("[image]", null, false)]
+    [InlineData("Merhaba", null, false)]
+    public void IsIgnorableInboundNoise_detects_unsupported_without_media(
+        string content,
+        string? mediaId,
+        bool expected)
+    {
+        Assert.Equal(expected, WhatsAppInboundContentParser.IsIgnorableInboundNoise(content, mediaId));
+    }
 }

@@ -80,7 +80,15 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
         {
             var citizenHandle = citizenGroup.Key;
             var orderedMsgs = citizenGroup.OrderBy(m => m.ReceivedAtUtc).ToArray();
-            var latestAt = orderedMsgs[^1].ReceivedAtUtc;
+            var persistableMsgs = orderedMsgs
+                .Where(m => !WhatsAppInboundContentParser.IsIgnorableInboundNoise(m.Content, m.MediaId))
+                .ToArray();
+            if (persistableMsgs.Length == 0)
+            {
+                continue;
+            }
+
+            var latestAt = persistableMsgs[^1].ReceivedAtUtc;
 
             // Find or create CitizenConversation for this phone
             if (!existingConversations.TryGetValue(citizenHandle, out var conversation))
@@ -102,7 +110,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                     conversation.LastMessageAt = latestAt;
             }
 
-            conversation.UnreadCount += orderedMsgs.Length;
+            conversation.UnreadCount += persistableMsgs.Length;
             // Yeni inbound → manuel "Yanıt Verildi İşaretle" sıfırlanır (#6a6bab12).
             conversation.WaitingReplyClearedAtUtc = null;
 
@@ -116,7 +124,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 .OrderByDescending(m => m.ReceivedAtUtc)
                 .FirstOrDefaultAsync(cancellationToken);
 
-            foreach (var msg in orderedMsgs)
+            foreach (var msg in persistableMsgs)
             {
                 if (thread is null)
                 {
@@ -172,7 +180,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
 
             // Aynı webhook batch'inde görsel+metin gibi çoklu inbound yalnız bir auto-reply tetikler (#3361).
             var autoReplyInbound = WhatsAppInboundAutoReplyContent.PickFromBatch(
-                orderedMsgs.Select(msg => msg.Content));
+                persistableMsgs.Select(msg => msg.Content));
             pendingAutoReplies.Add(new PendingWhatsAppAutoReply(
                 request.TenantId,
                 thread!.SocialMessageId,
@@ -180,7 +188,7 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 autoReplyInbound,
                 latestAt));
 
-            var latestMessage = orderedMsgs[^1];
+            var latestMessage = persistableMsgs[^1];
             pendingConversationPushes.Add(new WhatsAppMessagePayload(
                 conversation.CitizenConversationId,
                 conversation.CitizenPhone,

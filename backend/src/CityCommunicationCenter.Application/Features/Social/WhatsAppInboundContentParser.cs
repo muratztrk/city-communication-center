@@ -5,6 +5,13 @@ namespace CityCommunicationCenter.Application.Features.Social;
 /// <summary>WhatsApp webhook gelen mesaj gövdesini konuşma kaydı metnine çevirir.</summary>
 internal static class WhatsAppInboundContentParser
 {
+    /// <summary>
+    /// Meta <c>type: unsupported</c> — çoğunlukla albüm kapsayıcısı; medyasız içerik yok (#3336).
+    /// </summary>
+    public static bool IsIgnorableInboundNoise(string content, string? mediaId) =>
+        string.IsNullOrWhiteSpace(mediaId)
+        && string.Equals(content.Trim(), "[unsupported]", StringComparison.OrdinalIgnoreCase);
+
     public static (string Content, string? MediaId, string? MediaMimeType, double? Latitude, double? Longitude) Parse(
         JsonElement message)
     {

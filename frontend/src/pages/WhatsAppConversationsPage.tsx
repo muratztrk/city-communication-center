@@ -27,7 +27,7 @@ import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
-import { formatConversationDisplayContent } from '../utils/socialConversationContent'
+import { filterVisibleConversationEntries, formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
@@ -1162,8 +1162,9 @@ function ConversationDetail({
   const normalizedChatSearch = chatSearch.trim().toLocaleLowerCase('tr')
   const visibleTimeline = useMemo(() => {
     if (!activeDetail) return []
-    if (!normalizedChatSearch) return activeDetail.timeline
-    return activeDetail.timeline.filter(entry =>
+    const timeline = filterVisibleConversationEntries(activeDetail.timeline)
+    if (!normalizedChatSearch) return timeline
+    return timeline.filter(entry =>
       formatConversationDisplayContent(entry.content).toLocaleLowerCase('tr').includes(normalizedChatSearch)
       || (entry.senderLabel ?? '').toLocaleLowerCase('tr').includes(normalizedChatSearch),
     )

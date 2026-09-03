@@ -15,6 +15,7 @@ import { ModalCloseButton } from './ui/modal-close-button'
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
+import { filterVisibleConversationEntries } from '../utils/socialConversationContent'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import {
   ATTACHMENT_FILE_ACCEPT,
@@ -128,7 +129,10 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     queryKey: queryKeys.whatsappTemplates.list(),
     queryFn: () => api.getWhatsAppTemplates(),
   })
-  const entries = useMemo(() => conversationQuery.data ?? [], [conversationQuery.data])
+  const entries = useMemo(
+    () => filterVisibleConversationEntries(conversationQuery.data ?? []),
+    [conversationQuery.data],
+  )
   const userQuickReplies = useMemo(() => {
     const metaTemplates = (whatsAppTemplatesQuery.data ?? [])
       .filter(template => template.isActive && template.channel === 'WhatsApp Meta')

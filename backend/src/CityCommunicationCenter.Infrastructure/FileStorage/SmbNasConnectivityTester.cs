@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
 using CityCommunicationCenter.Shared.FileStorage;
@@ -25,7 +26,27 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
         var normalizedHost = NasPathNormalizer.NormalizeHost(host) ?? host.Trim();
         var normalizedShare = NasPathNormalizer.NormalizeShareName(shareName) ?? shareName.Trim();
         return Task.Run(
-            () => TestCreateFolder(normalizedHost, normalizedShare, username, password),
+            () =>
+            {
+                // İstek kültürü ("tr") Task.Run'a AsyncLocal ile akıyor. SMBLibrary, NTLMv2
+                // hesaplamasında kullanıcı adını kültüre duyarlı ToUpper() ile büyütüyor;
+                // tr-TR altında 'i' -> 'İ' (noktalı) olup 'I' değil, bu da hash'i bozup
+                // doğru parolayla bile STATUS_LOGON_FAILURE üretiyor (canlı QNAP'ta doğrulandı).
+                // Bu thread'e özgü olduğu için uygulamanın genel Türkçe lokalizasyonunu etkilemez.
+                var previousCulture = CultureInfo.CurrentCulture;
+                var previousUiCulture = CultureInfo.CurrentUICulture;
+                CultureInfo.CurrentCulture = CultureInfo.InvariantCulture;
+                CultureInfo.CurrentUICulture = CultureInfo.InvariantCulture;
+                try
+                {
+                    return TestCreateFolder(normalizedHost, normalizedShare, username, password);
+                }
+                finally
+                {
+                    CultureInfo.CurrentCulture = previousCulture;
+                    CultureInfo.CurrentUICulture = previousUiCulture;
+                }
+            },
             cancellationToken);
     }
 

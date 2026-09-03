@@ -1920,7 +1920,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   doldurur (Operator/Reporter dışında Manager/CRM de görsün). `MyRequestDetailModal` prop
   verilmezse `detail.citizenOutboundMessage` / `citizenApprovalReleasedNote` okunur (kanal pie,
   harita). **Vatandaşa Giden Mesaj** yalnız mesaj iletildikten sonra (`citizenOutboundMessage`
-  dolu; release öncesi Tamamlama/iptal notu fallback ile gösterilmez — #3356). Otomatik durum şablonu (`talebinizin durumu`) veya
+  dolu; release öncesi Tamamlama/iptal notu fallback ile gösterilmez — #3356). WhatsApp'ta
+  `ResolveOutboundDisplayNoteAsync` yalnız `DeliveryStatusUpdatedAtUtc >= release` olan
+  Sent/Delivered/Read giden kayıtlarından terminal notu çıkarır; release sonrası Pending veya
+  release öncesi otomatik yanıtlar bu alanı doldurmaz (#3356 reopen).
   Tamamlama ile aynıysa yeşil, operatörün özelleştirdiği farklı metin kırmızı (#2557/#3084).
   `Yapılan İş:` / `İptal Nedeni:` / `İptal Notu:` şablon etiketleri bu alandan düşer — yalnız
   not kalır; vatandaş talebinde başlık durur, değer tamamlama/iptal notu (#3270). Birim içi /

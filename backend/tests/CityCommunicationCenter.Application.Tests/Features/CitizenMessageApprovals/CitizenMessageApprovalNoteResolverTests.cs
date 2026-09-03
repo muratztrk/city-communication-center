@@ -122,6 +122,58 @@ public sealed class CitizenMessageApprovalNoteResolverTests
         Assert.Equal("Kapandı", CitizenMessageApprovalNoteResolver.StripAutoTemplateNoteLabel("İptal Nedeni: Kapandı"));
     }
 
+    [Fact]
+    public async Task WhatsApp_outbound_hidden_until_terminal_message_transmitted_after_release()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var socialMessageId = Guid.NewGuid();
+        var releasedAt = DateTimeOffset.UtcNow.AddMinutes(-10);
+        var preReleaseBody = "VT-2026-1 no'lu Başlık talebinizin durumu \"Yapılmakta\".\n\nFen İşleri Müdürlüğü";
+        var terminalBody = "VT-2026-1 no'lu Başlık talebinizin durumu \"Tamamlandı\".\n\nYapılan İş: operator notu";
+
+        db.AddRange(
+            BuildCompletedJob(jobId, releasedAt),
+            BuildCompletedTask(jobId, Guid.NewGuid(), "operator notu"),
+            BuildAudit(jobId, "CitizenMessageApprovalReleased", "yonetici notu", releasedAt),
+            new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = socialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = preReleaseBody,
+                SentAt = releasedAt.AddMinutes(-30),
+                DeliveryStatus = ConversationDeliveryStatus.Sent,
+                DeliveryStatusUpdatedAtUtc = releasedAt.AddMinutes(-30),
+            },
+            new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = socialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = terminalBody,
+                SentAt = releasedAt,
+                DeliveryStatus = ConversationDeliveryStatus.Pending,
+                DeliveryStatusUpdatedAtUtc = releasedAt,
+            });
+        await db.SaveChangesAsync();
+
+        var job = await db.Jobs.SingleAsync(j => j.JobId == jobId);
+        var outboundBeforeSend = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+            db, TenantId, job, SocialChannel.WhatsApp, socialMessageId, responseContent: null, CancellationToken.None);
+
+        var pendingEntry = await db.ConversationEntries.SingleAsync(entry => entry.DeliveryStatus == ConversationDeliveryStatus.Pending);
+        pendingEntry.DeliveryStatus = ConversationDeliveryStatus.Sent;
+        pendingEntry.DeliveryStatusUpdatedAtUtc = releasedAt.AddMinutes(5);
+        await db.SaveChangesAsync();
+
+        var outboundAfterSend = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+            db, TenantId, job, SocialChannel.WhatsApp, socialMessageId, responseContent: null, CancellationToken.None);
+
+        Assert.Null(outboundBeforeSend);
+        Assert.Equal("operator notu", outboundAfterSend);
+    }
+
     private static Job BuildCompletedJob(Guid jobId, DateTimeOffset releasedAt) => new()
     {
         JobId = jobId,

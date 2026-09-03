@@ -167,15 +167,31 @@ internal static class CitizenMessageApprovalNoteResolver
 
         if (channel == SocialChannel.WhatsApp)
         {
+            // #3356 reopen: Yönetici "Mesajı Onayla" sonrası Pending kuyruk oluşur; alan yalnız
+            // operatör gerçekten ilettikten (Sent/Delivered/Read) sonra görünür. Release öncesi
+            // otomatik durum yanıtları bu alana düşmesin.
+            if (!firstReleasedAt.HasValue)
+            {
+                return null;
+            }
+
+            var releasedAt = firstReleasedAt.Value;
             var outboundContents = await dbContext.ConversationEntries.AsNoTracking()
                 .Where(entry => entry.SocialMessageId == socialMessageId
                     && entry.Direction == ConversationEntryDirection.Outbound
                     && (entry.DeliveryStatus == ConversationDeliveryStatus.Sent
                         || entry.DeliveryStatus == ConversationDeliveryStatus.Delivered
-                        || entry.DeliveryStatus == ConversationDeliveryStatus.Read))
-                .OrderByDescending(entry => entry.SentAt)
+                        || entry.DeliveryStatus == ConversationDeliveryStatus.Read)
+                    && entry.DeliveryStatusUpdatedAtUtc != null
+                    && entry.DeliveryStatusUpdatedAtUtc >= releasedAt)
+                .OrderByDescending(entry => entry.DeliveryStatusUpdatedAtUtc)
                 .Select(entry => entry.Content)
                 .ToListAsync(cancellationToken);
+
+            if (outboundContents.Count == 0)
+            {
+                return null;
+            }
 
             foreach (var content in outboundContents)
             {
@@ -184,12 +200,11 @@ internal static class CitizenMessageApprovalNoteResolver
                 {
                     return transmitted;
                 }
+            }
 
-                var body = StripAutoTemplateNoteLabel(content.Trim());
-                if (!string.IsNullOrWhiteSpace(body))
-                {
-                    return body;
-                }
+            if (!string.IsNullOrWhiteSpace(lastPostReleaseEdit))
+            {
+                return StripAutoTemplateNoteLabel(lastPostReleaseEdit);
             }
 
             return null;

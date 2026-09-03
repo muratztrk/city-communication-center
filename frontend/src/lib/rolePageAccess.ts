@@ -52,10 +52,12 @@ export const CITIZEN_REQUEST_MANAGER_PAGE_KEYS = [
  * incomingRequests, citizenMessageApproval, smsDeliveryApproval, departments, users, settings,
  * audit) her iki modülde de ortak/yönetimsel sayfalardır — modül şartı yoktur.
  */
-export const PAGE_LICENSE_MODULE: Partial<Record<PageAccessKey, LicenseModuleKey>> = {
-  // Kurum İçi İş Takip Sistemi'nde olmamalı (#WGDYIM79): vatandaş kanalları + e-Devlet faaliyet planı.
-  edevletActivityPlan: 'citizen',
-  edevletActivityPlansList: 'citizen',
+export type PageLicenseRequirement = LicenseModuleKey | readonly LicenseModuleKey[]
+
+export const PAGE_LICENSE_MODULE: Partial<Record<PageAccessKey, PageLicenseRequirement>> = {
+  // e-Devlet faaliyet sayfaları citizen VEYA kurum içi lisans açıkken görünür (#3337).
+  edevletActivityPlan: ['citizen', 'internal'],
+  edevletActivityPlansList: ['citizen', 'internal'],
   social: 'citizen',
   citizenRequestMap: 'citizen',
   departmentRequestMap: 'internal',
@@ -69,8 +71,17 @@ export const PAGE_LICENSE_MODULE: Partial<Record<PageAccessKey, LicenseModuleKey
   display: 'internal',
 }
 
-export function pageRequiresModule(pageKey: PageAccessKey): LicenseModuleKey | null {
+export function pageRequiresModule(pageKey: PageAccessKey): PageLicenseRequirement | null {
   return PAGE_LICENSE_MODULE[pageKey] ?? null
+}
+
+export function isPageLicenseUsable(pageKey: PageAccessKey): boolean {
+  const required = pageRequiresModule(pageKey)
+  if (!required) {
+    return true
+  }
+  const modules = typeof required === 'string' ? [required] : required
+  return modules.some(module => isModuleUsable(module))
 }
 
 /**
@@ -267,8 +278,7 @@ export function canAnyRoleAccessPage(roles: readonly (string | undefined)[] | un
     return effectiveRoles.includes('Operator') && isModuleUsable('citizen')
   }
 
-  const requiredModule = pageRequiresModule(pageKey)
-  if (requiredModule && !isModuleUsable(requiredModule)) {
+  if (!isPageLicenseUsable(pageKey)) {
     return false
   }
 

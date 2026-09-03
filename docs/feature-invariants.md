@@ -520,7 +520,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   filtre tek başına yetmez (#6a6bab12/#6a6c3dca);
   `POST …/mark-waiting-replied` (`WaitingReplyClearedAtUtc`); yeni inbound webhook sıfırlar.
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekliyor` sağında; `hasPendingMessageApproval`
-  = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). FAB `hasPendingOutboundMessage`
+  = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). Rozet konuşma/numara
+  sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde; chip daha dar (#3330). FAB `hasPendingOutboundMessage`
   hâlâ yalnız personel Beklemede (otomatik hariç). Bu chip açıkken üst durum sayaç filtresi uygulanmaz
   ki İptal bekleyenler de görünsün (#3330).
   **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
@@ -2309,10 +2310,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   citizen anasayfaya veya Vatandaş Bilgi Listesi'ne yönlendirilir; Reporter varsayılan açılış citizen açıksa
   `/dashboard`, değilse `/citizen-directory`.
   Backend `testDisabled` API'si kalır; Ayarlar > Lisans UI'da geçici pasife al butonu yok (#2365).
-- **Sayfa Yetkileri modül filtresi (#2360):** `visiblePageAccessItems` `PAGE_LICENSE_MODULE` +
-  `isModuleUsable` ile filtrelenir; citizen kapalıyken e-Devlet, Vatandaş Bilgi Listesi, Vatandaş
-  Talepleri, Sms Onayı, Mesaj Onayı satırları görünmez. `useMemo` lisans durumuna bağlı olmalı —
-  boş `[]` ile cache'lenmez.
+- **Sayfa Yetkileri modül filtresi (#2360 / #3337):** `visiblePageAccessItems` `isPageLicenseUsable`
+  ile filtrelenir; e-Devlet satırları ve `EDevletActivityPlan` kolonu citizen **veya** internal
+  lisans açıkken görünür. Citizen kapalıyken Vatandaş Bilgi Listesi, Vatandaş Talepleri, Sms
+  Onayı, Mesaj Onayı satırları görünmez. `useMemo` lisans durumuna bağlı olmalı — boş `[]` ile
+  cache'lenmez.
 - **WA / kurum içi mesaj zamanı (#2340/#2339):** balon altı yalnız HH:mm; gün ayraçlarında yıl
   her zaman (`formatConversationMessageTime`, `formatConversationDayDivider`).
 - **WhatsApp konuşma zemin (#2300 reopen):** mesaj scroll alanı bej `#ece5dd` (`--wa-chat-bg`) +
@@ -2938,8 +2940,16 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Rol:` etiketli satırlar gösterir; ham `role=Manager` İngilizce metni kullanıcıya basılmaz.
 - **Log UserDeleted detayı (#2302):** silinen kullanıcı artık DB'de olmadığından audit `Details`
   alanında `username`/`role` saklanır; `GetAuditLogsQuery` geçmiş kayıtları parse ederek Detay'da gösterir.
-- **Kullanıcılar/Birimler grid dropdown (#2296):** satır içi düzenleme dropdown'ları `menuPortal={false}`
-  ile satırla birlikte kayar; `.table-wrap` scroll'unda menü kapanır; thead z-index dropdown üstündedir.
+- **Kullanıcılar/Birimler grid dropdown (#2296 / #3332):** satır içi düzenleme dropdown'ları `menuPortal={false}`
+  ile satırla birlikte kayar; alta sığmazsa `shouldOpenDropdownUp` ile yukarı açılır; `.table-wrap`
+  scroll'unda menü kapanır; thead z-index dropdown üstündedir.
+- **Birim düzenle müdür dropdown (#3334):** seçili kullanıcıya tekrar tıklanınca seçim kalkar
+  (`deselectOnReselect`).
+- **Yerel kullanıcı oluştur toast (#3339):** başarıda `emitPageToast` (sağ alt yeşil).
+- **LDAP birim adı tekil (#3333):** `CreateUser` / `CreateDepartment` Türkçe `EqualsIgnoreCase`;
+  aynı addan ikinci birim oluşmaz. Kullanıcı birim dropdown'u `uniqueDepartmentsByName`.
+- **Başkanlık gizli Administration (#3335):** `GetDepartments` hâlâ Administration gizler.
+  Görünür kopya yoksa Create/LDAP gizli eşleşmeyi (`Sistem Yönetimi` hariç) yükseltir.
 - **Kurum içi yazıyor göstergesi (#2307 / #2353 / Round 717):** aktif sohbette karşı taraf yazarken SignalR
   `ReceiveInternalMessageTyping` ile header'da birim satırının altında `Yazıyor` + animasyonlu
   üç nokta gösterilir; `POST /internal-messages/typing` yalnız alıcıya iletilir. Gönderen yazmaya

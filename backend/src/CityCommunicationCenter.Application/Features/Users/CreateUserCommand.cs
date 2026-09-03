@@ -176,14 +176,23 @@ public sealed class CreateUserCommandHandler : ICommandHandler<CreateUserCommand
         // Auto-resolve department from LDAP department name
         if (departmentId == Guid.Empty && !string.IsNullOrWhiteSpace(ldapDepartmentName))
         {
-            var normalizedName = ldapDepartmentName.ToUpperInvariant();
-            var existingDepartment = await _dbContext.Departments
-                .FirstOrDefaultAsync(
-                    entity => entity.TenantId == tenantId && entity.Name.ToUpper() == normalizedName,
-                    cancellationToken);
+            var tenantDepartments = await _dbContext.Departments
+                .Where(entity => entity.TenantId == tenantId)
+                .ToListAsync(cancellationToken);
+            var existingDepartment = tenantDepartments.FirstOrDefault(entity =>
+                    entity.DepartmentType != "Administration"
+                    && TurkishText.EqualsIgnoreCase(entity.Name, ldapDepartmentName))
+                ?? tenantDepartments.FirstOrDefault(entity =>
+                    TurkishText.EqualsIgnoreCase(entity.Name, ldapDepartmentName));
 
             if (existingDepartment is not null)
             {
+                if (existingDepartment.DepartmentType == "Administration"
+                    && !TurkishText.EqualsIgnoreCase(existingDepartment.Name, "Sistem Yönetimi"))
+                {
+                    existingDepartment.DepartmentType = "Müdürlük";
+                }
+
                 department = existingDepartment;
                 departmentId = existingDepartment.DepartmentId;
             }

@@ -2,6 +2,7 @@ import { Check, ChevronDown, Search, X } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { cn } from '../../lib/cn'
+import { shouldOpenDropdownUp } from '../../utils/dropdownPosition'
 
 export interface MultiSelectOption {
   value: string
@@ -50,6 +51,7 @@ export function MultiSelectDropdown({
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [adminSurfaceMenu, setAdminSurfaceMenu] = useState(false)
+  const [resolvedOpenUp, setResolvedOpenUp] = useState(openUp)
   const rootRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   const [menuStyle, setMenuStyle] = useState<{ top?: number; bottom?: number; left: number; width: number }>({ left: 0, width: 0 })
@@ -69,10 +71,12 @@ export function MultiSelectDropdown({
     // Trigger ile aynı genişlik (veya menuWidth) — #1706/#r456/#r459.
     const width = menuWidth ?? Math.max(rect.width, 1)
     const left = Math.min(rect.left, Math.max(8, window.innerWidth - width - 8))
+    const flipUp = shouldOpenDropdownUp(rootRef.current, openUp)
+    setResolvedOpenUp(flipUp)
     setMenuStyle({
       left,
       width,
-      ...(openUp ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
+      ...(flipUp ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
     })
   }, [openUp, menuWidth])
 
@@ -129,7 +133,7 @@ export function MultiSelectDropdown({
   const menuPanelClassName = cn(
     'dropdown-menu-panel flex max-h-72 flex-col',
     menuPortal ? 'fixed z-[9999]' : 'absolute z-[120]',
-    openUp && !menuPortal ? 'bottom-full mb-2' : !menuPortal ? 'top-full mt-2' : null,
+    resolvedOpenUp && !menuPortal ? 'bottom-full mb-2' : !menuPortal ? 'top-full mt-2' : null,
     adminSurfaceMenu && 'admin-surface-menu',
     menuClassName,
   )

@@ -13,6 +13,7 @@ import { api } from '../api/client'
 import { invalidateDepartments, invalidateUsers } from '../api/cacheInvalidation'
 import { AutocompleteField } from '../components/forms/AutocompleteField'
 import { Button } from '../components/ui/button'
+import { emitPageToast } from '../components/ui/pageToast'
 import { ConfirmDialog } from '../components/ui/confirm-dialog'
 import type { ConfirmDialogState } from '../components/ui/confirm-dialog'
 import { MultiSelectDropdown } from '../components/ui/multi-select-dropdown'
@@ -24,6 +25,7 @@ import { useAuth } from '../context/AuthContext'
 import { useDebouncedValue } from '../hooks/useDebouncedValue'
 import type { Department, DirectoryUserLookup, User, UserManagementContext } from '../types/platform'
 import { getRoleLabel, getUserSourceLabel } from '../utils/localization'
+import { uniqueDepartmentsByName } from '../utils/departments'
 import { sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
 
 type CreateMode = 'manual' | 'ldap'
@@ -526,7 +528,7 @@ export function UsersPage() {
             const email = item.email?.trim() || null
 
             try {
-              await api.createUser({
+              const created = await api.createUser({
                 username: item.username || null,
                 displayName: item.displayName || item.username || 'LDAP Kullanıcı',
                 email,
@@ -544,6 +546,9 @@ export function UsersPage() {
                 phone: item.phone?.trim() || null,
                 mobilePhone: item.mobilePhone?.trim() || null,
               })
+              if (created.departmentId) {
+                departmentByKey.set(deptName.toLocaleLowerCase('tr'), created.departmentId)
+              }
               createdUsers.push(item)
             } catch (createError) {
               const message = createError instanceof Error ? createError.message : t('common.error')
@@ -798,6 +803,7 @@ export function UsersPage() {
     }
 
     try {
+      const createdDisplayName = newUser.displayName.trim()
       await api.createUser({
         username: createMode === 'ldap' ? newUser.username || null : newUser.username.trim() || null,
         displayName: newUser.displayName,
@@ -822,6 +828,9 @@ export function UsersPage() {
       invalidateUsers(queryClient)
       invalidateDepartments(queryClient)
       loadData()
+      if (createMode === 'manual') {
+        emitPageToast(t('users.createSuccess', '{{name}} kullanıcısı oluşturuldu.', { name: createdDisplayName || t('users.title') }))
+      }
     } catch (createError) {
       setError(createError instanceof Error ? createError.message : t('common.error'))
     }
@@ -1406,7 +1415,7 @@ export function UsersPage() {
               <div className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.department')}</span>
                 <SingleSelectDropdown
-                  options={[...departments]
+                  options={uniqueDepartmentsByName(departments, [newUser.departmentId])
                     .map(department => ({
                       value: department.departmentId,
                       label: department.name,
@@ -1429,7 +1438,7 @@ export function UsersPage() {
               <div className="users-additional-departments-field grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.additionalDepartments', 'Ek görev yaptığı birimler')}</span>
                 <MultiSelectDropdown
-                  options={[...departments]
+                  options={uniqueDepartmentsByName(departments, newUser.additionalDepartmentIds)
                     .filter(department => department.departmentId !== newUser.departmentId)
                     .map(department => ({ value: department.departmentId, label: department.name }))
                     .sort((a, b) => localeCompareTr(a.label, b.label))}
@@ -1632,7 +1641,7 @@ export function UsersPage() {
                           </span>
                         ) : (
                           <SingleSelectDropdown
-                            options={[...departments]
+                            options={uniqueDepartmentsByName(departments, [editForm.departmentId])
                               .map(department => ({
                                 value: department.departmentId,
                                 label: department.name,
@@ -1656,7 +1665,7 @@ export function UsersPage() {
                           />
                         )}
                         <MultiSelectDropdown
-                          options={[...departments]
+                          options={uniqueDepartmentsByName(departments, editForm.additionalDepartmentIds)
                             .filter(department => department.departmentId !== editForm.departmentId)
                             .map(department => ({ value: department.departmentId, label: department.name }))
                             .sort((a, b) => localeCompareTr(a.label, b.label))}

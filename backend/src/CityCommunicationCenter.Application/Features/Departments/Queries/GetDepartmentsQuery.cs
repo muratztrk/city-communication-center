@@ -1,5 +1,4 @@
 
-
 namespace CityCommunicationCenter.Application.Features.Departments;
 
 public sealed record GetDepartmentsQuery() : IQuery<IReadOnlyList<DepartmentResponse>>;

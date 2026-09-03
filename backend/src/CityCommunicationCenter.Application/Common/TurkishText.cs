@@ -38,6 +38,17 @@ public static class TurkishText
         return Tr.CompareInfo.IndexOf(haystack, needle.Trim(), CompareOptions.IgnoreCase) >= 0;
     }
 
+    /// <summary>Türkçe i/ı/İ duyarsız tam eşleşme (birim adı tekilleştirme).</summary>
+    public static bool EqualsIgnoreCase(string? left, string? right)
+    {
+        if (string.IsNullOrWhiteSpace(left) || string.IsNullOrWhiteSpace(right))
+        {
+            return string.IsNullOrWhiteSpace(left) && string.IsNullOrWhiteSpace(right);
+        }
+
+        return Tr.CompareInfo.Compare(left.Trim(), right.Trim(), CompareOptions.IgnoreCase) == 0;
+    }
+
     /// <summary>Türkçe diyakritikleri ASCII'ye katlayıp küçük harfe çevirir (arama eşlemesi).</summary>
     public static string Fold(string? value)
     {

@@ -34,7 +34,7 @@ import {
   createDefaultRolePageAccessMatrix,
   PAGE_ACCESS_ITEMS,
   ROLE_CODES,
-  pageRequiresModule,
+  isPageLicenseUsable,
   parseRolePageAccessMatrix,
   saveRolePageAccessMatrix,
   serializeRolePageAccessMatrix,
@@ -608,15 +608,14 @@ export function SettingsPage() {
   const [rolesPageSize, setRolesPageSize] = useState(25)
   const [rolesPage, setRolesPage] = useState(1)
   // Modüler lisans (#WGDYIM79 / #MHrIEwuE): lisanssız modülün sayfaları Sayfa Yetkileri'nde de görünmez.
+  const licenseVisibilityKey = `${isCitizenModuleUsable ? 1 : 0}${isInternalModuleUsable ? 1 : 0}`
   const visiblePageAccessItems = useMemo(
-    () => PAGE_ACCESS_ITEMS.filter(page => {
-      const requiredModule = pageRequiresModule(page.key)
-      if (!requiredModule) {
-        return true
-      }
-      return requiredModule === 'citizen' ? isCitizenModuleUsable : isInternalModuleUsable
-    }),
-    [isCitizenModuleUsable, isInternalModuleUsable],
+    () => PAGE_ACCESS_ITEMS.filter(page => isPageLicenseUsable(page.key)),
+    [licenseVisibilityKey],
+  )
+  const visibleRoleCodes = useMemo(
+    () => ROLE_CODES.filter(role => role !== 'EDevletActivityPlan' || isPageLicenseUsable('edevletActivityPlan')),
+    [licenseVisibilityKey],
   )
   const rolesTotalPages = Math.max(1, Math.ceil(visiblePageAccessItems.length / rolesPageSize) || 1)
   const rolesSafePage = Math.min(rolesPage, rolesTotalPages)
@@ -3385,7 +3384,7 @@ export function SettingsPage() {
               <thead>
                 <tr>
                   <th>{t('settings.roles.page')}</th>
-                  {ROLE_CODES.map(role => (
+                  {visibleRoleCodes.map(role => (
                     <th key={role}>{role === 'Manager' ? t('settings.roles.managerLabel', 'Birim Yöneticisi/Sorumluları') : getRoleLabel(t, role)}</th>
                   ))}
                 </tr>
@@ -3394,7 +3393,7 @@ export function SettingsPage() {
                 {pagedPageAccessItems.map(page => (
                   <tr key={page.key}>
                     <td className="font-semibold">{renderRolePageLabel(page)}</td>
-                    {ROLE_CODES.map(role => {
+                    {visibleRoleCodes.map(role => {
                       const disabled = page.key === 'dashboard' || page.key === 'settings'
                       return (
                         <td key={`${role}-${page.key}`}>

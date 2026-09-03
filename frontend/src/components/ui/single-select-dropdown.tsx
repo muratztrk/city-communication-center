@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, ChevronDown, Search, X } from 'lucide-react'
 import { cn } from '../../lib/cn'
+import { shouldOpenDropdownUp } from '../../utils/dropdownPosition'
 
 export interface SingleSelectOption {
   value: string
@@ -35,6 +36,8 @@ interface SingleSelectDropdownProps {
   matchTriggerWidth?: boolean
   /** matchTriggerWidth iken paneli sağa doğru ekstra px (#2640 Cadde). */
   menuWidthExtraPx?: number
+  /** Seçili satıra tekrar tıklayınca seçimi kaldır (#3334). */
+  deselectOnReselect?: boolean
 }
 
 export function SingleSelectDropdown({
@@ -56,10 +59,12 @@ export function SingleSelectDropdown({
   menuPortal = true,
   matchTriggerWidth = false,
   menuWidthExtraPx = 0,
+  deselectOnReselect = false,
 }: SingleSelectDropdownProps) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState('')
   const [adminSurfaceMenu, setAdminSurfaceMenu] = useState(false)
+  const [resolvedOpenUp, setResolvedOpenUp] = useState(openUp)
   const rootRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
   // Panel bir portal ile document.body'ye render edilir; overflow-y-auto/overflow-hidden
@@ -83,9 +88,11 @@ export function SingleSelectDropdown({
     const extra = matchWidth ? menuWidthExtraPx : 0
     const assumedWidth = menuWidth ?? (matchWidth ? rect.width + extra : 320)
     const left = Math.min(rect.left, Math.max(8, window.innerWidth - assumedWidth - 8))
+    const flipUp = shouldOpenDropdownUp(rootRef.current, openUp)
+    setResolvedOpenUp(flipUp)
     setMenuStyle({
       left,
-      ...(openUp ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
+      ...(flipUp ? { bottom: window.innerHeight - rect.top + 8 } : { top: rect.bottom + 8 }),
       ...(menuWidth
         ? { width: menuWidth }
         : matchWidth
@@ -131,7 +138,7 @@ export function SingleSelectDropdown({
   const menuPanelClassName = cn(
     'dropdown-menu-panel',
     menuPortal ? 'fixed z-[9999]' : 'absolute z-[120]',
-    openUp && !menuPortal ? 'bottom-full mb-2' : !menuPortal ? 'top-full mt-2' : null,
+    resolvedOpenUp && !menuPortal ? 'bottom-full mb-2' : !menuPortal ? 'top-full mt-2' : null,
     adminSurfaceMenu && 'admin-surface-menu',
     menuClassName,
   )
@@ -184,7 +191,11 @@ export function SingleSelectDropdown({
                 key={option.value}
                 type="button"
                 className={cn('dropdown-menu-item', checked && 'dropdown-menu-item--selected')}
-                onClick={() => { onChange(option.value); setOpen(false); setSearch('') }}
+                onClick={() => {
+                  onChange(deselectOnReselect && checked ? '' : option.value)
+                  setOpen(false)
+                  setSearch('')
+                }}
               >
                 <span className="min-w-0 truncate">{option.label}</span>
                 {checked ? <Check className="size-4 shrink-0" /> : null}

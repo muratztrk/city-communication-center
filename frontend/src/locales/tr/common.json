@@ -745,6 +745,7 @@
     "empty": "Henüz kullanıcı bulunmuyor",
     "deleteConfirm": "\"{{name}}\" kullanıcısını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.",
     "departmentWillBeCreated": "yeni oluşturulacak",
+    "createSuccess": "{{name}} kullanıcısı oluşturuldu.",
     "managerConflict": "Bu müdürlükte zaten bir Müdür mevcut: {{name}}. Her müdürlüğün yalnızca 1 müdür kontenjanı vardır."
   },
   "requests": {

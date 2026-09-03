@@ -468,7 +468,9 @@ function ConversationListPanel({
                   setConversationPage(1)
                   onListFilterChange(option.value)
                 }}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                className={`relative inline-flex shrink-0 items-center justify-center rounded-full py-1.5 text-xs font-semibold leading-tight transition-colors ${
+                  option.value === 'pendingApproval' ? 'max-w-[7.25rem] px-2 text-center' : 'px-3'
+                } ${
                   listFilter === option.value
                     ? 'bg-emerald-800 text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
@@ -476,9 +478,7 @@ function ConversationListPanel({
               >
                 {option.label}
                 {option.badge != null && option.badge > 0 ? (
-                  <span className={`inline-flex min-w-[1rem] h-4 px-1 items-center justify-center rounded-full text-[10px] font-bold ${
-                    listFilter === option.value ? 'bg-red-500 text-white' : 'bg-red-500 text-white'
-                  }`}>
+                  <span className="absolute -right-1 -top-1.5 inline-flex h-[1.05rem] min-w-[1.05rem] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold leading-none text-white">
                     {option.badge}
                   </span>
                 ) : null}

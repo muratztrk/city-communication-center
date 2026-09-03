@@ -1,3 +1,13 @@
+## Round 1101 — kullanıcı toast, Başkanlık, grid dropdown, e-Devlet lisans, WA rozet
+
+- **#3339:** Yerel kullanıcı oluşturunca sağ alt yeşil `emitPageToast`.
+- **#3335:** Gizli Administration `Başkanlık` eşleşmesi grid'e yükseltilir; Türkçe ad karşılaştırması.
+- **#3332:** Kullanıcılar/Birimler grid dropdown alta sığmazsa yukarı açılır.
+- **#3337:** e-Devlet sayfa satırları + rol kolonu citizen veya kurum içi lisansla görünür.
+- **#3334:** Birim düzenle/Yönetici Ata müdür dropdown seçiliye tekrar tıklayınca temizlenir.
+- **#3330:** Mesaj Onayı Bekleyen daraltıldı; rozet sağ üstte (Yanıt bekliyor ile aynı).
+- **#3333:** LDAP birim adı Türkçe tekil; dropdown ve toplu eklemede aynı addan bir kayıt.
+
 ## Round 1100 — punto reopen, WA Mesaj Onayı filtresi, etiket satırı
 
 - **#3327:** JobsPage vatandaş satırına `--citizen-contact`; mobil Telefon No `0.56rem` (önce class yoktu, 0.68 görünmedi).

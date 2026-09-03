@@ -35,11 +35,20 @@ public sealed class CreateDepartmentCommandHandler : ICommandHandler<CreateDepar
     public async ValueTask<DepartmentResponse> Handle(CreateDepartmentCommand request, CancellationToken cancellationToken)
     {
         var trimmedName = request.Name.Trim();
-        var nameExists = await _dbContext.Departments
+        var existingDepartments = await _dbContext.Departments
             .Where(department => department.TenantId == request.TenantId)
-            .AnyAsync(department => department.Name.ToLower() == trimmedName.ToLower(), cancellationToken);
+            .ToListAsync(cancellationToken);
+        var visibleMatch = existingDepartments.FirstOrDefault(department =>
+            TurkishText.EqualsIgnoreCase(department.Name, trimmedName)
+            && department.DepartmentType != "Administration");
+        var hiddenAdminMatch = existingDepartments.FirstOrDefault(department =>
+            TurkishText.EqualsIgnoreCase(department.Name, trimmedName)
+            && department.DepartmentType == "Administration"
+            && !TurkishText.EqualsIgnoreCase(department.Name, "Sistem Yönetimi"));
 
-        if (nameExists)
+        // Administration birimleri listede görünmez (#2256). Gizli eşleşme (ör. Başkanlık)
+        // grid'e çıksın diye türü yükselt; görünür kopya varsa hata ver (#3335).
+        if (visibleMatch is not null)
         {
             throw new ValidationException(
             [
@@ -47,6 +56,45 @@ public sealed class CreateDepartmentCommandHandler : ICommandHandler<CreateDepar
                     "Name",
                     $"'{trimmedName}' adında bir birim zaten mevcut."),
             ]);
+        }
+
+        if (hiddenAdminMatch is not null)
+        {
+            var nameMatch = hiddenAdminMatch;
+            nameMatch.DepartmentType = request.DepartmentType.Trim();
+            nameMatch.SourceType = NormalizeSourceType(request.SourceType);
+            if (request.ParentDepartmentId.HasValue)
+            {
+                nameMatch.ParentDepartmentId = request.ParentDepartmentId;
+            }
+
+            if (request.ManagerUserId.HasValue)
+            {
+                nameMatch.ManagerUserId = request.ManagerUserId;
+            }
+
+            if (request.DeputyManagerUserId.HasValue)
+            {
+                nameMatch.DeputyManagerUserId = request.DeputyManagerUserId;
+            }
+
+            if (request.ResponsibleUserIds is { Count: > 0 })
+            {
+                nameMatch.ResponsibleUserIdsJson = DepartmentResponseFactory.SerializeResponsibleUserIds(request.ResponsibleUserIds);
+            }
+
+            _dbContext.AuditLogs.Add(new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = request.TenantId,
+                EntityType = nameof(Department),
+                EntityId = nameMatch.DepartmentId.ToString(),
+                Action = "DepartmentCreated",
+                ActorUserId = request.ActorUserId,
+                Details = $"Department '{nameMatch.Name}' promoted from Administration."
+            });
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return DepartmentResponseFactory.Create(nameMatch);
         }
 
         var entity = new Department

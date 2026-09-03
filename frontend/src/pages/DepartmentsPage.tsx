@@ -930,6 +930,7 @@ export function DepartmentsPage() {
                           menuClassName="departments-manager-assign-menu"
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
                           menuPortal={false}
+                          deselectOnReselect
                         />
                       ) : (
                         <EmptyCell value={getDepartmentManagerName(department)} />
@@ -1066,6 +1067,7 @@ export function DepartmentsPage() {
                       placeholder={t('common.optional', '— Seçin (opsiyonel)')}
                       searchable
                       searchPlaceholder={t('common.search', 'Ara...')}
+                      deselectOnReselect
                     />
                   </div>
                   <div className="grid gap-2 text-sm font-semibold text-slate-700 md:col-span-2">

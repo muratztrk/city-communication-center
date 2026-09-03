@@ -1,3 +1,9 @@
+## Round 1122 — Trello Doing 3 kart (#3378/#3379/#3380)
+
+- **#3378/#3379:** Konuşmada ara Beklemede pending mesajları rozet metniyle eşleşir.
+- **#3380:** Konuşmada ara min 3 karakter.
+- Push: `6efc45fc`.
+
 ## Round 1121 — Trello Doing 2 kart (#3363/#3381)
 
 - **#3363 retry:** WA gri başlık phone-only `text-[13px] font-bold` (12px→13px).

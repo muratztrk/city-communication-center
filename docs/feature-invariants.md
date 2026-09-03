@@ -2363,8 +2363,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum içi Dosya ekle (#2383):** kompakt buton; 5 MB; seçilen dosya sohbet alanında önizleme (WA gibi).
 - **Görünüm Kaydet/Varsayılana Dön (#2367 reopen):** üst boşluk `mt-12`.
 - **Dosya ekle accept filtresi (#2373 / #2848 / #2870 / #3362):** Talep/görev/WA/kurum içi `accept`
-  MIME + ek uzantı (çakışan uzantı yok); Windows özel dosyalar filtresi için. `.jpg` ve `.jpeg`
-  ayrı uzantı. `.mov` ve `.webm` accept'te yok (#2870). Logo yükleme (Ayarlar Görünüm) ayrı kalır.
+  yalnız uzantı listesi (jpg/jpeg/png/pdf/doc/docx/xls/xlsx/ppt/pptx/mp4); MIME `accept`'e
+  eklenmez — Windows özel dosyalar filtresi bozulmasın (#3362 reopen). `.mov`/`.webm` yok (#2870).
+  Logo yükleme (Ayarlar Görünüm) ayrı kalır.
 
 - **Login görünüm açıklaması (#2345 / #2361 / #2363 / #2364 / #2344):** `TenantAppearance.loginPageDescription` (appearance JSON);
   boşsa i18n `login.subtitle` kullanılır. Ayarlar > Görünüm: Login Page Logosu Tema Ön ayarı altında (sol

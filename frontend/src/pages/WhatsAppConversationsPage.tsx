@@ -456,8 +456,9 @@ function ConversationListPanel({
           ) : null}
         </div>
 
-        <div className="flex items-center gap-2 pt-2 pb-0.5">
-          <div className="flex min-w-0 flex-1 items-center gap-1.5 overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="min-w-0">
+          <div className="overflow-x-auto [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex w-max items-center gap-1.5 py-2 pr-2">
             {filterOptions.map(option => (
               <button
                 key={option.value}
@@ -466,7 +467,7 @@ function ConversationListPanel({
                   setConversationPage(1)
                   onListFilterChange(option.value)
                 }}
-                className={`relative inline-flex h-[1.925rem] shrink-0 items-center justify-center whitespace-nowrap rounded-full px-2 text-sm font-semibold leading-none transition-colors ${
+                className={`relative inline-flex h-[1.925rem] shrink-0 items-center justify-center overflow-visible whitespace-nowrap rounded-full px-2 text-sm font-semibold leading-none transition-colors ${
                   listFilter === option.value
                     ? 'bg-emerald-800 text-white'
                     : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
@@ -474,12 +475,13 @@ function ConversationListPanel({
               >
                 {option.label}
                 {option.badge != null && option.badge > 0 ? (
-                  <span className="absolute -right-1 -top-1.5 inline-flex h-[1.05rem] min-w-[1.05rem] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold leading-none text-white">
+                  <span className="absolute -right-1 -top-1.5 z-10 inline-flex h-[1.05rem] min-w-[1.05rem] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold leading-none text-white">
                     {option.badge}
                   </span>
                 ) : null}
               </button>
             ))}
+            </div>
           </div>
         </div>
       </div>

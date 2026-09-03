@@ -1,3 +1,7 @@
+## Round 1103c — WA chip rozet kesilmesi
+
+- **#3348 follow-up:** `overflow-x-auto` satırına `pt-2 pr-2`; rozet padding içinde, daire kesilmez.
+
 ## Round 1103b — WA chip %30 küçültme
 
 - **#3348 follow-up:** Tümü / Yanıt bekliyor / Mesaj Onayı Bekleyen `h-11` → `h-[1.925rem]` (%30).

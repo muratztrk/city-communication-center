@@ -9,7 +9,6 @@ import { invalidateJobs, invalidateConversations, invalidateSocialMessages } fro
 import { getActiveDepartmentId } from '../api/http'
 import { useAuth } from '../context/AuthContext'
 import { Button } from './ui/button'
-import { AttachmentUploadProgressBar } from './ui/attachment-upload-progress'
 import { DeferredComposerInput } from './ui/DeferredComposerInput'
 import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
@@ -24,7 +23,6 @@ import type { CitizenConversationDetail, Department, RequestTag, SocialMessage }
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
-import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { formatCitizenRequestNumber } from '../utils/citizenRequests'
 import { getLocale } from '../utils/localization'
 import { prioritySelectOptions, stringListSelectOptions } from '../utils/formDropdownOptions'
@@ -183,7 +181,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
   const [coordinates, setCoordinates] = useState('')
   const [pendingFiles, setPendingFiles] = useState<File[]>([])
   const [fileError, setFileError] = useState<string | null>(null)
-  const fileProgress = useLocalFileSelectProgress()
   const [saving, setSaving] = useState(false)
   const [loadingJob, setLoadingJob] = useState(isEditMode)
   const [error, setError] = useState<string | null>(null)
@@ -368,10 +365,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     const validationError = validateFile(file)
     if (validationError) {
       setFileError(validationError)
-      fileProgress.stop()
       return
     }
-    let accepted = false
     setPendingFiles(current => {
       if (exceedsAttachmentTotalLimit(sumFileSizes(current), file.size)) {
         setFileError('Dosyaların toplam boyutu 5 MB\'ı aşamaz.')
@@ -381,11 +376,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         return current
       }
       setFileError(null)
-      accepted = true
       return [...current, file]
     })
-    if (accepted) fileProgress.holdAtZero()
-    else fileProgress.stop()
   }
 
   const downloadPendingFile = (file: File) => {
@@ -399,17 +391,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
   const uploadPendingFiles = async (jobId: string) => {
     if (pendingFiles.length === 0) return
-    fileProgress.report(0)
-    try {
-      for (const [index, file] of pendingFiles.entries()) {
-        await api.uploadJobAttachment(jobId, file, filePercent => {
-          fileProgress.report(((index + filePercent / 100) / pendingFiles.length) * 100)
-        })
-      }
-    } finally {
-      fileProgress.report(100)
-      await new Promise(resolve => window.setTimeout(resolve, 320))
-      fileProgress.stop()
+    for (const file of pendingFiles) {
+      await api.uploadJobAttachment(jobId, file)
     }
   }
 
@@ -869,9 +852,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                           }}
                         />
                       </label>
-                      {fileProgress.visible ? (
-                        <AttachmentUploadProgressBar progress={fileProgress.progress} />
-                      ) : null}
                       </div>
                       <div className="min-h-[5rem] max-h-[5rem] min-w-0 flex-[1.28] overflow-y-auto rounded-2xl border border-slate-200 bg-white px-3 py-2">
                         {pendingFiles.length === 0 ? (

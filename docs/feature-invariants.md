@@ -282,7 +282,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Detay popup'ta **Talep Bilgileri** altında Talep Ekleri satırı yalnız ek varsa görünür (#2734 reopen).
   **Talep Bilgileri** ve **Görev Bilgileri** altındaki ek satırında dosya adı + Ön İzle, üst değer satırının sağ kenarıyla aynı düşey hizadadır (değer kolonu `align-items: flex-end`; scrollbar-gutter ek kümesini içeri kaydırmaz) (#2733 reopen); diğer rich-list yüzeyleri sola hizalı kalır. Ad ile Ön İzle arası
   biraz açıktır (#2735). **Dosya ekle** tıklanınca progress bar görünmez; seçim ve yükleme
-  sırasında da gösterilmez (#3357).
+  sırasında da gösterilmez (#3357) — WA, `CitizenRequestModal`, `AttachmentSection`, kurum içi FAB dahil.
 - **Adres etiketi (#r488):** UI/validasyon metinlerinde `Cadde / Sokak` (eski `… / Bulvar` yok).
 - **Talep Bilgileri WhatsApp etiketi (#r486/#r487):** kanal metni `#169A45`; ikon
   `.channel-icon--whatsapp` (`brightness(0.78)`).

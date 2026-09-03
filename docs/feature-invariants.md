@@ -2359,7 +2359,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ile dosya WhatsApp konuşmasına gider (`replySocialMessageAttachment`); talep eklerine değil. Gelen medya
   balon aksiyonu `onAddMediaAsAttachment` talep eklerine kalır.
 - **Kurum İçi İlet buton metni (#2380 / #3366):** WA konuşma composer'ında artık gösterilmez.
-- **WA footer düzeni (#2381 / #3359 / #3365):** `/whatsapp` Mesaj yazın textarea `min-h-[4.25rem]` / `rows={3}`; gri başlık telefon alt satırı `text-[10px]`, yalnız numara başlıkta `text-xs` (#3363 retry).
+- **WA footer düzeni (#2381 / #3359 / #3365):** `/whatsapp` Mesaj yazın textarea `min-h-[4.25rem]` / `rows={3}`; gri başlık telefon alt satırı `text-[10px]`, yalnız numara başlıkta `text-xs font-bold` (#3363 retry).
 - **WA modal ek önizleme (#2385):** kompakt dosya balonu; PDF/mime alt satırı yok (yalnız dosya adı + görsel önizleme).
 - **Kurum içi dosya uzantısı (#2386):** `internalMessageFileExtension` yalnız `.ext` döner (`lowercaseFileExtension` değil).
 - **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.

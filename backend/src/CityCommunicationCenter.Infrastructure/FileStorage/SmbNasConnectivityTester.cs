@@ -48,6 +48,7 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
         foreach (var connectName in connectServerNames)
         {
             var domains = BuildDomainCandidates(host, connectName, explicitDomain, netBiosName);
+            var connectedWithThisName = false;
 
             foreach (var domain in domains)
             {
@@ -73,6 +74,7 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
                     }
 
                     anyConnected = true;
+                    connectedWithThisName = true;
 
                     var loginStatus = client.Login(domain, loginUser, password);
                     lastLoginStatus = loginStatus;
@@ -145,6 +147,14 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
                         // ignore
                     }
                 }
+            }
+
+            if (connectedWithThisName)
+            {
+                // Sunucu bu isimle bağlanıp yanıt verdi; tüm domain adayları reddedildiyse
+                // sorun isim çözümlemesi değil kimlik/domain. Diğer isimleri denemek yalnızca
+                // başarısız deneme sayısını artırır ve QNAP gibi cihazlarda kaynak IP kısıtlanır.
+                break;
             }
         }
 
@@ -232,10 +242,16 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
             }
         }
 
-        // Açık domain (DOMAIN\user / user@domain) önce.
+        // Açık domain (DOMAIN\user / user@domain) önce — kullanıcı bilerek yazdıysa ona uy.
         Add(explicitDomain);
 
-        // Yerel NAS / workgroup hesapları.
+        // Sonra en uyumlu adaylar: yerel NAS hesapları boş domain veya workgroup ile açılır
+        // (QNAP/Samba ve Windows yerel hesapları için doğrulandı).
+        Add(string.Empty);
+        Add("WORKGROUP");
+
+        // NetBIOS makine adı EN SONA: QNAP bu adayı reddediyor ve ilk redden sonra aynı
+        // kaynaktan gelen denemeleri düşürdüğü için başa alındığında doğru aday sıra alamıyordu.
         Add(netBiosName);
         if (!string.IsNullOrWhiteSpace(connectName) &&
             !IsIpAddressHost(connectName) &&
@@ -247,9 +263,7 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
             Add(shortConnect);
         }
 
-        Add("WORKGROUP");
         Add(".");
-        Add(string.Empty);
 
         if (!IsIpAddressHost(host))
         {

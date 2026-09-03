@@ -775,66 +775,64 @@
     transform: none !important;
   }
 
-  .address-detail-my-request--task .address-detail-my-request__grid--three {
-    padding-top: 0.55rem;
-  }
-
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(-n + 3) {
-    align-items: center !important;
-    text-align: center !important;
-    width: 100%;
-    justify-self: stretch;
-    transform: none !important;
-  }
-
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(-n + 3) .address-detail-my-request__label {
-    width: 100% !important;
-    margin-inline: auto !important;
-    text-align: center !important;
-  }
-
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(-n + 3) .address-detail-my-request__value {
-    width: 100%;
-    text-align: center;
-  }
-
-  /* #2778: Adres Tarifi Mahalle ile aynı sol düşey hizada (ortalı kısa/uzun etiket sol kenarı kaydırır). */
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(1),
-  .address-detail-my-request--task .address-detail-my-request__item--directions {
-    align-items: flex-start !important;
-    text-align: left !important;
-    padding-inline-start: 0.55rem !important;
-  }
-
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(1) .address-detail-my-request__label,
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(1) .address-detail-my-request__value,
-  .address-detail-my-request--task .address-detail-my-request__item--directions .address-detail-my-request__label,
-  .address-detail-my-request--task .address-detail-my-request__item--directions .address-detail-my-request__value {
-    width: fit-content !important;
-    max-width: 100%;
+  .address-detail-my-request--task .address-detail-my-request__grid--three,
+  .address-detail-my-request--task .address-detail-my-request__grid--three.address-detail-my-request__grid--empty {
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 0.65rem 1.25rem !important;
+    justify-items: stretch !important;
+    align-items: start !important;
+    justify-content: stretch !important;
     margin-inline: 0 !important;
-    text-align: left !important;
-    justify-content: flex-start;
-    transform: none !important;
+    width: 100% !important;
+    padding-top: 0.55rem;
   }
 
   .address-detail-my-request--task .address-detail-my-request__item--directions,
   .address-detail-my-request--task .address-detail-my-request__item--coordinates {
+    grid-column: auto !important;
     padding-top: 1.15rem;
+    padding-inline-start: 0 !important;
     transform: none !important;
   }
 
-  .address-detail-my-request--task .address-detail-my-request__item--coordinates {
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item,
+  .address-detail-my-request--task .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+    justify-self: stretch !important;
+    width: 100% !important;
+    max-width: none !important;
     padding-inline-start: 0 !important;
+    transform: none !important;
   }
 
-  .address-detail-my-request--task .address-detail-my-request__item--coordinates .address-detail-my-request__label,
-  .address-detail-my-request--task .address-detail-my-request__item--coordinates .address-detail-my-request__value {
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__label,
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item .address-detail-my-request__value,
+  .address-detail-my-request--task .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__label,
+  .address-detail-my-request--task .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item .address-detail-my-request__value {
     width: 100% !important;
+    max-width: 100% !important;
     margin-inline: 0 !important;
-    text-align: center !important;
-    display: flex;
-    justify-content: center;
+    text-align: left !important;
+    transform: none !important;
+    align-items: flex-start !important;
+    padding-inline-start: 0 !important;
+    justify-content: flex-start !important;
+  }
+
+  /* Boş `-` gösteriminde de kolon hizası bozulmasın (#3327 reopen). */
+  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:has(.address-empty-dash),
+  .address-detail-my-request--task .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(1),
+  .address-detail-my-request--task .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(2),
+  .address-detail-my-request--task .address-detail-my-request__grid--three.address-detail-my-request__grid--empty > .address-detail-my-request__item:nth-child(3) {
+    width: 100% !important;
+    max-width: none !important;
+    justify-self: stretch !important;
+    padding-inline-start: 0 !important;
+    transform: none !important;
   }
 
   .detail-modal-shell--my-request .my-request-detail-card--attachments {
@@ -878,24 +876,6 @@
   .address-detail-my-request__grid:not(.address-detail-my-request__grid--peek) .address-empty-dash {
     display: block !important;
     width: 100% !important;
-    text-align: left !important;
-  }
-
-  /* Ortalı kolonlarda (Görev/İlgili Talep adresi, ek-only alt satır) kutu başlık genişliğine
-     iner — kolonda ortalı kalır, `-` başlığın soluna yaslanabilir. Aksi halde değer kolon
-     genişliğinde olduğu için sola yaslanınca başlıktan kopuyordu. */
-  /* Yalnız halen ortalı olan kutular: `--task` 2./3. kolon (1. kolon ve Adres Tarifi #2778 ile
-     sola yaslı, dokunulmaz) + Konum Linki + ek-only alt satır (No hariç, #2759 sağa yaslı). */
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(n + 2):nth-child(-n + 3):not(.address-detail-my-request__item--directions):has(.address-empty-dash),
-  .address-detail-my-request--task .address-detail-my-request__item--coordinates:has(.address-empty-dash) {
-    width: fit-content !important;
-    justify-self: center !important;
-  }
-
-  .address-detail-my-request--task .address-detail-my-request__grid--three > .address-detail-my-request__item:nth-child(n + 2):nth-child(-n + 3):not(.address-detail-my-request__item--directions):has(.address-empty-dash) > .address-detail-my-request__label,
-  .address-detail-my-request--task .address-detail-my-request__item--coordinates:has(.address-empty-dash) > .address-detail-my-request__label {
-    width: 100% !important;
-    margin-inline: 0 !important;
     text-align: left !important;
   }
 

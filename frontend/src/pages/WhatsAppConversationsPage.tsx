@@ -1141,7 +1141,7 @@ function ConversationDetail({
         </div>
         <div className={`min-w-0 flex-1 ${headerTitleIsPhoneOnly ? 'pt-0.5' : ''}`}>
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
-            <p className={`truncate leading-tight ${headerTitleIsPhoneOnly ? 'text-xs font-bold text-slate-600' : 'text-[15px] font-semibold text-slate-900'}`}>{headerTitle}</p>
+            <p className={`truncate leading-tight ${headerTitleIsPhoneOnly ? 'text-[13px] font-bold text-slate-600' : 'text-[15px] font-semibold text-slate-900'}`}>{headerTitle}</p>
             {showUrgentBadge ? (
               <span className="shrink-0 rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-950">
                 ACİL
@@ -1149,7 +1149,7 @@ function ConversationDetail({
             ) : null}
           </div>
           {headerSubtitleParts.length > 0 ? (
-            <p className="mt-1 truncate text-[10px] text-slate-500">{headerSubtitleParts.join(' · ')}</p>
+            <p className="mt-1 truncate text-[11px] text-slate-500">{headerSubtitleParts.join(' · ')}</p>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">

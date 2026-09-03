@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 using CityCommunicationCenter.Application.Common;
@@ -13,6 +14,8 @@ namespace CityCommunicationCenter.Infrastructure.Services;
 
 public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoReplyService
 {
+    private static readonly ConcurrentDictionary<string, SemaphoreSlim> CitizenAutoReplyLocks = new();
+
     private static readonly TimeZoneInfo IstanbulTimeZone = TimeZoneInfo.FindSystemTimeZoneById(
         OperatingSystem.IsWindows() ? "Turkey Standard Time" : "Europe/Istanbul");
 
@@ -37,6 +40,9 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
     {
         _ = Task.Run(async () =>
         {
+            var lockKey = $"{tenantId}:{citizenHandle}";
+            var gate = CitizenAutoReplyLocks.GetOrAdd(lockKey, _ => new SemaphoreSlim(1, 1));
+            await gate.WaitAsync(CancellationToken.None).ConfigureAwait(false);
             try
             {
                 using var scope = _scopeFactory.CreateScope();
@@ -153,6 +159,10 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
                     ex,
                     "WhatsApp template auto-reply failed for SocialMessage {SocialMessageId}",
                     socialMessageId);
+            }
+            finally
+            {
+                gate.Release();
             }
         }, cancellationToken);
 

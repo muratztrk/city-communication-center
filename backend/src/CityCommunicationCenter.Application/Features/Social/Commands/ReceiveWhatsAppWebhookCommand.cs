@@ -1,6 +1,7 @@
 using System.Text.Json;
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features;
+using CityCommunicationCenter.Domain;
 
 namespace CityCommunicationCenter.Application.Features.Social;
 
@@ -166,15 +167,18 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                         conversation.CitizenPhone),
                 });
 
-                pendingAutoReplies.Add(new PendingWhatsAppAutoReply(
-                    request.TenantId,
-                    thread.SocialMessageId,
-                    citizenHandle,
-                    msg.Content,
-                    msg.ReceivedAtUtc));
-
                 savedCount++;
             }
+
+            // Aynı webhook batch'inde görsel+metin gibi çoklu inbound yalnız bir auto-reply tetikler (#3361).
+            var autoReplyInbound = WhatsAppInboundAutoReplyContent.PickFromBatch(
+                orderedMsgs.Select(msg => msg.Content));
+            pendingAutoReplies.Add(new PendingWhatsAppAutoReply(
+                request.TenantId,
+                thread!.SocialMessageId,
+                citizenHandle,
+                autoReplyInbound,
+                latestAt));
 
             var latestMessage = orderedMsgs[^1];
             pendingConversationPushes.Add(new WhatsAppMessagePayload(

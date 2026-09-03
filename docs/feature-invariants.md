@@ -2665,7 +2665,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA otomatik zamanlı yanıt (#2545):** şablon auto-reply `Sent` mesajlarında `Onaylayan Yönetici`
   chip gösterilmez; yalnız `Pending` terminal ve `Failed` re-engagement. Zaman ayarlı otomatik
   yanıt balonunun altında mavi `rounded-full` `Otomatik Mesaj` etiketi (`isAutomaticMessage`;
-  Onaylayan Yönetici chip boyutu/çerçevesi).
+  Onaylayan Yönetici chip boyutu/çerçevesi). Aynı vatandaştan art arda inbound (görsel+metin)
+  gelince webhook batch başına **tek** auto-reply zamanlanır; `WhatsAppTemplateAutoReplyService`
+  tenant+telefon kilidi + günlük duplicate guard ile ikinci gönderimi engeller (#3361).
 - **WA balon saat satırı (#2544):** `İletildi` / `Düzenlendi` ve saat `items-center` + `leading-none`.
 - **WA medya Önizle (#6a75cc3f):** gelen görsel/video/ses Önizle butonu yeşil (`variant=success`) + Eye ikonu.
 - **Dashboard pie lejant Ara... (R549/R550/R552):** mahalle, birim-dışı ve **Talep Etiketi**

@@ -1,3 +1,9 @@
+## Round 1106 — WA rozet sağa, vatandaş harita zoom
+
+- **#3348:** `/whatsapp` Yanıt bekliyor (ve onay) chip rozeti `-right-1.5`.
+- **#3351:** Vatandaş Talep Haritası başlangıç zoom 12.5; birim haritası 12 durur.
+- Atlandı: #3343 #3344 #3346 `tim mobil app'de`.
+
 ## Round 1105 — ham WA yanıt kutusu
 
 - `/whatsapp` talebi olmayan sohbette de mesaj yazılır; Talep Oluştur isteğe bağlı. `Bağlı talep yok` composer’ı kilitlemez.

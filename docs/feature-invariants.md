@@ -519,7 +519,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Yanıt bekliyor` filtresinde. `Yanıt Verildi Yap` kaldırıldı (#3347) — chip satırında yok.
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekliyor` sağında; `hasPendingMessageApproval`
   = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). Rozet konuşma/numara
-  sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
+  sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2` / `-right-1.5`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
   (#3348 yükseklik; #3330 nowrap). `overflow-x-auto` yok — gizli scroll üçüncü chip’i kesiyordu; dar punto
   üçünü yan panele sığdırır. Rozet için `pt-1.5 pr-1` + `overflow-visible`. `max-w` ile satır kırma yok. FAB `hasPendingOutboundMessage`
   hâlâ yalnız personel Beklemede (otomatik hariç). Bu chip açıkken üst durum sayaç filtresi uygulanmaz
@@ -1983,7 +1983,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ilk pin yerinde kalır, diğerleri ~10 m halkaya kayar; tıklanınca adres grubu yine
   `Vatandaş Bilgi Listesi` açılır (#6a92713f). Cluster sayısı iş, zoom’da ayrı konum.
   başlangıç zoom'da tek pin bile sayılı cluster, cluster'dan çıkınca durum rengi (#2569).
-  Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi + zoom 12 (#2591).
+  Pinler yüklenince / geocode oldukça kamera **hareket etmez** — ilçe merkezi; vatandaş zoom 12.5 (#3351), birim zoom 12 (#2591).
   Marker **pin ikonu** (daire değil); cluster küçük, pin 18×27 (#2593/#2597). Pin **rengi** durum
   rengi (sky-500 / orange-500 / red-500 / green-500; iç daire beyaz); doygunluk artırımı
   geri alındı (#2613). Dış çerçeve / beyaz stroke **yok** (#2597).
@@ -2030,7 +2030,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Yapılmakta` (Olan yok); Geciken lejantı `whitespace-nowrap` ile yan yana `Yapılmakta Geciken`
   (#2671/#2680). Banner: `Bölgenizdeki vatandaş talepleri…` (ilçe adı yok, #2685).
   Sağ alt zoom’da `+` üstünde hedef ikonu sayfa açılış merkez/zoom’a döner; ikon `20px`, çerçeve `2rem` (#2688).
-  Varsayılan zoom bir kademe geniş (#2579).   Hover'da el (grab)
+  Varsayılan zoom bir kademe geniş (#2579); vatandaş haritası açılışı yarım kademe daha yakın 12.5 (#3351).   Hover'da el (grab)
   imleci ve `gestureHandling: greedy` ile tekerlek zoom (#2589). Küçük ekranda (`max-width: 1023px`)
   hover yok: harita baştan `greedy` + `touch-action: none` (pinch/zoom çalışır); WhatsApp ve
   kurum içi FAB gizlenir, zoom kontrolleri kapanmaz (#2694). Sayfa banner/layout

@@ -20,7 +20,6 @@ export const ATTACHMENT_ALLOWED_EXTENSIONS = [
 export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
   '.jpg',
   '.jpeg',
-  '.doc',
   '.xls',
   '.ppt',
   '.mp4',
@@ -28,8 +27,10 @@ export const ATTACHMENT_FILE_ACCEPT_EXTENSIONS = [
 
 /** MIME listesi — `video/mp4` Windows özel dosyalarda m4v satırı üretir (#2848). */
 export const ATTACHMENT_FILE_ACCEPT_MIMES = [
+  'image/jpeg',
   'image/png',
   'application/pdf',
+  'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'application/vnd.ms-excel',
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

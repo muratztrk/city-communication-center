@@ -1531,11 +1531,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   fresh `Connect`.
 - **Talep/görev eki NAS replikasyonu (2026-09-03):** Ayarlar'daki "Talep ve Görev Eklerini
   Barındıracak Sunucu Bilgileri" NAS (SMB/CIFS) doluysa `UploadAttachmentCommand` yerel
-  `uploads/` yazımından sonra aynı göreli yolu (`{tenantId}/{entityType}/{entityId}/{storedFileName}`)
-  paylaşıma kopyalar; NAS başarısızsa yerel dosya silinir ve Türkçe validation hatası döner (DB'ye
-  kayıt yok). `DeleteAttachmentCommand` yerel silmeden sonra NAS'tan best-effort siler. Yerel disk
-  birincil okuma kaynağı kalır; NFS/FTP replikasyonu yok. Ortak SMB oturumu:
-  `SmbNasSessionSupport` + `SmbNasAttachmentStorage`.
+  `uploads/` yazımından sonra paylaşıma kopyalar; NAS yolu `{talepNo}/{orijinalDosyaAdı}`
+  (ör. `VT-2026-42/belge.pdf`) — tenant/Job/guid hiyerarşisi yok. Görev ekleri ilgili talebin
+  klasörüne gider. Aynı isimde ikinci dosya `(2)` soneki alır. Yol `attachments.nasrelativepath`
+  olarak saklanır; silmede legacy yol geri düşüşü kalır. NAS başarısızsa yerel dosya silinir ve
+  Türkçe validation hatası döner (DB'ye kayıt yok). Kurum içi mesaj ekleri NAS'a gitmez. Yerel disk
+  birincil okuma kaynağı kalır. Ortak SMB oturumu: `SmbNasSessionSupport` + `SmbNasAttachmentStorage`.
 - **Ayarlar/Birimler/Kullanıcılar (`admin-surface-page`):** helper-copy, label, textbox,
   textarea, Oluşturma Modu segmented + LDAP başlıkları kompakt shell’den belirgin büyük
   (cards #1733/#1736/#1738). Ayarlar banner altı tab butonları #1733’ten sonra biraz

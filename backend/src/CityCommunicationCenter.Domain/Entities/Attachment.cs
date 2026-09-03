@@ -10,4 +10,6 @@ public sealed class Attachment : AuditableTenantEntity
     public long FileSizeBytes { get; set; }
     public string StoredFileName { get; set; } = string.Empty; // {attachmentId}{ext}
     public string RelativeUrl { get; set; } = string.Empty;    // /uploads/...
+    /// <summary>NAS paylaşımındaki göreli yol: {talepNo}/{dosyaAdı}</summary>
+    public string? NasRelativePath { get; set; }
 }

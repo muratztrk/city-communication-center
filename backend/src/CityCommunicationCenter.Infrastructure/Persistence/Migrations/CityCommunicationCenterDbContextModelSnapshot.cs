@@ -243,6 +243,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("filename");
 
+                    b.Property<string>("NasRelativePath")
+                        .HasColumnType("text")
+                        .HasColumnName("nasrelativepath");
+
                     b.Property<long>("FileSizeBytes")
                         .HasColumnType("bigint")
                         .HasColumnName("filesizebytes");

@@ -1,4 +1,4 @@
-using CityCommunicationCenter.Shared.FileStorage;
+using CityCommunicationCenter.Application.Features.Attachments;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -59,13 +59,10 @@ public sealed class DeleteAttachmentCommandHandler : ICommandHandler<DeleteAttac
             File.Delete(physicalPath);
         }
 
-        if (await _nasAttachmentStorage.IsEnabledAsync(tenantId, cancellationToken))
+        if (await _nasAttachmentStorage.IsEnabledAsync(tenantId, cancellationToken)
+            && AttachmentNasPathResolver.SupportsNasReplication(attachment.EntityType))
         {
-            var relativeNasPath = AttachmentNasPath.BuildRelativePath(
-                attachment.TenantId,
-                attachment.EntityType,
-                attachment.EntityId,
-                attachment.StoredFileName);
+            var relativeNasPath = AttachmentNasPathResolver.ResolveDeleteRelativePath(attachment);
             try
             {
                 await _nasAttachmentStorage.DeleteAsync(tenantId, relativeNasPath, cancellationToken);

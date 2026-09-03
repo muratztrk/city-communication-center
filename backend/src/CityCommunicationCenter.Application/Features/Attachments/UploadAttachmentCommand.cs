@@ -1,4 +1,3 @@
-using CityCommunicationCenter.Shared.FileStorage;
 using Microsoft.Extensions.Options;
 
 namespace CityCommunicationCenter.Application.Features.Attachments;
@@ -118,8 +117,15 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
             await request.FileStream.CopyToAsync(fs, cancellationToken);
         }
 
-        var relativeNasPath = AttachmentNasPath.BuildRelativePath(tenantId, entityType, entityId, storedFileName);
-        if (await _nasAttachmentStorage.IsEnabledAsync(tenantId, cancellationToken))
+        var relativeNasPath = await AttachmentNasPathResolver.TryBuildRelativePathAsync(
+            _dbContext,
+            tenantId,
+            entityType,
+            entityId,
+            request.FileName,
+            cancellationToken);
+        if (relativeNasPath is not null
+            && await _nasAttachmentStorage.IsEnabledAsync(tenantId, cancellationToken))
         {
             try
             {
@@ -156,6 +162,7 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
             FileSizeBytes = request.FileSizeBytes,
             StoredFileName = storedFileName,
             RelativeUrl = relativeUrl,
+            NasRelativePath = relativeNasPath,
             CreatedByUserId = request.ActorUserId,
         };
 

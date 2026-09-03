@@ -54,6 +54,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     public DbSet<InternalConversation> InternalConversations => Set<InternalConversation>();
     public DbSet<InternalMessage> InternalMessages => Set<InternalMessage>();
     public DbSet<IzmirCbsCatalogCache> IzmirCbsCatalogCaches => Set<IzmirCbsCatalogCache>();
+    public DbSet<SmsOutboundLog> SmsOutboundLogs => Set<SmsOutboundLog>();
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -123,6 +124,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ConfigureInternalConversation(modelBuilder.Entity<InternalConversation>());
         ConfigureInternalMessage(modelBuilder.Entity<InternalMessage>());
         ConfigureIzmirCbsCatalogCache(modelBuilder.Entity<IzmirCbsCatalogCache>());
+        ConfigureSmsOutboundLog(modelBuilder.Entity<SmsOutboundLog>());
 
         modelBuilder.ApplyAutomaticIndexes();
 
@@ -153,6 +155,7 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
         ApplyTenantFilter(modelBuilder.Entity<EDevletBasvuruAttachment>());
         ApplyTenantFilter(modelBuilder.Entity<InternalConversation>());
         ApplyTenantFilter(modelBuilder.Entity<InternalMessage>());
+        ApplyTenantFilter(modelBuilder.Entity<SmsOutboundLog>());
 
         ApplyInstallSeedData(modelBuilder);
     }
@@ -456,6 +459,20 @@ public sealed class CityCommunicationCenterDbContext : DbContext, IApplicationDb
     {
         builder.ToTable("auditlogs");
         builder.HasKey(entity => entity.AuditLogId);
+        ApplyLowerCaseColumnNames(builder);
+    }
+
+    private static void ConfigureSmsOutboundLog(EntityTypeBuilder<SmsOutboundLog> builder)
+    {
+        builder.ToTable("smsoutboundlogs");
+        builder.HasKey(entity => entity.SmsOutboundLogId);
+        builder.Property(entity => entity.Kind).HasConversion<string>().HasMaxLength(32);
+        builder.Property(entity => entity.RecipientPhoneMasked).HasMaxLength(32);
+        builder.Property(entity => entity.RequestNumber).HasMaxLength(64);
+        builder.Property(entity => entity.Provider).HasMaxLength(32);
+        builder.Property(entity => entity.ProviderCode).HasMaxLength(64);
+        builder.Property(entity => entity.ProviderMessage).HasMaxLength(500);
+        builder.Property(entity => entity.BodyPreview).HasMaxLength(500);
         ApplyLowerCaseColumnNames(builder);
     }
 

@@ -190,14 +190,24 @@ public sealed class AfterHoursJobSmsNotifierTests
     {
         public List<(string Phone, string Text)> Sends { get; } = [];
 
-        public Task<SmsSendResult> SendAsync(Guid tenantId, string phoneNumber, string text, CancellationToken cancellationToken = default)
+        public Task<SmsSendResult> SendAsync(
+            Guid tenantId,
+            string phoneNumber,
+            string text,
+            SmsSendContext? context = null,
+            CancellationToken cancellationToken = default)
         {
             Sends.Add((phoneNumber, text));
             return Task.FromResult(SmsSendResult.Ok("OK"));
         }
 
-        public Task<SmsSendResult> SendTestAsync(Guid tenantId, string phoneNumber, string text, CancellationToken cancellationToken = default) =>
-            SendAsync(tenantId, phoneNumber, text, cancellationToken);
+        public Task<SmsSendResult> SendTestAsync(
+            Guid tenantId,
+            string phoneNumber,
+            string text,
+            SmsSendContext? context = null,
+            CancellationToken cancellationToken = default) =>
+            SendAsync(tenantId, phoneNumber, text, context, cancellationToken);
     }
 
     private sealed class FixedWorkingHoursService(bool isAfterHours) : ITenantWorkingHoursService

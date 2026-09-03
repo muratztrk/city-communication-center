@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Features.Admin;
 using CityCommunicationCenter.Application.Features.InternalMessages;
+using CityCommunicationCenter.Domain.Enums;
 
 namespace CityCommunicationCenter.Api.Controllers.V1;
 
@@ -554,6 +555,19 @@ public sealed class AdminController : ApiControllerBase
     public async Task<ActionResult<IEnumerable<AuditLogResponse>>> GetAuditLogs(CancellationToken cancellationToken)
     {
         var response = await _sender.Send(new GetAuditLogsQuery(RequiredTenantId), cancellationToken);
+        return Ok(response);
+    }
+
+    [HttpGet("sms-outbound-logs")]
+    public async Task<ActionResult<SmsOutboundLogsResponse>> GetSmsOutboundLogs(
+        [FromQuery] DateTimeOffset? fromUtc,
+        [FromQuery] DateTimeOffset? toUtc,
+        [FromQuery] SmsOutboundKind? kind,
+        CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(
+            new GetSmsOutboundLogsQuery(RequiredTenantId, fromUtc, toUtc, kind),
+            cancellationToken);
         return Ok(response);
     }
 }

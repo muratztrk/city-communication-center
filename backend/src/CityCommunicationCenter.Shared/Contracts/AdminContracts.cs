@@ -204,3 +204,27 @@ public sealed record AuditLogResponse(
     string? ActorDisplayName = null,
     string? EntityNumber = null,
     string? EntityTitle = null);
+
+public sealed record SmsOutboundLogItemResponse(
+    Guid SmsOutboundLogId,
+    Guid TenantId,
+    string Kind,
+    string RecipientPhoneMasked,
+    Guid? RecipientUserId,
+    Guid? JobId,
+    Guid? SocialMessageId,
+    Guid? TaskId,
+    string? RequestNumber,
+    bool Success,
+    string? Provider,
+    string? ProviderCode,
+    string? ProviderMessage,
+    int TextLength,
+    string? BodyPreview,
+    DateTimeOffset CreatedAtUtc);
+
+public sealed record SmsOutboundLogsResponse(
+    int TotalMatching,
+    int SuccessCount,
+    int FailureCount,
+    IReadOnlyList<SmsOutboundLogItemResponse> Items);

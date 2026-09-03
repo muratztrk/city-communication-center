@@ -1,6 +1,7 @@
 using System.Text.Json;
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Common;
+using CityCommunicationCenter.Application.Features.Attachments;
 using CityCommunicationCenter.Application.Features.Admin;
 using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Entities;
@@ -78,7 +79,12 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
 
         var distinctDepartmentIds = DistinctDepartmentIds(departmentIds);
         var managerIds = await ResolveManagerRecipientIdsAsync(job, distinctDepartmentIds, cancellationToken);
-        await SendTemplateAsync(job, templates.AfterHoursManagerSms, managerIds, cancellationToken);
+        await SendTemplateAsync(
+            job,
+            templates.AfterHoursManagerSms,
+            managerIds,
+            SmsOutboundKind.AfterHoursManager,
+            cancellationToken);
     }
 
     private async Task NotifyTaskAssignedCoreAsync(
@@ -106,7 +112,12 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             return;
         }
 
-        await SendTemplateAsync(job, templates.AfterHoursStaffSms, [assigneeUserId], cancellationToken);
+        await SendTemplateAsync(
+            job,
+            templates.AfterHoursStaffSms,
+            [assigneeUserId],
+            SmsOutboundKind.AfterHoursStaff,
+            cancellationToken);
     }
 
     private async Task<bool> IsAfterHoursAsync(Guid tenantId, Guid? departmentId, CancellationToken cancellationToken)
@@ -198,6 +209,7 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
         Job job,
         string? template,
         IReadOnlyCollection<Guid> recipientIds,
+        SmsOutboundKind kind,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(template) || recipientIds.Count == 0)
@@ -205,21 +217,49 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             return;
         }
 
-        var phones = await _dbContext.Users
+        var recipients = await _dbContext.Users
             .AsNoTracking()
             .Where(user => user.TenantId == job.TenantId && user.IsActive && recipientIds.Contains(user.UserId))
-            .Select(user => user.MobilePhone)
+            .Select(user => new { user.UserId, user.MobilePhone })
             .ToListAsync(cancellationToken);
 
-        var distinctPhones = phones
-            .Where(phone => !string.IsNullOrWhiteSpace(phone))
-            .Select(phone => phone!.Trim())
-            .Distinct(StringComparer.Ordinal)
+        var citizenNumbers = await _dbContext.SocialMessages
+            .AsNoTracking()
+            .Where(message => message.JobId == job.JobId && message.CitizenRequestNumber != null)
+            .OrderByDescending(message => message.CitizenRequestNumberYear)
+            .ThenByDescending(message => message.CitizenRequestNumber)
+            .Select(message => new { message.CitizenRequestNumber, message.CitizenRequestNumberYear })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var requestNumber = JobRequestNumberFormatter.Format(
+            job.RequestType,
+            job.SourceType,
+            job.JobNumber,
+            job.JobNumberYear,
+            citizenNumbers?.CitizenRequestNumber,
+            citizenNumbers?.CitizenRequestNumberYear,
+            job.CreatedAtUtc);
+
+        var distinctRecipients = recipients
+            .Where(recipient => !string.IsNullOrWhiteSpace(recipient.MobilePhone))
+            .GroupBy(recipient => recipient.MobilePhone!.Trim(), StringComparer.Ordinal)
+            .Select(group => group.First())
             .ToArray();
 
-        foreach (var phone in distinctPhones)
+        var context = new SmsSendContext(
+            kind,
+            JobId: job.JobId,
+            RequestNumber: requestNumber);
+
+        foreach (var recipient in distinctRecipients)
         {
-            var result = await _smsGateway.SendAsync(job.TenantId, phone, template, cancellationToken);
+            var sendContext = context with { RecipientUserId = recipient.UserId };
+            var result = await _smsGateway.SendAsync(
+                job.TenantId,
+                recipient.MobilePhone!,
+                template,
+                sendContext,
+                cancellationToken);
             if (!result.Success)
             {
                 _logger.LogWarning(

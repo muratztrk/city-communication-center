@@ -779,7 +779,12 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return false;
         }
 
-        var result = await _smsGateway.SendAsync(tenantId, recipientPhone, outboundContent, cancellationToken);
+        var result = await _smsGateway.SendAsync(
+            tenantId,
+            recipientPhone,
+            outboundContent,
+            await BuildCitizenSmsContextAsync(tenantId, message, cancellationToken),
+            cancellationToken);
         if (!result.Success)
         {
             // Hak geri verilir ki operatör/işleyiş tekrar deneyebilsin.
@@ -813,6 +818,47 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             smsSettings.Provider,
             result.ProviderCode);
         return true;
+    }
+
+    private async Task<SmsSendContext> BuildCitizenSmsContextAsync(
+        Guid tenantId,
+        SocialMessage message,
+        CancellationToken cancellationToken)
+    {
+        string? requestNumber = null;
+        if (message.JobId is Guid jobId)
+        {
+            var job = await _dbContext.Jobs
+                .AsNoTracking()
+                .Where(entity => entity.TenantId == tenantId && entity.JobId == jobId)
+                .Select(entity => new
+                {
+                    entity.RequestType,
+                    entity.SourceType,
+                    entity.JobNumber,
+                    entity.JobNumberYear,
+                    entity.CreatedAtUtc,
+                })
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (job is not null)
+            {
+                requestNumber = JobRequestNumberFormatter.Format(
+                    job.RequestType,
+                    job.SourceType,
+                    job.JobNumber,
+                    job.JobNumberYear,
+                    message.CitizenRequestNumber,
+                    message.CitizenRequestNumberYear,
+                    job.CreatedAtUtc);
+            }
+        }
+
+        return new SmsSendContext(
+            SmsOutboundKind.CitizenStatus,
+            JobId: message.JobId,
+            SocialMessageId: message.SocialMessageId,
+            RequestNumber: requestNumber);
     }
 
 }

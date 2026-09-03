@@ -10,6 +10,7 @@ public interface ISmsGateway
         Guid tenantId,
         string phoneNumber,
         string text,
+        SmsSendContext? context = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>Ayarlar ekranındaki "Test SMS Gönder" için: kayıtlı ayarlar + verilen numara.</summary>
@@ -17,6 +18,7 @@ public interface ISmsGateway
         Guid tenantId,
         string phoneNumber,
         string text,
+        SmsSendContext? context = null,
         CancellationToken cancellationToken = default);
 }
 

@@ -2707,6 +2707,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WA metni (`ReplyToSocialMessage`, pending edit/send, caption) olduğu gibi gider.
   Otomatik durum mesajı hitabı yalnız `CitizenJobStatusNotifier` / şablon auto-reply içinde
   `Ensure` ile kurulur.
+- **Giden SMS outbound log (`smsoutboundlogs`):** Her `SmsGateway` denemesi (başarılı/başarısız,
+  vatandaş durum / mesai dışı yönetici-personel / test) `SmsOutboundLog` tablosuna yazılır;
+  telefon maskelenir (`905551234****`), gövde önizlemesi en fazla 500 karakter. Simülasyon
+  (`LiveSendEnabled=false`) ve ayar kapalıyken gateway'e hiç gelmeyen denemeler loglanmaz.
+  Sorgu: `GET /api/v1/admin/sms-outbound-logs?fromUtc=&toUtc=&kind=` (PlatformAdmin);
+  yanıtta `totalMatching`, `successCount`, `failureCount` ve en yeni 5000 kayıt döner.
 - **Cep telefonu girişi ilk hane 5 (#3205/#3210/#3211):** Kullanıcılar (yeni kayıt + gridview
   Düzenle), Vatandaş Çağrı Talebi ve talep detay düzenleme alanları `sanitizeMobilePhoneInput(next,
   previous)` kullanır: rakam dışı karakter yazılmaz, ilk hane 5 değilse **tuş vuruşu yazılmaz**

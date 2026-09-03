@@ -34,7 +34,12 @@ public sealed class SendTestSmsCommandHandler : ICommandHandler<SendTestSmsComma
     public async ValueTask<SendTestSmsResult> Handle(SendTestSmsCommand request, CancellationToken cancellationToken)
     {
         var text = string.IsNullOrWhiteSpace(request.Text) ? DefaultText : request.Text.Trim();
-        var result = await _smsGateway.SendTestAsync(request.TenantId, request.PhoneNumber, text, cancellationToken);
+        var result = await _smsGateway.SendTestAsync(
+            request.TenantId,
+            request.PhoneNumber,
+            text,
+            new SmsSendContext(SmsOutboundKind.Test),
+            cancellationToken);
 
         return new SendTestSmsResult(
             result.Success,

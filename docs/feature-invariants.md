@@ -2354,7 +2354,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kurum İçi İlet buton metni (#2380):** `Sadece Kurum İçi İlet` (`whatsapp.sendInternalMessage`).
 - **WA footer düzeni (#2381 / reopen):** `/whatsapp` sayfasında Birim + Sadece Kurum İçi İlet alt satır sol;
   Vatandaş Talebi modal (`compactActions`) tek satır, Birim/Kurum İçi sağda (`ml-auto`). Birim seçici +
-  Kurum İçi İlet `h-[2.125rem]` (Dosya ekle ile hizalı); Mesaj yazın textarea `min-h-[3.5rem]` (#3359).
+  Kurum İçi İlet `h-[2.125rem]` (Dosya ekle ile hizalı); Mesaj yazın textarea `min-h-[3.75rem]` / `rows={3}` (#3359). Tablet CSS'te `whatsapp-dept-select` aynı 2.125rem yüksekliğe çekilir.
 - **WA modal ek önizleme (#2385):** kompakt dosya balonu; PDF/mime alt satırı yok (yalnız dosya adı + görsel önizleme).
 - **Kurum içi dosya uzantısı (#2386):** `internalMessageFileExtension` yalnız `.ext` döner (`lowercaseFileExtension` değil).
 - **Kurum içi mesaj textarea (#2382):** çok satırlı `textarea`, `max-h-28` + dikey scroll.

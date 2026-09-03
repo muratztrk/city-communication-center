@@ -1379,7 +1379,7 @@ function ConversationDetail({
             <footer className="whatsapp-conversation-footer shrink-0 space-y-3 border-t border-slate-200 bg-white px-4 py-3">
               <div className="space-y-2">
                 <div className="grid grid-cols-[1fr_auto] items-center gap-2">
-                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2 whatsapp-composer-toolbar">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -1458,7 +1458,7 @@ function ConversationDetail({
                         type="button"
                         onClick={() => void handleSendInternal()}
                         disabled={!replyText.trim() || !internalDepartmentId || sendingInternal}
-                        className="inline-flex h-[2.125rem] shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
+                        className="whatsapp-internal-send-btn inline-flex h-[2.125rem] shrink-0 items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         {sendingInternal ? <Loader2 className="size-3 animate-spin" /> : <Send className="size-3" />}
                         {t('whatsapp.sendInternalMessage', 'Sadece Kurum İçi İlet')}
@@ -1471,7 +1471,7 @@ function ConversationDetail({
               </div>
               <div className="grid grid-cols-[1fr_auto] items-end gap-2">
                 <DeferredComposerTextarea
-                  rows={2}
+                  rows={3}
                   value={replyText}
                   onChange={value => {
                     handleComposerEngaged()
@@ -1487,7 +1487,7 @@ function ConversationDetail({
                   }}
                   placeholder={t('whatsapp.replyPlaceholder', 'Mesaj yazın...')}
                   disabled={!windowOpen && !hasSelectableTemplates}
-                  className="field-input min-h-[3.5rem] max-h-28 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
+                  className="field-input min-h-[3.75rem] max-h-28 resize-none bg-slate-50 py-3 text-sm disabled:opacity-50"
                 />
                 <button
                   type="button"

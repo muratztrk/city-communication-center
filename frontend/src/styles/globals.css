@@ -7550,6 +7550,16 @@
     min-height: 10.75rem;
   }
 
+  /* Composer üst satır: Dosya ekle / Birim / Kurum İçi aynı yükseklik (#3359). */
+  .whatsapp-composer-toolbar {
+    align-items: center;
+  }
+
+  .whatsapp-composer-toolbar .whatsapp-internal-send-btn {
+    height: 2.125rem;
+    min-height: 2.125rem;
+  }
+
   .whatsapp-chat-bg {
     background-color: var(--wa-chat-bg);
     background-image:
@@ -8273,26 +8283,33 @@
 
     .whatsapp-dept-select,
     .whatsapp-dept-select button {
-      height: 0.95rem !important;
-      min-height: 0.95rem !important;
-      max-height: 0.95rem !important;
+      height: 2.125rem !important;
+      min-height: 2.125rem !important;
+      max-height: 2.125rem !important;
       padding-block: 0 !important;
-      padding-inline: 0.35rem !important;
-      max-width: 6.5rem !important;
-      font-size: 0.5rem !important;
-      line-height: 1 !important;
+      padding-inline: 0.45rem !important;
+      max-width: 7.25rem !important;
+      font-size: 0.65rem !important;
+      line-height: 1.1 !important;
       overflow: hidden;
       box-sizing: border-box;
     }
 
     .whatsapp-dept-select button svg {
-      width: 0.55rem !important;
-      height: 0.55rem !important;
-    }
-
-    .whatsapp-dept-select button [role='button'] {
       width: 0.7rem !important;
       height: 0.7rem !important;
+    }
+
+    .whatsapp-internal-send-btn {
+      height: 2.125rem !important;
+      min-height: 2.125rem !important;
+      max-height: 2.125rem !important;
+      padding-block: 0 !important;
+      font-size: 0.65rem !important;
+    }
+
+    .whatsapp-composer-toolbar {
+      row-gap: 0.35rem;
     }
 
     .whatsapp-template-add {

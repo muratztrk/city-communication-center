@@ -1124,7 +1124,7 @@ function ConversationDetail({
   }
   const pendingBadgeSearchLabel = useMemo(
     () => t('whatsapp.pendingBadge', 'Beklemede'),
-    [t, i18n.language],
+    [t],
   )
   const normalizedChatSearch = chatSearch.trim().toLocaleLowerCase('tr')
   const activeChatSearch = normalizedChatSearch.length >= 3 ? normalizedChatSearch : ''

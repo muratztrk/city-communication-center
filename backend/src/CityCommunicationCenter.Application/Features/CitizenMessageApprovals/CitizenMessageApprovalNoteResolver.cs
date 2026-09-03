@@ -145,19 +145,21 @@ internal static class CitizenMessageApprovalNoteResolver
 
         if (channel == SocialChannel.Phone)
         {
-            // Operatörün Sms Onayı'nda yazdığı not, iletilen SMS'ten (büyük harf) önce gelir.
+            // #3356: Operatör notu düzenlese bile alan yalnız SMS iletildikten sonra görünür.
+            if (string.IsNullOrWhiteSpace(responseContent))
+            {
+                return null;
+            }
+
             if (!string.IsNullOrWhiteSpace(lastPostReleaseEdit))
             {
                 return StripAutoTemplateNoteLabel(lastPostReleaseEdit);
             }
 
-            if (!string.IsNullOrWhiteSpace(responseContent))
+            var transmitted = ExtractTrailingTerminalNote(responseContent);
+            if (!string.IsNullOrWhiteSpace(transmitted))
             {
-                var transmitted = ExtractTrailingTerminalNote(responseContent);
-                if (!string.IsNullOrWhiteSpace(transmitted))
-                {
-                    return transmitted;
-                }
+                return transmitted;
             }
 
             return null;
@@ -168,7 +170,9 @@ internal static class CitizenMessageApprovalNoteResolver
             var outboundContents = await dbContext.ConversationEntries.AsNoTracking()
                 .Where(entry => entry.SocialMessageId == socialMessageId
                     && entry.Direction == ConversationEntryDirection.Outbound
-                    && entry.DeliveryStatus != ConversationDeliveryStatus.Failed)
+                    && (entry.DeliveryStatus == ConversationDeliveryStatus.Sent
+                        || entry.DeliveryStatus == ConversationDeliveryStatus.Delivered
+                        || entry.DeliveryStatus == ConversationDeliveryStatus.Read))
                 .OrderByDescending(entry => entry.SentAt)
                 .Select(entry => entry.Content)
                 .ToListAsync(cancellationToken);
@@ -180,12 +184,18 @@ internal static class CitizenMessageApprovalNoteResolver
                 {
                     return transmitted;
                 }
+
+                var body = StripAutoTemplateNoteLabel(content.Trim());
+                if (!string.IsNullOrWhiteSpace(body))
+                {
+                    return body;
+                }
             }
+
+            return null;
         }
 
-        return string.IsNullOrWhiteSpace(lastPostReleaseEdit)
-            ? null
-            : StripAutoTemplateNoteLabel(lastPostReleaseEdit);
+        return null;
     }
 
     internal static string? ExtractTrailingTerminalNote(string content)

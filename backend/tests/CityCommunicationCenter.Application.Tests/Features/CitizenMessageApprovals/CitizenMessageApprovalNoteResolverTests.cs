@@ -13,7 +13,7 @@ public sealed class CitizenMessageApprovalNoteResolverTests
     private static readonly Guid DepartmentId = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
     [Fact]
-    public async Task Phone_operator_sms_note_edit_after_release_is_outbound_not_completion()
+    public async Task Phone_operator_sms_note_edit_after_release_is_outbound_only_after_transmit()
     {
         await using var db = CreateDbContext();
         var jobId = Guid.NewGuid();
@@ -29,15 +29,19 @@ public sealed class CitizenMessageApprovalNoteResolverTests
         var job = await db.Jobs.SingleAsync(j => j.JobId == jobId);
         var released = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
             db, TenantId, jobId, CancellationToken.None);
-        var outbound = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+        var outboundBeforeSend = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
             db, TenantId, job, SocialChannel.Phone, Guid.NewGuid(), responseContent: null, CancellationToken.None);
+        var smsBody = "VT-2026-1 no'lu Başlık talebinizin durumu \"Tamamlandı\".\n\nYapılan İş: operator notu";
+        var outboundAfterSend = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+            db, TenantId, job, SocialChannel.Phone, Guid.NewGuid(), responseContent: smsBody, CancellationToken.None);
 
         Assert.Equal("yonetici notu", released);
-        Assert.Equal("operator notu", outbound);
+        Assert.Null(outboundBeforeSend);
+        Assert.Equal("operator notu", outboundAfterSend);
     }
 
     [Fact]
-    public async Task Phone_missing_released_audit_keeps_staff_completion_when_operator_overwrote_notes()
+    public async Task Phone_missing_released_audit_has_no_outbound_until_sms_transmitted()
     {
         await using var db = CreateDbContext();
         var jobId = Guid.NewGuid();
@@ -67,7 +71,7 @@ public sealed class CitizenMessageApprovalNoteResolverTests
             db, TenantId, job, SocialChannel.Phone, Guid.NewGuid(), responseContent: null, CancellationToken.None);
 
         Assert.Equal("personel notu", released);
-        Assert.Equal("operator notu", outbound);
+        Assert.Null(outbound);
     }
 
     [Fact]

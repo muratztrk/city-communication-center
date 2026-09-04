@@ -30,7 +30,7 @@ internal sealed class SmbNasAttachmentStorage : INasAttachmentStorage
         CancellationToken cancellationToken = default)
     {
         var credentials = await RequireCredentialsAsync(tenantId, cancellationToken);
-        var smbPath = AttachmentNasPath.ToSmbPath(relativePath);
+        var smbPath = ToStorageSmbPath(relativePath, credentials.RootFolder);
         var content = await File.ReadAllBytesAsync(localPhysicalPath, cancellationToken);
 
         await Task.Run(
@@ -50,7 +50,7 @@ internal sealed class SmbNasAttachmentStorage : INasAttachmentStorage
         CancellationToken cancellationToken = default)
     {
         var credentials = await RequireCredentialsAsync(tenantId, cancellationToken);
-        var smbPath = AttachmentNasPath.ToSmbPath(relativePath);
+        var smbPath = ToStorageSmbPath(relativePath, credentials.RootFolder);
         byte[]? content = null;
 
         await Task.Run(
@@ -72,7 +72,7 @@ internal sealed class SmbNasAttachmentStorage : INasAttachmentStorage
         CancellationToken cancellationToken = default)
     {
         var credentials = await RequireCredentialsAsync(tenantId, cancellationToken);
-        var smbPath = AttachmentNasPath.ToSmbPath(relativePath);
+        var smbPath = ToStorageSmbPath(relativePath, credentials.RootFolder);
 
         await Task.Run(
             () => SmbNasSessionSupport.RunWithInvariantCulture(() =>
@@ -98,4 +98,7 @@ internal sealed class SmbNasAttachmentStorage : INasAttachmentStorage
 
         return credentials;
     }
+
+    private static string ToStorageSmbPath(string relativePath, string? rootFolder) =>
+        AttachmentNasPath.ToSmbPath(AttachmentNasPath.ApplyRootFolder(relativePath, rootFolder));
 }

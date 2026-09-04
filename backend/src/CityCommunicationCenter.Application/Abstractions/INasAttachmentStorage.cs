@@ -4,7 +4,8 @@ public sealed record NasAttachmentStorageCredentials(
     string Host,
     string ShareName,
     string Username,
-    string Password);
+    string Password,
+    string? RootFolder = null);
 
 /// <summary>
 /// Talep/görev eklerini tenant NAS (SMB/CIFS) ayarlarına kopyalar ve okur.

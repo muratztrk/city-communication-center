@@ -135,7 +135,10 @@ internal static class SmbNasFileOperations
         }
     }
 
-    private static void EnsureParentDirectories(ISMBFileStore fileStore, string smbPath)
+    private static void EnsureParentDirectories(ISMBFileStore fileStore, string smbPath) =>
+        EnsureParentDirectoriesForPath(fileStore, smbPath);
+
+    internal static void EnsureParentDirectoriesForPath(ISMBFileStore fileStore, string smbPath)
     {
         var parts = smbPath.Split('\\', StringSplitOptions.RemoveEmptyEntries);
         if (parts.Length <= 1)

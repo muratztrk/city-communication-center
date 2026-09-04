@@ -34,6 +34,19 @@ public static class AttachmentNasPath
     public static string ToSmbPath(string relativePath) =>
         relativePath.Replace('/', '\\');
 
+    public static string ApplyRootFolder(string relativePath, string? rootFolder)
+    {
+        if (string.IsNullOrWhiteSpace(rootFolder))
+        {
+            return relativePath;
+        }
+
+        var root = SanitizeSegment(rootFolder);
+        return string.IsNullOrWhiteSpace(relativePath)
+            ? root
+            : $"{root}/{relativePath.TrimStart('/')}";
+    }
+
     public static string SanitizeSegment(string value)
     {
         if (string.IsNullOrWhiteSpace(value))

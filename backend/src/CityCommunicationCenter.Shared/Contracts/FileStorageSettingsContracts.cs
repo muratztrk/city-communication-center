@@ -3,6 +3,7 @@ namespace CityCommunicationCenter.Shared.Contracts;
 public sealed record FileStorageSettingsResponse(
     string? NasHost,
     string? NasShareName,
+    string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
     bool NasHasPassword,
@@ -16,6 +17,7 @@ public sealed record FileStorageSettingsResponse(
 public sealed record UpdateFileStorageSettingsRequest(
     string? NasHost,
     string? NasShareName,
+    string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
     string? NasPassword,
@@ -42,6 +44,7 @@ public sealed record TestFileStorageNasUserRequest(
     string Password,
     string? NasHost = null,
     string? NasShareName = null,
+    string? NasRootFolder = null,
     string? NasProtocol = null);
 
 public sealed record TestFileStorageNasUserResponse(

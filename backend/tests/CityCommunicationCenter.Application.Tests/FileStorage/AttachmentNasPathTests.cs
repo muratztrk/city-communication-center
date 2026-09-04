@@ -52,6 +52,15 @@ public sealed class AttachmentNasPathTests
 
         Assert.Equal(@"VT-2026-42\belge.pdf", smbPath);
     }
+
+    [Fact]
+    public void ApplyRootFolder_PrefixesRelativePath()
+    {
+        var path = AttachmentNasPath.ApplyRootFolder("VT-2026-42/belge.pdf", "testtim");
+
+        Assert.Equal("testtim/VT-2026-42/belge.pdf", path);
+        Assert.Equal(@"testtim\VT-2026-42\belge.pdf", AttachmentNasPath.ToSmbPath(path));
+    }
 }
 
 public sealed class JobRequestNumberFormatterTests

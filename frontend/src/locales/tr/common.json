@@ -1381,6 +1381,8 @@
       "ftpTitle": "FTP Paylaşımı",
       "host": "IP Adresi / Sunucu",
       "shareName": "Paylaşım Adı",
+      "rootFolder": "Kök Klasör",
+      "rootFolderHelp": "Paylaşım altındaki hedef klasör (ör. testtim). Boş bırakılırsa paylaşım kökü kullanılır.",
       "port": "Port",
       "path": "Dizin / Paylaşım Yolu",
       "protocol": "Protokol",

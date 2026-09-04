@@ -1036,6 +1036,7 @@ export interface SyslogSettingsUpdate {
 export interface FileStorageSettings {
   nasHost: string | null;
   nasShareName: string | null;
+  nasRootFolder: string | null;
   nasProtocol: 'SMB/CIFS' | 'NFS';
   nasUsername: string | null;
   nasHasPassword: boolean;
@@ -1050,6 +1051,7 @@ export interface FileStorageSettings {
 export interface FileStorageSettingsUpdate {
   nasHost: string | null;
   nasShareName: string | null;
+  nasRootFolder: string | null;
   nasProtocol: 'SMB/CIFS' | 'NFS';
   nasUsername: string | null;
   nasPassword: string | null;

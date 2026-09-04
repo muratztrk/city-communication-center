@@ -4,6 +4,7 @@ public sealed record UpdateFileStorageSettingsCommand(
     Guid TenantId,
     string? NasHost,
     string? NasShareName,
+    string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
     string? NasPassword,
@@ -58,6 +59,7 @@ public sealed class UpdateFileStorageSettingsCommandHandler
             new TenantFileStorageSettingsUpdate(
                 request.NasHost,
                 request.NasShareName,
+                request.NasRootFolder,
                 request.NasProtocol,
                 request.NasUsername,
                 request.NasPassword,

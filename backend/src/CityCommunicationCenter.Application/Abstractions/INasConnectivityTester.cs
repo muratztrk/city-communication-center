@@ -13,5 +13,6 @@ public interface INasConnectivityTester
         string shareName,
         string username,
         string password,
+        string? rootFolder = null,
         CancellationToken cancellationToken = default);
 }

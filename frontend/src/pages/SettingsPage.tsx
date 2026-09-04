@@ -645,6 +645,7 @@ export function SettingsPage() {
   const [fileStorageForm, setFileStorageForm] = useState<FileStorageSettingsUpdate>({
     nasHost: null,
     nasShareName: null,
+    nasRootFolder: null,
     nasProtocol: 'SMB/CIFS',
     nasUsername: null,
     nasPassword: null,
@@ -877,6 +878,7 @@ export function SettingsPage() {
         setFileStorageForm({
           nasHost: fileStorageResponse.nasHost,
           nasShareName: fileStorageResponse.nasShareName,
+          nasRootFolder: fileStorageResponse.nasRootFolder,
           nasProtocol: fileStorageResponse.nasProtocol,
           nasUsername: fileStorageResponse.nasUsername,
           nasPassword: null,
@@ -1609,6 +1611,7 @@ export function SettingsPage() {
         password: fileStorageNasUserTest.password,
         nasHost: fileStorageForm.nasHost,
         nasShareName: fileStorageForm.nasShareName,
+        nasRootFolder: fileStorageForm.nasRootFolder,
         nasProtocol: fileStorageForm.nasProtocol,
       })
       setFileStorageNasUserTestStatus({ type: result.success ? 'success' : 'error', message: result.message })
@@ -2600,6 +2603,11 @@ export function SettingsPage() {
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.shareName')}</span>
                     <input className="field-input" value={fileStorageForm.nasShareName ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasShareName: event.target.value || null }))} />
+                  </label>
+                  <label className="field-block">
+                    <span className="field-label">{t('settings.fileStorage.rootFolder', 'Kök Klasör')}</span>
+                    <input className="field-input" placeholder="testtim" value={fileStorageForm.nasRootFolder ?? ''} onChange={event => setFileStorageForm(current => ({ ...current, nasRootFolder: event.target.value || null }))} />
+                    <p className="helper-copy mt-1">{t('settings.fileStorage.rootFolderHelp', 'Paylaşım altındaki hedef klasör (ör. testtim). Boş bırakılırsa paylaşım kökü kullanılır.')}</p>
                   </label>
                   <label className="field-row">
                     <span className="field-label">{t('settings.fileStorage.protocol')}</span>

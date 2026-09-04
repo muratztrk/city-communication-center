@@ -1552,6 +1552,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Türkçe validation hatası döner (DB'ye kayıt yok). Kurum içi mesaj ekleri NAS'a gitmez. NAS
   başarılı yüklemeden sonra yerel staging dosyası silinir; indirme/okuma `IAttachmentContentProvider`
   ile önce NAS (`NasRelativePath`), gerekirse legacy yerel yola düşer (#3383). Ortak SMB oturumu: `SmbNasSessionSupport` + `SmbNasAttachmentStorage`.
+- **NAS kök klasör (testtim, card #3384):** Ayarlar'da opsiyonel `Kök Klasör` (`NasRootFolder`) paylaşım
+  altındaki hedef dizini belirler (ör. `testtim` → `\\host\share\testtim\VT-…`). Prod boş;
+  testtim ortamında prod NAS kimlik bilgileri + `testtim` kök klasörü kullanılır.
 - **Ayarlar/Birimler/Kullanıcılar (`admin-surface-page`):** helper-copy, label, textbox,
   textarea, Oluşturma Modu segmented + LDAP başlıkları kompakt shell’den belirgin büyük
   (cards #1733/#1736/#1738). Ayarlar banner altı tab butonları #1733’ten sonra biraz

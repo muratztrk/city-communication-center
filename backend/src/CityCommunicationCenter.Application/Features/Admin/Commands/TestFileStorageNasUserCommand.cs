@@ -6,6 +6,7 @@ public sealed record TestFileStorageNasUserCommand(
     string Password,
     string? NasHost = null,
     string? NasShareName = null,
+    string? NasRootFolder = null,
     string? NasProtocol = null) : ICommand<NasUserTestResult>;
 
 public sealed class TestFileStorageNasUserCommandHandler : ICommandHandler<TestFileStorageNasUserCommand, NasUserTestResult>
@@ -31,6 +32,9 @@ public sealed class TestFileStorageNasUserCommandHandler : ICommandHandler<TestF
         var nasShareName = !string.IsNullOrWhiteSpace(request.NasShareName)
             ? request.NasShareName
             : settings.NasShareName;
+        var nasRootFolder = !string.IsNullOrWhiteSpace(request.NasRootFolder)
+            ? request.NasRootFolder
+            : settings.NasRootFolder;
 
         if (string.IsNullOrWhiteSpace(nasHost) || string.IsNullOrWhiteSpace(nasShareName))
         {
@@ -51,6 +55,7 @@ public sealed class TestFileStorageNasUserCommandHandler : ICommandHandler<TestF
             nasShareName.Trim(),
             request.Username,
             request.Password,
+            nasRootFolder,
             cancellationToken);
     }
 }

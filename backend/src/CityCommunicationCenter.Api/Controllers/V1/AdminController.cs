@@ -401,6 +401,7 @@ public sealed class AdminController : ApiControllerBase
                 tenantId,
                 request.NasHost,
                 request.NasShareName,
+                request.NasRootFolder,
                 request.NasProtocol,
                 request.NasUsername,
                 request.NasPassword,
@@ -445,6 +446,7 @@ public sealed class AdminController : ApiControllerBase
                 request.Password,
                 request.NasHost,
                 request.NasShareName,
+                request.NasRootFolder,
                 request.NasProtocol),
             cancellationToken);
         return Ok(new TestFileStorageNasUserResponse(result.Success, result.Message));

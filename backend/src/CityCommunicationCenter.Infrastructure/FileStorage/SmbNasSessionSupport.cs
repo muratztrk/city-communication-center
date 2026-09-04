@@ -53,9 +53,13 @@ internal static class SmbNasSessionSupport
         string host,
         string shareName,
         string username,
-        string password)
+        string password,
+        string? rootFolder = null)
     {
-        var testFolder = $"CCC-Test-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}";
+        var testFolderName = $"CCC-Test-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}";
+        var testFolder = string.IsNullOrWhiteSpace(rootFolder)
+            ? testFolderName
+            : AttachmentNasPath.ToSmbPath(AttachmentNasPath.ApplyRootFolder(testFolderName, rootFolder));
         NasUserTestResult? failure = null;
 
         try
@@ -67,6 +71,7 @@ internal static class SmbNasSessionSupport
                 password,
                 fileStore =>
                 {
+                    SmbNasFileOperations.EnsureParentDirectoriesForPath(fileStore, testFolder);
                     var createStatus = fileStore.CreateFile(
                         out var directoryHandle,
                         out _,

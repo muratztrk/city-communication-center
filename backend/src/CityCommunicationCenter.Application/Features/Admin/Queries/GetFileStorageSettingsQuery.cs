@@ -31,6 +31,7 @@ public sealed class GetFileStorageSettingsQueryHandler
         return new FileStorageSettingsResponse(
             settings.NasHost,
             settings.NasShareName,
+            settings.NasRootFolder,
             settings.NasProtocol,
             settings.NasUsername,
             settings.NasHasPassword,

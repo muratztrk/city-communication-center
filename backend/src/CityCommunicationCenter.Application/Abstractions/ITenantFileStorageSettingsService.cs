@@ -33,6 +33,7 @@ public interface ITenantFileStorageSettingsService
 public sealed record TenantFileStorageSettingsDescriptor(
     string? NasHost,
     string? NasShareName,
+    string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
     bool NasHasPassword,
@@ -46,6 +47,7 @@ public sealed record TenantFileStorageSettingsDescriptor(
 public sealed record TenantFileStorageSettingsUpdate(
     string? NasHost,
     string? NasShareName,
+    string? NasRootFolder,
     string NasProtocol,
     string? NasUsername,
     string? NasPassword,

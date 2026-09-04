@@ -30,6 +30,7 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
         return new TenantFileStorageSettingsDescriptor(
             payload.NasHost,
             payload.NasShareName,
+            payload.NasRootFolder,
             payload.NasProtocol,
             payload.NasUsername,
             !string.IsNullOrWhiteSpace(payload.NasPassword),
@@ -64,7 +65,12 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
             return null;
         }
 
-        return new NasAttachmentStorageCredentials(host, shareName, username, password);
+        return new NasAttachmentStorageCredentials(
+            host,
+            shareName,
+            username,
+            password,
+            NormalizeNasRootFolder(payload.NasRootFolder));
     }
 
     public async Task SaveSettingsAsync(
@@ -78,6 +84,7 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
         {
             NasHost = NormalizeNasHost(settings.NasHost),
             NasShareName = NormalizeNasShareName(settings.NasShareName),
+            NasRootFolder = ResolveNasRootFolder(settings.NasHost, settings.NasShareName, settings.NasRootFolder),
             NasProtocol = settings.NasProtocol,
             NasUsername = Normalize(settings.NasUsername),
             NasPassword = ResolvePassword(
@@ -251,10 +258,37 @@ internal sealed class TenantFileStorageSettingsService : ITenantFileStorageSetti
     private static string? NormalizeNasShareName(string? value) =>
         NasPathNormalizer.NormalizeShareName(Normalize(value));
 
+    private static string? NormalizeNasRootFolder(string? value) =>
+        NasPathNormalizer.NormalizeRootFolder(Normalize(value));
+
+    private static string? ResolveNasRootFolder(string? nasHost, string? nasShareName, string? nasRootFolder)
+    {
+        var explicitRoot = NormalizeNasRootFolder(nasRootFolder);
+        if (!string.IsNullOrWhiteSpace(explicitRoot))
+        {
+            return explicitRoot;
+        }
+
+        if (NasPathNormalizer.TryParseUnc(Normalize(nasHost), out _, out _, out var hostRoot)
+            && !string.IsNullOrWhiteSpace(hostRoot))
+        {
+            return hostRoot;
+        }
+
+        if (NasPathNormalizer.TryParseUnc(Normalize(nasShareName), out _, out _, out var shareRoot)
+            && !string.IsNullOrWhiteSpace(shareRoot))
+        {
+            return shareRoot;
+        }
+
+        return null;
+    }
+
     private sealed class TenantFileStorageSettingsPayload
     {
         public string? NasHost { get; set; }
         public string? NasShareName { get; set; }
+        public string? NasRootFolder { get; set; }
         public string NasProtocol { get; set; } = "SMB/CIFS";
         public string? NasUsername { get; set; }
         public string? NasPassword { get; set; }

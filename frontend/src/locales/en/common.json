@@ -1374,6 +1374,8 @@
       "ftpTitle": "FTP Share",
       "host": "IP Address / Server",
       "shareName": "Share Name",
+      "rootFolder": "Root Folder",
+      "rootFolderHelp": "Target folder under the share (e.g. testtim). Leave empty to use the share root.",
       "port": "Port",
       "path": "Directory / Share Path",
       "protocol": "Protocol",

@@ -13,13 +13,20 @@ internal sealed class SmbNasConnectivityTester : INasConnectivityTester
         string shareName,
         string username,
         string password,
+        string? rootFolder = null,
         CancellationToken cancellationToken = default)
     {
         var normalizedHost = NasPathNormalizer.NormalizeHost(host) ?? host.Trim();
         var normalizedShare = NasPathNormalizer.NormalizeShareName(shareName) ?? shareName.Trim();
+        var normalizedRoot = NasPathNormalizer.NormalizeRootFolder(rootFolder);
         return Task.Run(
             () => SmbNasSessionSupport.RunWithInvariantCulture(
-                () => SmbNasSessionSupport.TestCreateFolder(normalizedHost, normalizedShare, username, password)),
+                () => SmbNasSessionSupport.TestCreateFolder(
+                    normalizedHost,
+                    normalizedShare,
+                    username,
+                    password,
+                    normalizedRoot)),
             cancellationToken);
     }
 }

@@ -18,8 +18,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 ## 0. Global (tüm proje)
 
-- **`main` push = PRODUCTION auto-deploy** (yenitim.tire.bel.tr, gerçek Tire verisi). Riskli;
-  hem `main` hem `master`'a push edilir.
+- **Branch/ortam:** Günlük geliştirme `develop` → testtim (`./deploy-test.sh`, `.37`); onay sonrası
+  `main`/`master` → prod yenitim (`./deploy.sh`, `.36`). `main` push = PRODUCTION (gerçek Tire
+  verisi). Bkz. [`environments.md`](environments.md).
 - **Harita / Konum UI (#2572 / #6a6cf0d1 / #2610):** Uygulama içi Google Maps
   `Vatandaş Talep Haritası` (`/citizen-request-map`, vatandaş lisansı) ve
   `Birim Talep Haritası` (`/department-request-map`, yalnız Kurum İçi İş Takip lisansı, #2610)

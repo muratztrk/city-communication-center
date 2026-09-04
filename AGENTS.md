@@ -394,7 +394,10 @@ Trello kartlarını yaparken eskiyi bozmamak için her kart şu döngüden geçe
    - Yeşil değilse **push etme**. Demo seed yok → runtime E2E yerine kod + build + (varsa) görsel.
 4. **Sonra güncelle:** Yeni öğrendiğin bir "bozulabilir kural"ı `feature-invariants.md`'ye
    tek satır ekle; kartı `tasks/todo.md`'ye işle.
-5. **Push:** `main` **ve** `master`'a. ⚠️ `main` = PRODUCTION auto-deploy (gerçek Tire verisi).
+5. **Push (ortam):**
+   - **Test:** değişiklikleri `develop`'a push et → `./deploy-test.sh` (testtim).
+   - **Prod:** test onayı sonrası `./scripts/promote-develop-to-main.sh` veya `develop` → `main` ff merge → `./deploy.sh`.
+   - ⚠️ `main`/`master` push = **PRODUCTION** (yenitim, gerçek Tire verisi). Detay: [`docs/environments.md`](docs/environments.md).
 
 ## Git Workflow
 

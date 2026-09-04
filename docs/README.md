@@ -33,6 +33,7 @@ hangi dosyayı açacağını buradan bul.**
 | [`whatsapp-social-integration-guide.md`](whatsapp-social-integration-guide.md) | WhatsApp / sosyal medya entegrasyonu | 2026-06-18 | 🟢 güncel |
 | [`adaptive-auth-20260322.md`](adaptive-auth-20260322.md) | Tenant resolution + adaptive auth | 2026-03-23 | 🟡 eski — koddan teyit et |
 | [`deployment-guide.md`](deployment-guide.md) | Kurulum / deployment | 2026-06-18 | 🟢 güncel |
+| [`environments.md`](environments.md) | Test (testtim) vs prod branch/deploy akışı | 2026-09-04 | 🟢 yaşayan |
 | [`operations-admin-guide.md`](operations-admin-guide.md) | Operasyon / admin | 2026-06-26 | 🟢 güncel |
 | [`troubleshooting-guide.md`](troubleshooting-guide.md) | Bakım / sorun giderme | 2026-06-18 | 🟢 güncel |
 | [`user-manual.md`](user-manual.md) | Son kullanıcı kılavuzu; **Kİ** / **VT** lisans yüzleri, Playwright ekran görüntüleri (`user-manual/screenshots/`) | 2026-08-08 | 🟢 güncel |

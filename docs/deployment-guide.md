@@ -117,6 +117,8 @@ docker compose up -d --build frontend
 
 ## 7. Production Deploy Akışı
 
+Test → prod sırası için önce [`environments.md`](environments.md) okuyun (`develop` / testtim, sonra `main` / yenitim).
+
 Önerilen sıralama:
 
 1. Sunucuda branch'in güncel olduğundan emin olun.

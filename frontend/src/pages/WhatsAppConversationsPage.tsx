@@ -38,6 +38,8 @@ import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
+import { useWhatsAppConversationActivitySound } from '../hooks/useWhatsAppConversationActivitySound'
+import { playNewRecordSound } from '../utils/playNewRecordSound'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
@@ -225,7 +227,7 @@ function ConversationListItem({
     // Arka plan rengi yok — sadece nokta + metin (card #1440).
     <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
       <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-      {t('whatsapp.ticketOpen', 'Yanıt verildi')}
+      {t('whatsapp.ticketOpen', 'Yanıt Verildi')}
     </span>
   ) : !ticketOpen && conv.openTicketCount === 0 && conv.latestTicketStatus ? (
     <span className="inline-flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-[10px] font-semibold text-slate-500">
@@ -318,6 +320,25 @@ function ConversationListItem({
         </div>
       </div>
     </div>
+  )
+}
+
+type ConversationStatusSummary = Pick<
+  CitizenConversationSummary,
+  'lastMessageDirection' | 'openTicketCount' | 'latestTicketStatus' | 'waitingReplyClearedAtUtc'
+>
+
+function ConversationRespondedLabel({ summary }: { summary: ConversationStatusSummary | null | undefined }) {
+  const { t } = useTranslation()
+  if (!summary) return null
+  const waitingForResponse = isWaitingForConversationResponse(summary)
+  const ticketOpen = isConversationTicketOpen(summary)
+  if (waitingForResponse || !ticketOpen) return null
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
+      <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+      {t('whatsapp.ticketOpen', 'Yanıt Verildi')}
+    </span>
   )
 }
 
@@ -691,6 +712,7 @@ function ConversationDetail({
   conversationId,
   citizenName,
   citizenPhone,
+  statusSummary,
   userQuickReplies,
   onUserQuickRepliesChanged,
   anchorAtUtc,
@@ -705,6 +727,7 @@ function ConversationDetail({
   conversationId: string
   citizenName?: string | null
   citizenPhone?: string | null
+  statusSummary?: ConversationStatusSummary | null
   userQuickReplies: UserQuickReplyTemplate[]
   onUserQuickRepliesChanged: () => void
   anchorAtUtc?: string | null
@@ -1174,14 +1197,26 @@ function ConversationDetail({
         <div className={`min-w-0 flex-1 ${headerTitleIsPhoneOnly ? 'pt-0.5' : ''}`}>
           <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
             <p className={`truncate leading-tight ${headerTitleIsPhoneOnly ? 'text-[13px] font-bold text-slate-600' : 'text-[15px] font-semibold text-slate-900'}`}>{headerTitle}</p>
+            {headerTitleIsPhoneOnly ? (
+              <ConversationRespondedLabel summary={statusSummary} />
+            ) : null}
             {showUrgentBadge ? (
               <span className="shrink-0 rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-950">
                 ACİL
               </span>
             ) : null}
           </div>
-          {headerSubtitleParts.length > 0 ? (
-            <p className="mt-1 truncate text-[11px] text-slate-500">{headerSubtitleParts.join(' · ')}</p>
+          {headerSubtitleParts.length > 0 || (citizenName?.trim() && statusSummary) ? (
+            <div className="mt-1 flex min-w-0 items-center justify-between gap-2">
+              {headerSubtitleParts.length > 0 ? (
+                <p className="min-w-0 truncate text-[11px] text-slate-500">{headerSubtitleParts.join(' · ')}</p>
+              ) : (
+                <span aria-hidden="true" />
+              )}
+              {citizenName?.trim() ? (
+                <ConversationRespondedLabel summary={statusSummary} />
+              ) : null}
+            </div>
           ) : null}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
@@ -1727,6 +1762,8 @@ export function WhatsAppConversationsPage() {
 
   const selectedConv = conversations.find(c => c.citizenConversationId === selectedId) ?? null
 
+  useWhatsAppConversationActivitySound(conversations)
+
   const handleReadMarked = useCallback(() => {
     setConversations(prev =>
       prev.map(c => c.citizenConversationId === selectedId
@@ -1751,6 +1788,9 @@ export function WhatsAppConversationsPage() {
   useEffect(() => {
     function handleIncomingWhatsAppMessage(event: Event) {
       const payload = (event as CustomEvent<WhatsAppMessagePayload>).detail
+      if (!payload.isInternal && !payload.isStatusUpdate && !payload.isAutomaticOutbound && document.visibilityState === 'visible') {
+        playNewRecordSound()
+      }
       if (!selectedId) {
         void silentRefreshConversations()
         return
@@ -1882,6 +1922,7 @@ export function WhatsAppConversationsPage() {
               conversationId={selectedId}
               citizenName={selectedConv?.citizenName ?? null}
               citizenPhone={selectedConv?.citizenPhone ?? null}
+              statusSummary={selectedConv ?? null}
               userQuickReplies={userQuickReplies}
               onUserQuickRepliesChanged={() => { void refreshUserQuickReplies() }}
               anchorAtUtc={requestedAt || null}

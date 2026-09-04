@@ -21,6 +21,7 @@ import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { Toast } from '../components/ui/toast'
 import { TruncatedText } from '../components/ui/TruncatedText'
 import { useColumnFilters } from '../hooks/useColumnFilters'
+import { useNewRecordIdsSound } from '../hooks/useNewRecordIdsSound'
 import { useSortable } from '../hooks/useSortable'
 import type { CitizenMessageApprovalRow } from '../types/platform'
 import { getCitizenRequestStatusLabel, formatCitizenRequestNumber, formatCitizenPhoneDisplay, isCitizenProcessingReceivedOverdue } from '../utils/citizenRequests'
@@ -102,9 +103,25 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
     }
   }, [apiScope, mode, t])
 
+  const reloadApprovalsQuiet = useCallback(async () => {
+    try {
+      setRows(await api.getCitizenMessageApprovals(apiScope, mode))
+    } catch {
+      // Arka plan yenilemesi sessizce geçilir.
+    }
+  }, [apiScope, mode])
+
+  const approvalJobIds = useMemo(() => rows.map(row => row.jobId), [rows])
+  useNewRecordIdsSound(approvalJobIds)
+
   useEffect(() => {
     void loadApprovals()
   }, [loadApprovals])
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => { void reloadApprovalsQuiet() }, 30_000)
+    return () => window.clearInterval(intervalId)
+  }, [reloadApprovalsQuiet])
 
   const getColumnValue = useCallback((key: string, row: CitizenMessageApprovalRow): string => {
     if (key === 'requestNo') {

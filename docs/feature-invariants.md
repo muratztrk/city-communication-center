@@ -517,7 +517,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
   WhatsApp nav satırında `Yanıt bekliyor` rozeti yok (#6a6ba9ac); sayım yalnız sayfa içi
-  `Yanıt bekliyor` filtresinde. `Yanıt Verildi Yap` kaldırıldı (#3347) — chip satırında yok.
+  `Yanıt bekliyor` filtresinde. `Yanıt Verildi Yap` kaldırıldı (#3347) — chip satırında yok;
+  **Yanıt Verildi** durum etiketi konuşma detay header'ında telefon numarasının sağında görünür
+  (kayıtlı ad varsa alt satırda, yalnız numara varsa başlık satırında — #3389).
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekliyor` sağında; `hasPendingMessageApproval`
   = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). Rozet konuşma/numara
   sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2` / `-right-1.5`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
@@ -531,6 +533,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`useIncomingPendingApprovalCount` / `matchesIncomingStatusFilter` pending-approval — dashboard
   `pendingApprovalCount` ile aynı değil; VT yöneticisi CRM için yalnız vatandaş satırları), Birimden Giden =
   `outgoingPendingCount` (dashboard snapshot; Sms Onayı stili — card #2516 / #2820 / #2823).
+  **Sayfa bildirim sesi (#3390):** Kullanıcı ilgili sayfadayken yeni kayıt gelince kısa ses
+  (`playNewRecordSound`) — `/whatsapp` (SignalR inbound + liste poll), `/incoming-requests`,
+  `/my-tasks`, `/citizen-message-approval`, `/sms-delivery-approval`. Sekme görünür değilken çalmaz;
+  ilk yüklemede çalmaz (yalnızca yeni id/inbound).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonu yalnız `[konum mesajı]` işaretçisi + koordinat varken MapPin + Haritada Göster (#2838 reopen);
@@ -630,7 +636,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   detay header'ı telefon yerine adı öncelikli gösterir. Profil alanları `DeferredComposer` + blur'da
   senkron flush (Kaydet stale draft #6a75c91c); yazarken 8 sn detail poll atlanır.
   Sol konuşma kartında isim varsa telefon
-  numarası ismin alt satırında, yanıt durumu (`Yanıt verildi` vb.) ile aynı yatay satırda görünür.
+  numarası ismin alt satırında, yanıt durumu (`Yanıt Verildi` vb.) ile aynı yatay satırda görünür.
+  Detay header'ında aynı **Yanıt Verildi** etiketi telefonun sağında hizalanır (#3389).
   Sağ profil paneli üstündeki `Talep Oluştur` aksiyonu satır ortasında, büyük `h-10` buton olarak kalır;
   yeşil gradient üst alan sağ panelin üst köşelerinde `rounded-t-xl` ile ana kartın köşe motifine uyumlu kalır (#2391).
   Sol konuşma kartındaki `Talep Sayısı: N`

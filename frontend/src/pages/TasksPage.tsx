@@ -23,6 +23,7 @@ import { AttachmentSection } from '../components/ui/AttachmentSection'
 import { AttachmentUploadProgressBar } from '../components/ui/attachment-upload-progress'
 import { useLocalFileSelectProgress } from '../hooks/useLocalFileSelectProgress'
 import { useEscapeKey } from '../hooks/useEscapeKey'
+import { useNewRecordIdsSound } from '../hooks/useNewRecordIdsSound'
 import { AttachmentImagePreviewButton } from '../components/ui/AttachmentImagePreviewButton'
 import { SimpleImageAttachmentIcon } from '../components/ui/SimpleImageAttachmentIcon'
 import { AddressDetailFields } from '../components/ui/AddressDetailFields'
@@ -591,6 +592,8 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const scopeParam = (searchParams.get('scope') as TaskListScope | null) ?? scopes[0]
   const currentScope: TaskListScope = scopes.includes(scopeParam) ? scopeParam : scopes[0]
   const isMyTasksView = fixedScope === 'mine'
+  const myTaskIds = useMemo(() => tasks.map(task => task.taskId), [tasks])
+  useNewRecordIdsSound(isMyTasksView ? myTaskIds : [])
   const isDepartmentTasksView = mode === 'departmentTasks'
   const isStaffTasksView = mode === 'staffTasks'
   const currentMyTaskView = getMyTaskView(searchParams.get('view'))

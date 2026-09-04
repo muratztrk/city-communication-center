@@ -28,6 +28,7 @@ function isCreatedToday(value: string | null | undefined): boolean {
     && created.getDate() === now.getDate()
 }
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useNewRecordIdsSound } from '../hooks/useNewRecordIdsSound'
 import { createPortal } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { FilterableTh } from '../components/ui/FilterableTh'
@@ -451,6 +452,8 @@ export function IncomingRequestsPage() {
   const [activeDeptId, setActiveDeptIdState] = useState(() => getActiveDepartmentId())
   const [tasks, setTasks] = useState<Task[]>([])
   const [jobs, setJobs] = useState<JobSummary[]>([])
+  const incomingJobIds = useMemo(() => jobs.map(job => job.jobId), [jobs])
+  useNewRecordIdsSound(incomingJobIds)
   const [users, setUsers] = useState<User[]>([])
   const [socialMessages, setSocialMessages] = useState<SocialMessage[]>([])
   const [loading, setLoading] = useState(true)

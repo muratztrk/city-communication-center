@@ -1402,7 +1402,7 @@
     },
     "slaWeekend": {
       "sectionTitle": "Hafta Sonu SLA",
-      "sectionDescription": "Cumartesi ve Pazar günleri SLA süresinin ilerlemesini durdurun. Hariç tutulan müdürlükler hafta sonlarında da SLA süresine dahil edilir.",
+      "sectionDescription": "Cumartesi, Pazar ve Türkiye resmi tatil günlerinde SLA süresinin ilerlemesini durdurun. Hariç tutulan müdürlükler bu günlerde de SLA süresine dahil edilir.",
       "excludeWeekends": "Cumartesi ve Pazar günleri SLA ilerlemesi durdurulsun",
       "exemptDepartments": "Hariç Tutulan Müdürlükler",
       "exemptDepartmentsHelp": "Seçilen müdürlükler hafta sonu da çalıştığından SLA süreleri hafta sonlarında da ilerler.",
@@ -1578,7 +1578,10 @@
       "afterHoursStaffSmsTitle": "Birim Personeline Mesai Dışı Giden SMS Bildirimleri",
       "afterHoursStaffSmsLabel": "Bildirim Mesajı",
       "afterHoursStaffSmsPlaceholder": "Bildirim mesajını giriniz...",
-      "afterHoursStaffSmsSaved": "Birim personeline giden bildirim mesajı kaydedildi."
+      "afterHoursStaffSmsSaved": "Birim personeline giden bildirim mesajı kaydedildi.",
+      "smsProcessingReceivedTitle": "SMS Gönderimi İşleme Alındı Durumu",
+      "smsProcessingReceivedDescription": "Yalnız çağrı (SMS) kanalından gelen taleplerde İşleme Alındı otomatik SMS metnini düzenler.",
+      "smsProcessingReceivedSaved": "SMS gönderimi İşleme Alındı mesajı kaydedildi."
     },
     "templates": {
       "createSuccess": "Şablon oluşturuldu.",

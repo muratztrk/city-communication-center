@@ -25,7 +25,8 @@ public sealed record CitizenAutoReplyGreetingsContract(
     string? ProcessingReceived = null,
     string? InProgress = null,
     string? Completed = null,
-    string? Cancelled = null);
+    string? Cancelled = null,
+    string? SmsProcessingReceived = null);
 
 public sealed record CitizenAutoReplyTemplatesResponse(
     string ProcessingReceived,
@@ -37,7 +38,9 @@ public sealed record CitizenAutoReplyTemplatesResponse(
     CitizenAutoReplyGreetingsContract? Greetings = null,
     string? AfterHoursStaffSms = null,
     bool AfterHoursManagerSmsEnabled = true,
-    bool AfterHoursStaffSmsEnabled = false);
+    bool AfterHoursStaffSmsEnabled = false,
+    string? SmsProcessingReceived = null,
+    bool SmsProcessingReceivedEnabled = true);
 
 public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     string ProcessingReceived,
@@ -49,7 +52,9 @@ public sealed record UpdateCitizenAutoReplyTemplatesRequest(
     CitizenAutoReplyGreetingsContract? Greetings = null,
     string? AfterHoursStaffSms = null,
     bool AfterHoursManagerSmsEnabled = true,
-    bool AfterHoursStaffSmsEnabled = false);
+    bool AfterHoursStaffSmsEnabled = false,
+    string? SmsProcessingReceived = null,
+    bool SmsProcessingReceivedEnabled = true);
 
 public sealed record TenantAppearanceResponse(
     string ThemePreset,

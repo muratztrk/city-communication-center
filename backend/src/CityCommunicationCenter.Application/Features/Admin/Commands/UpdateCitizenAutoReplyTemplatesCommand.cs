@@ -13,7 +13,9 @@ public sealed record UpdateCitizenAutoReplyTemplatesCommand(
     CitizenAutoReplyGreetingsContract? Greetings = null,
     string? AfterHoursStaffSms = null,
     bool AfterHoursManagerSmsEnabled = true,
-    bool AfterHoursStaffSmsEnabled = false) : ICommand<Unit>;
+    bool AfterHoursStaffSmsEnabled = false,
+    string? SmsProcessingReceived = null,
+    bool SmsProcessingReceivedEnabled = true) : ICommand<Unit>;
 
 public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractValidator<UpdateCitizenAutoReplyTemplatesCommand>
 {
@@ -27,12 +29,14 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandValidator : AbstractVa
         RuleFor(command => command.Greeting).MaximumLength(200);
         RuleFor(command => command.AfterHoursManagerSms).MaximumLength(1600);
         RuleFor(command => command.AfterHoursStaffSms).MaximumLength(1600);
+        RuleFor(command => command.SmsProcessingReceived).MaximumLength(1000);
         When(command => command.Greetings is not null, () =>
         {
             RuleFor(command => command.Greetings!.ProcessingReceived).MaximumLength(200);
             RuleFor(command => command.Greetings!.InProgress).MaximumLength(200);
             RuleFor(command => command.Greetings!.Completed).MaximumLength(200);
             RuleFor(command => command.Greetings!.Cancelled).MaximumLength(200);
+            RuleFor(command => command.Greetings!.SmsProcessingReceived).MaximumLength(200);
         });
     }
 }
@@ -83,10 +87,13 @@ public sealed class UpdateCitizenAutoReplyTemplatesCommandHandler : ICommandHand
                     request.Greetings.ProcessingReceived,
                     request.Greetings.InProgress,
                     request.Greetings.Completed,
-                    request.Greetings.Cancelled),
+                    request.Greetings.Cancelled,
+                    request.Greetings.SmsProcessingReceived),
             request.AfterHoursStaffSms,
             request.AfterHoursManagerSmsEnabled,
-            request.AfterHoursStaffSmsEnabled));
+            request.AfterHoursStaffSmsEnabled,
+            string.IsNullOrWhiteSpace(request.SmsProcessingReceived) ? null : request.SmsProcessingReceived.Trim(),
+            request.SmsProcessingReceivedEnabled));
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return Unit.Value;

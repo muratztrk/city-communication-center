@@ -12,18 +12,18 @@ public sealed class AttachmentsController : ApiControllerBase
     private readonly IMediator _sender;
     private readonly IApplicationDbContext _dbContext;
     private readonly INotificationPushService _notificationPushService;
-    private readonly string _uploadRootPath;
+    private readonly IAttachmentContentProvider _attachmentContentProvider;
 
     public AttachmentsController(
         IMediator sender,
         IApplicationDbContext dbContext,
         INotificationPushService notificationPushService,
-        IOptions<AttachmentStorageOptions> options)
+        IAttachmentContentProvider attachmentContentProvider)
     {
         _sender = sender;
         _dbContext = dbContext;
         _notificationPushService = notificationPushService;
-        _uploadRootPath = options.Value.UploadRootPath;
+        _attachmentContentProvider = attachmentContentProvider;
     }
 
     [HttpPost("jobs/{jobId:guid}")]
@@ -142,9 +142,9 @@ public sealed class AttachmentsController : ApiControllerBase
             if (userId != conversation.UserAId && userId != conversation.UserBId) return Forbid();
         }
 
-        var path = Path.Combine(_uploadRootPath, attachment.TenantId.ToString(), attachment.EntityType, attachment.EntityId.ToString(), attachment.StoredFileName);
-        if (!System.IO.File.Exists(path)) return NotFound();
+        var openResult = await _attachmentContentProvider.OpenReadAsync(attachment, cancellationToken);
+        if (openResult is null) return NotFound();
 
-        return File(System.IO.File.OpenRead(path), attachment.ContentType, attachment.FileName, enableRangeProcessing: true);
+        return File(openResult.Stream, attachment.ContentType, attachment.FileName, enableRangeProcessing: true);
     }
 }

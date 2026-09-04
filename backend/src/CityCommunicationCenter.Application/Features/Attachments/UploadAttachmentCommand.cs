@@ -134,6 +134,7 @@ public sealed class UploadAttachmentCommandHandler : ICommandHandler<UploadAttac
                     relativeNasPath,
                     physicalPath,
                     cancellationToken);
+                File.Delete(physicalPath);
             }
             catch
             {

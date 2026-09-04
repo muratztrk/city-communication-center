@@ -75,6 +75,7 @@ public static class DependencyInjection
         services.AddScoped<ITenantFileStorageSettingsService, TenantFileStorageSettingsService>();
         services.AddScoped<INasConnectivityTester, SmbNasConnectivityTester>();
         services.AddScoped<INasAttachmentStorage, SmbNasAttachmentStorage>();
+        services.AddScoped<IAttachmentContentProvider, AttachmentContentProvider>();
         services.AddScoped<ISyslogForwarderService, SyslogForwarderService>();
         services.AddScoped<ISlaCalculatorService, SlaCalculatorService>();
         services.AddScoped<ITenantLdapSettingsService, TenantLdapSettingsService>();

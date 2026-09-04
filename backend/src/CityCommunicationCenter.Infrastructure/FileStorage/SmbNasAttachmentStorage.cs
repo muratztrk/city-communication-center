@@ -44,6 +44,28 @@ internal sealed class SmbNasAttachmentStorage : INasAttachmentStorage
             cancellationToken);
     }
 
+    public async Task<byte[]> ReadAsync(
+        Guid tenantId,
+        string relativePath,
+        CancellationToken cancellationToken = default)
+    {
+        var credentials = await RequireCredentialsAsync(tenantId, cancellationToken);
+        var smbPath = AttachmentNasPath.ToSmbPath(relativePath);
+        byte[]? content = null;
+
+        await Task.Run(
+            () => SmbNasSessionSupport.RunWithInvariantCulture(() =>
+                SmbNasSessionSupport.ExecuteWithAuthenticatedFileStore(
+                    credentials.Host,
+                    credentials.ShareName,
+                    credentials.Username,
+                    credentials.Password,
+                    fileStore => content = SmbNasFileOperations.ReadFile(fileStore, smbPath))),
+            cancellationToken);
+
+        return content ?? throw new InvalidOperationException("NAS dosyası okunamadı.");
+    }
+
     public async Task DeleteAsync(
         Guid tenantId,
         string relativePath,

@@ -27,7 +27,7 @@ public sealed class SlaCalculatorService : ISlaCalculatorService
         if (!ShouldExcludeWeekends(setting, departmentId))
             return startUtc.AddHours(slaHours);
 
-        return SlaBusinessHours.AddExcludingWeekends(startUtc, slaHours);
+        return SlaBusinessHours.AddExcludingNonWorkingDays(startUtc, slaHours, excludeWeekends: true, excludePublicHolidays: true);
     }
 
     private static bool ShouldExcludeWeekends(Domain.Entities.TenantSetting? setting, Guid? departmentId)

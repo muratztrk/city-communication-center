@@ -95,6 +95,8 @@ const DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES: CitizenAutoReplyTemplates = {
   afterHoursStaffSms: '',
   afterHoursManagerSmsEnabled: true,
   afterHoursStaffSmsEnabled: false,
+  smsProcessingReceived: "{VatandaşTalepNo} no'lu {VatandaşTalepBaşlığı} talebinizin durumu \"İşleme Alındı\". {GönderilenBirim}",
+  smsProcessingReceivedEnabled: true,
 }
 
 const CITIZEN_REQUEST_NO_TOKEN = '{VatandaşTalepNo}'
@@ -105,7 +107,7 @@ const COMPLETION_NOTE_TOKEN = '{Tamamlama Notu}'
 const CANCEL_NOTE_TOKEN = '{İptal Notu}'
 const DEFAULT_AUTO_REPLY_BODY_TEXT = 'talebinizin durumu'
 
-type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms' | 'afterHoursStaffSms' | 'afterHoursManagerSmsEnabled' | 'afterHoursStaffSmsEnabled'>
+type CitizenAutoReplyTemplateKey = Exclude<keyof CitizenAutoReplyTemplates, 'greeting' | 'greetings' | 'afterHoursManagerSms' | 'afterHoursStaffSms' | 'afterHoursManagerSmsEnabled' | 'afterHoursStaffSmsEnabled' | 'smsProcessingReceived' | 'smsProcessingReceivedEnabled'>
 
 function buildCitizenAutoReplyTemplate(
   bodyText: string,
@@ -554,7 +556,7 @@ export function SettingsPage() {
   const savedCitizenAutoReplyTemplatesRef = useRef<CitizenAutoReplyTemplates>(DEFAULT_CITIZEN_AUTO_REPLY_TEMPLATES)
   // Hangi kartın Kaydet'i çalışıyor: iki bölüm aynı endpoint'i kullanıyor ama buton durumu
   // ayrı olmalı; tek bayrak paylaşınca diğer buton da "Kaydediliyor..." oluyordu (kart #3209).
-  const [citizenAutoReplySavingScope, setCitizenAutoReplySavingScope] = useState<'citizen' | 'afterHours' | 'afterHoursStaff' | null>(null)
+  const [citizenAutoReplySavingScope, setCitizenAutoReplySavingScope] = useState<'citizen' | 'afterHours' | 'afterHoursStaff' | 'smsProcessing' | null>(null)
   const citizenAutoReplySaving = citizenAutoReplySavingScope !== null
   const [departments, setDepartments] = useState<Department[]>([])
   const logoFileInputRef = useRef<HTMLInputElement>(null)
@@ -842,7 +844,10 @@ export function SettingsPage() {
             inProgress: loadedGreetings?.inProgress?.trim() || generalGreeting,
             completed: loadedGreetings?.completed?.trim() || generalGreeting,
             cancelled: loadedGreetings?.cancelled?.trim() || generalGreeting,
+            smsProcessingReceived: loadedGreetings?.smsProcessingReceived?.trim() || generalGreeting,
           },
+          smsProcessingReceived: autoReplyResponse.smsProcessingReceived ?? autoReplyResponse.processingReceived,
+          smsProcessingReceivedEnabled: autoReplyResponse.smsProcessingReceivedEnabled ?? true,
           afterHoursManagerSmsEnabled: autoReplyResponse.afterHoursManagerSmsEnabled ?? true,
           afterHoursStaffSmsEnabled: autoReplyResponse.afterHoursStaffSmsEnabled ?? false,
         }
@@ -1708,7 +1713,7 @@ export function SettingsPage() {
     }
   }
 
-  const saveCitizenAutoReplies = async (toast: 'citizen' | 'afterHours' | 'afterHoursStaff' = 'citizen') => {
+  const saveCitizenAutoReplies = async (toast: 'citizen' | 'afterHours' | 'afterHoursStaff' | 'smsProcessing' = 'citizen') => {
     if (!user?.tenantId || citizenAutoReplySaving) return
     setCitizenAutoReplySavingScope(toast)
     try {
@@ -1747,7 +1752,18 @@ export function SettingsPage() {
           inProgress: citizenAutoReplyTemplates.greetings.inProgress.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
           completed: citizenAutoReplyTemplates.greetings.completed.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
           cancelled: citizenAutoReplyTemplates.greetings.cancelled.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
+          smsProcessingReceived: citizenAutoReplyTemplates.greetings.smsProcessingReceived?.trim() || DEFAULT_CITIZEN_OUTBOUND_GREETING,
         },
+        smsProcessingReceived: buildCitizenAutoReplyTemplate(
+          extractCitizenAutoReplyBodyText(
+            citizenAutoReplyTemplates.smsProcessingReceived ?? citizenAutoReplyTemplates.processingReceived,
+            t('social.requestStatus.processingReceived', 'İşleme Alındı'),
+          ),
+          t('social.requestStatus.processingReceived', 'İşleme Alındı'),
+          extractCitizenAutoReplySuffixText(citizenAutoReplyTemplates.smsProcessingReceived ?? citizenAutoReplyTemplates.processingReceived),
+          true,
+        ),
+        smsProcessingReceivedEnabled: citizenAutoReplyTemplates.smsProcessingReceivedEnabled ?? true,
         afterHoursManagerSms: citizenAutoReplyTemplates.afterHoursManagerSms ?? '',
         afterHoursStaffSms: citizenAutoReplyTemplates.afterHoursStaffSms ?? '',
         afterHoursManagerSmsEnabled: citizenAutoReplyTemplates.afterHoursManagerSmsEnabled ?? true,
@@ -1762,7 +1778,9 @@ export function SettingsPage() {
           ? t('settings.routing.afterHoursStaffSmsSaved', 'Birim personeline giden bildirim mesajı kaydedildi.')
           : toast === 'afterHours'
             ? t('settings.routing.afterHoursManagerSmsSaved', 'Birim yöneticilerine giden bildirim mesajı kaydedildi.')
-            : t('settings.routing.autoRepliesSaved', 'Vatandaşa giden cevaplar kaydedildi.'),
+            : toast === 'smsProcessing'
+              ? t('settings.routing.smsProcessingReceivedSaved', 'SMS gönderimi İşleme Alındı mesajı kaydedildi.')
+              : t('settings.routing.autoRepliesSaved', 'Vatandaşa giden cevaplar kaydedildi.'),
       )
     } catch (saveError) {
       showToast('error', saveError instanceof Error ? saveError.message : t('common.error'))
@@ -3572,6 +3590,40 @@ export function SettingsPage() {
             <p className="text-xs font-medium text-slate-500">
               {t('settings.routing.autoRepliesTokens', 'Sabit alanlar düzenlenemez: {VatandaşTalepNo}, {VatandaşTalepBaşlığı}, durum adı, {GönderilenBirim}, {Tamamlama Notu} ve {İptal Notu}.')}
             </p>
+          </section>
+
+          <section className="section-card page-stack">
+            <div className="page-header-row">
+              <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                <h2 className="text-xl font-extrabold text-slate-950">{t('settings.routing.smsProcessingReceivedTitle', 'SMS Gönderimi İşleme Alındı Durumu')}</h2>
+                <SettingsActiveSwitch
+                  label={citizenAutoReplyTemplates.smsProcessingReceivedEnabled ?? true ? t('users.active', 'Aktif') : t('users.inactive', 'Pasif')}
+                  checked={citizenAutoReplyTemplates.smsProcessingReceivedEnabled ?? true}
+                  onChange={() => setCitizenAutoReplyTemplates(current => ({
+                    ...current,
+                    smsProcessingReceivedEnabled: !(current.smsProcessingReceivedEnabled ?? true),
+                  }))}
+                />
+              </div>
+              <Button type="button" disabled={citizenAutoReplySavingScope === 'smsProcessing'} onClick={() => void saveCitizenAutoReplies('smsProcessing')}>
+                {citizenAutoReplySavingScope === 'smsProcessing' ? t('common.loading') : t('common.save', 'Kaydet')}
+              </Button>
+            </div>
+            <p className="helper-copy">{t('settings.routing.smsProcessingReceivedDescription', 'Yalnız çağrı (SMS) kanalından gelen taleplerde İşleme Alındı otomatik SMS metnini düzenler.')}</p>
+            <div className="max-w-md">
+              <CitizenAutoReplyTemplateField
+                label={t('social.requestStatus.processingReceived', 'İşleme Alındı')}
+                statusLabel={t('social.requestStatus.processingReceived', 'İşleme Alındı')}
+                tone="warning"
+                value={citizenAutoReplyTemplates.smsProcessingReceived ?? citizenAutoReplyTemplates.processingReceived}
+                greeting={citizenAutoReplyTemplates.greetings.smsProcessingReceived ?? citizenAutoReplyTemplates.greetings.processingReceived}
+                onChange={value => setCitizenAutoReplyTemplates(current => ({ ...current, smsProcessingReceived: value }))}
+                onGreetingChange={value => setCitizenAutoReplyTemplates(current => ({
+                  ...current,
+                  greetings: { ...current.greetings, smsProcessingReceived: value },
+                }))}
+              />
+            </div>
           </section>
 
           <section className="section-card page-stack">

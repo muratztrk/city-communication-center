@@ -33,15 +33,16 @@ public sealed class GetCitizenAutoReplyTemplatesQueryHandler : IQueryHandler<Get
             templates.Cancelled,
             CitizenOutboundGreeting.NormalizeLine(templates.Greeting),
             templates.AfterHoursManagerSms,
-            // Boş durum hitabı genel hitapla doldurulur: ekranda her kutu kendi değerini gösterir,
-            // eski kayıtlarda dördü de eski genel hitapla açılır.
             new CitizenAutoReplyGreetingsContract(
                 templates.GreetingFor("İşleme Alındı"),
                 templates.GreetingFor("Yapılmakta"),
                 templates.GreetingFor("Tamamlandı"),
-                templates.GreetingFor("İptal")),
+                templates.GreetingFor("İptal"),
+                templates.Greetings?.SmsProcessingReceived ?? templates.GreetingFor("İşleme Alındı", Domain.Enums.SocialChannel.Phone)),
             templates.AfterHoursStaffSms,
             templates.ManagerSmsIsEnabled,
-            templates.StaffSmsIsEnabled);
+            templates.StaffSmsIsEnabled,
+            templates.SmsProcessingReceived ?? templates.ProcessingReceived,
+            templates.SmsProcessingReceivedIsEnabled);
     }
 }

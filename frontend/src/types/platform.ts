@@ -937,6 +937,7 @@ export interface CitizenAutoReplyGreetings {
   inProgress: string;
   completed: string;
   cancelled: string;
+  smsProcessingReceived?: string;
 }
 
 export interface CitizenAutoReplyTemplates {
@@ -951,6 +952,8 @@ export interface CitizenAutoReplyTemplates {
   afterHoursStaffSms?: string;
   afterHoursManagerSmsEnabled?: boolean;
   afterHoursStaffSmsEnabled?: boolean;
+  smsProcessingReceived?: string;
+  smsProcessingReceivedEnabled?: boolean;
 }
 
 export interface WorkingHoursDaySchedule { day: number; from: string | null; to: string | null }

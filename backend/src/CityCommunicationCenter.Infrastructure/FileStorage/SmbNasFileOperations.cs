@@ -50,6 +50,58 @@ internal static class SmbNasFileOperations
         }
     }
 
+    public static byte[] ReadFile(ISMBFileStore fileStore, string smbPath)
+    {
+        var status = fileStore.CreateFile(
+            out var handle,
+            out _,
+            smbPath,
+            AccessMask.GENERIC_READ | AccessMask.SYNCHRONIZE,
+            SMBLibrary.FileAttributes.Normal,
+            ShareAccess.Read,
+            CreateDisposition.FILE_OPEN,
+            CreateOptions.FILE_NON_DIRECTORY_FILE | CreateOptions.FILE_SYNCHRONOUS_IO_ALERT,
+            null);
+
+        if (status == NTStatus.STATUS_OBJECT_NAME_NOT_FOUND)
+        {
+            throw new SmbNasSessionException($"NAS dosyası bulunamadı: {smbPath}.");
+        }
+
+        if (status != NTStatus.STATUS_SUCCESS || handle is null)
+        {
+            throw new SmbNasSessionException($"NAS dosyası açılamadı ({status}).");
+        }
+
+        try
+        {
+            using var stream = new MemoryStream();
+            long bytesRead = 0;
+            while (true)
+            {
+                status = fileStore.ReadFile(out var data, handle, bytesRead, WriteChunkSize);
+                if (status != NTStatus.STATUS_SUCCESS && status != NTStatus.STATUS_END_OF_FILE)
+                {
+                    throw new SmbNasSessionException($"NAS dosyası okunamadı ({status}).");
+                }
+
+                if (status == NTStatus.STATUS_END_OF_FILE || data is null || data.Length == 0)
+                {
+                    break;
+                }
+
+                bytesRead += data.Length;
+                stream.Write(data, 0, data.Length);
+            }
+
+            return stream.ToArray();
+        }
+        finally
+        {
+            fileStore.CloseFile(handle);
+        }
+    }
+
     public static void DeleteFile(ISMBFileStore fileStore, string smbPath)
     {
         var status = fileStore.CreateFile(

@@ -930,6 +930,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   açıktır; personel kutusu varsayılan kapalı. Personel şablonu **yalnız görev bir kullanıcıya
   atandığında** (`CreateTask` / `AssignTask`, mesai dışı) atanan kişinin cep numarasına gider;
   atanan kişi müdür/sorumlu/VTY ise ikinci SMS atılmaz (talep SMS'i yeterli).
+  **SMS Gönderimi İşleme Alındı Durumu** (#3386): Vatandaşa Giden Cevaplar ile mesai dışı SMS
+  kutularının arasında ayrı bölüm; yalnız `Phone` kanalından gelen taleplerde `İşleme Alındı`
+  otomatik SMS'i bu şablonu kullanır (WhatsApp/sosyal kanallar genel İşleme Alındı şablonunda
+  kalır). **Aktif** kapalıysa Phone kanalı İşleme Alındı SMS'i gönderilmez. Durum hitabı
+  (`greetings.smsProcessingReceived`) diğer durumlardan bağımsızdır.
   `{GönderilenBirim}` token'ından sonra şablonda her zaman tam bir otomatik ayraç boşluğu bulunur;
   Tamamlandı kartında `{Tamamlama Notu}`, İptal kartında `{İptal Notu}` birim ek metninden sonra
   gelir (chip, #3215/#3222); gönderimde token notla değişir, yoksa boşalır. Token'lı
@@ -1537,8 +1542,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (ör. `VT-2026-42/belge.pdf`) — tenant/Job/guid hiyerarşisi yok. Görev ekleri ilgili talebin
   klasörüne gider. Aynı isimde ikinci dosya `(2)` soneki alır. Yol `attachments.nasrelativepath`
   olarak saklanır; silmede legacy yol geri düşüşü kalır. NAS başarısızsa yerel dosya silinir ve
-  Türkçe validation hatası döner (DB'ye kayıt yok). Kurum içi mesaj ekleri NAS'a gitmez. Yerel disk
-  birincil okuma kaynağı kalır. Ortak SMB oturumu: `SmbNasSessionSupport` + `SmbNasAttachmentStorage`.
+  Türkçe validation hatası döner (DB'ye kayıt yok). Kurum içi mesaj ekleri NAS'a gitmez. NAS
+  başarılı yüklemeden sonra yerel staging dosyası silinir; indirme/okuma `IAttachmentContentProvider`
+  ile önce NAS (`NasRelativePath`), gerekirse legacy yerel yola düşer (#3383). Ortak SMB oturumu: `SmbNasSessionSupport` + `SmbNasAttachmentStorage`.
 - **Ayarlar/Birimler/Kullanıcılar (`admin-surface-page`):** helper-copy, label, textbox,
   textarea, Oluşturma Modu segmented + LDAP başlıkları kompakt shell’den belirgin büyük
   (cards #1733/#1736/#1738). Ayarlar banner altı tab butonları #1733’ten sonra biraz
@@ -1581,8 +1587,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Onay bekleyen (`PendingOwnerApproval` /
   `PendingExternalApproval` / `PendingApproval`) talepler aynı gün içinde saat aşımında
   "Geciken" sayılmaz; takvim günü değişince overdue olur.
-- **SLA hafta sonu süresi (#3281):** `SlaBusinessHours` Türkiye takvimi (`Europe/Istanbul`);
+- **SLA hafta sonu süresi (#3281, #3382):** `SlaBusinessHours` Türkiye takvimi (`Europe/Istanbul`);
   Cmt/Paz başlangıç aynı yerel saatte sonraki Pazartesi’ye kayar, sonra yalnız hafta içi saat.
+  Hafta sonu SLA durdurma açıkken Türkiye resmi tatilleri de sayılmaz (ayrı toggle yok).
   UTC `DayOfWeek` / gece yarısı kesimi yok. Mevcut kayıtlar backfill edilmez.
 - **Talep Oluştur Başlangıç / Son Tarih (card #6a6f6301, #6a6f5011 supersede):** Birim Dışı
   formda Başlangıç en erken `şimdi` (geçmiş gün/saat disable). Başlangıç seçiliyse Son Tarih

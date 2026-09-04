@@ -7,8 +7,8 @@ public sealed record NasAttachmentStorageCredentials(
     string Password);
 
 /// <summary>
-/// Talep/görev eklerini tenant NAS (SMB/CIFS) ayarlarına kopyalar.
-/// Yerel <c>uploads/</c> birincil okuma kaynağı kalır; NAS kurumsal arşiv kopyasıdır.
+/// Talep/görev eklerini tenant NAS (SMB/CIFS) ayarlarına kopyalar ve okur.
+/// NAS replikasyonu başarılıysa yerel kopya silinir; okuma önce NAS'tan yapılır (#3383).
 /// </summary>
 public interface INasAttachmentStorage
 {
@@ -18,6 +18,11 @@ public interface INasAttachmentStorage
         Guid tenantId,
         string relativePath,
         string localPhysicalPath,
+        CancellationToken cancellationToken = default);
+
+    Task<byte[]> ReadAsync(
+        Guid tenantId,
+        string relativePath,
         CancellationToken cancellationToken = default);
 
     Task DeleteAsync(

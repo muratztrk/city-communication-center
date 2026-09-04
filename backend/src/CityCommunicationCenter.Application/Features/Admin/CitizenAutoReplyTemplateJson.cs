@@ -12,7 +12,8 @@ public sealed record CitizenAutoReplyGreetings(
     string? ProcessingReceived = null,
     string? InProgress = null,
     string? Completed = null,
-    string? Cancelled = null);
+    string? Cancelled = null,
+    string? SmsProcessingReceived = null);
 
 public sealed record CitizenAutoReplyTemplateModel(
     string ProcessingReceived,
@@ -24,18 +25,42 @@ public sealed record CitizenAutoReplyTemplateModel(
     CitizenAutoReplyGreetings? Greetings = null,
     string? AfterHoursStaffSms = null,
     bool? AfterHoursManagerSmsEnabled = null,
-    bool? AfterHoursStaffSmsEnabled = null)
+    bool? AfterHoursStaffSmsEnabled = null,
+    string? SmsProcessingReceived = null,
+    bool? SmsProcessingReceivedEnabled = null)
 {
     public bool ManagerSmsIsEnabled => AfterHoursManagerSmsEnabled ?? true;
 
     public bool StaffSmsIsEnabled => AfterHoursStaffSmsEnabled ?? false;
 
+    public bool SmsProcessingReceivedIsEnabled => SmsProcessingReceivedEnabled ?? true;
+
+    public string ResolveProcessingReceivedTemplate(Domain.Enums.SocialChannel? channel)
+    {
+        if (channel == Domain.Enums.SocialChannel.Phone)
+        {
+            var smsTemplate = string.IsNullOrWhiteSpace(SmsProcessingReceived) ? null : SmsProcessingReceived;
+            return smsTemplate ?? ProcessingReceived;
+        }
+
+        return ProcessingReceived;
+    }
+
     /// <summary>
     /// Vatandaşa gidecek durum mesajının hitabı: durumun kendi hitabı → tenant genel hitabı →
     /// varsayılan satır. Durum etiketleri <c>CitizenJobStatusLabelHelper.GetDisplayStatus</c> çıktısıyla aynı.
     /// </summary>
-    public string GreetingFor(string statusLabel)
+    public string GreetingFor(string statusLabel, Domain.Enums.SocialChannel? channel = null)
     {
+        if (channel == Domain.Enums.SocialChannel.Phone && statusLabel == "İşleme Alındı")
+        {
+            var smsGreeting = Greetings?.SmsProcessingReceived;
+            if (!string.IsNullOrWhiteSpace(smsGreeting))
+            {
+                return CitizenOutboundGreeting.NormalizeLine(smsGreeting);
+            }
+        }
+
         var perStatus = statusLabel switch
         {
             "İşleme Alındı" => Greetings?.ProcessingReceived,
@@ -84,7 +109,11 @@ public static class CitizenAutoReplyTemplateJson
                 NormalizeGreetings(parsed.Greetings),
                 parsed.AfterHoursStaffSms,
                 parsed.AfterHoursManagerSmsEnabled,
-                parsed.AfterHoursStaffSmsEnabled);
+                parsed.AfterHoursStaffSmsEnabled,
+                string.IsNullOrWhiteSpace(parsed.SmsProcessingReceived)
+                    ? null
+                    : EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(parsed.SmsProcessingReceived)),
+                parsed.SmsProcessingReceivedEnabled);
         }
         catch (JsonException)
         {
@@ -103,7 +132,11 @@ public static class CitizenAutoReplyTemplateJson
             NormalizeGreetings(model.Greetings),
             model.AfterHoursStaffSms,
             model.AfterHoursManagerSmsEnabled,
-            model.AfterHoursStaffSmsEnabled));
+            model.AfterHoursStaffSmsEnabled,
+            string.IsNullOrWhiteSpace(model.SmsProcessingReceived)
+                ? null
+                : EnsureQuotedCitizenStatuses(EnsureTargetDepartmentToken(model.SmsProcessingReceived)),
+            model.SmsProcessingReceivedEnabled));
 
     /// <summary>Boş durum hitabı <c>null</c> saklanır; okuma tarafında genel hitaba düşsün.</summary>
     private static CitizenAutoReplyGreetings? NormalizeGreetings(CitizenAutoReplyGreetings? greetings)
@@ -117,7 +150,8 @@ public static class CitizenAutoReplyTemplateJson
             TrimmedOrNull(greetings.ProcessingReceived),
             TrimmedOrNull(greetings.InProgress),
             TrimmedOrNull(greetings.Completed),
-            TrimmedOrNull(greetings.Cancelled));
+            TrimmedOrNull(greetings.Cancelled),
+            TrimmedOrNull(greetings.SmsProcessingReceived));
         return normalized == new CitizenAutoReplyGreetings() ? null : normalized;
     }
 

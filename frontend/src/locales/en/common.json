@@ -1395,7 +1395,7 @@
     },
     "slaWeekend": {
       "sectionTitle": "Weekend SLA",
-      "sectionDescription": "Pause SLA time on Saturdays and Sundays. Exempt departments still have SLA progress on weekends.",
+      "sectionDescription": "Pause SLA time on Saturdays, Sundays, and Turkish public holidays. Exempt departments still have SLA progress on those days.",
       "excludeWeekends": "Pause SLA on Saturday and Sunday",
       "exemptDepartments": "Exempt Departments",
       "exemptDepartmentsHelp": "Selected departments work on weekends, so their SLA continues to progress.",
@@ -1556,7 +1556,10 @@
       "afterHoursStaffSmsTitle": "After-hours SMS notifications to unit staff",
       "afterHoursStaffSmsLabel": "Notification message",
       "afterHoursStaffSmsPlaceholder": "Enter the notification message...",
-      "afterHoursStaffSmsSaved": "The notification message for unit staff was saved."
+      "afterHoursStaffSmsSaved": "The notification message for unit staff was saved.",
+      "smsProcessingReceivedTitle": "SMS processing received status",
+      "smsProcessingReceivedDescription": "Edits the automatic Processing Received SMS text for requests from the phone (call/SMS) channel only.",
+      "smsProcessingReceivedSaved": "Processing Received SMS template saved."
     },
     "citizen": {
       "sectionTitle": "Create Citizen Request",

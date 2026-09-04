@@ -19,6 +19,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     private readonly ISmsGateway _smsGateway;
     private readonly INotificationPushService? _notificationPushService;
     private readonly ISocialMediaClientFactory _clientFactory;
+    private readonly IAttachmentContentProvider _attachmentContentProvider;
     private readonly string _uploadRootPath;
     private readonly ILogger<CitizenJobStatusNotifier> _logger;
 
@@ -27,6 +28,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         ITenantSmsSettingsService smsSettingsService,
         ISmsGateway smsGateway,
         ISocialMediaClientFactory clientFactory,
+        IAttachmentContentProvider attachmentContentProvider,
         IOptions<AttachmentStorageOptions> attachmentStorageOptions,
         ILogger<CitizenJobStatusNotifier> logger,
         INotificationPushService? notificationPushService = null)
@@ -35,6 +37,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         _smsSettingsService = smsSettingsService;
         _smsGateway = smsGateway;
         _clientFactory = clientFactory;
+        _attachmentContentProvider = attachmentContentProvider;
         _uploadRootPath = attachmentStorageOptions.Value.UploadRootPath;
         _notificationPushService = notificationPushService;
         _logger = logger;
@@ -135,7 +138,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         if (message?.Channel == SocialChannel.Phone
             && job.CitizenTerminalMessageReleasedAtUtc is not null)
         {
-            var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, cancellationToken);
+            var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, message.Channel, cancellationToken);
             var targetDepartmentNames = await _dbContext.JobDepartments
                 .AsNoTracking()
                 .Where(link => link.TenantId == tenantId
@@ -178,7 +181,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         {
             // Şablon yoksa BuildStatusMessage varsayılan metni kullanır; release yine Pending
             // kuyruğa düşmeli (card #2058 reopen — operatör WA ekranına iletilmeli).
-            var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, cancellationToken);
+            var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, message.Channel, cancellationToken);
             var targetDepartmentNames = await _dbContext.JobDepartments
                 .AsNoTracking()
                 .Where(link => link.TenantId == tenantId
@@ -273,7 +276,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             return;
         }
 
-        var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, cancellationToken);
+        var template = await ResolveTemplateAsync(tenantId, job, taskCount, utcNow, message.Channel, cancellationToken);
         if (template is null)
         {
             return;
@@ -386,6 +389,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         Job job,
         int taskCount,
         DateTimeOffset utcNow,
+        SocialChannel channel,
         CancellationToken cancellationToken)
     {
         var raw = await _dbContext.TenantSettings
@@ -395,9 +399,16 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             .FirstOrDefaultAsync(cancellationToken);
         var templates = CitizenAutoReplyTemplateJson.ParseOrDefault(raw);
         var statusLabel = CitizenJobStatusLabelHelper.GetDisplayStatus(job, taskCount, utcNow);
+        if (channel == SocialChannel.Phone
+            && statusLabel == "İşleme Alındı"
+            && !templates.SmsProcessingReceivedIsEnabled)
+        {
+            return null;
+        }
+
         return statusLabel switch
         {
-            "İşleme Alındı" => templates.ProcessingReceived,
+            "İşleme Alındı" => templates.ResolveProcessingReceivedTemplate(channel),
             "Yapılmakta" => templates.InProgress,
             "Tamamlanmış" or "Tamamlandı" => templates.Completed,
             "İptal" or "İptal Edildi" => templates.Cancelled,
@@ -406,14 +417,18 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     }
 
     /// <summary>Hitap durum bazlıdır; durumun kendi satırı boşsa tenant genel hitabına düşer.</summary>
-    private async Task<string> ResolveGreetingAsync(Guid tenantId, string statusLabel, CancellationToken cancellationToken)
+    private async Task<string> ResolveGreetingAsync(
+        Guid tenantId,
+        string statusLabel,
+        SocialChannel channel,
+        CancellationToken cancellationToken)
     {
         var raw = await _dbContext.TenantSettings
             .AsNoTracking()
             .Where(setting => setting.TenantId == tenantId)
             .Select(setting => setting.CitizenAutoReplyTemplatesJson)
             .FirstOrDefaultAsync(cancellationToken);
-        return CitizenAutoReplyTemplateJson.ParseOrDefault(raw).GreetingFor(statusLabel);
+        return CitizenAutoReplyTemplateJson.ParseOrDefault(raw).GreetingFor(statusLabel, channel);
     }
 
     private static bool IsSupportedAutoReplyStatus(string statusLabel) =>
@@ -452,7 +467,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 
         messageContent = CitizenOutboundGreeting.Ensure(
             messageContent,
-            await ResolveGreetingAsync(tenantId, statusLabel, cancellationToken));
+            await ResolveGreetingAsync(tenantId, statusLabel, SocialChannel.WhatsApp, cancellationToken));
 
         if (!requireApproval)
         {
@@ -633,7 +648,6 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                     && a.EntityType == "Task"
                     && completedTaskIds.Contains(a.EntityId))
                 .OrderBy(a => a.CreatedAtUtc)
-                .Select(a => new { a.FileName, a.ContentType, a.RelativeUrl })
                 .ToListAsync(cancellationToken)
             : [];
 
@@ -642,20 +656,37 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
             var attachment = attachmentRows[index];
             var entryId = Guid.NewGuid();
             var localMediaId = ConversationLocalMediaStore.BuildLocalMediaId(tenantId, entryId, attachment.FileName);
-            var sourceFullPath = ResolveAttachmentFullPath(attachment.RelativeUrl);
-            if (sourceFullPath is null || !File.Exists(sourceFullPath))
+            var openResult = await _attachmentContentProvider.OpenReadAsync(attachment, cancellationToken);
+            if (openResult is null)
             {
                 _logger.LogWarning(
-                    "Task attachment file missing for WhatsApp pending enqueue: {Url}",
-                    attachment.RelativeUrl);
+                    "Task attachment file missing for WhatsApp pending enqueue: {AttachmentId}",
+                    attachment.AttachmentId);
                 continue;
             }
 
-            await ConversationLocalMediaStore.SaveFromFileAsync(
-                _uploadRootPath,
-                localMediaId,
-                sourceFullPath,
-                cancellationToken);
+            var tempPath = Path.Combine(Path.GetTempPath(), $"{entryId:N}{Path.GetExtension(attachment.FileName)}");
+            try
+            {
+                await using (openResult.Stream)
+                {
+                    await using var tempStream = File.Create(tempPath);
+                    await openResult.Stream.CopyToAsync(tempStream, cancellationToken);
+                }
+
+                await ConversationLocalMediaStore.SaveFromFileAsync(
+                    _uploadRootPath,
+                    localMediaId,
+                    tempPath,
+                    cancellationToken);
+            }
+            finally
+            {
+                if (File.Exists(tempPath))
+                {
+                    File.Delete(tempPath);
+                }
+            }
 
             _dbContext.ConversationEntries.Add(new SocialConversationEntry
             {
@@ -735,7 +766,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         // ağ geçidi artık hitap eklemiyor, aksi halde çok satırlı hitap tek satıra düşüyordu.
         var outboundContent = CitizenOutboundGreeting.Ensure(
             content,
-            await ResolveGreetingAsync(tenantId, statusLabel, cancellationToken));
+            await ResolveGreetingAsync(tenantId, statusLabel, SocialChannel.Phone, cancellationToken));
 
         // Gerçek gönderim kapalı (simülasyon): sağlayıcıya çıkma, "gönderilecekti"yi logla.
         // Bilinçli olarak hiçbir şey işaretlenmez — mesaj yanıtlanmış sayılmaz, terminal

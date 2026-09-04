@@ -1,4 +1,5 @@
 using System.Text.Json;
+using CityCommunicationCenter.Application.Common;
 using CityCommunicationCenter.Shared.Contracts;
 
 namespace CityCommunicationCenter.Application.Features.Me;
@@ -38,17 +39,21 @@ public sealed class GetDueDateConstraintsQueryHandler : IQueryHandler<GetDueDate
 
         var tz = ResolveTurkeyTimeZone();
         var localNow = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, tz);
-        if (localNow.DayOfWeek is not DayOfWeek.Saturday and not DayOfWeek.Sunday)
+        if (!SlaBusinessHours.IsNonWorkingDay(localNow.DateTime, excludeWeekends: true, excludePublicHolidays: true))
             return new DueDateConstraintsResponse(true, null);
 
-        var mondayStartHm = await ResolveMondayStartAsync(tenantId, cancellationToken);
-        var daysUntilMonday = localNow.DayOfWeek == DayOfWeek.Saturday ? 2 : 1;
-        var mondayDate = localNow.Date.AddDays(daysUntilMonday);
-        var mondayLocal = CombineLocalDateAndTime(mondayDate, mondayStartHm);
-        var mondayStart = new DateTimeOffset(mondayLocal, tz.GetUtcOffset(mondayLocal));
+        var nextWorkingDate = localNow.Date;
+        while (SlaBusinessHours.IsNonWorkingDay(nextWorkingDate, excludeWeekends: true, excludePublicHolidays: true))
+        {
+            nextWorkingDate = nextWorkingDate.AddDays(1);
+        }
+
+        var workingDayStartHm = await ResolveWorkingDayStartAsync(tenantId, cancellationToken);
+        var workingDayLocal = CombineLocalDateAndTime(nextWorkingDate, workingDayStartHm);
+        var workingDayStart = new DateTimeOffset(workingDayLocal, tz.GetUtcOffset(workingDayLocal));
         var slaHours = setting is { DefaultSlaHours: > 0 } ? setting.DefaultSlaHours : 48;
         var dueUtc = await _slaCalculator.CalculateDueDateAsync(
-            mondayStart.ToUniversalTime(), slaHours, tenantId, departmentId: null, cancellationToken);
+            workingDayStart.ToUniversalTime(), slaHours, tenantId, departmentId: null, cancellationToken);
         var dueLocal = TimeZoneInfo.ConvertTime(dueUtc, tz);
         return new DueDateConstraintsResponse(true, $"{dueLocal:yyyy-MM-ddTHH:mm}");
     }
@@ -84,7 +89,7 @@ public sealed class GetDueDateConstraintsQueryHandler : IQueryHandler<GetDueDate
         return new DateTime(date.Year, date.Month, date.Day, hour, minute, 0, DateTimeKind.Unspecified);
     }
 
-    private async Task<string> ResolveMondayStartAsync(Guid tenantId, CancellationToken cancellationToken)
+    private async Task<string> ResolveWorkingDayStartAsync(Guid tenantId, CancellationToken cancellationToken)
     {
         var hours = await _workingHours.GetSettingsAsync(tenantId, cancellationToken);
         var from = hours.Default.Schedule.FirstOrDefault(day => day.Day == 1)?.From;

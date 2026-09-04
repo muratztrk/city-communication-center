@@ -88,7 +88,9 @@ public sealed class AdminController : ApiControllerBase
             request.Greetings,
             request.AfterHoursStaffSms,
             request.AfterHoursManagerSmsEnabled,
-            request.AfterHoursStaffSmsEnabled), cancellationToken);
+            request.AfterHoursStaffSmsEnabled,
+            request.SmsProcessingReceived,
+            request.SmsProcessingReceivedEnabled), cancellationToken);
         return NoContent();
     }
 

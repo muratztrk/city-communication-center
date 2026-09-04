@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Departments;
 using CityCommunicationCenter.Application.Features.Users;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
@@ -40,6 +41,79 @@ internal static class JobWorkflowAuthorization
             d => d.DepartmentId == departmentId && d.TenantId == actor.TenantId,
             cancellationToken);
         return dept?.ManagerUserId == actor.UserId || dept?.DeputyManagerUserId == actor.UserId;
+    }
+
+    public static async Task<bool> IsResponsibleForDepartmentAsync(
+        IApplicationDbContext dbContext,
+        ApplicationUser actor,
+        Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        if (actor.RoleCode != RoleCode.Manager) return false;
+        var dept = await dbContext.Departments.AsNoTracking().FirstOrDefaultAsync(
+            d => d.DepartmentId == departmentId && d.TenantId == actor.TenantId,
+            cancellationToken);
+        if (dept is null) return false;
+        return DepartmentResponseFactory.ParseResponsibleUserIds(dept.ResponsibleUserIdsJson)
+            .Contains(actor.UserId);
+    }
+
+    /// <summary>Müdür, vekil müdür veya birim sorumlusu.</summary>
+    public static async Task<bool> CanManageJobAsDepartmentLeaderAsync(
+        IApplicationDbContext dbContext,
+        ApplicationUser actor,
+        Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        if (IsSystemAdmin(actor)) return true;
+        if (await ManagesDepartmentAsync(dbContext, actor, departmentId, cancellationToken)) return true;
+        return await IsResponsibleForDepartmentAsync(dbContext, actor, departmentId, cancellationToken);
+    }
+
+    public static async Task EnsureCanEditJobAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        ApplicationUser actor,
+        Job job,
+        CancellationToken cancellationToken)
+    {
+        if (IsSystemAdmin(actor)) return;
+        if (job.CreatedByUserId == actor.UserId) return;
+
+        if (await CanManageJobAsDepartmentLeaderAsync(
+                dbContext, actor, job.OwnerDepartmentId, cancellationToken))
+        {
+            return;
+        }
+
+        var targetDepartmentIds = await dbContext.JobDepartments.AsNoTracking()
+            .Where(jd => jd.JobId == job.JobId
+                && jd.TenantId == tenantId
+                && jd.Role == JobDepartmentRole.Target)
+            .Select(jd => jd.DepartmentId)
+            .ToListAsync(cancellationToken);
+
+        foreach (var targetDepartmentId in targetDepartmentIds)
+        {
+            if (await CanManageJobAsDepartmentLeaderAsync(
+                    dbContext, actor, targetDepartmentId, cancellationToken))
+            {
+                return;
+            }
+
+            if (await UserRoleAccess.CanManageCitizenRequestInTargetDepartmentAsync(
+                    dbContext,
+                    tenantId,
+                    actor,
+                    job,
+                    targetDepartmentId,
+                    cancellationToken))
+            {
+                return;
+            }
+        }
+
+        throw new ForbiddenAccessException("Bu isi duzenleme yetkiniz yok.");
     }
 
     public static async Task EnsureManagesDepartmentAsync(

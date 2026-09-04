@@ -67,7 +67,7 @@ import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import { displayMapsLink } from '../utils/coordinates'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { isPresidencyLevelDepartment } from '../utils/departments'
-import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
+import { hasCitizenRequestManagerRole, canCitizenRequestManagerActOnRow } from '../utils/roleAccess'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { getChannelLabelColor } from '../utils/channelColors'
@@ -714,6 +714,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const { user } = useAuth()
   const weekendDueMin = useWeekendSlaDueDateMin()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
+  const isCitizenRequestManager = hasCitizenRequestManagerRole(user)
   const isReporter = user?.role === 'Reporter'
   // "Başkanlık seviyesi üst düzey yönetici": Üst Düzey Yönetici (Reporter) rolü + Başkanlık birimi (card 645/647).
   const isPresidencyReporter = isReporter && user?.departmentName === 'Başkanlık'
@@ -886,12 +887,31 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && !isDepartmentOutgoingView
     && detailContext !== 'incoming'
     && detailContext !== 'social'
-  // Birime Gelen (hedef yönetici) + Birimden Giden (sahip yönetici) Son Tarih Değiştir
+  // Birime Gelen (hedef yönetici/sorumlu/VTY) + Birimden Giden (sahip yönetici/sorumlu) Son Tarih Değiştir
   // (#1673/#1666). Terminal durumlar hariç.
+  const dueDateLeadershipDepartmentId = isIncomingRequestDetail
+    ? (activeIncomingTarget?.departmentId ?? activeDeptId ?? detail?.departments?.find(department => department.role === 'Target')?.departmentId)
+    : isDepartmentOutgoingView
+      ? detail?.ownerDepartmentId
+      : null
+  const isResponsibleForDueDateDept = dueDateLeadershipDepartmentId != null
+    && user?.userId != null
+    && departments.some(department =>
+      department.departmentId === dueDateLeadershipDepartmentId
+      && (department.responsibleUserIds ?? []).includes(user.userId))
+  const canCitizenRequestManagerChangeDueDate = isCitizenRequestManager
+    && isIncomingRequestDetail
+    && detail != null
+    && isCitizenRequestJob(detail)
+    && canCitizenRequestManagerActOnRow(user, {
+      isCitizenRequest: true,
+      displayNumber: formatJobDisplayNumber(detail),
+    })
+    && activeIncomingTarget != null
   const canChangeDetailDueDate = (isIncomingRequestDetail || isDepartmentOutgoingView)
-    && isManagerLike
     && detail != null
     && (detail.status === 'Draft' || detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
+    && (isManagerLike || isResponsibleForDueDateDept || canCitizenRequestManagerChangeDueDate)
   // Yönetici Notu: yönetici, kendi gelen/giden talep bağlamında talep tamamlanmadığı
   // veya iptal edilmediği sürece not ekleyebilir, değiştirebilir ya da silebilir.
   const canEditManagerNote = (isMyRequestsView || isDepartmentOutgoingView || isIncomingRequestDetail)

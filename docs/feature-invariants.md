@@ -1565,9 +1565,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`bg-[#007985]` / `hover:bg-[#006570]`), turuncu değil.
 - **Onayla ve Personel Ata self-istek metni (card #1671):**
   `(Görevi kendisi yapmak istiyor)` — sonda nokta yok.
-- **Talep Son Tarih Değiştir (cards #1673/#1666):** Birime Gelen hedef birim yöneticisi
+- **Talep Son Tarih Değiştir (cards #1673/#1666):** Birime Gelen hedef birim müdürü,
+  sorumlusu (`ResponsibleUserIdsJson`) ve vatandaş talebinde `CitizenRequestManager`
   `UpdateJob` ile Son Tarih kaydedebilir (Owner-only yetki 403 vermez). Birimden Giden sahip
-  yöneticisi detay Süreç'te `Onay Bekleyen` yanında `Değiştir` görür.
+  müdür/sorumlusu detay Süreç'te `Onay Bekleyen` yanında `Değiştir` görür.
 - **Talep son tarihi min + onay bekleyen overdue (card #1819):** Manuel Son Tarih seçimi
   (oluşturma + Değiştir) en erken `şimdi + 2 saat`. Hafta sonu SLA durduruluyorsa Cmt/Paz
   oluştururken/seçerken en erken sonraki Pazartesi mesai + varsayılan SLA saat
@@ -1661,9 +1662,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yönetici Notu limiti (card #1585 / #2809 reopen):** textarea ve komut en fazla 100 karakter;
   başlıkta zorunluluk yıldızı ve `(max 100 karakter)` gösterilmez (#2809). `JobManagerNoteAdded`
   `Talep No: T-…` (yoksa `T-{yıl}-Onay Bekleyen`) içerir; audit `ActorDisplayName` yazılır.
-- **Terminal işlem notları 100 karakterdir:** Görevi Tamamla `Tamamlama Notu`, Görevi İptal Et
-  `İptal Nedeni`, Talebi İptal Et `İptal Nedeni` ve Görev Durum Değişikliği nedeni frontend
-  `maxLength` + açıklama metninde ve backend FluentValidation'da aynı 100 sınırını uygular
+- **Terminal işlem notları:** Görevi Tamamla `Tamamlama Notu` ve Görevi İptal Et
+  `İptal Nedeni` en fazla **500** karakter (frontend `maxLength` + backend FluentValidation).
+  Talebi İptal Et `İptal Nedeni` ve Görev Durum Değişikliği nedeni **100** karakter sınırında kalır
   (cards #1620/#1621/#1622/#1623).
 - **Görev detayında terminal not konumu:** Görevlerim/Birimdeki Görevler/Personelimin Görevleri ile
   Taleplerim/Birime Gelen/Birimden Giden popup'larında terminal görev notu `Görev Bilgileri` içinde

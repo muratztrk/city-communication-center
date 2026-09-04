@@ -79,38 +79,11 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             && (job.Status == JobStatus.PendingExternalApproval
                 || (job.Status == JobStatus.Active && !hasTasks));
 
-        if (actor.RoleCode is not Domain.Enums.RoleCode.SystemAdmin
-            && job.CreatedByUserId != actor.UserId
-            && !canOperatorEditCitizenRequest)
+        if (!canOperatorEditCitizenRequest)
         {
-            var managesOwner = await JobWorkflowAuthorization.ManagesDepartmentAsync(
-                _dbContext, actor, job.OwnerDepartmentId, cancellationToken);
-            if (!managesOwner)
-            {
-                // Birime Gelen hedef birim yöneticisi (özellikle Birim dışı) Son Tarih vb.
-                // güncelleyebilsin — yalnızca Owner kontrolü 403 veriyordu (card #1673).
-                var targetDepartmentIds = await _dbContext.JobDepartments
-                    .Where(jd => jd.JobId == job.JobId
-                        && jd.TenantId == tenantId
-                        && jd.Role == JobDepartmentRole.Target)
-                    .Select(jd => jd.DepartmentId)
-                    .ToListAsync(cancellationToken);
-                var managesTarget = false;
-                foreach (var targetDepartmentId in targetDepartmentIds)
-                {
-                    if (await JobWorkflowAuthorization.ManagesDepartmentAsync(
-                            _dbContext, actor, targetDepartmentId, cancellationToken))
-                    {
-                        managesTarget = true;
-                        break;
-                    }
-                }
-
-                if (!managesTarget)
-                {
-                    throw new ForbiddenAccessException("Bu isi duzenleme yetkiniz yok.");
-                }
-            }
+            // Birime Gelen: hedef birim müdürü/sorumlusu + VTY; Birimden Giden: sahip müdür/sorumlusu (card #1673).
+            await JobWorkflowAuthorization.EnsureCanEditJobAsync(
+                _dbContext, tenantId, actor, job, cancellationToken);
         }
 
         var utcNow = DateTimeOffset.UtcNow;

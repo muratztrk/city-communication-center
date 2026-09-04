@@ -1,4 +1,5 @@
 import { ArrowRight, CheckCheck, FileText, History, Info, ListChecks, MapPin, MessageSquareText, Paperclip, Printer, Route, Search, PenLine, X, XCircle } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { DueDatePill } from '../components/ui/due-date-pill'
 import { GridExtraTimeMarkers } from '../components/ui/extra-time-markers'
 import { DateCell } from '../components/ui/date-cell'
@@ -6,7 +7,6 @@ import { DateTimePicker } from '../components/ui/date-time-picker'
 import { ScopeChipDateRange } from '../components/ui/scope-chip-date-range'
 import { ClearPieFilterLink } from '../components/ui/ClearPieFilterLink'
 import { ScopeChipButton } from '../components/ui/ScopeChipButton'
-import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { createPortal, flushSync } from 'react-dom'
 import { useSortable } from '../hooks/useSortable'
 import { useColumnFilters } from '../hooks/useColumnFilters'
@@ -66,6 +66,7 @@ import {
 } from '../utils/attachmentLimits'
 
 const COMPLETION_ATTACHMENT_MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
+const TASK_TERMINAL_NOTE_MAX_LENGTH = 500
 
 function completionAttachmentIcon(name: string) {
   return ['.jpg', '.jpeg', '.png'].includes(attachmentFileExtension(name)) ? SimpleImageAttachmentIcon : FileText
@@ -3594,11 +3595,11 @@ const pageKicker = isMyTasksView
               {t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-[10px] font-normal text-slate-400">(Max {TASK_TERMINAL_NOTE_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"
                 rows={3}
-                maxLength={100}
+                maxLength={TASK_TERMINAL_NOTE_MAX_LENGTH}
                 value={completionNote}
                 onChange={e => setCompletionNote(e.target.value)}
                 placeholder={t('tasks.actions.completionNotePlaceholder', 'Tamamlama hakkında not ekleyin...')}
@@ -3706,11 +3707,11 @@ const pageKicker = isMyTasksView
                   {t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}
                 </p>
                 <label className="job-field">
-                  <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
+                  <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max {TASK_TERMINAL_NOTE_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
                   <textarea
                     className="field-textarea workflow-note-dialog__textarea"
                     rows={3}
-                    maxLength={100}
+                    maxLength={TASK_TERMINAL_NOTE_MAX_LENGTH}
                     value={cancelReason}
                     onChange={e => setCancelReason(e.target.value)}
                     placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}

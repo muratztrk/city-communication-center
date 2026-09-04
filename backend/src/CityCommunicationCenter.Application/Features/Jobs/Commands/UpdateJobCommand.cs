@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Common;
 using CityCommunicationCenter.Application.Features.Social;
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
@@ -234,6 +235,38 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
                 Notes = job.DueDateUtc?.ToString("O"),
                 Details = job.DueDateUtc?.ToString("O"),
             });
+
+            var activeTasks = await _dbContext.Tasks
+                .Where(task => task.JobId == job.JobId && task.TenantId == tenantId)
+                .Where(task => task.CurrentStatus != WorkflowTaskStatus.Completed
+                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
+                    && task.CurrentStatus != WorkflowTaskStatus.Rejected)
+                .ToListAsync(cancellationToken);
+
+            foreach (var task in activeTasks)
+            {
+                if (!DateChangedAtMinutePrecision(task.DueDateUtc, job.DueDateUtc))
+                {
+                    continue;
+                }
+
+                task.DueDateUtc = job.DueDateUtc;
+                task.UpdatedAtUtc = utcNow;
+                task.UpdatedByUserId = actor.UserId;
+
+                _dbContext.AuditLogs.Add(new AuditLog
+                {
+                    AuditLogId = Guid.NewGuid(),
+                    TenantId = tenantId,
+                    EntityType = nameof(WorkTask),
+                    EntityId = task.TaskId.ToString(),
+                    Action = "TaskDueDateUpdated",
+                    ActorUserId = actor.UserId,
+                    StatusAtEvent = task.CurrentStatus.ToString(),
+                    Notes = job.DueDateUtc?.ToString("O"),
+                    Details = job.DueDateUtc?.ToString("O"),
+                });
+            }
         }
         if (otherFieldsChanged || !dueDateChanged)
         {

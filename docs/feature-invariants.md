@@ -1570,6 +1570,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sorumlusu (`ResponsibleUserIdsJson`) ve vatandaş talebinde `CitizenRequestManager`
   `UpdateJob` ile Son Tarih kaydedebilir (Owner-only yetki 403 vermez). Birimden Giden sahip
   müdür/sorumlusu detay Süreç'te `Onay Bekleyen` yanında `Değiştir` görür.
+- **Talep → görev son tarih senkronu:** `UpdateJob` ile talep `DueDateUtc` değişince terminal
+  olmayan (`Completed`/`Cancelled`/`Rejected` hariç) tüm bağlı görevlerin `DueDateUtc` değeri
+  taleple aynı olur; her güncellenen görev için `TaskDueDateUpdated` audit yazılır.
 - **Talep son tarihi min + onay bekleyen overdue (card #1819):** Manuel Son Tarih seçimi
   (oluşturma + Değiştir) en erken `şimdi + 2 saat`. Hafta sonu SLA durduruluyorsa Cmt/Paz
   oluştururken/seçerken en erken sonraki Pazartesi mesai + varsayılan SLA saat

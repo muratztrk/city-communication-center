@@ -302,7 +302,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hedef-departman değişikliği yalnızca onay-öncesi durumda.
 - **Onayla ve Personel Ata kullanıcı listesi:** atanabilir aktif kullanıcılar `Staff` +
   `Operator` + mevcut yönetici; hepsi seçilen/aktif departmanda çalışıyor olmalı. Operator kendi
-  birim içi/dışı talebini görev olarak alabilmelidir (card #1086).
+  birim içi/dışı talebini görev olarak alabilmelidir (card #1086). **Birime Gelen** personel atama
+  modalında yalnız **tek** kullanıcı seçilir (radio; çoklu checkbox yok — #3385).
 - **Vatandaş talepleri `requestType=ExternalUnit` + `sourceType=SocialMessage` olarak saklanır**
   (her job gibi bir `JobNumber`/T-'leri de vardır) ama görünen numara **VT-**'dir; VT numarası
   linkli `SocialMessage.CitizenRequestNumber`'da tutulur. Gridlerde citizen ise `formatJobDisplayNumber`
@@ -2626,7 +2627,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Job.CitizenName` ve adres alanlarını talep bazlı tutar; aynı numarada WhatsApp mesajı olan
   `CitizenConversation` profiline **yazılmaz** (`CitizenConversationLinkGuard` + Convert/UpdateJob
   profil sync). WA sağ panelde kaydedilen Vatandaş Bilgileri çağrı talebi veya dizin kaydıyla
-  ezilmez. WA convert formu profili güncelleyebilir (kanal WhatsApp).
+  ezilmez. WA convert formu profili güncelleyebilir (kanal WhatsApp). WA **Vatandaş Bilgileri**
+  Kaydet, `profileDraftRef` ile blur/deferred input commit sonrası güncel draft okur; başarıda toast
+  gösterir (#3391).
 - **Taslak Mesajlar liste ikonu (#6a6f1ab6):** şablon listesinde yeşil=aktif / kırmızı=pasif
   yuvarlak nokta (`tpl.isActive`).
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106/#2108):** `toSend` = Detaylar / Notu Düzenle /
@@ -2970,6 +2973,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   sidebar/login ölçüleri etkilenmez.
 - **Vatandaş Çağrı Talebi vatandaş adı (#2331):** `CreateRequestPage` vatandaş adı alanı blur/submit'te
   `normalizeTitleCaseField` (kelime başı büyük harf, TR locale); başlık/açıklama ilk-harf kuralı ayrı kalır.
+  WA **Vatandaş Talebi Oluştur** popup vatandaş adı alanı da aynı blur/submit title case kuralını kullanır (#3392).
 - **Vatandaş Bilgi Listesi detay popup VT/Öncelik (#2287):** talep no biraz küçük, öncelik biraz büyük
   (`citizen-directory-tickets-table` scoped CSS). Talep Kanalı değer + ikon `0.76rem` / `0.80rem`,
   metin `font-weight: 500` — kural **unlayered**. Talep Tarihi `0.76rem` (#3328).

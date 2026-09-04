@@ -617,29 +617,24 @@ export function IncomingRequestsPage() {
         await api.approveJobTarget(jobId, targetDepartmentId)
         invalidateJobs(queryClient, jobId)
       }
-      if (selectedUserIds.length > 0) {
+      const selectedUserId = selectedUserIds[0]
+      if (selectedUserId) {
         const jobDetail = await api.getJobById(jobId)
         const taskIds = jobDetail.tasks.map(t => t.taskId)
         if (taskIds.length === 0) {
-          await Promise.all(
-            selectedUserIds.map(userId =>
-              api.createTask({
-                jobId,
-                title: jobDetail.title,
-                description: jobDetail.description,
-                priority: jobDetail.priority,
-                startDateUtc: jobDetail.startDateUtc,
-                dueDateUtc: null,
-                assignedDepartmentId: getActiveDepartmentId() ?? undefined,
-                assignedUserId: userId,
-              })
-            )
-          )
+          await api.createTask({
+            jobId,
+            title: jobDetail.title,
+            description: jobDetail.description,
+            priority: jobDetail.priority,
+            startDateUtc: jobDetail.startDateUtc,
+            dueDateUtc: null,
+            assignedDepartmentId: getActiveDepartmentId() ?? undefined,
+            assignedUserId: selectedUserId,
+          })
         } else {
           await Promise.all(
-            taskIds.map((taskId, i) =>
-              api.assignTask(taskId, undefined, selectedUserIds[i % selectedUserIds.length])
-            )
+            taskIds.map(taskId => api.assignTask(taskId, undefined, selectedUserId))
           )
         }
         invalidateTasks(queryClient, undefined, jobId)
@@ -1330,16 +1325,14 @@ export function IncomingRequestsPage() {
                 {departmentUsers.map(u => (
                   <label key={u.userId} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
                     <input
-                      type="checkbox"
-                      className="size-4 rounded"
-                      checked={staffAssignModal.selectedUserIds.includes(u.userId)}
-                      onChange={e => {
+                      type="radio"
+                      name="incoming-staff-assign"
+                      className="size-4"
+                      checked={staffAssignModal.selectedUserIds[0] === u.userId}
+                      onChange={() => {
                         setStaffAssignModal(prev => {
                           if (!prev) return prev
-                          const ids = e.target.checked
-                            ? [...prev.selectedUserIds, u.userId]
-                            : prev.selectedUserIds.filter(id => id !== u.userId)
-                          return { ...prev, selectedUserIds: ids }
+                          return { ...prev, selectedUserIds: [u.userId] }
                         })
                       }}
                     />

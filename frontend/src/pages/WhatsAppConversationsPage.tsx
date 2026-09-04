@@ -25,6 +25,7 @@ import { DeferredComposerTextarea } from '../components/ui/DeferredComposerTexta
 import { DeferredComposerInput } from '../components/ui/DeferredComposerInput'
 import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 import { ConfirmDialog, type ConfirmDialogState } from '../components/ui/confirm-dialog'
+import { emitPageToast } from '../components/ui/pageToast'
 import { WhatsAppTemplatePicker } from '../components/WhatsAppTemplatePicker'
 import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { conversationEntryMatchesChatSearch, filterVisibleConversationEntries } from '../utils/socialConversationContent'
@@ -736,6 +737,7 @@ function ConversationDetail({
   const [showChatSearch, setShowChatSearch] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const [profileDraft, setProfileDraft] = useState<ConversationProfileDraft>(() => createProfileDraft(null, citizenPhone, citizenName))
+  const profileDraftRef = useRef(profileDraft)
   const profileDirtyRef = useRef(false)
   const [profileSaving, setProfileSaving] = useState(false)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
@@ -785,11 +787,15 @@ function ConversationDetail({
 
   useEffect(() => {
     profileDirtyRef.current = false
-    setProfileDraft(current => ({
-      ...current,
-      citizenName: citizenName ?? '',
-      citizenPhone: citizenPhone ?? current.citizenPhone,
-    }))
+    setProfileDraft(current => {
+      const next = {
+        ...current,
+        citizenName: citizenName ?? '',
+        citizenPhone: citizenPhone ?? current.citizenPhone,
+      }
+      profileDraftRef.current = next
+      return next
+    })
     // Adres alanları yeni detay gelene kadar durur — boşaltmak formu zıplatır (#3246).
     // citizenName/citizenPhone deps omitted — list refresh must not reset WA profile draft (#2513).
     // eslint-disable-next-line react-hooks/exhaustive-deps -- intentional
@@ -797,7 +803,9 @@ function ConversationDetail({
 
   useEffect(() => {
     if (!detail || profileDirtyRef.current) return
-    setProfileDraft(createProfileDraft(detail))
+    const next = createProfileDraft(detail)
+    profileDraftRef.current = next
+    setProfileDraft(next)
   }, [detail])
 
   const updatePinnedToBottom = useCallback(() => {
@@ -1001,33 +1009,52 @@ function ConversationDetail({
   }
 
   const handleProfileSave = async () => {
-    if (!detail || profileSaving) return
+    if (!detail || profileSaving || detail.citizenConversationId !== conversationId) return
     const active = document.activeElement
     if (active instanceof HTMLElement) active.blur()
-    await new Promise<void>(resolve => window.requestAnimationFrame(() => resolve()))
-    if (profileDraft.neighborhood.trim() && !profileDraft.street.trim()) {
+    // Blur + deferred input commit tamamlansın diye iki kare beklenir (#3391).
+    await new Promise<void>(resolve => {
+      window.requestAnimationFrame(() => window.requestAnimationFrame(() => resolve()))
+    })
+    const draft = profileDraftRef.current
+    if (draft.neighborhood.trim() && !draft.street.trim()) {
       window.alert(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
     }
-    if (profileDraft.neighborhood.trim() && !profileDraft.streetNo.trim()) {
+    if (draft.neighborhood.trim() && !draft.streetNo.trim()) {
       window.alert(t('address.streetNoRequired', 'Mahalle seçildiğinde No zorunludur.'))
       return
+    }
+    const savedDraft: ConversationProfileDraft = {
+      citizenName: normalizeTitleCaseField(draft.citizenName) ?? '',
+      citizenPhone: draft.citizenPhone,
+      label: normalizeTitleCaseField(draft.label) ?? '',
+      neighborhood: normalizeTitleCaseField(draft.neighborhood) ?? '',
+      street: normalizeTitleCaseField(draft.street) ?? '',
+      streetNo: draft.streetNo.trim(),
+      openAddress: normalizeTitleCaseField(draft.openAddress) ?? '',
     }
     const savedForConversationId = conversationId
     setProfileSaving(true)
     try {
-      await api.updateCitizenConversationProfile(detail.citizenConversationId, {
-        ...profileDraft,
-        citizenName: normalizeTitleCaseField(profileDraft.citizenName) ?? '',
-        label: normalizeTitleCaseField(profileDraft.label) ?? '',
-        neighborhood: normalizeTitleCaseField(profileDraft.neighborhood) ?? '',
-        street: normalizeTitleCaseField(profileDraft.street) ?? '',
-        streetNo: profileDraft.streetNo.trim() || null,
-        openAddress: normalizeTitleCaseField(profileDraft.openAddress) ?? '',
+      await api.updateCitizenConversationProfile(conversationId, {
+        citizenName: savedDraft.citizenName || null,
+        citizenPhone: savedDraft.citizenPhone || null,
+        label: savedDraft.label || null,
+        neighborhood: savedDraft.neighborhood || null,
+        street: savedDraft.street || null,
+        streetNo: savedDraft.streetNo || null,
+        openAddress: savedDraft.openAddress || null,
       })
-      profileDirtyRef.current = false
+      profileDraftRef.current = savedDraft
+      setProfileDraft(savedDraft)
+      profileDirtyRef.current = true
       await refreshDetail()
+      profileDirtyRef.current = false
       onProfileSaved()
+      emitPageToast(t('common.saveSuccess', 'Kaydedildi.'), 'success')
+    } catch (err) {
+      emitPageToast(err instanceof Error ? err.message : t('errors.genericSaveFailed', 'Kaydedilemedi.'), 'error')
     } finally {
       if (latestConversationIdRef.current === savedForConversationId) setProfileSaving(false)
     }
@@ -1457,7 +1484,11 @@ function ConversationDetail({
           onDraftChange={patch => {
             handleComposerEngaged()
             profileDirtyRef.current = true
-            setProfileDraft(current => ({ ...current, ...patch }))
+            setProfileDraft(current => {
+              const next = { ...current, ...patch }
+              profileDraftRef.current = next
+              return next
+            })
           }}
           onSave={() => { void handleProfileSave() }}
           canCreateRequest={Boolean(replySocialMessageId)}

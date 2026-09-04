@@ -419,7 +419,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
     setSaving(true)
     setError(null)
-    const trimmedHandle = citizenHandle.trim()
+    const trimmedHandle = normalizeTitleCaseField(citizenHandle.trim()) ?? ''
     const trimmedTitle = title.trim() || trimmedHandle
     try {
       const parsedCoordinates = neighborhood.trim() || street.trim()
@@ -620,6 +620,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     disabled={citizenNameLocked}
                     placeholder={t('settings.citizen.citizenNamePlaceholder', 'Vatandaş ismi')}
                     onChange={setCitizenHandle}
+                    onBlur={event => setCitizenHandle(normalizeTitleCaseField(event.target.value) ?? '')}
                   />
                 </label>
                 <label className="job-field">

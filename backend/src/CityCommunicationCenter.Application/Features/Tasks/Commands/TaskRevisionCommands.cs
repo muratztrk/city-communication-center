@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Features.Jobs;
 using CityCommunicationCenter.Application.Features.Notifications;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -183,6 +184,7 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
             ]);
 
         var utcNow = DateTimeOffset.UtcNow;
+        var previousDueDateUtc = task.DueDateUtc;
         if (request.NewDueDateUtc.HasValue) task.DueDateUtc = request.NewDueDateUtc;
         task.UpdatedAtUtc = utcNow;
         task.UpdatedByUserId = request.ActorUserId;
@@ -204,6 +206,19 @@ public sealed class ApproveTaskRevisionCommandHandler : ICommandHandler<ApproveT
             Notes = request.Comment,
             Details = request.Comment
         });
+
+        if (request.NewDueDateUtc.HasValue
+            && JobTaskDueDateSynchronizer.DateChangedAtMinutePrecision(previousDueDateUtc, task.DueDateUtc))
+        {
+            await JobTaskDueDateSynchronizer.SyncJobAndActiveTasksFromTaskDueDateAsync(
+                _dbContext,
+                tenantId,
+                task,
+                job,
+                request.ActorUserId,
+                utcNow,
+                cancellationToken);
+        }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
 

@@ -1432,6 +1432,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     try {
       if (decision === 'approve') {
         await api.approveTaskRevision(jobExtraTimeReview.taskId, t('tasks.actions.extraTimeApproved', 'Onaylanan ek süre'), jobExtraTimeReview.proposedDueDateUtc)
+        invalidateTasks(queryClient, jobExtraTimeReview.taskId, jobExtraTimeReview.jobId)
       } else {
         await api.rejectTaskRevision(jobExtraTimeReview.taskId, t('tasks.actions.extraTimeRejected', 'Ek süre talebi reddedildi.'))
       }
@@ -1480,6 +1481,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         openAddress: detail.openAddress,
       })
       invalidateJobs(queryClient, detailDueDateEdit.jobId)
+      invalidateTasks(queryClient, undefined, detailDueDateEdit.jobId)
       setDetailDueDateEdit(null)
       await refreshDetail()
     } catch (err) {
@@ -1608,6 +1610,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
         invalidateSocialMessages(queryClient, citizenSourceMessage.socialMessageId)
       }
       invalidateJobs(queryClient, detail.jobId)
+      invalidateTasks(queryClient, undefined, detail.jobId)
       setMyRequestEditing(false)
       setMyRequestEditDraft(null)
       await refreshDetail()

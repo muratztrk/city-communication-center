@@ -1,6 +1,5 @@
 using CityCommunicationCenter.Application.Common;
 using CityCommunicationCenter.Application.Features.Social;
-using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
@@ -205,12 +204,12 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         // fark (ör. FE round-trip) bildirimi tamamen yutuyordu. Son tarih değiştiyse
         // JobDueDateUpdated HER ZAMAN yazılır; jenerik JobUpdated yalnız başka alan da
         // değiştiyse ek olarak yazılır.
-        var dueDateChanged = DateChangedAtMinutePrecision(previousDueDateUtc, job.DueDateUtc);
+        var dueDateChanged = JobTaskDueDateSynchronizer.DateChangedAtMinutePrecision(previousDueDateUtc, job.DueDateUtc);
         var otherFieldsChanged = targetsChanged
             || !string.Equals(previousTitle, job.Title, StringComparison.Ordinal)
             || !string.Equals(previousDescription, job.Description, StringComparison.Ordinal)
             || !string.Equals(previousPriority, job.Priority, StringComparison.Ordinal)
-            || DateChangedAtMinutePrecision(previousStartDateUtc, job.StartDateUtc)
+            || JobTaskDueDateSynchronizer.DateChangedAtMinutePrecision(previousStartDateUtc, job.StartDateUtc)
             || previousLatitude != job.Latitude
             || previousLongitude != job.Longitude
             || previousNeighborhood != job.Neighborhood
@@ -236,37 +235,13 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
                 Details = job.DueDateUtc?.ToString("O"),
             });
 
-            var activeTasks = await _dbContext.Tasks
-                .Where(task => task.JobId == job.JobId && task.TenantId == tenantId)
-                .Where(task => task.CurrentStatus != WorkflowTaskStatus.Completed
-                    && task.CurrentStatus != WorkflowTaskStatus.Cancelled
-                    && task.CurrentStatus != WorkflowTaskStatus.Rejected)
-                .ToListAsync(cancellationToken);
-
-            foreach (var task in activeTasks)
-            {
-                if (!DateChangedAtMinutePrecision(task.DueDateUtc, job.DueDateUtc))
-                {
-                    continue;
-                }
-
-                task.DueDateUtc = job.DueDateUtc;
-                task.UpdatedAtUtc = utcNow;
-                task.UpdatedByUserId = actor.UserId;
-
-                _dbContext.AuditLogs.Add(new AuditLog
-                {
-                    AuditLogId = Guid.NewGuid(),
-                    TenantId = tenantId,
-                    EntityType = nameof(WorkTask),
-                    EntityId = task.TaskId.ToString(),
-                    Action = "TaskDueDateUpdated",
-                    ActorUserId = actor.UserId,
-                    StatusAtEvent = task.CurrentStatus.ToString(),
-                    Notes = job.DueDateUtc?.ToString("O"),
-                    Details = job.DueDateUtc?.ToString("O"),
-                });
-            }
+            await JobTaskDueDateSynchronizer.SyncActiveTasksFromJobDueDateAsync(
+                _dbContext,
+                tenantId,
+                job,
+                actor.UserId,
+                utcNow,
+                cancellationToken);
         }
         if (otherFieldsChanged || !dueDateChanged)
         {
@@ -447,13 +422,5 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
         }
 
         return variants.ToArray();
-    }
-
-    private static bool DateChangedAtMinutePrecision(DateTimeOffset? previous, DateTimeOffset? next)
-    {
-        if (previous is null && next is null) return false;
-        if (previous is null || next is null) return true;
-        return previous.Value.UtcDateTime.Ticks / TimeSpan.TicksPerMinute
-            != next.Value.UtcDateTime.Ticks / TimeSpan.TicksPerMinute;
     }
 }

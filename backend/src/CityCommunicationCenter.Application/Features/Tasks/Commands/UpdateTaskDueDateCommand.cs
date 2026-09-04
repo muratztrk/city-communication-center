@@ -1,3 +1,4 @@
+using CityCommunicationCenter.Application.Features.Jobs;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -45,6 +46,7 @@ public sealed class UpdateTaskDueDateCommandHandler : ICommandHandler<UpdateTask
         }
 
         var utcNow = DateTimeOffset.UtcNow;
+        var previousDueDateUtc = task.DueDateUtc;
         task.DueDateUtc = request.DueDateUtc;
         task.UpdatedAtUtc = utcNow;
         task.UpdatedByUserId = request.ActorUserId;
@@ -61,6 +63,18 @@ public sealed class UpdateTaskDueDateCommandHandler : ICommandHandler<UpdateTask
             Notes = request.DueDateUtc?.ToString("O"),
             Details = request.DueDateUtc?.ToString("O")
         });
+
+        if (JobTaskDueDateSynchronizer.DateChangedAtMinutePrecision(previousDueDateUtc, task.DueDateUtc))
+        {
+            await JobTaskDueDateSynchronizer.SyncJobAndActiveTasksFromTaskDueDateAsync(
+                _dbContext,
+                tenantId,
+                task,
+                job,
+                request.ActorUserId,
+                utcNow,
+                cancellationToken);
+        }
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return true;

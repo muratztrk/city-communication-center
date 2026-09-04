@@ -2694,6 +2694,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **WA Talep Eki turkuaz (#6a75e2f0):** `SocialConversationMediaBubble` add-as-attachment `bg-teal-500`.
 - **SMS alıcı (#6a75eea2):** `WhatsAppRecipientResolver` Job.CitizenPhone fallback.
 - **SMS LiveSend (#6a75eea2):** Round 643 sonrası `IsEnabled` ⇒ gerçek gönderim (`EffectiveLiveSendEnabled`); Operatör release SMS fail → ValidationException.
+- **SMS ortam kilidi (testtim):** `Sms:LiveSendEnabled=false` (`CCC_SMS_LIVE_SEND_ENABLED=false`) iken
+  `SmsGateway` sağlayıcıya çıkmaz; Test SMS dahil simülasyon loglanır. Prod'da varsayılan açık.
 - **SMS hitap (#3213/#3214 ile güncellendi):** hitap **`SmsGateway`'de DEĞİL**, yalnız vatandaş
   durum bildiriminde (`CitizenJobStatusNotifier`) eklenir: hitap satırı + boş satır + asıl metin
   (`CitizenOutboundGreeting.Ensure`, zaten hitaplıysa tekrar eklenmez). Yöneticiye giden mesai dışı

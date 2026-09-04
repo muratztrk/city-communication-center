@@ -53,3 +53,13 @@ git pull origin develop
 ## Veritabanı
 
 Test ve prod **ayrı PostgreSQL volume** kullanır. Testte silme/purge güvenlidir; prod verisi `.36`'dadır.
+
+## SMS (testtim)
+
+Test ortamında gerçek SMS gönderimi **kapalı** olmalıdır. Sunucu `.env` dosyasında:
+
+```bash
+CCC_SMS_LIVE_SEND_ENABLED=false
+```
+
+Bu ayar `Sms:LiveSendEnabled=false` olarak API'ye geçer; sağlayıcıya çıkılmaz, denemeler simülasyon olarak loglanır (Test SMS dahil). Prod `.env`'de bu satır yok veya `true` olmalıdır.

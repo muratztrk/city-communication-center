@@ -39,6 +39,7 @@ services:
       - Recaptcha__SiteKey=${CCC_RECAPTCHA_SITE_KEY:-}
       - Recaptcha__SecretKey=${CCC_RECAPTCHA_SECRET_KEY:-}
       - GoogleMaps__ApiKey=${CCC_GOOGLE_MAPS_API_KEY:-}
+      - Sms__LiveSendEnabled=${CCC_SMS_LIVE_SEND_ENABLED:-true}
       - ForwardedHeaders__KnownProxies__0=${CCC_KNOWN_PROXY_0:-}
       - ForwardedHeaders__KnownProxies__1=${CCC_KNOWN_PROXY_1:-}
       - ForwardedHeaders__KnownNetworks__0=${CCC_KNOWN_NETWORK_0:-172.16.0.0/12}

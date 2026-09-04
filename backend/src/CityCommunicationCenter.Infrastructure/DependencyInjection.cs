@@ -9,7 +9,9 @@ using CityCommunicationCenter.Infrastructure.Services;
 using CityCommunicationCenter.Infrastructure.Sms;
 using CityCommunicationCenter.Infrastructure.SocialMedia;
 using CityCommunicationCenter.Infrastructure.Security;
+using CityCommunicationCenter.Infrastructure.Options;
 using CityCommunicationCenter.Infrastructure.Tenancy;
+using Microsoft.Extensions.Options;
 
 namespace CityCommunicationCenter.Infrastructure;
 
@@ -28,6 +30,7 @@ public static class DependencyInjection
         services.Configure<GoogleMapsOptions>(configuration.GetSection(GoogleMapsOptions.SectionName));
         services.Configure<RecaptchaOptions>(
             configuration.GetSection(RecaptchaOptions.SectionName));
+        services.Configure<SmsOptions>(configuration.GetSection(SmsOptions.SectionName));
 
         services.AddHttpContextAccessor();
         services.AddMemoryCache();

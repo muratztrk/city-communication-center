@@ -1,5 +1,7 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Infrastructure.Options;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace CityCommunicationCenter.Infrastructure.Sms;
 
@@ -24,17 +26,20 @@ internal sealed class SmsGateway : ISmsGateway
     private readonly ITenantSmsSettingsService _settingsService;
     private readonly IReadOnlyDictionary<SmsProvider, ISmsProviderSender> _senders;
     private readonly ISmsOutboundLogWriter _outboundLogWriter;
+    private readonly SmsOptions _smsOptions;
     private readonly ILogger<SmsGateway> _logger;
 
     public SmsGateway(
         ITenantSmsSettingsService settingsService,
         IEnumerable<ISmsProviderSender> senders,
         ISmsOutboundLogWriter outboundLogWriter,
+        IOptions<SmsOptions> smsOptions,
         ILogger<SmsGateway> logger)
     {
         _settingsService = settingsService;
         _senders = senders.ToDictionary(sender => sender.Provider);
         _outboundLogWriter = outboundLogWriter;
+        _smsOptions = smsOptions.Value;
         _logger = logger;
     }
 
@@ -160,6 +165,28 @@ internal sealed class SmsGateway : ISmsGateway
                 sendContext,
                 SmsSendResult.Fail($"Telefon numarası 90XXXXXXXXXX formatına çevrilemedi: '{phoneNumber}'."),
                 cancellationToken);
+        }
+
+        if (!_smsOptions.LiveSendEnabled)
+        {
+            _logger.LogInformation(
+                "SMS SIMULATION (Sms:LiveSendEnabled=false) — tenant {TenantId}, kind {Kind}, phone {Phone}",
+                tenantId,
+                sendContext.Kind,
+                MaskPhone(normalizedPhone));
+
+            var simulated = SmsSendResult.Ok(
+                "SIMULATION",
+                "Simülasyon: gerçek SMS gönderimi ortam ayarı ile kapalı.");
+            await WriteLogAsync(
+                tenantId,
+                normalizedPhone,
+                outboundText,
+                credentials.Provider,
+                sendContext,
+                simulated,
+                cancellationToken);
+            return simulated;
         }
 
         try

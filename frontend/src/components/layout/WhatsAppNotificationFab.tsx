@@ -14,8 +14,6 @@ import { getLocale } from '../../utils/localization'
 import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 import { getWhatsAppFabUnreadCount, isAutomaticOutboundConversation } from '../../utils/whatsappFabNotification'
 import { matchesPhone } from '../../utils/phoneNormalization'
-import { playNewRecordSound } from '../../utils/playNewRecordSound'
-import { shouldPlayNewRecordSound } from '../../utils/shouldPlayNewRecordSound'
 import { syncWaitingWhatsAppReplyCount } from '../../utils/syncWaitingWhatsAppReplyCount'
 import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
 import {
@@ -239,15 +237,8 @@ export function WhatsAppNotificationFab() {
     }
 
     void refreshConversations()
-    // Teslim durumu güncellemesi (operatörün kendi gönderdiği mesajın iletildi/okundu bilgisi)
-    // ve kendi gönderdiğimiz birim içi mesaj bildirim/pulse tetiklemesin (card #1495).
-    if (!payload.isStatusUpdate && !selfSent && !payload.isAutomaticOutbound) {
-      if (location.pathname !== '/whatsapp' && shouldPlayNewRecordSound(true)) {
-        playNewRecordSound()
-      }
-      if (location.pathname !== '/whatsapp') {
-        triggerPulse()
-      }
+    if (!payload.isStatusUpdate && !selfSent && !payload.isAutomaticOutbound && location.pathname !== '/whatsapp') {
+      triggerPulse()
     }
   }, [dismissConversationNotification, isPayloadForActiveConversation, isSelfSentPayload, location.pathname, refreshConversations, triggerPulse, zeroUnreadForConversation])
 
@@ -284,9 +275,6 @@ export function WhatsAppNotificationFab() {
       }
       void refreshConversations()
       if (!payload.isStatusUpdate && !selfSent && !payload.isAutomaticOutbound && (payload.isInternal || payload.unreadCount > 0)) {
-        if (location.pathname !== '/whatsapp' && shouldPlayNewRecordSound(true)) {
-          playNewRecordSound()
-        }
         if (location.pathname !== '/whatsapp') {
           triggerPulse()
         }

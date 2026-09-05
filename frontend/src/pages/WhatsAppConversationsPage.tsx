@@ -38,8 +38,6 @@ import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
-import { playNewRecordSound } from '../utils/playNewRecordSound'
-import { shouldPlayNewRecordSound } from '../utils/shouldPlayNewRecordSound'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
@@ -1561,7 +1559,6 @@ function ConversationDetail({
 
 export function WhatsAppConversationsPage() {
   const { t } = useTranslation()
-  const { user } = useAuth()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [searchParams] = useSearchParams()
@@ -1821,12 +1818,6 @@ export function WhatsAppConversationsPage() {
   useEffect(() => {
     function handleIncomingWhatsAppMessage(event: Event) {
       const payload = (event as CustomEvent<WhatsAppMessagePayload>).detail
-      const selfSent = Boolean(payload.senderUserId) && payload.senderUserId === user?.userId
-      const shouldNotify = !payload.isStatusUpdate && !selfSent && !payload.isAutomaticOutbound
-        && (payload.isInternal || payload.unreadCount > 0)
-      if (shouldNotify && shouldPlayNewRecordSound(true)) {
-        playNewRecordSound()
-      }
 
       if (!selectedId) {
         void silentRefreshConversations()
@@ -1853,7 +1844,7 @@ export function WhatsAppConversationsPage() {
 
     window.addEventListener('ccc:whatsapp-message', handleIncomingWhatsAppMessage)
     return () => window.removeEventListener('ccc:whatsapp-message', handleIncomingWhatsAppMessage)
-  }, [handleReadMarked, selectedConv?.citizenPhone, selectedId, silentRefreshConversations, user?.userId])
+  }, [handleReadMarked, selectedConv?.citizenPhone, selectedId, silentRefreshConversations])
 
   const enrichMessageWithConversation = useCallback((message: SocialMessage, conversationId: string | null): SocialMessage => {
     const conversation = conversations.find(item => item.citizenConversationId === conversationId)

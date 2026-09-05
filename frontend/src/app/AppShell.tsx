@@ -43,6 +43,7 @@ import { sortUserDepartments } from '../utils/departmentAccess'
 import { useDataTableOverflowTooltips } from '../hooks/useDataTableOverflowTooltips'
 import { useIncomingPendingApprovalCount } from '../hooks/useIncomingPendingApprovalCount'
 import { useNavBadgeCountSound } from '../hooks/useNavBadgeCountSound'
+import { useWhatsAppInboundMessageSound } from '../hooks/useWhatsAppInboundMessageSound'
 import { isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 
 declare const __APP_VERSION__: string
@@ -411,7 +412,7 @@ export function AppShell() {
   const incomingPendingApprovalNavCount = incomingPendingApprovalCountQuery.data ?? 0
 
   const myTasksNavBadgeCount = navDashboardCounts?.myPendingTaskNavBadgeCount ?? navDashboardCounts?.myPendingTaskCount
-  useNavBadgeCountSound(waitingWhatsAppReplyCount, waitingWhatsAppReplyQuery.isSuccess, '/whatsapp', { playOnTargetPage: false })
+  useWhatsAppInboundMessageSound()
   useNavBadgeCountSound(myTasksNavBadgeCount, navCountsQuery.isSuccess, '/my-tasks')
   useNavBadgeCountSound(incomingPendingApprovalNavCount, incomingPendingApprovalCountQuery.isSuccess, '/incoming-requests')
   useNavBadgeCountSound(navDashboardCounts?.outgoingPendingCount ?? 0, navCountsQuery.isSuccess, '/outgoing-requests')

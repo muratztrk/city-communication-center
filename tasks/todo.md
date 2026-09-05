@@ -1,3 +1,8 @@
+## Round 1135 — Trello Doing 1 kart (#3390 reopen)
+
+- **#3390 reopen:** WA ses merkezi `useWhatsAppInboundMessageSound` — her inbound mesajda `(citizenConversationId, lastMessageAt)` dedupe; zaten yanıt bekleyen konuşmada da ses; Fab/sayfa çift ses yok.
+- Push: `c1611ef1` (develop). Testtim deploy. Done.
+
 ## Round 1134 — Trello Doing 3 kart (#3390/#3395/#3415)
 
 - **#3390 reopen:** WA SignalR anında ses (poll hook kaldırıldı).

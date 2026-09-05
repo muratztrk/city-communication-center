@@ -1,3 +1,8 @@
+## Round 1138 — Trello Doing 1 kart (#3417 reopen)
+
+- **#3417 reopen:** WA banner tarih tıklamasında scroll çubuğu flicker — desktop-page-fill + main overflow hidden (WA); scrollbar-gutter stable.
+- Push: `c8ca7f41` (develop). Testtim deploy. Done.
+
 ## Round 1137 — Trello Doing 1 kart (#3417)
 
 - **#3417:** WA banner tarih chip tıklamasında kayma — focus scroll-into-view engellendi (`preventFocusScroll`); `mt-auto` → `self-center`.

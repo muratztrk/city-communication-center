@@ -1400,7 +1400,7 @@ export function UsersPage() {
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>
                   {t('users.password')}{' '}
-                  <span className="text-xs font-normal text-slate-400">{t('users.passwordHint', '(Parola minimum 8 karakter, büyük harf, küçük harf, karakter, rakam içermelidir.)')}</span>
+                  <span className="text-xs font-normal text-slate-400">{t('users.passwordHint')}</span>
                 </span>
                 <div className="relative">
                   <input

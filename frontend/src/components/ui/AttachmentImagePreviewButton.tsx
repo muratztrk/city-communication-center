@@ -5,6 +5,9 @@ import { api } from '../../api/client'
 import { attachmentFileExtension } from '../../utils/attachmentAccept'
 import { SocialConversationMediaPreview } from '../SocialConversationMediaPreview'
 import { Button } from './button'
+import { ConfirmDialog, type ConfirmDialogState } from './confirm-dialog'
+import type { AttachmentOwnerKind } from '../../utils/attachmentMissing'
+import { resolveAttachmentMissingMessage } from '../../utils/attachmentMissing'
 
 function isImageFileName(name: string): boolean {
   return ['.jpg', '.jpeg', '.png'].includes(attachmentFileExtension(name))
@@ -22,14 +25,17 @@ export function AttachmentImagePreviewButton({
   attachmentId,
   fileName,
   className,
+  ownerKind = 'job',
 }: {
   attachmentId: string
   fileName: string
   className?: string
+  ownerKind?: AttachmentOwnerKind
 }) {
   const { t } = useTranslation()
   const [preview, setPreview] = useState<{ url: string; mime: string; fileName: string } | null>(null)
   const [loading, setLoading] = useState(false)
+  const [missingDialog, setMissingDialog] = useState<ConfirmDialogState | null>(null)
 
   useEffect(() => () => {
     if (preview?.url) URL.revokeObjectURL(preview.url)
@@ -49,6 +55,14 @@ export function AttachmentImagePreviewButton({
           mime: blob.type?.startsWith('image/') ? blob.type : mimeFromFileName(fileName),
           fileName,
         }
+      })
+    } catch (error) {
+      setMissingDialog({
+        title: t('attachments.missingTitle', 'Ek bulunamadı'),
+        message: resolveAttachmentMissingMessage(error, ownerKind),
+        confirmLabel: t('common.ok', 'Tamam'),
+        hideCancel: true,
+        onConfirm: () => {},
       })
     } finally {
       setLoading(false)
@@ -90,6 +104,7 @@ export function AttachmentImagePreviewButton({
           }}
         />
       ) : null}
+      <ConfirmDialog state={missingDialog} onClose={() => setMissingDialog(null)} />
     </>
   )
 }

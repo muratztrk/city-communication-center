@@ -15,7 +15,9 @@ import {
   sumAttachmentBytes,
   sumFileSizes,
 } from '../../utils/attachmentLimits'
-import { ConfirmDialog } from './confirm-dialog'
+import { ConfirmDialog, type ConfirmDialogState } from './confirm-dialog'
+import type { AttachmentOwnerKind } from '../../utils/attachmentMissing'
+import { resolveAttachmentMissingMessage } from '../../utils/attachmentMissing'
 import { SimpleImageAttachmentIcon } from './SimpleImageAttachmentIcon'
 import { AttachmentImagePreviewButton } from './AttachmentImagePreviewButton'
 
@@ -44,13 +46,16 @@ interface AttachmentSectionProps {
   displayMode?: 'gallery' | 'list' | 'rich-list'
   /** Upload açık olsa bile silme aksiyonunu yalnızca gerçek düzenleme modunda göstermek için. */
   showDeleteActions?: boolean
+  /** Talep (job) veya görev (task) eki — NAS'ta dosya yoksa popup metni (#3398). */
+  ownerKind?: AttachmentOwnerKind
 }
 
-export function AttachmentSection({ attachments, onUpload, onDelete, onDownload, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery', showDeleteActions }: AttachmentSectionProps) {
+export function AttachmentSection({ attachments, onUpload, onDelete, onDownload, disabled, readOnly = false, emptyText, compact = false, displayMode = 'gallery', showDeleteActions, ownerKind = 'job' }: AttachmentSectionProps) {
   const { t } = useTranslation()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploading, setUploading] = useState(false)
   const [validationError, setValidationError] = useState<string | null>(null)
+  const [missingDialog, setMissingDialog] = useState<ConfirmDialogState | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [downloadingId, setDownloadingId] = useState<string | null>(null)
   const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
@@ -114,6 +119,16 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
     }
   }
 
+  const showMissingAttachmentDialog = (error: unknown) => {
+    setMissingDialog({
+      title: t('attachments.missingTitle', 'Ek bulunamadı'),
+      message: resolveAttachmentMissingMessage(error, ownerKind),
+      confirmLabel: t('common.ok', 'Tamam'),
+      hideCancel: true,
+      onConfirm: () => {},
+    })
+  }
+
   const handleDownload = async (attachment: Attachment) => {
     if (onDownload) {
       onDownload(attachment.attachmentId, attachment.fileName)
@@ -132,7 +147,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
       link.remove()
       window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1_000)
     } catch (err) {
-      setValidationError(err instanceof Error ? err.message : t('attachments.downloadFailed', 'Ek indirilemedi.'))
+      showMissingAttachmentDialog(err)
     } finally {
       setDownloadingId(null)
     }
@@ -212,7 +227,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                   {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : lowercaseFileExtension(att.fileName)}
                 </span>
               </button>
-              <AttachmentImagePreviewButton attachmentId={att.attachmentId} fileName={att.fileName} />
+              <AttachmentImagePreviewButton attachmentId={att.attachmentId} fileName={att.fileName} ownerKind={ownerKind} />
               {canShowDeleteActions && (
                 <button
                   type="button"
@@ -247,7 +262,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
               >
                 {downloadingId === att.attachmentId ? t('attachments.downloading', 'Yükleniyor...') : att.fileName}
               </button>
-              <AttachmentImagePreviewButton attachmentId={att.attachmentId} fileName={att.fileName} />
+              <AttachmentImagePreviewButton attachmentId={att.attachmentId} fileName={att.fileName} ownerKind={ownerKind} />
               {canShowDeleteActions && (
                 <button
                   type="button"
@@ -297,6 +312,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
                 <AttachmentImagePreviewButton
                   attachmentId={att.attachmentId}
                   fileName={att.fileName}
+                  ownerKind={ownerKind}
                   className="h-7 w-full px-2 text-[11px]"
                 />
               </div>
@@ -334,6 +350,10 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
           ))}
         </div>
       )}
+      <ConfirmDialog
+        state={missingDialog}
+        onClose={() => setMissingDialog(null)}
+      />
       <ConfirmDialog
         state={pendingDeleteId ? {
           title: t('attachments.deleteConfirmTitle', 'Ekler / Fotoğraflar Sil'),

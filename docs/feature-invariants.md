@@ -1590,6 +1590,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep → görev son tarih senkronu:** `UpdateJob` ile talep `DueDateUtc` değişince terminal
   olmayan (`Completed`/`Cancelled`/`Rejected` hariç) tüm bağlı görevlerin `DueDateUtc` değeri
   taleple aynı olur; her güncellenen görev için `TaskDueDateUpdated` audit yazılır.
+- **NAS'ta silinmiş ek (#3398):** İndirme/Ön İzle 404 dönerse talep/görev ayrımına göre popup:
+  "Talep eki sistemde bulunamadı…" / "Görev eki sistemde bulunamadı…".
 - **Görev oluşturma/atama son tarih mirası (card #3384):** Bağlı talebin `DueDateUtc`
   değeri varsa yeni görev veya atama SLA hesaplaması yapmadan talep son tarihini alır;
   talep son tarihi yoksa SLA hesaplanır ve talebe de yazılır.
@@ -2364,7 +2366,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `frontend/src/lib/licenseModules.ts` + backend `LicenseModuleStatusService`; sayfa/menü gizleme
   `PAGE_LICENSE_MODULE` haritası üzerinden `canAnyRoleAccessPage`'e entegre (bkz. rolePageAccess.ts).
   **Kurum İçi kapalıyken (#2369/#2376/#2377/#2378):** `outgoingRequests` menü/arama/dashboard'dan gizlenir
-  (`PAGE_LICENSE_MODULE` → `internal`); `createRequest` yalnız Operator + citizen lisans açıkken;
+  (`PAGE_LICENSE_MODULE` → `internal`); `createRequest` varsayılan olarak Operator + citizen lisans
+  açıkken; Sayfa Yetkileri matrisinde açık olan roller (ör. SystemAdmin) citizen lisans varken
+  menüye alınır (#3397);
   Anasayfa `Bekleyen Taleplerim` kutucuğu ve `myRequests` pie gizlenir.
   Operator Talep Oluştur seçim ekranında yalnız Vatandaş Çağrı Talebi (`?kind=citizen` otomatik); Birim İçi/Dışı
   kartları gizlenir. Reporter menüden `Anasayfa - Birimler` kaldırılır; `/dashboard/birimler` doğrudan erişim

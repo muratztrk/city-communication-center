@@ -3199,6 +3199,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             {t('attachments.requestSectionTitle', 'Talep Ekleri')}
                           </MyRequestSectionHeading>
                           <AttachmentSection
+                            ownerKind="job"
                             attachments={detail.attachments ?? []}
                             readOnly={!canEditJobAttachments}
                             displayMode="rich-list"
@@ -3340,6 +3341,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       {t('attachments.requestSectionTitle', 'Talep Ekleri')}
                     </MyRequestSectionHeading>
                     <AttachmentSection
+                      ownerKind="job"
                       attachments={detail.attachments ?? []}
                       readOnly
                       displayMode="rich-list"
@@ -3368,6 +3370,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('attachments.requestSectionTitle', 'Talep Ekleri')}
                   </h3>
                   <AttachmentSection
+                    ownerKind="job"
                     attachments={detail.attachments ?? []}
                     readOnly={readOnlyRequestAttachments}
                     displayMode="rich-list"

@@ -1352,7 +1352,51 @@ export function UsersPage() {
           </div>
 
           {createMode === 'manual' ? (
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-4 lg:items-start">
+              <div className="grid gap-2 text-sm font-semibold text-slate-700">
+                <span>{t('users.department')}</span>
+                <SingleSelectDropdown
+                  options={uniqueDepartmentsByName(departments, [newUser.departmentId])
+                    .map(department => ({
+                      value: department.departmentId,
+                      label: department.name,
+                    }))
+                    .sort((a, b) => localeCompareTr(a.label, b.label))}
+                  value={newUser.departmentId}
+                  onChange={departmentId => setNewUser(current => ({
+                    ...current,
+                    departmentId,
+                    additionalDepartmentIds: current.additionalDepartmentIds.filter(id => id !== departmentId),
+                  }))}
+                  placeholder={t('tasks.selectDepartment')}
+                  emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
+                  searchable
+                  searchPlaceholder={t('common.search', 'Ara...')}
+                  menuClassName="users-roles-compact-menu users-dept-compact-menu"
+                />
+              </div>
+
+              <div className="users-role-field grid gap-2 font-semibold text-slate-700">
+                <span className="text-sm">{t('users.role')}</span>
+                <SingleSelectDropdown
+                  className="users-role-dropdown"
+                  triggerClassName="text-xs"
+                  menuClassName="users-roles-compact-menu"
+                  menuWidth={220}
+                  options={primaryRoleFormOptions(t)}
+                  value={newUser.roleCode}
+                  onChange={roleCode => setNewUser(current => ({
+                    ...current,
+                    roleCode,
+                    additionalRoleCodes: current.additionalRoleCodes.filter(role =>
+                      getAllowedAdditionalRoleCodes(roleCode).includes(role as typeof ADDITIONAL_ROLE_CODES[number])),
+                  }))}
+                  placeholder={t('users.role')}
+                  searchable
+                  searchPlaceholder={t('common.search', 'Ara...')}
+                />
+              </div>
+
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>
                   {t('users.password')}{' '}
@@ -1378,6 +1422,7 @@ export function UsersPage() {
                   </button>
                 </div>
               </label>
+
               <label className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.passwordConfirm')}</span>
                 <div className="relative">
@@ -1409,9 +1454,11 @@ export function UsersPage() {
           ) : null}
 
           {/* Birim / Ek birimler / Rol / Ek roller / Aktif / Oluştur TEK satırda.
-              Rol dar; Rol+Ek roller menü metni küçük; Oluştur geniş ama alçak (card #1739 5. reopen).
-              LDAP Dizin Hesabı alanı kaldırıldı (card #1755). Oluştur altında İptal Et → resetForm (card #1756). */}
-          <div className="grid gap-4 lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,0.55fr)_minmax(0,0.5fr)_auto_minmax(13rem,auto)] lg:items-start">
+              Yerel modda Birim+Rol üst satırda Parola ile hizalı (#3395). */}
+          <div className={`grid gap-4 lg:items-start ${createMode === 'manual'
+            ? 'lg:grid-cols-[minmax(0,1fr)_minmax(0,0.55fr)_auto_minmax(13rem,auto)]'
+            : 'lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)_minmax(0,0.55fr)_minmax(0,0.5fr)_auto_minmax(13rem,auto)]'}`}>
+              {createMode !== 'manual' ? (
               <div className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.department')}</span>
                 <SingleSelectDropdown
@@ -1434,6 +1481,7 @@ export function UsersPage() {
                   menuClassName="users-roles-compact-menu users-dept-compact-menu"
                 />
               </div>
+              ) : null}
 
               <div className="users-additional-departments-field grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.additionalDepartments', 'Ek görev yaptığı birimler')}</span>
@@ -1453,6 +1501,7 @@ export function UsersPage() {
                 <span className="helper-copy">{t('users.additionalDepartmentsHelp', 'Kullanıcı ek olarak birden fazla birimde çalışabilir.')}</span>
               </div>
 
+              {createMode !== 'manual' ? (
               <div className="users-role-field grid gap-2 font-semibold text-slate-700">
                 <span className="text-sm">{t('users.role')}</span>
                 <SingleSelectDropdown
@@ -1473,6 +1522,7 @@ export function UsersPage() {
                   searchPlaceholder={t('common.search', 'Ara...')}
                 />
               </div>
+              ) : null}
 
               <div className="users-additional-roles-field grid gap-2 font-semibold text-slate-700">
                 <span>{t('users.additionalRoles', 'Ek roller')}</span>

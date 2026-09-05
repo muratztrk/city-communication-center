@@ -180,6 +180,7 @@ export function MyRequestDetailBottomCards({
             {t('attachments.requestSectionTitle', 'Talep Ekleri')}
           </MyRequestSectionHeading>
           <AttachmentSection
+            ownerKind="job"
             attachments={detail.attachments ?? []}
             readOnly={!isEditing || !canEditJobAttachments}
             displayMode="rich-list"

@@ -282,6 +282,7 @@ export function MyRequestDetailModal({
                 {t('attachments.requestSectionTitle', 'Talep Ekleri')}
               </MyRequestSectionHeading>
               <AttachmentSection
+                ownerKind="job"
                 attachments={detail.attachments ?? []}
                 readOnly={!isEditing || !(canEditJobAttachments || isEditing)}
                 displayMode="rich-list"

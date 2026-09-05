@@ -2443,6 +2443,7 @@ const pageKicker = isMyTasksView
                                           <AttachmentImagePreviewButton
                                             attachmentId={attachment.attachmentId}
                                             fileName={attachment.fileName}
+                                            ownerKind="task"
                                             className="h-6 shrink-0 px-1.5 text-[10px]"
                                           />
                                           </div>
@@ -2851,6 +2852,7 @@ const pageKicker = isMyTasksView
                             {t('attachments.taskSectionTitle', 'Görev Ekleri')}
                           </MyRequestSectionHeading>
                           <AttachmentSection
+                            ownerKind="task"
                             attachments={taskDetail.attachments ?? []}
                             readOnly={!isEditingThisRoutineTask}
                             compact
@@ -3023,6 +3025,7 @@ const pageKicker = isMyTasksView
                                       <AttachmentImagePreviewButton
                                         attachmentId={attachment.attachmentId}
                                         fileName={attachment.fileName}
+                                        ownerKind="job"
                                         className="h-6 shrink-0 px-1.5 text-[10px]"
                                       />
                                       </div>
@@ -3170,6 +3173,7 @@ const pageKicker = isMyTasksView
                         <div className="routine-edit-history-attachment-compare rounded-lg border border-slate-200 bg-white p-3">
                           <div className="mb-2 text-xs font-semibold text-slate-500">{t('tasks.detail.routineEditBefore', 'Önceki')}</div>
                           <AttachmentSection
+                            ownerKind="task"
                             attachments={snapshotAttachmentsToAttachmentList(entry.snapshot.attachments)}
                             readOnly
                             compact
@@ -3180,6 +3184,7 @@ const pageKicker = isMyTasksView
                         <div className="routine-edit-history-attachment-compare rounded-lg border border-emerald-200 bg-emerald-50/40 p-3">
                           <div className="mb-2 text-xs font-semibold text-emerald-700">{t('tasks.detail.routineEditAfter', 'Sonraki')}</div>
                           <AttachmentSection
+                            ownerKind="task"
                             attachments={snapshotAttachmentsToAttachmentList(afterSnapshot.attachments)}
                             readOnly
                             compact

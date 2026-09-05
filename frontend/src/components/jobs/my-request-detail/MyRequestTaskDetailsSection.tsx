@@ -359,6 +359,7 @@ export function MyRequestTaskDetailsSection({
                                   <AttachmentImagePreviewButton
                                     attachmentId={attachment.attachmentId}
                                     fileName={attachment.fileName}
+                                    ownerKind="task"
                                     className="h-6 shrink-0 px-1.5 text-[10px]"
                                   />
                                   </div>

@@ -143,7 +143,18 @@ public sealed class AttachmentsController : ApiControllerBase
         }
 
         var openResult = await _attachmentContentProvider.OpenReadAsync(attachment, cancellationToken);
-        if (openResult is null) return NotFound();
+        if (openResult is null)
+        {
+            var detail = attachment.EntityType == "Task"
+                ? "Görev eki sistemde bulunamadı. Sistem yöneticiniz ile iletişime geçiniz."
+                : "Talep eki sistemde bulunamadı. Sistem yöneticiniz ile iletişime geçiniz.";
+            return NotFound(new ProblemDetails
+            {
+                Title = "Ek bulunamadı",
+                Detail = detail,
+                Status = StatusCodes.Status404NotFound,
+            });
+        }
 
         return File(openResult.Stream, attachment.ContentType, attachment.FileName, enableRangeProcessing: true);
     }

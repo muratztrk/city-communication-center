@@ -13,6 +13,7 @@ import { DeferredComposerInput } from './ui/DeferredComposerInput'
 import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
 import { ConfirmDialog, type ConfirmDialogState } from './ui/confirm-dialog'
 import { emitPageToast } from './ui/pageToast'
+import { suppressNewRecordSound } from '../utils/newRecordSoundSuppress'
 import { ModalCloseButton } from './ui/modal-close-button'
 import { RichTextEditor } from './ui/RichTextEditor'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
@@ -419,6 +420,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
     setSaving(true)
     setError(null)
+    if (!isEditMode) {
+      suppressNewRecordSound()
+    }
     const trimmedHandle = normalizeTitleCaseField(citizenHandle.trim()) ?? ''
     const trimmedTitle = title.trim() || trimmedHandle
     try {

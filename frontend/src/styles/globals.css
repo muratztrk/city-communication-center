@@ -6419,8 +6419,8 @@
     }
 
     .app-content-shell .admin-surface-page .form-card.page-stack {
-      max-height: min(48dvh, 34rem);
-      overflow-y: auto;
+      max-height: none;
+      overflow-y: visible;
     }
 
     .desktop-panel-scroll {

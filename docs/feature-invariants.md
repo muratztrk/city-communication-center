@@ -538,11 +538,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `outgoingPendingCount` (dashboard snapshot; Sms Onayı stili — card #2516 / #2820 / #2823).
   **Sayfa bildirim sesi (#3390 reopen):** Yeni kayıt gelince ~2 sn melodisi
   (`playNewRecordSound`) oturum açıkken anında çalar (ilgili sayfadayken de); sayfa
-  açılışında/veri ilk yüklendiğinde çalmaz. WA talep oluşturma sonrası `suppressNewRecordSound`
+  açılışında/veri ilk yüklendiğinde çalmaz.   WA talep oluşturma sonrası `suppressNewRecordSound`
   ile liste yenilemesinde ses susturulur. Sayfalar: `/whatsapp` (SignalR + Fab),
   `/incoming-requests`, `/my-tasks`, `/outgoing-requests`, `/citizen-message-approval`,
   `/sms-delivery-approval`. Sol menü rozeti artışı `useNavBadgeCountSound` ile (WhatsApp
-  `waitingReplyCount` Fab/liste ile `syncWaitingWhatsAppReplyCount` senkron).
+  `waitingReplyCount` Fab/liste ile `syncWaitingWhatsAppReplyCount` senkron); ilgili sayfaya
+  nav ile girildiğinde mevcut rozet baz alınır, ses çalmaz (#3390 reopen). Talep oluşturma
+  submit başında da susturulur (#3414).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonu yalnız `[konum mesajı]` işaretçisi + koordinat varken MapPin + Haritada Göster (#2838 reopen);

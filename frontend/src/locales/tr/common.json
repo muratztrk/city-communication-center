@@ -696,7 +696,7 @@
     "role": "Rol",
     "password": "Parola",
     "passwordPlaceholder": "En az 8 karakter",
-    "passwordHint": "(minimum 8 karakter: büyük/küçük harf, rakam ve özel karakter içermelidir.)",
+    "passwordHint": "(min 8 karakter: büyük/küçük harf, rakam ve özel karakter içermelidir.)",
     "passwordConfirm": "Parola Onayla",
     "passwordConfirmPlaceholder": "Parolayı tekrar girin",
     "passwordMismatch": "Parolalar uyuşmamaktadır",

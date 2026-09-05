@@ -1386,6 +1386,7 @@ export function UsersPage() {
                   searchable
                   searchPlaceholder={t('common.search', 'Ara...')}
                   menuClassName="users-roles-compact-menu users-dept-compact-menu"
+                  menuWidth={200}
                 />
               </div>
 
@@ -1395,7 +1396,7 @@ export function UsersPage() {
                   className="users-role-dropdown"
                   triggerClassName="text-xs"
                   menuClassName="users-roles-compact-menu"
-                  menuWidth={220}
+                  menuWidth={200}
                   options={primaryRoleFormOptions(t)}
                   value={newUser.roleCode}
                   onChange={roleCode => setNewUser(current => ({

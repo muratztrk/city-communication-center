@@ -1,3 +1,8 @@
+## Round 1136 — Trello Doing 1 kart (#3416)
+
+- **#3416:** Lumespec Destek popup Mesaj placeholder → "Destek talebinizi kısaca açıklayınız..."
+- Push: `2b1bd6d6` (develop). Testtim deploy. Done.
+
 ## Round 1135 — Trello Doing 1 kart (#3390 reopen)
 
 - **#3390 reopen:** WA ses merkezi `useWhatsAppInboundMessageSound` — her inbound mesajda `(citizenConversationId, lastMessageAt)` dedupe; zaten yanıt bekleyen konuşmada da ses; Fab/sayfa çift ses yok.

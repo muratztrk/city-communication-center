@@ -1416,6 +1416,13 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     setDueDateEdit(null)
   }
 
+  /** Görev son tarihi talep son tarihini de günceller (#3384); açık İlgili Talep Detayları yenilenmeli. */
+  const refreshParentJobDetailForJob = async (jobId: string) => {
+    const refreshedJob = await api.getJobById(jobId).catch(() => null)
+    if (!refreshedJob) return
+    setParentJobDetail(current => (current?.jobId === jobId ? refreshedJob : current))
+  }
+
   const handleDueDateSave = async () => {
     if (!dueDateEdit || !taskDetail) return
     setDueDateEdit(current => current ? { ...current, saving: true } : null)
@@ -1430,6 +1437,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
           ? { ...task, dueDateUtc: updatedDetail.dueDateUtc, updatedAtUtc: new Date().toISOString() }
           : task
       ))
+      await refreshParentJobDetailForJob(taskDetail.jobId)
       setDueDateEdit(null)
       showToast(t('tasks.actions.dueDateUpdated', 'Son tarih güncellendi.'))
     } catch (err) {
@@ -1516,6 +1524,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
           }
         : task
     ))
+    await refreshParentJobDetailForJob(jobId)
   }
 
   const handleExtraTimeApprove = async () => {
@@ -1636,10 +1645,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       }
       // Adres Bilgileri Job üzerinde tutuluyor; kaydettikten sonra salt-okunur görünüm
       // (parentJobDetail) yenilenmezse eski adres gösterilmeye devam ederdi (review bulgusu).
-      if (parentJobDetail?.jobId === updated.jobId) {
-        const refreshedJob = await api.getJobById(updated.jobId).catch(() => null)
-        if (refreshedJob) setParentJobDetail(refreshedJob)
-      }
+      await refreshParentJobDetailForJob(updated.jobId)
       setEditRoutineTaskModal(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))
@@ -1677,8 +1683,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
         dueDateUtc: editJobModal.dueDateUtc ? new Date(editJobModal.dueDateUtc).toISOString() : null,
       })
       invalidateTasks(queryClient, selectedTask?.taskId, editJobModal.jobId)
-      const refreshedJob = await api.getJobById(editJobModal.jobId).catch(() => null)
-      if (refreshedJob) setParentJobDetail(refreshedJob)
+      await refreshParentJobDetailForJob(editJobModal.jobId)
       setEditJobModal(null)
     } catch (err) {
       setError(err instanceof Error ? err.message : t('common.error'))

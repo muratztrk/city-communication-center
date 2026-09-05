@@ -1,3 +1,8 @@
+## Round 1132 — Trello Doing 1 kart (#3411)
+
+- **#3411:** Mesai dışı SMS kutuları başlık `text-lg` (text-xl'den küçültüldü).
+- Push: `1e1538db` (develop). Testtim deploy. Done.
+
 ## Round 1131 — Trello Doing 5 kart (#3390/#3395/#3406/#3407/#3409)
 
 - **#3390:** Anlık bildirim sesi + WA talep oluşturma susturma; outgoing-requests ses; nav rozet senkronu.

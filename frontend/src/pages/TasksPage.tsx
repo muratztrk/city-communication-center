@@ -594,7 +594,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const currentScope: TaskListScope = scopes.includes(scopeParam) ? scopeParam : scopes[0]
   const isMyTasksView = fixedScope === 'mine'
   const myTaskIds = useMemo(() => tasks.map(task => task.taskId), [tasks])
-  useNewRecordIdsSound(isMyTasksView ? myTaskIds : [])
+  useNewRecordIdsSound(isMyTasksView ? myTaskIds : [], !loading)
   const isDepartmentTasksView = mode === 'departmentTasks'
   const isStaffTasksView = mode === 'staffTasks'
   const currentMyTaskView = getMyTaskView(searchParams.get('view'))

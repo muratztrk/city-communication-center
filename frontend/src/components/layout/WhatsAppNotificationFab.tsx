@@ -13,6 +13,8 @@ import { getLocale } from '../../utils/localization'
 import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 import { getWhatsAppFabUnreadCount, isAutomaticOutboundConversation } from '../../utils/whatsappFabNotification'
 import { matchesPhone } from '../../utils/phoneNormalization'
+import { playNewRecordSound } from '../../utils/playNewRecordSound'
+import { shouldPlayNewRecordSound } from '../../utils/shouldPlayNewRecordSound'
 import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
 import {
   notifyFloatingChatFabClosed,
@@ -236,9 +238,12 @@ export function WhatsAppNotificationFab() {
     // Teslim durumu güncellemesi (operatörün kendi gönderdiği mesajın iletildi/okundu bilgisi)
     // ve kendi gönderdiğimiz birim içi mesaj bildirim/pulse tetiklemesin (card #1495).
     if (!payload.isStatusUpdate && !selfSent && !payload.isAutomaticOutbound) {
+      if (shouldPlayNewRecordSound(location.pathname.startsWith('/whatsapp'))) {
+        playNewRecordSound()
+      }
       triggerPulse()
     }
-  }, [dismissConversationNotification, isPayloadForActiveConversation, isSelfSentPayload, refreshConversations, triggerPulse, zeroUnreadForConversation])
+  }, [dismissConversationNotification, isPayloadForActiveConversation, isSelfSentPayload, location.pathname, refreshConversations, triggerPulse, zeroUnreadForConversation])
 
   useSignalR({
     onWhatsAppMessage: handleWhatsAppMessage,
@@ -273,12 +278,15 @@ export function WhatsAppNotificationFab() {
       }
       void refreshConversations()
       if (!payload.isStatusUpdate && !selfSent && !payload.isAutomaticOutbound && (payload.isInternal || payload.unreadCount > 0)) {
+        if (shouldPlayNewRecordSound(location.pathname.startsWith('/whatsapp'))) {
+          playNewRecordSound()
+        }
         triggerPulse()
       }
     }
     window.addEventListener('ccc:whatsapp-message', onWindowEvent)
     return () => window.removeEventListener('ccc:whatsapp-message', onWindowEvent)
-  }, [dismissConversationNotification, isPayloadForActiveConversation, isSelfSentPayload, refreshConversations, triggerPulse, zeroUnreadForConversation])
+  }, [dismissConversationNotification, isPayloadForActiveConversation, isSelfSentPayload, location.pathname, refreshConversations, triggerPulse, zeroUnreadForConversation])
 
   useEffect(() => {
     const onActiveConversationChange = (event: Event) => {

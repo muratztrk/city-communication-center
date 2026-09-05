@@ -37,9 +37,8 @@ import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
-import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { useWhatsAppConversationActivitySound } from '../hooks/useWhatsAppConversationActivitySound'
-import { playNewRecordSound } from '../utils/playNewRecordSound'
+import { useSignalR, type WhatsAppMessagePayload } from '../hooks/useSignalR'
 import { SingleSelectDropdown } from '../components/ui/single-select-dropdown'
 import { CbsStreetNoDropdowns } from '../components/address/CbsStreetNoDropdowns'
 import { stringListSelectOptions } from '../utils/formDropdownOptions'
@@ -1762,7 +1761,7 @@ export function WhatsAppConversationsPage() {
 
   const selectedConv = conversations.find(c => c.citizenConversationId === selectedId) ?? null
 
-  useWhatsAppConversationActivitySound(conversations)
+  useWhatsAppConversationActivitySound(conversations, !loading)
 
   const handleReadMarked = useCallback(() => {
     setConversations(prev =>
@@ -1788,9 +1787,6 @@ export function WhatsAppConversationsPage() {
   useEffect(() => {
     function handleIncomingWhatsAppMessage(event: Event) {
       const payload = (event as CustomEvent<WhatsAppMessagePayload>).detail
-      if (!payload.isInternal && !payload.isStatusUpdate && !payload.isAutomaticOutbound && document.visibilityState === 'visible') {
-        playNewRecordSound()
-      }
       if (!selectedId) {
         void silentRefreshConversations()
         return

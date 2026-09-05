@@ -42,6 +42,7 @@ import { getRoleLabel } from '../utils/localization'
 import { sortUserDepartments } from '../utils/departmentAccess'
 import { useDataTableOverflowTooltips } from '../hooks/useDataTableOverflowTooltips'
 import { useIncomingPendingApprovalCount } from '../hooks/useIncomingPendingApprovalCount'
+import { useNavBadgeCountSound } from '../hooks/useNavBadgeCountSound'
 
 declare const __APP_VERSION__: string
 const SUPPORT_EMAIL = 'destek@lumespec.com'
@@ -395,6 +396,12 @@ export function AppShell() {
 
   const incomingPendingApprovalCountQuery = useIncomingPendingApprovalCount(user, i18n.language)
   const incomingPendingApprovalNavCount = incomingPendingApprovalCountQuery.data ?? 0
+
+  const myTasksNavBadgeCount = navDashboardCounts?.myPendingTaskNavBadgeCount ?? navDashboardCounts?.myPendingTaskCount
+  useNavBadgeCountSound(myTasksNavBadgeCount, navCountsQuery.isSuccess, '/my-tasks')
+  useNavBadgeCountSound(incomingPendingApprovalNavCount, incomingPendingApprovalCountQuery.isSuccess, '/incoming-requests')
+  useNavBadgeCountSound(pendingCitizenMessageApprovalCount, pendingCitizenMessageApprovalQuery.isSuccess, '/citizen-message-approval')
+  useNavBadgeCountSound(pendingSmsDeliveryApprovalCount, pendingSmsDeliveryApprovalQuery.isSuccess, '/sms-delivery-approval')
 
   const isReporterNav = user?.role === 'Reporter'
   const isOperatorNav = user?.role === 'Operator'

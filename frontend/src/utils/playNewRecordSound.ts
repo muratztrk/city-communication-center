@@ -17,26 +17,35 @@ function getAudioContext(): AudioContext | null {
   }
 }
 
-/** Sol menü sayfalarında yeni kayıt geldiğinde kısa bildirim sesi (#3390). */
+const MELODY_NOTES = [
+  { freq: 523.25, start: 0, duration: 0.38 },
+  { freq: 659.25, start: 0.42, duration: 0.38 },
+  { freq: 783.99, start: 0.84, duration: 0.48 },
+  { freq: 987.77, start: 1.38, duration: 0.55 },
+] as const
+
+/** Sol menü sayfalarında yeni kayıt geldiğinde ~2 sn bildirim melodisi (#3390 reopen). */
 export function playNewRecordSound(): void {
   const nowMs = Date.now()
-  if (nowMs - lastPlayedAt < 800) return
+  if (nowMs - lastPlayedAt < 2_200) return
   lastPlayedAt = nowMs
 
   const ctx = getAudioContext()
   if (!ctx) return
 
-  const now = ctx.currentTime
-  const oscillator = ctx.createOscillator()
-  const gain = ctx.createGain()
-  oscillator.type = 'sine'
-  oscillator.frequency.setValueAtTime(880, now)
-  oscillator.frequency.setValueAtTime(660, now + 0.08)
-  gain.gain.setValueAtTime(0.0001, now)
-  gain.gain.exponentialRampToValueAtTime(0.12, now + 0.02)
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28)
-  oscillator.connect(gain)
-  gain.connect(ctx.destination)
-  oscillator.start(now)
-  oscillator.stop(now + 0.3)
+  const base = ctx.currentTime
+  for (const note of MELODY_NOTES) {
+    const oscillator = ctx.createOscillator()
+    const gain = ctx.createGain()
+    oscillator.type = 'triangle'
+    const start = base + note.start
+    oscillator.frequency.setValueAtTime(note.freq, start)
+    gain.gain.setValueAtTime(0.0001, start)
+    gain.gain.exponentialRampToValueAtTime(0.11, start + 0.025)
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + note.duration)
+    oscillator.connect(gain)
+    gain.connect(ctx.destination)
+    oscillator.start(start)
+    oscillator.stop(start + note.duration + 0.04)
+  }
 }

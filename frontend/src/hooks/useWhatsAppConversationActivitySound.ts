@@ -1,17 +1,23 @@
 import { useEffect, useRef } from 'react'
 import type { CitizenConversationSummary } from '../types/platform'
 import { playNewRecordSound } from '../utils/playNewRecordSound'
+import { shouldPlayNewRecordSound } from '../utils/shouldPlayNewRecordSound'
 
 /** WhatsApp listesinde yeni konuşma veya inbound mesaj (poll) için ses (#3390). */
-export function useWhatsAppConversationActivitySound(conversations: CitizenConversationSummary[]): void {
-  const initializedRef = useRef(false)
+export function useWhatsAppConversationActivitySound(
+  conversations: CitizenConversationSummary[],
+  ready = true,
+): void {
+  const baselineSetRef = useRef(false)
   const previousRef = useRef<Map<string, { lastMessageAt: string; lastMessageDirection?: 'Inbound' | 'Outbound' | null }>>(new Map())
 
   useEffect(() => {
+    if (!ready) return
+
     const previous = previousRef.current
     let shouldPlay = false
 
-    if (initializedRef.current) {
+    if (baselineSetRef.current) {
       for (const conversation of conversations) {
         const prior = previous.get(conversation.citizenConversationId)
         if (!prior) {
@@ -37,10 +43,10 @@ export function useWhatsAppConversationActivitySound(conversations: CitizenConve
         },
       ]),
     )
-    initializedRef.current = true
+    baselineSetRef.current = true
 
-    if (shouldPlay && document.visibilityState === 'visible') {
+    if (shouldPlay && shouldPlayNewRecordSound(true)) {
       playNewRecordSound()
     }
-  }, [conversations])
+  }, [conversations, ready])
 }

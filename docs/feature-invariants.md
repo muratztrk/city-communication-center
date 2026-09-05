@@ -535,10 +535,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`useIncomingPendingApprovalCount` / `matchesIncomingStatusFilter` pending-approval — dashboard
   `pendingApprovalCount` ile aynı değil; VT yöneticisi CRM için yalnız vatandaş satırları), Birimden Giden =
   `outgoingPendingCount` (dashboard snapshot; Sms Onayı stili — card #2516 / #2820 / #2823).
-  **Sayfa bildirim sesi (#3390):** Kullanıcı ilgili sayfadayken yeni kayıt gelince kısa ses
-  (`playNewRecordSound`) — `/whatsapp` (SignalR inbound + liste poll), `/incoming-requests`,
-  `/my-tasks`, `/citizen-message-approval`, `/sms-delivery-approval`. Sekme görünür değilken çalmaz;
-  ilk yüklemede çalmaz (yalnızca yeni id/inbound).
+  **Sayfa bildirim sesi (#3390 reopen):** Yeni kayıt gelince ~2 sn melodisi
+  (`playNewRecordSound`) — sekme arka plandayken veya kullanıcı ilgili sayfada değilken çalar;
+  sayfa açılışında/veri ilk yüklendiğinde çalmaz. Sayfalar: `/whatsapp` (SignalR + Fab),
+  `/incoming-requests`, `/my-tasks`, `/citizen-message-approval`, `/sms-delivery-approval`.
+  Sol menü rozeti artışı `useNavBadgeCountSound` ile (başka sayfadayken).
   Sol menü etiketleri kısardır: `WhatsApp` / `Sms Onayı`; Sms ikonu Lucide `MessageSquareText`
   (renkli `/icons/sms.svg` değil); Manager Sms Onayı varsayılan/zorla kapalı (card #6a6b6c8e).
   WhatsApp konum mesajı balonu yalnız `[konum mesajı]` işaretçisi + koordinat varken MapPin + Haritada Göster (#2838 reopen);

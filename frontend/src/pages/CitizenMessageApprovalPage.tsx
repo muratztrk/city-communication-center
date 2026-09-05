@@ -112,7 +112,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
   }, [apiScope, mode])
 
   const approvalJobIds = useMemo(() => rows.map(row => row.jobId), [rows])
-  useNewRecordIdsSound(approvalJobIds)
+  useNewRecordIdsSound(approvalJobIds, !loading)
 
   useEffect(() => {
     void loadApprovals()

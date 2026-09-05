@@ -1,3 +1,10 @@
+## Round 1134 — Trello Doing 3 kart (#3390/#3395/#3415)
+
+- **#3390 reopen:** WA SignalR anında ses (poll hook kaldırıldı).
+- **#3415:** WA sayfasında gereksiz poll/Fab sesi engellendi.
+- **#3395 reopen:** Parola hint "içermelidir." kaldırıldı.
+- Push: `5834980e` (develop). Testtim deploy. Done.
+
 ## Round 1133 — Trello Doing 5 kart (#3390/#3395/#3412–#3414)
 
 - **#3414:** WA talep oluşturma ses fix (submit suppress).

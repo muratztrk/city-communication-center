@@ -2695,7 +2695,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **SMS alıcı (#6a75eea2):** `WhatsAppRecipientResolver` Job.CitizenPhone fallback.
 - **SMS LiveSend (#6a75eea2):** Round 643 sonrası `IsEnabled` ⇒ gerçek gönderim (`EffectiveLiveSendEnabled`); Operatör release SMS fail → ValidationException.
 - **SMS ortam kilidi (testtim):** `Sms:LiveSendEnabled=false` (`CCC_SMS_LIVE_SEND_ENABLED=false`) iken
-  `SmsGateway` sağlayıcıya çıkmaz; Test SMS dahil simülasyon loglanır. Prod'da varsayılan açık.
+  `SmsGateway` sağlayıcıya çıkmaz; otomatik WhatsApp durum mesajları da gönderilmez. Test SMS dahil
+  simülasyon loglanır. Talep dönüşümü bildirim hatasında başarısız sayılmaz. Prod'da varsayılan açık.
 - **SMS hitap (#3213/#3214 ile güncellendi):** hitap **`SmsGateway`'de DEĞİL**, yalnız vatandaş
   durum bildiriminde (`CitizenJobStatusNotifier`) eklenir: hitap satırı + boş satır + asıl metin
   (`CitizenOutboundGreeting.Ensure`, zaten hitaplıysa tekrar eklenmez). Yöneticiye giden mesai dışı

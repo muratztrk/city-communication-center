@@ -123,9 +123,23 @@ public class WhatsAppClient : ISocialMediaClient, IWhatsAppMediaClient, IWhatsAp
         if (response.IsSuccessStatusCode)
         {
             var json = await response.Content.ReadAsStringAsync(ct);
-            var result = JsonDocument.Parse(json);
-            var messageId = result.RootElement.GetProperty("messages")[0].GetProperty("id").GetString();
-            return SocialMediaResult.Ok(messageId ?? "sent");
+            try
+            {
+                using var result = JsonDocument.Parse(json);
+                if (result.RootElement.TryGetProperty("messages", out var messages)
+                    && messages.GetArrayLength() > 0
+                    && messages[0].TryGetProperty("id", out var idElement))
+                {
+                    var messageId = idElement.GetString();
+                    return SocialMediaResult.Ok(messageId ?? "sent");
+                }
+
+                return SocialMediaResult.Fail("WhatsApp yanıtı beklenen formatta değil.", response.StatusCode.ToString());
+            }
+            catch (Exception)
+            {
+                return SocialMediaResult.Fail("WhatsApp yanıtı işlenemedi.", response.StatusCode.ToString());
+            }
         }
 
         var error = await response.Content.ReadAsStringAsync(ct);

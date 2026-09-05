@@ -1,6 +1,7 @@
 using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Features;
 using CityCommunicationCenter.Application.Features.Jobs;
+using Microsoft.Extensions.Logging;
 
 namespace CityCommunicationCenter.Application.Features.Social;
 
@@ -44,17 +45,20 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
     private readonly ITenantContextAccessor _tenantContextAccessor;
     private readonly IMediator _sender;
     private readonly ICitizenJobStatusNotifier _citizenJobStatusNotifier;
+    private readonly ILogger<ConvertSocialMessageToJobCommandHandler> _logger;
 
     public ConvertSocialMessageToJobCommandHandler(
         IApplicationDbContext dbContext,
         ITenantContextAccessor tenantContextAccessor,
         IMediator sender,
-        ICitizenJobStatusNotifier citizenJobStatusNotifier)
+        ICitizenJobStatusNotifier citizenJobStatusNotifier,
+        ILogger<ConvertSocialMessageToJobCommandHandler> logger)
     {
         _dbContext = dbContext;
         _tenantContextAccessor = tenantContextAccessor;
         _sender = sender;
         _citizenJobStatusNotifier = citizenJobStatusNotifier;
+        _logger = logger;
     }
 
     public async ValueTask<JobSummaryResponse?> Handle(ConvertSocialMessageToJobCommand request, CancellationToken cancellationToken)
@@ -134,7 +138,19 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
         {
             var taskCount = await _dbContext.Tasks.CountAsync(
                 t => t.JobId == job.JobId && t.TenantId == tenantId, cancellationToken);
-            await _citizenJobStatusNotifier.NotifyCreatedAsync(tenantId, message, job, taskCount, cancellationToken);
+            try
+            {
+                await _citizenJobStatusNotifier.NotifyCreatedAsync(tenantId, message, job, taskCount, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                // Talep kaydedildi; otomatik vatandaş bildirimi başarısız olsa bile dönüşüm başarılı sayılır.
+                _logger.LogWarning(
+                    ex,
+                    "Vatandaş durum bildirimi gönderilemedi. JobId={JobId} SocialMessageId={SocialMessageId}",
+                    job.JobId,
+                    message.SocialMessageId);
+            }
         }
 
         return jobSummary;

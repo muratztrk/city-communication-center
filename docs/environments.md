@@ -62,4 +62,6 @@ Test ortamında gerçek SMS gönderimi **kapalı** olmalıdır. Sunucu `.env` do
 CCC_SMS_LIVE_SEND_ENABLED=false
 ```
 
-Bu ayar `Sms:LiveSendEnabled=false` olarak API'ye geçer; sağlayıcıya çıkılmaz, denemeler simülasyon olarak loglanır (Test SMS dahil). Prod `.env`'de bu satır yok veya `true` olmalıdır.
+Bu ayar `Sms:LiveSendEnabled=false` olarak API'ye geçer; SMS sağlayıcısına ve otomatik WhatsApp
+durum mesajlarına çıkılmaz (Test SMS dahil). Talep oluşturma bildirim hatasında başarısız sayılmaz.
+Prod `.env`'de bu satır yok veya `true` olmalıdır.

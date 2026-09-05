@@ -102,7 +102,7 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
               <textarea
                 className="field-textarea support-request-dialog-field w-full"
                 rows={4}
-                placeholder={t('support.messagePlaceholder', 'Sorununuzu kısaca açıklayın.')}
+                placeholder={t('support.messagePlaceholder', 'Destek talebinizi kısaca açıklayınız...')}
                 value={message}
                 onChange={e => setMessage(e.target.value)}
                 maxLength={4000}

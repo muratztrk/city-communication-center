@@ -289,7 +289,7 @@
     "subjectLabel": "Konu",
     "subjectPlaceholder": "Konu başlığı",
     "messageLabel": "Mesaj",
-    "messagePlaceholder": "Sorununuzu kısaca açıklayın.",
+    "messagePlaceholder": "Destek talebinizi kısaca açıklayınız...",
     "send": "Gönder",
     "sentMessage": "Talebiniz alındı. Lumespec ekibi en kısa sürede sizinle iletişime geçecek.",
     "sendError": "Talep gönderilemedi. Lütfen tekrar deneyin."

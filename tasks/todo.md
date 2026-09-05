@@ -1,3 +1,12 @@
+## Round 1133 — Trello Doing 5 kart (#3390/#3395/#3412–#3414)
+
+- **#3414:** WA talep oluşturma ses fix (submit suppress).
+- **#3390 reopen:** WA nav girişinde rozet sesi yok.
+- **#3412:** Yerel kullanıcı Birim/Rol dropdown 200px.
+- **#3413:** Yeni Kullanıcı form scroll kaldırıldı.
+- **#3395 reopen:** Parola hint "min 8 karakter".
+- Push: `3eecab85` (develop). Testtim deploy. Done.
+
 ## Round 1132 — Trello Doing 1 kart (#3411)
 
 - **#3411:** Mesai dışı SMS kutuları başlık `text-lg` (text-xl'den küçültüldü).

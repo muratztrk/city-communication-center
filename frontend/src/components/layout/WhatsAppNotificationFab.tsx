@@ -242,10 +242,12 @@ export function WhatsAppNotificationFab() {
     // Teslim durumu güncellemesi (operatörün kendi gönderdiği mesajın iletildi/okundu bilgisi)
     // ve kendi gönderdiğimiz birim içi mesaj bildirim/pulse tetiklemesin (card #1495).
     if (!payload.isStatusUpdate && !selfSent && !payload.isAutomaticOutbound) {
-      if (shouldPlayNewRecordSound(location.pathname.startsWith('/whatsapp'))) {
+      if (location.pathname !== '/whatsapp' && shouldPlayNewRecordSound(true)) {
         playNewRecordSound()
       }
-      triggerPulse()
+      if (location.pathname !== '/whatsapp') {
+        triggerPulse()
+      }
     }
   }, [dismissConversationNotification, isPayloadForActiveConversation, isSelfSentPayload, location.pathname, refreshConversations, triggerPulse, zeroUnreadForConversation])
 
@@ -282,10 +284,12 @@ export function WhatsAppNotificationFab() {
       }
       void refreshConversations()
       if (!payload.isStatusUpdate && !selfSent && !payload.isAutomaticOutbound && (payload.isInternal || payload.unreadCount > 0)) {
-        if (shouldPlayNewRecordSound(location.pathname.startsWith('/whatsapp'))) {
+        if (location.pathname !== '/whatsapp' && shouldPlayNewRecordSound(true)) {
           playNewRecordSound()
         }
-        triggerPulse()
+        if (location.pathname !== '/whatsapp') {
+          triggerPulse()
+        }
       }
     }
     window.addEventListener('ccc:whatsapp-message', onWindowEvent)

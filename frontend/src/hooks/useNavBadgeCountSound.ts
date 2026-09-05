@@ -8,7 +8,9 @@ export function useNavBadgeCountSound(
   count: number | undefined,
   ready: boolean,
   targetPathPrefix: string,
+  options?: { playOnTargetPage?: boolean },
 ): void {
+  const playOnTargetPage = options?.playOnTargetPage ?? true
   const location = useLocation()
   const baselineSetRef = useRef(false)
   const previousCountRef = useRef(0)
@@ -36,7 +38,9 @@ export function useNavBadgeCountSound(
     }
 
     if (count > previousCountRef.current && shouldPlayNewRecordSound(onTargetPage)) {
-      playNewRecordSound()
+      if (!onTargetPage || playOnTargetPage) {
+        playNewRecordSound()
+      }
     }
     previousCountRef.current = count
   }, [count, ready, location.pathname, targetPathPrefix])

@@ -411,7 +411,7 @@ export function AppShell() {
   const incomingPendingApprovalNavCount = incomingPendingApprovalCountQuery.data ?? 0
 
   const myTasksNavBadgeCount = navDashboardCounts?.myPendingTaskNavBadgeCount ?? navDashboardCounts?.myPendingTaskCount
-  useNavBadgeCountSound(waitingWhatsAppReplyCount, waitingWhatsAppReplyQuery.isSuccess, '/whatsapp')
+  useNavBadgeCountSound(waitingWhatsAppReplyCount, waitingWhatsAppReplyQuery.isSuccess, '/whatsapp', { playOnTargetPage: false })
   useNavBadgeCountSound(myTasksNavBadgeCount, navCountsQuery.isSuccess, '/my-tasks')
   useNavBadgeCountSound(incomingPendingApprovalNavCount, incomingPendingApprovalCountQuery.isSuccess, '/incoming-requests')
   useNavBadgeCountSound(navDashboardCounts?.outgoingPendingCount ?? 0, navCountsQuery.isSuccess, '/outgoing-requests')

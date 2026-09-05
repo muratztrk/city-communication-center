@@ -2349,7 +2349,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `.truncate` satırlarında portal tooltip; flex ölçüm fallback + `title` attribute yedek (#1997).
 - **Kullanıcılar grid Rol menü font (#r523/#1994):** `.users-edit-dropdown-menu*` ~0.82rem
   (`!important` ile admin-surface ezilir). Create form Rol + Ek Roller (`users-roles-compact-menu`)
-  aynı `menuWidth={220}` + satır/buton ~0.82rem (#r527/#1988).
+  aynı `menuWidth={220}` + satır/buton ~0.82rem (#r527/#1988). Rol sırası Standart → Operatör → …
+  (#3403); Operatör menü etiketi `enum.role.OperatorMenu` iki satır + `white-space: pre-line`
+  (alt satır Standart ile sol hizalı). Ek roller alfabetik değil `ADDITIONAL_ROLE_CODES` sırası.
   Grid Ek Roller/Ek birimler footer Çıkış/Seç ~0.85rem (#r526/#1994).
 - **Rol etiketi e-Devlet (#2000):** `enum.role.EDevletActivityPlan` → `e-Devlet Günlük Faaliyet`
   (eski “… Planı” kaldırıldı; RoleCode değişmez).

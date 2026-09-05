@@ -4402,6 +4402,13 @@
     padding: 0.35rem 0.6rem;
     font-size: 0.82rem;
     font-weight: 600;
+    align-items: flex-start;
+  }
+
+  .admin-surface-menu.users-roles-compact-menu .dropdown-menu-item > span.min-w-0 {
+    white-space: pre-line;
+    overflow: visible;
+    text-overflow: clip;
   }
 
   .admin-surface-menu.users-roles-compact-menu .dropdown-menu-scroll {
@@ -4429,6 +4436,14 @@
     padding: 0.35rem 0.55rem !important;
     font-size: 0.82rem !important;
     font-weight: 600;
+    align-items: flex-start;
+  }
+
+  .admin-surface-menu.users-edit-dropdown-menu-scroll .dropdown-menu-item > span.min-w-0,
+  .admin-surface-menu .users-edit-dropdown-menu-scroll .dropdown-menu-item > span.min-w-0 {
+    white-space: pre-line;
+    overflow: visible;
+    text-overflow: clip;
   }
 
   /* Gridview Ek Roller / Ek birimler Çıkış/Seç (#r526 / #1994). */

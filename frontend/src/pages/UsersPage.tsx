@@ -30,7 +30,7 @@ import { sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
 
 type CreateMode = 'manual' | 'ldap'
 
-const ADDITIONAL_ROLE_CODES = ['Operator', 'Staff', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
+const ADDITIONAL_ROLE_CODES = ['Staff', 'Operator', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
 const MIN_USER_SEARCH_LENGTH = 3
 /** UI-only rol seçeneği — kayıtta Manager'a map (card #1897). */
 const SORUMLU_ROLE_OPTION = 'Sorumlu'
@@ -59,17 +59,30 @@ function resolveUiRoleCode(user: User, departments: Department[]): string {
   return 'Manager'
 }
 
+/** Rol menüsü etiketi — Operatör iki satır (card #3403). */
+function getUsersRoleMenuLabel(t: TFunction, roleCode: string): string {
+  if (roleCode === 'Operator') {
+    return t('enum.role.OperatorMenu', 'Vatandaş Talep\nOperatörü')
+  }
+  return getRoleLabel(t, roleCode)
+}
+
+function additionalRoleFormOptions(t: TFunction, primaryRoleCode: string) {
+  return getAllowedAdditionalRoleCodes(primaryRoleCode)
+    .map(roleCode => ({ value: roleCode, label: getUsersRoleMenuLabel(t, roleCode) }))
+}
+
 function primaryRoleFormOptions(t: TFunction) {
-  // Sıra: Standart → Sorumlu → Müdür → Operatör → CRM → Reporter → e-Devlet → SystemAdmin (#r514).
+  // Sıra: Standart → Operatör → Sorumlu → Müdür → CRM → Reporter → e-Devlet → SystemAdmin (#r514 / #3403).
   const ordered: Array<{ value: string; label: string }> = [
-    { value: 'Staff', label: getRoleLabel(t, 'Staff') },
+    { value: 'Staff', label: getUsersRoleMenuLabel(t, 'Staff') },
+    { value: 'Operator', label: getUsersRoleMenuLabel(t, 'Operator') },
     { value: SORUMLU_ROLE_OPTION, label: t('enum.role.Sorumlu', 'Sorumlu') },
-    { value: 'Manager', label: getRoleLabel(t, 'Manager') },
-    { value: 'Operator', label: getRoleLabel(t, 'Operator') },
-    { value: 'CitizenRequestManager', label: getRoleLabel(t, 'CitizenRequestManager') },
-    { value: 'Reporter', label: getRoleLabel(t, 'Reporter') },
-    { value: 'EDevletActivityPlan', label: getRoleLabel(t, 'EDevletActivityPlan') },
-    { value: 'SystemAdmin', label: getRoleLabel(t, 'SystemAdmin') },
+    { value: 'Manager', label: getUsersRoleMenuLabel(t, 'Manager') },
+    { value: 'CitizenRequestManager', label: getUsersRoleMenuLabel(t, 'CitizenRequestManager') },
+    { value: 'Reporter', label: getUsersRoleMenuLabel(t, 'Reporter') },
+    { value: 'EDevletActivityPlan', label: getUsersRoleMenuLabel(t, 'EDevletActivityPlan') },
+    { value: 'SystemAdmin', label: getUsersRoleMenuLabel(t, 'SystemAdmin') },
   ]
   return ordered
 }
@@ -1531,9 +1544,7 @@ export function UsersPage() {
                   triggerClassName="text-xs"
                   menuClassName="users-roles-compact-menu"
                   menuWidth={220}
-                  options={getAllowedAdditionalRoleCodes(newUser.roleCode)
-                    .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))
-                    .sort((a, b) => a.label.localeCompare(b.label, 'tr'))}
+                  options={additionalRoleFormOptions(t, newUser.roleCode)}
                   value={newUser.additionalRoleCodes}
                   onChange={additionalRoleCodes => setNewUser(current => ({ ...current, additionalRoleCodes }))}
                   placeholder={t('users.additionalRolesPlaceholder', 'Ek rol seçin')}
@@ -1752,9 +1763,7 @@ export function UsersPage() {
                           menuScrollClassName="users-edit-dropdown-menu-scroll"
                         />
                         <MultiSelectDropdown
-                          options={getAllowedAdditionalRoleCodes(editForm.roleCode)
-                            .map(roleCode => ({ value: roleCode, label: getRoleLabel(t, roleCode) }))
-                            .sort((a, b) => localeCompareTr(a.label, b.label))}
+                          options={additionalRoleFormOptions(t, editForm.roleCode)}
                           value={editForm.additionalRoleCodes}
                           onChange={additionalRoleCodes => setEditForm(c => ({ ...c, additionalRoleCodes }))}
                           placeholder={t('users.additionalRolesShort', 'Ek roller')}

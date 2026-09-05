@@ -6405,6 +6405,22 @@
       overflow: hidden;
     }
 
+    /* WA: banner tarih chip tıklanınca main scroll çubuğu açılıp kapanmasın (#3417 reopen). */
+    #main-content {
+      scrollbar-gutter: stable;
+    }
+
+    #main-content:has(.whatsapp-page-shell) {
+      overflow-y: hidden;
+    }
+
+    .whatsapp-page-shell.page-stack {
+      display: flex;
+      flex: 1 1 auto;
+      flex-direction: column;
+      min-height: 0;
+    }
+
     .app-content-shell .admin-surface-page .desktop-page-fill {
       flex: 1 1 auto;
       min-height: 0;

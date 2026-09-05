@@ -109,10 +109,7 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
     }
     setYearPickerOpen(false)
     setOpen(true)
-    if (preventFocusScroll) {
-      requestAnimationFrame(() => triggerRef.current?.focus({ preventScroll: true }))
-    }
-  }, [disabled, minDateTime, preventFocusScroll, value])
+  }, [disabled, minDateTime, value])
 
   useEffect(() => {
     if (!autoOpen || autoOpenedRef.current) return

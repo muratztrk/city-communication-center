@@ -1925,8 +1925,8 @@ export function WhatsAppConversationsPage() {
         </div>
       </header>
 
-      {/* Split panel layout */}
-      <div className="flex flex-1 min-h-0 flex-col overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-slate-50 md:min-h-[calc(100dvh-12rem)] md:flex-row">
+      {/* Split panel layout — desktop-page-fill: main scroll flicker yok (#3417). */}
+      <div className="desktop-page-fill flex min-h-0 flex-col overflow-hidden rounded-xl border border-[color:var(--color-border)] bg-slate-50 md:flex-row">
         {/* Left: conversation list */}
         <ConversationListPanel
           conversations={conversations}

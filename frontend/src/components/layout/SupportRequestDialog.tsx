@@ -54,7 +54,7 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
 
   return (
     <ModalBackdrop onEscapeClose={handleClose}>
-      <div className="relative w-full max-w-sm rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl">
+      <div className="support-request-dialog relative w-full max-w-[26rem] rounded-[var(--radius-2xl)] bg-white p-6 shadow-2xl">
         <button
           type="button"
           onClick={handleClose}
@@ -64,7 +64,7 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
           <X className="size-4" />
         </button>
 
-        <h3 className="mb-4 text-base font-semibold text-slate-900">
+        <h3 className="mb-3 border-b border-slate-200 pb-2 pr-8 text-base font-semibold text-slate-900">
           {t('support.dialogTitle', 'Lumespec Destek')}
         </h3>
 
@@ -87,7 +87,7 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
               </label>
               <input
                 type="text"
-                className="field-input w-full"
+                className="field-input support-request-dialog-field w-full"
                 placeholder={t('support.subjectPlaceholder', 'Konu başlığı')}
                 value={subject}
                 onChange={e => setSubject(e.target.value)}
@@ -100,7 +100,7 @@ export function SupportRequestDialog({ open, onClose }: SupportRequestDialogProp
                 {t('support.messageLabel', 'Mesaj')}
               </label>
               <textarea
-                className="field-textarea w-full"
+                className="field-textarea support-request-dialog-field w-full"
                 rows={4}
                 placeholder={t('support.messagePlaceholder', 'Sorununuzu kısaca açıklayın.')}
                 value={message}

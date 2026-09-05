@@ -2361,6 +2361,18 @@
     font-size: 0.9375rem;
   }
 
+  /* Lumespec Destek (? ikonu) — başlık altı çizgi + biraz dar punto (#3404/#3405). */
+  .support-request-dialog-field.field-input,
+  .support-request-dialog-field.field-textarea {
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+
+  .support-request-dialog-field.field-input::placeholder,
+  .support-request-dialog-field.field-textarea::placeholder {
+    font-size: 0.875rem;
+  }
+
   .job-field {
     display: flex;
     flex-direction: column;

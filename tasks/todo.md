@@ -1,3 +1,12 @@
+## Round 1131 — Trello Doing 5 kart (#3390/#3395/#3406/#3407/#3409)
+
+- **#3390:** Anlık bildirim sesi + WA talep oluşturma susturma; outgoing-requests ses; nav rozet senkronu.
+- **#3407:** WA header Yanıt Verildi etiketi kaldırıldı.
+- **#3406:** Yanıt Verildi Yap buton text boyutu (11px/12px).
+- **#3409:** Ayarlar mesai dışı SMS kutuları yan yana.
+- **#3395 reopen:** Parola hint i18n doğrulandı (kod zaten doğruydu).
+- Push: `1385f09f` (develop). Testtim deploy. Done.
+
 ## Round 1130 — Trello Doing 2 kart (#3404/#3405)
 
 - **#3404:** Lumespec Destek popup başlık altı çizgi; Konu/Mesaj alanları ~0.875rem.

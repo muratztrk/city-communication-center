@@ -47,6 +47,7 @@ import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
+import { suppressNewRecordSound } from '../utils/newRecordSoundSuppress'
 
 const LazyCitizenRequestModal = lazy(() =>
   import('../components/CitizenRequestModal').then(module => ({ default: module.CitizenRequestModal })),
@@ -330,33 +331,25 @@ type ConversationStatusSummary = Pick<
 function ConversationHeaderReplyStatus({
   summary,
   onMarkWaitingReplied,
+  phoneOnly,
 }: {
   summary: ConversationStatusSummary | null | undefined
   onMarkWaitingReplied?: () => void
+  phoneOnly: boolean
 }) {
   const { t } = useTranslation()
   if (!summary) return null
   const waitingForResponse = isWaitingForConversationResponse(summary)
-  const ticketOpen = isConversationTicketOpen(summary)
 
   if (waitingForResponse && onMarkWaitingReplied) {
     return (
       <button
         type="button"
-        className="whatsapp-mark-waiting-replied shrink-0 text-[10px] font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline"
+        className={`whatsapp-mark-waiting-replied shrink-0 font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline ${phoneOnly ? 'text-[12px]' : 'text-[11px]'}`}
         onClick={onMarkWaitingReplied}
       >
         {t('whatsapp.markWaitingReplied', 'Yanıt Verildi Yap')}
       </button>
-    )
-  }
-
-  if (!waitingForResponse && ticketOpen) {
-    return (
-      <span className="inline-flex shrink-0 items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
-        <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-        {t('whatsapp.ticketOpen', 'Yanıt Verildi')}
-      </span>
     )
   }
 
@@ -1233,6 +1226,7 @@ function ConversationDetail({
               <ConversationHeaderReplyStatus
                 summary={statusSummary}
                 onMarkWaitingReplied={onMarkWaitingReplied}
+                phoneOnly={headerTitleIsPhoneOnly}
               />
             </div>
           ) : headerTitleIsPhoneOnly ? null : (
@@ -1241,6 +1235,7 @@ function ConversationDetail({
               <ConversationHeaderReplyStatus
                 summary={statusSummary}
                 onMarkWaitingReplied={onMarkWaitingReplied}
+                phoneOnly={headerTitleIsPhoneOnly}
               />
             </div>
           )}
@@ -1877,6 +1872,7 @@ export function WhatsAppConversationsPage() {
   }, [enrichMessageWithConversation, selectedId])
 
   const handleRequestCreated = useCallback(() => {
+    suppressNewRecordSound()
     setRequestModalMessage(null)
     setRequestModalEditJobId(null)
     setRequestModalForceNew(false)

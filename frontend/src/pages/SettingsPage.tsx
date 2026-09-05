@@ -3634,6 +3634,7 @@ export function SettingsPage() {
             </div>
           </section>
 
+          <div className="grid gap-4 xl:grid-cols-2 xl:items-start">
           <section className="section-card page-stack">
             <div className="page-header-row">
               <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
@@ -3697,6 +3698,7 @@ export function SettingsPage() {
               />
             </label>
           </section>
+          </div>
 
         </div>
       ) : null}

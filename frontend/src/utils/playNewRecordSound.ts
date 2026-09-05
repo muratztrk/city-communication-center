@@ -1,3 +1,5 @@
+import { isNewRecordSoundSuppressed } from './newRecordSoundSuppress'
+
 let audioContext: AudioContext | null = null
 let lastPlayedAt = 0
 
@@ -26,6 +28,7 @@ const MELODY_NOTES = [
 
 /** Sol menü sayfalarında yeni kayıt geldiğinde ~2 sn bildirim melodisi (#3390 reopen). */
 export function playNewRecordSound(): void {
+  if (isNewRecordSoundSuppressed()) return
   const nowMs = Date.now()
   if (nowMs - lastPlayedAt < 2_200) return
   lastPlayedAt = nowMs

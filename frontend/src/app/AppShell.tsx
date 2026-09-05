@@ -43,6 +43,7 @@ import { sortUserDepartments } from '../utils/departmentAccess'
 import { useDataTableOverflowTooltips } from '../hooks/useDataTableOverflowTooltips'
 import { useIncomingPendingApprovalCount } from '../hooks/useIncomingPendingApprovalCount'
 import { useNavBadgeCountSound } from '../hooks/useNavBadgeCountSound'
+import { isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 
 declare const __APP_VERSION__: string
 const SUPPORT_EMAIL = 'destek@lumespec.com'
@@ -384,6 +385,18 @@ export function AppShell() {
 
   const pendingSmsDeliveryApprovalCount = pendingSmsDeliveryApprovalQuery.data ?? 0
 
+  const waitingWhatsAppReplyQuery = useQuery({
+    queryKey: queryKeys.conversations.waitingReplyCount(),
+    queryFn: async () => {
+      const conversations = await api.getCitizenConversations()
+      return conversations.filter(c => isWaitingForConversationResponse(c)).length
+    },
+    enabled: Boolean(user?.userId) && (user?.role === 'Operator' || user?.role === 'SystemAdmin'),
+    refetchInterval: 30_000,
+    staleTime: 15_000,
+  })
+  const waitingWhatsAppReplyCount = waitingWhatsAppReplyQuery.data ?? 0
+
   const navCountsQuery = useQuery({
     queryKey: queryKeys.dashboard.snapshot({ departmentId: activeDeptId }),
     queryFn: () => api.getDashboard(),
@@ -398,8 +411,10 @@ export function AppShell() {
   const incomingPendingApprovalNavCount = incomingPendingApprovalCountQuery.data ?? 0
 
   const myTasksNavBadgeCount = navDashboardCounts?.myPendingTaskNavBadgeCount ?? navDashboardCounts?.myPendingTaskCount
+  useNavBadgeCountSound(waitingWhatsAppReplyCount, waitingWhatsAppReplyQuery.isSuccess, '/whatsapp')
   useNavBadgeCountSound(myTasksNavBadgeCount, navCountsQuery.isSuccess, '/my-tasks')
   useNavBadgeCountSound(incomingPendingApprovalNavCount, incomingPendingApprovalCountQuery.isSuccess, '/incoming-requests')
+  useNavBadgeCountSound(navDashboardCounts?.outgoingPendingCount ?? 0, navCountsQuery.isSuccess, '/outgoing-requests')
   useNavBadgeCountSound(pendingCitizenMessageApprovalCount, pendingCitizenMessageApprovalQuery.isSuccess, '/citizen-message-approval')
   useNavBadgeCountSound(pendingSmsDeliveryApprovalCount, pendingSmsDeliveryApprovalQuery.isSuccess, '/sms-delivery-approval')
 
@@ -443,7 +458,7 @@ export function AppShell() {
     { pageKey: 'myRequests' as const, path: '/my-requests?view=pending', label: t('nav.myRequests', 'Taleplerim'), icon: ClipboardList },
     // Vatandaş Talepleri grubu: WhatsApp + Sms Onayı — aynı emphasized hiza/punto (#621 / #6a6b6c8e).
     { pageKey: 'social' as const, path: '/social', label: t('nav.social'), icon: MessageSquareMore, children: [
-      { path: '/whatsapp', label: t('whatsapp.navTitle', 'WhatsApp'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true },
+      { path: '/whatsapp', label: t('whatsapp.navTitle', 'WhatsApp'), iconImageSrc: '/icons/whatsapp.webp', emphasized: true, badgeCount: waitingWhatsAppReplyCount || undefined },
       { pageKey: 'smsDeliveryApproval' as const, path: '/sms-delivery-approval', label: t('nav.smsDeliveryApproval', 'Sms Onayı'), icon: MessageSquareText, emphasized: true, badgeCount: pendingSmsDeliveryApprovalCount },
     ] },
     // Sistem Admin vb.: dizin Vatandaş Talepleri grubundan sonra (eski konum).

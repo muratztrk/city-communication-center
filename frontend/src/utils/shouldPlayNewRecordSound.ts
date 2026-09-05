@@ -1,6 +1,8 @@
-/** Yeni kayıt sesi: sekme arka plandayken veya kullanıcı ilgili sayfada değilken (#3390 reopen). */
-export function shouldPlayNewRecordSound(isOnTargetPage = true): boolean {
+import { isNewRecordSoundSuppressed } from './newRecordSoundSuppress'
+
+/** Yeni kayıt sesi: oturum açıkken (sekme görünür veya arka planda) çalar (#3390). */
+export function shouldPlayNewRecordSound(_isOnTargetPage = true): boolean {
   if (typeof document === 'undefined') return false
-  if (document.visibilityState !== 'visible') return true
-  return !isOnTargetPage
+  if (isNewRecordSoundSuppressed()) return false
+  return true
 }

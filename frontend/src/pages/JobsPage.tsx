@@ -7,6 +7,7 @@ import { EmptyCell } from '../components/ui/EmptyCell'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useWeekendSlaDueDateMin } from '../hooks/useWeekendSlaDueDateMin'
 import { useEscapeKey } from '../hooks/useEscapeKey'
+import { useNewRecordIdsSound } from '../hooks/useNewRecordIdsSound'
 import type React from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -787,6 +788,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
 
   const isMyRequestsView = mode === 'myRequests'
   const isDepartmentOutgoingView = mode === 'departmentOutgoing'
+  const outgoingJobIds = useMemo(
+    () => (isDepartmentOutgoingView ? jobs.map(job => job.jobId) : []),
+    [isDepartmentOutgoingView, jobs],
+  )
+  useNewRecordIdsSound(outgoingJobIds, !loading && isDepartmentOutgoingView)
   const detailContext = detailContextOverride ?? searchParams.get('context')
   const incomingReturnStatus = searchParams.get('returnStatus')
   const detailHeaderTitle = detailContext === 'social'

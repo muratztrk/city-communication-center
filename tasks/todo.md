@@ -1,3 +1,14 @@
+## Round 1130 — Trello Doing 2 kart (#3404/#3405)
+
+- **#3404:** Lumespec Destek popup başlık altı çizgi; Konu/Mesaj alanları ~0.875rem.
+- **#3405:** Popup genişliği `max-w-sm` → `max-w-[26rem]`.
+- Push: `cc26b86c` (develop). Testtim deploy. Done.
+
+## Round 1129 — Trello Doing 1 kart (#3403)
+
+- **#3403:** Users Rol + Ek roller menüsünde Operatör Standart altında; iki satırlı etiket + pre-line wrap.
+- Push: `1a408a8a` (develop). Testtim deploy. Done.
+
 ## Round 1122 — Trello Doing 3 kart (#3378/#3379/#3380)
 
 - **#3378/#3379:** Konuşmada ara Beklemede pending mesajları rozet metniyle eşleşir.

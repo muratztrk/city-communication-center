@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { X } from 'lucide-react'
 import { api } from '../../api/client'
 import { useAuth } from '../../context/AuthContext'
@@ -15,6 +16,7 @@ import { getWhatsAppFabUnreadCount, isAutomaticOutboundConversation } from '../.
 import { matchesPhone } from '../../utils/phoneNormalization'
 import { playNewRecordSound } from '../../utils/playNewRecordSound'
 import { shouldPlayNewRecordSound } from '../../utils/shouldPlayNewRecordSound'
+import { syncWaitingWhatsAppReplyCount } from '../../utils/syncWaitingWhatsAppReplyCount'
 import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
 import {
   notifyFloatingChatFabClosed,
@@ -85,6 +87,7 @@ export function WhatsAppNotificationFab() {
   const navigate = useNavigate()
   const location = useLocation()
   const { user } = useAuth()
+  const queryClient = useQueryClient()
   const pulseTimerRef = useRef<number | null>(null)
   const [conversations, setConversations] = useState<CitizenConversationSummary[]>([])
   const [activeConversation, setActiveConversation] = useState<ActiveWhatsAppConversation>(null)
@@ -144,8 +147,9 @@ export function WhatsAppNotificationFab() {
     const data = await fetchConversations()
     if (data && conversationsFetchSeqRef.current === seq) {
       setConversations(data)
+      syncWaitingWhatsAppReplyCount(queryClient, data)
     }
-  }, [fetchConversations])
+  }, [fetchConversations, queryClient])
 
   const triggerPulse = useCallback(() => {
     setIsPulsing(true)

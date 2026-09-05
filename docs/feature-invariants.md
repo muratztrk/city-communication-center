@@ -1590,6 +1590,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep → görev son tarih senkronu:** `UpdateJob` ile talep `DueDateUtc` değişince terminal
   olmayan (`Completed`/`Cancelled`/`Rejected` hariç) tüm bağlı görevlerin `DueDateUtc` değeri
   taleple aynı olur; her güncellenen görev için `TaskDueDateUpdated` audit yazılır.
+- **Görev oluşturma/atama son tarih mirası (card #3384):** Bağlı talebin `DueDateUtc`
+  değeri varsa yeni görev veya atama SLA hesaplaması yapmadan talep son tarihini alır;
+  talep son tarihi yoksa SLA hesaplanır ve talebe de yazılır.
 - **Görev → talep son tarih senkronu (card #3384):** Görev `DueDateUtc` değişince (yönetici
   `UpdateTaskDueDate`, ek süre onayı `ApproveTaskRevision` + `NewDueDateUtc`) bağlı talebin
   `DueDateUtc` aynı değere çekilir (`JobDueDateUpdated` audit); aynı talepteki diğer aktif

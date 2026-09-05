@@ -122,13 +122,23 @@ public sealed class AssignTaskCommandHandler : ICommandHandler<AssignTaskCommand
         task.UpdatedAtUtc = utcNow;
         if (task.DueDateUtc is null)
         {
-            var settings = await _dbContext.TenantSettings
-                .AsNoTracking()
-                .FirstOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
-            if (settings is not null && settings.DefaultSlaHours > 0)
+            task.DueDateUtc = job.DueDateUtc;
+            if (task.DueDateUtc is null)
             {
-                task.DueDateUtc = await _slaCalculator.CalculateDueDateAsync(
-                    utcNow, settings.DefaultSlaHours, tenantId, task.AssignedDepartmentId, cancellationToken);
+                var settings = await _dbContext.TenantSettings
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(s => s.TenantId == tenantId, cancellationToken);
+                if (settings is not null && settings.DefaultSlaHours > 0)
+                {
+                    task.DueDateUtc = await _slaCalculator.CalculateDueDateAsync(
+                        utcNow, settings.DefaultSlaHours, tenantId, task.AssignedDepartmentId, cancellationToken);
+                    if (job.DueDateUtc is null)
+                    {
+                        job.DueDateUtc = task.DueDateUtc;
+                        job.UpdatedAtUtc = utcNow;
+                        job.UpdatedByUserId = request.ActorUserId;
+                    }
+                }
             }
         }
 

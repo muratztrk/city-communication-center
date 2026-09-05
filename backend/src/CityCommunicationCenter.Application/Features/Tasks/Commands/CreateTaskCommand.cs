@@ -183,7 +183,7 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
         }
 
         var initialStatus = assignedUserId.HasValue ? WorkflowTaskStatus.Assigned : WorkflowTaskStatus.Waiting;
-        var dueDateUtc = request.DueDateUtc;
+        var dueDateUtc = request.DueDateUtc?.ToUniversalTime() ?? job.DueDateUtc;
         if (initialStatus == WorkflowTaskStatus.Assigned && dueDateUtc is null)
         {
             var settings = await _dbContext.TenantSettings
@@ -193,6 +193,12 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             {
                 dueDateUtc = await _slaCalculator.CalculateDueDateAsync(
                     utcNow, settings.DefaultSlaHours, tenantId, assignedDepartmentId, cancellationToken);
+                if (job.DueDateUtc is null)
+                {
+                    job.DueDateUtc = dueDateUtc;
+                    job.UpdatedAtUtc = utcNow;
+                    job.UpdatedByUserId = actor.UserId;
+                }
             }
         }
 
@@ -213,7 +219,7 @@ public sealed class CreateTaskCommandHandler : ICommandHandler<CreateTaskCommand
             OwnerUserId = ownerUserId,
             CurrentStatus = initialStatus,
             Priority = request.Priority.Trim(),
-            StartDateUtc = request.StartDateUtc,
+            StartDateUtc = request.StartDateUtc?.ToUniversalTime(),
             DueDateUtc = dueDateUtc,
             EstimatedHours = request.EstimatedHours,
             Notes = request.Notes,

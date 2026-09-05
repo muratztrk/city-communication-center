@@ -27,6 +27,8 @@ interface DateTimePickerProps {
   dateOnly?: boolean
   /** Takvim açılamaz; değer salt okunur (Görevlerim düzenleme başlangıç tarihi — #2736). */
   disabled?: boolean
+  /** Banner gibi scrollable main içinde focus scroll-into-view kaymasını engelle (#3417). */
+  preventFocusScroll?: boolean
 }
 
 const DROPDOWN_WIDTH = 272
@@ -66,12 +68,13 @@ function todayDateStr() {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
 }
 
-export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, triggerClassName, forceDown = false, forceUp = false, autoOpen = false, onClose, minDateTime, maxDateTime, dateOnly = false, disabled = false }: DateTimePickerProps) {
+export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat seçin', id, className, triggerClassName, forceDown = false, forceUp = false, autoOpen = false, onClose, minDateTime, maxDateTime, dateOnly = false, disabled = false, preventFocusScroll = false }: DateTimePickerProps) {
   const [open, setOpen] = useState(false)
   const [draft, setDraft] = useState({ date: '', time: '' })
   const [viewYear, setViewYear] = useState(new Date().getFullYear())
   const [viewMonth, setViewMonth] = useState(new Date().getMonth())
   const containerRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const autoOpenedRef = useRef(false)
   const [dropdownStyle, setDropdownStyle] = useState<React.CSSProperties>({})
@@ -106,7 +109,10 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
     }
     setYearPickerOpen(false)
     setOpen(true)
-  }, [disabled, minDateTime, value])
+    if (preventFocusScroll) {
+      requestAnimationFrame(() => triggerRef.current?.focus({ preventScroll: true }))
+    }
+  }, [disabled, minDateTime, preventFocusScroll, value])
 
   useEffect(() => {
     if (!autoOpen || autoOpenedRef.current) return
@@ -229,8 +235,12 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
   return (
     <div ref={containerRef} className={cn('relative', className)}>
       <button
+        ref={triggerRef}
         id={id}
         type="button"
+        onMouseDown={e => {
+          if (preventFocusScroll && e.button === 0) e.preventDefault()
+        }}
         onClick={handleOpen}
         disabled={disabled}
         title={display || undefined}

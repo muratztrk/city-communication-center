@@ -1901,7 +1901,7 @@ export function WhatsAppConversationsPage() {
   }, [navigate, requestedAt, requestedMessageId, requestedPhone])
 
   return (
-    <div className="page-stack desktop-page-shell">
+    <div className="page-stack desktop-page-shell whatsapp-page-shell">
       <header className="sticky-page-header">
         <div className="page-header-row">
           <div className="space-y-1">
@@ -1909,7 +1909,7 @@ export function WhatsAppConversationsPage() {
             <h1 className="page-title">{t('whatsapp.title')}</h1>
             <p className="page-subtitle">{t('whatsapp.subtitle')}</p>
           </div>
-          <div className="ml-auto mt-auto shrink-0">
+          <div className="ml-auto shrink-0 self-center">
             <div className="scope-chips-filters">
               <ScopeChipDateRange
                 from={filterFrom}

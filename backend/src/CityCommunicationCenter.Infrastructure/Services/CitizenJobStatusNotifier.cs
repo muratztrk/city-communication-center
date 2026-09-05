@@ -6,7 +6,6 @@ using CityCommunicationCenter.Application.Features.Attachments;
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Domain.Enums;
-using CityCommunicationCenter.Infrastructure.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -21,7 +20,6 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
     private readonly INotificationPushService? _notificationPushService;
     private readonly ISocialMediaClientFactory _clientFactory;
     private readonly IAttachmentContentProvider _attachmentContentProvider;
-    private readonly SmsOptions _smsOptions;
     private readonly string _uploadRootPath;
     private readonly ILogger<CitizenJobStatusNotifier> _logger;
 
@@ -32,7 +30,6 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         ISocialMediaClientFactory clientFactory,
         IAttachmentContentProvider attachmentContentProvider,
         IOptions<AttachmentStorageOptions> attachmentStorageOptions,
-        IOptions<SmsOptions> smsOptions,
         ILogger<CitizenJobStatusNotifier> logger,
         INotificationPushService? notificationPushService = null)
     {
@@ -41,7 +38,6 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         _smsGateway = smsGateway;
         _clientFactory = clientFactory;
         _attachmentContentProvider = attachmentContentProvider;
-        _smsOptions = smsOptions.Value;
         _uploadRootPath = attachmentStorageOptions.Value.UploadRootPath;
         _notificationPushService = notificationPushService;
         _logger = logger;
@@ -475,15 +471,6 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
 
         if (!requireApproval)
         {
-            if (!_smsOptions.LiveSendEnabled)
-            {
-                _logger.LogInformation(
-                    "WhatsApp SIMULATION (Sms:LiveSendEnabled=false) — SocialMessage {SocialMessageId}, status {StatusLabel}",
-                    message.SocialMessageId,
-                    statusLabel);
-                return;
-            }
-
             var recipientPhone = await WhatsAppRecipientResolver.ResolveRecipientPhoneAsync(
                 _dbContext,
                 message,

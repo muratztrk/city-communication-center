@@ -275,12 +275,6 @@ export function canAnyRoleAccessPage(roles: readonly (string | undefined)[] | un
 
   // Kurum İçi lisans kapalıyken yalnız Operator Talep Oluştur'a girebilir (citizen VT) (#2368).
   if (pageKey === 'createRequest' && !isModuleUsable('internal')) {
-    const matrix = loadRolePageAccessMatrix()
-    const grantedViaMatrix = effectiveRoles.some(role =>
-      isRoleCode(role) && matrix[role].createRequest)
-    if (grantedViaMatrix && isModuleUsable('citizen')) {
-      return true
-    }
     return effectiveRoles.includes('Operator') && isModuleUsable('citizen')
   }
 

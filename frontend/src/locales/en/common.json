@@ -693,7 +693,7 @@
     "role": "Role",
     "password": "Password",
     "passwordPlaceholder": "At least 8 characters",
-    "passwordHint": "(Password must be at least 8 characters and include an uppercase letter, a lowercase letter, a special character and a digit.)",
+    "passwordHint": "(minimum 8 characters: uppercase/lowercase letter, digit and special character required.)",
     "passwordConfirm": "Confirm Password",
     "passwordConfirmPlaceholder": "Re-enter password",
     "passwordMismatch": "Passwords do not match",

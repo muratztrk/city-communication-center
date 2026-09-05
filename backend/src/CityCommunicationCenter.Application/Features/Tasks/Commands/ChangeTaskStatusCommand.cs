@@ -14,7 +14,7 @@ public sealed class ChangeTaskStatusCommandValidator : AbstractValidator<ChangeT
         RuleFor(c => c.NewStatus).NotEmpty().WithMessage("Yeni görev durumu gereklidir.");
         RuleFor(c => c.Reason)
             .NotEmpty().WithMessage("Durum değişikliği nedeni gereklidir.")
-            .MaximumLength(100).WithMessage("Durum değişikliği nedeni en fazla 100 karakter olabilir.");
+            .MaximumLength(300).WithMessage("Durum değişikliği nedeni en fazla 300 karakter olabilir.");
     }
 }
 

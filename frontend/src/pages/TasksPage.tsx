@@ -67,7 +67,8 @@ import {
 } from '../utils/attachmentLimits'
 
 const COMPLETION_ATTACHMENT_MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
-const TASK_TERMINAL_NOTE_MAX_LENGTH = 500
+const TASK_TERMINAL_NOTE_MAX_LENGTH = 300
+const TASK_STATUS_CHANGE_REASON_MAX_LENGTH = 300
 
 function completionAttachmentIcon(name: string) {
   return ['.jpg', '.jpeg', '.png'].includes(attachmentFileExtension(name)) ? SimpleImageAttachmentIcon : FileText
@@ -3863,11 +3864,11 @@ const pageKicker = isMyTasksView
               {t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-[10px] font-normal text-slate-400">(Max {TASK_STATUS_CHANGE_REASON_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea"
                 rows={3}
-                maxLength={100}
+                maxLength={TASK_STATUS_CHANGE_REASON_MAX_LENGTH}
                 value={statusChangeReason}
                 onChange={e => setStatusChangeReason(e.target.value)}
                 placeholder={t('tasks.actions.changeStatusReasonPlaceholder', 'Durum değişikliği nedenini açıklayınız...')}

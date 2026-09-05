@@ -59,6 +59,7 @@ export function AttachmentImagePreviewButton({
     } catch (error) {
       setMissingDialog({
         title: t('attachments.missingTitle', 'Ek bulunamadı'),
+        titleDivider: true,
         message: resolveAttachmentMissingMessage(error, ownerKind),
         confirmLabel: t('common.ok', 'Tamam'),
         hideCancel: true,

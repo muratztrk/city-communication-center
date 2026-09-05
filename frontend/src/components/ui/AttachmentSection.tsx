@@ -122,6 +122,7 @@ export function AttachmentSection({ attachments, onUpload, onDelete, onDownload,
   const showMissingAttachmentDialog = (error: unknown) => {
     setMissingDialog({
       title: t('attachments.missingTitle', 'Ek bulunamadı'),
+      titleDivider: true,
       message: resolveAttachmentMissingMessage(error, ownerKind),
       confirmLabel: t('common.ok', 'Tamam'),
       hideCancel: true,

@@ -1,3 +1,8 @@
+## Round 1137 — Trello Doing 1 kart (#3417)
+
+- **#3417:** WA banner tarih chip tıklamasında kayma — focus scroll-into-view engellendi (`preventFocusScroll`); `mt-auto` → `self-center`.
+- Push: `674f9dda` (develop). Testtim deploy. Done.
+
 ## Round 1136 — Trello Doing 1 kart (#3416)
 
 - **#3416:** Lumespec Destek popup Mesaj placeholder → "Destek talebinizi kısaca açıklayınız..."

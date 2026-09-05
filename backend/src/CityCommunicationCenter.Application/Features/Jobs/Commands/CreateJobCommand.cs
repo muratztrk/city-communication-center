@@ -200,7 +200,8 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             }
         }
         var ownerTaskNotes = JobOwnerTaskProvisioning.CreateOwnerTaskNotes(ownerUserIds);
-        var dueDateUtc = request.DueDateUtc;
+        var startDateUtc = request.StartDateUtc?.ToUniversalTime();
+        var dueDateUtc = request.DueDateUtc?.ToUniversalTime();
         if (!requiresOwnerApproval && dueDateUtc is null)
         {
             var settings = await _dbContext.TenantSettings
@@ -235,7 +236,7 @@ public sealed class CreateJobCommandHandler : ICommandHandler<CreateJobCommand, 
             IsProjectOwnerConfirmed = !requiresOwnerApproval,
             CitizenName = string.IsNullOrWhiteSpace(request.CitizenName) ? null : request.CitizenName.Trim(),
             CitizenPhone = string.IsNullOrWhiteSpace(request.CitizenPhone) ? null : request.CitizenPhone.Trim(),
-            StartDateUtc = request.StartDateUtc,
+            StartDateUtc = startDateUtc,
             DueDateUtc = dueDateUtc,
             SourceType = sourceType,
             SourceRefId = request.SourceRefId,

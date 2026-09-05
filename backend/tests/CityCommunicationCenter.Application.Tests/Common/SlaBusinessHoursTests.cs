@@ -43,6 +43,14 @@ public sealed class SlaBusinessHoursTests
     }
 
     [Fact]
+    public void AddExcludingNonWorkingDays_ReturnsUtcOffset()
+    {
+        var start = new DateTimeOffset(2026, 8, 30, 8, 37, 0, TimeSpan.FromHours(3));
+        var due = SlaBusinessHours.AddExcludingWeekends(start, 48);
+        Assert.Equal(TimeSpan.Zero, due.Offset);
+    }
+
+    [Fact]
     public void PublicHolidayStart_Plus24Hours_SkipsHoliday()
     {
         // 22 Nisan 2026 Çarşamba 08:37 + 24 iş saati; 23 Nisan tatil sayılmaz → 24 Nisan 08:37.

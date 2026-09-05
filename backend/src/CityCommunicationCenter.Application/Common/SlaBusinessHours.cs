@@ -33,7 +33,8 @@ public static class SlaBusinessHours
                 remaining--;
         }
 
-        return current;
+        // Npgsql yalnızca offset=0 (UTC) kabul eder; yerel saat hesabı sonrası UTC'ye normalize et.
+        return current.ToUniversalTime();
     }
 
     public static bool IsNonWorkingDay(DateTimeOffset localTime, bool excludeWeekends, bool excludePublicHolidays)

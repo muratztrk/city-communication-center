@@ -1091,6 +1091,7 @@
     "sort": "Sırala",
     "urgent": "ACİL",
     "waitingForResponse": "Yanıt bekliyor",
+    "markWaitingReplied": "Yanıt Verildi Yap",
     "ticketOpen": "Yanıt Verildi",
     "ticketResolved": "Çözüldü",
     "unassigned": "Atanmadı",

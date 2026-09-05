@@ -327,18 +327,40 @@ type ConversationStatusSummary = Pick<
   'lastMessageDirection' | 'openTicketCount' | 'latestTicketStatus' | 'waitingReplyClearedAtUtc'
 >
 
-function ConversationRespondedLabel({ summary }: { summary: ConversationStatusSummary | null | undefined }) {
+function ConversationHeaderReplyStatus({
+  summary,
+  onMarkWaitingReplied,
+}: {
+  summary: ConversationStatusSummary | null | undefined
+  onMarkWaitingReplied?: () => void
+}) {
   const { t } = useTranslation()
   if (!summary) return null
   const waitingForResponse = isWaitingForConversationResponse(summary)
   const ticketOpen = isConversationTicketOpen(summary)
-  if (waitingForResponse || !ticketOpen) return null
-  return (
-    <span className="inline-flex shrink-0 items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
-      <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
-      {t('whatsapp.ticketOpen', 'Yanıt Verildi')}
-    </span>
-  )
+
+  if (waitingForResponse && onMarkWaitingReplied) {
+    return (
+      <button
+        type="button"
+        className="whatsapp-mark-waiting-replied shrink-0 text-[10px] font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline"
+        onClick={onMarkWaitingReplied}
+      >
+        {t('whatsapp.markWaitingReplied', 'Yanıt Verildi Yap')}
+      </button>
+    )
+  }
+
+  if (!waitingForResponse && ticketOpen) {
+    return (
+      <span className="inline-flex shrink-0 items-center gap-1 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-700">
+        <span className="size-1.5 rounded-full bg-emerald-500" aria-hidden="true" />
+        {t('whatsapp.ticketOpen', 'Yanıt Verildi')}
+      </span>
+    )
+  }
+
+  return null
 }
 
 function ConversationListPanel({
@@ -722,6 +744,7 @@ function ConversationDetail({
   onOpenViewRequests,
   onProfileSaved,
   onOutboundSent,
+  onMarkWaitingReplied,
 }: {
   conversationId: string
   citizenName?: string | null
@@ -740,6 +763,8 @@ function ConversationDetail({
   onProfileSaved: () => void
   /** Vatandaşa giden yanıt sonrası liste/rozet anında güncellenir (card #6a6b6ec6). */
   onOutboundSent?: () => void
+  /** Konuşmayı yanıt verildi olarak işaretle (#3403 / #6a6bab12). */
+  onMarkWaitingReplied?: () => void
 }) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
@@ -1167,10 +1192,6 @@ function ConversationDetail({
       ? formatPhone(phoneForHeader)
       : null
   const showUrgentBadge = isUrgentConversationPriority(primaryTicket?.priority)
-  const headerSubtitleParts: string[] = []
-  if (citizenName?.trim() && phoneForHeader) {
-    headerSubtitleParts.push(formatPhone(phoneForHeader))
-  }
   const pendingBadgeSearchLabel = useMemo(
     () => t('whatsapp.pendingBadge', 'Beklemede'),
     [t],
@@ -1194,29 +1215,35 @@ function ConversationDetail({
           {headerInitials ?? <img src="/icons/whatsapp.webp" alt="" className="size-6" aria-hidden="true" />}
         </div>
         <div className={`min-w-0 flex-1 ${headerTitleIsPhoneOnly ? 'pt-0.5' : ''}`}>
-          <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
-            <p className={`truncate leading-tight ${headerTitleIsPhoneOnly ? 'text-[13px] font-bold text-slate-600' : 'text-[15px] font-semibold text-slate-900'}`}>{headerTitle}</p>
-            {headerTitleIsPhoneOnly ? (
-              <ConversationRespondedLabel summary={statusSummary} />
-            ) : null}
-            {showUrgentBadge ? (
-              <span className="shrink-0 rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-950">
-                ACİL
-              </span>
-            ) : null}
-          </div>
-          {headerSubtitleParts.length > 0 || (citizenName?.trim() && statusSummary) ? (
-            <div className="mt-1 flex min-w-0 items-center justify-between gap-2">
-              {headerSubtitleParts.length > 0 ? (
-                <p className="min-w-0 truncate text-[11px] text-slate-500">{headerSubtitleParts.join(' · ')}</p>
-              ) : (
-                <span aria-hidden="true" />
-              )}
-              {citizenName?.trim() ? (
-                <ConversationRespondedLabel summary={statusSummary} />
+          {!headerTitleIsPhoneOnly ? (
+            <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5">
+              <p className="truncate leading-tight text-[15px] font-semibold text-slate-900">{headerTitle}</p>
+              {showUrgentBadge ? (
+                <span className="shrink-0 rounded-md bg-amber-400 px-1.5 py-0.5 text-[10px] font-extrabold tracking-wide text-amber-950">
+                  ACİL
+                </span>
               ) : null}
             </div>
           ) : null}
+          {phoneForHeader ? (
+            <div className={`flex min-w-0 items-center gap-2 ${headerTitleIsPhoneOnly ? '' : 'mt-1'}`}>
+              <p className={`min-w-0 truncate leading-tight ${headerTitleIsPhoneOnly ? 'text-[13px] font-bold text-slate-600' : 'text-[11px] text-slate-500'}`}>
+                {formatPhone(phoneForHeader)}
+              </p>
+              <ConversationHeaderReplyStatus
+                summary={statusSummary}
+                onMarkWaitingReplied={onMarkWaitingReplied}
+              />
+            </div>
+          ) : headerTitleIsPhoneOnly ? null : (
+            <div className="flex min-w-0 items-center gap-2">
+              <p className="truncate leading-tight text-[15px] font-semibold text-slate-900">{headerTitle}</p>
+              <ConversationHeaderReplyStatus
+                summary={statusSummary}
+                onMarkWaitingReplied={onMarkWaitingReplied}
+              />
+            </div>
+          )}
         </div>
         <div className="flex shrink-0 items-center gap-1.5">
           {phoneForHeader ? (
@@ -1771,6 +1798,18 @@ export function WhatsAppConversationsPage() {
     )
   }, [selectedId])
 
+  const handleMarkWaitingReplied = useCallback((conversationId: string) => {
+    const clearedAt = new Date().toISOString()
+    setConversations(prev =>
+      prev.map(c => c.citizenConversationId === conversationId
+        ? { ...c, waitingReplyClearedAtUtc: clearedAt }
+        : c),
+    )
+    void api.markConversationWaitingReplied(conversationId).catch(() => {
+      void silentRefreshConversations()
+    })
+  }, [silentRefreshConversations])
+
   useEffect(() => {
     const detail = selectedId
       ? {
@@ -1936,6 +1975,7 @@ export function WhatsAppConversationsPage() {
                 ))
                 void silentRefreshConversations()
               }}
+              onMarkWaitingReplied={selectedId ? () => handleMarkWaitingReplied(selectedId) : undefined}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-[color:var(--color-muted-foreground)] gap-3">

@@ -519,9 +519,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
   WhatsApp nav satırında `Yanıt bekliyor` rozeti yok (#6a6ba9ac); sayım yalnız sayfa içi
-  `Yanıt bekliyor` filtresinde. `Yanıt Verildi Yap` kaldırıldı (#3347) — chip satırında yok;
-  **Yanıt Verildi** durum etiketi konuşma detay header'ında telefon numarasının sağında görünür
-  (kayıtlı ad varsa alt satırda, yalnız numara varsa başlık satırında — #3389).
+  `Yanıt bekliyor` filtresinde. Chip satırında «Yanıt Verildi Yap» yok (#3347); aksiyon konuşma
+  detay header'ında telefon numarasının **hemen sağında** — kayıtlı ad varsa alt satırda,
+  yalnız numara varsa üst satırda (#3403). İşaretlendikten sonra aynı yerde **Yanıt Verildi**
+  durum etiketi görünür (#3389).
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekliyor` sağında; `hasPendingMessageApproval`
   = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). Rozet konuşma/numara
   sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2` / `-right-1.5`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
@@ -640,7 +641,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   senkron flush (Kaydet stale draft #6a75c91c); yazarken 8 sn detail poll atlanır.
   Sol konuşma kartında isim varsa telefon
   numarası ismin alt satırında, yanıt durumu (`Yanıt Verildi` vb.) ile aynı yatay satırda görünür.
-  Detay header'ında aynı **Yanıt Verildi** etiketi telefonun sağında hizalanır (#3389).
+  Detay header'ında telefon satırında **Yanıt Verildi Yap** (yanıt beklerken) veya **Yanıt Verildi**
+  etiketi numaranın hemen sağında (#3403 / #3389).
   Sağ profil paneli üstündeki `Talep Oluştur` aksiyonu satır ortasında, büyük `h-10` buton olarak kalır;
   yeşil gradient üst alan sağ panelin üst köşelerinde `rounded-t-xl` ile ana kartın köşe motifine uyumlu kalır (#2391).
   Sol konuşma kartındaki `Talep Sayısı: N`

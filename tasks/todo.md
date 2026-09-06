@@ -1,4 +1,13 @@
-## Round 1138 — Trello Doing 1 kart (#3417 reopen)
+## Round 1139 — Trello Doing 6 kart (#3418–#3424)
+
+- **#3418:** Mobilde `/whatsapp` sayfasında sağ alt WA FAB gizlendi (`hideWhatsAppFabOnMobile`).
+- **#3420:** WA arama kutusu mobil yükseklik küçültüldü (`.whatsapp-conversation-search`).
+- **#3421:** Mobilde şablon mesajlar + dosya ekle butonları küçültüldü.
+- **#3422:** WA talep oluştur popup mobil taşma — shell/form `min-w-0`, overflow, padding.
+- **#3423:** Mobilde WA talep popup'ta mesajlaşma kolonu gizlendi; form Vatandaş adı ile başlar.
+- **#3424:** Web oturum — idle 9s; aktivitede kayan deadline; BE cookie/token/SignalR 9s; Trello yorumu.
+- **Atlandı:** #3425 Tim mobil app (Doing'de bırakıldı).
+- Push: `f634e798` (develop). Testtim deploy denendi — sunucuda git checkout yok (VPN/kurulum). Done: 6.
 
 - **#3417 reopen:** WA banner tarih tıklamasında scroll çubuğu flicker — desktop-page-fill + main overflow hidden (WA); scrollbar-gutter stable.
 - Push: `c8ca7f41` (develop). Testtim deploy. Done.

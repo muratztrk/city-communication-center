@@ -7,10 +7,10 @@ import { ModalBackdrop } from './modal-backdrop'
 import { isSessionSupersededPending } from '../../api/sessionFlags'
 import { restoreSessionFromCookie } from '../../api/auth'
 
-/** 1 saat hareketsizlik → popup yok, direkt logout (#2603). */
-const IDLE_LOGOUT_MS = 60 * 60_000
-/** Cookie ExpireMinutes ile aynı; aktif kullanıcıya süre dolmadan uyarı (#2603). */
-const SESSION_LIFETIME_MS = 480 * 60_000
+/** 9 saat hareketsizlik → popup yok, direkt logout (#3424). */
+const IDLE_LOGOUT_MS = 9 * 60 * 60_000
+/** Cookie ExpireMinutes ile aynı; aktivitede kayar — aktif kullanıcı oturumu sınırsız (#3424). */
+const SESSION_LIFETIME_MS = 540 * 60_000
 const WARNING_COUNTDOWN_SECONDS = 60
 const LAST_ACTIVITY_KEY = 'ccc_last_activity_at'
 const SESSION_DEADLINE_KEY = 'ccc_session_deadline_at'
@@ -167,7 +167,10 @@ export function SessionIdleWarning({ onLogout }: SessionIdleWarningProps) {
     const now = Date.now()
     lastActivityAtRef.current = now
     writeStoredMs(LAST_ACTIVITY_KEY, now)
+    sessionDeadlineRef.current = now + SESSION_LIFETIME_MS
+    writeStoredMs(SESSION_DEADLINE_KEY, sessionDeadlineRef.current)
     startIdleTimer()
+    startSessionWarningTimer()
   }
 
   const extendSession = () => {

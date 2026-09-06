@@ -229,7 +229,7 @@ public sealed class AuthController : ControllerBase
             {
                 IsPersistent = true,
                 IssuedUtc = DateTimeOffset.UtcNow,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8),
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(9),
             });
 
         return Ok(ToLoginResponse(result));
@@ -256,7 +256,7 @@ public sealed class AuthController : ControllerBase
     [ProducesResponseType<SignalRAccessTokenResponse>(StatusCodes.Status200OK)]
     public ActionResult<SignalRAccessTokenResponse> IssueSignalRAccessToken()
     {
-        var lifetime = TimeSpan.FromHours(8);
+        var lifetime = TimeSpan.FromHours(9);
         var accessToken = _signalRAccessTokenIssuer.CreateAccessToken(User, lifetime);
         return Ok(new SignalRAccessTokenResponse(accessToken, (int)lifetime.TotalSeconds));
     }

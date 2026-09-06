@@ -483,7 +483,7 @@ function ConversationListPanel({
               onSearchChange(value)
             }}
             placeholder={t('whatsapp.searchPlaceholderExtended', 'Telefon no, vatandaş adı…')}
-            className="w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600/40"
+            className="whatsapp-conversation-search w-full rounded-xl border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-9 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600/20 focus:border-emerald-600/40"
           />
           {search ? (
             <button

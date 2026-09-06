@@ -532,6 +532,7 @@ export function AppShell() {
   )
   const hideMapPageChatFabs = location.pathname === '/citizen-request-map'
     || location.pathname === '/department-request-map'
+  const hideWhatsAppFabOnMobile = hideMapPageChatFabs || location.pathname === '/whatsapp'
 
   const handleLogout = useCallback(() => {
     void logout()
@@ -1121,7 +1122,7 @@ export function AppShell() {
       <div className="fixed-fab-stack pointer-events-none fixed right-5 z-[75] flex items-end gap-3">
         {/* FAB sırası: WhatsApp → Kurum İçi Mesajlar → aşağı/yukarı (cards #1543/#1553). */}
         {/* Harita sayfalarında küçük ekranda sohbet FAB’leri zoom kontrollerini kapatır (#2694). */}
-        <div className={`pointer-events-auto${hideMapPageChatFabs ? ' max-lg:hidden' : ''}`}>{canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}</div>
+        <div className={`pointer-events-auto${hideWhatsAppFabOnMobile ? ' max-lg:hidden' : ''}`}>{canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}</div>
         <div className={`pointer-events-auto${hideMapPageChatFabs ? ' max-lg:hidden' : ''}`}>{isInternalModuleUsable ? <InternalMessagesFab /> : null}</div>
         <div className="pointer-events-auto"><ScrollFab /></div>
       </div>

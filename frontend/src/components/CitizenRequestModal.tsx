@@ -543,11 +543,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4"
+      className="fixed inset-0 z-[120] flex items-center justify-center bg-black/40 p-4 max-lg:p-2"
       role="presentation"
     >
       <div
-        className="detail-modal-shell detail-modal-shell--citizen-create flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl"
+        className="detail-modal-shell detail-modal-shell--citizen-create flex w-full max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl max-lg:max-h-[92dvh]"
         onClick={event => event.stopPropagation()}
       >
         <div
@@ -579,7 +579,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         </div>
 
         <div className="grid min-h-0 flex-1 grid-cols-1 lg:grid-cols-2">
-          <div className="min-h-0 border-b border-slate-200 lg:border-b-0 lg:border-r">
+          <div className={`min-h-0 border-b border-slate-200 lg:border-b-0 lg:border-r${message.channel === 'WhatsApp' ? ' hidden lg:block' : ''}`}>
             <ConversationPanel
               socialMessageId={message.socialMessageId}
               citizenHandle={message.citizenHandle}
@@ -599,7 +599,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
             />
           </div>
 
-          <form id="citizen-request-form" className="citizen-request-form flex min-h-0 flex-col overflow-y-auto p-4" onSubmit={handleSubmit}>
+          <form id="citizen-request-form" className="citizen-request-form flex min-h-0 min-w-0 flex-col overflow-x-hidden overflow-y-auto p-4 max-lg:p-3" onSubmit={handleSubmit}>
             {loadingJob ? (
               <div className="flex flex-1 items-center justify-center py-12 text-sm text-slate-500">{t('common.loading')}</div>
             ) : (

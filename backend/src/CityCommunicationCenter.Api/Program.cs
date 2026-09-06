@@ -137,7 +137,7 @@ builder.Services
         options.Cookie.Path = "/";
         options.Cookie.SecurePolicy = ParseCookieSecurePolicy(builder.Configuration["Authentication:SessionCookie:SecurePolicy"]);
         options.Cookie.SameSite = ParseSameSiteMode(builder.Configuration["Authentication:SessionCookie:SameSite"]);
-        options.ExpireTimeSpan = TimeSpan.FromMinutes(builder.Configuration.GetValue("Authentication:SessionCookie:ExpireMinutes", 480));
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(builder.Configuration.GetValue("Authentication:SessionCookie:ExpireMinutes", 540));
         options.SlidingExpiration = true;
         options.LoginPath = PathString.Empty;
         options.AccessDeniedPath = PathString.Empty;
@@ -216,7 +216,7 @@ builder.Services.AddOpenIddict()
         options.AddEventHandler(OpenIddictPasswordGrantValidationHandler.Descriptor);
 
         options.DisableAccessTokenEncryption();
-        options.SetAccessTokenLifetime(TimeSpan.FromHours(8));
+        options.SetAccessTokenLifetime(TimeSpan.FromHours(9));
         options.SetAuthorizationCodeLifetime(TimeSpan.FromMinutes(5));
         options.AddEphemeralSigningKey();
         options.AddEphemeralEncryptionKey();

@@ -2512,9 +2512,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Kullanıcılar Birim/Rol menü font (#r456/#r460/#r516/#r518/#r519/#r521/#r522/#r523):** geçmiş
   ölçüler ~0.52–0.92rem; create Rol/Ek Roller güncel #r527 (220px / ~0.82rem).
 - **Talep açıklaması detay (#r460):** Taleplerim/detay `RichTextContent` ~13px.
-- **Oturum idle (#2003/#r528/#2603):** 1 saat hareketsizlik → “Oturumu Uzat” yok, direkt logout
-  (uyku/arka plan duvar saati dahil). Kullanıcı aktifken oturum süresi dolmak üzereyse popup
-  gösterilir; Uzat `session/me` ile cookie kaydırır.
+- **Oturum idle (#2003/#r528/#2603/#3424):** 9 saat hareketsizlik → “Oturumu Uzat” yok, direkt logout
+  (uyku/arka plan duvar saati dahil). Aktif kullanıcıda oturum süresi her aktivitede 9 saat kayar
+  (sınırsız çalışma); süre dolmak üzereyken popup gösterilir; Uzat `session/me` ile cookie kaydırır.
 - **WA Etiket ekle (#r460):** kompakt `RequestTagAddButton` `h-8` / `text-xs`.
 - **Dizin Detaylar popup başlık (#r460):** `Vatandaş Bilgi Listesi` (`nav.citizenDirectory`).
 - **WA chat footer Birim/Kurum İçi (#r460):** şablon satırında `ml-auto` sağa yaslı (bir satır yukarı).
@@ -3109,7 +3109,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 
 - **Tenant çözümleme önceliği:** `X-Tenant-Id` header > `CustomDomain` (Host) > `SingleTenant`
   (tek aktif) > `ManualSelection`.
-- **OpenIddict stateless password flow; refresh token YOK; access token 8 saat.**
+- **OpenIddict stateless password flow; refresh token YOK; access token 9 saat; session cookie sliding 540 dk.**
 - **`RoleCode` → Türkçe etiket (kartlar bu adları kullanır):** `Reporter` = "Üst Düzey Yönetici",
   `Operator` = "Vatandaş Talep Operatörü", `CitizenRequestManager` = "Vatandaş Talep Yöneticisi",
   `Manager` = "Müdür". CRM scoped rol — detay [`authorization-matrix.md`](authorization-matrix.md) §1.1.

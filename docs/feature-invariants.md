@@ -655,6 +655,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   başlıksız olarak görünür kalır; `İptal` kart alt sayacında basılmaz.
 - **WhatsApp banner / sol başlık (#2914):** `/whatsapp` banner `page-title` `WhatsApp Mesajları`;
   sol panel başlığı `Mesajlar` (`whatsapp.title` / `whatsapp.conversationsTitle`).
+- **WhatsApp banner tarih chip scroll flicker (#3417 reopen):** md+ viewport'ta banner
+  `ScopeChipDateRange` tıklanınca `#main-content` scroll çubuğu açılıp kapanmamalı. `AppShell`
+  `/whatsapp` rotasında `md:overflow-y-hidden`; unlayered `#main-content:has(.whatsapp-page-shell)
+  { overflow-y: hidden !important }` (Tailwind `overflow-y-auto` utilities katmanını yenilir).
+  Banner tarih bloğu `self-center` (mt-auto yok); `DateTimePicker` `preventFocusScroll` + `forceDown`
+  ile dropdown viewport içinde kalır.
 - **WhatsApp konuşma toplam sayaç filtreleri:** `/whatsapp` sol panelinde `Mesajlar` başlığı altında
   `İşleme Alınan`, turuncu `Yapılmakta`, yeşil `Tamamlandı` sayaçları görünür; `İptal` kalemi burada
   ve konuşma kartı alt sayaçlarında gösterilmez. Görünen sayaçlar tek satırda ve okunur büyüklükte kalır. `Tümü`, `Konuşmalar` başlığının altındaki kendi
@@ -902,6 +908,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `py-1.5` (#2560). Adres Tarifi textarea `#citizen-request-form` `4.5rem` (#2584; Tailwind
   `min-h-[5.5rem]` `!important` ile ezilir). Cadde/Sokak biraz dar, No biraz geniş
   (`1fr` / `6.75rem`, #2584 reopen). `request-form--readable` 3.2rem ezilir.
+  **Mobil Talep Oluştur taşma (#3426):** `max-lg` formlar/input/dropdown `min-w-0` + `max-width:100%`;
+  Cadde/No satırı mobilde tek kolon; masaüstü `#citizen-request-form` 3-sütun adres kuralları yalnız `≥1024px`.
   Sol kolon **Talebin Adres Bilgisi** Cadde/No placeholder `0.875rem`; Mahalle aynı punto
   (`citizen-call-neighborhood-trigger`, #2847). Talep Başlığı / Gideceği Birim / Telefon No /
   Öncelik placeholder da Mahalle ile aynı `0.875rem` (#3087). Vatandaş Çağrı seçili Öncelik

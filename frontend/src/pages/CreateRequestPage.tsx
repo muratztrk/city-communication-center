@@ -1411,7 +1411,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'internal' ? (
-        <form id="internal-request-form" noValidate className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-2" onSubmit={handleCreateInternal}>
+        <form id="internal-request-form" noValidate className="section-card request-form request-form--readable grid min-w-0 max-w-full gap-4 xl:grid-cols-2" onSubmit={handleCreateInternal}>
           <div className="xl:col-span-2">
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-slate-950">
               <Building2 className="size-5 text-[color:var(--color-primary)]" />
@@ -1518,7 +1518,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'external' ? (
-        <form id="external-request-form" noValidate className="section-card request-form request-form--readable grid gap-3 xl:grid-cols-2" onSubmit={handleCreateExternal}>
+        <form id="external-request-form" noValidate className="section-card request-form request-form--readable grid min-w-0 max-w-full gap-3 xl:grid-cols-2" onSubmit={handleCreateExternal}>
           <div className="xl:col-span-2">
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-slate-950">
               <Workflow className="size-5 text-emerald-700" />
@@ -1636,7 +1636,7 @@ export function CreateRequestPage() {
       ) : null}
 
       {selectedKind === 'citizen' ? (
-        <form id="citizen-request-form" noValidate className="section-card request-form request-form--readable grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
+        <form id="citizen-request-form" noValidate className="section-card request-form request-form--readable grid min-w-0 max-w-full gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(22rem,1.1fr)]" onSubmit={handleCreateCitizen}>
           <div className="xl:col-span-2">
             <h2 className="inline-flex items-center gap-2 text-lg font-semibold text-slate-950">
               <span className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-sky-100 text-sky-700">

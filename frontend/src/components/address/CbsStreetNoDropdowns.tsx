@@ -144,7 +144,7 @@ export function CbsStreetNoDropdowns({
           menuWidthExtraPx={streetMenuWidthExtraPx}
         />
       </div>
-      <div className="grid w-[8.25rem] min-w-[8.25rem] max-w-[8.25rem] shrink-0 gap-1 overflow-hidden">
+      <div className="grid min-w-0 w-full max-w-full gap-1 overflow-hidden max-lg:shrink max-lg:basis-full lg:w-[8.25rem] lg:min-w-[8.25rem] lg:max-w-[8.25rem] lg:shrink-0">
         <span className={labelClassName}>
           {t('address.streetNoLabel', 'No')}
           {required && hasNeighborhood ? <span className="text-red-500"> *</span> : null}

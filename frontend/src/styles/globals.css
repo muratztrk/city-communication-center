@@ -4167,15 +4167,17 @@
     font-size: 0.72rem !important;
   }
 
-  /* Vatandaş Çağrı Talebin Adres: Cadde/Sokak sütunu (#2873 / #2879). */
-  #citizen-request-form .address-street-no-row.citizen-call-address-street-row {
-    grid-template-columns: minmax(0, 1.45fr) 7.5rem !important;
-  }
+  @media (min-width: 1024px) {
+    /* Vatandaş Çağrı Talebin Adres: Cadde/Sokak sütunu (#2873 / #2879). */
+    #citizen-request-form .address-street-no-row.citizen-call-address-street-row {
+      grid-template-columns: minmax(0, 1.45fr) 7.5rem !important;
+    }
 
-  #citizen-request-form .address-street-no-row.citizen-call-address-street-row > div:nth-child(2) {
-    width: 7.5rem !important;
-    min-width: 7.5rem !important;
-    max-width: 7.5rem !important;
+    #citizen-request-form .address-street-no-row.citizen-call-address-street-row > div:nth-child(2) {
+      width: 7.5rem !important;
+      min-width: 7.5rem !important;
+      max-width: 7.5rem !important;
+    }
   }
 
   #citizen-request-form .rich-text-toolbar-divider {
@@ -4195,36 +4197,38 @@
     max-height: 4.5rem;
   }
 
-  /* Çağrı formu: Cadde + No + Konum Koordinatı aynı satır (#2835 / #2837). No hafif geniş (#2844). */
-  #citizen-request-form .address-street-no-row {
-    grid-template-columns: minmax(0, 0.92fr) 7rem minmax(6.25rem, 7.75rem) !important;
-  }
+  @media (min-width: 1024px) {
+    /* Çağrı formu: Cadde + No + Konum Koordinatı aynı satır (#2835 / #2837). No hafif geniş (#2844). */
+    #citizen-request-form .address-street-no-row {
+      grid-template-columns: minmax(0, 0.92fr) 7rem minmax(6.25rem, 7.75rem) !important;
+    }
 
-  #citizen-request-form .address-street-no-row > div:nth-child(2) {
-    width: 7rem !important;
-    min-width: 7rem !important;
-    max-width: 7rem !important;
-  }
+    #citizen-request-form .address-street-no-row > div:nth-child(2) {
+      width: 7rem !important;
+      min-width: 7rem !important;
+      max-width: 7rem !important;
+    }
 
-  #citizen-request-form .address-street-no-row .field-input {
-    min-height: 1.92rem !important;
-    height: 1.92rem !important;
-    max-height: 1.92rem !important;
-    padding-block: 0.28rem !important;
-    font-size: 12px !important;
-  }
+    #citizen-request-form .address-street-no-row .field-input {
+      min-height: 1.92rem !important;
+      height: 1.92rem !important;
+      max-height: 1.92rem !important;
+      padding-block: 0.28rem !important;
+      font-size: 12px !important;
+    }
 
-  /* Konum Koordinatı: textbox ve placeholder hafif küçült (#2833). */
-  #citizen-request-form .address-street-no-row > div:nth-child(3) .field-input {
-    min-height: 1.78rem !important;
-    height: 1.78rem !important;
-    max-height: 1.78rem !important;
-    padding-block: 0.22rem !important;
-    font-size: 11px !important;
-  }
+    /* Konum Koordinatı: textbox ve placeholder hafif küçült (#2833). */
+    #citizen-request-form .address-street-no-row > div:nth-child(3) .field-input {
+      min-height: 1.78rem !important;
+      height: 1.78rem !important;
+      max-height: 1.78rem !important;
+      padding-block: 0.22rem !important;
+      font-size: 11px !important;
+    }
 
-  #citizen-request-form .address-street-no-row > div:nth-child(3) .field-input::placeholder {
-    font-size: 11.5px !important;
+    #citizen-request-form .address-street-no-row > div:nth-child(3) .field-input::placeholder {
+      font-size: 11.5px !important;
+    }
   }
 
   .table-number-cell__value {
@@ -6405,20 +6409,9 @@
       overflow: hidden;
     }
 
-    /* WA: banner tarih chip tıklanınca main scroll çubuğu açılıp kapanmasın (#3417 reopen). */
+    /* WA scroll flicker (#3417): unlayered !important kuralı dosya sonunda — @layer utilities yenilir. */
     #main-content {
       scrollbar-gutter: stable;
-    }
-
-    #main-content:has(.whatsapp-page-shell) {
-      overflow-y: hidden;
-    }
-
-    .whatsapp-page-shell.page-stack {
-      display: flex;
-      flex: 1 1 auto;
-      flex-direction: column;
-      min-height: 0;
     }
 
     .app-content-shell .admin-surface-page .desktop-page-fill {
@@ -8722,6 +8715,77 @@
     .routine-task-form button[type='submit'] {
       font-size: inherit;
     }
+
+    /* Talep Oluştur formları: mobilde input/dropdown taşmasın. */
+    .request-form--readable {
+      min-width: 0;
+      max-width: 100%;
+      overflow-x: clip;
+    }
+
+    .request-form--readable .grid,
+    .request-form--readable .job-field,
+    .request-form--readable > div {
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .request-form--readable .helper-copy {
+      overflow-wrap: anywhere;
+    }
+
+    .request-form--readable .field-input,
+    .request-form--readable .field-select,
+    .request-form--readable .field-textarea,
+    .request-form--readable .rich-text-editor {
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+
+    #citizen-request-form .address-street-no-row,
+    #citizen-request-form .address-street-no-row.citizen-call-address-street-row,
+    #internal-request-form .address-street-no-row,
+    #external-request-form .address-street-no-row,
+    .address-street-no-row--with-link {
+      grid-template-columns: minmax(0, 1fr) !important;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    #citizen-request-form .address-street-no-row > div,
+    #internal-request-form .address-street-no-row > div,
+    #external-request-form .address-street-no-row > div {
+      width: 100% !important;
+      min-width: 0 !important;
+      max-width: 100% !important;
+    }
+
+    #citizen-request-form .request-tag-create-block,
+    #citizen-request-form .request-tag-create-actions {
+      flex-wrap: wrap !important;
+      max-width: 100%;
+    }
+
+    #citizen-request-form .rich-text-toolbar,
+    #internal-request-form .rich-text-toolbar,
+    #external-request-form .rich-text-toolbar {
+      flex-wrap: wrap;
+    }
+  }
+}
+
+/* WA /whatsapp: main scroll flicker (#3417 reopen) — @layer components, utilities katmanına yenilir. */
+@media (min-width: 768px) {
+  #main-content:has(.whatsapp-page-shell) {
+    overflow-y: hidden !important;
+    scrollbar-gutter: auto !important;
+  }
+
+  #main-content:has(.whatsapp-page-shell) .whatsapp-page-shell.page-stack {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    min-height: 0;
   }
 }
 

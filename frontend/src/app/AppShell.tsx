@@ -1098,7 +1098,10 @@ export function AppShell() {
             </Button>
           </div>
         </div>
-        <main id="main-content" className="flex min-h-0 w-full max-w-none flex-1 flex-col overflow-y-auto px-3 py-3 sm:px-4 lg:px-5 lg:py-3 xl:px-6 2xl:px-7">
+        <main
+          id="main-content"
+          className={`flex min-h-0 w-full max-w-none flex-1 flex-col overflow-y-auto px-3 py-3 sm:px-4 lg:px-5 lg:py-3 xl:px-6 2xl:px-7${location.pathname === '/whatsapp' ? ' md:overflow-y-hidden' : ''}`}
+        >
           {breadcrumbSegments.length > 0
             && location.pathname !== '/dashboard'
             && location.pathname !== '/dashboard/birimler' ? (

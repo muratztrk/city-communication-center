@@ -141,7 +141,10 @@ export function DateTimePicker({ value, onChange, placeholder = 'Tarih ve saat s
     } else if (!forceDown && rect.bottom + DROPDOWN_HEIGHT + MARGIN > vh) {
       style.bottom = vh - rect.top + 4
     } else {
-      style.top = rect.bottom + 4
+      const top = rect.bottom + 4
+      style.top = forceDown
+        ? Math.max(MARGIN, Math.min(top, vh - DROPDOWN_HEIGHT - MARGIN))
+        : top
     }
 
     const animationFrame = window.requestAnimationFrame(() => setDropdownStyle(style))

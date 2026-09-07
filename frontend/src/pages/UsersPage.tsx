@@ -68,7 +68,17 @@ function getUsersRoleMenuLabel(t: TFunction, roleCode: string): string {
 }
 
 function additionalRoleFormOptions(t: TFunction, primaryRoleCode: string) {
-  return getAllowedAdditionalRoleCodes(primaryRoleCode)
+  const allowed = new Set(getAllowedAdditionalRoleCodes(primaryRoleCode))
+  // Ek roller: Standart → VTY → Reporter → e-Devlet → Operatör (#3429 reopen).
+  const ordered: Array<(typeof ADDITIONAL_ROLE_CODES)[number]> = [
+    'Staff',
+    'CitizenRequestManager',
+    'Reporter',
+    'EDevletActivityPlan',
+    'Operator',
+  ]
+  return ordered
+    .filter(roleCode => allowed.has(roleCode))
     .map(roleCode => ({ value: roleCode, label: getUsersRoleMenuLabel(t, roleCode) }))
 }
 

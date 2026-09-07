@@ -349,31 +349,37 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     const kicker = headerMode === 'phone'
       ? t('whatsapp.phoneNoHeader', 'Whatsapp Telefon No')
       : t('social.conversation', 'Konuşma')
+    const printInboundLabel = inboundSenderLabel
     const messageBlocks = entries.map(entry => {
       const role = entry.direction === 'Inbound'
         ? t('social.inboundShort', 'Gelen')
         : t('social.outboundShort', 'Giden')
       const time = formatConversationMessageTime(entry.sentAt, locale, t)
       const content = formatConversationDisplayContent(entry.content)
-      return `<div class="message"><div class="meta">${escHtml(time)} · ${escHtml(role)}</div><div class="body">${escHtml(content).replace(/\n/g, '<br>')}</div></div>`
+      const isInbound = entry.direction === 'Inbound'
+      const senderLine = isInbound && printInboundLabel
+        ? `<div class="sender"><strong>${escHtml(printInboundLabel)}</strong></div>`
+        : ''
+      return `<div class="message">${senderLine}<div class="meta"><strong>${escHtml(time)}</strong> · ${escHtml(role)}</div><div class="body">${escHtml(content).replace(/\n/g, '<br>')}</div></div>`
     }).join('')
     const printedAt = new Date().toLocaleString(locale)
     printHtmlDocument(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(title)}</title><style>
-      @page{margin:0}
       body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
-      h1{font-size:16px;margin:0 0 4px}
+      h1{font-size:16px;font-weight:700;margin:0 0 4px}
       .kicker{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin-bottom:12px}
       .message{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #e2e8f0}
+      .sender{font-size:11px;color:#111;margin-bottom:4px}
+      .sender strong,.meta strong{font-weight:700;color:#111}
       .meta{font-size:10px;color:#64748b;margin-bottom:4px}
       .body{white-space:normal;line-height:1.45}
       .footer{margin-top:1.5rem;font-size:10px;color:#94a3b8}
     </style></head><body>
       <p class="kicker">${escHtml(kicker)}</p>
-      <h1>${escHtml(title)}</h1>
+      <h1><strong>${escHtml(title)}</strong></h1>
       ${messageBlocks}
       <div class="footer">Yazdırma tarihi: ${escHtml(printedAt)}</div>
     </body></html>`)
-  }, [citizenHandle, entries, headerMode, locale, phoneForDisplay, registeredCitizenName, t])
+  }, [citizenHandle, entries, headerMode, inboundSenderLabel, locale, phoneForDisplay, registeredCitizenName, t])
 
   return (
     <div className="flex flex-col h-full">

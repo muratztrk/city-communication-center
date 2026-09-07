@@ -1609,7 +1609,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazışmaya Git popup (#2080 / #2289):** `WhatsAppConversationModal` → `compactBubbles` + `compactActions`
   (metin `text-xs`, balon padding küçültülür). Banner: kayıtlı vatandaş adı varsa numaranın **solunda** aynı satırda.
   Banner zemini sayfa `sticky-page-header` ile aynı `linear-gradient(135deg, header-from, header-to)`.
-  **Yazdır (#3431):** X solunda `Printer`; konuşma `printHtmlDocument` ile yazdırma penceresinde açılır (`enableConversationPrint`).
+  **Yazdır (#3431 / #3434 reopen):** X solunda `Printer`; konuşma `printHtmlDocument` ile yazdırma
+  penceresinde açılır (`enableConversationPrint`). Gelen mesajlarda vatandaş adı satırı + meta
+  tarih `<strong>`; sayfa kırılımında devam sayfası üstünde okunaklı kalır. Inline `@page{margin:0}` yok
+  — `printDocument` marj enjeksyonu geçerli.
 - **Mesaj Onayı Detaylar → Talep Durumunu Değiştir (#2083):** buton rengi `Görevi Yönlendir` ile aynı
   (`bg-[#007985]` / `hover:bg-[#006570]`), turuncu değil.
 - **Onayla ve Personel Ata self-istek metni (card #1671):**
@@ -2379,7 +2382,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`!important` ile admin-surface ezilir). Create form Rol + Ek Roller (`users-roles-compact-menu`)
   aynı `menuWidth={220}` + satır/buton ~0.82rem (#r527/#1988). Rol sırası Standart → VTY → … → Operatör
   (#3403 / #3429); Operatör menü etiketi `enum.role.OperatorMenu` iki satır + `white-space: pre-line`
-  (alt satır Standart ile sol hizalı). Ek roller alfabetik değil `ADDITIONAL_ROLE_CODES` sırası.
+  (alt satır Standart ile sol hizalı). Ek roller: Standart → VTY → Reporter → e-Devlet → Operatör
+  (`additionalRoleFormOptions`, #3429 reopen).
   Grid Ek Roller/Ek birimler footer Çıkış/Seç ~0.85rem (#r526/#1994).
 - **Rol etiketi e-Devlet (#2000):** `enum.role.EDevletActivityPlan` → `e-Devlet Günlük Faaliyet`
   (eski “… Planı” kaldırıldı; RoleCode değişmez).

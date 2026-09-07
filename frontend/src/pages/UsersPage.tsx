@@ -807,6 +807,54 @@ export function UsersPage() {
     updateSearchParams({ create: '1', mode: nextMode })
   }
 
+  const applyDirectoryUserSelection = (selected: DirectoryUserLookup | null) => {
+    setSelectedDirectoryUser(selected)
+    if (!selected) {
+      setNewUser(current => ({
+        ...current,
+        username: '',
+        displayName: '',
+        email: '',
+        title: '',
+        phone: '',
+        mobilePhone: '',
+        externalIdentityId: null,
+        departmentId: '',
+        roleCode: 'Staff',
+        additionalDepartmentIds: [],
+        additionalRoleCodes: [],
+      }))
+      return
+    }
+
+    setDirectoryQuery(selected.displayName || selected.username)
+
+    let matchedDepartmentId = ''
+    if (selected.department) {
+      const normalizedLdap = selected.department.toLocaleLowerCase('tr')
+      const existing = departments.find(d => d.name.toLocaleLowerCase('tr') === normalizedLdap)
+      if (existing) {
+        matchedDepartmentId = existing.departmentId
+      }
+    }
+
+    setNewUser(current => ({
+      ...current,
+      username: selected.username ?? '',
+      displayName: selected.displayName ?? '',
+      email: selected.email?.trim() ?? '',
+      password: '',
+      title: selected.title?.trim() ?? '',
+      phone: selected.phone?.trim() ?? '',
+      mobilePhone: selected.mobilePhone?.trim() ?? '',
+      externalIdentityId: selected.externalIdentityId ?? null,
+      departmentId: matchedDepartmentId,
+      roleCode: titleImpliesManager(selected.title) ? 'Manager' : 'Staff',
+      additionalDepartmentIds: [],
+      additionalRoleCodes: [],
+    }))
+  }
+
   const handleCreateUser = async (event: FormEvent) => {
     event.preventDefault()
     setError('')
@@ -965,8 +1013,16 @@ export function UsersPage() {
     disabled: result.alreadyLinked,
   })), [directoryResults, t])
 
-  const ldapModeReady = createMode !== 'ldap' || !!newUser.externalIdentityId
   const getDepartmentName = (departmentId: string) => departments.find(department => department.departmentId === departmentId)?.name || t('common.none')
+  const ldapModeReady = createMode !== 'ldap' || (
+    !!newUser.externalIdentityId
+    && (newUser.additionalDepartmentIds.length > 0 || newUser.additionalRoleCodes.length > 0)
+  )
+  const ldapPrimaryDepartmentLabel = createMode === 'ldap'
+    ? (getDepartmentName(newUser.departmentId) !== t('common.none')
+      ? getDepartmentName(newUser.departmentId)
+      : (selectedDirectoryUser?.department?.trim() ?? ''))
+    : ''
   const { sortKey: usersSortKey, sortDir: usersSortDir, toggleSort: toggleUsersSort, sortItems: sortUsers } = useSortable()
   const sortedUsers = useMemo(() => sortUsers(users), [users, sortUsers])
   const { filters: userFilters, setFilter: setUserFilter, clearFilters: clearUserFilters, matchesFilters: userMatchesFilters, hasActiveFilters: hasActiveUserColumnFilters } = useColumnFilters()
@@ -1164,7 +1220,13 @@ export function UsersPage() {
                         label: item.displayName || item.username,
                       }))}
                       value={ldapUsersWithoutDepartmentValue}
-                      onChange={setLdapUsersWithoutDepartmentValue}
+                      onChange={value => {
+                        setLdapUsersWithoutDepartmentValue(value)
+                        const selected = ldapUsersWithoutDepartment.find(item => item.externalIdentityId === value) ?? null
+                        if (selected) {
+                          applyDirectoryUserSelection(selected)
+                        }
+                      }}
                       placeholder={t('users.ldapUsersWithoutDepartment')}
                       emptyText={t('users.ldapUsersWithoutDepartmentEmpty')}
                       searchable
@@ -1219,33 +1281,7 @@ export function UsersPage() {
                 value={directoryQuery}
                 onOptionSelect={option => {
                   const selected = directoryResults.find(result => result.externalIdentityId === option.id) ?? null
-                  setSelectedDirectoryUser(selected)
-                  setDirectoryQuery(option.label)
-
-                  // LDAP seçiminde birim eşleştir; birim yoksa oluşturma — Oluştur + ldapDepartmentName (card #1729).
-                  let matchedDepartmentId = ''
-                  if (selected?.department) {
-                    const normalizedLdap = selected.department.toLocaleLowerCase('tr')
-                    const existing = departments.find(d => d.name.toLocaleLowerCase('tr') === normalizedLdap)
-                    if (existing) {
-                      matchedDepartmentId = existing.departmentId
-                    }
-                  }
-
-                  setNewUser(current => ({
-                    ...current,
-                    username: selected?.username ?? current.username,
-                    displayName: selected?.displayName ?? current.displayName,
-                    // mail attribute yoksa boş bırak; UPN ile doldurma (card #1734).
-                    email: selected?.email?.trim() ?? '',
-                    password: '',
-                    title: selected?.title?.trim() ?? '',
-                    phone: selected?.phone?.trim() ?? '',
-                    mobilePhone: selected?.mobilePhone?.trim() ?? '',
-                    externalIdentityId: selected?.externalIdentityId ?? null,
-                    departmentId: matchedDepartmentId || current.departmentId,
-                    roleCode: titleImpliesManager(selected?.title) ? 'Manager' : 'Staff',
-                  }))
+                  applyDirectoryUserSelection(selected)
                 }}
                 onValueChange={value => {
                   setDirectoryQuery(value)
@@ -1253,17 +1289,7 @@ export function UsersPage() {
                     setDirectoryResults([])
                   }
                   if (!value.trim()) {
-                    setSelectedDirectoryUser(null)
-                    setNewUser(current => ({
-                      ...current,
-                      username: '',
-                      displayName: '',
-                      email: '',
-                      title: '',
-                      phone: '',
-                      mobilePhone: '',
-                      externalIdentityId: null,
-                    }))
+                    applyDirectoryUserSelection(null)
                   }
                 }}
               />
@@ -1317,6 +1343,7 @@ export function UsersPage() {
               <input
                 aria-label={t('users.internalPhone')}
                 className="field-input"
+                disabled={createMode === 'ldap'}
                 placeholder={t('users.internalPhonePlaceholder')}
                 type="text"
                 inputMode="numeric"
@@ -1334,6 +1361,7 @@ export function UsersPage() {
               <input
                 aria-label={t('users.mobilePhone')}
                 className="field-input"
+                disabled={createMode === 'ldap'}
                 placeholder={t('users.mobilePhonePlaceholder')}
                 type="text"
                 inputMode="numeric"
@@ -1350,6 +1378,7 @@ export function UsersPage() {
               <input
                 aria-label={t('users.jobTitle')}
                 className="field-input"
+                disabled={createMode === 'ldap'}
                 placeholder={t('users.jobTitlePlaceholder')}
                 type="text"
                 value={newUser.title}
@@ -1485,24 +1514,13 @@ export function UsersPage() {
               {createMode !== 'manual' ? (
               <div className="grid gap-2 text-sm font-semibold text-slate-700">
                 <span>{t('users.department')}</span>
-                <SingleSelectDropdown
-                  options={uniqueDepartmentsByName(departments, [newUser.departmentId])
-                    .map(department => ({
-                      value: department.departmentId,
-                      label: department.name,
-                    }))
-                    .sort((a, b) => localeCompareTr(a.label, b.label))}
-                  value={newUser.departmentId}
-                  onChange={departmentId => setNewUser(current => ({
-                    ...current,
-                    departmentId,
-                    additionalDepartmentIds: current.additionalDepartmentIds.filter(id => id !== departmentId),
-                  }))}
-                  placeholder={t('tasks.selectDepartment')}
-                  emptyText={t('users.additionalDepartmentsEmpty', 'Seçilebilir birim bulunmuyor.')}
-                  searchable
-                  searchPlaceholder={t('common.search', 'Ara...')}
-                  menuClassName="users-roles-compact-menu users-dept-compact-menu"
+                <input
+                  aria-label={t('users.department')}
+                  className="field-input"
+                  disabled
+                  readOnly
+                  type="text"
+                  value={ldapPrimaryDepartmentLabel}
                 />
               </div>
               ) : null}
@@ -1528,22 +1546,13 @@ export function UsersPage() {
               {createMode !== 'manual' ? (
               <div className="users-role-field grid gap-2 font-semibold text-slate-700">
                 <span className="text-sm">{t('users.role')}</span>
-                <SingleSelectDropdown
-                  className="users-role-dropdown"
-                  triggerClassName="text-xs"
-                  menuClassName="users-roles-compact-menu"
-                  menuWidth={220}
-                  options={primaryRoleFormOptions(t)}
-                  value={newUser.roleCode}
-                  onChange={roleCode => setNewUser(current => ({
-                    ...current,
-                    roleCode,
-                    additionalRoleCodes: current.additionalRoleCodes.filter(role =>
-                      getAllowedAdditionalRoleCodes(roleCode).includes(role as typeof ADDITIONAL_ROLE_CODES[number])),
-                  }))}
-                  placeholder={t('users.role')}
-                  searchable
-                  searchPlaceholder={t('common.search', 'Ara...')}
+                <input
+                  aria-label={t('users.role')}
+                  className="field-input text-xs"
+                  disabled
+                  readOnly
+                  type="text"
+                  value={getRoleLabel(t, newUser.roleCode)}
                 />
               </div>
               ) : null}
@@ -1569,7 +1578,13 @@ export function UsersPage() {
               <div className="grid gap-2">
                 <span aria-hidden="true" className="hidden text-sm font-semibold lg:block">&nbsp;</span>
                 <label className="inline-flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-700">
-                  <input className="field-checkbox" checked={newUser.isActive} type="checkbox" onChange={event => setNewUser(current => ({ ...current, isActive: event.target.checked }))} />
+                  <input
+                    className="field-checkbox"
+                    checked={newUser.isActive}
+                    disabled={createMode === 'ldap'}
+                    type="checkbox"
+                    onChange={event => setNewUser(current => ({ ...current, isActive: event.target.checked }))}
+                  />
                   {t('users.active')}
                 </label>
               </div>

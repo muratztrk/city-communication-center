@@ -350,6 +350,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
       ? t('whatsapp.phoneNoHeader', 'Whatsapp Telefon No')
       : t('social.conversation', 'Konuşma')
     const printInboundLabel = inboundSenderLabel
+    let inboundMessageIndex = 0
     const messageBlocks = entries.map(entry => {
       const role = entry.direction === 'Inbound'
         ? t('social.inboundShort', 'Gelen')
@@ -357,25 +358,33 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
       const time = formatConversationMessageTime(entry.sentAt, locale, t)
       const content = formatConversationDisplayContent(entry.content)
       const isInbound = entry.direction === 'Inbound'
-      const senderLine = isInbound && printInboundLabel
-        ? `<div class="sender"><strong>${escHtml(printInboundLabel)}</strong></div>`
+      const inboundIndex = isInbound ? inboundMessageIndex++ : -1
+      // İlk sayfada h1 ile mükerrer isim gösterme (#3436); devam sayfalarında hafif vurgu (#3437).
+      const showSender = isInbound && printInboundLabel && inboundIndex > 0
+      const emphasizeLead = inboundIndex > 0
+      const senderLine = showSender
+        ? `<div class="sender"><span class="emph">${escHtml(printInboundLabel)}</span></div>`
         : ''
-      return `<div class="message">${senderLine}<div class="meta"><strong>${escHtml(time)}</strong> · ${escHtml(role)}</div><div class="body">${escHtml(content).replace(/\n/g, '<br>')}</div></div>`
+      const timeHtml = emphasizeLead
+        ? `<span class="emph">${escHtml(time)}</span>`
+        : escHtml(time)
+      return `<div class="message">${senderLine}<div class="meta">${timeHtml} · ${escHtml(role)}</div><div class="body">${escHtml(content).replace(/\n/g, '<br>')}</div></div>`
     }).join('')
     const printedAt = new Date().toLocaleString(locale)
     printHtmlDocument(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(title)}</title><style>
       body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
       h1{font-size:16px;font-weight:700;margin:0 0 4px}
       .kicker{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin-bottom:12px}
-      .message{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #e2e8f0}
+      .message{margin:8px 0 12px;padding-bottom:12px;border-bottom:1px solid #e2e8f0;break-inside:avoid;page-break-inside:avoid}
+      .message:first-of-type{margin-top:0}
       .sender{font-size:11px;color:#111;margin-bottom:4px}
-      .sender strong,.meta strong{font-weight:700;color:#111}
+      .emph{font-weight:600;color:#111}
       .meta{font-size:10px;color:#64748b;margin-bottom:4px}
       .body{white-space:normal;line-height:1.45}
       .footer{margin-top:1.5rem;font-size:10px;color:#94a3b8}
     </style></head><body>
       <p class="kicker">${escHtml(kicker)}</p>
-      <h1><strong>${escHtml(title)}</strong></h1>
+      <h1>${escHtml(title)}</h1>
       ${messageBlocks}
       <div class="footer">Yazdırma tarihi: ${escHtml(printedAt)}</div>
     </body></html>`)
@@ -413,9 +422,10 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               onClick={handlePrintConversation}
               disabled={entries.length === 0 || conversationQuery.isLoading}
               aria-label={t('common.print', 'Yazdır')}
-              className="flex size-8 shrink-0 items-center justify-center rounded-full text-white/80 hover:bg-white/15 hover:text-white disabled:opacity-40"
+              className="flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-white/80 hover:bg-white/15 hover:text-white disabled:opacity-40"
             >
-              <Printer className="size-4" strokeWidth={1.75} aria-hidden="true" />
+              <Printer className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              <span className="text-xs font-semibold leading-none">{t('common.print', 'Yazdır')}</span>
             </button>
           ) : null}
           {showCloseButton ? (

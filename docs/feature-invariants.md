@@ -1521,7 +1521,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1739). Yeni kullanıcı üst satırı: Kullanıcı Adı / Ad Soyad / Dahili No /
   Cep Telefonu No / Ünvan / E-posta (`lg:grid-cols-6`); create API `title`+`phone`+`mobilePhone`
   alır; Cep zorunlu değil (card #2902). LDAP seçiminde dizin title/phone/mobile prefills
-  (card #1771/#2902). LDAP Title=`description`,   Phone=`telephoneNumber`, MobilePhone=`mobile`/`mobileTelephoneNumber`/`otherMobile`
+  (card #1771/#2902). LDAP oluşturmada arama sonucu tıklanınca alt alanlar salt okunur;
+  yalnız Ek görev birimleri + Ek roller düzenlenir; Oluştur ek birim veya ek rol seçilince
+  aktif olur (#3428). LDAP Title=`description`,   Phone=`telephoneNumber`, MobilePhone=`mobile`/`mobileTelephoneNumber`/`otherMobile`
   (card #1773/#2902/#2908). Kullanıcılar grid e-Posta yerine Cep Telefonu No gösterir.
   LDAP senkronunda birim değişince eski birim adı (sistemdeki önceki ad) gösterilir; `—` değil (#2909).
   Personel Dahili No sonuç paneli `left-0` ile sağa açılır (card #1786).
@@ -1609,10 +1611,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazışmaya Git popup (#2080 / #2289):** `WhatsAppConversationModal` → `compactBubbles` + `compactActions`
   (metin `text-xs`, balon padding küçültülür). Banner: kayıtlı vatandaş adı varsa numaranın **solunda** aynı satırda.
   Banner zemini sayfa `sticky-page-header` ile aynı `linear-gradient(135deg, header-from, header-to)`.
-  **Yazdır (#3431 / #3434 reopen):** X solunda `Printer`; konuşma `printHtmlDocument` ile yazdırma
-  penceresinde açılır (`enableConversationPrint`). Gelen mesajlarda vatandaş adı satırı + meta
-  tarih `<strong>`; sayfa kırılımında devam sayfası üstünde okunaklı kalır. Inline `@page{margin:0}` yok
-  — `printDocument` marj enjeksyonu geçerli.
+  **Yazdır (#3431 / #3434 / #3436 / #3437 / #3438):** X solunda `Printer` + `Yazdır` metni aynı
+  butonda (`enableConversationPrint`). Konuşma `printHtmlDocument` ile yazdırma penceresinde açılır.
+  İlk sayfada h1 altında mükerrer vatandaş adı yok (#3436); 2+ gelen mesajda hafif `font-weight:600`
+  vatandaş adı+tarih + mesaj bloğu üst boşluğu (#3437). Inline `@page{margin:0}` yok.
 - **Mesaj Onayı Detaylar → Talep Durumunu Değiştir (#2083):** buton rengi `Görevi Yönlendir` ile aynı
   (`bg-[#007985]` / `hover:bg-[#006570]`), turuncu değil.
 - **Onayla ve Personel Ata self-istek metni (card #1671):**

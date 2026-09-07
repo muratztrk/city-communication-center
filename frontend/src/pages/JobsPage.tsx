@@ -805,17 +805,40 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
           ? t('nav.incomingRequests', 'Birime Gelen Talepler')
           : t('jobs.detail.title', 'İş Detayı')
   const isIncomingRequestDetail = detailContext === 'incoming'
+  const incomingStatusFilter = searchParams.get('status') ?? 'pending-approval'
+  const hideIncomingApproveCancelByView = isIncomingRequestDetail
+    && (incomingStatusFilter === 'in-progress' || incomingStatusFilter === 'approved')
+  const canManageIncomingDetailActions = isManagerLike || isCitizenRequestManager
+  const canActOnIncomingDetail = detail == null || canCitizenRequestManagerActOnRow(user, {
+    isCitizenRequest: isCitizenRequestJob(detail),
+    displayNumber: formatJobDisplayNumber(detail),
+  })
+  const incomingDetailManager = canManageIncomingDetailActions && canActOnIncomingDetail
+  const isIncomingInternalAlreadyApproved = isIncomingRequestDetail
+    && detail != null
+    && detail.requestType === 'InternalUnit'
+    && detail.status !== 'PendingOwnerApproval'
+    && (
+      detail.status === 'Active'
+      || (detail.tasks?.some(task =>
+        task.currentStatus === 'Waiting'
+        || task.currentStatus === 'Assigned'
+        || task.currentStatus === 'InProgress'
+        || task.currentStatus === 'PendingCloseApproval') ?? false)
+    )
   const isRequestDetailContext = isMyRequestsView || isDepartmentOutgoingView || isIncomingRequestDetail
   const canManageCoordination = isManagerLike || isReporter
   const hideIncomingCancelAfterMessageReopen = isIncomingRequestDetail
     && detail != null
     && wasReopenedViaCitizenMessageApproval(detail)
-  const canApproveDetail = isRequestDetailContext && isManagerLike && detail?.status === 'PendingOwnerApproval'
+  const canApproveDetail = isRequestDetailContext
+    && (isIncomingRequestDetail ? incomingDetailManager : isManagerLike)
+    && detail?.status === 'PendingOwnerApproval'
   const activeIncomingTarget = detail?.departments?.find(
     department => department.role === 'Target' && department.departmentId === activeDeptId,
   )
   const canApproveTargetDetail = isIncomingRequestDetail
-    && isManagerLike
+    && incomingDetailManager
     && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
     && detail.status === 'PendingExternalApproval'
     && activeIncomingTarget?.approvalStatus === 'Pending'
@@ -825,7 +848,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   // Mesaj Onayı reopen sonrası da aktif kalır — pasif/disabled Onayla gösterilmez (#6a6aecbc).
   // Açık (terminal olmayan) görev yoksa atama Onayla görünür — reopen sonrası İşleme Alındı (#6a6ae7e2).
   const canAssignIncomingDetail = isIncomingRequestDetail
-    && isManagerLike
+    && incomingDetailManager
     && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
     && detail.status === 'Active'
     && countOpenWorkTasks(detail) === 0
@@ -860,7 +883,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       && department.departmentId !== detail?.ownerDepartmentId
       && !isPresidencyLevelDepartment(department))
     .map(department => ({ value: department.departmentId, label: department.name }))
-  const incomingPendingCloseTask = isIncomingRequestDetail && isManagerLike
+  const incomingPendingCloseTask = isIncomingRequestDetail && incomingDetailManager
     ? detail?.tasks.find(task => task.currentStatus === 'PendingCloseApproval') ?? null
     : null
   const canApproveIncomingCloseDetail = incomingPendingCloseTask != null
@@ -870,7 +893,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   // Son tarihi geçmiş kayıtlarda listede gösterilen pasif Onayla düğmesi,
   // detay popup'ında da aynı işleme uygun olmayan durumu açıkça belirtmelidir.
   const shouldShowDisabledIncomingApprove = isIncomingRequestDetail
-    && isManagerLike
+    && incomingDetailManager
     && detail != null
     && detail.dueDateUtc != null
     && new Date(detail.dueDateUtc).getTime() < Date.now()
@@ -878,14 +901,43 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && !canApproveDetail
     && !canApproveTargetDetail
     && !canAssignIncomingDetail
-  const canCancelDetail = isRequestDetailContext
-    && (isManagerLike || isMyRequestsView)
+  const canCancelIncomingDetail = isIncomingRequestDetail
+    && incomingDetailManager
     && detail != null
-    && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
-    && !isDepartmentOutgoingTargetApprovedDetail
-    // Mesaj Onayı "Talep Durumunu Değiştir" sonrası Birime Gelen'de İptal Et gizlenir (#2100/#2108).
-    // Onayla (atama/hedef onay) reopen sonrası aktif kalır — pasif Onayla yok (#6a6aecbc).
+    && !isIncomingInternalAlreadyApproved
     && !hideIncomingCancelAfterMessageReopen
+    && (
+      detail.status === 'PendingOwnerApproval'
+      || detail.status === 'PendingExternalApproval'
+      || detail.status === 'Active'
+      || (detail.tasks?.some(task =>
+        task.currentStatus === 'Waiting'
+        || task.currentStatus === 'Assigned'
+        || task.currentStatus === 'InProgress'
+        || task.currentStatus === 'PendingCloseApproval') ?? false)
+    )
+  const shouldShowDisabledIncomingCancel = isIncomingRequestDetail
+    && incomingDetailManager
+    && detail != null
+    && !canCancelIncomingDetail
+    && !hideIncomingCancelAfterMessageReopen
+    && (
+      incomingStatusFilter === 'all'
+      || incomingStatusFilter === 'overdue'
+      || (isIncomingInternalAlreadyApproved && (
+        incomingStatusFilter === 'overdue'
+        || incomingStatusFilter === 'in-progress'
+        || incomingStatusFilter === 'approved'
+      ))
+    )
+  const canCancelDetail = isIncomingRequestDetail
+    ? canCancelIncomingDetail
+    : isRequestDetailContext
+      && (isManagerLike || isMyRequestsView)
+      && detail != null
+      && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
+      && !isDepartmentOutgoingTargetApprovedDetail
+      && !hideIncomingCancelAfterMessageReopen
   const shouldShowDisabledDepartmentOutgoingCancel = isDepartmentOutgoingTargetApprovedDetail
     && detail != null
     && (detail.status === 'PendingOwnerApproval' || detail.status === 'PendingExternalApproval' || detail.status === 'Active')
@@ -2623,25 +2675,25 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('social.goToConversation', 'Yazışmaya Git')}
                   </Button>
                 )}
-                {(canApproveDetail || canAssignIncomingDetail) && (
+                {(canApproveDetail || canAssignIncomingDetail) && !hideIncomingApproveCancelByView && (
                   <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => void handleApproveOwner(detail.jobId)}>
                     <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}
-                {canApproveTargetDetail && activeDeptId && (
+                {canApproveTargetDetail && activeDeptId && !hideIncomingApproveCancelByView && (
                   <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveTarget(detail.jobId, activeDeptId)}>
                     <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('jobs.actions.approveOwner', 'Onayla')}
                   </Button>
                 )}
-                {canApproveIncomingCloseDetail && incomingPendingCloseTask && (
+                {canApproveIncomingCloseDetail && incomingPendingCloseTask && !hideIncomingApproveCancelByView && (
                   <Button type="button" size="lg" variant="success" className="inline-flex items-center gap-1.5" onClick={() => handleApproveIncomingCloseDetail(incomingPendingCloseTask.taskId)}>
                     <Check className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('tasks.actions.approveClose', 'Onayla')}
                   </Button>
                 )}
-                {shouldShowDisabledIncomingApprove && (
+                {shouldShowDisabledIncomingApprove && !hideIncomingApproveCancelByView && (
                   <DisabledActionButton
                     size="lg"
                     variant="success"
@@ -2693,7 +2745,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     {t('jobs.actions.forward', 'Talebi Yönlendir')}
                   </Button>
                 )}
-                {canCancelDetail && (
+                {canCancelDetail && !hideIncomingApproveCancelByView && (
                   <Button
                     type="button"
                     size="lg"
@@ -2704,6 +2756,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                     {t('jobs.actions.cancel', 'İptal Et')}
                   </Button>
+                )}
+                {shouldShowDisabledIncomingCancel && !hideIncomingApproveCancelByView && (
+                  <DisabledActionButton
+                    size="lg"
+                    variant="destructive"
+                    className="inline-flex items-center gap-1.5"
+                    hoverTitle={t('jobs.actions.cancelUnavailable', 'Bu kayıtta iptal işlemi yapılamaz')}
+                  >
+                    <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
+                    {t('jobs.actions.cancel', 'İptal Et')}
+                  </DisabledActionButton>
                 )}
                 {shouldShowDisabledDepartmentOutgoingCancel && (
                   <DisabledActionButton

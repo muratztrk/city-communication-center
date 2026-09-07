@@ -39,6 +39,7 @@ export function WhatsAppConversationModal({
           // Yazışmaya Git popup: balon + metin küçült (#2083 / #1711 kalıbı).
           compactBubbles
           compactActions
+          enableConversationDownload
         />
       </section>
     </div>,

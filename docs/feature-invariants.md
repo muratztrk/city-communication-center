@@ -1597,6 +1597,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazışmaya Git popup (#2080 / #2289):** `WhatsAppConversationModal` → `compactBubbles` + `compactActions`
   (metin `text-xs`, balon padding küçültülür). Banner: kayıtlı vatandaş adı varsa numaranın **solunda** aynı satırda.
   Banner zemini sayfa `sticky-page-header` ile aynı `linear-gradient(135deg, header-from, header-to)`.
+  **Yazdır (#3431):** X solunda `Printer`; konuşma `.txt` indirilir (`enableConversationDownload`).
 - **Mesaj Onayı Detaylar → Talep Durumunu Değiştir (#2083):** buton rengi `Görevi Yönlendir` ile aynı
   (`bg-[#007985]` / `hover:bg-[#006570]`), turuncu değil.
 - **Onayla ve Personel Ata self-istek metni (card #1671):**
@@ -2639,7 +2640,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesaj Onayı Durum tarihi (#2067):** Completed→`completedAtUtc`, Cancelled→`updatedAtUtc` Durum pill altında.
 - **Mesaj Onayı banner (#2064):** “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).
 - **Mesaj Onayı Notu Düzenle modal (#2073/#2079/#2081/#2084/#2091):** genişlik `max-w-md`; yükseklik `py-5` +
-  textarea `rows={4}`; aksiyon butonları `size="sm"`.
+  textarea `rows={4}`; aksiyon butonları `size="sm"`. Not limiti **300 karakter** FE+BE (#3432).
 - **Mesajı Onayla ConfirmDialog genişliği:** `wide: true` → `max-w-md px-6 py-5` (Notu Düzenle ile aynı
   kutu boyutu; dar `max-w-sm p-6` kullanılmaz).
 - **Mesajı Onayla confirm metni:** `Mesajı onayladığınızda, …` (`göndermeyi onayladığınızda` değil).

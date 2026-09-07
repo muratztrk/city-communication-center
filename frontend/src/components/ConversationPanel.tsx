@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Loader2, Paperclip, PenLine, Send } from 'lucide-react'
+import { Loader2, Paperclip, PenLine, Printer, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -15,7 +15,7 @@ import { ModalCloseButton } from './ui/modal-close-button'
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
-import { filterVisibleConversationEntries } from '../utils/socialConversationContent'
+import { filterVisibleConversationEntries, formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import {
   ATTACHMENT_FILE_ACCEPT,
@@ -61,6 +61,8 @@ interface ConversationPanelProps {
   /** Vatandaş Talebi Oluştur modalında konuşma balonlarını küçült (card #1711). */
   compactBubbles?: boolean
   /** Üst başlık satırını gizle (vatandaş bilgisi modal başlığında gösterilir — card #2390). */
+  /** Yazışmaya Git popup: konuşmayı indirilebilir metin olarak kaydet (#3431). */
+  enableConversationDownload?: boolean
   hideHeader?: boolean
 }
 
@@ -81,7 +83,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false, enableConversationDownload = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const queryClient = useQueryClient()
@@ -335,6 +337,30 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
 
   const sendButtonSpacerClass = compactActions ? 'h-8 w-10 shrink-0' : 'size-11 shrink-0'
 
+  const handleDownloadConversation = useCallback(() => {
+    if (entries.length === 0) return
+    const lines = entries.map(entry => {
+      const role = entry.direction === 'Inbound'
+        ? t('social.inboundShort', 'Gelen')
+        : t('social.outboundShort', 'Giden')
+      const time = formatConversationMessageTime(entry.sentAt, locale, t)
+      const content = formatConversationDisplayContent(entry.content)
+      return `[${time}] ${role}: ${content}`
+    })
+    const title = headerMode === 'phone'
+      ? (registeredCitizenName ? `${registeredCitizenName} ${phoneForDisplay}` : phoneForDisplay)
+      : citizenHandle
+    const text = `${title}\n${'—'.repeat(40)}\n\n${lines.join('\n\n')}\n`
+    const safeName = (phoneDigitsRaw || 'konusma').slice(-12)
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `whatsapp-${safeName}.txt`
+    link.click()
+    URL.revokeObjectURL(url)
+  }, [citizenHandle, entries, headerMode, locale, phoneDigitsRaw, phoneForDisplay, registeredCitizenName, t])
+
   return (
     <div className="flex flex-col h-full">
       {!hideHeader ? (
@@ -361,6 +387,17 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               <p className="truncate text-[15px] font-semibold leading-tight">{headerSubtitle}</p>
             )}
           </div>
+          {enableConversationDownload ? (
+            <button
+              type="button"
+              onClick={handleDownloadConversation}
+              disabled={entries.length === 0 || conversationQuery.isLoading}
+              aria-label={t('common.print', 'Yazdır')}
+              className="flex size-8 shrink-0 items-center justify-center rounded-full text-white/80 hover:bg-white/15 hover:text-white disabled:opacity-40"
+            >
+              <Printer className="size-4" strokeWidth={1.75} aria-hidden="true" />
+            </button>
+          ) : null}
           {showCloseButton ? (
             <ModalCloseButton
               onClick={onClose}

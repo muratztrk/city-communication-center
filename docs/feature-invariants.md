@@ -142,6 +142,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mobil detay popup yazdır aksiyonu:** telefon breakpoint'inde talep/görev detay header'ındaki
   tüm `Yazdır` butonları gizlidir; desktop/tablet print aksiyonları korunur.
 - **Yazdır popup'ı ağ erişimi açmaz:** `printHtmlDocument` yazdırma penceresine CSP enjekte eder
+  (`default-src 'none'`); ayrıca tüm yazdırma pencerelerine `@page` üst marjı ekler — ilk sayfa
+  hariç devam sayfalarında üst boşluk (#3434).
   (`default-src 'none'`) ve `opener` bağlantısını keser; print HTML'i app/API/local network
   kaynaklarına istek atamaz.
 - **Global font `@fontsource/<font>` importları kullanılan TÜM font-weight'leri kapsamalı:**
@@ -542,12 +544,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`useIncomingPendingApprovalCount` / `matchesIncomingStatusFilter` pending-approval — dashboard
   `pendingApprovalCount` ile aynı değil; VT yöneticisi CRM için yalnız vatandaş satırları), Birimden Giden =
   `outgoingPendingCount` (dashboard snapshot; Sms Onayı stili — card #2516 / #2820 / #2823).
-  **Sayfa bildirim sesi (#3390 reopen):** Yeni kayıt gelince ~2 sn melodisi
+  **Sayfa bildirim sesi (#3390 reopen / #3435):** Yeni kayıt gelince ~2 sn melodisi
   (`playNewRecordSound`) oturum açıkken anında çalar (ilgili sayfadayken de); sayfa
-  açılışında/veri ilk yüklendiğinde çalmaz. WA talep oluşturma sonrası `suppressNewRecordSound`
-  ile liste yenilemesinde ses susturulur. Sayfalar: `/incoming-requests`, `/my-tasks`,
-  `/outgoing-requests`, `/citizen-message-approval`, `/sms-delivery-approval` — nav rozeti
-  artışı `useNavBadgeCountSound` ile. **WhatsApp:** ses merkezi `useWhatsAppInboundMessageSound`
+  açılışında/veri ilk yüklendiğinde ve sayfaya girildiğinde mevcut kayıtlar için çalmaz
+  (`useNewRecordIdsSound` + `targetPathPrefix`). Görevlerim'de nav rozeti sesi sayfadayken
+  kapalı (`playOnTargetPage: false`) — yalnızca `useNewRecordIdsSound` çalar. WA talep
+  oluşturma sonrası `suppressNewRecordSound` ile liste yenilemesinde ses susturulur. Sayfalar:
+  `/incoming-requests`, `/my-tasks`, `/outgoing-requests`, `/citizen-message-approval`,
+  `/sms-delivery-approval` — nav rozeti artışı `useNavBadgeCountSound` ile. **WhatsApp:** ses merkezi `useWhatsAppInboundMessageSound`
   (`ccc:whatsapp-message`; konuşma `(citizenConversationId, lastMessageAt)` ile dedupe — zaten
   yanıt bekleyen konuşmaya gelen ikinci mesajda da bir kez çalar; nav `waitingReplyCount` artışına
   bağlı değil). Fab/sayfa handler'ları ses çalmaz, yalnız pulse/güncelleme (#3415). Talep
@@ -1430,6 +1434,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WA **Vatandaş Talebi Oluştur** popup açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (#2730). Kapalı kutu form `.field-select` (0.82rem) kalır. WA profil **Vatandaş Bilgileri** açık menü punto `0.75rem` (#2640).
   Popup Konum Koordinatı Mahalle’nin **alt satırında** (Cadde/No ile aynı satırda değil) (#2741).
   Popup yüksekliği taban detay shell’den çok az daha fazladır (`detail-modal-shell--citizen-create`, #2742).
+  Masaüstünde popup genişliği `.detail-modal-shell` ölçüsündedir; `w-full` yalnız mobil (#3427).
   WA Vatandaş Bilgileri ve Vatandaş Talebi Oluştur popup Cadde seçili metni oka kadar
   daha fazla yer kaplar; erken ellipsis yok (#2724).
   WA Vatandaş Bilgileri Cadde/No placeholder **Seçiniz** (#2724). Seçili Cadde/No metni kutuyu
@@ -2372,8 +2377,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `.truncate` satırlarında portal tooltip; flex ölçüm fallback + `title` attribute yedek (#1997).
 - **Kullanıcılar grid Rol menü font (#r523/#1994):** `.users-edit-dropdown-menu*` ~0.82rem
   (`!important` ile admin-surface ezilir). Create form Rol + Ek Roller (`users-roles-compact-menu`)
-  aynı `menuWidth={220}` + satır/buton ~0.82rem (#r527/#1988). Rol sırası Standart → Operatör → …
-  (#3403); Operatör menü etiketi `enum.role.OperatorMenu` iki satır + `white-space: pre-line`
+  aynı `menuWidth={220}` + satır/buton ~0.82rem (#r527/#1988). Rol sırası Standart → VTY → … → Operatör
+  (#3403 / #3429); Operatör menü etiketi `enum.role.OperatorMenu` iki satır + `white-space: pre-line`
   (alt satır Standart ile sol hizalı). Ek roller alfabetik değil `ADDITIONAL_ROLE_CODES` sırası.
   Grid Ek Roller/Ek birimler footer Çıkış/Seç ~0.85rem (#r526/#1994).
 - **Rol etiketi e-Devlet (#2000):** `enum.role.EDevletActivityPlan` → `e-Devlet Günlük Faaliyet`

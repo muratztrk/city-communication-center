@@ -73,13 +73,13 @@ function additionalRoleFormOptions(t: TFunction, primaryRoleCode: string) {
 }
 
 function primaryRoleFormOptions(t: TFunction) {
-  // Sıra: Standart → Operatör → Sorumlu → Müdür → CRM → Reporter → e-Devlet → SystemAdmin (#r514 / #3403).
+  // Sıra: Standart → VTY → Sorumlu → Müdür → Operatör → Reporter → e-Devlet → SystemAdmin (#3429).
   const ordered: Array<{ value: string; label: string }> = [
     { value: 'Staff', label: getUsersRoleMenuLabel(t, 'Staff') },
-    { value: 'Operator', label: getUsersRoleMenuLabel(t, 'Operator') },
+    { value: 'CitizenRequestManager', label: getUsersRoleMenuLabel(t, 'CitizenRequestManager') },
     { value: SORUMLU_ROLE_OPTION, label: t('enum.role.Sorumlu', 'Sorumlu') },
     { value: 'Manager', label: getUsersRoleMenuLabel(t, 'Manager') },
-    { value: 'CitizenRequestManager', label: getUsersRoleMenuLabel(t, 'CitizenRequestManager') },
+    { value: 'Operator', label: getUsersRoleMenuLabel(t, 'Operator') },
     { value: 'Reporter', label: getUsersRoleMenuLabel(t, 'Reporter') },
     { value: 'EDevletActivityPlan', label: getUsersRoleMenuLabel(t, 'EDevletActivityPlan') },
     { value: 'SystemAdmin', label: getUsersRoleMenuLabel(t, 'SystemAdmin') },

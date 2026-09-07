@@ -547,7 +547,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       role="presentation"
     >
       <div
-        className="detail-modal-shell detail-modal-shell--citizen-create flex w-full max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl max-lg:max-h-[92dvh]"
+        className="detail-modal-shell detail-modal-shell--citizen-create flex max-h-[min(85dvh,52rem)] flex-col overflow-hidden rounded-[var(--radius-2xl)] bg-white shadow-2xl max-lg:w-full max-lg:max-h-[92dvh]"
         onClick={event => event.stopPropagation()}
       >
         <div

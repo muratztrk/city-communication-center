@@ -17,10 +17,16 @@ function getVisibleDetailModalHeight(fallback = 832): number {
 }
 
 function hardenPrintHtml(html: string): string {
-  if (html.includes('http-equiv="Content-Security-Policy"')) return html
-
-  const cspMeta = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob:; style-src 'unsafe-inline'; script-src 'unsafe-inline'">`
-  return html.replace(/<head([^>]*)>/i, `<head$1>${cspMeta}`)
+  let result = html
+  if (!result.includes('http-equiv="Content-Security-Policy"')) {
+    const cspMeta = `<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data: blob:; style-src 'unsafe-inline'; script-src 'unsafe-inline'">`
+    result = result.replace(/<head([^>]*)>/i, `<head$1>${cspMeta}`)
+  }
+  if (!result.includes('id="ccc-print-page-margins"')) {
+    const marginStyle = `<style id="ccc-print-page-margins">@page{margin:14mm 10mm 10mm 10mm}@page:first{margin-top:0}</style>`
+    result = result.replace('</head>', `${marginStyle}</head>`)
+  }
+  return result
 }
 
 /**

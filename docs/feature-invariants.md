@@ -181,12 +181,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   İptal Nedeni en fazla **300** karakter (FE `maxLength` + BE FluentValidation).
 - **Completed/Cancelled görev yeniden tamamlanamaz** (`CompleteTaskCommand` guard). Durumu
   geri almak için `ChangeTaskStatusCommand` var (card #1005): Completed/Cancelled görevi
-  Yapılmakta(InProgress)/Tamamlanmış/İptal'e çeker; yetki = atanan veya SystemAdmin.
+  Yapılmakta(InProgress)/Tamamlanmış/İptal'e çeker; yetki = atanan, SystemAdmin, birim
+  müdürü/vekil/sorumlusu veya hedef birimde Vatandaş Talep Yöneticisi.
   Görevlerim'de Tamamlanmış + İptal görünümlerinde "Durum Değiştir" butonu (teal) tetikler.
   Görevlerim "Tüm Görevler" detay popup'ında terminal görevde sağ üstte "Durum Değiştir"
   görünür; "Yazışmaya Git" varsa solunda kalır ve pasif "Düzenle" placeholder'ı gösterilmez.
   Görevlerim "Tamamlanmış Görevlerim" ve "İptal Görevlerim" detay popup'ında ise
   "Durum Değiştir"in yanında "Düzenle" de aynı aktif/pasif edit mantığıyla görünür.
+  **Birimdeki Görevler** Tamamlanan/İptal chip detay popup'ında terminal görevde
+  **Yazdır**'ın solunda "Durum Değiştir" görünür (atanmış olmasa bile birim liderliği/VTY).
+  Birim liderliği/VTY bu yolla durum değiştirince talep `Vatandaşa Gönderilecek Mesaj Onayı`
+  to-send listesinde görünmez (`CitizenMessageJobSuppressedViaTaskStatusChange` audit;
+  talep yeniden terminal olunca tekrar listelenir).
 - **Detay popup üzerinde Tamamla/İptal onay modal'ı (card #1656):** onay tamamlanınca üst
   modal kapanır; arka plandaki görev detay popup açık kalır ve durum/butonlar/Süreç/notlar
   sunucudaki son hale yenilenir (yalnızca liste `reload` yetmez).
@@ -1010,6 +1016,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **öncesi** — aksi halde modal/reload toast’ı yutar. `assign` yolu da Onayla sayılır.
   Birime Gelen **İptal Et** aynı desen: `emitPageToast(..., 'error')` reload öncesi,
   `Talep iptal edildi.` kırmızı çerçeve (#3275; Görev iptal toast’ı gibi).
+  **Birime Gelen detay popup (#3430):** Onayla/İptal grid ile aynı görünürlük — VTY dahil; Yapılmakta/Onaylanmış chip'inde gizli.
 - **Mesaj Onayı reopen hedef onay adımı (card #6a6aecbc):** reopen sonrası Süreç'te
   `Talebi Gerçekleştiren Birim Yöneticisinin Onay Tarihi` korunur (onaylıysa tarih; değilse
   `Onay Bekleyen`). `shouldShowCitizenTargetApprovalDate` reopen'da `taskCount === 0` iken de
@@ -1597,7 +1604,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazışmaya Git popup (#2080 / #2289):** `WhatsAppConversationModal` → `compactBubbles` + `compactActions`
   (metin `text-xs`, balon padding küçültülür). Banner: kayıtlı vatandaş adı varsa numaranın **solunda** aynı satırda.
   Banner zemini sayfa `sticky-page-header` ile aynı `linear-gradient(135deg, header-from, header-to)`.
-  **Yazdır (#3431):** X solunda `Printer`; konuşma `.txt` indirilir (`enableConversationDownload`).
+  **Yazdır (#3431):** X solunda `Printer`; konuşma `printHtmlDocument` ile yazdırma penceresinde açılır (`enableConversationPrint`).
 - **Mesaj Onayı Detaylar → Talep Durumunu Değiştir (#2083):** buton rengi `Görevi Yönlendir` ile aynı
   (`bg-[#007985]` / `hover:bg-[#006570]`), turuncu değil.
 - **Onayla ve Personel Ata self-istek metni (card #1671):**

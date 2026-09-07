@@ -1582,16 +1582,35 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
     && isManagerLike
     && Boolean(task.assigningManagerDisplayName)
     && task.assigningManagerDisplayName === user?.displayName
-  const canChangeCompletedTaskStatus = (task: Pick<Task, 'currentStatus' | 'assignedUserId'>) =>
-    isMyTasksView
-    && (currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
-    && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
-    && isAssignee(task as Task)
-  const canChangeTaskStatusFromDetail = (task: Pick<Task, 'currentStatus' | 'assignedUserId'>) =>
-    isMyTasksView
-    && (currentMyTaskView === 'all' || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
-    && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
-    && isAssignee(task as Task)
+  const isLeadershipForDepartmentTask = (task: Pick<Task | TaskDetail, 'assignedDepartmentId' | 'jobRequestType' | 'jobSourceType'>) => {
+    if (!canManageDepartmentTaskActions(task)) return false
+    if (user?.role === 'SystemAdmin') return true
+    const deptId = task.assignedDepartmentId
+    if (!deptId) return false
+    if (isManagerLike && managedDepartmentIds.has(deptId)) return true
+    const dept = departments.find(item => item.departmentId === deptId)
+    if (dept && (dept.responsibleUserIds ?? []).includes(user?.userId ?? '')) return true
+    if (isCitizenRequestManager && isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType })) return true
+    return false
+  }
+  const canChangeCompletedTaskStatus = (task: Pick<Task, 'currentStatus' | 'assignedUserId' | 'assignedDepartmentId' | 'jobRequestType' | 'jobSourceType'>) =>
+    (isMyTasksView
+      && (currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
+      && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
+      && isAssignee(task as Task))
+    || (isDepartmentTasksView
+      && (currentMyTaskView === 'all' || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
+      && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
+      && isLeadershipForDepartmentTask(task))
+  const canChangeTaskStatusFromDetail = (task: Pick<Task, 'currentStatus' | 'assignedUserId' | 'assignedDepartmentId' | 'jobRequestType' | 'jobSourceType'>) =>
+    (isMyTasksView
+      && (currentMyTaskView === 'all' || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
+      && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
+      && isAssignee(task as Task))
+    || (isDepartmentTasksView
+      && (currentMyTaskView === 'all' || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
+      && (task.currentStatus === 'Completed' || task.currentStatus === 'Cancelled')
+      && isLeadershipForDepartmentTask(task))
   const showOnlyDetailsInTaskGridActions = isMyTasksView || isDepartmentTasksView
   const normalizeEditPriority = (priority: string) => priority === 'Critical' ? 'VeryHigh' : priority
 
@@ -2141,26 +2160,6 @@ const pageKicker = isMyTasksView
                         {t('tasks.actions.route', 'Görevi Yönlendir')}
                       </DisabledActionButton>
                     ))}
-                    {isMyTasksView && selectedTask && canChangeTaskStatusFromDetail(selectedTask) && (
-                      (taskDetail?.statusChangeHistory?.length ?? 0) > 0 ? (
-                        <DisabledActionButton
-                          size="lg"
-                          className="bg-orange-500 text-white"
-                          hoverTitle={t('tasks.actions.changeStatusUsed', 'Görevin durumu yalnızca bir kez değiştirilebilir')}
-                        >
-                          {t('tasks.actions.changeStatus', 'Durum Değiştir')}
-                        </DisabledActionButton>
-                      ) : (
-                        <Button
-                          type="button"
-                          size="lg"
-                          className="bg-orange-500 text-white hover:bg-orange-600"
-                          onClick={() => openStatusChangeModal(selectedTask)}
-                        >
-                          {t('tasks.actions.changeStatus', 'Durum Değiştir')}
-                        </Button>
-                      )
-                    )}
                     {isMyTasksView && selectedTask
                       && (!canChangeTaskStatusFromDetail(selectedTask) || currentMyTaskView === 'completed' || currentMyTaskView === 'rejected')
                       && (canEditRoutineTask(selectedTask) ? (
@@ -2216,6 +2215,26 @@ const pageKicker = isMyTasksView
                         </Button>
                     )}
                   </>
+                )}
+                {selectedTask && canChangeTaskStatusFromDetail(selectedTask) && (
+                  (taskDetail?.statusChangeHistory?.length ?? 0) > 0 ? (
+                    <DisabledActionButton
+                      size="lg"
+                      className="bg-orange-500 text-white"
+                      hoverTitle={t('tasks.actions.changeStatusUsed', 'Görevin durumu yalnızca bir kez değiştirilebilir')}
+                    >
+                      {t('tasks.actions.changeStatus', 'Durum Değiştir')}
+                    </DisabledActionButton>
+                  ) : (
+                    <Button
+                      type="button"
+                      size="lg"
+                      className="bg-orange-500 text-white hover:bg-orange-600"
+                      onClick={() => openStatusChangeModal(selectedTask)}
+                    >
+                      {t('tasks.actions.changeStatus', 'Durum Değiştir')}
+                    </Button>
+                  )
                 )}
                 {taskDetail && (
                   <Button

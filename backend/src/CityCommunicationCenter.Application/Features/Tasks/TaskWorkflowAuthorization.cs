@@ -1,5 +1,5 @@
-using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Application.Features.Jobs;
+using CityCommunicationCenter.Application.Features.Users;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
@@ -122,6 +122,53 @@ internal static class TaskWorkflowAuthorization
         if (task.AssignedUserId == actor.UserId) return;
 
         throw new ForbiddenAccessException("Bu islem icin gorev atamasinin sizin uzerinizde olmasi gerekir.");
+    }
+
+    /// <summary>
+    /// Tamamlanmış/İptal görevde Durum Değiştir: atanan, SystemAdmin veya birim liderliği
+    /// (müdür/vekil/sorumlu) veya hedef birimde Vatandaş Talep Yöneticisi.
+    /// </summary>
+    public static async Task EnsureCanChangeTaskStatusAsync(
+        IApplicationDbContext dbContext,
+        WorkTask task,
+        Job? job,
+        Guid? actorUserId,
+        Guid tenantId,
+        CancellationToken cancellationToken)
+    {
+        var actor = await RequireActiveActorAsync(dbContext, actorUserId, tenantId, cancellationToken);
+        if (IsSystemAdmin(actor)) return;
+        if (task.AssignedUserId == actor.UserId) return;
+
+        job ??= await dbContext.Jobs.FirstOrDefaultAsync(
+            entity => entity.JobId == task.JobId && entity.TenantId == tenantId,
+            cancellationToken);
+
+        if (task.AssignedDepartmentId.HasValue
+            && await JobWorkflowAuthorization.CanManageJobAsDepartmentLeaderAsync(
+                dbContext,
+                actor,
+                task.AssignedDepartmentId.Value,
+                cancellationToken))
+        {
+            return;
+        }
+
+        if (job is not null
+            && task.AssignedDepartmentId.HasValue
+            && JobCitizenRequestHelper.IsCitizenRequest(job)
+            && await UserRoleAccess.CanManageCitizenRequestInTargetDepartmentAsync(
+                dbContext,
+                tenantId,
+                actor,
+                job,
+                task.AssignedDepartmentId.Value,
+                cancellationToken))
+        {
+            return;
+        }
+
+        throw new ForbiddenAccessException("Bu gorevin durumunu degistirme yetkiniz yok.");
     }
 
     public static async Task<ApplicationUser> EnsureCanClaimFromPoolAsync(

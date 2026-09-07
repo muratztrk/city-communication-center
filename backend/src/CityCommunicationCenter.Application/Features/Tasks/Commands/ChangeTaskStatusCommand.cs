@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Abstractions;
+using CityCommunicationCenter.Application.Features.Jobs;
 using CityCommunicationCenter.Application.Features.Social;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -64,13 +65,17 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
         if (newStatus == task.CurrentStatus)
             throw Validation(nameof(request.NewStatus), "Görev zaten bu durumda.");
 
-        // Yetki: görevin atananı veya SystemAdmin (Tamamla/İptal ile aynı).
-        await TaskWorkflowAuthorization.EnsureCanActAsAssigneeAsync(_dbContext, task, request.ActorUserId, tenantId, cancellationToken);
+        var parentJob = await _dbContext.Jobs.FirstOrDefaultAsync(
+            e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
+
+        // Yetki: atanan, SystemAdmin, birim liderliği veya hedef birimde VTY.
+        await TaskWorkflowAuthorization.EnsureCanChangeTaskStatusAsync(
+            _dbContext, task, parentJob, request.ActorUserId, tenantId, cancellationToken);
+
+        var isAssigneeChange = request.ActorUserId.HasValue && task.AssignedUserId == request.ActorUserId;
 
         var previousStatus = task.CurrentStatus;
         var utcNow = DateTimeOffset.UtcNow;
-        var parentJob = await _dbContext.Jobs.FirstOrDefaultAsync(
-            e => e.JobId == task.JobId && e.TenantId == tenantId, cancellationToken);
         var previousTaskCount = await _dbContext.Tasks
             .AsNoTracking()
             .CountAsync(entity => entity.JobId == task.JobId && entity.TenantId == tenantId, cancellationToken);
@@ -163,6 +168,27 @@ public sealed class ChangeTaskStatusCommandHandler : ICommandHandler<ChangeTaskS
                 StatusAtEvent = parentJob.Status.ToString(),
                 Notes = "Görev durumu değişikliği sonucu talep durumu güncellendi.",
                 Details = request.Reason
+            });
+        }
+
+        // Birim liderliği/VTY Durum Değiştir → Mesaj Onayı listesinden çıkar (yeniden terminal olunca görünür).
+        if (parentJob is not null
+            && !isAssigneeChange
+            && JobCitizenRequestHelper.IsCitizenRequest(parentJob))
+        {
+            parentJob.CitizenTerminalMessageReleasedAtUtc = null;
+            _dbContext.AuditLogs.Add(new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = tenantId,
+                EntityType = nameof(Job),
+                EntityId = parentJob.JobId.ToString(),
+                Action = "CitizenMessageJobSuppressedViaTaskStatusChange",
+                ActorUserId = request.ActorUserId,
+                ActorDisplayName = actorDisplayName,
+                StatusAtEvent = parentJob.Status.ToString(),
+                Notes = "Birimdeki Görevler — görev durumu değişikliği sonrası vatandaş mesaj onayı bekletilmedi.",
+                Details = $"{previousStatus}->{newStatus}"
             });
         }
 

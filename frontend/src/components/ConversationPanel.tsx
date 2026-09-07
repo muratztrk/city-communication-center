@@ -31,6 +31,7 @@ import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
 import { useAuth } from '../context/AuthContext'
 import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
 import type { WhatsAppMessagePayload } from '../hooks/useSignalR'
+import { printHtmlDocument } from '../utils/printDocument'
 
 interface ConversationPanelProps {
   socialMessageId: string
@@ -61,16 +62,19 @@ interface ConversationPanelProps {
   /** Vatandaş Talebi Oluştur modalında konuşma balonlarını küçült (card #1711). */
   compactBubbles?: boolean
   /** Üst başlık satırını gizle (vatandaş bilgisi modal başlığında gösterilir — card #2390). */
-  /** Yazışmaya Git popup: konuşmayı indirilebilir metin olarak kaydet (#3431). */
-  enableConversationDownload?: boolean
   hideHeader?: boolean
+  /** Yazışmaya Git popup: X solunda Yazdır — tarayıcı yazdırma penceresi (#3431). */
+  enableConversationPrint?: boolean
 }
 
-/** İsimden baş harfleri çıkarır (en fazla 2). Harf yoksa null döner. */
 function getInitials(value: string): string | null {
   const words = value.trim().split(/\s+/).filter(w => /\p{L}/u.test(w))
   if (words.length === 0) return null
   return words.slice(0, 2).map(w => w[0]?.toUpperCase() ?? '').join('')
+}
+
+function escHtml(str: string): string {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 }
 
 function DateDivider({ label }: { label: string }) {
@@ -83,7 +87,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false, enableConversationDownload = false }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false, enableConversationPrint = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const queryClient = useQueryClient()
@@ -337,29 +341,39 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
 
   const sendButtonSpacerClass = compactActions ? 'h-8 w-10 shrink-0' : 'size-11 shrink-0'
 
-  const handleDownloadConversation = useCallback(() => {
+  const handlePrintConversation = useCallback(() => {
     if (entries.length === 0) return
-    const lines = entries.map(entry => {
+    const title = headerMode === 'phone'
+      ? (registeredCitizenName ? `${registeredCitizenName} ${phoneForDisplay}` : phoneForDisplay)
+      : citizenHandle
+    const kicker = headerMode === 'phone'
+      ? t('whatsapp.phoneNoHeader', 'Whatsapp Telefon No')
+      : t('social.conversation', 'Konuşma')
+    const messageBlocks = entries.map(entry => {
       const role = entry.direction === 'Inbound'
         ? t('social.inboundShort', 'Gelen')
         : t('social.outboundShort', 'Giden')
       const time = formatConversationMessageTime(entry.sentAt, locale, t)
       const content = formatConversationDisplayContent(entry.content)
-      return `[${time}] ${role}: ${content}`
-    })
-    const title = headerMode === 'phone'
-      ? (registeredCitizenName ? `${registeredCitizenName} ${phoneForDisplay}` : phoneForDisplay)
-      : citizenHandle
-    const text = `${title}\n${'—'.repeat(40)}\n\n${lines.join('\n\n')}\n`
-    const safeName = (phoneDigitsRaw || 'konusma').slice(-12)
-    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' })
-    const url = URL.createObjectURL(blob)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `whatsapp-${safeName}.txt`
-    link.click()
-    URL.revokeObjectURL(url)
-  }, [citizenHandle, entries, headerMode, locale, phoneDigitsRaw, phoneForDisplay, registeredCitizenName, t])
+      return `<div class="message"><div class="meta">${escHtml(time)} · ${escHtml(role)}</div><div class="body">${escHtml(content).replace(/\n/g, '<br>')}</div></div>`
+    }).join('')
+    const printedAt = new Date().toLocaleString(locale)
+    printHtmlDocument(`<!DOCTYPE html><html lang="tr"><head><meta charset="UTF-8"><title>${escHtml(title)}</title><style>
+      @page{margin:0}
+      body{font-family:Arial,sans-serif;font-size:12px;color:#111;padding:2rem;margin:0}
+      h1{font-size:16px;margin:0 0 4px}
+      .kicker{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#64748b;margin-bottom:12px}
+      .message{margin:0 0 12px;padding-bottom:12px;border-bottom:1px solid #e2e8f0}
+      .meta{font-size:10px;color:#64748b;margin-bottom:4px}
+      .body{white-space:normal;line-height:1.45}
+      .footer{margin-top:1.5rem;font-size:10px;color:#94a3b8}
+    </style></head><body>
+      <p class="kicker">${escHtml(kicker)}</p>
+      <h1>${escHtml(title)}</h1>
+      ${messageBlocks}
+      <div class="footer">Yazdırma tarihi: ${escHtml(printedAt)}</div>
+    </body></html>`)
+  }, [citizenHandle, entries, headerMode, locale, phoneForDisplay, registeredCitizenName, t])
 
   return (
     <div className="flex flex-col h-full">
@@ -387,10 +401,10 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               <p className="truncate text-[15px] font-semibold leading-tight">{headerSubtitle}</p>
             )}
           </div>
-          {enableConversationDownload ? (
+          {enableConversationPrint ? (
             <button
               type="button"
-              onClick={handleDownloadConversation}
+              onClick={handlePrintConversation}
               disabled={entries.length === 0 || conversationQuery.isLoading}
               aria-label={t('common.print', 'Yazdır')}
               className="flex size-8 shrink-0 items-center justify-center rounded-full text-white/80 hover:bg-white/15 hover:text-white disabled:opacity-40"

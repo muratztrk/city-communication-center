@@ -95,7 +95,19 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
             {
                 "sent" => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc != null),
                 "all" => q,
-                _ => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc == null),
+                _ => q.Where(j => j.CitizenTerminalMessageReleasedAtUtc == null
+                    && !_dbContext.AuditLogs.Any(a => a.TenantId == tenantId
+                        && a.EntityType == nameof(Job)
+                        && a.EntityId == j.JobId.ToString()
+                        && a.Action == "CitizenMessageJobSuppressedViaTaskStatusChange"
+                        && a.EventTimeUtc > (
+                            _dbContext.AuditLogs
+                                .Where(b => b.TenantId == tenantId
+                                    && b.EntityType == nameof(Job)
+                                    && b.EntityId == j.JobId.ToString()
+                                    && (b.Action == "JobCompleted" || b.Action == "JobCancelled"))
+                                .Select(b => (DateTimeOffset?)b.EventTimeUtc)
+                                .Max() ?? DateTimeOffset.MinValue))),
             };
         }
 

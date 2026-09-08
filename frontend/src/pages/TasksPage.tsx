@@ -3885,20 +3885,8 @@ const pageKicker = isMyTasksView
               <span className="font-semibold text-orange-500">{statusChangeModal.displayNumber}</span>{' '}
               {t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}
             </p>
-            <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'DURUM DEĞİŞİKLİĞİ NOTU')} <span className="text-[10px] font-normal text-slate-400">(Max {TASK_STATUS_CHANGE_REASON_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
-              <textarea
-                className="field-textarea task-status-change-reason-textarea"
-                rows={3}
-                maxLength={TASK_STATUS_CHANGE_REASON_MAX_LENGTH}
-                value={statusChangeReason}
-                onChange={e => setStatusChangeReason(e.target.value)}
-                placeholder={t('tasks.actions.changeStatusReasonPlaceholder', 'Durum değişikliği nedenini açıklayınız...')}
-                autoFocus
-              />
-            </label>
             <div className="job-field">
-              <span className="job-field-label">{t('tasks.actions.changeStatusSelect', 'Görev Durumu Seç')}</span>
+              <span className="job-field-label">{t('tasks.actions.changeStatusSelect', 'GÖREV DURUMU')}</span>
               <SingleSelectDropdown
                 className="w-full"
                 triggerClassName="text-sm font-medium"
@@ -3911,6 +3899,18 @@ const pageKicker = isMyTasksView
                 placeholder={t('tasks.actions.changeStatusPlaceholder', 'Görev durumu seçiniz')}
               />
             </div>
+            <label className="job-field">
+              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'DURUM DEĞİŞİKLİĞİ NOTU')} <span className="text-[10px] font-normal text-slate-400">(Max {TASK_STATUS_CHANGE_REASON_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
+              <textarea
+                className="field-textarea workflow-note-dialog__textarea"
+                rows={3}
+                maxLength={TASK_STATUS_CHANGE_REASON_MAX_LENGTH}
+                value={statusChangeReason}
+                onChange={e => setStatusChangeReason(e.target.value)}
+                placeholder={t('tasks.actions.changeStatusReasonPlaceholder', 'Durum değişikliği nedenini açıklayınız...')}
+                autoFocus
+              />
+            </label>
             <div className="inline-actions justify-end">
               <Button type="button" variant="secondary" onClick={closeStatusChangeModal}>
                 {t('common.dismiss', 'Vazgeç')}

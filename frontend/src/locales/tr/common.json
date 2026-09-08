@@ -903,7 +903,7 @@
       "changeStatusHelp": "Görev durumunu değiştirmek için neden belirtiniz.",
       "changeStatusReason": "DURUM DEĞİŞİKLİĞİ NOTU",
       "changeStatusReasonPlaceholder": "Durum değişikliği nedenini açıklayınız...",
-      "changeStatusSelect": "Görev Durumu Seç",
+      "changeStatusSelect": "GÖREV DURUMU",
       "changeStatusPlaceholder": "Görev durumu seçiniz",
       "statusChangeSuccess": "Görev durumu güncellendi.",
       "approveCloseSuccess": "Görev kapatma onaylandı.",

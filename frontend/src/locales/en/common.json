@@ -896,7 +896,7 @@
       "changeStatusHelp": "State a reason for changing the task status.",
       "changeStatusReason": "STATUS CHANGE NOTE",
       "changeStatusReasonPlaceholder": "Explain the reason for the status change...",
-      "changeStatusSelect": "Select Task Status",
+      "changeStatusSelect": "TASK STATUS",
       "changeStatusPlaceholder": "Select a task status",
       "statusChangeSuccess": "Task status updated.",
       "approveCloseSuccess": "Task close approved.",

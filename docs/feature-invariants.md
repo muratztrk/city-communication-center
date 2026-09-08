@@ -507,7 +507,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Sorumlu rol lisans (#3443):** yalnız `internal` lisansı yoksa (sadece VT lisansı) Kullanıcılar rol
   dropdown'unda `Sorumlu` seçeneği gösterilmez.
 - **Talep yönlendirme notu etiketi (#3450):** modal alan adı `Talep Yönlendirme Notu`; max 300 karakter (#3451); placeholder `Talep yönlendirme sebebini yazınız...` (#3453); birim seçimi metni «…seçiniz.» (#3454); birim dropdown yüksekliği hafif düşük (#3452).
-- **Görev Durum Değiştir modal (#3455–#3457):** not başlığı `DURUM DEĞİŞİKLİĞİ NOTU`; durum dropdown metni bir tık büyük; placeholder bir tık küçük.
+- **Görev Durum Değiştir modal (#3455–#3457):** üstte `GÖREV DURUMU` dropdown, altta `DURUM DEĞİŞİKLİĞİ NOTU`;
+  not placeholder/input punto `workflow-note-dialog__textarea` (= Tamamlama Notu).
 - **`RecomputeJobCompletionAsync` çoğu terminal geçişini yapar; `Completed` talebi tüm görevler
   iptal edildiğinde `Cancelled`'a düşürür (card #1044). Karışık terminal durumda (tamamlanmış +
   iptal görev bir arada) talep `Active`'e geri alınır. Bir görevi terminal'den non-terminal'e

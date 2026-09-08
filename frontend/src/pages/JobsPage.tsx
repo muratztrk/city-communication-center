@@ -839,6 +839,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const activeIncomingTarget = detail?.departments?.find(
     department => department.role === 'Target' && department.departmentId === activeDeptId,
   )
+  const jobTargetDepartment = detail?.departments?.find(department => department.role === 'Target')
   const canApproveTargetDetail = isIncomingRequestDetail
     && incomingDetailManager
     && (detail?.requestType === 'ExternalUnit' || detail?.requestType === 'Citizen')
@@ -876,8 +877,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   // Bir kez yönlendirilmiş talep yeniden yönlendirilemez (card #1413).
   const canForwardCitizenTargetDetail = detail?.requestType === 'Citizen'
     && isCitizenRequestManager
-    && (canApproveTargetDetail || canAssignIncomingDetail)
+    && isIncomingRequestDetail
+    && incomingDetailManager
     && !forwardReason
+    && jobTargetDepartment != null
+    && (
+      (detail.status === 'PendingExternalApproval' && jobTargetDepartment.approvalStatus === 'Pending')
+      || (detail.status === 'Active' && countOpenWorkTasks(detail) === 0)
+    )
   const canForwardTargetDetail = (
     (detail?.requestType === 'ExternalUnit' && (canApproveTargetDetail || canAssignIncomingDetail))
     || canForwardCitizenTargetDetail
@@ -886,12 +893,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   // Başkanlık seviyesi birimler (Başkanlık / Daire) hiçbir zaman listelenmez (card #1410).
   // VTY vatandaş talebinde tüm birimler listelenir (#3449).
   const forwardDepartmentOptions = (canForwardCitizenTargetDetail
-    ? departments.filter(department => department.departmentId !== activeIncomingTarget?.departmentId)
+    ? departments.filter(department => department.departmentId !== jobTargetDepartment?.departmentId)
     : departments.filter(department =>
       department.departmentId !== activeDeptId
       && department.departmentId !== detail?.ownerDepartmentId
       && !isPresidencyLevelDepartment(department)))
     .map(department => ({ value: department.departmentId, label: department.name }))
+  const needsDepartmentCatalog = canManageCoordination || (isIncomingRequestDetail && (isManagerLike || isCitizenRequestManager))
   const incomingPendingCloseTask = isIncomingRequestDetail && incomingDetailManager
     ? detail?.tasks.find(task => task.currentStatus === 'PendingCloseApproval') ?? null
     : null
@@ -1095,7 +1103,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   }, [])
 
   useEffect(() => {
-    if (!canManageCoordination) return
+    if (!needsDepartmentCatalog) return
 
     let cancelled = false
     api.getDepartments()
@@ -1107,7 +1115,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       })
 
     return () => { cancelled = true }
-  }, [canManageCoordination])
+  }, [needsDepartmentCatalog])
 
   useEffect(() => {
     if (!detail?.departments.some(department => department.role === 'Target' && Boolean(department.notes?.trim()))) return
@@ -3746,7 +3754,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               </label>
               <SingleSelectDropdown
                 className="job-forward-dept-dropdown"
-                triggerClassName="min-h-[2.2rem] py-1"
+                triggerClassName="text-sm font-medium"
+                searchable={forwardDepartmentOptions.length >= 7}
                 options={forwardDepartmentOptions}
                 value={forwardModal.departmentId}
                 onChange={departmentId => setForwardModal(current => (current ? { ...current, departmentId } : current))}
@@ -3759,7 +3768,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               </label>
               <textarea
                 id="forward-note"
-                className="field-textarea job-forward-note-textarea"
+                className="field-textarea workflow-note-dialog__textarea"
                 rows={3}
                 maxLength={FORWARD_NOTE_MAX_LENGTH}
                 value={forwardModal.note}

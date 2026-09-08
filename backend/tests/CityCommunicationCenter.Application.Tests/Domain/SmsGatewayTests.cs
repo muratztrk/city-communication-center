@@ -44,6 +44,7 @@ public class SmsEndpointAllowListTests
 {
     private const string JettDefault = "http://api.jettmesaj.com/";
     private const string AsistelDefault = "http://92.42.35.50:16899/smswebservice.asmx";
+    private const string TeknomartDefault = "https://app.teknomart.com.tr:9588/sms/create";
 
     [Fact]
     public void Resolve_uses_default_when_not_configured()
@@ -84,6 +85,36 @@ public class SmsEndpointAllowListTests
         Assert.Equal(
             JettDefault,
             SmsEndpointAllowList.Resolve(SmsProvider.JettMesaj, "http://92.42.35.50:16899/x", JettDefault));
+    }
+
+    [Fact]
+    public void Resolve_keeps_teknomart_host()
+    {
+        Assert.Equal(
+            TeknomartDefault,
+            SmsEndpointAllowList.Resolve(SmsProvider.Teknormart, TeknomartDefault, TeknomartDefault));
+        Assert.Equal(
+            TeknomartDefault,
+            SmsEndpointAllowList.Resolve(SmsProvider.Teknormart, "https://app.teknomart.com.tr:9588/sms/create", TeknomartDefault));
+    }
+}
+
+public class TeknomartSmsSenderTests
+{
+    [Fact]
+    public void BuildPackageTitle_is_at_least_five_chars()
+    {
+        var title = TeknomartSmsSender.BuildPackageTitle(new DateTimeOffset(2026, 9, 8, 14, 0, 0, TimeSpan.Zero));
+        Assert.True(title.Length >= 5);
+        Assert.StartsWith("TIC-", title);
+    }
+
+    [Fact]
+    public void CreateBasicAuthHeader_matches_base64_username_password()
+    {
+        var header = TeknomartSmsSender.CreateBasicAuthHeader("lumespec", "secret");
+        Assert.Equal("Basic", header.Scheme);
+        Assert.Equal(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("lumespec:secret")), header.Parameter);
     }
 }
 

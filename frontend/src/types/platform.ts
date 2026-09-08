@@ -965,7 +965,7 @@ export interface WorkingHoursDepartmentOverride { departmentId: string; departme
 export interface WorkingHoursSchedule { isAlwaysOpen: boolean; schedule: WorkingHoursDaySchedule[] }
 export interface WorkingHoursSettings { default: WorkingHoursSchedule; departmentOverrides: WorkingHoursDepartmentOverride[] }
 
-/** Asistel (SOAP) ve JettMesaj (GET) gerçek gönderim entegrasyonu olan sağlayıcılardır. */
+/** Asistel (SOAP), JettMesaj (GET) ve Teknomart (REST) gerçek gönderim entegrasyonu olan sağlayıcılardır. */
 export type SmsProvider = 'NetGSM' | 'Iletimerkezi' | 'Verimor' | 'Custom' | 'Asistel' | 'JettMesaj' | 'Infobip' | 'Teknormart';
 
 /** Boş = henüz seçilmedi; dropdown placeholder (#6a6efa2c). */
@@ -982,7 +982,7 @@ export const SMS_PROVIDER_OPTIONS: SmsProvider[] = [
   'Verimor',
 ];
 
-export const SMS_SENDABLE_PROVIDERS: SmsProvider[] = ['Asistel', 'JettMesaj'];
+export const SMS_SENDABLE_PROVIDERS: SmsProvider[] = ['Asistel', 'JettMesaj', 'Teknormart'];
 
 /** Kayıtlı şifre varken input'ta gösterilen maske; API'ye asla gönderilmez (#6a6efd02). */
 export const SMS_PASSWORD_MASK = '********';

@@ -112,7 +112,7 @@ internal sealed class SmsGateway : ISmsGateway
                 sendContext,
                 SmsSendResult.Fail(
                     $"'{credentials.Provider}' sağlayıcısı için gönderim entegrasyonu yok. "
-                    + "Ayarlar > SMS API'den Asistel veya jeTTMesaj seçin."),
+                    + "Ayarlar > SMS API'den Asistel, jeTTMesaj veya Teknomart seçin."),
                 cancellationToken);
         }
 

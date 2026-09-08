@@ -14,6 +14,7 @@ internal static class SmsEndpointAllowList
     {
         [SmsProvider.JettMesaj] = ["api.jettmesaj.com", "jettmesaj.com", "www.jettmesaj.com"],
         [SmsProvider.Asistel] = ["92.42.35.50", "asistsms.com", "www.asistsms.com", "api.asistsms.com"],
+        [SmsProvider.Teknormart] = ["app.teknomart.com.tr", "teknomart.com.tr", "www.teknomart.com.tr"],
     };
 
     /// <summary>

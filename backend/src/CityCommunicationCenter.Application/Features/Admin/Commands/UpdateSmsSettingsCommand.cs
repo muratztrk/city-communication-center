@@ -15,10 +15,10 @@ public sealed record UpdateSmsSettingsCommand(
 public sealed class UpdateSmsSettingsCommandValidator : AbstractValidator<UpdateSmsSettingsCommand>
 {
     private static readonly string[] ValidProviders =
-        ["NetGSM", "Iletimerkezi", "Verimor", "Custom", "Asistel", "JettMesaj", "Infobip"];
+        ["NetGSM", "Iletimerkezi", "Verimor", "Custom", "Asistel", "JettMesaj", "Infobip", "Teknormart"];
 
     /// <summary>Gerçek gönderim entegrasyonu yazılmış sağlayıcılar.</summary>
-    private static readonly string[] SendableProviders = ["Asistel", "JettMesaj"];
+    private static readonly string[] SendableProviders = ["Asistel", "JettMesaj", "Teknormart"];
 
     public UpdateSmsSettingsCommandValidator()
     {

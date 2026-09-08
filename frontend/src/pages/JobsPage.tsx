@@ -293,6 +293,8 @@ function formatJobDisplayNumber(job: Pick<JobSummary, 'requestType' | 'sourceTyp
   return `T-${year}-Onay Bekleyen`
 }
 
+const FORWARD_NOTE_MAX_LENGTH = 300
+
 const JOB_SEARCH_COLUMN_KEYS = [
   'jobNumber',
   'title',
@@ -3736,13 +3738,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               {t('jobs.forward.title', 'Talebi Yönlendir')}
             </h3>
             <p className="mb-4 text-sm text-slate-600">
-              {t('jobs.forward.selectDepartment', 'Talebi yönlendirmek istediğiniz birimi seçin.')}
+              {t('jobs.forward.selectDepartment', 'Talebi yönlendirmek istediğiniz birimi seçiniz.')}
             </p>
             <div className="mb-4">
               <label className="job-field-label" htmlFor="forward-target-dept">
                 {t('jobs.form.targetDepartment', 'Talebin Gideceği Birim')} <span className="text-red-500">*</span>
               </label>
               <SingleSelectDropdown
+                className="job-forward-dept-dropdown"
+                triggerClassName="min-h-[2.2rem] py-1"
                 options={forwardDepartmentOptions}
                 value={forwardModal.departmentId}
                 onChange={departmentId => setForwardModal(current => (current ? { ...current, departmentId } : current))}
@@ -3755,14 +3759,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               </label>
               <textarea
                 id="forward-note"
-                className="field-textarea"
+                className="field-textarea job-forward-note-textarea"
                 rows={3}
-                maxLength={100}
+                maxLength={FORWARD_NOTE_MAX_LENGTH}
                 value={forwardModal.note}
                 onChange={event => setForwardModal(current => (current ? { ...current, note: event.target.value } : current))}
-                placeholder={t('jobs.forward.notePlaceholder', 'Yönlendirme sebebini yazın')}
+                placeholder={t('jobs.forward.notePlaceholder', 'Talep yönlendirme sebebini yazınız...')}
               />
-              <div className="mt-0.5 text-right text-[0.7rem] text-slate-400">{forwardModal.note.length}/100</div>
+              <div className="mt-0.5 text-right text-[0.7rem] text-slate-400">{forwardModal.note.length}/{FORWARD_NOTE_MAX_LENGTH}</div>
             </div>
             <div className="flex flex-col gap-2">
               <Button

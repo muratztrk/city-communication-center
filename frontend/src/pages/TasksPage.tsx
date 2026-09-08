@@ -3886,9 +3886,9 @@ const pageKicker = isMyTasksView
               {t('tasks.actions.changeStatusHelp', 'Görev durumunu değiştirmek için neden belirtiniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'Neden')} <span className="text-[10px] font-normal text-slate-400">(Max {TASK_STATUS_CHANGE_REASON_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.changeStatusReason', 'DURUM DEĞİŞİKLİĞİ NOTU')} <span className="text-[10px] font-normal text-slate-400">(Max {TASK_STATUS_CHANGE_REASON_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
-                className="field-textarea"
+                className="field-textarea task-status-change-reason-textarea"
                 rows={3}
                 maxLength={TASK_STATUS_CHANGE_REASON_MAX_LENGTH}
                 value={statusChangeReason}
@@ -3901,7 +3901,7 @@ const pageKicker = isMyTasksView
               <span className="job-field-label">{t('tasks.actions.changeStatusSelect', 'Görev Durumu Seç')}</span>
               <SingleSelectDropdown
                 className="w-full"
-                triggerClassName="text-xs font-medium"
+                triggerClassName="text-sm font-medium"
                 menuScrollClassName="task-status-change-menu-scroll"
                 options={STATUS_CHANGE_OPTIONS
                   .filter(option => option.value !== statusChangeModal.currentStatus)

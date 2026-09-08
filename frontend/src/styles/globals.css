@@ -3585,7 +3585,21 @@
   }
 
   .task-status-change-menu-scroll .dropdown-menu-item {
-    font-size: 0.75rem;
+    font-size: 0.8125rem;
+  }
+
+  .job-forward-dept-dropdown .field-select {
+    min-height: 2.2rem;
+    padding-top: 0.42rem;
+    padding-bottom: 0.42rem;
+  }
+
+  .job-forward-note-textarea::placeholder {
+    font-size: 0.8125rem;
+  }
+
+  .task-status-change-reason-textarea::placeholder {
+    font-size: 0.8125rem;
   }
 
   .my-request-edit-priority-menu .dropdown-menu-item {

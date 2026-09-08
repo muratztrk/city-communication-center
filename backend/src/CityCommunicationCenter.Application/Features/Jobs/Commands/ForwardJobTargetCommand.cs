@@ -17,7 +17,7 @@ public sealed class ForwardJobTargetCommandValidator : AbstractValidator<Forward
         RuleFor(c => c.JobId).NotEmpty().WithMessage("Talep zorunludur.");
         RuleFor(c => c.TargetDepartmentId).NotEmpty().WithMessage("Yönlendirilecek birim zorunludur.");
         RuleFor(c => c.Note).NotEmpty().WithMessage("Talep yönlendirme notu zorunludur.")
-            .MaximumLength(100).WithMessage("Talep yönlendirme notu en fazla 100 karakter olabilir.");
+            .MaximumLength(300).WithMessage("Talep yönlendirme notu en fazla 300 karakter olabilir.");
     }
 }
 

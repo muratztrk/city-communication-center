@@ -894,7 +894,7 @@
       "changeStatus": "Change Status",
       "changeStatusTitle": "Task Status Change",
       "changeStatusHelp": "State a reason for changing the task status.",
-      "changeStatusReason": "Reason",
+      "changeStatusReason": "STATUS CHANGE NOTE",
       "changeStatusReasonPlaceholder": "Explain the reason for the status change...",
       "changeStatusSelect": "Select Task Status",
       "changeStatusPlaceholder": "Select a task status",
@@ -1963,7 +1963,9 @@
       "badge": "Forwarded Request",
       "sourceFallback": "Forwarding Department",
       "reasonLabel": "Forwarding Reason",
-      "noteLabel": "Request Routing Note"
+      "noteLabel": "Request Routing Note",
+      "selectDepartment": "Please select the department you want to forward the request to.",
+      "notePlaceholder": "Enter the request routing reason..."
     },
     "directions": {
       "internalOutgoing": "Internal Outgoing",

@@ -503,7 +503,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **VTY vatandaş talebi yönlendirme (#3449):** Birime Gelen detay popup'ta VTY `Talebi Yönlendir`
   görebilir; dropdown mevcut hedef hariç **tüm birimleri** listeler (başkanlık/owner filtresi yok).
   Backend `ForwardJobTargetCommand` Citizen + VTY için hedef taşımayı destekler.
-- **Talep yönlendirme notu etiketi (#3450):** modal alan adı `Talep Yönlendirme Notu`.
+- **Talep yönlendirme notu etiketi (#3450):** modal alan adı `Talep Yönlendirme Notu`; max 300 karakter (#3451); placeholder `Talep yönlendirme sebebini yazınız...` (#3453); birim seçimi metni «…seçiniz.» (#3454); birim dropdown yüksekliği hafif düşük (#3452).
+- **Görev Durum Değiştir modal (#3455–#3457):** not başlığı `DURUM DEĞİŞİKLİĞİ NOTU`; durum dropdown metni bir tık büyük; placeholder bir tık küçük.
 - **`RecomputeJobCompletionAsync` çoğu terminal geçişini yapar; `Completed` talebi tüm görevler
   iptal edildiğinde `Cancelled`'a düşürür (card #1044). Karışık terminal durumda (tamamlanmış +
   iptal görev bir arada) talep `Active`'e geri alınır. Bir görevi terminal'den non-terminal'e

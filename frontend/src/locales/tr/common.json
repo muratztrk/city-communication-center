@@ -901,7 +901,7 @@
       "changeStatus": "Durum Değiştir",
       "changeStatusTitle": "Görev Durum Değişikliği",
       "changeStatusHelp": "Görev durumunu değiştirmek için neden belirtiniz.",
-      "changeStatusReason": "Neden",
+      "changeStatusReason": "DURUM DEĞİŞİKLİĞİ NOTU",
       "changeStatusReasonPlaceholder": "Durum değişikliği nedenini açıklayınız...",
       "changeStatusSelect": "Görev Durumu Seç",
       "changeStatusPlaceholder": "Görev durumu seçiniz",
@@ -2005,7 +2005,9 @@
       "badge": "Yönlendirilen Talep",
       "sourceFallback": "Talebi Yönlendiren Birim",
       "reasonLabel": "Talep Yönlenme Sebebi",
-      "noteLabel": "Talep Yönlendirme Notu"
+      "noteLabel": "Talep Yönlendirme Notu",
+      "selectDepartment": "Talebi yönlendirmek istediğiniz birimi seçiniz.",
+      "notePlaceholder": "Talep yönlendirme sebebini yazınız..."
     },
     "directions": {
       "internalOutgoing": "Birim İçi Giden",

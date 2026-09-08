@@ -1412,9 +1412,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
     let cancelled = false
     async function loadCitizenSourceMessage() {
-      if (detail!.sourceType === 'SocialMessage' && detail!.sourceRefId) {
+      const directMessageId = detail!.sourceType === 'SocialMessage' && detail!.sourceRefId
+        ? detail!.sourceRefId
+        : detail!.sourceSocialMessageId ?? null
+      if (directMessageId) {
         try {
-          const message = await api.getSocialMessageById(detail!.sourceRefId)
+          const message = await api.getSocialMessageById(directMessageId)
           if (!cancelled) setCitizenSourceMessage(message)
           return
         } catch {
@@ -1432,13 +1435,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     }
     void loadCitizenSourceMessage()
     return () => { cancelled = true }
-  }, [detail?.jobId, detail?.sourceRefId, detail?.sourceType])
+  }, [detail?.jobId, detail?.sourceRefId, detail?.sourceSocialMessageId, detail?.sourceType])
 
   const openCitizenConversationModal = () => {
     if (!detail) return
     const socialMessageId = detail.sourceType === 'SocialMessage' && detail.sourceRefId
       ? detail.sourceRefId
-      : citizenSourceMessage?.socialMessageId
+      : detail.sourceSocialMessageId ?? citizenSourceMessage?.socialMessageId
     if (!socialMessageId) return
     setConversationModal({
       socialMessageId,

@@ -221,6 +221,8 @@ export function canShowCitizenWhatsAppConversation(
     requestType?: string | null
     sourceType?: string | null
     sourceRefId?: string | null
+    sourceChannel?: string | null
+    sourceSocialMessageId?: string | null
     citizenPhone?: string | null
     status?: string | null
   },
@@ -235,11 +237,16 @@ export function canShowCitizenWhatsAppConversation(
 ): boolean {
   if (!isCitizenRequestJob(job)) return false
 
+  const resolvedChannel = social?.channel ?? job.sourceChannel ?? null
   const hasSocialSource = job.sourceType === 'SocialMessage' && Boolean(job.sourceRefId)
+  const hasLinkedSocial = Boolean(job.sourceSocialMessageId ?? social?.socialMessageId)
   // Flash önleme: SocialMessage kaynağında kanal yüklenmeden Yazışmaya Git gösterme (#2101/#2107).
-  if (hasSocialSource && !social?.channel) return false
+  if (hasSocialSource && !resolvedChannel) return false
+  if (!hasSocialSource && !hasLinkedSocial && !resolvedChannel && resolveCitizenWhatsAppPhone(job, social) == null) {
+    return false
+  }
 
-  const channel = (social?.channel ?? '').toLocaleLowerCase('tr')
+  const channel = (resolvedChannel ?? '').toLocaleLowerCase('tr')
   if (channel === 'phone' || channel === 'call' || channel === 'çağrı' || channel === 'cagri') {
     return false
   }
@@ -253,7 +260,7 @@ export function canShowCitizenWhatsAppConversation(
     }
   }
 
-  if (hasSocialSource) return true
+  if (hasSocialSource || hasLinkedSocial) return true
   if (social?.socialMessageId) return true
   return resolveCitizenWhatsAppPhone(job, social) != null
 }

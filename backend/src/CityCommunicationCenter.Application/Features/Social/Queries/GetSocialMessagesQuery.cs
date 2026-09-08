@@ -56,9 +56,7 @@ public sealed class GetSocialMessagesQueryHandler : IQueryHandler<GetSocialMessa
                     && visibleDepartmentIds.Contains(jobDepartment.DepartmentId)))
                 || (entity.JobId.HasValue && _dbContext.Tasks.Any(task =>
                     task.JobId == entity.JobId
-                    && task.AssignedUserId == actor.UserId
-                    && task.AssignedDepartmentId.HasValue
-                    && visibleDepartmentIds.Contains(task.AssignedDepartmentId.Value))));
+                    && task.AssignedUserId == actor.UserId)));
         }
 
         var rows = await query

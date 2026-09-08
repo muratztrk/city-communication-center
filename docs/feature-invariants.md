@@ -595,8 +595,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **`ConversationPanel.canReply` default `true`; `canSendPending` ile "Mesajı Gönder" butonu.**
   Operatör görünümleri (`CitizenRequestModal`, `WhatsAppConversationsPage`) `canSendPending`'i operatör/
   SystemAdmin rolüne göre verir → beklemedeki giden balonun altında buton. Görev/talep bağlamından açılan
-  `WhatsAppConversationModal` artık yazabilir (`canReply`) ama `canSendPending=false` (yönetici/personel
-  yalnızca kuyruğa yazar, iletemez). (Eskiden salt-okunurdu — card #1091 değiştirdi.)
+  `WhatsAppConversationModal` salt okunurdur (`canReply=false`, `canSendPending=false`) — yönetici/personel/VTY
+  buradan WhatsApp mesajı yazamaz; iletme yalnız `/whatsapp` operatör ekranında.
 - **24 saat pencere uyarı metni gösterilmez:** `/whatsapp` konuşma footer'ında
   pencere durumunu anlatan açıklama satırı render edilmez.
 - **WhatsApp konuşma scroll'u kullanıcı niyetini korur:** `/whatsapp` detayında kullanıcı mesaj alanında
@@ -1031,7 +1031,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kırmızı(terminal-danger)→gri(upcoming) çizgilerde `linear-gradient` renk geçişi zorunlu;
   düz gri/düz kırmızı tek renk kabul edilmez.
 - **Yazışmaya Git Phone flash (card #2107):** SocialMessage kaynağında kanal yüklenmeden buton
-  gösterilmez; Phone/çağrı kanalında hiç görünmez.
+  gösterilmez; Phone/çağrı kanalında hiç görünmez. Kanal `JobDetail.sourceChannel` ile de çözülebilir
+  (atanan VTY prod'da sosyal liste filtresine takılmasın diye — #3438).
+- **Görev atanan kullanıcı sosyal mesaj listesi:** `GetSocialMessagesQuery` görev ataması (`AssignedUserId`)
+  eşleşmesinde aktif birim filtresine bakmaz; atanan personel/VTY kendi görevindeki VT yazışmasını görür.
 - **Detay popup'tan açılan WhatsApp konuşması son mesajda açılır:** Jobs/Tasks
   `Yazışmaya Git` aksiyonlarının kullandığı `WhatsAppConversationModal`/`ConversationPanel`
   ilk yüklemede ve yeni entry geldiğinde konuşmayı en alta hizalar; eski üstten açılma geri gelmez.

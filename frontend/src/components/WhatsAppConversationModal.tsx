@@ -32,9 +32,8 @@ export function WhatsAppConversationModal({
           citizenName={citizenName}
           headerMode="phone"
           onClose={onClose}
-          // Birim yöneticisi/atanan personel yazabilir ama mesaj "Beklemede" kuyruğa girer;
-          // vatandaşa iletme yetkisi yalnızca operatördedir (canSendPending=false) — card #1091.
-          canReply
+          // Yazışmaya Git popup salt okunur — mesaj gönderimi yalnız /whatsapp operatör ekranında.
+          canReply={false}
           canSendPending={false}
           // Yazışmaya Git popup: balon + metin küçült (#2083 / #1711 kalıbı).
           compactBubbles

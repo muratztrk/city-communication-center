@@ -445,6 +445,10 @@ export interface JobDetail {
   citizenOutboundMessage?: string | null;
   /** Mesajı Gönder anındaki onay notu — Tamamlama Notu (#2528). */
   citizenApprovalReleasedNote?: string | null;
+  /** VT kaynak kanalı — Yazışmaya Git görünürlüğü (#3438). */
+  sourceChannel?: string | null;
+  /** sourceRefId yoksa job'a bağlı sosyal mesaj kimliği. */
+  sourceSocialMessageId?: string | null;
 }
 
 export interface SocialConversationEntry {

@@ -592,8 +592,29 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             .Where(m => m.JobId == job.JobId && m.CitizenRequestNumber != null)
             .OrderByDescending(m => m.CitizenRequestNumberYear)
             .ThenByDescending(m => m.CitizenRequestNumber)
-            .Select(m => new { m.CitizenRequestNumber, m.CitizenRequestNumberYear })
+            .Select(m => new { m.CitizenRequestNumber, m.CitizenRequestNumberYear, m.Channel, m.SocialMessageId })
             .FirstOrDefaultAsync(cancellationToken);
+
+        string? sourceChannel = null;
+        Guid? sourceSocialMessageId = job.SourceRefId;
+        if (job.SourceRefId.HasValue)
+        {
+            var sourceMessage = await _dbContext.SocialMessages.AsNoTracking()
+                .Where(m => m.SocialMessageId == job.SourceRefId.Value && m.TenantId == tenantId)
+                .Select(m => new { m.Channel, m.SocialMessageId })
+                .FirstOrDefaultAsync(cancellationToken);
+            if (sourceMessage is not null)
+            {
+                sourceChannel = sourceMessage.Channel.ToString();
+                sourceSocialMessageId = sourceMessage.SocialMessageId;
+            }
+        }
+
+        if (sourceChannel is null && citizenRequest is not null)
+        {
+            sourceChannel = citizenRequest.Channel.ToString();
+            sourceSocialMessageId ??= citizenRequest.SocialMessageId;
+        }
 
         string? citizenOutboundMessage = null;
         string? citizenApprovalReleasedNote = null;
@@ -662,6 +683,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             jobStatusActorDisplayName, jobCompletionNote, job.UpdatedAtUtc, createdByRoleCode,
             citizenRequest?.CitizenRequestNumber, citizenRequest?.CitizenRequestNumberYear,
             citizenOutboundMessage, citizenApprovalReleasedNote,
-            job.LocationMapsUrl);
+            job.LocationMapsUrl,
+            sourceChannel, sourceSocialMessageId);
     }
 }

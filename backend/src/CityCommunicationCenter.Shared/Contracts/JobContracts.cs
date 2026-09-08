@@ -159,4 +159,8 @@ public sealed record JobDetailResponse(
     /// <summary>Yöneticinin Mesajı Onayla anındaki not — Tamamlama Notu (#2528). Operatör
     /// Sms Onayı task.Notes'u ezse bile bu alan değişmez.</summary>
     string? CitizenApprovalReleasedNote = null,
-    string? LocationMapsUrl = null);
+    string? LocationMapsUrl = null,
+    /// <summary>VT kaynak kanalı (WhatsApp/Phone vb.) — Yazışmaya Git görünürlüğü için.</summary>
+    string? SourceChannel = null,
+    /// <summary>sourceRefId yoksa job'a bağlı sosyal mesaj kimliği.</summary>
+    Guid? SourceSocialMessageId = null);

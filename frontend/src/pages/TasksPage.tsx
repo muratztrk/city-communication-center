@@ -1874,9 +1874,12 @@ const pageKicker = isMyTasksView
     }
     let cancelled = false
     async function loadCitizenSourceMessage() {
-      if (parentJobDetail!.sourceType === 'SocialMessage' && parentJobDetail!.sourceRefId) {
+      const directMessageId = parentJobDetail!.sourceType === 'SocialMessage' && parentJobDetail!.sourceRefId
+        ? parentJobDetail!.sourceRefId
+        : parentJobDetail!.sourceSocialMessageId ?? null
+      if (directMessageId) {
         try {
-          const message = await api.getSocialMessageById(parentJobDetail!.sourceRefId)
+          const message = await api.getSocialMessageById(directMessageId)
           if (!cancelled) setCitizenSourceMessage(message)
           return
         } catch {
@@ -1894,13 +1897,13 @@ const pageKicker = isMyTasksView
     }
     void loadCitizenSourceMessage()
     return () => { cancelled = true }
-  }, [parentJobDetail?.jobId, parentJobDetail?.sourceRefId, parentJobDetail?.sourceType])
+  }, [parentJobDetail?.jobId, parentJobDetail?.sourceRefId, parentJobDetail?.sourceSocialMessageId, parentJobDetail?.sourceType])
 
   const openCitizenConversationModal = () => {
     if (!parentJobDetail) return
     const socialMessageId = parentJobDetail.sourceType === 'SocialMessage' && parentJobDetail.sourceRefId
       ? parentJobDetail.sourceRefId
-      : citizenSourceMessage?.socialMessageId
+      : parentJobDetail.sourceSocialMessageId ?? citizenSourceMessage?.socialMessageId
     if (!socialMessageId) return
     setConversationModal({
       socialMessageId,

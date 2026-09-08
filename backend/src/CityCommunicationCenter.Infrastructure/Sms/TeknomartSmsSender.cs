@@ -61,36 +61,50 @@ internal sealed class TeknomartSmsSender : ISmsProviderSender
         using var response = await client.SendAsync(request, cancellationToken);
         var body = await response.Content.ReadAsStringAsync(cancellationToken);
 
+        TeknomartCreateSmsResponse? parsed = null;
+        if (!string.IsNullOrWhiteSpace(body))
+        {
+            try
+            {
+                parsed = JsonSerializer.Deserialize<TeknomartCreateSmsResponse>(body, JsonOptions);
+            }
+            catch (JsonException)
+            {
+                // Yanıt JSON değilse aşağıda HTTP kodu ile döner.
+            }
+        }
+
         if (!response.IsSuccessStatusCode)
         {
             _logger.LogWarning(
                 "Teknomart HTTP {Status}: {Body}",
                 (int)response.StatusCode,
                 Truncate(body));
+
+            if (parsed?.Err is not null)
+            {
+                var message = MapTeknomartError(parsed.Err, (int)response.StatusCode);
+                var code = parsed.Err.Code ?? parsed.Err.Status?.ToString() ?? ((int)response.StatusCode).ToString();
+                return SmsSendResult.Fail(message, code);
+            }
+
             return SmsSendResult.Fail($"Teknomart HTTP {(int)response.StatusCode} döndürdü.");
         }
 
-        TeknomartCreateSmsResponse? parsed;
-        try
+        if (parsed is null)
         {
-            parsed = JsonSerializer.Deserialize<TeknomartCreateSmsResponse>(body, JsonOptions);
-        }
-        catch (JsonException exception)
-        {
-            _logger.LogWarning(exception, "Teknomart yanıtı çözümlenemedi: {Body}", Truncate(body));
+            _logger.LogWarning("Teknomart yanıtı çözümlenemedi: {Body}", Truncate(body));
             return SmsSendResult.Fail("Teknomart yanıtı çözümlenemedi.");
         }
 
-        if (parsed?.Err is not null)
+        if (parsed.Err is not null)
         {
-            var message = !string.IsNullOrWhiteSpace(parsed.Err.Message)
-                ? parsed.Err.Message.Trim()
-                : parsed.Err.Code?.Trim() ?? "Teknomart SMS gönderimi başarısız.";
+            var message = MapTeknomartError(parsed.Err, (int)response.StatusCode);
             var code = parsed.Err.Code ?? parsed.Err.Status?.ToString() ?? "ERR";
             return SmsSendResult.Fail(message, code);
         }
 
-        if (parsed?.Data?.PkgId is null or <= 0)
+        if (parsed.Data?.PkgId is null or <= 0)
         {
             _logger.LogWarning("Teknomart başarı yanıtında pkgID yok: {Body}", Truncate(body));
             return SmsSendResult.Fail("Teknomart yanıtında paket numarası dönmedi.");
@@ -98,6 +112,23 @@ internal sealed class TeknomartSmsSender : ISmsProviderSender
 
         var pkgId = parsed.Data.PkgId.Value.ToString();
         return SmsSendResult.Ok(pkgId, "SMS başarıyla gönderildi.");
+    }
+
+    internal static string MapTeknomartError(TeknomartCreateSmsError err, int httpStatus)
+    {
+        if (string.Equals(err.Code, "ERR_UNAUTHORIZED_REQUEST", StringComparison.OrdinalIgnoreCase)
+            || httpStatus is 401 or 403)
+        {
+            return "Teknomart kullanıcı adı/parola hatalı, IP kısıtı var veya API yetkisi yok.";
+        }
+
+        if (!string.IsNullOrWhiteSpace(err.Message)
+            && !string.Equals(err.Message, err.Code, StringComparison.OrdinalIgnoreCase))
+        {
+            return err.Message.Trim();
+        }
+
+        return err.Code?.Trim() ?? "Teknomart SMS gönderimi başarısız.";
     }
 
     internal static AuthenticationHeaderValue CreateBasicAuthHeader(string? username, string? password)

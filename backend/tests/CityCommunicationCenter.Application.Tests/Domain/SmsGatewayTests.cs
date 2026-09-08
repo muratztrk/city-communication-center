@@ -116,6 +116,20 @@ public class TeknomartSmsSenderTests
         Assert.Equal("Basic", header.Scheme);
         Assert.Equal(Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes("lumespec:secret")), header.Parameter);
     }
+
+    [Fact]
+    public void MapTeknomartError_unauthorized_is_turkish()
+    {
+        var message = TeknomartSmsSender.MapTeknomartError(
+            new TeknomartSmsSender.TeknomartCreateSmsError
+            {
+                Code = "ERR_UNAUTHORIZED_REQUEST",
+                Status = 401,
+                Message = "ERR_UNAUTHORIZED_REQUEST",
+            },
+            403);
+        Assert.Contains("kullanıcı adı/parola", message, StringComparison.OrdinalIgnoreCase);
+    }
 }
 
 public class SmsProviderErrorCodeTests

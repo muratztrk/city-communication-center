@@ -169,6 +169,7 @@ export function UsersPage() {
   const [directoryQuery, setDirectoryQuery] = useState('')
   const [directoryResults, setDirectoryResults] = useState<DirectoryUserLookup[]>([])
   const [selectedDirectoryUser, setSelectedDirectoryUser] = useState<DirectoryUserLookup | null>(null)
+  const [directorySearchLoading, setDirectorySearchLoading] = useState(false)
   const [directorySyncLoading, setDirectorySyncLoading] = useState(false)
   const [directorySyncMessage, setDirectorySyncMessage] = useState<string | null>(null)
   const [addAllLdapLoading, setAddAllLdapLoading] = useState(false)
@@ -262,6 +263,7 @@ export function UsersPage() {
     }
 
     let isActive = true
+    setDirectorySearchLoading(true)
 
     void api.searchDirectoryUsers(debouncedDirectoryQuery.trim())
       .then(results => {
@@ -272,6 +274,11 @@ export function UsersPage() {
       .catch(searchError => {
         if (isActive) {
           setError(searchError instanceof Error ? searchError.message : t('common.error'))
+        }
+      })
+      .finally(() => {
+        if (isActive) {
+          setDirectorySearchLoading(false)
         }
       })
 
@@ -1004,6 +1011,10 @@ export function UsersPage() {
     })
   }
 
+  const ldapProfileFieldProps = createMode === 'ldap'
+    ? { readOnly: true, className: 'field-input bg-slate-50 text-slate-800' as const }
+    : { className: 'field-input' as const }
+
   const directoryOptions = useMemo(() => directoryResults.map(result => ({
     id: result.externalIdentityId,
     label: result.displayName,
@@ -1182,7 +1193,7 @@ export function UsersPage() {
           </div>
 
           {createMode === 'ldap' ? (
-            <div className="section-card page-stack">
+            <div className="section-card page-stack overflow-visible">
               <div className="flex flex-wrap items-end gap-x-3 gap-y-2">
                 <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                   <h3 className="ldap-section-title text-lg font-extrabold text-slate-950">{t('users.directorySearch')}</h3>
@@ -1279,6 +1290,7 @@ export function UsersPage() {
                 options={directoryOptions}
                 placeholder={t('users.directorySearchPlaceholder')}
                 value={directoryQuery}
+                isLoading={directorySearchLoading}
                 onOptionSelect={option => {
                   const selected = directoryResults.find(result => result.externalIdentityId === option.id) ?? null
                   applyDirectoryUserSelection(selected)
@@ -1318,8 +1330,8 @@ export function UsersPage() {
               <span>{t('users.username')}</span>
               <input
                 aria-label={t('users.username')}
-                className="field-input"
-                disabled={createMode === 'ldap'}
+                {...ldapProfileFieldProps}
+                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.usernamePlaceholder')}
                 type="text"
                 value={newUser.username}
@@ -1330,8 +1342,8 @@ export function UsersPage() {
               <span>{t('users.displayName')}</span>
               <input
                 aria-label={t('users.displayName')}
-                className="field-input"
-                disabled={createMode === 'ldap'}
+                {...ldapProfileFieldProps}
+                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.displayNamePlaceholder')}
                 type="text"
                 value={newUser.displayName}
@@ -1342,8 +1354,8 @@ export function UsersPage() {
               <span>{t('users.internalPhone')}</span>
               <input
                 aria-label={t('users.internalPhone')}
-                className="field-input"
-                disabled={createMode === 'ldap'}
+                {...ldapProfileFieldProps}
+                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.internalPhonePlaceholder')}
                 type="text"
                 inputMode="numeric"
@@ -1360,8 +1372,8 @@ export function UsersPage() {
               <span>{t('users.mobilePhone')}</span>
               <input
                 aria-label={t('users.mobilePhone')}
-                className="field-input"
-                disabled={createMode === 'ldap'}
+                {...ldapProfileFieldProps}
+                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.mobilePhonePlaceholder')}
                 type="text"
                 inputMode="numeric"
@@ -1377,8 +1389,8 @@ export function UsersPage() {
               <span>{t('users.jobTitle')}</span>
               <input
                 aria-label={t('users.jobTitle')}
-                className="field-input"
-                disabled={createMode === 'ldap'}
+                {...ldapProfileFieldProps}
+                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.jobTitlePlaceholder')}
                 type="text"
                 value={newUser.title}
@@ -1393,8 +1405,8 @@ export function UsersPage() {
               <span>{t('users.email')}</span>
               <input
                 aria-label={t('users.email')}
-                className="field-input"
-                disabled={createMode === 'ldap'}
+                {...ldapProfileFieldProps}
+                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.emailPlaceholder')}
                 type="email"
                 value={newUser.email}

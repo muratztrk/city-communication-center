@@ -425,6 +425,10 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("updatedbyuserid");
 
+                    b.Property<DateTimeOffset?>("PendingApprovalClearedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("pendingapprovalclearedatutc");
+
                     b.Property<DateTimeOffset?>("WaitingReplyClearedAtUtc")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("waitingreplyclearedatutc");

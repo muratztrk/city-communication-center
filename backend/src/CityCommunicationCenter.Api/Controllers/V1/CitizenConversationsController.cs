@@ -59,6 +59,16 @@ public sealed class CitizenConversationsController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("{conversationId:guid}/mark-pending-approval-cleared")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> MarkPendingApprovalCleared(Guid conversationId, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new MarkConversationPendingApprovalClearedCommand(conversationId), cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
     [HttpPut("{conversationId:guid}/profile")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

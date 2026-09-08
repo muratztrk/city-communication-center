@@ -531,9 +531,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WhatsApp nav satırında `Yanıt bekliyor` rozeti yok (#6a6ba9ac); sayım yalnız sayfa içi
   `Yanıt bekliyor` filtresinde. Chip satırında «Yanıt Verildi Yap» yok (#3347); aksiyon konuşma
   detay header'ında telefon numarasının **hemen sağında** — kayıtlı ad varsa alt satırda,
-  yalnız numara varsa üst satırda (#3403). İşaretlendikten sonra aynı yerde **Yanıt Verildi**
+  yalnız numara varsa üst satırda (#3403). **Yanıt Verildi** + **Mesaj Onayı Bekleyen**
+  birlikteyken aynı hizada yanıp sönen **Mesaj Onayı/Cevabı Verildi Yap** (#3446);
+  `POST .../mark-pending-approval-cleared` → `PendingApprovalClearedAtUtc`. İşaretlendikten sonra aynı yerde **Yanıt Verildi**
   durum etiketi görünür (#3389).
-  `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekliyor` sağında; `hasPendingMessageApproval`
+  `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekleyen` sağında; `hasPendingMessageApproval`
   = her Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon). Rozet konuşma/numara
   sayısı, `Yanıt bekliyor` gibi butonun sağ üstünde (`-top-2` / `-right-1.5`, #3348). Üç chip `h-7` + `text-xs` + `px-1.5` + `whitespace-nowrap`
   (#3348 yükseklik; #3330 nowrap). Üç chip arası `gap-2.5` (#3354 reopen). `overflow-x-auto` yok — gizli scroll üçüncü chip’i kesiyordu; dar punto

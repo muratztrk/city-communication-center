@@ -32,6 +32,12 @@ public sealed class CitizenConversation : AuditableTenantEntity, IHasDatabaseInd
     /// </summary>
     public DateTimeOffset? WaitingReplyClearedAtUtc { get; set; }
 
+    /// <summary>
+    /// Operator manually cleared "Mesaj Onayı Bekleyen" while pending outbound entries still exist.
+    /// New pending entries after this timestamp re-appear in the filter (card #3446).
+    /// </summary>
+    public DateTimeOffset? PendingApprovalClearedAtUtc { get; set; }
+
     public Tenant Tenant { get; set; } = null!;
 
     public ICollection<SocialMessage> SocialMessages { get; set; } = [];

@@ -58,6 +58,7 @@ public sealed class GetCitizenConversationsQueryHandler
                 c.UnreadCount,
                 c.IsBlocked,
                 c.WaitingReplyClearedAtUtc,
+                c.PendingApprovalClearedAtUtc,
                 OpenTicketCount = _dbContext.SocialMessages
                     .Count(m => m.CitizenConversationId == c.CitizenConversationId
                                 && m.Status != SocialMessageStatus.Closed),
@@ -115,6 +116,7 @@ public sealed class GetCitizenConversationsQueryHandler
                     ConversationId = m.CitizenConversationId!.Value,
                     e.SenderLabel,
                     e.Content,
+                    e.SentAt,
                 })
             .ToListAsync(cancellationToken);
         var pendingOutboundConversationIds = pendingOutboundRows
@@ -126,9 +128,9 @@ public sealed class GetCitizenConversationsQueryHandler
             .Select(row => row.ConversationId)
             .ToHashSet();
         // Personel yanıtı + Tamamlandı/İptal otomatik şablon — FAB'a girmez, /whatsapp filtresine girer (#3330).
-        var pendingApprovalConversationIds = pendingOutboundRows
-            .Select(row => row.ConversationId)
-            .ToHashSet();
+        var latestPendingApprovalAtByConversation = pendingOutboundRows
+            .GroupBy(row => row.ConversationId)
+            .ToDictionary(group => group.Key, group => group.Max(row => row.SentAt));
 
         var socialMessages = await _dbContext.SocialMessages
             .AsNoTracking()
@@ -395,7 +397,8 @@ public sealed class GetCitizenConversationsQueryHandler
                     ticket?.Channel.ToString(),
                     c.WaitingReplyClearedAtUtc,
                     lastMessageIsAutomaticOutbound,
-                    pendingApprovalConversationIds.Contains(c.CitizenConversationId));
+                    latestPendingApprovalAtByConversation.TryGetValue(c.CitizenConversationId, out var latestPendingApprovalAt)
+                        && (c.PendingApprovalClearedAtUtc is null || latestPendingApprovalAt > c.PendingApprovalClearedAtUtc));
 
                 return (HasWhatsAppChannel: hasWhatsAppChannel, Dto: dto);
             })

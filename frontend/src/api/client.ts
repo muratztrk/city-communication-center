@@ -1581,6 +1581,17 @@ export const api = {
     await ensureOk(response, i18n.t('errors.socialRouteFailed'))
   },
 
+  async markConversationPendingApprovalCleared(conversationId: string): Promise<void> {
+    const response = await fetchWithCredentials(
+      `${API_BASE}/citizen-conversations/${conversationId}/mark-pending-approval-cleared`,
+      {
+        method: 'POST',
+        headers: await getAuthHeaders(),
+      },
+    )
+    await ensureOk(response, i18n.t('errors.socialRouteFailed'))
+  },
+
   async getInternalConversations(): Promise<InternalConversationSummary[]> {
     const response = await fetchWithCredentials(`${API_BASE}/internal-messages/conversations`, { headers: await getAuthHeaders() })
     await ensureOk(response, i18n.t('errors.internalMessagesLoadFailed', 'Kurum içi mesajlar yüklenemedi.'))

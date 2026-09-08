@@ -324,21 +324,28 @@ function ConversationListItem({
 
 type ConversationStatusSummary = Pick<
   CitizenConversationSummary,
-  'lastMessageDirection' | 'openTicketCount' | 'latestTicketStatus' | 'waitingReplyClearedAtUtc'
+  'lastMessageDirection' | 'openTicketCount' | 'latestTicketStatus' | 'waitingReplyClearedAtUtc' | 'hasPendingMessageApproval'
 >
 
 function ConversationHeaderReplyStatus({
   summary,
   onMarkWaitingReplied,
+  onMarkPendingApprovalCleared,
   phoneOnly,
 }: {
   summary: ConversationStatusSummary | null | undefined
   onMarkWaitingReplied?: () => void
+  onMarkPendingApprovalCleared?: () => void
   phoneOnly: boolean
 }) {
   const { t } = useTranslation()
   if (!summary) return null
   const waitingForResponse = isWaitingForConversationResponse(summary)
+  const ticketOpen = isConversationTicketOpen(summary)
+  const showPendingApprovalClear = !waitingForResponse
+    && ticketOpen
+    && summary.hasPendingMessageApproval
+    && onMarkPendingApprovalCleared
 
   if (waitingForResponse && onMarkWaitingReplied) {
     return (
@@ -348,6 +355,18 @@ function ConversationHeaderReplyStatus({
         onClick={onMarkWaitingReplied}
       >
         {t('whatsapp.markWaitingReplied', 'Yanıt Verildi Yap')}
+      </button>
+    )
+  }
+
+  if (showPendingApprovalClear) {
+    return (
+      <button
+        type="button"
+        className={`whatsapp-mark-waiting-replied shrink-0 font-bold text-emerald-700 hover:text-emerald-800 underline-offset-2 hover:underline ${phoneOnly ? 'text-[12px]' : 'text-[11px]'}`}
+        onClick={onMarkPendingApprovalCleared}
+      >
+        {t('whatsapp.markPendingApprovalCleared', 'Mesaj Onayı/Cevabı Verildi Yap')}
       </button>
     )
   }
@@ -398,7 +417,7 @@ function ConversationListPanel({
   )
   const filterOptions: { value: ConversationListFilter; label: string; badge?: number }[] = [
     { value: 'all', label: t('whatsapp.listFilter.all', 'Tümü') },
-    { value: 'unread', label: t('whatsapp.listFilter.unread', 'Yanıt bekliyor'), badge: unreadCount || undefined },
+    { value: 'unread', label: t('whatsapp.listFilter.unread', 'Yanıt bekleyen'), badge: unreadCount || undefined },
     {
       value: 'pendingApproval',
       label: t('whatsapp.listFilter.pendingApproval', 'Mesaj Onayı Bekleyen'),
@@ -737,6 +756,7 @@ function ConversationDetail({
   onProfileSaved,
   onOutboundSent,
   onMarkWaitingReplied,
+  onMarkPendingApprovalCleared,
 }: {
   conversationId: string
   citizenName?: string | null
@@ -757,6 +777,8 @@ function ConversationDetail({
   onOutboundSent?: () => void
   /** Konuşmayı yanıt verildi olarak işaretle (#3403 / #6a6bab12). */
   onMarkWaitingReplied?: () => void
+  /** Mesaj Onayı Bekleyen listesinden manuel çıkar (#3446). */
+  onMarkPendingApprovalCleared?: () => void
 }) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
@@ -1225,6 +1247,7 @@ function ConversationDetail({
               <ConversationHeaderReplyStatus
                 summary={statusSummary}
                 onMarkWaitingReplied={onMarkWaitingReplied}
+                onMarkPendingApprovalCleared={onMarkPendingApprovalCleared}
                 phoneOnly={headerTitleIsPhoneOnly}
               />
             </div>
@@ -1234,6 +1257,7 @@ function ConversationDetail({
               <ConversationHeaderReplyStatus
                 summary={statusSummary}
                 onMarkWaitingReplied={onMarkWaitingReplied}
+                onMarkPendingApprovalCleared={onMarkPendingApprovalCleared}
                 phoneOnly={headerTitleIsPhoneOnly}
               />
             </div>
@@ -1802,6 +1826,17 @@ export function WhatsAppConversationsPage() {
     })
   }, [silentRefreshConversations])
 
+  const handleMarkPendingApprovalCleared = useCallback((conversationId: string) => {
+    setConversations(prev =>
+      prev.map(c => c.citizenConversationId === conversationId
+        ? { ...c, hasPendingMessageApproval: false }
+        : c),
+    )
+    void api.markConversationPendingApprovalCleared(conversationId).catch(() => {
+      void silentRefreshConversations()
+    })
+  }, [silentRefreshConversations])
+
   useEffect(() => {
     const detail = selectedId
       ? {
@@ -1970,6 +2005,7 @@ export function WhatsAppConversationsPage() {
                 void silentRefreshConversations()
               }}
               onMarkWaitingReplied={selectedId ? () => handleMarkWaitingReplied(selectedId) : undefined}
+              onMarkPendingApprovalCleared={selectedId ? () => handleMarkPendingApprovalCleared(selectedId) : undefined}
             />
           ) : (
             <div className="flex flex-col items-center justify-center h-full text-[color:var(--color-muted-foreground)] gap-3">

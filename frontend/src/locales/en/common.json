@@ -1085,6 +1085,7 @@
     "urgent": "URGENT",
     "waitingForResponse": "Awaiting reply",
     "markWaitingReplied": "Mark as replied",
+    "markPendingApprovalCleared": "Mark message approval/reply as given",
     "ticketOpen": "Replied",
     "ticketResolved": "Resolved",
     "unassigned": "Unassigned",

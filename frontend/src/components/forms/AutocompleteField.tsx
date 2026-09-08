@@ -124,7 +124,7 @@ export function AutocompleteField({
   }
 
   return (
-    <div className={cn('relative min-w-[12rem]', disabled && 'opacity-70')} ref={wrapperRef}>
+    <div className={cn('relative min-w-[12rem] z-20', disabled && 'opacity-70')} ref={wrapperRef}>
       <input
         aria-activedescendant={highlightedOption ? `${generatedId}-${highlightedOption.id}` : undefined}
         aria-autocomplete="list"
@@ -146,7 +146,7 @@ export function AutocompleteField({
       />
 
       {isOpen && !disabled ? (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.35rem)] z-30 max-h-72 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_18px_42px_rgba(15,23,42,0.16)]" id={listboxId} role="listbox">
+        <div className="absolute left-0 right-0 top-[calc(100%+0.35rem)] z-[120] max-h-72 overflow-auto rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_18px_42px_rgba(15,23,42,0.16)]" id={listboxId} role="listbox">
           {isLoading ? (
             <div className="rounded-xl px-3 py-3 text-sm text-slate-500">{loadingMessage}</div>
           ) : options.length === 0 ? (

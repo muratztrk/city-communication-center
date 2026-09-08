@@ -872,16 +872,23 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   // başka birime yönlendirilebilir. Hem onay bekleyen (PendingExternalApproval) hem de otomatik aktifleşmiş
   // ama henüz atanmamış (Active, görev yok) hedefler kapsanır; atama yapılınca buton kaybolur (cards #1405/#1407).
   // Bir kez yönlendirilmiş talep yeniden yönlendirilemez (card #1413).
-  const canForwardTargetDetail = detail?.requestType === 'ExternalUnit'
+  const canForwardCitizenTargetDetail = detail?.requestType === 'Citizen'
+    && isCitizenRequestManager
     && (canApproveTargetDetail || canAssignIncomingDetail)
     && !forwardReason
+  const canForwardTargetDetail = (
+    (detail?.requestType === 'ExternalUnit' && (canApproveTargetDetail || canAssignIncomingDetail))
+    || canForwardCitizenTargetDetail
+  ) && !forwardReason
   // Yönlendirme dropdown'ı: mevcut hedef ve talep sahibi birim hariç tüm birimler ("Talebin Gideceği Birim").
   // Başkanlık seviyesi birimler (Başkanlık / Daire) hiçbir zaman listelenmez (card #1410).
-  const forwardDepartmentOptions = departments
-    .filter(department =>
+  // VTY vatandaş talebinde tüm birimler listelenir (#3449).
+  const forwardDepartmentOptions = (canForwardCitizenTargetDetail
+    ? departments.filter(department => department.departmentId !== activeIncomingTarget?.departmentId)
+    : departments.filter(department =>
       department.departmentId !== activeDeptId
       && department.departmentId !== detail?.ownerDepartmentId
-      && !isPresidencyLevelDepartment(department))
+      && !isPresidencyLevelDepartment(department)))
     .map(department => ({ value: department.departmentId, label: department.name }))
   const incomingPendingCloseTask = isIncomingRequestDetail && incomingDetailManager
     ? detail?.tasks.find(task => task.currentStatus === 'PendingCloseApproval') ?? null
@@ -3744,7 +3751,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
             </div>
             <div className="mb-4">
               <label className="job-field-label" htmlFor="forward-note">
-                {t('jobs.forward.noteLabel', 'Talebi Yönlendirme Notu')} <span className="text-red-500">*</span>
+                {t('jobs.forward.noteLabel', 'Talep Yönlendirme Notu')} <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="forward-note"

@@ -1962,7 +1962,8 @@
     "forward": {
       "badge": "Forwarded Request",
       "sourceFallback": "Forwarding Department",
-      "reasonLabel": "Forwarding Reason"
+      "reasonLabel": "Forwarding Reason",
+      "noteLabel": "Request Routing Note"
     },
     "directions": {
       "internalOutgoing": "Internal Outgoing",

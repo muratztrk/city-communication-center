@@ -26,6 +26,13 @@ Acil hotfix gerekiyorsa: `main`'den küçük düzeltme → prod deploy → aynı
 Test sunucusunda repo yoksa veya eski `main` checkout'u varsa (VPN gerekir):
 
 ```bash
+git checkout develop && git pull origin develop
+./scripts/setup-testtim-checkout.sh
+```
+
+Manuel kurulum alternatifi:
+
+```bash
 ssh tim@192.168.0.37
 sudo mkdir -p /opt/city-communication-center
 sudo chown tim:tim /opt/city-communication-center
@@ -36,6 +43,8 @@ git checkout develop
 # .env prod benzeri test secret'ları ile doldurulmalı
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
 ```
+
+`deploy-test.sh` checkout yoksa bundle ile otomatik bootstrap dener; kalıcı onarım için `setup-testtim-checkout.sh` tercih edin.
 
 Yerel makineden güncel `develop` deploy:
 

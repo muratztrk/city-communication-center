@@ -9,6 +9,8 @@ REMOTE_HOST="192.168.0.37"
 REMOTE_SUDO_PASS="Ts.102030"
 REMOTE_DIR="/opt/city-communication-center/city-communication-center"
 DEPLOY_BRANCH="${DEPLOY_BRANCH:-develop}"
+REPO_URL="${REPO_URL:-https://github.com/muratztrk/city-communication-center.git}"
+SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=30)
 
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -31,13 +33,39 @@ LOCAL_HEAD="$(git rev-parse HEAD)"
 info "Test deploy branch=${DEPLOY_BRANCH} HEAD ${LOCAL_HEAD:0:12}"
 
 info "Connecting to ${REMOTE_USER}@${REMOTE_HOST} (TEST)..."
-REMOTE_HEAD="$(ssh -o BatchMode=yes "${REMOTE_USER}@${REMOTE_HOST}" \
+REMOTE_HEAD="$(ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${REMOTE_HOST}" \
   "git -C '${REMOTE_DIR}' rev-parse HEAD" 2>/dev/null || true)"
 
+bootstrap_remote_checkout() {
+  warn "Remote checkout yok — bundle ile bootstrap (${DEPLOY_BRANCH})..."
+  BUNDLE="$(mktemp -t ccc-deploy-test-bootstrap.XXXXXX.bundle)"
+  git bundle create "${BUNDLE}" "${DEPLOY_BRANCH}"
+  REMOTE_BUNDLE="/tmp/ccc-deploy-test-bootstrap.bundle"
+  REMOTE_PARENT="$(dirname "${REMOTE_DIR}")"
+  scp "${SSH_OPTS[@]}" "${BUNDLE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_BUNDLE}"
+  rm -f "${BUNDLE}"
+  ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<EOF
+set -euo pipefail
+mkdir -p "${REMOTE_PARENT}"
+if [[ -d "${REMOTE_DIR}" && ! -d "${REMOTE_DIR}/.git" ]]; then
+  mv "${REMOTE_DIR}" "${REMOTE_DIR}.bak-\$(date +%Y%m%d%H%M%S)"
+fi
+rm -rf "${REMOTE_DIR}"
+git clone "${REMOTE_BUNDLE}" "${REMOTE_DIR}"
+cd "${REMOTE_DIR}"
+git checkout "${DEPLOY_BRANCH}"
+git remote set-url origin "${REPO_URL}"
+rm -f "${REMOTE_BUNDLE}"
+echo "  Bootstrap HEAD \$(git rev-parse --short HEAD) on \$(git rev-parse --abbrev-ref HEAD)"
+EOF
+  info "Bootstrap tamamlandı."
+}
+
 if [[ -z "${REMOTE_HEAD}" ]]; then
-  warn "Remote checkout yok; sunucuda ilk kurulum gerekebilir."
-  warn "VPN açıkken: git clone + checkout ${DEPLOY_BRANCH} → ${REMOTE_DIR}"
-  error "Test sunucusunda git HEAD okunamadı."
+  bootstrap_remote_checkout
+  REMOTE_HEAD="$(ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${REMOTE_HOST}" \
+    "git -C '${REMOTE_DIR}' rev-parse HEAD")" \
+    || error "Bootstrap sonrası git HEAD hâlâ okunamıyor."
 fi
 
 if [[ "${REMOTE_HEAD}" != "${LOCAL_HEAD}" ]]; then
@@ -56,13 +84,15 @@ if [[ "${REMOTE_HEAD}" != "${LOCAL_HEAD}" ]]; then
   git bundle create "${BUNDLE}" "${REMOTE_HEAD}..HEAD"
 
   REMOTE_BUNDLE="/tmp/ccc-deploy-test-$(git rev-parse --short HEAD).bundle"
-  scp -o BatchMode=yes "${BUNDLE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_BUNDLE}"
+  scp "${SSH_OPTS[@]}" "${BUNDLE}" "${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_BUNDLE}"
 
-  ssh -o BatchMode=yes "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<EOF
+  ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<EOF
 set -euo pipefail
 cd "${REMOTE_DIR}"
 git fetch "${REMOTE_BUNDLE}" HEAD
 git merge --ff-only FETCH_HEAD
+git checkout "${DEPLOY_BRANCH}" 2>/dev/null || true
+git remote set-url origin "${REPO_URL}" 2>/dev/null || true
 rm -f "${REMOTE_BUNDLE}"
 echo "  Test server HEAD \$(git rev-parse --short HEAD) on \$(git rev-parse --abbrev-ref HEAD)"
 EOF
@@ -71,7 +101,7 @@ else
 fi
 
 info "Ensuring test SMS live send is disabled..."
-ssh -o BatchMode=yes "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<'EOF'
+ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<'EOF'
 set -euo pipefail
 ENV_FILE="/opt/city-communication-center/city-communication-center/.env"
 if [[ ! -f "${ENV_FILE}" ]]; then
@@ -87,7 +117,7 @@ echo "  CCC_SMS_LIVE_SEND_ENABLED=false"
 EOF
 
 info "Building and starting test containers..."
-ssh -o BatchMode=yes "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<EOF
+ssh "${SSH_OPTS[@]}" "${REMOTE_USER}@${REMOTE_HOST}" bash -s <<EOF
 set -euo pipefail
 cd "${REMOTE_DIR}"
 CACHE_BUST="$(git rev-parse HEAD)"

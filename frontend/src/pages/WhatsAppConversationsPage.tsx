@@ -329,11 +329,14 @@ type ConversationStatusSummary = Pick<
 
 function ConversationHeaderReplyStatus({
   summary,
+  lastInboundAt,
   onMarkWaitingReplied,
   onMarkPendingApprovalCleared,
   phoneOnly,
 }: {
   summary: ConversationStatusSummary | null | undefined
+  /** Son vatandaş inbound — 24s penceresi kapalıyken Mesaj Onayı/Cevabı Verildi Yap (#3448). */
+  lastInboundAt?: string | null
   onMarkWaitingReplied?: () => void
   onMarkPendingApprovalCleared?: () => void
   phoneOnly: boolean
@@ -345,6 +348,7 @@ function ConversationHeaderReplyStatus({
   const showPendingApprovalClear = !waitingForResponse
     && ticketOpen
     && summary.hasPendingMessageApproval
+    && !isWhatsApp24hWindowOpen(lastInboundAt ?? null)
     && onMarkPendingApprovalCleared
 
   if (waitingForResponse && onMarkWaitingReplied) {
@@ -1246,6 +1250,7 @@ function ConversationDetail({
               </p>
               <ConversationHeaderReplyStatus
                 summary={statusSummary}
+                lastInboundAt={activeDetail?.lastInboundAt ?? null}
                 onMarkWaitingReplied={onMarkWaitingReplied}
                 onMarkPendingApprovalCleared={onMarkPendingApprovalCleared}
                 phoneOnly={headerTitleIsPhoneOnly}
@@ -1256,6 +1261,7 @@ function ConversationDetail({
               <p className="truncate leading-tight text-[15px] font-semibold text-slate-900">{headerTitle}</p>
               <ConversationHeaderReplyStatus
                 summary={statusSummary}
+                lastInboundAt={activeDetail?.lastInboundAt ?? null}
                 onMarkWaitingReplied={onMarkWaitingReplied}
                 onMarkPendingApprovalCleared={onMarkPendingApprovalCleared}
                 phoneOnly={headerTitleIsPhoneOnly}

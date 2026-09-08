@@ -1012,7 +1012,7 @@ export function UsersPage() {
   }
 
   const ldapProfileFieldProps = createMode === 'ldap'
-    ? { readOnly: true, className: 'field-input bg-slate-50 text-slate-800' as const }
+    ? { disabled: true, readOnly: true, className: 'field-input bg-slate-50 text-slate-800' as const }
     : { className: 'field-input' as const }
 
   const directoryOptions = useMemo(() => directoryResults.map(result => ({
@@ -1331,7 +1331,6 @@ export function UsersPage() {
               <input
                 aria-label={t('users.username')}
                 {...ldapProfileFieldProps}
-                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.usernamePlaceholder')}
                 type="text"
                 value={newUser.username}
@@ -1343,7 +1342,6 @@ export function UsersPage() {
               <input
                 aria-label={t('users.displayName')}
                 {...ldapProfileFieldProps}
-                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.displayNamePlaceholder')}
                 type="text"
                 value={newUser.displayName}
@@ -1355,7 +1353,6 @@ export function UsersPage() {
               <input
                 aria-label={t('users.internalPhone')}
                 {...ldapProfileFieldProps}
-                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.internalPhonePlaceholder')}
                 type="text"
                 inputMode="numeric"
@@ -1373,7 +1370,6 @@ export function UsersPage() {
               <input
                 aria-label={t('users.mobilePhone')}
                 {...ldapProfileFieldProps}
-                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.mobilePhonePlaceholder')}
                 type="text"
                 inputMode="numeric"
@@ -1390,7 +1386,6 @@ export function UsersPage() {
               <input
                 aria-label={t('users.jobTitle')}
                 {...ldapProfileFieldProps}
-                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.jobTitlePlaceholder')}
                 type="text"
                 value={newUser.title}
@@ -1406,7 +1401,6 @@ export function UsersPage() {
               <input
                 aria-label={t('users.email')}
                 {...ldapProfileFieldProps}
-                disabled={createMode === 'ldap' ? false : undefined}
                 placeholder={t('users.emailPlaceholder')}
                 type="email"
                 value={newUser.email}

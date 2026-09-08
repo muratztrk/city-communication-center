@@ -500,6 +500,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   doluysa Birime Gelen detayında `Talebi Yönlendir` butonu çıkmaz; grid Talep No yanında koyu
   turkuaz `(Yönlendirilen Talep)` rozeti görünür. Detay `Talebin Yönlenme Sebebi` değerinde
   yönlendiren birim + yönlenme sebebi koyu turkuaz ama bold olmayan metinle gösterilir.
+- **VTY vatandaş talebi yönlendirme (#3449):** Birime Gelen detay popup'ta VTY `Talebi Yönlendir`
+  görebilir; dropdown mevcut hedef hariç **tüm birimleri** listeler (başkanlık/owner filtresi yok).
+  Backend `ForwardJobTargetCommand` Citizen + VTY için hedef taşımayı destekler.
+- **Talep yönlendirme notu etiketi (#3450):** modal alan adı `Talep Yönlendirme Notu`.
 - **`RecomputeJobCompletionAsync` çoğu terminal geçişini yapar; `Completed` talebi tüm görevler
   iptal edildiğinde `Cancelled`'a düşürür (card #1044). Karışık terminal durumda (tamamlanmış +
   iptal görev bir arada) talep `Active`'e geri alınır. Bir görevi terminal'den non-terminal'e
@@ -533,6 +537,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   detay header'ında telefon numarasının **hemen sağında** — kayıtlı ad varsa alt satırda,
   yalnız numara varsa üst satırda (#3403). **Yanıt Verildi** + **Mesaj Onayı Bekleyen**
   birlikteyken aynı hizada yanıp sönen **Mesaj Onayı/Cevabı Verildi Yap** (#3446);
+  yalnız son vatandaş inbound'undan ≥24 saat geçmişse (Meta 24s penceresi kapalı — #3448);
   `POST .../mark-pending-approval-cleared` → `PendingApprovalClearedAtUtc`. İşaretlendikten sonra aynı yerde **Yanıt Verildi**
   durum etiketi görünür (#3389).
   `/whatsapp` listesinde **Mesaj Onayı Bekleyen** chip `Yanıt bekleyen` sağında; `hasPendingMessageApproval`
@@ -1528,7 +1533,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (card #1739). Yeni kullanıcı üst satırı: Kullanıcı Adı / Ad Soyad / Dahili No /
   Cep Telefonu No / Ünvan / E-posta (`lg:grid-cols-6`); create API `title`+`phone`+`mobilePhone`
   alır; Cep zorunlu değil (card #2902). LDAP seçiminde dizin title/phone/mobile prefills
-  (card #1771/#2902). LDAP oluşturmada arama sonucu tıklanınca alt alanlar salt okunur;
+  (card #1771/#2902). LDAP oluşturmada arama sonucu tıklanınca alt alanlar pasif (disabled);
   yalnız Ek görev birimleri + Ek roller düzenlenir; Oluştur ek birim veya ek rol seçilince
   aktif olur (#3428). LDAP Title=`description`,   Phone=`telephoneNumber`, MobilePhone=`mobile`/`mobileTelephoneNumber`/`otherMobile`
   (card #1773/#2902/#2908). Kullanıcılar grid e-Posta yerine Cep Telefonu No gösterir.

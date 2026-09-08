@@ -1,9 +1,12 @@
+using CityCommunicationCenter.Application.Features.Users;
+
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
 /// <summary>
-/// Dış birimden gelen (birime düşen) bir talebi, mevcut hedef birim yöneticisinin başka bir birime
-/// yönlendirmesi. Onay bekleyen tek hedef kaydı yeni birime taşınır; yönlendirme notu hedef kaydın
-/// Notes alanında saklanır ("Talebin Yönlenme Sebebi"). Onaylanmış talep yönlendirilemez (cards #1405-#1408).
+/// Birime düşen talebi (dış birim veya VTY vatandaş talebi), hedef birim yöneticisi veya VTY'nin
+/// başka bir birime yönlendirmesi. Onay bekleyen tek hedef kaydı yeni birime taşınır; yönlendirme notu
+/// hedef kaydın Notes alanında saklanır ("Talebin Yönlenme Sebebi"). Onaylanmış talep yönlendirilemez
+/// (cards #1405-#1408). VTY vatandaş talebi yönlendirme (#3449).
 /// </summary>
 public sealed record ForwardJobTargetCommand(Guid JobId, Guid TargetDepartmentId, Guid? ActorUserId, string Note) : ICommand<bool>;
 
@@ -13,8 +16,8 @@ public sealed class ForwardJobTargetCommandValidator : AbstractValidator<Forward
     {
         RuleFor(c => c.JobId).NotEmpty().WithMessage("Talep zorunludur.");
         RuleFor(c => c.TargetDepartmentId).NotEmpty().WithMessage("Yönlendirilecek birim zorunludur.");
-        RuleFor(c => c.Note).NotEmpty().WithMessage("Talebi yönlendirme notu zorunludur.")
-            .MaximumLength(100).WithMessage("Talebi yönlendirme notu en fazla 100 karakter olabilir.");
+        RuleFor(c => c.Note).NotEmpty().WithMessage("Talep yönlendirme notu zorunludur.")
+            .MaximumLength(100).WithMessage("Talep yönlendirme notu en fazla 100 karakter olabilir.");
     }
 }
 
@@ -39,14 +42,19 @@ public sealed class ForwardJobTargetCommandHandler : ICommandHandler<ForwardJobT
             j => j.JobId == request.JobId && j.TenantId == tenantId, cancellationToken);
         if (job is null) return false;
 
-        // Yalnızca birim dışı talepler başka bir birime yönlendirilebilir.
-        if (job.RequestType != JobRequestType.ExternalUnit)
+        // Yalnızca birim dışı veya VTY tarafından yönetilen vatandaş talepleri yönlendirilebilir.
+        var isCitizenRequest = JobCitizenRequestHelper.IsCitizenRequest(job);
+        if (job.RequestType != JobRequestType.ExternalUnit && !isCitizenRequest)
         {
             throw Validation(nameof(request.JobId), "Yalnızca birim dışı talepler yönlendirilebilir.");
         }
 
         var actor = await JobWorkflowAuthorization.RequireActorAsync(_dbContext, request.ActorUserId, tenantId, cancellationToken);
         var isSystemAdmin = JobWorkflowAuthorization.IsSystemAdmin(actor);
+        if (isCitizenRequest && !UserRoleAccess.IsCitizenRequestManager(actor))
+        {
+            throw new ForbiddenAccessException("Talebi yönlendirme yetkiniz yok.");
+        }
 
         var targets = await _dbContext.JobDepartments
             .Where(jd => jd.JobId == job.JobId && jd.Role == JobDepartmentRole.Target)
@@ -59,7 +67,15 @@ public sealed class ForwardJobTargetCommandHandler : ICommandHandler<ForwardJobT
         JobDepartment? currentTarget = null;
         foreach (var target in targets)
         {
-            if (isSystemAdmin || await JobWorkflowAuthorization.ManagesDepartmentAsync(_dbContext, actor, target.DepartmentId, cancellationToken))
+            if (isSystemAdmin
+                || await JobWorkflowAuthorization.ManagesDepartmentAsync(_dbContext, actor, target.DepartmentId, cancellationToken)
+                || (isCitizenRequest && await UserRoleAccess.CanManageCitizenRequestInTargetDepartmentAsync(
+                    _dbContext,
+                    tenantId,
+                    actor,
+                    job,
+                    target.DepartmentId,
+                    cancellationToken)))
             {
                 currentTarget = target;
                 break;
@@ -92,7 +108,7 @@ public sealed class ForwardJobTargetCommandHandler : ICommandHandler<ForwardJobT
         {
             throw Validation(nameof(request.TargetDepartmentId), "Talep zaten bu birimde. Farklı bir birim seçin.");
         }
-        if (request.TargetDepartmentId == job.OwnerDepartmentId)
+        if (!isCitizenRequest && request.TargetDepartmentId == job.OwnerDepartmentId)
         {
             throw Validation(nameof(request.TargetDepartmentId), "Talep, talep sahibi birime yönlendirilemez.");
         }

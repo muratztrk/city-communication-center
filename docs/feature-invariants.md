@@ -313,7 +313,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Onayla ve Personel Ata kullanıcı listesi:** atanabilir aktif kullanıcılar `Staff` +
   `Operator` + mevcut yönetici; hepsi seçilen/aktif departmanda çalışıyor olmalı. Operator kendi
   birim içi/dışı talebini görev olarak alabilmelidir (card #1086). **Birime Gelen** personel atama
-  modalında yalnız **tek** kullanıcı seçilir (radio; çoklu checkbox yok — #3385).
+  modalında yalnız **tek** kullanıcı seçilir (radio; çoklu checkbox yok — #3385); grid
+  (`IncomingRequestsPage`) ve detay popup (`JobsPage` `context=incoming`) aynı kural.
 - **Vatandaş talepleri `requestType=ExternalUnit` + `sourceType=SocialMessage` olarak saklanır**
   (her job gibi bir `JobNumber`/T-'leri de vardır) ama görünen numara **VT-**'dir; VT numarası
   linkli `SocialMessage.CitizenRequestNumber`'da tutulur. Gridlerde citizen ise `formatJobDisplayNumber`

@@ -1958,26 +1958,46 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
       if (selectedUserIds.length > 0) {
         const jobDetail = await api.getJobById(jobId)
         const taskIds = jobDetail.tasks.map(task => task.taskId)
-        if (taskIds.length === 0) {
-          await Promise.all(
-            selectedUserIds.map(userId =>
-              api.createTask({
-                jobId,
-                title: jobDetail.title,
-                description: jobDetail.description,
-                priority: jobDetail.priority,
-                startDateUtc: jobDetail.startDateUtc,
-                dueDateUtc: null,
-                assignedUserId: userId,
-              })
+        const selectedUserId = isIncomingRequestDetail ? selectedUserIds[0] : null
+        if (isIncomingRequestDetail && selectedUserId) {
+          if (taskIds.length === 0) {
+            await api.createTask({
+              jobId,
+              title: jobDetail.title,
+              description: jobDetail.description,
+              priority: jobDetail.priority,
+              startDateUtc: jobDetail.startDateUtc,
+              dueDateUtc: null,
+              assignedDepartmentId: activeDeptId ?? undefined,
+              assignedUserId: selectedUserId,
+            })
+          } else {
+            await Promise.all(
+              taskIds.map(taskId => api.assignTask(taskId, undefined, selectedUserId))
             )
-          )
-        } else {
-          await Promise.all(
-            taskIds.map((taskId, index) =>
-              api.assignTask(taskId, undefined, selectedUserIds[index % selectedUserIds.length])
+          }
+        } else if (!isIncomingRequestDetail) {
+          if (taskIds.length === 0) {
+            await Promise.all(
+              selectedUserIds.map(userId =>
+                api.createTask({
+                  jobId,
+                  title: jobDetail.title,
+                  description: jobDetail.description,
+                  priority: jobDetail.priority,
+                  startDateUtc: jobDetail.startDateUtc,
+                  dueDateUtc: null,
+                  assignedUserId: userId,
+                })
+              )
             )
-          )
+          } else {
+            await Promise.all(
+              taskIds.map((taskId, index) =>
+                api.assignTask(taskId, undefined, selectedUserIds[index % selectedUserIds.length])
+              )
+            )
+          }
         }
         invalidateTasks(queryClient, undefined, jobId)
       }
@@ -3636,20 +3656,34 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               <div className="mb-4 flex max-h-48 flex-col gap-1 overflow-y-auto">
                 {staffAssignModal.users.map(item => (
                   <label key={item.userId} className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-slate-50">
-                    <input
-                      type="checkbox"
-                      className="size-4 rounded"
-                      checked={staffAssignModal.selectedUserIds.includes(item.userId)}
-                      onChange={event => {
-                        setStaffAssignModal(current => {
-                          if (!current) return current
-                          const selectedUserIds = event.target.checked
-                            ? [...current.selectedUserIds, item.userId]
-                            : current.selectedUserIds.filter(id => id !== item.userId)
-                          return { ...current, selectedUserIds }
-                        })
-                      }}
-                    />
+                    {isIncomingRequestDetail ? (
+                      <input
+                        type="radio"
+                        name="jobs-staff-assign-incoming"
+                        className="size-4"
+                        checked={staffAssignModal.selectedUserIds[0] === item.userId}
+                        onChange={() => {
+                          setStaffAssignModal(current => (
+                            current ? { ...current, selectedUserIds: [item.userId] } : current
+                          ))
+                        }}
+                      />
+                    ) : (
+                      <input
+                        type="checkbox"
+                        className="size-4 rounded"
+                        checked={staffAssignModal.selectedUserIds.includes(item.userId)}
+                        onChange={event => {
+                          setStaffAssignModal(current => {
+                            if (!current) return current
+                            const selectedUserIds = event.target.checked
+                              ? [...current.selectedUserIds, item.userId]
+                              : current.selectedUserIds.filter(id => id !== item.userId)
+                            return { ...current, selectedUserIds }
+                          })
+                        }}
+                      />
+                    )}
                     <span className="text-sm text-slate-800">
                       {item.displayName}
                       {staffAssignModal.selfRequestedOwnerUserId === item.userId && (

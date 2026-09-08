@@ -311,8 +311,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Düzenle (UpdateJob):** terminal (Completed/Cancelled/Rejected) hariç düzenlenebilir;
   hedef-departman değişikliği yalnızca onay-öncesi durumda.
 - **Onayla ve Personel Ata kullanıcı listesi:** atanabilir aktif kullanıcılar `Staff` +
-  `Operator` + mevcut yönetici; hepsi seçilen/aktif departmanda çalışıyor olmalı. Operator kendi
-  birim içi/dışı talebini görev olarak alabilmelidir (card #1086). **Birime Gelen** personel atama
+  `Operator` + `CitizenRequestManager` (birincil veya ek rol) + mevcut yönetici; hepsi seçilen/aktif
+  departmanda çalışıyor olmalı. Operator kendi birim içi/dışı talebini görev olarak alabilmelidir
+  (card #1086); müdür birimdeki VTY'ye de atayabilmelidir. **Birime Gelen** personel atama
   modalında yalnız **tek** kullanıcı seçilir (radio; çoklu checkbox yok — #3385); grid
   (`IncomingRequestsPage`) ve detay popup (`JobsPage` `context=incoming`) aynı kural.
 - **Vatandaş talepleri `requestType=ExternalUnit` + `sourceType=SocialMessage` olarak saklanır**
@@ -1906,8 +1907,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Dashboard pie chart'ları sıfır veride de görünür kalmalı:** `showZeroSlices` kullanılan
   grafiklerde tüm dilimler 0 olsa bile nötr donut + sıfır lejant gösterilir; kart boş/çökmüş
   görünmez.
-- **Personelimin Görevleri pie (R548 / #2034):** birimdeki tüm aktif `Staff` kullanıcıları
-  (görev sayısı 0 olsa bile) dilim/lejantta kalır; yalnız görev atanmış personel listelenmez.
+- **Personelimin Görevleri pie (R548 / #2034):** birimdeki tüm aktif `Staff` + `CitizenRequestManager`
+  (birincil veya ek rol) kullanıcıları (görev sayısı 0 olsa bile) dilim/lejantta kalır; yalnız görev
+  atanmış personel listelenmez. `Personelimin Görevleri` personel filtresi aynı kümedir.
 - **Mahalle pie'ları (R548 / #2035):** `neighborhoodCompleted/InProgress/Processing` Tire
   mahalle kataloğundaki tüm isimleri 0 sayıyla doldurur (`TireNeighborhoodCatalog`, FE
   `izmir-locations.ts` ile senkron); katalogda olmayan geçmiş mahalle adları kaybolmaz.

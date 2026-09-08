@@ -58,8 +58,15 @@ public static class UserRoleAccess
         => ParseAdditionalRoleCodes(user.AdditionalRoleCodesJson).Select(role => role.ToString()).ToArray();
 
     public static bool IsCitizenRequestManager(ApplicationUser user) =>
-        user.RoleCode == RoleCode.CitizenRequestManager
-        || ParseAdditionalRoleCodes(user.AdditionalRoleCodesJson).Contains(RoleCode.CitizenRequestManager);
+        IsCitizenRequestManager(user.RoleCode, user.AdditionalRoleCodesJson);
+
+    public static bool IsCitizenRequestManager(RoleCode roleCode, string? additionalRoleCodesJson) =>
+        roleCode == RoleCode.CitizenRequestManager
+        || ParseAdditionalRoleCodes(additionalRoleCodesJson).Contains(RoleCode.CitizenRequestManager);
+
+    /// <summary>Personelimin Görevleri filtresi / dashboard pie: Standart + VTY.</summary>
+    public static bool IsDepartmentStaffMonitorUser(RoleCode roleCode, string? additionalRoleCodesJson) =>
+        roleCode == RoleCode.Staff || IsCitizenRequestManager(roleCode, additionalRoleCodesJson);
 
     public static async Task<bool> CanManageCitizenRequestInTargetDepartmentAsync(
         IApplicationDbContext dbContext,

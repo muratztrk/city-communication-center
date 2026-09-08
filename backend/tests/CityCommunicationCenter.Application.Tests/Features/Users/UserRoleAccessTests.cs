@@ -41,6 +41,20 @@ public sealed class UserRoleAccessTests
         Assert.Equal([RoleCode.Reporter], UserRoleAccess.ParseAdditionalRoleCodes(user.AdditionalRoleCodesJson));
     }
 
+    [Theory]
+    [InlineData(RoleCode.Staff, null, true)]
+    [InlineData(RoleCode.CitizenRequestManager, null, true)]
+    [InlineData(RoleCode.Reporter, "[\"CitizenRequestManager\"]", true)]
+    [InlineData(RoleCode.Operator, null, false)]
+    [InlineData(RoleCode.Manager, null, false)]
+    public void IsDepartmentStaffMonitorUser_MatchesStaffAndCitizenRequestManager(
+        RoleCode roleCode,
+        string? additionalRoleCodesJson,
+        bool expected)
+    {
+        Assert.Equal(expected, UserRoleAccess.IsDepartmentStaffMonitorUser(roleCode, additionalRoleCodesJson));
+    }
+
     [Fact]
     public async Task UpdateUser_RejectsUsernameThatMatchesAnotherUsersEmail()
     {

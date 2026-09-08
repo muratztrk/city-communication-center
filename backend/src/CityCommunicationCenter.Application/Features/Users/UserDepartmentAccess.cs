@@ -255,27 +255,44 @@ internal static class UserDepartmentAccess
             return [];
         }
 
-        var primaryStaffIds = await dbContext.Users
+        var result = new HashSet<Guid>();
+
+        var primaryUsers = await dbContext.Users
             .AsNoTracking()
             .Where(user => user.TenantId == tenantId
                 && user.IsActive
-                && user.RoleCode == RoleCode.Staff
                 && departmentIdArray.Contains(user.DepartmentId))
-            .Select(user => user.UserId)
+            .Select(user => new { user.UserId, user.RoleCode, user.AdditionalRoleCodesJson })
             .ToListAsync(cancellationToken);
 
-        var additionalStaffIds = await dbContext.UserDepartmentAssignments
+        foreach (var user in primaryUsers)
+        {
+            if (UserRoleAccess.IsDepartmentStaffMonitorUser(user.RoleCode, user.AdditionalRoleCodesJson))
+            {
+                result.Add(user.UserId);
+            }
+        }
+
+        var assignmentUsers = await dbContext.UserDepartmentAssignments
             .AsNoTracking()
             .Where(assignment => assignment.TenantId == tenantId
-                && departmentIdArray.Contains(assignment.DepartmentId)
-                && dbContext.Users.Any(user => user.UserId == assignment.UserId
-                    && user.TenantId == tenantId
-                    && user.IsActive
-                    && user.RoleCode == RoleCode.Staff))
-            .Select(assignment => assignment.UserId)
+                && departmentIdArray.Contains(assignment.DepartmentId))
+            .Join(
+                dbContext.Users.AsNoTracking().Where(user => user.TenantId == tenantId && user.IsActive),
+                assignment => assignment.UserId,
+                user => user.UserId,
+                (_, user) => new { user.UserId, user.RoleCode, user.AdditionalRoleCodesJson })
             .ToListAsync(cancellationToken);
 
-        return primaryStaffIds.Concat(additionalStaffIds).ToHashSet();
+        foreach (var user in assignmentUsers)
+        {
+            if (UserRoleAccess.IsDepartmentStaffMonitorUser(user.RoleCode, user.AdditionalRoleCodesJson))
+            {
+                result.Add(user.UserId);
+            }
+        }
+
+        return result;
     }
 
     private static IReadOnlyCollection<Guid> ParseResponsibleUserIds(string? json)

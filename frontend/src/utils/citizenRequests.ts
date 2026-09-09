@@ -251,11 +251,16 @@ export function canShowCitizenWhatsAppConversation(
     return false
   }
 
-  // Tamamlandı / İptal: yalnız SystemAdmin ve Operator görür (#3236).
+  // Tamamlandı / İptal: Staff (Standart) görmez; Manager/Sorumlu, VTY, Operator ve SystemAdmin görür (#3236).
   const status = (job.status ?? '').toLocaleLowerCase('tr')
   if (status === 'completed' || status === 'cancelled') {
     const roles = getEffectiveUserRoles(viewer)
-    if (!roles.includes('SystemAdmin') && !roles.includes('Operator')) {
+    const canSeeWhenTerminal = roles.some(role =>
+      role === 'SystemAdmin'
+      || role === 'Operator'
+      || role === 'Manager'
+      || role === 'CitizenRequestManager')
+    if (!canSeeWhenTerminal) {
       return false
     }
   }

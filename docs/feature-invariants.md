@@ -2882,7 +2882,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`--incoming` + `--attachments-only`) mobilde eşit `repeat(3, 1fr)` + simetrik `column-gap`
   — No padding hack yok (#3327 reopen). Taleplerim `--attachments-only` masaüstünde eşit 3 kolon.
 - **Yazışmaya Git terminal gizleme (#3236):** talep `Completed` / `Cancelled` ise buton yalnız
-  `SystemAdmin` ve `Operator` (ek rol dahil) için görünür; diğer roller görmez.
+  `SystemAdmin`, `Operator`, `Manager` (müdür + Sorumlu) ve `CitizenRequestManager` (ek rol dahil)
+  için görünür; `Staff` (Standart) ve diğer roller görmez.
 - **Vatandaş cevap şablonu taslak (#3221/#3220/#3222):** Kaydetmeden sekme/sayfa değişince
   `citizenAutoReplyTemplates` son kaydedilene döner. `{GönderilenBirim}` ek textarea Enter ile
   satır sonu alır (`extract` trailing `\\n` yutmaz; not token öncesi `\\n\\n` veya tek boşluk ayrılır, #3250).

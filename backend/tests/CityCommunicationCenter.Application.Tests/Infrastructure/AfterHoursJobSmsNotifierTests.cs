@@ -17,6 +17,8 @@ public sealed class AfterHoursJobSmsNotifierTests
     private static readonly Guid ResponsibleId = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
     private static readonly Guid StaffId = Guid.Parse("dddddddd-dddd-dddd-dddd-dddddddddddd");
     private static readonly Guid CrmId = Guid.Parse("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee");
+    private static readonly Guid OtherDepartmentId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+    private static readonly Guid OtherCrmId = Guid.Parse("11111111-1111-1111-1111-111111111112");
     private static readonly Guid JobId = Guid.Parse("ffffffff-ffff-ffff-ffff-ffffffffffff");
 
     [Fact]
@@ -112,10 +114,11 @@ public sealed class AfterHoursJobSmsNotifierTests
     }
 
     [Fact]
-    public async Task NotifyJobCreatedAsync_citizen_request_includes_vty_with_phone()
+    public async Task NotifyJobCreatedAsync_citizen_request_includes_scoped_vty_with_phone()
     {
         await using var db = CreateDbContext();
-        await SeedAsync(db, crmPhone: "905559999999");
+        await SeedAsync(db, crmPhone: "905559999999", includeOtherDepartmentVty: true);
+        await SeedTargetDepartmentAsync(db);
         var gateway = new RecordingSmsGateway();
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
@@ -125,6 +128,7 @@ public sealed class AfterHoursJobSmsNotifierTests
         Assert.Equal(2, gateway.Sends.Count);
         Assert.Contains(gateway.Sends, send => send.Phone == "905551111111");
         Assert.Contains(gateway.Sends, send => send.Phone == "905559999999");
+        Assert.DoesNotContain(gateway.Sends, send => send.Phone == "905558888888");
     }
 
     private static AfterHoursJobSmsNotifier CreateNotifier(
@@ -155,7 +159,24 @@ public sealed class AfterHoursJobSmsNotifierTests
         Priority = "Normal",
     };
 
-    private static async Task SeedAsync(CityCommunicationCenterDbContext db, string? crmPhone = null)
+    private static async Task SeedTargetDepartmentAsync(CityCommunicationCenterDbContext db)
+    {
+        db.JobDepartments.Add(new JobDepartment
+        {
+            JobDepartmentId = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+            TenantId = TenantId,
+            JobId = JobId,
+            DepartmentId = DepartmentId,
+            Role = JobDepartmentRole.Target,
+            ApprovalStatus = JobApprovalStatus.Pending,
+        });
+        await db.SaveChangesAsync();
+    }
+
+    private static async Task SeedAsync(
+        CityCommunicationCenterDbContext db,
+        string? crmPhone = null,
+        bool includeOtherDepartmentVty = false)
     {
         db.Tenants.Add(new Tenant
         {
@@ -176,12 +197,32 @@ public sealed class AfterHoursJobSmsNotifierTests
             ResponsibleUserIdsJson = $"[\"{ResponsibleId}\"]",
         });
 
-        db.Users.AddRange(
+        if (includeOtherDepartmentVty)
+        {
+            db.Departments.Add(new Department
+            {
+                TenantId = TenantId,
+                DepartmentId = OtherDepartmentId,
+                Name = "Fen İşleri",
+                DepartmentType = "Müdürlük",
+            });
+        }
+
+        var users = new List<ApplicationUser>
+        {
             User(ManagerId, RoleCode.Manager, "905551111111"),
             User(DeputyId, RoleCode.Manager, "905552222222"),
             User(ResponsibleId, RoleCode.Staff, phone: null),
             User(StaffId, RoleCode.Staff, "905554444444", DepartmentId),
-            User(CrmId, RoleCode.CitizenRequestManager, crmPhone));
+            User(CrmId, RoleCode.CitizenRequestManager, crmPhone),
+        };
+
+        if (includeOtherDepartmentVty)
+        {
+            users.Add(User(OtherCrmId, RoleCode.CitizenRequestManager, "905558888888", OtherDepartmentId));
+        }
+
+        db.Users.AddRange(users);
 
         db.TenantSettings.Add(new TenantSetting
         {

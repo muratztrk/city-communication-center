@@ -68,6 +68,27 @@ public static class UserRoleAccess
     public static bool IsDepartmentStaffMonitorUser(RoleCode roleCode, string? additionalRoleCodesJson) =>
         roleCode == RoleCode.Staff || IsCitizenRequestManager(roleCode, additionalRoleCodesJson);
 
+    public static async Task<bool> IsCitizenRequestManagerInDepartmentAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        ApplicationUser user,
+        Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        if (!IsCitizenRequestManager(user))
+        {
+            return false;
+        }
+
+        return await UserDepartmentAccess.CanWorkInDepartmentAsync(
+            dbContext,
+            tenantId,
+            user,
+            departmentId,
+            cancellationToken,
+            includeManagedDepartments: false);
+    }
+
     public static async Task<bool> CanManageCitizenRequestInTargetDepartmentAsync(
         IApplicationDbContext dbContext,
         Guid tenantId,

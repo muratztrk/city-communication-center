@@ -183,27 +183,62 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             }
         }
 
-        // VTY broadcast yalnız gerçek vatandaş talebinde; ExternalUnit + SocialMessage (Basın→hedef birim)
-        // dış birim yönlendirmesidir — tüm VTY'lere SMS gitmemeli (#3472 prod olayı, 2026-09-09).
-        if (job.RequestType == JobRequestType.Citizen)
-        {
-            var managers = await _dbContext.Users
-                .AsNoTracking()
-                .Where(user => user.TenantId == job.TenantId && user.IsActive)
-                .Select(user => new { user.UserId, user.RoleCode, user.AdditionalRoleCodesJson })
-                .ToListAsync(cancellationToken);
+        await AddScopedCitizenRequestManagerRecipientsAsync(job, recipientIds, cancellationToken);
 
-            foreach (var user in managers)
+        return recipientIds;
+    }
+
+    /// <summary>
+    /// VTY mesai dışı SMS yalnız hedef birimde çalışabilen VTY'lere gider (tüm tenant VTY değil).
+    /// </summary>
+    private async Task AddScopedCitizenRequestManagerRecipientsAsync(
+        Job job,
+        HashSet<Guid> recipientIds,
+        CancellationToken cancellationToken)
+    {
+        if (job.RequestType != JobRequestType.Citizen)
+        {
+            return;
+        }
+
+        var targetDepartmentIds = await _dbContext.JobDepartments
+            .AsNoTracking()
+            .Where(link => link.JobId == job.JobId && link.Role == JobDepartmentRole.Target)
+            .Select(link => link.DepartmentId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        if (targetDepartmentIds.Count == 0)
+        {
+            targetDepartmentIds.Add(job.OwnerDepartmentId);
+        }
+
+        var candidates = await _dbContext.Users
+            .AsNoTracking()
+            .Where(user => user.TenantId == job.TenantId && user.IsActive)
+            .ToListAsync(cancellationToken);
+
+        foreach (var user in candidates)
+        {
+            if (!UserRoleAccess.IsCitizenRequestManager(user))
             {
-                if (user.RoleCode == RoleCode.CitizenRequestManager
-                    || UserRoleAccess.ParseAdditionalRoleCodes(user.AdditionalRoleCodesJson).Contains(RoleCode.CitizenRequestManager))
+                continue;
+            }
+
+            foreach (var departmentId in targetDepartmentIds)
+            {
+                if (await UserRoleAccess.IsCitizenRequestManagerInDepartmentAsync(
+                        _dbContext,
+                        job.TenantId,
+                        user,
+                        departmentId,
+                        cancellationToken))
                 {
                     recipientIds.Add(user.UserId);
+                    break;
                 }
             }
         }
-
-        return recipientIds;
     }
 
     private async Task SendTemplateAsync(

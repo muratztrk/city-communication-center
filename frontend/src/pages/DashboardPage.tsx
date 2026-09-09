@@ -777,7 +777,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     : chartCards
 
   const OVERDUE_SLICE_LABEL = 'dashboard.chart.overdue'
-  const displayChartCards = wasOverdueFilter && (effectiveView === 'citizen' || effectiveView === 'departments')
+  const showDashboardOverdueControls = effectiveView === 'citizen'
+    || effectiveView === 'departments'
+    || (effectiveView === 'full' && isManagerOrAdmin)
+  const displayChartCards = wasOverdueFilter && showDashboardOverdueControls
     ? visibleChartCards.map(card => ({
         ...card,
         slices: card.slices.filter(slice => slice.label === OVERDUE_SLICE_LABEL),
@@ -910,7 +913,16 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
             </button>
           ) : null}
-          {(effectiveView === 'citizen' || effectiveView === 'departments') ? (
+          {effectiveView === 'full' && isManagerOrAdmin ? (
+            <button
+              type="button"
+              onClick={() => setAllCitizenRequestsOpen(true)}
+              className="rounded-lg border border-[var(--color-border)] bg-white px-3 py-1 text-xs font-semibold text-slate-600 transition-colors hover:border-[color:var(--color-primary)]/50"
+            >
+              {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
+            </button>
+          ) : null}
+          {showDashboardOverdueControls ? (
             <label className="ml-1 inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
               <input
                 type="checkbox"

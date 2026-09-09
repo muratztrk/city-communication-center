@@ -69,7 +69,6 @@ import { displayMapsLink } from '../utils/coordinates'
 import { isAssignableDepartmentUser } from '../utils/userDepartments'
 import { isPresidencyLevelDepartment } from '../utils/departments'
 import { hasCitizenRequestManagerRole, canCitizenRequestManagerActOnRow } from '../utils/roleAccess'
-import { isCitizenOnlyLicense } from '../lib/licenseModules'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { ChannelIcon } from '../components/ui/channel-icon'
 import { getChannelLabelColor } from '../utils/channelColors'
@@ -294,7 +293,7 @@ function formatJobDisplayNumber(job: Pick<JobSummary, 'requestType' | 'sourceTyp
   return `T-${year}-Onay Bekleyen`
 }
 
-const FORWARD_NOTE_MAX_LENGTH = 300
+const FORWARD_NOTE_MAX_LENGTH = 400
 
 const JOB_SEARCH_COLUMN_KEYS = [
   'jobNumber',
@@ -719,7 +718,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
   const weekendDueMin = useWeekendSlaDueDateMin()
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const isCitizenRequestManager = hasCitizenRequestManagerRole(user)
-  const hideCitizenOnlyCancel = isCitizenOnlyLicense()
   const isReporter = user?.role === 'Reporter'
   // "Başkanlık seviyesi üst düzey yönetici": Üst Düzey Yönetici (Reporter) rolü + Başkanlık birimi (card 645/647).
   const isPresidencyReporter = isReporter && user?.departmentName === 'Başkanlık'
@@ -922,7 +920,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     && !canAssignIncomingDetail
   const canCancelIncomingDetail = isIncomingRequestDetail
     && incomingDetailManager
-    && !hideCitizenOnlyCancel
     && detail != null
     && !isIncomingInternalAlreadyApproved
     && !hideIncomingCancelAfterMessageReopen
@@ -938,7 +935,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
     )
   const shouldShowDisabledIncomingCancel = isIncomingRequestDetail
     && incomingDetailManager
-    && !hideCitizenOnlyCancel
     && detail != null
     && !canCancelIncomingDetail
     && !hideIncomingCancelAfterMessageReopen
@@ -2935,7 +2931,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                     <RichTextContent
                       value={detail.description}
                       emptyText={t('common.none')}
-                      className="rich-text-content detail-text-justified mt-1.5 text-sm leading-5 text-slate-900"
+                      className="rich-text-content mt-1.5 text-sm leading-5 text-slate-900"
                     />
                   </div>
                   <div className="min-w-0 border-b border-slate-200 p-4 lg:border-b-0 lg:border-r">

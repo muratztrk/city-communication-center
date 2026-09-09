@@ -67,8 +67,8 @@ import {
 } from '../utils/attachmentLimits'
 
 const COMPLETION_ATTACHMENT_MAX_SIZE = ATTACHMENT_MAX_TOTAL_BYTES
-const TASK_TERMINAL_NOTE_MAX_LENGTH = 300
-const TASK_STATUS_CHANGE_REASON_MAX_LENGTH = 300
+const TASK_TERMINAL_NOTE_MAX_LENGTH = 400
+const TASK_STATUS_CHANGE_REASON_MAX_LENGTH = 400
 
 function completionAttachmentIcon(name: string) {
   return ['.jpg', '.jpeg', '.png'].includes(attachmentFileExtension(name)) ? SimpleImageAttachmentIcon : FileText
@@ -86,7 +86,6 @@ function getVisibleAssignmentHistory(history: AssignmentHistory[]): AssignmentHi
 }
 import { isCitizenRequestJob, canShowCitizenWhatsAppConversation, formatCitizenRequestNumber, formatCitizenPhoneDisplay, getCitizenRequestDetailStatusLabel, getCitizenRequestStatusLabel, isCitizenProcessingReceivedState, shouldShowCitizenTargetApprovalDate, requestLocationFieldLabel } from '../utils/citizenRequests'
 import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
-import { isCitizenOnlyLicense } from '../lib/licenseModules'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { matchesBannerSearch } from '../utils/bannerSearch'
@@ -563,7 +562,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   const cancelFileInputRef = useRef<HTMLInputElement>(null)
   const completionPickerProgress = useLocalFileSelectProgress()
   const cancelPickerProgress = useLocalFileSelectProgress()
-  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'cancel' | 'return'; assignedDepartmentId: string | null; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean; displayNumber: string } | null>(null)
+  const [returnModal, setReturnModal] = useState<{ taskId: string; step: 'cancel' | 'return'; assignedDepartmentId: string | null; isReporterTask: boolean; useManagerReporterRedirectLabel: boolean; directRoute: boolean; displayNumber: string; isCitizenRequest: boolean } | null>(null)
   const [cancelReason, setCancelReason] = useState('')
   const [returnDeptId, setReturnDeptId] = useState('')
   const [returnUserId, setReturnUserId] = useState('')
@@ -607,7 +606,6 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
   // Birim İçi/Dışı ayrımı birim-içi iş takibine özgü — Vatandaş modülü tek başına lisanslıyken gizlenir (#MHrIEwuE).
   const showDepartmentTaskFlowFilters = isDepartmentTasksView && isManagerLike && isModuleUsable('internal')
   const showRequestFlowFilters = isMyTasksView && user?.role !== 'SystemAdmin' && isModuleUsable('internal')
-  const hideCitizenOnlyCancel = isCitizenOnlyLicense()
   const activeUsers = useMemo(() => users.filter(item => item.isActive), [users])
   const currentUserRecord = useMemo(() => activeUsers.find(item => item.userId === user?.userId) ?? null, [activeUsers, user?.userId])
   const managedDepartmentIds = useMemo(() => {
@@ -1257,6 +1255,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       useManagerReporterRedirectLabel,
       directRoute: false,
       displayNumber: task ? formatTaskDisplayNumber(task) : '',
+      isCitizenRequest: task != null && isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType }),
     })
     setCancelReason('')
     setPendingCancelAttachments([])
@@ -1276,6 +1275,7 @@ export function TasksPage({ fixedScope, mode = 'default', notificationTaskId, de
       useManagerReporterRedirectLabel: false,
       directRoute: true,
       displayNumber: task ? formatTaskDisplayNumber(task) : '',
+      isCitizenRequest: task != null && isCitizenRequestJob({ requestType: task.jobRequestType, sourceType: task.jobSourceType }),
     })
     setCancelReason('')
     setReturnDeptId(departmentId ?? '')
@@ -2207,7 +2207,7 @@ const pageKicker = isMyTasksView
                         {t('tasks.actions.complete', 'Tamamla')}
                       </Button>
                     )}
-                    {isMyTasksView && canCompleteTask && !hideCitizenOnlyCancel && (
+                    {isMyTasksView && canCompleteTask && (
                       <Button type="button" size="lg" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
                         <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                         {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
@@ -2218,7 +2218,7 @@ const pageKicker = isMyTasksView
                       && currentMyTaskView !== 'all'
                       && canManageDepartmentTaskActions(taskDetail)
                       && isActionableTaskStatus(taskDetail.currentStatus)
-                      && !hideCitizenOnlyCancel && (
+                      && (
                         <Button type="button" size="lg" variant="destructive" className="inline-flex items-center gap-1.5" onClick={() => openReturnModal(taskDetail.taskId)}>
                           <XCircle className="size-3.5" strokeWidth={1.75} aria-hidden="true" />
                           {t('tasks.actions.cancelTask', 'Görevi İptal Et')}
@@ -2320,7 +2320,7 @@ const pageKicker = isMyTasksView
                           <RichTextContent
                             value={resolveTaskDescription(taskDetail, parentJobDetail)}
                             emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                            className="rich-text-content detail-text-justified mt-1.5 text-sm leading-5 text-slate-900"
+                            className="rich-text-content mt-1.5 text-sm leading-5 text-slate-900"
                           />
                         )}
                       </div>
@@ -2514,7 +2514,7 @@ const pageKicker = isMyTasksView
                             return (
                             <div key={fieldIndex} className={`job-detail-field-row job-detail-field-row--request-info${'rowClass' in row && row.rowClass ? ` ${row.rowClass}` : ''}`}>
                               <div className={`job-detail-field-row__label ${tone === 'cancel' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.label}</div>
-                              <div className={`job-detail-field-row__value${tone === 'completion' ? ' detail-text-justified' : ''} ${tone === 'cancel' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.value}</div>
+                              <div className={`job-detail-field-row__value ${tone === 'cancel' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.value}</div>
                             </div>
                             )
                           })}
@@ -3637,12 +3637,12 @@ const pageKicker = isMyTasksView
               {' '}
               {t('tasks.actions.completeHelpRequired', 'Görevi tamamlamak için tamamlama notu giriniz.')}
             </p>
-            {completeModal.isCitizenRequest ? (
-              <p className="workflow-note-dialog__help">
-                {t('tasks.actions.completeCitizenApprovalHint', 'Eklediğiniz not vatandaşa gönderilmek üzere yönetici onayına gönderilecektir.')}
-              </p>
-            ) : null}
             <label className="job-field">
+              {completeModal.isCitizenRequest ? (
+                <p className="workflow-note-dialog__help !mt-0 mb-1.5">
+                  {t('tasks.actions.completeCitizenApprovalHint', 'Eklediğiniz not vatandaşa gönderilmek üzere yönetici onayına gönderilecektir.')}
+                </p>
+              ) : null}
               <span className="job-field-label">{t('tasks.actions.completionNote', 'Tamamlama Notu')} <span className="text-[10px] font-normal text-slate-400">(Max {TASK_TERMINAL_NOTE_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"
@@ -3755,6 +3755,11 @@ const pageKicker = isMyTasksView
                   {t('tasks.actions.cancelHelp', 'Görevi iptal etmek için neden belirtiniz.')}
                 </p>
                 <label className="job-field">
+                  {returnModal.isCitizenRequest ? (
+                    <p className="workflow-note-dialog__help !mt-0 mb-1.5">
+                      {t('tasks.actions.completeCitizenApprovalHint', 'Eklediğiniz not vatandaşa gönderilmek üzere yönetici onayına gönderilecektir.')}
+                    </p>
+                  ) : null}
                   <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max {TASK_TERMINAL_NOTE_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
                   <textarea
                     className="field-textarea workflow-note-dialog__textarea"

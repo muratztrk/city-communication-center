@@ -506,7 +506,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kataloğu `canManageCoordination` dışında yüklenir — aksi halde dropdown boş kalır (#3449 reopen).
 - **Sorumlu rol lisans (#3443):** yalnız `internal` lisansı yoksa (sadece VT lisansı) Kullanıcılar rol
   dropdown'unda `Sorumlu` seçeneği gösterilmez.
-- **Talep yönlendirme notu etiketi (#3450):** modal alan adı `Talep Yönlendirme Notu`; max 300 karakter (#3451); placeholder `Talep yönlendirme sebebini yazınız...` (#3453); birim seçimi metni «…seçiniz.» (#3454); birim dropdown yüksekliği hafif düşük (#3452).
+- **Talep yönlendirme notu etiketi (#3450):** modal alan adı `Talep Yönlendirme Notu`; max 400 karakter (#3451/#3466); placeholder `Talep yönlendirme sebebini yazınız...` (#3453); birim seçimi metni «…seçiniz.» (#3454); birim dropdown yüksekliği hafif düşük (#3452).
 - **Görev Durum Değiştir modal (#3455–#3457):** üstte `GÖREV DURUMU` dropdown, altta `DURUM DEĞİŞİKLİĞİ NOTU`;
   not placeholder/input punto `workflow-note-dialog__textarea` (= Tamamlama Notu).
 - **`RecomputeJobCompletionAsync` çoğu terminal geçişini yapar; `Completed` talebi tüm görevler
@@ -2676,7 +2676,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesaj Onayı Durum tarihi (#2067):** Completed→`completedAtUtc`, Cancelled→`updatedAtUtc` Durum pill altında.
 - **Mesaj Onayı banner (#2064):** “…talebin **durumu** ve notu…” (Tamamlanma/İptal ifadesi yok).
 - **Mesaj Onayı Notu Düzenle modal (#2073/#2079/#2081/#2084/#2091):** genişlik `max-w-md`; yükseklik `py-5` +
-  textarea `rows={4}`; aksiyon butonları `size="sm"`. Not limiti **300 karakter** FE+BE (#3432).
+  textarea `rows={4}`; aksiyon butonları `size="sm"`. Not limiti **400 karakter** FE+BE (#3432/#3466).
 - **Mesajı Onayla ConfirmDialog genişliği:** `wide: true` → `max-w-md px-6 py-5` (Notu Düzenle ile aynı
   kutu boyutu; dar `max-w-sm p-6` kullanılmaz).
 - **Mesajı Onayla confirm metni:** `Mesajı onayladığınızda, …` (`göndermeyi onayladığınızda` değil).
@@ -2884,15 +2884,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazışmaya Git terminal gizleme (#3236):** talep `Completed` / `Cancelled` ise buton yalnız
   `SystemAdmin`, `Operator`, `Manager` (müdür + Sorumlu) ve `CitizenRequestManager` (ek rol dahil)
   için görünür; `Staff` (Standart) ve diğer roller görmez.
-- **VT-only lisans İptal Et (#3464):** yalnız `citizen` modülü lisanslıyken (`!internal`) Birime Gelen
-  grid/detay, Görevlerim detay ve Birimdeki Görevler detay popup'larında İptal Et gösterilmez.
-- **Görevi Tamamla vatandaş uyarısı (#3460):** vatandaş talebi görevinde Tamamlama Notu üstünde
-  yönetici onayı bilgi satırı görünür.
-- **Detay metin iki yana yaslı (#3462):** Tamamlama Notu, Vatandaşa Giden Mesaj, talep/görev
-  açıklaması `.detail-text-justified` ile justify hizalıdır.
-- **Dashboard Gecikti mi? (#3467):** Vatandaş Paneli ve Anasayfa-Birimler dönem satırında Tüm Talepler
-  yanında checkbox; işaretliyken pie dilimleri yalnız `dashboard.chart.overdue`, Tüm Talepler
-  popup'ları aynı filtreyi uygular.
+- **Görevi Tamamla / İptal vatandaş uyarısı (#3460/#3468):** yalnız vatandaş talebi görevinde
+  Tamamlama Notu / İptal Nedeni etiketinin hemen üstünde yönetici onayı bilgi satırı görünür
+  (üst boşluk yok).
+- **Dashboard Gecikti mi? (#3467/#3465):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
+  tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox; işaretliyken pie dilimleri
+  yalnız `dashboard.chart.overdue`, Tüm Talepler popup'ları aynı filtreyi uygular.
+- **İş akışı not limiti (#3466):** tamamlama/iptal/durum değişikliği notu, talep yönlendirme notu
+  ve vatandaş mesaj onay notu FE+BE **400 karakter** (#3432 ile 300 idi).
 - **Vatandaş cevap şablonu taslak (#3221/#3220/#3222):** Kaydetmeden sekme/sayfa değişince
   `citizenAutoReplyTemplates` son kaydedilene döner. `{GönderilenBirim}` ek textarea Enter ile
   satır sonu alır (`extract` trailing `\\n` yutmaz; not token öncesi `\\n\\n` veya tek boşluk ayrılır, #3250).

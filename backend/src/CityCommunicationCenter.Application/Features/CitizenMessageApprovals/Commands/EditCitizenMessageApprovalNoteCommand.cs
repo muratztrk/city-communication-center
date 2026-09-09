@@ -18,7 +18,7 @@ public sealed class EditCitizenMessageApprovalNoteCommandValidator : AbstractVal
     {
         RuleFor(command => command.Note)
             .NotEmpty().WithMessage("Not ifadesi zorunludur.")
-            .MaximumLength(300).WithMessage("Not en fazla 300 karakter olabilir.");
+            .MaximumLength(400).WithMessage("Not en fazla 400 karakter olabilir.");
     }
 }
 

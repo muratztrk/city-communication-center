@@ -37,7 +37,7 @@ const SCOPE_FILTERS: Array<{ value: ApprovalScope; labelKey: string; fallback: s
   { value: 'all', labelKey: 'citizenMessageApproval.scope.all', fallback: 'Tümü', chipClass: 'scope-chip--all', apiScope: 'all' },
 ]
 
-const NOTE_MAX_LENGTH = 300
+const NOTE_MAX_LENGTH = 400
 
 function formatDateTime(value: string | null | undefined, locale: string): string {
   if (!value) return ''

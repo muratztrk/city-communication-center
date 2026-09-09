@@ -1,3 +1,9 @@
+## Round 1154 — Mesai dışı VTY SMS toplu gönderim düzeltmesi (#3472)
+
+- **Kök neden:** `ExternalUnit` + `SocialMessage` talep oluşturulunca tüm VTY'lere mesai dışı SMS (prod 17:31, talep 84/2026).
+- **Fix:** `AfterHoursJobSmsNotifier` — VTY broadcast yalnız `JobRequestType.Citizen`.
+- Test: 2 yeni unit test. `feature-invariants.md` güncellendi.
+
 ## Round 1153 — Prod ops #3472 Park → İklim birim migrasyonu
 
 - **#3472:** Park ve Bahçeler Birimi → İklim Değişikliği ve Sıfır Atık Müdürlüğü (prod DB).

@@ -6,10 +6,11 @@ import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 
 interface AllCitizenRequestsModalProps {
   onClose: () => void
+  wasOverdueFilter?: boolean
 }
 
 /** Anasayfa-Vatandaş → operatör Vatandaş Talepleri grid popup (#2644). */
-export function AllCitizenRequestsModal({ onClose }: AllCitizenRequestsModalProps) {
+export function AllCitizenRequestsModal({ onClose, wasOverdueFilter = false }: AllCitizenRequestsModalProps) {
   const { t } = useTranslation()
 
   return createPortal(
@@ -38,7 +39,7 @@ export function AllCitizenRequestsModal({ onClose }: AllCitizenRequestsModalProp
           </div>
         </div>
         <div className="min-h-0 flex-1 overflow-hidden">
-          <SocialMessagesPage embedded />
+          <SocialMessagesPage embedded embeddedWasOverdue={wasOverdueFilter} />
         </div>
       </div>
     </div>,

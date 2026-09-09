@@ -900,7 +900,8 @@
       "changeStatusPlaceholder": "Select a task status",
       "statusChangeSuccess": "Task status updated.",
       "approveCloseSuccess": "Task close approved.",
-      "details": "Details"
+      "details": "Details",
+      "completeCitizenApprovalHint": "Your note will be sent for manager approval before it is delivered to the citizen."
     },
     "statusChange": {
       "inProgress": "In Progress",

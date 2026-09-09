@@ -907,7 +907,8 @@
       "changeStatusPlaceholder": "Görev durumu seçiniz",
       "statusChangeSuccess": "Görev durumu güncellendi.",
       "approveCloseSuccess": "Görev kapatma onaylandı.",
-      "details": "Detaylar"
+      "details": "Detaylar",
+      "completeCitizenApprovalHint": "Eklediğiniz not vatandaşa gönderilmek üzere yönetici onayına gönderilecektir."
     },
     "statusChange": {
       "inProgress": "Yapılmakta",

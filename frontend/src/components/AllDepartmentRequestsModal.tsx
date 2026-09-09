@@ -16,7 +16,7 @@ import { GridStatusLabel } from './ui/GridStatusLabel'
 import { DetailModalHeaderBrand } from './branding/DetailModalHeaderBrand'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
 import { isCitizenRequestJob } from '../utils/citizenRequests'
-import { isJobDueDateOverdue } from '../utils/dateTimePicker'
+import { isJobDueDateOverdue, wasJobOverdueWhenClosed } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
 import {
   formatOverdueInProgressStatus,
@@ -33,6 +33,7 @@ import { useSortable } from '../hooks/useSortable'
 
 interface AllDepartmentRequestsModalProps {
   onClose: () => void
+  wasOverdueFilter?: boolean
 }
 
 function isAssignedInternalJob(job: JobSummary): boolean {
@@ -91,7 +92,7 @@ function getDetailStatusLabel(t: TFunction, detail: JobDetail): string {
 }
 
 /** Anasayfa-Birimler → atanmış kurum içi talepler grid popup (#2645). */
-export function AllDepartmentRequestsModal({ onClose }: AllDepartmentRequestsModalProps) {
+export function AllDepartmentRequestsModal({ onClose, wasOverdueFilter = false }: AllDepartmentRequestsModalProps) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const [jobs, setJobs] = useState<JobSummary[] | null>(null)
@@ -121,7 +122,12 @@ export function AllDepartmentRequestsModal({ onClose }: AllDepartmentRequestsMod
   }, [t])
 
   const visibleJobs = useMemo(() => {
-    const source = jobs ?? []
+    const source = (jobs ?? []).filter(job => !wasOverdueFilter || wasJobOverdueWhenClosed({
+      status: job.status,
+      dueDateUtc: job.dueDateUtc,
+      completedAtUtc: job.completedAtUtc,
+      updatedAtUtc: job.updatedAtUtc,
+    }))
     const filtered = source.filter(job => matchesFilters(job, (key, item) => {
       if (key === 'jobNumber') return formatJobDisplayNumberText(item, locale)
       if (key === 'createdAtUtc') {
@@ -146,7 +152,7 @@ export function AllDepartmentRequestsModal({ onClose }: AllDepartmentRequestsMod
       return [...decorated].sort((left, right) => Date.parse(right.createdAtUtc) - Date.parse(left.createdAtUtc))
     }
     return sortItems(decorated)
-  }, [jobs, locale, matchesFilters, sortItems, sortKey, t])
+  }, [jobs, locale, matchesFilters, sortItems, sortKey, t, wasOverdueFilter])
 
   const maxPage = Math.max(1, Math.ceil(visibleJobs.length / pageSize) || 1)
   const safePage = Math.min(page, maxPage)

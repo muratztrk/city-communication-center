@@ -2884,6 +2884,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazışmaya Git terminal gizleme (#3236):** talep `Completed` / `Cancelled` ise buton yalnız
   `SystemAdmin`, `Operator`, `Manager` (müdür + Sorumlu) ve `CitizenRequestManager` (ek rol dahil)
   için görünür; `Staff` (Standart) ve diğer roller görmez.
+- **VT-only lisans İptal Et (#3464):** yalnız `citizen` modülü lisanslıyken (`!internal`) Birime Gelen
+  grid/detay, Görevlerim detay ve Birimdeki Görevler detay popup'larında İptal Et gösterilmez.
+- **Görevi Tamamla vatandaş uyarısı (#3460):** vatandaş talebi görevinde Tamamlama Notu üstünde
+  yönetici onayı bilgi satırı görünür.
+- **Detay metin iki yana yaslı (#3462):** Tamamlama Notu, Vatandaşa Giden Mesaj, talep/görev
+  açıklaması `.detail-text-justified` ile justify hizalıdır.
+- **Dashboard Gecikti mi? (#3467):** Vatandaş Paneli ve Anasayfa-Birimler dönem satırında Tüm Talepler
+  yanında checkbox; işaretliyken pie dilimleri yalnız `dashboard.chart.overdue`, Tüm Talepler
+  popup'ları aynı filtreyi uygular.
 - **Vatandaş cevap şablonu taslak (#3221/#3220/#3222):** Kaydetmeden sekme/sayfa değişince
   `citizenAutoReplyTemplates` son kaydedilene döner. `{GönderilenBirim}` ek textarea Enter ile
   satır sonu alır (`extract` trailing `\\n` yutmaz; not token öncesi `\\n\\n` veya tek boşluk ayrılır, #3250).

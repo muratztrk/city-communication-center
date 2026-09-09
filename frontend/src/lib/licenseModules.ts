@@ -55,3 +55,8 @@ export function isModuleUsable(module: LicenseModuleKey): boolean {
 
   return true
 }
+
+/** Yalnız Vatandaş İş Takip Sistemi lisansı (Kurum İçi modül yok). */
+export function isCitizenOnlyLicense(): boolean {
+  return isModuleUsable('citizen') && !isModuleUsable('internal')
+}

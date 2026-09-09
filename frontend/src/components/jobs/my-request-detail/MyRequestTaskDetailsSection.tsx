@@ -288,6 +288,7 @@ export function MyRequestTaskDetailsSection({
                           value: completionNoteDisplay,
                           // Etiket + değer yeşil (card #1638).
                           tone: 'completion' as const,
+                          justified: true as const,
                         }]
                       : isCancelledTask
                         ? [{
@@ -306,6 +307,7 @@ export function MyRequestTaskDetailsSection({
                           value: outboundPlain,
                           tone: outboundTone,
                           fullRow: true as const,
+                          justified: true as const,
                         }]
                       : []),
                     ...(task.jobSourceType !== 'Routine' && (task.statusChangeHistory?.length ?? 0) > 0
@@ -373,10 +375,11 @@ export function MyRequestTaskDetailsSection({
                     const tone = 'tone' in row ? row.tone : undefined
                     const fullRow = 'fullRow' in row && row.fullRow
                     const rowClass = 'rowClass' in row ? row.rowClass : ''
+                    const justified = 'justified' in row && row.justified
                     return (
                     <div key={'key' in row ? row.key : String(row.label)} className={`job-detail-field-row job-detail-field-row--request-info${fullRow ? ' job-detail-field-row--full' : ''}${rowClass ? ` ${rowClass}` : ''}`}>
                       <div className={`job-detail-field-row__label ${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.label}</div>
-                      <div className={`job-detail-field-row__value ${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : typeof row.value === 'string' ? 'text-slate-900' : ''}`}>{row.value}</div>
+                      <div className={`job-detail-field-row__value${justified ? ' detail-text-justified' : ''} ${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : typeof row.value === 'string' ? 'text-slate-900' : ''}`}>{row.value}</div>
                     </div>
                     )
                   })}
@@ -394,7 +397,7 @@ export function MyRequestTaskDetailsSection({
                 <RichTextContent
                   value={task.description?.trim() ? task.description : detail.description}
                   emptyText={t('tasks.detail.noDescription', 'Açıklama yok')}
-                  className="rich-text-content text-sm leading-6 text-slate-900"
+                  className="rich-text-content detail-text-justified text-sm leading-6 text-slate-900"
                 />
               </div>}
               <div className="flex h-full min-w-0 flex-col rounded-xl border border-slate-200 bg-white p-4">

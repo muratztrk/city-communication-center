@@ -752,7 +752,7 @@ export function AppShell() {
   const currentBreadcrumbIconImageSrc = currentBreadcrumbSegment === 'whatsapp' ? '/icons/whatsapp.webp' : null
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-[color:var(--color-sidebar)]">
+    <div className="flex min-h-dvh flex-col bg-[color:var(--color-sidebar)] lg:h-dvh lg:overflow-hidden">
       <SessionIdleWarning onLogout={handleLogout} />
       <SessionSupersededWarning onLogout={handleLogout} />
       <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-slate-900 focus:shadow-lg">
@@ -878,7 +878,7 @@ export function AppShell() {
       ) : null}
 
       {/* Main area: sidebar + content — fills remaining height */}
-      <div className="flex flex-1 min-h-0 overflow-hidden">
+      <div className="flex flex-1 min-h-0 lg:overflow-hidden">
       <aside
         style={{ zoom: zoom.sidebar }}
         className={`sidebar-shell relative hidden h-full shrink-0 flex-col border-r px-2.5 py-2.5 transition-[width] duration-200 lg:flex ${isSidebarCollapsed ? 'w-[80px]' : 'w-[272px]'}`}

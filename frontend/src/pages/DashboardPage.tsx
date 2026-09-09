@@ -399,6 +399,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
   const [chartDrilldown, setChartDrilldown] = useState<{ chartKey: string; sliceKey: string } | null>(null)
   const [allCitizenRequestsOpen, setAllCitizenRequestsOpen] = useState(false)
   const [allDepartmentRequestsOpen, setAllDepartmentRequestsOpen] = useState(false)
+  const [wasOverdueFilter, setWasOverdueFilter] = useState(false)
   const activeDeptId = getActiveDepartmentId()
 
   function getPeriodRange(p: Period): { from: string; to: string } {
@@ -444,8 +445,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
     placeholderData: keepPreviousData,
   })
   const matchingCitizenPins = useMemo(
-    () => (citizenPinsQuery.data?.pins ?? []).filter(pin => pinMatchesCitizenSearch(pin, debouncedPanelSearch)),
-    [citizenPinsQuery.data?.pins, debouncedPanelSearch],
+    () => (citizenPinsQuery.data?.pins ?? [])
+      .filter(pin => pinMatchesCitizenSearch(pin, debouncedPanelSearch))
+      .filter(pin => !wasOverdueFilter || pin.displayStatus === 'overdue'),
+    [citizenPinsQuery.data?.pins, debouncedPanelSearch, wasOverdueFilter],
   )
   const panelNeighborhoods = useMemo(
     () => new Set(matchingCitizenPins.map(pin => (pin.neighborhood ?? '').trim().toLocaleLowerCase('tr')).filter(Boolean)),
@@ -773,6 +776,14 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       })
     : chartCards
 
+  const OVERDUE_SLICE_LABEL = 'dashboard.chart.overdue'
+  const displayChartCards = wasOverdueFilter && (effectiveView === 'citizen' || effectiveView === 'departments')
+    ? visibleChartCards.map(card => ({
+        ...card,
+        slices: card.slices.filter(slice => slice.label === OVERDUE_SLICE_LABEL),
+      }))
+    : visibleChartCards
+
   const pageTitle = effectiveView === 'citizen'
     ? t('dashboard.citizenPanelTitle', 'Vatandaş Paneli')
     : effectiveView === 'departments'
@@ -899,6 +910,17 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
               {t('dashboard.allCitizenRequests', 'Tüm Talepler')}
             </button>
           ) : null}
+          {(effectiveView === 'citizen' || effectiveView === 'departments') ? (
+            <label className="ml-1 inline-flex shrink-0 cursor-pointer items-center gap-1.5 whitespace-nowrap text-xs font-semibold text-slate-700">
+              <input
+                type="checkbox"
+                className="field-checkbox"
+                checked={wasOverdueFilter}
+                onChange={event => setWasOverdueFilter(event.target.checked)}
+              />
+              {t('jobs.detail.wasOverdue', 'Gecikti mi?')}
+            </label>
+          ) : null}
         </div>
         <div className="flex items-center px-4 py-2 sm:px-5 border-b border-[var(--color-border)] bg-[var(--color-background)]">
           <div className="map-period-search min-w-[12rem] max-w-md">
@@ -960,7 +982,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                 </div>
               </div>
             ))
-          : visibleChartCards.length === 0 && !statusChartsQuery.isLoading && !dashboardQuery.isLoading
+          : displayChartCards.length === 0 && !statusChartsQuery.isLoading && !dashboardQuery.isLoading
             ? (
               <div className="section-card col-span-full p-4 text-sm text-slate-600 sm:p-5">
                 {statusChartsQuery.isError
@@ -968,7 +990,7 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
                   : t('dashboard.chart.noData', 'Grafik verisi bulunamadı.')}
               </div>
             )
-          : visibleChartCards.map(card => {
+          : displayChartCards.map(card => {
             // Standart kullanıcıların erişemediği "Birimdeki Görevler" ile Üst Düzey Yönetici'ye
             // özel birim-dışı dağılım grafikleri (card #835/#763) yalnızca bilgilendirme amaçlıdır;
             // dashboard'dan yönlendirme yapılmaz.
@@ -1094,10 +1116,10 @@ export function DashboardPage({ view = 'full' }: DashboardPageProps) {
       ) : null}
 
       {allCitizenRequestsOpen ? (
-        <AllCitizenRequestsModal onClose={() => setAllCitizenRequestsOpen(false)} />
+        <AllCitizenRequestsModal onClose={() => setAllCitizenRequestsOpen(false)} wasOverdueFilter={wasOverdueFilter} />
       ) : null}
       {allDepartmentRequestsOpen ? (
-        <AllDepartmentRequestsModal onClose={() => setAllDepartmentRequestsOpen(false)} />
+        <AllDepartmentRequestsModal onClose={() => setAllDepartmentRequestsOpen(false)} wasOverdueFilter={wasOverdueFilter} />
       ) : null}
       {chartDrilldown?.chartKey === 'dashboard.citizenChannels.title' ? (
         <CitizenChannelMessagesModal

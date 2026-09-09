@@ -245,7 +245,7 @@ function SocialMessageScopeFilters({ searchText, filterFrom, filterTo, onSearch,
   )
 }
 
-export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } = {}) {
+export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = false }: { embedded?: boolean; embeddedWasOverdue?: boolean } = {}) {
   const { t, i18n } = useTranslation()
   const locale = getLocale(i18n.language)
   const navigate = useNavigate()
@@ -259,7 +259,7 @@ export function SocialMessagesPage({ embedded = false }: { embedded?: boolean } 
     : channelParam
   const requestStatusParam = embedded ? embeddedRequestStatus : searchParams.get('requestStatus')
   const initialRequestStatus = parseSocialRequestStatusFilter(requestStatusParam)
-  const initialWasOverdue = embedded ? false : parseSocialWasOverdueFilter(searchParams)
+  const initialWasOverdue = embedded ? embeddedWasOverdue : parseSocialWasOverdueFilter(searchParams)
   const queryClient = useQueryClient()
   const [messages, setMessages] = useState<SocialMessage[]>([])
   const [jobsById, setJobsById] = useState<Map<string, JobSummary>>(new Map())

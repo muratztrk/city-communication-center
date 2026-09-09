@@ -67,7 +67,7 @@ import { canCitizenRequestManagerActOnRow, hasCitizenRequestManagerRole } from '
 import { isIncomingPendingApprovalOverdue, matchesIncomingStatusFilter } from '../utils/incomingRequestGrid'
 import { matchesBannerSearch } from '../utils/bannerSearch'
 import { isJobDueDateOverdue, toDateTimePickerValue, toLocalDateKey } from '../utils/dateTimePicker'
-import { isModuleUsable } from '../lib/licenseModules'
+import { isCitizenOnlyLicense, isModuleUsable } from '../lib/licenseModules'
 
 function resolveIncomingSourceChannel(
   job: { sourceType?: string | null; requestType?: string | null },
@@ -449,6 +449,7 @@ export function IncomingRequestsPage() {
   const isManagerLike = user?.role === 'Manager' || user?.role === 'SystemAdmin'
   const isCitizenRequestManager = hasCitizenRequestManagerRole(user)
   const canManageIncomingActions = isManagerLike || isCitizenRequestManager
+  const hideCitizenOnlyCancel = isCitizenOnlyLicense()
   const [activeDeptId, setActiveDeptIdState] = useState(() => getActiveDepartmentId())
   const [tasks, setTasks] = useState<Task[]>([])
   const [jobs, setJobs] = useState<JobSummary[]>([])
@@ -892,7 +893,8 @@ export function IncomingRequestsPage() {
     )
 
   const canCancelRow = (row: IncomingRequestRow) =>
-    canManageIncomingActions
+    !hideCitizenOnlyCancel
+    && canManageIncomingActions
     && canCitizenRequestManagerActOnRow(user, row)
     && !isInternalAlreadyApproved(row)
     && (
@@ -906,7 +908,8 @@ export function IncomingRequestsPage() {
     )
 
   const shouldShowDisabledCancel = (row: IncomingRequestRow) =>
-    canManageIncomingActions
+    !hideCitizenOnlyCancel
+    && canManageIncomingActions
     && !canCancelRow(row)
     && (
       currentStatusFilter === 'all'

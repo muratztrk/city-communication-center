@@ -2097,6 +2097,16 @@
     overflow-wrap: anywhere;
   }
 
+  /* Tamamlama notu, vatandaş mesajı, talep/görev açıklaması (#3462). */
+  .detail-text-justified {
+    text-align: justify;
+  }
+
+  .job-detail-field-row--request-info .job-detail-field-row__value.detail-text-justified {
+    align-items: stretch;
+    text-align: justify;
+  }
+
   .rich-text-content p,
   .rich-text-content div {
     margin: 0;

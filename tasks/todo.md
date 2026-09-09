@@ -1,3 +1,18 @@
+## Round 1153 — Prod ops #3472 Park → İklim birim migrasyonu
+
+- **#3472:** Park ve Bahçeler Birimi → İklim Değişikliği ve Sıfır Atık Müdürlüğü (prod DB).
+  - 1 talep hedefi (71/2026), 1 görev (72/2026), 1 sosyal mesaj, 4 kullanıcı birincil birim, 1 ek atama temizlendi.
+  - Park birimi silindi; audit log eklendi.
+  - Script: `scripts/ops/migrate-park-bahceler-to-iklim-prod.sql`
+- Kod deploy yok (yalnızca prod SQL). Done: 1.
+
+## Round 1152 — Trello İşler 2 kart (#3469/#3470)
+
+- **#3469:** Birime Gelen Talebi İptal Et popup — VT-only yönetici onay hint.
+- **#3470:** Görevsiz vatandaş talebi iptali → Mesaj Onayı `to-send` (ReleasedAtUtc sıfır, Rejected+CancelReason, notifier gate).
+- **Atlandı:** #3471 (düşün/tasarım).
+- Push: `ca068097` (develop). Testtim deploy. Prod: yok. Done: 2.
+
 ## Round 1151 — Trello Doing 6 kart (#3460/#3462/#3464 reopen + #3465/#3466/#3468)
 
 - **#3462 reopen:** `.detail-text-justified` kaldırıldı (justify geri al).

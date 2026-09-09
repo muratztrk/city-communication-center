@@ -3,6 +3,7 @@ using CityCommunicationCenter.Application.Abstractions.SocialMedia;
 using CityCommunicationCenter.Application.Common;
 using CityCommunicationCenter.Application.Features.Admin;
 using CityCommunicationCenter.Application.Features.Attachments;
+using CityCommunicationCenter.Application.Features.Jobs;
 using CityCommunicationCenter.Application.Features.Social;
 using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Domain.Enums;
@@ -252,7 +253,7 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         int taskCount,
         CancellationToken cancellationToken)
     {
-        if (job.RequestType != JobRequestType.Citizen && job.SourceType != JobSourceType.SocialMessage)
+        if (!JobCitizenRequestHelper.IsCitizenRequest(job))
         {
             return;
         }

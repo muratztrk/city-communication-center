@@ -22,11 +22,16 @@ internal static class CitizenMessageApprovalNoteResolver
         Job job,
         CancellationToken cancellationToken)
     {
-        if (job.Status == JobStatus.Cancelled)
+        if (job.Status is JobStatus.Cancelled or JobStatus.Rejected)
         {
             if (!string.IsNullOrWhiteSpace(job.CancelReason))
             {
                 return job.CancelReason;
+            }
+
+            if (job.Status == JobStatus.Rejected)
+            {
+                return null;
             }
 
             return await dbContext.Tasks

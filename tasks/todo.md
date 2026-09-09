@@ -1,3 +1,13 @@
+## Round 1151 — Trello Doing 6 kart (#3460/#3462/#3464 reopen + #3465/#3466/#3468)
+
+- **#3462 reopen:** `.detail-text-justified` kaldırıldı (justify geri al).
+- **#3464 reopen:** `isCitizenOnlyLicense` İptal Et gizleme geri al.
+- **#3460 reopen:** Tamamla popup — VT-only hint, etiket üstü boşluksuz.
+- **#3468:** İptal popup — VT-only yönetici onay hint.
+- **#3466:** Tamamlama/iptal/durum/yönlendirme/onay notları 400 karakter FE+BE.
+- **#3465:** Dashboard full view müdür/sorumlu — Tüm Talepler + Gecikti mi?
+- Push: `61022bcd` (develop). Testtim deploy: SSH timeout (192.168.0.37). Prod: yok. Done: 6.
+
 ## Round 1139 — Trello Doing 6 kart (#3418–#3424)
 
 - **#3418:** Mobilde `/whatsapp` sayfasında sağ alt WA FAB gizlendi (`hideWhatsAppFabOnMobile`).

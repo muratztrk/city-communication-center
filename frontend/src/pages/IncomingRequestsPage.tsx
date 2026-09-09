@@ -1267,6 +1267,11 @@ export function IncomingRequestsPage() {
               )}
             </p>
             <label className="job-field">
+              {cancelModal.row.isCitizenRequest ? (
+                <p className="workflow-note-dialog__help !mt-0 mb-1.5">
+                  {t('tasks.actions.completeCitizenApprovalHint', 'Eklediğiniz not vatandaşa gönderilmek üzere yönetici onayına gönderilecektir.')}
+                </p>
+              ) : null}
               <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"

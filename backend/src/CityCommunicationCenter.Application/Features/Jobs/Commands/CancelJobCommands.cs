@@ -103,6 +103,11 @@ public sealed class CancelJobCommandHandler : ICommandHandler<CancelJobCommand, 
         job.Status = JobStatus.Cancelled;
         job.CancelReason = TurkishText.EnsureLeadingCapital(request.Reason);
         job.CompletionPercentage = 0;
+        if (JobCitizenRequestHelper.IsCitizenRequest(job))
+        {
+            // Görev oluşmadan talep iptali de Mesaj Onayı kuyruğuna düşmeli (#3470).
+            job.CitizenTerminalMessageReleasedAtUtc = null;
+        }
         job.UpdatedAtUtc = utcNow;
         job.UpdatedByUserId = actor.UserId;
 

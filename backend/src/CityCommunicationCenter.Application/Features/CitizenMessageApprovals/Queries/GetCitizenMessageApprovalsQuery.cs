@@ -50,7 +50,9 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
         IQueryable<Job> q = _dbContext.Jobs
             .AsNoTracking()
             .Where(j => j.TenantId == tenantId
-                && (j.Status == JobStatus.Completed || j.Status == JobStatus.Cancelled)
+                && (j.Status == JobStatus.Completed
+                    || j.Status == JobStatus.Cancelled
+                    || (j.Status == JobStatus.Rejected && j.CancelReason != null))
                 && _dbContext.SocialMessages.Any(m => m.TenantId == tenantId
                     && m.CitizenRequestNumber != null
                     && (whatsappOnly
@@ -105,7 +107,10 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
                                 .Where(b => b.TenantId == tenantId
                                     && b.EntityType == nameof(Job)
                                     && b.EntityId == j.JobId.ToString()
-                                    && (b.Action == "JobCompleted" || b.Action == "JobCancelled"))
+                                    && (b.Action == "JobCompleted"
+                                        || b.Action == "JobCancelled"
+                                        || b.Action == "JobOwnerRejected"
+                                        || b.Action == "JobTargetRejected"))
                                 .Select(b => (DateTimeOffset?)b.EventTimeUtc)
                                 .Max() ?? DateTimeOffset.MinValue))),
             };

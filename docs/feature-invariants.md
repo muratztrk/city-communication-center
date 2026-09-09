@@ -2884,9 +2884,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Yazışmaya Git terminal gizleme (#3236):** talep `Completed` / `Cancelled` ise buton yalnız
   `SystemAdmin`, `Operator`, `Manager` (müdür + Sorumlu) ve `CitizenRequestManager` (ek rol dahil)
   için görünür; `Staff` (Standart) ve diğer roller görmez.
-- **Görevi Tamamla / İptal vatandaş uyarısı (#3460/#3468):** yalnız vatandaş talebi görevinde
+- **Görevi Tamamla / İptal vatandaş uyarısı (#3460/#3468/#3469):** yalnız vatandaş talebi
+  görevinde (Görevlerim/Birimdeki Görevler) ve Birime Gelen Talebi İptal Et popup'ında
   Tamamlama Notu / İptal Nedeni etiketinin hemen üstünde yönetici onayı bilgi satırı görünür
   (üst boşluk yok).
+- **Birime Gelen iptal → Mesaj Onayı (#3470):** görev oluşmadan vatandaş talebi `CancelJob`
+  ile iptal edilince `CitizenTerminalMessageReleasedAtUtc` sıfırlanır; talep Mesaj Onayı
+  `to-send` listesinde kalır (Rejected + `CancelReason` da listelenir).
 - **Dashboard Gecikti mi? (#3467/#3465):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
   tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox; işaretliyken pie dilimleri
   yalnız `dashboard.chart.overdue`, Tüm Talepler popup'ları aynı filtreyi uygular.

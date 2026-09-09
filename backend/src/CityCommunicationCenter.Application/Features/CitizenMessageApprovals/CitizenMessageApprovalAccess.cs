@@ -96,7 +96,9 @@ internal static class CitizenMessageApprovalAccess
         var job = await query.FirstOrDefaultAsync(
             j => j.JobId == jobId
                 && j.TenantId == tenantId
-                && (j.Status == JobStatus.Completed || j.Status == JobStatus.Cancelled),
+                && (j.Status == JobStatus.Completed
+                    || j.Status == JobStatus.Cancelled
+                    || (j.Status == JobStatus.Rejected && j.CancelReason != null)),
             cancellationToken);
         if (job is null)
         {

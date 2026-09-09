@@ -93,6 +93,40 @@ public sealed class AfterHoursJobSmsNotifierTests
         Assert.DoesNotContain(gateway.Sends, send => send.Phone == "905552222222");
     }
 
+    [Fact]
+    public async Task NotifyJobCreatedAsync_external_unit_social_message_does_not_blast_vty()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db, crmPhone: "905559999999");
+        var gateway = new RecordingSmsGateway();
+        var notifier = CreateNotifier(db, gateway, afterHours: true);
+
+        var job = CreateJob(
+            JobRequestType.ExternalUnit,
+            JobSourceType.SocialMessage);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+
+        Assert.Single(gateway.Sends);
+        Assert.Equal("905551111111", gateway.Sends[0].Phone);
+        Assert.DoesNotContain(gateway.Sends, send => send.Phone == "905559999999");
+    }
+
+    [Fact]
+    public async Task NotifyJobCreatedAsync_citizen_request_includes_vty_with_phone()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db, crmPhone: "905559999999");
+        var gateway = new RecordingSmsGateway();
+        var notifier = CreateNotifier(db, gateway, afterHours: true);
+
+        var job = CreateJob();
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+
+        Assert.Equal(2, gateway.Sends.Count);
+        Assert.Contains(gateway.Sends, send => send.Phone == "905551111111");
+        Assert.Contains(gateway.Sends, send => send.Phone == "905559999999");
+    }
+
     private static AfterHoursJobSmsNotifier CreateNotifier(
         CityCommunicationCenterDbContext db,
         RecordingSmsGateway gateway,
@@ -106,7 +140,9 @@ public sealed class AfterHoursJobSmsNotifierTests
             NullLogger<AfterHoursJobSmsNotifier>.Instance);
     }
 
-    private static Job CreateJob() => new()
+    private static Job CreateJob(
+        JobRequestType requestType = JobRequestType.Citizen,
+        JobSourceType sourceType = JobSourceType.CitizenRequest) => new()
     {
         JobId = JobId,
         TenantId = TenantId,
@@ -114,12 +150,12 @@ public sealed class AfterHoursJobSmsNotifierTests
         Title = "Test",
         Description = "Test",
         Status = JobStatus.Active,
-        RequestType = JobRequestType.Citizen,
-        SourceType = JobSourceType.CitizenRequest,
+        RequestType = requestType,
+        SourceType = sourceType,
         Priority = "Normal",
     };
 
-    private static async Task SeedAsync(CityCommunicationCenterDbContext db)
+    private static async Task SeedAsync(CityCommunicationCenterDbContext db, string? crmPhone = null)
     {
         db.Tenants.Add(new Tenant
         {
@@ -145,7 +181,7 @@ public sealed class AfterHoursJobSmsNotifierTests
             User(DeputyId, RoleCode.Manager, "905552222222"),
             User(ResponsibleId, RoleCode.Staff, phone: null),
             User(StaffId, RoleCode.Staff, "905554444444", DepartmentId),
-            User(CrmId, RoleCode.CitizenRequestManager, phone: null));
+            User(CrmId, RoleCode.CitizenRequestManager, crmPhone));
 
         db.TenantSettings.Add(new TenantSetting
         {

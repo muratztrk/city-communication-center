@@ -183,8 +183,9 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
             }
         }
 
-        if (job.RequestType == JobRequestType.Citizen
-            || job.SourceType is JobSourceType.SocialMessage or JobSourceType.CitizenRequest or JobSourceType.EDevlet)
+        // VTY broadcast yalnız gerçek vatandaş talebinde; ExternalUnit + SocialMessage (Basın→hedef birim)
+        // dış birim yönlendirmesidir — tüm VTY'lere SMS gitmemeli (#3472 prod olayı, 2026-09-09).
+        if (job.RequestType == JobRequestType.Citizen)
         {
             var managers = await _dbContext.Users
                 .AsNoTracking()

@@ -1115,6 +1115,8 @@
     "tickets": "Linked Tickets",
     "ticketStatus": "Status",
     "replyPlaceholder": "Type a message...",
+    "searchInConversation": "Search messages…",
+    "searchNoResults": "No matching messages.",
     "replySent": "Message sent",
     "replyFailed": "Failed to send message",
     "sendInternalMessage": "Internal Only",

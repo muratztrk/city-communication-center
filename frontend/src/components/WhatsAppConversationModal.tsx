@@ -39,6 +39,7 @@ export function WhatsAppConversationModal({
           compactBubbles
           compactActions
           enableConversationPrint
+          enableConversationSearch
         />
       </section>
     </div>,

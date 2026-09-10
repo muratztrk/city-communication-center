@@ -1343,7 +1343,7 @@ function ConversationDetail({
                   markComposerBusy()
                   setChatSearch(value)
                 }}
-                placeholder={t('whatsapp.searchInConversation', 'Konuşmada ara…')}
+                placeholder={t('whatsapp.searchInConversation', 'Mesajlarda ara…')}
                 className="field-input w-full py-2 text-sm"
               />
             </div>

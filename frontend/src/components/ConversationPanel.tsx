@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Loader2, Paperclip, PenLine, Printer, Send } from 'lucide-react'
+import { Loader2, Paperclip, PenLine, Printer, Search, Send } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
@@ -15,7 +15,7 @@ import { ModalCloseButton } from './ui/modal-close-button'
 import { getLocale } from '../utils/localization'
 import { conversationSameDay, formatConversationDayDivider } from '../utils/conversationDayLabel'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
-import { filterVisibleConversationEntries, formatConversationDisplayContent } from '../utils/socialConversationContent'
+import { conversationEntryMatchesChatSearch, filterVisibleConversationEntries, formatConversationDisplayContent } from '../utils/socialConversationContent'
 import { SingleSelectDropdown } from './ui/single-select-dropdown'
 import {
   ATTACHMENT_FILE_ACCEPT,
@@ -27,6 +27,7 @@ import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { WhatsAppOutboundAttachmentChip } from './WhatsAppOutboundAttachmentChip'
 import { ConversationSenderHeader } from './ConversationSenderHeader'
+import { DeferredComposerInput } from './ui/DeferredComposerInput'
 import { DeferredComposerTextarea } from './ui/DeferredComposerTextarea'
 import { useAuth } from '../context/AuthContext'
 import { formatStaffSenderLabel } from '../utils/formatConversationSenderLabel'
@@ -65,6 +66,8 @@ interface ConversationPanelProps {
   hideHeader?: boolean
   /** Yazışmaya Git popup: X solunda Yazdır — tarayıcı yazdırma penceresi (#3431). */
   enableConversationPrint?: boolean
+  /** Yazışmaya Git popup: Yazdır yanında konuşma içi arama (#3472). */
+  enableConversationSearch?: boolean
 }
 
 function getInitials(value: string): string | null {
@@ -87,7 +90,7 @@ function DateDivider({ label }: { label: string }) {
   )
 }
 
-export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false, enableConversationPrint = false }: ConversationPanelProps) {
+export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone, citizenName, onClose, canReply = true, canSendPending = false, onReplySent, onAddMediaAsAttachment, enableWhatsAppFileAttachment = false, headerMode = 'default', showCloseButton = true, internalDepartmentOptions, internalDepartmentId = '', onInternalDepartmentIdChange, onSendInternal, sendingInternal = false, compactActions = false, compactBubbles = false, hideHeader = false, enableConversationPrint = false, enableConversationSearch = false }: ConversationPanelProps) {
   const { t, i18n } = useTranslation()
   const { user } = useAuth()
   const queryClient = useQueryClient()
@@ -102,6 +105,8 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
   const [pendingFileEditing, setPendingFileEditing] = useState(false)
   const [pendingFilePreviewUrl, setPendingFilePreviewUrl] = useState<string | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
+  const [showChatSearch, setShowChatSearch] = useState(false)
+  const [chatSearch, setChatSearch] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pendingFileClock = useMemo(
@@ -139,6 +144,16 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
     () => filterVisibleConversationEntries(conversationQuery.data ?? []),
     [conversationQuery.data],
   )
+  const pendingBadgeSearchLabel = useMemo(
+    () => t('whatsapp.pendingBadge', 'Beklemede'),
+    [t],
+  )
+  const normalizedChatSearch = chatSearch.trim().toLocaleLowerCase('tr')
+  const activeChatSearch = normalizedChatSearch.length >= 3 ? normalizedChatSearch : ''
+  const visibleEntries = useMemo(() => {
+    if (!activeChatSearch) return entries
+    return entries.filter(entry => conversationEntryMatchesChatSearch(entry, activeChatSearch, pendingBadgeSearchLabel))
+  }, [activeChatSearch, entries, pendingBadgeSearchLabel])
   const userQuickReplies = useMemo(() => {
     const metaTemplates = (whatsAppTemplatesQuery.data ?? [])
       .filter(template => template.isActive && template.channel === 'WhatsApp Meta')
@@ -428,6 +443,18 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
               <span className="text-xs font-semibold leading-none">{t('common.print', 'Yazdır')}</span>
             </button>
           ) : null}
+          {enableConversationSearch ? (
+            <button
+              type="button"
+              onClick={() => setShowChatSearch(current => !current)}
+              aria-label={t('common.search', 'Ara')}
+              aria-pressed={showChatSearch}
+              className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-white/80 hover:bg-white/15 hover:text-white ${showChatSearch ? 'bg-white/15 text-white' : ''}`}
+            >
+              <Search className="size-4 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              <span className="text-xs font-semibold leading-none">{t('common.search', 'Ara')}</span>
+            </button>
+          ) : null}
           {showCloseButton ? (
             <ModalCloseButton
               onClick={onClose}
@@ -438,16 +465,30 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
         </div>
       ) : null}
 
+      {enableConversationSearch && showChatSearch ? (
+        <div className="shrink-0 border-b border-slate-200 bg-white px-4 py-2">
+          <DeferredComposerInput
+            type="search"
+            value={chatSearch}
+            onChange={setChatSearch}
+            placeholder={t('whatsapp.searchInConversation', 'Mesajlarda ara…')}
+            className="field-input w-full py-2 text-sm"
+          />
+        </div>
+      ) : null}
+
       <div className="whatsapp-chat-bg min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-3">
         {conversationQuery.isLoading ? (
           <div className="flex h-full items-center justify-center">
             <Loader2 className="size-5 animate-spin text-slate-500" />
           </div>
-        ) : entries.length === 0 ? (
-          <p className="mt-8 text-center text-sm text-slate-500">{t('social.noMessages', 'Henüz mesaj yok')}</p>
+        ) : visibleEntries.length === 0 ? (
+          <p className="mt-8 text-center text-sm text-slate-500">
+            {activeChatSearch ? t('whatsapp.searchNoResults', 'Eşleşen mesaj yok.') : t('social.noMessages', 'Henüz mesaj yok')}
+          </p>
         ) : (
-          entries.map((entry, i) => {
-            const showDivider = i === 0 || !conversationSameDay(entry.sentAt, entries[i - 1].sentAt)
+          visibleEntries.map((entry, i) => {
+            const showDivider = i === 0 || !conversationSameDay(entry.sentAt, visibleEntries[i - 1].sentAt)
             return (
               <Fragment key={entry.entryId || i}>
                 {showDivider && <DateDivider label={dayLabel(entry.sentAt)} />}

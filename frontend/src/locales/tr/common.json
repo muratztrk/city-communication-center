@@ -1122,6 +1122,8 @@
     "tickets": "Bağlı Talepler",
     "ticketStatus": "Durum",
     "replyPlaceholder": "Mesaj yazın...",
+    "searchInConversation": "Mesajlarda ara…",
+    "searchNoResults": "Eşleşen mesaj yok.",
     "replySent": "Mesaj gönderildi",
     "replyFailed": "Mesaj gönderilemedi",
     "sendInternalMessage": "Sadece Kurum İçi İlet",

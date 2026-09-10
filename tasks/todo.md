@@ -1,8 +1,9 @@
 ## Round 1154 — Mesai dışı VTY SMS toplu gönderim düzeltmesi (#3472)
 
 - **Kök neden:** `ExternalUnit` + `SocialMessage` talep oluşturulunca tüm VTY'lere mesai dışı SMS (prod 17:31, talep 84/2026).
-- **Fix:** `AfterHoursJobSmsNotifier` — VTY broadcast yalnız `JobRequestType.Citizen`.
-- Test: 2 yeni unit test. `feature-invariants.md` güncellendi.
+- **Fix-1:** VTY broadcast yalnız `JobRequestType.Citizen` (ExternalUnit hariç) — prod `23f7c35f`.
+- **Fix-2:** VTY SMS yalnız hedef birimde `CanWorkInDepartment` olan VTY'lere (tenant'taki tüm VTY değil).
+- Test: 7 unit test. `UserRoleAccess.IsCitizenRequestManagerInDepartmentAsync` eklendi.
 
 ## Round 1153 — Prod ops #3472 Park → İklim birim migrasyonu
 

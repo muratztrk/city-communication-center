@@ -2897,7 +2897,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (üst boşluk yok).
 - **Birime Gelen iptal → Mesaj Onayı (#3470):** görev oluşmadan vatandaş talebi `CancelJob`
   ile iptal edilince `CitizenTerminalMessageReleasedAtUtc` sıfırlanır; talep Mesaj Onayı
-  `to-send` listesinde kalır (Rejected + `CancelReason` da listelenir).
+  `to-send` listesinde kalır (Rejected + `CancelReason` da listelenir). Detay popup
+  `Vatandaşa Giden Mesaj` alanı yine audit release + iletilmiş kanal kaydından dolar (#3504);
+  `ReleasedAtUtc` null olsa da gösterim engellenmez.
 - **Dashboard Gecikti mi? (#3467/#3465):** Vatandaş Paneli, Anasayfa-Birimler ve müdür/sorumlu
   tam Anasayfa (`full`) dönem satırında Tüm Talepler yanında checkbox; işaretliyken pie dilimleri
   yalnız `dashboard.chart.overdue`, Tüm Talepler popup'ları aynı filtreyi uygular.
@@ -2918,9 +2920,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   siyah; `Vatandaşa Giden Mesaj` yalnız iptal notundan farklıysa kırmızı, aynıysa siyah.
 - **İptal görevsiz iptal eden (#3496):** Süreç `İptal Tarihi` başlığının sağında parantez içinde
   iptal eden (`statusActorDisplayName`) kırmızı (`displayMetaOnLabel`).
-- **Süreç tamamlanma/iptal tarihi görevi yapan (#3499):** `Tamamlanma Tarihi` / `İptal Tarihi`
-  değerinin yanında parantez içinde görevi yapan(lar) — tamamlanma yeşil, iptal kırmızı
-  (`displayMeta` + `displayMetaTone`).
+- **Süreç tamamlanma/iptal tarihi görevi yapan (#3499):** görev varken `Tamamlanma Tarihi` /
+  `İptal Tarihi` değerinin yanında parantez içinde görev atanan(lar) — tamamlanma yeşil,
+  iptal kırmızı (`displayMeta` + `displayMetaTone`). Görevsiz iptal VT'de iptal eden adı
+  başlık satırında kalır (#3496, `displayMetaOnLabel`).
 - **Mobil detay popup (#3230/#3228/#3229/#3231/#3242):** Talep/Görev Bilgileri etiket+değer aynı satır
   (değer sağa, punto `0.78rem`). Vatandaş Adı / Telefon No slash'ı mobilde yok, etiketler alt alta.
   Banner 1. satır (`.page-kicker`) `0.65rem`, 2. satır (`.page-title`) `0.82rem` — kicker title'dan

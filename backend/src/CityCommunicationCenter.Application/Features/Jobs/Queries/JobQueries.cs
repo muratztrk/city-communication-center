@@ -649,18 +649,20 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     .OrderByDescending(m => m.ReceivedAtUtc)
                     .FirstOrDefault();
 
-            if (linkedMessage is not null && eligible.CitizenTerminalMessageReleasedAtUtc.HasValue)
+            // #3504: CancelJob ReleasedAtUtc sıfırlasa bile iletilmiş mesaj detayda görünür (audit release).
+            if (linkedMessage is not null)
             {
-                var terminalSmsSent = linkedMessage.Channel == SocialChannel.Phone
+                var smsResponse = linkedMessage.Channel == SocialChannel.Phone
                     && linkedMessage.RespondedAtUtc.HasValue
-                    && linkedMessage.RespondedAtUtc >= eligible.CitizenTerminalMessageReleasedAtUtc;
+                    ? linkedMessage.ResponseContent
+                    : null;
                 var note = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
                     _dbContext,
                     tenantId,
                     eligible,
                     linkedMessage.Channel,
                     linkedMessage.SocialMessageId,
-                    terminalSmsSent ? linkedMessage.ResponseContent : null,
+                    smsResponse,
                     cancellationToken);
                 if (!string.IsNullOrWhiteSpace(note))
                 {

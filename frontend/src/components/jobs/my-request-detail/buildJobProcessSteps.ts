@@ -487,12 +487,19 @@ export function buildJobProcessSteps(
     })
   } else if (detail.status === 'Cancelled' || detail.status === 'Rejected') {
     const cancelledWithoutTasks = isCitizenRequestJob(detail) && (detail.tasks?.length ?? 0) === 0
+    const cancelAssigneeNames = [...new Set(
+      (detail.tasks ?? [])
+        .map(task => task.assignedUserDisplayName)
+        .filter((name): name is string => Boolean(name?.trim())),
+    )].join(', ')
     steps.push({
       id: 'cancelDate',
       label: t('jobs.detail.cancelledAt', 'İptal Tarihi'),
       displayValue: formatDateTime(detail.updatedAtUtc ?? null, locale),
       dateTimeUtc: detail.updatedAtUtc ?? null,
-      displayMeta: detail.statusActorDisplayName?.trim() || undefined,
+      displayMeta: cancelledWithoutTasks
+        ? detail.statusActorDisplayName?.trim() || undefined
+        : cancelAssigneeNames || detail.statusActorDisplayName?.trim() || undefined,
       displayMetaOnLabel: cancelledWithoutTasks,
     })
   }

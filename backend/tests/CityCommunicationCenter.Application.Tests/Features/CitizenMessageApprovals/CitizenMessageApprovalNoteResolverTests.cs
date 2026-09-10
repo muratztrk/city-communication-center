@@ -300,6 +300,50 @@ public sealed class CitizenMessageApprovalNoteResolverTests
         Assert.Equal("operator notu", outboundAfterSend);
     }
 
+    [Fact]
+    public async Task WhatsApp_outbound_resolves_from_audit_when_released_at_cleared_on_cancel()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var socialMessageId = Guid.NewGuid();
+        var releasedAt = DateTimeOffset.UtcNow.AddMinutes(-20);
+        var terminalBody = "VT-2026-36 no'lu Başlık talebinizin durumu \"İptal\".\n\nİptal Notu: iptal nedeni";
+
+        db.AddRange(
+            new Job
+            {
+                JobId = jobId,
+                TenantId = TenantId,
+                Title = "Çağrı",
+                Description = "Test",
+                OwnerDepartmentId = DepartmentId,
+                Status = JobStatus.Cancelled,
+                RequestType = JobRequestType.Citizen,
+                SourceType = JobSourceType.SocialMessage,
+                CitizenTerminalMessageReleasedAtUtc = null,
+                CancelReason = "iptal nedeni",
+                CompletionPercentage = 0,
+            },
+            BuildAudit(jobId, "CitizenMessageApprovalReleased", "yonetici notu", releasedAt),
+            new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = socialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = terminalBody,
+                SentAt = releasedAt.AddMinutes(2),
+                DeliveryStatus = ConversationDeliveryStatus.Sent,
+                DeliveryStatusUpdatedAtUtc = releasedAt.AddMinutes(2),
+            });
+        await db.SaveChangesAsync();
+
+        var job = await db.Jobs.SingleAsync(j => j.JobId == jobId);
+        var outbound = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+            db, TenantId, job, SocialChannel.WhatsApp, socialMessageId, responseContent: null, CancellationToken.None);
+
+        Assert.Equal("iptal nedeni", outbound);
+    }
+
     private static Job BuildCompletedJob(Guid jobId, DateTimeOffset releasedAt) => new()
     {
         JobId = jobId,

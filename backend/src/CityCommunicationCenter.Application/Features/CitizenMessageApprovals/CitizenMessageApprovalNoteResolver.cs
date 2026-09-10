@@ -196,41 +196,49 @@ internal static class CitizenMessageApprovalNoteResolver
             }
 
             var releasedAt = firstReleasedAt.Value;
-            var outboundContents = await dbContext.ConversationEntries.AsNoTracking()
+            var outboundEntries = await dbContext.ConversationEntries.AsNoTracking()
                 .Where(entry => entry.SocialMessageId == socialMessageId
                     && entry.Direction == ConversationEntryDirection.Outbound
-                    && (entry.DeliveryStatus == ConversationDeliveryStatus.Sent
+                    && entry.SentAt >= releasedAt)
+                .Select(entry => new
+                {
+                    entry.Content,
+                    entry.DeliveryStatus,
+                    entry.DeliveryStatusUpdatedAtUtc,
+                    entry.SentAt,
+                })
+                .ToListAsync(cancellationToken);
+
+            var hasPendingTerminalAfterRelease = outboundEntries.Exists(entry =>
+                entry.DeliveryStatus == ConversationDeliveryStatus.Pending
+                && IsTerminalCitizenStatusOutboundBody(entry.Content));
+
+            foreach (var entry in outboundEntries
+                .Where(entry => (entry.DeliveryStatus == ConversationDeliveryStatus.Sent
                         || entry.DeliveryStatus == ConversationDeliveryStatus.Delivered
                         || entry.DeliveryStatus == ConversationDeliveryStatus.Read)
                     && entry.DeliveryStatusUpdatedAtUtc != null
                     && entry.DeliveryStatusUpdatedAtUtc >= releasedAt)
                 .OrderByDescending(entry => entry.DeliveryStatusUpdatedAtUtc)
-                .ThenByDescending(entry => entry.SentAt)
-                .Select(entry => entry.Content)
-                .ToListAsync(cancellationToken);
-
-            if (outboundContents.Count == 0)
+                .ThenByDescending(entry => entry.SentAt))
             {
-                return null;
-            }
-
-            foreach (var content in outboundContents)
-            {
-                if (!IsTerminalCitizenStatusOutboundBody(content))
+                if (!IsTerminalCitizenStatusOutboundBody(entry.Content))
                 {
                     continue;
                 }
 
-                var transmitted = ExtractTrailingTerminalNote(content);
+                var transmitted = ExtractTrailingTerminalNote(entry.Content);
                 if (!string.IsNullOrWhiteSpace(transmitted))
                 {
                     return transmitted;
                 }
             }
 
-            if (!string.IsNullOrWhiteSpace(lastPostReleaseEdit))
+            // Terminal WA hâlâ Beklemede iken (veya iletilmemişken) alan boş kalır (#VT-2026-62).
+            // Sonraki otomatik/basın yanıtları veya release sonrası not düzenlemeleri bu alanı doldurmaz.
+            if (hasPendingTerminalAfterRelease)
             {
-                return StripAutoTemplateNoteLabel(lastPostReleaseEdit);
+                return null;
             }
 
             return null;

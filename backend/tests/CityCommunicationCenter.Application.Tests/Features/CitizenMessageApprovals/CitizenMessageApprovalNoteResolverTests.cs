@@ -192,6 +192,63 @@ public sealed class CitizenMessageApprovalNoteResolverTests
     }
 
     [Fact]
+    public async Task WhatsApp_pending_terminal_with_other_delivered_messages_has_no_outbound_note()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var socialMessageId = Guid.NewGuid();
+        var releasedAt = DateTimeOffset.Parse("2026-09-10T07:03:18.175332+00:00");
+        var pendingTerminalBody = """
+            Değerli vatandaşımız,
+
+            VT-2026-62 no'lu Talep talebinizin durumu "Tamamlandı".
+
+            Veteriner İşleri Müdürlüğü tarafından sonuçlandırılmıştır, saygılarımızla.
+
+            Yapılan İş: Patili dostumuz alınmıştır. İyi günler dileriz.
+            """;
+        var pressReplyBody = """
+            Değerli vatandaşımız,
+
+            Talebiniz Tire Belediyesi’nin ilgili birimi tarafından cevaplandırılmıştır. Talebinizin detayları hakkında bilgi almak için bizimle iletişime geçebilirsiniz.
+
+            Saygılarımızla
+            """;
+
+        db.AddRange(
+            BuildCompletedJob(jobId, releasedAt),
+            BuildCompletedTask(jobId, Guid.NewGuid(), "Patili dostumuz alınmıştır. İyi günler dileriz."),
+            BuildAudit(jobId, "CitizenMessageApprovalReleased", "Patili dostumuz alınmıştır. İyi günler dileriz.", releasedAt),
+            new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = socialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = pendingTerminalBody,
+                SentAt = releasedAt,
+                DeliveryStatus = ConversationDeliveryStatus.Pending,
+                DeliveryStatusUpdatedAtUtc = releasedAt,
+            },
+            new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = socialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = pressReplyBody,
+                SentAt = releasedAt.AddMinutes(2),
+                DeliveryStatus = ConversationDeliveryStatus.Delivered,
+                DeliveryStatusUpdatedAtUtc = releasedAt.AddMinutes(2),
+            });
+        await db.SaveChangesAsync();
+
+        var job = await db.Jobs.SingleAsync(j => j.JobId == jobId);
+        var outbound = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+            db, TenantId, job, SocialChannel.WhatsApp, socialMessageId, responseContent: null, CancellationToken.None);
+
+        Assert.Null(outbound);
+    }
+
+    [Fact]
     public async Task WhatsApp_outbound_hidden_until_terminal_message_transmitted_after_release()
     {
         await using var db = CreateDbContext();

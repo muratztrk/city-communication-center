@@ -1,3 +1,9 @@
+## Round 1155 — Trello Doing 2 kart (#3472/#3473)
+
+- **#3472:** Yazışmaya Git popup — Yazdır yanında Ara; konuşma içi arama (WhatsApp kalıbı).
+- **#3473:** WhatsApp konuşma arama placeholder `Mesajlarda ara…`.
+- Push + prod deploy. Done: 2.
+
 ## Round 1154 — Mesai dışı VTY SMS toplu gönderim düzeltmesi (#3472)
 
 - **Kök neden:** `ExternalUnit` + `SocialMessage` talep oluşturulunca tüm VTY'lere mesai dışı SMS (prod 17:31, talep 84/2026).

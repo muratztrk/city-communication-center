@@ -2907,6 +2907,20 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `citizenAutoReplyTemplates` son kaydedilene döner. `{GönderilenBirim}` ek textarea Enter ile
   satır sonu alır (`extract` trailing `\\n` yutmaz; not token öncesi `\\n\\n` veya tek boşluk ayrılır, #3250).
   `{Tamamlama Notu}` / `{İptal Notu}` chip kalır, not-sonrası textarea yoktur.
+- **WA zaman ayarlı şablon tekrar (#3500):** `TimedReplyEnabled` şablonlarda otomatik cevap
+  yinelenme kontrolü takvim günü değil aktif başlama–bitiş **periyodu** ile yapılır
+  (`WhatsAppAutoReplyDuplicateGuard.GetDuplicateCheckWindow`); gece yarısını aşan aralıklar
+  desteklenir, bir sonraki periyotta yeniden bir kez gönderilebilir.
+- **Görev İptal Notu Onaylayan (#3488):** detay popup Görev Bilgileri'nde iptal görevlerde
+  `İptal Notu` satırının üstünde `İptal Notu Onaylayan` (`citizenMessageApproverDisplayName`,
+  Mesaj Onayı release audit actor).
+- **İptal görevsiz talep not renkleri (#3490):** görev oluşmamış iptal talebinde `İptal Notu`
+  siyah; `Vatandaşa Giden Mesaj` yalnız iptal notundan farklıysa kırmızı, aynıysa siyah.
+- **İptal görevsiz iptal eden (#3496):** Süreç `İptal Tarihi` başlığının sağında parantez içinde
+  iptal eden (`statusActorDisplayName`) kırmızı (`displayMetaOnLabel`).
+- **Süreç tamamlanma/iptal tarihi görevi yapan (#3499):** `Tamamlanma Tarihi` / `İptal Tarihi`
+  değerinin yanında parantez içinde görevi yapan(lar) — tamamlanma yeşil, iptal kırmızı
+  (`displayMeta` + `displayMetaTone`).
 - **Mobil detay popup (#3230/#3228/#3229/#3231/#3242):** Talep/Görev Bilgileri etiket+değer aynı satır
   (değer sağa, punto `0.78rem`). Vatandaş Adı / Telefon No slash'ı mobilde yok, etiketler alt alta.
   Banner 1. satır (`.page-kicker`) `0.65rem`, 2. satır (`.page-title`) `0.82rem` — kicker title'dan

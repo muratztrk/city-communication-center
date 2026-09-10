@@ -300,22 +300,21 @@ export function MyRequestTaskDetailsSection({
                           // Etiket + değer yeşil (card #1638).
                           tone: 'completion' as const,
                         }]
-                      : isCancelledTask && citizenMessageApproverDisplayName?.trim()
-                        ? [{
-                            label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
-                            value: citizenMessageApproverDisplayName.trim(),
-                          }, {
-                            label: t('tasks.detail.cancelNote', 'İptal Notu'),
-                            value: cancelNoteDisplay,
-                            tone: 'cancel' as const,
-                          }]
-                        : isCancelledTask
-                          ? [{
+                      : isCancelledTask
+                        ? [
+                            ...(citizenMessageApproverDisplayName?.trim()
+                              ? [{
+                                  label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
+                                  value: citizenMessageApproverDisplayName.trim(),
+                                }]
+                              : []),
+                            {
                               label: t('tasks.detail.cancelNote', 'İptal Notu'),
                               value: cancelNoteDisplay,
                               tone: 'cancel' as const,
-                            }]
-                          : []),
+                            },
+                          ]
+                        : []),
                     ...(isCitizenRequestJob(detail)
                       && outboundPlain
                       && (isCompletedTask || isCancelledTask)

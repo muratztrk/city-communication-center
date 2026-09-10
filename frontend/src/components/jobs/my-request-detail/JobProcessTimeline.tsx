@@ -267,15 +267,19 @@ export function JobProcessTimeline({
                             : 'text-slate-900'
           const displayMetaTone = approvalPendingOverdue
             ? 'text-red-600'
-            : statusUseBlue
-              ? 'text-sky-500'
-              : statusUseOrange
-                ? 'text-[#f97316]'
-                : step.state === 'pending'
+            : step.id === 'cancelDate'
+              ? 'text-red-600'
+              : step.id === 'completionDate'
+                ? 'text-emerald-600'
+                : statusUseBlue
                   ? 'text-sky-500'
-                  : step.state === 'current'
+                  : statusUseOrange
                     ? 'text-[#f97316]'
-                    : 'text-emerald-600'
+                    : step.state === 'pending'
+                      ? 'text-sky-500'
+                      : step.state === 'current'
+                        ? 'text-[#f97316]'
+                        : 'text-emerald-600'
           const approvalValue = approvalPendingOverdue
             ? `${step.displayValue} (${t('jobs.statusLabel.overdue', 'Geciken')})`
             : step.displayValue
@@ -308,7 +312,12 @@ export function JobProcessTimeline({
                       {statusActorName ? ` (${statusActorName})` : ''}
                     </span>
                   ) : (
-                    step.label
+                    <span className="inline-flex flex-wrap items-center gap-x-1">
+                      {step.label}
+                      {step.displayMetaOnLabel && step.displayMeta ? (
+                        <span className="text-red-600">({step.displayMeta})</span>
+                      ) : null}
+                    </span>
                   )}
                 </div>
                 {step.id === 'status' && statusContent ? (
@@ -336,11 +345,18 @@ export function JobProcessTimeline({
                   <div className="mt-0.5">{dueDateContent}</div>
                 ) : (
                   <ProcessStepDateValue
-                    step={inProgressAssigneeSuffix
-                      ? { ...step, displayValue: `${approvalValue}${inProgressAssigneeSuffix}` }
-                      : approvalPendingOverdue
-                        ? { ...step, displayValue: approvalValue }
-                        : step}
+                    step={(() => {
+                      const base = step.displayMetaOnLabel
+                        ? { ...step, displayMeta: undefined }
+                        : step
+                      if (inProgressAssigneeSuffix) {
+                        return { ...base, displayValue: `${approvalValue}${inProgressAssigneeSuffix}` }
+                      }
+                      if (approvalPendingOverdue) {
+                        return { ...base, displayValue: approvalValue }
+                      }
+                      return base
+                    })()}
                     locale={locale}
                     metaTone={displayMetaTone}
                     className={`job-process-timeline__step-value job-process-timeline__datetime-value mt-0.5 font-semibold ${valueTone}`}

@@ -74,6 +74,8 @@ export interface JobProcessStep {
   label: string
   displayValue: string
   displayMeta?: string
+  /** Görevsiz VT iptalinde iptal eden adı başlık satırında (#3496). */
+  displayMetaOnLabel?: boolean
   dateTimeUtc?: string | null
   /** Terminal Yapılmakta aralığının ikinci zamanı (date • time - date • time, #2773/#2774). */
   endDateTimeUtc?: string | null
@@ -484,12 +486,14 @@ export function buildJobProcessSteps(
       displayMeta: completionActor,
     })
   } else if (detail.status === 'Cancelled' || detail.status === 'Rejected') {
+    const cancelledWithoutTasks = isCitizenRequestJob(detail) && (detail.tasks?.length ?? 0) === 0
     steps.push({
       id: 'cancelDate',
       label: t('jobs.detail.cancelledAt', 'İptal Tarihi'),
       displayValue: formatDateTime(detail.updatedAtUtc ?? null, locale),
       dateTimeUtc: detail.updatedAtUtc ?? null,
       displayMeta: detail.statusActorDisplayName?.trim() || undefined,
+      displayMetaOnLabel: cancelledWithoutTasks,
     })
   }
 

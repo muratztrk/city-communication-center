@@ -335,6 +335,12 @@ export function MyRequestDetailMainCard({
   })
   const showCancelledWithoutTaskNotes = isCancelledCitizenRequestWithoutTasks(detail)
   const cancelledWithoutTaskOutbound = (citizenOutboundMessage ?? detail.citizenOutboundMessage ?? '').trim()
+  const cancelledWithoutTaskNote = detail.cancelReason?.trim() || '—'
+  const cancelledOutboundDiffersFromNote = Boolean(
+    cancelledWithoutTaskOutbound
+    && cancelledWithoutTaskNote !== '—'
+    && cancelledWithoutTaskOutbound.localeCompare(cancelledWithoutTaskNote, 'tr', { sensitivity: 'accent' }) !== 0,
+  )
   const trailingInfoRows = [
     ...(infoExtraTrailingRows ?? []),
     {
@@ -350,15 +356,15 @@ export function MyRequestDetailMainCard({
           {
             label: t('tasks.detail.cancelNote', 'İptal Notu'),
             value: (
-              <span className="text-red-600">
-                {detail.cancelReason?.trim() || '—'}
+              <span className="text-slate-900">
+                {cancelledWithoutTaskNote}
               </span>
             ),
           },
           {
             label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
             value: (
-              <span className="text-red-600">
+              <span className={cancelledOutboundDiffersFromNote ? 'text-red-600' : 'text-slate-900'}>
                 {cancelledWithoutTaskOutbound || '—'}
               </span>
             ),
@@ -580,7 +586,8 @@ export function MyRequestDetailMainCard({
               </span>
             )}
             statusActorName={
-              shouldShowJobStatusActorName(detail) && !isCancelledCitizenRequestWithoutTasks(detail)
+              shouldShowJobStatusActorName(detail)
+              || (isCancelledCitizenRequestWithoutTasks(detail) && detail.statusActorDisplayName?.trim())
                 ? detail.statusActorDisplayName
                 : null
             }

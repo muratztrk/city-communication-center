@@ -82,22 +82,27 @@ public sealed class WhatsAppTemplateAutoReplyService : IWhatsAppTemplateAutoRepl
 
                 foreach (var template in selectedTemplates)
                 {
-                    var (dayStartUtc, dayEndUtc) = WhatsAppAutoReplyDuplicateGuard.GetLocalDayUtcBounds(
+                    var (windowStartUtc, windowEndUtc) = WhatsAppAutoReplyDuplicateGuard.GetDuplicateCheckWindow(
+                        template,
                         receivedAtUtc,
                         IstanbulTimeZone);
 
                     var outboundContent = CitizenOutboundGreeting.Ensure(template.Content);
-                    var alreadySentToday = await dbContext.ConversationEntries
+                    var outboundEntries = await dbContext.ConversationEntries
                         .AsNoTracking()
-                        .AnyAsync(
-                            e => e.SocialMessageId == socialMessageId
-                                 && e.Direction == ConversationEntryDirection.Outbound
-                                 && (e.Content == template.Content || e.Content == outboundContent)
-                                 && e.SentAt >= dayStartUtc
-                                 && e.SentAt < dayEndUtc,
-                            CancellationToken.None);
+                        .Where(e => e.SocialMessageId == socialMessageId
+                            && e.Direction == ConversationEntryDirection.Outbound)
+                        .Select(e => new { e.SentAt, e.Content })
+                        .ToListAsync(CancellationToken.None);
 
-                    if (alreadySentToday)
+                    var alreadySentInWindow = WhatsAppAutoReplyDuplicateGuard.WasTemplateSentInWindow(
+                        outboundEntries.Select(e => (e.SentAt, e.Content)),
+                        template.Content,
+                        outboundContent,
+                        windowStartUtc,
+                        windowEndUtc);
+
+                    if (alreadySentInWindow)
                         continue;
 
                     if (template.ReplyDelaySecs > 0)

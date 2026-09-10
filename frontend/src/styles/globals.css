@@ -7623,9 +7623,10 @@
     bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap));
   }
 
-  /* VT-only lisans + kaydır FAB yok: WhatsApp balonu scroll FAB hizasında (#3483). */
-  .fixed-fab-stack--vt-only:not(:has(.scroll-fab-button)) > .ccc-floating-fab:first-child {
-    margin-left: calc(var(--scroll-fab-size) + var(--fab-stack-gap));
+  /* VT-only lisans + kaydır FAB yok: harita sayfasındaki dikey FAB hizası (#3483). */
+  .fixed-fab-stack--vt-only:not(:has(.scroll-fab-button)) {
+    flex-direction: column;
+    align-items: flex-end;
   }
 
   .conversation-chat-search::-webkit-search-cancel-button {

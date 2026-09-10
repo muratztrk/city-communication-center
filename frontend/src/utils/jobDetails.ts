@@ -1,6 +1,15 @@
 import type { JobDetail, JobDepartmentInfo } from '../types/platform'
 import { isCitizenRequestJob } from './citizenRequests'
 
+/** VT iptal + henüz görev yok — Talep Bilgileri / Süreç özel satırları (#3496/#3497). */
+export function isCancelledCitizenRequestWithoutTasks(
+  job: Pick<JobDetail, 'status' | 'tasks' | 'requestType'>,
+): boolean {
+  return isCitizenRequestJob(job)
+    && (job.tasks?.length ?? 0) === 0
+    && (job.status === 'Cancelled' || job.status === 'Rejected')
+}
+
 function sortJobDepartments(departments: JobDepartmentInfo[]) {
   const order: Record<string, number> = { Owner: 0, Target: 1, Coordinating: 2 }
   return [...departments].sort((left, right) => (order[left.role] ?? 9) - (order[right.role] ?? 9))

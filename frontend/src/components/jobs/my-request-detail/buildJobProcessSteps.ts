@@ -448,6 +448,7 @@ export function buildJobProcessSteps(
   if (
     (detail.status === 'Completed' || detail.status === 'Cancelled' || detail.status === 'Rejected')
     && !isRecoveredTimeline(detail)
+    && (detail.tasks?.length ?? 0) > 0
   ) {
     const previousUtc = [...steps].reverse().find(step => Boolean(step.dateTimeUtc))?.dateTimeUtc
       ?? detail.createdAtUtc
@@ -470,11 +471,17 @@ export function buildJobProcessSteps(
   }
 
   if (detail.status === 'Completed') {
+    const completionActor = [...new Set(
+      (detail.tasks ?? [])
+        .map(task => task.assignedUserDisplayName)
+        .filter((name): name is string => Boolean(name?.trim())),
+    )].join(', ') || detail.statusActorDisplayName?.trim() || undefined
     steps.push({
       id: 'completionDate',
       label: t('jobs.detail.completedAt', 'Tamamlanma Tarihi'),
       displayValue: formatDateTime(detail.completedAtUtc ?? null, locale),
       dateTimeUtc: detail.completedAtUtc ?? null,
+      displayMeta: completionActor,
     })
   } else if (detail.status === 'Cancelled' || detail.status === 'Rejected') {
     steps.push({
@@ -482,6 +489,7 @@ export function buildJobProcessSteps(
       label: t('jobs.detail.cancelledAt', 'İptal Tarihi'),
       displayValue: formatDateTime(detail.updatedAtUtc ?? null, locale),
       dateTimeUtc: detail.updatedAtUtc ?? null,
+      displayMeta: detail.statusActorDisplayName?.trim() || undefined,
     })
   }
 

@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next'
 import type { ReactNode } from 'react'
 import { ChannelIcon } from '../../ui/channel-icon'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
-import { formatJobDestinationsWithAssignees } from '../../../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, isCancelledCitizenRequestWithoutTasks } from '../../../utils/jobDetails'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
 import { shouldShowJobProjectField, isInternalProjectJob } from '../../../utils/jobProjectLabel'
 import {
@@ -149,6 +149,9 @@ export function buildMyRequestDetailFields(
       ...(useMyRequestsFieldLayout
         ? [
             { label: destinationFieldLabel(detail, t, { splitLayout: true }), value: destinationValue },
+            ...(isCancelledCitizenRequestWithoutTasks(detail) && detail.statusActorDisplayName?.trim()
+              ? [{ label: t('jobs.detail.cancelledBy', 'Talebi İptal Eden'), value: detail.statusActorDisplayName.trim() }]
+              : []),
             ...(!isExternal && assigneeNames.length > 0
               ? [{ label: t('jobs.detail.assignee', 'Görevi Yapan'), value: assigneeNames.join(', ') }]
               : []),
@@ -156,7 +159,11 @@ export function buildMyRequestDetailFields(
         : [{
             label: destinationFieldLabel(detail, t, { includeAssignee }),
             value: destinationValue,
-          }]),
+          },
+          ...(isCancelledCitizenRequestWithoutTasks(detail) && detail.statusActorDisplayName?.trim()
+            ? [{ label: t('jobs.detail.cancelledBy', 'Talebi İptal Eden'), value: detail.statusActorDisplayName.trim() }]
+            : []),
+          ]),
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
       ...(showCitizenRequestLabel
         ? [{ label: t('social.label', 'Talep Etiketi'), value: citizenSourceMessage?.category?.trim() || '—' }]

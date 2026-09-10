@@ -1925,6 +1925,7 @@
       "targetManagerApprovalDate": "Target Unit Manager Approval Date",
       "completedAt": "Completion Date",
       "cancelledAt": "Cancellation Date",
+      "cancelledBy": "Cancelled By",
       "citizenRequestNo": "Citizen Request No",
       "citizenNamePhone": "Citizen Name / Phone",
       "citizenAddressInfo": "Citizen Address",

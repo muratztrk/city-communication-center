@@ -1967,6 +1967,7 @@
       "targetManagerApprovalDate": "Hedef Birim Yöneticisi Onay Tarihi",
       "completedAt": "Tamamlanma Tarihi",
       "cancelledAt": "İptal Tarihi",
+      "cancelledBy": "Talebi İptal Eden",
       "citizenRequestNo": "Vatandaş Talep No",
       "citizenNamePhone": "Vatandaş Adı / Telefon No",
       "citizenAddressInfo": "Vatandaş Adres Bilgisi",

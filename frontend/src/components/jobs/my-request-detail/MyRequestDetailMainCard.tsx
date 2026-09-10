@@ -15,7 +15,7 @@ import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, RequestTag, SocialMessage } from '../../../types/platform'
 import { useAuth } from '../../../context/AuthContext'
 import { useWeekendSlaDueDateMin } from '../../../hooks/useWeekendSlaDueDateMin'
-import { shouldShowJobStatusActorName, formatJobAssigneeNames } from '../../../utils/jobDetails'
+import { shouldShowJobStatusActorName, formatJobAssigneeNames, isCancelledCitizenRequestWithoutTasks } from '../../../utils/jobDetails'
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
 import { JobProcessTimeline, TimelineDateTimeValue } from './JobProcessTimeline'
@@ -333,9 +333,7 @@ export function MyRequestDetailMainCard({
     completedAtUtc: detail.completedAtUtc,
     updatedAtUtc: detail.updatedAtUtc,
   })
-  const showCancelledWithoutTaskNotes = isCitizenRequestJob(detail)
-    && detail.tasks.length === 0
-    && (detail.status === 'Cancelled' || detail.status === 'Rejected')
+  const showCancelledWithoutTaskNotes = isCancelledCitizenRequestWithoutTasks(detail)
   const cancelledWithoutTaskOutbound = (citizenOutboundMessage ?? detail.citizenOutboundMessage ?? '').trim()
   const trailingInfoRows = [
     ...(infoExtraTrailingRows ?? []),
@@ -581,7 +579,11 @@ export function MyRequestDetailMainCard({
                 {statusLabel ?? statusContent}
               </span>
             )}
-            statusActorName={shouldShowJobStatusActorName(detail) ? detail.statusActorDisplayName : null}
+            statusActorName={
+              shouldShowJobStatusActorName(detail) && !isCancelledCitizenRequestWithoutTasks(detail)
+                ? detail.statusActorDisplayName
+                : null
+            }
             inProgressAssigneeName={formatJobAssigneeNames(detail)}
             statusNoteContent={statusNoteContent}
             dueDateContent={dueDateContent}

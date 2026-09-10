@@ -2012,7 +2012,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   dolu; release öncesi Tamamlama/iptal notu fallback ile gösterilmez — #3356). WhatsApp'ta
   `ResolveOutboundDisplayNoteAsync` yalnız `DeliveryStatusUpdatedAtUtc >= release` olan
   Sent/Delivered/Read giden kayıtlarından terminal notu çıkarır; release sonrası Pending veya
-  release öncesi otomatik yanıtlar bu alanı doldurmaz (#3356 reopen).
+  release öncesi otomatik yanıtlar bu alanı doldurmaz (#3356 reopen). Aynı iletim zamanında
+  birden fazla giden kayıt varsa `SentAt` ile en yeni önce; ara durum (Yapılmakta vb.) gövdeleri
+  atlanır — yalnız `durumu "Tamamlandı"` / `"İptal"` içeren terminal mesajdan not çıkarılır
+  (#VT-2026-99; "Saygılarımızla" kuyruğu Vatandaşa Giden Mesaj olmaz).
   Tamamlama ile aynıysa yeşil, operatörün özelleştirdiği farklı metin kırmızı (#2557/#3084).
   `Yapılan İş:` / `İptal Nedeni:` / `İptal Notu:` şablon etiketleri bu alandan düşer — yalnız
   not kalır; vatandaş talebinde başlık durur, değer tamamlama/iptal notu (#3270). Birim içi /

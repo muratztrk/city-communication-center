@@ -123,6 +123,75 @@ public sealed class CitizenMessageApprovalNoteResolverTests
     }
 
     [Fact]
+    public void IsTerminalCitizenStatusOutboundBody_distinguishes_progress_from_terminal()
+    {
+        var inProgress = "VT-2026-99 no'lu Talep talebinizin durumu \"Yapılmakta\".\n\nSaygılarımızla";
+        var completed = "VT-2026-99 no'lu Talep talebinizin durumu \"Tamamlandı\".\n\nYapılan İş: not";
+        Assert.False(CitizenMessageApprovalNoteResolver.IsTerminalCitizenStatusOutboundBody(inProgress));
+        Assert.True(CitizenMessageApprovalNoteResolver.IsTerminalCitizenStatusOutboundBody(completed));
+    }
+
+    [Fact]
+    public async Task WhatsApp_same_delivery_timestamp_prefers_terminal_over_in_progress_tail()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var socialMessageId = Guid.NewGuid();
+        var releasedAt = DateTimeOffset.Parse("2026-09-10T13:01:12.668397+00:00");
+        var deliveredAt = DateTimeOffset.Parse("2026-09-10T13:02:39+00:00");
+        var inProgressBody = """
+            Değerli vatandaşımız,
+
+            VT-2026-99 no'lu Talep talebinizin durumu "Yapılmakta".
+
+            Veteriner İşleri Müdürlüğü tarafından talebiniz yapılmaktadır.
+
+            Saygılarımızla
+            """;
+        var terminalBody = """
+            Değerli vatandaşımız,
+
+            VT-2026-99 no'lu Talep talebinizin durumu "Tamamlandı".
+
+            Veteriner İşleri Müdürlüğü tarafından sonuçlandırılmıştır, saygılarımızla.
+
+            Yapılan İş: Tarafınıza bilgi verilmiştir. İyi günler dileriz.
+            """;
+
+        db.AddRange(
+            BuildCompletedJob(jobId, releasedAt),
+            BuildCompletedTask(jobId, Guid.NewGuid(), "Tarafınıza bilgi verilmiştir. İyi günler dileriz."),
+            BuildAudit(jobId, "CitizenMessageApprovalReleased", "Tarafınıza bilgi verilmiştir. İyi günler dileriz.", releasedAt),
+            new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = socialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = inProgressBody,
+                SentAt = releasedAt.AddMinutes(-5),
+                DeliveryStatus = ConversationDeliveryStatus.Read,
+                DeliveryStatusUpdatedAtUtc = deliveredAt,
+            },
+            new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = socialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = terminalBody,
+                SentAt = releasedAt,
+                DeliveryStatus = ConversationDeliveryStatus.Read,
+                DeliveryStatusUpdatedAtUtc = deliveredAt,
+            });
+        await db.SaveChangesAsync();
+
+        var job = await db.Jobs.SingleAsync(j => j.JobId == jobId);
+        var outbound = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+            db, TenantId, job, SocialChannel.WhatsApp, socialMessageId, responseContent: null, CancellationToken.None);
+
+        Assert.Equal("Tarafınıza bilgi verilmiştir. İyi günler dileriz.", outbound);
+    }
+
+    [Fact]
     public async Task WhatsApp_outbound_hidden_until_terminal_message_transmitted_after_release()
     {
         await using var db = CreateDbContext();

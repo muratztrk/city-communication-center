@@ -205,6 +205,7 @@ internal static class CitizenMessageApprovalNoteResolver
                     && entry.DeliveryStatusUpdatedAtUtc != null
                     && entry.DeliveryStatusUpdatedAtUtc >= releasedAt)
                 .OrderByDescending(entry => entry.DeliveryStatusUpdatedAtUtc)
+                .ThenByDescending(entry => entry.SentAt)
                 .Select(entry => entry.Content)
                 .ToListAsync(cancellationToken);
 
@@ -215,6 +216,11 @@ internal static class CitizenMessageApprovalNoteResolver
 
             foreach (var content in outboundContents)
             {
+                if (!IsTerminalCitizenStatusOutboundBody(content))
+                {
+                    continue;
+                }
+
                 var transmitted = ExtractTrailingTerminalNote(content);
                 if (!string.IsNullOrWhiteSpace(transmitted))
                 {
@@ -231,6 +237,30 @@ internal static class CitizenMessageApprovalNoteResolver
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Ara durum otomatik yanıtları (Yapılmakta vb.) kuyrukta "Saygılarımızla" taşır;
+    /// Vatandaşa Giden Mesaj yalnız terminal (Tamamlandı/İptal) gövdesinden çıkarılır (#VT-2026-99).
+    /// </summary>
+    internal static bool IsTerminalCitizenStatusOutboundBody(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return false;
+        }
+
+        string[] terminalStatuses = ["Tamamlandı", "Tamamlanmış", "İptal Edildi", "İptal"];
+        foreach (var status in terminalStatuses)
+        {
+            if (content.Contains($"durumu \"{status}\"", StringComparison.Ordinal)
+                || content.Contains($"durumu {status}", StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     internal static string? ExtractTrailingTerminalNote(string content)

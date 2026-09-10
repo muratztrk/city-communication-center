@@ -25,10 +25,13 @@ import { ChannelIcon } from './ui/channel-icon'
 import { TruncatedText } from './ui/TruncatedText'
 import { FramedDepartmentStack } from './jobs/my-request-detail/FramedDepartmentStack'
 import { MyRequestDetailModal } from './jobs/my-request-detail/MyRequestDetailModal'
+import { WhatsAppConversationModal } from './WhatsAppConversationModal'
 import { printHtmlDocument } from '../utils/printDocument'
 import { printJobDetail } from '../pages/JobsPage'
 import { useColumnFilters } from '../hooks/useColumnFilters'
 import { useSortable } from '../hooks/useSortable'
+import { useAuth } from '../context/AuthContext'
+import { canShowCitizenWhatsAppConversation } from '../utils/citizenRequests'
 
 interface DashboardChartDrilldownModalProps {
   chartKey: string
@@ -347,6 +350,13 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
   const [detailLoading, setDetailLoading] = useState(false)
   const [detailError, setDetailError] = useState<string | null>(null)
   const [citizenSourceMessage, setCitizenSourceMessage] = useState<SocialMessage | null>(null)
+  const [conversationModal, setConversationModal] = useState<{
+    socialMessageId: string
+    citizenHandle: string
+    citizenPhone: string | null
+    citizenName: string | null
+  } | null>(null)
+  const { user } = useAuth()
   const { sortKey, sortDir, toggleSort, sortItems } = useSortable()
   const { filters, setFilter, matchesFilters, clearFilters, hasActiveFilters } = useColumnFilters()
   const terminalDateHeader = rows ? resolveTerminalDateHeader(rows, t) : null
@@ -529,6 +539,20 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
     setDetail(null)
     setDetailError(null)
     setCitizenSourceMessage(null)
+  }
+
+  const openCitizenConversationModal = () => {
+    if (!detail) return
+    const socialMessageId = detail.sourceType === 'SocialMessage' && detail.sourceRefId
+      ? detail.sourceRefId
+      : detail.sourceSocialMessageId ?? citizenSourceMessage?.socialMessageId
+    if (!socialMessageId) return
+    setConversationModal({
+      socialMessageId,
+      citizenHandle: citizenSourceMessage?.citizenHandle ?? detail.citizenName ?? detail.citizenPhone ?? '',
+      citizenPhone: detail.citizenPhone ?? citizenSourceMessage?.citizenPhone ?? null,
+      citizenName: detail.citizenName ?? citizenSourceMessage?.citizenName ?? null,
+    })
   }
 
   return createPortal(
@@ -857,6 +881,11 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
               onDueDateChange={() => undefined}
               onDueDateSave={() => undefined}
               onClose={closeJobDetail}
+              onGoToConversation={
+                canShowCitizenWhatsAppConversation(detail, citizenSourceMessage, user)
+                  ? openCitizenConversationModal
+                  : undefined
+              }
               onPrint={() => printJobDetail(detail, locale, t, {
                 myRequestView: true,
                 requestLabel: citizenSourceMessage?.category,
@@ -893,6 +922,16 @@ export function DashboardChartDrilldownModal({ chartKey, sliceKey, from, to, req
             </div>
           )}
         </div>
+      ) : null}
+
+      {conversationModal ? (
+        <WhatsAppConversationModal
+          socialMessageId={conversationModal.socialMessageId}
+          citizenHandle={conversationModal.citizenHandle}
+          citizenPhone={conversationModal.citizenPhone}
+          citizenName={conversationModal.citizenName}
+          onClose={() => setConversationModal(null)}
+        />
       ) : null}
     </>,
     document.body,

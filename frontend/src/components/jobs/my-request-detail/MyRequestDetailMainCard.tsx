@@ -241,6 +241,8 @@ interface MyRequestDetailMainCardProps {
   hideProjectRow?: boolean
   /** Görevlerim/Birimdeki/Personel popup İlgili Talep: sahip onay katmanını her zaman göster (card #1654). */
   forceShowOwnerApproval?: boolean
+  /** Görev oluşmadan iptal edilen VT — Talep Bilgileri kırmızı notlar (#3490). */
+  citizenOutboundMessage?: string | null
 }
 
 export function MyRequestDetailMainCard({
@@ -278,6 +280,7 @@ export function MyRequestDetailMainCard({
   priorityInInfoHeader = false,
   hideProjectRow = false,
   forceShowOwnerApproval = false,
+  citizenOutboundMessage,
 }: MyRequestDetailMainCardProps) {
   const { t } = useTranslation()
   const { user } = useAuth()
@@ -330,6 +333,10 @@ export function MyRequestDetailMainCard({
     completedAtUtc: detail.completedAtUtc,
     updatedAtUtc: detail.updatedAtUtc,
   })
+  const showCancelledWithoutTaskNotes = isCitizenRequestJob(detail)
+    && detail.tasks.length === 0
+    && (detail.status === 'Cancelled' || detail.status === 'Rejected')
+  const cancelledWithoutTaskOutbound = (citizenOutboundMessage ?? detail.citizenOutboundMessage ?? '').trim()
   const trailingInfoRows = [
     ...(infoExtraTrailingRows ?? []),
     {
@@ -340,6 +347,26 @@ export function MyRequestDetailMainCard({
         </span>
       ),
     },
+    ...(showCancelledWithoutTaskNotes
+      ? [
+          {
+            label: t('tasks.detail.cancelNote', 'İptal Notu'),
+            value: (
+              <span className="text-red-600">
+                {detail.cancelReason?.trim() || '—'}
+              </span>
+            ),
+          },
+          {
+            label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+            value: (
+              <span className="text-red-600">
+                {cancelledWithoutTaskOutbound || '—'}
+              </span>
+            ),
+          },
+        ]
+      : []),
   ]
   const requestNumberText = isCitizenRequestJob(detail)
     ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)

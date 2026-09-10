@@ -618,11 +618,14 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
 
         string? citizenOutboundMessage = null;
         string? citizenApprovalReleasedNote = null;
+        string? citizenMessageApproverDisplayName = null;
         var eligible = await CitizenMessageApprovalAccess.FindEligibleTerminalJobAsync(
             _dbContext, tenantId, job.JobId, track: false, cancellationToken);
         if (eligible is not null)
         {
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
+                _dbContext, tenantId, job.JobId, cancellationToken);
+            citizenMessageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken);
             var linkedMessages = await _dbContext.SocialMessages.AsNoTracking()
                 .Where(m => m.TenantId == tenantId
@@ -684,6 +687,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             citizenRequest?.CitizenRequestNumber, citizenRequest?.CitizenRequestNumberYear,
             citizenOutboundMessage, citizenApprovalReleasedNote,
             job.LocationMapsUrl,
-            sourceChannel, sourceSocialMessageId);
+            sourceChannel, sourceSocialMessageId,
+            citizenMessageApproverDisplayName);
     }
 }

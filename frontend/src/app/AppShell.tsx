@@ -1124,7 +1124,7 @@ export function AppShell() {
       <AppFooter />
       </div>
       </div> {/* end main area row */}
-      <div className="fixed-fab-stack pointer-events-none fixed right-5 z-[75] flex items-end gap-3">
+      <div className={`fixed-fab-stack pointer-events-none fixed right-5 z-[75] flex items-end gap-3${!isInternalModuleUsable ? ' fixed-fab-stack--vt-only' : ''}`}>
         {/* FAB sırası: WhatsApp → Kurum İçi Mesajlar → aşağı/yukarı (cards #1543/#1553). */}
         {/* Harita sayfalarında küçük ekranda sohbet FAB’leri zoom kontrollerini kapatır (#2694). */}
         <div className={`pointer-events-auto${hideWhatsAppFabOnMobile ? ' max-lg:hidden' : ''}`}>{canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}</div>

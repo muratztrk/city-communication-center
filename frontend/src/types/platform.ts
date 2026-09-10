@@ -449,6 +449,8 @@ export interface JobDetail {
   sourceChannel?: string | null;
   /** sourceRefId yoksa job'a bağlı sosyal mesaj kimliği. */
   sourceSocialMessageId?: string | null;
+  /** Vatandaşa gönderilecek mesaj onayı — Mesajı Onayla yapan kullanıcı (#3487/#3488). */
+  citizenMessageApproverDisplayName?: string | null;
 }
 
 export interface SocialConversationEntry {

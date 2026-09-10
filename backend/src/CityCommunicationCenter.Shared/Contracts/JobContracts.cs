@@ -163,4 +163,6 @@ public sealed record JobDetailResponse(
     /// <summary>VT kaynak kanalı (WhatsApp/Phone vb.) — Yazışmaya Git görünürlüğü için.</summary>
     string? SourceChannel = null,
     /// <summary>sourceRefId yoksa job'a bağlı sosyal mesaj kimliği.</summary>
-    Guid? SourceSocialMessageId = null);
+    Guid? SourceSocialMessageId = null,
+    /// <summary>Vatandaşa gönderilecek mesaj onayı — Mesajı Onayla yapan kullanıcı (#3487/#3488).</summary>
+    string? CitizenMessageApproverDisplayName = null);

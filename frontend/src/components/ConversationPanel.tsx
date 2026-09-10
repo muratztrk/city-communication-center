@@ -459,7 +459,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             <ModalCloseButton
               onClick={onClose}
               label={t('common.close', 'Kapat')}
-              className="size-8 shrink-0 text-white/80 hover:bg-white/15 hover:text-white"
+              className="size-8 shrink-0 bg-transparent text-white/80 hover:bg-red-50 hover:text-red-600"
             />
           ) : null}
         </div>
@@ -472,7 +472,7 @@ export function ConversationPanel({ socialMessageId, citizenHandle, citizenPhone
             value={chatSearch}
             onChange={setChatSearch}
             placeholder={t('whatsapp.searchInConversation', 'Mesajlarda ara…')}
-            className="field-input w-full py-2 text-sm"
+            className="conversation-chat-search field-input w-full py-2 text-sm"
           />
         </div>
       ) : null}

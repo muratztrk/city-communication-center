@@ -114,6 +114,21 @@ internal static class CitizenMessageApprovalNoteResolver
         return null;
     }
 
+    /// <summary>Mesajı Onayla yapan yönetici — Tamamlama/İptal Notu Onaylayan (#3490).</summary>
+    public static async Task<string?> ResolveMessageApproverDisplayNameAsync(
+        IApplicationDbContext dbContext,
+        Guid tenantId,
+        Guid jobId,
+        CancellationToken cancellationToken)
+    {
+        var cycle = await GetCycleBoundsAsync(dbContext, tenantId, jobId, cancellationToken);
+        var approver = await QueryReleasedInCycle(dbContext, tenantId, jobId, cycle.ReopenedAt)
+            .OrderBy(audit => audit.EventTimeUtc)
+            .Select(audit => audit.ActorDisplayName)
+            .FirstOrDefaultAsync(cancellationToken);
+        return string.IsNullOrWhiteSpace(approver) ? null : approver.Trim();
+    }
+
     /// <summary>
     /// Vatandaş Bilgi Listesi detay popup'ında "Vatandaşa Giden Mesaj" alanı.
     /// WhatsApp: operatör bekleyen balonu düzenler (görev notu değişmez) → konuşma kaydı.

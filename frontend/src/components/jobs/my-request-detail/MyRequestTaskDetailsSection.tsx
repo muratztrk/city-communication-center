@@ -24,6 +24,8 @@ interface MyRequestTaskDetailsSectionProps {
   citizenOutboundMessage?: string | null
   /** Mesajı Gönder anındaki onay notu — Tamamlama Notu (#2528). */
   citizenApprovalReleasedNote?: string | null
+  /** Mesajı Onayla yapan kullanıcı (#3487/#3488). */
+  citizenMessageApproverDisplayName?: string | null
   // Taleplerim'de standart kullanıcı için Adres Bilgileri, Süreç'in önünde ikinci kolon
   // olarak buraya taşınır; Süreç, Açıklama'nın yerine kayar (card #1549).
   addressColumnContent?: ReactNode
@@ -163,6 +165,7 @@ export function MyRequestTaskDetailsSection({
   hidePlainDescription = false,
   citizenOutboundMessage,
   citizenApprovalReleasedNote,
+  citizenMessageApproverDisplayName,
   addressColumnContent,
 }: MyRequestTaskDetailsSectionProps) {
   const { t } = useTranslation()
@@ -282,6 +285,12 @@ export function MyRequestTaskDetailsSection({
                       ? [{ label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'), value: task.assigningManagerDisplayName ?? '—' }]
                       : []),
                     { label: t('tasks.columns.owner', 'Görevi Yapan'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
+                    ...(isCompletedTask && citizenMessageApproverDisplayName?.trim()
+                      ? [{
+                          label: t('tasks.detail.completionNoteApprover', 'Tamamlama Notu Onaylayan'),
+                          value: citizenMessageApproverDisplayName.trim(),
+                        }]
+                      : []),
                     ...(isCompletedTask
                       ? [{
                           label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
@@ -289,14 +298,22 @@ export function MyRequestTaskDetailsSection({
                           // Etiket + değer yeşil (card #1638).
                           tone: 'completion' as const,
                         }]
-                      : isCancelledTask
+                      : isCancelledTask && citizenMessageApproverDisplayName?.trim()
                         ? [{
+                            label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
+                            value: citizenMessageApproverDisplayName.trim(),
+                          }, {
                             label: t('tasks.detail.cancelNote', 'İptal Notu'),
                             value: cancelNoteDisplay,
-                            // Etiket + değer kırmızı (card #1638).
                             tone: 'cancel' as const,
                           }]
-                        : []),
+                        : isCancelledTask
+                          ? [{
+                              label: t('tasks.detail.cancelNote', 'İptal Notu'),
+                              value: cancelNoteDisplay,
+                              tone: 'cancel' as const,
+                            }]
+                          : []),
                     ...(isCitizenRequestJob(detail)
                       && outboundPlain
                       && (isCompletedTask || isCancelledTask)

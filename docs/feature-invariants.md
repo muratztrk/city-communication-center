@@ -2948,7 +2948,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WA gövdesinde tek `\n` ayracı ve `DeliveryStatusUpdatedAtUtc` null iken `SentAt` yedeği desteklenir.
 - **Vatandaşa Giden Mesaj görünürlük (#3520/#3536 reopen):** Detaylar popup (Birime Gelen / Taleplerim /
   Görevlerim) terminal VT'de başlık her zaman görünür; değer iletilmiş outbound → release notu →
-  tamamlama/iptal notu, hiçbiri yoksa `—`. `to-send` chip hâlâ gizler (#3519). İletilmiş terminal WA:
+  tamamlama/iptal notu, hiçbiri yoksa `—`. Görevsiz iptal VT (ör. VT-2026-36, ExternalUnit +
+  `Not:` şablonu) Talep Bilgileri listesinde durur; WA `SentAt` release'ten önce olsa da iletilmiş
+  terminal gövde okunur. `to-send` chip hâlâ gizler (#3519). İletilmiş terminal WA:
   `SentAt` release öncesi olsa bile `DeliveryStatusUpdatedAtUtc` (veya `SentAt` yedeği) release
   sonrasıysa outbound çözülür (#3520/VT-2026-42). `GetJobById`/`GetTaskById` `JobCitizenRequestHelper`
   ile ExternalUnit kaynaklı VT'yi de çözer.

@@ -4,7 +4,7 @@ import { hasCitizenRequestManagerRole } from './roleAccess'
 
 /** VT iptal + henüz görev yok — Talep Bilgileri / Süreç özel satırları (#3496/#3497). */
 export function isCancelledCitizenRequestWithoutTasks(
-  job: Pick<JobDetail, 'status' | 'tasks' | 'requestType'>,
+  job: Pick<JobDetail, 'status' | 'tasks' | 'requestType' | 'sourceType' | 'citizenRequestNumber'>,
 ): boolean {
   return isCitizenRequestJob(job)
     && (job.tasks?.length ?? 0) === 0

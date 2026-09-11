@@ -3,11 +3,16 @@ import { getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { isJobDueDateOverdue } from './dateTimePicker'
 import { formatOverdueInProgressStatus, type GridStatusTone } from './localization'
 
-export function isCitizenRequestJob(job: { requestType?: string | null; sourceType?: string | null }): boolean {
+export function isCitizenRequestJob(job: {
+  requestType?: string | null
+  sourceType?: string | null
+  citizenRequestNumber?: number | null
+}): boolean {
   return job.requestType === 'Citizen'
     || job.sourceType === 'SocialMessage'
     || job.sourceType === 'CitizenRequest'
     || job.sourceType === 'EDevlet'
+    || (job.citizenRequestNumber != null && job.citizenRequestNumber > 0)
 }
 
 export function hasCitizenAddress(fields: {

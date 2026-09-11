@@ -1,3 +1,9 @@
+## Round 1166 — Görevsiz iptal VT outbound (VT-2026-36)
+
+- Görevi oluşmamış iptal Detaylar'da Vatandaşa Giden Mesaj satırı Talep Bilgileri listesine alındı.
+- `isCitizenRequestJob` VT numarası olan ExternalUnit kaydı da vatandaş sayar.
+- WA çözücü `Not:` etiketini düşürür; SentAt < release olsa da iletilmiş iptal gövdesini okur.
+
 ## Round 1165 — Vatandaşa Giden Mesaj Detaylar'a geri
 
 - Kök: FE satırı yalnız `citizenOutboundMessage.trim()` doluyken çiziyordu; `ResolveOutboundDisplayNoteAsync`

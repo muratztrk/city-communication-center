@@ -225,12 +225,12 @@ internal static class CitizenMessageApprovalNoteResolver
             // #3356 reopen: Yönetici "Mesajı Onayla" sonrası Pending kuyruk oluşur; alan yalnız
             // operatör gerçekten ilettikten (Sent/Delivered/Read) sonra görünür. Release öncesi
             // otomatik durum yanıtları bu alana düşmesin.
-            if (!firstReleasedAt.HasValue)
+            if (!firstReleasedAt.HasValue && job.Status is not JobStatus.Cancelled and not JobStatus.Rejected)
             {
                 return null;
             }
 
-            var releasedAt = firstReleasedAt.Value;
+            var releasedAt = firstReleasedAt ?? job.CitizenTerminalMessageReleasedAtUtc;
             // SentAt kuyruk anında release öncesi olabilir; iletim zamanı memory filtresinde (#3520/VT-2026-42).
             var outboundEntries = await dbContext.ConversationEntries.AsNoTracking()
                 .Where(entry => entry.SocialMessageId == socialMessageId
@@ -244,16 +244,16 @@ internal static class CitizenMessageApprovalNoteResolver
                 })
                 .ToListAsync(cancellationToken);
 
-            var hasPendingTerminalAfterRelease = outboundEntries.Exists(entry =>
+            var hasPendingTerminalAfterRelease = releasedAt.HasValue && outboundEntries.Exists(entry =>
                 entry.DeliveryStatus == ConversationDeliveryStatus.Pending
                 && IsTerminalCitizenStatusOutboundBody(entry.Content)
-                && (entry.DeliveryStatusUpdatedAtUtc ?? entry.SentAt) >= releasedAt);
+                && (entry.DeliveryStatusUpdatedAtUtc ?? entry.SentAt) >= releasedAt.Value);
 
             foreach (var entry in outboundEntries
                 .Where(entry => (entry.DeliveryStatus == ConversationDeliveryStatus.Sent
                         || entry.DeliveryStatus == ConversationDeliveryStatus.Delivered
                         || entry.DeliveryStatus == ConversationDeliveryStatus.Read)
-                    && (entry.DeliveryStatusUpdatedAtUtc ?? entry.SentAt) >= releasedAt)
+                    && (!releasedAt.HasValue || (entry.DeliveryStatusUpdatedAtUtc ?? entry.SentAt) >= releasedAt.Value))
                 .OrderByDescending(entry => entry.DeliveryStatusUpdatedAtUtc ?? entry.SentAt)
                 .ThenByDescending(entry => entry.SentAt))
             {
@@ -274,6 +274,29 @@ internal static class CitizenMessageApprovalNoteResolver
             if (hasPendingTerminalAfterRelease)
             {
                 return null;
+            }
+
+            // Görevsiz iptal: Mesajı Onayla audit'i SentAt'ten birkaç yüz ms sonra yazılabiliyor (VT-2026-36).
+            if (job.Status is JobStatus.Cancelled or JobStatus.Rejected)
+            {
+                foreach (var entry in outboundEntries
+                    .Where(item => item.DeliveryStatus == ConversationDeliveryStatus.Sent
+                        || item.DeliveryStatus == ConversationDeliveryStatus.Delivered
+                        || item.DeliveryStatus == ConversationDeliveryStatus.Read)
+                    .OrderByDescending(item => item.DeliveryStatusUpdatedAtUtc ?? item.SentAt)
+                    .ThenByDescending(item => item.SentAt))
+                {
+                    if (!IsTerminalCitizenStatusOutboundBody(entry.Content))
+                    {
+                        continue;
+                    }
+
+                    var transmitted = ExtractTrailingTerminalNote(entry.Content);
+                    if (!string.IsNullOrWhiteSpace(transmitted))
+                    {
+                        return transmitted;
+                    }
+                }
             }
 
             return null;
@@ -339,7 +362,7 @@ internal static class CitizenMessageApprovalNoteResolver
     internal static string StripAutoTemplateNoteLabel(string note)
     {
         var trimmed = note.Trim();
-        string[] prefixes = ["Yapılan İş:", "İptal Nedeni:", "İptal Notu:"];
+        string[] prefixes = ["Yapılan İş:", "İptal Nedeni:", "İptal Notu:", "Not:"];
         foreach (var prefix in prefixes)
         {
             if (trimmed.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))

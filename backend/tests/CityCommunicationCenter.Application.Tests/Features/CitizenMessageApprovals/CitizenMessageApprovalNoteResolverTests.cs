@@ -483,6 +483,66 @@ public sealed class CitizenMessageApprovalNoteResolverTests
         Assert.Equal("iptal nedeni", outbound);
     }
 
+    [Fact]
+    public async Task WhatsApp_cancelled_without_task_reads_not_label_when_sent_before_release()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var socialMessageId = Guid.NewGuid();
+        var sentAt = DateTimeOffset.Parse("2026-09-10T19:48:32.534835+00:00");
+        var releasedAt = DateTimeOffset.Parse("2026-09-10T19:48:32.743352+00:00");
+        var deliveredAt = DateTimeOffset.Parse("2026-09-10T19:48:45+00:00");
+        var terminalBody =
+            "Değerli vatandaşımız,\n\n" +
+            "VT-2026-36 no'lu sadsa talebinizin durumu \"İptal Edildi\".\n\n" +
+            "Bilgi İşlem Müdürlüğü tarafından cevaplanmıştır, saygılarımızla.\n\n" +
+            "Not: Asdsad";
+
+        db.AddRange(
+            new Job
+            {
+                JobId = jobId,
+                TenantId = TenantId,
+                Title = "sadsa",
+                Description = "Test",
+                OwnerDepartmentId = DepartmentId,
+                Status = JobStatus.Cancelled,
+                RequestType = JobRequestType.ExternalUnit,
+                SourceType = JobSourceType.SocialMessage,
+                CitizenTerminalMessageReleasedAtUtc = releasedAt,
+                CancelReason = "Asdsad",
+                CompletionPercentage = 0,
+            },
+            BuildAudit(jobId, "CitizenMessageApprovalReleased", "Asdsad", releasedAt),
+            new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = socialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = "VT-2026-36 no'lu sadsa talebinizin durumu \"İşleme Alındı\".\n\nSaygılarımızla",
+                SentAt = sentAt.AddHours(-1),
+                DeliveryStatus = ConversationDeliveryStatus.Delivered,
+                DeliveryStatusUpdatedAtUtc = sentAt.AddHours(-1),
+            },
+            new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = socialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = terminalBody,
+                SentAt = sentAt,
+                DeliveryStatus = ConversationDeliveryStatus.Delivered,
+                DeliveryStatusUpdatedAtUtc = deliveredAt,
+            });
+        await db.SaveChangesAsync();
+
+        var job = await db.Jobs.SingleAsync(j => j.JobId == jobId);
+        var outbound = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+            db, TenantId, job, SocialChannel.WhatsApp, socialMessageId, responseContent: null, CancellationToken.None);
+
+        Assert.Equal("Asdsad", outbound);
+    }
+
     private static Job BuildCompletedJob(Guid jobId, DateTimeOffset releasedAt) => new()
     {
         JobId = jobId,

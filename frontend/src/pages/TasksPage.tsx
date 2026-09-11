@@ -2491,7 +2491,7 @@ const pageKicker = isMyTasksView
                                 rows.push({
                                   label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
                                   value: outboundPlain,
-                                  tone: outboundPlain && outboundDiffers ? 'outbound-diff' : undefined,
+                                  tone: outboundDiffers ? 'outbound-diff' : 'completion',
                                 })
                               }
                               return rows

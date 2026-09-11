@@ -119,13 +119,28 @@ internal static class CitizenMessageApprovalNoteResolver
         IApplicationDbContext dbContext,
         Guid tenantId,
         Guid jobId,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        DateTimeOffset? terminalReleasedAtUtc = null)
     {
         var cycle = await GetCycleBoundsAsync(dbContext, tenantId, jobId, cancellationToken);
         var releaseAudit = await QueryReleasedInCycle(dbContext, tenantId, jobId, cycle.ReopenedAt)
             .OrderBy(audit => audit.EventTimeUtc)
             .Select(audit => new { audit.ActorDisplayName, audit.ActorUserId })
             .FirstOrDefaultAsync(cancellationToken);
+        if (releaseAudit is null && terminalReleasedAtUtc.HasValue)
+        {
+            var entityId = jobId.ToString();
+            var releasedBefore = terminalReleasedAtUtc.Value.AddMinutes(1);
+            releaseAudit = await dbContext.AuditLogs.AsNoTracking()
+                .Where(audit => audit.TenantId == tenantId
+                    && audit.EntityId == entityId
+                    && audit.Action == ReleasedAction
+                    && audit.EventTimeUtc <= releasedBefore)
+                .OrderByDescending(audit => audit.EventTimeUtc)
+                .Select(audit => new { audit.ActorDisplayName, audit.ActorUserId })
+                .FirstOrDefaultAsync(cancellationToken);
+        }
+
         if (releaseAudit is null)
         {
             return null;

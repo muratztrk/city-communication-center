@@ -236,10 +236,11 @@ export function MyRequestTaskDetailsSection({
           const fallbackOutboundNote = isCompletedTask
             ? (releasedPlain || taskNotesPlain)
             : (notePlain(task.revisionReason) || notePlain(detail.cancelReason))
+          const displayedOutbound = outboundPlain || notePlain(citizenOutboundMessage)
           const outboundValue = outboundPlain || fallbackOutboundNote
           const outboundDiffersFromCompletion = Boolean(
-            outboundPlain
-            && notesDiffer(outboundPlain, completionCompareSource),
+            displayedOutbound
+            && notesDiffer(displayedOutbound, completionCompareSource),
           )
           const outboundIsAutoStatus = outboundValue.toLocaleLowerCase('tr').includes('talebinizin durumu')
           const outboundTone = outboundDiffersFromCompletion && !outboundIsAutoStatus
@@ -330,11 +331,11 @@ export function MyRequestTaskDetailsSection({
                       && !hideMessageApprovalPendingFields
                       && (isCompletedTask || isCancelledTask)
                       && task.taskId === primaryTerminalTaskId
-                      && (outboundPlain || notePlain(citizenOutboundMessage))
+                      && displayedOutbound
                       ? [{
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          value: outboundPlain || notePlain(citizenOutboundMessage),
-                          tone: outboundPlain ? outboundTone : undefined,
+                          value: displayedOutbound,
+                          tone: outboundDiffersFromCompletion ? outboundTone : 'completion',
                           fullRow: true as const,
                         }]
                       : []),
@@ -439,6 +440,11 @@ export function MyRequestTaskDetailsSection({
                   )}
                   inProgressAssigneeName={task.assignedUserDisplayName ?? task.ownerDisplayName ?? null}
                   dueDateContent={dueDateContent}
+                  showOverdueYesNo
+                  overdueDueDateUtc={task.dueDateUtc}
+                  overdueJobStatus={task.currentStatus}
+                  overdueCompletedAtUtc={task.completedAtUtc}
+                  overdueUpdatedAtUtc={task.updatedAtUtc}
                 />
               </div>
             </div>

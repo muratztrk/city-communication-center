@@ -2916,6 +2916,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   hiç gösterilmez — boş `—` placeholder yok. İletilmiş terminal WA: `SentAt` release öncesi olsa bile
   `DeliveryStatusUpdatedAtUtc` (veya `SentAt` yedeği) release sonrasıysa outbound çözülür (#3520/VT-2026-42).
 - **Birime Gelen İptal popup (#3516):** İptal nedeni textbox `maxLength=400` (BE `CancelJob` ile uyumlu).
+- **Görev Süreç Gecikti mi (#3522):** Birime Gelen detay → İlgili Görev Detayları Süreç başlığında Evet/Hayır.
+- **Outbound yeşil (#3523):** Vatandaşa Giden Mesaj = Tamamlama Notu ise satır etiket+değer yeşil.
+- **Onaylayan yedeği (#3515):** `CitizenTerminalMessageReleasedAtUtc` dolu, döngü audit yoksa son release actor.
 - **Vatandaş cevap şablonu taslak (#3221/#3220/#3222):** Kaydetmeden sekme/sayfa değişince
   `citizenAutoReplyTemplates` son kaydedilene döner. `{GönderilenBirim}` ek textarea Enter ile
   satır sonu alır (`extract` trailing `\\n` yutmaz; not token öncesi `\\n\\n` veya tek boşluk ayrılır, #3250).

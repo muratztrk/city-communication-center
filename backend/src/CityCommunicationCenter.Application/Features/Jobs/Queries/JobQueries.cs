@@ -643,7 +643,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken);
             citizenMessageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
-                _dbContext, tenantId, job.JobId, cancellationToken);
+                _dbContext, tenantId, job.JobId, cancellationToken, job.CitizenTerminalMessageReleasedAtUtc);
 
             var linkedMessages = await _dbContext.SocialMessages.AsNoTracking()
                 .Where(m => m.TenantId == tenantId

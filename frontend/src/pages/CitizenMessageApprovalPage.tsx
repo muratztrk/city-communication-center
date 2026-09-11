@@ -170,7 +170,17 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
     [visibleRows, matchesFilters, getColumnValue],
   )
 
-  const sortedRows = useMemo(() => sortItems(columnFilteredRows), [columnFilteredRows, sortItems])
+  const sortedRows = useMemo(() => {
+    if (sortKey) return sortItems(columnFilteredRows)
+    if (isSms && showMessageApproverColumn) {
+      return [...columnFilteredRows].sort((left, right) => {
+        const leftTime = left.messageApprovedAtUtc ? new Date(left.messageApprovedAtUtc).getTime() : 0
+        const rightTime = right.messageApprovedAtUtc ? new Date(right.messageApprovedAtUtc).getTime() : 0
+        return rightTime - leftTime
+      })
+    }
+    return columnFilteredRows
+  }, [columnFilteredRows, isSms, showMessageApproverColumn, sortItems, sortKey])
 
   const paginatedRows = useMemo(
     () => sortedRows.slice((currentPage - 1) * pageSize, currentPage * pageSize),
@@ -357,7 +367,11 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                     <FilterableTh filterKey="messageApproverDisplayName" filterValue={filters['messageApproverDisplayName'] ?? ''} onFilter={setFilter} sortKey="messageApprovedAtUtc" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>
                       <span className="inline-flex flex-col gap-1 leading-tight">
                         <span>{t('citizenMessageApproval.columns.messageApprovalActor', 'Mesaj Onayı Yapan')}</span>
-                        <span className="text-[0.9em] font-bold leading-tight">{t('citizenMessageApproval.columns.approvalDateSub', 'Onay Tarihi')}</span>
+                        <span className="text-[0.9em] font-bold leading-tight">
+                          {isSms
+                            ? t('smsDeliveryApproval.columns.smsApprovedAt', 'SMS Onay Tarihi')
+                            : t('citizenMessageApproval.columns.approvalDateSub', 'Onay Tarihi')}
+                        </span>
                       </span>
                     </FilterableTh>
                   ) : (
@@ -394,6 +408,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                               <GridStatusLabel
                                 t={t}
                                 label={row.messageApproverDisplayName.trim()}
+                                labelClassName="text-[0.8rem]"
                                 footer={(
                                   <span className="text-[0.68rem] font-bold text-emerald-700">
                                     {formatDateTime(row.messageApprovedAtUtc, locale)}

@@ -44,6 +44,7 @@ import { useDataTableOverflowTooltips } from '../hooks/useDataTableOverflowToolt
 import { useIncomingPendingApprovalCount } from '../hooks/useIncomingPendingApprovalCount'
 import { useNavBadgeCountSound } from '../hooks/useNavBadgeCountSound'
 import { useWhatsAppInboundMessageSound } from '../hooks/useWhatsAppInboundMessageSound'
+import { useWhatsAppTabUnreadBadge } from '../hooks/useWhatsAppTabUnreadBadge'
 import { isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
 
 declare const __APP_VERSION__: string
@@ -413,6 +414,7 @@ export function AppShell() {
 
   const myTasksNavBadgeCount = navDashboardCounts?.myPendingTaskNavBadgeCount ?? navDashboardCounts?.myPendingTaskCount
   useWhatsAppInboundMessageSound()
+  useWhatsAppTabUnreadBadge(Boolean(user?.userId) && getEffectiveUserRoles(user).includes('Operator'))
   useNavBadgeCountSound(myTasksNavBadgeCount, navCountsQuery.isSuccess, '/my-tasks', { playOnTargetPage: false })
   useNavBadgeCountSound(incomingPendingApprovalNavCount, incomingPendingApprovalCountQuery.isSuccess, '/incoming-requests')
   useNavBadgeCountSound(navDashboardCounts?.outgoingPendingCount ?? 0, navCountsQuery.isSuccess, '/outgoing-requests')

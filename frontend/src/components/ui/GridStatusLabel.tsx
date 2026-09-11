@@ -38,6 +38,7 @@ export function GridStatusLabel({
   overdueSubline,
   /** Geciken-only grid: Yapılmakta alt satırında (Geciken) gösterme (#2859). */
   hideInProgressOverdueSubline,
+  labelClassName,
 }: {
   t: TFunction
   label: string
@@ -48,6 +49,8 @@ export function GridStatusLabel({
   /** İşleme Alındı + gecikmiş VT grid: alt satır `(Geciken)` (#2819). */
   overdueSubline?: boolean
   hideInProgressOverdueSubline?: boolean
+  /** Mesaj Onayı Yapan adı — tarihten bağımsız punto (#3530). */
+  labelClassName?: string
 }) {
   const overdueCombined = formatOverdueInProgressStatus(t)
   const alignClass = align === 'start' ? 'items-start text-left' : 'items-center text-center'
@@ -99,7 +102,7 @@ export function GridStatusLabel({
   return (
     <span className={`inline-flex flex-col ${align === 'start' ? 'items-start' : 'items-center'} leading-tight${flowClass ? ` ${flowClass}` : ''}${footer ? '' : ''}`}>
       <span className="inline-flex items-center gap-1">
-        <span>{label === overdueCombined ? overdueCombined : label}</span>
+        <span className={labelClassName}>{label === overdueCombined ? overdueCombined : label}</span>
       </span>
       {footer ? <span className="grid-status-datetime">{footer}</span> : null}
     </span>

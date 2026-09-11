@@ -1,3 +1,12 @@
+## Round 1162 — Trello Doing (#3529/#3530/#2798/#3531/#3489/#3535)
+
+- **#3529:** Görev popup Talep Bilgileri'nden `Talebi Onaylayan` geri alındı.
+- **#3530:** Mesaj Onayı Yapan adı `0.8rem`; tarih `0.68rem` durur.
+- **#2798:** WA profil PUT boş string ile silmez (`allowClear`) — zaten `48578a44`.
+- **#3531:** Operatör sekmesinde okunmamış WA rozeti; adet >1 ise sayı; konuşma görünce sıfırlanır.
+- **#3489:** Detay popup Talep Kanalı değer + ikon biraz küçültüldü.
+- **#3535:** SMS Onayı Giden/Tümü varsayılan sıralama SMS Onay Tarihi en yeni üstte.
+
 ## Round 1161 — Kayıtlı Vatandaş Bilgileri talep oluşturunca silinmesin
 
 - Canlı: WA Kaydet sonrası Talep oluştur bazen ad/adresi siliyordu (eksik/boş profil PUT).

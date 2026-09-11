@@ -90,7 +90,7 @@ import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { matchesBannerSearch } from '../utils/bannerSearch'
-import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJobTargetApproverDisplayName, shouldShowCitizenMessageApproverField, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, getJobTargetApproverDisplayName, shouldShowCitizenMessageApproverField } from '../utils/jobDetails'
 import { jobDestinationFieldLabel } from '../utils/jobProjectLabel'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
@@ -287,9 +287,6 @@ function printTaskDetail(
     ['Talep Başlığı', parentJob.title],
     [requestLocationFieldLabel(parentJob, t), [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
     [jobDestinationFieldLabel(parentJob, t, { includeAssignee: false }), formatJobDestinationsWithAssignees(parentJob)],
-    ...(shouldShowRequestApproverField(parentJob)
-      ? [['Talebi Onaylayan', formatRequestApproverDisplay(parentJob) ?? '—'] as [string, string]]
-      : []),
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Durum', getCitizenRequestStatusLabel(t, parentJob)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
@@ -301,9 +298,6 @@ function printTaskDetail(
     ['Talep No', parentJob.jobNumber != null && parentJob.jobNumberYear != null ? `T-${parentJob.jobNumberYear}-${parentJob.jobNumber}` : '—'],
     ['Talep Başlığı', parentJob.title],
     [requestLocationFieldLabel(parentJob, t), [parentJob.ownerDepartmentName, parentJob.createdByDisplayName].filter(Boolean).join(' / ') || '—'],
-    ...(shouldShowRequestApproverField(parentJob)
-      ? [['Talebi Onaylayan', formatRequestApproverDisplay(parentJob) ?? '—'] as [string, string]]
-      : []),
     ...(parentJob.isProject ? [['Proje mi', 'Evet'] as [string, string]] : []),
     ['Öncelik', getPriorityLabel(t, parentJob.priority)],
     ['Talep Tarihi', fd(parentJob.createdAtUtc)],
@@ -3067,7 +3061,6 @@ const pageKicker = isMyTasksView
                     const parentInfoFields = buildMyRequestDetailFields(
                       parentJobDetail, t, locale, citizenSourceMessage, parentRequestNumberSuffix, parentExtraFields, false,
                       false, false,
-                      { showRequestApproverAfterDestination: true },
                     ).filter(field => {
                       // Talep Başlığı verisi İlgili Talep Detayları'ndan tamamen kaldırıldı (card #1464).
                       if (field.label === parentTitleLabel) return false

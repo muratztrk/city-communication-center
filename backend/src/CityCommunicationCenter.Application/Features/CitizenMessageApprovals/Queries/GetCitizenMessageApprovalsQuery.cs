@@ -206,6 +206,14 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
                 messageApproverDisplayName));
         }
 
+        // Sms Onayı Giden/Tümü: SMS Onay Tarihi en yeni üstte (#3535).
+        if (smsMode && (scope is "sent" or "all"))
+        {
+            return results
+                .OrderByDescending(row => row.MessageApprovedAtUtc ?? DateTimeOffset.MinValue)
+                .ToList();
+        }
+
         return results;
     }
 

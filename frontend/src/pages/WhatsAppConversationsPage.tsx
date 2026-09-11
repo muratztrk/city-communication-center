@@ -45,6 +45,7 @@ import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
+import { syncWhatsAppUnreadMessageCount } from '../utils/whatsappUnreadMessageCount'
 import { suppressNewRecordSound } from '../utils/newRecordSoundSuppress'
 
 const LazyCitizenRequestModal = lazy(() =>
@@ -1615,6 +1616,7 @@ export function WhatsAppConversationsPage() {
   // Yanıt bekliyor 0 olunca sol menü rozeti hemen kaybolsun (card #6a6b6ec6).
   useEffect(() => {
     syncWaitingWhatsAppReplyCount(queryClient, conversations)
+    syncWhatsAppUnreadMessageCount(queryClient, conversations)
   }, [conversations, queryClient])
 
   const loadAuxiliaryData = useCallback(async (isActive: () => boolean) => {

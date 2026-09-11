@@ -2999,10 +2999,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: t('settings.citizen.channel', 'Talep Kanalı'),
                         value: (
                           <span
-                            className="inline-flex items-center gap-1"
+                            className="citizen-request-channel-value inline-flex items-center gap-1"
                             style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp') }}
                           >
-                            <ChannelIcon channel={citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                            <ChannelIcon channel={citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'} className="size-3 shrink-0" />
                             {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp')}
                           </span>
                         ),

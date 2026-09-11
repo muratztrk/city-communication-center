@@ -401,6 +401,18 @@
     font-weight: 600;
   }
 
+  /* VT detay popup Talep Kanalı değer + ikon biraz küçük (#3489). */
+  .job-detail-field-row__value .citizen-request-channel-value {
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+
+  .job-detail-field-row__value .citizen-request-channel-value svg,
+  .job-detail-field-row__value .citizen-request-channel-value img {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
   .job-detail-field-row--detail-card {
     padding: 0.375rem 0;
   }

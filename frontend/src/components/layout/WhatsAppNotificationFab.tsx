@@ -15,6 +15,7 @@ import { formatBadgeCount } from '../../utils/formatScopeChipBadgeCount'
 import { getWhatsAppFabUnreadCount, isAutomaticOutboundConversation } from '../../utils/whatsappFabNotification'
 import { matchesPhone } from '../../utils/phoneNormalization'
 import { syncWaitingWhatsAppReplyCount } from '../../utils/syncWaitingWhatsAppReplyCount'
+import { syncWhatsAppUnreadMessageCount } from '../../utils/whatsappUnreadMessageCount'
 import { WhatsAppConversationModal } from '../WhatsAppConversationModal'
 import {
   notifyFloatingChatFabClosed,
@@ -146,6 +147,7 @@ export function WhatsAppNotificationFab() {
     if (data && conversationsFetchSeqRef.current === seq) {
       setConversations(data)
       syncWaitingWhatsAppReplyCount(queryClient, data)
+      syncWhatsAppUnreadMessageCount(queryClient, data)
     }
   }, [fetchConversations, queryClient])
 
@@ -383,6 +385,10 @@ export function WhatsAppNotificationFab() {
     ),
     [unreadConversations],
   )
+
+  useEffect(() => {
+    syncWhatsAppUnreadMessageCount(queryClient, conversations)
+  }, [conversations, queryClient])
 
   const hasRelevantConversation = useMemo(
     () => conversations.some(conversation => conversation.isRelevantToCurrentUser !== false),

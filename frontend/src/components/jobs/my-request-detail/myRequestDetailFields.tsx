@@ -4,9 +4,7 @@ import { ChannelIcon } from '../../ui/channel-icon'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
 import {
   formatJobDestinationsWithAssignees,
-  getRequestApproverDisplayName,
   isCancelledCitizenRequestWithoutTasks,
-  shouldShowRequestApproverField,
 } from '../../../utils/jobDetails'
 import { getChannelLabelColor } from '../../../utils/channelColors'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
@@ -53,10 +51,7 @@ function destinationFieldLabel(
   return t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')
 }
 
-export interface BuildMyRequestDetailFieldsOptions {
-  /** Görev popup İlgili Talep Detayları — onaylanmış VT (#3529). */
-  showRequestApproverAfterDestination?: boolean
-}
+export type BuildMyRequestDetailFieldsOptions = Record<string, never>
 
 function resolveCitizenChannel(
   detail: JobDetail,
@@ -75,10 +70,10 @@ function buildCitizenChannelField(
     label: t('settings.citizen.channel', 'Talep Kanalı'),
     value: (
       <span
-        className="inline-flex items-center gap-1"
+        className="citizen-request-channel-value inline-flex items-center gap-1"
         style={{ color: getChannelLabelColor(channel) }}
       >
-        <ChannelIcon channel={channel} className="size-3.5 shrink-0" />
+        <ChannelIcon channel={channel} className="size-3 shrink-0" />
         {getSocialChannelLabel(t, channel)}
       </span>
     ),
@@ -100,7 +95,7 @@ export function buildMyRequestDetailFields(
   useMyRequestsFieldLayout = false,
   // Operatör / CRM: Talep Etiketi satırı (card #1896).
   showCitizenRequestLabel = false,
-  options: BuildMyRequestDetailFieldsOptions = {},
+  _options: BuildMyRequestDetailFieldsOptions = {},
 ): MyRequestDetailField[] {
   // Sadece Taleplerim'de "Talep Yapılan Birim / Görevi Yapan" iki ayrı başlığa bölünür; "Görevi
   // Yapan" satırı yalnızca talebin görevi oluşup bir personele atanmışsa gösterilir (card #1460).
@@ -204,12 +199,6 @@ export function buildMyRequestDetailFields(
             ? [{ label: t('jobs.detail.cancelledBy', 'Talebi İptal Eden'), value: detail.statusActorDisplayName.trim() }]
             : []),
           ]),
-      ...(options.showRequestApproverAfterDestination && shouldShowRequestApproverField(detail)
-        ? [{
-            label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
-            value: getRequestApproverDisplayName(detail) ?? '—',
-          }]
-        : []),
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
       ...(showCitizenRequestLabel
         ? [{ label: t('social.label', 'Talep Etiketi'), value: citizenSourceMessage?.category?.trim() || '—' }]

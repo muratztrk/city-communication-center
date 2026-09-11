@@ -1,5 +1,6 @@
 using CityCommunicationCenter.Application.Features.CitizenMessageApprovals;
 using CityCommunicationCenter.Domain.Enums;
+using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
 namespace CityCommunicationCenter.Application.Features.Tasks;
 
@@ -25,28 +26,94 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             cancellationToken);
         if (task is null) return null;
 
-        var job = await _dbContext.Jobs
+        var jobEntity = await _dbContext.Jobs
             .AsNoTracking()
-            .Where(entity => entity.JobId == task.JobId && entity.TenantId == tenantId)
-            .Select(entity => new
-            {
-                entity.Title,
-                entity.Description,
-                entity.RequestType,
-                entity.SourceType,
-                entity.CancelReason,
-                entity.CitizenTerminalMessageReleasedAtUtc,
-            })
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefaultAsync(entity => entity.JobId == task.JobId && entity.TenantId == tenantId, cancellationToken);
 
         string? citizenMessageApproverDisplayName = null;
         string? citizenApprovalReleasedNote = null;
-        if (job?.RequestType == JobRequestType.Citizen)
+        string? citizenOutboundMessage = null;
+        if (jobEntity?.RequestType == JobRequestType.Citizen)
         {
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
                 _dbContext, tenantId, task.JobId, cancellationToken);
             citizenMessageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
-                _dbContext, tenantId, task.JobId, cancellationToken, job.CitizenTerminalMessageReleasedAtUtc);
+                _dbContext, tenantId, task.JobId, cancellationToken, jobEntity.CitizenTerminalMessageReleasedAtUtc);
+
+            var citizenRequestCandidates = await _dbContext.SocialMessages.AsNoTracking()
+                .Where(m => m.TenantId == tenantId
+                    && m.CitizenRequestNumber != null
+                    && (m.JobId == jobEntity.JobId
+                        || (jobEntity.SourceRefId.HasValue && m.SocialMessageId == jobEntity.SourceRefId.Value)))
+                .Select(m => new
+                {
+                    m.CitizenRequestNumber,
+                    m.CitizenRequestNumberYear,
+                    m.Channel,
+                    m.SocialMessageId,
+                    m.JobId,
+                })
+                .ToListAsync(cancellationToken);
+            var citizenRequest = citizenRequestCandidates
+                .OrderByDescending(m => m.JobId == jobEntity.JobId)
+                .ThenByDescending(m => m.CitizenRequestNumberYear)
+                .ThenByDescending(m => m.CitizenRequestNumber)
+                .FirstOrDefault();
+            var hasCitizenWaPhoneLink = citizenRequest is not null
+                && (citizenRequest.Channel == SocialChannel.WhatsApp
+                    || citizenRequest.Channel == SocialChannel.Phone);
+            var isTerminalTask = task.CurrentStatus is WorkflowTaskStatus.Cancelled
+                or WorkflowTaskStatus.Rejected
+                or WorkflowTaskStatus.Completed;
+            var shouldResolveOutbound = citizenRequest is not null
+                && (hasCitizenWaPhoneLink
+                    || jobEntity.CitizenTerminalMessageReleasedAtUtc.HasValue
+                    || jobEntity.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.Completed
+                    || isTerminalTask);
+            if (shouldResolveOutbound)
+            {
+                var citizenVt = citizenRequest!;
+                var linkedMessages = await _dbContext.SocialMessages.AsNoTracking()
+                    .Where(m => m.TenantId == tenantId
+                        && m.CitizenRequestNumber != null
+                        && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
+                        && (m.JobId == jobEntity.JobId
+                            || (jobEntity.SourceRefId.HasValue && m.SocialMessageId == jobEntity.SourceRefId.Value)
+                            || (m.CitizenRequestNumber == citizenVt.CitizenRequestNumber
+                                && m.CitizenRequestNumberYear == citizenVt.CitizenRequestNumberYear)))
+                    .Select(m => new
+                    {
+                        m.Channel,
+                        m.SocialMessageId,
+                        m.RespondedAtUtc,
+                        m.ResponseContent,
+                        m.ReceivedAtUtc,
+                    })
+                    .ToListAsync(cancellationToken);
+                foreach (var linkedMessage in linkedMessages
+                    .OrderByDescending(m => jobEntity.SourceRefId.HasValue && m.SocialMessageId == jobEntity.SourceRefId.Value)
+                    .ThenByDescending(m => m.SocialMessageId == citizenVt.SocialMessageId)
+                    .ThenByDescending(m => m.ReceivedAtUtc))
+                {
+                    var smsResponse = linkedMessage.Channel == SocialChannel.Phone
+                        && linkedMessage.RespondedAtUtc.HasValue
+                        ? linkedMessage.ResponseContent
+                        : null;
+                    var note = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+                        _dbContext,
+                        tenantId,
+                        jobEntity,
+                        linkedMessage.Channel,
+                        linkedMessage.SocialMessageId,
+                        smsResponse,
+                        cancellationToken);
+                    if (!string.IsNullOrWhiteSpace(note))
+                    {
+                        citizenOutboundMessage = note;
+                        break;
+                    }
+                }
+            }
         }
 
         // "Oluşturan" = talebi oluşturan kişi (işin sahibi), görevi onaylayan/atayan değil.
@@ -176,11 +243,11 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             task.TaskId,
             task.TenantId,
             task.JobId,
-            job?.Title,
-            job is null ? null : job.RequestType.ToString(),
-            job is null ? null : job.SourceType.ToString(),
+            jobEntity?.Title,
+            jobEntity is null ? null : jobEntity.RequestType.ToString(),
+            jobEntity is null ? null : jobEntity.SourceType.ToString(),
             task.Title,
-            ResolveTaskDescription(task.Description, job?.Description),
+            ResolveTaskDescription(task.Description, jobEntity?.Description),
             task.Priority,
             task.CurrentStatus.ToString(),
             task.AssignedDepartmentId,
@@ -232,8 +299,8 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             statusChangeHistory,
             citizenMessageApproverDisplayName,
             citizenApprovalReleasedNote,
-            CitizenOutboundMessage: null,
-            JobCancelReason: job?.CancelReason);
+            citizenOutboundMessage,
+            JobCancelReason: jobEntity?.CancelReason);
     }
 
     private static string ResolveTaskDescription(string? taskDescription, string? jobDescription)

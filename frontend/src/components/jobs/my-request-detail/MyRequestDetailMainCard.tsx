@@ -329,6 +329,9 @@ export function MyRequestDetailMainCard({
       ? t('jobs.requestType.external', 'Birim Dışı')
       : t('jobs.requestType.internal', 'Birim İçi')
   const showCancelledWithoutTaskNotes = isCancelledCitizenRequestWithoutTasks(detail)
+  const showCancelledWithTaskNotes = isCitizenRequestJob(detail)
+    && (detail.status === 'Cancelled' || detail.status === 'Rejected')
+    && (detail.tasks?.length ?? 0) > 0
   const cancelledWithoutTaskOutbound = (citizenOutboundMessage ?? detail.citizenOutboundMessage ?? '').trim()
   const cancelledWithoutTaskNote = detail.cancelReason?.trim() || '—'
   const cancelledOutboundDiffersFromNote = Boolean(
@@ -344,6 +347,7 @@ export function MyRequestDetailMainCard({
     && Boolean(messageApproverRequestInfoLabel)
     && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)
     && !showCancelledWithoutTaskNotes
+    && !showCancelledWithTaskNotes
   const trailingInfoRows = [
     ...(infoExtraTrailingRows ?? []),
     ...(showMessageApproverInRequestInfo
@@ -356,7 +360,7 @@ export function MyRequestDetailMainCard({
           ),
         }]
       : []),
-    ...(showCancelledWithoutTaskNotes
+    ...(showCancelledWithoutTaskNotes || showCancelledWithTaskNotes
       ? [
           ...(shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)
             ? [{
@@ -368,14 +372,16 @@ export function MyRequestDetailMainCard({
                 ),
               }]
             : []),
-          {
-            label: t('tasks.detail.cancelNote', 'İptal Notu'),
-            value: (
-              <span className="text-slate-900">
-                {cancelledWithoutTaskNote}
-              </span>
-            ),
-          },
+          ...(detail.cancelReason?.trim()
+            ? [{
+                label: t('tasks.detail.cancelNote', 'İptal Notu'),
+                value: (
+                  <span className="text-slate-900">
+                    {cancelledWithoutTaskNote}
+                  </span>
+                ),
+              }]
+            : []),
           ...(cancelledWithoutTaskOutbound
             ? [{
                 label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),

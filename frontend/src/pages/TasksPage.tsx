@@ -2420,6 +2420,8 @@ const pageKicker = isMyTasksView
                               const taskNotesPlain = richTextToPlainText(taskDetail.notes ?? '').trim()
                               const outboundRaw = stripAutoMessageNoteLabel(citizenParent?.citizenOutboundMessage)
                                 || richTextToPlainText(citizenParent?.citizenOutboundMessage ?? '').trim()
+                                || stripAutoMessageNoteLabel(taskDetail.citizenOutboundMessage)
+                                || richTextToPlainText(taskDetail.citizenOutboundMessage ?? '').trim()
                               const cancelNoteDisplay = taskDetail.revisionReason?.trim()
                                 || citizenParent?.cancelReason?.trim()
                                 || taskDetail.jobCancelReason?.trim()

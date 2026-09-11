@@ -636,18 +636,26 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
         var hasCitizenWaPhoneLink = citizenRequest is not null
             && (citizenRequest.Channel == SocialChannel.WhatsApp
                 || citizenRequest.Channel == SocialChannel.Phone);
-        var shouldResolveCitizenMessageFields = job.RequestType == JobRequestType.Citizen
-            && citizenRequest is not null
-            && (hasCitizenWaPhoneLink || job.CitizenTerminalMessageReleasedAtUtc.HasValue);
-        if (shouldResolveCitizenMessageFields)
+        var hasTerminalCitizenTask = tasks.Exists(task =>
+            task.CurrentStatus is "Cancelled" or "Rejected" or "Completed");
+        var shouldResolveCitizenApproverFields = job.RequestType == JobRequestType.Citizen
+            && citizenRequest is not null;
+        var shouldResolveCitizenOutbound = shouldResolveCitizenApproverFields
+            && (hasCitizenWaPhoneLink
+                || job.CitizenTerminalMessageReleasedAtUtc.HasValue
+                || job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.Completed
+                || hasTerminalCitizenTask);
+        if (shouldResolveCitizenApproverFields)
         {
             var citizenVt = citizenRequest!;
-            // #3508/#3513/#3515: Onaylayan/release/outbound terminal job şartına bağlı değil (Active + terminal görev).
+            // #3508/#3513/#3515/#3491: Onaylayan/release VT bağlantısı veya ReleasedAtUtc şartına bağlı değil.
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken);
             citizenMessageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken, job.CitizenTerminalMessageReleasedAtUtc);
 
+            if (shouldResolveCitizenOutbound)
+            {
             var linkedMessages = await _dbContext.SocialMessages.AsNoTracking()
                 .Where(m => m.TenantId == tenantId
                     && m.CitizenRequestNumber != null
@@ -692,6 +700,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     citizenOutboundMessage = note;
                     break;
                 }
+            }
             }
         }
 

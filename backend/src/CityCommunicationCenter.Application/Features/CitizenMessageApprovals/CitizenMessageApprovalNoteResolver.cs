@@ -122,11 +122,30 @@ internal static class CitizenMessageApprovalNoteResolver
         CancellationToken cancellationToken)
     {
         var cycle = await GetCycleBoundsAsync(dbContext, tenantId, jobId, cancellationToken);
-        var approver = await QueryReleasedInCycle(dbContext, tenantId, jobId, cycle.ReopenedAt)
+        var releaseAudit = await QueryReleasedInCycle(dbContext, tenantId, jobId, cycle.ReopenedAt)
             .OrderBy(audit => audit.EventTimeUtc)
-            .Select(audit => audit.ActorDisplayName)
+            .Select(audit => new { audit.ActorDisplayName, audit.ActorUserId })
             .FirstOrDefaultAsync(cancellationToken);
-        return string.IsNullOrWhiteSpace(approver) ? null : approver.Trim();
+        if (releaseAudit is null)
+        {
+            return null;
+        }
+
+        if (!string.IsNullOrWhiteSpace(releaseAudit.ActorDisplayName))
+        {
+            return releaseAudit.ActorDisplayName.Trim();
+        }
+
+        if (!releaseAudit.ActorUserId.HasValue)
+        {
+            return null;
+        }
+
+        var actorName = await dbContext.Users.AsNoTracking()
+            .Where(user => user.UserId == releaseAudit.ActorUserId.Value)
+            .Select(user => user.DisplayName)
+            .FirstOrDefaultAsync(cancellationToken);
+        return string.IsNullOrWhiteSpace(actorName) ? null : actorName.Trim();
     }
 
     /// <summary>

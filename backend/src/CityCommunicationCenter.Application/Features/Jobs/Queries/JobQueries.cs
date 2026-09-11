@@ -619,14 +619,22 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
         string? citizenOutboundMessage = null;
         string? citizenApprovalReleasedNote = null;
         string? citizenMessageApproverDisplayName = null;
-        var eligible = await CitizenMessageApprovalAccess.FindEligibleTerminalJobAsync(
-            _dbContext, tenantId, job.JobId, track: false, cancellationToken);
-        if (eligible is not null)
+        var hasCitizenWaPhoneLink = citizenRequest is not null
+            && (citizenRequest.Channel == SocialChannel.WhatsApp
+                || citizenRequest.Channel == SocialChannel.Phone);
+        if (hasCitizenWaPhoneLink)
         {
+            // #3508: Onaylayan/release notu terminal job şartına bağlı değil (Mesaj Onayı reopen → Active).
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken);
             citizenMessageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken);
+        }
+
+        var eligible = await CitizenMessageApprovalAccess.FindEligibleTerminalJobAsync(
+            _dbContext, tenantId, job.JobId, track: false, cancellationToken);
+        if (eligible is not null)
+        {
             var linkedMessages = await _dbContext.SocialMessages.AsNoTracking()
                 .Where(m => m.TenantId == tenantId
                     && m.CitizenRequestNumber != null

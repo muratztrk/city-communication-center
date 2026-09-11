@@ -301,6 +301,76 @@ public sealed class CitizenMessageApprovalNoteResolverTests
     }
 
     [Fact]
+    public async Task ResolveMessageApproverDisplayName_falls_back_to_actor_user_when_display_name_missing()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var actorUserId = Guid.NewGuid();
+        var releasedAt = DateTimeOffset.UtcNow.AddMinutes(-15);
+        db.AddRange(
+            BuildCompletedJob(jobId, releasedAt),
+            new ApplicationUser
+            {
+                UserId = actorUserId,
+                TenantId = TenantId,
+                Username = "test.mudur",
+                DisplayName = "Test Müdür",
+                RoleCode = RoleCode.Manager,
+                PasswordHash = "x",
+            },
+            new AuditLog
+            {
+                AuditLogId = Guid.NewGuid(),
+                TenantId = TenantId,
+                EntityType = nameof(Job),
+                EntityId = jobId.ToString(),
+                Action = "CitizenMessageApprovalReleased",
+                ActorUserId = actorUserId,
+                EventTimeUtc = releasedAt,
+                Notes = "onay notu",
+                Details = "onay notu",
+            });
+        await db.SaveChangesAsync();
+
+        var approver = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
+            db, TenantId, jobId, CancellationToken.None);
+
+        Assert.Equal("Test Müdür", approver);
+    }
+
+    [Fact]
+    public async Task ResolveMessageApproverDisplayName_works_for_active_reopened_job()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var releasedAt = DateTimeOffset.UtcNow.AddHours(-2);
+        var reopenedAt = DateTimeOffset.UtcNow.AddMinutes(-30);
+        db.AddRange(
+            new Job
+            {
+                JobId = jobId,
+                TenantId = TenantId,
+                Title = "Çağrı",
+                Description = "Test",
+                OwnerDepartmentId = DepartmentId,
+                Status = JobStatus.Active,
+                RequestType = JobRequestType.Citizen,
+                SourceType = JobSourceType.SocialMessage,
+                CompletedAtUtc = releasedAt,
+                CompletionPercentage = 0,
+            },
+            BuildAudit(jobId, "CitizenMessageApprovalReleased", "eski not", releasedAt, actorDisplayName: "Eski Müdür"),
+            BuildAudit(jobId, "CitizenMessageJobReopenedToProcessingReceived", "reopen", reopenedAt),
+            BuildAudit(jobId, "CitizenMessageApprovalReleased", "yeni not", reopenedAt.AddMinutes(5), actorDisplayName: "Yeni Müdür"));
+        await db.SaveChangesAsync();
+
+        var approver = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
+            db, TenantId, jobId, CancellationToken.None);
+
+        Assert.Equal("Yeni Müdür", approver);
+    }
+
+    [Fact]
     public async Task WhatsApp_outbound_resolves_from_audit_when_released_at_cleared_on_cancel()
     {
         await using var db = CreateDbContext();
@@ -372,13 +442,19 @@ public sealed class CitizenMessageApprovalNoteResolverTests
         CompletionPercentage = 100,
     };
 
-    private static AuditLog BuildAudit(Guid jobId, string action, string note, DateTimeOffset at) => new()
+    private static AuditLog BuildAudit(
+        Guid jobId,
+        string action,
+        string note,
+        DateTimeOffset at,
+        string? actorDisplayName = null) => new()
     {
         AuditLogId = Guid.NewGuid(),
         TenantId = TenantId,
         EntityType = nameof(Job),
         EntityId = jobId.ToString(),
         Action = action,
+        ActorDisplayName = actorDisplayName,
         EventTimeUtc = at,
         Notes = note,
         Details = note,

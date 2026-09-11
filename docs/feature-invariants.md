@@ -2043,8 +2043,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Mesaj** Tamamlama Notu'nun **alt satırında**. `GetJobById` bu iki alanı rol kapısı olmadan
   doldurur (Operator/Reporter dışında Manager/CRM de görsün). `MyRequestDetailModal` prop
   verilmezse `detail.citizenOutboundMessage` / `citizenApprovalReleasedNote` okunur (kanal pie,
-  harita). **Vatandaşa Giden Mesaj** yalnız mesaj iletildikten sonra (`citizenOutboundMessage`
-  dolu; release öncesi Tamamlama/iptal notu fallback ile gösterilmez — #3356). WhatsApp'ta
+  harita). **Vatandaşa Giden Mesaj** Detaylar popup'ta terminal VT'de başlık her zaman durur
+  (`—` boşsa); değer iletilmiş outbound, yoksa release notu, yoksa `ResolveAsync` terminal notu
+  (#3536 reopen). Mesaj Onayı Bekleyen (`to-send`) satırı gizler (#3519). WhatsApp'ta
   `ResolveOutboundDisplayNoteAsync` yalnız `DeliveryStatusUpdatedAtUtc >= release` olan
   Sent/Delivered/Read giden kayıtlarından terminal notu çıkarır; release sonrası Pending veya
   release öncesi otomatik yanıtlar bu alanı doldurmaz (#3356 reopen). Aynı iletim zamanında
@@ -2945,9 +2946,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `SourceRefId` ile bulunur; `citizenRequest` null olsa bile `SourceRefId` WA/Phone mesajında outbound aranır (#3527).
   Aynı VT numarasındaki tüm WA/Phone konuşmalarında outbound aranır (#3521).
   WA gövdesinde tek `\n` ayracı ve `DeliveryStatusUpdatedAtUtc` null iken `SentAt` yedeği desteklenir.
-- **Vatandaşa Giden Mesaj görünürlük (#3520):** Mesaj iletilmemişse (`citizenOutboundMessage` boş) satır
-  hiç gösterilmez — boş `—` placeholder yok. İletilmiş terminal WA: `SentAt` release öncesi olsa bile
-  `DeliveryStatusUpdatedAtUtc` (veya `SentAt` yedeği) release sonrasıysa outbound çözülür (#3520/VT-2026-42).
+- **Vatandaşa Giden Mesaj görünürlük (#3520/#3536 reopen):** Detaylar popup (Birime Gelen / Taleplerim /
+  Görevlerim) terminal VT'de başlık her zaman görünür; değer iletilmiş outbound → release notu →
+  tamamlama/iptal notu, hiçbiri yoksa `—`. `to-send` chip hâlâ gizler (#3519). İletilmiş terminal WA:
+  `SentAt` release öncesi olsa bile `DeliveryStatusUpdatedAtUtc` (veya `SentAt` yedeği) release
+  sonrasıysa outbound çözülür (#3520/VT-2026-42). `GetJobById`/`GetTaskById` `JobCitizenRequestHelper`
+  ile ExternalUnit kaynaklı VT'yi de çözer.
 - **Birime Gelen İptal popup (#3516):** İptal nedeni textbox `maxLength=400` (BE `CancelJob` ile uyumlu).
 - **Görev Süreç Gecikti mi (#3522):** Birime Gelen detay → İlgili Görev Detayları Süreç başlığında Evet/Hayır.
 - **Outbound yeşil (#3523):** Vatandaşa Giden Mesaj = Tamamlama Notu ise satır etiket+değer yeşil.
@@ -2975,8 +2979,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   onaylayan tekrarını göstermez.
 - **Birime Gelen Talep Bilgileri onaylayan (#3515/#3539/#3492):** tamamlanmış/iptal VT detayında
   `Tamamlama Notu Onaylayan` / `İptal Notu Onaylayan` gösterilir; `Talebi İptal Eden` ve
-  `Talebi Onaylayan` satırı yok. Vatandaşa Giden Mesaj, iletilmiş/release edilmiş terminal
-  mesaj varken görünür (#3536). Tamamlama/İptal Notu değeri satır kayınca `text-align: justify` (#3475).
+  `Talebi Onaylayan` satırı yok. Vatandaşa Giden Mesaj başlığı terminal Detaylar'da her zaman
+  durur; iletim çözülemese release/tamamlama notu veya `—` (#3536 reopen). Tamamlama/İptal Notu
+  değeri satır kayınca `text-align: justify` (#3475).
 - **Görev popup Gecikti mi? (#3509 reopen):** `TasksPage` görev detay Süreç başlığında
   `Gecikti mi?` sağa hizalı; İlgili Talep Detayları `MyRequestDetailMainCard` ile aynı.
 - **Birime Gelen inline detay (#3506/#3509/#3510):** `JobsPage` request-details popup'ı

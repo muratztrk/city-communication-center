@@ -1,3 +1,11 @@
+## Round 1165 — Vatandaşa Giden Mesaj Detaylar'a geri
+
+- Kök: FE satırı yalnız `citizenOutboundMessage.trim()` doluyken çiziyordu; `ResolveOutboundDisplayNoteAsync`
+  (release + Sent/Delivered + `durumu "Tamamlandı"`) çoğu kayıtta null → başlık/veri kayboluyordu.
+  ExternalUnit kaynaklı VT'de BE hiç doldurmuyordu.
+- Fix: `JobCitizenRequestHelper` + release/`ResolveAsync` fallback; Detaylar'da satır her zaman
+  (to-send hariç); değer outbound → release notu → `—`.
+
 ## Round 1164 — Trello Doing (21 CCC)
 
 - **#3530:** Mesaj Onayı Yapan adı `0.8rem !important`; tarih `0.68rem`.

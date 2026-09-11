@@ -16,7 +16,7 @@ import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldLabel, StackedFieldValue } from './StackedFieldValue'
 import { StatusChangeTransition } from './StatusChangeTransition'
 import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
-import { formatCitizenCancelOutboundDisplay, notesDiffer, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
+import { formatCitizenCancelOutboundDisplay, notesDiffer, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../../../utils/richText'
 
 interface MyRequestTaskDetailsSectionProps {
@@ -203,7 +203,10 @@ export function MyRequestTaskDetailsSection({
           const citizenApproverValue = citizenMessageApproverDisplayName?.trim() || '—'
           const releasedPlain = notePlain(citizenApprovalReleasedNote)
           const taskNotesPlain = notePlain(task.notes)
-          const outboundPlain = stripAutoMessageNoteLabel(citizenOutboundMessage)
+          const outboundPlain = resolveCitizenOutboundDisplay({
+            citizenOutboundMessage,
+            citizenApprovalReleasedNote,
+          }) || stripAutoMessageNoteLabel(citizenOutboundMessage)
           const cancelNoteDisplay = task.revisionReason?.trim() || detail.cancelReason?.trim() || '—'
           // Operatör Sms Onayı task.Notes'u ezer; Tamamlama yöneticinin onay notu olmalı.
           // Released yokken canlı görev notuna ancak outbound yoksa (veya aynıysa) düş.
@@ -218,7 +221,7 @@ export function MyRequestTaskDetailsSection({
           const fallbackOutboundNote = isCompletedTask
             ? (releasedPlain || taskNotesPlain)
             : (notePlain(task.revisionReason) || notePlain(detail.cancelReason))
-          const rawOutbound = outboundPlain || notePlain(citizenOutboundMessage)
+          const rawOutbound = outboundPlain
           const displayedOutbound = isCancelledTask && rawOutbound
             ? formatCitizenCancelOutboundDisplay(rawOutbound, cancelNoteDisplay)
             : rawOutbound
@@ -316,10 +319,9 @@ export function MyRequestTaskDetailsSection({
                       && !hideMessageApprovalPendingFields
                       && (isCompletedTask || isCancelledTask)
                       && task.taskId === primaryTerminalTaskId
-                      && displayedOutbound
                       ? [{
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          value: displayedOutbound,
+                          value: displayedOutbound || '—',
                           tone: outboundDiffersFromCompletion ? outboundTone : 'completion',
                           fullRow: true as const,
                         }]

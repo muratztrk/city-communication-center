@@ -51,7 +51,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { DetailModalTitle } from '../utils/detailModalTitle'
 import { printHtmlDocument } from '../utils/printDocument'
-import { formatCitizenCancelOutboundDisplay, notesDiffer, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
+import { formatCitizenCancelOutboundDisplay, notesDiffer, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../utils/richText'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -2398,8 +2398,10 @@ const pageKicker = isMyTasksView
                               const isCompletedTask = taskDetail.currentStatus === 'Completed'
                               const isCancelledTask = taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected'
                               if (!isCompletedTask && !isCancelledTask) return []
-                              const isCitizenTerminalTask = taskDetail.jobRequestType === 'Citizen'
-                                || Boolean(parentJobDetail && isCitizenRequestJob(parentJobDetail))
+                              const isCitizenTerminalTask = isCitizenRequestJob({
+                                requestType: taskDetail.jobRequestType,
+                                sourceType: taskDetail.jobSourceType,
+                              }) || Boolean(parentJobDetail && isCitizenRequestJob(parentJobDetail))
                               const citizenParent = parentJobDetail && isCitizenTerminalTask ? parentJobDetail : null
                               const resolvedApproverName = citizenParent?.citizenMessageApproverDisplayName
                                 ?? taskDetail.citizenMessageApproverDisplayName
@@ -2412,7 +2414,13 @@ const pageKicker = isMyTasksView
                                   ?? '',
                               ).trim()
                               const taskNotesPlain = richTextToPlainText(taskDetail.notes ?? '').trim()
-                              const outboundRaw = stripAutoMessageNoteLabel(citizenParent?.citizenOutboundMessage)
+                              const outboundRaw = resolveCitizenOutboundDisplay({
+                                citizenOutboundMessage: citizenParent?.citizenOutboundMessage
+                                  ?? taskDetail.citizenOutboundMessage,
+                                citizenApprovalReleasedNote: citizenParent?.citizenApprovalReleasedNote
+                                  ?? taskDetail.citizenApprovalReleasedNote,
+                              })
+                                || stripAutoMessageNoteLabel(citizenParent?.citizenOutboundMessage)
                                 || richTextToPlainText(citizenParent?.citizenOutboundMessage ?? '').trim()
                                 || stripAutoMessageNoteLabel(taskDetail.citizenOutboundMessage)
                                 || richTextToPlainText(taskDetail.citizenOutboundMessage ?? '').trim()
@@ -2466,10 +2474,10 @@ const pageKicker = isMyTasksView
                                   tone: 'cancel',
                                 })
                               }
-                              if (isCitizenTerminalTask && displayedOutbound) {
+                              if (isCitizenTerminalTask) {
                                 rows.push({
                                   label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                                  value: displayedOutbound,
+                                  value: displayedOutbound || '—',
                                   tone: outboundTone,
                                 })
                               }

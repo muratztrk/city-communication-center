@@ -7816,6 +7816,8 @@
   }
 
   .citizen-terminal-note-value {
+    align-self: stretch;
+    width: 100%;
     text-align: justify;
     text-justify: inter-word;
   }

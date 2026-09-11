@@ -638,14 +638,15 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 || citizenRequest.Channel == SocialChannel.Phone);
         var hasTerminalCitizenTask = tasks.Exists(task =>
             task.CurrentStatus is "Cancelled" or "Rejected" or "Completed");
-        var shouldResolveCitizenOutbound = job.RequestType == JobRequestType.Citizen
+        var isCitizenRequest = JobCitizenRequestHelper.IsCitizenRequest(job);
+        var shouldResolveCitizenOutbound = isCitizenRequest
             && (citizenRequest is not null || job.SourceRefId.HasValue)
             && (hasCitizenWaPhoneLink
                 || job.SourceRefId.HasValue
                 || job.CitizenTerminalMessageReleasedAtUtc.HasValue
                 || job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.Completed
                 || hasTerminalCitizenTask);
-        if (job.RequestType == JobRequestType.Citizen)
+        if (isCitizenRequest)
         {
             // #3508/#3513/#3515/#3491: Onaylayan/release sosyal mesaj eşlemesi olmadan da audit'ten çözülür.
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
@@ -715,6 +716,24 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                         break;
                     }
                 }
+
+                if (string.IsNullOrWhiteSpace(citizenOutboundMessage)
+                    && !string.IsNullOrWhiteSpace(citizenApprovalReleasedNote))
+                {
+                    citizenOutboundMessage = citizenApprovalReleasedNote;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(citizenOutboundMessage)
+                && !string.IsNullOrWhiteSpace(citizenApprovalReleasedNote))
+            {
+                citizenOutboundMessage = citizenApprovalReleasedNote;
+            }
+
+            if (string.IsNullOrWhiteSpace(citizenOutboundMessage))
+            {
+                citizenOutboundMessage = await CitizenMessageApprovalNoteResolver.ResolveAsync(
+                    _dbContext, tenantId, job, cancellationToken);
             }
         }
 

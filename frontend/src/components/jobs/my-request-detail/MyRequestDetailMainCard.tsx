@@ -15,7 +15,7 @@ import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, RequestTag, SocialMessage } from '../../../types/platform'
 import { useAuth } from '../../../context/AuthContext'
 import { useWeekendSlaDueDateMin } from '../../../hooks/useWeekendSlaDueDateMin'
-import { formatCitizenCancelOutboundDisplay } from '../../../utils/citizenOutboundDisplay'
+import { formatCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay } from '../../../utils/citizenOutboundDisplay'
 import { shouldShowJobStatusActorName, formatJobAssigneeNames, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowCitizenMessageApproverInRequestInfo, getCitizenMessageApproverRequestInfoLabel } from '../../../utils/jobDetails'
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
@@ -332,7 +332,11 @@ export function MyRequestDetailMainCard({
   const showCancelledWithTaskNotes = isCitizenRequestJob(detail)
     && (detail.status === 'Cancelled' || detail.status === 'Rejected')
     && (detail.tasks?.length ?? 0) > 0
-  const cancelledWithoutTaskOutbound = (citizenOutboundMessage ?? detail.citizenOutboundMessage ?? '').trim()
+  const outboundDisplay = resolveCitizenOutboundDisplay({
+    citizenOutboundMessage: citizenOutboundMessage ?? detail.citizenOutboundMessage,
+    citizenApprovalReleasedNote: detail.citizenApprovalReleasedNote,
+  })
+  const cancelledWithoutTaskOutbound = outboundDisplay
   const cancelledWithoutTaskNote = detail.cancelReason?.trim() || '—'
   const cancelledOutboundDiffersFromNote = Boolean(
     cancelledWithoutTaskOutbound
@@ -360,12 +364,22 @@ export function MyRequestDetailMainCard({
           ),
         }]
       : []),
-    ...(showMessageApproverInRequestInfo && (citizenOutboundMessage ?? detail.citizenOutboundMessage ?? '').trim()
+    ...((showMessageApproverInRequestInfo
+      || (isCitizenRequestJob(detail)
+        && !showCancelledWithoutTaskNotes
+        && !showCancelledWithTaskNotes
+        && (
+          detail.status === 'Completed'
+          || (detail.tasks ?? []).some(task =>
+            task.currentStatus === 'Completed'
+            || task.currentStatus === 'Cancelled'
+            || task.currentStatus === 'Rejected')
+        )))
       ? [{
           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
           value: (
             <span className="citizen-terminal-note-value text-slate-900">
-              {(citizenOutboundMessage ?? detail.citizenOutboundMessage ?? '').trim()}
+              {outboundDisplay || '—'}
             </span>
           ),
         }]
@@ -392,16 +406,14 @@ export function MyRequestDetailMainCard({
                 ),
               }]
             : []),
-          ...(cancelledWithoutTaskOutbound
-            ? [{
-                label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                value: (
-                  <span className={`citizen-terminal-note-value ${cancelledOutboundDiffersFromNote ? 'text-red-600' : 'text-slate-900'}`}>
-                    {cancelledOutboundDisplay}
-                  </span>
-                ),
-              }]
-            : []),
+          {
+            label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+            value: (
+              <span className={`citizen-terminal-note-value ${cancelledOutboundDiffersFromNote ? 'text-red-600' : 'text-slate-900'}`}>
+                {cancelledOutboundDisplay || '—'}
+              </span>
+            ),
+          },
         ]
       : []),
   ]

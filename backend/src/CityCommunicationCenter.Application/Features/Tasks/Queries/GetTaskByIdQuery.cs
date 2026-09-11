@@ -1,4 +1,5 @@
 using CityCommunicationCenter.Application.Features.CitizenMessageApprovals;
+using CityCommunicationCenter.Application.Features.Jobs;
 using CityCommunicationCenter.Domain.Enums;
 using WorkflowTaskStatus = CityCommunicationCenter.Domain.Enums.TaskStatus;
 
@@ -33,7 +34,7 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
         string? citizenMessageApproverDisplayName = null;
         string? citizenApprovalReleasedNote = null;
         string? citizenOutboundMessage = null;
-        if (jobEntity?.RequestType == JobRequestType.Citizen)
+        if (jobEntity is not null && JobCitizenRequestHelper.IsCitizenRequest(jobEntity))
         {
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
                 _dbContext, tenantId, task.JobId, cancellationToken);
@@ -128,6 +129,24 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
                         break;
                     }
                 }
+
+                if (string.IsNullOrWhiteSpace(citizenOutboundMessage)
+                    && !string.IsNullOrWhiteSpace(citizenApprovalReleasedNote))
+                {
+                    citizenOutboundMessage = citizenApprovalReleasedNote;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(citizenOutboundMessage)
+                && !string.IsNullOrWhiteSpace(citizenApprovalReleasedNote))
+            {
+                citizenOutboundMessage = citizenApprovalReleasedNote;
+            }
+
+            if (string.IsNullOrWhiteSpace(citizenOutboundMessage))
+            {
+                citizenOutboundMessage = await CitizenMessageApprovalNoteResolver.ResolveAsync(
+                    _dbContext, tenantId, jobEntity, cancellationToken);
             }
         }
 

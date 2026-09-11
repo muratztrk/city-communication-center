@@ -2962,11 +2962,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`outboundPlain` yokken `—`; iletim öncesi fallback not gösterilmez — #3356).
 - **Birimdeki Görevler detay (#3513):** `TasksPage` görev popup Görev Bilgileri'nde vatandaş talebinde
   terminal görevde onaylayan + outbound satırları `MyRequestTaskDetailsSection` ile aynı kurallar.
-- **Görev popup Talep Bilgileri (#3528/#3529):** İlgili Talep Detayları → `Talep Yapılan Birim` sonrası
-  onaylanmış VT'de `Talebi Onaylayan` (Görevlerim/Birimdeki/Personelimin). Görevli iptal VT'de
-  `Talebi İptal Eden` yalnız Birimdeki + Personelimin görünümünde (#3528).
-- **Mesaj Onayı Giden/Tümü grid (#3530):** `sent`/`all` scope'ta `Durum` sütunu yerine
-  `Mesajı Onayı Yapan`; onay yoksa mavi `Onay Bekleyen`.
+- **Görev popup Talep Bilgileri (#3529):** İlgili Talep Detayları → `Talep Yapılan Birim` sonrası
+  onaylanmış VT'de `Talebi Onaylayan` (Görevlerim/Birimdeki/Personelimin). `#3528 reopen:` Talep
+  Bilgileri'nde `Talebi İptal Eden` satırı yok (iptal eden Süreç başlığında kalır).
+- **Mesaj Onayı Giden/Tümü grid (#3530):** `sent`/`all` scope'ta `Durum` yerine `Mesaj Onayı Yapan`
+  + alt başlık `Onay Tarihi`; hücrede isim üstte, tarih altta yeşil StatusPill (Tamamlanan gibi).
+  Ayrı `Mesaj Onay Tarihi` sütunu yok; onay yoksa mavi `Onay Bekleyen`.
 - **Görevsiz iptal VT onaylayan (#3505):** Talep Bilgileri'nde `İptal Notu` üstünde aynı onaylayan
   satırı (Mesajı Onayla yapan kullanıcı).
 - **İptal görevsiz talep not renkleri (#3490):** görev oluşmamış iptal talebinde `İptal Notu`

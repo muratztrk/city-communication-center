@@ -56,8 +56,6 @@ function destinationFieldLabel(
 export interface BuildMyRequestDetailFieldsOptions {
   /** Görev popup İlgili Talep Detayları — onaylanmış VT (#3529). */
   showRequestApproverAfterDestination?: boolean
-  /** Birimdeki/Personelimin görevleri — görevli iptal VT (#3528). */
-  showCancelledByWithTasks?: boolean
 }
 
 function resolveCitizenChannel(
@@ -210,15 +208,6 @@ export function buildMyRequestDetailFields(
         ? [{
             label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
             value: getRequestApproverDisplayName(detail) ?? '—',
-          }]
-        : []),
-      ...((detail.status === 'Cancelled' || detail.status === 'Rejected')
-        && (detail.tasks?.length ?? 0) > 0
-        && options.showCancelledByWithTasks
-        && detail.statusActorDisplayName?.trim()
-        ? [{
-            label: t('jobs.detail.cancelledBy', 'Talebi İptal Eden'),
-            value: detail.statusActorDisplayName.trim(),
           }]
         : []),
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },

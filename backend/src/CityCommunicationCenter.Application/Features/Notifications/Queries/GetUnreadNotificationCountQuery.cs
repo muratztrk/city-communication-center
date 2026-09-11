@@ -56,6 +56,13 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
             .Select(entry => entry.AuditLogId)
             .ToListAsync(cancellationToken);
 
+        var hideDueDateUpdates = await _dbContext.Users.AsNoTracking()
+            .AnyAsync(
+                user => user.UserId == request.UserId
+                    && user.TenantId == tenantId
+                    && user.RoleCode == RoleCode.Operator,
+                cancellationToken);
+
         var historicalUnread = await _dbContext.AuditLogs
             .AsNoTracking()
             .CountAsync(
@@ -65,7 +72,8 @@ public sealed class GetUnreadNotificationCountQueryHandler : IQueryHandler<GetUn
                     && auditLog.EventTimeUtc > readThroughUtc
                     && auditLog.EventTimeUtc > dismissedThroughUtc
                     && !readAuditIds.Contains(auditLog.AuditLogId)
-                    && NotificationAuditRules.ShouldCountAuditAsUnread(auditLog, request.UserId),
+                    && NotificationAuditRules.ShouldCountAuditAsUnread(auditLog, request.UserId)
+                    && !(hideDueDateUpdates && auditLog.Action == "JobDueDateUpdated"),
                 cancellationToken);
 
         return realUnread + historicalUnread;

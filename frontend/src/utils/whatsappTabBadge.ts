@@ -49,7 +49,7 @@ function drawBadge(baseHref: string, count: number, generation: number) {
     ctx.clearRect(0, 0, size, size)
     ctx.drawImage(image, 0, 0, size, size)
 
-    const radius = count > 1 ? 18 : 12
+    const radius = 18
     const cx = size - radius - 2
     const cy = radius + 2
     ctx.beginPath()
@@ -60,13 +60,11 @@ function drawBadge(baseHref: string, count: number, generation: number) {
     ctx.lineWidth = 3
     ctx.stroke()
 
-    if (count > 1) {
-      ctx.fillStyle = '#ffffff'
-      ctx.font = `bold ${count > 9 ? 20 : 24}px ui-sans-serif, system-ui, sans-serif`
-      ctx.textAlign = 'center'
-      ctx.textBaseline = 'middle'
-      ctx.fillText(count > 99 ? '99+' : String(count), cx, cy + 1)
-    }
+    ctx.fillStyle = '#ffffff'
+    ctx.font = `bold ${count > 9 ? 20 : 24}px ui-sans-serif, system-ui, sans-serif`
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'middle'
+    ctx.fillText(count > 99 ? '99+' : String(count), cx, cy + 1)
 
     canvas.toBlob(blob => {
       if (!blob || generation !== drawGeneration) return
@@ -83,8 +81,7 @@ function drawBadge(baseHref: string, count: number, generation: number) {
 }
 
 export function formatWhatsAppTabTitle(baseTitle: string, count: number): string {
-  if (count > 1) return `(${count}) ${baseTitle}`
-  if (count === 1) return `• ${baseTitle}`
+  if (count >= 1) return `(${count}) ${baseTitle}`
   return baseTitle
 }
 

@@ -104,10 +104,14 @@ public sealed class ReceiveWhatsAppWebhookCommandHandler
                 _dbContext.CitizenConversations.Add(conversation);
                 existingConversations[citizenHandle] = conversation;
             }
-            else
+            else if (conversation.IsBlocked)
             {
-                if (latestAt > conversation.LastMessageAt)
-                    conversation.LastMessageAt = latestAt;
+                // Engellenen numara inbound yazamaz; liste sırasını da oynatma (#3537).
+                continue;
+            }
+            else if (latestAt > conversation.LastMessageAt)
+            {
+                conversation.LastMessageAt = latestAt;
             }
 
             conversation.UnreadCount += persistableMsgs.Length;

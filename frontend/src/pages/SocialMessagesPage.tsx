@@ -710,8 +710,8 @@ export function SocialMessagesPage({ embedded = false, embeddedWasOverdue = fals
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(messagesPage - 1) * messagesPageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className="table-number-cell__value inline-flex items-center gap-1.5">
-                        {message.channel === 'WhatsApp' ? <ChannelIcon channel={message.channel} className="size-4 shrink-0" /> : null}
-                        {message.channel !== 'WhatsApp' ? <ChannelIcon channel={message.channel} className="size-4 shrink-0" /> : null}
+                        {message.channel === 'WhatsApp' ? <ChannelIcon channel={message.channel} className="size-3.5 shrink-0" /> : null}
+                        {message.channel !== 'WhatsApp' ? <ChannelIcon channel={message.channel} className="size-3.5 shrink-0" /> : null}
                         <span>{formatCitizenRequestNumber(message, locale)}</span>
                       </div>
                       {linkedJob && shouldShowGridPrioritySubline(linkedJob.priority) ? (

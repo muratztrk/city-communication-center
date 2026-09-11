@@ -1,3 +1,20 @@
+## Round 1164 — Trello Doing (21 CCC)
+
+- **#3530:** Mesaj Onayı Yapan adı `0.8rem !important`; tarih `0.68rem`.
+- **#3489:** Talep Kanalı ad/telefon altında yok; Öncelik yanında durur.
+- **#3531:** Operatör sekmesi `(N)` + sayılı favicon (N=1 dahil).
+- **#3537:** WA menü Numarayı Engelle; `IsBlocked` inbound yutulur.
+- **#3475:** Tamamlama/İptal Notu değeri justify.
+- **#3536:** Detayda Vatandaşa Giden Mesaj (iletilmiş terminal).
+- **#3538/#3545/#3547:** Mahalle dar, Cadde geniş, No küçük (WA popup/profil + çağrı).
+- **#3442:** Sidebar rozet zoom telafisi + overflow kesilmesin.
+- **#3445:** 1440 Birime Gelen işlem butonları sarmalansın.
+- **#3515/#3539/#3492:** Tamamlama/İptal Notu Onaylayan; Talebi İptal Eden yok.
+- **#3540/#3541:** Mesaj Onayı chip sesi yok; banner metni güncel.
+- **#3542/#3543:** Grid kanal ikonu küçük; Durum tarih+saat aynı satır.
+- **#3544/#3548:** WA ses yalnız Operator; Operator due-date bildirimi yok.
+- **#3546:** Vatandaş Adı etiketinden “(max 50 karakter)” kaldırıldı.
+
 ## Round 1163 — Çağrı-önce sonra WhatsApp talebi
 
 - Aynı numarada önce çağrı VT'si varsa WA Talep oluştur yanıt hedefi (`pickReply`) olmadığı için kapanıyor veya mevcut kaydı dönüştürmeye çalışıyordu.

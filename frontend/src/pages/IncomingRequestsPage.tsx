@@ -1052,7 +1052,7 @@ export function IncomingRequestsPage() {
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(incomingPage - 1) * incomingPageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className="table-number-cell__value inline-flex flex-wrap items-center gap-1.5">
-                        {row.sourceChannel ? <ChannelIcon channel={row.sourceChannel} className="size-4 shrink-0" /> : null}
+                        {row.sourceChannel ? <ChannelIcon channel={row.sourceChannel} className="size-3.5 shrink-0" /> : null}
                         <span className={reporterNumberClass}>{row.displayNumber}</span>
                         {/* Yönlendirilen talepte Talep No yanında koyu turkuaz rozet görünür (cards #1406/#1412). */}
                         {row.forwardReason ? (

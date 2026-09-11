@@ -110,7 +110,8 @@ function useResponsiveZoom() {
   // isteyen kurallar bu değişkenle çarpar (#6a6cffd1).
   useEffect(() => {
     document.documentElement.style.setProperty('--app-content-zoom', String(zoom.content))
-  }, [zoom.content])
+    document.documentElement.style.setProperty('--sidebar-zoom', String(zoom.sidebar))
+  }, [zoom.content, zoom.sidebar])
   return zoom
 }
 
@@ -413,8 +414,9 @@ export function AppShell() {
   const incomingPendingApprovalNavCount = incomingPendingApprovalCountQuery.data ?? 0
 
   const myTasksNavBadgeCount = navDashboardCounts?.myPendingTaskNavBadgeCount ?? navDashboardCounts?.myPendingTaskCount
-  useWhatsAppInboundMessageSound()
-  useWhatsAppTabUnreadBadge(Boolean(user?.userId) && getEffectiveUserRoles(user).includes('Operator'))
+  const isCitizenRequestOperator = Boolean(user?.userId) && getEffectiveUserRoles(user).includes('Operator')
+  useWhatsAppInboundMessageSound(isCitizenRequestOperator)
+  useWhatsAppTabUnreadBadge(isCitizenRequestOperator)
   useNavBadgeCountSound(myTasksNavBadgeCount, navCountsQuery.isSuccess, '/my-tasks', { playOnTargetPage: false })
   useNavBadgeCountSound(incomingPendingApprovalNavCount, incomingPendingApprovalCountQuery.isSuccess, '/incoming-requests')
   useNavBadgeCountSound(navDashboardCounts?.outgoingPendingCount ?? 0, navCountsQuery.isSuccess, '/outgoing-requests')
@@ -919,7 +921,7 @@ export function AppShell() {
             {isSidebarCollapsed ? <ChevronRight className="size-3.5" /> : <ChevronLeft className="size-3.5" />}
           </button>
 
-          <div className="sidebar-scroll-area flex-1 overflow-x-hidden overflow-y-auto">
+          <div className="sidebar-scroll-area flex-1 overflow-x-visible overflow-y-auto">
             <SidebarNav
               items={navItems}
               collapsed={isSidebarCollapsed}

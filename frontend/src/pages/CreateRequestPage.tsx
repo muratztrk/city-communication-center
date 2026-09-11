@@ -808,6 +808,7 @@ export function CreateRequestPage() {
       coordinatesBelowNeighborhood?: boolean
       streetRowClassName?: string
       neighborhoodStreetRowClass?: string
+      streetNoColumnClassName?: string
     },
   ) => {
     const hasNeighborhood = form.neighborhood.trim().length > 0
@@ -859,6 +860,7 @@ export function CreateRequestPage() {
             coordinates={inlineCoordinates ? (form.coordinates ?? '') : undefined}
             onCoordinatesChange={inlineCoordinates ? value => setField('coordinates', value) : undefined}
             className={streetRowClassName}
+            streetNoColumnClassName={options?.streetNoColumnClassName}
             onStreetChange={street => setField('street', street)}
             onStreetNoChange={streetNo => setField('streetNo', streetNo)}
           />
@@ -1690,7 +1692,7 @@ export function CreateRequestPage() {
           <div className="grid content-start gap-3">
             <div className="grid gap-3 md:grid-cols-2">
               <label className="job-field">
-                <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş Adı')} <span className="normal-case text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span> <span className="text-red-500">*</span></span>
+                <span className="job-field-label">{t('settings.citizen.citizenName', 'Vatandaş Adı')} <span className="text-red-500">*</span></span>
                 <input
                   className="field-input placeholder:text-[0.92rem]"
                   required
@@ -1786,9 +1788,10 @@ export function CreateRequestPage() {
                 includePhotoUpload: false,
                 smallerPlaceholders: true,
                 showCoordinates: false,
-                neighborhoodStreetRowClass: 'md:grid-cols-[minmax(0,1.1fr)_minmax(0,1.05fr)]',
+                neighborhoodStreetRowClass: 'md:grid-cols-[minmax(0,0.72fr)_minmax(0,1.4fr)]',
                 streetRowClassName:
-                  'address-street-no-row citizen-call-address-street-row grid grid-cols-[minmax(0,1.45fr)_7.5rem] gap-2 w-full',
+                  'address-street-no-row citizen-call-address-street-row grid grid-cols-[minmax(0,1.7fr)_6.5rem] gap-2 w-full',
+                streetNoColumnClassName: 'lg:w-[6.5rem] lg:min-w-[6.5rem] lg:max-w-[6.5rem]',
               },
             )}
             <div className="job-field min-h-0">

@@ -1562,6 +1562,17 @@ export const api = {
     return response.json() as Promise<CitizenConversationDetail>
   },
 
+  async setCitizenConversationBlocked(conversationId: string, isBlocked: boolean): Promise<void> {
+    const response = await fetchWithCredentials(
+      `${API_BASE}/citizen-conversations/${conversationId}/${isBlocked ? 'block' : 'unblock'}`,
+      {
+        method: 'POST',
+        headers: await getAuthHeaders(),
+      },
+    )
+    await ensureOk(response, i18n.t('errors.socialRouteFailed'))
+  },
+
   async markConversationRead(conversationId: string): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations/${conversationId}/mark-read`, {
       method: 'POST',

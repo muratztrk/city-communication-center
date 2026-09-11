@@ -392,7 +392,7 @@ export function MyRequestTaskDetailsSection({
                     return (
                     <div key={'key' in row ? row.key : String(row.label)} className={`job-detail-field-row job-detail-field-row--request-info${fullRow ? ' job-detail-field-row--full' : ''}${rowClass ? ` ${rowClass}` : ''}`}>
                       <div className={`job-detail-field-row__label ${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.label}</div>
-                      <div className={`job-detail-field-row__value ${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : typeof row.value === 'string' ? 'text-slate-900' : ''}`}>{row.value}</div>
+                      <div className={`job-detail-field-row__value ${tone === 'cancel' || tone === 'outbound-diff' || tone === 'completion' ? 'citizen-terminal-note-value ' : ''}${tone === 'cancel' || tone === 'outbound-diff' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : typeof row.value === 'string' ? 'text-slate-900' : ''}`}>{row.value}</div>
                     </div>
                     )
                   })}

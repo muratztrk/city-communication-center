@@ -244,9 +244,18 @@ public sealed class GetNotificationsQueryHandler : IQueryHandler<GetNotification
                         .ToListAsync(cancellationToken))
                     .ToHashSet();
 
+                var hideDueDateUpdates = Enum.TryParse<RoleCode>(context.RoleCode, true, out var feedRole)
+                    && feedRole == RoleCode.Operator;
+
                 foreach (var a in logs)
                 {
                     if (!NotificationAuditRules.ShouldCountAuditAsUnread(a, userId))
+                    {
+                        continue;
+                    }
+
+                    // Vatandaş Talep Operatörü "Talep son tarihi güncellendi" görmez (#3548).
+                    if (hideDueDateUpdates && a.Action == "JobDueDateUpdated")
                     {
                         continue;
                     }

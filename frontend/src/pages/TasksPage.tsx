@@ -2582,7 +2582,7 @@ const pageKicker = isMyTasksView
                             return (
                             <div key={fieldIndex} className={`job-detail-field-row job-detail-field-row--request-info${'rowClass' in row && row.rowClass ? ` ${row.rowClass}` : ''}`}>
                               <div className={`job-detail-field-row__label ${toneClass}`}>{row.label}</div>
-                              <div className={`job-detail-field-row__value ${toneClass}`}>{row.value}</div>
+                              <div className={`job-detail-field-row__value ${tone ? 'citizen-terminal-note-value ' : ''}${toneClass}`}>{row.value}</div>
                             </div>
                             )
                           })}
@@ -3432,7 +3432,7 @@ const pageKicker = isMyTasksView
                           ? (
                             <div className="table-number-cell__value font-mono flex w-full flex-col items-center justify-center gap-0.5 text-center">
                               <span className="inline-flex flex-wrap items-center justify-center gap-1.5">
-                                <ChannelIcon channel={getCitizenTaskChannel(task, socialByJobId)} className="size-4 shrink-0" />
+                                <ChannelIcon channel={getCitizenTaskChannel(task, socialByJobId)} className="size-3.5 shrink-0" />
                                 <span className={reporterLinkedRequestClass}>{linkedRequestNumber}</span>
                               </span>
                               {task.forwardReason ? <span className="font-sans text-[12px] font-bold text-teal-800">({t('jobs.forward.badge', 'Yönlendirilen Talep')})</span> : null}

@@ -612,7 +612,6 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 <label className="job-field">
                   <span className="job-field-label">
                     {t('settings.citizen.citizenName', 'Vatandaş Adı')}{' '}
-                    <span className="normal-case text-xs font-normal text-slate-400">{t('tasks.newRequest.maxChars', '(max 50 karakter)')}</span>{' '}
                     <span className="text-red-500">*</span>
                   </span>
                   <DeferredComposerInput
@@ -734,7 +733,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
               </div>
 
               <div className="job-field">
-                <div className="grid gap-2 md:grid-cols-[minmax(0,0.44fr)_minmax(0,1fr)] md:items-stretch">
+                <div className="grid gap-2 md:grid-cols-[minmax(0,0.36fr)_minmax(0,1fr)] md:items-stretch">
                   <label className="job-field grid gap-1">
                     <span className="job-field-label">
                       {t('address.neighborhoodLabel', 'Mahalle')}
@@ -772,6 +771,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     triggerClassName="citizen-request-address-trigger"
                     menuScrollClassName="citizen-request-department-menu"
                     menuClassName="citizen-request-department-menu"
+                    streetNoColumnClassName="lg:w-[6.5rem] lg:min-w-[6.5rem] lg:max-w-[6.5rem]"
                     matchTriggerWidth
                   />
                 </div>

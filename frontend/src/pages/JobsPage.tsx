@@ -2953,7 +2953,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         <span>{t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}</span>
                         <span className="ml-auto flex shrink-0 items-center gap-3">
                           {/* Birime Gelen (#3489): kanal VT no solunda + Talep Kanalı satırında; diğer yüzeylerde başlıkta (#1532). */}
-                          {isCitizenRequestDetail && !isIncomingRequestDetail ? (
+                          {isCitizenRequestDetail ? (
                             <span
                               className="inline-flex items-center gap-1 text-xs font-semibold"
                               style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp') }}
@@ -2994,18 +2994,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           />
                         ),
                         rowClass: 'job-detail-field-row--citizen-contact',
-                      },
-                      {
-                        label: t('settings.citizen.channel', 'Talep Kanalı'),
-                        value: (
-                          <span
-                            className="citizen-request-channel-value inline-flex items-center gap-1"
-                            style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp') }}
-                          >
-                            <ChannelIcon channel={citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'} className="size-3 shrink-0" />
-                            {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp')}
-                          </span>
-                        ),
                       },
                       ...(hasCitizenAddress(detail) ? [{
                         label: t('jobs.detail.citizenAddressInfo', 'Vatandaş Adres Bilgisi'),
@@ -3075,12 +3063,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         && outboundMessage.localeCompare(cancelledNote, 'tr', { sensitivity: 'accent' }) !== 0,
                       )
                       const rows: { label: string; value: React.ReactNode; valueClass?: string }[] = []
-                      if (shouldShowCitizenMessageApproverField(user, detail.statusActorDisplayName) || detail.statusActorDisplayName?.trim()) {
-                        rows.push({
-                          label: t('jobs.detail.cancelledBy', 'Talebi İptal Eden'),
-                          value: detail.statusActorDisplayName?.trim() || '—',
-                        })
-                      }
                       if (!hideMessageApprovalPendingFields && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)) {
                         rows.push({
                           label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
@@ -3091,12 +3073,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         rows.push({
                           label: t('tasks.detail.cancelNote', 'İptal Notu'),
                           value: cancelledNote,
+                          valueClass: 'citizen-terminal-note-value text-slate-900',
                         })
                         if (!hideMessageApprovalPendingFields && outboundMessage) {
                           rows.push({
                             label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
                             value: outboundMessage,
-                            valueClass: outboundDiffers ? 'text-red-600' : 'text-slate-900',
+                            valueClass: outboundDiffers ? 'citizen-terminal-note-value text-red-600' : 'citizen-terminal-note-value text-slate-900',
                           })
                         }
                       }
@@ -3129,12 +3112,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       rows.push({
                         label: t('tasks.detail.cancelNote', 'İptal Notu'),
                         value: cancelledNote,
+                        valueClass: 'citizen-terminal-note-value text-slate-900',
                       })
                       if (!hideMessageApprovalPendingFields && outboundMessage) {
                         rows.push({
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
                           value: outboundMessage,
-                          valueClass: outboundDiffers ? 'text-red-600' : 'text-slate-900',
+                          valueClass: outboundDiffers ? 'citizen-terminal-note-value text-red-600' : 'citizen-terminal-note-value text-slate-900',
                         })
                       }
                       return rows.map(row => (
@@ -3152,8 +3136,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       && !isCancelledCitizenRequestWithoutTasks(detail)
                       && detail.status !== 'Cancelled'
                       && detail.status !== 'Rejected'
-                      && !(isIncomingRequestDetail && detail.status === 'Completed')
                       ? (
+                        <>
                         <div className="job-detail-field-row job-detail-field-row--request-info">
                           <div className="job-detail-field-row__label">
                             {getCitizenMessageApproverRequestInfoLabel(t, detail.status)}
@@ -3162,6 +3146,17 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             {detail.citizenMessageApproverDisplayName?.trim() || '—'}
                           </div>
                         </div>
+                        {(detail.citizenOutboundMessage ?? '').trim() ? (
+                          <div className="job-detail-field-row job-detail-field-row--request-info">
+                            <div className="job-detail-field-row__label">
+                              {t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj')}
+                            </div>
+                            <div className="job-detail-field-row__value citizen-terminal-note-value text-slate-900">
+                              {(detail.citizenOutboundMessage ?? '').trim()}
+                            </div>
+                          </div>
+                        ) : null}
+                        </>
                       ) : null}
                     </div>
                   </div>

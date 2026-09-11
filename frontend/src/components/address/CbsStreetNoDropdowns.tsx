@@ -79,6 +79,7 @@ interface CbsStreetNoDropdownsProps {
   streetPlaceholder?: string
   streetNoPlaceholder?: string
   triggerClassName?: string
+  streetNoColumnClassName?: string
 }
 
 /** Cadde/Sokak + No: İzmir CBS kademeli dropdown (#2655). */
@@ -101,10 +102,11 @@ export function CbsStreetNoDropdowns({
   streetPlaceholder,
   streetNoPlaceholder,
   triggerClassName,
+  streetNoColumnClassName = 'lg:w-[8.25rem] lg:min-w-[8.25rem] lg:max-w-[8.25rem]',
 }: CbsStreetNoDropdownsProps) {
   const showCoordinates = typeof onCoordinatesChange === 'function'
   const rowClassName = showCoordinates
-    ? 'address-street-no-row address-street-no-row--with-link grid min-w-0 grid-cols-[minmax(0,1fr)_8.25rem] gap-2 md:grid-cols-[minmax(0,1fr)_8.25rem_minmax(8.75rem,11rem)]'
+    ? 'address-street-no-row address-street-no-row--with-link grid min-w-0 grid-cols-[minmax(0,1.15fr)_6.5rem] gap-2 md:grid-cols-[minmax(0,1.15fr)_6.5rem_minmax(8.75rem,11rem)]'
     : (className ?? 'address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2')
   const { t } = useTranslation()
   const districtId = useMunicipalityDistrictId()
@@ -144,7 +146,7 @@ export function CbsStreetNoDropdowns({
           menuWidthExtraPx={streetMenuWidthExtraPx}
         />
       </div>
-      <div className="grid min-w-0 w-full max-w-full gap-1 overflow-hidden max-lg:shrink max-lg:basis-full lg:w-[8.25rem] lg:min-w-[8.25rem] lg:max-w-[8.25rem] lg:shrink-0">
+      <div className={`grid min-w-0 w-full max-w-full gap-1 overflow-hidden max-lg:shrink max-lg:basis-full lg:shrink-0 ${streetNoColumnClassName}`}>
         <span className={labelClassName}>
           {t('address.streetNoLabel', 'No')}
           {required && hasNeighborhood ? <span className="text-red-500"> *</span> : null}

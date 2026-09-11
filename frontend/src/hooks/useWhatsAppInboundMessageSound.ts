@@ -5,11 +5,12 @@ import { playNewRecordSound } from '../utils/playNewRecordSound'
 import { shouldPlayNewRecordSound } from '../utils/shouldPlayNewRecordSound'
 
 /** Her inbound WA mesajında (konuşma zaten yanıt bekliyor olsa bile) bir kez ses (#3390). */
-export function useWhatsAppInboundMessageSound(): void {
+export function useWhatsAppInboundMessageSound(enabled = true): void {
   const { user } = useAuth()
   const lastPlayedAtByConversationRef = useRef<Map<string, string>>(new Map())
 
   useEffect(() => {
+    if (!enabled) return
     const onMessage = (event: Event) => {
       const payload = (event as CustomEvent<WhatsAppMessagePayload>).detail
       const selfSent = Boolean(payload.senderUserId) && payload.senderUserId === user?.userId
@@ -31,5 +32,5 @@ export function useWhatsAppInboundMessageSound(): void {
 
     window.addEventListener('ccc:whatsapp-message', onMessage)
     return () => window.removeEventListener('ccc:whatsapp-message', onMessage)
-  }, [user?.userId])
+  }, [user?.userId, enabled])
 }

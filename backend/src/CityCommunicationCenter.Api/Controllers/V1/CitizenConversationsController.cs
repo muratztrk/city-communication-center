@@ -93,6 +93,26 @@ public sealed class CitizenConversationsController : ApiControllerBase
         return NoContent();
     }
 
+    [HttpPost("{conversationId:guid}/block")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Block(Guid conversationId, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new SetConversationBlockedCommand(conversationId, true), cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
+    [HttpPost("{conversationId:guid}/unblock")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Unblock(Guid conversationId, CancellationToken cancellationToken)
+    {
+        var ok = await _sender.Send(new SetConversationBlockedCommand(conversationId, false), cancellationToken);
+        if (!ok) return NotFound();
+        return NoContent();
+    }
+
     [HttpGet("tags")]
     [ProducesResponseType<IReadOnlyList<RequestTagResponse>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IReadOnlyList<RequestTagResponse>>> GetTags(CancellationToken cancellationToken)

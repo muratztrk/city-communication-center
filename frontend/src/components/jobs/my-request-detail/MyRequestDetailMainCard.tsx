@@ -360,6 +360,16 @@ export function MyRequestDetailMainCard({
           ),
         }]
       : []),
+    ...(showMessageApproverInRequestInfo && (citizenOutboundMessage ?? detail.citizenOutboundMessage ?? '').trim()
+      ? [{
+          label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+          value: (
+            <span className="citizen-terminal-note-value text-slate-900">
+              {(citizenOutboundMessage ?? detail.citizenOutboundMessage ?? '').trim()}
+            </span>
+          ),
+        }]
+      : []),
     ...(showCancelledWithoutTaskNotes || showCancelledWithTaskNotes
       ? [
           ...(shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)
@@ -376,7 +386,7 @@ export function MyRequestDetailMainCard({
             ? [{
                 label: t('tasks.detail.cancelNote', 'İptal Notu'),
                 value: (
-                  <span className="text-slate-900">
+                  <span className="citizen-terminal-note-value text-slate-900">
                     {cancelledWithoutTaskNote}
                   </span>
                 ),
@@ -386,7 +396,7 @@ export function MyRequestDetailMainCard({
             ? [{
                 label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
                 value: (
-                  <span className={cancelledOutboundDiffersFromNote ? 'text-red-600' : 'text-slate-900'}>
+                  <span className={`citizen-terminal-note-value ${cancelledOutboundDiffersFromNote ? 'text-red-600' : 'text-slate-900'}`}>
                     {cancelledOutboundDisplay}
                   </span>
                 ),

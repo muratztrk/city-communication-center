@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState, useCallback, Fragment, useMemo, lazy, Suspense } from 'react'
-import { ArrowDownUp, Check, ClipboardList, ClipboardPlus, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
+import { ArrowDownUp, Ban, Check, ClipboardList, ClipboardPlus, Loader2, MoreVertical, Paperclip, PenLine, Save, Search, Send, X } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useQueryClient } from '@tanstack/react-query'
 import { useSearchParams, useNavigate } from 'react-router-dom'
@@ -693,7 +693,8 @@ function ConversationProfilePanel({
           streetNo={draft.streetNo}
           required={hasNeighborhood}
           labelClassName={labelClass}
-          className="address-street-no-row grid grid-cols-[minmax(0,1fr)_8.25rem] gap-2"
+          className="address-street-no-row grid grid-cols-[minmax(0,1.5fr)_4.125rem] gap-2"
+          streetNoColumnClassName="lg:w-[4.125rem] lg:min-w-[4.125rem] lg:max-w-[4.125rem]"
           menuScrollClassName="whatsapp-neighborhood-menu-scroll"
           menuClassName="whatsapp-neighborhood-menu-scroll"
           matchTriggerWidth
@@ -738,6 +739,7 @@ function ConversationDetail({
   refreshSignal,
   onReadMarked,
   onOpenCreateRequest,
+  onToggleBlocked,
   onOpenViewRequests,
   onProfileSaved,
   onOutboundSent,
@@ -757,6 +759,7 @@ function ConversationDetail({
   refreshSignal?: number
   onReadMarked?: () => void
   onOpenCreateRequest: (socialMessageId?: string, options?: { hasExistingRequest?: boolean }) => void
+  onToggleBlocked?: (nextBlocked: boolean) => void
   onOpenViewRequests: (citizenPhone: string) => void
   onProfileSaved: () => void
   /** Vatandaşa giden yanıt sonrası liste/rozet anında güncellenir (card #6a6b6ec6). */
@@ -1322,6 +1325,32 @@ function ConversationDetail({
                   <ClipboardList {...DETAIL_ICON_PROPS} />
                   {t('whatsapp.viewRequestsByNumber', 'Numaranın Talepleri')}
                 </button>
+                {onToggleBlocked && (user?.role === 'Operator' || user?.role === 'SystemAdmin') ? (
+                  <button
+                    type="button"
+                    className="dropdown-menu-item !justify-start gap-2.5"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      const blocked = Boolean(activeDetail?.isBlocked)
+                      setConfirmDialog({
+                        title: blocked
+                          ? t('whatsapp.unblockNumber', 'Numara Engelini Kaldır')
+                          : t('whatsapp.blockNumber', 'Numarayı Engelle'),
+                        message: blocked
+                          ? t('whatsapp.unblockNumberConfirm', 'Bu numaranın engeli kaldırılsın mı?')
+                          : t('whatsapp.blockNumberConfirm', 'Bu numara engellenince vatandaş WhatsApp ile mesaj gönderemez. Devam edilsin mi?'),
+                        confirmLabel: blocked ? t('common.confirm', 'Onayla') : t('whatsapp.blockNumber', 'Numarayı Engelle'),
+                        variant: blocked ? 'primary' : 'destructive',
+                        onConfirm: () => onToggleBlocked(!blocked),
+                      })
+                    }}
+                  >
+                    <Ban {...DETAIL_ICON_PROPS} className="size-4 text-red-600" />
+                    {activeDetail?.isBlocked
+                      ? t('whatsapp.unblockNumber', 'Numara Engelini Kaldır')
+                      : t('whatsapp.blockNumber', 'Numarayı Engelle')}
+                  </button>
+                ) : null}
               </div>
             ) : null}
           </div>
@@ -1961,6 +1990,22 @@ export function WhatsAppConversationsPage() {
     navigate(`/social?phone=${encodeURIComponent(digits)}`)
   }, [navigate])
 
+  const handleToggleBlocked = useCallback(async (nextBlocked: boolean) => {
+    if (!selectedId) return
+    try {
+      await api.setCitizenConversationBlocked(selectedId, nextBlocked)
+      setConversations(prev => prev.map(item =>
+        item.citizenConversationId === selectedId ? { ...item, isBlocked: nextBlocked } : item,
+      ))
+      setDetailRefreshKey(key => key + 1)
+      emitPageToast(nextBlocked
+        ? t('whatsapp.blockNumber', 'Numarayı Engelle')
+        : t('whatsapp.unblockNumber', 'Numara Engelini Kaldır'))
+    } catch (error) {
+      emitPageToast(error instanceof Error ? error.message : t('common.error'), 'error')
+    }
+  }, [selectedId, t])
+
   const handleOpenStatusRequests = useCallback((status: ConversationStatusFilter) => {
     const params = new URLSearchParams()
     params.set('channel', 'WhatsApp')
@@ -2036,6 +2081,7 @@ export function WhatsAppConversationsPage() {
               refreshSignal={detailRefreshKey}
               onReadMarked={handleReadMarked}
               onOpenCreateRequest={(socialMessageId, options) => { void handleOpenCreateRequest(socialMessageId, options) }}
+              onToggleBlocked={nextBlocked => { void handleToggleBlocked(nextBlocked) }}
               onOpenViewRequests={handleOpenViewRequests}
               onProfileSaved={() => { void silentRefreshConversations() }}
               onOutboundSent={() => {

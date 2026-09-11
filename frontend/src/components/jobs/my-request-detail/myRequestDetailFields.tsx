@@ -2,11 +2,7 @@ import type { TFunction } from 'i18next'
 import type { ReactNode } from 'react'
 import { ChannelIcon } from '../../ui/channel-icon'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
-import {
-  formatJobDestinationsWithAssignees,
-  isCancelledCitizenRequestWithoutTasks,
-} from '../../../utils/jobDetails'
-import { getChannelLabelColor } from '../../../utils/channelColors'
+import { formatJobDestinationsWithAssignees } from '../../../utils/jobDetails'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
 import { shouldShowJobProjectField, isInternalProjectJob } from '../../../utils/jobProjectLabel'
 import {
@@ -52,33 +48,6 @@ function destinationFieldLabel(
 }
 
 export type BuildMyRequestDetailFieldsOptions = Record<string, never>
-
-function resolveCitizenChannel(
-  detail: JobDetail,
-  citizenSourceMessage: SocialMessage | null | undefined,
-) {
-  return citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'
-}
-
-function buildCitizenChannelField(
-  detail: JobDetail,
-  citizenSourceMessage: SocialMessage | null | undefined,
-  t: TFunction,
-): MyRequestDetailField {
-  const channel = resolveCitizenChannel(detail, citizenSourceMessage)
-  return {
-    label: t('settings.citizen.channel', 'Talep Kanalı'),
-    value: (
-      <span
-        className="citizen-request-channel-value inline-flex items-center gap-1"
-        style={{ color: getChannelLabelColor(channel) }}
-      >
-        <ChannelIcon channel={channel} className="size-3 shrink-0" />
-        {getSocialChannelLabel(t, channel)}
-      </span>
-    ),
-  }
-}
 
 export function buildMyRequestDetailFields(
   detail: JobDetail,
@@ -160,7 +129,6 @@ export function buildMyRequestDetailFields(
         ),
         rowClass: 'job-detail-field-row--citizen-contact',
       },
-      buildCitizenChannelField(detail, citizenSourceMessage, t),
       ...(hasCitizenAddress(detail)
         ? [{
             label: t('jobs.detail.citizenAddressInfo', 'Vatandaş Adres Bilgisi'),
@@ -184,9 +152,6 @@ export function buildMyRequestDetailFields(
       ...(useMyRequestsFieldLayout
         ? [
             { label: destinationFieldLabel(detail, t, { splitLayout: true }), value: destinationValue },
-            ...(isCancelledCitizenRequestWithoutTasks(detail) && detail.statusActorDisplayName?.trim()
-              ? [{ label: t('jobs.detail.cancelledBy', 'Talebi İptal Eden'), value: detail.statusActorDisplayName.trim() }]
-              : []),
             ...(!isExternal && assigneeNames.length > 0
               ? [{ label: t('jobs.detail.assignee', 'Görevi Yapan'), value: assigneeNames.join(', ') }]
               : []),
@@ -195,9 +160,6 @@ export function buildMyRequestDetailFields(
             label: destinationFieldLabel(detail, t, { includeAssignee }),
             value: destinationValue,
           },
-          ...(isCancelledCitizenRequestWithoutTasks(detail) && detail.statusActorDisplayName?.trim()
-            ? [{ label: t('jobs.detail.cancelledBy', 'Talebi İptal Eden'), value: detail.statusActorDisplayName.trim() }]
-            : []),
           ]),
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
       ...(showCitizenRequestLabel

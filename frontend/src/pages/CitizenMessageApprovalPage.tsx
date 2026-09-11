@@ -50,6 +50,16 @@ function formatDateTime(value: string | null | undefined, locale: string): strin
   })
 }
 
+function formatDateTimeInline(value: string | null | undefined, locale: string): { date: string; time: string } | null {
+  if (!value) return null
+  const parsed = new Date(value)
+  if (Number.isNaN(parsed.getTime())) return null
+  return {
+    date: parsed.toLocaleDateString(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }),
+    time: parsed.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
+  }
+}
+
 export function CitizenMessageApprovalPage() {
   return <TerminalCitizenMessageApprovalPage mode="whatsapp" />
 }
@@ -112,7 +122,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
   }, [apiScope, mode])
 
   const approvalJobIds = useMemo(() => rows.map(row => row.jobId), [rows])
-  useNewRecordIdsSound(approvalJobIds, !loading)
+  useNewRecordIdsSound(approvalJobIds, !loading, { resetKeys: [scope, mode] })
 
   useEffect(() => {
     void loadApprovals()
@@ -294,7 +304,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                 `${i18nRoot}.subtitle`,
                 isSms
                   ? 'Çağrı talebi ile gelen talepleri Sms aracılığıyla vatandaşları bilgilendirin.'
-                  : 'Mesajı göndermeyi onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
+                  : 'Mesajı gönderimi onayladığında, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',
               )}
             </p>
           </div>
@@ -387,7 +397,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                     <td className="text-center text-xs font-bold text-slate-400 tabular-nums">{(currentPage - 1) * pageSize + index + 1}</td>
                     <td className="table-number-cell font-mono text-xs text-slate-500">
                       <div className="table-number-cell__value inline-flex flex-wrap items-center gap-1.5">
-                        {row.channel ? <ChannelIcon channel={row.channel} className="size-4 shrink-0" /> : null}
+                        {row.channel ? <ChannelIcon channel={row.channel} className="size-3.5 shrink-0" /> : null}
                         {formatCitizenRequestNumber({ citizenRequestNumber: row.citizenRequestNumber, citizenRequestNumberYear: row.citizenRequestNumberYear, receivedAtUtc: row.requestDateUtc }, locale)}
                       </div>
                     </td>
@@ -404,14 +414,17 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                       {showMessageApproverColumn ? (
                         row.messageApproverDisplayName?.trim() && row.messageApprovedAtUtc
                           ? (
-                            <StatusPill className={getStatusPillClass(getJobStatusTone({ status: 'Completed', dueDateUtc: null }))}>
+                            <StatusPill className={`${getStatusPillClass(getJobStatusTone({ status: 'Completed', dueDateUtc: null }))} citizen-message-approval-actor-pill`}>
                               <GridStatusLabel
                                 t={t}
                                 label={row.messageApproverDisplayName.trim()}
-                                labelClassName="text-[0.8rem]"
+                                labelClassName="citizen-message-approval-actor-name"
                                 footer={(
-                                  <span className="text-[0.68rem] font-bold text-emerald-700">
-                                    {formatDateTime(row.messageApprovedAtUtc, locale)}
+                                  <span className="inline-flex items-baseline gap-1 whitespace-nowrap text-[0.68rem] font-bold text-emerald-700">
+                                    {(() => {
+                                      const parts = formatDateTimeInline(row.messageApprovedAtUtc, locale)
+                                      return parts ? <><span>{parts.date}</span><span>{parts.time}</span></> : formatDateTime(row.messageApprovedAtUtc, locale)
+                                    })()}
                                   </span>
                                 )}
                               />
@@ -429,7 +442,14 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                               label={getCitizenRequestStatusLabel(t, { status: row.status, dueDateUtc: row.dueDateUtc })}
                               overdueSubline={isCitizenProcessingReceivedOverdue({ status: row.status, dueDateUtc: row.dueDateUtc })}
                               footer={statusDate
-                                ? <span className={`text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>{formatDateTime(statusDate, locale)}</span>
+                                ? (
+                                  <span className={`inline-flex items-baseline gap-1 whitespace-nowrap text-[0.68rem] font-bold ${row.status === 'Completed' ? 'text-emerald-700' : 'text-red-700'}`}>
+                                    {(() => {
+                                      const parts = formatDateTimeInline(statusDate, locale)
+                                      return parts ? <><span>{parts.date}</span><span>{parts.time}</span></> : formatDateTime(statusDate, locale)
+                                    })()}
+                                  </span>
+                                )
                                 : undefined}
                             />
                           </StatusPill>

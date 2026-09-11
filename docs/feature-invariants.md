@@ -557,7 +557,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   ki İptal bekleyenler de görünsün (#3330).
   **Sms Onayı** nav satırında phone `to-send` bekleyen sayısı (card #6a6b6824).
   **Görevlerim / Birime Gelen / Birimden Giden** nav satırlarında da aynı `nav-pending-badge`
-  rozeti: Görevlerim = `myPendingTaskCount`, Birime Gelen = Onay Bekleyen grid toplamı
+  rozeti (`zoom: 1 / --sidebar-zoom`, scroll `overflow-x` kesmez — #3442): Görevlerim = `myPendingTaskCount`, Birime Gelen = Onay Bekleyen grid toplamı
   (`useIncomingPendingApprovalCount` / `matchesIncomingStatusFilter` pending-approval — dashboard
   `pendingApprovalCount` ile aynı değil; VT yöneticisi CRM için yalnız vatandaş satırları), Birimden Giden =
   `outgoingPendingCount` (dashboard snapshot; Sms Onayı stili — card #2516 / #2820 / #2823).
@@ -568,7 +568,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   kapalı (`playOnTargetPage: false`) — yalnızca `useNewRecordIdsSound` çalar. WA talep
   oluşturma sonrası `suppressNewRecordSound` ile liste yenilemesinde ses susturulur. Sayfalar:
   `/incoming-requests`, `/my-tasks`, `/outgoing-requests`, `/citizen-message-approval`,
-  `/sms-delivery-approval` — nav rozeti artışı `useNavBadgeCountSound` ile. **WhatsApp:** ses merkezi `useWhatsAppInboundMessageSound`
+  `/sms-delivery-approval` — nav rozeti artışı `useNavBadgeCountSound` ile. Mesaj Onayı chip
+  değişince `useNewRecordIdsSound` `resetKeys` ile yeniden baseline alır, tıklamada ses yok (#3540).
+  **WhatsApp:** ses merkezi `useWhatsAppInboundMessageSound`
   (`ccc:whatsapp-message`; konuşma `(citizenConversationId, lastMessageAt)` ile dedupe — zaten
   yanıt bekleyen konuşmaya gelen ikinci mesajda da bir kez çalar; nav `waitingReplyCount` artışına
   bağlı değil). Fab/sayfa handler'ları ses çalmaz, yalnız pulse/güncelleme (#3415). Talep
@@ -780,7 +782,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   WhatsApp-kanal entry yönüne bakar. Talep oluştur yanıt hedefi (`pickReply`) olmasa da
   açık konuşmada durur (çağrı-önce: yalnız Phone ticket varken de). Konuşmada mevcut VT
   varsa (çağrı dahil) `forceNew` ile yeni WhatsApp `SocialMessage` + Job açılır; işsiz WA
-  thread yalnız hiç VT yoksa yerinde dönüşür. **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
+  thread yalnız hiç VT yoksa yerinde dönüşür.
+  **Numarayı Engelle (#3537):** konuşma 3-nokta menüsünde `Numaranın Talepleri` altında;
+  yalnız Operator/SystemAdmin (`SetConversationBlockedCommand` + menü). `IsBlocked` iken inbound
+  persist/unread/push/auto-reply/`LastMessageAt` yapılmaz.
+  **WA inbound ses (#3544):** yalnız `Operator` (Vatandaş Talep Operatörü); diğer roller çalmaz.
+  **Sekme rozeti (#3531):** operatörde okunmamış ≥1 iken başlık `(N)` + sayılı favicon (N=1 dahil).
+  **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
   dizin Kaydet ile değişir/silinir; talep oluşturma veya etiket seçimi profili silmez.
   Convert/UpdateJob mevcut dolu profil alanını ezmez (yalnız boş adı doldurur).
   Çağrı formu (`/requests/new?kind=citizen`) aynı telefondaki WA `CitizenConversation`
@@ -1708,8 +1716,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Bildirim ISO tarih formatı (card #1667):** `FormatNote` hem `Z` hem `+00:00` (round-trip
   `"O"`) ISO zamanlarını `dd.MM.yyyy HH:mm` (yerel) gösterir — özellikle `TaskDueDateUpdated`
   / `JobDueDateUpdated`.
-- **Talep son tarihi bildirimi (card #1677):** `UpdateJob` Son Tarih değişince `JobDueDateUpdated`
-  yazar; başlık `Talep son tarihi güncellendi`, gövde `T-… — başlık — dd.MM.yyyy HH:mm`
+- **Talep son tarihi bildirimi (card #1677 / #3548):** `UpdateJob` Son Tarih değişince `JobDueDateUpdated`
+  yazar; başlık `Talep son tarihi güncellendi`, gövde `T-… — başlık — dd.MM.yyyy HH:mm`.
+  `Operator` (Vatandaş Talep Operatörü) bu bildirimi feed ve okunmamış sayıda görmez.
   (`TaskDueDateUpdated` ile aynı kalıp; genel `JobUpdated` / "Title updated" değil).
 - **Bildirim okundu → bold kalkar (#6a6ca25f):** okunmuş satırda başlık/aksiyon kelimeleri
   / `Görev`·`Talep` / titleTag hepsi normal/medium ağırlığa döner (önceki #1669 “okunmuş
@@ -2964,8 +2973,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`citizenMessageApproverDisplayName`); müdür/sorumlu + VT yöneticisi veri yokken de görür (`—`).
   Görevsiz iptal VT'de onaylayan `İptal Notu` üstünde (Talep Bilgileri); görevsiz blok terminal
   onaylayan tekrarını göstermez.
-- **Birime Gelen Talep Bilgileri onaylayan (#3514):** tamamlanmış VT'de Talep Bilgileri'nde
-  `Tamamlama Notu Onaylayan` yok (Görev Bilgileri'nde kalır); iptal onaylayan görevsiz iptalde kalır.
+- **Birime Gelen Talep Bilgileri onaylayan (#3515/#3539/#3492):** tamamlanmış/iptal VT detayında
+  `Tamamlama Notu Onaylayan` / `İptal Notu Onaylayan` gösterilir; `Talebi İptal Eden` ve
+  `Talebi Onaylayan` satırı yok. Vatandaşa Giden Mesaj, iletilmiş/release edilmiş terminal
+  mesaj varken görünür (#3536). Tamamlama/İptal Notu değeri satır kayınca `text-align: justify` (#3475).
 - **Görev popup Gecikti mi? (#3509 reopen):** `TasksPage` görev detay Süreç başlığında
   `Gecikti mi?` sağa hizalı; İlgili Talep Detayları `MyRequestDetailMainCard` ile aynı.
 - **Birime Gelen inline detay (#3506/#3509/#3510):** `JobsPage` request-details popup'ı

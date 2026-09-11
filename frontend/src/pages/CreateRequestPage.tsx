@@ -1199,24 +1199,6 @@ export function CreateRequestPage() {
     const normalizedCitizenName = normalizeTitleCaseField(trimmedName) ?? trimmedName
     const citizenTitle = ensureLeadingCapitalTr(citizenForm.title.trim()) || normalizedCitizenName
     const citizenDescription = ensureLeadingCapitalRichText(citizenForm.content.trim())
-    const syncCitizenProfileAddress = async (conversationId: string | null | undefined) => {
-      if (!conversationId) return
-      const hasCitizenAddress = citizenForm.citizenNeighborhood.trim()
-        || citizenForm.citizenStreet.trim()
-        || citizenForm.citizenStreetNo.trim()
-        || citizenForm.citizenOpenAddress.trim()
-      if (!hasCitizenAddress) return
-      const neighborhood = normalizeTitleCaseField(citizenForm.citizenNeighborhood)
-      const street = normalizeTitleCaseField(citizenForm.citizenStreet)
-      const streetNo = citizenForm.citizenStreetNo.trim() || undefined
-      const openAddress = normalizeTitleCaseField(citizenForm.citizenOpenAddress)
-      await api.updateCitizenConversationProfile(conversationId, {
-        ...(neighborhood ? { neighborhood } : {}),
-        ...(street ? { street } : {}),
-        ...(streetNo ? { streetNo } : {}),
-        ...(openAddress ? { openAddress } : {}),
-      })
-    }
     const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
     try {
       const citizenCoords = await coordinatesFromForm(
@@ -1259,8 +1241,6 @@ export function CreateRequestPage() {
           latitude: mapsAddress.latitude ?? citizenCoords.latitude,
           longitude: mapsAddress.longitude ?? citizenCoords.longitude,
         })
-        const linkedMessage = await api.getSocialMessageById(linkedSocialMessageId)
-        await syncCitizenProfileAddress(linkedMessage?.citizenConversationId)
         await uploadPendingFiles(editJobId)
         invalidateSocialMessages(queryClient, linkedSocialMessageId)
         invalidateJobs(queryClient, editJobId)
@@ -1311,8 +1291,6 @@ export function CreateRequestPage() {
           const job = await api.convertSocialMessageToJob(socialMessageId, convertPayload)
           await uploadPendingFiles(job.jobId)
           invalidateSocialMessages(queryClient, socialMessageId)
-          const createdMessage = await api.getSocialMessageById(socialMessageId)
-          await syncCitizenProfileAddress(createdMessage?.citizenConversationId)
         } else {
           await api.updateSocialMessage(linkedSocialMessageId, {
             channel: citizenForm.channel,
@@ -1325,8 +1303,6 @@ export function CreateRequestPage() {
           const job = await api.convertSocialMessageToJob(linkedSocialMessageId, convertPayload)
           await uploadPendingFiles(job.jobId)
           invalidateSocialMessages(queryClient, linkedSocialMessageId)
-          const linkedMessage = await api.getSocialMessageById(linkedSocialMessageId)
-          await syncCitizenProfileAddress(linkedMessage?.citizenConversationId)
         }
       } else {
         const socialMessageId = await api.createSocialMessage({
@@ -1340,8 +1316,6 @@ export function CreateRequestPage() {
         const job = await api.convertSocialMessageToJob(socialMessageId, convertPayload)
         await uploadPendingFiles(job.jobId)
         invalidateSocialMessages(queryClient, socialMessageId)
-        const createdMessage = await api.getSocialMessageById(socialMessageId)
-        await syncCitizenProfileAddress(createdMessage?.citizenConversationId)
       }
       invalidateJobs(queryClient)
       setCitizenForm(EMPTY_CITIZEN_FORM)

@@ -781,6 +781,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`forceNew` yalnızca mevcut Job varsa). **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
   dizin Kaydet ile değişir/silinir; talep oluşturma veya etiket seçimi profili silmez.
   Convert/UpdateJob mevcut dolu profil alanını ezmez (yalnız boş adı doldurur).
+  Çağrı formu (`/requests/new?kind=citizen`) aynı telefondaki WA `CitizenConversation`
+  mahalle/cadde/no/açık adresi yazmaz; talep adresi yalnız Job'da kalır.
   Profil PUT kısmi: `null` alanlar silinmez. Kaydedilen ad/etiket/adres metinleri Türkçe
   başlık biçimine normalize edilir.
 - **WhatsApp detay header sayaçları (#3295):** seçili konuşma header'ında `Talep Sayısı` satırı
@@ -2736,7 +2738,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   durur; kanallar ayrı VT'dir. `Job.CitizenName` talep bazlı kalır. Convert/UpdateJob çağrı
   kaydı dolu WA adını **ezmez**, boşsa doldurur. Profil PUT kısmi (`null` = dokunma). WA sağ
   panel Vatandaş Bilgileri talep oluşturma, çağrı formu etiketi veya dizin kaydıyla silinmez;
-  convert formu kayıtlı profili güncellemez. WA **Vatandaş Bilgileri** Kaydet, `profileDraftRef`
+  convert formu ve çağrı formu kayıtlı profil adresini güncellemez. WA **Vatandaş Bilgileri** Kaydet, `profileDraftRef`
   ile blur/deferred input commit sonrası güncel draft okur; başarıda toast gösterir (#3391).
 - **Taslak Mesajlar liste ikonu (#6a6f1ab6):** şablon listesinde yeşil=aktif / kırmızı=pasif
   yuvarlak nokta (`tpl.isActive`).

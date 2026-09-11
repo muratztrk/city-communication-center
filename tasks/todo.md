@@ -1,3 +1,8 @@
+## Round 1160 — Çağrı VT aynı telefonun WA adresini ezmesin
+
+- Çağrı formu `updateCitizenConversationProfile` ile mahalle/cadde/no yazıyordu; WA Vatandaş Bilgileri değişiyordu.
+- Talep adresi yalnız Job'da kalır; kayıtlı WA profil adresi çağrı oluşturunca dokunulmaz.
+
 ## Round 1159 — WA yazısına çağrı SMS'i gitmesin (Gizem Kabalar)
 
 - Canlı: çağrı sonrası WA yazıldı; VT-124 Phone açıldı, İşleme Alındı SMS gitti, WA "Yanıt bekliyor".

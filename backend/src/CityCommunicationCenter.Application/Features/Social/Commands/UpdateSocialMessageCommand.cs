@@ -87,6 +87,15 @@ public sealed class UpdateSocialMessageCommandHandler : ICommandHandler<UpdateSo
             throw new ForbiddenAccessException("Bu vatandaş talebini düzenleme yetkiniz yok.");
         }
 
+        if (message.Channel == SocialChannel.WhatsApp && request.Channel == SocialChannel.Phone)
+        {
+            throw new ValidationException([
+                new FluentValidation.Results.ValidationFailure(
+                    nameof(request.Channel),
+                    "WhatsApp konuşması çağrı kanalına çevrilemez.")
+            ]);
+        }
+
         message.Channel = request.Channel;
         message.CitizenHandle = nextHandle;
         message.Content = nextContent;

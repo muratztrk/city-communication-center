@@ -1,3 +1,9 @@
+## Round 1159 — WA yazısına çağrı SMS'i gitmesin (Gizem Kabalar)
+
+- Canlı: çağrı sonrası WA yazıldı; VT-124 Phone açıldı, İşleme Alındı SMS gitti, WA "Yanıt bekliyor".
+- Bildirim/yanıt yanıtlanmamış WA thread'ine yönlenir; liste yönü yalnız WA entry.
+- WA Talep oluştur işsiz thread'i dönüştürür; WhatsApp→Phone update yasak.
+
 ## Round 1158 — WA kayıtlı Vatandaş Bilgileri talep oluşturunca silinmesin
 
 - Canlı: profil Kaydet sonrası Talep Oluştur (özellikle etiket) PUT tam replace ile ad/adresi siliyordu.

@@ -34,6 +34,12 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
 
         if (message is null) return false;
 
+        message = await CitizenWhatsAppDeliveryTarget.ResolveDeliveryMessageAsync(
+            _dbContext,
+            tenantId,
+            message,
+            cancellationToken);
+
         var (templateName, templateLanguage, content) = await ResolveWhatsAppTemplateAsync(
             tenantId,
             request.Content,
@@ -155,7 +161,7 @@ public sealed class ReplyToSocialMessageCommandHandler : ICommandHandler<ReplyTo
         _dbContext.ConversationEntries.Add(new SocialConversationEntry
         {
             EntryId = Guid.NewGuid(),
-            SocialMessageId = request.SocialMessageId,
+            SocialMessageId = message.SocialMessageId,
             Direction = ConversationEntryDirection.Outbound,
             Content = content,
             SentAt = utcNow,
@@ -336,6 +342,12 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
 
         if (message is null) return false;
 
+        message = await CitizenWhatsAppDeliveryTarget.ResolveDeliveryMessageAsync(
+            _dbContext,
+            tenantId,
+            message,
+            cancellationToken);
+
         if (message.Channel != SocialChannel.WhatsApp)
         {
             throw new ValidationException([
@@ -417,7 +429,7 @@ public sealed class ReplyToSocialMessageAttachmentCommandHandler
         _dbContext.ConversationEntries.Add(new SocialConversationEntry
         {
             EntryId = entryId,
-            SocialMessageId = request.SocialMessageId,
+            SocialMessageId = message.SocialMessageId,
             Direction = ConversationEntryDirection.Outbound,
             Content = content,
             SentAt = utcNow,

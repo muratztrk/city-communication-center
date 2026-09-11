@@ -40,3 +40,35 @@ export function isConversationTicketOpen(summary: {
 export function isUrgentConversationPriority(priority: string | null | undefined): boolean {
   return priority === 'High' || priority === 'VeryHigh' || priority === 'Critical'
 }
+
+export function isWhatsAppTicketChannel(channel?: string | null): boolean {
+  return (channel ?? '').toLocaleLowerCase('tr') === 'whatsapp'
+}
+
+export function pickReplyTicket(tickets: CitizenConversationTicket[]): CitizenConversationTicket | undefined {
+  const ordered = tickets.slice().reverse()
+  const replyableStatuses = new Set(['New', 'Categorized', 'Routed', 'Responded'])
+  return ordered.find(ticket => replyableStatuses.has(ticket.status))
+    ?? ordered.find(ticket => ticket.status !== 'Closed')
+}
+
+/** WA sayfasında yanıt/talep şablonu Phone VT olmaz — ham WhatsApp thread tercih edilir. */
+export function pickReplySocialMessageId(detail: {
+  tickets: CitizenConversationTicket[]
+  timeline: Array<{ socialMessageId?: string | null }>
+}): string | undefined {
+  const whatsappTickets = detail.tickets.filter(ticket => isWhatsAppTicketChannel(ticket.channel))
+  const ticket = pickReplyTicket(whatsappTickets)
+  if (ticket) return ticket.socialMessageId
+
+  const phoneIds = new Set(
+    detail.tickets
+      .filter(ticket => (ticket.channel ?? '').toLocaleLowerCase('tr') === 'phone')
+      .map(ticket => ticket.socialMessageId),
+  )
+  for (let index = detail.timeline.length - 1; index >= 0; index -= 1) {
+    const socialMessageId = detail.timeline[index]?.socialMessageId
+    if (socialMessageId && !phoneIds.has(socialMessageId)) return socialMessageId
+  }
+  return undefined
+}

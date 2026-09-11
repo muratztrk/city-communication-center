@@ -66,9 +66,13 @@ public sealed class GetCitizenConversationDetailQueryHandler
         var messageRows = await _dbContext.SocialMessages
             .AsNoTracking()
             .Where(m => m.CitizenConversationId == request.CitizenConversationId)
-            .Select(m => new { m.SocialMessageId, m.Latitude, m.Longitude })
+            .Select(m => new { m.SocialMessageId, m.Latitude, m.Longitude, m.Channel })
             .ToListAsync(cancellationToken);
         var messageIds = messageRows.Select(m => m.SocialMessageId).ToList();
+        var whatsappMessageIds = messageRows
+            .Where(m => m.Channel == SocialChannel.WhatsApp)
+            .Select(m => m.SocialMessageId)
+            .ToHashSet();
         var messageCoords = messageRows.ToDictionary(
             m => m.SocialMessageId,
             m => (m.Latitude, m.Longitude));
@@ -139,7 +143,7 @@ public sealed class GetCitizenConversationDetailQueryHandler
             .ToList();
 
         var lastInboundAt = timeline
-            .Where(e => e.Direction == "Inbound")
+            .Where(e => e.Direction == "Inbound" && whatsappMessageIds.Contains(e.SocialMessageId))
             .Select(e => (DateTimeOffset?)e.SentAt)
             .LastOrDefault();
 

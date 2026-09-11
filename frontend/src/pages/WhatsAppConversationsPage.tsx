@@ -11,7 +11,6 @@ import type {
   CitizenConversationSummary,
   CitizenConversationDetail,
   CitizenConversationTimelineEntry,
-  CitizenConversationTicket,
   Department,
   SocialMessage,
   UserQuickReplyTemplate,
@@ -31,7 +30,7 @@ import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { conversationEntryMatchesChatSearch, filterVisibleConversationEntries } from '../utils/socialConversationContent'
 import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
-import { isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse } from '../utils/whatsappConversationTicket'
+import { isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse, pickReplySocialMessageId, pickReplyTicket } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
@@ -135,29 +134,6 @@ function findClosestTimelineEntryIndex(
     }
   }
   return bestIndex
-}
-
-function pickReplyTicket(tickets: CitizenConversationTicket[]): CitizenConversationTicket | undefined {
-  const ordered = tickets.slice().reverse()
-  const replyableStatuses = new Set(['New', 'Categorized', 'Routed', 'Responded'])
-  return ordered.find(ticket => replyableStatuses.has(ticket.status))
-    ?? ordered.find(ticket => ticket.status !== 'Closed')
-}
-
-function isWhatsAppTicketChannel(channel?: string | null): boolean {
-  return (channel ?? '').toLocaleLowerCase('tr') === 'whatsapp'
-}
-
-/** WA sayfasında yanıt/talep şablonu Phone VT olmaz — ham WhatsApp thread tercih edilir. */
-function pickReplySocialMessageId(detail: CitizenConversationDetail): string | undefined {
-  const whatsappTickets = detail.tickets.filter(ticket => isWhatsAppTicketChannel(ticket.channel))
-  const ticket = pickReplyTicket(whatsappTickets)
-  if (ticket) return ticket.socialMessageId
-  for (let index = detail.timeline.length - 1; index >= 0; index -= 1) {
-    const socialMessageId = detail.timeline[index]?.socialMessageId
-    if (socialMessageId) return socialMessageId
-  }
-  return undefined
 }
 
 function ConversationStatusCounts({
@@ -1917,8 +1893,9 @@ export function WhatsAppConversationsPage() {
   const handleOpenCreateRequest = useCallback(async (socialMessageId: string) => {
     try {
       setRequestModalEditJobId(null)
-      setRequestModalForceNew(true)
       const message = await api.getSocialMessageById(socialMessageId)
+      const isUnconvertedWhatsApp = message.channel === 'WhatsApp' && !message.jobId
+      setRequestModalForceNew(!isUnconvertedWhatsApp)
       setRequestModalMessage({
         ...enrichMessageWithConversation(message, selectedId),
         channel: 'WhatsApp',

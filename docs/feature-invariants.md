@@ -774,7 +774,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `CitizenConversation`:** WhatsApp ve çağrı (Phone) ayrı `SocialMessage` + Job üretir (iki VT).
   Çağrı VT konuşmaya bağlanır; dolu WA `CitizenName` ezilmez, boşsa çağrı adından doldurulur.
   WA sayfasından Talep oluştur her zaman `channel=WhatsApp`; çağrı formu mevcut WA mesajını
-  Phone'a çevirmez. **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
+  Phone'a çevirmez. `UpdateSocialMessage` WhatsApp → Phone çevirisini reddeder.
+  Konuşmada yanıtlanmamış WhatsApp inbound varken otomatik durum bildirimi ve `/whatsapp`
+  yanıtı çağrı SMS'ine değil o WhatsApp thread'ine gider; `Yanıt bekliyor` yalnız
+  WhatsApp-kanal entry yönüne bakar. İşsız WA thread Talep oluştur'da dönüştürülür
+  (`forceNew` yalnızca mevcut Job varsa). **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
   dizin Kaydet ile değişir/silinir; talep oluşturma veya etiket seçimi profili silmez.
   Convert/UpdateJob mevcut dolu profil alanını ezmez (yalnız boş adı doldurur).
   Profil PUT kısmi: `null` alanlar silinmez. Kaydedilen ad/etiket/adres metinleri Türkçe
@@ -959,7 +963,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş Talebi detay düzenleme:** Detay popup'ta `Düzenle` aktifken `Ekler / Fotoğraflar`
   bölümünde `Dosya ekle` görünür; salt okunur modda ekleme aksiyonu gizli kalır (card #1256).
 - **Job status değişince `ICitizenJobStatusNotifier` otomatik vatandaş mesajı atar**
-  (İşleme Alındı / Yapılmakta / Tamamlandı / İptal). Varsayılan mesajda VT no'dan sonra talep başlığı
+  (İşleme Alındı / Yapılmakta / Tamamlandı / İptal). Kaynak çağrı (Phone) olsa bile aynı
+  konuşmada yanıtlanmamış WhatsApp inbound varsa metin WhatsApp thread'ine gider, SMS atılmaz.
+  Varsayılan mesajda VT no'dan sonra talep başlığı
   yer alır ve metinler tenant `CitizenAutoReplyTemplatesJson` ayarından değiştirilebilir.
   İlk görev eklenince `Yapılmakta`, görev kapatma/tamamlama akışı talebi terminale taşıyınca
   `Tamamlanmış`, talep/görev iptali talebi terminale taşıyınca `İptal` şablonu gönderilir;

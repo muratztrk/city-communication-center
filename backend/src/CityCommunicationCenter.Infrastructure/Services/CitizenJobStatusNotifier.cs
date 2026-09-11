@@ -133,6 +133,14 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
                 && (entity.Channel == SocialChannel.WhatsApp || entity.Channel == SocialChannel.Phone))
             .OrderByDescending(entity => entity.ReceivedAtUtc)
             .FirstOrDefaultAsync(cancellationToken);
+        if (message is not null)
+        {
+            message = await CitizenWhatsAppDeliveryTarget.ResolveDeliveryMessageAsync(
+                _dbContext,
+                tenantId,
+                message,
+                cancellationToken);
+        }
 
         // Çağrı (Phone) iki aşamalı: 1) Yönetici "Vatandaşa Gönderilecek Mesaj Onayı" → release
         // bayrağı (SMS YOK). 2) Operatör "Sms Onayı" → gerçek SMS (#6a6ee0ee).
@@ -261,6 +269,21 @@ public sealed class CitizenJobStatusNotifier : ICitizenJobStatusNotifier
         if (message.Channel is not (SocialChannel.WhatsApp or SocialChannel.Phone))
         {
             return;
+        }
+
+        var sourceMessageId = message.SocialMessageId;
+        message = await CitizenWhatsAppDeliveryTarget.ResolveDeliveryMessageAsync(
+            _dbContext,
+            tenantId,
+            message,
+            cancellationToken);
+        if (message.SocialMessageId != sourceMessageId)
+        {
+            _logger.LogInformation(
+                "Routing citizen status for Job {JobId} to unanswered WhatsApp thread {WhatsAppMessageId} instead of {SourceMessageId}",
+                job.JobId,
+                message.SocialMessageId,
+                sourceMessageId);
         }
 
         var utcNow = DateTimeOffset.UtcNow;

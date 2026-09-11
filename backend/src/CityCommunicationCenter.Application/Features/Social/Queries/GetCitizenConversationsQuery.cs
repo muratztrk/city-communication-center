@@ -65,14 +65,16 @@ public sealed class GetCitizenConversationsQueryHandler
                 LastMessagePreview = _dbContext.ConversationEntries
                     .Where(e => _dbContext.SocialMessages
                         .Any(m => m.CitizenConversationId == c.CitizenConversationId
-                                  && m.SocialMessageId == e.SocialMessageId))
+                                  && m.SocialMessageId == e.SocialMessageId
+                                  && m.Channel == SocialChannel.WhatsApp))
                     .OrderByDescending(e => e.SentAt)
                     .Select(e => e.Content)
                     .FirstOrDefault(),
                 LastMessageDirection = _dbContext.ConversationEntries
                     .Where(e => _dbContext.SocialMessages
                         .Any(m => m.CitizenConversationId == c.CitizenConversationId
-                                  && m.SocialMessageId == e.SocialMessageId))
+                                  && m.SocialMessageId == e.SocialMessageId
+                                  && m.Channel == SocialChannel.WhatsApp))
                     .OrderByDescending(e => e.SentAt)
                     .Select(e => (ConversationEntryDirection?)e.Direction)
                     .FirstOrDefault(),
@@ -80,14 +82,16 @@ public sealed class GetCitizenConversationsQueryHandler
                 LastMessageSenderLabel = _dbContext.ConversationEntries
                     .Where(e => _dbContext.SocialMessages
                         .Any(m => m.CitizenConversationId == c.CitizenConversationId
-                                  && m.SocialMessageId == e.SocialMessageId))
+                                  && m.SocialMessageId == e.SocialMessageId
+                                  && m.Channel == SocialChannel.WhatsApp))
                     .OrderByDescending(e => e.SentAt)
                     .Select(e => e.SenderLabel)
                     .FirstOrDefault(),
                 LastMessageDeliveryStatus = _dbContext.ConversationEntries
                     .Where(e => _dbContext.SocialMessages
                         .Any(m => m.CitizenConversationId == c.CitizenConversationId
-                                  && m.SocialMessageId == e.SocialMessageId))
+                                  && m.SocialMessageId == e.SocialMessageId
+                                  && m.Channel == SocialChannel.WhatsApp))
                     .OrderByDescending(e => e.SentAt)
                     .Select(e => e.DeliveryStatus)
                     .FirstOrDefault(),

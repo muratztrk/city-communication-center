@@ -84,6 +84,7 @@ function drawBadge(baseHref: string, count: number, generation: number) {
 
 export function formatWhatsAppTabTitle(baseTitle: string, count: number): string {
   if (count > 1) return `(${count}) ${baseTitle}`
+  if (count === 1) return `• ${baseTitle}`
   return baseTitle
 }
 

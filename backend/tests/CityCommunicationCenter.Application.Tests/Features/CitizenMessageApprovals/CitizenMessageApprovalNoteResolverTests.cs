@@ -116,6 +116,13 @@ public sealed class CitizenMessageApprovalNoteResolverTests
     }
 
     [Fact]
+    public void ExtractTrailingTerminalNote_supports_single_newline_separator()
+    {
+        var body = "VT-2026-16 no'lu Başlık talebinizin durumu \"Tamamlandı\".\nYapılan İş: Aaaaa";
+        Assert.Equal("Aaaaa", CitizenMessageApprovalNoteResolver.ExtractTrailingTerminalNote(body));
+    }
+
+    [Fact]
     public void StripAutoTemplateNoteLabel_removes_work_done_prefix()
     {
         Assert.Equal("Uuuuuu", CitizenMessageApprovalNoteResolver.StripAutoTemplateNoteLabel("Yapılan İş: Uuuuuu"));
@@ -368,6 +375,37 @@ public sealed class CitizenMessageApprovalNoteResolverTests
             db, TenantId, jobId, CancellationToken.None);
 
         Assert.Equal("Yeni Müdür", approver);
+    }
+
+    [Fact]
+    public async Task WhatsApp_outbound_resolves_when_delivery_status_updated_at_missing()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var socialMessageId = Guid.NewGuid();
+        var releasedAt = DateTimeOffset.UtcNow.AddMinutes(-10);
+        var terminalBody = "VT-2026-16 no'lu Başlık talebinizin durumu \"Tamamlandı\".\n\nYapılan İş: Aaaaa";
+
+        db.AddRange(
+            BuildCompletedJob(jobId, releasedAt),
+            BuildAudit(jobId, "CitizenMessageApprovalReleased", "onay", releasedAt),
+            new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = socialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = terminalBody,
+                SentAt = releasedAt.AddMinutes(2),
+                DeliveryStatus = ConversationDeliveryStatus.Sent,
+                DeliveryStatusUpdatedAtUtc = null,
+            });
+        await db.SaveChangesAsync();
+
+        var job = await db.Jobs.SingleAsync(j => j.JobId == jobId);
+        var outbound = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+            db, TenantId, job, SocialChannel.WhatsApp, socialMessageId, responseContent: null, CancellationToken.None);
+
+        Assert.Equal("Aaaaa", outbound);
     }
 
     [Fact]

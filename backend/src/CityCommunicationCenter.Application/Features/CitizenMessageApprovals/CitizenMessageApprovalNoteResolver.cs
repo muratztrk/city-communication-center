@@ -236,9 +236,8 @@ internal static class CitizenMessageApprovalNoteResolver
                 .Where(entry => (entry.DeliveryStatus == ConversationDeliveryStatus.Sent
                         || entry.DeliveryStatus == ConversationDeliveryStatus.Delivered
                         || entry.DeliveryStatus == ConversationDeliveryStatus.Read)
-                    && entry.DeliveryStatusUpdatedAtUtc != null
-                    && entry.DeliveryStatusUpdatedAtUtc >= releasedAt)
-                .OrderByDescending(entry => entry.DeliveryStatusUpdatedAtUtc)
+                    && (entry.DeliveryStatusUpdatedAtUtc ?? entry.SentAt) >= releasedAt)
+                .OrderByDescending(entry => entry.DeliveryStatusUpdatedAtUtc ?? entry.SentAt)
                 .ThenByDescending(entry => entry.SentAt))
             {
                 if (!IsTerminalCitizenStatusOutboundBody(entry.Content))
@@ -296,7 +295,15 @@ internal static class CitizenMessageApprovalNoteResolver
         var separatorIndex = trimmed.LastIndexOf("\n\n", StringComparison.Ordinal);
         if (separatorIndex < 0)
         {
-            return null;
+            // Tek satır sonu ayracı (#3512/#3518 — şablonda \n\n yoksa not çıkarılamıyordu).
+            var singleLineIndex = trimmed.LastIndexOf('\n');
+            if (singleLineIndex < 0)
+            {
+                return null;
+            }
+
+            var singleLineTail = trimmed[(singleLineIndex + 1)..].Trim();
+            return string.IsNullOrWhiteSpace(singleLineTail) ? null : StripAutoTemplateNoteLabel(singleLineTail);
         }
 
         var tail = trimmed[(separatorIndex + 2)..].Trim();

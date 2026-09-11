@@ -2452,7 +2452,7 @@ const pageKicker = isMyTasksView
                                   : canViewCitizenMessageApproverFields(user)
                               )
                               const citizenApproverValue = citizenParent?.citizenMessageApproverDisplayName?.trim() || '—'
-                              const outboundPlain = (citizenParent?.citizenOutboundMessage ?? '').trim()
+                              const outboundPlain = richTextToPlainText(citizenParent?.citizenOutboundMessage ?? '').trim()
                               const completionNoteDisplay = richTextToPlainText(taskDetail.notes ?? '') || '—'
                               const cancelNoteDisplay = taskDetail.revisionReason?.trim() || '—'
                               const outboundDiffers = Boolean(

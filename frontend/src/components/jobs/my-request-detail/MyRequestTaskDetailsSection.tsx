@@ -328,7 +328,7 @@ export function MyRequestTaskDetailsSection({
                       && (outboundPlain || (canViewCitizenMessageApproverFields(user) && showCitizenApprover))
                       ? [{
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          value: outboundPlain || '—',
+                          value: outboundPlain || notePlain(citizenOutboundMessage) || '—',
                           tone: outboundPlain ? outboundTone : undefined,
                           fullRow: true as const,
                         }]

@@ -624,17 +624,12 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 || citizenRequest.Channel == SocialChannel.Phone);
         if (hasCitizenWaPhoneLink)
         {
-            // #3508: Onaylayan/release notu terminal job şartına bağlı değil (Mesaj Onayı reopen → Active).
+            // #3508/#3513/#3515: Onaylayan/release/outbound terminal job şartına bağlı değil (Active + terminal görev).
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken);
             citizenMessageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken);
-        }
 
-        var eligible = await CitizenMessageApprovalAccess.FindEligibleTerminalJobAsync(
-            _dbContext, tenantId, job.JobId, track: false, cancellationToken);
-        if (eligible is not null)
-        {
             var linkedMessages = await _dbContext.SocialMessages.AsNoTracking()
                 .Where(m => m.TenantId == tenantId
                     && m.CitizenRequestNumber != null
@@ -667,7 +662,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 var note = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
                     _dbContext,
                     tenantId,
-                    eligible,
+                    job,
                     linkedMessage.Channel,
                     linkedMessage.SocialMessageId,
                     smsResponse,

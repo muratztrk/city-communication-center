@@ -13,7 +13,7 @@ public sealed class CancelJobCommandValidator : AbstractValidator<CancelJobComma
     {
         RuleFor(c => c.Reason)
             .NotEmpty().WithMessage("İptal nedeni zorunludur.")
-            .MaximumLength(100).WithMessage("İptal nedeni en fazla 100 karakter olabilir.");
+            .MaximumLength(400).WithMessage("İptal nedeni en fazla 400 karakter olabilir.");
     }
 }
 

@@ -2443,10 +2443,13 @@ const pageKicker = isMyTasksView
                               const isCompletedTask = taskDetail.currentStatus === 'Completed'
                               const isCancelledTask = taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected'
                               if (!isCompletedTask && !isCancelledTask) return []
-                              const citizenParent = parentJobDetail && isCitizenRequestJob(parentJobDetail) ? parentJobDetail : null
-                              const showCitizenApprover = Boolean(
+                              const isCitizenTerminalTask = taskDetail.jobRequestType === 'Citizen'
+                                || Boolean(parentJobDetail && isCitizenRequestJob(parentJobDetail))
+                              const citizenParent = parentJobDetail && isCitizenTerminalTask ? parentJobDetail : null
+                              const showCitizenApprover = isCitizenTerminalTask && (
                                 citizenParent
-                                && shouldShowCitizenMessageApproverField(user, citizenParent.citizenMessageApproverDisplayName),
+                                  ? shouldShowCitizenMessageApproverField(user, citizenParent.citizenMessageApproverDisplayName)
+                                  : canViewCitizenMessageApproverFields(user)
                               )
                               const citizenApproverValue = citizenParent?.citizenMessageApproverDisplayName?.trim() || '—'
                               const outboundPlain = (citizenParent?.citizenOutboundMessage ?? '').trim()
@@ -2484,7 +2487,7 @@ const pageKicker = isMyTasksView
                                   tone: 'cancel',
                                 })
                               }
-                              if (citizenParent && (outboundPlain || (canViewCitizenMessageApproverFields(user) && showCitizenApprover))) {
+                              if (isCitizenTerminalTask && (outboundPlain || (canViewCitizenMessageApproverFields(user) && showCitizenApprover))) {
                                 rows.push({
                                   label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
                                   value: outboundPlain || '—',

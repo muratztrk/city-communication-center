@@ -294,6 +294,7 @@ function formatJobDisplayNumber(job: Pick<JobSummary, 'requestType' | 'sourceTyp
 }
 
 const FORWARD_NOTE_MAX_LENGTH = 400
+const CANCEL_JOB_REASON_MAX_LENGTH = 400
 
 const JOB_SEARCH_COLUMN_KEYS = [
   'jobNumber',
@@ -3857,11 +3858,11 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
               {t('jobs.actions.cancelJobHelp', 'Talebi iptal etmek için neden belirtiniz.')}
             </p>
             <label className="job-field">
-              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max {CANCEL_JOB_REASON_MAX_LENGTH} karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"
                 rows={3}
-                maxLength={100}
+                maxLength={CANCEL_JOB_REASON_MAX_LENGTH}
                 value={cancelModal.reason}
                 onChange={e => setCancelModal(m => m ? { ...m, reason: e.target.value } : null)}
                 placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}

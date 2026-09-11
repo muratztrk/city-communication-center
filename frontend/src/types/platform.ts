@@ -259,6 +259,11 @@ export interface TaskDetail {
   statusActorDisplayName?: string | null;
   // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #2).
   statusChangeHistory?: TaskStatusChangeHistory[] | null;
+  /** VT mesaj onayı — parent job yüklenmeden görev detayında (#3515). */
+  citizenMessageApproverDisplayName?: string | null;
+  citizenApprovalReleasedNote?: string | null;
+  citizenOutboundMessage?: string | null;
+  jobCancelReason?: string | null;
 }
 
 export interface TaskStatusChangeHistory {

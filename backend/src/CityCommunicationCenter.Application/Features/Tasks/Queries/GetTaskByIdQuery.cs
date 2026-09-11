@@ -1,3 +1,6 @@
+using CityCommunicationCenter.Application.Features.CitizenMessageApprovals;
+using CityCommunicationCenter.Domain.Enums;
+
 namespace CityCommunicationCenter.Application.Features.Tasks;
 
 public sealed record GetTaskByIdQuery(Guid TaskId) : IQuery<TaskDetailResponse?>;
@@ -23,15 +26,28 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
         if (task is null) return null;
 
         var job = await _dbContext.Jobs
+            .AsNoTracking()
             .Where(entity => entity.JobId == task.JobId && entity.TenantId == tenantId)
             .Select(entity => new
             {
                 entity.Title,
                 entity.Description,
                 entity.RequestType,
-                entity.SourceType
+                entity.SourceType,
+                entity.CancelReason,
+                entity.CitizenTerminalMessageReleasedAtUtc,
             })
             .FirstOrDefaultAsync(cancellationToken);
+
+        string? citizenMessageApproverDisplayName = null;
+        string? citizenApprovalReleasedNote = null;
+        if (job?.RequestType == JobRequestType.Citizen)
+        {
+            citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
+                _dbContext, tenantId, task.JobId, cancellationToken);
+            citizenMessageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
+                _dbContext, tenantId, task.JobId, cancellationToken, job.CitizenTerminalMessageReleasedAtUtc);
+        }
 
         // "Oluşturan" = talebi oluşturan kişi (işin sahibi), görevi onaylayan/atayan değil.
         var jobCreatedByUserId = await _dbContext.Jobs.AsNoTracking()
@@ -213,7 +229,11 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             hasPendingExtraTimeRequest,
             lastExtraTimeRequestDecision,
             statusActorDisplayName,
-            statusChangeHistory);
+            statusChangeHistory,
+            citizenMessageApproverDisplayName,
+            citizenApprovalReleasedNote,
+            CitizenOutboundMessage: null,
+            JobCancelReason: job?.CancelReason);
     }
 
     private static string ResolveTaskDescription(string? taskDescription, string? jobDescription)

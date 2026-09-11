@@ -2407,15 +2407,22 @@ const pageKicker = isMyTasksView
                               const isCitizenTerminalTask = taskDetail.jobRequestType === 'Citizen'
                                 || Boolean(parentJobDetail && isCitizenRequestJob(parentJobDetail))
                               const citizenParent = parentJobDetail && isCitizenTerminalTask ? parentJobDetail : null
+                              const resolvedApproverName = citizenParent?.citizenMessageApproverDisplayName
+                                ?? taskDetail.citizenMessageApproverDisplayName
                               const showCitizenApprover = isCitizenTerminalTask
-                                && shouldShowCitizenMessageApproverField(user, citizenParent?.citizenMessageApproverDisplayName)
-                              const citizenApproverValue = citizenParent?.citizenMessageApproverDisplayName?.trim() || '—'
-                              const releasedPlain = richTextToPlainText(citizenParent?.citizenApprovalReleasedNote ?? '').trim()
+                                && shouldShowCitizenMessageApproverField(user, resolvedApproverName)
+                              const citizenApproverValue = resolvedApproverName?.trim() || '—'
+                              const releasedPlain = richTextToPlainText(
+                                citizenParent?.citizenApprovalReleasedNote
+                                  ?? taskDetail.citizenApprovalReleasedNote
+                                  ?? '',
+                              ).trim()
                               const taskNotesPlain = richTextToPlainText(taskDetail.notes ?? '').trim()
                               const outboundRaw = stripAutoMessageNoteLabel(citizenParent?.citizenOutboundMessage)
                                 || richTextToPlainText(citizenParent?.citizenOutboundMessage ?? '').trim()
                               const cancelNoteDisplay = taskDetail.revisionReason?.trim()
                                 || citizenParent?.cancelReason?.trim()
+                                || taskDetail.jobCancelReason?.trim()
                                 || '—'
                               const completionNoteDisplay = isCompletedTask
                                 ? (releasedPlain

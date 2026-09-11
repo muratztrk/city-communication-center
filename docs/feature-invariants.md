@@ -2921,6 +2921,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Onaylayan yedeği (#3515):** `CitizenTerminalMessageReleasedAtUtc` dolu, döngü audit yoksa son release actor.
 - **Personelimin Görevleri onaylayan (#3515 reopen):** `TasksPage` Görev Bilgileri terminal satırları
   `MyRequestTaskDetailsSection` ile aynı (`releasedNote`, outbound strip, Görevi Yapan sonrası sıra).
+  `GetTaskById` VT onaylayan + released notu taşır; parent job yüklenmese de gösterilir.
+  `GetJobById` onaylayan/outbound `CitizenTerminalMessageReleasedAtUtc` varken WA/Phone dışı VT'de de çözülür.
 - **İptal outbound operatör düzenleme (#3524):** operatör outbound'u değiştirdiyse `Not:` sonrası göster;
   `Not:` tamamen silindiyse düzenlenmiş metnin tamamı.
 - **Mesajı Onayla confirm (#3525):** onay metni `text-justify` (iki yana yaslı).

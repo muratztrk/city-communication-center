@@ -179,4 +179,9 @@ public sealed record TaskDetailResponse(
     // Durumu belirleyen son işlemi yapan kullanıcı (iptal eden / tamamlayan) — denetim kaydından (card 642).
     string? StatusActorDisplayName = null,
     // "Durum Değiştir" ile yapılan durum değişikliklerinin geçmişi (card #2).
-    IReadOnlyCollection<TaskStatusChangeHistoryResponse>? StatusChangeHistory = null);
+    IReadOnlyCollection<TaskStatusChangeHistoryResponse>? StatusChangeHistory = null,
+    // VT mesaj onayı — görev detay popup'ta parent job yüklenmeden de kullanılır (#3515).
+    string? CitizenMessageApproverDisplayName = null,
+    string? CitizenApprovalReleasedNote = null,
+    string? CitizenOutboundMessage = null,
+    string? JobCancelReason = null);

@@ -636,9 +636,12 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
         var hasCitizenWaPhoneLink = citizenRequest is not null
             && (citizenRequest.Channel == SocialChannel.WhatsApp
                 || citizenRequest.Channel == SocialChannel.Phone);
-        if (hasCitizenWaPhoneLink && citizenRequest is not null)
+        var shouldResolveCitizenMessageFields = job.RequestType == JobRequestType.Citizen
+            && citizenRequest is not null
+            && (hasCitizenWaPhoneLink || job.CitizenTerminalMessageReleasedAtUtc.HasValue);
+        if (shouldResolveCitizenMessageFields)
         {
-            var citizenVt = citizenRequest;
+            var citizenVt = citizenRequest!;
             // #3508/#3513/#3515: Onaylayan/release/outbound terminal job şartına bağlı değil (Active + terminal görev).
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken);

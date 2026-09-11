@@ -467,7 +467,9 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
       }
 
       let convertMessageId = message.socialMessageId
-      const shouldCreateFreshMessage = forceNewRequest && Boolean(citizenConversationId || message.jobId)
+      // forceNew: mevcut çağrı/WA VT'sine convert etme — her zaman yeni SocialMessage + Job.
+      // citizenConversationId / jobId yok diye update+convert'e düşülmesin (çağrı-önce senaryosu).
+      const shouldCreateFreshMessage = forceNewRequest && !isEditMode
       // WA konuşmasından açılan form her zaman WhatsApp VT üretir; aynı numaradaki çağrı
       // ticket'ı kanalı Phone'a çekmesin.
       const createChannel = citizenConversationId ? 'WhatsApp' : message.channel

@@ -52,7 +52,11 @@ export function pickReplyTicket(tickets: CitizenConversationTicket[]): CitizenCo
     ?? ordered.find(ticket => ticket.status !== 'Closed')
 }
 
-/** WA sayfasında yanıt/talep şablonu Phone VT olmaz — ham WhatsApp thread tercih edilir. */
+function isPhoneTicketChannel(channel?: string | null): boolean {
+  return (channel ?? '').toLocaleLowerCase('tr') === 'phone'
+}
+
+/** WA sayfasında yanıt şablonu Phone VT olmaz — ham WhatsApp thread tercih edilir. */
 export function pickReplySocialMessageId(detail: {
   tickets: CitizenConversationTicket[]
   timeline: Array<{ socialMessageId?: string | null }>
@@ -63,7 +67,7 @@ export function pickReplySocialMessageId(detail: {
 
   const phoneIds = new Set(
     detail.tickets
-      .filter(ticket => (ticket.channel ?? '').toLocaleLowerCase('tr') === 'phone')
+      .filter(ticket => isPhoneTicketChannel(ticket.channel))
       .map(ticket => ticket.socialMessageId),
   )
   for (let index = detail.timeline.length - 1; index >= 0; index -= 1) {
@@ -71,4 +75,23 @@ export function pickReplySocialMessageId(detail: {
     if (socialMessageId && !phoneIds.has(socialMessageId)) return socialMessageId
   }
   return undefined
+}
+
+export function conversationHasCitizenRequest(detail: {
+  tickets: CitizenConversationTicket[]
+}): boolean {
+  return detail.tickets.some(ticket => Boolean(ticket.jobId || ticket.citizenRequestNumber))
+}
+
+/**
+ * Talep oluştur çapası: önce WhatsApp thread, yoksa mevcut VT (çağrı dahil).
+ * Yanıt hedefi yoktur diye buton kapanmasın — çağrı-önce konuşmada da WA VT açılır.
+ */
+export function pickCreateRequestSocialMessageId(detail: {
+  tickets: CitizenConversationTicket[]
+  timeline: Array<{ socialMessageId?: string | null }>
+}): string | undefined {
+  return pickReplySocialMessageId(detail)
+    ?? pickReplyTicket(detail.tickets)?.socialMessageId
+    ?? detail.tickets[0]?.socialMessageId
 }

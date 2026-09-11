@@ -1,3 +1,8 @@
+## Round 1163 — Çağrı-önce sonra WhatsApp talebi
+
+- Aynı numarada önce çağrı VT'si varsa WA Talep oluştur yanıt hedefi (`pickReply`) olmadığı için kapanıyor veya mevcut kaydı dönüştürmeye çalışıyordu.
+- Açık konuşmada Talep oluştur her zaman durur; mevcut VT varsa yeni WhatsApp SocialMessage + Job (`forceNew`).
+
 ## Round 1162 — Trello Doing (#3529/#3530/#2798/#3531/#3489/#3535)
 
 - **#3529:** Görev popup Talep Bilgileri'nden `Talebi Onaylayan` geri alındı.

@@ -30,7 +30,7 @@ import { UserQuickReplyAddButton } from '../components/UserQuickReplyDialog'
 import { conversationEntryMatchesChatSearch, filterVisibleConversationEntries } from '../utils/socialConversationContent'
 import { WHATSAPP_RE_ENGAGEMENT_WARNING, isWhatsAppReEngagementError } from '../utils/formatWhatsAppDeliveryError'
 import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
-import { isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse, pickReplySocialMessageId, pickReplyTicket } from '../utils/whatsappConversationTicket'
+import { conversationHasCitizenRequest, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse, pickCreateRequestSocialMessageId, pickReplySocialMessageId, pickReplyTicket } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
@@ -756,7 +756,7 @@ function ConversationDetail({
    *  konuşma tamamen yeniden mount edilmeden mevcut sohbeti sessizce tazeler (card #1493). */
   refreshSignal?: number
   onReadMarked?: () => void
-  onOpenCreateRequest: (socialMessageId: string) => void
+  onOpenCreateRequest: (socialMessageId?: string, options?: { hasExistingRequest?: boolean }) => void
   onOpenViewRequests: (citizenPhone: string) => void
   onProfileSaved: () => void
   /** Vatandaşa giden yanıt sonrası liste/rozet anında güncellenir (card #6a6b6ec6). */
@@ -1190,6 +1190,8 @@ function ConversationDetail({
   const openTicket = activeDetail ? pickReplyTicket(activeDetail.tickets) : undefined
   const primaryTicket = openTicket ?? activeDetail?.tickets[activeDetail.tickets.length - 1]
   const replySocialMessageId = activeDetail ? pickReplySocialMessageId(activeDetail) : undefined
+  const createRequestSocialMessageId = activeDetail ? pickCreateRequestSocialMessageId(activeDetail) : undefined
+  const hasExistingCitizenRequest = activeDetail ? conversationHasCitizenRequest(activeDetail) : false
 
   const windowOpen = isWhatsApp24hWindowOpen(activeDetail?.lastInboundAt ?? null)
   const hasSelectableTemplates = userQuickReplies.length > 0
@@ -1293,14 +1295,14 @@ function ConversationDetail({
             </button>
             {menuOpen ? (
               <div className="dropdown-menu-panel absolute right-0 top-full z-20 mt-1 min-w-[13rem] py-1">
-                {replySocialMessageId ? (
+                {activeDetail ? (
                   <>
                     <button
                       type="button"
                       className="dropdown-menu-item !justify-start gap-2.5"
                       onClick={() => {
                         setMenuOpen(false)
-                        onOpenCreateRequest(replySocialMessageId)
+                        onOpenCreateRequest(createRequestSocialMessageId, { hasExistingRequest: hasExistingCitizenRequest })
                       }}
                     >
                       <ClipboardPlus {...DETAIL_ICON_PROPS} className="size-4 text-emerald-600" />
@@ -1570,8 +1572,10 @@ function ConversationDetail({
             })
           }}
           onSave={() => { void handleProfileSave() }}
-          canCreateRequest={Boolean(replySocialMessageId)}
-          onCreateRequest={replySocialMessageId ? () => onOpenCreateRequest(replySocialMessageId) : undefined}
+          canCreateRequest={Boolean(activeDetail)}
+          onCreateRequest={activeDetail
+            ? () => onOpenCreateRequest(createRequestSocialMessageId, { hasExistingRequest: hasExistingCitizenRequest })
+            : undefined}
         />
       </div>
       <ConfirmDialog state={confirmDialog} onClose={() => setConfirmDialog(null)} />
@@ -1892,22 +1896,55 @@ export function WhatsAppConversationsPage() {
     }
   }, [conversations])
 
-  const handleOpenCreateRequest = useCallback(async (socialMessageId: string) => {
-    try {
+  const handleOpenCreateRequest = useCallback(async (
+    socialMessageId?: string,
+    options?: { hasExistingRequest?: boolean },
+  ) => {
+    const conversation = conversations.find(item => item.citizenConversationId === selectedId)
+    const stubMessage = (): SocialMessage => ({
+      socialMessageId: socialMessageId ?? '',
+      channel: 'WhatsApp',
+      citizenHandle: conversation?.citizenPhone ?? '',
+      citizenName: conversation?.citizenName ?? null,
+      citizenPhone: conversation?.citizenPhone ?? null,
+      content: null,
+      category: null,
+      status: 'New',
+      assignedDepartmentId: null,
+      assignedDepartmentName: null,
+      jobId: null,
+      citizenRequestNumber: null,
+      citizenRequestNumberYear: null,
+      receivedAtUtc: new Date().toISOString(),
+      updatedAtUtc: null,
+      citizenConversationId: selectedId,
+    })
+
+    const openWhatsAppRequest = (message: SocialMessage, forceNew: boolean) => {
       setRequestModalEditJobId(null)
-      const message = await api.getSocialMessageById(socialMessageId)
-      const isUnconvertedWhatsApp = message.channel === 'WhatsApp' && !message.jobId
-      setRequestModalForceNew(!isUnconvertedWhatsApp)
+      setRequestModalForceNew(forceNew)
       setRequestModalMessage({
         ...enrichMessageWithConversation(message, selectedId),
         channel: 'WhatsApp',
       })
-    } catch {
-      setRequestModalEditJobId(null)
-      setRequestModalForceNew(false)
-      setRequestModalMessage(null)
     }
-  }, [enrichMessageWithConversation, selectedId])
+
+    // Çağrı VT'si varken yanıt hedefi olmayabilir; konuşmadan yeni WhatsApp VT açılır.
+    if (!socialMessageId) {
+      openWhatsAppRequest(stubMessage(), true)
+      return
+    }
+
+    try {
+      const message = await api.getSocialMessageById(socialMessageId)
+      const isUnconvertedWhatsApp = message.channel === 'WhatsApp' && !message.jobId
+      // Mevcut çağrı/WA VT varsa thread'i dönüştürme — ayrı WhatsApp SocialMessage + Job.
+      const forceNew = !isUnconvertedWhatsApp || Boolean(options?.hasExistingRequest)
+      openWhatsAppRequest(message, forceNew)
+    } catch {
+      openWhatsAppRequest(stubMessage(), true)
+    }
+  }, [conversations, enrichMessageWithConversation, selectedId])
 
   const handleRequestCreated = useCallback(() => {
     suppressNewRecordSound()
@@ -1998,7 +2035,7 @@ export function WhatsAppConversationsPage() {
               anchorSocialMessageId={requestedMessageId || null}
               refreshSignal={detailRefreshKey}
               onReadMarked={handleReadMarked}
-              onOpenCreateRequest={socialMessageId => { void handleOpenCreateRequest(socialMessageId) }}
+              onOpenCreateRequest={(socialMessageId, options) => { void handleOpenCreateRequest(socialMessageId, options) }}
               onOpenViewRequests={handleOpenViewRequests}
               onProfileSaved={() => { void silentRefreshConversations() }}
               onOutboundSent={() => {

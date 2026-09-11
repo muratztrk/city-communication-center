@@ -777,8 +777,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Phone'a çevirmez. `UpdateSocialMessage` WhatsApp → Phone çevirisini reddeder.
   Konuşmada yanıtlanmamış WhatsApp inbound varken otomatik durum bildirimi ve `/whatsapp`
   yanıtı çağrı SMS'ine değil o WhatsApp thread'ine gider; `Yanıt bekliyor` yalnız
-  WhatsApp-kanal entry yönüne bakar. İşsız WA thread Talep oluştur'da dönüştürülür
-  (`forceNew` yalnızca mevcut Job varsa). **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
+  WhatsApp-kanal entry yönüne bakar. Talep oluştur yanıt hedefi (`pickReply`) olmasa da
+  açık konuşmada durur (çağrı-önce: yalnız Phone ticket varken de). Konuşmada mevcut VT
+  varsa (çağrı dahil) `forceNew` ile yeni WhatsApp `SocialMessage` + Job açılır; işsiz WA
+  thread yalnız hiç VT yoksa yerinde dönüşür. **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
   dizin Kaydet ile değişir/silinir; talep oluşturma veya etiket seçimi profili silmez.
   Convert/UpdateJob mevcut dolu profil alanını ezmez (yalnız boş adı doldurur).
   Çağrı formu (`/requests/new?kind=citizen`) aynı telefondaki WA `CitizenConversation`

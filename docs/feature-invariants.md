@@ -770,9 +770,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `socialMessageId`'sini taşır; medya indirme/gönder/düzenle aksiyonları entry'nin gerçek id'siyle çalışır.
 - **WhatsApp profil telefonu salt okunur:** sağ panelde `Numara` başındaki ülke kodu olmadan gösterilir,
   kayıtta değiştirilemez; `Vatandaş Adı` düzenlenebilir ve yalnız `CitizenConversation` profiline
-  yazılır (`Job.CitizenName` talep bazlı ayrı kalır — card #2288). **Phone (çağrı) VT'leri aynı
-  numarada mevcut WhatsApp konuşmasına bağlanmaz / WA profil adını ezmez** — `CitizenConversationLinkGuard`
-  (#2288 reopen / #2330). Kaydedilen ad/etiket/adres metinleri Türkçe başlık biçimine normalize edilir.
+  yazılır (`Job.CitizenName` talep bazlı ayrı kalır — card #2288). **Aynı telefon = aynı
+  `CitizenConversation`:** WhatsApp ve çağrı (Phone) ayrı `SocialMessage` + Job üretir (iki VT).
+  Çağrı VT konuşmaya bağlanır; dolu WA `CitizenName` ezilmez, boşsa çağrı adından doldurulur.
+  WA sayfasından Talep oluştur her zaman `channel=WhatsApp`; çağrı formu mevcut WA mesajını
+  Phone'a çevirmez. Profil PUT kısmi: `null` alanlar silinmez (yalnız etiket göndermek adı silmez).
+  Kaydedilen ad/etiket/adres metinleri Türkçe başlık biçimine normalize edilir.
 - **WhatsApp detay header sayaçları (#3295):** seçili konuşma header'ında `Talep Sayısı` satırı
   ve yanındaki `Görev Sahibi` yok; ad + numara + `Numaranın Talepleri` butonu durur.
 - **WhatsApp detay header görev sahibi:** görev sahibi bilgisi header'da basılmaz (#3295);
@@ -2718,13 +2721,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Çağrı non-terminal SMS birim boş satırı (#6a6f19af):** İşleme Alındı/Yapılmakta SMS'inde
   `{GönderilenBirim}` değerinden önce 1 boş satır (`EnsureBlankLineBeforeTargetDepartments`) —
   terminal SMS ile aynı.
-- **Çağrı formu ↔ WA profil (#6a6f1d32 / #2513):** Phone (çağrı) VT oluşturma/güncelleme
-  `Job.CitizenName` ve adres alanlarını talep bazlı tutar; aynı numarada WhatsApp mesajı olan
-  `CitizenConversation` profiline **yazılmaz** (`CitizenConversationLinkGuard` + Convert/UpdateJob
-  profil sync). WA sağ panelde kaydedilen Vatandaş Bilgileri çağrı talebi veya dizin kaydıyla
-  ezilmez. WA convert formu profili güncelleyebilir (kanal WhatsApp). WA **Vatandaş Bilgileri**
-  Kaydet, `profileDraftRef` ile blur/deferred input commit sonrası güncel draft okur; başarıda toast
-  gösterir (#3391).
+- **Çağrı formu ↔ WA profil (#6a6f1d32 / #2513):** Aynı telefon aynı `CitizenConversation`'da
+  durur; kanallar ayrı VT'dir. `Job.CitizenName` talep bazlı kalır. Convert/UpdateJob çağrı
+  kaydı dolu WA adını **ezmez**, boşsa doldurur. Profil PUT kısmi (`null` = dokunma). WA sağ
+  panel Vatandaş Bilgileri çağrı formu veya dizin kaydıyla ezilmez. WA convert formu profili
+  güncelleyebilir. WA **Vatandaş Bilgileri** Kaydet, `profileDraftRef` ile blur/deferred
+  input commit sonrası güncel draft okur; başarıda toast gösterir (#3391).
 - **Taslak Mesajlar liste ikonu (#6a6f1ab6):** şablon listesinde yeşil=aktif / kırmızı=pasif
   yuvarlak nokta (`tpl.isActive`).
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106/#2108):** `toSend` = Detaylar / Notu Düzenle /

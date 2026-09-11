@@ -165,8 +165,8 @@ public sealed class GetCitizenConversationDetailQueryHandler
             .Select(m => m.SocialMessageId)
             .ToListAsync(cancellationToken);
 
-        // Çağrı (Phone) VT'leri WA konuşmasına bağlanmazsa orphan kalır (#2288) — aynı telefon
-        // eşleşmesiyle popup'ta tüm kanallar görünsün (card #2546).
+        // Henüz bağlanmamış çağrı VT'leri aynı telefonla konuşma popup'ında görünsün (#2546).
+        // Yeni kayıtlar aynı CitizenConversation'a bağlanır; bu fallback eski orphan'lar içindir.
         var unlinkedCandidates = await _dbContext.SocialMessages
             .AsNoTracking()
             .Where(m => m.TenantId == tenantId

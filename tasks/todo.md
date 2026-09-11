@@ -1,3 +1,9 @@
+## Round 1156 — WA + çağrı aynı vatandaş, ayrı VT
+
+- Aynı telefon hem WhatsApp hem çağrı merkezi talebi açabilir; iki ayrı Job/kanal.
+- WA Talep oluştur her zaman WhatsApp; çağrı formu WA mesajını Phone'a çevirmez.
+- Profil PUT kısmi (etiket adı silmez); çağrı bağlanır, dolu WA adı ezilmez.
+
 ## Round 1155 — Trello Doing 2 kart (#3472/#3473)
 
 - **#3472:** Yazışmaya Git popup — Yazdır yanında Ara; konuşma içi arama (WhatsApp kalıbı).

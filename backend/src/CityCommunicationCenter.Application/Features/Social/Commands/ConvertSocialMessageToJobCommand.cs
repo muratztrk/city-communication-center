@@ -209,18 +209,6 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
                 item => item.TenantId == tenantId && phoneVariants.Contains(item.CitizenPhone),
                 cancellationToken);
 
-        if (phoneOwner is not null
-            && await CitizenConversationLinkGuard.ShouldSkipPhoneLinkToConversationAsync(
-                _dbContext,
-                tenantId,
-                message.Channel,
-                phoneOwner.CitizenConversationId,
-                cancellationToken))
-        {
-            // Çağrı talebi WA profiline bağlanmaz / adını ezmez (#2288/#2330).
-            return;
-        }
-
         CitizenConversation? linked = null;
         if (message.CitizenConversationId.HasValue)
         {
@@ -258,18 +246,21 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             _dbContext.CitizenConversations.Add(conversation);
         }
 
-        if (message.Channel == SocialChannel.Phone
-            && await CitizenConversationLinkGuard.HasWhatsAppMessagesOnConversationAsync(
-                _dbContext,
-                tenantId,
-                conversation.CitizenConversationId,
-                cancellationToken))
+        var hasWhatsAppOnConversation = await CitizenConversationLinkGuard.HasWhatsAppMessagesOnConversationAsync(
+            _dbContext,
+            tenantId,
+            conversation.CitizenConversationId,
+            cancellationToken);
+        // Çağrı VT aynı konuşmaya bağlanır (iki ayrı kanal talebi) ama dolu WA adını ezmez.
+        if (message.Channel != SocialChannel.Phone || !hasWhatsAppOnConversation)
         {
-            // Çağrı talebi aynı numaradaki WA konuşma profilini ezmez (#2288/#2513).
-            return;
+            ApplyConversationProfile(conversation, citizenName, neighborhood, street, openAddress);
+        }
+        else if (string.IsNullOrWhiteSpace(conversation.CitizenName) && !string.IsNullOrWhiteSpace(citizenName))
+        {
+            conversation.CitizenName = citizenName.Trim();
         }
 
-        ApplyConversationProfile(conversation, citizenName, neighborhood, street, openAddress);
         conversation.LastMessageAt = DateTimeOffset.UtcNow;
         message.CitizenConversationId = conversation.CitizenConversationId;
     }

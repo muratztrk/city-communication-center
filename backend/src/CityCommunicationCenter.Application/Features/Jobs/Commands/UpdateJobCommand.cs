@@ -306,17 +306,6 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
                 item => item.TenantId == tenantId && phoneVariants.Contains(item.CitizenPhone),
                 cancellationToken);
 
-        if (phoneOwner is not null
-            && await CitizenConversationLinkGuard.ShouldSkipPhoneLinkToConversationAsync(
-                _dbContext,
-                tenantId,
-                SocialChannel.Phone,
-                phoneOwner.CitizenConversationId,
-                cancellationToken))
-        {
-            return;
-        }
-
         CitizenConversation? linked = null;
         var linkedConversationId = linkedMessages
             .Select(message => message.CitizenConversationId)
@@ -371,6 +360,10 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             }
 
             // Talep adresi vatandaş profil adresinden ayrıdır (#2563).
+        }
+        else if (string.IsNullOrWhiteSpace(conversation.CitizenName) && !string.IsNullOrWhiteSpace(job.CitizenName))
+        {
+            conversation.CitizenName = job.CitizenName.Trim();
         }
 
         conversation.LastMessageAt = utcNow;

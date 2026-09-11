@@ -474,9 +474,12 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
 
       let convertMessageId = message.socialMessageId
       const shouldCreateFreshMessage = forceNewRequest && Boolean(citizenConversationId || message.jobId)
+      // WA konuşmasından açılan form her zaman WhatsApp VT üretir; aynı numaradaki çağrı
+      // ticket'ı kanalı Phone'a çekmesin.
+      const createChannel = citizenConversationId ? 'WhatsApp' : message.channel
       if (shouldCreateFreshMessage) {
         convertMessageId = await api.createSocialMessage({
-          channel: message.channel,
+          channel: createChannel,
           citizenHandle: trimmedPhone.length === 10 ? `90${trimmedPhone}` : trimmedPhone,
           content: description.trim(),
           category: message.category ?? undefined,
@@ -486,7 +489,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         })
       } else {
         await api.updateSocialMessage(convertMessageId, {
-          channel: message.channel,
+          channel: createChannel,
           citizenHandle: trimmedHandle,
           content: description.trim(),
           category: message.category ?? undefined,
@@ -516,7 +519,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
         citizenPhone: trimmedPhone,
       })
       await api.updateSocialMessage(convertMessageId, {
-        channel: message.channel,
+        channel: createChannel,
         citizenHandle: trimmedHandle,
         content: description.trim(),
         category: message.category ?? undefined,

@@ -47,12 +47,37 @@ public sealed class UpdateCitizenConversationProfileCommandHandler
 
         if (conversation is null) return false;
 
-        conversation.CitizenName = NormalizeOptional(request.CitizenName);
-        conversation.Label = NormalizeOptional(request.Label);
-        conversation.Neighborhood = NormalizeOptional(request.Neighborhood);
-        conversation.Street = NormalizeOptional(request.Street);
-        conversation.StreetNo = NormalizeOptional(request.StreetNo);
-        conversation.OpenAddress = NormalizeOptional(request.OpenAddress);
+        // Kısmi PUT: gönderilmeyen (null) alanlar silinmez — çağrı formu yalnız etiket
+        // gönderince WA adını ezmesin.
+        if (request.CitizenName is not null)
+        {
+            conversation.CitizenName = NormalizeOptional(request.CitizenName);
+        }
+
+        if (request.Label is not null)
+        {
+            conversation.Label = NormalizeOptional(request.Label);
+        }
+
+        if (request.Neighborhood is not null)
+        {
+            conversation.Neighborhood = NormalizeOptional(request.Neighborhood);
+        }
+
+        if (request.Street is not null)
+        {
+            conversation.Street = NormalizeOptional(request.Street);
+        }
+
+        if (request.StreetNo is not null)
+        {
+            conversation.StreetNo = NormalizeOptional(request.StreetNo);
+        }
+
+        if (request.OpenAddress is not null)
+        {
+            conversation.OpenAddress = NormalizeOptional(request.OpenAddress);
+        }
 
         var phone = NormalizePhone(request.CitizenPhone);
         if (!string.IsNullOrWhiteSpace(phone))

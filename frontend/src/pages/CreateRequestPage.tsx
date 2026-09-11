@@ -1252,8 +1252,9 @@ export function CreateRequestPage() {
           locationMapsUrl: originalGoogleMapsUrl(citizenForm.coordinates),
           targetDepartmentIds: [citizenForm.targetDepartmentId],
         })
+        const existingForEdit = await api.getSocialMessageById(linkedSocialMessageId)
         await api.updateSocialMessage(linkedSocialMessageId, {
-          channel: citizenForm.channel,
+          channel: existingForEdit?.channel === 'WhatsApp' ? 'WhatsApp' : citizenForm.channel,
           citizenHandle: trimmedName,
           content: citizenDescription,
           category: citizenLabel.trim() || undefined,
@@ -1295,19 +1296,40 @@ export function CreateRequestPage() {
       }
 
       if (linkedSocialMessageId) {
-        await api.updateSocialMessage(linkedSocialMessageId, {
-          channel: citizenForm.channel,
-          citizenHandle: trimmedName,
-          content: citizenDescription,
-          category: citizenLabel.trim() || undefined,
-          latitude: mapsAddress.latitude ?? citizenCoords.latitude,
-          longitude: mapsAddress.longitude ?? citizenCoords.longitude,
-        })
-        const job = await api.convertSocialMessageToJob(linkedSocialMessageId, convertPayload)
-        await uploadPendingFiles(job.jobId)
-        invalidateSocialMessages(queryClient, linkedSocialMessageId)
-        const linkedMessage = await api.getSocialMessageById(linkedSocialMessageId)
-        await syncCitizenProfileAddress(linkedMessage?.citizenConversationId)
+        const existingLinked = await api.getSocialMessageById(linkedSocialMessageId)
+        // WhatsApp thread veya zaten VT olmuş mesaj çağrı formunda Phone'a çevrilmez —
+        // ayrı çağrı SocialMessage + Job açılır.
+        const mustCreateSeparatePhone = existingLinked?.channel === 'WhatsApp' || Boolean(existingLinked?.jobId)
+        if (mustCreateSeparatePhone) {
+          const socialMessageId = await api.createSocialMessage({
+            channel: 'Phone',
+            citizenHandle: trimmedName,
+            content: citizenDescription,
+            category: citizenLabel.trim() || undefined,
+            latitude: mapsAddress.latitude ?? citizenCoords.latitude,
+            longitude: mapsAddress.longitude ?? citizenCoords.longitude,
+            citizenConversationId: existingLinked?.citizenConversationId ?? citizenConversationId ?? undefined,
+          })
+          const job = await api.convertSocialMessageToJob(socialMessageId, convertPayload)
+          await uploadPendingFiles(job.jobId)
+          invalidateSocialMessages(queryClient, socialMessageId)
+          const createdMessage = await api.getSocialMessageById(socialMessageId)
+          await syncCitizenProfileAddress(createdMessage?.citizenConversationId)
+        } else {
+          await api.updateSocialMessage(linkedSocialMessageId, {
+            channel: citizenForm.channel,
+            citizenHandle: trimmedName,
+            content: citizenDescription,
+            category: citizenLabel.trim() || undefined,
+            latitude: mapsAddress.latitude ?? citizenCoords.latitude,
+            longitude: mapsAddress.longitude ?? citizenCoords.longitude,
+          })
+          const job = await api.convertSocialMessageToJob(linkedSocialMessageId, convertPayload)
+          await uploadPendingFiles(job.jobId)
+          invalidateSocialMessages(queryClient, linkedSocialMessageId)
+          const linkedMessage = await api.getSocialMessageById(linkedSocialMessageId)
+          await syncCitizenProfileAddress(linkedMessage?.citizenConversationId)
+        }
       } else {
         const socialMessageId = await api.createSocialMessage({
           channel: citizenForm.channel,

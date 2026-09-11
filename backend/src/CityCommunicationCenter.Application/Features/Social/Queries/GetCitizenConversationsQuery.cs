@@ -511,14 +511,17 @@ public sealed class GetCitizenConversationsQueryHandler
                 byPhone[normalized] = conversationId;
                 changed = true;
             }
-            else if (await CitizenConversationLinkGuard.ShouldSkipPhoneLinkToConversationAsync(
-                _dbContext,
-                tenantId,
-                orphan.Channel,
-                conversationId,
-                cancellationToken))
+            else if (!string.IsNullOrWhiteSpace(orphan.JobCitizenName))
             {
-                continue;
+                var existingConversation = await _dbContext.CitizenConversations
+                    .FirstOrDefaultAsync(
+                        item => item.CitizenConversationId == conversationId && item.TenantId == tenantId,
+                        cancellationToken);
+                if (existingConversation is not null && string.IsNullOrWhiteSpace(existingConversation.CitizenName))
+                {
+                    existingConversation.CitizenName = orphan.JobCitizenName.Trim();
+                    changed = true;
+                }
             }
 
             var message = await _dbContext.SocialMessages

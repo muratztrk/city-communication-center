@@ -144,9 +144,14 @@ function pickReplyTicket(tickets: CitizenConversationTicket[]): CitizenConversat
     ?? ordered.find(ticket => ticket.status !== 'Closed')
 }
 
-/** Talep yoksa bile son sohbet mesajına yanıt yazılır (ham WhatsApp). */
+function isWhatsAppTicketChannel(channel?: string | null): boolean {
+  return (channel ?? '').toLocaleLowerCase('tr') === 'whatsapp'
+}
+
+/** WA sayfasında yanıt/talep şablonu Phone VT olmaz — ham WhatsApp thread tercih edilir. */
 function pickReplySocialMessageId(detail: CitizenConversationDetail): string | undefined {
-  const ticket = pickReplyTicket(detail.tickets)
+  const whatsappTickets = detail.tickets.filter(ticket => isWhatsAppTicketChannel(ticket.channel))
+  const ticket = pickReplyTicket(whatsappTickets)
   if (ticket) return ticket.socialMessageId
   for (let index = detail.timeline.length - 1; index >= 0; index -= 1) {
     const socialMessageId = detail.timeline[index]?.socialMessageId
@@ -1103,13 +1108,13 @@ function ConversationDetail({
     setProfileSaving(true)
     try {
       await api.updateCitizenConversationProfile(conversationId, {
-        citizenName: savedDraft.citizenName || null,
+        citizenName: savedDraft.citizenName,
         citizenPhone: savedDraft.citizenPhone || null,
-        label: savedDraft.label || null,
-        neighborhood: savedDraft.neighborhood || null,
-        street: savedDraft.street || null,
-        streetNo: savedDraft.streetNo || null,
-        openAddress: savedDraft.openAddress || null,
+        label: savedDraft.label,
+        neighborhood: savedDraft.neighborhood,
+        street: savedDraft.street,
+        streetNo: savedDraft.streetNo,
+        openAddress: savedDraft.openAddress,
       })
       profileDraftRef.current = savedDraft
       setProfileDraft(savedDraft)
@@ -1902,7 +1907,10 @@ export function WhatsAppConversationsPage() {
       setRequestModalEditJobId(null)
       setRequestModalForceNew(true)
       const message = await api.getSocialMessageById(socialMessageId)
-      setRequestModalMessage(enrichMessageWithConversation(message, selectedId))
+      setRequestModalMessage({
+        ...enrichMessageWithConversation(message, selectedId),
+        channel: 'WhatsApp',
+      })
     } catch {
       setRequestModalEditJobId(null)
       setRequestModalForceNew(false)

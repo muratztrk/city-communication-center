@@ -2917,6 +2917,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Talep Bilgileri mesaj onaylayan (#3511):** terminal VT (`Completed`/`Cancelled`/`Rejected`)
   detayında Talebi Onaylayan altında `Tamamlama Notu Onaylayan` veya `İptal Notu Onaylayan`
   (`citizenMessageApproverDisplayName`); müdür/sorumlu + VT yöneticisi veri yokken de görür (`—`).
+  Görevsiz iptal VT'de onaylayan `İptal Notu` üstünde (Talep Bilgileri); görevsiz blok terminal
+  onaylayan tekrarını göstermez.
+- **Birime Gelen Talep Bilgileri onaylayan (#3514):** tamamlanmış VT'de Talep Bilgileri'nde
+  `Tamamlama Notu Onaylayan` yok (Görev Bilgileri'nde kalır); iptal onaylayan görevsiz iptalde kalır.
+- **Görev popup Gecikti mi? (#3509 reopen):** `TasksPage` görev detay Süreç başlığında
+  `Gecikti mi?` sağa hizalı; İlgili Talep Detayları `MyRequestDetailMainCard` ile aynı.
 - **Birime Gelen inline detay (#3506/#3509/#3510):** `JobsPage` request-details popup'ı
   `MyRequestDetailMainCard` ile aynı kuralları kullanır — görevsiz iptal VT'de Talep Bilgileri
   iptal/onaylayan/outbound satırları; `Gecikti mi?` Süreç başlığında; görev bölümüne

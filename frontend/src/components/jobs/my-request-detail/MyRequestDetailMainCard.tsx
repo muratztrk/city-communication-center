@@ -339,6 +339,7 @@ export function MyRequestDetailMainCard({
   const showMessageApproverInRequestInfo = shouldShowCitizenMessageApproverInRequestInfo(detail)
     && Boolean(messageApproverRequestInfoLabel)
     && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)
+    && !showCancelledWithoutTaskNotes
   const trailingInfoRows = [
     ...(infoExtraTrailingRows ?? []),
     ...(showMessageApproverInRequestInfo
@@ -353,6 +354,16 @@ export function MyRequestDetailMainCard({
       : []),
     ...(showCancelledWithoutTaskNotes
       ? [
+          ...(shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)
+            ? [{
+                label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
+                value: (
+                  <span className="text-slate-900">
+                    {detail.citizenMessageApproverDisplayName?.trim() || '—'}
+                  </span>
+                ),
+              }]
+            : []),
           {
             label: t('tasks.detail.cancelNote', 'İptal Notu'),
             value: (

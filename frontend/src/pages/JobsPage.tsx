@@ -3056,6 +3056,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           value: detail.statusActorDisplayName?.trim() || '—',
                         })
                       }
+                      if (shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)) {
+                        rows.push({
+                          label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
+                          value: detail.citizenMessageApproverDisplayName?.trim() || '—',
+                        })
+                      }
                       if (shouldShowCitizenMessageApproverField(user, detail.cancelReason) || detail.cancelReason?.trim()) {
                         rows.push({
                           label: t('tasks.detail.cancelNote', 'İptal Notu'),
@@ -3078,6 +3084,8 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       && shouldShowCitizenMessageApproverInRequestInfo(detail)
                       && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)
                       && getCitizenMessageApproverRequestInfoLabel(t, detail.status)
+                      && !isCancelledCitizenRequestWithoutTasks(detail)
+                      && !(isIncomingRequestDetail && detail.status === 'Completed')
                       ? (
                         <div className="job-detail-field-row job-detail-field-row--request-info">
                           <div className="job-detail-field-row__label">

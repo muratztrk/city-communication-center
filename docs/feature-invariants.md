@@ -2914,9 +2914,15 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yinelenme kontrolü takvim günü değil aktif başlama–bitiş **periyodu** ile yapılır
   (`WhatsAppAutoReplyDuplicateGuard.GetDuplicateCheckWindow`); gece yarısını aşan aralıklar
   desteklenir, bir sonraki periyotta yeniden bir kez gönderilebilir.
+- **Birime Gelen inline detay (#3506/#3509/#3510):** `JobsPage` request-details popup'ı
+  `MyRequestDetailMainCard` ile aynı kuralları kullanır — görevsiz iptal VT'de Talep Bilgileri
+  iptal/onaylayan/outbound satırları; `Gecikti mi?` Süreç başlığında; görev bölümüne
+  `citizenMessageApproverDisplayName` geçirilir.
 - **Görev İptal Notu Onaylayan (#3488/#3506/#3508):** detay popup Görev Bilgileri'nde iptal/tamamlama
   görevlerde `İptal/Tamamlama Notu` üstünde onaylayan satırı (`citizenMessageApproverDisplayName`,
-  Mesaj Onayı release audit actor). Müdür/sorumlu + VT yöneticisi satırı veri yokken de görür (`—`);
+  Mesaj Onayı release audit actor; `ActorDisplayName` boşsa `ActorUserId` → kullanıcı adı).
+  `GetJobById` onaylayan/release notunu WA/Çağrı VT bağlantısı varken terminal job şartı olmadan
+  çözer (Mesaj Onayı reopen → Active). Müdür/sorumlu + VT yöneticisi satırı veri yokken de görür (`—`);
   diğer roller yalnız veri varsa görür.
 - **Görevsiz iptal VT onaylayan (#3505):** Talep Bilgileri'nde `İptal Notu` üstünde aynı onaylayan
   satırı (Mesajı Onayla yapan kullanıcı).

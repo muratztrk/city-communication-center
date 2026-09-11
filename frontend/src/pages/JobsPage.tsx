@@ -40,7 +40,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees, formatJobAssigneeNames, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDisplayName, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, formatJobAssigneeNames, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDisplayName, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { ExternalDestinationValue } from '../components/jobs/my-request-detail/ExternalDestinationValue'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
@@ -89,7 +89,7 @@ import { printHtmlDocument } from '../utils/printDocument'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { richTextToPlainText } from '../utils/richText'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
-import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue, toLocalDateKey, wasJobOverdueWhenClosed } from '../utils/dateTimePicker'
+import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue, toLocalDateKey } from '../utils/dateTimePicker'
 
 interface ScopeChipFiltersProps {
   searchText: string
@@ -3041,22 +3041,45 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         <div className={`job-detail-field-row__value ${typeof field.value === 'string' ? 'text-slate-900' : ''}`}>{field.value}</div>
                       </div>
                     ))}
-                    {(() => {
-                      const overdueYes = wasJobOverdueWhenClosed({
-                        status: detail.status,
-                        dueDateUtc: detail.dueDateUtc,
-                        completedAtUtc: detail.completedAtUtc,
-                        updatedAtUtc: detail.updatedAtUtc,
-                      })
-                      return (
-                        <div className="job-detail-field-row job-detail-field-row--request-info">
-                          <div className="job-detail-field-row__label">{t('jobs.detail.wasOverdue', 'Gecikti mi?')}</div>
-                          <div className={`job-detail-field-row__value ${overdueYes ? 'text-red-600' : 'text-slate-900'}`}>
-                            {overdueYes ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}
-                          </div>
-                        </div>
+                    {isCitizenRequestDetail && isCancelledCitizenRequestWithoutTasks(detail) ? (() => {
+                      const cancelledNote = detail.cancelReason?.trim() || '—'
+                      const outboundMessage = (detail.citizenOutboundMessage ?? '').trim()
+                      const outboundDiffers = Boolean(
+                        outboundMessage
+                        && cancelledNote !== '—'
+                        && outboundMessage.localeCompare(cancelledNote, 'tr', { sensitivity: 'accent' }) !== 0,
                       )
-                    })()}
+                      const rows: { label: string; value: React.ReactNode; valueClass?: string }[] = []
+                      if (shouldShowCitizenMessageApproverField(user, detail.statusActorDisplayName) || detail.statusActorDisplayName?.trim()) {
+                        rows.push({
+                          label: t('jobs.detail.cancelledBy', 'Talebi İptal Eden'),
+                          value: detail.statusActorDisplayName?.trim() || '—',
+                        })
+                      }
+                      if (shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)) {
+                        rows.push({
+                          label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
+                          value: detail.citizenMessageApproverDisplayName?.trim() || '—',
+                        })
+                      }
+                      if (shouldShowCitizenMessageApproverField(user, detail.cancelReason) || detail.cancelReason?.trim()) {
+                        rows.push({
+                          label: t('tasks.detail.cancelNote', 'İptal Notu'),
+                          value: cancelledNote,
+                        })
+                        rows.push({
+                          label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+                          value: outboundMessage || '—',
+                          valueClass: outboundDiffers ? 'text-red-600' : 'text-slate-900',
+                        })
+                      }
+                      return rows.map(row => (
+                        <div key={row.label} className="job-detail-field-row job-detail-field-row--request-info">
+                          <div className="job-detail-field-row__label">{row.label}</div>
+                          <div className={`job-detail-field-row__value ${row.valueClass ?? 'text-slate-900'}`}>{row.value}</div>
+                        </div>
+                      ))
+                    })() : null}
                     </div>
                   </div>
                   <div className="min-w-0 p-4">
@@ -3182,9 +3205,15 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                               {incomingOutgoingStatusLabel}
                             </span>
                           )}
-                          statusActorName={shouldShowJobStatusActorName(detail) ? detail.statusActorDisplayName : null}
+                          statusActorName={
+                            shouldShowJobStatusActorName(detail)
+                            || (isCancelledCitizenRequestWithoutTasks(detail) && detail.statusActorDisplayName?.trim())
+                              ? detail.statusActorDisplayName
+                              : null
+                          }
                           inProgressAssigneeName={formatJobAssigneeNames(detail)}
                           dueDateContent={dueDateContent}
+                          showOverdueYesNo
                           overdueDueDateUtc={detail.dueDateUtc}
                           overdueJobStatus={detail.status}
                           overdueCompletedAtUtc={detail.completedAtUtc}
@@ -3552,6 +3581,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 hidePlainDescription={isIncomingRequestDetail || (isDepartmentOutgoingView && activeJobView === 'completed')}
                 citizenOutboundMessage={detail.citizenOutboundMessage}
                 citizenApprovalReleasedNote={detail.citizenApprovalReleasedNote}
+                citizenMessageApproverDisplayName={detail.citizenMessageApproverDisplayName}
               />
             )}
            </div>

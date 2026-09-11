@@ -8,7 +8,8 @@ alwaysApply: true
 Bu oturumda `AGENT_LOOP_TICK_TRELLO` ile uyanıldığında:
 
 1. `./scripts/trello/poll-doing.sh` çalıştır; Doing boşsa kısa bildir ve bitir.
-2. Kart varsa `.github/agents/trello-doing.agent.md` akışını uygula: implement → build/lint → commit → push `main`+`master` → `move-card.sh` → `./deploy.sh` → wiki.
+2. Kart varsa `.github/agents/trello-doing.agent.md` akışını uygula: implement → build/lint → commit → push `develop` → `move-card.sh` → `./deploy-test.sh` → wiki.
+   **Prod yok:** `./deploy.sh`, `./scripts/promote-develop-to-main.sh`, `main`/`master` push **ASLA** — kullanıcı açıkça istemedikçe.
    **Atla:** adı `tim mobil app'de` ile başlayan kartlar (başka uygulama); Doing'de bırak, `move-card.sh` yok.
 3. Kullanıcıya commit/push/deploy için **izin sorma**; "yeni kartlar" oturum yetkisi verilmiş sayılır.
 4. Auto-review / smart-mode bloklarsa chat'te sorma; hemen `request_smart_mode_approval: true` ile aynı komutu tekrar dene.

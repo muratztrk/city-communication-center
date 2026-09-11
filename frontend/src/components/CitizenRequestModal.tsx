@@ -248,16 +248,10 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
     }
   }, [citizenConversationId, editJobId, forceNewRequest])
 
-  const handleRequestLabelSelect = async (label: string) => {
-    const normalizedLabel = normalizeTitleCaseField(label) ?? ''
-    setRequestLabel(normalizedLabel)
-    if (!citizenConversationId) return
-    try {
-      await api.updateCitizenConversationProfile(citizenConversationId, { label: normalizedLabel })
-      invalidateConversations(queryClient, citizenConversationId)
-    } catch {
-      // Seçim UI'da kalır; kayıt hatası formu engellemez.
-    }
+  const handleRequestLabelSelect = (label: string) => {
+    // Talep etiketi SocialMessage.category'de kalır. Kayıtlı Vatandaş Bilgileri
+    // yalnız sağ panel Kaydet ile değişir — talep formu profili silmesin/ezmesin.
+    setRequestLabel(normalizeTitleCaseField(label) ?? '')
   }
 
   const handleClose = () => {

@@ -47,8 +47,9 @@ public sealed class UpdateCitizenConversationProfileCommandHandler
 
         if (conversation is null) return false;
 
-        // Kısmi PUT: gönderilmeyen (null) alanlar silinmez — çağrı formu yalnız etiket
-        // gönderince WA adını ezmesin.
+        // Kısmi PUT: gönderilmeyen (null) alanlar silinmez. Boş string = o alanı
+        // elle temizleme (yalnız Vatandaş Bilgileri Kaydet). Talep oluşturma
+        // eksik JSON ile kayıtlı adı/adresi silemez.
         if (request.CitizenName is not null)
         {
             conversation.CitizenName = NormalizeOptional(request.CitizenName);

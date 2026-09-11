@@ -873,9 +873,21 @@ function ConversationDetail({
 
   useEffect(() => {
     if (!detail || profileDirtyRef.current) return
-    const next = createProfileDraft(detail)
-    profileDraftRef.current = next
-    setProfileDraft(next)
+    setProfileDraft(current => {
+      const fromServer = createProfileDraft(detail)
+      // Sunucu boş dönerse (talep oluşturma yan etkisi) dolu yerel taslağı silme.
+      const next: ConversationProfileDraft = {
+        citizenName: fromServer.citizenName || current.citizenName,
+        citizenPhone: fromServer.citizenPhone || current.citizenPhone,
+        label: fromServer.label || current.label,
+        neighborhood: fromServer.neighborhood || current.neighborhood,
+        street: fromServer.street || current.street,
+        streetNo: fromServer.streetNo || current.streetNo,
+        openAddress: fromServer.openAddress || current.openAddress,
+      }
+      profileDraftRef.current = next
+      return next
+    })
   }, [detail])
 
   const updatePinnedToBottom = useCallback(() => {

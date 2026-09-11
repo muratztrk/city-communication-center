@@ -1,5 +1,4 @@
 using CityCommunicationCenter.Application.Common;
-using CityCommunicationCenter.Application.Features.Social;
 
 namespace CityCommunicationCenter.Application.Features.Jobs;
 
@@ -346,22 +345,8 @@ public sealed class UpdateJobCommandHandler : ICommandHandler<UpdateJobCommand, 
             _dbContext.CitizenConversations.Add(conversation);
         }
 
-        var hasWhatsAppOnConversation = await CitizenConversationLinkGuard.HasWhatsAppMessagesOnConversationAsync(
-            _dbContext,
-            tenantId,
-            conversation.CitizenConversationId,
-            cancellationToken);
-
-        if (!hasWhatsAppOnConversation)
-        {
-            if (!string.IsNullOrWhiteSpace(job.CitizenName))
-            {
-                conversation.CitizenName = job.CitizenName.Trim();
-            }
-
-            // Talep adresi vatandaş profil adresinden ayrıdır (#2563).
-        }
-        else if (string.IsNullOrWhiteSpace(conversation.CitizenName) && !string.IsNullOrWhiteSpace(job.CitizenName))
+        // Talep/job adı kayıtlı konuşma profilini ezmez; yalnız boşsa doldurulur.
+        if (string.IsNullOrWhiteSpace(conversation.CitizenName) && !string.IsNullOrWhiteSpace(job.CitizenName))
         {
             conversation.CitizenName = job.CitizenName.Trim();
         }

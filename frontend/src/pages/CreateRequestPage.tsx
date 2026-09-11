@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
 import { api } from '../api/client'
-import { invalidateConversations, invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
+import { invalidateJobs, invalidateSocialMessages } from '../api/cacheInvalidation'
 import { getActiveDepartmentId } from '../api/http'
 import { Button } from '../components/ui/button'
 import { ChannelIcon } from '../components/ui/channel-icon'
@@ -523,16 +523,10 @@ export function CreateRequestPage() {
     setCitizenLabel('')
   }, [location.key, editJobId, socialMessageIdParam, selectedKind])
 
-  const handleCitizenLabelSelect = useCallback(async (label: string) => {
+  const handleCitizenLabelSelect = useCallback((label: string) => {
+    // Talep etiketi mesaj kategorisinde kalır; kayıtlı WA profilini talep formu yazmaz.
     setCitizenLabel(label)
-    if (!citizenConversationId) return
-    try {
-      await api.updateCitizenConversationProfile(citizenConversationId, { label })
-      invalidateConversations(queryClient, citizenConversationId)
-    } catch {
-      // profil güncellenemezse yerel seçim korunur
-    }
-  }, [citizenConversationId, queryClient])
+  }, [])
 
   useEffect(() => {
     if (!editJobId || editPrefilled || selectedKind !== 'citizen') return
@@ -1212,11 +1206,15 @@ export function CreateRequestPage() {
         || citizenForm.citizenStreetNo.trim()
         || citizenForm.citizenOpenAddress.trim()
       if (!hasCitizenAddress) return
+      const neighborhood = normalizeTitleCaseField(citizenForm.citizenNeighborhood)
+      const street = normalizeTitleCaseField(citizenForm.citizenStreet)
+      const streetNo = citizenForm.citizenStreetNo.trim() || undefined
+      const openAddress = normalizeTitleCaseField(citizenForm.citizenOpenAddress)
       await api.updateCitizenConversationProfile(conversationId, {
-        neighborhood: normalizeTitleCaseField(citizenForm.citizenNeighborhood) ?? '',
-        street: normalizeTitleCaseField(citizenForm.citizenStreet) ?? '',
-        streetNo: citizenForm.citizenStreetNo.trim() || null,
-        openAddress: normalizeTitleCaseField(citizenForm.citizenOpenAddress) ?? '',
+        ...(neighborhood ? { neighborhood } : {}),
+        ...(street ? { street } : {}),
+        ...(streetNo ? { streetNo } : {}),
+        ...(openAddress ? { openAddress } : {}),
       })
     }
     const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam

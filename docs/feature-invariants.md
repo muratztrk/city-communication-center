@@ -774,8 +774,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `CitizenConversation`:** WhatsApp ve çağrı (Phone) ayrı `SocialMessage` + Job üretir (iki VT).
   Çağrı VT konuşmaya bağlanır; dolu WA `CitizenName` ezilmez, boşsa çağrı adından doldurulur.
   WA sayfasından Talep oluştur her zaman `channel=WhatsApp`; çağrı formu mevcut WA mesajını
-  Phone'a çevirmez. Profil PUT kısmi: `null` alanlar silinmez (yalnız etiket göndermek adı silmez).
-  Kaydedilen ad/etiket/adres metinleri Türkçe başlık biçimine normalize edilir.
+  Phone'a çevirmez. **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
+  dizin Kaydet ile değişir/silinir; talep oluşturma veya etiket seçimi profili silmez.
+  Convert/UpdateJob mevcut dolu profil alanını ezmez (yalnız boş adı doldurur).
+  Profil PUT kısmi: `null` alanlar silinmez. Kaydedilen ad/etiket/adres metinleri Türkçe
+  başlık biçimine normalize edilir.
 - **WhatsApp detay header sayaçları (#3295):** seçili konuşma header'ında `Talep Sayısı` satırı
   ve yanındaki `Görev Sahibi` yok; ad + numara + `Numaranın Talepleri` butonu durur.
 - **WhatsApp detay header görev sahibi:** görev sahibi bilgisi header'da basılmaz (#3295);
@@ -2726,9 +2729,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Çağrı formu ↔ WA profil (#6a6f1d32 / #2513):** Aynı telefon aynı `CitizenConversation`'da
   durur; kanallar ayrı VT'dir. `Job.CitizenName` talep bazlı kalır. Convert/UpdateJob çağrı
   kaydı dolu WA adını **ezmez**, boşsa doldurur. Profil PUT kısmi (`null` = dokunma). WA sağ
-  panel Vatandaş Bilgileri çağrı formu veya dizin kaydıyla ezilmez. WA convert formu profili
-  güncelleyebilir. WA **Vatandaş Bilgileri** Kaydet, `profileDraftRef` ile blur/deferred
-  input commit sonrası güncel draft okur; başarıda toast gösterir (#3391).
+  panel Vatandaş Bilgileri talep oluşturma, çağrı formu etiketi veya dizin kaydıyla silinmez;
+  convert formu kayıtlı profili güncellemez. WA **Vatandaş Bilgileri** Kaydet, `profileDraftRef`
+  ile blur/deferred input commit sonrası güncel draft okur; başarıda toast gösterir (#3391).
 - **Taslak Mesajlar liste ikonu (#6a6f1ab6):** şablon listesinde yeşil=aktif / kırmızı=pasif
   yuvarlak nokta (`tpl.isActive`).
 - **Mesaj Onayı İşlemler (#2050/#2082/#2086/#2088/#2105/#2106/#2108):** `toSend` = Detaylar / Notu Düzenle /

@@ -1,3 +1,9 @@
+## Round 1158 — WA kayıtlı Vatandaş Bilgileri talep oluşturunca silinmesin
+
+- Canlı: profil Kaydet sonrası Talep Oluştur (özellikle etiket) PUT tam replace ile ad/adresi siliyordu.
+- Convert/UpdateJob kayıtlı adı ezmez (yalnız boş doldurur). Talep formu profil PUT yazmaz.
+- Profil PUT kısmi; WA panel boş sunucu yanıtında dolu taslağı korur.
+
 ## Round 1157 — Mesai dışı VTY SMS vatandaş kaynağı
 
 - 10.09 prod: müdür 4 anlık SMS, VTY yalnız 19:45 görev atamasında 1 personel SMS.

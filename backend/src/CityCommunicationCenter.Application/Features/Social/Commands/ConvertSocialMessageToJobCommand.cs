@@ -125,9 +125,6 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             message,
             ResolveCitizenName(request.CitizenName, message.CitizenHandle),
             ResolveCitizenPhone(request.CitizenPhone, message.CitizenHandle),
-            request.Neighborhood,
-            request.Street,
-            request.OpenAddress,
             cancellationToken);
 
         await _dbContext.SaveChangesAsync(cancellationToken);
@@ -190,9 +187,6 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
         SocialMessage message,
         string? citizenName,
         string? citizenPhone,
-        string? neighborhood,
-        string? street,
-        string? openAddress,
         CancellationToken cancellationToken)
     {
         var normalizedPhone = NormalizeConversationPhone(citizenPhone);
@@ -246,38 +240,14 @@ public sealed class ConvertSocialMessageToJobCommandHandler : ICommandHandler<Co
             _dbContext.CitizenConversations.Add(conversation);
         }
 
-        var hasWhatsAppOnConversation = await CitizenConversationLinkGuard.HasWhatsAppMessagesOnConversationAsync(
-            _dbContext,
-            tenantId,
-            conversation.CitizenConversationId,
-            cancellationToken);
-        // Çağrı VT aynı konuşmaya bağlanır (iki ayrı kanal talebi) ama dolu WA adını ezmez.
-        if (message.Channel != SocialChannel.Phone || !hasWhatsAppOnConversation)
-        {
-            ApplyConversationProfile(conversation, citizenName, neighborhood, street, openAddress);
-        }
-        else if (string.IsNullOrWhiteSpace(conversation.CitizenName) && !string.IsNullOrWhiteSpace(citizenName))
+        // Kayıtlı Vatandaş Bilgileri talep oluşturunca ezilmez / silinmez — yalnız boş ad doldurulur.
+        if (string.IsNullOrWhiteSpace(conversation.CitizenName) && !string.IsNullOrWhiteSpace(citizenName))
         {
             conversation.CitizenName = citizenName.Trim();
         }
 
         conversation.LastMessageAt = DateTimeOffset.UtcNow;
         message.CitizenConversationId = conversation.CitizenConversationId;
-    }
-
-    private static void ApplyConversationProfile(
-        CitizenConversation conversation,
-        string? citizenName,
-        string? neighborhood,
-        string? street,
-        string? openAddress)
-    {
-        if (!string.IsNullOrWhiteSpace(citizenName))
-        {
-            conversation.CitizenName = citizenName.Trim();
-        }
-
-        // Talep adresi vatandaş profil adresi değildir (#2563) — yalnız ad güncellenir.
     }
 
     /// <summary>E.164 TR storage: 905XXXXXXXXX (WhatsApp CitizenConversation ile aynı).</summary>

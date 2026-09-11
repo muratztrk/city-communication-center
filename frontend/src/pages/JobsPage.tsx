@@ -87,7 +87,7 @@ import { DetailModalTitle } from '../utils/detailModalTitle'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
-import { formatCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay } from '../utils/citizenOutboundDisplay'
+import { resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay } from '../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../utils/richText'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue, toLocalDateKey } from '../utils/dateTimePicker'
@@ -199,10 +199,7 @@ function buildCancelledWithoutTaskInfoRows(
 ): { label: string; value: React.ReactNode; valueClass?: string }[] {
   if (!isCancelledCitizenRequestWithoutTasks(detail)) return []
   const cancelledNote = detail.cancelReason?.trim() || '—'
-  const outboundMessage = resolveCitizenOutboundDisplay(detail)
-  const outboundDisplay = outboundMessage
-    ? formatCitizenCancelOutboundDisplay(outboundMessage, cancelledNote)
-    : ''
+  const outboundDisplay = resolveCitizenCancelOutboundDisplay(detail, cancelledNote)
   const outboundDiffers = Boolean(
     outboundDisplay
     && cancelledNote !== '—'
@@ -3104,10 +3101,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       && detail.cancelReason?.trim()
                       ? (() => {
                       const cancelledNote = detail.cancelReason?.trim() || '—'
-                      const outboundMessage = resolveCitizenOutboundDisplay(detail)
-                      const outboundDisplay = outboundMessage
-                        ? formatCitizenCancelOutboundDisplay(outboundMessage, cancelledNote)
-                        : ''
+                      const outboundDisplay = resolveCitizenCancelOutboundDisplay(detail, cancelledNote)
                       const outboundDiffers = Boolean(
                         outboundDisplay
                         && cancelledNote !== '—'

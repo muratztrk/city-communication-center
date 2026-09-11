@@ -1,3 +1,8 @@
+## Round 1167 — İptal outbound operatör Not: (#3524)
+
+- Operatör `Not:` sonrası metni değiştirdiyse Detaylar'da yalnız o ifade.
+- `Not:` silindiyse düzenlenmiş gövdenin tamamı; İptal Notu yedeğine düşülmez.
+
 ## Round 1166 — Görevsiz iptal VT outbound (VT-2026-36)
 
 - Görevi oluşmamış iptal Detaylar'da Vatandaşa Giden Mesaj satırı Talep Bilgileri listesine alındı.

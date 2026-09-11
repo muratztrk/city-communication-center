@@ -2963,8 +2963,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `MyRequestTaskDetailsSection` ile aynı (`releasedNote`, outbound strip, Görevi Yapan sonrası sıra).
   `GetTaskById` VT onaylayan + released notu taşır; parent job yüklenmese de gösterilir.
   `GetJobById` onaylayan/outbound `CitizenTerminalMessageReleasedAtUtc` varken WA/Phone dışı VT'de de çözülür.
-- **İptal outbound operatör düzenleme (#3524):** operatör outbound'u değiştirdiyse `Not:` sonrası göster;
-  `Not:` tamamen silindiyse düzenlenmiş metnin tamamı.
+- **İptal outbound operatör düzenleme (#3524):** operatör `Not:` / `İptal Notu:` sonrası metni değiştirdiyse
+  yalnız o parça (ör. `Not:eskiiii` → `eskiiii`). `Not:` tamamen silindiyse iletilen gövdenin **tamamı**
+  (son `\n\n` kuyruğu veya İptal Notu yedeği değil). İşleme Alındı otomatik yanıtı bu alana düşmez.
 - **Mesajı Onayla confirm (#3525):** onay metni `text-justify` (iki yana yaslı).
 - **Vatandaş cevap şablonu taslak (#3221/#3220/#3222):** Kaydetmeden sekme/sayfa değişince
   `citizenAutoReplyTemplates` son kaydedilene döner. `{GönderilenBirim}` ek textarea Enter ile

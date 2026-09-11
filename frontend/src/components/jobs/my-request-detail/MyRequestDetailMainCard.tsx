@@ -15,7 +15,7 @@ import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, RequestTag, SocialMessage } from '../../../types/platform'
 import { useAuth } from '../../../context/AuthContext'
 import { useWeekendSlaDueDateMin } from '../../../hooks/useWeekendSlaDueDateMin'
-import { formatCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay } from '../../../utils/citizenOutboundDisplay'
+import { resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay } from '../../../utils/citizenOutboundDisplay'
 import { shouldShowJobStatusActorName, formatJobAssigneeNames, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowCitizenMessageApproverInRequestInfo, getCitizenMessageApproverRequestInfoLabel } from '../../../utils/jobDetails'
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
@@ -336,16 +336,16 @@ export function MyRequestDetailMainCard({
     citizenOutboundMessage: citizenOutboundMessage ?? detail.citizenOutboundMessage,
     citizenApprovalReleasedNote: detail.citizenApprovalReleasedNote,
   })
-  const cancelledWithoutTaskOutbound = outboundDisplay
   const cancelledWithoutTaskNote = detail.cancelReason?.trim() || '—'
+  const cancelledOutboundDisplay = resolveCitizenCancelOutboundDisplay({
+    citizenOutboundMessage: citizenOutboundMessage ?? detail.citizenOutboundMessage,
+    citizenApprovalReleasedNote: detail.citizenApprovalReleasedNote,
+  }, cancelledWithoutTaskNote)
   const cancelledOutboundDiffersFromNote = Boolean(
-    cancelledWithoutTaskOutbound
+    cancelledOutboundDisplay
     && cancelledWithoutTaskNote !== '—'
-    && cancelledWithoutTaskOutbound.localeCompare(cancelledWithoutTaskNote, 'tr', { sensitivity: 'accent' }) !== 0,
+    && cancelledOutboundDisplay.localeCompare(cancelledWithoutTaskNote, 'tr', { sensitivity: 'accent' }) !== 0,
   )
-  const cancelledOutboundDisplay = cancelledWithoutTaskOutbound
-    ? formatCitizenCancelOutboundDisplay(cancelledWithoutTaskOutbound, cancelledWithoutTaskNote)
-    : ''
   const messageApproverRequestInfoLabel = getCitizenMessageApproverRequestInfoLabel(t, detail.status)
   const showMessageApproverInRequestInfo = shouldShowCitizenMessageApproverInRequestInfo(detail)
     && Boolean(messageApproverRequestInfoLabel)

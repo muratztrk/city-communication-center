@@ -208,10 +208,14 @@ internal static class CitizenMessageApprovalNoteResolver
 
             if (!string.IsNullOrWhiteSpace(lastPostReleaseEdit))
             {
-                return StripAutoTemplateNoteLabel(lastPostReleaseEdit);
+                return job.Status is JobStatus.Cancelled or JobStatus.Rejected
+                    ? ExtractCancelledOutboundDisplayNote(lastPostReleaseEdit)
+                    : StripAutoTemplateNoteLabel(lastPostReleaseEdit);
             }
 
-            var transmitted = ExtractTrailingTerminalNote(responseContent);
+            var transmitted = job.Status is JobStatus.Cancelled or JobStatus.Rejected
+                ? ExtractCancelledOutboundDisplayNote(responseContent)
+                : ExtractTrailingTerminalNote(responseContent);
             if (!string.IsNullOrWhiteSpace(transmitted))
             {
                 return transmitted;
@@ -262,7 +266,9 @@ internal static class CitizenMessageApprovalNoteResolver
                     continue;
                 }
 
-                var transmitted = ExtractTrailingTerminalNote(entry.Content);
+                var transmitted = job.Status is JobStatus.Cancelled or JobStatus.Rejected
+                    ? ExtractCancelledOutboundDisplayNote(entry.Content)
+                    : ExtractTrailingTerminalNote(entry.Content);
                 if (!string.IsNullOrWhiteSpace(transmitted))
                 {
                     return transmitted;
@@ -277,6 +283,7 @@ internal static class CitizenMessageApprovalNoteResolver
             }
 
             // Görevsiz iptal: Mesajı Onayla audit'i SentAt'ten birkaç yüz ms sonra yazılabiliyor (VT-2026-36).
+            // Operatör Not: satırını silerse tüm düzenlenmiş gövde gösterilir (#3524).
             if (job.Status is JobStatus.Cancelled or JobStatus.Rejected)
             {
                 foreach (var entry in outboundEntries
@@ -286,12 +293,38 @@ internal static class CitizenMessageApprovalNoteResolver
                     .OrderByDescending(item => item.DeliveryStatusUpdatedAtUtc ?? item.SentAt)
                     .ThenByDescending(item => item.SentAt))
                 {
-                    if (!IsTerminalCitizenStatusOutboundBody(entry.Content))
+                    if (IsProcessingReceivedOutboundBody(entry.Content))
                     {
                         continue;
                     }
 
-                    var transmitted = ExtractTrailingTerminalNote(entry.Content);
+                    if (!IsTerminalCitizenStatusOutboundBody(entry.Content)
+                        && !HasCancelOutboundNoteLabel(entry.Content))
+                    {
+                        continue;
+                    }
+
+                    var transmitted = ExtractCancelledOutboundDisplayNote(entry.Content);
+                    if (!string.IsNullOrWhiteSpace(transmitted))
+                    {
+                        return transmitted;
+                    }
+                }
+
+                foreach (var entry in outboundEntries
+                    .Where(item => item.DeliveryStatus == ConversationDeliveryStatus.Sent
+                        || item.DeliveryStatus == ConversationDeliveryStatus.Delivered
+                        || item.DeliveryStatus == ConversationDeliveryStatus.Read)
+                    .OrderByDescending(item => item.DeliveryStatusUpdatedAtUtc ?? item.SentAt)
+                    .ThenByDescending(item => item.SentAt))
+                {
+                    if (IsProcessingReceivedOutboundBody(entry.Content)
+                        || entry.Content.Contains("talebinizin durumu", StringComparison.OrdinalIgnoreCase))
+                    {
+                        continue;
+                    }
+
+                    var transmitted = ExtractCancelledOutboundDisplayNote(entry.Content);
                     if (!string.IsNullOrWhiteSpace(transmitted))
                     {
                         return transmitted;
@@ -353,6 +386,77 @@ internal static class CitizenMessageApprovalNoteResolver
         }
 
         return StripAutoTemplateNoteLabel(tail);
+    }
+
+    internal static bool IsProcessingReceivedOutboundBody(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return false;
+        }
+
+        return content.Contains("durumu \"İşleme Alındı\"", StringComparison.Ordinal)
+            || content.Contains("durumu İşleme Alındı", StringComparison.Ordinal);
+    }
+
+    internal static bool HasCancelOutboundNoteLabel(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return false;
+        }
+
+        var normalized = content.Replace("\r\n", "\n");
+        string[] labels = ["Not:", "İptal Notu:", "İptal Nedeni:"];
+        foreach (var label in labels)
+        {
+            if (normalized.Contains(label, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// İptal outbound: operatör <c>Not:</c> sonrası metni değiştirdiyse yalnız o parça;
+    /// <c>Not:</c> tamamen silindiyse düzenlenmiş gövdenin tamamı (#3524).
+    /// </summary>
+    internal static string? ExtractCancelledOutboundDisplayNote(string content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return null;
+        }
+
+        var normalized = content.Replace("\r\n", "\n").Trim();
+        string[] labels = ["Not:", "İptal Notu:", "İptal Nedeni:"];
+        var lastLabelIndex = -1;
+        var lastLabelLength = 0;
+        foreach (var label in labels)
+        {
+            var index = normalized.LastIndexOf(label, StringComparison.OrdinalIgnoreCase);
+            if (index > lastLabelIndex)
+            {
+                lastLabelIndex = index;
+                lastLabelLength = label.Length;
+            }
+        }
+
+        if (lastLabelIndex >= 0)
+        {
+            var after = normalized[(lastLabelIndex + lastLabelLength)..].Trim();
+            if (!string.IsNullOrWhiteSpace(after))
+            {
+                return after;
+            }
+
+            var withoutLabel = normalized[..lastLabelIndex].Trim();
+            return string.IsNullOrWhiteSpace(withoutLabel) ? null : withoutLabel;
+        }
+
+        return normalized;
     }
 
     /// <summary>

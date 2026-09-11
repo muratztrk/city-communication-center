@@ -16,7 +16,7 @@ import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldLabel, StackedFieldValue } from './StackedFieldValue'
 import { StatusChangeTransition } from './StatusChangeTransition'
 import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
-import { formatCitizenCancelOutboundDisplay, notesDiffer, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
+import { notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../../../utils/richText'
 
 interface MyRequestTaskDetailsSectionProps {
@@ -222,8 +222,11 @@ export function MyRequestTaskDetailsSection({
             ? (releasedPlain || taskNotesPlain)
             : (notePlain(task.revisionReason) || notePlain(detail.cancelReason))
           const rawOutbound = outboundPlain
-          const displayedOutbound = isCancelledTask && rawOutbound
-            ? formatCitizenCancelOutboundDisplay(rawOutbound, cancelNoteDisplay)
+          const displayedOutbound = isCancelledTask
+            ? resolveCitizenCancelOutboundDisplay({
+                citizenOutboundMessage,
+                citizenApprovalReleasedNote,
+              }, cancelNoteDisplay) || rawOutbound
             : rawOutbound
           const outboundValue = outboundPlain || fallbackOutboundNote
           const outboundDiffersFromCompletion = Boolean(

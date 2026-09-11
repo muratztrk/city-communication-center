@@ -7,9 +7,12 @@ function notePlain(value?: string | null) {
 export function stripAutoMessageNoteLabel(value?: string | null) {
   const plain = notePlain(value).replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n')
   if (!plain) return ''
-  const match = /(?:^|\n)(Yapılan İş|İptal Nedeni|İptal Notu)\s*:\s*/u.exec(plain)
+  const match = /(?:^|\n)(Yapılan İş|İptal Nedeni|İptal Notu|Not)\s*:\s*/u.exec(plain)
   if (match && match.index >= 0) {
     const after = plain.slice(match.index + match[0].length).trim()
+    if (match[1] === 'Not' || match[1] === 'İptal Nedeni' || match[1] === 'İptal Notu') {
+      return after
+    }
     const firstLine = after.split('\n')[0]?.trim() ?? ''
     if (firstLine) return firstLine
   }
@@ -35,17 +38,28 @@ export function notesDiffer(left?: string | null, right?: string | null) {
 }
 
 /** İptal taleplerde operatör outbound düzenlediyse Not: sonrası; Not: silindiyse tam metin (#3524). */
-export function formatCitizenCancelOutboundDisplay(outbound: string, cancelNote: string): string {
-  const outboundTrim = outbound.trim()
-  const cancelTrim = cancelNote.trim()
-  if (!outboundTrim || !cancelTrim || cancelTrim === '—') return outboundTrim
-  const modified = outboundTrim.localeCompare(cancelTrim, 'tr', { sensitivity: 'accent' }) !== 0
-  if (!modified) return outboundTrim
+export function formatCitizenCancelOutboundDisplay(outbound: string, _cancelNote = ''): string {
+  const outboundTrim = outbound.replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n').trim()
+  if (!outboundTrim) return ''
 
-  const notMatch = /(?:^|\n)\s*Not\s*:\s*/i.exec(outboundTrim)
+  const notMatch = /(?:^|\n)\s*(?:Not|İptal Notu|İptal Nedeni)\s*:\s*/iu.exec(outboundTrim)
   if (notMatch) {
     const after = outboundTrim.slice(notMatch.index + notMatch[0].length).trim()
     return after || outboundTrim
   }
+
   return outboundTrim
+}
+
+export function resolveCitizenCancelOutboundDisplay(
+  detail: {
+    citizenOutboundMessage?: string | null
+    citizenApprovalReleasedNote?: string | null
+  },
+  cancelNote = '',
+): string {
+  const raw = notePlain(detail.citizenOutboundMessage)
+  if (raw) return formatCitizenCancelOutboundDisplay(raw, cancelNote)
+  const resolved = resolveCitizenOutboundDisplay(detail)
+  return resolved ? formatCitizenCancelOutboundDisplay(resolved, cancelNote) : ''
 }

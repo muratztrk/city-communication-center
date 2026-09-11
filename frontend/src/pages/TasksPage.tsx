@@ -51,7 +51,7 @@ import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { DetailModalTitle } from '../utils/detailModalTitle'
 import { printHtmlDocument } from '../utils/printDocument'
-import { formatCitizenCancelOutboundDisplay, notesDiffer, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
+import { notesDiffer, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay, stripAutoMessageNoteLabel } from '../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../utils/richText'
 import { toDateTimePickerValue } from '../utils/dateTimePicker'
 import { formatJobDisplayNumberText } from '../utils/requestNumberText'
@@ -2436,8 +2436,13 @@ const pageKicker = isMyTasksView
                               const completionCompareSource = isCompletedTask
                                 ? (releasedPlain || taskNotesPlain)
                                 : (cancelNoteDisplay !== '—' ? cancelNoteDisplay : '')
-                              const displayedOutbound = isCancelledTask && outboundRaw
-                                ? formatCitizenCancelOutboundDisplay(outboundRaw, cancelNoteDisplay)
+                              const displayedOutbound = isCancelledTask
+                                ? resolveCitizenCancelOutboundDisplay({
+                                    citizenOutboundMessage: citizenParent?.citizenOutboundMessage
+                                      ?? taskDetail.citizenOutboundMessage,
+                                    citizenApprovalReleasedNote: citizenParent?.citizenApprovalReleasedNote
+                                      ?? taskDetail.citizenApprovalReleasedNote,
+                                  }, cancelNoteDisplay) || outboundRaw
                                 : outboundRaw
                               const outboundDiffers = Boolean(
                                 displayedOutbound

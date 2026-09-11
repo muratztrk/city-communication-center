@@ -7820,6 +7820,7 @@
     width: 100%;
     text-align: justify;
     text-justify: inter-word;
+    white-space: pre-wrap;
   }
 
   .nav-pending-badge--wide {

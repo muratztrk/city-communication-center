@@ -10,7 +10,8 @@ public sealed record UpdateCitizenConversationProfileCommand(
     string? Neighborhood,
     string? Street,
     string? StreetNo,
-    string? OpenAddress) : ICommand<bool>;
+    string? OpenAddress,
+    bool AllowClear = false) : ICommand<bool>;
 
 public sealed class UpdateCitizenConversationProfileCommandValidator : AbstractValidator<UpdateCitizenConversationProfileCommand>
 {
@@ -47,38 +48,14 @@ public sealed class UpdateCitizenConversationProfileCommandHandler
 
         if (conversation is null) return false;
 
-        // Kısmi PUT: gönderilmeyen (null) alanlar silinmez. Boş string = o alanı
-        // elle temizleme (yalnız Vatandaş Bilgileri Kaydet). Talep oluşturma
-        // eksik JSON ile kayıtlı adı/adresi silemez.
-        if (request.CitizenName is not null)
-        {
-            conversation.CitizenName = NormalizeOptional(request.CitizenName);
-        }
-
-        if (request.Label is not null)
-        {
-            conversation.Label = NormalizeOptional(request.Label);
-        }
-
-        if (request.Neighborhood is not null)
-        {
-            conversation.Neighborhood = NormalizeOptional(request.Neighborhood);
-        }
-
-        if (request.Street is not null)
-        {
-            conversation.Street = NormalizeOptional(request.Street);
-        }
-
-        if (request.StreetNo is not null)
-        {
-            conversation.StreetNo = NormalizeOptional(request.StreetNo);
-        }
-
-        if (request.OpenAddress is not null)
-        {
-            conversation.OpenAddress = NormalizeOptional(request.OpenAddress);
-        }
+        // Kayıtlı Vatandaş Bilgileri talep oluşturunca silinmez. Boş string ancak
+        // WhatsApp / dizin Kaydet (`AllowClear`) ile elle temizlenir.
+        conversation.CitizenName = ApplyProfileField(conversation.CitizenName, request.CitizenName, request.AllowClear);
+        conversation.Label = ApplyProfileField(conversation.Label, request.Label, request.AllowClear);
+        conversation.Neighborhood = ApplyProfileField(conversation.Neighborhood, request.Neighborhood, request.AllowClear);
+        conversation.Street = ApplyProfileField(conversation.Street, request.Street, request.AllowClear);
+        conversation.StreetNo = ApplyProfileField(conversation.StreetNo, request.StreetNo, request.AllowClear);
+        conversation.OpenAddress = ApplyProfileField(conversation.OpenAddress, request.OpenAddress, request.AllowClear);
 
         var phone = NormalizePhone(request.CitizenPhone);
         if (!string.IsNullOrWhiteSpace(phone))
@@ -90,8 +67,21 @@ public sealed class UpdateCitizenConversationProfileCommandHandler
         return true;
     }
 
-    private static string? NormalizeOptional(string? value) =>
-        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+    private static string? ApplyProfileField(string? current, string? incoming, bool allowClear)
+    {
+        if (incoming is null)
+        {
+            return current;
+        }
+
+        var normalized = string.IsNullOrWhiteSpace(incoming) ? null : incoming.Trim();
+        if (normalized is null)
+        {
+            return allowClear ? null : current;
+        }
+
+        return normalized;
+    }
 
     private static string? NormalizePhone(string? value)
     {

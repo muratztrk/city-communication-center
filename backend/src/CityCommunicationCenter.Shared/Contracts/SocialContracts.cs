@@ -267,7 +267,8 @@ public sealed record UpdateCitizenConversationProfileRequest(
     string? Neighborhood,
     string? Street,
     string? StreetNo,
-    string? OpenAddress);
+    string? OpenAddress,
+    bool AllowClear = false);
 
 public sealed record RequestTagResponse(Guid TagId, string Name);
 

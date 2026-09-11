@@ -358,6 +358,7 @@ export function CitizenDirectoryPage() {
         street: street ?? '',
         streetNo,
         openAddress: openAddress ?? '',
+        allowClear: true,
       })
       setRows(current => current.map(item => item.citizenConversationId === row.citizenConversationId
         ? { ...item, neighborhood, street, streetNo, openAddress }

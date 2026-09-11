@@ -1647,6 +1647,8 @@ export const api = {
     street?: string | null
     streetNo?: string | null
     openAddress?: string | null
+    /** true: WhatsApp / dizin Kaydet — boş alan kayıtlı değeri silebilir. */
+    allowClear?: boolean
   }): Promise<void> {
     const response = await fetchWithCredentials(`${API_BASE}/citizen-conversations/${conversationId}/profile`, {
       method: 'PUT',

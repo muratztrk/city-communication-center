@@ -86,7 +86,8 @@ public sealed class CitizenConversationsController : ApiControllerBase
                 request.Neighborhood,
                 request.Street,
                 request.StreetNo,
-                request.OpenAddress),
+                request.OpenAddress,
+                request.AllowClear),
             cancellationToken);
         if (!ok) return NotFound();
         return NoContent();

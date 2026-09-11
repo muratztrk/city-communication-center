@@ -42,6 +42,70 @@ public sealed class UpdateCitizenConversationProfileCommandTests
         Assert.Equal("Kat 1", conversation.OpenAddress);
     }
 
+    [Fact]
+    public async Task Handle_EmptyStringsWithoutAllowClear_KeepSavedProfile()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db);
+        var handler = new UpdateCitizenConversationProfileCommandHandler(
+            db,
+            new TestTenantContextAccessor(new TenantContext(TenantId, null, null, null, true, "claims", null, true)));
+
+        var updated = await handler.Handle(
+            new UpdateCitizenConversationProfileCommand(
+                ConversationId,
+                CitizenName: "",
+                CitizenPhone: null,
+                Label: "",
+                Neighborhood: "",
+                Street: "",
+                StreetNo: "",
+                OpenAddress: "",
+                AllowClear: false),
+            CancellationToken.None);
+
+        Assert.True(updated);
+        var conversation = await db.CitizenConversations.SingleAsync();
+        Assert.Equal("Gizem Kabalar", conversation.CitizenName);
+        Assert.Equal("Eski Etiket", conversation.Label);
+        Assert.Equal("Atatürk Mahallesi", conversation.Neighborhood);
+        Assert.Equal("İnönü Caddesi", conversation.Street);
+        Assert.Equal("12", conversation.StreetNo);
+        Assert.Equal("Kat 1", conversation.OpenAddress);
+    }
+
+    [Fact]
+    public async Task Handle_EmptyStringsWithAllowClear_ClearsProfileFields()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db);
+        var handler = new UpdateCitizenConversationProfileCommandHandler(
+            db,
+            new TestTenantContextAccessor(new TenantContext(TenantId, null, null, null, true, "claims", null, true)));
+
+        var updated = await handler.Handle(
+            new UpdateCitizenConversationProfileCommand(
+                ConversationId,
+                CitizenName: "",
+                CitizenPhone: null,
+                Label: "",
+                Neighborhood: "",
+                Street: "",
+                StreetNo: "",
+                OpenAddress: "",
+                AllowClear: true),
+            CancellationToken.None);
+
+        Assert.True(updated);
+        var conversation = await db.CitizenConversations.SingleAsync();
+        Assert.Null(conversation.CitizenName);
+        Assert.Null(conversation.Label);
+        Assert.Null(conversation.Neighborhood);
+        Assert.Null(conversation.Street);
+        Assert.Null(conversation.StreetNo);
+        Assert.Null(conversation.OpenAddress);
+    }
+
     private static async Task SeedAsync(CityCommunicationCenterDbContext db)
     {
         db.Tenants.Add(new Tenant

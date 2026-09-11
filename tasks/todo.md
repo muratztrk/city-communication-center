@@ -1,3 +1,8 @@
+## Round 1161 — Kayıtlı Vatandaş Bilgileri talep oluşturunca silinmesin
+
+- Canlı: WA Kaydet sonrası Talep oluştur bazen ad/adresi siliyordu (eksik/boş profil PUT).
+- Profil PUT boş string ile kayıtlı alanı silmez; silme yalnız `allowClear` (WA/dizin Kaydet).
+
 ## Round 1160 — Çağrı VT aynı telefonun WA adresini ezmesin
 
 - Çağrı formu `updateCitizenConversationProfile` ile mahalle/cadde/no yazıyordu; WA Vatandaş Bilgileri değişiyordu.

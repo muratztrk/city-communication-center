@@ -1098,11 +1098,11 @@ function ConversationDetail({
       await api.updateCitizenConversationProfile(conversationId, {
         citizenName: savedDraft.citizenName,
         citizenPhone: savedDraft.citizenPhone || null,
-        label: savedDraft.label,
         neighborhood: savedDraft.neighborhood,
         street: savedDraft.street,
         streetNo: savedDraft.streetNo,
         openAddress: savedDraft.openAddress,
+        allowClear: true,
       })
       profileDraftRef.current = savedDraft
       setProfileDraft(savedDraft)

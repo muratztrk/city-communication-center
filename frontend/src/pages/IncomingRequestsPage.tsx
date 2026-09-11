@@ -1272,11 +1272,11 @@ export function IncomingRequestsPage() {
                   {t('tasks.actions.completeCitizenApprovalHint', 'Eklediğiniz not vatandaşa gönderilmek üzere yönetici onayına gönderilecektir.')}
                 </p>
               ) : null}
-              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max 100 karakter)</span> <span className="text-red-500">*</span></span>
+              <span className="job-field-label">{t('tasks.actions.cancelReason', 'İptal Nedeni')} <span className="text-[10px] font-normal text-slate-400">(Max 400 karakter)</span> <span className="text-red-500">*</span></span>
               <textarea
                 className="field-textarea workflow-note-dialog__textarea"
                 rows={3}
-                maxLength={100}
+                maxLength={400}
                 value={cancelModal.reason}
                 onChange={e => setCancelModal(m => m ? { ...m, reason: e.target.value } : null)}
                 placeholder={t('tasks.actions.cancelReasonPlaceholder', 'İptal nedenini açıklayınız...')}

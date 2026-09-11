@@ -2913,7 +2913,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `SourceRefId` ile bulunur; aynı VT numarasındaki tüm WA/Phone konuşmalarında outbound aranır (#3521).
   WA gövdesinde tek `\n` ayracı ve `DeliveryStatusUpdatedAtUtc` null iken `SentAt` yedeği desteklenir.
 - **Vatandaşa Giden Mesaj görünürlük (#3520):** Mesaj iletilmemişse (`citizenOutboundMessage` boş) satır
-  hiç gösterilmez — boş `—` placeholder yok.
+  hiç gösterilmez — boş `—` placeholder yok. İletilmiş terminal WA: `SentAt` release öncesi olsa bile
+  `DeliveryStatusUpdatedAtUtc` (veya `SentAt` yedeği) release sonrasıysa outbound çözülür (#3520/VT-2026-42).
+- **Birime Gelen İptal popup (#3516):** İptal nedeni textbox `maxLength=400` (BE `CancelJob` ile uyumlu).
 - **Vatandaş cevap şablonu taslak (#3221/#3220/#3222):** Kaydetmeden sekme/sayfa değişince
   `citizenAutoReplyTemplates` son kaydedilene döner. `{GönderilenBirim}` ek textarea Enter ile
   satır sonu alır (`extract` trailing `\\n` yutmaz; not token öncesi `\\n\\n` veya tek boşluk ayrılır, #3250).

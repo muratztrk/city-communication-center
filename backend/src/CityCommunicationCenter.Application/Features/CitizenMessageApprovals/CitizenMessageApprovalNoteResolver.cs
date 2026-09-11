@@ -168,7 +168,8 @@ internal static class CitizenMessageApprovalNoteResolver
         var firstReleasedAt = await QueryReleasedInCycle(dbContext, tenantId, job.JobId, cycle.ReopenedAt)
             .OrderBy(audit => audit.EventTimeUtc)
             .Select(audit => (DateTimeOffset?)audit.EventTimeUtc)
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? job.CitizenTerminalMessageReleasedAtUtc;
 
         var postReleaseEdits = QueryNoteEditsInCycle(dbContext, tenantId, job.JobId, cycle.ReopenedAt);
         if (firstReleasedAt.HasValue)
@@ -215,10 +216,10 @@ internal static class CitizenMessageApprovalNoteResolver
             }
 
             var releasedAt = firstReleasedAt.Value;
+            // SentAt kuyruk anında release öncesi olabilir; iletim zamanı memory filtresinde (#3520/VT-2026-42).
             var outboundEntries = await dbContext.ConversationEntries.AsNoTracking()
                 .Where(entry => entry.SocialMessageId == socialMessageId
-                    && entry.Direction == ConversationEntryDirection.Outbound
-                    && entry.SentAt >= releasedAt)
+                    && entry.Direction == ConversationEntryDirection.Outbound)
                 .Select(entry => new
                 {
                     entry.Content,
@@ -230,7 +231,8 @@ internal static class CitizenMessageApprovalNoteResolver
 
             var hasPendingTerminalAfterRelease = outboundEntries.Exists(entry =>
                 entry.DeliveryStatus == ConversationDeliveryStatus.Pending
-                && IsTerminalCitizenStatusOutboundBody(entry.Content));
+                && IsTerminalCitizenStatusOutboundBody(entry.Content)
+                && (entry.DeliveryStatusUpdatedAtUtc ?? entry.SentAt) >= releasedAt);
 
             foreach (var entry in outboundEntries
                 .Where(entry => (entry.DeliveryStatus == ConversationDeliveryStatus.Sent

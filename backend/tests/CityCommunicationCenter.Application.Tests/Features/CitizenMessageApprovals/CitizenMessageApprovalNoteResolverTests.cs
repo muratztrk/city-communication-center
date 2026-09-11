@@ -378,6 +378,37 @@ public sealed class CitizenMessageApprovalNoteResolverTests
     }
 
     [Fact]
+    public async Task WhatsApp_outbound_resolves_when_sent_at_before_release_but_delivered_after()
+    {
+        await using var db = CreateDbContext();
+        var jobId = Guid.NewGuid();
+        var socialMessageId = Guid.NewGuid();
+        var releasedAt = DateTimeOffset.UtcNow.AddMinutes(-10);
+        var terminalBody = "VT-2026-42 no'lu Başlık talebinizin durumu \"Tamamlandı\".\n\nYapılan İş: not42";
+
+        db.AddRange(
+            BuildCompletedJob(jobId, releasedAt),
+            BuildAudit(jobId, "CitizenMessageApprovalReleased", "onay", releasedAt),
+            new SocialConversationEntry
+            {
+                EntryId = Guid.NewGuid(),
+                SocialMessageId = socialMessageId,
+                Direction = ConversationEntryDirection.Outbound,
+                Content = terminalBody,
+                SentAt = releasedAt.AddMinutes(-5),
+                DeliveryStatus = ConversationDeliveryStatus.Sent,
+                DeliveryStatusUpdatedAtUtc = releasedAt.AddMinutes(2),
+            });
+        await db.SaveChangesAsync();
+
+        var job = await db.Jobs.SingleAsync(j => j.JobId == jobId);
+        var outbound = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+            db, TenantId, job, SocialChannel.WhatsApp, socialMessageId, responseContent: null, CancellationToken.None);
+
+        Assert.Equal("not42", outbound);
+    }
+
+    [Fact]
     public async Task WhatsApp_outbound_resolves_when_delivery_status_updated_at_missing()
     {
         await using var db = CreateDbContext();

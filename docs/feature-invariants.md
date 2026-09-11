@@ -980,8 +980,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (#2906). Mesai dışı talep oluşturulunca yönetici şablonu birim müdürü, sorumlu
   (`ResponsibleUserIdsJson`) ve (vatandaş talebinde) hedef birimde çalışabilen `CitizenRequestManager`
   cep numaralarına gider; tenant'taki **tüm** VTY değil (#3472, 2026-09-09). Yardımcı müdür ve tüm
-  personel **dahil değil** (#2903/#2904, 2026-09-03). **Dış birim** (`ExternalUnit`) talepleri —
-  WhatsApp kaynaklı olsa bile — VTY SMS almaz; yalnız hedef/sahip birim müdürü + sorumlular.
+  personel **dahil değil** (#2903/#2904, 2026-09-03). Vatandaş kaynağı `JobCitizenRequestHelper`
+  (`Citizen` / `SocialMessage` / `CitizenRequest` / `EDevlet`) — WA/çağrı formunun yazdığı
+  `ExternalUnit` + `SocialMessage` dahil; hedef birim VTY'si yönetici SMS'ini talep açılışında alır.
+  Gerçek birim-dışı (`ExternalUnit` + `Manual`) VTY almaz; yalnız müdür + sorumlular.
   **Birim Personeline Mesai Dışı SMS** ayrı kutu (#3305); her ikisinde **Aktif** anahtar
   (#3306). Aktif kapalıysa o kutu gönderilmez. Yönetici kutusu eski kayıtlarda bayrak yoksa
   açıktır; personel kutusu varsayılan kapalı. Personel şablonu **yalnız görev bir kullanıcıya

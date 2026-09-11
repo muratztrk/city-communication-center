@@ -96,10 +96,11 @@ public sealed class AfterHoursJobSmsNotifierTests
     }
 
     [Fact]
-    public async Task NotifyJobCreatedAsync_external_unit_social_message_does_not_blast_vty()
+    public async Task NotifyJobCreatedAsync_external_unit_social_message_includes_scoped_vty()
     {
         await using var db = CreateDbContext();
-        await SeedAsync(db, crmPhone: "905559999999");
+        await SeedAsync(db, crmPhone: "905559999999", includeOtherDepartmentVty: true);
+        await SeedTargetDepartmentAsync(db);
         var gateway = new RecordingSmsGateway();
         var notifier = CreateNotifier(db, gateway, afterHours: true);
 
@@ -108,9 +109,41 @@ public sealed class AfterHoursJobSmsNotifierTests
             JobSourceType.SocialMessage);
         await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
 
+        Assert.Equal(2, gateway.Sends.Count);
+        Assert.Contains(gateway.Sends, send => send.Phone == "905551111111");
+        Assert.Contains(gateway.Sends, send => send.Phone == "905559999999");
+        Assert.DoesNotContain(gateway.Sends, send => send.Phone == "905558888888");
+    }
+
+    [Fact]
+    public async Task NotifyJobCreatedAsync_manual_external_unit_excludes_vty()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db, crmPhone: "905559999999");
+        var gateway = new RecordingSmsGateway();
+        var notifier = CreateNotifier(db, gateway, afterHours: true);
+
+        var job = CreateJob(JobRequestType.ExternalUnit, JobSourceType.Manual);
+        await notifier.NotifyJobCreatedAsync(job, [DepartmentId], CancellationToken.None);
+
         Assert.Single(gateway.Sends);
         Assert.Equal("905551111111", gateway.Sends[0].Phone);
         Assert.DoesNotContain(gateway.Sends, send => send.Phone == "905559999999");
+    }
+
+    [Fact]
+    public async Task NotifyTaskAssignedAsync_skips_vty_already_notified_on_citizen_source()
+    {
+        await using var db = CreateDbContext();
+        await SeedAsync(db, crmPhone: "905559999999");
+        await SeedTargetDepartmentAsync(db);
+        var gateway = new RecordingSmsGateway();
+        var notifier = CreateNotifier(db, gateway, afterHours: true);
+
+        var job = CreateJob(JobRequestType.ExternalUnit, JobSourceType.SocialMessage);
+        await notifier.NotifyTaskAssignedAsync(job, CrmId, DepartmentId, CancellationToken.None);
+
+        Assert.Empty(gateway.Sends);
     }
 
     [Fact]

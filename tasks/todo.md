@@ -1,3 +1,9 @@
+## Round 1157 — Mesai dışı VTY SMS vatandaş kaynağı
+
+- 10.09 prod: müdür 4 anlık SMS, VTY yalnız 19:45 görev atamasında 1 personel SMS.
+- Kök: #3472 `RequestType==Citizen` kapısı WA/çağrı `ExternalUnit` VT'sinde VTY'yi eliyordu.
+- Fix: `JobCitizenRequestHelper.IsCitizenRequest` — hedef birim VTY'si açılışta yönetici SMS'i alır; gerçek Manual ExternalUnit ve diğer birim VTY'si dışarıda.
+
 ## Round 1156 — WA + çağrı aynı vatandaş, ayrı VT
 
 - Aynı telefon hem WhatsApp hem çağrı merkezi talebi açabilir; iki ayrı Job/kanal.

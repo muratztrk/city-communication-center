@@ -3,6 +3,7 @@ using CityCommunicationCenter.Application.Abstractions;
 using CityCommunicationCenter.Application.Common;
 using CityCommunicationCenter.Application.Features.Attachments;
 using CityCommunicationCenter.Application.Features.Admin;
+using CityCommunicationCenter.Application.Features.Jobs;
 using CityCommunicationCenter.Application.Features.Users;
 using CityCommunicationCenter.Domain.Entities;
 using CityCommunicationCenter.Domain.Enums;
@@ -189,14 +190,16 @@ internal sealed class AfterHoursJobSmsNotifier : IAfterHoursJobSmsNotifier
     }
 
     /// <summary>
-    /// VTY mesai dışı SMS yalnız hedef birimde çalışabilen VTY'lere gider (tüm tenant VTY değil).
+    /// Vatandaş kaynağında (Citizen / SocialMessage / e-Devlet) VTY mesai dışı SMS
+    /// yalnız hedef birimde çalışabilen VTY'lere gider. Gerçek birim-dışı (Manual
+    /// ExternalUnit) taleplerde VTY yok; tenant'taki tüm VTY asla yayınlanmaz.
     /// </summary>
     private async Task AddScopedCitizenRequestManagerRecipientsAsync(
         Job job,
         HashSet<Guid> recipientIds,
         CancellationToken cancellationToken)
     {
-        if (job.RequestType != JobRequestType.Citizen)
+        if (!JobCitizenRequestHelper.IsCitizenRequest(job))
         {
             return;
         }

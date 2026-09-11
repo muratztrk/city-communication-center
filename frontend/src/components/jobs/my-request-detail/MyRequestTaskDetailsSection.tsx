@@ -1,11 +1,13 @@
 import { FileText, Info, ListChecks } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { useAuth } from '../../../context/AuthContext'
 import type { ReactNode } from 'react'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { AttachmentImagePreviewButton } from '../../ui/AttachmentImagePreviewButton'
 import { SimpleImageAttachmentIcon } from '../../ui/SimpleImageAttachmentIcon'
 import type { JobDetail } from '../../../types/platform'
 import { isCitizenRequestJob, requestLocationFieldLabel } from '../../../utils/citizenRequests'
+import { shouldShowCitizenMessageApproverField } from '../../../utils/jobDetails'
 import { getTaskDisplayStatus, getTaskStatusTone } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime } from './format'
 import { buildInProgressPeriodStep, type JobProcessStep } from './buildJobProcessSteps'
@@ -171,6 +173,7 @@ export function MyRequestTaskDetailsSection({
   addressColumnContent,
 }: MyRequestTaskDetailsSectionProps) {
   const { t } = useTranslation()
+  const { user } = useAuth()
 
   if (detail.tasks.length === 0) return null
 
@@ -208,6 +211,10 @@ export function MyRequestTaskDetailsSection({
 
           const isCompletedTask = task.currentStatus === 'Completed'
           const isCancelledTask = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
+          const showCitizenApprover = isCitizenRequestJob(detail)
+            && (isCompletedTask || isCancelledTask)
+            && shouldShowCitizenMessageApproverField(user, citizenMessageApproverDisplayName)
+          const citizenApproverValue = citizenMessageApproverDisplayName?.trim() || '—'
           const releasedPlain = notePlain(citizenApprovalReleasedNote)
           const taskNotesPlain = notePlain(task.notes)
           const outboundPlain = stripAutoMessageNoteLabel(citizenOutboundMessage)
@@ -287,10 +294,10 @@ export function MyRequestTaskDetailsSection({
                       ? [{ label: t('tasks.detail.assigningManager', 'Görevi Atayan Yönetici'), value: task.assigningManagerDisplayName ?? '—' }]
                       : []),
                     { label: t('tasks.columns.owner', 'Görevi Yapan'), value: task.assignedUserDisplayName ?? task.ownerDisplayName ?? task.assignedDepartmentName ?? '—' },
-                    ...(isCompletedTask && citizenMessageApproverDisplayName?.trim()
+                    ...(showCitizenApprover && isCompletedTask
                       ? [{
                           label: t('tasks.detail.completionNoteApprover', 'Tamamlama Notu Onaylayan'),
-                          value: citizenMessageApproverDisplayName.trim(),
+                          value: citizenApproverValue,
                         }]
                       : []),
                     ...(isCompletedTask
@@ -302,10 +309,10 @@ export function MyRequestTaskDetailsSection({
                         }]
                       : isCancelledTask
                         ? [
-                            ...(citizenMessageApproverDisplayName?.trim()
+                            ...(showCitizenApprover
                               ? [{
                                   label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
-                                  value: citizenMessageApproverDisplayName.trim(),
+                                  value: citizenApproverValue,
                                 }]
                               : []),
                             {

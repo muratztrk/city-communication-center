@@ -1,5 +1,6 @@
 import type { JobDetail, JobDepartmentInfo } from '../types/platform'
 import { isCitizenRequestJob } from './citizenRequests'
+import { hasCitizenRequestManagerRole } from './roleAccess'
 
 /** VT iptal + henüz görev yok — Talep Bilgileri / Süreç özel satırları (#3496/#3497). */
 export function isCancelledCitizenRequestWithoutTasks(
@@ -102,6 +103,24 @@ export function shouldShowJobStatusActorName(job: {
 }): boolean {
   if (!job.statusActorDisplayName) return false
   return shouldShowRequestApproverField(job)
+}
+
+/** Mesaj Onayı onaylayan satırları — müdür/sorumlu + VT yöneticisi (#3506/#3508). */
+export function canViewCitizenMessageApproverFields(
+  user: { role?: string; additionalRoles?: string[] } | null | undefined,
+): boolean {
+  if (!user) return false
+  return user.role === 'Manager'
+    || user.role === 'SystemAdmin'
+    || hasCitizenRequestManagerRole(user)
+}
+
+export function shouldShowCitizenMessageApproverField(
+  user: { role?: string; additionalRoles?: string[] } | null | undefined,
+  approverDisplayName?: string | null,
+): boolean {
+  if (canViewCitizenMessageApproverFields(user)) return true
+  return Boolean(approverDisplayName?.trim())
 }
 
 export function formatJobAssigneeNames(job: Pick<JobDetail, 'tasks'>): string | null {

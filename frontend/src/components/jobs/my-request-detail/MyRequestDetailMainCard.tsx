@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import type { ReactNode } from 'react'
 import type { TFunction } from 'i18next'
 import { DateTimePicker } from '../../ui/date-time-picker'
-import { clampDueDatePickerValue, earliestDueDatePickerValue, wasJobOverdueWhenClosed } from '../../../utils/dateTimePicker'
+import { clampDueDatePickerValue, earliestDueDatePickerValue } from '../../../utils/dateTimePicker'
 import { Button } from '../../ui/button'
 import { RichTextContent } from '../../ui/RichTextContent'
 import { RichTextEditor } from '../../ui/RichTextEditor'
@@ -15,7 +15,7 @@ import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, RequestTag, SocialMessage } from '../../../types/platform'
 import { useAuth } from '../../../context/AuthContext'
 import { useWeekendSlaDueDateMin } from '../../../hooks/useWeekendSlaDueDateMin'
-import { shouldShowJobStatusActorName, formatJobAssigneeNames, isCancelledCitizenRequestWithoutTasks } from '../../../utils/jobDetails'
+import { shouldShowJobStatusActorName, formatJobAssigneeNames, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField } from '../../../utils/jobDetails'
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
 import { JobProcessTimeline, TimelineDateTimeValue } from './JobProcessTimeline'
@@ -327,12 +327,6 @@ export function MyRequestDetailMainCard({
     : detail.requestType === 'ExternalUnit'
       ? t('jobs.requestType.external', 'Birim Dışı')
       : t('jobs.requestType.internal', 'Birim İçi')
-  const overdueYes = wasJobOverdueWhenClosed({
-    status: detail.status,
-    dueDateUtc: detail.dueDateUtc,
-    completedAtUtc: detail.completedAtUtc,
-    updatedAtUtc: detail.updatedAtUtc,
-  })
   const showCancelledWithoutTaskNotes = isCancelledCitizenRequestWithoutTasks(detail)
   const cancelledWithoutTaskOutbound = (citizenOutboundMessage ?? detail.citizenOutboundMessage ?? '').trim()
   const cancelledWithoutTaskNote = detail.cancelReason?.trim() || '—'
@@ -341,16 +335,21 @@ export function MyRequestDetailMainCard({
     && cancelledWithoutTaskNote !== '—'
     && cancelledWithoutTaskOutbound.localeCompare(cancelledWithoutTaskNote, 'tr', { sensitivity: 'accent' }) !== 0,
   )
+  const showCancelApproverInRequestInfo = showCancelledWithoutTaskNotes
+    && isCitizenRequestJob(detail)
+    && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)
   const trailingInfoRows = [
     ...(infoExtraTrailingRows ?? []),
-    {
-      label: t('jobs.detail.wasOverdue', 'Gecikti mi?'),
-      value: (
-        <span className={overdueYes ? 'text-red-600' : 'text-slate-900'}>
-          {overdueYes ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}
-        </span>
-      ),
-    },
+    ...(showCancelApproverInRequestInfo
+      ? [{
+          label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
+          value: (
+            <span className="text-slate-900">
+              {detail.citizenMessageApproverDisplayName?.trim() || '—'}
+            </span>
+          ),
+        }]
+      : []),
     ...(showCancelledWithoutTaskNotes
       ? [
           {
@@ -594,6 +593,7 @@ export function MyRequestDetailMainCard({
             inProgressAssigneeName={formatJobAssigneeNames(detail)}
             statusNoteContent={statusNoteContent}
             dueDateContent={dueDateContent}
+            showOverdueYesNo
             overdueDueDateUtc={detail.dueDateUtc}
             overdueJobStatus={detail.status}
             overdueCompletedAtUtc={detail.completedAtUtc}

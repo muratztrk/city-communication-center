@@ -386,9 +386,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Rutin görev düzenleme geçmişi ek karşılaştırması:** Önceki/Sonraki karşılaştırma kartları
   korunur; kartların içindeki tekil ekler ayrıca çerçevelenmez ve birden fazla ek iki sütunda
   yan yana akar (card #1626).
-- **Süreç Gecikti mi (#2855/#2885/#2895/#2978):** terminal talepte kapanış (`completedAtUtc` / iptalde
+- **Süreç Gecikti mi (#2855/#3509):** terminal talepte kapanış (`completedAtUtc` / iptalde
   `updatedAtUtc`) son tarihten önceyse Hayır; sonra ise Evet. Açık taleplerde `isJobDueDateOverdue`.
-  Satır **Talep Bilgileri** listesinin en altında; Süreç kolonunda yok.
+  Detay popup'ta **Süreç** başlık satırının sağında Öncelik ile aynı hizada (`showOverdueYesNo`);
+  Talep Bilgileri listesinde değil.
   Detay popup’ta Gecikti mi? Evet ve Durum `İşleme Alındı` ise metin `İşleme Alındı (Geciken)` olur
   (başlık + Süreç Durum). Süreç’te `Onay Bekleyen` ve son tarih geçmişse yanına `(Geciken)` (#2832).
 - **Süreç onay tarihleri:** `Talebin Birim Yöneticisi Onay Tarihi` ve `Hedef Birim Yöneticisi
@@ -2913,9 +2914,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yinelenme kontrolü takvim günü değil aktif başlama–bitiş **periyodu** ile yapılır
   (`WhatsAppAutoReplyDuplicateGuard.GetDuplicateCheckWindow`); gece yarısını aşan aralıklar
   desteklenir, bir sonraki periyotta yeniden bir kez gönderilebilir.
-- **Görev İptal Notu Onaylayan (#3488):** detay popup Görev Bilgileri'nde iptal görevlerde
-  `İptal Notu` satırının üstünde `İptal Notu Onaylayan` (`citizenMessageApproverDisplayName`,
-  Mesaj Onayı release audit actor).
+- **Görev İptal Notu Onaylayan (#3488/#3506/#3508):** detay popup Görev Bilgileri'nde iptal/tamamlama
+  görevlerde `İptal/Tamamlama Notu` üstünde onaylayan satırı (`citizenMessageApproverDisplayName`,
+  Mesaj Onayı release audit actor). Müdür/sorumlu + VT yöneticisi satırı veri yokken de görür (`—`);
+  diğer roller yalnız veri varsa görür.
+- **Görevsiz iptal VT onaylayan (#3505):** Talep Bilgileri'nde `İptal Notu` üstünde aynı onaylayan
+  satırı (Mesajı Onayla yapan kullanıcı).
 - **İptal görevsiz talep not renkleri (#3490):** görev oluşmamış iptal talebinde `İptal Notu`
   siyah; `Vatandaşa Giden Mesaj` yalnız iptal notundan farklıysa kırmızı, aynıysa siyah.
 - **İptal görevsiz iptal eden (#3496):** Süreç `İptal Tarihi` başlığının sağında parantez içinde

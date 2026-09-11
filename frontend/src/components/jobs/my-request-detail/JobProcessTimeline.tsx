@@ -73,7 +73,7 @@ interface JobProcessTimelineProps {
   inProgressAssigneeName?: string | null
   statusNoteContent?: ReactNode
   dueDateContent?: ReactNode
-  /** Süreç altında Gecikti mi satırı (#2855). */
+  /** Süreç başlığı sağında Gecikti mi (#3509; önceki #2855 alt satır). */
   showOverdueYesNo?: boolean
   overdueDueDateUtc?: string | null
   overdueJobStatus?: string
@@ -221,8 +221,18 @@ export function JobProcessTimeline({
 
   return (
     <div className="job-process-timeline">
-      <MyRequestSectionHeading icon={Clock}>
-        {t('jobs.detail.processTitle', 'Süreç')}
+      <MyRequestSectionHeading icon={Clock} className={showOverdueYesNo ? 'job-detail-card-title--spread' : undefined}>
+        <span className={`${showOverdueYesNo ? 'my-request-detail-info-heading flex min-w-0 flex-1 items-center justify-between gap-2' : ''}`}>
+          <span>{t('jobs.detail.processTitle', 'Süreç')}</span>
+          {showOverdueYesNo ? (
+            <span className="my-request-detail-priority-header ml-auto flex shrink-0 flex-col items-end text-right leading-tight">
+              <span className="text-xs font-bold text-slate-500">{t('jobs.detail.wasOverdue', 'Gecikti mi?')}</span>
+              <span className={`text-[11px] font-semibold tabular-nums ${overdueYes ? 'text-red-600' : 'text-slate-900'}`}>
+                {overdueYes ? t('common.yes', 'Evet') : t('common.no', 'Hayır')}
+              </span>
+            </span>
+          ) : null}
+        </span>
       </MyRequestSectionHeading>
       <ol className="job-process-timeline__list">
         {steps.map((step, index) => {
@@ -366,23 +376,6 @@ export function JobProcessTimeline({
             </li>
           )
         })}
-        {showOverdueYesNo ? (
-          <li className="job-process-timeline__item job-process-timeline__item--overdue-yesno">
-            <div className="job-process-timeline__track" aria-hidden="true" />
-            <div className="job-process-timeline__content min-w-0 pb-4">
-              <div className="job-process-timeline__overdue-yesno-row flex items-start justify-between gap-3 rounded-md bg-slate-50 py-2 pr-2 pl-1">
-                <div className="text-xs font-semibold leading-[0.875rem] tracking-wide text-slate-500">
-                  {t('jobs.detail.wasOverdue', 'Gecikti mi?')}
-                </div>
-                <div className={`text-xs font-semibold shrink-0 tabular-nums leading-[0.875rem] ${overdueYes ? 'text-red-600' : 'text-slate-900'}`}>
-                  {overdueYes
-                    ? t('common.yes', 'Evet')
-                    : t('common.no', 'Hayır')}
-                </div>
-              </div>
-            </div>
-          </li>
-        ) : null}
       </ol>
     </div>
   )

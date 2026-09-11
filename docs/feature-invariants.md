@@ -2914,6 +2914,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yinelenme kontrolü takvim günü değil aktif başlama–bitiş **periyodu** ile yapılır
   (`WhatsAppAutoReplyDuplicateGuard.GetDuplicateCheckWindow`); gece yarısını aşan aralıklar
   desteklenir, bir sonraki periyotta yeniden bir kez gönderilebilir.
+- **Talep Bilgileri mesaj onaylayan (#3511):** terminal VT (`Completed`/`Cancelled`/`Rejected`)
+  detayında Talebi Onaylayan altında `Tamamlama Notu Onaylayan` veya `İptal Notu Onaylayan`
+  (`citizenMessageApproverDisplayName`); müdür/sorumlu + VT yöneticisi veri yokken de görür (`—`).
 - **Birime Gelen inline detay (#3506/#3509/#3510):** `JobsPage` request-details popup'ı
   `MyRequestDetailMainCard` ile aynı kuralları kullanır — görevsiz iptal VT'de Talep Bilgileri
   iptal/onaylayan/outbound satırları; `Gecikti mi?` Süreç başlığında; görev bölümüne

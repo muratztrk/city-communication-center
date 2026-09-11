@@ -40,7 +40,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees, formatJobAssigneeNames, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDisplayName, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, formatJobAssigneeNames, formatRequestApproverDisplay, getCitizenMessageApproverRequestInfoLabel, getJobTargetApproverDisplayName, getRequestApproverDisplayName, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowCitizenMessageApproverInRequestInfo, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { ExternalDestinationValue } from '../components/jobs/my-request-detail/ExternalDestinationValue'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
@@ -3056,12 +3056,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           value: detail.statusActorDisplayName?.trim() || '—',
                         })
                       }
-                      if (shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)) {
-                        rows.push({
-                          label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
-                          value: detail.citizenMessageApproverDisplayName?.trim() || '—',
-                        })
-                      }
                       if (shouldShowCitizenMessageApproverField(user, detail.cancelReason) || detail.cancelReason?.trim()) {
                         rows.push({
                           label: t('tasks.detail.cancelNote', 'İptal Notu'),
@@ -3080,6 +3074,20 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         </div>
                       ))
                     })() : null}
+                    {isCitizenRequestDetail
+                      && shouldShowCitizenMessageApproverInRequestInfo(detail)
+                      && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)
+                      && getCitizenMessageApproverRequestInfoLabel(t, detail.status)
+                      ? (
+                        <div className="job-detail-field-row job-detail-field-row--request-info">
+                          <div className="job-detail-field-row__label">
+                            {getCitizenMessageApproverRequestInfoLabel(t, detail.status)}
+                          </div>
+                          <div className="job-detail-field-row__value text-slate-900">
+                            {detail.citizenMessageApproverDisplayName?.trim() || '—'}
+                          </div>
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                   <div className="min-w-0 p-4">

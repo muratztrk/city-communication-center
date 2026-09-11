@@ -15,7 +15,7 @@ import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, RequestTag, SocialMessage } from '../../../types/platform'
 import { useAuth } from '../../../context/AuthContext'
 import { useWeekendSlaDueDateMin } from '../../../hooks/useWeekendSlaDueDateMin'
-import { shouldShowJobStatusActorName, formatJobAssigneeNames, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField } from '../../../utils/jobDetails'
+import { shouldShowJobStatusActorName, formatJobAssigneeNames, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowCitizenMessageApproverInRequestInfo, getCitizenMessageApproverRequestInfoLabel } from '../../../utils/jobDetails'
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
 import { JobProcessTimeline, TimelineDateTimeValue } from './JobProcessTimeline'
@@ -335,14 +335,15 @@ export function MyRequestDetailMainCard({
     && cancelledWithoutTaskNote !== '—'
     && cancelledWithoutTaskOutbound.localeCompare(cancelledWithoutTaskNote, 'tr', { sensitivity: 'accent' }) !== 0,
   )
-  const showCancelApproverInRequestInfo = showCancelledWithoutTaskNotes
-    && isCitizenRequestJob(detail)
+  const messageApproverRequestInfoLabel = getCitizenMessageApproverRequestInfoLabel(t, detail.status)
+  const showMessageApproverInRequestInfo = shouldShowCitizenMessageApproverInRequestInfo(detail)
+    && Boolean(messageApproverRequestInfoLabel)
     && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)
   const trailingInfoRows = [
     ...(infoExtraTrailingRows ?? []),
-    ...(showCancelApproverInRequestInfo
+    ...(showMessageApproverInRequestInfo
       ? [{
-          label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
+          label: messageApproverRequestInfoLabel!,
           value: (
             <span className="text-slate-900">
               {detail.citizenMessageApproverDisplayName?.trim() || '—'}

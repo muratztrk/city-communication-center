@@ -123,6 +123,29 @@ export function shouldShowCitizenMessageApproverField(
   return Boolean(approverDisplayName?.trim())
 }
 
+/** Mesaj Onayı sonrası Talep Bilgileri onaylayan satırı — terminal VT (#3511). */
+export function shouldShowCitizenMessageApproverInRequestInfo(
+  job: Pick<JobDetail, 'status' | 'requestType' | 'tasks' | 'sourceType'>,
+): boolean {
+  if (!isCitizenRequestJob(job)) return false
+  return job.status === 'Completed'
+    || job.status === 'Cancelled'
+    || job.status === 'Rejected'
+}
+
+export function getCitizenMessageApproverRequestInfoLabel(
+  t: (key: string, fallback: string) => string,
+  status: string,
+): string | null {
+  if (status === 'Completed') {
+    return t('tasks.detail.completionNoteApprover', 'Tamamlama Notu Onaylayan')
+  }
+  if (status === 'Cancelled' || status === 'Rejected') {
+    return t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan')
+  }
+  return null
+}
+
 export function formatJobAssigneeNames(job: Pick<JobDetail, 'tasks'>): string | null {
   const names = [...new Set(
     (job.tasks ?? [])

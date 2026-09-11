@@ -2487,10 +2487,10 @@ const pageKicker = isMyTasksView
                                   tone: 'cancel',
                                 })
                               }
-                              if (isCitizenTerminalTask && (outboundPlain || (canViewCitizenMessageApproverFields(user) && showCitizenApprover))) {
+                              if (isCitizenTerminalTask && outboundPlain) {
                                 rows.push({
                                   label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                                  value: outboundPlain || '—',
+                                  value: outboundPlain,
                                   tone: outboundPlain && outboundDiffers ? 'outbound-diff' : undefined,
                                 })
                               }

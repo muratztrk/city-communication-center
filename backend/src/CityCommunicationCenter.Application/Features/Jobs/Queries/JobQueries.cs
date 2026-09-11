@@ -587,13 +587,27 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
             }
         }
 
-        // Yazdır/detay VT- için linkli sosyal mesaj numarası (#r467).
-        var citizenRequest = await _dbContext.SocialMessages.AsNoTracking()
-            .Where(m => m.JobId == job.JobId && m.CitizenRequestNumber != null)
-            .OrderByDescending(m => m.CitizenRequestNumberYear)
+        // Yazdır/detay VT- için linkli sosyal mesaj (#r467 / #3521: JobId veya SourceRefId).
+        var citizenRequestCandidates = await _dbContext.SocialMessages.AsNoTracking()
+            .Where(m => m.TenantId == tenantId
+                && m.CitizenRequestNumber != null
+                && (m.JobId == job.JobId
+                    || (job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)))
+            .Select(m => new
+            {
+                m.CitizenRequestNumber,
+                m.CitizenRequestNumberYear,
+                m.Channel,
+                m.SocialMessageId,
+                m.JobId,
+            })
+            .ToListAsync(cancellationToken);
+        var citizenRequest = citizenRequestCandidates
+            .OrderByDescending(m => m.JobId == job.JobId)
+            .ThenByDescending(m => m.CitizenRequestNumberYear)
             .ThenByDescending(m => m.CitizenRequestNumber)
             .Select(m => new { m.CitizenRequestNumber, m.CitizenRequestNumberYear, m.Channel, m.SocialMessageId })
-            .FirstOrDefaultAsync(cancellationToken);
+            .FirstOrDefault();
 
         string? sourceChannel = null;
         Guid? sourceSocialMessageId = job.SourceRefId;
@@ -622,8 +636,9 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
         var hasCitizenWaPhoneLink = citizenRequest is not null
             && (citizenRequest.Channel == SocialChannel.WhatsApp
                 || citizenRequest.Channel == SocialChannel.Phone);
-        if (hasCitizenWaPhoneLink)
+        if (hasCitizenWaPhoneLink && citizenRequest is not null)
         {
+            var citizenVt = citizenRequest;
             // #3508/#3513/#3515: Onaylayan/release/outbound terminal job şartına bağlı değil (Active + terminal görev).
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken);
@@ -635,7 +650,9 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     && m.CitizenRequestNumber != null
                     && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
                     && (m.JobId == job.JobId
-                        || (job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)))
+                        || (job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)
+                        || (m.CitizenRequestNumber == citizenVt.CitizenRequestNumber
+                            && m.CitizenRequestNumberYear == citizenVt.CitizenRequestNumberYear)))
                 .Select(m => new
                 {
                     m.Channel,
@@ -645,15 +662,15 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                     m.ReceivedAtUtc,
                 })
                 .ToListAsync(cancellationToken);
-            var linkedMessage = (job.SourceRefId.HasValue
-                    ? linkedMessages.Find(m => m.SocialMessageId == job.SourceRefId.Value)
-                    : null)
-                ?? linkedMessages
-                    .OrderByDescending(m => m.ReceivedAtUtc)
-                    .FirstOrDefault();
+            var orderedLinkedMessages = linkedMessages
+                .OrderByDescending(m => job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)
+                .ThenByDescending(m => m.SocialMessageId == citizenVt.SocialMessageId)
+                .ThenByDescending(m => m.ReceivedAtUtc)
+                .ToList();
 
-            // #3504: CancelJob ReleasedAtUtc sıfırlasa bile iletilmiş mesaj detayda görünür (audit release).
-            if (linkedMessage is not null)
+            // #3504/#3521: CancelJob ReleasedAtUtc sıfırlasa bile iletilmiş mesaj detayda görünür; VT numarasıyla
+            // eşleşen tüm WA/Phone konuşmalarında outbound aranır.
+            foreach (var linkedMessage in orderedLinkedMessages)
             {
                 var smsResponse = linkedMessage.Channel == SocialChannel.Phone
                     && linkedMessage.RespondedAtUtc.HasValue
@@ -670,6 +687,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 if (!string.IsNullOrWhiteSpace(note))
                 {
                     citizenOutboundMessage = note;
+                    break;
                 }
             }
         }

@@ -2908,9 +2908,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız `dashboard.chart.overdue`, Tüm Talepler popup'ları aynı filtreyi uygular.
 - **İş akışı not limiti (#3466/#3516):** tamamlama/iptal/durum değişikliği notu, talep yönlendirme notu,
   vatandaş mesaj onay notu ve **Talebi İptal Et** (`CancelJob`) nedeni FE+BE **400 karakter**.
-- **GetJobById outbound (#3513/#3515/#3512/#3518):** WA/Çağrı VT bağlantısında `citizenOutboundMessage`
-  terminal job statüsü olmadan çözülür (Active + tamamlanmış görev detay popup). WA gövdesinde tek `\n`
-  ayracı ve `DeliveryStatusUpdatedAtUtc` null iken `SentAt` yedeği desteklenir.
+- **GetJobById outbound (#3513/#3515/#3512/#3518/#3521):** WA/Çağrı VT bağlantısında `citizenOutboundMessage`
+  terminal job statüsü olmadan çözülür (Active + tamamlanmış görev detay popup). VT mesajı `JobId` veya
+  `SourceRefId` ile bulunur; aynı VT numarasındaki tüm WA/Phone konuşmalarında outbound aranır (#3521).
+  WA gövdesinde tek `\n` ayracı ve `DeliveryStatusUpdatedAtUtc` null iken `SentAt` yedeği desteklenir.
+- **Vatandaşa Giden Mesaj görünürlük (#3520):** Mesaj iletilmemişse (`citizenOutboundMessage` boş) satır
+  hiç gösterilmez — boş `—` placeholder yok.
 - **Vatandaş cevap şablonu taslak (#3221/#3220/#3222):** Kaydetmeden sekme/sayfa değişince
   `citizenAutoReplyTemplates` son kaydedilene döner. `{GönderilenBirim}` ek textarea Enter ile
   satır sonu alır (`extract` trailing `\\n` yutmaz; not token öncesi `\\n\\n` veya tek boşluk ayrılır, #3250).

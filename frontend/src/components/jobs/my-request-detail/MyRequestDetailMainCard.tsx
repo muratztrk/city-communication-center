@@ -372,14 +372,16 @@ export function MyRequestDetailMainCard({
               </span>
             ),
           },
-          {
-            label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-            value: (
-              <span className={cancelledOutboundDiffersFromNote ? 'text-red-600' : 'text-slate-900'}>
-                {cancelledWithoutTaskOutbound || '—'}
-              </span>
-            ),
-          },
+          ...(cancelledWithoutTaskOutbound
+            ? [{
+                label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+                value: (
+                  <span className={cancelledOutboundDiffersFromNote ? 'text-red-600' : 'text-slate-900'}>
+                    {cancelledWithoutTaskOutbound}
+                  </span>
+                ),
+              }]
+            : []),
         ]
       : []),
   ]

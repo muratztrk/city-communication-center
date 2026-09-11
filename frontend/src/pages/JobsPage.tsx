@@ -3070,10 +3070,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           label: t('tasks.detail.cancelNote', 'İptal Notu'),
                           value: cancelledNote,
                         })
-                        if (!hideMessageApprovalPendingFields) {
+                        if (!hideMessageApprovalPendingFields && outboundMessage) {
                           rows.push({
                             label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                            value: outboundMessage || '—',
+                            value: outboundMessage,
                             valueClass: outboundDiffers ? 'text-red-600' : 'text-slate-900',
                           })
                         }

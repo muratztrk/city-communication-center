@@ -15,6 +15,7 @@ import type { MyRequestEditDraft } from './myRequestEditDraft'
 import type { JobDetail, RequestTag, SocialMessage } from '../../../types/platform'
 import { useAuth } from '../../../context/AuthContext'
 import { useWeekendSlaDueDateMin } from '../../../hooks/useWeekendSlaDueDateMin'
+import { formatCitizenCancelOutboundDisplay } from '../../../utils/citizenOutboundDisplay'
 import { shouldShowJobStatusActorName, formatJobAssigneeNames, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowCitizenMessageApproverInRequestInfo, getCitizenMessageApproverRequestInfoLabel } from '../../../utils/jobDetails'
 import { hasCitizenRequestManagerRole } from '../../../utils/roleAccess'
 import { buildJobProcessSteps, isJobRecoveredFromCancellation } from './buildJobProcessSteps'
@@ -335,6 +336,9 @@ export function MyRequestDetailMainCard({
     && cancelledWithoutTaskNote !== '—'
     && cancelledWithoutTaskOutbound.localeCompare(cancelledWithoutTaskNote, 'tr', { sensitivity: 'accent' }) !== 0,
   )
+  const cancelledOutboundDisplay = cancelledWithoutTaskOutbound
+    ? formatCitizenCancelOutboundDisplay(cancelledWithoutTaskOutbound, cancelledWithoutTaskNote)
+    : ''
   const messageApproverRequestInfoLabel = getCitizenMessageApproverRequestInfoLabel(t, detail.status)
   const showMessageApproverInRequestInfo = shouldShowCitizenMessageApproverInRequestInfo(detail)
     && Boolean(messageApproverRequestInfoLabel)
@@ -377,7 +381,7 @@ export function MyRequestDetailMainCard({
                 label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
                 value: (
                   <span className={cancelledOutboundDiffersFromNote ? 'text-red-600' : 'text-slate-900'}>
-                    {cancelledWithoutTaskOutbound}
+                    {cancelledOutboundDisplay}
                   </span>
                 ),
               }]

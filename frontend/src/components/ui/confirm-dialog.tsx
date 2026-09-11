@@ -26,6 +26,8 @@ export interface ConfirmDialogState {
   details?: ReactNode
   /** Biraz daha geniş dialog (ör. Mesajı Gönder confirm — card #2060). */
   wide?: boolean
+  /** Mesaj metni sınıfı (ör. Mesajı Onayla iki yana yaslı — #3525). */
+  messageClassName?: string
   /** Aksiyon butonları küçük (Mesaj Onayı Notu Düzenle / Mesajı Onayla — #2091/#2098). */
   compactActions?: boolean
   /** compactActions iken biraz daha büyük sm (h-9) — #2098. */
@@ -79,7 +81,7 @@ export function ConfirmDialog({ state, onClose }: ConfirmDialogProps) {
           </h2>
         )}
         {state.banner ? <div className="mb-3">{state.banner}</div> : null}
-        <div className={`mt-2 text-sm text-slate-700 ${state.details ? 'mb-3' : 'mb-6'}`}>{state.message}</div>
+        <div className={`mt-2 text-sm text-slate-700 ${state.details ? 'mb-3' : 'mb-6'} ${state.messageClassName ?? ''}`}>{state.message}</div>
         {state.details ? <div className="mb-6">{state.details}</div> : null}
         <div className="flex justify-end gap-2">
           {!state.hideCancel && (

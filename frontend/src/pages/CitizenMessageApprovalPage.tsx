@@ -240,6 +240,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
       wide: true,
       compactActions: true,
       compactActionsLarge: true,
+      messageClassName: 'text-justify',
       message: t(
         'citizenMessageApproval.releaseConfirm',
         'Mesajı onayladığınızda, kurumunuz operatörüne, vatandaşımıza iletilmek üzere talebin durumu ve notu gönderilecektir.',

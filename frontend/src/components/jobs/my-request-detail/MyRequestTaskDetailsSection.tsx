@@ -16,6 +16,7 @@ import { MyRequestSectionHeading } from './MyRequestSectionHeading'
 import { StackedFieldLabel, StackedFieldValue } from './StackedFieldValue'
 import { StatusChangeTransition } from './StatusChangeTransition'
 import { lowercaseFileExtension } from '../../../utils/fileNameDisplay'
+import { formatCitizenCancelOutboundDisplay, notesDiffer, stripAutoMessageNoteLabel } from '../../../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../../../utils/richText'
 
 interface MyRequestTaskDetailsSectionProps {
@@ -35,27 +36,8 @@ interface MyRequestTaskDetailsSectionProps {
   addressColumnContent?: ReactNode
 }
 
-function stripAutoMessageNoteLabel(value?: string | null) {
-  const plain = notePlain(value).replace(/\u00a0/g, ' ').replace(/\r\n/g, '\n')
-  if (!plain) return ''
-  const match = /(?:^|\n)(Yapılan İş|İptal Nedeni|İptal Notu)\s*:\s*/u.exec(plain)
-  if (match && match.index >= 0) {
-    const after = plain.slice(match.index + match[0].length).trim()
-    const firstLine = after.split('\n')[0]?.trim() ?? ''
-    if (firstLine) return firstLine
-  }
-  return plain
-}
-
 function notePlain(value?: string | null) {
   return richTextToPlainText(value ?? '').trim()
-}
-
-function notesDiffer(left?: string | null, right?: string | null) {
-  const a = notePlain(left)
-  const b = notePlain(right)
-  if (!a || !b) return a !== b
-  return a.toLocaleLowerCase('tr') !== b.toLocaleLowerCase('tr')
 }
 
 function getInlineAttachmentIcon(fileName: string) {
@@ -236,7 +218,10 @@ export function MyRequestTaskDetailsSection({
           const fallbackOutboundNote = isCompletedTask
             ? (releasedPlain || taskNotesPlain)
             : (notePlain(task.revisionReason) || notePlain(detail.cancelReason))
-          const displayedOutbound = outboundPlain || notePlain(citizenOutboundMessage)
+          const rawOutbound = outboundPlain || notePlain(citizenOutboundMessage)
+          const displayedOutbound = isCancelledTask && rawOutbound
+            ? formatCitizenCancelOutboundDisplay(rawOutbound, cancelNoteDisplay)
+            : rawOutbound
           const outboundValue = outboundPlain || fallbackOutboundNote
           const outboundDiffersFromCompletion = Boolean(
             displayedOutbound

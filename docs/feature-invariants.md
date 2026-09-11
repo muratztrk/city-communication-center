@@ -1763,8 +1763,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Görev durum dropdown'u ortak tasarımdır:** Görev Durum Değişikliği popup'ı native `select`
   kullanmaz; portal tabanlı `SingleSelectDropdown` ile diğer form dropdown'larıyla aynı görünür
   ve bu popup'ta seçili değer/placeholder ile menü seçenekleri 12px kalır (card #1612 reopen).
-- **Vatandaş kanalı Birime Gelen detayda (card #1532):** `Talep Bilgileri` başlık satırının sağında
-  kanal ikonu + kanal adı; metin rengi ikon rengiyle aynı (`getChannelLabelColor`).
+- **Vatandaş kanalı Birime Gelen detayda (#1532/#3489):** Taleplerim/Birimden Giden'de `Talep Bilgileri`
+  başlık satırının sağında kanal ikonu + ad (`getChannelLabelColor`). **Birime Gelen** inline detayda
+  ikon VT numarasının solunda; `Talep Kanalı` satırı `Vatandaş Adı / Telefon No` altında.
 - **Talep detay öncelik başlığı (card #1599/#2109):** Taleplerim, Birime Gelen ve Birimden Giden
   detaylarında `Öncelik` Talep Bilgileri satır listesinden çıkar; başlığın sağ sınırında etiketi
   üstte, değeri altta görünür. Etiket title-case (`Öncelik`) ve 12px (`text-xs font-bold`) kalır; değer
@@ -2918,7 +2919,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Birime Gelen İptal popup (#3516):** İptal nedeni textbox `maxLength=400` (BE `CancelJob` ile uyumlu).
 - **Görev Süreç Gecikti mi (#3522):** Birime Gelen detay → İlgili Görev Detayları Süreç başlığında Evet/Hayır.
 - **Outbound yeşil (#3523):** Vatandaşa Giden Mesaj = Tamamlama Notu ise satır etiket+değer yeşil.
-- **Onaylayan yedeği (#3515):** `CitizenTerminalMessageReleasedAtUtc` dolu, döngü audit yoksa son release actor.
+- **Onaylayan yedeği (#3515/#3491):** `CitizenTerminalMessageReleasedAtUtc` dolu, döngü audit yoksa son release actor.
+  `GetJobById` onaylayan + released not VT bağlantısı/WA-Phone/ReleasedAtUtc şartına bağlı değil; outbound terminal görev/job veya kanal bağlantısında çözülür (#3491/#3527).
 - **Personelimin Görevleri onaylayan (#3515 reopen):** `TasksPage` Görev Bilgileri terminal satırları
   `MyRequestTaskDetailsSection` ile aynı (`releasedNote`, outbound strip, Görevi Yapan sonrası sıra).
   `GetTaskById` VT onaylayan + released notu taşır; parent job yüklenmese de gösterilir.
@@ -2951,7 +2953,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görevlerde `İptal/Tamamlama Notu` üstünde onaylayan satırı (`citizenMessageApproverDisplayName`,
   Mesaj Onayı release audit actor; `ActorDisplayName` boşsa `ActorUserId` → kullanıcı adı).
   `GetJobById` onaylayan/release notunu WA/Çağrı VT bağlantısı varken terminal job şartı olmadan
-  çözer (Mesaj Onayı reopen → Active). Müdür/sorumlu + VT yöneticisi satırı veri yokken de görür (`—`);
+  çözer (Mesaj Onayı reopen → Active).   Müdür/sorumlu + VT yöneticisi + **Operator** satırı veri yokken de görür (`—`);
   diğer roller yalnız veri varsa görür.
 - **Görev detay outbound (#3512):** Birime Gelen / paylaşılan görev bölümünde müdür/sorumlu + VT
   yöneticisi terminal görevde `İptal/Tamamlama Notu` altında `Vatandaşa Giden Mesaj` satırını görür

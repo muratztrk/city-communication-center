@@ -638,17 +638,15 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
                 || citizenRequest.Channel == SocialChannel.Phone);
         var hasTerminalCitizenTask = tasks.Exists(task =>
             task.CurrentStatus is "Cancelled" or "Rejected" or "Completed");
-        var shouldResolveCitizenApproverFields = job.RequestType == JobRequestType.Citizen
-            && citizenRequest is not null;
-        var shouldResolveCitizenOutbound = shouldResolveCitizenApproverFields
+        var shouldResolveCitizenOutbound = job.RequestType == JobRequestType.Citizen
+            && citizenRequest is not null
             && (hasCitizenWaPhoneLink
                 || job.CitizenTerminalMessageReleasedAtUtc.HasValue
                 || job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.Completed
                 || hasTerminalCitizenTask);
-        if (shouldResolveCitizenApproverFields)
+        if (job.RequestType == JobRequestType.Citizen)
         {
-            var citizenVt = citizenRequest!;
-            // #3508/#3513/#3515/#3491: Onaylayan/release VT bağlantısı veya ReleasedAtUtc şartına bağlı değil.
+            // #3508/#3513/#3515/#3491: Onaylayan/release sosyal mesaj eşlemesi olmadan da audit'ten çözülür.
             citizenApprovalReleasedNote = await CitizenMessageApprovalNoteResolver.ResolveReleasedApprovalNoteAsync(
                 _dbContext, tenantId, job.JobId, cancellationToken);
             citizenMessageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
@@ -656,6 +654,7 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
 
             if (shouldResolveCitizenOutbound)
             {
+            var citizenVt = citizenRequest!;
             var linkedMessages = await _dbContext.SocialMessages.AsNoTracking()
                 .Where(m => m.TenantId == tenantId
                     && m.CitizenRequestNumber != null

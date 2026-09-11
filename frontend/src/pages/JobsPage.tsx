@@ -2909,10 +2909,20 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           {normalizeTitleCaseField(detail.title)}
                         </span>
                         <span className="ml-auto flex max-w-full flex-col items-end justify-center gap-1 text-right">
-                          <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">
-                            {isCitizenRequestDetail
-                              ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)
-                              : formatJobDisplayNumberText(detail, locale)}
+                          <span className="inline-flex max-w-full items-center justify-end gap-1">
+                            {isIncomingRequestDetail && isCitizenRequestDetail ? (
+                              <span style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp') }}>
+                                <ChannelIcon
+                                  channel={citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'}
+                                  className="size-3.5 shrink-0"
+                                />
+                              </span>
+                            ) : null}
+                            <span className="max-w-full break-words text-xs font-semibold leading-tight text-slate-500">
+                              {isCitizenRequestDetail
+                                ? formatCitizenRequestNumber(citizenSourceMessage ?? { createdAtUtc: detail.createdAtUtc }, locale)
+                                : formatJobDisplayNumberText(detail, locale)}
+                            </span>
                           </span>
                           {isCitizenRequestDetail ? (
                             <span className="rounded-full bg-orange-50 px-2 py-0.5 text-[11px] font-bold leading-tight text-orange-600">
@@ -2942,14 +2952,14 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       <span className="flex min-w-0 flex-1 items-center justify-between gap-2">
                         <span>{t('jobs.detail.requestInfoFields', 'Talep Bilgileri')}</span>
                         <span className="ml-auto flex shrink-0 items-center gap-3">
-                          {/* Vatandaş kanalı öncelik bilgisinin solunda kalır (cards #1532/#1599). */}
-                          {isCitizenRequestDetail ? (
+                          {/* Birime Gelen (#3489): kanal VT no solunda + Talep Kanalı satırında; diğer yüzeylerde başlıkta (#1532). */}
+                          {isCitizenRequestDetail && !isIncomingRequestDetail ? (
                             <span
                               className="inline-flex items-center gap-1 text-xs font-semibold"
-                              style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? 'WhatsApp') }}
+                              style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp') }}
                             >
-                              <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
-                              {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}
+                              <ChannelIcon channel={citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                              {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp')}
                             </span>
                           ) : null}
                           <span className="flex flex-col items-end text-right leading-tight">
@@ -2985,6 +2995,18 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         ),
                         rowClass: 'job-detail-field-row--citizen-contact',
                       },
+                      ...(isIncomingRequestDetail ? [{
+                        label: t('settings.citizen.channel', 'Talep Kanalı'),
+                        value: (
+                          <span
+                            className="inline-flex items-center gap-1"
+                            style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp') }}
+                          >
+                            <ChannelIcon channel={citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
+                            {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp')}
+                          </span>
+                        ),
+                      }] : []),
                       ...(hasCitizenAddress(detail) ? [{
                         label: t('jobs.detail.citizenAddressInfo', 'Vatandaş Adres Bilgisi'),
                         value: (

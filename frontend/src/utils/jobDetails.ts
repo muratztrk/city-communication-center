@@ -105,13 +105,14 @@ export function shouldShowJobStatusActorName(job: {
   return shouldShowRequestApproverField(job)
 }
 
-/** Mesaj Onayı onaylayan satırları — müdür/sorumlu + VT yöneticisi (#3506/#3508). */
+/** Mesaj Onayı onaylayan satırları — müdür/sorumlu + VT yöneticisi + operatör (#3506/#3491/#3492). */
 export function canViewCitizenMessageApproverFields(
   user: { role?: string; additionalRoles?: string[] } | null | undefined,
 ): boolean {
   if (!user) return false
   return user.role === 'Manager'
     || user.role === 'SystemAdmin'
+    || user.role === 'Operator'
     || hasCitizenRequestManagerRole(user)
 }
 

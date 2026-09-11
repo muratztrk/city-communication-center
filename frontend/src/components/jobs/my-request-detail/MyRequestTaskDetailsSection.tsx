@@ -28,6 +28,8 @@ interface MyRequestTaskDetailsSectionProps {
   citizenApprovalReleasedNote?: string | null
   /** Mesajı Onayla yapan kullanıcı (#3487/#3488). */
   citizenMessageApproverDisplayName?: string | null
+  /** Mesaj Onayı Bekleyen detay popup — onaylayan/outbound satırları gizle (#3519). */
+  hideMessageApprovalPendingFields?: boolean
   // Taleplerim'de standart kullanıcı için Adres Bilgileri, Süreç'in önünde ikinci kolon
   // olarak buraya taşınır; Süreç, Açıklama'nın yerine kayar (card #1549).
   addressColumnContent?: ReactNode
@@ -170,6 +172,7 @@ export function MyRequestTaskDetailsSection({
   citizenOutboundMessage,
   citizenApprovalReleasedNote,
   citizenMessageApproverDisplayName,
+  hideMessageApprovalPendingFields = false,
   addressColumnContent,
 }: MyRequestTaskDetailsSectionProps) {
   const { t } = useTranslation()
@@ -211,7 +214,8 @@ export function MyRequestTaskDetailsSection({
 
           const isCompletedTask = task.currentStatus === 'Completed'
           const isCancelledTask = task.currentStatus === 'Cancelled' || task.currentStatus === 'Rejected'
-          const showCitizenApprover = isCitizenRequestJob(detail)
+          const showCitizenApprover = !hideMessageApprovalPendingFields
+            && isCitizenRequestJob(detail)
             && (isCompletedTask || isCancelledTask)
             && shouldShowCitizenMessageApproverField(user, citizenMessageApproverDisplayName)
           const citizenApproverValue = citizenMessageApproverDisplayName?.trim() || '—'
@@ -323,6 +327,7 @@ export function MyRequestTaskDetailsSection({
                           ]
                         : []),
                     ...(isCitizenRequestJob(detail)
+                      && !hideMessageApprovalPendingFields
                       && (isCompletedTask || isCancelledTask)
                       && task.taskId === primaryTerminalTaskId
                       && (outboundPlain || (canViewCitizenMessageApproverFields(user) && showCitizenApprover))

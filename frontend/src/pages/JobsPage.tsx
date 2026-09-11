@@ -696,6 +696,8 @@ interface JobsPageProps {
     onRelease?: () => void
     canRelease?: boolean
   }
+  /** Mesaj Onayı Bekleyen detay popup — onaylayan/outbound satırları gizle (#3519). */
+  hideMessageApprovalPendingFields?: boolean
   socialActions?: {
     goToConversation?: () => void
     edit?: () => void
@@ -712,7 +714,7 @@ interface JobsPageProps {
   }
 }
 
-export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onChangeStatusToInProgress, messageApprovalActions, socialActions }: JobsPageProps) {
+export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onChangeStatusToInProgress, messageApprovalActions, hideMessageApprovalPendingFields = false, socialActions }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -3057,7 +3059,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           value: detail.statusActorDisplayName?.trim() || '—',
                         })
                       }
-                      if (shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)) {
+                      if (!hideMessageApprovalPendingFields && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)) {
                         rows.push({
                           label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
                           value: detail.citizenMessageApproverDisplayName?.trim() || '—',
@@ -3068,11 +3070,13 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           label: t('tasks.detail.cancelNote', 'İptal Notu'),
                           value: cancelledNote,
                         })
-                        rows.push({
-                          label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          value: outboundMessage || '—',
-                          valueClass: outboundDiffers ? 'text-red-600' : 'text-slate-900',
-                        })
+                        if (!hideMessageApprovalPendingFields) {
+                          rows.push({
+                            label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+                            value: outboundMessage || '—',
+                            valueClass: outboundDiffers ? 'text-red-600' : 'text-slate-900',
+                          })
+                        }
                       }
                       return rows.map(row => (
                         <div key={row.label} className="job-detail-field-row job-detail-field-row--request-info">
@@ -3082,6 +3086,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       ))
                     })() : null}
                     {isCitizenRequestDetail
+                      && !hideMessageApprovalPendingFields
                       && shouldShowCitizenMessageApproverInRequestInfo(detail)
                       && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)
                       && getCitizenMessageApproverRequestInfoLabel(t, detail.status)
@@ -3599,6 +3604,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                 citizenOutboundMessage={detail.citizenOutboundMessage}
                 citizenApprovalReleasedNote={detail.citizenApprovalReleasedNote}
                 citizenMessageApproverDisplayName={detail.citizenMessageApproverDisplayName}
+                hideMessageApprovalPendingFields={hideMessageApprovalPendingFields}
               />
             )}
            </div>

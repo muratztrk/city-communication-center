@@ -535,7 +535,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Mesajı Gönder` ile `ReleaseCitizenMessageApprovalCommand` → `ICitizenJobStatusNotifier
   .ReleaseTerminalMessagesAsync` çağırana kadar bekler; bu an itibariyle eskisi gibi `Pending`
   kuyruğa girer ve `CitizenTerminalMessageReleasedAtUtc` doldurulur (idempotent). FE release
-  sonrası `view=sent` chip'ine geçer (card #2058). Release şablon yoksa da varsayılan metinle
+  sonrası `view=sent` chip'ine geçer (card #2058). **Mesaj Onayı Bekleyen** chip'inden açılan
+  Detaylar popup'ta Tamamlama/İptal Notu Onaylayan + Vatandaşa Giden Mesaj satırları görünmez
+  (#3519); **Mesaj Gönderimi Onaylanan** / **Tümü** detayında gösterilir. Release şablon yoksa da varsayılan metinle
   Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
   WhatsApp nav satırında `Yanıt bekliyor` rozeti yok (#6a6ba9ac); sayım yalnız sayfa içi

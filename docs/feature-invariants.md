@@ -2927,6 +2927,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `GetJobById` onaylayan/release notunu WA/Çağrı VT bağlantısı varken terminal job şartı olmadan
   çözer (Mesaj Onayı reopen → Active). Müdür/sorumlu + VT yöneticisi satırı veri yokken de görür (`—`);
   diğer roller yalnız veri varsa görür.
+- **Görev detay outbound (#3512):** Birime Gelen / paylaşılan görev bölümünde müdür/sorumlu + VT
+  yöneticisi terminal görevde `İptal/Tamamlama Notu` altında `Vatandaşa Giden Mesaj` satırını görür
+  (`outboundPlain` yokken `—`; iletim öncesi fallback not gösterilmez — #3356).
+- **Birimdeki Görevler detay (#3513):** `TasksPage` görev popup Görev Bilgileri'nde vatandaş talebinde
+  terminal görevde onaylayan + outbound satırları `MyRequestTaskDetailsSection` ile aynı kurallar.
 - **Görevsiz iptal VT onaylayan (#3505):** Talep Bilgileri'nde `İptal Notu` üstünde aynı onaylayan
   satırı (Mesajı Onayla yapan kullanıcı).
 - **İptal görevsiz talep not renkleri (#3490):** görev oluşmamış iptal talebinde `İptal Notu`

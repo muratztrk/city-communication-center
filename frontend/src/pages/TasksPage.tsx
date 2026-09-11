@@ -89,7 +89,7 @@ import { hasCitizenRequestManagerRole } from '../utils/roleAccess'
 import { ReporterDepartmentCell } from '../components/ui/ReporterDepartmentCell'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
 import { matchesBannerSearch } from '../utils/bannerSearch'
-import { formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJobTargetApproverDisplayName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { canViewCitizenMessageApproverFields, formatJobDestinationsWithAssignees, formatRequestApproverDisplay, getJobTargetApproverDisplayName, shouldShowCitizenMessageApproverField, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { jobDestinationFieldLabel } from '../utils/jobProjectLabel'
 import { ModalBackdrop } from '../components/ui/modal-backdrop'
 import { parseRoutineTaskEditHistory, getRoutineEditFieldChanges, snapshotAttachmentsToAttachmentList, buildRoutineSnapshotFromTaskDetail, type RoutineTaskEditHistoryEntry } from '../utils/routineTaskEditHistory'
@@ -2439,19 +2439,60 @@ const pageKicker = isMyTasksView
                                   }]
                                 : []
                             })(),
-                            ...(taskDetail.currentStatus === 'Completed'
-                              ? [{
+                            ...(() => {
+                              const isCompletedTask = taskDetail.currentStatus === 'Completed'
+                              const isCancelledTask = taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected'
+                              if (!isCompletedTask && !isCancelledTask) return []
+                              const citizenParent = parentJobDetail && isCitizenRequestJob(parentJobDetail) ? parentJobDetail : null
+                              const showCitizenApprover = Boolean(
+                                citizenParent
+                                && shouldShowCitizenMessageApproverField(user, citizenParent.citizenMessageApproverDisplayName),
+                              )
+                              const citizenApproverValue = citizenParent?.citizenMessageApproverDisplayName?.trim() || '—'
+                              const outboundPlain = (citizenParent?.citizenOutboundMessage ?? '').trim()
+                              const completionNoteDisplay = richTextToPlainText(taskDetail.notes ?? '') || '—'
+                              const cancelNoteDisplay = taskDetail.revisionReason?.trim() || '—'
+                              const outboundDiffers = Boolean(
+                                outboundPlain
+                                && (isCompletedTask
+                                  ? outboundPlain.localeCompare(completionNoteDisplay, 'tr', { sensitivity: 'accent' }) !== 0
+                                  : outboundPlain.localeCompare(cancelNoteDisplay, 'tr', { sensitivity: 'accent' }) !== 0),
+                              )
+                              const rows: { label: string; value: string; tone?: 'completion' | 'cancel' | 'outbound-diff' }[] = []
+                              if (showCitizenApprover && isCompletedTask) {
+                                rows.push({
+                                  label: t('tasks.detail.completionNoteApprover', 'Tamamlama Notu Onaylayan'),
+                                  value: citizenApproverValue,
+                                })
+                              }
+                              if (showCitizenApprover && isCancelledTask) {
+                                rows.push({
+                                  label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
+                                  value: citizenApproverValue,
+                                })
+                              }
+                              if (isCompletedTask) {
+                                rows.push({
                                   label: t('tasks.actions.completionNote', 'Tamamlama Notu'),
-                                  value: richTextToPlainText(taskDetail.notes ?? '') || '—',
-                                  tone: 'completion' as const,
-                                }]
-                              : taskDetail.currentStatus === 'Cancelled' || taskDetail.currentStatus === 'Rejected'
-                                ? [{
-                                    label: t('tasks.detail.cancelNote', 'İptal Notu'),
-                                    value: taskDetail.revisionReason?.trim() || '—',
-                                    tone: 'cancel' as const,
-                                  }]
-                                : []),
+                                  value: completionNoteDisplay,
+                                  tone: 'completion',
+                                })
+                              } else {
+                                rows.push({
+                                  label: t('tasks.detail.cancelNote', 'İptal Notu'),
+                                  value: cancelNoteDisplay,
+                                  tone: 'cancel',
+                                })
+                              }
+                              if (citizenParent && (outboundPlain || (canViewCitizenMessageApproverFields(user) && showCitizenApprover))) {
+                                rows.push({
+                                  label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
+                                  value: outboundPlain || '—',
+                                  tone: outboundPlain && outboundDiffers ? 'outbound-diff' : undefined,
+                                })
+                              }
+                              return rows
+                            })(),
                             // Görev Ekleri artık ayrı bir kart değil, Durum Değişikliği'nin hemen
                             // altında diğer verilerle aynı hizada tek satır (card #1482); sadece
                             // görev Tamamlandı/İptal Edildi olduğunda gösterilir (card #1520).
@@ -2511,10 +2552,15 @@ const pageKicker = isMyTasksView
                               : []),
                           ].map((row, fieldIndex) => {
                             const tone = 'tone' in row ? row.tone : undefined
+                            const toneClass = tone === 'cancel' || tone === 'outbound-diff'
+                              ? 'text-red-600'
+                              : tone === 'completion'
+                                ? 'text-emerald-600'
+                                : ''
                             return (
                             <div key={fieldIndex} className={`job-detail-field-row job-detail-field-row--request-info${'rowClass' in row && row.rowClass ? ` ${row.rowClass}` : ''}`}>
-                              <div className={`job-detail-field-row__label ${tone === 'cancel' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.label}</div>
-                              <div className={`job-detail-field-row__value ${tone === 'cancel' ? 'text-red-600' : tone === 'completion' ? 'text-emerald-600' : ''}`}>{row.value}</div>
+                              <div className={`job-detail-field-row__label ${toneClass}`}>{row.label}</div>
+                              <div className={`job-detail-field-row__value ${toneClass}`}>{row.value}</div>
                             </div>
                             )
                           })}

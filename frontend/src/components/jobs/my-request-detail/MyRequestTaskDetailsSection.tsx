@@ -7,7 +7,7 @@ import { AttachmentImagePreviewButton } from '../../ui/AttachmentImagePreviewBut
 import { SimpleImageAttachmentIcon } from '../../ui/SimpleImageAttachmentIcon'
 import type { JobDetail } from '../../../types/platform'
 import { isCitizenRequestJob, requestLocationFieldLabel } from '../../../utils/citizenRequests'
-import { shouldShowCitizenMessageApproverField } from '../../../utils/jobDetails'
+import { canViewCitizenMessageApproverFields, shouldShowCitizenMessageApproverField } from '../../../utils/jobDetails'
 import { getTaskDisplayStatus, getTaskStatusTone } from '../../../utils/localization'
 import { formatDateTime, formatDueDateTime } from './format'
 import { buildInProgressPeriodStep, type JobProcessStep } from './buildJobProcessSteps'
@@ -323,13 +323,13 @@ export function MyRequestTaskDetailsSection({
                           ]
                         : []),
                     ...(isCitizenRequestJob(detail)
-                      && outboundPlain
                       && (isCompletedTask || isCancelledTask)
                       && task.taskId === primaryTerminalTaskId
+                      && (outboundPlain || (canViewCitizenMessageApproverFields(user) && showCitizenApprover))
                       ? [{
                           label: t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj'),
-                          value: outboundPlain,
-                          tone: outboundTone,
+                          value: outboundPlain || '—',
+                          tone: outboundPlain ? outboundTone : undefined,
                           fullRow: true as const,
                         }]
                       : []),

@@ -182,6 +182,8 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
 
             var note = await CitizenMessageApprovalNoteResolver.ResolveAsync(_dbContext, tenantId, job, cancellationToken);
             var messageApprovedAtUtc = ResolveMessageApprovedAtUtc(job, message, smsMode);
+            var messageApproverDisplayName = await CitizenMessageApprovalNoteResolver.ResolveMessageApproverDisplayNameAsync(
+                _dbContext, tenantId, job.JobId, cancellationToken, job.CitizenTerminalMessageReleasedAtUtc);
             results.Add(new CitizenMessageApprovalResponse(
                 job.JobId,
                 message.SocialMessageId,
@@ -200,7 +202,8 @@ public sealed class GetCitizenMessageApprovalsQueryHandler
                 job.CitizenTerminalMessageReleasedAtUtc,
                 messageApprovedAtUtc,
                 job.CompletedAtUtc,
-                job.UpdatedAtUtc));
+                job.UpdatedAtUtc,
+                messageApproverDisplayName));
         }
 
         return results;

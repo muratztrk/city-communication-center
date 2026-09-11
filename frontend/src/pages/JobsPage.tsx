@@ -2995,7 +2995,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         ),
                         rowClass: 'job-detail-field-row--citizen-contact',
                       },
-                      ...(isIncomingRequestDetail ? [{
+                      {
                         label: t('settings.citizen.channel', 'Talep Kanalı'),
                         value: (
                           <span
@@ -3006,7 +3006,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                             {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp')}
                           </span>
                         ),
-                      }] : []),
+                      },
                       ...(hasCitizenAddress(detail) ? [{
                         label: t('jobs.detail.citizenAddressInfo', 'Vatandaş Adres Bilgisi'),
                         value: (

@@ -1766,6 +1766,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Vatandaş kanalı Birime Gelen detayda (#1532/#3489):** Taleplerim/Birimden Giden'de `Talep Bilgileri`
   başlık satırının sağında kanal ikonu + ad (`getChannelLabelColor`). **Birime Gelen** inline detayda
   ikon VT numarasının solunda; `Talep Kanalı` satırı `Vatandaş Adı / Telefon No` altında.
+  Tüm VT detay popup'larında (Birime Gelen dışı dahil) aynı satır `buildMyRequestDetailFields` / JobsPage Talep Bilgileri'nde (#3489).
 - **Talep detay öncelik başlığı (card #1599/#2109):** Taleplerim, Birime Gelen ve Birimden Giden
   detaylarında `Öncelik` Talep Bilgileri satır listesinden çıkar; başlığın sağ sınırında etiketi
   üstte, değeri altta görünür. Etiket title-case (`Öncelik`) ve 12px (`text-xs font-bold`) kalır; değer
@@ -2909,9 +2910,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız `dashboard.chart.overdue`, Tüm Talepler popup'ları aynı filtreyi uygular.
 - **İş akışı not limiti (#3466/#3516):** tamamlama/iptal/durum değişikliği notu, talep yönlendirme notu,
   vatandaş mesaj onay notu ve **Talebi İptal Et** (`CancelJob`) nedeni FE+BE **400 karakter**.
-- **GetJobById outbound (#3513/#3515/#3512/#3518/#3521):** WA/Çağrı VT bağlantısında `citizenOutboundMessage`
+- **GetJobById outbound (#3513/#3515/#3512/#3518/#3521/#3527):** WA/Çağrı VT bağlantısında `citizenOutboundMessage`
   terminal job statüsü olmadan çözülür (Active + tamamlanmış görev detay popup). VT mesajı `JobId` veya
-  `SourceRefId` ile bulunur; aynı VT numarasındaki tüm WA/Phone konuşmalarında outbound aranır (#3521).
+  `SourceRefId` ile bulunur; `citizenRequest` null olsa bile `SourceRefId` WA/Phone mesajında outbound aranır (#3527).
+  Aynı VT numarasındaki tüm WA/Phone konuşmalarında outbound aranır (#3521).
   WA gövdesinde tek `\n` ayracı ve `DeliveryStatusUpdatedAtUtc` null iken `SentAt` yedeği desteklenir.
 - **Vatandaşa Giden Mesaj görünürlük (#3520):** Mesaj iletilmemişse (`citizenOutboundMessage` boş) satır
   hiç gösterilmez — boş `—` placeholder yok. İletilmiş terminal WA: `SentAt` release öncesi olsa bile
@@ -2960,6 +2962,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   (`outboundPlain` yokken `—`; iletim öncesi fallback not gösterilmez — #3356).
 - **Birimdeki Görevler detay (#3513):** `TasksPage` görev popup Görev Bilgileri'nde vatandaş talebinde
   terminal görevde onaylayan + outbound satırları `MyRequestTaskDetailsSection` ile aynı kurallar.
+- **Görev popup Talep Bilgileri (#3528/#3529):** İlgili Talep Detayları → `Talep Yapılan Birim` sonrası
+  onaylanmış VT'de `Talebi Onaylayan` (Görevlerim/Birimdeki/Personelimin). Görevli iptal VT'de
+  `Talebi İptal Eden` yalnız Birimdeki + Personelimin görünümünde (#3528).
+- **Mesaj Onayı Giden/Tümü grid (#3530):** `sent`/`all` scope'ta `Durum` sütunu yerine
+  `Mesajı Onayı Yapan`; onay yoksa mavi `Onay Bekleyen`.
 - **Görevsiz iptal VT onaylayan (#3505):** Talep Bilgileri'nde `İptal Notu` üstünde aynı onaylayan
   satırı (Mesajı Onayla yapan kullanıcı).
 - **İptal görevsiz talep not renkleri (#3490):** görev oluşmamış iptal talebinde `İptal Notu`

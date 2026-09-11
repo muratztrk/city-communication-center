@@ -639,8 +639,9 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
         var hasTerminalCitizenTask = tasks.Exists(task =>
             task.CurrentStatus is "Cancelled" or "Rejected" or "Completed");
         var shouldResolveCitizenOutbound = job.RequestType == JobRequestType.Citizen
-            && citizenRequest is not null
+            && (citizenRequest is not null || job.SourceRefId.HasValue)
             && (hasCitizenWaPhoneLink
+                || job.SourceRefId.HasValue
                 || job.CitizenTerminalMessageReleasedAtUtc.HasValue
                 || job.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.Completed
                 || hasTerminalCitizenTask);
@@ -654,52 +655,66 @@ public sealed class GetJobByIdQueryHandler : IQueryHandler<GetJobByIdQuery, JobD
 
             if (shouldResolveCitizenOutbound)
             {
-            var citizenVt = citizenRequest!;
-            var linkedMessages = await _dbContext.SocialMessages.AsNoTracking()
-                .Where(m => m.TenantId == tenantId
-                    && m.CitizenRequestNumber != null
-                    && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
-                    && (m.JobId == job.JobId
-                        || (job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)
-                        || (m.CitizenRequestNumber == citizenVt.CitizenRequestNumber
-                            && m.CitizenRequestNumberYear == citizenVt.CitizenRequestNumberYear)))
-                .Select(m => new
-                {
-                    m.Channel,
-                    m.SocialMessageId,
-                    m.RespondedAtUtc,
-                    m.ResponseContent,
-                    m.ReceivedAtUtc,
-                })
-                .ToListAsync(cancellationToken);
-            var orderedLinkedMessages = linkedMessages
-                .OrderByDescending(m => job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)
-                .ThenByDescending(m => m.SocialMessageId == citizenVt.SocialMessageId)
-                .ThenByDescending(m => m.ReceivedAtUtc)
-                .ToList();
+                var linkedMessages = citizenRequest is not null
+                    ? await _dbContext.SocialMessages.AsNoTracking()
+                        .Where(m => m.TenantId == tenantId
+                            && m.CitizenRequestNumber != null
+                            && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
+                            && (m.JobId == job.JobId
+                                || (job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)
+                                || (m.CitizenRequestNumber == citizenRequest.CitizenRequestNumber
+                                    && m.CitizenRequestNumberYear == citizenRequest.CitizenRequestNumberYear)))
+                        .Select(m => new
+                        {
+                            m.Channel,
+                            m.SocialMessageId,
+                            m.RespondedAtUtc,
+                            m.ResponseContent,
+                            m.ReceivedAtUtc,
+                        })
+                        .ToListAsync(cancellationToken)
+                    : await _dbContext.SocialMessages.AsNoTracking()
+                        .Where(m => m.TenantId == tenantId
+                            && job.SourceRefId.HasValue
+                            && m.SocialMessageId == job.SourceRefId.Value
+                            && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone))
+                        .Select(m => new
+                        {
+                            m.Channel,
+                            m.SocialMessageId,
+                            m.RespondedAtUtc,
+                            m.ResponseContent,
+                            m.ReceivedAtUtc,
+                        })
+                        .ToListAsync(cancellationToken);
+                var orderedLinkedMessages = linkedMessages
+                    .OrderByDescending(m => job.SourceRefId.HasValue && m.SocialMessageId == job.SourceRefId.Value)
+                    .ThenByDescending(m => citizenRequest is not null && m.SocialMessageId == citizenRequest.SocialMessageId)
+                    .ThenByDescending(m => m.ReceivedAtUtc)
+                    .ToList();
 
-            // #3504/#3521: CancelJob ReleasedAtUtc sıfırlasa bile iletilmiş mesaj detayda görünür; VT numarasıyla
-            // eşleşen tüm WA/Phone konuşmalarında outbound aranır.
-            foreach (var linkedMessage in orderedLinkedMessages)
-            {
-                var smsResponse = linkedMessage.Channel == SocialChannel.Phone
-                    && linkedMessage.RespondedAtUtc.HasValue
-                    ? linkedMessage.ResponseContent
-                    : null;
-                var note = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
-                    _dbContext,
-                    tenantId,
-                    job,
-                    linkedMessage.Channel,
-                    linkedMessage.SocialMessageId,
-                    smsResponse,
-                    cancellationToken);
-                if (!string.IsNullOrWhiteSpace(note))
+                // #3504/#3521/#3527: CancelJob ReleasedAtUtc sıfırlasa bile iletilmiş mesaj detayda görünür;
+                // VT numarası veya SourceRefId ile eşleşen WA/Phone konuşmalarında outbound aranır.
+                foreach (var linkedMessage in orderedLinkedMessages)
                 {
-                    citizenOutboundMessage = note;
-                    break;
+                    var smsResponse = linkedMessage.Channel == SocialChannel.Phone
+                        && linkedMessage.RespondedAtUtc.HasValue
+                        ? linkedMessage.ResponseContent
+                        : null;
+                    var note = await CitizenMessageApprovalNoteResolver.ResolveOutboundDisplayNoteAsync(
+                        _dbContext,
+                        tenantId,
+                        job,
+                        linkedMessage.Channel,
+                        linkedMessage.SocialMessageId,
+                        smsResponse,
+                        cancellationToken);
+                    if (!string.IsNullOrWhiteSpace(note))
+                    {
+                        citizenOutboundMessage = note;
+                        break;
+                    }
                 }
-            }
             }
         }
 

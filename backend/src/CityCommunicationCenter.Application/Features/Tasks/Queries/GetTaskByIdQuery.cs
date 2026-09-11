@@ -65,34 +65,49 @@ public sealed class GetTaskByIdQueryHandler : IQueryHandler<GetTaskByIdQuery, Ta
             var isTerminalTask = task.CurrentStatus is WorkflowTaskStatus.Cancelled
                 or WorkflowTaskStatus.Rejected
                 or WorkflowTaskStatus.Completed;
-            var shouldResolveOutbound = citizenRequest is not null
+            var shouldResolveOutbound = (citizenRequest is not null || jobEntity.SourceRefId.HasValue)
                 && (hasCitizenWaPhoneLink
+                    || jobEntity.SourceRefId.HasValue
                     || jobEntity.CitizenTerminalMessageReleasedAtUtc.HasValue
                     || jobEntity.Status is JobStatus.Cancelled or JobStatus.Rejected or JobStatus.Completed
                     || isTerminalTask);
             if (shouldResolveOutbound)
             {
-                var citizenVt = citizenRequest!;
-                var linkedMessages = await _dbContext.SocialMessages.AsNoTracking()
-                    .Where(m => m.TenantId == tenantId
-                        && m.CitizenRequestNumber != null
-                        && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
-                        && (m.JobId == jobEntity.JobId
-                            || (jobEntity.SourceRefId.HasValue && m.SocialMessageId == jobEntity.SourceRefId.Value)
-                            || (m.CitizenRequestNumber == citizenVt.CitizenRequestNumber
-                                && m.CitizenRequestNumberYear == citizenVt.CitizenRequestNumberYear)))
-                    .Select(m => new
-                    {
-                        m.Channel,
-                        m.SocialMessageId,
-                        m.RespondedAtUtc,
-                        m.ResponseContent,
-                        m.ReceivedAtUtc,
-                    })
-                    .ToListAsync(cancellationToken);
+                var linkedMessages = citizenRequest is not null
+                    ? await _dbContext.SocialMessages.AsNoTracking()
+                        .Where(m => m.TenantId == tenantId
+                            && m.CitizenRequestNumber != null
+                            && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone)
+                            && (m.JobId == jobEntity.JobId
+                                || (jobEntity.SourceRefId.HasValue && m.SocialMessageId == jobEntity.SourceRefId.Value)
+                                || (m.CitizenRequestNumber == citizenRequest.CitizenRequestNumber
+                                    && m.CitizenRequestNumberYear == citizenRequest.CitizenRequestNumberYear)))
+                        .Select(m => new
+                        {
+                            m.Channel,
+                            m.SocialMessageId,
+                            m.RespondedAtUtc,
+                            m.ResponseContent,
+                            m.ReceivedAtUtc,
+                        })
+                        .ToListAsync(cancellationToken)
+                    : await _dbContext.SocialMessages.AsNoTracking()
+                        .Where(m => m.TenantId == tenantId
+                            && jobEntity.SourceRefId.HasValue
+                            && m.SocialMessageId == jobEntity.SourceRefId.Value
+                            && (m.Channel == SocialChannel.WhatsApp || m.Channel == SocialChannel.Phone))
+                        .Select(m => new
+                        {
+                            m.Channel,
+                            m.SocialMessageId,
+                            m.RespondedAtUtc,
+                            m.ResponseContent,
+                            m.ReceivedAtUtc,
+                        })
+                        .ToListAsync(cancellationToken);
                 foreach (var linkedMessage in linkedMessages
                     .OrderByDescending(m => jobEntity.SourceRefId.HasValue && m.SocialMessageId == jobEntity.SourceRefId.Value)
-                    .ThenByDescending(m => m.SocialMessageId == citizenVt.SocialMessageId)
+                    .ThenByDescending(m => citizenRequest is not null && m.SocialMessageId == citizenRequest.SocialMessageId)
                     .ThenByDescending(m => m.ReceivedAtUtc))
                 {
                     var smsResponse = linkedMessage.Channel == SocialChannel.Phone

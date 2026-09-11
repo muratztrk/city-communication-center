@@ -25,6 +25,8 @@ public sealed record CitizenMessageApprovalResponse(
     /// <summary>Tamamlanmış taleplerde Durum alt satırı (#2067).</summary>
     DateTimeOffset? CompletedAtUtc,
     /// <summary>İptal taleplerde Durum alt satırı — Giden grid ile aynı (#2067).</summary>
-    DateTimeOffset? UpdatedAtUtc);
+    DateTimeOffset? UpdatedAtUtc,
+    /// <summary>Giden/Tümü gridlerinde Durum yerine Mesajı Onayı Yapan (#3530).</summary>
+    string? MessageApproverDisplayName = null);
 
 public sealed record EditCitizenMessageApprovalNoteRequest(string Note);

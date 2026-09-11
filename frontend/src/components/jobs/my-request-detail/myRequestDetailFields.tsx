@@ -2,7 +2,13 @@ import type { TFunction } from 'i18next'
 import type { ReactNode } from 'react'
 import { ChannelIcon } from '../../ui/channel-icon'
 import type { JobDetail, SocialMessage } from '../../../types/platform'
-import { formatJobDestinationsWithAssignees, isCancelledCitizenRequestWithoutTasks } from '../../../utils/jobDetails'
+import {
+  formatJobDestinationsWithAssignees,
+  getRequestApproverDisplayName,
+  isCancelledCitizenRequestWithoutTasks,
+  shouldShowRequestApproverField,
+} from '../../../utils/jobDetails'
+import { getChannelLabelColor } from '../../../utils/channelColors'
 import { JobProjectValue } from '../../../utils/jobProjectDisplay'
 import { shouldShowJobProjectField, isInternalProjectJob } from '../../../utils/jobProjectLabel'
 import {
@@ -47,6 +53,40 @@ function destinationFieldLabel(
   return t('jobs.detail.targetDepartment', 'Talep Yapılan Birim')
 }
 
+export interface BuildMyRequestDetailFieldsOptions {
+  /** Görev popup İlgili Talep Detayları — onaylanmış VT (#3529). */
+  showRequestApproverAfterDestination?: boolean
+  /** Birimdeki/Personelimin görevleri — görevli iptal VT (#3528). */
+  showCancelledByWithTasks?: boolean
+}
+
+function resolveCitizenChannel(
+  detail: JobDetail,
+  citizenSourceMessage: SocialMessage | null | undefined,
+) {
+  return citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'
+}
+
+function buildCitizenChannelField(
+  detail: JobDetail,
+  citizenSourceMessage: SocialMessage | null | undefined,
+  t: TFunction,
+): MyRequestDetailField {
+  const channel = resolveCitizenChannel(detail, citizenSourceMessage)
+  return {
+    label: t('settings.citizen.channel', 'Talep Kanalı'),
+    value: (
+      <span
+        className="inline-flex items-center gap-1"
+        style={{ color: getChannelLabelColor(channel) }}
+      >
+        <ChannelIcon channel={channel} className="size-3.5 shrink-0" />
+        {getSocialChannelLabel(t, channel)}
+      </span>
+    ),
+  }
+}
+
 export function buildMyRequestDetailFields(
   detail: JobDetail,
   t: TFunction,
@@ -62,6 +102,7 @@ export function buildMyRequestDetailFields(
   useMyRequestsFieldLayout = false,
   // Operatör / CRM: Talep Etiketi satırı (card #1896).
   showCitizenRequestLabel = false,
+  options: BuildMyRequestDetailFieldsOptions = {},
 ): MyRequestDetailField[] {
   // Sadece Taleplerim'de "Talep Yapılan Birim / Görevi Yapan" iki ayrı başlığa bölünür; "Görevi
   // Yapan" satırı yalnızca talebin görevi oluşup bir personele atanmışsa gösterilir (card #1460).
@@ -126,6 +167,7 @@ export function buildMyRequestDetailFields(
         ),
         rowClass: 'job-detail-field-row--citizen-contact',
       },
+      buildCitizenChannelField(detail, citizenSourceMessage, t),
       ...(hasCitizenAddress(detail)
         ? [{
             label: t('jobs.detail.citizenAddressInfo', 'Vatandaş Adres Bilgisi'),
@@ -164,6 +206,21 @@ export function buildMyRequestDetailFields(
             ? [{ label: t('jobs.detail.cancelledBy', 'Talebi İptal Eden'), value: detail.statusActorDisplayName.trim() }]
             : []),
           ]),
+      ...(options.showRequestApproverAfterDestination && shouldShowRequestApproverField(detail)
+        ? [{
+            label: t('jobs.detail.requestApprover', 'Talebi Onaylayan'),
+            value: getRequestApproverDisplayName(detail) ?? '—',
+          }]
+        : []),
+      ...((detail.status === 'Cancelled' || detail.status === 'Rejected')
+        && (detail.tasks?.length ?? 0) > 0
+        && options.showCancelledByWithTasks
+        && detail.statusActorDisplayName?.trim()
+        ? [{
+            label: t('jobs.detail.cancelledBy', 'Talebi İptal Eden'),
+            value: detail.statusActorDisplayName.trim(),
+          }]
+        : []),
       { label: t('jobs.columns.priority', 'Öncelik'), value: getPriorityLabel(t, detail.priority) },
       ...(showCitizenRequestLabel
         ? [{ label: t('social.label', 'Talep Etiketi'), value: citizenSourceMessage?.category?.trim() || '—' }]

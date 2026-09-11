@@ -89,6 +89,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
 
   const apiScope = useMemo(() => SCOPE_FILTERS.find(filter => filter.value === scope)?.apiScope ?? 'to-send', [scope])
   const showApprovalDateColumn = scope === 'sent' || scope === 'all'
+  const showMessageApproverColumn = showApprovalDateColumn
   const tableColumnCount = showApprovalDateColumn ? 9 : 8
 
   const loadApprovals = useCallback(async () => {
@@ -134,6 +135,10 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
     if (key === 'messageApprovedAtUtc') return formatDateTime(row.messageApprovedAtUtc, locale)
     if (key === 'citizenPhone') return formatCitizenPhoneDisplay(row.citizenPhone)
     if (key === 'status') return getCitizenRequestStatusLabel(t, { status: row.status })
+    if (key === 'messageApproverDisplayName') {
+      return row.messageApproverDisplayName?.trim()
+        || t('citizenMessageApproval.pendingApprover', 'Onay Bekleyen')
+    }
     return String((row as unknown as Record<string, unknown>)[key] ?? '')
   }, [locale, t])
 
@@ -149,15 +154,15 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
     }
     if (searchText.trim()) {
       const query = searchText.toLocaleLowerCase('tr')
-      const searchKeys = showApprovalDateColumn
-        ? ['requestNo', 'requestDateUtc', 'citizenName', 'citizenPhone', 'title', 'status', 'note', 'messageApprovedAtUtc'] as const
+      const searchKeys = showMessageApproverColumn
+        ? ['requestNo', 'requestDateUtc', 'citizenName', 'citizenPhone', 'title', 'messageApproverDisplayName', 'note', 'messageApprovedAtUtc'] as const
         : ['requestNo', 'requestDateUtc', 'citizenName', 'citizenPhone', 'title', 'status', 'note'] as const
       result = result.filter(row =>
         searchKeys.some(key => getColumnValue(key, row).toLocaleLowerCase('tr').includes(query)),
       )
     }
     return result
-  }, [rows, filterFrom, filterTo, searchText, getColumnValue, showApprovalDateColumn])
+  }, [rows, filterFrom, filterTo, searchText, getColumnValue, showMessageApproverColumn])
 
   const columnFilteredRows = useMemo(
     () => visibleRows.filter(row => matchesFilters(row, getColumnValue)),
@@ -347,7 +352,11 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                     </span>
                   </FilterableTh>
                   <FilterableTh filterKey="title" filterValue={filters['title'] ?? ''} onFilter={setFilter} sortKey="title" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.title', 'Başlık')}</FilterableTh>
-                  <FilterableTh filterKey="status" filterValue={filters['status'] ?? ''} onFilter={setFilter} sortKey="status" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.status', 'Durum')}</FilterableTh>
+                  {showMessageApproverColumn ? (
+                    <FilterableTh filterKey="messageApproverDisplayName" filterValue={filters['messageApproverDisplayName'] ?? ''} onFilter={setFilter} sortKey="messageApproverDisplayName" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.messageApprover', 'Mesajı Onayı Yapan')}</FilterableTh>
+                  ) : (
+                    <FilterableTh filterKey="status" filterValue={filters['status'] ?? ''} onFilter={setFilter} sortKey="status" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.status', 'Durum')}</FilterableTh>
+                  )}
                   <FilterableTh filterKey="note" filterValue={filters['note'] ?? ''} onFilter={setFilter} sortKey="note" currentSortKey={sortKey} sortDir={sortDir} onSort={toggleSort}>{t('citizenMessageApproval.columns.note', 'Talep Durumu Notu')}</FilterableTh>
                   {showApprovalDateColumn ? (
                     <FilterableTh
@@ -387,7 +396,11 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                       <TruncatedText text={row.title} className="cell-title" />
                     </td>
                     <td>
-                      {(() => {
+                      {showMessageApproverColumn ? (
+                        row.messageApproverDisplayName?.trim()
+                          ? <span className="font-semibold text-slate-900">{row.messageApproverDisplayName.trim()}</span>
+                          : <span className="font-semibold text-blue-600">{t('citizenMessageApproval.pendingApprover', 'Onay Bekleyen')}</span>
+                      ) : (() => {
                         const statusDate = row.status === 'Completed' ? row.completedAtUtc
                           : row.status === 'Cancelled' ? row.updatedAtUtc
                           : null

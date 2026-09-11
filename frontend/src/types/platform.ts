@@ -1154,6 +1154,8 @@ export interface CitizenMessageApprovalRow {
   completedAtUtc: string | null
   /** İptal: Durum pill alt satırı — Giden grid ile aynı (#2067). */
   updatedAtUtc: string | null
+  /** Giden/Tümü: Mesajı Onayı Yapan (#3530). */
+  messageApproverDisplayName: string | null
 }
 
 export interface AppNotification {

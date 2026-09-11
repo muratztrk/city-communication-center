@@ -3066,6 +3066,11 @@ const pageKicker = isMyTasksView
                     const parentProjectLabel = t('jobs.form.isProject', 'Proje mi')
                     const parentInfoFields = buildMyRequestDetailFields(
                       parentJobDetail, t, locale, citizenSourceMessage, parentRequestNumberSuffix, parentExtraFields, false,
+                      false, false,
+                      {
+                        showRequestApproverAfterDestination: true,
+                        showCancelledByWithTasks: isDepartmentTasksView || isStaffTasksView,
+                      },
                     ).filter(field => {
                       // Talep Başlığı verisi İlgili Talep Detayları'ndan tamamen kaldırıldı (card #1464).
                       if (field.label === parentTitleLabel) return false

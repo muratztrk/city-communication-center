@@ -36,6 +36,7 @@ import { isWhatsApp24hWindowOpen } from '../utils/whatsapp24hWindow'
 import { conversationHasCitizenRequest, isConversationTicketOpen, isUrgentConversationPriority, isWaitingForConversationResponse, pickCreateRequestSocialMessageId, pickReplySocialMessageId, pickReplyTicket } from '../utils/whatsappConversationTicket'
 import { DETAIL_ICON_PROPS } from '../components/jobs/my-request-detail/detailIcons'
 import { matchesPhone, normalizePhone } from '../utils/phoneNormalization'
+import { formatDirectoryPhone } from '../utils/phoneDisplay'
 import { getNeighborhoodsForDistrict } from '../data/izmir-locations'
 import { useMunicipalityDistrictId } from '../hooks/useMunicipalityDistrictId'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
@@ -69,22 +70,10 @@ function scheduleIdleTask(task: () => void) {
 const WHATSAPP_META_TEMPLATE_CHANNEL = 'WhatsApp Meta'
 
 function formatPhone(phone: string): string {
-  // Display E.164 as a readable number (e.g. 905301234567 → +90 530 123 45 67)
-  const digits = phone.replace(/\D/g, '')
-  if (digits.length === 12 && digits.startsWith('90')) {
-    return `+90 ${digits.slice(2, 5)} ${digits.slice(5, 8)} ${digits.slice(8, 10)} ${digits.slice(10)}`
-  }
-  return `+${digits}`
+  return formatDirectoryPhone(phone) || phone
 }
 
 function toLocalPhoneFilterDigits(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  if (digits.length === 12 && digits.startsWith('90')) return digits.slice(2)
-  if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1)
-  return digits
-}
-
-function formatLocalProfilePhone(phone: string): string {
   const digits = phone.replace(/\D/g, '')
   if (digits.length === 12 && digits.startsWith('90')) return digits.slice(2)
   if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1)
@@ -677,8 +666,8 @@ function ConversationProfilePanel({
           />
         </label>
         <label className="block space-y-1">
-          <span className={labelClass}>{t('whatsapp.phoneNumber', 'Numara')}</span>
-          <input className={disabledFieldClass} value={formatLocalProfilePhone(draft.citizenPhone)} readOnly disabled />
+          <span className={labelClass}>{t('whatsapp.phoneNumber', 'Telefon No')}</span>
+          <input className={disabledFieldClass} value={formatPhone(draft.citizenPhone)} readOnly disabled />
         </label>
         {/* Mahalle başlığı tıklanınca dropdown açılmasın — label yerine div (#6a75b6c1). */}
         <div ref={neighborhoodFieldRef} className="block space-y-1">
@@ -2157,23 +2146,23 @@ export function WhatsAppConversationsPage() {
                   const blockerWhen = item.blockedAtUtc
                     ? formatDateTime(item.blockedAtUtc, locale)
                     : ''
-                  const blockerMeta = blockerName && blockerWhen
-                    ? `(${blockerName} • ${blockerWhen})`
-                    : null
                   return (
                   <li key={item.citizenConversationId} className="flex items-center justify-between gap-3 py-2.5 pr-1">
                     <div className="min-w-0">
-                      <div className="flex min-w-0 items-center gap-1.5">
+                      <div className="flex min-w-0 items-center gap-1.5 leading-none">
                         <Ban className="size-3.5 shrink-0 text-red-600" aria-hidden="true" />
-                        <span className="truncate text-sm font-semibold text-slate-900">
+                        <span className="truncate text-sm font-semibold leading-none text-slate-900">
                           {citizenName || phoneLabel}
                         </span>
-                        {blockerMeta ? (
-                          <span className="shrink-0 text-xs font-medium text-sky-500">{blockerMeta}</span>
+                        {blockerName ? (
+                          <span className="shrink-0 text-xs font-medium leading-none text-sky-500">({blockerName})</span>
                         ) : null}
                       </div>
                       {citizenName ? (
-                        <div className="truncate pl-5 text-xs text-slate-500">{phoneLabel}</div>
+                        <div className="truncate pl-5 pt-1 text-xs leading-tight text-slate-500">{phoneLabel}</div>
+                      ) : null}
+                      {blockerWhen ? (
+                        <div className="truncate pl-5 pt-0.5 text-xs font-medium leading-tight text-sky-500">{blockerWhen}</div>
                       ) : null}
                     </div>
                     {user?.role === 'Operator' || user?.role === 'SystemAdmin' ? (

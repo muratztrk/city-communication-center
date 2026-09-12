@@ -7,6 +7,8 @@ import { shouldOpenDropdownUp } from '../../utils/dropdownPosition'
 export interface SingleSelectOption {
   value: string
   label: string
+  /** Kapalı tetikleyicide gösterilecek kısa metin (ülke kodu — #3570). */
+  triggerLabel?: string
 }
 
 interface SingleSelectDropdownProps {
@@ -241,7 +243,7 @@ export function SingleSelectDropdown({
         <span
           className={cn('min-w-0 flex-1 truncate', selected ? 'text-slate-900' : 'text-slate-400')}
         >
-          {selected ? selected.label : placeholder}
+          {selected ? (selected.triggerLabel ?? selected.label) : placeholder}
         </span>
         <span className="flex shrink-0 items-center gap-0.5">
           <ChevronDown className={cn('size-4 shrink-0 text-slate-400 transition-transform', open ? 'rotate-180' : '')} />

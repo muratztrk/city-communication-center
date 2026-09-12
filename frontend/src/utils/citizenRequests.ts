@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next'
 import { getEffectiveUserRoles } from '../lib/rolePageAccess'
 import { isJobDueDateOverdue } from './dateTimePicker'
 import { formatOverdueInProgressStatus, type GridStatusTone } from './localization'
+import { formatDirectoryPhone } from './phoneDisplay'
 
 export function isCitizenRequestJob(job: {
   requestType?: string | null
@@ -153,17 +154,7 @@ export function formatCitizenRequestNumber(
 }
 
 export function formatCitizenPhoneDisplay(value: string | null | undefined): string {
-  if (!value) return '—'
-  const digits = value.replace(/\D/g, '')
-  const localDigits = digits.length === 12 && digits.startsWith('90')
-    ? digits.slice(2)
-    : digits.length === 11 && digits.startsWith('0')
-      ? digits.slice(1)
-      : digits
-  if (localDigits.length === 10) {
-    return `${localDigits.slice(0, 3)} ${localDigits.slice(3, 6)} ${localDigits.slice(6, 8)} ${localDigits.slice(8)}`
-  }
-  return value
+  return formatDirectoryPhone(value) || '—'
 }
 
 export function shouldShowCitizenTargetApprovalDate(job: {

@@ -55,7 +55,15 @@ import {
   exceedsAttachmentTotalLimit,
   sumFileSizes,
 } from '../utils/attachmentLimits'
+import { CountryCallingCodeSelect } from '../components/ui/country-calling-code-select'
 import { formatCitizenPhoneDisplay } from '../utils/citizenRequests'
+import {
+  composeStoredCitizenPhone,
+  DEFAULT_PHONE_COUNTRY_ISO,
+  getCountryCallingCode,
+  sanitizeForeignNationalInput,
+  splitCitizenPhone,
+} from '../utils/countryCallingCodes'
 import { sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
@@ -86,6 +94,7 @@ interface CitizenFormState {
   channel: string
   citizenHandle: string
   citizenPhone: string
+  phoneCountryIso: string
   content: string
   category: string
   latitude: string
@@ -133,6 +142,7 @@ const EMPTY_CITIZEN_FORM: CitizenFormState = {
   channel: 'Phone',
   citizenHandle: '',
   citizenPhone: '',
+  phoneCountryIso: DEFAULT_PHONE_COUNTRY_ISO,
   content: '',
   category: '',
   latitude: '',
@@ -547,10 +557,12 @@ export function CreateRequestPage() {
             .then(detail => { if (!cancelled) setCitizenLabel(detail.label ?? '') })
             .catch(() => {})
         }
+        const parsedPhone = splitCitizenPhone(job.citizenPhone)
         setCitizenForm({
           channel: message.channel,
           citizenHandle: job.citizenName ?? message.citizenHandle,
-          citizenPhone: job.citizenPhone ?? '',
+          citizenPhone: parsedPhone.national,
+          phoneCountryIso: parsedPhone.iso,
           content: message.content ?? job.description ?? '',
           category: message.category ?? '',
           latitude: message.latitude != null ? String(message.latitude) : '',
@@ -1140,15 +1152,22 @@ export function CreateRequestPage() {
       setError(t('settings.citizen.citizenHandleRequired', 'Vatandaş / Gönderen gereklidir.'))
       return
     }
-    const trimmedPhone = citizenForm.citizenPhone.replace(/\D/g, '')
-    if (trimmedPhone.length !== 10) {
-      setError(t('settings.citizen.citizenPhoneInvalid', 'Vatandaş telefon numarası 10 haneli olmalıdır.'))
+    const nationalPhone = citizenForm.citizenPhone.replace(/\D/g, '')
+    const phoneCountry = getCountryCallingCode(citizenForm.phoneCountryIso)
+    if (phoneCountry.iso === 'TR') {
+      if (nationalPhone.length !== 10) {
+        setError(t('settings.citizen.citizenPhoneInvalid', 'Vatandaş telefon numarası 10 haneli olmalıdır.'))
+        return
+      }
+      if (!nationalPhone.startsWith('5')) {
+        setError(t('settings.citizen.citizenPhoneMustStartWith5', 'Telefon numarası 5 ile başlamalıdır.'))
+        return
+      }
+    } else if (nationalPhone.length < 6) {
+      setError(t('settings.citizen.citizenPhoneInvalidIntl', 'Geçerli bir telefon numarası giriniz.'))
       return
     }
-    if (!trimmedPhone.startsWith('5')) {
-      setError(t('settings.citizen.citizenPhoneMustStartWith5', 'Telefon numarası 5 ile başlamalıdır.'))
-      return
-    }
+    const trimmedPhone = composeStoredCitizenPhone(phoneCountry.iso, nationalPhone)
     if (citizenForm.neighborhood.trim() && !citizenForm.street.trim()) {
       setError(t('address.streetRequired', 'Mahalle seçildiğinde Cadde / Sokak zorunludur.'))
       return
@@ -1167,7 +1186,7 @@ export function CreateRequestPage() {
     }
     if (confirmedKind !== 'citizen') {
       const linkedSocialMessageId = editSocialMessageId ?? socialMessageIdParam
-      const phoneDisplay = formatCitizenPhoneDisplay(citizenForm.citizenPhone) || citizenForm.citizenPhone.trim() || '—'
+      const phoneDisplay = formatCitizenPhoneDisplay(trimmedPhone) || citizenForm.citizenPhone.trim() || '—'
       setConfirmDialog({
         title: editJobId && linkedSocialMessageId ? 'Vatandaş Çağrı Talebi Güncelle' : 'Vatandaş Çağrı Talebi Oluştur',
         message: editJobId && linkedSocialMessageId
@@ -1704,20 +1723,33 @@ export function CreateRequestPage() {
                 />
               </label>
               <label className="job-field">
-                <span className="job-field-label">{t('settings.citizen.citizenPhone', 'Telefon No')} <span className="text-xs font-normal text-slate-400 normal-case">{t('settings.citizen.citizenPhoneHint', '(Başında 0 olmadan ekleyin)')}</span> <span className="text-red-500">*</span></span>
-                <input
-                  className="field-input placeholder:text-[0.875rem]"
-                  required
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  placeholder="5XXXXXXXXX"
-                  value={citizenForm.citizenPhone}
-                  onChange={event => setCitizenForm(current => ({
-                    ...current,
-                    // İlk hane 5 olmayan giriş yazılmaz (kart #3210).
-                    citizenPhone: sanitizeMobilePhoneInput(event.target.value, current.citizenPhone),
-                  }))}
-                />
+                <span className="job-field-label">{t('settings.citizen.citizenPhone', 'Telefon No')} <span className="text-red-500">*</span></span>
+                <div className="flex items-center gap-2">
+                  <CountryCallingCodeSelect
+                    value={citizenForm.phoneCountryIso}
+                    onChange={iso => setCitizenForm(current => ({
+                      ...current,
+                      phoneCountryIso: iso,
+                      citizenPhone: iso === 'TR' && current.citizenPhone && !current.citizenPhone.startsWith('5')
+                        ? ''
+                        : current.citizenPhone,
+                    }))}
+                  />
+                  <input
+                    className="field-input min-w-0 flex-1 placeholder:text-[0.875rem]"
+                    required
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    placeholder={citizenForm.phoneCountryIso === 'TR' ? '5XX XXX XX XX' : ''}
+                    value={citizenForm.citizenPhone}
+                    onChange={event => setCitizenForm(current => ({
+                      ...current,
+                      citizenPhone: current.phoneCountryIso === 'TR'
+                        ? sanitizeMobilePhoneInput(event.target.value, current.citizenPhone)
+                        : sanitizeForeignNationalInput(event.target.value, getCountryCallingCode(current.phoneCountryIso).dial),
+                    }))}
+                  />
+                </div>
               </label>
             </div>
             <div className="grid gap-3 md:grid-cols-2">

@@ -1,3 +1,16 @@
+## Round 1172 — Trello Doing (15 web)
+
+- **#3559:** Engellenenler ad/numara Ban ile `items-center` + `leading-none`.
+- **#3560:** Engelleyen adı aynı satır; tarih alt satır, `•` yok, mavi.
+- **#3491:** WhatsApp sayfa kabuğu sağdan dar (`padding-inline-end: 3rem`).
+- **#3562:** Sıradan Talep Bilgileri'nden Tamamlama/İptal Notu Onaylayan + Vatandaşa Giden Mesaj kalktı; İptal Notu durur.
+- **#3563/#3565:** Mesaj Onayı Görev/Talep Bilgileri'nde outbound; yoksa açık mavi Onay Bekleyen.
+- **#3564:** Tümü grid `Onay Bekleyen` `text-sky-500 text-[0.75rem]`.
+- **#3566:** WhatsApp OG görseli giriş logosu `/tire-belediyesi-logo.png`.
+- **#3567/#3568:** WA profil + Talep Oluştur `+90 5XX…`; etiket Telefon No.
+- **#3569–#3572:** Çağrı formunda ülke kodu; TR `5XX XXX XX XX`, diğer boş; ipucu yok.
+- **#3573:** Grid/detay telefonları `+90 5XX XXX XX XX`.
+
 ## Round 1171 — Trello Doing (8 web)
 
 - **#3555:** WA Talep oluştur seçili Cadde metni Mahalle ile aynı (`0.78rem`).

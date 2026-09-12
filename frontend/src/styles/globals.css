@@ -8894,6 +8894,13 @@
   }
 }
 
+/* WhatsApp sayfa orta düzeni sağdan biraz dar (#3491). */
+@media (min-width: 1024px) {
+  .whatsapp-page-shell.desktop-page-shell {
+    padding-inline-end: 3rem;
+  }
+}
+
 /* Çağrı Talebi: Talep Etiketi input + Etiket seçiniz + Etiket ekle aynı satır (#3329). */
 .request-tag-create-block {
   display: flex !important;

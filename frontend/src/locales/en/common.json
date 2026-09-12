@@ -1144,6 +1144,7 @@
     "requestTagsShort": "Select a tag",
       "requestTagPlaceholder": "Select request tag...",
     "requestTagsGridEmpty": "Tags",
+    "phoneNumber": "Phone No",
     "label": "Request Tag"
   },
   "audit": {
@@ -1587,7 +1588,10 @@
       "citizenNamePlaceholder": "Enter citizen name...",
       "citizenPhone": "Phone No",
       "citizenPhoneHint": "(without leading 0)",
+      "citizenPhoneCountry": "Country code",
+      "citizenPhoneCountrySearch": "Search country...",
       "citizenPhoneInvalid": "Citizen phone number must be 10 digits.",
+      "citizenPhoneInvalidIntl": "Enter a valid phone number.",
       "citizenPhoneMustStartWith5": "Phone number must start with 5.",
       "citizenHandlePlaceholder": "e.g. @username or full name",
       "citizenHandleRequired": "Citizen / Sender is required.",

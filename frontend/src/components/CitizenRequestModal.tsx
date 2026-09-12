@@ -628,15 +628,11 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                 <label className="job-field">
                   <span className="job-field-label">
                     {t('settings.citizen.citizenPhone', 'Vatandaş Telefon No')}{' '}
-                    {/* WhatsApp'tan gelen numara salt okunur; "başında 0 olmadan" giriş ipucu gösterilmez (card #1555). */}
-                    {!citizenPhoneLocked ? (
-                      <span className="normal-case text-xs font-normal text-slate-400">{t('settings.citizen.citizenPhoneHint', '(başında 0 olmadan ekleyin)')}</span>
-                    ) : null}{' '}
                     <span className="text-red-500">*</span>
                   </span>
                   <DeferredComposerInput
                     className="field-input disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-500"
-                    value={citizenPhone}
+                    value={citizenPhoneLocked ? formatDisplayPhone(citizenPhone) : citizenPhone}
                     required
                     disabled={citizenPhoneLocked}
                     inputMode="numeric"

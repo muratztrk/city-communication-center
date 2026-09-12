@@ -323,7 +323,6 @@ export function MyRequestTaskDetailsSection({
                           ]
                         : []),
                     ...(isCitizenRequestJob(detail)
-                      && !hideMessageApprovalPendingFields
                       && (isCompletedTask || isCancelledTask)
                       && task.taskId === primaryTerminalTaskId
                       ? [{

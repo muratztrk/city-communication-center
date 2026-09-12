@@ -430,7 +430,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                               />
                             </StatusPill>
                           )
-                          : <span className="font-semibold text-blue-600">{t('citizenMessageApproval.pendingApprover', 'Onay Bekleyen')}</span>
+                          : <span className="text-[0.75rem] font-semibold text-sky-500">{t('citizenMessageApproval.pendingApprover', 'Onay Bekleyen')}</span>
                       ) : (() => {
                         const statusDate = row.status === 'Completed' ? row.completedAtUtc
                           : row.status === 'Cancelled' ? row.updatedAtUtc
@@ -565,6 +565,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
           detailContextOverride="incoming"
           onNotificationDetailClose={() => setDetailJobId(null)}
           hideMessageApprovalPendingFields={scope === 'toSend'}
+          showRequestInfoCitizenOutbound
           messageApprovalActions={scope === 'toSend'
             ? {
                 onEditNote: () => {

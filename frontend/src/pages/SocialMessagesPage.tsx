@@ -24,7 +24,8 @@ import { getLocale, getSocialChannelLabel, getPriorityColorClass, getPriorityLab
 import { TablePagination } from '../components/ui/table-pagination'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { JobsPage } from './JobsPage'
-import { formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenInProgressState, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState } from '../utils/citizenRequests'
+import { formatCitizenPhoneDisplay, formatCitizenRequestNumber, getCitizenRequestStatusLabel, getCitizenRequestStatusTone, isCitizenInProgressState, isCitizenProcessingReceivedOverdue, isCitizenProcessingReceivedState } from '../utils/citizenRequests'
+import { looksLikePhone } from '../utils/phoneDisplay'
 import { wasJobOverdueWhenClosed } from '../utils/dateTimePicker'
 
 const CHANNEL_BADGE_SEEN_PREFIX = 'ccc-social-channel-badge-seen-'
@@ -92,25 +93,6 @@ function formatDateTime(value: string | null | undefined, locale: string): strin
     hour: '2-digit',
     minute: '2-digit',
   })
-}
-
-function formatCitizenPhoneDisplay(value: string | null | undefined): string {
-  if (!value) return '—'
-  const digits = value.replace(/\D/g, '')
-  const localDigits = digits.length === 12 && digits.startsWith('90')
-    ? digits.slice(2)
-    : digits.length === 11 && digits.startsWith('0')
-      ? digits.slice(1)
-      : digits
-  if (localDigits.length === 10) {
-    return `${localDigits.slice(0, 3)} ${localDigits.slice(3, 6)} ${localDigits.slice(6, 8)} ${localDigits.slice(8)}`
-  }
-  return value
-}
-
-function looksLikePhone(value: string): boolean {
-  const digits = value.replace(/\D/g, '')
-  return digits.length >= 10 && digits.length <= 12
 }
 
 function getSocialMessageCitizenName(message: SocialMessage): string {

@@ -538,9 +538,11 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `Mesajı Gönder` ile `ReleaseCitizenMessageApprovalCommand` → `ICitizenJobStatusNotifier
   .ReleaseTerminalMessagesAsync` çağırana kadar bekler; bu an itibariyle eskisi gibi `Pending`
   kuyruğa girer ve `CitizenTerminalMessageReleasedAtUtc` doldurulur (idempotent). FE release
-  sonrası `view=sent` chip'ine geçer (card #2058). **Mesaj Onayı Bekleyen** chip'inden açılan
-  Detaylar popup'ta Tamamlama/İptal Notu Onaylayan + Vatandaşa Giden Mesaj satırları görünmez
-  (#3519); **Mesaj Gönderimi Onaylanan** / **Tümü** detayında gösterilir. Release şablon yoksa da varsayılan metinle
+  sonrası `view=sent` chip'ine geçer (card #2058).   **Mesaj Onayı Bekleyen** chip'inden açılan
+  Detaylar popup'ta Tamamlama/İptal Notu Onaylayan satırları gizlenir (#3519);
+  **Vatandaşa Giden Mesaj** Görev Bilgileri'nde (ve görevsiz iptalde Talep Bilgileri'nde)
+  Bekleyen + Tümü için durur, değer yoksa açık mavi `Onay Bekleyen` (#3563/#3565).
+  Sıradan Detaylar Talep Bilgileri'nde onaylayan + outbound satırı yoktur (#3562). Release şablon yoksa da varsayılan metinle
   Pending kuyruğa yazar; iptal notu follow-up da kuyruğa eklenir. Sol menüde "Onayı" yanına
   bekleyen sayı rozeti (`nav-pending-badge`, beyaz çerçeve yok — card #2056). Aynı rozet
   WhatsApp nav satırında `Yanıt bekliyor` rozeti yok (#6a6ba9ac); sayım yalnız sayfa içi
@@ -793,8 +795,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Engellenenler (#3550/#3559/#3560/#3561):** sol panel `Sırala` yok; yerine `Engellenenler` butonu + popup liste
   + `Engeli Kaldır` (`SetConversationBlockedCommand` false). Engel kalkınca inbound yeniden alınır.
   `Engeli Kaldır` sağ border kesilmesin diye buton biraz solda (`mr-1` / `pr-1`).
-  Satırda Ban ikonu solda: ad varsa ikon+ad, alt satırda numara; ad yoksa ikon+numara (numara tekrarlanmaz, #3559).
-  Ad/numara yanında mavi `(engelleyen adı • tarih saat)` (#3560). Eski kayıtlarda actor/zaman yoksa parantez yok.
+  Satırda Ban ikonu solda, ad/numara ile `items-center` + `leading-none` (#3559).
+  Ad varsa ikon+ad, alt satırda numara; ad yoksa ikon+numara (numara tekrarlanmaz).
+  Engelleyen adı aynı satırda mavi `(ad)`; tarih bir alt satırda mavi, `•` yok (#3560).
+  Eski kayıtlarda actor/zaman yoksa parantez/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
   tutulur (#3560/#3561).
   **WA inbound ses (#3544):** yalnız `Operator` (Vatandaş Talep Operatörü); diğer roller çalmaz.
@@ -2080,7 +2084,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Otomatik mesaj gövdesinde etiket durur. CRLF (`\r\n\r\n`) ayırıcı da extract edilir.
 - **FAB boyutları (#r482/#2638):** WhatsApp + Kurum İçi 2.75rem / sm 3rem; scroll 2.5rem / sm 2.75rem.
   Üçü de biraz küçük; sıra WhatsApp → Kurum İçi → scroll.
-  Yığın `right-5` + footer'dan biraz aşağı (`-0.35rem`); çerçeveye değmez (#3491).
+  Yığın `right-5` + footer'dan biraz aşağı (`-0.35rem`); çerçeveye değmez.
+  WhatsApp sayfa kabuğu masaüstünde sağdan daralır (`padding-inline-end: 3rem`, #3491).
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici
   (`Reporter`) sol menüde `Anasayfa - Vatandaş` (`/dashboard`, citizen lisans açıkken) + `Anasayfa - Birimler`
   (`/dashboard/birimler`); genel `Anasayfa` etiketi gösterilmez — birim sayfası varsayılan (#2348). **Vatandaş Talep Operatörü**
@@ -2968,12 +2973,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `SourceRefId` ile bulunur; `citizenRequest` null olsa bile `SourceRefId` WA/Phone mesajında outbound aranır (#3527).
   Aynı VT numarasındaki tüm WA/Phone konuşmalarında outbound aranır (#3521).
   WA gövdesinde tek `\n` ayracı ve `DeliveryStatusUpdatedAtUtc` null iken `SentAt` yedeği desteklenir.
-- **Vatandaşa Giden Mesaj görünürlük (#3520/#3536 reopen):** Detaylar popup (Birime Gelen / Taleplerim /
-  Görevlerim) terminal VT'de başlık her zaman görünür; değer yalnız iletilmiş outbound,
-  yoksa `—` (#3552 — Mesaj Onayı + operatör iletiminden önce not gösterilmez).
-  Görevsiz iptal VT (ör. VT-2026-36, ExternalUnit +
-  `Not:` şablonu) Talep Bilgileri listesinde durur; WA `SentAt` release'ten önce olsa da iletilmiş
-  terminal gövde okunur. `to-send` chip hâlâ gizler (#3519). İletilmiş terminal WA:
+- **Vatandaşa Giden Mesaj görünürlük (#3520/#3536/#3562/#3565):** Sıradan Detaylar (Birime Gelen /
+  Taleplerim / Görevlerim) **Talep Bilgileri**'nde Tamamlama/İptal Notu Onaylayan ve
+  Vatandaşa Giden Mesaj yoktur; İptal Notu durur (#3562). Outbound yalnız Mesaj Onayı
+  detayında `showRequestInfoCitizenOutbound` ile Talep Bilgileri'ne (görevsiz iptalde İptal
+  Notu altına) eklenir (#3565). Görev Bilgileri'nde terminal görevde outbound Bekleyen dahil
+  durur (#3563). `to-send` yalnız onaylayan satırlarını gizler (#3519). İletilmiş terminal WA:
   `SentAt` release öncesi olsa bile `DeliveryStatusUpdatedAtUtc` (veya `SentAt` yedeği) release
   sonrasıysa outbound çözülür (#3520/VT-2026-42). `GetJobById`/`GetTaskById` `JobCitizenRequestHelper`
   ile ExternalUnit kaynaklı VT'yi de çözer.
@@ -2999,22 +3004,17 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yinelenme kontrolü takvim günü değil aktif başlama–bitiş **periyodu** ile yapılır
   (`WhatsAppAutoReplyDuplicateGuard.GetDuplicateCheckWindow`); gece yarısını aşan aralıklar
   desteklenir, bir sonraki periyotta yeniden bir kez gönderilebilir.
-- **Talep Bilgileri mesaj onaylayan (#3511):** terminal VT (`Completed`/`Cancelled`/`Rejected`)
-  detayında Talebi Onaylayan altında `Tamamlama Notu Onaylayan` veya `İptal Notu Onaylayan`
-  (`citizenMessageApproverDisplayName`); müdür/sorumlu + VT yöneticisi veri yokken de görür (`—`).
-  Görevsiz iptal VT'de onaylayan `İptal Notu` üstünde (Talep Bilgileri); görevsiz blok terminal
-  onaylayan tekrarını göstermez.
-- **Birime Gelen Talep Bilgileri onaylayan (#3515/#3539/#3492):** tamamlanmış/iptal VT detayında
-  `Tamamlama Notu Onaylayan` / `İptal Notu Onaylayan` gösterilir; `Talebi İptal Eden` ve
-  `Talebi Onaylayan` satırı yok. Vatandaşa Giden Mesaj başlığı terminal Detaylar'da her zaman
-  durur; iletim yoksa `—` (#3552). Tamamlama/İptal Notu
-  değeri satır kayınca `text-align: justify` (#3475).
+- **Talep Bilgileri mesaj onaylayan (#3511 / #3562):** sıradan Detaylar Talep Bilgileri'nde
+  `Tamamlama/İptal Notu Onaylayan` yoktur. Onaylayan Görev Bilgileri'nde kalır (to-send hariç, #3519).
+- **Birime Gelen Talep Bilgileri onaylayan (#3515/#3539/#3492/#3562):** sıradan Detaylar
+  Talep Bilgileri'nde `Tamamlama/İptal Notu Onaylayan` ve Vatandaşa Giden Mesaj yok;
+  `Talebi İptal Eden` / `Talebi Onaylayan` da yok. Tamamlama/İptal Notu değeri satır kayınca
+  `text-align: justify` (#3475).
 - **Görev popup Gecikti mi? (#3509 reopen):** `TasksPage` görev detay Süreç başlığında
   `Gecikti mi?` sağa hizalı; İlgili Talep Detayları `MyRequestDetailMainCard` ile aynı.
-- **Birime Gelen inline detay (#3506/#3509/#3510):** `JobsPage` request-details popup'ı
-  `MyRequestDetailMainCard` ile aynı kuralları kullanır — görevsiz iptal VT'de Talep Bilgileri
-  iptal/onaylayan/outbound satırları; `Gecikti mi?` Süreç başlığında; görev bölümüne
-  `citizenMessageApproverDisplayName` geçirilir.
+- **Birime Gelen inline detay (#3506/#3509/#3510/#3562):** `JobsPage` request-details popup'ı
+  `MyRequestDetailMainCard` ile aynı Talep Bilgileri kurallarını kullanır (onaylayan/outbound yok);
+  `Gecikti mi?` Süreç başlığında; görev bölümüne `citizenMessageApproverDisplayName` geçirilir.
 - **Görev İptal Notu Onaylayan (#3488/#3506/#3508):** detay popup Görev Bilgileri'nde iptal/tamamlama
   görevlerde `İptal/Tamamlama Notu` üstünde onaylayan satırı (`citizenMessageApproverDisplayName`,
   Mesaj Onayı release audit actor; `ActorDisplayName` boşsa `ActorUserId` → kullanıcı adı).
@@ -3031,13 +3031,14 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Bilgileri'nde `Talebi İptal Eden` satırı yok (iptal eden Süreç başlığında kalır).
 - **Mesaj Onayı Giden/Tümü grid (#3530):** `sent`/`all` scope'ta `Durum` yerine `Mesaj Onayı Yapan`
   + alt başlık `Onay Tarihi`; hücrede isim üstte (`0.8rem`), tarih altta yeşil StatusPill
-  (`0.68rem`, punto değişmez). Ayrı `Mesaj Onay Tarihi` sütunu yok; onay yoksa mavi `Onay Bekleyen`.
+  (`0.68rem`, punto değişmez). Ayrı `Mesaj Onay Tarihi` sütunu yok; onay yoksa açık mavi
+  `Onay Bekleyen` (`text-sky-500 text-[0.75rem]`, #3564).
 - **Operatör sekme rozeti (#3531):** Vatandaş Talep Operatörü'nde okunmamış WA mesajı varsa favicon
   kırmızı rozet; adet >1 ise sayı (başlık `(N)`). Konuşma görününce unread 0 → rozet silinir.
 - **SMS Onayı Giden/Tümü sıralama (#3535):** varsayılan `MessageApprovedAtUtc` / SMS Onay Tarihi
   en yeni üstte; onaysız satırlar altta.
-- **Görevsiz iptal VT onaylayan (#3505):** Talep Bilgileri'nde `İptal Notu` üstünde aynı onaylayan
-  satırı (Mesajı Onayla yapan kullanıcı).
+- **Görevsiz iptal VT onaylayan (#3505/#3562):** sıradan Talep Bilgileri'nde onaylayan yok;
+  yalnız `İptal Notu`. Mesaj Onayı detayında outbound İptal Notu altında (#3565).
 - **İptal görevsiz talep not renkleri (#3490):** görev oluşmamış iptal talebinde `İptal Notu`
   siyah; `Vatandaşa Giden Mesaj` yalnız iptal notundan farklıysa kırmızı, aynıysa siyah.
 - **İptal görevsiz iptal eden (#3496):** Süreç `İptal Tarihi` başlığının sağında parantez içinde
@@ -3308,6 +3309,18 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `GetAuditLogsQuery` silinen birim adını `Details`'ten parse eder.
 - **Birim sil onay (#2294 reopen):** Sil/İptal eşit genişlikte (`min-width: 4.75rem`).
 - **Users düzenle Kaydet/İptal (#2295):** hafif büyük (`2.12rem`).
+- **Talep Bilgileri outbound/onaylayan (#3562/#3565):** sıradan Detaylar Talep Bilgileri'nde
+  `Tamamlama Notu Onaylayan`, `İptal Notu Onaylayan` ve `Vatandaşa Giden Mesaj` yok; `İptal Notu`
+  durur. Mesaj Onayı (`showRequestInfoCitizenOutbound`) görevsiz iptalde İptal Notu altında
+  outbound gösterir.
+- **Mesaj Onayı Görev Bilgileri outbound (#3563):** Bekleyen + Tümü detayında Tamamlama/İptal
+  Notu altında `Vatandaşa Giden Mesaj`; iletim yoksa açık mavi `Onay Bekleyen`.
+- **WhatsApp OG görseli (#3566):** `frontend/index.html` `og:image` / `twitter:image` giriş
+  logosu `/tire-belediyesi-logo.png` (mühür `favicon.png` değil); crawler JS çalıştırmaz.
+- **Telefon görüntüsü (#3567/#3573):** grid + detay + WA profil/Talep Oluştur kilitli numara
+  `+90 5XX XXX XX XX` (mevcut 10 haneli TR'ye +90 eklenir). WA profil etiketi `Telefon No` (#3568).
+- **Çağrı formu ülke kodu (#3569–#3572):** `(Başında 0 olmadan ekleyin)` yok; solda tüm ülkeler
+  (bayrak + ad + kod), varsayılan Türkiye +90. TR placeholder `5XX XXX XX XX`, diğer ülkeler boş.
 
 ## 6. Tenant / Auth
 

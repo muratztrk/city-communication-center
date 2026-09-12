@@ -40,7 +40,7 @@ import { StatusPill } from '../components/ui/status-pill'
 import { GridStatusLabel } from '../components/ui/GridStatusLabel'
 import { useAuth } from '../context/AuthContext'
 import type { Department, JobDepartmentInfo, JobDetail, JobListScope, JobSummary, SocialMessage, User } from '../types/platform'
-import { formatJobDestinationsWithAssignees, formatJobAssigneeNames, formatRequestApproverDisplay, getCitizenMessageApproverRequestInfoLabel, getJobTargetApproverDisplayName, getRequestApproverDisplayName, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowCitizenMessageApproverInRequestInfo, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
+import { formatJobDestinationsWithAssignees, formatJobAssigneeNames, formatRequestApproverDisplay, getJobTargetApproverDisplayName, getRequestApproverDisplayName, isCancelledCitizenRequestWithoutTasks, shouldShowCitizenMessageApproverField, shouldShowJobStatusActorName, shouldShowRequestApproverField } from '../utils/jobDetails'
 import { ExternalDestinationValue } from '../components/jobs/my-request-detail/ExternalDestinationValue'
 import { JobProjectConfirmationPrompt, JobProjectDeclaredNotice } from '../components/JobProjectModalSection'
 import { JobProjectValue } from '../utils/jobProjectDisplay'
@@ -87,7 +87,7 @@ import { DetailModalTitle } from '../utils/detailModalTitle'
 import { TableEmptyStateRows } from '../components/ui/table-empty-state-rows'
 import { printHtmlDocument } from '../utils/printDocument'
 import { isReporterCreated, reporterGridValueClass, hasConcreteNumberDisplay } from '../utils/reporterHighlight'
-import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, citizenOutboundOrPending, resolveCitizenCancelOutboundDisplay, resolveCitizenOutboundDisplay } from '../utils/citizenOutboundDisplay'
+import { CITIZEN_OUTBOUND_PENDING_VALUE_CLASS, citizenOutboundOrPending, resolveCitizenCancelOutboundDisplay } from '../utils/citizenOutboundDisplay'
 import { richTextToPlainText } from '../utils/richText'
 import { normalizeTitleCaseField } from '../utils/textNormalization'
 import { toDateTimePickerValue, earliestDueDatePickerValue, clampDueDatePickerValue, isJobDueDateOverdue, toLocalDateKey } from '../utils/dateTimePicker'
@@ -195,7 +195,7 @@ function buildCancelledWithoutTaskInfoRows(
   detail: JobDetail,
   t: TFunction,
   user: { role?: string; additionalRoles?: string[] } | null | undefined,
-  hideMessageApprovalPendingFields: boolean,
+  showRequestInfoCitizenOutbound: boolean,
 ): { label: string; value: React.ReactNode; valueClass?: string }[] {
   if (!isCancelledCitizenRequestWithoutTasks(detail)) return []
   const cancelledNote = detail.cancelReason?.trim() || '—'
@@ -206,12 +206,6 @@ function buildCancelledWithoutTaskInfoRows(
     && outboundDisplay.localeCompare(cancelledNote, 'tr', { sensitivity: 'accent' }) !== 0,
   )
   const rows: { label: string; value: React.ReactNode; valueClass?: string }[] = []
-  if (!hideMessageApprovalPendingFields && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)) {
-    rows.push({
-      label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
-      value: detail.citizenMessageApproverDisplayName?.trim() || '—',
-    })
-  }
   if (shouldShowCitizenMessageApproverField(user, detail.cancelReason) || detail.cancelReason?.trim()) {
     rows.push({
       label: t('tasks.detail.cancelNote', 'İptal Notu'),
@@ -219,7 +213,7 @@ function buildCancelledWithoutTaskInfoRows(
       valueClass: 'citizen-terminal-note-value text-slate-900',
     })
   }
-  if (!hideMessageApprovalPendingFields) {
+  if (showRequestInfoCitizenOutbound) {
     const outboundField = citizenOutboundOrPending(
       outboundDisplay,
       t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
@@ -233,19 +227,6 @@ function buildCancelledWithoutTaskInfoRows(
     })
   }
   return rows
-}
-
-function citizenOutboundFieldView(detail: JobDetail, t: TFunction) {
-  const field = citizenOutboundOrPending(
-    resolveCitizenOutboundDisplay(detail),
-    t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
-  )
-  return {
-    value: field.value,
-    className: field.pending
-      ? CITIZEN_OUTBOUND_PENDING_VALUE_CLASS
-      : 'citizen-terminal-note-value text-slate-900',
-  }
 }
 
 function isJobOverdue(job: JobSummary): boolean {
@@ -754,8 +735,10 @@ interface JobsPageProps {
     onRelease?: () => void
     canRelease?: boolean
   }
-  /** Mesaj Onayı Bekleyen detay popup — onaylayan/outbound satırları gizle (#3519). */
+  /** Mesaj Onayı Bekleyen detay popup — onaylayan satırlarını gizle (#3519). */
   hideMessageApprovalPendingFields?: boolean
+  /** Mesaj Onayı detayı: Talep Bilgileri'nde Vatandaşa Giden Mesaj (#3563/#3565). */
+  showRequestInfoCitizenOutbound?: boolean
   socialActions?: {
     goToConversation?: () => void
     edit?: () => void
@@ -772,7 +755,7 @@ interface JobsPageProps {
   }
 }
 
-export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onChangeStatusToInProgress, messageApprovalActions, hideMessageApprovalPendingFields = false, socialActions }: JobsPageProps) {
+export function JobsPage({ fixedScope, mode = 'external', notificationJobId, detailOnly = false, detailContextOverride, onNotificationDetailClose, onChangeStatusToInProgress, messageApprovalActions, hideMessageApprovalPendingFields = false, showRequestInfoCitizenOutbound = false, socialActions }: JobsPageProps) {
   const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const { user } = useAuth()
@@ -3087,7 +3070,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         label: t('social.label', 'Talep Etiketi'),
                         value: citizenSourceMessage.category.trim(),
                       }] : []),
-                      ...buildCancelledWithoutTaskInfoRows(detail, t, user, hideMessageApprovalPendingFields),
+                      ...buildCancelledWithoutTaskInfoRows(detail, t, user, showRequestInfoCitizenOutbound),
                     ] : [
                       {
                         // Talep yeri (birim) üst, oluşturan personel alt satırda (cards #1295/#1544/#1545).
@@ -3107,7 +3090,7 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                       }] : []),
                       ...(shouldShowJobProjectField(detail) ? [{ label: 'Proje mi', value: <JobProjectValue job={detail} t={t} /> }] : []),
                       ...(forwardReasonDisplay ? [{ label: t('jobs.forward.reasonLabel', 'Talep Yönlenme Sebebi'), value: forwardReasonDisplay }] : []),
-                      ...buildCancelledWithoutTaskInfoRows(detail, t, user, hideMessageApprovalPendingFields),
+                      ...buildCancelledWithoutTaskInfoRows(detail, t, user, showRequestInfoCitizenOutbound),
                     ]).map((field, fieldIndex) => (
                       <div key={fieldIndex} className={`job-detail-field-row job-detail-field-row--request-info${'rowClass' in field && field.rowClass ? ` ${field.rowClass}` : ''}`}>
                         <div className="job-detail-field-row__label">{field.label}</div>
@@ -3127,18 +3110,12 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         && outboundDisplay.localeCompare(cancelledNote, 'tr', { sensitivity: 'accent' }) !== 0,
                       )
                       const rows: { label: string; value: React.ReactNode; valueClass?: string }[] = []
-                      if (!hideMessageApprovalPendingFields && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)) {
-                        rows.push({
-                          label: t('tasks.detail.cancelNoteApprover', 'İptal Notu Onaylayan'),
-                          value: detail.citizenMessageApproverDisplayName?.trim() || '—',
-                        })
-                      }
                       rows.push({
                         label: t('tasks.detail.cancelNote', 'İptal Notu'),
                         value: cancelledNote,
                         valueClass: 'citizen-terminal-note-value text-slate-900',
                       })
-                      if (!hideMessageApprovalPendingFields) {
+                      if (showRequestInfoCitizenOutbound) {
                         const outboundField = citizenOutboundOrPending(
                           outboundDisplay,
                           t('jobs.statusLabel.pendingApproval', 'Onay Bekleyen'),
@@ -3158,54 +3135,6 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                         </div>
                       ))
                     })() : null}
-                    {isCitizenRequestDetail
-                      && !hideMessageApprovalPendingFields
-                      && shouldShowCitizenMessageApproverInRequestInfo(detail)
-                      && shouldShowCitizenMessageApproverField(user, detail.citizenMessageApproverDisplayName)
-                      && getCitizenMessageApproverRequestInfoLabel(t, detail.status)
-                      && !isCancelledCitizenRequestWithoutTasks(detail)
-                      && detail.status !== 'Cancelled'
-                      && detail.status !== 'Rejected'
-                      ? (
-                        <>
-                        <div className="job-detail-field-row job-detail-field-row--request-info">
-                          <div className="job-detail-field-row__label">
-                            {getCitizenMessageApproverRequestInfoLabel(t, detail.status)}
-                          </div>
-                          <div className="job-detail-field-row__value text-slate-900">
-                            {detail.citizenMessageApproverDisplayName?.trim() || '—'}
-                          </div>
-                        </div>
-                        <div className="job-detail-field-row job-detail-field-row--request-info">
-                          <div className="job-detail-field-row__label">
-                            {t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj')}
-                          </div>
-                          <div className={`job-detail-field-row__value ${citizenOutboundFieldView(detail, t).className}`}>
-                            {citizenOutboundFieldView(detail, t).value}
-                          </div>
-                        </div>
-                        </>
-                      ) : isCitizenRequestDetail
-                        && !hideMessageApprovalPendingFields
-                        && !isCancelledCitizenRequestWithoutTasks(detail)
-                        && detail.status !== 'Cancelled'
-                        && detail.status !== 'Rejected'
-                        && (
-                          detail.status === 'Completed'
-                          || (detail.tasks ?? []).some(task =>
-                            task.currentStatus === 'Completed'
-                            || task.currentStatus === 'Cancelled'
-                            || task.currentStatus === 'Rejected')
-                        ) ? (
-                          <div className="job-detail-field-row job-detail-field-row--request-info">
-                            <div className="job-detail-field-row__label">
-                              {t('citizenDirectory.citizenOutboundMessage', 'Vatandaşa Giden Mesaj')}
-                            </div>
-                            <div className={`job-detail-field-row__value ${citizenOutboundFieldView(detail, t).className}`}>
-                              {citizenOutboundFieldView(detail, t).value}
-                            </div>
-                          </div>
-                        ) : null}
                     </div>
                   </div>
                   <div className="min-w-0 p-4">

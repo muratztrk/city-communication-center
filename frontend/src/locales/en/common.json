@@ -1592,6 +1592,8 @@
       "citizenPhoneCountrySearch": "Search country...",
       "citizenPhoneInvalid": "Citizen phone number must be 10 digits.",
       "citizenPhoneInvalidIntl": "Enter a valid phone number.",
+      "citizenPhoneInvalidLength": "{{country}} phone numbers must be {{min}} digits.",
+      "citizenPhoneInvalidLengthRange": "{{country}} phone numbers must be {{min}}–{{max}} digits.",
       "citizenPhoneMustStartWith5": "Phone number must start with 5.",
       "citizenHandlePlaceholder": "e.g. @username or full name",
       "citizenHandleRequired": "Citizen / Sender is required.",

@@ -430,7 +430,7 @@ function TerminalCitizenMessageApprovalPage({ mode }: { mode: ApprovalChannelMod
                               />
                             </StatusPill>
                           )
-                          : <span className="text-[0.75rem] font-semibold text-sky-500">{t('citizenMessageApproval.pendingApprover', 'Onay Bekleyen')}</span>
+                          : <span className="text-[0.8125rem] font-semibold text-sky-500">{t('citizenMessageApproval.pendingApprover', 'Onay Bekleyen')}</span>
                       ) : (() => {
                         const statusDate = row.status === 'Completed' ? row.completedAtUtc
                           : row.status === 'Cancelled' ? row.updatedAtUtc

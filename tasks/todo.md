@@ -1,3 +1,13 @@
+## Round 1173 — Trello Doing (7 web)
+
+- **#3560:** Engellenenler tarihi alt satırda biraz küçük (`0.6875rem`).
+- **#3559:** Ad/numara yukarı hizası geri alındı; Ban ikonu `size-3`.
+- **#3574:** Detaylar Telefon No `0.72rem`.
+- **#3575:** Çağrı telefonu seçilen ülkenin ITU hane aralığına uyum.
+- **#3576:** Ülke listesinde bayrak görseli; kapalı tetikleyicide yalnız bayrak.
+- **#3577:** Ülke listesinde 2. sıra Almanya.
+- **#3564:** Tümü grid Onay Bekleyen `0.8125rem`.
+
 ## Round 1172 — Trello Doing (15 web)
 
 - **#3559:** Engellenenler ad/numara Ban ile `items-center` + `leading-none`.

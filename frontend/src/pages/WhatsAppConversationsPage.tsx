@@ -2149,20 +2149,20 @@ export function WhatsAppConversationsPage() {
                   return (
                   <li key={item.citizenConversationId} className="flex items-center justify-between gap-3 py-2.5 pr-1">
                     <div className="min-w-0">
-                      <div className="flex min-w-0 items-center gap-1.5 leading-none">
-                        <Ban className="size-3.5 shrink-0 text-red-600" aria-hidden="true" />
-                        <span className="truncate text-sm font-semibold leading-none text-slate-900">
+                      <div className="flex min-w-0 items-start gap-1.5">
+                        <Ban className="mt-0.5 size-3 shrink-0 text-red-600" aria-hidden="true" />
+                        <span className="truncate text-sm font-semibold text-slate-900">
                           {citizenName || phoneLabel}
                         </span>
                         {blockerName ? (
-                          <span className="shrink-0 text-xs font-medium leading-none text-sky-500">({blockerName})</span>
+                          <span className="shrink-0 text-xs font-medium text-sky-500">({blockerName})</span>
                         ) : null}
                       </div>
                       {citizenName ? (
                         <div className="truncate pl-5 pt-1 text-xs leading-tight text-slate-500">{phoneLabel}</div>
                       ) : null}
                       {blockerWhen ? (
-                        <div className="truncate pl-5 pt-0.5 text-xs font-medium leading-tight text-sky-500">{blockerWhen}</div>
+                        <div className="truncate pl-5 pt-0.5 text-[0.6875rem] font-medium leading-tight text-sky-500">{blockerWhen}</div>
                       ) : null}
                     </div>
                     {user?.role === 'Operator' || user?.role === 'SystemAdmin' ? (

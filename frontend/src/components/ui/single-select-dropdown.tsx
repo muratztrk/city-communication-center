@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Check, ChevronDown, Search, X } from 'lucide-react'
 import { cn } from '../../lib/cn'
@@ -9,6 +9,8 @@ export interface SingleSelectOption {
   label: string
   /** Kapalı tetikleyicide gösterilecek kısa metin (ülke kodu — #3570). */
   triggerLabel?: string
+  /** Satır/tetikleyici sol görseli (bayrak — #3576). */
+  leading?: ReactNode
 }
 
 interface SingleSelectDropdownProps {
@@ -206,7 +208,10 @@ export function SingleSelectDropdown({
                   setSearch('')
                 }}
               >
-                <span className="min-w-0 truncate">{option.label}</span>
+                <span className="flex min-w-0 items-center gap-2">
+                  {option.leading}
+                  <span className="min-w-0 truncate">{option.label}</span>
+                </span>
                 {checked ? <Check className="size-4 shrink-0" /> : null}
               </button>
             )
@@ -241,9 +246,14 @@ export function SingleSelectDropdown({
         }}
       >
         <span
-          className={cn('min-w-0 flex-1 truncate', selected ? 'text-slate-900' : 'text-slate-400')}
+          className={cn('flex min-w-0 flex-1 items-center gap-1.5', selected ? 'text-slate-900' : 'text-slate-400')}
         >
-          {selected ? (selected.triggerLabel ?? selected.label) : placeholder}
+          {selected?.leading}
+          <span className="min-w-0 truncate">
+            {selected
+              ? (selected.triggerLabel !== undefined ? selected.triggerLabel : selected.label)
+              : placeholder}
+          </span>
         </span>
         <span className="flex shrink-0 items-center gap-0.5">
           <ChevronDown className={cn('size-4 shrink-0 text-slate-400 transition-transform', open ? 'rotate-180' : '')} />

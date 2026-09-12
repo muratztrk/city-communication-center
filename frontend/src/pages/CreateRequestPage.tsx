@@ -64,6 +64,7 @@ import {
   sanitizeForeignNationalInput,
   splitCitizenPhone,
 } from '../utils/countryCallingCodes'
+import { getPhoneNsnLength } from '../utils/phoneNationalLengths'
 import { sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
 
 type RequestKind = 'internal' | 'external' | 'citizen'
@@ -280,7 +281,7 @@ function navigateAfterCitizenRequest(
 
 
 export function CreateRequestPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const queryClient = useQueryClient()
   const navigate = useNavigate()
   const location = useLocation()
@@ -1154,6 +1155,7 @@ export function CreateRequestPage() {
     }
     const nationalPhone = citizenForm.citizenPhone.replace(/\D/g, '')
     const phoneCountry = getCountryCallingCode(citizenForm.phoneCountryIso)
+    const nsn = getPhoneNsnLength(phoneCountry.iso)
     if (phoneCountry.iso === 'TR') {
       if (nationalPhone.length !== 10) {
         setError(t('settings.citizen.citizenPhoneInvalid', 'Vatandaş telefon numarası 10 haneli olmalıdır.'))
@@ -1163,8 +1165,20 @@ export function CreateRequestPage() {
         setError(t('settings.citizen.citizenPhoneMustStartWith5', 'Telefon numarası 5 ile başlamalıdır.'))
         return
       }
-    } else if (nationalPhone.length < 6) {
-      setError(t('settings.citizen.citizenPhoneInvalidIntl', 'Geçerli bir telefon numarası giriniz.'))
+    } else if (nationalPhone.length < nsn.min || nationalPhone.length > nsn.max) {
+      const countryName = i18n.language.toLocaleLowerCase('tr').startsWith('tr') ? phoneCountry.nameTr : phoneCountry.nameEn
+      setError(nsn.min === nsn.max
+        ? t('settings.citizen.citizenPhoneInvalidLength', {
+            defaultValue: '{{country}} telefon numarası {{min}} haneli olmalıdır.',
+            country: countryName,
+            min: nsn.min,
+          })
+        : t('settings.citizen.citizenPhoneInvalidLengthRange', {
+            defaultValue: '{{country}} telefon numarası {{min}}–{{max}} hane olmalıdır.',
+            country: countryName,
+            min: nsn.min,
+            max: nsn.max,
+          }))
       return
     }
     const trimmedPhone = composeStoredCitizenPhone(phoneCountry.iso, nationalPhone)
@@ -1727,27 +1741,39 @@ export function CreateRequestPage() {
                 <div className="flex items-center gap-2">
                   <CountryCallingCodeSelect
                     value={citizenForm.phoneCountryIso}
-                    onChange={iso => setCitizenForm(current => ({
-                      ...current,
-                      phoneCountryIso: iso,
-                      citizenPhone: iso === 'TR' && current.citizenPhone && !current.citizenPhone.startsWith('5')
+                    onChange={iso => setCitizenForm(current => {
+                      const nsn = getPhoneNsnLength(iso)
+                      const nextPhone = iso === 'TR' && current.citizenPhone && !current.citizenPhone.startsWith('5')
                         ? ''
-                        : current.citizenPhone,
-                    }))}
+                        : current.citizenPhone.slice(0, nsn.max)
+                      return {
+                        ...current,
+                        phoneCountryIso: iso,
+                        citizenPhone: nextPhone,
+                      }
+                    })}
                   />
                   <input
                     className="field-input min-w-0 flex-1 placeholder:text-[0.875rem]"
                     required
                     inputMode="numeric"
                     pattern="[0-9]*"
+                    maxLength={getPhoneNsnLength(citizenForm.phoneCountryIso).max}
                     placeholder={citizenForm.phoneCountryIso === 'TR' ? '5XX XXX XX XX' : ''}
                     value={citizenForm.citizenPhone}
-                    onChange={event => setCitizenForm(current => ({
-                      ...current,
-                      citizenPhone: current.phoneCountryIso === 'TR'
-                        ? sanitizeMobilePhoneInput(event.target.value, current.citizenPhone)
-                        : sanitizeForeignNationalInput(event.target.value, getCountryCallingCode(current.phoneCountryIso).dial),
-                    }))}
+                    onChange={event => setCitizenForm(current => {
+                      const nsn = getPhoneNsnLength(current.phoneCountryIso)
+                      return {
+                        ...current,
+                        citizenPhone: current.phoneCountryIso === 'TR'
+                          ? sanitizeMobilePhoneInput(event.target.value, current.citizenPhone, nsn.max)
+                          : sanitizeForeignNationalInput(
+                            event.target.value,
+                            getCountryCallingCode(current.phoneCountryIso).dial,
+                            nsn.max,
+                          ),
+                      }
+                    })}
                   />
                 </div>
               </label>

@@ -7503,6 +7503,12 @@
   gap: 0.35rem !important;
 }
 
+/* Detay popup Telefon No değeri biraz küçük (#3574). */
+.job-detail-field-row--citizen-contact .citizen-contact-phone-value {
+  font-size: 0.72rem !important;
+  line-height: 1.25 !important;
+}
+
 /* Mobil Talep Bilgileri: Vatandaş Adı / Telefon No — task-location grid deseni + yalnız
    telefon değeri hafif küçük (#3327 retry; önceki 0.56rem seçici eşleşmedi). */
 @media (max-width: 1023px) {
@@ -7541,7 +7547,7 @@
   .detail-modal-shell--my-request .job-detail-field-row--citizen-contact .citizen-contact-phone-value {
     grid-area: 2 / 2;
     text-align: right;
-    font-size: 0.75rem !important;
+    font-size: 0.72rem !important;
     line-height: 1.2 !important;
     font-weight: 600 !important;
     color: rgb(100 116 139) !important;

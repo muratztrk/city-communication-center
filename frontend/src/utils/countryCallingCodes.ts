@@ -250,13 +250,6 @@ export const COUNTRY_CALLING_CODES: CountryCallingCode[] = [
   { iso: 'ZW', dial: '263', nameTr: 'Zimbabve', nameEn: 'Zimbabwe' },
 ]
 
-export function countryFlagEmoji(iso: string): string {
-  const code = iso.trim().toUpperCase()
-  if (code.length !== 2) return ''
-  const A = 0x1F1E6
-  return String.fromCodePoint(...[...code].map(ch => A + ch.charCodeAt(0) - 65))
-}
-
 export function getCountryCallingCode(iso: string | null | undefined): CountryCallingCode {
   const found = COUNTRY_CALLING_CODES.find(item => item.iso === iso)
   return found ?? COUNTRY_CALLING_CODES.find(item => item.iso === DEFAULT_PHONE_COUNTRY_ISO)!

@@ -795,9 +795,10 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   **Engellenenler (#3550/#3559/#3560/#3561):** sol panel `Sırala` yok; yerine `Engellenenler` butonu + popup liste
   + `Engeli Kaldır` (`SetConversationBlockedCommand` false). Engel kalkınca inbound yeniden alınır.
   `Engeli Kaldır` sağ border kesilmesin diye buton biraz solda (`mr-1` / `pr-1`).
-  Satırda Ban ikonu solda, ad/numara ile `items-center` + `leading-none` (#3559).
+  Satırda Ban ikonu solda, küçük (`size-3`); ad/numara yukarı çekilmez (#3559 geri alındı).
   Ad varsa ikon+ad, alt satırda numara; ad yoksa ikon+numara (numara tekrarlanmaz).
-  Engelleyen adı aynı satırda mavi `(ad)`; tarih bir alt satırda mavi, `•` yok (#3560).
+  Engelleyen adı aynı satırda mavi `(ad)`; tarih bir alt satırda mavi ve biraz küçük
+  (`0.6875rem`), `•` yok (#3560).
   Eski kayıtlarda actor/zaman yoksa parantez/tarih yok.
   Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
   tutulur (#3560/#3561).
@@ -3032,7 +3033,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
 - **Mesaj Onayı Giden/Tümü grid (#3530):** `sent`/`all` scope'ta `Durum` yerine `Mesaj Onayı Yapan`
   + alt başlık `Onay Tarihi`; hücrede isim üstte (`0.8rem`), tarih altta yeşil StatusPill
   (`0.68rem`, punto değişmez). Ayrı `Mesaj Onay Tarihi` sütunu yok; onay yoksa açık mavi
-  `Onay Bekleyen` (`text-sky-500 text-[0.75rem]`, #3564).
+  `Onay Bekleyen` (`text-sky-500 text-[0.8125rem]`, #3564).
 - **Operatör sekme rozeti (#3531):** Vatandaş Talep Operatörü'nde okunmamış WA mesajı varsa favicon
   kırmızı rozet; adet >1 ise sayı (başlık `(N)`). Konuşma görününce unread 0 → rozet silinir.
 - **SMS Onayı Giden/Tümü sıralama (#3535):** varsayılan `MessageApprovedAtUtc` / SMS Onay Tarihi
@@ -3319,8 +3320,12 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   logosu `/tire-belediyesi-logo.png` (mühür `favicon.png` değil); crawler JS çalıştırmaz.
 - **Telefon görüntüsü (#3567/#3573):** grid + detay + WA profil/Talep Oluştur kilitli numara
   `+90 5XX XXX XX XX` (mevcut 10 haneli TR'ye +90 eklenir). WA profil etiketi `Telefon No` (#3568).
-- **Çağrı formu ülke kodu (#3569–#3572):** `(Başında 0 olmadan ekleyin)` yok; solda tüm ülkeler
-  (bayrak + ad + kod), varsayılan Türkiye +90. TR placeholder `5XX XXX XX XX`, diğer ülkeler boş.
+- **Çağrı formu ülke kodu (#3569–#3572/#3575–#3577):** `(Başında 0 olmadan ekleyin)` yok; solda
+  tüm ülkeler. Liste: bayrak görseli (`flagcdn`) solunda, ad + `+kod`; sıra Türkiye, Almanya,
+  sonra alfabetik. Kapalı tetikleyicide yalnız bayrak, `+90` yok (#3576/#3577). TR 10 hane/5;
+  diğer ülkeler ITU ulusal hane aralığı (`getPhoneNsnLength`, #3575). Placeholder TR
+  `5XX XXX XX XX`, diğer ülkeler boş.
+- **Detay popup Telefon No (#3574):** `.citizen-contact-phone-value` `0.72rem` (tüm Detaylar).
 
 ## 6. Tenant / Auth
 

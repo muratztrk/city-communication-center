@@ -1623,6 +1623,8 @@
       "citizenPhoneCountrySearch": "Ülke ara...",
       "citizenPhoneInvalid": "Vatandaş telefon numarası 10 haneli olmalıdır.",
       "citizenPhoneInvalidIntl": "Geçerli bir telefon numarası giriniz.",
+      "citizenPhoneInvalidLength": "{{country}} telefon numarası {{min}} haneli olmalıdır.",
+      "citizenPhoneInvalidLengthRange": "{{country}} telefon numarası {{min}}–{{max}} hane olmalıdır.",
       "citizenPhoneMustStartWith5": "Telefon numarası 5 ile başlamalıdır.",
       "citizenHandlePlaceholder": "Vatandaş ismi ya da Telefon Numarası",
       "citizenHandleRequired": "Vatandaş / Gönderen gereklidir.",

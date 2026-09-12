@@ -1,3 +1,13 @@
+## Round 1170 — Trello Doing (7 web)
+
+- **#3491:** WhatsApp bildirim FAB `right-3` (çerçeveye değmez).
+- **#3547:** Çağrı Vatandaş Adres: Mahalle geniş, Cadde dar.
+- **#3545:** WA profil Cadde menü = Mahalle tetikleyici genişliği.
+- **#3471:** Sidebar/content zoom pencereyle sürekli küçülür; 1920 %70 kilit yok.
+- **#3559:** Engeli Kaldır sağ border görünsün (buton solda).
+- **#3554:** WA oluştur No `6.15rem`, Konum Linki dar.
+- **#3558:** Kullanıcılar rol listesinde Sorumlu Müdür'ün altında.
+
 ## Round 1169 — Trello Doing (8 web)
 
 - **#3551:** Talep/Görev Bilgileri başlık kanalı `0.68rem` / `size-3`.

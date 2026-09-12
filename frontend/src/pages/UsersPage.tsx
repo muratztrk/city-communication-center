@@ -27,8 +27,6 @@ import type { Department, DirectoryUserLookup, User, UserManagementContext } fro
 import { getRoleLabel, getUserSourceLabel } from '../utils/localization'
 import { uniqueDepartmentsByName } from '../utils/departments'
 import { sanitizeMobilePhoneInput } from '../utils/phoneNormalization'
-import { isModuleUsable } from '../lib/licenseModules'
-
 type CreateMode = 'manual' | 'ldap'
 
 const ADDITIONAL_ROLE_CODES = ['Staff', 'Operator', 'Reporter', 'EDevletActivityPlan', 'CitizenRequestManager'] as const
@@ -84,13 +82,12 @@ function additionalRoleFormOptions(t: TFunction, primaryRoleCode: string) {
 }
 
 function primaryRoleFormOptions(t: TFunction) {
-  const showSorumluRole = isModuleUsable('internal')
-  // Sıra: Standart → VTY → Sorumlu → Müdür → Operatör → Reporter → e-Devlet → SystemAdmin (#3429).
+  // Sıra: Standart → VTY → Müdür → Sorumlu → Operatör → Reporter → e-Devlet → SystemAdmin (#3558).
   const ordered: Array<{ value: string; label: string }> = [
     { value: 'Staff', label: getUsersRoleMenuLabel(t, 'Staff') },
     { value: 'CitizenRequestManager', label: getUsersRoleMenuLabel(t, 'CitizenRequestManager') },
-    ...(showSorumluRole ? [{ value: SORUMLU_ROLE_OPTION, label: t('enum.role.Sorumlu', 'Sorumlu') }] : []),
     { value: 'Manager', label: getUsersRoleMenuLabel(t, 'Manager') },
+    { value: SORUMLU_ROLE_OPTION, label: t('enum.role.Sorumlu', 'Sorumlu') },
     { value: 'Operator', label: getUsersRoleMenuLabel(t, 'Operator') },
     { value: 'Reporter', label: getUsersRoleMenuLabel(t, 'Reporter') },
     { value: 'EDevletActivityPlan', label: getUsersRoleMenuLabel(t, 'EDevletActivityPlan') },

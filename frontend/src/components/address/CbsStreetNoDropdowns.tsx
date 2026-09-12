@@ -76,6 +76,8 @@ interface CbsStreetNoDropdownsProps {
   matchTriggerWidth?: boolean
   /** Cadde menüsünü sağa (No tarafına) ekstra px genişlet (#2640). */
   streetMenuWidthExtraPx?: number
+  /** Cadde açık menü genişliği (ör. Mahalle tetikleyici, #3545). */
+  streetMenuWidth?: number
   streetPlaceholder?: string
   streetNoPlaceholder?: string
   triggerClassName?: string
@@ -99,6 +101,7 @@ export function CbsStreetNoDropdowns({
   menuClassName,
   matchTriggerWidth = false,
   streetMenuWidthExtraPx = 0,
+  streetMenuWidth,
   streetPlaceholder,
   streetNoPlaceholder,
   triggerClassName,
@@ -142,8 +145,9 @@ export function CbsStreetNoDropdowns({
           triggerClassName={triggerClassName}
           menuScrollClassName={menuScrollClassName}
           menuClassName={menuClassName}
-          matchTriggerWidth={matchTriggerWidth}
-          menuWidthExtraPx={streetMenuWidthExtraPx}
+          matchTriggerWidth={matchTriggerWidth && !streetMenuWidth}
+          menuWidth={streetMenuWidth}
+          menuWidthExtraPx={streetMenuWidth ? 0 : streetMenuWidthExtraPx}
         />
       </div>
       <div className={`grid min-w-0 w-full max-w-full gap-1 overflow-hidden max-lg:shrink max-lg:basis-full lg:shrink-0 ${streetNoColumnClassName}`}>

@@ -81,19 +81,15 @@ function useResponsiveZoom() {
     const frameWidth = screenWidth > 0 && rawFrameWidth > screenWidth
       ? screenWidth
       : rawFrameWidth
-    // 27" monitors can hover around the 1920px breakpoint when browser zoom moves
-    // from 100% to 110%. When the browser is near full-width, use the stable screen
-    // width so the app does not jump between layout scales.
-    const w = screenWidth >= 1920 && frameWidth >= screenWidth * 0.7
-      ? screenWidth
-      : frameWidth
-    // İçerik ölçeği, tarayıcı %100 yakınlaştırmadayken %90'daki gibi sığsın diye
-    // bir ek 0.9 katsayısı içerir (card 375). Sidebar ölçeği aynı bırakıldı.
+    // Pencere/çözünürlük küçülünce sol menü ve içerik anlık biraz küçülsün; 1920
+    // ekranda %70 kilit başlıkları sabit bırakıyordu (#3471).
+    const w = frameWidth
     if (w >= 2560) return { sidebar: 0.92, content: 0.79 }
-    if (w >= 1920) return { sidebar: 1.0, content: 0.90 }
-    if (w >= 1680) return { sidebar: 0.90, content: 0.86 }
-    if (w >= 1440) return { sidebar: 0.84, content: 0.81 }
-    return { sidebar: 0.78, content: 0.76 }
+    const t = Math.min(1, Math.max(0, (w - 1280) / (1920 - 1280)))
+    return {
+      sidebar: 0.78 + 0.22 * t,
+      content: 0.76 + 0.14 * t,
+    }
   }, [])
   const [zoom, setZoom] = useState(compute)
   useEffect(() => {
@@ -1128,7 +1124,7 @@ export function AppShell() {
       <AppFooter />
       </div>
       </div> {/* end main area row */}
-      <div className={`fixed-fab-stack pointer-events-none fixed right-5 z-[75] flex items-end gap-3${!isInternalModuleUsable ? ' fixed-fab-stack--vt-only' : ''}`}>
+      <div className={`fixed-fab-stack pointer-events-none fixed right-3 z-[75] flex items-end gap-3${!isInternalModuleUsable ? ' fixed-fab-stack--vt-only' : ''}`}>
         {/* FAB sırası: WhatsApp → Kurum İçi Mesajlar → aşağı/yukarı (cards #1543/#1553). */}
         {/* Harita sayfalarında küçük ekranda sohbet FAB’leri zoom kontrollerini kapatır (#2694). */}
         <div className={`pointer-events-auto${hideWhatsAppFabOnMobile ? ' max-lg:hidden' : ''}`}>{canSeeWhatsAppNotifications ? <WhatsAppNotificationFab /> : null}</div>

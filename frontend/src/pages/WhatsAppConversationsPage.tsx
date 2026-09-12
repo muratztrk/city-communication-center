@@ -615,6 +615,18 @@ function ConversationProfilePanel({
   const neighborhoods = useMemo(() => getNeighborhoodsForDistrict(districtId), [districtId])
   const neighborhoodOptions = useMemo(() => stringListSelectOptions(neighborhoods), [neighborhoods])
   const hasNeighborhood = draft.neighborhood.trim().length > 0
+  const neighborhoodFieldRef = useRef<HTMLDivElement>(null)
+  const [neighborhoodMenuWidth, setNeighborhoodMenuWidth] = useState(0)
+
+  useLayoutEffect(() => {
+    const el = neighborhoodFieldRef.current
+    if (!el) return
+    const sync = () => setNeighborhoodMenuWidth(Math.round(el.getBoundingClientRect().width))
+    sync()
+    const observer = new ResizeObserver(sync)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
 
   const fieldClass = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-800 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100'
   const disabledFieldClass = `${fieldClass} disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400`
@@ -668,7 +680,7 @@ function ConversationProfilePanel({
           <input className={disabledFieldClass} value={formatLocalProfilePhone(draft.citizenPhone)} readOnly disabled />
         </label>
         {/* Mahalle başlığı tıklanınca dropdown açılmasın — label yerine div (#6a75b6c1). */}
-        <div className="block space-y-1">
+        <div ref={neighborhoodFieldRef} className="block space-y-1">
           <span className={labelClass}>
             {t('address.neighborhood', 'Mahalle')}
             {hasNeighborhood ? <span className="text-red-500"> *</span> : null}
@@ -698,6 +710,7 @@ function ConversationProfilePanel({
           menuScrollClassName="whatsapp-neighborhood-menu-scroll"
           menuClassName="whatsapp-neighborhood-menu-scroll"
           matchTriggerWidth
+          streetMenuWidth={neighborhoodMenuWidth || undefined}
           streetMenuWidthExtraPx={0}
           streetPlaceholder={t('common.selectPlaceholder', 'Seçiniz')}
           streetNoPlaceholder={t('common.selectPlaceholder', 'Seçiniz')}
@@ -2121,9 +2134,9 @@ export function WhatsAppConversationsPage() {
             {conversations.filter(item => item.isBlocked).length === 0 ? (
               <p className="text-sm text-slate-600">{t('whatsapp.blockedListEmpty', 'Engellenen numara yok.')}</p>
             ) : (
-              <ul className="max-h-[min(24rem,60vh)] divide-y divide-slate-100 overflow-y-auto">
+              <ul className="max-h-[min(24rem,60vh)] divide-y divide-slate-100 overflow-y-auto pr-1">
                 {conversations.filter(item => item.isBlocked).map(item => (
-                  <li key={item.citizenConversationId} className="flex items-center justify-between gap-3 py-2.5">
+                  <li key={item.citizenConversationId} className="flex items-center justify-between gap-3 py-2.5 pr-1">
                     <div className="min-w-0">
                       <div className="truncate text-sm font-semibold text-slate-900">
                         {item.citizenName?.trim() || formatPhone(item.citizenPhone)}
@@ -2135,6 +2148,7 @@ export function WhatsAppConversationsPage() {
                         type="button"
                         size="sm"
                         variant="secondary"
+                        className="mr-1 shrink-0"
                         onClick={() => { void handleSetBlocked(item.citizenConversationId, false) }}
                       >
                         {t('whatsapp.unblockAction', 'Engeli Kaldır')}

@@ -94,6 +94,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `UserRoleAccess.ApplyAdditionalRoleCodes` kuralı zorunlu uygular (card #2273).
 - **Mobil genişliklerde (<1024 CSS px) desktop zoom uygulanmaz:** içerik/sidebar `zoom=1`
   kalmalı; aksi halde telefonlarda native dikey scroll ve form ölçekleri kırılır.
+- **Desktop zoom (#3471):** 1280–1920 arası sidebar/content **sürekli** interpolasyon; pencere
+  küçülünce sol menü başlıkları ve içerikteki Birime Gelen / Mesaj Onayı İşlemler butonları
+  anlık küçülür. 1920 ekranda %70 kilit yok (başlıklar sabit kalmasın).
   Mobil sol menü sola kaydırılınca parmağı takip ederek kapanır; aniden kaybolmaz (#2739).
   Sol kenardan sağa kaydırarak menü açma yok (#3025 geri alındı).
 - **Mobil sayfalarda kabuk/login dikey scroll'u kesmemeli:** `overflow-hidden` yalnız desktop
@@ -505,8 +508,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   görebilir; dropdown mevcut hedef hariç **tüm birimleri** listeler (başkanlık/owner filtresi yok).
   Backend `ForwardJobTargetCommand` Citizen + VTY için hedef taşımayı destekler. VTY için departman
   kataloğu `canManageCoordination` dışında yüklenir — aksi halde dropdown boş kalır (#3449 reopen).
-- **Sorumlu rol lisans (#3443):** yalnız `internal` lisansı yoksa (sadece VT lisansı) Kullanıcılar rol
-  dropdown'unda `Sorumlu` seçeneği gösterilmez.
+- **Sorumlu rol (#3443/#3558):** Kullanıcılar rol dropdown'unda `Sorumlu` **Müdür'ün altında** durur;
+  kayıt `roleCode=Manager` + `skipManagerQuota`. VT-only gizleme kart #3558 ile geri alındı.
 - **Talep yönlendirme notu etiketi (#3450):** modal alan adı `Talep Yönlendirme Notu`; max 400 karakter (#3451/#3466); placeholder `Talep yönlendirme sebebini yazınız...` (#3453); birim seçimi metni «…seçiniz.» (#3454); birim dropdown yüksekliği hafif düşük (#3452).
 - **Görev Durum Değiştir modal (#3455–#3457):** üstte `GÖREV DURUMU` dropdown, altta `DURUM DEĞİŞİKLİĞİ NOTU`;
   not placeholder/input punto `workflow-note-dialog__textarea` (= Tamamlama Notu).
@@ -787,8 +790,9 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız Operator/SystemAdmin (`SetConversationBlockedCommand` + menü). `IsBlocked` iken inbound
   persist/unread/push/auto-reply/`LastMessageAt` yapılmaz.
   Confirm başlığının altında çizgi vardır (`titleDivider`, #3549).
-  **Engellenenler (#3550):** sol panel `Sırala` yok; yerine `Engellenenler` butonu + popup liste
+  **Engellenenler (#3550/#3559):** sol panel `Sırala` yok; yerine `Engellenenler` butonu + popup liste
   + `Engeli Kaldır` (`SetConversationBlockedCommand` false). Engel kalkınca inbound yeniden alınır.
+  `Engeli Kaldır` sağ border kesilmesin diye buton biraz solda (`mr-1` / `pr-1`).
   **WA inbound ses (#3544):** yalnız `Operator` (Vatandaş Talep Operatörü); diğer roller çalmaz.
   **Sekme rozeti (#3531):** operatörde okunmamış ≥1 iken başlık `(N)` + sayılı favicon (N=1 dahil).
   **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
@@ -965,7 +969,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   `#citizen-request-form` `min-height: 1.6rem`, buton `1.4rem` (#2568). Kanal (Çağrı) butonu
   `py-1.5` (#2560). Adres Tarifi textarea `#citizen-request-form` `4.5rem` (#2584; Tailwind
   `min-h-[5.5rem]` `!important` ile ezilir). Cadde/Sokak biraz dar, No biraz geniş
-  (`1.12fr` / `9.15rem`, #2584/#3547). `request-form--readable` 3.2rem ezilir.
+  (`1.12fr` / `9.15rem`, #2584/#3547). Vatandaş Adres Bilgisi Mahalle `1fr` / Cadde+No `1.12fr`
+  (#3547 reopen). `request-form--readable` 3.2rem ezilir.
   **Mobil Talep Oluştur taşma (#3426):** `max-lg` formlar/input/dropdown `min-w-0` + `max-width:100%`;
   Cadde/No satırı mobilde tek kolon; masaüstü `#citizen-request-form` 3-sütun adres kuralları yalnız `≥1024px`.
   Sol kolon **Talebin Adres Bilgisi** Cadde/No placeholder `0.875rem`; Mahalle aynı punto
@@ -1488,7 +1493,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
   Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
   WA Mahalle/Cadde/No arama ve liste punto aynı (0.875rem); liste küçültülmez (#2729).
-  WA **Vatandaş Talebi Oluştur** popup açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (#2730). Kapalı kutu form `.field-select` (0.82rem) kalır; seçili Mahalle tetikleyici `0.78rem` (#3555). Cadde biraz dar / No `5.4rem` (#3554). WA profil **Vatandaş Bilgileri** açık menü punto `0.75rem` (#2640); Cadde `1.0125fr` / No `5.68rem`, menü = trigger (#3545).
+  WA **Vatandaş Talebi Oluştur** popup açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (#2730). Kapalı kutu form `.field-select` (0.82rem) kalır; seçili Mahalle tetikleyici `0.78rem` (#3555). No `6.15rem` / Konum Linki biraz dar (#3554). WA profil **Vatandaş Bilgileri** açık menü punto `0.75rem` (#2640); Cadde `1.0125fr` / No `5.68rem`; Cadde açık menü = Mahalle tetikleyici genişliği (#3545).
   Popup Konum Koordinatı Mahalle’nin **alt satırında** (Cadde/No ile aynı satırda değil) (#2741).
   Popup yüksekliği taban detay shell’den çok az daha fazladır (`detail-modal-shell--citizen-create`, #2742).
   Masaüstünde popup genişliği `.detail-modal-shell` ölçüsündedir; `w-full` yalnız mobil (#3427).

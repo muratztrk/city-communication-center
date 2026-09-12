@@ -4220,13 +4220,13 @@
     /* Cadde biraz dar, No biraz geniş (#3554). */
     .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row,
     .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row--with-link {
-      grid-template-columns: minmax(0, 0.88fr) minmax(3.15rem, 5.4rem) minmax(0, 0.9fr) !important;
+      grid-template-columns: minmax(0, 0.88fr) minmax(3.4rem, 6.15rem) minmax(0, 0.72fr) !important;
     }
 
     .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row > div:nth-child(2) {
       width: auto !important;
-      min-width: 3.15rem !important;
-      max-width: 5.4rem !important;
+      min-width: 3.4rem !important;
+      max-width: 6.15rem !important;
     }
   }
 

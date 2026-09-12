@@ -771,7 +771,7 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     triggerClassName="citizen-request-address-trigger"
                     menuScrollClassName="citizen-request-department-menu"
                     menuClassName="citizen-request-department-menu"
-                    streetNoColumnClassName="lg:w-[5.4rem] lg:min-w-[3.15rem] lg:max-w-[5.4rem]"
+                    streetNoColumnClassName="lg:w-[6.15rem] lg:min-w-[3.4rem] lg:max-w-[6.15rem]"
                     matchTriggerWidth
                   />
                 </div>

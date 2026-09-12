@@ -1,3 +1,14 @@
+## Round 1171 — Trello Doing (8 web)
+
+- **#3555:** WA Talep oluştur seçili Cadde metni Mahalle ile aynı (`0.78rem`).
+- **#3551:** Talep/Görev Bilgileri başlık kanalı `0.74rem` / `size-3.5`.
+- **#3491:** FAB biraz sola (`right-5`) ve aşağı; çerçeveye değmez.
+- **#3559:** Engellenenler Ban ikonu solda; adsız satırda numara tek.
+- **#3545:** WA profil No açık menü sola genişler.
+- **#3554:** WA Talep oluştur No açık menü sağa genişler.
+- **#3560:** Engellenenler'de mavi `(engelleyen • tarih)`.
+- **#3561:** Engel kaldırma actor+zaman `CitizenConversation` kolonlarında.
+
 ## Round 1170 — Trello Doing (7 web)
 
 - **#3491:** WhatsApp bildirim FAB `right-3` (çerçeveye değmez).

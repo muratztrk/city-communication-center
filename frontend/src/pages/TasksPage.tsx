@@ -2328,10 +2328,10 @@ const pageKicker = isMyTasksView
                               <span className="ml-auto flex shrink-0 items-center gap-3">
                                 {isCitizenRequestJob(parentJobDetail) ? (
                                   <span
-                                    className="inline-flex items-center gap-0.5 text-[0.68rem] font-semibold"
+                                    className="inline-flex items-center gap-0.5 text-[0.74rem] font-semibold"
                                     style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? parentJobDetail.sourceChannel ?? 'WhatsApp') }}
                                   >
-                                    <ChannelIcon channel={citizenSourceMessage?.channel ?? parentJobDetail.sourceChannel ?? 'WhatsApp'} className="size-3 shrink-0" />
+                                    <ChannelIcon channel={citizenSourceMessage?.channel ?? parentJobDetail.sourceChannel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
                                     {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? parentJobDetail.sourceChannel ?? 'WhatsApp')}
                                   </span>
                                 ) : null}

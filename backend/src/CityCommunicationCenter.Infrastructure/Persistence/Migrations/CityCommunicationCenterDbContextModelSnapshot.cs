@@ -385,6 +385,30 @@ namespace CityCommunicationCenter.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("isblocked");
 
+                    b.Property<DateTimeOffset?>("BlockedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("blockedatutc");
+
+                    b.Property<string>("BlockedByDisplayName")
+                        .HasColumnType("text")
+                        .HasColumnName("blockedbydisplayname");
+
+                    b.Property<Guid?>("BlockedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("blockedbyuserid");
+
+                    b.Property<DateTimeOffset?>("UnblockedAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("unblockedatutc");
+
+                    b.Property<string>("UnblockedByDisplayName")
+                        .HasColumnType("text")
+                        .HasColumnName("unblockedbydisplayname");
+
+                    b.Property<Guid?>("UnblockedByUserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("unblockedbyuserid");
+
                     b.Property<string>("Label")
                         .HasColumnType("text")
                         .HasColumnName("label");

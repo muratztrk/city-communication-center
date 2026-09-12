@@ -773,6 +773,8 @@ export function CitizenRequestModal({ message, departments, editJobId = null, fo
                     menuClassName="citizen-request-department-menu"
                     streetNoColumnClassName="lg:w-[6.15rem] lg:min-w-[3.4rem] lg:max-w-[6.15rem]"
                     matchTriggerWidth
+                    streetNoMenuWidthExtraPx={72}
+                    streetNoMenuExpand="right"
                   />
                 </div>
                 <div className="mt-2 grid gap-2 md:grid-cols-[minmax(0,1fr)_minmax(16rem,0.8fr)] md:items-stretch">

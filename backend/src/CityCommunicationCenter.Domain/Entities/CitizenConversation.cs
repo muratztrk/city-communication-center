@@ -26,6 +26,20 @@ public sealed class CitizenConversation : AuditableTenantEntity, IHasDatabaseInd
     /// <summary>Citizen sent STOP/DUR — do not send outbound messages</summary>
     public bool IsBlocked { get; set; }
 
+    /// <summary>Last operator who blocked this number (#3560).</summary>
+    public Guid? BlockedByUserId { get; set; }
+
+    public string? BlockedByDisplayName { get; set; }
+
+    public DateTimeOffset? BlockedAtUtc { get; set; }
+
+    /// <summary>Last operator who unblocked this number (#3561).</summary>
+    public Guid? UnblockedByUserId { get; set; }
+
+    public string? UnblockedByDisplayName { get; set; }
+
+    public DateTimeOffset? UnblockedAtUtc { get; set; }
+
     /// <summary>
     /// Operator manually cleared "waiting for reply" while last message is still inbound.
     /// Cleared again when a new inbound WhatsApp message arrives (card #6a6bab12).

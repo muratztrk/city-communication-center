@@ -237,7 +237,10 @@ public sealed record CitizenConversationSummaryDto(
     // Son mesaj sistem otomatik giden (durum şablonu / zamanlı WA yanıtı) — FAB bildirim sayacından düşülür (#2562).
     bool LastMessageIsAutomaticOutbound = false,
     // Beklemede giden (personel yanıtı + Tamamlandı/İptal otomatik şablon) — /whatsapp Mesaj Onayı Bekleyen (#3330).
-    bool HasPendingMessageApproval = false);
+    bool HasPendingMessageApproval = false,
+    // Engellenenler listesi: engelleyen adı + zaman (#3560).
+    string? BlockedByDisplayName = null,
+    DateTimeOffset? BlockedAtUtc = null);
 
 public sealed record CitizenConversationDetailDto(
     Guid CitizenConversationId,

@@ -4210,9 +4210,11 @@
     white-space: nowrap;
   }
 
-  /* WA Talep oluştur: seçili Mahalle metni biraz küçük (#3555). */
+  /* WA Talep oluştur: seçili Mahalle + Cadde/Sokak aynı punto (#3555). */
   .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select,
-  .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select span {
+  .detail-modal-shell--citizen-create #citizen-request-form .citizen-create-address-row > label .field-select span,
+  .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row > div:first-child .field-select,
+  .detail-modal-shell--citizen-create #citizen-request-form .address-street-no-row > div:first-child .field-select span {
     font-size: 0.78rem !important;
   }
 
@@ -7689,7 +7691,7 @@
 
   /* Fixed FAB stack: WhatsApp above footer, scroll arrow above WhatsApp (#1055). */
   .fixed-fab-stack {
-    bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap));
+    bottom: calc(var(--fab-footer-clearance) + var(--fab-stack-gap) - 0.35rem);
   }
 
   /* VT-only lisans + kaydır FAB yok: harita sayfasındaki dikey FAB hizası (#3483). */

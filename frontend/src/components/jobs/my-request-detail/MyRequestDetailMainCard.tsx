@@ -583,10 +583,10 @@ export function MyRequestDetailMainCard({
                   <span className="my-request-detail-info-heading__meta ml-auto flex shrink-0 items-center gap-3">
                     {isCitizenRequestJob(detail) ? (
                       <span
-                        className="inline-flex items-center gap-0.5 text-[0.68rem] font-semibold"
+                        className="inline-flex items-center gap-0.5 text-[0.74rem] font-semibold"
                         style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? 'WhatsApp') }}
                       >
-                        <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3 shrink-0" />
+                        <ChannelIcon channel={citizenSourceMessage?.channel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
                         {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? 'WhatsApp')}
                       </span>
                     ) : null}

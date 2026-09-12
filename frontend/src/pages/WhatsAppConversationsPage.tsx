@@ -47,6 +47,7 @@ import { ATTACHMENT_FILE_ACCEPT, isAllowedAttachmentFileName } from '../utils/at
 import { ATTACHMENT_MAX_TOTAL_BYTES } from '../utils/attachmentLimits'
 import { ADDRESS_OPEN_ADDRESS_MAX_LENGTH } from '../utils/addressLimits'
 import { formatConversationMessageTime } from '../utils/conversationListTime'
+import { formatDateTime } from '../components/jobs/my-request-detail/format'
 import { syncWaitingWhatsAppReplyCount } from '../utils/syncWaitingWhatsAppReplyCount'
 import { syncWhatsAppUnreadMessageCount } from '../utils/whatsappUnreadMessageCount'
 import { suppressNewRecordSound } from '../utils/newRecordSoundSuppress'
@@ -712,6 +713,8 @@ function ConversationProfilePanel({
           matchTriggerWidth
           streetMenuWidth={neighborhoodMenuWidth || undefined}
           streetMenuWidthExtraPx={0}
+          streetNoMenuWidthExtraPx={72}
+          streetNoMenuExpand="left"
           streetPlaceholder={t('common.selectPlaceholder', 'Seçiniz')}
           streetNoPlaceholder={t('common.selectPlaceholder', 'Seçiniz')}
           onStreetChange={street => onDraftChange({ street })}
@@ -1624,8 +1627,9 @@ function ConversationDetail({
 // ─── main page ───────────────────────────────────────────────────────────────
 
 export function WhatsAppConversationsPage() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { user } = useAuth()
+  const locale = getLocale(i18n.language)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [searchParams] = useSearchParams()
@@ -2004,7 +2008,18 @@ export function WhatsAppConversationsPage() {
     try {
       await api.setCitizenConversationBlocked(conversationId, nextBlocked)
       setConversations(prev => prev.map(item =>
-        item.citizenConversationId === conversationId ? { ...item, isBlocked: nextBlocked } : item,
+        item.citizenConversationId === conversationId
+          ? {
+              ...item,
+              isBlocked: nextBlocked,
+              ...(nextBlocked
+                ? {
+                    blockedByDisplayName: user?.displayName ?? null,
+                    blockedAtUtc: new Date().toISOString(),
+                  }
+                : {}),
+            }
+          : item,
       ))
       if (conversationId === selectedId) setDetailRefreshKey(key => key + 1)
       emitPageToast(nextBlocked
@@ -2013,7 +2028,7 @@ export function WhatsAppConversationsPage() {
     } catch (error) {
       emitPageToast(error instanceof Error ? error.message : t('common.error'), 'error')
     }
-  }, [selectedId, t])
+  }, [selectedId, t, user?.displayName])
   const handleToggleBlocked = useCallback(async (nextBlocked: boolean) => {
     if (!selectedId) return
     await handleSetBlocked(selectedId, nextBlocked)
@@ -2135,13 +2150,31 @@ export function WhatsAppConversationsPage() {
               <p className="text-sm text-slate-600">{t('whatsapp.blockedListEmpty', 'Engellenen numara yok.')}</p>
             ) : (
               <ul className="max-h-[min(24rem,60vh)] divide-y divide-slate-100 overflow-y-auto pr-1">
-                {conversations.filter(item => item.isBlocked).map(item => (
+                {conversations.filter(item => item.isBlocked).map(item => {
+                  const citizenName = item.citizenName?.trim() ?? ''
+                  const phoneLabel = formatPhone(item.citizenPhone)
+                  const blockerName = item.blockedByDisplayName?.trim() ?? ''
+                  const blockerWhen = item.blockedAtUtc
+                    ? formatDateTime(item.blockedAtUtc, locale)
+                    : ''
+                  const blockerMeta = blockerName && blockerWhen
+                    ? `(${blockerName} • ${blockerWhen})`
+                    : null
+                  return (
                   <li key={item.citizenConversationId} className="flex items-center justify-between gap-3 py-2.5 pr-1">
                     <div className="min-w-0">
-                      <div className="truncate text-sm font-semibold text-slate-900">
-                        {item.citizenName?.trim() || formatPhone(item.citizenPhone)}
+                      <div className="flex min-w-0 items-center gap-1.5">
+                        <Ban className="size-3.5 shrink-0 text-red-600" aria-hidden="true" />
+                        <span className="truncate text-sm font-semibold text-slate-900">
+                          {citizenName || phoneLabel}
+                        </span>
+                        {blockerMeta ? (
+                          <span className="shrink-0 text-xs font-medium text-sky-500">{blockerMeta}</span>
+                        ) : null}
                       </div>
-                      <div className="truncate text-xs text-slate-500">{formatPhone(item.citizenPhone)}</div>
+                      {citizenName ? (
+                        <div className="truncate pl-5 text-xs text-slate-500">{phoneLabel}</div>
+                      ) : null}
                     </div>
                     {user?.role === 'Operator' || user?.role === 'SystemAdmin' ? (
                       <Button
@@ -2155,7 +2188,8 @@ export function WhatsAppConversationsPage() {
                       </Button>
                     ) : null}
                   </li>
-                ))}
+                  )
+                })}
               </ul>
             )}
           </div>

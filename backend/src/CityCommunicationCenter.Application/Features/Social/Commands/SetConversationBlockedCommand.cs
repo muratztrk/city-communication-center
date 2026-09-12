@@ -38,9 +38,22 @@ public sealed class SetConversationBlockedCommandHandler : ICommandHandler<SetCo
         }
 
         conversation.IsBlocked = request.IsBlocked;
+        var actorName = string.IsNullOrWhiteSpace(context.UserDisplayName)
+            ? null
+            : context.UserDisplayName.Trim();
+        var now = DateTimeOffset.UtcNow;
         if (request.IsBlocked)
         {
             conversation.UnreadCount = 0;
+            conversation.BlockedByUserId = context.UserId;
+            conversation.BlockedByDisplayName = actorName;
+            conversation.BlockedAtUtc = now;
+        }
+        else
+        {
+            conversation.UnblockedByUserId = context.UserId;
+            conversation.UnblockedByDisplayName = actorName;
+            conversation.UnblockedAtUtc = now;
         }
 
         await _dbContext.SaveChangesAsync(cancellationToken);

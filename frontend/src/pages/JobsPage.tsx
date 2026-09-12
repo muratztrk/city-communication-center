@@ -3013,10 +3013,10 @@ export function JobsPage({ fixedScope, mode = 'external', notificationJobId, det
                           {/* Birime Gelen (#3489): kanal VT no solunda + Talep Kanalı satırında; diğer yüzeylerde başlıkta (#1532). */}
                           {isCitizenRequestDetail ? (
                             <span
-                              className="inline-flex items-center gap-0.5 text-[0.68rem] font-semibold"
+                              className="inline-flex items-center gap-0.5 text-[0.74rem] font-semibold"
                               style={{ color: getChannelLabelColor(citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp') }}
                             >
-                              <ChannelIcon channel={citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'} className="size-3 shrink-0" />
+                              <ChannelIcon channel={citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp'} className="size-3.5 shrink-0" />
                               {getSocialChannelLabel(t, citizenSourceMessage?.channel ?? detail.sourceChannel ?? 'WhatsApp')}
                             </span>
                           ) : null}

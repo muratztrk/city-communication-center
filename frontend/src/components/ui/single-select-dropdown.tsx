@@ -36,6 +36,8 @@ interface SingleSelectDropdownProps {
   matchTriggerWidth?: boolean
   /** matchTriggerWidth iken paneli sağa doğru ekstra px (#2640 Cadde). */
   menuWidthExtraPx?: number
+  /** Extra genişliği sola (profil No) veya sağa (oluştur No) (#3545/#3554). */
+  menuExpand?: 'left' | 'right'
   /** Seçili satıra tekrar tıklayınca seçimi kaldır (#3334). */
   deselectOnReselect?: boolean
   /** Otomatik yukarı çevirmeyi kapat; panel her zaman alta açılır (#3332 reopen). */
@@ -61,6 +63,7 @@ export function SingleSelectDropdown({
   menuPortal = true,
   matchTriggerWidth = false,
   menuWidthExtraPx = 0,
+  menuExpand = 'right',
   deselectOnReselect = false,
   forceDown = false,
 }: SingleSelectDropdownProps) {
@@ -90,7 +93,8 @@ export function SingleSelectDropdown({
     const matchWidth = matchTriggerWidth || (!menuWidth && !menuClassName)
     const extra = matchWidth ? menuWidthExtraPx : 0
     const assumedWidth = menuWidth ?? (matchWidth ? rect.width + extra : 320)
-    const left = Math.min(rect.left, Math.max(8, window.innerWidth - assumedWidth - 8))
+    const preferredLeft = menuExpand === 'left' ? rect.right - assumedWidth : rect.left
+    const left = Math.min(Math.max(8, preferredLeft), window.innerWidth - assumedWidth - 8)
     const flipUp = shouldOpenDropdownUp(rootRef.current, openUp, forceDown)
     setResolvedOpenUp(flipUp)
     setMenuStyle({
@@ -102,7 +106,7 @@ export function SingleSelectDropdown({
           ? { width: rect.width + extra }
           : { minWidth: rect.width }),
     })
-  }, [openUp, forceDown, menuClassName, menuWidth, matchTriggerWidth, menuWidthExtraPx])
+  }, [openUp, forceDown, menuClassName, menuWidth, matchTriggerWidth, menuWidthExtraPx, menuExpand])
 
   useEffect(() => {
     if (!open || !menuPortal) return

@@ -790,9 +790,13 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   yalnız Operator/SystemAdmin (`SetConversationBlockedCommand` + menü). `IsBlocked` iken inbound
   persist/unread/push/auto-reply/`LastMessageAt` yapılmaz.
   Confirm başlığının altında çizgi vardır (`titleDivider`, #3549).
-  **Engellenenler (#3550/#3559):** sol panel `Sırala` yok; yerine `Engellenenler` butonu + popup liste
+  **Engellenenler (#3550/#3559/#3560/#3561):** sol panel `Sırala` yok; yerine `Engellenenler` butonu + popup liste
   + `Engeli Kaldır` (`SetConversationBlockedCommand` false). Engel kalkınca inbound yeniden alınır.
   `Engeli Kaldır` sağ border kesilmesin diye buton biraz solda (`mr-1` / `pr-1`).
+  Satırda Ban ikonu solda: ad varsa ikon+ad, alt satırda numara; ad yoksa ikon+numara (numara tekrarlanmaz, #3559).
+  Ad/numara yanında mavi `(engelleyen adı • tarih saat)` (#3560). Eski kayıtlarda actor/zaman yoksa parantez yok.
+  Block/unblock `CitizenConversation` üzerinde `BlockedBy*` / `BlockedAtUtc` / `UnblockedBy*` / `UnblockedAtUtc`
+  tutulur (#3560/#3561).
   **WA inbound ses (#3544):** yalnız `Operator` (Vatandaş Talep Operatörü); diğer roller çalmaz.
   **Sekme rozeti (#3531):** operatörde okunmamış ≥1 iken başlık `(N)` + sayılı favicon (N=1 dahil).
   **Kayıtlı Vatandaş Bilgileri** (ad/etiket/adres) yalnız sağ panel veya
@@ -1493,7 +1497,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   değişmez, #2659/#2669). Cadde placeholder her yerde `Cadde seçiniz` (#2721).
   Cadde/No menü punto WA’da mahalle menüsü ile aynı (`whatsapp-neighborhood-menu-scroll`, #2716).
   WA Mahalle/Cadde/No arama ve liste punto aynı (0.875rem); liste küçültülmez (#2729).
-  WA **Vatandaş Talebi Oluştur** popup açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (#2730). Kapalı kutu form `.field-select` (0.82rem) kalır; seçili Mahalle tetikleyici `0.78rem` (#3555). No `6.15rem` / Konum Linki biraz dar (#3554). WA profil **Vatandaş Bilgileri** açık menü punto `0.75rem` (#2640); Cadde `1.0125fr` / No `5.68rem`; Cadde açık menü = Mahalle tetikleyici genişliği (#3545).
+  WA **Vatandaş Talebi Oluştur** popup açık Mahalle/Cadde/No menü punto Gideceği Birim ile aynı `0.75rem` (#2730). Kapalı kutu form `.field-select` (0.82rem) kalır; seçili Mahalle ve Cadde tetikleyici `0.78rem` (#3555). No `6.15rem` / Konum Linki biraz dar; No açık menü sağa genişler (#3554). WA profil **Vatandaş Bilgileri** açık menü punto `0.75rem` (#2640); Cadde `1.0125fr` / No `5.68rem`; Cadde açık menü = Mahalle tetikleyici genişliği; No açık menü sola genişler (#3545).
   Popup Konum Koordinatı Mahalle’nin **alt satırında** (Cadde/No ile aynı satırda değil) (#2741).
   Popup yüksekliği taban detay shell’den çok az daha fazladır (`detail-modal-shell--citizen-create`, #2742).
   Masaüstünde popup genişliği `.detail-modal-shell` ölçüsündedir; `w-full` yalnız mobil (#3427).
@@ -1815,8 +1819,8 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   11px (`text-[11px] font-semibold`) olur ve `Normal` değeri yeşildir. Görevlerim / Birimdeki Görevler /
   Personelimin Görevleri detayında Görev Bilgileri başlığı aynı puntoyu kullanır (#2109).
   Görevlerim / Birimdeki / Personelimin popup Görev Bilgileri'nde kanal ikonu + ad Öncelik'in
-  hemen solundadır (Talep Bilgileri ile aynı, #3551). Başlıktaki kanal ikon+ad `0.68rem` /
-  `size-3` (#3551 reopen). Vatandaş kanal
+  hemen solundadır (Talep Bilgileri ile aynı, #3551). Başlıktaki kanal ikon+ad `0.74rem` /
+  `size-3.5` (#3551). Grid/VT-no kanal ikonları değişmez. Vatandaş kanal
   ikonu/adı varsa bu bloğun solunda kalır
   (card #1599 reopen). Detay içi `Düzenle` modunda değer aynı başlık konumunda kompakt dropdown'a
   dönüşür; `Talep Yapılan Birim` satırının altında ikinci bir Öncelik alanı oluşmaz
@@ -2076,6 +2080,7 @@ kart bazlı log → [`../tasks/todo.md`](../tasks/todo.md); doc indeksi → [`RE
   Otomatik mesaj gövdesinde etiket durur. CRLF (`\r\n\r\n`) ayırıcı da extract edilir.
 - **FAB boyutları (#r482/#2638):** WhatsApp + Kurum İçi 2.75rem / sm 3rem; scroll 2.5rem / sm 2.75rem.
   Üçü de biraz küçük; sıra WhatsApp → Kurum İçi → scroll.
+  Yığın `right-5` + footer'dan biraz aşağı (`-0.35rem`); çerçeveye değmez (#3491).
 - **Reporter/Operator anasayfa ayrımı (cards #1833/#1810/#1859/#2341/#2348):** Üst Düzey Yönetici
   (`Reporter`) sol menüde `Anasayfa - Vatandaş` (`/dashboard`, citizen lisans açıkken) + `Anasayfa - Birimler`
   (`/dashboard/birimler`); genel `Anasayfa` etiketi gösterilmez — birim sayfası varsayılan (#2348). **Vatandaş Talep Operatörü**

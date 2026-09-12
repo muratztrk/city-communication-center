@@ -542,6 +542,9 @@ export interface CitizenConversationSummary {
   lastMessageIsAutomaticOutbound?: boolean;
   /** Beklemede giden mesaj (personel + otomatik Tamamlandı/İptal) — WhatsApp Mesaj Onayı Bekleyen (#3330). */
   hasPendingMessageApproval?: boolean;
+  /** Engellenenler: engelleyen görünen ad + zaman (#3560). */
+  blockedByDisplayName?: string | null;
+  blockedAtUtc?: string | null;
 }
 
 // Kurum içi (personel-arası) mesajlaşma — card #1539.
